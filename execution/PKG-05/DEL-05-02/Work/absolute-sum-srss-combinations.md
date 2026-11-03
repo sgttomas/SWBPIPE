@@ -459,7 +459,7 @@ and `minuend_final` stay withheld.
   (`LOAD_COMBINATION_OPERAND_WITHHELD`, naming each withheld operand and its code);
   then PF: nonlinear (except OQ-1), κ on a consuming constant effort, modulus over
   every reached case; EX: modulus and resolved stiffness over every reached case,
-  then gate 3 on κ. Decision OQ-1 is one pure predicate over the operand tree and κ
+  then gate 3 on κ, then gate 4 on κ (below). Decision OQ-1 is one pure predicate over the operand tree and κ
   (LCA `solved_state_plus_increments`, read through `Plan::solved_state_plus_increments`),
   used by both routes: on EX, a model with nonlinear supports withholds a `mechanics`
   combination outside it with `NONLINEAR_COMBINATION_REQUIRES_SOLVE` (after the
@@ -473,12 +473,31 @@ and `minuend_final` stay withheld.
   every combination whose own κ overflows, gated or not, with ids
   `diagnostic:preview-physics:combination-fixed-load-count:<identity>` and
   `diagnostic:exact-combination:fixed-load-count:<identity>`.
+- **EX gate 4 (the RT-A3 seam, agreed by RT-A3 and the load-cases manager when RT-A3
+  increment 3's candidate `ac7fea603` was merged).** A consuming constant-effort support
+  (DEC-049) is a second EX fixed-load source of the same κ rule, after gate 3: `mechanics`
+  by |κ − 1| ≤ 2⁻⁴⁶ (`CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE`), `absolute_sum` and
+  `srss` by every operand's κ exactly 0 (`CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND`,
+  PF's code and text). Each source keeps its codes; gate 3 names the reason where both
+  apply. Flat, κ is the factor sum, so CE's flat decisions and messages are unchanged
+  (RT-A3's CE2 cases pass as written). The producer and both EX readers (RE
+  `exact_combination_evidence.rs`, Python `exact_combinations.py`) run one rule per source,
+  and `results_pressure_2.v0.3` admits both gate-4 reasons (`CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE`
+  had been missing from its enum). Tests: `rt_a4_combinations.rs`
+  `v6_gate_4_joins_the_fixed_load_count_on_the_exact_route` and
+  `v6_gate_4_forgeries_are_refused_on_the_exact_route`;
+  `tests/test_rt_a4_exact_constant_effort_seam.py` (mirror gate, CLI and mirror end to end,
+  schema).
 - **Choices this slice made where §2-§6 are silent** (reported to Agent 0; each is
   the narrowest reading):
   - On EX, a `mechanics` operand with an undefined κ, where an installed reference
     applies, is withheld under `COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE`:
-    §6 names `CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED` only, whose source cannot
-    arise on EX, and an undefined κ never passes (§5.1).
+    §6 names `CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED` only, whose source could not
+    arise on EX when this was built, and an undefined κ never passes (§5.1). With gate 4
+    the same reading applies: where only a constant-effort support applies, such an
+    operand is withheld under `CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE` (PF names
+    `CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED`), which keeps EX's gate list and schema
+    to one code per source and term basis; reported to Agent 0 with the merge.
   - Evidence shapes: a term `{combination_id, factor}`; an operand
     `{combination_id}` (its own record, earlier in order, states its standing); a
     row source `{combination_id, result_id}`; `missing_load_case_ids` may name a

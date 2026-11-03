@@ -14,6 +14,7 @@ import sys
 
 import pytest
 
+from tests.verifiers import combination_graph as graph
 from tests.verifiers import exact_combinations as combinations
 from tests.verifiers import reader_verdict as rv
 
@@ -301,14 +302,17 @@ def test_constant_effort_consumption_is_decided_from_the_model():
 
 
 def test_gate_four_follows_gate_three_and_uses_the_unit_factor_sum():
-    operand = {"modulus_basis_ref": None, "modulus_basis_temperature": None}
-    facts = [{"members": []}, {"members": []}]
     installed = [{"q_ref": [0.0, 0.0, 1e-3, 0.0, 0.0, 0.0]}]
 
     def gate(factors, connector, constant_effort):
+        # The gate reads kappa after RT-A4 (a flat combination's kappa is its factor sum); the expectations are CE's.
         expression = combinations.Expression("mechanics", {"terms": [{"load_case_id": "case:A", "factor": factors[0]},
                                                                        {"load_case_id": "case:B", "factor": factors[1]}]})
-        return combinations._gate(expression, [operand, operand], facts, connector, constant_effort)
+        g = graph.Graph()
+        g.add("c", "mechanics", expression.operands, expression.factors)
+        reason = combinations._gate("c", expression, g, {"case:A": None, "case:B": None}, [], {"connector": connector},
+                                    False, constant_effort)
+        return reason[0] if reason else None
 
     assert gate((0.3, 0.7), [], True) is None
     assert gate((1.0 + 2.0 ** -46, 0.0), [], True) is None

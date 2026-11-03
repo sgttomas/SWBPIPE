@@ -481,6 +481,137 @@ fn v6_gate_3_reads_the_fixed_load_count_on_the_exact_route() {
     }
 }
 
+/// `connector_model` with a consuming constant-effort support (DEC-049: one
+/// translational DOF, a finite positive constant load) at the connector's free end,
+/// when `ce`.
+fn connector_ce_model(q_ref_x: f64, ce: bool, combinations: Value) -> Value {
+    let mut wire = connector_model(q_ref_x, combinations);
+    if ce {
+        wire["model"]["supports"].as_array_mut().unwrap().push(json!({"id": "support:ce", "node": "node:b", "family": "constant_effort_support",
+            "restraints": ["UY"], "hanger": {"hanger_type": "constant_effort_support", "constant_load": qv(375.0, "N"), "travel_range": qv(0.05, "m"),
+            "source_reference": "rt_a4_invented"}, "provenance": PROV}));
+    }
+    wire
+}
+
+/// The RT-A3/RT-A4 seam: EX gate 4 (a consuming constant-effort support) is one more
+/// fixed-load source of the κ rule. Nested, a `mechanics` combination reads |κ − 1| ≤ 2⁻⁴⁶
+/// under `CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE`, and an absolute sum or SRSS needs every
+/// operand's κ exactly 0 (`CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND`); flat, the decisions
+/// are CE's unit factor-sum rule. Where an installed reference also applies, gate 3 names the
+/// reason. Every envelope is admitted by the pressure reader with and without its model.
+#[test]
+fn v6_gate_4_joins_the_fixed_load_count_on_the_exact_route() {
+    let bound = 2f64.powi(-46);
+    let third = 1.0 / 3.0;
+    let combinations = json!([
+        // Flat: CE's decisions.
+        terms("flat-unit", "mechanics", &[("case", "case:1", 0.3), ("case", "case:2", 0.7)]),
+        terms("flat-thirds", "mechanics", &[("case", "case:1", third), ("case", "case:2", 2.0 * third)]),
+        terms("flat-over", "mechanics", &[("case", "case:1", 1.0), ("case", "case:2", 1.0)]),
+        terms("flat-cancel", "mechanics", &[("case", "case:1", 2f64.powi(52)), ("case", "case:2", -(2f64.powi(52)))]),
+        // Nested mechanics: CE as a source of κ.
+        sub("d", "case:1", "case:2"),
+        terms("mech-d", "mechanics", &[("comb", "d", 1.0)]),
+        terms("sus+d", "mechanics", &[("case", "case:3", 1.0), ("comb", "d", 1.0)]),
+        terms("srss-d", "srss", &[("comb", "d", 1.0)]),
+        terms("abs-d", "absolute_sum", &[("comb", "d", 2.0)]),
+        terms("sus+srss", "mechanics", &[("case", "case:3", 1.0), ("comb", "srss-d", 1.0)]),
+        terms("m-near", "mechanics", &[("case", "case:1", 1.0 + bound)]),
+        sub("d-near", "m-near", "case:2"),
+        terms("mech-amplified", "mechanics", &[("comb", "d-near", 2f64.powi(46))]),
+        terms("abs-amplified", "absolute_sum", &[("comb", "d-near", 2f64.powi(46))]),
+        // Unsigned over CE-carrying load cases.
+        terms("srss-cases", "srss", &[("case", "case:1", 1.0), ("case", "case:3", 1.0)]),
+        terms("abs-cases", "absolute_sum", &[("case", "case:1", 1.0), ("case", "case:2", -0.5)]),
+        // An undefined κ.
+        range("env-mixed", &["case:1", "d"]),
+        terms("mech-env", "mechanics", &[("comb", "env-mixed", 1.0)]),
+        terms("srss-env", "srss", &[("comb", "env-mixed", 1.0)]),
+        sub("dep", "srss-cases", "case:1"),
+    ]);
+    // (id, with the constant-effort source alone, with the installed reference as well).
+    let expected = [
+        ("flat-unit", admitted(), admitted()),
+        ("flat-thirds", admitted(), admitted()),
+        ("flat-over", withheld(CE), withheld(IR)),
+        ("flat-cancel", withheld(CE), withheld(IR)),
+        ("d", admitted(), admitted()),
+        ("mech-d", withheld(CE), withheld(IR)),
+        ("sus+d", admitted(), admitted()),
+        ("srss-d", admitted(), admitted()),
+        ("abs-d", admitted(), admitted()),
+        ("sus+srss", admitted(), admitted()),
+        ("m-near", admitted(), admitted()),
+        ("d-near", admitted(), admitted()),
+        ("mech-amplified", admitted(), admitted()),
+        ("abs-amplified", withheld(CE_UNSIGNED), withheld(IR_UNSIGNED)),
+        ("srss-cases", withheld(CE_UNSIGNED), withheld(IR_UNSIGNED)),
+        ("abs-cases", withheld(CE_UNSIGNED), withheld(IR_UNSIGNED)),
+        ("env-mixed", admitted(), admitted()),
+        ("mech-env", withheld(CE), withheld(IR)),
+        ("srss-env", withheld(CE_UNSIGNED), withheld(IR_UNSIGNED)),
+        ("dep", withheld(WITHHELD_OPERAND), withheld(WITHHELD_OPERAND)),
+    ];
+    for (q_ref, ce) in [(0.0, true), (0.001, true), (0.0, false)] {
+        let wire = connector_ce_model(q_ref, ce, combinations.clone());
+        for mode in MODES {
+            let what = format!("seam q_ref {q_ref} ce {ce} {mode:?}");
+            let out = solved(&wire, mode, &what);
+            if ce {
+                assert!(rows(&out).iter().any(|r| r["kind"] == "constant_effort_support_applied_load"), "{what}: the support is consumed");
+            }
+            for (id, ce_only, both) in &expected {
+                let want = match (q_ref != 0.0, ce) {
+                    (true, _) => both.clone(),
+                    (false, true) => ce_only.clone(),
+                    (false, false) => admitted(),
+                };
+                assert_eq!(gate(&out, id), want, "{what} {id}");
+                assert_eq!(combination_rows(&out, id).is_empty(), want["withheld"] == true, "{what} {id} rows");
+            }
+            if ce && q_ref == 0.0 {
+                let dep = with_code(&out, WITHHELD_OPERAND);
+                assert_eq!(dep.len(), 1, "{what}");
+                assert_eq!(dep[0]["message"], format!("Combination withheld: its operand combination(s) srss-cases ({CE_UNSIGNED}) are withheld, so it is withheld whole."));
+                let unsigned = with_code(&out, CE_UNSIGNED);
+                assert_eq!(unsigned.len(), 4, "{what}");
+                assert_eq!(unsigned[0]["message"], "Combination withheld: a constant-effort support's force acts in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it once per term with its sign discarded.");
+                assert_eq!(with_code(&out, CE)[0]["message"], "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once.");
+            }
+        }
+    }
+}
+
+/// A forged gate on a constant-effort EX document is refused by the pressure reader, with
+/// and without the model: a κ withholding renamed to the other source's code, an admitted
+/// nested combination withheld, and a withheld unsigned one admitted.
+#[test]
+fn v6_gate_4_forgeries_are_refused_on_the_exact_route() {
+    let combinations = json!([
+        sub("d", "case:1", "case:2"),
+        terms("mech-d", "mechanics", &[("comb", "d", 1.0)]),
+        terms("srss-d", "srss", &[("comb", "d", 1.0)]),
+        terms("srss-cases", "srss", &[("case", "case:1", 1.0), ("case", "case:3", 1.0)]),
+    ]);
+    let wire = connector_ce_model(0.0, true, combinations);
+    let out = solved(&wire, PreviewSolverMode::SparseInteractive, "seam forgeries");
+    let forge = |id: &str, reason: Option<&str>| {
+        let mut forged = out.clone();
+        let record = forged["contract_evidence"]["exact_combinations"].as_array_mut().unwrap().iter_mut().find(|r| r["combination_id"] == id).unwrap();
+        record["gate"] = json!({"withheld": reason.is_some(), "reason": reason});
+        forged
+    };
+    for (id, reason) in [("mech-d", Some(IR)), ("srss-cases", Some(IR_UNSIGNED)), ("srss-cases", Some(CE)), ("srss-d", Some(CE_UNSIGNED)), ("srss-cases", None), ("mech-d", None)] {
+        let forged = forge(id, reason);
+        for model in [Some(&wire["model"]), None] {
+            let verdict = reader_verdict::validate("pressure", &forged, model, None);
+            assert_eq!(verdict["ok"], false, "{id} {reason:?} model {}: {verdict}", model.is_some());
+            assert_eq!(verdict["error"]["code"], "SOURCE_PHYSICS_COMBINATION_GATE", "{id} {reason:?} model {}: {verdict}", model.is_some());
+        }
+    }
+}
+
 #[test]
 fn v6_the_resolved_stiffness_gate_reads_every_reached_load_case() {
     let mut wire: Value = serde_json::from_str(LOAD_STATE_CONNECTED).unwrap();

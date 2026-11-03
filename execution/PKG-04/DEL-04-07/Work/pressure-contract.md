@@ -774,7 +774,12 @@ factors fail the unit factor-sum rule ("Constant-effort combinations: the
 unit factor-sum rule" above), with PF's reason
 `CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE` and PF's message
 (`exact_combinations::CONSTANT_EFFORT`). Subtractions and range envelopes are
-not gated.
+not gated. With RT-A4's nested and unsigned combinations (DEL-05-02
+`absolute-sum-srss-combinations.md` §5.1, §10), the gate reads the fixed-load
+count κ as gate 3 does: `mechanics` by |κ − 1| ≤ 2⁻⁴⁶ (flat, the unit
+factor-sum rule, so the decisions above are unchanged), and an absolute sum or
+SRSS whose operands' κ is not exactly 0 is withheld with
+`CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND`.
 - **Order: gate 4, after `COMBINATION_MODULUS_BASIS_MIXED`,
   `COMBINATION_RESOLVED_STIFFNESS_MIXED` and
   `COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE`.** The two stiffness gates
