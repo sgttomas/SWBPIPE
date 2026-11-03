@@ -52,9 +52,11 @@ const MODES = ["sparse_interactive", "dense_scrutiny"] as const;
  * origin (its model and source hashes) again. */
 // Model 0.9.0 re-pin (S1; DEL-02-01 Design model-document-0.9.0.md §3.6): read from the regenerated producer bytes on the
 // registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
+// RT-A4 D3 re-pin (DEL-04-08 §8.46): the regenerated goldens move only limitations[6] (§10.2), the two seals,
+// received_carrier_checksum and derivative_hash, each equal to its recomputation (the RT-A3 CE guard's derived_pairs).
 const GOLDEN: Record<PreviewSolverMode, { path: string; sha256: string; base: string; origin: string; rows: number; nonQuantity: number }> = {
-  sparse_interactive: { path: "fixtures/results/retained_precision_successor_derivative_sparse_interactive.json", sha256: "032b00398ea8c659bd6b9315596c582b0aee70ec3d980da2c095243fc8b60806", base: "989d81cc1067e6ebe73eb15e0bd83cc851d2d66784a28af5296d47afc6d582ec", origin: "9455b6fc36afda87a3f48b24591b4f5e3b757172b389bbb74e9e9db10c66622d", rows: 125, nonQuantity: 1 },
-  dense_scrutiny: { path: "fixtures/results/retained_precision_successor_derivative_dense_scrutiny.json", sha256: "61bf3dd4c11b0942a6db57f54a59aff955d173042cb20f10fce659f0f15cb3b2", base: "2e95fac829e079a7415d6dec0b9d57d890103f8cfe2a79bd1bc2a7721a28344b", origin: "21318ee77888e8d38dba59c419d8f4fb11d0549ebb020b988d2e5187e25e13ff", rows: 125, nonQuantity: 1 },
+  sparse_interactive: { path: "fixtures/results/retained_precision_successor_derivative_sparse_interactive.json", sha256: "f8f30a04084333e3686fd9765cbe8a9fe82ece183fc751966e531cdc1f0b2dc3", base: "989d81cc1067e6ebe73eb15e0bd83cc851d2d66784a28af5296d47afc6d582ec", origin: "9455b6fc36afda87a3f48b24591b4f5e3b757172b389bbb74e9e9db10c66622d", rows: 125, nonQuantity: 1 },
+  dense_scrutiny: { path: "fixtures/results/retained_precision_successor_derivative_dense_scrutiny.json", sha256: "fb28270f66a28c82c40a01e6ec6b775daed6fc3a766fde9b11d39ac4a26036fe", base: "2e95fac829e079a7415d6dec0b9d57d890103f8cfe2a79bd1bc2a7721a28344b", origin: "21318ee77888e8d38dba59c419d8f4fb11d0549ebb020b988d2e5187e25e13ff", rows: 125, nonQuantity: 1 },
 };
 /** I76's fixed stand-ins (its CHECKPOINT_1 section 2): test values, not a qualified manifest or build. */
 const MANIFEST_REF = "test:t6s-golden-reference-only-manifest";

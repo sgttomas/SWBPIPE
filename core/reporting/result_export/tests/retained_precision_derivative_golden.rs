@@ -46,26 +46,30 @@ const DENSE: &str = include_str!(
 /// mode, file text, file sha256, receipt sha256.
 /// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
+/// RT-A4 D3 re-pin (DEL-04-08 §8.46): the regenerated carriers move only `formulation_basis.limitations[6]` (§10.2) and the
+/// digests binding it; each restated to the former sentence and resealed (Python 07e) reproduces its former pin.
 const PINNED: [(&str, &str, &str, &str); 2] = [
     (
         "sparse_interactive",
         SPARSE,
-        "c4aca00852fd4d6157fe8f80ae709a6bf2ad4b61f8e911e15a414902c99b5a8f",
-        "2361e82ea1f2555d1fd5191096faf4dcd64e7ccea0d2e17890f4a513c105a377",
+        "49dfe6ebab459bbfdb68a541080313199cc24f85e649f1bbfb005c5be155a567",
+        "8ce5b023d43eeb764bb779e44cc088d11616e14332d0e9f2898c9acd9b665137",
     ),
     (
         "dense_scrutiny",
         DENSE,
-        "da3dafab793aa0d43c056f1057987d1feb06d9c0069396e68d5a86e5dc694daa",
-        "7ae592eb5601c1b8dac379be8b60af7044cc49fd85f94d7394e5bdc116f0e301",
+        "d1c8edd1efcaf0986d2625714d76dbca81275e2fa32acaf9f4ade798dba48b11",
+        "c20407e71fd6d9b4d2089123351ea949deb7ffcf2b14df61a451355f888d445a",
     ),
 ];
 /// The committed goldens' file sha256 (= the documents' canonical digests).
 /// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
+/// RT-A4 D3 re-pin (DEL-04-08 §8.46): the regenerated goldens move only `limitations[6]` (§10.2), the two seals,
+/// `received_carrier_checksum` and `derivative_hash`, each equal to its recomputation (the RT-A3 CE guard's derived_pairs).
 const GOLDEN_SHA256: [(&str, &str); 2] = [
-    ("sparse_interactive", "032b00398ea8c659bd6b9315596c582b0aee70ec3d980da2c095243fc8b60806"),
-    ("dense_scrutiny", "61bf3dd4c11b0942a6db57f54a59aff955d173042cb20f10fce659f0f15cb3b2"),
+    ("sparse_interactive", "f8f30a04084333e3686fd9765cbe8a9fe82ece183fc751966e531cdc1f0b2dc3"),
+    ("dense_scrutiny", "fb28270f66a28c82c40a01e6ec6b775daed6fc3a766fde9b11d39ac4a26036fe"),
 ];
 /// The milestone's validated class counts (as retained_precision_carriers.rs
 /// `CLASSES`): relative, absolute, input-derived, non-quantity and not-covered (T4-U4b: the member's 15

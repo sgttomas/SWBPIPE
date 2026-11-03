@@ -3802,6 +3802,30 @@ L(1,2) 6,883,640,486 B, each at or below the merged tree in every phase and mode
   7,670,198,548 · 8,585,410,061 · 7,318,027,451 · 6,991,317,327 (W1 … X3). Challenge `W1_PHASE_BYTES`
   [6,449,924,745, 6,509,056,089], `MAX_PHASE_BYTES` [8,743,655,134, 8,802,786,478].
 
+**Carriers.** Regenerated on the registered build by their maintained writers only: the milestone, L = 0, W-C2 and
+combination successors (two modes each), the failed-ordinary CX-F and N06 fixtures (two and four successors), the
+corpus's 45 producer and hook bases (`W1_CENSUS_OUT`, `W1_MEMBER_{CORPUS,INTERIOR,HALFWAY,HULL}_OUT`, `I61_U1_OUT`,
+the exhaustion pair under `loaded-maximum-hooks`) and its 18 synthetic bases (`retained_precision_synthetic_bases.py`),
+re-packed by the corpus tool; the two preview successor derivative goldens (`I76_T6S2_OUT`); and the R1 native reader
+outcomes. The exact and O4 successors, their derivatives and the RV120 inputs regenerate byte-identical (no
+preview-physics `LIMITATIONS[6]`). `fixtures/persistence/recorded_pre_rt_a4_pf/` and `fixtures/results/recorded_pre_rt_a4/`
+are untouched. Per successor (14 fixture successors, 63 corpus bases):
+- the Python 07e rule recomputes its publication and receipt seals from its own bytes;
+- the Python verifier validates it with its invocation (`ok`; the two B2 hook controls refuse with their declared G8
+  `RETAINED_PRECISION_PREPARATION_MISMATCH`, where the pre-RT-A4 bytes now refuse earlier);
+- a leafwise diff against the committed bytes moves exactly `formulation_basis.limitations[6]` (§10.2's sentence)
+  and those two seals: no number, row, class, status, table digest or other leaf.
+
+The derivative goldens move only that sentence, the two seals, `received_carrier_checksum` and `derivative_hash`,
+each equal to its recomputation by the RT-A3 CE guard's `derived_pairs`. The 938 reader outcomes keep every reading's
+summary. 873 input and 721 outcome digests move; the 69 corpus-case inputs recompute in Python (JCS) at both
+endpoints. Pins: each moved successor pin is recomputed from the writer's bytes and, restated to the former sentence
+and resealed by the 07e rule, reproduces its predecessor byte for byte. That covers the 34 in PP's facade and wire
+tests, the eight `PRE_REPAIR_WORK_MASKED`, through a Python `work_masked_sha256`, and every file, receipt and golden
+digest carried to the result_export, Python and desktop consumers. `retained_precision_carrier_cases.json` also
+carries `preview_physics_invented_sparse.json`'s digest (`8b224f58…` → `4fdd200d…`). §10.2's `56b7b0012` moved only
+that file's `limitations[6]` and left this digest stale.
+
 Run evidence is in `/tmp/rta4-d3/` (`base`, `run5`, `run6`, the comparisons, the atom logs and evaluations); it is
 review input, not a permanent dependency.
 

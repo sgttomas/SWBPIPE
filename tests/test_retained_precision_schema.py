@@ -114,9 +114,11 @@ PRESSURE_SOURCE_SHA = "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f93
 SOURCE_RAW = "pressure_source/physics_source/n05-sparse_interactive.raw.json"
 # Model 0.9.0 re-pin (S1; DEL-02-01 Design model-document-0.9.0.md §3.6): read from the regenerated producer bytes on the
 # registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
+# RT-A4 D3 re-pin (DEL-04-08 §8.46): the regenerated carriers move only formulation_basis.limitations[6] (§10.2) and the
+# digests binding it; each restated to the former sentence and resealed (Python 07e) reproduces its former pin.
 MILESTONES = {
-    "sparse_interactive": "c4aca00852fd4d6157fe8f80ae709a6bf2ad4b61f8e911e15a414902c99b5a8f",
-    "dense_scrutiny": "da3dafab793aa0d43c056f1057987d1feb06d9c0069396e68d5a86e5dc694daa",
+    "sparse_interactive": "49dfe6ebab459bbfdb68a541080313199cc24f85e649f1bbfb005c5be155a567",
+    "dense_scrutiny": "d1c8edd1efcaf0986d2625714d76dbca81275e2fa32acaf9f4ade798dba48b11",
 }
 
 
