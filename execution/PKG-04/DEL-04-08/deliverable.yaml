@@ -165,6 +165,7 @@ code_paths:
 - tests/test_o4_source_verifier.py
 - tests/test_o4_text_only_envelope_diff.py
 - tests/test_rt_a3_reducer_text_only_envelope_diff.py
+- tests/test_rt_a3_reducer_2b_text_only_envelope_diff.py
 - tests/test_ra_work_only_envelope_diff.py
 - validation/references/o4_retained_source/**
 checks:
@@ -214,6 +215,7 @@ checks:
 - tests/test_o4_source_verifier.py
 - tests/test_o4_text_only_envelope_diff.py
 - tests/test_rt_a3_reducer_text_only_envelope_diff.py
+- tests/test_rt_a3_reducer_2b_text_only_envelope_diff.py
 - tests/test_ra_work_only_envelope_diff.py
 - validation/references/o4_retained_source/declared_problem/run.sh
 - tests/test_rust_reader.py

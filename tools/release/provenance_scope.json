@@ -3,7 +3,7 @@
   "members": [
     {
       "path": "apps/desktop/src/test-support/desktop-shaped/desktop_shaped_pressure_plain_connected_dense.stress_neutral.json",
-      "sha256": "8e3aa1790d9c93c00a801b25b1419f5a1c4689f0ca7dcaa998a554e916f1f885",
+      "sha256": "551f723bd830583e6ea9a27ae7240b422f12a10b8c2431c6898f5edf76c0ebd4",
       "labels": [
         [
           "\"invented_non_engineering_example\"",
@@ -18,7 +18,7 @@
     },
     {
       "path": "apps/desktop/src/test-support/desktop-shaped/desktop_shaped_pressure_plain_connected_sparse.stress_neutral.json",
-      "sha256": "b3712b9657f85a1f7558c39aab7d35b16892d4974b0cb591ce77b409f401d800",
+      "sha256": "9b851d3a8e3e73b2f1e4417139bbbd00514e379b0bda350290526880f5d691b3",
       "labels": [
         [
           "\"invented_non_engineering_example\"",
@@ -442,7 +442,7 @@
     },
     {
       "path": "fixtures/results/pressure_load_state_connected_dense.document.json",
-      "sha256": "f07930b607b1d4d8acb99c53b6c1ba5373ea212a1da342eadda93fb503132715",
+      "sha256": "25afa9202b02d411eb0b71cedf79ce835b8b28ebd88f150af07efd6be50964dd",
       "labels": [
         [
           "\"invented_non_engineering_example\"",
@@ -453,7 +453,7 @@
     },
     {
       "path": "fixtures/results/pressure_load_state_connected_sparse.document.json",
-      "sha256": "f23f946c65c86bf26e16a63e29252b6a68cfc034be9731790c823a5b80faea33",
+      "sha256": "aa8b0555e648077a85badbedbba93af33088b206c5a00f36688daae72e494a31",
       "labels": [
         [
           "\"invented_non_engineering_example\"",
@@ -464,7 +464,7 @@
     },
     {
       "path": "fixtures/results/pressure_load_state_pressure_dense.document.json",
-      "sha256": "103a60736f9ddfab7a9da4be63193bfe7269d2ca0a8458f7cc14501281698952",
+      "sha256": "c1a9d09beffff701bbd7d6ce4122aba8787b516cd385850f8e286257ee89c8df",
       "labels": [
         [
           "\"invented_non_engineering_example\"",
@@ -475,7 +475,7 @@
     },
     {
       "path": "fixtures/results/pressure_load_state_pressure_sparse.document.json",
-      "sha256": "cf2f64b78f859659692e857e5872dec4710bd28f7c96e1db19ede5fc0669c588",
+      "sha256": "c6bb17ce667b566de16d5353fc7be2d1e3730280c5fc7636ca65b589bc2bf339",
       "labels": [
         [
           "\"invented_non_engineering_example\"",
@@ -486,7 +486,7 @@
     },
     {
       "path": "fixtures/results/pressure_plain_connected_dense.document.json",
-      "sha256": "d65d1d4ab9c4ec25acb9e4a7716ead0dc7f81f6040ab6df6e2879497743e7d97",
+      "sha256": "52bb2201e38cfef522ed62fe0abff3e081b89e6dbcb9d15c0f7fe96f6eadcc91",
       "labels": [
         [
           "\"invented_non_engineering_example\"",
@@ -501,7 +501,7 @@
     },
     {
       "path": "fixtures/results/pressure_plain_connected_sparse.document.json",
-      "sha256": "99fc8bd50b980c6127313977e2bb775031f48b9a3e0a7ce75565ea50e16eec66",
+      "sha256": "da4da2734c3f5abc2bbfeb835f21de2f667944e94cd7cdb34be7037c241bf702",
       "labels": [
         [
           "\"invented_non_engineering_example\"",
