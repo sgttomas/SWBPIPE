@@ -13,6 +13,11 @@ move it (a stale carrier fails). The retained carriers are produced only by a
 registered build: until the reviewed profile rebinding the two table inputs is
 adopted, the build is Stale and their writers cannot regenerate them, so their
 cases stay failing rather than being exempted.
+
+RT-A3 increment 3 (constant-effort supports) regenerates these carriers again;
+its proof is test_rt_a3_constant_effort_text_only_envelope_diff, from this
+stage's endpoint. This proof keeps that endpoint: main 3983f51cf, whose
+carriers equal 2b's integrated merge 6757b2341.
 """
 from pathlib import Path
 import json
@@ -27,6 +32,9 @@ from tests.test_rt_a3_reducer_text_only_envelope_diff import (
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "2b743781a2fbe533cb317bbd1dce10a394ce53c3"
+# 2b's integrated endpoint (main with #80 and #95; no carrier differs from #80's
+# merge 6757b2341), frozen when RT-A3 increment 3 regenerated.
+END = "3983f51cfcef6af26a7846bd63f267425379cfd3"
 CLAUSE_2A = (
     "reducers when their mapped member lies outside every pressure region or forms a concentric pressure-bore step, "
     "the only member of its own region, collinear between single straight members of other regions with "
@@ -129,7 +137,7 @@ def _restore_report_identity(value, patterns, path=()):
 
 
 def check(name):
-    before, after = _at(BASE, name), (ROOT / name).read_text()
+    before, after = _at(BASE, name), _at(END, name)
     if name == "fixtures/results/retained_precision_reader_outcomes.json":
         # These input hashes bind result statements plus invocations, not
         # authored inputs. Native r1_native_reader_outcomes independently
@@ -140,7 +148,7 @@ def check(name):
         return 0
     rv120 = name == "fixtures/results/retained_precision_rv120_b3_inputs.json"
     if rv120:
-        check_rv120_output_digests(json.loads(before), json.loads(after), base=BASE)
+        check_rv120_output_digests(json.loads(before), json.loads(after), base=BASE, end=END)
     if name in REPORT_IDENTITY_PATHS:
         restored, moved = _restore_report_identity(load(after), REPORT_IDENTITY_PATHS[name])
         # With the report statements reversed at their named paths, only formulation_basis.limitations[0]
@@ -166,7 +174,7 @@ def test_reducer_2b_retained_carriers_move_only_identity_and_binding_hashes(name
 
 def test_reducer_2b_j7_moves_only_whole_envelope_digests():
     name = "fixtures/results/j7_rf_census_expected.json"
-    check_j7_envelope_digests_only(load(_at(BASE, name)), load((ROOT / name).read_text()))
+    check_j7_envelope_digests_only(load(_at(BASE, name)), load(_at(END, name)))
 
 
 def test_reducer_2b_guard_rejects_other_moves_and_the_2a_pair():
@@ -203,7 +211,7 @@ def test_reducer_2b_report_identity_paths_are_exact():
 
 
 def test_reducer_2b_identity_is_the_producers():
-    source = (ROOT / "core/product_physics/src/exact_admission.rs").read_text()
+    source = _at(END, "core/product_physics/src/exact_admission.rs")
     assert source.count(json.dumps(NEW, ensure_ascii=False)) == 1
     assert json.dumps(OLD, ensure_ascii=False) not in source
 
