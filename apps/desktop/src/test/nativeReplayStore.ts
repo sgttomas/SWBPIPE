@@ -62,18 +62,22 @@ export class NativeReplayUnrecorded extends Error {
   }
 }
 
-/** The reply the actual command gave for this request, delivered as Tauri delivers it. */
-export function nativeReplayReply(command: string, args: Record<string, unknown>, jobId: string, sourceText: string): unknown {
+/** The reply the actual command gave for this request, delivered as Tauri delivers it. RT-A4 §10.4:
+ * `recordedTable` is the registry table a restored handle holds (`nativeReopenEmulation.ts`); the
+ * request is then answered on a restored handle read under it (`native_replay_tests.rs`), and the
+ * table is part of its key. Without one the key is the request's alone. */
+export function nativeReplayReply(command: string, args: Record<string, unknown>, jobId: string, sourceText: string, recordedTable: Readonly<{ id: string; sha256: string }> | null = null): unknown {
   const sourceSha = sha256(sourceText);
   const recordedArgs = withJob(args, jobId);
-  const key = sha256(`${sourceSha}\u0000${command}\u0000${JSON.stringify(recordedArgs)}`);
+  const table = recordedTable ? { id: recordedTable.id, sha256: recordedTable.sha256 } : null;
+  const key = sha256(`${sourceSha}\u0000${command}\u0000${JSON.stringify(recordedArgs)}${table ? `\u0000${JSON.stringify(table)}` : ""}`);
   const reply = loaded().get(key);
   if (!reply) {
     const dir = process.env.NATIVE_REPLAY_RECORD;
     if (dir) {
       mkdirSync(dir, { recursive: true });
       const path = knownPath(sourceSha);
-      writeFileSync(resolve(dir, `${key}.json`), JSON.stringify({ key, command, args: recordedArgs, source_sha256: sourceSha, ...(path ? { source_path: path } : { source_text: sourceText }) }));
+      writeFileSync(resolve(dir, `${key}.json`), JSON.stringify({ key, command, args: recordedArgs, ...(table ? { recorded_table: table } : {}), source_sha256: sourceSha, ...(path ? { source_path: path } : { source_text: sourceText }) }));
     }
     throw new NativeReplayUnrecorded(command, key);
   }

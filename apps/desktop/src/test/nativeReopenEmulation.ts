@@ -6,7 +6,8 @@
  * - the findings are the unchanged TypeScript contexts' over the mock's full rows (the oracle the
  *   native port is checked against: `historicalReopenParity.test.ts`, `stored_custody_tests.rs`);
  * - the restored handle's S, pages and semantics are answered by the actual Rust commands' recorded
- *   replies for the handle's bytes (`nativeReplayStore.ts`; an unrecorded request fails the test);
+ *   replies for the handle's bytes, on a restored handle read under the table the findings were
+ *   read under when there is one (`nativeReplayStore.ts`; an unrecorded request fails the test);
  * - its bounded whole copies return the mock's own values (at or under 64 MiB), as the C2 copy does;
  * - a save of the reopened project from the handle (`save_restored_result_local_project`) is answered
  *   by the legacy `saveLocalProject` / `createLocalProject` the session called before (the test's legacy
@@ -54,7 +55,7 @@ const ROW_SCALE = ["result_refs", "diagnostics", "contract_evidence", "source_bl
 let sequence = 0;
 /** Emulated handles: the mock's result text and record text, the stored source, and (a saved
  * project's) its stored model hash evidence. */
-type Held = { result: string; record: string; disposed: boolean; source: Json; modelHash: Json };
+type Held = { result: string; record: string; disposed: boolean; source: Json; modelHash: Json; table: Json };
 const held = new Map<string, Held>();
 
 const bytes = (text: string) => {
@@ -77,7 +78,8 @@ function restored(origin: string, kind: string, projectId: string, recordingId: 
   const handle = `${RESTORED_HANDLE_PREFIX}emulated-${++sequence}`;
   const resultText = jsonTextKeepingNegativeZero(result ?? null), recordText = JSON.stringify(record ?? null);
   const source = { kind, project_id: projectId, recording_id: recordingId, result_sha256: "unit-emulation", record_sha256: "unit-emulation" };
-  held.set(handle, { result: resultText, record: recordText, disposed: false, source, modelHash });
+  // RT-A4 §10.4: the handle holds the table its findings were read under, as the native host's does.
+  held.set(handle, { result: resultText, record: recordText, disposed: false, source, modelHash, table: context.recordedTableRead ?? null });
   return {
     handle, origin,
     source,
@@ -125,7 +127,7 @@ export function emulateNativeReopen(mock: AnyInvoke, command: string, args: Json
   if (command === "read_restored_result_record_all") return Promise.resolve(bytes(entry.record));
   if (command === "release_preview_mechanics_job_full_copy") return Promise.resolve(true);
   if (RESULT_COMMANDS.has(command)) {
-    try { return Promise.resolve(nativeReplayReply(command, args, jobId, entry.result)); } catch (error) { return Promise.reject(error); }
+    try { return Promise.resolve(nativeReplayReply(command, args, jobId, entry.result, entry.table)); } catch (error) { return Promise.reject(error); }
   }
   return undefined;
 }

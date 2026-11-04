@@ -19,7 +19,7 @@ import { isNativeResult, nativeCustody } from "../../services/nativeResult";
 import { buildNativeHistoricalRunContext, HistoricalRunPanel } from "../results/HistoricalRunContext";
 import { displayRoute, readerDispatch } from "../results/resultReader";
 import { numericalResultStanding } from "../results/resultStanding";
-import { knownSemanticNotices } from "../results/knownSemanticLimitations";
+import { knownSemanticNotices, N_HEADLINE } from "../results/knownSemanticLimitations";
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 const REPLIES = resolve(__dirname, "../../test-support/native-reopen/native_reopen_pre_rt_a4_replies.json");
@@ -99,8 +99,16 @@ describe("a run recorded before RT-A4 reopens through the native commands (C1, R
     await waitFor(() => expect(within(panel).getAllByTestId(/^result-row-/).length).toBeGreaterThan(0));
     await waitFor(() => expect(panel.textContent).not.toContain("Reading"));
     for (const marker of CURRENT_ONLY) expect(panel.textContent!.includes(marker), marker).toBe(false);
-    // The notices are the table's (the same as the webview reader's under it).
-    expect(knownSemanticNotices(result, TABLE, { hasIntensified: false }).map((n) => n.id)).not.toContain(undefined);
+    // Review F2: the run shows its own numerical health, read natively with its recorded standing's findings.
+    expect(within(panel).getByTestId("numerical-health-header-line").textContent).toBe("Numerical health: checks passed");
+    // The notices are the table's, exactly as the webview's reader gives them for the whole recorded
+    // statement under it: its stress headline (it has no intensified row and no combination gate).
+    const whole = JSON.parse(readFileSync(resolve(__dirname, "../../../../../fixtures/persistence/recorded_pre_rt_a4_pf/preview_physics_2/preview_physics_connected_sparse.json"), "utf8"));
+    const expectedNotices = [{ id: "headline-label", text: `Stress headline: ${N_HEADLINE}.` }];
+    expect(knownSemanticNotices(whole, TABLE)).toEqual(expectedNotices);
+    expect(knownSemanticNotices(result, TABLE, { hasIntensified: false })).toEqual(expectedNotices);
+    await waitFor(() => expect([...panel.querySelectorAll("[data-testid^='results-notice-']")].map((n) => ({ id: n.getAttribute("data-testid")!.slice("results-notice-".length), text: n.textContent })))
+      .toEqual(expectedNotices));
   });
 
   it("refuses any other table and never falls back to the current reader", async () => {

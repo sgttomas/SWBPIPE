@@ -49,6 +49,18 @@ fn held(registry: &SolveJobRegistry, gate: &Gate, text: &str) -> String {
     receipt.job_id
 }
 
+/// RT-A4 §10.4: a restored handle holding `text`, read under the registry table `table` names (a
+/// request recorded with its handle's `recorded_table`, `nativeReopenEmulation.ts`), as
+/// `stored_custody` restores a run recorded before RT-A4.
+fn restored(registry: &SolveJobRegistry, text: &str, table: &Value) -> String {
+    use crate::analysis_run_v03_validate::RecordedTable;
+    use crate::solve_jobs::{HeldResult, RestoredSource};
+    let variant = open_pipe_stress_result_export::recorded_tables::variant_of(table).unwrap_or_else(|| panic!("{table} names no registry variant"));
+    let lease = registry.acquire_result_parse(text.len() as u64).unwrap();
+    let source = RestoredSource { kind: "saved_project_run", project_id: "replay".into(), recording_id: None, result_sha256: "replay".into(), record_sha256: None };
+    registry.restore(registry.reset_epoch(), source, HeldResult::restored(text.to_string(), lease).read_under(Some(RecordedTable::of(variant))), None).unwrap()
+}
+
 fn substitute(value: &Value, job_id: &str) -> Value {
     match value {
         Value::String(text) if text == JOB => Value::String(job_id.to_string()),
@@ -107,17 +119,19 @@ fn source_text(request: &Value, sources: &Value) -> String {
 #[test]
 fn every_recorded_webview_request_is_answered_by_its_actual_command() {
     let requests: Value = serde_json::from_str(&std::fs::read_to_string(root().join(REQUESTS)).unwrap()).unwrap();
-    let mut by_source: std::collections::BTreeMap<String, (String, Vec<&Value>)> = Default::default();
+    // Grouped by the held bytes and, for a restored handle, the table it holds (RT-A4 §10.4).
+    let mut by_source: std::collections::BTreeMap<(String, String), (String, Vec<&Value>)> = Default::default();
     for request in requests["requests"].as_array().unwrap() {
         let text = source_text(request, &requests["sources"]);
         let sha: String = Sha256::digest(text.as_bytes()).iter().map(|byte| format!("{byte:02x}")).collect();
         assert_eq!(request["source_sha256"].as_str(), Some(sha.as_str()), "the recorded source digest is the source's");
-        by_source.entry(sha).or_insert_with(|| (text, Vec::new())).1.push(request);
+        let table = request.get("recorded_table").map(Value::to_string).unwrap_or_default();
+        by_source.entry((sha, table)).or_insert_with(|| (text, Vec::new())).1.push(request);
     }
     let mut outcomes = Vec::new();
-    for (sha, (text, list)) in &by_source {
+    for ((sha, table), (text, list)) in &by_source {
         let (registry, gate) = registry();
-        let job_id = held(&registry, &gate, text);
+        let job_id = if table.is_empty() { held(&registry, &gate, text) } else { restored(&registry, text, &serde_json::from_str(table).unwrap()) };
         for request in list {
             let command = request["command"].as_str().unwrap();
             let args = substitute(&request["args"], &job_id);
