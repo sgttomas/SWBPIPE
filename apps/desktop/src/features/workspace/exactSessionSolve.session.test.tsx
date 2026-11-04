@@ -57,7 +57,7 @@ type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 type Mode = "sparse_interactive" | "dense_scrutiny";
 const root = resolve(__dirname, "../../../../../");
 const json = (path: string) => JSON.parse(readFileSync(resolve(root, path), "utf8"));
-const PRESSURE_1 = { id: "openpipestress.result_semantics/0.3.0/pressure-2", sha256: "a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e" };
+const PRESSURE_1 = { id: "openpipestress.result_semantics/0.3.0/pressure-2", sha256: "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6" };
 /** The three surfaces the owner opened (ruling 10A). */
 /** Epoch 8's three opened surfaces and W-11's two (owner, 2026-10-26). */
 const OPENED: readonly string[] = ["result-export", "stress-neutral", "rule-check", "rendered-report", "report-package"];

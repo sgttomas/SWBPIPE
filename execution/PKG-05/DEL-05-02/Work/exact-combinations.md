@@ -240,9 +240,11 @@ As built:
   (`CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT`), so the cancelling 2^53 case reaches
   the gate only through the typed entry; the tests use that entry.
 
-`NONLINEAR_COMBINATION_REQUIRES_SOLVE` and
-`CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE` cannot arise on EX, which refuses
-those supports.
+`NONLINEAR_COMBINATION_REQUIRES_SOLVE` cannot arise on EX, which refuses
+nonlinear supports. `CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE` arises on EX
+since RT-A3 increment 3 admitted consuming constant-effort supports, as gate 4
+(DEL-04-07 `pressure-contract.md`, "Combination gate"; κ as in
+`absolute-sum-srss-combinations.md` §10).
 
 Pressure regions, closure transfer, reference eigenstrains and prescribed
 boundary motion may differ between operands. They are right-hand-side

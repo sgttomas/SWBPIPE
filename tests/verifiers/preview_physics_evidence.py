@@ -19,6 +19,7 @@ from pathlib import Path
 import sys
 from typing import Any
 
+from . import combination_graph as graph
 from . import component_body
 
 CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2"
@@ -75,7 +76,10 @@ WITHHELD_DIAGNOSTIC_PREFIX = {
     "SUPPORT_ACTION_ATTRIBUTION_WITHHELD": "diagnostic:preview-physics:attribution:",
     "CONSTANT_EFFORT_NOT_CONSUMED": "diagnostic:preview-physics:constant-effort-not-consumed:",
 }
-GATE_REASONS = ("NONLINEAR_COMBINATION_REQUIRES_SOLVE", "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE", "COMBINATION_MODULUS_BASIS_MIXED")
+GATE_REASONS = ("NONLINEAR_COMBINATION_REQUIRES_SOLVE", "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE", "COMBINATION_MODULUS_BASIS_MIXED",
+                # RT-A4 (DEL-05-02 absolute-sum-srss section 6).
+                "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND", "CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED",
+                "LOAD_COMBINATION_OPERAND_WITHHELD")
 RANGE_BASIS = "explicit_user_range_envelope"
 PER_SUPPORT_NONLINEAR_KINDS = ("nonlinear_support_final_reaction", "nonlinear_support_final_displacement",
                                "nonlinear_support_final_relative_displacement", "nonlinear_support_active_set_state_code")
@@ -241,9 +245,10 @@ def _header(source: Mapping[str, Any]) -> None:
     _shape(formulation, {"profile_id", "limitations"}, "formulation basis")
     _require(formulation["profile_id"] == profile and formulation["limitations"] == limitations, "formulation profile or limitations")
     evidence = source.get("contract_evidence")
-    # Operating-case slice 1a: `combination_operands` only beside a nonlinear model's admitted combinations.
-    _require(isinstance(evidence, Mapping) and set(evidence) in ({"preview_cases", "combination_gates"},
-                                                                 {"preview_cases", "combination_gates", "combination_operands"}),
+    # Operating-case slice 1a: `combination_operands` only beside a nonlinear model's admitted combinations. RT-A4
+    # section 10.3: `combination_derivation` beside an unsigned or nested combination (`preview_combination_gates`).
+    _require(isinstance(evidence, Mapping) and {"preview_cases", "combination_gates"} <= set(evidence)
+             <= {"preview_cases", "combination_gates", "combination_operands", "combination_derivation"},
              "contract evidence namespace")
     _require(isinstance(evidence["preview_cases"], list) and isinstance(evidence["combination_gates"], list), "contract evidence lists")
     _finite_tree(evidence)
@@ -321,9 +326,15 @@ def _gates(evidence: Mapping[str, Any]) -> dict[str, Mapping[str, Any]]:
     return gates
 
 
-def validate_preview_physics_evidence(source: Mapping[str, Any]) -> None:
+def validate_preview_physics_evidence(source: Mapping[str, Any], model: Mapping[str, Any] | None = None) -> None:
+    """The reader; with the document's ``model`` the combination gates and unsigned rows are re-derived from it instead
+    of being refused where the document alone cannot verify them (RT-A4 review r1 P2, ``preview_combination_gates``)."""
     try:
         _validate(source)
+        if model is None:
+            # With the model, reader_verdict re-derives them after the other model checks.
+            from . import preview_combination_gates
+            preview_combination_gates.check(source, None)
     except (TypeError, KeyError, AttributeError, OverflowError, IndexError) as error:
         raise ValueError("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: malformed evidence") from error
 
@@ -382,7 +393,8 @@ def _validate(source: Mapping[str, Any]) -> None:
         _require(list(cases) == quality_ids, "preview case coverage")
     else:
         # A1 e: a blocked envelope has empty evidence, no rows and null headlines.
-        _require(not evidence["preview_cases"] and not evidence["combination_gates"], "blocked envelope carries preview evidence")
+        _require(not evidence["preview_cases"] and not evidence["combination_gates"] and "combination_derivation" not in evidence,
+                 "blocked envelope carries preview evidence")
         _require(not results, "blocked envelope carries result rows")
         _require(summary.get("max_displacement") is None and summary.get("max_open_formula_stress") is None, "blocked envelope carries a headline")
         _require("component_stress_modifier_count" not in summary or (_integer(summary["component_stress_modifier_count"]) and summary["component_stress_modifier_count"] == 0), "blocked envelope counts intensified rows")
@@ -400,6 +412,12 @@ def _validate(source: Mapping[str, Any]) -> None:
             _require(row["kind"] not in {MAXIMUM_KIND, INTENSIFIED_KIND} | u4b.KINDS, "never-combined row for a combination")
             refs = row.get("source_result_refs", [])
             _require(isinstance(refs, list) and all(isinstance(ref, str) and ref in rows for ref in refs), "combination source reference")
+            # RT-A4 (absolute-sum-srss section 4): an unsigned row states its unsigned meaning and is nonnegative, never -0.0.
+            unsigned_sign = {graph.ABSOLUTE_SUM_BASIS: graph.ABSOLUTE_SUM_SIGN, graph.SRSS_BASIS: graph.SRSS_SIGN}.get((row.get("metadata") or {}).get("basis"))
+            if unsigned_sign is not None:
+                value = row.get("value")
+                _require(row["metadata"].get("sign_convention") == unsigned_sign and type(value) in (int, float) and math.isfinite(value)
+                         and math.copysign(1.0, value) > 0, "combination unsigned row")
             if row["kind"] in SUPPORT_KINDS:
                 # A2 4: only basis and sign_convention follow the combination.
                 metadata = row.get("metadata") or {}
@@ -579,3 +597,4 @@ def validate_transport_metadata(source: Mapping[str, Any]) -> None:
         _gates(evidence)
     except (TypeError, KeyError, AttributeError, OverflowError, IndexError) as error:
         raise ValueError("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: malformed evidence") from error
+

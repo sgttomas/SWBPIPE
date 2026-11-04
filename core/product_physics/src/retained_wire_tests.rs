@@ -37,8 +37,8 @@ const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, Pre
 /// companions preserve every physical row and are still equal under capture.
 /// W-7 global end rows added (12 element_global_end rows on the one member); no other byte moved.
 const ORDINARY_SHA256: [(&str, usize, &str); 2] = [
-    ("sparse_interactive", 86484, "ac3bde77f91d0a9d595b08799cae5907c8fbef78c6c4c94761514ff6967b2e0d"),
-    ("dense_scrutiny", 86510, "6da64fa02c206a88e670c75ff6b74364263c94e1ac8722a963f603ddf01ac7db"),
+    ("sparse_interactive", 87170, "d9d2a845381a2785e885b2f9befbb6c4f1d1e7780310732f58edfc7d7809f82e"),
+    ("dense_scrutiny", 87196, "a34cfcf2c4783aec57592228d418db07490516e0ce776e19cb88adb3a0f806ed"),
 ];
 /// The serializer's committed milestone output: sha256 of the pretty-printed
 /// successor envelope, and its receipt_sha256 (byte-stable, both modes).
@@ -54,9 +54,12 @@ const ORDINARY_SHA256: [(&str, usize, &str); 2] = [
 /// rows, the receipt figures counted over the rows, and the hashes binding them moved.
 /// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
+/// RT-A4 D3 re-pin (DEL-04-08 §8.46): only `formulation_basis.limitations[6]` (§10.2's sentence) and the publication
+/// and receipt seals binding it moved; restated to the former sentence and resealed by the Python 07e rule, each
+/// regenerated document reproduces its former pins byte for byte.
 const SUCCESSOR_SHA256: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "c4aca00852fd4d6157fe8f80ae709a6bf2ad4b61f8e911e15a414902c99b5a8f", "2361e82ea1f2555d1fd5191096faf4dcd64e7ccea0d2e17890f4a513c105a377"),
-    ("dense_scrutiny", "da3dafab793aa0d43c056f1057987d1feb06d9c0069396e68d5a86e5dc694daa", "7ae592eb5601c1b8dac379be8b60af7044cc49fd85f94d7394e5bdc116f0e301"),
+    ("sparse_interactive", "49dfe6ebab459bbfdb68a541080313199cc24f85e649f1bbfb005c5be155a567", "8ce5b023d43eeb764bb779e44cc088d11616e14332d0e9f2898c9acd9b665137"),
+    ("dense_scrutiny", "d1c8edd1efcaf0986d2625714d76dbca81275e2fa32acaf9f4ade798dba48b11", "c20407e71fd6d9b4d2089123351ea949deb7ffcf2b14df61a451355f888d445a"),
 ];
 
 fn sha(bytes: &[u8]) -> String {

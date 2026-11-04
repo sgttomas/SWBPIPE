@@ -14,3 +14,6 @@ serde_json = { version = "1", features = ["float_roundtrip"] }
 open_pipe_stress_canonical_json = { path = "../../serialization/canonical_json" }
 sha2 = "0.10"
 open_pipe_stress_units = { path = "../../units" }
+# RT-A4 (DEL-05-02 absolute-sum-srss §8): the readers re-derive absolute sums, SRSS
+# and the fixed-load count κ with the kernel's own definitions.
+open_pipe_stress_load_case_algebra = { path = "../../loads/load_case_algebra" }

@@ -1,10 +1,16 @@
 import { knownSemanticNotices } from "./knownSemanticLimitations";
+import type { ContractBinding } from "./resultReader";
 import type { MechanicsResult } from "../../types";
 
 /** Text-only frozen T0R notices for a received result (S1 §10). Placement is the
  * caller's; the notices never change standing, rows or exported bytes (N-A). */
-export function KnownSemanticNotices({ result, testIdPrefix }: { result: MechanicsResult | null | undefined; testIdPrefix: string }) {
-  const notices = knownSemanticNotices(result);
+export function KnownSemanticNotices({ result, testIdPrefix, recordedTableRead = null }: {
+  result: MechanicsResult | null | undefined;
+  testIdPrefix: string;
+  /** RT-A4 §10.4: a reopened run recorded before RT-A4's table; current callers omit it. */
+  recordedTableRead?: ContractBinding | null;
+}) {
+  const notices = knownSemanticNotices(result, recordedTableRead);
   if (!notices.length) return null;
   return (
     <>

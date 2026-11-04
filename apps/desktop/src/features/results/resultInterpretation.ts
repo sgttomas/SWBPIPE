@@ -1,4 +1,5 @@
-import { semanticFamily, semanticLabels } from "./resultSemantics";
+import { semanticLabels, type RowLabels } from "./resultSemantics";
+import type { ContractBinding } from "./resultReader";
 import type {
   AnalysisRunEnvelope,
   DesignKnowledge,
@@ -25,16 +26,20 @@ export function buildResultInterpretation({
   result,
   resultId,
   knowledge,
-  analysisRun
+  analysisRun,
+  recordedTableRead = null
 }: {
   result: MechanicsResult;
   resultId: string | null;
   knowledge: DesignKnowledge | null;
   analysisRun: AnalysisRunEnvelope | null;
+  /** RT-A4 §10.4: a reopened run recorded before RT-A4 reads its rows under its recorded table;
+   * current callers omit it. */
+  recordedTableRead?: ContractBinding | null;
 }): ResultInterpretation | null {
   const item = result.results.find((candidate) => candidate.id === resultId);
   if (!item) return null;
-  const labels = semanticLabels(result);
+  const labels = semanticLabels(result, recordedTableRead);
 
   const linkedDiagnostics = result.diagnostics.filter((diagnostic) =>
     [item.id, item.entity_ref].some((ref) => diagnostic.affected_refs?.includes(ref))
@@ -68,7 +73,7 @@ export function buildResultInterpretation({
       result_hash_count: resultHashes,
       envelope_hash_available: envelopeHashAvailable
     },
-    endpoint_pair: endpointPairFor(result, item),
+    endpoint_pair: endpointPairFor(result, item, labels),
     professional_boundary: "review-only interpretation"
   };
 }
@@ -260,11 +265,12 @@ function allDiagnostics(
 
 function endpointPairFor(
   result: MechanicsResult,
-  item: MechanicsResult["results"][number]
+  item: MechanicsResult["results"][number],
+  labels: RowLabels
 ): ResultInterpretation["endpoint_pair"] {
   const metadata = item.metadata;
   if (!metadata || !["end_i", "end_j"].includes(metadata.location)) return undefined;
-  const family = semanticFamily(item, result);
+  const family = labels.family(item);
   if (family !== "force" && family !== "moment" && family !== "stress") return undefined;
 
   const values = result.results

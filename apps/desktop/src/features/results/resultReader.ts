@@ -191,6 +191,38 @@ export function readerValidate(reader: ReaderName, source: unknown, model?: unkn
   const { ok: _, ...validation } = outcome;
   return validation;
 }
+/** RT-A4 §10.4 (DEL-05-02 `absolute-sum-srss-combinations.md`, "Recorded results from before
+ * RT-A4"): the recorded-run read. Rust's recorded entries (`reader_verdict::*_recorded`) read
+ * the statement under the record's binding: the current binding as the current reader does, a
+ * registry variant of the statement's identity under its own tables (`recordedPreRtA4.ts`),
+ * anything else refused by name (SOURCE_RECORDED_BINDING_UNKNOWN or _IDENTITY). Only the
+ * recorded-run read and compare paths call these; no current admission path does. */
+export function recordedReaderDispatch(source: unknown, binding: ContractBinding, model?: unknown): ReaderDispatch {
+  let sourceJson: string, modelJson: string | undefined;
+  try { sourceJson = readerSourceText(source); modelJson = optionalText(model); }
+  catch (error) { if (error instanceof ResultReaderError) return unsupportedDispatch(error.code); throw error; }
+  const e = engine();
+  if (!e) return unsupportedDispatch(RESULT_READER_UNAVAILABLE);
+  const bindingJson = writtenText(binding);
+  return cached(sourceJson, `recorded-dispatch\u0000${bindingJson}\u0000${modelJson ?? ""}`, () => {
+    try { return freeze(JSON.parse(e.readerRecordedJson("dispatch", bindingJson, sourceJson, modelJson)) as ReaderDispatch); }
+    catch (error) {
+      if (error instanceof Error && error.message.startsWith("WASM-ENGINE-INPUT-JSON-INVALID")) return unsupportedDispatch(JSON_PARSE_REJECTED);
+      throw error;
+    }
+  });
+}
+/** The preview-physics reader's validation of a recorded statement under its record's binding
+ * (the record validator's recorded read). Throws the reader's refusal. */
+export function recordedReaderValidate(source: unknown, binding: ContractBinding, model?: unknown): ReaderValidation {
+  const sourceJson = readerSourceText(source), modelJson = optionalText(model), bindingJson = writtenText(binding);
+  unavailable();
+  const outcome = cached(sourceJson, `recorded-validate\u0000${bindingJson}\u0000${modelJson ?? ""}`,
+    () => call<object>(e => e.readerRecordedJson("preview-physics", bindingJson, sourceJson, modelJson)));
+  if (!outcome.ok) refuse(outcome);
+  const { ok: _, ...validation } = outcome;
+  return validation;
+}
 /** One reader's transport (metadata-only) checks of a transported statement; never
  * eligible. Throws the reader's refusal. */
 export function readerTransport(reader: TransportReaderName, source: unknown): void {
@@ -250,6 +282,48 @@ export function readerRowSemantics(source?: MechanicsResult | null): (row: Sourc
   };
 }
 
+/** RT-A4 §10.4: the row semantics of a recorded statement under its record's binding (Rust's
+ * `row_semantics_each_recorded`): a registry variant's rows read under that variant's table.
+ * For the recorded-run display and compare paths only; no current path calls it. It throws
+ * the reader's refusal (a refused binding refuses every row). */
+export function recordedReaderRowSemantics(source: MechanicsResult, binding: ContractBinding): (row: SourceRow) => RowSemantics {
+  let sourceJson: string, failure: ResultReaderError | null = null;
+  try { sourceJson = readerSourceText(source); }
+  catch (error) { if (!(error instanceof ResultReaderError)) throw error; failure = new ResultReaderError("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED"); sourceJson = ""; }
+  const bindingJson = writtenText(binding);
+  const read = (texts: string[]): unknown => {
+    unavailable();
+    return JSON.parse(engine()!.readerRecordedRowSemanticsEachJson(bindingJson, `[${texts.join(",")}]`, sourceJson));
+  };
+  const key = (text: string) => `recorded-row\u0000${bindingJson}\u0000${text}`;
+  const store = (texts: string[], outcomes: unknown): void => {
+    // A refused binding is one refusal object, not an array: every row takes it.
+    texts.forEach((text, i) => cached(sourceJson, key(text), () => freeze(Array.isArray(outcomes) ? outcomes[i] : outcomes) as Outcome<RowSemantics>));
+  };
+  if (!failure) {
+    cached(sourceJson, `recorded-rows\u0000${bindingJson}`, () => {
+      const texts = new Set<string>();
+      for (const row of Array.isArray(source.results) ? source.results : []) {
+        try { texts.add(rowText(row)); } catch { /* read per row */ }
+      }
+      const rows = [...texts];
+      try { store(rows, read(rows)); } catch { /* read per row */ }
+      return true;
+    });
+  }
+  return row => {
+    if (failure) throw failure;
+    let text: string;
+    try { text = rowText(row); } catch { throw new ResultReaderError(JSON_PARSE_REJECTED); }
+    const outcome = cached(sourceJson, key(text), () => {
+      const outcomes = read([text]);
+      return freeze(Array.isArray(outcomes) ? outcomes[0] : outcomes) as Outcome<RowSemantics>;
+    });
+    if (!outcome.ok) refuse(outcome);
+    return { signature: outcome.signature, complete_metadata: outcome.complete_metadata, canonical_metadata: outcome.canonical_metadata };
+  };
+}
+
 /* -------------------------------------------------------------------------- *
  * The route, presented
  * -------------------------------------------------------------------------- */
@@ -257,6 +331,16 @@ export function readerRowSemantics(source?: MechanicsResult | null): (row: Sourc
  * `unsupported`. A header never authenticates its claimed producer. */
 export function sourceContract(source: MechanicsResult | NativeResult): SourceContract {
   return readerDispatch(source).route;
+}
+/** RT-A4 §10.4: the route a display surface classifies a statement under. A reopened run
+ * recorded before RT-A4 names its recorded table, and is classified by the recorded dispatch
+ * under it (a refused binding is `unsupported`; it never falls back to the current reader);
+ * without one (every current caller) this is `sourceContract`. Display only: it grants no
+ * standing and no current path passes a table. */
+export function displayRoute(source: MechanicsResult | NativeResult, recordedTableRead?: ContractBinding | null): SourceContract {
+  // C1: a native handle has no recorded read here; a table never falls back to its current route.
+  if (isNativeResult(source)) return recordedTableRead ? "unsupported" : sourceContract(source);
+  return recordedTableRead ? recordedReaderDispatch(source, recordedTableRead).route : sourceContract(source);
 }
 /** The route's pinned table binding; throws SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED for a
  * statement the dispatch refuses. */

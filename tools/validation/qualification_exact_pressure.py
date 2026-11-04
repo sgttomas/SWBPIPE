@@ -86,7 +86,7 @@ TABLE = 'fixtures/results/semantic_contract_v0_3_pressure_2.json'
 # resident table; the former pin 07a6a308... named the table before its re-issue. T4-U6 (D-5, §2.4) re-issued it
 # with one stress signature per (recovery token x section basis): 106 signatures, 59 kinds (B7b's was a4e3bf2c...);
 # T4-U5b added the tie-rod force and T4-U4b (§2.2) the new per-basis kinds: 129 signatures, 66 kinds.
-TABLE_SHA256 = 'a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e'
+TABLE_SHA256 = '10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6'
 # The owned reader is the Rust product reader of pressure-2 (owner, 2026-10-10:
 # "move to one product reader in Rust"): `validate_pressure_evidence` (an envelope
 # carrying the load/reference-state group takes its pre-pass), reached through
@@ -601,31 +601,59 @@ def unwrap(raw: bytes, request: dict, mode: str, *, limit: int = LIMIT) -> tuple
     return mechanics, rows
 
 
+def _evaluation_order(combinations: list, case_ids: set) -> list:
+    """RT-A4 (DEL-05-02 absolute-sum-srss.md §2): the combinations in evaluation order, topological with the earliest
+    ready in the array first. A term names a combination by kind; a subtraction's or envelope's id names the load case
+    when one has it, a combination otherwise."""
+    index = {}
+    for i, c in enumerate(combinations):
+        index.setdefault(c.get('id'), i)
+
+    def names(c):
+        if c.get('basis') in ('result_state_subtraction', 'range_envelope'):
+            ids = [c.get('minuend_id'), c.get('subtrahend_id')] if c.get('basis') == 'result_state_subtraction' else list(c.get('operand_ids') or [])
+            return [i for i in ids if i not in case_ids]
+        return [t.get('combination') for t in c.get('terms') or [] if type(t) is dict and 'combination' in t]
+    deps = [[index[n] for n in names(c) if n in index] for c in combinations]
+    done, order = [False] * len(combinations), []
+    while True:
+        ready = next((i for i in range(len(combinations)) if not done[i] and all(done[d] and d != i for d in deps[i])), None)
+        if ready is None:
+            return order
+        done[ready] = True
+        order.append(combinations[ready])
+
+
 def combination_binding(mechanics: dict, model: dict) -> None:
     """W-16 slice b (DEL-05-02 exact-combinations.md §6): the raw combination records and rows are exactly the bound
-    input's combinations. One record per input combination, in input order (an absent or null ``combinations`` is
-    none), each with the input's id, basis, complete expression (terms with their factors bit for bit, the
-    subtraction's operands, or the envelope's operands and mode) and its operands' modulus-basis references; a
-    combination row names a bound combination. The operands' selection temperatures, which the producer records
-    normalized, are bound by the owned reader, which receives the bound model (``consistency_observation``)."""
+    input's combinations. One record per input combination, in the input's evaluation order (RT-A4: an operand
+    combination before its dependants; a flat input's order is its array order; an absent or null ``combinations`` is
+    none), each with the input's id, basis, complete expression (terms, each naming a load case or a combination, with
+    their factors bit for bit, the subtraction's operands, or the envelope's operands and mode) and its load-case
+    operands' modulus-basis references; a combination row names a bound combination. The operands' selection
+    temperatures, which the producer records normalized, are bound by the owned reader, which receives the bound model
+    (``consistency_observation``)."""
     combinations = model.get('combinations')
     combinations = [] if combinations is None else combinations
     require(type(combinations) is list and all(type(c) is dict for c in combinations), 'bound input combinations invalid')
     records = (mechanics.get('contract_evidence') or {}).get('exact_combinations') or []
     require(type(records) is list and len(records) == len(combinations), 'raw combination records differ from the bound input')
     cases = {c.get('id'): c for c in model.get('load_cases') or [] if type(c) is dict}
-    for record, combination in zip(records, combinations):
+    for record, combination in zip(records, _evaluation_order(combinations, set(cases))):
         require(type(record) is dict and record.get('combination_id') == combination.get('id')
                 and record.get('basis') == combination.get('basis'), 'raw combination records differ from the bound input')
         basis = combination.get('basis')
-        if basis == 'mechanics':
-            expression = {'terms': [{'load_case_id': t.get('load_case'), 'factor': t.get('factor')} for t in combination.get('terms') or []]}
+        if basis in ('mechanics', 'absolute_sum', 'srss'):
+            expression = {'terms': [{'combination_id': t.get('combination'), 'factor': t.get('factor')} if 'combination' in t
+                                    else {'load_case_id': t.get('load_case'), 'factor': t.get('factor')} for t in combination.get('terms') or []]}
         elif basis == 'result_state_subtraction':
             expression = {'minuend_id': combination.get('minuend_id'), 'subtrahend_id': combination.get('subtrahend_id')}
         else:
             expression = {'operand_ids': combination.get('operand_ids'), 'mode': combination.get('mode')}
         require(_same_bits(record.get('expression'), expression), 'raw combination expression differs from the bound input')
         for operand in record.get('operands') or []:
+            if type(operand) is dict and set(operand) == {'combination_id'}:
+                continue
             case = cases.get(operand.get('load_case_id')) if type(operand) is dict else None
             require(case is not None and operand.get('modulus_basis_ref') == case.get('modulus_basis_ref'),
                     'raw combination operand selection differs from the bound input')

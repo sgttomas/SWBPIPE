@@ -207,7 +207,7 @@ export function NativeResultsPanel({
   const health = routeHealth(route, numericalHealth ?? null);
   const labelSource = route === "preview_physics" ? result : null;
   const intensified = useNativeKindPresence(result, PREVIEW_INTENSIFIED_KIND);
-  const notices = useMemo(() => knownSemanticNotices(result as never, { hasIntensified: intensified }), [result, intensified]);
+  const notices = useMemo(() => knownSemanticNotices(result, null, { hasIntensified: intensified }), [result, intensified]);
   const recovery = custody.recovery;
   const standingLine = route === "unsupported"
     ? "Unsupported numerical contract; historical values only. Needs recompute."

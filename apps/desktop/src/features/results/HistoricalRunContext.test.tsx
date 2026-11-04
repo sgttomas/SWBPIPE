@@ -291,3 +291,113 @@ describe("bundled reference inspection", () => {
     expect(JSON.stringify(reference)).toBe(before);
   });
 });
+
+// RT-A4 §10.4 display rule: a project saved before RT-A4 reopens with its standing as recorded under
+// its table, shown apart from the reopen's own findings; a failed reopen check stays an ordinary
+// finding beside it.
+describe("a project saved before RT-A4 (historical read)", () => {
+  const dir = "../../../../../fixtures/persistence/recorded_pre_rt_a4_pf/preview_physics_2";
+  async function opened(edit: (run: Json) => void = () => undefined): Promise<LocalProjectEnvelope> {
+    const { readFileSync } = await import("node:fs");
+    const { resolve } = await import("node:path");
+    const text = (name: string) => readFileSync(resolve(__dirname, dir, name), "utf8");
+    const transient = JSON.parse(text("transient_run_input.json"));
+    const model = JSON.parse(transient.input_manifest_canonical).model_basis.model_payload as PreviewModel;
+    const analysis_run = structuredClone(transient.run_record) as Json;
+    edit(analysis_run);
+    const claim = analysis_run.analysis_run.hashes.find((hash: Json) => hash.payload_scope === "analysis_run_record");
+    claim.value = await canonicalSha256HexCheckedV1(analysisRecordProjection(analysis_run));
+    const payload = { model, mechanics_result: JSON.parse(text("preview_physics_connected_sparse.json")), analysis_run, model_hash: await computeModelHash(model), editor_intents: [], proposal: null, selected_review_target: null };
+    return { ...payload, project_envelope_hash: await computeProjectEnvelopeHash(payload as never) } as unknown as LocalProjectEnvelope;
+  }
+  const TABLE = { id: "openpipestress.result_semantics/0.3.0/preview-physics-2", sha256: "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2" };
+
+  it("shows the historical reader's findings as recorded under the table, apart from the reopen's", async () => {
+    const context = (await buildHistoricalRunContext(await opened()))!;
+    expect(context.recordedTableRead).toEqual(TABLE);
+    expect(context.findings).toStrictEqual(["HISTORICAL_INPUT_MANIFEST_MISSING"]);
+    render(<HistoricalRunPanel context={context} />);
+    const recorded = screen.getByTestId("historical-run-recorded-reader");
+    expect(recorded).toHaveTextContent(`As recorded under ${TABLE.id} (sha256 ${TABLE.sha256}); historical evidence only, not a current standing`);
+    for (const finding of context.historicalReaderFindings) expect(recorded).toHaveTextContent(finding);
+  });
+
+  it("a failed reopen validation is an ordinary finding, never folded into the as-recorded read", async () => {
+    const context = (await buildHistoricalRunContext(await opened((run) => { run.analysis_run.source_block_recovery = { forged: true }; })))!;
+    expect(context.findings).toContain("SOURCE_RECOVERY_METADATA_CONTRADICTION");
+    expect(context.checkFindings).toContain("SOURCE_RECOVERY_METADATA_CONTRADICTION");
+    expect(context.historicalReaderFindings).not.toContain("SOURCE_RECOVERY_METADATA_CONTRADICTION");
+    render(<HistoricalRunPanel context={context} />);
+    expect(screen.getByTestId("historical-run-recorded-reader")).not.toHaveTextContent("SOURCE_RECOVERY_METADATA_CONTRADICTION");
+    expect(screen.getByText("SOURCE_RECOVERY_METADATA_CONTRADICTION")).toBeInTheDocument();
+  });
+
+  // Focused confirmation r6 (#98): the panel's own standing line classified the result with the
+  // current reader only, so a run read correctly under its recorded table still said
+  // "Unsupported numerical contract … Needs recompute". It is now classified under the table.
+  it("the results panel states the run as read under its recorded table, as recorded", async () => {
+    for (const [variant, name, table] of [
+      ["preview_physics_2", null, TABLE],
+      ["preview_physics_retained_1", "retained_precision_milestone_successor_sparse_interactive", {
+        id: "openpipestress.result_semantics/0.3.0/preview-physics-retained-1",
+        sha256: "b001070e5fedeeb101522b22ce0d61bb7cf85f82e86b8d851713f8d9fc8c4c46" }],
+    ] as const) {
+      let envelope: LocalProjectEnvelope;
+      if (name === null) envelope = await opened();
+      else {
+        const { readFileSync } = await import("node:fs");
+        const { resolve } = await import("node:path");
+        const text = (file: string) => readFileSync(resolve(__dirname, "../../../../../fixtures/persistence/recorded_pre_rt_a4_pf", variant, file), "utf8");
+        const document = JSON.parse(text(`${name}.json`));
+        const model = document.invocation.request.model as PreviewModel;
+        const payload = { model, mechanics_result: document.source, analysis_run: JSON.parse(text(`${name}.analysis_run.json`)), model_hash: await computeModelHash(model), editor_intents: [], proposal: null, selected_review_target: null };
+        envelope = { ...payload, project_envelope_hash: await computeProjectEnvelopeHash(payload as never) } as unknown as LocalProjectEnvelope;
+      }
+      const context = (await buildHistoricalRunContext(envelope))!;
+      expect(context.recordedTableRead).toEqual(table);
+      const { unmount } = render(<HistoricalRunPanel context={context} />);
+      const standing = screen.getByTestId("numerical-result-standing");
+      expect(standing).toHaveTextContent(`As recorded under ${context.recordedTableRead!.id} (sha256 ${context.recordedTableRead!.sha256}); historical evidence only, not a current standing`);
+      expect(standing).not.toHaveTextContent("Unsupported numerical contract");
+      unmount();
+    }
+  });
+
+  // Focused fix confirmation r7 (#98): the panel's row categories and the comparison's rows read
+  // row semantics with the current reader only, so a retained milestone row read correctly
+  // under its table showed "integrity_failure" and compared rows lost family and dimension.
+  it("rows read under the recorded table: panel categories and comparison rows", async () => {
+    const { readFileSync } = await import("node:fs");
+    const { resolve } = await import("node:path");
+    const { flattenRunResult, resultSemanticIdentity } = await import("../comparison/runComparison");
+    const { semanticLabels } = await import("./resultSemantics");
+    const text = (file: string) => readFileSync(resolve(__dirname, "../../../../../fixtures/persistence/recorded_pre_rt_a4_pf/preview_physics_retained_1", file), "utf8");
+    const name = "retained_precision_milestone_successor_sparse_interactive";
+    const document = JSON.parse(text(`${name}.json`));
+    const source = document.source as MechanicsResult;
+    const model = document.invocation.request.model as PreviewModel;
+    const payload = { model, mechanics_result: source, analysis_run: JSON.parse(text(`${name}.analysis_run.json`)), model_hash: await computeModelHash(model), editor_intents: [], proposal: null, selected_review_target: null };
+    const context = (await buildHistoricalRunContext({ ...payload, project_envelope_hash: await computeProjectEnvelopeHash(payload as never) } as unknown as LocalProjectEnvelope))!;
+    const table = context.recordedTableRead!;
+    expect(table.sha256.startsWith("b001070e")).toBe(true);
+    const row = source.results.find((r) => r.kind === "global_nodal_displacement_x")!;
+    // The current reader refuses the statement; the recorded table reads its rows.
+    expect(semanticLabels(source).category(row)).toBe("integrity_failure");
+    expect(semanticLabels(source, table).category(row)).toBe("physical_quantity");
+    render(<HistoricalRunPanel context={context} />);
+    expect(screen.getByTestId(`result-row-${row.id}`)).not.toHaveTextContent("integrity_failure");
+    const flat = flattenRunResult(source, table).find((r) => r.identity.result_id === row.id)!;
+    expect(flat.identity.family).not.toBeNull();
+    expect(flat.identity.dimension).not.toBeNull();
+    expect(flattenRunResult(source).find((r) => r.identity.result_id === row.id)!.identity.family).toBeNull();
+    expect(resultSemanticIdentity(source, table)).toEqual({ route: "retained_preview_physics", contract_id: table.id, contract_sha256: table.sha256 });
+  });
+
+  it("a run read under the current tables has no historical reader scope", async () => {
+    const context = (await buildHistoricalRunContext(await savedEnvelope()))!;
+    expect(context.recordedTableRead).toBeNull();
+    expect(context.historicalReaderFindings).toStrictEqual([]);
+    render(<HistoricalRunPanel context={context} />);
+    expect(screen.queryByTestId("historical-run-recorded-reader")).toBeNull();
+  });
+});

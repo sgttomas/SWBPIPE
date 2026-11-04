@@ -348,7 +348,7 @@ gated combination.
 | `LOAD_COMBINATION_DIFFERENCE_BASIS_OPERAND_NOT_LOAD_CASE` | validator, solve | blocking |
 | `LOAD_COMBINATION_OPERAND_CYCLE` | validator, solve | blocking |
 | `LOAD_COMBINATION_OPERAND_UNKNOWN` | validator, solve | blocking |
-| `LOAD_COMBINATION_UNSIGNED_BASIS_UNSUPPORTED`, `LOAD_COMBINATION_NESTED_UNSUPPORTED` | solve, interim until wiring; the applier refuses authoring | warning, withholds |
+| `LOAD_COMBINATION_UNSIGNED_BASIS_UNSUPPORTED`, `LOAD_COMBINATION_NESTED_UNSUPPORTED` | solve, interim until wiring (removed by it, §10); the applier refused authoring | warning, withholds |
 | `LOAD_COMBINATION_OPERAND_WITHHELD` | solve | warning |
 | `COMBINATION_FIXED_LOAD_COUNT_UNREPRESENTABLE` | solve | info |
 | `CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND`, `INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND`, `CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED` | solve | warning |
@@ -429,3 +429,660 @@ rows with the same definitions in the wiring slice.
 Response-spectrum modal and directional combination (RT-A8, DEL-04-09) also
 needs an n-term SRSS. The kernel's `srss` is offered for reuse; its contract is
 §3. Whether DEL-04-09 adopts it is that lane's choice.
+
+## 10. As built (wiring)
+
+Slice W lands on branch `claude/rt-a4-wiring` from main `a8299f918`. It implements
+§2-§6 and removes S1's interim unsigned and nested withholding; `difference_basis`
+and `minuend_final` stay withheld.
+
+- **κ (§5.1).** LCA `src/fixed_load_count.rs`: `Dyadic` (sign, odd significand of
+  at most 4,096 bits, `i64` exponent; exact products, sums and comparisons),
+  `FixedLoadCount` with the tree rules, `mechanics_fixed_load_gate` (|κ − 1| ≤ 2⁻⁴⁶
+  exactly; an undefined own κ or operand never passes),
+  `unsigned_fixed_load_gate` (exact zero) and `solved_state_plus_increments`
+  (OQ-1). Each caller maps the withholding to its own source's code. The flat
+  decisions equal `factor_sum_within_unit_tolerance` (named sets and a 4,000-case
+  sample).
+- **Plan.** PP `src/combination_plan.rs` resolves operands (a term by kind; an id
+  to the load case first), orders evaluation (Kahn, earliest ready in the array),
+  and computes every combination's κ and the load cases it reaches.
+  `CombinationExpression` gains `AbsoluteSum` and `Srss` and evaluates term bases
+  positionally, so a load case and a combination may share an id.
+- **Rows (§4).** Both routes evaluate in that order and read a combination
+  operand's own published rows (PF: by base id, kept only while a later
+  combination names it; EX: by structural key). Gates, EX records, rows, the
+  combinations' modulus-basis records and the source-recovery exclusion's refs
+  follow the evaluation order; a flat document's is its array order, so its bytes
+  are unchanged.
+- **Gates (§5).** Precedence: a withheld operand combination
+  (`LOAD_COMBINATION_OPERAND_WITHHELD`, naming each withheld operand and its code);
+  then PF: nonlinear (except OQ-1), κ on a consuming constant effort, modulus over
+  every reached case; EX: modulus and resolved stiffness over every reached case,
+  then gate 3 on κ, then gate 4 on κ (below). Decision OQ-1 is one pure predicate over the operand tree and κ
+  (LCA `solved_state_plus_increments`, read through `Plan::solved_state_plus_increments`),
+  used by both routes: on EX, a model with nonlinear supports withholds a `mechanics`
+  combination outside it with `NONLINEAR_COMBINATION_REQUIRES_SOLVE` (after the
+  withheld-operand rule, before gates 1-3) and admits one inside it, formed from rows
+  with its operands' standing and the OQ-1 sign convention. EX cannot reach a
+  nonlinear model before RT-A3 increment 4, so that path is tested at the gate and
+  predicate (RT-A3's reference shape `mechanics(1·A + 1·srss(A − B))` admitted; a
+  singleton, two load cases, a factor other than 1, an undefined κ and a nonzero κ
+  withheld), and both EX readers mirror it, taking a published nonlinear support state
+  row as the model condition. `COMBINATION_FIXED_LOAD_COUNT_UNREPRESENTABLE` (info) names
+  every combination whose own κ overflows, gated or not, with ids
+  `diagnostic:preview-physics:combination-fixed-load-count:<identity>` and
+  `diagnostic:exact-combination:fixed-load-count:<identity>`.
+- **EX gate 4 (the RT-A3 seam, agreed by RT-A3 and the load-cases manager when RT-A3
+  increment 3's candidate `ac7fea603` was merged).** A consuming constant-effort support
+  (DEC-049) is a second EX fixed-load source of the same κ rule, after gate 3: `mechanics`
+  by |κ − 1| ≤ 2⁻⁴⁶ (`CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE`), `absolute_sum` and
+  `srss` by every operand's κ exactly 0 (`CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND`),
+  and a `mechanics` combination naming an operand whose κ is undefined is withheld as
+  `CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED` (warning), as on PF (§5.1); PF's codes and
+  texts. Each source keeps its codes; gate 3 names the reason where both apply. Flat, κ is
+  the factor sum, so CE's flat decisions and messages are unchanged (RT-A3's CE2 cases pass
+  as written). The producer and both EX readers (RE `exact_combination_evidence.rs`, Python
+  `exact_combinations.py`) run one rule per source, and `results_pressure_2.v0.3` admits
+  the three gate-4 reasons (`CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE` had been missing
+  from its enum). Tests: `rt_a4_combinations.rs`
+  `v6_gate_4_joins_the_fixed_load_count_on_the_exact_route`,
+  `v6_gate_4_forgeries_are_refused_on_the_exact_route`,
+  `v6_undefined_kappa_withholdings_on_the_exact_route_by_source` and
+  `v6_swapped_undefined_kappa_codes_are_refused_on_the_exact_route`;
+  `tests/test_rt_a4_exact_constant_effort_seam.py` (mirror gate, CLI and mirror end to end,
+  schema).
+- **Undefined κ on EX, by source (Agent 0's decision, replacing this slice's first reading
+  under gate 4).** §5.1 distinguishes a `mechanics` combination naming an operand whose κ is
+  undefined from one whose own κ is undefined although its operands' are defined. On EX:
+  - a constant-effort source alone: an undefined operand is withheld as
+    `CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED`, as on PF; an undefined own κ under
+    `CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE`;
+  - an installed reference alone: both are withheld under
+    `COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE`. §5.1 names no operand-mixed code for
+    this source, so gate 3 keeps one `mechanics` code, and an undefined κ never passes;
+  - both sources: gate 3 is checked before gate 4 (the producer's `gate_reason` and both
+    readers test the installed reference first and return), so both are withheld under
+    `COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE`, and
+    `CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED` never appears beside an installed reference.
+  The own-undefined case is unchanged (the source's code, beside the info
+  `COMBINATION_FIXED_LOAD_COUNT_UNREPRESENTABLE`). Only the constant-effort-alone undefined
+  operand moved (from `CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE`); no flat decision and no
+  numeric output moves. The pressure-2 table's `mechanics_gates` list does not yet name
+  `CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED`; that text belongs with §10.2.
+- **Choices this slice made where §2-§6 are silent** (reported to Agent 0; each is
+  the narrowest reading):
+  - On EX, a `mechanics` operand with an undefined κ, where an installed reference
+    applies, is withheld under `COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE`:
+    §6 names `CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED` only, whose source could not
+    arise on EX when this was built, and an undefined κ never passes (§5.1). With gate 4,
+    where only a constant-effort support applies, such an operand is withheld as
+    `CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED` (Agent 0's decision; "Undefined κ on EX,
+    by source" above).
+  - Evidence shapes: a term `{combination_id, factor}`; an operand
+    `{combination_id}` (its own record, earlier in order, states its standing); a
+    row source `{combination_id, result_id}`; `missing_load_case_ids` may name a
+    combination operand. PF's operand-standing notices read load-case operands only.
+  - Sign conventions: §4's two example texts verbatim; an OQ-1 row's is the linear
+    text followed by "; a solved state plus derived differences or bounds; not an
+    equilibrium state".
+  - A dependant of an interim-withheld combination (`difference_basis`,
+    `minuend_final`) is removed at the solve, as S1 removes the withheld one, with
+    `LOAD_COMBINATION_OPERAND_WITHHELD`.
+- **Policy texts.** PF's published limitation and the preview-physics-2 and pressure-2
+  tables' `combination_policy` still state the pre-RT-A4 policy; Agent 0 chose to make them
+  state what is built (option (a)). The exact texts, the order they land in with #98's D3
+  and the digests they move are §10.2; until then the OQ-1 exception and the unsigned bases
+  are stated here, in the user guide §6.2 and in `docs/theory/load_combinations.md`.
+- **Applier.** `absolute_sum` and `srss` join the closed basis set (create and basis
+  edit); terms and subtraction/envelope operands may name combinations; the
+  document validator refuses cycles and unknown operands as before.
+- **Readers.** RE `combination_graph.rs` (a new dependency on LCA, whose kernel
+  re-derives A, R and κ), `exact_combination_evidence.rs`,
+  `preview_combination_operands.rs`, `preview_physics_evidence.rs` (gate codes;
+  unsigned rows' texts and sign bit; with the model, A and R bit for bit) and
+  `global_end_evidence.rs`. Python: `tests/verifiers/combination_graph.py` (an
+  independent exact implementation: Fractions and an integer square root; it
+  reproduces every V-1 row) and the three mirrors; `qualification_exact_pressure.py`
+  binds the evaluation order. The desktop labels unsigned and OQ-1 rows, keeps them
+  out of maxima and minima, and never draws them as one state.
+- **Schemas.** `results.v0.3`, `results_pressure_2.v0.3` and
+  `stress_neutral_export.v0.3` take the two basis tokens, the new gate codes and the
+  shapes above; no version changes.
+- **Verification.** LCA: κ tests (flat decisions, V-6, V-9, V-10 at the kernel).
+  PP `tests/rt_a4_combinations.rs`: V-5 on both routes and both solver modes
+  against `validation/references/rt_a4_combinations/v5/` (a cantilever along
+  (3, 4, 0)/5 so the X and Y cases share components), V-6, V-7, V-9, V-10 and a
+  non-representable row, every envelope read by the product reader with and
+  without its model. V-8: the existing byte-identity suites
+  (`pressure_free_byte_identity`, the w16 and op1a corpora, the retained
+  successors) are unchanged.
+- **Retained routes.** They keep declining the members
+  (`FamilyFact::CombinationMember`); admitting them is a later slice with its D3.
+
+### 10.1 Review r1 repairs (persistence and numerical review, five P2s)
+
+- **Magnitude overflow (P1).** On both routes an absolute sum's or SRSS's recomputed
+  magnitude (`displacement_magnitude`, support force and moment magnitudes) whose norm
+  of finite combined components leaves the binary64 range withholds that row, or its
+  whole support group, under `LOAD_COMBINATION_ROW_WITHHELD` as "load-case algebra
+  refused" (§3, §6); every other result publishes. A linear combination keeps today's
+  rule (a signed infinity blocks the envelope), so no flat outcome moves. Both EX
+  readers mirror it.
+- **Reader re-derivation (P2).** RE `preview_combination_gates.rs` and its Python mirror
+  `tests/verifiers/preview_combination_gates.py`. With the model, every PF gate is
+  re-derived in evaluation order after S1's interim removal (withheld operand; nonlinear
+  except OQ-1; κ on a consuming constant-effort support; modulus over every reached case)
+  and every unsigned row bit for bit; this replaces `unsigned_model_checks`. Without the
+  model: `LOAD_COMBINATION_OPERAND_WITHHELD` needs its diagnostic naming earlier withheld
+  combinations; `CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND` and
+  `CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED` are refused as unverifiable
+  (`SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_UNVERIFIED`), since the document states no
+  withheld combination's expression; an unsigned row is re-derived from the factors of its
+  `combination_operands` record (nonlinear models) and otherwise refused
+  (`..._UNSIGNED_UNVERIFIED`). The flat gates keep their model-free reading (the shared
+  retained corpus's `t_gate_ok` must pass). **Consequence:** model-free callers of
+  `semantic_contract::for_source` (report packaging `bindings.rs`, derivatives
+  `derivative.rs`, the runner's result-envelope binding) refuse a linear-model PF document
+  carrying an absolute sum or SRSS until they pass the model or PF publishes the factors.
+  Resolved by §10.3: PF publishes the factors and κ inputs.
+- **CLI (P3).** `openpipestress-runner read preview-physics` admits `model`.
+- **Derivation metadata (P4).** A `displacement_magnitude` row of an unsigned or nested
+  combination carries metadata `{component: displacement_magnitude, coordinate_system:
+  global, location: node, basis, sign_convention}`; a flat combination's carries none, as
+  before (V-8). A magnitude is paired and keyed by kind, unit and node on both routes and
+  in every reader. The component token joins the result schemas' metadata enums; the
+  tables take it with §10.2. The desktop recognizes an unsigned, OQ-1 or envelope row by
+  its sign convention on a combination `basis_ref`, and a row stating no derivation takes
+  its combination's (`combinationNotes`).
+- **Nested rows (r2 repair, P2).** Both PF readers (RE `preview_combination_gates.rs`,
+  Python mirror) now re-derive every row of an admitted recorded combination that is not
+  unsigned and has a combination operand (mechanics, `result_state_subtraction`,
+  `range_envelope`): from its operands' rows (a load case's rows, or the operand
+  combination's published rows), with the model's factors (with the model) or the
+  `combination_derivation` record's (without it), as the producer forms them, with the
+  kernel's own functions: nested pairing (§4, r1 F4), the recomputed magnitudes, a missing
+  operand row omitting the row, support groups whole or not at all, and withheld rows.
+  Each published row must equal a derived row bit for bit (value, identity, metadata,
+  `source_result_refs`) and each derived row must be published; the
+  `LOAD_COMBINATION_SOURCE_RESULT_MISSING`, `..._VECTOR_COMPONENT_MISSING`,
+  `..._VECTOR_INVALID` and `LOAD_COMBINATION_ROW_WITHHELD` statements naming it must be
+  exactly the derived ones (`SOURCE_PREVIEW_PHYSICS_COMBINATION_NESTED_ROW`,
+  `..._NESTED_WITHHELD`). A recorded envelope's mode must be a kernel mode. The same
+  whole-row derivation reads every admitted recorded absolute sum and SRSS, flat or
+  nested, after the unsigned-row checks above (which name a changed value
+  `..._UNSIGNED_VALUE`): rows pair by the producer's rules, nested with a combination
+  operand and flat otherwise (`combination_source_identity_matches`: kind, unit, entity
+  and the whole metadata), and a magnitude states its derivation on both. The codes keep
+  their `NESTED` names. Flat mechanics, subtractions and envelopes (load-case operands
+  only) keep the reading they had before RT-A4: their gates and magnitude consistency are
+  checked, their signed values are not re-derived by the PF readers (a pre-existing
+  limit, unchanged here); a nested row is verified against its operand combination's
+  published rows as they stand.
+
+### 10.2 Policy texts (old → new)
+
+Agent 0's option (a): the texts state exactly what is built; no numeric output moves.
+**Applied at 56b7b0012.** The PF limitation sentence is `preview_physics.rs`
+`LIMITATIONS[6]`, published in every PF document's `formulation_basis`, the retained
+successors included. Those, and the tables (reviewed inputs #4, #5, #8, #11 and #12 of the
+registered retained-memory profile), move only in this order: an independent contract
+review of these texts; the texts applied through `semantic_contract_tables.py` (the two
+maintained tables, then `derive`, `apply-u4b` and `repin --from-rev HEAD`) and the carriers'
+writers; #98's D3 registration; then the retained successors and the shared retained corpus
+regenerated through the registered route. While the profile reads Stale, the retained route
+cannot regenerate them.
+
+**`policy_id`.** It becomes `PREVIEW-PHYSICS-1-COMBINATION-v2` and `PRESSURE-2-COMBINATION-v2`.
+The policy's meaning grows (combination operands, two bases, κ in place of the factor sum,
+OQ-1's admission). A consumer keyed on the v1 id must not read a v2 document as primitive-only;
+v1 documents keep v1's meaning.
+
+**PF limitation** (`LIMITATIONS[6]`; the preview-physics-2, -timoshenko-1 and -retained-1
+tables' copy).
+- Old: "Headlines cover all load cases. Mechanics combinations are withheld for nonlinear
+  supports, constant effort with sum of factors other than 1, or mixed moduli. Subtraction is
+  a labelled difference. No combination maxima and no code compliance."
+- New: "Headlines cover all load cases. In a model with nonlinear supports a mechanics
+  combination is withheld unless one term is a solved load case with factor exactly 1, at
+  least one other term exists, and every other term is a combination whose fixed-load count
+  κ is defined and exactly 0; it is then formed from rows, with its operands' standing, as a
+  solved state plus derived differences or bounds, not an equilibrium state. With a consuming
+  constant effort a mechanics combination is withheld when its κ is undefined or differs from
+  1 by more than 64ε, and an absolute sum or SRSS unless every operand's κ is exactly 0.
+  Mechanics combinations, absolute sums and SRSS are also withheld for mixed moduli over the
+  load cases they reach, and every combination is withheld with a withheld operand
+  combination. Absolute sums and SRSS are unsigned. Subtraction is a labelled difference. No
+  combination maxima and no code compliance."
+
+**preview-physics-2 `combination_policy`** (and the two derived tables, which publish the same
+policy). Members not listed are unchanged.
+- `policy_id`: old "PREVIEW-PHYSICS-1-COMBINATION-v1"; new "PREVIEW-PHYSICS-1-COMBINATION-v2".
+- `operands` (new member): "load cases or other combinations: a term names a load case or a
+  combination by kind; a subtraction's or range envelope's id names the load case when one has
+  that id and a combination otherwise; the combination graph is acyclic and is evaluated in
+  topological order, the earliest ready combination in the array first; a combination operand
+  supplies its own published rows, paired by kind, unit, entity and every metadata field
+  except basis and sign_convention, while still comparing any section_basis suffix within
+  basis (a displacement magnitude by kind, unit and node); a row an
+  operand combination withheld or omitted is missing for every combination that names it".
+- `fixed_load_count` (new member): "each operand's fixed-load count κ, an exact dyadic
+  rational: a load case 1; mechanics the exact sum of each factor times its operand's κ; a
+  subtraction the minuend's minus the subtrahend's; a range envelope the operands' common κ,
+  else undefined; an absolute sum or SRSS 0 when every operand's κ is exactly 0, else
+  undefined; undefined with an undefined operand (a subtraction or envelope propagates it) or
+  beyond 4,096 significand bits (COMBINATION_FIXED_LOAD_COUNT_UNREPRESENTABLE); over load
+  cases, κ is the exact sum of the binary64 factors".
+- `operand_gate` (new member): `{"code": "LOAD_COMBINATION_OPERAND_WITHHELD", "condition":
+  "an operand combination is withheld; the combination is withheld whole, naming each withheld
+  operand and its code"}`.
+- `mechanics_gates`: old `[NONLINEAR_COMBINATION_REQUIRES_SOLVE: "the model has any nonlinear
+  support record, including one inactive in every case"; CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE:
+  "the model has a consuming constant-effort support and a factor is not finite or |sum(factors)
+  - 1| > 64*epsilon, with sum(factors) the exact sum of the binary64 factors, compared exactly
+  and not scaled by sum(|factors|)"; COMBINATION_MODULUS_BASIS_MIXED: "the mechanics operands
+  have different modulus-basis keys"]`; new:
+  - NONLINEAR_COMBINATION_REQUIRES_SOLVE: "the model has any nonlinear support record,
+    including one inactive in every case, unless one term is a solved load case with factor
+    exactly 1, at least one other term exists, and every other term is a combination whose κ
+    is defined and exactly 0 (decision OQ-1), which is formed from rows as a solved state plus
+    derived differences or bounds; not an equilibrium state";
+  - CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED: "the model has a consuming constant-effort
+    support and some operand's κ is undefined";
+  - CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE: "the model has a consuming constant-effort
+    support and the combination's own κ is undefined or |κ - 1| > 64*epsilon, compared exactly
+    and not scaled by sum(|factors|); over load cases κ is the exact sum of the binary64
+    factors, and a non-finite factor leaves it undefined";
+  - COMBINATION_MODULUS_BASIS_MIXED: "the load cases the combination reaches through its
+    operands, transitively, have different modulus-basis keys".
+- `unsigned_gates` (new member): CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND: "the model has a
+  consuming constant-effort support and some operand's κ is undefined or not exactly 0";
+  COMBINATION_MODULUS_BASIS_MIXED: as in `mechanics_gates`.
+- `gate_precedence`: old "first gate in list order supplies the single withheld reason"; new
+  "operand_gate first, then the first gate in list order of the combination's form supplies
+  the single withheld reason".
+- `gated_forms`: old `["mechanics"]`; new `["mechanics", "absolute_sum", "srss"]`.
+- `absolute_sum` (new member): "per row over linear_state_kinds, the exact sum of |factor ×
+  source value| rounded once to nearest, ties to even; recomputed magnitudes are the norm of
+  the combined components, an upper bound on every signed combination's magnitude; rows are
+  unsigned (basis explicit_user_absolute_sum; sign convention \"unsigned value: the absolute sum
+  of |factor × source result| over explicit user terms; not an equilibrium state\"); a value,
+  or a recomputed magnitude, outside the binary64 range is withheld as load-case algebra
+  refused under LOAD_COMBINATION_ROW_WITHHELD (a support group whole); not an equilibrium state".
+- `srss` (new member): "per row over linear_state_kinds, the square root of the exact sum of the
+  squares of each factor × source value rounded once, the root rounded once to nearest, ties to
+  even; recomputed magnitudes are the norm of the combined components, which equals the SRSS of
+  the operands' magnitudes in exact arithmetic; rows are unsigned (basis explicit_user_srss; sign
+  convention \"unsigned value: the square root of the sum of squares of factor × source result
+  over explicit user terms; not an equilibrium state\"); a term or value, or a recomputed
+  magnitude, outside the binary64 range is withheld as load-case algebra refused under
+  LOAD_COMBINATION_ROW_WITHHELD (a support group whole); not an equilibrium state".
+- `canonical_metadata_vocabulary`: `basis` gains "explicit_user_absolute_sum" and
+  "explicit_user_srss"; `component` gains "displacement_magnitude".
+
+**pressure-2 `combination_policy`**. Members not listed are unchanged. physics-retained-1 has
+no `combination_policy` of its own; its vocabulary and parent digest move by `derive`.
+- `policy_id`: old "PRESSURE-2-COMBINATION-v1"; new "PRESSURE-2-COMBINATION-v2".
+- `operands`: old "primitive load cases only; a combination is never an operand"; new "load
+  cases or other combinations: a term names a load case or a combination by kind; a
+  subtraction's or range envelope's id names the load case when one has that id and a
+  combination otherwise; the combination graph is acyclic and is evaluated in topological
+  order, the earliest ready combination in the array first; a combination operand supplies its
+  own published rows under the same structural keys; a declared operating comparison
+  (difference_basis) names load cases only".
+- `fixed_load_count`, `operand_gate`, `gate_precedence`, `gated_forms`, `absolute_sum`, `srss`:
+  as for preview-physics-2 (the `absolute_sum` and `srss` texts add the clause "a combined
+  stress row keeps its operand rows' metadata basis" immediately after the parenthetical
+  "(basis …; sign convention \"…\")", followed by "; ").
+- `mechanics_gates`: old `[COMBINATION_MODULUS_BASIS_MIXED: "the mechanics operands have
+  different modulus-basis keys"; COMBINATION_RESOLVED_STIFFNESS_MIXED: "some member's resolved
+  stiffness differs between the operands: its selected E/nu/G and material, its
+  property-temperature selection, or its section bases, shear model and Timoshenko shear
+  area"; COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE: "the model has a connector or tie rod
+  whose raw installed reference (q_ref, a null-space reference included, or the rod's reference
+  extension) is nonzero, and a factor is not finite or |sum(factors) - 1| > 64*epsilon, with
+  sum(factors) the exact sum of the binary64 factors, compared exactly and inclusively and not
+  scaled by sum(|factors|)"; CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE: "the model has a
+  consuming constant-effort support (exactly one translational restraint DOF and a finite
+  positive constant load) and a factor is not finite or |sum(factors) - 1| > 64*epsilon, with
+  sum(factors) the exact sum of the binary64 factors, compared exactly and inclusively and not
+  scaled by sum(|factors|)" (RT-A3's entry, on main before this text applies)]`; new:
+  - NONLINEAR_COMBINATION_REQUIRES_SOLVE: the preview-physics-2 text (reached once the route
+    admits nonlinear supports);
+  - COMBINATION_MODULUS_BASIS_MIXED: "the load cases the combination reaches through its
+    operands, transitively, have different modulus-basis keys";
+  - COMBINATION_RESOLVED_STIFFNESS_MIXED: "some member's resolved stiffness differs between the
+    load cases the combination reaches through its operands, transitively: its selected E/nu/G
+    and material, its property-temperature selection, or its section bases, shear model and
+    Timoshenko shear area";
+  - COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE: "the model has a connector or tie rod whose
+    raw installed reference (q_ref, a null-space reference included, or the rod's reference
+    extension) is nonzero, and some operand's κ or the combination's own κ is undefined, or
+    |κ - 1| > 64*epsilon, compared exactly and inclusively and not scaled by sum(|factors|);
+    over load cases κ is the exact sum of the binary64 factors";
+  - CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED: "the model has a consuming constant-effort
+    support (exactly one translational restraint DOF and a finite positive constant load) and
+    some operand's κ is undefined";
+  - CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE: "the model has a consuming constant-effort
+    support, every operand's κ is defined, and the combination's own κ is undefined or
+    |κ - 1| > 64*epsilon, compared exactly and inclusively and not scaled by sum(|factors|);
+    over load cases κ is the exact sum of the binary64 factors".
+
+  The installed-reference entry precedes both constant-effort entries, so with both sources
+  gate 3's code is the single reason (§10, undefined κ on EX, by source).
+- `unsigned_gates` (new member): COMBINATION_MODULUS_BASIS_MIXED and
+  COMBINATION_RESOLVED_STIFFNESS_MIXED as above; INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND:
+  "the model has such a nonzero installed reference and some operand's κ is undefined or not
+  exactly 0"; CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND: "the model has a consuming
+  constant-effort support and some operand's κ is undefined or not exactly 0".
+- `stress_metadata`: old text, then "; a displacement_magnitude row of an absolute sum, an SRSS
+  or a combination with a combination operand carries metadata stating its derivation
+  (component displacement_magnitude, global, node, the expression's basis and sign convention);
+  a flat combination's carries none".
+- `canonical_metadata_vocabulary`: as for preview-physics-2.
+
+**Digests and identities that move when applied** (each by its maintained writer): the five
+tables (preview-physics-2 and pressure-2 edited; timoshenko-1, preview-physics-retained-1 and
+physics-retained-1 by `derive`); the result, analysis-run and stress-neutral schemas embedding
+their digests and the limitation records (`apply-u4b`, `repin`), and
+`tools/release/schema_manifest.json`; the pins `repin` lists (`semantic_contract.rs`,
+`compatibility.py` twice, `qualification_*.py`, the reader-outcome, persistence and report
+fixtures, desktop tests); every PF document carrying `LIMITATIONS[6]` (40 files, among them the
+`preview_physics_*` and `product_preview` fixtures, `validation/witness/inputs/del1005_*`, and
+the retained successors and `retained_precision_cases.json`, which only the registered route
+regenerates); and the retained-memory profile's reviewed inputs #4, #5, #8, #11 and #12 beside
+#10, which this branch has already moved, all recorded by #98's D3. No numeric output moves.
+
+### 10.3 Model-free derivation evidence (Agent 0's decision after review r1)
+
+**Why.** Report packaging, derivatives and result export read PF documents without their
+model (`semantic_contract::for_source`), and §10.1's P2 repair refused a linear-model
+document carrying an absolute sum or SRSS there. Agent 0 decided that PF publishes what the
+readers need, as a nonlinear model's `combination_operands` already states its factors, so
+every reader verifies such a document bit for bit without the model.
+
+**Shape.** `contract_evidence.combination_derivation`, an optional member of
+`results.v0.3`'s `PreviewPhysicsContractEvidence` (and the same definition in
+`stress_neutral_export.v0.3`); no version change:
+
+```json
+{"nonlinear_supports": false, "consuming_constant_effort": true,
+ "combinations": [
+   {"combination_id": "d1", "basis": "result_state_subtraction",
+    "expression": {"minuend_id": "W1", "subtrahend_id": "W2"}},
+   {"combination_id": "srss-d", "basis": "srss",
+    "expression": {"terms": [{"combination_id": "d1", "factor": 1.0}]}}]}
+```
+
+- `nonlinear_supports` and `consuming_constant_effort` are the two model conditions the gates
+  read (PF `Rendered`): the nonlinear gate with decision OQ-1, and the κ gates.
+- `combinations` holds, in gate (evaluation) order, one record for every `absolute_sum`, every
+  `srss` and every combination with a combination operand, withheld or not, and for every
+  combination those reach through their operands, so each record's κ is re-derivable from
+  earlier records. The expression is `combination_operands`' shape: a term names its operand by
+  kind with its factor; a subtraction's or envelope's id names the load case when the document
+  publishes one with that id (`preview_cases`) and a combination otherwise.
+- The member is absent when no combination is unsigned or nested. A document with flat
+  combinations only (linear, subtraction, envelope) publishes exactly as before (V-8), and a
+  flat combination gains a record only as an operand of an unsigned or nested one.
+- A nonlinear model keeps its `combination_operands` records. Where both state a combination,
+  they must agree.
+
+**Readers** (RE `preview_combination_gates.rs`, Python `preview_combination_gates.py`; the CLI
+through `reader_verdict`). Without the model, the readers check the member's closed shape, its
+order (each record's gate follows the previous one's), the resolution of every operand (a
+published load case, or a combination recorded earlier) and its closure (every record is
+unsigned, nested, or an operand of a later record). They also check agreement with
+`combination_operands` and that `nonlinear_supports` is true wherever the document shows a
+nonlinear support. From the records they re-derive κ and OQ-1. For each recorded combination
+they then check its gate up to the modulus gate exactly: withheld operand, nonlinear except
+OQ-1, κ. The modulus gate is admitted as stated, as for flat combinations, because the
+modulus bases are not part of the evidence. Every admitted absolute sum's and SRSS's rows must
+be A or R of the recorded factors and their operands' rows, bit for bit. A κ withholding
+without its record, or a row citing an operand combination's row without its record, is
+refused as `..._COMBINATION_GATE_UNVERIFIED`, and an unsigned row without its record as
+`..._COMBINATION_UNSIGNED_UNVERIFIED`. A malformed or inconsistent member is
+`SOURCE_PREVIEW_PHYSICS_COMBINATION_DERIVATION_EVIDENCE`. With the model, the member must
+equal the one the model implies, with numbers compared as binary64 (the same code), before
+the existing model re-derivation. A blocked envelope carries no member.
+
+**Tests.** `rt_a4_combinations.rs`: every PF document in V-5 to V-10 reads with and without
+its model; `pf_model_free_readers_verify_from_the_published_derivation` covers the tampers
+(factor, operand, row, model condition, closure, missing member);
+`pf_flat_documents_publish_no_derivation` checks that a flat document publishes none and that
+one stated on it is refused. `tests/test_rt_a4_pf_reader_tampers.py` runs the same through the
+runner CLI and the Python mirror.
+
+### 10.4 Recorded results from before RT-A4 (historical read)
+
+**Why.** §10.2's texts moved the preview-physics tables' digests. A preview-physics statement
+carries its table's limitation array (`formulation_basis.limitations`) and no table digest, and
+every reader requires that array to equal its table's (`preview_physics_evidence.rs`
+`FORMULATION_BASIS`; the retained reader's G7 base read and transport check), so a statement
+published before RT-A4 is refused by the current tables. A run recorded on main binds its
+table `{id, sha256}`. Agent 0 made reading those runs a merge condition of #98: they read as
+main read them, through a scoped historical path like pressure-2's recorded bases
+(`RECORDED_RUN_TABLE_BASES`), without widening current admission.
+
+**Registry (closed).** Each variant is the table's bytes as the main line held them, verbatim,
+under `fixtures/results/recorded_pre_rt_a4/`, its SHA-256 checked when it is first read
+(Rust `recorded_tables::VARIANTS`; Python `compatibility.RECORDED_PRE_RT_A4_TABLES`; desktop
+`recordedPreRtA4.ts`, read as raw text and hashed):
+
+| Identity | Recorded digest | Current digest | Origin | Read |
+|---|---|---|---|---|
+| preview-physics-2 | 1ccc9561… | e7b93f41… | main 6c3cb46d3 | under the variant's table |
+| preview-physics-timoshenko-1 | a7b83c37… | ce49ebe0… | main 6c3cb46d3 | under the variant's table |
+| preview-physics-retained-1 | b001070e… | 26dce9c2… | main 6c3cb46d3 | under the variant's table, its base under preview-physics-2 1ccc9561… (its inherited digest) |
+| physics-retained-1 | cf29fd5f… | 040ef9a6… | main 6c3cb46d3 | binding only |
+| physics-retained-1 | 045f6f0d… | 040ef9a6… | #101 01e05a486 (main once RT-A3 increment 3 lands first) | binding only |
+
+Every variant's rows are the current table's; only limitations, combination-policy text,
+vocabulary and inherited digests moved. The exact successor's statements still read under the
+current reader (its rows and receipt bindings are unchanged), so its variants change no reader
+table: they are recorded bindings, as pressure-2's bases are. pressure-2 itself needs no
+entry: its main digest (a2db16a5…) and #101's (be29fabc…) are already
+`RECORDED_RUN_TABLE_BASES`, and its statements carry no limitation the reader compares.
+
+**Selection rule.** A variant is selected only by a record's binding
+`analysis_run.reproducibility.semantic_contract` that is exactly `{id, sha256}` and equal to a
+registry member whose identity is the statement's `producer.semantic_contract_id`, and only on
+the recorded-run read, compare and re-save paths. There the readers run inside
+`recorded_tables::read_recorded`, which selects the variant for that read alone (a scoped
+thread-local; see "Scope of the selection" below): the PF evidence reader, its transport check, the header's
+table, `binding_of`, and the retained reader's G0 table, inherited-digest check and G7 base read
+all take the variant's tables. The current binding on a recorded entry reads as the current
+entry does. Any other binding is refused by name: `SOURCE_RECORDED_BINDING_UNKNOWN`, or
+`SOURCE_RECORDED_BINDING_IDENTITY` for a variant of another identity (a successor under its
+base's variant, an exact successor under a preview successor's, and so on); a refused binding
+reads nothing.
+
+**Scope of the selection.** The selection is the calling thread's and lasts only for the
+synchronous call of `read_recorded`'s closure. It is restored to what the thread held before
+however that call ends: a returned value, an `Err` the closure returns, a refused binding
+(nothing is selected), or an unwinding panic (the guard's drop). A current binding nested in a
+recorded read clears it for its own read (review r5); a recorded read nested in another restores
+the outer one. No caller holds it across an async yield: every caller runs the read to
+completion on its own thread (the wasm engine's exports, which are synchronous; the runner's
+`read` command; the desktop's native code makes no recorded read). Under `panic = abort` a panic
+does not unwind and the guard does not run. Natively that ends the process (and the selection
+with it; the native profiles unwind). The wasm32 target aborts by default and a trap leaves the
+instance usable with the selection still set, so every outermost entry runs inside
+`recorded_tables::entry_scope`, which clears whatever selection it finds and leaves none: every
+wasm export of `operation_applier` (a scan test, `wasm_exports_run_as_outermost_entries`, keeps
+later exports in it) and the runner's `read` command. A selection leaked that way therefore never
+reaches a current read (`recorded_tables::tests::a_leaked_selection_does_not_reach_a_current_read_through_an_outermost_entry`,
+which fails without the guard).
+
+**Entries.** Rust `reader_verdict::{dispatch, validate, transport, row_semantics,
+row_semantics_each, retained, retained_transport}_recorded`; the runner's `read` admits a
+`recorded_binding` member on `dispatch`, `preview-physics`, `preview-physics-transport`,
+`retained-precision`, `retained-precision-transport` and `row-semantics` (no other reader
+admits it); the wasm engine's `reader_recorded_json(entry, binding, source, model?,
+invocation?)`. Python: `validate_analysis_run_v0_3(..., recorded_read=True)` reads a record
+binding a variant through those entries and interprets its rows under the variant's table.
+Desktop: `validateAnalysisRunV03(..., { recordedRead: true })`, called by
+`buildRecordedRunContext` and `buildHistoricalRunContext` (and so by the comparison's
+`recordedRunSide`); the route, the preview-physics validation, the successor validation, the
+binding and the row interpretation then all come from the recorded read.
+
+**What stays refused.** Every current path reads the current tables only and never selects a
+variant: the producer and its output checks, the record builders (Python `build_analysis_run`,
+desktop `buildAnalysisRunV03`), the record validator without `recorded_read` (the
+stress-neutral package, the result export and the export panels call it so), the header
+dispatch, `standing`, `numerical_use_standing` and rule binding. A statement carrying a
+variant's limitations is refused on all of them as at a4ff570dc
+(`SOURCE_PREVIEW_PHYSICS_FORMULATION_BASIS`; a preview successor's header is refused at the
+dispatch). Also refused on the recorded read: an unknown or altered digest, a record binding
+the current table over a statement published before RT-A4, a statement restated with the
+current limitations under a variant's binding, mixed record and row bindings
+(`ANALYSIS_ROW_SOURCE_BINDING_MISMATCH`), a binding with any third member, a variant table whose
+bytes differ from its digest (`SOURCE_RECORDED_TABLE_HASH`), and tampered record or statement
+bytes (their checksums, as before).
+
+**Standing and display rule.** A recorded or reopened run stays historical. The standing a
+recorded run displays, and a recorded comparison side's standing, are those its statement read
+with when recorded (Rust's recorded dispatch; a successor's is its registration's, and a saved
+successor never registers); they are not replaced by the current standing. They are display
+evidence of a historical run with no Current or Solve authority: nothing makes a reopened run
+Current, sets the solve stage, drives an overlay or rule check, or readies a report. The current
+standing of the same statement stays `unsupported`. Four rules govern the display
+(`HistoricalRunContext.tsx`, `runComparisonSides.ts`):
+
+- The findings the historical reader computes under the variant (the recorded standing's
+  findings) are kept apart from the reopen's findings, with their scope: the context's
+  `historicalReaderFindings` and `recordedTableRead` (`{id, sha256}` of the variant), and the
+  comparison side's `recordedTableRead`. They render under "As recorded under <id> (sha256
+  <digest>); historical evidence only, not a current standing" (the reopened-run panel, the
+  History panel's run check, the comparison's side text), never merged into the ordinary list.
+- Every check's finding stays an ordinary finding: corruption and hash mismatches, the record
+  validator's refusal with `recordedRead` whatever its code, a retained receipt mismatch or
+  successor refusal, a refused recorded read (`SOURCE_RECORDED_BINDING_*`,
+  `SOURCE_RECORDED_TABLE_HASH`, a malformed statement) and malformed evidence. The context keeps
+  them as `checkFindings` (every ordinary finding but a current standing's).
+- A favourable stored or as-recorded status never masks a failed reopen validation: a recorded
+  run with any check finding is not compared (`recordedRunBindingFindings` is `checkFindings`;
+  before this rule it kept only `HISTORICAL_`/`RECORDED_RUN_`/`ANALYSIS` codes, so a record the
+  validator refused with, e.g., `SOURCE_RECOVERY_METADATA_CONTRADICTION` was offered as an
+  eligible side on its as-recorded standing; `recordedPreRtA4.test.ts` "a stored record whose
+  reopen validation fails" fails without the rule).
+- Every display surface a reopened or recorded run reaches classifies it under its recorded
+  table, explicitly as recorded, and never with a current-only reader. A current reader refuses
+  the statement (its limitation 6 is the old table's), so a surface that read it with one showed a
+  false current verdict; focused confirmations r6, r7 and r8 found these one surface at a time,
+  and this rule now covers the whole class. The table is threaded explicitly as an optional
+  `recordedTableRead` that every current caller omits. There is no ambient or module state, and
+  an unknown or refused binding reads as refused (`unsupported`, `integrity_failure`, no
+  dimension, no label or notice); it never falls back to the current reader. The threaded
+  surfaces are:
+  - `HistoricalRunPanel` passes the context's table to `ResultsPanel`.
+  - In `ResultsPanel`, the route through `displayRoute` (`resultReader.ts`: the recorded
+    dispatch under a table, else `sourceContract`). The route drives the label source and the
+    health, and it states the standing line, which is prefixed "As recorded under ...".
+  - `standaloneNumericalHealth` (`recordedResultStanding`).
+  - The row categories, family groups, filters and readout dimensions (`semanticLabels`).
+  - The row labels and the CSV "Row label" column (`resultRowLabel`).
+  - `KnownSemanticNotices` (`knownSemanticNotices`).
+  - Result Detail's family and endpoint pair (`buildResultInterpretation`).
+  - The detail and endpoint-pair readouts and the endpoint-pair CSV dimension
+    (`semanticDimension`).
+  - The recorded comparison's rows and semantic identity (`flattenRunResult`,
+    `resultSemanticIdentity`, from the side's `recordedTableRead`), with the side's standing
+    (`recordedResultStanding`).
+  - The reopen's and the History run check's own reads (`readStanding`, the successor's
+    `validateRetainedPrecisionRecorded`, `validateAnalysisRunV03(..., { recordedRead: true })`).
+
+  The row semantics under a table come from the wasm export `reader_recorded_row_semantics_each_json`
+  (Rust `row_semantics_each_recorded`). The other surfaces carry no reader verdict and are not
+  applicable:
+  - `componentBody`, `hangerPreload`, `PhysicsSourceEvidencePanel` (producer id only), the
+    section-basis headlines and the unit policy.
+  - The navigator (`resultsNavigator.ts`).
+  - The CSV provenance (`csvAnalysisRoute` is the producer id; `csvResultHash` hashes only).
+  - `readNumericalHealth` (it takes the threaded standing's findings).
+  - `retainedPrecisionStandingText` and `retainedRowClasses` (a session registration, which a
+    saved run never has).
+  - `RunComparisonView` and its CSV (they read the side's rows and standing).
+  - `HistoryPanel`'s run check (it shows the context's scoped findings).
+
+  Some current-only readers are not reached. `LoadReferenceOutputGate`, `loadReferenceDisclosure`,
+  `retainedPrecisionDisclosure`, the key-results, summary and export panels, and report
+  readiness all receive only the current solved result: the session's result is null while a
+  historical run is shown. In the recorded record validator, `readerValidate("pressure")` and
+  `validateRetainedRecoverySource` are reached only on the pressure routes, which have no
+  registry variant. A historical side's identity is its table's binding, so it compares with
+  runs recorded under the same table, and a pair with a current run is refused as
+  `semantic_identity_differs`. The retained standing restriction (needs recompute) is unchanged.
+  `recordedPreRtA4Display.test.tsx` renders `HistoricalRunPanel` for each registry variant.
+  It selects one row of every kind, so Result Detail and each endpoint pair show, and it exports
+  every CSV. It requires none of the current readers' refusal texts and a converting readout for
+  every displacement and stress row, and it requires the same row cells, Result Detail and
+  notices as the statement's current twin in `fixtures/results`. It checks the same for
+  recorded comparisons under one table and for the History run check. It fails at 485fb08f7:
+  each of the retained milestone's 40 representative Result Details showed `integrity_failure`
+  or an unknown-dimension readout, and its maximum-stress row label was missing.
+
+Python has no display surface for these runs: `validate_analysis_run_v0_3(...,
+recorded_read=True)` raises its refusal, and no product path turns it into standing.
+
+**Schema contract.** `schemas/analysis_run.v0.3.schema.json` stays the current production and
+admission schema; its semantic-contract digests are the current tables' only, and no accepted
+family set is widened. Its `description` states that runs recorded under earlier tables are read
+through this separate recorded historical-read contract (this registry, and pressure-2's
+`RECORDED_RUN_TABLE_BASES`), that the schema makes no claim that such historical records validate
+against it, and that a generic schema tool failing a stored record under it is not by itself proof
+that the stored bytes are corrupt: the record's checksum and the product's recorded-run read
+decide that. The description is an annotation only; the schema's digest moved with it
+(3d2776bb… → d30507f1…, `tools/release/schema_manifest.json` regenerated).
+
+**Bytes and re-save.** Nothing is migrated or resealed. Reading changes no byte. The record
+path and the store read hashes and bytes, never a table, so a re-saved run keeps its recorded
+binding, its received-result checksum and its statement's bytes: the store records main's
+transient record into main's witness byte for byte, and Python's and the desktop's recorded
+revision of it is main's witness in canonical form.
+
+**Consumers.** Rust result_export (`recorded_tables`, `semantic_contract`, `retained_precision`,
+`reader_verdict`): changed. Headless runner `read` (`reader_binding.rs`): changed. Python
+`core/analysis_runs/compatibility.py` and `rust_reader.py`: changed (the `_TABLES` lookup is
+unchanged; a recorded read returns the variant's table only when the reader's binding is the
+record's). `tests/verifiers` mirrors the current reader and is unchanged; the historical test
+substitutes the variant's limitations into it as an independent check. Desktop
+`resultReader.ts`, `retainedPrecisionReader.ts`, `resultStanding.ts`,
+`analysisRunCompatibility.ts`, `HistoricalRunContext.tsx`, `runComparisonSides.ts`,
+`runComparison.ts`, `ResultsPanel.tsx`, `resultSemantics.ts`, `resultInterpretation.ts`,
+`knownSemanticLimitations.ts`, `KnownSemanticNotices.tsx`,
+`loadWasmEngine.ts`, `HistoryPanel.tsx`, `RunComparisonView.tsx` and the wasm export
+(`operation_applier`, every export inside `entry_scope`): changed. Native src-tauri
+(`analysis_runs.rs`, the store): not applicable; it reads hashes and bytes only, and a test
+pins that it stores and reads main's run as main wrote it. The performance lane's C1 native
+custody (DEL-04-05 `result-volume-design.md` §C1, branch `claude/rt-perf-c1-custody`) ports the
+record validator and the reopen findings natively and must mirror this: in
+`analysis_run_v03_validate.rs`, `validate_v03` takes the recorded-read option, which
+`saved_run_validation` and `recorded_run_validation` pass and nothing else does; under it a
+record binding `recorded_tables::variant_of` reads through `rv::validate_recorded`,
+`rv::retained_recorded` and `rv::dispatch_recorded`, binds the variant (in place of
+`recorded_run_semantic_binding`'s current binding) and interprets rows under the variant's
+`table()`; `standing` for `saved_run_findings` / `recorded_run_findings` and the native
+comparison side takes `rv::dispatch_recorded(...)["standing"]` (a successor keeps its
+registration standing); `result_detail.rs` may use `rv::row_semantics_each_recorded` (rows are
+identical, so its output is the same). Its parity corpus gains `fixtures/persistence/
+recorded_pre_rt_a4_pf`. C1 must also mirror the display rule above (the historical reader's
+findings kept apart with their table, every check's finding ordinary, and any check finding
+refusing the comparison side) and run its reads synchronously on one thread. This is an explicit
+dependency of C1 (#59): #98's closure does not imply that #59 already mirrors the historical read
+or the display rule, and #59 is not complete for runs recorded before RT-A4 until it does.
+
+**Tests.** Rust `result_export/tests/recorded_pre_rt_a4.rs` and `recorded_tables` unit tests
+(restoration on an error, a refusal and an unwind; nested current and nested historical reads;
+the leaked selection);
+runner `reader_binding` (`a_recorded_binding_runs_the_recorded_entry`, and the unusable
+inputs); wasm export `operation_applier/tests/reader_verdict_binding.rs`
+(`the_recorded_entry_returns_the_recorded_verdicts`, `wasm_exports_run_as_outermost_entries`); native `analysis_runs_tests.rs`
+(`a_run_recorded_before_rt_a4_is_stored_and_read_back_as_main_wrote_it`); Python
+`tests/test_recorded_pre_rt_a4_pf.py`; desktop `src/services/recordedPreRtA4.test.ts` (the
+display scope and the masking regression), `HistoricalRunContext.test.tsx` and
+`HistoryPanel.runs.test.tsx` (the rendered label and lists). Fixtures:
+`fixtures/persistence/recorded_pre_rt_a4_pf/` (README there: main's preview-physics-2 records
+verbatim; main has no recorded Timoshenko or successor run, so those records were built by
+main's own record builder from main's verbatim statements). Repin never edits either
+directory.

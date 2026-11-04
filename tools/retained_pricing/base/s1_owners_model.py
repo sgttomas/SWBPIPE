@@ -40,7 +40,10 @@ import os
 from g3lib import B, s, pushcap, HashReq, HashMov
 
 PP = "core/product_physics/src/"
-PINS = {PP + "document_members.rs": "6ada6a00c3f8300747dfa3420fd920df595e2e3b1f88d5a4cb0bc8c32e463910",
+# RT-A4 D3 (§8.46): document_members.rs drops interim_reasons' unsigned and nested pushes and builds the withholding's
+# dependants (a plan, after `withheld.is_empty()`'s return, RT-A4-WZ) instead of Operands and views. On D1 the pass now
+# allocates nothing (no interim reason: D1.4); withholding() keeps its former price as an allowance (not dropped).
+PINS = {PP + "document_members.rs": "a2bc924c6a2e857f4e8f9ebbfc3d8aef7c4af5b67a19e22f5e4ea707e3b5f6b3",
         PP + "operating_conditions.rs": "e3ddf5bdf79698f3cbd555c9bd3ed125227030e60737760479c6c9fd7cadfa38",
         PP + "spectra.rs": "b1ed575817c3d9ffd4edd16fcfefc1f8e9029c13c2985c9219e868d3e3f69060"}
 # Model document 0.9.0 S2 (§8.40): operating_conditions.rs above is S2's judge/lower split (e3ddf5bd…; S1's was 81460837…)

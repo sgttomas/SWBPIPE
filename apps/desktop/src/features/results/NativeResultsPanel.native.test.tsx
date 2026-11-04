@@ -332,7 +332,7 @@ describe("a native group's CSV through the native stream", () => {
       const { result, full } = await nativeResult(name);
       // The full rows' CSV: the browser panel's own export of each group, through the single save.
       // The same health on both sides (the session gives both panels its own).
-      const health = standaloneNumericalHealth(full);
+      const health = standaloneNumericalHealth(full, null);
       const fullView = render(<Harness result={full} model={pair.model} numericalHealth={health} />);
       const groups = [...fullView.container.querySelectorAll<HTMLElement>("[data-testid^='result-group-'][data-testid$='-export-csv']")].map((button) => button.dataset.testid!);
       expect(groups.length).toBeGreaterThan(1);

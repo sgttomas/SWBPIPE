@@ -12,7 +12,7 @@ import {
   type StateLabels
 } from "../../services/modelStateService";
 import { LABELS_DO_NOT_CHANGE_RUN, runDescription, type AnalysisRunSummary, type RunLabels } from "../../services/analysisRunService";
-import { recordedRunBindingFindings } from "../results/HistoricalRunContext";
+import { HistoricalReaderFindings, recordedRunBindingFindings } from "../results/HistoricalRunContext";
 import { RulePackRunReferences } from "../rule-packs/RulePackRunReferences";
 import { RULE_PACKS_NOT_RESOLVED, unreadableGuidance, type UnreadableRow } from "../../services/historyListEntries";
 import { useSessionHistory, useSessionModel, useSessionProject } from "../workspace/WorkspaceSessionContext";
@@ -260,6 +260,7 @@ function RunRow({ run, selection }: { run: AnalysisRunSummary; selection: RunSel
                 ? "The recorded run does not match its stored state and record:"
                 : "The record, its stored result and input manifest, and its state's model hash agree."} This is a record check only; it establishes no current result.</p>
               {check.context?.findings.length ? <ul>{check.context.findings.map((finding) => <li key={finding}>{finding}</li>)}</ul> : null}
+              {check.context ? <HistoricalReaderFindings context={check.context} testId={`${testId}-recorded-reader`} /> : null}
               <RulePackRunReferences manifest={check.manifest} record={check.context?.restored ? restoredRecordDiagnostics(check.context.restored) : check.context?.analysisRun} testId={`${testId}-rule-pack-refs`} />
             </>
           )}

@@ -15,7 +15,8 @@ import { csvAnalysisRoute, csvRecordedModelHash, csvResultHash } from "../result
 import type { RunSideCsvProvenance } from "./runComparisonCsv";
 import { recordableRun, runDescription, type AnalysisRunRead, type AnalysisRunSummary, type CurrentRunSlot } from "../../services/analysisRunService";
 import { buildRecordedRunContext, recordedRunBindingFindings } from "../results/HistoricalRunContext";
-import { numericalResultStanding, type NumericalStanding } from "../results/resultStanding";
+import { numericalResultStanding, recordedResultStanding, type NumericalStanding } from "../results/resultStanding";
+import { recordedPreRtA4RecordBinding, type RecordedBinding } from "../../services/recordedPreRtA4";
 import { jsonTextKeepingNegativeZero } from "../../services/jsonText";
 import type { CurrentSessionInputManifest } from "../../services/inputManifestService";
 import {
@@ -44,6 +45,10 @@ export type RunComparisonSide = {
   /** The saved state a recorded run is tied to (`"<name>" (<state id>)`), or null. */
   state: string | null;
   standing: NumericalStanding;
+  /** RT-A4 §10.4 display rule: for a run recorded before RT-A4, the registry variant `standing`
+   * was read under (its standing as recorded, displayed as such and never as a current one);
+   * null for a side read under the current tables. */
+  recordedTableRead: RecordedBinding | null;
   input: RunComparisonInput;
   /** RT-R6: what the side states for a CSV preamble (absent sides state `not_recorded`). */
   csv?: RunSideCsvProvenance;
@@ -68,19 +73,22 @@ export function notExactRunReason(run: Pick<AnalysisRunSummary, "run_name" | "re
   return `the recorded run ${runDescription(run)} holds values the desktop cannot represent exactly (its ${named} as received ${parts.length > 1 ? "do" : "does"} not hash to the stored hash)`;
 }
 
-function standingOf(result: MechanicsResult, model: unknown): NumericalStanding {
+function standingOf(result: MechanicsResult, model: unknown, record?: unknown): NumericalStanding {
   try {
+    // RT-A4 §10.4: a run recorded before RT-A4 keeps the standing it read with when recorded.
+    const recorded = record === undefined ? null : recordedPreRtA4RecordBinding(record);
+    if (recorded) return recordedResultStanding(result, recorded, model as Parameters<typeof recordedResultStanding>[2]);
     return numericalResultStanding(result, model as Parameters<typeof numericalResultStanding>[1]);
   } catch (error) {
     return { contract: "unsupported", status: "needs_recompute", eligible: false, findings: [error instanceof Error ? error.message.split(":")[0] : "RESULT_READER_UNAVAILABLE"] };
   }
 }
 
-function sideInput(result: MechanicsResult, manifest: CurrentSessionInputManifest, record: Parameters<typeof runDiagnostics>[0], standing: NumericalStanding): RunComparisonInput {
+function sideInput(result: MechanicsResult, manifest: CurrentSessionInputManifest, record: Parameters<typeof runDiagnostics>[0], standing: NumericalStanding, recordedTableRead: RecordedBinding | null = null): RunComparisonInput {
   return {
-    rows: flattenRunResult(result),
+    rows: flattenRunResult(result, recordedTableRead),
     standing,
-    semantic_identity: resultSemanticIdentity(result),
+    semantic_identity: resultSemanticIdentity(result, recordedTableRead),
     context: runContext(manifest),
     diagnostics: runDiagnostics(record)
   };
@@ -90,7 +98,9 @@ function sideInput(result: MechanicsResult, manifest: CurrentSessionInputManifes
  * result, snapshot, manifest and record, as the webview decoded them, are hashed again
  * in the store's canonical forms (`buildRecordedRunContext`): a hash that differs is
  * refused as `COMPARISON-RUN-NOT-EXACT`, any other disagreement with its stored state
- * and record as `COMPARISON-RUN-RECORD-MISMATCH`. */
+ * and record as `COMPARISON-RUN-RECORD-MISMATCH`. Every check's finding counts, the record
+ * validator's refusal whatever its code included: a standing that reads favourably, current or
+ * as recorded under a pre-RT-A4 table, never admits a run whose reopen validation failed. */
 export async function recordedRunSide(read: AnalysisRunRead): Promise<RunComparisonSide> {
   const context = await buildRecordedRunContext(read);
   const findings = recordedRunBindingFindings(context);
@@ -105,7 +115,7 @@ export async function recordedRunSide(read: AnalysisRunRead): Promise<RunCompari
     const listed = findings.length ? findings.join(", ") : "its result or input manifest cannot be read";
     throw new RunComparisonRefusal(COMPARISON_RUN_RECORD_MISMATCH, `the recorded run ${runDescription(read.run)} does not agree with its stored state and record as the desktop reads them (${listed}), so it is not compared.`);
   }
-  const standing = standingOf(result, manifest.model_basis.model_payload);
+  const standing = standingOf(result, manifest.model_basis.model_payload, read.record);
   return {
     kind: "recorded",
     id: read.run.recording_id,
@@ -113,7 +123,8 @@ export async function recordedRunSide(read: AnalysisRunRead): Promise<RunCompari
     createdAt: read.run.created_at,
     state: `"${read.state.state_name}" (${read.state.state_id})`,
     standing,
-    input: sideInput(result, manifest, read.record, standing),
+    recordedTableRead: context.recordedTableRead,
+    input: sideInput(result, manifest, read.record, standing, context.recordedTableRead),
     csv: { modelHash: csvRecordedModelHash(read.state.model_hash), model: null, resultHash: csvResultHash(result, read.record), analysisRoute: csvAnalysisRoute(result) }
   };
 }
@@ -156,6 +167,7 @@ export function currentRunSide(slot: CurrentRunSlot): RunComparisonSide {
     createdAt: null,
     state: null,
     standing,
+    recordedTableRead: null,
     input: sideInput(result, inputManifest.manifest, analysisRun, standing),
     csv: { modelHash: null, model: inputManifest.manifest.model_basis.model_payload, resultHash: csvResultHash(result, analysisRun), analysisRoute: csvAnalysisRoute(result) }
   };

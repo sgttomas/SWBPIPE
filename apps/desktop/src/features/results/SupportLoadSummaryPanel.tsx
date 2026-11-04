@@ -41,6 +41,10 @@ export const SUPPORT_LOAD_BOUNDARY_TEXT =
   "Emitted rows in global axes, as the solver states them. Maximum and minimum are taken over the listed solved rows; they mark no limit and qualify nothing.";
 export const SUPPORT_LOAD_ENVELOPE_TEXT =
   "Range envelope: each value is selected separately from the envelope's operands, so a row is not one solved state and stays out of the maximum and minimum.";
+/** RT-A4: an absolute sum or SRSS is unsigned, and a solved state plus derived bounds is not one
+ * solved state either. */
+export const SUPPORT_LOAD_DERIVED_TEXT =
+  "Absolute sum or SRSS: each value is unsigned, a bound formed from its terms, so a row is not one solved state and stays out of the maximum and minimum.";
 export const SUPPORT_LOAD_ALLOWABLES_TEXT = "No allowable loads are shown: the support record carries none.";
 
 export type SupportLoadSummaryPanelProps = Readonly<{
@@ -86,9 +90,11 @@ function equipmentText(summary: SupportLoadSummary): string | null {
 
 function exclusionText(summary: SupportLoadSummary): string {
   const { withheld, envelope, empty } = summary.exclusions;
+  const derived = summary.rows.filter((row) => row.standing === "admitted" && row.case.envelope && row.case.note !== undefined).length;
   const parts = [
     withheld > 0 ? `${withheld} withheld by numerical standing` : null,
-    envelope > 0 ? `${envelope} range envelope${envelope === 1 ? "" : "s"}` : null,
+    envelope - derived > 0 ? `${envelope - derived} range envelope${envelope - derived === 1 ? "" : "s"}` : null,
+    derived > 0 ? `${derived} unsigned or bounded combination${derived === 1 ? "" : "s"}` : null,
     empty > 0 ? `${empty} with no emitted values` : null
   ].filter((part): part is string => part !== null);
   const base = `Maximum and minimum over ${summary.extremeRowCount} of ${summary.rows.length} rows`;
@@ -172,7 +178,8 @@ export function SupportLoadSummaryPanel({ model, result, analysisRun = null, sta
           </div>
           <SupportLoadTable summary={summary} tid={tid} />
           <p data-testid={tid("extremes-note")}>{exclusionText(summary)}</p>
-          {summary.rows.some((row) => row.case.envelope && row.standing === "admitted") ? <small data-testid={tid("envelope-note")}>{SUPPORT_LOAD_ENVELOPE_TEXT}</small> : null}
+          {summary.rows.some((row) => row.case.envelope && row.case.note === undefined && row.standing === "admitted") ? <small data-testid={tid("envelope-note")}>{SUPPORT_LOAD_ENVELOPE_TEXT}</small> : null}
+          {summary.rows.some((row) => row.case.note !== undefined && row.standing === "admitted") ? <small data-testid={tid("derived-note")}>{SUPPORT_LOAD_DERIVED_TEXT}</small> : null}
           <small data-testid={tid("allowables")}>{SUPPORT_LOAD_ALLOWABLES_TEXT}</small>
           <small>{SUPPORT_LOAD_BOUNDARY_TEXT}</small>
         </>
@@ -201,7 +208,7 @@ function SupportLoadTable({ summary, tid }: { summary: SupportLoadSummary; tid: 
         <tbody>
           {summary.rows.map((row) => (
             <tr key={row.case.key} data-testid={tid(`row-${row.case.key}`)} data-standing={row.standing}>
-              <th scope="row">{row.case.label}{row.case.envelope ? <small> range envelope</small> : null}</th>
+              <th scope="row">{row.case.label}{row.case.envelope ? <small> {row.case.note ?? "range envelope"}</small> : null}</th>
               {row.standing === "withheld" ? (
                 <td colSpan={SUPPORT_LOAD_COLUMNS.length} data-testid={tid(`withheld-${row.case.key}`)}>{row.withheldReason}</td>
               ) : (

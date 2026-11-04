@@ -576,10 +576,15 @@ const ENTRY_RULES: [(&str, &str, Entry); 6] = [
 /// `save_restored_result_local_project` (the previous digest `4d4c5707…5c97ca`
 /// reproduced first; the macro's only change is that line; reviewed likewise:
 /// no `mod`, no `$parameter ::`, no scanned name).
+/// RT-A4 §10.4 (#98) re-pinned both headless macros: each `read` closure
+/// now chooses between the current reader and its `reader_verdict::*_recorded`
+/// twin by the input's `recorded_binding` member (were e4ca5430…/b000ef8e…;
+/// reviewed: no `mod`, no `$parameter ::`, no scanned name; `rv::` was
+/// already named; still one `Reader` literal each).
 const MACRO_DEFINITIONS: [(&str, &str, &str); 3] = [
     ("src-tauri/src/lib.rs", "app_invoke_handler", "2af3c0143ed4383f0ea012f3a6549f6859442e68ab5bf5487eb1eef3de807279"),
-    ("headless/src/reader_binding.rs", "base", "e4ca54306ec20645a40f7658e2d9f63508fd5ab234c9d29b83f95c7ac0bd5aea"),
-    ("headless/src/reader_binding.rs", "transport", "b000ef8eab3fc5711dbb04be30705f8902c19adfee232aec9114210f6d48fd79"),
+    ("headless/src/reader_binding.rs", "base", "d80e766036e0f651522ebfe11ebc6ba1fc32ec2b9c2b3702e0b978eb86558cb2"),
+    ("headless/src/reader_binding.rs", "transport", "057aa56311a7531f094632a3fe9f2d781b9364ab4865add6c7d257403732169a"),
 ];
 
 /// The macro definitions admitted in `src-tauri`'s test-only items (code
