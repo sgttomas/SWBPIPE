@@ -20,6 +20,81 @@ All five grants are consumed. `app-c1-main-4d0bb1858` was never launched and is
 pressure-2 bases); its record is kept as history. **No retry, B1000 or further native
 interval is authorized.** Exact selected identities and all raw packets remain preserved.
 
+## RT-A4 integration candidate: prepared offline (2026-11-04; nothing built, nothing run)
+
+This prepares the next candidate. It is not a build, a run, a measurement or a qualification
+claim. No App, worker, solver, sampler or large result was launched, and no timing or RSS was
+taken. Any run needs Agent 0's explicit readiness clearance and the owner's approval.
+
+**Source.** Code and corpora head `480201bee942d3337b1e3df825ff636779335605`:
+- `731fb44e8` merges main `bbf384dec` (RT-A4 #98);
+- `419678f37`, `861f53e94` and `d16371c24` add the native mirror and regenerate the corpora;
+- `480201bee` merges main `aa794eb68` (#102's region binding and `Index::any` determinism,
+  §8.47; #97's modal I2b2).
+
+The plan's slice 5 entry "On main at `bbf384dec`…" records the conflicts, the mirror, its
+regressions and fail-without checks, and the corpora. The documents commit that adds this
+section changes nothing the build reads.
+
+**What the candidate contains** (from the merged source; nothing else is claimed):
+
+| Item | Contents |
+| --- | --- |
+| Analysis-run record schema | 0.3.0 only (current admission); 0.1.0 and 0.2.0 refused by name. No schema change. |
+| Store schema | Unchanged; no migration. Native Save, Record Run and restored-project re-save are unchanged. An unchanged re-save of main's pre-RT-A4 PF project leaves the stored result and record texts byte-identical, and equals the submitted path's bytes (`a_run_recorded_before_rt_a4_reopens_through_the_native_commands`). |
+| Current tables (#98) | pressure-2 `10455bf3…`, preview-physics-2 `e7b93f41…`, Timoshenko `ce49ebe0…`, preview retained `26dce9c2…`, physics retained `040ef9a6…`. |
+| Recorded-run bases of pressure-2 | `3e2aac3c…`, `5451fbf3…`, `d46e1963…`, `032e861f…`, `a2db16a5…`, `be29fabc…`, each read as current `10455bf3…` (record validator only). |
+| Historical registry (`recorded_tables::VARIANTS`) | preview-physics-2 `1ccc9561…`, Timoshenko `a7b83c37…`, preview retained `b001070e…` (base `1ccc9561…`), physics retained `cf29fd5f…` and `045f6f0d…` (binding only). Read only on a restored handle holding the record's variant, and on the reopen's findings. |
+| History variants with native regressions | Recorded-basis fixtures 0.7.0, 0.8.0, pre-2a, pre-2b, pre-ce, pre-RT-A4 (each a recorded revision; current model documents also saved runs). The five pre-RT-A4 PF variants as saved runs. Main's recorded revision of the PF-2 run. An unknown-digest control read under the current tables. |
+
+**Path changes relative to `app-c1-main-2470f0108`.** These are source facts, with no
+attributed cost.
+- The compulsory readers now include #98's PF combination-gate and unsigned-row checks
+  (`validate_preview_physics_evidence_with_model`, `preview_combination_gates::check`) and
+  #102's region binding and `Index::any` changes.
+- C1 adds `entry_scope` around every native reader entry.
+- A fresh solve's reads are the current reader's. The recorded reads apply to restored
+  handles only.
+
+The 500-node rack is a fresh solve. No claim is made that #102 changes call 3's
+model-bound standing time.
+
+**Rebuild, prepared but not executed.** Use the maintained recipe that built
+`app-c1-main-2470f0108`, through `t3_slot.sh`:
+- run it from a clean checkout of the head that carries this section;
+- first run `build:wasm:desktop`. At `480201bee` the engines are current, with
+  operation-applier stamp `sha256:77a2a5ebebe912873d17d8585a04f4084d6d077ebb8779c46b9fff225d759726`,
+  self-weight `sha256:1bbefdb42ba0e76451c9ba79660f7782719964de57d991ee0cf5319d390bdd0f`, and
+  MBF `sha256:83ec9a7f0eb50f69db89f8fbef8a30b90a432d01993e4fc65c6724f7377aec46` (unchanged);
+- use a new App directory `scratch/rt-perf-c1-slice7/app-c1-main-<head>` and an unused
+  evidence directory.
+
+The harness bytes are unchanged since `2470f0108`:
+- `perf.mjs` `7329cca1…a5`;
+- `perf-driver.js` `e53468ab…f1`;
+- `perf-sampler.py` `846f5493…3d3b`;
+- `perf-plan-c1.json` `25e8a62b…6435`.
+
+The binding to record at build is the same set as the table above: App/worker SHA-256,
+`perf-binding.json`, embedded `dist_digest`, engine stamps and files, harness, rack-generator
+and model hashes, and the Python interpreter. The five consumed attempts, their packets and
+the six earlier App directories stay untouched.
+
+**Offline evidence at `480201bee`.**
+- Desktop Vitest: 392 files, 7,543 passed, 1 todo.
+- src-tauri lib: 1,145 passed, 13 ignored, 1 failure.
+  - The failure is `embedded_agent::provider_store::…corrupted_binding…`, an SQLite `Busy`
+    under suite load. That module is untouched by this branch. It passed in the previous full
+    run and 3 of 3 times alone.
+  - At `d16371c24` the lib suite was 1,146 passed, 13 ignored.
+- Python (recorded pre-RT-A4, compatibility, comparison and parity, recorded runs, identity
+  inventory) with routing (`test_ci_numerical.py`, `test_hosted_ci.py`): 181 passed and 120
+  subtests passed.
+- Declarations: 0 errors, the one existing cycle.
+
+Hosted CI on the pushed head is still required. No usable-size, memory-fit, C1-completion,
+base-machine or acceptance claim follows.
+
 ## Integrated-main run result and closure (2026-11-03)
 
 The owner approved exactly this run ("I approve this single run."), and Agent0 delivered

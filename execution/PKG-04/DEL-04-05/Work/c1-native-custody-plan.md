@@ -833,6 +833,71 @@ restored and browser-preview results):
     No fixture, registration, pricing tool or TypeScript/Python table was edited. The
     operation-applier and self-weight Wasm engines were rebuilt (stale against the merged
     source). No CI routing digest was stale.
+- **On main at `bbf384dec` (RT-A4 #98: absolute sums, SRSS, nested combinations, §8.46 and the
+  §10.4 historical read; merged at `731fb44e8`), then at `aa794eb68` (#102's region binding and
+  `Index::any` determinism, §8.47, and #97's modal I2b2; merged at `480201bee`).** #98 named C1's
+  mirror of its historical read as an explicit dependency.
+  - **Conflicts (seven, resolved from both sides).**
+    - `HistoryPanel.tsx`: the run check shows #98's historical reader findings and keeps C1's
+      restored-record diagnostics.
+    - `HistoricalRunContext.tsx`: #98's scoped reopen findings with C1's whole-value return type.
+    - `ResultsPanel.tsx`: C1's exported standalone health, taking #98's table.
+    - `knownSemanticLimitations.ts`: one signature, `(source, recordedTableRead, { hasIntensified })`.
+    - `resultStanding.ts`: #98's `recordedResultStanding` beside C1's native-aware standing.
+    - `user_release_reach_scan.rs`: C1's `app_invoke_handler` pin (main left the macro unchanged)
+      with #98's re-pinned headless macros.
+    - `hosted-ci-routing.json`: both sides' scanned fixtures. Every runtime-read digest and scan
+      list recomputed from each merged tree matches.
+  - **The historical read, natively.**
+    - `analysis_run_v03_validate.rs` ports #98's scopes (`reopenFindings`: findings,
+      `check_findings`, `recorded_table_read`, `historical_reader_findings`). Under a record
+      binding a `recorded_tables::VARIANTS` member, the reopen reads through
+      `rv::dispatch_recorded`, `rv::retained_recorded` and the record validator's recorded read
+      (`validate_v03(…, recorded_read)`: recorded dispatch route, `rv::validate_recorded`, the
+      variant's table for row interpretation, the variant binding as contract).
+      `RECORDED_RUN_TABLE_BASES` takes #98's six rows (current `10455bf3…`).
+    - The restored handle holds that variant (`RestoredSource::recorded_table`). The host
+      establishes it from the stored record at restoration, never from a request.
+    - S's family counts, the detail index and row semantics on that handle read under it
+      (`result_summary::route_table`, `rv::row_semantics_each_recorded`). A refused binding
+      refuses every row, never falling back.
+    - The reopen reply carries the recorded dispatch (no model) for display classification.
+    - Every C1 native reader entry runs inside `recorded_tables::entry_scope`.
+    - The webview's `displayRoute`, `knownSemanticNotices`, `resultRowLabel` and
+      `NativeResultsPanel` classify a native handle under its held table only (any other table
+      is refused). The re-save reply and the session's post-re-save context carry the scopes.
+    - Current admission is unchanged. The bare verdict and every fresh path read the current
+      tables; a restored handle stays unbound to any standing and is never Current or Solve.
+  - **#98's current display rules, natively.** S's support-load, navigator, overlay,
+    colour-quantity, stress-label and extremes tables port `derivedRowNote`, `combinationNotes`
+    and `isOneSolvedState` (absolute sum or SRSS unsigned, solved state plus derived bounds, a
+    range envelope by sign convention). The summary corpus gains invented RT-A4 rows.
+  - **Regressions.**
+    - Registry equality, native (`VARIANTS`) against TypeScript against Python
+      (`the_recorded_pre_rt_a4_registry_is_the_typescript_and_python_registry`), and the bases
+      test at six rows.
+    - The reopen corpus (206 cases, every case's scopes compared): the five pre-RT-A4 PF
+      variants, an unknown-digest control, main's recorded revision, and the `pre_ce` and
+      `pre_rt_a4` recorded-basis fixtures.
+    - The connecting path: `a_run_recorded_before_rt_a4_reopens_through_the_native_commands`
+      (real store; native open, S, semantics and bare verdict; unchanged re-save byte-equal to
+      the submitted path and to the stored texts; disposal), with
+      `nativeReopenPreRtA4.session.test.tsx` rendering `HistoricalRunPanel` from those
+      commands' replies.
+  - **Fail-without.** Each check was a temporary edit, reverted.
+    - Without the native recorded read, three tests fail and 6 of 206 cases differ.
+    - A dropped base row fails the bases test and two reopen cases.
+    - A diverging TypeScript registry digest fails the registry test.
+    - A missing absolute-sum note gives six summaries that differ.
+    - A context ignoring the scopes, or `displayRoute` ignoring the held table, fails the
+      connecting TypeScript test.
+  - **Corpora.** Each was regenerated from its generator. The native replay requests were
+    rebuilt from empty: 426 requests, the same count per command, re-keyed because #98 changed
+    fixture bytes. The reopen requests were rebuilt from empty (the same seven commands). On
+    `480201bee` every corpus regenerates byte-identical.
+  - **Open matter.** `recorded_tables.rs`'s module documentation (core, write-held) still says
+    "the desktop's native custody makes no recorded read". C1 now does, through the public
+    entries. The correction is for the core owner.
 - **Open matter: overlapping writes to one store (raised for a product decision; no
   repair in this run's binary).** Each store write opens its own connection with a 5 s busy
   timeout (`lib.rs:864-872`) and writes in one `BEGIN IMMEDIATE` transaction (`lib.rs:1080`;
