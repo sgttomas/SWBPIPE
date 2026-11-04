@@ -20,11 +20,12 @@ All five grants are consumed. `app-c1-main-4d0bb1858` was never launched and is
 pressure-2 bases); its record is kept as history. **No retry, B1000 or further native
 interval is authorized.** Exact selected identities and all raw packets remain preserved.
 
-## RT-A4 integration candidate: prepared offline (2026-11-04; nothing run)
+## RT-A4 integration candidate: built offline (2026-11-04; nothing run)
 
-This prepares the next candidate. It is not a build, a run, a measurement or a qualification
-claim. No App, worker, solver, sampler or large result was launched, and no timing or RSS was
-taken. Any run needs Agent 0's explicit readiness clearance and the owner's approval.
+This prepares the next candidate, the **A-only** candidate Agent 0 selected. It was built under
+`t3_slot.sh` (bindings below); it is not a run, a measurement or a qualification claim. No App,
+worker, solver, sampler or large result was launched, and no timing or RSS was taken. Any run
+needs Agent 0's explicit readiness clearance and the owner's approval.
 
 **Source.** Code and corpora head `1b45e1b1169213fe18e74428fb3874e6904ef222`. This section
 first named `480201bee942d3337b1e3df825ff636779335605`; the independent review's repairs then
@@ -134,7 +135,7 @@ and #97 (first-parent merges); #100 and #103 change tools only.
 The 500-node rack is a fresh solve. No claim is made that #102 changes call 3's
 model-bound standing time.
 
-**Rebuild, prepared but not executed.** Use the maintained recipe that built
+**Rebuild (the recipe; executed once, below).** Use the maintained recipe that built
 `app-c1-main-2470f0108`, through `t3_slot.sh`:
 - run it from a clean checkout of the head that carries this section;
 - first run `build:wasm:desktop`. At `480201bee` the engines were current, with
@@ -144,8 +145,9 @@ model-bound standing time.
 - use a new App directory `scratch/rt-perf-c1-slice7/app-c1-main-<head>` and an unused
   evidence directory.
 
-The review repairs change no engine crate source; the build must confirm these stamps at the
-built head. The harness bytes are unchanged since `2470f0108` (re-hashed at `1b45e1b11`):
+These stamps did **not** hold at the built head (below): the one review line in
+`recorded_tables.rs` is an input of the operation-applier and self-weight stamps. The harness
+bytes are unchanged since `2470f0108` (re-hashed at `1b45e1b11` and at the build):
 - `perf.mjs` `7329cca1…a5`;
 - `perf-driver.js` `e53468ab…f1`;
 - `perf-sampler.py` `846f5493…3d3b`;
@@ -155,6 +157,102 @@ The binding to record at build is the same set as the table above: App/worker SH
 `perf-binding.json`, embedded `dist_digest`, engine stamps and files, harness, rack-generator
 and model hashes, and the Python interpreter. The five consumed attempts, their packets and
 the six earlier App directories stay untouched.
+
+**Build as run (2026-11-04).** From this worktree, exactly clean at
+`24f6b656828450405e253cccab6acc4b63d2dc90` (`1b45e1b11` plus the first documents commit of this
+section), with the destination and both log names checked absent first:
+
+```sh
+cd /Users/ryan/dev/chirality-t3/swbpipe-rt-perf-c1
+RT_C1_KIT=/Users/ryan/dev/chirality-t3/scratch/rt-perf-c1-slice7
+RT_C1_TARGET=/Users/ryan/dev/chirality-t3/targets/rt-perf-c1
+env CARGO_TARGET_DIR="$RT_C1_TARGET" /Users/ryan/dev/chirality-t3/tools/t3_slot.sh npm run build:wasm:desktop > "$RT_C1_KIT/c1-main-24f6b6568-wasm-build.log" 2>&1
+env CARGO_TARGET_DIR="$RT_C1_TARGET" /Users/ryan/dev/chirality-t3/tools/t3_slot.sh node apps/desktop/native-smoke/perf.mjs --build --app-dir "$RT_C1_KIT/app-c1-main-24f6b6568" --target-dir "$RT_C1_TARGET" > "$RT_C1_KIT/c1-main-24f6b6568-release-build.log" 2>&1
+```
+
+Both exited 0. The slot log records the engine job 09:18:56–09:19:52Z and the App job
+09:20:27–09:21:28Z (slot 2), with memguard running and no `exclusive.pending`. The cargo target is
+the lane's `targets/rt-perf-c1`. `perf.mjs --build` runs `npm run build` and
+`cargo build --release --locked --offline` with `--features native-smoke,tauri/custom-protocol`,
+then copies the binary. It does no bundling, code signing, notarization, keychain access or
+upload, and none was done. The release log has 44 warnings and no error. No source changed.
+
+**Engine stamps at the built head.** `build:wasm:desktop` rebuilt two engines. The only stamp
+input changed since `480201bee` is `core/reporting/result_export/src/recorded_tables.rs`
+(`43cea6384`, the documentation line); this was computed by intersecting each engine's input set
+(`engineInputs`, 340 / 317 / 28 inputs) with the diff. Whether the rebuilt Wasm bytes equal the
+`480201bee` engines' was not checked: those artifacts were not kept.
+- operation-applier `sha256:77a2a5eb…` → **`sha256:49a67a3a5c301ba0b4304991f8d5c69e9592148076a90eebfab729be7dbaf947`**;
+- self-weight `sha256:1bbefdb4…` → **`sha256:1606bfdd18d01b1527e979c6223b3f3541126d3a83d58012739d4e66730b0c9e`**;
+- MBF **`sha256:83ec9a7f0eb50f69db89f8fbef8a30b90a432d01993e4fc65c6724f7377aec46`** (current; nothing built).
+
+**Bindings recorded at build.**
+
+| Selected item | Identity |
+| --- | --- |
+| Source (clean; binding `source_dirty:false`) | `24f6b656828450405e253cccab6acc4b63d2dc90`; code head `1b45e1b1169213fe18e74428fb3874e6904ef222` |
+| App directory | `/Users/ryan/dev/chirality-t3/scratch/rt-perf-c1-slice7/app-c1-main-24f6b6568` |
+| App / same-executable worker | `openpipestress-desktop`, 52,755,392 B, SHA-256 `106a944c236f1ae193967c063858d2d7da7fc1abd141a9213a76657c35642107` (built 2026-11-04T09:21:28.335Z) |
+| `perf-binding.json` | SHA-256 `230488c30e6f1df680a33615a9711acd3bbffc72442832377a7ece16703fb845` |
+| Profile | `cargo build --release --locked --offline`, features `native-smoke,tauri/custom-protocol`, the smoke's `TAURI_CONFIG` (window 1440×920, `backgroundThrottling` disabled) |
+| Embedded frontend `dist_digest` | `sha256:82b598a29389d63440a5d10133e48f5c8643fcc9a1a2da8e853fff90f9a3dbc7` (recomputed from `dist/` after the build: equal) |
+| Engine stamps | the three above; every engine file's SHA-256 (15 files) in the preparation record (`engines_sha256`) |
+| External `perf.mjs` | SHA-256 `7329cca1c7c4de7a8758f3457c54dc00c8f5de9dbbe61db65e13f331844be8a5` (unchanged) |
+| External `perf-driver.js` | SHA-256 `e53468ab84d333a83df2305c76e26fc9d33d97f52215e4086fc27b69c14dfff1` (unchanged) |
+| External `perf-sampler.py` | SHA-256 `846f5493cc9cc309140cced0b6ff40ec9b92468db10a4f63e85fe654f9e03d3b` (unchanged) |
+| `perf-plan-c1.json` | SHA-256 `25e8a62b828c6251ac36836d11f8b5448fc3138dbd4903e99ef453a732966435` (unchanged) |
+| Maintained rack generator | SHA-256 `1d8155885f2fa60f481943e989268bef77bc2543860a27291fb9c46685ef314c` (unchanged) |
+| Model | `linear-ex-n0500.json`, 1,828,475 B, raw SHA-256 `42567114a27415b7b042bb9a91d49c8dc640d534953616e5b7efb66b2a2025eb`, JCS SHA-256 `0d45797d8aacada487ef418ce0a776239f6fd9801ed315c1a0f6e1ca2e25466c` (raw bytes unchanged; JCS carried from the `2470f0108` record, where it was recomputed) |
+| Python (bound) | `/usr/bin/python3` → Xcode 3.9.6, real executable SHA-256 `b971331ab9beb1dac075006955f035a97332eca21187c4de615ae58346713e2f` (unchanged; see the readiness blocker below) |
+| Preparation record | `scratch/rt-perf-c1-slice7/c1-main-24f6b6568-preparation.json`, SHA-256 `6ebe439904b9d8dac7eda2715cf8b3ada19dedabd08a33846ce998c3dfa010da` |
+
+**Runtime equivalence against the bound source.** The build's actual reads come from cargo's
+dep-info for the binary (`targets/rt-perf-c1/release/openpipestress-desktop.d`), which lists
+**362** repository files: 333 tracked sources and fixtures, plus the 29 `dist/` files the binary
+embeds. It also lists 30 generated files under the target directory, and one absent path
+(`src-tauri/capabilities`). The preparation record binds every one of the 362 by SHA-256.
+- None of them, and no `.md` file, changed between `1b45e1b11` and the build source. The only
+  file that changed is this proposal.
+- Since `480201bee`, the build read five changed files: `result_detail.rs`, `result_summary.rs`,
+  `solve_jobs.rs` and `stored_custody.rs` (F1), and `recorded_tables.rs` (the comment).
+  `cfg(test)` modules such as `native_replay_tests.rs` are not in the dep-info.
+- Since `app-c1-main-2470f0108`'s source, the build read 54 changed tracked files, all named
+  in the record. They cover the six desktop files of the C1 mirror, the producer and reader
+  files under "Path changes", the five registry fixtures and five current tables,
+  `exact_report_statements.json`, and two schemas.
+- The frontend: Vite emits no module list, so `dist_digest` binds it, recomputed after the
+  build and equal. It covers the three engines copied from `public/`. Four runtime webview
+  sources changed since `480201bee`: `NativeResultsPanel.tsx`, `knownSemanticLimitations.ts`,
+  `nativeReopen.ts` and `nativeResult.ts`. A grep of the bundle finds no replay, reopen or
+  parity corpus in `dist/`. Since `2470f0108`, 31 non-test frontend files changed.
+- The later documents commits change only this `.md` file, which the build does not read. The
+  pre-launch check re-verifies all of this before any launch.
+
+**History registry, display and current admission, as built.** These come from the built sources.
+The record binds each of them, and every one is in the dep-info with the same bytes:
+`recorded_tables.rs`, `semantic_contract.rs`, `analysis_run_v03_validate.rs`, the five registry
+fixtures and the six current tables. It also binds the bundled TypeScript twins
+(`analysisRunCompatibility.ts`, `recordedPreRtA4.ts`) and the Python twin `compatibility.py`,
+which is not a build input.
+- `recorded_tables::VARIANTS`: five members as in the contents table, each fixture's SHA-256
+  equal to its member. `reads_under_variant` is true for the first three and false for the two
+  physics-retained members.
+- `RECORDED_RUN_TABLE_BASES`: six pressure-2 rows (`3e2aac3c…`, `5451fbf3…`, `d46e1963…`,
+  `032e861f…`, `a2db16a5…`, `be29fabc…`), each read as current `10455bf3…`.
+- Current tables (constant = file SHA-256): pressure-2 `10455bf3…`, pressure-source `84f37c63…`,
+  preview-physics-2 `e7b93f41…`, Timoshenko `ce49ebe0…`, preview retained `26dce9c2…`, physics
+  retained `040ef9a6…`.
+
+**Readiness blocker found at preparation: the interpreter under `RT_C1_PATH`.** The recorded
+recipe derives `RT_C1_PATH` by removing the mise Python directories. Under that PATH `python3` now
+resolves to `/opt/homebrew/bin/python3`, Homebrew `python@3.15` 3.15.2 (real executable SHA-256
+`0f407a0ac747337b659538c9560e4fdd48b354dbdbe0a143276b56ee23899fb7`). It was linked on the host at
+2026-11-03 08:27 local, after the last run's 12:31Z check, ahead of `/usr/bin` on PATH. The
+recipe's own `test` line would therefore fail, and the pre-launch check refuses (below).
+`/usr/bin/python3` is unchanged. This is a host-environment change, not a source defect. No PATH
+change is adopted here; the choice is Agent 0's. The candidate amendment checked below also
+removes `/opt/homebrew/` directories. Under it `python3` resolves to `/usr/bin/python3`, but
+`perf.mjs`'s `git` changes too: it becomes `/usr/bin/git` instead of `/opt/homebrew/bin/git`.
 
 **Offline evidence at `480201bee`** (before the review repairs; kept as recorded):
 - Desktop Vitest: 392 files, 7,543 passed, 1 todo.
