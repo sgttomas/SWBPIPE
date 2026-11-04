@@ -2797,6 +2797,7 @@
               "core/solver/modal_eigen/src/reformation/mod.rs",
               "core/solver/modal_eigen/src/reformation/section.rs",
               "core/solver/modal_eigen/src/sturm.rs",
+              "core/solver/modal_eigen/src/workspace.rs",
               "core/solver/nonlinear_integration/src/confirmation.rs",
               "core/solver/nonlinear_integration/src/confirmation_tests.rs",
               "core/solver/nonlinear_integration/src/dense_memory_guard_tests.rs",

@@ -519,11 +519,8 @@ fn exact_stage_outputs_match_the_base_revision_bit_for_bit() {
         std::fs::write(path, digests.join("\n") + "\n").unwrap();
         return;
     }
-    let fixture = std::fs::read_to_string(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/tests/fixtures/workspace_reuse_base.txt"
-    ))
-    .unwrap();
+    // Compiled in, as tests/reformation.rs does with its fixture, so the test has no runtime read.
+    let fixture = include_str!("fixtures/workspace_reuse_base.txt");
     let expected: Vec<&str> = fixture
         .lines()
         .filter(|l| !l.starts_with('#') && !l.is_empty())
