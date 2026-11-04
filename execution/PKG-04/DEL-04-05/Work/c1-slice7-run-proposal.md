@@ -20,41 +20,116 @@ All five grants are consumed. `app-c1-main-4d0bb1858` was never launched and is
 pressure-2 bases); its record is kept as history. **No retry, B1000 or further native
 interval is authorized.** Exact selected identities and all raw packets remain preserved.
 
-## RT-A4 integration candidate: prepared offline (2026-11-04; nothing built, nothing run)
+## RT-A4 integration candidate: prepared offline (2026-11-04; nothing run)
 
 This prepares the next candidate. It is not a build, a run, a measurement or a qualification
 claim. No App, worker, solver, sampler or large result was launched, and no timing or RSS was
 taken. Any run needs Agent 0's explicit readiness clearance and the owner's approval.
 
-**Source.** Code and corpora head `480201bee942d3337b1e3df825ff636779335605`:
+**Source.** Code and corpora head `1b45e1b1169213fe18e74428fb3874e6904ef222`. This section
+first named `480201bee942d3337b1e3df825ff636779335605`; the independent review's repairs then
+added code and corpora commits, so `480201bee` is stale as a candidate source.
 - `731fb44e8` merges main `bbf384dec` (RT-A4 #98);
 - `419678f37`, `861f53e94` and `d16371c24` add the native mirror and regenerate the corpora;
 - `480201bee` merges main `aa794eb68` (#102's region binding and `Index::any` determinism,
-  §8.47; #97's modal I2b2).
+  §8.47; #97's modal I2b2). `aa794eb68` is still `origin/main` and the merge base;
+- the review repairs, `14364f85d` to `1b45e1b11` (below).
 
 The plan's slice 5 entry "On main at `bbf384dec`…" records the conflicts, the mirror, its
-regressions and fail-without checks, and the corpora. The documents commit that adds this
-section changes nothing the build reads.
+regressions and fail-without checks, and the corpora at `480201bee`. The repairs' regressions and
+fail-without checks are recorded in their commit messages. The documents commits that carry this
+section change nothing the build reads.
 
-**What the candidate contains** (from the merged source; nothing else is claimed):
+**Changed since `480201bee`** (source facts; no attributed cost):
+- **F1, the immutable held table** (`14364f85d`). The recorded table now lives in the immutable
+  `HeldResult` (`recorded_table`, set by `read_under` at restoration, before the bytes are held).
+  A reader's one share, taken under the registry lock (`SolveJobRegistry::held_result`), is the
+  bytes and the table together. S, the detail index (rows, lookup, navigator, recovery) and row
+  semantics read the share's table only. `SolveJobRegistry::recorded_table` and
+  `RestoredSource::recorded_table` are removed, so a disposal or reset during a read can no longer
+  drop a refused binding to the current tables. Regression:
+  `a_disposal_or_reset_during_a_read_never_changes_the_recorded_table_it_reads`.
+- **F2, historical health, display only** (`257a41e69`). `restoredNativeResult` reads the bare
+  verdict first, derives the standalone historical standing (`restoredHistoricalStanding`: the
+  recorded dispatch's standing under a recorded table, else the bare verdict's; none on a retained
+  route), and reads S with those findings and `eligible: false`. The custody keeps it as
+  `historicalStanding`, display only; `binding.standing` stays null, so a restored handle is never
+  bound to a current standing. `NativeResultsPanel` shows S's health for it with no hold.
+- **F3, retained labels and notices** (`a119a2f08`). The native panel's row labels take the
+  whole-value panel's routes (`preview_physics`, `retained_preview_physics`, `retained_physics`).
+  `knownSemanticNotices` reads a native handle's retained notices as a whole result's
+  (`retained-precision-unvalidated`, no class counts). Standing is unchanged.
+- **The endpoint-pair CSV dimensions** (`4934aeb3d`). The native Result Detail's endpoint-pair
+  CSV took each row's dimension from a member rows do not carry; it now reads the rows' semantics
+  from the handle under its held table (`readNativeEndpointPairRows`), as the whole-value export
+  does. This export is not one of the driver's steps (the driver streams a group CSV).
+- **`recorded_tables.rs:29` and the RT-A4-HS pin** (`43cea6384`, `60d76f2e9`). The module
+  documentation line now says the desktop's native custody makes its recorded reads synchronously
+  inside `entry_scope` on the worker thread (the plan's open matter for the core owner). It is a
+  comment; no code changed. Retained pricing's RT-A4-HS whole-file pin
+  (`tools/retained_pricing/rules/o10_rules.py`) moves
+  `a8c3984a2d516f1ceb29ad6ad1d726d366e1423fa4b505822fcac33f07d0b718` →
+  `c8cf6c1c670c76387b61a5f030555be418af3c622a2c84f5900c2c051c9d3e5d`, and
+  `tools/hosted-ci-routing.json`'s `result_export` tree digest moves `45e77c44…` →
+  `e5d94960a31f54f85a4920488e65da9fb0b8cfedb06c84c78a51a6881fda4c88`. Neither tool file is a
+  build input.
+- **The corpora** (`c5a6e0f1c`, `1b45e1b11`; test inputs, not build inputs). The parity test
+  `historicalNativeParity.test.tsx` (twelve cases) is new. The native replay requests go from 426
+  to **846** (sources 12 → **23**), each answered by its actual command; no earlier key's
+  outcome changed. The reopen requests go 8 → **7** (`native_reopen_requests.json`) and 7 → **6**
+  (`native_reopen_pre_rt_a4_requests.json`): F2's S request replaces the superseded
+  null-standing one. A request on a restored handle read under a recorded table now names that
+  table in its key.
+
+**Repair basis.** This candidate carries **repair A only**: #102's region binding and the
+`Index::any` determinism, on main at `aa794eb68`. It does **not** carry repair B (#106, one
+pressure evidence pass per dispatch, open at `2b21c367c`; not an ancestor of this head). B
+enters only after the #105 + B registration, which follows RT-A3 increment 4. The candidate
+carries neither RT-A3 increment 4's contract nor PF1b's.
+
+**What the candidate contains** (re-read from the source at `1b45e1b11`: the constants in
+`semantic_contract.rs`, `recorded_tables::VARIANTS` and `RECORDED_RUN_TABLE_BASES`, and each
+table file's SHA-256, which equals its constant; nothing else is claimed):
 
 | Item | Contents |
 | --- | --- |
 | Analysis-run record schema | 0.3.0 only (current admission); 0.1.0 and 0.2.0 refused by name. No schema change. |
 | Store schema | Unchanged; no migration. Native Save, Record Run and restored-project re-save are unchanged. An unchanged re-save of main's pre-RT-A4 PF project leaves the stored result and record texts byte-identical, and equals the submitted path's bytes (`a_run_recorded_before_rt_a4_reopens_through_the_native_commands`). |
-| Current tables (#98) | pressure-2 `10455bf3…`, preview-physics-2 `e7b93f41…`, Timoshenko `ce49ebe0…`, preview retained `26dce9c2…`, physics retained `040ef9a6…`. |
+| Current tables (#98) | pressure-2 `10455bf3…`, preview-physics-2 `e7b93f41…`, Timoshenko `ce49ebe0…`, preview retained `26dce9c2…`, physics retained `040ef9a6…`; the pressure-source table `84f37c63…` is unchanged. Unchanged since `480201bee`. |
 | Recorded-run bases of pressure-2 | `3e2aac3c…`, `5451fbf3…`, `d46e1963…`, `032e861f…`, `a2db16a5…`, `be29fabc…`, each read as current `10455bf3…` (record validator only). |
-| Historical registry (`recorded_tables::VARIANTS`) | preview-physics-2 `1ccc9561…`, Timoshenko `a7b83c37…`, preview retained `b001070e…` (base `1ccc9561…`), physics retained `cf29fd5f…` and `045f6f0d…` (binding only). Read only on a restored handle holding the record's variant, and on the reopen's findings. |
+| Historical registry (`recorded_tables::VARIANTS`, five members) | preview-physics-2 `1ccc9561…`, Timoshenko `a7b83c37…`, preview retained `b001070e…` (base `1ccc9561…`), physics retained `cf29fd5f…` and `045f6f0d…` (#101's; binding only, `reads_under_variant: false`). Each fixture's bytes hash to its member. Read only on a restored handle holding the record's variant, and on the reopen's findings. The variant is now part of the held result's immutable share (F1). |
+| Restored-handle display | F2's standalone historical health (S read with the historical findings, `eligible: false`; never bound to a standing) and F3's retained labels and notices. A fresh solve has neither (`historicalStanding` null). |
 | History variants with native regressions | Recorded-basis fixtures 0.7.0, 0.8.0, pre-2a, pre-2b, pre-ce, pre-RT-A4 (each a recorded revision; current model documents also saved runs). The five pre-RT-A4 PF variants as saved runs. Main's recorded revision of the PF-2 run. An unknown-digest control read under the current tables. |
 
 **Path changes relative to `app-c1-main-2470f0108`.** These are source facts, with no
-attributed cost.
-- The compulsory readers now include #98's PF combination-gate and unsigned-row checks
-  (`validate_preview_physics_evidence_with_model`, `preview_combination_gates::check`) and
-  #102's region binding and `Index::any` changes.
-- C1 adds `entry_scope` around every native reader entry.
-- A fresh solve's reads are the current reader's. The recorded reads apply to restored
-  handles only.
+attributed cost. Main moved from `5e12ca44e` to `aa794eb68` through #100, #103, #101, #98, #102
+and #97 (first-parent merges); #100 and #103 change tools only.
+- **Producer side.** #98 changes the preview-physics producer (`product_physics`:
+  `combination_plan.rs`, `preview_physics.rs`, `exact_combinations.rs`, `document_members.rs`;
+  `load_case_algebra::fixed_load_count`) and the operation applier, which the rebuilt
+  operation-applier Wasm engine carries. #101 (RT-A3 constant effort) changes
+  `exact_admission.rs`, `exact_combinations.rs` and `retained_memory.rs`. #97's modal module is
+  in `product_physics` but off the session's result path, as at `2470f0108`.
+- **Compulsory readers.** They now include #98's PF combination-gate and unsigned-row checks
+  (`validate_preview_physics_evidence_with_model`, `preview_combination_gates::check`, with
+  `combination_graph.rs` and `preview_combination_operands.rs`), #101's
+  `exact_combination_evidence.rs` additions, and #102's region binding
+  (`physics_evidence.rs`) and `Index::any` determinism (`u4b_evidence.rs`). Which of these a
+  given route reaches is not restated here.
+- **Tables** (each file hashed at both heads). #101 moves pressure-2 `a2db16a5…` → `be29fabc…`
+  and physics retained `cf29fd5f…` → `045f6f0d…`. #98 moves pressure-2 → `10455bf3…`,
+  preview-physics-2 `1ccc9561…` → `e7b93f41…`, Timoshenko `a7b83c37…` → `ce49ebe0…`, preview
+  retained `b001070e…` → `26dce9c2…` and physics retained → `040ef9a6…`. Pressure-source
+  `84f37c63…` is unchanged. Every earlier digest is now a recorded basis or a registry variant
+  (table above), read on a restored handle only.
+- **Native custody (C1).** `entry_scope` wraps every native reader entry. A fresh solve's reads
+  are the current reader's; the recorded reads, the held-table share (F1) and the historical
+  health (F2) apply to restored handles only. On a restored handle the reopen now reads the
+  bare verdict before S (it read S first), with the same number of reader calls; S's health
+  takes the historical findings.
+- **Webview.** #98's display rules (derived-row notes, combination notes, overlays) and their
+  native ports; F3's label routes and notices; the endpoint-pair CSV's dimensions. #102 adds
+  solve-timeline codes (`solveTimelineCodes.ts`).
 
 The 500-node rack is a fresh solve. No claim is made that #102 changes call 3's
 model-bound standing time.
@@ -62,14 +137,15 @@ model-bound standing time.
 **Rebuild, prepared but not executed.** Use the maintained recipe that built
 `app-c1-main-2470f0108`, through `t3_slot.sh`:
 - run it from a clean checkout of the head that carries this section;
-- first run `build:wasm:desktop`. At `480201bee` the engines are current, with
+- first run `build:wasm:desktop`. At `480201bee` the engines were current, with
   operation-applier stamp `sha256:77a2a5ebebe912873d17d8585a04f4084d6d077ebb8779c46b9fff225d759726`,
   self-weight `sha256:1bbefdb42ba0e76451c9ba79660f7782719964de57d991ee0cf5319d390bdd0f`, and
   MBF `sha256:83ec9a7f0eb50f69db89f8fbef8a30b90a432d01993e4fc65c6724f7377aec46` (unchanged);
 - use a new App directory `scratch/rt-perf-c1-slice7/app-c1-main-<head>` and an unused
   evidence directory.
 
-The harness bytes are unchanged since `2470f0108`:
+The review repairs change no engine crate source; the build must confirm these stamps at the
+built head. The harness bytes are unchanged since `2470f0108` (re-hashed at `1b45e1b11`):
 - `perf.mjs` `7329cca1…a5`;
 - `perf-driver.js` `e53468ab…f1`;
 - `perf-sampler.py` `846f5493…3d3b`;
@@ -80,7 +156,7 @@ The binding to record at build is the same set as the table above: App/worker SH
 and model hashes, and the Python interpreter. The five consumed attempts, their packets and
 the six earlier App directories stay untouched.
 
-**Offline evidence at `480201bee`.**
+**Offline evidence at `480201bee`** (before the review repairs; kept as recorded):
 - Desktop Vitest: 392 files, 7,543 passed, 1 todo.
 - src-tauri lib: 1,145 passed, 13 ignored, 1 failure.
   - The failure is `embedded_agent::provider_store::…corrupted_binding…`, an SQLite `Busy`
@@ -92,8 +168,9 @@ the six earlier App directories stay untouched.
   subtests passed.
 - Declarations: 0 errors, the one existing cycle.
 
-Hosted CI on the pushed head is still required. No usable-size, memory-fit, C1-completion,
-base-machine or acceptance claim follows.
+At `1b45e1b11` the independent re-review cleared the repairs; their regressions and
+fail-without checks are in the commit messages. Hosted CI on the pushed head is still required.
+No usable-size, memory-fit, C1-completion, base-machine or acceptance claim follows.
 
 ## Integrated-main run result and closure (2026-11-03)
 
