@@ -12,7 +12,8 @@
 //! not.
 //!
 //! The tripwires asserted below are regression checks on this population
-//! (each a power of ten above the observed extreme, recorded in §5.3.7):
+//! (each at the next power of ten or more above the observed extreme,
+//! recorded in §5.3.7):
 //! they flag a change that moves the observations, and they are not
 //! admission thresholds or proposed pins.
 use super::integrity::ModalIntegrityParameters;
@@ -335,8 +336,8 @@ fn mu_domain_observation_table() {
     let params = test_local_parameters();
     println!("A3 μ-domain observations (TEST-LOCAL, product path; τ_μ = {:e}, c_μ = {}, κ_μ = {}, c_f = {})",
         params.infinite_mu_relative_threshold, params.resolution_floor_constant, params.resolution_floor_multiple, params.formed_backward_error_multiple);
-    println!("| model | n | n_m | μ_max | min retained μ/μ_max | hard/μ_max | broad/μ_max | screened | band kept | rejected (≤0, floor/band) | census | band max η̃/(n·u) | band max e_λ |");
-    println!("|---|---|---|---|---|---|---|---|---|---|---|---|---|");
+    println!("| model | n | n_m | μ_max | min retained μ/μ_max | hard/μ_max | broad/μ_max | screened | band kept | rejected (≤0, floor/band) | largest rejected μ/μ_max | census | band max η̃/(n·u) | band max e_λ |");
+    println!("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|");
     let mut smallest = (f64::INFINITY, String::new());
     for (model, replay) in replayed(&params) {
         let s = &replay.solution;
@@ -345,12 +346,13 @@ fn mu_domain_observation_table() {
         let kept: Vec<_> = s.screened.iter().filter(|m| m.retained).collect();
         let band_eta = kept.iter().filter_map(|m| m.recovery.as_ref()).map(|r| r.backward_error / (n as f64 * U)).fold(None, |a: Option<f64>, x| Some(a.map_or(x, |a| a.max(x))));
         let band_e = kept.iter().filter_map(|m| m.recovery.as_ref()).map(|r| r.error_estimate).fold(None, |a: Option<f64>, x| Some(a.map_or(x, |a| a.max(x))));
+        let rejected = s.screened.iter().filter(|m| !m.retained).map(|m| m.mu / s.mu_max).fold(None, |a: Option<f64>, x| Some(a.map_or(x, |a| a.max(x))));
         let census = match &replay.census {
             super::eigen::FiniteCensus::Established { finite_mode_count, .. } => format!("established {finite_mode_count}"),
             super::eigen::FiniteCensus::Unresolved { .. } => "unresolved".to_string(),
         };
         println!(
-            "| {} | {n} | {} | {:.3e} | {min_ratio:.2e} | {:.2e} | {:.2e} | {} | {} | {}, {} | {census} | {} | {} |",
+            "| {} | {n} | {} | {:.3e} | {min_ratio:.2e} | {:.2e} | {:.2e} | {} | {} | {}, {} | {} | {census} | {} | {} |",
             model.name,
             s.condensed_dimension,
             s.mu_max,
@@ -360,6 +362,7 @@ fn mu_domain_observation_table() {
             kept.len(),
             s.nonpositive_mu_count,
             s.below_threshold_mu_count,
+            rejected.map_or("-".to_string(), |x| format!("{x:.2e}")),
             band_eta.map_or("-".to_string(), |x| format!("{x:.2e}")),
             band_e.map_or("-".to_string(), |x| format!("{x:.2e}")),
         );
