@@ -125,7 +125,11 @@ fn successors_recorded_before_rt_a4_read_under_their_variant_only() {
 #[test]
 fn the_registry_is_closed_and_each_variant_is_its_pinned_bytes() {
     let shas: Vec<&str> = recorded_tables::VARIANTS.iter().map(|v| v.sha256).collect();
-    assert_eq!(shas, [PF2_SHA, TIMOSHENKO_SHA, PF_RETAINED_SHA, EXACT_MAIN_SHA, EXACT_101_SHA]);
+    assert_eq!(shas, [PF2_SHA, TIMOSHENKO_SHA, PF_RETAINED_SHA, EXACT_MAIN_SHA, EXACT_101_SHA,
+        // Operating-case slice 1b: main's tables at bbf384dec (`recorded_pre_rt_a5_1b.rs`).
+        "e7b93f416f700f8efdb31bf1ba26dedde52963d768d6ead5a73dbf1c645a360c",
+        "ce49ebe07bc05431ea1f770c1933b5bf58f4b1c8b66fb6f36810f2ef7a58cd43",
+        "26dce9c21261b1ca894af05a3b6f4a94db88904894cb47f7296f892e72ecfb7e"]);
     for variant in &recorded_tables::VARIANTS {
         assert_eq!(variant.table()["semantic_contract_id"], variant.id);
         assert!(recorded_tables::variant_of(&binding(variant.id, variant.sha256)).is_some());

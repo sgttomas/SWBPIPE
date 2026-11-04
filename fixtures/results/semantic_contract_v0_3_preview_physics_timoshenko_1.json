@@ -1390,7 +1390,7 @@
   "formulation_profile_id": "product_preview_mechanics_timoshenko_v1",
   "contract_evidence_policy": "closed_preview_case_extrema_coverage_attribution_intensification_and_combination_gate_binding_v1",
   "combination_policy": {
-    "policy_id": "PREVIEW-PHYSICS-1-COMBINATION-v2",
+    "policy_id": "PREVIEW-PHYSICS-1-COMBINATION-v3",
     "operands": "load cases or other combinations: a term names a load case or a combination by kind; a subtraction's or range envelope's id names the load case when one has that id and a combination otherwise; the combination graph is acyclic and is evaluated in topological order, the earliest ready combination in the array first; a combination operand supplies its own published rows, paired by kind, unit, entity and every metadata field except basis and sign_convention, while still comparing any section_basis suffix within basis (a displacement magnitude by kind, unit and node); a row an operand combination withheld or omitted is missing for every combination that names it",
     "fixed_load_count": "each operand's fixed-load count \u03ba, an exact dyadic rational: a load case 1; mechanics the exact sum of each factor times its operand's \u03ba; a subtraction the minuend's minus the subtrahend's; a range envelope the operands' common \u03ba, else undefined; an absolute sum or SRSS 0 when every operand's \u03ba is exactly 0, else undefined; undefined with an undefined operand (a subtraction or envelope propagates it) or beyond 4,096 significand bits (COMBINATION_FIXED_LOAD_COUNT_UNREPRESENTABLE); over load cases, \u03ba is the exact sum of the binary64 factors",
     "operand_gate": {
@@ -1425,7 +1425,17 @@
         "condition": "the load cases the combination reaches through its operands, transitively, have different modulus-basis keys"
       }
     ],
-    "gate_precedence": "operand_gate first, then the first gate in list order of the combination's form supplies the single withheld reason",
+    "difference_basis_gates": [
+      {
+        "code": "EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING",
+        "condition": "the subtraction declares difference_basis operating_minus_sustained and the subtrahend case's primitive loads, as a multiset by content (category, target, direction, dimension, and the magnitude's value bits and unit after the solve's own unit normalization, on the lowered model, so condition-generated primitives count; ids and provenance are not content), are not contained in the minuend case's: some content occurs more often in the subtrahend; equal final support states are not required"
+      },
+      {
+        "code": "EXPANSION_BASIS_MODULUS_MIXED",
+        "condition": "the subtraction declares difference_basis operating_minus_sustained and its two load cases have different modulus-basis keys"
+      }
+    ],
+    "gate_precedence": "operand_gate first, then the first gate in list order of the combination's form supplies the single withheld reason; a result_state_subtraction declaring difference_basis operating_minus_sustained takes difference_basis_gates (its operands are load cases, so operand_gate never applies), and any other subtraction or range envelope is not gated",
     "gated_forms": [
       "mechanics",
       "absolute_sum",
@@ -1460,7 +1470,7 @@
       "support_reaction_force_magnitude_v2",
       "support_reaction_moment_magnitude_v2"
     ],
-    "result_state_subtraction": "signed difference of solved states over linear_state_kinds, with recomputed magnitudes; no equilibrium claim",
+    "result_state_subtraction": "signed difference of solved states over linear_state_kinds, with recomputed magnitudes; no equilibrium claim; with difference_basis operating_minus_sustained (minuend and subtrahend load cases) its rows' sign convention reads \"positive value follows explicit user result-state subtraction (minuend minus subtrahend) of matching source result sign conventions; operating minus sustained difference: a signed difference of two independently solved states, each using its own reported support state and carrying its own numerical standing under the static, history-free friction model; derived from case results; not an equilibrium state\", their metadata basis is unchanged, and contract_evidence.difference_basis_derivation states both cases' primitive-content multisets; a subtrahend_support_state minuend_final is withheld before the gates (LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED) and own behaves as absence",
     "range_envelope": "mode selection per row over linear_state_kinds and recomputed_magnitude_kinds; not a simultaneous state",
     "absolute_sum": "per row over linear_state_kinds, the exact sum of |factor \u00d7 source value| rounded once to nearest, ties to even; recomputed magnitudes are the norm of the combined components, an upper bound on every signed combination's magnitude; rows are unsigned (basis explicit_user_absolute_sum; sign convention \"unsigned value: the absolute sum of |factor \u00d7 source result| over explicit user terms; not an equilibrium state\"); a value, or a recomputed magnitude, outside the binary64 range is withheld as load-case algebra refused under LOAD_COMBINATION_ROW_WITHHELD (a support group whole); not an equilibrium state",
     "srss": "per row over linear_state_kinds, the square root of the exact sum of the squares of each factor \u00d7 source value rounded once, the root rounded once to nearest, ties to even; recomputed magnitudes are the norm of the combined components, which equals the SRSS of the operands' magnitudes in exact arithmetic; rows are unsigned (basis explicit_user_srss; sign convention \"unsigned value: the square root of the sum of squares of factor \u00d7 source result over explicit user terms; not an equilibrium state\"); a term or value, or a recomputed magnitude, outside the binary64 range is withheld as load-case algebra refused under LOAD_COMBINATION_ROW_WITHHELD (a support group whole); not an equilibrium state",
