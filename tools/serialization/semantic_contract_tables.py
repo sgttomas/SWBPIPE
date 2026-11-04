@@ -166,6 +166,27 @@ CARRIER_WRITERS.update({
         "OPENPIPESTRESS_UPDATE_DEL1005_WITNESS=1 cargo test (core/runner/headless) --test del1005_package_witness"
     ),
 })
+# The user-release vectors nest the solve's own AnalysisRun record, sealed by its
+# analysis_run_record checksum, under the request hashes derived from it; the invented record
+# is vector 0's user_release, the runner refusal request is vector 0's derived request, and the
+# D6 exact vectors read that record. A text edit of a digest leaves their seals stale, so they
+# are regenerated in that order (RT-A5 1b: 402e95aec's text edit broke route 010).
+USER_RELEASE_WRITERS = (
+    "OPENPIPESTRESS_WRITE_USER_RELEASE_VECTORS=<abs fixtures/reports/invented/user_release_derivation_vectors.json> "
+    "vitest run (apps/desktop) src/features/report/userReleaseDerivation.parity.test.ts; then "
+    "fixtures/reports/invented/user_release_record.json := vector 0's user_release (its own key order, 2-space indent; "
+    "report_package test the_committed_record_is_the_vectors checks it); then "
+    "OPENPIPESTRESS_UPDATE_USER_RELEASE_RUNNER_REQUEST=1 cargo test (core/reporting/report_package) "
+    "--test user_release_package the_committed_runner_refusal_request_is_the_derivation; then "
+    "OPENPIPESTRESS_WRITE_D6_VECTORS=<abs fixtures/reports/invented/user_release_exact> "
+    "vitest run (apps/desktop) src/features/report/userReleaseExact.parity.test.ts"
+)
+CARRIER_WRITERS.update({
+    "fixtures/reports/invented/user_release_derivation_vectors.json": USER_RELEASE_WRITERS,
+    "fixtures/reports/invented/user_release_record.json": USER_RELEASE_WRITERS,
+    "fixtures/reports/invented/user_release_runner_refusal_request.json": USER_RELEASE_WRITERS,
+    "fixtures/reports/invented/user_release_exact/": USER_RELEASE_WRITERS,
+})
 CARRIER_WRITERS.update({
     "fixtures/persistence/transient_run_input": PERSISTENCE_RUN_WRITERS,
     "fixtures/persistence/s2_unresolved_rule_pack_run": PERSISTENCE_RUN_WRITERS,
