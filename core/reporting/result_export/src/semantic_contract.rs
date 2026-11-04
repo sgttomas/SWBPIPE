@@ -250,7 +250,7 @@ pub(crate) fn is_retained(source: &Value) -> bool {
 }
 /// The successor's own pinned table, by identity (RT-A4 §10.4: inside a recorded-run read,
 /// the recorded variant's).
-fn retained_contract(source: &Value) -> &'static Value {
+pub(crate) fn retained_contract(source: &Value) -> &'static Value {
     if let Some(table) = source["producer"]["semantic_contract_id"].as_str().and_then(crate::recorded_tables::selected_table) {
         table
     } else if source["producer"]["semantic_contract_id"] == PHYSICS_RETAINED_ID {
@@ -261,7 +261,7 @@ fn retained_contract(source: &Value) -> &'static Value {
 }
 /// The reader's first failure as this module's error text: a G7 failure keeps
 /// the base validator's own text, every other gate its code.
-fn retained_error(error: crate::retained_precision::ValidationError) -> String {
+pub(crate) fn retained_error(error: crate::retained_precision::ValidationError) -> String {
     error.detail.unwrap_or(error.code)
 }
 /// F-5: no identity but the successor may carry a receipt member.
@@ -702,6 +702,16 @@ fn current_header(source: &Value) -> Result<(&'static Value, &'static str), Stri
 /// Raw dispatch validates the selected physical contract, never inferring it
 /// from a profile name or a numerical/accuracy label.
 pub fn for_source(source: &Value) -> Result<(&'static Value, &'static str), String> {
+    for_source_given(source, None)
+}
+/// RT-U4 (single pass): [`for_source`], given pressure-2's evidence verdict
+/// (`validate_pressure_evidence`'s) by a caller that read it for this source
+/// (`reader_verdict::standing`, whose pressure route reads it once for its token
+/// and its findings). `None` reads it here. Only a pressure-2 source consults it.
+pub(crate) fn for_source_given(
+    source: &Value,
+    pressure: Option<&Result<(), String>>,
+) -> Result<(&'static Value, &'static str), String> {
     if is_retained(source) {
         // The accepted reader, G0-G7 without an invocation. Its G7 runs this
         // function's unchanged base branch on its own projection, which drops
@@ -713,7 +723,10 @@ pub fn for_source(source: &Value) -> Result<(&'static Value, &'static str), Stri
     forbid_retained_rows(source)?;
     match source["producer"]["semantic_contract_id"].as_str() {
         Some(PREVIEW_PHYSICS_ID | PREVIEW_PHYSICS_TIMOSHENKO_ID) => validate_preview_physics_evidence(source)?,
-        Some(PRESSURE_ID) => validate_pressure_evidence(source)?,
+        Some(PRESSURE_ID) => match pressure {
+            Some(verdict) => verdict.clone()?,
+            None => validate_pressure_evidence(source)?,
+        },
         Some(PRESSURE_SOURCE_ID) => {
             crate::physics_source::validate_in(source, None, crate::physics_source::SourceContract::PressureV3)?;
         }
@@ -872,7 +885,7 @@ fn not_required_cases_ordinarily_eligible(source: &Value, cases: &[Value]) -> bo
             })
     })
 }
-fn retained_standing(
+pub(crate) fn retained_standing(
     source: &Value,
     requested_basis_refs: &[Value],
     actual_invocation: Option<&Value>,
@@ -961,11 +974,21 @@ pub fn numerical_use_standing_with_context(
     requested_basis_refs: &[Value],
     actual_invocation: Option<&Value>,
 ) -> &'static str {
+    numerical_use_standing_given(source, requested_basis_refs, actual_invocation, None)
+}
+/// RT-U4 (single pass): [`numerical_use_standing_with_context`], given
+/// pressure-2's evidence verdict as [`for_source_given`] is.
+pub(crate) fn numerical_use_standing_given(
+    source: &Value,
+    requested_basis_refs: &[Value],
+    actual_invocation: Option<&Value>,
+    pressure: Option<&Result<(), String>>,
+) -> &'static str {
     if is_retained(source) {
         // Validated once, with the invocation; G7 includes the base dispatch.
         return retained_standing(source, requested_basis_refs, actual_invocation);
     }
-    let Ok((_, version)) = for_source(source) else {
+    let Ok((_, version)) = for_source_given(source, pressure) else {
         return "unsupported";
     };
     // T0R (A2 item 10): validate first. (B1 and B4/D1 (b) refuse precision-1
