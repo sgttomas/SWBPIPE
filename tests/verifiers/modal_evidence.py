@@ -5,7 +5,7 @@
 It re-derives the governed relations without an eigen solve, from the document's
 own authoritative payload (the formed global mass entries and the published
 shapes), and returns the same verdict vocabulary as the Rust reader
-(`core/reporting/result_export/src/modal_evidence.rs`), with which it shares no
+(`core/reporting/modal_result/src/lib.rs`), with which it shares no
 code:
 
 - `closure` (shape, constants, ids, ordinals, checksums, digests, references) and

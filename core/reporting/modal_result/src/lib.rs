@@ -33,6 +33,12 @@
 //!
 //! **Admission.** Public engineering-result admission is disabled: the
 //! verdict states it for every document, with the open conditions.
+//!
+//! **Placement** (Design §5.3): a leaf crate of its own, as the hanger-sizing
+//! family's reader is. The modal family is not the `results.v0.3` envelope
+//! that `result_export` reads, and the reader is reached from no retained
+//! root, so it is kept out of that crate's priced surface. It depends on no
+//! product crate.
 use open_pipe_stress_canonical_json::canonical_json_checked_v1_text;
 use open_pipe_stress_units::{canonical_unit, catalog, Dimension};
 use serde_json::{json, Map, Value};

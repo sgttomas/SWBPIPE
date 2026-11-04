@@ -8,22 +8,16 @@
 //! requires its committed bytes; the ignored `write_modal_fixtures` is the
 //! deterministic generation script (it writes the same bytes; see
 //! `fixtures/results/modal_README.md`). The semantic table
-//! (`semantic_contract_modal_1.json`) is held to both the producer's and the
-//! Rust reader's statement of it.
-//!
-//! Every projected document is read here by the Rust reader
-//! (`result_export::modal_evidence`), in process, with its request supplied:
-//! each solved fixture is consistent up to its stated scope (the catalog has
-//! no mass-coupling family) and each refused one is refusal-consistent with
-//! the run's own codes. All models are invented.
+//! (`semantic_contract_modal_1.json`) is the producer's statement of it; the
+//! Rust reader (`core/reporting/modal_result`) and the Python reader are each
+//! held to the same committed bytes and read every committed fixture, so the
+//! producer and both readers meet only at committed bytes. All models are
+//! invented.
 use super::document::{modal_doc_sha256, modal_result_document, modal_semantic_table, MODAL_RESULT_KIND};
 use super::integrity::ModalIntegrityParameters;
 use super::tests::{arc_request, ex_request_with_density, pf_request, q, with};
 use super::tests_eigen::{sec_a_cantilever, test_local_parameters};
 use super::tests_state::kd5;
-use open_pipe_stress_result_export::modal_evidence::{
-    modal_reader_semantic_table, read_modal_result, ModalReadStatus, ModalSupplied, MODAL_RESULT_SEMANTICS_SHA256,
-};
 use serde_json::{json, Value};
 
 const U1: &str = include_str!("../../../../validation/references/kd5_nonlinear/u1_request.json");
@@ -110,12 +104,13 @@ fn committed(name: &str) -> (&'static str, &'static str) {
 }
 
 #[test]
-fn the_semantic_table_is_the_committed_bytes_for_producer_and_reader() {
+fn the_semantic_table_is_the_committed_bytes() {
     let committed: Value = serde_json::from_str(SEMANTIC_TABLE).unwrap();
     assert_eq!(modal_semantic_table(), committed, "the producer's modal-1 is the committed table");
-    assert_eq!(modal_reader_semantic_table(), committed, "the Rust reader's modal-1 is the committed table");
     assert_eq!(fixture_text(&modal_semantic_table()), SEMANTIC_TABLE);
-    assert_eq!(modal_doc_sha256(&committed).as_deref(), Some(MODAL_RESULT_SEMANTICS_SHA256));
+    // Every document names the committed table's digest.
+    let document = modal_result_document(&with(pf_request(false), json!({"mode_count": 1})), &test_local_parameters(), TEST_LOCAL_LABEL);
+    assert_eq!(document["semantic_contract"]["sha256"].as_str(), modal_doc_sha256(&committed).as_deref());
 }
 
 #[test]
@@ -128,36 +123,6 @@ fn fixtures_are_the_projection_of_their_requests() {
         assert_eq!(document["document_kind"], MODAL_RESULT_KIND);
         // Deterministic: a second run gives the same bytes.
         assert_eq!(modal_result_document(&fixture.request, &fixture.params, fixture.label), document, "{}", fixture.name);
-    }
-}
-
-#[test]
-fn every_projection_is_read_consistent_by_the_rust_reader() {
-    for fixture in fixtures() {
-        let document = modal_result_document(&fixture.request, &fixture.params, fixture.label);
-        let verdict = read_modal_result(&document, ModalSupplied { request: Some(&fixture.request) });
-        let json = verdict.modal_verdict_json();
-        assert_eq!(verdict.closure.status, ModalReadStatus::Passed, "{}: {json:#}", fixture.name);
-        assert_eq!(verdict.binding.status, ModalReadStatus::Passed, "{}: {json:#}", fixture.name);
-        match fixture.refused {
-            Some(codes) => {
-                assert_eq!(document["status"], "refused", "{}", fixture.name);
-                assert_eq!(verdict.decision, "refusal_consistent", "{}", fixture.name);
-                assert_eq!(verdict.refusal_codes, codes.iter().map(|c| c.to_string()).collect::<Vec<_>>(), "{}", fixture.name);
-                assert_eq!(verdict.health, "not_assessed");
-            }
-            None => {
-                assert_eq!(document["status"], "solved", "{}: {:#}", fixture.name, document.get("refusals").unwrap_or(&Value::Null));
-                for standing in &verdict.relations {
-                    assert_ne!(standing.status, ModalReadStatus::Failed, "{}: {json:#}", fixture.name);
-                }
-                assert_eq!(verdict.decision, "consistent_with_scoped_unsupported", "{}: {json:#}", fixture.name);
-                let units = &verdict.relations[8];
-                assert!(units.scope.iter().any(|s| s.contains("catalog_family_absent")), "{}: {json:#}", fixture.name);
-                let expected = if fixture.name == "cantilever_sensitive" { "sensitive" } else { "checks_passed" };
-                assert_eq!(verdict.health, expected, "{}", fixture.name);
-            }
-        }
     }
 }
 

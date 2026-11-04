@@ -4,7 +4,7 @@ committed corpus (`fixtures/results/modal_corpus.json`) and fixtures
 (`fixtures/results/modal_*.json`).
 
 Verdict parity: the corpus states each entry's verdict once; the Rust reader is held
-to it in `core/reporting/result_export/tests/modal_evidence.rs`, this reader here, so
+to it in `core/reporting/modal_result/tests/corpus.rs`, this reader here, so
 the two agree on every closure, binding, relation, health, refusal and decision. All
 values are invented.
 """

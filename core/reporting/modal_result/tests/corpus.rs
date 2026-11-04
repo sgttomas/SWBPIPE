@@ -4,10 +4,13 @@
 //! entry's `expected` verdict, which the independent Python reader
 //! (`tests/test_modal_evidence.py`) is held to as well, and the standing the
 //! entry targets must fail. All values are invented.
-use open_pipe_stress_result_export::modal_evidence::{modal_reader_sha256, read_modal_result, ModalSupplied};
+use open_pipe_stress_modal_result::{
+    modal_reader_semantic_table, modal_reader_sha256, read_modal_result, ModalReadStatus, ModalSupplied, MODAL_RESULT_SEMANTICS_SHA256,
+};
 use serde_json::{json, Value};
 
 const CORPUS: &str = include_str!("../../../../fixtures/results/modal_corpus.json");
+const SEMANTIC_TABLE: &str = include_str!("../../../../fixtures/results/semantic_contract_modal_1.json");
 
 fn fixture(name: &str) -> &'static str {
     macro_rules! file {
@@ -186,6 +189,40 @@ fn every_tampered_relation_is_targeted_and_both_readers_share_one_corpus() {
         corpus["entries"].as_array().unwrap().iter().map(|e| e["intent"].as_str().unwrap()).collect();
     for needed in ["none", "scoped", "closure", "binding", "mass", "normalization", "participation", "counts", "clusters", "sturm", "evidence", "standing", "units"] {
         assert!(intents.contains(needed), "the corpus targets `{needed}`");
+    }
+}
+
+#[test]
+fn the_readers_semantic_table_is_the_committed_table() {
+    let committed: Value = serde_json::from_str(SEMANTIC_TABLE).unwrap();
+    assert_eq!(modal_reader_semantic_table(), committed);
+    assert_eq!(modal_reader_sha256(&committed).as_deref(), Some(MODAL_RESULT_SEMANTICS_SHA256));
+}
+
+/// Every committed fixture, with its request: closure and binding pass, no
+/// relation fails, a solved document is consistent only up to the stated
+/// scope (the catalog has no mass-coupling family), a refused one is
+/// refusal-consistent.
+#[test]
+fn every_committed_fixture_reads_consistent_up_to_its_scope() {
+    let names = ["ex_n05", "arc", "component_body", "state_one_way_pressed", "state_friction_sliding", "cantilever_whole_spectrum",
+        "cantilever_cluster_extension", "cantilever_below_cutoff", "cantilever_sensitive", "refused_unseparated", "refused_no_bound"];
+    for name in names {
+        let doc: Value = serde_json::from_str(fixture(&format!("modal_{name}.json"))).unwrap();
+        let request: Value = serde_json::from_str(fixture(&format!("modal_{name}.request.json"))).unwrap();
+        let verdict = read_modal_result(&doc, ModalSupplied { request: Some(&request) });
+        let json = verdict.modal_verdict_json();
+        assert_eq!((verdict.closure.status, verdict.binding.status), (ModalReadStatus::Passed, ModalReadStatus::Passed), "{name}: {json:#}");
+        assert!(verdict.relations.iter().all(|r| r.status != ModalReadStatus::Failed), "{name}: {json:#}");
+        if doc["status"] == "refused" {
+            assert_eq!(verdict.decision, "refusal_consistent", "{name}");
+            assert!(!verdict.refusal_codes.is_empty());
+        } else {
+            assert_eq!(verdict.decision, "consistent_with_scoped_unsupported", "{name}: {json:#}");
+            assert!(verdict.relations[8].scope.iter().any(|s| s.contains("catalog_family_absent")), "{name}");
+            let expected = if name == "cantilever_sensitive" { "sensitive" } else { "checks_passed" };
+            assert_eq!(verdict.health, expected, "{name}");
+        }
     }
 }
 

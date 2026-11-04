@@ -1709,5 +1709,3 @@ pub mod retained_precision;
 pub mod reader_verdict;
 pub mod recorded_tables;
 pub mod component_body;
-// DEL-04-09 I3a (Design §5.3): the modal result family's Rust reader.
-pub mod modal_evidence;

@@ -1,5 +1,5 @@
 {
-  "description": "DEL-04-09 I3a (Design §5.3): the modal result reader corpus. Each entry applies its operations to a committed modal fixture (replace, add, scale, scale_rows, withhold), reseals every row checksum and table digest when `reseal` is true, supplies the request when named (after its own operations), and states the standing it targets (`intent`). `expected` is the verdict both readers must return: tests/test_modal_evidence.py and core/reporting/result_export/tests/modal_evidence.rs.",
+  "description": "DEL-04-09 I3a (Design §5.3): the modal result reader corpus. Each entry applies its operations to a committed modal fixture (replace, add, scale, scale_rows, withhold), reseals every row checksum and table digest when `reseal` is true, supplies the request when named (after its own operations), and states the standing it targets (`intent`). `expected` is the verdict both readers must return: tests/test_modal_evidence.py and core/reporting/modal_result/tests/corpus.rs.",
   "entries": [
     {
       "document": "modal_ex_n05.json",
