@@ -1,0 +1,1781 @@
+{
+ "cases": {
+  "H-1": {
+   "description": "V-2 cantilever, units P = 48, L = 2, s* = 1; operating rise s = 2 s*",
+   "outcome": "R (changed: penetration)",
+   "source_minus_held": {
+    "dreaction": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "du": {
+     "binary64": "0x1.0000000000000p+1",
+     "exact": "2"
+    }
+   },
+   "source_own": {
+    "anchor_moment_over_PL": {
+     "binary64": "0x1.0000000000000p-1",
+     "exact": "1/2"
+    },
+    "prop_reaction_over_P": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "reaction": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "state": "inactive",
+    "tip_u_over_sstar": {
+     "binary64": "0x1.0000000000000p+0",
+     "exact": "1"
+    },
+    "u": {
+     "binary64": "0x1.0000000000000p+0",
+     "exact": "1"
+    }
+   },
+   "target_held": {
+    "anchor_moment_over_PL": {
+     "binary64": "0x1.0000000000000p-1",
+     "exact": "1/2"
+    },
+    "classified_state": "active",
+    "derived_branch_admissible": true,
+    "prop_reaction_over_P": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "reaction": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "released": true,
+    "state": "inactive",
+    "tip_u_over_sstar": {
+     "binary64": "-0x1.0000000000000p+0",
+     "exact": "-1"
+    },
+    "u": {
+     "binary64": "-0x1.0000000000000p+0",
+     "exact": "-1"
+    }
+   },
+   "target_own": {
+    "anchor_moment_over_PL": {
+     "binary64": "0x1.8000000000000p-3",
+     "exact": "3/16"
+    },
+    "prop_reaction_over_P": {
+     "binary64": "0x1.4000000000000p-2",
+     "exact": "5/16"
+    },
+    "reaction": {
+     "binary64": "0x1.e000000000000p+3",
+     "exact": "15"
+    },
+    "state": "active",
+    "tip_u_over_sstar": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "u": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    }
+   }
+  },
+  "H-13": {
+   "description": "tip-UZ bar, derived; S: U = 4096 up, F = 2048; O: U, V' = 8192 down, F, dT = -8 K",
+   "outcome": "R (branch: the target's normal reverses)",
+   "source_minus_held": {
+    "daxial": {
+     "binary64": "-0x1.0000000000000p+11",
+     "exact": "-2048"
+    },
+    "dreaction": {
+     "binary64": "-0x1.0000000000000p+11",
+     "exact": "-2048"
+    },
+    "du": {
+     "binary64": "-0x1.4000000000000p-9",
+     "exact": "-5/2048"
+    }
+   },
+   "source_own": {
+    "axial": {
+     "binary64": "0x1.0000000000000p+10",
+     "exact": "1024"
+    },
+    "beta": 1,
+    "friction_force": {
+     "binary64": "-0x1.0000000000000p+10",
+     "exact": "-1024"
+    },
+    "normal_signed": {
+     "binary64": "0x1.0000000000000p+12",
+     "exact": "4096"
+    },
+    "reaction": {
+     "binary64": "-0x1.0000000000000p+10",
+     "exact": "-1024"
+    },
+    "slip_sense": 1,
+    "state": "sliding",
+    "u": {
+     "binary64": "0x1.0000000000000p-11",
+     "exact": "1/2048"
+    }
+   },
+   "target_held": {
+    "axial": {
+     "binary64": "0x1.8000000000000p+11",
+     "exact": "3072"
+    },
+    "beta": 1,
+    "classified_state": "sliding",
+    "derived_branch_admissible": false,
+    "friction_force": {
+     "binary64": "0x1.0000000000000p+10",
+     "exact": "1024"
+    },
+    "normal_signed": {
+     "binary64": "-0x1.0000000000000p+12",
+     "exact": "-4096"
+    },
+    "reaction": {
+     "binary64": "0x1.0000000000000p+10",
+     "exact": "1024"
+    },
+    "released": true,
+    "slip_sense": 1,
+    "state": "sliding",
+    "u": {
+     "binary64": "0x1.8000000000000p-9",
+     "exact": "3/1024"
+    }
+   },
+   "target_own": {
+    "axial": {
+     "binary64": "0x1.0000000000000p+10",
+     "exact": "1024"
+    },
+    "beta": -1,
+    "friction_force": {
+     "binary64": "-0x1.0000000000000p+10",
+     "exact": "-1024"
+    },
+    "normal_signed": {
+     "binary64": "-0x1.0000000000000p+12",
+     "exact": "-4096"
+    },
+    "reaction": {
+     "binary64": "-0x1.0000000000000p+10",
+     "exact": "-1024"
+    },
+    "slip_sense": 1,
+    "state": "sliding",
+    "u": {
+     "binary64": "0x1.0000000000000p-10",
+     "exact": "1/1024"
+    }
+   }
+  },
+  "H-14": {
+   "coupling_g": {
+    "binary64": "-0x1.435e50d79435ep+0",
+    "exact": "-24/19"
+   },
+   "description": "L-frame A(0,0) B(1,0) C(1,-1), EA = 2^24, EI = 2^20; C: UZ restraint (normal), UX friction mu = 1/4; S: W = 4096 down at B, P = 2048 +X at C; O: S, dT = +64 K on AB",
+   "mutants": {
+    "frozen_source_normal": {
+     "friction_force": {
+      "binary64": "-0x1.3b13b13b13b14p+8",
+      "exact": "-4096/13"
+     },
+     "u": {
+      "binary64": "0x1.f483483483483p-11",
+      "exact": "305/319488"
+     }
+    },
+    "uncoupled_normal": {
+     "friction_force": {
+      "binary64": "-0x1.af286bca1af28p+7",
+      "exact": "-4096/19"
+     },
+     "u": {
+      "binary64": "0x1.0d44505e8d5b0p-10",
+      "exact": "9113/8871936"
+     }
+    }
+   },
+   "outcome": "E or N (kept; k = 1)",
+   "source_minus_held": {
+    "dreaction": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "du": {
+     "binary64": "0x1.0000000000000p-10",
+     "exact": "1/1024"
+    }
+   },
+   "source_own": {
+    "beta": 1,
+    "friction_force": {
+     "binary64": "-0x1.3b13b13b13b14p+8",
+     "exact": "-4096/13"
+    },
+    "normal_signed": {
+     "binary64": "0x1.3b13b13b13b14p+10",
+     "exact": "16384/13"
+    },
+    "reaction": {
+     "binary64": "-0x1.3b13b13b13b14p+8",
+     "exact": "-4096/13"
+    },
+    "slip_sense": 1,
+    "state": "sliding",
+    "u": {
+     "binary64": "0x1.fa41a41a41a42p-10",
+     "exact": "617/319488"
+    }
+   },
+   "target_held": {
+    "beta": 1,
+    "classified_state": "sliding",
+    "derived_branch_admissible": true,
+    "friction_force": {
+     "binary64": "-0x1.3b13b13b13b14p+8",
+     "exact": "-4096/13"
+    },
+    "normal_signed": {
+     "binary64": "0x1.3b13b13b13b14p+10",
+     "exact": "16384/13"
+    },
+    "reaction": {
+     "binary64": "-0x1.3b13b13b13b14p+8",
+     "exact": "-4096/13"
+    },
+    "released": false,
+    "slip_sense": 1,
+    "state": "sliding",
+    "u": {
+     "binary64": "0x1.f483483483483p-11",
+     "exact": "305/319488"
+    }
+   },
+   "target_own": {
+    "beta": 1,
+    "friction_force": {
+     "binary64": "-0x1.3b13b13b13b14p+8",
+     "exact": "-4096/13"
+    },
+    "normal_signed": {
+     "binary64": "0x1.3b13b13b13b14p+10",
+     "exact": "16384/13"
+    },
+    "reaction": {
+     "binary64": "-0x1.3b13b13b13b14p+8",
+     "exact": "-4096/13"
+    },
+    "slip_sense": 1,
+    "state": "sliding",
+    "u": {
+     "binary64": "0x1.f483483483483p-11",
+     "exact": "305/319488"
+    }
+   }
+  },
+  "H-14r": {
+   "coupling_g": {
+    "binary64": "-0x1.435e50d79435ep+0",
+    "exact": "-24/19"
+   },
+   "description": "L-frame A(0,0) B(1,0) C(1,-1), EA = 2^24, EI = 2^20; C: UZ restraint (normal), UX friction mu = 1/4; S: W = 4096 down at B, P = 2048 +X at C; O: S, P' = -4096 at C",
+   "mutants": {
+    "frozen_source_normal": {
+     "friction_force": {
+      "binary64": "0x1.1eb851eb851ecp+10",
+      "exact": "28672/25"
+     },
+     "u": {
+      "binary64": "0x1.08caa4eafb264p-9",
+      "exact": "7861/3891200"
+     }
+    },
+    "uncoupled_normal": {
+     "friction_force": {
+      "binary64": "0x1.af286bca1af28p+7",
+      "exact": "4096/19"
+     },
+     "u": {
+      "binary64": "0x1.5fa53adbd5739p-10",
+      "exact": "3967/2957312"
+     }
+    }
+   },
+   "outcome": "R (changed: slip sense)",
+   "source_minus_held": {
+    "dreaction": {
+     "binary64": "0x1.eb851eb851eb8p+9",
+     "exact": "24576/25"
+    },
+    "du": {
+     "binary64": "-0x1.2962fc962fc96p-9",
+     "exact": "-697/307200"
+    }
+   },
+   "source_own": {
+    "beta": 1,
+    "friction_force": {
+     "binary64": "0x1.1eb851eb851ecp+10",
+     "exact": "28672/25"
+    },
+    "normal_signed": {
+     "binary64": "0x1.1eb851eb851ecp+12",
+     "exact": "114688/25"
+    },
+    "reaction": {
+     "binary64": "0x1.1eb851eb851ecp+10",
+     "exact": "28672/25"
+    },
+    "slip_sense": -1,
+    "state": "sliding",
+    "u": {
+     "binary64": "-0x1.fa06d3a06d3a0p-11",
+     "exact": "-593/614400"
+    }
+   },
+   "target_held": {
+    "beta": 1,
+    "classified_state": "sticking",
+    "derived_branch_admissible": true,
+    "friction_force": {
+     "binary64": "0x1.47ae147ae147bp+7",
+     "exact": "4096/25"
+    },
+    "normal_signed": {
+     "binary64": "0x1.47ae147ae147bp+9",
+     "exact": "16384/25"
+    },
+    "reaction": {
+     "binary64": "0x1.47ae147ae147bp+7",
+     "exact": "4096/25"
+    },
+    "released": true,
+    "slip_sense": -1,
+    "state": "sliding",
+    "u": {
+     "binary64": "0x1.55c28f5c28f5cp-10",
+     "exact": "267/204800"
+    }
+   },
+   "target_own": {
+    "beta": 1,
+    "friction_force": {
+     "binary64": "-0x1.3b13b13b13b14p+8",
+     "exact": "-4096/13"
+    },
+    "normal_signed": {
+     "binary64": "0x1.3b13b13b13b14p+10",
+     "exact": "16384/13"
+    },
+    "reaction": {
+     "binary64": "-0x1.3b13b13b13b14p+8",
+     "exact": "-4096/13"
+    },
+    "slip_sense": 1,
+    "state": "sliding",
+    "u": {
+     "binary64": "0x1.f483483483483p-11",
+     "exact": "305/319488"
+    }
+   }
+  },
+  "H-15a": {
+   "description": "bar, explicit N = 4096, mu = 0",
+   "outcome": "E or N (kept: zero limit, slip)",
+   "source_minus_held": {
+    "daxial": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "dreaction": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "du": {
+     "binary64": "-0x1.0000000000000p-10",
+     "exact": "-1/1024"
+    }
+   },
+   "source_own": {
+    "axial": {
+     "binary64": "0x1.0000000000000p+9",
+     "exact": "512"
+    },
+    "friction_force": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "reaction": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "slip_sense": -1,
+    "state": "sliding",
+    "u": {
+     "binary64": "-0x1.0000000000000p-11",
+     "exact": "-1/2048"
+    }
+   },
+   "target_held": {
+    "axial": {
+     "binary64": "0x1.0000000000000p+9",
+     "exact": "512"
+    },
+    "classified_state": "sliding",
+    "derived_branch_admissible": true,
+    "friction_force": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "reaction": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "released": false,
+    "slip_sense": -1,
+    "state": "sliding",
+    "u": {
+     "binary64": "0x1.0000000000000p-11",
+     "exact": "1/2048"
+    }
+   },
+   "target_own": {
+    "axial": {
+     "binary64": "0x1.0000000000000p+9",
+     "exact": "512"
+    },
+    "friction_force": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "reaction": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "slip_sense": 1,
+    "state": "sliding",
+    "u": {
+     "binary64": "0x1.0000000000000p-11",
+     "exact": "1/2048"
+    }
+   }
+  },
+  "H-15b": {
+   "description": "bar, explicit N = 4096, mu = 0",
+   "outcome": "R (changed: no slip)",
+   "source_minus_held": {
+    "daxial": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "dreaction": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "du": {
+     "binary64": "-0x1.0000000000000p-10",
+     "exact": "-1/1024"
+    }
+   },
+   "source_own": {
+    "axial": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "friction_force": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "reaction": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "slip_sense": -1,
+    "state": "sliding",
+    "u": {
+     "binary64": "-0x1.0000000000000p-10",
+     "exact": "-1/1024"
+    }
+   },
+   "target_held": {
+    "axial": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "classified_state": "sticking",
+    "derived_branch_admissible": true,
+    "friction_force": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "reaction": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "released": true,
+    "slip_sense": -1,
+    "state": "sliding",
+    "u": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    }
+   },
+   "target_own": {
+    "axial": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "friction_force": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "reaction": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "state": "sticking",
+    "u": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    }
+   }
+  },
+  "H-15c": {
+   "description": "bar, explicit N = 1/4, mu = 2^-1074",
+   "outcome": "E or N (kept: fl(mu N) = 0)",
+   "source_minus_held": {
+    "daxial": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "dreaction": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "du": {
+     "binary64": "-0x1.0000000000000p-10",
+     "exact": "-1/1024"
+    }
+   },
+   "source_own": {
+    "axial": {
+     "binary64": "0x1.0000000000000p+9",
+     "exact": "512"
+    },
+    "friction_force": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "reaction": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "slip_sense": -1,
+    "state": "sliding",
+    "u": {
+     "binary64": "-0x1.0000000000000p-11",
+     "exact": "-1/2048"
+    }
+   },
+   "target_held": {
+    "axial": {
+     "binary64": "0x1.0000000000000p+9",
+     "exact": "512"
+    },
+    "classified_state": "sliding",
+    "derived_branch_admissible": true,
+    "friction_force": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "reaction": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "released": false,
+    "slip_sense": -1,
+    "state": "sliding",
+    "u": {
+     "binary64": "0x1.0000000000000p-11",
+     "exact": "1/2048"
+    }
+   },
+   "target_own": {
+    "axial": {
+     "binary64": "0x1.0000000000000p+9",
+     "exact": "512"
+    },
+    "friction_force": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "reaction": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "slip_sense": 1,
+    "state": "sliding",
+    "u": {
+     "binary64": "0x1.0000000000000p-11",
+     "exact": "1/2048"
+    }
+   }
+  },
+  "H-16a": {
+   "description": "bar, explicit N = 0 (an input decision), mu = 1/4",
+   "outcome": "E (input decision)",
+   "source_minus_held": {
+    "daxial": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "dreaction": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "du": {
+     "binary64": "-0x1.0000000000000p-10",
+     "exact": "-1/1024"
+    }
+   },
+   "source_own": {
+    "axial": {
+     "binary64": "0x1.0000000000000p+9",
+     "exact": "512"
+    },
+    "friction_force": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "reaction": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "state": "inactive",
+    "u": {
+     "binary64": "-0x1.0000000000000p-11",
+     "exact": "-1/2048"
+    }
+   },
+   "target_held": {
+    "axial": {
+     "binary64": "0x1.0000000000000p+9",
+     "exact": "512"
+    },
+    "classified_state": "inactive",
+    "derived_branch_admissible": true,
+    "friction_force": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "reaction": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "released": false,
+    "state": "inactive",
+    "u": {
+     "binary64": "0x1.0000000000000p-11",
+     "exact": "1/2048"
+    }
+   },
+   "target_own": {
+    "axial": {
+     "binary64": "0x1.0000000000000p+9",
+     "exact": "512"
+    },
+    "friction_force": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "reaction": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "state": "inactive",
+    "u": {
+     "binary64": "0x1.0000000000000p-11",
+     "exact": "1/2048"
+    }
+   }
+  },
+  "H-16b": {
+   "description": "tip-UZ bar, derived; S: V = 4096 down, F = 512; O: V, U = 4096 up, F (R_n = 0)",
+   "outcome": "R (changed)",
+   "source_minus_held": {
+    "daxial": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "dreaction": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "du": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    }
+   },
+   "source_own": {
+    "axial": {
+     "binary64": "0x1.0000000000000p+9",
+     "exact": "512"
+    },
+    "friction_force": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "normal_signed": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "reaction": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "state": "inactive",
+    "u": {
+     "binary64": "0x1.0000000000000p-11",
+     "exact": "1/2048"
+    }
+   },
+   "target_held": {
+    "axial": {
+     "binary64": "0x1.0000000000000p+9",
+     "exact": "512"
+    },
+    "classified_state": "sticking",
+    "derived_branch_admissible": true,
+    "friction_force": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "normal_signed": {
+     "binary64": "0x1.0000000000000p+12",
+     "exact": "4096"
+    },
+    "reaction": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "released": true,
+    "state": "inactive",
+    "u": {
+     "binary64": "0x1.0000000000000p-11",
+     "exact": "1/2048"
+    }
+   },
+   "target_own": {
+    "axial": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "friction_force": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "normal_signed": {
+     "binary64": "0x1.0000000000000p+12",
+     "exact": "4096"
+    },
+    "reaction": {
+     "binary64": "-0x1.0000000000000p+9",
+     "exact": "-512"
+    },
+    "state": "sticking",
+    "u": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    }
+   }
+  },
+  "H-17": {
+   "description": "bar, explicit N = 4096; source: F = 768 + 1280, shoe ground 3*2^-11; target: F = 768, ground 1/2048",
+   "mutants": {
+    "hold_source_displacement": {
+     "reaction": {
+      "binary64": "0x1.8000000000000p+9",
+      "exact": "768"
+     },
+     "u": {
+      "binary64": "0x1.8000000000000p-10",
+      "exact": "3/2048"
+     }
+    }
+   },
+   "outcome": "E or N (callable level: no G-1)",
+   "source_minus_held": {
+    "daxial": {
+     "binary64": "0x1.0000000000000p+10",
+     "exact": "1024"
+    },
+    "dreaction": {
+     "binary64": "-0x1.0000000000000p+8",
+     "exact": "-256"
+    },
+    "du": {
+     "binary64": "0x1.0000000000000p-10",
+     "exact": "1/1024"
+    }
+   },
+   "source_own": {
+    "axial": {
+     "binary64": "0x1.8000000000000p+10",
+     "exact": "1536"
+    },
+    "friction_force": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "reaction": {
+     "binary64": "-0x1.0000000000000p+9",
+     "exact": "-512"
+    },
+    "state": "sticking",
+    "u": {
+     "binary64": "0x1.8000000000000p-10",
+     "exact": "3/2048"
+    }
+   },
+   "target_held": {
+    "axial": {
+     "binary64": "0x1.0000000000000p+9",
+     "exact": "512"
+    },
+    "classified_state": "sticking",
+    "derived_branch_admissible": true,
+    "friction_force": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "reaction": {
+     "binary64": "-0x1.0000000000000p+8",
+     "exact": "-256"
+    },
+    "released": false,
+    "state": "sticking",
+    "u": {
+     "binary64": "0x1.0000000000000p-11",
+     "exact": "1/2048"
+    }
+   },
+   "target_own": {
+    "axial": {
+     "binary64": "0x1.0000000000000p+9",
+     "exact": "512"
+    },
+    "friction_force": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "reaction": {
+     "binary64": "-0x1.0000000000000p+8",
+     "exact": "-256"
+    },
+    "state": "sticking",
+    "u": {
+     "binary64": "0x1.0000000000000p-11",
+     "exact": "1/2048"
+    }
+   }
+  },
+  "H-17c": {
+   "description": "bar, explicit N = 4096; source: F = 768 + 1280, shoe ground 3*2^-11; target: F = 768, ground 0",
+   "mutants": {
+    "hold_source_displacement": {
+     "reaction": {
+      "binary64": "0x1.8000000000000p+9",
+      "exact": "768"
+     },
+     "u": {
+      "binary64": "0x1.8000000000000p-10",
+      "exact": "3/2048"
+     }
+    }
+   },
+   "outcome": "E or N",
+   "source_minus_held": {
+    "daxial": {
+     "binary64": "0x1.8000000000000p+10",
+     "exact": "1536"
+    },
+    "dreaction": {
+     "binary64": "0x1.0000000000000p+8",
+     "exact": "256"
+    },
+    "du": {
+     "binary64": "0x1.8000000000000p-10",
+     "exact": "3/2048"
+    }
+   },
+   "source_own": {
+    "axial": {
+     "binary64": "0x1.8000000000000p+10",
+     "exact": "1536"
+    },
+    "friction_force": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "reaction": {
+     "binary64": "-0x1.0000000000000p+9",
+     "exact": "-512"
+    },
+    "state": "sticking",
+    "u": {
+     "binary64": "0x1.8000000000000p-10",
+     "exact": "3/2048"
+    }
+   },
+   "target_held": {
+    "axial": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "classified_state": "sticking",
+    "derived_branch_admissible": true,
+    "friction_force": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "reaction": {
+     "binary64": "-0x1.8000000000000p+9",
+     "exact": "-768"
+    },
+    "released": false,
+    "state": "sticking",
+    "u": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    }
+   },
+   "target_own": {
+    "axial": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "friction_force": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "reaction": {
+     "binary64": "-0x1.8000000000000p+9",
+     "exact": "-768"
+    },
+    "state": "sticking",
+    "u": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    }
+   }
+  },
+  "H-18": {
+   "description": "bar, one-way +; S: 512 N at the anchor only; O: S, dT = +16 K",
+   "outcome": "N (separation not established)",
+   "source_minus_held": {
+    "daxial": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "dreaction": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "du": {
+     "binary64": "0x1.0000000000000p-10",
+     "exact": "1/1024"
+    }
+   },
+   "source_own": {
+    "axial": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "reaction": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "state": "inactive",
+    "u": {
+     "binary64": "0x1.0000000000000p-10",
+     "exact": "1/1024"
+    }
+   },
+   "target_held": {
+    "axial": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "classified_state": "inactive",
+    "derived_branch_admissible": true,
+    "reaction": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "released": false,
+    "state": "inactive",
+    "u": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    }
+   },
+   "target_own": {
+    "axial": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "reaction": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "state": "inactive",
+    "u": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    }
+   }
+  },
+  "H-1b": {
+   "description": "V-2 cantilever, units P = 48, L = 2, s* = 1; operating rise s = 1/2 s*",
+   "outcome": "E or N (kept; held = own)",
+   "source_minus_held": {
+    "dreaction": {
+     "binary64": "-0x1.e000000000000p+2",
+     "exact": "-15/2"
+    },
+    "du": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    }
+   },
+   "source_own": {
+    "anchor_moment_over_PL": {
+     "binary64": "0x1.6000000000000p-2",
+     "exact": "11/32"
+    },
+    "prop_reaction_over_P": {
+     "binary64": "0x1.4000000000000p-3",
+     "exact": "5/32"
+    },
+    "reaction": {
+     "binary64": "0x1.e000000000000p+2",
+     "exact": "15/2"
+    },
+    "state": "active",
+    "tip_u_over_sstar": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "u": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    }
+   },
+   "target_held": {
+    "anchor_moment_over_PL": {
+     "binary64": "0x1.8000000000000p-3",
+     "exact": "3/16"
+    },
+    "classified_state": "active",
+    "derived_branch_admissible": true,
+    "prop_reaction_over_P": {
+     "binary64": "0x1.4000000000000p-2",
+     "exact": "5/16"
+    },
+    "reaction": {
+     "binary64": "0x1.e000000000000p+3",
+     "exact": "15"
+    },
+    "released": false,
+    "state": "active",
+    "tip_u_over_sstar": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "u": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    }
+   },
+   "target_own": {
+    "anchor_moment_over_PL": {
+     "binary64": "0x1.8000000000000p-3",
+     "exact": "3/16"
+    },
+    "prop_reaction_over_P": {
+     "binary64": "0x1.4000000000000p-2",
+     "exact": "5/16"
+    },
+    "reaction": {
+     "binary64": "0x1.e000000000000p+3",
+     "exact": "15"
+    },
+    "state": "active",
+    "tip_u_over_sstar": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "u": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    }
+   }
+  },
+  "H-2": {
+   "description": "bar, tip one-way +; S: F = 512 N; O: F, dT = -16 K",
+   "outcome": "R (changed: tensile held reaction)",
+   "source_minus_held": {
+    "daxial": {
+     "binary64": "0x1.0000000000000p+10",
+     "exact": "1024"
+    },
+    "dreaction": {
+     "binary64": "0x1.0000000000000p+10",
+     "exact": "1024"
+    },
+    "du": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    }
+   },
+   "source_own": {
+    "axial": {
+     "binary64": "0x1.0000000000000p+10",
+     "exact": "1024"
+    },
+    "reaction": {
+     "binary64": "0x1.0000000000000p+9",
+     "exact": "512"
+    },
+    "state": "active",
+    "u": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    }
+   },
+   "target_held": {
+    "axial": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "classified_state": "inactive",
+    "derived_branch_admissible": true,
+    "reaction": {
+     "binary64": "-0x1.0000000000000p+9",
+     "exact": "-512"
+    },
+    "released": true,
+    "state": "active",
+    "u": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    }
+   },
+   "target_own": {
+    "axial": {
+     "binary64": "0x1.0000000000000p+9",
+     "exact": "512"
+    },
+    "reaction": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "state": "inactive",
+    "u": {
+     "binary64": "0x1.0000000000000p-11",
+     "exact": "1/2048"
+    }
+   }
+  },
+  "H-3": {
+   "description": "bar, tip friction, explicit N = 4096, mu = 1/4; S: F = 2048; O: F, dT = -24 K",
+   "outcome": "R (changed: stick capacity)",
+   "source_minus_held": {
+    "daxial": {
+     "binary64": "0x1.8000000000000p+10",
+     "exact": "1536"
+    },
+    "dreaction": {
+     "binary64": "0x1.8000000000000p+10",
+     "exact": "1536"
+    },
+    "du": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    }
+   },
+   "source_own": {
+    "axial": {
+     "binary64": "0x1.8000000000000p+10",
+     "exact": "1536"
+    },
+    "friction_force": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "reaction": {
+     "binary64": "-0x1.0000000000000p+9",
+     "exact": "-512"
+    },
+    "state": "sticking",
+    "u": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    }
+   },
+   "target_held": {
+    "axial": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "classified_state": "sliding",
+    "derived_branch_admissible": true,
+    "friction_force": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "reaction": {
+     "binary64": "-0x1.0000000000000p+11",
+     "exact": "-2048"
+    },
+    "released": true,
+    "state": "sticking",
+    "u": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    }
+   },
+   "target_own": {
+    "axial": {
+     "binary64": "0x1.0000000000000p+10",
+     "exact": "1024"
+    },
+    "friction_force": {
+     "binary64": "-0x1.0000000000000p+10",
+     "exact": "-1024"
+    },
+    "reaction": {
+     "binary64": "-0x1.0000000000000p+10",
+     "exact": "-1024"
+    },
+    "slip_sense": 1,
+    "state": "sliding",
+    "u": {
+     "binary64": "0x1.0000000000000p-10",
+     "exact": "1/1024"
+    }
+   }
+  },
+  "H-4": {
+   "description": "bar, tip friction, explicit N = 4096, mu = 1/4; S: F = 2048; O: F, dT = -8 K",
+   "outcome": "E or N (kept)",
+   "source_minus_held": {
+    "daxial": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "dreaction": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "du": {
+     "binary64": "-0x1.0000000000000p-11",
+     "exact": "-1/2048"
+    }
+   },
+   "source_own": {
+    "axial": {
+     "binary64": "0x1.0000000000000p+10",
+     "exact": "1024"
+    },
+    "friction_force": {
+     "binary64": "-0x1.0000000000000p+10",
+     "exact": "-1024"
+    },
+    "reaction": {
+     "binary64": "-0x1.0000000000000p+10",
+     "exact": "-1024"
+    },
+    "slip_sense": 1,
+    "state": "sliding",
+    "u": {
+     "binary64": "0x1.0000000000000p-11",
+     "exact": "1/2048"
+    }
+   },
+   "target_held": {
+    "axial": {
+     "binary64": "0x1.0000000000000p+10",
+     "exact": "1024"
+    },
+    "classified_state": "sliding",
+    "derived_branch_admissible": true,
+    "friction_force": {
+     "binary64": "-0x1.0000000000000p+10",
+     "exact": "-1024"
+    },
+    "reaction": {
+     "binary64": "-0x1.0000000000000p+10",
+     "exact": "-1024"
+    },
+    "released": false,
+    "slip_sense": 1,
+    "state": "sliding",
+    "u": {
+     "binary64": "0x1.0000000000000p-10",
+     "exact": "1/1024"
+    }
+   },
+   "target_own": {
+    "axial": {
+     "binary64": "0x1.0000000000000p+10",
+     "exact": "1024"
+    },
+    "friction_force": {
+     "binary64": "-0x1.0000000000000p+10",
+     "exact": "-1024"
+    },
+    "reaction": {
+     "binary64": "-0x1.0000000000000p+10",
+     "exact": "-1024"
+    },
+    "slip_sense": 1,
+    "state": "sliding",
+    "u": {
+     "binary64": "0x1.0000000000000p-10",
+     "exact": "1/1024"
+    }
+   }
+  },
+  "H-5": {
+   "description": "bar, tip friction, explicit N = 4096, mu = 1/4; S: F = 2048; O: F, dT = -64 K",
+   "outcome": "R (changed: slip sense)",
+   "source_minus_held": {
+    "daxial": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "dreaction": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "du": {
+     "binary64": "-0x1.0000000000000p-8",
+     "exact": "-1/256"
+    }
+   },
+   "source_own": {
+    "axial": {
+     "binary64": "0x1.8000000000000p+11",
+     "exact": "3072"
+    },
+    "friction_force": {
+     "binary64": "0x1.0000000000000p+10",
+     "exact": "1024"
+    },
+    "reaction": {
+     "binary64": "0x1.0000000000000p+10",
+     "exact": "1024"
+    },
+    "slip_sense": -1,
+    "state": "sliding",
+    "u": {
+     "binary64": "-0x1.0000000000000p-10",
+     "exact": "-1/1024"
+    }
+   },
+   "target_held": {
+    "axial": {
+     "binary64": "0x1.8000000000000p+11",
+     "exact": "3072"
+    },
+    "classified_state": "sticking",
+    "derived_branch_admissible": true,
+    "friction_force": {
+     "binary64": "0x1.0000000000000p+10",
+     "exact": "1024"
+    },
+    "reaction": {
+     "binary64": "0x1.0000000000000p+10",
+     "exact": "1024"
+    },
+    "released": true,
+    "slip_sense": -1,
+    "state": "sliding",
+    "u": {
+     "binary64": "0x1.8000000000000p-9",
+     "exact": "3/1024"
+    }
+   },
+   "target_own": {
+    "axial": {
+     "binary64": "0x1.0000000000000p+10",
+     "exact": "1024"
+    },
+    "friction_force": {
+     "binary64": "-0x1.0000000000000p+10",
+     "exact": "-1024"
+    },
+    "reaction": {
+     "binary64": "-0x1.0000000000000p+10",
+     "exact": "-1024"
+    },
+    "slip_sense": 1,
+    "state": "sliding",
+    "u": {
+     "binary64": "0x1.0000000000000p-10",
+     "exact": "1/1024"
+    }
+   }
+  },
+  "H-6": {
+   "description": "tip-UZ bar, derived normal, mu = 1/4; S: V = 4096 down, F = 2048; O: V + V' = 4096 down, F, dT = -80 K",
+   "mutants": {
+    "frozen_source_normal": {
+     "friction_force": {
+      "binary64": "0x1.0000000000000p+11",
+      "exact": "2048"
+     },
+     "u": {
+      "binary64": "0x1.0000000000000p-8",
+      "exact": "1/256"
+     }
+    }
+   },
+   "outcome": "R (changed)",
+   "source_minus_held": {
+    "daxial": {
+     "binary64": "0x1.0000000000000p+10",
+     "exact": "1024"
+    },
+    "dreaction": {
+     "binary64": "0x1.0000000000000p+10",
+     "exact": "1024"
+    },
+    "du": {
+     "binary64": "-0x1.0000000000000p-8",
+     "exact": "-1/256"
+    }
+   },
+   "source_own": {
+    "axial": {
+     "binary64": "0x1.0000000000000p+12",
+     "exact": "4096"
+    },
+    "beta": 1,
+    "friction_force": {
+     "binary64": "0x1.0000000000000p+11",
+     "exact": "2048"
+    },
+    "normal_signed": {
+     "binary64": "0x1.0000000000000p+13",
+     "exact": "8192"
+    },
+    "reaction": {
+     "binary64": "0x1.0000000000000p+11",
+     "exact": "2048"
+    },
+    "slip_sense": -1,
+    "state": "sliding",
+    "u": {
+     "binary64": "-0x1.0000000000000p-10",
+     "exact": "-1/1024"
+    }
+   },
+   "target_held": {
+    "axial": {
+     "binary64": "0x1.8000000000000p+11",
+     "exact": "3072"
+    },
+    "beta": 1,
+    "classified_state": "sticking",
+    "derived_branch_admissible": true,
+    "friction_force": {
+     "binary64": "0x1.0000000000000p+10",
+     "exact": "1024"
+    },
+    "normal_signed": {
+     "binary64": "0x1.0000000000000p+12",
+     "exact": "4096"
+    },
+    "reaction": {
+     "binary64": "0x1.0000000000000p+10",
+     "exact": "1024"
+    },
+    "released": true,
+    "slip_sense": -1,
+    "state": "sliding",
+    "u": {
+     "binary64": "0x1.8000000000000p-9",
+     "exact": "3/1024"
+    }
+   },
+   "target_own": {
+    "axial": {
+     "binary64": "0x1.0000000000000p+10",
+     "exact": "1024"
+    },
+    "beta": 1,
+    "friction_force": {
+     "binary64": "-0x1.0000000000000p+10",
+     "exact": "-1024"
+    },
+    "normal_signed": {
+     "binary64": "0x1.0000000000000p+12",
+     "exact": "4096"
+    },
+    "reaction": {
+     "binary64": "-0x1.0000000000000p+10",
+     "exact": "-1024"
+    },
+    "slip_sense": 1,
+    "state": "sliding",
+    "u": {
+     "binary64": "0x1.0000000000000p-10",
+     "exact": "1/1024"
+    }
+   }
+  },
+  "H-6b": {
+   "description": "tip-UZ bar, derived normal, mu = 1/4; S: V = 4096 down, F = 3072; O: V + V' = 4096 down, F, dT = -8 K",
+   "mutants": {
+    "frozen_source_normal": {
+     "friction_force": {
+      "binary64": "-0x1.0000000000000p+11",
+      "exact": "-2048"
+     },
+     "u": {
+      "binary64": "0x1.0000000000000p-10",
+      "exact": "1/1024"
+     }
+    }
+   },
+   "outcome": "E or N (kept)",
+   "source_minus_held": {
+    "daxial": {
+     "binary64": "-0x1.0000000000000p+10",
+     "exact": "-1024"
+    },
+    "dreaction": {
+     "binary64": "-0x1.0000000000000p+10",
+     "exact": "-1024"
+    },
+    "du": {
+     "binary64": "-0x1.8000000000000p-10",
+     "exact": "-3/2048"
+    }
+   },
+   "source_own": {
+    "axial": {
+     "binary64": "0x1.0000000000000p+10",
+     "exact": "1024"
+    },
+    "beta": 1,
+    "friction_force": {
+     "binary64": "-0x1.0000000000000p+11",
+     "exact": "-2048"
+    },
+    "normal_signed": {
+     "binary64": "0x1.0000000000000p+13",
+     "exact": "8192"
+    },
+    "reaction": {
+     "binary64": "-0x1.0000000000000p+11",
+     "exact": "-2048"
+    },
+    "slip_sense": 1,
+    "state": "sliding",
+    "u": {
+     "binary64": "0x1.0000000000000p-11",
+     "exact": "1/2048"
+    }
+   },
+   "target_held": {
+    "axial": {
+     "binary64": "0x1.0000000000000p+11",
+     "exact": "2048"
+    },
+    "beta": 1,
+    "classified_state": "sliding",
+    "derived_branch_admissible": true,
+    "friction_force": {
+     "binary64": "-0x1.0000000000000p+10",
+     "exact": "-1024"
+    },
+    "normal_signed": {
+     "binary64": "0x1.0000000000000p+12",
+     "exact": "4096"
+    },
+    "reaction": {
+     "binary64": "-0x1.0000000000000p+10",
+     "exact": "-1024"
+    },
+    "released": false,
+    "slip_sense": 1,
+    "state": "sliding",
+    "u": {
+     "binary64": "0x1.0000000000000p-9",
+     "exact": "1/512"
+    }
+   },
+   "target_own": {
+    "axial": {
+     "binary64": "0x1.0000000000000p+11",
+     "exact": "2048"
+    },
+    "beta": 1,
+    "friction_force": {
+     "binary64": "-0x1.0000000000000p+10",
+     "exact": "-1024"
+    },
+    "normal_signed": {
+     "binary64": "0x1.0000000000000p+12",
+     "exact": "4096"
+    },
+    "reaction": {
+     "binary64": "-0x1.0000000000000p+10",
+     "exact": "-1024"
+    },
+    "slip_sense": 1,
+    "state": "sliding",
+    "u": {
+     "binary64": "0x1.0000000000000p-9",
+     "exact": "1/512"
+    }
+   }
+  },
+  "H-7": {
+   "description": "V-1 bar, gap closing +, c = 2^-9; S: F = 1536; O: F, dT = +16 K",
+   "outcome": "G and R if the source is strict-gap Qualified; otherwise SOURCE_UNQUALIFIED",
+   "source_minus_held": {
+    "daxial": {
+     "binary64": "-0x1.0000000000000p+10",
+     "exact": "-1024"
+    },
+    "dreaction": {
+     "binary64": "-0x1.0000000000000p+10",
+     "exact": "-1024"
+    },
+    "du": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    }
+   },
+   "source_own": {
+    "axial": {
+     "binary64": "0x1.0000000000000p+10",
+     "exact": "1024"
+    },
+    "reaction": {
+     "binary64": "-0x1.0000000000000p+9",
+     "exact": "-512"
+    },
+    "state": "active",
+    "u": {
+     "binary64": "0x1.0000000000000p-9",
+     "exact": "1/512"
+    }
+   },
+   "target_held": {
+    "axial": {
+     "binary64": "0x1.0000000000000p+11",
+     "exact": "2048"
+    },
+    "classified_state": "inactive",
+    "derived_branch_admissible": true,
+    "reaction": {
+     "binary64": "0x1.0000000000000p+9",
+     "exact": "512"
+    },
+    "released": true,
+    "state": "active",
+    "u": {
+     "binary64": "0x1.0000000000000p-9",
+     "exact": "1/512"
+    }
+   },
+   "target_own": {
+    "axial": {
+     "binary64": "0x1.8000000000000p+10",
+     "exact": "1536"
+    },
+    "reaction": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "state": "inactive",
+    "u": {
+     "binary64": "0x1.8000000000000p-10",
+     "exact": "3/2048"
+    }
+   }
+  },
+  "H-7g": {
+   "description": "unit cantilever, E = 100, A = 1, I = 1, tip gap closing -, c = 2^-12; S: 2^-6 N toward the gap; O: S, +1 N",
+   "outcome": "G and R (the product witness for G)",
+   "source_minus_held": {
+    "dreaction": {
+     "binary64": "0x1.0000000000000p+0",
+     "exact": "1"
+    },
+    "du": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    }
+   },
+   "source_own": {
+    "reaction": {
+     "binary64": "0x1.e280000000000p-1",
+     "exact": "965/1024"
+    },
+    "state": "active",
+    "u": {
+     "binary64": "-0x1.0000000000000p-12",
+     "exact": "-1/4096"
+    }
+   },
+   "target_held": {
+    "classified_state": "inactive",
+    "derived_branch_admissible": true,
+    "reaction": {
+     "binary64": "-0x1.d800000000000p-5",
+     "exact": "-59/1024"
+    },
+    "released": true,
+    "state": "active",
+    "u": {
+     "binary64": "-0x1.0000000000000p-12",
+     "exact": "-1/4096"
+    }
+   },
+   "target_own": {
+    "reaction": {
+     "binary64": "0x0.0p+0",
+     "exact": "0"
+    },
+    "state": "inactive",
+    "u": {
+     "binary64": "-0x1.b4e81b4e81b4fp-15",
+     "exact": "-1/19200"
+    }
+   }
+  }
+ },
+ "document_kind": "openpipestress.op_mf_held_status.references",
+ "units": "N, m, rad; H-1/H-1b in P, PL and s*"
+}
