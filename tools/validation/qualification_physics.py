@@ -60,8 +60,10 @@ DEPENDENCIES = {
     # connector axis (was f27242f0...); then RT-U4: the region binding counts the published pipe rows once per case and
     # member instead of rescanning every row per region, with the same outcomes (was b3cb5f6d...); then RT-A3 increment 4
     # (DEL-04-07 pressure-contract.md, "Nonlinear supports on EX"): the direct pass calls the nonlinear support binding
-    # (`nonlinear_support_evidence`; was ea9273d7...).
-    MODULE: '2e9b087dd5792090409e4334bde6fb8ca8a0108b940fca31aa6283f1dc74c725',
+    # (`nonlinear_support_evidence`; was ea9273d7...); then RT-A3 §4 (DEL-05-02 Work `combination-certificate.md`): the
+    # pass reads the document without the combination certificate, then the certificate on the whole document (was
+    # 2e9b087d...; re-pinned in the certificate's review round 3, the pin having been left at 2e9b087d by 5f9f27863).
+    MODULE: 'fd69f9be7a25bbdde762940dddec72863ed41594716f795878976e077619a1d5',
     TABLE: TABLE_SHA256,
     UNITS: '5a412c57ca3bdc1d150ff580354e709355f442d89971a2f7aff8b575c7e39596',
 }
