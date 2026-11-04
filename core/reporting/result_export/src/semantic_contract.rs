@@ -250,7 +250,7 @@ pub(crate) fn is_retained(source: &Value) -> bool {
 }
 /// The successor's own pinned table, by identity (RT-A4 §10.4: inside a recorded-run read,
 /// the recorded variant's).
-fn retained_contract(source: &Value) -> &'static Value {
+pub(crate) fn retained_contract(source: &Value) -> &'static Value {
     if let Some(table) = source["producer"]["semantic_contract_id"].as_str().and_then(crate::recorded_tables::selected_table) {
         table
     } else if source["producer"]["semantic_contract_id"] == PHYSICS_RETAINED_ID {
@@ -261,7 +261,7 @@ fn retained_contract(source: &Value) -> &'static Value {
 }
 /// The reader's first failure as this module's error text: a G7 failure keeps
 /// the base validator's own text, every other gate its code.
-fn retained_error(error: crate::retained_precision::ValidationError) -> String {
+pub(crate) fn retained_error(error: crate::retained_precision::ValidationError) -> String {
     error.detail.unwrap_or(error.code)
 }
 /// F-5: no identity but the successor may carry a receipt member.
@@ -730,6 +730,21 @@ pub fn for_source(source: &Value) -> Result<(&'static Value, &'static str), Stri
     }
     Ok(selected)
 }
+/// RT-U4 (single pass): [`for_source`] of a source whose pressure-2 evidence
+/// verdict (`validate_pressure_evidence`'s) its caller has read
+/// (`reader_verdict::standing`, whose pressure route reads it once for its token
+/// and its findings): `for_source`'s steps for that identity, the verdict in
+/// place of the reader's call. A change to those steps is a change to both. Any
+/// other source reads as `for_source`.
+fn for_source_given(source: &Value, verdict: &Result<(), String>) -> Result<(&'static Value, &'static str), String> {
+    if is_retained(source) || source["producer"]["semantic_contract_id"] != PRESSURE_ID {
+        return for_source(source);
+    }
+    let selected = for_source_metadata(source)?;
+    forbid_retained_rows(source)?;
+    verdict.clone()?;
+    Ok(selected)
+}
 pub use crate::physics_evidence::{validate_pressure_evidence, PressureContract};
 pub use crate::preview_physics_evidence::validate_preview_physics_evidence;
 
@@ -872,7 +887,7 @@ fn not_required_cases_ordinarily_eligible(source: &Value, cases: &[Value]) -> bo
             })
     })
 }
-fn retained_standing(
+pub(crate) fn retained_standing(
     source: &Value,
     requested_basis_refs: &[Value],
     actual_invocation: Option<&Value>,
@@ -961,11 +976,25 @@ pub fn numerical_use_standing_with_context(
     requested_basis_refs: &[Value],
     actual_invocation: Option<&Value>,
 ) -> &'static str {
+    numerical_use_standing_given(source, requested_basis_refs, actual_invocation, None)
+}
+/// RT-U4 (single pass): [`numerical_use_standing_with_context`], given
+/// pressure-2's evidence verdict (`for_source_given`); `None` reads `for_source`.
+pub(crate) fn numerical_use_standing_given(
+    source: &Value,
+    requested_basis_refs: &[Value],
+    actual_invocation: Option<&Value>,
+    pressure: Option<&Result<(), String>>,
+) -> &'static str {
     if is_retained(source) {
         // Validated once, with the invocation; G7 includes the base dispatch.
         return retained_standing(source, requested_basis_refs, actual_invocation);
     }
-    let Ok((_, version)) = for_source(source) else {
+    let selected = match pressure {
+        Some(verdict) => for_source_given(source, verdict),
+        None => for_source(source),
+    };
+    let Ok((_, version)) = selected else {
         return "unsupported";
     };
     // T0R (A2 item 10): validate first. (B1 and B4/D1 (b) refuse precision-1

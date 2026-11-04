@@ -1155,6 +1155,61 @@ on its route, independently of the producer. The verifier shares no code with it
     contract. Valid producers never publish such a slot. No committed corpus or fixture has
     one, so no stored valid result reads differently. A stored result that does carry one now
     reopens with the named refusal.
+- **Connector scan order and row selection** (RT-U4, 2026-11-03). The connector reader
+  (`connector_evidence.rs` `validate` and `validate_pressure`) and the verifier
+  (`tests/verifiers/pressure_2.py` `_validate_connectors`) walk only source arrays: rows in
+  `results` order, cases in `exact_cases` order, records in `connector` order. The coverage
+  loop takes cases, then records; the pressure-binding loop takes records, then cases. Each
+  check and its precedence within one iteration are unchanged. The first refusal is therefore
+  the same in every process, hash seed and pass for the same source. A reordered source may
+  report a different defect first.
+  - The `s_x`, `pe_x` and `gt_x` lookups and the tie-rod lookup each match at most one row.
+    The row loop has already refused a second row in the slot (case, entity, kind, component,
+    location, rod) as `ROW_DUPLICATE`, whether or not it equals the first. The three local
+    kinds publish only at `connector_local`. A rod row ID matches one rod's tail at most, and
+    its two ID forms share the slot. No refusal is added.
+  - *Repaired defect.* The reader walked its row-ID `HashMap` and case `HashSet`, and the
+    verifier walked a case `set`. On a source with two defects of different codes, the code
+    reported first depended on the seed, and could differ between `dispatch`'s two evidence
+    passes. Pass or refuse did not depend on the seed.
+- **Global end coverage order** (RT-U4, 2026-11-03; RT-A4 agreed the change and this policy).
+  The W-7 coverage check (`global_end_evidence.rs` `coverage`, shared by the pressure-2 and
+  preview-physics-2 readers) walks its members in canonical (load case ID, member ID) order,
+  compared bytewise, as its `BTreeMap` of element-local rows holds them. A member is a key
+  whose shear rows are present at both ends; MEMBER_UNRESOLVED is a lookup in that map with
+  the same predicate. The verifier (`tests/verifiers/global_end.py` `coverage`) walks
+  `sorted(members)`, code point order, which is UTF-8 byte order. Each check and its
+  precedence within one member are unchanged.
+  - Both readers skip a row whose load case ID or member is not a string, as Rust's
+    `case_of(..)` and `entity_ref.as_str()` already did, so every key is a pair of strings.
+    The verifier's `_case` returns only a string ID, so `row_semantics` reads such a row as
+    no case's and asks for a combination basis, as Rust does. Both readers refuse these rows
+    before W-7 on pressure-2. Preview-physics-2 checks a row's member as text, but checks only
+    the key set of its basis reference. There both readers now read an integer load case ID
+    as no case's: a global end row carrying a case basis is refused as
+    `SOURCE_GLOBAL_END_BASIS`, and one carrying a combination basis is admitted and skipped by
+    coverage. Rust's verdicts are unchanged. The verifier's change on such malformed inputs:
+    a whole member copied under an integer ID with case bases, which it accepted, is now
+    refused; an integer-ID row with a combination basis, which it refused as BASIS, is now
+    accepted. Both are regressions in `tests/test_rt_u4_global_end_order.py`.
+  - *Repaired defect.* The reader walked a `HashSet` of member keys, and the verifier
+    `sorted(members, key=repr)`. On a source with two members' defects of different codes,
+    Rust's first code depended on the seed. The verifier's order differed from byte order
+    where an ID held a character below `'` (for example "pipe:a b" before "pipe:a"). The
+    verifier read an integer load case ID as a case, so it disagreed with Rust on such inputs
+    (MEMBER_UNRESOLVED where Rust refused BASIS, and the two acceptance differences above).
+    Pass or refuse did not depend on the seed.
+- **One evidence pass per dispatch** (RT-U4 repair B, 2026-11-03). On the pressure route,
+  `reader_verdict::standing` reads `validate_pressure_evidence` once and gives the verdict to
+  both of its uses: the token (`semantic_contract::numerical_use_standing_given`, whose
+  `for_source_given` repeats `for_source`'s pressure-2 steps with the verdict in place of the
+  reader's call) and the findings' reader outcome (`pressure_outcome`, which
+  `validate("pressure")` also uses). Before, each use ran the same model-free pass.
+  `for_source` itself is unchanged; the retained route's pricing rules key its body. The two orders above make the pass a
+  function of the source alone, so the outcome is unchanged on every input. Every other route,
+  preview physics included, keeps its reads, as do `numerical_use_standing_with_context`,
+  `for_source` and `read pressure`. The verifier (`tests/verifiers/reader_verdict.py`) keeps
+  its two independent calls; it reads the same verdicts.
 - **Arc evidence.** `arc_evidence.rs` and `tests/verifiers/pressure_1.py` (renamed
   `pressure_2.py`) drop `withheld_on_arcs`. They require the two definition ids and the new
   rows' coverage. `physics_evidence` stops refusing the formerly withheld kinds on arcs.

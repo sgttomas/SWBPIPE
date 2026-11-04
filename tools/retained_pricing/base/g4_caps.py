@@ -417,9 +417,9 @@ F5_EXACT = s("&Value") * (pushcap(DENV) + DENV)
 # (u4b_evidence's row index, covers and sets; the captured model's array clones), beside the projection.
 _U4B_RD = _u45_model.reader_working_sets(PA, CC, m, RAW_VF.tree()) if _u45["readers"] else X()
 # W-7 D3 (retained-pricing-rules.md §8.20, W7-RD): the base read's global end coverage maps over its <= cases*m
-# (load case, member) keys, beside U4B-RD's working sets.
+# (load case, member) keys, beside U4B-RD's working sets; RT-U4 (order): its member HashSet only on a source that has it.
 import w7_owners_model as _w7_model
-_W7_RD = _w7_model.reader_coverage(CC * m) if _w7_model.inspect(SNAP) else X()
+_W7_RD = _w7_model.reader_coverage(CC * m, _w7_model.reader_member_set(SNAP)) if _w7_model.inspect(SNAP) else X()
 # W-15 D3 (retained-pricing-rules.md §8.21, W15-RB): the base read's component-body check (source_bodies' case and entry
 # lists) and the shape checks' one cloned extremum and coverage entry, beside U4B-RD's and W7-RD's sets.
 import w15_owners_model as _w15_model

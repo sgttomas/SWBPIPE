@@ -58,6 +58,17 @@ def site(name, f, text, full=False, row=None):
     return Resolved((f if full else f.split("/src/")[-1]) + f":{hits[0]}")
 
 
+def _fn_has(name, f, text):
+    """Whether fn `name` of file f (spanned as in `site`) holds `text` on some line; False without the fn."""
+    k = fnkey(name, f)
+    if not k:
+        return False
+    lines = open(_os.path.join(_SNAP, f), encoding="utf-8").read().split("\n")
+    start = int(k.split(":")[1]); ind = len(lines[start - 1]) - len(lines[start - 1].lstrip())
+    end = next((i + 1 for i in range(start, len(lines)) if _re.match(r"\s*(pub(\([a-z]+\))?\s+)?fn\s", lines[i]) and len(lines[i]) - len(lines[i].lstrip()) <= ind), len(lines) + 1)
+    return any(text in lines[i] for i in range(start - 1, end - 1))
+
+
 PP_ = "core/product_physics/src/"
 FK_ = "core/solver/frame_kernel/src/"
 if fnkey("member_descriptors", PP_ + "source_recovery.rs"):
@@ -129,6 +140,10 @@ if fnkey("validate", CE):
         "`require_connector(admitted || records.is_empty(), ..)` passes; `records` is project(successor)'s "
         "contract_evidence.connector, which the producer sets to joint::connector_evidence(model): one record per "
         "objective-connector component (filter_map over model.components). " + D14 + ", so the list is empty")
+    # RT-U4 (order): validate walks the source's `results` array (`source_rows`) in place of the row-ID map's values, and
+    # its coverage loop walks `records` (E1: empty) in place of `spans`' keys; the generic `record in records` rule
+    # bounds that loop, and every site under it stays under E1's empty records.
+    _CE_ORDERED = _fn_has("validate", CE, "for row in source_rows {")
     O10_LOOPS_LAST += [
         ("for r in records", "0",
          O10 + (_E1_B7B if B7B_EXACT_BASE else
@@ -138,13 +153,24 @@ if fnkey("validate", CE):
          "PressureV3 callers are validate_pressure_evidence (physics_evidence.rs) and its load-state arm "
          "load_reference::validate_pressure_load_reference_evidence (load_reference.rs:387, called only from "
          "validate_pressure_evidence), both behind the edge R1 zeroes"), ["connector_evidence.rs:validate"]),
+    ] + ([] if _CE_ORDERED else [
         ("for component in spans.keys()", "0",
          O10 + "E2 (route E): `spans` is filled only inside the records loop (E1), so it is empty", ["connector_evidence.rs:validate"]),
+    ]) + ([
+        ("for row in source_rows", "Pall",
+         O10 + "E3 (route E): one pass over the validated envelope's result rows (physics_evidence `rows`, indexed by id; "
+         "RT-U4: the same rows as the source's `results` array, whose IDs `indexed` has refused duplicates of), "
+         "<= C·P_final = Pall", ["connector_evidence.rs:validate"]),
+        ("for row in rows.values()", "Pall",
+         O10 + "E3 (route E): RT-U4: the row-ID map's one counting pass in validate_physics_evidence_in (the region "
+         "binding's pipe rows by case and member; no refusal, so its order reaches no result), <= C·P_final = Pall",
+         ["physics_evidence.rs:validate_physics_evidence_in"]),
+    ] if _CE_ORDERED else [
         ("for row in rows.values()", "Pall",
          O10 + "E3 (route E): one pass over the validated envelope's result rows (physics_evidence `rows`, indexed by id), "
          "<= C·P_final = Pall; RT-U4: the same map's one counting pass in validate_physics_evidence_in (the region "
          "binding's pipe rows by case and member)", ["connector_evidence.rs:validate", "physics_evidence.rs:validate_physics_evidence_in"]),
-    ]
+    ])
     if fnkey("row_basis", CE):
         O10_EDGE_ZERO = O10_EDGE_ZERO + [(fnkey("validate", CE), fnkey("row_basis", CE),
         O10 + ("B7b-E4 (route E): row_basis is called only for a connector-kind row (is_connector_kind) after the "
@@ -1861,10 +1887,14 @@ if fnkey("tie_rods", _CN_FK) or _os.path.exists(_os.path.join(_SNAP, _TR)):
          O10 + "U5B-L: at most the pe_x row and the s_x row", ["lib.rs:append_connector_results"]),
         ("iter:rods .iter().map", "0", _U5L, ["connector.rs:force_scaled"]),
         ("for rod in entries", "0", _U5L + "; a tie_rods array is read only from a connector record (E1: records are empty on route E)", ["connector_evidence.rs:tie_rods"]),
-        ('for rod in record[" "].as_array().into_iter().flatten().filter_map(|r| r[" "].as_str())', "0", _U5L + "; inside E2's loop over spans (empty)", ["connector_evidence.rs:validate"]),
+        ('for rod in record[" "].as_array().into_iter().flatten().filter_map(|r| r[" "].as_str())', "0", _U5L + (
+            "; inside the coverage loop over connector records (E1: none; RT-U4 order)" if _fn_has("validate", CE, "for row in source_rows {")
+            else "; inside E2's loop over spans (empty)"), ["connector_evidence.rs:validate"]),
         ('iter:record[" "].as_array().into_iter().flatten() .filter_map(|r| r[" "].as_str()).find', "0", _U5L + "; only for a tie-rod row of a connector record (E1: none)", ["connector_evidence.rs:validate"]),
         ("for rod in &rods", "0", _U5L + "; inside validate_pressure's loop over connector records (E1: none)", ["connector_evidence.rs:validate_pressure"]),
-        ("iter:rows.values().find", "Pall", O10 + "U5B-L: one pass over the indexed rows", ["connector_evidence.rs:validate_pressure"]),
+        ("iter:source_rows.iter().find" if _fn_has("validate_pressure", CE, "source_rows.iter().find(") else "iter:rows.values().find", "Pall",
+         O10 + "U5B-L: one pass over the indexed rows" + (" (RT-U4: the source's `results` array, the same rows)"
+         if _fn_has("validate_pressure", CE, "source_rows.iter().find(") else ""), ["connector_evidence.rs:validate_pressure"]),
     ]
     # U5B-REC: ObjectiveConnector::force_scaled maps each rod through TieRod::force_scaled, not itself.
     if fnkey("force_scaled", _CN_FK) and fnkey("force_scaled", _TR):
@@ -3022,6 +3052,15 @@ if _W7_GE:
         ("for key in global.keys()", "cases*m", O10 + "W7-L1: the reader's (load case, member) keys of load-case global end rows <= cases*m",
          ["global_end_evidence.rs:coverage"]),
     ]
+    # W7-L1, RT-U4 (order): the member loop walks `local`'s (load case, member) keys that pass the member predicate, at
+    # most its cases*m keys. It replaces `for key in &members` over the HashSet of the same keys, which the base chain's
+    # broad `members\b` rule bound at m (straight members) by its name, not its keys.
+    if _fn_has("coverage", _W7_RE, "for (key, locals) in local.iter().filter(|(_, ends)| member(ends)) {"):
+        O10_LOOPS_LAST += [
+            ("for (key, locals) in local.iter().filter(|(_, ends)| member(ends))", "cases*m",
+             O10 + "W7-L1 (RT-U4 order): the members among the reader's (load case, member) keys of load-case element-local "
+             "rows, in key order, <= cases*m", ["global_end_evidence.rs:coverage"]),
+        ]
     # W7-ID: the composed texts at their sites. The case solve's one blocking diagnostic (an unavailable frame or rotation)
     # names the member (IN128) by its stable suffix (IN128) and refs the member and the case (IN128 each); the successor's
     # global end id is the member's suffix (IN128), the checked location (end_i or end_j, 5 B) and the lower-cased
@@ -3847,7 +3886,11 @@ if fnkey("append_operand_standing", _OP1A_PP):
     # RT-A3 increment 4 D3 (§8.49, RTA3NL-PIN): preview_physics_evidence.rs makes `guarded` pub(crate) (the nonlinear
     # reader's representation guard; body unchanged), and reader_verdict.rs's model-bound pressure dispatch adds
     # nonlinear_support_evidence::model_checks, reached only from reader_verdict::validate (outside the retained roots).
-    _op1a_pins = {'core/product_physics/src/preview_physics.rs': 'ecd14d758bd07dc297105ec0e67059cba2fd53f0b312da553c2caccdddd3eb05', 'core/reporting/result_export/src/preview_combination_operands.rs': '8444069d3a1d9c402e8e6d45174305766822b59690fbf7bf548085f9df7d3327', 'core/reporting/result_export/src/preview_physics_evidence.rs': '8e6ce8684802281c6ea05527d5f453a7483a3f85c7fdf0df72b327b894c0114a', 'core/reporting/result_export/src/reader_verdict.rs': 'f70665b762a22501cf921be3b9ddf30e130e8afa5cfea7a0cf745ea70ecf2877'}
+    # RT-U4 repair B: reader_verdict.rs re-read: standing reads pressure-2's evidence once on the pressure route
+    # (pressure_outcome, shared with validate's pressure arm) and four helpers become pub(crate); all outside the retained roots.
+    # RT-U4 order and repair B on RT-A3 increment 4 (§8.50, merge of 4a8287001): reader_verdict.rs carries both; inc4's
+    # nonlinear model checks follow the pressure arm into pressure_outcome, so validate and standing share them.
+    _op1a_pins = {'core/product_physics/src/preview_physics.rs': 'ecd14d758bd07dc297105ec0e67059cba2fd53f0b312da553c2caccdddd3eb05', 'core/reporting/result_export/src/preview_combination_operands.rs': '8444069d3a1d9c402e8e6d45174305766822b59690fbf7bf548085f9df7d3327', 'core/reporting/result_export/src/preview_physics_evidence.rs': '8e6ce8684802281c6ea05527d5f453a7483a3f85c7fdf0df72b327b894c0114a', 'core/reporting/result_export/src/reader_verdict.rs': 'd880e7e6bd58ca0c7a53507d405c530a716af39c3941f0a06fe0e6168f164813'}
     for _f, _digest in _op1a_pins.items():
         if __import__("hashlib").sha256(_text_of(_f).encode()).hexdigest() != _digest:
             raise SystemExit("OP1A-PF/RD: reviewed source changed: " + _f)
@@ -3912,7 +3955,9 @@ if fnkey("selects", _TIM):
     # and the wasm and runner entries, outside the retained roots. validate is unchanged.
     # RT-A4 D3 (§8.46): reader_verdict.rs and preview_physics_evidence.rs re-read as for OP1A above; the Timoshenko premises stand.
     # RT-A3 increment 4 D3 (§8.49): reader_verdict.rs and preview_physics_evidence.rs re-read as for OP1A above.
-    _TIM_PINS = {'core/product_physics/src/pf_timoshenko.rs': '0546472cfba9ca61bff68838cb5add237c70485411c124f5fc14f9aa90217f45', 'core/product_physics/src/model_settings.rs': 'd2f9d52db54bd97b19708c5a8580d484282f97649f08df408f6e0b206a999d8b', 'core/reporting/result_export/src/reader_verdict.rs': 'f70665b762a22501cf921be3b9ddf30e130e8afa5cfea7a0cf745ea70ecf2877', 'core/reporting/result_export/src/preview_physics_evidence.rs': '8e6ce8684802281c6ea05527d5f453a7483a3f85c7fdf0df72b327b894c0114a', 'core/product_physics/src/case_state/temperature.rs': 'eed9dc272dd37c669cc090d3f4c9c30293a0793e0d0b770ddd25fdd5d08ed9b2', 'core/product_physics/src/case_state/temperature/canonical_decimal.rs': '431ac3204d98ed3420ead918cc2733f77ac3a8258d28625b210a8bc69962b1e2'}
+    # RT-U4 repair B: reader_verdict.rs re-read as for OP1A above; the Timoshenko premises stand.
+    # RT-U4 order and repair B on RT-A3 increment 4 (§8.50): reader_verdict.rs re-read as for OP1A above.
+    _TIM_PINS = {'core/product_physics/src/pf_timoshenko.rs': '0546472cfba9ca61bff68838cb5add237c70485411c124f5fc14f9aa90217f45', 'core/product_physics/src/model_settings.rs': 'd2f9d52db54bd97b19708c5a8580d484282f97649f08df408f6e0b206a999d8b', 'core/reporting/result_export/src/reader_verdict.rs': 'd880e7e6bd58ca0c7a53507d405c530a716af39c3941f0a06fe0e6168f164813', 'core/reporting/result_export/src/preview_physics_evidence.rs': '8e6ce8684802281c6ea05527d5f453a7483a3f85c7fdf0df72b327b894c0114a', 'core/product_physics/src/case_state/temperature.rs': 'eed9dc272dd37c669cc090d3f4c9c30293a0793e0d0b770ddd25fdd5d08ed9b2', 'core/product_physics/src/case_state/temperature/canonical_decimal.rs': '431ac3204d98ed3420ead918cc2733f77ac3a8258d28625b210a8bc69962b1e2'}
     _TIM_PINS[FK_ + "shear.rs"] = "12b854db0252398a8d61a643eba4fe7162f81e228a1c6239860433fd3188d2c3"
     for _file, _pin in _TIM_PINS.items():
         if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _file), "rb").read()).hexdigest() != _pin:

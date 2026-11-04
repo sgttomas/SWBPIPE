@@ -501,7 +501,14 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // preview_physics_identity(id) (the current table, or a recorded variant only inside a recorded read,
             // RT-A4-HS); the closed `b7b_current_table_tests` module and E14 are byte-identical, and no include,
             // path module or static entered the suffix.
-            complete_suffix_sha256: "d67f47820070b24fb7d16b415d30ae855491c59c85f9dd1e66607d1df73f3b02",
+            // Re-audited for RT-U4 repair B on RT-A3 increment 4 (§8.50, the merge of 4a8287001), on the
+            // merged bytes: the suffix still starts at line 400. Only the inspected production after the
+            // resume changed: numerical_use_standing_with_context calls the new private for_source_given
+            // through numerical_use_standing_given, and for_source is byte-identical. The closed
+            // `b7b_current_table_tests` module and E14 are byte-identical, and no include, path module or
+            // static entered the suffix. Increment 4's two table-hash constants lie in the inspected prefix,
+            // so the merged suffix is repair B's byte for byte.
+            complete_suffix_sha256: "333ae77d6313e20d4b6b0445630a0efcda49a07f6d4547d402412d86df75014d",
             production_resume: Some("/// Header dispatch only; canonical envelopes have no raw rows. This does not"),
             trailing_test: Some(SEMANTIC_E14_TEST_ITEM),
         })),
@@ -2025,9 +2032,13 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 // §8.49: RT-A3 increment 4 (the restated pressure-2 table in STATICS, +754 B; S1's nonlinear clause and S7
 // in six TAV copies, +5,862 B): +6,616 B in every phase and mode, from maintained eval at the same 328 in-build
 // atoms, without R.
+// §8.50: RT-U4 order and repair B on RT-A3 increment 4 (W7-L1's ordered member loop at cases*m, +373,760 B on
+// TAV_W[1] and the two TAV text atoms; W7-RD's removed member HashSet, T17_V5 -238 B - 192 s(PairBorrowed)):
+// +373,760 B on W1, W2, W3 and W5, +367,378 B on W4, X1-X3 unchanged, in both modes, from maintained eval at the
+// same 328 in-build atoms, without R. Repair B moves nothing.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_449_931_409, 6_791_925_970, 8_743_661_798, 8_537_384_452, 7_611_073_868, 8_526_285_381, 7_258_902_771, 6_932_192_647],
-    [6_509_062_753, 6_851_057_314, 8_802_793_142, 8_596_515_796, 7_670_205_212, 8_585_416_725, 7_318_034_115, 6_991_323_991],
+    [6_450_305_169, 6_792_299_730, 8_744_035_558, 8_537_751_830, 7_611_447_628, 8_526_285_381, 7_258_902_771, 6_932_192_647],
+    [6_509_436_513, 6_851_431_074, 8_803_166_902, 8_596_883_174, 7_670_578_972, 8_585_416_725, 7_318_034_115, 6_991_323_991],
 ];
 
 #[test]
