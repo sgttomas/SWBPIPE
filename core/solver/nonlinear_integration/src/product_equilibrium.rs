@@ -1,7 +1,7 @@
 //! Prospective product-preview continuous equilibrium measurement. This evidence
 //! supplements, and never replaces, structural factor/fidelity and contact gates.
 use open_pipe_stress_frame_kernel::structural::{
-    self, ResidualRow, StructuralError, StructuralSystem,
+    self, ResidualRow, SparseStructuralSystem, StructuralError, StructuralSystem,
 };
 pub const POLICY: &str = "M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1";
 #[derive(Debug, Clone, PartialEq)]
@@ -53,7 +53,20 @@ pub fn evaluate(
     system: &StructuralSystem<'_>,
     u: &[f64],
 ) -> Result<ProductEquilibriumReport, StructuralError> {
-    let rows = structural::evaluate_original_residual(system, u)?;
+    report(structural::evaluate_original_residual(system, u)?, u)
+}
+
+/// RT-A3 P: `evaluate` on the pattern. The residual rows are the shared
+/// binary64 `evaluate_original_residual_bound`'s, so the report is the dense
+/// one for the same equations bit for bit.
+pub fn evaluate_sparse(
+    system: &SparseStructuralSystem<'_>,
+    u: &[f64],
+) -> Result<ProductEquilibriumReport, StructuralError> {
+    report(structural::evaluate_sparse_original_residual(system, u)?, u)
+}
+
+fn report(rows: Vec<ResidualRow>, u: &[f64]) -> Result<ProductEquilibriumReport, StructuralError> {
     let mut work_rows = Vec::with_capacity(rows.len());
     for row in &rows {
         let value = u[row.global_dof].abs();

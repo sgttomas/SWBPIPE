@@ -839,6 +839,89 @@ impl SparseAssemblyEvidence {
         }
         (roundoff, counts)
     }
+    /// As `AssemblyEvidence::contribution_groups`.
+    pub fn contribution_groups(&self) -> &[usize] {
+        &self.contribution_groups
+    }
+
+    /// RT-A3 P: the pattern sibling of `AssemblyEvidence::solve_binary64`, the
+    /// nonlinear loop's named, unchanged binary64 solve (ROOT option (c)). In
+    /// `SparseInteractive` it prepares on the pattern with the binary64 binding
+    /// (`prepare_sparse_structural_binary64`) and orders, factors and finishes
+    /// on the pattern; the prepared system is the dense one entry for entry, so
+    /// the solution is the dense-derived sparse solve's bit for bit. In
+    /// `DenseScrutiny` it materializes the dense view of the same values and
+    /// allowances and runs `prepare_structural_binary64` and the dense
+    /// Cholesky: `AssemblyEvidence::solve_binary64`, bit for bit.
+    pub fn solve_binary64(
+        &self,
+        k: &SparseStiffness,
+        f: &[f64],
+        free: &[usize],
+        prescribed: &[(usize, f64)],
+        mode: LinearSolveMode,
+    ) -> Result<StructuralSolution, StructuralError> {
+        unscaled_evidence(self.force_scale)?;
+        self.check_pattern(k)?;
+        self.geometry(prescribed)?;
+        let symmetry_basis = symmetry_basis(&self.edges);
+        match mode {
+            LinearSolveMode::DenseScrutiny => {
+                let dense = k.to_dense();
+                let (roundoff, counts) = self.dense_symmetry_view();
+                let system = StructuralSystem {
+                    stiffness: &dense,
+                    force: f,
+                    free_dofs: free,
+                    prescribed,
+                    contributions: Some(&self.contributions),
+                    contribution_groups: Some(&self.contribution_groups),
+                    symmetry: Some(SymmetryEvidence {
+                        absolute_roundoff: &roundoff,
+                        operation_counts: &counts,
+                        basis: &symmetry_basis,
+                    }),
+                };
+                solve_prepared(structural::prepare_structural_binary64(&system)?, mode)
+            }
+            LinearSolveMode::SparseInteractive => {
+                let system = SparseStructuralSystem::new(
+                    k,
+                    f,
+                    free,
+                    prescribed,
+                    Some(&self.contributions),
+                    Some(self.sparse_symmetry(&symmetry_basis)),
+                )
+                .with_contribution_groups(&self.contribution_groups);
+                solve_sparse_prepared(structural::prepare_sparse_structural_binary64(&system)?)
+            }
+        }
+    }
+
+    /// RT-A3 P: the loop's product-equilibrium measurement (binary64 binding)
+    /// on the pattern, over the same contributions and per-entry allowances
+    /// as the dense loop's `product_equilibrium::evaluate`.
+    pub(crate) fn product_equilibrium_binary64(
+        &self,
+        k: &SparseStiffness,
+        f: &[f64],
+        free: &[usize],
+        prescribed: &[(usize, f64)],
+        u: &[f64],
+    ) -> Result<crate::product_equilibrium::ProductEquilibriumReport, StructuralError> {
+        let system = SparseStructuralSystem::new(
+            k,
+            f,
+            free,
+            prescribed,
+            Some(&self.contributions),
+            Some(self.sparse_symmetry("same retained structural assembly evidence")),
+        )
+        .with_contribution_groups(&self.contribution_groups);
+        crate::product_equilibrium::evaluate_sparse(&system, u)
+    }
+
     fn check_pattern(&self, k: &SparseStiffness) -> Result<(), StructuralError> {
         if k.pattern() != &self.pattern {
             return Err(StructuralError::InvalidInput(
@@ -1153,7 +1236,7 @@ impl SparseAssemblyEvidence {
         force_scaled_outcome(solved, self.force_scale, f)
     }
 
-    fn sparse_symmetry<'e>(&'e self, basis: &'e str) -> SparseSymmetryEvidence<'e> {
+    pub(crate) fn sparse_symmetry<'e>(&'e self, basis: &'e str) -> SparseSymmetryEvidence<'e> {
         SparseSymmetryEvidence {
             absolute_roundoff: &self.absolute_roundoff,
             operation_counts: &self.operation_counts,
@@ -2816,10 +2899,79 @@ fn state_retention_charge(
 }
 /// No extra contact-state solve occurs here. Exact ratios correct/project the
 /// response of this iteration's ORIGINAL partition, then ordinary counting runs.
+/// RT-A3 P: what the strict-gap proof reads of the loop's assembled system.
+/// The dense loop lends its K and `AssemblyEvidence`. The pattern loop lends
+/// the dense view of its K and allowances when the system has at most
+/// `EXACT_GAP_MAX_DOFS` DOFs, and empty views otherwise: the exact context refuses
+/// such a system (`Budget`) before it reads K, so the evidence is the dense
+/// loop's either way (`p_gap_scrutiny_on_the_pattern_equals_the_dense_loop`).
+pub(crate) struct GapSource<'a> {
+    pub(crate) qualified_passive_family: bool,
+    pub(crate) stiffness: &'a [Vec<f64>],
+    pub(crate) contributions: &'a [StiffnessContribution],
+    pub(crate) contribution_groups: &'a [usize],
+    pub(crate) absolute_roundoff: &'a [Vec<f64>],
+    pub(crate) operation_counts: &'a [Vec<usize>],
+}
+
+impl<'a> GapSource<'a> {
+    pub(crate) fn dense(assembly: &'a AssemblyEvidence, stiffness: &'a [Vec<f64>]) -> Self {
+        Self {
+            qualified_passive_family: assembly.qualified_passive_family(),
+            stiffness,
+            contributions: &assembly.contributions,
+            contribution_groups: &assembly.contribution_groups,
+            absolute_roundoff: &assembly.absolute_roundoff,
+            operation_counts: &assembly.operation_counts,
+        }
+    }
+}
+
+/// The exact boundary context's dimension limit (`exact_boundary`'s
+/// `Context::new` refuses n > 256 with `Budget` before reading K).
+pub(crate) const EXACT_GAP_MAX_DOFS: usize = 256;
+
+/// RT-A3 P: the dense views the pattern loop lends the strict-gap proof (see
+/// `GapSource`): K and the allowances when the dimension is at most the exact
+/// context's limit, empty otherwise.
+pub(crate) struct GapViews {
+    stiffness: Vec<Vec<f64>>,
+    absolute_roundoff: Vec<Vec<f64>>,
+    operation_counts: Vec<Vec<usize>>,
+}
+
+impl GapViews {
+    pub(crate) fn new(assembly: &SparseAssemblyEvidence, stiffness: &SparseStiffness) -> Self {
+        if stiffness.dimension() <= EXACT_GAP_MAX_DOFS {
+            let (absolute_roundoff, operation_counts) = assembly.dense_symmetry_view();
+            Self {
+                stiffness: stiffness.to_dense(),
+                absolute_roundoff,
+                operation_counts,
+            }
+        } else {
+            Self {
+                stiffness: Vec::new(),
+                absolute_roundoff: Vec::new(),
+                operation_counts: Vec::new(),
+            }
+        }
+    }
+    pub(crate) fn source<'a>(&'a self, assembly: &'a SparseAssemblyEvidence) -> GapSource<'a> {
+        GapSource {
+            qualified_passive_family: assembly.qualified_passive_family(),
+            stiffness: &self.stiffness,
+            contributions: &assembly.contributions,
+            contribution_groups: &assembly.contribution_groups,
+            absolute_roundoff: &self.absolute_roundoff,
+            operation_counts: &self.operation_counts,
+        }
+    }
+}
+
 pub(crate) fn scrutinize_gaps(
     input: &crate::NonlinearFrameSolveInput,
-    assembly: &AssemblyEvidence,
-    stiffness: &[Vec<f64>],
+    assembly: &GapSource<'_>,
     boundary: &crate::BoundaryState,
     prior: &[open_pipe_stress_nonlinear_supports::SupportStateRecord],
     iteration: usize,
@@ -2846,7 +2998,7 @@ pub(crate) fn scrutinize_gaps(
         .all(|s| matches!(s.behavior, NonlinearSupportBehavior::Gap { .. }))
         || !input.connectors.is_empty()
         || !input.curved_bend_elements.is_empty()
-        || !assembly.qualified_passive_family()
+        || !assembly.qualified_passive_family
         || !input.friction_normal_reactions.is_empty()
         || !input.derived_friction_normal_reactions.is_empty()
         || !solve.applied_forces.is_empty()
@@ -2898,15 +3050,15 @@ pub(crate) fn scrutinize_gaps(
             });
         }
         let system = StructuralSystem {
-            stiffness,
+            stiffness: assembly.stiffness,
             force: &force,
             free_dofs: &free,
             prescribed: &prescribed,
-            contributions: Some(&assembly.contributions),
-            contribution_groups: Some(&assembly.contribution_groups),
+            contributions: Some(assembly.contributions),
+            contribution_groups: Some(assembly.contribution_groups),
             symmetry: Some(SymmetryEvidence {
-                absolute_roundoff: &assembly.absolute_roundoff,
-                operation_counts: &assembly.operation_counts,
+                absolute_roundoff: assembly.absolute_roundoff,
+                operation_counts: assembly.operation_counts,
                 basis: "original represented assembly, no symmetry projection in exact proof",
             }),
         };

@@ -287,6 +287,16 @@ pub(crate) fn confirm_with_applied(
         detail: format!("confirmation force: {error}"),
     })?;
 
+    // RT-A3 P step 2: a pattern loop's completion lends its dense view here
+    // (unchanged dense confirmation) until the confirmation runs on the pattern.
+    let dense_view;
+    let original_stiffness: &[Vec<f64>] = match &receipt.original_stiffness {
+        crate::LoopStiffness::Dense(k) => k,
+        crate::LoopStiffness::Pattern(k) => {
+            dense_view = k.to_dense();
+            &dense_view
+        }
+    };
     let evidence = AssemblyEvidence::new(
         input.node_count,
         &input.elements,
@@ -296,7 +306,7 @@ pub(crate) fn confirm_with_applied(
     )?
     .with_frame_members(frame_members);
     let attempt = evidence.confirm_with_formation_check(
-        &receipt.original_stiffness,
+        original_stiffness,
         &gate_force,
         &free,
         &prescribed,
