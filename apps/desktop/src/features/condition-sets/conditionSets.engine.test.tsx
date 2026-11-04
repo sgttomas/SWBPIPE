@@ -438,3 +438,34 @@ describe("a second pending edit of one set (App passes the queued intents)", () 
     expect(queued).toEqual([]);
   });
 });
+
+describe("explicit removal and unknown members (review r2, #111)", () => {
+  it("lets an explicit removal win over an entry typed into the same field, on the set and in a condition row", async () => {
+    const STORED = { id: "cs:r", provenance: "invented", installation_temperature: null, conditions: [{ key: "OPE1", temperature: null }] };
+    const list: EditorOperationIntent[] = [];
+    render(<ConditionSetsSection model={holding(STORED)} onQueueIntent={(intent) => list.push(intent)} />);
+    type("condition-set-cs:r-installation-temperature-value", "25");
+    type("condition-set-cs:r-installation-temperature-unit", "degC");
+    fireEvent.click(screen.getByTestId("condition-set-cs:r-refused-installation_temperature-remove"));
+    expect(screen.getByTestId("condition-set-cs:r-installation-temperature-value")).toHaveValue("");
+    const rowTemperature = screen.getAllByTestId(/^condition-set-cs:r-condition-0-temperature-value$/)[0];
+    fireEvent.change(rowTemperature, { target: { value: "210" } });
+    fireEvent.click(screen.getByTestId("condition-set-cs:r-refused-conditions[0].temperature-remove"));
+    expect(rowTemperature).toHaveValue("");
+    fireEvent.click(screen.getByTestId("condition-set-update-cs:r"));
+    const queued = await queuedAt(list, 1);
+    expect(JSON.parse(queued.change.after)).toEqual({ id: "cs:r", provenance: "invented", conditions: [{ key: "OPE1" }] });
+  });
+
+  it("keeps a quantity's extra member and unknown members, including keys ending in a dot, through an unrelated edit", () => {
+    const STORED = {
+      id: "cs:u", provenance: "invented", label: "U",
+      installation_temperature: { value: 20, unit: "degC", note: "extra" },
+      design: { temperature: { value: 300, unit: "degC" }, custom: 1 },
+      "future.": { kept: true }, future_member: [1, 2]
+    };
+    const next = setFromDraft({ ...draftFromSet(STORED as unknown as ConditionSet), label: "U2" });
+    expect(next).toEqual({ ...STORED, label: "U2" });
+    expect(Object.keys(next)).toEqual(Object.keys(STORED));
+  });
+});

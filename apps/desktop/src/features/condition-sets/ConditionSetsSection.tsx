@@ -27,6 +27,7 @@ import {
   type RefusedMember,
   setFromDraft,
   updateConditionSetIntent,
+  type ConditionDraft,
   type ConditionSetDraft,
   type QuantityDraft,
   type TriState
@@ -143,13 +144,14 @@ export function ConditionSetFields({ draft, onChange, model, route, idEditable, 
     ? !draft.removed.includes(item.path)
     : !draft.conditions.some((row) => row.origin === item.row && item.member && row.removed.includes(item.member)));
   const storedAt = (path: string) => refused.find((item) => item.path === path);
+  // An explicit removal is the last action on that member: any entry typed into the same
+  // field, or a nested field of it, is cleared with it, so nothing is written back.
   const remove = (item: RefusedMember) => {
     if (item.row === undefined) {
-      const cleared: Partial<ConditionSetDraft> = item.path === "exposure.wind" ? { wind: "" } : item.path === "exposure.snow_ice" ? { snowIce: "" }
-        : item.path === "exposure.wave" ? { wave: "" } : item.path === "added_weight.direction" ? { addedWeightDirection: "" } : {};
-      onChange({ ...draft, ...cleared, removed: [...draft.removed, item.path] });
+      onChange({ ...draft, ...clearedSetFields(item.path), removed: [...draft.removed, item.path] });
     } else if (item.member) {
-      onChange({ ...draft, conditions: draft.conditions.map((row) => row.origin === item.row ? { ...row, removed: [...row.removed, item.member!] } : row) });
+      const member = item.member;
+      onChange({ ...draft, conditions: draft.conditions.map((row) => row.origin === item.row ? { ...row, ...clearedConditionFields(member), removed: [...row.removed, member] } : row) });
     }
   };
   return (
@@ -302,4 +304,24 @@ export function QuantityInput({ label, dimension, route, value, onChange, testId
       {inputs}
     </fieldset>
   );
+}
+
+/** The draft fields a removed set path (or its parent) covers, blank again. */
+function clearedSetFields(path: string): Partial<ConditionSetDraft> {
+  const blank = { value: "", unit: "" };
+  const fields: Record<string, Partial<ConditionSetDraft>> = {
+    installation_temperature: { installationTemperature: blank },
+    "design.temperature": { designTemperature: blank }, "design.pressure": { designPressure: blank },
+    "peak.temperature": { peakTemperature: blank }, "peak.pressure": { peakPressure: blank },
+    "added_weight.magnitude": { addedWeightMagnitude: blank }, "added_weight.direction": { addedWeightDirection: "" },
+    "exposure.wind": { wind: "" }, "exposure.snow_ice": { snowIce: "" }, "exposure.wave": { wave: "" }
+  };
+  return Object.entries(fields).filter(([field]) => field === path || field.startsWith(`${path}.`)).reduce((out, [, cleared]) => ({ ...out, ...cleared }), {});
+}
+
+/** The condition-row draft field a removed member covers, blank again. */
+function clearedConditionFields(member: string): Partial<ConditionDraft> {
+  const blank = { value: "", unit: "" };
+  return member === "temperature" ? { temperature: blank } : member === "pressure" ? { pressure: blank }
+    : member === "contents_density" ? { contentsDensity: blank } : member === "key" ? { key: "" } : member === "label" ? { label: "" } : {};
 }
