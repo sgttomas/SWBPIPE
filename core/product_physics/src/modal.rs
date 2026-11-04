@@ -40,6 +40,10 @@ mod tests_document;
 mod tests_eigen;
 #[cfg(test)]
 mod tests_state;
+#[cfg(test)]
+mod observation_tests;
+#[cfg(test)]
+mod phase_measurand_tests;
 
 /// The request names neither `mode_count` nor `frequency_cutoff` (§1.4).
 pub(crate) const MODAL_EXTRACTION_BOUND_REQUIRED: &str = "MODAL_EXTRACTION_BOUND_REQUIRED";
