@@ -289,22 +289,23 @@ fn current_inputs_table_and_schema_are_pinned() {
     // RT-A3 reducer 2b: again limitation[0] only (the 2b preservation test).
     // RT-A3 increment 3: limitation[0] and the D-2 load/reference-state support sentence only (the constant-effort preservation test).
     // RT-A3 increment 3 review repair: again for the support-attribution limitation (S7) only (the same test).
+    // RT-A3 increment 4: limitation[0] and S7 (nonlinear supports) only (test_rt_a3_nonlinear_text_only_envelope_diff).
     for (name, digest) in [
         (
             "connected-sparse",
-            "c4c8779d722f8a8173d0b559add4d92b5d8514f1ed6845c954c22898cde63d9a",
+            "2827e7d989755c0aa584e101c61e6e0796a6372f5af07b6ab8133afb9e8c68fa",
         ),
         (
             "connected-dense",
-            "dd479360ba924f29fc865d8dbf29262d78dcf4b7d16685e86313626a7409ab4f",
+            "ec1ee034542f543d4d989f91ca1ce0ffc32e01737765d3d5f2c16a4ca8a5dc0c",
         ),
         (
             "pressure-sparse",
-            "9e19e5f68d8b35de5aeaada2cf91c68a057bab539e70aac6a7bf897e1ee9fbec",
+            "cbc21e434cd80bf23acee047201d2357e1ba035432029035b549df28e96591ca",
         ),
         (
             "pressure-dense",
-            "9d22b9ea7616e245696b7d4d7d6ea5eb63b0a9cc9a7f5a8391406a24265bb242",
+            "d7427f8e1809368d5843b93a837da746dec235473514bc72cb86c3ef81630745",
         ),
     ] {
         assert_eq!(sha(source_text(name).as_bytes()), digest, "{name}");
