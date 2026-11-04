@@ -214,7 +214,7 @@
       "core/loads/user_loads/Cargo.toml": "6c0add4912f9400459da5f89cfccfe6c7419d29a6641ebff65dbb8dc0c6a3ef6",
       "core/model_operations/operation_applier/Cargo.toml": "4fce27a1130b57d595003fa6638760618f38266d9c16574936822fd744cbfb7e",
       "core/numerics/correct_norm/Cargo.toml": "57cbcd985c88d79c7ebf198d9a5d3a68fa67fe74bfd11440791be7c9a44c8844",
-      "core/product_physics/Cargo.toml": "2ceb21cf8fe01cb8880a61f951d93aa2e6c1bcf68cb8701e22704a9f394518f7",
+      "core/product_physics/Cargo.toml": "62fdff9e45d9941bd2c2aab0cc20f4a5beab248872c5a579d488de8f61c4ecc1",
       "core/reporting/audit_manifest/Cargo.toml": "b8bc4623a383ed2c22205326bc737486becd9d931bf869e1e8cf40e147f4fad7",
       "core/reporting/pdf_emitter/Cargo.toml": "bdac876fe00cde0e3ba33a557dafe3e76e96dd462f4a710b63012dada23fca50",
       "core/reporting/protected_content_linter/Cargo.toml": "6a11912d00b5c5c502e1f3d6d3036cf60d3e163078afbc3300005fd496a756ef",
@@ -222,7 +222,7 @@
       "core/reporting/report_package/Cargo.toml": "8810941626d46d92607f938e9391bcb4e80aab08c2132c56b04d632aa6e90113",
       "core/reporting/report_renderer/Cargo.toml": "e16d788aa9def79409f139ca48b73f03bde62ce9ff898456aaac697dc00bcb0e",
       "core/reporting/report_sections/Cargo.toml": "44acb66312edbc9bfd77aa2980a898511ac34de67fba0fc773b70007a3aad0f1",
-      "core/reporting/result_export/Cargo.toml": "63cf5bde066f265fb063787756e62379eb38a8556dcc7aaa39f29b3176253d8f",
+      "core/reporting/result_export/Cargo.toml": "a7e10b6dcf89a7d0240ef837487129e5b55975bf0a3daed0cfa4ec2f83403f5b",
       "core/rules/completeness_checker/Cargo.toml": "95cf7430d70fffc65a984a6841980f2c65f12000e28004da89efc092f1152737",
       "core/rules/expression_evaluator/Cargo.toml": "7018210dadfb7c2b855298730f5f8cddedbe09f7f03b05421b81c3694f873b18",
       "core/rules/rule_check_runner/Cargo.toml": "88971098b7a02b7cd79ee97788e76d31425865b98a0e51dbdd7d6e8711fb9dc1",
@@ -250,7 +250,7 @@
     },
     "reads": {
       "core/product_physics/src/source_receipt/pressure_source_context_tests.rs": {
-        "sha256": "b772f42fb4b823b2d5dd9bbeee5595115b45fbe07874340a73ba1df808de034b",
+        "sha256": "a6b641c2c3feecba0729f8793e38f97c43b731e6c48f70b42e3ee88a88ed4538",
         "source_trees": [
           "core/analysis/hanger_sizing/Cargo.toml",
           "core/loads/self_weight_wasm/Cargo.toml",
@@ -985,7 +985,7 @@
         ]
       },
       "core/product_physics/tests/pressure_source_join.rs": {
-        "sha256": "076c3c50872418090d6826d4b709179ab82d15b504daa5ecb6b027545b10215c",
+        "sha256": "b35ede430129dd78bd36927914cb18c63fbd2e50846c9d4d58fdfe8412e2994e",
         "source_trees": [
           "core/product_physics/Cargo.toml"
         ],
@@ -1507,6 +1507,7 @@
               "fixtures/results/preview_physics_timoshenko_straight_sparse.json",
               "fixtures/results/preview_physics_u4b_arc_sparse.json",
               "fixtures/results/preview_physics_unicode_ids_sparse.json",
+              "fixtures/results/recorded_pre_rt_a4/semantic_contract_v0_3_physics_retained_1.040ef9a6.json",
               "fixtures/results/recorded_pre_rt_a4/semantic_contract_v0_3_physics_retained_1.045f6f0d.json",
               "fixtures/results/recorded_pre_rt_a4/semantic_contract_v0_3_physics_retained_1.cf29fd5f.json",
               "fixtures/results/recorded_pre_rt_a4/semantic_contract_v0_3_preview_physics_2.1ccc9561.json",
@@ -1641,7 +1642,7 @@
         ]
       },
       "core/reporting/result_export/tests/load_reference_contract.rs": {
-        "sha256": "d4d4634baa2708ecdf2f801ba85b57b09bac8bd5a47ef19dfedc3b2335b84a3a",
+        "sha256": "b85933f5af103aa59e3325d25c1993cd4d97de58192b25cf504bace7ad2f59e6",
         "source_trees": [
           "core/reporting/result_export/Cargo.toml"
         ],
@@ -2667,6 +2668,7 @@
               "core/reporting/result_export/src/lib.rs",
               "core/reporting/result_export/src/load_reference.rs",
               "core/reporting/result_export/src/load_reference_source.rs",
+              "core/reporting/result_export/src/nonlinear_support_evidence.rs",
               "core/reporting/result_export/src/physics_evidence.rs",
               "core/reporting/result_export/src/physics_source.rs",
               "core/reporting/result_export/src/preview_combination_gates.rs",
@@ -4944,11 +4946,16 @@
               "fixtures/persistence/recorded_model_0_9_0_pre_ce/exact_pressure_connected_request.json",
               "fixtures/persistence/recorded_model_0_9_0_pre_ce/pressure_connected_mechanics_sparse.json",
               "fixtures/persistence/recorded_model_0_9_0_pre_ce/pressure_plain_connected_sparse.analysis_run.json",
+              "fixtures/persistence/recorded_model_0_9_0_pre_nl/exact_pressure_connected_request.json",
+              "fixtures/persistence/recorded_model_0_9_0_pre_nl/pressure_connected_mechanics_sparse.json",
+              "fixtures/persistence/recorded_model_0_9_0_pre_nl/pressure_plain_connected_sparse.analysis_run.json",
               "fixtures/persistence/recorded_model_0_9_0_pre_rt_a4/exact_pressure_connected_request.json",
               "fixtures/persistence/recorded_model_0_9_0_pre_rt_a4/pressure_connected_mechanics_sparse.json",
               "fixtures/persistence/recorded_model_0_9_0_pre_rt_a4/pressure_plain_connected_sparse.analysis_run.json",
               "fixtures/persistence/recorded_pre_rt_a4_pf/physics_retained_1/main/retained_precision_exact_successor_sparse_interactive.analysis_run.json",
               "fixtures/persistence/recorded_pre_rt_a4_pf/physics_retained_1/main/retained_precision_exact_successor_sparse_interactive.json",
+              "fixtures/persistence/recorded_pre_rt_a4_pf/physics_retained_1/main_bbf384dec/retained_precision_exact_successor_sparse_interactive.analysis_run.json",
+              "fixtures/persistence/recorded_pre_rt_a4_pf/physics_retained_1/main_bbf384dec/retained_precision_exact_successor_sparse_interactive.json",
               "fixtures/persistence/recorded_pre_rt_a4_pf/physics_retained_1/pr101/retained_precision_exact_successor_sparse_interactive.analysis_run.json",
               "fixtures/persistence/recorded_pre_rt_a4_pf/physics_retained_1/pr101/retained_precision_exact_successor_sparse_interactive.json",
               "fixtures/persistence/recorded_pre_rt_a4_pf/preview_physics_2/preview_physics_connected_sparse.json",
@@ -5179,6 +5186,7 @@
               "fixtures/results/preview_physics_timoshenko_straight_sparse.json",
               "fixtures/results/preview_physics_u4b_arc_sparse.json",
               "fixtures/results/preview_physics_unicode_ids_sparse.json",
+              "fixtures/results/recorded_pre_rt_a4/semantic_contract_v0_3_physics_retained_1.040ef9a6.json",
               "fixtures/results/recorded_pre_rt_a4/semantic_contract_v0_3_physics_retained_1.045f6f0d.json",
               "fixtures/results/recorded_pre_rt_a4/semantic_contract_v0_3_physics_retained_1.cf29fd5f.json",
               "fixtures/results/recorded_pre_rt_a4/semantic_contract_v0_3_preview_physics_2.1ccc9561.json",
@@ -5332,6 +5340,7 @@
               "core/product_physics/tests/fixtures/preview_physics_range_envelope_model.json",
               "core/product_physics/tests/fixtures/preview_physics_unicode_ids_model.json",
               "core/product_physics/tests/fixtures/rf_source_method/order_four_sensitive.request.json",
+              "core/product_physics/tests/fixtures/rt_a3_nonlinear/b1_loaded_inactive_reaction.json",
               "core/product_physics/tests/fixtures/s11f/rf_cancel_cases.json",
               "core/product_physics/tests/fixtures/s11g/rb_controls.json",
               "core/product_physics/tests/fixtures/shared_terminal_junction.request.json",
