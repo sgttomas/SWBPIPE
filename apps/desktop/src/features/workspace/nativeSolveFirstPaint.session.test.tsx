@@ -116,7 +116,8 @@ async function turns(count = 20) {
 }
 
 /** Every row read of the whole sequence is bounded: page reads carry a numeric limit of at most
- * `RESULT_DETAIL_MAX_PAGE_ROWS`, key reads at most `RESULT_DETAIL_MAX_KEYS` keys; no row command
+ * `RESULT_DETAIL_MAX_PAGE_ROWS`, key reads 1 to `RESULT_DETAIL_MAX_KEYS` keys in all (a semantics
+ * batch: nonempty integer ordinals only); no row command
  * outside these (a take or the C2 full copy) is issued at all. The expected first page occurred. */
 function expectBoundedRowReads(calls: readonly Call[]) {
   const PAGED = new Set([PAGE_QUERY, "query_preview_mechanics_job_source_recovery"]);
@@ -131,11 +132,20 @@ function expectBoundedRowReads(calls: readonly Call[]) {
       expect(args.limit as number).toBeGreaterThanOrEqual(1);
       expect(args.limit as number).toBeLessThanOrEqual(RESULT_DETAIL_MAX_PAGE_ROWS);
     } else {
-      const keys = ["ordinals", "ids", "kinds"].map((key) => args[key]).filter((value) => value !== undefined);
-      expect(keys.length).toBeGreaterThan(0);
-      for (const value of keys) {
-        expect(Array.isArray(value)).toBe(true);
-        expect((value as unknown[]).length).toBeLessThanOrEqual(RESULT_DETAIL_MAX_KEYS);
+      // The native bound is on the request's keys together (`result_detail.rs` `run_lookup`:
+      // ordinals + ids + kinds in 1..=MAX_KEYS), not on each group alone (review F3).
+      const groups = ["ordinals", "ids", "kinds"].filter((key) => args[key] !== undefined);
+      for (const key of groups) expect(Array.isArray(args[key])).toBe(true);
+      const total = groups.reduce((sum, key) => sum + (args[key] as unknown[]).length, 0);
+      expect(total).toBeGreaterThanOrEqual(1);
+      expect(total).toBeLessThanOrEqual(RESULT_DETAIL_MAX_KEYS);
+      if (call.command === SEMANTICS) {
+        // A semantics batch is by row ordinals only: nonempty, bounded, each a row ordinal.
+        expect(groups).toEqual(["ordinals"]);
+        const ordinals = args.ordinals as unknown[];
+        expect(ordinals.length).toBeGreaterThanOrEqual(1);
+        expect(ordinals.length).toBeLessThanOrEqual(RESULT_DETAIL_MAX_KEYS);
+        for (const ordinal of ordinals) expect(Number.isInteger(ordinal) && (ordinal as number) >= 0).toBe(true);
       }
     }
   }
@@ -143,6 +153,31 @@ function expectBoundedRowReads(calls: readonly Call[]) {
   expect(firstPage).toBeDefined();
   return firstPage!;
 }
+
+describe("the bounded-read check itself (review F3)", () => {
+  const firstPage: Call = { command: PAGE_QUERY, stage: "result_committed", args: { jobId: "j", offset: 0, limit: DEFAULT_RESULT_PAGE_SIZE } };
+  const keyed = (command: string, args: Record<string, unknown>): Call => ({ command, stage: "result_committed", args: { jobId: "j", ...args } });
+  const ordinals = (count: number) => Array.from({ length: count }, (_, index) => index);
+  const ids = (count: number) => Array.from({ length: count }, (_, index) => `row-${index}`);
+
+  it("accepts keyed reads of 1 to RESULT_DETAIL_MAX_KEYS keys in all", () => {
+    expectBoundedRowReads([firstPage,
+      keyed("lookup_preview_mechanics_job_rows", { ordinals: ordinals(RESULT_DETAIL_MAX_KEYS / 2), ids: ids(RESULT_DETAIL_MAX_KEYS / 2), match: "exact" }),
+      keyed(SEMANTICS, { ordinals: ordinals(RESULT_DETAIL_MAX_KEYS) })]);
+  });
+
+  it.each([
+    ["a lookup over the bound only in its groups together", keyed("lookup_preview_mechanics_job_rows", { ordinals: ordinals(600), ids: ids(600), match: "exact" })],
+    ["a lookup with ordinals, ids and kinds over the bound together", keyed("lookup_preview_mechanics_job_rows", { ordinals: ordinals(400), ids: ids(400), kinds: ids(201), match: "exact" })],
+    ["a lookup with no keys", keyed("lookup_preview_mechanics_job_rows", { ordinals: [], match: "exact" })],
+    ["an empty semantics batch", keyed(SEMANTICS, { ordinals: [] })],
+    ["a semantics batch without ordinals", keyed(SEMANTICS, { ids: ids(1) })],
+    ["a semantics batch keyed by ids as well", keyed(SEMANTICS, { ordinals: ordinals(1), ids: ids(1) })],
+    ["a semantics batch with a non-integer ordinal", keyed(SEMANTICS, { ordinals: [0.5] })]
+  ])("refuses %s", (_name, call) => {
+    expect(() => expectBoundedRowReads([firstPage, call])).toThrow();
+  });
+});
 
 describe.each(["pressure", "preview"] as const)("a fresh native-custody solve (%s replay) with Results opened during the solve", (profile) => {
   it("marks first_paint after its first page and row semantics, reading only bounded rows", async () => {
