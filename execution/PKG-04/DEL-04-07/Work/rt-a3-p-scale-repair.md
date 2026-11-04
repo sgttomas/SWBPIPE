@@ -1,0 +1,147 @@
+# RT-A3 P: the nonlinear loop's scale repair (plan and record)
+
+**Status.** Working plan and record of the TASK implementing R-4 §3.6 ("P: the nonlinear loop's
+scale") on `claude/rt-a3-p` from main `252bef969`. It is revisable until review and records no
+acceptance. Governing scope: [`route-unification-r4.md`](route-unification-r4.md) §3.6, §3.10, §6.1
+items 4 and 6 and §6.3 O-2. Out of scope: new nonlinear mechanics, and any change to the active-set
+rules, states, admission, gates or the certificate.
+
+Paths: NI = `core/solver/nonlinear_integration/src`, FK = `core/solver/frame_kernel/src`,
+SD = `core/solver/sparse_direct/src`, PP = `core/product_physics/src`.
+
+## 1. The loop today (main `252bef969`)
+
+- **Entry.** `solve_active_set_frame_with_mode_and_springs` (NI `lib.rs`) applies the §8.30
+  correction-2 guard (`dense_loop_memory_guard`, 88·n² + 16·f² bytes against
+  ⌊0.9 × 12 GiB⌋, in both modes, before any n² allocation), then assembles the dense global K
+  (`assemble_global_stiffness_with_connectors`, curved slots, springs) and the dense
+  `AssemblyEvidence` (four n×n buffers while it is built, two kept).
+- **Per iteration** (`solve_iteration_with_sliding_friction_evidence`): with k derived-normal sliding
+  candidates, one base and k unit-load coupling solves, each hard-coded `DenseScrutiny`, then the
+  final solve in the requested mode: k + 2 full solves, each its own factorization. Every solve is
+  `solve_linearized_system_evidence`: a dense reduced copy (`reduce_system_with_prescribed_displacements_binary64`),
+  FK's dense `prepare_structural_binary64` (`prepare_bound`, with its n×n `Expansion` audit), the
+  factor by mode (dense Cholesky, or SD's skyline LDL of the dense prepared matrix), the gate
+  (`finish_structural`), product equilibrium, the legacy DEC-050/053 observation (a further sparse
+  factor, and in dense mode a dense LU) and reactions by a dense matvec.
+- **Gap scrutiny** (`structural_adapter::scrutinize_gaps`) runs FK's exact boundary context on the
+  dense system; that context refuses any system above 256 DOFs (`Budget`) before reading K.
+- **Completion and confirmation.** The result's `ProductCompletion` clones the dense K. The single
+  post-loop confirmation (`confirmation::confirm_converged_state`) rebuilds a dense `AssemblyEvidence`
+  and runs `confirm_with_formation_check` on the dense K (dense prepare, factor by mode).
+- **PP.** PP assembles sparsely per basis already; every n² buffer on the nonlinear path is inside NI.
+  PP `lib.rs` applies NI's guard once per invocation (`NONLINEAR_DENSE_MEMORY_LIMIT_EXCEEDED`).
+
+## 2. Design
+
+The loop holds one of two representations, chosen by mode:
+
+- **Dense scrutiny: unchanged.** The dense K, dense `AssemblyEvidence` and today's k + 2 full solves,
+  each with its own dense factorization, bit for bit. Reusing a dense factor across right-hand sides
+  would keep the factor and a second n_f² prepared matrix alive across the next preparation's
+  `Expansion` audit, above the guard's priced 16 bytes per free entry, so dense scrutiny keeps one
+  factorization per solve (the scrutiny mode's cost profile is the guard's, as priced).
+- **Sparse interactive: on the pattern.** `assemble_sparse_stiffness` (frames, connectors, curved
+  blocks, springs; values bit-identical to the dense entries, K6 D1) and `SparseAssemblyEvidence`
+  (the same builder, allowances bit-identical, K1). Each solve:
+  - partitions and folds the reduced right-hand side in binary64, in prescribed order, as the dense
+    `_binary64` reduction does (new FK `reduce_sparse_system_with_prescribed_displacements_binary64`);
+  - prepares on the pattern with the option-(c) binary64 binding (new FK
+    `prepare_sparse_structural_binary64`; today `prepare_sparse_bound` refuses that binding, "the
+    nonlinear loop stays on the dense `_binary64` path until F1b"), and orders, factors and finishes
+    on the pattern (SD `factor_sparse_structural_ldlt`, FK `finish_sparse_structural`);
+  - evaluates product equilibrium over the pattern (new FK `evaluate_sparse_original_residual`, the
+    binary64 binding of the shared `evaluate_original_residual_bound`), reactions by
+    `SparseStiffness::multiply` minus f (bit-identical to the dense matvec), and the legacy
+    observation from the pattern's free entries.
+- **The per-iteration step stays one unit** (manager's steer, for RT-A5's held `minuend_final`):
+  `solve_iteration_with_sliding_friction_evidence(system, input, boundary, states, previous, …, mode)`
+  takes the loop's assembled system and a given support-state assignment, and in sparse mode
+  factors once and solves the base, the unit-load coupling and the final right-hand sides on that
+  factor. It is crate-internal; RT-A5 needs a public wrapper over it (§7). The confirmation stays a
+  separate post-loop unit (kd5 §1.5: never called from an iteration).
+- **Gap scrutiny in sparse mode** passes the dense view only when n ≤ 256 (the exact context's own
+  limit) and an empty one otherwise; the context refuses n > 256 with `Budget` before reading K, so
+  the evidence is the dense path's bit for bit (regression in §4).
+- **Completion** holds the representation the loop used. **Confirmation** in sparse mode builds
+  `SparseAssemblyEvidence` and confirms on the pattern (new FK `finish_sparse_confirmation` and
+  `SparseConfirmationAttempt::evaluate_at`, the same `formation_check::check_at` with pattern
+  accessors).
+
+## 3. Numerical meaning
+
+- **K6/K1 bit identity.** K6 pins the staged kernel sequence to the adapter's entries, bit for bit in
+  `Debug` (`performance_harness/tests/k6_staged.rs`), and the pattern assembly to the dense assembly
+  (`k6_parity.rs` D1). Underneath, FK `sparse/tests.rs` pins the sparse prepared system to the dense
+  one entry for entry (`assert_prepared_equal`) and SD `structural/k1_tests.rs` pins the pattern
+  path's order, profile and report to the dense-derived sparse path. P adds the binary64 binding to
+  both regressions: the sparse binary64 preparation must equal `prepare_structural_binary64` entry
+  for entry (rhs bits, exponents, matrix, audit, projection), including signed-zero and subnormal
+  rows and rows coupled to nonzero prescribed values, and the pattern path's binary64 solve must equal
+  the dense-derived sparse binary64 solve in `Debug`.
+- **Consequence.** A bit-identical prepared matrix gives the same RCM order, skyline and factor, so
+  sparse mode's final solve is today's bit for bit, and so is the confirmation.
+- **Dense mode** runs today's code; every committed nonlinear output must be byte-identical in dense
+  mode (§4).
+- **The declared move (step 4).** Sparse mode's coupling solves move from dense Cholesky to the
+  requested mode's skyline LDL. Only φ⁰ (and through it the final iterate) can change, only on cases
+  with a derived-normal sliding support, and only in sparse mode. Each coupling right-hand side still
+  passes its own M03 gate (the 64·γ(n) residual certificate after at most three refinements), so K-1's
+  enclosure basis is unchanged; the published friction row is Stage A/B's certified value, whose ball
+  contains φ* independent of φ⁰'s bits. The check (§4) compares the old and new φ⁰ with each other and
+  with the certified ball, and the published rows of every committed coupled case.
+- **Factor reuse (step 3)** must be bit-identical to separate solves: the shared-factor completion
+  (new FK `finish_sparse_structural_on`) validates the right-hand side's prepared system and requires
+  its prepared matrix to equal the factor's bit for bit; a factor is a deterministic function of that
+  matrix, so each right-hand side's solution and report are the separate solve's.
+- **K-1.** The loop rules (seeds, deferral, slip direction, normal branch, classification) are not
+  touched. The solve path is: coupling solves move mode and share a factor. K-1's trace is re-checked
+  against the new path, the note and script are revised where they name the solve path, and the
+  script and the K-1 corpus are re-run in both modes.
+
+## 4. Steps, commits and evidence
+
+| Step | Change | Evidence |
+|---|---|---|
+| 0 | This plan | `deliverables check` |
+| 1 | The named scale guard: already on main as §8.30 correction 2 (88·n² + 16·f² ≤ 104·n², both modes, before any n² allocation, `NONLINEAR_DENSE_MEMORY_LIMIT_EXCEEDED`). No formula change. | New regressions: sparse-mode refusal by name at the threshold (estimate = limit + 1) and admission at the limit and below, at the loop entry and in PP |
+| 2 | The loop on the pattern in sparse mode (FK binary64 sparse prepare and reduction, sparse residual entry; SA `solve_binary64` on the pattern; NI representation switch; gap view; completion). Coupling solves stay `DenseScrutiny` (SA's dense materialization) so no output moves. | FK/SD binary64 parity regressions (K6/K1); NI parity: the pattern loop equals the dense-derived loop in sparse mode, `Debug` for `Debug`, on every NI nonlinear model; all committed outputs byte-identical in both modes |
+| 4 | Coupling solves in the requested mode (declared φ⁰ move, sparse mode only) | Old/new φ⁰ per coupled case against Stage A's ball and K-1; published rows of every committed coupled case unchanged or bound-explained; dense mode byte-identical |
+| 3 | Factor once per iteration in sparse mode (base, units and final on one factor) | `finish_sparse_structural_on` refuses another matrix; loop outputs bit-identical to step 4's in both modes |
+| 5 | Confirmation on the pattern in sparse mode | Confirmation `Debug`-identical to the dense-derived confirmation on the kd5 corpus; committed outputs byte-identical |
+| K-1 | Trace re-check, note and script revision | Script re-run; `rt_a3_nonlinear_k1_twins.rs` both modes |
+
+Steps 3 and 4 are taken in the order 4, 3, so that the move (step 4) and the bit-identical
+performance change (step 3) have separate evidence.
+
+**Committed-output check.** Every committed nonlinear output is checked by its maintained test (PP
+`kd5_nonlinear_tests.rs`, `w16_nonlinear_motion_tests.rs`, `rt_a3_nonlinear*` tests, the K-1 twins,
+NI's suites and the product-preview fixture tests). In addition, a scratch diff builds
+`openpipestress-runner` at main and at each step's head and solves every committed nonlinear request
+(the kd5 requests, the W-16 nonlinear-motion requests, the PF Timoshenko requests and the
+product-preview and results fixtures) in both modes, comparing output bytes.
+
+## 5. Pricing (no profile write)
+
+NI is on the retained static chain. The tool is run read-only on the step heads into an output
+directory outside the checkout (`/Users/ryan/dev/chirality-t3/scratch/rt-a3/p/`), compared with
+main's tree, as §8.49 did. Nothing is written to `retained_memory.rs`, any §8.x section,
+`REGISTERED_PROFILES` or witness records; registration takes its D3 slot (after #105B, PF1b, I3a).
+The result (priced sites touched, coefficient moves, frame growth) is recorded in §8 below.
+
+## 6. Heavy run (planned, not run; needs Agent 0's approval)
+
+A K6-style observation of one loop iteration at 1,000, 2,000 and 10,000 members (R-4 §5.4 M-3) in
+§8 below, with its command and estimated resources. No exclusive or App window and no timing run is
+taken by this TASK.
+
+## 7. Open matters for Agent 0
+
+- **The sparse-mode guard after P.** The guard prices the dense loop's buffers; after P, sparse mode
+  holds none of them. It is kept unchanged in both modes, so admission does not change. Lifting or
+  re-pricing it in sparse mode is O-2's decision, after the heavy run (§6).
+- **RT-A5's held solve** calls the step through a public wrapper that this TASK does not add.
+
+## 8. Record
+
+(Filled in as the steps land.)
