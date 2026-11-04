@@ -1378,7 +1378,7 @@ This proposal comes from source plus the existing cantilever calibration (stage 
   - S_T1 and d from the state case's supports, with A_conf.
 
   **A missing finite census never removes work.** The rejected pairs are in p and the computed pairs in n_c, whatever the census verdict. τ_μ is not tightened, and no high-mode check is skipped, to reach admission.
-- **S1, inside the kernel** (a priced `modal_eigen` change with its D3: a budget input in `DenseOptions`):
+- **S1, inside the kernel** (**built: #109, merged `23f68bd7d`**, 2026-11-04). `modal_eigen` is outside the priced crates (`tools/retained_pricing/base/crate_dirs.txt`), and `price.py` at base and head compared equal on all 1,602 coefficients, so S1 needed no D3. The budget input is an additive `DenseAllotments` passed to `solve_dense_pencil_with_allotments`, not a field of `DenseOptions`, and it defaults to no allotment. Refusals are typed and map to the approved `MODAL_RESOURCE_*` names, and the exact rotation and band-pair counts are exposed. No allotment value is adopted. The design as specified:
   - *S1-QL:* a cumulative rotation counter in `implicit_ql` against A_QL;
   - *S1-band:* p counted exactly from the classification thresholds, before `formed_scaling` and any insertion, against A_band.
 - **S2, after `complete_reported_set` and before normalization.** Exact here: n_c, n_r, n_cl, the computed vectors and the symbolic Sturm profile (P, w_i). It checks T6, T7 (still at L_A), T9 and the early B_doc, and reserves T8 and T10 at L_A.
