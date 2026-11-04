@@ -56,11 +56,13 @@ FROZEN = {
     # test_rt_a3_reducer_2b_text_only_envelope_diff.
     # RT-A3 increment 3: the identity and the D-2 support sentence only, bound by
     # test_rt_a3_constant_effort_text_only_envelope_diff; after review, also the S7 support-attribution sentence.
-    "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json": "c4c8779d722f8a8173d0b559add4d92b5d8514f1ed6845c954c22898cde63d9a",
-    "fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json": "dd479360ba924f29fc865d8dbf29262d78dcf4b7d16685e86313626a7409ab4f",
+    # RT-A3 increment 4: the identity (nonlinear supports) and the S7 support-attribution sentence only, bound by
+    # test_rt_a3_nonlinear_text_only_envelope_diff.
+    "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json": "c5ed19df5d6c4154fc35af3ec8a0239b0ccc19ce532bcfc011aea8e41a24b190",
+    "fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json": "f1a6739866277d3d4e351fea296a704a43e230ae442a33729b2c1b98f637a922",
     "fixtures/product_preview/pressure/load_reference/pressure.request.json": "36f2b657c948fb9cb3af87d1626b9b1fe0304861e47d64f8bd2a27625247c0d7",
-    "fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json": "9e19e5f68d8b35de5aeaada2cf91c68a057bab539e70aac6a7bf897e1ee9fbec",
-    "fixtures/product_preview/pressure/load_reference/pressure-dense_scrutiny.raw.json": "9d22b9ea7616e245696b7d4d7d6ea5eb63b0a9cc9a7f5a8391406a24265bb242",
+    "fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json": "272c54648fb2822b739631b123cc89c95546acd65e1946c9a8a53e6956ebb3ce",
+    "fixtures/product_preview/pressure/load_reference/pressure-dense_scrutiny.raw.json": "982340d24f92ca8c87de68de6894c8c5215af312a5863e4c07df13f741db0a33",
     "fixtures/results/semantic_contract_v0_3_pressure_2.json": PRESSURE_CONTRACT_SHA256,
     "schemas/load_reference_state.schema.json": TRANSPORT_SCHEMA_SHA256,
 }

@@ -53,6 +53,9 @@ VARIANTS = [
     ("physics-retained-1 (#101)", "physics_retained_1/pr101/retained_precision_exact_successor_sparse_interactive.analysis_run.json",
      "physics_retained_1/pr101/retained_precision_exact_successor_sparse_interactive.json",
      "045f6f0d8ce350246b21fb712d2dd14bf3a7f7f3690e66e062cbbf77d3696a3b", "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"),
+    ("physics-retained-1 (main, RT-A4)", "physics_retained_1/main_bbf384dec/retained_precision_exact_successor_sparse_interactive.analysis_run.json",
+     "physics_retained_1/main_bbf384dec/retained_precision_exact_successor_sparse_interactive.json",
+     "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034", "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"),
 ]
 IDS = [v[0] for v in VARIANTS]
 
@@ -251,7 +254,8 @@ def test_the_registry_is_main_verbatim_and_disjoint_from_the_current_tables():
         assert table["semantic_contract_id"] == identity
         # Rows are the current table's: only limitations, policy text, vocabulary and inherited digests moved.
         assert table["rows"] == json.loads(c._TABLES[identity][1].read_text(encoding="utf-8"))["rows"]
-        rev = MAIN if digest != "045f6f0d8ce350246b21fb712d2dd14bf3a7f7f3690e66e062cbbf77d3696a3b" else "01e05a486"
+        rev = {"045f6f0d8ce350246b21fb712d2dd14bf3a7f7f3690e66e062cbbf77d3696a3b": "01e05a486",
+               "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034": "bbf384dec"}.get(digest, MAIN)
         try:
             committed = subprocess.run(["git", "show", f"{rev}:fixtures/results/semantic_contract_v0_3_{origin[identity]}.json"],
                                        cwd=ROOT, capture_output=True, check=True).stdout

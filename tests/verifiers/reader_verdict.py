@@ -388,6 +388,10 @@ def validate(reader: str, source: Any, model: Any = None, invocation: Any = None
                 # W-16 slice b (§6): the combination records bound to the model.
                 from . import exact_combinations
                 exact_combinations.model_checks(source, model)
+                # RT-A3 increment 4 (R-4 §2.4): the nonlinear supports bound to the model's records and the DEC-067
+                # laws that need their inputs (Rust `nonlinear_support_evidence::model_checks`).
+                from . import nonlinear_support_evidence
+                nonlinear_support_evidence.model_checks(source, model)
             return {"ok": True}
         if reader == "pressure-source":
             eligible = _source_validate(source, invocation)

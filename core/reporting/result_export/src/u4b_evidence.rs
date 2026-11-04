@@ -521,6 +521,8 @@ pub(crate) fn directional_model_checks(source: &Value, model: &Value, route: Rou
             let bits = |k: &str| record[k].as_f64().map(f64::to_bits);
             route.require(bits("i_in_plane") == Some(pair.0.to_bits()) && bits("i_out_of_plane") == Some(pair.1.to_bits()), "INTENSIFIED_MODEL_FACTORS")?;
         }
+        // RT-U4 (order): every refusal of this scan is the one code
+        // INTENSIFIED_MODEL_COVERAGE, so its result is the same in any key order.
         for &pipe in arcs.keys() {
             for &basis in bases {
                 for location in STATIONS {

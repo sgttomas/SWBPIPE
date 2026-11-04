@@ -152,7 +152,7 @@ fn identity(parts: &[&str]) -> String {
         .join(":")
 }
 /// Representation guard only (64 epsilon relative), not an engineering tolerance.
-fn guarded(published: f64, recomputed: f64) -> bool {
+pub(crate) fn guarded(published: f64, recomputed: f64) -> bool {
     (published - recomputed).abs() <= 64.0 * f64::EPSILON * published.abs().max(f64::MIN_POSITIVE)
 }
 fn case_of(row: &Value) -> Option<&str> {
