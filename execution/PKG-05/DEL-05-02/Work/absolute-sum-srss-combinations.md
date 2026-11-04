@@ -1103,11 +1103,18 @@ their exact inverses. No route, member or basis is admitted, and no schema, vers
 changes.
 
 - **Before values.**
-  - **Flat records and terms keep their historical display**, byte for byte:
-    `"<id>; <label>; basis=<basis>; terms=<id> x <factor>; …"` and `"<load_case> x <factor>"`.
+  - **A record whose `terms` is an array of flat `{load_case, factor}` terms keeps its
+    historical display**, byte for byte: `"<id>; <label>; basis=<basis>; terms=<id> x <factor>;
+    …"` (or `terms=none`). The predicate does not depend on the basis. Empty `terms` qualifies,
+    which covers the subtractions and envelopes the normalizing create makes with `"terms": []`.
+    So every record the desktop could delete before still deletes with the display it already
+    sends. A `{load_case, factor}` term keeps `"<load_case> x <factor>"`.
   - **Every other record or term** is named by the canonical JSON (RFC 8785) of the stored
-    record or term. This covers a subtraction, an envelope, a record with a combination operand,
-    a record without `terms`, and a term naming a combination.
+    record or term. This covers a record without `terms` (as an authored subtraction or envelope
+    may be), a record with a combination operand, and a term naming a combination. The desktop's
+    existing producer sends the historical display for these. Before this change those deletes
+    were refused (`OP-COMBINATION-PAYLOAD-INVALID`). They now stay refused, as stale, until the
+    S3b producer follow-up sends the canonical form. Nothing regresses.
   - The before value is a stale check, never an inverse.
 - **References.**
   - `OP-COMBINATION-DELETE-REFERENCED` refuses deleting a combination that another combination

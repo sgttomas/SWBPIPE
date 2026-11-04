@@ -2,9 +2,12 @@
 //! restore form of `create_combination` (`combinations[i]`) and
 //! `create_combination_term` (`terms.i`) that is each delete's exact inverse.
 //!
-//! - A record (or term) of flat `{load_case, factor}` terms keeps its historical
-//!   before display; every other record (a subtraction, an envelope, a combination
-//!   operand, no `terms`) and every other term is named by its canonical JSON.
+//! - A record whose `terms` is an array of flat `{load_case, factor}` terms (empty
+//!   included, whatever the basis: a created subtraction or envelope carries
+//!   `"terms": []`) keeps its historical before display, so every record the desktop
+//!   could delete before still deletes as before; every other record (no `terms`, a
+//!   combination operand) and every term naming a combination is named by its
+//!   canonical JSON.
 //! - A combination another combination still names (a term of any factor,
 //!   `minuend_id`, `subtrahend_id`, `operand_ids`) is refused by
 //!   `OP-COMBINATION-DELETE-REFERENCED`; nothing cascades.
@@ -304,4 +307,30 @@ fn the_last_term_follows_the_existing_cardinality_rule() {
     let emptied = applied(&model, &delete_term(&model, "combination:C-SRSS", 0));
     assert_eq!(record(&emptied, "combination:C-SRSS")["terms"], json!([]));
     assert_eq!(applied(&emptied, &restore_term("combination:C-SRSS", 0, &term)), model);
+}
+
+/// Records the normalizing create makes for a subtraction or an envelope carry
+/// `"terms": []`, so they keep the historical display (`terms=none`) that the
+/// desktop already sends; each restores exactly.
+#[test]
+fn created_subtractions_and_envelopes_keep_the_historical_display() {
+    let mut model = every_slot();
+    let created = [
+        json!({"id": "combination:C-S2", "label": "S2", "basis": "result_state_subtraction", "minuend_id": "load:L-2", "subtrahend_id": "load:L-1", "terms": [], "provenance": "invented_example"}),
+        json!({"id": "combination:C-E2", "label": "E2", "basis": "range_envelope", "operand_ids": ["load:L-1", "load:L-2"], "mode": "max", "terms": [], "provenance": "invented_example"}),
+    ];
+    for record in &created {
+        model["combinations"].as_array_mut().unwrap().push(record.clone());
+    }
+    for record in &created {
+        let id = record["id"].as_str().unwrap();
+        let display = flat_display(record).unwrap();
+        assert!(display.ends_with("terms=none"), "{display}");
+        assert_eq!(delete(&model, id)["change"]["before"], json!(display));
+        delete_and_restore(&model, id);
+        // The canonical JSON is not this record's before value.
+        let mut canonical = delete(&model, id);
+        canonical["change"]["before"] = json!(canonical_json(record));
+        refused(&model, &canonical, "OP-STALE-BEFORE-VALUE");
+    }
 }
