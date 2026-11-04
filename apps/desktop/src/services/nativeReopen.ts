@@ -9,8 +9,9 @@
  *   (`NATIVE-REOPEN-MALFORMED`).
  * - **Origin.** A restored handle is never a fresh solve: its `NativeResult` carries the restored
  *   origin, no capture or registration, no binding to a model's standing, and S read with no model
- *   and no standing (as the historical panel's `ResultsPanel` read the rows). Fresh persistence and
- *   reports refuse it natively; the session never makes it the current result.
+ *   (as the historical panel's `ResultsPanel` read the rows) and only its standalone historical
+ *   findings for the numerical health (`historicalStanding`, never eligible in S). Fresh persistence
+ *   and reports refuse it natively; the session never makes it the current result.
  * - **Saving.** A project save re-saves a reopened saved run from its handle
  *   (`nativePersistence.saveRestoredLocalProject`, `src-tauri/src/stored_save.rs`); nothing whole crosses.
  * - **C2 consumers.** An approved whole-value consumer loads the stored result and record whole only at
@@ -30,11 +31,13 @@ import {
   readNativeSummary,
   readNativeVerdict,
   queryNativeRecovery,
+  type NativeCustody,
   type NativeOrigin,
   type NativeResult
 } from "./nativeResult";
 import type { AnalysisRunEnvelope, LocalProjectEnvelope, MechanicsResult } from "../types";
 import type { ReaderDispatch } from "../features/results/resultReader";
+import { isRetainedRoute } from "../features/results/numericalResultQuality";
 import { recordedPreRtA4Binding } from "./recordedPreRtA4";
 import type { AnalysisRunSummary } from "./analysisRunService";
 import type { ModelStateSummary } from "./modelStateService";
@@ -166,14 +169,32 @@ export async function readAnalysisRunNative(projectId: string, recordingId: stri
 /** S's model text for a restored run: none, as the historical panel read the rows without a model. */
 export const RESTORED_SUMMARY_MODEL_TEXT = "null";
 
-/** The `NativeResult` of a restored, renderable run: S with no model and no standing, the header
- * dispatch, and the recovery facts where the route carries them. Its standing binding is empty, so
+/** A restored run's standalone historical standing (`NativeCustody.historicalStanding`), as
+ * `standaloneNumericalHealth` reads a whole reopened run's: `recordedResultStanding(result, table)`
+ * under a recorded table (the recorded dispatch's standing; a pressure-source route's is the bare
+ * verdict's), else `numericalResultStanding(result)` with no model (the bare verdict's). A retained
+ * route's (its registration's) is none: no health indicator shows on that route (`routeHealth`).
+ * An unreadable standing is none (no indicator), as the whole-value read's throw is. */
+export function restoredHistoricalStanding(verdict: ReaderDispatch, recordedVerdict: ReaderDispatch | null): NativeCustody["historicalStanding"] {
+  const route = (recordedVerdict ?? verdict).route;
+  if (isRetainedRoute(route as never)) return null;
+  const standing = recordedVerdict && route !== "pressure_source" ? recordedVerdict.standing : verdict.standing;
+  if (!plain(standing) || typeof standing.eligible !== "boolean" || !Array.isArray(standing.findings) || !standing.findings.every(isText)) return null;
+  return { eligible: standing.eligible, findings: [...standing.findings] };
+}
+
+/** The `NativeResult` of a restored, renderable run: the header dispatch, S with no model and the
+ * standalone historical findings only (`restoredHistoricalStanding`; never eligible), and the
+ * recovery facts where the route carries them. Its standing binding is empty, so
  * `numericalResultStanding` on it reads as not bound (fail closed), never as eligible. */
 export async function restoredNativeResult(restored: RestoredRun): Promise<NativeResult> {
   const jobId = restored.handle;
-  const summary = await readNativeSummary(jobId, RESTORED_SUMMARY_MODEL_TEXT, null);
   const verdict = await readNativeVerdict(jobId, {});
   const recordedTable = restored.findings.recorded_table_read;
+  const recordedVerdict = recordedTable ? restored.recorded_dispatch : null;
+  const historicalStanding = restoredHistoricalStanding(verdict, recordedVerdict);
+  // S's numerical health is read with the historical findings; S itself admits nothing (`eligible: false`).
+  const summary = await readNativeSummary(jobId, RESTORED_SUMMARY_MODEL_TEXT, historicalStanding ? { eligible: false, findings: historicalStanding.findings } : null);
   const recovery = verdict.route === "pressure_source" || summary.header.omitted_members.includes("source_block_recovery") ? await queryNativeRecovery(jobId, 0, 1) : null;
   return createNativeResult({
     jobId,
@@ -186,7 +207,8 @@ export async function restoredNativeResult(restored: RestoredRun): Promise<Nativ
     recovery,
     // RT-A4 §10.4: the table the native readers of this handle read under, and its recorded dispatch.
     recordedTable: recordedTable ? { id: recordedTable.id, sha256: recordedTable.sha256 } : null,
-    recordedVerdict: recordedTable ? restored.recorded_dispatch : null
+    recordedVerdict,
+    historicalStanding
   });
 }
 

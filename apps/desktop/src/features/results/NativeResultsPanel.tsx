@@ -29,7 +29,7 @@ import { useDisplayQuantityResolver, type DisplaySourceQuantity } from "../displ
 import { hangerPreloadStanding } from "./hangerPreload";
 import { knownSemanticNotices, resultRowLabel } from "./knownSemanticLimitations";
 import { NUMERICAL_HEALTH_STATE_TEXT } from "./numericalHealthText";
-import { rowHealthState, type NumericalHealthLocation, type NumericalHealthView } from "./numericalHealth";
+import { numericalHealthView, parseNumericalHealth, rowHealthState, type NumericalHealthLocation, type NumericalHealthView } from "./numericalHealth";
 import { ALL_CASES, isNavigatorExcludedTarget, navigatorKeyStep, stepIndex, type NavigatorAxis, type NavigatorCase } from "./resultsNavigator";
 import { mechanicsGaps } from "./resultInterpretation";
 import type { ResultsViewRequest } from "./ResultsPanel";
@@ -62,6 +62,7 @@ import {
   queryNativeNavigator,
   queryNativeRows,
   readNativeRowSemantics,
+  type NativeCustody,
   type NativeResult,
   type SessionAnalysisRun
 } from "../../services/nativeResult";
@@ -98,6 +99,15 @@ function labelsOf(rows: readonly DetailRow[], outcomes: readonly RowSemanticsOut
     dimension: (row) => { try { return signature(row)?.derivative_target_dimension ?? null; } catch { return null; } },
     category: (row) => { try { return signature(row)?.category ?? "unknown"; } catch { return "integrity_failure"; } }
   };
+}
+
+/** A reopened run's own indicator, as `standaloneNumericalHealth` gives the whole-value panel one
+ * when no health is passed (the historical panel): S's numerical health, read natively with the
+ * restored run's standalone historical findings (`NativeCustody.historicalStanding`), presented
+ * with its eligibility and no hold. Display only; none for a solve. */
+function standaloneNativeHealth(custody: NativeCustody): NumericalHealthView | null {
+  const standing = custody.historicalStanding;
+  return standing ? numericalHealthView(parseNumericalHealth(custody.summary.header.numerical_health), { eligible: standing.eligible, verdictHold: false }) : null;
 }
 
 /** A row read under a table other than the handle's (RT-A4 §10.4): refused, never read. */
@@ -222,7 +232,9 @@ export function NativeResultsPanel({
   const groups = groupResults(items, labels);
   // RT-A4 §10.4: a run recorded before RT-A4 is classified under its recorded table.
   const route = displayRoute(result, recordedTableRead);
-  const health = routeHealth(route, numericalHealth ?? null);
+  // DEL-07-05: the historical panel passes no health; a reopened run then shows its own (review F2).
+  const ownHealth = useMemo(() => (numericalHealth === undefined ? standaloneNativeHealth(custody) : null), [numericalHealth, custody]);
+  const health = routeHealth(route, numericalHealth === undefined ? ownHealth : numericalHealth);
   const labelSource = route === "preview_physics" ? result : null;
   const intensified = useNativeKindPresence(result, PREVIEW_INTENSIFIED_KIND);
   const notices = useMemo(() => knownSemanticNotices(result, recordedTableRead, { hasIntensified: intensified }), [result, recordedTableRead, intensified]);

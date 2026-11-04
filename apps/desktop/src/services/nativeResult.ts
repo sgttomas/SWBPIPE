@@ -105,6 +105,14 @@ export type NativeCustody = Readonly<{
   /** That run's recorded dispatch with no model (`recordedReaderDispatch(result, table)`), the route a
    * display surface classifies it under (`displayRoute`); display only, never a standing. */
   recordedVerdict?: ReaderDispatch | null;
+  /** DEL-07-05 numerical health of a restored run (RT-A4 §10.4 review F2): the standalone historical
+   * standing `standaloneNumericalHealth` reads a reopened run's health with, for the result alone (no
+   * model, no hold): under a recorded table the recorded dispatch's (`recordedResultStanding`), else
+   * the bare verdict's (`numericalResultStanding` with no model). S's `numerical_health` was read with
+   * these findings and `eligible: false` (so S admits no overlay or support state). Display only: it
+   * never binds a standing (`binding.standing` stays null). Null for a solve, and for a retained
+   * route, whose panel shows no health indicator (`routeHealth`). */
+  historicalStanding?: Readonly<{ eligible: boolean; findings: readonly string[] }> | null;
 }>;
 
 const NATIVE = Symbol("swbpipe.nativeResult");
