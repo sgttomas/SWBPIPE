@@ -371,3 +371,92 @@ fn mu_domain_observation_table() {
     }
     println!("smallest retained μ/μ_max: {:.3e} ({})", smallest.0, smallest.1);
 }
+
+// ---------------------------------------------------------------------------
+// The identity tolerance (A1): injected mass errors, measured
+// ---------------------------------------------------------------------------
+
+/// The identity's largest relative discrepancy per subject for a formed
+/// mass that may have been corrupted, judged at a permissive TEST-LOCAL
+/// relative 0.999 so the values are measured rather than refused; a row
+/// that still fails is reported as refused at 0.999 with its message.
+fn identity_rows(prepared: &super::prepare::Prepared, mass: &super::mass::ModalMass) -> Vec<String> {
+    let permissive = super::weight_basis::IdentityTolerance { relative: 0.999, absolute: 0.0 };
+    match super::weight_basis::check_weight_basis(prepared, mass, permissive) {
+        Ok(report) => {
+            let mut subjects: Vec<String> = report.discrepancies.iter().map(|d| format!("{} {}", d.subject_kind, d.subject)).collect();
+            subjects.sort();
+            subjects.dedup();
+            subjects
+                .into_iter()
+                .map(|s| {
+                    let (rel, kind) = report
+                        .discrepancies
+                        .iter()
+                        .filter(|d| format!("{} {}", d.subject_kind, d.subject) == s)
+                        .map(|d| (d.relative, d.kind))
+                        .fold((0.0f64, ""), |acc, x| if x.0 > acc.0 { x } else { acc });
+                    format!("{s}: {rel:.3e} ({kind})")
+                })
+                .collect()
+        }
+        Err(found) => {
+            let mut messages: Vec<String> = found.iter().map(|d| format!("refused even at relative 0.999: {}", d.message)).collect();
+            messages.dedup();
+            messages
+        }
+    }
+}
+
+/// A1 (identity tolerance): what injected mass errors actually measure as,
+/// relative, on the test models. Each corruption changes the formed mass
+/// only; the self-weight basis it is compared with is the authored model's.
+/// These are measurements on these models, not a detection guarantee.
+#[test]
+fn identity_discrepancies_of_injected_mass_errors() {
+    use super::mass::assemble_mass;
+    use super::prepare::{prepare_modal, tests_support::with_model};
+    println!("Identity tolerance: injected mass errors (TEST-LOCAL; the largest relative discrepancy per compared subject)");
+    // Straights: the density scaled in the formed mass (PF pipe-only, two straights).
+    for factor in [1e-9, 1e-2] {
+        let request = modal(with(pf_request(false), json!({"mode_count": 1})));
+        let prepared = prepare_modal(&request).unwrap();
+        let mut corrupted = prepared.model.clone();
+        corrupted.pipe_segments[0].section.material_density.as_mut().unwrap().value *= 1.0 + factor;
+        let scaled = with_model(prepared, corrupted);
+        let mass = assemble_mass(&scaled, None).unwrap();
+        println!("- PF pipe-only, pipe:p1 material density x(1 + {factor:e}): {:?}", identity_rows(&scaled, &mass));
+    }
+    // Component bodies: the valve (W = 500 N, and a light variant W = 0.5 N),
+    // each error injected into the lowered model so that the formed mass is
+    // assembled consistently from it (the body record and the assembled
+    // blocks alike), while the inspection reads the authored model.
+    type Corruption = fn(&mut crate::PreviewComponent);
+    let corruptions: [(&str, Corruption); 4] = [
+        ("intact", |_| {}),
+        ("body weight x1.01 in the mass", |c| c.geometry.as_mut().unwrap().weight.as_mut().unwrap().value *= 1.01),
+        ("centre of gravity (−0.5, 0.25, 0) → (−0.5, 0, 0) in the mass", |c| c.geometry.as_mut().unwrap().center_of_gravity.as_mut().unwrap().y = 0.0),
+        ("body on node b instead of c in the mass", |c| c.node = "b".to_string()),
+    ];
+    for weight in [500.0, 0.5] {
+        let mut authored = pf_request(true);
+        authored["model"]["components"][0]["geometry"]["weight"] = q(weight, "N");
+        let request = modal(with(authored, json!({"mode_count": 1, "weight_to_mass_acceleration": q(9.8125, "m/s^2")})));
+        for (what, corrupt) in corruptions {
+            let prepared = prepare_modal(&request).unwrap();
+            let mut corrupted = prepared.model.clone();
+            corrupt(&mut corrupted.components[0]);
+            let scaled = with_model(prepared, corrupted);
+            match assemble_mass(&scaled, Some(9.8125)) {
+                Ok(mass) => println!("- component PF, W = {weight} N, {what}: {:?}", identity_rows(&scaled, &mass)),
+                Err(found) => println!("- component PF, W = {weight} N, {what}: mass assembly refused: {:?}", found.iter().map(|d| &d.code).collect::<Vec<_>>()),
+            }
+        }
+        // A body dropped from the mass only (its record removed): refused by
+        // the body census before any tolerance applies.
+        let prepared = prepare_modal(&request).unwrap();
+        let mut dropped = assemble_mass(&prepared, Some(9.8125)).unwrap();
+        dropped.bodies.clear();
+        println!("- component PF, W = {weight} N, body record dropped from the mass: {:?}", identity_rows(&prepared, &dropped));
+    }
+}
