@@ -713,6 +713,12 @@ after stage 2 merges (shared lines in `append_nonlinear_support_loop_results`).
 
 ### 3.6 P: the nonlinear loop's scale (L, shared by both routes)
 
+**Status (RT-A3 P).** Built on `claude/rt-a3-p`, with the record in
+[`rt-a3-p-scale-repair.md`](rt-a3-p-scale-repair.md). In sparse mode the loop, its coupling solves
+(one factor per iterate) and the confirmation run on the pattern; dense scrutiny is unchanged. The
+named guard was already §8.30 correction 2 and is unchanged. "Basis" below and §5.1 describe the
+code before P.
+
 **Basis.**
 - **Where the dense work is.** The loop assembles `assemble_global_stiffness_with_connectors`,
   a dense `Vec<Vec<f64>>` (NI `lib.rs:583-600`; FK `lib.rs:1605-1620`). Every iteration
