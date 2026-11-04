@@ -23,7 +23,7 @@
 //!   components keeps the norm).
 use open_pipe_stress_correct_norm::norm3;
 use serde_json::Value;
-use std::collections::{BTreeMap, BTreeSet, HashSet};
+use std::collections::{BTreeMap, BTreeSet};
 
 /// The frame kernel admits local axes (`FrameOrientation::new`) that are unit
 /// length and mutually orthogonal each to within `AXIS_TOLERANCE` = t = 1e-12
@@ -173,17 +173,15 @@ pub(crate) fn coverage(rows: &[Value]) -> Check {
     }
     // Members publishing element-local end rows: the shear rows, which no
     // route removes (a pressure member's axial rows are replaced by its wall).
-    let members: HashSet<Key<'_>> = local
-        .iter()
-        .filter(|(_, ends)| ends.iter().all(|e| e[1].is_some() && e[2].is_some()))
-        .map(|(key, _)| *key)
-        .collect();
+    let member = |ends: &[[Option<f64>; 6]; 2]| ends.iter().all(|e| e[1].is_some() && e[2].is_some());
     for key in global.keys() {
-        require(members.contains(key), "MEMBER_UNRESOLVED")?;
+        require(local.get(key).is_some_and(member), "MEMBER_UNRESOLVED")?;
     }
-    for key in &members {
+    // RT-U4 (order): the members in `local`'s canonical key order, (load case
+    // ID, member ID) compared bytewise, so the first refusal is the same in
+    // every process and pass (the verifier walks `sorted(members)`).
+    for (key, locals) in local.iter().filter(|(_, ends)| member(ends)) {
         let ends = global.get(key).ok_or("SOURCE_GLOBAL_END_COVERAGE")?;
-        let locals = &local[key];
         let walls = wall.get(key).copied().unwrap_or([None; 2]);
         for end in 0..2 {
             require(ends[end].iter().all(Option::is_some), "COVERAGE")?;

@@ -1172,6 +1172,27 @@ on its route, independently of the producer. The verifier shares no code with it
     verifier walked a case `set`. On a source with two defects of different codes, the code
     reported first depended on the seed, and could differ between `dispatch`'s two evidence
     passes. Pass or refuse did not depend on the seed.
+- **Global end coverage order** (RT-U4, 2026-11-03; RT-A4 agreed the change and this policy).
+  The W-7 coverage check (`global_end_evidence.rs` `coverage`, shared by the pressure-2 and
+  preview-physics-2 readers) walks its members in canonical (load case ID, member ID) order,
+  compared bytewise, as its `BTreeMap` of element-local rows holds them. A member is a key
+  whose shear rows are present at both ends; MEMBER_UNRESOLVED is a lookup in that map with
+  the same predicate. The verifier (`tests/verifiers/global_end.py` `coverage`) walks
+  `sorted(members)`, code point order, which is UTF-8 byte order. Each check and its
+  precedence within one member are unchanged.
+  - Both readers skip a row whose load case ID or member is not a string, as Rust's
+    `case_of(..)` and `entity_ref.as_str()` already did, so every key is a pair of strings.
+    The verifier's `_case` returns only a string ID, so `row_semantics` reads such a row as
+    no case's and asks for a combination basis, as Rust does. Both readers refuse these rows
+    before W-7 on pressure-2. Preview-physics-2 checks a row's member as text, but checks only
+    the key set of its basis reference, so both readers now refuse an integer load case ID
+    on a global end row as `SOURCE_GLOBAL_END_BASIS`.
+  - *Repaired defect.* The reader walked a `HashSet` of member keys, and the verifier
+    `sorted(members, key=repr)`. On a source with two members' defects of different codes,
+    Rust's first code depended on the seed. The verifier's order differed from byte order
+    where an ID held a character below `'` (for example "pipe:a b" before "pipe:a"). The
+    verifier refused an integer load case ID as MEMBER_UNRESOLVED, where Rust refused
+    BASIS. Pass or refuse did not depend on the seed.
 - **Arc evidence.** `arc_evidence.rs` and `tests/verifiers/pressure_1.py` (renamed
   `pressure_2.py`) drop `withheld_on_arcs`. They require the two definition ids and the new
   rows' coverage. `physics_evidence` stops refusing the formerly withheld kinds on arcs.
