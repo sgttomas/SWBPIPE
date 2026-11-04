@@ -58,10 +58,12 @@ DEPENDENCIES = {
     # then the arc-tangent direction bound (DEL-04-07 pressure-contract.md, "Direction magnitudes of arc tangents"): an
     # arc term binds its magnitude exactly to its arc's published end tangent, and joint-area groups bind only to their
     # connector axis (was f27242f0...); then RT-U4: the region binding counts the published pipe rows once per case and
-    # member instead of rescanning every row per region, with the same outcomes (was b3cb5f6d...); then RT-A3 increment 4
-    # (DEL-04-07 pressure-contract.md, "Nonlinear supports on EX"): the direct pass calls the nonlinear support binding
-    # (`nonlinear_support_evidence`; was ea9273d7...).
-    MODULE: '2e9b087dd5792090409e4334bde6fb8ca8a0108b940fca31aa6283f1dc74c725',
+    # member instead of rescanning every row per region, with the same outcomes (was b3cb5f6d...); then RT-U4 order: the
+    # connector reader is given the source `results` and `exact_cases` arrays and scans them in array order, so its first
+    # refusal is the same in every process (was ea9273d7...); then RT-A3 increment 4 (DEL-04-07 pressure-contract.md,
+    # "Nonlinear supports on EX"): the direct pass calls the nonlinear support binding (`nonlinear_support_evidence`),
+    # merged with RT-U4 order (was fe65101b... on RT-U4 order and 2e9b087d... on RT-A3 increment 4).
+    MODULE: '0baf783f42697e520c8ad3ebc284ef6e23a11986c1b32c5d23f72f7596a9f5cc',
     TABLE: TABLE_SHA256,
     UNITS: '5a412c57ca3bdc1d150ff580354e709355f442d89971a2f7aff8b575c7e39596',
 }

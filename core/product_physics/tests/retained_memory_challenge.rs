@@ -62,7 +62,8 @@ use b1_sq_inputs as inputs;
 // §8.47 (RT-U4 region binding and Index::any): unchanged (only W4 moves).
 // §8.48 (I2b-2's state carrier): +48 B (s(PreparedCaseResult) 1,880 -> 1,888 B, two per case at three cases).
 // §8.49 (RT-A3 increment 4): +6,616 B (restated pressure-2 table, S1's nonlinear clause and S7).
-const W1_PHASE_BYTES: [u64; 2] = [6_449_931_409, 6_509_062_753];
+// §8.50 (RT-U4 order and repair B on RT-A3 increment 4): +373,760 B (W7-L1's ordered member loop, TAV_W).
+const W1_PHASE_BYTES: [u64; 2] = [6_450_305_169, 6_509_436_513];
 /// The profile's in-build maximum over every phase (E_mov,max, without R; W3 in both modes),
 /// the bound once a run has done W1 work (a registered build, G6). W-8 topology warnings D3 at
 /// 34e96d6b17 (retained-pricing-rules.md §8.16): +219,136 B in both modes from the pre-0.4
@@ -91,7 +92,8 @@ const W1_PHASE_BYTES: [u64; 2] = [6_449_931_409, 6_509_062_753];
 // §8.47 (RT-U4): unchanged (W3 stays the maximum; W4 rises +7,918 B and stays below it).
 // §8.48 (I2b-2's state carrier): +48 B (W3 stays the maximum; every phase +48 B).
 // §8.49 (RT-A3 increment 4): +6,616 B (W3 stays the maximum; every phase +6,616 B).
-const MAX_PHASE_BYTES: [u64; 2] = [8_743_661_798, 8_802_793_142];
+// §8.50 (RT-U4 order and repair B on RT-A3 increment 4): +373,760 B (W3 stays the maximum; W4 +367,378 B).
+const MAX_PHASE_BYTES: [u64; 2] = [8_744_035_558, 8_803_166_902];
 /// The abort cap: above E_mov,max + R at M and within T3's host allowance (PLAN_v2 §3.5).
 const CAP_BYTES: usize = 16 << 30;
 /// The N1 notice's fixed text (lib.rs `RETAINED_UNAVAILABLE_NOTICE`), as the base publication shows it.

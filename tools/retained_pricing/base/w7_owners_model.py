@@ -18,7 +18,10 @@ pressure-2 base readers on the projected successor, G7) keys four BTreeMaps by (
 load-case rows: the element-local and global end values ([[Option<f64>; 6]; 2] each), the wall actions
 ([Option<f64>; 2]) and the wall-basis flags ([BTreeSet<bool>; 2], each set holding at most both flags in one node); a
 HashSet of the K member keys (collected from a filter: grown by insertion, with its previous table); and one transient
-one-flag BTreeSet per end comparison. Each map is charged at K keys, also where it is empty on D1 (no wall rows). append_element_global_end_results' working values
+one-flag BTreeSet per end comparison. Each map is charged at K keys, also where it is empty on D1 (no wall rows).
+RT-U4 (order): once `coverage` walks `local` in its key order (MEMBER_UNRESOLVED a lookup in `local` with the same member
+predicate), the HashSet is gone and is charged only on a source that still collects it (`reader_member_set`).
+append_element_global_end_results' working values
 (`local`, `wall`, `values`) are stack arrays, and the aggregation's `retain` drops rows in place.
 
 Bound to the exact statements; a snapshot without W-7 adds nothing (earlier registered trees keep their coefficients),
@@ -27,6 +30,12 @@ import os
 import re
 
 PP = "core/product_physics/src/"
+GLOBAL_END = "core/reporting/result_export/src/global_end_evidence.rs"
+# W7-RD, RT-U4 (order): coverage's member keys, collected into a HashSet (before) or walked in `local`'s order (after).
+MEMBER_SET = "let members: HashSet<Key<'_>> = local"
+MEMBER_WALK = ("let member = |ends: &[[Option<f64>; 6]; 2]| ends.iter().all(|e| e[1].is_some() && e[2].is_some());",
+               'require(local.get(key).is_some_and(member), "MEMBER_UNRESOLVED")?;',
+               "for (key, locals) in local.iter().filter(|(_, ends)| member(ends)) {")
 LIB = PP + "lib.rs"
 RP = PP + "retained_product.rs"
 END_ACTION_SLOTS = 12                                      # [[Option<usize>; 6]; 2]
@@ -86,13 +95,25 @@ ASSUMED_NODES = {"Node((&str,&str),[[Option<f64>;6];2])": 2600, "Node((&str,&str
                  "Node((&str,&str),[BTreeSet<bool>;2])": 980, "Node(bool,())": 120, "s(PairBorrowed)": 32}
 
 
-def reader_coverage(keys):
-    """W7-RD: one coverage call's maps and set over `keys` (load case, member) keys."""
+def reader_member_set(snapshot):
+    """W7-RD: True while `coverage` collects its member keys into a HashSet; False once it walks `local` in key order
+    (RT-U4); anything else stops."""
+    body = _body(_read(snapshot, GLOBAL_END), "coverage")
+    walk = [body.count(statement) for statement in MEMBER_WALK]
+    if body.count(MEMBER_SET) == 1 and not any(walk):
+        return True
+    if body.count(MEMBER_SET) == 0 and walk == [1] * len(MEMBER_WALK) and "HashSet" not in body:
+        return False
+    raise SystemExit("W7 owners: global_end_evidence::coverage's member walk changed; re-review W7-RD")
+
+
+def reader_coverage(keys, member_set=True):
+    """W7-RD: one coverage call's maps (and, with `member_set`, the HashSet) over `keys` (load case, member) keys."""
     from g3lib import X, HashMov, tree_nodes
     k = tree_nodes(keys)
     return (X({"Node((&str,&str),[[Option<f64>;6];2])": 2 * k}) + X({"Node((&str,&str),[Option<f64>;2])": k})
             + X({"Node((&str,&str),[BTreeSet<bool>;2])": k}) + X({"Node(bool,())": 2 * keys + 1})
-            + HashMov("PairBorrowed", keys))
+            + (HashMov("PairBorrowed", keys) if member_set else X()))
 
 
 def end_action_operands(m):

@@ -902,9 +902,10 @@ pub(crate) fn validate_physics_evidence_in(
     crate::connector_evidence::validate(
         &evidence["connector"],
         &evidence["pressure"],
-        &rows,
+        published,
         all_members.as_ref().unwrap_or(&HashSet::new()),
         &cases.keys().copied().collect(),
+        array(&evidence["exact_cases"])?,
         source["status"]["mechanics"] == "MECHANICS_SOLVED",
         contract == PressureContract::PressureV3,
     )?;
