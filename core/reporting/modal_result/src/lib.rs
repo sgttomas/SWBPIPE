@@ -468,8 +468,15 @@ fn mr_unit_check(vo: &Vo, key: &str, path: &str, scope: &mut Vec<String>) -> R<(
     Ok(())
 }
 
-/// Reads a document text.
+/// Reads a document text: the governed entry. The original text is first
+/// admitted by the checked profile `openpipestress_jcs_ijson_v1`
+/// (`canonical_json_checked_v1_text`: duplicate object members, non-finite
+/// numbers and integers or integral values beyond 2⁵³ − 1 are refused), so
+/// nothing a lossy map would collapse reaches the reader.
 pub fn read_modal_result_text(text: &str, supplied: ModalSupplied<'_>) -> ModalReadVerdict {
+    if let Err(error) = canonical_json_checked_v1_text(text) {
+        return mr_closure_failed(format!("document: outside the checked profile {MODAL_RESULT_CANONICAL_PROFILE} ({error})"));
+    }
     match serde_json::from_str::<Value>(text) {
         Ok(doc) => read_modal_result(&doc, supplied),
         Err(error) => mr_closure_failed(format!("document: not JSON ({error})")),
@@ -497,7 +504,9 @@ const REFUSED_KEYS: [&str; 10] = [
     "status", "refusals",
 ];
 
-/// Reads a parsed document (module docs).
+/// Reads an already parsed document (module docs). A parsed value has lost
+/// any duplicate member, so a caller holding the text uses
+/// [`read_modal_result_text`].
 pub fn read_modal_result(doc: &Value, supplied: ModalSupplied<'_>) -> ModalReadVerdict {
     let status = doc.get("status").and_then(Value::as_str).unwrap_or("");
     if status == "refused" {
@@ -726,8 +735,12 @@ struct Candidate {
     backward_error: Option<f64>,
     inverse_norm: Option<f64>,
     product: Option<f64>,
+    /// Why a null product or growth is null (`outside_canonical_profile`
+    /// states a magnitude of at least 2⁵³).
+    product_reason: Option<String>,
     separation: Vo,
     growth: Option<f64>,
+    growth_reason: Option<String>,
 }
 
 /// Everything the relations read, after closure.
@@ -746,7 +759,17 @@ struct Parsed {
     clusters: Vec<(usize, usize, bool, Option<f64>)>,
     computed: Vec<Computed>,
     candidates: Vec<Candidate>,
-    identity: Vec<Option<f64>>,
+    /// (subject, axis, comparison, relative discrepancy), in row order.
+    identity: Vec<(String, usize, String, Option<f64>)>,
+    /// The straight members of the discretization table, in row order.
+    members: Vec<String>,
+    /// The state case's linearization: `None` without a state case.
+    linearized: Option<bool>,
+    restrained_refs: Vec<usize>,
+    /// (DOF, treatment) of each support row.
+    supports: Vec<(usize, String)>,
+    /// (text, source) of each disclosure.
+    disclosures: Vec<(String, String)>,
     params: Map<String, Value>,
     unitized: Vec<Unitized>,
     tau_t: Option<f64>,
@@ -1077,13 +1100,14 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
         let factor_term = read("factor_term", "sturm_factor_term")?.value;
         let backward_error = read("backward_error", "sturm_backward_error")?.value;
         let inverse_norm = read("inverse_norm_estimate", "sturm_inverse_norm_estimate")?.value;
-        let product = read("conditioning_product", "sturm_conditioning_product")?.value;
+        let product_vo = read("conditioning_product", "sturm_conditioning_product")?;
         let separation = read("separation_ratio", "sturm_separation_ratio")?;
-        let growth = read("growth", "sturm_growth_factor")?.value;
+        let growth_vo = read("growth", "sturm_growth_factor")?;
         read("max_abs_lower_factor", "sturm_max_abs_lower_factor")?;
         read("max_abs_pivot", "sturm_max_abs_pivot")?;
         read("max_abs_scaled_diagonal", "sturm_max_abs_scaled_diagonal")?;
-        candidates.push(Candidate { decision, pivots, shift, formation_term, factor_term, backward_error, inverse_norm, product, separation, growth });
+        candidates.push(Candidate { decision, pivots, shift, formation_term, factor_term, backward_error, inverse_norm, product: product_vo.value,
+            product_reason: product_vo.undefined, separation, growth: growth_vo.value, growth_reason: growth_vo.undefined });
     }
     let identity_rows = get("identity")?.ok_or("/tables/identity: withheld")?;
     let mut identity = Vec::new();
@@ -1091,39 +1115,46 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
         let path = format!("/tables/identity/rows/{i}");
         let r = mr_fields(row, &path, &["subject", "axis", "comparison", "relative"])?;
         mr_id_is(r, &path, &format!("identity:{i}"))?;
-        mr_text(&r["subject"], &mr_at(&path, "subject"))?;
-        mr_one_of(&r["axis"], &mr_at(&path, "axis"), &DIRECTIONS)?;
-        mr_one_of(&r["comparison"], &mr_at(&path, "comparison"), &["nodal", "resultant"])?;
+        let subject = mr_text(&r["subject"], &mr_at(&path, "subject"))?.to_string();
+        let axis = mr_one_of(&r["axis"], &mr_at(&path, "axis"), &DIRECTIONS)?;
+        let comparison = mr_one_of(&r["comparison"], &mr_at(&path, "comparison"), &["nodal", "resultant"])?.to_string();
         let vo = mr_vo(&r["relative"], &mr_at(&path, "relative"), &["identity_relative_discrepancy"])?;
         mr_unitize(&mut unitized, &vo, "fixed", &mr_at(&path, "relative"));
-        identity.push(vo.value);
+        let axis = DIRECTIONS.iter().position(|d| *d == axis).unwrap_or(0);
+        identity.push((subject, axis, comparison, vo.value));
     }
+    let mut supports = Vec::new();
     for (i, row) in get("supports")?.ok_or("/tables/supports: withheld")?.iter().enumerate() {
         let path = format!("/tables/supports/rows/{i}");
         let r = mr_fields(row, &path, &["support_id", "behavior", "dof_ref", "state", "treatment"])?;
         let id = mr_text(&r["support_id"], &mr_at(&path, "support_id"))?;
         mr_id_is(r, &path, &format!("support:{id}"))?;
         mr_text(&r["behavior"], &mr_at(&path, "behavior"))?;
-        dof_of(&r["dof_ref"], &mr_at(&path, "dof_ref"))?;
+        let dof = dof_of(&r["dof_ref"], &mr_at(&path, "dof_ref"))?;
         mr_one_of(&r["state"], &mr_at(&path, "state"), &["active", "inactive", "sticking", "sliding"])?;
-        mr_one_of(&r["treatment"], &mr_at(&path, "treatment"), &["restrained", "already_restrained", "free", "free_frozen_friction"])?;
+        let treatment = mr_one_of(&r["treatment"], &mr_at(&path, "treatment"), &["restrained", "already_restrained", "free", "free_frozen_friction"])?;
+        supports.push((dof, treatment.to_string()));
     }
+    let mut members = Vec::new();
     for (i, row) in get("discretization")?.ok_or("/tables/discretization: withheld")?.iter().enumerate() {
         let path = format!("/tables/discretization/rows/{i}");
         let r = mr_fields(row, &path, &["member_ref", "length", "fixed_fixed_frequency", "ratio_to_highest_reported"])?;
         let id = mr_text(&r["member_ref"], &mr_at(&path, "member_ref"))?;
+        members.push(id.to_string());
         mr_id_is(r, &path, &format!("member:{id}"))?;
         for (field, kind) in [("length", "member_length"), ("fixed_fixed_frequency", "member_fixed_fixed_frequency"), ("ratio_to_highest_reported", "member_frequency_ratio")] {
             let vo = mr_vo(&r[field], &mr_at(&path, field), &[kind])?;
             mr_unitize(&mut unitized, &vo, "fixed", &mr_at(&path, field));
         }
     }
+    let mut disclosures = Vec::new();
     for (i, row) in get("disclosures")?.ok_or("/tables/disclosures: withheld")?.iter().enumerate() {
         let path = format!("/tables/disclosures/rows/{i}");
         let r = mr_fields(row, &path, &["text", "source"])?;
         mr_id_is(r, &path, &format!("disclosure:{i}"))?;
-        mr_text(&r["text"], &mr_at(&path, "text"))?;
-        mr_one_of(&r["source"], &mr_at(&path, "source"), &["modal", "weight_basis"])?;
+        let text = mr_text(&r["text"], &mr_at(&path, "text"))?;
+        let source = mr_one_of(&r["source"], &mr_at(&path, "source"), &["modal", "weight_basis"])?;
+        disclosures.push((text.to_string(), source.to_string()));
     }
     for (i, row) in get("diagnostics")?.ok_or("/tables/diagnostics: withheld")?.iter().enumerate() {
         let path = format!("/tables/diagnostics/rows/{i}");
@@ -1151,15 +1182,17 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
             header_vo(&c[axis], &format!("/basis/mass_center/{axis}"), "basis_mass_center")?;
         }
     }
+    let (mut linearized_state, mut restrained_refs) = (None, Vec::new());
     if !basis["state_case"].is_null() {
         let s = mr_object(&basis["state_case"], "/basis/state_case", &["case_id", "case_index", "linearized", "solver_mode", "restrained_dof_refs"])?;
         mr_text(&s["case_id"], "/basis/state_case/case_id")?;
         mr_count(&s["case_index"], "/basis/state_case/case_index")?;
         let linearized = mr_flag(&s["linearized"], "/basis/state_case/linearized")?;
+        linearized_state = Some(linearized);
         if linearized {
             mr_const(&s["solver_mode"], "/basis/state_case/solver_mode", "dense_scrutiny")?;
             for (i, r) in mr_list(&s["restrained_dof_refs"], "/basis/state_case/restrained_dof_refs")?.iter().enumerate() {
-                dof_of(r, &format!("/basis/state_case/restrained_dof_refs/{i}"))?;
+                restrained_refs.push(dof_of(r, &format!("/basis/state_case/restrained_dof_refs/{i}"))?);
             }
         } else if !s["solver_mode"].is_null() || !s["restrained_dof_refs"].is_null() {
             return Err("/basis/state_case: a case that linearizes no support states no mode or restrained set".into());
@@ -1293,6 +1326,11 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
         computed,
         candidates,
         identity,
+        members,
+        linearized: linearized_state,
+        restrained_refs,
+        supports,
+        disclosures,
         params,
         unitized,
         tau_t,
@@ -1649,6 +1687,14 @@ fn mr_participation(p: &Parsed) -> R<Vec<String>> {
             } else {
                 let fraction = row.fraction.value.ok_or_else(|| format!("mode {label}: fraction {} undefined with T_k > 0", DIRECTIONS[k]))?;
                 let ft = fraction * total;
+                // A below-normal fraction claims m_eff/T_k < 2⁻¹⁰²²; a below-normal
+                // m_eff claims m_eff < 2⁻¹⁰²². Each is held to the other published side.
+                if row.fraction.below_normal && !row.effective.below_normal && effective > f64::MIN_POSITIVE * total * (1.0 + ALLOW * U) {
+                    return Err(format!("mode {label}: fraction {} published as below-normal, but m_eff/T_k = {:e} is normal", DIRECTIONS[k], effective / total));
+                }
+                if row.effective.below_normal && !row.fraction.below_normal && ft > f64::MIN_POSITIVE * (1.0 + ALLOW * U) {
+                    return Err(format!("mode {label}: m_eff,{} published as below-normal, but fraction·T_k = {ft:e} is normal", DIRECTIONS[k]));
+                }
                 if !row.fraction.below_normal && !row.effective.below_normal && !mr_tol_close(ft, effective, ALLOW * U * effective.max(ft)) {
                     return Err(format!("mode {label}: fraction {}·T = {ft:e} is not m_eff = {effective:e}", DIRECTIONS[k]));
                 }
@@ -1662,6 +1708,12 @@ fn mr_participation(p: &Parsed) -> R<Vec<String>> {
     }
     let (Some(entries), Some(shapes)) = (&p.mass, &p.shapes) else {
         scope.push("mass_matrix or shapes withheld: m_i and φᵀp_k are not re-derived".to_string());
+        let flagged = p.modes.iter().enumerate().any(|(m, mode)| {
+            mode.generalized_mass.below_normal || p.participation[m].iter().any(|r| r.gamma.below_normal || r.effective.below_normal)
+        });
+        if flagged {
+            scope.push("a below-normal m, Γ or m_eff is not verifiable without the payload".to_string());
+        }
         return Ok(scope);
     };
     for (m, mode) in p.modes.iter().enumerate() {
@@ -1678,7 +1730,16 @@ fn mr_participation(p: &Parsed) -> R<Vec<String>> {
             }
         }
         let published = mode.generalized_mass.value.unwrap_or(f64::NAN);
-        if !mode.generalized_mass.below_normal && !mr_tol_close(published, mass, ALLOW * ((terms + 4) as f64) * U * abs_mass) {
+        let mass_tolerance = ALLOW * ((terms + 4) as f64) * U * abs_mass;
+        if mode.generalized_mass.below_normal {
+            // The flag claims 0 < φᵀM_ffφ < 2⁻¹⁰²²: held to the payload's value.
+            if mass.abs() - mass_tolerance >= f64::MIN_POSITIVE {
+                return Err(format!("mode {label}: m published as below-normal, but φᵀM_ffφ = {mass:e} from the payload is normal"));
+            }
+            scope.push(format!("mode {label}: m is below the normal range; Γ and m_eff are not re-derivable in binary64"));
+            continue;
+        }
+        if !mr_tol_close(published, mass, mass_tolerance) {
             return Err(format!("mode {label}: m = {published:e} is not φᵀM_ffφ = {mass:e}"));
         }
         for k in 0..3 {
@@ -1699,19 +1760,32 @@ fn mr_participation(p: &Parsed) -> R<Vec<String>> {
                 }
             }
             let row = &p.participation[m][k];
-            if row.gamma.below_normal || row.effective.below_normal || mode.generalized_mass.below_normal {
-                continue;
-            }
             let gamma = row.gamma.value.unwrap_or(f64::NAN);
             let effective = row.effective.value.unwrap_or(f64::NAN);
-            let gm = gamma * published;
             let e = ALLOW * ((n + 6) as f64) * U;
-            if !mr_tol_close(gm, s, e * (a + gm.abs())) {
-                return Err(format!("mode {label}: Γ_{}·m = {gm:e} is not φᵀp_{} = {s:e}", DIRECTIONS[k], DIRECTIONS[k]));
+            // The smallest |φᵀp_k| the payload allows.
+            let s_low = (s.abs() - e * a).max(0.0);
+            if row.gamma.below_normal {
+                // Γ = s/m below 2⁻¹⁰²² needs |s| < 2⁻¹⁰²²·m.
+                if s_low > f64::MIN_POSITIVE * published * (1.0 + ALLOW * U) {
+                    return Err(format!("mode {label}: Γ_{} published as below-normal, but φᵀp_k/m = {:e} from the payload is normal", DIRECTIONS[k], s / published));
+                }
+            } else {
+                let gm = gamma * published;
+                if !mr_tol_close(gm, s, e * (a + gm.abs())) {
+                    return Err(format!("mode {label}: Γ_{}·m = {gm:e} is not φᵀp_{} = {s:e}", DIRECTIONS[k], DIRECTIONS[k]));
+                }
             }
-            let em = effective * published;
-            if !mr_tol_close(em, s * s, e * (2.0 * s.abs() * a + em.abs()) + (e * a) * (e * a)) {
-                return Err(format!("mode {label}: m_eff,{}·m = {em:e} is not (φᵀp_k)² = {:e}", DIRECTIONS[k], s * s));
+            if row.effective.below_normal {
+                // m_eff = s²/m below 2⁻¹⁰²² needs s² < 2⁻¹⁰²²·m.
+                if s_low * s_low > f64::MIN_POSITIVE * published * (1.0 + ALLOW * U) {
+                    return Err(format!("mode {label}: m_eff,{} published as below-normal, but (φᵀp_k)²/m = {:e} from the payload is normal", DIRECTIONS[k], s * s / published));
+                }
+            } else {
+                let em = effective * published;
+                if !mr_tol_close(em, s * s, e * (2.0 * s.abs() * a + em.abs()) + (e * a) * (e * a)) {
+                    return Err(format!("mode {label}: m_eff,{}·m = {em:e} is not (φᵀp_k)² = {:e}", DIRECTIONS[k], s * s));
+                }
             }
         }
     }
@@ -1765,6 +1839,9 @@ fn mr_reported_set(frequencies: &[f64], clusters: &[usize], mode_count: Option<u
 fn mr_counts(p: &Parsed) -> R<Vec<String>> {
     let n = p.modes.len();
     let total = p.computed.len();
+    if total == 0 {
+        return Err("a solved document has at least one computed mode".into());
+    }
     if n != p.count || p.computed_count != total || n > total {
         return Err(format!("{n} modes and {total} computed modes against the stated count {} of {}", p.count, p.computed_count));
     }
@@ -1780,6 +1857,9 @@ fn mr_counts(p: &Parsed) -> R<Vec<String>> {
         }
         let omega = c.omega.ok_or_else(|| format!("computed mode {label}: ω not published"))?;
         let f = c.frequency.ok_or_else(|| format!("computed mode {label}: f not published"))?;
+        if !(omega > 0.0 && omega.is_finite() && f > 0.0 && f.is_finite()) {
+            return Err(format!("computed mode {label}: ω and f are positive and finite (ω = {omega:e}, f = {f:e})"));
+        }
         if f != omega / TWO_PI {
             return Err(format!("computed mode {label}: f is not ω/2π"));
         }
@@ -1797,6 +1877,10 @@ fn mr_counts(p: &Parsed) -> R<Vec<String>> {
             return Err(format!("mode {}: not computed mode {}", m + 1, m + 1));
         }
         let f = mode.frequency.unwrap_or(f64::NAN);
+        let period = mode.period.unwrap_or(f64::NAN);
+        if !(f > 0.0 && f.is_finite() && period > 0.0 && period.is_finite()) {
+            return Err(format!("mode {}: f and T are positive and finite (f = {f:e}, T = {period:e})", m + 1));
+        }
         if mode.period != Some(1.0 / f) {
             return Err(format!("mode {}: T is not 1/f", m + 1));
         }
@@ -1915,6 +1999,9 @@ fn mr_sturm(p: &Parsed) -> R<Vec<String>> {
     let limit = p.limit.ok_or("1/κ_c: not published")?;
     let ks = p.kappa_s.ok_or("κ_s: not published")?;
     let g_max = p.growth_limit.ok_or("g_max: not published")?;
+    if !(kc >= 1.0 && ks >= 1.0 && g_max >= 1.0) {
+        return Err("κ_c, κ_s and g_max are each at least 1".into());
+    }
     if limit != 1.0 / kc {
         return Err("the conditioning limit is not 1/κ_c".into());
     }
@@ -1940,36 +2027,50 @@ fn mr_sturm(p: &Parsed) -> R<Vec<String>> {
             }
             _ => {}
         }
+        // Each relation is checked on its own evidence; a missing value
+        // scopes only the relation that needs it.
         if factored {
-            let (Some(be), Some(ft), Some(fo)) = (c.backward_error, c.factor_term, c.formation_term) else {
-                scope.push(format!("candidate {label}: a backward-error term is outside the profile"));
-                continue;
-            };
-            if be != ft + fo {
-                return Err(format!("candidate {label}: e_b is not the factor term plus the formation term"));
+            match (c.backward_error, c.factor_term, c.formation_term) {
+                (Some(be), Some(ft), Some(fo)) if be != ft + fo => {
+                    return Err(format!("candidate {label}: e_b is not the factor term plus the formation term"));
+                }
+                (Some(_), Some(_), Some(_)) => {}
+                _ => scope.push(format!("candidate {label}: e_b = factor + formation term is not re-derivable (a term is not published)")),
             }
-            match (c.product, c.inverse_norm) {
-                (Some(product), Some(nu)) if product != be * nu => {
+            match (c.product, c.backward_error, c.inverse_norm) {
+                (Some(product), Some(be), Some(nu)) if product != be * nu => {
                     return Err(format!("candidate {label}: the conditioning product is not e_b·ν"));
                 }
-                (Some(_), Some(_)) => {}
-                _ => scope.push(format!("candidate {label}: e_b·ν is outside the profile")),
+                (Some(_), Some(_), Some(_)) => {}
+                _ => scope.push(format!("candidate {label}: e_b·ν is not re-derivable (a factor is not published)")),
             }
         }
         if c.decision == "accepted" {
             if c.pivots != Some(p.sturm_count) {
-                return Err("the accepted candidate's negative-pivot count is not the Sturm count".into());
+                return Err(format!("the accepted candidate's negative-pivot count {:?} is not the Sturm count {}", c.pivots, p.sturm_count));
             }
-            let product = c.product.ok_or("the accepted e_b·ν is not published")?;
-            let growth = c.growth.ok_or("the accepted growth is not published")?;
-            if product > limit {
-                return Err("the accepted shift fails the conditioning premise e_b·ν ≤ 1/κ_c".into());
+            // A null value outside the profile is at least 2⁵³: a known lower bound.
+            let outside = |reason: &Option<String>| reason.as_deref() == Some("outside_canonical_profile");
+            match c.product {
+                Some(product) if product > limit => return Err("the accepted shift fails the conditioning premise e_b·ν ≤ 1/κ_c".into()),
+                Some(_) => {}
+                None if outside(&c.product_reason) => {
+                    return Err("the accepted shift's conditioning product e_b·ν is outside the profile (at least 2⁵³), above 1/κ_c".into());
+                }
+                None => scope.push("the accepted e_b·ν is not published: the conditioning premise is not re-derived".to_string()),
             }
-            if growth > g_max {
-                return Err("the accepted shift exceeds the growth limit".into());
+            match c.growth {
+                Some(growth) if growth > g_max => return Err("the accepted shift exceeds the growth limit".into()),
+                Some(_) => {}
+                None if outside(&c.growth_reason) && g_max < 9_007_199_254_740_992.0 => {
+                    return Err("the accepted shift's growth is outside the profile (at least 2⁵³), above g_max".into());
+                }
+                None => scope.push("the accepted growth is not published: the growth premise is not re-derived".to_string()),
             }
-            if separated != Some(true) {
-                return Err("the accepted shift fails the separation premise".into());
+            match separated {
+                Some(true) => {}
+                Some(false) => return Err("the accepted shift fails the separation premise".into()),
+                None => scope.push("the accepted separation ratio is not published: the separation premise is not re-derived".to_string()),
             }
         }
         if factored {
@@ -2054,11 +2155,16 @@ fn mr_evidence(p: &Parsed) -> R<Vec<String>> {
             return Err(format!("computed mode {}: e_λ = {e:e} is not η·κ_λ = {product:e}", i + 1));
         }
     }
+    scope.extend(mr_identity_coverage(p)?);
+    mr_state_coverage(p)?;
+    if !p.disclosures.iter().any(|(text, source)| source == "modal" && text.starts_with("numerical integrity does not establish physical correctness")) {
+        return Err("disclosures: the fixed numerical-integrity disclosure is missing".into());
+    }
     let tolerance = p.params.get("identity_tolerance");
     let relative = tolerance.and_then(|t| t["relative"].as_f64()).ok_or("the identity tolerance is not bound")?;
     let absolute = tolerance.and_then(|t| t["absolute"].as_f64()).ok_or("the identity tolerance is not bound")?;
     if absolute == 0.0 {
-        for (i, d) in p.identity.iter().enumerate() {
+        for (i, (.., d)) in p.identity.iter().enumerate() {
             let d = d.ok_or_else(|| format!("identity row {i}: not published"))?;
             if !(d >= 0.0 && d <= relative) {
                 return Err(format!("identity row {i}: relative discrepancy {d:e} exceeds the bound tolerance {relative:e}"));
@@ -2081,6 +2187,81 @@ fn mr_evidence(p: &Parsed) -> R<Vec<String>> {
         return Err("the orthogonality pair is stated exactly when two modes are reported".into());
     }
     Ok(scope)
+}
+
+/// The identity rows the run must carry, from the document's own structure:
+/// along each axis, in axis order, one `nodal` row per straight member of the
+/// discretization table, `resultant` rows for other subjects (arcs, bodies)
+/// and the `model` resultant last; the same subjects along every axis. The
+/// document lists no arc or body, so a wholly missing arc or body subject is
+/// not detectable: that coverage is scoped.
+fn mr_identity_coverage(p: &Parsed) -> R<Vec<String>> {
+    let mut per_axis: [Vec<(&str, &str)>; 3] = Default::default();
+    let mut last_axis = 0;
+    for (i, (subject, axis, comparison, _)) in p.identity.iter().enumerate() {
+        if *axis < last_axis {
+            return Err(format!("identity row {i}: rows are in axis order"));
+        }
+        last_axis = *axis;
+        per_axis[*axis].push((subject.as_str(), comparison.as_str()));
+    }
+    let straights: HashSet<&str> = p.members.iter().map(String::as_str).collect();
+    for (k, rows) in per_axis.iter().enumerate() {
+        let axis = DIRECTIONS[k];
+        if rows.last() != Some(&("model", "resultant")) {
+            return Err(format!("identity: the model's resultant row along {axis} is missing or not last"));
+        }
+        let mut seen = HashSet::new();
+        for (subject, comparison) in rows {
+            if !seen.insert(*subject) {
+                return Err(format!("identity: subject {subject} is compared twice along {axis}"));
+            }
+            let straight = straights.contains(subject);
+            if (*comparison == "nodal") != straight {
+                return Err(format!("identity: subject {subject} along {axis} is compared {comparison}, but straight members are compared nodally and only they"));
+            }
+        }
+        for member in &p.members {
+            if !seen.contains(member.as_str()) {
+                return Err(format!("identity: straight member {member} has no nodal row along {axis}"));
+            }
+        }
+        let subjects: Vec<&str> = rows.iter().map(|(s, _)| *s).collect();
+        let first: Vec<&str> = per_axis[0].iter().map(|(s, _)| *s).collect();
+        if subjects != first {
+            return Err(format!("identity: the subjects along {axis} are not those along x"));
+        }
+    }
+    Ok(vec!["identity: arc and component-body resultant coverage is not derivable (the document lists no arc or body)".to_string()])
+}
+
+/// The nonlinear states against the partition: a linearized state case lists
+/// its supports, its restrained set is exactly the document's restrained
+/// DOFs, and every rigid treatment's DOF is in it; no state, no supports.
+fn mr_state_coverage(p: &Parsed) -> R<()> {
+    match p.linearized {
+        Some(true) => {
+            if p.supports.is_empty() {
+                return Err("supports: a linearized state case lists its supports".into());
+            }
+            let restrained: HashSet<usize> = (0..p.free.len()).filter(|&d| p.free[d].is_none()).collect();
+            let listed: HashSet<usize> = p.restrained_refs.iter().copied().collect();
+            if listed != restrained || listed.len() != p.restrained_refs.len() {
+                return Err("supports: the linearized restrained set is not the document's restrained DOFs".into());
+            }
+            for (dof, treatment) in &p.supports {
+                if (treatment == "restrained" || treatment == "already_restrained") && !listed.contains(dof) {
+                    return Err(format!("supports: a {treatment} support's DOF {dof} is free"));
+                }
+            }
+        }
+        _ => {
+            if !p.supports.is_empty() {
+                return Err("supports: support states without a linearized state case".into());
+            }
+        }
+    }
+    Ok(())
 }
 
 /// Standing: each mode Sensitive exactly when η > τ_r, the set exactly when

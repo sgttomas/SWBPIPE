@@ -661,9 +661,11 @@ def _closure(doc):
         c["factor_term"] = read("factor_term", "sturm_factor_term").value
         c["backward_error"] = read("backward_error", "sturm_backward_error").value
         c["inverse_norm"] = read("inverse_norm_estimate", "sturm_inverse_norm_estimate").value
-        c["product"] = read("conditioning_product", "sturm_conditioning_product").value
+        c["product_vo"] = read("conditioning_product", "sturm_conditioning_product")
+        c["product"] = c["product_vo"].value
         c["separation"] = read("separation_ratio", "sturm_separation_ratio")
-        c["growth"] = read("growth", "sturm_growth_factor").value
+        c["growth_vo"] = read("growth", "sturm_growth_factor")
+        c["growth"] = c["growth_vo"].value
         read("max_abs_lower_factor", "sturm_max_abs_lower_factor")
         read("max_abs_pivot", "sturm_max_abs_pivot")
         read("max_abs_scaled_diagonal", "sturm_max_abs_scaled_diagonal")
@@ -673,32 +675,37 @@ def _closure(doc):
         path = f"/tables/identity/rows/{i}"
         r = _fields(row, path, ("subject", "axis", "comparison", "relative"))
         _id_is(r, path, f"identity:{i}")
-        _text(r["subject"], f"{path}/subject")
-        _one_of(r["axis"], f"{path}/axis", DIRECTIONS)
-        _one_of(r["comparison"], f"{path}/comparison", ("nodal", "resultant"))
-        p.identity.append(unitize(_vo(r["relative"], f"{path}/relative", ("identity_relative_discrepancy",)), "fixed",
-                                  f"{path}/relative").value)
+        relative = unitize(_vo(r["relative"], f"{path}/relative", ("identity_relative_discrepancy",)), "fixed", f"{path}/relative")
+        p.identity.append({"subject": _text(r["subject"], f"{path}/subject"),
+                           "axis": _one_of(r["axis"], f"{path}/axis", DIRECTIONS),
+                           "comparison": _one_of(r["comparison"], f"{path}/comparison", ("nodal", "resultant")),
+                           "relative": relative.value})
+    p.support_states = {}
     for i, row in enumerate(get("supports")):
         path = f"/tables/supports/rows/{i}"
         r = _fields(row, path, ("support_id", "behavior", "dof_ref", "state", "treatment"))
         _id_is(r, path, f"support:{_text(r['support_id'], f'{path}/support_id')}")
         _text(r["behavior"], f"{path}/behavior")
-        dof_of(r["dof_ref"], f"{path}/dof_ref")
+        dof = dof_of(r["dof_ref"], f"{path}/dof_ref")
         _one_of(r["state"], f"{path}/state", ("active", "inactive", "sticking", "sliding"))
-        _one_of(r["treatment"], f"{path}/treatment", ("restrained", "already_restrained", "free", "free_frozen_friction"))
+        p.support_states[r["support_id"]] = (dof, _one_of(r["treatment"], f"{path}/treatment",
+                                                          ("restrained", "already_restrained", "free", "free_frozen_friction")))
+    p.straight_members = []
     for i, row in enumerate(get("discretization")):
         path = f"/tables/discretization/rows/{i}"
         r = _fields(row, path, ("member_ref", "length", "fixed_fixed_frequency", "ratio_to_highest_reported"))
         _id_is(r, path, f"member:{_text(r['member_ref'], f'{path}/member_ref')}")
+        p.straight_members.append(r["member_ref"])
         for field, kind in (("length", "member_length"), ("fixed_fixed_frequency", "member_fixed_fixed_frequency"),
                             ("ratio_to_highest_reported", "member_frequency_ratio")):
             unitize(_vo(r[field], f"{path}/{field}", (kind,)), "fixed", f"{path}/{field}")
+    p.disclosure_texts = {}
     for i, row in enumerate(get("disclosures")):
         path = f"/tables/disclosures/rows/{i}"
         r = _fields(row, path, ("text", "source"))
         _id_is(r, path, f"disclosure:{i}")
-        _text(r["text"], f"{path}/text")
-        _one_of(r["source"], f"{path}/source", ("modal", "weight_basis"))
+        p.disclosure_texts.setdefault(_one_of(r["source"], f"{path}/source", ("modal", "weight_basis")), []).append(
+            _text(r["text"], f"{path}/text"))
     for i, row in enumerate(get("diagnostics")):
         _diagnostic_row(row, f"/tables/diagnostics/rows/{i}", f"diagnostic:{i}", ("modal", "state_case_solve"))
 
@@ -717,14 +724,15 @@ def _closure(doc):
         center = _obj(basis["mass_center"], "/basis/mass_center", ("x", "y", "z"))
         for axis in ("x", "y", "z"):
             header(center[axis], f"/basis/mass_center/{axis}", "basis_mass_center")
+    p.linearized_restrained = None
     if basis["state_case"] is not None:
         s = _obj(basis["state_case"], "/basis/state_case", ("case_id", "case_index", "linearized", "solver_mode", "restrained_dof_refs"))
         _text(s["case_id"], "/basis/state_case/case_id")
         _count(s["case_index"], "/basis/state_case/case_index")
         if _flag(s["linearized"], "/basis/state_case/linearized"):
             _const(s["solver_mode"], "/basis/state_case/solver_mode", "dense_scrutiny")
-            for i, ref in enumerate(_list(s["restrained_dof_refs"], "/basis/state_case/restrained_dof_refs")):
-                dof_of(ref, f"/basis/state_case/restrained_dof_refs/{i}")
+            p.linearized_restrained = [dof_of(ref, f"/basis/state_case/restrained_dof_refs/{i}")
+                                       for i, ref in enumerate(_list(s["restrained_dof_refs"], "/basis/state_case/restrained_dof_refs"))]
         elif s["solver_mode"] is not None or s["restrained_dof_refs"] is not None:
             _fail("/basis/state_case: a case that linearizes no support states no mode or restrained set")
     x = _obj(doc["extraction"], "/extraction", ("mode_count", "frequency_cutoff", "stopped_by", "bounded_count", "extension_count",
@@ -1016,6 +1024,38 @@ def _normalization(p):
     return []
 
 
+TINY = 2.0 ** -1022  # the smallest normal binary64
+
+
+def _subnormal_possible(lowest_magnitude, scale=1.0):
+    """Whether a quantity whose magnitude is at least `lowest_magnitude` (times `scale`)
+    can still lie below the normal range: the claim a below-normal flag makes."""
+    return lowest_magnitude <= TINY * scale * (1.0 + ALLOW * U)
+
+
+def _payload_quantities(p, m):
+    """φᵀM_ffφ and φᵀp_k of mode m from the payload, each with the absolute sum of its
+    terms and its term count (the rounding allowance's inputs)."""
+    phi = [math.nan if v is None else v for v in p.shapes[m]]
+    gm = {"value": 0.0, "abs": 0.0, "terms": 0}
+    excitation = [{"value": 0.0, "abs": 0.0, "terms": 0} for _ in range(3)]
+
+    def add(acc, term):
+        acc["value"] += term
+        acc["abs"] += abs(term)
+        acc["terms"] += 1
+
+    for i, j, v in p.mass:
+        free_i, free_j = p.free[i] is not None, p.free[j] is not None
+        if free_i and free_j:
+            add(gm, (1.0 if i == j else 2.0) * (phi[i] * v * phi[j]))
+        if free_i and j % 6 < 3:
+            add(excitation[j % 6], phi[i] * v)
+        if i != j and free_j and i % 6 < 3:
+            add(excitation[i % 6], phi[j] * v)
+    return gm, excitation
+
+
 def _participation(p):
     scope, cumulative = [], [0.0, 0.0, 0.0]
     for m, mode in enumerate(p.modes):
@@ -1042,60 +1082,61 @@ def _participation(p):
             if total == 0.0:
                 if row["fraction"].undefined != "total_mass_zero" or effective != 0.0:
                     _fail(f"mode {label}: with T_k = 0 the fraction is undefined and m_eff is 0")
-            else:
-                fraction = row["fraction"].value
-                if fraction is None:
-                    _fail(f"mode {label}: fraction undefined with T_k > 0")
-                ft = fraction * total
-                if not row["fraction"].below and not row["effective"].below and not _close(ft, effective, ALLOW * U * max(effective, ft)):
-                    _fail(f"mode {label}: fraction·T is not m_eff")
-                cumulative[k] += fraction
-                published = row["cumulative"].value
-                if published is None:
-                    _fail(f"mode {label}: cumulative undefined")
-                if not _close(published, cumulative[k], ALLOW * float(m + 2) * U * cumulative[k]):
-                    _fail(f"mode {label}: cumulative fraction is not the running sum")
+                continue
+            fraction = row["fraction"].value
+            if fraction is None:
+                _fail(f"mode {label}: fraction undefined with T_k > 0")
+            # Two published sides of m_eff = fraction·T_k: a below-normal claim on one
+            # side must survive the other side's value.
+            if row["fraction"].below and not row["effective"].below and not _subnormal_possible(effective, total):
+                _fail(f"mode {label}: the fraction along {DIRECTIONS[k]} is flagged below-normal, but m_eff/T_k is normal")
+            if row["effective"].below and not row["fraction"].below and not _subnormal_possible(fraction * total):
+                _fail(f"mode {label}: m_eff along {DIRECTIONS[k]} is flagged below-normal, but fraction·T_k is normal")
+            ft = fraction * total
+            if not row["fraction"].below and not row["effective"].below and not _close(ft, effective, ALLOW * U * max(effective, ft)):
+                _fail(f"mode {label}: fraction·T is not m_eff")
+            cumulative[k] += fraction
+            published = row["cumulative"].value
+            if published is None:
+                _fail(f"mode {label}: cumulative undefined")
+            if not _close(published, cumulative[k], ALLOW * float(m + 2) * U * cumulative[k]):
+                _fail(f"mode {label}: cumulative fraction is not the running sum")
     if p.mass is None or p.shapes is None:
         scope.append("mass_matrix or shapes withheld: m_i and φᵀp_k are not re-derived")
+        if any(mode["generalized_mass"].below or any(r["gamma"].below or r["effective"].below for r in p.participation[m])
+               for m, mode in enumerate(p.modes)):
+            scope.append("below-normal flags on m, Γ or m_eff cannot be verified without the payload")
         return scope
     for m, mode in enumerate(p.modes):
-        label = m + 1
-        phi = [math.nan if v is None else v for v in p.shapes[m]]
-        mass, abs_mass, terms = 0.0, 0.0, 0
-        for i, j, v in p.mass:
-            if p.free[i] is not None and p.free[j] is not None:
-                w = 1.0 if i == j else 2.0
-                term = w * (phi[i] * v * phi[j])
-                mass += term
-                abs_mass += abs(term)
-                terms += 1
-        gm_vo = mode["generalized_mass"]
-        published = gm_vo.value if gm_vo.value is not None else math.nan
-        if not gm_vo.below and not _close(published, mass, ALLOW * float(terms + 4) * U * abs_mass):
+        label, gm_vo = m + 1, mode["generalized_mass"]
+        gm, excitation = _payload_quantities(p, m)
+        gm_slack = ALLOW * float(gm["terms"] + 4) * U * gm["abs"]
+        if gm_vo.below:
+            # The flag asserts 0 < m < 2⁻¹⁰²²; the payload must allow it.
+            if not _subnormal_possible(abs(gm["value"]) - gm_slack):
+                _fail(f"mode {label}: m is flagged below-normal, but the payload's φᵀM_ffφ = {gm['value']:e} is normal")
+            scope.append(f"mode {label}: m lies below the normal range, so Γ and m_eff are not re-derived")
+            continue
+        published = gm_vo.value
+        if not _close(published, gm["value"], gm_slack):
             _fail(f"mode {label}: m is not φᵀM_ffφ")
         for k in range(3):
-            s, a, n = 0.0, 0.0, 0
-            for i, j, v in p.mass:
-                if p.free[i] is not None and j % 6 == k:
-                    term = phi[i] * v
-                    s += term
-                    a += abs(term)
-                    n += 1
-                if i != j and p.free[j] is not None and i % 6 == k:
-                    term = phi[j] * v
-                    s += term
-                    a += abs(term)
-                    n += 1
-            row = p.participation[m][k]
-            if row["gamma"].below or row["effective"].below or gm_vo.below:
-                continue
-            gm = row["gamma"].value * published
-            e = ALLOW * float(n + 6) * U
-            if not _close(gm, s, e * (a + abs(gm))):
-                _fail(f"mode {label}: Γ·m is not φᵀp_k")
-            em = row["effective"].value * published
-            if not _close(em, s * s, e * (2.0 * abs(s) * a + abs(em)) + (e * a) * (e * a)):
-                _fail(f"mode {label}: m_eff·m is not (φᵀp_k)²")
+            row, acc = p.participation[m][k], excitation[k]
+            s, a = acc["value"], acc["abs"]
+            e = ALLOW * float(acc["terms"] + 6) * U
+            smallest = max(abs(s) - e * a, 0.0)
+            claims = (
+                ("Γ", row["gamma"], smallest, lambda: _close(row["gamma"].value * published, s, e * (a + abs(row["gamma"].value * published)))),
+                ("m_eff", row["effective"], smallest * smallest, lambda: _close(
+                    row["effective"].value * published, s * s,
+                    e * (2.0 * abs(s) * a + abs(row["effective"].value * published)) + (e * a) * (e * a))),
+            )
+            for name, vo, lowest_numerator, agrees in claims:
+                if vo.below:
+                    if not _subnormal_possible(lowest_numerator, published):
+                        _fail(f"mode {label}: {name} along {DIRECTIONS[k]} is flagged below-normal, but the payload gives a normal value")
+                elif not agrees():
+                    _fail(f"mode {label}: {name} along {DIRECTIONS[k]} disagrees with φᵀp_k from the payload")
     return scope
 
 
@@ -1133,6 +1174,8 @@ def _reported_set(frequencies, clusters, mode_count, cutoff):
 
 def _counts(p):
     n, total = len(p.modes), len(p.computed)
+    if total == 0:
+        _fail("a solved document carries at least one computed mode")
     if n != p.count or p.computed_count != total or n > total:
         _fail("the mode counts are not the stated counts")
     if p.extension != p.count - min(p.bounded, p.count) or p.bounded > p.count:
@@ -1145,6 +1188,8 @@ def _counts(p):
         omega, f = c["omega"], c["frequency"]
         if omega is None or f is None:
             _fail(f"computed mode {label}: ω or f not published")
+        if not (0.0 < omega < math.inf and 0.0 < f < math.inf):
+            _fail(f"computed mode {label}: ω and f must be positive and finite")
         if f != omega / TWO_PI:
             _fail(f"computed mode {label}: f is not ω/2π")
         if previous is not None and (omega < previous[0] or f < previous[1]):
@@ -1155,7 +1200,10 @@ def _counts(p):
         c = p.computed[m]
         if mode["omega"] != c["omega"] or mode["frequency"] != c["frequency"] or mode["cluster"] != c["cluster"]:
             _fail(f"mode {m + 1}: not computed mode {m + 1}")
-        if mode["period"] != 1.0 / mode["frequency"]:
+        f, period = mode["frequency"], mode["period"]
+        if f is None or period is None or not (0.0 < f < math.inf and 0.0 < period < math.inf):
+            _fail(f"mode {m + 1}: f and T must be positive and finite")
+        if period != 1.0 / f:
             _fail(f"mode {m + 1}: T is not 1/f")
     ids = [c["cluster"] for c in p.computed]
     bounded, stop, count = _reported_set(frequencies, ids, p.mode_count, p.cutoff)
@@ -1232,6 +1280,54 @@ def _clusters(p):
     return scope
 
 
+PROFILE_FLOOR = 2.0 ** 53  # a null `outside_canonical_profile` value is at least this large
+
+
+def _bound_of(vo):
+    """(lowest possible value, known) of a nonnegative published value object."""
+    if vo.value is not None:
+        return vo.value, True
+    if vo.undefined == "outside_canonical_profile":
+        return PROFILE_FLOOR, False
+    return None, False
+
+
+def _candidate_arithmetic(c, label):
+    """The two published sums and products of one factored candidate, each re-derived
+    only when every operand it needs is published."""
+    scope = []
+    relations = (
+        ("e_b = factor term + formation term", (c["backward_error"], c["factor_term"], c["formation_term"]),
+         lambda be, ft, fo: be == ft + fo),
+        ("conditioning product = e_b·ν", (c["product"], c["backward_error"], c["inverse_norm"]),
+         lambda product, be, nu: product == be * nu),
+    )
+    for name, operands, holds in relations:
+        if any(x is None for x in operands):
+            scope.append(f"candidate {label}: {name} is not re-derivable (an operand is not published)")
+        elif not holds(*operands):
+            _fail(f"candidate {label}: {name} does not hold")
+    return scope
+
+
+def _accepted_premises(c, sturm_count, limit, g_max, separated):
+    """Every premise of the accepted shift, each judged on its own evidence."""
+    scope = []
+    if c["pivots"] != sturm_count:
+        _fail(f"the accepted negative-pivot count {c['pivots']} is not the Sturm count {sturm_count}")
+    for name, vo, ceiling in (("conditioning product e_b·ν", c["product_vo"], limit), ("growth", c["growth_vo"], g_max)):
+        lowest, exact = _bound_of(vo)
+        if lowest is None:
+            scope.append(f"the accepted {name} is not published, so its premise is not re-derived")
+        elif lowest > ceiling:
+            _fail(f"the accepted shift's {name} {'is' if exact else 'is at least'} {lowest:e}, above its limit {ceiling:e}")
+    if separated is False:
+        _fail("the accepted shift fails the separation premise")
+    if separated is None:
+        scope.append("the accepted separation ratio is not published, so its premise is not re-derived")
+    return scope
+
+
 def _sturm(p):
     scope = []
     s_max = p.params.get("sturm_max_candidates")
@@ -1240,6 +1336,9 @@ def _sturm(p):
     kc, limit, ks, g_max = p.kappa_c, p.limit, p.kappa_s, p.growth_limit
     if kc is None or limit is None or ks is None or g_max is None:
         _fail("a Sturm premise parameter is not published")
+    for name, value in (("κ_c", kc), ("κ_s", ks), ("g_max", g_max)):
+        if not value >= 1.0:
+            _fail(f"{name} = {value} is below 1")
     if limit != 1.0 / kc:
         _fail("the conditioning limit is not 1/κ_c")
     count = len(p.candidates)
@@ -1258,30 +1357,9 @@ def _sturm(p):
         if c["decision"] in ("accepted", "growth_limit", "ill_conditioned") and not factored:
             _fail(f"candidate {label}: decision `{c['decision']}` needs a factorization")
         if factored:
-            be, ft, fo = c["backward_error"], c["factor_term"], c["formation_term"]
-            if be is None or ft is None or fo is None:
-                scope.append(f"candidate {label}: a backward-error term is outside the profile")
-                continue
-            if be != ft + fo:
-                _fail(f"candidate {label}: e_b is not the factor term plus the formation term")
-            if c["product"] is not None and c["inverse_norm"] is not None:
-                if c["product"] != be * c["inverse_norm"]:
-                    _fail(f"candidate {label}: the conditioning product is not e_b·ν")
-            else:
-                scope.append(f"candidate {label}: e_b·ν is outside the profile")
+            scope.extend(_candidate_arithmetic(c, label))
         if c["decision"] == "accepted":
-            if c["pivots"] != p.sturm_count:
-                _fail("the accepted candidate's negative-pivot count is not the Sturm count")
-            if c["product"] is None:
-                _fail("the accepted e_b·ν is not published")
-            if c["growth"] is None:
-                _fail("the accepted growth is not published")
-            if c["product"] > limit:
-                _fail("the accepted shift fails the conditioning premise e_b·ν ≤ 1/κ_c")
-            if c["growth"] > g_max:
-                _fail("the accepted shift exceeds the growth limit")
-            if separated is not True:
-                _fail("the accepted shift fails the separation premise")
+            scope.extend(_accepted_premises(c, p.sturm_count, limit, g_max, separated))
         if factored:
             growth, product = c["growth"], c["product"]
             if c["decision"] == "growth_limit" and not ((growth is None or growth > g_max) and separated is not False):
@@ -1332,6 +1410,51 @@ def _sturm(p):
     return scope
 
 
+def _identity_coverage(p):
+    """The identity rows a run carries, from the document itself: the three axes in
+    order, each ending with the model's resultant, each straight member of the
+    discretization table compared nodally (and nothing else nodally), and one subject
+    set shared by the axes. Arcs and bodies are not listed anywhere in the document,
+    so a subject missing on every axis cannot be seen: that coverage is scoped."""
+    axes = [row["axis"] for row in p.identity]
+    if axes != sorted(axes, key=DIRECTIONS.index):
+        _fail("identity: rows are not grouped in axis order")
+    by_axis = {axis: [row for row in p.identity if row["axis"] == axis] for axis in DIRECTIONS}
+    straight = set(p.straight_members)
+    reference = None
+    for axis, rows in by_axis.items():
+        if not rows or (rows[-1]["subject"], rows[-1]["comparison"]) != ("model", "resultant"):
+            _fail(f"identity: no closing model resultant row along {axis}")
+        subjects = [row["subject"] for row in rows]
+        if len(set(subjects)) != len(subjects):
+            _fail(f"identity: a subject repeats along {axis}")
+        nodal = {row["subject"] for row in rows if row["comparison"] == "nodal"}
+        if nodal != straight:
+            _fail(f"identity: the nodal rows along {axis} are not the discretization table's straight members")
+        if reference is None:
+            reference = subjects
+        elif subjects != reference:
+            _fail(f"identity: the subjects along {axis} differ from those along x")
+    return ["identity: arc and component-body resultant coverage is not derivable (the document lists no arc or body)"]
+
+
+def _state_coverage(p):
+    """A linearized state case's supports and restrained set against the partition."""
+    restrained_here = {dof for dof, index in enumerate(p.free) if index is None}
+    if p.linearized_restrained is None:
+        if p.support_states:
+            _fail("supports: support states are listed but no state case is linearized")
+        return
+    if not p.support_states:
+        _fail("supports: a linearized state case lists no support")
+    listed = p.linearized_restrained
+    if len(set(listed)) != len(listed) or set(listed) != restrained_here:
+        _fail("supports: the restrained set of the state case is not the document's restrained DOFs")
+    for support, (dof, treatment) in p.support_states.items():
+        if treatment in ("restrained", "already_restrained") and dof not in restrained_here:
+            _fail(f"supports: {support} is {treatment} but its DOF is free")
+
+
 def _evidence(p):
     scope = []
     for i, c in enumerate(p.computed):
@@ -1347,8 +1470,13 @@ def _evidence(p):
     tolerance = p.params.get("identity_tolerance")
     if not isinstance(tolerance, dict) or not _is_number(tolerance.get("relative")) or not _is_number(tolerance.get("absolute")):
         _fail("the identity tolerance is not bound")
+    scope.extend(_identity_coverage(p))
+    _state_coverage(p)
+    if not any(text.startswith("numerical integrity does not establish physical correctness")
+               for text in p.disclosure_texts.get("modal", [])):
+        _fail("disclosures: the fixed numerical-integrity disclosure is missing")
     if tolerance["absolute"] == 0.0:
-        for i, d in enumerate(p.identity):
+        for i, d in enumerate(row["relative"] for row in p.identity):
             if d is None:
                 _fail(f"identity row {i}: not published")
             if not (0.0 <= d <= tolerance["relative"]):
@@ -1400,7 +1528,7 @@ def _standing_of(function, *args):
         scope = function(*args)
     except Failure as failure:
         return {"status": "failed", "difference": str(failure), "scope": []}
-    except (KeyError, IndexError, TypeError, AttributeError, ValueError) as error:
+    except (KeyError, IndexError, TypeError, AttributeError, ValueError, ArithmeticError) as error:
         return {"status": "failed", "difference": f"malformed: {error!r}", "scope": []}
     return {"status": "scoped_unsupported" if scope else "passed", "difference": None, "scope": scope}
 
@@ -1477,9 +1605,63 @@ def _read_refused(doc, request):
             "refusal_codes": codes, "decision": "rejected" if bound["status"] == "failed" else "refusal_consistent"}
 
 
+MAX_SAFE_INTEGER = 2 ** 53 - 1
+
+
+def _no_duplicates(pairs):
+    seen = {}
+    for key, value in pairs:
+        if key in seen:
+            raise ValueError(f"duplicate object member `{key}`")
+        seen[key] = value
+    return seen
+
+
+def _refuse_constant(name):
+    raise ValueError(f"non-finite number `{name}`")
+
+
+def _profile_problems(value, path=""):
+    """The first value the checked profile (openpipestress_jcs_ijson_v1) refuses."""
+    stack = [(value, path)]
+    while stack:
+        item, where = stack.pop()
+        if type(item) is int and abs(item) > MAX_SAFE_INTEGER:
+            return f"{where or '/'}: an integer beyond 2^53 - 1"
+        if type(item) is float and (not math.isfinite(item) or (item.is_integer() and abs(item) > MAX_SAFE_INTEGER)):
+            return f"{where or '/'}: a number outside I-JSON's binary64 range"
+        if isinstance(item, str):
+            try:
+                item.encode("utf-8")
+            except UnicodeEncodeError:
+                return f"{where or '/'}: a lone surrogate"
+        if isinstance(item, dict):
+            for key, child in item.items():
+                try:
+                    key.encode("utf-8")
+                except UnicodeEncodeError:
+                    return f"{where}: a member name with a lone surrogate"
+                stack.append((child, f"{where}/{key}"))
+        elif isinstance(item, list):
+            stack.extend((child, f"{where}/{i}") for i, child in enumerate(item))
+    return None
+
+
+def checked_load(text: str) -> Any:
+    """The document text admitted by the governed checked profile before any value is
+    read: duplicate members, NaN/Infinity, non-finite or unsafe integral numbers and
+    lone surrogates are refused (ValueError)."""
+    value = json.loads(text, object_pairs_hook=_no_duplicates, parse_constant=_refuse_constant)
+    problem = _profile_problems(value)
+    if problem:
+        raise ValueError(problem)
+    return value
+
+
 def read_text(text: str, request: Any = None) -> dict:
+    """The governed entry: the original text is checked before it is read."""
     try:
-        doc = json.loads(text)
-    except ValueError as error:
-        return _closure_failed(f"document: not JSON ({error})")
+        doc = checked_load(text)
+    except (ValueError, RecursionError) as error:
+        return _closure_failed(f"document: outside the checked profile {CANONICAL_PROFILE} ({error})")
     return read(doc, request)

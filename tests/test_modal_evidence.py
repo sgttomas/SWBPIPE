@@ -54,6 +54,15 @@ def apply(doc, operations):
                     row[op["field"]]["value"] = row[op["field"]]["value"] * op["factor"]
         elif kind == "withhold":
             doc["tables"][op["table"]] = {"status": "withheld", "reason": "corpus: payload withheld"}
+        elif kind == "remove_rows":
+            table = doc["tables"][op["table"]]
+            kept = [row for row in table["rows"] if not all(row.get(k) == v for k, v in op["where"].items())]
+            assert len(kept) < len(table["rows"]), op
+            if "renumber_prefix" in op:
+                for i, row in enumerate(kept):
+                    row["ordinal"] = i
+                    row["row_id"] = f"{op['renumber_prefix']}{i}"
+            table["rows"] = kept
         else:
             raise AssertionError(op)
     return doc
@@ -84,14 +93,28 @@ def statuses(verdict):
             "decision": verdict["decision"], "refusal_codes": verdict["refusal_codes"]}
 
 
-def run(entry):
-    doc = apply(load(entry["document"]), entry["operations"])
+def entry_text(entry):
+    """The text an entry reads: raw replacements on the committed text, or the mutated
+    value serialized."""
+    raw = (RESULTS / entry["document"]).read_text(encoding="utf-8")
+    if "text_operations" in entry:
+        assert not entry["operations"] and not entry["reseal"]
+        for replacement in entry["text_operations"]:
+            assert replacement["find"] in raw, replacement
+            raw = raw.replace(replacement["find"], replacement["replace"], 1)
+        return raw
+    doc = apply(json.loads(raw), entry["operations"])
     if entry["reseal"]:
         reseal(doc)
+    return json.dumps(doc)
+
+
+def run(entry):
+    text = entry_text(entry)
     request = None
     if entry["request"] is not None:
         request = apply(load(entry["request"]), entry["request_operations"])
-    verdict = me.read(doc, request)
+    verdict = me.read_text(text, request)
     return statuses(verdict), verdict
 
 
@@ -108,6 +131,10 @@ def test_the_python_reader_returns_every_corpus_verdict(entry):
         assert got[intent] == "failed" and got["decision"] == "rejected", verdict
     else:
         assert got["relations"][intent] == "failed" and got["decision"] == "rejected", verdict
+    needle = entry.get("difference_contains")
+    if needle:
+        standing = verdict[intent] if intent in ("closure", "binding") else verdict["relations"][intent]
+        assert needle.lower() in (standing["difference"] or "").lower(), verdict
     assert got == entry["expected"], verdict
 
 

@@ -5,7 +5,8 @@
 //! (`tests/test_modal_evidence.py`) is held to as well, and the standing the
 //! entry targets must fail. All values are invented.
 use open_pipe_stress_modal_result::{
-    modal_reader_semantic_table, modal_reader_sha256, read_modal_result, ModalReadStatus, ModalSupplied, MODAL_RESULT_SEMANTICS_SHA256,
+    modal_reader_semantic_table, modal_reader_sha256, read_modal_result, read_modal_result_text, ModalReadStatus, ModalSupplied,
+    MODAL_RESULT_SEMANTICS_SHA256,
 };
 use serde_json::{json, Value};
 
@@ -102,6 +103,19 @@ fn apply(doc: &mut Value, operations: &[Value]) {
             "withhold" => {
                 doc["tables"][op["table"].as_str().unwrap()] = json!({"status": "withheld", "reason": "corpus: payload withheld"});
             }
+            "remove_rows" => {
+                let rows = doc["tables"][op["table"].as_str().unwrap()]["rows"].as_array_mut().unwrap();
+                let matches = |row: &Value| op["where"].as_object().unwrap().iter().all(|(k, v)| row[k] == *v);
+                let before = rows.len();
+                rows.retain(|row| !matches(row));
+                assert!(rows.len() < before, "{op}: removes a row");
+                if let Some(prefix) = op["renumber_prefix"].as_str() {
+                    for (i, row) in rows.iter_mut().enumerate() {
+                        row["ordinal"] = json!(i);
+                        row["row_id"] = json!(format!("{prefix}{i}"));
+                    }
+                }
+            }
             other => panic!("unknown corpus operation `{other}`"),
         }
     }
@@ -143,19 +157,49 @@ fn statuses(verdict: &Value) -> Value {
         "health": verdict["health"], "decision": verdict["decision"], "refusal_codes": verdict["refusal_codes"]})
 }
 
-fn run(entry: &Value) -> (Value, Value) {
-    let mut doc: Value = serde_json::from_str(fixture(entry["document"].as_str().unwrap())).unwrap();
+/// The document text an entry reads: the committed text with its raw text
+/// replacements (for what a parsed value cannot carry: duplicate members,
+/// non-JSON numbers), or the mutated value serialized.
+fn entry_text(entry: &Value) -> String {
+    let raw = fixture(entry["document"].as_str().unwrap());
+    if let Some(replacements) = entry.get("text_operations").and_then(Value::as_array) {
+        assert!(entry["operations"].as_array().unwrap().is_empty() && entry["reseal"] == false);
+        let mut text = raw.to_string();
+        for r in replacements {
+            let (find, with) = (r["find"].as_str().unwrap(), r["replace"].as_str().unwrap());
+            assert!(text.contains(find), "{r}");
+            text = text.replacen(find, with, 1);
+        }
+        return text;
+    }
+    let mut doc: Value = serde_json::from_str(raw).unwrap();
     apply(&mut doc, entry["operations"].as_array().unwrap());
     if entry["reseal"] == true {
         reseal(&mut doc);
     }
+    serde_json::to_string(&doc).unwrap()
+}
+
+fn run(entry: &Value) -> (Value, Value) {
+    let text = entry_text(entry);
     let request = entry["request"].as_str().map(|name| {
         let mut request: Value = serde_json::from_str(fixture(name)).unwrap();
         apply(&mut request, entry["request_operations"].as_array().unwrap());
         request
     });
-    let verdict = read_modal_result(&doc, ModalSupplied { request: request.as_ref() }).modal_verdict_json();
+    let verdict = read_modal_result_text(&text, ModalSupplied { request: request.as_ref() }).modal_verdict_json();
     (statuses(&verdict), verdict)
+}
+
+/// The targeted standing's difference names the entry's reason.
+fn reason_holds(entry: &Value, verdict: &Value) -> bool {
+    let Some(needle) = entry.get("difference_contains").and_then(Value::as_str) else { return true };
+    let intent = entry["intent"].as_str().unwrap();
+    let standing = match intent {
+        "closure" | "binding" => &verdict[intent],
+        relation => &verdict["relations"][relation],
+    };
+    standing["difference"].as_str().is_some_and(|d| d.to_lowercase().contains(&needle.to_lowercase()))
 }
 
 fn intent_holds(entry: &Value, got: &Value) -> bool {
@@ -178,6 +222,7 @@ fn the_rust_reader_returns_every_corpus_verdict() {
     for entry in entries {
         let (got, verdict) = run(entry);
         assert!(intent_holds(entry, &got), "{}: the targeted standing does not hold: {verdict:#}", entry["id"]);
+        assert!(reason_holds(entry, &verdict), "{}: not failed for its stated reason: {verdict:#}", entry["id"]);
         assert_eq!(got, entry["expected"], "{}: {verdict:#}", entry["id"]);
     }
 }
