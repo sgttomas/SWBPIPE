@@ -36,7 +36,7 @@ MODULE = 'core/reporting/result_export/src/physics_evidence.rs'
 UNITS = 'core/units/src/lib.rs'
 # T4-U6 (D-5, §2.4): the table's per-basis stress signatures (106 signatures, 59 kinds); T4-U5b's tie-rod force
 # and T4-U4b's (§2.2) per-basis kinds (129 signatures, 66 kinds).
-TABLE_SHA256 = '10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6'
+TABLE_SHA256 = '2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645'
 DEPENDENCIES = {
     # T4-U6/U8 re-pins: the D-5 section bases and the Timoshenko beam theory (8bf263d6..., was 38302413...);
     # then §2.5's realized-arc marker (98bdfeee3e: arcs known by `member_kind`, refused on the composite);
@@ -58,8 +58,10 @@ DEPENDENCIES = {
     # then the arc-tangent direction bound (DEL-04-07 pressure-contract.md, "Direction magnitudes of arc tangents"): an
     # arc term binds its magnitude exactly to its arc's published end tangent, and joint-area groups bind only to their
     # connector axis (was f27242f0...); then RT-U4: the region binding counts the published pipe rows once per case and
-    # member instead of rescanning every row per region, with the same outcomes (was b3cb5f6d...).
-    MODULE: 'ea9273d72767bb047e29b620c53c64688d5375fbc3f2fdf585180d363e7e3356',
+    # member instead of rescanning every row per region, with the same outcomes (was b3cb5f6d...); then RT-A3 increment 4
+    # (DEL-04-07 pressure-contract.md, "Nonlinear supports on EX"): the direct pass calls the nonlinear support binding
+    # (`nonlinear_support_evidence`; was ea9273d7...).
+    MODULE: '2e9b087dd5792090409e4334bde6fb8ca8a0108b940fca31aa6283f1dc74c725',
     TABLE: TABLE_SHA256,
     UNITS: '5a412c57ca3bdc1d150ff580354e709355f442d89971a2f7aff8b575c7e39596',
 }

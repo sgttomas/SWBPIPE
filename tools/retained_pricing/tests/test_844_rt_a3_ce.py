@@ -90,10 +90,12 @@ def test_the_constant_effort_literals_keep_their_dispositions():
     static, (matched, problems) = _long_literals()
     assert problems == []
     by_head = {m["head"]: m["bytes"] for m in matched}
-    assert by_head["3.0.0/exact_pressure_v3 under pressure-2 semantics"] == 3007
+    # RT-A3 increment 4 (§8.49): S1 states the nonlinear supports (3,007 -> 3,964 B); its own-bound disposition carries.
+    assert by_head["3.0.0/exact_pressure_v3 under pressure-2 semantics"] == 3964
     assert by_head["3.0.0/exact_pressure_v3 under pressure-source-1 semantics"] == 1262
     source = (SOURCE / "core/product_physics/src/exact_admission.rs").read_text(encoding="utf-8")
-    for head in ("Signed support actions are attributed only for admitted linear restraints and springs and, as its",
+    # §8.49: S7 names nonlinear supports beside linear restraints and springs (224 B, still below the class).
+    for head in ("Signed support actions are attributed only for admitted linear restraints, springs and nonlinear",
                  "Global rigid support translations/rotations are prescribed absolute boundary values",
                  "equivalent_static generation is not provided on a load/reference-state document"):
         assert head in source and all(not m["head"].startswith(head[:30]) for m in matched), head

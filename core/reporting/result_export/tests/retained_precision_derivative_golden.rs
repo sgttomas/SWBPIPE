@@ -91,14 +91,14 @@ const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
     (
         "sparse_interactive",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
-        "4d3fa2c743d8addc26a7dedb00084cb8454ace6ee21e066a83a3152d015403e3",
-        "f31760066b8991d68f1319e870ae1cc4344ce951f33a68cb491f98352d0e4b9e",
+        "418d74b398604cc98ee328a004175494b04f48998f819a5243d84ae1bbb70bfc",
+        "4105eac05a90ef4d3432d695f7c339ff50630965f4967fd83837d6192e07848e",
     ),
     (
         "dense_scrutiny",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
-        "7384cbb8d81ff2804f672a06acc83772e0529ffbf3f5e1e6fb426978f5c44bbd",
-        "6dadf1ca7977218b7cfbced93cbc74923d7911946cc64ea42fbe56646f252e89",
+        "0424d9d1015988e91ece8d223a6067fefdf150501ecefe5c06b1b54618d13bc2",
+        "5d1873121399be8dc0f310287a00b257197ccb0f9551a1edb726ec1fe7b30bc9",
     ),
 ];
 /// The committed exact goldens' file sha256.
@@ -110,8 +110,8 @@ const EXACT_GOLDEN_SHA256: [(&str, &str); 2] = [
     // RT-A3 increment 1: re-pinned for the pressure-2 identity limitation (identity bytes only) (was e15c27cd.../e0c14d0e...).
     // RT-A3 increment 3: the identity and the support-attribution limitation (S7) restated; the exact successors
     // they derive from are proven by reseal-to-base (DEL-04-08 §8.44).
-    ("sparse_interactive", "4329c6060c5b5ee05509de8d6dfbce14654b16deb0f541cda10673b7952a185c"),
-    ("dense_scrutiny", "649b6c5455d342e816bdb455d6188d4004f14fc1d1100ffc1ae1118e90e57fdd"),
+    ("sparse_interactive", "4e0e0cb856b4945871ba3522bd6e2f9e48bffdbe6ee76e0571dfeec175c17a75"),
+    ("dense_scrutiny", "f75a417e05331c58c19632b3d3f80ca2fd9e9c22c974a4fc5605bba17490b4f3"),
 ];
 /// The m3x successors' validated class counts (relative, absolute, input-derived,
 /// non-quantity, not-covered). T4-U6 (D-5 §2.5): each of the member's 21

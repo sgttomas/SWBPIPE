@@ -58,7 +58,7 @@ from pathlib import Path
 import struct
 from typing import Any
 
-from . import component_body, exact_combinations, global_end, section_basis as sb, u4b
+from . import component_body, exact_combinations, global_end, nonlinear_support_evidence, section_basis as sb, u4b
 
 PROJECT = Path(__file__).resolve().parents[2]
 
@@ -70,7 +70,7 @@ TABLE_PATH = PROJECT / "fixtures/results/semantic_contract_v0_3_pressure_2.json"
 # T4-U6 (D-5, §2.4): one stress signature per (recovery token x section basis); T4-U5b adds the tie-rod force and
 # T4-U4b its 22 per-basis signatures: 129 signatures over 66 kinds; W-7 (DEL-04-01) the six global end-action
 # signatures: 135 over 68; RT-A3 increment 1 the two branch intensified signatures: 137 over 69.
-TABLE_SHA256 = "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6"
+TABLE_SHA256 = "2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645"
 TABLE_SIGNATURE_COUNT = 137
 TABLE_KIND_COUNT = 69
 
@@ -213,11 +213,14 @@ def _validate_direct_pressure_evidence(source: Mapping[str, Any]) -> None:
     evidence = source.get("contract_evidence") if isinstance(source, Mapping) else None
     if isinstance(evidence, Mapping) and "load_reference_states" in evidence:
         _load_state_evidence(source)
-        return
-    try:
-        _physics(source)
-    except (TypeError, KeyError, AttributeError, OverflowError) as error:
-        raise ValueError("SOURCE_PHYSICS_EVIDENCE_INVALID: malformed evidence") from error
+    else:
+        try:
+            _physics(source)
+        except (TypeError, KeyError, AttributeError, OverflowError) as error:
+            raise ValueError("SOURCE_PHYSICS_EVIDENCE_INVALID: malformed evidence") from error
+    # RT-A3 increment 4 (R-4 §2.4): the nonlinear support results, their laws and standing (Rust
+    # `nonlinear_support_evidence::check`); a no-op without them.
+    nonlinear_support_evidence.check(source)
 
 
 def validate_exact_pressure_evidence(source: Mapping[str, Any]) -> None:

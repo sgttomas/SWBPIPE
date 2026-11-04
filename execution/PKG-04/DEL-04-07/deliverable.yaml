@@ -295,6 +295,23 @@ needs:
   gating: true
   when: Running the RT-A3 reducer 2b full-reference-system connecting-path check.
   evidence: core/product_physics/tests/rt_a3_reducer_2b_reference_system.rs
+- from: DEL-04-01
+  condition: >-
+    The RT-A3 increment 4 K-1 bound (Work/k1-twin-bound.md, option (a)) rests on two DEL-04-01
+    sources. First, every structural solve returns only when each free row's original-equation
+    residual meets 64*gamma(n) of its row denominator (frame_kernel structural finish_structural
+    over evaluate_original_residual). Second, the independent kd5 reference formation
+    (validation/references/kd5_nonlinear/reference.py and its oracles' normalized sections). A
+    change to either re-runs Work/k1_twin_bound.py before the bound's constants are asserted again.
+    Its iterate-delta part also rests on this deliverable's loop rules (nonlinear_integration: the
+    authored seeds, no friction force on the first iterate, the deferred first iterate, and the slip
+    direction and normal branch taken from the previous iterate) and on the published iteration
+    counts. The script encodes those rules rather than reading them, and equal counts do not detect
+    every rule change, so a change to those rules requires re-checking the source trace and revising
+    the derivation and script before re-running it and the corpus.
+  gating: true
+  when: Asserting the amended K-1 bound on the kd5 twin corpus.
+  evidence: core/product_physics/tests/rt_a3_nonlinear_k1_twins.rs
 code_paths:
 # The product solve crate, including the retained method's producer whose contracts
 # DEL-04-08's Designs and DEL-05-02's retained-combinations contract govern.
@@ -318,6 +335,7 @@ code_paths:
 - validation/references/rt_a3_reducer/**
 - validation/references/rt_a3_reducer_2b/**
 - validation/references/rt_a3_constant_effort/**
+- validation/references/rt_a3_nonlinear/**
 - validation/references/t4_u5a/**
 - validation/references/t4_u5b/**
 - validation/qualification/fixtures/exact_pressure/**
@@ -355,9 +373,12 @@ checks:
 - tests/test_rt_a3_reducer_text_only_envelope_diff.py
 - tests/test_rt_a3_reducer_2b_text_only_envelope_diff.py
 - tests/test_rt_a3_constant_effort_text_only_envelope_diff.py
+- tests/test_rt_a3_nonlinear_text_only_envelope_diff.py
 - core/product_physics/tests/rt_a3_constant_effort_references.rs
 - core/product_physics/tests/rt_a3_constant_effort_source_receipt.rs
 - tests/test_rt_a3_constant_effort_schema.py
+- core/product_physics/tests/rt_a3_nonlinear_references.rs
+- core/product_physics/tests/rt_a3_nonlinear_k1_twins.rs
 - core/product_physics/tests/shared_terminal_junction.rs
 - core/product_physics/tests/silent_zero_guard_runtime.rs
 - core/product_physics/tests/pressure_runtime.rs
