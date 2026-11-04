@@ -259,6 +259,13 @@ code_paths:
 - core/reporting/result_export/tests/exact_combination_contract.rs
 - tests/test_exact_combination_verifier.py
 - validation/references/w16_exact_combinations/**
+# RT-A4 (Work/absolute-sum-srss-combinations.md): absolute sums, SRSS and nested operands on
+# both routes, their operand graph, the readers' mirror and the independent references.
+- core/product_physics/src/combination_plan.rs
+- core/product_physics/tests/rt_a4_combinations.rs
+- core/reporting/result_export/src/combination_graph.rs
+- core/reporting/result_export/src/preview_combination_gates.rs
+- validation/references/rt_a4_combinations/**
 checks:
 - apps/desktop/src/features/load-cases/LoadCaseManagerPanel.test.tsx
 - core/product_physics/tests/preview_physics_runtime.rs
@@ -280,6 +287,8 @@ checks:
 - core/product_physics/tests/pressure_source_join.rs
 - core/product_physics/tests/w16_exact_combinations.rs
 - core/reporting/result_export/tests/exact_combination_contract.rs
+- core/loads/load_case_algebra/src/fixed_load_count_tests.rs
+- core/product_physics/tests/rt_a4_combinations.rs
 # Python (piping-pytest).
 - tests/test_retained_precision_contract.py
 - tests/test_retained_precision_carriers.py
@@ -293,6 +302,8 @@ checks:
 - tests/test_semantic_contract_tables.py
 - tests/test_u4b_review_tampers.py
 - tests/test_exact_combination_verifier.py
+- tests/test_rt_a4_combination_graph.py
+- tests/test_rt_a4_pf_reader_tampers.py
 # Desktop (desktop-test).
 - apps/desktop/src/features/results/retainedPrecisionWasmEquivalence.test.ts
 - apps/desktop/src/features/results/baseReaderWasmEquivalence.test.ts

@@ -380,13 +380,51 @@ def _pp_combination_line(text, after=None, within=8):
     hits = [i + 1 for i in range(start - 1, end - 1) if text in lines[i]]
     if len(hits) != 1: raise SystemExit(f"SD-RK: {text!r} in append_combination_results: {hits}")
     return Resolved(f"{f}:{hits[0]}")
-if "let source_missing = |diagnostics: &mut Vec<Diagnostic>|" in open(_os.path.join(_SNAP, P_ + "preview_physics.rs"), encoding="utf-8").read():
+# RT-A4 D3 (§8.46, RT-A4-RK1): the support component row's call gains one argument, the combination's sign convention
+# (`&sign`, computed once per combination), between `&expression` and `sources[0]`; the audited `s.id` refs argument and
+# its sources are unchanged. The anchor is re-stated exactly for a source with that argument (`let sign = match
+# expression {` in append_combination_results' file) and must still match exactly one line of the function.
+_PP_SRC = open(_os.path.join(_SNAP, P_ + "preview_physics.rs"), encoding="utf-8").read()
+_SD_SIGN = "&sign, " if "        let sign = match expression {\n" in _PP_SRC else ""
+if "let source_missing = |diagnostics: &mut Vec<Diagnostic>|" in _PP_SRC:
     _sd_rekeys = {
         P_ + "preview_physics.rs:990": _pp_combination_line("vec![combination.id.clone()],", after="combination-source-missing:"),
         P_ + "preview_physics.rs:1022": _pp_combination_line(
-            "rows.push(combination_row(combination, &expression, sources[0], qualified_combination_result_id(&combination.id, &base(component)), value, sources.iter().map(|s| s.id.clone()).collect()));"),
+            "rows.push(combination_row(combination, &expression, " + _SD_SIGN + "sources[0], qualified_combination_result_id(&combination.id, &base(component)), value, sources.iter().map(|s| s.id.clone()).collect()));"),
     }
     ID_AUDIT = [(_sd_rekeys.get(k, k) if isinstance(k, str) and type(k).__name__ != "Resolved" else k, v) for k, v in ID_AUDIT]
+# RT-A4 D3 (retained-pricing-rules.md §8.46, RT-A4-RK2..4): the wiring rewrite moves three decision keys, each re-keyed by
+# name at the snapshot to the same semantic site; a source without the method `CombinationExpression::evaluate_values`
+# keeps the basis keys.
+# - RK2 (EDGE_PER_CALL): preview_physics.rs's free `evaluate_values(expression, values, dimension)` is deleted and its
+#   body is the method `evaluate_values(&self, values, dimension)` in PP lib.rs; append_combination_results still calls
+#   it once per ordinary base row and, per support, six component and two range-magnitude calls, so the per-call bound
+#   z*(P+8*g) and its reason carry unchanged to the moved callee.
+# - RK3 (ID_AUDIT): append_combined_vector_magnitude's component-missing refs name the operand by `target.id()` (a load
+#   case's or, with a combination operand, a combination's raw id: IN128 either way) where `case` stood; the two
+#   audited arguments keep their classes and `target.id()` takes IN128.
+# - RK4 (ID_AUDIT): the gate diagnostic's refs are now the local `refs`, built as `vec![combination.id.clone()]` before
+#   the withheld operands' ids are appended; the audit moves to that line with its class.
+def _fn_line(fn, f, text):
+    lines = open(_os.path.join(_SNAP, f), encoding="utf-8").read().split("\n")
+    start = int(rs(fn, f).split(":")[1])
+    indent = len(lines[start - 1]) - len(lines[start - 1].lstrip())
+    end = next((i + 1 for i in range(start, len(lines)) if _re.match(r"\s*(pub(\([a-z]+\))?\s+)?fn\s", lines[i])
+                and len(lines[i]) - len(lines[i].lstrip()) <= indent), len(lines) + 1)
+    hits = [i + 1 for i in range(start - 1, end - 1) if text in lines[i]]
+    if len(hits) != 1: raise SystemExit(f"RT-A4-RK: {text!r} in {f}:{fn}: {hits}")
+    return Resolved(f"{f}:{hits[0]}")
+if "    fn evaluate_values(&self, values: &[f64], dimension: LoadDimension) -> Option<f64> {\n" in open(
+        _os.path.join(_SNAP, P_ + "lib.rs"), encoding="utf-8").read():
+    _a4_ev = rs("evaluate_values", P_ + "lib.rs")
+    EDGE_PER_CALL = [(a, _a4_ev if b == "preview_physics.rs:892:evaluate_values" else b, *rest) for a, b, *rest in EDGE_PER_CALL]
+    _a4_rk = {
+        P_ + "lib.rs:13054": (_fn_line("append_combined_vector_magnitude", P_ + "lib.rs",
+                                       "vec![combination.id.clone(), target.id().to_string(), reference.entity_ref.clone()]));"),
+                              {"reference.entity_ref": IN, "combination.id": IN, "target.id()": IN}),
+        P_ + "preview_physics.rs:947": (_pp_combination_line("let mut refs = vec![combination.id.clone()];"), {"combination.id": IN}),
+    }
+    ID_AUDIT = [_a4_rk.get(k, (k, v)) if isinstance(k, str) and type(k).__name__ != "Resolved" else (k, v) for k, v in ID_AUDIT]
 # Model document 0.9.0 D3 (retained-pricing-rules.md §8.36, S1-RK): validate_mechanics_combination names a term's
 # operand (`operand_id`, a load case's or a combination's raw id: IN128 either way) in place of `term.load_case`, so the
 # factor diagnostic's two basis keys no longer carry with their audits: its id line (basis :2026, whose text carries but

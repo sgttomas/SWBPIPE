@@ -2,7 +2,7 @@
  * `reader_verdict::row_semantics`): a row's family, dimension and category as the
  * desktop shows them. R2 (b7-plan Unit R): the signature comes from the Rust reader of
  * the source's table; nothing here reads a table. */
-import { readerRowSemantics, type RowSemantics } from "./resultReader";
+import { readerRowSemantics, recordedReaderRowSemantics, type ContractBinding, type RowSemantics } from "./resultReader";
 import type { MechanicsResult } from "../../types";
 export type SourceRow = MechanicsResult["results"][number];
 export type RowLabels = Readonly<{
@@ -17,8 +17,9 @@ export type RowLabels = Readonly<{
 }>;
 /** The labels of one source's rows (the legacy table without a source). Read every row
  * of a source through one call. */
-export function semanticLabels(source?: MechanicsResult | null): RowLabels {
-  const semantics = readerRowSemantics(source);
+export function semanticLabels(source?: MechanicsResult | null, recordedTableRead?: ContractBinding | null): RowLabels {
+  // RT-A4 §10.4: a reopened run recorded before RT-A4 reads its rows under its recorded table.
+  const semantics = source && recordedTableRead ? recordedReaderRowSemantics(source, recordedTableRead) : readerRowSemantics(source);
   const signature = (row: SourceRow) => semantics(row).signature;
   return {
     semantics,
@@ -27,12 +28,13 @@ export function semanticLabels(source?: MechanicsResult | null): RowLabels {
     category: row => { try { return signature(row)?.category ?? "unknown"; } catch { return "integrity_failure"; } },
   };
 }
-export function semanticFamily(row: SourceRow, source?: MechanicsResult): string {
-  return semanticLabels(source).family(row);
+/** One row's label (`recordedTableRead` as for `semanticLabels`; current callers omit it). */
+export function semanticFamily(row: SourceRow, source?: MechanicsResult, recordedTableRead?: ContractBinding | null): string {
+  return semanticLabels(source, recordedTableRead).family(row);
 }
-export function semanticDimension(row: SourceRow, source?: MechanicsResult): string | null {
-  return semanticLabels(source).dimension(row);
+export function semanticDimension(row: SourceRow, source?: MechanicsResult, recordedTableRead?: ContractBinding | null): string | null {
+  return semanticLabels(source, recordedTableRead).dimension(row);
 }
-export function semanticCategory(row: SourceRow, source?: MechanicsResult): string {
-  return semanticLabels(source).category(row);
+export function semanticCategory(row: SourceRow, source?: MechanicsResult, recordedTableRead?: ContractBinding | null): string {
+  return semanticLabels(source, recordedTableRead).category(row);
 }

@@ -21,7 +21,9 @@ KINDS = frozenset({FORCE, MOMENT})
 BASIS = "rotated_from_published_element_local_end_actions_v1"
 WALL_BASIS = BASIS + ";axial_is_pipe_wall_action"
 SIGN = "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
-COMBINATION_BASES = ("explicit_user_linear_combination", "explicit_user_result_state_subtraction", "explicit_user_range_envelope")
+COMBINATION_BASES = ("explicit_user_linear_combination", "explicit_user_result_state_subtraction", "explicit_user_range_envelope",
+                     # RT-A4 (DEL-05-02 absolute-sum-srss section 4).
+                     "explicit_user_absolute_sum", "explicit_user_srss")
 COMPONENTS = {FORCE: ("N", ("Fx", "Fy", "Fz")), MOMENT: ("N*m", ("Mx", "My", "Mz"))}
 LOCAL_KINDS = ("element_local_axial_force", "element_local_shear_force_y", "element_local_shear_force_z",
                "element_local_torsional_moment", "element_local_bending_moment_y", "element_local_bending_moment_z")

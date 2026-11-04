@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { GitCompare } from "lucide-react";
 import type { RunComparisonResult } from "../history/useModelStateHistory";
 import type { RunComparisonSide } from "./runComparisonSides";
+import { recordedTableLabel } from "../results/HistoricalRunContext";
 import type { RunComparisonPair, UnmatchedRunRow } from "./runComparison";
 import { COMPARISON_PAGE_ROWS, storedValueText } from "./StateComparisonView";
 import { CsvExportControl } from "../result-export/CsvExportControl";
@@ -70,6 +71,7 @@ function SideText({ name, side }: { name: string; side: RunComparisonSide }) {
       {name}: {side.description}
       {side.createdAt ? <>, recorded {side.createdAt}</> : null}
       {side.state ? <>, against saved state {side.state}</> : null}. Its result reads <strong>{standing.status}</strong> (route {standing.contract})
+      {side.recordedTableRead ? <> <span data-testid={`run-comparison-side-${name.toLowerCase()}-recorded-table`}>({recordedTableLabel(side.recordedTableRead)})</span></> : null}
       {standing.findings.length ? <>: {standing.findings.join(", ")}</> : null}.
     </p>
   );

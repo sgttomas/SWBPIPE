@@ -100,7 +100,7 @@ pub const PRESSURE_SOURCE_ID: &str = crate::physics_source::PRESSURE_CONTRACT_ID
 /// T4-U6 (D-5, §2.4): both tables carry one stress signature per (recovery
 /// token × section basis), each with its `source_basis`.
 pub const PRESSURE_SOURCE_TABLE_SHA256: &str = "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9";
-pub const PRESSURE_TABLE_SHA256: &str = "a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e";
+pub const PRESSURE_TABLE_SHA256: &str = "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6";
 /// The pinned counts, re-derived from the tables (T4-U6: pressure-2 106
 /// signatures over 59 kinds, T4-U5b: plus the tie-rod force, 107 over 60, T4-U4b:
 /// plus 22 section stress, toroidal and directional signatures, 129 over 66,
@@ -126,7 +126,7 @@ pub const RETIRED_PREVIEW_PHYSICS_1_ID: &str = "openpipestress.result_semantics/
 pub const SOURCE_PREVIEW_PHYSICS_1_RETIRED: &str = "SOURCE_PREVIEW_PHYSICS_1_RETIRED";
 pub const PREVIEW_PHYSICS_ID: &str = "openpipestress.result_semantics/0.3.0/preview-physics-2";
 pub const PREVIEW_PHYSICS_SHA256: &str =
-    "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2";
+    "e7b93f416f700f8efdb31bf1ba26dedde52963d768d6ead5a73dbf1c645a360c";
 pub const PREVIEW_PHYSICS_PROFILE: &str = "product_preview_mechanics_v1";
 /// DEL-05-03 Design `pf-timoshenko.md` §4: the pressure-free Timoshenko identity, a
 /// second complete identity on the preview-physics route. Its table is preview-physics-2's
@@ -136,7 +136,7 @@ pub const PREVIEW_PHYSICS_TIMOSHENKO_ID: &str =
     "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1";
 pub const PREVIEW_PHYSICS_TIMOSHENKO_PROFILE: &str = "product_preview_mechanics_timoshenko_v1";
 pub const PREVIEW_PHYSICS_TIMOSHENKO_SHA256: &str =
-    "a7b83c37a4af9bf70f56513f80883003a2a3860387319311ea2e967dd0cf764b";
+    "ce49ebe07bc05431ea1f770c1933b5bf58f4b1c8b66fb6f36810f2ef7a58cd43";
 /// The preview-physics route's admitted identities, `(id, profile)`, in one place: every
 /// identity-aware site keys by the envelope's `semantic_contract_id` through this list.
 pub const PREVIEW_PHYSICS_IDENTITIES: [(&str, &str); 2] = [
@@ -148,8 +148,15 @@ pub fn is_preview_physics_id(id: &str) -> bool {
     PREVIEW_PHYSICS_IDENTITIES.iter().any(|(i, _)| *i == id)
 }
 /// A preview-physics identity's `(table, profile)`; `None` for any other identity.
+///
+/// RT-A4 §10.4: inside a recorded-run read (`recorded_tables::read_recorded`) only, the
+/// recorded variant's table (or, for preview-physics-2, the base a selected successor
+/// inherits); everywhere else the current table.
 pub fn preview_physics_identity(id: &str) -> Option<(&'static Value, &'static str)> {
+    let recorded = crate::recorded_tables::selected_table(id);
     match id {
+        PREVIEW_PHYSICS_ID if recorded.is_some() => recorded.map(|t| (t, PREVIEW_PHYSICS_PROFILE)),
+        PREVIEW_PHYSICS_TIMOSHENKO_ID if recorded.is_some() => recorded.map(|t| (t, PREVIEW_PHYSICS_TIMOSHENKO_PROFILE)),
         PREVIEW_PHYSICS_ID => Some((preview_physics_contract(), PREVIEW_PHYSICS_PROFILE)),
         PREVIEW_PHYSICS_TIMOSHENKO_ID => {
             Some((preview_physics_timoshenko_contract(), PREVIEW_PHYSICS_TIMOSHENKO_PROFILE))
@@ -170,7 +177,7 @@ pub fn preview_physics_identity_of(source: &Value) -> (&'static Value, &'static 
 pub const PREVIEW_PHYSICS_RETAINED_ID: &str = crate::retained_precision::CONTRACT_ID;
 pub const PREVIEW_PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::PROFILE;
 pub const PREVIEW_PHYSICS_RETAINED_SHA256: &str =
-    "b001070e5fedeeb101522b22ce0d61bb7cf85f82e86b8d851713f8d9fc8c4c46";
+    "26dce9c21261b1ca894af05a3b6f4a94db88904894cb47f7296f892e72ecfb7e";
 /// B3b (B3-D §6.1): the exact successor `<physics-retained>`, whose base is
 /// pressure-2 since B7b D4 (a). Like the preview successor, its raw and transport statements are
 /// checked only by the accepted reader (`crate::retained_precision`, its exact
@@ -179,7 +186,7 @@ pub const PHYSICS_RETAINED_ID: &str = crate::retained_precision::EXACT_CONTRACT_
 pub const PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::EXACT_PROFILE;
 /// T4-U6: its rows, vocabulary and counts follow the inherited pressure-2 table.
 pub const PHYSICS_RETAINED_SHA256: &str =
-    "cf29fd5fc5d61de0f1133e9668b05f3d62ae8f696944fe04de7470029f5357dd";
+    "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034";
 /// A receipt member or a W1 method-token row offered under any other identity
 /// (I66 F-5: the base readers' closed lists do not name `retained_precision`).
 pub const RETAINED_PRECISION_DOWNGRADE_FORBIDDEN: &str = "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN";
@@ -241,9 +248,12 @@ pub(crate) fn is_retained(source: &Value) -> bool {
     source["producer"]["semantic_contract_id"] == PREVIEW_PHYSICS_RETAINED_ID
         || source["producer"]["semantic_contract_id"] == PHYSICS_RETAINED_ID
 }
-/// The successor's own pinned table, by identity.
+/// The successor's own pinned table, by identity (RT-A4 §10.4: inside a recorded-run read,
+/// the recorded variant's).
 fn retained_contract(source: &Value) -> &'static Value {
-    if source["producer"]["semantic_contract_id"] == PHYSICS_RETAINED_ID {
+    if let Some(table) = source["producer"]["semantic_contract_id"].as_str().and_then(crate::recorded_tables::selected_table) {
+        table
+    } else if source["producer"]["semantic_contract_id"] == PHYSICS_RETAINED_ID {
         physics_retained_contract()
     } else {
         preview_physics_retained_contract()
@@ -681,8 +691,9 @@ fn current_header(source: &Value) -> Result<(&'static Value, &'static str), Stri
             let table = match p["semantic_contract_id"].as_str() {
                 Some(PRESSURE_ID) => pressure_rows_contract(),
                 Some(PRESSURE_SOURCE_ID) => pressure_source_contract(),
-                Some(PREVIEW_PHYSICS_ID) => preview_physics_contract(),
-                Some(PREVIEW_PHYSICS_TIMOSHENKO_ID) => preview_physics_timoshenko_contract(),
+                Some(id @ (PREVIEW_PHYSICS_ID | PREVIEW_PHYSICS_TIMOSHENKO_ID)) => {
+                    preview_physics_identity(id).expect("a preview-physics identity").0
+                }
                 _ => return Err("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into()),
             };
             Ok((table, RESULT_EXPORT_VERSION))

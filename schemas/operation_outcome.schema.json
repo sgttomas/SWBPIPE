@@ -220,7 +220,7 @@
         },
         "severity": {
           "type": "string",
-          "description": "Open string in the Rust type; emitted vocabulary at publication is \"blocking\" — blocked operations are findings, not silent fallbacks."
+          "description": "Open string in the Rust type; the applier emits \"blocking\", \"warning\" and \"info\". A blocking finding refuses the operation (blocked operations are findings, not silent fallbacks); warning and info findings ride along with an applied result."
         },
         "message": { "type": "string" },
         "remediation": { "type": "string" },

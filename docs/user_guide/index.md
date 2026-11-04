@@ -102,7 +102,7 @@ A model solves on one of two routes:
   classified private, so these downloads are withheld in practice: the panel
   builds them but offers no download link.
 
-**Projects saved before model document 0.9.0.** Model document 0.9.0 adds optional operating-condition sets (`condition_sets`, a pipe segment's `condition_set_ref` and a load case's `condition_use`), a single-DOF support's `direction`, a result-state subtraction's `difference_basis` and `subtrahend_support_state`, the `absolute_sum` and `srss` combination bases with combinations as operands, a load case's hydrostatic `test_condition`, the `snubber` support family and response `spectra` (DEL-02-01 Design `model-document-0.9.0.md` §1-§2). A document may carry these members and open, edit and save; until the slices that give them meaning land, a solve refuses each one it cannot yet read by name, and nothing is dropped. The pressure-free solve now resolves a case's condition temperature, added weight and wind exposure (§6.1). The desktop opens only the current model-document version, so a project or saved model state stored at 0.8.0 is refused by name when you open it, and nothing is migrated. A 0.8.0 document whose `schema_version` alone is changed to 0.9.0 has the same meaning in 0.9.0; making that change is your re-authoring step, and the stored-document export still writes a refused project's bytes for it. Recorded runs keep their own format and existing read and compare behaviour; this change adds no model-document-version gate for recorded runs. Existing integrity checks and retained-precision/source-reader restrictions still apply. Run history is listed for the active project's id, so the runs of an older project are reached only through a current (0.9.0) project with the same project id. Comparing an older run with a newer one keeps the usual eligibility rules.
+**Projects saved before model document 0.9.0.** Model document 0.9.0 adds optional operating-condition sets (`condition_sets`, a pipe segment's `condition_set_ref` and a load case's `condition_use`), a single-DOF support's `direction`, a result-state subtraction's `difference_basis` and `subtrahend_support_state`, the `absolute_sum` and `srss` combination bases with combinations as operands (these now solve, §6.2), a load case's hydrostatic `test_condition`, the `snubber` support family and response `spectra` (DEL-02-01 Design `model-document-0.9.0.md` §1-§2). A document may carry these members and open, edit and save; until the slices that give them meaning land, a solve refuses each one it cannot yet read by name, and nothing is dropped. The pressure-free solve now resolves a case's condition temperature, added weight and wind exposure (§6.1). The desktop opens only the current model-document version, so a project or saved model state stored at 0.8.0 is refused by name when you open it, and nothing is migrated. A 0.8.0 document whose `schema_version` alone is changed to 0.9.0 has the same meaning in 0.9.0; making that change is your re-authoring step, and the stored-document export still writes a refused project's bytes for it. Recorded runs keep their own format and existing read and compare behaviour; this change adds no model-document-version gate for recorded runs. Existing integrity checks and retained-precision/source-reader restrictions still apply. Run history is listed for the active project's id, so the runs of an older project are reached only through a current (0.9.0) project with the same project id. Comparing an older run with a newer one keeps the usual eligibility rules.
 
 **Projects saved before model document 0.8.0.** Model document 0.8.0 adds a reducer's optional eccentric offset and the optional `model_settings.shear_model` beam-theory choice (§1.1 of DEL-02-01 Design `model-document-0.8.0.md`). The desktop opens only the current model-document version, so a project or saved model state stored at 0.7.0 is refused by name when you open it, and nothing is migrated. A 0.7.0 document whose `schema_version` alone is changed to 0.8.0 has the same meaning in 0.8.0; making that change is your re-authoring step. Recorded runs keep their own format and existing read and compare behaviour; this change adds no model-document-version gate for recorded runs. Existing integrity checks and retained-precision/source-reader restrictions still apply. Run history is listed for the active project's id, so the runs of an older project are reached only through a current (0.8.0) project with the same project id. Comparing an older run with a newer one keeps the usual eligibility rules.
 
@@ -489,7 +489,8 @@ never means the model solves.
 Nothing is defaulted at any step: no set is created or suggested, no pipe is
 given a set it was not assigned, and no temperature, weight, exposure or wind
 input is filled in. A hydrostatic `test_condition`, a support `direction` and
-the combination members stay refused at authoring.
+a combination's `difference_basis` and `subtrahend_support_state` stay refused
+at authoring; absolute sums, SRSS and combination operands are authored (§6.2).
 These are mechanics inputs only: no code operating, design or occasional load
 definition is implied, and the results carry no code-compliance claim.
 
@@ -497,6 +498,80 @@ The current viewport/editor contract represents camera, hover, selection,
 drag, snap, view primitives, diagnostics, and command intents. Durable edits
 should pass through application-service command boundaries rather than bypass
 schema, unit, provenance, privacy, diagnostic, report, or human-review controls.
+
+### 6.2 Load combinations: absolute sums, SRSS and combinations of combinations
+
+A combination is a row operation over solved results; it never adds a solve. Model
+document 0.9.0 has five bases (DEL-05-02 Work `absolute-sum-srss-combinations.md`;
+theory note `docs/theory/load_combinations.md`):
+
+| Basis | Inputs | Each published row |
+|---|---|---|
+| `mechanics` | terms (factor and operand) | Σ fᵢ·xᵢ, signed |
+| `result_state_subtraction` | `minuend_id`, `subtrahend_id` | x_m − x_s, signed; not an equilibrium state |
+| `range_envelope` | `operand_ids`, `mode` | the selected operand row; not one state |
+| `absolute_sum` | terms | Σ \|fᵢ·xᵢ\|, unsigned |
+| `srss` | terms | √Σ (fᵢ·xᵢ)², unsigned |
+
+**Inputs.** A term names exactly one of `load_case` and `combination`, with a
+finite factor; no operand may repeat. A subtraction's or envelope's id names the
+load case when one has that id, and a combination otherwise; to name a combination
+that shares a load case's id, use a term's `combination`. Combinations may name
+combinations declared later in the list, but never in a cycle
+(`LOAD_COMBINATION_OPERAND_CYCLE`). A declared operating comparison
+(`difference_basis`) names load cases only.
+
+**Method.** The absolute sum is the exact sum of |factor × value|, rounded once.
+The SRSS rounds each factor × value once and takes the correctly rounded square
+root of the exact sum of their squares. Both are unsigned, never −0.0, and do not
+depend on term order. A value outside the binary64 range is withheld by name
+(`LOAD_COMBINATION_ROW_WITHHELD`, "load-case algebra refused"). Displacement and
+support-force and -moment magnitudes are the norm of the combination's own
+components: for an SRSS that is the SRSS of the operands' magnitudes; for an
+absolute sum it bounds every signed combination's magnitude from above. Support
+groups publish whole or not at all. Combinations are evaluated in dependency order
+(earliest in the list first among those ready), and the results follow that order.
+
+**Assumptions and gates.** A combination counts each fixed load (a consuming
+constant-effort support's force, a connector's or tie rod's installed reference)
+κ times, its fixed-load count, computed exactly from the operand tree:
+- a `mechanics` combination in such a model publishes only when κ is within 2⁻⁴⁶
+  of 1 (`CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE` or
+  `COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE` otherwise; an operand with an
+  undefined κ withholds it too);
+- an absolute sum or SRSS in such a model publishes only when every operand's κ is
+  exactly 0 (`CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND`,
+  `INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND`). Author each seismic
+  operand as a difference, (base + EQx) − base, which has κ = 0;
+- every load case a combination reaches must share one modulus basis (and, on the
+  exact route, one resolved stiffness);
+- in a model with nonlinear supports a `mechanics` combination is withheld
+  (`NONLINEAR_COMBINATION_REQUIRES_SOLVE`) unless it is one solved load case with
+  factor exactly 1 plus one or more combinations with κ exactly 0 (for example
+  sustained + SRSS of differences). Its rows say "a solved state plus derived
+  differences or bounds; not an equilibrium state", and each operand's standing is
+  recorded;
+- a combination naming a withheld combination is withheld whole
+  (`LOAD_COMBINATION_OPERAND_WITHHELD`).
+
+**Limitations.** Combination rows are derived inspection results: they carry no
+numerical check of their own and never enter headlines, maxima or numerical
+eligibility. Unsigned rows carry no sign or direction. The desktop shows them in the
+Results table, the navigator and the support and displacement summaries labelled
+"absolute sum, unsigned" or "SRSS, unsigned", keeps them out of maxima and minima,
+and never draws them as a deformed shape or a colour state. The retained routes and
+the CAEPIPE SI writer decline these bases and combination operands by name. The
+load manager's editors for them are later work. Which combinations a design code
+requires, with which factors, is your rule-pack data: SWBPIPE forms the
+combinations you author and does not determine code compliance.
+
+**Runs recorded before this change.** This change restated the pressure-free
+combination limitation, so a pressure-free (or retained) result recorded or saved
+before it names the earlier text. Such a run keeps its existing read and compare
+behaviour: it opens as a historical run, read against the exact earlier table it
+recorded, and nothing in it is migrated or rewritten. It stays historical; solve
+again for a current result. A result carrying the earlier text is not accepted as
+a new result anywhere else.
 
 ## 7. Solving Mechanics And Reading Status
 

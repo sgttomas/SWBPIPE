@@ -3,13 +3,19 @@
 with nonlinear supports and its two notices from the received document; it checks the statement's internal
 consistency, not any case's standing (each operand's quality record is the document's own, compared bit for bit).
 
-Independence: standard-library imports only, and its siblings ``section_basis`` (bit equality) and ``units``.
+Independence: standard-library imports only, and its siblings ``section_basis`` (bit equality), ``units`` and
+``combination_graph``.
+
+RT-A4 (DEL-05-02 ``absolute-sum-srss-combinations.md`` sections 4-5): a record may also state an absolute sum, an
+SRSS, or a mechanics combination admitted by decision OQ-1 (re-derived from the earlier records); a term names a load
+case or a combination; a combination operand is ``{combination_id}`` and states its standing in its own record.
 """
 from __future__ import annotations
 
 from collections.abc import Mapping
 from typing import Any
 
+from . import combination_graph as graph
 from .section_basis import bit_equal
 from .units import to_canonical
 
@@ -65,21 +71,38 @@ def _basis(row: Mapping[str, Any], ref_type: str) -> str | None:
     return None
 
 
-def _evaluation_order(basis: Any, expression: Any) -> list[str]:
-    """Minuend then subtrahend; a range envelope's ids sorted (code-point order is UTF-8 byte order)."""
+def _evaluation_order(basis: Any, expression: Any, cases: set[str]) -> tuple[list[tuple[str, str]], list[float]]:
+    """Terms in order; minuend then subtrahend; a range envelope's ids sorted (code-point order is UTF-8 byte order).
+    An id names the load case when one has it, a combination otherwise."""
+    if basis in graph.TERM_BASES:
+        _require(_keys(expression, {"terms"}) and isinstance(expression["terms"], list) and expression["terms"], "SHAPE")
+        operands, factors = [], []
+        for term in expression["terms"]:
+            parsed = graph.evidence_term(term)
+            _require(parsed is not None and parsed[0] not in operands, "SHAPE")
+            operands.append(parsed[0])
+            factors.append(parsed[1])
+        return operands, factors
     if basis == "result_state_subtraction":
         _require(_keys(expression, {"minuend_id", "subtrahend_id"}), "SHAPE")
         a, b = expression["minuend_id"], expression["subtrahend_id"]
         _require(_text(a) and _text(b) and a != b, "SHAPE")
-        return [a, b]
+        return [graph.resolve(a, cases), graph.resolve(b, cases)], []
     if basis == "range_envelope":
         _require(_keys(expression, {"operand_ids", "mode"}) and expression["mode"] in MODES, "SHAPE")
         ids = expression["operand_ids"]
         _require(isinstance(ids, list) and ids and all(_text(i) for i in ids), "SHAPE")
         ordered = sorted(ids)
         _require(len(set(ordered)) == len(ordered), "SHAPE")
-        return ordered
+        return [graph.resolve(i, cases) for i in ordered], []
     raise _fail("SHAPE")
+
+
+ROW_BASES = {"range_envelope": ("explicit_user_range_envelope", None),
+             "result_state_subtraction": ("explicit_user_result_state_subtraction", None),
+             "absolute_sum": (graph.ABSOLUTE_SUM_BASIS, graph.ABSOLUTE_SUM_SIGN),
+             "srss": (graph.SRSS_BASIS, graph.SRSS_SIGN),
+             "mechanics": (LINEAR_BASIS, graph.SOLVED_STATE_PLUS_INCREMENTS_SIGN)}
 
 
 def _notice(id_: str, code: str, severity: str, message: str, refs: list[str]) -> dict[str, Any]:
@@ -139,6 +162,8 @@ def _states_notice(cid: str, operands: list[str], rows: list) -> dict[str, Any] 
 def _standing_notice(cid: str, operands: list) -> dict[str, Any] | None:
     failing = []
     for operand in operands:
+        if not isinstance(operand, Mapping) or "load_case_id" not in operand:
+            continue
         quality = operand.get("numerical_quality") if isinstance(operand.get("numerical_quality"), Mapping) else {}
         solve = quality.get("solve_quality") if isinstance(quality.get("solve_quality"), str) else "not_assessed"
         if solve != "checks_passed":
@@ -163,24 +188,38 @@ def check(source: Mapping[str, Any], solved: bool) -> None:
     admitted = [g["combination_id"] for g in _items(evidence.get("combination_gates"))
                 if isinstance(g, Mapping) and g.get("withheld") is False and isinstance(g.get("combination_id"), str)]
     _require((MEMBER in evidence) == (solved and nonlinear and bool(admitted)), "PRESENCE")
-    # In a solved nonlinear document every mechanics combination is withheld.
-    if solved and nonlinear:
-        _require(not any(isinstance(r, Mapping) and _basis(r, "combination") is not None and isinstance(r.get("metadata"), Mapping)
-                         and r["metadata"].get("basis") == LINEAR_BASIS for r in rows), "MECHANICS_ADMITTED")
     expected: list[dict[str, Any]] = []
+    quality = _items((source.get("numerical_quality") or {}).get("cases"))
+    cases = {q["basis_ref"]["ref_id"] for q in quality if isinstance(q, Mapping) and isinstance(q.get("basis_ref"), Mapping)
+             and q["basis_ref"].get("ref_type") == "load_case" and isinstance(q["basis_ref"].get("ref_id"), str)}
+    recorded = graph.Graph()
+    # In a solved nonlinear document a linear-combination row belongs to a recorded mechanics combination, which
+    # decision OQ-1 admitted (checked on its record below).
+    if solved and nonlinear:
+        mechanics = {r.get("combination_id") for r in (member if isinstance(member, list) else [])
+                     if isinstance(r, Mapping) and r.get("basis") == "mechanics"}
+        _require(not any(isinstance(r, Mapping) and _basis(r, "combination") is not None and _basis(r, "combination") not in mechanics
+                         and isinstance(r.get("metadata"), Mapping) and r["metadata"].get("basis") == LINEAR_BASIS for r in rows),
+                 "MECHANICS_ADMITTED")
     if MEMBER in evidence:
         _require(isinstance(member, list), "SHAPE")
         _require(len(member) == len(admitted), "PRESENCE")
-        quality = _items((source.get("numerical_quality") or {}).get("cases"))
         by_id = {r["id"]: r for r in rows if isinstance(r, Mapping) and isinstance(r.get("id"), str)}
         for record, gate_id in zip(member, admitted):
             _require(_keys(record, RECORD_KEYS) and record["standing"] == STANDING, "SHAPE")
             _require(record["combination_id"] == gate_id, "PRESENCE")
             cid = gate_id
-            order = _evaluation_order(record["basis"], record["expression"])
+            basis = record["basis"]
+            order, factors = _evaluation_order(basis, record["expression"], cases)
+            # In a solved nonlinear document a mechanics combination is admitted only by decision OQ-1.
+            if basis == "mechanics":
+                _require(recorded.solved_state_plus_increments(list(zip(order, factors))), "MECHANICS_ADMITTED")
             operands = record["operands"]
             _require(isinstance(operands, list) and len(operands) == len(order), "SHAPE")
-            for operand, case in zip(operands, order):
+            for operand, (kind, case) in zip(operands, order):
+                if kind == "combination":
+                    _require(bit_equal(operand, {"combination_id": case}) and recorded.knows(case), "SHAPE")
+                    continue
                 _require(_keys(operand, OPERAND_KEYS) and operand["load_case_id"] == case, "SHAPE")
                 _require(operand["modulus_basis_ref"] is None or _text(operand["modulus_basis_ref"]), "SHAPE")
                 t = operand["modulus_basis_temperature"]
@@ -188,20 +227,22 @@ def check(source: Mapping[str, Any], solved: bool) -> None:
                 stated = next((q for q in quality if isinstance(q, Mapping) and isinstance(q.get("basis_ref"), Mapping)
                                and q["basis_ref"].get("ref_type") == "load_case" and q["basis_ref"].get("ref_id") == case), None)
                 _require(stated is not None and bit_equal(stated, operand["numerical_quality"]), "STANDING")
+            recorded.add(cid, basis, order, factors)
             # Rows: references by row kind and basis.
-            row_basis = "explicit_user_range_envelope" if record["basis"] == "range_envelope" else "explicit_user_result_state_subtraction"
+            row_basis, sign = ROW_BASES[basis]
             for row in rows:
                 if not isinstance(row, Mapping) or _basis(row, "combination") != cid or row.get("kind") == MODULUS_RECORD:
                     continue
                 metadata = row.get("metadata")
                 _require(metadata is None or (isinstance(metadata, Mapping) and metadata.get("basis") == row_basis), "ROWS")
+                _require(metadata is None or sign is None or metadata.get("sign_convention") == sign, "ROWS")
                 refs = row.get("source_result_refs")
                 refs = refs if isinstance(refs, list) else []
                 kind = row.get("kind")
                 components = None
-                if record["basis"] == "result_state_subtraction" and kind == "displacement_magnitude":
+                if basis != "range_envelope" and kind == "displacement_magnitude":
                     components = [(k, None) for k in DISPLACEMENT_COMPONENTS]
-                elif record["basis"] == "result_state_subtraction" and kind in ("support_reaction_force_magnitude_v2", "support_reaction_moment_magnitude_v2"):
+                elif basis != "range_envelope" and kind in ("support_reaction_force_magnitude_v2", "support_reaction_moment_magnitude_v2"):
                     components = [(SUPPORT_COMPONENT, c) for c in SUPPORT_COMPONENTS]
                 if components is not None:
                     # Recomputed magnitudes name this combination's component rows, in order.
@@ -212,15 +253,16 @@ def check(source: Mapping[str, Any], solved: bool) -> None:
                                  and source.get("entity_ref") == row.get("entity_ref")
                                  and (component is None or (source.get("metadata") or {}).get("component") == component), "ROWS")
                 else:
-                    # Direct rows name one matching case row per operand, in evaluation order.
+                    # Direct rows name one matching operand row per operand, in evaluation order.
                     _require(len(refs) == len(order), "ROWS")
-                    for ref, case in zip(refs, order):
+                    for ref, operand in zip(refs, order):
                         source = by_id.get(ref) if isinstance(ref, str) else None
-                        _require(source is not None and _basis(source, "load_case") == case and source.get("kind") == kind
+                        _require(source is not None and graph.owns(operand, source) and source.get("kind") == kind
                                  and source.get("entity_ref") == row.get("entity_ref") and source.get("unit") == row.get("unit")
                                  and (source.get("metadata") or {}).get("component") == (metadata or {}).get("component")
                                  and (source.get("metadata") or {}).get("location") == (metadata or {}).get("location"), "ROWS")
-            for notice in (_states_notice(cid, order, rows), _standing_notice(cid, operands)):
+            order_cases = [case for kind, case in order if kind == "case"]
+            for notice in (_states_notice(cid, order_cases, rows), _standing_notice(cid, operands)):
                 if notice is not None:
                     expected.append(notice)
     stated = [d for d in diagnostics if isinstance(d, Mapping) and d.get("code") in (STATES_DIFFER, NOT_PASSED)]
@@ -230,26 +272,34 @@ def check(source: Mapping[str, Any], solved: bool) -> None:
 
 
 def model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) -> None:
-    """§3 with a supplied model: one record per subtraction or range envelope, in model order, when the model has a
-    nonlinear support, and none otherwise; ids, bases, expressions and operand selections are the model's."""
+    """Section 3 with a supplied model: when the model has a nonlinear support the records follow the model's
+    evaluation order (absolute-sum-srss section 2), each binding its id, basis, expression and operand selections to
+    the model's, and every subtraction or range envelope whose operand combinations are all recorded is recorded; with
+    no nonlinear support there is none."""
     if (source.get("status") or {}).get("mechanics") != "MECHANICS_SOLVED":
         return
     nonlinear = any(isinstance(s, Mapping) and s.get("nonlinear") is not None for s in _items(model.get("supports")))
     combinations = model.get("combinations")
     combinations = [] if combinations is None else combinations
     _require(isinstance(combinations, list), "MODEL")
-    combinations = [c for c in combinations if isinstance(c, Mapping) and c.get("basis") != "mechanics"]
     records = _items((source.get("contract_evidence") or {}).get(MEMBER))
-    _require(len(records) == (len(combinations) if nonlinear else 0), "MODEL")
+    if not nonlinear:
+        _require(not records, "MODEL")
+        return
     cases = _items(model.get("load_cases"))
-    for record, combination in zip(records, combinations):
-        _require(record.get("combination_id") == combination.get("id") and record.get("basis") == combination.get("basis"), "MODEL")
-        if combination.get("basis") == "result_state_subtraction":
-            expression = {"minuend_id": combination.get("minuend_id"), "subtrahend_id": combination.get("subtrahend_id")}
-        else:
-            expression = {"operand_ids": combination.get("operand_ids"), "mode": combination.get("mode")}
-        _require(bit_equal(record.get("expression"), expression), "MODEL")
+    case_ids = {c.get("id") for c in cases if isinstance(c, Mapping) and isinstance(c.get("id"), str)}
+    order = graph.model_order(combinations, case_ids)
+    recorded = {r.get("combination_id") for r in records if isinstance(r, Mapping)}
+    position = 0
+    for record in records:
+        at = next((k for k, i in enumerate(order[position:]) if record.get("combination_id") == combinations[i].get("id")), None)
+        _require(at is not None, "MODEL")
+        combination = combinations[order[position + at]]
+        position += at + 1
+        _require(record.get("basis") == combination.get("basis") and bit_equal(record.get("expression"), graph.evidence_expression(combination)), "MODEL")
         for operand in _items(record.get("operands")):
+            if isinstance(operand, Mapping) and "combination_id" in operand:
+                continue
             case = next((c for c in cases if isinstance(c, Mapping) and c.get("id") == operand.get("load_case_id")), None)
             _require(case is not None, "MODEL")
             temperature = case.get("modulus_basis_temperature")
@@ -261,3 +311,8 @@ def model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) -> None:
                 temperature = {"value": kelvin, "unit": "K"}
             _require(bit_equal(operand.get("modulus_basis_ref"), case.get("modulus_basis_ref"))
                      and bit_equal(operand.get("modulus_basis_temperature"), temperature), "MODEL")
+    for index in order:
+        combination = combinations[index]
+        if combination.get("basis") in ("result_state_subtraction", "range_envelope") and all(
+                kind == "case" or oid in recorded for kind, oid in graph.model_operands(combination, case_ids)):
+            _require(combination.get("id") in recorded, "MODEL")

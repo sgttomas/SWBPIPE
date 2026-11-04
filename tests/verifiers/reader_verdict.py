@@ -355,7 +355,8 @@ def validate(reader: str, source: Any, model: Any = None, invocation: Any = None
             source_recovery(source)
             return {"ok": True}
         if reader == "preview-physics":
-            preview_physics_evidence.validate_preview_physics_evidence(source)
+            # RT-A4 (review r1 P2): with the model, the combination gates and unsigned rows are re-derived from it.
+            preview_physics_evidence.validate_preview_physics_evidence(source, model)
             if model is not None:
                 # pf-timoshenko.md §4: with the model, a crossed identity is refused first.
                 bind_preview_shear_model(source, model)
@@ -368,6 +369,9 @@ def validate(reader: str, source: Any, model: Any = None, invocation: Any = None
                 # Operating-case slice 1a (§3): the operand records bound to the model's combinations.
                 from . import preview_combination_operands
                 preview_combination_operands.model_checks(source, model)
+                # RT-A4 (review r1 P2): the gates and unsigned rows, re-derived from the model.
+                from . import preview_combination_gates
+                preview_combination_gates.check(source, model)
             return {"ok": True}
         if reader == "pressure":
             pressure_2.validate_pressure_evidence(source)

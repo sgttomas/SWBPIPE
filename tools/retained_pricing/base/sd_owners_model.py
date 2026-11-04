@@ -72,7 +72,13 @@ def _body(text, name):
 def inspect(snapshot):
     """True when the guard's owners are present as reviewed; False on an earlier revision; anything else stops."""
     texts = {rel: _read(snapshot, rel) or "" for rel in (PREVIEW, VAL, FIELDS)}
-    present = [re.sub(r"\s*\n\s*", "", _body(texts[rel], fn)).count(needle) for rel, fn, needle in STATEMENTS]
+    statements = STATEMENTS
+    # RT-A4 D3 (retained-pricing-rules.md §8.46): a support group's rows now extend the combination's own `out`
+    # (RT-A4-CB prices it), which is moved into `results` at the combination's end; the group's `rows` vector is unchanged.
+    if "let mut out: Vec<ResultItem> = Vec::new();" in _body(texts[PREVIEW], "append_combination_results"):
+        statements = tuple((rel, fn, "Ok(rows) => {if keep {out_bases.extend(rows.iter().map(|_| None));}out.extend(rows);}"
+                            if needle == "Ok(rows) => results.extend(rows)," else needle) for rel, fn, needle in STATEMENTS)
+    present = [re.sub(r"\s*\n\s*", "", _body(texts[rel], fn)).count(needle) for rel, fn, needle in statements]
     if not any(present):
         return False
     expected = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2]

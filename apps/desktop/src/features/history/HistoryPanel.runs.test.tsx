@@ -82,9 +82,23 @@ describe("recorded runs in the History panel (W-12 S2)", () => {
   });
 
   it("shows a record check's outcome and says it establishes no current result", () => {
-    const context = { findings: [], designation: "recorded_run" } as unknown as HistoricalRunContext;
+    const context = { findings: [], checkFindings: [], recordedTableRead: null, historicalReaderFindings: [], designation: "recorded_run" } as unknown as HistoricalRunContext;
     renderPanel(history({ runCheck: { recordingId: RUN.recording_id, context, failure: null } }));
     expect(screen.getByTestId(`recorded-run-${RUN.recording_id}-check`)).toHaveTextContent("The record, its stored result and input manifest, and its state's model hash agree. This is a record check only; it establishes no current result.");
+    expect(screen.queryByTestId(`recorded-run-${RUN.recording_id}-recorded-reader`)).toBeNull();
+  });
+
+  it("RT-A4 §10.4: shows a pre-RT-A4 run's reader findings as recorded under their table, and its check failures as the record's", () => {
+    const table = { id: "openpipestress.result_semantics/0.3.0/preview-physics-2", sha256: "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2" };
+    const context = { findings: ["SOURCE_RECOVERY_METADATA_CONTRADICTION"], checkFindings: ["SOURCE_RECOVERY_METADATA_CONTRADICTION"], recordedTableRead: table, historicalReaderFindings: ["READER_STANDING_EXAMPLE"], designation: "recorded_run" } as unknown as HistoricalRunContext;
+    renderPanel(history({ runCheck: { recordingId: RUN.recording_id, context, failure: null } }));
+    const check = screen.getByTestId(`recorded-run-${RUN.recording_id}-check`);
+    expect(check).toHaveTextContent("The recorded run does not match its stored state and record:");
+    expect(check).toHaveTextContent("SOURCE_RECOVERY_METADATA_CONTRADICTION");
+    const recorded = screen.getByTestId(`recorded-run-${RUN.recording_id}-recorded-reader`);
+    expect(recorded).toHaveTextContent(`As recorded under ${table.id} (sha256 ${table.sha256}); historical evidence only, not a current standing`);
+    expect(recorded).toHaveTextContent("READER_STANDING_EXAMPLE");
+    expect(recorded).not.toHaveTextContent("SOURCE_RECOVERY_METADATA_CONTRADICTION");
   });
 
   it("Record Run… states why it is unavailable, and is disabled while busy with the reason", () => {
