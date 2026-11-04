@@ -35,7 +35,12 @@
 //!   (`analysis_runs::checked_native_record`) and its transaction
 //!   (`plan_native_run`, `write_native_run`); Save Project applies the
 //!   project store's replacement guard, its withheld-run guard and the model
-//!   document checks, unchanged.
+//!   document checks, unchanged. The rebuild is the preview's
+//!   (`analysis_run_v03_build`), so a registered `pressure` solve's rebuild
+//!   reuses the registration's pass held with the publication instead of
+//!   reading that route's reader again (RT-U4); every binding check here runs
+//!   as before, and Record Run's revision is sealed and counted in one
+//!   traversal (`Revision::sealed_and_counted`).
 //! - **SQLite's limit, exactly, before allocation and before writes.** Inside
 //!   the write transaction the writing connection's `SQLITE_LIMIT_LENGTH` is
 //!   read (rusqlite `limits`), and result/record values and their table,
@@ -539,6 +544,7 @@ pub(crate) fn run_record(
         let mut load_basis = Value::Null;
         let mut reserve = |bytes: u64| registry.acquire_result_parse(bytes).map(Some).map_err(CommandError::from);
         let built = build::preview_parsed(
+            &prepared.held,
             &mut source,
             &prepared.evidence,
             &prepared.manifest_sha256,
@@ -614,8 +620,8 @@ fn stage_record(
     let payload = manifest.pointer("/model_basis/model_payload").ok_or_else(|| "ANALYSIS-RUN-MANIFEST-INVALID: the input manifest has no model payload.".to_string())?;
     let rule_pack_refs = analysis_runs::rule_pack_refs(manifest)?;
     let library_refs = analysis_runs::library_refs(payload);
-    let revision = Revision { created_at: &plan.created_at, state_id: &plan.state_id, rule_pack_refs: &rule_pack_refs, library_refs: &library_refs, record_sha256: String::new() }.sealed(built);
-    let record_length = revision.stored_length(built);
+    let (revision, record_length) =
+        Revision { created_at: &plan.created_at, state_id: &plan.state_id, rule_pack_refs: &rule_pack_refs, library_refs: &library_refs, record_sha256: String::new() }.sealed_and_counted(built);
     let recording_id = analysis_runs::recording_id_of(&revision.record_sha256);
     let limit_bytes = length_limit(transaction);
     let small = |value: &str| Cell::Text(value.len() as u64);
@@ -865,6 +871,7 @@ pub(crate) fn run_save(
         let mut load_basis = Value::Null;
         let mut reserve = |bytes: u64| registry.acquire_result_parse(bytes).map(Some).map_err(CommandError::from);
         let built = build::preview_parsed(
+            &prepared.held,
             &mut source,
             &prepared.evidence,
             &prepared.manifest_sha256,

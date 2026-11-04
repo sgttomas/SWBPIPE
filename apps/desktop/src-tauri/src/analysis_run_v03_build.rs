@@ -32,6 +32,24 @@
 //!   its negative zeros kept (`jsonTextKeepingNegativeZero`), after the
 //!   checked-profile check of `retainedJsonText`; this is done in place on
 //!   the parsed value (numbers only), so it allocates nothing.
+//! - **One reader reused, never cached (RT-U4).** The `pressure` route's
+//!   reader is not read again when the held publication already holds the
+//!   session's registration pass of it ([`validate_route_held`],
+//!   `solve_jobs::ReaderEvidence`): the native verdict notes, on the share it
+//!   read, that its `pressure` validation of those exact bytes returned the
+//!   pass. That reader is `validate_pressure_evidence` of the source and then,
+//!   only with a model, G2's model checks, so the registration's model-bound
+//!   pass is a pass of the model-free reader read here; the outcome is the
+//!   same (`Ok`), so the refusal order is unchanged. The note is the
+//!   publication's own, fixed with its bytes in the share a disposal or reset
+//!   cannot change; a restored result has none; no webview flag, header or
+//!   token sets it. Nothing else is reused: the preview-physics registration
+//!   is model-bound, and its model-free reader alone re-derives the
+//!   combination gates from the document (`preview_physics_evidence`), a check
+//!   `result_export` does not expose by itself; the pressure-source
+//!   registration reads the invocation, which this reader does not; the
+//!   retained routes have no native registration. Those routes, and a
+//!   publication without the note, read [`validate_route`] as before.
 //! - **Refusals, in the TypeScript order.** Each refusal is the message the
 //!   TypeScript throws, byte for byte. Where the TypeScript builder throws a
 //!   JavaScript `TypeError` (a member read on `undefined` or `null`, a
@@ -48,27 +66,37 @@
 //! - **Bounded passes, no record tree.** The record is never a `Value` and,
 //!   for the preview, never text. The held text is parsed once (the parse
 //!   lease of M, as slices 1 to 3); everything else reads that tree:
-//!   1. the readers (route, binding, the route's reader);
+//!   1. the readers (route, binding, the route's reader, or for `pressure`
+//!      the publication's registration pass, above);
 //!   2. the record contract's checks over the rows (identities, bases, row
-//!      interpretation, the checked profile), one row at a time;
+//!      interpretation, the checked profile), one row at a time; then the
+//!      checked profile of the source's other members only, since every row
+//!      was just read and found inside it (RT-U4: the whole-source check's
+//!      outcome, without reading the rows twice);
 //!   3. the received result's checksum: the canonical text of the whole
 //!      result streamed into SHA-256, never built;
-//!   4. the record checksum: the record's canonical projection streamed into
-//!      SHA-256, each row's checksum streamed the same way, each result ref
-//!      written straight from the borrowed row;
-//!   5. the stored length: the stored form written to a byte counter (the
-//!      record checksum's 64 digits counted by length);
-//!   6. the record validator's checks, the duplicate-id check reading one
+//!   4. the record checksum and the stored length, in one traversal (RT-U4,
+//!      [`ProjectionAndLength`]): the record's canonical projection streamed
+//!      into SHA-256, each row's checksum streamed the same way, each result
+//!      ref written straight from the borrowed row and its interpretation
+//!      read once; and the stored form written to a byte counter (the
+//!      record's own checksum and the rows' counted by length, since every
+//!      digest is 64 ASCII digits);
+//!   5. the record validator's checks, the duplicate-id check reading one
 //!      16-byte entry (an 8-byte fingerprint and 8-byte row index) per row
 //!      from an allocation leased at its exact size; equal hashes are
 //!      checked against the actual ids.
 //!
 //!   The record's bytes, when a persistence consumer asks for them
-//!   ([`record_bytes`]), are a seventh pass writing the stored form into a
+//!   ([`record_bytes`]), are a further pass writing the stored form into a
 //!   buffer of the exact length, leased and checked against the caller's
 //!   bound before it is allocated; a record over the bound is refused by name
 //!   ([`RECORD_TOO_LARGE`]) with nothing allocated, and is never truncated.
-//!   The preview header exists whatever the record's size.
+//!   Record Run's recorded revision is sealed and counted in one traversal
+//!   ([`Revision::sealed_and_counted`]), then written. Every pass reads the
+//!   borrowed tree and keeps nothing per row beyond the leased fingerprints;
+//!   no row is skipped and every all-row check still reads every row. The
+//!   preview header exists whatever the record's size.
 //! - **The command** `read_preview_mechanics_job_analysis_run_preview`, raw
 //!   args body `{jobId, inputManifest: {manifest_ref, manifest_sha256,
 //!   canonical_bytes}, ruleCheckAggregate, rulePackExclusions}` (the
@@ -79,8 +107,13 @@
 //!   run's identity, both checksums, the statuses and counts, and every record
 //!   member except the row-scale ones (`result_refs`, the producer's
 //!   `diagnostics`, the copied `contract_evidence`, `source_block_recovery`
-//!   and `retained_precision`), which it counts or names. Nothing is cached:
-//!   each call reads the held bytes with the arguments it is given.
+//!   and `retained_precision`), which it counts or names. Each call reads the
+//!   held bytes with the arguments it is given. One fact is retained between
+//!   calls, as validation evidence bound to the held publication (not to a job
+//!   id, the webview or any global): the `pressure` registration passed the
+//!   current reader on exactly these bytes (`ReaderEvidence`, above), which
+//!   lets the build skip re-running that reader. No record, checksum, length,
+//!   row, interpretation or reply is cached between calls.
 //! - **Admission and memory** (plan §8; no new budget or rule). Every lease is
 //!   pool-admitted before what it covers is allocated, and none exceeds the
 //!   per-invocation budget or the 12 GiB default:
@@ -235,6 +268,8 @@ fn outside_profile(number: &Number) -> bool {
 
 /// Whether any number in `value` is outside the checked profile.
 pub(crate) fn has_outside_profile(value: &Value) -> bool {
+    #[cfg(test)]
+    tests::passes::bump(tests::passes::OUTSIDE_NODES);
     match value {
         Value::Number(number) => outside_profile(number),
         Value::Array(items) => items.iter().any(has_outside_profile),
@@ -485,6 +520,8 @@ impl<'s, S: Sink> Writer<'s, S> {
 
 /// The canonical text of `value` (`canonical_json`) streamed into SHA-256.
 pub(crate) fn canonical_sha256(value: &Value) -> String {
+    #[cfg(test)]
+    tests::passes::bump(tests::passes::CANONICAL_HASHES);
     let mut hasher = Sha256::new();
     Writer::new(&mut hasher, Style::Canonical).value(value);
     hex(&hasher.finalize())
@@ -492,6 +529,116 @@ pub(crate) fn canonical_sha256(value: &Value) -> String {
 
 pub(crate) fn hex(bytes: &[u8]) -> String {
     bytes.iter().map(|b| format!("{b:02x}")).collect()
+}
+
+/// What the record's writers ([`write_record`]) write through: one
+/// [`Writer`], or a [`ProjectionAndLength`] writing the record checksum's
+/// projection and counting the stored form in the same traversal. The
+/// provided members write exactly what [`Writer`]'s own do.
+pub(crate) trait RecordOut {
+    fn raw(&mut self, text: &str);
+    fn string(&mut self, text: &str);
+    fn value(&mut self, value: &Value);
+    fn unsigned(&mut self, value: u64);
+    /// The record's own `analysis_run_record` checksum and the comma after
+    /// it, where `part` writes one (not in the projection).
+    fn own_checksum(&mut self, part: Part, run_id: &str, record_sha256: &str);
+    fn key(&mut self, key: &str) {
+        self.string(key);
+        self.raw(":");
+    }
+    /// `{"object_type":<type>,"ref":<reference>}`.
+    fn object_ref(&mut self, object_type: &str, reference: &str) {
+        self.raw("{\"object_type\":");
+        self.string(object_type);
+        self.raw(",\"ref\":");
+        self.string(reference);
+        self.raw("}");
+    }
+    /// One v0.3 checksum descriptor.
+    fn checksum(&mut self, canonicalization: &str, payload_ref: impl FnOnce(&mut Self), scope: &str, value: impl FnOnce(&mut Self))
+    where
+        Self: Sized,
+    {
+        self.raw("{\"algorithm\":\"sha256\",\"canonicalization\":");
+        self.string(canonicalization);
+        self.raw(",\"payload_ref\":");
+        payload_ref(self);
+        self.raw(",\"payload_scope\":");
+        self.string(scope);
+        self.raw(",\"value\":");
+        value(self);
+        self.raw("}");
+    }
+}
+
+impl<S: Sink> RecordOut for Writer<'_, S> {
+    fn raw(&mut self, text: &str) {
+        Writer::raw(self, text);
+    }
+    fn string(&mut self, text: &str) {
+        Writer::string(self, text);
+    }
+    fn value(&mut self, value: &Value) {
+        Writer::value(self, value);
+    }
+    fn unsigned(&mut self, value: u64) {
+        Writer::unsigned(self, value);
+    }
+    fn own_checksum(&mut self, part: Part, run_id: &str, record_sha256: &str) {
+        debug_assert!(part != Part::ProjectionAndStored, "one writer writes one part");
+        if part != Part::Projection {
+            Writer::checksum(self, CHECKED_PROFILE_V1, |w| w.object_ref("AnalysisRun", run_id), "analysis_run_record", |w| w.string(record_sha256));
+            Writer::raw(self, ",");
+        }
+    }
+}
+
+/// A SHA-256 hex digest's stand-in where only the stored form's length is
+/// counted: every digest is 64 ASCII hex digits, which the stored writer
+/// writes unescaped, so it counts exactly as any digest does.
+const DIGEST_PLACEHOLDER: &str = "0000000000000000000000000000000000000000000000000000000000000000";
+
+/// RT-U4: one traversal writing the record checksum's canonical projection
+/// into `projection` and the stored form into a byte counter, so a row's
+/// interpretation and its checksum are read once for both. Every primitive is
+/// written to both writers, each in its own style; the record's own checksum
+/// (absent from the projection) is counted with [`DIGEST_PLACEHOLDER`],
+/// since the checksum is what the projection is computing. The length is
+/// exactly the stored form's, whatever the digests are.
+pub(crate) struct ProjectionAndLength<'p, 'c, S: Sink> {
+    projection: Writer<'p, S>,
+    length: Writer<'c, Count>,
+}
+
+impl<'p, 'c, S: Sink> ProjectionAndLength<'p, 'c, S> {
+    pub(crate) fn new(projection: &'p mut S, length: &'c mut Count) -> Self {
+        Self { projection: Writer::new(projection, Style::Canonical), length: Writer::new(length, Style::Stored) }
+    }
+}
+
+impl<S: Sink> RecordOut for ProjectionAndLength<'_, '_, S> {
+    fn raw(&mut self, text: &str) {
+        self.projection.raw(text);
+        self.length.raw(text);
+    }
+    fn string(&mut self, text: &str) {
+        self.projection.string(text);
+        self.length.string(text);
+    }
+    fn value(&mut self, value: &Value) {
+        self.projection.value(value);
+        self.length.value(value);
+    }
+    fn unsigned(&mut self, value: u64) {
+        self.projection.unsigned(value);
+        self.length.unsigned(value);
+    }
+    fn own_checksum(&mut self, part: Part, run_id: &str, record_sha256: &str) {
+        debug_assert!(part == Part::ProjectionAndStored);
+        let _ = record_sha256;
+        RecordOut::own_checksum(&mut self.length, Part::Stored, run_id, DIGEST_PLACEHOLDER);
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -587,6 +734,8 @@ pub(crate) fn reader_refusal(outcome: &Value) -> Option<(String, String)> {
 /// place for it); the pressure-source reader, with the record surfaces'
 /// receipt and publication codes.
 pub(crate) fn validate_route(source: &mut Value, route: &Route) -> Result<(), String> {
+    #[cfg(test)]
+    tests::passes::bump(tests::passes::READER_VALIDATIONS);
     match route.name {
         "preview_physics" | "pressure" => {
             let reader = if route.name == "pressure" { "pressure" } else { "preview-physics" };
@@ -724,6 +873,8 @@ fn source_basis_matches(signature: &Value, row: &Value) -> bool {
 /// A row's record interpretation (`analysisRowSemanticsIn`): its table
 /// signature, or none, and the findings.
 pub(crate) fn interpret<'t>(table: &'t Value, row: &Value) -> Result<(Option<&'t Value>, &'static [&'static str]), String> {
+    #[cfg(test)]
+    tests::passes::bump(tests::passes::INTERPRETATIONS);
     let entries = table["rows"].as_array().map(Vec::as_slice).unwrap_or(&[]);
     let kind = row.get("kind");
     let unit = row.get("unit");
@@ -886,7 +1037,10 @@ pub(crate) fn build<'a>(
         Some(Value::Array(items)) => items.as_slice(),
         _ => return Err(refuse(shape("result.diagnostics is not an array"))),
     };
-    if has_outside_profile(source) {
+    // `has_outside_profile(source)`: every row was read above and none is
+    // outside (the row phase refuses otherwise), so only the other members
+    // are read again (RT-U4).
+    if outside_besides_rows(source, rows) {
         return Err(refuse(OUTSIDE_PROFILE.into()));
     }
     let received_sha256 = canonical_sha256(source);
@@ -945,15 +1099,26 @@ pub(crate) fn build<'a>(
         record_bytes: 0,
         route,
     };
-    let mut hasher = Sha256::new();
-    write_record(&mut Writer::new(&mut hasher, Style::Canonical), &built, Part::Projection, None, &mut |row| canonical_sha256(row));
+    // The record checksum and the stored length, in one traversal (RT-U4).
+    let (mut hasher, mut count) = (Sha256::new(), Count::default());
+    write_record(&mut ProjectionAndLength::new(&mut hasher, &mut count), &built, Part::ProjectionAndStored, None, &mut |row| canonical_sha256(row));
     built.record_sha256 = hex(&hasher.finalize());
-    let mut count = Count::default();
-    let placeholder = "0".repeat(64);
-    write_record(&mut Writer::new(&mut count, Style::Stored), &built, Part::Stored, None, &mut |_| placeholder.clone());
     built.record_bytes = count.0;
     validate_built(&built, source, inputs, reserve)?;
     Ok(built)
+}
+
+/// `has_outside_profile(source)` for a source whose `rows` (its `results`
+/// array) are each known to be inside the profile: the source's other
+/// members only. Exactly the whole check then, without reading the rows again.
+fn outside_besides_rows(source: &Value, rows: &[Value]) -> bool {
+    match source {
+        Value::Object(map) => map.values().any(|value| match value {
+            Value::Array(items) if std::ptr::eq(items.as_slice(), rows) => false,
+            other => has_outside_profile(other),
+        }),
+        other => has_outside_profile(other),
+    }
 }
 
 /// `Array.from(new Set(["HUMAN_REVIEW_REQUIRED", mechanics, rule].filter(Boolean))).sort()`.
@@ -1025,8 +1190,8 @@ pub(crate) fn duplicate_ids(rows: &[Value], reserve: &mut dyn FnMut(u64) -> Resu
 }
 
 /// Which part of the record a writer writes.
-#[derive(Clone, Copy, PartialEq, Eq)]
-enum Part {
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub(crate) enum Part {
     /// The record checksum's payload (`analysisRecordProjection`): the record
     /// without its own checksum.
     Projection,
@@ -1034,12 +1199,16 @@ enum Part {
     Stored,
     /// The header's record: every member but the row-scale ones.
     Header,
+    /// RT-U4: [`Part::Projection`] and [`Part::Stored`] at once, through a
+    /// [`ProjectionAndLength`] (the two differ only in the record's own
+    /// checksum, [`RecordOut::own_checksum`]).
+    ProjectionAndStored,
 }
 
 const PROVENANCE: &str = r#"{"professional_claim":false,"review_status":"pending","source_license":"project-governed","source_location":"analysis_run.compatibility.v0.3","source_name":"OpenPipeStress analysis record 0.3"}"#;
 
 /// One result ref, written from the borrowed row (its keys in order).
-fn write_result_ref<S: Sink>(w: &mut Writer<'_, S>, built: &Built<'_>, index: usize, row: &Value, row_sha256: &str) {
+fn write_result_ref<W: RecordOut>(w: &mut W, built: &Built<'_>, index: usize, row: &Value, row_sha256: &str) {
     let (semantic, findings) = interpret(built.table, row).expect("interpreted by the row pass");
     let id = row["id"].as_str().expect("checked with the load basis");
     let member = |key: &str| semantic.and_then(|entry| entry.get(key)).filter(|value| !value.is_null());
@@ -1091,8 +1260,8 @@ fn write_result_ref<S: Sink>(w: &mut Writer<'_, S>, built: &Built<'_>, index: us
 /// which is the same in both styles (every key the record itself writes is
 /// ASCII); copied values follow the writer's style. `row_sha256` gives each
 /// row's checksum.
-fn write_record<S: Sink>(w: &mut Writer<'_, S>, built: &Built<'_>, part: Part, revision: Option<&Revision<'_>>, row_sha256: &mut dyn FnMut(&Value) -> String) {
-    let copy = |w: &mut Writer<'_, S>, key: &str| {
+fn write_record<W: RecordOut>(w: &mut W, built: &Built<'_>, part: Part, revision: Option<&Revision<'_>>, row_sha256: &mut dyn FnMut(&Value) -> String) {
+    let copy = |w: &mut W, key: &str| {
         if part == Part::Header {
             return;
         }
@@ -1135,11 +1304,7 @@ fn write_record<S: Sink>(w: &mut Writer<'_, S>, built: &Built<'_>, part: Part, r
         w.raw("]");
     }
     w.raw(",\"hashes\":[");
-    if part != Part::Projection {
-        let record_sha256 = revision.map_or(built.record_sha256.as_str(), |revision| revision.record_sha256.as_str());
-        w.checksum(CHECKED_PROFILE_V1, |w| w.object_ref("AnalysisRun", built.run_id), "analysis_run_record", |w| w.string(record_sha256));
-        w.raw(",");
-    }
+    w.own_checksum(part, built.run_id, revision.map_or(built.record_sha256.as_str(), |revision| revision.record_sha256.as_str()));
     let envelope = format!("result-envelope:{}", built.run_id);
     w.checksum(CHECKED_PROFILE_V1, |w| w.object_ref("ResultEnvelope", &envelope), "received_result", |w| w.string(&built.received_sha256));
     w.raw("],\"immutability_policy\":{\"hash_invalidates_external_acceptance\":true,\"mutation_policy\":\"changes_create_new_immutable_record_revision\",\"new_mechanics_run_required_for_record_revision\":false,\"record_revision_identity\":\"analysis_run_record_sha256\",\"run_record_is_read_only\":true},\"library_refs\":[");
@@ -1212,7 +1377,7 @@ fn write_record<S: Sink>(w: &mut Writer<'_, S>, built: &Built<'_>, part: Part, r
 }
 
 /// Writes `items` as a JSON list's members (comma-separated).
-fn write_list<S: Sink>(w: &mut Writer<'_, S>, items: &[Value]) {
+fn write_list<W: RecordOut>(w: &mut W, items: &[Value]) {
     for (at, item) in items.iter().enumerate() {
         if at > 0 {
             w.raw(",");
@@ -1233,31 +1398,24 @@ pub(crate) struct Revision<'r> {
     pub(crate) state_id: &'r str,
     pub(crate) rule_pack_refs: &'r [Value],
     pub(crate) library_refs: &'r [Value],
-    /// Filled by [`Revision::sealed`].
+    /// Filled by [`Revision::sealed_and_counted`].
     pub(crate) record_sha256: String,
 }
 
 impl Revision<'_> {
-    /// The revision with its own checksum: the record's canonical projection
-    /// with the revision applied, streamed into SHA-256 (each row's checksum
-    /// streamed again).
-    pub(crate) fn sealed(mut self, built: &Built<'_>) -> Self {
-        let mut hasher = Sha256::new();
-        write_record(&mut Writer::new(&mut hasher, Style::Canonical), built, Part::Projection, Some(&self), &mut |row| canonical_sha256(row));
+    /// The revision with its own checksum (the record's canonical projection
+    /// with the revision applied, streamed into SHA-256, each row's checksum
+    /// streamed again) and its exact stored length (the rows' checksums by
+    /// length), in one traversal (RT-U4, [`ProjectionAndLength`]).
+    pub(crate) fn sealed_and_counted(mut self, built: &Built<'_>) -> (Self, u64) {
+        let (mut hasher, mut count) = (Sha256::new(), Count::default());
+        write_record(&mut ProjectionAndLength::new(&mut hasher, &mut count), built, Part::ProjectionAndStored, Some(&self), &mut |row| canonical_sha256(row));
         self.record_sha256 = hex(&hasher.finalize());
-        self
+        (self, count.0)
     }
 
-    /// The revision's exact stored length, counted (the rows' checksums by length).
-    pub(crate) fn stored_length(&self, built: &Built<'_>) -> u64 {
-        let mut count = Count::default();
-        let placeholder = "0".repeat(64);
-        write_record(&mut Writer::new(&mut count, Style::Stored), built, Part::Stored, Some(self), &mut |_| placeholder.clone());
-        count.0
-    }
-
-    /// The revision's stored bytes, into a buffer of `length` (its
-    /// [`Revision::stored_length`]) admitted through `reserve` first.
+    /// The revision's stored bytes, into a buffer of `length` (its counted
+    /// length, [`Revision::sealed_and_counted`]) admitted through `reserve` first.
     pub(crate) fn stored_bytes<R>(&self, built: &Built<'_>, length: u64, reserve: impl FnOnce(u64) -> Result<R, CommandError<String>>) -> Result<(Vec<u8>, R), CommandError<String>> {
         let guard = reserve(ingress::allocation_envelope(length).unwrap_or(u64::MAX))?;
         let mut out = Vec::with_capacity(length as usize);
@@ -1447,11 +1605,27 @@ fn applied_rule_check_status<'a>(aggregate: Option<&'a Value>, solve: Option<&'a
     }
 }
 
+/// The route's reader on `source`, the parse of `held`'s bytes, unless
+/// `held`'s own evidence already holds its pass (RT-U4, module docs, "The
+/// readers"): only the `pressure` route's, whose model-free reader the
+/// registration's pass of the same bytes establishes
+/// (`solve_jobs::ReaderEvidence`). Every other route, and a held result
+/// without that evidence, reads [`validate_route`] as before. Its outcome is
+/// [`validate_route`]'s in every case.
+pub(crate) fn validate_route_held(source: &mut Value, route: &Route, held: &crate::solve_jobs::HeldResult) -> Result<(), String> {
+    if route.name == "pressure" && held.pressure_reader_passed() {
+        return Ok(());
+    }
+    validate_route(source, route)
+}
+
 /// `buildAnalysisRunPreview` after its manifest check, on a parsed source:
 /// the solve's status, the dispatch, the model's load basis (written to
-/// `load_basis`), the route's reader, then the record.
+/// `load_basis`), the route's reader ([`validate_route_held`]; `source` is
+/// the parse of `held`'s bytes), then the record.
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn preview_parsed<'a>(
+    held: &crate::solve_jobs::HeldResult,
     source: &'a mut Value,
     evidence: &'a ManifestArg,
     manifest_sha256: &'a Value,
@@ -1466,7 +1640,7 @@ pub(crate) fn preview_parsed<'a>(
     get(status, "rule_check", "result.status").map_err(refuse)?;
     let route = dispatch(source).map_err(refuse)?;
     *load_basis = model_load_basis_refs(manifest).map_err(refuse)?;
-    validate_route(source, &route).map_err(refuse)?;
+    validate_route_held(source, &route, held).map_err(refuse)?;
     let source: &'a Value = source;
     let load_basis: &'a Value = load_basis;
     let inputs = BuildInputs {
@@ -1632,6 +1806,7 @@ fn with_built<T>(
     let mut load_basis = Value::Null;
     let mut reserve = |bytes: u64| registry.acquire_result_parse(bytes).map(Some).map_err(CommandError::from);
     let built = preview_parsed(
+        &prepared.held,
         &mut source,
         &prepared.evidence,
         &prepared.manifest_sha256,
@@ -1670,4 +1845,9 @@ pub(crate) fn run_record_bytes_within(registry: SolveJobRegistry, raw: Vec<u8>, 
 #[cfg(test)]
 #[path = "analysis_run_v03_build_tests.rs"]
 pub(crate) mod tests;
+
+/// RT-U4: the builder's passes as they were (verbatim, e231ea144), the tests' reference.
+#[cfg(test)]
+#[path = "analysis_run_v03_build_old_reference.rs"]
+mod old_reference;
 

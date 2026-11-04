@@ -1246,3 +1246,78 @@ fn overlapping_record_runs_on_one_store_commit_whole_or_are_refused_busy() {
     std::fs::remove_dir_all(&dir).unwrap();
     assert_eq!(registry.pool().reserved_total(), 0);
 }
+
+/// RT-U4 (1) through the persistence commands: a registered pressure solve
+/// (the session's `pressure` validation passed on its held bytes) is recorded
+/// and saved without reading the route's reader again, and stores exactly
+/// what an unregistered job of the same bytes stores (every run, label and
+/// snapshot column; the project and search rows; the replies), which
+/// `record_run_stores_the_submitted_paths_rows_byte_for_byte` and
+/// `save_and_create_store_the_submitted_paths_rows_and_the_sessions_envelope_hash`
+/// bind to the submitted path. With the evidence held, the binding refusals
+/// still refuse by name, nothing written: a stale preview, another model
+/// text, a webview-custody job and a disposed job.
+#[test]
+fn a_registered_solve_is_recorded_and_saved_without_its_reader_and_stores_the_same_bytes() {
+    use crate::analysis_run_v03_build::tests::{passes, verdict};
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let dir = scratch("registered");
+    let case = case_named("preview:pressure");
+    let mut stored = Vec::new();
+    for registered in [false, true] {
+        let job = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
+        if registered {
+            assert_eq!(verdict(&registry, &job, Some("pressure"), Some(&case.intake)).unwrap(), crate::solve_jobs::READER_PASSED);
+            assert!(registry.held_result(&job).unwrap().pressure_reader_passed());
+        }
+        let (record, save) = (dir.join(format!("record-{registered}.sqlite")), dir.join(format!("save-{registered}.sqlite")));
+        stored_project(&record, case.project_id(), case.model());
+        if registered {
+            let unchanged = || -> Vec<Rows> { RUN_TABLES.iter().chain(["local_projects"].iter()).map(|table| dump(&record, table, &[])).collect() };
+            let before = unchanged();
+            let mut stale = case.record_args(&job, native_request(None));
+            stale["expectedRecord"]["record_sha256"] = json!("0".repeat(64));
+            let mut other_intake = case.record_args(&job, native_request(None));
+            other_intake["intakeText"] = json!(format!("{} ", case.intake));
+            let webview_job = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Webview);
+            assert_eq!(verdict(&registry, &webview_job, Some("pressure"), Some(&case.intake)).unwrap(), crate::solve_jobs::READER_PASSED);
+            let disposed_job = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
+            assert_eq!(verdict(&registry, &disposed_job, Some("pressure"), Some(&case.intake)).unwrap(), crate::solve_jobs::READER_PASSED);
+            assert!(registry.dispose_result(&disposed_job).unwrap().released);
+            for (args, code) in [
+                (stale, RECORD_STALE),
+                (other_intake, CUSTODY),
+                (case.record_args(&webview_job, native_request(None)), CUSTODY),
+                (case.record_args(&disposed_job, native_request(None)), "INGRESS"),
+            ] {
+                let text = native_record(&registry, &record, &args, None).unwrap_err();
+                assert!(text.starts_with(code), "{code}: {text}");
+                assert_eq!(unchanged(), before, "{code}: nothing was written");
+            }
+            let mut stale_save = case.save_args(&job, "create", Value::Null, Value::Null);
+            stale_save["expectedRecord"]["received_sha256"] = json!("1".repeat(64));
+            assert!(native_save(&registry, &save, &stale_save, &unlimited()).unwrap_err().starts_with(RECORD_STALE));
+            registry.dispose_result(&webview_job).unwrap();
+        }
+        let (reply, record_work) = passes::measure(|| native_record(&registry, &record, &case.record_args(&job, native_request(None)), None).unwrap());
+        let (mut saved, save_work) = passes::measure(|| native_save(&registry, &save, &case.save_args(&job, "create", Value::Null, Value::Null), &unlimited()).unwrap());
+        saved["summary"].as_object_mut().unwrap().remove("database_path");
+        assert_eq!((record_work.reader_validations, save_work.reader_validations), (u64::from(!registered), u64::from(!registered)), "registered {registered}");
+        stored.push((record, save, reply, saved, record_work, save_work));
+        assert!(registry.dispose_result(&job).unwrap().released);
+    }
+    let (unregistered, registered) = (&stored[0], &stored[1]);
+    for table in RUN_TABLES {
+        same_rows(&unregistered.0, &registered.0, table, &[], &case.id);
+    }
+    for table in ["local_projects", "local_project_fts"] {
+        same_rows(&unregistered.1, &registered.1, table, &[], &case.id);
+    }
+    assert_eq!((&unregistered.2, &unregistered.3), (&registered.2, &registered.3), "the same replies");
+    // Only the reader's run is saved.
+    assert_eq!(passes::Counts { reader_validations: 1, ..registered.4 }, unregistered.4);
+    assert_eq!(passes::Counts { reader_validations: 1, ..registered.5 }, unregistered.5);
+    std::fs::remove_dir_all(&dir).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0, "every lease ended with its command");
+}

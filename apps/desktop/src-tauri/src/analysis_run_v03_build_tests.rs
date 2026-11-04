@@ -45,6 +45,55 @@ thread_local! {
     pub(crate) static PANIC_IN_BUILD: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
 }
 
+use super::old_reference;
+
+/// RT-U4: test-only counts of the builder's work, per thread (each command
+/// under test runs on the calling thread): calls of the route's full reader
+/// (`validate_route`), row interpretations (`interpret`), values visited by
+/// the checked-profile check (`has_outside_profile`, each node) and
+/// canonical SHA-256 streams (`canonical_sha256`: the received result's and
+/// each row's). The counters change nothing the builder computes.
+pub(crate) mod passes {
+    use std::cell::Cell;
+    pub(crate) const READER_VALIDATIONS: usize = 0;
+    pub(crate) const INTERPRETATIONS: usize = 1;
+    pub(crate) const OUTSIDE_NODES: usize = 2;
+    pub(crate) const CANONICAL_HASHES: usize = 3;
+    thread_local! {
+        static COUNTS: Cell<[u64; 4]> = const { Cell::new([0; 4]) };
+    }
+    pub(crate) fn bump(kind: usize) {
+        COUNTS.with(|counts| {
+            let mut now = counts.get();
+            now[kind] += 1;
+            counts.set(now);
+        });
+    }
+    #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+    pub(crate) struct Counts {
+        pub(crate) reader_validations: u64,
+        pub(crate) interpretations: u64,
+        pub(crate) outside_nodes: u64,
+        pub(crate) canonical_hashes: u64,
+    }
+    /// This thread's counts now, for [`since`].
+    pub(crate) fn snapshot() -> [u64; 4] {
+        COUNTS.with(Cell::get)
+    }
+    /// The counts added on this thread since `before`.
+    pub(crate) fn since(before: [u64; 4]) -> Counts {
+        let after = snapshot();
+        let d = |kind: usize| after[kind] - before[kind];
+        Counts { reader_validations: d(READER_VALIDATIONS), interpretations: d(INTERPRETATIONS), outside_nodes: d(OUTSIDE_NODES), canonical_hashes: d(CANONICAL_HASHES) }
+    }
+    /// `work`'s result and the counts it added on this thread.
+    pub(crate) fn measure<T>(work: impl FnOnce() -> T) -> (T, Counts) {
+        let before = snapshot();
+        let out = work();
+        (out, since(before))
+    }
+}
+
 fn root() -> std::path::PathBuf {
     std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..")
 }
@@ -638,5 +687,482 @@ fn reserve_does_not_parse_and_the_response_is_a_raw_body() {
     match response(bytes.clone()).body().unwrap() {
         InvokeResponseBody::Raw(raw) => assert_eq!(raw, bytes),
         InvokeResponseBody::Json(_) => panic!("Tauri would parse the header before the adapter receives it"),
+    }
+}
+
+// ---------------------------------------------------------------------------
+// RT-U4: the native build's repair, against the builder as it was
+// (`old_reference`, verbatim from e231ea144)
+// ---------------------------------------------------------------------------
+
+/// Everything the builder's consumers persist, hash or reply, from one
+/// built record: both checksums and the stored length; the stored bytes
+/// (Save Project's `analysis_run_json`); the preview header's bytes; the
+/// header record Record Run checks; the canonical record Save Project's
+/// envelope hash streams; and Record Run's recorded revision (its checksum,
+/// counted length and stored bytes) for a fixed revision.
+#[derive(Debug, PartialEq, Eq)]
+struct Persisted {
+    received_sha256: String,
+    record_sha256: String,
+    record_bytes: u64,
+    stored: Vec<u8>,
+    header: Vec<u8>,
+    header_record: Value,
+    canonical_record_sha256: String,
+    revision_sha256: String,
+    revision_length: u64,
+    revision_bytes: Vec<u8>,
+}
+
+/// The work of each consumer phase: the preview (the route's reader, if
+/// read, the build and the header), Record Run's revision and Save
+/// Project's record and canonical record.
+#[derive(Debug, Default, PartialEq, Eq)]
+struct Work {
+    preview: passes::Counts,
+    revision: passes::Counts,
+    save: passes::Counts,
+}
+
+const REVISION_CREATED_AT: &str = "2026-11-04T00:00:00.000Z";
+const REVISION_STATE: &str = "state:invented:rt-u4";
+
+fn revision_refs() -> (Vec<Value>, Vec<Value>) {
+    (vec![json!({"object_type": "RulePack", "ref": "rule-pack:invented@1"})], vec![json!({"object_type": "Library", "ref": "library:invented"})])
+}
+
+/// The current builder's consumers on `source` (`validate` reads the route's reader first).
+fn persisted_now(source: &mut Value, route: Option<Route>, inputs: &BuildInputs<'_>) -> (Result<Persisted, String>, Work) {
+    let mut work = Work::default();
+    let start = passes::snapshot();
+    let route = match route.map_or_else(|| dispatch(source).and_then(|route| validate_route(source, &route).map(|()| route)), Ok) {
+        Ok(route) => route,
+        Err(text) => return (Err(text), Work { preview: passes::since(start), ..Work::default() }),
+    };
+    let source: &Value = source;
+    let built = match build(source, route, inputs, &mut no_lease) {
+        Ok(built) => built,
+        Err(error) => return (Err(command_text(error)), Work { preview: passes::since(start), ..Work::default() }),
+    };
+    let (header, ()) = header_bytes(&built, "job-rt-u4", |_| Ok(())).unwrap();
+    work.preview = passes::since(start);
+    let (rule_pack_refs, library_refs) = revision_refs();
+    let ((revision_sha256, revision_length, revision_bytes), counts) = passes::measure(|| {
+        let (revision, length) =
+            Revision { created_at: REVISION_CREATED_AT, state_id: REVISION_STATE, rule_pack_refs: &rule_pack_refs, library_refs: &library_refs, record_sha256: String::new() }.sealed_and_counted(&built);
+        let (bytes, ()) = revision.stored_bytes(&built, length, |_| Ok(())).unwrap();
+        (revision.record_sha256.clone(), length, bytes)
+    });
+    work.revision = counts;
+    let ((stored, canonical_record_sha256), counts) = passes::measure(|| {
+        let (stored, ()) = record_bytes(&built, u64::MAX, |_| Ok(())).unwrap();
+        let mut hasher = Sha256::new();
+        write_canonical_record(&built, &mut hasher);
+        (stored, hex(&hasher.finalize()))
+    });
+    work.save = counts;
+    let persisted = Persisted {
+        received_sha256: built.received_sha256.clone(),
+        record_sha256: built.record_sha256.clone(),
+        record_bytes: built.record_bytes,
+        stored,
+        header,
+        header_record: super::header_record(&built),
+        canonical_record_sha256,
+        revision_sha256,
+        revision_length,
+        revision_bytes,
+    };
+    (Ok(persisted), work)
+}
+
+/// The same consumers through the builder as it was (`old_reference`).
+fn persisted_before(source: &mut Value, route: Option<Route>, inputs: &BuildInputs<'_>) -> (Result<Persisted, String>, Work) {
+    use old_reference as old;
+    let mut work = Work::default();
+    let start = passes::snapshot();
+    let route = match route.map_or_else(|| dispatch(source).and_then(|route| validate_route(source, &route).map(|()| route)), Ok) {
+        Ok(route) => route,
+        Err(text) => return (Err(text), Work { preview: passes::since(start), ..Work::default() }),
+    };
+    let source: &Value = source;
+    let built = match old::build(source, route, inputs, &mut no_lease) {
+        Ok(built) => built,
+        Err(error) => return (Err(command_text(error)), Work { preview: passes::since(start), ..Work::default() }),
+    };
+    let (header, ()) = old::header_bytes(&built, "job-rt-u4", |_| Ok(())).unwrap();
+    work.preview = passes::since(start);
+    let (rule_pack_refs, library_refs) = revision_refs();
+    let ((revision_sha256, revision_length, revision_bytes), counts) = passes::measure(|| {
+        let revision = old::Revision { created_at: REVISION_CREATED_AT, state_id: REVISION_STATE, rule_pack_refs: &rule_pack_refs, library_refs: &library_refs, record_sha256: String::new() }.sealed(&built);
+        let length = revision.stored_length(&built);
+        let (bytes, ()) = revision.stored_bytes(&built, length, |_| Ok(())).unwrap();
+        (revision.record_sha256.clone(), length, bytes)
+    });
+    work.revision = counts;
+    let ((stored, canonical_record_sha256), counts) = passes::measure(|| {
+        let (stored, ()) = old::record_bytes(&built, u64::MAX, |_| Ok(())).unwrap();
+        let mut hasher = Sha256::new();
+        old::write_canonical_record(&built, &mut hasher);
+        (stored, hex(&hasher.finalize()))
+    });
+    work.save = counts;
+    let persisted = Persisted {
+        received_sha256: built.received_sha256.clone(),
+        record_sha256: built.record_sha256.clone(),
+        record_bytes: built.record_bytes,
+        stored,
+        header,
+        header_record: old::header_record(&built),
+        canonical_record_sha256,
+        revision_sha256,
+        revision_length,
+        revision_bytes,
+    };
+    (Ok(persisted), work)
+}
+
+/// The values the checked-profile check visits in `rows` (each read whole:
+/// a row inside the profile is read to its last value).
+fn row_nodes(rows: &[Value]) -> u64 {
+    passes::measure(|| rows.iter().for_each(|row| assert!(!has_outside_profile(row)))).1.outside_nodes
+}
+
+/// What every comparison checks: the same outcome, byte for byte; and, for a
+/// built record of `rows` rows, the work each phase drops: one row
+/// interpretation per row in the preview and in Record Run's revision (their
+/// checksum and length now one traversal), and the rows' second
+/// checked-profile reading (every value of every row, the `results` array and
+/// the source object). The readers run, and the canonical streams, are the same.
+fn compare(id: &str, before: (Result<Persisted, String>, Work), now: (Result<Persisted, String>, Work), rows: Option<&[Value]>, misses: &mut Vec<String>) -> Option<(Work, Work)> {
+    let ((old, old_work), (new, new_work)) = (before, now);
+    if old != new {
+        let summary = |outcome: &Result<Persisted, String>| match outcome {
+            Ok(p) => format!("record {} received {} {} bytes", p.record_sha256, p.received_sha256, p.record_bytes),
+            Err(text) => format!("refused `{text}`"),
+        };
+        misses.push(format!("{id}: before {} / now {}", summary(&old), summary(&new)));
+        return None;
+    }
+    if let (Ok(_), Some(rows)) = (&new, rows) {
+        let n = rows.len() as u64;
+        let expected_preview = passes::Counts {
+            reader_validations: old_work.preview.reader_validations,
+            interpretations: old_work.preview.interpretations - n,
+            // The rows' values, their `results` array and the source object itself
+            // (the other members are read directly).
+            outside_nodes: old_work.preview.outside_nodes - row_nodes(rows) - 2,
+            canonical_hashes: old_work.preview.canonical_hashes,
+        };
+        let expected_revision = passes::Counts { interpretations: old_work.revision.interpretations - n, ..old_work.revision };
+        if new_work.preview != expected_preview || new_work.revision != expected_revision || new_work.save != old_work.save {
+            misses.push(format!("{id}: work before {old_work:?}, now {new_work:?}, expected preview {expected_preview:?}"));
+        }
+        assert_eq!(old_work.preview.interpretations, 3 * n, "{id}: before, the preview interpreted each row three times");
+        assert_eq!((old_work.revision.interpretations, new_work.revision.interpretations), (3 * n, 2 * n), "{id}");
+    } else if new_work.preview.reader_validations != old_work.preview.reader_validations
+        || new_work.preview.interpretations > old_work.preview.interpretations
+        || new_work.preview.canonical_hashes != old_work.preview.canonical_hashes
+    {
+        misses.push(format!("{id}: refused with other work: before {old_work:?}, now {new_work:?}"));
+    }
+    Some((old_work, new_work))
+}
+
+/// RT-U4 (2): on every case of the TypeScript builder's corpus that the
+/// builder reads (records and refusals; preview cases built from their
+/// session manifest), the current builder gives exactly the old builder's
+/// outcome, every persisted and hashed byte included (the stored record, both
+/// checksums, the stored length, the header, the header record, the canonical
+/// record and Record Run's recorded revision), or the same refusal text; and
+/// on each record it drops exactly the passes it claims (see [`compare`]).
+#[test]
+fn the_repaired_builder_writes_the_old_builders_bytes_with_fewer_passes() {
+    let mut misses = Vec::new();
+    let (mut records, mut refusals) = (0, 0);
+    let mut dropped = (0u64, 0u64);
+    let add = |total: &mut passes::Counts, c: passes::Counts| {
+        total.reader_validations += c.reader_validations;
+        total.interpretations += c.interpretations;
+        total.outside_nodes += c.outside_nodes;
+        total.canonical_hashes += c.canonical_hashes;
+    };
+    let (mut before_total, mut now_total) = (Work::default(), Work::default());
+    for case in cases() {
+        let id = case["id"].as_str().unwrap().to_string();
+        let Ok(parsed) = serde_json::from_str::<Value>(&source_text(&case["source"])) else { continue };
+        let exclusions: Vec<Exclusion> = serde_json::from_value(case.get("rule_pack_exclusions").cloned().unwrap_or(json!([]))).unwrap();
+        // A preview case's inputs are its session's (`preview_parsed`'s reading of them).
+        let (manifest_value, load_basis, aggregate);
+        let inputs = if case["kind"] == "preview" {
+            let Ok(manifest) = serde_json::from_str::<Value>(case["input_manifest"]["canonical_bytes"].as_str().unwrap()) else { continue };
+            manifest_value = manifest;
+            let Ok(basis) = model_load_basis_refs(&manifest_value) else { continue };
+            load_basis = basis;
+            aggregate = case["rule_check_aggregate"].as_str().map(|text| Value::String(text.into()));
+            BuildInputs {
+                manifest: ManifestEvidence { manifest_ref: &case["input_manifest"]["manifest_ref"], manifest_sha256: &case["input_manifest"]["manifest_sha256"], manifest: &manifest_value },
+                rule_check_status: applied_rule_check_status(aggregate.as_ref(), get_opt(parsed.get("status"), "rule_check")),
+                load_basis_refs: Some(&load_basis),
+                rule_pack_exclusions: &exclusions,
+            }
+        } else {
+            let manifest = &case["manifest"];
+            BuildInputs {
+                manifest: ManifestEvidence { manifest_ref: &manifest["manifest_ref"], manifest_sha256: &manifest["manifest_sha256"], manifest: &manifest["manifest"] },
+                rule_check_status: case.get("rule_check_status"),
+                load_basis_refs: case.get("load_basis_refs"),
+                rule_pack_exclusions: &exclusions,
+            }
+        };
+        let rows = parsed.get("results").and_then(Value::as_array).cloned().unwrap_or_default();
+        let before = persisted_before(&mut parsed.clone(), None, &inputs);
+        let now = persisted_now(&mut parsed.clone(), None, &inputs);
+        let built = now.0.is_ok();
+        if let Some((old, new)) = compare(&id, before, now, Some(&rows), &mut misses) {
+            if built {
+                records += 1;
+                for (total, work) in [(&mut before_total, &old), (&mut now_total, &new)] {
+                    add(&mut total.preview, work.preview);
+                    add(&mut total.revision, work.revision);
+                    add(&mut total.save, work.save);
+                }
+                dropped.0 += old.preview.interpretations + old.revision.interpretations - new.preview.interpretations - new.revision.interpretations;
+                dropped.1 += old.preview.outside_nodes - new.preview.outside_nodes;
+            } else {
+                refusals += 1;
+            }
+        }
+    }
+    assert!(misses.is_empty(), "{} cases differ:\n{}", misses.len(), misses.join("\n"));
+    eprintln!("RT-U4 corpus: {records} records and {refusals} refusals compared; over the records, before {before_total:?}, now {now_total:?}");
+    assert!(records >= 40 && refusals >= 40, "{records} records, {refusals} refusals compared");
+    assert!(dropped.0 > 0 && dropped.1 > 0, "{dropped:?}");
+}
+
+/// RT-U4 (2) on invented racks: the same bytes and the claimed passes at
+/// each size, and the same refusal, in the same order, where the rows or the
+/// other members leave the checked profile or a row is uninterpretable.
+#[test]
+fn the_repaired_builder_on_racks_and_their_refusals_is_the_old_builder() {
+    let manifest = json!({"manifest_ref": {"object_type": "InputManifest", "ref": "input-manifest:rack"}, "manifest_sha256": "1".repeat(64),
+        "manifest": {"model_basis": {"model_ref": "model:rack"}, "solver_basis": {"solver_name": "invented", "solver_version": "0.0.0", "solver_build_ref": "build:rack"}}});
+    let load_basis = json!([{"object_type": "LoadCase", "ref": "case:a"}]);
+    let inputs = rack_inputs(&manifest, &load_basis);
+    let mut misses = Vec::new();
+    for rows in [1usize, 7, 300, 2_000] {
+        let (source, route) = rack(rows);
+        let results = source["results"].as_array().unwrap().clone();
+        let (before, now) = (persisted_before(&mut source.clone(), Some(route.clone()), &inputs), persisted_now(&mut source.clone(), Some(route.clone()), &inputs));
+        let (old, new) = compare(&format!("rack {rows}"), before, now, Some(&results), &mut misses).expect("the same record");
+        eprintln!("RT-U4 rack {rows}: before {old:?}, now {new:?}");
+        assert_eq!((old.preview.interpretations, new.preview.interpretations), (3 * rows as u64, 2 * rows as u64));
+        // Refusals: (row, member) edits, each alone and with an earlier refusal.
+        let unsafe_number = json!(9_007_199_254_740_993.0f64);
+        let edits: Vec<(&str, Box<dyn Fn(&mut Value)>)> = vec![
+            ("a member outside the profile", Box::new(|s: &mut Value| s["extra"] = json!({"deep": [unsafe_number.clone()]}))),
+            ("a diagnostic outside the profile", Box::new(|s: &mut Value| s["diagnostics"] = json!([{"n": unsafe_number.clone()}]))),
+            ("the last row outside the profile", Box::new(|s: &mut Value| { let last = s["results"].as_array().unwrap().len() - 1; s["results"][last]["value"] = unsafe_number.clone(); })),
+            ("a row outside and a member outside", Box::new(|s: &mut Value| { s["results"][0]["value"] = unsafe_number.clone(); s["extra"] = unsafe_number.clone(); })),
+            ("an outside row before an uninterpretable one", Box::new(|s: &mut Value| { let last = s["results"].as_array().unwrap().len() - 1; s["results"][0]["value"] = unsafe_number.clone(); s["results"][last]["unit"] = json!("m"); })),
+            ("an uninterpretable row and a member outside", Box::new(|s: &mut Value| { s["results"][0]["unit"] = json!("m"); s["extra"] = unsafe_number.clone(); })),
+            ("diagnostics not a list and a member outside", Box::new(|s: &mut Value| { s["diagnostics"] = json!({"n": unsafe_number.clone()}); s["extra"] = unsafe_number.clone(); })),
+            ("duplicate row ids", Box::new(|s: &mut Value| { let last = s["results"].as_array().unwrap().len() - 1; s["results"][last]["id"] = json!("result:r0"); })),
+        ];
+        for (what, edit) in &edits {
+            let mut edited = source.clone();
+            edit(&mut edited);
+            let results = edited["results"].as_array().unwrap().clone();
+            let (before, now) = (persisted_before(&mut edited.clone(), Some(route.clone()), &inputs), persisted_now(&mut edited.clone(), Some(route.clone()), &inputs));
+            let refused = now.0.as_ref().err().cloned();
+            compare(&format!("rack {rows}: {what}"), before, now, Some(&results), &mut misses);
+            if !(rows == 1 && *what == "duplicate row ids") {
+                assert!(refused.is_some(), "rack {rows}: {what} is refused");
+            }
+        }
+    }
+    assert!(misses.is_empty(), "{} differ:\n{}", misses.len(), misses.join("\n"));
+}
+
+/// The native verdict command (`read_preview_mechanics_job_verdict`) in this
+/// thread, as the session's registration and standing call it.
+pub(crate) fn verdict(registry: &SolveJobRegistry, job: &str, reader: Option<&str>, model: Option<&str>) -> Result<String, CommandError<String>> {
+    let args = json!({"jobId": job, "reader": reader, "modelJson": model, "invocationJson": null});
+    let body = InvokeBody::Raw(serde_json::to_vec(&args).unwrap());
+    let (raw, lease) = crate::native_verdict::reserve(registry, &body, &headers(Some(INGRESS_ARGS_JSON_V1)))?;
+    crate::native_verdict::run(registry.clone(), raw, lease)
+}
+
+fn case_named(id: &str) -> Value {
+    cases().into_iter().find(|case| case["id"] == id).unwrap_or_else(|| panic!("{id}"))
+}
+
+/// The preview header and the bounded record bytes of `job`, and the work of each.
+fn preview_and_bytes(registry: &SolveJobRegistry, job: &str, case: &Value) -> ((Result<Vec<u8>, String>, passes::Counts), (Result<Vec<u8>, String>, passes::Counts)) {
+    let args = preview_args(job, case);
+    let header = passes::measure(|| call(registry, super::run, &args).map_err(command_text));
+    let bytes = passes::measure(|| preview_bytes(registry, &args, u64::MAX).map(|(bytes, _)| bytes).map_err(command_text));
+    (header, bytes)
+}
+
+/// RT-U4 (1): the registration's pass of the `pressure` reader on a held
+/// solve publication is the only reader evidence the builder reuses, and only
+/// for that publication.
+/// - Unregistered, the preview and the bytes route each read the route's
+///   reader (one full validation each). After the session's registration (the
+///   verdict command's `pressure` validation with the solve's model) passes on
+///   the same share, neither reads it, and both reply byte for byte as before.
+/// - Another job holding the same bytes has no evidence and reads the reader;
+///   a dispatch, a refused validation (a model the G2 checks refuse, a model
+///   that is not JSON) and another reader's pass leave none.
+/// - A source the reader refuses has no evidence, and the preview refuses it
+///   with the reader's own message, exactly as the old builder does.
+#[test]
+fn the_registrations_pressure_pass_is_reused_only_for_its_own_publication() {
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let case = case_named("preview:pressure");
+    let text = source_text(&case["source"]);
+    let model = case["intake_text"].as_str().unwrap();
+    assert_eq!(dispatch(&serde_json::from_str(&text).unwrap()).unwrap().name, "pressure");
+    let job = retained(&registry, &gate, &text);
+    let ((header, unregistered), (bytes, unregistered_bytes)) = preview_and_bytes(&registry, &job, &case);
+    let (header, bytes) = (header.unwrap(), bytes.unwrap());
+    assert_eq!((unregistered.reader_validations, unregistered_bytes.reader_validations), (1, 1));
+    // The registration's model-bound validation of the same held bytes.
+    assert!(!registry.held_result(&job).unwrap().pressure_reader_passed());
+    assert_eq!(verdict(&registry, &job, Some("pressure"), Some(model)).unwrap(), crate::solve_jobs::READER_PASSED);
+    assert!(registry.held_result(&job).unwrap().pressure_reader_passed());
+    let ((again, registered), (bytes_again, registered_bytes)) = preview_and_bytes(&registry, &job, &case);
+    assert_eq!((registered.reader_validations, registered_bytes.reader_validations), (0, 0), "the registration's pass is reused");
+    assert_eq!((again.unwrap(), bytes_again.unwrap()), (header.clone(), bytes.clone()), "the same header and record, byte for byte");
+    // Only the reader's run is saved; everything else is read as before.
+    assert_eq!(passes::Counts { reader_validations: 1, ..registered }, unregistered);
+    // Another publication of the same bytes holds no evidence of its own.
+    let other = retained(&registry, &gate, &text);
+    let ((other_header, other_work), _) = preview_and_bytes(&registry, &other, &case);
+    assert_eq!(other_work.reader_validations, 1, "no foreign proof");
+    let job_name = |bytes: Vec<u8>, job: &str| String::from_utf8(bytes).unwrap().replace(job, "$job");
+    assert_eq!(job_name(other_header.unwrap(), &other), job_name(header.clone(), &job));
+    // What notes nothing: a dispatch, refusals, another reader.
+    let unknown_cases = json!({"project": {"id": "p"}, "load_cases": [{"id": "case:invented-other"}]}).to_string();
+    let outcomes = [
+        verdict(&registry, &other, None, Some(model)).unwrap(),
+        verdict(&registry, &other, Some("pressure"), Some(&unknown_cases)).unwrap(),
+        format!("{:?}", verdict(&registry, &other, Some("pressure"), Some("{not json")).unwrap_err()),
+        verdict(&registry, &other, Some("pressure-source"), None).unwrap(),
+        verdict(&registry, &other, Some("preview-physics"), Some(model)).unwrap(),
+    ];
+    assert!(outcomes.iter().all(|outcome| outcome != crate::solve_jobs::READER_PASSED), "{outcomes:?}");
+    assert!(!registry.held_result(&other).unwrap().pressure_reader_passed());
+    // A source the reader refuses: no evidence, and the reader's own refusal.
+    let mut tampered: Value = serde_json::from_str(&text).unwrap();
+    tampered["contract_evidence"].as_object_mut().unwrap().clear();
+    let tampered_text = tampered.to_string();
+    let bad = retained(&registry, &gate, &tampered_text);
+    let refusal = verdict(&registry, &bad, Some("pressure"), Some(model)).unwrap();
+    assert_ne!(refusal, crate::solve_jobs::READER_PASSED, "the reader refuses the tampered source");
+    assert!(!registry.held_result(&bad).unwrap().pressure_reader_passed());
+    let ((refused, refused_work), _) = preview_and_bytes(&registry, &bad, &case);
+    let refused = refused.unwrap_err();
+    assert_eq!(refused_work.reader_validations, 1);
+    let mut source: Value = serde_json::from_str(&tampered_text).unwrap();
+    let route = dispatch(&source).unwrap();
+    assert_eq!(validate_route(&mut source, &route).unwrap_err(), refused, "the old builder's refusal");
+    for job in [&job, &other, &bad] {
+        registry.dispose_result(job).unwrap();
+    }
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
+
+/// RT-U4 (1): no other route reuses a pass. The preview-physics
+/// registration's model-bound pass does not establish the model-free
+/// reader's (the latter alone re-derives the combination gates from the
+/// document, `preview_physics_evidence::validate_with`), so the builder
+/// still reads it after that registration.
+#[test]
+fn a_preview_physics_registration_leaves_the_builders_reader_to_run() {
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let case = case_named("preview:connected");
+    let text = source_text(&case["source"]);
+    let job = retained(&registry, &gate, &text);
+    let outcome = verdict(&registry, &job, Some("preview-physics"), Some(case["intake_text"].as_str().unwrap())).unwrap();
+    assert_eq!(outcome, crate::solve_jobs::READER_PASSED, "the registration passed");
+    assert!(!registry.held_result(&job).unwrap().pressure_reader_passed());
+    let ((header, work), (_, bytes_work)) = preview_and_bytes(&registry, &job, &case);
+    header.unwrap();
+    assert_eq!((work.reader_validations, bytes_work.reader_validations), (1, 1));
+    registry.dispose_result(&job).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
+
+/// A completed job holding `text` natively (C1 custody), as `retained` does for webview custody.
+fn retained_natively(registry: &crate::solve_jobs::SolveJobRegistry, gate: &crate::solve_worker::test_support::Gate, text: &str) -> String {
+    let started = gate.started_count();
+    let receipt = registry
+        .start_with_custody(br#"{"project":{"id":"p"},"nodes":[1,2,3]}"#, None, crate::solve_jobs::ResultCustody::Native)
+        .unwrap_or_else(|e| panic!("{e:?}"));
+    gate.wait_started(started + 1);
+    gate.release(text);
+    let status = crate::solve_jobs::test_support::wait_terminal(registry, &receipt.job_id);
+    assert_eq!(status.state, "completed", "{status:?}");
+    receipt.job_id
+}
+
+/// RT-U4 (1), with review F1's interleavings: the evidence is part of the
+/// held share. A disposal, a session reset or the release of a held C2 full copy between
+/// the preview's acquisition of its share (the `held` gate) and its read
+/// neither gives the read evidence nor takes it away: a registered share
+/// reuses the pass and an unregistered one reads the reader, and each replies
+/// exactly as an undisturbed read of the same job.
+#[test]
+fn a_disposal_reset_or_release_during_the_build_never_changes_the_evidence_it_reads() {
+    let case = case_named("preview:pressure");
+    let text = source_text(&case["source"]);
+    let model = case["intake_text"].as_str().unwrap().to_string();
+    for registered in [true, false] {
+        for interleaving in ["disposal", "reset", "release"] {
+            let label = format!("registered {registered}, {interleaving}");
+            let host = ScriptedHost::normal();
+            let (registry, gate) = gated(&host);
+            // The release case holds its result natively (C1), the custody whose C2 full copy is releasable.
+            let job = if interleaving == "release" { retained_natively(&registry, &gate, &text) } else { retained(&registry, &gate, &text) };
+            if registered {
+                assert_eq!(verdict(&registry, &job, Some("pressure"), Some(&model)).unwrap(), crate::solve_jobs::READER_PASSED);
+            }
+            let args = preview_args(&job, &case);
+            let (expected, undisturbed) = passes::measure(|| call(&registry, super::run, &args).unwrap());
+            assert_eq!(undisturbed.reader_validations, u64::from(!registered), "{label}");
+            // Review: the release interleaving releases an actual C2 full copy.
+            if interleaving == "release" {
+                let copy = registry.copy_result_within(&job, text.len() as u64).unwrap();
+                assert_eq!(copy, text.as_bytes(), "{label}: the full copy is the held bytes");
+            }
+            let held = gate::hold(&registry, "held", false);
+            let reader = std::thread::spawn({
+                let (registry, args) = (registry.clone(), args.clone());
+                move || passes::measure(|| call(&registry, super::run, &args).map_err(command_text))
+            });
+            assert!(held.0.wait_entered(1, Duration::from_secs(30)), "{label}: the build acquired its share");
+            match interleaving {
+                "disposal" => assert!(registry.dispose_result(&job).unwrap().released, "{label}"),
+                "reset" => assert!(registry.dispose_all_results().released_results >= 1, "{label}"),
+                _ => assert!(registry.release_full_copy(&job).unwrap(), "{label}: the held full copy was released"),
+            }
+            if interleaving != "release" {
+                assert!(registry.held_result(&job).is_err(), "{label}: the job is gone while its build reads");
+            }
+            held.0.open();
+            let (got, work) = reader.join().unwrap();
+            drop(held);
+            assert_eq!(got.unwrap(), expected, "{label}: the reply of an undisturbed read");
+            assert_eq!(work, undisturbed, "{label}: the evidence of its own share, no other");
+            if interleaving == "release" {
+                registry.dispose_result(&job).unwrap();
+            }
+            assert_eq!(registry.pool().reserved_total(), 0, "{label}: every share released");
+        }
     }
 }

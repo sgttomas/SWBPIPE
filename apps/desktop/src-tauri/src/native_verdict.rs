@@ -18,6 +18,13 @@
 //!   held-byte sharing and lease lifetime. Absent `operation` retains the
 //!   original full dispatch/validation above, byte for byte. No metadata
 //!   recognition authorizes registration, Current, reporting or persistence.
+//! - **The pass it leaves (RT-U4).** A validation (`reader`) that passes leaves
+//!   one private note on the held share it read, when that share is a solve's
+//!   publication and the reader is `pressure` (`solve_jobs::ReaderEvidence`):
+//!   the analysis-run builder of the same bytes reuses that pass instead of
+//!   reading the model-free `pressure` reader again. The reply is unchanged,
+//!   and a dispatch, a refusal, another reader or a restored result notes
+//!   nothing.
 //! - **Inputs that are not JSON.** Each text is first prescanned without
 //!   allocating, in the reader's own order (source, model, invocation). A text
 //!   the prescan refuses is refused with the reader's own message: serde_json
@@ -271,6 +278,12 @@ pub(crate) fn run(registry: SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> Resu
         }
     }
     .map_err(CommandError::Command);
+    // RT-U4: the share this validation read notes its outcome; only a solve
+    // publication's `pressure` pass is kept (`solve_jobs::ReaderEvidence`),
+    // for the analysis-run builder of the same bytes. The reply is unchanged.
+    if let (Some(reader), Ok(text)) = (reader.as_deref(), &outcome) {
+        held.note_validation(reader, text);
+    }
     drop((reading, held, lease));
     outcome
 }
