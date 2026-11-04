@@ -58,8 +58,10 @@ DEPENDENCIES = {
     # then the arc-tangent direction bound (DEL-04-07 pressure-contract.md, "Direction magnitudes of arc tangents"): an
     # arc term binds its magnitude exactly to its arc's published end tangent, and joint-area groups bind only to their
     # connector axis (was f27242f0...); then RT-U4: the region binding counts the published pipe rows once per case and
-    # member instead of rescanning every row per region, with the same outcomes (was b3cb5f6d...).
-    MODULE: 'ea9273d72767bb047e29b620c53c64688d5375fbc3f2fdf585180d363e7e3356',
+    # member instead of rescanning every row per region, with the same outcomes (was b3cb5f6d...); then RT-U4 order: the
+    # connector reader is given the source `results` and `exact_cases` arrays and scans them in array order, so its first
+    # refusal is the same in every process (was ea9273d7...).
+    MODULE: 'fe65101b01d7d8bec29a8b1475acb4429014aaf6a33ee7bc16371a685075b5e2',
     TABLE: TABLE_SHA256,
     UNITS: '5a412c57ca3bdc1d150ff580354e709355f442d89971a2f7aff8b575c7e39596',
 }
