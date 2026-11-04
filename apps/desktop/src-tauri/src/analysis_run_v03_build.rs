@@ -1844,3 +1844,8 @@ pub(crate) fn run_record_bytes_within(registry: SolveJobRegistry, raw: Vec<u8>, 
 #[path = "analysis_run_v03_build_tests.rs"]
 pub(crate) mod tests;
 
+/// RT-U4: the builder's passes as they were (verbatim, e231ea144), the tests' reference.
+#[cfg(test)]
+#[path = "analysis_run_v03_build_old_reference.rs"]
+mod old_reference;
+

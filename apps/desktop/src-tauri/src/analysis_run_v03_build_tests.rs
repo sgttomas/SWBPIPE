@@ -45,9 +45,7 @@ thread_local! {
     pub(crate) static PANIC_IN_BUILD: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
 }
 
-/// RT-U4: the builder's passes as they were (verbatim, e231ea144).
-#[path = "analysis_run_v03_build_old_reference.rs"]
-mod old_reference;
+use super::old_reference;
 
 /// RT-U4: test-only counts of the builder's work, per thread (each command
 /// under test runs on the calling thread): calls of the route's full reader

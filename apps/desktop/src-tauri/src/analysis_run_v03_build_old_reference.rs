@@ -15,7 +15,7 @@
 //! precedence here). Used only to compare the current builder's bytes,
 //! checksums, lengths, refusals and passes with these.
 #![allow(dead_code, clippy::all)]
-use super::super::*;
+use super::*;
 
 /// What the passes established: the record's members other than its rows,
 /// borrowed from the source and the inputs, its checksums and its stored
