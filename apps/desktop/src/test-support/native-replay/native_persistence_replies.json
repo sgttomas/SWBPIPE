@@ -8,8 +8,8 @@
         "editorIntents": [],
         "expectedBase": null,
         "expectedRecord": {
-          "received_sha256": "f7b8efbf0259fce2c23d43e5518d14de1650894d23cf8f17bfa1919a519b550d",
-          "record_sha256": "5eac003543bf6b29db775d770995e85761038db9745d20e5156c1852b0878eb3",
+          "received_sha256": "795e491f6475586268524d88af8ef61ebb57c891c45762ee3cb335d701616d97",
+          "record_sha256": "1f72a9b517b63b098686e774118c6c1380da40d8ac6d842a94ce8586735e7c0d",
           "run_id": "run:preview-linear-static-001"
         },
         "inputManifest": {
@@ -317,13 +317,13 @@
             "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
             "payload_ref": "project:exact-pressure-connected-fixture",
             "payload_scope": "project_envelope_payload",
-            "value": "sha256:b36ef640d6c0b57cec56f9f5c67b21bbd461fbc6544ec2a49326674bf7691863"
+            "value": "sha256:189c78edcafe5a30c873bb8640aef12fbe4e7e72189243d7e18fe95d3410fc65"
           },
           "proposal": null,
           "result": {
             "outcome": "saved",
             "record_bytes": 520532,
-            "result_bytes": 253111,
+            "result_bytes": 253718,
             "run_id": "run:preview-linear-static-001"
           },
           "selected_review_target": null,
@@ -357,7 +357,7 @@
             "persisted_model_hash_count": 1,
             "persisted_model_hash_ref": "sha256:f4ef1881023cd3f9a92de87d77522b96ccc5da71d25b6e7a356fd070b8de1787",
             "persisted_project_envelope_hash_count": 1,
-            "persisted_project_envelope_hash_ref": "sha256:b36ef640d6c0b57cec56f9f5c67b21bbd461fbc6544ec2a49326674bf7691863",
+            "persisted_project_envelope_hash_ref": "sha256:189c78edcafe5a30c873bb8640aef12fbe4e7e72189243d7e18fe95d3410fc65",
             "project_id": "project:exact-pressure-connected-fixture",
             "project_name": "Synthetic exact-pressure authoring control",
             "proposal_count": 0,
@@ -377,8 +377,8 @@
     {
       "args": {
         "expectedRecord": {
-          "received_sha256": "f7b8efbf0259fce2c23d43e5518d14de1650894d23cf8f17bfa1919a519b550d",
-          "record_sha256": "5eac003543bf6b29db775d770995e85761038db9745d20e5156c1852b0878eb3",
+          "received_sha256": "795e491f6475586268524d88af8ef61ebb57c891c45762ee3cb335d701616d97",
+          "record_sha256": "1f72a9b517b63b098686e774118c6c1380da40d8ac6d842a94ce8586735e7c0d",
           "run_id": "run:preview-linear-static-001"
         },
         "inputManifest": {
@@ -392,7 +392,7 @@
         "intakeText": "{\"schema_version\":\"0.9.0\",\"document_kind\":\"openpipestress.product_preview.model\",\"pressure_contract\":{\"version\":\"3.0.0\",\"mode\":\"exact_pressure_v3\",\"shear_model\":\"euler_bernoulli\"},\"project\":{\"id\":\"project:exact-pressure-connected-fixture\",\"units\":{\"length\":\"m\",\"force\":\"N\",\"angle\":\"rad\",\"pressure\":\"Pa\",\"stress\":\"Pa\",\"temperature\":\"degC\"},\"name\":\"Synthetic exact-pressure authoring control\",\"description\":\"Synthetic user-input fixture; no library or code-rule data.\"},\"analysis_status\":{\"mechanics\":\"ready_for_preview_diagnostics\",\"rule_check\":\"not_performed_user_rule_inputs_missing\",\"professional_acceptance\":\"not_provided\"},\"nodes\":[{\"id\":\"node:fixture-root\",\"position\":{\"x\":0,\"y\":0,\"z\":0},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-root\"},{\"id\":\"node:fixture-tip\",\"position\":{\"x\":1,\"y\":0,\"z\":0},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-tip\"}],\"pipe_segments\":[{\"id\":\"pipe:fixture-span\",\"from\":\"node:fixture-root\",\"to\":\"node:fixture-tip\",\"section\":{\"corrosion_allowance\":{\"value\":0,\"unit\":\"m\"},\"outside_diameter\":{\"value\":0.12,\"unit\":\"m\"},\"wall_thickness\":{\"value\":0.01,\"unit\":\"m\"}},\"material\":\"material:fixture-isotropic\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-span\"}],\"materials\":[{\"id\":\"material:fixture-isotropic\",\"constitutive_basis\":\"homogeneous_isotropic_E_nu_v1\",\"elastic_modulus\":{\"value\":200000000000,\"unit\":\"Pa\"},\"poisson_ratio\":{\"value\":0.3,\"unit\":\"1\"},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-isotropic\"}],\"supports\":[{\"id\":\"support:fixture-root\",\"node\":\"node:fixture-root\",\"family\":\"anchor\",\"restraints\":[\"UX\",\"UY\",\"UZ\",\"RX\",\"RY\",\"RZ\"],\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-root\"}],\"components\":[],\"load_cases\":[{\"id\":\"case:closed-pressure\",\"primitive_loads\":[],\"pressure_regions\":[{\"id\":\"region:fixture-pressure\",\"member_pipe_ids\":[\"pipe:fixture-span\"],\"pressure_basis\":\"internal_differential_zero_external_v1\",\"pressure\":{\"value\":2000,\"unit\":\"kPa\"},\"terminals\":[{\"node_ref\":\"node:fixture-root\",\"closure_transfer\":\"transfers_to_wall\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"node_ref\":\"node:fixture-tip\",\"closure_transfer\":\"transfers_to_wall\",\"provenance\":\"synthetic_integration_input_not_library_data\"}],\"provenance\":\"synthetic_integration_input_not_library_data\"}],\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"closed-pressure\",\"kind\":\"primitive_user_load\",\"status\":\"preview_only\"},{\"id\":\"case:six-component-load\",\"primitive_loads\":[{\"id\":\"load:fixture-global_x\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"global_x\",\"magnitude\":{\"value\":1000,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-global_y\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"global_y\",\"magnitude\":{\"value\":2000,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-global_z\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"global_z\",\"magnitude\":{\"value\":-3000,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-rotation_x\",\"category\":\"concentrated_moment\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"rotation_x\",\"magnitude\":{\"value\":400,\"unit\":\"N*m\"},\"dimension\":\"moment\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-rotation_y\",\"category\":\"concentrated_moment\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"rotation_y\",\"magnitude\":{\"value\":-500,\"unit\":\"N*m\"},\"dimension\":\"moment\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-rotation_z\",\"category\":\"concentrated_moment\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"rotation_z\",\"magnitude\":{\"value\":600,\"unit\":\"N*m\"},\"dimension\":\"moment\",\"provenance\":\"synthetic_integration_input_not_library_data\"}],\"pressure_regions\":[],\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"six-component-load\",\"kind\":\"primitive_user_load\",\"status\":\"preview_only\"}],\"combinations\":[],\"data_boundary\":{\"source\":\"synthetic_integration_input_not_library_data\"},\"diagnostics\":[]}",
         "jobId": "$JOB",
         "request": {
-          "expected_base": "sha256:b36ef640d6c0b57cec56f9f5c67b21bbd461fbc6544ec2a49326674bf7691863",
+          "expected_base": "sha256:189c78edcafe5a30c873bb8640aef12fbe4e7e72189243d7e18fe95d3410fc65",
           "new_state": {
             "labels": {
               "assumptions": [],
@@ -430,7 +430,7 @@
         "body": "json",
         "ok": true,
         "value": {
-          "message": "Recorded run \"Run – rev A\" (runrec:480e155d0cda4662e5d36dfcfb008347) against the new post-solve snapshot \"After solve\" (state:0123456789abcdef0123456789abcdef). Renaming, tagging or adding notes does not change the recorded run.",
+          "message": "Recorded run \"Run – rev A\" (runrec:82f02cf745350dd955819e3b2b608a2f) against the new post-solve snapshot \"After solve\" (state:0123456789abcdef0123456789abcdef). Renaming, tagging or adding notes does not change the recorded run.",
           "run": {
             "analysis_status": [
               "HUMAN_REVIEW_REQUIRED",
@@ -453,10 +453,10 @@
             ],
             "producer_run_id": "run:preview-linear-static-001",
             "project_id": "project:exact-pressure-connected-fixture",
-            "recording_id": "runrec:480e155d0cda4662e5d36dfcfb008347",
-            "result_hash": "f7b8efbf0259fce2c23d43e5518d14de1650894d23cf8f17bfa1919a519b550d",
+            "recording_id": "runrec:82f02cf745350dd955819e3b2b608a2f",
+            "result_hash": "795e491f6475586268524d88af8ef61ebb57c891c45762ee3cb335d701616d97",
             "run_name": "Run – rev A",
-            "run_record_hash": "480e155d0cda4662e5d36dfcfb008347a75588bfe11606ba63cb8ab41102db1b",
+            "run_record_hash": "82f02cf745350dd955819e3b2b608a2fc7332de229f37e00ee62e75a5a4ce4c0",
             "state_id": "state:0123456789abcdef0123456789abcdef",
             "tags": [
               "tie-in"
@@ -490,8 +490,8 @@
     {
       "args": {
         "expectedRecord": {
-          "received_sha256": "f7b8efbf0259fce2c23d43e5518d14de1650894d23cf8f17bfa1919a519b550d",
-          "record_sha256": "5eac003543bf6b29db775d770995e85761038db9745d20e5156c1852b0878eb3",
+          "received_sha256": "795e491f6475586268524d88af8ef61ebb57c891c45762ee3cb335d701616d97",
+          "record_sha256": "1f72a9b517b63b098686e774118c6c1380da40d8ac6d842a94ce8586735e7c0d",
           "run_id": "run:preview-linear-static-001"
         },
         "inputManifest": {
@@ -505,7 +505,7 @@
         "intakeText": "{\"schema_version\":\"0.9.0\",\"document_kind\":\"openpipestress.product_preview.model\",\"pressure_contract\":{\"version\":\"3.0.0\",\"mode\":\"exact_pressure_v3\",\"shear_model\":\"euler_bernoulli\"},\"project\":{\"id\":\"project:exact-pressure-connected-fixture\",\"units\":{\"length\":\"m\",\"force\":\"N\",\"angle\":\"rad\",\"pressure\":\"Pa\",\"stress\":\"Pa\",\"temperature\":\"degC\"},\"name\":\"Synthetic exact-pressure authoring control\",\"description\":\"Synthetic user-input fixture; no library or code-rule data.\"},\"analysis_status\":{\"mechanics\":\"ready_for_preview_diagnostics\",\"rule_check\":\"not_performed_user_rule_inputs_missing\",\"professional_acceptance\":\"not_provided\"},\"nodes\":[{\"id\":\"node:fixture-root\",\"position\":{\"x\":0,\"y\":0,\"z\":0},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-root\"},{\"id\":\"node:fixture-tip\",\"position\":{\"x\":1,\"y\":0,\"z\":0},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-tip\"}],\"pipe_segments\":[{\"id\":\"pipe:fixture-span\",\"from\":\"node:fixture-root\",\"to\":\"node:fixture-tip\",\"section\":{\"corrosion_allowance\":{\"value\":0,\"unit\":\"m\"},\"outside_diameter\":{\"value\":0.12,\"unit\":\"m\"},\"wall_thickness\":{\"value\":0.01,\"unit\":\"m\"}},\"material\":\"material:fixture-isotropic\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-span\"}],\"materials\":[{\"id\":\"material:fixture-isotropic\",\"constitutive_basis\":\"homogeneous_isotropic_E_nu_v1\",\"elastic_modulus\":{\"value\":200000000000,\"unit\":\"Pa\"},\"poisson_ratio\":{\"value\":0.3,\"unit\":\"1\"},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-isotropic\"}],\"supports\":[{\"id\":\"support:fixture-root\",\"node\":\"node:fixture-root\",\"family\":\"anchor\",\"restraints\":[\"UX\",\"UY\",\"UZ\",\"RX\",\"RY\",\"RZ\"],\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-root\"}],\"components\":[],\"load_cases\":[{\"id\":\"case:closed-pressure\",\"primitive_loads\":[],\"pressure_regions\":[{\"id\":\"region:fixture-pressure\",\"member_pipe_ids\":[\"pipe:fixture-span\"],\"pressure_basis\":\"internal_differential_zero_external_v1\",\"pressure\":{\"value\":2000,\"unit\":\"kPa\"},\"terminals\":[{\"node_ref\":\"node:fixture-root\",\"closure_transfer\":\"transfers_to_wall\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"node_ref\":\"node:fixture-tip\",\"closure_transfer\":\"transfers_to_wall\",\"provenance\":\"synthetic_integration_input_not_library_data\"}],\"provenance\":\"synthetic_integration_input_not_library_data\"}],\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"closed-pressure\",\"kind\":\"primitive_user_load\",\"status\":\"preview_only\"},{\"id\":\"case:six-component-load\",\"primitive_loads\":[{\"id\":\"load:fixture-global_x\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"global_x\",\"magnitude\":{\"value\":1000,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-global_y\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"global_y\",\"magnitude\":{\"value\":2000,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-global_z\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"global_z\",\"magnitude\":{\"value\":-3000,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-rotation_x\",\"category\":\"concentrated_moment\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"rotation_x\",\"magnitude\":{\"value\":400,\"unit\":\"N*m\"},\"dimension\":\"moment\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-rotation_y\",\"category\":\"concentrated_moment\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"rotation_y\",\"magnitude\":{\"value\":-500,\"unit\":\"N*m\"},\"dimension\":\"moment\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-rotation_z\",\"category\":\"concentrated_moment\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"rotation_z\",\"magnitude\":{\"value\":600,\"unit\":\"N*m\"},\"dimension\":\"moment\",\"provenance\":\"synthetic_integration_input_not_library_data\"}],\"pressure_regions\":[],\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"six-component-load\",\"kind\":\"primitive_user_load\",\"status\":\"preview_only\"}],\"combinations\":[],\"data_boundary\":{\"source\":\"synthetic_integration_input_not_library_data\"},\"diagnostics\":[]}",
         "jobId": "$JOB",
         "request": {
-          "expected_base": "sha256:b36ef640d6c0b57cec56f9f5c67b21bbd461fbc6544ec2a49326674bf7691863",
+          "expected_base": "sha256:189c78edcafe5a30c873bb8640aef12fbe4e7e72189243d7e18fe95d3410fc65",
           "new_state": null,
           "run_labels": {
             "assumptions": [
@@ -535,7 +535,7 @@
         "body": "json",
         "ok": true,
         "value": {
-          "message": "Recorded run \"Again\" (runrec:34a356913082b4adaf1dd33c57ca6c99) against model state \"After solve\" (state:0123456789abcdef0123456789abcdef). Renaming, tagging or adding notes does not change the recorded run.",
+          "message": "Recorded run \"Again\" (runrec:df42a1fa9376db709b44c19e1443f401) against model state \"After solve\" (state:0123456789abcdef0123456789abcdef). Renaming, tagging or adding notes does not change the recorded run.",
           "run": {
             "analysis_status": [
               "HUMAN_REVIEW_REQUIRED",
@@ -558,10 +558,10 @@
             ],
             "producer_run_id": "run:preview-linear-static-001",
             "project_id": "project:exact-pressure-connected-fixture",
-            "recording_id": "runrec:34a356913082b4adaf1dd33c57ca6c99",
-            "result_hash": "f7b8efbf0259fce2c23d43e5518d14de1650894d23cf8f17bfa1919a519b550d",
+            "recording_id": "runrec:df42a1fa9376db709b44c19e1443f401",
+            "result_hash": "795e491f6475586268524d88af8ef61ebb57c891c45762ee3cb335d701616d97",
             "run_name": "Again",
-            "run_record_hash": "34a356913082b4adaf1dd33c57ca6c990084b2d93015f00c4e8b1ea27e52f459",
+            "run_record_hash": "df42a1fa9376db709b44c19e1443f401b69c649ee060f3d1555acd498bb3a3c2",
             "state_id": "state:0123456789abcdef0123456789abcdef",
             "tags": [
               "tie-in"
@@ -598,8 +598,8 @@
         "editorIntents": [],
         "expectedBase": null,
         "expectedRecord": {
-          "received_sha256": "f7b8efbf0259fce2c23d43e5518d14de1650894d23cf8f17bfa1919a519b550d",
-          "record_sha256": "5eac003543bf6b29db775d770995e85761038db9745d20e5156c1852b0878eb3",
+          "received_sha256": "795e491f6475586268524d88af8ef61ebb57c891c45762ee3cb335d701616d97",
+          "record_sha256": "1f72a9b517b63b098686e774118c6c1380da40d8ac6d842a94ce8586735e7c0d",
           "run_id": "run:preview-linear-static-001"
         },
         "inputManifest": {
@@ -912,16 +912,16 @@
           "proposal": null,
           "result": {
             "code": "PROJECT-SAVE-RESULT-TOO-LARGE",
-            "limit_bytes": 778820,
-            "message": "PROJECT-SAVE-RESULT-TOO-LARGE (result_bytes=253111, record_bytes=520532, row_bytes=778821, limit_bytes=778820): the result was not saved. Its project row is 778821 bytes, above this store's SQLite length limit of 778820 bytes, so the project was saved with no result (its stored result and analysis-run record are empty). The current solve stays open in this session.",
+            "limit_bytes": 779427,
+            "message": "PROJECT-SAVE-RESULT-TOO-LARGE (result_bytes=253718, record_bytes=520532, row_bytes=779428, limit_bytes=779427): the result was not saved. Its project row is 779428 bytes, above this store's SQLite length limit of 779427 bytes, so the project was saved with no result (its stored result and analysis-run record are empty). The current solve stays open in this session.",
             "outcome": "not_saved",
             "record_bytes": 520532,
             "refused": {
-              "bytes": 778821,
+              "bytes": 779428,
               "what": "project row"
             },
-            "result_bytes": 253111,
-            "row_bytes": 778821
+            "result_bytes": 253718,
+            "row_bytes": 779428
           },
           "selected_review_target": null,
           "stored_model_hash": "sha256:f4ef1881023cd3f9a92de87d77522b96ccc5da71d25b6e7a356fd070b8de1787",
@@ -930,7 +930,7 @@
             "database_path": "$STORE",
             "editor_intent_count": 0,
             "fts_indexed": true,
-            "message": "Saved current project model snapshot without external file copies. PROJECT-SAVE-RESULT-TOO-LARGE (result_bytes=253111, record_bytes=520532, row_bytes=778821, limit_bytes=778820): the result was not saved. Its project row is 778821 bytes, above this store's SQLite length limit of 778820 bytes, so the project was saved with no result (its stored result and analysis-run record are empty). The current solve stays open in this session.",
+            "message": "Saved current project model snapshot without external file copies. PROJECT-SAVE-RESULT-TOO-LARGE (result_bytes=253718, record_bytes=520532, row_bytes=779428, limit_bytes=779427): the result was not saved. Its project row is 779428 bytes, above this store's SQLite length limit of 779427 bytes, so the project was saved with no result (its stored result and analysis-run record are empty). The current solve stays open in this session.",
             "migration_framework": "versioned_sqlite_user_version_migration_ledger",
             "migration_status": "migrated_on_open_store_schema_v0_to_v13",
             "migrations_applied_on_open": [
@@ -969,14 +969,14 @@
           }
         }
       },
-      "sqlite_length_limit": 778820,
+      "sqlite_length_limit": 779427,
       "store": "small"
     },
     {
       "args": {
         "expectedRecord": {
-          "received_sha256": "f7b8efbf0259fce2c23d43e5518d14de1650894d23cf8f17bfa1919a519b550d",
-          "record_sha256": "5eac003543bf6b29db775d770995e85761038db9745d20e5156c1852b0878eb3",
+          "received_sha256": "795e491f6475586268524d88af8ef61ebb57c891c45762ee3cb335d701616d97",
+          "record_sha256": "1f72a9b517b63b098686e774118c6c1380da40d8ac6d842a94ce8586735e7c0d",
           "run_id": "run:preview-linear-static-001"
         },
         "inputManifest": {
@@ -1025,10 +1025,10 @@
       },
       "command": "record_preview_mechanics_job_analysis_run",
       "reply": {
-        "error": "RUN-RECORD-RESULT-TOO-LARGE (result_bytes=253133, record_bytes=520513, row_bytes=781862, limit_bytes=778820): run `run:preview-linear-static-001`'s run row is 781862 bytes, above this store's SQLite length limit of 778820 bytes, so the run was not recorded; nothing was written. The current solve stays open.",
+        "error": "RUN-RECORD-RESULT-TOO-LARGE (result_bytes=253740, record_bytes=520513, row_bytes=782469, limit_bytes=779427): run `run:preview-linear-static-001`'s run row is 782469 bytes, above this store's SQLite length limit of 779427 bytes, so the run was not recorded; nothing was written. The current solve stays open.",
         "ok": false
       },
-      "sqlite_length_limit": 778820,
+      "sqlite_length_limit": 779427,
       "store": "small"
     }
   ],
