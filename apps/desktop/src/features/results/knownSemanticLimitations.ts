@@ -32,7 +32,25 @@ export const COMBINATION_GATE_REASONS: Readonly<Record<string, string>> = Object
   NONLINEAR_COMBINATION_REQUIRES_SOLVE: "Combination withheld: the model has nonlinear supports, so superposing case states is not a solved state.",
   CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE: "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once.",
   COMBINATION_MODULUS_BASIS_MIXED: "Combination withheld: its load cases were solved on different modulus bases.",
+  // RT-A5 `minuend_final` (DEL-05-02 `operating-case.md` §7.5): the held-status gates.
+  HELD_STATUS_SOURCE_UNAVAILABLE: "Combination withheld: the minuend case has no converged nonlinear support state to lend.",
+  HELD_STATUS_SOURCE_UNQUALIFIED: "Combination withheld: the minuend's converged state is not qualified (an inspectable unqualified gap state).",
+  HELD_STATUS_BINDING: "Combination withheld: the minuend's state does not bind to this solve, its own solved state, or the subtrahend's model context.",
+  HELD_STATUS_SLIDING_GROUND_DIFFERS: "Combination withheld: a support held sliding has a different ground offset in the two cases.",
+  HELD_STATUS_SOLVE_FAILED: "Combination withheld: the held solve was refused, blocked or singular.",
 });
+
+/** RT-A5 (§7.6): each admitted `minuend_final` combination's held standing, as its evidence states it. */
+export function heldStatusStandings(source: MechanicsResult): { combination_id: string; kind: string; reason: string }[] {
+  const records = (source.contract_evidence as { held_status_derivation?: unknown } | undefined)?.held_status_derivation;
+  if (!Array.isArray(records)) return [];
+  return records.flatMap((r) => {
+    const record = r as { combination_id?: unknown; outcome?: unknown; standing?: { kind?: unknown; reason?: unknown } };
+    return typeof record?.combination_id === "string" && record.outcome === "admitted"
+      && typeof record.standing?.kind === "string" && typeof record.standing?.reason === "string"
+      ? [{ combination_id: record.combination_id, kind: record.standing.kind, reason: record.standing.reason }] : [];
+  });
+}
 
 export const PREVIEW_INTENSIFIED_KIND = "component_equal_factor_intensified_bending_stress_v1";
 export const PREVIEW_MAXIMUM_KIND = "pipe_elastic_normal_stress_maximum_v2";
@@ -129,6 +147,10 @@ export function knownSemanticNotices(source: MechanicsResult | null | undefined,
     if (source.results.some(row => row.kind === PREVIEW_INTENSIFIED_KIND)) notices.push({ id: "intensified-label", text: `Intensified measure: ${N_INTENSIFIED}.` });
     for (const gate of previewCombinationGates(source)) {
       if (gate.withheld && gate.reason) notices.push({ id: `combination-gate:${gate.combination_id}`, text: `${gate.combination_id}: ${COMBINATION_GATE_REASONS[gate.reason] ?? gate.reason}` });
+    }
+    // RT-A5: the held standing of each admitted held-constraint comparison (never the subtrahend case's own).
+    for (const held of heldStatusStandings(source)) {
+      notices.push({ id: `held-status:${held.combination_id}`, text: `${held.combination_id}: subtrahend held at the minuend's final support status. ${held.reason}` });
     }
   }
   // D2 4.9.9 UI summary: per-case counts over the registered validated classes (either

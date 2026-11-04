@@ -66,9 +66,9 @@ const EXACT_RETAINED: &str = crate::retained_precision::EXACT_CONTRACT_ID;
 /// final constant-effort candidate's exact successor table (#101 at 01e05a486), which
 /// main holds once that lands before RT-A4; the sixth is the RT-A4 main line's exact
 /// successor table (main at bbf384dec), whose inherited pressure-2 digest RT-A3
-/// increment 4 moves; the last three are main's at bbf384dec, before operating-case
-/// slice 1b.
-pub static VARIANTS: [RecordedVariant; 9] = [
+/// increment 4 moves; the next three are main's at bbf384dec, before operating-case
+/// slice 1b; the last three are main's at b32a17761, before RT-A5 `minuend_final`.
+pub static VARIANTS: [RecordedVariant; 12] = [
     RecordedVariant {
         id: PREVIEW,
         sha256: "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2",
@@ -145,6 +145,35 @@ pub static VARIANTS: [RecordedVariant; 9] = [
         base: Some(6),
         reads_under_variant: true,
     },
+    // RT-A5 `minuend_final` (DEL-05-02 `operating-case.md` §7.6, table registry): main at
+    // b32a17761 (#107; unchanged through 400a409d7) held these. `minuend_final` restated the
+    // preview-physics combination policy (v3 -> v4) and added the `held_status_operand`
+    // basis; rows and limitations are the current tables', so a statement recorded under
+    // them reads under the variant exactly as it read then.
+    RecordedVariant {
+        id: PREVIEW,
+        sha256: "f41b9d3ed0c1b7abaee0b98ca1a28aa1a2d109bce443b98d53a2080c1c504ce9",
+        profile: crate::semantic_contract::PREVIEW_PHYSICS_PROFILE,
+        bytes: include_bytes!("../../../../fixtures/results/recorded_pre_rt_a5_mf/semantic_contract_v0_3_preview_physics_2.f41b9d3e.json"),
+        base: None,
+        reads_under_variant: true,
+    },
+    RecordedVariant {
+        id: TIMOSHENKO,
+        sha256: "6f6494907e3ead979ea27e5ff85f54617589c9195dc84d40a02752a0b006ef44",
+        profile: crate::semantic_contract::PREVIEW_PHYSICS_TIMOSHENKO_PROFILE,
+        bytes: include_bytes!("../../../../fixtures/results/recorded_pre_rt_a5_mf/semantic_contract_v0_3_preview_physics_timoshenko_1.6f649490.json"),
+        base: None,
+        reads_under_variant: true,
+    },
+    RecordedVariant {
+        id: RETAINED,
+        sha256: "b4377e73e8a83edb57b4f0c41dbaef384385e0f6b4810103a106a334c8edbe14",
+        profile: crate::retained_precision::PROFILE,
+        bytes: include_bytes!("../../../../fixtures/results/recorded_pre_rt_a5_mf/semantic_contract_v0_3_preview_physics_retained_1.b4377e73.json"),
+        base: Some(9),
+        reads_under_variant: true,
+    },
 ];
 
 fn sha256_hex(bytes: &[u8]) -> String {
@@ -172,7 +201,7 @@ impl RecordedVariant {
     }
     /// The variant's table, its bytes checked on first read.
     pub fn table(&'static self) -> &'static Value {
-        static TABLES: [OnceLock<Value>; 9] = [const { OnceLock::new() }; 9];
+        static TABLES: [OnceLock<Value>; 12] = [const { OnceLock::new() }; 12];
         TABLES[self.index()].get_or_init(|| verify(self, self.bytes).expect("a registry table's pinned bytes"))
     }
     /// The base variant a successor's base inherits (preview-physics-2's), if any.

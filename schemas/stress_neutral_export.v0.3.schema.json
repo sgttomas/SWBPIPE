@@ -3384,7 +3384,12 @@
                   "CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED",
                   "LOAD_COMBINATION_OPERAND_WITHHELD",
                   "EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING",
-                  "EXPANSION_BASIS_MODULUS_MIXED"
+                  "EXPANSION_BASIS_MODULUS_MIXED",
+                  "HELD_STATUS_SOURCE_UNAVAILABLE",
+                  "HELD_STATUS_SOURCE_UNQUALIFIED",
+                  "HELD_STATUS_BINDING",
+                  "HELD_STATUS_SLIDING_GROUND_DIFFERS",
+                  "HELD_STATUS_SOLVE_FAILED"
                 ]
               }
             },
@@ -3413,7 +3418,12 @@
                       "CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED",
                       "LOAD_COMBINATION_OPERAND_WITHHELD",
                       "EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING",
-                      "EXPANSION_BASIS_MODULUS_MIXED"
+                      "EXPANSION_BASIS_MODULUS_MIXED",
+                      "HELD_STATUS_SOURCE_UNAVAILABLE",
+                      "HELD_STATUS_SOURCE_UNQUALIFIED",
+                      "HELD_STATUS_BINDING",
+                      "HELD_STATUS_SLIDING_GROUND_DIFFERS",
+                      "HELD_STATUS_SOLVE_FAILED"
                     ]
                   }
                 }
@@ -3684,6 +3694,86 @@
                         "combination_id": {
                           "type": "string",
                           "minLength": 1
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "load_case_id",
+                        "modulus_basis_ref",
+                        "modulus_basis_temperature",
+                        "numerical_quality",
+                        "support_state",
+                        "held_standing"
+                      ],
+                      "properties": {
+                        "load_case_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "modulus_basis_ref": {
+                          "oneOf": [
+                            {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "modulus_basis_temperature": {
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "required": [
+                                "value",
+                                "unit"
+                              ],
+                              "properties": {
+                                "value": {
+                                  "type": "number"
+                                },
+                                "unit": {
+                                  "type": "string",
+                                  "minLength": 1
+                                }
+                              }
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "numerical_quality": {
+                          "type": "null"
+                        },
+                        "support_state": {
+                          "const": "held_at_minuend_final"
+                        },
+                        "held_standing": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "kind",
+                            "reason"
+                          ],
+                          "properties": {
+                            "kind": {
+                              "enum": [
+                                "established",
+                                "not_established",
+                                "gap_inspection"
+                              ]
+                            },
+                            "reason": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          }
                         }
                       }
                     }
@@ -4101,6 +4191,402 @@
                       }
                     },
                     "description": "The case's primitive loads as a multiset by content, each content once, in the canonical order: byte-wise over category, target type, target ids (node; pipe; support then dof), direction, dimension, value_bits, unit."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "held_status_derivation": {
+          "type": "array",
+          "minItems": 1,
+          "description": "RT-A5 minuend_final (DEL-05-02 Work operating-case.md section 7.6): one record per result_state_subtraction declaring difference_basis operating_minus_sustained and subtrahend_support_state minuend_final that reached the held-status gates (after G-1 and G-2), in gate order. A withheld record has an empty held list, no held solve and no conditions. An admitted record states the held assignment, each support's decision with exactly the inputs the classifier read (ordinary: binary64 bits; strict_gap: the exact proof's signs), any release, whether the held iterate converged with the loop's exit diagnostic, and the held standing; conditions only for an established standing. Values are raw SI binary64 bits. A reader re-derives the decisions from their published inputs; it never recomputes solved values.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "combination_id",
+              "subtrahend_support_state",
+              "source",
+              "target",
+              "outcome",
+              "held",
+              "held_solve",
+              "standing"
+            ],
+            "properties": {
+              "combination_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "subtrahend_support_state": {
+                "const": "minuend_final"
+              },
+              "source": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "load_case_id",
+                  "solver_mode",
+                  "qualification",
+                  "standing"
+                ],
+                "properties": {
+                  "load_case_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "solver_mode": {
+                    "enum": [
+                      "sparse_interactive",
+                      "dense_scrutiny"
+                    ]
+                  },
+                  "qualification": {
+                    "enum": [
+                      null,
+                      "qualified",
+                      "inspectable_unqualified_gap"
+                    ]
+                  },
+                  "standing": {
+                    "enum": [
+                      null,
+                      "confirmed",
+                      "not_established"
+                    ]
+                  }
+                }
+              },
+              "target": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "load_case_id",
+                  "modulus_basis_key"
+                ],
+                "properties": {
+                  "load_case_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "modulus_basis_key": {
+                    "oneOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                }
+              },
+              "outcome": {
+                "enum": [
+                  "admitted",
+                  "HELD_STATUS_SOURCE_UNAVAILABLE",
+                  "HELD_STATUS_SOURCE_UNQUALIFIED",
+                  "HELD_STATUS_BINDING",
+                  "HELD_STATUS_SLIDING_GROUND_DIFFERS",
+                  "HELD_STATUS_SOLVE_FAILED"
+                ]
+              },
+              "held": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "support_id",
+                    "node",
+                    "dof",
+                    "behavior",
+                    "held_state",
+                    "classified_state",
+                    "decision",
+                    "released"
+                  ],
+                  "properties": {
+                    "support_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "node": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "dof": {
+                      "enum": [
+                        "UX",
+                        "UY",
+                        "UZ",
+                        "RX",
+                        "RY",
+                        "RZ"
+                      ]
+                    },
+                    "behavior": {
+                      "enum": [
+                        "one_way",
+                        "lift_off",
+                        "gap",
+                        "friction"
+                      ]
+                    },
+                    "sense": {
+                      "enum": [
+                        "positive_reaction",
+                        "negative_reaction"
+                      ]
+                    },
+                    "closes_when": {
+                      "enum": [
+                        "positive_displacement",
+                        "negative_displacement"
+                      ]
+                    },
+                    "gap_bits": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{16}$"
+                    },
+                    "held_state": {
+                      "enum": [
+                        "inactive",
+                        "active",
+                        "sticking",
+                        "sliding"
+                      ]
+                    },
+                    "classified_state": {
+                      "enum": [
+                        "inactive",
+                        "active",
+                        "sticking",
+                        "sliding"
+                      ]
+                    },
+                    "decision": {
+                      "enum": [
+                        "ordinary",
+                        "strict_gap"
+                      ]
+                    },
+                    "released": {
+                      "enum": [
+                        "none",
+                        "changed_state",
+                        "branch"
+                      ]
+                    },
+                    "inputs": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "ground_bits",
+                        "displacement_bits",
+                        "reaction_bits"
+                      ],
+                      "properties": {
+                        "ground_bits": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{16}$"
+                        },
+                        "displacement_bits": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{16}$"
+                        },
+                        "reaction_bits": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{16}$"
+                        },
+                        "coefficient_bits": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{16}$"
+                        },
+                        "normal_source": {
+                          "enum": [
+                            "explicit",
+                            "derived",
+                            "missing"
+                          ]
+                        },
+                        "normal_trial_bits": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{16}$"
+                        },
+                        "normal_signed_bits": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{16}$"
+                        },
+                        "applied_force_bits": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{16}$"
+                        },
+                        "slip_sense": {
+                          "enum": [
+                            -1,
+                            1
+                          ]
+                        },
+                        "beta": {
+                          "enum": [
+                            -1,
+                            0,
+                            1
+                          ]
+                        },
+                        "branch_admissible": {
+                          "type": "boolean"
+                        }
+                      }
+                    },
+                    "strict_gap": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "prior",
+                        "gap_sign",
+                        "reaction_sign",
+                        "state"
+                      ],
+                      "properties": {
+                        "prior": {
+                          "enum": [
+                            "inactive",
+                            "active",
+                            "sticking",
+                            "sliding"
+                          ]
+                        },
+                        "gap_sign": {
+                          "enum": [
+                            "negative",
+                            "zero",
+                            "positive"
+                          ]
+                        },
+                        "reaction_sign": {
+                          "enum": [
+                            "negative",
+                            "zero",
+                            "positive"
+                          ]
+                        },
+                        "state": {
+                          "enum": [
+                            "inactive",
+                            "active",
+                            "sticking",
+                            "sliding"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "held_solve": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "converged",
+                      "exit_diagnostic"
+                    ],
+                    "properties": {
+                      "converged": {
+                        "type": "boolean"
+                      },
+                      "exit_diagnostic": {
+                        "oneOf": [
+                          {
+                            "type": "null"
+                          },
+                          {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "code",
+                              "message"
+                            ],
+                            "properties": {
+                              "code": {
+                                "type": "string",
+                                "minLength": 1
+                              },
+                              "message": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ]
+              },
+              "conditions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "support_id",
+                    "condition",
+                    "class"
+                  ],
+                  "properties": {
+                    "support_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "condition": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "class": {
+                      "enum": [
+                        "input_decision",
+                        "strict_ball",
+                        "not_run"
+                      ]
+                    },
+                    "published_bits": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{16}$"
+                    },
+                    "radius_bits": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{16}$"
+                    }
+                  }
+                }
+              },
+              "standing": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "reason"
+                ],
+                "properties": {
+                  "kind": {
+                    "enum": [
+                      "established",
+                      "not_established",
+                      "gap_inspection",
+                      "withheld"
+                    ]
+                  },
+                  "reason": {
+                    "type": "string",
+                    "minLength": 1
                   }
                 }
               }
@@ -4617,7 +5103,7 @@
               "const": "openpipestress.result_semantics/0.3.0/preview-physics-2"
             },
             "sha256": {
-              "const": "f41b9d3ed0c1b7abaee0b98ca1a28aa1a2d109bce443b98d53a2080c1c504ce9"
+              "const": "563db3c7c44279face3adc60a76a512de38520357e89ea4b49ad11d20946db89"
             }
           }
         },
@@ -4718,7 +5204,7 @@
               "const": "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1"
             },
             "sha256": {
-              "const": "6f6494907e3ead979ea27e5ff85f54617589c9195dc84d40a02752a0b006ef44"
+              "const": "f64473f5a60ac2bb34d8006b40bf044800f0c97454c570bbe88d1f1d96b7bdfc"
             }
           }
         },
@@ -4920,7 +5406,7 @@
               "const": "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
             },
             "sha256": {
-              "const": "b4377e73e8a83edb57b4f0c41dbaef384385e0f6b4810103a106a334c8edbe14"
+              "const": "d0bab3502b4018ce0596757a933bd6306f402dc3741a10af24a094e8c66544e8"
             }
           }
         },

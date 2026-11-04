@@ -154,7 +154,7 @@ describe("a run recorded before RT-A4 (historical read)", () => {
       expect(table.semantic_contract_id).toBe(variant.id);
     }
     expect(recordedPreRtA4Binding({ id: "openpipestress.result_semantics/0.3.0/preview-physics-2", sha256: VARIANTS[0].sha256, extra: 1 })).toBeNull();
-    expect(recordedPreRtA4Binding({ id: "openpipestress.result_semantics/0.3.0/preview-physics-2", sha256: "f41b9d3ed0c1b7abaee0b98ca1a28aa1a2d109bce443b98d53a2080c1c504ce9" })).toBeNull();
+    expect(recordedPreRtA4Binding({ id: "openpipestress.result_semantics/0.3.0/preview-physics-2", sha256: "563db3c7c44279face3adc60a76a512de38520357e89ea4b49ad11d20946db89" })).toBeNull();
     await expect(recordedPreRtA4Table({ id: "openpipestress.result_semantics/0.3.0/preview-physics-2", sha256: "0".repeat(64) })).rejects.toThrow("SOURCE_RECORDED_BINDING_UNKNOWN");
   });
 });
