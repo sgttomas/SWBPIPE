@@ -445,6 +445,9 @@ export type PreviewModel = {
     section_ref?: string;
     material: string;
     y_reference?: Vec3;
+    /** Model document 0.9.0 (§1.2): the one operating-condition set this pipe carries, by id.
+     * Absent means none; it is written only by `assign_condition_set`. */
+    condition_set_ref?: string;
     provenance: string;
   }>;
   supports: Array<ModelAnnotations & {
@@ -519,6 +522,8 @@ export type PreviewModel = {
     equivalent_static?: EquivalentStaticGenerationInput;
     /** Model 0.4.0: the case-owned resolved-state request. */
     analysis_state?: AnalysisStateInput | null;
+    /** Model document 0.9.0 (§1.2): the case's use of its pipes' condition sets. */
+    condition_use?: ConditionUse;
   }>;
   combinations?: Array<ModelAnnotations & {
     id: string;
@@ -552,6 +557,45 @@ export type PreviewModel = {
   rule_pack_refs?: RulePackReference[];
   /** Model 0.7.0 (W-13 Design §3.8): model-level settings; absent members take their defaults. */
   model_settings?: ModelSettings;
+  /** Model document 0.9.0 (§1.2): operating-condition sets. Absent means none. */
+  condition_sets?: ConditionSet[];
+};
+
+/** Model document 0.9.0 (DEL-02-01 Work `model-document-0.9.0.md` §1.2): a keyed operating
+ * condition of a set. Every member but `key` is optional; nothing is defaulted. */
+export type OperatingCondition = {
+  key: string;
+  label?: string;
+  /** Absolute temperature. */
+  temperature?: QuantityValue;
+  /** Internal differential pressure; no pressure-free solve reads it. */
+  pressure?: QuantityValue;
+  /** Read by no solve in 0.9.0. */
+  contents_density?: QuantityValue;
+};
+/** Design and peak values; read by no solve in 0.9.0. */
+export type ConditionValues = { temperature?: QuantityValue; pressure?: QuantityValue };
+export type ConditionDirection = "global_x" | "global_y" | "global_z";
+export type AddedWeight = { magnitude: QuantityValue; direction: ConditionDirection };
+export type ConditionExposure = { wind?: boolean; snow_ice?: boolean; wave?: boolean };
+export type ConditionSet = ModelAnnotations & {
+  id: string;
+  label?: string;
+  conditions?: OperatingCondition[];
+  installation_temperature?: QuantityValue;
+  design?: ConditionValues;
+  peak?: ConditionValues;
+  added_weight?: AddedWeight;
+  exposure?: ConditionExposure;
+  provenance: string;
+};
+/** A case's condition use: at least one member; `true`-only members are absent when unused. */
+export type ConditionUse = {
+  temperature?: string;
+  pressure?: string;
+  contents_density?: string;
+  added_weight?: true;
+  wind_exposure?: true;
 };
 
 /** `model_settings`: a closed record. `node_proximity_tolerance` is the near-duplicate node
@@ -1107,7 +1151,9 @@ export type EditorOperationObjectType =
   | "Assumption"
   | "Constraint"
   | "EquipmentInterface"
-  | "RulePackRef";
+  | "RulePackRef"
+  // Model document 0.9.0 §11: operating-condition sets.
+  | "ConditionSet";
 
 export type EditorOperationSource = {
   source_ref: string;
@@ -1179,7 +1225,14 @@ export type EditorOperationIntent = {
       | "set_model_setting"
       | "clear_model_setting"
       // Project units (DEL-02-02 Design project-unit-selection.md §2.7).
-      | "set_project_unit";
+      | "set_project_unit"
+      // Model document 0.9.0 §11 (S3a): condition sets, pipe assignment and case use.
+      | "create_condition_set"
+      | "update_condition_set"
+      | "delete_condition_set"
+      | "assign_condition_set"
+      | "set_load_case_condition_use"
+      | "clear_load_case_condition_use";
     field_label: string;
     field_path: string;
     before: string;

@@ -100,6 +100,8 @@ function selectedPropertyValues(model: PreviewModel, selection: EntityRef): Arra
         ? ([["Corrosion allowance", quantityDisplay(pipe.section.corrosion_allowance, "length")]] as Array<[string, PropertyValue]>)
         : []),
       ["Material", pipe.material],
+      // Model document 0.9.0 (§4.2): the pipe's condition set, or "not stated".
+      ["Condition set", pipe.condition_set_ref ?? "not stated"],
       ["Provenance", pipe.provenance]
     ];
   }
@@ -250,6 +252,10 @@ function selectedPropertyValues(model: PreviewModel, selection: EntityRef): Arra
     // DEC-077). Absence of both means material base values.
     if (loadCase.modulus_basis_ref) {
       rows.push(["Modulus basis", loadCase.modulus_basis_ref]);
+    }
+    // Model document 0.9.0 (§1.2): the case's condition use, as stored.
+    if (loadCase.condition_use) {
+      rows.push(["Condition use", Object.entries(loadCase.condition_use).map(([key, value]) => `${key} ${typeof value === "string" ? value : JSON.stringify(value)}`).join(", ")]);
     }
     if (loadCase.modulus_basis_temperature) {
       rows.push([
