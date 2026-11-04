@@ -613,6 +613,23 @@ rebuilt on this tree):
 The harness hashes are those of the F1 table above: `perf.mjs` and `perf-driver.js` did not change
 after F1.
 
+**Integration review (2026-11-04), clear at `5a9b5bf44`.** The independent review of
+`e1079a816..5a9b5bf44` found F1–F3 closed, the merges intact (RT-A4-HS `b59e8817…`; only line 29
+of `recorded_tables.rs` differs from merged main; all 45 routing digests and the 94-file desktop
+scan match), the inc4 and PF1b native mirrors in exact agreement with TS and Python, and the
+corpora changes as stated (653/658 outcomes unchanged; the other five change only the current
+binding digest). One non-blocking finding is accepted as a recorded limitation, not repaired:
+
+- **N1, Results activation overrun.** `perf-driver.js:154` awaits the `view.section.results`
+  menu call before its bounded visibility wait, so activation can end up to one menu round trip
+  and one 50 ms poll after the gate's absolute deadline (the review's simulated case: run begun
+  at 299,950 ms, Results at 300,040 ms, paint at 300,045 ms, wait returned at 300,050 ms). The
+  outcome is still `timeout`: the gate is judged on the first_paint mark's own `at_ms` against the
+  unrounded deadline, in the driver and in the classifier, so the overrun **cannot admit a late
+  paint**. It only delays reporting the timeout by that amount, inside the run's 900 s window.
+  It is left as is to keep the harness bytes of this candidate stable; carrying the absolute
+  deadline through the menu await is a possible later harness change.
+
 ### Repair made (native, src-tauri only; offline): candidates 1 and 2 of (a)
 
 Agent 0 released candidates 1 and 2 above for `apps/desktop/src-tauri` (outside
