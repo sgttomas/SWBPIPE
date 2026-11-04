@@ -462,7 +462,7 @@ def _truths(d, test):
 def sturm_family(d):
     ks, g_max, limit = d.ks, d.g_max, d.limit
     for c in d.candidates:
-        if any(off_domain(c[f], BINARY64) for f in ("shift", "formation_term") + FACTORED):
+        if any(off_domain(c[f], BINARY64) for f in ("shift", "formation_term", "formation_separation_ratio") + FACTORED):
             return False
     for index, c in enumerate(d.candidates):
         if c["negative_pivot_count"] is None:
@@ -533,12 +533,13 @@ def evidence_family(d):
                                              "kappa": lambda a: [a["e"] / a["eta"]] if a["eta"] != 0 else []}):
             return False
     tolerance = d.params["identity_tolerance"]
+    # The relative discrepancy's domain holds whatever the tolerance.
+    if any(off_domain(row["relative"], BINARY64) for row in d.identity):
+        return False
     if tolerance["absolute"] == 0.0:
         rel = Fraction(tolerance["relative"])
         for row in d.identity:
             vo = row["relative"]
-            if off_domain(vo, BINARY64):
-                return False
             x = domain(vo)
             if x.claim is not None or (vo["value"] is not None and vo["value"] < 0):
                 return False

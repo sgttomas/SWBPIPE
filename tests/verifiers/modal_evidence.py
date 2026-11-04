@@ -23,6 +23,8 @@ text here is written from the Design, not read from product code.
 """
 from __future__ import annotations
 
+from fractions import Fraction
+
 import json
 import math
 from typing import Any
@@ -1238,6 +1240,14 @@ def _mass_entry_set(i, j, vo):
     return _needed(vo, f"mass entry ({i}, {j})", signed=i != j)
 
 
+def bessel_established(effective_highs, t_low, n):
+    """Agent 0's Bessel interim contract: True exactly when Σ m_eff ≤ T_k·(1 + 16(n+2)u)
+    holds for the given upper ends of the effective masses and lower end of T_k. Every
+    operand is a finite binary64 value, so the comparison is done in exact rationals."""
+    highest = sum((Fraction(h) for h in effective_highs), Fraction(0))
+    return highest <= Fraction(t_low) * (1 + Fraction(ALLOW) * (n + 2) * Fraction(U))
+
+
 def _mass(p):
     scope = []
     n = len(p.modes)
@@ -1258,15 +1268,14 @@ def _mass(p):
         if t.only_nonfinite() or any(e.nonfinite for e in effective) or t.nonfinite:
             scope.append(UNRESOLVED + f"Σ m_eff,{direction} ≤ T_{direction}: an operand is not finite (±∞ or NaN)")
             continue
-        highest = sum(max(p.hi for p in e.pieces) for e in effective)
-        t_low = min(p.lo for p in t.pieces)
         # Agent 0's interim contract (Design §5.3.4): Bessel passes only where sound
         # arithmetic establishes Σ m_eff ≤ T_k from the published operands; otherwise it
         # is unresolved, never refused. Σ m_eff ≤ T_k holds for modes orthogonal in the
         # assembled M, which the document does not evidence (the published deviation is
-        # on the re-formed M̂).
-        slack = 1.0 + ALLOW * float(n + 2) * U
-        if highest > t_low * slack:
+        # on the re-formed M̂). The comparison is exact: every operand here is a finite
+        # binary64 value, so the sum of upper ends and the allowed total are rationals,
+        # with no rounding in the decision (review of f5c66b167).
+        if not bessel_established([max(p.hi for p in e.pieces) for e in effective], min(p.lo for p in t.pieces), n):
             scope.append(UNRESOLVED + f"Bessel: Σ m_eff,{direction} ≤ T_{direction} is not established within the strict "
                          "rounding allowance, and no common-M orthogonality bound is published (a temporary capability limit)")
     if p.mass is None:
@@ -1729,7 +1738,9 @@ def _exact_formula(scope, label, lhs, operands, combine, relation, contradiction
 def _candidate(scope, c, label, sturm_count, limit, g_max, ks):
     """One candidate: its claims, its two formulas and its decision against its premises,
     each on its own operands."""
-    for key in ("shift", "formation_term") + FACTORED:
+    # formation_separation is plain binary64 at the producer and never flagged; the
+    # readers do not re-derive it (a stated limit), but its domain is still enforced.
+    for key in ("shift", "formation_term", "formation_separation") + FACTORED:
         _producer_domain(c[key], BINARY64, f"candidate {label}: {key.replace('_', ' ')}")
     factored = c["pivots"] is not None
     if not factored:
@@ -1941,9 +1952,13 @@ def _evidence(p):
     if not any(text.startswith("numerical integrity does not establish physical correctness")
                for text in p.disclosure_texts.get("modal", [])):
         _fail("disclosures: the fixed numerical-integrity disclosure is missing")
+    # The producer's domain for the relative discrepancy (plain binary64, never flagged)
+    # holds whatever the tolerance: it is enforced unconditionally. Only the tolerance
+    # comparison needs a comparison scale, which an absolute tolerance does not publish.
+    for i, vo in enumerate(row["relative"] for row in p.identity):
+        _producer_domain(vo, BINARY64, f"identity row {i}")
     if tolerance["absolute"] == 0.0:
         for i, vo in enumerate(row["relative"] for row in p.identity):
-            _producer_domain(vo, BINARY64, f"identity row {i}")
             d = _needed(vo, f"identity row {i}")
             if vo.value is not None and vo.value < 0.0:
                 _fail(f"identity row {i}: a negative relative discrepancy")

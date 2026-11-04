@@ -1544,7 +1544,10 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
         let mut num = |field: &str, kind: &str| -> R<Num> { Ok(Num::mr_from(&read(field, kind)?)) };
         let shift = num("shift", "sturm_shift_circular_frequency")?;
         let formation_term = num("formation_term", "sturm_formation_term")?;
-        num("formation_separation_ratio", "sturm_formation_separation_ratio")?;
+        // Plain binary64 at the producer and never flagged; not re-derived (a stated
+        // limit), but its domain is enforced like every other candidate value.
+        let formation_separation = num("formation_separation_ratio", "sturm_formation_separation_ratio")?;
+        mr_domain(&formation_separation, MrRule::Binary64, &format!("candidate {}: formation separation ratio", i + 1))?;
         let factor_term = num("factor_term", "sturm_factor_term")?;
         let backward_error = num("backward_error", "sturm_backward_error")?;
         let inverse_norm = num("inverse_norm_estimate", "sturm_inverse_norm_estimate")?;
@@ -1975,6 +1978,18 @@ fn mr_tol_close(published: f64, derived: f64, tolerance: f64) -> bool {
 
 /// Mass: T_k and the free-DOF mass from the mass entries, the diagonal, and
 /// Bessel's inequality, each relation on its own operands.
+/// Agent 0's Bessel interim contract: true only when Σ m_eff ≤ T_k·(1 + 16(n+2)u) is
+/// established for the given upper ends of the effective masses and lower end of T_k.
+/// The comparison rounds outward: each rounded partial sum is stepped up one ulp
+/// (covering its round-to-nearest error), the allowed total is stepped down one ulp,
+/// and the slack 1 + 16(n+2)u is exact in binary64. Outward rounding can only turn an
+/// established case into an unestablished one, never the reverse.
+fn mr_bessel_established(effective_highs: &[f64], t_low: f64, n: usize) -> bool {
+    let highest = effective_highs.iter().fold(0.0_f64, |acc, x| (acc + x).next_up());
+    let slack = 1.0 + ALLOW * ((n + 2) as f64) * U;
+    highest <= (t_low * slack).next_down()
+}
+
 fn mr_mass(p: &Parsed) -> R<Vec<String>> {
     let mut scope = Vec::new();
     let n = p.modes.len();
@@ -2003,9 +2018,13 @@ fn mr_mass(p: &Parsed) -> R<Vec<String>> {
         // otherwise it is unresolved, never refused. The inequality holds for
         // modes orthogonal in the assembled M, which the document does not
         // evidence (its published deviation is on the re-formed M̂).
-        let highest: f64 = effective.iter().map(Reach::mr_highest).sum();
-        let slack = 1.0 + ALLOW * ((n + 2) as f64) * U;
-        if highest > t.mr_lowest() * slack {
+        // The comparison rounds outward (review of f5c66b167): an upper bound on the
+        // sum (each rounded partial sum stepped up one ulp, which covers its
+        // round-to-nearest error) against a lower bound on the allowed total (the
+        // rounded product stepped down one ulp). The slack 1 + 16(n+2)u is exact in
+        // binary64. Outward rounding can only make a pass unresolved, never the reverse.
+        let highs: Vec<f64> = effective.iter().map(Reach::mr_highest).collect();
+        if !mr_bessel_established(&highs, t.mr_lowest(), n) {
             scope.push(format!("{MR_UNRESOLVED}Bessel: Σ m_eff,{d} ≤ T_{d} is not established within the strict rounding allowance, and no common-M orthogonality bound is published (a temporary capability limit)"));
         }
     }
@@ -2806,9 +2825,14 @@ fn mr_evidence(p: &Parsed) -> R<Vec<String>> {
     let tolerance = p.params.get("identity_tolerance");
     let relative = tolerance.and_then(|t| t["relative"].as_f64()).ok_or("the identity tolerance is not bound")?;
     let absolute = tolerance.and_then(|t| t["absolute"].as_f64()).ok_or("the identity tolerance is not bound")?;
+    // The relative discrepancy's producer domain (plain binary64, never flagged)
+    // holds whatever the tolerance, so it is enforced unconditionally; only the
+    // tolerance comparison needs the scale an absolute tolerance does not publish.
+    for (i, row) in p.identity.iter().enumerate() {
+        mr_domain(&row.relative, MrRule::Binary64, &format!("identity row {i}"))?;
+    }
     if absolute == 0.0 {
         for (i, row) in p.identity.iter().enumerate() {
-            mr_domain(&row.relative, MrRule::Binary64, &format!("identity row {i}"))?;
             let d = mr_need(&row.relative, false, &format!("identity row {i}"))?;
             if row.relative.value.is_some_and(|x| x < 0.0) {
                 return Err(format!("identity row {i}: a negative relative discrepancy"));
@@ -2976,6 +3000,28 @@ fn mr_units(p: &Parsed) -> R<Vec<String>> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn bessel_comparison_is_outward_rounded_at_the_strict_boundary() {
+        // Review of f5c66b167: with T = 1.3 and effective masses [1.3000000000000094, 0],
+        // exact arithmetic puts the sum 8.88e-17 above T·(1 + 16(n+2)u). A round-to-nearest
+        // comparison passed it; the outward comparison must not establish it.
+        let t = 1.3_f64;
+        let n = 2;
+        let exact_excess = {
+            // Σ m_eff − T(1 + 16(n+2)u), formed exactly from the binary64 operands as an
+            // integer multiple of 2^-104 (all values here are of that granularity).
+            let scale = 2f64.powi(104);
+            let sum = (1.3000000000000094_f64 * scale) as i128;
+            let allowed = (t * scale) as i128 + ((t * scale) as i128 * 16 * (n as i128 + 2)) / (1_i128 << 53);
+            sum - allowed
+        };
+        assert!(exact_excess > 0, "the boundary witness must exceed the allowance exactly");
+        assert!(!mr_bessel_established(&[1.3000000000000094, 0.0], t, n));
+        // A clearly established case still passes.
+        assert!(mr_bessel_established(&[0.6, 0.6], t, n));
+        assert!(mr_bessel_established(&[1.3, 0.0], t, n));
+    }
 
     #[test]
     fn the_readers_table_names_canonical_catalog_units() {

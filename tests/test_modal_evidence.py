@@ -184,7 +184,7 @@ def test_the_reader_imports_only_the_standard_library_and_its_siblings():
             imported |= {alias.name for alias in node.names}
         elif isinstance(node, ast.ImportFrom):
             imported.add(node.module or "")
-    assert imported <= {"__future__", "json", "math", "typing", "tests.verifiers"}, imported
+    assert imported <= {"__future__", "fractions", "json", "math", "typing", "tests.verifiers"}, imported
 
 
 def test_one_mass_entry_is_one_variable_in_its_excitation_sum():
@@ -261,3 +261,41 @@ def test_bessel_correlated_mode_witness():
     for refused in ("participation:bessel_established_beside_a_wrong_gamma_squared",
                     "participation:bessel_unresolved_beside_a_wrong_gamma_squared"):
         assert verdicts[refused]["decision"] == "rejected" and verdicts[refused]["relations"]["mass"] != "failed"
+
+
+# ---- review of f5c66b167: an exact Bessel comparison; two unconditional producer domains ----------
+def test_bessel_comparison_is_exact_at_the_strict_boundary():
+    """T = 1.3, effective masses [1.3000000000000094, 0]: exactly, the sum is 8.88e-17 above
+    T·(1 + 16(n+2)u), so it is not established (a round-to-nearest comparison passed it)."""
+    from fractions import Fraction
+    t, n, highs = 1.3, 2, [1.3000000000000094, 0.0]
+    excess = sum(Fraction(h) for h in highs) - Fraction(t) * (1 + Fraction(16) * (n + 2) * Fraction(2) ** -53)
+    assert excess > 0
+    assert not me.bessel_established(highs, t, n)
+    assert me.bessel_established([0.6, 0.6], t, n) and me.bessel_established([1.3, 0.0], t, n)
+
+
+def _mutated_component_body(operations):
+    doc = load("modal_component_body.json")
+    apply(doc, operations)
+    reseal(doc)
+    return statuses(me.read_text(json.dumps(doc), load("modal_component_body.request.json")))
+
+
+def test_a_flagged_formation_separation_ratio_violates_its_producer_domain():
+    base = "/tables/sturm_candidates/rows/0/formation_separation_ratio"
+    got = _mutated_component_body([{"op": "replace", "path": f"{base}/value", "value": 0.0},
+                                   {"op": "replace", "path": f"{base}/below_normal", "value": True}])
+    assert got["closure"] == "passed" and got["relations"]["sturm"] == "failed" and got["decision"] == "rejected"
+
+
+def test_the_identity_relative_domain_holds_whatever_the_tolerance():
+    doc = load("modal_component_body.json")
+    absolute = 1e-9
+    doc["binding"]["integrity_parameters"]["identity_tolerance"]["absolute"] = absolute
+    doc["binding"]["integrity_parameters_sha256"] = canonical_json.canonical_sha256(doc["binding"]["integrity_parameters"])
+    apply(doc, [{"op": "replace", "path": "/tables/identity/rows/0/relative/value", "value": 0.0},
+                {"op": "replace", "path": "/tables/identity/rows/0/relative/below_normal", "value": True}])
+    reseal(doc)
+    got = statuses(me.read_text(json.dumps(doc), None))
+    assert got["relations"]["evidence"] == "failed", got
