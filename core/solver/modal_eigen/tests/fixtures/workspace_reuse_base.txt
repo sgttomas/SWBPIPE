@@ -1,0 +1,17 @@
+# Section line counts and FNV-1a 64-bit hashes of tests/workspace_reuse.rs's output text,
+# captured by running that file at the base revision 68a039e1c (before the workspace reuse,
+# design §5.3.8 option (c)) with WORKSPACE_REUSE_CAPTURE set. The full base and head dumps
+# (WORKSPACE_REUSE_DUMP) were byte-identical, SHA-256 03aae9d315362cd9e1598d7555d08e6e
+# b63353b2c5ddd1c0c5d63c1c65c5c1e0 (2,420 lines).
+section exact_sum lines 962 fnv1a64 e7f28eacfa62f6e5
+section case E-AXIAL-WITNESS lines 38 fnv1a64 98468ad70c3cdec1
+section case E-CANT-4 lines 130 fnv1a64 49b0af7ef2b3cc05
+section case E-CANT-INCLINED-4 lines 130 fnv1a64 3d0123fc8527cece
+section case E-SS-8 lines 226 fnv1a64 d06c8c91515b6858
+section case E-FF-4 lines 106 fnv1a64 42f1539fd1489359
+section case E-POINTMASS-NODE lines 118 fnv1a64 20e6d9381b0b453f
+section case E-POINTMASS-GENERAL lines 118 fnv1a64 0580b283de5599f9
+section case E-L-LINE-K3 lines 130 fnv1a64 d0d92cf35929fe05
+section case E-Z-BEND-K2.5 lines 202 fnv1a64 bdca1ea03e58c3b0
+section case E-RIGID-SCALE-1e6 lines 118 fnv1a64 dbef61bf60faf5ac
+section case E-SPRINGS lines 130 fnv1a64 9a49765aedecad82
