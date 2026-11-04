@@ -174,7 +174,11 @@ function mapObjectRef(ref: { object_type: string; ref: string } | undefined, fal
  * route the native render and the package's item 9 check them against the delivered result
  * with the Rust mirror `report_package::bindings::expected_report_diagnostics`; parity vectors
  * `fixtures/reports/invented/report_diagnostics_parity.json`. */
-export function diagnosticsForSections(result: Pick<MechanicsResult, "diagnostics">, provenance: ReturnType<typeof sessionProvenance>) {
+export function diagnosticsForSections(
+  result: Pick<MechanicsResult, "diagnostics"> & Partial<Pick<MechanicsResult, "results" | "contract_evidence" | "numerical_quality">>,
+  provenance: ReturnType<typeof sessionProvenance>
+) {
+  const combinations = documentCombinationIdentities(result);
   return result.diagnostics.map((diagnostic, index) => ({
     code: diagnostic.code,
     class:
@@ -190,11 +194,60 @@ export function diagnosticsForSections(result: Pick<MechanicsResult, "diagnostic
       ref_type: "affected_refs",
       ref_id: diagnostic.affected_refs?.join(", ") || diagnostic.id || `diagnostic-${index}`
     },
-    message: diagnostic.message,
+    message: supplementalMessage(diagnostic, combinations),
     remediation:
       "Human review required: evaluate this diagnostic against its referenced results before any reliance.",
     provenance
   }));
+}
+
+/** RT-A3 §4 (DEL-05-02 Work `combination-certificate.md` §2, the residual text boundary): the label
+ * before a diagnostic message the report passes through as supplied text. */
+export const SUPPLEMENTAL_DIAGNOSTIC_LABEL = "Supplied diagnostic text, unverified (not a combination certificate statement): ";
+
+/** The combination identities a result states (the reader's closed-roster population without the
+ * model): its gates, EX records, certificate and operand records, and the owners of its
+ * combination-typed rows and numerical cases, less any identity another entity shares (a load
+ * case, a row's entity). Rust `report_package::bindings` mirrors it. */
+export function documentCombinationIdentities(
+  result: Partial<Pick<MechanicsResult, "results" | "contract_evidence" | "numerical_quality">>
+): Set<string> {
+  const text = (value: unknown): string | null => (typeof value === "string" ? value : null);
+  const list = (value: unknown): unknown[] => (Array.isArray(value) ? value : []);
+  const field = (value: unknown, key: string): unknown => recordObject(value)?.[key];
+  const typed = (basis: unknown): string | null => (field(basis, "ref_type") === "combination" ? text(field(basis, "ref_id")) : null);
+  const evidence = result.contract_evidence;
+  const rows = list(result.results);
+  const cases = list(field(result.numerical_quality, "cases"));
+  const ids = new Set<string>();
+  const add = (into: Set<string>, value: string | null) => { if (value !== null) into.add(value); };
+  for (const member of ["combination_gates", "exact_combinations", "combination_operands"]) {
+    for (const record of list(field(evidence, member))) add(ids, text(field(record, "combination_id")));
+  }
+  for (const record of list(field(field(evidence, "combination_certificate"), "combinations"))) add(ids, text(field(record, "combination_id")));
+  for (const row of rows) add(ids, typed(field(row, "basis_ref")));
+  for (const item of cases) add(ids, typed(field(item, "basis_ref")));
+  const other = new Set<string>();
+  for (const item of cases) if (typed(field(item, "basis_ref")) === null) add(other, text(field(field(item, "basis_ref"), "ref_id")));
+  for (const member of ["preview_cases", "exact_cases"]) {
+    for (const record of list(field(evidence, member))) add(other, text(field(record, "load_case_id")));
+  }
+  for (const row of rows) add(other, text(field(row, "entity_ref")));
+  return new Set([...ids].filter((id) => id !== "" && !other.has(id)));
+}
+
+/** A diagnostic's report message. On a result with combinations, a diagnostic naming none of them
+ * is no entry of the reader's closed combination-diagnostic roster: its message is quoted after
+ * the supplemental label, as text supplied with the result and verified by nothing. A diagnostic
+ * naming a combination is a roster entry the reader admitted in its canonical form and is copied.
+ * Certificate facts (established, not established, not assessed, bounds) are stated only by the
+ * validated `contract_evidence.combination_certificate` and the roster's canonical notices; none is
+ * derived from a message. */
+function supplementalMessage(diagnostic: { message: string; affected_refs?: string[] | null }, combinations: Set<string>): string {
+  if (combinations.size === 0) return diagnostic.message;
+  const refs = Array.isArray(diagnostic.affected_refs) ? diagnostic.affected_refs : [];
+  if (refs.some((ref) => typeof ref === "string" && combinations.has(ref))) return diagnostic.message;
+  return `${SUPPLEMENTAL_DIAGNOSTIC_LABEL}"${diagnostic.message}"`;
 }
 
 function componentSourceLocation(component: PreviewComponent): string {

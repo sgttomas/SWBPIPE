@@ -782,6 +782,13 @@ fn combination_population<'s>(source: &'s Value, model: Option<&'s Value>) -> Ha
     ids
 }
 
+/// The combination identities a document states, without the model (the roster's population): the
+/// report's projection quotes a diagnostic naming none of them as supplied text on a document that has
+/// any (`report_package::bindings::expected_report_diagnostics`; desktop `documentCombinationIdentities`).
+pub fn document_combination_identities(source: &Value) -> HashSet<String> {
+    combination_population(source, None).into_iter().map(str::to_string).collect()
+}
+
 /// S1's interim withholding (PP `document_members::withhold_interim_combinations`) as the model states
 /// it: the notices, and the model's combinations it leaves, in authored order.
 fn interim<'m>(model: &'m Value) -> (Vec<Value>, Vec<&'m Value>) {

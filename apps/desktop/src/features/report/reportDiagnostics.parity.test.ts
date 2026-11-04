@@ -23,7 +23,14 @@ describe("report diagnostics projection parity", () => {
     expect(vectors.vectors.length).toBeGreaterThanOrEqual(20);
     for (const vector of vectors.vectors) {
       expect(vector.reason.length).toBeGreaterThan(0);
-      const result = { diagnostics: vector.diagnostics } as unknown as Pick<MechanicsResult, "diagnostics">;
+      // RT-A3 §4: a vector may state the result's combination evidence, rows and numerical cases.
+      const stated = vector as { contract_evidence?: unknown; results?: unknown; numerical_quality?: unknown };
+      const result = {
+        diagnostics: vector.diagnostics,
+        ...(stated.contract_evidence === undefined ? {} : { contract_evidence: stated.contract_evidence }),
+        ...(stated.results === undefined ? {} : { results: stated.results }),
+        ...(stated.numerical_quality === undefined ? {} : { numerical_quality: stated.numerical_quality })
+      } as unknown as Pick<MechanicsResult, "diagnostics">;
       const entries = diagnosticsForSections(result, PROVENANCE);
       for (const entry of entries) expect(entry.provenance, vector.reason).toBe(PROVENANCE);
       const projected = entries.map(({ provenance: _provenance, ...rest }) => rest);

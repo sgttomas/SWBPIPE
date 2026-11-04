@@ -4,7 +4,7 @@
 //! The desktop's projection (`diagnosticsForSections`) is checked against the
 //! same file by `apps/desktop/src/features/report/reportDiagnostics.parity.test.ts`.
 
-use open_pipe_stress_report_package::bindings::{check_report_diagnostics, expected_report_diagnostics, BINDING_MISMATCH};
+use open_pipe_stress_report_package::bindings::{check_report_diagnostics, expected_report_diagnostics, BINDING_MISMATCH, SUPPLEMENTAL_DIAGNOSTIC_LABEL};
 use serde_json::{json, Value};
 
 const VECTORS: &str = include_str!("../../../../fixtures/reports/invented/report_diagnostics_parity.json");
@@ -34,7 +34,13 @@ fn rust_projection_matches_the_shared_parity_vectors() {
     for vector in &vectors {
         let reason = vector["reason"].as_str().unwrap();
         assert!(!reason.is_empty(), "every vector states its reason");
-        let source = json!({"diagnostics": vector["diagnostics"]});
+        // RT-A3 §4: a vector may state the result's combination evidence, rows and numerical cases.
+        let mut source = json!({"diagnostics": vector["diagnostics"]});
+        for member in ["contract_evidence", "results", "numerical_quality"] {
+            if let Some(value) = vector.get(member) {
+                source[member] = value.clone();
+            }
+        }
         let projected = expected_report_diagnostics(&source).unwrap_or_else(|error| panic!("{reason}: {error}"));
         assert_eq!(Value::Array(projected), vector["expected"], "{reason}");
         // A report carrying the projection, with session provenance, passes the check.
@@ -66,6 +72,39 @@ fn the_vectors_cover_the_stated_edge_cases() {
     assert!(has(&|s, e| s["severity"] == "warning" && e["severity"] == "warning" && e["class"] == "ASSUMPTION_WARNING"), "warning");
     assert!(has(&|s, e| s["severity"] == "info" && e["severity"] == "info" && e["class"] == "ASSUMPTION_WARNING"), "info");
     assert!(has(&|s, e| s["affected_refs"].as_array().is_some_and(|refs| refs.len() == 2) && affected(e).contains(", ")), "joined refs");
+    // RT-A3 §4: supplied text quoted on a result with combinations, a roster entry copied, and prose copied on a
+    // result without one.
+    let quoted = |s: &Value, e: &Value| e["message"] == format!("{SUPPLEMENTAL_DIAGNOSTIC_LABEL}\"{}\"", s["message"].as_str().unwrap());
+    assert!(has(&|s, e| s["code"] == "REVIEW_NOTE" && quoted(s, e)), "supplied text quoted");
+    assert!(has(&|s, e| s["code"] == "COMBINATION_STRESS_MAXIMUM_UNAVAILABLE" && e["message"] == s["message"]), "roster entry copied");
+    assert!(has(&|s, e| s["code"] == "REVIEW_NOTE" && e["message"] == s["message"]), "no combination: copied");
+}
+
+/// RT-A3 §4 (DEL-05-02 Work `combination-certificate.md` §2, the residual text boundary) on an actual
+/// certificate document, whose combination identities carry no `comb:` prefix: each diagnostic naming a
+/// combination (an entry of the reader's closed roster, the certificate's notice among them) is copied, and
+/// every other message, the certificate review's claim under a load-case ref among them, is quoted after the
+/// supplemental label. The reader admits the added note as supplemental text.
+#[test]
+fn a_certificate_document_copies_roster_entries_and_quotes_supplied_text() {
+    let mut source: Value = serde_json::from_str(include_str!("../../../../fixtures/results/preview_physics_range_envelope_sparse.json")).unwrap();
+    let claim = "combination combination:U4B-RANGE-MAX: all derived row groups are established within their stated\u{a0}bound.";
+    source["diagnostics"].as_array_mut().unwrap().push(json!({"id": "diagnostic:review:claim", "code": "REVIEW_NOTE", "severity": "info",
+        "source": "core/product_physics", "affected_refs": ["load:L-100"], "message": claim}));
+    assert_eq!(open_pipe_stress_result_export::reader_verdict::validate("preview-physics", &source, None, None), json!({"ok": true}));
+    let combinations = ["combination:C-OPER-ALT", "combination:U4B-RANGE-MAX"];
+    let projected = expected_report_diagnostics(&source).unwrap();
+    let diagnostics = source["diagnostics"].as_array().unwrap();
+    assert_eq!(projected.len(), diagnostics.len());
+    for (d, entry) in diagnostics.iter().zip(&projected) {
+        let names = d["affected_refs"].as_array().is_some_and(|refs| refs.iter().any(|r| combinations.iter().any(|c| r == c)));
+        let message = d["message"].as_str().unwrap();
+        let expected = if names { message.to_string() } else { format!("{SUPPLEMENTAL_DIAGNOSTIC_LABEL}\"{message}\"") };
+        assert_eq!(entry["message"], expected.as_str(), "{}", d["id"]);
+    }
+    let notice = projected.iter().find(|e| e["code"] == "COMBINATION_ROWS_NOT_ASSESSED").unwrap();
+    assert!(!notice["message"].as_str().unwrap().starts_with(SUPPLEMENTAL_DIAGNOSTIC_LABEL));
+    assert_eq!(projected.last().unwrap()["message"], format!("{SUPPLEMENTAL_DIAGNOSTIC_LABEL}\"{claim}\""));
 }
 
 /// A source diagnostic not in the producer's form refuses: the desktop's
