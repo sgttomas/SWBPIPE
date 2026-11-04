@@ -413,13 +413,12 @@ pub(crate) fn open_project_in_store(registry: &SolveJobRegistry, path: PathBuf, 
                 recording_id: None,
                 result_sha256: hex(&sha256_in_place(run.result.as_bytes())),
                 record_sha256: Some(hex(&sha256_in_place(run.record.as_bytes()))),
-                recorded_table: found.recorded,
             };
             let (result_bytes, record_bytes) = (run.result.len() as u64, run.record.len() as u64);
             // The re-save basis (`stored_save`): the stored model hash evidence and the stored
             // envelope evidence with the payload hash recomputed over the stored values.
             let basis = RestoredBasis { model_hash: model_hash.clone(), envelopes: vec![EnvelopeBasis { payload_sha256: found.envelope_payload_hash.clone(), evidence: project_envelope_hash.clone() }] };
-            match registry.restore_with_basis(epoch, source.clone(), HeldResult::restored(run.result, run.result_lease), Some(HeldResult::restored(run.record, run.record_lease)), Some(basis)) {
+            match registry.restore_with_basis(epoch, source.clone(), HeldResult::restored(run.result, run.result_lease).read_under(found.recorded), Some(HeldResult::restored(run.record, run.record_lease)), Some(basis)) {
                 Ok(handle) => {
                     (
                         summary,
@@ -555,11 +554,10 @@ pub(crate) fn read_run_in_store(registry: &SolveJobRegistry, path: PathBuf, proj
         recording_id: Some(run.recording_id.clone()),
         result_sha256: hex(&sha256_in_place(result_json.as_bytes())),
         record_sha256: Some(hex(&sha256_in_place(record_text.as_bytes()))),
-        recorded_table: found.recorded,
     };
     let (result_bytes, record_bytes) = (result_json.len() as u64, record_text.len() as u64);
     let handle = registry
-        .restore(epoch, source.clone(), HeldResult::restored(result_json, result_lease), Some(HeldResult::restored(record_text, record_lease)))
+        .restore(epoch, source.clone(), HeldResult::restored(result_json, result_lease).read_under(found.recorded), Some(HeldResult::restored(record_text, record_lease)))
         .map_err(|error| format!("{RESTORE_REFUSED}: recorded run `{}` was not opened: {}", stored_read::shown(recording_id), restore_refusal(error)))?;
     Ok(NativeRunRead {
         run,

@@ -430,11 +430,18 @@ struct SolveJobRecord {
 /// drops it, and the pool never counts the bytes as released while they are
 /// still held. Its row index (slice 3, [`crate::result_detail`]), built on
 /// the first detail query with its own lease, lives and is released with it.
+///
+/// RT-A4 §10.4: a restored result also holds the recorded table its readers
+/// read it under ([`Self::recorded_table`]), fixed when it is restored. The
+/// bytes and that table are one immutable snapshot: a reader takes both with
+/// one share ([`SolveJobRegistry::held_result`], under the registry lock), and
+/// a disposal or reset after that cannot change the table its read uses.
 #[derive(Debug)]
 pub(crate) struct HeldResult {
     text: String,
     lease: Lease,
     detail: Mutex<Option<Arc<crate::result_detail::DetailIndex>>>,
+    recorded_table: Option<crate::analysis_run_v03_validate::RecordedTable>,
 }
 
 impl HeldResult {
@@ -445,7 +452,26 @@ impl HeldResult {
     /// bytes by the last holder.
     pub(crate) fn restored(text: String, mut lease: Lease) -> Self {
         lease.set_purpose(LeasePurpose::Result);
-        Self { text, lease, detail: Mutex::new(None) }
+        Self { text, lease, detail: Mutex::new(None), recorded_table: None }
+    }
+
+    /// RT-A4 §10.4: these restored bytes are read under `table`, the registry
+    /// variant the stored record binds, established by the host from the
+    /// stored record at restoration (`analysis_run_v03_validate::recorded_record_binding`),
+    /// never from a request. Set before the bytes are held; fixed from then.
+    pub(crate) fn read_under(mut self, table: Option<crate::analysis_run_v03_validate::RecordedTable>) -> Self {
+        self.recorded_table = table;
+        self
+    }
+
+    /// RT-A4 §10.4: the recorded table these bytes are read under: the
+    /// native readers of a restored run (S, row semantics, the detail index,
+    /// filter, navigator and lookup) read under it; nothing else does, and it
+    /// grants no standing. `None` for a solve and a restored run read under
+    /// the current tables. Part of the held snapshot, so a disposal or reset
+    /// while a reader holds its share cannot change it.
+    pub(crate) fn recorded_table(&self) -> Option<crate::analysis_run_v03_validate::RecordedTable> {
+        self.recorded_table
     }
 
     /// The bytes (a solve's publication, or a restored stored column).
@@ -493,15 +519,6 @@ pub(crate) struct RestoredSource {
     pub recording_id: Option<String>,
     pub result_sha256: String,
     pub record_sha256: Option<String>,
-    /// RT-A4 §10.4: the registry variant the stored record binds (a run
-    /// recorded before RT-A4), established by the host from the stored
-    /// record at restoration (`analysis_run_v03_validate::recorded_record_binding`),
-    /// never from a request. The native readers of this handle (S, row
-    /// semantics, the detail filter and navigator) read under it; nothing
-    /// else does, and it grants no standing. Sent as the findings'
-    /// `recorded_table_read`.
-    #[serde(skip)]
-    pub recorded_table: Option<crate::analysis_run_v03_validate::RecordedTable>,
 }
 
 /// What a restored saved project run's re-save takes from its stored project
@@ -1367,7 +1384,7 @@ impl SolveJobRegistry {
         record.worker = None;
         record.resource.worker_grant_bytes = None;
         record.result_bytes = Some(result.len() as u64);
-        record.result = Some(Arc::new(HeldResult { text: result, lease, detail: Mutex::new(None) }));
+        record.result = Some(Arc::new(HeldResult { text: result, lease, detail: Mutex::new(None), recorded_table: None }));
         if let Some(digests) = record.digests.as_mut() {
             digests.result_sha256 = Some(result_sha256);
         }
@@ -1466,7 +1483,7 @@ impl SolveJobRegistry {
         // here stays the sole holder.
         let held = record.result.take().expect("checked above");
         // The row index, if built, leaves native custody with the bytes; its lease is released here.
-        let HeldResult { text, mut lease, detail: _ } = match Arc::try_unwrap(held) {
+        let HeldResult { text, mut lease, .. } = match Arc::try_unwrap(held) {
             Ok(held) => held,
             Err(held) => {
                 record.result = Some(held);
@@ -1485,14 +1502,26 @@ impl SolveJobRegistry {
     /// stays retained and takeable; a take while a share is held is refused
     /// `PREVIEW-SOLVE-RESULT-BUSY`, and a disposal while a share is held
     /// releases the bytes and their lease when the share is dropped.
+    ///
+    /// RT-A4 §10.4: the share is the whole immutable snapshot, the bytes and
+    /// the recorded table they are read under ([`HeldResult::recorded_table`]),
+    /// taken together under this one registry lock; a reader reads its table
+    /// from the share only, never from the registry again.
     pub(crate) fn held_result(&self, job_id: &str) -> Result<Arc<HeldResult>, SolveJobError> {
-        let table = self.table();
-        let record = table.records.get(job_id).ok_or_else(|| SolveJobError::invalid(format!("unknown solve job: {job_id}")))?;
-        match &record.result {
-            Some(held) => Ok(Arc::clone(held)),
-            None if record.delivered => Err(SolveJobError::invalid(format!("PREVIEW-SOLVE-RESULT-ALREADY-DELIVERED: {job_id}"))),
-            None => Err(SolveJobError::invalid(format!("PREVIEW-SOLVE-RESULT-UNAVAILABLE: {job_id} is {}", record.state.as_str()))),
-        }
+        let held = {
+            let table = self.table();
+            let record = table.records.get(job_id).ok_or_else(|| SolveJobError::invalid(format!("unknown solve job: {job_id}")))?;
+            match &record.result {
+                Some(held) => Arc::clone(held),
+                None if record.delivered => return Err(SolveJobError::invalid(format!("PREVIEW-SOLVE-RESULT-ALREADY-DELIVERED: {job_id}"))),
+                None => return Err(SolveJobError::invalid(format!("PREVIEW-SOLVE-RESULT-UNAVAILABLE: {job_id} is {}", record.state.as_str()))),
+            }
+        };
+        // A test gate between the share's acquisition and its read (a disposal
+        // or reset in between must not change what the read uses).
+        #[cfg(test)]
+        crate::native_verdict::tests::gate::pass(crate::native_verdict::tests::gate::key(self, "held"));
+        Ok(held)
     }
 
     /// The custody a job's result was started under; `None` for an unknown job.
@@ -1601,18 +1630,6 @@ impl SolveJobRegistry {
             .as_ref()
             .map(Arc::clone)
             .ok_or_else(|| SolveJobError::invalid(format!("PREVIEW-SOLVE-RESULT-UNAVAILABLE: {job_id} holds no stored record")))
-    }
-
-    /// RT-A4 §10.4: the recorded table a held restored result is read under
-    /// ([`RestoredSource::recorded_table`]); `None` for a solve, a restored
-    /// run read under the current tables, an unknown job or after disposal.
-    pub(crate) fn recorded_table(&self, job_id: &str) -> Option<crate::analysis_run_v03_validate::RecordedTable> {
-        let table = self.table();
-        let record = table.records.get(job_id).filter(|record| record.result.is_some())?;
-        match &record.origin {
-            ResultOrigin::Restored(source) => source.recorded_table,
-            ResultOrigin::Solve => None,
-        }
     }
 
     /// A restored saved run's re-save basis ([`RestoredBasis`]); `None` for a

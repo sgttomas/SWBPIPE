@@ -604,7 +604,7 @@ fn the_index_is_admitted_before_it_is_allocated_and_lives_with_the_bytes() {
     drop((spans_built, lease));
     // The whole build: refused under a headroom that does not cover the index, leaving no index.
     host.set(|s| s.headroom_bytes = Some(result_lease + scan_bytes + index_bytes - 1));
-    assert!(index(&registry, &held, None).is_err());
+    assert!(index(&registry, &held).is_err());
     assert!(held.detail_slot().lock().unwrap().is_none());
     assert_eq!(registry.pool().reserved_total(), result_lease);
     host.set(|s| s.headroom_bytes = Some(64 << 30));
@@ -613,12 +613,12 @@ fn the_index_is_admitted_before_it_is_allocated_and_lives_with_the_bytes() {
         s.headroom_bytes = Some(64 << 30);
         s.pressure = PressureLevel::Warning;
     });
-    assert!(matches!(refusal(index(&registry, &held, None).unwrap_err()), ResourceRefusal::PressureElevated { .. }));
+    assert!(matches!(refusal(index(&registry, &held).unwrap_err()), ResourceRefusal::PressureElevated { .. }));
     host.set(|s| s.pressure = PressureLevel::Normal);
-    let built = index(&registry, &held, None).unwrap();
+    let built = index(&registry, &held).unwrap();
     assert_eq!(built.len(), 20_000);
     assert_eq!(built.lease_bytes(), index_bytes);
-    assert!(Arc::ptr_eq(&built, &index(&registry, &held, None).unwrap()), "built once");
+    assert!(Arc::ptr_eq(&built, &index(&registry, &held).unwrap()), "built once");
     drop(built);
     drop(held);
     assert_eq!(registry.pool().reserved_total(), result_lease + index_bytes, "the index lives with the held result");
@@ -727,13 +727,13 @@ fn a_failed_build_leaves_no_index() {
     let held = registry.held_result(&job).unwrap();
     let panicked = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
         PANIC_IN_BUILD.with(|p| p.set(true));
-        let _ = index(&registry, &held, None);
+        let _ = index(&registry, &held);
     }));
     PANIC_IN_BUILD.with(|p| p.set(false));
     assert!(panicked.is_err());
     assert!(held.detail_slot().lock().unwrap_or_else(PoisonError::into_inner).is_none());
     assert_eq!(registry.pool().reserved_total(), result_lease);
-    assert_eq!(index(&registry, &held, None).unwrap().len(), 2);
+    assert_eq!(index(&registry, &held).unwrap().len(), 2);
     drop(held);
     registry.dispose_result(&job).unwrap();
     assert_eq!(registry.pool().reserved_total(), 0);
@@ -947,7 +947,7 @@ fn the_navigator_refuses_by_name_and_prices_its_list() {
     let after_first = registry.pool().reserved_total();
     // The list's growth is pool-admitted: refused typed when the headroom does not cover it.
     let held = registry.held_result(&job).unwrap();
-    let index = index(&registry, &held, None).unwrap();
+    let index = index(&registry, &held).unwrap();
     let mut asked = Vec::new();
     navigator(held.text(), &index, &Filter::default(), None, |bytes| {
         asked.push(bytes);

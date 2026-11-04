@@ -154,7 +154,7 @@ pub(crate) fn run(registry: SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> Resu
     let source = native_verdict::diagnostic_phase(call, "source_parse", held.text().len() as u64, || parse("source", held.text()))?;
     let model = native_verdict::diagnostic_phase(call, "inputs_parse", model_json.len() as u64, || parse("model", &model_json))?;
     let standing = standing.map(|s| Standing { eligible: s.eligible, health: tables::health_view(&health) });
-    let (response, written) = native_verdict::diagnostic_phase(call, "summary_build", 0, || build(&job_id, &source, &model, standing.as_ref(), &health, registry.recorded_table(&job_id), |bytes| registry.acquire_result_parse(bytes)))?;
+    let (response, written) = native_verdict::diagnostic_phase(call, "summary_build", 0, || build(&job_id, &source, &model, standing.as_ref(), &health, held.recorded_table(), |bytes| registry.acquire_result_parse(bytes)))?;
     native_verdict::diagnostic_phase(call, "source_drop", 0, || { drop((written, source, model, reading, held, lease)); Ok::<_, CommandError<String>>(()) })?;
     Ok(response)
 }

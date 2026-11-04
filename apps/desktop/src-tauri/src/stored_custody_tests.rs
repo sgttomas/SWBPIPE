@@ -661,7 +661,7 @@ fn a_run_recorded_before_rt_a4_reopens_through_the_native_commands() {
     assert_eq!(run["recorded_dispatch"]["ok"], true, "{}", run["recorded_dispatch"]);
     assert_eq!(run["recorded_dispatch"]["route"], "preview_physics");
     assert_eq!(run["recorded_dispatch"]["binding"], variant);
-    assert_eq!(registry.recorded_table(&handle).map(|table| table.binding()), Some(variant.clone()), "the handle holds the record's table");
+    assert_eq!(registry.held_result(&handle).unwrap().recorded_table().map(|table| table.binding()), Some(variant.clone()), "the handle holds the record's table");
 
     // Current admission is unaffected: the bare verdict is the current reader's, under the current
     // table (not the record's), and it withholds the statement as before.
@@ -686,7 +686,7 @@ fn a_run_recorded_before_rt_a4_reopens_through_the_native_commands() {
     let restored_rows = semantics(&handle);
     assert!(restored_rows.as_array().unwrap().iter().all(|outcome| outcome["ok"] == true && !outcome["signature"].is_null()), "{restored_rows}");
     let solve = held(&registry, &gate, &stored.0, &stringify_text(&repo_text(REPLAY_MODEL)), "sparse_interactive", ResultCustody::Native);
-    assert_eq!(registry.recorded_table(&solve), None, "a solve holds no recorded table");
+    assert_eq!(registry.held_result(&solve).unwrap().recorded_table(), None, "a solve holds no recorded table");
     // The rows are the same under either table (only limitations, policy text and vocabulary moved):
     // what the current reader withholds is the statement (its dispatch), not its rows.
     assert_eq!(semantics(&solve), restored_rows, "the rows read alike under the current and the recorded table");
@@ -709,7 +709,7 @@ fn a_run_recorded_before_rt_a4_reopens_through_the_native_commands() {
     assert_eq!(column_text(&path, "SELECT mechanics_result_json FROM local_projects"), stored.0, "the stored result is kept");
     assert_eq!(column_text(&path, "SELECT analysis_run_json FROM local_projects"), stored.1, "the stored record is kept: no migration, no reseal");
     assert!(registry.dispose_result(&handle).unwrap().released);
-    assert_eq!(registry.recorded_table(&handle), None, "disposal ends the held table with the handle");
+    assert!(registry.held_result(&handle).is_err(), "disposal ends the held table with the handle");
 
     let document = json!({
         "document_kind": "swbpipe.desktop.native_reopen_pre_rt_a4_replies",
@@ -726,6 +726,117 @@ fn a_run_recorded_before_rt_a4_reopens_through_the_native_commands() {
     assert!(std::fs::read_to_string(&target).unwrap_or_default() == written, "the committed pre-RT-A4 reopen replies are the commands' replies (NATIVE_REOPEN_REPLIES_WRITE=1 rewrites them)");
     std::fs::remove_dir_all(&dir).unwrap();
     assert_eq!(registry.pool().reserved_total(), 0);
+}
+
+/// A restored handle holding `text`, read under `table`, as `stored_custody` restores one.
+fn restored_under(registry: &SolveJobRegistry, text: &str, table: Option<crate::analysis_run_v03_validate::RecordedTable>) -> String {
+    let lease = registry.acquire_result_parse(text.len() as u64).unwrap();
+    let source = RestoredSource { kind: "saved_project_run", project_id: "invented:project".into(), recording_id: None, result_sha256: "invented".into(), record_sha256: None };
+    registry.restore(registry.reset_epoch(), source, HeldResult::restored(text.to_string(), lease).read_under(table), None).unwrap()
+}
+
+/// A native reader's reply on its job: the response bytes, or the refusal's JSON.
+fn reader_reply(registry: &SolveJobRegistry, command: &'static str, args: &Value) -> Result<Vec<u8>, String> {
+    use crate::{result_detail, result_summary};
+    let (body, headers) = (body(args), headers(Some(INGRESS_ARGS_JSON_V1)));
+    let r = registry.clone();
+    let outcome = match command {
+        result_summary::COMMAND => result_summary::reserve(registry, &body, &headers).and_then(|(raw, lease)| result_summary::run(r, raw, lease)),
+        result_detail::SEMANTICS_COMMAND => result_detail::reserve(registry, &body, &headers, command).and_then(|(raw, lease)| result_detail::run_semantics(r, raw, lease)).map(String::into_bytes),
+        result_detail::ROWS_COMMAND => result_detail::reserve(registry, &body, &headers, command).and_then(|(raw, lease)| result_detail::run_rows(r, raw, lease)),
+        result_detail::NAVIGATOR_COMMAND => result_detail::reserve(registry, &body, &headers, command).and_then(|(raw, lease)| result_detail::run_navigator(r, raw, lease)),
+        result_detail::LOOKUP_COMMAND => result_detail::reserve(registry, &body, &headers, command).and_then(|(raw, lease)| result_detail::run_lookup(r, raw, lease)),
+        other => panic!("not a reader under test: {other}"),
+    };
+    outcome.map_err(|error| serde_json::to_string(&error).unwrap())
+}
+
+/// RT-A4 §10.4 review F1: a reader takes the held bytes and the recorded table they are read
+/// under as one snapshot. A disposal or a session reset between a reader's acquisition of its
+/// share and its read (the test gate in `held_result`) must not change the table that read uses:
+/// every native reader of the handle (S, row semantics, the rows page and its family filter, the
+/// navigator, the lookup) answers exactly as an undisturbed handle under the same table does. Two
+/// stored statements: main's preview-physics-2 run recorded before RT-A4 under its own variant
+/// (read under it; its rows read alike under the current tables), and a current
+/// preview-physics-2 statement whose record binds the Timoshenko variant, another identity (the
+/// binding is refused, so every row is refused; under the current tables the rows would read).
+/// Before the table was part of the share, the readers looked it up again in the registry after
+/// acquiring the share; after a disposal that lookup found nothing and they read the current
+/// tables, so S, semantics, rows and navigator differed here.
+#[test]
+fn a_disposal_or_reset_during_a_read_never_changes_the_recorded_table_it_reads() {
+    use crate::analysis_run_v03_validate::RecordedTable;
+    use crate::{result_detail, result_summary};
+    use open_pipe_stress_result_export::recorded_tables::VARIANTS;
+    use std::time::Duration;
+    let pre_rt_a4 = std::fs::read_to_string(root().join("fixtures/persistence/recorded_pre_rt_a4_pf/preview_physics_2/preview_physics_connected_sparse.json")).unwrap();
+    let current = std::fs::read_to_string(root().join("fixtures/results/preview_physics_connected_sparse.json")).unwrap();
+    let (preview, timoshenko) = (RecordedTable::of(&VARIANTS[0]), RecordedTable::of(&VARIANTS[1]));
+    assert_eq!((preview.id, timoshenko.id), (open_pipe_stress_result_export::semantic_contract::PREVIEW_PHYSICS_ID, open_pipe_stress_result_export::semantic_contract::PREVIEW_PHYSICS_TIMOSHENKO_ID));
+    let family = json!({"text": "", "family": "displacement", "frame": "all", "case": "all"});
+    let readers: [(&str, fn(&str, &Value) -> Value, bool); 5] = [
+        (result_summary::COMMAND, |job, _| json!({"jobId": job, "modelJson": "null", "standing": null}), true),
+        (result_detail::SEMANTICS_COMMAND, |job, _| json!({"jobId": job, "ordinals": (0..12).collect::<Vec<u64>>()}), true),
+        (result_detail::ROWS_COMMAND, |job, family| json!({"jobId": job, "filter": family, "offset": 0, "limit": 50}), true),
+        (result_detail::NAVIGATOR_COMMAND, |job, family| json!({"jobId": job, "filter": family, "probe": null}), true),
+        (result_detail::LOOKUP_COMMAND, |job, _| json!({"jobId": job, "kinds": ["preview_intensified_bending_stress"], "match": "first"}), false),
+    ];
+    let mut failures = Vec::new();
+    for (case, text, table, refused) in [("pre-RT-A4 under its variant", &pre_rt_a4, preview, false), ("refused: another identity's variant", &current, timoshenko, true)] {
+        for (command, args, discriminates) in readers {
+            for interleaving in ["disposal", "reset"] {
+                let label = format!("{case}, {command}, {interleaving}");
+                let host = ScriptedHost::normal();
+                let (registry, _gate) = gated(&host);
+                // An undisturbed handle under the table, and one under the current tables.
+                let undisturbed = restored_under(&registry, text, Some(table));
+                let expected = reader_reply(&registry, command, &args(&undisturbed, &family));
+                let current_tables = restored_under(&registry, text, None);
+                let unbound = reader_reply(&registry, command, &args(&current_tables, &family));
+                let handle = restored_under(&registry, text, Some(table));
+                assert_eq!((undisturbed.len(), current_tables.len()), (handle.len(), handle.len()), "{label}: the handles' replies compare byte for byte");
+                let named = |reply: Result<Vec<u8>, String>, job: &str| -> Result<Vec<u8>, String> {
+                    let swap = |bytes: &[u8]| bytes.windows(job.len()).enumerate().filter(|(_, w)| *w == job.as_bytes()).map(|(at, _)| at).collect::<Vec<_>>();
+                    reply.map(|mut bytes| { for at in swap(&bytes) { bytes[at..at + job.len()].copy_from_slice("$".repeat(job.len()).as_bytes()); } bytes })
+                        .map_err(|text| text.replace(job, &"$".repeat(job.len())))
+                };
+                let (expected, unbound) = (named(expected, &undisturbed), named(unbound, &current_tables));
+                // The refused binding is what a current-table read would replace (review F1); the
+                // run recorded before RT-A4 reads its rows alike under either table.
+                if discriminates && refused {
+                    assert_ne!(expected, unbound, "{label}: the reader's reply depends on the table it reads under");
+                }
+                if refused && command == result_detail::SEMANTICS_COMMAND {
+                    let outcomes: Value = serde_json::from_slice(expected.as_ref().unwrap()).unwrap();
+                    assert!(outcomes.as_array().unwrap().iter().all(|outcome| outcome["ok"] == false && outcome.to_string().contains("SOURCE_RECORDED_BINDING_IDENTITY")), "{label}: every row refused: {outcomes}");
+                }
+                let held = command_gate::hold(&registry, "held", false);
+                let reader = std::thread::spawn({
+                    let (registry, args) = (registry.clone(), args(&handle, &family));
+                    move || reader_reply(&registry, command, &args)
+                });
+                assert!(held.0.wait_entered(1, Duration::from_secs(30)), "{label}: the reader acquired its share");
+                if interleaving == "disposal" {
+                    assert!(registry.dispose_result(&handle).unwrap().released, "{label}");
+                } else {
+                    assert!(registry.dispose_all_results().released_results >= 1, "{label}");
+                }
+                assert!(registry.held_result(&handle).is_err(), "{label}: the handle is gone while its reader reads");
+                held.0.open();
+                let got = named(reader.join().unwrap(), &handle);
+                drop(held);
+                if got != expected {
+                    failures.push(format!("{label}: the read used another table than its share's"));
+                }
+                if interleaving == "disposal" {
+                    registry.dispose_result(&undisturbed).unwrap();
+                    registry.dispose_result(&current_tables).unwrap();
+                }
+                assert_eq!(registry.pool().reserved_total(), 0, "{label}: every share released");
+            }
+        }
+    }
+    assert!(failures.is_empty(), "{} of 20 interleavings differ:\n{}", failures.len(), failures.join("\n"));
 }
 
 #[test]
