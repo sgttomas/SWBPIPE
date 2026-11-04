@@ -1343,23 +1343,28 @@ This proposal comes from source plus the existing cantilever calibration (stage 
 - MA is a multiply-add. A *visit* is one `ExactSum::add_product` call, which returns at once on a zero factor (`exact.rs:113`). An *insertion* is a visit with every factor nonzero, or one `add_dd_product`, which also builds a small `Vec` (`exact.rs:161`).
 - **L is an accumulator's limb span.** `ExactSum` keeps 32-bit limbs from its lowest to its highest part (`exact.rs:51`–`:100`). It grows by `splice` when a lower part arrives, and `terms()` returns one term per nonzero limb (`exact.rs:217`).
   - So k (terms per entry) ≤ L, and limb moves per sum ≤ L × its adds.
-  - For products of at most three binary64 factors (exponents −1074 to 1023), the parts' lsbs span ≤ 3·2,097 + 3 − 52 + 1 = 6,243 bits: the top part's lsb is the msb less 52, plus one for the ×2 scaled adds.
-  - A sum then holds ≤ ⌈6,243/32⌉ + 5 = 201 limbs, counting `add_scaled`'s 4-limb headroom (`exact.rs:72`, `:80`). That gives the data-independent **L ≤ L_max = 202** (rounded up).
+  - **No data-independent bound on L is established** (narrow re-check, 2026-11-04). The earlier derivation of a 6,243-bit span, and so of L ≤ 202, is withdrawn, for three reasons:
+    - three minimum subnormals enter `add_scaled` at scale −3,222 with a normalized part of 1.0, whose encoded lsb is −3,274 (`exact.rs:63`, `:153`), not −3,222;
+    - `normalize()` can append limbs;
+    - the generalized-mass and orthogonality terms multiply accumulated sums, and a factor count alone does not bound carry growth.
+
+    No underlying monomial was found with more than three binary64 factors, so some bound near 202 may hold under explicit count bounds, but none is proved.
+  - **So L is held by an enforced allotment, not a bound.** P0 charges every L-dependent term at a proposed allotment L_A; 202 is the working proposal, and the value is not adopted. S2b's exact scan, after re-formation and before any residual or orthogonality array is built, refuses (`MODAL_RESOURCE_CHECKS_EXCEEDED`) if the exact L exceeds L_A. The formation maps (T7) are built before S2b, so their per-entry limb growth is checked against L_A as the sums grow, before the next allocation.
 
 **Counts are upper bounds** wherever data can only lower them: zero factors skip insertions, and an early failure skips the rest of a pair's work.
 
 | # | Term | Count from source (upper bound unless stated) | Source | Bounded / checked at |
 |---|---|---|---|---|
-| T1 | State-case solve (with a state case only; runs **before** the screen) | Structural solves S_T1 ≤ (I_as + 1)·(2 + d) + 1. Here:<br>• I_as = 4 iterations;<br>• the +1 is the single all-active recovery trial that iteration 1 may add after a structurally failed first attempt, both counted as iteration 1 (`lib.rs:813`);<br>• 2 + d is, with derived friction, one base solve, d unit solves and the final solve (`:1574`–`:1680`), and without it one solve;<br>• the last +1 is the confirmation's gate factorization.<br>Each solve is priced as T2 on its free set, including `reduce_system_with_prescribed_displacements_binary64` (`:2219`). Per iteration with friction, add the d × d influence and coupling matrices and `solve_dense`, d³/3 flops (`:1590`, `:1655`). The confirmation also runs E_conf K-D5 formation evaluations (`structural_adapter.rs:375`; `confirmation.rs:332`, `:696`, `:711`), each re-forming every element from primitives (`formation_check::check_at`) and solving with the gate factor, and reaction certifications (`confirmation.rs:961`, `:1030`). | product `lib.rs:195`; nonlinear_integration `lib.rs:759`, `:813`, `:1514`, `:2212`; `confirmation.rs:78` | P0: S_T1 and d³ from inputs (d ≤ friction supports). **E_conf is not bounded here from source:** an enforced allotment A_conf, a counter on `ConfirmationContext::evaluate_at` and `reaction`, refusing before the next evaluation |
+| T1 | State-case solve (with a state case only; runs **before** the screen) | Structural solves S_T1 ≤ (I_as + 1)·(2 + d) + 1. Here:<br>• I_as = 4 iterations;<br>• the +1 is the single all-active recovery trial that iteration 1 may add after a structurally failed first attempt, both counted as iteration 1 (`lib.rs:813`);<br>• 2 + d is, with derived friction, one base solve, d unit solves and the final solve (`:1574`–`:1680`), and without it one solve;<br>• the last +1 is the confirmation's gate factorization.<br>Each solve is priced as T2 on its free set, including `reduce_system_with_prescribed_displacements_binary64` (`:2219`). Per iteration with friction, add the d × d influence and coupling matrices and `solve_dense`. That is general Gaussian elimination with pivoting, not Cholesky: 2d³/3 flops leading, plus validation and lower-order work (frame_kernel `lib.rs:2003`, `:2029`) (`:1590`, `:1655`). The confirmation also runs E_conf K-D5 formation evaluations (`structural_adapter.rs:375`; `confirmation.rs:332`, `:696`, `:711`), each re-forming every element from primitives (`formation_check::check_at`) and solving with the gate factor, and reaction certifications (`confirmation.rs:961`, `:1030`). | product `lib.rs:195`; nonlinear_integration `lib.rs:759`, `:813`, `:1514`, `:2212`; `confirmation.rs:78` | P0: S_T1 and d³ from inputs (d ≤ friction supports). **E_conf is not bounded here from source:** an enforced allotment A_conf, a counter on `ConfirmationContext::evaluate_at` and `reaction`, refusing before the next evaluation |
 | T2 | Static screen of the modal pencil | n_f³/3 flops (dense Cholesky), plus O(n_g²) passes: three 32·n_g² sum arrays, the differences, prepare, skew check, audits | frame_kernel `structural.rs:2060`, `:934`, `:1047`, `:1141`, `:1240`, `:1489` | P0 (n_g; n_f ≤ n_f,max) |
 | T3 | Kernel, binary64 | (19/3)·n³ + 6n·R + O(n²) flops: Cholesky n³/3; reduction 2n_m³; Householder 4n_m³/3 plus accumulation 4n_m³/3; QL 6n_m·R; back-transform ≤ n³; census Cholesky m³/3; Hager ≤ 11 triangular pairs; sort ≤ n_m² compares and n_m swaps | modal_eigen `dense.rs:803`, `:880`, `:955`, `:1061`, `:865`, `:751`, `:1148`; `norm_estimate.rs:8` | R: enforced allotment A_QL (S1-QL counter) |
 | T4 | Band recovery | Two separately priced parts:<br>• *scaling:* once if p > 0, `formed_scaling`, 2n² entries, each two WideDd divisions and one WideDd addition (`:555`), which is not an `add_product` visit;<br>• *per attempted pair:* ≤ 2n² visits in `recover_band_mode` (`:590`) and ≤ 2n² in `formed_pair_errors` (`:629`), of which ≤ 2·(nnz(K_ff) + nnz(M_ff)) are insertions. A zero shape component removes insertions, and a failed energy, mass or μ premise skips `formed_pair_errors`.<br>Hard-rejected pairs cost O(1). | `dense.rs:544`–`:629` | p ≤ n_f at P0, or allotment A_band. **S1-band** counts p exactly before `formed_scaling` and before any insertion |
 | T5 | Census, clusters, reported set | O(n_c). n_r ≤ n_c ≤ n_f; cluster completion can take n_r beyond `mode_count` | `eigen.rs`; `clusters.rs` | S2 (exact) |
 | T6 | Normalization | ≤ n_r·n_f² visits (`mass_bilinear` on dense M_ff), plus 3 exact dots of n_f per mode | `modal_quantities.rs:294` | S2 (exact n_r) |
-| T7 | Re-formation and formation difference | Per element, one p128-seam re-formation (stiffness and mass). Assembly into a `BTreeMap<(r, c), ExactSum>` per matrix: Σ_e d_e² insertions, each with an O(log P) map step (`reformation/mod.rs:559`). Per formed stored entry, one `ExactSum` accumulator (`:745`). Per re-formed position, one `binary_search` and one `terms()` (≤ L terms) folded into the difference (`:754`). Two scaled norms: n WideDd row sums each (`scaled_norm`, `:706`). Every `ExactSum` has dynamically allocated limbs (≤ L). | `reformation/mod.rs:559`, `:700`–`:800` | P0 (element counts; L_max); S2 |
-| T8 | Residuals, every computed pair, **including retained recovered pairs** | Per pair:<br>• 3·Σ_e d_e² insertions (`product_into` for K̂ and λM̂, and `mass_product_exact`; `:506`, `:553`);<br>• the generalized mass's `add_terms_product` over each of n_f rows' `terms()`, ≤ L terms each, so ≤ n_f·L insertions (`:937`);<br>• n_f `to_wide` reads of O(L) each;<br>• O(n_f) WideDd.<br>Limb moves ≤ L·(3Σ_e d_e² + 3n_f). | `reformation/mod.rs:506`, `:895`–`:940` | P0 at n_c ≤ n_f and L_max; **S2b** (exact L) |
+| T7 | Re-formation and formation difference | Per element, one p128-seam re-formation (stiffness and mass). Assembly into a `BTreeMap<(r, c), ExactSum>` per matrix: Σ_e d_e² insertions, each with an O(log P) map step (`reformation/mod.rs:559`). Per formed stored entry, one `ExactSum` accumulator (`:745`). Per re-formed position, one `binary_search` and one `terms()` (≤ L terms) folded into the difference (`:754`). Two scaled norms: n WideDd row sums each (`scaled_norm`, `:706`). Every `ExactSum` has dynamically allocated limbs (≤ L). | `reformation/mod.rs:559`, `:700`–`:800` | P0 (element counts; L_A); S2 |
+| T8 | Residuals, every computed pair, **including retained recovered pairs** | Per pair:<br>• 3·Σ_e d_e² insertions (`product_into` for K̂ and λM̂, and `mass_product_exact`; `:506`, `:553`);<br>• the generalized mass's `add_terms_product` over each of n_f rows' `terms()`, ≤ L terms each, so ≤ n_f·L insertions (`:937`);<br>• n_f `to_wide` reads of O(L) each;<br>• O(n_f) WideDd.<br>Limb moves ≤ L·(3Σ_e d_e² + 3n_f). | `reformation/mod.rs:506`, `:895`–`:940` | P0 at n_c ≤ n_f and L_A; **S2b** (exact L) |
 | T9 | Sturm evidence | *Construction, once:* the merged-entry sort O(P_u log P_u), RCM O(n + P_u), adjacency (`sturm.rs:535`–`:690`).<br>*Per candidate (≤ s_max):* the formed list O(P_u); the profile O(P); `factorize_ldlt`, whose inner loops execute ≤ ½·Σ_i w_i² + Σ_i w_i MA (`sparse_direct/src/lib.rs:419`; n³/6 + O(n²) for a full profile); the factor observations O(P) a pass (`sturm.rs:935`); ≤ 11 inverse-norm solves of 2P each.<br>*Per neighbour (≤ 2):* the mass quotient's exact sums over P_u (`sturm.rs:700`). | as given | P0: s_max with the dense profile (P ≤ n(n + 1)/2). **S2:** an explicitly priced symbolic step (pattern sort, RCM and the profile's first columns, O(P_u log P_u + n + P)), moved ahead of `modal_sturm_count` and its result reused there, gives the exact P and w_i. Today the RCM runs inside `modal_sturm_count`, after the residuals. |
-| T10 | Orthogonality, **published set** | n_r·Σ_e d_e² insertions (`mass_product_exact` per shape), **retaining every product** (`orthogonality.rs:121`). Then n_r(n_r + 1)/2 bilinear forms, each n_f `add_terms_product` calls of ≤ L terms (`:150`). | `orthogonality.rs:116`–`:190` | P0 at n_r,max and L_max; S2b (exact L) |
+| T10 | Orthogonality, **published set** | n_r·Σ_e d_e² insertions (`mass_product_exact` per shape), **retaining every product** (`orthogonality.rs:121`). Then n_r(n_r + 1)/2 bilinear forms, each n_f `add_terms_product` calls of ≤ L terms (`:150`). | `orthogonality.rs:116`–`:190` | P0 at n_r,max and L_A; S2b (exact L) |
 | T11 | Projection | O(rows): per row one serialization, one checked parse, one canonical text and one SHA-256; per document one serialization, one checked parse and one canonical text | `document.rs`; `canonical_json` | S2 (early B_doc), S3 (exact strings) |
 
 **Where each check sits.** Each refuses by name and truncates nothing; the refused document states the formula and its terms.
@@ -1369,15 +1374,15 @@ This proposal comes from source plus the existing cantilever calibration (stage 
   - p ≤ n_f, or A_band;
   - R ≤ A_QL;
   - s ≤ s_max, with the dense profile;
-  - L = L_max;
+  - L = L_A (an enforced allotment; no data-independent bound is established);
   - S_T1 and d from the state case's supports, with A_conf.
 
   **A missing finite census never removes work.** The rejected pairs are in p and the computed pairs in n_c, whatever the census verdict. τ_μ is not tightened, and no high-mode check is skipped, to reach admission.
 - **S1, inside the kernel** (a priced `modal_eigen` change with its D3: a budget input in `DenseOptions`):
   - *S1-QL:* a cumulative rotation counter in `implicit_ql` against A_QL;
   - *S1-band:* p counted exactly from the classification thresholds, before `formed_scaling` and any insertion, against A_band.
-- **S2, after `complete_reported_set` and before normalization.** Exact here: n_c, n_r, n_cl, the computed vectors and the symbolic Sturm profile (P, w_i). It checks T6, T7 (still at L_max), T9 and the early B_doc, and reserves T8 and T10 at L_max.
-- **S2b, after `reform_modal_pencil` and before the residuals** (new). One scan reads the binary exponents of the stored K_ff and M_ff entries, the re-formed element entries (both dd words), every computed vector, and λ. The published shapes' range is each computed vector's, shifted by its normalization scale, whose exponent is the normalizing class's largest component's, ±1. From that scan S2b takes the exact span bound L_S2b ≤ L_max, and checks T8 and T10's insertions, limb moves and storage before either is constructed.
+- **S2, after `complete_reported_set` and before normalization.** Exact here: n_c, n_r, n_cl, the computed vectors and the symbolic Sturm profile (P, w_i). It checks T6, T7 (still at L_A), T9 and the early B_doc, and reserves T8 and T10 at L_A.
+- **S2b, after `reform_modal_pencil` and before the residuals** (new). One scan reads the binary exponents of the stored K_ff and M_ff entries, the re-formed element entries (both dd words), every computed vector, and λ. The published shapes' range is each computed vector's, shifted by its normalization scale, whose exponent is the normalizing class's largest component's, ±1. From that scan S2b takes the exact span bound L_S2b ≤ L_A, and checks T8 and T10's insertions, limb moves and storage before either is constructed.
 - **S3, in the product entry before `modal_doc_solved`.** The same B_doc with the outcome's exact strings and Sturm count. Refuse before the tree is allocated.
 
 **Calibration status per weight** (cantilever family only; one definition per weight; from the raw phase times, not the rounded table; no rate is adopted). Each weight is time per **counted unit** under the stated count, not per executed operation.
@@ -1401,7 +1406,7 @@ The weights rise with n (w_b64 from 0.0925 to 0.1579 over 240–960), so **no we
 - the band/binary64 split, w_scale, and the kernel weights above 1,920: the work cap near 3,000 DOF in any family;
 - T1, K-D5 and A_conf: admitting state-case families;
 - dense Sturm profiles: s_max·T9 for branched networks;
-- w_limb and broad-spread w_ins: models with wide magnitude ranges (P0 bounds their counts at L_max, but cannot price them);
+- w_limb and broad-spread w_ins: models with wide magnitude ranges (P0 bounds their counts at L_A, but cannot price them);
 - arc re-formation: a minor term.
 
 **Proposed budget form.**
@@ -1421,7 +1426,7 @@ The weights rise with n (w_b64 from 0.0925 to 0.1579 over 240–960), so **no we
   - A_QL at R = 1.5·n·(n − 1);
   - p ≤ n_f;
   - R_max = 2·10⁵ rows, so n_r ≤ 66;
-  - L = L_max = 202;
+  - L = L_A = 202 (a proposed allotment, enforced at S2b);
   - s_max = 7;
   - w_band = 4.18 ns as a stated proxy, not a bound.
 
@@ -1434,35 +1439,44 @@ The weights rise with n (w_b64 from 0.0925 to 0.1579 over 240–960), so **no we
   | T4 visits | 448.7 |
   | T4 insertions | 37.4 |
   | T4 scaling (proxy) | 0.1 |
-  | T8, L-dependent terms at L_max included | 225.9 |
+  | T8, L-dependent terms at L_A included | 225.9 |
   | T6 normalization | 3.4 |
-  | T10, at L_max | 123.5 |
+  | T10, at L_A | 123.5 |
   | T11 projection | 1.6 |
   | **total** | **≈ 1,009 (16.8 min)** |
 
   - The T8 limb moves (≤ 1.4·10¹¹), T7, and T9's dense-profile work are counted but **not priced**, because their weights are not determined.
-  - S1-band, S2 and S2b replace the p and L_max terms with exact counts before that work starts.
+  - S1-band, S2 and S2b replace the p and L_A terms with exact counts before that work starts.
   - **It is not a cap.**
 - *What is reserved.* The ~3,000-DOF goal across adopted families, the user-facing cap derived from a reviewed resource budget (W_budget and the allotments), and every weight are Agent 0's to set from that review. No coefficient is adopted.
-- *Memory: a complete cumulative ledger in requested bytes.* With ρ = 1 (no reuse), P0 compares B₀ + C with the memory budget, where C is the sum of every allocation of every stage. Each stage checks its own entries when their sizes become exact. Those checks are S1-band and S2; S2b is the first exact check of the L-dependent entries.
+- *Memory: a cumulative ledger in requested bytes.* With ρ = 1 (no reuse), P0 compares B₀ + C with the memory budget, where C is the sum of every allocation of every stage. Each stage checks its own entries when their sizes become exact. Those checks are S1-band and S2; S2b is the first exact check of the L-dependent entries.
+  - **Correction (narrow re-check, 2026-11-04).** The ledger below lists per-pair and per-product transients (T8, T10, and the `terms()`/`to_wide()` clones and per-product `Vec`s at `exact.rs:163`, `:177`, `:204`) once each, which is a reuse assumption. A true no-reuse C counts them for every pair.
+    - T8 alone is n_c × 2n_f × (48 + 8L) + 16L·n_c. At the illustration's P0 bounds (n_c = n_f = 2,994, L = 202) that is **27.78 GiB**, before anything else.
+    - The ρ = 1 cumulative form is therefore not usable as stated for the exact stages. The 3.8 GiB illustration below is the live-plus-one-transient sum, not a no-reuse cumulative bound.
+  - **The options for Agent 0 (none adopted):**
+    - (a) a stage-wise form, the largest live set plus the largest single transient per stage. This depends on the allocator returning freed transients, which is an allowance to review, not a source fact;
+    - (b) the true no-reuse cumulative, which would refuse every large request on the exact stages;
+    - (c) an implementation change that reuses one buffer per stage for those transients, making (a) a source fact.
+
+    Allocator allowances cannot stand in for omitted source allocations.
 
   | Stage | Allocations, each counted once (bytes) | Exact at |
   |---|---|---|
-  | T1 (state case) | S_T1 × the T2 ledger on its free set; per iteration with friction, 16·d² + 8·d·n_g (influence, coupling, unit forces); E_conf × the K-D5 evaluation's buffers (not derived here, so held under A_conf) | P0 (A_conf enforced) |
+  | T1 (state case) | S_T1 × the T2 ledger on its free set; per iteration with friction, 16·d² + 8·d·n_g (influence, coupling, unit forces), plus `solve_dense`'s matrix clone 8·d² and its cumulative pivot-tail allocations, ≤ 8·d² (frame_kernel `lib.rs:2000`, `:2025`); E_conf × the K-D5 evaluation's buffers (not derived here, so held under A_conf) | P0 (A_conf enforced) |
   | T2 | 152·n_g² + 16·n_f² + O(nnz) (rounding records) | P0 |
   | Pencil | K, M 16·n_f²; entries 24·(nnz_l(K) + nnz_l(M)); labels, maps and p_k O(n_g) | P0 |
   | T3 | R 8·n_f²; work 8·n_m·n_f; census factor 8·m²; O(n) vectors | P0 |
   | T4 | roots 8n; p screened records; one O(n_f·L) row sum at a time | S1-band |
   | T5 | ids, frequencies, clusters O(n_c) | S2 |
   | T6 | ≤ 16·n_r·n_f (shapes and below-normal lists), plus one `ExactSum` per call | S2 |
-  | T7 | about 4.8 KB per element (`Mapped` rows and the 12 × 12 dd matrices for K and M); the two `BTreeMap`s, ≤ (80 + 8·L) per re-formed position; formed-entry accumulators, (48 + 8·L) per stored entry; the off-pattern map; 2 × n WideDd | S2 at L_max |
+  | T7 | about 4.8 KB per element (`Mapped` rows and the 12 × 12 dd matrices for K and M); the two `BTreeMap`s, ≤ (80 + 8·L) per re-formed position; formed-entry accumulators, (48 + 8·L) per stored entry; the off-pattern map; 2 × n WideDd | S2 at L_A |
   | T8 | transient 2·n_f·(48 + 8·L) + 16·L per pair; retained n_c records | S2b |
   | T9 | `ShiftPencil` 32·P_u + adjacency 8·(n + 2P_u) + merged entries 24·(nnz_l + n) (transient); **per candidate, cumulative** 24·P_u + 16·P + 40·n (formed list, profile, its clone in `factorize_ldlt`, first columns and work, observation vectors) (`sturm.rs:50`) | S2 (symbolic P) |
   | T10 | **every product retained**: n_r·n_f·(24 + 16·L) + 24·n_r; transient rows n_f·(48 + 8·L) per shape | S2b |
   | Outcome | shapes 8·n_r·n_g; computed evidence O(n_c); mass entries 24·P_M | S2 |
   | T11 | two value trees and two texts | S3 |
 
-  - *Illustration at n_f = 2,994* (P0, L_max, dense Sturm profile): B₀ + C ≈ **3.8 GiB**, under the provisional 6 GiB. The parts are:
+  - *Illustration at n_f = 2,994* (P0, L_A = 202, dense Sturm profile): **the live set plus one transient per stage** ≈ **3.8 GiB**, under the provisional 6 GiB. It is not the no-reuse cumulative; see the correction above. The parts are:
     - T2: 1,441 MiB;
     - pencil: 137 MiB;
     - T3: 205 MiB;
@@ -1471,7 +1485,7 @@ The weights rise with n (w_b64 from 0.0925 to 0.1579 over 240–960), so **no we
     - T10: 614 MiB;
     - the projection estimate: 768 MiB;
     - the rest: under 30 MiB.
-  - The L_max and dense-profile terms shrink at S2 and S2b.
+  - The L_A and dense-profile terms shrink at S2 and S2b.
   - **Still outside repository source, and held by a stated allowance:**
     - allocator size-class rounding and metadata (macOS libmalloc);
     - the value trees' per-node size (serde_json's `BTreeMap` layout at the pinned toolchain). S3 checks a per-row bound derived from that layout, which is an open item.
@@ -1492,7 +1506,7 @@ The weights rise with n (w_b64 from 0.0925 to 0.1579 over 240–960), so **no we
 |---|---|---|---|---|
 | τ_r (residual threshold, A2) | **adopted, 2⁻³⁰**, as an engineering measured-residual demotion criterion (Agent 0, 2026-11-04) | §5.3.7's targeted A2 evidence | focused text, source and regression confirmation | the production instance (with A3) |
 | A3: τ_μ, c_μ, κ_μ, c_f | held | §5.3.7's μ/μ_max table. At 1,920 a genuine high-mode μ fell below the test-local floor (τ_μ = 10⁻¹²): 640 pairs rejected and the census unresolved. The ten low modes stand only under the lower-gap and completed-cluster premises. | the selected μ-domain pins, without tightening τ_μ to force admission; Agent 0 | the decision itself; the whole-spectrum endpoint at this spread waits on it |
-| A1 (τ_t, the identity tolerance, g_max, τ_e, τ_m, s_max, gap positions, offsets, the QL limit) and A2's κ_c, κ_s, τ_o, δ_c | approved or adopted as criteria (Agent 0, 2026-11-04) | §5.3.7 | none, beyond the joint production instance | A3 and τ_r |
+| A1 (τ_t, the identity tolerance, g_max, τ_e, τ_m, s_max, gap positions, offsets, the QL limit) and A2's κ_c, κ_s, τ_o, δ_c | approved or adopted as criteria (Agent 0, 2026-11-04) | §5.3.7 | none, beyond the joint production instance | A3 (held); τ_r is adopted (2⁻³⁰), and only its focused text, source and regression confirmation is pending |
 | O-4 work budget: W_budget, the allotments, the user-facing cap | proposed form above; no coefficient | the stage-1 and 1,920 weights (table above) | the reviewed resource budget and the cap across adopted families; Agent 0 | the undetermined weights above (w_band, w_scale, w_limb, kernel above 1,920, T1/K-D5, dense Sturm, arcs), the S1 kernel hook and the S2/S2b reordering, priced changes with D3 |
 | O-4 memory budget: ρ, B₀ and the ceiling | proposed form above | the ledger; the observed brackets at 480 / 960 / 1,920 | ρ (1 proposed), the allowance for allocator rounding and library layout, and the ceiling beyond the provisional 6 GiB; Agent 0 | the stated allowance (outside repository source); A_conf and the K-D5 buffers for state cases |
 | Projection limits: R_max, B_max, any in-memory multiple | structure approved; no limits | #59's custody limit (64 MiB displayable); the projection estimates | the limits; Agent 0 with I3b | #59 merging; I3b |
