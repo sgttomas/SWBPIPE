@@ -1180,9 +1180,9 @@ and loads are always the target's own.
 | Friction, any state, normal N^T ≤ 0 | — | — | **classified Inactive first**, whatever μ and the held state: a zero or negative normal is Inactive before any stick or slip rule. The trial normal is the explicit input N, or \|R_n\| for a derived normal (`friction_normal_for_support`, `lib.rs:3115–3145`) |
 | Friction, Inactive | free | none | kept iff N^T ≤ 0. Otherwise the trial's tangential reaction is 0, below μ·N^T, so it is classified Sticking (H-16b) |
 | Friction, Sticking | prescribed | u_t = g_t^T | kept iff \|r_t\| ≤ μ·N^T |
-| Friction, Sliding, explicit normal, μ > 0 | free | φ = −dir^S·μ·\|N\|, with N the model's explicit input (the same in both cases) | kept iff φ·δ_t < 0 and r_t·δ_t < 0 (`resolve_sliding_friction_states`); otherwise classified Sticking |
-| Friction, Sliding, derived normal, μ > 0 | free | φ = −dir^S·μ·β^S·R_n(u^T), solved simultaneously by the step's coupling (`:1607–1700`), with R_n the target's own signed reaction at the normal-source DOF | **branch:** admissible iff β^S·R_n^T ≥ 0 (or R_n^T = 0 when β^S = 0) (`derived_normal_branch_admissible`, `:1976–1988`). An inadmissible branch keeps the classification **Sliding** and skips the tangential test (`:1835–1844`). Otherwise, as for the explicit normal |
-| Friction, Sliding, μ = 0 | free | none | after the zero-normal rule: kept iff δ_t ≠ 0 and no force is applied. The held sense carries nothing (no force), so a reversed slip is kept (H-15a) |
+| Friction, Sliding, explicit normal, nonzero limit fl(μ·N^T) > 0 | free | φ = −dir^S·μ·\|N\|, with N the model's explicit input (the same in both cases) | kept iff φ·δ_t < 0 and r_t·δ_t < 0 (`resolve_sliding_friction_states`); otherwise classified Sticking |
+| Friction, Sliding, derived normal, μ > 0 | free | φ = −dir^S·μ·β^S·R_n(u^T), solved simultaneously by the step's coupling (`:1607–1700`), with R_n the target's own signed reaction at the normal-source DOF | **branch:** admissible iff β^S·R_n^T ≥ 0 (or R_n^T = 0 when β^S = 0) (`derived_normal_branch_admissible`, `:1976–1988`). An inadmissible branch keeps the classification **Sliding** and skips the tangential test (`:1835–1844`). Otherwise, as for the explicit normal, including the zero-limit row below |
+| Friction, Sliding, zero limit fl(μ·N^T) = 0 (μ = 0, or a positive μ whose binary64 product with N^T underflows to zero) | free | none (the step forms no force when −dir·μ·\|N\| is zero) | after the zero-normal rule and, for a derived normal, the branch rule: kept iff δ_t ≠ 0 and no force is applied (the classifier's `limit == 0.0` branch, `lib.rs:1846–1855`). The branch is selected by the product, never by μ alone. The held sense carries nothing (no force), so a reversed slip is kept (H-15a, and H-15c for the underflow) |
 | Friction, Active (not a friction state) | — | refused at binding (§7.4) | — |
 
 **Not held: springs, constant-effort supports and linear supports.** These have no state.
@@ -1578,7 +1578,12 @@ contracts per support, kept apart:
     case.
   - **Ordinary decisions** (`…_HELD_STATUS_DERIVATION`): each `classified_state`, `released` and the
     branch verdict are re-derived from `inputs` by §7.2's rules, in binary64 exactly as the
-    classifier evaluates them (fl(μ·N) included).
+    classifier evaluates them, in the classifier's order (`lib.rs:1834–1870`): a normal N^T ≤ 0 is
+    Inactive; then an inadmissible derived branch keeps Sliding and skips the tangential test; then
+    the limit fl(μ·N^T) selects the rule. A zero limit (μ = 0, or a positive μ whose product
+    underflows) keeps Sliding iff no force was applied and δ_t ≠ 0. A nonzero limit requires the
+    strict products φ·δ_t < 0 and r_t·δ_t < 0. A reader that branches on μ > 0 instead of the
+    product rejects truthful evidence (H-15c).
   - **Strict-gap decisions:** only the decision rule over the published exact signs and prior is
     checked. The reader never reclassifies a strict-gap decision from binary64 bits, and it does not
     verify the exact signs, which are the proof's.
@@ -1840,6 +1845,7 @@ Every O and S combination satisfies G-1 except H-17, which is callable-level.
 | H-14r | L-frame; S as H-14; O: S, P′ = −4096 N at C | sliding −, u_C = −593/614400, R_n = 114688/25, φ = +28672/25 | as H-14 | β^S = +1, R_n = 16384/25 (655.36), φ = +4096/25 (163.84), **u_C = 267/204800 (1.3037109375e-3)** (frozen mutant: φ = 1146.88, u_C = 2.0201994243421052e-3; uncoupled mutant: φ = 4096/19, u_C = 1.3414208578601107e-3) | Δu_C = −697/307200, ΔR_n = 98304/25, Δφ = 24576/25 | R (changed: slip sense) |
 | H-15a (μ = 0) | bar, explicit N = 4096, μ = 0; S: F = 512; O: F, ΔT = −16 K | sliding −, u = −2⁻¹¹, φ = 0 | sliding +, u = 2⁻¹¹ | sliding (held −, no force), u = 2⁻¹¹; kept (δ ≠ 0) | Δu = −2⁻¹⁰ | E or N |
 | H-15b (μ = 0, no slip) | as H-15a; S: 512 N at the anchor node only; O: S, ΔT = −16 K | sliding −, u = −2⁻¹⁰ | sticking, u = 0 | u = 0; classified **Sticking** | Δu = −2⁻¹⁰ | R (changed) |
+| H-15c (positive μ, zero limit) | as H-15a, with explicit N = 1/4 and μ = 2⁻¹⁰⁷⁴ (fl(μ·N) = fl(2⁻¹⁰⁷⁶) = 0, so the step forms no force) | sliding −, u = −2⁻¹¹, φ = 0 | sliding +, u = 2⁻¹¹ | sliding (held −, no force), u = 2⁻¹¹; kept (zero limit, δ ≠ 0) | Δu = −2⁻¹⁰ | E or N. Mutant: a μ > 0 rule requiring strict force products classifies Sticking (R) and must be killed. If the document validator refuses a subnormal μ, this witness is callable-level (NI wrapper), and that refusal is recorded |
 | H-16a (inactive, input decision) | bar, explicit N = 0, μ = 1/4; S: F = 512; O: F, ΔT = −16 K | inactive, u = −2⁻¹¹ | inactive, u = 2⁻¹¹ | inactive, u = 2⁻¹¹, kept | Δu = −2⁻¹⁰ | E, with an `input_decision` condition |
 | H-16b (inactive, derived) | tip-UZ bar, derived; S: V = 4096 down, F = 512; O: V, U = 4096 up, F (so R_n^O = 0 exactly) | inactive, u = 2⁻¹¹ | sticking, u = 0, R_t = −512 | inactive, u = 2⁻¹¹; trial normal 4096 > 0, so **Sticking** | Δu = 0 | R (changed) |
 | H-17 (sticking, moved ground; **callable level**, no G-1) | bar, explicit N = 4096; source: F = 2048 (as 768 + 1280), shoe ground g^S = 3·2⁻¹¹; target: F = 768, g^T = 2⁻¹¹ | sticking, u = 3·2⁻¹¹, R_t = −512 | sticking, u = 2⁻¹¹, R_t = −256 | u = 2⁻¹¹, N = 512, R_t = −256, kept (**hold-source-displacement mutant:** u = 3·2⁻¹¹, R_t = +768) | Δu = 2⁻¹⁰, ΔR_t = −256 | E or N |
@@ -1888,15 +1894,29 @@ Every O and S combination satisfies G-1 except H-17, which is callable-level.
     - the displacement and reaction bits, and the sparse evidence of the final solve;
     - the classifier decisions: the active-set states, the changed supports and the residual
       count, the tangential and derived-branch admissibility, and the strict-gap evidence and
-      decisions;
+      decisions, compared as the strict-gap fields enumerated below;
     - the converged predicate;
-    - `product_selected_state_is_qualified`'s verdict;
+    - `product_selected_state_is_qualified`'s verdict, **as a value**: false verdicts are preserved
+      and compared, never required to be true. A converged but unqualified state (the committed
+      mixed-gap inspection case, NI `lib.rs:5527–5535`, converged with qualification false) must
+      give false on both sides;
     - the confirmation's outcome: its variant, and its reason or its `ConfirmedState` rows' bits.
   - **Excluded, named:** the iteration number and history, the residual deltas from a previous
     iterate, the receipt's `initial_states` and history, the first-iteration deferral and recovery
     flags, and the order and position of policy and exit diagnostics.
-  - **Each receipt against its own inputs.** The held receipt must qualify against `held_input` and
-    its own one-iteration result. The loop's receipt must qualify against the loop's input. A
+  - **Strict-gap evidence (`ExactGapReport`), wrapper against loop.** Compared: `free_dofs`,
+    `prescribed`, `decisions`, `projections`, `ordinary_displacements` and
+    `corrected_coordinate_count`. Excluded, named: `source_identity` (it embeds the iteration
+    number, `structural_adapter.rs:3199`), `work` and the private retained proof, limits and work
+    snapshot (budget and proof metadata that depend on the iteration's position, `:2700–2715`). For
+    **S2's extraction proof** (the same loop before and after `complete_iteration`) nothing is
+    excluded: every output, including the full strict-gap report, the iteration records and the
+    receipt, is byte-identical.
+  - **Each receipt against its own inputs: authentication, not qualification.** Receipt validity
+    is `product_completion_matches_source` (`lib.rs:1056`): the held receipt must authenticate
+    against `held_input` and its own one-iteration result, and the loop's against the loop's
+    input and result. Qualification is a separate projected verdict (above), and an authenticated
+    receipt may carry a false one. A
     one-field mutation of either result's public members invalidates its own receipt (as
     `successor_completion_receipt_rejects_public_report_and_source_mutations`).
 - **H-11, negatives and order:**
@@ -2020,6 +2040,6 @@ boundary), then the held slice.
 **Open for the numerical contract review.**
 - The final candidate texts of §7.8, including §0 R-1, §5 B, §1.4 and RT-A5.
 
-**Open for the manager.**
-- Admit gap-bearing models with outcome G (recommended; H-7g is the product witness), or refuse them
-  by name until R-3.
+**Decided by the manager (2026-11-04).** Gap-bearing models are admitted with outcome G: the
+source must be `Qualified` (§7.4), no held gap outcome is ever confirmed (R1), and H-7g is the
+product witness. No refusal until R-3 is kept.
