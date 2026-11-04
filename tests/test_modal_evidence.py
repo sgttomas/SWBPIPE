@@ -172,11 +172,10 @@ def test_every_solved_fixture_is_consistent_only_up_to_its_stated_scope():
         assert verdict["decision"] in ("consistent_with_scoped_unsupported", "consistent_with_unresolved"), (name, verdict)
         assert verdict["validation"]["status"] == "not_fully_validated"
         units = verdict["relations"]["units"]
-        # Units are scoped by the time-squared formation magnitudes only (Design §5.3.5).
-        assert units["status"] == "scoped_unsupported"
-        assert units["scope"] and all(scope.startswith(("catalog_family_absent: `mass_formation_difference`",
-                                                         "catalog_family_absent: `reformed_mass_norm`"))
-                                      for scope in units["scope"]), units
+        # Every value has its catalog unit (Design §5.3.5); units passing closes no other mandatory
+        # relation: the subject census (evidence) still leaves validation unmet.
+        assert units["status"] == "passed" and not units.get("scope"), units
+        assert verdict["validation"]["unmet"] == ["evidence"], verdict["validation"]
 
 
 def test_the_equilibrated_basis_list_is_closed_and_states_every_such_rule():
@@ -186,6 +185,9 @@ def test_the_equilibrated_basis_list_is_closed_and_states_every_such_rule():
               if any(rule["unit_status"] == "equilibrated_basis" for rule in rules.values())}
     assert listed == set(me.EQUILIBRATED_BASIS_KINDS) == set()
     assert load("semantic_contract_modal_1.json")["equilibrated_basis_kinds"] == []
+    # No rule states the former catalog_family_absent: every kind has its catalog unit.
+    assert all(rule["unit_status"] == "catalog" for _, _, _, rules in me.KINDS for rule in rules.values())
+    assert me.RULES["mass_formation_difference"] == me.RULES["reformed_mass_norm"] == {"fixed": me.TIME_SQUARED}
 
 
 def test_the_reader_imports_only_the_standard_library_and_its_siblings():

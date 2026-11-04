@@ -657,17 +657,10 @@
       "table": "header",
       "units": {
         "fixed": {
-          "dimension": null,
-          "dimension_exponents": {
-            "angle": 0,
-            "length": 0,
-            "mass": 0,
-            "temperature": 0,
-            "time": 2
-          },
-          "symbol": null,
-          "unit": null,
-          "unit_status": "catalog_family_absent"
+          "dimension": "time_squared",
+          "symbol": "s^2",
+          "unit": "unit:square_second",
+          "unit_status": "catalog"
         }
       }
     },
@@ -690,17 +683,10 @@
       "table": "header",
       "units": {
         "fixed": {
-          "dimension": null,
-          "dimension_exponents": {
-            "angle": 0,
-            "length": 0,
-            "mass": 0,
-            "temperature": 0,
-            "time": 2
-          },
-          "symbol": null,
-          "unit": null,
-          "unit_status": "catalog_family_absent"
+          "dimension": "time_squared",
+          "symbol": "s^2",
+          "unit": "unit:square_second",
+          "unit_status": "catalog"
         }
       }
     },

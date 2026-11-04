@@ -58,7 +58,7 @@ pub const MODAL_RESULT_FAMILY: &str = "openpipestress.modal_result";
 pub const MODAL_RESULT_SCHEMA_VERSION: &str = "0.1.0";
 pub const MODAL_RESULT_SEMANTICS_ID: &str = "openpipestress.result_semantics/modal-1";
 /// The SHA-256 of modal-1's canonical text (`fixtures/results/semantic_contract_modal_1.json`).
-pub const MODAL_RESULT_SEMANTICS_SHA256: &str = "484756dba250cc95c72524ad292d6ff60634d6c3eb1b125eca6c142f9da050cd";
+pub const MODAL_RESULT_SEMANTICS_SHA256: &str = "21d0012729d8466436d0c064d7edecbdc0fc481bf101b6514a65eecbee6fb23b";
 pub const MODAL_RESULT_PROFILE_ID: &str = "product_preview_modal_v1";
 pub const MODAL_RESULT_CANONICAL_PROFILE: &str = "openpipestress_jcs_ijson_v1";
 pub const MODAL_RESULT_LIMITATIONS: [&str; 2] = [
@@ -68,7 +68,7 @@ pub const MODAL_RESULT_LIMITATIONS: [&str; 2] = [
 /// Why public engineering-result admission stays disabled (Design §5.3).
 pub const MODAL_RESULT_ADMISSION_CONDITIONS: [&str; 6] = [
     "production integrity parameters are not pinned (O-6, D-TOL): every document is formed with a labelled test-local set",
-    "the unit catalog has no family for the mass-side equilibrated-basis formation magnitudes, which are time squared (s^2)",
+    "a document is fully validated only when every mandatory relation passes: an unresolved Bessel relation (interim contract) and the missing subject census leave it unmet, whatever the units",
     "the dense work budget is unmeasured and no work guard is applied (O-4)",
     "no native, worker or custody path forms, stores or transports the document",
     "no published piping benchmark is compared (FR-SOL-016 partial; O-3 held)",
@@ -109,9 +109,12 @@ const DECISIONS: [&str; 8] = [
 enum Rule {
     /// A catalog unit: (id, symbol, dimension).
     Catalog(&'static str, &'static str, &'static str),
-    /// No catalog family: the exponents (L, M, T, Θ, A).
-    Absent([i64; 5]),
 }
+
+/// The unit statuses a modal-1 value may carry: `catalog`, and
+/// `equilibrated_basis` for a kind in the closed list. The former
+/// `catalog_family_absent` is no longer one (every kind has its family).
+const UNIT_STATUSES: [&str; 2] = ["catalog", "equilibrated_basis"];
 
 /// modal-1's closed list of the kinds that may carry `equilibrated_basis`:
 /// a coordinate-basis magnitude whose exponents mix, claiming no dimension
@@ -131,8 +134,8 @@ const R_RAD_M: Rule = Rule::Catalog("unit:radian_per_meter", "rad/m", "rotation_
 const R_M_RAD: Rule = Rule::Catalog("unit:meter_per_radian", "m/rad", "length_per_rotation");
 const R_KGM2: Rule = Rule::Catalog("unit:kilogram_square_meter_per_square_radian", "kg*m^2/rad^2", "rotational_generalized_mass");
 const R_KGM_RAD: Rule = Rule::Catalog("unit:kilogram_meter_per_radian", "kg*m/rad", "mass_length_per_rotation");
-/// A magnitude of D·M·D, D = diag(|k_ii|^-½): s², for which the catalog has no family.
-const R_S2: Rule = Rule::Absent([0, 0, 2, 0, 0]);
+/// A magnitude of D·M·D, D = diag(|k_ii|^-½) of the formed K_ff: s² (Design §5.3.5).
+const R_S2: Rule = Rule::Catalog("unit:square_second", "s^2", "time_squared");
 
 /// modal-1, as this reader states it: (kind, table, selector, rules).
 const KINDS: &[(&str, &str, &str, &[(&str, Rule)])] = &[
@@ -195,8 +198,6 @@ fn mr_rule_json(rule: Rule) -> Value {
         Rule::Catalog(id, symbol, dimension) => {
             json!({"unit_status": "catalog", "unit": id, "symbol": symbol, "dimension": dimension})
         }
-        Rule::Absent(e) => json!({"unit_status": "catalog_family_absent", "unit": null, "symbol": null, "dimension": null,
-            "dimension_exponents": {"length": e[0], "mass": e[1], "time": e[2], "temperature": e[3], "angle": e[4]}}),
     }
 }
 
@@ -220,7 +221,7 @@ pub fn modal_reader_catalog_differences() -> Vec<String> {
     let mut out = Vec::new();
     for (kind, _, _, rules) in KINDS {
         for (key, rule) in *rules {
-            let Rule::Catalog(id, symbol, dimension) = rule else { continue };
+            let Rule::Catalog(id, symbol, dimension) = rule;
             let found = catalog().iter().find(|unit| unit.catalog_id() == *id).map(|unit| unit.definition());
             let Some(definition) = found else {
                 out.push(format!("{kind}/{key}: {id} is not a catalog unit"));
@@ -501,26 +502,17 @@ fn mr_rule_of(kind: &str, key: &str) -> Option<Rule> {
 }
 
 /// Units: one value object against its rule (`key` the selector key).
-fn mr_unit_check(vo: &Vo, key: &str, path: &str, scope: &mut Vec<String>) -> R<()> {
+fn mr_unit_check(vo: &Vo, key: &str, path: &str) -> R<()> {
+    if !UNIT_STATUSES.contains(&vo.unit_status.as_str()) {
+        return Err(format!("{path}: `{}` is not a modal-1 unit status", vo.unit_status));
+    }
     if vo.unit_status == "equilibrated_basis" && !EQUILIBRATED_BASIS_KINDS.contains(&vo.kind.as_str()) {
         return Err(format!("{path}: `{}` is not in modal-1's closed equilibrated_basis list", vo.kind));
     }
     let rule = mr_rule_of(&vo.kind, key).ok_or_else(|| format!("{path}: modal-1 has no `{key}` rule for `{}`", vo.kind))?;
-    match rule {
-        Rule::Catalog(id, ..) => {
-            if vo.unit_status != "catalog" || vo.unit.as_deref() != Some(id) {
-                return Err(format!("{path}: unit {:?} ({}) is not modal-1's {id}", vo.unit, vo.unit_status));
-            }
-        }
-        Rule::Absent(e) => {
-            if vo.unit_status != "catalog_family_absent" || vo.unit.is_some() || vo.exponents != Some(e) {
-                return Err(format!("{path}: modal-1 states no catalog family here, with exponents {e:?}"));
-            }
-            let note = format!("catalog_family_absent: `{}` {key} (exponents {e:?})", vo.kind);
-            if !scope.contains(&note) {
-                scope.push(note);
-            }
-        }
+    let Rule::Catalog(id, ..) = rule;
+    if vo.unit_status != "catalog" || vo.unit.as_deref() != Some(id) || vo.exponents.is_some() {
+        return Err(format!("{path}: unit {:?} ({}) is not modal-1's {id}", vo.unit, vo.unit_status));
     }
     Ok(())
 }
@@ -2755,9 +2747,14 @@ fn mr_sturm(p: &Parsed) -> R<Vec<String>> {
                 }
             } else {
                 let cut = p.cutoff.ok_or("an empty set has a cut-off")?;
-                let expected = TWO_PI * cut;
-                if !mr_tol_close(lower, expected, 8.0 * U * expected) {
-                    return Err("the gap's lower end is not 2π·f_c".into());
+                // The producer forms ω_c = fl(2π·f_c), λ_c = fl(ω_c²) (outcome.rs:310) and
+                // publishes fl(√λ_c). Where ω_c² is below the normal range (f_c below about
+                // 2.4·10⁻¹⁵⁵ Hz) the square keeps fewer significant bits, so no relative
+                // allowance about 2π·f_c holds: the same binary64 operations, bit for bit.
+                let omega_c = TWO_PI * cut;
+                let expected = (omega_c * omega_c).sqrt();
+                if lower.to_bits() != expected.to_bits() {
+                    return Err("the gap's lower end is not √fl((2π·f_c)²)".into());
                 }
             }
             if let Some((shift, null)) = &shift {
@@ -2997,13 +2994,13 @@ fn mr_standing(p: &Parsed) -> R<Vec<String>> {
     Ok(scope)
 }
 
-/// Units: every value object against modal-1.
+/// Units: every value object against modal-1. Every kind has its catalog
+/// unit, so nothing is scoped.
 fn mr_units(p: &Parsed) -> R<Vec<String>> {
-    let mut scope = Vec::new();
     for u in &p.unitized {
-        mr_unit_check(&u.vo, &u.key, &u.path, &mut scope)?;
+        mr_unit_check(&u.vo, &u.key, &u.path)?;
     }
-    Ok(scope)
+    Ok(Vec::new())
 }
 
 #[cfg(test)]

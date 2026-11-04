@@ -18,7 +18,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "coherent:ex_n05",
@@ -45,7 +45,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "coherent:arc",
@@ -72,7 +72,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "coherent:component_body",
@@ -99,7 +99,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "coherent:state_one_way_pressed",
@@ -126,7 +126,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "coherent:state_friction_sliding",
@@ -153,7 +153,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "coherent:cantilever_whole_spectrum",
@@ -180,7 +180,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "coherent:cantilever_cluster_extension",
@@ -207,13 +207,40 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "coherent:cantilever_below_cutoff",
       "intent": "none",
       "operations": [],
       "request": "modal_cantilever_below_cutoff.request.json",
+      "request_operations": [],
+      "reseal": false
+    },
+    {
+      "document": "modal_cantilever_subnormal_cutoff.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "consistent_with_scoped_unsupported",
+        "health": "checks_passed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "scoped_unsupported",
+          "mass": "passed",
+          "normalization": "passed",
+          "participation": "passed",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "passed"
+        }
+      },
+      "id": "coherent:cantilever_subnormal_cutoff",
+      "intent": "none",
+      "operations": [],
+      "request": "modal_cantilever_subnormal_cutoff.request.json",
       "request_operations": [],
       "reseal": false
     },
@@ -234,7 +261,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "coherent:cantilever_sensitive",
@@ -319,7 +346,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "coherent:component_body:unsupplied",
@@ -346,7 +373,7 @@
           "participation": "failed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "mass:total_scaled",
@@ -379,7 +406,7 @@
           "participation": "failed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "mass:entry_scaled",
@@ -412,7 +439,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "mass:free_dof_mass_scaled",
@@ -446,7 +473,7 @@
           "participation": "failed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "participation:a_bessel_excess_beside_a_wrong_gamma_squared",
@@ -479,7 +506,7 @@
           "participation": "failed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "normalization:sign_flipped",
@@ -549,7 +576,7 @@
           "participation": "failed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "normalization:case_b_translation",
@@ -582,7 +609,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "normalization:restrained_nonzero",
@@ -615,7 +642,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "normalization:diagonal_changed",
@@ -648,7 +675,7 @@
           "participation": "failed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "participation:gamma_scaled",
@@ -681,7 +708,7 @@
           "participation": "failed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "participation:effective_mass_scaled",
@@ -714,7 +741,7 @@
           "participation": "failed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "participation:generalized_mass_scaled",
@@ -747,7 +774,7 @@
           "participation": "failed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "participation:cumulative_changed",
@@ -780,7 +807,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "counts:count_changed",
@@ -813,7 +840,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "counts:extension_changed",
@@ -846,7 +873,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "counts:frequency_perturbed",
@@ -879,7 +906,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "failed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "counts:endpoint_relabelled",
@@ -912,7 +939,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "clusters:computed_cluster_split",
@@ -945,7 +972,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "clusters:estimate_changed",
@@ -978,7 +1005,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "failed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "sturm:count_changed",
@@ -1011,7 +1038,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "failed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "sturm:shift_outside_gap",
@@ -1044,7 +1071,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "failed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "sturm:premise_violated",
@@ -1077,7 +1104,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "evidence:error_estimate_scaled",
@@ -1110,7 +1137,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "evidence:identity_beyond_tolerance",
@@ -1143,7 +1170,7 @@
           "participation": "passed",
           "standing": "failed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "standing:set_unflagged",
@@ -1181,7 +1208,7 @@
           "participation": "passed",
           "standing": "failed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "standing:mode_flagged",
@@ -1515,7 +1542,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "binding:parameters_changed",
@@ -1548,7 +1575,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "binding:request_differs",
@@ -1581,7 +1608,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "binding:option_changed",
@@ -1614,7 +1641,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "binding:state_case_changed",
@@ -1647,7 +1674,7 @@
           "participation": "scoped_unsupported",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "scoped:mass_withheld",
@@ -1679,7 +1706,7 @@
           "participation": "scoped_unsupported",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "scoped:shapes_withheld",
@@ -1813,7 +1840,7 @@
           "participation": "failed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "participation:below_normal_mass_contradicts_payload",
@@ -1852,7 +1879,7 @@
           "participation": "failed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "participation:below_normal_gamma_contradicts_payload",
@@ -1891,7 +1918,7 @@
           "participation": "failed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "participation:below_normal_effective_mass_contradicts_fraction",
@@ -1930,7 +1957,7 @@
           "participation": "failed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "participation:below_normal_fraction_contradicts_effective_mass",
@@ -1969,7 +1996,7 @@
           "participation": "failed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "participation:below_normal_mass_against_published_gamma_squared",
@@ -2012,7 +2039,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "failed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "sturm:missing_backward_error_hides_contradictions",
@@ -2076,7 +2103,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "failed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "sturm:missing_backward_error_hides_conditioning",
@@ -2130,7 +2157,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "failed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "sturm:accepted_product_outside_profile",
@@ -2169,7 +2196,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "failed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "sturm:accepted_growth_null_without_a_bound",
@@ -2208,7 +2235,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "failed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "sturm:candidates_emptied",
@@ -2378,7 +2405,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "counts:zero_frequency",
@@ -2427,7 +2454,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "counts:zero_period",
@@ -2461,7 +2488,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "evidence:identity_emptied",
@@ -2495,7 +2522,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "evidence:identity_model_row_dropped_on_one_axis",
@@ -2533,7 +2560,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "evidence:identity_straight_member_dropped_on_one_axis",
@@ -2571,7 +2598,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "evidence:identity_straight_compared_as_resultant",
@@ -2605,7 +2632,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "evidence:supports_emptied",
@@ -2639,7 +2666,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "evidence:restrained_set_changed",
@@ -2673,7 +2700,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "evidence:supports_without_state_case",
@@ -2717,7 +2744,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "evidence:disclosures_emptied",
@@ -2751,7 +2778,7 @@
           "participation": "failed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "mass:mass_matrix_emptied",
@@ -2785,7 +2812,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "normalization:reference_restrained",
@@ -2887,7 +2914,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "binding:options_dropped",
@@ -2921,7 +2948,7 @@
           "participation": "passed",
           "standing": "failed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "standing:reasons_without_sensitive",
@@ -2960,7 +2987,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "failed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "sturm:large_factor_term_contradicts_backward_error",
@@ -2999,7 +3026,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "failed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "sturm:large_formation_term_contradicts_backward_error",
@@ -3038,7 +3065,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "failed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "sturm:large_backward_error_contradicts_its_terms",
@@ -3077,7 +3104,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "failed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "sturm:large_product_contradicts_eb_nu",
@@ -3116,7 +3143,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "failed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "sturm:unbounded_separation_on_a_factored_candidate",
@@ -3155,7 +3182,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "failed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "sturm:undecided_sum_does_not_hide_the_premise",
@@ -3214,7 +3241,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "evidence:large_estimate_contradicts_eta_kappa",
@@ -3273,7 +3300,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "clusters:cluster_estimate_below_a_large_member",
@@ -3312,7 +3339,7 @@
           "participation": "failed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "mass:large_total_contradicts_the_entries",
@@ -3350,7 +3377,7 @@
           "participation": "passed",
           "standing": "failed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "standing:large_eta_is_sensitive",
@@ -3389,7 +3416,7 @@
           "participation": "failed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "participation:large_effective_mass_contradicts_gamma",
@@ -3428,7 +3455,7 @@
           "participation": "failed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "mass:one_large_coupling_cannot_close_its_sum",
@@ -3466,7 +3493,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "none:a_member_named_model",
@@ -3522,7 +3549,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "evidence:the_aggregate_row_named_a_member",
@@ -3597,7 +3624,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "failed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "sturm:accepted_growth_outside_the_profile_exceeds_the_limit",
@@ -3636,7 +3663,7 @@
           "participation": "failed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "participation:restrained_entry_beside_a_reversed_gamma",
@@ -3680,7 +3707,7 @@
           "participation": "failed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "participation:large_total_beside_total_mass_zero_claims",
@@ -3783,7 +3810,7 @@
           "participation": "failed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "participation:large_total_beside_a_wrong_cumulative_fraction",
@@ -3856,7 +3883,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "failed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "sturm:zero_backward_error_times_a_large_inverse_norm",
@@ -3909,7 +3936,7 @@
           "participation": "unresolved",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "scoped:below_normal_mass_beside_large_gammas",
@@ -3981,7 +4008,7 @@
           "participation": "unresolved",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "scoped:two_large_couplings_along_x_are_undecidable",
@@ -4029,7 +4056,7 @@
           "participation": "passed",
           "standing": "unresolved",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "scoped:a_not_finite_chain_eta_to_cluster",
@@ -4098,7 +4125,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "mass:a_claim_null_restrained_entry_fails_only_mass",
@@ -4137,7 +4164,7 @@
           "participation": "failed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "participation:large_gamma_against_published_effective_mass",
@@ -4175,7 +4202,7 @@
           "participation": "unresolved",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "unresolved:producer_extended_exponent_effective_mass",
@@ -4715,7 +4742,7 @@
           "participation": "unresolved",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "unresolved:producer_flagged_fraction_inside_the_cumulative_sums",
@@ -5255,7 +5282,7 @@
           "participation": "unresolved",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "unresolved:producer_normal_fraction_of_a_flagged_effective_mass",
@@ -5796,7 +5823,7 @@
           "participation": "failed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "participation:unflagged_zero_effective_mass_beside_a_nonzero_gamma",
@@ -6342,7 +6369,7 @@
           "participation": "failed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "participation:flagged_effective_mass_beside_a_normal_gamma_squared",
@@ -6888,7 +6915,7 @@
           "participation": "failed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "participation:cumulative_counts_a_flagged_fraction_as_its_true_value",
@@ -7433,7 +7460,7 @@
           "participation": "unresolved",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "unresolved:a_doubled_fraction_of_a_flagged_effective_mass_stays_open",
@@ -7993,7 +8020,7 @@
           "participation": "scoped_unsupported",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "none:bessel_established_for_correlated_modes",
@@ -8660,7 +8687,7 @@
           "participation": "failed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "participation:bessel_established_beside_a_wrong_gamma_squared",
@@ -9326,7 +9353,7 @@
           "participation": "scoped_unsupported",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "unresolved:bessel_beyond_the_strict_allowance_without_a_common_m_bound",
@@ -9993,7 +10020,7 @@
           "participation": "failed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "participation:bessel_unresolved_beside_a_wrong_gamma_squared",
@@ -10660,7 +10687,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "evidence:a_nonzero_eta_kappa_product_published_as_zero",
@@ -10764,7 +10791,7 @@
           "participation": "passed",
           "standing": "passed",
           "sturm": "passed",
-          "units": "scoped_unsupported"
+          "units": "passed"
         }
       },
       "id": "evidence:a_subnormal_eta_and_estimate_outside_normal_or_zero",
@@ -10890,7 +10917,7 @@
       "reseal": true
     },
     {
-      "difference_contains": "is not modal-1's unit:kilogram_meter_per_radian",
+      "difference_contains": "is not a modal-1 unit status",
       "document": "modal_component_body.json",
       "expected": {
         "binding": "passed",
@@ -10940,7 +10967,7 @@
       "reseal": true
     },
     {
-      "difference_contains": "modal-1 states no catalog family here",
+      "difference_contains": "is not modal-1's unit:square_second",
       "document": "modal_component_body.json",
       "expected": {
         "binding": "passed",
@@ -10977,6 +11004,161 @@
         }
       ],
       "request": "modal_component_body.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "is not a modal-1 unit status",
+      "document": "modal_component_body.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "scoped_unsupported",
+          "mass": "passed",
+          "normalization": "passed",
+          "participation": "passed",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "failed"
+        }
+      },
+      "id": "units:time_squared_published_without_its_family",
+      "intent": "units",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/formation/mass_difference",
+          "value": {
+            "below_normal": false,
+            "dimension_exponents": {
+              "angle": 0,
+              "length": 0,
+              "mass": 0,
+              "temperature": 0,
+              "time": 2
+            },
+            "kind": "mass_formation_difference",
+            "undefined_reason": null,
+            "unit": null,
+            "unit_status": "catalog_family_absent",
+            "value": 1.2664225542005247e-22
+          }
+        }
+      ],
+      "request": "modal_component_body.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "closed equilibrated_basis list",
+      "document": "modal_component_body.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "scoped_unsupported",
+          "mass": "passed",
+          "normalization": "passed",
+          "participation": "passed",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "failed"
+        }
+      },
+      "id": "units:time_squared_published_equilibrated",
+      "intent": "units",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/formation/reformed_mass_norm/unit",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/formation/reformed_mass_norm/unit_status",
+          "value": "equilibrated_basis"
+        }
+      ],
+      "request": "modal_component_body.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "is not modal-1's unit:square_second",
+      "document": "modal_component_body.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "scoped_unsupported",
+          "mass": "passed",
+          "normalization": "passed",
+          "participation": "passed",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "failed"
+        }
+      },
+      "id": "units:time_squared_misspelled",
+      "intent": "units",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/formation/mass_difference/unit",
+          "value": "unit:second_squared"
+        }
+      ],
+      "request": "modal_component_body.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "is not √fl((2π·f_c)²)",
+      "document": "modal_cantilever_subnormal_cutoff.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "scoped_unsupported",
+          "mass": "passed",
+          "normalization": "passed",
+          "participation": "passed",
+          "standing": "passed",
+          "sturm": "failed",
+          "units": "passed"
+        }
+      },
+      "id": "sturm:subnormal_cutoff_lower_end_published_as_two_pi_f_c",
+      "intent": "sturm",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/sturm/placement/lower/value",
+          "value": 6.283185307179586e-160
+        }
+      ],
+      "request": "modal_cantilever_subnormal_cutoff.request.json",
       "request_operations": [],
       "reseal": true
     }

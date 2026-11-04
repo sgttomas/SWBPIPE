@@ -133,34 +133,20 @@
   "formation": {
     "mass_difference": {
       "below_normal": false,
-      "dimension_exponents": {
-        "angle": 0,
-        "length": 0,
-        "mass": 0,
-        "temperature": 0,
-        "time": 2
-      },
       "kind": "mass_formation_difference",
       "undefined_reason": null,
-      "unit": null,
-      "unit_status": "catalog_family_absent",
+      "unit": "unit:square_second",
+      "unit_status": "catalog",
       "value": 2.3485233351889905e-21
     },
     "mass_off_pattern": 0,
     "mass_row_ref": "dof:n2:uy",
     "reformed_mass_norm": {
       "below_normal": false,
-      "dimension_exponents": {
-        "angle": 0,
-        "length": 0,
-        "mass": 0,
-        "temperature": 0,
-        "time": 2
-      },
       "kind": "reformed_mass_norm",
       "undefined_reason": null,
-      "unit": null,
-      "unit_status": "catalog_family_absent",
+      "unit": "unit:square_second",
+      "unit_status": "catalog",
       "value": 0.0000577414940639135
     },
     "reformed_stiffness_norm": {
@@ -246,7 +232,7 @@
   "schema_version": "0.1.0",
   "semantic_contract": {
     "id": "openpipestress.result_semantics/modal-1",
-    "sha256": "484756dba250cc95c72524ad292d6ff60634d6c3eb1b125eca6c142f9da050cd"
+    "sha256": "21d0012729d8466436d0c064d7edecbdc0fc481bf101b6514a65eecbee6fb23b"
   },
   "standing": {
     "reasons": [],

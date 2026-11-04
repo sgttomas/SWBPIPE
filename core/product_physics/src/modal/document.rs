@@ -21,14 +21,12 @@
 //!   normalization case's unit), its unit status, its own below-normal flag
 //!   and its undefined reason. A value the checked profile cannot carry
 //!   (non-finite, or of magnitude 2⁵³ or more) is null with its reason.
-//! - **Units** (Design §5.3.5). Catalog units wherever the catalog has the
-//!   family: the mass matrix's translation–rotation coupling is
-//!   `mass_length_per_rotation` (kg·m/rad), and the magnitudes on the
-//!   kernel's equilibrated basis D·(·)·D, D = diag(|k_ii|^-½), are
-//!   dimensionless on the stiffness side (`unit:one`). The mass-side
-//!   magnitudes ‖D(M − M̂)D‖_∞ and ‖DM̂D‖_∞ are time squared, which the
-//!   catalog has no family for: they are published with their exponents and
-//!   `catalog_family_absent`. No kind is in modal-1's closed
+//! - **Units** (Design §5.3.5). Every value has a catalog unit: the mass
+//!   matrix's translation–rotation coupling is `mass_length_per_rotation`
+//!   (kg·m/rad), the magnitudes on the kernel's equilibrated basis
+//!   D·(·)·D, D = diag(|k_ii|^-½) of the formed K_ff, are dimensionless on
+//!   the stiffness and shifted side (`unit:one`) and time squared on the
+//!   mass side (`unit:square_second`). No kind is in modal-1's closed
 //!   `equilibrated_basis` list. λ = ω² and μ are not published.
 //! - **Admission.** Experimental: the integrity parameters are the caller's
 //!   test-local set, labelled; `public_engineering_result` is false. Nothing
@@ -85,17 +83,15 @@ enum Selector {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum ModalUnit {
     Catalog(UnitId),
-    /// No catalog family; the dimension exponents (L, M, T, Θ, A).
-    FamilyAbsent([i8; 5]),
 }
 
-use ModalUnit::{Catalog, FamilyAbsent};
+use ModalUnit::Catalog;
 use UnitId as U;
 
 const CASES: [&str; 2] = ["unit_max_translation", "unit_max_rotation"];
 const ONE: [(&str, ModalUnit); 1] = [("fixed", Catalog(U::One))];
 /// D·M·D with D = diag(|k_ii|^-½): s² whatever the DOF classes (Design §5.3.5).
-const TIME_SQUARED: [(&str, ModalUnit); 1] = [("fixed", FamilyAbsent([0, 0, 2, 0, 0]))];
+const TIME_SQUARED: [(&str, ModalUnit); 1] = [("fixed", Catalog(U::SquareSecond))];
 const METER: [(&str, ModalUnit); 1] = [("fixed", Catalog(U::Meter))];
 const KILOGRAM: [(&str, ModalUnit); 1] = [("fixed", Catalog(U::Kilogram))];
 const HERTZ: [(&str, ModalUnit); 1] = [("fixed", Catalog(U::Hertz))];
@@ -193,8 +189,6 @@ fn modal_doc_rule_value(unit: ModalUnit) -> Value {
             json!({"unit_status": "catalog", "unit": id.catalog_id(), "symbol": definition.symbol,
                 "dimension": definition.dimension.as_str()})
         }
-        FamilyAbsent(e) => json!({"unit_status": "catalog_family_absent", "unit": null, "symbol": null, "dimension": null,
-            "dimension_exponents": {"length": e[0], "mass": e[1], "time": e[2], "temperature": e[3], "angle": e[4]}}),
     }
 }
 
@@ -246,11 +240,6 @@ fn modal_doc_quantity(kind: &str, key: &str, value: Option<f64>, below_normal: b
         Catalog(id) => {
             out.insert("unit".into(), json!(id.catalog_id()));
             out.insert("unit_status".into(), json!("catalog"));
-        }
-        FamilyAbsent(e) => {
-            out.insert("unit".into(), Value::Null);
-            out.insert("unit_status".into(), json!("catalog_family_absent"));
-            out.insert("dimension_exponents".into(), json!({"length": e[0], "mass": e[1], "time": e[2], "temperature": e[3], "angle": e[4]}));
         }
     }
     out.insert("below_normal".into(), json!(below_normal));

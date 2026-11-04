@@ -87,7 +87,7 @@
   "schema_version": "0.1.0",
   "semantic_contract": {
     "id": "openpipestress.result_semantics/modal-1",
-    "sha256": "484756dba250cc95c72524ad292d6ff60634d6c3eb1b125eca6c142f9da050cd"
+    "sha256": "21d0012729d8466436d0c064d7edecbdc0fc481bf101b6514a65eecbee6fb23b"
   },
   "status": "refused"
 }
