@@ -54,8 +54,9 @@ BODY_PINS = {
 # U5B-AB: FK structural.rs from `pub(crate) struct ElementAbsorption<'g> {` to `fn contribution_differences(`.
 ABSORPTION_PIN = "2acbe81068e36d74474cb2f7014f9dcbf65c0bdde660c783af7ced048534e5f4"
 # U4B-RD: u4b_evidence.rs from `type Slot<'a>` to `/// What a reader states about one member`. RT-U4 (`Index::any`):
-# the Index also holds `first`, the component-free map `any` builds on first use instead of scanning `rows`.
-INDEX_PIN = "334a2213434c931f0ec15f0d57f2c62e8447bb890df12cd4721c993749c9e064"
+# the Index also holds `operands`, the component-free shear operand map `new` builds after the row index (RT-U4
+# determinism: an ambiguous slot is refused by name), instead of scanning `rows`.
+INDEX_PIN = "c2415acb104e529d2ee803b48f04f514e4262db06e66063a6e446117d9bb5836"
 # RTA3B-PS/RTA3B-MR (RT-A3 increment 1b, retained-pricing-rules.md §8.37): u4b_rows.rs from
 # `pub(crate) struct PublishedScope {` to `/// §2.3: σ_N of one station` (the scope, its entity hash, `begin`,
 # MemberRows and `published`).
@@ -343,13 +344,15 @@ def reader_working_sets(rows, cases, m, raw_tree):
     case, pipe, material and point are held: at most two copies of the captured model (raw_tree each), plus its
     member set and exemption set.
 
-    RT-U4: each Index also holds `first`, the map `any` builds on first use (member_stations, preview_model_checks)
-    and keeps until the Index drops: one entry per distinct component-free slot of `rows`, so <= rows entries, grown
-    by insertion from HashMap::new with its previous table live during its last resize (HashMov). Its entry (five
-    &str and a &Value) is no larger than the row index's (six &str and a &Value), so it is charged at that stride.
-    `first` is built only after `new` returns, when the row index's own previous table is already freed, so the
-    Index's peak is the row index's table plus `first`'s HashMov, or `new`'s, the row index's HashMov, whichever is
-    larger; both are within HashReq + HashMov at <= rows entries."""
+    RT-U4: each Index also holds `operands`, the shear operand map `any` reads (member_stations,
+    preview_model_checks), built inside `new` by a second pass after the row index is complete and kept until the
+    Index drops: one entry per component-free slot of an `element_local_shear_force_y`/`_z` row, so <= rows entries,
+    grown by insertion from HashMap::new with its previous table live during its last resize (HashMov). Its entry
+    (five &str and a &Value) is no larger than the row index's (six &str and a &Value), so it is charged at that
+    stride. The second pass starts when the row index's own previous table is already freed, so the Index's peak is
+    the row index's table plus `operands`' HashMov, or the first pass's row-index HashMov, whichever is larger; both
+    are within HashReq + HashMov at <= rows entries. directional_model_checks builds its Index with `rows_only`
+    (an empty `operands`, no allocation), as before the map existed."""
     index = HashReq("U4bSlotEntry", rows) + HashMov("U4bSlotEntry", rows)
     cover_values = B(8 * pushcap(STATIONS))
     preview = (index + HashMov("&str", m) + HashMov("(&str,Vec<f64>)", m) + cover_values * m

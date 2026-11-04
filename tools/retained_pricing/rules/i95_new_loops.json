@@ -50,9 +50,9 @@
   "physics_evidence.rs:762 (inside the region loop): bound result ids <= rows"
  ],
  [
-  "^iter:rows \\.iter\\(\\)\\.filter$",
+  "^iter:actual\\.iter\\(\\)\\.all$",
   "Pall",
-  "physics_evidence.rs:752 (inside the region loop): every published row"
+  "physics_evidence.rs validate_physics_evidence_in (inside the region loop; RT-U4, replacing the per-region scan of every published row): the region's result ids, each a distinct published row id <= Pall"
  ],
  [
   "^for component in components$",

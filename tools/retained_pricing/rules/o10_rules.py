@@ -142,7 +142,8 @@ if fnkey("validate", CE):
          O10 + "E2 (route E): `spans` is filled only inside the records loop (E1), so it is empty", ["connector_evidence.rs:validate"]),
         ("for row in rows.values()", "Pall",
          O10 + "E3 (route E): one pass over the validated envelope's result rows (physics_evidence `rows`, indexed by id), "
-         "<= C·P_final = Pall", ["connector_evidence.rs:validate"]),
+         "<= C·P_final = Pall; RT-U4: the same map's one counting pass in validate_physics_evidence_in (the region "
+         "binding's pipe rows by case and member)", ["connector_evidence.rs:validate", "physics_evidence.rs:validate_physics_evidence_in"]),
     ]
     if fnkey("row_basis", CE):
         O10_EDGE_ZERO = O10_EDGE_ZERO + [(fnkey("validate", CE), fnkey("row_basis", CE),

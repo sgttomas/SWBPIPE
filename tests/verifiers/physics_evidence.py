@@ -377,7 +377,7 @@ def _u4b_straight(source: Mapping[str, Any], cases: Mapping[str, Any], geometrie
             fail(row["kind"] in (u4b.EXTREME, u4b.SHEAR_MAX), "ROW_SIGNATURE")
             fail(len([entry for entry in table["rows"] if entry["kind"] == row["kind"] and entry["unit"] == row.get("unit") and entry["component"] == metadata.get("component") and entry.get("source_basis") == metadata.get("basis")]) == 1, "ROW_SIGNATURE")
             u4b.row_semantics(row, True, False)
-    index = u4b.Rows(list(rows.values()))
+    index = u4b.Rows(list(rows.values()), fail)
     diagnostics = source.get("diagnostics", [])
     # S4 round 3: the composite's materials require -1 < ν < 1/2 ("material range"), so
     # TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN can never name one of its members: it is refused by name and exempts
