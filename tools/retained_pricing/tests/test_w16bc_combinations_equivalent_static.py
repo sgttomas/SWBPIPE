@@ -51,7 +51,8 @@ def test_the_entry_edges_are_zero(monkeypatch, route):
         ("solve_prepared_load_case", "exact_equivalent_static_record"),
         ("physical_source_built", "exact_equivalent_static_record"),
         ("physical_source_built", "build_load_case_primitive_loads"),
-        ("validate_profile", "carries_fields"),
+        # RT-A3 increment 4 (§8.49, RTA3NL-S6): validate_profile also calls carries_fields unconditionally (the S6
+        # context), so that edge is charged once per call (test_849_rt_a3_nonlinear.py), not zeroed.
         ("validate_physics_evidence_in", "equivalent_static_record"),
         ("validate_transport_metadata_in", "equivalent_static_record")}
     by_name = {(short(b), short(a)) for a, b, why in d["O10_EDGE_ZERO"] if "W16BC-BN" in why}

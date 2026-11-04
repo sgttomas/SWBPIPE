@@ -277,3 +277,8 @@ mod source_blocks_spring_tests;
 #[cfg(test)]
 #[path = "reader_verdict_id_set_tests.rs"]
 mod reader_verdict_id_set_tests;
+// RT-U4 repair B: `dispatch`'s single pressure-2 evidence pass against the
+// two-pass reference, declared here for the same reason.
+#[cfg(test)]
+#[path = "reader_verdict_single_pass_tests.rs"]
+mod reader_verdict_single_pass_tests;

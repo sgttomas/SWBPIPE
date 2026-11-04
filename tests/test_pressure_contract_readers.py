@@ -200,7 +200,20 @@ def test_the_verifier_is_independent_and_test_only():
     # W-16 slice b (DEL-05-02 Design exact-combinations.md §6): the combination pass lives in the sibling
     # tests/verifiers/exact_combinations.py, standard library only besides the section-basis bit comparison and
     # (review r1) the verifier's own unit catalog, tests/verifiers/units.py, itself standard library only.
-    assert _imports(VERIFIER) <= stdlib | {".component_body", ".exact_combinations", ".global_end", ".section_basis", ".u4b"}
+    # RT-A3 increment 4 (R-4 §2.4): the nonlinear support checks live in the sibling
+    # tests/verifiers/nonlinear_support_evidence.py, which reuses PF's test-only magnitude rule
+    # (tests/verifiers/preview_physics_evidence.py) and the verifier's own unit catalog; its whole sibling closure is
+    # test-only verifiers over the standard library.
+    assert _imports(VERIFIER) <= stdlib | {".component_body", ".exact_combinations", ".global_end", ".nonlinear_support_evidence", ".section_basis", ".u4b"}
+    assert _imports(VERIFIER.with_name("nonlinear_support_evidence.py")) <= stdlib | {".preview_physics_evidence", ".units"}
+    closure, pending, external = set(), ["nonlinear_support_evidence"], set()
+    while pending:
+        name = pending.pop()
+        if name not in closure:
+            closure.add(name)
+            for imported in _imports(VERIFIER.with_name(f"{name}.py")):
+                (pending.append(imported.lstrip(".")) if imported.startswith(".") else external.add(imported))
+    assert external <= stdlib | {"sys"}, external
     # RT-A4: its absolute sums, SRSS and fixed-load counts live in the sibling tests/verifiers/combination_graph.py,
     # standard library only.
     assert _imports(VERIFIER.with_name("exact_combinations.py")) <= stdlib | {"sys", ".section_basis", ".units", ".combination_graph"}

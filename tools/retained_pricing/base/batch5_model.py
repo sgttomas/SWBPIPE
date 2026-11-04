@@ -110,7 +110,11 @@ PINS = {
 # RT-A3 reducer 2b (§8.41): refuse_reducers_outside_step adds the W-15c branch (pressure_step_run_evidence and the
 # pass-through sign test), and step_end_is_collinear's direction helper is extracted (step_end_directions); all run
 # only per reducers_in_regions entry, empty on D1 (D1.4, D1.5). No new carrier, child or staging.
-PRESSURE_PREFIX_PIN = "0ba7ea7e316079b6ead7fb4ba5643a4de7eba4a49e7111b4c63b5ecba16b3ab4"
+# RT-A3 increment 4 D3 (§8.49): validate_profile forms the S6 context once per call before its support loop
+# (case_state::carries_fields and `components.iter().any`, both allocation-free) and judges a NonlinearSupport family by
+# nonlinear_support_admission; D1.6 refuses every nonlinear support, so that arm never runs on D1. Diagnostics only; no
+# carrier, child or staging changes.
+PRESSURE_PREFIX_PIN = "6868b756571a3f196cbf37a82b145beb5cdce6acb581c9d7beed036ee185c38a"
 LEGACY_PRESSURE_PREFIX_PIN = "d335b7c22bee4bf5832a4e2b9f82f63a77930aa2bbcedeab15369e62c205b017"
 LEGACY_CASE_PIN = "273d31e03921bad5b4d28852b54b17ba7e70acd85d590b4213a3d5d8141aa00c"
 

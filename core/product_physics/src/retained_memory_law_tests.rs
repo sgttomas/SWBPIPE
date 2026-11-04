@@ -501,7 +501,14 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // preview_physics_identity(id) (the current table, or a recorded variant only inside a recorded read,
             // RT-A4-HS); the closed `b7b_current_table_tests` module and E14 are byte-identical, and no include,
             // path module or static entered the suffix.
-            complete_suffix_sha256: "d67f47820070b24fb7d16b415d30ae855491c59c85f9dd1e66607d1df73f3b02",
+            // Re-audited for RT-U4 repair B on RT-A3 increment 4 (§8.50, the merge of 4a8287001), on the
+            // merged bytes: the suffix still starts at line 400. Only the inspected production after the
+            // resume changed: numerical_use_standing_with_context calls the new private for_source_given
+            // through numerical_use_standing_given, and for_source is byte-identical. The closed
+            // `b7b_current_table_tests` module and E14 are byte-identical, and no include, path module or
+            // static entered the suffix. Increment 4's two table-hash constants lie in the inspected prefix,
+            // so the merged suffix is repair B's byte for byte.
+            complete_suffix_sha256: "333ae77d6313e20d4b6b0445630a0efcda49a07f6d4547d402412d86df75014d",
             production_resume: Some("/// Header dispatch only; canonical envelopes have no raw rows. This does not"),
             trailing_test: Some(SEMANTIC_E14_TEST_ITEM),
         })),
@@ -892,10 +899,10 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "e7b93f416f700f8efdb31bf1ba26dedde52963d768d6ead5a73dbf1c645a360c",
         "fe371e07cd727154235f3725eeeef393ad0a433f0e8c98656f98468940d9aea2",
         "8d48e3d97bc4f69bf9b0da58db7538b0661cf52d05f771dc126be2c3cca8c163",
-        "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034",
+        "85c2678a78e794b44761c11efb73c215645c7e2560d802ac8ad6075e7804c691",
         "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9",
         "3dd8523f2f03cd72e9dbeb10955e9492711cf1334ba8d1dc4919d4ba2512b416",
-        "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6",
+        "2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645",
         "ce49ebe07bc05431ea1f770c1933b5bf58f4b1c8b66fb6f36810f2ef7a58cd43",
     ];
     // The same files, read here at compile time (test-only), by the sha2 dependency.
@@ -2022,9 +2029,16 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 // §8.48: DEL-04-09 I2b-2 on RT-U4's candidate: no coefficient moves; the in-build atom s(PreparedCaseResult)
 // is 1,888 B (was 1,880: LoadCaseSolve's Option<Box<NonlinearStateEvidence>>), charged twice per case at three
 // cases: +48 B in every phase and mode, from maintained eval at the 328 in-build atoms, without R.
+// §8.49: RT-A3 increment 4 (the restated pressure-2 table in STATICS, +754 B; S1's nonlinear clause and S7
+// in six TAV copies, +5,862 B): +6,616 B in every phase and mode, from maintained eval at the same 328 in-build
+// atoms, without R.
+// §8.50: RT-U4 order and repair B on RT-A3 increment 4 (W7-L1's ordered member loop at cases*m, +373,760 B on
+// TAV_W[1] and the two TAV text atoms; W7-RD's removed member HashSet, T17_V5 -238 B - 192 s(PairBorrowed)):
+// +373,760 B on W1, W2, W3 and W5, +367,378 B on W4, X1-X3 unchanged, in both modes, from maintained eval at the
+// same 328 in-build atoms, without R. Repair B moves nothing.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_449_924_793, 6_791_919_354, 8_743_655_182, 8_537_377_836, 7_611_067_252, 8_526_278_765, 7_258_896_155, 6_932_186_031],
-    [6_509_056_137, 6_851_050_698, 8_802_786_526, 8_596_509_180, 7_670_198_596, 8_585_410_109, 7_318_027_499, 6_991_317_375],
+    [6_450_305_169, 6_792_299_730, 8_744_035_558, 8_537_751_830, 7_611_447_628, 8_526_285_381, 7_258_902_771, 6_932_192_647],
+    [6_509_436_513, 6_851_431_074, 8_803_166_902, 8_596_883_174, 7_670_578_972, 8_585_416_725, 7_318_034_115, 6_991_323_991],
 ];
 
 #[test]

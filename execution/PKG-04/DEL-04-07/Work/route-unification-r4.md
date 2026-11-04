@@ -667,9 +667,36 @@ stated).
   through a realized bend lifts the support. This reference is to be built from the S1
   sections with an exact cantilever form. It is listed because the bend's K_b·u_free term
   enters.
-- **K-1, controls.** Every PF K-D5 nonlinear control (`kd5_nonlinear_tests.rs`, the
-  `references/kd5_nonlinear` set) is run on EX twins with explicitly empty regions, and
-  must give bit-identical loop results and the same standing.
+- **K-1, controls (option (a); adopted in RT-A3 increment 4 after independent review, Agent 0's
+  authorization).** Every PF K-D5 nonlinear control that forms an exact twin is
+  run on its EX twin with explicitly empty regions, in both solver modes. The named corpus is
+  the seven `validation/references/kd5_nonlinear/` requests with the load cases
+  `kd5_nonlinear_tests.rs` solves, plus the U-1 gap containment control (17 cases, 34
+  case-modes). Controls with no exact twin are refused by name, not adapted. On this corpus
+  only:
+  - each support's state code, the loop's iteration count, final residual count and converged
+    flag, and the standing are identical. The standing is the integrity code, the
+    `numerical_quality` record, and kd5's evidence line or its named §2.4 reason. Each case's
+    iteration count is the basis' (one to three), and neither route reports the first-iterate
+    all-active seed recovery;
+  - every other loop row is finite on both routes and satisfies |x_EX − x_PF| ≤ a_f + r_f·S_f
+    in its family's canonical unit. These rows are the nodal displacements and rotations, the
+    support action components and magnitudes, the nonlinear support displacements, reactions
+    and friction normals, and the loop's free-row residual, residual-work and iterate-delta
+    observations. The families, the fixed a_f and r_f, the scales S_f formed from the case's
+    inputs, and the zero-scale rule are those of `k1-twin-bound.md`. A non-finite value fails.
+    An iterate-delta row's bound is for the preceding iterate the basis derives from the
+    authored seeds and the first iterate; the product publishes no per-iteration state.
+
+  Each route keeps its established section formation, so bit identity is not required. This
+  is a bounded comparison on the named corpus. It does not claim identical results elsewhere,
+  nor near active-set transitions beyond the corpus's two weakly decided cases (F-1 BOUNDARY,
+  U-1 IN-PLANE). Their equal final states, the iteration counts and the absence of the seed
+  recovery are observed discrete premises, not consequences of the bound.
+
+  The first wording (bit-identical loop results and standing on EX twins) is superseded: EX's D-5
+  section constants differ from PF's by 1–3 units in the last place. Basis, constants and controls:
+  [k1-twin-bound.md](k1-twin-bound.md).
 
 **Size: L.**
 

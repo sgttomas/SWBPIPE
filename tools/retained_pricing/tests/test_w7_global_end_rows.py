@@ -81,3 +81,42 @@ def test_a_partly_present_source_stops(tmp_path):
 def test_a_changed_owner_stops(tmp_path, path, old, new):
     with pytest.raises(SystemExit, match="W7 owners"):
         w7_owners_model.inspect(str(snapshot_with(tmp_path, path, old, new)))
+
+
+# RT-U4 (order): W7-RD's member HashSet is charged only while `coverage` collects it.
+GE = "core/reporting/result_export/src/global_end_evidence.rs"
+WALK = """    let member = |ends: &[[Option<f64>; 6]; 2]| ends.iter().all(|e| e[1].is_some() && e[2].is_some());
+    for key in global.keys() {
+        require(local.get(key).is_some_and(member), "MEMBER_UNRESOLVED")?;
+    }
+"""
+HASHED = """    let members: HashSet<Key<'_>> = local
+        .iter()
+        .filter(|(_, ends)| ends.iter().all(|e| e[1].is_some() && e[2].is_some()))
+        .map(|(key, _)| *key)
+        .collect();
+    for key in global.keys() {
+        require(members.contains(key), "MEMBER_UNRESOLVED")?;
+    }
+"""
+
+
+def test_the_ordered_walk_drops_only_the_member_set(tmp_path):
+    sys.path.insert(0, str(PRICING / "base"))
+    from g3lib import HashMov
+    assert w7_owners_model.reader_member_set(str(SOURCE)) is False
+    assert w7_owners_model.reader_coverage(96, True) == w7_owners_model.reader_coverage(96, False) + HashMov("PairBorrowed", 96)
+    snapshot = snapshot_with(tmp_path, GE, WALK, HASHED)
+    target = snapshot / GE
+    text = target.read_text(encoding="utf-8")
+    old = "    for (key, locals) in local.iter().filter(|(_, ends)| member(ends)) {\n"
+    assert text.count(old) == 1
+    target.write_text(text.replace(old, "    for key in &members {\n        let locals = &local[key];\n"), encoding="utf-8")
+    assert w7_owners_model.reader_member_set(str(snapshot)) is True
+
+
+def test_a_changed_member_walk_stops(tmp_path):
+    old = "for (key, locals) in local.iter().filter(|(_, ends)| member(ends)) {"
+    snapshot = snapshot_with(tmp_path, GE, old, old.replace("local.iter()", "local.iter().rev()"))
+    with pytest.raises(SystemExit, match="W7 owners"):
+        w7_owners_model.reader_member_set(str(snapshot))
