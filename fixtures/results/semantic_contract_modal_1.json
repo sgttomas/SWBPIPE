@@ -1,6 +1,7 @@
 {
   "canonical_profile": "openpipestress_jcs_ijson_v1",
   "document_kind": "openpipestress.modal_result",
+  "equilibrated_basis_kinds": [],
   "id": "openpipestress.result_semantics/modal-1",
   "kinds": [
     {
@@ -28,17 +29,10 @@
           "unit_status": "catalog"
         },
         "translation_rotation": {
-          "dimension": null,
-          "dimension_exponents": {
-            "angle": -1,
-            "length": 1,
-            "mass": 1,
-            "temperature": 0,
-            "time": 0
-          },
-          "symbol": null,
-          "unit": null,
-          "unit_status": "catalog_family_absent"
+          "dimension": "mass_length_per_rotation",
+          "symbol": "kg*m/rad",
+          "unit": "unit:kilogram_meter_per_radian",
+          "unit_status": "catalog"
         },
         "translation_translation": {
           "dimension": "mass",
@@ -338,10 +332,10 @@
       "table": "sturm_candidates",
       "units": {
         "fixed": {
-          "dimension": null,
-          "symbol": null,
-          "unit": null,
-          "unit_status": "equilibrated_basis"
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
         }
       }
     },
@@ -364,10 +358,10 @@
       "table": "sturm_candidates",
       "units": {
         "fixed": {
-          "dimension": null,
-          "symbol": null,
-          "unit": null,
-          "unit_status": "equilibrated_basis"
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
         }
       }
     },
@@ -377,10 +371,10 @@
       "table": "sturm_candidates",
       "units": {
         "fixed": {
-          "dimension": null,
-          "symbol": null,
-          "unit": null,
-          "unit_status": "equilibrated_basis"
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
         }
       }
     },
@@ -390,10 +384,10 @@
       "table": "sturm_candidates",
       "units": {
         "fixed": {
-          "dimension": null,
-          "symbol": null,
-          "unit": null,
-          "unit_status": "equilibrated_basis"
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
         }
       }
     },
@@ -442,10 +436,10 @@
       "table": "sturm_candidates",
       "units": {
         "fixed": {
-          "dimension": null,
-          "symbol": null,
-          "unit": null,
-          "unit_status": "equilibrated_basis"
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
         }
       }
     },
@@ -455,10 +449,10 @@
       "table": "sturm_candidates",
       "units": {
         "fixed": {
-          "dimension": null,
-          "symbol": null,
-          "unit": null,
-          "unit_status": "equilibrated_basis"
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
         }
       }
     },
@@ -468,10 +462,10 @@
       "table": "sturm_candidates",
       "units": {
         "fixed": {
-          "dimension": null,
-          "symbol": null,
-          "unit": null,
-          "unit_status": "equilibrated_basis"
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
         }
       }
     },
@@ -645,28 +639,68 @@
       }
     },
     {
-      "kind": "formation_difference",
+      "kind": "stiffness_formation_difference",
       "selector": "fixed",
       "table": "header",
       "units": {
         "fixed": {
-          "dimension": null,
-          "symbol": null,
-          "unit": null,
-          "unit_status": "equilibrated_basis"
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
         }
       }
     },
     {
-      "kind": "reformed_norm",
+      "kind": "mass_formation_difference",
       "selector": "fixed",
       "table": "header",
       "units": {
         "fixed": {
           "dimension": null,
+          "dimension_exponents": {
+            "angle": 0,
+            "length": 0,
+            "mass": 0,
+            "temperature": 0,
+            "time": 2
+          },
           "symbol": null,
           "unit": null,
-          "unit_status": "equilibrated_basis"
+          "unit_status": "catalog_family_absent"
+        }
+      }
+    },
+    {
+      "kind": "reformed_stiffness_norm",
+      "selector": "fixed",
+      "table": "header",
+      "units": {
+        "fixed": {
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "reformed_mass_norm",
+      "selector": "fixed",
+      "table": "header",
+      "units": {
+        "fixed": {
+          "dimension": null,
+          "dimension_exponents": {
+            "angle": 0,
+            "length": 0,
+            "mass": 0,
+            "temperature": 0,
+            "time": 2
+          },
+          "symbol": null,
+          "unit": null,
+          "unit_status": "catalog_family_absent"
         }
       }
     },

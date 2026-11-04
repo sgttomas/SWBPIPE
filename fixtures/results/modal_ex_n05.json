@@ -133,28 +133,42 @@
   "formation": {
     "mass_difference": {
       "below_normal": false,
-      "kind": "formation_difference",
+      "dimension_exponents": {
+        "angle": 0,
+        "length": 0,
+        "mass": 0,
+        "temperature": 0,
+        "time": 2
+      },
+      "kind": "mass_formation_difference",
       "undefined_reason": null,
       "unit": null,
-      "unit_status": "equilibrated_basis",
+      "unit_status": "catalog_family_absent",
       "value": 6.693050907178171e-22
     },
     "mass_off_pattern": 0,
     "mass_row_ref": "dof:independent-tip:uy",
     "reformed_mass_norm": {
       "below_normal": false,
-      "kind": "reformed_norm",
+      "dimension_exponents": {
+        "angle": 0,
+        "length": 0,
+        "mass": 0,
+        "temperature": 0,
+        "time": 2
+      },
+      "kind": "reformed_mass_norm",
       "undefined_reason": null,
       "unit": null,
-      "unit_status": "equilibrated_basis",
+      "unit_status": "catalog_family_absent",
       "value": 8.265711218397426e-6
     },
     "reformed_stiffness_norm": {
       "below_normal": false,
-      "kind": "reformed_norm",
+      "kind": "reformed_stiffness_norm",
       "undefined_reason": null,
-      "unit": null,
-      "unit_status": "equilibrated_basis",
+      "unit": "unit:one",
+      "unit_status": "catalog",
       "value": 1.99999999997686
     },
     "section": {
@@ -185,10 +199,10 @@
     },
     "stiffness_difference": {
       "below_normal": false,
-      "kind": "formation_difference",
+      "kind": "stiffness_formation_difference",
       "undefined_reason": null,
-      "unit": null,
-      "unit_status": "equilibrated_basis",
+      "unit": "unit:one",
+      "unit_status": "catalog",
       "value": 3.3890455264985504e-16
     },
     "stiffness_off_pattern": 0,
@@ -232,7 +246,7 @@
   "schema_version": "0.1.0",
   "semantic_contract": {
     "id": "openpipestress.result_semantics/modal-1",
-    "sha256": "22884200060d6bae480ad922d799131486ac439d77ecd8b03516c310305c8e82"
+    "sha256": "484756dba250cc95c72524ad292d6ff60634d6c3eb1b125eca6c142f9da050cd"
   },
   "standing": {
     "reasons": [],
@@ -1074,7 +1088,7 @@
       "status": "published"
     },
     "mass_matrix": {
-      "digest": "0af7a1602a0fcfb97c12f19d7a3a501aaf497edc2d75b00cfdd5c8ac6ffdca8d",
+      "digest": "1b9bf055576f220a3c081dfae2f4d57fe0630118a6751f0f305604991fee5bee",
       "row_count": 26,
       "rows": [
         {
@@ -1110,7 +1124,7 @@
           }
         },
         {
-          "checksum": "635b072d5d381e728232fa8ba910537599757926c392a579fb4dfb9a062a24a6",
+          "checksum": "6e578c5cccc22d996fd4b48f961d5337de9687487ac750697958c58e63096f58",
           "col_dof_ref": "dof:independent-root:rz",
           "ordinal": 2,
           "pair_class": "translation_rotation",
@@ -1118,17 +1132,10 @@
           "row_id": "mass:dof:independent-root:uy|dof:independent-root:rz",
           "value": {
             "below_normal": false,
-            "dimension_exponents": {
-              "angle": -1,
-              "length": 1,
-              "mass": 1,
-              "temperature": 0,
-              "time": 0
-            },
             "kind": "mass_matrix_entry",
             "undefined_reason": null,
-            "unit": null,
-            "unit_status": "catalog_family_absent",
+            "unit": "unit:kilogram_meter_per_radian",
+            "unit_status": "catalog",
             "value": 15.170560900839469
           }
         },
@@ -1149,7 +1156,7 @@
           }
         },
         {
-          "checksum": "ea37125c8bbfaf8f5ea12fdbcda83f6cb8092518eb047160b150fa81808cc3f6",
+          "checksum": "53b962b2d89c8667b6c041ee6db22ccdd455230bf12b8804b2f8ad00165a156f",
           "col_dof_ref": "dof:independent-root:ry",
           "ordinal": 4,
           "pair_class": "translation_rotation",
@@ -1157,17 +1164,10 @@
           "row_id": "mass:dof:independent-root:uz|dof:independent-root:ry",
           "value": {
             "below_normal": false,
-            "dimension_exponents": {
-              "angle": -1,
-              "length": 1,
-              "mass": 1,
-              "temperature": 0,
-              "time": 0
-            },
             "kind": "mass_matrix_entry",
             "undefined_reason": null,
-            "unit": null,
-            "unit_status": "catalog_family_absent",
+            "unit": "unit:kilogram_meter_per_radian",
+            "unit_status": "catalog",
             "value": -15.170560900839469
           }
         },
@@ -1252,7 +1252,7 @@
           }
         },
         {
-          "checksum": "b275991de27ef293171b196c4259d10c4119b2ab247c3811f199188c94ab3126",
+          "checksum": "775ab08803646d41ddea2659cd18d8c59ed226f598063f54ce6834269119e6d2",
           "col_dof_ref": "dof:independent-tip:rz",
           "ordinal": 10,
           "pair_class": "translation_rotation",
@@ -1260,17 +1260,10 @@
           "row_id": "mass:dof:independent-root:uy|dof:independent-tip:rz",
           "value": {
             "below_normal": false,
-            "dimension_exponents": {
-              "angle": -1,
-              "length": 1,
-              "mass": 1,
-              "temperature": 0,
-              "time": 0
-            },
             "kind": "mass_matrix_entry",
             "undefined_reason": null,
-            "unit": null,
-            "unit_status": "catalog_family_absent",
+            "unit": "unit:kilogram_meter_per_radian",
+            "unit_status": "catalog",
             "value": -8.93069073995023
           }
         },
@@ -1291,7 +1284,7 @@
           }
         },
         {
-          "checksum": "743d656bc60c0d3fb6e3a915ce9698ff4a4edc2ba7c25f87342b970980626ffc",
+          "checksum": "332e77b55f69f2b214511cff60f0f32f50511add37c055e5b7b3221d1c9805e3",
           "col_dof_ref": "dof:independent-tip:ry",
           "ordinal": 12,
           "pair_class": "translation_rotation",
@@ -1299,17 +1292,10 @@
           "row_id": "mass:dof:independent-root:uz|dof:independent-tip:ry",
           "value": {
             "below_normal": false,
-            "dimension_exponents": {
-              "angle": -1,
-              "length": 1,
-              "mass": 1,
-              "temperature": 0,
-              "time": 0
-            },
             "kind": "mass_matrix_entry",
             "undefined_reason": null,
-            "unit": null,
-            "unit_status": "catalog_family_absent",
+            "unit": "unit:kilogram_meter_per_radian",
+            "unit_status": "catalog",
             "value": 8.93069073995023
           }
         },
@@ -1330,7 +1316,7 @@
           }
         },
         {
-          "checksum": "7ae0bbdc09d6b5c9dfe660f3a24ac8d5622b354397c1c9553389fdec1e187c40",
+          "checksum": "6e579d0dd1d32cdaced472fb1ae35e7199d0a5b5d92481a7c15292b1e221eefe",
           "col_dof_ref": "dof:independent-tip:uz",
           "ordinal": 14,
           "pair_class": "translation_rotation",
@@ -1338,17 +1324,10 @@
           "row_id": "mass:dof:independent-root:ry|dof:independent-tip:uz",
           "value": {
             "below_normal": false,
-            "dimension_exponents": {
-              "angle": -1,
-              "length": 1,
-              "mass": 1,
-              "temperature": 0,
-              "time": 0
-            },
             "kind": "mass_matrix_entry",
             "undefined_reason": null,
-            "unit": null,
-            "unit_status": "catalog_family_absent",
+            "unit": "unit:kilogram_meter_per_radian",
+            "unit_status": "catalog",
             "value": -8.93069073995023
           }
         },
@@ -1369,7 +1348,7 @@
           }
         },
         {
-          "checksum": "b8e81ce87c6bfb85bab8e80d18f915d2945290eb0cf1c550db1fdfdfcb18dfa1",
+          "checksum": "5737e650f8d1dd900452e2118850b04d5f97a689cb8e7a4bf180425c4e8b3d3e",
           "col_dof_ref": "dof:independent-tip:uy",
           "ordinal": 16,
           "pair_class": "translation_rotation",
@@ -1377,17 +1356,10 @@
           "row_id": "mass:dof:independent-root:rz|dof:independent-tip:uy",
           "value": {
             "below_normal": false,
-            "dimension_exponents": {
-              "angle": -1,
-              "length": 1,
-              "mass": 1,
-              "temperature": 0,
-              "time": 0
-            },
             "kind": "mass_matrix_entry",
             "undefined_reason": null,
-            "unit": null,
-            "unit_status": "catalog_family_absent",
+            "unit": "unit:kilogram_meter_per_radian",
+            "unit_status": "catalog",
             "value": 8.93069073995023
           }
         },
@@ -1440,7 +1412,7 @@
           }
         },
         {
-          "checksum": "ec9cb696f18625207ef64a872e3d60dd31216576394986a8d026b4d8ffab8025",
+          "checksum": "1d91cfa1a8d49c7ae243ef629bd55c8874966e94e0f801f1a9a34becd0db6585",
           "col_dof_ref": "dof:independent-tip:rz",
           "ordinal": 20,
           "pair_class": "translation_rotation",
@@ -1448,17 +1420,10 @@
           "row_id": "mass:dof:independent-tip:uy|dof:independent-tip:rz",
           "value": {
             "below_normal": false,
-            "dimension_exponents": {
-              "angle": -1,
-              "length": 1,
-              "mass": 1,
-              "temperature": 0,
-              "time": 0
-            },
             "kind": "mass_matrix_entry",
             "undefined_reason": null,
-            "unit": null,
-            "unit_status": "catalog_family_absent",
+            "unit": "unit:kilogram_meter_per_radian",
+            "unit_status": "catalog",
             "value": -15.170560900839469
           }
         },
@@ -1479,7 +1444,7 @@
           }
         },
         {
-          "checksum": "51e7912ae8e343c7a119a8f204c939115833affb5fc49d8c0b08755b091dd68e",
+          "checksum": "5b900030436920bed15d1dca1992a2bf42271cd4b592608af270cbbd0060fcc5",
           "col_dof_ref": "dof:independent-tip:ry",
           "ordinal": 22,
           "pair_class": "translation_rotation",
@@ -1487,17 +1452,10 @@
           "row_id": "mass:dof:independent-tip:uz|dof:independent-tip:ry",
           "value": {
             "below_normal": false,
-            "dimension_exponents": {
-              "angle": -1,
-              "length": 1,
-              "mass": 1,
-              "temperature": 0,
-              "time": 0
-            },
             "kind": "mass_matrix_entry",
             "undefined_reason": null,
-            "unit": null,
-            "unit_status": "catalog_family_absent",
+            "unit": "unit:kilogram_meter_per_radian",
+            "unit_status": "catalog",
             "value": 15.170560900839469
           }
         },
@@ -2815,7 +2773,7 @@
       "status": "published"
     },
     "sturm_candidates": {
-      "digest": "275ff4a9cbd9784b876f2be6a2f5c774b1c087460cb12b6d2339fd94aa7c0e18",
+      "digest": "4db305a45efdd0e5cdfb5f4bcfdaba0f975b0abe369f07ca79e9298f82bf7e00",
       "row_count": 1,
       "rows": [
         {
@@ -2824,12 +2782,12 @@
             "below_normal": false,
             "kind": "sturm_backward_error",
             "undefined_reason": null,
-            "unit": null,
-            "unit_status": "equilibrated_basis",
+            "unit": "unit:one",
+            "unit_status": "catalog",
             "value": 5.770070472731219e-15
           },
           "candidate_index": 1,
-          "checksum": "2ddf757e0f23cd57d511bf6452e2185f804fe9c86bb969c035d10af31829d154",
+          "checksum": "f54ffcee5cc85d8cf2a844db5957cb84a5254c07e1b93d33300ea0d4886a0a21",
           "conditioning_product": {
             "below_normal": false,
             "kind": "sturm_conditioning_product",
@@ -2843,8 +2801,8 @@
             "below_normal": false,
             "kind": "sturm_factor_term",
             "undefined_reason": null,
-            "unit": null,
-            "unit_status": "equilibrated_basis",
+            "unit": "unit:one",
+            "unit_status": "catalog",
             "value": 2.1591381659028467e-15
           },
           "formation_separation_ratio": {
@@ -2859,8 +2817,8 @@
             "below_normal": false,
             "kind": "sturm_formation_term",
             "undefined_reason": null,
-            "unit": null,
-            "unit_status": "equilibrated_basis",
+            "unit": "unit:one",
+            "unit_status": "catalog",
             "value": 3.610932306828372e-15
           },
           "growth": {
@@ -2875,32 +2833,32 @@
             "below_normal": false,
             "kind": "sturm_inverse_norm_estimate",
             "undefined_reason": null,
-            "unit": null,
-            "unit_status": "equilibrated_basis",
+            "unit": "unit:one",
+            "unit_status": "catalog",
             "value": 9.079460642981298
           },
           "max_abs_lower_factor": {
             "below_normal": false,
             "kind": "sturm_max_abs_lower_factor",
             "undefined_reason": null,
-            "unit": null,
-            "unit_status": "equilibrated_basis",
+            "unit": "unit:one",
+            "unit_status": "catalog",
             "value": 1.1188665742736885
           },
           "max_abs_pivot": {
             "below_normal": false,
             "kind": "sturm_max_abs_pivot",
             "undefined_reason": null,
-            "unit": null,
-            "unit_status": "equilibrated_basis",
+            "unit": "unit:one",
+            "unit_status": "catalog",
             "value": 2.7316127805703467
           },
           "max_abs_scaled_diagonal": {
             "below_normal": false,
             "kind": "sturm_max_abs_scaled_diagonal",
             "undefined_reason": null,
-            "unit": null,
-            "unit_status": "equilibrated_basis",
+            "unit": "unit:one",
+            "unit_status": "catalog",
             "value": 2.7288983637413096
           },
           "negative_pivot_count": 3,

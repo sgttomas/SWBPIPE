@@ -319,7 +319,8 @@ fn the_readers_semantic_table_is_the_committed_table() {
 
 /// Every committed fixture, with its request: closure and binding pass, no
 /// relation fails, a solved document is consistent only up to the stated
-/// scope (the catalog has no mass-coupling family), a refused one is
+/// scope (the catalog has no time-squared family for the mass-side
+/// equilibrated-basis formation magnitudes), a refused one is
 /// refusal-consistent.
 #[test]
 fn every_committed_fixture_reads_consistent_up_to_its_scope() {
@@ -338,7 +339,10 @@ fn every_committed_fixture_reads_consistent_up_to_its_scope() {
         } else {
             assert!(["consistent_with_scoped_unsupported", "consistent_with_unresolved"].contains(&verdict.decision), "{name}: {json:#}");
             assert_eq!(verdict.modal_validation(), "not_fully_validated", "{name}");
-            assert!(verdict.relations[8].scope.iter().any(|s| s.contains("catalog_family_absent")), "{name}");
+            // Units are scoped by the time-squared formation magnitudes only (Design §5.3.5).
+            let units = &verdict.relations[8].scope;
+            assert!(!units.is_empty() && units.iter().all(|s| s.starts_with("catalog_family_absent: `mass_formation_difference`")
+                || s.starts_with("catalog_family_absent: `reformed_mass_norm`")), "{name}: {units:?}");
             let expected = if name == "cantilever_sensitive" { "sensitive" } else { "checks_passed" };
             assert_eq!(verdict.health, expected, "{name}");
         }

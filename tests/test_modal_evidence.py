@@ -172,8 +172,20 @@ def test_every_solved_fixture_is_consistent_only_up_to_its_stated_scope():
         assert verdict["decision"] in ("consistent_with_scoped_unsupported", "consistent_with_unresolved"), (name, verdict)
         assert verdict["validation"]["status"] == "not_fully_validated"
         units = verdict["relations"]["units"]
+        # Units are scoped by the time-squared formation magnitudes only (Design §5.3.5).
         assert units["status"] == "scoped_unsupported"
-        assert any(scope.startswith("catalog_family_absent") for scope in units["scope"]), units
+        assert units["scope"] and all(scope.startswith(("catalog_family_absent: `mass_formation_difference`",
+                                                         "catalog_family_absent: `reformed_mass_norm`"))
+                                      for scope in units["scope"]), units
+
+
+def test_the_equilibrated_basis_list_is_closed_and_states_every_such_rule():
+    """Design §5.3.5: a kind whose rule is `equilibrated_basis` is in modal-1's closed list,
+    and every listed kind has that rule; the trace leaves the list empty."""
+    listed = {kind for kind, _, _, rules in me.KINDS
+              if any(rule["unit_status"] == "equilibrated_basis" for rule in rules.values())}
+    assert listed == set(me.EQUILIBRATED_BASIS_KINDS) == set()
+    assert load("semantic_contract_modal_1.json")["equilibrated_basis_kinds"] == []
 
 
 def test_the_reader_imports_only_the_standard_library_and_its_siblings():

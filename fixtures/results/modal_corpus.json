@@ -10849,6 +10849,136 @@
       "request": "modal_component_body.request.json",
       "request_operations": [],
       "reseal": true
+    },
+    {
+      "difference_contains": "closed equilibrated_basis list",
+      "document": "modal_component_body.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "scoped_unsupported",
+          "mass": "passed",
+          "normalization": "passed",
+          "participation": "passed",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "failed"
+        }
+      },
+      "id": "units:equilibrated_basis_outside_its_closed_list",
+      "intent": "units",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/tables/sturm_candidates/rows/0/backward_error/unit",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/sturm_candidates/rows/0/backward_error/unit_status",
+          "value": "equilibrated_basis"
+        }
+      ],
+      "request": "modal_component_body.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "is not modal-1's unit:kilogram_meter_per_radian",
+      "document": "modal_component_body.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "scoped_unsupported",
+          "mass": "passed",
+          "normalization": "passed",
+          "participation": "passed",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "failed"
+        }
+      },
+      "id": "units:coupling_published_without_its_catalog_family",
+      "intent": "units",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/tables/mass_matrix/rows/2/value/unit",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_matrix/rows/2/value/unit_status",
+          "value": "catalog_family_absent"
+        },
+        {
+          "op": "add",
+          "path": "/tables/mass_matrix/rows/2/value/dimension_exponents",
+          "value": {
+            "angle": -1,
+            "length": 1,
+            "mass": 1,
+            "temperature": 0,
+            "time": 0
+          }
+        }
+      ],
+      "request": "modal_component_body.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "modal-1 states no catalog family here",
+      "document": "modal_component_body.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "scoped_unsupported",
+          "mass": "passed",
+          "normalization": "passed",
+          "participation": "passed",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "failed"
+        }
+      },
+      "id": "units:time_squared_claimed_dimensionless",
+      "intent": "units",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/formation/reformed_mass_norm",
+          "value": {
+            "below_normal": false,
+            "kind": "reformed_mass_norm",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 2.2279141184340134e-6
+          }
+        }
+      ],
+      "request": "modal_component_body.request.json",
+      "request_operations": [],
+      "reseal": true
     }
   ]
 }

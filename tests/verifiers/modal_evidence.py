@@ -34,7 +34,7 @@ from tests.verifiers import canonical_json, units
 FAMILY = "openpipestress.modal_result"
 SCHEMA_VERSION = "0.1.0"
 SEMANTICS_ID = "openpipestress.result_semantics/modal-1"
-SEMANTICS_SHA256 = "22884200060d6bae480ad922d799131486ac439d77ecd8b03516c310305c8e82"
+SEMANTICS_SHA256 = "484756dba250cc95c72524ad292d6ff60634d6c3eb1b125eca6c142f9da050cd"
 PROFILE_ID = "product_preview_modal_v1"
 CANONICAL_PROFILE = "openpipestress_jcs_ijson_v1"
 LIMITATIONS = (
@@ -84,9 +84,16 @@ ACCELERATION = _catalog("m/s^2", "acceleration", "unit:meter_per_second_squared"
 RAD_PER_M = _catalog("rad/m", "rotation_per_length", "unit:radian_per_meter")
 M_PER_RAD = _catalog("m/rad", "length_per_rotation", "unit:meter_per_radian")
 KG_M2 = _catalog("kg*m^2/rad^2", "rotational_generalized_mass", "unit:kilogram_square_meter_per_square_radian")
-EQUILIBRATED = {"unit_status": "equilibrated_basis", "unit": None, "symbol": None, "dimension": None}
-COUPLING = {"unit_status": "catalog_family_absent", "unit": None, "symbol": None, "dimension": None,
-            "dimension_exponents": {"length": 1, "mass": 1, "time": 0, "temperature": 0, "angle": -1}}
+# The mass matrix's translation-rotation coupling: kg*m/rad (Design §5.3.5).
+COUPLING = _catalog("kg*m/rad", "mass_length_per_rotation", "unit:kilogram_meter_per_radian")
+# D*M*D with D = diag(|k_ii|^-1/2) has the time squared of M/K whatever the DOF classes;
+# the catalog has no family for it (Design §5.3.5).
+TIME_SQUARED = {"unit_status": "catalog_family_absent", "unit": None, "symbol": None, "dimension": None,
+                "dimension_exponents": {"length": 0, "mass": 0, "time": 2, "temperature": 0, "angle": 0}}
+# modal-1's closed list of the kinds that may be published `equilibrated_basis` (a
+# coordinate-basis magnitude with mixed exponents: no dimension, no physical unit, not
+# dimensionless). The Design's dimensional trace lists none.
+EQUILIBRATED_BASIS_KINDS: list[str] = []
 
 
 def _by_case(a: dict, b: dict) -> dict:
@@ -117,17 +124,17 @@ KINDS = [
     ("eigenvalue_condition_estimate", "computed_modes", "fixed", {"fixed": ONE}),
     ("eigenvalue_error_estimate", "computed_modes", "fixed", {"fixed": ONE}),
     ("sturm_shift_circular_frequency", "sturm_candidates", "fixed", {"fixed": RAD_PER_S}),
-    ("sturm_formation_term", "sturm_candidates", "fixed", {"fixed": EQUILIBRATED}),
+    ("sturm_formation_term", "sturm_candidates", "fixed", {"fixed": ONE}),
     ("sturm_formation_separation_ratio", "sturm_candidates", "fixed", {"fixed": ONE}),
-    ("sturm_factor_term", "sturm_candidates", "fixed", {"fixed": EQUILIBRATED}),
-    ("sturm_backward_error", "sturm_candidates", "fixed", {"fixed": EQUILIBRATED}),
-    ("sturm_inverse_norm_estimate", "sturm_candidates", "fixed", {"fixed": EQUILIBRATED}),
+    ("sturm_factor_term", "sturm_candidates", "fixed", {"fixed": ONE}),
+    ("sturm_backward_error", "sturm_candidates", "fixed", {"fixed": ONE}),
+    ("sturm_inverse_norm_estimate", "sturm_candidates", "fixed", {"fixed": ONE}),
     ("sturm_conditioning_product", "sturm_candidates", "fixed", {"fixed": ONE}),
     ("sturm_separation_ratio", "sturm_candidates", "fixed", {"fixed": ONE}),
     ("sturm_growth_factor", "sturm_candidates", "fixed", {"fixed": ONE}),
-    ("sturm_max_abs_lower_factor", "sturm_candidates", "fixed", {"fixed": EQUILIBRATED}),
-    ("sturm_max_abs_pivot", "sturm_candidates", "fixed", {"fixed": EQUILIBRATED}),
-    ("sturm_max_abs_scaled_diagonal", "sturm_candidates", "fixed", {"fixed": EQUILIBRATED}),
+    ("sturm_max_abs_lower_factor", "sturm_candidates", "fixed", {"fixed": ONE}),
+    ("sturm_max_abs_pivot", "sturm_candidates", "fixed", {"fixed": ONE}),
+    ("sturm_max_abs_scaled_diagonal", "sturm_candidates", "fixed", {"fixed": ONE}),
     ("identity_relative_discrepancy", "identity", "fixed", {"fixed": ONE}),
     ("member_length", "discretization", "fixed", {"fixed": METER}),
     ("member_fixed_fixed_frequency", "discretization", "fixed", {"fixed": HERTZ}),
@@ -141,8 +148,10 @@ KINDS = [
     ("placement_circular_frequency", "header", "fixed", {"fixed": RAD_PER_S}),
     ("sturm_premise_parameter", "header", "fixed", {"fixed": ONE}),
     ("orthogonality_max_ratio", "header", "fixed", {"fixed": ONE}),
-    ("formation_difference", "header", "fixed", {"fixed": EQUILIBRATED}),
-    ("reformed_norm", "header", "fixed", {"fixed": EQUILIBRATED}),
+    ("stiffness_formation_difference", "header", "fixed", {"fixed": ONE}),
+    ("mass_formation_difference", "header", "fixed", {"fixed": TIME_SQUARED}),
+    ("reformed_stiffness_norm", "header", "fixed", {"fixed": ONE}),
+    ("reformed_mass_norm", "header", "fixed", {"fixed": TIME_SQUARED}),
     ("section_derivation_difference", "header", "fixed", {"fixed": ONE}),
 ]
 RULES = {kind: rules for kind, _, _, rules in KINDS}
@@ -151,7 +160,7 @@ RULES = {kind: rules for kind, _, _, rules in KINDS}
 def semantic_table() -> dict:
     """modal-1 as this reader states it (the committed table's value)."""
     return {"id": SEMANTICS_ID, "document_kind": FAMILY, "schema_version": SCHEMA_VERSION,
-            "canonical_profile": CANONICAL_PROFILE,
+            "canonical_profile": CANONICAL_PROFILE, "equilibrated_basis_kinds": list(EQUILIBRATED_BASIS_KINDS),
             "kinds": [{"kind": k, "table": t, "selector": s, "units": r} for k, t, s, r in KINDS]}
 
 
@@ -295,6 +304,8 @@ def _vo(value, path, kinds):
 
 
 def _unit_check(vo, key, path, scope):
+    if vo.status == "equilibrated_basis" and vo.kind not in EQUILIBRATED_BASIS_KINDS:
+        _fail(f"{path}: `{vo.kind}` is not in modal-1's closed equilibrated_basis list")
     rule = RULES.get(vo.kind, {}).get(key)
     if rule is None:
         _fail(f"{path}: modal-1 has no `{key}` rule for `{vo.kind}`")
@@ -310,6 +321,7 @@ def _unit_check(vo, key, path, scope):
         if note not in scope:
             scope.append(note)
     else:
+        # A listed kind (none today): no dimension and no unit is claimed.
         if vo.status != "equilibrated_basis" or vo.unit is not None:
             _fail(f"{path}: modal-1 states the equilibrated basis here")
         note = f"equilibrated_basis: `{vo.kind}`"
@@ -809,8 +821,8 @@ def _closure(doc):
                                               "mass_row_ref", "mass_off_pattern", "reformed_stiffness_norm", "reformed_mass_norm",
                                               "section"))
     p.formation = []
-    for field, kind in (("stiffness_difference", "formation_difference"), ("mass_difference", "formation_difference"),
-                        ("reformed_stiffness_norm", "reformed_norm"), ("reformed_mass_norm", "reformed_norm")):
+    for field, kind in (("stiffness_difference", "stiffness_formation_difference"), ("mass_difference", "mass_formation_difference"),
+                        ("reformed_stiffness_norm", "reformed_stiffness_norm"), ("reformed_mass_norm", "reformed_mass_norm")):
         p.formation.append(header(f[field], f"/formation/{field}", kind).value)
     for field in ("stiffness_row_ref", "mass_row_ref"):
         if f[field] is not None:
