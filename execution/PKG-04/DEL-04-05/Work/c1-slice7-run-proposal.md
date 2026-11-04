@@ -170,48 +170,49 @@ bytes are unchanged since `2470f0108` (re-hashed at `1b45e1b11` and at the build
 The binding to record at build is the same set as the table above: App/worker SHA-256,
 `perf-binding.json`, embedded `dist_digest`, engine stamps and files, harness, rack-generator
 and model hashes, and the Python interpreter. The five consumed attempts, their packets and
-the six earlier App directories stay untouched.
+the earlier App directories (six before this candidate, seven with the superseded
+`app-c1-main-24f6b6568`) stay untouched.
 
-**Superseded build: `app-c1-main-24f6b6568`** (kept; not the candidate). It was built from
-`24f6b6568`, whose corpora fail hosted CI (above). Its record follows as built; a rebuild from the
-fixed head replaces it as the candidate.
-
-**Build as run (2026-11-04, superseded).** From this worktree, exactly clean at
-`24f6b656828450405e253cccab6acc4b63d2dc90` (`1b45e1b11` plus the first documents commit of this
-section), with the destination and both log names checked absent first:
+**Build as run (2026-11-04, the candidate).** From this worktree, exactly clean at
+`907e633e2541548a7836d0ecceb52f2587950033` (`e37f3dd07` plus the documents commit that names it),
+with the destination, both logs and the preparation record checked absent first:
 
 ```sh
 cd /Users/ryan/dev/chirality-t3/swbpipe-rt-perf-c1
 RT_C1_KIT=/Users/ryan/dev/chirality-t3/scratch/rt-perf-c1-slice7
 RT_C1_TARGET=/Users/ryan/dev/chirality-t3/targets/rt-perf-c1
-env CARGO_TARGET_DIR="$RT_C1_TARGET" /Users/ryan/dev/chirality-t3/tools/t3_slot.sh npm run build:wasm:desktop > "$RT_C1_KIT/c1-main-24f6b6568-wasm-build.log" 2>&1
-env CARGO_TARGET_DIR="$RT_C1_TARGET" /Users/ryan/dev/chirality-t3/tools/t3_slot.sh node apps/desktop/native-smoke/perf.mjs --build --app-dir "$RT_C1_KIT/app-c1-main-24f6b6568" --target-dir "$RT_C1_TARGET" > "$RT_C1_KIT/c1-main-24f6b6568-release-build.log" 2>&1
+env CARGO_TARGET_DIR="$RT_C1_TARGET" /Users/ryan/dev/chirality-t3/tools/t3_slot.sh npm run build:wasm:desktop > "$RT_C1_KIT/c1-main-907e633e2-wasm-build.log" 2>&1
+env CARGO_TARGET_DIR="$RT_C1_TARGET" /Users/ryan/dev/chirality-t3/tools/t3_slot.sh node apps/desktop/native-smoke/perf.mjs --build --app-dir "$RT_C1_KIT/app-c1-main-907e633e2" --target-dir "$RT_C1_TARGET" > "$RT_C1_KIT/c1-main-907e633e2-release-build.log" 2>&1
 ```
 
-Both exited 0. The slot log records the engine job 09:18:56–09:19:52Z and the App job
-09:20:27–09:21:28Z (slot 2), with memguard running and no `exclusive.pending`. The cargo target is
-the lane's `targets/rt-perf-c1`. `perf.mjs --build` runs `npm run build` and
-`cargo build --release --locked --offline` with `--features native-smoke,tauri/custom-protocol`,
-then copies the binary. It does no bundling, code signing, notarization, keychain access or
-upload, and none was done. The release log has 44 warnings and no error. No source changed.
+Both exited 0. The slot log shows the engine job at 09:42:33–09:42:34Z and the App job at
+09:42:42–09:43:20Z, both in slot 4, with memguard running and no `exclusive.pending`. The cargo
+target is the lane's `targets/rt-perf-c1`.
 
-**Engine stamps at the built head.** `build:wasm:desktop` rebuilt two engines. The only stamp
-input changed since `480201bee` is `core/reporting/result_export/src/recorded_tables.rs`
-(`43cea6384`, the documentation line); this was computed by intersecting each engine's input set
-(`engineInputs`, 340 / 317 / 28 inputs) with the diff. Whether the rebuilt Wasm bytes equal the
-`480201bee` engines' was not checked: those artifacts were not kept.
+`perf.mjs --build` runs `npm run build` and `cargo build --release --locked --offline` with
+`--features native-smoke,tauri/custom-protocol`, then copies the binary. It does no bundling,
+code signing, notarization, keychain access or upload, and none was done. The release log has 44
+warnings and no error. No product source changed.
+
+**Engine stamps at the built head.** At `907e633e2`, `build:wasm:desktop` found all three engines
+current and built nothing. They had been rebuilt at `24f6b6568`, the superseded build below. The
+stamps moved from the `480201bee` values above. Intersecting each engine's input set
+(`engineInputs`: 340, 317 and 28 inputs) with the diff finds one changed stamp input:
+`core/reporting/result_export/src/recorded_tables.rs`, the documentation line from `43cea6384`.
+Whether the rebuilt Wasm bytes equal the `480201bee` engines' was not checked, because those
+artifacts were not kept.
 - operation-applier `sha256:77a2a5eb…` → **`sha256:49a67a3a5c301ba0b4304991f8d5c69e9592148076a90eebfab729be7dbaf947`**;
 - self-weight `sha256:1bbefdb4…` → **`sha256:1606bfdd18d01b1527e979c6223b3f3541126d3a83d58012739d4e66730b0c9e`**;
-- MBF **`sha256:83ec9a7f0eb50f69db89f8fbef8a30b90a432d01993e4fc65c6724f7377aec46`** (current; nothing built).
+- MBF **`sha256:83ec9a7f0eb50f69db89f8fbef8a30b90a432d01993e4fc65c6724f7377aec46`** (unchanged).
 
 **Bindings recorded at build.**
 
 | Selected item | Identity |
 | --- | --- |
-| Source (clean; binding `source_dirty:false`) | `24f6b656828450405e253cccab6acc4b63d2dc90`; code head `1b45e1b1169213fe18e74428fb3874e6904ef222` |
-| App directory | `/Users/ryan/dev/chirality-t3/scratch/rt-perf-c1-slice7/app-c1-main-24f6b6568` |
-| App / same-executable worker | `openpipestress-desktop`, 52,755,392 B, SHA-256 `106a944c236f1ae193967c063858d2d7da7fc1abd141a9213a76657c35642107` (built 2026-11-04T09:21:28.335Z) |
-| `perf-binding.json` | SHA-256 `230488c30e6f1df680a33615a9711acd3bbffc72442832377a7ece16703fb845` |
+| Source (clean; binding `source_dirty:false`) | `907e633e2541548a7836d0ecceb52f2587950033`; code and corpora head `e37f3dd07f6ff3e860911f6098161a8de6171911`; reviewed code `1b45e1b1169213fe18e74428fb3874e6904ef222` |
+| App directory | `/Users/ryan/dev/chirality-t3/scratch/rt-perf-c1-slice7/app-c1-main-907e633e2` |
+| App / same-executable worker | `openpipestress-desktop`, 52,755,392 B, SHA-256 `106a944c236f1ae193967c063858d2d7da7fc1abd141a9213a76657c35642107` (built 2026-11-04T09:43:20.554Z) |
+| `perf-binding.json` | SHA-256 `7f4db296591108b2786799bc208c0a6826f9ca458892e3d31553102a17f9d049` |
 | Profile | `cargo build --release --locked --offline`, features `native-smoke,tauri/custom-protocol`, the smoke's `TAURI_CONFIG` (window 1440×920, `backgroundThrottling` disabled) |
 | Embedded frontend `dist_digest` | `sha256:82b598a29389d63440a5d10133e48f5c8643fcc9a1a2da8e853fff90f9a3dbc7` (recomputed from `dist/` after the build: equal) |
 | Engine stamps | the three above; every engine file's SHA-256 (15 files) in the preparation record (`engines_sha256`) |
@@ -222,29 +223,45 @@ input changed since `480201bee` is `core/reporting/result_export/src/recorded_ta
 | Maintained rack generator | SHA-256 `1d8155885f2fa60f481943e989268bef77bc2543860a27291fb9c46685ef314c` (unchanged) |
 | Model | `linear-ex-n0500.json`, 1,828,475 B, raw SHA-256 `42567114a27415b7b042bb9a91d49c8dc640d534953616e5b7efb66b2a2025eb`, JCS SHA-256 `0d45797d8aacada487ef418ce0a776239f6fd9801ed315c1a0f6e1ca2e25466c` (raw bytes unchanged; JCS carried from the `2470f0108` record, where it was recomputed) |
 | Python (bound) | `/usr/bin/python3` → Xcode 3.9.6, real executable SHA-256 `b971331ab9beb1dac075006955f035a97332eca21187c4de615ae58346713e2f` (unchanged; see the readiness blocker below) |
-| Preparation record | `scratch/rt-perf-c1-slice7/c1-main-24f6b6568-preparation.json`, SHA-256 `6ebe439904b9d8dac7eda2715cf8b3ada19dedabd08a33846ce998c3dfa010da` |
+| Preparation record | `scratch/rt-perf-c1-slice7/c1-main-907e633e2-preparation.json`, SHA-256 `ba903a5ba37b687261f2e55be521331112f6bf12e0cae230f82c35be71471055` |
+| Pre-launch check | `scratch/rt-perf-mgr/launch-check-c1-907e633e2.mjs`, SHA-256 `25a1d80e5ed5033132082f322b379f0073c701ef750e9c6e8c1453d877a7c5bc` |
 
 **Runtime equivalence against the bound source.** The build's actual reads come from cargo's
-dep-info for the binary (`targets/rt-perf-c1/release/openpipestress-desktop.d`), which lists
-**362** repository files: 333 tracked sources and fixtures, plus the 29 `dist/` files the binary
-embeds. It also lists 30 generated files under the target directory, and one absent path
-(`src-tauri/capabilities`). The preparation record binds every one of the 362 by SHA-256.
-- None of them, and no `.md` file, changed between `1b45e1b11` and the build source. The only
-  file that changed is this proposal.
-- Since `480201bee`, the build read five changed files: `result_detail.rs`, `result_summary.rs`,
-  `solve_jobs.rs` and `stored_custody.rs` (F1), and `recorded_tables.rs` (the comment).
-  `cfg(test)` modules such as `native_replay_tests.rs` are not in the dep-info.
-- Since `app-c1-main-2470f0108`'s source, the build read 54 changed tracked files, all named
-  in the record. They cover the six desktop files of the C1 mirror, the producer and reader
-  files under "Path changes", the five registry fixtures and five current tables,
+dep-info for the binary (`targets/rt-perf-c1/release/openpipestress-desktop.d`). It lists
+**362** repository files: 333 tracked sources and fixtures, and the 29 `dist/` files the binary
+embeds. It also lists 30 generated files under the target directory and one absent path
+(`src-tauri/capabilities`). The preparation record binds all 362 by SHA-256.
+- **Since the reviewed code.** None of the 362 changed between `1b45e1b11` and the build source,
+  and no `.md` file is among them. In that range only the two replay corpus files
+  (`e37f3dd07`) and this proposal changed; the build reads neither.
+- **Since `480201bee`.** The build read five changed files: `result_detail.rs`,
+  `result_summary.rs`, `solve_jobs.rs` and `stored_custody.rs` (F1), and `recorded_tables.rs`
+  (the comment). `cfg(test)` modules such as `native_replay_tests.rs` are not in the dep-info.
+- **Since `app-c1-main-2470f0108`'s source.** The build read 54 changed tracked files, all named
+  in the record: the six desktop files of the C1 mirror, the producer and reader files under
+  "Path changes", the five registry fixtures and five current tables,
   `exact_report_statements.json`, and two schemas.
-- The frontend: Vite emits no module list, so `dist_digest` binds it, recomputed after the
-  build and equal. It covers the three engines copied from `public/`. Four runtime webview
-  sources changed since `480201bee`: `NativeResultsPanel.tsx`, `knownSemanticLimitations.ts`,
-  `nativeReopen.ts` and `nativeResult.ts`. A grep of the bundle finds no replay, reopen or
-  parity corpus in `dist/`. Since `2470f0108`, 31 non-test frontend files changed.
-- The later documents commits change only this `.md` file, which the build does not read. The
-  pre-launch check re-verifies all of this before any launch.
+- **The frontend.** Vite emits no module list, so `dist_digest` binds the frontend. It was
+  recomputed after the build and is equal, and it covers the three engines copied from
+  `public/`. Four runtime webview sources changed since `480201bee`: `NativeResultsPanel.tsx`,
+  `knownSemanticLimitations.ts`, `nativeReopen.ts` and `nativeResult.ts`. A grep of the bundle
+  finds no replay, reopen or parity corpus in `dist/`. Since `2470f0108`, 31 non-test frontend
+  files changed.
+- **Later commits.** The later documents commits change only this `.md` file, which the build
+  does not read. The pre-launch check re-verifies all of this before any launch.
+
+**Superseded build: `app-c1-main-24f6b6568`** (kept; never run; not the candidate). It was built
+earlier on 2026-11-04 from `24f6b656828450405e253cccab6acc4b63d2dc90`: `1b45e1b11` plus the first
+documents commit, whose replay corpus fails hosted CI (above). Its record:
+- App `106a944c…2107`, the same bytes as the candidate;
+- `perf-binding.json` `230488c30e6f1df680a33615a9711acd3bbffc72442832377a7ece16703fb845`;
+- `dist_digest` and engine stamps equal to the candidate's;
+- `c1-main-24f6b6568-preparation.json` `6ebe439904b9d8dac7eda2715cf8b3ada19dedabd08a33846ce998c3dfa010da`;
+- launch check `launch-check-c1-24f6b6568.mjs`.
+
+Its 362 build-read files have the candidate's bytes (`superseded_build_same_build_read_bytes`).
+The candidate's record lists it among the earlier App directories, which the pre-launch check
+verifies are unchanged.
 
 **History registry, display and current admission, as built.** These come from the built sources.
 The record binds each of them, and every one is in the dep-info with the same bytes:
