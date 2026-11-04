@@ -1318,6 +1318,13 @@ The window is `window-20261104T131510Z-nf1920`. Its identity record is `calib192
   - The growth ratio is 7.07 against the 8× rule.
   - Peak RSS is inside the source analysis's estimates (349–744 MiB for phases, up to about 915 MiB for entry). No peak constant is fitted.
 - **Consequence for pricing:** band recovery and census variation are now measured cost components within one model family. The source cost model must carry them, and must not treat them as outside the profile.
+- **Agent 0 on the outcome (2026-11-04).** The calibration is accepted as complete and contained. No further measurement is approved; the 3,072 condition is not met, and no larger point is proposed merely to fit a curve.
+  - **What the source guard must cost, term by term:** the binary64 dense work; the band recovery's exact insertions (4·p·n²) and its 2n² visits; every check on computed and recovered pairs; the Sturm profiles; the state-solve preparation; and the projection. One fitted cubic coefficient is not a guard.
+  - **When it must cost them:** p and the census and request variation are bounded **before** the costly stage, by a conservative upper bound on p or by a stage-specific budget check. A missing finite census never drops work from the account.
+  - **What must not change:** τ_μ is not tightened artificially, and no high-mode check is skipped, to force admission or hide cost.
+  - **Keep the populations separate:** the 35-model mathematical references stay separate from the cantilever cost calibration. The memory bracket from source plus the observed RSS is not a universal peak bound, and B_doc's open items still have to close.
+  - **The ten low modes** are inspectable and reportable only under the accepted lower-gap count and completed-cluster premises. An unresolved whole finite census does not by itself invalidate the lower path, and it never becomes a whole-spectrum proof.
+  - The current test-local status, with production disabled, is unchanged, and nothing is adopted from this observation.
 
 #### 5.3.9 Admission: what stays disabled, and why
 
