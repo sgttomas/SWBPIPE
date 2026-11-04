@@ -2,6 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://openpipestress.org/schemas/analysis_run.v0.3.schema.json",
   "title": "Analysis record 0.3 with explicit source semantic contracts",
+  "description": "The current production and admission schema of analysis_run 0.3.0 records: the semantic-contract bindings it admits are the current tables' digests only. Runs recorded under earlier tables are read through the separate recorded historical-read compatibility contract (DEL-05-02 Design absolute-sum-srss-combinations.md section 10.4: the closed registry of tables recorded before RT-A4; and the pressure-2 recorded table bases, RECORDED_RUN_TABLE_BASES), not through this schema, and this schema makes no claim that such historical records validate against it. A stored record that a generic JSON Schema tool refuses under this schema is therefore not, by that alone, proof that its stored bytes are corrupt; its record checksum and the product's recorded-run read decide that.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -258,11 +259,11 @@
         },
         "sha256": {
           "enum": [
-            "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2",
-            "a7b83c37a4af9bf70f56513f80883003a2a3860387319311ea2e967dd0cf764b",
-            "be29fabcfacb1070a51bfb56dcfe61b4e4125638e249c3c0e96d092cc8aba43f",
-            "b001070e5fedeeb101522b22ce0d61bb7cf85f82e86b8d851713f8d9fc8c4c46",
-            "045f6f0d8ce350246b21fb712d2dd14bf3a7f7f3690e66e062cbbf77d3696a3b",
+            "e7b93f416f700f8efdb31bf1ba26dedde52963d768d6ead5a73dbf1c645a360c",
+            "ce49ebe07bc05431ea1f770c1933b5bf58f4b1c8b66fb6f36810f2ef7a58cd43",
+            "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6",
+            "26dce9c21261b1ca894af05a3b6f4a94db88904894cb47f7296f892e72ecfb7e",
+            "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034",
             "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9"
           ]
         },
@@ -280,7 +281,7 @@
               "const": "openpipestress.result_semantics/0.3.0/preview-physics-2"
             },
             "sha256": {
-              "const": "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2"
+              "const": "e7b93f416f700f8efdb31bf1ba26dedde52963d768d6ead5a73dbf1c645a360c"
             }
           }
         },
@@ -290,7 +291,7 @@
               "const": "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1"
             },
             "sha256": {
-              "const": "a7b83c37a4af9bf70f56513f80883003a2a3860387319311ea2e967dd0cf764b"
+              "const": "ce49ebe07bc05431ea1f770c1933b5bf58f4b1c8b66fb6f36810f2ef7a58cd43"
             }
           }
         },
@@ -300,7 +301,7 @@
               "const": "openpipestress.result_semantics/0.3.0/pressure-2"
             },
             "sha256": {
-              "const": "be29fabcfacb1070a51bfb56dcfe61b4e4125638e249c3c0e96d092cc8aba43f"
+              "const": "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6"
             }
           }
         },
@@ -310,7 +311,7 @@
               "const": "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
             },
             "sha256": {
-              "const": "b001070e5fedeeb101522b22ce0d61bb7cf85f82e86b8d851713f8d9fc8c4c46"
+              "const": "26dce9c21261b1ca894af05a3b6f4a94db88904894cb47f7296f892e72ecfb7e"
             }
           }
         },
@@ -320,7 +321,7 @@
               "const": "openpipestress.result_semantics/0.3.0/physics-retained-1"
             },
             "sha256": {
-              "const": "045f6f0d8ce350246b21fb712d2dd14bf3a7f7f3690e66e062cbbf77d3696a3b"
+              "const": "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034"
             }
           }
         },
@@ -739,7 +740,7 @@
                       "const": "openpipestress.result_semantics/0.3.0/preview-physics-2"
                     },
                     "sha256": {
-                      "const": "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2"
+                      "const": "e7b93f416f700f8efdb31bf1ba26dedde52963d768d6ead5a73dbf1c645a360c"
                     }
                   }
                 }
@@ -754,7 +755,7 @@
                         "const": "openpipestress.result_semantics/0.3.0/preview-physics-2"
                       },
                       "sha256": {
-                        "const": "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2"
+                        "const": "e7b93f416f700f8efdb31bf1ba26dedde52963d768d6ead5a73dbf1c645a360c"
                       }
                     }
                   }
@@ -792,7 +793,7 @@
                       "const": "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1"
                     },
                     "sha256": {
-                      "const": "a7b83c37a4af9bf70f56513f80883003a2a3860387319311ea2e967dd0cf764b"
+                      "const": "ce49ebe07bc05431ea1f770c1933b5bf58f4b1c8b66fb6f36810f2ef7a58cd43"
                     }
                   }
                 }
@@ -807,7 +808,7 @@
                         "const": "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1"
                       },
                       "sha256": {
-                        "const": "a7b83c37a4af9bf70f56513f80883003a2a3860387319311ea2e967dd0cf764b"
+                        "const": "ce49ebe07bc05431ea1f770c1933b5bf58f4b1c8b66fb6f36810f2ef7a58cd43"
                       }
                     }
                   }
@@ -845,7 +846,7 @@
                       "const": "openpipestress.result_semantics/0.3.0/pressure-2"
                     },
                     "sha256": {
-                      "const": "be29fabcfacb1070a51bfb56dcfe61b4e4125638e249c3c0e96d092cc8aba43f"
+                      "const": "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6"
                     }
                   }
                 }
@@ -860,7 +861,7 @@
                         "const": "openpipestress.result_semantics/0.3.0/pressure-2"
                       },
                       "sha256": {
-                        "const": "be29fabcfacb1070a51bfb56dcfe61b4e4125638e249c3c0e96d092cc8aba43f"
+                        "const": "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6"
                       }
                     }
                   }
@@ -901,7 +902,7 @@
                       "const": "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
                     },
                     "sha256": {
-                      "const": "b001070e5fedeeb101522b22ce0d61bb7cf85f82e86b8d851713f8d9fc8c4c46"
+                      "const": "26dce9c21261b1ca894af05a3b6f4a94db88904894cb47f7296f892e72ecfb7e"
                     }
                   }
                 }
@@ -916,7 +917,7 @@
                         "const": "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
                       },
                       "sha256": {
-                        "const": "b001070e5fedeeb101522b22ce0d61bb7cf85f82e86b8d851713f8d9fc8c4c46"
+                        "const": "26dce9c21261b1ca894af05a3b6f4a94db88904894cb47f7296f892e72ecfb7e"
                       }
                     }
                   }
@@ -952,7 +953,7 @@
                       "const": "openpipestress.result_semantics/0.3.0/physics-retained-1"
                     },
                     "sha256": {
-                      "const": "045f6f0d8ce350246b21fb712d2dd14bf3a7f7f3690e66e062cbbf77d3696a3b"
+                      "const": "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034"
                     }
                   }
                 }
@@ -967,7 +968,7 @@
                         "const": "openpipestress.result_semantics/0.3.0/physics-retained-1"
                       },
                       "sha256": {
-                        "const": "045f6f0d8ce350246b21fb712d2dd14bf3a7f7f3690e66e062cbbf77d3696a3b"
+                        "const": "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034"
                       }
                     }
                   }

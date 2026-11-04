@@ -87,13 +87,15 @@ RF_PINS = {
 # impls, B7a LEAF_SEAM). FormationSource.loads stays the Cow (L1a); load_closure, evaluate and the scaled-force
 # children are untouched (L1b, L1c); no Value move, constructor or guard changes (L2, L3, L5). No reduction's owner
 # or lifetime changes.
+# RT-A4 D3 (§8.46): lib.rs's and preview_physics.rs's combination rewrite keeps the L5 callee's inputs (rows_by_base_id,
+# case_rows); the L5 guard, shadow, insert and call texts are unchanged; no reduction's owner or lifetime changes.
 REDUCED_PINS = {
     # DEL-04-09 I2a D3 (§8.43): lib.rs only appends `mod modal;`; no reduction's owner or lifetime changes.
-    "core/product_physics/src/lib.rs": "ff00e3daae3406108f12307bd2677779887e5e43bb5fd9dee06a37b62120031d",
+    "core/product_physics/src/lib.rs": "d8bffa0d5ffb138581de849580471d8abc2c8c5e764b070bc9ac3a2bdc35af91",
     "core/product_physics/src/retained_wire.rs": "1e1e60a02279771574f84df2b45628622936774a879a092842faa1e2f5f0f937",
     "core/product_physics/src/certified_publication.rs": "89cdb23e172136b55ff980f7d4a4cd3643e43894fb2a9ad40c92fd3cd4adcf87",
     "core/product_physics/src/certified_loads.rs": "da7d3decc3a0170da65b38670ec215aaebdb9d8d799e3c76e41879a80589bc73",
-    "core/product_physics/src/preview_physics.rs": "8e7f316e2dbe13ed3794f9449629bd078a3db9a5608ab13bc989c5df90eb865b",
+    "core/product_physics/src/preview_physics.rs": "ecd14d758bd07dc297105ec0e67059cba2fd53f0b312da553c2caccdddd3eb05",
     "core/solver/frame_kernel/src/structural/formation_check.rs": "8931fb3dad1fd7f17b32c07eebb2e934ee9af53bb4d15fa611201829128c7893",
     "core/solver/frame_kernel/src/structural/certified_recovery.rs": "8f69bb9bea7c7696b1f78fc985998faa03a507dfc47be13cc6a2b6aa062980c9",
     "core/solver/frame_kernel/src/load_ledger.rs": "8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f",

@@ -587,14 +587,14 @@ const TABLE_BYTES: &[u8] = include_bytes!(
 );
 const INHERITED_TABLE_BYTES: &[u8] =
     include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_preview_physics_2.json");
-const TABLE_HASH: &str = "b001070e5fedeeb101522b22ce0d61bb7cf85f82e86b8d851713f8d9fc8c4c46";
+const TABLE_HASH: &str = "26dce9c21261b1ca894af05a3b6f4a94db88904894cb47f7296f892e72ecfb7e";
 /// The exact successor's table (XTABLE) and its inherited pressure-2 table.
 const EXACT_TABLE_BYTES: &[u8] = include_bytes!(
     "../../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json"
 );
 const PRESSURE_TABLE_BYTES: &[u8] =
     include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_pressure_2.json");
-const EXACT_TABLE_HASH: &str = "045f6f0d8ce350246b21fb712d2dd14bf3a7f7f3690e66e062cbbf77d3696a3b";
+const EXACT_TABLE_HASH: &str = "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034";
 /// RV78-N1's policies (B3D-8): the receipt values XTABLE's `receipt_bindings`
 /// binds from version 1, keyed by the receipt body's own paths.
 fn receipt_bindings() -> Value {
@@ -624,7 +624,9 @@ fn sha256_hex(bytes: &[u8]) -> String {
 /// the 20B/60B thresholds. A G0 field that is absent or of the wrong type
 /// fails G0; every other shape defect waits for G1.
 fn g0(source: &Value) -> VResult {
-    g0_with(source, table())
+    // RT-A4 §10.4: inside a recorded-run read under a successor variant, that variant's
+    // table (its bytes checked when the registry first read them).
+    g0_with(source, crate::recorded_tables::selected_table(CONTRACT_ID).unwrap_or_else(table))
 }
 /// G0 on the preview route (B2-C §8, rows 1-9, in order), with the table as a
 /// parameter: production passes the packaged PTABLE, and the reader-local unit
@@ -668,11 +670,14 @@ fn g0_with(source: &Value, t: &Value) -> VResult {
         "G0",
         "FORMATION_MISMATCH",
     )?;
-    // 5. The table's bytes and its inherited hash.
-    unsupported(
-        sha256_hex(TABLE_BYTES) == TABLE_HASH
-            && t["inherited_semantic_contract_sha256"] == sha256_hex(INHERITED_TABLE_BYTES),
-    )?;
+    // 5. The table's bytes and its inherited hash. RT-A4 §10.4: a recorded successor
+    // variant's bytes are the registry's (checked when first read) and it inherits its
+    // base variant, which the projection's base read below reads.
+    let (bytes_bound, inherited) = match crate::recorded_tables::selected().filter(|v| v.id == CONTRACT_ID) {
+        Some(variant) => (std::ptr::eq(t, variant.table()), variant.base().map_or_else(String::new, |b| b.sha256.to_string())),
+        None => (sha256_hex(TABLE_BYTES) == TABLE_HASH, sha256_hex(INHERITED_TABLE_BYTES)),
+    };
+    unsupported(bytes_bound && t["inherited_semantic_contract_sha256"] == inherited.as_str())?;
     // 6. N-12's cross-check: the table against the reader's constants.
     unsupported(table_binds_reader_constants(t))?;
     let b = &source["retained_precision"]["body"];

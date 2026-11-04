@@ -520,3 +520,13 @@ support action (+67 B, six TAV copies): re-derived on main `6c3cb46d3` with
 (every phase +6,012 B), the block is regenerated on the corrected tool, and
 reviewed input #10 rebinds the pressure-2 result schema (gate 4 in its enum). See the governing
 rules' §8.44 and `tests/test_844_rt_a3_ce.py`.
+
+### §8.46: RT-A4 absolute sums, SRSS and nested combinations
+
+`rules/o10_rules.py`'s RT-A4 block bounds the plan, combination and reader loops (RT-A4-L1), zeros what D1.4 leaves
+unreached (RT-A4-UZ, RT-A4-WZ, RT-A4-RM; nested re-derivation per call RT-A4-NR) and the historical read's selection on
+the retained graph (RT-A4-HS), and classifies the new sites. `base/rta4_owners_model.py` prices the plan (RT-A4-PL),
+the combination callee's buffers and published operand rows (RT-A4-CB), the derivation member (RT-A4-DV) and the
+preview reader's sets (RT-A4-RD, route L only: RT-A4-RE). Two tool repairs: `_production()` removes each
+`#[cfg(test)]` item instead of truncating at the first (RT-A4-PR), and `text_lexicon` reads `token` as text (RT-A4-TK).
+See the governing rules' §8.46.

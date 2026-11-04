@@ -21,7 +21,7 @@
 // human review is still required for any use of it (F-PIP-2, F-PIP-3).
 import type { MechanicsResult } from "../../types";
 import type { NumericalStanding } from "../results/resultStanding";
-import { readerDispatch, readerRowSemantics } from "../results/resultReader";
+import { readerDispatch, readerRowSemantics, recordedReaderDispatch, recordedReaderRowSemantics, type ContractBinding } from "../results/resultReader";
 import { codePointCompare } from "./stateComparison";
 
 /** The reference engine's supported result families (`SUPPORTED_RESULT_FAMILIES`). */
@@ -149,10 +149,11 @@ function basisRefOf(value: unknown): RunRowIdentity["basis_ref"] {
 /** The result's rows as compared: each row's identity read through the Rust reader's
  * row semantics of this result (its family and source dimension), with its metadata. A
  * row the reader cannot read has neither family nor dimension. */
-export function flattenRunResult(result: MechanicsResult): FlatRunRow[] {
+export function flattenRunResult(result: MechanicsResult, recordedTableRead: ContractBinding | null = null): FlatRunRow[] {
   const rows = Array.isArray(result.results) ? result.results : [];
   let semantics: ReturnType<typeof readerRowSemantics> | null = null;
-  try { semantics = readerRowSemantics(result); } catch { semantics = null; }
+  // RT-A4 §10.4: a run recorded before RT-A4 reads its rows under its recorded table.
+  try { semantics = recordedTableRead ? recordedReaderRowSemantics(result, recordedTableRead) : readerRowSemantics(result); } catch { semantics = null; }
   return rows.map((row, row_index) => {
     let family: string | null = null;
     let dimension: string | null = null;
@@ -182,9 +183,12 @@ export function flattenRunResult(result: MechanicsResult): FlatRunRow[] {
   });
 }
 
-/** The result's semantic identity: the reader's route and table binding. */
-export function resultSemanticIdentity(result: MechanicsResult): ResultSemanticIdentity {
-  const dispatch = readerDispatch(result);
+/** The result's semantic identity: the reader's route and table binding. RT-A4 §10.4: a run
+ * recorded before RT-A4 takes the recorded dispatch under its table, so its binding is that
+ * table's (it differs from a current run's, and the pair is refused as
+ * `semantic_identity_differs`). */
+export function resultSemanticIdentity(result: MechanicsResult, recordedTableRead: ContractBinding | null = null): ResultSemanticIdentity {
+  const dispatch = recordedTableRead ? recordedReaderDispatch(result, recordedTableRead) : readerDispatch(result);
   return {
     route: dispatch.route,
     contract_id: dispatch.binding?.id ?? result.producer?.semantic_contract_id ?? null,

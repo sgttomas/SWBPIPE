@@ -549,13 +549,18 @@ fn every_s1_authoring_refusal_is_preserved() {
     for (extra, code) in [
         (json!({"difference_basis": "operating_minus_sustained"}), "LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED"),
         (json!({"subtrahend_support_state": "own"}), "LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED"),
-        (json!({"basis": "absolute_sum", "terms": [{"load_case": "SUS", "factor": 1.0}]}), "LOAD_COMBINATION_UNSIGNED_BASIS_UNSUPPORTED"),
-        (json!({"basis": "srss", "terms": [{"load_case": "SUS", "factor": 1.0}]}), "LOAD_COMBINATION_UNSIGNED_BASIS_UNSUPPORTED"),
-        (json!({"minuend_id": "C-SUB"}), "LOAD_COMBINATION_NESTED_UNSUPPORTED"),
     ] {
         refused(&model, &combination(extra), code);
     }
     applied(&model, &combination(json!({})));
+    // The RT-A4 wiring: the unsigned bases and combination operands are authored.
+    for payload in [
+        json!({"id": "C-NEW", "label": "New", "basis": "absolute_sum", "terms": [{"load_case": "SUS", "factor": 1.0}], "provenance": PROV}),
+        json!({"id": "C-NEW", "label": "New", "basis": "srss", "terms": [{"combination": "C-SUB", "factor": 1.0}], "provenance": PROV}),
+        json!({"id": "C-NEW", "label": "New", "basis": "result_state_subtraction", "minuend_id": "C-SUB", "subtrahend_id": "SUS", "provenance": PROV}),
+    ] {
+        applied(&model, &op("create", "create_combination", "Combination", "C-NEW", "combinations", "not_present", &payload.to_string()));
+    }
 }
 
 // ------------------------------------------------------------------ the judgement

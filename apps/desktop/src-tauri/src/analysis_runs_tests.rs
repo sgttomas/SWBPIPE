@@ -880,6 +880,9 @@ fn each_command_is_admitted_with_its_own_budget() {
 /// Records `input_text` (a TypeScript-built transient record and its manifest) through this
 /// module's Record Run path and returns the witness text, with `description`.
 fn recorded_run_witness_text(input_text: &str, description: &str) -> String {
+    recorded_run_witness_text_of(input_text, SOURCE_RESULT, description)
+}
+fn recorded_run_witness_text_of(input_text: &str, source_result: &str, description: &str) -> String {
     let input: Value = serde_json::from_str(input_text).unwrap();
     let manifest_text = input["input_manifest_canonical"].as_str().unwrap().to_string();
     let manifest: Value = serde_json::from_str(&manifest_text).unwrap();
@@ -898,7 +901,7 @@ fn recorded_run_witness_text(input_text: &str, description: &str) -> String {
             project_id: project_id.clone(),
             expected_base: BASE.to_string(),
             run_record: input["run_record"].clone(),
-            result_json: SOURCE_RESULT.to_string(),
+            result_json: source_result.to_string(),
             input_manifest_canonical: manifest_text,
             state_id: None,
             new_state: Some(NewStateRequest { labels: labels_from_value(json!({ "state_name": "After solve" })).unwrap(), parent_state_id: None }),
@@ -908,7 +911,7 @@ fn recorded_run_witness_text(input_text: &str, description: &str) -> String {
     )
     .unwrap();
     let read = read_run_in_store(&path, &project_id, &outcome.run.recording_id).unwrap();
-    assert_eq!(read.result_json, SOURCE_RESULT, "the producer's bytes are stored as given");
+    assert_eq!(read.result_json, source_result, "the producer's bytes are stored as given");
     let witness = json!({
         "description": description,
         "state_id": outcome.state.state_id,
@@ -1034,6 +1037,25 @@ fn a_retired_project_and_state_at(version: &str) {
 fn the_recorded_run_witness_is_what_the_record_path_emits_for_a_typescript_built_record() {
     let text = recorded_run_witness_text(TRANSIENT_INPUT, "An analysis_run.v0.3 recorded revision emitted by the desktop store's Record Run path (apps/desktop/src-tauri/src/analysis_runs_tests.rs, test the_recorded_run_witness_is_what_the_record_path_emits_for_a_typescript_built_record) from fixtures/persistence/transient_run_input.json (a TypeScript-built transient record of fixtures/results/preview_physics_connected_sparse.json). Regenerate with OPENPIPESTRESS_WRITE_RECORDED_RUN_WITNESS=<path> on that test. apps/desktop/src/services/recordedRunParity.test.ts rebuilds it with the TypeScript builder; tests/test_recorded_run_record.py validates it against schemas/analysis_run.v0.3.schema.json and Python's validator.");
     compare_or_write_witness(&text, WITNESS, WITNESS_PATH_ENV);
+}
+
+/// RT-A4 §10.4 (DEL-05-02 `absolute-sum-srss-combinations.md`, "Recorded results from before
+/// RT-A4"): main's preview-physics-2 run recorded before RT-A4 (main 6c3cb46d3, verbatim under
+/// `fixtures/persistence/recorded_pre_rt_a4_pf/preview_physics_2`) is stored and read back by
+/// this store as main's store emitted it, byte for byte: the record path reads hashes and
+/// bytes, never a semantic table, so its binding to the pre-RT-A4 table (1ccc9561…), its
+/// received-result checksum and its result bytes are kept, and nothing is resealed.
+#[test]
+fn a_run_recorded_before_rt_a4_is_stored_and_read_back_as_main_wrote_it() {
+    const MAIN_INPUT: &str = include_str!("../../../../fixtures/persistence/recorded_pre_rt_a4_pf/preview_physics_2/transient_run_input.json");
+    const MAIN_RESULT: &str = include_str!("../../../../fixtures/persistence/recorded_pre_rt_a4_pf/preview_physics_2/preview_physics_connected_sparse.json");
+    const MAIN_WITNESS: &str = include_str!("../../../../fixtures/persistence/recorded_pre_rt_a4_pf/preview_physics_2/recorded_run_witness.json");
+    let committed: Value = serde_json::from_str(MAIN_WITNESS).unwrap();
+    let text = recorded_run_witness_text_of(MAIN_INPUT, MAIN_RESULT, committed["description"].as_str().unwrap());
+    assert_eq!(text, MAIN_WITNESS);
+    let emitted: Value = serde_json::from_str(&text).unwrap();
+    assert_eq!(emitted["recorded_record"]["analysis_run"]["reproducibility"]["semantic_contract"]["sha256"],
+        "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2");
 }
 
 /// The recorded revision keeps the transient record's rule-pack reference diagnostics

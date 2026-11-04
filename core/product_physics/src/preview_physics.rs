@@ -63,7 +63,7 @@ pub(crate) const LIMITATIONS: [&str; 7] = [
     "On arcs: signed tangent-frame resultants, nominal stress components and section extremes; endpoint force rows are node-on-element actions in the tangent frame at their end. The normal-stress maximum is bounded along the arc and enters the stress headline. The transverse shear uses the straight-annulus field without curvature correction.",
     "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress. On realized arcs with directional SIFs, intensified bending is hypot(i_ip*Mz, i_op*My)/Z in the tangent frame, with its along-arc maximum.",
     "Signed support actions for rigid restraints, springs, consuming constant effort and attributable nonlinear supports. Ambiguous attribution is withheld.",
-    "Headlines cover all load cases. Mechanics combinations are withheld for nonlinear supports, constant effort with sum of factors other than 1, or mixed moduli. Subtraction is a labelled difference. No combination maxima and no code compliance.",
+    "Headlines cover all load cases. In a model with nonlinear supports a mechanics combination is withheld unless one term is a solved load case with factor exactly 1, at least one other term exists, and every other term is a combination whose fixed-load count κ is defined and exactly 0; it is then formed from rows, with its operands' standing, as a solved state plus derived differences or bounds, not an equilibrium state. With a consuming constant effort a mechanics combination is withheld when its κ is undefined or differs from 1 by more than 64ε, and an absolute sum or SRSS unless every operand's κ is exactly 0. Mechanics combinations, absolute sums and SRSS are also withheld for mixed moduli over the load cases they reach, and every combination is withheld with a withheld operand combination. Absolute sums and SRSS are unsigned. Subtraction is a labelled difference. No combination maxima and no code compliance.",
 ];
 
 pub(crate) fn formulation_basis() -> FormulationBasis {
@@ -157,8 +157,14 @@ pub(crate) struct Rendered {
 }
 
 impl Rendered {
-    pub(crate) fn evidence(&self, gates: Vec<serde_json::Value>) -> serde_json::Value {
-        serde_json::json!({"preview_cases": self.preview_cases, "combination_gates": gates})
+    /// The contract evidence; `derivation` is [`combination_derivation`]'s member,
+    /// absent for a document with flat combinations only (V-8).
+    pub(crate) fn evidence(&self, gates: Vec<serde_json::Value>, derivation: Option<serde_json::Value>) -> serde_json::Value {
+        let mut evidence = serde_json::json!({"preview_cases": self.preview_cases, "combination_gates": gates});
+        if let (Some(derivation), Some(object)) = (derivation, evidence.as_object_mut()) {
+            object.insert(DERIVATION_MEMBER.to_string(), derivation);
+        }
+        evidence
     }
 }
 
@@ -795,37 +801,99 @@ fn endpoint_bending_refs(pipe_id: &str, location: &str) -> Vec<String> {
     ]
 }
 
+/// §5.1's codes on this route, whose fixed-load source is a consuming
+/// constant-effort support.
+pub(crate) const CONSTANT_EFFORT_REQUIRES_SOLVE: &str = "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE";
+pub(crate) const CONSTANT_EFFORT_UNSIGNED_OPERAND: &str = "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND";
+pub(crate) const CONSTANT_EFFORT_OPERAND_MIXED: &str = "CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED";
+/// §4: an operand combination withheld whole by a gate withholds its dependants.
+pub(crate) const OPERAND_WITHHELD: &str = "LOAD_COMBINATION_OPERAND_WITHHELD";
+/// §5.1: a combination whose own κ needs more than 4,096 significand bits.
+pub(crate) const FIXED_LOAD_COUNT_UNREPRESENTABLE: &str = "COMBINATION_FIXED_LOAD_COUNT_UNREPRESENTABLE";
+
+/// §5.1: the info naming a combination whose own κ is unrepresentable (both routes).
+pub(crate) fn fixed_load_count_message(id: &str) -> String {
+    format!("combination {id}: its fixed-load count (the number of times it carries each fixed load) needs more than 4,096 significand bits exactly, so it is undefined; a gated use never treats an undefined count as passing")
+}
+
+/// §4: the withheld operand combinations of one combination, each with its own
+/// code, in operand order (each once).
+pub(crate) fn withheld_operands<'t>(targets: &[combination_plan::Target<'t>], withheld: &HashMap<String, &'static str>) -> Vec<(&'t str, &'static str)> {
+    let mut out: Vec<(&str, &'static str)> = Vec::new();
+    for target in targets {
+        if let combination_plan::Target::Combination(id) = target {
+            if let Some(code) = withheld.get(*id) {
+                if !out.iter().any(|(named, _)| named == id) {
+                    out.push((id, code));
+                }
+            }
+        }
+    }
+    out
+}
+
+/// The message of [`OPERAND_WITHHELD`] (both routes).
+pub(crate) fn operand_withheld_message(operands: &[(&str, &str)]) -> String {
+    let named = operands.iter().map(|(id, code)| format!("{id} ({code})")).collect::<Vec<_>>().join(", ");
+    format!("Combination withheld: its operand combination(s) {named} are withheld, so it is withheld whole.")
+}
+
+/// The gates (absolute-sum-srss §5), in precedence order: a withheld operand
+/// combination; nonlinear supports (`mechanics` only, except decision OQ-1); the
+/// fixed-load count of a consuming constant-effort support (`mechanics`,
+/// `absolute_sum`, `srss`); and mixed modulus bases over every load case the
+/// combination reaches (`mechanics`, `absolute_sum`, `srss`). Subtractions and
+/// envelopes are ungated otherwise. A flat combination meets today's gates exactly.
 fn gate_reason(
     rendered: &Rendered,
     model: &PreviewModel,
-    combination: &PreviewCombination,
-) -> Option<&'static str> {
-    if combination.basis != "mechanics" {
+    plan: &combination_plan::Plan<'_>,
+    index: usize,
+    targets: &[combination_plan::Target<'_>],
+    withheld: &HashMap<String, &'static str>,
+) -> Option<(&'static str, String)> {
+    let combination = &model.combinations[index];
+    let operands = withheld_operands(targets, withheld);
+    if !operands.is_empty() {
+        return Some((OPERAND_WITHHELD, operand_withheld_message(&operands)));
+    }
+    let gated = |code: &'static str| Some((code, gate_message(code).to_string()));
+    let basis = combination.basis.as_str();
+    if !matches!(basis, "mechanics" | "absolute_sum" | "srss") {
         return None;
     }
-    if rendered.nonlinear {
-        return Some("NONLINEAR_COMBINATION_REQUIRES_SOLVE");
+    if basis == "mechanics" && rendered.nonlinear && !plan.solved_state_plus_increments(combination) {
+        return gated("NONLINEAR_COMBINATION_REQUIRES_SOLVE");
     }
-    // The unit factor-sum rule (option C): the exact sum of the binary64 factors, admitted
-    // iff |sum - 1| <= 64*epsilon, compared exactly, with no sum(|f|) scaling. A non-finite
-    // factor (already refused by validation's LOAD_COMBINATION_FACTOR_INVALID) or an
-    // accumulator error does not establish a unit sum, so it withholds under this code.
-    if rendered.consuming_constant_effort
-        && !open_pipe_stress_load_case_algebra::factor_sum_within_unit_tolerance(combination.terms.iter().map(|t| t.factor))
-            .unwrap_or(false)
-    {
-        return Some("CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE");
+    // The fixed-load count κ (§5.1); flat, it is the unit factor-sum rule (option C):
+    // the exact sum of the binary64 factors, admitted iff |sum - 1| <= 64*epsilon,
+    // compared exactly. A non-finite factor (already refused by validation's
+    // LOAD_COMBINATION_FACTOR_INVALID) makes κ undefined, which never passes.
+    if rendered.consuming_constant_effort {
+        let operand_kappa: Vec<_> = targets.iter().map(|target| plan.kappa_of(target)).collect();
+        let withholding = if basis == "mechanics" {
+            open_pipe_stress_load_case_algebra::mechanics_fixed_load_gate(&plan.kappa[index], operand_kappa.iter())
+        } else {
+            open_pipe_stress_load_case_algebra::unsigned_fixed_load_gate(operand_kappa.iter())
+        };
+        if let Some(withholding) = withholding {
+            use open_pipe_stress_load_case_algebra::FixedLoadWithholding as W;
+            return gated(match withholding {
+                W::UnitFactorSum => CONSTANT_EFFORT_REQUIRES_SOLVE,
+                W::OperandUndefined => CONSTANT_EFFORT_OPERAND_MIXED,
+                W::UnsignedOperand => CONSTANT_EFFORT_UNSIGNED_OPERAND,
+            });
+        }
     }
     let mut scratch = Vec::new();
-    let keys: HashSet<Option<String>> = combination
-        .terms
+    let keys: HashSet<Option<String>> = plan.reached[index]
         .iter()
-        .filter_map(|term| model.load_cases.iter().find(|c| c.id == term.load_case))
+        .filter_map(|case| model.load_cases.iter().find(|c| c.id == *case))
         .map(|case| modulus_basis_key(case, &mut scratch))
         .collect();
     // Selection conflicts were refused before solving; the scratch list is discarded.
     if keys.len() > 1 {
-        return Some("COMBINATION_MODULUS_BASIS_MIXED");
+        return gated("COMBINATION_MODULUS_BASIS_MIXED");
     }
     None
 }
@@ -833,7 +901,9 @@ fn gate_reason(
 fn gate_message(code: &str) -> &'static str {
     match code {
         "NONLINEAR_COMBINATION_REQUIRES_SOLVE" => "Combination withheld: the model has nonlinear supports, so superposing case states is not a solved state.",
-        "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE" => "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once.",
+        CONSTANT_EFFORT_REQUIRES_SOLVE => "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once.",
+        CONSTANT_EFFORT_UNSIGNED_OPERAND => "Combination withheld: a constant-effort support's force acts in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it once per term with its sign discarded.",
+        CONSTANT_EFFORT_OPERAND_MIXED => "Combination withheld: an operand's fixed-load count is undefined, so the number of times this combination counts a constant-effort support's force cannot be decided.",
         _ => "Combination withheld: its load cases were solved on different modulus bases.",
     }
 }
@@ -841,6 +911,7 @@ fn gate_message(code: &str) -> &'static str {
 fn combination_row(
     combination: &PreviewCombination,
     expression: &CombinationExpression<'_>,
+    sign_convention: &str,
     reference: &ResultItem,
     id: String,
     value: f64,
@@ -853,38 +924,9 @@ fn combination_row(
     combined.source_result_refs = source_refs;
     if let Some(metadata) = combined.metadata.as_mut() {
         metadata.basis = expression.result_metadata_basis().to_string();
-        metadata.sign_convention = match expression {
-            CombinationExpression::ResultStateSubtraction { .. } => SUBTRACTION_SIGN.to_string(),
-            _ => expression.result_sign_convention(),
-        };
+        metadata.sign_convention = sign_convention.to_string();
     }
     combined
-}
-
-fn evaluate_values(
-    expression: &CombinationExpression<'_>,
-    values: &[(&str, f64)],
-    dimension: LoadDimension,
-) -> Option<f64> {
-    let operands = values
-        .iter()
-        .map(|(case, value)| {
-            AlgebraQuantity::new(*value, dimension).ok().map(|quantity| {
-                AlgebraOperand::new(
-                    case.to_string(),
-                    case.to_string(),
-                    quantity,
-                    vec![AlgebraAnalysisStatus::MechanicsSolved, AlgebraAnalysisStatus::HumanReviewRequired],
-                )
-            })
-        })
-        .collect::<Option<Vec<_>>>()?;
-    let by_id: HashMap<&str, &AlgebraOperand> = operands.iter().map(|o| (o.operand_id.as_str(), o)).collect();
-    let algebra = expression.evaluate(&by_id);
-    if algebra.is_blocked() {
-        return None;
-    }
-    algebra.quantity.map(|q| q.value)
 }
 
 /// Kinds a combination combines (as the reference row's kind); every other
@@ -895,7 +937,31 @@ fn combined_kind(kind: &str) -> bool {
     !kind.ends_with("_v2") && (LINEAR_STATE_KINDS.contains(&kind) || kind == "displacement_magnitude")
 }
 
-/// Combination rows for preview-physics-2 (S1 §7). Returns the evidence gates.
+/// §4 (r1 F4): with a combination operand, rows pair by kind, unit, entity and
+/// every metadata field except `basis` and `sign_convention`, which describe a
+/// row's derivation; a section-basis suffix within `basis` is still compared.
+/// A `displacement_magnitude` row is identified by kind, unit and node alone: a load
+/// case's carries no metadata and a derived one's states only its derivation.
+fn nested_source_identity_matches(reference: &ResultItem, candidate: &ResultItem) -> bool {
+    const SECTION: &str = "; section_basis=";
+    let section = |basis: &str| basis.split_once(SECTION).map(|(_, s)| s.to_string());
+    reference.kind == candidate.kind
+        && reference.unit == candidate.unit
+        && reference.entity_ref == candidate.entity_ref
+        && (reference.kind == "displacement_magnitude" || match (&reference.metadata, &candidate.metadata) {
+            (None, None) => true,
+            (Some(a), Some(b)) => {
+                a.component == b.component
+                    && a.coordinate_system == b.coordinate_system
+                    && a.location == b.location
+                    && section(&a.basis) == section(&b.basis)
+            }
+            _ => false,
+        })
+}
+
+/// Combination rows for preview-physics-2 (S1 §7; absolute-sum-srss §2-§5).
+/// Returns the evidence gates, in evaluation order.
 pub(crate) fn append_combination_results(
     model: &PreviewModel,
     rendered: &Rendered,
@@ -903,6 +969,7 @@ pub(crate) fn append_combination_results(
     results: &mut Vec<ResultItem>,
     diagnostics: &mut Vec<Diagnostic>,
 ) -> Vec<serde_json::Value> {
+    use combination_plan::Target;
     let mut base_ids = rows_by_base_id.keys().cloned().collect::<Vec<_>>();
     base_ids.sort();
     let case_rows: Vec<ResultItem> = results
@@ -913,26 +980,73 @@ pub(crate) fn append_combination_results(
     // §2.7: the never_combined kinds publish no combination row.
     let has_maximum = case_rows.iter().any(|r| matches!(r.kind.as_str(), "pipe_elastic_normal_stress_maximum_v2" | u4b_rows::EXTREME_KIND | u4b_rows::SHEAR_MAX_KIND));
     let has_intensified = case_rows.iter().any(|r| matches!(r.kind.as_str(), INTENSIFIED_KIND | u4b_rows::DIRECTIONAL_KIND | u4b_rows::DIRECTIONAL_MAX_KIND));
+    let plan = combination_plan::Plan::new(model);
     let mut gates = Vec::new();
-    for combination in &model.combinations {
+    // §4: rows a combination publishes, kept only while a later one names it: by base
+    // id (ordinary rows and magnitudes), and whole (for its support groups).
+    let mut published_by_base: HashMap<String, HashMap<String, ResultItem>> = HashMap::new();
+    let mut published_rows: HashMap<String, Vec<ResultItem>> = HashMap::new();
+    let mut withheld_combinations: HashMap<String, &'static str> = HashMap::new();
+    for &index in &plan.order {
+        let combination = &model.combinations[index];
         let Some(expression) = CombinationExpression::resolve(combination) else {
             gates.push(serde_json::json!({"combination_id": combination.id, "withheld": false, "reason": null}));
             continue;
         };
-        if let Some(code) = gate_reason(rendered, model, combination) {
+        let targets = expression.targets(&plan.resolver);
+        if plan.kappa[index].is_unrepresentable() {
+            diagnostics.push(diag(
+                &format!("diagnostic:preview-physics:combination-fixed-load-count:{}", identity(&[&combination.id])),
+                FIXED_LOAD_COUNT_UNREPRESENTABLE,
+                "info",
+                fixed_load_count_message(&combination.id),
+                vec![combination.id.clone()],
+            ));
+        }
+        if let Some((code, message)) = gate_reason(rendered, model, &plan, index, &targets, &withheld_combinations) {
+            let mut refs = vec![combination.id.clone()];
+            if code == OPERAND_WITHHELD {
+                refs.extend(withheld_operands(&targets, &withheld_combinations).iter().map(|(id, _)| id.to_string()));
+            }
             diagnostics.push(diag(
                 &format!("diagnostic:preview-physics:combination-gate:{}", identity(&[&combination.id])),
                 code,
                 "warning",
-                gate_message(code),
-                vec![combination.id.clone()],
+                message,
+                refs,
             ));
             gates.push(serde_json::json!({"combination_id": combination.id, "withheld": true, "reason": code}));
+            withheld_combinations.insert(combination.id.clone(), code);
             continue;
         }
         gates.push(serde_json::json!({"combination_id": combination.id, "withheld": false, "reason": null}));
         let range = matches!(expression, CombinationExpression::RangeEnvelope { .. });
-        let operands = expression.operand_ids();
+        let nested = targets.iter().any(|t| matches!(t, Target::Combination(_)));
+        // §4: a magnitude row of an unsigned or nested combination states its
+        // derivation in its metadata; a flat combination's keeps none (V-8).
+        let derived = nested || expression.is_unsigned();
+        let sign = match expression {
+            CombinationExpression::ResultStateSubtraction { .. } => SUBTRACTION_SIGN.to_string(),
+            _ => expression.result_sign_convention(rendered.nonlinear && plan.solved_state_plus_increments(combination)),
+        };
+        let lookup = |base_id: &str, target: Target<'_>| -> Option<&ResultItem> {
+            match target {
+                Target::Case(case) => rows_by_base_id.get(base_id)?.get(case),
+                Target::Combination(id) => published_by_base.get(base_id)?.get(id),
+            }
+        };
+        let matches = |reference: &ResultItem, source: &ResultItem| {
+            if nested {
+                nested_source_identity_matches(reference, source)
+            } else {
+                combination_source_identity_matches(reference, source)
+            }
+        };
+        // This combination's rows and, only when a later combination names it, the base
+        // id of each ordinary row (a flat document keeps none).
+        let keep = plan.named[index];
+        let mut out: Vec<ResultItem> = Vec::new();
+        let mut out_bases: Vec<Option<String>> = Vec::new();
 
         // Every combination row this combination does not publish is named:
         // a missing operand row by LOAD_COMBINATION_SOURCE_RESULT_MISSING, any
@@ -941,7 +1055,6 @@ pub(crate) fn append_combination_results(
 
         // Ordinary rows grouped by base id.
         for base_id in &base_ids {
-            let source_rows = &rows_by_base_id[base_id];
             let source_missing = |diagnostics: &mut Vec<Diagnostic>| {
                 diagnostics.push(diag(
                     &format!("diagnostic:preview-physics:combination-source-missing:{}", identity(&[&combination.id, base_id])),
@@ -951,10 +1064,10 @@ pub(crate) fn append_combination_results(
                     vec![combination.id.clone()],
                 ));
             };
-            let Some(reference) = source_rows.get(expression.reference_operand_id()) else {
+            let Some(reference) = lookup(base_id, targets[0]) else {
                 // The reference (first) operand lacks a row another operand has:
                 // reported exactly as a missing row in any other operand.
-                if operands.iter().filter_map(|case| source_rows.get(*case)).next().is_some_and(|row| combined_kind(&row.kind)) {
+                if targets.iter().filter_map(|target| lookup(base_id, *target)).next().is_some_and(|row| combined_kind(&row.kind)) {
                     source_missing(diagnostics);
                 }
                 continue;
@@ -964,7 +1077,11 @@ pub(crate) fn append_combination_results(
                 continue;
             }
             if kind == "displacement_magnitude" && !range {
-                append_combined_vector_magnitude(combination, &expression, base_id, reference, rows_by_base_id, results, diagnostics);
+                let before = out.len();
+                append_combined_vector_magnitude(combination, &expression, &sign, derived, &targets, base_id, reference, &lookup, &mut out, &mut withheld, diagnostics);
+                if out.len() > before && keep {
+                    out_bases.push(Some(base_id.clone()));
+                }
                 continue;
             }
             let Some(dimension) = algebra_dimension(reference) else {
@@ -974,10 +1091,10 @@ pub(crate) fn append_combination_results(
             let mut values = Vec::new();
             let mut refs = Vec::new();
             let mut complete = true;
-            for case in &operands {
-                match source_rows.get(*case).filter(|s| combination_source_identity_matches(reference, s)) {
+            for target in &targets {
+                match lookup(base_id, *target).filter(|s| matches(reference, s)) {
                     Some(source) => {
-                        values.push((*case, source.value));
+                        values.push(source.value);
                         refs.push(source.id.clone());
                     }
                     None => complete = false,
@@ -987,8 +1104,13 @@ pub(crate) fn append_combination_results(
                 source_missing(diagnostics);
                 continue;
             }
-            match evaluate_values(&expression, &values, dimension) {
-                Some(value) => results.push(combination_row(combination, &expression, reference, qualified_combination_result_id(&combination.id, base_id), value, refs)),
+            match expression.evaluate_values(&values, dimension) {
+                Some(value) => {
+                    out.push(combination_row(combination, &expression, &sign, reference, qualified_combination_result_id(&combination.id, base_id), value, refs));
+                    if keep {
+                        out_bases.push(Some(base_id.clone()));
+                    }
+                }
                 None => withheld.push(format!("{base_id} (load-case algebra refused)")),
             }
         }
@@ -996,20 +1118,23 @@ pub(crate) fn append_combination_results(
         // Signed support actions, grouped by (support, component). A support's
         // group publishes whole or not at all: no partial component set.
         for support in &model.supports {
-            let find = |case: &str, component: &str| {
-                case_rows.iter().find(|r| {
+            let find = |target: Target<'_>, component: &str| -> Option<&ResultItem> {
+                let hit = |r: &&ResultItem| {
                     r.entity_ref == support.id
-                        && r.basis_ref.as_ref().is_some_and(|b| b.ref_id == case)
                         && r.metadata.as_ref().is_some_and(|m| m.component == component)
                         && r.kind.starts_with("support_reaction_")
-                })
+                };
+                match target {
+                    Target::Case(case) => case_rows.iter().find(|r| hit(r) && r.basis_ref.as_ref().is_some_and(|b| b.ref_id == case)),
+                    Target::Combination(id) => published_rows.get(id)?.iter().find(hit),
+                }
             };
             let base = |component: &str| format!("support-action:{}:{}:{component}", support.id.len(), support.id);
-            if operands.iter().all(|case| find(case, "Fx").is_none()) {
+            if targets.iter().all(|target| find(*target, "Fx").is_none()) {
                 continue;
             }
             let all_sources = |component: &str| -> Option<Vec<&ResultItem>> {
-                operands.iter().map(|case| find(case, component)).collect()
+                targets.iter().map(|target| find(*target, component)).collect()
             };
             let group = || -> Result<Vec<ResultItem>, &'static str> {
                 let mut rows = Vec::new();
@@ -1017,27 +1142,32 @@ pub(crate) fn append_combination_results(
                 for (slot, component) in SUPPORT_COMPONENTS.iter().enumerate() {
                     let sources = all_sources(component).ok_or("source support row missing in an operand case")?;
                     let dimension = if slot < 3 { LoadDimension::Force } else { LoadDimension::Moment };
-                    let values: Vec<(&str, f64)> = operands.iter().copied().zip(sources.iter().map(|s| s.value)).collect();
-                    let value = evaluate_values(&expression, &values, dimension).ok_or("load-case algebra refused")?;
+                    let values: Vec<f64> = sources.iter().map(|s| s.value).collect();
+                    let value = expression.evaluate_values(&values, dimension).ok_or("load-case algebra refused")?;
                     combined[slot] = value;
-                    rows.push(combination_row(combination, &expression, sources[0], qualified_combination_result_id(&combination.id, &base(component)), value, sources.iter().map(|s| s.id.clone()).collect()));
+                    rows.push(combination_row(combination, &expression, &sign, sources[0], qualified_combination_result_id(&combination.id, &base(component)), value, sources.iter().map(|s| s.id.clone()).collect()));
                 }
                 for (component, value) in [
                     ("force_magnitude", norm3(combined[0], combined[1], combined[2])),
                     ("moment_magnitude", norm3(combined[3], combined[4], combined[5])),
                 ] {
+                    // §3, §6: an unsigned magnitude outside the binary64 range is
+                    // refused, never published as an infinity; the group is withheld.
+                    if !range && expression.is_unsigned() && !value.is_finite() {
+                        return Err("load-case algebra refused");
+                    }
                     // A linear magnitude is the norm of the combined components;
                     // its row identity is the first operand row that has it.
                     let sources = if range {
                         all_sources(component)
                     } else {
-                        Some(operands.iter().filter_map(|case| find(case, component)).collect::<Vec<_>>()).filter(|rows| !rows.is_empty())
+                        Some(targets.iter().filter_map(|target| find(*target, component)).collect::<Vec<_>>()).filter(|rows| !rows.is_empty())
                     }
                     .ok_or("source support row missing in an operand case")?;
                     let value = if range {
                         let dimension = if component == "force_magnitude" { LoadDimension::Force } else { LoadDimension::Moment };
-                        let values: Vec<(&str, f64)> = operands.iter().copied().zip(sources.iter().map(|s| s.value)).collect();
-                        evaluate_values(&expression, &values, dimension).ok_or("load-case algebra refused")?
+                        let values: Vec<f64> = sources.iter().map(|s| s.value).collect();
+                        expression.evaluate_values(&values, dimension).ok_or("load-case algebra refused")?
                     } else {
                         value
                     };
@@ -1049,13 +1179,25 @@ pub(crate) fn append_combination_results(
                             .map(|c| qualified_combination_result_id(&combination.id, &base(c)))
                             .collect()
                     };
-                    rows.push(combination_row(combination, &expression, sources[0], qualified_combination_result_id(&combination.id, &base(component)), value, refs));
+                    rows.push(combination_row(combination, &expression, &sign, sources[0], qualified_combination_result_id(&combination.id, &base(component)), value, refs));
                 }
                 Ok(rows)
             };
             match group() {
-                Ok(rows) => results.extend(rows),
+                Ok(rows) => {
+                    if keep {
+                        out_bases.extend(rows.iter().map(|_| None));
+                    }
+                    out.extend(rows);
+                }
                 Err(reason) => withheld.push(format!("support-action:{}:{} ({reason})", support.id.len(), support.id)),
+            }
+        }
+        if derived {
+            // A range-selected magnitude of a nested envelope whose source row is a
+            // load case's carries no metadata of its own.
+            for row in out.iter_mut().filter(|r| r.kind == "displacement_magnitude" && r.metadata.is_none()) {
+                row.metadata = Some(crate::derived_magnitude_metadata(expression.result_metadata_basis(), &sign));
             }
         }
         if !withheld.is_empty() {
@@ -1090,8 +1232,74 @@ pub(crate) fn append_combination_results(
                 vec![combination.id.clone()],
             ));
         }
+        if plan.named[index] {
+            for (row, base) in out.iter().zip(&out_bases) {
+                if let Some(base) = base {
+                    published_by_base.entry(base.clone()).or_default().insert(combination.id.clone(), row.clone());
+                }
+            }
+            published_rows.insert(combination.id.clone(), out.clone());
+        }
+        results.extend(out);
     }
     gates
+}
+
+/// RT-A4 (absolute-sum-srss §10.3): the evidence member from which a reader without
+/// the model re-derives every absolute sum's, SRSS's and nested combination's rows
+/// and the gates that turn on κ and decision OQ-1.
+pub(crate) const DERIVATION_MEMBER: &str = "combination_derivation";
+
+/// §10.3: the model conditions the gates read (`nonlinear_supports`,
+/// `consuming_constant_effort`) and, in gate (evaluation) order, one record
+/// `{combination_id, basis, expression}` for every absolute sum, SRSS and
+/// combination with a combination operand, withheld or not, and for every
+/// combination those reach through their operands, so each record's κ is
+/// re-derivable from earlier records. The expression is `combination_operands`'
+/// shape (a term names its operand by kind; a subtraction's or envelope's id names
+/// the load case when one has it). `None` when no combination is unsigned or nested:
+/// a flat document publishes no member, so its bytes are unchanged (V-8).
+pub(crate) fn combination_derivation(model: &PreviewModel, rendered: &Rendered, gates: &[serde_json::Value]) -> Option<serde_json::Value> {
+    let resolver = combination_plan::Resolver::new(model);
+    let ordered: Vec<&PreviewCombination> =
+        gates.iter().filter_map(|g| model.combinations.iter().find(|c| g["combination_id"] == c.id.as_str())).collect();
+    let operands = |combination: &PreviewCombination| -> Vec<String> {
+        CombinationExpression::resolve(combination)
+            .map(|e| {
+                e.targets(&resolver)
+                    .iter()
+                    .filter_map(|t| match t {
+                        combination_plan::Target::Combination(id) => Some(id.to_string()),
+                        combination_plan::Target::Case(_) => None,
+                    })
+                    .collect()
+            })
+            .unwrap_or_default()
+    };
+    let mut recorded: HashSet<String> = ordered
+        .iter()
+        .filter(|c| matches!(c.basis.as_str(), "absolute_sum" | "srss") || !operands(c).is_empty())
+        .map(|c| c.id.clone())
+        .collect();
+    if recorded.is_empty() {
+        return None;
+    }
+    // An operand precedes its dependants in the order, so one reverse pass closes the set.
+    for combination in ordered.iter().rev() {
+        if recorded.contains(&combination.id) {
+            recorded.extend(operands(combination));
+        }
+    }
+    let records: Vec<serde_json::Value> = ordered
+        .iter()
+        .filter(|c| recorded.contains(&c.id))
+        .map(|c| serde_json::json!({"combination_id": c.id, "basis": c.basis, "expression": exact_combinations::expression_evidence(c)}))
+        .collect();
+    Some(serde_json::json!({
+        "nonlinear_supports": rendered.nonlinear,
+        "consuming_constant_effort": rendered.consuming_constant_effort,
+        "combinations": records,
+    }))
 }
 
 /// Operating-case slice 1a (DEL-05-02 Design `pf-nonlinear-operand-standing.md`):
@@ -1133,25 +1341,28 @@ pub(crate) fn same_state(states: &[&str]) -> bool {
 }
 
 /// Slice 1a §2.1: in a model with nonlinear supports, one operand record per
-/// admitted combination (always a subtraction or a range envelope there, since every
-/// mechanics combination is withheld). The operands' numerical quality and both
-/// notices are stated on the published envelope (`state_operand_standing`), so a
-/// blocked envelope carries neither. Returns no record for any other model.
+/// admitted combination, in gate (evaluation) order: a subtraction, a range
+/// envelope, an absolute sum or SRSS, or a mechanics combination admitted by
+/// decision OQ-1 (absolute-sum-srss §5.2); every other mechanics combination is
+/// withheld there. The operands' numerical quality and both notices are stated on
+/// the published envelope (`state_operand_standing`), so a blocked envelope
+/// carries neither. Returns no record for any other model.
 pub(crate) fn append_operand_standing(model: &PreviewModel, rendered: &Rendered, gates: &[serde_json::Value]) -> Vec<serde_json::Value> {
     if !rendered.nonlinear {
         return Vec::new();
     }
-    model
-        .combinations
+    let resolver = combination_plan::Resolver::new(model);
+    gates
         .iter()
-        .filter(|c| gates.iter().any(|g| g["combination_id"] == c.id.as_str() && g["withheld"] == false))
+        .filter(|g| g["withheld"] == false)
+        .filter_map(|g| model.combinations.iter().find(|c| g["combination_id"] == c.id.as_str()))
         .filter_map(|combination| {
             let expression = CombinationExpression::resolve(combination)?;
             Some(serde_json::json!({
                 "combination_id": combination.id,
                 "basis": combination.basis,
                 "expression": exact_combinations::expression_evidence(combination),
-                "operands": expression.operand_ids().iter().map(|case| exact_combinations::operand_evidence(model, case)).collect::<Vec<_>>(),
+                "operands": expression.targets(&resolver).iter().map(|target| exact_combinations::operand_evidence(model, target)).collect::<Vec<_>>(),
                 "standing": exact_combinations::STANDING,
             }))
         })
@@ -1215,7 +1426,8 @@ pub(crate) fn state_operand_standing(envelope: &mut MechanicsEnvelope, mut recor
     exact_combinations::state_operand_standing(&mut records, &envelope.numerical_quality);
     for record in &records {
         let id = record["combination_id"].as_str().unwrap_or_default();
-        let operands: Vec<&serde_json::Value> = record["operands"].as_array().into_iter().flatten().collect();
+        // A combination operand states its own standing in its own record (§4).
+        let operands: Vec<&serde_json::Value> = record["operands"].as_array().into_iter().flatten().filter(|o| o.get("load_case_id").is_some()).collect();
         let cases: Vec<&str> = operands.iter().map(|o| o["load_case_id"].as_str().unwrap_or_default()).collect();
         if let Some(notice) = operand_states_diagnostic(id, &cases, &envelope.results) {
             envelope.diagnostics.push(notice);
@@ -1342,6 +1554,14 @@ mod tests {
         };
         let rendered = |consuming_constant_effort| Rendered { preview_cases: Vec::new(), nonlinear: false, consuming_constant_effort };
         let ce = Some("CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE");
+        let gate_reason = |rendered: &Rendered, model: &PreviewModel, combination: &PreviewCombination| {
+            let mut model = model.clone();
+            model.combinations = vec![combination.clone()];
+            let plan = combination_plan::Plan::new(&model);
+            let expression = CombinationExpression::resolve(&model.combinations[0]).unwrap();
+            let targets = expression.targets(&plan.resolver);
+            gate_reason(rendered, &model, &plan, 0, &targets, &HashMap::new()).map(|(code, _)| code)
+        };
         for factors in [[f64::NAN, 1.0], [f64::INFINITY, -f64::INFINITY], [0.5, f64::NEG_INFINITY]] {
             assert_eq!(gate_reason(&rendered(true), &model, &combination(factors)), ce, "{factors:?}");
         }

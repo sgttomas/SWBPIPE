@@ -8,7 +8,7 @@
     },
     {
       "path": "schemas/analysis_run.v0.3.schema.json",
-      "sha256": "9594b57f9d08d539e4a719c2aa46216614343f7b4c370f74be6437a390fc2582"
+      "sha256": "d30507f1f667b1a26f2cb6e008fb227e5f16e5ac8f57e5bb82fe1cf9c58e0941"
     },
     {
       "path": "schemas/caepipe_external_run.schema.json",
@@ -68,7 +68,7 @@
     },
     {
       "path": "schemas/operation_outcome.schema.json",
-      "sha256": "ec813d20529f9a6a7806e0b6c0e99bceb6c1a04ce569d4ed6530e2171168fe1b"
+      "sha256": "c8eb5cd91ba8203090cc8d8b7d03654651879561461cc8aae6ca2a0ea8de65c4"
     },
     {
       "path": "schemas/pcf_export.schema.json",
@@ -80,7 +80,7 @@
     },
     {
       "path": "schemas/results_pressure_2.v0.3.schema.json",
-      "sha256": "b5476cba24c7b1b4b8da971920aaacd402ca920f5baaea05864cc23eb3ef49f9"
+      "sha256": "3dd8523f2f03cd72e9dbeb10955e9492711cf1334ba8d1dc4919d4ba2512b416"
     },
     {
       "path": "schemas/retained_precision_mp_v2.schema.json",
@@ -100,7 +100,7 @@
     },
     {
       "path": "schemas/stress_neutral_export.v0.3.schema.json",
-      "sha256": "cb1da807b92449811113e4e8b1fba80e8c08ac30fa7c282c9e14fbd7238e8575"
+      "sha256": "3121f979c0f5d0e354b283a08c9d1d12c9a238faaf725563e02e735229457109"
     },
     {
       "path": "schemas/target_mapping.schema.json",

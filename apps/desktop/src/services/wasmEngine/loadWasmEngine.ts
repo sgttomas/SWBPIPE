@@ -51,6 +51,12 @@ export type WasmOperationEngine = {
   // The row semantics of each row of a JSON array, in order, the source read once:
   // the array of the outcomes `readerRowSemanticsJson` returns per row.
   readerRowSemanticsEachJson: (rowsJson: string, sourceJson?: string) => string;
+  // RT-A4 §10.4: a recorded-run read entry (`reader_verdict::*_recorded`) under the
+  // record's binding JSON: `dispatch`, `preview-physics`, `preview-physics-transport`,
+  // `retained-precision` or `retained-precision-transport`, in its current entry's shape.
+  readerRecordedJson: (entry: string, bindingJson: string, sourceJson: string, modelJson?: string, invocationJson?: string) => string;
+  /** RT-A4 §10.4: each row's semantics of a recorded statement under its record's binding. */
+  readerRecordedRowSemanticsEachJson: (bindingJson: string, rowsJson: string, sourceJson: string) => string;
   // DEL-07-05 numerical health indicator (Design `numerical-health-indicator.md`
   // §2.6): the Rust parse of a result's ordinary-solve diagnostics, with the base
   // reader's findings for it (a JSON array of codes, or the dispatch outcome).
@@ -85,6 +91,8 @@ type GeneratedGlueModule = {
   reader_transport_json: (reader: string, sourceJson: string) => string;
   reader_row_semantics_json: (rowJson: string, sourceJson?: string | null) => string;
   reader_row_semantics_each_json: (rowsJson: string, sourceJson?: string | null) => string;
+  reader_recorded_json: (entry: string, bindingJson: string, sourceJson: string, modelJson?: string | null, invocationJson?: string | null) => string;
+  reader_recorded_row_semantics_each_json: (bindingJson: string, rowsJson: string, sourceJson: string) => string;
   numerical_health_json: (sourceJson: string, readerFindingsJson?: string | null) => string;
 };
 
@@ -214,6 +222,8 @@ async function instantiate(): Promise<WasmOperationEngine> {
     readerTransportJson: glue.reader_transport_json,
     readerRowSemanticsJson: (rowJson, sourceJson) => glue.reader_row_semantics_json(rowJson, sourceJson ?? null),
     readerRowSemanticsEachJson: (rowsJson, sourceJson) => glue.reader_row_semantics_each_json(rowsJson, sourceJson ?? null),
+    readerRecordedJson: (entry, bindingJson, sourceJson, modelJson, invocationJson) => glue.reader_recorded_json(entry, bindingJson, sourceJson, modelJson ?? null, invocationJson ?? null),
+    readerRecordedRowSemanticsEachJson: (bindingJson, rowsJson, sourceJson) => glue.reader_recorded_row_semantics_each_json(bindingJson, rowsJson, sourceJson),
     numericalHealthJson: (sourceJson, readerFindingsJson) => glue.numerical_health_json(sourceJson, readerFindingsJson ?? null)
   };
 }

@@ -496,7 +496,12 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // production's current_header v2 re-author text changed its model version token
             // (0.8.0 -> 0.9.0, same length); the closed `b7b_current_table_tests` module and E14
             // are byte-identical.
-            complete_suffix_sha256: "d2c364d0e7497fb02228b2fad34b31491dcf2b4601480e68c6928f1223f2061c",
+            // Re-audited for RT-A4 §10.4 (the historical read; retained-pricing-rules.md §8.46): in the inspected
+            // production after the resume, current_header's two preview-physics arms become one arm reading
+            // preview_physics_identity(id) (the current table, or a recorded variant only inside a recorded read,
+            // RT-A4-HS); the closed `b7b_current_table_tests` module and E14 are byte-identical, and no include,
+            // path module or static entered the suffix.
+            complete_suffix_sha256: "d67f47820070b24fb7d16b415d30ae855491c59c85f9dd1e66607d1df73f3b02",
             production_resume: Some("/// Header dispatch only; canonical envelopes have no raw rows. This does not"),
             trailing_test: Some(SEMANTIC_E14_TEST_ITEM),
         })),
@@ -811,7 +816,7 @@ fn pressure_schema_is_the_only_nonresident_binding() {
     let schema_hash = format!("{:x}", Sha256::digest(schema_bytes));
     // B7b A5: the result schema takes v3 only. T4-U6 (462b777b22): it carries the D-5
     // geometry, per-basis records and limitations (reviewed input #10, re-bound at D3).
-    assert_eq!(schema_hash, "b5476cba24c7b1b4b8da971920aaacd402ca920f5baaea05864cc23eb3ef49f9");
+    assert_eq!(schema_hash, "3dd8523f2f03cd72e9dbeb10955e9492711cf1334ba8d1dc4919d4ba2512b416");
     let compiled = COMPILED_REVIEWED_INPUTS.expect("build.rs sets all current inputs");
     let tokens: Vec<_> = compiled.split(';').collect();
     assert_eq!(tokens.len(), build_identity::REVIEWED_INPUT_COUNT + 1);
@@ -874,20 +879,24 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     // DEL-04-09 I2a (retained-pricing-rules.md §8.43) moves #0 (Cargo.lock: the local path package
     // open_pipe_stress_modal_eigen and product_physics' edge to it, no registry change); its D3
     // registration records these bytes.
+    // RT-A4 (DEL-05-02 `absolute-sum-srss-combinations.md` §10.2; retained-pricing-rules.md §8.46) moves #0
+    // (Cargo.lock: result_export's edge to open_pipe_stress_load_case_algebra), #4, #5, #8, #11 and #12 (the
+    // restated combination policies and limitation) and #10 (the pressure-2 result schema's RT-A4 shapes);
+    // its D3 registration records these bytes.
     const REVIEWED: [&str; build_identity::REVIEWED_INPUT_COUNT] = [
-        "6d8af2367c31353985bdbe8133a2771204e62ed359a4940c54bbf6689c18cd85",
+        "b7ebb02aafa8cfe214c18bc64941381b33ab3f9295e0fc774ee0819e1e4f5653",
         "ae45b97742fd463866d8f231004f2053834d5bd413a1430e766f24516d3569ac",
         "73bebc5fb562b7f519c7d59be8e7830f98b21ce29fa0b7c017e43426f50cfcaa",
         "a056c395e27f964c842a1347db689eb24377d0b5a79a3b954435105a2c422d08",
-        "b001070e5fedeeb101522b22ce0d61bb7cf85f82e86b8d851713f8d9fc8c4c46",
-        "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2",
+        "26dce9c21261b1ca894af05a3b6f4a94db88904894cb47f7296f892e72ecfb7e",
+        "e7b93f416f700f8efdb31bf1ba26dedde52963d768d6ead5a73dbf1c645a360c",
         "fe371e07cd727154235f3725eeeef393ad0a433f0e8c98656f98468940d9aea2",
         "8d48e3d97bc4f69bf9b0da58db7538b0661cf52d05f771dc126be2c3cca8c163",
-        "045f6f0d8ce350246b21fb712d2dd14bf3a7f7f3690e66e062cbbf77d3696a3b",
+        "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034",
         "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9",
-        "b5476cba24c7b1b4b8da971920aaacd402ca920f5baaea05864cc23eb3ef49f9",
-        "be29fabcfacb1070a51bfb56dcfe61b4e4125638e249c3c0e96d092cc8aba43f",
-        "a7b83c37a4af9bf70f56513f80883003a2a3860387319311ea2e967dd0cf764b",
+        "3dd8523f2f03cd72e9dbeb10955e9492711cf1334ba8d1dc4919d4ba2512b416",
+        "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6",
+        "ce49ebe07bc05431ea1f770c1933b5bf58f4b1c8b66fb6f36810f2ef7a58cd43",
     ];
     // The same files, read here at compile time (test-only), by the sha2 dependency.
     let files: [&[u8]; build_identity::REVIEWED_INPUT_COUNT] = [
@@ -2004,9 +2013,13 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 // §8.44 on the §8.45 lexer (main 6c3cb46d3): the block is regenerated on the corrected tool;
 // against main's corrected source-derived tree +6,012 B in every phase and mode, from maintained
 // eval at the in-build atoms (Text(recovery_finding) 14,444,434 B from the regenerated block), without R.
+// §8.46: RT-A4's source-derived block (the restated tables in STATICS, the modulus-basis records' plan
+// resolver and LIMITATIONS[6] in O_base, the preview reader's row index and case set in T17_V5,
+// LIMITATIONS[6]'s failed-manifest clones in TAV_W): W1, W2, W3 and W5 +65,327 B, W4 +458,607 B, X1-X3
+// +62,583 B in both modes, from maintained eval at the same 328 in-build atoms, without R.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_449_859_418, 6_791_853_979, 8_743_589_807, 8_536_911_263, 7_611_001_877, 8_526_216_134, 7_258_833_524, 6_932_123_400],
-    [6_508_990_762, 6_850_985_323, 8_802_721_151, 8_596_042_607, 7_670_133_221, 8_585_347_478, 7_317_964_868, 6_991_254_744],
+    [6_449_924_745, 6_791_919_306, 8_743_655_134, 8_537_369_870, 7_611_067_204, 8_526_278_717, 7_258_896_107, 6_932_185_983],
+    [6_509_056_089, 6_851_050_650, 8_802_786_478, 8_596_501_214, 7_670_198_548, 8_585_410_061, 7_318_027_451, 6_991_317_327],
 ];
 
 #[test]
