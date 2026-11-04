@@ -600,3 +600,56 @@ def test_w16_line_rows_lie_within_their_bound_of_the_frozen_exact_rows(combinati
             assert _encloses(row["value"], magnitude, g["bound"]), (combination, key, row["value"], r["exact"], g["bound"])
             checked += 1
     assert checked >= least, checked
+
+
+def _successor(mode: str = "sparse_interactive") -> dict:
+    return json.loads((PROJECT / f"fixtures/results/retained_precision_combination_successor_{mode}.json").read_text(encoding="utf-8"))
+
+
+def _base_of(successor: dict) -> dict:
+    """The ordinary preview-physics-2 base of a retained successor, as the retained reader's G7 projects it."""
+    base = copy.deepcopy(successor)
+    base.pop("retained_precision")
+    base["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/preview-physics-2"
+    base["formulation_basis"]["profile_id"] = "product_preview_mechanics_v1"
+    base["results"] = [{k: v for k, v in r.items() if k != "recovery_method"} for r in base["results"]
+                       if r["kind"] != "retained_precision_requested_mode_basis"]
+    return base
+
+
+def test_the_retained_base_read_context_is_g7_s_only():
+    """The retained base-read context (Work §2, Agent 0's ruling after review cert2) has one caller, the retained
+    reader's G7 base read, and is never reachable from an ordinary read (Rust alike). Under it only the roster's text
+    closure is lifted; from an ordinary entry the same base's combination prose is refused, and the context is clear."""
+    import re
+    from tests.verifiers import retained_precision
+    verifiers = PROJECT / "tests/verifiers"
+    call = re.compile(r"(?<!def )\bretained_base_read\(\)")  # a call, not the definition
+    calls = {p.name: len(call.findall(p.read_text(encoding="utf-8"))) for p in verifiers.glob("*.py")}
+    assert {k: v for k, v in calls.items() if v} == {"retained_precision.py": 1}
+    assert "with retained_base_read():_source_contract(projected)" in (verifiers / "retained_precision.py").read_text(encoding="utf-8")
+    w = _successor()
+    noted = _base_of(w["source"])
+    noted["diagnostics"].append({"id": "diagnostic:review:claim", "code": "REVIEW_NOTE", "severity": "info", "source": cc.SOURCE,
+                                 "affected_refs": ["combination:ab"], "message": "combination combination:ab: all derived row groups are established."})
+    assert not cc.in_retained_base_read()
+    assert reader_verdict.validate("preview-physics", _base_of(w["source"])) == {"ok": True}
+    outcome = reader_verdict.validate("preview-physics", noted)
+    assert outcome["ok"] is False and PREFIX + "ROSTER_EXTRA" in json.dumps(outcome), outcome
+    with cc.retained_base_read():
+        assert reader_verdict.validate("preview-physics", noted) == {"ok": True}
+    assert not cc.in_retained_base_read()
+    assert retained_precision.validate_retained_precision(w["source"], w["invocation"])["standing"] == "eligible"
+    assert not cc.in_retained_base_read()
+
+
+def test_under_the_retained_context_a_reserved_certificate_notice_without_a_member_is_refused():
+    """Under the retained base-read context the reserved certificate vocabulary stays protected: a W-CB3 successor's
+    G7 base (no member) with an added certificate notice is refused by the absence rule (Rust
+    `under_the_context_only_the_roster_text_closure_is_lifted`)."""
+    reserved = _base_of(_successor()["source"])
+    reserved["diagnostics"].append(cc._diagnostic("combination:ab", cc.WITHIN, cc.within_message("combination:ab", True, 1, 0, 0, 0)))
+    with cc.retained_base_read():
+        outcome = reader_verdict.validate("preview-physics", reserved)
+    assert outcome["ok"] is False and PREFIX + "PRESENCE" in json.dumps(outcome), outcome
+    assert not cc.in_retained_base_read()
