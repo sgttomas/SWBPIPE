@@ -1155,7 +1155,7 @@ type EditableField = {
 
 /** The value a field's entry starts from. */
 function fieldEntryValue(field: EditableField | undefined): string {
-  return field ? (field.initialValue ?? field.before) : "";
+  return field ? (field.initialValue ?? field.before ?? "") : "";
 }
 
 type SupportDraft = {

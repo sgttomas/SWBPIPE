@@ -70,8 +70,8 @@ describe("the engineering table's Condition set column", () => {
 describe("the pipe inspector's Condition set field", () => {
   it("shows the pipe's set in its properties and offers assignment from the model's sets", () => {
     const model = sessionCorpusBase("s3a_04"); // P1 carries cs:a; P2 carries none
-    // The inspector's existing label editor reads a pipe label, which the corpus omits.
-    for (const pipe of model.pipe_segments) pipe.label ??= pipe.id;
+    // The corpus's pipes carry no label: the inspector must open them (it crashed on an absent label).
+    expect(model.pipe_segments.every((pipe) => pipe.label === undefined)).toBe(true);
     const view = render(<PropertyInspector model={model} onQueueIntent={vi.fn()} selection={{ type: "pipe", id: "P1" }} />);
     expect(screen.getByTestId("pipe-condition-set-current")).toHaveTextContent("Carries condition set cs:a.");
     expect(screen.getByRole("region", { name: "Pipe condition set" })).toBeInTheDocument();

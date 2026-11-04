@@ -31,17 +31,23 @@ export function applierDisplayNumber(value: number): string {
   return `${sign}${digits.slice(0, point)}.${digits.slice(point)}`;
 }
 
+/* The deletion texts mirror the applier's (`node_delete_display`, `pipe_delete_display`):
+ * an absent or blank member gives the empty text, never a crash or an invented one. */
 export function nodeDeletionSummary(node: PreviewModel["nodes"][number]): string {
   const { x, y, z } = node.position;
-  return `${node.label.trim()}; x=${applierDisplayNumber(x)}; y=${applierDisplayNumber(y)}; z=${applierDisplayNumber(z)}`;
+  const label = (node.label ?? "").trim();
+  if (!label) return "";
+  return `${label}; x=${applierDisplayNumber(x)}; y=${applierDisplayNumber(y)}; z=${applierDisplayNumber(z)}`;
 }
 
 export function pipeDeletionSummary(pipe: PreviewModel["pipe_segments"][number]): string {
-  return `${pipe.label.trim()}; ${pipe.from.trim()}->${pipe.to.trim()}; material=${pipe.material.trim()}`;
+  const [label, from, to, material] = [pipe.label, pipe.from, pipe.to, pipe.material].map((value) => (value ?? "").trim());
+  if (!label || !from || !to || !material) return "";
+  return `${label}; ${from}->${to}; material=${material}`;
 }
 
 export function supportDeletionSummary(support: PreviewModel["supports"][number]): string {
-  return support.label.trim();
+  return (support.label ?? "").trim();
 }
 
 export function buildDeleteSupportIntent(
