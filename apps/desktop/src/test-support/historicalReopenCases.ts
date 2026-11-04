@@ -49,6 +49,7 @@ export const RECORDED_BASIS_FIXTURES = [
   "fixtures/persistence/recorded_model_0_9_0_pre_2b",
   "fixtures/persistence/recorded_model_0_9_0_pre_ce",
   "fixtures/persistence/recorded_model_0_9_0_pre_rt_a4",
+  "fixtures/persistence/recorded_model_0_9_0_pre_nl",
 ] as const;
 const FIXTURE_RECORD = "pressure_plain_connected_sparse.analysis_run.json";
 const FIXTURE_SOURCE = "pressure_connected_mechanics_sparse.json";
@@ -336,6 +337,8 @@ async function preRtA4Cases(): Promise<{ saved: SavedCase[]; recorded: RecordedC
     { name: "preview-physics-retained-1", ...retained("preview_physics_retained_1", "retained_precision_milestone_successor_sparse_interactive") },
     { name: "physics-retained-1-main", ...retained("physics_retained_1/main", "retained_precision_exact_successor_sparse_interactive") },
     { name: "physics-retained-1-pr101", ...retained("physics_retained_1/pr101", "retained_precision_exact_successor_sparse_interactive") },
+    // RT-A3 increment 4: main's RT-A4 exact successor (040ef9a6…, a recorded binding only).
+    { name: "physics-retained-1-main-bbf384dec", ...retained("physics_retained_1/main_bbf384dec", "retained_precision_exact_successor_sparse_interactive") },
   ];
   const saved: SavedCase[] = [];
   for (const variant of variants) {
