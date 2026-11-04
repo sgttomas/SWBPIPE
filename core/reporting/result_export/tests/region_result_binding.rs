@@ -3,7 +3,8 @@
 //! The reader counts those rows once per document and checks each region's ids
 //! against the counts (`physics_evidence.rs`); before RT-U4 it rescanned every
 //! row for every region. Each mutation's expected outcome below is the pre-change
-//! reader's (taken on main 6c3cb46d3 before the change): the evidence reader's
+//! reader's (taken on main 6c3cb46d3 before the change; the
+//! duplicate-row, duplicate-member and missing-with-unexpected cases on main 9c5ab3566): the evidence reader's
 //! first refusal, and the `pressure` verdict and dispatch standing it gives.
 use open_pipe_stress_result_export::reader_verdict as rv;
 use open_pipe_stress_result_export::semantic_contract as s;
@@ -134,6 +135,19 @@ fn cases() -> Vec<(&'static str, Value, Value)> {
     add("unknown id, added", straight(), &|d| {
         ids(d, "case:closed-pressure", "pipe:fixture-span").push(json!("result:unknown"));
     }, json!(BINDING));
+    // A missing id and an unexpected one together (the count is kept, so only the
+    // membership check can refuse it).
+    add("missing id with an unknown id, three members", arc(), &|d| {
+        let list = ids(d, "case:u2", "pipe:S1");
+        list.remove(0);
+        list.push(json!("result:unknown"));
+    }, json!(BINDING));
+    add("missing id with another member's id", combination(), &|d| {
+        let other = row_id(d, "case:C", "pipe:m2", PIPE);
+        let list = ids(d, "case:C", "pipe:m1");
+        list.pop();
+        list.push(other);
+    }, json!(BINDING));
     // Malformed and duplicated references: refused by the id list's own reading,
     // before the binding.
     add("duplicate id", straight(), &|d| {
@@ -143,6 +157,27 @@ fn cases() -> Vec<(&'static str, Value, Value)> {
     add("duplicate id in place of another", straight(), &|d| {
         let list = ids(d, "case:closed-pressure", "pipe:fixture-span");
         list[1] = list[0].clone();
+    }, json!("SOURCE_PHYSICS_DUPLICATE_ID"));
+    // The duplicate-free premises of the counting binding, on the other two sides:
+    // a published row id given twice, and a region member given twice.
+    add("duplicate published row id", straight(), &|d| {
+        let id = ids(d, "case:closed-pressure", "pipe:fixture-span")[0].clone();
+        let rows = d["results"].as_array_mut().unwrap();
+        let copy = rows.iter().find(|r| r["id"] == id).unwrap().clone();
+        rows.push(copy);
+    }, json!("SOURCE_PHYSICS_DUPLICATE_ID"));
+    add("duplicate published row id on a different row", straight(), &|d| {
+        let id = ids(d, "case:closed-pressure", "pipe:fixture-span")[0].clone();
+        let other = row_id(d, "case:six-component-load", "pipe:fixture-span", PIPE);
+        for r in d["results"].as_array_mut().unwrap() {
+            if r["id"] == other {
+                r["id"] = id.clone();
+            }
+        }
+    }, json!("SOURCE_PHYSICS_DUPLICATE_ID"));
+    add("duplicate region member", arc(), &|d| {
+        let members = region(d, "case:u2", "pipe:S1")["member_pipe_ids"].as_array_mut().unwrap();
+        members.push(members[0].clone());
     }, json!("SOURCE_PHYSICS_DUPLICATE_ID"));
     add("non-string id", straight(), &|d| {
         ids(d, "case:closed-pressure", "pipe:fixture-span")[0] = json!(7);
