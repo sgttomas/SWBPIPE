@@ -13,6 +13,7 @@ import { EngineeringTable, TableContextMenuContext, useTableBodyHeight, type Tab
 import { isContextMenuKey, keyboardMenuRequest, pointerMenuRequest, type ContextMenuRequest } from "../workspace/contextMenu/ContextMenu";
 import { EntityContextMenu, type EntityCommandEnvironment } from "../workspace/contextMenu/EntityContextMenu";
 import type { ViewportViewCommand } from "../viewport/viewportSelection";
+import { ConditionSetsSection } from "../condition-sets/ConditionSetsSection";
 import { buildGridOperationIntent, materialTableColumns, sectionTableColumns, nodeTableColumns, type GridColumn, type GridRow } from "../workspace/table/modelTableAdapter";
 import { quantityCellKey, useQuantitySortProjection } from "../workspace/table/quantitySortProjection";
 import { capturedCellIsCurrent, type CapturedCell, type TableRow } from "../workspace/table/tableState";
@@ -59,6 +60,8 @@ type Props = {
   // mounted, so drafts survive a layout switch, but only the Tree layout shows
   // it: the Grid layout owns the whole bounded host.
   treeRecords?: React.ReactNode;
+  /** Pending intents, for the Condition sets section's pending-change check (optional). */
+  queuedIntents?: EditorOperationIntent[];
   /** Run sheet S2 (DEL-07-02 Design `run-sheet-entry.md`): the Grid mode's "Run sheet" tab. */
   runSheet?: RunSheetHost;
 };
@@ -85,7 +88,7 @@ const GRID_ENTITY_TYPES: ReadonlyArray<{ id: GridEntityType; label: string }> = 
   { id: "combinations", label: "Combinations" }
 ];
 
-export function ModelTree({ boundedGrid = false, compactGrid = false, model, modelIndex, selection, selectionState, density = "comfortable", hiddenKeys = new Set(), projectSessionGeneration = 0, onSelect, onFocusChange = () => {}, onFilterPublication = () => {}, onQueueIntent, onApplyCellIntent, operationBusy, treeRecords, viewCommandRef, showAllAvailable = false, onChangeSelected, onSplitPipe, runSheet }: Props) {
+export function ModelTree({ boundedGrid = false, compactGrid = false, model, modelIndex, selection, selectionState, density = "comfortable", hiddenKeys = new Set(), projectSessionGeneration = 0, onSelect, onFocusChange = () => {}, onFilterPublication = () => {}, onQueueIntent, onApplyCellIntent, operationBusy, treeRecords, viewCommandRef, showAllAvailable = false, onChangeSelected, onSplitPipe, runSheet, queuedIntents }: Props) {
   const [columnTarget, setColumnTarget] = useState<HTMLDivElement | null>(null);
   const [chromeOwner, setChromeOwner] = useState<string | null>(null);
   const [toolbarTarget, setToolbarTarget] = useState<HTMLDivElement | null>(null);
@@ -414,7 +417,11 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
             </p>
         )
       ) : null}
-      {treeRecords ? <div className="model-tree-records" hidden={layoutMode === "grid"} inert={layoutMode === "grid"}>{treeRecords}</div> : null}
+      {treeRecords || onQueueIntent ? <div className="model-tree-records" hidden={layoutMode === "grid"} inert={layoutMode === "grid"}>
+        {/* Model document 0.9.0 S3b (§4.2): Condition sets in the model tree, beside the Lines section. */}
+        {onQueueIntent ? <ConditionSetsSection key={`condition-sets:${projectSessionGeneration}`} model={model} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy} /> : null}
+        {treeRecords}
+      </div> : null}
       {treeMenu ? (
         <EntityContextMenu key={treeMenu.serial} env={entityEnvironment} target={treeMenu.target} request={treeMenu.request} onClose={() => setTreeMenu(null)} testId="tree-context-menu" />
       ) : null}
@@ -1275,7 +1282,7 @@ function EntityGrid({
                       ) : column.options ? (
                         <select aria-label={`${row.id} ${column.label}`} data-testid={`entity-grid-input-${safeToken(row.id)}-${safeToken(column.key)}`} value={value} onChange={(event) => updateCell(row, column, event.target.value)}>
                           {!column.options.includes(value) ? <option value={value} disabled>{value} (existing)</option> : null}
-                          {column.options.map((option) => <option key={option} value={option}>{option}</option>)}
+                          {column.options.map((option) => <option key={option} value={option}>{column.optionLabel ? column.optionLabel(option) : option}</option>)}
                         </select>
                       ) : (
                         <input
@@ -1403,7 +1410,7 @@ function gridCellControl(
   if (column.options) {
     return <select aria-label={`${row.id} ${column.label}`} data-testid={`entity-grid-input-${safeToken(row.id)}-${safeToken(column.key)}`} value={value} onChange={(event) => onChange(row, column, event.target.value)}>
       {!column.options.includes(value) ? <option value={value} disabled>{value} (existing)</option> : null}
-      {column.options.map((option) => <option key={option} value={option}>{option}</option>)}
+      {column.options.map((option) => <option key={option} value={option}>{column.optionLabel ? column.optionLabel(option) : option}</option>)}
     </select>;
   }
   return <input aria-label={`${row.id} ${column.label}`} data-testid={`entity-grid-input-${safeToken(row.id)}-${safeToken(column.key)}`} onChange={(event) => onChange(row, column, event.target.value)} value={value} />;
@@ -1532,6 +1539,7 @@ function gridColumns(model: PreviewModel, entityType: GridEntityType, route: Uni
         lengthUnit
       ),
       scalarGridColumn("material", "Material", "material", "Element", "material reference"),
+      conditionSetGridColumn(model),
       scalarGridColumn("provenance", "Provenance", "provenance", "Element", "public/private source note")
     ];
   }
@@ -1918,6 +1926,16 @@ function composedGridColumn(
   return {
     ...quantityGridColumn(key, label, fieldPath, objectType, dimension, choice.symbol, changeKind),
     emptyUnit: { missingKey: choice.missingKey, notice: choice.notice }
+  };
+}
+
+/** Model document 0.9.0 S3b (§4.2): a pipe's condition set, chosen from the model's sets or
+ * cleared (blank). The cell queues `assign_condition_set` (buildGridOperationIntent). */
+function conditionSetGridColumn(model: PreviewModel): GridColumn {
+  return {
+    ...scalarGridColumn("condition-set", "Condition set", "condition_set_ref", "Element", "condition set reference", "assign_condition_set"),
+    options: ["", ...(model.condition_sets ?? []).map((set) => set.id)],
+    optionLabel: (option) => option || "not stated"
   };
 }
 

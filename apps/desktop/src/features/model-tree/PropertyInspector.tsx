@@ -6,6 +6,7 @@ import { BendAuthoringForms } from "../bend-authoring/BendAuthoringForms";
 import { JointPressureModelEditor } from "../pressure-authoring/JointPressureModelEditor";
 import { WindExposureForm } from "../wind-exposure/WindExposureForm";
 import { SectionAssignment } from "../toolkit/SectionAssignment";
+import { PipeConditionSetField } from "../condition-sets/PipeConditionSetField";
 import { GuardedRemoval } from "../toolkit/GuardedRemoval";
 import { buildDeleteNodeIntent, buildDeletePipeIntent, buildDeleteSupportIntent } from "./removalIntents";
 import { draftSupportFamily, SUPPORT_FAMILY_OPTIONS, suggestedSupportFamily, supportFamilySuggestionText } from "./supportFamilyDraft";
@@ -616,6 +617,7 @@ export function PropertyInspector({
       <JointPressureModelEditor getPreparationEpoch={getPreparationEpoch} model={model} preparationEpoch={selectionState?.preparationEpoch} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
       <WindExposureForm getPreparationEpoch={getPreparationEpoch} model={model} preparationEpoch={selectionState?.preparationEpoch} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
       <SectionAssignment model={model} selection={propertiesTarget} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
+      <PipeConditionSetField key={`pipe-condition-set:${projectSessionGeneration}`} getPreparationEpoch={getPreparationEpoch} model={model} preparationEpoch={selectionState?.preparationEpoch} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
       <GuardedRemoval model={model} selection={propertiesTarget} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
       {propertiesTarget.type === "project" ? (
         <details className="inspector-details" open data-testid="model-settings-details">

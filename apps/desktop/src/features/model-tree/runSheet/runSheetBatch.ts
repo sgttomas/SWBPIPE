@@ -168,6 +168,16 @@ export async function buildRunSheetBatch(resolved: ResolvedRunSheet): Promise<Ru
       stored.section.outside_diameter = clone(section.properties.outside_diameter!);
       stored.section.wall_thickness = clone(section.properties.wall_thickness!);
     }
+    // Model document 0.9.0 §4.1: one `assign_condition_set` after `connect_pipe_run` (and
+    // `assign_section`), only when the effective value is present. `connect_pipe_run` never
+    // carries `condition_set_ref`, so `before` is `not_present`; the projection adds the
+    // reference, since a later bend's `before` context holds full pipe records.
+    const conditionSet = row.cells.conditionSet;
+    if (conditionSet.value !== undefined && !conditionSet.absent) {
+      const stored = projection.pipe_segments.find((pipe) => pipe.id === record.id)!;
+      push(row, { operationKind: "modify", objectType: "Element", ref: record.id, changeKind: "assign_condition_set", fieldLabel: "Run-sheet condition set", fieldPath: "condition_set_ref", before: "not_present", after: { condition_set_ref: conditionSet.value }, unit: "none", dimension: "dimensionless" });
+      stored.condition_set_ref = conditionSet.value;
+    }
   };
   const insertBend = async (row: ResolvedRunSheetRow) => {
     const corner = row.end!.id;

@@ -15,6 +15,8 @@ export type GridColumn = {
   quantity?: boolean;
   readonly?: boolean;
   options?: readonly string[];
+  /** The text an option shows, when it differs from its value (an empty value's label). */
+  optionLabel?: (option: string) => string;
   /** W-17 §7.2, §7.3, §7.6: why the column's default gives an empty cell no unit,
    * either the absent project key or a notice; the grid's refusal names it. */
   emptyUnit?: { missingKey: string | null; notice: string | null };
@@ -45,10 +47,16 @@ export function buildGridOperationIntent({
 }): EditorOperationIntent {
   const operationToken = `${safeToken(row.id)}-${safeToken(column.fieldPath)}-${sequence.toString().padStart(2, "0")}`;
   const unit = column.unit(row);
-  const after =
-    column.dimension === "dimensionless"
+  // Model document 0.9.0 §11: `assign_condition_set` carries `{"condition_set_ref": id}` or
+  // `not_present` on both sides (a one-string-member object, so its JSON text is canonical).
+  const conditionSet = column.changeKind === "assign_condition_set";
+  const current = column.value(row);
+  const after = conditionSet
+    ? (value.trim() ? JSON.stringify({ condition_set_ref: value.trim() }) : "not_present")
+    : column.dimension === "dimensionless"
       ? value.trim() || "TBD"
       : JSON.stringify({ value: parseQuantityPayloadValue(value), unit });
+  const before = conditionSet ? (current ? JSON.stringify({ condition_set_ref: current }) : "not_present") : current;
 
   return {
     operation_id: `op:grid-intent-${operationToken}`,
@@ -69,7 +77,7 @@ export function buildGridOperationIntent({
       change_kind: column.changeKind,
       field_label: column.label,
       field_path: column.fieldPath,
-      before: column.value(row),
+      before,
       after,
       unit,
       dimension: column.dimension,
