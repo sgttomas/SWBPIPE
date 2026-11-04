@@ -66,6 +66,9 @@ fn fixtures() -> Vec<Fixture> {
         f("cantilever_whole_spectrum", with(sec_a_cantilever(2), json!({"mode_count": 1000})), None),
         f("cantilever_cluster_extension", with(sec_a_cantilever(2), json!({"mode_count": 1})), None),
         f("cantilever_below_cutoff", with(sec_a_cantilever(2), json!({"frequency_cutoff": q(0.5, "Hz")})), None),
+        // The review of 9b22b5a2b: at f_c = 1e-160 Hz, (2π·f_c)² is below the normal range, so the
+        // published lower end fl(√fl(ω_c²)) is not within a relative allowance of 2π·f_c.
+        f("cantilever_subnormal_cutoff", with(sec_a_cantilever(2), json!({"frequency_cutoff": q(1e-160, "Hz")})), None),
         Fixture {
             name: "cantilever_sensitive",
             request: with(sec_a_cantilever(2), json!({"mode_count": 2})),
@@ -103,6 +106,7 @@ fn committed(name: &str) -> (&'static str, &'static str) {
         "cantilever_whole_spectrum" => pair!("cantilever_whole_spectrum"),
         "cantilever_cluster_extension" => pair!("cantilever_cluster_extension"),
         "cantilever_below_cutoff" => pair!("cantilever_below_cutoff"),
+        "cantilever_subnormal_cutoff" => pair!("cantilever_subnormal_cutoff"),
         "cantilever_sensitive" => pair!("cantilever_sensitive"),
         "refused_unseparated" => pair!("refused_unseparated"),
         "refused_no_bound" => pair!("refused_no_bound"),
@@ -148,6 +152,13 @@ fn the_fixtures_cover_both_cases_every_endpoint_states_and_refusals() {
     let endpoint = |name: &str| docs.iter().find(|(n, _)| *n == name).unwrap().1["extraction"]["endpoint"]["kind"].clone();
     assert_eq!(endpoint("cantilever_whole_spectrum"), "whole_finite_spectrum");
     assert_eq!(endpoint("cantilever_below_cutoff"), "below_lowest_mode");
+    assert_eq!(endpoint("cantilever_subnormal_cutoff"), "below_lowest_mode");
+    // Its gap's lower end is the producer's root of a subnormal square, 8.1e-166 from 2π·f_c.
+    let tiny = &docs.iter().find(|(n, _)| *n == "cantilever_subnormal_cutoff").unwrap().1["sturm"]["placement"];
+    let omega_c = 2.0 * std::f64::consts::PI * 1e-160;
+    assert!((omega_c * omega_c).is_subnormal());
+    assert_eq!(tiny["lower"]["value"].as_f64(), Some((omega_c * omega_c).sqrt()));
+    assert!(((omega_c * omega_c).sqrt() - omega_c).abs() > 8.0 * (f64::EPSILON / 2.0) * omega_c);
     assert_eq!(endpoint("ex_n05"), "below_computed_cluster");
     let extension = &docs.iter().find(|(n, _)| *n == "cantilever_cluster_extension").unwrap().1["extraction"];
     assert_eq!((extension["bounded_count"].as_u64(), extension["extension_count"].as_u64()), (Some(1), Some(1)));

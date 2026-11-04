@@ -21,11 +21,13 @@
 //!   normalization case's unit), its unit status, its own below-normal flag
 //!   and its undefined reason. A value the checked profile cannot carry
 //!   (non-finite, or of magnitude 2⁵³ or more) is null with its reason.
-//! - **Units.** Catalog units only; the mass matrix's translation–rotation
-//!   coupling has no catalog family (kg·m·rad⁻¹) and is published with its
-//!   dimension exponents and `catalog_family_absent`, and magnitudes on the
-//!   kernel's equilibrated basis carry no catalog dimension
-//!   (`equilibrated_basis`). λ = ω² and μ are not published.
+//! - **Units** (Design §5.3.5). Every value has a catalog unit: the mass
+//!   matrix's translation–rotation coupling is `mass_length_per_rotation`
+//!   (kg·m/rad), the magnitudes on the kernel's equilibrated basis
+//!   D·(·)·D, D = diag(|k_ii|^-½) of the formed K_ff, are dimensionless on
+//!   the stiffness and shifted side (`unit:one`) and time squared on the
+//!   mass side (`unit:square_second`). No kind is in modal-1's closed
+//!   `equilibrated_basis` list. λ = ω² and μ are not published.
 //! - **Admission.** Experimental: the integrity parameters are the caller's
 //!   test-local set, labelled; `public_engineering_result` is false. Nothing
 //!   outside the tests calls this module.
@@ -81,19 +83,15 @@ enum Selector {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum ModalUnit {
     Catalog(UnitId),
-    /// No catalog family; the dimension exponents (L, M, T, Θ, A).
-    FamilyAbsent([i8; 5]),
-    /// A magnitude on the kernel's diagonally equilibrated basis: no catalog
-    /// dimension is claimed.
-    Equilibrated,
 }
 
-use ModalUnit::{Catalog, Equilibrated, FamilyAbsent};
+use ModalUnit::Catalog;
 use UnitId as U;
 
 const CASES: [&str; 2] = ["unit_max_translation", "unit_max_rotation"];
 const ONE: [(&str, ModalUnit); 1] = [("fixed", Catalog(U::One))];
-const EQ: [(&str, ModalUnit); 1] = [("fixed", Equilibrated)];
+/// D·M·D with D = diag(|k_ii|^-½): s² whatever the DOF classes (Design §5.3.5).
+const TIME_SQUARED: [(&str, ModalUnit); 1] = [("fixed", Catalog(U::SquareSecond))];
 const METER: [(&str, ModalUnit); 1] = [("fixed", Catalog(U::Meter))];
 const KILOGRAM: [(&str, ModalUnit); 1] = [("fixed", Catalog(U::Kilogram))];
 const HERTZ: [(&str, ModalUnit); 1] = [("fixed", Catalog(U::Hertz))];
@@ -107,9 +105,16 @@ const GENERALIZED_MASS: [(&str, ModalUnit); 2] =
 const PARTICIPATION: [(&str, ModalUnit); 2] = [(CASES[0], Catalog(U::One)), (CASES[1], Catalog(U::RadianPerMeter))];
 const MASS_ENTRY: [(&str, ModalUnit); 3] = [
     ("translation_translation", Catalog(U::Kilogram)),
-    ("translation_rotation", FamilyAbsent([1, 1, 0, 0, -1])),
+    ("translation_rotation", Catalog(U::KilogramMeterPerRadian)),
     ("rotation_rotation", Catalog(U::KilogramSquareMeterPerSquareRadian)),
 ];
+
+/// modal-1's closed list of the kinds whose unit status is
+/// `equilibrated_basis`: a coordinate-basis magnitude whose exponents mix, so
+/// that it claims no dimension and no physical unit (and is not
+/// dimensionless). The dimensional trace (Design §5.3.5) leaves no kind in
+/// it; a reader fails a value with that status whose kind is not listed.
+const MODAL_EQUILIBRATED_BASIS_KINDS: [&str; 0] = [];
 
 /// The modal-1 semantic table: every value kind, the table it appears in,
 /// its selector and its unit rules. Its canonical text is the committed
@@ -138,17 +143,17 @@ const MODAL_KINDS: &[(&str, &str, Selector, &[(&str, ModalUnit)])] = &[
     ("eigenvalue_condition_estimate", "computed_modes", Selector::Fixed, &ONE),
     ("eigenvalue_error_estimate", "computed_modes", Selector::Fixed, &ONE),
     ("sturm_shift_circular_frequency", "sturm_candidates", Selector::Fixed, &RAD_PER_S),
-    ("sturm_formation_term", "sturm_candidates", Selector::Fixed, &EQ),
+    ("sturm_formation_term", "sturm_candidates", Selector::Fixed, &ONE),
     ("sturm_formation_separation_ratio", "sturm_candidates", Selector::Fixed, &ONE),
-    ("sturm_factor_term", "sturm_candidates", Selector::Fixed, &EQ),
-    ("sturm_backward_error", "sturm_candidates", Selector::Fixed, &EQ),
-    ("sturm_inverse_norm_estimate", "sturm_candidates", Selector::Fixed, &EQ),
+    ("sturm_factor_term", "sturm_candidates", Selector::Fixed, &ONE),
+    ("sturm_backward_error", "sturm_candidates", Selector::Fixed, &ONE),
+    ("sturm_inverse_norm_estimate", "sturm_candidates", Selector::Fixed, &ONE),
     ("sturm_conditioning_product", "sturm_candidates", Selector::Fixed, &ONE),
     ("sturm_separation_ratio", "sturm_candidates", Selector::Fixed, &ONE),
     ("sturm_growth_factor", "sturm_candidates", Selector::Fixed, &ONE),
-    ("sturm_max_abs_lower_factor", "sturm_candidates", Selector::Fixed, &EQ),
-    ("sturm_max_abs_pivot", "sturm_candidates", Selector::Fixed, &EQ),
-    ("sturm_max_abs_scaled_diagonal", "sturm_candidates", Selector::Fixed, &EQ),
+    ("sturm_max_abs_lower_factor", "sturm_candidates", Selector::Fixed, &ONE),
+    ("sturm_max_abs_pivot", "sturm_candidates", Selector::Fixed, &ONE),
+    ("sturm_max_abs_scaled_diagonal", "sturm_candidates", Selector::Fixed, &ONE),
     ("identity_relative_discrepancy", "identity", Selector::Fixed, &ONE),
     ("member_length", "discretization", Selector::Fixed, &METER),
     ("member_fixed_fixed_frequency", "discretization", Selector::Fixed, &HERTZ),
@@ -162,8 +167,10 @@ const MODAL_KINDS: &[(&str, &str, Selector, &[(&str, ModalUnit)])] = &[
     ("placement_circular_frequency", "header", Selector::Fixed, &RAD_PER_S),
     ("sturm_premise_parameter", "header", Selector::Fixed, &ONE),
     ("orthogonality_max_ratio", "header", Selector::Fixed, &ONE),
-    ("formation_difference", "header", Selector::Fixed, &EQ),
-    ("reformed_norm", "header", Selector::Fixed, &EQ),
+    ("stiffness_formation_difference", "header", Selector::Fixed, &ONE),
+    ("mass_formation_difference", "header", Selector::Fixed, &TIME_SQUARED),
+    ("reformed_stiffness_norm", "header", Selector::Fixed, &ONE),
+    ("reformed_mass_norm", "header", Selector::Fixed, &TIME_SQUARED),
     ("section_derivation_difference", "header", Selector::Fixed, &ONE),
 ];
 
@@ -182,9 +189,6 @@ fn modal_doc_rule_value(unit: ModalUnit) -> Value {
             json!({"unit_status": "catalog", "unit": id.catalog_id(), "symbol": definition.symbol,
                 "dimension": definition.dimension.as_str()})
         }
-        FamilyAbsent(e) => json!({"unit_status": "catalog_family_absent", "unit": null, "symbol": null, "dimension": null,
-            "dimension_exponents": {"length": e[0], "mass": e[1], "time": e[2], "temperature": e[3], "angle": e[4]}}),
-        Equilibrated => json!({"unit_status": "equilibrated_basis", "unit": null, "symbol": null, "dimension": null}),
     }
 }
 
@@ -199,7 +203,7 @@ pub(crate) fn modal_semantic_table() -> Value {
         })
         .collect();
     json!({"id": MODAL_RESULT_SEMANTICS, "document_kind": MODAL_RESULT_KIND, "schema_version": MODAL_RESULT_VERSION,
-        "canonical_profile": MODAL_RESULT_CANONICAL, "kinds": kinds})
+        "canonical_profile": MODAL_RESULT_CANONICAL, "equilibrated_basis_kinds": MODAL_EQUILIBRATED_BASIS_KINDS, "kinds": kinds})
 }
 
 /// The SHA-256 (lowercase hex) of a value's checked canonical text; `None`
@@ -236,15 +240,6 @@ fn modal_doc_quantity(kind: &str, key: &str, value: Option<f64>, below_normal: b
         Catalog(id) => {
             out.insert("unit".into(), json!(id.catalog_id()));
             out.insert("unit_status".into(), json!("catalog"));
-        }
-        FamilyAbsent(e) => {
-            out.insert("unit".into(), Value::Null);
-            out.insert("unit_status".into(), json!("catalog_family_absent"));
-            out.insert("dimension_exponents".into(), json!({"length": e[0], "mass": e[1], "time": e[2], "temperature": e[3], "angle": e[4]}));
-        }
-        Equilibrated => {
-            out.insert("unit".into(), Value::Null);
-            out.insert("unit_status".into(), json!("equilibrated_basis"));
         }
     }
     out.insert("below_normal".into(), json!(below_normal));
@@ -575,14 +570,14 @@ pub(super) fn modal_doc_solved(outcome: &ModalOutcome, binding: &Value, label: &
     doc.insert(
         "formation".into(),
         json!({
-            "stiffness_difference": modal_doc_fixed("formation_difference", formation.stiffness.norm),
+            "stiffness_difference": modal_doc_fixed("stiffness_formation_difference", formation.stiffness.norm),
             "stiffness_row_ref": free_ref(formation.stiffness.row),
             "stiffness_off_pattern": formation.stiffness.off_pattern,
-            "mass_difference": modal_doc_fixed("formation_difference", formation.mass.norm),
+            "mass_difference": modal_doc_fixed("mass_formation_difference", formation.mass.norm),
             "mass_row_ref": free_ref(formation.mass.row),
             "mass_off_pattern": formation.mass.off_pattern,
-            "reformed_stiffness_norm": modal_doc_fixed("reformed_norm", formation.scaling.reformed_stiffness_norm),
-            "reformed_mass_norm": modal_doc_fixed("reformed_norm", formation.scaling.reformed_mass_norm),
+            "reformed_stiffness_norm": modal_doc_fixed("reformed_stiffness_norm", formation.scaling.reformed_stiffness_norm),
+            "reformed_mass_norm": modal_doc_fixed("reformed_mass_norm", formation.scaling.reformed_mass_norm),
             "section": formation.section.map(|s| json!({
                 "area": modal_doc_fixed("section_derivation_difference", s.area),
                 "second_moment": modal_doc_fixed("section_derivation_difference", s.second_moment),

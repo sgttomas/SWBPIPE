@@ -23,7 +23,8 @@
 //!   each candidate's decision against its premises and the parameters;
 //! - `evidence`: e_λ = η·κ_λ, the census and the identity discrepancies;
 //! - `standing`: the Sensitive standing re-derived from η, τ_r and τ_o;
-//! - `units`: every value's unit against modal-1.
+//! - `units`: every value's unit against modal-1, and every
+//!   `equilibrated_basis` value's kind against modal-1's closed list.
 //!
 //! Each standing is passed, failed (with the first difference), scoped
 //! unsupported (with its scope) or not checked. A withheld authoritative
@@ -57,7 +58,7 @@ pub const MODAL_RESULT_FAMILY: &str = "openpipestress.modal_result";
 pub const MODAL_RESULT_SCHEMA_VERSION: &str = "0.1.0";
 pub const MODAL_RESULT_SEMANTICS_ID: &str = "openpipestress.result_semantics/modal-1";
 /// The SHA-256 of modal-1's canonical text (`fixtures/results/semantic_contract_modal_1.json`).
-pub const MODAL_RESULT_SEMANTICS_SHA256: &str = "22884200060d6bae480ad922d799131486ac439d77ecd8b03516c310305c8e82";
+pub const MODAL_RESULT_SEMANTICS_SHA256: &str = "21d0012729d8466436d0c064d7edecbdc0fc481bf101b6514a65eecbee6fb23b";
 pub const MODAL_RESULT_PROFILE_ID: &str = "product_preview_modal_v1";
 pub const MODAL_RESULT_CANONICAL_PROFILE: &str = "openpipestress_jcs_ijson_v1";
 pub const MODAL_RESULT_LIMITATIONS: [&str; 2] = [
@@ -67,7 +68,7 @@ pub const MODAL_RESULT_LIMITATIONS: [&str; 2] = [
 /// Why public engineering-result admission stays disabled (Design §5.3).
 pub const MODAL_RESULT_ADMISSION_CONDITIONS: [&str; 6] = [
     "production integrity parameters are not pinned (O-6, D-TOL): every document is formed with a labelled test-local set",
-    "the unit catalog has no family for the mass matrix's translation-rotation coupling (kg*m/rad), and the equilibrated-basis evidence has no catalog dimension",
+    "a document is fully validated only when every mandatory relation passes: an unresolved Bessel relation (interim contract) and the missing subject census leave it unmet, whatever the units",
     "the dense work budget is unmeasured and no work guard is applied (O-4)",
     "no native, worker or custody path forms, stores or transports the document",
     "no published piping benchmark is compared (FR-SOL-016 partial; O-3 held)",
@@ -108,11 +109,19 @@ const DECISIONS: [&str; 8] = [
 enum Rule {
     /// A catalog unit: (id, symbol, dimension).
     Catalog(&'static str, &'static str, &'static str),
-    /// No catalog family: the exponents (L, M, T, Θ, A).
-    Absent([i64; 5]),
-    /// The kernel's equilibrated basis: no catalog dimension.
-    Equilibrated,
 }
+
+/// The unit statuses a modal-1 value may carry: `catalog`, and
+/// `equilibrated_basis` for a kind in the closed list. The former
+/// `catalog_family_absent` is no longer one (every kind has its family).
+const UNIT_STATUSES: [&str; 2] = ["catalog", "equilibrated_basis"];
+
+/// modal-1's closed list of the kinds that may carry `equilibrated_basis`:
+/// a coordinate-basis magnitude whose exponents mix, claiming no dimension
+/// and no physical unit (it is not dimensionless). Design §5.3.5's trace
+/// leaves it empty; a value with that status whose kind is not listed fails
+/// units.
+const EQUILIBRATED_BASIS_KINDS: [&str; 0] = [];
 
 const R_ONE: Rule = Rule::Catalog("unit:one", "1", "dimensionless");
 const R_M: Rule = Rule::Catalog("unit:meter", "m", "length");
@@ -124,13 +133,15 @@ const R_ACC: Rule = Rule::Catalog("unit:meter_per_second_squared", "m/s^2", "acc
 const R_RAD_M: Rule = Rule::Catalog("unit:radian_per_meter", "rad/m", "rotation_per_length");
 const R_M_RAD: Rule = Rule::Catalog("unit:meter_per_radian", "m/rad", "length_per_rotation");
 const R_KGM2: Rule = Rule::Catalog("unit:kilogram_square_meter_per_square_radian", "kg*m^2/rad^2", "rotational_generalized_mass");
-const R_EQ: Rule = Rule::Equilibrated;
+const R_KGM_RAD: Rule = Rule::Catalog("unit:kilogram_meter_per_radian", "kg*m/rad", "mass_length_per_rotation");
+/// A magnitude of D·M·D, D = diag(|k_ii|^-½) of the formed K_ff: s² (Design §5.3.5).
+const R_S2: Rule = Rule::Catalog("unit:square_second", "s^2", "time_squared");
 
 /// modal-1, as this reader states it: (kind, table, selector, rules).
 const KINDS: &[(&str, &str, &str, &[(&str, Rule)])] = &[
     ("node_coordinate", "nodes", "fixed", &[("fixed", R_M)]),
     ("mass_matrix_entry", "mass_matrix", "dof_pair_class", &[
-        ("translation_translation", R_KG), ("translation_rotation", Rule::Absent([1, 1, 0, 0, -1])), ("rotation_rotation", R_KGM2)]),
+        ("translation_translation", R_KG), ("translation_rotation", R_KGM_RAD), ("rotation_rotation", R_KGM2)]),
     ("modal_total_mass", "mass_totals", "fixed", &[("fixed", R_KG)]),
     ("modal_free_dof_mass", "mass_totals", "fixed", &[("fixed", R_KG)]),
     ("modal_circular_frequency", "modes", "fixed", &[("fixed", R_RAD_S)]),
@@ -151,17 +162,17 @@ const KINDS: &[(&str, &str, &str, &[(&str, Rule)])] = &[
     ("eigenvalue_condition_estimate", "computed_modes", "fixed", &[("fixed", R_ONE)]),
     ("eigenvalue_error_estimate", "computed_modes", "fixed", &[("fixed", R_ONE)]),
     ("sturm_shift_circular_frequency", "sturm_candidates", "fixed", &[("fixed", R_RAD_S)]),
-    ("sturm_formation_term", "sturm_candidates", "fixed", &[("fixed", R_EQ)]),
+    ("sturm_formation_term", "sturm_candidates", "fixed", &[("fixed", R_ONE)]),
     ("sturm_formation_separation_ratio", "sturm_candidates", "fixed", &[("fixed", R_ONE)]),
-    ("sturm_factor_term", "sturm_candidates", "fixed", &[("fixed", R_EQ)]),
-    ("sturm_backward_error", "sturm_candidates", "fixed", &[("fixed", R_EQ)]),
-    ("sturm_inverse_norm_estimate", "sturm_candidates", "fixed", &[("fixed", R_EQ)]),
+    ("sturm_factor_term", "sturm_candidates", "fixed", &[("fixed", R_ONE)]),
+    ("sturm_backward_error", "sturm_candidates", "fixed", &[("fixed", R_ONE)]),
+    ("sturm_inverse_norm_estimate", "sturm_candidates", "fixed", &[("fixed", R_ONE)]),
     ("sturm_conditioning_product", "sturm_candidates", "fixed", &[("fixed", R_ONE)]),
     ("sturm_separation_ratio", "sturm_candidates", "fixed", &[("fixed", R_ONE)]),
     ("sturm_growth_factor", "sturm_candidates", "fixed", &[("fixed", R_ONE)]),
-    ("sturm_max_abs_lower_factor", "sturm_candidates", "fixed", &[("fixed", R_EQ)]),
-    ("sturm_max_abs_pivot", "sturm_candidates", "fixed", &[("fixed", R_EQ)]),
-    ("sturm_max_abs_scaled_diagonal", "sturm_candidates", "fixed", &[("fixed", R_EQ)]),
+    ("sturm_max_abs_lower_factor", "sturm_candidates", "fixed", &[("fixed", R_ONE)]),
+    ("sturm_max_abs_pivot", "sturm_candidates", "fixed", &[("fixed", R_ONE)]),
+    ("sturm_max_abs_scaled_diagonal", "sturm_candidates", "fixed", &[("fixed", R_ONE)]),
     ("identity_relative_discrepancy", "identity", "fixed", &[("fixed", R_ONE)]),
     ("member_length", "discretization", "fixed", &[("fixed", R_M)]),
     ("member_fixed_fixed_frequency", "discretization", "fixed", &[("fixed", R_HZ)]),
@@ -175,8 +186,10 @@ const KINDS: &[(&str, &str, &str, &[(&str, Rule)])] = &[
     ("placement_circular_frequency", "header", "fixed", &[("fixed", R_RAD_S)]),
     ("sturm_premise_parameter", "header", "fixed", &[("fixed", R_ONE)]),
     ("orthogonality_max_ratio", "header", "fixed", &[("fixed", R_ONE)]),
-    ("formation_difference", "header", "fixed", &[("fixed", R_EQ)]),
-    ("reformed_norm", "header", "fixed", &[("fixed", R_EQ)]),
+    ("stiffness_formation_difference", "header", "fixed", &[("fixed", R_ONE)]),
+    ("mass_formation_difference", "header", "fixed", &[("fixed", R_S2)]),
+    ("reformed_stiffness_norm", "header", "fixed", &[("fixed", R_ONE)]),
+    ("reformed_mass_norm", "header", "fixed", &[("fixed", R_S2)]),
     ("section_derivation_difference", "header", "fixed", &[("fixed", R_ONE)]),
 ];
 
@@ -185,9 +198,6 @@ fn mr_rule_json(rule: Rule) -> Value {
         Rule::Catalog(id, symbol, dimension) => {
             json!({"unit_status": "catalog", "unit": id, "symbol": symbol, "dimension": dimension})
         }
-        Rule::Absent(e) => json!({"unit_status": "catalog_family_absent", "unit": null, "symbol": null, "dimension": null,
-            "dimension_exponents": {"length": e[0], "mass": e[1], "time": e[2], "temperature": e[3], "angle": e[4]}}),
-        Rule::Equilibrated => json!({"unit_status": "equilibrated_basis", "unit": null, "symbol": null, "dimension": null}),
     }
 }
 
@@ -202,7 +212,7 @@ pub fn modal_reader_semantic_table() -> Value {
         })
         .collect();
     json!({"id": MODAL_RESULT_SEMANTICS_ID, "document_kind": MODAL_RESULT_FAMILY, "schema_version": MODAL_RESULT_SCHEMA_VERSION,
-        "canonical_profile": MODAL_RESULT_CANONICAL_PROFILE, "kinds": kinds})
+        "canonical_profile": MODAL_RESULT_CANONICAL_PROFILE, "equilibrated_basis_kinds": EQUILIBRATED_BASIS_KINDS, "kinds": kinds})
 }
 
 /// Each modal-1 catalog rule against the unit catalog: the id exists, is
@@ -211,7 +221,7 @@ pub fn modal_reader_catalog_differences() -> Vec<String> {
     let mut out = Vec::new();
     for (kind, _, _, rules) in KINDS {
         for (key, rule) in *rules {
-            let Rule::Catalog(id, symbol, dimension) = rule else { continue };
+            let Rule::Catalog(id, symbol, dimension) = rule;
             let found = catalog().iter().find(|unit| unit.catalog_id() == *id).map(|unit| unit.definition());
             let Some(definition) = found else {
                 out.push(format!("{kind}/{key}: {id} is not a catalog unit"));
@@ -492,32 +502,17 @@ fn mr_rule_of(kind: &str, key: &str) -> Option<Rule> {
 }
 
 /// Units: one value object against its rule (`key` the selector key).
-fn mr_unit_check(vo: &Vo, key: &str, path: &str, scope: &mut Vec<String>) -> R<()> {
+fn mr_unit_check(vo: &Vo, key: &str, path: &str) -> R<()> {
+    if !UNIT_STATUSES.contains(&vo.unit_status.as_str()) {
+        return Err(format!("{path}: `{}` is not a modal-1 unit status", vo.unit_status));
+    }
+    if vo.unit_status == "equilibrated_basis" && !EQUILIBRATED_BASIS_KINDS.contains(&vo.kind.as_str()) {
+        return Err(format!("{path}: `{}` is not in modal-1's closed equilibrated_basis list", vo.kind));
+    }
     let rule = mr_rule_of(&vo.kind, key).ok_or_else(|| format!("{path}: modal-1 has no `{key}` rule for `{}`", vo.kind))?;
-    match rule {
-        Rule::Catalog(id, ..) => {
-            if vo.unit_status != "catalog" || vo.unit.as_deref() != Some(id) {
-                return Err(format!("{path}: unit {:?} ({}) is not modal-1's {id}", vo.unit, vo.unit_status));
-            }
-        }
-        Rule::Absent(e) => {
-            if vo.unit_status != "catalog_family_absent" || vo.unit.is_some() || vo.exponents != Some(e) {
-                return Err(format!("{path}: modal-1 states no catalog family here, with exponents {e:?}"));
-            }
-            let note = format!("catalog_family_absent: `{}` {key} (exponents {e:?})", vo.kind);
-            if !scope.contains(&note) {
-                scope.push(note);
-            }
-        }
-        Rule::Equilibrated => {
-            if vo.unit_status != "equilibrated_basis" || vo.unit.is_some() {
-                return Err(format!("{path}: modal-1 states the equilibrated basis here"));
-            }
-            let note = format!("equilibrated_basis: `{}`", vo.kind);
-            if !scope.contains(&note) {
-                scope.push(note);
-            }
-        }
+    let Rule::Catalog(id, ..) = rule;
+    if vo.unit_status != "catalog" || vo.unit.as_deref() != Some(id) || vo.exponents.is_some() {
+        return Err(format!("{path}: unit {:?} ({}) is not modal-1's {id}", vo.unit, vo.unit_status));
     }
     Ok(())
 }
@@ -1733,8 +1728,8 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
     let f = mr_object(&doc["formation"], "/formation", &["stiffness_difference", "stiffness_row_ref", "stiffness_off_pattern", "mass_difference",
         "mass_row_ref", "mass_off_pattern", "reformed_stiffness_norm", "reformed_mass_norm", "section"])?;
     let mut formation = Vec::new();
-    for (field, kind) in [("stiffness_difference", "formation_difference"), ("mass_difference", "formation_difference"),
-        ("reformed_stiffness_norm", "reformed_norm"), ("reformed_mass_norm", "reformed_norm")] {
+    for (field, kind) in [("stiffness_difference", "stiffness_formation_difference"), ("mass_difference", "mass_formation_difference"),
+        ("reformed_stiffness_norm", "reformed_stiffness_norm"), ("reformed_mass_norm", "reformed_mass_norm")] {
         formation.push(header_vo(&f[field], &format!("/formation/{field}"), kind)?.value);
     }
     for field in ["stiffness_row_ref", "mass_row_ref"] {
@@ -2579,9 +2574,15 @@ fn mr_clusters(p: &Parsed) -> R<Vec<String>> {
     let mut undetermined = 0usize;
     for i in 1..total {
         let (a, b) = (p.computed[i - 1].omega.unwrap_or(f64::NAN), p.computed[i].omega.unwrap_or(f64::NAN));
+        // The kernel breaks a cluster where fl(λ_b − λ_a) > fl(δ_c·λ_b)
+        // (clusters.rs:71); the published ω = fl(√λ), so each fl(ω²) is within
+        // 3u·λ (+O(u²)) of its λ. With the subtractions and products rounded,
+        // reader and kernel differ by at most (8u + 5u·δ_c)·λ_b + O(u²);
+        // 16u(1 + δ_c)·ω_b² covers it, and the sum with the threshold, for
+        // every admitted δ_c in (0, 1).
         let gap = b * b - a * a;
         let threshold = delta * (b * b);
-        let margin = 8.0 * U * (b * b);
+        let margin = 16.0 * U * (1.0 + delta) * (b * b);
         let same = p.computed[i].cluster == p.computed[i - 1].cluster;
         if gap > threshold + margin && same {
             return Err(format!("computed modes {} and {}: share a cluster across a relative gap above δ_c", i, i + 1));
@@ -2746,9 +2747,21 @@ fn mr_sturm(p: &Parsed) -> R<Vec<String>> {
                 }
             } else {
                 let cut = p.cutoff.ok_or("an empty set has a cut-off")?;
-                let expected = TWO_PI * cut;
-                if !mr_tol_close(lower, expected, 8.0 * U * expected) {
-                    return Err("the gap's lower end is not 2π·f_c".into());
+                // The producer forms ω_c = fl(2π·f_c), λ_c = fl(ω_c²) (outcome.rs:310) and
+                // publishes fl(√λ_c). Where ω_c² is below the normal range (f_c below about
+                // 2.4·10⁻¹⁵⁵ Hz) the square keeps fewer significant bits, so no relative
+                // allowance about 2π·f_c holds: the same binary64 operations, bit for bit.
+                let omega_c = TWO_PI * cut;
+                // The producer refuses λ_c unless it is finite and positive
+                // (`InvalidGap`, sturm.rs), so a square that underflows to zero
+                // or overflows has no solved document.
+                let square = omega_c * omega_c;
+                if !(square.is_finite() && square > 0.0) {
+                    return Err("the cut-off's square fl((2π·f_c)²) is not a finite positive eigenvalue, which the producer refuses".into());
+                }
+                let expected = square.sqrt();
+                if lower.to_bits() != expected.to_bits() {
+                    return Err("the gap's lower end is not √fl((2π·f_c)²)".into());
                 }
             }
             if let Some((shift, null)) = &shift {
@@ -2988,13 +3001,13 @@ fn mr_standing(p: &Parsed) -> R<Vec<String>> {
     Ok(scope)
 }
 
-/// Units: every value object against modal-1.
+/// Units: every value object against modal-1. Every kind has its catalog
+/// unit, so nothing is scoped.
 fn mr_units(p: &Parsed) -> R<Vec<String>> {
-    let mut scope = Vec::new();
     for u in &p.unitized {
-        mr_unit_check(&u.vo, &u.key, &u.path, &mut scope)?;
+        mr_unit_check(&u.vo, &u.key, &u.path)?;
     }
-    Ok(scope)
+    Ok(Vec::new())
 }
 
 #[cfg(test)]

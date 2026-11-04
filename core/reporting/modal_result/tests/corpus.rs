@@ -40,6 +40,8 @@ fn fixture(name: &str) -> &'static str {
         "modal_cantilever_cluster_extension.request.json" => file!("modal_cantilever_cluster_extension.request.json"),
         "modal_cantilever_below_cutoff.json" => file!("modal_cantilever_below_cutoff.json"),
         "modal_cantilever_below_cutoff.request.json" => file!("modal_cantilever_below_cutoff.request.json"),
+        "modal_cantilever_subnormal_cutoff.json" => file!("modal_cantilever_subnormal_cutoff.json"),
+        "modal_cantilever_subnormal_cutoff.request.json" => file!("modal_cantilever_subnormal_cutoff.request.json"),
         "modal_cantilever_sensitive.json" => file!("modal_cantilever_sensitive.json"),
         "modal_cantilever_sensitive.request.json" => file!("modal_cantilever_sensitive.request.json"),
         "modal_refused_unseparated.json" => file!("modal_refused_unseparated.json"),
@@ -318,13 +320,13 @@ fn the_readers_semantic_table_is_the_committed_table() {
 }
 
 /// Every committed fixture, with its request: closure and binding pass, no
-/// relation fails, a solved document is consistent only up to the stated
-/// scope (the catalog has no mass-coupling family), a refused one is
-/// refusal-consistent.
+/// relation fails, a solved document's units pass and it is consistent only
+/// up to the stated scope (the subject census), never fully validated; a
+/// refused one is refusal-consistent.
 #[test]
 fn every_committed_fixture_reads_consistent_up_to_its_scope() {
     let names = ["ex_n05", "arc", "component_body", "state_one_way_pressed", "state_friction_sliding", "cantilever_whole_spectrum",
-        "cantilever_cluster_extension", "cantilever_below_cutoff", "cantilever_sensitive", "refused_unseparated", "refused_no_bound"];
+        "cantilever_cluster_extension", "cantilever_below_cutoff", "cantilever_subnormal_cutoff", "cantilever_sensitive", "refused_unseparated", "refused_no_bound"];
     for name in names {
         let doc: Value = serde_json::from_str(fixture(&format!("modal_{name}.json"))).unwrap();
         let request: Value = serde_json::from_str(fixture(&format!("modal_{name}.request.json"))).unwrap();
@@ -338,7 +340,11 @@ fn every_committed_fixture_reads_consistent_up_to_its_scope() {
         } else {
             assert!(["consistent_with_scoped_unsupported", "consistent_with_unresolved"].contains(&verdict.decision), "{name}: {json:#}");
             assert_eq!(verdict.modal_validation(), "not_fully_validated", "{name}");
-            assert!(verdict.relations[8].scope.iter().any(|s| s.contains("catalog_family_absent")), "{name}");
+            // Every value has its catalog unit (Design §5.3.5); units passing closes no other
+            // mandatory relation, so the census (evidence) still leaves validation unmet.
+            assert_eq!(verdict.relations[8].status, ModalReadStatus::Passed, "{name}: {json:#}");
+            assert!(verdict.relations[8].scope.is_empty(), "{name}");
+            assert_eq!(json["validation"]["unmet"], json!(["evidence"]), "{name}: {json:#}");
             let expected = if name == "cantilever_sensitive" { "sensitive" } else { "checks_passed" };
             assert_eq!(verdict.health, expected, "{name}");
         }
