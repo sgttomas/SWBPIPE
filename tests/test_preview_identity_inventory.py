@@ -95,6 +95,15 @@ LITERAL_SITES = {
         {"table", "hash"}, EB_ONLY, "the registered retained-memory profile's reviewed inputs (route L; S5's D3 registration owns them)", None, None),
     "tools/validation/qualification_gate.py": (
         {"id", "table", "hash"}, EB_ONLY, "the qualification gate's closed dispatch over committed Euler-Bernoulli witness carriers", None, None),
+    "core/reporting/result_export/src/recorded_tables.rs": (
+        {"table"}, BOTH,
+        "RT-A4 §10.4's closed registry of main's verbatim pre-RT-A4 tables, read only for a recorded run's exact "
+        "binding; the Timoshenko variant sits beside preview-physics-2's", "preview_physics_timoshenko_1",
+        "core/reporting/result_export/tests/recorded_pre_rt_a4.rs"),
+    "apps/desktop/src/services/recordedPreRtA4.ts": (
+        {"id", "table"}, BOTH,
+        "the desktop's twin of that registry (RT-A4 §10.4), recorded-run read and compare paths only",
+        "preview-physics-timoshenko-1", "apps/desktop/src/features/results/recordedPreRtA4Display.test.tsx"),
     "tools/serialization/generate_product_preview_mechanics.mjs": (
         {"id"}, EB_ONLY, "regenerates the committed Euler-Bernoulli demo fixtures; any other identity is refused", None, None),
 }

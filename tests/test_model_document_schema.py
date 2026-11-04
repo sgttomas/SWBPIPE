@@ -268,8 +268,20 @@ def is_recorded_run_request(relative: str) -> bool:
     return len(parts) == 2 and parts[0] != "" and parts[1] == RECORDED_RUN_REQUEST_NAME
 
 
+# RT-A4 §10.4 (#98): verbatim copies of main's retained successor statements, kept beside
+# their recorded runs for the historical read. Their invocation model is the producer's
+# request model, as in their originals under fixtures/results/ (format profile).
+RECORDED_PRE_RT_A4_PREFIX = "fixtures/persistence/recorded_pre_rt_a4_pf/"
+
+
+def is_recorded_pre_rt_a4_statement(relative: str) -> bool:
+    name = relative.rsplit("/", 1)[-1]
+    return (relative.startswith(RECORDED_PRE_RT_A4_PREFIX) and name.startswith("retained_precision_")
+            and not name.endswith(".analysis_run.json"))
+
+
 def is_desktop_profile(relative: str) -> bool:
-    if is_recorded_run_request(relative):
+    if is_recorded_run_request(relative) or is_recorded_pre_rt_a4_statement(relative):
         return False
     return relative in {BUNDLED_DEMO, DESKTOP_EMISSION_GOLDEN} or relative.startswith(DESKTOP_PROFILE_PREFIXES)
 

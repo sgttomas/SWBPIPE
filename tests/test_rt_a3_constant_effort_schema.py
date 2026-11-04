@@ -74,7 +74,12 @@ def test_every_pressure_2_gate_reason_enum_names_gate_4():
     enums = list(_gate_reason_enums(_pressure_schema()))
     assert enums
     for enum in enums:
-        assert enum[-2:] == ["COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE", GATE_4]
+        # Gate 4 directly follows gate 3. RT-A4 (#98) appends its own combination reasons after
+        # them (unsigned operands, operand-mixed, operand withheld, nonlinear), so the pair is no
+        # longer the enum's tail; its presence and order are what this guards.
+        gate_3 = enum.index("COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE")
+        assert enum[gate_3 : gate_3 + 2] == ["COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE", GATE_4]
+        assert enum.count(GATE_4) == 1
 
 
 def test_ce2_withheld_envelope_validates_against_the_pressure_2_schema():
