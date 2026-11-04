@@ -337,6 +337,30 @@ struct Derived {
     verdict: &'static str,
 }
 
+/// The record token of a combination's `subtrahend_support_state` (DEL-05-02
+/// `operating-case.md` §7): null when absent, `own`, `minuend_final`, or
+/// `unrecognized` for any other present value (null included).
+pub(crate) fn subtrahend_support_token(combination: &super::PreviewCombination) -> Option<&'static str> {
+    use super::document_members::SubtrahendSupportStateSetting as S;
+    combination.subtrahend_support_state.map(|s| match s {
+        S::Own => "own",
+        S::MinuendFinal => "minuend_final",
+        S::Unknown => "unrecognized",
+    })
+}
+
+/// Premise (Work `combination-certificate.md` §1): the operand bounds are each operand
+/// case's own. A held subtrahend (any support state but the default independent solve)
+/// is a different system from its load case, so the combination is not assessed.
+pub(crate) fn held_reason(token: Option<&str>) -> Option<String> {
+    match token {
+        None | Some("own") => None,
+        Some(token) => Some(format!(
+            "its subtrahend is held at another case's support state (subtrahend_support_state {token}), a different system from its load case; the operand bounds are each operand case's own"
+        )),
+    }
+}
+
 /// The combination's operand load cases and factors, in evaluation order, or the
 /// reason it is outside the certificate.
 fn operands_of(case_ids: &[&str], combination: &super::PreviewCombination) -> Result<Vec<(String, f64)>, String> {
@@ -426,7 +450,10 @@ pub(crate) fn publish(combinations: &[super::PreviewCombination], case_ids: &[&s
     for (id, withheld) in &gates {
         let Some(combination) = combinations.iter().find(|c| &c.id == id) else { continue };
         let rows_of = combination_rows.get(id.as_str()).cloned().unwrap_or_default();
-        let assessed = if *withheld {
+        let support_state = subtrahend_support_token(combination);
+        let assessed = if let Some(reason) = held_reason(support_state) {
+            Err(reason)
+        } else if *withheld {
             Err("withheld by its gate".to_string())
         } else {
             operands_of(case_ids, combination).and_then(|terms| {
@@ -456,7 +483,7 @@ pub(crate) fn publish(combinations: &[super::PreviewCombination], case_ids: &[&s
                     ));
                 }
                 records.push(json!({"combination_id": id, "basis": combination.basis, "expression": exact_combinations::expression_evidence(combination),
-                    "assessment": "not_assessed", "reason": reason, "groups": [], "uncovered_row_count": rows_of.len()}));
+                    "subtrahend_support_state": support_state, "assessment": "not_assessed", "reason": reason, "groups": [], "uncovered_row_count": rows_of.len()}));
                 continue;
             }
         };
@@ -572,7 +599,7 @@ pub(crate) fn publish(combinations: &[super::PreviewCombination], case_ids: &[&s
             vec![id.clone()],
         ));
         records.push(json!({"combination_id": id, "basis": combination.basis, "expression": exact_combinations::expression_evidence(combination),
-            "assessment": "assessed", "reason": Value::Null, "groups": derived.iter().map(|d| d.json.clone()).collect::<Vec<_>>(),
+            "subtrahend_support_state": support_state, "assessment": "assessed", "reason": Value::Null, "groups": derived.iter().map(|d| d.json.clone()).collect::<Vec<_>>(),
             "uncovered_row_count": uncovered}));
     }
     let operand_cases: Vec<Value> = case_order
@@ -647,4 +674,34 @@ pub(crate) fn not_assessed_message(id: &str, reason: &str) -> String {
     format!(
         "combination {id}: its rows are not assessed against a stated bound ({reason}); they remain inspection results and do not count toward the document's numerical eligibility."
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn combination(state: Option<serde_json::Value>) -> super::super::PreviewCombination {
+        let mut c = json!({"id": "comb:x", "basis": "result_state_subtraction", "minuend_id": "case:O", "subtrahend_id": "case:S",
+            "difference_basis": "operating_minus_sustained"});
+        if let Some(state) = state {
+            c["subtrahend_support_state"] = state;
+        }
+        serde_json::from_value(c).expect("a combination record")
+    }
+
+    /// Premise (Work `combination-certificate.md` §1): the operand bounds are each operand
+    /// case's own; a held subtrahend is a different system and is not assessed, failing
+    /// closed on every value but the default independent solve.
+    #[test]
+    fn a_held_subtrahend_is_never_assessed() {
+        assert_eq!(subtrahend_support_token(&combination(None)), None);
+        assert_eq!(held_reason(subtrahend_support_token(&combination(None))), None);
+        assert_eq!(held_reason(subtrahend_support_token(&combination(Some(json!("own"))))), None);
+        for (value, token) in [(json!("minuend_final"), "minuend_final"), (json!("frozen"), "unrecognized"), (Value::Null, "unrecognized"), (json!(1), "unrecognized")] {
+            let c = combination(Some(value));
+            assert_eq!(subtrahend_support_token(&c), Some(token));
+            let reason = held_reason(subtrahend_support_token(&c)).expect("not assessed");
+            assert!(reason.contains("a different system from its load case; the operand bounds are each operand case's own"));
+        }
+    }
 }

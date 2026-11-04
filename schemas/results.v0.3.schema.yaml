@@ -4356,6 +4356,9 @@
               }
             }
           }
+        },
+        "combination_certificate": {
+          "$ref": "results_pressure_2.v0.3.schema.json#/$defs/CombinationCertificate"
         }
       }
     },

@@ -1013,7 +1013,7 @@ pub(crate) fn append(model: &PreviewModel, facts: Facts<'_>, results: &mut Vec<R
             &format!("diagnostic:exact-combination:derived:{}", identity(&[&combination.id])),
             DERIVED,
             "info",
-            format!("combination {} publishes rows derived from case results: they carry no numerical check of their own and never count towards numerical eligibility; each operand's standing and numerical findings are stated in contract_evidence.exact_combinations, and the headlines and stress maxima cover the load cases only", combination.id),
+            format!("combination {} publishes rows derived from case results: they never count towards numerical eligibility, and only the derived row groups that contract_evidence.combination_certificate establishes carry a stated bound; each operand's standing and numerical findings are stated in contract_evidence.exact_combinations, and the headlines and stress maxima cover the load cases only", combination.id),
             vec![combination.id.clone()],
         ));
         if has_maximum {

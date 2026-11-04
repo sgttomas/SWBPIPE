@@ -5322,8 +5322,8 @@ fn solve_prepared_load_case(
             component_stress_modifier_count: 0,
             preview: None,
             withheld_summaries: Vec::new(),
-            nonlinear_state: None,
             certificate_operand: None,
+            nonlinear_state: None,
         });
     }
 
@@ -5360,8 +5360,8 @@ fn solve_prepared_load_case(
                 component_stress_modifier_count: 0,
                 preview: None,
                 withheld_summaries: Vec::new(),
-                nonlinear_state: None,
                 certificate_operand: None,
+                nonlinear_state: None,
             });
         }
         None => build_thermal_element_loads(
@@ -5469,8 +5469,8 @@ fn solve_prepared_load_case(
             component_stress_modifier_count: 0,
             preview: None,
             withheld_summaries: Vec::new(),
-            nonlinear_state: None,
             certificate_operand: None,
+            nonlinear_state: None,
         });
     }
     // Every restrained DOF is prescribed: explicit zero unless the resolved case
@@ -5511,8 +5511,8 @@ fn solve_prepared_load_case(
                 component_stress_modifier_count: 0,
                 preview: None,
                 withheld_summaries: Vec::new(),
-                nonlinear_state: None,
                 certificate_operand: None,
+                nonlinear_state: None,
             });
         }
     }
@@ -5779,8 +5779,8 @@ fn solve_prepared_load_case(
                 component_stress_modifier_count: 0,
                 preview: None,
                 withheld_summaries: Vec::new(),
-                nonlinear_state: None,
                 certificate_operand: None,
+                nonlinear_state: None,
             });
                     }
                 },
@@ -5813,8 +5813,8 @@ fn solve_prepared_load_case(
                 component_stress_modifier_count: 0,
                 preview: None,
                 withheld_summaries: Vec::new(),
-                nonlinear_state: None,
                 certificate_operand: None,
+                nonlinear_state: None,
             });
                 }
             }
@@ -5912,8 +5912,8 @@ fn solve_prepared_load_case(
                     component_stress_modifier_count: 0,
                     preview: None,
                     withheld_summaries: Vec::new(),
-                    nonlinear_state: None,
                     certificate_operand: None,
+                    nonlinear_state: None,
                 });
             }
         }
@@ -7404,8 +7404,8 @@ fn solve_prepared_load_case(
         component_stress_modifier_count,
         preview: preview_record,
         withheld_summaries,
-        nonlinear_state,
         certificate_operand,
+        nonlinear_state,
     })
 }
 
@@ -15752,8 +15752,8 @@ mod kd5_withheld_summary_tests {
             } else {
                 Vec::new()
             },
-            nonlinear_state: None,
             certificate_operand: None,
+            nonlinear_state: None,
         }
     }
 
