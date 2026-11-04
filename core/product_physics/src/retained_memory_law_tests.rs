@@ -896,6 +896,9 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     // Operating-case slice 1b (DEL-05-02 `operating-case.md` §6; retained-pricing-rules.md §8.51) moves #4,
     // #5 and #12 (the three preview tables' combination policy v3: G-1 and G-2, gate precedence and the
     // declared subtraction's sign); its D3 registration records these bytes.
+    // RT-A5 `minuend_final` (DEL-05-02 `operating-case.md` §7.8 item 3) moves #4, #5 and #12 (the three
+    // preview tables' combination policy v4: the held-status gates, gate precedence, the subtraction's
+    // held tail and the held_status_operand basis); its D3 registration records these bytes.
     const REVIEWED: [&str; build_identity::REVIEWED_INPUT_COUNT] = [
         "b7ebb02aafa8cfe214c18bc64941381b33ab3f9295e0fc774ee0819e1e4f5653",
         "ae45b97742fd463866d8f231004f2053834d5bd413a1430e766f24516d3569ac",
