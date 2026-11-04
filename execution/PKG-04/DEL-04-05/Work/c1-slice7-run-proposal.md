@@ -566,6 +566,53 @@ rebuilt on this tree):
 - Retained-pricing tool tests: not run. `o10_rules.py` and every priced or pinned file are
   unchanged by this change.
 
+**Integration with main `b32a17761` (operating-case slice 1b, PF1b #107, §8.51; #109).**
+- Merge `f6eb41ca7` (no-ff). In `o10_rules.py`, `RT-A4-HS` is re-pinned on the merged
+  `recorded_tables.rs` (1b's content plus C1's line-29 documentation comment, nothing else):
+  `b59e8817a056728fb659e720249b1245b61f1b3ae91eed7b7f3760fa39d08d18`, as agreed with RT-A4. In
+  `hosted-ci-routing.json`, both sides' declared reads are kept and result_export's
+  `rust_tree_digest` is recomputed (`86d2b771…`). Every other declared tree digest already
+  matched.
+- Native mirror (`38cb017cc`):
+  - `result_summary_tables.rs` `declared_difference_note` is main's `declaredDifferenceNote`. A
+    combination row stating main's exact operating-minus-sustained sign convention (compared
+    byte for byte with core and the TS constant) keeps
+    `explicit_user_result_state_subtraction`. `derived_row_note` does not name it, so it is
+    drawn, counted and summarized as plain subtraction rows, and only the navigator names it:
+    `Combination <id> (operating minus sustained difference)`.
+  - The S parity cases gain main's maintained 1b producer corpus documents 0, 3 and 9 (two with
+    declared differences, one without). A native unit test mirrors main's TS case. Both that test
+    and the committed-outcome test fail without the navigator change.
+  - Registry: 1b's three variants (`e7b93f41`, `ce49ebe0`, `26dce9c2`) are read through `rv::`.
+    The equality test expects nine and reads each twin's own table directory.
+  - Reopen: main's pre-1b preview-physics-2 run reopens natively under `e7b93f41`, both saved and
+    as the recorded revision (new native test).
+  - The gate reasons `EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING` and
+    `EXPANSION_BASIS_MODULUS_MIXED` and the new codes flow through the existing diagnostic and
+    finding display; no allow-list names them. The `difference_basis_derivation` and
+    `SOURCE_PREVIEW_PHYSICS_DIFFERENCE_BASIS_*` refusals reach native through `rv::`. No recorded
+    pressure-2 basis changed.
+- Corpora (`b3b6b0cf6`). Because 1b moved the current preview-physics tables (rows unchanged),
+  the bindings and record hashes moved in the builder corpus, the persistence forms, 43 replay
+  outcomes (29 verdict bindings, 14 analysis-run previews) and the pre-RT-A4 reopen verdict.
+  Reopen cases went 209 → 211. S and detail each gained 3 cases, and their existing outcomes are
+  byte-identical. No replay request was stale, and the 104 replay-consuming suites recorded
+  nothing new.
+
+**Final checks** (after the PF1b merge; `t3_slot.sh`; release binaries rebuilt on this tree):
+- src-tauri lib, the full run once at the end: 1,156 passed, 0 failed, 13 ignored (reach scans
+  included, pins unchanged).
+- apps/desktop vitest, the full run once at the end: 396 files, 7,602 passed, 1 todo.
+- `node --test` over the four `native-smoke` test files: 95 passed. `tsc --noEmit`: clean.
+- Python, the affected tests plus `test_preview_difference_basis.py`: 1,256 passed, 17 skipped.
+  Routing (`tests/test_ci_numerical.py`, `tools/software_workflow/test_hosted_ci.py`): 77
+  passed, 120 subtests.
+- `python3 -m tools.deliverables --project . check`: 0 errors, 1 existing cycle.
+- Retained-pricing tool tests (`o10_rules.py` re-pinned): 990 passed.
+
+The harness hashes are those of the F1 table above: `perf.mjs` and `perf-driver.js` did not change
+after F1.
+
 ### Repair made (native, src-tauri only; offline): candidates 1 and 2 of (a)
 
 Agent 0 released candidates 1 and 2 above for `apps/desktop/src-tauri` (outside
