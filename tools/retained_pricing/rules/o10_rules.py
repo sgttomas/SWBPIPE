@@ -4914,7 +4914,7 @@ if fnkey("solved_state_plus_increments", _A4_PLAN):
 _A4_RT = RE_ + "recorded_tables.rs"
 if fnkey("read_recorded", _A4_RT):
     if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _A4_RT), "rb").read()).hexdigest() != \
-            "a8c3984a2d516f1ceb29ad6ad1d726d366e1423fa4b505822fcac33f07d0b718":
+            "c8cf6c1c670c76387b61a5f030555be418af3c622a2c84f5900c2c051c9d3e5d":
         raise SystemExit("RT-A4-HS: recorded_tables.rs changed; re-review §8.46's rules")
     _a4_rt = _production(_A4_RT)
     # One production item's text, from its opening line to its closing brace at the same indent (tests excluded).

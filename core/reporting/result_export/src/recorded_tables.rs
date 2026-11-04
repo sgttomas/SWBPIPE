@@ -26,7 +26,7 @@
 //! binding nested in a recorded read clears it for its read; a recorded read nested in
 //! another restores the outer one. No caller holds it across an async yield: every caller
 //! runs the read to completion on its own thread (the wasm engine's exports, the runner's
-//! `read` command; the desktop's native custody makes no recorded read).
+//! `read` command, and the desktop's native custody commands, which make each recorded read synchronously inside `entry_scope` on their worker thread).
 //!
 //! Under `panic = abort` a panic does not unwind, so the guard does not run. Natively that
 //! ends the process, and the selection with it. The wasm32 target aborts by default, and a
