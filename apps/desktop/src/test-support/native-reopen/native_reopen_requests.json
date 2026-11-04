@@ -52,12 +52,12 @@
     "expectedSource": {
      "kind": "saved_project_run",
      "project_id": "project:exact-pressure-connected-fixture",
-     "record_sha256": "f7232fa72b30774bb6c26d8b19f105145b159246c214b1aa6bacd5dce1732ad6",
+     "record_sha256": "3990ad567b0bb66021a2da7310696421efb63a1513c8488e1b0de71a06e0786f",
      "recording_id": null,
-     "result_sha256": "e9b1194db56071b7e89899d667e3d58036abc5f445804b04f16da53d43a80baa"
+     "result_sha256": "9b32b2a24a90356392bd0af5f3dd76a333ee843c75b5162a40362188ad591204"
     },
     "envelopeBasis": {
-     "payload_sha256": "sha256:189c78edcafe5a30c873bb8640aef12fbe4e7e72189243d7e18fe95d3410fc65",
+     "payload_sha256": "sha256:ba3d59dabbe028efcd26c285cef63cae163fa127e039809597b520901381948a",
      "evidence": {
       "algorithm": "sha256",
       "canonicalization": "rfc8785_jcs",
@@ -65,7 +65,7 @@
       "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
       "payload_ref": "project:exact-pressure-connected-fixture",
       "payload_scope": "project_envelope_payload",
-      "value": "sha256:189c78edcafe5a30c873bb8640aef12fbe4e7e72189243d7e18fe95d3410fc65"
+      "value": "sha256:ba3d59dabbe028efcd26c285cef63cae163fa127e039809597b520901381948a"
      }
     },
     "mode": "save",
@@ -328,7 +328,7 @@
     "proposal": null,
     "selectedReviewTarget": null,
     "confirmedRevision": null,
-    "expectedBase": "sha256:189c78edcafe5a30c873bb8640aef12fbe4e7e72189243d7e18fe95d3410fc65"
+    "expectedBase": "sha256:ba3d59dabbe028efcd26c285cef63cae163fa127e039809597b520901381948a"
    }
   },
   {
