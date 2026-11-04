@@ -424,6 +424,10 @@ _W7_RD = _w7_model.reader_coverage(CC * m) if _w7_model.inspect(SNAP) else X()
 # lists) and the shape checks' one cloned extremum and coverage entry, beside U4B-RD's and W7-RD's sets.
 import w15_owners_model as _w15_model
 _W15_RB = _w15_model.reader_working_set(CC, m, VF) if _w15_model.inspect(SNAP) else X()
+# RT-U4 D3 (retained-pricing-rules.md, RTU4-RC): the exact base read's region-binding count over its <= cases*m
+# (load case, member) keys, held to the read's end beside U4B-RD's, W7-RD's and W15-RB's sets.
+import rtu4_owners_model as _rtu4_model
+_RTU4_RC = _rtu4_model.reader_count(CC * m) if _rtu4_model.inspect(SNAP) else X()
 # RT-A4 D3 (retained-pricing-rules.md §8.46, RT-A4-RD): the model-free preview reader's row index, case and withheld sets
 # and, with a nested record (z >= 2), its derivation records, κ graph, row index and one re-derivation, beside U4B-RD.
 import rta4_owners_model as _rta4_model
@@ -453,7 +457,7 @@ st17 = {
     "V2 G1 public clone + hash(publication)": max(_T17_V2_CLONE, _T17_V2_HASH, key=lambda x: x.ev(dict(ASSUMED))),
     "V3 G1 source and preparation hashes": SOURCE.tree() + h17(SOURCE, ID) + PREP_PAYLOAD.tree() + h17(PREP_PAYLOAD, 64),
     "V4 G3-G6 working sets": SETS + G5C + OBJ_WALK + F5_EXACT,
-    "V5 G7 project + preview evidence": SUCC.tree() + SETS + OBJ_WALK + _U4B_RD + _W7_RD + _W15_RB + _RTA4_RD,
+    "V5 G7 project + preview evidence": SUCC.tree() + SETS + OBJ_WALK + _RTU4_RC + _U4B_RD + _W7_RD + _W15_RB + _RTA4_RD,
     "V6 G8 projected + invocation hash + model rebuild": ENVP.tree() + h17(INVOC_VF, ID) + G8_VALUES + G8_BYTES + SETS + OBJ_WALK,
 }
 T17_name, T17v = max(st17.items(), key=lambda kv: ev(kv[1]))
