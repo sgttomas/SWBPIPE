@@ -385,14 +385,22 @@ fn gates(evidence: &Value) -> Option<Vec<(String, bool)>> {
     })
 }
 
-/// The member's checks; a no-op on a document without it and without a combination.
+/// The member's checks; a no-op on a document without it.
 pub(crate) fn check(source: &Value) -> Check {
     let evidence = &source["contract_evidence"];
     let solved = source["status"]["mechanics"] == "MECHANICS_SOLVED";
     let gate_list = gates(evidence).unwrap_or_default();
     let member = evidence.get(MEMBER);
-    require(member.is_some() == (solved && !gate_list.is_empty()), "PRESENCE")?;
-    let Some(member) = member else { return Ok(()) };
+    // The member is stated only on a solved document with a combination. Its absence
+    // states nothing: a document recorded before the certificate (whose table identity
+    // the envelope cannot distinguish) is read as before, its combination rows
+    // inspection results; a document that states it is read in full. Without it, no
+    // certificate notice may stand.
+    let Some(member) = member else {
+        let notice = |d: &Value| d["id"].as_str().is_some_and(|id| id.starts_with(DIAGNOSTIC_PREFIX));
+        return require(!items(&source["diagnostics"]).iter().any(notice), "PRESENCE");
+    };
+    require(solved && !gate_list.is_empty(), "PRESENCE")?;
     require(keys(member, &MEMBER_KEYS), "SHAPE")?;
     let results = items(&source["results"]);
     let diagnostics = items(&source["diagnostics"]);
@@ -448,8 +456,9 @@ pub(crate) fn check(source: &Value) -> Check {
     let mut expected_diagnostics: Vec<Value> = Vec::new();
     for (record, (id, withheld)) in records.iter().zip(&gate_list) {
         require(keys(record, &RECORD_KEYS) && record["combination_id"] == id.as_str(), "RECORD_SHAPE")?;
-        // The stated expression is the evidence's own (EX record; PF operand record when present).
-        for stated in items(&evidence["exact_combinations"]).iter().chain(items(&evidence["combination_operands"])).filter(|r| r["combination_id"] == id.as_str()) {
+        // The stated expression is the EX record's; on PF it is bound by the model (`model_checks`),
+        // as slice 1a's operand records are.
+        for stated in items(&evidence["exact_combinations"]).iter().filter(|r| r["combination_id"] == id.as_str()) {
             require(crate::section_basis::bit_equal(&stated["expression"], &record["expression"]) && stated["basis"] == record["basis"], "EXPRESSION")?;
         }
         let rows_of = rows.of_combination.get(id.as_str()).cloned().unwrap_or_default();

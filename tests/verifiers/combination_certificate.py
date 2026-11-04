@@ -84,7 +84,8 @@ def _number(x: float) -> Any:
 
 
 def _identity(*parts: str) -> str:
-    return "".join(f"{len(p)}:{p}" for p in parts)
+    """The producer's exact_source_identity: ``{UTF-8 byte length}:{part}`` per part."""
+    return "".join(f"{len(p.encode('utf-8'))}:{p}" for p in parts)
 
 
 # ----------------------------------------------------------------------------- exact and upward arithmetic
@@ -373,14 +374,19 @@ def _gates(evidence: Mapping[str, Any]) -> list[tuple[str, bool]] | None:
 
 
 def check(source: Mapping[str, Any]) -> None:
-    """The member's checks (Rust `combination_certificate::check`); a no-op without it and without a combination."""
+    """The member's checks (Rust `combination_certificate::check`); a no-op without it."""
     evidence = source.get("contract_evidence") if isinstance(source.get("contract_evidence"), Mapping) else {}
     solved = isinstance(source.get("status"), Mapping) and source["status"].get("mechanics") == "MECHANICS_SOLVED"
     gate_list = _gates(evidence) or []
     member = evidence.get(MEMBER)
-    _require((MEMBER in evidence) == (solved and bool(gate_list)), "PRESENCE")
+    # Absence states nothing (a document recorded before the certificate is read as before); a stated member is
+    # read in full, and only on a solved document with a combination (Rust alike).
     if MEMBER not in evidence:
+        # Without it, no certificate notice may stand.
+        _require(not any(isinstance(d, Mapping) and isinstance(d.get("id"), str) and d["id"].startswith(DIAGNOSTIC_PREFIX)
+                         for d in _items(source.get("diagnostics"))), "PRESENCE")
         return
+    _require(solved and bool(gate_list), "PRESENCE")
     _require(_keys(member, MEMBER_KEYS), "SHAPE")
     results = _items(source.get("results"))
     diagnostics = _items(source.get("diagnostics"))
@@ -427,7 +433,9 @@ def check(source: Mapping[str, Any]) -> None:
     expected_diagnostics: list[dict[str, Any]] = []
     for record, (cid, withheld) in zip(records, gate_list):
         _require(_keys(record, RECORD_KEYS) and record.get("combination_id") == cid, "RECORD_SHAPE")
-        for stated in _items(evidence.get("exact_combinations")) + _items(evidence.get("combination_operands")):
+        # The stated expression is the EX record's; on PF it is bound by the model (`model_checks`), as slice 1a's
+        # operand records are.
+        for stated in _items(evidence.get("exact_combinations")):
             if isinstance(stated, Mapping) and stated.get("combination_id") == cid:
                 _require(bit_equal(stated.get("expression"), record.get("expression")) and stated.get("basis") == record.get("basis"), "EXPRESSION")
         rows_of = rows.of_combination.get(cid, [])

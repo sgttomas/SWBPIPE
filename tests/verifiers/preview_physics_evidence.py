@@ -610,4 +610,7 @@ def validate_transport_metadata(source: Mapping[str, Any]) -> None:
         _gates(evidence)
     except (TypeError, KeyError, AttributeError, OverflowError, IndexError) as error:
         raise ValueError("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: malformed evidence") from error
+    # RT-A3 §4: a carried combination certificate is read by its own check (Rust's transport alike).
+    if "combination_certificate" in evidence:
+        certificate_check(source)
 

@@ -53,6 +53,16 @@ def test_producer_documents_are_admitted_with_and_without_their_models(name):
     assert reader_verdict.validate(e["reader"], e["document"], e["model"]) == {"ok": True}
 
 
+def test_a_non_ascii_combination_identity_is_length_prefixed_in_utf8_bytes():
+    """Regression: the diagnostic identity's length prefix counts UTF-8 bytes, as the producer and the Rust reader
+    count them (`14:combination:Σ`, 13 characters); the unicode-ids capture is admitted."""
+    document = json.loads((PROJECT / "fixtures/results/preview_physics_unicode_ids_sparse.json").read_text(encoding="utf-8"))
+    stated = [d["id"] for d in document["diagnostics"] if d["id"].startswith("diagnostic:combination-certificate:")]
+    assert stated == ["diagnostic:combination-certificate:14:combination:Σ"]
+    cc.check(document)
+    assert reader_verdict.validate("preview-physics", document) == {"ok": True}
+
+
 # ----------------------------------------------------------------------------- forgeries (shared with the Rust reader)
 
 def _pointer(path: list) -> str:
@@ -68,7 +78,7 @@ def _diagnostic_index(document: dict, predicate) -> int:
 
 
 def build_forgeries() -> list[dict]:
-    """Every forgery as one pointer edit (`set` or `remove`) with the code both readers give."""
+    """Every forgery as pointer edits (`set` or `remove`) with the code both readers give (None: admitted)."""
     out = []
 
     def edit(path, value=None, op="set"):
@@ -107,7 +117,14 @@ def build_forgeries() -> list[dict]:
     within = _diagnostic_index(ex, lambda d: d["code"] == cc.WITHIN)
     add("ex_cantilever", ["diagnostics", within, "message"], "DIAGNOSTICS", "forged notice", "combination comb:double: certified")
     add("ex_cantilever", ["diagnostics", within], "DIAGNOSTICS", "notice dropped", op="remove")
-    add("ex_cantilever", cert, "PRESENCE", "member dropped", op="remove")
+    add("ex_cantilever", cert, "PRESENCE", "member dropped, its notices kept", op="remove")
+    # Absence states nothing: a document recorded before the certificate (member and notices absent) is read as before.
+    notices = [i for i, d in enumerate(ex["diagnostics"]) if d["id"].startswith(cc.DIAGNOSTIC_PREFIX)]
+    out.append({"document": "ex_cantilever", "what": "member and its notices absent (recorded before the certificate)",
+                      "code": None, "edits": [edit(cert, op="remove"), *(edit(["diagnostics", i], op="remove") for i in reversed(notices))]})
+    pf_notices = [i for i, d in enumerate(pf["diagnostics"]) if d["id"].startswith(cc.DIAGNOSTIC_PREFIX)]
+    out.append({"document": "pf_cantilever", "what": "member and its notices absent (recorded before the certificate)",
+                      "code": None, "edits": [edit(cert, op="remove"), *(edit(["diagnostics", i], op="remove") for i in reversed(pf_notices))]})
     add("ex_cantilever", cert + ["certified"], "SHAPE", "extra member key", True)
     axial = _record_index(ex, "comb:axial")
     wall = next(i for i, x in enumerate(certificate(ex)["combinations"][axial]["groups"]) if x["equal_pressure"] is not None)
@@ -152,7 +169,7 @@ def test_forgeries_file_is_current():
     built = build_forgeries()
     if os.environ.get("CERT_WRITE_FORGERIES"):
         FORGERIES_PATH.write_text(json.dumps({"description": "RT-A3 §4 combination-certificate forgeries over combination_certificate_corpus.json: "
-                                              "one JSON-pointer edit each and the code the Rust reader and the Python mirror both give. "
+                                              "JSON-pointer edits each and the code the Rust reader and the Python mirror both give (null: admitted). "
                                               "Written by tests/test_combination_certificate.py (CERT_WRITE_FORGERIES=1).", "forgeries": built},
                                              indent=1, ensure_ascii=True) + "\n", encoding="utf-8")
     assert json.loads(FORGERIES_PATH.read_text(encoding="utf-8"))["forgeries"] == built

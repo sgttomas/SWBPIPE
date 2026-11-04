@@ -6708,8 +6708,15 @@ fn preview_physics_transport_metadata(p: &Value) -> Result<(), String> {
         "formulation profile or limitations",
     )?;
     let evidence = &p["contract_evidence"];
+    // RT-A3 §4: a document with a combination may carry the combination certificate,
+    // which its own check reads (DEL-05-02 Work `combination-certificate.md`).
+    let certificate = evidence.get("combination_certificate").is_some();
     demand(
-        shape(evidence, &["preview_cases", "combination_gates"]),
+        if certificate {
+            shape(evidence, &["preview_cases", "combination_gates", "combination_certificate"])
+        } else {
+            shape(evidence, &["preview_cases", "combination_gates"])
+        },
         "transport evidence shape",
     )?;
     demand(
@@ -7003,6 +7010,9 @@ fn preview_physics_transport_metadata(p: &Value) -> Result<(), String> {
             },
             "combination gate reason",
         )?;
+    }
+    if certificate {
+        crate::combination_certificate::check(p)?;
     }
     Ok(())
 }

@@ -1,5 +1,5 @@
 {
- "description": "RT-A3 \u00a74 combination-certificate forgeries over combination_certificate_corpus.json: one JSON-pointer edit each and the code the Rust reader and the Python mirror both give. Written by tests/test_combination_certificate.py (CERT_WRITE_FORGERIES=1).",
+ "description": "RT-A3 \u00a74 combination-certificate forgeries over combination_certificate_corpus.json: JSON-pointer edits each and the code the Rust reader and the Python mirror both give (null: admitted). Written by tests/test_combination_certificate.py (CERT_WRITE_FORGERIES=1).",
  "forgeries": [
   {
    "document": "pf_cantilever",
@@ -187,7 +187,77 @@
     }
    ],
    "code": "PRESENCE",
-   "what": "member dropped"
+   "what": "member dropped, its notices kept"
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "member and its notices absent (recorded before the certificate)",
+   "code": null,
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/37"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/36"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/35"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/34"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/33"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/32"
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "member and its notices absent (recorded before the certificate)",
+   "code": null,
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/31"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/30"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/29"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/28"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/27"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/26"
+    }
+   ]
   },
   {
    "document": "ex_cantilever",

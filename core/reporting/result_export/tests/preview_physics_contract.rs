@@ -75,6 +75,9 @@ fn with_admitted_combination() -> Value {
     // model withholds every mechanics combination. The invented document's nonlinear
     // state rows, which mark it nonlinear, are removed from this synthetic copy.
     rows(&mut raw).retain(|r| r["kind"] != "nonlinear_support_active_set_state_code");
+    // RT-A3 §4: this synthetic copy states no combination certificate (its absence states nothing).
+    raw["contract_evidence"].as_object_mut().unwrap().remove("combination_certificate");
+    raw["diagnostics"].as_array_mut().unwrap().retain(|d| !d["id"].as_str().unwrap().starts_with("diagnostic:combination-certificate:"));
     raw["contract_evidence"]["combination_gates"] =
         json!([{"combination_id":COMB,"withheld":false,"reason":null}]);
     raw["diagnostics"]
