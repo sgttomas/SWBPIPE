@@ -31,11 +31,15 @@ exceptions are enumerated:
   across the scope. That is explicitly limited consistency evidence, not a derivation
   proof: it rests on the writer's regeneration and staleness check
   (exactReportBelowGate.test.tsx).
-- `RETAINED_PENDING`: the retained carriers (the exact and O4 successors, the exact
-  derivative goldens, the mirrored corpus cases, the RV120 inputs and the native
-  reader outcomes). They are written only on a registered build, and this stage's
-  retained-memory registration is a separate later step (DEL-04-08), so they still
-  state the endpoint's texts here; each is named, and no other JSON file may.
+
+The retained carriers (`RETAINED`: the exact and O4 successors, the exact derivative
+goldens, the compact corpus, the RV120 inputs and the native reader outcomes) were
+written on the §8.49 registered build (DEL-04-08 `retained-pricing-rules.md`). Each is
+compared field by field like an ordinary carrier: the compact corpus through its
+lossless expansion, the RV120 inputs with both endpoints' input digests rematerialized
+from their own bases, and the reader outcomes by `check_reader_outcomes` (keys and
+summaries token for token; every input digest rematerialized at both endpoints;
+every refusal digest recomputed from its summary). No retained carrier is pending.
 
 The endpoint is the working tree: the stage's carriers as committed on its branch.
 """
@@ -47,7 +51,8 @@ import subprocess
 import pytest
 
 from tests.test_o4_text_only_envelope_diff import HASH, Obj, load, _embedded, _rt_a3_member_path
-from tests.test_rt_a3_reducer_text_only_envelope_diff import INPUT_BINDINGS, check_j7_envelope_digests_only
+from tests.test_rt_a3_reducer_text_only_envelope_diff import (
+    INPUT_BINDINGS, check_j7_envelope_digests_only, check_rv120_output_digests, _rv120_at)
 from tests.test_rt_a3_reducer_2b_text_only_envelope_diff import _matches
 from tests import test_rt_a3_constant_effort_text_only_envelope_diff as ce
 
@@ -95,13 +100,17 @@ CE2 = "fixtures/results/rt_a3_ce2_withheld_sparse.json"
 # The constant-effort stage's ordinary scope (every pressure-2 and pressure-source-1 carrier states S7), and the
 # CE-2 gate-withheld envelope committed in that stage's review repair.
 ORDINARY = (*ce.ORDINARY, CE2)
-RETAINED_PENDING = ce.RETAINED
+RETAINED = ce.RETAINED
+READER_OUTCOMES = ce.READER_OUTCOMES
+RV120 = ce.RV120
+assert READER_OUTCOMES in RETAINED and RV120 in RETAINED and not set(ORDINARY) & set(RETAINED)
 J7 = ce.J7
 REPORT_PATHS = ce.REPORT_PATHS
 HASH_ONLY = {
     **{name: "an AnalysisRun record: it binds the received result and the tables by digest"
        for name in ORDINARY if name.endswith(".analysis_run.json")},
     ce.OVERLAY: "a substitution overlay: its replacements are digests of the restated carriers",
+    READER_OUTCOMES: "the native reader outcomes: input and outcome digests (check_reader_outcomes derives them)",
     J7: "the J7 census: whole-envelope digests only (check_j7_envelope_digests_only)",
 }
 NOT_COMPARED = dict.fromkeys(ce.NOT_COMPARED)
@@ -186,7 +195,7 @@ def _states_old(text):
     return any(needle in text for needle in NEEDLES)
 
 
-def compare(before, after, path=(), *, moves=None, allowed=None):
+def compare(before, after, path=(), *, moves=None, allowed=None, rv120_output_hashes=False):
     """Return the restated-field count; refuse every non-binding or numerical move (the earlier stages' rule).
 
     Each moved digest is appended to `moves` as (path, before, after) for `verify_moves`; without `moves`, a moved
@@ -197,11 +206,13 @@ def compare(before, after, path=(), *, moves=None, allowed=None):
         assert [k for k, _ in before] == [k for k, _ in after], path
         if dict(before).get("payload_scope") in {"model", "request", "input_manifest"}:
             assert before == after, path
-        return sum(compare(a, b, _rt_a3_member_path(before, key, path), moves=moves, allowed=allowed)
+        return sum(compare(a, b, _rt_a3_member_path(before, key, path), moves=moves, allowed=allowed,
+                           rv120_output_hashes=rv120_output_hashes)
                    for (key, a), (_, b) in zip(before, after))
     if isinstance(before, list):
         assert len(before) == len(after), path
-        return sum(compare(a, b, path + (i,), moves=moves, allowed=allowed) for i, (a, b) in enumerate(zip(before, after)))
+        return sum(compare(a, b, path + (i,), moves=moves, allowed=allowed, rv120_output_hashes=rv120_output_hashes)
+                   for i, (a, b) in enumerate(zip(before, after)))
     if (type(before) is str and before in PAIRS and len(path) >= 3
             and path[-3:-1] == ("formulation_basis", "limitations") and isinstance(path[-1], int)
             and (before != OLD_ID or path[-1] == 0)):
@@ -211,21 +222,26 @@ def compare(before, after, path=(), *, moves=None, allowed=None):
         return 0
     if type(before) is str:
         if HASH.fullmatch(before) and HASH.fullmatch(after):
-            assert not INPUT_BINDINGS.intersection(path), path
+            # RV120's input digests, rematerialized at both endpoints by check_rv120_output_digests.
+            rv120_digest = (rv120_output_hashes and len(path) == 3 and path[0] == "shapes"
+                            and isinstance(path[1], int) and path[2] == "input_sha256")
+            assert rv120_digest or not INPUT_BINDINGS.intersection(path), path
             assert before.startswith("sha256:") == after.startswith("sha256:"), path
-            assert moves is not None and allowed(path), path
-            moves.append((path, before, after))
+            if not rv120_digest:
+                assert moves is not None and allowed(path), path
+                moves.append((path, before, after))
             return 0
         a, b = _embedded(before), _embedded(after)
         if a is not None and b is not None:
-            return compare(a, b, path + ("<json>",), moves=moves, allowed=allowed)
+            return compare(a, b, path + ("<json>",), moves=moves, allowed=allowed, rv120_output_hashes=rv120_output_hashes)
     raise AssertionError(path)
 
 
 # ---------------------------------------------------------------- recomputation
 
 def scope():
-    return ORDINARY
+    """Every carrier whose moved digests verify_moves derives; the reader outcomes have check_reader_outcomes."""
+    return (*ORDINARY, *(name for name in RETAINED if name != READER_OUTCOMES))
 
 
 @cache
@@ -324,16 +340,103 @@ def _restore_report_statements(value, patterns, path=()):
     return value, 0
 
 
+def _reader_inputs(rev):
+    """The reader inputs this file can rematerialize, keyed as r1_native_reader_outcomes keys them, at `rev` (None: the
+    working tree): the corpus's cases, mutations and must-pass entries (the Python 07e `apply_entry`), the B2 parity
+    probes, RV120's shapes and the successor fixtures. The carrier cases and declared differences, whose fixtures are
+    pressure-free and unchanged here, are compared token for token instead."""
+    from tests.retained_precision_corpus import _STORAGE
+    from tests.test_retained_precision_contract import apply_entry
+    read = (lambda name: current(name)) if rev is None else (lambda name: _at(rev, name))  # noqa: E731
+    corpus = _STORAGE.expand(json.loads(read("fixtures/results/retained_precision_cases.json")))
+    cases = {c["id"]: c for c in corpus["cases"]}
+    out = {f"corpus:case:{c['id']}": (lambda c=c: [c["source"], c["invocation"]]) for c in corpus["cases"]}
+    for kind, member in (("mutation", "mutations"), ("must_pass", "must_pass")):
+        for e in corpus[member]:
+            out[f"corpus:{kind}:{e['id']}"] = lambda e=e: list(apply_entry(cases[e["base"]], e))
+    for s in json.loads(read("fixtures/results/retained_precision_b2_parity_probes.json"))["shapes"]:
+        out[f"b2_parity:{s['name']}"] = lambda s=s: list(apply_entry(cases[s["base"]], s))
+    from tests import test_retained_precision_b3 as rv
+    for s in json.loads(read(RV120))["shapes"]:
+        out[f"rv120:{s['name']}"] = (lambda s=s: list(rv.rv120_input(s))) if rev is None else (lambda s=s: list(_rv120_at(rev, s)))
+    for path in sorted(set(RETAINED) | {f"fixtures/results/retained_precision_{n}.json" for n in (
+            "l0_successor_sparse_interactive", "l0_successor_dense_scrutiny", "milestone_successor_sparse_interactive",
+            "milestone_successor_dense_scrutiny", "w_c2_successor_sparse_interactive", "w_c2_successor_dense_scrutiny",
+            "combination_successor_sparse_interactive", "combination_successor_dense_scrutiny")}):
+        stem = path.removeprefix("fixtures/results/retained_precision_").removesuffix(".json")
+        if "successor" not in stem:
+            continue
+        doc = json.loads(read(path))
+        out[f"successor:{stem}"] = (lambda doc=doc: [doc["result_envelope"], None]) if "result_envelope" in doc else (
+            lambda doc=doc: [doc["source"], doc["invocation"]])
+    return out
+
+
+def _refusal_digest(summary):
+    """A refusal reading's outcome digest, from its summary `{gate} {code}[: {detail}]` (retained_precision::outcome_json)."""
+    from tests.verifiers.canonical_json import canonical_sha256
+    gate, rest = summary.split(" ", 1)
+    code, _, detail = rest.partition(": ")
+    return canonical_sha256({"ok": False, "error": {"gate": gate, "code": code, "detail": detail if _ else None}})
+
+
+def check_reader_outcomes(before, after):
+    """The native reader outcomes, compared and derived (no hash-only allowance).
+
+    Keys, readings and summaries are compared token for token; only an entry's input digest and its readings' outcome
+    digests may move. Every moved input digest equals the canonical digest of its subject rematerialized at its own
+    endpoint (both endpoints), and a moved input this file cannot rematerialize is refused; an entry whose input
+    did not move is byte-identical; every
+    refusal's outcome digest is the digest of the outcome its summary states (both endpoints). A pass's outcome
+    digest binds its publication seal and classifications, which only the native reader computes: it may move only
+    with its input (r1_native_reader_outcomes and the desktop's wasm equivalence test bind its value)."""
+    from tests.verifiers.canonical_json import canonical_sha256
+    moves = []
+    compare(load(before), load(after), moves=moves, allowed=ce.reader_outcome_digest)
+    assert before != after, "the reader outcomes still state the predecessor bindings"
+    b, a = ({e[0]: e for e in json.loads(text)["entries"]} for text in (before, after))
+    assert list(b) == list(a)
+    derived = 0
+    # Each moved input is rematerialized at both endpoints (the Python 07e rule twins the Rust materialization for
+    # these; it is not claimed for every unmoved corpus entry, which instead stays byte-identical below).
+    for rev, entries in ((BASE, b), (None, a)):
+        inputs = _reader_inputs(rev)
+        for key, (_, digest, readings) in entries.items():
+            if key in inputs and b[key][1] != a[key][1]:
+                assert canonical_sha256(inputs[key]()) == digest, (rev, key)
+                derived += 1
+            for reading, (outcome, summary) in readings.items():
+                if not summary.startswith("pass"):
+                    assert _refusal_digest(summary) == outcome, (rev, key, reading)
+    for key in b:
+        if b[key][1] == a[key][1]:
+            assert b[key] == a[key], f"{key}: an unmoved input's outcomes moved"
+        else:
+            assert key in _reader_inputs(None), f"{key}: a moved input this file cannot rematerialize"
+    # The eight RV120/N2b inputs move as their pins in retained_precision_contract.rs do (the Python materialization).
+    pins = dict(zip(ce.rv120_jcs_pins(_at(BASE, ce.RC_TESTS)), ce.rv120_jcs_pins(current(ce.RC_TESTS))))
+    assert len(pins) == 8
+    for _, old, new in moves:
+        if old in pins:
+            assert new == pins[old]
+    assert {old for _, old, _ in moves} >= set(pins)
+    return derived
+
+
 def check(name, after=None):
     """Compare one carrier with the endpoint; return (restated count, moved digests)."""
     before = _at(BASE, name)
     after = current(name) if after is None else after
     moves = []
+    if name == READER_OUTCOMES:
+        return check_reader_outcomes(before, after), []
+    if name == RV120:
+        check_rv120_output_digests(json.loads(before), json.loads(after), base=BASE)
     if name in REPORT_PATHS:
         restored, moved = _restore_report_statements(load(after), REPORT_PATHS[name])
         moved += compare(load(before), restored, moves=moves)
     else:
-        moved = compare(load(before), load(after), moves=moves)
+        moved = compare(load(before), load(after), moves=moves, rv120_output_hashes=name == RV120)
     # A carrier that stated an old text must now state the new one: a stale file fails here.
     assert moved > 0 or not _states_old(before), f"{name}: still states the endpoint's texts"
     return moved, moves
@@ -342,6 +445,18 @@ def check(name, after=None):
 @pytest.mark.parametrize("name", ORDINARY)
 def test_nonlinear_ordinary_carriers_move_only_the_texts_and_derived_binding_hashes(name):
     moved, moves = check(name)
+    seals, content = recomputed()
+    verify_moves(name, moves, seals=seals, content=content, unmaterialized=[])
+
+
+@pytest.mark.parametrize("name", RETAINED)
+def test_nonlinear_retained_carriers_move_only_the_texts_and_derived_binding_hashes(name):
+    """The retained carriers, written on the §8.49 registered build, under the ordinary carriers' rule."""
+    moved, moves = check(name)
+    if name == READER_OUTCOMES:
+        assert moved > 0 and moves == []
+        return
+    assert moved > 0, f"{name}: states no restated text"
     seals, content = recomputed()
     verify_moves(name, moves, seals=seals, content=content, unmaterialized=[])
 
@@ -383,11 +498,11 @@ def _stating(rev):
     return found
 
 
-def test_every_json_file_stating_an_old_text_is_compared_named_or_pending():
+def test_every_json_file_stating_an_old_text_is_compared_or_named():
     """Completeness, outside frozen references, design records and recorded runs: every file that stated an old text
-    at the endpoint is compared, named or pending registration; now only the named retained carriers still do."""
-    listed = set(ORDINARY) | set(RETAINED_PENDING) | {J7} | set(NOT_COMPARED)
-    hash_only = {**HASH_ONLY, **{name: "pending registration" for name in RETAINED_PENDING if not _states_old(_at(BASE, name))}}
+    at the endpoint is compared or named, and none states one now. No retained carrier is pending."""
+    listed = set(ORDINARY) | set(RETAINED) | {J7} | set(NOT_COMPARED)
+    hash_only = HASH_ONLY
     at_base = _stating(BASE)
     assert at_base - listed == set(), sorted(at_base - listed)
     for name in listed:
@@ -395,8 +510,8 @@ def test_every_json_file_stating_an_old_text_is_compared_named_or_pending():
             assert name not in at_base and not _states_old(_at(BASE, name)), f"{name}: named hash-only but states a text"
         else:
             assert name in at_base, f"{name}: listed but states no endpoint text and is not named hash-only"
-    # Now: only the retained carriers awaiting the registered build may still state an endpoint text.
-    assert _stating(None) == {name for name in RETAINED_PENDING if name in at_base}, sorted(_stating(None))
+    assert _stating(None) == set(), sorted(_stating(None))
+    assert "RETAINED_PENDING" not in globals(), "a pending exception would leave a carrier outside the comparison"
 
 
 # ---------------------------------------------------------------- negative controls
@@ -497,5 +612,54 @@ def test_a_stale_carrier_and_an_unnamed_pending_exception_are_refused():
     stale = "fixtures/results/pressure_connected_mechanics_sparse.json"
     with pytest.raises(AssertionError):
         check(stale, _at(BASE, stale))
-    assert not set(ORDINARY) & set(RETAINED_PENDING)
+    assert not set(ORDINARY) & set(RETAINED)
     assert CE2 in ORDINARY and CE2 not in ce.ORDINARY
+
+
+def _bump_first_number(text, after):
+    """`text` with the first JSON number after the key `after` changed in its last significant digit."""
+    import re
+    at = text.index(after)
+    m = re.compile(r'(?<=[:\[,\s])(-?\d+\.\d*[1-9])(?=[,\]\}\s])').search(text, at)
+    digits = m.group(1)
+    bumped = digits[:-1] + str((int(digits[-1]) % 9) + 1)
+    return text[:m.start()] + bumped + text[m.end():]
+
+
+@pytest.mark.parametrize("name", [
+    "fixtures/results/retained_precision_exact_successor_sparse_interactive.json",
+    "fixtures/results/retained_precision_o4_w1e_successor_dense_scrutiny.json",
+    "fixtures/results/retained_precision_exact_successor_derivative_sparse_interactive.json",
+    "fixtures/results/retained_precision_cases.json",
+    RV120,
+])
+def test_a_numerical_mutation_in_a_retained_carrier_is_refused(name):
+    """Negative control: one numerical token changed in a regenerated retained carrier (in the compact corpus, a
+    stored scalar node, so every occurrence) fails the comparison, however its digests are left."""
+    text = current(name)
+    anchor = next(k for k in ('"nodes"', '"results"', '"result_sets"', '"edits"') if k in text)
+    mutated = _bump_first_number(text, anchor)
+    assert mutated != text
+    with pytest.raises(AssertionError):
+        moved, moves = check(name, mutated)
+        seals, content = recompute(lambda n: mutated if n == name else current(n))
+        verify_moves(name, moves, seals=seals, content=content, unmaterialized=[])
+
+
+def test_a_leftover_hash_only_or_retained_carrier_is_refused():
+    """Negative controls: the hash-only reader outcomes left at the endpoint's bytes, a retained carrier left at the
+    endpoint's bytes, a forged input digest and a forged refusal digest are each refused."""
+    with pytest.raises(AssertionError):
+        check(READER_OUTCOMES, _at(BASE, READER_OUTCOMES))
+    exact = "fixtures/results/retained_precision_exact_successor_sparse_interactive.json"
+    with pytest.raises(AssertionError):
+        check(exact, _at(BASE, exact))
+    text = current(READER_OUTCOMES)
+    entries = json.loads(text)["entries"]
+    moved_case = next(e for e in entries if e[0] == "corpus:case:w1_member_route_e_baseline_sparse_interactive")
+    with pytest.raises(AssertionError):
+        check_reader_outcomes(_at(BASE, READER_OUTCOMES), text.replace(moved_case[1], "7" * 64))
+    refusal = next(e for e in entries if not e[2]["unbound"][1].startswith("pass"))
+    assert _refusal_digest(refusal[2]["unbound"][1]) == refusal[2]["unbound"][0]
+    with pytest.raises(AssertionError):
+        check_reader_outcomes(_at(BASE, READER_OUTCOMES), text.replace(refusal[2]["unbound"][0], "8" * 64))
