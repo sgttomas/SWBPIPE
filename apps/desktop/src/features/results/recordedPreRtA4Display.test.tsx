@@ -98,6 +98,8 @@ const VARIANTS: Variant[] = [
   { name: "physics-retained-1 (#101)", sha256: "045f6f0d8ce350246b21fb712d2dd14bf3a7f7f3690e66e062cbbf77d3696a3b",
     open: retained("physics_retained_1/pr101", "retained_precision_exact_successor_sparse_interactive"), twin: null },  { name: "physics-retained-1 (main, RT-A4)", sha256: "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034",
     open: retained("physics_retained_1/main_bbf384dec", "retained_precision_exact_successor_sparse_interactive"), twin: null },
+  { name: "physics-retained-1 (main, before the combination certificate)", sha256: "85c2678a78e794b44761c11efb73c215645c7e2560d802ac8ad6075e7804c691",
+    open: retained("physics_retained_1/main_252bef969", "retained_precision_exact_successor_sparse_interactive"), twin: null },
 ];
 
 async function reopened(variant: Variant): Promise<HistoricalRunContext> {

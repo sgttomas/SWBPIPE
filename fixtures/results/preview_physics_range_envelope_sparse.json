@@ -1,5 +1,47 @@
 {
   "contract_evidence": {
+    "combination_certificate": {
+      "combinations": [
+        {
+          "assessment": "not_assessed",
+          "basis": "mechanics",
+          "combination_id": "combination:C-OPER-ALT",
+          "expression": {
+            "terms": [
+              {
+                "factor": 1.0,
+                "load_case_id": "load:L-100"
+              },
+              {
+                "factor": 0.5,
+                "load_case_id": "load:L-200"
+              }
+            ]
+          },
+          "groups": [],
+          "reason": "withheld by its gate",
+          "subtrahend_support_state": null,
+          "uncovered_row_count": 0
+        },
+        {
+          "assessment": "not_assessed",
+          "basis": "range_envelope",
+          "combination_id": "combination:U4B-RANGE-MAX",
+          "expression": {
+            "mode": "max",
+            "operand_ids": [
+              "load:L-100",
+              "load:L-200"
+            ]
+          },
+          "groups": [],
+          "reason": "range-envelope certification is deferred",
+          "subtrahend_support_state": null,
+          "uncovered_row_count": 331
+        }
+      ],
+      "operand_cases": []
+    },
     "combination_gates": [
       {
         "combination_id": "combination:C-OPER-ALT",
@@ -23619,6 +23661,16 @@
       "affected_refs": [
         "component:C-130",
         "pipe:P-130"
+      ]
+    },
+    {
+      "id": "diagnostic:combination-certificate:25:combination:U4B-RANGE-MAX",
+      "code": "COMBINATION_ROWS_NOT_ASSESSED",
+      "severity": "info",
+      "message": "combination combination:U4B-RANGE-MAX: its rows are not assessed against a stated bound (range-envelope certification is deferred); they remain inspection results and do not count toward the document's numerical eligibility.",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "combination:U4B-RANGE-MAX"
       ]
     }
   ],

@@ -1386,8 +1386,10 @@ fn pf_flat_documents_publish_no_derivation() {
         range("env", &["W1", "W2"]),
     ]));
     let out = solved(&wire, PreviewSolverMode::SparseInteractive, "flat");
-    let mut members: Vec<&String> = out["contract_evidence"].as_object().unwrap().keys().collect();
+    // RT-A3 §4 (DEL-05-02 Work `combination-certificate.md`): the certificate accompanies the combinations.
+    let mut members: Vec<&String> = out["contract_evidence"].as_object().unwrap().keys().filter(|k| *k != "combination_certificate").collect();
     members.sort();
+    assert!(out["contract_evidence"].get("combination_certificate").is_some());
     assert_eq!(members, ["combination_gates", "preview_cases"]);
     let mut stated = out.clone();
     stated["contract_evidence"][DERIVATION] = json!({"nonlinear_supports": false, "consuming_constant_effort": true, "combinations": [

@@ -816,7 +816,7 @@ fn pressure_schema_is_the_only_nonresident_binding() {
     let schema_hash = format!("{:x}", Sha256::digest(schema_bytes));
     // B7b A5: the result schema takes v3 only. T4-U6 (462b777b22): it carries the D-5
     // geometry, per-basis records and limitations (reviewed input #10, re-bound at D3).
-    assert_eq!(schema_hash, "3dd8523f2f03cd72e9dbeb10955e9492711cf1334ba8d1dc4919d4ba2512b416");
+    assert_eq!(schema_hash, "612bb8167b89bc582f14dc1c29e56b6fab15197234b55a69d6e5fb416259f341");
     let compiled = COMPILED_REVIEWED_INPUTS.expect("build.rs sets all current inputs");
     let tokens: Vec<_> = compiled.split(';').collect();
     assert_eq!(tokens.len(), build_identity::REVIEWED_INPUT_COUNT + 1);
@@ -883,6 +883,11 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     // (Cargo.lock: result_export's edge to open_pipe_stress_load_case_algebra), #4, #5, #8, #11 and #12 (the
     // restated combination policies and limitation) and #10 (the pressure-2 result schema's RT-A4 shapes);
     // its D3 registration records these bytes.
+    // RT-A3 §4 (DEL-05-02 Work `combination-certificate.md`, the combination certificate) moves #8
+    // (physics-retained-1's inherited pressure-2 digest), #10 (the pressure-2 result schema's
+    // combination_certificate member) and #11 (pressure-2's restated combination standing and limitation);
+    // the registered profile is Stale until its D3 registration records these bytes (with P's, after
+    // #105B, PF1b and I3a).
     const REVIEWED: [&str; build_identity::REVIEWED_INPUT_COUNT] = [
         "b7ebb02aafa8cfe214c18bc64941381b33ab3f9295e0fc774ee0819e1e4f5653",
         "ae45b97742fd463866d8f231004f2053834d5bd413a1430e766f24516d3569ac",
@@ -892,10 +897,10 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "e7b93f416f700f8efdb31bf1ba26dedde52963d768d6ead5a73dbf1c645a360c",
         "fe371e07cd727154235f3725eeeef393ad0a433f0e8c98656f98468940d9aea2",
         "8d48e3d97bc4f69bf9b0da58db7538b0661cf52d05f771dc126be2c3cca8c163",
-        "85c2678a78e794b44761c11efb73c215645c7e2560d802ac8ad6075e7804c691",
+        "320dc3f1f75944af8b66da1287e6f8ee5e1fcd5fe005752f2c90bf8c89a9c894",
         "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9",
-        "3dd8523f2f03cd72e9dbeb10955e9492711cf1334ba8d1dc4919d4ba2512b416",
-        "2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645",
+        "612bb8167b89bc582f14dc1c29e56b6fab15197234b55a69d6e5fb416259f341",
+        "21b7426ec1c50ba5f74539984261554d06b9b6a26ec26f7d5765b5faa7d6bb90",
         "ce49ebe07bc05431ea1f770c1933b5bf58f4b1c8b66fb6f36810f2ef7a58cd43",
     ];
     // The same files, read here at compile time (test-only), by the sha2 dependency.

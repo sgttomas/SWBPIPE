@@ -1,5 +1,31 @@
 {
   "contract_evidence": {
+    "combination_certificate": {
+      "combinations": [
+        {
+          "assessment": "not_assessed",
+          "basis": "mechanics",
+          "combination_id": "combination:C-OPER-ALT",
+          "expression": {
+            "terms": [
+              {
+                "factor": 1.0,
+                "load_case_id": "load:L-100"
+              },
+              {
+                "factor": 0.5,
+                "load_case_id": "load:L-200"
+              }
+            ]
+          },
+          "groups": [],
+          "reason": "withheld by its gate",
+          "subtrahend_support_state": null,
+          "uncovered_row_count": 0
+        }
+      ],
+      "operand_cases": []
+    },
     "combination_gates": [
       {
         "combination_id": "combination:C-OPER-ALT",

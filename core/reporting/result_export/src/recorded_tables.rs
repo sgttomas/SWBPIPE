@@ -66,8 +66,9 @@ const EXACT_RETAINED: &str = crate::retained_precision::EXACT_CONTRACT_ID;
 /// final constant-effort candidate's exact successor table (#101 at 01e05a486), which
 /// main holds once that lands before RT-A4; the sixth is the RT-A4 main line's exact
 /// successor table (main at bbf384dec), whose inherited pressure-2 digest RT-A3
-/// increment 4 moves.
-pub static VARIANTS: [RecordedVariant; 6] = [
+/// increment 4 moves; the seventh is main's exact successor table at 252bef969, whose
+/// inherited pressure-2 digest RT-A3 §4 (the combination certificate) moves.
+pub static VARIANTS: [RecordedVariant; 7] = [
     RecordedVariant {
         id: PREVIEW,
         sha256: "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2",
@@ -115,6 +116,14 @@ pub static VARIANTS: [RecordedVariant; 6] = [
         base: None,
         reads_under_variant: false,
     },
+    RecordedVariant {
+        id: EXACT_RETAINED,
+        sha256: "85c2678a78e794b44761c11efb73c215645c7e2560d802ac8ad6075e7804c691",
+        profile: crate::retained_precision::EXACT_PROFILE,
+        bytes: include_bytes!("../../../../fixtures/results/recorded_pre_rt_a4/semantic_contract_v0_3_physics_retained_1.85c2678a.json"),
+        base: None,
+        reads_under_variant: false,
+    },
 ];
 
 fn sha256_hex(bytes: &[u8]) -> String {
@@ -142,7 +151,7 @@ impl RecordedVariant {
     }
     /// The variant's table, its bytes checked on first read.
     pub fn table(&'static self) -> &'static Value {
-        static TABLES: [OnceLock<Value>; 6] = [const { OnceLock::new() }; 6];
+        static TABLES: [OnceLock<Value>; 7] = [const { OnceLock::new() }; 7];
         TABLES[self.index()].get_or_init(|| verify(self, self.bytes).expect("a registry table's pinned bytes"))
     }
     /// The base variant a successor's base inherits (preview-physics-2's), if any.
@@ -262,6 +271,7 @@ mod tests {
         assert_eq!(VARIANTS[3].table()["rows"], crate::semantic_contract::physics_retained_contract()["rows"]);
         assert_eq!(VARIANTS[4].table()["rows"], crate::semantic_contract::physics_retained_contract()["rows"]);
         assert_eq!(VARIANTS[5].table()["rows"], crate::semantic_contract::physics_retained_contract()["rows"]);
+        assert_eq!(VARIANTS[6].table()["rows"], crate::semantic_contract::physics_retained_contract()["rows"]);
         assert!(VARIANTS[0].table()["supported_profile_limitations"] != crate::semantic_contract::preview_physics_contract()["supported_profile_limitations"]);
     }
 
