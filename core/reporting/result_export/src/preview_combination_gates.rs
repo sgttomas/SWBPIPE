@@ -288,6 +288,8 @@ pub(crate) fn check(source: &Value, model: Option<&Value>) -> Check {
     let gates = items(&evidence["combination_gates"]);
     let rows = items(&source["results"]);
     let by_id: HashMap<&str, &Value> = rows.iter().filter_map(|r| r["id"].as_str().map(|id| (id, r))).collect();
+    // Operating-case slice 1b: a declared subtraction's G-1, G-2, evidence and sign.
+    crate::preview_difference_basis::check(source, model)?;
     match model {
         Some(model) => model_check(source, model, gates, rows, &by_id),
         None => free_check(source, gates, rows, &by_id),
@@ -333,7 +335,10 @@ fn free_check(source: &Value, gates: &[Value], rows: &[Value], by_id: &HashMap<&
             require(
                 match derived {
                     Some(code) => stated == Some(code),
-                    None => stated.is_none() || stated == Some(MODULUS_MIXED),
+                    // A declared subtraction's G-1 or G-2 (`preview_difference_basis`).
+                    None => stated.is_none() || stated == Some(MODULUS_MIXED)
+                        || (record.basis == "result_state_subtraction"
+                            && matches!(stated, Some(crate::preview_difference_basis::SUSTAINED_NOT_IN_OPERATING | crate::preview_difference_basis::MODULUS_MIXED))),
                 },
                 "GATE_DERIVATION",
             )?;
@@ -411,7 +416,7 @@ fn same(a: &Value, b: &Value) -> bool {
 }
 
 /// A load case's modulus-basis key, as the producer's `modulus_basis_key` forms it.
-fn modulus_key(case: &Value) -> Result<Option<String>, String> {
+pub(crate) fn modulus_key(case: &Value) -> Result<Option<String>, String> {
     let reference = case["modulus_basis_ref"].as_str();
     let temperature = case.get("modulus_basis_temperature").filter(|t| !t.is_null());
     Ok(match (reference, temperature) {
@@ -456,22 +461,11 @@ fn model_check(source: &Value, model: &Value, gates: &[Value], rows: &[Value], b
     if gates.is_empty() && !rows.iter().any(|r| combination_of(r).is_some()) {
         return require(stated_derivation.is_none(), "DERIVATION_EVIDENCE");
     }
-    let combinations = items(&model["combinations"]);
     let load_cases = items(&model["load_cases"]);
     let cases: HashSet<&str> = load_cases.iter().filter_map(|c| c["id"].as_str()).collect();
-    // S1's interim withholding removes a combination with a difference basis or a
-    // `minuend_final` subtrahend, and every combination naming one, before the gates.
-    let mut removed: HashSet<&str> = HashSet::new();
-    for &index in &graph::model_order(combinations, &cases) {
-        let c = &combinations[index];
-        let interim = c.get("difference_basis").is_some() || c["subtrahend_support_state"] == "minuend_final";
-        let names_removed = graph::model_operands(c, &cases).iter().any(|o| matches!(o, Operand::Combination(id) if removed.contains(id)));
-        if interim || names_removed {
-            removed.extend(c["id"].as_str());
-        }
-    }
-    let kept: Vec<Value> = combinations.iter().filter(|c| !c["id"].as_str().is_some_and(|id| removed.contains(id))).cloned().collect();
-    let order = graph::model_order(&kept, &cases);
+    // S1's interim withholding (as operating-case slice 1b leaves it) removes a
+    // `minuend_final` combination, and every combination naming one, before the gates.
+    let (kept, order) = crate::preview_difference_basis::kept_combinations(model);
     require(gates.len() == order.len(), "GATE_DERIVATION")?;
 
     let supports = items(&model["supports"]);
@@ -510,7 +504,9 @@ fn model_check(source: &Value, model: &Value, gates: &[Value], rows: &[Value], b
         // κ is read for every combination, withheld or not (product `Plan`).
         let own = combination_graph.add(id, basis, &operands, &factors);
         let operand_withheld = operands.iter().any(|o| matches!(o, Operand::Combination(c) if withheld.contains(*c)));
-        let derived: Option<&str> = gate_before_modulus(basis, operand_withheld, nonlinear, oq1, consuming, &own, &operand_kappa).or_else(|| {
+        let declared = crate::preview_difference_basis::declared(combination);
+        let declared_gate = if declared { crate::preview_difference_basis::model_gate(model, combination)?.0 } else { None };
+        let derived: Option<&str> = declared_gate.or_else(|| gate_before_modulus(basis, operand_withheld, nonlinear, oq1, consuming, &own, &operand_kappa)).or_else(|| {
             if operand_withheld || !graph::term_basis(basis) {
                 return None;
             }

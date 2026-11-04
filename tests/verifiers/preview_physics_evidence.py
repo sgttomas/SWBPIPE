@@ -408,7 +408,9 @@ def _validate(source: Mapping[str, Any]) -> None:
         if basis["ref_type"] == "combination":
             gate = gates.get(basis["ref_id"])
             # 9. Combination rows only for admitted combinations.
-            _require(gate is not None and gate["withheld"] is False, "combination row without an admitting gate")
+            # Operating-case slice 1b: a withheld subtraction keeps its operands' modulus-basis records (DEC-068 item 1).
+            _require(gate is not None and (gate["withheld"] is False or row["kind"] == "combination_modulus_basis_record"),
+                     "combination row without an admitting gate")
             _require(row["kind"] not in {MAXIMUM_KIND, INTENSIFIED_KIND} | u4b.KINDS, "never-combined row for a combination")
             refs = row.get("source_result_refs", [])
             _require(isinstance(refs, list) and all(isinstance(ref, str) and ref in rows for ref in refs), "combination source reference")

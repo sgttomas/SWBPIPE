@@ -61,6 +61,9 @@ const GATE_CODES: &[&str] = &[
     "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND",
     "CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED",
     "LOAD_COMBINATION_OPERAND_WITHHELD",
+    // Operating-case slice 1b (DEL-05-02 operating-case §1.2): G-1 and G-2.
+    "EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING",
+    "EXPANSION_BASIS_MODULUS_MIXED",
 ];
 const SUPPORT_COMPONENTS: [&str; 8] = [
     "Fx",
@@ -290,8 +293,9 @@ fn validate_with(source: &Value, model: Option<&Value>) -> Check {
     // Operating-case slice 1a: `combination_operands` only beside a nonlinear
     // model's admitted combinations (checked below). RT-A4 §10.3:
     // `combination_derivation` beside an unsigned or nested combination
-    // (`preview_combination_gates`).
-    let optional = [crate::preview_combination_operands::MEMBER, crate::preview_combination_gates::DERIVATION_MEMBER];
+    // (`preview_combination_gates`). Operating-case slice 1b:
+    // `difference_basis_derivation` beside a declared subtraction (`preview_difference_basis`).
+    let optional = [crate::preview_combination_operands::MEMBER, crate::preview_combination_gates::DERIVATION_MEMBER, crate::preview_difference_basis::MEMBER];
     require(
         evidence.as_object().is_some_and(|o| {
             o.contains_key("preview_cases")
@@ -383,6 +387,7 @@ fn validate_with(source: &Value, model: Option<&Value>) -> Check {
             preview_cases.is_empty()
                 && gates.is_empty()
                 && evidence.get(crate::preview_combination_gates::DERIVATION_MEMBER).is_none()
+                && evidence.get(crate::preview_difference_basis::MEMBER).is_none()
                 && rows_list.is_empty()
                 && summary["max_open_formula_stress"].is_null()
                 && summary["max_displacement"].is_null(),
@@ -791,7 +796,12 @@ fn validate_with(source: &Value, model: Option<&Value>) -> Check {
         let Some(combination) = combination_of(row) else {
             continue;
         };
-        require(admitted.contains(combination), "GATED_COMBINATION_ROW")?;
+        // Operating-case slice 1b: a withheld subtraction keeps its operands'
+        // modulus-basis records (DEC-068 item 1), which G-2's model-free reading reads.
+        require(
+            admitted.contains(combination) || (row["kind"] == "combination_modulus_basis_record" && gate_ids.contains(combination)),
+            "GATED_COMBINATION_ROW",
+        )?;
         // §2.7: no never_combined kind in a combination.
         require(
             row["kind"] != MAXIMUM && row["kind"] != INTENSIFIED
