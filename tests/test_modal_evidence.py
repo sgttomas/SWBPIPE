@@ -33,7 +33,8 @@ def _parts(path):
 
 
 def apply(doc, operations):
-    """The corpus operations: replace, add, scale, scale_rows and withhold."""
+    """The corpus operations: replace, add, scale, scale_rows, withhold, remove_rows and
+    set_rows."""
     for op in operations:
         kind = op["op"]
         if kind in ("replace", "add", "scale"):
@@ -63,6 +64,11 @@ def apply(doc, operations):
                     row["ordinal"] = i
                     row["row_id"] = f"{op['renumber_prefix']}{i}"
             table["rows"] = kept
+        elif kind == "set_rows":
+            selected = [row for row in doc["tables"][op["table"]]["rows"] if all(row.get(k) == v for k, v in op["where"].items())]
+            assert selected, op
+            for row in selected:
+                row[op["field"]] = op["value"]
         else:
             raise AssertionError(op)
     return doc

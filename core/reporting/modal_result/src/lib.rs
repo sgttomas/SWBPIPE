@@ -31,6 +31,14 @@
 //! A relation that the published binary64 values cannot decide (a cluster
 //! boundary within ω's rounding) is scoped unsupported, never guessed.
 //!
+//! **Nulls are bounds.** A value null `outside_canonical_profile` or
+//! `not_finite` is at least 2⁵³; every relation consuming it is decided on
+//! intervals: exact when every operand is published, failed when the bounds
+//! are disjoint from the published values, scoped only when they overlap. A
+//! null whose reason states no size fails where a relation needs the value,
+//! unless the reason is that relation's own case (`no_neighbour`,
+//! `total_mass_zero`).
+//!
 //! **Admission.** Public engineering-result admission is disabled: the
 //! verdict states it for every document, with the open conditions.
 //!
@@ -704,7 +712,7 @@ struct Mode {
     frequency: Option<f64>,
     period: Option<f64>,
     generalized_mass: Vo,
-    cluster_estimate: Option<f64>,
+    cluster_estimate: Num,
     cluster: usize,
 }
 
@@ -721,26 +729,95 @@ struct Computed {
     mode: Option<usize>,
     omega: Option<f64>,
     frequency: Option<f64>,
-    eta: Option<f64>,
-    condition: Option<f64>,
-    estimate: Option<f64>,
+    eta: Num,
+    condition: Num,
+    estimate: Num,
 }
 
 struct Candidate {
     decision: String,
     pivots: Option<usize>,
-    shift: Option<f64>,
-    formation_term: Option<f64>,
-    factor_term: Option<f64>,
-    backward_error: Option<f64>,
-    inverse_norm: Option<f64>,
-    product: Option<f64>,
-    /// Why a null product or growth is null (`outside_canonical_profile`
-    /// states a magnitude of at least 2⁵³).
-    product_reason: Option<String>,
-    separation: Vo,
-    growth: Option<f64>,
-    growth_reason: Option<String>,
+    shift: Num,
+    formation_term: Num,
+    factor_term: Num,
+    backward_error: Num,
+    inverse_norm: Num,
+    product: Num,
+    separation: Num,
+    growth: Num,
+    /// max|L|, max|d|, max|ã|: on a factored candidate, published or
+    /// outside the profile.
+    maxima: [Num; 3],
+}
+
+/// A published nonnegative number with what its null states: a value object
+/// that is null `outside_canonical_profile` or `not_finite` is known to be at
+/// least 2⁵³ (or not finite), which every relation keeps as a bound.
+#[derive(Debug, Clone, PartialEq)]
+struct Num {
+    value: Option<f64>,
+    reason: Option<String>,
+}
+
+/// 2⁵³: the checked profile carries no integral binary64 this large.
+const PROFILE_FLOOR: f64 = 9_007_199_254_740_992.0;
+
+fn mr_large(reason: &Option<String>) -> bool {
+    matches!(reason.as_deref(), Some("outside_canonical_profile") | Some("not_finite"))
+}
+
+impl Num {
+    fn mr_from(vo: &Vo) -> Self {
+        Num { value: vo.value, reason: vo.undefined.clone() }
+    }
+    /// The interval [lo, hi] the value lies in, and whether anything beyond
+    /// nonnegativity is known.
+    fn mr_span(&self) -> ((f64, f64), bool) {
+        match self.value {
+            Some(v) => ((v, v), true),
+            None if mr_large(&self.reason) => ((PROFILE_FLOOR, f64::INFINITY), true),
+            None => ((0.0, f64::INFINITY), false),
+        }
+    }
+    fn mr_is_large(&self) -> bool {
+        self.value.is_none() && mr_large(&self.reason)
+    }
+}
+
+/// The interval of a sum and of a product of nonnegative intervals.
+fn mr_span_sum(a: (f64, f64), b: (f64, f64)) -> (f64, f64) {
+    (a.0 + b.0, a.1 + b.1)
+}
+fn mr_span_product(a: (f64, f64), b: (f64, f64)) -> (f64, f64) {
+    let lo = if a.0 == 0.0 || b.0 == 0.0 { 0.0 } else { a.0 * b.0 };
+    let hi = if (a.1.is_infinite() && b.0 == 0.0) || (b.1.is_infinite() && a.0 == 0.0) { f64::INFINITY } else { a.1 * b.1 };
+    (lo, hi)
+}
+/// Whether two intervals are disjoint beyond a relative rounding allowance:
+/// then a relation asserting the values equal is contradicted.
+fn mr_spans_disjoint(a: (f64, f64), b: (f64, f64)) -> bool {
+    a.0 > b.1 * (1.0 + 8.0 * U) || b.0 > a.1 * (1.0 + 8.0 * U)
+}
+/// A premise `value ≤ limit` on an interval: Some(true) holds, Some(false)
+/// fails, None undecidable.
+fn mr_span_at_most(span: (f64, f64), limit: f64) -> Option<bool> {
+    if span.0 > limit {
+        Some(false)
+    } else if span.1 <= limit {
+        Some(true)
+    } else {
+        None
+    }
+}
+
+/// One identity row: what it compares and its relative discrepancy.
+struct IdentityRow {
+    subject_kind: String,
+    subject: String,
+    axis: usize,
+    comparison: String,
+    relative: Option<f64>,
+    reason: Option<String>,
 }
 
 /// Everything the relations read, after closure.
@@ -749,18 +826,18 @@ struct Parsed {
     /// Per global DOF, its free index.
     free: Vec<Option<usize>>,
     /// (row, col, value); `None` when withheld.
-    mass: Option<Vec<(usize, usize, Option<f64>)>>,
-    totals: [Option<f64>; 3],
-    free_totals: [Option<f64>; 3],
+    mass: Option<Vec<(usize, usize, Num)>>,
+    totals: [Num; 3],
+    free_totals: [Num; 3],
     modes: Vec<Mode>,
     /// Per mode, per global DOF; `None` when withheld.
     shapes: Option<Vec<Vec<Option<f64>>>>,
     participation: Vec<[Participation; 3]>,
-    clusters: Vec<(usize, usize, bool, Option<f64>)>,
+    clusters: Vec<(usize, usize, bool, Num)>,
     computed: Vec<Computed>,
     candidates: Vec<Candidate>,
-    /// (subject, axis, comparison, relative discrepancy), in row order.
-    identity: Vec<(String, usize, String, Option<f64>)>,
+    /// The identity rows, in row order.
+    identity: Vec<IdentityRow>,
     /// The straight members of the discretization table, in row order.
     members: Vec<String>,
     /// The state case's linearization: `None` without a state case.
@@ -797,7 +874,7 @@ struct Parsed {
     limit: Option<f64>,
     kappa_s: Option<f64>,
     growth_limit: Option<f64>,
-    ortho: Option<f64>,
+    ortho: Num,
     ortho_pair: bool,
     formation: Vec<Option<f64>>,
 }
@@ -903,7 +980,7 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
                 mr_id_is(r, &path, &format!("mass:{}|{}", r["row_dof_ref"].as_str().unwrap_or(""), r["col_dof_ref"].as_str().unwrap_or("")))?;
                 let vo = mr_vo(&r["value"], &mr_at(&path, "value"), &["mass_matrix_entry"])?;
                 mr_unitize(&mut unitized, &vo, pair, &mr_at(&path, "value"));
-                out.push((a, b, vo.value));
+                out.push((a, b, Num::mr_from(&vo)));
             }
             Some(out)
         }
@@ -912,7 +989,8 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
     if total_rows.len() != 3 {
         return Err("/tables/mass_totals: one row per direction".into());
     }
-    let (mut totals, mut free_totals) = ([None; 3], [None; 3]);
+    let none = || Num { value: None, reason: None };
+    let (mut totals, mut free_totals) = ([none(), none(), none()], [none(), none(), none()]);
     for (k, row) in total_rows.iter().enumerate() {
         let path = format!("/tables/mass_totals/rows/{k}");
         let r = mr_fields(row, &path, &["direction", "basis_ref", "total_mass", "free_dof_mass"])?;
@@ -923,8 +1001,8 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
         }
         let t = mr_vo(&r["total_mass"], &mr_at(&path, "total_mass"), &["modal_total_mass"])?;
         let f = mr_vo(&r["free_dof_mass"], &mr_at(&path, "free_dof_mass"), &["modal_free_dof_mass"])?;
-        totals[k] = t.value;
-        free_totals[k] = f.value;
+        totals[k] = Num::mr_from(&t);
+        free_totals[k] = Num::mr_from(&f);
         mr_unitize(&mut unitized, &t, "fixed", &mr_at(&path, "total_mass"));
         mr_unitize(&mut unitized, &f, "fixed", &mr_at(&path, "free_dof_mass"));
     }
@@ -963,9 +1041,10 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
             ("backward_error", "residual_backward_error"), ("condition", "eigenvalue_condition_estimate"), ("error_estimate", "eigenvalue_error_estimate")] {
             let vo = mr_vo(&r[field], &mr_at(&path, field), &[kind])?;
             mr_unitize(&mut unitized, &vo, "fixed", &mr_at(&path, field));
-            vos.push(vo.value);
+            vos.push(vo);
         }
-        computed.push(Computed { cluster, reported, mode, omega: vos[0], frequency: vos[1], eta: vos[2], condition: vos[3], estimate: vos[4] });
+        computed.push(Computed { cluster, reported, mode, omega: vos[0].value, frequency: vos[1].value, eta: Num::mr_from(&vos[2]),
+            condition: Num::mr_from(&vos[3]), estimate: Num::mr_from(&vos[4]) });
     }
     let mut clusters = Vec::with_capacity(cluster_rows.len());
     for (i, row) in cluster_rows.iter().enumerate() {
@@ -983,7 +1062,7 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
         let reported = mr_flag(&r["reported"], &mr_at(&path, "reported"))?;
         let vo = mr_vo(&r["error_estimate"], &mr_at(&path, "error_estimate"), &["cluster_error_estimate"])?;
         mr_unitize(&mut unitized, &vo, "fixed", &mr_at(&path, "error_estimate"));
-        clusters.push((first, last, reported, vo.value));
+        clusters.push((first, last, reported, Num::mr_from(&vo)));
     }
     let mut modes = Vec::with_capacity(n);
     for (i, row) in mode_rows.iter().enumerate() {
@@ -1014,7 +1093,7 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
         let frequency = get_vo("frequency", "modal_frequency", "fixed")?.value;
         let period = get_vo("period", "modal_period", "fixed")?.value;
         let generalized_mass = get_vo("generalized_mass", "modal_generalized_mass", CASES[case])?;
-        let cluster_estimate = get_vo("cluster_error_estimate", "modal_cluster_error_estimate", "fixed")?.value;
+        let cluster_estimate = Num::mr_from(&get_vo("cluster_error_estimate", "modal_cluster_error_estimate", "fixed")?);
         modes.push(Mode { case, reference, sensitive: token == "sensitive", reasons: reasons.len(), omega, frequency, period, generalized_mass,
             cluster_estimate, cluster });
     }
@@ -1094,34 +1173,40 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
             mr_unitize(&mut unitized, &vo, "fixed", &mr_at(&path, field));
             Ok(vo)
         };
-        let shift = read("shift", "sturm_shift_circular_frequency")?.value;
-        let formation_term = read("formation_term", "sturm_formation_term")?.value;
-        read("formation_separation_ratio", "sturm_formation_separation_ratio")?;
-        let factor_term = read("factor_term", "sturm_factor_term")?.value;
-        let backward_error = read("backward_error", "sturm_backward_error")?.value;
-        let inverse_norm = read("inverse_norm_estimate", "sturm_inverse_norm_estimate")?.value;
-        let product_vo = read("conditioning_product", "sturm_conditioning_product")?;
-        let separation = read("separation_ratio", "sturm_separation_ratio")?;
-        let growth_vo = read("growth", "sturm_growth_factor")?;
-        read("max_abs_lower_factor", "sturm_max_abs_lower_factor")?;
-        read("max_abs_pivot", "sturm_max_abs_pivot")?;
-        read("max_abs_scaled_diagonal", "sturm_max_abs_scaled_diagonal")?;
-        candidates.push(Candidate { decision, pivots, shift, formation_term, factor_term, backward_error, inverse_norm, product: product_vo.value,
-            product_reason: product_vo.undefined, separation, growth: growth_vo.value, growth_reason: growth_vo.undefined });
+        let mut num = |field: &str, kind: &str| -> R<Num> { Ok(Num::mr_from(&read(field, kind)?)) };
+        let shift = num("shift", "sturm_shift_circular_frequency")?;
+        let formation_term = num("formation_term", "sturm_formation_term")?;
+        num("formation_separation_ratio", "sturm_formation_separation_ratio")?;
+        let factor_term = num("factor_term", "sturm_factor_term")?;
+        let backward_error = num("backward_error", "sturm_backward_error")?;
+        let inverse_norm = num("inverse_norm_estimate", "sturm_inverse_norm_estimate")?;
+        let product = num("conditioning_product", "sturm_conditioning_product")?;
+        let separation = num("separation_ratio", "sturm_separation_ratio")?;
+        let growth = num("growth", "sturm_growth_factor")?;
+        let maxima = [
+            num("max_abs_lower_factor", "sturm_max_abs_lower_factor")?,
+            num("max_abs_pivot", "sturm_max_abs_pivot")?,
+            num("max_abs_scaled_diagonal", "sturm_max_abs_scaled_diagonal")?,
+        ];
+        candidates.push(Candidate { decision, pivots, shift, formation_term, factor_term, backward_error, inverse_norm, product, separation, growth, maxima });
     }
     let identity_rows = get("identity")?.ok_or("/tables/identity: withheld")?;
     let mut identity = Vec::new();
     for (i, row) in identity_rows.iter().enumerate() {
         let path = format!("/tables/identity/rows/{i}");
-        let r = mr_fields(row, &path, &["subject", "axis", "comparison", "relative"])?;
+        let r = mr_fields(row, &path, &["subject", "subject_kind", "axis", "comparison", "relative"])?;
         mr_id_is(r, &path, &format!("identity:{i}"))?;
         let subject = mr_text(&r["subject"], &mr_at(&path, "subject"))?.to_string();
+        let subject_kind = mr_one_of(&r["subject_kind"], &mr_at(&path, "subject_kind"), &["member", "component_body", "model"])?.to_string();
+        if subject_kind == "model" && subject != "model" {
+            return Err(format!("{path}: the aggregate subject is `model`"));
+        }
         let axis = mr_one_of(&r["axis"], &mr_at(&path, "axis"), &DIRECTIONS)?;
         let comparison = mr_one_of(&r["comparison"], &mr_at(&path, "comparison"), &["nodal", "resultant"])?.to_string();
         let vo = mr_vo(&r["relative"], &mr_at(&path, "relative"), &["identity_relative_discrepancy"])?;
         mr_unitize(&mut unitized, &vo, "fixed", &mr_at(&path, "relative"));
         let axis = DIRECTIONS.iter().position(|d| *d == axis).unwrap_or(0);
-        identity.push((subject, axis, comparison, vo.value));
+        identity.push(IdentityRow { subject_kind, subject, axis, comparison, relative: vo.value, reason: vo.undefined });
     }
     let mut supports = Vec::new();
     for (i, row) in get("supports")?.ok_or("/tables/supports: withheld")?.iter().enumerate() {
@@ -1261,7 +1346,7 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
     let kappa_s = header_vo(&s["separation_multiple"], "/sturm/separation_multiple", "sturm_premise_parameter")?.value;
     let growth_limit = header_vo(&s["growth_limit"], "/sturm/growth_limit", "sturm_premise_parameter")?.value;
     let o = mr_object(&doc["orthogonality"], "/orthogonality", &["max_ratio", "pair"])?;
-    let ortho = header_vo(&o["max_ratio"], "/orthogonality/max_ratio", "orthogonality_max_ratio")?.value;
+    let ortho = Num::mr_from(&header_vo(&o["max_ratio"], "/orthogonality/max_ratio", "orthogonality_max_ratio")?);
     let ortho_pair = !o["pair"].is_null();
     if ortho_pair {
         let pair = mr_list(&o["pair"], "/orthogonality/pair")?;
@@ -1525,56 +1610,81 @@ fn mr_tol_close(published: f64, derived: f64, tolerance: f64) -> bool {
 fn mr_mass(p: &Parsed) -> R<Vec<String>> {
     let mut scope = Vec::new();
     for k in 0..3 {
-        let total = p.totals[k].ok_or_else(|| format!("T_{}: not published", DIRECTIONS[k]))?;
-        if total < 0.0 {
+        let ((_, total_hi), known) = p.totals[k].mr_span();
+        if !known {
+            return Err(format!("T_{}: not published, and its null states no bound", DIRECTIONS[k]));
+        }
+        if p.totals[k].value.is_some_and(|t| t < 0.0) {
             return Err(format!("T_{}: negative", DIRECTIONS[k]));
         }
         let mut sum = 0.0f64;
         let mut count = 0usize;
         for m in 0..p.modes.len() {
-            if let Some(e) = p.participation[m][k].effective.value {
-                sum += e;
-                count += 1;
+            let effective = &p.participation[m][k].effective;
+            match effective.value {
+                Some(e) => sum += e,
+                // m_eff outside the profile is at least 2⁵³.
+                None if mr_large(&effective.undefined) => sum += PROFILE_FLOOR,
+                None => {}
             }
+            count += 1;
         }
-        if sum > total * (1.0 + ALLOW * ((count + 2) as f64) * U) {
-            return Err(format!("Σ m_eff,{} = {sum:e} exceeds T_{} = {total:e} (Bessel's inequality)", DIRECTIONS[k], DIRECTIONS[k]));
+        if sum > total_hi * (1.0 + ALLOW * ((count + 2) as f64) * U) {
+            return Err(format!("Σ m_eff,{} = {sum:e} exceeds T_{} (Bessel's inequality)", DIRECTIONS[k], DIRECTIONS[k]));
         }
     }
     let Some(entries) = &p.mass else {
         scope.push("mass_matrix withheld: T_k and the free-DOF mass are not re-derived".to_string());
         return Ok(scope);
     };
-    for &(i, j, v) in entries {
-        let v = v.ok_or("a mass entry is not published")?;
-        if i == j && v < 0.0 {
+    for (i, j, v) in entries {
+        if v.value.is_none() && !v.mr_is_large() {
+            return Err(format!("mass entry ({i}, {j}): null without a profile bound"));
+        }
+        if i == j && v.value.is_some_and(|v| v < 0.0) {
             return Err(format!("mass diagonal at DOF {i} is negative"));
         }
     }
     for k in 0..3 {
-        let (mut s, mut a, mut n, mut fs, mut fa, mut fneed) = (0.0f64, 0.0f64, 0usize, 0.0f64, 0.0f64, 0usize);
-        for &(i, j, v) in entries {
-            let v = v.unwrap_or(0.0);
-            if i % 6 == k && j % 6 == k {
-                let w = if i == j { 1.0 } else { 2.0 };
-                let term = w * v;
-                s += term;
-                a += term.abs();
-                n += 1;
-                if p.free[i].is_some() && p.free[j].is_some() {
-                    fs += term;
-                    fa += term.abs();
-                    fneed += 1;
+        for (published, free_only, name) in [(&p.totals[k], false, "T_"), (&p.free_totals[k], true, "free-DOF mass ")] {
+            // Known terms are summed; an entry outside the profile is at least
+            // 2⁵³ on the diagonal (a mass) and of unknown sign off it.
+            let (mut s, mut a, mut n, mut large_diagonal, mut large_coupling) = (0.0f64, 0.0f64, 0usize, 0usize, 0usize);
+            for (i, j, v) in entries {
+                if !(i % 6 == k && j % 6 == k) || (free_only && !(p.free[*i].is_some() && p.free[*j].is_some())) {
+                    continue;
+                }
+                match v.value {
+                    Some(v) => {
+                        let term = if i == j { v } else { 2.0 * v };
+                        s += term;
+                        a += term.abs();
+                        n += 1;
+                    }
+                    None if i == j => large_diagonal += 1,
+                    None => large_coupling += 1,
                 }
             }
-        }
-        let total = p.totals[k].unwrap_or(f64::NAN);
-        if !mr_tol_close(total, s, ALLOW * ((n + 4) as f64) * U * a) {
-            return Err(format!("T_{} = {total:e} is not R_kᵀ M R_k = {s:e} of the mass entries", DIRECTIONS[k]));
-        }
-        let free_total = p.free_totals[k].ok_or_else(|| format!("free-DOF mass {}: not published", DIRECTIONS[k]))?;
-        if !mr_tol_close(free_total, fs, ALLOW * ((fneed + 4) as f64) * U * fa) {
-            return Err(format!("free-DOF mass {} = {free_total:e} is not R_k,fᵀ M_ff R_k,f = {fs:e}", DIRECTIONS[k]));
+            let tolerance = ALLOW * ((n + 4) as f64) * U * a;
+            let (published_span, known) = published.mr_span();
+            if !known {
+                return Err(format!("{name}{}: not published, and its null states no bound", DIRECTIONS[k]));
+            }
+            if large_coupling > 0 {
+                scope.push(format!("{name}{}: an off-diagonal mass entry is outside the profile, so the sum is not re-derived", DIRECTIONS[k]));
+                continue;
+            }
+            let derived = if large_diagonal > 0 {
+                (s - tolerance + (large_diagonal as f64) * PROFILE_FLOOR, f64::INFINITY)
+            } else {
+                (s - tolerance, s + tolerance)
+            };
+            if published_span.0 > derived.1 || derived.0 > published_span.1 {
+                return Err(format!("{name}{} is not the sum of the mass entries ({:e} against [{:e}, {:e}])", DIRECTIONS[k], published_span.0, derived.0, derived.1));
+            }
+            if large_diagonal > 0 && published.value.is_none() {
+                scope.push(format!("{name}{}: both the sum and a diagonal entry are outside the profile", DIRECTIONS[k]));
+            }
         }
     }
     Ok(scope)
@@ -1663,23 +1773,66 @@ fn mr_participation(p: &Parsed) -> R<Vec<String>> {
     let mut cumulative = [0.0f64; 3];
     for (m, mode) in p.modes.iter().enumerate() {
         let label = m + 1;
-        let mass_value = mode.generalized_mass.value.ok_or_else(|| format!("mode {label}: m not published"))?;
-        if !(mass_value > 0.0 || mode.generalized_mass.below_normal) {
+        let m_num = Num::mr_from(&mode.generalized_mass);
+        if m_num.value.is_none() && !m_num.mr_is_large() {
+            return Err(format!("mode {label}: m not published, and its null states no bound"));
+        }
+        if m_num.value.is_some_and(|v| !(v > 0.0 || mode.generalized_mass.below_normal)) {
             return Err(format!("mode {label}: m is not positive"));
         }
         for k in 0..3 {
             let row = &p.participation[m][k];
-            let gamma = row.gamma.value.ok_or_else(|| format!("mode {label}: Γ_{} not published", DIRECTIONS[k]))?;
-            let effective = row.effective.value.ok_or_else(|| format!("mode {label}: m_eff,{} not published", DIRECTIONS[k]))?;
-            if effective < 0.0 {
+            let (g_num, e_num) = (Num::mr_from(&row.gamma), Num::mr_from(&row.effective));
+            if [&g_num, &e_num].iter().any(|v| v.value.is_none() && !v.mr_is_large()) {
+                return Err(format!("mode {label}: Γ_{} or m_eff,{} not published, and its null states no bound", DIRECTIONS[k], DIRECTIONS[k]));
+            }
+            if e_num.value.is_some_and(|e| e < 0.0) {
                 return Err(format!("mode {label}: m_eff,{} is negative", DIRECTIONS[k]));
             }
+            let (Some(mass_value), Some(gamma), Some(effective)) = (m_num.value, g_num.value, e_num.value) else {
+                // A value outside the profile: Γ²·m = m_eff and fraction·T_k = m_eff on
+                // intervals (|Γ| for the signed Γ).
+                let g = g_num.mr_span().0;
+                let g = (g.0.abs(), g.1.abs());
+                let g = if g_num.value.is_some() { g } else { (PROFILE_FLOOR, f64::INFINITY) };
+                let g2m = mr_span_product(mr_span_product(g, g), m_num.mr_span().0);
+                let e = e_num.mr_span().0;
+                if mr_spans_disjoint(g2m, e) {
+                    return Err(format!("mode {label}: Γ_{}²·m = m_eff is contradicted by the bounds", DIRECTIONS[k]));
+                }
+                let total = p.totals[k].mr_span().0;
+                if total.1 == 0.0 && e.0 > 0.0 {
+                    return Err(format!("mode {label}: with T_{} = 0, m_eff is 0", DIRECTIONS[k]));
+                }
+                match row.fraction.value {
+                    Some(fraction) => {
+                        if mr_spans_disjoint(mr_span_product((fraction, fraction), total), e) {
+                            return Err(format!("mode {label}: fraction {}·T_k = m_eff is contradicted by the bounds", DIRECTIONS[k]));
+                        }
+                        cumulative[k] += fraction;
+                    }
+                    None if total.0 > 0.0 => return Err(format!("mode {label}: fraction {} undefined with T_k > 0", DIRECTIONS[k])),
+                    None => {}
+                }
+                scope.push(format!("mode {label}: a participation value along {} is outside the profile; its relations are held on bounds", DIRECTIONS[k]));
+                continue;
+            };
             let flagged = row.gamma.below_normal || row.effective.below_normal || mode.generalized_mass.below_normal;
             let g2m = gamma * gamma * mass_value;
             if !flagged && !mr_tol_close(g2m, effective, ALLOW * U * effective.max(g2m)) {
                 return Err(format!("mode {label}: Γ_{}²·m = {g2m:e} is not m_eff = {effective:e}", DIRECTIONS[k]));
             }
-            let total = p.totals[k].unwrap_or(f64::NAN);
+            if p.totals[k].mr_is_large() {
+                // T_k ≥ 2⁵³: the fraction is at most m_eff/2⁵³.
+                if let Some(fraction) = row.fraction.value {
+                    if fraction * PROFILE_FLOOR > effective * (1.0 + ALLOW * U) {
+                        return Err(format!("mode {label}: fraction {}·T_k exceeds m_eff with T_k outside the profile (at least 2⁵³)", DIRECTIONS[k]));
+                    }
+                }
+                scope.push(format!("mode {label}: T_{} is outside the profile; the fraction is bounded, not re-derived", DIRECTIONS[k]));
+                continue;
+            }
+            let total = p.totals[k].value.unwrap_or(f64::NAN);
             if total == 0.0 {
                 if row.fraction.undefined.as_deref() != Some("total_mass_zero") || effective != 0.0 {
                     return Err(format!("mode {label}: with T_{} = 0 the fraction is undefined and m_eff is 0", DIRECTIONS[k]));
@@ -1716,21 +1869,35 @@ fn mr_participation(p: &Parsed) -> R<Vec<String>> {
         }
         return Ok(scope);
     };
+    if entries.iter().any(|(_, _, v)| v.value.is_none()) {
+        // A mass entry outside the profile (|M_ij| ≥ 2⁵³) leaves φᵀMφ and φᵀp_k
+        // undecidable in binary64: the shape's components have either sign.
+        scope.push("a mass entry is outside the profile: m_i and φᵀp_k are not re-derived".to_string());
+        return Ok(scope);
+    }
     for (m, mode) in p.modes.iter().enumerate() {
         let label = m + 1;
         let phi: Vec<f64> = shapes[m].iter().map(|v| v.unwrap_or(f64::NAN)).collect();
         let (mut mass, mut abs_mass, mut terms) = (0.0f64, 0.0f64, 0usize);
-        for &(i, j, v) in entries {
+        for (i, j, v) in entries {
+            let (i, j, v) = (*i, *j, v.value.unwrap_or(f64::NAN));
             if p.free[i].is_some() && p.free[j].is_some() {
                 let w = if i == j { 1.0 } else { 2.0 };
-                let term = w * (phi[i] * v.unwrap_or(0.0) * phi[j]);
+                let term = w * (phi[i] * v * phi[j]);
                 mass += term;
                 abs_mass += term.abs();
                 terms += 1;
             }
         }
-        let published = mode.generalized_mass.value.unwrap_or(f64::NAN);
         let mass_tolerance = ALLOW * ((terms + 4) as f64) * U * abs_mass;
+        let Some(published) = mode.generalized_mass.value else {
+            // m outside the profile: φᵀM_ffφ from the payload is at least 2⁵³.
+            if mass + mass_tolerance < PROFILE_FLOOR {
+                return Err(format!("mode {label}: m published outside the profile, but φᵀM_ffφ = {mass:e} from the payload is within it"));
+            }
+            scope.push(format!("mode {label}: m is outside the profile; Γ and m_eff are not re-derived from the payload"));
+            continue;
+        };
         if mode.generalized_mass.below_normal {
             // The flag claims 0 < φᵀM_ffφ < 2⁻¹⁰²²: held to the payload's value.
             if mass.abs() - mass_tolerance >= f64::MIN_POSITIVE {
@@ -1744,8 +1911,8 @@ fn mr_participation(p: &Parsed) -> R<Vec<String>> {
         }
         for k in 0..3 {
             let (mut s, mut a, mut n) = (0.0f64, 0.0f64, 0usize);
-            for &(i, j, v) in entries {
-                let v = v.unwrap_or(0.0);
+            for (i, j, v) in entries {
+                let (i, j, v) = (*i, *j, v.value.unwrap_or(f64::NAN));
                 if p.free[i].is_some() && j % 6 == k {
                     let term = phi[i] * v;
                     s += term;
@@ -1760,11 +1927,21 @@ fn mr_participation(p: &Parsed) -> R<Vec<String>> {
                 }
             }
             let row = &p.participation[m][k];
-            let gamma = row.gamma.value.unwrap_or(f64::NAN);
-            let effective = row.effective.value.unwrap_or(f64::NAN);
             let e = ALLOW * ((n + 6) as f64) * U;
-            // The smallest |φᵀp_k| the payload allows.
+            // The smallest and largest |φᵀp_k| the payload allows.
             let s_low = (s.abs() - e * a).max(0.0);
+            let s_high = s.abs() + e * a;
+            let (Some(gamma), Some(effective)) = (row.gamma.value, row.effective.value) else {
+                // |Γ| = |φᵀp_k|/m or m_eff = (φᵀp_k)²/m outside the profile.
+                if row.gamma.value.is_none() && s_high < PROFILE_FLOOR * published * (1.0 - ALLOW * U) {
+                    return Err(format!("mode {label}: Γ_{} published outside the profile, but |φᵀp_k|/m from the payload is within it", DIRECTIONS[k]));
+                }
+                if row.effective.value.is_none() && s_high * s_high < PROFILE_FLOOR * published * (1.0 - ALLOW * U) {
+                    return Err(format!("mode {label}: m_eff,{} published outside the profile, but (φᵀp_k)²/m from the payload is within it", DIRECTIONS[k]));
+                }
+                scope.push(format!("mode {label}: Γ_{} or m_eff,{} is outside the profile; it is bounded, not re-derived", DIRECTIONS[k], DIRECTIONS[k]));
+                continue;
+            };
             if row.gamma.below_normal {
                 // Γ = s/m below 2⁻¹⁰²² needs |s| < 2⁻¹⁰²²·m.
                 if s_low > f64::MIN_POSITIVE * published * (1.0 + ALLOW * U) {
@@ -1939,7 +2116,8 @@ fn mr_clusters(p: &Parsed) -> R<Vec<String>> {
     if p.clusters.len() != highest {
         return Err(format!("{} cluster rows for {highest} clusters", p.clusters.len()));
     }
-    for (c, &(first, last, reported, estimate)) in p.clusters.iter().enumerate() {
+    for (c, (first, last, reported, estimate)) in p.clusters.iter().enumerate() {
+        let (first, last, reported) = (*first, *last, *reported);
         let id = c + 1;
         let members: Vec<usize> = (0..total).filter(|&i| p.computed[i].cluster == id).collect();
         if members.first().map(|i| i + 1) != Some(first) || members.last().map(|i| i + 1) != Some(last) {
@@ -1948,19 +2126,24 @@ fn mr_clusters(p: &Parsed) -> R<Vec<String>> {
         if reported != (first <= p.modes.len()) {
             return Err(format!("cluster {id}: its reported flag is not the set's"));
         }
-        let mut max = 0.0f64;
+        // The largest member e_λ; a member outside the profile makes it at
+        // least 2⁵³, so the cluster's must be outside the profile too.
+        let (mut max, mut large) = (0.0f64, false);
         for &i in &members {
-            let e = p.computed[i].estimate.ok_or_else(|| format!("computed mode {}: e_λ not published", i + 1))?;
-            if e > max {
-                max = e;
+            let e = &p.computed[i].estimate;
+            match e.value {
+                Some(v) => max = if v > max { v } else { max },
+                None if e.mr_is_large() => large = true,
+                None => return Err(format!("computed mode {}: e_λ not published, and its null states no bound", i + 1)),
             }
         }
-        if estimate != Some(max) {
+        let holds = if large { estimate.mr_is_large() } else { estimate.value == Some(max) };
+        if !holds {
             return Err(format!("cluster {id}: its e_λ is not its members' largest"));
         }
     }
     for (m, mode) in p.modes.iter().enumerate() {
-        if mode.cluster_estimate != p.clusters.get(mode.cluster.wrapping_sub(1)).and_then(|c| c.3) {
+        if Some(&mode.cluster_estimate) != p.clusters.get(mode.cluster.wrapping_sub(1)).map(|c| &c.3) {
             return Err(format!("mode {}: its cluster e_λ is not its cluster's", m + 1));
         }
     }
@@ -2016,56 +2199,80 @@ fn mr_sturm(p: &Parsed) -> R<Vec<String>> {
             return Err(format!("candidate {label}: only the last candidate is accepted"));
         }
         let factored = c.pivots.is_some();
-        let separated = match c.separation.value {
-            None if c.separation.undefined.as_deref() == Some("no_neighbour") => Some(true),
-            None => None,
-            Some(r) => Some(r >= ks * (1.0 - 8.0 * U)),
+        // Separation: no neighbour separates; outside the profile it is at least
+        // 2⁵³ ≥ κ_s; otherwise an unpublished ratio is undecided.
+        let separated = match (c.separation.value, c.separation.reason.as_deref()) {
+            (Some(r), _) => Some(r >= ks * (1.0 - 8.0 * U)),
+            (None, Some("no_neighbour")) => Some(true),
+            (None, _) if c.separation.mr_is_large() => Some(PROFILE_FLOOR >= ks * (1.0 - 8.0 * U)),
+            (None, _) => None,
         };
         match c.decision.as_str() {
-            "accepted" | "unseparated" | "growth_limit" | "ill_conditioned" if !factored && c.decision != "unseparated" => {
+            "accepted" | "growth_limit" | "ill_conditioned" if !factored => {
                 return Err(format!("candidate {label}: decision `{}` needs a factorization", c.decision));
             }
             _ => {}
         }
-        // Each relation is checked on its own evidence; a missing value
-        // scopes only the relation that needs it.
         if factored {
-            match (c.backward_error, c.factor_term, c.formation_term) {
-                (Some(be), Some(ft), Some(fo)) if be != ft + fo => {
+            // On a factored candidate every factored value is published or
+            // outside the profile; another null states nothing and refuses.
+            let fields = [&c.formation_term, &c.factor_term, &c.backward_error, &c.inverse_norm, &c.product, &c.growth];
+            if fields.iter().copied().chain(c.maxima.iter()).any(|v| v.value.is_none() && !v.mr_is_large()) {
+                return Err(format!("candidate {label}: a factored value is null without a profile bound"));
+            }
+            if c.separation.value.is_none() && !c.separation.mr_is_large() && c.separation.reason.as_deref() != Some("no_neighbour") {
+                return Err(format!("candidate {label}: its separation ratio is null without a profile bound or a missing neighbour"));
+            }
+            // e_b = factor term + formation term, on intervals.
+            let (be, _) = c.backward_error.mr_span();
+            let (ft, _) = c.factor_term.mr_span();
+            let (fo, _) = c.formation_term.mr_span();
+            match (c.backward_error.value, c.factor_term.value, c.formation_term.value) {
+                (Some(b), Some(t), Some(o)) if b != t + o => {
                     return Err(format!("candidate {label}: e_b is not the factor term plus the formation term"));
                 }
                 (Some(_), Some(_), Some(_)) => {}
-                _ => scope.push(format!("candidate {label}: e_b = factor + formation term is not re-derivable (a term is not published)")),
+                _ if mr_spans_disjoint(be, mr_span_sum(ft, fo)) => {
+                    return Err(format!("candidate {label}: e_b = factor term + formation term is contradicted by the bounds ([{:e}, {:e}] against [{:e}, {:e}])",
+                        be.0, be.1, ft.0 + fo.0, ft.1 + fo.1));
+                }
+                _ => scope.push(format!("candidate {label}: e_b = factor + formation term is undecidable on the published bounds")),
             }
-            match (c.product, c.backward_error, c.inverse_norm) {
-                (Some(product), Some(be), Some(nu)) if product != be * nu => {
+            // e_b·ν, on intervals.
+            let (product, _) = c.product.mr_span();
+            let (nu, _) = c.inverse_norm.mr_span();
+            match (c.product.value, c.backward_error.value, c.inverse_norm.value) {
+                (Some(x), Some(b), Some(v)) if x != b * v => {
                     return Err(format!("candidate {label}: the conditioning product is not e_b·ν"));
                 }
                 (Some(_), Some(_), Some(_)) => {}
-                _ => scope.push(format!("candidate {label}: e_b·ν is not re-derivable (a factor is not published)")),
+                _ if mr_spans_disjoint(product, mr_span_product(be, nu)) => {
+                    return Err(format!("candidate {label}: the conditioning product is contradicted by the bounds of e_b·ν"));
+                }
+                _ => scope.push(format!("candidate {label}: e_b·ν is undecidable on the published bounds")),
             }
         }
+        // The conditioning product's interval: what it is published as, met by
+        // what e_b·ν allows.
+        let product_span = {
+            let (published, _) = c.product.mr_span();
+            let derived = mr_span_product(c.backward_error.mr_span().0, c.inverse_norm.mr_span().0);
+            (published.0.max(derived.0), published.1.min(derived.1))
+        };
+        let (growth_span, _) = c.growth.mr_span();
         if c.decision == "accepted" {
             if c.pivots != Some(p.sturm_count) {
                 return Err(format!("the accepted candidate's negative-pivot count {:?} is not the Sturm count {}", c.pivots, p.sturm_count));
             }
-            // A null value outside the profile is at least 2⁵³: a known lower bound.
-            let outside = |reason: &Option<String>| reason.as_deref() == Some("outside_canonical_profile");
-            match c.product {
-                Some(product) if product > limit => return Err("the accepted shift fails the conditioning premise e_b·ν ≤ 1/κ_c".into()),
-                Some(_) => {}
-                None if outside(&c.product_reason) => {
-                    return Err("the accepted shift's conditioning product e_b·ν is outside the profile (at least 2⁵³), above 1/κ_c".into());
-                }
-                None => scope.push("the accepted e_b·ν is not published: the conditioning premise is not re-derived".to_string()),
+            match mr_span_at_most(product_span, limit) {
+                Some(true) => {}
+                Some(false) => return Err(format!("the accepted shift fails the conditioning premise: its conditioning product is at least {:e}, above 1/κ_c = {limit:e}", product_span.0)),
+                None => scope.push("the accepted conditioning product is undecidable against 1/κ_c on the published bounds".to_string()),
             }
-            match c.growth {
-                Some(growth) if growth > g_max => return Err("the accepted shift exceeds the growth limit".into()),
-                Some(_) => {}
-                None if outside(&c.growth_reason) && g_max < 9_007_199_254_740_992.0 => {
-                    return Err("the accepted shift's growth is outside the profile (at least 2⁵³), above g_max".into());
-                }
-                None => scope.push("the accepted growth is not published: the growth premise is not re-derived".to_string()),
+            match mr_span_at_most(growth_span, g_max) {
+                Some(true) => {}
+                Some(false) => return Err(format!("the accepted shift exceeds the growth limit: its growth is at least {:e}", growth_span.0)),
+                None => scope.push("the accepted growth is undecidable against g_max on the published bounds".to_string()),
             }
             match separated {
                 Some(true) => {}
@@ -2075,13 +2282,13 @@ fn mr_sturm(p: &Parsed) -> R<Vec<String>> {
         }
         if factored {
             match c.decision.as_str() {
-                "growth_limit" if !(c.growth.map_or(true, |g| g > g_max) && separated != Some(false)) => {
+                "growth_limit" if mr_span_at_most(growth_span, g_max) == Some(true) || separated == Some(false) => {
                     return Err(format!("candidate {label}: refused for growth within the limit"));
                 }
-                "ill_conditioned" if !(c.product.map_or(true, |x| x > limit) && c.growth.map_or(false, |g| g <= g_max)) => {
+                "ill_conditioned" if mr_span_at_most(product_span, limit) == Some(true) || mr_span_at_most(growth_span, g_max) == Some(false) => {
                     return Err(format!("candidate {label}: refused as ill-conditioned within the premise"));
                 }
-                "unseparated" if separated == Some(true) && c.separation.value.map_or(false, |r| r >= ks * (1.0 + 8.0 * U)) => {
+                "unseparated" if c.separation.value.map_or(c.separation.reason.as_deref() == Some("no_neighbour") || c.separation.mr_is_large(), |r| r >= ks * (1.0 + 8.0 * U)) => {
                     return Err(format!("candidate {label}: refused as unseparated with its separation above κ_s"));
                 }
                 _ => {}
@@ -2090,7 +2297,9 @@ fn mr_sturm(p: &Parsed) -> R<Vec<String>> {
     }
     let n = p.modes.len();
     let omega = |i: usize| p.computed.get(i).and_then(|c| c.omega);
-    let accepted = p.candidates.last().and_then(|c| c.shift);
+    let accepted = p.candidates.last().and_then(|c| c.shift.value);
+    // An accepted shift outside the profile is an ω of at least 2⁵³ rad/s.
+    let accepted_large = p.candidates.last().is_some_and(|c| c.shift.mr_is_large());
     match p.endpoint.as_str() {
         "below_computed_cluster" | "below_lowest_mode" => {
             if p.placement != "gap" || p.placement_established.is_some() {
@@ -2117,6 +2326,9 @@ fn mr_sturm(p: &Parsed) -> R<Vec<String>> {
                     return Err("the accepted shift is not in its gap".into());
                 }
             }
+            if accepted_large && PROFILE_FLOOR > upper {
+                return Err("the accepted shift is outside the profile (ω ≥ 2⁵³), above its gap".into());
+            }
         }
         _ => {
             if p.placement != "above_spectrum" || p.placement_upper.is_some() || p.placement_established != Some(n) {
@@ -2133,8 +2345,8 @@ fn mr_sturm(p: &Parsed) -> R<Vec<String>> {
             }
         }
     }
-    if accepted.is_none() {
-        scope.push("the accepted shift is outside the profile".to_string());
+    if !p.candidates.is_empty() && accepted.is_none() && !accepted_large {
+        return Err("the accepted shift is null, and its null states no bound".into());
     }
     Ok(scope)
 }
@@ -2143,8 +2355,16 @@ fn mr_sturm(p: &Parsed) -> R<Vec<String>> {
 fn mr_evidence(p: &Parsed) -> R<Vec<String>> {
     let mut scope = Vec::new();
     for (i, c) in p.computed.iter().enumerate() {
-        let (Some(eta), Some(kappa), Some(e)) = (c.eta, c.condition, c.estimate) else {
-            scope.push(format!("computed mode {}: a check-2 value is outside the profile", i + 1));
+        let (Some(eta), Some(kappa), Some(e)) = (c.eta.value, c.condition.value, c.estimate.value) else {
+            // e_λ = η·κ_λ on intervals: contradicted when they are disjoint.
+            let (spans, known): (Vec<(f64, f64)>, Vec<bool>) = [&c.eta, &c.condition, &c.estimate].iter().map(|v| v.mr_span()).unzip();
+            if known.iter().any(|k| !k) {
+                return Err(format!("computed mode {}: a check-2 value is null without a profile bound", i + 1));
+            }
+            if mr_spans_disjoint(spans[2], mr_span_product(spans[0], spans[1])) {
+                return Err(format!("computed mode {}: e_λ = η·κ_λ is contradicted by the bounds", i + 1));
+            }
+            scope.push(format!("computed mode {}: e_λ = η·κ_λ is undecidable on the published bounds", i + 1));
             continue;
         };
         if eta < 0.0 || kappa < 0.0 || e < 0.0 {
@@ -2164,8 +2384,12 @@ fn mr_evidence(p: &Parsed) -> R<Vec<String>> {
     let relative = tolerance.and_then(|t| t["relative"].as_f64()).ok_or("the identity tolerance is not bound")?;
     let absolute = tolerance.and_then(|t| t["absolute"].as_f64()).ok_or("the identity tolerance is not bound")?;
     if absolute == 0.0 {
-        for (i, (.., d)) in p.identity.iter().enumerate() {
-            let d = d.ok_or_else(|| format!("identity row {i}: not published"))?;
+        for (i, row) in p.identity.iter().enumerate() {
+            // A null outside the profile is at least 2⁵³, above any tolerance in (0, 1).
+            if row.relative.is_none() && mr_large(&row.reason) {
+                return Err(format!("identity row {i}: relative discrepancy outside the profile (at least 2⁵³) exceeds the bound tolerance"));
+            }
+            let d = row.relative.ok_or_else(|| format!("identity row {i}: not published"))?;
             if !(d >= 0.0 && d <= relative) {
                 return Err(format!("identity row {i}: relative discrepancy {d:e} exceeds the bound tolerance {relative:e}"));
             }
@@ -2178,7 +2402,10 @@ fn mr_evidence(p: &Parsed) -> R<Vec<String>> {
             return Err("a negative formation-difference or norm".into());
         }
     }
-    if let Some(ortho) = p.ortho {
+    if p.ortho.value.is_none() && !p.ortho.mr_is_large() {
+        return Err("the orthogonality deviation is null without a profile bound".into());
+    }
+    if let Some(ortho) = p.ortho.value {
         if ortho < 0.0 {
             return Err("a negative orthogonality deviation".into());
         }
@@ -2190,49 +2417,57 @@ fn mr_evidence(p: &Parsed) -> R<Vec<String>> {
 }
 
 /// The identity rows the run must carry, from the document's own structure:
-/// along each axis, in axis order, one `nodal` row per straight member of the
-/// discretization table, `resultant` rows for other subjects (arcs, bodies)
-/// and the `model` resultant last; the same subjects along every axis. The
-/// document lists no arc or body, so a wholly missing arc or body subject is
-/// not detectable: that coverage is scoped.
+/// along each axis, in axis order, one `nodal` row of kind `member` per
+/// straight member of the discretization table (and no other nodal row),
+/// `resultant` rows for other subjects (arcs, bodies) and the aggregate (kind
+/// `model`) last and once; the same (kind, subject) list along every axis. The
+/// kind keeps a member named `model` apart from the aggregate. The document
+/// carries no census of mass-bearing subjects, so coverage holds for what is
+/// listed only: that limit is scoped.
 fn mr_identity_coverage(p: &Parsed) -> R<Vec<String>> {
-    let mut per_axis: [Vec<(&str, &str)>; 3] = Default::default();
+    let mut per_axis: [Vec<(&str, &str, &str)>; 3] = Default::default();
     let mut last_axis = 0;
-    for (i, (subject, axis, comparison, _)) in p.identity.iter().enumerate() {
-        if *axis < last_axis {
+    for (i, row) in p.identity.iter().enumerate() {
+        if row.axis < last_axis {
             return Err(format!("identity row {i}: rows are in axis order"));
         }
-        last_axis = *axis;
-        per_axis[*axis].push((subject.as_str(), comparison.as_str()));
+        last_axis = row.axis;
+        per_axis[row.axis].push((row.subject_kind.as_str(), row.subject.as_str(), row.comparison.as_str()));
     }
     let straights: HashSet<&str> = p.members.iter().map(String::as_str).collect();
+    let first: Vec<(&str, &str)> = per_axis[0].iter().map(|(kind, s, _)| (*kind, *s)).collect();
     for (k, rows) in per_axis.iter().enumerate() {
         let axis = DIRECTIONS[k];
-        if rows.last() != Some(&("model", "resultant")) {
-            return Err(format!("identity: the model's resultant row along {axis} is missing or not last"));
+        let Some((&last, before)) = rows.split_last() else {
+            return Err(format!("identity: no rows along {axis}; the model's resultant row is missing"));
+        };
+        if last != ("model", "model", "resultant") {
+            return Err(format!("identity: the model's aggregate resultant row along {axis} is missing or not last"));
         }
         let mut seen = HashSet::new();
-        for (subject, comparison) in rows {
-            if !seen.insert(*subject) {
-                return Err(format!("identity: subject {subject} is compared twice along {axis}"));
+        for &(kind, subject, comparison) in before {
+            if kind == "model" {
+                return Err(format!("identity: a second aggregate row along {axis}"));
             }
-            let straight = straights.contains(subject);
-            if (*comparison == "nodal") != straight {
-                return Err(format!("identity: subject {subject} along {axis} is compared {comparison}, but straight members are compared nodally and only they"));
+            if !seen.insert((kind, subject)) {
+                return Err(format!("identity: {kind} {subject} is compared twice along {axis}"));
+            }
+            let straight = kind == "member" && straights.contains(subject);
+            if (comparison == "nodal") != straight {
+                return Err(format!("identity: {kind} {subject} along {axis} is compared {comparison}, but the discretization table's straight members are compared nodally and only they"));
             }
         }
         for member in &p.members {
-            if !seen.contains(member.as_str()) {
+            if !seen.contains(&("member", member.as_str())) {
                 return Err(format!("identity: straight member {member} has no nodal row along {axis}"));
             }
         }
-        let subjects: Vec<&str> = rows.iter().map(|(s, _)| *s).collect();
-        let first: Vec<&str> = per_axis[0].iter().map(|(s, _)| *s).collect();
+        let subjects: Vec<(&str, &str)> = rows.iter().map(|(kind, s, _)| (*kind, *s)).collect();
         if subjects != first {
             return Err(format!("identity: the subjects along {axis} are not those along x"));
         }
     }
-    Ok(vec!["identity: arc and component-body resultant coverage is not derivable (the document lists no arc or body)".to_string()])
+    Ok(vec!["identity: coverage is established for the listed straight members and the aggregate only; the document carries no census of mass-bearing members, arcs or component bodies, so a subject absent from every axis (and, for a straight member, from the discretization table too) is not detectable".to_string()])
 }
 
 /// The nonlinear states against the partition: a linearized state case lists
@@ -2271,15 +2506,24 @@ fn mr_standing(p: &Parsed) -> R<Vec<String>> {
     let tau_o = mr_param(p, "orthogonality_threshold").ok_or("τ_o: not bound")?;
     let mut any = false;
     for (m, mode) in p.modes.iter().enumerate() {
-        let eta = p.computed[m].eta.ok_or_else(|| format!("mode {}: η not published", m + 1))?;
-        let sensitive = eta > tau_r;
+        let eta = &p.computed[m].eta;
+        let sensitive = match eta.value {
+            Some(v) => v > tau_r,
+            // At least 2⁵³ is above any τ_r in (0, 1).
+            None if eta.mr_is_large() => true,
+            None => return Err(format!("mode {}: η not published, and its null states no bound", m + 1)),
+        };
         if mode.sensitive != sensitive || (mode.reasons > 0) != sensitive {
             return Err(format!("mode {}: Sensitive exactly when η > τ_r, with its reason", m + 1));
         }
         any |= sensitive;
     }
-    let ortho = p.ortho.ok_or("the orthogonality deviation is not published")?;
-    let sensitive = any || ortho > tau_o;
+    let ortho_above = match p.ortho.value {
+        Some(v) => v > tau_o,
+        None if p.ortho.mr_is_large() => true,
+        None => return Err("the orthogonality deviation is not published, and its null states no bound".into()),
+    };
+    let sensitive = any || ortho_above;
     if p.sensitive != sensitive || (p.set_reasons > 0) != sensitive {
         return Err("the set is Sensitive exactly when a mode is or the orthogonality deviation exceeds τ_o".into());
     }

@@ -155,6 +155,26 @@ fn the_fixtures_cover_both_cases_every_endpoint_states_and_refusals() {
     assert_eq!(body["basis"]["weight_to_mass_acceleration"]["value"], 9.8125);
 }
 
+#[test]
+fn a_member_named_model_is_not_the_aggregate_subject() {
+    // The aggregate resultant's subject is `model`; a straight member may carry
+    // the same id. Each identity row states what its subject names.
+    let mut request = with(pf_request(false), json!({"mode_count": 1}));
+    request["model"]["pipe_segments"][0]["id"] = json!("model");
+    let document = modal_result_document(&request, &test_local_parameters(), TEST_LOCAL_LABEL);
+    assert_eq!(document["status"], "solved", "{:#}", document.get("refusals").unwrap_or(&Value::Null));
+    let rows = document["tables"]["identity"]["rows"].as_array().unwrap();
+    for axis in ["x", "y", "z"] {
+        let named: Vec<(&str, &str)> = rows
+            .iter()
+            .filter(|r| r["axis"] == axis && r["subject"] == "model")
+            .map(|r| (r["subject_kind"].as_str().unwrap(), r["comparison"].as_str().unwrap()))
+            .collect();
+        assert_eq!(named, vec![("member", "nodal"), ("model", "resultant")], "{axis}");
+    }
+    assert!(rows.iter().all(|r| ["member", "component_body", "model"].contains(&r["subject_kind"].as_str().unwrap())));
+}
+
 /// The deterministic generation script of the committed fixtures: writes
 /// each request and its document, and the semantic table, under
 /// `fixtures/results/` (run explicitly; `--ignored`).

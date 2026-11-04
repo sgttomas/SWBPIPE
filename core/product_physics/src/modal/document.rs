@@ -761,7 +761,7 @@ fn modal_doc_solved(outcome: &ModalOutcome, binding: &Value, label: &str) -> Val
         .iter()
         .enumerate()
         .map(|(i, d)| {
-            modal_doc_row(format!("identity:{i}"), i, json!({"subject": d.subject, "axis": DIRECTIONS[d.axis], "comparison": d.kind,
+            modal_doc_row(format!("identity:{i}"), i, json!({"subject": d.subject, "subject_kind": d.subject_kind, "axis": DIRECTIONS[d.axis], "comparison": d.kind,
                 "relative": modal_doc_fixed("identity_relative_discrepancy", d.relative)}))
         })
         .collect();

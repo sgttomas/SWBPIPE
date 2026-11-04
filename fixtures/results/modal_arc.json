@@ -1637,12 +1637,12 @@
       "status": "published"
     },
     "identity": {
-      "digest": "2ed051fb4b8eff1d227c9e9367ea3b6c3d18f05a7f121bf8e19ba5d5bd8ece0f",
+      "digest": "260ee77a0fb1aa43b770703a14fab78b941098deaf765df17393eb218f9f3f3f",
       "row_count": 12,
       "rows": [
         {
           "axis": "x",
-          "checksum": "6a6f90aa7f8f3ee012e1a72c60bceb642e4f02e403f9deb1ba94cbb307944254",
+          "checksum": "bf8cf418f61a3b1f2e0573abe934956dc130dea13c93a64d097da2d24d216753",
           "comparison": "nodal",
           "ordinal": 0,
           "relative": {
@@ -1654,11 +1654,12 @@
             "value": 0.0
           },
           "row_id": "identity:0",
-          "subject": "pipe:a-b"
+          "subject": "pipe:a-b",
+          "subject_kind": "member"
         },
         {
           "axis": "x",
-          "checksum": "ac895bdb5df491509530ce302f2dfb623316507d1e6b5294e33caf5f7b7e7d0d",
+          "checksum": "319d3cdd33afda01a9f166f0401c071d682f3c20b7d4554c8d5563ddecc8bb27",
           "comparison": "resultant",
           "ordinal": 1,
           "relative": {
@@ -1670,11 +1671,12 @@
             "value": 2.228765352972875e-16
           },
           "row_id": "identity:1",
-          "subject": "pipe:b-c"
+          "subject": "pipe:b-c",
+          "subject_kind": "member"
         },
         {
           "axis": "x",
-          "checksum": "1e5f7f6d32bfc3980f533c590327179330fe95c4bffc35eeb58efe791bbc018e",
+          "checksum": "226ffcde719b4d9970c04d95ad294343d3ccd28831aed9cec74472ab88363560",
           "comparison": "nodal",
           "ordinal": 2,
           "relative": {
@@ -1686,11 +1688,12 @@
             "value": 7.370392483657943e-17
           },
           "row_id": "identity:2",
-          "subject": "pipe:c-d"
+          "subject": "pipe:c-d",
+          "subject_kind": "member"
         },
         {
           "axis": "x",
-          "checksum": "5f53e7a71875677da3788dd66d9f1da1cc16ea56fa0e88897868290ed1860905",
+          "checksum": "56916f168fbca450657b2e88be1fdada34d06292c5e6cb11c323b58e8465571c",
           "comparison": "resultant",
           "ordinal": 3,
           "relative": {
@@ -1702,11 +1705,12 @@
             "value": 3.6579364038247474e-17
           },
           "row_id": "identity:3",
-          "subject": "model"
+          "subject": "model",
+          "subject_kind": "model"
         },
         {
           "axis": "y",
-          "checksum": "d3d29481db8d4fa05200c591ea73934b5fcff245c7f44433809cb006d7e0cb9a",
+          "checksum": "d71626d385bd55e386d614de85887f3ebaa58157ae864bab6ed0a528265e605f",
           "comparison": "nodal",
           "ordinal": 4,
           "relative": {
@@ -1718,11 +1722,12 @@
             "value": 7.370392483657943e-17
           },
           "row_id": "identity:4",
-          "subject": "pipe:a-b"
+          "subject": "pipe:a-b",
+          "subject_kind": "member"
         },
         {
           "axis": "y",
-          "checksum": "c499d5bde221e4c7ac5ca6bb71e4805b9de0a8fb14b2ca8abd62352d5a54d585",
+          "checksum": "7b2da18960adefca4a46d927563b59e8499005cdd9674d7fc5dad8fdc8e9fdd6",
           "comparison": "resultant",
           "ordinal": 5,
           "relative": {
@@ -1734,11 +1739,12 @@
             "value": 2.228765352972875e-16
           },
           "row_id": "identity:5",
-          "subject": "pipe:b-c"
+          "subject": "pipe:b-c",
+          "subject_kind": "member"
         },
         {
           "axis": "y",
-          "checksum": "bb73462da317cd79fe708298543a1ba3fcd355f460def544dc29e3e51abbe0df",
+          "checksum": "624517f698ed36ef3c3ab0e3b2075aae08a79c8d5dde1175af3b7719483442c1",
           "comparison": "nodal",
           "ordinal": 6,
           "relative": {
@@ -1750,11 +1756,12 @@
             "value": 0.0
           },
           "row_id": "identity:6",
-          "subject": "pipe:c-d"
+          "subject": "pipe:c-d",
+          "subject_kind": "member"
         },
         {
           "axis": "y",
-          "checksum": "c274424d4f0c0a31df6322d197415a9c94626ade4b69a5404ad5da764391ffca",
+          "checksum": "911d3014f9798198308f09cc83cd692ccdc61cae26e2cef7a9fb661348c68b85",
           "comparison": "resultant",
           "ordinal": 7,
           "relative": {
@@ -1766,11 +1773,12 @@
             "value": 3.6579364038247474e-17
           },
           "row_id": "identity:7",
-          "subject": "model"
+          "subject": "model",
+          "subject_kind": "model"
         },
         {
           "axis": "z",
-          "checksum": "c67470598418a551bfa74957ac8782bedb219b037eb14aa6ca040331d248fada",
+          "checksum": "6bbb6db6d06750634aa22d0665e3b3f5f910908649420cb296b4b4140bec8a37",
           "comparison": "nodal",
           "ordinal": 8,
           "relative": {
@@ -1782,11 +1790,12 @@
             "value": 7.370392483657943e-17
           },
           "row_id": "identity:8",
-          "subject": "pipe:a-b"
+          "subject": "pipe:a-b",
+          "subject_kind": "member"
         },
         {
           "axis": "z",
-          "checksum": "cfe46403b4096e2228e5d6465bf2b60d0d7bd8c26b8b89dc256980b3f3d265a8",
+          "checksum": "c74358ef9482f18c8a19a4a0c265b8d6c88a1fe27ce97b7cbfc47f8952218109",
           "comparison": "resultant",
           "ordinal": 9,
           "relative": {
@@ -1798,11 +1807,12 @@
             "value": 1.1089088203621943e-16
           },
           "row_id": "identity:9",
-          "subject": "pipe:b-c"
+          "subject": "pipe:b-c",
+          "subject_kind": "member"
         },
         {
           "axis": "z",
-          "checksum": "6583f899bfddf1bbbcc5e96842c23ee99f3cdd6ac27f5b85da2a1dd4bd6f020e",
+          "checksum": "20085cf137b36dc9ed1b649ec216ef0fa7d96ca24d7d5cd7cbcbf6b62d09012f",
           "comparison": "nodal",
           "ordinal": 10,
           "relative": {
@@ -1814,11 +1824,12 @@
             "value": 7.370392483657943e-17
           },
           "row_id": "identity:10",
-          "subject": "pipe:c-d"
+          "subject": "pipe:c-d",
+          "subject_kind": "member"
         },
         {
           "axis": "z",
-          "checksum": "99fb7867d5fb5eb6375f68a32e8e58dfab04aa79cfdedb347bed5e9b1ce0509d",
+          "checksum": "b46ab0331c923e3596f55f52f25b59e0b6feffec86327844f381cf26ddb92ebd",
           "comparison": "resultant",
           "ordinal": 11,
           "relative": {
@@ -1830,7 +1841,8 @@
             "value": 3.066620377649225e-17
           },
           "row_id": "identity:11",
-          "subject": "model"
+          "subject": "model",
+          "subject_kind": "model"
         }
       ],
       "status": "published"

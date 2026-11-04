@@ -507,7 +507,7 @@ def _closure(doc):
             _const(r["pair_class"], f"{path}/pair_class", pair)
             _id_is(r, path, f"mass:{r['row_dof_ref']}|{r['col_dof_ref']}")
             vo = unitize(_vo(r["value"], f"{path}/value", ("mass_matrix_entry",)), pair, f"{path}/value")
-            p.mass.append((a, b, vo.value))
+            p.mass.append((a, b, vo))
     total_rows = get("mass_totals")
     if len(total_rows) != 3:
         _fail("/tables/mass_totals: one row per direction")
@@ -519,9 +519,9 @@ def _closure(doc):
         _id_is(r, path, f"mass-total:{DIRECTIONS[k]}")
         if r["basis_ref"] != {"ref_type": "model", "ref_id": "model"}:
             _fail(f"{path}/basis_ref: the global mass is on the model basis")
-        p.totals[k] = unitize(_vo(r["total_mass"], f"{path}/total_mass", ("modal_total_mass",)), "fixed", f"{path}/total_mass").value
+        p.totals[k] = unitize(_vo(r["total_mass"], f"{path}/total_mass", ("modal_total_mass",)), "fixed", f"{path}/total_mass")
         p.free_totals[k] = unitize(_vo(r["free_dof_mass"], f"{path}/free_dof_mass", ("modal_free_dof_mass",)), "fixed",
-                                   f"{path}/free_dof_mass").value
+                                   f"{path}/free_dof_mass")
 
     computed_rows = get("computed_modes")
     cluster_rows = get("clusters")
@@ -549,9 +549,10 @@ def _closure(doc):
         for field, kind in (("circular_frequency", "computed_circular_frequency"), ("frequency", "computed_frequency"),
                             ("backward_error", "residual_backward_error"), ("condition", "eigenvalue_condition_estimate"),
                             ("error_estimate", "eigenvalue_error_estimate")):
-            values.append(unitize(_vo(r[field], f"{path}/{field}", (kind,)), "fixed", f"{path}/{field}").value)
-        p.computed.append({"cluster": cluster, "reported": reported, "mode": mode, "omega": values[0], "frequency": values[1],
-                           "eta": values[2], "condition": values[3], "estimate": values[4]})
+            values.append(unitize(_vo(r[field], f"{path}/{field}", (kind,)), "fixed", f"{path}/{field}"))
+        # ω and f by value; η, κ_λ and e_λ as value objects (a null's reason bounds them).
+        p.computed.append({"cluster": cluster, "reported": reported, "mode": mode, "omega": values[0].value,
+                           "frequency": values[1].value, "eta": values[2], "condition": values[3], "estimate": values[4]})
     p.clusters = []
     for i, row in enumerate(cluster_rows):
         path = f"/tables/clusters/rows/{i}"
@@ -565,7 +566,7 @@ def _closure(doc):
             _fail(f"{path}: not a run of computed modes")
         reported = _flag(r["reported"], f"{path}/reported")
         vo = unitize(_vo(r["error_estimate"], f"{path}/error_estimate", ("cluster_error_estimate",)), "fixed", f"{path}/error_estimate")
-        p.clusters.append((first, last, reported, vo.value))
+        p.clusters.append((first, last, reported, vo))
     p.modes = []
     for i, row in enumerate(mode_rows):
         path = f"/tables/modes/rows/{i}"
@@ -592,7 +593,7 @@ def _closure(doc):
                 "frequency": read("frequency", "modal_frequency", "fixed").value,
                 "period": read("period", "modal_period", "fixed").value,
                 "generalized_mass": read("generalized_mass", "modal_generalized_mass", CASES[case]),
-                "cluster_estimate": read("cluster_error_estimate", "modal_cluster_error_estimate", "fixed").value,
+                "cluster_estimate": read("cluster_error_estimate", "modal_cluster_error_estimate", "fixed"),
                 "cluster": cluster}
         p.modes.append(mode)
     rows = get("shapes")
@@ -655,31 +656,38 @@ def _closure(doc):
         def read(field, kind):
             return unitize(_vo(r[field], f"{path}/{field}", (kind,)), "fixed", f"{path}/{field}")
 
-        c = {"decision": decision, "pivots": pivots, "shift": read("shift", "sturm_shift_circular_frequency").value,
-             "formation_term": read("formation_term", "sturm_formation_term").value}
-        read("formation_separation_ratio", "sturm_formation_separation_ratio")
-        c["factor_term"] = read("factor_term", "sturm_factor_term").value
-        c["backward_error"] = read("backward_error", "sturm_backward_error").value
-        c["inverse_norm"] = read("inverse_norm_estimate", "sturm_inverse_norm_estimate").value
-        c["product_vo"] = read("conditioning_product", "sturm_conditioning_product")
-        c["product"] = c["product_vo"].value
-        c["separation"] = read("separation_ratio", "sturm_separation_ratio")
-        c["growth_vo"] = read("growth", "sturm_growth_factor")
-        c["growth"] = c["growth_vo"].value
-        read("max_abs_lower_factor", "sturm_max_abs_lower_factor")
-        read("max_abs_pivot", "sturm_max_abs_pivot")
-        read("max_abs_scaled_diagonal", "sturm_max_abs_scaled_diagonal")
+        # Every candidate value is kept as its value object: a null's reason is a bound.
+        c = {"decision": decision, "pivots": pivots}
+        for key, field, kind in (("shift", "shift", "sturm_shift_circular_frequency"),
+                                 ("formation_term", "formation_term", "sturm_formation_term"),
+                                 ("formation_separation", "formation_separation_ratio", "sturm_formation_separation_ratio"),
+                                 ("factor_term", "factor_term", "sturm_factor_term"),
+                                 ("backward_error", "backward_error", "sturm_backward_error"),
+                                 ("inverse_norm", "inverse_norm_estimate", "sturm_inverse_norm_estimate"),
+                                 ("product", "conditioning_product", "sturm_conditioning_product"),
+                                 ("separation", "separation_ratio", "sturm_separation_ratio"),
+                                 ("growth", "growth", "sturm_growth_factor"),
+                                 ("max_lower", "max_abs_lower_factor", "sturm_max_abs_lower_factor"),
+                                 ("max_pivot", "max_abs_pivot", "sturm_max_abs_pivot"),
+                                 ("max_diagonal", "max_abs_scaled_diagonal", "sturm_max_abs_scaled_diagonal")):
+            c[key] = read(field, kind)
         p.candidates.append(c)
     p.identity = []
     for i, row in enumerate(get("identity")):
         path = f"/tables/identity/rows/{i}"
-        r = _fields(row, path, ("subject", "axis", "comparison", "relative"))
+        r = _fields(row, path, ("subject", "subject_kind", "axis", "comparison", "relative"))
         _id_is(r, path, f"identity:{i}")
+        subject = _text(r["subject"], f"{path}/subject")
+        # What the subject names: a member, a component body, or the model's
+        # aggregate, whose subject is `model` (a member may carry the same id).
+        kind = _one_of(r["subject_kind"], f"{path}/subject_kind", ("member", "component_body", "model"))
+        if kind == "model" and subject != "model":
+            _fail(f"{path}: an aggregate row's subject is `model`, not `{subject}`")
         relative = unitize(_vo(r["relative"], f"{path}/relative", ("identity_relative_discrepancy",)), "fixed", f"{path}/relative")
-        p.identity.append({"subject": _text(r["subject"], f"{path}/subject"),
+        p.identity.append({"subject": subject, "kind": kind,
                            "axis": _one_of(r["axis"], f"{path}/axis", DIRECTIONS),
                            "comparison": _one_of(r["comparison"], f"{path}/comparison", ("nodal", "resultant")),
-                           "relative": relative.value})
+                           "relative": relative})
     p.support_states = {}
     for i, row in enumerate(get("supports")):
         path = f"/tables/supports/rows/{i}"
@@ -785,7 +793,7 @@ def _closure(doc):
     p.kappa_s = header(s["separation_multiple"], "/sturm/separation_multiple", "sturm_premise_parameter").value
     p.growth_limit = header(s["growth_limit"], "/sturm/growth_limit", "sturm_premise_parameter").value
     o = _obj(doc["orthogonality"], "/orthogonality", ("max_ratio", "pair"))
-    p.ortho = header(o["max_ratio"], "/orthogonality/max_ratio", "orthogonality_max_ratio").value
+    p.ortho = header(o["max_ratio"], "/orthogonality/max_ratio", "orthogonality_max_ratio")
     p.ortho_pair = o["pair"] is not None
     if p.ortho_pair:
         pair = _list(o["pair"], "/orthogonality/pair")
@@ -918,49 +926,124 @@ def _close(published, derived, tolerance):
     return abs(published - derived) <= tolerance
 
 
+PROFILE_FLOOR = 2.0 ** 53  # the checked profile carries no integral binary64 this large
+BOUNDING_REASONS = ("outside_canonical_profile", "not_finite")
+
+
+def _beyond_profile(vo):
+    """A null whose reason says the value is at least 2⁵³ (or not finite)."""
+    return vo.value is None and vo.undefined in BOUNDING_REASONS
+
+
+class Span:
+    """The closed interval a published nonnegative quantity is known to lie in. A
+    null outside the profile is [2⁵³, ∞]; a null whose reason states no size is
+    [0, ∞] and `bounded` is false."""
+
+    __slots__ = ("lo", "hi", "bounded")
+
+    def __init__(self, lo, hi, bounded=True):
+        self.lo, self.hi, self.bounded = lo, hi, bounded
+
+    @classmethod
+    def of(cls, vo, magnitude=False):
+        if vo.value is not None:
+            v = abs(vo.value) if magnitude else vo.value
+            return cls(v, v)
+        if _beyond_profile(vo):
+            return cls(PROFILE_FLOOR, math.inf)
+        return cls(0.0, math.inf, False)
+
+    @classmethod
+    def point(cls, v):
+        return cls(v, v)
+
+    def __add__(self, other):
+        return Span(self.lo + other.lo, self.hi + other.hi, self.bounded and other.bounded)
+
+    def __mul__(self, other):
+        def times(x, y):
+            # 0·∞ arises only against an exact zero: the product is then zero.
+            product = x * y
+            return 0.0 if math.isnan(product) else product
+        return Span(times(self.lo, other.lo), times(self.hi, other.hi), self.bounded and other.bounded)
+
+    def meet(self, other):
+        return Span(max(self.lo, other.lo), min(self.hi, other.hi), self.bounded or other.bounded)
+
+    def apart_from(self, other):
+        """Disjoint beyond a relative rounding allowance: an equality between them is
+        contradicted."""
+        slack = 1.0 + 8.0 * U
+        return self.lo > other.hi * slack or other.lo > self.hi * slack
+
+    def within(self, ceiling):
+        """True when every value is at most the ceiling, False when none is, None when
+        the interval straddles it."""
+        if self.hi <= ceiling:
+            return True
+        if self.lo > ceiling:
+            return False
+        return None
+
+
 def _mass(p):
     scope = []
     for k in range(3):
-        total = p.totals[k]
-        if total is None:
-            _fail(f"T_{DIRECTIONS[k]}: not published")
-        if total < 0.0:
-            _fail(f"T_{DIRECTIONS[k]}: negative")
-        total_sum, count = 0.0, 0
+        direction, total = DIRECTIONS[k], p.totals[k]
+        if total.value is None and not _beyond_profile(total):
+            _fail(f"T_{direction}: not published, and its null states no bound")
+        if total.value is not None and total.value < 0.0:
+            _fail(f"T_{direction}: negative")
+        # Bessel: Σ m_eff ≤ T_k, with an m_eff outside the profile counted at 2⁵³.
+        lowest = 0.0
         for m in range(len(p.modes)):
-            e = p.participation[m][k]["effective"].value
-            if e is not None:
-                total_sum += e
-                count += 1
-        if total_sum > total * (1.0 + ALLOW * float(count + 2) * U):
-            _fail(f"Σ m_eff,{DIRECTIONS[k]} exceeds T_{DIRECTIONS[k]} (Bessel's inequality)")
+            effective = p.participation[m][k]["effective"]
+            lowest += effective.value if effective.value is not None else (PROFILE_FLOOR if _beyond_profile(effective) else 0.0)
+        if lowest > Span.of(total).hi * (1.0 + ALLOW * float(len(p.modes) + 2) * U):
+            _fail(f"Σ m_eff,{direction} exceeds T_{direction} (Bessel's inequality)")
     if p.mass is None:
         scope.append("mass_matrix withheld: T_k and the free-DOF mass are not re-derived")
         return scope
-    for i, j, v in p.mass:
-        if v is None:
-            _fail("a mass entry is not published")
-        if i == j and v < 0.0:
+    for i, j, vo in p.mass:
+        if vo.value is None and not _beyond_profile(vo):
+            _fail(f"mass entry ({i}, {j}): null, and its null states no bound")
+        if i == j and vo.value is not None and vo.value < 0.0:
             _fail(f"mass diagonal at DOF {i} is negative")
     for k in range(3):
-        s, a, n, fs, fa, fn = 0.0, 0.0, 0, 0.0, 0.0, 0
-        for i, j, v in p.mass:
-            if i % 6 == k and j % 6 == k:
-                w = 1.0 if i == j else 2.0
-                term = w * v
-                s += term
-                a += abs(term)
-                n += 1
-                if p.free[i] is not None and p.free[j] is not None:
-                    fs += term
-                    fa += abs(term)
-                    fn += 1
-        if not _close(p.totals[k], s, ALLOW * float(n + 4) * U * a):
-            _fail(f"T_{DIRECTIONS[k]} is not R_kᵀ M R_k of the mass entries")
-        if p.free_totals[k] is None:
-            _fail(f"free-DOF mass {DIRECTIONS[k]}: not published")
-        if not _close(p.free_totals[k], fs, ALLOW * float(fn + 4) * U * fa):
-            _fail(f"free-DOF mass {DIRECTIONS[k]} is not R_k,fᵀ M_ff R_k,f")
+        # Both sums at once: the whole model's T_k and the free DOFs' mass.
+        sums = {"T": [0.0, 0.0, 0, 0, 0], "free": [0.0, 0.0, 0, 0, 0]}  # sum, |sum|, terms, large diagonals, large couplings
+        for i, j, vo in p.mass:
+            if not (i % 6 == k and j % 6 == k):
+                continue
+            targets = ["T"] + (["free"] if p.free[i] is not None and p.free[j] is not None else [])
+            for name in targets:
+                acc = sums[name]
+                if vo.value is None:
+                    acc[3 if i == j else 4] += 1
+                else:
+                    term = vo.value if i == j else 2.0 * vo.value
+                    acc[0] += term
+                    acc[1] += abs(term)
+                    acc[2] += 1
+        for name, published, label in (("T", p.totals[k], f"T_{DIRECTIONS[k]}"),
+                                       ("free", p.free_totals[k], f"free-DOF mass {DIRECTIONS[k]}")):
+            if published.value is None and not _beyond_profile(published):
+                _fail(f"{label}: not published, and its null states no bound")
+            total, magnitude, terms, large_diagonals, large_couplings = sums[name]
+            if large_couplings:
+                # An off-diagonal entry ≥ 2⁵³ in magnitude, of either sign: undecidable.
+                scope.append(f"{label}: an off-diagonal mass entry is outside the profile; the sum is not re-derived")
+                continue
+            slack = ALLOW * float(terms + 4) * U * magnitude
+            derived = Span(total - slack, total + slack)
+            if large_diagonals:
+                derived = Span(total - slack + large_diagonals * PROFILE_FLOOR, math.inf)
+            stated = Span.of(published)
+            if not (stated.lo <= derived.hi and derived.lo <= stated.hi):
+                _fail(f"{label} is not the sum of its mass entries")
+            if large_diagonals and published.value is None:
+                scope.append(f"{label}: the sum and a diagonal entry are both outside the profile")
     return scope
 
 
@@ -1045,7 +1128,8 @@ def _payload_quantities(p, m):
         acc["abs"] += abs(term)
         acc["terms"] += 1
 
-    for i, j, v in p.mass:
+    for i, j, vo in p.mass:
+        v = vo.value
         free_i, free_j = p.free[i] is not None, p.free[j] is not None
         if free_i and free_j:
             add(gm, (1.0 if i == j else 2.0) * (phi[i] * v * phi[j]))
@@ -1061,24 +1145,49 @@ def _participation(p):
     for m, mode in enumerate(p.modes):
         label, gm_vo = m + 1, mode["generalized_mass"]
         mass_value = gm_vo.value
-        if mass_value is None:
-            _fail(f"mode {label}: m not published")
-        if not (mass_value > 0.0 or gm_vo.below):
+        if mass_value is None and not _beyond_profile(gm_vo):
+            _fail(f"mode {label}: m not published, and its null states no bound")
+        if mass_value is not None and not (mass_value > 0.0 or gm_vo.below):
             _fail(f"mode {label}: m is not positive")
         for k in range(3):
-            row = p.participation[m][k]
+            row, direction, total_vo = p.participation[m][k], DIRECTIONS[k], p.totals[k]
+            for name in ("gamma", "effective"):
+                if row[name].value is None and not _beyond_profile(row[name]):
+                    _fail(f"mode {label}: {'Γ' if name == 'gamma' else 'm_eff'} along {direction} not published, and its null states no bound")
             gamma, effective = row["gamma"].value, row["effective"].value
-            if gamma is None:
-                _fail(f"mode {label}: Γ not published")
-            if effective is None:
-                _fail(f"mode {label}: m_eff not published")
-            if effective < 0.0:
+            if effective is not None and effective < 0.0:
                 _fail(f"mode {label}: m_eff is negative")
+            if mass_value is None or gamma is None or effective is None:
+                # Outside the profile: Γ²·m = m_eff and fraction·T_k = m_eff held on bounds.
+                g = Span.of(row["gamma"], magnitude=True)
+                e_span = Span.of(row["effective"])
+                if (g * g * Span.of(gm_vo)).apart_from(e_span):
+                    _fail(f"mode {label}: Γ²·m = m_eff along {direction} is contradicted by the bounds")
+                t_span = Span.of(total_vo)
+                if t_span.hi == 0.0 and e_span.lo > 0.0:
+                    _fail(f"mode {label}: with T_{direction} = 0 m_eff is 0")
+                fraction = row["fraction"].value
+                if fraction is None:
+                    if t_span.lo > 0.0:
+                        _fail(f"mode {label}: fraction undefined with T_k > 0")
+                else:
+                    if (Span.point(fraction) * t_span).apart_from(e_span):
+                        _fail(f"mode {label}: fraction·T_k = m_eff along {direction} is contradicted by the bounds")
+                    cumulative[k] += fraction
+                scope.append(f"mode {label}: a participation value along {direction} is outside the profile; it is held on bounds")
+                continue
             flagged = row["gamma"].below or row["effective"].below or gm_vo.below
             g2m = gamma * gamma * mass_value
             if not flagged and not _close(g2m, effective, ALLOW * U * max(effective, g2m)):
                 _fail(f"mode {label}: Γ²·m is not m_eff")
-            total = p.totals[k] if p.totals[k] is not None else math.nan
+            if _beyond_profile(total_vo):
+                # T_k ≥ 2⁵³ bounds the fraction m_eff/T_k from above.
+                fraction = row["fraction"].value
+                if fraction is not None and fraction * PROFILE_FLOOR > effective * (1.0 + ALLOW * U):
+                    _fail(f"mode {label}: fraction along {direction} exceeds m_eff/T_k with T_k at least 2⁵³")
+                scope.append(f"mode {label}: T_{direction} is outside the profile, so its fraction is bounded only")
+                continue
+            total = total_vo.value
             if total == 0.0:
                 if row["fraction"].undefined != "total_mass_zero" or effective != 0.0:
                     _fail(f"mode {label}: with T_k = 0 the fraction is undefined and m_eff is 0")
@@ -1107,6 +1216,11 @@ def _participation(p):
                for m, mode in enumerate(p.modes)):
             scope.append("below-normal flags on m, Γ or m_eff cannot be verified without the payload")
         return scope
+    if any(vo.value is None for _, _, vo in p.mass):
+        # An entry ≥ 2⁵³ in magnitude meets shape components of either sign: φᵀMφ
+        # and φᵀp_k are undecidable in binary64.
+        scope.append("a mass entry is outside the profile: m_i and φᵀp_k are not re-derived")
+        return scope
     for m, mode in enumerate(p.modes):
         label, gm_vo = m + 1, mode["generalized_mass"]
         gm, excitation = _payload_quantities(p, m)
@@ -1118,6 +1232,12 @@ def _participation(p):
             scope.append(f"mode {label}: m lies below the normal range, so Γ and m_eff are not re-derived")
             continue
         published = gm_vo.value
+        if published is None:
+            # m ≥ 2⁵³: the payload's φᵀM_ffφ must reach it.
+            if gm["value"] + gm_slack < PROFILE_FLOOR:
+                _fail(f"mode {label}: m is outside the profile, but the payload's φᵀM_ffφ = {gm['value']:e} is not")
+            scope.append(f"mode {label}: m is outside the profile; Γ and m_eff are not re-derived from the payload")
+            continue
         if not _close(published, gm["value"], gm_slack):
             _fail(f"mode {label}: m is not φᵀM_ffφ")
         for k in range(3):
@@ -1131,8 +1251,16 @@ def _participation(p):
                     row["effective"].value * published, s * s,
                     e * (2.0 * abs(s) * a + abs(row["effective"].value * published)) + (e * a) * (e * a))),
             )
+            largest = abs(s) + e * a
+            reach = PROFILE_FLOOR * published * (1.0 - ALLOW * U)
             for name, vo, lowest_numerator, agrees in claims:
-                if vo.below:
+                if vo.value is None:
+                    # Outside the profile: |φᵀp_k|/m (Γ) or (φᵀp_k)²/m (m_eff) reaches 2⁵³.
+                    numerator = largest if name == "Γ" else largest * largest
+                    if numerator < reach:
+                        _fail(f"mode {label}: {name} along {DIRECTIONS[k]} is outside the profile, but the payload's value is within it")
+                    scope.append(f"mode {label}: {name} along {DIRECTIONS[k]} is outside the profile; it is bounded, not re-derived")
+                elif vo.below:
                     if not _subnormal_possible(lowest_numerator, published):
                         _fail(f"mode {label}: {name} along {DIRECTIONS[k]} is flagged below-normal, but the payload gives a normal value")
                 elif not agrees():
@@ -1244,19 +1372,23 @@ def _clusters(p):
             _fail(f"cluster {cid}: its first and last computed modes are not its members'")
         if reported != (first <= len(p.modes)):
             _fail(f"cluster {cid}: its reported flag is not the set's")
-        largest = 0.0
+        # The largest member e_λ; one outside the profile puts the largest there too.
+        largest, beyond = 0.0, False
         for i in members:
             e = p.computed[i]["estimate"]
-            if e is None:
-                _fail(f"computed mode {i + 1}: e_λ not published")
-            if e > largest:
-                largest = e
-        if estimate != largest:
+            if e.value is None:
+                if not _beyond_profile(e):
+                    _fail(f"computed mode {i + 1}: e_λ not published, and its null states no bound")
+                beyond = True
+            elif e.value > largest:
+                largest = e.value
+        if not (_beyond_profile(estimate) if beyond else estimate.value == largest):
             _fail(f"cluster {cid}: its e_λ is not its members' largest")
     for m, mode in enumerate(p.modes):
         index = mode["cluster"] - 1
         own = p.clusters[index][3] if 0 <= index < len(p.clusters) else None
-        if mode["cluster_estimate"] != own:
+        mine = mode["cluster_estimate"]
+        if own is None or (mine.value, mine.undefined) != (own.value, own.undefined):
             _fail(f"mode {m + 1}: its cluster e_λ is not its cluster's")
     n = len(p.modes)
     if 0 < n < total and p.computed[n - 1]["cluster"] == p.computed[n]["cluster"]:
@@ -1280,47 +1412,50 @@ def _clusters(p):
     return scope
 
 
-PROFILE_FLOOR = 2.0 ** 53  # a null `outside_canonical_profile` value is at least this large
-
-
-def _bound_of(vo):
-    """(lowest possible value, known) of a nonnegative published value object."""
-    if vo.value is not None:
-        return vo.value, True
-    if vo.undefined == "outside_canonical_profile":
-        return PROFILE_FLOOR, False
-    return None, False
-
-
 def _candidate_arithmetic(c, label):
-    """The two published sums and products of one factored candidate, each re-derived
-    only when every operand it needs is published."""
+    """The two published relations of one factored candidate, decided on the bounds
+    each operand's value or null reason gives: exact when every operand is published,
+    rejected when the bounds are disjoint, scoped only when they overlap."""
     scope = []
+    be, ft, fo, nu, product = (c[key] for key in ("backward_error", "factor_term", "formation_term", "inverse_norm", "product"))
     relations = (
-        ("e_b = factor term + formation term", (c["backward_error"], c["factor_term"], c["formation_term"]),
-         lambda be, ft, fo: be == ft + fo),
-        ("conditioning product = e_b·ν", (c["product"], c["backward_error"], c["inverse_norm"]),
-         lambda product, be, nu: product == be * nu),
+        (be, (ft, fo), lambda a, b: a + b, "e_b = factor term + formation term",
+         "e_b = factor term + formation term is contradicted by the bounds"),
+        (product, (be, nu), lambda a, b: a * b, "conditioning product = e_b·ν",
+         "the conditioning product is contradicted by the bounds of e_b·ν"),
     )
-    for name, operands, holds in relations:
-        if any(x is None for x in operands):
-            scope.append(f"candidate {label}: {name} is not re-derivable (an operand is not published)")
-        elif not holds(*operands):
-            _fail(f"candidate {label}: {name} does not hold")
+    for lhs, (x, y), combine, relation, contradiction in relations:
+        if lhs.value is not None and x.value is not None and y.value is not None:
+            if lhs.value != combine(x.value, y.value):
+                _fail(f"candidate {label}: {relation} does not hold")
+        elif Span.of(lhs).apart_from(combine(Span.of(x), Span.of(y))):
+            _fail(f"candidate {label}: {contradiction}")
+        else:
+            scope.append(f"candidate {label}: {relation} is undecidable on the published bounds")
     return scope
 
 
+def _premise_spans(c):
+    """The conditioning product's interval (what is published, met by what e_b·ν
+    allows) and the growth's."""
+    product = Span.of(c["product"]).meet(Span.of(c["backward_error"]) * Span.of(c["inverse_norm"]))
+    return product, Span.of(c["growth"])
+
+
 def _accepted_premises(c, sturm_count, limit, g_max, separated):
-    """Every premise of the accepted shift, each judged on its own evidence."""
+    """Every premise of the accepted shift, each judged on its own bounds."""
     scope = []
     if c["pivots"] != sturm_count:
         _fail(f"the accepted negative-pivot count {c['pivots']} is not the Sturm count {sturm_count}")
-    for name, vo, ceiling in (("conditioning product e_b·ν", c["product_vo"], limit), ("growth", c["growth_vo"], g_max)):
-        lowest, exact = _bound_of(vo)
-        if lowest is None:
-            scope.append(f"the accepted {name} is not published, so its premise is not re-derived")
-        elif lowest > ceiling:
-            _fail(f"the accepted shift's {name} {'is' if exact else 'is at least'} {lowest:e}, above its limit {ceiling:e}")
+    product, growth = _premise_spans(c)
+    for name, span, ceiling, failure in (
+            ("conditioning product", product, limit, "fails the conditioning premise"),
+            ("growth", growth, g_max, "exceeds the growth limit")):
+        holds = span.within(ceiling)
+        if holds is False:
+            _fail(f"the accepted shift {failure}: its {name} is at least {span.lo:e}, above {ceiling:e}")
+        if holds is None:
+            scope.append(f"the accepted {name} is undecidable against its limit on the published bounds")
     if separated is False:
         _fail("the accepted shift fails the separation premise")
     if separated is None:
@@ -1350,30 +1485,46 @@ def _sturm(p):
             _fail(f"candidate {label}: only the last candidate is accepted")
         factored = c["pivots"] is not None
         sep = c["separation"]
-        if sep.value is None:
-            separated = True if sep.undefined == "no_neighbour" else None
-        else:
+        # No neighbour separates; outside the profile the ratio is at least 2⁵³.
+        if sep.value is not None:
             separated = sep.value >= ks * (1.0 - 8.0 * U)
+        elif sep.undefined == "no_neighbour":
+            separated = True
+        elif _beyond_profile(sep):
+            separated = PROFILE_FLOOR >= ks * (1.0 - 8.0 * U)
+        else:
+            separated = None
         if c["decision"] in ("accepted", "growth_limit", "ill_conditioned") and not factored:
             _fail(f"candidate {label}: decision `{c['decision']}` needs a factorization")
         if factored:
+            # A factorization publishes each of its values, or says it is outside the profile.
+            for key in ("formation_term", "factor_term", "backward_error", "inverse_norm", "product", "growth",
+                        "max_lower", "max_pivot", "max_diagonal"):
+                if c[key].value is None and not _beyond_profile(c[key]):
+                    _fail(f"candidate {label}: its {key.replace('_', ' ')} is null without a profile bound")
+            if separated is None:
+                _fail(f"candidate {label}: its separation ratio is null without a profile bound or a missing neighbour")
             scope.extend(_candidate_arithmetic(c, label))
         if c["decision"] == "accepted":
             scope.extend(_accepted_premises(c, p.sturm_count, limit, g_max, separated))
         if factored:
-            growth, product = c["growth"], c["product"]
-            if c["decision"] == "growth_limit" and not ((growth is None or growth > g_max) and separated is not False):
+            product, growth = _premise_spans(c)
+            if c["decision"] == "growth_limit" and (growth.within(g_max) is True or separated is False):
                 _fail(f"candidate {label}: refused for growth within the limit")
-            if c["decision"] == "ill_conditioned" and not ((product is None or product > limit) and growth is not None and growth <= g_max):
+            if c["decision"] == "ill_conditioned" and (product.within(limit) is True or growth.within(g_max) is False):
                 _fail(f"candidate {label}: refused as ill-conditioned within the premise")
-            if c["decision"] == "unseparated" and separated is True and sep.value is not None and sep.value >= ks * (1.0 + 8.0 * U):
+            beyond_ks = sep.value >= ks * (1.0 + 8.0 * U) if sep.value is not None else separated is True
+            if c["decision"] == "unseparated" and beyond_ks:
                 _fail(f"candidate {label}: refused as unseparated with its separation above κ_s")
     n = len(p.modes)
 
     def omega(i):
         return p.computed[i]["omega"] if 0 <= i < len(p.computed) else None
 
-    accepted = p.candidates[-1]["shift"] if p.candidates else None
+    shift = p.candidates[-1]["shift"] if p.candidates else None
+    accepted = shift.value if shift is not None else None
+    # An accepted shift outside the profile is an ω of at least 2⁵³ rad/s.
+    beyond = shift is not None and _beyond_profile(shift)
     if p.endpoint in ("below_computed_cluster", "below_lowest_mode"):
         if p.placement != "gap" or p.placement_established is not None:
             _fail("a set below a computed cluster is counted in a gap")
@@ -1395,6 +1546,8 @@ def _sturm(p):
                 _fail("the gap's lower end is not 2π·f_c")
         if accepted is not None and not (lower <= accepted <= upper):
             _fail("the accepted shift is not in its gap")
+        if beyond and upper < PROFILE_FLOOR:
+            _fail("the accepted shift is outside the profile, so above its gap")
     else:
         if p.placement != "above_spectrum" or p.placement_upper is not None or p.placement_established != n:
             _fail("the whole spectrum is counted above it, on its established count")
@@ -1405,37 +1558,42 @@ def _sturm(p):
             _fail("the placement's top is not the top mode's ω")
         if accepted is not None and accepted < lower:
             _fail("the accepted whole-spectrum shift is below the top mode")
-    if accepted is None:
-        scope.append("the accepted shift is outside the profile")
+    if shift is not None and accepted is None and not beyond:
+        _fail("the accepted shift is null, and its null states no bound")
     return scope
 
 
 def _identity_coverage(p):
-    """The identity rows a run carries, from the document itself: the three axes in
-    order, each ending with the model's resultant, each straight member of the
-    discretization table compared nodally (and nothing else nodally), and one subject
-    set shared by the axes. Arcs and bodies are not listed anywhere in the document,
-    so a subject missing on every axis cannot be seen: that coverage is scoped."""
+    """The identity rows a run carries, from the document itself. Along each axis, in
+    axis order: one nodal row for each straight member of the discretization table and
+    nodal rows for nothing else, resultant rows for the other subjects, and the model's
+    aggregate (subject kind `model`) last and once; the same (kind, subject) list on
+    every axis. Subjects are told apart by their kind, so a member may be named
+    `model`. The document carries no census of what bears mass, so only what is listed
+    is covered."""
     axes = [row["axis"] for row in p.identity]
     if axes != sorted(axes, key=DIRECTIONS.index):
         _fail("identity: rows are not grouped in axis order")
-    by_axis = {axis: [row for row in p.identity if row["axis"] == axis] for axis in DIRECTIONS}
     straight = set(p.straight_members)
     reference = None
-    for axis, rows in by_axis.items():
-        if not rows or (rows[-1]["subject"], rows[-1]["comparison"]) != ("model", "resultant"):
-            _fail(f"identity: no closing model resultant row along {axis}")
-        subjects = [row["subject"] for row in rows]
-        if len(set(subjects)) != len(subjects):
+    for axis in DIRECTIONS:
+        rows = [row for row in p.identity if row["axis"] == axis]
+        aggregate = [row for row in rows if row["kind"] == "model"]
+        if not rows or len(aggregate) != 1 or rows[-1] is not aggregate[0] or rows[-1]["comparison"] != "resultant":
+            _fail(f"identity: along {axis}, the model's aggregate resultant is not the single last row")
+        keys = [(row["kind"], row["subject"]) for row in rows]
+        if len(set(keys)) != len(keys):
             _fail(f"identity: a subject repeats along {axis}")
-        nodal = {row["subject"] for row in rows if row["comparison"] == "nodal"}
-        if nodal != straight:
+        nodal = {key for key, row in zip(keys, rows) if row["comparison"] == "nodal"}
+        if nodal != {("member", member) for member in straight}:
             _fail(f"identity: the nodal rows along {axis} are not the discretization table's straight members")
         if reference is None:
-            reference = subjects
-        elif subjects != reference:
+            reference = keys
+        elif keys != reference:
             _fail(f"identity: the subjects along {axis} differ from those along x")
-    return ["identity: arc and component-body resultant coverage is not derivable (the document lists no arc or body)"]
+    return ["identity: covered are the straight members the discretization table lists and the model's aggregate; "
+            "the document has no census of mass-bearing members, arcs or component bodies, so a subject absent "
+            "from every axis (and, for a straight member, from the discretization table as well) cannot be seen"]
 
 
 def _state_coverage(p):
@@ -1458,10 +1616,17 @@ def _state_coverage(p):
 def _evidence(p):
     scope = []
     for i, c in enumerate(p.computed):
-        eta, kappa, e = c["eta"], c["condition"], c["estimate"]
-        if eta is None or kappa is None or e is None:
-            scope.append(f"computed mode {i + 1}: a check-2 value is outside the profile")
+        vos = (c["eta"], c["condition"], c["estimate"])
+        if any(vo.value is None for vo in vos):
+            # e_λ = η·κ_λ held on the bounds the nulls state.
+            if any(vo.value is None and not _beyond_profile(vo) for vo in vos):
+                _fail(f"computed mode {i + 1}: a check-2 value is null, and its null states no bound")
+            spans = [Span.of(vo) for vo in vos]
+            if spans[2].apart_from(spans[0] * spans[1]):
+                _fail(f"computed mode {i + 1}: e_λ = η·κ_λ is contradicted by the bounds")
+            scope.append(f"computed mode {i + 1}: e_λ = η·κ_λ is undecidable on the published bounds")
             continue
+        eta, kappa, e = (vo.value for vo in vos)
         if eta < 0.0 or kappa < 0.0 or e < 0.0:
             _fail(f"computed mode {i + 1}: a negative check-2 value")
         product = eta * kappa
@@ -1476,7 +1641,10 @@ def _evidence(p):
                for text in p.disclosure_texts.get("modal", [])):
         _fail("disclosures: the fixed numerical-integrity disclosure is missing")
     if tolerance["absolute"] == 0.0:
-        for i, d in enumerate(row["relative"] for row in p.identity):
+        for i, vo in enumerate(row["relative"] for row in p.identity):
+            if _beyond_profile(vo):
+                _fail(f"identity row {i}: its relative discrepancy is at least 2⁵³, above the bound tolerance")
+            d = vo.value
             if d is None:
                 _fail(f"identity row {i}: not published")
             if not (0.0 <= d <= tolerance["relative"]):
@@ -1486,7 +1654,9 @@ def _evidence(p):
     for v in p.formation:
         if v is not None and v < 0.0:
             _fail("a negative formation-difference or norm")
-    if p.ortho is not None and p.ortho < 0.0:
+    if p.ortho.value is None and not _beyond_profile(p.ortho):
+        _fail("the orthogonality deviation is null, and its null states no bound")
+    if p.ortho.value is not None and p.ortho.value < 0.0:
         _fail("a negative orthogonality deviation")
     if p.ortho_pair != (len(p.modes) >= 2):
         _fail("the orthogonality pair is stated exactly when two modes are reported")
@@ -1500,15 +1670,16 @@ def _standing(p):
     any_sensitive = False
     for m, mode in enumerate(p.modes):
         eta = p.computed[m]["eta"]
-        if eta is None:
-            _fail(f"mode {m + 1}: η not published")
-        sensitive = eta > tau_r
+        if eta.value is None and not _beyond_profile(eta):
+            _fail(f"mode {m + 1}: η not published, and its null states no bound")
+        # η ≥ 2⁵³ is above every τ_r.
+        sensitive = eta.value is None or eta.value > tau_r
         if mode["sensitive"] != sensitive or (mode["reasons"] > 0) != sensitive:
             _fail(f"mode {m + 1}: Sensitive exactly when η > τ_r, with its reason")
         any_sensitive = any_sensitive or sensitive
-    if p.ortho is None:
-        _fail("the orthogonality deviation is not published")
-    sensitive = any_sensitive or p.ortho > tau_o
+    if p.ortho.value is None and not _beyond_profile(p.ortho):
+        _fail("the orthogonality deviation is not published, and its null states no bound")
+    sensitive = any_sensitive or p.ortho.value is None or p.ortho.value > tau_o
     if p.sensitive != sensitive or (p.set_reasons > 0) != sensitive:
         _fail("the set is Sensitive exactly when a mode is or the orthogonality deviation exceeds τ_o")
     return []

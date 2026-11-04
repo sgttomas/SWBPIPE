@@ -116,6 +116,16 @@ fn apply(doc: &mut Value, operations: &[Value]) {
                     }
                 }
             }
+            "set_rows" => {
+                // Sets one field of every row the `where` members select.
+                let rows = doc["tables"][op["table"].as_str().unwrap()]["rows"].as_array_mut().unwrap();
+                let mut hits = 0;
+                for row in rows.iter_mut().filter(|row| op["where"].as_object().unwrap().iter().all(|(k, v)| row[k] == *v)) {
+                    row[op["field"].as_str().unwrap()] = op["value"].clone();
+                    hits += 1;
+                }
+                assert!(hits > 0, "{op}: sets a row");
+            }
             other => panic!("unknown corpus operation `{other}`"),
         }
     }
@@ -219,12 +229,21 @@ fn the_rust_reader_returns_every_corpus_verdict() {
     let corpus: Value = serde_json::from_str(CORPUS).unwrap();
     let entries = corpus["entries"].as_array().unwrap();
     assert!(entries.len() >= 50);
+    // Every entry is read before the test fails, so one run names them all.
+    let mut failures = Vec::new();
     for entry in entries {
         let (got, verdict) = run(entry);
-        assert!(intent_holds(entry, &got), "{}: the targeted standing does not hold: {verdict:#}", entry["id"]);
-        assert!(reason_holds(entry, &verdict), "{}: not failed for its stated reason: {verdict:#}", entry["id"]);
-        assert_eq!(got, entry["expected"], "{}: {verdict:#}", entry["id"]);
+        let difference = |name: &str| verdict["relations"].get(name).or(verdict.get(name)).map(|s| s["difference"].clone());
+        let intent = entry["intent"].as_str().unwrap();
+        if !intent_holds(entry, &got) {
+            failures.push(format!("{}: the targeted standing does not hold: {got} ({:?})", entry["id"], difference(intent)));
+        } else if !reason_holds(entry, &verdict) {
+            failures.push(format!("{}: not failed for its stated reason: {:?}", entry["id"], difference(intent)));
+        } else if got != entry["expected"] {
+            failures.push(format!("{}: {got} is not the expected {}", entry["id"], entry["expected"]));
+        }
     }
+    assert!(failures.is_empty(), "{} corpus entries:\n{}", failures.len(), failures.join("\n"));
 }
 
 #[test]

@@ -1195,12 +1195,12 @@
       "status": "published"
     },
     "identity": {
-      "digest": "67198bcba076abab36c202a05c7eec39212af6107a08d4796c1fdf48d209b813",
+      "digest": "6b2d00113e6c0d1841fdac778276693d29573bdf237e8af8bb4eddc1d3b26a28",
       "row_count": 9,
       "rows": [
         {
           "axis": "x",
-          "checksum": "c29eb53a48f5dc0c45185a7b0c70519d552c8cf8e6020082ecfeedf40e4bba06",
+          "checksum": "25f33b10c160a4b0fe806415d3b87b7241685c596324c1f86ebcda95856a8974",
           "comparison": "nodal",
           "ordinal": 0,
           "relative": {
@@ -1212,11 +1212,12 @@
             "value": 4.381549671813639e-17
           },
           "row_id": "identity:0",
-          "subject": "pipe:p1"
+          "subject": "pipe:p1",
+          "subject_kind": "member"
         },
         {
           "axis": "x",
-          "checksum": "23d05aaf1f1943d6915afa37e5bf2f9e60e2701e2e06e6d900308ffd3e8975c8",
+          "checksum": "3dfae363f37647f4d66be610c843bf2bf9735c026621818feed15b2f5d02009a",
           "comparison": "resultant",
           "ordinal": 1,
           "relative": {
@@ -1228,11 +1229,12 @@
             "value": 0.0
           },
           "row_id": "identity:1",
-          "subject": "component:valve"
+          "subject": "component:valve",
+          "subject_kind": "component_body"
         },
         {
           "axis": "x",
-          "checksum": "af0fc9a111baecd212aac13e07e6998cc2887a1aaa29580f85277d3b134fad40",
+          "checksum": "ad40b1e8aca13c7331b42383dc682739e45a1fb7c73814344cf356a66614677f",
           "comparison": "resultant",
           "ordinal": 2,
           "relative": {
@@ -1244,11 +1246,12 @@
             "value": 6.829426892963847e-17
           },
           "row_id": "identity:2",
-          "subject": "model"
+          "subject": "model",
+          "subject_kind": "model"
         },
         {
           "axis": "y",
-          "checksum": "86b1c7eea0444f9b241b1ad13d28e2594f63d236720f18d1d62b78cd62b39725",
+          "checksum": "a2bad1f68b36adadc794489fa8eef72206ae959a74d7bec4179893cb7d86970f",
           "comparison": "nodal",
           "ordinal": 3,
           "relative": {
@@ -1260,11 +1263,12 @@
             "value": 8.074570109485134e-17
           },
           "row_id": "identity:3",
-          "subject": "pipe:p1"
+          "subject": "pipe:p1",
+          "subject_kind": "member"
         },
         {
           "axis": "y",
-          "checksum": "48b43f80d922a48b28daf600700427a046b9fa8653b66e7a88c939b82eb59372",
+          "checksum": "600ce4641b9d2e47f37760f81072df833efd99dbfe2206334d9dff9aef470c47",
           "comparison": "resultant",
           "ordinal": 4,
           "relative": {
@@ -1276,11 +1280,12 @@
             "value": 0.0
           },
           "row_id": "identity:4",
-          "subject": "component:valve"
+          "subject": "component:valve",
+          "subject_kind": "component_body"
         },
         {
           "axis": "y",
-          "checksum": "d7ce8691d187f5e1173a3cb2f87ec918f677eaad887f44cbe6a0ead49e9d15df",
+          "checksum": "8be2c98dcee5f29241a4367954ab39d64917b7d1e9237152eb7417977f30729d",
           "comparison": "resultant",
           "ordinal": 5,
           "relative": {
@@ -1292,11 +1297,12 @@
             "value": 6.829426892963847e-17
           },
           "row_id": "identity:5",
-          "subject": "model"
+          "subject": "model",
+          "subject_kind": "model"
         },
         {
           "axis": "z",
-          "checksum": "80df46ed00d32701214e223fad23654534f21e26b2a91c58e95af774afdbb4b5",
+          "checksum": "421367c973f614fb44401000d6ea34b7abc13458714ef09e474e5720c8a069e2",
           "comparison": "nodal",
           "ordinal": 6,
           "relative": {
@@ -1308,11 +1314,12 @@
             "value": 8.074570109485134e-17
           },
           "row_id": "identity:6",
-          "subject": "pipe:p1"
+          "subject": "pipe:p1",
+          "subject_kind": "member"
         },
         {
           "axis": "z",
-          "checksum": "88535d2de64220e2a86b7d91ebb454a4395944133224a9237938cd23f62b4b53",
+          "checksum": "7dbae7cb3ec7feaa0dfe084736e6eee995f66fd1f84e0c6c19649a5637a795d0",
           "comparison": "resultant",
           "ordinal": 7,
           "relative": {
@@ -1324,11 +1331,12 @@
             "value": 0.0
           },
           "row_id": "identity:7",
-          "subject": "component:valve"
+          "subject": "component:valve",
+          "subject_kind": "component_body"
         },
         {
           "axis": "z",
-          "checksum": "0b0914c4f468e398332e327872c17fe22b6d5fe604104bf9ac0401b341352a25",
+          "checksum": "3f26d51a497d03076d631f67bd4568fb1b3883c887fc84cd0a6210e12e558f5a",
           "comparison": "resultant",
           "ordinal": 8,
           "relative": {
@@ -1340,7 +1348,8 @@
             "value": 6.829426892963847e-17
           },
           "row_id": "identity:8",
-          "subject": "model"
+          "subject": "model",
+          "subject_kind": "model"
         }
       ],
       "status": "published"
