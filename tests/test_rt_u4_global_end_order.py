@@ -235,3 +235,37 @@ def test_an_integer_case_id_row_is_refused_alike(solve):
     source["results"].append(row)
     for given in (None, model):
         assert (cli(source, given), mirror(source, given)) == (CODE + "BASIS", CODE + "BASIS")
+
+
+def _int_case_copy(row, basis=None):
+    row = copy.deepcopy(row)
+    row["id"], row["basis_ref"]["ref_id"] = row["id"] + ":rt-u4:int-case", 7
+    if basis is not None:
+        row["metadata"]["basis"] = basis
+    return row
+
+
+def test_an_integer_case_id_copy_of_a_whole_case_is_refused_alike(solve):
+    """Review of #105: W1's element-local and global end rows copied under integer load case ID 7, keeping their case
+    bases. Before RT-U4 the verifier read them as case 7's complete member set and accepted; both readers now read
+    them as no case's and refuse the case basis (Python acceptance changes on this malformed input; Rust's does not)."""
+    model = linear_cantilever(LINEAR)
+    source = solve(model)
+    copies = [_int_case_copy(r) for r in source["results"] if r["kind"] in (*ge.LOCAL_KINDS, *ge.KINDS)
+              and r["basis_ref"] == {"ref_type": "load_case", "ref_id": "W1"}]
+    assert any(r["kind"] in ge.KINDS for r in copies) and any(r["kind"] in ge.LOCAL_KINDS for r in copies)
+    source["results"] += copies
+    for given in (None, model):
+        assert (cli(source, given), mirror(source, given)) == (CODE + "BASIS", CODE + "BASIS")
+
+
+def test_an_integer_case_id_row_with_a_combination_basis_is_accepted_alike(solve):
+    """Review of #105: an integer-ID load-case global row carrying a combination basis. Before RT-U4 the verifier read it
+    as case 7's and refused BASIS; both readers now read it as no case's, admit the combination basis and skip it in
+    coverage, so both accept (Python acceptance changes on this malformed input; Rust's does not)."""
+    model = linear_cantilever(LINEAR)
+    source = solve(model)
+    row = next(r for r in source["results"] if r["kind"] == ge.FORCE and r["basis_ref"]["ref_type"] == "load_case")
+    source["results"].append(_int_case_copy(row, "explicit_user_linear_combination"))
+    for given in (None, model):
+        assert (cli(source, given), mirror(source, given)) == (None, None)

@@ -1185,14 +1185,20 @@ on its route, independently of the producer. The verifier shares no code with it
     The verifier's `_case` returns only a string ID, so `row_semantics` reads such a row as
     no case's and asks for a combination basis, as Rust does. Both readers refuse these rows
     before W-7 on pressure-2. Preview-physics-2 checks a row's member as text, but checks only
-    the key set of its basis reference, so both readers now refuse an integer load case ID
-    on a global end row as `SOURCE_GLOBAL_END_BASIS`.
+    the key set of its basis reference. There both readers now read an integer load case ID
+    as no case's: a global end row carrying a case basis is refused as
+    `SOURCE_GLOBAL_END_BASIS`, and one carrying a combination basis is admitted and skipped by
+    coverage. Rust's verdicts are unchanged. The verifier's change on such malformed inputs:
+    a whole member copied under an integer ID with case bases, which it accepted, is now
+    refused; an integer-ID row with a combination basis, which it refused as BASIS, is now
+    accepted. Both are regressions in `tests/test_rt_u4_global_end_order.py`.
   - *Repaired defect.* The reader walked a `HashSet` of member keys, and the verifier
     `sorted(members, key=repr)`. On a source with two members' defects of different codes,
     Rust's first code depended on the seed. The verifier's order differed from byte order
     where an ID held a character below `'` (for example "pipe:a b" before "pipe:a"). The
-    verifier refused an integer load case ID as MEMBER_UNRESOLVED, where Rust refused
-    BASIS. Pass or refuse did not depend on the seed.
+    verifier read an integer load case ID as a case, so it disagreed with Rust on such inputs
+    (MEMBER_UNRESOLVED where Rust refused BASIS, and the two acceptance differences above).
+    Pass or refuse did not depend on the seed.
 - **Arc evidence.** `arc_evidence.rs` and `tests/verifiers/pressure_1.py` (renamed
   `pressure_2.py`) drop `withheld_on_arcs`. They require the two definition ids and the new
   rows' coverage. `physics_evidence` stops refusing the formerly withheld kinds on arcs.
