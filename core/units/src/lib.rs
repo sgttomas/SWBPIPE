@@ -59,6 +59,7 @@ pub enum Dimension {
     LengthPerRotation,
     RotationalGeneralizedMass,
     MassLengthPerRotation,
+    TimeSquared,
     Tbd,
 }
 
@@ -98,6 +99,7 @@ pub const DIMENSIONS: &[Dimension] = &[
     Dimension::LengthPerRotation,
     Dimension::RotationalGeneralizedMass,
     Dimension::MassLengthPerRotation,
+    Dimension::TimeSquared,
     Dimension::Tbd,
 ];
 
@@ -139,6 +141,7 @@ impl Dimension {
             Self::LengthPerRotation => "length_per_rotation",
             Self::RotationalGeneralizedMass => "rotational_generalized_mass",
             Self::MassLengthPerRotation => "mass_length_per_rotation",
+            Self::TimeSquared => "time_squared",
             Self::Tbd => "TBD",
         }
     }
@@ -180,6 +183,7 @@ impl Dimension {
             "length_per_rotation" => Ok(Self::LengthPerRotation),
             "rotational_generalized_mass" => Ok(Self::RotationalGeneralizedMass),
             "mass_length_per_rotation" => Ok(Self::MassLengthPerRotation),
+            "time_squared" => Ok(Self::TimeSquared),
             "TBD" => Ok(Self::Tbd),
             "temperature_difference" => Err(UnitError::RetiredDimensionAlias {
                 alias: "temperature_difference",
@@ -230,6 +234,10 @@ impl Dimension {
             // radians (DEL-04-09 Design `modal-analysis.md` §5.3.5; the D-01 engineering
             // extension of 2026-11-04): a named dimension, checked by name, never matched by vector.
             Self::MassLengthPerRotation => DimensionVector::new(1, 1, 0, 0, -1),
+            // The diagonally scaled mass D·M·D, D = diag(k_ii^-½), of a modal pencil (DEL-04-09
+            // Design `modal-analysis.md` §5.3.5; the D-01 engineering extension of 2026-11-04):
+            // a named dimension, checked by name, never matched by vector.
+            Self::TimeSquared => DimensionVector::new(0, 0, 2, 0, 0),
             Self::Tbd => DimensionVector::TBD,
         }
     }
@@ -382,6 +390,7 @@ pub enum UnitId {
     KilogramMeterPerRadian,
     PoundMassInchPerRadian,
     PoundMassFootPerRadian,
+    SquareSecond,
 }
 
 impl UnitId {
@@ -464,6 +473,7 @@ impl UnitId {
             Self::KilogramMeterPerRadian => "unit:kilogram_meter_per_radian",
             Self::PoundMassInchPerRadian => "unit:pound_mass_inch_per_radian",
             Self::PoundMassFootPerRadian => "unit:pound_mass_foot_per_radian",
+            Self::SquareSecond => "unit:square_second",
         }
     }
 
@@ -787,6 +797,7 @@ impl UnitId {
                 Dimension::MassLengthPerRotation,
                 Transform::linear(POUND_MASS_IN_KILOGRAMS * FOOT_IN_METERS),
             ),
+            Self::SquareSecond => def(self, "s^2", Dimension::TimeSquared, Transform::linear(1.0)),
         }
     }
 }
@@ -986,6 +997,7 @@ pub fn canonical_unit(dimension: Dimension) -> Option<UnitId> {
         Dimension::LengthPerRotation => Some(UnitId::MeterPerRadian),
         Dimension::RotationalGeneralizedMass => Some(UnitId::KilogramSquareMeterPerSquareRadian),
         Dimension::MassLengthPerRotation => Some(UnitId::KilogramMeterPerRadian),
+        Dimension::TimeSquared => Some(UnitId::SquareSecond),
         Dimension::Tbd => None,
     }
 }
@@ -1327,6 +1339,7 @@ const CATALOG: &[UnitId] = &[
     UnitId::KilogramMeterPerRadian,
     UnitId::PoundMassInchPerRadian,
     UnitId::PoundMassFootPerRadian,
+    UnitId::SquareSecond,
 ];
 
 fn def(
@@ -1490,6 +1503,7 @@ fn factor_representation(id: UnitId) -> &'static str {
         }
         UnitId::PoundMassInchPerRadian => "0.45359237 kg/lb * 0.0254 m/in, exact public definition",
         UnitId::PoundMassFootPerRadian => "0.45359237 kg/lb * 0.3048 m/ft, exact public definition",
+        UnitId::SquareSecond => "1 s^2/s^2, SI canonical identity",
     }
 }
 
@@ -1966,6 +1980,30 @@ mod tests {
         assert!(convert(1.0, UnitId::KilogramMeterPerRadian, UnitId::Kilogram).is_err());
         assert!(convert(1.0, UnitId::KilogramMeterPerRadian, UnitId::KilogramSquareMeterPerSquareRadian).is_err());
         assert_eq!(catalog_definitions().filter(|unit| unit.dimension == Dimension::MassLengthPerRotation).count(), 3);
+    }
+
+    /// The diagonally scaled mass of a modal pencil (DEL-04-09 Design `modal-analysis.md`
+    /// §5.3.5; the D-01 engineering extension of 2026-11-04): one canonical unit, s^2, and no
+    /// display unit; a named dimension that no other dimension's unit serves.
+    #[test]
+    fn time_squared_has_one_canonical_unit_and_is_matched_by_name() {
+        let canonical = canonical_unit(Dimension::TimeSquared).unwrap();
+        assert_eq!(canonical, UnitId::SquareSecond);
+        assert_eq!(canonical.catalog_id(), "unit:square_second");
+        let definition = canonical.definition();
+        assert_eq!((definition.symbol, definition.dimension, definition.canonical), ("s^2", Dimension::TimeSquared, true));
+        assert_eq!(definition.provenance, ConversionProvenance::SiCanonical);
+        assert_eq!(unit_by_symbol("s^2", Dimension::TimeSquared).unwrap(), UnitId::SquareSecond);
+        assert_close(convert_for_dimension(1.0, Dimension::TimeSquared, canonical, canonical).unwrap(), 1.0);
+        assert_eq!(Dimension::TimeSquared.vector(), DimensionVector::new(0, 0, 2, 0, 0));
+        assert_eq!(Dimension::from_schema_value("time_squared").unwrap(), Dimension::TimeSquared);
+        assert_eq!(catalog_definitions().filter(|unit| unit.dimension == Dimension::TimeSquared).count(), 1);
+        // By name: s is not s^2, and s^2 serves neither time nor the dimensionless family.
+        assert!(unit_by_symbol("s", Dimension::TimeSquared).is_err());
+        assert!(unit_by_symbol("s^2", Dimension::Time).is_err());
+        assert!(unit_by_symbol("1", Dimension::TimeSquared).is_err());
+        assert!(convert(1.0, UnitId::SquareSecond, UnitId::Second).is_err());
+        assert!(convert(1.0, UnitId::SquareSecond, UnitId::One).is_err());
     }
 
     #[test]

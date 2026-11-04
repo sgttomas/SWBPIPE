@@ -275,12 +275,12 @@ def test_units_catalog_is_the_crates_bit_for_bit():
     order = re.findall(r"UnitId::(\w+)", text[text.index("const CATALOG"):text.index("];", text.index("const CATALOG"))])
     crate = [definitions[unit] for unit in order]
     ours = [(unit.symbol, unit.dimension, bits(unit.factor), bits(unit.offset)) for unit in units.CATALOG]
-    assert len(order) == len(definitions) == 77 and ours == crate
+    assert len(order) == len(definitions) == 78 and ours == crate
     canonical = {}
     for dimensions, unit in re.findall(r"((?:Dimension::\w+\s*\|?\s*)+)=> Some\(UnitId::(\w+)\)", _rust_fn(text, "pub fn canonical_unit(")):
         for dimension in re.findall(r"Dimension::(\w+)", dimensions):
             canonical[names[dimension]] = definitions[unit][:2]
-    assert len(canonical) == 35 and canonical == units.CANONICAL
+    assert len(canonical) == 36 and canonical == units.CANONICAL
     assert set(names.values()) == units.DIMENSIONS
 
 
