@@ -657,7 +657,15 @@ export function classify({ report, exit, timedOut, progress, memory, store, run,
   } else {
     const solve = report.solve;
     if (!solve) add(report.error ? "refused_with_message" : "hang", { step: "open", message: report.error ?? null, needs_review: true });
-    else if (solve.ended === "first_paint") { /* painted */ }
+    else if (solve.ended === "first_paint") {
+      // Painted only within the gate (RT-U4 F1): the run's own first_paint mark, on the
+      // timeline's clock, at most `paint_ms` after the driver sent Analyze > Run. A mark
+      // after it, or a report that cannot show when the run began, is the gate's hang.
+      const mark = solve.timeline?.marks?.find((item) => item.stage === "first_paint");
+      const startedAt = solve.gate?.started_at_ms;
+      if (!mark || !Number.isFinite(mark.at_ms) || !Number.isFinite(startedAt)) add("hang", { step: "solve", detail: `first paint not shown to be within ${run.paint_ms} ms of Analyze > Run` });
+      else if (mark.at_ms - startedAt > run.paint_ms) add("hang", { step: "solve", detail: `first paint ${mark.at_ms - startedAt} ms after Analyze > Run, after the ${run.paint_ms} ms gate` });
+    }
     else if (solve.ended === "timeout") add("hang", { step: "solve", detail: `no first paint within ${run.paint_ms} ms; last stage ${solve.timeline?.marks?.at(-1)?.stage ?? null}` });
     // The window's text, verbatim (the timeline carries only the failure's code and stage).
     else add("refused_with_message", { step: "solve", message: solve.shown?.error ?? solve.shown?.refusal ?? solve.shown?.results_refusal ?? solve.shown?.summary ?? null, code: solve.timeline?.failure?.code ?? null, stage: solve.timeline?.failure?.stage ?? null, needs_review: true });

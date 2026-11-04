@@ -327,6 +327,8 @@ test("samples sum per kind, keep per-process peaks and a peak since a stage", ()
   assert.deepEqual(summary.timeline[1], [1200, 300, 30, 210, 30, null]);
 });
 
+// A painted solve as the driver reports it: its first_paint mark within the 30 s gate.
+const painted = (paintAt = 12_000) => ({ ended: "first_paint", gate: { paint_ms: 30_000, started_at_ms: 1_000, deadline_at_ms: 31_000, first_paint_at_ms: paintAt, first_paint_timely: paintAt <= 31_000 }, timeline: { marks: [{ stage: "solve_requested", at_ms: 1_005 }, { stage: "first_paint", at_ms: paintAt }] }, shown: {} });
 const base = (over = {}) => ({
   exit: { status: 0, signal: null, ended_ms: 10_000 },
   timedOut: false,
@@ -336,7 +338,7 @@ const base = (over = {}) => ({
   run: { id: "r", project_id: "p", timeout_s: 60, paint_ms: 30_000 },
   resultBytes: 1000,
   report: {
-    solve: { ended: "first_paint", timeline: { marks: [] }, shown: {} },
+    solve: painted(),
     record_run: { attempted: true, message: "Recorded run perf r." },
     save_project: { message: "Saved current project model snapshot." }
   },
@@ -345,6 +347,21 @@ const base = (over = {}) => ({
 
 test("a painted, recorded and stored run is ok", () => {
   assert.equal(classify(base()).class, "ok");
+});
+
+// RT-U4 F1: the classifier applies the gate to the mark's own time, whatever the driver said.
+test("F1: a first_paint mark after the gate is a hang; one at the deadline, or noticed late, is not", () => {
+  const late = base(); late.report.solve = painted(31_001);
+  assert.deepEqual(classify(late).findings, [{ class: "hang", step: "solve", detail: "first paint 30001 ms after Analyze > Run, after the 30000 ms gate" }]);
+  const atDeadline = base(); atDeadline.report.solve = { ...painted(31_000), elapsed_ms: 31_180 };
+  assert.equal(classify(atDeadline).class, "ok");
+});
+
+test("F1: a first_paint without its mark or the driver's start time is not shown to be within the gate", () => {
+  for (const solve of [{ ...painted(), timeline: { marks: [] } }, { ...painted(), gate: undefined }, { ...painted(), gate: { started_at_ms: null } }]) {
+    const input = base(); input.report.solve = solve;
+    assert.deepEqual(classify(input).findings, [{ class: "hang", step: "solve", detail: "first paint not shown to be within 30000 ms of Analyze > Run" }]);
+  }
 });
 
 test("a failed solve is a refusal quoting the window's message, with the timeline's code and stage", () => {
@@ -373,7 +390,7 @@ test("a reported save the store does not hold is misleading; a short or unchecke
 });
 
 test("a refused Record Run or Save Project is quoted", () => {
-  const result = classify(base({ report: { solve: { ended: "first_paint", timeline: {}, shown: {} }, record_run: { attempted: true, message: "Not recorded: RESOURCE_UNAVAILABLE" }, save_project: { message: "Save failed: string or blob too big" } } }));
+  const result = classify(base({ report: { solve: painted(), record_run: { attempted: true, message: "Not recorded: RESOURCE_UNAVAILABLE" }, save_project: { message: "Save failed: string or blob too big" } } }));
   assert.equal(result.class, "refused_with_message");
   assert.deepEqual(result.findings.map((finding) => finding.message), ["Not recorded: RESOURCE_UNAVAILABLE", "Save failed: string or blob too big"]);
 });
@@ -389,7 +406,7 @@ test("the driver loads in a webview-like context and hands its steps to a test",
   await assert.rejects(hooks.waitFor("nothing", () => null, 30, 5), /timed out after 30 ms waiting for nothing/);
 });
 
-async function driverDom(t, html, invoke) {
+async function driverDom(t, html, invoke, overrides = {}) {
   const { JSDOM } = await import("jsdom");
   const vm = await import("node:vm");
   const dom = new JSDOM(html);
@@ -402,7 +419,7 @@ async function driverDom(t, html, invoke) {
     Event: dom.window.Event, HTMLInputElement: dom.window.HTMLInputElement, HTMLTextAreaElement: dom.window.HTMLTextAreaElement,
     setTimeout, clearTimeout, setInterval, clearInterval, requestAnimationFrame: callback => setTimeout(() => callback(performance.now()), 0),
     TextEncoder, TextDecoder, ArrayBuffer, Uint8Array, DataView,
-    __SWBPIPE_PERF_DRIVER_TEST__: hooks };
+    __SWBPIPE_PERF_DRIVER_TEST__: hooks, ...overrides };
   vm.runInNewContext(readFileSync(new URL("./perf-driver.js",import.meta.url),"utf8"), context);
   return { dom, hooks, context, call: (...args) => dom.window.__TAURI_INTERNALS__.invoke(...args) };
 }
@@ -555,7 +572,8 @@ async function c1SolveDom(t, { refuse = false } = {}) {
   const commit=()=>{
     timeline={...timeline,outcome:"completed",marks:[...timeline.marks,{stage:"result_set"},{stage:"result_committed"}]};
     if(refuse) results.innerHTML='<p data-testid="result-query-refused">The native result query was refused: RESULT-DETAIL-REFUSED</p>';
-    else setTimeout(()=>{timeline={...timeline,marks:[...timeline.marks,{stage:"first_paint"}]};},50);
+    // A mark carries its own time (solveTimeline.ts); the driver judges the gate by it (F1).
+    else setTimeout(()=>{timeline={...timeline,marks:[...timeline.marks,{stage:"first_paint",at_ms:performance.now()}]};},50);
   };
   return {ui,menus,commit,shown:()=>shown};
 }
@@ -581,6 +599,96 @@ test("the C1 solve's paint gate runs from Analyze > Run, including opening Resul
   await dom.ui.hooks.solve({c1_probes:true,timeouts:{open_ms:1000,paint_ms:600}},report);
   assert.equal(report.solve.ended,"timeout");
   assert.ok(report.solve.elapsed_ms<900,`elapsed ${report.solve.elapsed_ms}`);
+});
+
+// RT-U4 F1: a simulated clock for the driver's own clocks (`performance.now()`, `Date.now()`,
+// `setTimeout`). Timers run in time order; between them the real event loop drains the
+// promise work (IPC replies, jsdom). Nothing waits in real time.
+function fakeClock() {
+  let clock = 0, seq = 0;
+  const timers = [];
+  const add = (at, fn) => { const id = ++seq; timers.push({ at, id, fn }); return id; };
+  return {
+    now: () => clock,
+    context: {
+      performance: { now: () => clock, timeOrigin: 0 },
+      Date: { now: () => clock },
+      setTimeout: (fn, ms = 0, ...args) => add(clock + Math.max(0, Number(ms) || 0), () => fn(...args)),
+      clearTimeout: id => { const at = timers.findIndex(timer => timer.id === id); if (at >= 0) timers.splice(at, 1); }
+    },
+    at: (ms, fn) => add(ms, fn),
+    async run(promise, limitMs = 2_000_000) {
+      let done = false, error = null;
+      promise.then(() => { done = true; }, failure => { done = true; error = failure; });
+      for (;;) {
+        await new Promise(resolve => setImmediate(resolve));
+        if (done) break;
+        timers.sort((a, b) => a.at - b.at || a.id - b.id);
+        const next = timers.shift();
+        if (!next || next.at > limitMs) throw new Error(`simulated clock stalled at ${clock} ms`);
+        clock = Math.max(clock, next.at);
+        next.fn();
+      }
+      if (error) throw error;
+    }
+  };
+}
+
+// The solve step on a simulated clock. `begunAt` starts the run's timeline, `resultsAt` is when
+// Results shows after the driver asks for it, `paintAt` when the first_paint mark is written (its
+// own `at_ms`). The run is sent at clock 0, so the gate's deadline is `paint_ms`.
+async function clockedSolve(t, { c1, paintMs = 300_000, openMs = 600_000, begunAt = 20, resultsAt = null, paintAt }) {
+  const clock = fakeClock();
+  let shown = "solve", timeline = null;
+  const ui = await driverDom(t, `<section data-testid="workspace-section-solve"><button data-testid="solver-mode-sparse" aria-pressed="false"></button><p data-testid="solve-job-summary">state=running</p></section><section data-testid="workspace-section-results"></section>`, async (command, args) => {
+    if (command !== "native_smoke_menu") return null;
+    if (args.commandId === "analyze.run") clock.at(begunAt, () => { timeline = { sequence: 1, outcome: "running", marks: [{ stage: "solve_requested", at_ms: clock.now() }] }; });
+    else if (args.commandId === "view.section.results") clock.at(resultsAt ?? clock.now(), () => { shown = "results"; });
+    return null;
+  }, clock.context);
+  const doc = ui.dom.window.document;
+  for (const id of ["solve", "results"]) Object.defineProperty(doc.querySelector(`[data-testid="workspace-section-${id}"]`), "offsetParent", { get: () => shown === id ? doc.body : null });
+  const sparse = doc.querySelector('[data-testid="solver-mode-sparse"]');
+  sparse.onclick = () => sparse.setAttribute("aria-pressed", "true");
+  ui.context.__openPipeStressSolveTimelineV1 = { readCurrent: () => timeline };
+  clock.at(paintAt, () => { timeline = { ...timeline, outcome: "completed", marks: [...timeline.marks, { stage: "result_committed", at_ms: clock.now() }, { stage: "first_paint", at_ms: clock.now() }] }; });
+  const report = {};
+  await clock.run(ui.hooks.solve({ c1_probes: c1, timeouts: { open_ms: openMs, paint_ms: paintMs } }, report));
+  return { report, observedAt: clock.now() };
+}
+
+// Each late case is one the driver at e1079a816 reported as `first_paint`.
+test("F1: a C1 Results activation that runs past the paint gate is the gate's timeout (the review's 301 s paint)", async (t) => {
+  // Results shows only at 300.95 s and the page paints at 300.96 s; `open_ms` alone would allow it.
+  const { report } = await clockedSolve(t, { c1: true, resultsAt: 300_950, paintAt: 300_960 });
+  assert.equal(report.solve.ended, "timeout");
+  assert.equal(report.solve.gate.deadline_at_ms, 300_000);
+  assert.equal(report.solve.gate.first_paint_at_ms, null);
+});
+
+test("F1: a late first_paint mark is rejected even when the wait notices it", async (t) => {
+  // The run begins 50 ms before the deadline, so opening Results overruns it by one poll and the
+  // paint wait then sees a mark written 20 ms after the deadline.
+  const { report, observedAt } = await clockedSolve(t, { c1: true, begunAt: 299_950, resultsAt: 300_000, paintAt: 300_020 });
+  assert.ok(observedAt > 300_020, `observed at ${observedAt}`);
+  assert.equal(report.solve.ended, "timeout");
+  assert.equal(report.solve.gate.first_paint_at_ms, 300_020);
+  assert.equal(report.solve.gate.first_paint_timely, false);
+});
+
+test("F1: a timely first_paint mark that the wait notices after the deadline still passes", async (t) => {
+  const { report, observedAt } = await clockedSolve(t, { c1: true, begunAt: 299_950, resultsAt: 299_980, paintAt: 299_990 });
+  assert.ok(observedAt > 300_000, `observed at ${observedAt}`);
+  assert.equal(report.solve.ended, "first_paint");
+  assert.deepEqual({ ...report.solve.gate }, { paint_ms: 300_000, started_at_ms: 0, deadline_at_ms: 300_000, first_paint_at_ms: 299_990, first_paint_timely: true });
+});
+
+test("F1: without C1, a mark one poll past the gate is a timeout and one just within it passes", async (t) => {
+  const late = await clockedSolve(t, { c1: false, paintAt: 300_100 });
+  assert.equal(late.report.solve.ended, "timeout");
+  const timely = await clockedSolve(t, { c1: false, paintAt: 299_999 });
+  assert.equal(timely.report.solve.ended, "first_paint");
+  assert.equal(timely.report.solve.gate.first_paint_at_ms, 299_999);
 });
 
 test("C1 persistence probe connects actual Rust reply shapes through record/reopen/re-save/check/release", async (t) => {

@@ -41,6 +41,20 @@
       await sleep(intervalMs);
     }
   }
+  // The paint gate's wait (RT-U4 F1): the same probe-first loop as `waitFor`, against an
+  // absolute, unrounded `performance.now()` deadline instead of a duration from its own
+  // start, sleeping no later than the deadline. Probing first only lets the wait notice what
+  // already happened; whether a first paint was in time is its mark's own timestamp (`solve`).
+  async function waitUntil(label, probe, deadline, budgetMs, intervalMs) {
+    for (;;) {
+      if (resourceFailure) throw new Error(resourceFailure);
+      const value = probe();
+      if (value) return value;
+      const left = deadline - now();
+      if (left <= 0) throw Object.assign(new Error(`timed out after ${budgetMs} ms waiting for ${label}`), { timeout: true });
+      await sleep(Math.min(intervalMs, left));
+    }
+  }
   const menu = (commandId) => call("native_smoke_menu", { commandId });
   function click(id, root = document) {
     const element = byTestId(id, root);
@@ -103,30 +117,48 @@
 
   // Analyze > Run, then the first paint of its result, a failure, or the timeout. The
   // marks are the app's own clock readings; the 200 ms poll only bounds when the wait
-  // notices them (and keeps its own load on the webview's main thread small). The paint
-  // timeout runs from Analyze > Run, whatever the wait spends opening Results (C1).
+  // notices them (and keeps its own load on the webview's main thread small).
+  // The paint gate (RT-U4 F1) is one absolute deadline on the webview's monotonic clock,
+  // `paint_ms` after Analyze > Run is sent, unrounded. Every wait in this step, including a
+  // C1 run's opening of Results, is bounded by what remains of it, and a first paint counts
+  // only when its own `first_paint` mark is at or before the deadline: a timely mark the
+  // wait notices late still counts, a late mark is a timeout however it is noticed.
   async function solve(plan, report) {
     await showSection("solve", plan.timeouts.open_ms);
     click("solver-mode-sparse");
     await waitFor("sparse selected", () => byTestId("solver-mode-sparse")?.getAttribute("aria-pressed") === "true", 10000);
     const priorSequence = timeline()?.sequence ?? 0;
+    const paintMs = plan.timeouts.paint_ms;
     const started = now();
+    const deadline = started + paintMs;
     await menu("analyze.run");
     let lastStage = null;
     let heartbeat = 0;
     let ended = "timeout";
     const begun = () => (timeline()?.sequence ?? 0) > priorSequence;
-    const remaining = () => Math.max(0, plan.timeouts.paint_ms - elapsed(started));
+    const remaining = () => Math.max(0, deadline - now());
+    // This run's first paint mark, if any, and whether it is within the gate.
+    const paintMark = () => {
+      const current = timeline();
+      return current && current.sequence > priorSequence ? current.marks.find((mark) => mark.stage === "first_paint") ?? null : null;
+    };
+    const timely = (mark) => Boolean(mark) && typeof mark.at_ms === "number" && mark.at_ms <= deadline;
     try {
       if (plan.c1_probes) {
         // Analyze > Run shows Solve; the result is seen in Results (the native table's first
         // page gates first_paint). Opened once the run has begun, so the run's own section
         // change cannot hide it again.
-        await waitFor("solve begun", () => begun() || UNSOLVED_STATE.test(text("solve-job-summary") ?? ""), remaining(), 50);
-        try { await showSection("results", plan.timeouts.open_ms); }
-        catch (error) { throw new Error(`C1 results did not open: ${error?.message ?? error}`); }
+        await waitUntil("solve begun", () => begun() || UNSOLVED_STATE.test(text("solve-job-summary") ?? ""), deadline, paintMs, 50);
+        // Bounded by the gate's remainder as well as `open_ms`: when the remainder is the
+        // smaller, running out of it is the gate's timeout, not a failure to open Results.
+        const openMs = Math.min(plan.timeouts.open_ms, remaining());
+        try { await showSection("results", openMs); }
+        catch (error) {
+          if (error?.timeout && openMs < plan.timeouts.open_ms) throw error;
+          throw new Error(`C1 results did not open: ${error?.message ?? error}`);
+        }
       }
-      ended = await waitFor("first paint or failure", () => {
+      ended = await waitUntil("first paint or failure", () => {
         const current = timeline();
         if (current && current.sequence > priorSequence) {
           const stage = current.marks.at(-1)?.stage ?? null;
@@ -135,18 +167,27 @@
             heartbeat = now();
             void progress("solve", { stage, outcome: current.outcome, elapsed_ms: elapsed(started) });
           }
-          if (current.marks.some((mark) => mark.stage === "first_paint")) return "first_paint";
+          const paint = paintMark();
+          if (paint) return timely(paint) ? "first_paint" : "timeout";
           if (TERMINAL.has(current.outcome) || current.outcome === "superseded") return current.outcome;
           // A refused first page never paints: it ends the wait rather than run out the gate.
           if (plan.c1_probes && text("result-query-refused", byTestId("workspace-section-results") ?? document)) return "results_refused";
         }
         if (UNSOLVED_STATE.test(text("solve-job-summary") ?? "")) return "ui_unsolved";
         return null;
-      }, remaining(), 200);
+      }, deadline, paintMs, 200);
     } catch (error) {
       if (!error?.timeout) throw error;
+      // Whichever wait ran out, a mark already within the gate is still the run's first paint.
+      if (timely(paintMark())) ended = "first_paint";
     }
-    report.solve = { ended, elapsed_ms: elapsed(started), shown: solveShown(), timeline: timeline() };
+    const paint = paintMark();
+    report.solve = {
+      ended, elapsed_ms: elapsed(started),
+      // The gate as the driver applied it, on the timeline's clock (`performance.now()`).
+      gate: { paint_ms: paintMs, started_at_ms: started, deadline_at_ms: deadline, first_paint_at_ms: paint?.at_ms ?? null, first_paint_timely: paint ? timely(paint) : null },
+      shown: solveShown(), timeline: timeline()
+    };
     await progress("solved", { ended, elapsed_ms: report.solve.elapsed_ms });
   }
 
@@ -504,7 +545,7 @@
   // Under the driver's node test only: hand over the helpers instead of running.
   const testHooks = globalThis.__SWBPIPE_PERF_DRIVER_TEST__;
   if (testHooks) {
-    Object.assign(testHooks, { waitFor, solve, recordRun, saveProject, beginC1Trace, preflight, probeResults, probePersistence, cancelIfRunning, startPoolMonitor, profileReaders });
+    Object.assign(testHooks, { waitFor, waitUntil, solve, recordRun, saveProject, beginC1Trace, preflight, probeResults, probePersistence, cancelIfRunning, startPoolMonitor, profileReaders });
     return;
   }
 
