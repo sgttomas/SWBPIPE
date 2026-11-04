@@ -263,6 +263,22 @@ option A).** Both readers (RE `combination_certificate.rs` `roster`, Python
   protects the known codes and canonical texts. It is not a semantic
   validation of arbitrary paraphrase, which the roster refuses under a
   combination ref instead.
+- *The retained successor's base read (Agent 0's ruling, 2026-11-04).* The
+  retained reader's G7 base read runs in an explicit read context
+  (`retained_base_read`, Rust and Python). Only that read enters it; it is
+  never inferred from a document's content, absence or age, and it selects no
+  history. Under it the roster's text closure alone is not applied. A present
+  member is still validated in full, and the reserved certificate codes and
+  canonical notices stay protected, so a certificate notice without a valid
+  member is still refused (`PRESENCE`). No reader-attested certificate fact
+  comes from prose. **A retained successor's combination prose is not
+  roster-checked: its retained-precision receipt (G4) governs its notices**,
+  as retained-precision claims stay governed by their own receipt. A future
+  retained successor that carries a certificate must have this revisited in
+  its D3. The shared retained corpus (`retained_precision_cases.json`), whose
+  base documents carry the pre-T4-U4b maximum text, and its pinned native
+  outcomes are unchanged. Retained identities are not admitted report sources
+  (`report_package` `document_form::ADMITTED_SEMANTIC_CONTRACTS`).
 
 **The residual text boundary (Agent 0's item 5).** Diagnostic prose under refs
 that name no combination (a load case, a support, the model, or no ref) is
@@ -294,8 +310,35 @@ non-combination refs is the residual. It is quoted as supplied text where it
 appears beside combination content, and is for later judgement only if a
 concrete consumer needs more.
 
-EX `formulation_basis.limitations` keep their existing reading (non-empty
-text). A roster bound to the selected table variant is a pending decision.
+**EX limitations: withdrawn from this scope (Agent 0, 2026-11-04, option (3)).**
+The earlier requirement read: "EX `formulation_basis.limitations` must equal
+the roster of the actually selected table variant. PF already does this." It
+is withdrawn, because it rested on an incomplete premise. No table variant
+carries an EX limitation roster. Recorded pressure-2 runs reach the current
+reader with no binding, because the compatibility layer maps their recorded
+digests to the current table. A bare envelope names no table digest. The
+scope now reads: **"The current reader does not attest the whole EX limitation
+roster. Raw EX limitation prose never supplies a reader-attested certificate
+claim."**
+- The EX readers keep their existing check: each limitation is non-empty text.
+  A source they accept has not had its limitation roster checked, so
+  acceptance does not mean every claim in it is verified.
+- Typed certificate facts, establishment and eligibility come solely from a
+  valid member and the canonical roster.
+- The exact report keeps refusing any limitation statement it has no
+  registered statement for (`report_package` `exact_sections::expected_exact_limitations`,
+  `EXACT_LIMITATION_UNREGISTERED`; desktop `exactReportStatements`).
+- The review's bypass is a regression test at that boundary: an appended
+  "combination comb:cancel: all derived row groups are established within
+  their stated bound of 1e-30." is admitted by the source readers as untrusted
+  text, it changes no member, roster entry or standing, and the exact-report
+  builder refuses it.
+
+No allow-list of historical rosters is kept, no history is selected by absence
+and no record binding is synthesized. Selecting history by its recorded
+digest (a roster registry keyed by the pressure-2 table digest) is a possible
+separate compatibility closure. It is not assigned, and is neither a release
+Must nor a backlog item.
 
 **Transport.** The preview-physics transport metadata check
 (`retained_precision.rs` `preview_physics_transport_metadata`, and Python

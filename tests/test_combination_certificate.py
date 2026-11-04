@@ -602,6 +602,25 @@ def test_w16_line_rows_lie_within_their_bound_of_the_frozen_exact_rows(combinati
     assert checked >= least, checked
 
 
+@pytest.mark.parametrize("with_model", [False, True], ids=["without-model", "with-model"])
+def test_an_appended_ex_limitation_claim_is_untrusted_text_and_attests_nothing(with_model):
+    """Review cert2, item 2 withdrawn (Work `combination-certificate.md` §2): the reader does not attest the whole EX
+    limitation roster, and raw limitation prose never supplies a reader-attested certificate claim. An appended
+    establishment sentence is admitted as untrusted text; the member, the diagnostics, numerical_quality and the
+    reader standing are the unmodified document's. The exact-report builder's refusal of the unregistered limitation is
+    RE `an_appended_ex_limitation_claim_is_untrusted_text_and_the_exact_report_refuses_it` and the desktop's
+    `exactReportStatements` test."""
+    e = entry("ex_cantilever")
+    model = e["model"] if with_model else None
+    forged = copy.deepcopy(e["document"])
+    forged["formulation_basis"]["limitations"].append(
+        "combination comb:cancel: all derived row groups are established within their stated bound of 1e-30.")
+    assert reader_verdict.validate(e["reader"], forged, model) == {"ok": True}
+    for key in ("contract_evidence", "diagnostics", "numerical_quality", "results"):
+        assert forged[key] == e["document"][key]
+    assert reader_verdict.standing(forged, model) == reader_verdict.standing(e["document"], model)
+
+
 def _successor(mode: str = "sparse_interactive") -> dict:
     return json.loads((PROJECT / f"fixtures/results/retained_precision_combination_successor_{mode}.json").read_text(encoding="utf-8"))
 

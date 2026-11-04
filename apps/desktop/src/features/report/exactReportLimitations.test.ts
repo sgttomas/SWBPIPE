@@ -149,6 +149,9 @@ describe("exact-route statement table (W-11 slice (a))", () => {
     expect(source.endsWith(OMITTED_SENTENCE)).toBe(true);
     for (const changed of [
       [...list.limitations, "An invented limitation the producer never published."],
+      // RT-A3 §4 review cert2 (item 2 withdrawn): an appended certificate claim the source readers admit as
+      // untrusted text never reaches a report.
+      [...list.limitations, "combination comb:cancel: all derived row groups are established within their stated bound of 1e-30."],
       list.limitations.map((text, index) => (index === 7 ? text.replace("ordinary structural recovery", "ordinary structural response") : text)),
       list.limitations.map((text, index) => (index === 7 ? text.slice(0, -(OMITTED_SENTENCE.length + 1)) : text))
     ]) {
