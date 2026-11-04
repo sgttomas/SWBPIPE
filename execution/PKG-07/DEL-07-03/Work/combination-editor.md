@@ -72,15 +72,42 @@ references are kept. The basis editor lists stored members it does not edit as "
 stored", for example `minuend_id`, `difference_basis`, `subtrahend_support_state` and
 `notes`. The engine returns its applied document with sorted keys. Key order is the engine's.
 
-The applier deletes only load-case terms (`resolve_delete_combination_term`). It deletes
-only a combination whose stored terms all name load cases (`combination_delete_display`).
-For a combination term, or a combination with one or with no stored `terms`, the delete
-button is disabled with the applier's code in place:
+## 3a. Deleting combinations and terms
 
-- `OP-COMBINATION-TERM-PAYLOAD-INVALID`;
-- `OP-COMBINATION-PAYLOAD-INVALID`.
+Both delete buttons work on every closed basis, on the applier contract of #115 (DEL-05-02
+Work `absolute-sum-srss-combinations.md` §10.5). Sources: `load-cases/combinationDelete.ts`
+and `LoadCaseManagerPanel.tsx`.
 
-Session Undo removes such an edit. Changing the applier is outside this slice.
+- **The `before` value comes only from the stored record or term.** It is never coerced to
+  the flat display.
+  - `delete_combination`: the historical display `"<id>; <label>; basis=<basis>;
+    terms=<lc> x <factor>; …"` (or `terms=none`) when the stored `terms` is an array of flat
+    `{load_case: non-empty string, factor: finite number}` terms, empty included, whatever
+    the basis. Factors are written as the engine's `display_number` writes them: an integer
+    below 10^15 in magnitude, otherwise Rust's plain shortest decimal, for example
+    `0.0000001`. Otherwise, with no `terms` or any non-flat term, the before is the stored
+    record's canonical JSON, from the wasm engine's `canonicalJsonString`.
+  - `delete_combination_term` (`terms.<i>`): `"<lc> x <factor>"` for a flat term, otherwise
+    the stored term's canonical JSON.
+  - The preview shows the before value. A canonical value is computed by the engine, so the
+    preview says so until it is ready.
+- **Checked before queueing.** Each delete is checked by the operation engine
+  (validate-only, the shared engine-checked queue) and queued for Review/Apply only when
+  nothing blocks it. A refusal is listed in place by code, message and references, and
+  nothing is queued.
+- **References, before the attempt.** When other combinations name the selected one, the
+  editor lists every path, as the engine does: `<id>.terms.<i>` (any factor, 0 included),
+  `<id>.minuend_id`, `<id>.subtrahend_id` and `<id>.operand_ids.<i>`. It says the engine
+  refuses the delete while they do (`OP-COMBINATION-DELETE-REFERENCED`) and that nothing is
+  deleted with it. For a three-axis static seismic template set it says "delete top-down:
+  the unsigned combination first". Otherwise it names the referencing combinations to
+  delete or change first. The button stays enabled, so an attempt shows the engine's
+  refusal by name. Nothing cascades: the editor never deletes a referencer.
+- **Undo.** Session Undo restores the document exactly from its checkpoint. The engine's
+  inverse is `create_combination` at `combinations[i]`, or `create_combination_term` at
+  `terms.<i>`, with the stored record's or term's own JSON. A record no create authors (a
+  termless mechanics record, or one with `minuend_final`) deletes, but create refuses its
+  restore by name. Session Undo still restores it.
 
 ## 4. Three-axis static seismic template
 
@@ -158,7 +185,8 @@ constant-effort support), with invented axis-state cases. No fixture file was ad
     `…_NOT_LOAD_CASE` by name;
   - self-reference and a cycle prevented with reasons, and the engine refusing a cycle, a
     self-reference and an unknown operand by name;
-  - the delete refusals;
+  - since #115, a term naming a combination is deletable, and a referenced
+    combination lists its referencing path;
   - the template's payloads, preview, gates (consuming constant-effort variant, nonlinear
     supports) and engine acceptance;
   - the out-of-order refusal;
@@ -170,6 +198,20 @@ constant-effort support), with invented axis-state cases. No fixture file was ad
     factor entered; a template draft changed during a pending check queues nothing; distinct
     raw ids give distinct operation ids and pass batch preflight; "Go to Create load case"
     focuses the ID field and shows its status line.
+- `combinationDelete.engine.test.tsx` (7):
+  - `display_number` and the historical display;
+  - deletes through the panel and the engine: an SRSS of combinations (canonical), a
+    subtraction with `terms: []` (historical), a subtraction without `terms` and an
+    envelope without `terms` (canonical), and a flat mechanics record with factors 1.5 and
+    1e-7 (historical);
+  - a term naming a combination (canonical) and a flat term;
+  - the referenced refusal: every path (a factor-0 term, a minuend, an envelope operand and
+    an SRSS term) shown before the attempt, then the engine's refusal by name with nothing
+    queued;
+  - the seismic template set deleted top-down back to the original document;
+  - the inverse restores at `combinations[i]` and `terms.0`;
+  - the termless mechanics and `minuend_final` restores refused by name, with session Undo
+    restoring exactly.
 - `combinationEditor.session.test.tsx` (3): the session route:
   - the four changes applied singly in order, the out-of-order apply refused by name, and
     Undo restoring each document;

@@ -59,6 +59,18 @@ import {
   type TermDraft
 } from "./combinationAuthoring";
 import { SeismicTemplateSection } from "./SeismicTemplateSection";
+import { SEISMIC_TEMPLATE_PROVENANCE } from "./seismicTemplate";
+import {
+  DELETE_REFERENCED_CODE,
+  combinationDeleteBefore,
+  combinationReferencePaths,
+  combinationTermDeleteBefore,
+  historicalCombinationDisplay,
+  historicalTermDisplay,
+  type Canonicalize
+} from "./combinationDelete";
+import { EngineFeedback, useEngineCheckedQueue } from "../condition-sets/engineCheckedQueue";
+import { canonicalJsonString } from "../../services/hashService";
 
 type LoadCase = PreviewModel["load_cases"][number];
 type PrimitiveLoad = Record<string, unknown>;
@@ -319,12 +331,17 @@ export function LoadCaseManagerPanel({
           rationale: combinationRationale
         })
       : null;
+  // Delete before-values come only from the stored record or term: the historical display
+  // where the engine keeps it, otherwise the stored JSON's canonical form (computed by the
+  // wasm engine, so shown once ready).
+  const termDeleteBefore = useStoredBefore(selectedCombinationTerm?.term ?? null, historicalTermDisplay);
   const combinationDeleteIntent =
-    selectedCombinationTerm && combinationDeleteRationale.trim()
+    selectedCombinationTerm && combinationDeleteRationale.trim() && termDeleteBefore !== null
       ? buildDeleteCombinationTermIntent({
           model,
           termView: selectedCombinationTerm,
-          rationale: combinationDeleteRationale
+          rationale: combinationDeleteRationale,
+          before: termDeleteBefore
         })
       : null;
   const combinationBasisChanged = selectedCombination
@@ -339,14 +356,20 @@ export function LoadCaseManagerPanel({
           rationale: combinationBasisRationale
       })
       : null;
+  const entityDeleteBefore = useStoredBefore(selectedCombination, historicalCombinationDisplay);
   const combinationEntityDeleteIntent =
-    selectedCombination && combinationEntityDeleteRationale.trim()
+    selectedCombination && combinationEntityDeleteRationale.trim() && entityDeleteBefore !== null
       ? buildDeleteCombinationIntent({
           model,
           combination: selectedCombination,
-          rationale: combinationEntityDeleteRationale
+          rationale: combinationEntityDeleteRationale,
+          before: entityDeleteBefore
         })
       : null;
+  const queueProps = { model, queuedIntents, onQueueIntent, operationBusy, preparationEpoch, getPreparationEpoch };
+  const entityDeleteQueue = useEngineCheckedQueue(queueProps);
+  const termDeleteQueue = useEngineCheckedQueue(queueProps);
+  const entityDeleteReferences = selectedCombination ? combinationReferencePaths(model, selectedCombination.id) : [];
   const createCombinationTermIntent = isCombinationTermDraftReady(model, combinationTermDraft)
     ? buildCreateCombinationTermIntent({
         model,
@@ -1451,9 +1474,14 @@ export function LoadCaseManagerPanel({
             </label>
             <button
               data-testid="queue-delete-combination-intent"
-              disabled={!combinationEntityDeleteIntent || Boolean(combinationDeleteRefusal(selectedCombination))}
-              aria-describedby={combinationDeleteRefusal(selectedCombination) ? "load-manager-combination-entity-delete-refused" : undefined}
-              onClick={() => combinationEntityDeleteIntent && onQueueIntent(combinationEntityDeleteIntent)}
+              disabled={!combinationEntityDeleteIntent || entityDeleteQueue.busy}
+              aria-describedby={entityDeleteReferences.length ? "load-manager-combination-entity-delete-references" : undefined}
+              onClick={() => {
+                const combination = selectedCombination;
+                const rationale = combinationEntityDeleteRationale;
+                void entityDeleteQueue.submit(async (canonicalize: Canonicalize) =>
+                  buildDeleteCombinationIntent({ model, combination, rationale, before: await combinationDeleteBefore(combination, canonicalize) }));
+              }}
               title="Queue combination delete operation"
               type="button"
             >
@@ -1461,16 +1489,19 @@ export function LoadCaseManagerPanel({
               Queue delete combo
             </button>
           </div>
-          {combinationDeleteRefusal(selectedCombination) ? (
-            <p role="note" id="load-manager-combination-entity-delete-refused" data-testid="load-manager-combination-entity-delete-refused">
-              {combinationDeleteRefusal(selectedCombination)}
+          {entityDeleteReferences.length ? (
+            <p role="note" id="load-manager-combination-entity-delete-references" data-testid="load-manager-combination-entity-delete-references">
+              {combinationDeleteReferenceText(model, selectedCombination.id, entityDeleteReferences)}
             </p>
           ) : null}
           <p className="muted load-edit-preview" data-testid="load-manager-combination-entity-delete-preview">
             {combinationEntityDeleteIntent
               ? `${combinationEntityDeleteIntent.operation_id}; before=${combinationEntityDeleteIntent.change.before}; after=${combinationEntityDeleteIntent.change.after}; unit=${combinationEntityDeleteIntent.change.unit}; ${combinationEntityDeleteIntent.change.dimension}; unit_validation=${combinationEntityDeleteIntent.validation.unit_validation}; direct_model_mutation_allowed=false; professional_approval=false`
-              : "select a combination and provide rationale to queue deletion"}
+              : selectedCombination && combinationEntityDeleteRationale.trim()
+                ? "computing the stored record's canonical JSON for the delete's before value"
+                : "select a combination and provide rationale to queue deletion"}
           </p>
+          <EngineFeedback error={entityDeleteQueue.error} notice={entityDeleteQueue.notice} diagnostics={entityDeleteQueue.diagnostics} testId="load-manager-combination-entity-delete-engine" />
         </section>
       ) : null}
 
@@ -1532,9 +1563,13 @@ export function LoadCaseManagerPanel({
             </label>
             <button
               data-testid="queue-delete-combination-term-intent"
-              disabled={!combinationDeleteIntent || Boolean(combinationTermDeleteRefusal(selectedCombinationTerm.term))}
-              aria-describedby={combinationTermDeleteRefusal(selectedCombinationTerm.term) ? "load-manager-combination-delete-refused" : undefined}
-              onClick={() => combinationDeleteIntent && onQueueIntent(combinationDeleteIntent)}
+              disabled={!combinationDeleteIntent || termDeleteQueue.busy}
+              onClick={() => {
+                const termView = selectedCombinationTerm;
+                const rationale = combinationDeleteRationale;
+                void termDeleteQueue.submit(async (canonicalize: Canonicalize) =>
+                  buildDeleteCombinationTermIntent({ model, termView, rationale, before: await combinationTermDeleteBefore(termView.term, canonicalize) }));
+              }}
               title="Queue combination-term delete operation"
               type="button"
             >
@@ -1542,16 +1577,14 @@ export function LoadCaseManagerPanel({
               Queue delete
             </button>
           </div>
-          {combinationTermDeleteRefusal(selectedCombinationTerm.term) ? (
-            <p role="note" id="load-manager-combination-delete-refused" data-testid="load-manager-combination-delete-refused">
-              {combinationTermDeleteRefusal(selectedCombinationTerm.term)}
-            </p>
-          ) : null}
           <p className="muted load-edit-preview" data-testid="load-manager-combination-delete-preview">
             {combinationDeleteIntent
               ? `${combinationDeleteIntent.operation_id}; before=${combinationDeleteIntent.change.before}; after=${combinationDeleteIntent.change.after}; unit=${combinationDeleteIntent.change.unit}; ${combinationDeleteIntent.change.dimension}; unit_validation=${combinationDeleteIntent.validation.unit_validation}; direct_model_mutation_allowed=false; professional_approval=false`
-              : "select a combination term and provide rationale to queue deletion"}
+              : selectedCombinationTerm && combinationDeleteRationale.trim()
+                ? "computing the stored term's canonical JSON for the delete's before value"
+                : "select a combination term and provide rationale to queue deletion"}
           </p>
+          <EngineFeedback error={termDeleteQueue.error} notice={termDeleteQueue.notice} diagnostics={termDeleteQueue.diagnostics} testId="load-manager-combination-delete-engine" />
         </section>
       ) : null}
 
@@ -2238,11 +2271,14 @@ function buildCombinationBasisIntent({
 function buildDeleteCombinationIntent({
   model,
   combination,
-  rationale
+  rationale,
+  before
 }: {
   model: PreviewModel;
   combination: Combination;
   rationale: string;
+  /** From the stored record only: `combinationDeleteBefore`. */
+  before: string;
 }): EditorOperationIntent {
   const operationToken = `${operationIdToken(combination.id)}-delete`;
   return {
@@ -2264,7 +2300,7 @@ function buildDeleteCombinationIntent({
       change_kind: "delete_combination",
       field_label: `${combination.label} combination`,
       field_path: "combinations",
-      before: combinationDisplay(combination),
+      before,
       after: "not_present",
       unit: "none",
       dimension: "dimensionless",
@@ -2361,11 +2397,14 @@ function buildCombinationFactorIntent({
 function buildDeleteCombinationTermIntent({
   model,
   termView,
-  rationale
+  rationale,
+  before
 }: {
   model: PreviewModel;
   termView: CombinationTermView;
   rationale: string;
+  /** From the stored term only: `combinationTermDeleteBefore`. */
+  before: string;
 }): EditorOperationIntent {
   const fieldPath = `terms.${termView.index}`;
   const operationToken = `${operationIdToken(termView.combination.id)}-term-${termView.index}-delete`;
@@ -2388,7 +2427,7 @@ function buildDeleteCombinationTermIntent({
       change_kind: "delete_combination_term",
       field_label: `${combinationTermLoadCase(termView.term)} combination term`,
       field_path: fieldPath,
-      before: combinationTermDisplay(termView.term),
+      before,
       after: "not_present",
       unit: "none",
       dimension: "dimensionless",
@@ -2635,19 +2674,6 @@ function combinationTermFactorDisplay(term: CombinationTerm): string {
   return String(term.factor);
 }
 
-function combinationTermDisplay(term: CombinationTerm): string {
-  return `${combinationTermLoadCase(term)} x ${combinationTermFactorDisplay(term)}`;
-}
-
-// Delete-intent before-value display; must stay byte-identical to the
-// engine's combination_delete_display so before-state checks pass. A record
-// without `terms`, or with a combination term, the engine does not delete; it
-// shows as stored, never as an empty sum.
-function combinationDisplay(combination: Combination): string {
-  const stored = combination.terms;
-  const terms = stored === undefined ? "absent" : stored.length ? stored.map(combinationTermDisplay).join("; ") : "none";
-  return `${combination.id}; ${combination.label}; basis=${combination.basis}; terms=${terms}`;
-}
 
 function combinationBasisFromValue(value: string): CombinationBasis {
   return COMBINATION_BASIS_OPTIONS.find((basis) => basis === value) ?? "mechanics";
@@ -2742,22 +2768,29 @@ function combinationTermDraftProblem(model: PreviewModel, draft: CombinationTerm
   return null;
 }
 
-/** The operation applier deletes a combination only when every stored term names a load case (`combination_delete_display`). */
-function combinationDeleteRefusal(combination: Combination): string | null {
-  if (combination.terms === undefined) {
-    return "Refused by the operation applier: delete_combination reads the record's terms, and this record has none stored (OP-COMBINATION-PAYLOAD-INVALID). Undo removes a session edit.";
-  }
-  if (combination.terms.some((term) => typeof term.combination === "string")) {
-    return "Refused by the operation applier: delete_combination reads load-case terms only, and this record has a term naming a combination (OP-COMBINATION-PAYLOAD-INVALID). Undo removes a session edit.";
-  }
-  return null;
+/** The paths that still name a combination, shown before a delete is attempted. */
+function combinationDeleteReferenceText(model: PreviewModel, combinationId: string, paths: readonly string[]): string {
+  const referencers = [...new Set(paths.map((path) => path.slice(0, path.lastIndexOf(path.includes(".operand_ids.") ? ".operand_ids." : path.includes(".terms.") ? ".terms." : "."))))];
+  const fromTemplate = referencers.some((id) => model.combinations?.find((combination) => combination.id === id)?.provenance === SEISMIC_TEMPLATE_PROVENANCE);
+  return `Named by ${paths.join(", ")}. The operation engine refuses deleting it while another combination names it (${DELETE_REFERENCED_CODE}); nothing is deleted with it. ` +
+    (fromTemplate
+      ? "This is part of a three-axis static seismic template set: delete top-down: the unsigned combination first."
+      : `Delete top-down: delete or change ${referencers.join(", ")} first.`);
 }
 
-/** The operation applier deletes load-case terms only (`resolve_delete_combination_term`). */
-function combinationTermDeleteRefusal(term: CombinationTerm): string | null {
-  return typeof term.combination === "string"
-    ? "Refused by the operation applier: delete_combination_term reads load-case terms only, so a term naming a combination is refused (OP-COMBINATION-TERM-PAYLOAD-INVALID). Undo removes a session edit."
-    : null;
+/** A before value built only from the stored value: `historical` when it applies, else the
+ * stored value's canonical JSON from the wasm engine (null until it is ready). */
+function useStoredBefore<T>(stored: T | null, historical: (value: T) => string | null): string | null {
+  const [canonical, setCanonical] = useState<{ stored: T; value: string } | null>(null);
+  const sync = stored === null ? null : historical(stored);
+  useEffect(() => {
+    if (stored === null || sync !== null) return;
+    let live = true;
+    void canonicalJsonString(stored).then((value) => { if (live) setCanonical({ stored, value }); }).catch(() => undefined);
+    return () => { live = false; };
+  }, [stored, sync]);
+  if (stored === null) return null;
+  return sync ?? (canonical?.stored === stored ? canonical.value : null);
 }
 
 function combinationRowExpression(combination: Combination): string {
