@@ -18,36 +18,31 @@ const ORACLE_CASES: &str = include_str!("../../../../fixtures/results/modal_orac
 const PRODUCER_EDGES: &str = include_str!("../../../../fixtures/results/modal_producer_edges.json");
 
 fn fixture(name: &str) -> &'static str {
-    macro_rules! file {
-        ($n:literal) => {
-            include_str!(concat!("../../../../fixtures/results/", $n))
-        };
-    }
     match name {
-        "modal_ex_n05.json" => file!("modal_ex_n05.json"),
-        "modal_ex_n05.request.json" => file!("modal_ex_n05.request.json"),
-        "modal_arc.json" => file!("modal_arc.json"),
-        "modal_arc.request.json" => file!("modal_arc.request.json"),
-        "modal_component_body.json" => file!("modal_component_body.json"),
-        "modal_component_body.request.json" => file!("modal_component_body.request.json"),
-        "modal_state_one_way_pressed.json" => file!("modal_state_one_way_pressed.json"),
-        "modal_state_one_way_pressed.request.json" => file!("modal_state_one_way_pressed.request.json"),
-        "modal_state_friction_sliding.json" => file!("modal_state_friction_sliding.json"),
-        "modal_state_friction_sliding.request.json" => file!("modal_state_friction_sliding.request.json"),
-        "modal_cantilever_whole_spectrum.json" => file!("modal_cantilever_whole_spectrum.json"),
-        "modal_cantilever_whole_spectrum.request.json" => file!("modal_cantilever_whole_spectrum.request.json"),
-        "modal_cantilever_cluster_extension.json" => file!("modal_cantilever_cluster_extension.json"),
-        "modal_cantilever_cluster_extension.request.json" => file!("modal_cantilever_cluster_extension.request.json"),
-        "modal_cantilever_below_cutoff.json" => file!("modal_cantilever_below_cutoff.json"),
-        "modal_cantilever_below_cutoff.request.json" => file!("modal_cantilever_below_cutoff.request.json"),
-        "modal_cantilever_subnormal_cutoff.json" => file!("modal_cantilever_subnormal_cutoff.json"),
-        "modal_cantilever_subnormal_cutoff.request.json" => file!("modal_cantilever_subnormal_cutoff.request.json"),
-        "modal_cantilever_sensitive.json" => file!("modal_cantilever_sensitive.json"),
-        "modal_cantilever_sensitive.request.json" => file!("modal_cantilever_sensitive.request.json"),
-        "modal_refused_unseparated.json" => file!("modal_refused_unseparated.json"),
-        "modal_refused_unseparated.request.json" => file!("modal_refused_unseparated.request.json"),
-        "modal_refused_no_bound.json" => file!("modal_refused_no_bound.json"),
-        "modal_refused_no_bound.request.json" => file!("modal_refused_no_bound.request.json"),
+        "modal_ex_n05.json" => include_str!("../../../../fixtures/results/modal_ex_n05.json"),
+        "modal_ex_n05.request.json" => include_str!("../../../../fixtures/results/modal_ex_n05.request.json"),
+        "modal_arc.json" => include_str!("../../../../fixtures/results/modal_arc.json"),
+        "modal_arc.request.json" => include_str!("../../../../fixtures/results/modal_arc.request.json"),
+        "modal_component_body.json" => include_str!("../../../../fixtures/results/modal_component_body.json"),
+        "modal_component_body.request.json" => include_str!("../../../../fixtures/results/modal_component_body.request.json"),
+        "modal_state_one_way_pressed.json" => include_str!("../../../../fixtures/results/modal_state_one_way_pressed.json"),
+        "modal_state_one_way_pressed.request.json" => include_str!("../../../../fixtures/results/modal_state_one_way_pressed.request.json"),
+        "modal_state_friction_sliding.json" => include_str!("../../../../fixtures/results/modal_state_friction_sliding.json"),
+        "modal_state_friction_sliding.request.json" => include_str!("../../../../fixtures/results/modal_state_friction_sliding.request.json"),
+        "modal_cantilever_whole_spectrum.json" => include_str!("../../../../fixtures/results/modal_cantilever_whole_spectrum.json"),
+        "modal_cantilever_whole_spectrum.request.json" => include_str!("../../../../fixtures/results/modal_cantilever_whole_spectrum.request.json"),
+        "modal_cantilever_cluster_extension.json" => include_str!("../../../../fixtures/results/modal_cantilever_cluster_extension.json"),
+        "modal_cantilever_cluster_extension.request.json" => include_str!("../../../../fixtures/results/modal_cantilever_cluster_extension.request.json"),
+        "modal_cantilever_below_cutoff.json" => include_str!("../../../../fixtures/results/modal_cantilever_below_cutoff.json"),
+        "modal_cantilever_below_cutoff.request.json" => include_str!("../../../../fixtures/results/modal_cantilever_below_cutoff.request.json"),
+        "modal_cantilever_subnormal_cutoff.json" => include_str!("../../../../fixtures/results/modal_cantilever_subnormal_cutoff.json"),
+        "modal_cantilever_subnormal_cutoff.request.json" => include_str!("../../../../fixtures/results/modal_cantilever_subnormal_cutoff.request.json"),
+        "modal_cantilever_sensitive.json" => include_str!("../../../../fixtures/results/modal_cantilever_sensitive.json"),
+        "modal_cantilever_sensitive.request.json" => include_str!("../../../../fixtures/results/modal_cantilever_sensitive.request.json"),
+        "modal_refused_unseparated.json" => include_str!("../../../../fixtures/results/modal_refused_unseparated.json"),
+        "modal_refused_unseparated.request.json" => include_str!("../../../../fixtures/results/modal_refused_unseparated.request.json"),
+        "modal_refused_no_bound.json" => include_str!("../../../../fixtures/results/modal_refused_no_bound.json"),
+        "modal_refused_no_bound.request.json" => include_str!("../../../../fixtures/results/modal_refused_no_bound.request.json"),
         other => panic!("no committed modal fixture `{other}`"),
     }
 }

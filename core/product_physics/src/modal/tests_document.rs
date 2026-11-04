@@ -89,27 +89,19 @@ fn fixture_text(value: &Value) -> String {
 }
 
 fn committed(name: &str) -> (&'static str, &'static str) {
-    macro_rules! pair {
-        ($n:literal) => {
-            (
-                include_str!(concat!("../../../../fixtures/results/modal_", $n, ".json")),
-                include_str!(concat!("../../../../fixtures/results/modal_", $n, ".request.json")),
-            )
-        };
-    }
     match name {
-        "ex_n05" => pair!("ex_n05"),
-        "arc" => pair!("arc"),
-        "component_body" => pair!("component_body"),
-        "state_one_way_pressed" => pair!("state_one_way_pressed"),
-        "state_friction_sliding" => pair!("state_friction_sliding"),
-        "cantilever_whole_spectrum" => pair!("cantilever_whole_spectrum"),
-        "cantilever_cluster_extension" => pair!("cantilever_cluster_extension"),
-        "cantilever_below_cutoff" => pair!("cantilever_below_cutoff"),
-        "cantilever_subnormal_cutoff" => pair!("cantilever_subnormal_cutoff"),
-        "cantilever_sensitive" => pair!("cantilever_sensitive"),
-        "refused_unseparated" => pair!("refused_unseparated"),
-        "refused_no_bound" => pair!("refused_no_bound"),
+        "ex_n05" => (include_str!("../../../../fixtures/results/modal_ex_n05.json"), include_str!("../../../../fixtures/results/modal_ex_n05.request.json")),
+        "arc" => (include_str!("../../../../fixtures/results/modal_arc.json"), include_str!("../../../../fixtures/results/modal_arc.request.json")),
+        "component_body" => (include_str!("../../../../fixtures/results/modal_component_body.json"), include_str!("../../../../fixtures/results/modal_component_body.request.json")),
+        "state_one_way_pressed" => (include_str!("../../../../fixtures/results/modal_state_one_way_pressed.json"), include_str!("../../../../fixtures/results/modal_state_one_way_pressed.request.json")),
+        "state_friction_sliding" => (include_str!("../../../../fixtures/results/modal_state_friction_sliding.json"), include_str!("../../../../fixtures/results/modal_state_friction_sliding.request.json")),
+        "cantilever_whole_spectrum" => (include_str!("../../../../fixtures/results/modal_cantilever_whole_spectrum.json"), include_str!("../../../../fixtures/results/modal_cantilever_whole_spectrum.request.json")),
+        "cantilever_cluster_extension" => (include_str!("../../../../fixtures/results/modal_cantilever_cluster_extension.json"), include_str!("../../../../fixtures/results/modal_cantilever_cluster_extension.request.json")),
+        "cantilever_below_cutoff" => (include_str!("../../../../fixtures/results/modal_cantilever_below_cutoff.json"), include_str!("../../../../fixtures/results/modal_cantilever_below_cutoff.request.json")),
+        "cantilever_subnormal_cutoff" => (include_str!("../../../../fixtures/results/modal_cantilever_subnormal_cutoff.json"), include_str!("../../../../fixtures/results/modal_cantilever_subnormal_cutoff.request.json")),
+        "cantilever_sensitive" => (include_str!("../../../../fixtures/results/modal_cantilever_sensitive.json"), include_str!("../../../../fixtures/results/modal_cantilever_sensitive.request.json")),
+        "refused_unseparated" => (include_str!("../../../../fixtures/results/modal_refused_unseparated.json"), include_str!("../../../../fixtures/results/modal_refused_unseparated.request.json")),
+        "refused_no_bound" => (include_str!("../../../../fixtures/results/modal_refused_no_bound.json"), include_str!("../../../../fixtures/results/modal_refused_no_bound.request.json")),
         _ => unreachable!("every fixture has its committed pair"),
     }
 }
