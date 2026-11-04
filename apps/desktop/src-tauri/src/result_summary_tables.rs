@@ -63,6 +63,22 @@ pub(crate) fn derived_row_note(row: &Value) -> Option<&'static str> {
     (sign == Some(SOLVED_STATE_PLUS_INCREMENTS_SIGN)).then_some("solved state plus derived bounds")
 }
 
+/// Operating-case slice 1b (DEL-05-02 `operating-case.md` §1.3 c5, §5 B option 3):
+/// `OPERATING_MINUS_SUSTAINED_SIGN` of `resultColourOverlay.ts`, the sign convention a subtraction
+/// declaring `difference_basis = "operating_minus_sustained"` states. Its rows are a signed
+/// difference of two independently solved states, as a plain subtraction's are, so
+/// [`derived_row_note`] does not name them (they are drawn, counted and summarized as a plain
+/// subtraction's); only the navigator names them ([`declared_difference_note`]).
+const OPERATING_MINUS_SUSTAINED_SIGN: &str = "positive value follows explicit user result-state subtraction (minuend minus subtrahend) of matching source result sign conventions; operating minus sustained difference: a signed difference of two independently solved states, each using its own reported support state and carrying its own numerical standing under the static, history-free friction model; derived from case results; not an equilibrium state";
+pub(crate) const NOTE_OPERATING_MINUS_SUSTAINED: &str = "operating minus sustained difference";
+
+/// `declaredDifferenceNote(row)`: the navigator's name for a declared operating comparison's
+/// rows (a combination row stating [`OPERATING_MINUS_SUSTAINED_SIGN`] exactly), or None.
+pub(crate) fn declared_difference_note(row: &Value) -> Option<&'static str> {
+    let combination = is_str(row.get("basis_ref").and_then(|basis| basis.get("ref_type")), "combination");
+    (combination && str_of(meta(row, "sign_convention")) == Some(OPERATING_MINUS_SUSTAINED_SIGN)).then_some(NOTE_OPERATING_MINUS_SUSTAINED)
+}
+
 /// `combinationNotes(rows)`: each combination's note, from the first of its rows that states
 /// one, keyed by `basisKey`.
 pub(crate) fn combination_notes(rows: &[Value]) -> HashMap<String, &'static str> {
@@ -701,7 +717,8 @@ pub(crate) fn navigator_cases(source: &Value) -> Vec<Value> {
             entries.push(Entry { key, basis, envelope: false, note: None });
             entries.len() - 1
         });
-        match derived_row_note(row) {
+        // `derivedRowNote(row) ?? declaredDifferenceNote(row)` (operating-case slice 1b).
+        match derived_row_note(row).or_else(|| declared_difference_note(row)) {
             Some(NOTE_RANGE_ENVELOPE) => entries[at].envelope = true,
             Some(note) if entries[at].note.is_none() => entries[at].note = Some(note),
             _ => {}

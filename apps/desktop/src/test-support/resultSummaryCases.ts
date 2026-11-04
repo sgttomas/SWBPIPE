@@ -54,6 +54,14 @@ const FILE_CASES: readonly [string, CaseText, CaseText, Standings][] = [
     file("fixtures/results/preview_physics_nonlinear_operands_corpus.json", `/documents/${i}/model`),
     ["eligible"]
   ]),
+  // Operating-case slice 1b (PF1b): declared operating-minus-sustained differences (v1_closing,
+  // v2_anchor_rise) and the G-2 document without one (v5_g2), main's maintained producer corpus.
+  ...[0, 3, 9].map((i): [string, CaseText, CaseText, Standings] => [
+    `difference_basis/${i}`,
+    file("fixtures/results/preview_physics_difference_basis_corpus.json", `/documents/${i}/document`),
+    file("fixtures/results/preview_physics_difference_basis_corpus.json", `/documents/${i}/model`),
+    ["eligible"]
+  ]),
   ...[0, 3].map((i): [string, CaseText, CaseText, Standings] => [
     `combination/${i}`,
     file("fixtures/results/pressure_v3_combination_reader_corpus.json", `/cases/${i}/envelope`),

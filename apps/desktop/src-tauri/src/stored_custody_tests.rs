@@ -158,7 +158,10 @@ fn reseal(record: &mut Value) {
 /// A case's `FileRef`: a committed fixture file's value at a JSON pointer (read, never rewritten).
 fn file_value(reference: &Value) -> Value {
     let path = reference["path"].as_str().unwrap();
-    assert!(path.starts_with("fixtures/persistence/recorded_pre_rt_a4_pf/"), "{path}: no pre-RT-A4 fixture");
+    assert!(
+        ["fixtures/persistence/recorded_pre_rt_a4_pf/", "fixtures/persistence/recorded_pre_rt_a5_1b_pf/"].iter().any(|dir| path.starts_with(dir)),
+        "{path}: no pre-RT-A4 or pre-1b fixture"
+    );
     let value: Value = serde_json::from_str(&read_text(path)).unwrap();
     value.pointer(reference["pointer"].as_str().unwrap()).unwrap_or_else(|| panic!("{reference}")).clone()
 }
@@ -255,6 +258,31 @@ fn runs_recorded_before_rt_a4_reopen_natively_under_their_recorded_table() {
         }
         let table = &actual["recorded_table_read"];
         assert!(open_pipe_stress_result_export::recorded_tables::variant_of(table).is_some(), "{id}: read under a registry variant: {table}");
+        let shown: Vec<&str> = actual["findings"].as_array().unwrap().iter().chain(actual["historical_reader_findings"].as_array().unwrap()).map(|f| f.as_str().unwrap()).collect();
+        for marker in CURRENT_ONLY {
+            assert!(!shown.iter().any(|finding| finding.contains(marker)), "{id}: {marker} in {shown:?}");
+        }
+    }
+}
+
+/// Operating-case slice 1b (PF1b): main's preview-physics-2 run recorded before 1b restated the
+/// combination policy (`recorded_pre_rt_a5_1b_pf`, binding e7b93f41…, a registry variant) reopens
+/// natively as the webview reopens it, saved and as main's recorded revision: read under its
+/// recorded table, with the webview's findings in their scopes and none of a current-only reader's
+/// refusals. Without the native recorded read it reads under the current table (f41b9d3e…) and is
+/// refused, so this fails.
+#[test]
+fn runs_recorded_before_operating_case_1b_reopen_natively_under_their_recorded_table() {
+    const CURRENT_ONLY: [&str; 4] = ["SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED", "ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH", "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH", "SOURCE_RECORDED_BINDING"];
+    let builder = builder_cases();
+    let cases: Vec<Value> = reopen_cases().into_iter().filter(|case| case["id"].as_str().unwrap().contains("pre-rt-a5-1b:")).collect();
+    assert_eq!(cases.iter().map(|case| case["id"].as_str().unwrap()).collect::<Vec<_>>(), ["saved-pre-rt-a5-1b:preview-physics-2", "recorded-pre-rt-a5-1b:preview-physics-2"]);
+    let variant = json!({"id": "openpipestress.result_semantics/0.3.0/preview-physics-2", "sha256": "e7b93f416f700f8efdb31bf1ba26dedde52963d768d6ead5a73dbf1c645a360c"});
+    for case in &cases {
+        let id = case["id"].as_str().unwrap();
+        let actual = native_findings(case, &builder);
+        assert_eq!(&actual, &case["expected"], "{id}: the webview's findings, in their scopes");
+        assert_eq!(actual["recorded_table_read"], variant, "{id}: read under main's pre-1b table");
         let shown: Vec<&str> = actual["findings"].as_array().unwrap().iter().chain(actual["historical_reader_findings"].as_array().unwrap()).map(|f| f.as_str().unwrap()).collect();
         for marker in CURRENT_ONLY {
             assert!(!shown.iter().any(|finding| finding.contains(marker)), "{id}: {marker} in {shown:?}");
@@ -480,7 +508,8 @@ fn the_recorded_pre_rt_a4_registry_is_the_typescript_and_python_registry() {
         let imported: Vec<&str> = ts.lines().filter_map(|line| line.strip_prefix(&format!("import {name} from \""))).collect();
         assert_eq!(imported.len(), 1, "TypeScript: {name} is not imported once");
         let path = imported[0].strip_suffix("?raw\";").unwrap_or_else(|| panic!("TypeScript: {name} is not a raw import"));
-        path.rsplit('/').next().unwrap().to_string()
+        // The repository path the raw import names (`../../../../fixtures/results/…`).
+        path.strip_prefix("../../../../").unwrap_or_else(|| panic!("TypeScript: {name} is not a repository path")).to_string()
     };
     assert_eq!(ts.matches("export const RECORDED_PRE_RT_A4_TABLES").count(), 1);
     let declared = &ts[ts.find("export const RECORDED_PRE_RT_A4_TABLES").unwrap()..];
@@ -511,18 +540,25 @@ fn the_recorded_pre_rt_a4_registry_is_the_typescript_and_python_registry() {
         assert_eq!(assigned.len(), 1, "Python: {name} is not assigned once at module level");
         assigned[0].trim_matches('"').to_string()
     };
+    // A table directory: `NAME = _RESULTS_DIR / "dir"`, once at module level (`_RECORDED_DIR`, and
+    // operating-case slice 1b's `_RECORDED_1B_DIR`).
+    let py_dir = |name: &str| -> String {
+        let assigned: Vec<&str> = py.lines().filter_map(|line| line.strip_prefix(&format!("{name} = _RESULTS_DIR / \""))).collect();
+        assert_eq!(assigned.len(), 1, "Python: {name} is not one table directory");
+        format!("fixtures/results/{}", assigned[0].strip_suffix('"').unwrap_or_else(|| panic!("Python: {name}")))
+    };
     let python: Vec<[String; 3]> = entries(&tokens, '{', '}', "Python").iter().map(|entry| match entry.as_slice() {
-        [Token::Punct('('), Token::Name(id), Token::Punct(','), Token::Str(sha), Token::Punct(')'), Token::Punct(':'), Token::Name(dir), Token::Punct('/'), Token::Str(file)] if dir == "_RECORDED_DIR" => {
-            [py_constant(id), sha.clone(), file.clone()]
+        [Token::Punct('('), Token::Name(id), Token::Punct(','), Token::Str(sha), Token::Punct(')'), Token::Punct(':'), Token::Name(dir), Token::Punct('/'), Token::Str(file)] if ["_RECORDED_DIR", "_RECORDED_1B_DIR"].contains(&dir.as_str()) => {
+            [py_constant(id), sha.clone(), format!("{}/{file}", py_dir(dir))]
         }
         other => panic!("Python: unrecognized entry {other:?}"),
     }).collect();
-    assert_eq!(native.len(), 6, "{native:?}");
+    assert_eq!(native.len(), 9, "{native:?}");
     assert_eq!(typescript.iter().map(|[id, sha, _]| [id.clone(), sha.clone()]).collect::<Vec<_>>(), native, "the TypeScript registry");
     assert_eq!(python.iter().map(|[id, sha, _]| [id.clone(), sha.clone()]).collect::<Vec<_>>(), native, "the Python registry");
     for ([_, sha, ts_file], [_, _, py_file]) in typescript.iter().zip(&python) {
         assert_eq!(ts_file, py_file, "both twins read one file per variant");
-        let bytes = std::fs::read(root().join("fixtures/results/recorded_pre_rt_a4").join(ts_file)).unwrap();
+        let bytes = std::fs::read(root().join(ts_file)).unwrap();
         assert_eq!(&format!("{:x}", Sha256::digest(&bytes)), sha, "{ts_file}: the variant's verbatim bytes");
     }
 }

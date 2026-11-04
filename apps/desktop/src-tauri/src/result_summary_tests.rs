@@ -774,3 +774,31 @@ fn numbers_and_strings_read_as_javascript_reads_them() {
 }
 
 
+
+/// Operating-case slice 1b (main's `derivedRowNote.test.ts`, "a declared operating comparison"): a
+/// subtraction declaring `operating_minus_sustained` keeps the plain subtraction's basis, is drawn
+/// as one solved state with no derived note, and only the navigator names it; the same row with the
+/// plain subtraction's sign convention is not named.
+#[test]
+fn a_declared_operating_comparison_is_drawn_as_a_plain_subtraction_and_named_in_the_navigator() {
+    use crate::result_summary_tables::{combination_notes, declared_difference_note, derived_row_note, is_one_solved_state, navigator_cases};
+    let sign = "positive value follows explicit user result-state subtraction (minuend minus subtrahend) of matching source result sign conventions; operating minus sustained difference: a signed difference of two independently solved states, each using its own reported support state and carrying its own numerical standing under the static, history-free friction model; derived from case results; not an equilibrium state";
+    let declared = json!({"kind": "global_nodal_displacement_x", "value": 1, "unit": "mm", "entity_ref": "node:b", "id": "result:combination:d",
+        "basis_ref": {"ref_type": "combination", "ref_id": "comb:o-s"},
+        "metadata": {"component": "ux", "coordinate_system": "global", "location": "node", "basis": "explicit_user_result_state_subtraction", "sign_convention": sign}});
+    let rows = vec![declared.clone()];
+    assert_eq!(derived_row_note(&declared), None);
+    assert!(is_one_solved_state(&declared, &combination_notes(&rows)));
+    assert_eq!(declared_difference_note(&declared), Some("operating minus sustained difference"));
+    let labels = |row: &Value| navigator_cases(&json!({"results": [row]})).iter().map(|case| case["label"].as_str().unwrap().to_string()).collect::<Vec<_>>();
+    assert_eq!(labels(&declared), ["Combination comb:o-s (operating minus sustained difference)"]);
+    assert_eq!(navigator_cases(&json!({"results": [declared.clone()]}))[0]["note"], json!("operating minus sustained difference"));
+    let mut plain = declared.clone();
+    plain["metadata"]["sign_convention"] = json!("positive value follows explicit user result-state subtraction (minuend minus subtrahend) of matching source result sign conventions; a signed difference of solved states, not an equilibrium state");
+    assert_eq!(declared_difference_note(&plain), None);
+    assert_eq!(labels(&plain), ["Combination comb:o-s"]);
+    // A load-case row stating the sign is not a combination's: not named.
+    let mut case_row = declared.clone();
+    case_row["basis_ref"] = json!({"ref_type": "load_case", "ref_id": "load:L-1"});
+    assert_eq!(declared_difference_note(&case_row), None);
+}
