@@ -3869,7 +3869,9 @@ isolated challenge passed 7/7 on the registered binary (below).
 **Priced source.** `a47a9ebf8`: `claude/rt-perf-evidence-once` (#102 at `f6eb48036`) with, merged normally, RT-A4's
 frozen candidate `e8a59f1fd`, #104 at `a0f83a7e3` and #98's head `45fb7a5f8`. The predecessor is `45fb7a5f8`, whose
 registered source is identical to `e8a59f1fd`'s (its two further commits change only the Windows probe's runner lock
-pin, its note and §8.46's AC-004 record). The comparison basis is §8.46's registered tree: the predecessor's own tool
+pin, its note and §8.46's AC-004 record). #98's later head `0fd37d48b` is merged too and is the integration
+predecessor; it changes no priced or registered source (an integration-test envelope pin, routing and §8.46's text).
+The comparison basis is §8.46's registered tree: the predecessor's own tool
 cohort, run on `e8a59f1fd`, reproduces it (`generate --check` with §8.46's basis line is equal, 1,712 lines). Product
 source between the predecessor and the priced source is exactly the two repairs: `physics_evidence.rs` (#102) and
 `u4b_evidence.rs` (#104), with their tests. No Cargo manifest or lock changes, and no file #98 changed
@@ -3947,8 +3949,7 @@ tests (all phases, R, the 0.9 margin and the 5% TAV_W/TAV_X reserve) pass.
 supplemental atoms, and no build configuration, changed after `fbd0931d5` (#104 changes `Index`, which no supplemental
 atom measures; independent review confirmed the values against §8.46's native log). Each point moves only W4, by +7,918 B in both modes, and each stays at or below the merged tree in every
 phase and mode. W3 E + R dense: E(3) 8,783,944,541, L(3,0) 8,301,415,706, L(2,1) 7,630,434,649 and L(1,2)
-6,917,685,926 B. The last two are the predecessor's values too. §8.46's recorded L(2,1) 7,622,760,025 and L(1,2)
-6,883,640,486 come from an earlier run of its own evidence; its final runs evaluate to the values here.
+6,917,685,926 B. The last two are the predecessor's values too (§8.46 as corrected at `0fd37d48b`).
 
 **Profile and records.**
 - **Block.** `generate` with basis `, re-run as RT-U4 at a47a9ebf8 (§8.47): …` (1,712 lines; `--check` equal).
@@ -3961,7 +3962,8 @@ phase and mode. W3 E + R dense: E(3) 8,783,944,541, L(3,0) 8,301,415,706, L(2,1)
 
 **AC-004.** Coefficients and the registration move, so the six stack-headroom witnesses and §8.40's isolated
 challenge were run on the registered binary. They passed **7/7 at `c4f49822f`**, whose `core/` source and block are
-the ones registered here (later commits change only this Work text).
+the ones registered here. Later commits change no priced source, profile, lock or library: this Work text, and
+from #98's head `0fd37d48b` the integration test `f1b_w2_runtime.rs`'s envelope pin, routing and §8.46's text.
 - **Binaries.** `open_pipe_stress_product_physics-a4a1c1c92678963a` SHA-256
   `b283e762d68e68d6bcf16419d14caca720c3eff1bf725edd08ce97e4329dcfbc` and `retained_memory_challenge-a98f0cfef32b457f`
   SHA-256 `9c8f6ced6de975b65c2fbb75d0306d06cca46f4777b92160bb749ecd1572c44d`, with profile `retained_memory.rs`
