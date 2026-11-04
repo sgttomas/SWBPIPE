@@ -1,4 +1,5 @@
 import type { EditorOperationIntent, PreviewModel } from "../../types";
+import { trimLikeRust } from "../../services/rustTrim";
 
 // The node, pipe and support removal intents. The inspector's Delete panels and the context
 // menus (B9) queue these same intents; the builders moved here unchanged from
@@ -13,7 +14,8 @@ function safeToken(value: string): string {
 // byte for byte (operation_applier lib.rs `node_delete_display`,
 // `pipe_delete_display` and the support's trimmed label), or the deletion is
 // refused as stale (`OP-STALE-BEFORE-VALUE`). Every deletion of these records
-// builds its `before` here.
+// builds its `before` here. The applier trims with Rust's `str::trim`, so these texts
+// trim with `trimLikeRust` (U+0085 trimmed, U+FEFF kept), never `String.prototype.trim`.
 
 /** The applier's `display_number`: an integral value below 1e15 as an integer,
  * any other in Rust's shortest round-trip decimal, which never uses an exponent
@@ -35,19 +37,19 @@ export function applierDisplayNumber(value: number): string {
  * an absent or blank member gives the empty text, never a crash or an invented one. */
 export function nodeDeletionSummary(node: PreviewModel["nodes"][number]): string {
   const { x, y, z } = node.position;
-  const label = (node.label ?? "").trim();
+  const label = trimLikeRust(node.label ?? "");
   if (!label) return "";
   return `${label}; x=${applierDisplayNumber(x)}; y=${applierDisplayNumber(y)}; z=${applierDisplayNumber(z)}`;
 }
 
 export function pipeDeletionSummary(pipe: PreviewModel["pipe_segments"][number]): string {
-  const [label, from, to, material] = [pipe.label, pipe.from, pipe.to, pipe.material].map((value) => (value ?? "").trim());
+  const [label, from, to, material] = [pipe.label, pipe.from, pipe.to, pipe.material].map((value) => trimLikeRust(value ?? ""));
   if (!label || !from || !to || !material) return "";
   return `${label}; ${from}->${to}; material=${material}`;
 }
 
 export function supportDeletionSummary(support: PreviewModel["supports"][number]): string {
-  return (support.label ?? "").trim();
+  return trimLikeRust(support.label ?? "");
 }
 
 export function buildDeleteSupportIntent(

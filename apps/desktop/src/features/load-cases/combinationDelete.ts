@@ -9,6 +9,7 @@
 // (`OP-COMBINATION-DELETE-REFERENCED`); the editor lists the referencing paths before the
 // attempt and never deletes the referencers.
 import type { PreviewModel } from "../../types";
+import { trimLikeRust } from "../../services/rustTrim";
 import type { Combination, CombinationTerm } from "./combinationOperands";
 
 export const DELETE_REFERENCED_CODE = "OP-COMBINATION-DELETE-REFERENCED";
@@ -39,13 +40,15 @@ function plainDecimal(value: number): string {
   return `${sign}${body}`;
 }
 
-const textOr = (value: unknown, fallback: string) => (typeof value === "string" ? value.trim() : fallback);
+// The applier trims with Rust's `str::trim` (Unicode White_Space: U+0085 is trimmed, U+FEFF
+// is not), so every trim here is `trimLikeRust`, never `String.prototype.trim`.
+const textOr = (value: unknown, fallback: string) => (typeof value === "string" ? trimLikeRust(value) : fallback);
 
 /** A flat term's historical display, or null for any other stored term (engine `combination_term_display`). */
 export function historicalTermDisplay(term: unknown): string | null {
   if (!term || typeof term !== "object" || Array.isArray(term)) return null;
   const record = term as Record<string, unknown>;
-  const loadCase = typeof record.load_case === "string" ? record.load_case.trim() : "";
+  const loadCase = typeof record.load_case === "string" ? trimLikeRust(record.load_case) : "";
   const factor = record.factor;
   if (!loadCase || typeof factor !== "number" || !Number.isFinite(factor)) return null;
   return `${loadCase} x ${engineDisplayNumber(factor)}`;
@@ -62,7 +65,7 @@ export function historicalCombinationDisplay(combination: unknown): string | nul
     if (display === null) return null;
     items.push(display);
   }
-  return `${record.id.trim()}; ${textOr(record.label, "TBD")}; basis=${textOr(record.basis, "TBD")}; terms=${items.length ? items.join("; ") : "none"}`;
+  return `${trimLikeRust(record.id)}; ${textOr(record.label, "TBD")}; basis=${textOr(record.basis, "TBD")}; terms=${items.length ? items.join("; ") : "none"}`;
 }
 
 export async function combinationDeleteBefore(combination: Combination, canonicalize: Canonicalize): Promise<string> {

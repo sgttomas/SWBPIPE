@@ -58,6 +58,30 @@ describe("removal intents", () => {
     expect(model.supports.map(support => support.id)).not.toContain("support:E");
   });
 
+  it("trim as the applier's Rust str::trim does (U+0085 trimmed, U+FEFF kept), so the deletes apply through the engine", async () => {
+    let model = paddedModel();
+    const pipe = model.pipe_segments[0];
+    model.nodes.push({ id: "node:G", label: "\u0085G\u0085", position: { x: 0, y: 0, z: 9 }, provenance: PROV });
+    model.pipe_segments.push({ ...structuredClone(pipe), id: "pipe:P5", label: "\uFEFFP5\uFEFF", from: "node:E", to: "node:G" });
+    model.supports.push({ id: "support:G", label: "\u0085Stop G\u0085", node: "node:G", family: "line_stop", restraints: ["UX"], provenance: PROV } as PreviewModel["supports"][number]);
+    const support = buildDeleteSupportIntent(model.supports.at(-1)!, model);
+    const pipeDelete = buildDeletePipeIntent(model.pipe_segments.at(-1)!, model);
+    expect(support.change.before).toBe("Stop G");
+    expect(pipeDelete.change.before).toBe("\uFEFFP5\uFEFF; node:E->node:G; material=material:steel");
+    expect(buildDeleteNodeIntent(model.nodes.at(-1)!, model).change.before).toBe("G; x=0; y=0; z=9");
+    for (const step of [
+      (current: PreviewModel) => buildDeleteSupportIntent(current.supports.find(item => item.id === "support:G")!, current),
+      (current: PreviewModel) => buildDeletePipeIntent(current.pipe_segments.find(item => item.id === "pipe:P5")!, current),
+      (current: PreviewModel) => buildDeleteNodeIntent(current.nodes.find(item => item.id === "node:G")!, current)
+    ]) {
+      const intent = step(model);
+      const outcome = await apply(model, intent);
+      expect(outcome.validation.batch_validation_status, `${intent.target.ref}: ${JSON.stringify(outcome.diagnostics)}`).toBe("passed");
+      model = outcome.applied_model!;
+    }
+    expect(model.nodes.map(node => node.id)).not.toContain("node:G");
+  });
+
   it("format numbers as the applier's display_number does", () => {
     expect([0, -0, 2, -3, 1e15, 2.5e21, 0.5, 1e-7, -1.5e-8, 1.2345e-12, 0.1 + 0.2, 123456789.125].map(applierDisplayNumber))
       .toEqual(["0", "0", "2", "-3", "1000000000000000", "2500000000000000000000", "0.5", "0.0000001", "-0.000000015", "0.0000000000012345", "0.30000000000000004", "123456789.125"]);

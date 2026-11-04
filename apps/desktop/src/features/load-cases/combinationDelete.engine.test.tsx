@@ -198,6 +198,55 @@ describe("a referenced combination", () => {
   });
 });
 
+describe("review r1 of #117", () => {
+  it("trims as the applier's Rust str::trim does: U+0085 is trimmed, U+FEFF is kept, and a U+0085 load_case is not flat", async () => {
+    const nel = { id: "combination:NEL", label: "\u0085hi\u0085", basis: "mechanics", terms: [{ load_case: "load:L-100", factor: 1 }], provenance: "test" };
+    const bom = { id: "combination:BOM", label: "\uFEFFhi\uFEFF", basis: "mechanics", terms: [{ load_case: "load:L-100", factor: 1 }], provenance: "test" };
+    const blank = { id: "combination:BLANK", label: "blank load case", basis: "mechanics", terms: [{ load_case: "\u0085", factor: 1 }], provenance: "test" };
+    expect(historicalCombinationDisplay(nel)).toBe("combination:NEL; hi; basis=mechanics; terms=load:L-100 x 1");
+    expect(historicalCombinationDisplay(bom)).toBe("combination:BOM; \uFEFFhi\uFEFF; basis=mechanics; terms=load:L-100 x 1");
+    expect(historicalCombinationDisplay(blank)).toBeNull();
+    let model = modelWith(nel, bom, blank);
+    const panel = mountPanel(model);
+    for (const record of [nel, bom, blank]) {
+      const intent = await queueEntityDelete(panel, record.id);
+      if (record === blank) expect(intent.change.before).toBe(await canonicalJsonString(stored(model, record.id)));
+      model = await apply(model, intent);
+      panel.set(model);
+    }
+    expect(ids(model)).toEqual(["combination:C-OPER-ALT"]);
+  });
+
+  // The engine's display_number is Rust's f64 `{}`, which rounds an exact tie differently from
+  // ECMAScript's shortest decimal: 1000000000000000.25 is 1000000000000000.3 in Rust and
+  // 1000000000000000.2 here. Not hand-ported; the desktop switches to the engine's own export.
+  const TIE = 1000000000000000.25;
+  it("today the engine refuses an exact-tie delete as stale, by name, and nothing is queued (the reason the two cases below fail)", async () => {
+    const record = { id: "combination:TIE", label: "tie", basis: "mechanics", terms: [{ load_case: "load:L-100", factor: 1 }, { load_case: "load:L-200", factor: TIE }], provenance: "test" };
+    const panel = mountPanel(modelWith(record));
+    fireEvent.click(byId(`load-manager-combination-select-${record.id}`));
+    await waitFor(() => expect(byId("queue-delete-combination-intent")).toBeEnabled());
+    fireEvent.click(byId("queue-delete-combination-intent"));
+    const stale = await screen.findByTestId("load-manager-combination-entity-delete-engine-diagnostic-OP-STALE-BEFORE-VALUE");
+    expect(stale).toHaveTextContent("load:L-200 x 1000000000000000.2` no longer matches the current value `combination:TIE; tie; basis=mechanics; terms=load:L-100 x 1; load:L-200 x 1000000000000000.3`");
+    expect(panel.queued).toEqual([]);
+  });
+  it.fails("deletes a record whose factor is an exact tie (pending the engine's display_number export)", async () => {
+    const record = { id: "combination:TIE", label: "tie", basis: "mechanics", terms: [{ load_case: "load:L-100", factor: TIE }], provenance: "test" };
+    const model = modelWith(record);
+    const panel = mountPanel(model);
+    const intent = await queueEntityDelete(panel, record.id);
+    await apply(model, intent);
+  });
+  it.fails("deletes a term whose factor is an exact tie (pending the engine's display_number export)", async () => {
+    const record = { id: "combination:TIE", label: "tie", basis: "mechanics", terms: [{ load_case: "load:L-100", factor: 1 }, { load_case: "load:L-200", factor: TIE }], provenance: "test" };
+    const model = modelWith(record);
+    const panel = mountPanel(model);
+    const intent = await queueTermDelete(panel, record.id, 1);
+    await apply(model, intent);
+  });
+});
+
 /** The inverse create the engine admits (#115): the stored record's own JSON at its index, never display text. */
 function restoreRecordIntent(model: PreviewModel, record: unknown, index: number): EditorOperationIntent {
   const intent = createCombinationIntent({ model, payload: record as Record_, rationale: "restore", sourceNote: "restore of a deleted record" });
