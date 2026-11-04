@@ -20,6 +20,207 @@ All five grants are consumed. `app-c1-main-4d0bb1858` was never launched and is
 pressure-2 bases); its record is kept as history. **No retry, B1000 or further native
 interval is authorized.** Exact selected identities and all raw packets remain preserved.
 
+## Bounded ONE 500-node attempt proposal (A-only candidate) (2026-11-04; offline, not run)
+
+This proposes **one** 500-node attempt of the A-only candidate, for Agent 0's readiness decision
+and the owner's approval. It grants nothing. No App, worker, solver, sampler, harness or
+`t3_exclusive.sh` was launched, and no timing or RSS was taken. Its pre-launch check currently
+**refuses** under the recorded interpreter recipe ("Pre-launch check" below).
+
+**Identities** (each bound by full SHA-256 in the preparation record and re-verified by the
+pre-launch check):
+
+| Item | Identity |
+| --- | --- |
+| Candidate basis | main `aa794eb68cd9af3ce821430138685ab3d0d80508` with repair A (#102), plus #59's reviewed fixes at `1b45e1b1169213fe18e74428fb3874e6904ef222` (historical read, disposal-safe held table, historical health) and the corpus fix `e37f3dd07f6ff3e860911f6098161a8de6171911`. Repair B (#106, `2b21c367c…`) is excluded and verified not an ancestor. RT-A3 increment 4 and PF1b are not included. No unregistered priced source is included. |
+| Build source (clean) | `907e633e2541548a7836d0ecceb52f2587950033` |
+| App directory | `/Users/ryan/dev/chirality-t3/scratch/rt-perf-c1-slice7/app-c1-main-907e633e2` |
+| App / same-executable worker | `openpipestress-desktop`, 52,755,392 B, SHA-256 `106a944c236f1ae193967c063858d2d7da7fc1abd141a9213a76657c35642107` |
+| `perf-binding.json` | SHA-256 `7f4db296591108b2786799bc208c0a6826f9ca458892e3d31553102a17f9d049` (`source_dirty:false`) |
+| Profile | release, `--locked --offline`, features `native-smoke,tauri/custom-protocol`, the smoke's `TAURI_CONFIG` |
+| Engine stamps | operation-applier `sha256:49a67a3a5c301ba0b4304991f8d5c69e9592148076a90eebfab729be7dbaf947`; self-weight `sha256:1606bfdd18d01b1527e979c6223b3f3541126d3a83d58012739d4e66730b0c9e`; MBF `sha256:83ec9a7f0eb50f69db89f8fbef8a30b90a432d01993e4fc65c6724f7377aec46` |
+| Frontend `dist_digest` | `sha256:82b598a29389d63440a5d10133e48f5c8643fcc9a1a2da8e853fff90f9a3dbc7` |
+| Harness | `perf.mjs` `7329cca1c7c4de7a8758f3457c54dc00c8f5de9dbbe61db65e13f331844be8a5`; `perf-driver.js` `e53468ab84d333a83df2305c76e26fc9d33d97f52215e4086fc27b69c14dfff1`; `perf-sampler.py` `846f5493cc9cc309140cced0b6ff40ec9b92468db10a4f63e85fe654f9e03d3b`; `perf-plan-c1.json` `25e8a62b828c6251ac36836d11f8b5448fc3138dbd4903e99ef453a732966435` (all unchanged since `2470f0108`) |
+| Rack generator | `core/solver/performance_harness/rack/rack_model.py` `1d8155885f2fa60f481943e989268bef77bc2543860a27291fb9c46685ef314c` |
+| Model | `linear-ex-n0500.json`, 1,828,475 B, 500 nodes / 499 members, raw `42567114a27415b7b042bb9a91d49c8dc640d534953616e5b7efb66b2a2025eb`, JCS `0d45797d8aacada487ef418ce0a776239f6fd9801ed315c1a0f6e1ca2e25466c` |
+| Python | `/usr/bin/python3` (Xcode 3.9.6), real executable `b971331ab9beb1dac075006955f035a97332eca21187c4de615ae58346713e2f`, which must be what `python3` resolves to under the run's own `RT_C1_PATH` (blocked; below) |
+| Preparation record | `scratch/rt-perf-c1-slice7/c1-main-907e633e2-preparation.json` `ba903a5ba37b687261f2e55be521331112f6bf12e0cae230f82c35be71471055` |
+| Pre-launch check | `scratch/rt-perf-mgr/launch-check-c1-907e633e2.mjs` `25a1d80e5ed5033132082f322b379f0073c701ef750e9c6e8c1453d877a7c5bc` |
+| Proposed output | `scratch/rt-perf-c1-slice7/evidence/n0500-c1-aonly1` (absent); launch record `evidence/a500-c1-aonly1-launch-check.json` (absent) |
+
+The superseded `app-c1-main-24f6b6568` (same binary bytes, never run) is not proposed.
+
+**What the attempt tests: the complete native workflow, not one inner call.** The 2026-11-03
+attempt stopped with model-bound standing's native `validate` pending. Success here is **not**
+"call 3 got faster". The attempt passes only if every compulsory gate below passes in one
+session, unchanged. The packet records each gate as listed.
+1. **Route header** (native call 1). Journal: call 1's boundary phases (enter and exit).
+2. **Registration** (native call 2, full `validate`). Journal: call 2's phases; web
+   `registration` exit.
+3. **Model-bound standing** (native call 3, full `validate`). Journal: call 3's phases; web
+   `standing` exit.
+4. **Summary and health.** Journal: `summary_health` and `summary_build`, enter and exit; web
+   `summary` exit.
+5. **Full-verdict agreement.** It is compulsory and may reuse the exact-input full-verdict cache.
+   Recorded in the solve timeline (`report.solve.timeline`) and the run's findings.
+6. **First paint** within **300,000 ms**. Recorded as `report.solve.ended === "first_paint"`, with
+   the timeline marks; the solve proof must match the model JCS, sparse mode and native custody.
+7. **UI navigation.** Settled native rows, then: select a row; next and previous kind, case and
+   entity; next and previous page; a no-match filter and its clearing. `report.c1.fresh.actions`
+   records each with its elapsed time and snapshots.
+8. **Group CSV.** One streamed group CSV with its native receipt, the complete-query row count
+   and at least two pages. Recorded in `report.c1.fresh.csv` and `csv_file`, checked outside the
+   webview.
+9. **P3 reader allocation profile** (`native_smoke_profile_readers`, 90 s). The bounded scalar
+   metrics in `report.c1.reader_allocations`.
+10. **Persistence.**
+    - Record Run and Save Project: `report.record_run`, `report.save_project` and the native
+      receipts, with the producer identities equal.
+    - Reopen (`file.open-local`): `report.c1.reopen`, then the historical table probe
+      (`report.c1.historical`).
+    - Integrity `verified_match`, with no fresh Record Run offered.
+    - Re-save from the handle: `report.c1.resave`.
+    - The recorded-run check and disposal: `report.c1.recorded_check`.
+    - No fresh persistence call during reopen or re-save.
+11. **P3 cleanup gates.**
+    - Historical custody is released through the session.
+    - The pool returns to its starting counts (`report.c1.cleanup`).
+    - Store `quick_check` passes, with no leftover journal or WAL.
+    - Stored lengths and IDs agree with the window (`store`, `findings`).
+    - The sampler's aligned App+worker+WebContent timeline, with unknowns counted
+      (`c1_physical`).
+
+Any one gate's failure is that attempt's outcome. An `exit ok` for a phase means that call
+returned; it grants nothing beyond its own gate. A restored result stays historical: never
+Current, never Solve-bound.
+
+**Rationale for attempting** (support only, not a prediction). PR #102's record gives
+shared-slot **functional** timings, which are not measurements:
+- at 250 nodes, `read pressure` took 12.4 s on main before repair A and 6.1 s with it;
+- `read dispatch` took 23.2 s before and about 12 s with it, with byte-identical outputs.
+
+The call-3 diagnosis attributed about 45% of `validate` at 250 nodes to the region binding that
+repair A makes O(N). These figures make the attempt worth making. **No prediction is made** of
+500-node timing, of call 3's duration, of first paint inside the window, or of memory fit. The
+later gates (summary, agreement, P3, persistence and reopen) have never run at 500 nodes on any
+binary.
+
+**Protocol (unchanged).**
+- The window is **900 s** including teardown.
+- The supervisor has **840 s**, the child **810 s**, with a **30 s** post-run reserve.
+- The single run's timeout is **720 s**, and first paint must arrive within **300,000 ms**.
+- The journal is the fixed **256-boundary** scalar journal.
+- All existing interaction timeouts apply (start 30 s, open 60 s, record and save 150 s,
+  interaction 15 s, CSV 120 s, profile 90 s).
+- All four exclusive locks are held through `t3_exclusive.sh`. Queue time is reported separately
+  and does not count against the window.
+- There is **no automatic retry** and **no timeout increase**, and no B1000 or 2,000-node attempt.
+- Any pre-App refusal, timeout, journal overflow or invalid journal, journal write failure or other
+  failure consumes the attempt.
+- The section "Resource limits, cancellation and cleanup" applies in full: the 12 GiB product
+  limit, fresh host admission, the fresh-unknown stopping rules, process attribution, the 12 GiB
+  aligned-sum protective stop, the 16 GiB per-PID emergency stop, memguard at 22%.
+
+**Cost limits and teardown.**
+- **Processes.** On stop, `analyze.cancel` is tried with at most 5 s for its receipt. Then:
+  - the runner, App and helper group is terminated;
+  - product workers in their own process groups are identified by this window's private App path
+    and stopped before that copy is removed;
+  - worker termination is never inferred from App exit;
+  - the owned sampler and caffeinate are stopped;
+  - no global process name or ambiguously attributed WebKit process is signalled.
+- **Locks.** Teardown begins by 840 s, and the exclusive wrapper releases by 900 s even if store
+  inspection hangs. Closure requires that:
+  - all four slot locks have no holder from this attempt;
+  - `exclusive.pending` is absent or not this attempt's;
+  - no App, worker, sampler or runner process remains.
+
+  Acquisition and closure, or a held exception, are announced promptly.
+- **Durable evidence.** The reader-phase journal (`perf-reader-phases-…jsonl`) is fsynced per
+  received entry. The run record is committed by write-then-rename (`commitRun`; no fsync is
+  claimed), with an earlier `perf-partial-…` checkpoint written the same way before store
+  inspection. The sampler's JSONL, the report and the window record are written as before. The
+  wrapper log, console, admission, summary and closure records follow the five earlier attempts'
+  pattern, with the closure's packet hash map.
+- **Preserved.**
+  - Partial journals, samples and records are kept on failure.
+  - Only this run's private HOME, store, downloads and temporary App copy are removed, after the
+    post-run checks.
+  - The bound App directory, the five consumed attempts' 35 closure-hashed packet files, the
+    seven earlier App directories and all preparation records stay untouched.
+
+**Discriminating observations** (possible outcomes, not predictions; the journal's terminal
+`incomplete` list names the first pending pair):
+- **Call 3's `validate` is again pending at the window's end.** Repair A was not enough for
+  model-bound standing at 500 nodes on this host and build. This does not locate an inner
+  validator, CPU use or allocation.
+- **Call 3 exits and a later boundary is pending** (`summary_health`, `summary_build`, a
+  `source_parse` or `source_drop`). The delay moved to that phase.
+- **All four web phases exit but first paint is missing.** The delay is after the reader awaits:
+  result construction or the later session gates.
+- **First paint passes and a later gate fails or hangs** (navigation, CSV, P3, Record, Save,
+  reopen, re-save, cleanup). That gate is the named failure. First paint alone establishes
+  nothing about usability.
+- **A resource stop.** Host pressure, unknown attribution, the aligned sum above 12 GiB, or a
+  per-PID reading above 16 GiB. The stop is the outcome; its readings are labelled as they are.
+- **Every gate passes.** This establishes use of these C1 paths at 500 nodes on this host, once.
+  It is not a usable-size, memory-fit, base-machine, 1,000- or 2,000-node, C1-completion or
+  acceptance claim, and it is not evidence about repair B.
+
+**Current resource readiness** (facts at 2026-11-04T09:45:33Z; no load or timing experiment):
+- memguard is running (PID 78827), and `guard/exclusive.pending` is absent;
+- slot 1 (`cargo_job.lock`) is free. Slots 2, 3 and 4 were held by other lanes' jobs (the RT-A3
+  nonlinear and dynamics I3a worktrees), not this one;
+- `kern.memorystatus_level` was 78;
+- T3 processes' resident sum was about 6.8 GiB;
+- free disk is 669 GiB of 1.8 TiB;
+- no `openpipestress-desktop` process exists.
+
+These are snapshots: the run's own entry rules decide admission at the time.
+
+**Pre-launch check (check-only, 2026-11-04T09:45:33Z, at `dfb669572`; nothing launched or
+written).** `launch-check-c1-907e633e2.mjs --check-only` verifies by full SHA-256 against the
+preparation record:
+- the source: clean, the selected head, nothing but `.md` changed since the build source, and
+  none of the 362 build-read files changed;
+- the A-only basis: contains `aa794eb68`, excludes #106;
+- the binding, which must equal the recorded one;
+- the binary and the frontend;
+- the engine stamps and the 15 engine files;
+- the registry, bases and current-table files as built;
+- the harness, the generator, the model and the plan's model digest;
+- Python under the given PATH, with no mise Python on it;
+- the seven earlier App directories, six earlier records and the 35 packet files;
+- that the output is fresh, with no earlier launch record, no prior attempt in the slot log and
+  no App process;
+- memguard.
+- **Under the recorded `RT_C1_PATH` recipe: REFUSED**, `PREFLIGHT-REFUSED: Python selection
+  under this PATH: /opt/homebrew/bin/python3`. Every check before Python passed. The interpreter
+  blocker is described in the integration section.
+- **Under the candidate amendment (also removing `/opt/homebrew/` directories; not adopted):
+  PASSED**, verifying 362 build-read files, 7 earlier candidates and 35 packet files. Under it
+  `python3` is `/usr/bin/python3` (`b971331a…`), but `git` becomes `/usr/bin/git` instead of
+  `/opt/homebrew/bin/git`.
+
+**Readiness:** blocked on the interpreter-PATH decision (Agent 0). Hosted CI on the pushed head
+is also still needed; the corpus fix and these documents were not pushed when this was written.
+
+**Proposed command** (unchanged from the integrated-main attempt except the App directory and
+output; `RT_C1_PATH` stays as recorded until Agent 0 decides):
+
+```sh
+cd /Users/ryan/dev/chirality-t3/swbpipe-rt-perf-c1
+RT_C1_KIT=/Users/ryan/dev/chirality-t3/scratch/rt-perf-c1-slice7
+RT_C1_PATH="$(printf %s "$PATH" | tr ':' '\n' | grep -v '/mise/installs/python' | paste -sd: -)"   # pending Agent 0's decision
+test "$(env PATH="$RT_C1_PATH" sh -c 'command -v python3')" = /usr/bin/python3
+test "$(env PATH="$RT_C1_PATH" python3 -I -c 'import hashlib,os,sys; print(hashlib.sha256(open(os.path.realpath(sys.executable),"rb").read()).hexdigest())')" = b971331ab9beb1dac075006955f035a97332eca21187c4de615ae58346713e2f
+env EXPECT_HEAD="$(git rev-parse HEAD)" EXPECT_PREP_SHA256=ba903a5ba37b687261f2e55be521331112f6bf12e0cae230f82c35be71471055 PATH="$RT_C1_PATH" node /Users/ryan/dev/chirality-t3/scratch/rt-perf-mgr/launch-check-c1-907e633e2.mjs --record
+/Users/ryan/dev/chirality-t3/tools/t3_exclusive.sh env -u SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY PATH="$RT_C1_PATH" node apps/desktop/native-smoke/perf.mjs --run --app-dir "$RT_C1_KIT/app-c1-main-907e633e2" --models "$RT_C1_KIT/models" --plan-file apps/desktop/native-smoke/perf-plan-c1.json --subset c1-500 --budget-s 840 --out "$RT_C1_KIT/evidence/n0500-c1-aonly1"
+```
+
+If either `test` line or the check fails, do not launch. #59 remains draft; shared core, clone
+and pricing writes stay held. ScopeOfWork and dependency conditions are unchanged.
+
 ## RT-A4 integration candidate: built offline (2026-11-04; nothing run)
 
 This prepares the next candidate, the **A-only** candidate Agent 0 selected. It was built under
