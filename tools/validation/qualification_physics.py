@@ -61,7 +61,9 @@ DEPENDENCIES = {
     # member instead of rescanning every row per region, with the same outcomes (was b3cb5f6d...).
     MODULE: 'ea9273d72767bb047e29b620c53c64688d5375fbc3f2fdf585180d363e7e3356',
     TABLE: TABLE_SHA256,
-    UNITS: '5a412c57ca3bdc1d150ff580354e709355f442d89971a2f7aff8b575c7e39596',
+    # The units authority: then DEL-04-09 I3a's mass_length_per_rotation family (kg*m/rad, lb*in/rad, lb*ft/rad),
+    # an addition only; every existing unit, dimension and conversion is unchanged (was 5a412c57...).
+    UNITS: 'b8a927c7725100f90818a01ded1b2dbbde3938c12b986a387cffb3c93684a2a7',
 }
 # Version 3: the binding names the pressure-2 reader (version 2 named the retired physics-1 Rust reader,
 # version 1 the former Python reader); both older formats are refused.
