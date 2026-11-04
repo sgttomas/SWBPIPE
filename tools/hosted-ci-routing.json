@@ -214,7 +214,7 @@
       "core/loads/user_loads/Cargo.toml": "6c0add4912f9400459da5f89cfccfe6c7419d29a6641ebff65dbb8dc0c6a3ef6",
       "core/model_operations/operation_applier/Cargo.toml": "4fce27a1130b57d595003fa6638760618f38266d9c16574936822fd744cbfb7e",
       "core/numerics/correct_norm/Cargo.toml": "57cbcd985c88d79c7ebf198d9a5d3a68fa67fe74bfd11440791be7c9a44c8844",
-      "core/product_physics/Cargo.toml": "1bc991733c017cbea0d01e82c86057dbf33119b56acd7859fdf66c4d21102d4e",
+      "core/product_physics/Cargo.toml": "d158654073e9ecfcd52a211be3e18b0d85c22e5a7d7849c57325a143b4a21e0f",
       "core/reporting/audit_manifest/Cargo.toml": "b8bc4623a383ed2c22205326bc737486becd9d931bf869e1e8cf40e147f4fad7",
       "core/reporting/pdf_emitter/Cargo.toml": "bdac876fe00cde0e3ba33a557dafe3e76e96dd462f4a710b63012dada23fca50",
       "core/reporting/protected_content_linter/Cargo.toml": "6a11912d00b5c5c502e1f3d6d3036cf60d3e163078afbc3300005fd496a756ef",
@@ -232,13 +232,13 @@
       "core/serialization/canonical_json/Cargo.toml": "fb2259bdfcb6adebc877b46e4e1b3126fdf1b08c0b6441a5e4ba49ab75e670a0",
       "core/solver/curved_bend/Cargo.toml": "5d7cf1288eac698c209aa4fd7493fa669aa57494950e75374ac07248001502d8",
       "core/solver/diagnostics/Cargo.toml": "11db1409fcfd3b0312ef80085e36eac4d7a66eb0f4298832137119835b1c92e8",
-      "core/solver/frame_kernel/Cargo.toml": "df041afc30370d224ef517fdd34da38f8ff26e754680cc68e05667a995aaf3b7",
+      "core/solver/frame_kernel/Cargo.toml": "e0bb2f7b5da70df444a9db84bfc4a20831bb8ead7e63e58a0c71c739621f4a0b",
       "core/solver/linear_supports/Cargo.toml": "8d38681e7d09f9f1502d8986ccbea888bfb678b0ea8022885d3f67503ba4881d",
-      "core/solver/nonlinear_integration/Cargo.toml": "38112c2d648ea25c1ae927353efa0aee5b254e82ef10bc2f78d1ed2b616a55e0",
+      "core/solver/nonlinear_integration/Cargo.toml": "2e9c42eb5cf691ce883a97b4211170793c8d0085e0f77ef2110d4e68c1ddc042",
       "core/solver/nonlinear_supports/Cargo.toml": "c34c7d2a46294e3c2ab57b4b15028c48664670dfe25278b8b6d22147743a10a6",
       "core/solver/performance_harness/Cargo.toml": "a40eb2f667e3e42e701b520849ade8c79bcbc4adcfb29ad866c795e7b31b9144",
       "core/solver/release_timing/Cargo.toml": "3a9145d9c3023bd7f75fc21da33c9b3ee9973b8206278707df04506355185a35",
-      "core/solver/sparse_direct/Cargo.toml": "eb4e8051b38e3c67c379d88f27fc46aeed00b449464e44c8a7357fb4203c5b12",
+      "core/solver/sparse_direct/Cargo.toml": "66a370d2a2b52ed8de5a1a1b971538ab85d6fc1fa5b46e5f337f870dda8437cb",
       "core/solver/straight_pipe/Cargo.toml": "d510d190cbc1ac0c5dff64be8a693757c3679fadcb0cdce324c5854b5cc059d0",
       "core/units/Cargo.toml": "00e6e906eb640f8f61aef0d609319e96df3a21261b27c8f0b1423d5effea6e84",
       "validation/benchmarks/mechanics/Cargo.toml": "85169e69c38b7be6a4ee9cf8a41bc314d4785b9405a02c4da50ae12a2f784e08",
@@ -2799,6 +2799,7 @@
               "core/solver/nonlinear_integration/src/confirmation_tests.rs",
               "core/solver/nonlinear_integration/src/dense_memory_guard_tests.rs",
               "core/solver/nonlinear_integration/src/lib.rs",
+              "core/solver/nonlinear_integration/src/p_tests.rs",
               "core/solver/nonlinear_integration/src/product_equilibrium.rs",
               "core/solver/nonlinear_integration/src/s11k_tests.rs",
               "core/solver/nonlinear_integration/src/structural_adapter.rs",
@@ -3881,7 +3882,7 @@
         }
       },
       "core/solver/nonlinear_integration/src/s11k_tests.rs": {
-        "sha256": "0d3fb0e3058de0f4a93eefb30107495ce42d89e9cf4d84b8f2cf9d9d6dca4d0c",
+        "sha256": "45e8b72522f91aba6d24f89d9904dafe6d10de76e12a5589ea7d6658ef7c886d",
         "source_trees": [
           "core/analysis/hanger_sizing/Cargo.toml",
           "core/loads/self_weight_wasm/Cargo.toml",
@@ -4049,6 +4050,7 @@
               "core/solver/nonlinear_integration/src/confirmation_tests.rs",
               "core/solver/nonlinear_integration/src/dense_memory_guard_tests.rs",
               "core/solver/nonlinear_integration/src/lib.rs",
+              "core/solver/nonlinear_integration/src/p_tests.rs",
               "core/solver/nonlinear_integration/src/product_equilibrium.rs",
               "core/solver/nonlinear_integration/src/s11k_tests.rs",
               "core/solver/nonlinear_integration/src/structural_adapter.rs",
@@ -4086,7 +4088,7 @@
         ]
       },
       "core/solver/nonlinear_integration/src/structural_adapter/k5_tests.rs": {
-        "sha256": "2e915f093f8e365d6c0289986de063c687937ad1695d73824ef422784231b662",
+        "sha256": "15518633889bde286f6d151e0856b430c9dd39031d0366164df5330b745450f0",
         "source_trees": [
           "core/analysis/hanger_sizing/Cargo.toml",
           "core/loads/self_weight_wasm/Cargo.toml",

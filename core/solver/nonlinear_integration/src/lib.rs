@@ -453,14 +453,17 @@ impl From<NonlinearSupportError> for NonlinearIntegrationError {
 }
 
 /// §8.30 correction 2 (RT-U4, RT-A2; R-4 design C-6 and §3.6): the leading
-/// dense storage of the active-set loop, in bytes per entry. In both solver
-/// modes the loop holds the dense global stiffness and, inside FK's
-/// `prepare_bound` audit, its two dense symmetry views and the contribution
-/// sums and differences (`Expansion`, 32 + 32): 8 + 16 + 64 = 88 bytes per
-/// global entry. The prepared matrix and the loop's reduced copy add 8 + 8 = 16
-/// bytes per free entry. This is a leading-buffer estimate, not a complete
-/// memory bound: vectors, the model, results, the friction coupling solves'
-/// transient state and the process itself are not counted.
+/// dense storage of the dense-scrutiny active-set loop, in bytes per entry. That
+/// loop holds the dense global stiffness and, inside FK's `prepare_bound` audit,
+/// its two dense symmetry views and the contribution sums and differences
+/// (`Expansion`, 32 + 32): 8 + 16 + 64 = 88 bytes per global entry. The prepared
+/// matrix and the loop's reduced copy add 8 + 8 = 16 bytes per free entry. This
+/// is a leading-buffer estimate, not a complete memory bound: vectors, the
+/// model, results, the friction coupling solves' transient state and the
+/// process itself are not counted. Since R-4 stage P the sparse-interactive loop
+/// runs on the sparse pattern and holds none of these dense buffers; the same
+/// estimate and limit are deliberately kept as its admission cap until the
+/// owner's O-2 decision on heavy-run evidence (R-4 §6.3).
 pub const DENSE_LOOP_BYTES_PER_GLOBAL_ENTRY: u128 = 88;
 /// See [`DENSE_LOOP_BYTES_PER_GLOBAL_ENTRY`].
 pub const DENSE_LOOP_BYTES_PER_FREE_ENTRY: u128 = 16;
@@ -468,8 +471,8 @@ pub const DENSE_LOOP_BYTES_PER_FREE_ENTRY: u128 = 16;
 /// product's per-invocation memory budget on the 16 GiB base machine (owner,
 /// 2026-10-11; DEL-04-07 Design `memory-budget-decision.md`), less the 0.9 M
 /// qualification margin, which leaves 0.1 M for what the estimate does not
-/// count. It admits about 1,759 nodes when every DOF is free. To be revisited
-/// with R-4 stage P (the sparse nonlinear loop).
+/// count. It admits about 1,759 nodes when every DOF is free. It applies in
+/// both modes; in sparse mode it is the retained admission cap described above.
 pub const DENSE_LOOP_MEMORY_CEILING_BYTES: u128 = 12 * (1 << 30) * 9 / 10;
 
 /// The loop's memory guard refusal: the estimate's inputs and its value
@@ -490,7 +493,7 @@ impl fmt::Display for DenseLoopMemoryRefusal {
             .map_or("more than u128::MAX".to_string(), |value| value.to_string());
         write!(
             f,
-            "nonlinear dense loop memory guard: estimated leading dense storage {estimated} bytes ({DENSE_LOOP_BYTES_PER_GLOBAL_ENTRY} bytes x {}^2 global DOFs + {DENSE_LOOP_BYTES_PER_FREE_ENTRY} bytes x {}^2 free DOFs) exceeds the provisional limit {} bytes; the model is refused before any n^2 allocation. The estimate counts the loop's leading dense buffers only and is not a complete memory bound; the limit is provisional until the sparse nonlinear loop (R-4 stage P)",
+            "nonlinear dense loop memory guard: estimated leading dense storage {estimated} bytes ({DENSE_LOOP_BYTES_PER_GLOBAL_ENTRY} bytes x {}^2 global DOFs + {DENSE_LOOP_BYTES_PER_FREE_ENTRY} bytes x {}^2 free DOFs) exceeds the provisional limit {} bytes; the model is refused before any n^2 allocation. The estimate counts the dense loop's leading buffers only and is not a complete memory bound; in sparse mode the same limit is kept as a provisional admission cap pending the owner's decision (R-4 \u{a7}6.3 O-2)",
             shown(self.global_dofs),
             shown(self.free_dofs),
             self.ceiling_bytes,

@@ -129,7 +129,7 @@ fn the_loop_entry_refuses_in_both_modes_below_the_estimate() {
         assert_eq!(refusal.ceiling_bytes, estimate - 1);
         assert_eq!(
             error.to_string(),
-            format!("nonlinear dense loop memory guard: estimated leading dense storage {estimate} bytes (88 bytes x 18^2 global DOFs + 16 bytes x 12^2 free DOFs) exceeds the provisional limit {} bytes; the model is refused before any n^2 allocation. The estimate counts the loop's leading dense buffers only and is not a complete memory bound; the limit is provisional until the sparse nonlinear loop (R-4 stage P)", estimate - 1)
+            format!("nonlinear dense loop memory guard: estimated leading dense storage {estimate} bytes (88 bytes x 18^2 global DOFs + 16 bytes x 12^2 free DOFs) exceeds the provisional limit {} bytes; the model is refused before any n^2 allocation. The estimate counts the dense loop's leading buffers only and is not a complete memory bound; in sparse mode the same limit is kept as a provisional admission cap pending the owner's decision (R-4 §6.3 O-2)", estimate - 1)
         );
         // At the estimate itself the model is under the limit and solves.
         let solved = with_ceiling(Some(estimate), || {

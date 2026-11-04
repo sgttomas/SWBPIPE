@@ -186,11 +186,14 @@ estimate minus one and admission at the estimate (loop entry, both modes), and P
   - the loop's binary64 evidence rows: iterate deltas (at most 1.3e-13 relative on F-2, 1.8e-11 on
     the demo's 0.0096 mm delta, 1.7e-13 mm absolute), free-row residuals and the work residual (one
     or a few binary64 quanta), and one work row's observed governing DOF (F-2, A3);
-  - certified member rows of magnitude 1e-44 to 1e-33 (zero up to noise);
+  - certified member rows of order 1e-44 to 1e-33 (zero up to noise; the largest is 4.49e-33);
   - the integrity diagnostics' text, which embeds the final iterate's report.
-- **Bound check (independent of the solver's bits).** Each moved certified member row was compared
-  against its own certified radius from a scratch build that prints every straight-member certified
-  row: |new − old| ≤ r_old + r_new for every moved row, the worst at 0.164 of the sum (the demo and
+- **Enclosure-consistency check (independent of the solver's bits).** Each moved certified member row
+  was compared against its own certified radius from a scratch build that prints every
+  straight-member certified row: |new − old| ≤ r_old + r_new for every moved row. This is the
+  necessary compatibility test for two enclosures of the same exact value, not by itself a proof
+  that either enclosure is valid; validity rests on the unchanged Stage A/B and member-bound
+  derivation and the independent oracle references below. The rows moved the worst at 0.164 of the sum (the demo and
   `preview_physics_invented`, 39 of 672 rows moved), 1.7e-7 on F-2 and 6.5e-7 on A3.
 - **References.** kd5's F-2 (the strongly coupled case, c·g = −0.748) stays within its bound of the
   exact coupled force in both modes (PP `kd5_nonlinear_tests.rs`), and the K-1 twin corpus passes in
@@ -200,7 +203,10 @@ estimate minus one and admission at the estimate (loop entry, both modes), and P
 - **Regenerated with their maintained generators:**
   - `fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json` and the two
     generation records (`generate_product_preview_mechanics.mjs`). The records also had stale source
-    hashes from earlier merges;
+    hashes from earlier merges. They record the step-4 generation, not the final head: 12 of their
+    source hashes (among them FK `sparse.rs` and NI `lib.rs`, `confirmation.rs` and
+    `structural_adapter.rs`) differ from the final head, while the three result fixtures equal fresh
+    final-head producer output byte for byte (independent review);
   - `fixtures/results/preview_physics_invented_sparse.json` and
     `preview_physics_range_envelope_sparse.json` (`preview_physics_capture`).
 
@@ -208,7 +214,7 @@ estimate minus one and admission at the estimate (loop entry, both modes), and P
   refused-demo envelopes are byte-identical. The native smoke's demo expectations (837 rows,
   `checks_passed` in both modes) are unchanged.
 
-### 8.4 Step 3: one factor per iterate (sparse mode)
+### 8.4 Step 3: one checked structural factor per iterate (sparse mode)
 
 - FK keeps a factor for further right-hand sides (`SparsePositiveFactor::share` and
   `SharedSparseFactor`, which hold a copy of the prepared matrix it factors) and completes another
@@ -218,8 +224,11 @@ estimate minus one and admission at the estimate (loop entry, both modes), and P
   shows equality with separate solves on several right-hand sides, and the refusal.
 - In NI's step, the first sparse-mode solve of an iterate factors and keeps the factor; the coupling
   and final solves complete on it (`SparseAssemblyEvidence::solve_binary64_shared`).
-  `p_sparse_mode_factors_once_per_iterate` counts one factorization per iterate and two completions
-  (unit and final) on each coupled iterate; dense scrutiny makes none. The shadow check compares
+  `p_sparse_mode_factors_once_per_iterate` counts one checked structural factorization per iterate
+  and two completions (unit and final) on each coupled iterate; dense scrutiny makes none. The final
+  solve's existing DEC-050/053 legacy observation (`observe_sparse_entries` →
+  `solve_symmetric_system_from_entries`) still factors separately; P neither removes nor changes it,
+  so the total is one checked structural factor plus that observation factor per iterate. The shadow check compares
   every sparse-mode NI solve with the dense-derived separate solves.
 - The 100 corpus outputs are byte-identical to step 4's.
 
@@ -252,7 +261,8 @@ estimate minus one and admission at the estimate (loop entry, both modes), and P
 - **What it observes.** One sparse-mode loop iteration and the whole PF nonlinear solve, at 1,000,
   2,000 and 10,000 nodes (members = nodes − 1), on DEL-04-05's maintained `nonlinear-pf` racks
   (`rack_model.py`: one-way supports at N/10, explicit-normal friction at N/40, and seven cases).
-  The racks carry no derived-normal friction, so k = 0: one factorization per iterate. A k = 1
+  The racks carry no derived-normal friction, so k = 0: one checked structural factorization per
+  iterate, plus the final solve's legacy observation factorization. A k = 1
   variant would need a rack change, which this plan does not make.
 - **Commands** (`S` = `/Users/ryan/dev/chirality-t3/scratch/rt-a3/p/m3`, `R` = the SWBPIPE checkout):
   ```
@@ -290,7 +300,7 @@ estimate minus one and admission at the estimate (loop entry, both modes), and P
 - **Verdict.** The loop rules are untouched: the authored seeds, no friction force on the first
   iterate, the deferred first iterate, the slip direction, the normal branch, the classification and
   the seed recovery are byte-identical in P's diff. The solve path changed (the representation, the
-  coupling solves' mode, one factor per iterate in sparse mode), but every right-hand side keeps its
+  coupling solves' mode, one checked structural factor per iterate in sparse mode), but every right-hand side keeps its
   own M03 gate through the same completion and binary64 residual. So the derivation's premises hold
   in both modes and its numbers are unchanged.
 - **Revised.** `k1-twin-bound.md` (the solve and coupled-force items, and a re-check paragraph),
@@ -341,3 +351,18 @@ estimate minus one and admission at the estimate (loop entry, both modes), and P
   `REGISTERED_PROFILES` and no witness record. The D3 registration (after #105B, PF1b and I3a) must
   restate the three pins and the owner-choices line keys after its own review, and run the stack
   witnesses.
+
+### 8.9 Review repairs (independent review of `7d320980c`)
+- **CI declarations.** The reviewed runtime-reader declarations in `tools/hosted-ci-routing.json` follow the
+  submitted head: the product_physics, frame_kernel, nonlinear_integration and sparse_direct tree digests; the
+  two declared readers P changed (`s11k_tests.rs`, `structural_adapter/k5_tests.rs`); and the two source scans
+  that now include P's new `nonlinear_integration/src/p_tests.rs`. Reader coverage is unchanged.
+- **Guard text.** NI's guard constants and refusal now say that the estimate is the dense loop's and that, in
+  sparse mode, the same limit is kept as a provisional admission cap pending the owner's O-2 decision. Formula,
+  limit, refusal identity and admission are unchanged.
+- **Factor count.** Stated above as one checked structural factor per iterate plus the existing legacy
+  observation factor.
+- **Not changed here.** PP `lib.rs`'s comment at the guard call (about line 3209) still says the loop is dense
+  in both modes. PP `lib.rs` is otherwise untouched by P; editing it would move its full-file pricing pins
+  for the registrations queued ahead of P and touch #107's file. It is to be corrected with P's D3
+  registration or the next PP `lib.rs` change.
