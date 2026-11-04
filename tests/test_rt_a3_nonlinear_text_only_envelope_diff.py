@@ -58,8 +58,9 @@ CE_TAIL = "(SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED)"
 NL_CLAUSE = (
     "; on a document without the load/reference-state group and without an objective connector, gap, one-way, "
     "lift-off and friction supports (friction with an explicit normal or a normal derived from a linear restraint) "
-    "are solved in each case by the active-set loop from their authored initial states, with K-D5 confirmation, and "
-    "publish their states, final displacements and reactions; a case with a gap support is published with the "
+    "are solved in each case by the active-set loop from their authored initial states and publish their states, "
+    "final displacements and reactions; K-D5 confirmation is attempted for an eligible non-gap state, and the case's "
+    "published numerical standing reflects its outcome; a case with a gap support is published with the "
     "unqualified recovery basis (NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED) and no confirmation, and a "
     "mechanics combination over a model with a nonlinear support is withheld (NONLINEAR_COMBINATION_REQUIRES_SOLVE) "
     "unless it is one load case at factor exactly 1 plus at least one combination whose fixed-load count is exactly "
@@ -73,7 +74,7 @@ NEW_S7 = OLD_S7.replace("linear restraints and springs and, as its constant forc
                         "linear restraints, springs and nonlinear supports and, as its constant force")
 PAIRS = {OLD_ID: NEW_ID, OLD_S7: NEW_S7}
 assert all(old != new for old, new in PAIRS.items())
-assert (len(NEW_ID.encode()) - len(OLD_ID.encode()), len(NEW_S7.encode()) - len(OLD_S7.encode())) == (854, 20)
+assert (len(NEW_ID.encode()) - len(OLD_ID.encode()), len(NEW_S7.encode()) - len(OLD_S7.encode())) == (957, 20)
 # ASCII needles that only the old texts contain.
 NEEDLES = (CE_TAIL + ". Pressure regions meeting",
            "for admitted linear restraints and springs and, as its constant force")
@@ -82,10 +83,10 @@ NEEDLES = (CE_TAIL + ". Pressure regions meeting",
 TABLES = {
     "fixtures/results/semantic_contract_v0_3_pressure_2.json": (
         "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6",
-        "5e224d1730033151f8de2ebcc47c6c80558f9c907f9f15ee477a7ee4b18593e6"),
+        "2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645"),
     "fixtures/results/semantic_contract_v0_3_physics_retained_1.json": (
         "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034",
-        "ca6bb9834f1cf2f970df4fd21a81e101c9289f2fa8cb3e26e7a11a794f535b5f"),
+        "85c2678a78e794b44761c11efb73c215645c7e2560d802ac8ad6075e7804c691"),
 }
 TABLE_SHA256 = TABLES["fixtures/results/semantic_contract_v0_3_pressure_2.json"]
 TABLE_PAIRS = frozenset(TABLES.values())
@@ -113,40 +114,40 @@ _W11 = ce._W11
 UNMATERIALIZED = {
     (_W11 + "pressure_2_connector.json", "/request/report/calculation_report/audit_manifest_refs/0/checksum/value"): (
         "6f1fa9d067df249ba255ea17b2a23556634112ea5a36f17d8fa4b5578c518b3e",
-        "d33a15b84e4d199fca28261c52d9573923fc74ff935a6fb567199d4d20f3bcc0"),
+        "c2636d27ff40274644816782a1494586ca7a20f6c08593fb8461b28878bc8e76"),
     (_W11 + "pressure_2_connector.json", "/request/result_documents/0/result_envelope/reproducibility/run_hashes/0/value"): (
         "6f1fa9d067df249ba255ea17b2a23556634112ea5a36f17d8fa4b5578c518b3e",
-        "d33a15b84e4d199fca28261c52d9573923fc74ff935a6fb567199d4d20f3bcc0"),
+        "c2636d27ff40274644816782a1494586ca7a20f6c08593fb8461b28878bc8e76"),
     (_W11 + "pressure_2_connector.json", "/request/state_comparison_handoff_records/0/sections/state_run_sections/0/hash_refs/0/value"): (
         "6f1fa9d067df249ba255ea17b2a23556634112ea5a36f17d8fa4b5578c518b3e",
-        "d33a15b84e4d199fca28261c52d9573923fc74ff935a6fb567199d4d20f3bcc0"),
+        "c2636d27ff40274644816782a1494586ca7a20f6c08593fb8461b28878bc8e76"),
     (_W11 + "pressure_2_load_reference_states.json", "/request/report/calculation_report/audit_manifest_refs/0/checksum/value"): (
         "780b7956345f6c5949d081247cdc5a64f7d9921f861e946bfd73e2d2dd2c6afe",
-        "0bf567b22f0e4233369d41d8ef066f1742e63bde87be34d08b7cf6f07dd45e49"),
+        "8636603820ce917f1edcfbee11a4efb7d06aa679cd1c0c314bbafae731539b08"),
     (_W11 + "pressure_2_load_reference_states.json", "/request/result_documents/0/result_envelope/reproducibility/run_hashes/0/value"): (
         "780b7956345f6c5949d081247cdc5a64f7d9921f861e946bfd73e2d2dd2c6afe",
-        "0bf567b22f0e4233369d41d8ef066f1742e63bde87be34d08b7cf6f07dd45e49"),
+        "8636603820ce917f1edcfbee11a4efb7d06aa679cd1c0c314bbafae731539b08"),
     (_W11 + "pressure_2_load_reference_states.json", "/request/state_comparison_handoff_records/0/sections/state_run_sections/0/hash_refs/0/value"): (
         "780b7956345f6c5949d081247cdc5a64f7d9921f861e946bfd73e2d2dd2c6afe",
-        "0bf567b22f0e4233369d41d8ef066f1742e63bde87be34d08b7cf6f07dd45e49"),
+        "8636603820ce917f1edcfbee11a4efb7d06aa679cd1c0c314bbafae731539b08"),
     (_W11 + "pressure_2_realized_bend.json", "/request/report/calculation_report/audit_manifest_refs/0/checksum/value"): (
         "3b309ec8cedb1e3f1a29ccf8cde75900093a089f6df027932390f9995d6a826b",
-        "be6d2452a2309a658a17bcd86e05bf712092bb926f3d4c4566994cc50ffa3949"),
+        "3719a2554eb98bfd7080f4932800f3237a4df117514686525731b812cb5bb32f"),
     (_W11 + "pressure_2_realized_bend.json", "/request/result_documents/0/result_envelope/reproducibility/run_hashes/0/value"): (
         "3b309ec8cedb1e3f1a29ccf8cde75900093a089f6df027932390f9995d6a826b",
-        "be6d2452a2309a658a17bcd86e05bf712092bb926f3d4c4566994cc50ffa3949"),
+        "3719a2554eb98bfd7080f4932800f3237a4df117514686525731b812cb5bb32f"),
     (_W11 + "pressure_2_realized_bend.json", "/request/state_comparison_handoff_records/0/sections/state_run_sections/0/hash_refs/0/value"): (
         "3b309ec8cedb1e3f1a29ccf8cde75900093a089f6df027932390f9995d6a826b",
-        "be6d2452a2309a658a17bcd86e05bf712092bb926f3d4c4566994cc50ffa3949"),
+        "3719a2554eb98bfd7080f4932800f3237a4df117514686525731b812cb5bb32f"),
     (_W11 + "pressure_2_straight.json", "/request/report/calculation_report/audit_manifest_refs/0/checksum/value"): (
         "473ce7e4470fc91473ea1c1dd1135b891bd403dada0b799e3956cdc00f4341f8",
-        "a8607e873ffe3eab728bc1ca30b9cb050c37c6573219eb2b2e586127e29f4986"),
+        "d5c1acfb1e6c1180299e34407e240f557c3dedf8cbf56da8b16368196331cd60"),
     (_W11 + "pressure_2_straight.json", "/request/result_documents/0/result_envelope/reproducibility/run_hashes/0/value"): (
         "473ce7e4470fc91473ea1c1dd1135b891bd403dada0b799e3956cdc00f4341f8",
-        "a8607e873ffe3eab728bc1ca30b9cb050c37c6573219eb2b2e586127e29f4986"),
+        "d5c1acfb1e6c1180299e34407e240f557c3dedf8cbf56da8b16368196331cd60"),
     (_W11 + "pressure_2_straight.json", "/request/state_comparison_handoff_records/0/sections/state_run_sections/0/hash_refs/0/value"): (
         "473ce7e4470fc91473ea1c1dd1135b891bd403dada0b799e3956cdc00f4341f8",
-        "a8607e873ffe3eab728bc1ca30b9cb050c37c6573219eb2b2e586127e29f4986"),
+        "d5c1acfb1e6c1180299e34407e240f557c3dedf8cbf56da8b16368196331cd60"),
     (_W11 + "pressure_source_1.json", "/request/report/calculation_report/audit_manifest_refs/0/checksum/value"): (
         "98f1e65ce6dba54439c2865b24647d5b8ec138ab0facd32ecb0a5da6d7a5cfad",
         "5bb99dc36ab19e7502afa3ba407f88c541f28ed1991b3ace3e064f64ccf69807"),
@@ -158,13 +159,13 @@ UNMATERIALIZED = {
         "5bb99dc36ab19e7502afa3ba407f88c541f28ed1991b3ace3e064f64ccf69807"),
     (_W11 + "pressure_2_straight_substitute.overlay.json", "/replacements/1/value"): (
         "b6b34276bd647412ca5132ebf8fc7a929581897540151081e374c121c1ca904a",
-        "d36a55e57df2798a5daa0f8f11840871b8b2c517154343a2d3d5bf4eb289354c"),
+        "cf695a101463b188e94bda1fb7bdd7694b0a30b807122b9710f744bcfad520c9"),
     (_W11 + "pressure_2_straight_substitute.overlay.json", "/replacements/6/value"): (
         "b6b34276bd647412ca5132ebf8fc7a929581897540151081e374c121c1ca904a",
-        "d36a55e57df2798a5daa0f8f11840871b8b2c517154343a2d3d5bf4eb289354c"),
+        "cf695a101463b188e94bda1fb7bdd7694b0a30b807122b9710f744bcfad520c9"),
     (_W11 + "pressure_2_straight_substitute.overlay.json", "/replacements/16/value"): (
         "b6b34276bd647412ca5132ebf8fc7a929581897540151081e374c121c1ca904a",
-        "d36a55e57df2798a5daa0f8f11840871b8b2c517154343a2d3d5bf4eb289354c"),
+        "cf695a101463b188e94bda1fb7bdd7694b0a30b807122b9710f744bcfad520c9"),
 }
 
 

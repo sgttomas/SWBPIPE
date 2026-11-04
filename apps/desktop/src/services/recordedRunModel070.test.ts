@@ -59,7 +59,7 @@ describe("a pressure-2 run recorded before model document 0.8.0 (a2)", () => {
     run.analysis_run.reproducibility.semantic_contract.sha256 = "0".repeat(64);
     await expect(validateAnalysisRunV03(run, source(), run.analysis_run.load_basis_refs)).rejects.toThrow("ANALYSIS_SEMANTIC_CONTRACT_MISMATCH");
     const mixed = record();
-    mixed.analysis_run.result_refs[0].semantic_contract.sha256 = "5e224d1730033151f8de2ebcc47c6c80558f9c907f9f15ee477a7ee4b18593e6";
+    mixed.analysis_run.result_refs[0].semantic_contract.sha256 = "2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645";
     await expect(validateAnalysisRunV03(mixed, source(), mixed.analysis_run.load_basis_refs)).rejects.toThrow("ANALYSIS_ROW_SOURCE_BINDING_MISMATCH");
   });
 });
