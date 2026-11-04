@@ -24,11 +24,13 @@ const BUILDER_CASES: &str = "apps/desktop/src/test-support/analysis-run-v03/anal
 /// `RECORDED_BASIS_FIXTURES` of `historicalReopenCases.ts`: main's verbatim recorded pressure-2
 /// runs (a record, its source and its request model), one per row of
 /// `RECORDED_RUN_TABLE_BASES` in its order. Read, never rewritten.
-const RECORDED_BASIS_FIXTURES: [&str; 4] = [
+const RECORDED_BASIS_FIXTURES: [&str; 6] = [
     "fixtures/persistence/recorded_model_0_7_0",
     "fixtures/persistence/recorded_model_0_8_0",
     "fixtures/persistence/recorded_model_0_9_0_pre_2a",
     "fixtures/persistence/recorded_model_0_9_0_pre_2b",
+    "fixtures/persistence/recorded_model_0_9_0_pre_ce",
+    "fixtures/persistence/recorded_model_0_9_0_pre_rt_a4",
 ];
 const FIXTURE_RECORD: &str = "pressure_plain_connected_sparse.analysis_run.json";
 const FIXTURE_SOURCE: &str = "pressure_connected_mechanics_sparse.json";
@@ -152,6 +154,14 @@ fn reseal(record: &mut Value) {
 }
 
 /// A recorded-basis fixture's file, named by a case's `fixture`.
+/// A case's `FileRef`: a committed fixture file's value at a JSON pointer (read, never rewritten).
+fn file_value(reference: &Value) -> Value {
+    let path = reference["path"].as_str().unwrap();
+    assert!(path.starts_with("fixtures/persistence/recorded_pre_rt_a4_pf/"), "{path}: no pre-RT-A4 fixture");
+    let value: Value = serde_json::from_str(&read_text(path)).unwrap();
+    value.pointer(reference["pointer"].as_str().unwrap()).unwrap_or_else(|| panic!("{reference}")).clone()
+}
+
 fn fixture_text(fixture: &Value, name: &str) -> String {
     let dir = RECORDED_BASIS_FIXTURES.iter().find(|dir| fixture.as_str() == Some(**dir)).unwrap_or_else(|| panic!("{fixture} is no recorded-basis fixture"));
     read_text(&format!("{dir}/{name}"))
@@ -168,7 +178,10 @@ pub(crate) fn saved_run(case: &Value, builder: &std::collections::HashMap<String
             serde_json::from_str::<Value>(&fixture_text(fixture, FIXTURE_SOURCE)).unwrap(),
             serde_json::from_str::<Value>(&fixture_text(fixture, FIXTURE_RECORD)).unwrap(),
         ),
-        (None, None) => (case["mechanics_result"].clone(), case["analysis_run"].clone()),
+        (None, None) => match case.get("files") {
+            Some(files) => (file_value(&files["result"]), file_value(&files["record"])),
+            None => (case["mechanics_result"].clone(), case["analysis_run"].clone()),
+        },
     };
     apply_patches(&mut result, &mut record, case.get("patches").and_then(Value::as_array).map(Vec::as_slice).unwrap_or(&[]));
     if case["reseal"] == true {
@@ -180,6 +193,11 @@ pub(crate) fn saved_run(case: &Value, builder: &std::collections::HashMap<String
 /// A recorded case's stored result text and record: embedded, or a recorded-basis fixture's
 /// source text and its record with `record_patches` applied.
 fn recorded_run(read: &Value) -> (String, Value) {
+    if let Some(files) = read.get("files") {
+        // A whole result is the file's exact text, as the store returns its stored text.
+        assert_eq!(files["result"]["pointer"], "", "a recorded case's result is a whole file");
+        return (read_text(files["result"]["path"].as_str().unwrap()), file_value(&files["record"]));
+    }
     match read.get("fixture") {
         None => (read["result_json"].as_str().unwrap().to_string(), read["record"].clone()),
         Some(fixture) => {
@@ -213,6 +231,36 @@ fn the_native_findings_are_the_typescript_contexts() {
     assert!(failures.is_empty(), "{} of {} cases differ:\n{}", failures.len(), cases.len(), failures.join("\n"));
 }
 
+/// RT-A4 §10.4: main's runs recorded before RT-A4 (`recorded_pre_rt_a4_pf`) reopen natively as the
+/// webview reopens them: read under their recorded table, their standing findings the historical
+/// reader's (kept apart, labelled by that table), and none of a current-only reader's refusals among
+/// the findings. Without the native recorded read they read under the current tables and are refused
+/// (`SOURCE_PREVIEW_PHYSICS_FORMULATION_BASIS`, `ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH`, …), so
+/// this fails. An unknown digest names no variant and reads as before, under the current tables.
+#[test]
+fn runs_recorded_before_rt_a4_reopen_natively_under_their_recorded_table() {
+    const CURRENT_ONLY: [&str; 5] = ["SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED", "SOURCE_PREVIEW_PHYSICS_FORMULATION_BASIS", "ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH", "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH", "SOURCE_RECORDED_BINDING"];
+    let builder = builder_cases();
+    let cases: Vec<Value> = reopen_cases().into_iter().filter(|case| case["id"].as_str().unwrap().contains("pre-rt-a4:")).collect();
+    assert_eq!(cases.len(), 7, "five saved variants, one unknown digest, one recorded revision");
+    for case in &cases {
+        let id = case["id"].as_str().unwrap();
+        let actual = native_findings(case, &builder);
+        assert_eq!(&actual, &case["expected"], "{id}: the webview's findings, in their scopes");
+        if id.ends_with(":unknown-digest") {
+            assert_eq!(actual["recorded_table_read"], Value::Null, "{id}");
+            assert!(actual["historical_reader_findings"].as_array().unwrap().is_empty(), "{id}");
+            continue;
+        }
+        let table = &actual["recorded_table_read"];
+        assert!(open_pipe_stress_result_export::recorded_tables::variant_of(table).is_some(), "{id}: read under a registry variant: {table}");
+        let shown: Vec<&str> = actual["findings"].as_array().unwrap().iter().chain(actual["historical_reader_findings"].as_array().unwrap()).map(|f| f.as_str().unwrap()).collect();
+        for marker in CURRENT_ONLY {
+            assert!(!shown.iter().any(|finding| finding.contains(marker)), "{id}: {marker} in {shown:?}");
+        }
+    }
+}
+
 /// A case's findings, natively from its stored values, in the form of its `expected`.
 fn native_findings(case: &Value, builder: &std::collections::HashMap<String, Value>) -> Value {
     match case["kind"].as_str().unwrap() {
@@ -231,7 +279,8 @@ fn native_findings(case: &Value, builder: &std::collections::HashMap<String, Val
                 None => json!({"absent": true}),
                 Some(mut found) => {
                     saved_run_validation(&mut found, &mut result, &record);
-                    json!({"findings": found.findings, "run_id": found.run_id, "envelope_payload_hash": found.envelope_payload_hash, "model_hash": null})
+                    json!({"findings": found.findings, "check_findings": found.check_findings, "recorded_table_read": found.recorded_table_read, "historical_reader_findings": found.historical_reader_findings,
+                        "run_id": found.run_id, "envelope_payload_hash": found.envelope_payload_hash, "model_hash": null})
                 }
             }
         }
@@ -252,7 +301,8 @@ fn native_findings(case: &Value, builder: &std::collections::HashMap<String, Val
             if let Some(result) = result.as_mut() {
                 recorded_run_validation(&mut found, &context, result, manifest.as_ref(), &record);
             }
-            json!({"findings": found.findings, "run_id": found.run_id, "envelope_payload_hash": null, "model_hash": found.model_hash})
+            json!({"findings": found.findings, "check_findings": found.check_findings, "recorded_table_read": found.recorded_table_read, "historical_reader_findings": found.historical_reader_findings,
+                "run_id": found.run_id, "envelope_payload_hash": null, "model_hash": found.model_hash})
         }
     }
 }
@@ -289,7 +339,7 @@ fn bracketed_tokens<'a>(text: &'a str, what: &str) -> (Vec<Token>, &'a str) {
                     return (tokens, &text[at + 1..]);
                 }
             }
-            ',' | ':' => tokens.push(Token::Punct(c)),
+            ',' | ':' | '/' => tokens.push(Token::Punct(c)),
             '"' | '\'' => {
                 let mut value = String::new();
                 loop {
@@ -396,9 +446,77 @@ fn the_recorded_table_bases_are_the_typescript_and_python_tables() {
         }).collect();
         <[String; 3]>::try_from(items).unwrap_or_else(|items| panic!("Python: a row of {} items: {items:?}", items.len()))
     }).collect();
-    assert_eq!(native.len(), 4, "{native:?}");
+    assert_eq!(native.len(), 6, "{native:?}");
     assert_eq!(typescript, native, "the TypeScript table");
     assert_eq!(python, native, "the Python table");
+}
+
+/// RT-A4 §10.4: the registry the native reopen reads under (`recorded_tables::VARIANTS`, the
+/// same Rust the wasm engine and runner read) is the webview's (`recordedPreRtA4.ts`
+/// `RECORDED_PRE_RT_A4_TABLES`) and Python's (`compatibility.py` `RECORDED_PRE_RT_A4_TABLES`),
+/// variant for variant and in order, each twin's table file the same verbatim bytes, hashing to
+/// the variant's digest. Each twin's whole literal is read; an entry that is not a recognized
+/// variant fails the test rather than being skipped.
+#[test]
+fn the_recorded_pre_rt_a4_registry_is_the_typescript_and_python_registry() {
+    use sha2::{Digest, Sha256};
+    let native: Vec<[String; 2]> = open_pipe_stress_result_export::recorded_tables::VARIANTS.iter().map(|v| [v.id.to_string(), v.sha256.to_string()]).collect();
+    // TypeScript: `Object.freeze([ { id: NAME, sha256: "…", text: importName }, … ].map(…));`.
+    let ts = read_text("apps/desktop/src/services/recordedPreRtA4.ts");
+    let ts_constant = |name: &str| -> String {
+        let assigned: Vec<&str> = ts.lines().filter_map(|line| line.strip_prefix(&format!("const {name} = "))).collect();
+        assert_eq!(assigned.len(), 1, "TypeScript: {name} is not one module constant");
+        assigned[0].trim_end_matches(';').trim_matches('"').to_string()
+    };
+    let ts_import = |name: &str| -> String {
+        let imported: Vec<&str> = ts.lines().filter_map(|line| line.strip_prefix(&format!("import {name} from \""))).collect();
+        assert_eq!(imported.len(), 1, "TypeScript: {name} is not imported once");
+        let path = imported[0].strip_suffix("?raw\";").unwrap_or_else(|| panic!("TypeScript: {name} is not a raw import"));
+        path.rsplit('/').next().unwrap().to_string()
+    };
+    assert_eq!(ts.matches("export const RECORDED_PRE_RT_A4_TABLES").count(), 1);
+    let declared = &ts[ts.find("export const RECORDED_PRE_RT_A4_TABLES").unwrap()..];
+    let literal = &declared[declared.find("Object.freeze(").unwrap() + "Object.freeze(".len()..];
+    let (tokens, rest) = bracketed_tokens(literal, "TypeScript");
+    assert!(rest.starts_with(".map(variant => Object.freeze(variant)));"), "TypeScript: text after the registry: {:?}", &rest[..rest.len().min(60)]);
+    let typescript: Vec<[String; 3]> = entries(&tokens, '[', ']', "TypeScript").iter().map(|row| {
+        let mut values = std::collections::BTreeMap::new();
+        for field in entries(row, '{', '}', "TypeScript variant") {
+            let (key, value) = match field.as_slice() {
+                [Token::Name(key), Token::Punct(':'), Token::Name(name)] if key == "id" => (key.clone(), ts_constant(name)),
+                [Token::Name(key), Token::Punct(':'), Token::Str(value)] if key == "sha256" => (key.clone(), value.clone()),
+                [Token::Name(key), Token::Punct(':'), Token::Name(name)] if key == "text" => (key.clone(), ts_import(name)),
+                other => panic!("TypeScript: unrecognized field {other:?}"),
+            };
+            assert!(values.insert(key.clone(), value).is_none(), "TypeScript: {key} twice");
+        }
+        assert_eq!(values.len(), 3, "TypeScript: {values:?}");
+        [values["id"].clone(), values["sha256"].clone(), values["text"].clone()]
+    }).collect();
+    // Python: `{ (NAME, "…"): _RECORDED_DIR / "file", … }`.
+    let py = read_text("core/analysis_runs/compatibility.py");
+    let head = "\nRECORDED_PRE_RT_A4_TABLES = ";
+    assert_eq!(py.matches(head).count(), 1);
+    let (tokens, _) = bracketed_tokens(&py[py.find(head).unwrap() + head.len()..], "Python");
+    let py_constant = |name: &str| -> String {
+        let assigned: Vec<&str> = py.lines().filter_map(|line| line.strip_prefix(&format!("{name} = "))).collect();
+        assert_eq!(assigned.len(), 1, "Python: {name} is not assigned once at module level");
+        assigned[0].trim_matches('"').to_string()
+    };
+    let python: Vec<[String; 3]> = entries(&tokens, '{', '}', "Python").iter().map(|entry| match entry.as_slice() {
+        [Token::Punct('('), Token::Name(id), Token::Punct(','), Token::Str(sha), Token::Punct(')'), Token::Punct(':'), Token::Name(dir), Token::Punct('/'), Token::Str(file)] if dir == "_RECORDED_DIR" => {
+            [py_constant(id), sha.clone(), file.clone()]
+        }
+        other => panic!("Python: unrecognized entry {other:?}"),
+    }).collect();
+    assert_eq!(native.len(), 5, "{native:?}");
+    assert_eq!(typescript.iter().map(|[id, sha, _]| [id.clone(), sha.clone()]).collect::<Vec<_>>(), native, "the TypeScript registry");
+    assert_eq!(python.iter().map(|[id, sha, _]| [id.clone(), sha.clone()]).collect::<Vec<_>>(), native, "the Python registry");
+    for ([_, sha, ts_file], [_, _, py_file]) in typescript.iter().zip(&python) {
+        assert_eq!(ts_file, py_file, "both twins read one file per variant");
+        let bytes = std::fs::read(root().join("fixtures/results/recorded_pre_rt_a4").join(ts_file)).unwrap();
+        assert_eq!(&format!("{:x}", Sha256::digest(&bytes)), sha, "{ts_file}: the variant's verbatim bytes");
+    }
 }
 
 /// RT-A3 #99: main's verbatim pressure-2 runs recorded under each recorded table basis
@@ -490,6 +608,125 @@ fn recorded_basis_fixtures_reopen_natively_with_the_webviews_findings() {
 // ---------------------------------------------------------------------------
 // The connecting path: native Save / Record Run -> SQLite -> native reopen
 // ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// RT-A4 §10.4: a run recorded before RT-A4, through the native commands
+// ---------------------------------------------------------------------------
+
+const PRE_RT_A4_REPLIES: &str = "apps/desktop/src/test-support/native-reopen/native_reopen_pre_rt_a4_replies.json";
+const PRE_RT_A4_REQUESTS: &str = "apps/desktop/src/test-support/native-reopen/native_reopen_pre_rt_a4_requests.json";
+const PRE_RT_A4_CASE: &str = "saved-pre-rt-a4:preview-physics-2";
+
+/// The connecting path the desktop uses for a run recorded before RT-A4: main's preview-physics-2
+/// project (`recorded_pre_rt_a4_pf`, verbatim result and record, its model) stored in a real
+/// store, opened by the native open, read through the native result commands on the restored
+/// handle (each request the webview's historical panel sends, `native_reopen_pre_rt_a4_requests.json`,
+/// written by `nativeReopenPreRtA4.session.test.tsx` with NATIVE_REOPEN_RECORD=1), and re-saved
+/// from the handle. The handle holds the record's recorded table (host-established), reads S and
+/// row semantics under it, and stays historical: the bare verdict is still the current reader's
+/// refusal, a solve holding the same bytes reads under the current tables only, and re-save keeps
+/// the stored texts. NATIVE_REOPEN_REPLIES_WRITE=1 rewrites `native_reopen_pre_rt_a4_replies.json`.
+#[test]
+fn a_run_recorded_before_rt_a4_reopens_through_the_native_commands() {
+    use crate::native_persistence::tests::{repo_text, stringify_text};
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let dir = scratch("reopen-pre-rt-a4");
+    let path = dir.join("store.sqlite");
+    let builder = builder_cases();
+    let case = reopen_cases().into_iter().find(|case| case["id"] == PRE_RT_A4_CASE).expect("the corpus case");
+    let (result, record) = saved_run(&case, &builder);
+    // As the app's store holds a saved project: the values as JavaScript writes them.
+    let js = |value: &Value| -> Value { serde_json::from_str(&stringify_text(&serde_json::to_string(value).unwrap())).unwrap() };
+    let (result, record) = (js(&result), js(&record));
+    let project = saved_project(&case);
+    let project_id = crate::project_id_from_model(&project["model"]);
+    {
+        let (mut connection, _) = crate::open_project_store(&path).unwrap();
+        crate::upsert_project(&mut connection, &project_id, &crate::project_name_from_model(&project["model"]), &project["model"], &project["editor_intents"],
+            &project["proposal"], &project["selected_review_target"], &result, &record, &project["model_hash"], &project["project_envelope_hash"]).unwrap();
+    }
+    let stored = (column_text(&path, "SELECT mechanics_result_json FROM local_projects"), column_text(&path, "SELECT analysis_run_json FROM local_projects"));
+    let variant = json!({"id": "openpipestress.result_semantics/0.3.0/preview-physics-2", "sha256": "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2"});
+
+    // The native open: restored, read under the record's table, with the webview's findings.
+    let opened = native_open(&registry, &path, Some(&project_id)).unwrap();
+    let run = &opened["stored_run"];
+    assert_eq!(run["state"], "restored", "{run}");
+    let handle = run["handle"].as_str().unwrap().to_string();
+    assert_eq!(run["findings"]["recorded_table_read"], variant);
+    for key in ["findings", "check_findings", "recorded_table_read", "historical_reader_findings", "run_id"] {
+        assert_eq!(run["findings"][key], case["expected"][key], "{key}: the webview's reopen");
+    }
+    assert_eq!(run["recorded_dispatch"]["ok"], true, "{}", run["recorded_dispatch"]);
+    assert_eq!(run["recorded_dispatch"]["route"], "preview_physics");
+    assert_eq!(run["recorded_dispatch"]["binding"], variant);
+    assert_eq!(registry.recorded_table(&handle).map(|table| table.binding()), Some(variant.clone()), "the handle holds the record's table");
+
+    // Current admission is unaffected: the bare verdict is the current reader's, under the current
+    // table (not the record's), and it withholds the statement as before.
+    let verdict = &crate::native_replay_tests::reply(&registry, crate::native_verdict::COMMAND, &json!({"jobId": handle}))["value"];
+    assert_ne!(verdict["binding"], variant, "{verdict}");
+    assert_eq!(verdict["standing"]["eligible"], false, "{verdict}");
+    assert!(verdict["standing"]["findings"].as_array().unwrap().iter().any(|f| f == "SOURCE_PREVIEW_PHYSICS_FORMULATION_BASIS"), "{verdict}");
+
+    // S and row semantics on the handle read under its table; a solve holding the same bytes holds no table.
+    let summary = |job: &str| {
+        let (raw, lease) = crate::result_summary::reserve(&registry, &body(&json!({"jobId": job, "modelJson": "null", "standing": null})), &headers(Some(INGRESS_ARGS_JSON_V1))).unwrap();
+        let bytes = crate::result_summary::run(registry.clone(), raw, lease).unwrap();
+        crate::result_planes::decode(&bytes).unwrap().header["tables"]["results_panel"]["family_counts"].clone()
+    };
+    let semantics = |job: &str| {
+        let command = crate::result_detail::SEMANTICS_COMMAND;
+        let (raw, lease) = crate::result_detail::reserve(&registry, &body(&json!({"jobId": job, "ordinals": [0, 1, 2, 3]})), &headers(Some(INGRESS_ARGS_JSON_V1)), command).unwrap();
+        serde_json::from_str::<Value>(&crate::result_detail::run_semantics(registry.clone(), raw, lease).unwrap()).unwrap()
+    };
+    let restored_counts = summary(&handle);
+    assert!(restored_counts["displacement"].as_u64().unwrap() > 0 && restored_counts["other"] != restored_counts["total"], "{restored_counts}");
+    let restored_rows = semantics(&handle);
+    assert!(restored_rows.as_array().unwrap().iter().all(|outcome| outcome["ok"] == true && !outcome["signature"].is_null()), "{restored_rows}");
+    let solve = held(&registry, &gate, &stored.0, &stringify_text(&repo_text(REPLAY_MODEL)), "sparse_interactive", ResultCustody::Native);
+    assert_eq!(registry.recorded_table(&solve), None, "a solve holds no recorded table");
+    // The rows are the same under either table (only limitations, policy text and vocabulary moved):
+    // what the current reader withholds is the statement (its dispatch), not its rows.
+    assert_eq!(semantics(&solve), restored_rows, "the rows read alike under the current and the recorded table");
+    assert!(registry.dispose_result(&solve).unwrap().released);
+
+    // The webview historical panel's requests on the handle, answered by their actual commands.
+    let requests: Value = serde_json::from_str(&std::fs::read_to_string(root().join(PRE_RT_A4_REQUESTS)).unwrap_or_else(|_| "{\"requests\":[]}".into())).unwrap();
+    let answered: Vec<Value> = requests["requests"].as_array().unwrap().iter().map(|request| {
+        let command = request["command"].as_str().unwrap();
+        json!({"command": command, "args": request["args"], "reply": crate::native_replay_tests::reply(&registry, command, &with_handle(&request["args"], &handle))})
+    }).collect();
+
+    // Re-save from the handle keeps the stored texts byte for byte and the read under the table.
+    // The unchanged re-save, against the submitted path's bytes (`resave_matches_legacy`).
+    let base = opened["project_envelope_hash"]["value"].clone();
+    let args = crate::stored_save::tests::resave_args(&opened, &crate::stored_save::tests::opened_fields(&opened), "save", base, Value::Null);
+    let saved = crate::stored_save::tests::resave_matches_legacy(&registry, &path, &opened, &args, "pre-RT-A4 unchanged");
+    assert_eq!(saved["restored"]["findings"]["recorded_table_read"], variant, "{saved}");
+    assert_eq!(saved["restored"]["findings"]["findings"], case["expected"]["findings"], "the re-saved project's findings are unchanged");
+    assert_eq!(column_text(&path, "SELECT mechanics_result_json FROM local_projects"), stored.0, "the stored result is kept");
+    assert_eq!(column_text(&path, "SELECT analysis_run_json FROM local_projects"), stored.1, "the stored record is kept: no migration, no reseal");
+    assert!(registry.dispose_result(&handle).unwrap().released);
+    assert_eq!(registry.recorded_table(&handle), None, "disposal ends the held table with the handle");
+
+    let document = json!({
+        "document_kind": "swbpipe.desktop.native_reopen_pre_rt_a4_replies",
+        "note": "Written by stored_custody_tests.rs from the actual commands on a real store holding main's preview-physics-2 run recorded before RT-A4 (`fixtures/persistence/recorded_pre_rt_a4_pf`, the reopen corpus's `saved-pre-rt-a4:preview-physics-2`): the native open and the historical panel's reads on the restored handle (written $HANDLE; the store's path $STORE); NATIVE_REOPEN_REPLIES_WRITE=1 rewrites it.",
+        "case": PRE_RT_A4_CASE,
+        "open": {"command": OPEN_COMMAND, "args": {"projectId": project_id}, "reply": {"ok": true, "body": "json", "value": webview_value(opened, &handle)}},
+        "requests": answered,
+    });
+    let written = format!("{}\n", serde_json::to_string_pretty(&document).unwrap());
+    let target = root().join(PRE_RT_A4_REPLIES);
+    if std::env::var_os("NATIVE_REOPEN_REPLIES_WRITE").is_some() {
+        std::fs::write(&target, &written).unwrap();
+    }
+    assert!(std::fs::read_to_string(&target).unwrap_or_default() == written, "the committed pre-RT-A4 reopen replies are the commands' replies (NATIVE_REOPEN_REPLIES_WRITE=1 rewrites them)");
+    std::fs::remove_dir_all(&dir).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
 
 #[test]
 fn matching_diagnostics_are_capped_before_the_header_is_allocated() {

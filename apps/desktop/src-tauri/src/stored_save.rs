@@ -169,7 +169,7 @@ pub(crate) async fn save_project(
 ) -> Result<tauri::ipc::Response, CommandError<String>> {
     let (raw, lease) = persistence::reserve(registry, body, headers, COMMAND)?;
     let registry = registry.clone();
-    tauri::async_runtime::spawn_blocking(move || stored_read::respond_serialized(run_save(&registry, store, raw, lease, &SaveLimits::PRODUCTION, &crate::now_unix_seconds)))
+    tauri::async_runtime::spawn_blocking(move || open_pipe_stress_result_export::recorded_tables::entry_scope(move || stored_read::respond_serialized(run_save(&registry, store, raw, lease, &SaveLimits::PRODUCTION, &crate::now_unix_seconds))))
         .await
         .unwrap_or_else(|_| Err(CommandError::Command(PERSISTENCE_FAILED.into())))
 }

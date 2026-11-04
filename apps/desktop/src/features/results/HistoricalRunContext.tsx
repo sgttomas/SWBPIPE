@@ -366,15 +366,17 @@ async function contextOfRestored(
   };
 }
 
-/** A restored run's findings in their scopes (RT-A4 §10.4 display rule). Interim at this merge:
- * the native reopen makes no recorded read yet, so nothing is read under a recorded table and the
- * check findings are the record/binding findings as before. */
+/** A restored run's findings in their scopes (RT-A4 §10.4 display rule), as the native reopen
+ * (`analysis_run_v03_validate.rs`) computed them on the stored texts: the displayed findings, the
+ * checks' alone, the table a run recorded before RT-A4 was read under and the historical reader's
+ * findings under it. */
 function restoredScopes(found: RestoredRun["findings"]): Pick<HistoricalRunContext, "findings" | "checkFindings" | "recordedTableRead" | "historicalReaderFindings"> {
+  const table = found.recorded_table_read;
   return {
     findings: [...found.findings],
-    checkFindings: found.findings.filter((finding) => /^(HISTORICAL_|RECORDED_RUN_|ANALYSIS[_-])/.test(finding)),
-    recordedTableRead: null,
-    historicalReaderFindings: []
+    checkFindings: [...found.check_findings],
+    recordedTableRead: table ? { id: table.id, sha256: table.sha256 } : null,
+    historicalReaderFindings: table ? [...found.historical_reader_findings] : []
   };
 }
 

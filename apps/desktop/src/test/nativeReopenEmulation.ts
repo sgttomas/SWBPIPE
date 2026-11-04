@@ -26,6 +26,17 @@ import { nativeReplayReply } from "./nativeReplayStore";
 /** `nativeReopen.ts`'s `RESTORED_HANDLE_PREFIX`. */
 const RESTORED_HANDLE_PREFIX = "restored-stored-result-";
 const contexts = () => import("../features/results/HistoricalRunContext");
+const readers = () => import("../features/results/resultReader");
+
+/** RT-A4 §10.4: the context's findings in their scopes, as the native reopen sends them. */
+function scopedFindings(context: Json, members: Json) {
+  return { findings: context.findings, check_findings: context.checkFindings, recorded_table_read: context.recordedTableRead, historical_reader_findings: context.historicalReaderFindings, ...members };
+}
+/** The recorded dispatch (no model) under the context's recorded table, for a renderable run read under one. */
+async function recordedDispatch(context: Json): Promise<unknown> {
+  if (!context.recordedTableRead || context.mechanicsResult === null) return null;
+  return (await readers()).recordedReaderDispatch(context.mechanicsResult, context.recordedTableRead);
+}
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 type AnyInvoke = (command: string, args?: unknown, options?: unknown) => unknown;
@@ -62,7 +73,7 @@ function header(record: unknown): Json {
   return { record: copy, rule_pack_ref_diagnostics: diagnostics, ...counts, carried_members: carried };
 }
 
-function restored(origin: string, kind: string, projectId: string, recordingId: string | null, result: unknown, record: unknown, context: Json, modelHash: Json = null) {
+function restored(origin: string, kind: string, projectId: string, recordingId: string | null, result: unknown, record: unknown, context: Json, dispatch: unknown, modelHash: Json = null) {
   const handle = `${RESTORED_HANDLE_PREFIX}emulated-${++sequence}`;
   const resultText = jsonTextKeepingNegativeZero(result ?? null), recordText = JSON.stringify(record ?? null);
   const source = { kind, project_id: projectId, recording_id: recordingId, result_sha256: "unit-emulation", record_sha256: "unit-emulation" };
@@ -72,7 +83,8 @@ function restored(origin: string, kind: string, projectId: string, recordingId: 
     source,
     result_bytes: new TextEncoder().encode(resultText).length, record_bytes: new TextEncoder().encode(recordText).length,
     result_present: result != null, record_present: record != null,
-    findings: { findings: context.findings, run_id: context.runId, renderable: context.mechanicsResult !== null, mechanics: context.mechanicsResult?.status?.mechanics ?? null, envelope_payload_hash: context.envelopePayloadHash, model_hash: context.modelHash },
+    findings: scopedFindings(context, { run_id: context.runId, renderable: context.mechanicsResult !== null, mechanics: context.mechanicsResult?.status?.mechanics ?? null, envelope_payload_hash: context.envelopePayloadHash, model_hash: context.modelHash }),
+    recorded_dispatch: dispatch,
     record_header: header(record), record_header_bytes: null
   };
 }
@@ -87,7 +99,7 @@ export function emulateNativeReopen(mock: AnyInvoke, command: string, args: Json
       if (withheld) throw new Error("NATIVE_REOPEN_EMULATION: a withheld legacy envelope has no native counterpart; answer the native command directly");
       if (result == null && record == null) return { ...members, stored_run: { state: "none" } };
       const context = await (await contexts()).buildHistoricalRunContext(envelope);
-      return { ...members, stored_run: { state: "restored", ...restored("restored_saved_run", "saved_project_run", envelope.model?.project?.id ?? "", null, result, record, context, envelope.model_hash ?? null) } };
+      return { ...members, stored_run: { state: "restored", ...restored("restored_saved_run", "saved_project_run", envelope.model?.project?.id ?? "", null, result, record, context, await recordedDispatch(context), envelope.model_hash ?? null) } };
     })();
   }
   if (command === READ) {
@@ -96,7 +108,7 @@ export function emulateNativeReopen(mock: AnyInvoke, command: string, args: Json
       const context = await (await contexts()).buildRecordedRunContext(read);
       let result: unknown = null;
       try { result = JSON.parse(read.result_json); } catch { result = read.result_json; }
-      return { run: read.run, state: read.state, input_manifest_canonical: read.input_manifest_canonical, restored: restored("restored_recorded_run", "recorded_run", read.run.project_id, read.run.recording_id, result, read.record, context) };
+      return { run: read.run, state: read.state, input_manifest_canonical: read.input_manifest_canonical, restored: restored("restored_recorded_run", "recorded_run", read.run.project_id, read.run.recording_id, result, read.record, context, await recordedDispatch(context)) };
     })();
   }
   const jobId = typeof args?.jobId === "string" ? args.jobId : null;
@@ -149,7 +161,7 @@ async function emulatedRestoredSave(mock: AnyInvoke, jobId: string, entry: Held,
     result: { outcome: "saved", run_id: context.runId, result_bytes: length(stored.mechanics_result), record_bytes: length(stored.analysis_run) },
     restored: {
       handle: jobId, origin: "restored_saved_run", source: entry.source,
-      findings: { findings: context.findings, run_id: context.runId, renderable: context.mechanicsResult !== null, mechanics: null, envelope_payload_hash: context.envelopePayloadHash, model_hash: null },
+      findings: scopedFindings(context, { run_id: context.runId, renderable: context.mechanicsResult !== null, mechanics: null, envelope_payload_hash: context.envelopePayloadHash, model_hash: null }),
       envelope_payload_hash: computed?.value ?? "", envelope_basis_kept: kept
     }
   };

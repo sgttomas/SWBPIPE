@@ -46,7 +46,7 @@ pub(crate) fn native_resave(registry: &SolveJobRegistry, path: &Path, args: &Val
 }
 
 /// The session's project fields after the open (`opened`'s own, as the session adopts them).
-fn opened_fields(opened: &Value) -> Value {
+pub(crate) fn opened_fields(opened: &Value) -> Value {
     json!({
         "model": opened["model"],
         "editorIntents": if opened["editor_intents"].is_null() { json!([]) } else { opened["editor_intents"].clone() },
@@ -155,7 +155,7 @@ fn revision(path: &Path, project_id: &str) -> String {
 /// of it made first; the two stores' project and search rows must be equal
 /// (but the save times), the reply must report what was stored, and its
 /// findings must be what the native reopen of the stored project gives.
-fn resave_matches_legacy(registry: &SolveJobRegistry, path: &Path, opened: &Value, args: &Value, id: &str) -> Value {
+pub(crate) fn resave_matches_legacy(registry: &SolveJobRegistry, path: &Path, opened: &Value, args: &Value, id: &str) -> Value {
     let project_id = crate::project_id_from_model(&args["model"]);
     // The legacy session's copy was of the texts the handle holds.
     let handle = args["jobId"].as_str().unwrap();

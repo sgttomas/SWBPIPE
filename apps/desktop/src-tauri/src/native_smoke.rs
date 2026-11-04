@@ -316,7 +316,7 @@ pub async fn native_smoke_profile_readers(
     )?;
     let raw = raw.to_vec();
     let registry = registry.inner().clone();
-    tauri::async_runtime::spawn_blocking(move || profile_readers(&registry, raw, lease))
+    tauri::async_runtime::spawn_blocking(move || open_pipe_stress_result_export::recorded_tables::entry_scope(move || profile_readers(&registry, raw, lease)))
         .await
         .map_err(|_| {
             command_ingress::CommandError::Command(
@@ -542,7 +542,7 @@ fn profile_readers(
             health: crate::result_summary_tables::health_view(&health),
         });
     let (summary, summary_metrics) = profile_phase(|| {
-        crate::result_summary::build(&job, &source, &model, Some(&standing), &health, |bytes| {
+        crate::result_summary::build(&job, &source, &model, Some(&standing), &health, None, |bytes| {
             registry.acquire_result_parse(bytes)
         })
     });

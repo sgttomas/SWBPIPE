@@ -34,6 +34,8 @@ import {
   type NativeResult
 } from "./nativeResult";
 import type { AnalysisRunEnvelope, LocalProjectEnvelope, MechanicsResult } from "../types";
+import type { ReaderDispatch } from "../features/results/resultReader";
+import { recordedPreRtA4Binding } from "./recordedPreRtA4";
 import type { AnalysisRunSummary } from "./analysisRunService";
 import type { ModelStateSummary } from "./modelStateService";
 
@@ -47,9 +49,14 @@ export const STORED_RESULT_RESTORE_REFUSED = "STORED-RESULT-RESTORE-REFUSED";
 /** The prefix of a restored handle (a solve's is `backend-solve-job-`). */
 export const RESTORED_HANDLE_PREFIX = "restored-stored-result-";
 
-/** The native findings of a reopened run (`HistoricalFindings`). */
+/** The native findings of a reopened run (`HistoricalFindings`), in RT-A4 §10.4's scopes: `findings`
+ * (displayed), `check_findings` (the checks' alone) and, for a run recorded before RT-A4, the table
+ * it was read under and the historical reader's findings under it. */
 export type RestoredFindings = Readonly<{
   findings: readonly string[];
+  check_findings: readonly string[];
+  recorded_table_read: Readonly<{ id: string; sha256: string }> | null;
+  historical_reader_findings: readonly string[];
   run_id: string;
   renderable: boolean;
   mechanics: string | null;
@@ -67,6 +74,9 @@ export type RestoredRun = Readonly<{
   result_present: boolean;
   record_present: boolean;
   findings: RestoredFindings;
+  /** RT-A4 §10.4: the recorded dispatch (no model) under `findings.recorded_table_read`, for a
+   * renderable run read under one; null otherwise. */
+  recorded_dispatch: ReaderDispatch | null;
   /** `{record, result_ref_count, diagnostic_count, carried_members}`: the stored record without its
    * row-scale members, or null with `record_header_bytes` above the header limit. */
   record_header: Json;
@@ -103,6 +113,15 @@ function decodeRestored(value: unknown, origin: RestoredRun["origin"]): Restored
   if (!isCount(value.result_bytes) || !isCount(value.record_bytes) || typeof value.result_present !== "boolean" || typeof value.record_present !== "boolean") malformed("the restored lengths are not readable");
   const found = value.findings;
   if (!plain(found) || !Array.isArray(found.findings) || !found.findings.every(isText) || !isText(found.run_id) || typeof found.renderable !== "boolean") malformed("the findings are not readable");
+  if (!Array.isArray(found.check_findings) || !found.check_findings.every(isText) || !Array.isArray(found.historical_reader_findings) || !found.historical_reader_findings.every(isText)) malformed("the findings' scopes are not readable");
+  // RT-A4 §10.4: a recorded table is exactly a registry variant's binding; without one there is no
+  // historical reader finding and no recorded dispatch.
+  const table = found.recorded_table_read;
+  if (table !== null && (!plain(table) || Object.keys(table).length !== 2 || recordedPreRtA4Binding(table) === null)) malformed("the recorded table is not a registry variant");
+  if (table === null && found.historical_reader_findings.length > 0) malformed("historical reader findings without a recorded table");
+  const dispatch = value.recorded_dispatch;
+  if (!(dispatch === null || (table !== null && found.renderable && plain(dispatch) && typeof dispatch.ok === "boolean" && isText(dispatch.route) && plain(dispatch.standing)))) malformed("the recorded dispatch is not readable");
+  if (table !== null && found.renderable && dispatch === null) malformed("a renderable recorded run has no recorded dispatch");
   if (!(value.record_header === null ? isCount(value.record_header_bytes) : plain(value.record_header) && value.record_header_bytes === null)) malformed("the record header is not readable");
   // The header never carries a row-scale member.
   const record = plain(value.record_header) ? value.record_header.record : null;
@@ -154,6 +173,7 @@ export async function restoredNativeResult(restored: RestoredRun): Promise<Nativ
   const jobId = restored.handle;
   const summary = await readNativeSummary(jobId, RESTORED_SUMMARY_MODEL_TEXT, null);
   const verdict = await readNativeVerdict(jobId, {});
+  const recordedTable = restored.findings.recorded_table_read;
   const recovery = verdict.route === "pressure_source" || summary.header.omitted_members.includes("source_block_recovery") ? await queryNativeRecovery(jobId, 0, 1) : null;
   return createNativeResult({
     jobId,
@@ -163,7 +183,10 @@ export async function restoredNativeResult(restored: RestoredRun): Promise<Nativ
     verdict,
     // Never bound to a model's standing: a restored run has no current standing.
     binding: { standingModelText: "\u0000restored", invocationText: null, summaryModelText: RESTORED_SUMMARY_MODEL_TEXT, standing: null },
-    recovery
+    recovery,
+    // RT-A4 §10.4: the table the native readers of this handle read under, and its recorded dispatch.
+    recordedTable: recordedTable ? { id: recordedTable.id, sha256: recordedTable.sha256 } : null,
+    recordedVerdict: recordedTable ? restored.recorded_dispatch : null
   });
 }
 

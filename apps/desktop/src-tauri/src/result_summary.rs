@@ -55,7 +55,8 @@ use crate::native_verdict;
 use crate::result_planes;
 use crate::result_summary_tables::{self as tables, Standing};
 use crate::solve_jobs::SolveJobRegistry;
-use open_pipe_stress_result_export::{reader_verdict as rv, semantic_contract};
+use crate::analysis_run_v03_validate::RecordedTable;
+use open_pipe_stress_result_export::{reader_verdict as rv, recorded_tables, semantic_contract};
 use serde::Deserialize;
 use serde_json::{json, Map, Value};
 use tauri::http::HeaderMap;
@@ -107,7 +108,7 @@ pub(crate) fn reserve(registry: &SolveJobRegistry, body: &InvokeBody, headers: &
 pub(crate) async fn summary(registry: &SolveJobRegistry, body: &InvokeBody, headers: &HeaderMap) -> Result<Vec<u8>, CommandError<String>> {
     let (raw, lease) = reserve(registry, body, headers)?;
     let registry = registry.clone();
-    tauri::async_runtime::spawn_blocking(move || run(registry, raw, lease))
+    tauri::async_runtime::spawn_blocking(move || open_pipe_stress_result_export::recorded_tables::entry_scope(move || run(registry, raw, lease)))
         .await
         .unwrap_or_else(|_| Err(CommandError::Command(SUMMARY_READ_FAILED.into())))
 }
@@ -153,7 +154,7 @@ pub(crate) fn run(registry: SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> Resu
     let source = native_verdict::diagnostic_phase(call, "source_parse", held.text().len() as u64, || parse("source", held.text()))?;
     let model = native_verdict::diagnostic_phase(call, "inputs_parse", model_json.len() as u64, || parse("model", &model_json))?;
     let standing = standing.map(|s| Standing { eligible: s.eligible, health: tables::health_view(&health) });
-    let (response, written) = native_verdict::diagnostic_phase(call, "summary_build", 0, || build(&job_id, &source, &model, standing.as_ref(), &health, |bytes| registry.acquire_result_parse(bytes)))?;
+    let (response, written) = native_verdict::diagnostic_phase(call, "summary_build", 0, || build(&job_id, &source, &model, standing.as_ref(), &health, registry.recorded_table(&job_id), |bytes| registry.acquire_result_parse(bytes)))?;
     native_verdict::diagnostic_phase(call, "source_drop", 0, || { drop((written, source, model, reading, held, lease)); Ok::<_, CommandError<String>>(()) })?;
     Ok(response)
 }
@@ -170,10 +171,23 @@ fn parse(label: &str, text: &str) -> Result<Value, CommandError<String>> {
 /// the signature of `semantic_contract::signature_in`), with no outcome
 /// materialized per row. A source without a table, a refused row, a row
 /// without a signature, or one not a physical quantity is `other`.
-pub(crate) fn family_counts(source: &Value) -> Value {
+pub(crate) fn family_counts(source: &Value, recorded: Option<RecordedTable>) -> Value {
     let rows = tables::rows(source);
-    let table = rv::route(source).ok().map(|(_, table)| table);
+    let table = route_table(source, recorded);
     tables::family_counts(rows.len(), rows.iter().map(|row| row_family(table, row)))
+}
+
+/// The table a held result's rows are read under: its route's
+/// (`reader_verdict::route`). RT-A4 §10.4: under a restored run's held
+/// recorded table (`semanticLabels(result, recordedTableRead)`), the route's
+/// inside the recorded read (`recorded_tables::read_recorded`), and none when
+/// that read refuses the binding, as `recordedReaderRowSemantics` refuses every
+/// row; it never falls back to the current table.
+pub(crate) fn route_table(source: &Value, recorded: Option<RecordedTable>) -> Option<&'static Value> {
+    let Some(table) = recorded else { return rv::route(source).ok().map(|(_, table)| table) };
+    let id = source["producer"]["semantic_contract_id"].as_str().unwrap_or_default();
+    let current = rv::current_binding(id).map(|sha| (id, sha));
+    recorded_tables::read_recorded(&table.binding(), source, current, || rv::route(source).ok().map(|(_, table)| table)).ok().flatten()
 }
 
 /// A row's family under the source's table (`semanticLabels(result).family`),
@@ -237,12 +251,16 @@ fn envelope(source: &Value) -> (Value, Value, Value) {
 /// S's bytes for a parsed source and model, the caller's standing and the
 /// numerical health, after `reserve` admits the response's exact length
 /// (whose guard is returned with them).
+/// `recorded`: a restored run's held recorded table (RT-A4 §10.4), under which
+/// its rows' families are read ([`route_table`]).
+#[allow(clippy::too_many_arguments)]
 pub(crate) fn build<R, E>(
     job_id: &str,
     source: &Value,
     model: &Value,
     standing: Option<&Standing>,
     health: &Value,
+    recorded: Option<RecordedTable>,
     reserve: impl FnOnce(u64) -> Result<R, E>,
 ) -> Result<(Vec<u8>, R), E> {
     let rows = tables::rows(source);
@@ -271,7 +289,7 @@ pub(crate) fn build<R, E>(
         "standing": standing.map(|s| json!({"eligible": s.eligible, "health_view": s.health.is_some()})),
         "tables": {
             "results_panel": {
-                "family_counts": family_counts(source),
+                "family_counts": family_counts(source, recorded),
                 "frame_counts": tables::frame_counts(source),
                 "navigator_cases": tables::navigator_cases(source),
             },

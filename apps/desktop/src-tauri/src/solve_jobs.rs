@@ -493,6 +493,15 @@ pub(crate) struct RestoredSource {
     pub recording_id: Option<String>,
     pub result_sha256: String,
     pub record_sha256: Option<String>,
+    /// RT-A4 §10.4: the registry variant the stored record binds (a run
+    /// recorded before RT-A4), established by the host from the stored
+    /// record at restoration (`analysis_run_v03_validate::recorded_record_binding`),
+    /// never from a request. The native readers of this handle (S, row
+    /// semantics, the detail filter and navigator) read under it; nothing
+    /// else does, and it grants no standing. Sent as the findings'
+    /// `recorded_table_read`.
+    #[serde(skip)]
+    pub recorded_table: Option<crate::analysis_run_v03_validate::RecordedTable>,
 }
 
 /// What a restored saved project run's re-save takes from its stored project
@@ -1592,6 +1601,18 @@ impl SolveJobRegistry {
             .as_ref()
             .map(Arc::clone)
             .ok_or_else(|| SolveJobError::invalid(format!("PREVIEW-SOLVE-RESULT-UNAVAILABLE: {job_id} holds no stored record")))
+    }
+
+    /// RT-A4 §10.4: the recorded table a held restored result is read under
+    /// ([`RestoredSource::recorded_table`]); `None` for a solve, a restored
+    /// run read under the current tables, an unknown job or after disposal.
+    pub(crate) fn recorded_table(&self, job_id: &str) -> Option<crate::analysis_run_v03_validate::RecordedTable> {
+        let table = self.table();
+        let record = table.records.get(job_id).filter(|record| record.result.is_some())?;
+        match &record.origin {
+            ResultOrigin::Restored(source) => source.recorded_table,
+            ResultOrigin::Solve => None,
+        }
     }
 
     /// A restored saved run's re-save basis ([`RestoredBasis`]); `None` for a

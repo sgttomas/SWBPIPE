@@ -462,7 +462,7 @@ pub(crate) async fn record_run(
     let (raw, lease) = reserve(registry, body, headers, RECORD_COMMAND)?;
     let registry = registry.clone();
     // The response is handed over inside the task, its lease released after it.
-    tauri::async_runtime::spawn_blocking(move || stored_read::respond_serialized(run_record(&registry, store, raw, lease, &analysis_runs::PRODUCTION_RUN_HOOKS, None)))
+    tauri::async_runtime::spawn_blocking(move || open_pipe_stress_result_export::recorded_tables::entry_scope(move || stored_read::respond_serialized(run_record(&registry, store, raw, lease, &analysis_runs::PRODUCTION_RUN_HOOKS, None))))
         .await
         .unwrap_or_else(|_| Err(CommandError::Command(PERSISTENCE_FAILED.into())))
 }
@@ -772,7 +772,7 @@ pub(crate) async fn save_project(
 ) -> Result<tauri::ipc::Response, CommandError<String>> {
     let (raw, lease) = reserve(registry, body, headers, SAVE_COMMAND)?;
     let registry = registry.clone();
-    tauri::async_runtime::spawn_blocking(move || stored_read::respond_serialized(run_save(&registry, store, raw, lease, &SaveLimits::PRODUCTION, &crate::now_unix_seconds)))
+    tauri::async_runtime::spawn_blocking(move || open_pipe_stress_result_export::recorded_tables::entry_scope(move || stored_read::respond_serialized(run_save(&registry, store, raw, lease, &SaveLimits::PRODUCTION, &crate::now_unix_seconds))))
         .await
         .unwrap_or_else(|_| Err(CommandError::Command(PERSISTENCE_FAILED.into())))
 }

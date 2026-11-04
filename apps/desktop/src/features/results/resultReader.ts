@@ -338,9 +338,19 @@ export function sourceContract(source: MechanicsResult | NativeResult): SourceCo
  * without one (every current caller) this is `sourceContract`. Display only: it grants no
  * standing and no current path passes a table. */
 export function displayRoute(source: MechanicsResult | NativeResult, recordedTableRead?: ContractBinding | null): SourceContract {
-  // C1: a native handle has no recorded read here; a table never falls back to its current route.
-  if (isNativeResult(source)) return recordedTableRead ? "unsupported" : sourceContract(source);
+  // C1: a native handle's recorded dispatch is the native reopen's, under the table its custody holds
+  // (`stored_custody`); a table other than that one (or a handle with none) is refused, never read
+  // under the current reader.
+  if (isNativeResult(source)) {
+    if (!recordedTableRead) return sourceContract(source);
+    const { recordedTable, recordedVerdict } = nativeCustody(source);
+    return sameContractBinding(recordedTable ?? null, recordedTableRead) && recordedVerdict ? recordedVerdict.route : "unsupported";
+  }
   return recordedTableRead ? recordedReaderDispatch(source, recordedTableRead).route : sourceContract(source);
+}
+/** Two table bindings are the same table: both absent, or the same id and digest. */
+export function sameContractBinding(a: ContractBinding | null | undefined, b: ContractBinding | null | undefined): boolean {
+  return (a ?? null) === null ? (b ?? null) === null : !!b && a!.id === b.id && a!.sha256 === b.sha256;
 }
 /** The route's pinned table binding; throws SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED for a
  * statement the dispatch refuses. */

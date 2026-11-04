@@ -47,21 +47,28 @@ export const RECORDED_BASIS_FIXTURES = [
   "fixtures/persistence/recorded_model_0_8_0",
   "fixtures/persistence/recorded_model_0_9_0_pre_2a",
   "fixtures/persistence/recorded_model_0_9_0_pre_2b",
+  "fixtures/persistence/recorded_model_0_9_0_pre_ce",
+  "fixtures/persistence/recorded_model_0_9_0_pre_rt_a4",
 ] as const;
 const FIXTURE_RECORD = "pressure_plain_connected_sparse.analysis_run.json";
 const FIXTURE_SOURCE = "pressure_connected_mechanics_sparse.json";
 const FIXTURE_REQUEST = "exact_pressure_connected_request.json";
 
 type Project = { model: Json; editor_intents: Json; proposal: Json; selected_review_target: Json; model_hash: Json; project_envelope_hash: Json };
-type Expected = { findings: string[]; run_id: string; envelope_payload_hash: string | null; model_hash: Json } | { absent: true };
+/** The contexts' findings in RT-A4 §10.4's scopes (`findings`, `checkFindings`, `recordedTableRead`,
+ * `historicalReaderFindings`), with the run's name and recomputed hash. */
+type Expected = { findings: string[]; check_findings: string[]; recorded_table_read: Json; historical_reader_findings: string[]; run_id: string; envelope_payload_hash: string | null; model_hash: Json } | { absent: true };
+/** A committed fixture file's value at a JSON pointer ("" for the whole file; a recorded case's
+ * whole result is the file's exact text). Read, never copied or rewritten. */
+export type FileRef = { path: string; pointer: string };
 /** A saved case's run: embedded, or (`base`) the builder corpus case whose held text and record it is. */
-export type SavedCase = { id: string; kind: "saved"; project: Project; project_text?: string; base?: string; fixture?: string; patches?: Patch[]; reseal?: boolean; mechanics_result?: Json; analysis_run?: Json; expected: Expected };
+export type SavedCase = { id: string; kind: "saved"; project: Project; project_text?: string; base?: string; fixture?: string; files?: { result: FileRef; record: FileRef }; patches?: Patch[]; reseal?: boolean; mechanics_result?: Json; analysis_run?: Json; expected: Expected };
 type RecordedRead = { run: { state_id: string; producer_run_id: string; run_record_hash: string }; state: { state_id: string; project_id: string; model_hash: string }; record: Json; result_json: string; input_manifest_canonical: string };
 /** A recorded case's read: embedded, or (`fixture`) a recorded-basis fixture's source text and its
  * record with `record_patches` applied. */
 export type RecordedCase = {
   id: string; kind: "recorded";
-  read: RecordedRead | (Omit<RecordedRead, "record" | "result_json"> & { fixture: string; record_patches: Patch[] });
+  read: RecordedRead | (Omit<RecordedRead, "record" | "result_json"> & { fixture: string; record_patches: Patch[] }) | (Omit<RecordedRead, "record" | "result_json"> & { files: { result: FileRef; record: FileRef } });
   expected: Expected;
 };
 export type ReopenCase = SavedCase | RecordedCase;
@@ -105,7 +112,7 @@ async function savedExpected(p: Project, result: Json, record: Json): Promise<Ex
   const opened = { summary: {}, ...clone(p), mechanics_result: clone(result), analysis_run: clone(record) } as unknown as LocalProjectEnvelope;
   const context = await buildHistoricalRunContext(opened);
   if (!context) return { absent: true };
-  return { findings: context.findings, run_id: context.runId, envelope_payload_hash: context.envelopePayloadHash, model_hash: null };
+  return { findings: context.findings, check_findings: context.checkFindings, recorded_table_read: context.recordedTableRead, historical_reader_findings: context.historicalReaderFindings, run_id: context.runId, envelope_payload_hash: context.envelopePayloadHash, model_hash: null };
 }
 
 async function saved(id: string, p: Project, result: Json, record: Json, base?: string): Promise<SavedCase> {
@@ -206,7 +213,7 @@ async function savedCases(base: Array<{ c: AnalysisRunV03Case; source: Json; rec
 
 async function recordedExpected(read: RecordedRead): Promise<Expected> {
   const context = await buildRecordedRunContext({ run: clone(read.run), state: clone(read.state), record: clone(read.record), result_json: read.result_json, input_manifest_canonical: read.input_manifest_canonical } as unknown as AnalysisRunRead);
-  return { findings: context.findings, run_id: context.runId, envelope_payload_hash: null, model_hash: context.modelHash };
+  return { findings: context.findings, check_findings: context.checkFindings, recorded_table_read: context.recordedTableRead, historical_reader_findings: context.historicalReaderFindings, run_id: context.runId, envelope_payload_hash: null, model_hash: context.modelHash };
 }
 
 async function recordedCases(base: Array<{ c: AnalysisRunV03Case; source: Json; record: Json }>): Promise<RecordedCase[]> {
@@ -301,6 +308,63 @@ async function recordedBasisCases(): Promise<{ saved: SavedCase[]; recorded: Rec
   return { saved, recorded };
 }
 
+const PRE_RT_A4 = "fixtures/persistence/recorded_pre_rt_a4_pf";
+const file = (path: string, pointer = ""): FileRef => ({ path, pointer });
+function fileValue(ref: FileRef): Json {
+  const value = JSON.parse(readFileSync(resolve(ROOT, ref.path), "utf8"));
+  return ref.pointer.split("/").slice(1).reduce((at: Json, key: string) => at[key.replace(/~1/g, "/").replace(/~0/g, "~")], value);
+}
+/** RT-A4 §10.4: main's runs recorded before RT-A4 (`recorded_pre_rt_a4_pf`, verbatim), one per
+ * registry variant with a renderable record, each as a saved project's run (its model as
+ * `recordedPreRtA4Display.test.tsx` reopens it); the preview-physics-2 run also with its binding's
+ * digest unknown (read under the current tables: no recorded read, no historical finding), and
+ * main's recorded revision of it as a recorded run read from the store. */
+async function preRtA4Cases(): Promise<{ saved: SavedCase[]; recorded: RecordedCase[] }> {
+  const pf2 = `${PRE_RT_A4}/preview_physics_2`, timoshenko = `${PRE_RT_A4}/preview_physics_timoshenko_1`;
+  const transient = file(`${pf2}/transient_run_input.json`);
+  const retained = (dir: string, name: string) => ({ result: file(`${PRE_RT_A4}/${dir}/${name}.json`, "/source"), record: file(`${PRE_RT_A4}/${dir}/${name}.analysis_run.json`), model: () => fileValue(file(`${PRE_RT_A4}/${dir}/${name}.json`, "/invocation/request/model")) });
+  const variants: Array<{ name: string; result: FileRef; record: FileRef; model: () => Json }> = [
+    { name: "preview-physics-2", result: file(`${pf2}/preview_physics_connected_sparse.json`), record: file(transient.path, "/run_record"),
+      model: () => JSON.parse(fileValue(file(transient.path, "/input_manifest_canonical"))).model_basis.model_payload },
+    { name: "preview-physics-timoshenko-1", result: file(`${timoshenko}/preview_physics_timoshenko_straight_sparse.json`), record: file(`${timoshenko}/preview_physics_timoshenko_straight_sparse.analysis_run.json`),
+      // Main holds no model of this statement (fixture README, "Gap"): one naming its project and load cases.
+      model: () => {
+        const source = fileValue(file(`${timoshenko}/preview_physics_timoshenko_straight_sparse.json`));
+        const cases = [...new Set((source.results as Json[]).flatMap((row) => (row.basis_ref?.ref_type === "load_case" ? [row.basis_ref.ref_id] : [])))];
+        return { schema_version: "0.9.0", project: { id: source.model_ref }, model_settings: { shear_model: "timoshenko_annulus_energy_v1" }, load_cases: cases.map((id) => ({ id })), diagnostics: [] };
+      } },
+    { name: "preview-physics-retained-1", ...retained("preview_physics_retained_1", "retained_precision_milestone_successor_sparse_interactive") },
+    { name: "physics-retained-1-main", ...retained("physics_retained_1/main", "retained_precision_exact_successor_sparse_interactive") },
+    { name: "physics-retained-1-pr101", ...retained("physics_retained_1/pr101", "retained_precision_exact_successor_sparse_interactive") },
+  ];
+  const saved: SavedCase[] = [];
+  for (const variant of variants) {
+    const result = fileValue(variant.result), record = fileValue(variant.record);
+    const p = await project(clone(variant.model()), result, record);
+    saved.push({ id: `saved-pre-rt-a4:${variant.name}`, kind: "saved", project: p, files: { result: variant.result, record: variant.record }, expected: await savedExpected(p, result, record) });
+    if (variant.name === "preview-physics-2") {
+      // An unknown digest names no variant: the run is read under the current tables, as before.
+      const patches: Patch[] = [{ on: "record", path: ["analysis_run", "reproducibility", "semantic_contract", "sha256"], op: "set", value: "0".repeat(64) }];
+      const patched = applyPatches({ record: clone(record) } as Record<string, Json>, patches).record;
+      const q = await project(clone(variant.model()), result, patched);
+      saved.push({ id: `saved-pre-rt-a4:${variant.name}:unknown-digest`, kind: "saved", project: q, files: { result: variant.result, record: variant.record }, patches, expected: await savedExpected(q, result, patched) });
+    }
+  }
+  // main's recorded revision of its preview-physics-2 run, as the store returns it.
+  const witness = fileValue(file(`${pf2}/recorded_run_witness.json`));
+  const manifestText = fileValue(file(transient.path, "/input_manifest_canonical")) as string;
+  const read: RecordedRead = {
+    run: { state_id: witness.state_id, producer_run_id: witness.recorded_record.analysis_run.run_id, run_record_hash: witness.run_record_hash },
+    state: { state_id: witness.state_id, project_id: JSON.parse(manifestText).model_basis.model_ref, model_hash: witness.state_model_hash },
+    record: witness.recorded_record, result_json: readFileSync(resolve(ROOT, `${pf2}/preview_physics_connected_sparse.json`), "utf8"), input_manifest_canonical: manifestText,
+  };
+  const { record: _record, result_json: _result, ...rest } = read;
+  const recorded: RecordedCase[] = [{ id: "recorded-pre-rt-a4:preview-physics-2", kind: "recorded",
+    read: { ...rest, files: { result: file(`${pf2}/preview_physics_connected_sparse.json`), record: file(`${pf2}/recorded_run_witness.json`, "/recorded_record") } },
+    expected: await recordedExpected(read) }];
+  return { saved, recorded };
+}
+
 export type HistoricalReopenCases = Readonly<{ document_kind: string; version: number; note: string; cases: ReopenCase[] }>;
 
 /** Every case, in a fixed order, with the TypeScript contexts' findings. */
@@ -308,7 +372,8 @@ export async function historicalReopenCases(): Promise<HistoricalReopenCases> {
   const builder = JSON.parse(readFileSync(resolve(ROOT, BUILDER_CASES), "utf8")) as { cases: AnalysisRunV03Case[] };
   const base = builder.cases.filter(c => "record" in c.expected).map(c => ({ c, source: JSON.parse(heldText(c.source)), record: (c.expected as { record: Json }).record }));
   const basis = await recordedBasisCases();
-  const cases: ReopenCase[] = [...(await savedCases(base)), ...basis.saved, ...(await recordedCases(base)), ...basis.recorded];
+  const preRtA4 = await preRtA4Cases();
+  const cases: ReopenCase[] = [...(await savedCases(base)), ...basis.saved, ...preRtA4.saved, ...(await recordedCases(base)), ...basis.recorded, ...preRtA4.recorded];
   const ids = new Set(cases.map(c => c.id));
   if (ids.size !== cases.length) throw new Error("duplicate case ids");
   return {

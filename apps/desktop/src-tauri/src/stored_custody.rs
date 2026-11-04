@@ -223,6 +223,12 @@ pub(crate) struct RestoredRun {
     pub(crate) result_present: bool,
     pub(crate) record_present: bool,
     pub(crate) findings: HistoricalFindings,
+    /// RT-A4 §10.4: under the recorded table the findings name
+    /// (`recorded_table_read`), the stored statement's recorded dispatch with
+    /// no model (`recordedReaderDispatch(result, binding)`: route, binding,
+    /// refusal and its standing as recorded), the route a display surface
+    /// classifies it under; null otherwise. Display only: no standing.
+    pub(crate) recorded_dispatch: Option<Value>,
     /// [`record_header`]'s `{record, result_ref_count, diagnostic_count,
     /// carried_members}`, or null with `record_header_bytes` above the limit.
     pub(crate) record_header: Value,
@@ -399,6 +405,7 @@ pub(crate) fn open_project_in_store(registry: &SolveJobRegistry, path: PathBuf, 
             let (record_header, record_header_bytes, header_lease) = header.expect("an admitted record has an admitted header");
             let mut found = validate::saved_run_findings(&project, &mut result, &record).expect("a stored run holds a result or a record");
             validate::saved_run_validation(&mut found, &mut result, &record);
+            let recorded_dispatch = recorded_dispatch_of(&found, &result);
             drop((result, result_parse, record, record_parse));
             let source = RestoredSource {
                 kind: "saved_project_run",
@@ -406,6 +413,7 @@ pub(crate) fn open_project_in_store(registry: &SolveJobRegistry, path: PathBuf, 
                 recording_id: None,
                 result_sha256: hex(&sha256_in_place(run.result.as_bytes())),
                 record_sha256: Some(hex(&sha256_in_place(run.record.as_bytes()))),
+                recorded_table: found.recorded,
             };
             let (result_bytes, record_bytes) = (run.result.len() as u64, run.record.len() as u64);
             // The re-save basis (`stored_save`): the stored model hash evidence and the stored
@@ -424,6 +432,7 @@ pub(crate) fn open_project_in_store(registry: &SolveJobRegistry, path: PathBuf, 
                             result_present,
                             record_present,
                             findings: found,
+                            recorded_dispatch,
                             record_header,
                             record_header_bytes,
                             _header_lease: header_lease,
@@ -447,6 +456,12 @@ pub(crate) fn open_project_in_store(registry: &SolveJobRegistry, path: PathBuf, 
         model_document_version,
         stored_run,
     }))
+}
+
+/// RT-A4 §10.4: a renderable reopened statement's recorded dispatch with no
+/// model under the table its findings were read under ([`RestoredRun::recorded_dispatch`]).
+fn recorded_dispatch_of(found: &HistoricalFindings, result: &Value) -> Option<Value> {
+    found.recorded.filter(|_| found.renderable).map(|table| validate::recorded_dispatch(result, table.variant(), None))
 }
 
 fn restore_refusal(error: SolveJobError) -> String {
@@ -530,6 +545,7 @@ pub(crate) fn read_run_in_store(registry: &SolveJobRegistry, path: PathBuf, proj
         validate::recorded_run_validation(&mut found, &context, result, manifest, &record);
     }
     let (record_header, record_header_bytes, header_lease) = record_header(registry, &record)?;
+    let recorded_dispatch = result_value.as_ref().and_then(|result| recorded_dispatch_of(&found, result));
     let result_present = result_value.as_ref().is_some_and(|value| !value.is_null()) || result_value.is_none();
     drop((result_value, result_parse, parsed_manifest, record));
     drop(guard);
@@ -539,6 +555,7 @@ pub(crate) fn read_run_in_store(registry: &SolveJobRegistry, path: PathBuf, proj
         recording_id: Some(run.recording_id.clone()),
         result_sha256: hex(&sha256_in_place(result_json.as_bytes())),
         record_sha256: Some(hex(&sha256_in_place(record_text.as_bytes()))),
+        recorded_table: found.recorded,
     };
     let (result_bytes, record_bytes) = (result_json.len() as u64, record_text.len() as u64);
     let handle = registry
@@ -557,6 +574,7 @@ pub(crate) fn read_run_in_store(registry: &SolveJobRegistry, path: PathBuf, proj
             result_present,
             record_present: true,
             findings: found,
+            recorded_dispatch,
             record_header,
             record_header_bytes,
             _header_lease: header_lease,
@@ -648,7 +666,7 @@ pub(crate) async fn open_project(
     let epoch = registry.reset_epoch();
     let (raw, lease) = reserve(registry, body, headers, OPEN_COMMAND)?;
     let registry = registry.clone();
-    tauri::async_runtime::spawn_blocking(move || run_open(&registry, store, raw, lease, epoch))
+    tauri::async_runtime::spawn_blocking(move || open_pipe_stress_result_export::recorded_tables::entry_scope(move || run_open(&registry, store, raw, lease, epoch)))
         .await
         .unwrap_or_else(|_| Err(CommandError::Command(format!("{REOPEN_FAILED}: the open ended without an outcome."))))
 }
@@ -663,7 +681,7 @@ pub(crate) async fn read_run(
     let epoch = registry.reset_epoch();
     let (raw, lease) = reserve(registry, body, headers, RUN_COMMAND)?;
     let registry = registry.clone();
-    tauri::async_runtime::spawn_blocking(move || run_read(&registry, store, raw, lease, epoch))
+    tauri::async_runtime::spawn_blocking(move || open_pipe_stress_result_export::recorded_tables::entry_scope(move || run_read(&registry, store, raw, lease, epoch)))
         .await
         .unwrap_or_else(|_| Err(CommandError::Command(format!("{REOPEN_FAILED}: the read ended without an outcome."))))
 }

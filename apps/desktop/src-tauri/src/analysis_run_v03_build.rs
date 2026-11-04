@@ -569,7 +569,7 @@ pub(crate) fn dispatch(source: &Value) -> Result<Route, String> {
 }
 
 /// A reader's refusal as `ResultReaderError`'s message (`detail ?? code`).
-fn reader_refusal(outcome: &Value) -> Option<(String, String)> {
+pub(crate) fn reader_refusal(outcome: &Value) -> Option<(String, String)> {
     if outcome["ok"] == Value::Bool(true) {
         return None;
     }
@@ -1491,7 +1491,7 @@ pub(crate) fn reserve(registry: &SolveJobRegistry, body: &InvokeBody, headers: &
 pub(crate) async fn analysis_run_preview(registry: &SolveJobRegistry, body: &InvokeBody, headers: &HeaderMap) -> Result<Vec<u8>, CommandError<String>> {
     let (raw, lease) = reserve(registry, body, headers)?;
     let registry = registry.clone();
-    tauri::async_runtime::spawn_blocking(move || run(registry, raw, lease))
+    tauri::async_runtime::spawn_blocking(move || open_pipe_stress_result_export::recorded_tables::entry_scope(move || run(registry, raw, lease)))
         .await
         .unwrap_or_else(|_| Err(CommandError::Command(PREVIEW_READ_FAILED.into())))
 }

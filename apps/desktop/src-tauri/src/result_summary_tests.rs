@@ -107,7 +107,7 @@ fn built(case: &SummaryCase) -> Vec<u8> {
         }
         StandingSpec::Health { eligible, health } => (health.clone(), Some(Standing { eligible: *eligible, health: tables::health_view(health) })),
     };
-    build(&case.name, &source, &model, standing.as_ref(), &health, |_| Ok::<(), ()>(())).unwrap().0
+    build(&case.name, &source, &model, standing.as_ref(), &health, None, |_| Ok::<(), ()>(())).unwrap().0
 }
 
 pub(crate) fn base64(bytes: &[u8]) -> String {
@@ -435,7 +435,7 @@ fn rack(pipes: usize, kinds: usize) -> (Value, Value, Value) {
 fn rack_summary(pipes: usize, kinds: usize) -> (usize, usize, usize) {
     let (source, model, health) = rack(pipes, kinds);
     let standing = Standing { eligible: true, health: tables::health_view(&health) };
-    let bytes = build("rack", &source, &model, Some(&standing), &health, |_| Ok::<(), ()>(())).unwrap().0;
+    let bytes = build("rack", &source, &model, Some(&standing), &health, None, |_| Ok::<(), ()>(())).unwrap().0;
     let header_len = u64::from_le_bytes(bytes[8..16].try_into().unwrap()) as usize;
     let decoded = decode(&bytes).unwrap();
     check_planes("rack", &source, &decoded);
@@ -635,22 +635,22 @@ fn the_response_is_admitted_at_its_exact_length_before_it_is_allocated() {
     let (source, model, health) = rack(10, 18);
     let standing = Standing { eligible: true, health: tables::health_view(&health) };
     let mut asked = None;
-    let (bytes, ()) = build("rack", &source, &model, Some(&standing), &health, |length| {
+    let (bytes, ()) = build("rack", &source, &model, Some(&standing), &health, None, |length| {
         asked = Some(length);
         Ok::<(), ()>(())
     })
     .unwrap();
     assert_eq!(asked, Some(bytes.len() as u64));
     let planes = decode(&bytes).unwrap().header["planes_bytes"].as_u64().unwrap();
-    let (refused, measured) = ingress::counting::measure(|| build("rack", &source, &model, Some(&standing), &health, |_| Err::<(), _>("refused")));
+    let (refused, measured) = ingress::counting::measure(|| build("rack", &source, &model, Some(&standing), &health, None, |_| Err::<(), _>("refused")));
     assert_eq!(refused.unwrap_err(), "refused");
     // Before admission the working set is the tables' and header's, bounded by
     // entities and sets: the same members with 18 times the station rows (the
     // planes' rows) hold almost the same, far below the planes' size.
     let (few, ..) = rack(10, 1);
-    let (_, few_measured) = ingress::counting::measure(|| build("rack", &few, &model, Some(&standing), &health, |_| Err::<(), _>("refused")));
+    let (_, few_measured) = ingress::counting::measure(|| build("rack", &few, &model, Some(&standing), &health, None, |_| Err::<(), _>("refused")));
     assert!(measured.peak_priced < few_measured.peak_priced + planes / 4, "{measured:?} against {few_measured:?} and planes of {planes} bytes");
-    let (_, admitted) = ingress::counting::measure(|| build("rack", &source, &model, Some(&standing), &health, |_| Ok::<(), ()>(())));
+    let (_, admitted) = ingress::counting::measure(|| build("rack", &source, &model, Some(&standing), &health, None, |_| Ok::<(), ()>(())));
     assert!(admitted.peak_priced >= bytes.len() as u64, "{admitted:?}");
 }
 

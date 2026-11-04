@@ -69,7 +69,10 @@ import { panelDetailFilter, resultRowPages, type DetailFilter, type DetailRow, t
 import { nativeFailureText } from "../../services/nativeIngress";
 import type { DesignKnowledge, EntityRef, MechanicsResult, PreviewModel } from "../../types";
 import type { RowLabels } from "./resultSemantics";
-import type { RowSemantics } from "./resultReader";
+import { displayRoute, sameContractBinding, type RowSemantics } from "./resultReader";
+import { isRetainedRoute } from "./numericalResultQuality";
+import { retainedPrecisionStandingText } from "./retainedPrecisionStanding";
+import { recordedTableLabel, type RecordedBinding } from "../../services/recordedPreRtA4";
 
 type Row = MechanicsResult["results"][number];
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -97,6 +100,9 @@ function labelsOf(rows: readonly DetailRow[], outcomes: readonly RowSemanticsOut
   };
 }
 
+/** A row read under a table other than the handle's (RT-A4 §10.4): refused, never read. */
+const RECORDED_TABLE_REFUSED: RowSemanticsOutcome = Object.freeze({ ok: false, error: Object.freeze({ code: "SOURCE_RECORDED_BINDING_UNKNOWN", detail: null }) }) as RowSemanticsOutcome;
+
 type PageState =
   | { status: "reading" }
   | { status: "ready"; key: string; total: number; offset: number; rows: readonly DetailRow[]; labels: RowLabels }
@@ -114,9 +120,15 @@ export function NativeResultsPanel({
   selectedEntity = null,
   viewRequest = null,
   model = null,
-  exportAnalysisRun = null
+  exportAnalysisRun = null,
+  recordedTableRead = null
 }: {
   result: NativeResult;
+  /** RT-A4 §10.4: a reopened run recorded before RT-A4 names the registry table it was read under
+   * (the native reopen's, which this handle's native readers read under); the panel then classifies
+   * and states it as read under that table, labelled as-recorded. A table other than the handle's is
+   * refused (no route, no row semantics), never read under the current reader. */
+  recordedTableRead?: RecordedBinding | null;
   knowledge: DesignKnowledge | null;
   analysisRun: SessionAnalysisRun | null;
   selectedResultId: string | null;
@@ -132,6 +144,11 @@ export function NativeResultsPanel({
 }) {
   const displayResolver = useDisplayQuantityResolver();
   const custody = nativeCustody(result);
+  // RT-A4 §10.4: the native row semantics are read under the handle's held table; read under any
+  // other table they are refused, as `recordedReaderRowSemantics` refuses a binding it does not read.
+  const tableAgrees = sameContractBinding(custody.recordedTable ?? null, recordedTableRead);
+  const semanticsOf = (ordinals: readonly number[]): Promise<readonly RowSemanticsOutcome[]> =>
+    tableAgrees ? readNativeRowSemantics(result, ordinals) : Promise.resolve(ordinals.map(() => RECORDED_TABLE_REFUSED));
   const tables = custody.summary.header.tables.results_panel as Json;
   const runId = result.run_id;
   const [filterText, setFilterText] = useState("");
@@ -185,7 +202,7 @@ export function NativeResultsPanel({
         read = await queryNativeRows(result, filter, last * pageSize, pageSize);
         if (live) setPageIndex(last);
       }
-      const outcomes = read.rows.length ? await readNativeRowSemantics(result, read.rows.map((entry) => entry.ordinal)) : [];
+      const outcomes = read.rows.length ? await semanticsOf(read.rows.map((entry) => entry.ordinal)) : [];
       if (live) setPageState({ status: "ready", key: requestKey, total: read.total, offset: read.offset, rows: read.rows, labels: labelsOf(read.rows, outcomes) });
     })().catch((error) => {
       if (!live) return;
@@ -203,17 +220,20 @@ export function NativeResultsPanel({
   const page = { items, pageIndex: safeIndex, pageCount, start: filteredCount === 0 ? 0 : safeIndex * pageSize + 1, end: Math.min(safeIndex * pageSize + items.length, filteredCount) };
   const labels = ready?.labels ?? labelsOf([], []);
   const groups = groupResults(items, labels);
-  const route = custody.verdict.route;
+  // RT-A4 §10.4: a run recorded before RT-A4 is classified under its recorded table.
+  const route = displayRoute(result, recordedTableRead);
   const health = routeHealth(route, numericalHealth ?? null);
   const labelSource = route === "preview_physics" ? result : null;
   const intensified = useNativeKindPresence(result, PREVIEW_INTENSIFIED_KIND);
-  const notices = useMemo(() => knownSemanticNotices(result, null, { hasIntensified: intensified }), [result, intensified]);
+  const notices = useMemo(() => knownSemanticNotices(result, recordedTableRead, { hasIntensified: intensified }), [result, recordedTableRead, intensified]);
   const recovery = custody.recovery;
-  const standingLine = route === "unsupported"
+  const standingLine = (recordedTableRead ? `${recordedTableLabel(recordedTableRead)}. ` : "") + (route === "unsupported"
     ? "Unsupported numerical contract; historical values only. Needs recompute."
+    // A native handle never registers a successor (a restored run's receipt is never registered).
+    : isRetainedRoute(route) ? retainedPrecisionStandingText(result as never)
     : route === "pressure_source"
       ? `Ordinary solve: ${result.numerical_quality!.status}. Producer recovery receipt: ${String(recovery?.status ?? "unavailable")}. ${result.formulation_basis!.limitations.join(" ")} Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.`
-      : `Numerical integrity: ${result.numerical_quality!.status}. ${result.formulation_basis!.limitations.join(" ")} Numerical checks do not establish engineering correctness.`;
+      : `Numerical integrity: ${result.numerical_quality!.status}. ${result.formulation_basis!.limitations.join(" ")} Numerical checks do not establish engineering correctness.`);
   const csvRecord = isNativeAnalysisRun(exportAnalysisRun) || exportAnalysisRun === null ? exportAnalysisRun : null;
   const exportGroup = async (title: string): Promise<CsvStreamExport> => {
     // Every row the filters admit in this group, across all pages, by bounded native pages, written
@@ -221,14 +241,14 @@ export function NativeResultsPanel({
     const groupFilter = { ...filter, family: FAMILY_BY_TITLE[title] ?? "other" };
     const pages = async function* (): AsyncGenerator<readonly ResultRowsCsvRow[]> {
       for await (const chunk of resultRowPages(nativeQueryInvoke(result), custody.jobId, groupFilter)) {
-        const outcomes = await readNativeRowSemantics(result, chunk.rows.map((entry) => entry.ordinal));
+        const outcomes = await semanticsOf(chunk.rows.map((entry) => entry.ordinal));
         const chunkLabels = labelsOf(chunk.rows, outcomes);
         const rows: ResultRowsCsvRow[] = [];
         for (const { row: item } of chunk.rows) {
           const quantity: DisplaySourceQuantity = { value: item.value, unit: item.unit, dimension_id: chunkLabels.dimension(item) ?? "unknown" };
           const state = rowHealthState(health, item);
           rows.push({
-            id: item.id, category: chunkLabels.category(item), label: (labelSource && resultRowLabel(item, labelSource as never)) || "",
+            id: item.id, category: chunkLabels.category(item), label: (labelSource && resultRowLabel(item, labelSource as never, recordedTableRead)) || "",
             health: state ? NUMERICAL_HEALTH_STATE_TEXT[state] : "", withheld: kindFilter?.withheld[item.id] ?? "",
             componentBody: item.component_body ? `reference section of component body ${item.component_body.component_ref}` : "",
             entity: item.entity_ref, location: item.metadata?.location ?? "summary", frame: frameLabel(resultFrame(item)), quantity,
@@ -504,7 +524,7 @@ export function NativeResultsPanel({
         onStep={(axis, delta) => navigate(axis, delta)}
         onChooseCase={(caseKey) => chooseCase(caseKey)}
       />
-      <NativeResultDetail result={result} selectedResultId={selectedResultId} selected={selected} analysisRun={analysisRun} exportEndpointPair={async (pair) => {
+      <NativeResultDetail result={result} semanticsOf={semanticsOf} selectedResultId={selectedResultId} selected={selected} analysisRun={analysisRun} exportEndpointPair={async (pair) => {
         const rows = await Promise.all(pair.map(async (item) => {
           const quantity: DisplaySourceQuantity = { value: item.value, unit: item.unit, dimension_id: item.dimension ?? "unknown" };
           return { location: item.metadata?.location ?? "summary", resultId: item.id, fallback: `${item.value} ${item.unit}`, quantity, display: await displayResolver.resolve(quantity) };
@@ -532,7 +552,7 @@ export function NativeResultsPanel({
                     onClick={() => onSelectResult(item.id)}
                     onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onSelectResult(item.id); } }}
                     tabIndex={0}>
-                    <td>{item.id}<small> {labels.category(item)}</small>{labelSource && resultRowLabel(item, labelSource as never) ? <small data-testid={`result-row-label-${item.id}`}> {resultRowLabel(item, labelSource as never)}</small> : null}<RowHealthBadge health={health} item={item} />{kindFilter?.withheld[item.id] ? <small data-testid={`result-row-withheld-${item.id}`}> {kindFilter.withheld[item.id]}</small> : null}{item.component_body ? <small data-testid={`result-row-component-body-${item.id}`}> reference section of component body {item.component_body.component_ref}</small> : null}</td>
+                    <td>{item.id}<small> {labels.category(item)}</small>{labelSource && resultRowLabel(item, labelSource as never, recordedTableRead) ? <small data-testid={`result-row-label-${item.id}`}> {resultRowLabel(item, labelSource as never, recordedTableRead)}</small> : null}<RowHealthBadge health={health} item={item} />{kindFilter?.withheld[item.id] ? <small data-testid={`result-row-withheld-${item.id}`}> {kindFilter.withheld[item.id]}</small> : null}{item.component_body ? <small data-testid={`result-row-component-body-${item.id}`}> reference section of component body {item.component_body.component_ref}</small> : null}</td>
                     <td>{item.entity_ref}</td>
                     <td>{item.metadata?.location ?? "summary"}</td>
                     <td data-testid={`result-row-frame-${item.id}`}>{frameLabel(resultFrame(item))}</td>
@@ -619,10 +639,10 @@ function refusalText(error: unknown): string {
 
 /** The selected row's detail, from the panel's bounded lookup: its members, its source rows' ids,
  * and its endpoint pair (the same entity's end rows of the same component, frame and basis, by query). */
-export async function readNativeEndpointPair(result: NativeResult, row: Row, ordinal: number): Promise<Row[]> {
+export async function readNativeEndpointPair(result: NativeResult, row: Row, ordinal: number, semanticsOf: (ordinals: readonly number[]) => Promise<readonly RowSemanticsOutcome[]> = (ordinals) => readNativeRowSemantics(result, ordinals)): Promise<Row[]> {
   const metadata = row.metadata;
   if (!metadata || !["end_i", "end_j"].includes(metadata.location)) return [];
-  const [semantics] = await readNativeRowSemantics(result, [ordinal]);
+  const [semantics] = await semanticsOf([ordinal]);
   const family = semantics?.ok && semantics.signature?.category === "physical_quantity" ? semantics.signature.family : null;
   if (family !== "force" && family !== "moment" && family !== "stress") return [];
   const pair: Row[] = [];
@@ -635,13 +655,13 @@ export async function readNativeEndpointPair(result: NativeResult, row: Row, ord
   return pair.length >= 2 ? pair : [];
 }
 
-function NativeResultDetail({ result, selectedResultId, selected, analysisRun, exportEndpointPair }: { result: NativeResult; selectedResultId: string | null; selected: ReadRow | null; analysisRun: SessionAnalysisRun | null; exportEndpointPair: (pair: Row[]) => Promise<CsvExport> }) {
+function NativeResultDetail({ result, semanticsOf, selectedResultId, selected, analysisRun, exportEndpointPair }: { result: NativeResult; semanticsOf: (ordinals: readonly number[]) => Promise<readonly RowSemanticsOutcome[]>; selectedResultId: string | null; selected: ReadRow | null; analysisRun: SessionAnalysisRun | null; exportEndpointPair: (pair: Row[]) => Promise<CsvExport> }) {
   const [pairRead, setPairRead] = useState<{ of: ReadRow; pair: Row[]; error?: string } | null>(null);
   useEffect(() => {
     if (!selected) return;
     let live = true;
     (async () => {
-      const pair = selected.row && selected.ordinal !== null ? await readNativeEndpointPair(result, selected.row, selected.ordinal) : [];
+      const pair = selected.row && selected.ordinal !== null ? await readNativeEndpointPair(result, selected.row, selected.ordinal, semanticsOf) : [];
       if (live) setPairRead({ of: selected, pair });
     })().catch((error) => { if (live) setPairRead({ of: selected, pair: [], error: `The endpoint pair could not be read: ${refusalText(error)}` }); });
     return () => { live = false; };

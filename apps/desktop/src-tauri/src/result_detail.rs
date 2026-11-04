@@ -127,6 +127,7 @@ use crate::memory_pool::Lease;
 use crate::native_verdict;
 use crate::result_summary;
 use crate::result_summary_tables as tables;
+use crate::analysis_run_v03_validate::RecordedTable;
 use crate::solve_jobs::{HeldResult, SolveJobRegistry};
 use open_pipe_stress_result_export::reader_verdict as rv;
 use serde::de::{self, DeserializeSeed, Deserializer, IgnoredAny, MapAccess, SeqAccess, Visitor};
@@ -254,7 +255,7 @@ pub(crate) async fn command<T: Send + 'static>(
 ) -> Result<T, CommandError<String>> {
     let (raw, lease) = reserve(registry, body, headers, command)?;
     let registry = registry.clone();
-    tauri::async_runtime::spawn_blocking(move || run(registry, raw, lease))
+    tauri::async_runtime::spawn_blocking(move || open_pipe_stress_result_export::recorded_tables::entry_scope(move || run(registry, raw, lease)))
         .await
         .unwrap_or_else(|_| Err(CommandError::Command(DETAIL_READ_FAILED.into())))
 }
@@ -286,7 +287,8 @@ fn page_limit(limit: u64) -> Result<usize, CommandError<String>> {
 /// The held result's index, built on first use (module docs). The slot's
 /// lock serializes concurrent first builds; the others then reuse the one
 /// built. A refused or panicked build leaves the slot empty.
-pub(crate) fn index(registry: &SolveJobRegistry, held: &HeldResult) -> Result<Arc<DetailIndex>, CommandError<String>> {
+/// `recorded`: a restored run's held recorded table (RT-A4 §10.4), under which its rows' table is read.
+pub(crate) fn index(registry: &SolveJobRegistry, held: &HeldResult, recorded: Option<RecordedTable>) -> Result<Arc<DetailIndex>, CommandError<String>> {
     let mut slot = held.detail_slot().lock().unwrap_or_else(PoisonError::into_inner);
     if let Some(index) = slot.as_ref() {
         return Ok(Arc::clone(index));
@@ -301,7 +303,7 @@ pub(crate) fn index(registry: &SolveJobRegistry, held: &HeldResult) -> Result<Ar
         let _parse = registry.acquire_result_parse(bound.materialization_bytes)?;
         let source: Value = serde_json::from_str(text)
             .map_err(|error| CommandError::Command(format!("{}: source is not valid JSON: {error}", native_verdict::INPUT_JSON_INVALID)))?;
-        rv::route(&source).ok().map(|(_, table)| table)
+        result_summary::route_table(&source, recorded)
     };
     let (spans, row_parse_bytes, lease) = spans(registry, text, scan_bytes)?;
     let index = Arc::new(DetailIndex { spans, table, row_parse_bytes, scan_bytes, source_parse_bytes: bound.materialization_bytes, lease });
@@ -826,7 +828,7 @@ pub(crate) fn run_rows_within(registry: SolveJobRegistry, raw: Vec<u8>, copy: Le
     let filter = filter.unwrap_or_default();
     let scans = !filter.prepare()?.admits_every_row();
     let held = registry.held_result(&job_id)?;
-    let index = index(&registry, &held)?;
+    let index = index(&registry, &held, registry.recorded_table(&job_id))?;
     let working = registry.acquire_result_parse(WORKING_ALLOWANCE_BYTES.saturating_add(if scans { index.row_parse_bytes } else { 0 }))?;
     #[cfg(test)]
     tests::gate::pass(tests::gate::key(&registry, "read"));
@@ -912,7 +914,7 @@ pub(crate) fn run_lookup_within(registry: SolveJobRegistry, raw: Vec<u8>, copy: 
         return Err(invalid(format!("a lookup states {keys} keys, not 1..={MAX_KEYS}")));
     }
     let held = registry.held_result(&job_id)?;
-    let index = index(&registry, &held)?;
+    let index = index(&registry, &held, registry.recorded_table(&job_id))?;
     let scans = !(ids.is_empty() && kinds.is_empty());
     // The header copies each requested id and kind (and writes it once more).
     let keys_bytes = ids.iter().chain(&kinds).map(|key| 2 * key.len() as u64).sum::<u64>();
@@ -1072,7 +1074,7 @@ pub(crate) fn run_navigator_within(registry: SolveJobRegistry, raw: Vec<u8>, cop
     // Invalid filter bounds are refused before the index is built.
     filter.prepare()?;
     let held = registry.held_result(&job_id)?;
-    let index = index(&registry, &held)?;
+    let index = index(&registry, &held, registry.recorded_table(&job_id))?;
     let base = WORKING_ALLOWANCE_BYTES.saturating_add(index.row_parse_bytes);
     let mut working = registry.acquire_result_parse(base)?;
     let navigator = navigator(held.text(), &index, &filter, probe, |listed| {
@@ -1130,7 +1132,7 @@ pub(crate) fn run_semantics(registry: SolveJobRegistry, raw: Vec<u8>, copy: Leas
         return Err(invalid(format!("a semantics batch states {} rows, not 1..={MAX_KEYS}", ordinals.len())));
     }
     let held = registry.held_result(&job_id)?;
-    let index = index(&registry, &held)?;
+    let index = index(&registry, &held, registry.recorded_table(&job_id))?;
     if let Some(ordinal) = ordinals.iter().find(|&&ordinal| ordinal >= index.len() as u64) {
         return Err(invalid(format!("row {ordinal} is outside the result's {} rows", index.len())));
     }
@@ -1139,7 +1141,15 @@ pub(crate) fn run_semantics(registry: SolveJobRegistry, raw: Vec<u8>, copy: Leas
     let text = held.text();
     let source: Value = serde_json::from_str(text).map_err(read_failed)?;
     let rows = ordinals.iter().map(|&ordinal| serde_json::from_str::<Value>(index.row(text, ordinal as usize))).collect::<Result<Vec<_>, _>>().map_err(read_failed)?;
-    let outcomes = rv::row_semantics_each(&rows, Some(&source));
+    // RT-A4 §10.4: a restored run's held recorded table reads its rows as `recordedReaderRowSemantics`
+    // does; a refused binding is one refusal, which every row takes.
+    let outcomes = match registry.recorded_table(&job_id) {
+        None => rv::row_semantics_each(&rows, Some(&source)),
+        Some(table) => match rv::row_semantics_each_recorded(&rows, &source, &table.binding()) {
+            Value::Array(outcomes) => Value::Array(outcomes),
+            refusal => Value::Array(vec![refusal; rows.len()]),
+        },
+    };
     drop((rows, source));
     let mut counter = Counter(0);
     serde_json::to_writer(&mut counter, &outcomes).expect("outcomes serialize");
@@ -1301,7 +1311,7 @@ pub(crate) fn run_recovery_within(registry: SolveJobRegistry, raw: Vec<u8>, copy
     let raw_texts: bool = args.decode::<Option<bool>>("raw")?.unwrap_or(false);
     drop(args);
     let held = registry.held_result(&job_id)?;
-    let index = index(&registry, &held)?;
+    let index = index(&registry, &held, registry.recorded_table(&job_id))?;
     let text = held.text();
     let scan = registry.acquire_result_parse(index.scan_bytes)?;
     let [receipt_text, evidence_text] = last_members(text, ["source_block_recovery", "contract_evidence"]).map_err(read_failed)?;

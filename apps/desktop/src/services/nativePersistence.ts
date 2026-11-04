@@ -192,7 +192,10 @@ function decodeSave(value: unknown, restored: RestoredRun | null): NativeProject
     if (!isObject(source) || (["kind", "project_id", "recording_id", "result_sha256", "record_sha256"] as const).some((key) => source[key] !== restored.source[key])) fail("the restored run's stored source is not the handle's");
     if (typeof run.envelope_payload_hash !== "string" || typeof run.envelope_basis_kept !== "boolean") fail("the restored run's envelope facts are malformed");
     const found = run.findings;
-    const findingsRead = isObject(found) && Array.isArray(found.findings) && found.findings.every((item: unknown) => typeof item === "string") && typeof found.run_id === "string";
+    const texts = (value: unknown) => Array.isArray(value) && value.every((item: unknown) => typeof item === "string");
+    // RT-A4 §10.4: the findings in their scopes, as the native reopen sends them.
+    const findingsRead = isObject(found) && texts(found.findings) && texts(found.check_findings) && texts(found.historical_reader_findings)
+      && (found.recorded_table_read === null || isObject(found.recorded_table_read)) && typeof found.run_id === "string";
     if (result.outcome === "saved" ? !findingsRead : found !== null) fail("the restored run's findings are malformed");
   }
   return Object.freeze(value) as unknown as NativeProjectSave;

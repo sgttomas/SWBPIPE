@@ -97,7 +97,7 @@ pub(crate) fn reserve(registry: &SolveJobRegistry, body: &InvokeBody, headers: &
 pub(crate) async fn verdict(registry: &SolveJobRegistry, body: &InvokeBody, headers: &HeaderMap) -> Result<String, CommandError<String>> {
     let (raw, lease) = reserve(registry, body, headers)?;
     let registry = registry.clone();
-    tauri::async_runtime::spawn_blocking(move || run(registry, raw, lease))
+    tauri::async_runtime::spawn_blocking(move || open_pipe_stress_result_export::recorded_tables::entry_scope(move || run(registry, raw, lease)))
         .await
         .unwrap_or_else(|_| Err(CommandError::Command(VERDICT_READ_FAILED.into())))
 }

@@ -1071,6 +1071,11 @@ export function useWorkspaceSession() {
     return {
       ...history,
       findings: [...found.findings],
+      // RT-A4 §10.4: the stored project's findings in their scopes (the re-save keeps the stored texts,
+      // so a run recorded before RT-A4 is still read under its recorded table).
+      checkFindings: [...found.check_findings],
+      recordedTableRead: found.recorded_table_read ? { id: found.recorded_table_read.id, sha256: found.recorded_table_read.sha256 } : null,
+      historicalReaderFindings: found.recorded_table_read ? [...found.historical_reader_findings] : [],
       runId: found.run_id,
       modelHash: reply.model_hash ?? null,
       envelopeHash: reply.project_envelope_hash ?? null,

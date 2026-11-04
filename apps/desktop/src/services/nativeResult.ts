@@ -45,7 +45,7 @@ import {
 } from "./resultDetail";
 import { ANALYSIS_RUN_PREVIEW_COMMAND, readAnalysisRunPreview, type AnalysisRunPreview } from "./analysisRunPreview";
 import { PRESSURE_SOURCE_CONTRACT_ID, PRESSURE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_IDS, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, PHYSICS_RETAINED_CONTRACT_ID, type SourceContract } from "../features/results/numericalResultQuality";
-import type { ReaderDispatch, ReaderName } from "../features/results/resultReader";
+import type { ContractBinding, ReaderDispatch, ReaderName } from "../features/results/resultReader";
 import type { AnalysisRunEnvelope, MechanicsResult } from "../types";
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -98,6 +98,13 @@ export type NativeCustody = Readonly<{
   binding: NativeBinding;
   /** The pressure-source recovery facts (page 0, no case texts), for routes that carry them. */
   recovery: SourceRecovery | null;
+  /** RT-A4 §10.4: a restored run recorded before RT-A4: the registry table the native reopen read it
+   * under and its native readers (S, row semantics, detail filter, navigator) read it under, held
+   * with the handle (`stored_custody`, never a request's); null for every other result. */
+  recordedTable?: ContractBinding | null;
+  /** That run's recorded dispatch with no model (`recordedReaderDispatch(result, table)`), the route a
+   * display surface classifies it under (`displayRoute`); display only, never a standing. */
+  recordedVerdict?: ReaderDispatch | null;
 }>;
 
 const NATIVE = Symbol("swbpipe.nativeResult");
