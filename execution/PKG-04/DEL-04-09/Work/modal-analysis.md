@@ -1330,109 +1330,150 @@ The window is `window-20261104T131510Z-nf1920`. Its identity record is `calib192
 
 This proposal comes from source plus the existing cantilever calibration (stage 1 and n_f = 1,920). It keeps the two populations apart: the calibration prices cost only, and the 35-model mathematical references stay separate. Wherever it uses the 1,920 outcome, **the ten low modes are reportable only under the accepted lower-gap count and completed-cluster premises.** The unresolved finite census at 1,920 neither invalidates that lower path nor becomes a whole-spectrum proof.
 
-**Cost model, term by term.** Notation:
-- n_f is the free order; n_m ≤ n_f the massive order after condensation; n_c ≤ n_m the computed (retained) pairs; n_r ≤ n_c the completed reported set; p the band pairs that are not hard-rejected.
-- I is the total QL iteration count, and R = Σ (m − l) the QL rotations, with R ≤ I·(n_m − 1).
+**Cost model, term by term** (revised after the focused review of `d1d36002c`). Notation:
+- n_f is the free order; n_m ≤ n_f the massive order; n_c ≤ n_m the computed (retained) pairs; n_r ≤ n_c the completed reported set.
+- p is the **attempted** band pairs (μ in the band, not hard-rejected). The raw O4 line's `band_screened` counts hard rejects too, so it does not supply p.
+- I is the total QL iterations, and R = Σ (m − l) the QL rotations, with R ≤ I·(n_m − 1).
 - d_e is element e's free-DOF count; nnz(·) is a stored count over the full symmetric matrix.
-- P_u is the shift pencil's union pattern; w_i are the profile's row widths after RCM; s ≤ s_max are the Sturm candidates.
-- MA is a multiply-add; a *visit* is one `ExactSum::add_product` call, which returns at once on a zero factor (`exact.rs:113`); an *insertion* is a visit with every factor nonzero, or one `add_dd_product`, which also allocates a small `Vec` (`exact.rs:161`).
+- P_u is the shift pencil's union pattern; w_i are the profile's row widths after RCM, and P = Σ w_i; s ≤ s_max are the Sturm candidates. N_ns is the nonlinear supports, and d ≤ the friction supports is the derived sliding-friction candidates per iteration.
+- MA is a multiply-add. A *visit* is one `ExactSum::add_product` call, which returns at once on a zero factor (`exact.rs:113`). An *insertion* is a visit with every factor nonzero, or one `add_dd_product`, which also builds a small `Vec` (`exact.rs:161`).
+- **L is an accumulator's limb span.** `ExactSum` keeps 32-bit limbs from its lowest to its highest part (`exact.rs:51`–`:100`). It grows by `splice` when a lower part arrives, and `terms()` returns one term per nonzero limb (`exact.rs:217`).
+  - So k (terms per entry) ≤ L, and limb moves per sum ≤ L × its adds.
+  - For products of at most three binary64 factors (exponents −1074 to 1023), the parts' lsbs span ≤ 3·2,097 + 3 − 52 + 1 = 6,243 bits: the top part's lsb is the msb less 52, plus one for the ×2 scaled adds.
+  - A sum then holds ≤ ⌈6,243/32⌉ + 5 = 201 limbs, counting `add_scaled`'s 4-limb headroom (`exact.rs:72`, `:80`). That gives the data-independent **L ≤ L_max = 202** (rounded up).
 
-| # | Term | Exact count from source | Source | Known at |
+**Counts are upper bounds** wherever data can only lower them: zero factors skip insertions, and an early failure skips the rest of a pair's work.
+
+| # | Term | Count from source (upper bound unless stated) | Source | Bounded / checked at |
 |---|---|---|---|---|
-| T1 | State-case solve (only with a state case; runs **before** the screen) | ≤ 4 active-set iterations (`DEC_046_PRODUCT_PREVIEW_ACTIVE_SET_MAX_ITERATIONS`). Each is one `dense_scrutiny` static solve, priced as T2 on that case's free set. With sliding-friction candidates, add one base solve and one per derived branch. Then the confirmation attempt. | product `lib.rs:195`, `:7821`; nonlinear_integration `lib.rs:759`, `:1514`; `confirmation.rs:78`; modal `state.rs:340` | preflight (worst case only: the iteration cap) |
-| T2 | Static screen of the modal pencil | n_f³/3 flops (dense Cholesky), plus a fixed number of O(n_g²) passes: three 32·n_g² sum arrays, the differences, prepare, skew check, audits | frame_kernel `structural.rs:2060`, `:934`, `:1047`, `:1141`, `:1240`, `:1489` | preflight (n_g; n_f ≤ n_f,max, the DOFs the base boundary leaves free) |
-| T3 | Kernel, binary64 | (19/3)·n³ + 6n·R + O(n²) flops, made up of: Cholesky n³/3; reduction 2n_m³; Householder 4n_m³/3, plus accumulation 4n_m³/3; QL 6n_m·R; back-transform ≤ n³; census Cholesky m³/3; Hager ≤ 11 triangular pairs; selection sort ≤ n_m² compares and n_m row swaps | modal_eigen `dense.rs:803`, `:880`, `:955`, `:1061`, `:865`, `:751`, `:1148`; `norm_estimate.rs:8` | R only as it runs: incremental counter (S1-QL) |
-| T4 | Band recovery | Once if any band pair: `formed_scaling`, 2n² visits with two WideDd divisions each. Per band pair: 4n² visits (`recover_band_mode` 2n², `formed_pair_errors` 2n²), of which 2·(nnz(K_ff) + nnz(M_ff)) are insertions. Hard-rejected pairs cost O(1). | `dense.rs:555`, `:590`, `:629`, `:544` | p exact after the QL classification, before `formed_scaling` (S1-band) |
-| T5 | Census, clusters, reported set | O(n_c). n_r ≤ n_c ≤ n_f; cluster completion can take n_r beyond the requested `mode_count` | `eigen.rs`; `clusters.rs` | n_c, n_r exact after `complete_reported_set` (S2) |
-| T6 | Normalization | n_r·n_f² visits (`mass_bilinear` on dense M_ff) plus 3n_f per mode | `modal_quantities.rs:294` | S2 |
-| T7 | Re-formation and formation difference | Per element operand (p128 seam), plus one 16 B accumulator per stored entry | `reformation/mod.rs` | preflight (element counts by kind) |
-| T8 | Residuals, every computed pair | 3·n_c·Σ_e d_e² insertions (`product_into` for K̂ and M̂, plus `mass_product_exact`), plus O(n_f) WideDd per pair. n_c **includes retained recovered pairs**. | `reformation/mod.rs:506`, `:895` | S2 |
-| T9 | Sturm evidence | Per candidate (≤ s_max): form O(P_u), profile O(P), `factorize_ldlt` Σ_i w_i² MA, ≤ 11 inverse-norm solves of 2P each. Banded RCM profile: P = O(n); dense profile: Σ w_i² → n³/6 MA. | `sturm.rs:535`, `:714`, `:859`; `norm_estimate.rs:8` | P exact once the pencil is formed (S2) |
-| T10 | Orthogonality, **published set** | n_r·Σ_e d_e² insertions (M̂φ per shape), plus n_r(n_r + 1)/2 bilinear forms of n_f·k term-products each (k exact terms per entry) | `orthogonality.rs:116`, `:150` | S2 |
-| T11 | Projection | O(rows): per row one serialization, one checked parse, one canonical text and one SHA-256; per document one serialization, one checked parse and one canonical text | `document.rs`; `canonical_json` | S2 (proposed bound), S3 (exact before the tree) |
+| T1 | State-case solve (with a state case only; runs **before** the screen) | Structural solves S_T1 ≤ (I_as + 1)·(2 + d) + 1. Here:<br>• I_as = 4 iterations;<br>• the +1 is the single all-active recovery trial that iteration 1 may add after a structurally failed first attempt, both counted as iteration 1 (`lib.rs:813`);<br>• 2 + d is, with derived friction, one base solve, d unit solves and the final solve (`:1574`–`:1680`), and without it one solve;<br>• the last +1 is the confirmation's gate factorization.<br>Each solve is priced as T2 on its free set, including `reduce_system_with_prescribed_displacements_binary64` (`:2219`). Per iteration with friction, add the d × d influence and coupling matrices and `solve_dense`, d³/3 flops (`:1590`, `:1655`). The confirmation also runs E_conf K-D5 formation evaluations (`structural_adapter.rs:375`; `confirmation.rs:332`, `:696`, `:711`), each re-forming every element from primitives (`formation_check::check_at`) and solving with the gate factor, and reaction certifications (`confirmation.rs:961`, `:1030`). | product `lib.rs:195`; nonlinear_integration `lib.rs:759`, `:813`, `:1514`, `:2212`; `confirmation.rs:78` | P0: S_T1 and d³ from inputs (d ≤ friction supports). **E_conf is not bounded here from source:** an enforced allotment A_conf, a counter on `ConfirmationContext::evaluate_at` and `reaction`, refusing before the next evaluation |
+| T2 | Static screen of the modal pencil | n_f³/3 flops (dense Cholesky), plus O(n_g²) passes: three 32·n_g² sum arrays, the differences, prepare, skew check, audits | frame_kernel `structural.rs:2060`, `:934`, `:1047`, `:1141`, `:1240`, `:1489` | P0 (n_g; n_f ≤ n_f,max) |
+| T3 | Kernel, binary64 | (19/3)·n³ + 6n·R + O(n²) flops: Cholesky n³/3; reduction 2n_m³; Householder 4n_m³/3 plus accumulation 4n_m³/3; QL 6n_m·R; back-transform ≤ n³; census Cholesky m³/3; Hager ≤ 11 triangular pairs; sort ≤ n_m² compares and n_m swaps | modal_eigen `dense.rs:803`, `:880`, `:955`, `:1061`, `:865`, `:751`, `:1148`; `norm_estimate.rs:8` | R: enforced allotment A_QL (S1-QL counter) |
+| T4 | Band recovery | Two separately priced parts:<br>• *scaling:* once if p > 0, `formed_scaling`, 2n² entries, each two WideDd divisions and one WideDd addition (`:555`), which is not an `add_product` visit;<br>• *per attempted pair:* ≤ 2n² visits in `recover_band_mode` (`:590`) and ≤ 2n² in `formed_pair_errors` (`:629`), of which ≤ 2·(nnz(K_ff) + nnz(M_ff)) are insertions. A zero shape component removes insertions, and a failed energy, mass or μ premise skips `formed_pair_errors`.<br>Hard-rejected pairs cost O(1). | `dense.rs:544`–`:629` | p ≤ n_f at P0, or allotment A_band. **S1-band** counts p exactly before `formed_scaling` and before any insertion |
+| T5 | Census, clusters, reported set | O(n_c). n_r ≤ n_c ≤ n_f; cluster completion can take n_r beyond `mode_count` | `eigen.rs`; `clusters.rs` | S2 (exact) |
+| T6 | Normalization | ≤ n_r·n_f² visits (`mass_bilinear` on dense M_ff), plus 3 exact dots of n_f per mode | `modal_quantities.rs:294` | S2 (exact n_r) |
+| T7 | Re-formation and formation difference | Per element, one p128-seam re-formation (stiffness and mass). Assembly into a `BTreeMap<(r, c), ExactSum>` per matrix: Σ_e d_e² insertions, each with an O(log P) map step (`reformation/mod.rs:559`). Per formed stored entry, one `ExactSum` accumulator (`:745`). Per re-formed position, one `binary_search` and one `terms()` (≤ L terms) folded into the difference (`:754`). Two scaled norms: n WideDd row sums each (`scaled_norm`, `:706`). Every `ExactSum` has dynamically allocated limbs (≤ L). | `reformation/mod.rs:559`, `:700`–`:800` | P0 (element counts; L_max); S2 |
+| T8 | Residuals, every computed pair, **including retained recovered pairs** | Per pair:<br>• 3·Σ_e d_e² insertions (`product_into` for K̂ and λM̂, and `mass_product_exact`; `:506`, `:553`);<br>• the generalized mass's `add_terms_product` over each of n_f rows' `terms()`, ≤ L terms each, so ≤ n_f·L insertions (`:937`);<br>• n_f `to_wide` reads of O(L) each;<br>• O(n_f) WideDd.<br>Limb moves ≤ L·(3Σ_e d_e² + 3n_f). | `reformation/mod.rs:506`, `:895`–`:940` | P0 at n_c ≤ n_f and L_max; **S2b** (exact L) |
+| T9 | Sturm evidence | *Construction, once:* the merged-entry sort O(P_u log P_u), RCM O(n + P_u), adjacency (`sturm.rs:535`–`:690`).<br>*Per candidate (≤ s_max):* the formed list O(P_u); the profile O(P); `factorize_ldlt`, whose inner loops execute ≤ ½·Σ_i w_i² + Σ_i w_i MA (`sparse_direct/src/lib.rs:419`; n³/6 + O(n²) for a full profile); the factor observations O(P) a pass (`sturm.rs:935`); ≤ 11 inverse-norm solves of 2P each.<br>*Per neighbour (≤ 2):* the mass quotient's exact sums over P_u (`sturm.rs:700`). | as given | P0: s_max with the dense profile (P ≤ n(n + 1)/2). **S2:** an explicitly priced symbolic step (pattern sort, RCM and the profile's first columns, O(P_u log P_u + n + P)), moved ahead of `modal_sturm_count` and its result reused there, gives the exact P and w_i. Today the RCM runs inside `modal_sturm_count`, after the residuals. |
+| T10 | Orthogonality, **published set** | n_r·Σ_e d_e² insertions (`mass_product_exact` per shape), **retaining every product** (`orthogonality.rs:121`). Then n_r(n_r + 1)/2 bilinear forms, each n_f `add_terms_product` calls of ≤ L terms (`:150`). | `orthogonality.rs:116`–`:190` | P0 at n_r,max and L_max; S2b (exact L) |
+| T11 | Projection | O(rows): per row one serialization, one checked parse, one canonical text and one SHA-256; per document one serialization, one checked parse and one canonical text | `document.rs`; `canonical_json` | S2 (early B_doc), S3 (exact strings) |
 
-**Where each check sits** (each refuses by name and truncates nothing; the refused document states the formula and its terms):
-- **P0, the combined preflight.** In `run_modal_dense`, after `prepare_modal` and **before** `solve_modal_state_case` and any n² allocation, using request, model and parameter inputs only. Each unknown enters at its conservative bound, or at a stage allotment that a later check enforces:
+**Where each check sits.** Each refuses by name and truncates nothing; the refused document states the formula and its terms.
+- **P0, the combined preflight.** In `run_modal_dense`, after `prepare_modal` and **before** `solve_modal_state_case` and any n² allocation, from request, model and parameter inputs only. Each unknown enters at its conservative bound, or at an allotment that a later check enforces:
   - n_f ≤ n_f,max;
-  - n_c ≤ n_f, and n_r ≤ n_r,max = min(n_f, ⌊R_max / 6N⌋). That n_r bound is enforced at S2 by the projection's row limit, never assumed ≤ `mode_count`;
-  - p ≤ n_f, or the band allotment A_band;
-  - R ≤ the QL allotment A_QL, enforced in the kernel;
-  - s ≤ s_max, at the profile of the maximal free set or the dense n³/6;
-  - T1 at its iteration cap.
+  - n_c ≤ n_f, and n_r ≤ n_r,max = min(n_f, ⌊R_max / 6N⌋), enforced at S2, never assumed ≤ `mode_count`;
+  - p ≤ n_f, or A_band;
+  - R ≤ A_QL;
+  - s ≤ s_max, with the dense profile;
+  - L = L_max;
+  - S_T1 and d from the state case's supports, with A_conf.
 
   **A missing finite census never removes work.** The rejected pairs are in p and the computed pairs in n_c, whatever the census verdict. τ_μ is not tightened, and no high-mode check is skipped, to reach admission.
 - **S1, inside the kernel** (a priced `modal_eigen` change with its D3: a budget input in `DenseOptions`):
-  - *S1-QL:* a cumulative rotation counter in `implicit_ql`, refusing when R exceeds A_QL;
-  - *S1-band:* with p exact after the classification thresholds, refuse before `formed_scaling` and before any insertion if T4's exact count exceeds A_band.
-- **S2, after `complete_reported_set` and before normalization.** n_c, n_r, n_cl and P are exact here. Refuse if T6 + T8 + T9 + T10 + T11 exceed their allotment, or if rows or the early B_doc exceed the projection limits.
+  - *S1-QL:* a cumulative rotation counter in `implicit_ql` against A_QL;
+  - *S1-band:* p counted exactly from the classification thresholds, before `formed_scaling` and any insertion, against A_band.
+- **S2, after `complete_reported_set` and before normalization.** Exact here: n_c, n_r, n_cl, the computed vectors and the symbolic Sturm profile (P, w_i). It checks T6, T7 (still at L_max), T9 and the early B_doc, and reserves T8 and T10 at L_max.
+- **S2b, after `reform_modal_pencil` and before the residuals** (new). One scan reads the binary exponents of the stored K_ff and M_ff entries, the re-formed element entries (both dd words), every computed vector, and λ. The published shapes' range is each computed vector's, shifted by its normalization scale, whose exponent is the normalizing class's largest component's, ±1. From that scan S2b takes the exact span bound L_S2b ≤ L_max, and checks T8 and T10's insertions, limb moves and storage before either is constructed.
 - **S3, in the product entry before `modal_doc_solved`.** The same B_doc with the outcome's exact strings and Sturm count. Refuse before the tree is allocated.
 
-**Calibration status per weight** (cantilever family only; seconds per unit, from the phase timings; no rate is adopted):
+**Calibration status per weight** (cantilever family only; one definition per weight; from the raw phase times, not the rounded table; no rate is adopted). Each weight is time per **counted unit** under the stated count, not per executed operation.
 
-| Weight | Unit | Existing records give | Status |
+| Weight | Counted unit | Existing records give (240 / 480 / 960 / 1,920) | Status |
 |---|---|---|---|
-| w_ins | one insertion (T8, T10, T4's nonzero part) | 89.4 / 91.8 / 82.7 / 79.4 ns at 240 / 480 / 960 / 1,920 (residual phase) | **determined** for straight elements |
-| w_visit | one zero-skip-dominated visit on dense storage (T6, T4's visits) | 3.30 / 2.95 / 5.72 / 2.43 ns (normalization phase) | determined as a range on T6; **not separately on T4** |
-| w_b64 | one T3 flop counted with R = I·(n − 1) | 0.207 / 0.243 / 0.357 ns at 240 / 480 / 960 (no band). ≤ 0.387 ns at 1,920 if the whole dense phase is charged to it | determined ≤ 960. At 1,920 **only as an upper bound** (the phase also contains the band) |
-| w_band | one T4 visit | ≤ 4.18 ns if the whole 1,920 dense phase is charged to it. With w_visit (2.43 ns) and w_ins, about 27 s of the 39.5 s would be band and about 12 s binary64. That split is an estimate, not recorded. | **not determined** separately. The records also do not split the 640 screened pairs into hard-rejected and recovery-attempted. |
-| w_screen | one n_f³/3 flop, the n_g² passes folded in | 1.58 / 1.05 / 0.81 / 0.69 ns | determined for the no-state screen (conservative: the largest value at ≥ 480, 1.05 ns) |
-| w_reform | one straight element operand | 14.65 ms / 320 ≈ 46 µs | determined for straight members; **arcs not** |
-| w_sturm | per banded profile | ≤ 1.5 ms per run | determined for banded RCM profiles; **dense profiles not** |
-| w_proj | one canonical byte (projection plus canonical) | 24.2 ns at 960; 24.0 ns at 1,920 | determined for these row mixes |
-| T1 | one state-case static solve set | none (no state case was run) | **not determined** |
+| w_b64 | one T3 flop counted with R = I·(n − 1), i.e. (19/3)n³ + 6n·I·(n − 1) | 0.0925 / 0.1087 / 0.1579 / 0.3871 ns. The 1,920 value includes the band, so it bounds only the binary64 share from above | determined ≤ 960; at 1,920 only as that bound |
+| w_ins | one T8 insertion, counted as 3·n_c·Σ_e d_e² (the generalized-mass terms and limb work at the observed, narrow spreads are folded in) | 89.4 / 91.8 / 82.7 / 79.4 ns | determined for straight elements at the observed spreads; **broad spreads not determined** |
+| w_visit | one T6 visit (n_r·n_f²) | 3.375 / 2.950 / 5.721 / 2.431 ns | determined as a range |
+| w_band | one T4 visit | **Not determined, and not bounded.** 4.18 ns is the whole 1,920 dense phase divided by 4·640·1,920², which assumes that all 640 screened pairs were attempted (the records do not say) and charges none of the phase to binary64. An upper count cannot give an upper rate. If all 640 were attempted, and visits cost w_visit at 1,920, the band would be about 27 s and binary64 about 12 s; that split rests on both assumptions. | not determined |
+| w_scale | one `formed_scaling` entry (two WideDd divisions) | none separately | not determined |
+| w_screen | one n_f³/3 flop, the n_g² passes folded in | 1.583 / 1.050 / 0.806 / 0.686 ns | determined for the no-state screen (conservative: 1.05 ns at ≥ 480) |
+| w_reform | one straight element operand (T7, the formation difference included) | 45.6 / 46.0 / 49.0 / 45.8 µs | determined for straight members at the observed spreads; **arcs not** |
+| w_sturm | per banded run | ≤ 1.5 ms | banded RCM only; **dense profiles not** |
+| w_proj | one canonical byte (projection plus canonical) | 24.2 ns at 960, 24.0 ns at 1,920 | determined for these row mixes |
+| w_limb | one limb move | none: the observed spreads are narrow | not determined |
+| T1, K-D5 | one state-case solve set; one formation evaluation | none (no state case was run) | not determined |
 | bodies | (no re-formation; mass entries only) | priced by source counts at w_ins | determined by source |
 
-The weights rise with n over 240–960 (w_b64 0.21 → 0.36 ns), so **no weight above n_f = 1,920 is determined by these records.** Rates that would need a future measurement (none is proposed now), with the decision each one holds:
-- the band/binary64 split and the kernel weights above 1,920: the work cap near 3,000 DOF in any family;
-- the T1 solve set (iterations, friction branches, confirmation): admitting state-case families under the budget;
-- a dense Sturm profile: s_max·T9 for branched networks;
-- arc re-formation: the arc family's T7, a minor term.
-
-Until then, a cap can use the conservative upper weights within the measured extent only.
+The weights rise with n (w_b64 from 0.0925 to 0.1579 over 240–960), so **no weight above n_f = 1,920 is determined.** Rates that would need a future measurement (none is proposed now), with the decision each one holds:
+- the band/binary64 split, w_scale, and the kernel weights above 1,920: the work cap near 3,000 DOF in any family;
+- T1, K-D5 and A_conf: admitting state-case families;
+- dense Sturm profiles: s_max·T9 for branched networks;
+- w_limb and broad-spread w_ins: models with wide magnitude ranges (P0 bounds their counts at L_max, but cannot price them);
+- arc re-formation: a minor term.
 
 **Proposed budget form.**
-- *Units and comparison.* Counts c_t are u128, and weights w_t are integer picoseconds per unit.
+- *Units and comparison.* Counts c_t are u128, and weights w_t are integer picoseconds per counted unit.
   - W = Σ_t w_t·c_t, with `checked_mul` and `checked_add`. An overflow refuses as `MODAL_RESOURCE_ARITHMETIC_OVERFLOW`.
   - Stage allotments are A_s = Σ_{t∈s} w_t·c̄_t, with c̄ the bound P0 uses.
   - P0 requires Σ_s A_s ≤ W_budget. Each later check requires its exact Σ_{t∈s} w_t·c_t ≤ A_s.
+  - **A term whose weight is not determined cannot be admitted by arithmetic.** Until its weight is reviewed, the budget either assigns it a reviewed conservative weight or refuses requests in which its count is nonzero.
 - *Refusal names* (proposed, blocking):
   - `MODAL_RESOURCE_PREFLIGHT_EXCEEDED`: P0, for work or memory, naming the dominant term;
   - `MODAL_RESOURCE_QL_ALLOTMENT_EXCEEDED` and `MODAL_RESOURCE_BAND_ALLOTMENT_EXCEEDED`: S1;
-  - `MODAL_RESOURCE_CHECKS_EXCEEDED`: S2;
+  - `MODAL_RESOURCE_CONFIRMATION_ALLOTMENT_EXCEEDED`: T1's counter;
+  - `MODAL_RESOURCE_CHECKS_EXCEEDED`: S2 and S2b;
   - `MODAL_PROJECTION_LIMIT_EXCEEDED`: S2 and S3;
   - `MODAL_RESOURCE_ARITHMETIC_OVERFLOW`.
-- *Checked arithmetic, illustrative only* (SEC-A-like, n_f = 2,994, n_g = 3,000; conservative weights; A_QL at R = 1.5·n·(n − 1); p ≤ n_f; R_max = 2·10⁵ rows, so n_r ≤ 66; k ≤ 4 assumed; W ≈ 7.2·10¹⁴ ps, well inside u64):
+- *Checked arithmetic, illustrative only.* The case is a SEC-A-like model at n_f = 2,994, n_g = 3,000, with no state case, at P0 bounds:
+  - A_QL at R = 1.5·n·(n − 1);
+  - p ≤ n_f;
+  - R_max = 2·10⁵ rows, so n_r ≤ 66;
+  - L = L_max = 202;
+  - s_max = 7;
+  - w_band = 4.18 ns as a stated proxy, not a bound.
+
+  W ≈ 1.0·10¹⁵ ps, within u64.
 
   | Term | Seconds |
   |---|---|
   | T2 screen | 9.4 |
-  | T3 kernel | 159.2 |
-  | T4 band visits | 448.7 |
-  | T4 band insertions | 37.4 |
-  | T8 residuals | 59.3 |
+  | T3 kernel | 159.3 |
+  | T4 visits | 448.7 |
+  | T4 insertions | 37.4 |
+  | T4 scaling (proxy) | 0.1 |
+  | T8, L-dependent terms at L_max included | 225.9 |
   | T6 normalization | 3.4 |
-  | T10 orthogonality | 2.8 |
+  | T10, at L_max | 123.5 |
   | T11 projection | 1.6 |
-  | **total** | **≈ 722 (12.0 min)** |
+  | **total** | **≈ 1,009 (16.8 min)** |
 
-  - The conservative p ≤ n_f band term dominates. A_band at S1 is the lever the budget chooses.
-  - Both the kernel and band weights are extrapolated beyond 1,920 here.
-  - This illustrates the form for one family. **It is not a cap.**
+  - The T8 limb moves (≤ 1.4·10¹¹), T7, and T9's dense-profile work are counted but **not priced**, because their weights are not determined.
+  - S1-band, S2 and S2b replace the p and L_max terms with exact counts before that work starts.
+  - **It is not a cap.**
 - *What is reserved.* The ~3,000-DOF goal across adopted families, the user-facing cap derived from a reviewed resource budget (W_budget and the allotments), and every weight are Agent 0's to set from that review. No coefficient is adopted.
-- *Memory, the same structure from the ledger.*
-  - Per-stage live sets L_s:
-    - T1 per solve: the static live set on its free set;
-    - T2: 88·n_g² + 8·n_f²;
-    - T3: 32·n_f², with T4 adding no n² buffer;
-    - after the solve: 24·n_f², plus orthogonality's n_r·n_f·(24 + 16k), plus 8·n_r·(n_f + n_g) of shapes;
-    - T11: the trees and texts, estimated only.
-  - The no-reuse cumulative is C = 152·n_g² + 56·n_f² + Σ over T1's solves + T11.
-  - P0 compares B₀ + max_s L_s + ρ·(C − max_s L_s) with the memory budget (the 6 GiB provisional ceiling, ROOT Q8(a), until reviewed). **ρ = 1 (no reuse) is the conservative proposal.**
-  - The observed fractions are calibration evidence only, not a fitted constant: 0.67 / 0.56 / 0.49 at 480 / 960 / 1,920 for phases. At 1,920 the entry's faults exceed its peak by 95 MiB, so some memory was returned and faulted again, in aggregate.
-  - 96·n_g² stays a live formula only.
-  - At 2,994 / 3,000, the illustration gives a live set of 833 MiB, a no-reuse cumulative of 1,793 MiB, a projection estimate of up to about 768 MiB at 64 MiB canonical, and orthogonality products of 17 MiB.
+- *Memory: a complete cumulative ledger in requested bytes.* With ρ = 1 (no reuse), P0 compares B₀ + C with the memory budget, where C is the sum of every allocation of every stage. Each stage checks its own entries when their sizes become exact. Those checks are S1-band and S2; S2b is the first exact check of the L-dependent entries.
+
+  | Stage | Allocations, each counted once (bytes) | Exact at |
+  |---|---|---|
+  | T1 (state case) | S_T1 × the T2 ledger on its free set; per iteration with friction, 16·d² + 8·d·n_g (influence, coupling, unit forces); E_conf × the K-D5 evaluation's buffers (not derived here, so held under A_conf) | P0 (A_conf enforced) |
+  | T2 | 152·n_g² + 16·n_f² + O(nnz) (rounding records) | P0 |
+  | Pencil | K, M 16·n_f²; entries 24·(nnz_l(K) + nnz_l(M)); labels, maps and p_k O(n_g) | P0 |
+  | T3 | R 8·n_f²; work 8·n_m·n_f; census factor 8·m²; O(n) vectors | P0 |
+  | T4 | roots 8n; p screened records; one O(n_f·L) row sum at a time | S1-band |
+  | T5 | ids, frequencies, clusters O(n_c) | S2 |
+  | T6 | ≤ 16·n_r·n_f (shapes and below-normal lists), plus one `ExactSum` per call | S2 |
+  | T7 | about 4.8 KB per element (`Mapped` rows and the 12 × 12 dd matrices for K and M); the two `BTreeMap`s, ≤ (80 + 8·L) per re-formed position; formed-entry accumulators, (48 + 8·L) per stored entry; the off-pattern map; 2 × n WideDd | S2 at L_max |
+  | T8 | transient 2·n_f·(48 + 8·L) + 16·L per pair; retained n_c records | S2b |
+  | T9 | `ShiftPencil` 32·P_u + adjacency 8·(n + 2P_u) + merged entries 24·(nnz_l + n) (transient); **per candidate, cumulative** 24·P_u + 16·P + 40·n (formed list, profile, its clone in `factorize_ldlt`, first columns and work, observation vectors) (`sturm.rs:50`) | S2 (symbolic P) |
+  | T10 | **every product retained**: n_r·n_f·(24 + 16·L) + 24·n_r; transient rows n_f·(48 + 8·L) per shape | S2b |
+  | Outcome | shapes 8·n_r·n_g; computed evidence O(n_c); mass entries 24·P_M | S2 |
+  | T11 | two value trees and two texts | S3 |
+
+  - *Illustration at n_f = 2,994* (P0, L_max, dense Sturm profile): B₀ + C ≈ **3.8 GiB**, under the provisional 6 GiB. The parts are:
+    - T2: 1,441 MiB;
+    - pencil: 137 MiB;
+    - T3: 205 MiB;
+    - T9: 487 MiB at the dense profile;
+    - T7: 222 MiB;
+    - T10: 614 MiB;
+    - the projection estimate: 768 MiB;
+    - the rest: under 30 MiB.
+  - The L_max and dense-profile terms shrink at S2 and S2b.
+  - **Still outside repository source, and held by a stated allowance:**
+    - allocator size-class rounding and metadata (macOS libmalloc);
+    - the value trees' per-node size (serde_json's `BTreeMap` layout at the pinned toolchain). S3 checks a per-row bound derived from that layout, which is an open item.
+  - The observed phase fractions (0.67 / 0.56 / 0.49 at 480 / 960 / 1,920) are calibration evidence only, not a fitted constant. At 1,920 the entry's faults exceed its peak by 95 MiB, so in aggregate some memory was returned and faulted again. 96·n_g² stays a live formula only.
 - *The projection guard under the approved structure.*
-  - At S2, the early check uses B_doc with template bounds. Its "before normalization" placement holds: normalization changes values, not counts or widths (every value is already at its worst-case width), and cluster completion has already run, so N, n_c, n_cl, n_r and P_M are the actual dimensions.
+  - At S2, the early check uses B_doc with template bounds. Its "before normalization" placement holds: N, n_c, n_cl, n_r and P_M are the actual dimensions once cluster completion has run, and normalization changes values only. **The widths stay bounded: the 25-byte allowance covers normalization's change.**
   - S3 repeats the check with exact strings and the exact Sturm count, before the tree is allocated.
   - Rows and bytes are checked u128, and nothing is truncated.
   - B_doc stays **proposed** until its four items are checked independently:
@@ -1448,13 +1489,15 @@ Until then, a cap can use the conservative upper weights within the measured ext
 | τ_r (residual threshold, A2) | held | §5.3.7's targeted A2 evidence; the per-pair η in the stage-1 and 1,920 records (TEST-LOCAL) | the measured-residual engineering target; Agent 0, under DEC-026 | that target's definition |
 | A3: τ_μ, c_μ, κ_μ, c_f | held | §5.3.7's μ/μ_max table. At 1,920 a genuine high-mode μ fell below the test-local floor (τ_μ = 10⁻¹²): 640 pairs rejected and the census unresolved. The ten low modes stand only under the lower-gap and completed-cluster premises. | the selected μ-domain pins, without tightening τ_μ to force admission; Agent 0 | the decision itself; the whole-spectrum endpoint at this spread waits on it |
 | A1 (τ_t, the identity tolerance, g_max, τ_e, τ_m, s_max, gap positions, offsets, the QL limit) and A2's κ_c, κ_s, τ_o, δ_c | approved or adopted as criteria (Agent 0, 2026-11-04) | §5.3.7 | none, beyond the joint production instance | A3 and τ_r |
-| O-4 work budget: W_budget, the allotments, the user-facing cap | proposed form above; no coefficient | the stage-1 and 1,920 weights (table above) | the reviewed resource budget and the cap across adopted families; Agent 0 | the undetermined weights above, and the S1 kernel hook, a priced change with D3 |
-| O-4 memory budget: ρ, B₀ and the ceiling | proposed form above | the ledger; the observed brackets at 480 / 960 / 1,920 | ρ (1 proposed), and the ceiling beyond the provisional 6 GiB; Agent 0 | none for ρ = 1; T1's solve set for state cases |
+| O-4 work budget: W_budget, the allotments, the user-facing cap | proposed form above; no coefficient | the stage-1 and 1,920 weights (table above) | the reviewed resource budget and the cap across adopted families; Agent 0 | the undetermined weights above (w_band, w_scale, w_limb, kernel above 1,920, T1/K-D5, dense Sturm, arcs), the S1 kernel hook and the S2/S2b reordering, priced changes with D3 |
+| O-4 memory budget: ρ, B₀ and the ceiling | proposed form above | the ledger; the observed brackets at 480 / 960 / 1,920 | ρ (1 proposed), the allowance for allocator rounding and library layout, and the ceiling beyond the provisional 6 GiB; Agent 0 | the stated allowance (outside repository source); A_conf and the K-D5 buffers for state cases |
 | Projection limits: R_max, B_max, any in-memory multiple | structure approved; no limits | #59's custody limit (64 MiB displayable); the projection estimates | the limits; Agent 0 with I3b | #59 merging; I3b |
 | B_doc | proposed | 1,691 fixture rows and 10 headers within the bound | an independent check of its four items; then Agent 0's adoption | that check |
 | The full reader's scope (§5.3.9 item 4) | open | §5.3.4 | acceptance and wiring into the verdict path; Agent 0 | I3b |
 | Recording policy, O-8 (§5.3.9 item 5) | open | none | task record, store and version; Agent 0 with DEL-00-06 | the decision |
-| D3 and the independent numerical review (§5.3.9 item 6) | open | 8 unclassified I3a arguments at `372a16aa5` | the MODAL-ID classifications and registration; DEL-04-08 | that D3 |
+| D3 (§5.3.9 item 6) | open | 8 unclassified I3a arguments at `372a16aa5` | the MODAL-ID classifications and the registration of I3a's priced change; DEL-04-08 | that D3 |
+| Independent numerical review of I3a (§5.3.9 item 6) | open; a separate obligation from D3 | the reviews of the slices so far (PR #33 and the I3a rounds) | an independent numerical review of the I3a result family and readers; Agent 0 to commission | its scheduling |
+| Subject census (§5.3.2, §5.3.10) | not implemented; required before admission | §5.3.2's design | `binding.subject_census`, the stated subject rule in both readers, regenerated fixtures, corpus cases for a missing arc, body, straight member and support; a separate small slice, Agent 0 | the slice |
 | Bessel (§5.3.9 item 7) | temporary capability limit | §5.3.4 | option B, or other common-M evidence; Agent 0 | that evidence |
 | Discretization factor c (O-5) | not adopted | the f_e observations (O-5) | whether to adopt `MODAL_MASS_DISCRETIZATION_COARSE`; M1a owner | its benchmark |
 
