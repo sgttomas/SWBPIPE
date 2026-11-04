@@ -192,6 +192,28 @@ CARRIER_WRITERS.update({
     "fixtures/persistence/s2_unresolved_rule_pack_run": PERSISTENCE_RUN_WRITERS,
     "fixtures/persistence/recorded_run_witness": PERSISTENCE_RUN_WRITERS,
 })
+# C1 native custody (DEL-04-05): the builder corpus's records are the unchanged TypeScript builder's
+# on each case's held inputs; the reopen cases' recorded runs and the reopen replies (the actual
+# commands on a real store) carry records sealed by their own analysis_run_record checksum and the
+# current table digests. Each is written by its generator after the one it reads; a run recorded
+# before RT-A4 is stored and returned verbatim (stored_custody_tests asserts no reseal). Named by
+# exact path: the other C1 corpora hold no sealed record.
+C1_CUSTODY_WRITERS = (
+    "ANALYSIS_RUN_V03_CASES_WRITE=1 vitest run (apps/desktop) src/services/analysisRunV03Parity.test.ts; then "
+    "HISTORICAL_REOPEN_CASES_WRITE=1 vitest run (apps/desktop) src/services/historicalReopenParity.test.ts; then "
+    "NATIVE_PERSISTENCE_REPLIES_WRITE=1 cargo test (apps/desktop/src-tauri) "
+    "the_webviews_persistence_replies_are_the_commands_replies; then "
+    "NATIVE_REOPEN_RECORD=1 vitest run (apps/desktop) src/features/workspace/nativeReopen.session.test.tsx "
+    "src/features/workspace/nativeReopenPreRtA4.session.test.tsx; then "
+    "NATIVE_REOPEN_REPLIES_WRITE=1 cargo test (apps/desktop/src-tauri) stored_custody_tests "
+    "(record and write until a pass records none)"
+)
+CARRIER_WRITERS.update({
+    "apps/desktop/src/test-support/analysis-run-v03/analysis_run_v03_cases.json": C1_CUSTODY_WRITERS,
+    "apps/desktop/src/test-support/native-reopen/historical_reopen_cases.json": C1_CUSTODY_WRITERS,
+    "apps/desktop/src/test-support/native-reopen/native_reopen_replies.json": C1_CUSTODY_WRITERS,
+    "apps/desktop/src/test-support/native-reopen/native_reopen_pre_rt_a4_replies.json": C1_CUSTODY_WRITERS,
+})
 
 
 # ---------------------------------------------------------------- apply-u4b
