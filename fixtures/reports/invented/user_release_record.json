@@ -25,7 +25,7 @@
     "input_manifest_ref": "input-manifest:project-precision-connected-fixture:ec2b590838e26dbff151fe097131cd7a9ace800cb409041dbdf68a25a3e2c81e",
     "input_manifest_sha256": "ec2b590838e26dbff151fe097131cd7a9ace800cb409041dbdf68a25a3e2c81e",
     "result_envelope_id": "result-envelope:run:preview-linear-static-001",
-    "result_document_derivative_sha256": "7f3a9f526506bcf553403c14dc543dae040327af6dde6e73adb1034ee09fbc48"
+    "result_document_derivative_sha256": "37d1ebeacd0a61f07db7ef22e1729377066da49a4540b8111fadba257164beea"
   },
   "user_released_at": "2026-10-27T00:00:00Z"
 }
