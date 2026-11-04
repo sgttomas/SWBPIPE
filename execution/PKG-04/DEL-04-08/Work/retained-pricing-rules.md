@@ -3859,8 +3859,8 @@ This record changes no source the registration binds. This is test evidence, not
 (`u4b_evidence::Index::any` determinism; DEL-04-07 `u4b-u5b-implementation.md` §5.1), combined by Agent 0 and placed
 after RT-A4 (§8.46) and before modal/#97. It is made under the owner's removal of explicit owner approval for
 coefficient movement; source-derived pricing, independent scrutiny and preservation of the registered state remain
-required. This records no acceptance, the threshold and M are unchanged, and the AC-004 stack witnesses have not been
-run for it.
+required. This records no acceptance, and the threshold and M are unchanged. The AC-004 stack witnesses and the
+isolated challenge passed 7/7 on the registered binary (below).
 
 **Priced source.** `a47a9ebf8`: `claude/rt-perf-evidence-once` (#102 at `f6eb48036`) with, merged normally, RT-A4's
 frozen candidate `e8a59f1fd`, #104 at `a0f83a7e3` and #98's head `45fb7a5f8`. The predecessor is `45fb7a5f8`, whose
@@ -3939,8 +3939,9 @@ Against §8.46 at the same atoms, W4 is +7,918 B (192·32 + 1,774) in both modes
 the maximum, 2,726,516,357 B (dense) below ⌊0.9M⌋ = 11,596,411,699 B at the unchanged M = 12,884,901,888 B. The law
 tests (all phases, R, the 0.9 margin and the 5% TAV_W/TAV_X reserve) pass.
 
-**All points.** The z ≥ 1 points use §8.46's same-build supplement unchanged: no type definition changed after
-`fbd0931d5`. Each point moves only W4, by +7,918 B in both modes, and each stays at or below the merged tree in every
+**All points.** The z ≥ 1 points use §8.46's same-build supplement unchanged: no type underlying the 16
+supplemental atoms, and no build configuration, changed after `fbd0931d5` (#104 changes `Index`, which no supplemental
+atom measures; independent review confirmed the values against §8.46's native log). Each point moves only W4, by +7,918 B in both modes, and each stays at or below the merged tree in every
 phase and mode. W3 E + R dense: E(3) 8,783,944,541, L(3,0) 8,301,415,706, L(2,1) 7,630,434,649 and L(1,2)
 6,917,685,926 B. The last two are the predecessor's values too. §8.46's recorded L(2,1) 7,622,760,025 and L(1,2)
 6,883,640,486 come from an earlier run of its own evidence; its final runs evaluate to the values here.
@@ -3954,8 +3955,35 @@ phase and mode. W3 E + R dense: E(3) 8,783,944,541, L(3,0) 8,301,415,706, L(2,1)
   `W1_PHASE_BYTES` [6,449,924,745, 6,509,056,089] and `MAX_PHASE_BYTES` [8,743,655,134, 8,802,786,478] are
   unchanged.
 
+**AC-004.** Coefficients and the registration move, so the six stack-headroom witnesses and §8.40's isolated
+challenge were run on the registered binary. They passed **7/7 at `c4f49822f`**, whose `core/` source and block are
+the ones registered here (later commits change only this Work text).
+- **Binaries.** `open_pipe_stress_product_physics-a4a1c1c92678963a` SHA-256
+  `b283e762d68e68d6bcf16419d14caca720c3eff1bf725edd08ce97e4329dcfbc` and `retained_memory_challenge-a98f0cfef32b457f`
+  SHA-256 `9c8f6ced6de975b65c2fbb75d0306d06cca46f4777b92160bb749ecd1572c44d`, with profile `retained_memory.rs`
+  `1f49c1d59fdbe04a74fb167345c2a3bda6ffd842d1c1822bfd8177afcbf11645`, product_physics `Cargo.lock`
+  `b7ebb02aafa8cfe214c18bc64941381b33ab3f9295e0fc774ee0819e1e4f5653` and rustc 1.97.1 (8bab26f4f 2026-07-14). They
+  were built beforehand under the slot wrapper (`cargo test --offline --no-run --lib --test retained_memory_challenge`,
+  test profile, RUSTFLAGS unset); a second `--no-run` reported them fresh.
+- **Clearance and checks.** Agent 0 cleared one `t3_exclusive.sh` window with memguard, at most 55 s internal and 60 s
+  external including teardown. The identities above were recorded before queueing and all re-verified at admission
+  (head, clean tree, profile, lock, both binaries, compiler, no RUSTFLAGS). No other exclusive job was pending.
+- **Timing.** Queued 2026-11-04T01:08:44Z; admitted and started 01:12:35Z, with the internal deadline at 01:13:30Z
+  and the external at 01:13:35Z. It ended at 01:12:49Z: 14.73 s, and returned through teardown by 01:12:49Z.
+- **Discipline.** Each test ran in its own process, prebuilt and invoked directly with `--exact --test-threads=1`
+  (`--ignored` for the witnesses). Nothing was compiled inside the window, both binary hashes were unchanged
+  afterwards, and there was no retry and no extra test. No owned process or `exclusive.pending` remained.
+- **Results, sparse and dense:**
+  - `witness_headroom_w1_at_one_mebibyte`: ok (1.91 s), ok (0.65 s);
+  - `witness_w2_deep_milestone_publishes`: ok (1.30 s), ok (1.29 s);
+  - `witness_w_c2_publishes`: ok (2.44 s), ok (2.43 s);
+  - `retained_direct_peak_is_within_the_profiles_bounds`: ok (4.34 s). Its `W1_PHASE_BYTES`/`MAX_PHASE_BYTES` are the
+    unchanged values above.
+
+This is test evidence, not an acceptance.
+
 Run evidence is in `/Users/ryan/dev/chirality-t3/scratch/rt-perf-d3/` (the predecessor and candidate runs, the
-comparisons, the atom logs and evaluations). It is review input, not a permanent dependency.
+comparisons, the atom logs and evaluations, and `ac004/`). It is review input, not a permanent dependency.
 
 ## 9. Memory-profile gates and registration
 
