@@ -19,7 +19,7 @@ import { CsvExportControl } from "../result-export/CsvExportControl";
 import { CSV_SOFTWARE_VERSION, CSV_UNIT_BASIS_DISPLAY_RULE, csvResultProvenance, csvUnitBasis } from "../result-export/csvProvenance";
 import { DISPLACEMENT_EXTREMES_CSV_KIND, DISPLACEMENT_NO_EXTREME, DISPLACEMENT_NO_SUPPORT, displacementExtremesCsv } from "./displacementExtremesCsv";
 import type { ResultOverlayStanding } from "./numericalHealth";
-import { SUPPORT_LOAD_ENVELOPE_TEXT } from "./SupportLoadSummaryPanel";
+import { SUPPORT_LOAD_DERIVED_TEXT, SUPPORT_LOAD_ENVELOPE_TEXT } from "./SupportLoadSummaryPanel";
 import {
   DISPLACEMENT_COMPONENTS,
   DISPLACEMENT_ENVELOPE_REASON,
@@ -66,11 +66,13 @@ function Dash({ label }: { label: string }) {
   return <span title={label}><span aria-hidden="true">—</span><span className="visually-hidden">{label}</span></span>;
 }
 
-function exclusionText(view: DisplacementExtremesView, total: number): string {
+function exclusionText(view: DisplacementExtremesView, total: number, derived = 0): string {
   const { withheld, envelope, notChosen } = view.exclusions;
+  // RT-A4: absolute sums, SRSS and solved states plus derived bounds (`derived`) are counted apart.
   const parts = [
     withheld > 0 ? `${withheld} withheld by numerical standing (${view.exclusions.withheldRows} rows)` : null,
-    envelope > 0 ? `${envelope} range envelope${envelope === 1 ? "" : "s"}` : null,
+    envelope - derived > 0 ? `${envelope - derived} range envelope${envelope - derived === 1 ? "" : "s"}` : null,
+    derived > 0 ? `${derived} unsigned or bounded combination${derived === 1 ? "" : "s"}` : null,
     notChosen > 0 ? `${notChosen} not chosen` : null
   ].filter((part): part is string => part !== null);
   const base = `Maximum and minimum over ${view.chosenCases.length} of ${total} case${total === 1 ? "" : "s"}`;
@@ -177,7 +179,8 @@ export function DisplacementExtremesPanel({
           <fieldset className="displacement-extremes-cases" data-testid={tid("cases")}>
             <legend>Cases</legend>
             {data.cases.map((item) => {
-              const reason = item.standing === "withheld" ? item.withheldReason : item.envelope ? DISPLACEMENT_ENVELOPE_REASON : null;
+              const reason = item.standing === "withheld" ? item.withheldReason
+                : item.envelope ? (item.note ? `${item.note[0].toUpperCase()}${item.note.slice(1)}: not one solved state` : DISPLACEMENT_ENVELOPE_REASON) : null;
               const reasonId = tid(`case-reason-${item.key}`);
               return (
                 <label key={item.key} data-standing={item.standing}>
@@ -201,8 +204,9 @@ export function DisplacementExtremesPanel({
             })}
             <button type="button" data-testid={tid("cases-all")} disabled={unchosen.size === 0} onClick={() => setUnchosen(new Set())}>All cases</button>
           </fieldset>
-          <p data-testid={tid("exclusions")}>{exclusionText(view, data.cases.length)}</p>
-          {data.cases.some((item) => item.envelope && item.standing === "admitted") ? <small data-testid={tid("envelope-note")}>{SUPPORT_LOAD_ENVELOPE_TEXT}</small> : null}
+          <p data-testid={tid("exclusions")}>{exclusionText(view, data.cases.length, data.cases.filter((item) => item.standing === "admitted" && item.envelope && item.note !== undefined).length)}</p>
+          {data.cases.some((item) => item.envelope && item.note === undefined && item.standing === "admitted") ? <small data-testid={tid("envelope-note")}>{SUPPORT_LOAD_ENVELOPE_TEXT}</small> : null}
+          {data.cases.some((item) => item.note !== undefined && item.standing === "admitted") ? <small data-testid={tid("derived-note")}>{SUPPORT_LOAD_DERIVED_TEXT}</small> : null}
           {unused ? <small data-testid={tid("unused")}>{unused}</small> : null}
           {view.sort.note ? <p data-testid={tid("sort-note")}>{view.sort.note}</p> : null}
           {view.chosenCases.length === 0 ? (

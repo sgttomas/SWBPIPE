@@ -130,12 +130,69 @@ pub fn binding(route: &str) -> Value {
 }
 /// A routed source's table binding, keyed by its `semantic_contract_id` within its route's
 /// admitted set (pf-timoshenko.md §4); null for unsupported or an identity outside the set.
+/// RT-A4 §10.4: inside a recorded-run read under a variant of this identity, the
+/// variant's binding (the record's); everywhere else the current table's.
 pub fn binding_of(route: &str, source: &Value) -> Value {
     let id = source["producer"]["semantic_contract_id"].as_str().unwrap_or_default();
     BINDINGS
         .iter()
         .find(|b| b.0 == route && b.1 == id)
-        .map_or(Value::Null, |b| json!({"id": b.1, "sha256": b.2}))
+        .map_or(Value::Null, |b| {
+            json!({"id": b.1, "sha256": crate::recorded_tables::selected_binding(b.1).unwrap_or(b.2)})
+        })
+}
+/// The current table digest of an identity some route admits.
+pub fn current_binding(id: &str) -> Option<&'static str> {
+    BINDINGS.iter().find(|b| b.1 == id).map(|b| b.2)
+}
+
+/// RT-A4 §10.4 (DEL-05-02 `absolute-sum-srss-combinations.md`, "Recorded results from
+/// before RT-A4"): the recorded-run read entries. Each is its current entry run inside
+/// `recorded_tables::read_recorded` under the record's binding `{id, sha256}`: the current
+/// binding reads as the current entry does; a registry variant of the statement's identity
+/// is read under its own tables; any other binding is refused by name and nothing is read.
+/// Only the recorded-run read, compare and re-save paths call these; no current admission
+/// path does, so a statement carrying a variant's limitations stays refused there.
+fn recorded(binding: &Value, source: &Value, read: impl FnOnce() -> Value, refusal: impl FnOnce(&str) -> Value) -> Value {
+    let id = source["producer"]["semantic_contract_id"].as_str().unwrap_or_default();
+    let current = current_binding(id).map(|sha| (id, sha));
+    crate::recorded_tables::read_recorded(binding, source, current, read).unwrap_or_else(|code| refusal(&code))
+}
+/// [`dispatch`] of a recorded statement under its recorded binding. A refused binding is
+/// refused as a header refusal is: unsupported, with its code as the standing's finding.
+pub fn dispatch_recorded(source: &Value, binding: &Value, model: Option<&Value>, invocation: Option<&Value>) -> Value {
+    recorded(binding, source, || dispatch(source, model, invocation), |code| {
+        json!({"ok": false, "route": UNSUPPORTED, "binding": Value::Null, "error": error_json(code),
+            "standing": {"route": UNSUPPORTED, "token": "unsupported", "status": "needs_recompute", "eligible": false, "findings": [code]}})
+    })
+}
+/// [`validate`] of a recorded statement under its recorded binding.
+pub fn validate_recorded(reader: &str, source: &Value, binding: &Value, model: Option<&Value>, invocation: Option<&Value>) -> Value {
+    recorded(binding, source, || validate(reader, source, model, invocation), verdict_refusal)
+}
+/// [`transport`] of a recorded statement under its recorded binding.
+pub fn transport_recorded(reader: &str, source: &Value, binding: &Value) -> Value {
+    recorded(binding, source, || transport(reader, source), verdict_refusal)
+}
+/// [`row_semantics`] under a recorded statement's recorded binding.
+pub fn row_semantics_recorded(row: &Value, source: &Value, binding: &Value) -> Value {
+    recorded(binding, source, || row_semantics(row, Some(source)), verdict_refusal)
+}
+/// [`row_semantics_each`] under a recorded statement's recorded binding.
+pub fn row_semantics_each_recorded(rows: &[Value], source: &Value, binding: &Value) -> Value {
+    recorded(binding, source, || row_semantics_each(rows, Some(source)), verdict_refusal)
+}
+/// `retained_precision::validate` (its outcome JSON) of a recorded successor under its
+/// recorded binding; a refused binding is a G0 refusal.
+pub fn retained_recorded(source: &Value, binding: &Value, invocation: Option<&Value>) -> Value {
+    recorded(binding, source, || crate::retained_precision::outcome_json(&crate::retained_precision::validate(source, invocation)),
+        |code| json!({"ok": false, "error": {"gate": "G0", "code": code, "detail": Value::Null}}))
+}
+/// `retained_precision::validate_transport_metadata` of a recorded successor under its
+/// recorded binding; a refused binding is a G0 refusal.
+pub fn retained_transport_recorded(source: &Value, binding: &Value) -> Value {
+    recorded(binding, source, || crate::retained_precision::outcome_json(&crate::retained_precision::validate_transport_metadata(source)),
+        |code| json!({"ok": false, "error": {"gate": "G0", "code": code, "detail": Value::Null}}))
 }
 
 /// pf-timoshenko.md §4 (model-bound): a preview-physics identity binds the beam theory
@@ -291,13 +348,17 @@ pub fn validate(reader: &str, source: &Value, model: Option<&Value>, invocation:
         "source-recovery" => checked(source_recovery(source)),
         // T4-U4b (§5.1): with the captured model, τ bit for bit (G2).
         // pf-timoshenko.md §4: with the model, a crossed identity is refused first.
-        "preview-physics" => checked(sc::validate_preview_physics_evidence(source).and_then(|()| {
+        // RT-A4 (review r1 P2): with the model, the combination gates and unsigned rows
+        // are re-derived from it; without, refused where the document cannot verify them.
+        "preview-physics" => checked(crate::preview_physics_evidence::validate_preview_physics_evidence_with_model(source, model).and_then(|()| {
             // Operating-case slice 1a (DEL-05-02 `pf-nonlinear-operand-standing.md` §3):
             // the operand records bound to the model's combinations.
             model.map_or(Ok(()), |m| {
                 bind_preview_shear_model(source, m)
                     .and_then(|()| crate::u4b_evidence::preview_model_checks(source, m))
                     .and_then(|()| crate::preview_combination_operands::model_checks(source, m))
+                    // RT-A4 (review r1 P2): the gates and unsigned rows, from the model.
+                    .and_then(|()| crate::preview_combination_gates::check(source, Some(m)))
             })
         })),
         // Current pressure-2 reader, then G2's model checks,

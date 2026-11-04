@@ -31,8 +31,10 @@ ROOT = Path(__file__).resolve().parents[1]
 # hashes and replaced e3e0830d.../c24d4a1c....
 # Model 0.9.0 re-pin (S1; DEL-02-01 Design model-document-0.9.0.md §3.6): read from the regenerated producer bytes on the
 # registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
-PINNED = {"sparse_interactive": "c4aca00852fd4d6157fe8f80ae709a6bf2ad4b61f8e911e15a414902c99b5a8f",
-          "dense_scrutiny": "da3dafab793aa0d43c056f1057987d1feb06d9c0069396e68d5a86e5dc694daa"}
+# RT-A4 D3 re-pin (DEL-04-08 §8.46): the regenerated carriers move only formulation_basis.limitations[6] (§10.2) and the
+# digests binding it; each restated to the former sentence and resealed (Python 07e) reproduces its former pin.
+PINNED = {"sparse_interactive": "49dfe6ebab459bbfdb68a541080313199cc24f85e649f1bbfb005c5be155a567",
+          "dense_scrutiny": "d1c8edd1efcaf0986d2625714d76dbca81275e2fa32acaf9f4ade798dba48b11"}
 MODES = sorted(PINNED)
 LEGACY = {"version": "1.0.0", "mode": "legacy_pressure_v1"}
 INVOCATION = ("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH")
@@ -669,8 +671,8 @@ B3B_PASSES = {
 # and 3bb19d83.../aeb67070....
 # Model 0.9.0 re-pin (S1; DEL-02-01 Design model-document-0.9.0.md §3.6): read from the regenerated producer bytes on the
 # registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
-EXACT_PINNED = {"sparse_interactive": ("87bc4072054abd9f4ab83ee75ca2131a08fbba3bf50ae9ea1a6543897ef85ff7", "8111a4e741b7c29a26d6e50af7fb7ce9b3334c246ddb01ca574e96687cf4c938"),
-                "dense_scrutiny": ("ff97d96d20fdc9f6b88b1e530a8ead9274a5fd34dcb838e00aa31ad682ada7d5", "d1612fb675093ba29bea5d3986451b4b7dd089df5308e2b1fdc927e5ff0508d7")}
+EXACT_PINNED = {"sparse_interactive": ("4d3fa2c743d8addc26a7dedb00084cb8454ace6ee21e066a83a3152d015403e3", "f31760066b8991d68f1319e870ae1cc4344ce951f33a68cb491f98352d0e4b9e"),
+                "dense_scrutiny": ("7384cbb8d81ff2804f672a06acc83772e0529ffbf3f5e1e6fb426978f5c44bbd", "6dadf1ca7977218b7cfbced93cbc74923d7911946cc64ea42fbe56646f252e89")}
 KINDS = ("synthetic", "producer")
 
 
@@ -1444,3 +1446,21 @@ def test_model_0_9_0_g8_declines_condition_sets_spectra_and_set_references(chang
     with pytest.raises(rp.RetainedPrecisionError) as refused:
         rp._g8(body, {"model_ref": "p", "retained_precision": {"body": body}}, invocation)
     assert (refused.value.gate, refused.value.code) == ("G8", "RETAINED_PRECISION_" + code)
+
+
+def test_rv120_canonical_input_pins_are_the_python_materialization():
+    """The eight RV120/N2b pins of `retained_precision_contract.rs` (sha256 of the canonical JSON of
+    `[source, invocation]`) are the canonical digests of this file's independent materialization of the same shapes
+    from the committed bases (`rv120_input`), in the Rust order: N2b, RV120 N2, RV120 F2. A carrier or producer
+    change that moves an input must move these pins the same way (RT-A3 increment 3 review; DEL-04-08 §8.44)."""
+    import re
+    from tests.verifiers.canonical_json import canonical_sha256
+    text = (ROOT / "core/reporting/result_export/tests/retained_precision_contract.rs").read_text()
+    pins = []
+    for name, close in (("REPAIR03_N2B_INPUTS", r"\];"), ("RV120_N2_INPUTS", r"\];"), ("RV120_FORGERY_INPUTS", r"\n\];")):
+        pins += re.findall(r"[0-9a-f]{64}", re.search(r"const %s[^=]*= \[(.*?)%s" % (name, close), text, re.S).group(1))
+    order = [s for s in RV120["shapes"] if s["name"].startswith("N2b: ")]
+    order += [s for s in RV120["shapes"] if s["name"].startswith("X G8: an exact_cases entry")]
+    order += [s for s in RV120["shapes"] if s["name"].startswith("forge ")]
+    assert len(pins) == len(order) == 8
+    assert [canonical_sha256(list(rv120_input(shape))) for shape in order] == pins

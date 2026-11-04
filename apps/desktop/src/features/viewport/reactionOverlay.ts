@@ -8,7 +8,7 @@
 
 import type { MechanicsResult, PreviewModel, Vec3 } from "../../types";
 import { overlayMayShowRow, type ResultOverlayStanding } from "../results/numericalHealth";
-import { RANGE_ENVELOPE_BASIS, basisKey, type ResultOverlayCase } from "./resultColourOverlay";
+import { basisKey, isOneSolvedState, type ResultOverlayCase } from "./resultColourOverlay";
 
 type ResultRow = MechanicsResult["results"][number];
 
@@ -121,7 +121,7 @@ export function buildReactionOverlay(input: {
   let heldRowCount = 0;
   for (const row of result.results) {
     if (row.kind !== REACTION_COMPONENT_KIND && row.kind !== REACTION_FORCE_MAGNITUDE_KIND && row.kind !== REACTION_MOMENT_MAGNITUDE_KIND) continue;
-    if (!supportNodes.has(row.entity_ref) || basisKey(row.basis_ref) !== overlayCase.key || row.metadata?.basis === RANGE_ENVELOPE_BASIS) continue;
+    if (!supportNodes.has(row.entity_ref) || basisKey(row.basis_ref) !== overlayCase.key || !isOneSolvedState(row, result.results)) continue;
     if (!Number.isFinite(row.value)) continue;
     withRows.add(row.entity_ref);
     if (!overlayMayShowRow(standing, row)) {

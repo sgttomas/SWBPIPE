@@ -2209,6 +2209,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "open_pipe_stress_modal_eigen"
+version = "0.1.0"
+dependencies = [
+ "open_pipe_stress_frame_kernel",
+ "open_pipe_stress_sparse_direct",
+]
+
+[[package]]
 name = "open_pipe_stress_nonlinear_integration"
 version = "0.1.0"
 dependencies = [
@@ -2270,6 +2278,7 @@ dependencies = [
  "open_pipe_stress_frame_kernel",
  "open_pipe_stress_linear_supports",
  "open_pipe_stress_load_case_algebra",
+ "open_pipe_stress_modal_eigen",
  "open_pipe_stress_nonlinear_integration",
  "open_pipe_stress_nonlinear_supports",
  "open_pipe_stress_primitive_loads",
@@ -2334,6 +2343,7 @@ version = "0.1.0"
 dependencies = [
  "open_pipe_stress_canonical_json",
  "open_pipe_stress_correct_norm",
+ "open_pipe_stress_load_case_algebra",
  "open_pipe_stress_units",
  "serde_json",
  "sha2",

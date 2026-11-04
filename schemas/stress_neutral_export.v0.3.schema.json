@@ -3379,7 +3379,10 @@
                   null,
                   "NONLINEAR_COMBINATION_REQUIRES_SOLVE",
                   "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE",
-                  "COMBINATION_MODULUS_BASIS_MIXED"
+                  "COMBINATION_MODULUS_BASIS_MIXED",
+                  "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND",
+                  "CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED",
+                  "LOAD_COMBINATION_OPERAND_WITHHELD"
                 ]
               }
             },
@@ -3403,7 +3406,10 @@
                     "enum": [
                       "NONLINEAR_COMBINATION_REQUIRES_SOLVE",
                       "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE",
-                      "COMBINATION_MODULUS_BASIS_MIXED"
+                      "COMBINATION_MODULUS_BASIS_MIXED",
+                      "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND",
+                      "CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED",
+                      "LOAD_COMBINATION_OPERAND_WITHHELD"
                     ]
                   }
                 }
@@ -3414,7 +3420,7 @@
         "combination_operands": {
           "type": "array",
           "minItems": 1,
-          "description": "Operating-case slice 1a (DEL-05-02 Design pf-nonlinear-operand-standing.md): one record per admitted combination of a model with nonlinear supports, in model order; present only when there is one. States each operand's numerical standing (its numerical_quality case record, verbatim); the combination's rows stay derived inspection results without their own numerical enclosure.",
+          "description": "Operating-case slice 1a (DEL-05-02 Design pf-nonlinear-operand-standing.md): one record per admitted combination of a model with nonlinear supports, in evaluation order (RT-A4: a subtraction, a range envelope, an absolute sum or SRSS, or a mechanics combination admitted by decision OQ-1; a combination operand is {combination_id}); present only when there is one. States each operand's numerical standing (its numerical_quality case record, verbatim); the combination's rows stay derived inspection results without their own numerical enclosure.",
           "items": {
             "type": "object",
             "additionalProperties": false,
@@ -3433,11 +3439,65 @@
               "basis": {
                 "enum": [
                   "result_state_subtraction",
-                  "range_envelope"
+                  "range_envelope",
+                  "mechanics",
+                  "absolute_sum",
+                  "srss"
                 ]
               },
               "expression": {
                 "oneOf": [
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "terms"
+                    ],
+                    "properties": {
+                      "terms": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "required": [
+                                "load_case_id",
+                                "factor"
+                              ],
+                              "properties": {
+                                "load_case_id": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "factor": {
+                                  "type": "number"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "required": [
+                                "combination_id",
+                                "factor"
+                              ],
+                              "properties": {
+                                "combination_id": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "factor": {
+                                  "type": "number"
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  },
                   {
                     "type": "object",
                     "additionalProperties": false,
@@ -3488,129 +3548,293 @@
                 "type": "array",
                 "minItems": 1,
                 "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "load_case_id",
-                    "modulus_basis_ref",
-                    "modulus_basis_temperature",
-                    "numerical_quality"
-                  ],
-                  "properties": {
-                    "load_case_id": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "modulus_basis_ref": {
-                      "oneOf": [
-                        {
-                          "type": "string",
-                          "minLength": 1
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "modulus_basis_temperature": {
-                      "oneOf": [
-                        {
-                          "type": "object",
-                          "additionalProperties": false,
-                          "required": [
-                            "value",
-                            "unit"
-                          ],
-                          "properties": {
-                            "value": {
-                              "type": "number"
-                            },
-                            "unit": {
-                              "type": "string",
-                              "minLength": 1
-                            }
-                          }
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "numerical_quality": {
+                  "oneOf": [
+                    {
                       "type": "object",
                       "additionalProperties": false,
                       "required": [
-                        "basis_ref",
-                        "structural_status",
-                        "solve_quality",
-                        "model_matrix_fidelity",
-                        "accuracy_evidence",
-                        "evidence_refs"
+                        "load_case_id",
+                        "modulus_basis_ref",
+                        "modulus_basis_temperature",
+                        "numerical_quality"
                       ],
                       "properties": {
-                        "basis_ref": {
+                        "load_case_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "modulus_basis_ref": {
+                          "oneOf": [
+                            {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "modulus_basis_temperature": {
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "required": [
+                                "value",
+                                "unit"
+                              ],
+                              "properties": {
+                                "value": {
+                                  "type": "number"
+                                },
+                                "unit": {
+                                  "type": "string",
+                                  "minLength": 1
+                                }
+                              }
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "numerical_quality": {
                           "type": "object",
                           "additionalProperties": false,
                           "required": [
-                            "ref_type",
-                            "ref_id"
+                            "basis_ref",
+                            "structural_status",
+                            "solve_quality",
+                            "model_matrix_fidelity",
+                            "accuracy_evidence",
+                            "evidence_refs"
                           ],
                           "properties": {
-                            "ref_type": {
-                              "const": "load_case"
+                            "basis_ref": {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "required": [
+                                "ref_type",
+                                "ref_id"
+                              ],
+                              "properties": {
+                                "ref_type": {
+                                  "const": "load_case"
+                                },
+                                "ref_id": {
+                                  "type": "string",
+                                  "minLength": 1
+                                }
+                              }
                             },
-                            "ref_id": {
-                              "type": "string",
-                              "minLength": 1
+                            "structural_status": {
+                              "enum": [
+                                "passive_model_basis",
+                                "physical_mechanism_witnessed",
+                                "negative_energy_witnessed",
+                                "numerically_unresolved"
+                              ]
+                            },
+                            "solve_quality": {
+                              "enum": [
+                                "not_assessed",
+                                "checks_passed",
+                                "sensitive",
+                                "unresolved",
+                                "failed"
+                              ]
+                            },
+                            "model_matrix_fidelity": {
+                              "enum": [
+                                "represented_equations_retained",
+                                "assembly_loss_detected",
+                                "assembly_uncertainty",
+                                "not_assessed"
+                              ]
+                            },
+                            "accuracy_evidence": {
+                              "enum": [
+                                "not_claimed",
+                                "reference_verified",
+                                "unresolved"
+                              ]
+                            },
+                            "evidence_refs": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "minLength": 1
+                              }
                             }
-                          }
-                        },
-                        "structural_status": {
-                          "enum": [
-                            "passive_model_basis",
-                            "physical_mechanism_witnessed",
-                            "negative_energy_witnessed",
-                            "numerically_unresolved"
-                          ]
-                        },
-                        "solve_quality": {
-                          "enum": [
-                            "not_assessed",
-                            "checks_passed",
-                            "sensitive",
-                            "unresolved",
-                            "failed"
-                          ]
-                        },
-                        "model_matrix_fidelity": {
-                          "enum": [
-                            "represented_equations_retained",
-                            "assembly_loss_detected",
-                            "assembly_uncertainty",
-                            "not_assessed"
-                          ]
-                        },
-                        "accuracy_evidence": {
-                          "enum": [
-                            "not_claimed",
-                            "reference_verified",
-                            "unresolved"
-                          ]
-                        },
-                        "evidence_refs": {
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "minLength": 1
                           }
                         }
                       }
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "combination_id"
+                      ],
+                      "properties": {
+                        "combination_id": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      }
                     }
-                  }
+                  ]
                 }
               },
               "standing": {
                 "const": "derived_from_case_results"
+              }
+            }
+          }
+        },
+        "combination_derivation": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "RT-A4 (DEL-05-02 Work absolute-sum-srss-combinations.md section 10.3): what a reader without the model needs to re-derive every absolute sum's, SRSS's and nested combination's rows and the gates that turn on the fixed-load count and decision OQ-1. The model conditions the gates read and, in gate (evaluation) order, one record for every absolute_sum, srss and combination with a combination operand, withheld or not, and for every combination those reach through their operands; the expression has combination_operands' shape (a term names its operand by kind; a subtraction's or range envelope's id names the load case when one has it). Present only when such a combination exists: a document with flat combinations only carries none.",
+          "required": [
+            "nonlinear_supports",
+            "consuming_constant_effort",
+            "combinations"
+          ],
+          "properties": {
+            "nonlinear_supports": {
+              "type": "boolean",
+              "description": "The model has a nonlinear support record (the nonlinear gate and decision OQ-1)."
+            },
+            "consuming_constant_effort": {
+              "type": "boolean",
+              "description": "The solve consumes a constant-effort support (the fixed-load-count gates)."
+            },
+            "combinations": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "combination_id",
+                  "basis",
+                  "expression"
+                ],
+                "properties": {
+                  "combination_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "basis": {
+                    "enum": [
+                      "result_state_subtraction",
+                      "range_envelope",
+                      "mechanics",
+                      "absolute_sum",
+                      "srss"
+                    ]
+                  },
+                  "expression": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "terms"
+                        ],
+                        "properties": {
+                          "terms": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                              "oneOf": [
+                                {
+                                  "type": "object",
+                                  "additionalProperties": false,
+                                  "required": [
+                                    "load_case_id",
+                                    "factor"
+                                  ],
+                                  "properties": {
+                                    "load_case_id": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    },
+                                    "factor": {
+                                      "type": "number"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "object",
+                                  "additionalProperties": false,
+                                  "required": [
+                                    "combination_id",
+                                    "factor"
+                                  ],
+                                  "properties": {
+                                    "combination_id": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    },
+                                    "factor": {
+                                      "type": "number"
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "minuend_id",
+                          "subtrahend_id"
+                        ],
+                        "properties": {
+                          "minuend_id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "subtrahend_id": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "operand_ids",
+                          "mode"
+                        ],
+                        "properties": {
+                          "operand_ids": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "mode": {
+                            "enum": [
+                              "min",
+                              "max",
+                              "min_abs",
+                              "max_abs"
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
               }
             }
           }
@@ -4125,7 +4349,7 @@
               "const": "openpipestress.result_semantics/0.3.0/preview-physics-2"
             },
             "sha256": {
-              "const": "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2"
+              "const": "e7b93f416f700f8efdb31bf1ba26dedde52963d768d6ead5a73dbf1c645a360c"
             }
           }
         },
@@ -4226,7 +4450,7 @@
               "const": "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1"
             },
             "sha256": {
-              "const": "a7b83c37a4af9bf70f56513f80883003a2a3860387319311ea2e967dd0cf764b"
+              "const": "ce49ebe07bc05431ea1f770c1933b5bf58f4b1c8b66fb6f36810f2ef7a58cd43"
             }
           }
         },
@@ -4327,7 +4551,7 @@
               "const": "openpipestress.result_semantics/0.3.0/pressure-2"
             },
             "sha256": {
-              "const": "a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e"
+              "const": "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6"
             }
           }
         },
@@ -4428,7 +4652,7 @@
               "const": "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
             },
             "sha256": {
-              "const": "b001070e5fedeeb101522b22ce0d61bb7cf85f82e86b8d851713f8d9fc8c4c46"
+              "const": "26dce9c21261b1ca894af05a3b6f4a94db88904894cb47f7296f892e72ecfb7e"
             }
           }
         },
@@ -4525,7 +4749,7 @@
               "const": "openpipestress.result_semantics/0.3.0/physics-retained-1"
             },
             "sha256": {
-              "const": "cf29fd5fc5d61de0f1133e9668b05f3d62ae8f696944fe04de7470029f5357dd"
+              "const": "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034"
             }
           }
         },

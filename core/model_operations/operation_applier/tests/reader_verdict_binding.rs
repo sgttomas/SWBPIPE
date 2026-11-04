@@ -2,7 +2,7 @@
 //! They parse the JSON text and return `result_export::reader_verdict`'s outcome;
 //! the desktop's wasm build compiles these same functions (`wasm_api`).
 use open_pipe_stress_operation_applier::{
-    reader_dispatch_json, reader_row_semantics_each_json, reader_row_semantics_json, reader_transport_json,
+    reader_dispatch_json, reader_recorded_json, reader_row_semantics_each_json, reader_row_semantics_json, reader_transport_json,
     reader_validate_json,
 };
 use open_pipe_stress_product_physics::result_export::reader_verdict as rv;
@@ -231,4 +231,46 @@ fn e17_magnitude_controls_through_the_reader_binding() {
         }
     }
     assert_eq!(checked, 7 * 5);
+}
+
+/// RT-A4 §10.4: the recorded-run read entry returns `reader_verdict`'s recorded outcome under
+/// the record's binding; the current entries still refuse a statement published before RT-A4.
+#[test]
+fn the_recorded_entry_returns_the_recorded_verdicts() {
+    const PF2: &str = include_str!("../../../../fixtures/persistence/recorded_pre_rt_a4_pf/preview_physics_2/preview_physics_connected_sparse.json");
+    const RETAINED: &str = include_str!("../../../../fixtures/persistence/recorded_pre_rt_a4_pf/preview_physics_retained_1/retained_precision_milestone_successor_sparse_interactive.json");
+    let pf: Value = serde_json::from_str(PF2).unwrap();
+    let binding = json!({"id": "openpipestress.result_semantics/0.3.0/preview-physics-2", "sha256": "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2"});
+    let text = binding.to_string();
+    assert_eq!(outcome(reader_recorded_json("preview-physics", &text, PF2, None, None).unwrap()), json!({"ok": true}));
+    assert_eq!(outcome(reader_recorded_json("preview-physics-transport", &text, PF2, None, None).unwrap()), json!({"ok": true}));
+    assert_eq!(outcome(reader_recorded_json("dispatch", &text, PF2, None, None).unwrap()), rv::dispatch_recorded(&pf, &binding, None, None));
+    assert_eq!(outcome(reader_validate_json("preview-physics", PF2, None, None).unwrap())["error"]["code"], "SOURCE_PREVIEW_PHYSICS_FORMULATION_BASIS");
+    let successor = serde_json::from_str::<Value>(RETAINED).unwrap()["source"].to_string();
+    let retained = json!({"id": "openpipestress.result_semantics/0.3.0/preview-physics-retained-1", "sha256": "b001070e5fedeeb101522b22ce0d61bb7cf85f82e86b8d851713f8d9fc8c4c46"}).to_string();
+    assert_eq!(outcome(reader_recorded_json("retained-precision", &retained, &successor, None, None).unwrap())["ok"], true);
+    assert_eq!(outcome(reader_recorded_json("retained-precision-transport", &retained, &successor, None, None).unwrap())["ok"], true);
+    assert_eq!(outcome(reader_recorded_json("retained-precision", &text, &successor, None, None).unwrap())["error"]["code"], "SOURCE_RECORDED_BINDING_IDENTITY");
+    assert!(reader_recorded_json("pressure", &text, PF2, None, None).unwrap_err().starts_with("WASM-ENGINE-INPUT-JSON-INVALID"));
+    assert!(reader_recorded_json("dispatch", "{", PF2, None, None).unwrap_err().starts_with("WASM-ENGINE-INPUT-JSON-INVALID"));
+}
+
+/// RT-A4 §10.4: the wasm32 target aborts on panic, so a recorded read that traps leaves its
+/// table selection set in the instance (its guard never runs). Every wasm export therefore runs
+/// as an outermost entry (`recorded_tables::entry_scope`, whose leaked-selection behaviour
+/// `recorded_tables::tests` checks), which clears it first. This checks that no export, a later
+/// one included, skips it: each `#[wasm_bindgen]` function's body is one `entry_scope(|| …)` call.
+#[test]
+fn wasm_exports_run_as_outermost_entries() {
+    let text = include_str!("../src/lib.rs");
+    let module = &text[text.find("mod wasm_api {").expect("the wasm_api module")..];
+    let module = &module[..module.find("\n}\n").expect("the wasm_api module's end")];
+    assert!(module.contains("recorded_tables::entry_scope;"));
+    let exports: Vec<&str> = module.split("#[wasm_bindgen]").skip(1).collect();
+    assert!(exports.len() >= 23, "{} exports", exports.len());
+    for export in exports {
+        let name = export.trim_start().lines().next().unwrap_or_default();
+        let body = &export[export.find(" {\n").unwrap_or_else(|| panic!("{name}: a body")) + 3..];
+        assert!(body.trim_start().starts_with("entry_scope(|| {"), "{name} does not run inside entry_scope");
+    }
 }

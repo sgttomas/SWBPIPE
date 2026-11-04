@@ -774,7 +774,15 @@ factors fail the unit factor-sum rule ("Constant-effort combinations: the
 unit factor-sum rule" above), with PF's reason
 `CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE` and PF's message
 (`exact_combinations::CONSTANT_EFFORT`). Subtractions and range envelopes are
-not gated.
+not gated. With RT-A4's nested and unsigned combinations (DEL-05-02
+`absolute-sum-srss-combinations.md` §5.1, §10), the gate reads the fixed-load
+count κ as gate 3 does: `mechanics` by |κ − 1| ≤ 2⁻⁴⁶ (flat, the unit
+factor-sum rule, so the decisions above are unchanged), and an absolute sum or
+SRSS whose operands' κ is not exactly 0 is withheld with
+`CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND`. A `mechanics` combination
+naming an operand whose κ is undefined is withheld with
+`CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED`, as on PF; where an installed
+reference also applies, gate 3 is checked first and names it.
 - **Order: gate 4, after `COMBINATION_MODULUS_BASIS_MIXED`,
   `COMBINATION_RESOLVED_STIFFNESS_MIXED` and
   `COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE`.** The two stiffness gates
@@ -852,6 +860,15 @@ on a load-state document `LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED`,
 stands; there is never a pressure-source-1 publication with a mismatched
 replay (`tests/rt_a3_constant_effort_source_receipt.rs`).
 
+**Usability limit.** A case that only the retained route could rescue (the
+ordinary route leaves it numerically unresolved and the retained-source
+response is selected) becomes `MODEL_INCOMPLETE` once a constant-effort record
+is added: the method is declined, nothing is selected or joined, and the
+ordinary route's own blocking finding stands, with no results published
+(`n06` plain and load-state controls, both modes). Adding the record never
+yields a pressure-source-1 publication; the case needs a model the ordinary
+checks pass or a retained source family that replays the constant force.
+
 **References and binding.** The frozen independent references are
 `validation/references/rt_a3_constant_effort/` (CE-1, CE-1n, CE-2, CE-3 and
 their mutation controls; two exact formulations). The product binding,
@@ -880,13 +897,53 @@ sign, double-count and O-omission mutants are distinguished, and forged
 reasons, forged factor sums, dropped terms and applied-load rows not bound to
 the model's node and DOF are refused.
 
-**Pending (held).** The v3 formulation identity text still says every other
-support family is refused, and the load-state limitation sentences do not
-yet state D-2. Those texts, their copies (`exactReportLimitations.ts`,
-`schemas/results.v0.3.schema.yaml`, the source-receipt test copy) and the
-pressure-2 table's `combination_policy.mechanics_gates` (which lists gates
-1–3) are held until another change integrates. They are updated together
-afterwards.
+**Disclosure.** The texts held while this increment was reviewed are now
+stated together:
+- the v3 formulation identity (pressure-2, `exact_admission.rs`) names the
+  consumed constant-effort support, its zero stiffness and positive-axis
+  constant force in every solved case, gate 4
+  (`CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE`) and the non-consumed
+  record's warning; the pressure-source-1 identity is unchanged, since source
+  recovery declines a model holding a record;
+- the load/reference-state limitation on support states states D-2 (the
+  consumed support's force is a device action of the active support in every
+  state); inactive or locked supports and device preload/reference remain
+  not provided. The limitation is shared by both publications, so
+  pressure-source-1 load-state envelopes restate it too;
+- the pressure-2 table's admitted-families limitation states the family, its
+  combinations limitation names the gate, and
+  `combination_policy.mechanics_gates` appends gate 4.
+
+- after independent review of `ac7fea603`, the support-attribution
+  limitation S7, shared by both publications, names the constant-effort
+  support's action: "Signed support actions are attributed only for admitted
+  linear restraints and springs and, as its constant force, for a consumed
+  constant-effort support; ambiguous coincident rigid attribution is refused."
+  (it read "… only for admitted linear restraints and springs; ambiguous …",
+  which a consumed record's published support action contradicted). The
+  equivalent-static refusal on a load/reference-state document
+  (`EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED`) now reads "a case's
+  ordinary applied loads there are exactly its declared source ledger (a
+  consumed constant-effort support's force is a device action of the active
+  support)" where it read "a case's applied loads there are exactly its
+  declared source ledger", consistent with D-2 and S14; the refusal itself is
+  unchanged;
+- the pressure-2 result schema's `exact_combinations` gate-reason enum admits
+  `CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE` (it was missing, so a
+  gate-4-withheld envelope failed the schema;
+  `tests/test_rt_a3_constant_effort_schema.py` validates the producer's CE-2
+  2·A envelope, `fixtures/results/rt_a3_ce2_withheld_sparse.json`, with a
+  negative control without the entry).
+
+Copies follow the producer: `exactReportLimitations.ts` (S1, S7, S13),
+`schemas/results.v0.3.schema.yaml`, the source-receipt test copy, DEL-05-03's
+and DEL-08-01's quoted statements, and every carrier through its writer
+(`tests/test_rt_a3_constant_effort_text_only_envelope_diff.py` checks that
+they move only those texts and the hashes binding them: every moved table pair,
+seal and content digest is recomputed from its subject, except 18 enumerated
+occurrences of six AnalysisRun-record digests that no carrier holds, which are
+explicitly limited consistency evidence bound to their writer, not a derivation
+proof).
 
 ## Nonlinear supports on EX (RT-A3 increment 4)
 

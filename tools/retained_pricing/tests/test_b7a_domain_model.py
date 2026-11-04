@@ -200,23 +200,23 @@ def test_new_uniform_identifier_classes_are_site_specific_input_bounds():
     # T4-U6/U8: the same sites on the priced source's unchanged lines (B7b's 10632.. + 359; certified_loads + 3;
     # the final source 588de796a4: lib.rs + 5 more; T4-S5 epoch 4: lib.rs + 314 more; pre-0.4 unification: + 103; W-8: + 2; silent-zero guard: + 1; model document 0.7.0: + 7; W-7: + 37; W-15: + 103; W-16 slices b and c: + 193; W-16 stage 2: + 55; §8.30: + 2 (+ 23 for the two prefix formats); model document 0.9.0 (§8.36): + 83, unchanged text; model document 0.9.0 S2 (§8.40): + 49, unchanged text (the closed wind wire precedes them); certified_loads' two prefix formats moved into lib.rs's is_generated_equivalent_static_load).
     sites = {
-        "lib.rs:12251": {"load_case_id"},
-        "lib.rs:12265": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
-        "lib.rs:12272": {"load.load_id", "bend.pipe_id"},
-        "lib.rs:12277": {"load.load_id"},
-        "lib.rs:12278": {"bend.pipe_id"},
-        "lib.rs:12279": {"bend.component_id"},
-        "lib.rs:12280": {"load_case_id"},
-        "lib.rs:12339": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
-        "lib.rs:12346": {"load.load_id", "bend.pipe_id"},
-        "lib.rs:12351": {"load.load_id"},
-        "lib.rs:12352": {"bend.pipe_id"},
-        "lib.rs:12353": {"bend.component_id"},
-        "lib.rs:12354": {"load_case_id"},
-        "lib.rs:12393": {"stable_suffix(&load.load_id)"},
-        "lib.rs:12400": {"load.load_id", "load_case_id"},
-        "lib.rs:10817": {"load_case.id"},
-        "lib.rs:10818": {"load_case.id"},
+        "lib.rs:12261": {"load_case_id"},
+        "lib.rs:12275": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
+        "lib.rs:12282": {"load.load_id", "bend.pipe_id"},
+        "lib.rs:12287": {"load.load_id"},
+        "lib.rs:12288": {"bend.pipe_id"},
+        "lib.rs:12289": {"bend.component_id"},
+        "lib.rs:12290": {"load_case_id"},
+        "lib.rs:12349": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
+        "lib.rs:12356": {"load.load_id", "bend.pipe_id"},
+        "lib.rs:12361": {"load.load_id"},
+        "lib.rs:12362": {"bend.pipe_id"},
+        "lib.rs:12363": {"bend.component_id"},
+        "lib.rs:12364": {"load_case_id"},
+        "lib.rs:12403": {"stable_suffix(&load.load_id)"},
+        "lib.rs:12410": {"load.load_id", "load_case_id"},
+        "lib.rs:10824": {"load_case.id"},
+        "lib.rs:10825": {"load_case.id"},
     }
     assert sum(map(len, sites.values())) == 22
     for key, args in sites.items():
@@ -291,9 +291,10 @@ def test_failed_envelope_formulation_text_is_read_from_the_current_literals(tmp_
     """T4-S6 (Codex correction, §8.8): the failed Preview manifest's formulation allowance is the larger of its two
     forms' literal bytes (3,138 B over 9 limitations at T4-S6), not the B7a basis's 2,035 B; a lengthened literal
     raises it and a changed structure stops. W-16 slice a (§8.23): PF's LIMITATIONS[1] drops "and so is a support
-    displacement imposed outside a load-state model", 69 B shorter, so the allowance is 3,069 B."""
+    displacement imposed outside a load-state model", 69 B shorter, so the allowance is 3,069 B. RT-A4 (§8.46, §10.2): PF's
+    LIMITATIONS[6] states the RT-A4 combination policy, 686 B longer, so the allowance is 3,755 B."""
     monkeypatch.syspath_prepend(str(PRICING / "base"))
-    assert MODEL["formulation_content"](SOURCE) == (9, 3069)
+    assert MODEL["formulation_content"](SOURCE) == (9, 3755)
     pp, lib = "core/product_physics/src/preview_physics.rs", "core/product_physics/src/lib.rs"
     for file in (pp, lib):
         (tmp_path / file).parent.mkdir(parents=True, exist_ok=True)
@@ -302,10 +303,10 @@ def test_failed_envelope_formulation_text_is_read_from_the_current_literals(tmp_
     old = '"Signed support actions for rigid restraints'
     assert text.count(old) == 1
     (tmp_path / pp).write_text(text.replace(old, '"Signed support actions for all rigid restraints'))
-    assert MODEL["formulation_content"](tmp_path) == (9, 3073)
+    assert MODEL["formulation_content"](tmp_path) == (9, 3759)
     (tmp_path / pp).write_text(text.replace("pub(crate) const LIMITATIONS: [&str; 7] = [", "pub(crate) const LIMITATIONS: [&str; 7]=["))
     with pytest.raises(ValueError):
         MODEL["formulation_content"](tmp_path)
     atoms = {"s(MechanicsEnvelope)": 4096, "s(String)": 24}
     assert (MODEL["failed_envelope_copy"](3, 128, SOURCE).ev(atoms)
-            - MODEL["failed_envelope_copy"](3, 128).ev(atoms)) == 3 * (3069 - 2035)
+            - MODEL["failed_envelope_copy"](3, 128).ev(atoms)) == 3 * (3755 - 2035)

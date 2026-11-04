@@ -319,8 +319,8 @@ struct FieldRule {
 /// `result_state_subtraction` = `minuend_id` − `subtrahend_id`;
 /// `range_envelope` = `mode`-selected value across `operand_ids`.
 /// Code/rule and owner-basis combinations remain private/deferred.
-const COMBINATION_BASIS_CLOSED_SET: [&str; 3] =
-    ["mechanics", "result_state_subtraction", "range_envelope"];
+const COMBINATION_BASIS_CLOSED_SET: [&str; 5] =
+    ["mechanics", "result_state_subtraction", "range_envelope", "absolute_sum", "srss"];
 
 /// Closed range-envelope mode tokens, mirroring
 /// `core/loads/load_case_algebra::RangeMode`.
@@ -1058,6 +1058,48 @@ pub fn reader_row_semantics_each_json(rows_json: &str, source_json: Option<&str>
     Ok(rv::row_semantics_each(&rows, source.as_ref()).to_string())
 }
 
+/// RT-A4 §10.4: [`reader_row_semantics_each_json`] of a recorded statement under its record's
+/// binding (`reader_verdict::row_semantics_each_recorded`): a registry variant's rows read
+/// under that variant's table, for the recorded-run display and compare paths only.
+pub fn reader_recorded_row_semantics_each_json(binding_json: &str, rows_json: &str, source_json: &str) -> Result<String, String> {
+    use open_pipe_stress_product_physics::result_export::reader_verdict as rv;
+    let binding = parse_reader_input("binding", binding_json)?;
+    let Value::Array(rows) = parse_reader_input("rows", rows_json)? else {
+        return Err("WASM-ENGINE-INPUT-JSON-INVALID: rows is not a JSON array".into());
+    };
+    let source = parse_reader_input("source", source_json)?;
+    Ok(rv::row_semantics_each_recorded(&rows, &source, &binding).to_string())
+}
+
+/// RT-A4 §10.4 (DEL-05-02 `absolute-sum-srss-combinations.md`, "Recorded results from
+/// before RT-A4"): the recorded-run read entries (`reader_verdict::*_recorded`) over JSON
+/// text, under the record's binding `{id, sha256}`: `dispatch`, `preview-physics`,
+/// `preview-physics-transport`, `retained-precision` and `retained-precision-transport`.
+/// Each returns its current entry's outcome shape. The desktop calls this only from its
+/// recorded-run read and compare paths (`resultReader.ts` `recordedRead`).
+pub fn reader_recorded_json(
+    entry: &str,
+    binding_json: &str,
+    source_json: &str,
+    model_json: Option<&str>,
+    invocation_json: Option<&str>,
+) -> Result<String, String> {
+    use open_pipe_stress_product_physics::result_export::reader_verdict as rv;
+    let binding = parse_reader_input("binding", binding_json)?;
+    let source = parse_reader_input("source", source_json)?;
+    let model = optional_reader_input("model", model_json)?;
+    let invocation = optional_reader_input("invocation", invocation_json)?;
+    let outcome = match entry {
+        "dispatch" => rv::dispatch_recorded(&source, &binding, model.as_ref(), invocation.as_ref()),
+        "preview-physics" => rv::validate_recorded(entry, &source, &binding, model.as_ref(), None),
+        "preview-physics-transport" => rv::transport_recorded("preview-physics", &source, &binding),
+        "retained-precision" => rv::retained_recorded(&source, &binding, invocation.as_ref()),
+        "retained-precision-transport" => rv::retained_transport_recorded(&source, &binding),
+        other => return Err(format!("WASM-ENGINE-INPUT-JSON-INVALID: no recorded reader {other}")),
+    };
+    Ok(outcome.to_string())
+}
+
 fn parse_reader_input(label: &str, text: &str) -> Result<Value, String> {
     serde_json::from_str(text).map_err(|error| {
         format!("WASM-ENGINE-INPUT-JSON-INVALID: {label} is not valid JSON: {error}")
@@ -1071,9 +1113,15 @@ fn parse_reader_input(label: &str, text: &str) -> Result<Value, String> {
 /// `openpipestress.desktop.wasm_engine_input_error`) instead of trapping —
 /// the shim surfaces it as an explicit diagnostic, never a silent fallback.
 /// Native builds and tests do not compile this module.
+///
+/// RT-A4 §10.4: every export runs inside `recorded_tables::entry_scope`. The wasm32 target
+/// aborts on panic, so a recorded read that traps skips its guard and leaves its table
+/// selection set in this instance; each export clears it before it reads anything.
+/// (`wasm_exports_run_as_outermost_entries` checks that none is missed.)
 #[cfg(feature = "wasm")]
 mod wasm_api {
     use super::{apply_operation, validate_operation};
+    use open_pipe_stress_product_physics::result_export::recorded_tables::entry_scope;
     use serde_json::{json, Value};
     use wasm_bindgen::prelude::wasm_bindgen;
     use wasm_bindgen::JsError;
@@ -1107,7 +1155,9 @@ mod wasm_api {
         batch_json_input: &str,
         claimed_model_hash_json: &str,
     ) -> String {
-        batch_json(model_json, batch_json_input, claimed_model_hash_json, false)
+        entry_scope(|| {
+            batch_json(model_json, batch_json_input, claimed_model_hash_json, false)
+        })
     }
     #[wasm_bindgen]
     pub fn apply_operation_batch_json(
@@ -1115,7 +1165,9 @@ mod wasm_api {
         batch_json_input: &str,
         claimed_model_hash_json: &str,
     ) -> String {
-        batch_json(model_json, batch_json_input, claimed_model_hash_json, true)
+        entry_scope(|| {
+            batch_json(model_json, batch_json_input, claimed_model_hash_json, true)
+        })
     }
 
     /// W-13 §5.3: the one model-document validator, for the webview open
@@ -1123,10 +1175,12 @@ mod wasm_api {
     /// as JSON text, or the input-error envelope when the text is not JSON.
     #[wasm_bindgen]
     pub fn validate_model_document_json(model_json: &str) -> String {
-        match parse_input("model", model_json) {
-            Ok(model) => super::document_validator::validation_report(&model).to_string(),
-            Err(error) => error,
-        }
+        entry_scope(|| {
+            match parse_input("model", model_json) {
+                Ok(model) => super::document_validator::validation_report(&model).to_string(),
+                Err(error) => error,
+            }
+        })
     }
 
     /// B11 on-demand model checks (DEL-04-06 Design `on-demand-model-checks.md`):
@@ -1136,10 +1190,12 @@ mod wasm_api {
     /// returns the input-error envelope.
     #[wasm_bindgen]
     pub fn model_checks_json(model_json: &str) -> String {
-        match super::model_checks_text(model_json) {
-            Ok(report) => report.to_string(),
-            Err(error) => input_error("model", error.to_string()),
-        }
+        entry_scope(|| {
+            match super::model_checks_text(model_json) {
+                Ok(report) => report.to_string(),
+                Err(error) => input_error("model", error.to_string()),
+            }
+        })
     }
 
     /// Model document 0.9.0, S2 (DEL-02-01 Design `model-document-0.9.0.md` §4.2,
@@ -1150,19 +1206,23 @@ mod wasm_api {
     /// written to the model.
     #[wasm_bindgen]
     pub fn preview_operating_conditions_json(model_json: &str) -> String {
-        match parse_input("model", model_json) {
-            Ok(model) => open_pipe_stress_product_physics::operating_conditions::preview_operating_conditions(&model).to_string(),
-            Err(error) => error,
-        }
+        entry_scope(|| {
+            match parse_input("model", model_json) {
+                Ok(model) => open_pipe_stress_product_physics::operating_conditions::preview_operating_conditions(&model).to_string(),
+                Err(error) => error,
+            }
+        })
     }
 
     /// Display-only numeric conversion through the one accepted unit catalog.
     #[wasm_bindgen]
     pub fn convert_display_quantities_json(input_json: &str) -> String {
-        match parse_input("display_quantities", input_json) {
-            Ok(input) => super::convert_display_quantities(&input).to_string(),
-            Err(error) => error,
-        }
+        entry_scope(|| {
+            match parse_input("display_quantities", input_json) {
+                Ok(input) => super::convert_display_quantities(&input).to_string(),
+                Err(error) => error,
+            }
+        })
     }
 
     fn input_error(input_label: &str, detail: String) -> String {
@@ -1225,7 +1285,9 @@ mod wasm_api {
         intent_json: &str,
         claimed_model_hash_json: &str,
     ) -> String {
-        run_json(model_json, intent_json, claimed_model_hash_json, false)
+        entry_scope(|| {
+            run_json(model_json, intent_json, claimed_model_hash_json, false)
+        })
     }
 
     /// Validate and, when no blocking finding exists, apply the single change
@@ -1237,7 +1299,9 @@ mod wasm_api {
         intent_json: &str,
         claimed_model_hash_json: &str,
     ) -> String {
-        run_json(model_json, intent_json, claimed_model_hash_json, true)
+        entry_scope(|| {
+            run_json(model_json, intent_json, claimed_model_hash_json, true)
+        })
     }
 
     fn parse_value(value_json: &str) -> Result<Value, JsError> {
@@ -1252,10 +1316,12 @@ mod wasm_api {
     /// as `{"value": <G in Pa>, "unit": "Pa"}`, or `{"error": …}`.
     #[wasm_bindgen]
     pub fn derived_shear_modulus_json(elastic_modulus: f64, unit: &str, poisson_ratio: f64) -> String {
-        match super::derived_shear_modulus_pa(elastic_modulus, unit, poisson_ratio) {
-            Ok(value) => json!({"value": value, "unit": "Pa"}).to_string(),
-            Err(error) => json!({"error": error}).to_string(),
-        }
+        entry_scope(|| {
+            match super::derived_shear_modulus_pa(elastic_modulus, unit, poisson_ratio) {
+                Ok(value) => json!({"value": value, "unit": "Pa"}).to_string(),
+                Err(error) => json!({"error": error}).to_string(),
+            }
+        })
     }
 
     /// Canonicalize a JSON document with the engine's canonical form —
@@ -1264,31 +1330,39 @@ mod wasm_api {
     /// frontend has no canonicalization of its own.
     #[wasm_bindgen]
     pub fn canonical_json_string(value_json: &str) -> Result<String, JsError> {
-        Ok(super::canonical_json(&parse_value(value_json)?))
+        entry_scope(|| {
+            Ok(super::canonical_json(&parse_value(value_json)?))
+        })
     }
 
     /// Lowercase-hex SHA-256 of the canonical form of a JSON document.
     /// H1 / F-5a hash seam companion to [`canonical_json_string`].
     #[wasm_bindgen]
     pub fn canonical_sha256_hex(value_json: &str) -> Result<String, JsError> {
-        Ok(super::sha256_hex(&super::canonical_json(&parse_value(
-            value_json,
-        )?)))
+        entry_scope(|| {
+            Ok(super::sha256_hex(&super::canonical_json(&parse_value(
+                value_json,
+            )?)))
+        })
     }
 
     /// Checked I-JSON/JCS profile used only by versioned 0.2 result records.
     #[wasm_bindgen]
     pub fn canonical_json_checked_v1(value_json: &str) -> Result<String, JsError> {
-        open_pipe_stress_canonical_json::canonical_json_checked_v1_text(value_json)
-            .map_err(|error| JsError::new(&error))
+        entry_scope(|| {
+            open_pipe_stress_canonical_json::canonical_json_checked_v1_text(value_json)
+                .map_err(|error| JsError::new(&error))
+        })
     }
 
     /// SHA-256 companion for the checked 0.2 result-record profile.
     #[wasm_bindgen]
     pub fn canonical_sha256_hex_checked_v1(value_json: &str) -> Result<String, JsError> {
-        let canonical = open_pipe_stress_canonical_json::canonical_json_checked_v1_text(value_json)
-            .map_err(|error| JsError::new(&error))?;
-        Ok(super::sha256_hex(&canonical))
+        entry_scope(|| {
+            let canonical = open_pipe_stress_canonical_json::canonical_json_checked_v1_text(value_json)
+                .map_err(|error| JsError::new(&error))?;
+            Ok(super::sha256_hex(&canonical))
+        })
     }
 
     /// The retained-precision reader on these source bytes, bound to the
@@ -1299,15 +1373,19 @@ mod wasm_api {
         source_json: &str,
         invocation_json: Option<String>,
     ) -> Result<String, JsError> {
-        super::retained_precision_outcome_json(source_json, invocation_json.as_deref())
-            .map_err(|error| JsError::new(&error))
+        entry_scope(|| {
+            super::retained_precision_outcome_json(source_json, invocation_json.as_deref())
+                .map_err(|error| JsError::new(&error))
+        })
     }
 
     /// The reader's metadata-only transport checks on these source bytes.
     #[wasm_bindgen]
     pub fn validate_retained_precision_transport_json(source_json: &str) -> Result<String, JsError> {
-        super::retained_precision_transport_outcome_json(source_json)
-            .map_err(|error| JsError::new(&error))
+        entry_scope(|| {
+            super::retained_precision_transport_outcome_json(source_json)
+                .map_err(|error| JsError::new(&error))
+        })
     }
 
     /// R2: standing and classification over the registration's accepted verdict.
@@ -1315,8 +1393,10 @@ mod wasm_api {
     pub fn retained_precision_semantics_json(
         source_json: &str, validation_json: &str, requested_json: &str,
     ) -> Result<String, JsError> {
-        super::retained_precision_semantics_json(source_json, validation_json, requested_json)
-            .map_err(|error| JsError::new(&error))
+        entry_scope(|| {
+            super::retained_precision_semantics_json(source_json, validation_json, requested_json)
+                .map_err(|error| JsError::new(&error))
+        })
     }
 
     /// R2: the base readers' dispatch verdict (route, binding, refusal, standing).
@@ -1326,8 +1406,10 @@ mod wasm_api {
         model_json: Option<String>,
         invocation_json: Option<String>,
     ) -> Result<String, JsError> {
-        super::reader_dispatch_json(source_json, model_json.as_deref(), invocation_json.as_deref())
-            .map_err(|error| JsError::new(&error))
+        entry_scope(|| {
+            super::reader_dispatch_json(source_json, model_json.as_deref(), invocation_json.as_deref())
+                .map_err(|error| JsError::new(&error))
+        })
     }
 
     /// R2: one named base reader's raw validation.
@@ -1338,28 +1420,60 @@ mod wasm_api {
         model_json: Option<String>,
         invocation_json: Option<String>,
     ) -> Result<String, JsError> {
-        super::reader_validate_json(reader, source_json, model_json.as_deref(), invocation_json.as_deref())
-            .map_err(|error| JsError::new(&error))
+        entry_scope(|| {
+            super::reader_validate_json(reader, source_json, model_json.as_deref(), invocation_json.as_deref())
+                .map_err(|error| JsError::new(&error))
+        })
     }
 
     /// R2: one named base reader's transport checks.
     #[wasm_bindgen]
     pub fn reader_transport_json(reader: &str, source_json: &str) -> Result<String, JsError> {
-        super::reader_transport_json(reader, source_json).map_err(|error| JsError::new(&error))
+        entry_scope(|| {
+            super::reader_transport_json(reader, source_json).map_err(|error| JsError::new(&error))
+        })
+    }
+
+    /// RT-A4 §10.4: a recorded-run read entry under the record's binding.
+    #[wasm_bindgen]
+    pub fn reader_recorded_json(
+        entry: &str,
+        binding_json: &str,
+        source_json: &str,
+        model_json: Option<String>,
+        invocation_json: Option<String>,
+    ) -> Result<String, JsError> {
+        entry_scope(|| {
+            super::reader_recorded_json(entry, binding_json, source_json, model_json.as_deref(), invocation_json.as_deref())
+                .map_err(|error| JsError::new(&error))
+        })
+    }
+
+    /// RT-A4 §10.4: each row's semantics of a recorded statement under the record's binding.
+    #[wasm_bindgen]
+    pub fn reader_recorded_row_semantics_each_json(binding_json: &str, rows_json: &str, source_json: &str) -> Result<String, JsError> {
+        entry_scope(|| {
+            super::reader_recorded_row_semantics_each_json(binding_json, rows_json, source_json)
+                .map_err(|error| JsError::new(&error))
+        })
     }
 
     /// R2: one result row's semantics under its source's table.
     #[wasm_bindgen]
     pub fn reader_row_semantics_json(row_json: &str, source_json: Option<String>) -> Result<String, JsError> {
-        super::reader_row_semantics_json(row_json, source_json.as_deref())
-            .map_err(|error| JsError::new(&error))
+        entry_scope(|| {
+            super::reader_row_semantics_json(row_json, source_json.as_deref())
+                .map_err(|error| JsError::new(&error))
+        })
     }
 
     /// The row semantics of each row of a JSON array, the source read once.
     #[wasm_bindgen]
     pub fn reader_row_semantics_each_json(rows_json: &str, source_json: Option<String>) -> Result<String, JsError> {
-        super::reader_row_semantics_each_json(rows_json, source_json.as_deref())
-            .map_err(|error| JsError::new(&error))
+        entry_scope(|| {
+            super::reader_row_semantics_each_json(rows_json, source_json.as_deref())
+                .map_err(|error| JsError::new(&error))
+        })
     }
 
     /// DEL-07-05 numerical health: the per-case presentation projection of the
@@ -1367,8 +1481,10 @@ mod wasm_api {
     /// findings when given. Presentation only; never admission or standing.
     #[wasm_bindgen]
     pub fn numerical_health_json(source_json: &str, reader_findings_json: Option<String>) -> Result<String, JsError> {
-        super::numerical_health_json(source_json, reader_findings_json.as_deref())
-            .map_err(|error| JsError::new(&error))
+        entry_scope(|| {
+            super::numerical_health_json(source_json, reader_findings_json.as_deref())
+                .map_err(|error| JsError::new(&error))
+        })
     }
 }
 
@@ -6157,23 +6273,17 @@ fn refuse_interim_member(checker: &mut Checker, target_ref: &str, code: &'static
     checker.push(code, "blocking", message, "Author the record without this member; documents carrying it still open, validate and edit.", vec![target_ref.to_string()]);
 }
 
-/// §2.2 and absolute-sum-srss §2: a difference basis, a subtrahend support state, an
-/// unsigned basis or a combination operand is refused by name in a create payload.
-fn refuse_unauthored_combination_members(model: &Value, record: &serde_json::Map<String, Value>, target_ref: &str, checker: &mut Checker) -> bool {
-    let basis = record.get("basis").and_then(Value::as_str).unwrap_or("").trim();
+/// §2.2: a difference basis or a subtrahend support state is refused by name in a
+/// create payload. The unsigned bases and combination operands are authored since
+/// the RT-A4 wiring (absolute-sum-srss §2); the document validator judges the result
+/// (unknown operands, cycles and a difference basis naming a combination).
+fn refuse_unauthored_combination_members(record: &serde_json::Map<String, Value>, target_ref: &str, checker: &mut Checker) -> bool {
     let refusal = if record.contains_key("difference_basis") {
         Some((pp_members::LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED, "A combination's difference_basis is not authored until its gates are built."))
     } else if record.contains_key("subtrahend_support_state") {
         Some((pp_members::LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED, "A combination's subtrahend_support_state is not authored until its solve is built."))
-    } else if matches!(basis, "absolute_sum" | "srss") {
-        Some((pp_members::LOAD_COMBINATION_UNSIGNED_BASIS_UNSUPPORTED, "An absolute_sum or srss combination is not authored until unsigned combinations are built."))
     } else {
-        let names_combination = |id: &str| find_entity(model, "load_cases", id).is_none() && find_entity(model, "combinations", id).is_some();
-        let terms = record.get("terms").and_then(Value::as_array).into_iter().flatten();
-        let ids = ["minuend_id", "subtrahend_id"].iter().filter_map(|key| record.get(*key).and_then(Value::as_str))
-            .chain(record.get("operand_ids").and_then(Value::as_array).into_iter().flatten().filter_map(Value::as_str));
-        let nested = terms.into_iter().any(|term| term.get("combination").is_some()) || ids.into_iter().any(names_combination);
-        nested.then_some((pp_members::LOAD_COMBINATION_NESTED_UNSUPPORTED, "A combination taking a combination as an operand is not authored until combinations of combinations are built."))
+        None
     };
     let Some((code, message)) = refusal else { return false };
     refuse_interim_member(checker, target_ref, code, message.into());
@@ -6277,7 +6387,7 @@ fn resolve_create_combination(
         );
         return None;
     };
-    if refuse_unauthored_combination_members(model, record, target_ref, checker) {
+    if refuse_unauthored_combination_members(record, target_ref, checker) {
         return None;
     }
     let id = record
@@ -6316,7 +6426,7 @@ fn resolve_create_combination(
             "OP-COMBINATION-BASIS-UNSUPPORTED",
             "blocking",
             format!(
-                "Combination basis `{basis}` is outside the explicit closed set `mechanics`, `result_state_subtraction`, `range_envelope`; code/rule and owner-basis combinations remain private/deferred."
+                "Combination basis `{basis}` is outside the explicit closed set `mechanics`, `result_state_subtraction`, `range_envelope`, `absolute_sum`, `srss`; code/rule and owner-basis combinations remain private/deferred."
             ),
             "Choose one of the closed-set bases in the Load Cases manager form.",
             vec![target_ref.to_string(), basis.to_string()],
@@ -6352,7 +6462,7 @@ fn resolve_create_combination(
                 })
             }),
         _ => {
-            resolve_create_mechanics_combination(model, record, target_ref, checker).map(|terms| {
+            resolve_create_mechanics_combination(model, record, basis, target_ref, checker).map(|terms| {
                 serde_json::json!({
                     "id": id,
                     "label": label,
@@ -6383,7 +6493,7 @@ fn check_combination_payload_shape(
     if record
         .get("terms")
         .is_some_and(|terms| !terms.as_array().is_some_and(Vec::is_empty))
-        && basis != "mechanics"
+        && !matches!(basis, "mechanics" | "absolute_sum" | "srss")
     {
         stray_fields.push("terms");
     }
@@ -6397,25 +6507,27 @@ fn check_combination_payload_shape(
             "Create-combination payload for basis `{basis}` carries fields belonging to a different basis: {}.",
             stray_fields.join(", ")
         ),
-        "Emit exactly the fields of the selected basis: mechanics = terms; result_state_subtraction = minuend_id + subtrahend_id; range_envelope = operand_ids + mode.",
+        "Emit exactly the fields of the selected basis: mechanics, absolute_sum and srss = terms; result_state_subtraction = minuend_id + subtrahend_id; range_envelope = operand_ids + mode.",
         vec![target_ref.to_string()],
     );
     None
 }
 
+/// A subtraction's or envelope's operand names a load case, or a combination when no
+/// load case has the id (absolute-sum-srss §2).
 fn check_combination_operand_load_case(
     model: &Value,
     operand_ref: &str,
     target_ref: &str,
     checker: &mut Checker,
 ) -> Option<()> {
-    if find_entity(model, "load_cases", operand_ref).is_none() {
+    if find_entity(model, "load_cases", operand_ref).is_none() && find_entity(model, "combinations", operand_ref).is_none() {
         checker.reference_state = "blocked";
         checker.push(
             "OP-COMBINATION-OPERAND-LOAD-NOT-FOUND",
             "blocking",
-            format!("Combination operand references load case `{operand_ref}`, which is absent from the current model."),
-            "Select existing load cases before creating a combination.",
+            format!("Combination operand references load case `{operand_ref}`, which is absent from the current model (and names no combination)."),
+            "Select existing load cases or combinations before creating a combination.",
             vec![target_ref.to_string(), operand_ref.to_string()],
         );
         return None;
@@ -6426,12 +6538,13 @@ fn check_combination_operand_load_case(
 fn resolve_create_mechanics_combination(
     model: &Value,
     record: &serde_json::Map<String, Value>,
+    basis: &str,
     target_ref: &str,
     checker: &mut Checker,
 ) -> Option<Vec<Value>> {
     check_combination_payload_shape(
         record,
-        "mechanics",
+        basis,
         &["minuend_id", "subtrahend_id", "operand_ids", "mode"],
         target_ref,
         checker,
@@ -6450,7 +6563,7 @@ fn resolve_create_mechanics_combination(
         checker.push(
             "OP-CREATE-COMBINATION-PAYLOAD-INVALID",
             "blocking",
-            "Create-combination payload must include matching id, non-empty label/provenance, basis `mechanics`, and at least one explicit term.".to_string(),
+            "Create-combination payload must include matching id, non-empty label/provenance, basis `mechanics`, `absolute_sum` or `srss`, and at least one explicit term.".to_string(),
             "Refresh the combination creation intent from explicit user-entered combination fields.",
             vec![target_ref.to_string()],
         );
@@ -6458,61 +6571,78 @@ fn resolve_create_mechanics_combination(
     }
 
     let mut terms = Vec::new();
-    let mut seen_load_cases = std::collections::HashSet::new();
+    let mut seen_operands = std::collections::HashSet::new();
     for raw_term in term_payloads {
         let Some(term) = raw_term.as_object() else {
             checker.push(
                 "OP-CREATE-COMBINATION-PAYLOAD-INVALID",
                 "blocking",
                 "Create-combination terms must be JSON objects.".to_string(),
-                "Emit each term as { load_case, factor }.",
+                "Emit each term as { load_case, factor } or { combination, factor }.",
                 vec![target_ref.to_string()],
             );
             return None;
         };
-        let load_case = term
-            .get("load_case")
-            .and_then(Value::as_str)
-            .unwrap_or("")
-            .trim();
-        let factor = term.get("factor").and_then(Value::as_f64);
-        let factor_is_finite = factor.map(f64::is_finite).unwrap_or(false);
-        if load_case.is_empty() || !factor_is_finite {
-            checker.push(
-                "OP-CREATE-COMBINATION-PAYLOAD-INVALID",
-                "blocking",
-                "Create-combination terms must include load_case references and finite numeric factors.".to_string(),
-                "Refresh the combination creation intent from explicit user-entered term fields.",
-                vec![target_ref.to_string()],
-            );
-            return None;
-        }
-        if !seen_load_cases.insert(load_case.to_string()) {
-            checker.push(
-                "OP-COMBINATION-TERM-DUPLICATE",
-                "blocking",
-                format!("Combination `{target_ref}` repeats load case `{load_case}` in its initial terms."),
-                "Use one explicit factor per load case; duplicate operands are blocked.",
-                vec![target_ref.to_string(), load_case.to_string()],
-            );
-            return None;
-        }
-        if find_entity(model, "load_cases", load_case).is_none() {
-            checker.reference_state = "blocked";
-            checker.push(
-                "OP-COMBINATION-TERM-LOAD-NOT-FOUND",
-                "blocking",
-                format!("Combination term references load case `{load_case}`, which is absent from the current model."),
-                "Select an existing load case before creating a combination.",
-                vec![target_ref.to_string(), load_case.to_string()],
-            );
-            return None;
-        }
-        terms.push(serde_json::json!({ "load_case": load_case, "factor": factor.unwrap() }));
+        let (term_value, _) = resolve_combination_term_payload(model, term, target_ref, &mut seen_operands, "its initial terms", checker)?;
+        terms.push(term_value);
     }
 
     checker.reference_state = "passed";
     Some(terms)
+}
+
+/// One term payload of a terms-basis combination: exactly one of `load_case` and
+/// `combination` (absolute-sum-srss §2), a finite factor, an existing operand of that
+/// kind, and no operand repeated (a load case and a combination may share an id).
+fn resolve_combination_term_payload(
+    model: &Value,
+    term: &serde_json::Map<String, Value>,
+    target_ref: &str,
+    seen_operands: &mut std::collections::HashSet<(bool, String)>,
+    place: &str,
+    checker: &mut Checker,
+) -> Option<(Value, String)> {
+    let text = |key: &str| term.get(key).and_then(Value::as_str).unwrap_or("").trim().to_string();
+    let (load_case, combination) = (text("load_case"), text("combination"));
+    let factor = term.get("factor").and_then(Value::as_f64);
+    let factor_is_finite = factor.map(f64::is_finite).unwrap_or(false);
+    let names_combination = term.contains_key("combination");
+    if names_combination == term.contains_key("load_case") || (load_case.is_empty() && combination.is_empty()) || !factor_is_finite {
+        checker.push(
+            "OP-CREATE-COMBINATION-PAYLOAD-INVALID",
+            "blocking",
+            "Create-combination terms must include exactly one of a load_case or a combination reference and a finite numeric factor.".to_string(),
+            "Refresh the combination creation intent from explicit user-entered term fields.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    let operand = if names_combination { combination } else { load_case };
+    let kind = if names_combination { "combination" } else { "load case" };
+    if !seen_operands.insert((names_combination, operand.clone())) {
+        checker.push(
+            "OP-COMBINATION-TERM-DUPLICATE",
+            "blocking",
+            format!("Combination `{target_ref}` repeats {kind} `{operand}` in {place}."),
+            "Use one explicit factor per operand; duplicate operands are blocked.",
+            vec![target_ref.to_string(), operand.clone()],
+        );
+        return None;
+    }
+    let collection = if names_combination { "combinations" } else { "load_cases" };
+    if find_entity(model, collection, &operand).is_none() {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-COMBINATION-TERM-LOAD-NOT-FOUND",
+            "blocking",
+            format!("Combination term references {kind} `{operand}`, which is absent from the current model."),
+            "Select an existing load case or combination before creating a combination term.",
+            vec![target_ref.to_string(), operand.clone()],
+        );
+        return None;
+    }
+    let key = if names_combination { "combination" } else { "load_case" };
+    Some((serde_json::json!({ key: operand, "factor": factor.unwrap() }), operand))
 }
 
 fn resolve_create_subtraction_combination(
@@ -6700,12 +6830,12 @@ fn resolve_create_combination_term(
         .get("basis")
         .and_then(Value::as_str)
         .unwrap_or("");
-    if combination_basis != "mechanics" {
+    if !matches!(combination_basis, "mechanics" | "absolute_sum" | "srss") {
         checker.push(
             "OP-COMBINATION-TERM-BASIS-UNSUPPORTED",
             "blocking",
             format!(
-                "Combination `{target_ref}` has basis `{combination_basis}`; explicit terms belong to mechanics-basis combinations only."
+                "Combination `{target_ref}` has basis `{combination_basis}`; explicit terms belong to mechanics, absolute_sum and srss combinations only."
             ),
             "Subtraction and range-envelope combinations carry their own operand references; create a mechanics combination for factored terms.",
             vec![target_ref.to_string(), combination_basis.to_string()],
@@ -6736,10 +6866,45 @@ fn resolve_create_combination_term(
         );
         return None;
     };
+    // absolute-sum-srss §2: a term may name a combination (exactly one of load_case and
+    // combination); the document validator refuses a cycle in the result.
     if record.contains_key("combination") {
-        refuse_interim_member(checker, target_ref, pp_members::LOAD_COMBINATION_NESTED_UNSUPPORTED,
-            "A combination term naming a combination is not authored until combinations of combinations are built.".into());
-        return None;
+        let operand = record.get("combination").and_then(Value::as_str).unwrap_or("").trim();
+        let factor = record.get("factor").and_then(Value::as_f64).filter(|f| f.is_finite());
+        let (Some(factor), false, false) = (factor, operand.is_empty(), record.contains_key("load_case")) else {
+            checker.push(
+                "OP-CREATE-COMBINATION-TERM-PAYLOAD-INVALID",
+                "blocking",
+                "Create-combination-term payload must include exactly one of a load_case or a combination reference and a finite numeric factor.".to_string(),
+                "Refresh the combination-term creation intent from explicit user-entered term fields.",
+                vec![target_ref.to_string()],
+            );
+            return None;
+        };
+        if find_entity(model, "combinations", operand).is_none() {
+            checker.reference_state = "blocked";
+            checker.push(
+                "OP-COMBINATION-TERM-LOAD-NOT-FOUND",
+                "blocking",
+                format!("Combination term references combination `{operand}`, which is absent from the current model."),
+                "Select an existing combination before creating a combination term.",
+                vec![target_ref.to_string(), operand.to_string()],
+            );
+            return None;
+        }
+        if !combination.get("terms").is_some_and(Value::is_array) {
+            checker.reference_state = "blocked";
+            checker.push(
+                "OP-COMBINATION-TERMS-MISSING",
+                "blocking",
+                format!("Combination `{target_ref}` does not expose a terms array."),
+                "Repair the model document before creating combination terms.",
+                vec![target_ref.to_string()],
+            );
+            return None;
+        }
+        checker.reference_state = "passed";
+        return Some((target_ref.to_string(), serde_json::json!({ "combination": operand, "factor": factor })));
     }
     let load_case = record
         .get("load_case")
@@ -7488,7 +7653,7 @@ fn resolve_field(
                         "OP-COMBINATION-BASIS-UNSUPPORTED",
                         "blocking",
                         format!(
-                            "Combination basis `{trimmed}` is outside the explicit closed set `mechanics`, `result_state_subtraction`, `range_envelope`; code/rule and owner-basis combinations remain private/deferred."
+                            "Combination basis `{trimmed}` is outside the explicit closed set `mechanics`, `result_state_subtraction`, `range_envelope`, `absolute_sum`, `srss`; code/rule and owner-basis combinations remain private/deferred."
                         ),
                         "Choose one of the closed-set bases in the Load Cases manager.",
                         vec![target_ref.to_string(), trimmed.to_string()],
@@ -9220,7 +9385,7 @@ fn combination_basis_shape_mismatch(combination: &Value, target_basis: &str) -> 
     let has_range_fields = operand_ids.is_some() || combination.get("mode").is_some();
 
     match target_basis {
-        "mechanics" => {
+        "mechanics" | "absolute_sum" | "srss" => {
             if !terms_is_array {
                 return Some("the stored record has no terms array.".to_string());
             }
@@ -15784,12 +15949,9 @@ mod tests {
         for (outcome, code) in [
             (combination(json!({"difference_basis": "operating_minus_sustained"})), "LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED"),
             (combination(json!({"subtrahend_support_state": "own"})), "LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED"),
-            (combination(json!({"basis": "absolute_sum", "terms": [{"load_case": "load:L-1", "factor": 1.0}]})), "LOAD_COMBINATION_UNSIGNED_BASIS_UNSUPPORTED"),
-            (combination(json!({"basis": "srss", "terms": [{"load_case": "load:L-1", "factor": 1.0}]})), "LOAD_COMBINATION_UNSIGNED_BASIS_UNSUPPORTED"),
-            (combination(json!({"basis": "mechanics", "terms": [{"combination": "combination:C-OP", "factor": 1.0}]})), "LOAD_COMBINATION_NESTED_UNSUPPORTED"),
-            (combination(json!({"minuend_id": "combination:C-OP"})), "LOAD_COMBINATION_NESTED_UNSUPPORTED"),
+            // A term naming its own combination is a cycle, refused by the document validator.
             (create("Combination", "combination:C-OP", "create_combination_term", "terms", json!({"combination": "combination:C-OP", "factor": 1.0})),
-             "LOAD_COMBINATION_NESTED_UNSUPPORTED"),
+             "LOAD_COMBINATION_OPERAND_CYCLE"),
             (create("Load", "load:L-3", "create_load_case", "load_cases", json!({"id": "load:L-3", "label": "Test", "kind": "hydrotest", "status": "draft",
                 "provenance": "user", "primitive_loads": [], "test_condition": {"kind": "hydrostatic", "held_supports": "none"}})), "LOAD_CASE_TEST_CONDITION_UNSUPPORTED"),
             (create("Load", "load:L-3", "create_load_case", "load_cases", json!({"id": "load:L-3", "label": "Operating", "kind": "operating", "status": "draft",
@@ -15805,6 +15967,34 @@ mod tests {
         }
         // The same create without the member applies.
         let outcome = combination(json!({}));
+        assert!(outcome.applied_model.is_some(), "{:?}", codes(&outcome));
+        // The RT-A4 wiring (absolute-sum-srss §2): the unsigned bases and combination
+        // operands are authored.
+        for (extra, stored) in [
+            (json!({"basis": "absolute_sum", "terms": [{"load_case": "load:L-1", "factor": 1.0}]}), json!([{"load_case": "load:L-1", "factor": 1.0}])),
+            (json!({"basis": "srss", "terms": [{"load_case": "load:L-1", "factor": 1.0}, {"combination": "combination:C-OP", "factor": -2.0}]}),
+             json!([{"load_case": "load:L-1", "factor": 1.0}, {"combination": "combination:C-OP", "factor": -2.0}])),
+            (json!({"basis": "mechanics", "terms": [{"combination": "combination:C-OP", "factor": 1.0}]}), json!([{"combination": "combination:C-OP", "factor": 1.0}])),
+        ] {
+            let mut record = json!({"id": "combination:C-NEW", "label": "New", "provenance": "user"});
+            for (key, value) in extra.as_object().unwrap() {
+                record[key] = value.clone();
+            }
+            let outcome = create("Combination", "combination:C-NEW", "create_combination", "combinations", record);
+            let applied = outcome.applied_model.as_ref().unwrap_or_else(|| panic!("{extra}: {:?}", codes(&outcome)));
+            let created = applied["combinations"].as_array().unwrap().iter().find(|c| c["id"] == "combination:C-NEW").unwrap();
+            assert_eq!(created["terms"], stored, "{extra}");
+        }
+        let outcome = combination(json!({"minuend_id": "combination:C-OP"}));
+        assert!(outcome.applied_model.is_some(), "{:?}", codes(&outcome));
+        // A term naming a combination is added to an unsigned combination too.
+        let mut with_srss = model.clone();
+        with_srss["combinations"].as_array_mut().unwrap().push(json!({"id": "combination:C-S", "label": "S", "basis": "srss",
+            "terms": [{"load_case": "load:L-1", "factor": 1.0}], "provenance": "user"}));
+        let mut intent = modify_intent("Combination", "combination:C-S", "create_combination_term", "terms", "not_present",
+            &json!({"combination": "combination:C-OP", "factor": 1.0}).to_string(), "none", "dimensionless");
+        intent["operation_kind"] = json!("create");
+        let outcome = apply_operation(&with_srss, &intent, None);
         assert!(outcome.applied_model.is_some(), "{:?}", codes(&outcome));
     }
 }

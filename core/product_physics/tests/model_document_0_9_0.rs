@@ -441,8 +441,10 @@ fn every_combination_document_code_refuses_at_the_solve() {
         "LOAD_COMBINATION_SHAPE_INVALID", "explicit terms only");
 }
 
-/// The interim warnings withhold the combination and each combination that names it;
-/// the cases and the other combinations publish exactly as without them.
+/// The interim warnings withhold the combination, and each combination that names it
+/// is withheld by `LOAD_COMBINATION_OPERAND_WITHHELD` (absolute-sum-srss §4), naming
+/// the operand and its code; the cases and the other combinations publish exactly as
+/// without them. The RT-A4 wiring removed the unsigned-basis and nested interim codes.
 #[test]
 fn the_interim_combination_members_withhold_only_their_combinations() {
     let withheld = [
@@ -451,16 +453,14 @@ fn the_interim_combination_members_withhold_only_their_combinations() {
         (json!({"id": "C-DB", "basis": "result_state_subtraction", "minuend_id": "L1", "subtrahend_id": "L2", "difference_basis": "operating_minus_sustained",
                 "subtrahend_support_state": "minuend_final", "provenance": PROV}),
          vec!["LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED", "LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED"]),
-        (json!({"id": "C-DB", "basis": "absolute_sum", "terms": [{"load_case": "L1", "factor": 1.0}], "provenance": PROV}), vec!["LOAD_COMBINATION_UNSIGNED_BASIS_UNSUPPORTED"]),
-        (json!({"id": "C-DB", "basis": "srss", "terms": [{"load_case": "L1", "factor": 1.0}, {"load_case": "L2", "factor": 1.0}], "provenance": PROV}), vec!["LOAD_COMBINATION_UNSIGNED_BASIS_UNSUPPORTED"]),
-        (json!({"id": "C-DB", "basis": "mechanics", "terms": [{"combination": "C-SUM", "factor": 1.0}], "provenance": PROV}), vec!["LOAD_COMBINATION_NESTED_UNSUPPORTED"]),
-        (json!({"id": "C-DB", "basis": "range_envelope", "operand_ids": ["L1", "C-SUB"], "mode": "min", "provenance": PROV}), vec!["LOAD_COMBINATION_NESTED_UNSUPPORTED"]),
     ];
     for (combination, expected) in withheld {
         let mut document = with_combination(combination.clone());
-        // A dependant: it names the withheld combination, so it is withheld too.
-        document["combinations"].as_array_mut().unwrap().push(
-            json!({"id": "C-DEP", "basis": "result_state_subtraction", "minuend_id": "C-DB", "subtrahend_id": "L2", "provenance": PROV}));
+        // A dependant, and its own dependant: each names a withheld combination.
+        document["combinations"].as_array_mut().unwrap().extend([
+            json!({"id": "C-DEP", "basis": "result_state_subtraction", "minuend_id": "C-DB", "subtrahend_id": "L2", "provenance": PROV}),
+            json!({"id": "C-DEP2", "basis": "srss", "terms": [{"combination": "C-DEP", "factor": 1.0}], "provenance": PROV}),
+        ]);
         for mode in MODES {
             let solved = solve(&document, mode);
             let reference = solve(&model(), mode);
@@ -468,13 +468,36 @@ fn the_interim_combination_members_withhold_only_their_combinations() {
             let warnings: Vec<_> = diagnostics(&solved).into_iter().filter(|(_, severity, _)| severity == "warning")
                 .filter(|(code, _, _)| code.starts_with("LOAD_COMBINATION_")).collect();
             let mut want: Vec<String> = expected.iter().map(|code| code.to_string()).collect();
-            want.push("LOAD_COMBINATION_NESTED_UNSUPPORTED".into());
+            want.extend(["LOAD_COMBINATION_OPERAND_WITHHELD".to_string(), "LOAD_COMBINATION_OPERAND_WITHHELD".to_string()]);
             assert_eq!(warnings.iter().map(|(code, _, _)| code.clone()).collect::<Vec<_>>(), want, "{combination} {mode:?}");
-            assert!(warnings.last().unwrap().2.contains("combination `C-DEP` takes a combination as an operand"));
-            assert!(combination_rows(&solved, "C-DB").is_empty() && combination_rows(&solved, "C-DEP").is_empty(), "{mode:?}: withheld");
+            assert_eq!(warnings[warnings.len() - 2].2, "Combination withheld: its operand combination(s) C-DB (LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED) are withheld, so it is withheld whole.");
+            assert_eq!(warnings[warnings.len() - 1].2, "Combination withheld: its operand combination(s) C-DEP (LOAD_COMBINATION_OPERAND_WITHHELD) are withheld, so it is withheld whole.");
+            for id in ["C-DB", "C-DEP", "C-DEP2"] {
+                assert!(combination_rows(&solved, id).is_empty(), "{mode:?}: {id} withheld");
+            }
             let mut published = solved.clone();
             published["diagnostics"] = reference["diagnostics"].clone();
             assert_eq!(text(&published), text(&reference), "{combination} {mode:?}: the rest publishes byte for byte");
+        }
+    }
+}
+
+/// The RT-A4 wiring: the unsigned bases and combination operands are evaluated, never
+/// withheld by an interim code.
+#[test]
+fn the_unsigned_bases_and_combination_operands_publish() {
+    for combination in [
+        json!({"id": "C-DB", "basis": "absolute_sum", "terms": [{"load_case": "L1", "factor": 1.0}], "provenance": PROV}),
+        json!({"id": "C-DB", "basis": "srss", "terms": [{"load_case": "L1", "factor": 1.0}, {"load_case": "L2", "factor": 1.0}], "provenance": PROV}),
+        json!({"id": "C-DB", "basis": "mechanics", "terms": [{"combination": "C-SUM", "factor": 1.0}], "provenance": PROV}),
+        json!({"id": "C-DB", "basis": "range_envelope", "operand_ids": ["L1", "C-SUB"], "mode": "min", "provenance": PROV}),
+    ] {
+        let document = with_combination(combination.clone());
+        for mode in MODES {
+            let solved = solve(&document, mode);
+            assert_eq!(solved["status"]["mechanics"], "MECHANICS_SOLVED", "{combination} {mode:?}: {:?}", diagnostics(&solved));
+            assert!(!diagnostics(&solved).iter().any(|(code, _, _)| code.ends_with("_UNSUPPORTED") && code.starts_with("LOAD_COMBINATION_")), "{combination}");
+            assert!(!combination_rows(&solved, "C-DB").is_empty(), "{combination} {mode:?}: publishes");
         }
     }
 }

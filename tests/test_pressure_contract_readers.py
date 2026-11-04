@@ -214,7 +214,10 @@ def test_the_verifier_is_independent_and_test_only():
             for imported in _imports(VERIFIER.with_name(f"{name}.py")):
                 (pending.append(imported.lstrip(".")) if imported.startswith(".") else external.add(imported))
     assert external <= stdlib | {"sys"}, external
-    assert _imports(VERIFIER.with_name("exact_combinations.py")) <= stdlib | {"sys", ".section_basis", ".units"}
+    # RT-A4: its absolute sums, SRSS and fixed-load counts live in the sibling tests/verifiers/combination_graph.py,
+    # standard library only.
+    assert _imports(VERIFIER.with_name("exact_combinations.py")) <= stdlib | {"sys", ".section_basis", ".units", ".combination_graph"}
+    assert _imports(VERIFIER.with_name("combination_graph.py")) <= stdlib
     assert _imports(VERIFIER.with_name("units.py")) <= stdlib
     assert _imports(VERIFIER.with_name("section_basis.py")) <= stdlib | {".component_body"}
     assert _imports(VERIFIER.with_name("u4b.py")) <= stdlib

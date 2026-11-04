@@ -87,6 +87,18 @@ BIND = {
     "s((u64,&Value))": sz("(u64, &'static Value)"),   # O4-RD: native_bytes' leaves
     # R-A D3 (retained-pricing-rules.md §8.13): B1's hint vectors (ra_owners_model.py)
     "s(Option<u32>)": sz("Option<u32>"),   # RA-HS
+    # RT-A4 D3 (retained-pricing-rules.md §8.46): the combination plan, κ and the readers' sets (rta4_owners_model.py)
+    "s(Target)": sz("crate::combination_plan::Target<'static>"),   # RT-A4-PL (the reader's Operand is the same enum)
+    "s(FixedLoadCount)": sz("open_pipe_stress_load_case_algebra::FixedLoadCount"),   # RT-A4-PL, RT-A4-RD
+    "s(PublishedBase)": sz("(String, std::collections::HashMap<String, crate::ResultItem>)"),   # RT-A4-CB
+    "s((&str,FixedLoadCount))": sz("(&'static str, open_pipe_stress_load_case_algebra::FixedLoadCount)"),   # RT-A4-RD
+    "s((String,&Value))": sz("(String, &'static Value)"),   # RT-A4-RD
+    "s((&str,&str))": sz("(&'static str, &'static str)"),   # RT-A4-RD
+    "s((&str,PublishedTails))": sz("(&'static str, std::collections::HashMap<String, &'static Value>)"),   # RT-A4-RD
+    "s(GateRecord)": upr("3 * size_of::<&'static str>() + 2 * size_of::<Vec<u8>>()",
+                         "RT-A4-RD: preview_combination_gates' private Record (id, basis: &str; operands, terms: Vec; mode: Option<&str>, the size of a &str)"),
+    "Node(String,(String,CaseRows))": node("String", "(String, std::collections::HashMap<&'static str, &'static Value>)"),   # RT-A4-RD
+    "Node(String,CaseRows)": node("String", "std::collections::HashMap<&'static str, &'static Value>"),   # RT-A4-RD
     "s(StationResultants)": sz("crate::StationResultants"), "s(MemberRecord)": sz("crate::preview_physics::MemberRecord"),
     "s(RecoveryGroup)": sz("crate::formation_guard::RecoveryGroup"),
     "s(FormationRow)": sz("open_pipe_stress_frame_kernel::load_ledger::FormationRow"),

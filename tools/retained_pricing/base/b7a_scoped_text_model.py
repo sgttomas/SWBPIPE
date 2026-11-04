@@ -57,10 +57,12 @@ LN = {
     # RT-A3 increment 1 D3 (§8.33): +12 each (10366/15340/15289/15339 at §8.32), unchanged text.
     # Model document 0.9.0 D3 (§8.36): all four lib.rs sites +83, unchanged text (the 0.9.0 modules, members, closed
     # term wire, lowering and withholding calls and the snubber token precede them).
-    'unit_message': 10514, # lib.rs `message.into()` (9162) [9159]
-    'suffix': 15488,      # lib.rs `id.replace(':', "-")` (13614) [13619]
-    'diag_fn': 15437,     # lib.rs fn diag (13563) [13568]
-    'suffix_fn': 15487,   # lib.rs fn stable_suffix (13613) [13618]
+    # RT-A4 D3 (§8.46): +7 (unit_message: the `mod combination_plan;` line and the derivation call's six lines precede
+    # it) and +79 (the three helpers: the wiring's lib.rs additions precede them), unchanged text.
+    'unit_message': 10521, # lib.rs `message.into()` (9162) [9159]
+    'suffix': 15567,      # lib.rs `id.replace(':', "-")` (13614) [13619]
+    'diag_fn': 15516,     # lib.rs fn diag (13563) [13568]
+    'suffix_fn': 15566,   # lib.rs fn stable_suffix (13613) [13618]
     # Model document 0.9.0 D3 (§8.36): physics_source.rs's require moves +23 with unchanged text (model_uses_conditions
     # and the three condition-set, spectrum and set-reference predicates precede it); the new details are at most 24 B
     # (ACTUAL_CONDITION_SET_REF), so the longest stays ACTUAL_MATERIAL_DUPLICATE_TEMPERATURE's 37 B and 40 holds.
@@ -114,7 +116,8 @@ LEX_CURRENT = {
     # W-15 D3 (§8.21): preview_physics.rs 632 -> 635 and 598 -> 601 (render_members' `bodies` parameter and render's
     # body set), unchanged text.
     # RT-A3 increment 1 D3 (§8.33): 635 -> 636 (Association's doc line), unchanged text.
-    'preview_physics.rs:636': {'class': 47, 'why': WHY + '; arc basis literal'},
+    # RT-A4 D3 (§8.46): 636 -> 642 (Rendered::evidence's derivation parameter and doc lines), unchanged text.
+    'preview_physics.rs:642': {'class': 47, 'why': WHY + '; arc basis literal'},
     'lib.rs:%d' % LN['unit_message']: {'class': 600, 'why': WHY + '; unit-conversion owned message'},
     'pressure_runtime.rs:%d' % LN['join']: {'class': 644, 'why': WHY + '; complete five-ref joined spelling'},
 }

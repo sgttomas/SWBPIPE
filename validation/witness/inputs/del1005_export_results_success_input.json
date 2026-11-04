@@ -51,7 +51,7 @@
                 "ref_id": "run:headless-preview:del1005-export-results-invented",
                 "ref_type": "analysis_run"
               },
-              "value": "7d132dd16c35fe0b7d80c8354cef9b3c1c1fa4b5bc698558852a1c89dbde5a46"
+              "value": "420b84eaff1f2cb225f6297bc164cb2f2a844ec6c3db1692025d2837ee2e6f88"
             },
             "privacy_classification": "invented_public_example",
             "provenance": {
@@ -81,7 +81,7 @@
                 "ref_id": "result-envelope:run:headless-preview:del1005-export-results-invented",
                 "ref_type": "result_envelope"
               },
-              "value": "0c887f67dd73f507ce72d974fe3e265a6fa0f3cdab20f86dc09bc628073ea580"
+              "value": "f804dea14215fd108ca0e3c28a5f8c66c0fa6f7ae6d55fdf24ea9acdc7fb26f6"
             },
             "privacy_classification": "invented_public_example",
             "provenance": {
@@ -4611,7 +4611,7 @@
               "On arcs: signed tangent-frame resultants, nominal stress components and section extremes; endpoint force rows are node-on-element actions in the tangent frame at their end. The normal-stress maximum is bounded along the arc and enters the stress headline. The transverse shear uses the straight-annulus field without curvature correction.",
               "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress. On realized arcs with directional SIFs, intensified bending is hypot(i_ip*Mz, i_op*My)/Z in the tangent frame, with its along-arc maximum.",
               "Signed support actions for rigid restraints, springs, consuming constant effort and attributable nonlinear supports. Ambiguous attribution is withheld.",
-              "Headlines cover all load cases. Mechanics combinations are withheld for nonlinear supports, constant effort with sum of factors other than 1, or mixed moduli. Subtraction is a labelled difference. No combination maxima and no code compliance.",
+              "Headlines cover all load cases. In a model with nonlinear supports a mechanics combination is withheld unless one term is a solved load case with factor exactly 1, at least one other term exists, and every other term is a combination whose fixed-load count κ is defined and exactly 0; it is then formed from rows, with its operands' standing, as a solved state plus derived differences or bounds, not an equilibrium state. With a consuming constant effort a mechanics combination is withheld when its κ is undefined or differs from 1 by more than 64ε, and an absolute sum or SRSS unless every operand's κ is exactly 0. Mechanics combinations, absolute sums and SRSS are also withheld for mixed moduli over the load cases they reach, and every combination is withheld with a withheld operand combination. Absolute sums and SRSS are unsigned. Subtraction is a labelled difference. No combination maxima and no code compliance.",
               "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
               "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64 in SI units and then converted to the published unit as every other row is, and each displacement magnitude is the correctly rounded norm of the node's three published translation components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
             ],
@@ -4683,7 +4683,7 @@
                 "ref_type": "derivative_document"
               },
               "payload_scope": "derivative_document_excludes_own_hash",
-              "value": "00bf33f186fd005b290300e4deb8266b4f195ac77af565c047c228de7ac8a68b"
+              "value": "e43b58113360373ce01d269d438e3ad8c6b7aaf8e13296d1a87ab45deb8f5d9d"
             },
             "derivative_hash_excludes": "result_envelope.reproducibility.derivative_hash",
             "deterministic_ordering": true,
@@ -4706,7 +4706,7 @@
                   "ref_type": "attested_headless_producer"
                 },
                 "payload_scope": "attested_headless_producer_carrier",
-                "value": "0c887f67dd73f507ce72d974fe3e265a6fa0f3cdab20f86dc09bc628073ea580"
+                "value": "f804dea14215fd108ca0e3c28a5f8c66c0fa6f7ae6d55fdf24ea9acdc7fb26f6"
               }
             ],
             "request_hash": {
@@ -4727,7 +4727,7 @@
                   "ref_id": "run:headless-preview:del1005-export-results-invented",
                   "ref_type": "AnalysisRun"
                 },
-                "value": "7d132dd16c35fe0b7d80c8354cef9b3c1c1fa4b5bc698558852a1c89dbde5a46"
+                "value": "420b84eaff1f2cb225f6297bc164cb2f2a844ec6c3db1692025d2837ee2e6f88"
               },
               {
                 "algorithm": "sha256",
@@ -4736,7 +4736,7 @@
                   "ref_id": "result-envelope:run:headless-preview:del1005-export-results-invented",
                   "ref_type": "ResultEnvelope"
                 },
-                "value": "0c887f67dd73f507ce72d974fe3e265a6fa0f3cdab20f86dc09bc628073ea580"
+                "value": "f804dea14215fd108ca0e3c28a5f8c66c0fa6f7ae6d55fdf24ea9acdc7fb26f6"
               }
             ],
             "source_origin_bindings": [
@@ -4761,7 +4761,7 @@
                     "ref_type": "attested_headless_producer"
                   },
                   "payload_scope": "attested_headless_producer_carrier",
-                  "value": "0c887f67dd73f507ce72d974fe3e265a6fa0f3cdab20f86dc09bc628073ea580"
+                  "value": "f804dea14215fd108ca0e3c28a5f8c66c0fa6f7ae6d55fdf24ea9acdc7fb26f6"
                 },
                 "qualification_ref": {
                   "ref_id": "run:headless-preview:del1005-export-results-invented:6a0773ee94395a82918c2920aef4ba90e39e6463e03714b07b7b2688853c321c",
@@ -4775,7 +4775,7 @@
                     "ref_type": "attested_headless_producer"
                   },
                   "payload_scope": "attested_headless_producer_carrier",
-                  "value": "0c887f67dd73f507ce72d974fe3e265a6fa0f3cdab20f86dc09bc628073ea580"
+                  "value": "f804dea14215fd108ca0e3c28a5f8c66c0fa6f7ae6d55fdf24ea9acdc7fb26f6"
                 },
                 "request_alias_disclosure": null,
                 "request_model_ref": {
@@ -22461,7 +22461,7 @@
             "On arcs: signed tangent-frame resultants, nominal stress components and section extremes; endpoint force rows are node-on-element actions in the tangent frame at their end. The normal-stress maximum is bounded along the arc and enters the stress headline. The transverse shear uses the straight-annulus field without curvature correction.",
             "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress. On realized arcs with directional SIFs, intensified bending is hypot(i_ip*Mz, i_op*My)/Z in the tangent frame, with its along-arc maximum.",
             "Signed support actions for rigid restraints, springs, consuming constant effort and attributable nonlinear supports. Ambiguous attribution is withheld.",
-            "Headlines cover all load cases. Mechanics combinations are withheld for nonlinear supports, constant effort with sum of factors other than 1, or mixed moduli. Subtraction is a labelled difference. No combination maxima and no code compliance.",
+            "Headlines cover all load cases. In a model with nonlinear supports a mechanics combination is withheld unless one term is a solved load case with factor exactly 1, at least one other term exists, and every other term is a combination whose fixed-load count κ is defined and exactly 0; it is then formed from rows, with its operands' standing, as a solved state plus derived differences or bounds, not an equilibrium state. With a consuming constant effort a mechanics combination is withheld when its κ is undefined or differs from 1 by more than 64ε, and an absolute sum or SRSS unless every operand's κ is exactly 0. Mechanics combinations, absolute sums and SRSS are also withheld for mixed moduli over the load cases they reach, and every combination is withheld with a withheld operand combination. Absolute sums and SRSS are unsigned. Subtraction is a labelled difference. No combination maxima and no code compliance.",
             "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
             "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64 in SI units and then converted to the published unit as every other row is, and each displacement magnitude is the correctly rounded norm of the node's three published translation components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
           ],
@@ -24433,7 +24433,7 @@
                     "ref": "run:headless-preview:del1005-export-results-invented"
                   },
                   "payload_scope": "analysis_run_record",
-                  "value": "7d132dd16c35fe0b7d80c8354cef9b3c1c1fa4b5bc698558852a1c89dbde5a46"
+                  "value": "420b84eaff1f2cb225f6297bc164cb2f2a844ec6c3db1692025d2837ee2e6f88"
                 },
                 {
                   "algorithm": "sha256",
@@ -24443,7 +24443,7 @@
                     "ref": "result-envelope:run:headless-preview:del1005-export-results-invented"
                   },
                   "payload_scope": "received_result",
-                  "value": "0c887f67dd73f507ce72d974fe3e265a6fa0f3cdab20f86dc09bc628073ea580"
+                  "value": "f804dea14215fd108ca0e3c28a5f8c66c0fa6f7ae6d55fdf24ea9acdc7fb26f6"
                 }
               ],
               "library_refs": [],
