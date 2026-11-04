@@ -4892,6 +4892,175 @@ registration (`2b9ee56c0`), and `semantic_contract_tables.repin` routes them to 
 member's insertion, and `gate_reason` gains the declared arm. Frame sizes were not measured here. The witness paths run
 through `observed_inner`, so §8.50's 7/7 does not transfer: AC-004 is pending on the binary named in the PR record.
 
+### §8.52 DEL-04-09 I3a: the modal result document and two unit-catalog dimensions on PF1b's §8.51 head (actual-source D3, conservative carry)
+
+**Status.** Proposed registration of DEL-04-09 I3a (Design `modal-analysis.md` §5.3; §5.3.9 item 6's D3), made on
+PF1b's frozen §8.51 head with main #109, in the order Agent 0 set (#105/B, then PF1b, then I3a). It is made under the
+owner's removal of explicit owner approval for coefficient movement. Source-derived pricing, independent scrutiny and
+preservation of the registered state remain required. This records no acceptance. **No coefficient moves**, so
+§8.51's block is kept. The threshold and M are unchanged. **AC-004: pending** (see "Frames and AC-004" below). The modal
+result family stays experimental and not public (Design §5.3.9). This registration adopts no production parameter
+instance, guard weights, subject census or recording policy, and the independent numerical review of I3a remains a
+separate obligation.
+
+**Basis and integration chain.** The basis is PF1b's frozen head `d44e5c538` (PR #107; tree `8b7d3d53…`), whose
+registration is §8.51 (priced source `a82460ad7`). I3a's branch `claude/rt-dynamics-i3a` merged it as `fada1b46e`, then
+main `23f68bd7d` (#109, DEL-04-09 S1: the dense kernel's opt-in allotments) as `687fafdca`. **Priced source:
+`687fafdca`** (tree `963bfbf6…`). The registration commits that follow change only the pricing tool, its tests, this text,
+the Design and routing.
+
+**What reaches the priced directories** (`base/crate_dirs.txt`), against the basis:
+- PP `modal/`:
+  - `document.rs` (new: the transient result-document projection, called only by tests) and `tests_document.rs` (new,
+    `#[cfg(test)]`);
+  - `outcome.rs` (payload fields and their copy) and `weight_basis.rs` (`Discrepancy::subject_kind`, and
+    `compare_resultant` takes the subject with its kind);
+  - `modal.rs` (module declarations) and one line each in `tests_eigen.rs` and `tests_state.rs`;
+  - `observation_tests.rs` and `phase_measurand_tests.rs` (new). These are `*_tests.rs` files, which `loopscan.py`'s
+    test-file rule and every scanner skip; neither enters the template inventory.
+- `core/units/src/lib.rs`: `mass_length_per_rotation` (`kg*m/rad`, `lb*in/rad`, `lb*ft/rad`) and `time_squared`
+  (`s^2`).
+- Outside the priced directories: the reader crate `core/reporting/modal_result`, `core/solver/modal_eigen` (I3a and
+  #109), the fixtures, `schemas/units.schema.yaml` and the Python validators.
+- Unchanged: PP `lib.rs` and `self_weight.rs`, every `Cargo.lock` (PP's stays `b7ebb02a…`), all thirteen reviewed
+  inputs and `retained_memory.rs` (byte-equal to `d44e5c538`'s).
+
+**Pin restated.** B7a scoped TEXT's `UNITS_SHA` (`base/b7a_scoped_text_model.py`) moves `5a412c57…` → `e5033f83…`.
+- *Before the re-pin.* The committed tool stops on `687fafdca` with exit 4 ("B7a scoped TEXT: unit source changed").
+- *The value.* It is the SHA-256 of the committed blob (`git show 687fafdca:core/units/src/lib.rs`), recomputed
+  independently of the tool's output. It equals the UNITS pin that I3a's own commits put in
+  `tools/validation/qualification_physics.py`.
+- *The premise, re-read on the diff.* The twelve production hunks add enum variants, match arms (two with comments),
+  `DIMENSIONS` and `CATALOG` entries, canonical-unit arms, one provenance arm and four factor texts, and nothing else;
+  the thirteenth hunk adds two unit tests.
+  - `UnitError` and its Display are unchanged.
+  - There are 34 → 36 dimension names (35 → 37 `DIMENSIONS` entries with `Tbd`).
+  - The longest name stays `thermal_expansion_coefficient` (29 B), and the longest symbol stays `lb*in^2/rad^2`
+    (13 B; 74 → 78 symbols).
+  - Catalog lookups still iterate the static `CATALOG` (four entries more) and allocate nothing.
+
+  So the unit-conversion message keeps its 600 B class.
+- *Other pins.* None moves: §8.43's MODAL-FB body pins, MODAL-SEAM's capture pin and the full-file `lib.rs` and
+  `self_weight.rs` pins hold on the merged bytes, and the run passes them.
+
+**New rules (MODAL-ID, I3a; `rules/o10_rules.py`).** They are guarded by `fnkey("modal_result_document",
+modal/document.rs)` and nested in §8.43's `prepare_modal` guard. After the re-pin the run stops (exit 5, every point
+incomplete) at nine sites with eight argument keys and no class, all at multiplicity 0. Three other arguments were
+classed by name below their true bound; their audits now govern, since an audit precedes the by-name rules. Lines are at
+`687fafdca`:
+
+| Site | Argument | Was | Class |
+|---|---|---|---|
+| `document.rs:347` `modal_doc_diagnostic_row` `"{prefix}:{ordinal}"` | `ordinal` | none | usize 20 B |
+| `document.rs:428` `modal_doc_identity` `"modal-run:{}"` | `run.get(..16).unwrap_or("")` | none | 16 B (`str::get(..16)`, else empty) |
+| `document.rs:629` `modal_doc_solved` `"mass:{a}\|{b}"` | `a` / `b` | none / 20 B | DOF id 135 B |
+| `document.rs:636` `"mass-total:{}"` | `DIRECTIONS[k]` | none | 1 B |
+| `document.rs:666` `"shape:{}:{id}"` | `modal_doc_mode_ref(mode.index)` / `id` | 20 / 128 B | mode ref 25 B / DOF id 135 B |
+| `document.rs:683` `"participation:{}:{}"` | `modal_doc_mode_ref(mode.index)` / `DIRECTIONS[k]` | 20 B / none | 25 B / 1 B |
+| `document.rs:731` `"sturm-candidate:{}"` | `j + 1` | none | usize 20 B |
+| `tests_document.rs:272` `modal_edge_entries` | `k` | none | usize 20 B |
+| `tests_document.rs:275` | `m` | none | usize 20 B |
+| `tests_document.rs:278` | `3 * m + k` | none | usize 20 B |
+
+- *The two derived bounds.*
+  - A DOF id is `modal_doc_dof_id`'s `format!("dof:{}:{}", node_ids[dof / 6], COMPONENTS[dof % 6])`: 4 B, an IN128 node
+    id, 1 B and the longest `COMPONENTS` token (2 B), so 135 B.
+  - A mode ref is `modal_doc_mode_ref`'s `format!("mode:{index}")`: 5 B and a usize, so 25 B.
+- *The guards.*
+  - `COMPONENTS` and `DIRECTIONS` must each be the one all-literal `const NAME: [&str; n]` in `document.rs`. The
+    longest token is read from the source, so a longer token re-prices.
+  - Both helpers' whole text must match exactly.
+  - `modal_doc_solved` must bind `ids = &outcome.node_ids` once, `(a, b)` from the helper once and `id` from the helper
+    once, with no other `let` of those names.
+
+  Any other shape stops the run.
+- *Arguments already at or above their bound.* Node, support and pipe ids are IN128. The diagnostic prefix
+  (`"refusal"`, `"diagnostic"`) takes the 964 B static class, and `{b:02x}` 16 B. The table indices are usize. In
+  the test file, `field` is 128 B (its longest literal is 34 B) and the fixture names are 128 B.
+
+**Re-verified on the composition (`687fafdca`).**
+- *No new MODAL-FB.* The head's graph adds 29 nodes (28 in `document.rs`, plus `outcome.rs`'s
+  `modal_mass_upper_entries`) and 185 edges, all out of modal nodes. None targets `certified_publication`, so
+  KD5C6's cutset is unchanged. No edge enters modal, and `reachable_fns` stays 4,460.
+- *No new MODAL-SEAM.* `lib.rs` is unchanged.
+- *No SL-LIM disposition.* The long-literal list equals the basis's (the six reviewed dispositions). The static class
+  stays 964 B and the report class 185 B. I3a's longest production literal is 545 B (`document.rs:55`, a
+  `MODAL_RESULT_LIMITATIONS` entry), below the class.
+- *No new disposition of any other kind.* `weight_basis.rs`'s TEXT rows keep their bytes.
+
+**Run and graph.** `price.py run 687fafdca`:
+- *Completeness.* Exit 0 on all four points, with no unmapped header or unclassified argument, `text_complete` and
+  `D_converged` everywhere, and both O-10 checks 0.
+- *Line map.* It equals the basis's: 875 carried keys, 37 prunes and seven resolutions; the premise pins are equal.
+- *D and TAV.* D is L(3,0) 43,783, L(2,1) 39,371, L(1,2) 35,235 and E 76,356, and TAV is L(3,0) 4,714,365,802 and
+  E 7,229,420,664. Both equal the basis's at every point.
+- *Inventories.* Every function multiplicity and `sites_with_positive_multiplicity` is equal. The text inventory gains
+  24 rows (18 in `document.rs`, 6 in `tests_document.rs`), all at multiplicity 0, and loses none.
+- *Chain outputs.* `ordinary_caps`, `producer_caps`, `t07_repair`, `t25_caps`, `t25_g4` and `profile_tree` are equal at
+  every point. `g4_caps` differs only in its recorded work-directory path.
+
+**Comparison.**
+- *The basis.* `d44e5c538` was priced with its own tool cohort: its `tools/retained_pricing` and
+  `tools/repository_history.py`, extracted into scratch and run with `--repo`. It exits 0 and is O-10 clear. Its
+  `generate --check` with §8.51's basis line (", re-run as operating-case slice 1b on RT-U4's §8.50 candidate at
+  a82460ad7 (§8.51): …") equals the committed block (1,713 lines).
+- *The head against the basis.* `compare` is **identical but for the basis line**: structure equal, **1,602
+  coefficients equal, 0 higher, 0 lower**. The check is §8.51's (sparse 8,593,875,919, dense 8,653,007,263).
+- *The head against the block.* `generate --check` of the head's tree with §8.51's basis line is **equal** to the
+  committed block (1,713 lines).
+- *Consequence.* The block is not regenerated, under the `a_le_b` carry with every coefficient equal (§8.43's and
+  §8.48's precedent). Its basis line stays §8.51's, and `threshold_bytes` is kept.
+
+**Native atoms and records.**
+- *The build.* The PP lib-test build at the priced source (rustc 1.97.1, debug, opt-level 0;
+  `open_pipe_stress_product_physics-17fc6ee4fe08d0e3`, SHA-256 `00d80cce…f739`) passes `profile_in_build_record` at the
+  unchanged `PINNED_RECORD`. So the in-build phases are §8.51's, and no record value moves.
+- *Unchanged.* `PINNED_RECORD`, the challenge's `W1_PHASE_BYTES` and `MAX_PHASE_BYTES`, `REGISTERED_PROFILES` (the
+  identity, the reviewed-input record, the reader layouts and the threshold) and the law test's `REVIEWED`. All thirteen
+  reviewed inputs hash equal on the head.
+- *Margin.* W3 stays the maximum, 2,726,118,449 B (dense, with R) below ⌊0.9M⌋.
+
+**Tests.**
+- *Lib tests.* The `retained_memory` lib tests (84, including the `profile_` law tests and
+  `reviewed_inputs_bind_the_lock_and_the_reader_statics`) and the `modal::` lib tests (75) pass, 159 in all.
+- *Pricing tool.* `tools/retained_pricing/tests` and `tests/test_retained_pricing_tool.py` pass under the slot wrapper
+  with `OPENPIPESTRESS_NO_CARGO_BUILD=1` (1,053 tests).
+- *Deliverables.* `python3 -m tools.deliverables --project . check` reports no error.
+- *Routing.* `tests/test_ci_numerical.py` and `tools/software_workflow/test_hosted_ci.py` fail on the real tree (10 tests,
+  63 with subtests): each selection falls back to the full suite at the refused `include_str!(concat!(…))` reads named
+  under "Routing". With those two reads set aside, the checker resolves every declaration.
+- *The new regressions.* `tests/test_852_i3a_modal_document.py` carries the ten audits on both routes. It re-prices a
+  longer `COMPONENTS` token and stops on a computed `DIRECTIONS` token, a changed DOF-id or mode-ref helper, a rebound
+  `id` or `ids` taken from elsewhere. A head without `modal_result_document` adds no audit.
+
+**Routing** (`tools/hosted-ci-routing.json`). I3a's branch had not routed its files. This registration does it with
+the maintained checker (`tools/ci/numerical_ci.py`'s `source_read_dependencies` and `rust_tree_digest`):
+- *Tree digests.* `source_trees` moves for product_physics (`97c5e298…` → `1bbd5860…`) and units (`00e6e906…` →
+  `4b50bd10…`).
+- *The three project-wide source-scan declarations.* result_export's `retained_precision_carriers.rs` input 14 and
+  nonlinear_integration's `s11k_tests.rs` and `structural_adapter/k5_tests.rs` input 0 list the four new PP modal files.
+  The first also lists `core/reporting/modal_result/src/lib.rs`.
+- *The fixture scans.* `hash_corpus.rs` and `combination_algebra.rs` list the 28 new modal fixtures, and
+  `feature_guard.rs` input 6 lists `modal_result/Cargo.toml`.
+
+With those changes the checker resolves every declaration except two I3a test-source reads that it refuses by design
+(`include_str!(concat!(…))`, at `modal/tests_document.rs:95-96` and `modal_result/tests/corpus.rs:23`). Those are I3a
+test-source shapes outside this registration, so the routing tests stay failing until they are resolved (see "Tests").
+
+**Frames and AC-004: pending.** AC-004 was not run here. The witnessed lib-test binary changes in retained-reachable
+code:
+- Of the nineteen `core/units` functions on the retained graph, `Dimension::as_str`, `UnitId::definition`,
+  `canonical_unit`, `conversion_provenance` and `factor_representation` gain match arms.
+- `unit_by_symbol` and `catalog_definitions` iterate a longer `CATALOG`.
+- `document.rs` and #109's and I3a's `modal_eigen` changes compile into the same binary.
+
+Heap coefficient identity does not establish stack depth (§8.39), and §8.43's analytical argument (no
+retained-reachable function body changes) does not hold here. §8.51's own AC-004 is also pending. So AC-004 needs the stack witnesses
+on this registration's binary. Frame sizes were not measured here.
+
+Run evidence (price.py logs, compares, owner and graph checks) is in
+`/Users/ryan/dev/chirality-t3/scratch/rt-dynamics-i3a-d3/`. It is review input, not a permanent dependency.
+
 ## 9. Memory-profile gates and registration
 
 ### Gate bounds (registration)
@@ -4915,7 +5084,7 @@ Two limits keep these bounds fail-closed rather than reachable at the census max
 
 ## 10. Reproducing a registered revision
 
-The committed tool's source pins hold one current value each, so the committed tool reproduces only the revision those pins bind (now §8.50's priced source `cadd9b577`; §8.49's priced source `293e8da85` and its registered successor `4a8287001` are reproduced by `4a8287001`'s tool cohort (equally `03a5cd3b1`'s, whose tool tree is the same); §8.48's priced source, the merged head `a0220a641`, is reproduced by main `aa794eb68`'s tool cohort; §8.47's `a47a9ebf8` is reproduced by `41cf15b95`'s tool cohort; §8.46's `fbd0931d5` and its registered successor `e8a59f1fd` are reproduced by `e8a59f1fd`'s tool cohort; §8.44's `e2dbc7b33` is reproduced by `01e05a486`'s tool cohort; main `6c3cb46d3` (§8.45), §8.42's `92a6f81ff`, §8.41's adopted source `4e1972698` and earlier mains are reproduced with their own tool cohorts); at an earlier revision a pin stops it (exit 4). §8.45's carried block (33 coefficients above the lexer's tree, none below) was reproduced by main `db3151708`'s complete tool cohort; §8.44 regenerates the block on the lexer, so `generate --check` of the committed tool's tree at `e2dbc7b33` with §8.44's basis line matches the registered block again. Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
+The committed tool's source pins hold one current value each, so the committed tool reproduces only the revision those pins bind (now §8.52's priced source `687fafdca`; §8.51's registered head `d44e5c538` is reproduced by its own tool cohort, with `tools/repository_history.py`; §8.50's priced source `cadd9b577` was bound before §8.51's re-pins; §8.49's priced source `293e8da85` and its registered successor `4a8287001` are reproduced by `4a8287001`'s tool cohort (equally `03a5cd3b1`'s, whose tool tree is the same); §8.48's priced source, the merged head `a0220a641`, is reproduced by main `aa794eb68`'s tool cohort; §8.47's `a47a9ebf8` is reproduced by `41cf15b95`'s tool cohort; §8.46's `fbd0931d5` and its registered successor `e8a59f1fd` are reproduced by `e8a59f1fd`'s tool cohort; §8.44's `e2dbc7b33` is reproduced by `01e05a486`'s tool cohort; main `6c3cb46d3` (§8.45), §8.42's `92a6f81ff`, §8.41's adopted source `4e1972698` and earlier mains are reproduced with their own tool cohorts); at an earlier revision a pin stops it (exit 4). §8.45's carried block (33 coefficients above the lexer's tree, none below) was reproduced by main `db3151708`'s complete tool cohort; §8.44 regenerates the block on the lexer, so `generate --check` of the committed tool's tree at `e2dbc7b33` with §8.44's basis line matches the registered block again. Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
 
 The following are historical replay results, not procedures for the current tool. In their pre-W1 tool cohort, the replay restored the B7a/B7b source models (`base/b7a_*.py`, `lib/b7a_retired_carry.py`), `kd5_text_model.py`, `kd5_first_error_model.py`, `batch5_model.py`, the per-invocation pins in `o10_rules.py`, and C7's NumericCase pins in `prescribed_key_model.py`; source before batch 5 also used the original case consumer instead of the wrapper/helper pair.
 - **B7b at `837a04b770`.** With that historical cohort and its restored pins, the scratch tool priced `837a04b770` with exit 0, and `generate --check` of that tree matched the block committed at `e70c115764`. An earlier B7b revision stopped at a result_export pin (exit 4).
@@ -5008,3 +5177,4 @@ Code, tools and other designs cite this text by these earlier section names and 
 | "Static and report literal classes: a Rust lexer replaces quote pairing", "§8.45" (SL-LIM) | §8.45 |
 | "RT-A4: absolute sums, SRSS and nested combinations on both routes", "§8.46" (RT-A4-PIN, RT-A4-D14, RT-A4-UZ, RT-A4-WZ, RT-A4-L1, RT-A4-RM, RT-A4-NR, RT-A4-ER, RT-A4-ID, RT-A4-EV, RT-A4-DC, RT-A4-HS, RT-A4-RE, RT-A4-TK, RT-A4-PR, RT-A4-RK1–RK4, RT-A4-PL, RT-A4-CB, RT-A4-DV, RT-A4-RD) | §8.46 |
 | "RT-A3 increment 4: nonlinear supports on the exact route", "§8.49" (RTA3NL-S6, RTA3NL-RD, RTA3NL-ID, RTA3NL-PP, RTA3NL-PIN) | §8.49 |
+| "DEL-04-09 I3a: the modal result document", "§8.52" (MODAL-ID's I3a sites; the I3a `UNITS_SHA`) | §8.52 |
