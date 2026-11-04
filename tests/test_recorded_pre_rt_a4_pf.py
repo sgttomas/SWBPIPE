@@ -251,7 +251,11 @@ def test_the_registry_is_main_verbatim_and_disjoint_from_the_current_tables():
         assert table["semantic_contract_id"] == identity
         # Rows are the current table's: only limitations, policy text, vocabulary and inherited digests moved.
         assert table["rows"] == json.loads(c._TABLES[identity][1].read_text(encoding="utf-8"))["rows"]
-        rev = MAIN if digest != "045f6f0d8ce350246b21fb712d2dd14bf3a7f7f3690e66e062cbbf77d3696a3b" else "01e05a486"
+        # Operating-case slice 1b's variants are main's at bbf384dec (fixtures/results/recorded_pre_rt_a5_1b).
+        rev = {"045f6f0d8ce350246b21fb712d2dd14bf3a7f7f3690e66e062cbbf77d3696a3b": "01e05a486",
+               "e7b93f416f700f8efdb31bf1ba26dedde52963d768d6ead5a73dbf1c645a360c": "bbf384dec",
+               "ce49ebe07bc05431ea1f770c1933b5bf58f4b1c8b66fb6f36810f2ef7a58cd43": "bbf384dec",
+               "26dce9c21261b1ca894af05a3b6f4a94db88904894cb47f7296f892e72ecfb7e": "bbf384dec"}.get(digest, MAIN)
         try:
             committed = subprocess.run(["git", "show", f"{rev}:fixtures/results/semantic_contract_v0_3_{origin[identity]}.json"],
                                        cwd=ROOT, capture_output=True, check=True).stdout
