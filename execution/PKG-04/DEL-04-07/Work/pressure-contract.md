@@ -1399,8 +1399,8 @@ every reference envelope validates against it
 **Pending.**
 - *Shared-loop hunks:* none were needed. No `LoadCaseSolve` construction or
   early return was added.
-- *Registration (D3, DEL-04-08 §8.49, after #97's §8.48): landed; the AC-004
-  witnesses are pending.* The profile is registered on main `aa794eb68`: 8
+- *Registration (D3, DEL-04-08 §8.49, after #97's §8.48): landed, and AC-004
+  passed 7/7.* The profile is registered on main `aa794eb68`: 8
   of 1,602 coefficients higher, none lower (STATICS[1] +754 B, the restated
   pressure-2 table; TAV +5,862 B, S1's nonlinear clause and S7 in six
   copies), every phase +6,616 B in both modes, and W3 dense E + R
@@ -1423,8 +1423,10 @@ every reference envelope validates against it
   `b3b_exact_successor_is_pinned_in_both_modes` builds its successor through
   the private driver, passes its shape assertions and fails at the digest
   comparison. Registration alone did not repair them; their writers and
-  comparisons were run, and all 53 pass. The six AC-004 stack witnesses on
-  the registered binary are a separate, Agent-0-cleared exclusive run.
+  comparisons were run, and all 53 pass. The six AC-004 stack witnesses and
+  the isolated challenge passed 7/7 on the registered binary in one
+  Agent-0-cleared exclusive window (DEL-04-08 §8.49). This is test evidence,
+  not an acceptance.
 - *Performance harness:* the rack's "RT-A3 increment 4" ledger entries and
   its interim linear forms (`rack_model.py`, `release_runner.py`).
 - *The reader's equilibrium limit* and the further limits (above).

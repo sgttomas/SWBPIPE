@@ -4483,26 +4483,48 @@ check passes with the six reviewed dispositions unchanged: the pressure-2 identi
 disposition measured by U6-J4, and S7 (224 B) stays below the static class; `test_844_rt_a3_ce.py` follows both.
 The pricing-tool suite (`tools/retained_pricing/tests` and `tests/test_retained_pricing_tool.py`) passes: 1,035.
 
-**AC-004 (pending).** Coefficients, the in-build record and `W1`/`MAX` move, so the six stack-headroom witnesses must
-run on the registered binary (an Agent-0-cleared `t3_exclusive.sh` window); this record does not run them.
-The binary is ready; identities recorded at head `850c82d4b` (clean; later commits change only Work text, the pricing
-README and the CE pricing test `test_844_rt_a3_ce.py`, and no compiled product source):
-- lib-test binary `open_pipe_stress_product_physics-8057898b0bb36c31`, SHA-256
-  `7b986d0955dd6f43a987e4241583c882d7a7439996216b161b46a2a9c818d202`; challenge binary
-  `retained_memory_challenge-3f698ddcca32b754`, SHA-256 `6c84ad3a3e1518bf13315685c748b2352c9e37291f1c6758ed9146fbbb003596`,
-  source `tests/retained_memory_challenge.rs` `0fe5a78419b63c8d8334da195a21fa5facb6c825b1c18d454517886abd5c98ed`;
-- profile `retained_memory.rs` `2c6ae607e0112c26ac15560cdf15614b2c08ff5ab673633bb4d2ec2bb12f6d3a`, product_physics
-  `Cargo.lock` `b7ebb02aafa8cfe214c18bc64941381b33ab3f9295e0fc774ee0819e1e4f5653` (unchanged);
-- rustc 1.97.1 (`8bab26f4f68e0e26f0bb7960be334d5b520ea452`), RUSTFLAGS unset; built under the slot wrapper with
-  `cargo test --offline --no-run --lib --test retained_memory_challenge` (test profile), and a second `--no-run`
-  reported both fresh.
+**AC-004: the six witnesses and the isolated challenge pass on this registration's binary (7/7).** Coefficients, the
+in-build record and `W1`/`MAX` move, so Agent 0 cleared one exclusive run of the six stack witnesses plus §8.40's
+isolated `retained_memory_challenge`, after the independent registration review cleared (no blocking or should-fix
+finding; its descriptive notes are corrected above).
+- **Identities**, recorded before queueing and re-verified at admission by the harness:
+  - head `4a82870016521f1643e18959cdbdfbf05ebdc103`, clean; its `core/` tree `2c1a8dc42950688cd794a98812ef351d14b985ba`
+    is the binary record head `850c82d4b`'s (the commits between change only Work text, the pricing README and the CE
+    pricing test `test_844_rt_a3_ce.py`, and no compiled product source);
+  - lib-test binary `open_pipe_stress_product_physics-8057898b0bb36c31`, SHA-256
+    `7b986d0955dd6f43a987e4241583c882d7a7439996216b161b46a2a9c818d202`;
+  - challenge binary `retained_memory_challenge-3f698ddcca32b754`, SHA-256
+    `6c84ad3a3e1518bf13315685c748b2352c9e37291f1c6758ed9146fbbb003596`, source `tests/retained_memory_challenge.rs`
+    `0fe5a78419b63c8d8334da195a21fa5facb6c825b1c18d454517886abd5c98ed`;
+  - profile `retained_memory.rs` `2c6ae607e0112c26ac15560cdf15614b2c08ff5ab673633bb4d2ec2bb12f6d3a`, product_physics
+    `Cargo.lock` `b7ebb02aafa8cfe214c18bc64941381b33ab3f9295e0fc774ee0819e1e4f5653` (unchanged);
+  - rustc 1.97.1 (`8bab26f4f68e0e26f0bb7960be334d5b520ea452`, aarch64-apple-darwin), RUSTFLAGS and
+    CARGO_ENCODED_RUSTFLAGS unset, no repository Cargo configuration.
+  Both binaries were built beforehand under the slot wrapper (`cargo test --offline --no-run --lib --test
+  retained_memory_challenge`, test profile), and a `--no-run` immediately before queueing reported them fresh.
+- **Window.** One `t3_exclusive.sh` run with memguard: WAIT-EXCLUSIVE and START-EXCLUSIVE 2026-11-04T10:56:05Z
+  (admission verified at 10:56:05.710Z), END-EXCLUSIVE 10:56:18Z, rc 0. That is 13 s including teardown against 60 s;
+  the internal harness took 12.57 s against its 55 s deadline (hard deadline 10:57:00.6Z).
+- **Discipline.** Each test ran once in its own process, invoked directly from its prebuilt binary with `--exact
+  --test-threads=1` (`--ignored` for the witnesses). Nothing was compiled inside the window, and there was no retry
+  and no extra test.
+- **Results, all pass:**
 
-The six witnesses are `retained_memory::witness_tests::{witness_headroom_w1_at_one_mebibyte,
-witness_w2_deep_milestone_publishes, witness_w_c2_publishes}::{sparse,dense}`, each run once in its own process
-from the prebuilt lib-test binary with `--exact --ignored --test-threads=1`. Whether §8.40's isolated challenge
-(`retained_direct_peak_is_within_the_profiles_bounds`) joins the window is Agent 0's call.
+  | Test | Sparse | Dense |
+  |---|---|---|
+  | `witness_headroom_w1_at_one_mebibyte` | 0.69 s | 0.70 s |
+  | `witness_w2_deep_milestone_publishes` | 1.35 s | 1.25 s |
+  | `witness_w_c2_publishes` | 2.45 s | 2.39 s |
+  | `retained_direct_peak_is_within_the_profiles_bounds` (isolated challenge, both modes, one process) | 3.64 s | |
 
-Run evidence is in `/Users/ryan/dev/chirality-t3/scratch/rt-a3/nl-reg/` (the head and main runs, the comparison, the atom
+- **Closure.** Verified at 10:56:28Z: `exclusive.pending` absent, no harness, wrapper or test process of this run, no
+  holder on the four slot locks, and both binary hashes unchanged. This is test evidence, not an acceptance.
+- **Review process exception (recorded as it occurred).** During the independent registration review, the pricing
+  tool's child interpreters wrote ten Python bytecode caches under `tools/retained_pricing` outside the review's
+  scratch; the reviewer removed only those new files, and later runs disabled bytecode writing. No tracked file
+  changed. The removal restores the tree; it is not evidence or authority for this registration.
+
+Run evidence is in `/Users/ryan/dev/chirality-t3/scratch/rt-a3/nl-reg/` and the window's record in `…/rt-a3/nl-witness/` (the head and main runs, the comparison, the atom
 logs and evaluations, the pin captures and reseal scripts). It is review input, not a permanent dependency.
 
 ## 9. Memory-profile gates and registration
