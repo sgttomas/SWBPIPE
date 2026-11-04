@@ -7,6 +7,7 @@ Maintained test fixtures of the experimental modal result family `openpipestress
 | `semantic_contract_modal_1.json` | The semantic table `openpipestress.result_semantics/modal-1` |
 | `modal_<name>.json`, `modal_<name>.request.json` | A document and the request it binds, projected from a real `ModalOutcome` of a reference model |
 | `modal_corpus.json` | The reader corpus: tampered relations, the standing each targets and the verdict both readers return |
+| `modal_oracle_cases.json` | Generated tamperings (fixed seed) with the feasibility oracle's verdict per family (`tests/modal_feasibility_oracle.py`); both readers must fail exactly the infeasible families |
 
 ## Generation
 
@@ -25,3 +26,5 @@ cd core/reporting/modal_result
 ```
 
 The Rust reader (`core/reporting/modal_result/tests/corpus.rs`) and the Python reader (`tests/test_modal_evidence.py`) are each held to every expectation, so they agree on every decision.
+
+The oracle cases are regenerated with `MODAL_ORACLE_WRITE=1` on `tests/test_modal_feasibility_oracle.py`, which otherwise requires the committed file to be its regeneration.

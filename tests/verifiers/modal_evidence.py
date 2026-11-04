@@ -614,7 +614,7 @@ def _closure(doc):
             _id_is(r, path, f"shape:mode:{m + 1}:{r['dof_ref']}")
             kind = "mode_shape_translation" if dof % 6 < 3 else "mode_shape_rotation"
             vo = unitize(_vo(r["value"], f"{path}/value", (kind,)), CASES[p.modes[m]["case"]], f"{path}/value")
-            p.shapes[m][dof] = vo.value
+            p.shapes[m][dof] = vo
     participation_rows = get("participation")
     if len(participation_rows) != 3 * n:
         _fail("/tables/participation: one row per mode and direction")
@@ -926,124 +926,236 @@ def _close(published, derived, tolerance):
     return abs(published - derived) <= tolerance
 
 
-PROFILE_FLOOR = 2.0 ** 53  # the checked profile carries no integral binary64 this large
-BOUNDING_REASONS = ("outside_canonical_profile", "not_finite")
+# --- What a published value can be ------------------------------------------------------
+#
+# Design §5.3.4's dependency table. A value object stands for the binary64 value the run
+# computed: a published finite number is exactly that number; `below_normal` is a nonzero
+# subnormal, so its magnitude lies in [2⁻¹⁰⁷⁴, 2⁻¹⁰²² − 2⁻¹⁰⁷⁴]; `outside_canonical_profile`
+# is finite with magnitude in [2⁵³, largest finite]; `not_finite` is ±∞ or NaN. A signed
+# kind (Γ, a shape component, an off-diagonal mass entry) can have either sign; every other
+# kind is nonnegative. Every other reason is a claim that the relation consuming it checks.
+
+SUBNORMAL_MIN = 2.0 ** -1074
+SUBNORMAL_MAX = 2.0 ** -1022 - 2.0 ** -1074
+LARGEST = 1.7976931348623157e308
+PROFILE_FLOOR = 2.0 ** 53
 
 
-def _beyond_profile(vo):
-    """A null whose reason says the value is at least 2⁵³ (or not finite)."""
-    return vo.value is None and vo.undefined in BOUNDING_REASONS
+def _outward(value, exact):
+    """An interval around one rounded endpoint: relative 4u, plus the smallest subnormal
+    when a product may have underflowed (`exact` when a factor was exactly 0)."""
+    if math.isinf(value):
+        return value, value
+    slack = 4.0 * U * abs(value) + (0.0 if exact else SUBNORMAL_MIN)
+    return value - slack, value + slack
 
 
-class Span:
-    """The closed interval a published nonnegative quantity is known to lie in. A
-    null outside the profile is [2⁵³, ∞]; a null whose reason states no size is
-    [0, ∞] and `bounded` is false."""
+def _times(x, y):
+    # A real product: exactly 0 when a factor is 0, even against an unbounded endpoint.
+    return 0.0 if x == 0.0 or y == 0.0 else x * y
 
-    __slots__ = ("lo", "hi", "bounded")
 
-    def __init__(self, lo, hi, bounded=True):
-        self.lo, self.hi, self.bounded = lo, hi, bounded
+class Values:
+    """A set of values: closed pieces of real numbers (an infinite endpoint means
+    unbounded, not ±∞), and whether the binary64 value may be ±∞ or NaN. Arithmetic is
+    outward-rounded and exact at 0. A real result beyond the largest binary64 is kept as
+    a real piece, and marks that the producer's binary64 result may overflow."""
+
+    __slots__ = ("pieces", "nonfinite")
+    MAX_PIECES = 8
+
+    def __init__(self, pieces=(), nonfinite=False):
+        merged = []
+        for lo, hi in sorted(pieces):
+            if hi > LARGEST or lo < -LARGEST:
+                nonfinite = True
+            if merged and lo <= merged[-1][1]:
+                merged[-1] = (merged[-1][0], max(merged[-1][1], hi))
+            else:
+                merged.append((lo, hi))
+        if len(merged) > self.MAX_PIECES:
+            merged = [(merged[0][0], max(h for _, h in merged))]
+        self.pieces = tuple(merged)
+        self.nonfinite = nonfinite
 
     @classmethod
-    def of(cls, vo, magnitude=False):
+    def point(cls, x):
+        return cls(((x, x),))
+
+    @classmethod
+    def of(cls, vo, signed=False):
+        """The set a value object states, or None for a null whose reason is a claim."""
+        def with_sign(lo, hi):
+            return ((lo, hi), (-hi, -lo)) if signed else ((lo, hi),)
         if vo.value is not None:
-            v = abs(vo.value) if magnitude else vo.value
-            return cls(v, v)
-        if _beyond_profile(vo):
-            return cls(PROFILE_FLOOR, math.inf)
-        return cls(0.0, math.inf, False)
+            return cls(with_sign(SUBNORMAL_MIN, SUBNORMAL_MAX)) if vo.below else cls.point(vo.value)
+        if vo.undefined == "outside_canonical_profile":
+            return cls(with_sign(PROFILE_FLOOR, LARGEST))
+        if vo.undefined == "not_finite":
+            return cls((), True)
+        return None
 
-    @classmethod
-    def point(cls, v):
-        return cls(v, v)
+    def as_point(self):
+        if not self.nonfinite and len(self.pieces) == 1 and self.pieces[0][0] == self.pieces[0][1]:
+            return self.pieces[0][0]
+        return None
+
+    def only_nonfinite(self):
+        return self.nonfinite and not self.pieces
+
+    def _points(self, other, op):
+        # Two published points combine as the producer's binary64 operation does; the
+        # relations then allow for its rounding.
+        a, b = self.as_point(), other.as_point()
+        if a is None or b is None:
+            return None
+        v = op(a, b)
+        if math.isinf(v):
+            # The real result is beyond the largest binary64; the producer's overflows.
+            return Values([(LARGEST, math.inf)] if v > 0 else [(-math.inf, -LARGEST)], True)
+        return Values.point(v)
 
     def __add__(self, other):
-        return Span(self.lo + other.lo, self.hi + other.hi, self.bounded and other.bounded)
+        same = self._points(other, lambda a, b: a + b)
+        if same is not None:
+            return same
+        out = []
+        for a in self.pieces:
+            for b in other.pieces:
+                out.append((_outward(a[0] + b[0], True)[0], _outward(a[1] + b[1], True)[1]))
+        return Values(out, self.nonfinite or other.nonfinite)
 
     def __mul__(self, other):
-        def times(x, y):
-            # 0·∞ arises only against an exact zero: the product is then zero.
-            product = x * y
-            return 0.0 if math.isnan(product) else product
-        return Span(times(self.lo, other.lo), times(self.hi, other.hi), self.bounded and other.bounded)
+        same = self._points(other, lambda a, b: a * b)
+        if same is not None:
+            return same
+        out = []
+        for a in self.pieces:
+            for b in other.pieces:
+                corners = []
+                for x in a:
+                    for y in b:
+                        corners.extend(_outward(_times(x, y), x == 0.0 or y == 0.0))
+                out.append((min(corners), max(corners)))
+        # 0·(±∞ or NaN) is NaN: a non-finite factor gives a non-finite product.
+        return Values(out, self.nonfinite or other.nonfinite)
 
-    def meet(self, other):
-        return Span(max(self.lo, other.lo), min(self.hi, other.hi), self.bounded or other.bounded)
+    def square(self):
+        out = []
+        for lo, hi in self.pieces:
+            ends = [_outward(_times(lo, lo), lo == 0.0), _outward(_times(hi, hi), hi == 0.0)]
+            top = max(e[1] for e in ends)
+            bottom = 0.0 if lo <= 0.0 <= hi else min(e[0] for e in ends)
+            out.append((max(bottom, 0.0), top))
+        return Values(out, self.nonfinite)
 
-    def apart_from(self, other):
-        """Disjoint beyond a relative rounding allowance: an equality between them is
-        contradicted."""
-        slack = 1.0 + 8.0 * U
-        return self.lo > other.hi * slack or other.lo > self.hi * slack
+    def widen(self, relative):
+        """Each piece grown by `relative` times its endpoints' magnitudes: a rounding
+        allowance proportional to the terms it covers."""
+        return Values([(lo - _times(relative, abs(lo)), hi + _times(relative, abs(hi))) for lo, hi in self.pieces], self.nonfinite)
 
-    def within(self, ceiling):
-        """True when every value is at most the ceiling, False when none is, None when
-        the interval straddles it."""
-        if self.hi <= ceiling:
+    def meets(self, other):
+        if self.nonfinite and other.nonfinite:
             return True
-        if self.lo > ceiling:
-            return False
-        return None
+        return any(a[0] <= b[1] and b[0] <= a[1] for a in self.pieces for b in other.pieces)
+
+    def outcomes(self, predicate_low, predicate_high, nonfinite_outcomes):
+        """The truth values a monotone threshold predicate can take over the set: each
+        piece contributes its endpoints' values; a non-finite value contributes
+        `nonfinite_outcomes` (the producer's comparison on ±∞ and NaN)."""
+        found = set()
+        for lo, hi in self.pieces:
+            found.add(predicate_low(lo))
+            found.add(predicate_high(hi))
+        if self.nonfinite:
+            found |= set(nonfinite_outcomes)
+        return found
+
+
+def _total(sets):
+    out = Values.point(0.0)
+    for s in sets:
+        out = out + s
+    return out
+
+
+def _claim_text(vo):
+    return f"null, and its reason `{vo.undefined}` states no value where one is needed"
+
+
+def _needed(vo, what, signed=False):
+    """The set of a value a relation needs; a claim-null fails that relation."""
+    s = Values.of(vo, signed)
+    if s is None:
+        _fail(f"{what}: {_claim_text(vo)}")
+    return s
+
+
+def _undetermined(*sets):
+    return any(s.as_point() is None and not s.only_nonfinite() for s in sets)
+
+
+def _mass_entry_set(i, j, vo):
+    # A diagonal entry is a mass (nonnegative); an off-diagonal one has either sign.
+    return _needed(vo, f"mass entry ({i}, {j})", signed=i != j)
 
 
 def _mass(p):
     scope = []
+    n = len(p.modes)
     for k in range(3):
-        direction, total = DIRECTIONS[k], p.totals[k]
-        if total.value is None and not _beyond_profile(total):
-            _fail(f"T_{direction}: not published, and its null states no bound")
-        if total.value is not None and total.value < 0.0:
-            _fail(f"T_{direction}: negative")
-        # Bessel: Σ m_eff ≤ T_k, with an m_eff outside the profile counted at 2⁵³.
-        lowest = 0.0
-        for m in range(len(p.modes)):
-            effective = p.participation[m][k]["effective"]
-            lowest += effective.value if effective.value is not None else (PROFILE_FLOOR if _beyond_profile(effective) else 0.0)
-        if lowest > Span.of(total).hi * (1.0 + ALLOW * float(len(p.modes) + 2) * U):
+        direction = DIRECTIONS[k]
+        for name, vo in ((f"T_{direction}", p.totals[k]), (f"free-DOF mass {direction}", p.free_totals[k])):
+            _needed(vo, name)
+            if vo.value is not None and vo.value < 0.0:
+                _fail(f"{name}: negative")
+    # Bessel's inequality, per direction, on its own operands: Σ_i m_eff,ik ≤ T_k.
+    for k in range(3):
+        direction = DIRECTIONS[k]
+        t = _needed(p.totals[k], f"T_{direction}")
+        effective = [Values.of(p.participation[m][k]["effective"]) for m in range(n)]
+        # A claim-null m_eff fails participation; m_eff ≥ 0, so leaving it out keeps a lower bound.
+        effective = [e for e in effective if e is not None]
+        if t.only_nonfinite() or any(e.nonfinite for e in effective) or t.nonfinite:
+            scope.append(f"Σ m_eff,{direction} ≤ T_{direction}: an operand is not finite (±∞ or NaN)")
+            continue
+        lowest = sum(min(lo for lo, _ in e.pieces) for e in effective)
+        highest = sum(max(hi for _, hi in e.pieces) for e in effective)
+        t_low, t_high = min(lo for lo, _ in t.pieces), max(hi for _, hi in t.pieces)
+        slack = 1.0 + ALLOW * float(n + 2) * U
+        if lowest > t_high * slack:
             _fail(f"Σ m_eff,{direction} exceeds T_{direction} (Bessel's inequality)")
+        if highest > t_low * slack:
+            if _undetermined(t, *effective):
+                scope.append(f"Σ m_eff,{direction} ≤ T_{direction} is undecidable on the published bounds")
     if p.mass is None:
         scope.append("mass_matrix withheld: T_k and the free-DOF mass are not re-derived")
         return scope
+    sets = []
     for i, j, vo in p.mass:
-        if vo.value is None and not _beyond_profile(vo):
-            _fail(f"mass entry ({i}, {j}): null, and its null states no bound")
+        s = _mass_entry_set(i, j, vo)
         if i == j and vo.value is not None and vo.value < 0.0:
             _fail(f"mass diagonal at DOF {i} is negative")
+        sets.append((i, j, vo, s))
     for k in range(3):
-        # Both sums at once: the whole model's T_k and the free DOFs' mass.
-        sums = {"T": [0.0, 0.0, 0, 0, 0], "free": [0.0, 0.0, 0, 0, 0]}  # sum, |sum|, terms, large diagonals, large couplings
-        for i, j, vo in p.mass:
-            if not (i % 6 == k and j % 6 == k):
+        direction = DIRECTIONS[k]
+        for name, published, free_only in ((f"T_{direction}", p.totals[k], False),
+                                           (f"free-DOF mass {direction}", p.free_totals[k], True)):
+            # T_k = R_kᵀ M R_k over every DOF (restrained included); the free-DOF mass over free pairs.
+            terms = [(1.0 if i == j else 2.0, vo, s) for i, j, vo, s in sets
+                     if i % 6 == k and j % 6 == k and not (free_only and (p.free[i] is None or p.free[j] is None))]
+            allowance = ALLOW * float(len(terms) + 4) * U
+            stated = _needed(published, name)
+            if all(s.as_point() is not None for _, _, s in terms) and stated.as_point() is not None:
+                total = sum(w * s.as_point() for w, _, s in terms)
+                magnitude = sum(abs(w * s.as_point()) for w, _, s in terms)
+                if not _close(stated.as_point(), total, allowance * magnitude):
+                    _fail(f"{name} is not the sum of its mass entries")
                 continue
-            targets = ["T"] + (["free"] if p.free[i] is not None and p.free[j] is not None else [])
-            for name in targets:
-                acc = sums[name]
-                if vo.value is None:
-                    acc[3 if i == j else 4] += 1
-                else:
-                    term = vo.value if i == j else 2.0 * vo.value
-                    acc[0] += term
-                    acc[1] += abs(term)
-                    acc[2] += 1
-        for name, published, label in (("T", p.totals[k], f"T_{DIRECTIONS[k]}"),
-                                       ("free", p.free_totals[k], f"free-DOF mass {DIRECTIONS[k]}")):
-            if published.value is None and not _beyond_profile(published):
-                _fail(f"{label}: not published, and its null states no bound")
-            total, magnitude, terms, large_diagonals, large_couplings = sums[name]
-            if large_couplings:
-                # An off-diagonal entry ≥ 2⁵³ in magnitude, of either sign: undecidable.
-                scope.append(f"{label}: an off-diagonal mass entry is outside the profile; the sum is not re-derived")
-                continue
-            slack = ALLOW * float(terms + 4) * U * magnitude
-            derived = Span(total - slack, total + slack)
-            if large_diagonals:
-                derived = Span(total - slack + large_diagonals * PROFILE_FLOOR, math.inf)
-            stated = Span.of(published)
-            if not (stated.lo <= derived.hi and derived.lo <= stated.hi):
-                _fail(f"{label} is not the sum of its mass entries")
-            if large_diagonals and published.value is None:
-                scope.append(f"{label}: the sum and a diagonal entry are both outside the profile")
+            derived = _total((Values.point(w) * s).widen(allowance) for w, _, s in terms)
+            if not stated.meets(derived):
+                _fail(f"{name} is not the sum of its mass entries for any value its bounds allow")
+            scope.append(f"{name} = Σ of its mass entries is undecidable on the published bounds")
     return scope
 
 
@@ -1080,16 +1192,18 @@ def _normalization(p):
             _fail(f"mode {label}: its reference DOF is restrained")
         if (mode["reference"] % 6 < 3) != (mode["case"] == 0):
             _fail(f"mode {label}: its reference DOF is not of its case's kind")
-        if shape[mode["reference"]] != 1.0:
+        if shape[mode["reference"]].value != 1.0:
             _fail(f"mode {label}: its reference component is not exactly +1")
         t, theta = 0.0, 0.0
-        for dof, v in enumerate(shape):
+        for dof, vo in enumerate(shape):
+            v = vo.value
             if v is None:
                 _fail(f"mode {label}: a shape component is not published")
             if p.free[dof] is None:
-                if v != 0.0:
+                if v != 0.0 or vo.below:
                     _fail(f"mode {label}: restrained DOF {dof} is not exactly 0")
                 continue
+            # A below-normal component is below 2⁻¹⁰²² in magnitude, inside every bound here.
             if dof % 6 < 3:
                 t = max(t, abs(v))
             else:
@@ -1107,165 +1221,179 @@ def _normalization(p):
     return []
 
 
-TINY = 2.0 ** -1022  # the smallest normal binary64
+def _within_relative(lhs, rhs, relative):
+    """Whether some x in lhs and y in rhs have |x − y| ≤ relative·max(|x|, |y|)."""
+    return lhs.widen(relative).meets(rhs) or lhs.meets(rhs.widen(relative))
 
 
-def _subnormal_possible(lowest_magnitude, scale=1.0):
-    """Whether a quantity whose magnitude is at least `lowest_magnitude` (times `scale`)
-    can still lie below the normal range: the claim a below-normal flag makes."""
-    return lowest_magnitude <= TINY * scale * (1.0 + ALLOW * U)
-
-
-def _payload_quantities(p, m):
-    """φᵀM_ffφ and φᵀp_k of mode m from the payload, each with the absolute sum of its
-    terms and its term count (the rounding allowance's inputs)."""
-    phi = [math.nan if v is None else v for v in p.shapes[m]]
-    gm = {"value": 0.0, "abs": 0.0, "terms": 0}
-    excitation = [{"value": 0.0, "abs": 0.0, "terms": 0} for _ in range(3)]
-
-    def add(acc, term):
-        acc["value"] += term
-        acc["abs"] += abs(term)
-        acc["terms"] += 1
-
-    for i, j, vo in p.mass:
-        v = vo.value
-        free_i, free_j = p.free[i] is not None, p.free[j] is not None
-        if free_i and free_j:
-            add(gm, (1.0 if i == j else 2.0) * (phi[i] * v * phi[j]))
-        if free_i and j % 6 < 3:
-            add(excitation[j % 6], phi[i] * v)
-        if i != j and free_j and i % 6 < 3:
-            add(excitation[i % 6], phi[j] * v)
-    return gm, excitation
+def _quotient_relation(scope, label, operands, lhs, rhs, relative, failure, one_sided=False):
+    """One relation the producer forms through a quotient (Γ²·m = m_eff, fraction·T_k =
+    m_eff, Γ·m = φᵀp_k, m_eff·m = (φᵀp_k)²), decided on sets of real values. `one_sided`:
+    only lhs takes the allowance (rhs already carries its terms'). A non-finite OPERAND
+    leaves it undecidable (the producer's quotient can then be finite or not); a real
+    product beyond the largest binary64 is no such operand, and it cannot equal a finite
+    published side, so only the finite pieces count."""
+    if any(x.nonfinite for x in operands):
+        scope.append(f"{label}: an operand is not finite (±∞ or NaN)")
+        return
+    lhs, rhs = Values(lhs.pieces), Values(rhs.pieces)
+    holds = lhs.widen(relative).meets(rhs) if one_sided else _within_relative(lhs, rhs, relative)
+    if not holds:
+        _fail(failure)
+    scope.append(f"{label} is undecidable on the published bounds")
 
 
 def _participation(p):
-    scope, cumulative = [], [0.0, 0.0, 0.0]
+    scope = []
+    n = len(p.modes)
     for m, mode in enumerate(p.modes):
         label, gm_vo = m + 1, mode["generalized_mass"]
-        mass_value = gm_vo.value
-        if mass_value is None and not _beyond_profile(gm_vo):
-            _fail(f"mode {label}: m not published, and its null states no bound")
-        if mass_value is not None and not (mass_value > 0.0 or gm_vo.below):
+        gm = _needed(gm_vo, f"mode {label}: m")
+        if gm_vo.value is not None and not gm_vo.below and gm_vo.value <= 0.0:
             _fail(f"mode {label}: m is not positive")
         for k in range(3):
-            row, direction, total_vo = p.participation[m][k], DIRECTIONS[k], p.totals[k]
-            for name in ("gamma", "effective"):
-                if row[name].value is None and not _beyond_profile(row[name]):
-                    _fail(f"mode {label}: {'Γ' if name == 'gamma' else 'm_eff'} along {direction} not published, and its null states no bound")
-            gamma, effective = row["gamma"].value, row["effective"].value
-            if effective is not None and effective < 0.0:
+            row, direction = p.participation[m][k], DIRECTIONS[k]
+            gamma_vo, effective_vo = row["gamma"], row["effective"]
+            gamma = _needed(gamma_vo, f"mode {label}: Γ along {direction}", signed=True)
+            effective = _needed(effective_vo, f"mode {label}: m_eff along {direction}")
+            if effective_vo.value is not None and effective_vo.value < 0.0:
                 _fail(f"mode {label}: m_eff is negative")
-            if mass_value is None or gamma is None or effective is None:
-                # Outside the profile: Γ²·m = m_eff and fraction·T_k = m_eff held on bounds.
-                g = Span.of(row["gamma"], magnitude=True)
-                e_span = Span.of(row["effective"])
-                if (g * g * Span.of(gm_vo)).apart_from(e_span):
-                    _fail(f"mode {label}: Γ²·m = m_eff along {direction} is contradicted by the bounds")
-                t_span = Span.of(total_vo)
-                if t_span.hi == 0.0 and e_span.lo > 0.0:
-                    _fail(f"mode {label}: with T_{direction} = 0 m_eff is 0")
-                fraction = row["fraction"].value
-                if fraction is None:
-                    if t_span.lo > 0.0:
-                        _fail(f"mode {label}: fraction undefined with T_k > 0")
-                else:
-                    if (Span.point(fraction) * t_span).apart_from(e_span):
-                        _fail(f"mode {label}: fraction·T_k = m_eff along {direction} is contradicted by the bounds")
-                    cumulative[k] += fraction
-                scope.append(f"mode {label}: a participation value along {direction} is outside the profile; it is held on bounds")
+            # Γ²·m = m_eff.
+            if all(v.as_point() is not None for v in (gamma, gm, effective)):
+                g, mass, e = gamma.as_point(), gm.as_point(), effective.as_point()
+                g2m = g * g * mass
+                if not _close(g2m, e, ALLOW * U * max(e, g2m)):
+                    _fail(f"mode {label}: Γ²·m is not m_eff")
+            else:
+                _quotient_relation(scope, f"mode {label}: Γ²·m = m_eff along {direction}", (gamma, gm, effective),
+                                   gamma.square() * gm, effective,
+                                  ALLOW * U, f"mode {label}: Γ²·m = m_eff along {direction} is contradicted by the bounds"
+                                   + (" (a side flagged below-normal)" if gamma_vo.below or gm_vo.below or effective_vo.below else ""))
+            # The fraction: undefined exactly when T_k = 0, which the null claims and is checked.
+            total_vo, fraction_vo, cumulative_vo = p.totals[k], row["fraction"], row["cumulative"]
+            total = _needed(total_vo, f"T_{direction}")
+            claims_zero = [vo.undefined == "total_mass_zero" for vo in (fraction_vo, cumulative_vo)]
+            if any(claims_zero):
+                if not all(claims_zero):
+                    _fail(f"mode {label}: the fraction and its cumulative sum along {direction} disagree on T_k = 0")
+                if total.as_point() != 0.0:
+                    _fail(f"mode {label}: the fraction along {direction} claims T_k = 0, but T_k cannot be 0")
+                if effective.as_point() != 0.0:
+                    _fail(f"mode {label}: with T_k = 0 m_eff is 0")
                 continue
-            flagged = row["gamma"].below or row["effective"].below or gm_vo.below
-            g2m = gamma * gamma * mass_value
-            if not flagged and not _close(g2m, effective, ALLOW * U * max(effective, g2m)):
-                _fail(f"mode {label}: Γ²·m is not m_eff")
-            if _beyond_profile(total_vo):
-                # T_k ≥ 2⁵³ bounds the fraction m_eff/T_k from above.
-                fraction = row["fraction"].value
-                if fraction is not None and fraction * PROFILE_FLOOR > effective * (1.0 + ALLOW * U):
-                    _fail(f"mode {label}: fraction along {direction} exceeds m_eff/T_k with T_k at least 2⁵³")
-                scope.append(f"mode {label}: T_{direction} is outside the profile, so its fraction is bounded only")
+            if total.as_point() == 0.0:
+                _fail(f"mode {label}: with T_k = 0 the fraction is undefined")
+            fraction = _needed(fraction_vo, f"mode {label}: fraction along {direction}")
+            if fraction_vo.value is not None and fraction_vo.value < 0.0:
+                _fail(f"mode {label}: the fraction along {direction} is negative")
+            if all(v.as_point() is not None for v in (fraction, total, effective)):
+                ft = fraction.as_point() * total.as_point()
+                e = effective.as_point()
+                if not _close(ft, e, ALLOW * U * max(e, ft)):
+                    _fail(f"mode {label}: fraction·T is not m_eff")
+            else:
+                flagged = " (a side flagged below-normal)" if fraction_vo.below or effective_vo.below else ""
+                _quotient_relation(scope, f"mode {label}: fraction·T_k = m_eff along {direction}", (fraction, total, effective),
+                                   fraction * total, effective,
+                                   ALLOW * U, f"mode {label}: fraction·T_k = m_eff along {direction} is contradicted by the bounds{flagged}")
+    # The cumulative sums, each on its own operands: the fractions up to it and itself.
+    for k in range(3):
+        direction = DIRECTIONS[k]
+        running = []
+        for m in range(n):
+            row, label = p.participation[m][k], m + 1
+            if row["fraction"].undefined == "total_mass_zero":
+                break
+            running.append(_needed(row["fraction"], f"mode {label}: fraction along {direction}"))
+            cumulative_vo = row["cumulative"]
+            cumulative = _needed(cumulative_vo, f"mode {label}: cumulative fraction along {direction}")
+            if cumulative_vo.value is not None and cumulative_vo.value < 0.0:
+                _fail(f"mode {label}: the cumulative fraction along {direction} is negative")
+            allowance = ALLOW * float(m + 2) * U
+            if all(f.as_point() is not None for f in running) and cumulative.as_point() is not None:
+                total = sum(f.as_point() for f in running)
+                if not _close(cumulative.as_point(), total, allowance * total):
+                    _fail(f"mode {label}: cumulative fraction is not the running sum")
                 continue
-            total = total_vo.value
-            if total == 0.0:
-                if row["fraction"].undefined != "total_mass_zero" or effective != 0.0:
-                    _fail(f"mode {label}: with T_k = 0 the fraction is undefined and m_eff is 0")
-                continue
-            fraction = row["fraction"].value
-            if fraction is None:
-                _fail(f"mode {label}: fraction undefined with T_k > 0")
-            # Two published sides of m_eff = fraction·T_k: a below-normal claim on one
-            # side must survive the other side's value.
-            if row["fraction"].below and not row["effective"].below and not _subnormal_possible(effective, total):
-                _fail(f"mode {label}: the fraction along {DIRECTIONS[k]} is flagged below-normal, but m_eff/T_k is normal")
-            if row["effective"].below and not row["fraction"].below and not _subnormal_possible(fraction * total):
-                _fail(f"mode {label}: m_eff along {DIRECTIONS[k]} is flagged below-normal, but fraction·T_k is normal")
-            ft = fraction * total
-            if not row["fraction"].below and not row["effective"].below and not _close(ft, effective, ALLOW * U * max(effective, ft)):
-                _fail(f"mode {label}: fraction·T is not m_eff")
-            cumulative[k] += fraction
-            published = row["cumulative"].value
-            if published is None:
-                _fail(f"mode {label}: cumulative undefined")
-            if not _close(published, cumulative[k], ALLOW * float(m + 2) * U * cumulative[k]):
-                _fail(f"mode {label}: cumulative fraction is not the running sum")
+            derived = _total(running).widen(allowance)
+            if not cumulative.meets(derived):
+                _fail(f"mode {label}: cumulative fraction along {direction} is not the running sum for any value its bounds allow")
+            scope.append(f"mode {label}: the cumulative fraction along {direction} is undecidable on the published bounds")
     if p.mass is None or p.shapes is None:
         scope.append("mass_matrix or shapes withheld: m_i and φᵀp_k are not re-derived")
-        if any(mode["generalized_mass"].below or any(r["gamma"].below or r["effective"].below for r in p.participation[m])
-               for m, mode in enumerate(p.modes)):
-            scope.append("below-normal flags on m, Γ or m_eff cannot be verified without the payload")
         return scope
-    if any(vo.value is None for _, _, vo in p.mass):
-        # An entry ≥ 2⁵³ in magnitude meets shape components of either sign: φᵀMφ
-        # and φᵀp_k are undecidable in binary64.
-        scope.append("a mass entry is outside the profile: m_i and φᵀp_k are not re-derived")
-        return scope
+    # An entry is needed only by the payload relations whose sums include it.
+    entries = [(i, j, vo) for i, j, vo in p.mass]
     for m, mode in enumerate(p.modes):
-        label, gm_vo = m + 1, mode["generalized_mass"]
-        gm, excitation = _payload_quantities(p, m)
-        gm_slack = ALLOW * float(gm["terms"] + 4) * U * gm["abs"]
-        if gm_vo.below:
-            # The flag asserts 0 < m < 2⁻¹⁰²²; the payload must allow it.
-            if not _subnormal_possible(abs(gm["value"]) - gm_slack):
-                _fail(f"mode {label}: m is flagged below-normal, but the payload's φᵀM_ffφ = {gm['value']:e} is normal")
-            scope.append(f"mode {label}: m lies below the normal range, so Γ and m_eff are not re-derived")
-            continue
-        published = gm_vo.value
-        if published is None:
-            # m ≥ 2⁵³: the payload's φᵀM_ffφ must reach it.
-            if gm["value"] + gm_slack < PROFILE_FLOOR:
-                _fail(f"mode {label}: m is outside the profile, but the payload's φᵀM_ffφ = {gm['value']:e} is not")
-            scope.append(f"mode {label}: m is outside the profile; Γ and m_eff are not re-derived from the payload")
-            continue
-        if not _close(published, gm["value"], gm_slack):
-            _fail(f"mode {label}: m is not φᵀM_ffφ")
+        label = m + 1
+        phi = [Values.of(vo, signed=True) for vo in p.shapes[m]]
+        if any(v is None for v in phi):
+            _fail(f"mode {label}: a shape component is not published")
+        # Each term with the entry it depends on; a term with an exactly-zero coefficient
+        # is exactly 0 for a finite entry, and so depends on nothing.
+        # Each allowance counts every entry of its sum, zero-coefficient ones included.
+        mass_terms, excitation, counts = [], [[], [], []], [0, 0, 0, 0]
+        used = [[], [], [], []]
+
+        def term(coefficient, i, j, vo, into, slot):
+            counts[slot] += 1
+            entry = _mass_entry_set(i, j, vo)
+            used[slot].append(entry)
+            c = coefficient.as_point()
+            if c == 0.0 and not entry.nonfinite:
+                return
+            into.append(coefficient * entry)
+
+        for i, j, vo in entries:
+            free_i, free_j = p.free[i] is not None, p.free[j] is not None
+            if free_i and free_j:
+                term(Values.point(1.0 if i == j else 2.0) * phi[i] * phi[j], i, j, vo, mass_terms, 3)
+            if free_i and j % 6 < 3:
+                term(phi[i], i, j, vo, excitation[j % 6], j % 6)
+            if i != j and free_j and i % 6 < 3:
+                term(phi[j], i, j, vo, excitation[i % 6], i % 6)
+        gm_vo = mode["generalized_mass"]
+        gm = _needed(gm_vo, f"mode {label}: m")
+        allowance = ALLOW * float(counts[3] + 4) * U
+        points = [t.as_point() for t in mass_terms]
+        if all(x is not None for x in points) and gm.as_point() is not None:
+            total = sum(points)
+            if not _close(gm.as_point(), total, allowance * sum(abs(x) for x in points)):
+                _fail(f"mode {label}: m is not φᵀM_ffφ")
+        else:
+            derived = _total(t.widen(allowance) for t in mass_terms)
+            if not gm.meets(derived):
+                if gm_vo.below:
+                    _fail(f"mode {label}: m is flagged below-normal, but the payload's φᵀM_ffφ is normal")
+                _fail(f"mode {label}: m is not φᵀM_ffφ for any value the bounds allow")
+            scope.append(f"mode {label}: m = φᵀM_ffφ is undecidable on the published bounds")
         for k in range(3):
-            row, acc = p.participation[m][k], excitation[k]
-            s, a = acc["value"], acc["abs"]
-            e = ALLOW * float(acc["terms"] + 6) * U
-            smallest = max(abs(s) - e * a, 0.0)
-            claims = (
-                ("Γ", row["gamma"], smallest, lambda: _close(row["gamma"].value * published, s, e * (a + abs(row["gamma"].value * published)))),
-                ("m_eff", row["effective"], smallest * smallest, lambda: _close(
-                    row["effective"].value * published, s * s,
-                    e * (2.0 * abs(s) * a + abs(row["effective"].value * published)) + (e * a) * (e * a))),
-            )
-            largest = abs(s) + e * a
-            reach = PROFILE_FLOOR * published * (1.0 - ALLOW * U)
-            for name, vo, lowest_numerator, agrees in claims:
-                if vo.value is None:
-                    # Outside the profile: |φᵀp_k|/m (Γ) or (φᵀp_k)²/m (m_eff) reaches 2⁵³.
-                    numerator = largest if name == "Γ" else largest * largest
-                    if numerator < reach:
-                        _fail(f"mode {label}: {name} along {DIRECTIONS[k]} is outside the profile, but the payload's value is within it")
-                    scope.append(f"mode {label}: {name} along {DIRECTIONS[k]} is outside the profile; it is bounded, not re-derived")
-                elif vo.below:
-                    if not _subnormal_possible(lowest_numerator, published):
-                        _fail(f"mode {label}: {name} along {DIRECTIONS[k]} is flagged below-normal, but the payload gives a normal value")
-                elif not agrees():
-                    _fail(f"mode {label}: {name} along {DIRECTIONS[k]} disagrees with φᵀp_k from the payload")
+            row, direction = p.participation[m][k], DIRECTIONS[k]
+            terms = excitation[k]
+            e = ALLOW * float(counts[k] + 6) * U
+            gamma = _needed(row["gamma"], f"mode {label}: Γ along {direction}", signed=True)
+            effective = _needed(row["effective"], f"mode {label}: m_eff along {direction}")
+            points = [t.as_point() for t in terms]
+            if all(x is not None for x in points) and all(v.as_point() is not None for v in (gamma, effective, gm)):
+                s, a = sum(points), sum(abs(x) for x in points)
+                published, g, eff = gm.as_point(), gamma.as_point(), effective.as_point()
+                if not _close(g * published, s, e * (a + abs(g * published))):
+                    _fail(f"mode {label}: Γ along {direction} disagrees with φᵀp_k from the payload")
+                if not _close(eff * published, s * s, e * (2.0 * abs(s) * a + abs(eff * published)) + (e * a) * (e * a)):
+                    _fail(f"mode {label}: m_eff along {direction} disagrees with φᵀp_k from the payload")
+                continue
+            s = _total(t.widen(e) for t in terms)
+            flag = " (flagged below-normal)"
+            _quotient_relation(scope, f"mode {label}: Γ·m = φᵀp_k along {direction}", [gamma, gm] + used[k], gamma * gm, s, e,
+                               f"mode {label}: Γ along {direction}{flag if row['gamma'].below else ''} disagrees with "
+                               "φᵀp_k from the payload for any value the bounds allow", one_sided=True)
+            _quotient_relation(scope, f"mode {label}: m_eff·m = (φᵀp_k)² along {direction}", [effective, gm] + used[k],
+                               effective * gm, s.square(), e,
+                               f"mode {label}: m_eff along {direction}{flag if row['effective'].below else ''} disagrees "
+                               "with φᵀp_k from the payload for any value the bounds allow", one_sided=True)
     return scope
+
+
 
 
 def _reported_set(frequencies, clusters, mode_count, cutoff):
@@ -1372,18 +1500,24 @@ def _clusters(p):
             _fail(f"cluster {cid}: its first and last computed modes are not its members'")
         if reported != (first <= len(p.modes)):
             _fail(f"cluster {cid}: its reported flag is not the set's")
-        # The largest member e_λ; one outside the profile puts the largest there too.
-        largest, beyond = 0.0, False
-        for i in members:
-            e = p.computed[i]["estimate"]
-            if e.value is None:
-                if not _beyond_profile(e):
-                    _fail(f"computed mode {i + 1}: e_λ not published, and its null states no bound")
-                beyond = True
-            elif e.value > largest:
-                largest = e.value
-        if not (_beyond_profile(estimate) if beyond else estimate.value == largest):
-            _fail(f"cluster {cid}: its e_λ is not its members' largest")
+        # The cluster's e_λ is the members' maximum, NaN-propagating (the producer's
+        # `max_propagating_nan`): exactly when all are published; else on sets.
+        sets = [_needed(p.computed[i]["estimate"], f"computed mode {i + 1}: e_λ") for i in members]
+        stated = _needed(estimate, f"cluster {cid}: e_λ")
+        if all(x.as_point() is not None for x in sets) and stated.as_point() is not None:
+            if stated.as_point() != max(x.as_point() for x in sets):
+                _fail(f"cluster {cid}: its e_λ is not its members' largest")
+        else:
+            finite = [x for x in sets if x.pieces]
+            maximum = Values()
+            if len(finite) == len(sets):
+                # Every member finite: the maximum ranges over [max of lows, max of highs].
+                maximum = Values([(max(min(lo for lo, _ in x.pieces) for x in sets),
+                                   max(max(hi for _, hi in x.pieces) for x in sets))])
+            maximum.nonfinite = any(x.nonfinite for x in sets)
+            if not stated.meets(maximum):
+                _fail(f"cluster {cid}: its e_λ is not its members' largest for any value the bounds allow")
+            scope.append(f"cluster {cid}: its e_λ against its members' is undecidable on the published bounds")
     for m, mode in enumerate(p.modes):
         index = mode["cluster"] - 1
         own = p.clusters[index][3] if 0 <= index < len(p.clusters) else None
@@ -1412,55 +1546,78 @@ def _clusters(p):
     return scope
 
 
-def _candidate_arithmetic(c, label):
-    """The two published relations of one factored candidate, decided on the bounds
-    each operand's value or null reason gives: exact when every operand is published,
-    rejected when the bounds are disjoint, scoped only when they overlap."""
-    scope = []
-    be, ft, fo, nu, product = (c[key] for key in ("backward_error", "factor_term", "formation_term", "inverse_norm", "product"))
-    relations = (
-        (be, (ft, fo), lambda a, b: a + b, "e_b = factor term + formation term",
-         "e_b = factor term + formation term is contradicted by the bounds"),
-        (product, (be, nu), lambda a, b: a * b, "conditioning product = e_b·ν",
-         "the conditioning product is contradicted by the bounds of e_b·ν"),
-    )
-    for lhs, (x, y), combine, relation, contradiction in relations:
-        if lhs.value is not None and x.value is not None and y.value is not None:
-            if lhs.value != combine(x.value, y.value):
-                _fail(f"candidate {label}: {relation} does not hold")
-        elif Span.of(lhs).apart_from(combine(Span.of(x), Span.of(y))):
-            _fail(f"candidate {label}: {contradiction}")
-        else:
-            scope.append(f"candidate {label}: {relation} is undecidable on the published bounds")
-    return scope
+FACTORED = ("factor_term", "backward_error", "inverse_norm", "product", "separation", "growth", "max_lower", "max_pivot",
+            "max_diagonal")
 
 
-def _premise_spans(c):
-    """The conditioning product's interval (what is published, met by what e_b·ν
-    allows) and the growth's."""
-    product = Span.of(c["product"]).meet(Span.of(c["backward_error"]) * Span.of(c["inverse_norm"]))
-    return product, Span.of(c["growth"])
+def _exact_formula(scope, label, lhs, operands, combine, relation, contradiction):
+    """A value the producer forms by one + or ·: bit for bit when every operand is
+    published, else within 8u on sets (a non-finite operand gives a non-finite result)."""
+    points = [x.as_point() for x in operands]
+    if lhs.as_point() is not None and all(x is not None for x in points):
+        if lhs.as_point() != combine(*points):
+            _fail(f"{label}: {relation} does not hold")
+        return
+    if not lhs.meets(combine(*operands).widen(8.0 * U)):
+        _fail(f"{label}: {contradiction}")
+    scope.append(f"{label}: {relation} is undecidable on the published bounds")
 
 
-def _accepted_premises(c, sturm_count, limit, g_max, separated):
-    """Every premise of the accepted shift, each judged on its own bounds."""
-    scope = []
-    if c["pivots"] != sturm_count:
-        _fail(f"the accepted negative-pivot count {c['pivots']} is not the Sturm count {sturm_count}")
-    product, growth = _premise_spans(c)
-    for name, span, ceiling, failure in (
-            ("conditioning product", product, limit, "fails the conditioning premise"),
-            ("growth", growth, g_max, "exceeds the growth limit")):
-        holds = span.within(ceiling)
-        if holds is False:
-            _fail(f"the accepted shift {failure}: its {name} is at least {span.lo:e}, above {ceiling:e}")
-        if holds is None:
-            scope.append(f"the accepted {name} is undecidable against its limit on the published bounds")
-    if separated is False:
-        _fail("the accepted shift fails the separation premise")
-    if separated is None:
-        scope.append("the accepted separation ratio is not published, so its premise is not re-derived")
-    return scope
+def _candidate(scope, c, label, sturm_count, limit, g_max, ks):
+    """One candidate: its claims, its two formulas and its decision against its premises,
+    each on its own operands."""
+    factored = c["pivots"] is not None
+    if not factored:
+        for key in FACTORED:
+            if c[key].value is not None or c[key].undefined != "not_factored":
+                _fail(f"candidate {label}: not factored, but its {key.replace('_', ' ')} is not null `not_factored`")
+        if c["decision"] in ("accepted", "growth_limit", "ill_conditioned"):
+            _fail(f"candidate {label}: decision `{c['decision']}` needs a factorization")
+        return
+    sets = {}
+    for key in ("formation_term",) + FACTORED:
+        vo = c[key]
+        sets[key] = Values.of(vo)
+        if sets[key] is None:
+            if key == "separation":
+                # `no_neighbour` claims no neighbouring computed eigenvalue; every placement
+                # has one (the gap's upper mode, or the top mode above the spectrum).
+                _fail(f"candidate {label}: its separation ratio is null `{vo.undefined}`, which a factored candidate in a placement with a neighbour cannot be")
+            _fail(f"candidate {label}: its {key.replace('_', ' ')} is null without a profile bound")
+    _exact_formula(scope, f"candidate {label}", sets["backward_error"], (sets["factor_term"], sets["formation_term"]),
+                   lambda a, b: a + b, "e_b = factor term + formation term",
+                   "e_b = factor term + formation term is contradicted by the bounds")
+    _exact_formula(scope, f"candidate {label}", sets["product"], (sets["backward_error"], sets["inverse_norm"]),
+                   lambda a, b: a * b, "conditioning product = e_b·ν",
+                   "the conditioning product is contradicted by the bounds of e_b·ν")
+    # The producer's three tests, as the truth values each can take: separated is
+    # s ≥ κ_s·e_b (a non-finite ratio means e_b = 0, so separated); the growth and the
+    # conditioning are its ≤ comparisons, false for ±∞ and NaN.
+    separated = sets["separation"].outcomes(lambda lo: lo >= ks * (1.0 - 8.0 * U), lambda hi: hi >= ks * (1.0 - 8.0 * U), (True,))
+    if any(lo < ks * (1.0 + 8.0 * U) for lo, _ in sets["separation"].pieces):
+        separated.add(False)
+    within = sets["growth"].outcomes(lambda lo: lo <= g_max, lambda hi: hi <= g_max, (False,))
+    conditioned = sets["product"].outcomes(lambda lo: lo <= limit, lambda hi: hi <= limit, (False,))
+    decision = c["decision"]
+    if decision == "accepted":
+        if c["pivots"] != sturm_count:
+            _fail(f"the accepted negative-pivot count {c['pivots']} is not the Sturm count {sturm_count}")
+        for name, outcomes, failure in (("conditioning product", conditioned, "fails the conditioning premise"),
+                                        ("growth", within, "exceeds the growth limit"),
+                                        ("separation ratio", separated, "fails the separation premise")):
+            if True not in outcomes:
+                _fail(f"the accepted shift {failure}: its {name} cannot meet it")
+            if False in outcomes:
+                scope.append(f"the accepted {name} is undecidable against its premise on the published bounds")
+    elif decision == "growth_limit":
+        if True not in separated or False not in within:
+            _fail(f"candidate {label}: refused for growth within the limit")
+    elif decision == "ill_conditioned":
+        if True not in separated or True not in within or False not in conditioned:
+            _fail(f"candidate {label}: refused as ill-conditioned within the premise")
+    elif decision == "unseparated":
+        if False not in separated:
+            _fail(f"candidate {label}: refused as unseparated with its separation above κ_s")
 
 
 def _sturm(p):
@@ -1483,48 +1640,17 @@ def _sturm(p):
         label, last = j + 1, j + 1 == count
         if (c["decision"] == "accepted") != last:
             _fail(f"candidate {label}: only the last candidate is accepted")
-        factored = c["pivots"] is not None
-        sep = c["separation"]
-        # No neighbour separates; outside the profile the ratio is at least 2⁵³.
-        if sep.value is not None:
-            separated = sep.value >= ks * (1.0 - 8.0 * U)
-        elif sep.undefined == "no_neighbour":
-            separated = True
-        elif _beyond_profile(sep):
-            separated = PROFILE_FLOOR >= ks * (1.0 - 8.0 * U)
-        else:
-            separated = None
-        if c["decision"] in ("accepted", "growth_limit", "ill_conditioned") and not factored:
-            _fail(f"candidate {label}: decision `{c['decision']}` needs a factorization")
-        if factored:
-            # A factorization publishes each of its values, or says it is outside the profile.
-            for key in ("formation_term", "factor_term", "backward_error", "inverse_norm", "product", "growth",
-                        "max_lower", "max_pivot", "max_diagonal"):
-                if c[key].value is None and not _beyond_profile(c[key]):
-                    _fail(f"candidate {label}: its {key.replace('_', ' ')} is null without a profile bound")
-            if separated is None:
-                _fail(f"candidate {label}: its separation ratio is null without a profile bound or a missing neighbour")
-            scope.extend(_candidate_arithmetic(c, label))
-        if c["decision"] == "accepted":
-            scope.extend(_accepted_premises(c, p.sturm_count, limit, g_max, separated))
-        if factored:
-            product, growth = _premise_spans(c)
-            if c["decision"] == "growth_limit" and (growth.within(g_max) is True or separated is False):
-                _fail(f"candidate {label}: refused for growth within the limit")
-            if c["decision"] == "ill_conditioned" and (product.within(limit) is True or growth.within(g_max) is False):
-                _fail(f"candidate {label}: refused as ill-conditioned within the premise")
-            beyond_ks = sep.value >= ks * (1.0 + 8.0 * U) if sep.value is not None else separated is True
-            if c["decision"] == "unseparated" and beyond_ks:
-                _fail(f"candidate {label}: refused as unseparated with its separation above κ_s")
+        _candidate(scope, c, label, p.sturm_count, limit, g_max, ks)
     n = len(p.modes)
 
     def omega(i):
         return p.computed[i]["omega"] if 0 <= i < len(p.computed) else None
 
     shift = p.candidates[-1]["shift"] if p.candidates else None
-    accepted = shift.value if shift is not None else None
-    # An accepted shift outside the profile is an ω of at least 2⁵³ rad/s.
-    beyond = shift is not None and _beyond_profile(shift)
+    # The accepted shift's set: finite, so a non-finite or claim-null one cannot be in a gap.
+    shift_set = _needed(shift, "the accepted shift") if shift is not None else None
+    if shift_set is not None and not shift_set.pieces:
+        _fail("the accepted shift is not finite")
     if p.endpoint in ("below_computed_cluster", "below_lowest_mode"):
         if p.placement != "gap" or p.placement_established is not None:
             _fail("a set below a computed cluster is counted in a gap")
@@ -1544,10 +1670,13 @@ def _sturm(p):
             expected = TWO_PI * p.cutoff
             if not _close(lower, expected, 8.0 * U * expected):
                 _fail("the gap's lower end is not 2π·f_c")
-        if accepted is not None and not (lower <= accepted <= upper):
-            _fail("the accepted shift is not in its gap")
-        if beyond and upper < PROFILE_FLOOR:
-            _fail("the accepted shift is outside the profile, so above its gap")
+        if shift_set is not None:
+            if not shift_set.meets(Values([(lower, upper)])):
+                if shift.value is None:
+                    _fail("the accepted shift is outside the profile, so above its gap")
+                _fail("the accepted shift is not in its gap")
+            if shift_set.as_point() is None:
+                scope.append("the accepted shift's place in its gap is undecidable on the published bounds")
     else:
         if p.placement != "above_spectrum" or p.placement_upper is not None or p.placement_established != n:
             _fail("the whole spectrum is counted above it, on its established count")
@@ -1556,10 +1685,11 @@ def _sturm(p):
             _fail("the top eigenvalue is not published")
         if n == 0 or lower != omega(n - 1):
             _fail("the placement's top is not the top mode's ω")
-        if accepted is not None and accepted < lower:
-            _fail("the accepted whole-spectrum shift is below the top mode")
-    if shift is not None and accepted is None and not beyond:
-        _fail("the accepted shift is null, and its null states no bound")
+        if shift_set is not None:
+            if not shift_set.meets(Values([(lower, LARGEST)])):
+                _fail("the accepted whole-spectrum shift is below the top mode")
+            if shift_set.as_point() is None:
+                scope.append("the accepted shift's place above the spectrum is undecidable on the published bounds")
     return scope
 
 
@@ -1617,21 +1747,21 @@ def _evidence(p):
     scope = []
     for i, c in enumerate(p.computed):
         vos = (c["eta"], c["condition"], c["estimate"])
-        if any(vo.value is None for vo in vos):
-            # e_λ = η·κ_λ held on the bounds the nulls state.
-            if any(vo.value is None and not _beyond_profile(vo) for vo in vos):
-                _fail(f"computed mode {i + 1}: a check-2 value is null, and its null states no bound")
-            spans = [Span.of(vo) for vo in vos]
-            if spans[2].apart_from(spans[0] * spans[1]):
-                _fail(f"computed mode {i + 1}: e_λ = η·κ_λ is contradicted by the bounds")
-            scope.append(f"computed mode {i + 1}: e_λ = η·κ_λ is undecidable on the published bounds")
-            continue
-        eta, kappa, e = (vo.value for vo in vos)
-        if eta < 0.0 or kappa < 0.0 or e < 0.0:
+        if any(vo.value is None and Values.of(vo) is None for vo in vos):
+            _fail(f"computed mode {i + 1}: a check-2 value is null, and its null states no bound")
+        if any(vo.value is not None and vo.value < 0.0 for vo in vos):
             _fail(f"computed mode {i + 1}: a negative check-2 value")
+        eta, kappa, e = (Values.of(vo) for vo in vos)
+        if all(x.as_point() is not None for x in (eta, kappa, e)):
+            product = eta.as_point() * kappa.as_point()
+            if not _close(e.as_point(), product, 8.0 * U * max(e.as_point(), product)):
+                _fail(f"computed mode {i + 1}: e_λ is not η·κ_λ")
+            continue
+        # e_λ is the producer's η·κ_λ: a non-finite factor gives a non-finite e_λ.
         product = eta * kappa
-        if not _close(e, product, 8.0 * U * max(e, product)):
-            _fail(f"computed mode {i + 1}: e_λ is not η·κ_λ")
+        if not (e.nonfinite and product.nonfinite) and not _within_relative(e, Values(product.pieces), 8.0 * U):
+            _fail(f"computed mode {i + 1}: e_λ = η·κ_λ is contradicted by the bounds")
+        scope.append(f"computed mode {i + 1}: e_λ = η·κ_λ is undecidable on the published bounds")
     tolerance = p.params.get("identity_tolerance")
     if not isinstance(tolerance, dict) or not _is_number(tolerance.get("relative")) or not _is_number(tolerance.get("absolute")):
         _fail("the identity tolerance is not bound")
@@ -1642,20 +1772,22 @@ def _evidence(p):
         _fail("disclosures: the fixed numerical-integrity disclosure is missing")
     if tolerance["absolute"] == 0.0:
         for i, vo in enumerate(row["relative"] for row in p.identity):
-            if _beyond_profile(vo):
-                _fail(f"identity row {i}: its relative discrepancy is at least 2⁵³, above the bound tolerance")
-            d = vo.value
-            if d is None:
-                _fail(f"identity row {i}: not published")
-            if not (0.0 <= d <= tolerance["relative"]):
+            d = _needed(vo, f"identity row {i}")
+            if vo.value is not None and vo.value < 0.0:
+                _fail(f"identity row {i}: a negative relative discrepancy")
+            within = d.outcomes(lambda lo: lo <= tolerance["relative"], lambda hi: hi <= tolerance["relative"], (True, False))
+            if True not in within:
+                if vo.value is None:
+                    _fail(f"identity row {i}: its relative discrepancy is at least 2⁵³, above the bound tolerance")
                 _fail(f"identity row {i}: relative discrepancy exceeds the bound tolerance")
+            if False in within:
+                scope.append(f"identity row {i}: its discrepancy against the tolerance is undecidable (not finite)")
     else:
         scope.append("an absolute identity tolerance: its scale is not published")
     for v in p.formation:
         if v is not None and v < 0.0:
             _fail("a negative formation-difference or norm")
-    if p.ortho.value is None and not _beyond_profile(p.ortho):
-        _fail("the orthogonality deviation is null, and its null states no bound")
+    _needed(p.ortho, "the orthogonality deviation")
     if p.ortho.value is not None and p.ortho.value < 0.0:
         _fail("a negative orthogonality deviation")
     if p.ortho_pair != (len(p.modes) >= 2):
@@ -1667,22 +1799,27 @@ def _standing(p):
     tau_r, tau_o = p.params.get("residual_threshold"), p.params.get("orthogonality_threshold")
     if not _is_number(tau_r) or not _is_number(tau_o):
         _fail("τ_r or τ_o: not bound")
-    any_sensitive = False
+    # The producer's tests are η > τ_r and the deviation > τ_o: true for +∞, false for NaN.
+    scope = []
+
+    def above(vo, threshold, what):
+        return _needed(vo, what).outcomes(lambda lo: lo > threshold, lambda hi: hi > threshold, (True, False))
+
     for m, mode in enumerate(p.modes):
-        eta = p.computed[m]["eta"]
-        if eta.value is None and not _beyond_profile(eta):
-            _fail(f"mode {m + 1}: η not published, and its null states no bound")
-        # η ≥ 2⁵³ is above every τ_r.
-        sensitive = eta.value is None or eta.value > tau_r
-        if mode["sensitive"] != sensitive or (mode["reasons"] > 0) != sensitive:
+        possible = above(p.computed[m]["eta"], tau_r, f"mode {m + 1}: η")
+        stated = mode["sensitive"]
+        if stated not in possible or (mode["reasons"] > 0) != stated:
             _fail(f"mode {m + 1}: Sensitive exactly when η > τ_r, with its reason")
-        any_sensitive = any_sensitive or sensitive
-    if p.ortho.value is None and not _beyond_profile(p.ortho):
-        _fail("the orthogonality deviation is not published, and its null states no bound")
-    sensitive = any_sensitive or p.ortho.value is None or p.ortho.value > tau_o
-    if p.sensitive != sensitive or (p.set_reasons > 0) != sensitive:
+        if len(possible) > 1:
+            scope.append(f"mode {m + 1}: η > τ_r is undecidable (η not finite)")
+    # The set: Sensitive when a mode's token is, or the deviation is above τ_o.
+    ortho = above(p.ortho, tau_o, "the orthogonality deviation")
+    possible = {True} if any(mode["sensitive"] for mode in p.modes) else ortho
+    if p.sensitive not in possible or (p.set_reasons > 0) != p.sensitive:
         _fail("the set is Sensitive exactly when a mode is or the orthogonality deviation exceeds τ_o")
-    return []
+    if len(possible) > 1:
+        scope.append("the set's standing is undecidable (the deviation is not finite)")
+    return scope
 
 
 def _units(p):

@@ -1951,12 +1951,13 @@
       "reseal": true
     },
     {
+      "difference_contains": "below-normal",
       "document": "modal_component_body.json",
       "expected": {
         "binding": "passed",
         "closure": "passed",
-        "decision": "consistent_with_scoped_unsupported",
-        "health": "checks_passed",
+        "decision": "rejected",
+        "health": "not_assessed",
         "refusal_codes": [],
         "relations": {
           "clusters": "passed",
@@ -1964,14 +1965,14 @@
           "evidence": "scoped_unsupported",
           "mass": "scoped_unsupported",
           "normalization": "passed",
-          "participation": "scoped_unsupported",
+          "participation": "failed",
           "standing": "passed",
           "sturm": "passed",
           "units": "scoped_unsupported"
         }
       },
-      "id": "scoped:below_normal_mass_with_payload_withheld",
-      "intent": "scoped",
+      "id": "participation:below_normal_mass_against_published_gamma_squared",
+      "intent": "participation",
       "operations": [
         {
           "op": "withhold",
@@ -3204,7 +3205,7 @@
         "health": "not_assessed",
         "refusal_codes": [],
         "relations": {
-          "clusters": "passed",
+          "clusters": "scoped_unsupported",
           "counts": "passed",
           "evidence": "failed",
           "mass": "passed",
@@ -3409,27 +3410,28 @@
       "reseal": true
     },
     {
+      "difference_contains": "for any value its bounds allow",
       "document": "modal_component_body.json",
       "expected": {
         "binding": "passed",
         "closure": "passed",
-        "decision": "consistent_with_scoped_unsupported",
-        "health": "checks_passed",
+        "decision": "rejected",
+        "health": "not_assessed",
         "refusal_codes": [],
         "relations": {
           "clusters": "passed",
           "counts": "passed",
           "evidence": "scoped_unsupported",
-          "mass": "scoped_unsupported",
+          "mass": "failed",
           "normalization": "passed",
-          "participation": "scoped_unsupported",
+          "participation": "failed",
           "standing": "passed",
           "sturm": "passed",
           "units": "scoped_unsupported"
         }
       },
-      "id": "scoped:large_mass_coupling_is_undecidable",
-      "intent": "scoped",
+      "id": "mass:one_large_coupling_cannot_close_its_sum",
+      "intent": "mass",
       "operations": [
         {
           "op": "replace",
@@ -3608,6 +3610,546 @@
         {
           "op": "replace",
           "path": "/tables/sturm_candidates/rows/0/growth/undefined_reason",
+          "value": "outside_canonical_profile"
+        }
+      ],
+      "request": "modal_component_body.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "φᵀp",
+      "document": "modal_component_body.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "scoped_unsupported",
+          "mass": "passed",
+          "normalization": "passed",
+          "participation": "failed",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "scoped_unsupported"
+        }
+      },
+      "id": "participation:restrained_entry_beside_a_reversed_gamma",
+      "intent": "participation",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/tables/mass_matrix/rows/5/value/value",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_matrix/rows/5/value/undefined_reason",
+          "value": "outside_canonical_profile"
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/participation_factor/value",
+          "value": -1.4644831791796857
+        }
+      ],
+      "request": "modal_component_body.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "claims T_k = 0",
+      "document": "modal_component_body.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "scoped_unsupported",
+          "mass": "scoped_unsupported",
+          "normalization": "passed",
+          "participation": "failed",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "scoped_unsupported"
+        }
+      },
+      "id": "participation:large_total_beside_total_mass_zero_claims",
+      "intent": "participation",
+      "operations": [
+        {
+          "op": "withhold",
+          "table": "mass_matrix"
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/0/total_mass/value",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/0/total_mass/undefined_reason",
+          "value": "outside_canonical_profile"
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/effective_mass_fraction/value",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/effective_mass_fraction/undefined_reason",
+          "value": "total_mass_zero"
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/cumulative_effective_mass_fraction/value",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/cumulative_effective_mass_fraction/undefined_reason",
+          "value": "total_mass_zero"
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/effective_mass_fraction/value",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/effective_mass_fraction/undefined_reason",
+          "value": "total_mass_zero"
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/cumulative_effective_mass_fraction/value",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/cumulative_effective_mass_fraction/undefined_reason",
+          "value": "total_mass_zero"
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/effective_mass_fraction/value",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/effective_mass_fraction/undefined_reason",
+          "value": "total_mass_zero"
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/cumulative_effective_mass_fraction/value",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/cumulative_effective_mass_fraction/undefined_reason",
+          "value": "total_mass_zero"
+        }
+      ],
+      "request": "modal_component_body.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "is not the running sum",
+      "document": "modal_component_body.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "scoped_unsupported",
+          "mass": "scoped_unsupported",
+          "normalization": "passed",
+          "participation": "failed",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "scoped_unsupported"
+        }
+      },
+      "id": "participation:large_total_beside_a_wrong_cumulative_fraction",
+      "intent": "participation",
+      "operations": [
+        {
+          "op": "withhold",
+          "table": "mass_matrix"
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/0/total_mass/value",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/0/total_mass/undefined_reason",
+          "value": "outside_canonical_profile"
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/effective_mass_fraction/value",
+          "value": 1.0710542934688769e-52
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/cumulative_effective_mass_fraction/value",
+          "value": 1.0710542934688769e-52
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/effective_mass_fraction/value",
+          "value": 2.337721167383088e-20
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/cumulative_effective_mass_fraction/value",
+          "value": 2.337721167383088e-20
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/effective_mass_fraction/value",
+          "value": 5.232980791089168e-19
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/cumulative_effective_mass_fraction/value",
+          "value": 0.75
+        }
+      ],
+      "request": "modal_component_body.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "conditioning product is contradicted",
+      "document": "modal_component_body.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "scoped_unsupported",
+          "mass": "passed",
+          "normalization": "passed",
+          "participation": "passed",
+          "standing": "passed",
+          "sturm": "failed",
+          "units": "scoped_unsupported"
+        }
+      },
+      "id": "sturm:zero_backward_error_times_a_large_inverse_norm",
+      "intent": "sturm",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/tables/sturm_candidates/rows/0/factor_term/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/sturm_candidates/rows/0/formation_term/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/sturm_candidates/rows/0/backward_error/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/sturm_candidates/rows/0/inverse_norm_estimate/value",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/sturm_candidates/rows/0/inverse_norm_estimate/undefined_reason",
+          "value": "outside_canonical_profile"
+        }
+      ],
+      "request": "modal_component_body.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "document": "modal_component_body.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "consistent_with_scoped_unsupported",
+        "health": "checks_passed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "scoped_unsupported",
+          "mass": "scoped_unsupported",
+          "normalization": "passed",
+          "participation": "scoped_unsupported",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "scoped_unsupported"
+        }
+      },
+      "id": "scoped:below_normal_mass_beside_large_gammas",
+      "intent": "scoped",
+      "operations": [
+        {
+          "op": "withhold",
+          "table": "mass_matrix"
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/0/generalized_mass/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/0/generalized_mass/below_normal",
+          "value": true
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/participation_factor/value",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/participation_factor/undefined_reason",
+          "value": "outside_canonical_profile"
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/participation_factor/value",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/participation_factor/undefined_reason",
+          "value": "outside_canonical_profile"
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/participation_factor/value",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/participation_factor/undefined_reason",
+          "value": "outside_canonical_profile"
+        }
+      ],
+      "request": "modal_component_body.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "document": "modal_arc.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "consistent_with_scoped_unsupported",
+        "health": "checks_passed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "scoped_unsupported",
+          "mass": "scoped_unsupported",
+          "normalization": "passed",
+          "participation": "scoped_unsupported",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "scoped_unsupported"
+        }
+      },
+      "id": "scoped:two_large_couplings_along_x_are_undecidable",
+      "intent": "scoped",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/tables/mass_matrix/rows/8/value/value",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_matrix/rows/8/value/undefined_reason",
+          "value": "outside_canonical_profile"
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_matrix/rows/40/value/value",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_matrix/rows/40/value/undefined_reason",
+          "value": "outside_canonical_profile"
+        }
+      ],
+      "request": "modal_arc.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "document": "modal_component_body.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "consistent_with_scoped_unsupported",
+        "health": "checks_passed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "scoped_unsupported",
+          "counts": "passed",
+          "evidence": "scoped_unsupported",
+          "mass": "passed",
+          "normalization": "passed",
+          "participation": "passed",
+          "standing": "scoped_unsupported",
+          "sturm": "passed",
+          "units": "scoped_unsupported"
+        }
+      },
+      "id": "scoped:a_not_finite_chain_eta_to_cluster",
+      "intent": "scoped",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/tables/computed_modes/rows/0/backward_error/value",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/computed_modes/rows/0/backward_error/undefined_reason",
+          "value": "not_finite"
+        },
+        {
+          "op": "replace",
+          "path": "/tables/computed_modes/rows/0/error_estimate/value",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/computed_modes/rows/0/error_estimate/undefined_reason",
+          "value": "not_finite"
+        },
+        {
+          "op": "replace",
+          "path": "/tables/clusters/rows/0/error_estimate/value",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/clusters/rows/0/error_estimate/undefined_reason",
+          "value": "not_finite"
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/0/cluster_error_estimate/value",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/0/cluster_error_estimate/undefined_reason",
+          "value": "not_finite"
+        }
+      ],
+      "request": "modal_component_body.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "mass entry",
+      "document": "modal_component_body.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "scoped_unsupported",
+          "mass": "failed",
+          "normalization": "passed",
+          "participation": "passed",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "scoped_unsupported"
+        }
+      },
+      "id": "mass:a_claim_null_restrained_entry_fails_only_mass",
+      "intent": "mass",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/tables/mass_matrix/rows/5/value/value",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_matrix/rows/5/value/undefined_reason",
+          "value": "not_factored"
+        }
+      ],
+      "request": "modal_component_body.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "Γ²·m = m_eff",
+      "document": "modal_component_body.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "scoped_unsupported",
+          "mass": "passed",
+          "normalization": "passed",
+          "participation": "failed",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "scoped_unsupported"
+        }
+      },
+      "id": "participation:large_gamma_against_published_effective_mass",
+      "intent": "participation",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/participation_factor/value",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/participation_factor/undefined_reason",
           "value": "outside_canonical_profile"
         }
       ],

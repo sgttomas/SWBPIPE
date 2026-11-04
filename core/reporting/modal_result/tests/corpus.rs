@@ -12,6 +12,8 @@ use serde_json::{json, Value};
 
 const CORPUS: &str = include_str!("../../../../fixtures/results/modal_corpus.json");
 const SEMANTIC_TABLE: &str = include_str!("../../../../fixtures/results/semantic_contract_modal_1.json");
+/// The feasibility oracle's cases and verdicts (`tests/modal_feasibility_oracle.py`).
+const ORACLE_CASES: &str = include_str!("../../../../fixtures/results/modal_oracle_cases.json");
 
 fn fixture(name: &str) -> &'static str {
     macro_rules! file {
@@ -244,6 +246,38 @@ fn the_rust_reader_returns_every_corpus_verdict() {
         }
     }
     assert!(failures.is_empty(), "{} corpus entries:\n{}", failures.len(), failures.join("\n"));
+}
+
+/// The reader against the feasibility oracle (Design §5.3.4): it fails a
+/// family exactly when the oracle finds no value within the stated sets that
+/// satisfies it, passes closure, and fails no other standing. A failure where
+/// the oracle finds an assignment is a false refusal; a pass or scope where it
+/// finds none is a false scoping. The Python reader is held to the same file.
+#[test]
+fn the_rust_reader_agrees_with_the_feasibility_oracle() {
+    let cases: Value = serde_json::from_str(ORACLE_CASES).unwrap();
+    let cases = cases["cases"].as_array().unwrap();
+    assert!(cases.len() >= 500);
+    let mut failures = Vec::new();
+    for case in cases {
+        let (got, verdict) = run(case);
+        if got["closure"] != "passed" {
+            failures.push(format!("{}: closure {}", case["id"], verdict["closure"]["difference"]));
+            continue;
+        }
+        for (family, truth) in case["oracle"].as_object().unwrap() {
+            let failed = got["relations"][family] == "failed";
+            if failed != (truth == "infeasible") {
+                failures.push(format!("{}: {family}: oracle {truth}, reader {} ({})", case["id"], got["relations"][family], verdict["relations"][family]["difference"]));
+            }
+        }
+        for other in ["normalization", "counts", "units"] {
+            if got["relations"][other] == "failed" {
+                failures.push(format!("{}: {other} failed ({})", case["id"], verdict["relations"][other]["difference"]));
+            }
+        }
+    }
+    assert!(failures.is_empty(), "{} disagreements:\n{}", failures.len(), failures.iter().take(60).cloned().collect::<Vec<_>>().join("\n"));
 }
 
 #[test]
