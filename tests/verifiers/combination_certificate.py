@@ -11,8 +11,6 @@ same inputs. Independence: standard-library imports only, and its siblings ``exa
 from __future__ import annotations
 
 from collections.abc import Mapping
-from contextlib import contextmanager
-import contextvars
 from fractions import Fraction
 import math
 import struct
@@ -871,24 +869,23 @@ _NO_ENTRY = object()
 _NOT_FORM_BOUND = object()
 
 
-_RETAINED_BASE_READ: contextvars.ContextVar[bool] = contextvars.ContextVar("retained_base_read", default=False)
-
-
-@contextmanager
-def retained_base_read():
+class retained_base_read:
     """The retained reader's G7 base read (Rust `retained_base_read`), its only caller: an explicit read context, never
     inferred from a document's content, absence or age, and no history selector. Under it the roster's text closure is
     not applied (a retained successor's notices are governed by its own receipt, G4); the member, the reserved
     certificate codes and the canonical notices are still checked whole. The prior context is restored on exit."""
-    token = _RETAINED_BASE_READ.set(True)
-    try:
-        yield
-    finally:
-        _RETAINED_BASE_READ.reset(token)
+    _depth = 0
+
+    def __enter__(self) -> "retained_base_read":
+        type(self)._depth += 1
+        return self
+
+    def __exit__(self, *_exc: Any) -> None:
+        type(self)._depth -= 1
 
 
 def in_retained_base_read() -> bool:
-    return _RETAINED_BASE_READ.get()
+    return retained_base_read._depth > 0
 
 
 def roster(source: Mapping[str, Any], model: Mapping[str, Any] | None = None) -> None:
