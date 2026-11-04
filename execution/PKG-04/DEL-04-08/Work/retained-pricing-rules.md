@@ -4736,6 +4736,159 @@ This is test evidence, not an acceptance.
 Run evidence is in `/Users/ryan/dev/chirality-t3/scratch/rt-perf-d4/`: the two runs, the comparison, the atom logs, the
 evaluations, the supplement and the reference check script. It is review input, not a permanent dependency.
 
+### §8.51 Operating-case slice 1b: the declared operating-minus-sustained difference on RT-U4's §8.50 candidate (actual-source D3)
+
+**Status.** Proposed registration of operating-case slice 1b (DEL-05-02 `operating-case.md` §1.2, §6; PR #107), made
+on RT-U4's frozen, reviewed §8.50 candidate in the order Agent 0 set (#97 §8.48, increment 4 §8.49, RT-U4 §8.50, then
+this). It is made under the owner's removal of explicit owner approval for coefficient movement; source-derived
+pricing, independent scrutiny and preservation of the registered state remain required. This records no acceptance.
+The threshold and M are unchanged. **AC-004: pending** (the binary is named below; the witnesses are not run here).
+
+**What 1b adds.** A `result_state_subtraction` may declare `difference_basis = "operating_minus_sustained"`. The solve
+gates it by G-1 (the subtrahend's primitive loads, by content, contained in the minuend's:
+`EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING`) and G-2 (the two cases' modulus bases differ:
+`EXPANSION_BASIS_MODULUS_MIXED`) in `product_physics::difference_basis`, publishes the operands' content multisets as
+`contract_evidence.difference_basis_derivation`, and states its rows' sign. `result_export::preview_difference_basis`
+re-derives G-1 from that evidence without the model and checks it against the model with one. The three preview tables
+restate their combination policy (v2 → v3).
+
+**Basis and integration chain.** The basis is `41142f4a3` on `claude/rt-perf-single-pass` (PR #106, containing #105),
+whose registration is §8.50 (priced source `cadd9b577`; the later commits change no priced source), with §8.50's AC-004
+record `a80429ab6` (text only). It contains increment 4's §8.49 (record `03a5cd3b1`), RT-A3 #108's test-pin fix
+`5701a55a5` and main `aa794eb68`. 1b's branch (on main `aa794eb68`) merged it as `a38e05332`, then `a80429ab6`
+(`b03d53048`) and main `252bef969` (#108; `0b9446df6`, whose tree equals its parent's). **Priced source:
+`357dd4dfa`** (that tree plus the pricing rules below; the registration commits follow).
+
+**Merge resolution** (`a38e05332`; merged, not rebased). The tables moved disjointly: increment 4 pressure-2 and
+physics-retained-1, 1b the three preview tables; `derive --check` holds on the merged tree. The recorded registries
+(Rust `recorded_tables::VARIANTS`, Python `RECORDED_PRE_RT_A4_TABLES`, desktop `recordedPreRtA4.ts`) keep every
+historical variant: increment 4's physics-retained-1 `040ef9a6` at index 5 and 1b's three bbf384dec tables at 6–8 (the
+retained variant's base index 5 → 6). The analysis-run schema's table-digest enum takes each position from the side that
+changed it. The schema digests in the product-preview generation manifests were repinned by
+`semantic_contract_tables.repin` restricted to the three v0.3 schemas: a full repin would have rewritten the historical
+registry rows, whose digests are both sides' old table values. `schema_manifest.json` is regenerated, and the routing
+digests are recomputed.
+
+**Pins restated on the merged bytes** (basis → head; each premise re-read on the merged bytes, its reason at the pin):
+
+| Pin | File | Basis | Head | Reason |
+|---|---|---|---|---|
+| B7a `SOURCE_FILES`, KD5 `B7A_PRIMITIVE_LIB_SOURCE_PIN`, W1 reductions | PP `lib.rs` | `f2ced8d7…` | `dcb744fb…` | three items folded onto existing lines (no line moves); `.min(`/`.max(` 2/11 on both |
+| B7a, W1 reductions, O-10 OP1A | PP `preview_physics.rs` | `ecd14d75…` | `cf2ce2e1…` | the declared arms (PF1B-DZ) |
+| S1-PIN, `s1_owners_model` | PP `document_members.rs` | `a2bc924c…` | `7992d86d…` | the difference-basis push deleted |
+| W1 member load | RE `lib.rs` | `d0c6fc38…` | `a1699800…` | declares `preview_difference_basis` |
+| B7a, W1 member load | RE `retained_precision.rs` | `ba7902d0…` | `7db0e51b…` | `TABLE_HASH` only |
+| B7a | RE `semantic_contract.rs` | `d4dd238e…` | `7cd4bebd…` | three table-hash constants only |
+| RT-A4-PIN, `rta4_owners_model` | RE `preview_combination_gates.rs` | `918758e2…` | `b6c9ad33…` | PF1B-FZ call, an allocation-free arm, model-bound reads (RT-A4-RM) |
+| O-10 OP1A | RE `preview_combination_operands.rs` | `8444069d…` | `51df5bf3…` | `model_checks`' admitted set (reader_verdict only) |
+| O-10 OP1A, TIM | RE `preview_physics_evidence.rs` | `8e6ce868…` | `19513176…` | an optional member, two static gate codes, an existing set's lookup |
+| RT-A4-HS | RE `recorded_tables.rs` | `852783db…` | `b3b238c7…` | three include_bytes! variants, nine OnceLock slots; no selection path changes |
+
+Eighteen pin values in all (the analysis-only record's "17" was a miscount). Not restated, because the merged bytes
+equal the basis's: O-10 OP1A/TIM `reader_verdict.rs` (`d880e7e6…`) and `qualification_physics.py`'s
+`physics_evidence.rs` (`0baf783f…`). `semantic_contract.rs`'s audited suffix (from line 400) is §8.50's `333ae77d…`
+byte for byte: 1b's three constants (lines 129, 139, 180) lie in the inspected prefix.
+
+**Restated rules (§8.46's precedents).** S1-ZS drops its two entries for the deleted difference-basis push, as §8.46
+dropped the unsigned and nested pushes'. RT-A4-D14's guard pins `interim_reasons` at one push and no difference-basis
+branch (it pinned two). The remaining reason is still D1.4-refused, so RT-A4-WZ's zero stands; a re-added push stops
+the run.
+
+**New rules (PF1B, `o10_rules.py`).** Guarded on the two new modules' bytes (PF1B-PIN) and on the code each zero reads:
+- **PF1B-DZ.** D1.4 refuses every difference basis (family_clauses' member clause), so `declared()` is false for every
+  combination D1 solves. Zero edges: `gate_reason → gate`; `derivation → case`, `→ contents` and `→ contents_evidence`
+  (its declared filter keeps none). Site zeros: the declared sign's copy and the member key's copy (the folded `lib.rs`
+  line's only TEXT site). The guard pins the producer's ten uses of the module, `declared()`'s one test and
+  `derivation`'s filter and `None` return.
+- **PF1B-FZ.** The reader reads the producer's own successor. On D1 that has no derivation member, no G-1/G-2 reason and
+  no row with 1b's sign (the guard checks that the reader's `SIGN` and `MEMBER` are the producer's and equal no other
+  producer literal), so `free_check` returns at `!claimed` before `read()`. Zero edges from `free_check` to its eight
+  callees, and `0` for its four loops.
+- **PF1B-RM.** `preview_difference_basis::check` has one caller, the gate reader's `check`, which passes its model,
+  `None` on the retained graph (RT-A4-RM's guard). Zero edge `check → model_check`.
+- **PF1B-BN.** The by-name call graph adds false in-edges to the modules' private `case`, `read` and `items` from eight
+  existing callers (`operating_conditions::findings`, `retained_product::combine_on`, `retained_wire::logical`,
+  `composite::validate_publication`, `exact_combination_evidence::validate`, `recorded_tables::entry_scope` and
+  `::read_recorded`, `document_members::json_findings`). Rust privacy rules them out, so they are zeroed as S1-BN did.
+  `read_multiset`'s and `model_multiset`'s `new` is `BTreeMap::new` (`CG_RULES` targets `[]`), which removes their
+  false edges to `Reference::new`, `PressureReference::new` and `RowIndex::new`. Those edges were the analysis-only
+  record's text rise.
+- **PF1B-L.** `derivation`'s gate scan ≤ z; a reader operand's entries ≤ l (strictly increasing contents of one case's
+  primitive loads, D1.9; unreached: FZ); a model case's loads ≤ l (unreached: RM).
+- **PF1B-ID.** The content fields `node`, `dof`, `load.category`, `.direction` and `.dimension` are IN128 (authored
+  strings, as W16S-ID classes a dimension and a DOF token). The member key (27 B), the sign and the reader's refusal
+  codes are classed at their static lengths; a guard pins every refusal to a module constant.
+
+The `difference_basis_derivation` payload (at most one record per declared combination, at most one entry per
+primitive load per operand) is zero on D1 by PF1B-DZ. Every bound above holds without that premise as well. No
+allowance is dropped and no guard is weakened.
+
+**Run and graph.** `price.py run 357dd4dfa`: exit 0 on all four points, no unmapped header or unclassified argument,
+`text_complete` and `D_converged` everywhere, both O-10 checks 0. The line map equals the basis's (875 carried keys, 37
+prunes, seven resolutions; both premise pins hold; the off-build set is equal). `reachable_fns` is 4,423 → 4,460 (1b's
+module functions and their callees). D: L(3,0) 43,783 and E 76,356 equal; L(2,1) 39,371 (+2) and L(1,2) 35,235 (+4).
+The non-maximum points' extra diagnostics and `modulus_basis_key` multiplicity come from the declared arm's G-2 call to
+`modulus_basis_key` in `gate_reason`. The tool has no per-call-site zero, so this is priced conservatively; it moves
+neither maximum point. TAV is the basis's at L(3,0) and E.
+
+**Comparison.** The basis `41142f4a3`, priced with its own tool, exits 0 and is O-10 clear. Its `generate --check` with
+§8.50's basis line equals the committed block (1,712 lines, empty diff). Against it the head has **1,596 coefficients
+equal, 6 higher, 0 lower**:
+
+| Coefficient (and its `success__` copy) | §8.50 | Head | Change | Source |
+|---|---:|---:|---:|---|
+| `STATICS[1]` | 610,859 | 617,975 | +7,116 | the three preview tables' policy v3 texts and keys, +1,779 B each, in four static owners |
+| `STATICS[Node(String,Value)]` | 7,846 | 7,858 | +12 | +3 nodes per table, four owners |
+| `STATICS[s(Value)]` | 31,224 | 31,272 | +48 | +2 array slots (6 × s(Value) each) per table, four owners |
+
+The four owners are B7a's `STATIC_OWNERS`: preview-physics-2, timoshenko-1 and preview-physics-retained-1 twice
+(`retained_precision::table` and `semantic_contract::preview_physics_retained_contract`). Each delta is the tool's
+`static_tree` count of the table change, reproduced exactly. The merged check moves +17,484 B per mode: sparse
+8,593,858,435 → 8,593,875,919, dense 8,652,989,779 → 8,653,007,263.
+
+**Native atoms and evaluation.** The head's PP lib-test build (rustc 1.97.1, debug, opt-level 0) collects 328
+`I65_G5_ATOM`s. Maintained `eval` of the merged tree, with R = 64 MiB:
+
+| Mode | W1 | W2 | W3 (maximum) | W4 | W5 | X1 | X2 | X3 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| sparse | 6,517,431,517 | 6,859,426,078 | 8,811,161,906 | 8,604,878,178 | 7,678,573,976 | 8,593,411,729 | 7,326,029,119 | 6,999,318,995 |
+| dense | 6,576,562,861 | 6,918,557,422 | 8,870,293,250 | 8,664,009,522 | 7,737,705,320 | 8,652,543,073 | 7,385,160,463 | 7,058,450,339 |
+
+Each is §8.50's value +17,484 B. W3 stays the maximum, 2,726,118,449 B (dense) below ⌊0.9M⌋ = 11,596,411,699 B at the
+unchanged M = 12,884,901,888 B. The law tests (all phases, R, the 0.9 margin and the 5% TAV_W/TAV_X reserve) pass.
+
+**All points.** §8.46's 16-atom same-build supplement reproduces §8.50's points exactly on the basis trees. On the head's
+trees, W3 E + R dense is E(3) 8,784,342,449, L(3,0) 8,301,813,614, L(2,1) 7,630,755,545 and L(1,2) 6,917,929,074 B
+(+17,484, +17,484, +127,352 and +236,484 B). All 64 point-phase-mode values are at or below the merged tree (the
+tightest, E(3) sparse W1, by 76,527,894 B).
+
+**Profile and records.**
+- **Block.** `generate` with basis `, re-run as operating-case slice 1b on RT-U4's §8.50 candidate at 357dd4dfa
+  (§8.51): …` (1,713 lines: the basis line wraps once more; `--check` equal). Only the six coefficients above, the
+  basis line and `PYTHON_CHECK` change; `threshold_bytes` is kept.
+- **`REGISTERED_PROFILES`.** Reviewed inputs #4 (preview-physics-retained-1 `b4377e73…`), #5 (preview-physics-2
+  `f41b9d3e…`) and #12 (preview-physics-timoshenko-1 `6f649490…`), counted from 0, take the restated tables' bytes, in
+  the record and in the law test's `REVIEWED`. The other ten inputs hash equal on the head, and
+  `core/product_physics/Cargo.lock` stays `b7ebb02a…`. The identity, the reader layouts, the reader audit and the
+  threshold are unchanged.
+- **Law records.** `PINNED_RECORD` takes maintained `eval` less R. Sparse: [6,450,322,653, 6,792,317,214,
+  8,744,053,042, 8,537,769,314, 7,611,465,112, 8,526,302,865, 7,258,920,255, 6,932,210,131]. Dense: [6,509,453,997,
+  6,851,448,558, 8,803,184,386, 8,596,900,658, 7,670,596,456, 8,585,434,209, 7,318,051,599, 6,991,341,475].
+- **Challenge.** `W1_PHASE_BYTES` [6,450,322,653, 6,509,453,997] and `MAX_PHASE_BYTES` [8,744,053,042, 8,803,184,386].
+- **Results.** Before the re-pin, `profile_` failed only `profile_in_build_record` (at the old pins, +17,484 B), and
+  `reviewed_inputs_bind_the_lock_and_the_reader_statics` failed at the three tables. After it, the `retained_memory`
+  lib tests pass (84, 71 ignored) and `test_preview_identity_inventory.py` passes. The challenge binary's one
+  non-measurement test passes; its 43 measurement tests are ignored.
+
+**Carriers.** No retained successor or carrier binds a preview table digest: the old and new digests occur only in the
+registries, constants, schemas and tests. result_export's retained carrier, contract and golden suites pass on the
+merged tables, so nothing is resealed. The user-release carriers were regenerated through their writers before this
+registration (`2b9ee56c0`), and `semantic_contract_tables.repin` routes them to their writers (`391d2aeaf`).
+
+**Frames.** `run_linear_static_preview_observed_inner` gains one `Option<Value>` local (`preview_difference`) and the
+member's insertion, and `gate_reason` gains the declared arm. Frame sizes were not measured here. The witness paths run
+through `observed_inner`, so §8.50's 7/7 does not transfer: AC-004 is pending on the binary named in the PR record.
+
 ## 9. Memory-profile gates and registration
 
 ### Gate bounds (registration)
