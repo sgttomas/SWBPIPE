@@ -1545,6 +1545,18 @@ The weights rise with n (w_b64 from 0.0925 to 0.1579 over 240–960), so **no we
   - ρ = 1 over cumulative REQUESTED bytes is no guarantee of process RSS or the allocator's peak. The allowance for rounding, layout, stack, runtime and result custody has to be covered explicitly and reviewed.
 - **B_doc stays proposed** until its four items close, refused documents included. The 25-byte allowance is verified against the actual std format paths, not a sample width.
 - **Coordination.** The S1 `modal_eigen` change and the static-confirmation allotment seams are coordinated with RT-A3 P and the certificate changes before any shared write. The modal resource budget may not silently change any ordinary static output.
+  - **RT-A3's post-P shape (2026-11-04; P at `claude/rt-a3-p` `7d320980c`, under review, may still change).** Writes to NI `confirmation.rs`, `structural_adapter.rs` and NI `lib.rs` are held until P integrates.
+    - **Solves are counted separately from factorizations.**
+      - Sparse mode: one factorization per iterate and k+1 completions (k unit loads plus the final), plus one legacy DEC-050/053 observation factorization on the final solve.
+      - Dense mode: k+2 full solves, each with its own factorization.
+      - The all-active recovery trial: a separate step with one factorization (k = 0).
+      - Confirmation: one gate factorization per converged state.
+      - T1's term therefore becomes separate solve and factorization counts per mode, replacing "≤ (I_as+1)·(2+d)+1 solves".
+    - **Hook points**, neither inside evidence arithmetic:
+      - the solve count at `LoopSystem::solve_iterate`, the single funnel for every loop solve in both modes;
+      - the confirmation allotment inside `ConfirmationContext::{evaluate_at, reaction, displacement}`, or at their call sites in `confirmation.rs`, refusing before each evaluation. Entry is `confirm_converged_state`, then `confirm_with_applied`, then the dense or sparse `confirm_with_formation_check`.
+    - **Registration:** hooks there require restating the R2/option-(c) source pins and the B7a adapter pin.
+    - **R-3's G2** keeps its own exact-work allotment in `scrutinize_gaps`. The modal counter stays out of it, and the order of refusal between the two is defined. If R-3 routes per-iterate checks through `ConfirmationContext`, the modal allotment is scoped to post-convergence confirmation.
 - **Sequence.** The priced closure and D3 order stays #105/B → PF1b → I3a; an isolated, pre-registered implementation is fine. No measurement window, native enablement or recording-policy adoption follows.
 - **A3 is still held.** The next step is a minimum concrete proposal for a resolution and screening criterion: the exact roles of τ_μ, c_μ, κ_μ and c_f, and their known failure behaviour.
   - τ_μ is not tightened to recapture the 1,920 high modes.
