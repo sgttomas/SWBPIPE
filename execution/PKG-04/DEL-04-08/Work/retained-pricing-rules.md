@@ -4702,7 +4702,9 @@ exclusive window. This record does not run them and records no binary identity.
   skipped, 1 failed. The failure, `test_load_reference_readers.py::test_frozen_inputs_and_table_identity`, is inherited
   from the predecessor. Increment 4 regenerated `fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json`
   (`c4c8779d…` → `c5ed19df…`), and the test's `FROZEN` pin still names `c4c8779d…`. Both files are byte-identical to
-  `4a8287001`'s, so it fails there the same way. It is left to RT-A3 and not changed here.
+  `4a8287001`'s, so it fails there the same way. RT-A3 repaired it in #108's `5701a55a5`: all four load/reference
+  raw pins now follow increment 4's regenerated envelopes (test file only; no runtime, profile or pin change). That
+  commit is merged here as `45bc33590`, where `tests/test_load_reference_readers.py` passes 240 (1 skipped).
 - **Pricing tool and routing** (`tools/retained_pricing/tests`, `tests/test_retained_pricing_tool.py`,
   `tests/test_ci_numerical.py`, `tools/software_workflow/test_hosted_ci.py`): 1,116 passed (120 subtests).
 - **`deliverables check`:** 0 errors.
