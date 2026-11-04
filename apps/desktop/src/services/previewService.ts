@@ -28,7 +28,7 @@ import { buildAnalysisRunV03, modelLoadBasisRefs } from "./analysisRunCompatibil
 import type { ExcludedRulePackRef } from "./rulePackRefDiagnostics";
 import { canonicalSha256HexCheckedV1, checkedJsonText } from "./hashService";
 import { formatBytes, nativeInvokeError, parseResourceRefusal, parseSolveResourceGrant, ResourceUnavailableError, SOLVE_RESULT_REDUCTION_OPTIONS } from "./memoryPool";
-import { errorCode, isSolveJob, markSolveStage, noteSolveResult, timedSolvePass } from "./solveTimeline";
+import { errorCode, isSolveJob, markSolveStage, noteSolveHandle, noteSolveResult, timedSolvePass } from "./solveTimeline";
 import { jsonTextKeepingNegativeZero } from "./jsonText";
 import {
   createNativeResult,
@@ -674,6 +674,8 @@ export async function readNativeFreshResult(
     recovery
   });
   if (unregistered === null && capture) nativeRegistrations.set(result, capture);
+  // RT-U4: the handle is this solve's result, so its commit and first paint are marked.
+  if (timed) noteSolveHandle(jobId, result);
   return { result, standing, unregistered };
 }
 

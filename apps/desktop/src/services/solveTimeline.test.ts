@@ -9,6 +9,7 @@ import {
   isSolveResult,
   markSolveCommittedAndPaint,
   markSolveStage,
+  noteSolveHandle,
   noteSolveResult,
   readSolveTimeline,
   recordSolvePass,
@@ -152,6 +153,32 @@ describe("the latest solve's timeline (RT-U4)", () => {
     frames.shift()!(0);
     expect(readSolveTimeline()!.marks.map((mark) => mark.stage)).toEqual(["solve_requested", "result_committed", "first_paint"]);
     expect(frames).toHaveLength(0);
+  });
+
+  it("marks a native handle's commit and paint only for the running solve's job, keeping the pass floor", () => {
+    const frames: FrameRequestCallback[] = [];
+    vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => { frames.push(callback); return frames.length; });
+    const run = beginSolveTimeline();
+    const handle = {};
+    noteSolveHandle("job-1", handle); // before the job started: not this solve's job
+    expect(isSolveResult(handle)).toBe(false);
+    run.jobStarted("job-1");
+    noteSolveHandle("job-other", handle); // another job (a rule check's own solve)
+    expect(isSolveResult(handle)).toBe(false);
+    noteSolveHandle("job-1", handle);
+    expect(isSolveResult(handle)).toBe(true);
+    // No text length is noted for a handle: the 1 MiB floor still classifies full passes.
+    recordSolvePass("checked_json_text", performance.now(), 2 << 20);
+    expect(readSolveTimeline()!.passes[0]).toMatchObject({ count: 1, full_count: 1 });
+    markSolveCommittedAndPaint(handle);
+    frames.shift()!(0);
+    frames.shift()!(0);
+    expect(readSolveTimeline()!.marks.map((mark) => mark.stage)).toEqual(["solve_requested", "job_started", "result_committed", "first_paint"]);
+    // A finished solve notes no later handle.
+    run.end("completed");
+    const later = {};
+    noteSolveHandle("job-1", later);
+    expect(isSolveResult(later)).toBe(false);
   });
 
   it("is bounded, and its global reads a recursively frozen copy", () => {

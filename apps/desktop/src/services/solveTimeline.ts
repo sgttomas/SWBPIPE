@@ -18,7 +18,7 @@
  * project) or message text is kept for reading. A detail string that is not a code is
  * dropped (`codeOrNull`), as is a detail under a key other than a measurement field
  * (`DETAIL_KEYS`) and an error class outside `ERROR_NAMES`. Kept small: a bounded mark list, one aggregate per (kind,
- * stage), and a WeakRef to the received result (never a copy of it).
+ * stage), and a WeakRef to the received result or a C1 native solve's handle (never a copy).
  *
  * `readSolveTimeline` returns a fresh copy. The read-only global
  * `globalThis.__openPipeStressSolveTimelineV1` ([`solveTimelineGlobal`]) is installed by
@@ -186,6 +186,15 @@ export function noteSolveResult(result: object, chars: number): void {
   if (!current || typeof WeakRef === "undefined") return;
   current.result = new WeakRef(result);
   current.resultChars = chars;
+}
+
+/** C1 native custody: the handle a fresh solve's result is held by (by reference only), so its
+ * commit and first paint are recognised as they are for a result read from taken bytes. The
+ * result's text never enters the webview, so no length is noted: full-envelope passes keep the
+ * 1 MiB floor. Only the running latest solve's job notes its handle. */
+export function noteSolveHandle(jobId: string, handle: object): void {
+  if (!isSolveJob(jobId) || typeof WeakRef === "undefined") return;
+  current!.result = new WeakRef(handle);
 }
 
 /** Whether `jobId` is the running latest solve's job (a rule check's own solve is not). */
