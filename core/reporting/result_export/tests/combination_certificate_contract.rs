@@ -205,3 +205,34 @@ fn transport_reads_the_member_shape_only() {
         assert!(verdict["ok"] == false && verdict.to_string().contains("transport combination certificate shape"), "{verdict}");
     }
 }
+
+/// The retained base-read context (Work `combination-certificate.md` §2, Agent 0's ruling after review cert2) is
+/// entered only by the retained reader's G7 base read: `retained_base_read` is crate-private and its one caller is
+/// `retained_precision.rs` (the unit tests in `combination_certificate.rs` scan for it and read under it). From an
+/// ordinary entry the context is never set: prose under a combination ref on a W-CB3 successor's ordinary base is
+/// refused by the roster, the unmodified successor reads through its own reader, and the context is clear after each.
+#[test]
+fn the_retained_base_read_context_is_not_reachable_from_ordinary_reads() {
+    let w: Value = serde_json::from_str(include_str!("../../../../fixtures/results/retained_precision_combination_successor_sparse_interactive.json")).unwrap();
+    let base = |s: &Value| {
+        let mut b = s.clone();
+        b.as_object_mut().unwrap().remove("retained_precision");
+        b["producer"]["semantic_contract_id"] = serde_json::json!("openpipestress.result_semantics/0.3.0/preview-physics-2");
+        b["formulation_basis"]["profile_id"] = serde_json::json!("product_preview_mechanics_v1");
+        let rows = b["results"].as_array_mut().unwrap();
+        rows.retain(|r| r["kind"] != rp::REQUESTED_MODE_KIND);
+        rows.iter_mut().for_each(|r| {
+            r.as_object_mut().unwrap().remove("recovery_method");
+        });
+        b
+    };
+    let mut noted = base(&w["source"]);
+    noted["diagnostics"].as_array_mut().unwrap().push(serde_json::json!({"id": "diagnostic:review:claim", "code": "REVIEW_NOTE", "severity": "info",
+        "source": "core/product_physics", "affected_refs": ["combination:ab"], "message": "combination combination:ab: all derived row groups are established."}));
+    assert!(!open_pipe_stress_result_export::in_retained_base_read());
+    assert!(open_pipe_stress_result_export::semantic_contract::for_source(&base(&w["source"])).is_ok());
+    assert_eq!(open_pipe_stress_result_export::semantic_contract::for_source(&noted).err().as_deref(), Some("SOURCE_COMBINATION_CERTIFICATE_ROSTER_EXTRA"));
+    assert_eq!(reader_verdict::validate("preview-physics", &noted, None, None)["error"]["code"], "SOURCE_COMBINATION_CERTIFICATE_ROSTER_EXTRA");
+    assert!(rp::validate(&w["source"], Some(&w["invocation"])).is_ok());
+    assert!(!open_pipe_stress_result_export::in_retained_base_read());
+}

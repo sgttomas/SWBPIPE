@@ -18,6 +18,7 @@
 use open_pipe_stress_correct_norm::{norm2, norm3};
 use open_pipe_stress_load_case_algebra::Dyadic;
 use serde_json::{json, Value};
+use std::cell::Cell;
 use std::cmp::Ordering;
 use std::collections::{HashMap, HashSet};
 
@@ -931,12 +932,41 @@ fn form_bound(d: &Value, preview: bool, index: &crate::preview_combination_gates
     None
 }
 
+thread_local! {
+    static RETAINED_BASE_READ: Cell<bool> = const { Cell::new(false) };
+}
+/// Run `read` as the retained reader's G7 base read (`retained_precision::gates_after_g0`), its only caller:
+/// an explicit read context, never inferred from a document's content, absence or age, and no history
+/// selector. Under it the roster's text closure is not applied, because a retained successor's notices are
+/// governed by its own receipt (G4); the member, the reserved certificate codes and the canonical notices are
+/// still checked whole (`member_check`). The prior context is restored when `read` ends, however it ends.
+pub(crate) fn retained_base_read<R>(read: impl FnOnce() -> R) -> R {
+    struct Restore(bool);
+    impl Drop for Restore {
+        fn drop(&mut self) {
+            RETAINED_BASE_READ.with(|f| f.set(self.0));
+        }
+    }
+    let _restore = Restore(RETAINED_BASE_READ.with(Cell::get));
+    RETAINED_BASE_READ.with(|f| f.set(true));
+    read()
+}
+/// Whether the current read is the retained reader's G7 base read.
+pub fn in_retained_base_read() -> bool {
+    RETAINED_BASE_READ.with(Cell::get)
+}
+/// Clear the read context at an outermost entry (`recorded_tables::entry_scope`), which a trapped wasm
+/// read under `panic = abort` could leave set.
+pub(crate) fn clear_read_context() {
+    RETAINED_BASE_READ.with(|f| f.set(false));
+}
+
 /// The closed roster of a solved document's combination diagnostics (Work `combination-certificate.md`
 /// §2): `ROSTER_EXTRA`, `ROSTER_RENAMED`, `ROSTER_CONTRADICTION` and `ROSTER_MISSING`. Delegated to the
 /// readers that re-derive them whole: the certificate's own notices (`check`), EX's namespace
 /// (`exact_combination_evidence`) and PF's operand notices (`preview_combination_operands`).
 fn roster(source: &Value, model: Option<&Value>) -> Check {
-    if source["status"]["mechanics"] != "MECHANICS_SOLVED" {
+    if in_retained_base_read() || source["status"]["mechanics"] != "MECHANICS_SOLVED" {
         return Ok(());
     }
     let population = combination_population(source, model);
@@ -1100,5 +1130,54 @@ pub(crate) fn without_member(source: &Value) -> Option<Value> {
         evidence.remove(MEMBER);
     }
     Some(view)
+}
+
+#[cfg(test)]
+mod retained_base_read_tests {
+    //! The retained base-read context (Work `combination-certificate.md` §2, Agent 0's ruling after review cert2).
+    use super::*;
+
+    /// A W-CB3 successor's ordinary base, as the retained reader's G7 projects it.
+    fn base() -> Value {
+        let w: Value = serde_json::from_str(include_str!("../../../../fixtures/results/retained_precision_combination_successor_sparse_interactive.json")).unwrap();
+        let mut b = w["source"].clone();
+        b.as_object_mut().unwrap().remove("retained_precision");
+        b["producer"]["semantic_contract_id"] = json!(crate::semantic_contract::PREVIEW_PHYSICS_ID);
+        b["formulation_basis"]["profile_id"] = json!(crate::semantic_contract::PREVIEW_PHYSICS_PROFILE);
+        let rows = b["results"].as_array_mut().unwrap();
+        rows.retain(|r| r["kind"] != crate::retained_precision::REQUESTED_MODE_KIND);
+        rows.iter_mut().for_each(|r| {
+            r.as_object_mut().unwrap().remove("recovery_method");
+        });
+        b
+    }
+
+    /// Its one caller is the retained reader's G7 base read.
+    #[test]
+    fn the_context_has_one_caller_the_retained_g7_base_read() {
+        let sources: [(&str, &str); 2] = [("retained_precision.rs", include_str!("retained_precision.rs")), ("combination_certificate.rs", include_str!("combination_certificate.rs"))];
+        // The needle is formed at run time, so this test's own text does not count.
+        let call = format!("combination_certificate::{}(", "retained_base_read");
+        let calls: Vec<(&str, usize)> = sources.iter().map(|(name, text)| (*name, text.matches(call.as_str()).count())).collect();
+        assert_eq!(calls, [("retained_precision.rs", 1), ("combination_certificate.rs", 0)]);
+        assert!(include_str!("retained_precision.rs").contains(&format!("crate::{call}|| crate::semantic_contract::for_source(&projected))")));
+    }
+
+    /// Under the context the roster's text closure is not applied, and only it: prose under a combination ref is
+    /// left to the receipt, while a reserved certificate notice without a member is still refused (PRESENCE). The
+    /// context is restored after the read, also on an error.
+    #[test]
+    fn under_the_context_only_the_roster_text_closure_is_lifted() {
+        let mut noted = base();
+        noted["diagnostics"].as_array_mut().unwrap().push(json!({"id": "diagnostic:review:claim", "code": "REVIEW_NOTE", "severity": "info",
+            "source": SOURCE, "affected_refs": ["combination:ab"], "message": "combination combination:ab: all derived row groups are established."}));
+        assert_eq!(crate::semantic_contract::for_source(&noted).err().as_deref(), Some("SOURCE_COMBINATION_CERTIFICATE_ROSTER_EXTRA"));
+        assert!(retained_base_read(|| crate::semantic_contract::for_source(&noted)).is_ok());
+        assert!(!in_retained_base_read());
+        let mut reserved = base();
+        reserved["diagnostics"].as_array_mut().unwrap().push(diagnostic("combination:ab", WITHIN, within_message("combination:ab", true, 1, 0, 0, 0)));
+        assert_eq!(retained_base_read(|| crate::semantic_contract::for_source(&reserved)).err().as_deref(), Some("SOURCE_COMBINATION_CERTIFICATE_PRESENCE"));
+        assert!(!in_retained_base_read());
+    }
 }
 

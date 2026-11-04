@@ -210,7 +210,11 @@ impl Drop for Restore {
 pub fn entry_scope<R>(read: impl FnOnce() -> R) -> R {
     let _clear = Restore(None);
     SELECTED.with(|s| s.set(None));
-    read()
+    // RT-A3 §4: the retained base-read context is cleared the same way (`combination_certificate`).
+    crate::combination_certificate::clear_read_context();
+    let result = read();
+    crate::combination_certificate::clear_read_context();
+    result
 }
 
 /// Run `read` as the recorded-run read of `source` under its recorded `binding`.

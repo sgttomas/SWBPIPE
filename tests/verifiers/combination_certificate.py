@@ -11,6 +11,8 @@ same inputs. Independence: standard-library imports only, and its siblings ``exa
 from __future__ import annotations
 
 from collections.abc import Mapping
+from contextlib import contextmanager
+import contextvars
 from fractions import Fraction
 import math
 import struct
@@ -869,13 +871,33 @@ _NO_ENTRY = object()
 _NOT_FORM_BOUND = object()
 
 
+_RETAINED_BASE_READ: contextvars.ContextVar[bool] = contextvars.ContextVar("retained_base_read", default=False)
+
+
+@contextmanager
+def retained_base_read():
+    """The retained reader's G7 base read (Rust `retained_base_read`), its only caller: an explicit read context, never
+    inferred from a document's content, absence or age, and no history selector. Under it the roster's text closure is
+    not applied (a retained successor's notices are governed by its own receipt, G4); the member, the reserved
+    certificate codes and the canonical notices are still checked whole. The prior context is restored on exit."""
+    token = _RETAINED_BASE_READ.set(True)
+    try:
+        yield
+    finally:
+        _RETAINED_BASE_READ.reset(token)
+
+
+def in_retained_base_read() -> bool:
+    return _RETAINED_BASE_READ.get()
+
+
 def roster(source: Mapping[str, Any], model: Mapping[str, Any] | None = None) -> None:
     """The closed roster of a solved document's combination diagnostics (Rust `roster`): ROSTER_EXTRA, ROSTER_RENAMED,
     ROSTER_CONTRADICTION and ROSTER_MISSING. The certificate's own notices (`check`), EX's namespace (`exact_combinations`)
     and PF's operand notices (`preview_combination_operands`) are read whole by their own readers, which precede it."""
     from .combination_graph import model_operands
     from .preview_combination_gates import _RowIndex
-    if _get(source, "status", "mechanics") != "MECHANICS_SOLVED":
+    if in_retained_base_read() or _get(source, "status", "mechanics") != "MECHANICS_SOLVED":
         return
     population = _combination_population(source, model)
     if not population:

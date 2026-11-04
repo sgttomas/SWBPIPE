@@ -1706,7 +1706,7 @@ mod preview_combination_operands;
 // RT-A3 §4 (DEL-05-02 Work `combination-certificate.md`).
 mod combination_certificate;
 /// RT-A3 §4: the combination identities a document states (the report's supplemental-text boundary).
-pub use combination_certificate::document_combination_identities;
+pub use combination_certificate::{document_combination_identities, in_retained_base_read};
 mod nonlinear_support_evidence;
 pub mod physics_source;
 pub mod source_blocks;

@@ -6629,7 +6629,9 @@ fn gates_after_g0(source: &Value, actual_invocation: Option<&Value>, route: &Rou
     // SOURCE_PREVIEW_PHYSICS_<CODE> (preview) or SOURCE_PHYSICS_<CODE>
     // (exact: pressure-2's `validate_pressure_evidence`); any text
     // after the code is detail.
-    crate::semantic_contract::for_source(&projected).map_err(base_error)?;
+    // RT-A3 §4 (DEL-05-02 Work `combination-certificate.md` §2): the base read runs in the retained read
+    // context, so the closed combination-diagnostic roster leaves the successor's notices to G4.
+    crate::combination_certificate::retained_base_read(|| crate::semantic_contract::for_source(&projected)).map_err(base_error)?;
     // T4-U4b (§4.1, §5.1; S4 round 2): on route L the base read above is
     // model-free, so with the invocation the projection's τ rows are
     // recomputed bit for bit with c_b from the captured model (the

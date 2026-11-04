@@ -3275,7 +3275,11 @@ def _gates_after_g0(snapshot, receipt, schema, invocation, route, raw=True, stat
             # CONTRACT §10.1 G6: recovery_method exactly on a retained_selected combination's rows.
             for row in all_rows[c["basis_ref"]["ref_id"]]:_need(row.get("recovery_method")==METHOD if c["disposition"]=="retained_selected" else "recovery_method" not in row,state["gate"],"ROW_METHOD_MISMATCH")
         state["gate"]="G7";projected=_project(snapshot,route)
-        try:_source_contract(projected)
+        # RT-A3 §4 (Work `combination-certificate.md` §2): the base read runs in the retained read context, so the closed
+        # combination-diagnostic roster leaves the successor's notices to G4 (Rust `retained_base_read`).
+        from .combination_certificate import retained_base_read
+        try:
+            with retained_base_read():_source_contract(projected)
         except ValueError as exc:
             text=str(exc);match=re.match(r"[A-Z][A-Z0-9_]*",text)
             error=RetainedPrecisionError("G7",match.group(0) if match else route.base_invalid);error.detail=text
