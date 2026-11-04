@@ -15,6 +15,7 @@ import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
 import { NONLINEAR_MECHANICS_TEXT, UNSIGNED_GATE_TEXT, constantEffortSupportIds, nonlinearSupportIds } from "./combinationAuthoring";
 import {
   SEISMIC_AXES,
+  SEISMIC_TEMPLATE_APPLY_TEXT,
   SEISMIC_TEMPLATE_BOUNDARY,
   SEISMIC_TEMPLATE_EXPLANATION,
   SEISMIC_TEMPLATE_LABEL,
@@ -34,7 +35,7 @@ type Props = {
   operationBusy?: boolean;
   preparationEpoch?: number;
   getPreparationEpoch?: () => number;
-  /** Moves focus to the existing Create load case route. */
+  /** Reveals the existing Create load case editor and focuses its first field. */
   onCreateLoadCase?: () => void;
   /** Ids another draft in the panel proposes, so the template proposes different ones. */
   avoidIds?: readonly string[];
@@ -49,8 +50,12 @@ export function SeismicTemplateSection(props: Props) {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [diagnostics, setDiagnostics] = useState<OperationOutcomeDiagnostic[]>([]);
+  const [createLoadCaseNotice, setCreateLoadCaseNotice] = useState("");
   const latest = useRef(props);
   latest.current = props;
+  // The draft as it stands now: a check started on an earlier draft queues nothing.
+  const latestDraft = useRef(draft);
+  latestDraft.current = draft;
   const live = useRef(false);
   useEffect(() => { live.current = true; return () => { live.current = false; }; }, []);
 
@@ -83,7 +88,8 @@ export function SeismicTemplateSection(props: Props) {
     if (busy || operationBusy || problem) return;
     const captured = props;
     const capturedEpoch = epoch(captured);
-    const intents = seismicTemplateIntents(captured.model, draft);
+    const capturedDraft = draft;
+    const intents = seismicTemplateIntents(captured.model, capturedDraft);
     setBusy(true);
     reset();
     try {
@@ -96,6 +102,9 @@ export function SeismicTemplateSection(props: Props) {
       if (epoch(current) !== capturedEpoch || current.model !== captured.model || current.operationBusy || current.queuedIntents !== captured.queuedIntents) {
         throw new Error("The model or pending changes changed. Review this draft and queue it again.");
       }
+      if (latestDraft.current !== capturedDraft) {
+        throw new Error("The template changed while the operation engine was checking it; nothing was queued. Review the preview and check again.");
+      }
       setDiagnostics(outcome.diagnostics);
       if (outcome.diagnostics.some(isBlocking) || outcome.validation.batch_validation_status !== "passed") {
         setError("The template was refused by the operation engine; nothing was queued.");
@@ -104,7 +113,7 @@ export function SeismicTemplateSection(props: Props) {
       for (const intent of intents) current.onQueueIntent(intent);
       setNotice(
         `Checked by the operation engine as one sequence and queued as four changes for Review/Apply: ${intents.map((intent) => intent.target.ref).join(", ")}. ` +
-          `Apply them in this order, or together with "Review queued changes as one batch"; ${draft.combinationId.trim()} names the three differences, so applied before them the engine refuses it (OP-COMBINATION-TERM-LOAD-NOT-FOUND).`
+          `${SEISMIC_TEMPLATE_APPLY_TEXT} Applied singly, apply them in this order: ${capturedDraft.combinationId.trim()} names the three differences, so applied before them the engine refuses it (OP-COMBINATION-TERM-LOAD-NOT-FOUND).`
       );
     } catch (caught) {
       if (live.current) setError(caught instanceof Error ? caught.message : String(caught));
@@ -115,6 +124,7 @@ export function SeismicTemplateSection(props: Props) {
 
   const payloads = problem ? null : seismicTemplatePayloads(draft);
   const setAxis = (axis: SeismicAxis, value: string) => setDraft((current) => ({ ...current, axisIds: { ...current.axisIds, [axis]: value } }));
+  const setFactor = (axis: SeismicAxis, value: string) => setDraft((current) => ({ ...current, factors: { ...current.factors, [axis]: value } }));
   const setDifferenceId = (axis: SeismicAxis, value: string) => setDraft((current) => ({ ...current, differenceIds: { ...current.differenceIds, [axis]: value } }));
 
   return (
@@ -129,10 +139,21 @@ export function SeismicTemplateSection(props: Props) {
         The template creates no load case. If you need the axis-state cases, create each with Create load case and enter its loads (the base's and the
         excitation) through its own editors; the case's load/reference state offers "Copy analysis state from another case" for review.{" "}
         {props.onCreateLoadCase ? (
-          <button type="button" data-testid="seismic-template-create-load-case" onClick={props.onCreateLoadCase}>Go to Create load case</button>
+          <button
+            type="button"
+            data-testid="seismic-template-create-load-case"
+            onClick={() => {
+              props.onCreateLoadCase?.();
+              setCreateLoadCaseNotice("Create load case (above, in this panel) is shown with its ID field focused. Create the axis-state case there, then enter the base's loads and the excitation through the case's own editors.");
+            }}
+          >
+            Go to Create load case
+          </button>
         ) : null}
       </p>
-      <div className="combination-create-controls">
+      {createLoadCaseNotice ? <p role="status" className="muted" data-testid="seismic-template-create-load-case-status">{createLoadCaseNotice}</p> : null}
+      <fieldset className="combination-create-controls" disabled={busy} aria-busy={busy} data-testid="seismic-template-inputs">
+        <legend className="visually-hidden">Template inputs</legend>
         <VirtualTargetPicker label="Seismic base case" testId="seismic-template-base" options={loadCaseOptions} value={draft.baseId} onChange={(value) => setDraft((current) => ({ ...current, baseId: value }))} />
         {SEISMIC_AXES.map((axis) => (
           <VirtualTargetPicker key={axis} label={`${AXIS_NAME[axis]} axis-state case (base + ${AXIS_NAME[axis]} excitation)`} testId={`seismic-template-axis-${axis}`} options={loadCaseOptions} value={draft.axisIds[axis]} onChange={(value) => setAxis(axis, value)} />
@@ -145,6 +166,12 @@ export function SeismicTemplateSection(props: Props) {
             <option value="absolute_sum">absolute_sum</option>
           </select>
         </label>
+        {SEISMIC_AXES.map((axis) => (
+          <label key={`factor-${axis}`}>
+            <span>{AXIS_NAME[axis]} difference factor</span>
+            <input aria-label={`${AXIS_NAME[axis]} seismic difference factor`} data-testid={`seismic-template-factor-${axis}`} inputMode="decimal" value={draft.factors[axis]} onChange={(event) => setFactor(axis, event.target.value)} />
+          </label>
+        ))}
         {SEISMIC_AXES.map((axis) => (
           <label key={axis}>
             <span>{AXIS_NAME[axis]} difference id</span>
@@ -159,7 +186,7 @@ export function SeismicTemplateSection(props: Props) {
           <ListPlus size={14} aria-hidden="true" />
           Check and queue
         </button>
-      </div>
+      </fieldset>
       <p className="muted" id="seismic-template-status" data-testid="seismic-template-status">
         {problem ? `Not ready: ${problem}.` : busy ? "Checking with the operation engine…" : "Ready: review the preview, then check and queue."}
       </p>
@@ -173,7 +200,7 @@ export function SeismicTemplateSection(props: Props) {
               <li key={payload.id} data-testid={`seismic-template-record-${index}`}>
                 {index < 3
                   ? `${payload.id}: result_state_subtraction, ${String(payload.minuend_id)} − ${String(payload.subtrahend_id)} (κ = 0; no difference_basis)`
-                  : `${payload.id}: ${String(payload.basis)} over combination ${seismicTemplatePayloads(draft).slice(0, 3).map((difference) => difference.id).join(", combination ")}, factor 1 each (unsigned; not an equilibrium state)`}
+                  : `${payload.id}: ${String(payload.basis)} over ${(payload.terms as Array<{ combination: string; factor: number }>).map((term) => `combination ${term.combination} x ${term.factor}`).join(", ")} (unsigned; not an equilibrium state)`}
                 <code>{JSON.stringify(payload)}</code>
               </li>
             ))}
@@ -188,6 +215,7 @@ export function SeismicTemplateSection(props: Props) {
           nonlinear supports they are formed from rows with each operand's standing.
           {nonlinear.length ? ` This model carries nonlinear support${nonlinear.length > 1 ? "s" : ""} ${nonlinear.join(", ")}. ${NONLINEAR_MECHANICS_TEXT}` : ""}
         </p>
+        <p data-testid="seismic-template-apply">{SEISMIC_TEMPLATE_APPLY_TEXT}</p>
         <p data-testid="seismic-template-boundary">{SEISMIC_TEMPLATE_BOUNDARY}</p>
       </div>
       <EngineFeedback error={error} notice={notice} diagnostics={diagnostics} testId="seismic-template-engine" />

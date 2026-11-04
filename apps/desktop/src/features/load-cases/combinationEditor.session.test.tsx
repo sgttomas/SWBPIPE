@@ -40,7 +40,7 @@ function seismicModel(): PreviewModel {
 
 function templateIntents(model: PreviewModel): EditorOperationIntent[] {
   const draft = emptySeismicTemplateDraft(model);
-  return seismicTemplateIntents(model, { ...draft, baseId: "load:L-100", axisIds: { x: "load:EQ-X", y: "load:EQ-Y", z: "load:EQ-Z" }, basis: "srss" });
+  return seismicTemplateIntents(model, { ...draft, baseId: "load:L-100", axisIds: { x: "load:EQ-X", y: "load:EQ-Y", z: "load:EQ-Z" }, basis: "srss", factors: { x: "1", y: "1", z: "1" } });
 }
 
 async function session(model: PreviewModel) {

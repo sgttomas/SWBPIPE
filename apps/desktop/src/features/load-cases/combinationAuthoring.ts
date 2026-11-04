@@ -121,7 +121,7 @@ export function termPayload(term: TermDraft): { load_case: string; factor: numbe
 }
 
 export function termDraftText(term: TermDraft): string {
-  return `${term.kind === "combination" ? `combination ${term.ref || "TBD"}` : term.ref || "TBD"} x ${term.factor}`;
+  return `${term.kind === "combination" ? `combination ${term.ref || "TBD"}` : term.ref || "TBD"} x ${term.factor.trim() || "TBD"}`;
 }
 
 /** Why a term list cannot be queued for combination `targetId`, or null when it can (§2). */
@@ -130,7 +130,7 @@ export function termsDraftProblem(model: PreviewModel, terms: readonly TermDraft
   const seen = new Set<string>();
   for (const [index, term] of terms.entries()) {
     const place = `term ${index + 1}`;
-    if (!term.ref) return `${place}: choose its ${term.kind === "combination" ? "combination" : "load case"}`;
+    if (!term.ref) return `${place}: not chosen: its ${term.kind === "combination" ? "combination" : "load case"}`;
     if (term.kind === "load_case" ? !hasLoadCase(model, term.ref) : !findCombination(model, term.ref)) {
       return `${place}: ${term.ref} is not a ${term.kind === "combination" ? "combination" : "load case"} of this model`;
     }
@@ -138,6 +138,7 @@ export function termsDraftProblem(model: PreviewModel, terms: readonly TermDraft
       const refusal = combinationOperandRefusal(model, targetId, term.ref);
       if (refusal) return `${place}: ${refusal}`;
     }
+    if (!term.factor.trim()) return `${place}: not entered: its factor`;
     if (parseFiniteFactor(term.factor) === null) return `${place}: enter a finite factor`;
     const key = `${term.kind}\u0000${term.ref}`;
     if (seen.has(key)) return `${place}: repeats ${term.kind === "combination" ? "combination" : "load case"} ${term.ref}; one factor per operand`;
@@ -191,6 +192,23 @@ export const NONLINEAR_MECHANICS_TEXT =
 
 const DIMENSIONLESS_UNIT_VALIDATION_STATUS = "not_required_dimensionless";
 
+const OPERATION_ID_SAFE = /^[A-Za-z0-9_.:-]$/u;
+const UTF8 = new TextEncoder();
+
+/** An id as it appears in the load manager's `operation_id` and `change_id`: a reversible
+ * escape, so distinct raw ids always give distinct tokens. A character in [A-Za-z0-9_.:-] is
+ * kept; any other (`~` included) is written as `~XX` per UTF-8 byte, uppercase hex. An id of
+ * safe characters only is its own token, so existing operation ids are unchanged. Target ids
+ * and payload values are never encoded. */
+export function operationIdToken(value: string): string {
+  let token = "";
+  for (const character of value) {
+    if (OPERATION_ID_SAFE.test(character)) token += character;
+    else for (const byte of UTF8.encode(character)) token += `~${byte.toString(16).toUpperCase().padStart(2, "0")}`;
+  }
+  return token;
+}
+
 /** The `create_combination` intent of the Load Cases manager for an explicit payload; the operation engine judges it. */
 export function createCombinationIntent({
   model,
@@ -204,7 +222,7 @@ export function createCombinationIntent({
   sourceNote: string;
 }): EditorOperationIntent {
   const combinationId = payload.id;
-  const operationToken = `create-${combinationId.replace(/[^A-Za-z0-9_.:-]+/g, "-")}`;
+  const operationToken = `create-${operationIdToken(combinationId)}`;
   return {
     operation_id: `op:load-manager-${operationToken}`,
     operation_kind: "create",

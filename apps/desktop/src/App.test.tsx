@@ -6536,6 +6536,15 @@ describe("SWBPIPE desktop preview", () => {
       within(manager).getByTestId("load-manager-create-combination-heading")
         .textContent,
     ).toContain("combination:C-300");
+    // No operand or factor is proposed: the person enters both.
+    expect(
+      within(manager).getByTestId("queue-create-combination-intent"),
+    ).toBeDisabled();
+    chooseVirtualTarget(manager, "load-manager-create-combination-load-case", "load:L-100");
+    fireEvent.change(
+      within(manager).getByTestId("load-manager-create-combination-factor"),
+      { target: { value: "1" } },
+    );
     expect(
       within(manager).getByTestId("load-manager-create-combination-preview")
         .textContent,
@@ -6621,7 +6630,7 @@ describe("SWBPIPE desktop preview", () => {
         target: { value: "result_state_subtraction" },
       },
     );
-    expectVirtualTargetValue(manager, "load-manager-create-combination-minuend", "load:L-100");
+    chooseVirtualTarget(manager, "load-manager-create-combination-minuend", "load:L-100");
     chooseVirtualTarget(manager, "load-manager-create-combination-subtrahend", "load:L-200");
     fireEvent.change(
       within(manager).getByTestId("load-manager-create-combination-label"),
@@ -6706,6 +6715,7 @@ describe("SWBPIPE desktop preview", () => {
         target: { value: "result_state_subtraction" },
       },
     );
+    chooseVirtualTarget(manager, "load-manager-create-combination-minuend", "load:L-100");
     chooseVirtualTarget(manager, "load-manager-create-combination-subtrahend", "load:L-100");
 
     expect(
@@ -6728,7 +6738,9 @@ describe("SWBPIPE desktop preview", () => {
       },
     );
     const operandPicker = within(manager).getByTestId("load-manager-create-combination-operands");
-    expect(within(operandPicker).getByRole("option", { name: /load:L-100$/ })).toHaveAttribute("aria-selected", "true");
+    // No operand is preselected.
+    expect(within(operandPicker).getByRole("option", { name: /load:L-100$/ })).toHaveAttribute("aria-selected", "false");
+    chooseVirtualMultiTarget(manager, "load-manager-create-combination-operands", "load:L-100");
     chooseVirtualMultiTarget(manager, "load-manager-create-combination-operands", "load:L-200");
     fireEvent.change(
       within(manager).getByTestId("load-manager-create-combination-mode"),

@@ -10,6 +10,15 @@ Sources: `apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx`,
 
 ## 1. Create combination
 
+- **Nothing is chosen for the person** (review r1 of #114). Every operand, factor and envelope
+  mode in the create editor, in a new term row, in add-term on an existing combination and
+  in the seismic template starts blank, and blank means not chosen. Queue stays disabled and
+  the preview names what is missing, for example "term 1: not chosen: its load case",
+  "not chosen: the minuend" or "not entered: the factor". This removes defaults main's
+  editor had: the first load case with factor 1 as the first mechanics term; the first and
+  second cases as minuend and subtrahend; the first case as envelope operand, with mode
+  `max_abs`; and, in add-term, the first unused case with factor 1. An operand that leaves
+  the model is cleared, never replaced.
 - **Bases.** `mechanics`, `result_state_subtraction`, `range_envelope`, `absolute_sum`, `srss`
   (the applier's closed set), in the create editor and the basis edit.
 - **Terms** (`mechanics`, `absolute_sum`, `srss`). An ordered list of term rows. Each row has:
@@ -21,7 +30,8 @@ Sources: `apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx`,
   writes exactly `{"combination": id, "factor": f}`, in the order shown. Changing a row's
   kind clears its operand. Nothing else is written on these bases: no `minuend_id`,
   `subtrahend_id`, `operand_ids`, `mode` or `difference_basis`. Queueing needs at least one
-  term, finite factors and no repeated operand (same kind and id). The first problem is
+  term, a chosen operand and an entered finite factor in each, and no repeated operand (same
+  kind and id). The first problem is
   named in the preview line, for example "term 2: repeats load case …".
 - **Bare references** (`minuend_id`, `subtrahend_id`, `operand_ids`). The pickers offer load
   cases and combinations, labelled by kind. The editor shows each reference's resolved
@@ -81,12 +91,14 @@ Session Undo removes such an edit. Changing the applier is outside this slice.
   The person also chooses `srss` or `absolute_sum`; no basis is preselected. Four free
   combination ids are proposed (`combination:SEISMIC-X-n` … `combination:SEISMIC-n`) and
   may be changed. An id that exists, or that a load case has, is refused in place.
+- **Factors.** The person enters each difference's factor in the unsigned combination; none
+  is proposed.
 - **Writes.** Through `create_combination`, in order:
   - one `result_state_subtraction` per axis, axis state minus base, κ = 0, with
     `terms: []`, and no `difference_basis` (its gate G-1 is a thermal comparison) or
     `subtrahend_support_state`;
   - then the unsigned combination over the three differences, as typed combination
-    terms with factor 1.
+    terms with the entered factors.
 
   `minuend_final` is never offered.
 - **Preview before queueing.** It explains the base and axis states, κ = 0 per difference,
@@ -99,22 +111,44 @@ Session Undo removes such an edit. Changing the applier is outside this slice.
 - **Check and queue.** The operation engine validates the four creates as one sequence
   (`validateOperationBatch`, validate-only, on the current model and hash). Its findings
   are listed in place by code (`EngineFeedback`), and a blocking finding queues nothing.
-  Otherwise the four are queued, in order, as single changes for Review/Apply. They can
-  also be moved together with "Review queued changes as one batch" (G9), which applies all
-  or none. Applied before the differences, the unsigned combination is refused by name
-  (`OP-COMBINATION-TERM-LOAD-NOT-FOUND`).
+  Otherwise the four are queued, in order, as single changes for Review/Apply. The preview
+  says: apply them together with "Review all queued changes as one batch" (G9) to apply all
+  four or none; applied singly, each applies on its own, so one already applied stays
+  applied if a later one is refused. Applied before the differences, the unsigned
+  combination is refused by name (`OP-COMBINATION-TERM-LOAD-NOT-FOUND`).
+- **A draft changed during the check.** The inputs are disabled while the engine checks.
+  If the draft still changes before the check returns, the check is invalidated and
+  nothing is queued; the person is told to check again. What is queued is always the draft
+  the preview shows.
 - **Axis-state cases.** The template creates no load case. Its note directs the person to
-  Create load case (with a button that focuses it) and to the case's own editors, where
-  "Copy analysis state from another case" is the existing reviewed copy. The excitation
-  stays person-entered.
+  Create load case and to the case's own editors. "Go to Create load case" scrolls to that
+  editor, focuses its ID field and says so in a status line. The case's load/reference
+  state offers "Copy analysis state from another case", the existing reviewed copy. The
+  excitation stays person-entered.
 
-## 5. Evidence
+## 5. Operation ids
+
+Every `operation_id` and `change_id` the load manager builds (load case, primitive,
+combination, term, factor, basis and delete operations, and the template) carries each id
+through `operationIdToken`. That is a reversible escape: a character in `[A-Za-z0-9_.:-]` is
+kept, and any other character, `~` included, becomes `~XX` per UTF-8 byte. So distinct raw ids
+give distinct tokens. For example, `combination:EQ/X` gives `combination:EQ~2FX`, distinct from
+`combination:EQ-X`. An id of safe characters is its own token, so existing operation ids are
+unchanged. Target ids and payload values are never encoded.
+
+**Remaining limit.** The primitive-load operations join two tokens, the case's and the
+primitive's, with `-`, as before (`<case>-<primitive>-primitive`), and `-` is a safe
+character. Two different pairs can therefore still join to the same text. Changing that join
+would change every published primitive operation id: the e2e smoke and `SMOKE.md` record
+them. It is left as it was.
+
+## 6. Evidence
 
 Every test runs the real wasm engine. Models are built in test code from the committed
 `fixtures/product_preview/invented_demo_model.json` (0.9.0, with nonlinear supports and a
 constant-effort support), with invented axis-state cases. No fixture file was added.
 
-- `combinationEditor.engine.test.tsx` (7):
+- `combinationEditor.engine.test.tsx` (12):
   - the end-to-end path: two differences and an SRSS over them authored in the panel and
     applied by the engine;
   - typed terms, factors and reordering;
@@ -130,7 +164,12 @@ constant-effort support), with invented axis-state cases. No fixture file was ad
   - the out-of-order refusal;
   - the OQ-1 mechanics combination;
   - `absolute_sum`, and a taken id;
-  - field-level edits of a nested record.
+  - field-level edits of a nested record;
+  - review r1 of #114: a basis queued without operands queues nothing and names what is
+    missing (every basis), a new row and add-term start blank, the template needs each
+    factor entered; a template draft changed during a pending check queues nothing; distinct
+    raw ids give distinct operation ids and pass batch preflight; "Go to Create load case"
+    focuses the ID field and shows its status line.
 - `combinationEditor.session.test.tsx` (3): the session route:
   - the four changes applied singly in order, the out-of-order apply refused by name, and
     Undo restoring each document;

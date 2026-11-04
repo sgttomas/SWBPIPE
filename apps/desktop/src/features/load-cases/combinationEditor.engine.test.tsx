@@ -16,7 +16,10 @@ import { loadWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
 import { modelDocumentSlotFindings } from "../model-file/modelDocumentShape";
 import { chooseVirtualMultiTarget, chooseVirtualTarget } from "../../test-support/workspaceTestControls";
 import { LoadCaseManagerPanel } from "./LoadCaseManagerPanel";
-import { createCombinationIntent } from "./combinationAuthoring";
+import { createCombinationIntent, operationIdToken } from "./combinationAuthoring";
+import * as batchService from "../../services/operationBatchService";
+import { emptySeismicTemplateDraft, seismicTemplateIntents } from "./seismicTemplate";
+import { vi } from "vitest";
 
 const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 
@@ -110,9 +113,11 @@ describe("the end-to-end path: one nested SRSS over two differences", () => {
     type("load-manager-create-combination-label", "Invented X/Y static seismic SRSS");
     type("load-manager-create-combination-term-0-kind", "combination");
     chooseVirtualTarget("load-manager-create-combination-term-0-combination", "combination:C-300");
+    type("load-manager-create-combination-factor", "1");
     fireEvent.click(byId("load-manager-create-combination-add-term"));
     type("load-manager-create-combination-term-1-kind", "combination");
     chooseVirtualTarget("load-manager-create-combination-term-1-combination", "combination:C-301");
+    type("load-manager-create-combination-term-1-factor", "1");
     expect(byId("load-manager-create-combination-heading")).toHaveTextContent("basis=srss; terms=combination combination:C-300 x 1; combination combination:C-301 x 1");
     expect(byId("load-manager-create-combination-gates")).toHaveTextContent("not an equilibrium state");
     const srss = await queueAndApply(panel);
@@ -140,6 +145,7 @@ describe("typed terms", () => {
     model = await apply(model, createCombinationIntent({ model, payload: { id: "combination:D-X", label: "dx", basis: "result_state_subtraction", provenance: "test", minuend_id: "load:EQ-X", subtrahend_id: "load:L-100", terms: [] }, rationale: "test", sourceNote: "test" }));
     const panel = mountPanel(model);
     type("load-manager-create-combination-basis", "absolute_sum");
+    chooseVirtualTarget("load-manager-create-combination-load-case", "load:L-100");
     type("load-manager-create-combination-factor", "-2.5");
     fireEvent.click(byId("load-manager-create-combination-add-term"));
     type("load-manager-create-combination-term-1-kind", "combination");
@@ -186,7 +192,9 @@ describe("typed terms", () => {
     model.combinations!.push({ id: "load:L-200", label: "shadowed", basis: "mechanics", terms: [{ load_case: "load:L-100", factor: 1 }], provenance: "test" });
     const panel = mountPanel(model);
     type("load-manager-create-combination-basis", "range_envelope");
+    chooseVirtualMultiTarget("load-manager-create-combination-operands", "load:L-100");
     chooseVirtualMultiTarget("load-manager-create-combination-operands", "combination:D-X");
+    type("load-manager-create-combination-mode", "max");
     expect(byId("load-manager-create-combination-resolved")).toHaveTextContent("combination:D-X resolves to the combination");
     // Search the (virtualized) list for the shared id: only the load case is offered.
     fireEvent.change(within(byId("load-manager-create-combination-operands")).getByRole("combobox"), { target: { value: "L-200" } });
@@ -265,6 +273,7 @@ describe("the three-axis static seismic template", () => {
     chooseVirtualTarget("seismic-template-axis-y", "load:EQ-Y");
     chooseVirtualTarget("seismic-template-axis-z", "load:EQ-Z");
     type("seismic-template-basis", basis);
+    for (const axis of ["x", "y", "z"]) type(`seismic-template-factor-${axis}`, "1");
   }
 
   it("defaults nothing, previews the four records and the gates, has the engine check them as one sequence, and queues them; each applies through the engine", async () => {
@@ -287,12 +296,14 @@ describe("the three-axis static seismic template", () => {
     expect(preview).toHaveTextContent("each difference has κ = 0 (§5.1)");
     expect(preview).toHaveTextContent("not \"base case + EQ-only case\", which would carry the fixed load twice");
     expect(byId("seismic-template-record-0")).toHaveTextContent("combination:SEISMIC-X-300: result_state_subtraction, load:EQ-X − load:L-100 (κ = 0; no difference_basis)");
-    expect(byId("seismic-template-record-3")).toHaveTextContent("combination:SEISMIC-300: srss over combination combination:SEISMIC-X-300, combination combination:SEISMIC-Y-300, combination combination:SEISMIC-Z-300, factor 1 each");
+    expect(byId("seismic-template-record-3")).toHaveTextContent("combination:SEISMIC-300: srss over combination combination:SEISMIC-X-300 x 1, combination combination:SEISMIC-Y-300 x 1, combination combination:SEISMIC-Z-300 x 1 (unsigned; not an equilibrium state)");
     expect(byId("seismic-template-gate-fixed-load")).toHaveTextContent("CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND, INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND");
     expect(byId("seismic-template-gate-fixed-load")).toHaveTextContent("constant-effort support support:CE-120");
     expect(byId("seismic-template-gate-nonlinear")).toHaveTextContent("the operands are derived differences, not an equilibrium load state");
     expect(byId("seismic-template-gate-nonlinear")).toHaveTextContent("nonlinear supports support:NL-140, support:NL-130-FRIC");
     expect(byId("seismic-template-boundary")).toHaveTextContent("no code, response-spectrum or modal-response claim");
+    expect(byId("seismic-template-apply")).toHaveTextContent("Apply them together with 'Review all queued changes as one batch' to apply all four or none");
+    expect(byId("seismic-template-apply")).toHaveTextContent("applied singly, each applies on its own");
     expect(preview).not.toHaveTextContent("minuend_final");
 
     fireEvent.click(byId("seismic-template-queue"));
@@ -329,9 +340,12 @@ describe("the three-axis static seismic template", () => {
     panel.set(model);
     type("load-manager-create-combination-label", "Invented base plus seismic bound");
     expect(byId("load-manager-create-combination-gates")).toHaveTextContent("NONLINEAR_COMBINATION_REQUIRES_SOLVE");
+    chooseVirtualTarget("load-manager-create-combination-load-case", "load:L-100");
+    type("load-manager-create-combination-factor", "1");
     fireEvent.click(byId("load-manager-create-combination-add-term"));
     type("load-manager-create-combination-term-1-kind", "combination");
     chooseVirtualTarget("load-manager-create-combination-term-1-combination", "combination:SEISMIC-300");
+    type("load-manager-create-combination-term-1-factor", "1");
     const oq1 = await queueAndApply(panel);
     expect(JSON.parse(oq1.change.after).terms).toEqual([{ load_case: "load:L-100", factor: 1 }, { combination: "combination:SEISMIC-300", factor: 1 }]);
   });
@@ -381,5 +395,127 @@ describe("editing a stored nested record", () => {
     await queueAndApply(panel, "queue-combination-basis-intent");
     expect(combination(panel.model, "combination:S")).toEqual({ ...edited, basis: "absolute_sum" });
     expect(combination(panel.model, "combination:D-X")).toEqual(combination(model, "combination:D-X"));
+  });
+});
+
+describe("nothing is chosen for the person (review round 1)", () => {
+  it("a basis chosen and queued without operands queues nothing and names what is missing; a new row and add-term start blank", () => {
+    const panel = mountPanel(seismicModel());
+    for (const basis of ["mechanics", "srss", "absolute_sum"]) {
+      type("load-manager-create-combination-basis", basis);
+      expect(byId("load-manager-create-combination-heading")).toHaveTextContent(`basis=${basis}; term=TBD x TBD`);
+      expect(byId("queue-create-combination-intent")).toBeDisabled();
+      expect(byId("load-manager-create-combination-preview")).toHaveTextContent("term 1: not chosen: its load case");
+      fireEvent.click(byId("queue-create-combination-intent"));
+    }
+    type("load-manager-create-combination-basis", "result_state_subtraction");
+    expect(byId("load-manager-create-combination-preview")).toHaveTextContent("not chosen: the minuend");
+    fireEvent.click(byId("queue-create-combination-intent"));
+    type("load-manager-create-combination-basis", "range_envelope");
+    expect(byId("load-manager-create-combination-preview")).toHaveTextContent("not chosen: any operand");
+    expect(byId("load-manager-create-combination-mode")).toHaveValue("");
+    fireEvent.click(byId("queue-create-combination-intent"));
+    expect(panel.queued).toEqual([]);
+
+    // A new row: blank operand, blank factor.
+    type("load-manager-create-combination-basis", "srss");
+    chooseVirtualTarget("load-manager-create-combination-load-case", "load:EQ-X");
+    type("load-manager-create-combination-factor", "1");
+    fireEvent.click(byId("load-manager-create-combination-add-term"));
+    expect(byId("load-manager-create-combination-term-1-factor")).toHaveValue("");
+    expect(within(byId("load-manager-create-combination-term-1-load-case")).getByLabelText("Term 2 load case current value")).toHaveTextContent("No target selected");
+    expect(byId("load-manager-create-combination-preview")).toHaveTextContent("term 2: not chosen: its load case");
+    chooseVirtualTarget("load-manager-create-combination-term-1-load-case", "load:EQ-Y");
+    expect(byId("load-manager-create-combination-preview")).toHaveTextContent("term 2: not entered: its factor");
+    expect(byId("queue-create-combination-intent")).toBeDisabled();
+
+    // Add-term on an existing combination: no case or factor proposed.
+    expect(byId("load-manager-create-combination-term-heading")).toHaveTextContent("new term; load=TBD; factor=TBD");
+    expect(byId("load-manager-create-combination-term-factor")).toHaveValue("");
+    expect(byId("queue-create-combination-term-intent")).toBeDisabled();
+    expect(panel.queued).toEqual([]);
+  });
+
+  it("the template needs each difference's factor entered", () => {
+    mountPanel(seismicModel());
+    chooseVirtualTarget("seismic-template-base", "load:L-100");
+    chooseVirtualTarget("seismic-template-axis-x", "load:EQ-X");
+    chooseVirtualTarget("seismic-template-axis-y", "load:EQ-Y");
+    chooseVirtualTarget("seismic-template-axis-z", "load:EQ-Z");
+    type("seismic-template-basis", "srss");
+    expect(byId("seismic-template-factor-x")).toHaveValue("");
+    expect(byId("seismic-template-status")).toHaveTextContent("not entered: the factor of the X difference");
+    expect(byId("seismic-template-queue")).toBeDisabled();
+    type("seismic-template-factor-x", "1");
+    type("seismic-template-factor-y", "0.5");
+    expect(byId("seismic-template-status")).toHaveTextContent("not entered: the factor of the Z difference");
+    type("seismic-template-factor-z", "1");
+    expect(byId("seismic-template-record-3")).toHaveTextContent("combination combination:SEISMIC-Y-300 x 0.5");
+  });
+});
+
+describe("a draft changed while the engine checks it (review round 1)", () => {
+  it("queues nothing: the check is invalidated and the person is told to check again", async () => {
+    const real = batchService.validateOperationBatch;
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => { release = resolve; });
+    const spy = vi.spyOn(batchService, "validateOperationBatch").mockImplementation(async (...args) => { await gate; return real(...args); });
+    try {
+      const panel = mountPanel(seismicModel());
+      chooseVirtualTarget("seismic-template-base", "load:L-100");
+      chooseVirtualTarget("seismic-template-axis-x", "load:EQ-X");
+      chooseVirtualTarget("seismic-template-axis-y", "load:EQ-Y");
+      chooseVirtualTarget("seismic-template-axis-z", "load:EQ-Z");
+      type("seismic-template-basis", "srss");
+      for (const axis of ["x", "y", "z"]) type(`seismic-template-factor-${axis}`, "1");
+      fireEvent.click(byId("seismic-template-queue"));
+      await waitFor(() => expect(spy).toHaveBeenCalledTimes(1));
+      // The inputs are frozen while the check runs; a change that still reaches the draft invalidates the check.
+      expect(byId("seismic-template-inputs")).toBeDisabled();
+      type("seismic-template-basis", "absolute_sum");
+      release();
+      await waitFor(() => expect(byId("seismic-template-status")).not.toHaveTextContent("Checking"));
+      // The change reached the draft (an event bypassing the frozen input): nothing is queued.
+      expect(byId("seismic-template-basis")).toHaveValue("absolute_sum");
+      expect(byId("seismic-template-engine-error")).toHaveTextContent("The template changed while the operation engine was checking it; nothing was queued.");
+      expect(panel.queued).toEqual([]);
+      expect(byId("seismic-template-inputs")).not.toBeDisabled();
+    } finally {
+      spy.mockRestore();
+    }
+  });
+});
+
+describe("operation ids (review round 1)", () => {
+  it("distinct raw ids give distinct operation ids, and a template set using such ids passes batch preflight", async () => {
+    expect(operationIdToken("combination:EQ/X")).toBe("combination:EQ~2FX");
+    expect(operationIdToken("combination:EQ-X")).toBe("combination:EQ-X");
+    expect(operationIdToken("a~2Fb")).toBe("a~7E2Fb");
+    expect(operationIdToken("a/b")).not.toBe(operationIdToken("a~2Fb"));
+    expect(operationIdToken("Δ")).toBe("~CE~94");
+    const model = seismicModel();
+    const draft = { ...emptySeismicTemplateDraft(model), baseId: "load:L-100", axisIds: { x: "load:EQ-X", y: "load:EQ-Y", z: "load:EQ-Z" }, basis: "srss" as const,
+      factors: { x: "1", y: "1", z: "1" }, differenceIds: { x: "combination:EQ/X", y: "combination:EQ-X", z: "combination:EQ X" } };
+    const intents = seismicTemplateIntents(model, draft);
+    expect(intents.map((intent) => intent.operation_id)).toEqual([
+      "op:load-manager-create-combination:EQ~2FX", "op:load-manager-create-combination:EQ-X", "op:load-manager-create-combination:EQ~20X", "op:load-manager-create-combination:SEISMIC-300"
+    ]);
+    expect(new Set(intents.map((intent) => intent.change.change_id)).size).toBe(4);
+    // Target ids and payload values are the raw ids.
+    expect(intents.map((intent) => intent.target.ref).slice(0, 3)).toEqual(["combination:EQ/X", "combination:EQ-X", "combination:EQ X"]);
+    expect(JSON.parse(intents[3].change.after).terms.map((term: { combination: string }) => term.combination)).toEqual(["combination:EQ/X", "combination:EQ-X", "combination:EQ X"]);
+    const outcome = await batchService.validateOperationBatch(model, { batch_id: "ids", operations: intents }, await computeModelHash(model));
+    expect(outcome.diagnostics.filter((item) => item.severity === "blocking")).toEqual([]);
+    expect(outcome.validation.batch_validation_status).toBe("passed");
+  });
+});
+
+describe("Go to Create load case (review round 1)", () => {
+  it("focuses Create load case's ID field and says so in a status line", () => {
+    mountPanel(seismicModel());
+    expect(screen.queryByTestId("seismic-template-create-load-case-status")).toBeNull();
+    fireEvent.click(byId("seismic-template-create-load-case"));
+    expect(byId("load-manager-create-load-id")).toHaveFocus();
+    expect(byId("seismic-template-create-load-case-status")).toHaveTextContent("Create load case (above, in this panel) is shown with its ID field focused.");
   });
 });

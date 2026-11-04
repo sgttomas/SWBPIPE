@@ -11,7 +11,7 @@
 // creates no load case, supplies no gravity or excitation value and makes no code,
 // spectrum or modal claim: only a three-axis static combination is offered.
 import type { EditorOperationIntent, PreviewModel } from "../../types";
-import { createCombinationIntent } from "./combinationAuthoring";
+import { createCombinationIntent, parseFiniteFactor } from "./combinationAuthoring";
 
 export const SEISMIC_AXES = ["x", "y", "z"] as const;
 export type SeismicAxis = (typeof SEISMIC_AXES)[number];
@@ -22,6 +22,8 @@ export type SeismicTemplateDraft = {
   axisIds: Record<SeismicAxis, string>;
   /** No default: the person chooses. */
   basis: "" | SeismicUnsignedBasis;
+  /** Each difference's factor in the unsigned combination, entered by the person; no default. */
+  factors: Record<SeismicAxis, string>;
   differenceIds: Record<SeismicAxis, string>;
   combinationId: string;
 };
@@ -44,7 +46,7 @@ export function proposeSeismicIds(model: PreviewModel, avoid: readonly string[] 
 }
 
 export function emptySeismicTemplateDraft(model: PreviewModel, avoid: readonly string[] = []): SeismicTemplateDraft {
-  return { baseId: "", axisIds: { x: "", y: "", z: "" }, basis: "", ...proposeSeismicIds(model, avoid) };
+  return { baseId: "", axisIds: { x: "", y: "", z: "" }, basis: "", factors: { x: "", y: "", z: "" }, ...proposeSeismicIds(model, avoid) };
 }
 
 /** Why the template cannot be queued, or null when it can. */
@@ -61,6 +63,10 @@ export function seismicTemplateProblem(model: PreviewModel, draft: SeismicTempla
     chosen.push(id);
   }
   if (!draft.basis) return "choose SRSS or absolute sum";
+  for (const axis of SEISMIC_AXES) {
+    if (!draft.factors[axis].trim()) return `not entered: the factor of the ${AXIS_LABEL[axis]} difference`;
+    if (parseFiniteFactor(draft.factors[axis]) === null) return `enter a finite factor for the ${AXIS_LABEL[axis]} difference`;
+  }
   const ids = [...SEISMIC_AXES.map((axis) => draft.differenceIds[axis].trim()), draft.combinationId.trim()];
   for (const id of ids) {
     if (!id) return "enter an id for each of the four combinations";
@@ -87,7 +93,7 @@ export function seismicTemplatePayloads(draft: SeismicTemplateDraft): Array<Reco
     label: `${SEISMIC_TEMPLATE_LABEL} ${draft.basis === "srss" ? "SRSS" : "absolute sum"}`,
     basis: draft.basis,
     provenance: SEISMIC_TEMPLATE_PROVENANCE,
-    terms: differences.map((difference) => ({ combination: difference.id, factor: 1 }))
+    terms: differences.map((difference, index) => ({ combination: difference.id, factor: parseFiniteFactor(draft.factors[SEISMIC_AXES[index]]) ?? 0 }))
   };
   return [...differences, unsigned];
 }
@@ -109,8 +115,11 @@ export function seismicTemplateIntents(model: PreviewModel, draft: SeismicTempla
 export const SEISMIC_TEMPLATE_EXPLANATION = [
   "Base case: the actions every state shares (as authored; the template does not read or change them). Axis-state case: an explicit, complete case holding the base's actions plus one axis's static excitation, entered by you.",
   "Each difference is the axis state minus the base, a result-state subtraction of two load cases; each case has fixed-load count κ = 1, so each difference has κ = 0 (§5.1). It is the static seismic response about the base state, not \"base case + EQ-only case\", which would carry the fixed load twice.",
-  "The unsigned combination takes the three differences as typed combination operands, each with factor 1; its rows are unsigned bounds and claim no equilibrium state."
+  "The unsigned combination takes the three differences as typed combination operands, each with the factor you enter; its rows are unsigned bounds and claim no equilibrium state."
 ] as const;
+
+export const SEISMIC_TEMPLATE_APPLY_TEXT =
+  "Apply them together with 'Review all queued changes as one batch' to apply all four or none (it moves every change you have queued); applied singly, each applies on its own, and one already applied stays applied if a later one is refused.";
 
 export const SEISMIC_TEMPLATE_BOUNDARY =
   "Only a three-axis static combination is offered: no load composition, no gravity or excitation value, no code, response-spectrum or modal-response claim. The excitation stays in your axis-state cases.";

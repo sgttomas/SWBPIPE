@@ -47,6 +47,7 @@ import {
   isUnsignedBasis,
   moveTerm,
   nonlinearSupportIds,
+  operationIdToken,
   resolveReference,
   resolvedReferenceText,
   retainedCombinationMembers,
@@ -454,9 +455,8 @@ export function LoadCaseManagerPanel({
       const combinationId = model.combinations?.some((combination) => combination.id === draft.combinationId)
         ? draft.combinationId
         : selectedCombination?.id ?? model.combinations?.[0]?.id ?? "";
-      const loadCaseId = model.load_cases.some((loadCase) => loadCase.id === draft.loadCaseId)
-        ? draft.loadCaseId
-        : defaultCombinationTermLoadCase(model, combinationId);
+      // Nothing is proposed: a case that is no longer present is cleared.
+      const loadCaseId = model.load_cases.some((loadCase) => loadCase.id === draft.loadCaseId) ? draft.loadCaseId : "";
       const combinationRef = model.combinations?.some((combination) => combination.id === draft.combinationRef) ? draft.combinationRef : "";
       if (combinationId === draft.combinationId && loadCaseId === draft.loadCaseId && combinationRef === draft.combinationRef) return draft;
       return { ...draft, combinationId, loadCaseId, combinationRef };
@@ -475,7 +475,7 @@ export function LoadCaseManagerPanel({
       const terms = draft.terms.map((term) =>
         term.ref === "" || (term.kind === "combination" ? combinationExists(term.ref) : loadCaseExists(term.ref)) ? term : { ...term, ref: "" }
       );
-      const minuendId = referenceExists(draft.minuendId) ? draft.minuendId : draft.operatingDifference ? "" : model.load_cases[0]?.id ?? "";
+      const minuendId = referenceExists(draft.minuendId) ? draft.minuendId : "";
       const subtrahendId = referenceExists(draft.subtrahendId) ? draft.subtrahendId : "";
       const operandIds = draft.operandIds.filter(referenceExists);
       if (
@@ -536,8 +536,9 @@ export function LoadCaseManagerPanel({
     setCombinationTermDraft((draft) => {
       const nextDraft = { ...draft, [field]: value } as CombinationTermDraft;
       if (field === "operandKind") nextDraft.operandKind = value === "combination" ? "combination" : "load_case";
+      // A new target combination clears the chosen operand; nothing is proposed.
       if (field === "combinationId") {
-        nextDraft.loadCaseId = defaultCombinationTermLoadCase(model, value);
+        nextDraft.loadCaseId = "";
         nextDraft.combinationRef = "";
       }
       return nextDraft;
@@ -571,7 +572,7 @@ export function LoadCaseManagerPanel({
   }
 
   function addCombinationDraftTerm() {
-    setCombinationDraft((draft) => ({ ...draft, terms: [...draft.terms, { kind: "load_case", ref: "", factor: "1" }] }));
+    setCombinationDraft((draft) => ({ ...draft, terms: [...draft.terms, { kind: "load_case", ref: "", factor: "" }] }));
   }
 
   function removeCombinationDraftTerm(index: number) {
@@ -604,10 +605,11 @@ export function LoadCaseManagerPanel({
 
   function handleSelectCombination(combination: Combination) {
     onSelect({ type: "combination", id: combination.id });
-    setCombinationTermDraft((draft) => ({
+    setCombinationTermDraft((draft) => (draft.combinationId === combination.id ? draft : {
       ...draft,
       combinationId: combination.id,
-      loadCaseId: defaultCombinationTermLoadCase(model, combination.id)
+      loadCaseId: "",
+      combinationRef: ""
     }));
   }
 
@@ -903,6 +905,7 @@ export function LoadCaseManagerPanel({
                   onChange={(event) => updateCombinationDraft("mode", event.target.value)}
                   value={combinationDraft.mode}
                 >
+                  <option value="">Choose…</option>
                   {COMBINATION_RANGE_MODES.map((mode) => (
                     <option key={mode} value={mode}>
                       {mode}
@@ -1016,7 +1019,11 @@ export function LoadCaseManagerPanel({
         preparationEpoch={preparationEpoch}
         getPreparationEpoch={getPreparationEpoch}
         avoidIds={[combinationDraft.id.trim()]}
-        onCreateLoadCase={() => createLoadCaseIdRef.current?.focus()}
+        onCreateLoadCase={() => {
+          const input = createLoadCaseIdRef.current;
+          input?.closest("section")?.scrollIntoView?.({ block: "nearest" });
+          input?.focus();
+        }}
       />
 
       <VirtualList
@@ -1307,7 +1314,7 @@ export function LoadCaseManagerPanel({
             <ListPlus size={14} aria-hidden="true" />
             <strong>{combinationTermDraft.combinationId}</strong>
             <span>
-              new term; {combinationTermDraft.operandKind === "combination" ? `combination=${combinationTermDraft.combinationRef || "TBD"}` : `load=${combinationTermDraft.loadCaseId}`}; factor={combinationTermDraft.factor}
+              new term; {combinationTermDraft.operandKind === "combination" ? `combination=${combinationTermDraft.combinationRef || "TBD"}` : `load=${combinationTermDraft.loadCaseId || "TBD"}`}; factor={combinationTermDraft.factor.trim() || "TBD"}
             </span>
           </div>
           <div className="combination-term-create-controls">
@@ -1370,7 +1377,7 @@ export function LoadCaseManagerPanel({
           <p className="muted load-edit-preview" data-testid="load-manager-create-combination-term-preview">
             {createCombinationTermIntent
               ? `${createCombinationTermIntent.operation_id}; before=${createCombinationTermIntent.change.before}; after=${combinationTermDraft.operandKind === "combination" ? `combination ${combinationTermDraft.combinationRef}` : combinationTermDraft.loadCaseId} x ${combinationTermDraft.factor}; unit=${createCombinationTermIntent.change.unit}; ${createCombinationTermIntent.change.dimension}; unit_validation=${createCombinationTermIntent.validation.unit_validation}; direct_model_mutation_allowed=false; professional_approval=false`
-              : combinationTermDraftProblem(model, combinationTermDraft) ?? "select combination/load case and finite factor to queue a combination term"}
+              : `select combination/load case and finite factor to queue a combination term${combinationTermDraftProblem(model, combinationTermDraft) ? `; ${combinationTermDraftProblem(model, combinationTermDraft)}` : ""}`}
           </p>
         </section>
       ) : null}
@@ -1644,9 +1651,10 @@ function defaultCombinationTermDraft(model: PreviewModel): CombinationTermDraft 
   return {
     combinationId,
     operandKind: "load_case",
-    loadCaseId: defaultCombinationTermLoadCase(model, combinationId),
+    // Every operand and factor is entered by the person: blank means not chosen.
+    loadCaseId: "",
     combinationRef: "",
-    factor: "1",
+    factor: "",
     rationale: "user_entered_combination_term_preview_change"
   };
 }
@@ -1656,21 +1664,16 @@ function defaultCombinationDraft(model: PreviewModel, id: string): CombinationDr
     id,
     label: "User mechanics combination",
     basis: "mechanics",
-    terms: [{ kind: "load_case", ref: model.load_cases[0]?.id ?? "", factor: "1" }],
-    minuendId: model.load_cases[0]?.id ?? "",
-    subtrahendId: model.load_cases[1]?.id ?? "",
-    operandIds: model.load_cases[0] ? [model.load_cases[0].id] : [],
-    mode: "max_abs",
+    // No operand, factor or mode is proposed (no first case, no factor 1): blank means not chosen.
+    terms: [{ kind: "load_case", ref: "", factor: "" }],
+    minuendId: "",
+    subtrahendId: "",
+    operandIds: [],
+    mode: "",
     provenance: "user_entered_local_preview",
     rationale: "user_entered_combination_create_preview_change",
     operatingDifference: false
   };
-}
-
-function defaultCombinationTermLoadCase(model: PreviewModel, combinationId: string): string {
-  const combination = model.combinations?.find((item) => item.id === combinationId);
-  const existing = new Set((combination?.terms ?? []).map((term) => term.load_case));
-  return model.load_cases.find((loadCase) => !existing.has(loadCase.id))?.id ?? model.load_cases[0]?.id ?? "";
 }
 
 function nextLoadCaseIdentifier(model: PreviewModel): string {
@@ -1798,7 +1801,7 @@ function buildCreateLoadCaseIntent({
     provenance: draft.provenance.trim(),
     primitive_loads: []
   };
-  const operationToken = `create-${safeToken(payload.id)}`;
+  const operationToken = `create-${operationIdToken(payload.id)}`;
   return {
     operation_id: `op:load-manager-${operationToken}`,
     operation_kind: "create",
@@ -1922,7 +1925,7 @@ function buildCreatePrimitiveLoadIntent({
     dimension,
     provenance: draft.provenance.trim()
   };
-  const operationToken = `${safeToken(draft.loadCaseId)}-${safeToken(payload.id)}-primitive`;
+  const operationToken = `${operationIdToken(draft.loadCaseId)}-${operationIdToken(payload.id)}-primitive`;
   return {
     operation_id: `op:load-manager-${operationToken}`,
     operation_kind: "create",
@@ -1985,7 +1988,7 @@ function buildCreateCombinationTermIntent({
   const factor = parseFiniteNumber(draft.factor) ?? 0;
   // A load-case term writes exactly {"load_case", "factor"}; a combination term exactly {"combination", "factor"}.
   const payload = draft.operandKind === "combination" ? { combination: draft.combinationRef, factor } : { load_case: draft.loadCaseId, factor };
-  const operationToken = `${safeToken(draft.combinationId)}-term-${termIndex}-create`;
+  const operationToken = `${operationIdToken(draft.combinationId)}-term-${termIndex}-create`;
   return {
     operation_id: `op:load-manager-${operationToken}`,
     operation_kind: "create",
@@ -2049,7 +2052,7 @@ function buildLoadMetadataIntent({
   proposedValue: string;
   rationale: string;
 }): EditorOperationIntent {
-  const operationToken = `${safeToken(loadCase.id)}-${field}`;
+  const operationToken = `${operationIdToken(loadCase.id)}-${field}`;
   return {
     operation_id: `op:load-manager-${operationToken}`,
     operation_kind: "modify",
@@ -2109,7 +2112,7 @@ function buildDeleteLoadCaseIntent({
   loadCase: LoadCase;
   rationale: string;
 }): EditorOperationIntent {
-  const operationToken = `${safeToken(loadCase.id)}-delete`;
+  const operationToken = `${operationIdToken(loadCase.id)}-delete`;
   return {
     operation_id: `op:load-manager-${operationToken}`,
     operation_kind: "delete",
@@ -2181,7 +2184,7 @@ function buildCombinationBasisIntent({
   proposedBasis: string;
   rationale: string;
 }): EditorOperationIntent {
-  const operationToken = `${safeToken(combination.id)}-basis`;
+  const operationToken = `${operationIdToken(combination.id)}-basis`;
   return {
     operation_id: `op:load-manager-${operationToken}`,
     operation_kind: "modify",
@@ -2241,7 +2244,7 @@ function buildDeleteCombinationIntent({
   combination: Combination;
   rationale: string;
 }): EditorOperationIntent {
-  const operationToken = `${safeToken(combination.id)}-delete`;
+  const operationToken = `${operationIdToken(combination.id)}-delete`;
   return {
     operation_id: `op:load-manager-${operationToken}`,
     operation_kind: "delete",
@@ -2304,7 +2307,7 @@ function buildCombinationFactorIntent({
   rationale: string;
 }): EditorOperationIntent {
   const fieldPath = `terms.${termView.index}.factor`;
-  const operationToken = `${safeToken(termView.combination.id)}-term-${termView.index}-factor`;
+  const operationToken = `${operationIdToken(termView.combination.id)}-term-${termView.index}-factor`;
   return {
     operation_id: `op:load-manager-${operationToken}`,
     operation_kind: "modify",
@@ -2365,7 +2368,7 @@ function buildDeleteCombinationTermIntent({
   rationale: string;
 }): EditorOperationIntent {
   const fieldPath = `terms.${termView.index}`;
-  const operationToken = `${safeToken(termView.combination.id)}-term-${termView.index}-delete`;
+  const operationToken = `${operationIdToken(termView.combination.id)}-term-${termView.index}-delete`;
   return {
     operation_id: `op:load-manager-${operationToken}`,
     operation_kind: "delete",
@@ -2468,7 +2471,7 @@ function buildLoadMagnitudeIntent({
   rationale: string;
 }): EditorOperationIntent {
   const fieldPath = `primitive_loads.${primitive.index}.magnitude.value`;
-  const operationToken = `${safeToken(primitive.loadCase.id)}-${safeToken(primitiveId(primitive.load))}-magnitude`;
+  const operationToken = `${operationIdToken(primitive.loadCase.id)}-${operationIdToken(primitiveId(primitive.load))}-magnitude`;
   const unit = proposedUnit.trim() || primitiveUnit(primitive.load);
   const dimension = primitiveDimension(primitive.load);
   const after = JSON.stringify({ value: proposedMagnitude, unit });
@@ -2561,7 +2564,7 @@ function buildDeletePrimitiveLoadIntent({
   rationale: string;
 }): EditorOperationIntent {
   const fieldPath = `primitive_loads.${primitive.index}`;
-  const operationToken = `${safeToken(primitive.loadCase.id)}-${safeToken(primitiveId(primitive.load))}-delete`;
+  const operationToken = `${operationIdToken(primitive.loadCase.id)}-${operationIdToken(primitiveId(primitive.load))}-delete`;
   const unit = primitiveUnit(primitive.load);
   const dimension = primitiveDimension(primitive.load);
   return {
@@ -2659,24 +2662,43 @@ function combinationDraftExpression(draft: CombinationDraft): string {
     return `minuend=${draft.minuendId || "TBD"}; subtrahend=${draft.subtrahendId || "TBD"}${draft.operatingDifference ? `; difference_basis=${OPERATING_DIFFERENCE_BASIS}` : ""}`;
   }
   if (draft.basis === "range_envelope") {
-    return `mode=${draft.mode}; operands=${draft.operandIds.length ? draft.operandIds.join(", ") : "TBD"}`;
+    return `mode=${draft.mode || "TBD"}; operands=${draft.operandIds.length ? draft.operandIds.join(", ") : "TBD"}`;
   }
   return draft.terms.length === 1 ? `term=${termDraftText(draft.terms[0])}` : `terms=${draft.terms.map(termDraftText).join("; ") || "none"}`;
 }
 
 function combinationDraftHelpText(model: PreviewModel, draft: CombinationDraft): string {
   const basis = draft.basis;
+  const missing = combinationDraftMissing(model, draft);
   if (basis === "result_state_subtraction") {
-    return "select distinct minuend/subtrahend load cases and complete id/label/provenance/rationale to queue a subtraction combination";
+    const base = "select distinct minuend/subtrahend load cases and complete id/label/provenance/rationale to queue a subtraction combination";
+    return missing ? `${base}; ${missing}` : base;
   }
   if (basis === "range_envelope") {
-    return "select at least one operand load case and a mode and complete id/label/provenance/rationale to queue a range envelope combination";
+    const base = "select at least one operand load case and a mode and complete id/label/provenance/rationale to queue a range envelope combination";
+    return missing ? `${base}; ${missing}` : base;
   }
   const base = basis === "mechanics"
     ? "complete id/label/load case/finite factor/provenance/rationale to queue a mechanics combination"
     : `complete id/label, at least one term with a finite factor and no repeated operand, and provenance/rationale to queue an ${basis} combination`;
   const problem = termsDraftProblem(model, draft.terms, draft.id.trim());
   return problem ? `${base}; ${problem}` : base;
+}
+
+/** What a subtraction or envelope draft still needs the person to choose, or null. */
+function combinationDraftMissing(model: PreviewModel, draft: CombinationDraft): string | null {
+  if (draft.basis === "result_state_subtraction") {
+    if (!draft.minuendId) return "not chosen: the minuend";
+    if (!draft.subtrahendId) return "not chosen: the subtrahend";
+    if (draft.minuendId === draft.subtrahendId) return "the minuend and subtrahend are the same";
+    return null;
+  }
+  if (draft.basis === "range_envelope") {
+    if (!draft.operandIds.length) return "not chosen: any operand";
+    if (!draft.mode) return "not chosen: the mode";
+    return null;
+  }
+  return termsDraftProblem(model, draft.terms, draft.id.trim());
 }
 
 /** The solve's known gates for a terms combination being drafted (§5.1, §5.2), or null. */
@@ -2709,9 +2731,15 @@ function combinationTermOperandRefusal(model: PreviewModel, targetId: string, op
 }
 
 function combinationTermDraftProblem(model: PreviewModel, draft: CombinationTermDraft): string | null {
-  if (draft.operandKind !== "combination") return null;
-  if (!draft.combinationRef) return "choose the combination the new term names";
-  return combinationTermOperandRefusal(model, draft.combinationId, draft.combinationRef);
+  if (draft.operandKind === "combination") {
+    if (!draft.combinationRef) return "not chosen: the combination the new term names";
+    const refusal = combinationTermOperandRefusal(model, draft.combinationId, draft.combinationRef);
+    if (refusal) return refusal;
+  } else if (!draft.loadCaseId) {
+    return "not chosen: the load case the new term names";
+  }
+  if (!draft.factor.trim()) return "not entered: the factor";
+  return null;
 }
 
 /** The operation applier deletes a combination only when every stored term names a load case (`combination_delete_display`). */
@@ -2850,6 +2878,7 @@ function stringField(record: Record<string, unknown>, key: string): string {
   return optionalString(record[key]) ?? "TBD";
 }
 
+/** A test-id token only (display); operation ids use `operationIdToken`. */
 function safeToken(value: string): string {
   return value.replace(/[^A-Za-z0-9_.:-]+/g, "-");
 }
