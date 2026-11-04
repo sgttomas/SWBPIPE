@@ -1,6 +1,6 @@
 # Operating case with nonlinear supports, and the kernel side of skewed restraints
 
-> **Status: adopted plan; truthfulness fixes (#1695), stage 2 (#1671) and slice 1a (#1752) built; slice 1b built on branch `claude/rt-a5-slice1b` (§6, candidate, not yet integrated; reviewed in r1 and its focused confirmation; its model-free G-1 reading, option A, enabled after that review); R-6 unbuilt and scheduled for v1.0 after 1b (2026-10-31, below); `minuend_final` unbuilt (§6.9 seam); superseded by any later Design text.**
+> **Status: adopted plan; truthfulness fixes (#1695), stage 2 (#1671) and slice 1a (#1752) built; slice 1b integrated (#107, §6); R-6 unbuilt and scheduled for v1.0 after 1b (2026-10-31, below); `minuend_final` designed (§7) and built as a candidate on `claude/rt-a5-minuend-final` (§7.3 status); superseded by any later Design text.**
 > Committed from the solver lane's working note so that the adopted decisions are
 > discoverable on main. The text is unchanged except that local absolute paths are
 > shortened to `scratch/…`. Working-file references (`scratch/…` and
@@ -63,7 +63,7 @@ sustained (§1.5, V-1 and V-2).
 |---|---|---|
 | Shape | Adopted as recommended. No new case kind. Slice 1a needs no model-document change. Slice 1b is the 0.9.0 member `combinations[].difference_basis = "operating_minus_sustained"` with gates G-1 and G-2. EX refuses the member by name. | PF already solves an operating case with its own converged support state, and already forms the subtraction (§1.1). What is missing is declared meaning, operand standing and consistency gates, not a new solve. |
 | Truthfulness fixes | Done early: the K-D5 text that says nonlinear combinations are withheld, and CLM-012's seed-independence claim, which gains its friction non-uniqueness qualification (`truthfulness_fixes.md`). | Both texts currently state something the code does not do, or a claim that friction does not support. |
-| R-1 | The sustained case keeps its own support status. Frozen operating status (`subtrahend_support_state`) remains a later item, flagged to the owner (§5). | Own status changes nothing that exists. Frozen status is a different comparison, and choosing it is a code-interpretation matter. |
+| R-1 | The sustained case keeps its own support status. Frozen operating status (`subtrahend_support_state`) remains a later item, flagged to the owner (§5). | Own status changes nothing that exists. Frozen status is a different comparison, and choosing it is a code-interpretation matter. Status (2026-11-04): the owner-accepted release target (2026-10-28) carries frozen operating status as RT-A5 Should. It is designed in §7 as the declared held-constraint comparison `subtrahend_support_state: minuend_final`; own status stays the default and is never inferred. |
 | R-2 | Static, history-free friction (DEC-067) is kept, and V-3's consequence is disclosed in DEL-04-04. A load-history model is a later item. | A history model is DEL-04-04:2's ruling. Friction may admit several states. |
 | R-3 | Gap certification (G2) is adopted as work, designed after 1a. | Without it, every limit-stop operand stays unqualified (R1). |
 | R-4 | Nonlinear supports on EX are adopted as the main parity item. The design is staged after 1a and 1b, and includes friction with a one-way normal source and two-sided stops on one DOF. | Pressurized imports go to EX. |
@@ -75,7 +75,7 @@ sustained (§1.5, V-1 and V-2).
 | Skew kernel scheduled (SWBPIPE Agent 0, 2026-10-31, under the owner's 2026-10-27 scope delegation) | The skew kernel (R-6 and R-7, §2) is in v1.0, carried by the load-cases lane after 1b. It is built on the division-free nullspace basis T of §2.2, which the dynamics lane (DEL-04-09) has adopted for modal, so static and modal restrain the same subspace; modal's skew refusal lifts with the static one. It changes numerical meaning, so it takes targeted references and independent review. Until it lands, 0.9.0's `SUPPORT_DIRECTION_SKEW_UNSUPPORTED` is an interim refusal with this scheduled remover, not a release limitation. | Skewed restraints are ordinary in real systems and a CAEPIPE-class tool has them; the reference system does not need one, so it is not on criterion 1's path, but omitting it would leave a common modelling gap. |
 | §4 A, derived O−S rows | Option (i) is adopted, without (ii): a per-group combination certificate, B_D = RU(B_O + B_S + exact subtraction rounding). Cancellation stays honestly unestablished, range envelopes are deferred, and readers recompute B_D from the published operand bounds. The wording is "established within its stated bound", never "certified". Design after 1a, build before R-3, independent of R-4. It also bounds W-16b's linear EX combinations. | Each operand bound is against its own intended system, so operand-state agreement is not needed numerically (Codex r2). Without a certificate, O−S rows in nonlinear models stay inspection evidence even after G2. |
 | §4 A, eligibility | Not decided. Agent 0 decides at the build design, which must state both consequences: (a) established derived rows count toward the document's numerical eligibility; (b) they do not, as today. Each must show the effect on a document with one cancellation-unestablished row. The certificate is built so either answer is a one-line policy switch, not a structural fork. | This changes today's rule that combination rows never count, which is a claims decision. |
-| §5 B, the meaning of "expansion" | Option (3), computed as (1), is adopted. The product reports an "operating minus sustained difference" under the member's own name, with each case at its own state. The "expansion" label and its code-range meaning stay with the user's rule pack. The held-constraint option (2) remains R-1's remaining item for the owner, and can be added later as a second declared basis without renaming. | It makes the least product claim. The 0.9.0 member is already named `operating_minus_sustained`, and the engineering meaning is a design-basis choice the user's rule pack makes. |
+| §5 B, the meaning of "expansion" | Option (3), computed as (1), is adopted. The product reports an "operating minus sustained difference" under the member's own name, with each case at its own state. The "expansion" label and its code-range meaning stay with the user's rule pack. The held-constraint option (2) is the declared `minuend_final` comparison of §7, added without renaming; the engineering meaning of either difference stays with the user's rule pack. | It makes the least product claim. The 0.9.0 member is already named `operating_minus_sustained`, and the engineering meaning is a design-basis choice the user's rule pack makes. |
 
 ---
 
@@ -275,7 +275,7 @@ refuses `difference_basis` by name.
 |---|---|---|---|
 | `combinations[].difference_basis` | string enum `["operating_minus_sustained"]` | absent (a plain subtraction) | Only with `basis: result_state_subtraction` (otherwise `LOAD_COMBINATION_DIFFERENCE_BASIS_MISPLACED`). Null and unknown tokens are refused (`…_UNKNOWN`). The minuend is operating and the subtrahend sustained. Refused by name on EX. G-1/G-2 apply at solve. Written only when the user sets it. |
 | `load_cases[].kind` token `operating` | free string | — | Desktop vocabulary only; the solver keeps ignoring `kind`. |
-| `combinations[].subtrahend_support_state` (later, only if the owner chooses §5 option 2) | enum `["own", "minuend_final"]` | absent = `own` | Only with `difference_basis`. Results are published under the combination, never as the sustained case's rows. |
+| `combinations[].subtrahend_support_state` (RT-A5 Should; §7) | enum `["own", "minuend_final"]` | absent = `own` | Only with `difference_basis`. Results are published under the combination, never as the sustained case's rows. |
 
 **Provisional size of 1b:** S–M.
 
@@ -784,7 +784,7 @@ represents.
 ## 6. As built (1b)
 
 Slice 1b on branch `claude/rt-a5-slice1b` (from main `bbf384dec`, merged with main
-`800fae7e5`). Candidate: not integrated, not independently reviewed. Risk class: numerical
+`800fae7e5`). Integrated by #107 (`b32a17761`) after review r1 and its focused confirmation. Risk class: numerical
 meaning, persistence and contract. Nothing here records acceptance, issuance or release.
 
 ### 6.1 What ships
@@ -1101,7 +1101,8 @@ built). §7 replaces the seam sketch that stood here and corrects two of its sta
 ### 6.10 Pricing and registration
 
 Registered at DEL-04-08 `retained-pricing-rules.md` §8.51, on main `573051799` (RT-U4's registered §8.50 candidate
-`41142f4a3`), priced source `a82460ad7`. AC-004 is pending.
+`41142f4a3`), priced source `a82460ad7`. AC-004 is recorded (seven witnesses and the isolated challenge, 7/7 on the
+registered binary at `d44e5c538`; `61c6214a2`).
 - **Rules.** The 18 full-file pins whose basis value was a file 1b changes are restated on the merged bytes, each with
   its re-audited premise; S1-ZS drops the deleted push's two entries and RT-A4-D14 pins one push (§8.46's precedents).
   The new PF1B rules (DZ, FZ, RM, BN, L, ID) rest on D1.4's refusal of every difference basis: the declared arms, the
@@ -1331,6 +1332,40 @@ receipt).
 - **Conditions 5 and 6, pricing and frame/stack/lifetime.** These are in the step's return.
   Retained pricing is coefficient-identical to the parent `30b6b34e7` (1,602 equal, 0 higher, 0
   lower), measured read-only because P's D3 pins are still pending. Nothing is registered.
+
+**Status: candidate built (phase 2 step 2, branch `claude/rt-a5-minuend-final`; not integrated, not
+independently reviewed).** The NI wrapper, the PP held path, the applier, the RE and Python readers,
+the TS display, policy v4 and the schemas are built as this section and §7.4 to §7.8 describe, with
+these approvals and deviations:
+- **R2, option A (RT-A3, 2026-11-04).** NI `lib.rs` names `confirm_converged_state` exactly once
+  outside the loop's own attempt: inside `fn solve_held_status_iteration(` only, strictly after its
+  `complete_iteration(` (S11-K's R2 rule, four mutants; kd5 `kd5-nonlinear-active-set.md` notes the
+  amendment). **The gap rule** sits beside the attempt: a held input with a gap support is never
+  confirmed ("confirmation attempt: not run"), so G is never promoted.
+- **Residual deltas (a deviation from "None" above; RT-A3's requirement).** The wrapper seeds the
+  loop state's iterations with the orienting iterate (the source's final one), so the held iterate's
+  displacement and reaction deltas are measured from it, and `result.iterations` is [the source's
+  final iterate, the held iterate]. H-10's projection excludes the deltas for that reason.
+- **No `metadata.held_status_ref` (a deviation from §7.6).** The closed `ResultMetadata` classes of
+  PP, RE and both result schemas are not widened. A held-operand row's identity is its id
+  (`result:combination:<combination>:held:<base id>`), its `basis_ref` (the combination), its typed
+  basis and its clause; the record binds the combination to its source and target cases.
+- **The held-operand rows published** are the held rows the difference rows cite, closed under their
+  own `source_result_refs` (so every reference resolves), in the held solve's order, before the
+  difference rows.
+- **The record's `held_solve` member** (`converged`, and the loop's exit diagnostic when it did not
+  converge) is added: a release publishes as not converged with its exit diagnostic and is never
+  promoted (the manager's condition at `solve.converged || held`).
+- **The held operand's standing.** Its `combination_operands` operand states `support_state:
+  "held_at_minuend_final"` and `held_standing`; its `numerical_quality` is null (the held system's
+  is not an envelope case's), and it is excluded from `COMBINATION_OPERAND_CHECKS_NOT_PASSED` as
+  from `…_OPERAND_STATES_DIFFER`.
+- **Readers' first refusal.** The operand reader binds `held_standing` to the record and the held rows
+  to the difference rows, and runs before the gate reader, so a forged standing or a dropped held row
+  is refused as `…_COMBINATION_OPERANDS_SHAPE` or `…_ROWS` rather than by a held code.
+- **The hanger callable (§7.7)** is the path the subtraction uses (`held_status::held_solve` through
+  `CaseRole::Held`); `solve_case_at_held_status` itself is not added, since hanger integration is
+  excluded.
 
 **Why the held result is honest.**
 - Every field of the result and the receipt is what the step and the shared tail computed for

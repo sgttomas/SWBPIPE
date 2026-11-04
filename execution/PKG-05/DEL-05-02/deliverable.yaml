@@ -10,6 +10,11 @@ needs:
     of model-authored combinations through this deliverable's algebra crate.
     The exact pressure contract remains DEL-04-07's Work/pressure-contract.md.
     DEL-04-08 declares the retained producer and memory-qualification inputs.
+    It also needs DEL-04-07's held-status step
+    (nonlinear_integration::solve_held_status_iteration): one step of the assembled loop's unit at a
+    given support-state assignment, completed by the loop's own shared tail (complete_iteration),
+    receipt-bound, and followed by one unchanged confirmation attempt, for minuend_final
+    (Work/operating-case.md §7).
   gating: true
   evidence: core/product_physics/src/lib.rs
 - from: DEL-04-08
@@ -149,6 +154,14 @@ code_paths:
 - tests/test_preview_difference_basis.py
 - tests/test_recorded_pre_rt_a5_1b_pf.py
 - validation/references/op1b_difference_basis/**
+# RT-A5 minuend_final (Work/operating-case.md §7).
+- core/product_physics/src/held_status.rs
+- core/product_physics/tests/op_mf_held_status.rs
+- core/reporting/result_export/src/preview_held_status.rs
+- core/reporting/result_export/src/preview_held_status_tests.rs
+- tests/verifiers/preview_held_status.py
+- tests/test_preview_held_status.py
+- validation/references/op_mf_held_status/**
 - core/reporting/result_export/tests/physics_*contract.rs
 - core/reporting/result_export/tests/load_reference*_contract.rs
 - core/reporting/result_export/tests/pressure*_contract.rs
