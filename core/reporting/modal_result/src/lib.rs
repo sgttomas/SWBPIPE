@@ -788,6 +788,9 @@ struct Candidate {
     pivots: Option<usize>,
     shift: Num,
     formation_term: Num,
+    /// Plain binary64 at the producer and never flagged; not re-derived (a stated
+    /// limit), but its domain is enforced in the sturm relation like every other value.
+    formation_separation: Num,
     factor_term: Num,
     backward_error: Num,
     inverse_norm: Num,
@@ -1544,10 +1547,7 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
         let mut num = |field: &str, kind: &str| -> R<Num> { Ok(Num::mr_from(&read(field, kind)?)) };
         let shift = num("shift", "sturm_shift_circular_frequency")?;
         let formation_term = num("formation_term", "sturm_formation_term")?;
-        // Plain binary64 at the producer and never flagged; not re-derived (a stated
-        // limit), but its domain is enforced like every other candidate value.
         let formation_separation = num("formation_separation_ratio", "sturm_formation_separation_ratio")?;
-        mr_domain(&formation_separation, MrRule::Binary64, &format!("candidate {}: formation separation ratio", i + 1))?;
         let factor_term = num("factor_term", "sturm_factor_term")?;
         let backward_error = num("backward_error", "sturm_backward_error")?;
         let inverse_norm = num("inverse_norm_estimate", "sturm_inverse_norm_estimate")?;
@@ -1559,7 +1559,7 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
             num("max_abs_pivot", "sturm_max_abs_pivot")?,
             num("max_abs_scaled_diagonal", "sturm_max_abs_scaled_diagonal")?,
         ];
-        candidates.push(Candidate { decision, pivots, shift, formation_term, factor_term, backward_error, inverse_norm, product, separation, growth, maxima });
+        candidates.push(Candidate { decision, pivots, shift, formation_term, formation_separation, factor_term, backward_error, inverse_norm, product, separation, growth, maxima });
     }
     let identity_rows = get("identity")?.ok_or("/tables/identity: withheld")?;
     let mut identity = Vec::new();
@@ -2628,7 +2628,7 @@ fn mr_formed(scope: &mut Vec<String>, label: &str, lhs: &Reach, a: &Reach, b: &R
 /// One candidate: its claims, its two formulas and its decision against the
 /// producer's three tests, each on its own operands.
 fn mr_candidate(scope: &mut Vec<String>, c: &Candidate, label: usize, sturm_count: usize, limit: f64, g_max: f64, ks: f64) -> R<()> {
-    for (name, v) in [("shift", &c.shift), ("formation term", &c.formation_term)].into_iter().chain(MR_FACTORED.iter().copied().zip(mr_factored(c))) {
+    for (name, v) in [("shift", &c.shift), ("formation term", &c.formation_term), ("formation separation", &c.formation_separation)].into_iter().chain(MR_FACTORED.iter().copied().zip(mr_factored(c))) {
         mr_domain(v, MrRule::Binary64, &format!("candidate {label}: {name}"))?;
     }
     let Some(pivots) = c.pivots else {

@@ -361,3 +361,23 @@ fn write_modal_corpus_expectations() {
     text.push('\n');
     std::fs::write(path, text).unwrap();
 }
+
+/// Review of 56a5484e8: a flagged formation-separation ratio violates its plain-binary64
+/// producer domain in the sturm relation, as it does in the Python reader (verdict parity:
+/// closure passes, sturm fails).
+#[test]
+fn a_flagged_formation_separation_ratio_fails_sturm_not_closure() {
+    let base = "/tables/sturm_candidates/rows/0/formation_separation_ratio";
+    let entry = json!({
+        "document": "modal_component_body.json",
+        "operations": [{"op": "replace", "path": format!("{base}/value"), "value": 0.0},
+                       {"op": "replace", "path": format!("{base}/below_normal"), "value": true}],
+        "reseal": true,
+        "request": "modal_component_body.request.json",
+        "request_operations": [],
+    });
+    let (got, _) = run(&entry);
+    assert_eq!(got["closure"], "passed", "{got}");
+    assert_eq!(got["relations"]["sturm"], "failed", "{got}");
+    assert_eq!(got["decision"], "rejected", "{got}");
+}
