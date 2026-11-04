@@ -4752,6 +4752,12 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
 
         _M_COMPONENT, _M_DIRECTION = _m_tokens("COMPONENTS", 6), _m_tokens("DIRECTIONS", 3)
         _solved = _fn_text("modal_doc_solved", _DOC)
+        # Narrow re-check of e98ad5add: token counts can be offset (e.g. a `for id in [..]` loop with one use removed), so
+        # modal_doc_solved's exact text is pinned, the MODAL-FB way. Any edit stops the run for re-review.
+        _solved_digest = _modal_hashlib.sha256(_solved.encode()).hexdigest()
+        if _solved_digest != "f490771728ca9c55a9a33fbbe28b3c21935714854d371ca424e160ca235db7ed":
+            raise SystemExit(f"MODAL-ID: document.rs's modal_doc_solved changed ({_solved_digest}); re-review its bindings "
+                             "and re-pin (§8.52)")
         if (_fn_text("modal_doc_dof_id", _DOC) != "fn modal_doc_dof_id(node_ids: &[String], dof: usize) -> String {\n"
                                                   '    format!("dof:{}:{}", node_ids[dof / 6], COMPONENTS[dof % 6])\n}\n'
                 or _fn_text("modal_doc_mode_ref", _DOC) != 'fn modal_doc_mode_ref(index: usize) -> String {\n'

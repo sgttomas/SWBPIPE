@@ -106,3 +106,13 @@ def test_a_head_without_the_document_adds_nothing(tmp_path, monkeypatch):
     edit(snap, DOC, "pub(crate) fn modal_result_document(", "pub(crate) fn modal_result_document_retired(")
     d = decisions(monkeypatch, snap)
     assert not [k for k, _ in d["O10_ID_AUDIT"] if str(k).startswith((DOC + ":", TDOC + ":"))]
+
+
+def test_a_lengthening_edit_that_keeps_the_token_counts_stops(tmp_path, monkeypatch):
+    # Narrow re-check of e98ad5add: token counts and the let list can be preserved while a value lengthens (e.g. a
+    # compensated `for id in [..]` rebinding). Here `id` is doubled at its use with no a/b/id/ids token added, so only
+    # the pinned text of modal_doc_solved can stop it.
+    snap = copy_core(tmp_path)
+    edit(snap, DOC, '"dof_ref": id', '"dof_ref": id.repeat(2)')
+    with pytest.raises(SystemExit, match="modal_doc_solved changed"):
+        decisions(monkeypatch, snap)

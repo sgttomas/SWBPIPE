@@ -5070,8 +5070,11 @@ classed by name below their true bound; their audits now govern, since an audit 
     - any `let` pattern binds `a`, `b`, `id` or `ids` other than the three reviewed lets;
     - the exact token counts of those four names in `modal_doc_solved` change (7, 5, 9, 12).
 
-    The second covers closure, `for` and match-arm rebindings. That mutation and a closure rebinding are now regressions
-    (11 tests). No coefficient moves.
+    Those two checks alone are not fail-closed: a narrow re-check of `e98ad5add` kept every count and the let list with a
+    compensated `for id in ["x".repeat(270)] { … }` rebinding. So `modal_doc_solved`'s exact text is now pinned by
+    SHA-256 (`f4907717…7ed`), the MODAL-FB way, and any edit to it stops the run for re-review and a re-pin. The
+    regressions (12 tests) include the tuple and closure rebindings, and a lengthening edit (`"dof_ref": id.repeat(2)`)
+    that keeps the token counts and is stopped only by the pin. No coefficient moves.
 
 **Routing** (`tools/hosted-ci-routing.json`). I3a's branch had not routed its files. This registration does it with
 the maintained checker (`tools/ci/numerical_ci.py`'s `source_read_dependencies` and `rust_tree_digest`):
