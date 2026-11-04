@@ -168,13 +168,13 @@ needs:
     (canonical kg*m/rad; displays lb*in/rad, lb*ft/rad) is added to `core/units` as a named dimension
     with conversion witnesses, under the D-01 engineering extension of 2026-11-04 (Agent 0's decisions;
     a manager decision under the engineering delegation). No `angular_frequency_squared` is added, since
-    λ is not published. The equilibrated-basis magnitudes are traced (Design §5.3.5): the Sturm and
-    stiffness-side ones are `unit:one`, and modal-1's closed `equilibrated_basis` list is empty. The two
-    mass-side formation magnitudes are time squared (s²), which the catalog lacks; they are published
-    with their exponents as `catalog_family_absent` until a representation is decided. Public admission
-    needs that decision.
+    λ is not published. The equilibrated-basis magnitudes are traced on the code (Design §5.3.5): the
+    Sturm and stiffness-side ones are `unit:one`, the two D·M·D formation magnitudes are `time_squared`
+    (`unit:square_second`, added under the same extension, Agent 0's option (a)), and modal-1's closed
+    `equilibrated_basis` list is empty. Every published value has its catalog unit; this closes none of
+    the result's other admission conditions.
   gating: true
-  when: The unit families (with 0.9.0's S1) before M1b publishes modal results; a representation of the time-squared formation magnitudes before public admission.
+  when: The unit families (with 0.9.0's S1) before M1b publishes modal results; satisfied for the I3a result family by the 2026-11-04 extension.
   evidence: core/units/README.md
 - from: DEL-00-06
   condition: >-
