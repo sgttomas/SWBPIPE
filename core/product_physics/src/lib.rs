@@ -5940,20 +5940,8 @@ fn solve_prepared_load_case(
     }
     // RT-A5 (operating-case §7.3): a held solve takes the held step in place of the loop.
     let held = role.held();
-    let loop_outcome = match &mut role {
-        held_status::CaseRole::Held(request) => held_status::held_solve(
-            request,
-            model,
-            built,
-            restrained_dofs,
-            pf_motion.as_ref(),
-            &ground_motion,
-            &force,
-            solver_mode,
-            spring_entries,
-            load_row_finding.is_none(),
-        ),
-        held_status::CaseRole::Own(_) => append_nonlinear_support_loop_results(
+    let (selected_nonlinear, nonlinear_standing, nonlinear_qualification) =
+        match append_nonlinear_support_loop_results(
             &mut results,
             diagnostics,
             model,
@@ -5966,10 +5954,8 @@ fn solve_prepared_load_case(
             solver_mode,
             spring_entries,
             load_row_finding.is_none(),
-        ),
-    };
-    let (selected_nonlinear, nonlinear_standing, nonlinear_qualification) =
-        match loop_outcome {
+            &mut role,
+        ) {
             Some((solve, nonlinear, qualification)) => {
                 (Some(solve), Some(nonlinear), qualification)
             }
@@ -7584,9 +7570,14 @@ fn append_nonlinear_support_loop_results(
     solver_mode: PreviewSolverMode,
     spring_entries: &[SpringEntry],
     confirm: bool,
+    // RT-A5 (operating-case §7.3): a held solve takes the held step in place of the loop.
+    role: &mut held_status::CaseRole<'_, '_>,
 ) -> Option<(NonlinearFrameSolveResult, NonlinearStanding, Option<NonlinearQualification>)> {
     if built.nonlinear_supports.is_empty() {
         return None;
+    }
+    if let held_status::CaseRole::Held(request) = role {
+        return held_status::held_solve(request, model, built, restrained_dofs, base_motion, ground_motion, force, solver_mode, spring_entries, confirm);
     }
 
     let input = match nonlinear_frame_input(built, restrained_dofs, base_motion, ground_motion, force) {
