@@ -2022,9 +2022,12 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 // §8.48: DEL-04-09 I2b-2 on RT-U4's candidate: no coefficient moves; the in-build atom s(PreparedCaseResult)
 // is 1,888 B (was 1,880: LoadCaseSolve's Option<Box<NonlinearStateEvidence>>), charged twice per case at three
 // cases: +48 B in every phase and mode, from maintained eval at the 328 in-build atoms, without R.
+// §8.49: RT-A3 increment 4 (the restated pressure-2 table in STATICS, +754 B; S1's nonlinear clause and S7
+// in six TAV copies, +5,862 B): +6,616 B in every phase and mode, from maintained eval at the same 328 in-build
+// atoms, without R.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_449_924_793, 6_791_919_354, 8_743_655_182, 8_537_377_836, 7_611_067_252, 8_526_278_765, 7_258_896_155, 6_932_186_031],
-    [6_509_056_137, 6_851_050_698, 8_802_786_526, 8_596_509_180, 7_670_198_596, 8_585_410_109, 7_318_027_499, 6_991_317_375],
+    [6_449_931_409, 6_791_925_970, 8_743_661_798, 8_537_384_452, 7_611_073_868, 8_526_285_381, 7_258_902_771, 6_932_192_647],
+    [6_509_062_753, 6_851_057_314, 8_802_793_142, 8_596_515_796, 7_670_205_212, 8_585_416_725, 7_318_034_115, 6_991_323_991],
 ];
 
 #[test]
