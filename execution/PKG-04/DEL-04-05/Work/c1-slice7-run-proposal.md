@@ -27,14 +27,16 @@ This prepares the next candidate, the **A-only** candidate Agent 0 selected. It 
 worker, solver, sampler or large result was launched, and no timing or RSS was taken. Any run
 needs Agent 0's explicit readiness clearance and the owner's approval.
 
-**Source.** Code and corpora head `1b45e1b1169213fe18e74428fb3874e6904ef222`. This section
-first named `480201bee942d3337b1e3df825ff636779335605`; the independent review's repairs then
-added code and corpora commits, so `480201bee` is stale as a candidate source.
+**Source.** Code and corpora head `e37f3dd07f6ff3e860911f6098161a8de6171911` (`e37f3dd07`): the reviewed code at
+`1b45e1b1169213fe18e74428fb3874e6904ef222` plus a corpus fix for hosted CI (below). This section
+first named `480201bee942d3337b1e3df825ff636779335605`; the review's repairs made that stale.
+`1b45e1b11` is not a candidate source either, because hosted CI failed on it.
 - `731fb44e8` merges main `bbf384dec` (RT-A4 #98);
 - `419678f37`, `861f53e94` and `d16371c24` add the native mirror and regenerate the corpora;
 - `480201bee` merges main `aa794eb68` (#102's region binding and `Index::any` determinism,
   §8.47; #97's modal I2b2). `aa794eb68` is still `origin/main` and the merge base;
-- the review repairs, `14364f85d` to `1b45e1b11` (below).
+- the review repairs, `14364f85d` to `1b45e1b11` (below);
+- the corpus fix `e37f3dd07` (below), on top of this section's first two documents commits.
 
 The plan's slice 5 entry "On main at `bbf384dec`…" records the conflicts, the mirror, its
 regressions and fail-without checks, and the corpora at `480201bee`. The repairs' regressions and
@@ -81,6 +83,18 @@ section change nothing the build reads.
   (`native_reopen_pre_rt_a4_requests.json`): F2's S request replaces the superseded
   null-standing one. A request on a restored handle read under a recorded table now names that
   table in its key.
+
+- **The App suites' replay keys** (`e37f3dd07`; test inputs, not build inputs). Hosted CI on
+  `1b45e1b11` failed Desktop behaviour 1/2 and 2/2: 12 tests in `App.test.tsx`,
+  `App.shell.test.tsx` and `App.projectHandlers.test.tsx`, each with no
+  `historical-run-context`. Cause: F2's S request (`standing: {eligible: false, findings}`) is a
+  new key. The `1b45e1b11` regeneration recorded only four suites, so the App-level reopen paths'
+  five new keys had no reply, and the emulated restore failed on the unrecorded request.
+  **Classification: test infrastructure, not a product defect.** The actual Rust command answers
+  all five with a summary. The fix adds them from a whole-suite recording pass (846 → **851**
+  requests, sources unchanged at 23), answered by the actual command; every earlier outcome is
+  byte-identical. No assertion, test or product file changed. Full desktop vitest: 393 files,
+  7,555 passed, 1 todo. `tsc -b` is clean.
 
 **Repair basis.** This candidate carries **repair A only**: #102's region binding and the
 `Index::any` determinism, on main at `aa794eb68`. It does **not** carry repair B (#106, one
@@ -158,7 +172,11 @@ The binding to record at build is the same set as the table above: App/worker SH
 and model hashes, and the Python interpreter. The five consumed attempts, their packets and
 the six earlier App directories stay untouched.
 
-**Build as run (2026-11-04).** From this worktree, exactly clean at
+**Superseded build: `app-c1-main-24f6b6568`** (kept; not the candidate). It was built from
+`24f6b6568`, whose corpora fail hosted CI (above). Its record follows as built; a rebuild from the
+fixed head replaces it as the candidate.
+
+**Build as run (2026-11-04, superseded).** From this worktree, exactly clean at
 `24f6b656828450405e253cccab6acc4b63d2dc90` (`1b45e1b11` plus the first documents commit of this
 section), with the destination and both log names checked absent first:
 
