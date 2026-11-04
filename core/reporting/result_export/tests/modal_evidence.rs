@@ -1,0 +1,207 @@
+//! DEL-04-09 I3a (Design §5.3): the Rust modal reader over the committed
+//! corpus `fixtures/results/modal_corpus.json`. Each entry tampers one
+//! relation of a committed modal fixture (or none); the reader must return the
+//! entry's `expected` verdict, which the independent Python reader
+//! (`tests/test_modal_evidence.py`) is held to as well, and the standing the
+//! entry targets must fail. All values are invented.
+use open_pipe_stress_result_export::modal_evidence::{modal_reader_sha256, read_modal_result, ModalSupplied};
+use serde_json::{json, Value};
+
+const CORPUS: &str = include_str!("../../../../fixtures/results/modal_corpus.json");
+
+fn fixture(name: &str) -> &'static str {
+    macro_rules! file {
+        ($n:literal) => {
+            include_str!(concat!("../../../../fixtures/results/", $n))
+        };
+    }
+    match name {
+        "modal_ex_n05.json" => file!("modal_ex_n05.json"),
+        "modal_ex_n05.request.json" => file!("modal_ex_n05.request.json"),
+        "modal_arc.json" => file!("modal_arc.json"),
+        "modal_arc.request.json" => file!("modal_arc.request.json"),
+        "modal_component_body.json" => file!("modal_component_body.json"),
+        "modal_component_body.request.json" => file!("modal_component_body.request.json"),
+        "modal_state_one_way_pressed.json" => file!("modal_state_one_way_pressed.json"),
+        "modal_state_one_way_pressed.request.json" => file!("modal_state_one_way_pressed.request.json"),
+        "modal_state_friction_sliding.json" => file!("modal_state_friction_sliding.json"),
+        "modal_state_friction_sliding.request.json" => file!("modal_state_friction_sliding.request.json"),
+        "modal_cantilever_whole_spectrum.json" => file!("modal_cantilever_whole_spectrum.json"),
+        "modal_cantilever_whole_spectrum.request.json" => file!("modal_cantilever_whole_spectrum.request.json"),
+        "modal_cantilever_cluster_extension.json" => file!("modal_cantilever_cluster_extension.json"),
+        "modal_cantilever_cluster_extension.request.json" => file!("modal_cantilever_cluster_extension.request.json"),
+        "modal_cantilever_below_cutoff.json" => file!("modal_cantilever_below_cutoff.json"),
+        "modal_cantilever_below_cutoff.request.json" => file!("modal_cantilever_below_cutoff.request.json"),
+        "modal_cantilever_sensitive.json" => file!("modal_cantilever_sensitive.json"),
+        "modal_cantilever_sensitive.request.json" => file!("modal_cantilever_sensitive.request.json"),
+        "modal_refused_unseparated.json" => file!("modal_refused_unseparated.json"),
+        "modal_refused_unseparated.request.json" => file!("modal_refused_unseparated.request.json"),
+        "modal_refused_no_bound.json" => file!("modal_refused_no_bound.json"),
+        "modal_refused_no_bound.request.json" => file!("modal_refused_no_bound.request.json"),
+        other => panic!("no committed modal fixture `{other}`"),
+    }
+}
+
+fn pointer_parts(path: &str) -> Vec<String> {
+    path.split('/').skip(1).map(|p| p.replace("~1", "/").replace("~0", "~")).collect()
+}
+
+fn parent_of<'a>(doc: &'a mut Value, parts: &[String]) -> &'a mut Value {
+    let mut node = doc;
+    for part in &parts[..parts.len() - 1] {
+        node = match node {
+            Value::Array(items) => &mut items[part.parse::<usize>().unwrap()],
+            other => other.get_mut(part.as_str()).unwrap_or_else(|| panic!("no member `{part}`")),
+        };
+    }
+    node
+}
+
+/// The corpus operations (module docs).
+fn apply(doc: &mut Value, operations: &[Value]) {
+    for op in operations {
+        match op["op"].as_str().unwrap() {
+            "replace" | "add" | "scale" => {
+                let parts = pointer_parts(op["path"].as_str().unwrap());
+                let last = parts.last().unwrap().clone();
+                let parent = parent_of(doc, &parts);
+                let slot = match parent {
+                    Value::Array(items) => &mut items[last.parse::<usize>().unwrap()],
+                    Value::Object(map) => {
+                        if op["op"] == "add" {
+                            assert!(!map.contains_key(&last), "add of an existing member");
+                            map.insert(last.clone(), Value::Null);
+                        } else {
+                            assert!(map.contains_key(&last), "{op}");
+                        }
+                        map.get_mut(&last).unwrap()
+                    }
+                    _ => panic!("{op}"),
+                };
+                if op["op"] == "scale" {
+                    let factor = op["factor"].as_f64().unwrap();
+                    *slot = json!(slot.as_f64().unwrap() * factor);
+                } else {
+                    *slot = op["value"].clone();
+                }
+            }
+            "scale_rows" => {
+                let field = op["field"].as_str().unwrap();
+                let factor = op["factor"].as_f64().unwrap();
+                let rows = doc["tables"][op["table"].as_str().unwrap()]["rows"].as_array_mut().unwrap();
+                for row in rows {
+                    if op["where"].as_object().unwrap().iter().all(|(k, v)| row[k] == *v) {
+                        let value = &mut row[field]["value"];
+                        *value = json!(value.as_f64().unwrap() * factor);
+                    }
+                }
+            }
+            "withhold" => {
+                doc["tables"][op["table"].as_str().unwrap()] = json!({"status": "withheld", "reason": "corpus: payload withheld"});
+            }
+            other => panic!("unknown corpus operation `{other}`"),
+        }
+    }
+}
+
+fn reseal_table(table: &mut Value) {
+    if table["status"] != "published" {
+        return;
+    }
+    let mut checksums = Vec::new();
+    for row in table["rows"].as_array_mut().unwrap() {
+        let mut body = row.as_object().unwrap().clone();
+        body.remove("checksum");
+        let checksum = modal_reader_sha256(&Value::Object(body)).unwrap();
+        row["checksum"] = json!(checksum);
+        checksums.push(json!(checksum));
+    }
+    table["row_count"] = json!(checksums.len());
+    table["digest"] = json!(modal_reader_sha256(&Value::Array(checksums)).unwrap());
+}
+
+/// Recomputes every row checksum and table digest.
+fn reseal(doc: &mut Value) {
+    if let Some(tables) = doc.get_mut("tables").and_then(Value::as_object_mut) {
+        for table in tables.values_mut() {
+            reseal_table(table);
+        }
+    }
+    if let Some(table) = doc.get_mut("refusals") {
+        reseal_table(table);
+    }
+}
+
+/// The verdict's statuses, as the corpus states them.
+fn statuses(verdict: &Value) -> Value {
+    let relations: serde_json::Map<String, Value> =
+        verdict["relations"].as_object().unwrap().iter().map(|(k, v)| (k.clone(), v["status"].clone())).collect();
+    json!({"closure": verdict["closure"]["status"], "binding": verdict["binding"]["status"], "relations": relations,
+        "health": verdict["health"], "decision": verdict["decision"], "refusal_codes": verdict["refusal_codes"]})
+}
+
+fn run(entry: &Value) -> (Value, Value) {
+    let mut doc: Value = serde_json::from_str(fixture(entry["document"].as_str().unwrap())).unwrap();
+    apply(&mut doc, entry["operations"].as_array().unwrap());
+    if entry["reseal"] == true {
+        reseal(&mut doc);
+    }
+    let request = entry["request"].as_str().map(|name| {
+        let mut request: Value = serde_json::from_str(fixture(name)).unwrap();
+        apply(&mut request, entry["request_operations"].as_array().unwrap());
+        request
+    });
+    let verdict = read_modal_result(&doc, ModalSupplied { request: request.as_ref() }).modal_verdict_json();
+    (statuses(&verdict), verdict)
+}
+
+fn intent_holds(entry: &Value, got: &Value) -> bool {
+    match entry["intent"].as_str().unwrap() {
+        "none" => ["consistent_with_scoped_unsupported", "refusal_consistent"].contains(&got["decision"].as_str().unwrap()),
+        "scoped" => {
+            got["decision"] == "consistent_with_scoped_unsupported"
+                && got["relations"].as_object().unwrap().values().all(|s| s != "failed")
+        }
+        "closure" | "binding" => got[entry["intent"].as_str().unwrap()] == "failed" && got["decision"] == "rejected",
+        relation => got["relations"][relation] == "failed" && got["decision"] == "rejected",
+    }
+}
+
+#[test]
+fn the_rust_reader_returns_every_corpus_verdict() {
+    let corpus: Value = serde_json::from_str(CORPUS).unwrap();
+    let entries = corpus["entries"].as_array().unwrap();
+    assert!(entries.len() >= 50);
+    for entry in entries {
+        let (got, verdict) = run(entry);
+        assert!(intent_holds(entry, &got), "{}: the targeted standing does not hold: {verdict:#}", entry["id"]);
+        assert_eq!(got, entry["expected"], "{}: {verdict:#}", entry["id"]);
+    }
+}
+
+#[test]
+fn every_tampered_relation_is_targeted_and_both_readers_share_one_corpus() {
+    let corpus: Value = serde_json::from_str(CORPUS).unwrap();
+    let intents: std::collections::BTreeSet<&str> =
+        corpus["entries"].as_array().unwrap().iter().map(|e| e["intent"].as_str().unwrap()).collect();
+    for needed in ["none", "scoped", "closure", "binding", "mass", "normalization", "participation", "counts", "clusters", "sturm", "evidence", "standing", "units"] {
+        assert!(intents.contains(needed), "the corpus targets `{needed}`");
+    }
+}
+
+/// Writes each entry's `expected` from this reader (run explicitly to
+/// regenerate; every expectation is then reviewed against its intent and the
+/// Python reader is held to it).
+#[test]
+#[ignore = "writes the corpus expectations; run explicitly after a reviewed corpus change"]
+fn write_modal_corpus_expectations() {
+    let mut corpus: Value = serde_json::from_str(CORPUS).unwrap();
+    for entry in corpus["entries"].as_array_mut().unwrap() {
+        let (got, _) = run(entry);
+        entry["expected"] = got;
+    }
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../fixtures/results/modal_corpus.json");
+    let mut text = serde_json::to_string_pretty(&corpus).unwrap();
+    text.push('\n');
+    std::fs::write(path, text).unwrap();
+}
