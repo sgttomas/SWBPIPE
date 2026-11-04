@@ -33,9 +33,11 @@
 //!
 //! Every operation carries unit `none` and dimension `dimensionless`. The same
 //! value as stored, and a clear of an absent member, is `OP-DATA-UNCHANGED`.
-//! "The same value" is judged on canonical JSON text (RFC 8785), as the stale
-//! before-value check is, so `20` and `20.0` (or `-0` and `0`) are the same
-//! value whichever lane parsed the document.
+//! "The same value" ([`same_value`]) means the same canonical JSON text (RFC
+//! 8785, as the stale before-value check and the model hash judge it) and the
+//! same exact numbers, so `20`, `20.0` and `2e1` (or `-0` and `0`) are one value
+//! whichever lane parsed the document, while numerically different values whose
+//! canonical text coincides (an integer and a float beyond 2^53) stay different.
 //! The product creates no set and writes no value the person did not enter.
 //!
 //! **Route admission of a use** ([`admit_case_use`], also applied to
@@ -551,6 +553,44 @@ fn document_ok(model: &Value) -> bool {
         && model.get("schema_version").and_then(Value::as_str) == Some(open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION)
 }
 
+/// The no-op judgement of `OP-DATA-UNCHANGED`: equal canonical JSON text and
+/// equal exact numbers. Canonical text alone would collapse an integer and a
+/// float beyond 2^53 that render alike (`1000000000000000100` and the float
+/// `1000000000000000128.0`); exact numbers alone would differ from the hash
+/// where an integer and an equal float render differently. Requiring both
+/// refuses only an edit that changes neither the value nor the canonical bytes.
+fn same_value(left: Option<&Value>, right: Option<&Value>) -> bool {
+    match (left, right) {
+        (None, None) => true,
+        (Some(left), Some(right)) => canonical_json(left) == canonical_json(right) && same_numbers(left, right),
+        _ => false,
+    }
+}
+
+/// Exact numeric equality over equal-shaped values (`-0` equals `0`); any
+/// other difference of shape is left to the canonical-text comparison.
+fn same_numbers(left: &Value, right: &Value) -> bool {
+    fn integer(number: &serde_json::Number) -> Option<i128> {
+        number.as_i64().map(i128::from).or_else(|| number.as_u64().map(i128::from))
+    }
+    fn float_is(float: Option<f64>, value: i128) -> bool {
+        float.is_some_and(|float| float.fract() == 0.0 && float.abs() < 1.0e38 && float as i128 == value)
+    }
+    match (left, right) {
+        (Value::Number(a), Value::Number(b)) => match (integer(a), integer(b)) {
+            (Some(a), Some(b)) => a == b,
+            (Some(a), None) => float_is(b.as_f64(), a),
+            (None, Some(b)) => float_is(a.as_f64(), b),
+            (None, None) => a.as_f64() == b.as_f64(),
+        },
+        (Value::Array(a), Value::Array(b)) => a.len() == b.len() && a.iter().zip(b).all(|(a, b)| same_numbers(a, b)),
+        (Value::Object(a), Value::Object(b)) => {
+            a.len() == b.len() && a.iter().all(|(key, value)| b.get(key).is_some_and(|other| same_numbers(value, other)))
+        }
+        (a, b) => a == b,
+    }
+}
+
 fn row(entity_ref: &str, object_type: &str, field_path: &str, before: String, after: String, change_kind: &str) -> DiffPreviewRow {
     DiffPreviewRow {
         entity_ref: entity_ref.to_string(),
@@ -692,7 +732,7 @@ fn resolve_record(model: &Value, intent: &Value) -> Result<GeometryEdit, Geometr
                 }
                 let record = Value::Object(record);
                 let after_text = canonical_json(&record);
-                if after_text == current {
+                if after_text == current && same_numbers(&record, &records[index]) {
                     return Err(refusal("OP-DATA-UNCHANGED", "The updated condition set equals the current one; nothing to apply.", &refs));
                 }
                 list[index] = record;
@@ -848,7 +888,7 @@ fn resolve_use(model: &Value, intent: &Value) -> Result<GeometryEdit, Vec<Geomet
         }
         Some(parsed)
     };
-    if next.as_ref().map(canonical_json) == current.map(canonical_json) {
+    if same_value(next.as_ref(), current) {
         let message = if clearing {
             format!("Load case `{target_ref}` has no condition use; nothing to clear.")
         } else {

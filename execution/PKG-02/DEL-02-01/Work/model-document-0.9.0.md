@@ -1511,9 +1511,11 @@ canonical JSON or `not_present`; `after` is `{"condition_set_ref": id}`, or
 `not_present` to clear. A set that does not exist is the validator's
 `OPERATING_CONDITION_SET_UNRESOLVED`; the same value as stored is
 `OP-DATA-UNCHANGED`. For every condition-set operation (an update, an assignment and a case's
-condition use) "the same value" is judged on canonical JSON text, as the stale before-value check
-is: `20`, `20.0` and `2e1` are one value, as are `-0` and `0`, whichever lane parsed the document;
-units, strings and every other member compare exactly. `connect_pipe_run` still refuses `condition_set_ref` in its
+condition use) "the same value" means the same canonical JSON text, as the stale before-value check
+and the model hash judge it, and the same exact numbers: `20`, `20.0` and `2e1` are one value, as
+are `-0` and `0`, whichever lane parsed the document, while numerically different values whose
+canonical text coincides (an integer and a float beyond 2^53) stay different; units, strings and
+every other member compare exactly. `connect_pipe_run` still refuses `condition_set_ref` in its
 payload (S1): assignment is its own operation.
 
 **Case condition use, `set_load_case_condition_use` and

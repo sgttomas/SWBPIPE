@@ -950,8 +950,10 @@ fn an_authored_document_saves_and_reopens_byte_for_byte() {
 /// as the stale before-value check and the model hash do, so a model that reached
 /// the engine through JavaScript (`JSON.parse` gives integer form) and an `after`
 /// written in float or exponent form are one value (corpus case `s3a_14`). A real
-/// change of value, unit or any other member still applies, and distinct large
-/// integers stay distinct.
+/// change of value, unit or any other member still applies, stores the authored
+/// `after` as parsed, and is undone (canonically, with the model hash) by the
+/// inverse its own diff row states. Numerically different large values stay
+/// different even where their canonical text coincides.
 #[test]
 fn unchanged_is_judged_on_canonical_value_across_number_forms() {
     let float_text = set_a().to_string();
@@ -994,8 +996,12 @@ fn unchanged_is_judged_on_canonical_value_across_number_forms() {
         }
         let (changed, outcome) = applied(&integer_model, &update_set(&integer_model, &next));
         assert_eq!(outcome.diff_preview[0].after, canonical_json(&next));
-        let (back, _) = applied(&changed, &update_set(&changed, &integer_form));
-        assert_eq!(bytes(&back), bytes(&integer_model), "the inverse restores the stored form");
+        assert_eq!(find(&changed, "condition_sets", "cs:a").unwrap(), &next, "the authored after is stored as parsed");
+        let mut inverse = update_set(&changed, &next);
+        inverse["change"]["after"] = json!(outcome.diff_preview[0].before.clone());
+        let (back, _) = applied(&changed, &inverse);
+        assert_eq!(bytes(&back), bytes(&integer_model), "the diff row's inverse restores the canonical document");
+        assert_eq!(claim(&back), claim(&integer_model), "and its model hash");
     }
 
     // Distinct large integers stay distinct: 2^53 + 1 against the float 2^53.
@@ -1005,6 +1011,16 @@ fn unchanged_is_judged_on_canonical_value_across_number_forms() {
     let mut rounded = set_a();
     rounded["installation_temperature"]["value"] = json!(9_007_199_254_740_992.0_f64);
     let outcome = apply_operation(&large_model, &with_after(&large_model, rounded.to_string()), Some(&claim(&large_model)));
+    assert!(!blocking(&outcome).iter().any(|code| code == "OP-DATA-UNCHANGED"), "{:?}", records(&outcome));
+    // ... and where their canonical text coincides: the integer 10^18 + 100 and the
+    // float 10^18 + 128 both render `1000000000000000100`, but differ by 28.
+    let mut integer_large = set_a();
+    integer_large["installation_temperature"]["value"] = json!(1_000_000_000_000_000_100_u64);
+    let mut float_large = set_a();
+    float_large["installation_temperature"]["value"] = json!(1_000_000_000_000_000_128.0_f64);
+    assert_eq!(canonical_json(&integer_large), canonical_json(&float_large), "the collision this guards");
+    let collision_model = with_sets(&[integer_large]);
+    let outcome = apply_operation(&collision_model, &with_after(&collision_model, float_large.to_string()), Some(&claim(&collision_model)));
     assert!(!blocking(&outcome).iter().any(|code| code == "OP-DATA-UNCHANGED"), "{:?}", records(&outcome));
 
     // A case's condition use: the same use is unchanged, a different one applies.
