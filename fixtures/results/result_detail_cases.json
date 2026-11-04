@@ -11482,6 +11482,1960 @@
    ]
   },
   {
+   "name": "difference_basis/0",
+   "result": {
+    "path": "fixtures/results/preview_physics_difference_basis_corpus.json",
+    "pointer": "/documents/0/document"
+   },
+   "queries": [
+    {
+     "filter": {},
+     "offset": 0,
+     "limit": 1
+    },
+    {
+     "filter": {},
+     "offset": 0,
+     "limit": 7
+    },
+    {
+     "filter": {},
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {},
+     "offset": 427,
+     "limit": 50
+    },
+    {
+     "filter": {},
+     "offset": 428,
+     "limit": 5
+    },
+    {
+     "filter": {},
+     "offset": 438,
+     "limit": 5
+    },
+    {
+     "filter": {},
+     "offset": 1000000000000000,
+     "limit": 1
+    },
+    {
+     "filter": {},
+     "offset": 0,
+     "limit": 0
+    },
+    {
+     "filter": {},
+     "offset": 0,
+     "limit": 1001
+    },
+    {
+     "filter": {
+      "family": "all"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "displacement"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "rotation"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "reaction"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "force"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "moment"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "stress"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "ratio"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "other"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "stress"
+     },
+     "offset": 3,
+     "limit": 2
+    },
+    {
+     "filter": {
+      "frame": "all"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "reduced_system"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "solver_iteration"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "unstated"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "global"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "element_local"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "pipe_section"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "not_applicable"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "no-such-frame"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "case": "all"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "case": "load_case:case:S"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "case": "load_case:case:O"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "case": "combination:comb:o-s"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "case": "combination:comb:plain"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": ""
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "   "
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "undefined"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "null"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "e+"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "[object"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "result:solver-mode:linear-solve-basis"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "SULT:SOLVER-"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "mode_code"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "1"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "linear_s"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "solver:linear_static_preview"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "case:S"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "result:loadcase:case-O:element-global-end:pipe-a-b:end_i:fy"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "SULT:LOADCAS"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "N"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "0"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "element_"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "pipe:a-b"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "end_i"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "case:O"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "result:combination:comb-plain:modulus-basis:case-S"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "SULT:COMBINA"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "record"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "combinat"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "comb:plain"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "kinds": [
+       "linear_solver_mode_basis"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "kinds": [
+       "linear_solver_mode_basis",
+       "element_global_end_force_v1",
+       "combination_modulus_basis_record"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "kinds": []
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "kinds": [
+       "no-such-kind"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "entities": [
+       "solver:linear_static_preview"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "entities": [
+       "solver:linear_static_preview",
+       "pipe:a-b",
+       "case:S"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "ids": [
+       "result:solver-mode:linear-solve-basis"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "ids": []
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "ids": [
+       "no-such-id"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "ids": [
+       "result:solver-mode:linear-solve-basis",
+       "result:nonlinear-support:iteration-count",
+       "result:nonlinear-support:final-residual-count"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "set": "case:S"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "station": "case:S"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "set": "no-such-set",
+      "station": "no-such-station"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "mode_code",
+      "family": "all",
+      "frame": "reduced_system",
+      "case": "load_case:case:S",
+      "kinds": [
+       "linear_solver_mode_basis"
+      ],
+      "entities": [
+       "solver:linear_static_preview"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "pipe",
+      "family": "stress",
+      "frame": "all",
+      "case": "load_case:case:S"
+     },
+     "offset": 0,
+     "limit": 50
+    },
+    {
+     "filter": {
+      "text": "pipe",
+      "family": "stress",
+      "frame": "all",
+      "case": "load_case:case:S"
+     },
+     "offset": 50,
+     "limit": 50
+    },
+    {
+     "filter": {
+      "text": "mode_code",
+      "family": "displacement",
+      "frame": "reduced_system",
+      "case": "all"
+     },
+     "offset": 2,
+     "limit": 3
+    },
+    {
+     "filter": {
+      "kinds": [
+       "linear_solver_mode_basis",
+       "element_global_end_force_v1",
+       "combination_modulus_basis_record"
+      ],
+      "entities": [
+       "solver:linear_static_preview",
+       "pipe:a-b",
+       "case:S"
+      ]
+     },
+     "offset": 1,
+     "limit": 2
+    },
+    {
+     "filter": {
+      "kinds": [
+       "linear_solver_mode_basis"
+      ],
+      "entities": []
+     },
+     "offset": 0,
+     "limit": 50
+    }
+   ],
+   "lookups": [
+    {
+     "ordinals": [
+      0,
+      214,
+      427,
+      428,
+      1000000000000000
+     ],
+     "match": "first"
+    },
+    {
+     "ids": [
+      "result:solver-mode:linear-solve-basis",
+      "result:combination:comb-plain:modulus-basis:case-S",
+      "no-such-id",
+      "result:solver-mode:linear-solve-basis"
+     ],
+     "kinds": [
+      "linear_solver_mode_basis",
+      "combination_modulus_basis_record",
+      "no-such-kind"
+     ],
+     "match": "first"
+    },
+    {
+     "ids": [
+      "result:solver-mode:linear-solve-basis",
+      "result:combination:comb-plain:modulus-basis:case-S",
+      "no-such-id"
+     ],
+     "kinds": [
+      "linear_solver_mode_basis",
+      "combination_modulus_basis_record",
+      "no-such-kind"
+     ],
+     "match": "last"
+    },
+    {
+     "ordinals": [
+      0
+     ],
+     "ids": [
+      "no-such-id"
+     ],
+     "match": "last"
+    },
+    {
+     "ordinals": [],
+     "match": "first"
+    }
+   ],
+   "recoveries": [
+    {
+     "offset": 0,
+     "limit": 1000,
+     "raw": true
+    }
+   ]
+  },
+  {
+   "name": "difference_basis/3",
+   "result": {
+    "path": "fixtures/results/preview_physics_difference_basis_corpus.json",
+    "pointer": "/documents/3/document"
+   },
+   "queries": [
+    {
+     "filter": {},
+     "offset": 0,
+     "limit": 1
+    },
+    {
+     "filter": {},
+     "offset": 0,
+     "limit": 7
+    },
+    {
+     "filter": {},
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {},
+     "offset": 938,
+     "limit": 50
+    },
+    {
+     "filter": {},
+     "offset": 939,
+     "limit": 5
+    },
+    {
+     "filter": {},
+     "offset": 949,
+     "limit": 5
+    },
+    {
+     "filter": {},
+     "offset": 1000000000000000,
+     "limit": 1
+    },
+    {
+     "filter": {},
+     "offset": 0,
+     "limit": 0
+    },
+    {
+     "filter": {},
+     "offset": 0,
+     "limit": 1001
+    },
+    {
+     "filter": {
+      "family": "all"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "displacement"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "rotation"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "reaction"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "force"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "moment"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "stress"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "ratio"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "other"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "stress"
+     },
+     "offset": 3,
+     "limit": 2
+    },
+    {
+     "filter": {
+      "frame": "all"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "reduced_system"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "solver_iteration"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "unstated"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "global"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "element_local"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "pipe_section"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "not_applicable"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "no-such-frame"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "case": "all"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "case": "load_case:case:S"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "case": "load_case:case:O-LIFT"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "case": "load_case:case:O-ACT"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "case": "combination:comb:lift"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "case": "combination:comb:act"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": ""
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "   "
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "undefined"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "null"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "e+"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "[object"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "result:solver-mode:linear-solve-basis"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "SULT:SOLVER-"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "mode_code"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "1"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "linear_s"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "solver:linear_static_preview"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "case:S"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "result:loadcase:case-O-ACT:force:pipe-AM:quarter-1:axial"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "SULT:LOADCAS"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "N"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "0"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "element_"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "pipe:AM"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "quarter_1"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "case:O-ACT"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "result:combination:comb-act:modulus-basis:case-S"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "SULT:COMBINA"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "record"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "combinat"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "comb:act"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "kinds": [
+       "linear_solver_mode_basis"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "kinds": [
+       "linear_solver_mode_basis",
+       "element_local_axial_force",
+       "combination_modulus_basis_record"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "kinds": []
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "kinds": [
+       "no-such-kind"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "entities": [
+       "solver:linear_static_preview"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "entities": [
+       "solver:linear_static_preview",
+       "pipe:AM",
+       "case:S"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "ids": [
+       "result:solver-mode:linear-solve-basis"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "ids": []
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "ids": [
+       "no-such-id"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "ids": [
+       "result:solver-mode:linear-solve-basis",
+       "result:nonlinear-support:iteration-count",
+       "result:nonlinear-support:final-residual-count"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "set": "case:S"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "station": "case:S"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "set": "no-such-set",
+      "station": "no-such-station"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "mode_code",
+      "family": "all",
+      "frame": "reduced_system",
+      "case": "load_case:case:S",
+      "kinds": [
+       "linear_solver_mode_basis"
+      ],
+      "entities": [
+       "solver:linear_static_preview"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "pipe",
+      "family": "stress",
+      "frame": "all",
+      "case": "load_case:case:S"
+     },
+     "offset": 0,
+     "limit": 50
+    },
+    {
+     "filter": {
+      "text": "pipe",
+      "family": "stress",
+      "frame": "all",
+      "case": "load_case:case:S"
+     },
+     "offset": 50,
+     "limit": 50
+    },
+    {
+     "filter": {
+      "text": "mode_code",
+      "family": "displacement",
+      "frame": "reduced_system",
+      "case": "all"
+     },
+     "offset": 2,
+     "limit": 3
+    },
+    {
+     "filter": {
+      "kinds": [
+       "linear_solver_mode_basis",
+       "element_local_axial_force",
+       "combination_modulus_basis_record"
+      ],
+      "entities": [
+       "solver:linear_static_preview",
+       "pipe:AM",
+       "case:S"
+      ]
+     },
+     "offset": 1,
+     "limit": 2
+    },
+    {
+     "filter": {
+      "kinds": [
+       "linear_solver_mode_basis"
+      ],
+      "entities": []
+     },
+     "offset": 0,
+     "limit": 50
+    }
+   ],
+   "lookups": [
+    {
+     "ordinals": [
+      0,
+      469,
+      938,
+      939,
+      1000000000000000
+     ],
+     "match": "first"
+    },
+    {
+     "ids": [
+      "result:solver-mode:linear-solve-basis",
+      "result:combination:comb-act:modulus-basis:case-S",
+      "no-such-id",
+      "result:solver-mode:linear-solve-basis"
+     ],
+     "kinds": [
+      "linear_solver_mode_basis",
+      "combination_modulus_basis_record",
+      "no-such-kind"
+     ],
+     "match": "first"
+    },
+    {
+     "ids": [
+      "result:solver-mode:linear-solve-basis",
+      "result:combination:comb-act:modulus-basis:case-S",
+      "no-such-id"
+     ],
+     "kinds": [
+      "linear_solver_mode_basis",
+      "combination_modulus_basis_record",
+      "no-such-kind"
+     ],
+     "match": "last"
+    },
+    {
+     "ordinals": [
+      0
+     ],
+     "ids": [
+      "no-such-id"
+     ],
+     "match": "last"
+    },
+    {
+     "ordinals": [],
+     "match": "first"
+    }
+   ],
+   "recoveries": [
+    {
+     "offset": 0,
+     "limit": 1000,
+     "raw": true
+    }
+   ]
+  },
+  {
+   "name": "difference_basis/9",
+   "result": {
+    "path": "fixtures/results/preview_physics_difference_basis_corpus.json",
+    "pointer": "/documents/9/document"
+   },
+   "queries": [
+    {
+     "filter": {},
+     "offset": 0,
+     "limit": 1
+    },
+    {
+     "filter": {},
+     "offset": 0,
+     "limit": 7
+    },
+    {
+     "filter": {},
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {},
+     "offset": 336,
+     "limit": 50
+    },
+    {
+     "filter": {},
+     "offset": 337,
+     "limit": 5
+    },
+    {
+     "filter": {},
+     "offset": 347,
+     "limit": 5
+    },
+    {
+     "filter": {},
+     "offset": 1000000000000000,
+     "limit": 1
+    },
+    {
+     "filter": {},
+     "offset": 0,
+     "limit": 0
+    },
+    {
+     "filter": {},
+     "offset": 0,
+     "limit": 1001
+    },
+    {
+     "filter": {
+      "family": "all"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "displacement"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "rotation"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "reaction"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "force"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "moment"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "stress"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "ratio"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "other"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "stress"
+     },
+     "offset": 3,
+     "limit": 2
+    },
+    {
+     "filter": {
+      "frame": "all"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "reduced_system"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "solver_iteration"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "unstated"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "global"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "element_local"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "pipe_section"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "not_applicable"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "no-such-frame"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "case": "all"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "case": "load_case:case:S"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "case": "load_case:case:O"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "case": "combination:comb:plain"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "case": "combination:comb:o-s"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": ""
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "   "
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "undefined"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "null"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "e+"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "[object"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "result:solver-mode:linear-solve-basis"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "SULT:SOLVER-"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "mode_code"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "1"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "linear_s"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "solver:linear_static_preview"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "case:S"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "result:loadcase:case-O:force:pipe-a-b:shear-z:end-j"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "SULT:LOADCAS"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "N"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "0"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "element_"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "pipe:a-b"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "end_j"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "case:O"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "result:combination:comb-plain:modulus-basis:case-S"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "SULT:COMBINA"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "record"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "combinat"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "comb:plain"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "kinds": [
+       "linear_solver_mode_basis"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "kinds": [
+       "linear_solver_mode_basis",
+       "element_local_shear_force_z",
+       "combination_modulus_basis_record"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "kinds": []
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "kinds": [
+       "no-such-kind"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "entities": [
+       "solver:linear_static_preview"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "entities": [
+       "solver:linear_static_preview",
+       "pipe:a-b",
+       "case:S"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "ids": [
+       "result:solver-mode:linear-solve-basis"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "ids": []
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "ids": [
+       "no-such-id"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "ids": [
+       "result:solver-mode:linear-solve-basis",
+       "result:nonlinear-support:iteration-count",
+       "result:nonlinear-support:final-residual-count"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "set": "case:S"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "station": "case:S"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "set": "no-such-set",
+      "station": "no-such-station"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "mode_code",
+      "family": "all",
+      "frame": "reduced_system",
+      "case": "load_case:case:S",
+      "kinds": [
+       "linear_solver_mode_basis"
+      ],
+      "entities": [
+       "solver:linear_static_preview"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "pipe",
+      "family": "stress",
+      "frame": "all",
+      "case": "load_case:case:S"
+     },
+     "offset": 0,
+     "limit": 50
+    },
+    {
+     "filter": {
+      "text": "pipe",
+      "family": "stress",
+      "frame": "all",
+      "case": "load_case:case:S"
+     },
+     "offset": 50,
+     "limit": 50
+    },
+    {
+     "filter": {
+      "text": "mode_code",
+      "family": "displacement",
+      "frame": "reduced_system",
+      "case": "all"
+     },
+     "offset": 2,
+     "limit": 3
+    },
+    {
+     "filter": {
+      "kinds": [
+       "linear_solver_mode_basis",
+       "element_local_shear_force_z",
+       "combination_modulus_basis_record"
+      ],
+      "entities": [
+       "solver:linear_static_preview",
+       "pipe:a-b",
+       "case:S"
+      ]
+     },
+     "offset": 1,
+     "limit": 2
+    },
+    {
+     "filter": {
+      "kinds": [
+       "linear_solver_mode_basis"
+      ],
+      "entities": []
+     },
+     "offset": 0,
+     "limit": 50
+    }
+   ],
+   "lookups": [
+    {
+     "ordinals": [
+      0,
+      168,
+      336,
+      337,
+      1000000000000000
+     ],
+     "match": "first"
+    },
+    {
+     "ids": [
+      "result:solver-mode:linear-solve-basis",
+      "result:combination:comb-plain:modulus-basis:case-S",
+      "no-such-id",
+      "result:solver-mode:linear-solve-basis"
+     ],
+     "kinds": [
+      "linear_solver_mode_basis",
+      "combination_modulus_basis_record",
+      "no-such-kind"
+     ],
+     "match": "first"
+    },
+    {
+     "ids": [
+      "result:solver-mode:linear-solve-basis",
+      "result:combination:comb-plain:modulus-basis:case-S",
+      "no-such-id"
+     ],
+     "kinds": [
+      "linear_solver_mode_basis",
+      "combination_modulus_basis_record",
+      "no-such-kind"
+     ],
+     "match": "last"
+    },
+    {
+     "ordinals": [
+      0
+     ],
+     "ids": [
+      "no-such-id"
+     ],
+     "match": "last"
+    },
+    {
+     "ordinals": [],
+     "match": "first"
+    }
+   ],
+   "recoveries": [
+    {
+     "offset": 0,
+     "limit": 1000,
+     "raw": true
+    }
+   ]
+  },
+  {
    "name": "combination/0",
    "result": {
     "path": "fixtures/results/pressure_v3_combination_reader_corpus.json",

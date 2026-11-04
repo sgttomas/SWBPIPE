@@ -342,6 +342,51 @@
       }
     },
     {
+      "name": "difference_basis/0",
+      "result": {
+        "path": "fixtures/results/preview_physics_difference_basis_corpus.json",
+        "pointer": "/documents/0/document"
+      },
+      "model": {
+        "path": "fixtures/results/preview_physics_difference_basis_corpus.json",
+        "pointer": "/documents/0/model"
+      },
+      "standing": {
+        "eligible": true,
+        "findings": []
+      }
+    },
+    {
+      "name": "difference_basis/3",
+      "result": {
+        "path": "fixtures/results/preview_physics_difference_basis_corpus.json",
+        "pointer": "/documents/3/document"
+      },
+      "model": {
+        "path": "fixtures/results/preview_physics_difference_basis_corpus.json",
+        "pointer": "/documents/3/model"
+      },
+      "standing": {
+        "eligible": true,
+        "findings": []
+      }
+    },
+    {
+      "name": "difference_basis/9",
+      "result": {
+        "path": "fixtures/results/preview_physics_difference_basis_corpus.json",
+        "pointer": "/documents/9/document"
+      },
+      "model": {
+        "path": "fixtures/results/preview_physics_difference_basis_corpus.json",
+        "pointer": "/documents/9/model"
+      },
+      "standing": {
+        "eligible": true,
+        "findings": []
+      }
+    },
+    {
       "name": "combination/0",
       "result": {
         "path": "fixtures/results/pressure_v3_combination_reader_corpus.json",
