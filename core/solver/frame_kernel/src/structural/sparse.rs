@@ -2010,6 +2010,73 @@ pub fn finish_sparse_structural(
     )
 }
 
+/// RT-A3 P step 3: a positive skyline factor kept for further right-hand sides
+/// of the same prepared matrix (the nonlinear loop's base, unit-load coupling
+/// and final solves of one iterate). It holds the factor, its pivot evidence,
+/// and the prepared matrix it factors (free map, scale exponents and stored
+/// entries), against which every later prepared system is compared bit for
+/// bit before its completion (`finish_sparse_structural_on`).
+pub struct SharedSparseFactor {
+    factor: ProfileFactor,
+    pivots: Vec<PivotEvidence>,
+    free_dofs: Vec<usize>,
+    scale_exponents: Vec<i32>,
+    row_starts: Vec<usize>,
+    columns: Vec<usize>,
+    values: Vec<u64>,
+}
+
+impl SparsePositiveFactor<'_, '_> {
+    /// Keeps this factor for further right-hand sides of its prepared matrix.
+    pub fn share(self) -> SharedSparseFactor {
+        SharedSparseFactor {
+            free_dofs: self.prepared.source.free_dofs.to_vec(),
+            scale_exponents: self.prepared.scale_exponents.clone(),
+            row_starts: self.prepared.row_starts.clone(),
+            columns: self.prepared.columns.clone(),
+            values: self.prepared.values.iter().map(|v| v.to_bits()).collect(),
+            factor: self.factor,
+            pivots: self.pivots,
+        }
+    }
+}
+
+/// RT-A3 P step 3: `finish_sparse_structural` of `prepared` on a kept factor.
+/// `prepared` is validated as `factor_sparse_structural_profile` validates it,
+/// and its prepared matrix (free map, scale exponents, stored entries, bit for
+/// bit) must be the kept factor's; otherwise it is refused. A factor is a
+/// deterministic function of that matrix (SD's order and skyline read only its
+/// stored nonzero entries), so the result is the separate solve's
+/// (`solve_sparse_prepared`) bit for bit.
+pub fn finish_sparse_structural_on(
+    factor: &SharedSparseFactor,
+    prepared: &SparsePreparedSystem<'_>,
+) -> Result<StructuralSolution, StructuralError> {
+    validate_sparse_prepared(prepared)?;
+    if prepared.source.free_dofs != factor.free_dofs.as_slice()
+        || prepared.scale_exponents != factor.scale_exponents
+        || prepared.row_starts != factor.row_starts
+        || prepared.columns != factor.columns
+        || prepared.values.len() != factor.values.len()
+        || prepared
+            .values
+            .iter()
+            .zip(&factor.values)
+            .any(|(v, bits)| v.to_bits() != *bits)
+    {
+        return Err(StructuralError::InvalidInput(
+            "prepared matrix differs from the shared factor's",
+        ));
+    }
+    finish_checked_factor(
+        prepared.source,
+        prepared,
+        factor.pivots.clone(),
+        "positive skyline LDL",
+        |rhs| factor.factor.solve(rhs),
+    )
+}
+
 /// RT-A3 P: `evaluate_original_residual` (the named binary64 binding) on the
 /// sparse representation, through the shared `evaluate_original_residual_bound`.
 pub fn evaluate_sparse_original_residual(

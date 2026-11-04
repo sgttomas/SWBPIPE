@@ -531,6 +531,7 @@ fn option_c_nonlinear_loop_is_pinned_to_the_binary64_kernel_path() {
     for required in [
         "reduce_sparse_system_with_prescribed_displacements_binary64(",
         "assembly.solve_binary64(",
+        "assembly.solve_binary64_shared(",
         "assembly.product_equilibrium_binary64(",
     ] {
         assert!(
@@ -608,6 +609,10 @@ fn option_c_structural_adapter_legacy_variants_reach_only_binary64_entry_points(
             &["prepare_sparse_structural_binary64(", "prepare_structural_binary64("][..],
         ),
         ("fn product_equilibrium_binary64(", &["evaluate_sparse("][..]),
+        (
+            "fn solve_binary64_shared(",
+            &["prepare_sparse_structural_binary64(", "finish_sparse_structural_on("][..],
+        ),
     ] {
         let range = body_in_impl(&code, ADAPTER_IMPLS[1], defining);
         let body = code[range.clone()].to_string();

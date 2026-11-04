@@ -19,7 +19,8 @@ use open_pipe_stress_frame_kernel::{
     element_dof_map, force_scaled_matrix, force_scaled_value, ForceScale, ForceScaleCensus,
     FrameElement, FrameKernelError, Matrix12,
 };
-use open_pipe_stress_sparse_direct::structural::solve_sparse_prepared;
+use open_pipe_stress_frame_kernel::structural::SharedSparseFactor;
+use open_pipe_stress_sparse_direct::structural::{factor_sparse_structural_ldlt, solve_sparse_prepared};
 
 #[derive(Debug, Clone)]
 pub struct AssemblyEvidence {
@@ -897,6 +898,54 @@ impl SparseAssemblyEvidence {
                 solve_sparse_prepared(structural::prepare_sparse_structural_binary64(&system)?)
             }
         }
+    }
+
+    /// RT-A3 P step 3: `solve_binary64` in `SparseInteractive` on the iterate's
+    /// one factor. The first call of an iterate factors (with the witness on a
+    /// refused factor) and keeps the factor in `shared`; every later call
+    /// prepares its own right-hand side and completes on that factor
+    /// (`finish_sparse_structural_on`, which refuses a prepared matrix that is
+    /// not the factor's bit for bit). Each result is the separate
+    /// `solve_binary64`'s, bit for bit.
+    pub fn solve_binary64_shared(
+        &self,
+        k: &SparseStiffness,
+        f: &[f64],
+        free: &[usize],
+        prescribed: &[(usize, f64)],
+        shared: &mut Option<SharedSparseFactor>,
+    ) -> Result<StructuralSolution, StructuralError> {
+        unscaled_evidence(self.force_scale)?;
+        self.check_pattern(k)?;
+        self.geometry(prescribed)?;
+        let symmetry_basis = symmetry_basis(&self.edges);
+        let system = SparseStructuralSystem::new(
+            k,
+            f,
+            free,
+            prescribed,
+            Some(&self.contributions),
+            Some(self.sparse_symmetry(&symmetry_basis)),
+        )
+        .with_contribution_groups(&self.contribution_groups);
+        let prepared = structural::prepare_sparse_structural_binary64(&system)?;
+        if let Some(factor) = shared.as_ref() {
+            #[cfg(test)]
+            SHARED_FACTOR_COUNTS.with(|c| c.set((c.get().0, c.get().1 + 1)));
+            return structural::finish_sparse_structural_on(factor, &prepared);
+        }
+        #[cfg(test)]
+        SHARED_FACTOR_COUNTS.with(|c| c.set((c.get().0 + 1, c.get().1)));
+        // `solve_sparse_prepared`'s sequence, keeping the factor.
+        let factor = match factor_sparse_structural_ldlt(&prepared) {
+            Ok(factor) => factor,
+            Err(error) => {
+                return Err(structural::sparse_negative_pair_witness(&prepared)?.unwrap_or(error))
+            }
+        };
+        let solution = structural::finish_sparse_structural(&factor);
+        *shared = Some(factor.share());
+        solution
     }
 
     /// RT-A3 P: the loop's product-equilibrium measurement (binary64 binding)
@@ -2925,6 +2974,14 @@ impl<'a> GapSource<'a> {
             operation_counts: &assembly.operation_counts,
         }
     }
+}
+
+#[cfg(test)]
+thread_local! {
+    /// Tests only (RT-A3 P step 3): (factorizations, completions on a kept
+    /// factor) made by `solve_binary64_shared` on this thread.
+    pub(crate) static SHARED_FACTOR_COUNTS: std::cell::Cell<(usize, usize)> =
+        const { std::cell::Cell::new((0, 0)) };
 }
 
 /// The exact boundary context's dimension limit (`exact_boundary`'s

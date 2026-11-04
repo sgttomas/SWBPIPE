@@ -207,3 +207,18 @@ estimate minus one and admission at the estimate (loop entry, both modes), and P
   The carrier cases' pinned hash of `preview_physics_invented_sparse.json` follows. The dense and
   refused-demo envelopes are byte-identical. The native smoke's demo expectations (837 rows,
   `checks_passed` in both modes) are unchanged.
+
+### 8.4 Step 3: one factor per iterate (sparse mode)
+
+- FK keeps a factor for further right-hand sides (`SparsePositiveFactor::share` and
+  `SharedSparseFactor`, which hold a copy of the prepared matrix it factors) and completes another
+  right-hand side on it (`finish_sparse_structural_on`). That completion validates the prepared
+  system as the factor entry does, refuses a prepared matrix that is not the factor's bit for bit,
+  and then runs the same completion. FK `p_a_shared_factor_completes_other_right_hand_sides_as_separate_solves`
+  shows equality with separate solves on several right-hand sides, and the refusal.
+- In NI's step, the first sparse-mode solve of an iterate factors and keeps the factor; the coupling
+  and final solves complete on it (`SparseAssemblyEvidence::solve_binary64_shared`).
+  `p_sparse_mode_factors_once_per_iterate` counts one factorization per iterate and two completions
+  (unit and final) on each coupled iterate; dense scrutiny makes none. The shadow check compares
+  every sparse-mode NI solve with the dense-derived separate solves.
+- The 100 corpus outputs are byte-identical to step 4's.

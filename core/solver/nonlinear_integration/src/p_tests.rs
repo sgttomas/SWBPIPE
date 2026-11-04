@@ -6,6 +6,7 @@
 use crate::*;
 use open_pipe_stress_frame_kernel::{FrameNode, FrameSection};
 use open_pipe_stress_nonlinear_supports::{GapDirection, NonlinearSupport, SupportStateRecord};
+use crate::structural_adapter::SHARED_FACTOR_COUNTS;
 
 /// A chain of `members` unit members along x, anchored at node 0, with every
 /// other DOF restrained except UY and RZ, a downward tip load and a gap at the
@@ -117,4 +118,73 @@ fn p_gap_scrutiny_on_the_pattern_equals_the_dense_loop() {
             assert!(reason.contains("Budget"), "{reason}");
         }
     }
+}
+
+/// A 2 m member inclined at (2, 1, 0) m, anchored at node 0, its tip UY a base
+/// restraint (the normal source) and its tip UX a derived-normal friction
+/// support (mu = 0.5, seeded sliding) under 80 N along x and 100 N down.
+fn inclined_coupled() -> NonlinearFrameSolveInput {
+    let section = FrameSection::new(2.0e11, 8.0e10, 3.5e-3, 1.15e-5, 1.15e-5, 2.3e-5).unwrap();
+    let element = FrameElement::new(
+        FrameNode::new(0, [0.0, 0.0, 0.0]).unwrap(),
+        FrameNode::new(1, [2.0, 1.0, 0.0]).unwrap(),
+        section,
+        [0.0, 0.0, 1.0],
+    )
+    .unwrap();
+    let mut force = vec![0.0; 12];
+    force[6] = 80.0;
+    force[7] = -100.0;
+    NonlinearFrameSolveInput {
+        base_prescribed: Vec::new(),
+        ground_motion: Vec::new(),
+        node_count: 2,
+        elements: vec![element],
+        connectors: Vec::new(),
+        curved_bend_elements: Vec::new(),
+        force,
+        base_restrained_dofs: (0..6).chain([7]).collect(),
+        nonlinear_supports: vec![NonlinearSupport::friction("NL-F", 1, FrameDof::Ux, 0.5).unwrap()],
+        initial_states: vec![SupportStateRecord::new("NL-F", ActiveSetState::Sliding)],
+        friction_normal_reactions: vec![],
+        derived_friction_normal_reactions: vec![DerivedFrictionNormalReaction::from_support_reaction(
+            "NL-F",
+            1,
+            FrameDof::Uy,
+            "source",
+        )
+        .unwrap()],
+        convergence: ConvergenceControl::new("p-test", ConvergencePolicyStatus::Accepted, 0.0, 0.0, 12)
+            .unwrap(),
+    }
+}
+
+/// RT-A3 P step 3: in sparse mode each iterate factors once. An iterate with
+/// one derived-normal sliding candidate (k = 1) solves the base, one unit load
+/// and the final right-hand side: one factorization and two completions on the
+/// kept factor. The first iterate (no friction force yet) is one factorization.
+/// Dense scrutiny makes no shared-factor call. The results equal the
+/// dense-derived separate solves (the shadow check).
+#[test]
+fn p_sparse_mode_factors_once_per_iterate() {
+    let input = inclined_coupled();
+    SHARED_FACTOR_COUNTS.with(|c| c.set((0, 0)));
+    let before = shadow_checks();
+    let solved = solve_active_set_frame_with_mode(&input, LinearSolveMode::SparseInteractive).unwrap();
+    assert!(solved.converged);
+    assert_eq!(shadow_checks(), before + 1);
+    // The shadow's dense-derived reference makes no shared-factor call either.
+    let (factorizations, completions) = SHARED_FACTOR_COUNTS.with(|c| c.get());
+    let iterations = solved.iterations.len();
+    let coupled = solved
+        .iterations
+        .iter()
+        .filter(|i| !i.applied_sliding_friction_forces.is_empty())
+        .count();
+    assert!(coupled > 0, "precondition: a coupled iterate");
+    assert_eq!(factorizations, iterations, "one factorization per iterate");
+    assert_eq!(completions, 2 * coupled, "base, unit and final on one factor");
+    SHARED_FACTOR_COUNTS.with(|c| c.set((0, 0)));
+    solve_active_set_frame_with_mode(&input, LinearSolveMode::DenseScrutiny).unwrap();
+    assert_eq!(SHARED_FACTOR_COUNTS.with(|c| c.get()), (0, 0));
 }

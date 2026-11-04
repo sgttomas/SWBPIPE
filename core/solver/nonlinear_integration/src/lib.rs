@@ -18,8 +18,8 @@ pub mod structural_adapter;
 use open_pipe_stress_frame_kernel::load_ledger::AssembledForce;
 use open_pipe_stress_frame_kernel::structural::{
     assemble_sparse_stiffness, reduce_sparse_system_with_prescribed_displacements_binary64,
-    SparseAssemblyOptions, SparseStiffness, StiffnessBlock, StructuralError, StructuralReport,
-    StructuralSystem,
+    SharedSparseFactor, SparseAssemblyOptions, SparseStiffness, StiffnessBlock, StructuralError,
+    StructuralReport, StructuralSystem,
 };
 use structural_adapter::{AssemblyEvidence, SparseAssemblyEvidence, StrictGapEvidence};
 
@@ -1597,6 +1597,9 @@ fn solve_iteration_with_sliding_friction_evidence(
 
     let mut base_force = input.force.clone();
     add_applied_forces(&mut base_force, &explicit_forces);
+    // RT-A3 P step 3: the iterate's one factor (sparse mode), kept from its
+    // first solve for the coupling and final right-hand sides.
+    let mut shared = None;
 
     let mut solved_derived_forces = HashMap::new();
     let mut assumed_branches = HashMap::new();
@@ -1606,6 +1609,7 @@ fn solve_iteration_with_sliding_friction_evidence(
             boundary,
             coupling_mode(linear_solve_mode),
             Role::Coupling,
+            &mut shared,
         )?;
         let base_reactions = reported_reactions(&base.reactions, &explicit_forces)?;
 
@@ -1638,6 +1642,7 @@ fn solve_iteration_with_sliding_friction_evidence(
                 boundary,
                 coupling_mode(linear_solve_mode),
                 Role::Coupling,
+                &mut shared,
             )?;
             let mut unit_applied = explicit_forces.clone();
             unit_applied.push(AppliedSlidingFrictionForce {
@@ -1715,7 +1720,8 @@ fn solve_iteration_with_sliding_friction_evidence(
 
     let mut final_force = input.force.clone();
     add_applied_forces(&mut final_force, &applied_forces);
-    let linearized = system.solve_iterate(&final_force, boundary, linear_solve_mode, Role::Final)?;
+    let linearized =
+        system.solve_iterate(&final_force, boundary, linear_solve_mode, Role::Final, &mut shared)?;
     let reactions = reported_reactions(&linearized.reactions, &applied_forces)?;
 
     let mut derived_branch_admissibility = HashMap::new();
@@ -2472,6 +2478,7 @@ impl LoopSystem {
         boundary: &BoundaryState,
         linear_solve_mode: LinearSolveMode,
         role: Role,
+        shared: &mut Option<SharedSparseFactor>,
     ) -> Result<LinearizedSolve, NonlinearIntegrationError> {
         match self {
             Self::Dense { stiffness, assembly } => solve_linearized_system_evidence(
@@ -2488,6 +2495,7 @@ impl LoopSystem {
                 boundary,
                 linear_solve_mode,
                 role,
+                shared,
             ),
         }
     }
@@ -2506,6 +2514,7 @@ fn solve_linearized_pattern_evidence(
     boundary: &BoundaryState,
     linear_solve_mode: LinearSolveMode,
     role: Role,
+    shared: &mut Option<SharedSparseFactor>,
 ) -> Result<LinearizedSolve, NonlinearIntegrationError> {
     let reduced = reduce_sparse_system_with_prescribed_displacements_binary64(
         stiffness,
@@ -2519,13 +2528,25 @@ fn solve_linearized_pattern_evidence(
         .copied()
         .zip(boundary.displacements.iter().copied())
         .collect::<Vec<_>>();
-    let checked = assembly.solve_binary64(
-        stiffness,
-        force,
-        &reduced.free_dofs,
-        &prescribed,
-        linear_solve_mode,
-    )?;
+    // Sparse mode: one factor per iterate (step 3); dense scrutiny of a
+    // pattern system (only reached through the test-only old coupling)
+    // factors per solve.
+    let checked = match linear_solve_mode {
+        LinearSolveMode::SparseInteractive => assembly.solve_binary64_shared(
+            stiffness,
+            force,
+            &reduced.free_dofs,
+            &prescribed,
+            shared,
+        )?,
+        LinearSolveMode::DenseScrutiny => assembly.solve_binary64(
+            stiffness,
+            force,
+            &reduced.free_dofs,
+            &prescribed,
+            linear_solve_mode,
+        )?,
+    };
     let displacements = checked.displacements;
     let product_equilibrium = assembly.product_equilibrium_binary64(
         stiffness,

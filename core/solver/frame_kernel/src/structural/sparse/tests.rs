@@ -1060,6 +1060,61 @@ fn p_binary64_reduction_refuses_as_the_dense_reduction() {
     assert!(both(&pair.force, &dofs, &huge, "adjusted overflow").is_some());
 }
 
+/// RT-A3 P step 3: a kept factor completes further right-hand sides of the
+/// same prepared matrix exactly as separate solves do (the SD RCM order and
+/// skyline, here the natural order, are functions of the matrix), and refuses
+/// a prepared system whose matrix differs.
+#[test]
+fn p_a_shared_factor_completes_other_right_hand_sides_as_separate_solves() {
+    for (name, model) in models() {
+        let pair = Pair::new(&model);
+        let first = pair.sparse_system(true);
+        let prepared = prepare_sparse_structural_binary64(&first).unwrap();
+        let dense_system = pair.dense_system(true);
+        let (order, first_columns) =
+            natural_profile(&prepare_structural_binary64(&dense_system).unwrap());
+        let factor = factor_sparse_structural_profile(&prepared, &order, &first_columns).unwrap();
+        let separate_first = finish_sparse_structural(&factor).unwrap();
+        let shared = factor.share();
+        assert_eq!(
+            format!("{separate_first:?}"),
+            format!("{:?}", finish_sparse_structural_on(&shared, &prepared).unwrap()),
+            "{name}: first"
+        );
+        for scale in [1.0, -0.5, 3.0] {
+            let force: Vec<f64> = pair.force.iter().enumerate().map(|(i, f)| f * scale + i as f64).collect();
+            let other = SparseStructuralSystem::new(
+                &pair.sparse,
+                &force,
+                &pair.free,
+                &pair.prescribed,
+                Some(&pair.contributions),
+                Some(pair.sparse_evidence()),
+            );
+            let prepared = prepare_sparse_structural_binary64(&other).unwrap();
+            let separate = factor_sparse_structural_profile(&prepared, &order, &first_columns)
+                .and_then(|f| finish_sparse_structural(&f));
+            assert_eq!(
+                format!("{separate:?}"),
+                format!("{:?}", finish_sparse_structural_on(&shared, &prepared)),
+                "{name}: scale {scale}"
+            );
+        }
+        // Another matrix (the stiffness tripled) is refused.
+        let doubled = SparseStiffness::from_dense(
+            &pair.dense.iter().map(|row| row.iter().map(|v| 3.0 * v).collect()).collect::<Vec<Vec<f64>>>(),
+        )
+        .unwrap();
+        let other = SparseStructuralSystem::new(&doubled, &pair.force, &pair.free, &pair.prescribed, None, None);
+        if let Ok(prepared) = prepare_sparse_structural_binary64(&other) {
+            assert!(matches!(
+                finish_sparse_structural_on(&shared, &prepared),
+                Err(StructuralError::InvalidInput("prepared matrix differs from the shared factor's"))
+            ), "{name}");
+        }
+    }
+}
+
 fn dense_multiply(k: &[Vec<f64>], u: &[f64]) -> Vec<f64> {
     k.iter()
         .map(|row| row.iter().zip(u).map(|(a, b)| a * b).sum())
