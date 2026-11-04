@@ -18,12 +18,90 @@
 //!
 //! Every add is O(1) limb operations; carries are propagated every 2²⁸ adds
 //! and before a result is read.
+//!
+//! **Storage** (design §5.3.8, Agent 0's option (c)). A sum's limbs grow
+//! only through [`reserve_limbs`], which requests max(2·capacity, required,
+//! 4) elements (capped at an allotment when one is given) with
+//! `Vec::reserve_exact`, so a limb vector's requested capacity is at most
+//! max(4, 2·L − 2) limbs for L the largest length it has held, and at most
+//! the allotment under one. [`ExactSum::reset`] returns a sum to the fresh
+//! state (no limbs, `low`, `pending` and the non-finite part cleared) and
+//! keeps its capacity, so a workspace reuses one accumulator across pairs or
+//! products. Reading a sum ([`ExactSum::to_wide_with`],
+//! [`ExactSum::terms_into`]) normalizes a copy of its limbs in a caller's
+//! scratch vector instead of a fresh clone. None of this changes a value:
+//! the limbs hold the same integers in the same order at every step.
+//!
+//! **Allotment hook.** [`ExactSum::try_add_scaled`] and
+//! [`ExactSum::try_add_f64`] take a limb allotment and refuse
+//! ([`LimbAllotmentExceeded`]) before any growth past it; the formation maps
+//! use them (`reformation`). No allotment value is set here.
 
 use crate::dd::{binary_exponent, scale_by_pow2, two_prod, Dd, WideDd};
 
 /// Carries are propagated after this many adds: each add changes a limb by
 /// less than 2³², so the limbs stay below 2⁶⁰ in magnitude.
 const NORMALIZE_EVERY: u32 = 1 << 28;
+
+/// A limb growth refused before its allocation: the sum would need
+/// `required` limbs, more than `allotment`. The sum that refused is to be
+/// discarded or [`ExactSum::reset`]; its value is unspecified.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct LimbAllotmentExceeded {
+    pub required: usize,
+    pub allotment: usize,
+}
+
+/// Makes room for `required` elements in `v` (module docs, "Storage"): if
+/// the capacity is short, requests exactly max(2·capacity, required, 4),
+/// capped at `allotment`; refuses before any allocation when `required`
+/// exceeds `allotment`.
+pub(crate) fn reserve_limbs<T>(
+    v: &mut Vec<T>,
+    required: usize,
+    allotment: Option<usize>,
+) -> Result<(), LimbAllotmentExceeded> {
+    if let Some(allotment) = allotment {
+        if required > allotment {
+            return Err(LimbAllotmentExceeded {
+                required,
+                allotment,
+            });
+        }
+    }
+    let capacity = v.capacity();
+    if required > capacity {
+        let mut target = required.max(capacity.saturating_mul(2)).max(4);
+        if let Some(allotment) = allotment {
+            target = target.min(allotment);
+        }
+        v.reserve_exact(target - v.len());
+    }
+    Ok(())
+}
+
+/// Propagates carries so that every limb but the top one is in [0, 2³²)
+/// and the top one is small and carries the sign. A top limb of magnitude
+/// at least 2³¹ gets one more limb (at most once a pass); with an allotment
+/// that growth is checked first, and on a refusal the carries made so far
+/// are kept (the integer value is unchanged).
+fn carry_limbs(
+    limbs: &mut Vec<i64>,
+    allotment: Option<usize>,
+) -> Result<(), LimbAllotmentExceeded> {
+    let mut k = 0;
+    while k + 1 < limbs.len() {
+        let carry = limbs[k] >> 32;
+        limbs[k] -= carry << 32;
+        limbs[k + 1] += carry;
+        k += 1;
+        if k + 1 == limbs.len() && limbs[k].abs() >= 1 << 31 {
+            reserve_limbs(limbs, limbs.len() + 1, allotment)?;
+            limbs.push(0);
+        }
+    }
+    Ok(())
+}
 
 /// An exact sum of binary64 values times powers of two.
 #[derive(Debug, Clone, Default, PartialEq)]
@@ -44,18 +122,63 @@ impl ExactSum {
         Self::default()
     }
 
+    /// Returns the sum to the fresh state of [`ExactSum::new`] (every field:
+    /// no limbs, `low` 0, no pending adds, no non-finite part), keeping the
+    /// limbs' capacity for reuse.
+    pub fn reset(&mut self) {
+        self.limbs.clear();
+        self.low = 0;
+        self.pending = 0;
+        self.non_finite = None;
+    }
+
+    /// The limb vector's length and requested capacity (resource ledger).
+    pub fn limb_storage(&self) -> (usize, usize) {
+        (self.limbs.len(), self.limbs.capacity())
+    }
+
     pub fn is_finite(&self) -> bool {
         self.non_finite.is_none()
     }
 
     /// Adds `value·2^exponent` exactly.
     pub fn add_scaled(&mut self, value: f64, exponent: i32) {
+        // Without an allotment no growth refuses.
+        let _ = self.add_scaled_within(value, exponent, None);
+    }
+
+    /// [`ExactSum::add_scaled`] under a limb allotment: refuses before any
+    /// growth of the limbs past `allotment` limbs.
+    pub fn try_add_scaled(
+        &mut self,
+        value: f64,
+        exponent: i32,
+        allotment: usize,
+    ) -> Result<(), LimbAllotmentExceeded> {
+        self.add_scaled_within(value, exponent, Some(allotment))
+    }
+
+    /// [`ExactSum::add_f64`] under a limb allotment.
+    pub fn try_add_f64(
+        &mut self,
+        value: f64,
+        allotment: usize,
+    ) -> Result<(), LimbAllotmentExceeded> {
+        self.add_scaled_within(value, 0, Some(allotment))
+    }
+
+    pub(crate) fn add_scaled_within(
+        &mut self,
+        value: f64,
+        exponent: i32,
+        allotment: Option<usize>,
+    ) -> Result<(), LimbAllotmentExceeded> {
         if value == 0.0 {
-            return;
+            return Ok(());
         }
         if !value.is_finite() {
             self.non_finite = Some(self.non_finite.map_or(value, |v| v + value));
-            return;
+            return Ok(());
         }
         let bits = value.abs().to_bits();
         let field = (bits >> 52) as i32;
@@ -67,16 +190,28 @@ impl ExactSum {
         };
         let lsb = lsb + exponent;
         let limb = lsb.div_euclid(32);
+        // The limbs' growth, checked and reserved before any change: four
+        // limbs for the first add; `grow` more below for a lower part (whose
+        // index is then 0, within the four or more limbs already held); or
+        // up to index + 4.
         if self.limbs.is_empty() {
+            reserve_limbs(&mut self.limbs, 4, allotment)?;
             self.low = limb;
-            self.limbs = vec![0; 4];
+            self.limbs.resize(4, 0);
         } else if limb < self.low {
             let grow = (self.low - limb) as usize;
-            self.limbs.splice(0..0, std::iter::repeat_n(0, grow));
+            let old = self.limbs.len();
+            reserve_limbs(&mut self.limbs, old + grow, allotment)?;
+            // As `splice(0..0, repeat_n(0, grow))`: the limbs move up by
+            // `grow` and zeros fill the bottom.
+            self.limbs.resize(old + grow, 0);
+            self.limbs.copy_within(0..old, grow);
+            self.limbs[..grow].fill(0);
             self.low = limb;
         }
         let index = (limb - self.low) as usize;
         if self.limbs.len() < index + 4 {
+            reserve_limbs(&mut self.limbs, index + 4, allotment)?;
             self.limbs.resize(index + 4, 0);
         }
         let wide = (significand as u128) << lsb.rem_euclid(32);
@@ -98,8 +233,10 @@ impl ExactSum {
         }
         self.pending += 1;
         if self.pending >= NORMALIZE_EVERY {
-            self.normalize();
+            self.pending = 0;
+            carry_limbs(&mut self.limbs, allotment)?;
         }
+        Ok(())
     }
 
     pub fn add_f64(&mut self, value: f64) {
@@ -157,82 +294,94 @@ impl ExactSum {
     }
 
     /// Adds d·x·… for a double-double d (its two words) and at most two
-    /// binary64 factors, exactly.
+    /// binary64 factors, exactly. The factor list is built on the stack.
     pub fn add_dd_product(&mut self, d: Dd, factors: &[f64]) {
-        let mut hi = vec![d.hi];
-        hi.extend_from_slice(factors);
-        self.add_product(&hi);
+        let count = factors.len() + 1;
+        let mut all = [0.0; 3];
+        all[0] = d.hi;
+        all[1..count].copy_from_slice(factors);
+        self.add_product(&all[..count]);
         if d.lo != 0.0 {
-            let mut lo = vec![d.lo];
-            lo.extend_from_slice(factors);
-            self.add_product(&lo);
+            all[0] = d.lo;
+            self.add_product(&all[..count]);
         }
     }
 
-    /// Adds Σ terms × the factors (at most two), exactly.
+    /// Adds Σ terms × the factors (at most two), exactly. The factor list is
+    /// built on the stack.
     pub fn add_terms_product(&mut self, terms: &[Term], factors: &[f64]) {
+        let count = factors.len() + 1;
+        let mut all = [0.0; 3];
+        all[1..count].copy_from_slice(factors);
         for &(value, exponent) in terms {
-            let mut all = vec![value];
-            all.extend_from_slice(factors);
-            self.add_product_scaled(&all, exponent);
-        }
-    }
-
-    /// Propagates carries so that every limb but the top one is in
-    /// [0, 2³²) and the top one is small and carries the sign.
-    fn normalize(&mut self) {
-        self.pending = 0;
-        let mut k = 0;
-        while k + 1 < self.limbs.len() {
-            let carry = self.limbs[k] >> 32;
-            self.limbs[k] -= carry << 32;
-            self.limbs[k + 1] += carry;
-            k += 1;
-            if k + 1 == self.limbs.len() && self.limbs[k].abs() >= 1 << 31 {
-                self.limbs.push(0);
-            }
+            all[0] = value;
+            self.add_product_scaled(&all[..count], exponent);
         }
     }
 
     /// The exact value as a sign and normalized nonnegative limbs (none for
-    /// zero).
-    fn magnitude(&self) -> (bool, Vec<i64>, i32) {
-        let mut copy = self.clone();
-        copy.normalize();
-        let negative = copy.limbs.last().is_some_and(|&top| top < 0);
+    /// zero), the limbs copied into `scratch` (its contents replaced, its
+    /// capacity reused) and normalized there; returns the sign and `low`.
+    fn magnitude_into(&self, scratch: &mut Vec<i64>) -> (bool, i32) {
+        scratch.clear();
+        // The copy and the one limb a normalization may add.
+        let _ = reserve_limbs(scratch, self.limbs.len() + 1, None);
+        scratch.extend_from_slice(&self.limbs);
+        let _ = carry_limbs(scratch, None);
+        let negative = scratch.last().is_some_and(|&top| top < 0);
         if negative {
-            for limb in &mut copy.limbs {
+            for limb in scratch.iter_mut() {
                 *limb = -*limb;
             }
-            copy.normalize();
+            let _ = carry_limbs(scratch, None);
         }
-        while copy.limbs.last() == Some(&0) {
-            copy.limbs.pop();
+        while scratch.last() == Some(&0) {
+            scratch.pop();
         }
-        (negative, copy.limbs, copy.low)
+        (negative, self.low)
     }
 
     /// The exact value as nonoverlapping binary64 terms (each nonzero 32-bit
     /// limb), for multiplying an exact sum by further factors.
     pub fn terms(&self) -> Vec<Term> {
+        self.terms_with(&mut Vec::new())
+    }
+
+    /// [`ExactSum::terms`] with `scratch` for the normalized copy; the
+    /// returned vector's capacity is exactly its length.
+    pub(crate) fn terms_with(&self, scratch: &mut Vec<i64>) -> Vec<Term> {
         assert!(self.is_finite(), "terms of a non-finite sum");
-        let (negative, limbs, low) = self.magnitude();
-        let sign = if negative { -1.0 } else { 1.0 };
-        limbs
-            .iter()
-            .enumerate()
-            .filter(|(_, &limb)| limb != 0)
-            .map(|(k, &limb)| (sign * limb as f64, 32 * (low + k as i32)))
-            .collect()
+        let (negative, low) = self.magnitude_into(scratch);
+        let count = scratch.iter().filter(|&&limb| limb != 0).count();
+        let mut out = Vec::with_capacity(count);
+        push_terms(negative, low, scratch, &mut out);
+        out
+    }
+
+    /// [`ExactSum::terms`] into `out` (its contents replaced, its capacity
+    /// reused), with `scratch` for the normalized copy.
+    pub(crate) fn terms_into(&self, scratch: &mut Vec<i64>, out: &mut Vec<Term>) {
+        assert!(self.is_finite(), "terms of a non-finite sum");
+        let (negative, low) = self.magnitude_into(scratch);
+        out.clear();
+        let count = scratch.iter().filter(|&&limb| limb != 0).count();
+        let _ = reserve_limbs(out, count, None);
+        push_terms(negative, low, scratch, out);
     }
 
     /// The sum rounded once: the high word is the correctly rounded binary64
     /// significand, the low word the remainder rounded to odd (module docs).
     pub fn to_wide(&self) -> WideDd {
+        self.to_wide_with(&mut Vec::new())
+    }
+
+    /// [`ExactSum::to_wide`] with `scratch` for the normalized copy.
+    pub(crate) fn to_wide_with(&self, scratch: &mut Vec<i64>) -> WideDd {
         if let Some(value) = self.non_finite {
             return WideDd::from_f64(value);
         }
-        let (negative, limbs, low) = self.magnitude();
+        let (negative, low) = self.magnitude_into(scratch);
+        let limbs: &[i64] = scratch;
         let Some(top) = limbs.len().checked_sub(1) else {
             return WideDd::ZERO;
         };
@@ -273,6 +422,18 @@ impl ExactSum {
     pub fn to_f64(&self) -> f64 {
         self.to_wide().to_f64()
     }
+}
+
+/// One term per nonzero normalized limb, ascending.
+fn push_terms(negative: bool, low: i32, limbs: &[i64], out: &mut Vec<Term>) {
+    let sign = if negative { -1.0 } else { 1.0 };
+    out.extend(
+        limbs
+            .iter()
+            .enumerate()
+            .filter(|(_, &limb)| limb != 0)
+            .map(|(k, &limb)| (sign * limb as f64, 32 * (low + k as i32))),
+    );
 }
 
 /// R + s·ε rounded to odd at 53 bits (truncation toward zero, the last
@@ -406,6 +567,123 @@ mod tests {
             assert_eq!(sum.to_f64(), remainder, "round {round}");
             assert_eq!(sum.terms().len(), 1);
         }
+    }
+
+    /// The operations every reuse test applies after a reset: a wide span
+    /// (lower parts, so the limbs grow below), products, dd and term
+    /// products, and a cancellation.
+    fn series(sum: &mut ExactSum) {
+        sum.add_scaled(1.5, 700);
+        sum.add_product(&[p(-300), 3.0, -p(-400)]);
+        sum.add_dd_product(Dd { hi: 1.0, lo: p(-70) }, &[-7.0, p(-900)]);
+        sum.add_terms_product(&[(5.0, -1200), (-3.0, 40)], &[p(10)]);
+        sum.add_scaled(-1.5, 700);
+        sum.add_f64(p(-1074));
+    }
+
+    /// Option (c)'s reset (design §5.3.8): a sum after a non-trivial use (a
+    /// span of about 190 limbs, a negative top, pending adds and a
+    /// non-finite part) is reset to exactly the fresh state, keeps its
+    /// capacity, and then gives exactly the fresh result.
+    #[test]
+    fn a_reset_sum_gives_exactly_the_fresh_result() {
+        let mut used = ExactSum::new();
+        used.add_scaled(1.0, 3000);
+        used.add_scaled(3.0, -3000);
+        used.add_f64(-p(1000));
+        used.add_product(&[-p(900), p(900), 3.0]);
+        used.add_f64(f64::INFINITY);
+        assert!(used.pending > 0 && !used.is_finite());
+        let (length, capacity) = used.limb_storage();
+        assert!(length >= 180, "{length}");
+        used.reset();
+        assert_eq!(used, ExactSum::new());
+        assert_eq!(used.limb_storage(), (0, capacity));
+        let mut fresh = ExactSum::new();
+        series(&mut used);
+        series(&mut fresh);
+        assert_eq!(used, fresh);
+        let mut scratch = vec![-1; 7];
+        let wide = used.to_wide_with(&mut scratch);
+        assert_eq!(wide, fresh.to_wide());
+        assert_eq!(wide.mantissa.hi.to_bits(), fresh.to_wide().mantissa.hi.to_bits());
+        assert_eq!(wide.mantissa.lo.to_bits(), fresh.to_wide().mantissa.lo.to_bits());
+        let mut terms = vec![(9.0, 9); 3];
+        used.terms_into(&mut scratch, &mut terms);
+        assert_eq!(terms, fresh.terms());
+        assert_eq!(used.terms_with(&mut scratch), fresh.terms());
+        // A negative sum read with a scratch vector that held a longer one.
+        let mut negative = ExactSum::new();
+        negative.add_f64(-3.0);
+        negative.add_scaled(-1.0, -2000);
+        let mut long = vec![i64::MAX; 300];
+        assert_eq!(negative.to_wide_with(&mut long), negative.to_wide());
+        assert_eq!(negative.terms_with(&mut long), negative.terms());
+    }
+
+    /// The stated capacity policy: a limb vector's requested capacity is at
+    /// most max(4, 2·L − 2) for L the largest length it held, and a read's
+    /// scratch at most max(4, 2·(L + 1) − 2).
+    #[test]
+    fn limb_capacity_follows_the_stated_policy() {
+        let mut state: u64 = 0x2545_F491_4F6C_DD1D;
+        let mut next = move || {
+            state ^= state << 13;
+            state ^= state >> 7;
+            state ^= state << 17;
+            state
+        };
+        let mut sum = ExactSum::new();
+        let mut scratch = Vec::new();
+        let mut longest = 0;
+        for round in 0..2000 {
+            if round % 400 == 0 {
+                sum.reset();
+            }
+            let value = f64::from_bits((1 + next() % 2045) << 52 | (next() & ((1 << 52) - 1)));
+            let exponent = (next() % 6001) as i32 - 3000;
+            sum.add_scaled(value, exponent);
+            let (length, capacity) = sum.limb_storage();
+            longest = longest.max(length);
+            assert!(capacity <= 4.max(2 * longest - 2), "{length} {capacity}");
+            let _ = sum.to_wide_with(&mut scratch);
+            assert!(scratch.capacity() <= 4.max(2 * (longest + 1) - 2));
+        }
+        assert!(longest > 150, "{longest}");
+    }
+
+    /// The formation-map hook: an allotment refuses before the growth that
+    /// would exceed it (no allocation, the value unchanged), and the
+    /// capacity never exceeds an allotment that holds.
+    #[test]
+    fn a_limb_allotment_refuses_before_growth() {
+        let mut sum = ExactSum::new();
+        assert_eq!(sum.try_add_f64(1.0, 3), Err(LimbAllotmentExceeded { required: 4, allotment: 3 }));
+        assert_eq!(sum.limb_storage(), (0, 0));
+        sum.try_add_f64(1.0, 4).unwrap();
+        assert_eq!(sum.limb_storage(), (4, 4));
+        // 1 occupies limbs −2 to 1; 2⁻²⁰⁰ starts in limb −8: 10 are needed.
+        assert_eq!(
+            sum.try_add_scaled(1.0, -200, 9),
+            Err(LimbAllotmentExceeded { required: 10, allotment: 9 })
+        );
+        assert_eq!(sum.limb_storage(), (4, 4));
+        assert_eq!(sum.to_f64(), 1.0);
+        // Within the allotment, the doubled request is capped at it.
+        sum.try_add_scaled(1.0, -200, 10).unwrap();
+        assert_eq!(sum.limb_storage(), (10, 10));
+        let mut unguarded = ExactSum::new();
+        unguarded.add_f64(1.0);
+        unguarded.add_scaled(1.0, -200);
+        assert_eq!(sum, unguarded);
+        assert_eq!(unguarded.limb_storage(), (10, 10));
+        // Growth above: 2²⁰⁰ starts in limb 4, index 12, so 16 are needed.
+        assert_eq!(
+            sum.try_add_scaled(1.0, 200, 15),
+            Err(LimbAllotmentExceeded { required: 16, allotment: 15 })
+        );
+        assert_eq!(sum.limb_storage(), (10, 10));
+        assert_eq!(sum, unguarded);
     }
 
     /// to_wide's high word is the correctly rounded value and its low word

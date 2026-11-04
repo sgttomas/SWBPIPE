@@ -42,6 +42,7 @@ use crate::admission::{check_dense, PencilMatrix, PencilRangeUnsupported};
 use crate::dd::{DdAccumulator, WideDd};
 use crate::exact::ExactSum;
 use crate::matrix::SymmetricMatrix;
+use crate::workspace::{Retained, SumWorkspace};
 
 /// The six DOFs of a node, in global axes, in global DOF order.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
@@ -157,7 +158,11 @@ impl fmt::Display for ModalQuantityError {
 impl Error for ModalQuantityError {}
 
 /// The model data every mode is normalized against.
-#[derive(Debug, Clone)]
+///
+/// It owns the normalization stage's workspace (one exact accumulator and
+/// two scratch vectors, reused for every mode and retained until the basis
+/// is dropped); a clone starts with an empty one and `Debug` omits it.
+#[derive(Clone)]
 pub struct ModalBasis<'a> {
     mass: &'a SymmetricMatrix,
     free_dofs: &'a [FreeDof],
@@ -166,6 +171,21 @@ pub struct ModalBasis<'a> {
     total_mass: [f64; 3],
     bounding_box_diagonal: f64,
     tau_t: f64,
+    workspace: Retained<SumWorkspace>,
+}
+
+impl fmt::Debug for ModalBasis<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("ModalBasis")
+            .field("mass", &self.mass)
+            .field("free_dofs", &self.free_dofs)
+            .field("global_index", &self.global_index)
+            .field("excitation", &self.excitation)
+            .field("total_mass", &self.total_mass)
+            .field("bounding_box_diagonal", &self.bounding_box_diagonal)
+            .field("tau_t", &self.tau_t)
+            .finish()
+    }
 }
 
 impl<'a> ModalBasis<'a> {
@@ -240,6 +260,7 @@ impl<'a> ModalBasis<'a> {
             total_mass,
             bounding_box_diagonal,
             tau_t,
+            workspace: Retained::default(),
         })
     }
 
@@ -289,26 +310,33 @@ pub struct BelowNormalRange {
     pub effective_mass_fraction: [bool; 3],
 }
 
-/// xᵀ M y, every product x_i·M_ij·y_j summed exactly ([`ExactSum`]) and
-/// rounded once.
-fn mass_bilinear(mass: &SymmetricMatrix, x: &[f64], y: &[f64]) -> WideDd {
+/// xᵀ M y, every product x_i·M_ij·y_j summed exactly ([`ExactSum`], the
+/// workspace's, reset first) and rounded once.
+fn mass_bilinear(
+    mass: &SymmetricMatrix,
+    x: &[f64],
+    y: &[f64],
+    sum: &mut ExactSum,
+    limbs: &mut Vec<i64>,
+) -> WideDd {
     let n = mass.dimension();
-    let mut sum = ExactSum::new();
+    sum.reset();
     for i in 0..n {
         for (j, &yj) in y.iter().enumerate() {
             sum.add_product(&[x[i], mass.get(i, j), yj]);
         }
     }
-    sum.to_wide()
+    sum.to_wide_with(limbs)
 }
 
-/// Σ a_i b_i, summed exactly and rounded once.
-fn wide_dot(a: &[f64], b: &[f64]) -> WideDd {
-    let mut sum = ExactSum::new();
+/// Σ a_i b_i, summed exactly (the workspace's sum, reset first) and rounded
+/// once.
+fn wide_dot(a: &[f64], b: &[f64], sum: &mut ExactSum, limbs: &mut Vec<i64>) -> WideDd {
+    sum.reset();
     for (&x, &y) in a.iter().zip(b) {
         sum.add_product(&[x, y]);
     }
-    sum.to_wide()
+    sum.to_wide_with(limbs)
 }
 
 /// Largest magnitude among the free DOFs selected by `select`, with ties to
@@ -348,6 +376,19 @@ pub fn normalize_mode(
     phi: &[f64],
     basis: &ModalBasis<'_>,
 ) -> Result<NormalizedMode, ModalQuantityError> {
+    // The basis's workspace, reset where used, for every mode.
+    basis
+        .workspace
+        .with(|workspace| normalize_mode_in(mode, phi, basis, workspace))
+}
+
+fn normalize_mode_in(
+    mode: usize,
+    phi: &[f64],
+    basis: &ModalBasis<'_>,
+    workspace: &mut SumWorkspace,
+) -> Result<NormalizedMode, ModalQuantityError> {
+    let SumWorkspace { sum, limbs, below } = workspace;
     let n = basis.dimension();
     if phi.len() != n {
         return Err(ModalQuantityError::DimensionMismatch {
@@ -378,21 +419,29 @@ pub fn normalize_mode(
     let threshold = WideDd::from_f64(pivot.abs()).mul_f64(f64::MIN_POSITIVE);
     let mut below_normal_range = BelowNormalRange::default();
     let mut shape = Vec::with_capacity(n);
+    // The below-normal indices are gathered in the workspace (room for n,
+    // requested once) and copied out at exact capacity.
+    below.clear();
+    if below.capacity() < n {
+        below.reserve_exact(n);
+    }
     for (index, &v) in phi.iter().enumerate() {
         let s = v / pivot;
         if !s.is_finite() {
             return Err(ModalQuantityError::ShapeOutOfRange { mode, index });
         }
-        let below = v != 0.0 && !WideDd::from_f64(v.abs()).sub(threshold).is_non_negative();
-        if below {
-            below_normal_range.shape.push(index);
+        let below_normal = v != 0.0 && !WideDd::from_f64(v.abs()).sub(threshold).is_non_negative();
+        if below_normal {
+            below.push(index);
             shape.push(0.0);
         } else {
             shape.push(s);
         }
     }
+    below_normal_range.shape = Vec::with_capacity(below.len());
+    below_normal_range.shape.extend_from_slice(below);
 
-    let m = mass_bilinear(basis.mass, &shape, &shape);
+    let m = mass_bilinear(basis.mass, &shape, &shape, sum, limbs);
     // Range first: an m that overflows or is NaN is out of range, not
     // non-positive. Positivity is decided on the exact value.
     let Some((generalized_mass, m_below)) = m.to_published() else {
@@ -426,7 +475,7 @@ pub fn normalize_mode(
                 })
         };
         let flags = &mut below_normal_range;
-        let q = wide_dot(&shape, basis.excitation[k]);
+        let q = wide_dot(&shape, basis.excitation[k], sum, limbs);
         let q_squared = q.mul(q);
         (excitation_product[k], flags.excitation_product[k]) =
             published("excitation_product", q)?;
