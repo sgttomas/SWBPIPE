@@ -35,7 +35,11 @@
 //!   (`analysis_runs::checked_native_record`) and its transaction
 //!   (`plan_native_run`, `write_native_run`); Save Project applies the
 //!   project store's replacement guard, its withheld-run guard and the model
-//!   document checks, unchanged.
+//!   document checks, unchanged. The rebuild is the preview's
+//!   (`analysis_run_v03_build`), so a registered `pressure` solve's rebuild
+//!   reuses the registration's pass held with the publication instead of
+//!   reading that route's reader again (RT-U4); every binding check here runs
+//!   as before.
 //! - **SQLite's limit, exactly, before allocation and before writes.** Inside
 //!   the write transaction the writing connection's `SQLITE_LIMIT_LENGTH` is
 //!   read (rusqlite `limits`), and result/record values and their table,
@@ -539,6 +543,7 @@ pub(crate) fn run_record(
         let mut load_basis = Value::Null;
         let mut reserve = |bytes: u64| registry.acquire_result_parse(bytes).map(Some).map_err(CommandError::from);
         let built = build::preview_parsed(
+            &prepared.held,
             &mut source,
             &prepared.evidence,
             &prepared.manifest_sha256,
@@ -865,6 +870,7 @@ pub(crate) fn run_save(
         let mut load_basis = Value::Null;
         let mut reserve = |bytes: u64| registry.acquire_result_parse(bytes).map(Some).map_err(CommandError::from);
         let built = build::preview_parsed(
+            &prepared.held,
             &mut source,
             &prepared.evidence,
             &prepared.manifest_sha256,

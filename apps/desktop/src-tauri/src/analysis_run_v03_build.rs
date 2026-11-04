@@ -32,6 +32,24 @@
 //!   its negative zeros kept (`jsonTextKeepingNegativeZero`), after the
 //!   checked-profile check of `retainedJsonText`; this is done in place on
 //!   the parsed value (numbers only), so it allocates nothing.
+//! - **One reader reused, never cached (RT-U4).** The `pressure` route's
+//!   reader is not read again when the held publication already holds the
+//!   session's registration pass of it ([`validate_route_held`],
+//!   `solve_jobs::ReaderEvidence`): the native verdict notes, on the share it
+//!   read, that its `pressure` validation of those exact bytes returned the
+//!   pass. That reader is `validate_pressure_evidence` of the source and then,
+//!   only with a model, G2's model checks, so the registration's model-bound
+//!   pass is a pass of the model-free reader read here; the outcome is the
+//!   same (`Ok`), so the refusal order is unchanged. The note is the
+//!   publication's own, fixed with its bytes in the share a disposal or reset
+//!   cannot change; a restored result has none; no webview flag, header or
+//!   token sets it. Nothing else is reused: the preview-physics registration
+//!   is model-bound, and its model-free reader alone re-derives the
+//!   combination gates from the document (`preview_physics_evidence`), a check
+//!   `result_export` does not expose by itself; the pressure-source
+//!   registration reads the invocation, which this reader does not; the
+//!   retained routes have no native registration. Those routes, and a
+//!   publication without the note, read [`validate_route`] as before.
 //! - **Refusals, in the TypeScript order.** Each refusal is the message the
 //!   TypeScript throws, byte for byte. Where the TypeScript builder throws a
 //!   JavaScript `TypeError` (a member read on `undefined` or `null`, a
@@ -48,7 +66,8 @@
 //! - **Bounded passes, no record tree.** The record is never a `Value` and,
 //!   for the preview, never text. The held text is parsed once (the parse
 //!   lease of M, as slices 1 to 3); everything else reads that tree:
-//!   1. the readers (route, binding, the route's reader);
+//!   1. the readers (route, binding, the route's reader, or for `pressure`
+//!      the publication's registration pass, above);
 //!   2. the record contract's checks over the rows (identities, bases, row
 //!      interpretation, the checked profile), one row at a time;
 //!   3. the received result's checksum: the canonical text of the whole
@@ -80,7 +99,10 @@
 //!   member except the row-scale ones (`result_refs`, the producer's
 //!   `diagnostics`, the copied `contract_evidence`, `source_block_recovery`
 //!   and `retained_precision`), which it counts or names. Nothing is cached:
-//!   each call reads the held bytes with the arguments it is given.
+//!   each call reads the held bytes with the arguments it is given. What it
+//!   reuses is existing proof, not a cache: the held publication's own note
+//!   of the `pressure` registration's pass (above). No record, checksum,
+//!   length, row, interpretation or reply is kept between calls.
 //! - **Admission and memory** (plan §8; no new budget or rule). Every lease is
 //!   pool-admitted before what it covers is allocated, and none exceeds the
 //!   per-invocation budget or the 12 GiB default:
@@ -235,6 +257,8 @@ fn outside_profile(number: &Number) -> bool {
 
 /// Whether any number in `value` is outside the checked profile.
 pub(crate) fn has_outside_profile(value: &Value) -> bool {
+    #[cfg(test)]
+    tests::passes::bump(tests::passes::OUTSIDE_NODES);
     match value {
         Value::Number(number) => outside_profile(number),
         Value::Array(items) => items.iter().any(has_outside_profile),
@@ -485,6 +509,8 @@ impl<'s, S: Sink> Writer<'s, S> {
 
 /// The canonical text of `value` (`canonical_json`) streamed into SHA-256.
 pub(crate) fn canonical_sha256(value: &Value) -> String {
+    #[cfg(test)]
+    tests::passes::bump(tests::passes::CANONICAL_HASHES);
     let mut hasher = Sha256::new();
     Writer::new(&mut hasher, Style::Canonical).value(value);
     hex(&hasher.finalize())
@@ -587,6 +613,8 @@ pub(crate) fn reader_refusal(outcome: &Value) -> Option<(String, String)> {
 /// place for it); the pressure-source reader, with the record surfaces'
 /// receipt and publication codes.
 pub(crate) fn validate_route(source: &mut Value, route: &Route) -> Result<(), String> {
+    #[cfg(test)]
+    tests::passes::bump(tests::passes::READER_VALIDATIONS);
     match route.name {
         "preview_physics" | "pressure" => {
             let reader = if route.name == "pressure" { "pressure" } else { "preview-physics" };
@@ -724,6 +752,8 @@ fn source_basis_matches(signature: &Value, row: &Value) -> bool {
 /// A row's record interpretation (`analysisRowSemanticsIn`): its table
 /// signature, or none, and the findings.
 pub(crate) fn interpret<'t>(table: &'t Value, row: &Value) -> Result<(Option<&'t Value>, &'static [&'static str]), String> {
+    #[cfg(test)]
+    tests::passes::bump(tests::passes::INTERPRETATIONS);
     let entries = table["rows"].as_array().map(Vec::as_slice).unwrap_or(&[]);
     let kind = row.get("kind");
     let unit = row.get("unit");
@@ -1447,11 +1477,27 @@ fn applied_rule_check_status<'a>(aggregate: Option<&'a Value>, solve: Option<&'a
     }
 }
 
+/// The route's reader on `source`, the parse of `held`'s bytes, unless
+/// `held`'s own evidence already holds its pass (RT-U4, module docs, "The
+/// readers"): only the `pressure` route's, whose model-free reader the
+/// registration's pass of the same bytes establishes
+/// (`solve_jobs::ReaderEvidence`). Every other route, and a held result
+/// without that evidence, reads [`validate_route`] as before. Its outcome is
+/// [`validate_route`]'s in every case.
+pub(crate) fn validate_route_held(source: &mut Value, route: &Route, held: &crate::solve_jobs::HeldResult) -> Result<(), String> {
+    if route.name == "pressure" && held.pressure_reader_passed() {
+        return Ok(());
+    }
+    validate_route(source, route)
+}
+
 /// `buildAnalysisRunPreview` after its manifest check, on a parsed source:
 /// the solve's status, the dispatch, the model's load basis (written to
-/// `load_basis`), the route's reader, then the record.
+/// `load_basis`), the route's reader ([`validate_route_held`]; `source` is
+/// the parse of `held`'s bytes), then the record.
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn preview_parsed<'a>(
+    held: &crate::solve_jobs::HeldResult,
     source: &'a mut Value,
     evidence: &'a ManifestArg,
     manifest_sha256: &'a Value,
@@ -1466,7 +1512,7 @@ pub(crate) fn preview_parsed<'a>(
     get(status, "rule_check", "result.status").map_err(refuse)?;
     let route = dispatch(source).map_err(refuse)?;
     *load_basis = model_load_basis_refs(manifest).map_err(refuse)?;
-    validate_route(source, &route).map_err(refuse)?;
+    validate_route_held(source, &route, held).map_err(refuse)?;
     let source: &'a Value = source;
     let load_basis: &'a Value = load_basis;
     let inputs = BuildInputs {
@@ -1632,6 +1678,7 @@ fn with_built<T>(
     let mut load_basis = Value::Null;
     let mut reserve = |bytes: u64| registry.acquire_result_parse(bytes).map(Some).map_err(CommandError::from);
     let built = preview_parsed(
+        &prepared.held,
         &mut source,
         &prepared.evidence,
         &prepared.manifest_sha256,

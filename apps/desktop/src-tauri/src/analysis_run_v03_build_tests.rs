@@ -45,6 +45,53 @@ thread_local! {
     pub(crate) static PANIC_IN_BUILD: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
 }
 
+/// RT-U4: test-only counts of the builder's work, per thread (each command
+/// under test runs on the calling thread): calls of the route's full reader
+/// (`validate_route`), row interpretations (`interpret`), values visited by
+/// the checked-profile check (`has_outside_profile`, each node) and
+/// canonical SHA-256 streams (`canonical_sha256`: the received result's and
+/// each row's). The counters change nothing the builder computes.
+pub(crate) mod passes {
+    use std::cell::Cell;
+    pub(crate) const READER_VALIDATIONS: usize = 0;
+    pub(crate) const INTERPRETATIONS: usize = 1;
+    pub(crate) const OUTSIDE_NODES: usize = 2;
+    pub(crate) const CANONICAL_HASHES: usize = 3;
+    thread_local! {
+        static COUNTS: Cell<[u64; 4]> = const { Cell::new([0; 4]) };
+    }
+    pub(crate) fn bump(kind: usize) {
+        COUNTS.with(|counts| {
+            let mut now = counts.get();
+            now[kind] += 1;
+            counts.set(now);
+        });
+    }
+    #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+    pub(crate) struct Counts {
+        pub(crate) reader_validations: u64,
+        pub(crate) interpretations: u64,
+        pub(crate) outside_nodes: u64,
+        pub(crate) canonical_hashes: u64,
+    }
+    /// This thread's counts now, for [`since`].
+    pub(crate) fn snapshot() -> [u64; 4] {
+        COUNTS.with(Cell::get)
+    }
+    /// The counts added on this thread since `before`.
+    pub(crate) fn since(before: [u64; 4]) -> Counts {
+        let after = snapshot();
+        let d = |kind: usize| after[kind] - before[kind];
+        Counts { reader_validations: d(READER_VALIDATIONS), interpretations: d(INTERPRETATIONS), outside_nodes: d(OUTSIDE_NODES), canonical_hashes: d(CANONICAL_HASHES) }
+    }
+    /// `work`'s result and the counts it added on this thread.
+    pub(crate) fn measure<T>(work: impl FnOnce() -> T) -> (T, Counts) {
+        let before = snapshot();
+        let out = work();
+        (out, since(before))
+    }
+}
+
 fn root() -> std::path::PathBuf {
     std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..")
 }
@@ -638,5 +685,172 @@ fn reserve_does_not_parse_and_the_response_is_a_raw_body() {
     match response(bytes.clone()).body().unwrap() {
         InvokeResponseBody::Raw(raw) => assert_eq!(raw, bytes),
         InvokeResponseBody::Json(_) => panic!("Tauri would parse the header before the adapter receives it"),
+    }
+}
+
+// ---------------------------------------------------------------------------
+// RT-U4: the registration's reader pass, reused
+// ---------------------------------------------------------------------------
+
+/// The native verdict command (`read_preview_mechanics_job_verdict`) in this
+/// thread, as the session's registration and standing call it.
+pub(crate) fn verdict(registry: &SolveJobRegistry, job: &str, reader: Option<&str>, model: Option<&str>) -> Result<String, CommandError<String>> {
+    let args = json!({"jobId": job, "reader": reader, "modelJson": model, "invocationJson": null});
+    let body = InvokeBody::Raw(serde_json::to_vec(&args).unwrap());
+    let (raw, lease) = crate::native_verdict::reserve(registry, &body, &headers(Some(INGRESS_ARGS_JSON_V1)))?;
+    crate::native_verdict::run(registry.clone(), raw, lease)
+}
+
+fn case_named(id: &str) -> Value {
+    cases().into_iter().find(|case| case["id"] == id).unwrap_or_else(|| panic!("{id}"))
+}
+
+/// The preview header and the bounded record bytes of `job`, and the work of each.
+fn preview_and_bytes(registry: &SolveJobRegistry, job: &str, case: &Value) -> ((Result<Vec<u8>, String>, passes::Counts), (Result<Vec<u8>, String>, passes::Counts)) {
+    let args = preview_args(job, case);
+    let header = passes::measure(|| call(registry, super::run, &args).map_err(command_text));
+    let bytes = passes::measure(|| preview_bytes(registry, &args, u64::MAX).map(|(bytes, _)| bytes).map_err(command_text));
+    (header, bytes)
+}
+
+/// RT-U4 (1): the registration's pass of the `pressure` reader on a held
+/// solve publication is the only reader evidence the builder reuses, and only
+/// for that publication.
+/// - Unregistered, the preview and the bytes route each read the route's
+///   reader (one full validation each). After the session's registration (the
+///   verdict command's `pressure` validation with the solve's model) passes on
+///   the same share, neither reads it, and both reply byte for byte as before.
+/// - Another job holding the same bytes has no evidence and reads the reader;
+///   a dispatch, a refused validation (a model the G2 checks refuse, a model
+///   that is not JSON) and another reader's pass leave none.
+/// - A source the reader refuses has no evidence, and the preview refuses it
+///   with the reader's own message, exactly as the old builder does.
+#[test]
+fn the_registrations_pressure_pass_is_reused_only_for_its_own_publication() {
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let case = case_named("preview:pressure");
+    let text = source_text(&case["source"]);
+    let model = case["intake_text"].as_str().unwrap();
+    assert_eq!(dispatch(&serde_json::from_str(&text).unwrap()).unwrap().name, "pressure");
+    let job = retained(&registry, &gate, &text);
+    let ((header, unregistered), (bytes, unregistered_bytes)) = preview_and_bytes(&registry, &job, &case);
+    let (header, bytes) = (header.unwrap(), bytes.unwrap());
+    assert_eq!((unregistered.reader_validations, unregistered_bytes.reader_validations), (1, 1));
+    // The registration's model-bound validation of the same held bytes.
+    assert!(!registry.held_result(&job).unwrap().pressure_reader_passed());
+    assert_eq!(verdict(&registry, &job, Some("pressure"), Some(model)).unwrap(), crate::solve_jobs::READER_PASSED);
+    assert!(registry.held_result(&job).unwrap().pressure_reader_passed());
+    let ((again, registered), (bytes_again, registered_bytes)) = preview_and_bytes(&registry, &job, &case);
+    assert_eq!((registered.reader_validations, registered_bytes.reader_validations), (0, 0), "the registration's pass is reused");
+    assert_eq!((again.unwrap(), bytes_again.unwrap()), (header.clone(), bytes.clone()), "the same header and record, byte for byte");
+    // Only the reader's run is saved; everything else is read as before.
+    assert_eq!(passes::Counts { reader_validations: 1, ..registered }, unregistered);
+    // Another publication of the same bytes holds no evidence of its own.
+    let other = retained(&registry, &gate, &text);
+    let ((other_header, other_work), _) = preview_and_bytes(&registry, &other, &case);
+    assert_eq!(other_work.reader_validations, 1, "no foreign proof");
+    let job_name = |bytes: Vec<u8>, job: &str| String::from_utf8(bytes).unwrap().replace(job, "$job");
+    assert_eq!(job_name(other_header.unwrap(), &other), job_name(header.clone(), &job));
+    // What notes nothing: a dispatch, refusals, another reader.
+    let unknown_cases = json!({"project": {"id": "p"}, "load_cases": [{"id": "case:invented-other"}]}).to_string();
+    let outcomes = [
+        verdict(&registry, &other, None, Some(model)).unwrap(),
+        verdict(&registry, &other, Some("pressure"), Some(&unknown_cases)).unwrap(),
+        format!("{:?}", verdict(&registry, &other, Some("pressure"), Some("{not json")).unwrap_err()),
+        verdict(&registry, &other, Some("pressure-source"), None).unwrap(),
+        verdict(&registry, &other, Some("preview-physics"), Some(model)).unwrap(),
+    ];
+    assert!(outcomes.iter().all(|outcome| outcome != crate::solve_jobs::READER_PASSED), "{outcomes:?}");
+    assert!(!registry.held_result(&other).unwrap().pressure_reader_passed());
+    // A source the reader refuses: no evidence, and the reader's own refusal.
+    let mut tampered: Value = serde_json::from_str(&text).unwrap();
+    tampered["contract_evidence"].as_object_mut().unwrap().clear();
+    let tampered_text = tampered.to_string();
+    let bad = retained(&registry, &gate, &tampered_text);
+    let refusal = verdict(&registry, &bad, Some("pressure"), Some(model)).unwrap();
+    assert_ne!(refusal, crate::solve_jobs::READER_PASSED, "the reader refuses the tampered source");
+    assert!(!registry.held_result(&bad).unwrap().pressure_reader_passed());
+    let ((refused, refused_work), _) = preview_and_bytes(&registry, &bad, &case);
+    let refused = refused.unwrap_err();
+    assert_eq!(refused_work.reader_validations, 1);
+    let mut source: Value = serde_json::from_str(&tampered_text).unwrap();
+    let route = dispatch(&source).unwrap();
+    assert_eq!(validate_route(&mut source, &route).unwrap_err(), refused, "the old builder's refusal");
+    for job in [&job, &other, &bad] {
+        registry.dispose_result(job).unwrap();
+    }
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
+
+/// RT-U4 (1): no other route reuses a pass. The preview-physics
+/// registration's model-bound pass does not establish the model-free
+/// reader's (the latter alone re-derives the combination gates from the
+/// document, `preview_physics_evidence::validate_with`), so the builder
+/// still reads it after that registration.
+#[test]
+fn a_preview_physics_registration_leaves_the_builders_reader_to_run() {
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let case = case_named("preview:connected");
+    let text = source_text(&case["source"]);
+    let job = retained(&registry, &gate, &text);
+    let outcome = verdict(&registry, &job, Some("preview-physics"), Some(case["intake_text"].as_str().unwrap())).unwrap();
+    assert_eq!(outcome, crate::solve_jobs::READER_PASSED, "the registration passed");
+    assert!(!registry.held_result(&job).unwrap().pressure_reader_passed());
+    let ((header, work), (_, bytes_work)) = preview_and_bytes(&registry, &job, &case);
+    header.unwrap();
+    assert_eq!((work.reader_validations, bytes_work.reader_validations), (1, 1));
+    registry.dispose_result(&job).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
+
+/// RT-U4 (1), with review F1's interleavings: the evidence is part of the
+/// held share. A disposal, a session reset or a C2 full-copy release between
+/// the preview's acquisition of its share (the `held` gate) and its read
+/// neither gives the read evidence nor takes it away: a registered share
+/// reuses the pass and an unregistered one reads the reader, and each replies
+/// exactly as an undisturbed read of the same job.
+#[test]
+fn a_disposal_reset_or_release_during_the_build_never_changes_the_evidence_it_reads() {
+    let case = case_named("preview:pressure");
+    let text = source_text(&case["source"]);
+    let model = case["intake_text"].as_str().unwrap().to_string();
+    for registered in [true, false] {
+        for interleaving in ["disposal", "reset", "release"] {
+            let label = format!("registered {registered}, {interleaving}");
+            let host = ScriptedHost::normal();
+            let (registry, gate) = gated(&host);
+            let job = retained(&registry, &gate, &text);
+            if registered {
+                assert_eq!(verdict(&registry, &job, Some("pressure"), Some(&model)).unwrap(), crate::solve_jobs::READER_PASSED);
+            }
+            let args = preview_args(&job, &case);
+            let (expected, undisturbed) = passes::measure(|| call(&registry, super::run, &args).unwrap());
+            assert_eq!(undisturbed.reader_validations, u64::from(!registered), "{label}");
+            let held = gate::hold(&registry, "held", false);
+            let reader = std::thread::spawn({
+                let (registry, args) = (registry.clone(), args.clone());
+                move || passes::measure(|| call(&registry, super::run, &args).map_err(command_text))
+            });
+            assert!(held.0.wait_entered(1, Duration::from_secs(30)), "{label}: the build acquired its share");
+            match interleaving {
+                "disposal" => assert!(registry.dispose_result(&job).unwrap().released, "{label}"),
+                "reset" => assert!(registry.dispose_all_results().released_results >= 1, "{label}"),
+                _ => assert!(!registry.release_full_copy(&job).unwrap(), "{label}: no full copy was held"),
+            }
+            if interleaving != "release" {
+                assert!(registry.held_result(&job).is_err(), "{label}: the job is gone while its build reads");
+            }
+            held.0.open();
+            let (got, work) = reader.join().unwrap();
+            drop(held);
+            assert_eq!(got.unwrap(), expected, "{label}: the reply of an undisturbed read");
+            assert_eq!(work, undisturbed, "{label}: the evidence of its own share, no other");
+            if interleaving == "release" {
+                registry.dispose_result(&job).unwrap();
+            }
+            assert_eq!(registry.pool().reserved_total(), 0, "{label}: every share released");
+        }
     }
 }

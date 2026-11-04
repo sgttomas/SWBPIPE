@@ -839,6 +839,46 @@ fn a_disposal_or_reset_during_a_read_never_changes_the_recorded_table_it_reads()
     assert!(failures.is_empty(), "{} of 20 interleavings differ:\n{}", failures.len(), failures.join("\n"));
 }
 
+/// RT-U4, with review F1 and F2: a restored result never holds or notes reader evidence
+/// (`solve_jobs::ReaderEvidence`), under the current tables or a recorded one. Its standing reads
+/// (F2's bare verdict) and even a passing `pressure` validation of its stored bytes leave none, so
+/// no stored, restored or historical read stands in for a fresh solve's registration; and a solve
+/// publication of the same bytes holds its own evidence only (none here), whatever the restored
+/// handle read. The analysis-run builder never reads a restored handle (its preview, Record Run and
+/// Save from the handle refuse one), so nothing could reuse such a note anyway.
+#[test]
+fn a_restored_result_never_holds_or_notes_reader_evidence() {
+    use crate::analysis_run_v03_build::tests::verdict;
+    let text = std::fs::read_to_string(root().join("fixtures/results/pressure_connected_ui_mechanics_sparse.json")).unwrap();
+    let model = std::fs::read_to_string(root().join("fixtures/model_operations/exact_pressure_authoring_model.json")).unwrap();
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let restored = restored_under(&registry, &text, None);
+    // F2's restore reads the bare verdict first; then the registration's own validation, passing.
+    let bare = verdict(&registry, &restored, None, None).unwrap();
+    assert!(bare.contains("\"ok\":true"), "{bare}");
+    let solve_model = serde_json::from_str::<Value>(&model).unwrap().to_string();
+    assert_eq!(verdict(&registry, &restored, Some("pressure"), None).unwrap(), crate::solve_jobs::READER_PASSED);
+    assert_eq!(verdict(&registry, &restored, Some("pressure"), Some(&solve_model)).unwrap(), crate::solve_jobs::READER_PASSED);
+    assert!(!registry.held_result(&restored).unwrap().pressure_reader_passed(), "a restored result notes nothing");
+    let solved = crate::native_verdict::tests::retained(&registry, &gate, &text);
+    assert!(!registry.held_result(&solved).unwrap().pressure_reader_passed(), "a publication of the same bytes has no evidence of the restored handle's");
+    assert_eq!(verdict(&registry, &solved, Some("pressure"), None).unwrap(), crate::solve_jobs::READER_PASSED);
+    assert!(registry.held_result(&solved).unwrap().pressure_reader_passed());
+    assert!(!registry.held_result(&restored).unwrap().pressure_reader_passed(), "nor the restored handle of the publication's");
+    // The builder never reads the restored handle.
+    let preview = json!({"jobId": restored, "inputManifest": {"manifest_ref": {"object_type": "InputManifest", "ref": "x"}, "manifest_sha256": "0".repeat(64), "canonical_bytes": "{}"}, "ruleCheckAggregate": null, "rulePackExclusions": []});
+    let (raw, lease) = crate::analysis_run_v03_build::reserve(&registry, &body(&preview), &headers(Some(INGRESS_ARGS_JSON_V1))).unwrap();
+    let refused = match crate::analysis_run_v03_build::run(registry.clone(), raw, lease) {
+        Err(CommandError::Command(text)) => text,
+        other => panic!("{other:?}"),
+    };
+    assert!(refused.contains("holds a restored stored result"), "{refused}");
+    registry.dispose_result(&restored).unwrap();
+    registry.dispose_result(&solved).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
+
 #[test]
 fn matching_diagnostics_are_capped_before_the_header_is_allocated() {
     let host = ScriptedHost::normal();

@@ -436,13 +436,51 @@ struct SolveJobRecord {
 /// bytes and that table are one immutable snapshot: a reader takes both with
 /// one share ([`SolveJobRegistry::held_result`], under the registry lock), and
 /// a disposal or reset after that cannot change the table its read uses.
+///
+/// RT-U4 (C1, the native record build): a solve's publication also holds
+/// private evidence of one current reader's pass on exactly these bytes
+/// ([`ReaderEvidence`]), noted by the native verdict and read by the
+/// analysis-run builder. It lives and ends with the bytes; a restored result
+/// never holds or notes any.
 #[derive(Debug)]
 pub(crate) struct HeldResult {
     text: String,
     lease: Lease,
     detail: Mutex<Option<Arc<crate::result_detail::DetailIndex>>>,
     recorded_table: Option<crate::analysis_run_v03_validate::RecordedTable>,
+    evidence: Option<ReaderEvidence>,
 }
+
+/// RT-U4: what a held solve publication's own native readers established
+/// about its exact bytes, for the analysis-run builder to reuse rather than
+/// read again (`analysis_run_v03_build` module docs, "The readers"). One fact
+/// only: the current `pressure` reader passed on these bytes. That reader is
+/// `semantic_contract::validate_pressure_evidence` of the source and then,
+/// only when a model is given, G2's model checks (`reader_verdict::validate`),
+/// so a pass with any model or none is a pass of the model-free reader the
+/// builder runs: the same parse of the same bytes (one serde_json), the same
+/// current tables (both read inside `entry_scope`, which no recorded table
+/// selection survives), the same reader code.
+///
+/// - **Bound to the publication.** It is a field of the immutable snapshot a
+///   reader shares ([`SolveJobRegistry::held_result`]), never a registry,
+///   job-id or global entry, so a disposal, reset, take or new solve (even of
+///   the same bytes) can neither move it to other bytes nor give other bytes
+///   one. Only a solve's publication has a slot; a restored result's is
+///   absent, so no stored, restored or historical read notes or reuses one.
+/// - **Bound to the actual verdict.** It is noted only from the reader's own
+///   outcome text, and only when that text is the pass (`{"ok":true}`); a
+///   refusal, a parse failure or another reader notes nothing. It is never
+///   cleared: the bytes cannot change, so a pass stays true of them.
+/// - **Nothing else.** No outcome, model, row, checksum, length or record is
+///   kept, and no webview flag, header or token can set it.
+#[derive(Debug, Default)]
+pub(crate) struct ReaderEvidence {
+    pressure_passed: std::sync::atomic::AtomicBool,
+}
+
+/// The current readers' pass, as `reader_verdict::validate` writes it.
+pub(crate) const READER_PASSED: &str = r#"{"ok":true}"#;
 
 impl HeldResult {
     /// Stored bytes restored into native custody (C1 slice 6,
@@ -452,7 +490,31 @@ impl HeldResult {
     /// bytes by the last holder.
     pub(crate) fn restored(text: String, mut lease: Lease) -> Self {
         lease.set_purpose(LeasePurpose::Result);
-        Self { text, lease, detail: Mutex::new(None), recorded_table: None }
+        Self { text, lease, detail: Mutex::new(None), recorded_table: None, evidence: None }
+    }
+
+    /// A solve's published bytes under their result lease, with an empty
+    /// evidence slot ([`ReaderEvidence`]).
+    fn published(text: String, lease: Lease) -> Self {
+        Self { text, lease, detail: Mutex::new(None), recorded_table: None, evidence: Some(ReaderEvidence::default()) }
+    }
+
+    /// RT-U4: notes `reader`'s outcome `outcome` on these bytes (the native
+    /// verdict's own reply text for a validation it just read from this
+    /// share). Only a solve's publication, only the `pressure` reader and only
+    /// its pass are noted; anything else is ignored.
+    pub(crate) fn note_validation(&self, reader: &str, outcome: &str) {
+        if let Some(evidence) = &self.evidence {
+            if reader == "pressure" && outcome == READER_PASSED {
+                evidence.pressure_passed.store(true, std::sync::atomic::Ordering::Release);
+            }
+        }
+    }
+
+    /// RT-U4: whether the current `pressure` reader passed on these bytes
+    /// ([`ReaderEvidence`]). Always false for a restored result.
+    pub(crate) fn pressure_reader_passed(&self) -> bool {
+        self.evidence.as_ref().is_some_and(|evidence| evidence.pressure_passed.load(std::sync::atomic::Ordering::Acquire))
     }
 
     /// RT-A4 §10.4: these restored bytes are read under `table`, the registry
@@ -1384,7 +1446,7 @@ impl SolveJobRegistry {
         record.worker = None;
         record.resource.worker_grant_bytes = None;
         record.result_bytes = Some(result.len() as u64);
-        record.result = Some(Arc::new(HeldResult { text: result, lease, detail: Mutex::new(None), recorded_table: None }));
+        record.result = Some(Arc::new(HeldResult::published(result, lease)));
         if let Some(digests) = record.digests.as_mut() {
             digests.result_sha256 = Some(result_sha256);
         }
