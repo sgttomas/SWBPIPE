@@ -128,7 +128,8 @@ async function emit(): Promise<Array<{ path: string; document: PreviewModel }>> 
   model = await apply(model, buildCreateLoadCaseIntent({ model, draft: defaultLoadCaseDraft("load:L-1") }));
   model = await apply(model, buildCreatePrimitiveLoadIntent({ model, draft: { ...defaultPrimitiveLoadDraft(model, "load:L-1"), targetNode: "node:N-2" }, unitCatalogRoute: null }));
   record("load_creation", model);
-  model = await apply(model, buildCreateCombinationIntent({ model, draft: defaultCombinationDraft(model, "combination:C-1") }));
+  // The person enters the term: the draft proposes no case and no factor.
+  model = await apply(model, buildCreateCombinationIntent({ model, draft: { ...defaultCombinationDraft(model, "combination:C-1"), terms: [{ kind: "load_case", ref: "load:L-1", factor: "1" }] } }));
   record("combination_creation", model);
 
   // Every model-data slot, through the intents the model-data UI queues.
