@@ -4538,7 +4538,7 @@ logs and evaluations, the pin captures and reseal scripts). It is review input, 
 **Status.** Proposed registration of two RT-U4 repairs, made together on RT-A3 increment 4's registered candidate in the
 order Agent 0 set (§8.49, then this, then PF1b). It is made under the owner's removal of explicit owner approval for
 coefficient movement; source-derived pricing, independent scrutiny and preservation of the registered state remain
-required. This records no acceptance. The threshold and M are unchanged. **AC-004: not yet run.** Agent 0's condition
+required. This records no acceptance. The threshold and M are unchanged. **AC-004: 7/7 on the registered binary** (below). Agent 0's condition
 binds this shared registration: the derivation accounts for the actual composed source, and the absence of movement in
 either PR on its own is not taken as proof for the composition.
 
@@ -4686,9 +4686,33 @@ The token-given and other-route tests pass, and the counter counts one pass per 
 evidence (3,583 reads on `ad3665dcc`, mutations, the native differential) stands for the order repair's source. On
 this source, its in-crate agreement is re-run, not carried.
 
-**AC-004: not yet run.** Coefficients, the in-build record and `W1`/`MAX` move, so the six stack-headroom witnesses
-(and, at Agent 0's call, §8.40's isolated challenge) must run on this registration's binary in an Agent-0-cleared
-exclusive window. This record does not run them and records no binary identity.
+**AC-004.** Coefficients, the in-build record and `W1`/`MAX` move, so the six stack-headroom witnesses and §8.40's
+isolated challenge were run on the registered binary. They passed **7/7 at `41142f4a3`** (tree `62f83f23dc10…`), whose
+`core/` source and block are the ones registered here; later commits change only this Work text.
+- **Binaries.** `open_pipe_stress_product_physics-969a8c7254e96a03` SHA-256
+  `37bc5401d1a6d599c29998ff647481411df75e1707c94e734092eb7a4f1259fb` and `retained_memory_challenge-9ee840740e605021`
+  SHA-256 `efbcd4308c539d917d09d2af6e41c025df344b6228cb4ae4fe12429af668e933`. Profile `retained_memory.rs`
+  `63087c0f5447829cb8fea9851d863687ca3ad1e598ae4e888210aa63a5042f6d`, product_physics `Cargo.lock`
+  `b7ebb02aafa8cfe214c18bc64941381b33ab3f9295e0fc774ee0819e1e4f5653`, rustc 1.97.1 (8bab26f4f 2026-07-14). Built
+  beforehand under the slot wrapper (`cargo test --offline --no-run --lib --test retained_memory_challenge`, test
+  profile; `RUSTFLAGS`, `CARGO_ENCODED_RUSTFLAGS` and `CARGO_BUILD_RUSTFLAGS` unset); a second `--no-run` reported them
+  fresh.
+- **Clearance and checks.** Agent 0 cleared one `t3_exclusive.sh` window with memguard, at most 55 s internal and 60 s
+  external including teardown. The identities above were recorded before queueing and all re-verified at admission
+  (head, tree, clean state, profile, lock, both binaries, compiler, flag state). No other exclusive job was pending.
+- **Timing.** Queued and admitted 2026-11-04T12:20:11Z; ended 12:20:25Z: 14.48 s, teardown included.
+- **Discipline.** Each test ran in its own process, prebuilt and invoked directly with `--exact --test-threads=1`
+  (`--ignored` for the witnesses). Nothing was compiled inside the window, both binary hashes were unchanged afterwards,
+  and there was no retry and no extra test. No owned process, lock holder or `exclusive.pending` remained (verified
+  12:20:32Z).
+- **Results, sparse and dense:**
+  - `witness_headroom_w1_at_one_mebibyte`: ok (2.00 s), ok (0.63 s);
+  - `witness_w2_deep_milestone_publishes`: ok (1.28 s), ok (1.28 s);
+  - `witness_w_c2_publishes`: ok (2.36 s), ok (2.43 s);
+  - `retained_direct_peak_is_within_the_profiles_bounds`: ok (4.25 s), against the re-pinned `W1_PHASE_BYTES`/
+    `MAX_PHASE_BYTES` above.
+
+This is test evidence, not an acceptance.
 
 **Checks** (on the priced source; the registration commit changes only the profile, the law record and the challenge).
 - **result_export:** all 30 test binaries, 424 passed, 2 ignored. These include the lib tests (138: the single-pass
