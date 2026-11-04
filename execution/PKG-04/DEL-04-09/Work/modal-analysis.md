@@ -913,9 +913,9 @@ n_max = 8,192 is the largest order the dense guard admits (below, τ_m); n_max·
 - **Peak (producer):** the outcome, plus the document as a `serde_json` tree (each value object a six-member map: an estimated 1–2 KB per shape row in memory, several times its canonical size), plus one row's transient re-serialization for its checksum. **Work:** one serialization, one checked parse and one SHA-256 per row and per table: O(document bytes), about three passes.
 - **Readers:** the parsed tree (as above) plus the Rust reader's parsed copy (16 B per shape entry, 32 B per mass entry) and one clone per value object for the units relation; closure costs one canonical re-serialization and SHA-256 per row; the relations cost about 7·P_M·n_r multiply-adds (m_i and three φᵀp_k per mode), 3·P_M for the totals, 6N·n_r for the normalization and n_cl·n_c for the cluster rows. The Python reader holds the same tree as Python objects, several times larger.
 - **Growth.** Output is O(6N·n_r) rows. At the dense guard's largest order (n_f ≈ 8,190, N ≈ 1,365) a whole-spectrum request would publish about 6.7·10⁷ shape rows, about 23 GB canonical and far more in memory: **the projection needs its own pre-allocation guard on its row and byte counts** (stated formula, refusing, never truncating) before any native path forms one. Even N = 500 and n_r = 50 give 1.5·10⁵ shape rows, about 51 MB canonical, near the native custody path's 64 MiB displayable-result limit (#59, `MAX_DISPLAYABLE_RESULT_BYTES`).
-- **No measurement was run in I3a.**
+- **The recount is from source.** The coefficients above are fixture observations, not bounds; the format bound that replaces them for a guard is under "Stage 1 results" below.
 
-**O-4 stage 1: readiness plan (not run; replaces the withdrawn 60-minute proposal, which was not approved).** Stage 1 measures small points only. Its measured phase costs are what any larger stage is then proposed from. It reserves no 3-repeat series and no 3,000-DOF hour. Every O-4 value it yields stays **test-local and experimental** until separately reviewed measurements adopt one. The window pins nothing, sets no budget or guard coefficient, and enables no result.
+**O-4 stage 1: readiness plan (run once, 2026-11-04; results below; replaces the withdrawn 60-minute proposal, which was not approved).** Stage 1 measures small points only. Its measured phase costs are what any larger stage is then proposed from. It reserves no 3-repeat series and no 3,000-DOF hour. Every O-4 value it yields stays **test-local and experimental** until separately reviewed measurements adopt one. The window pins nothing, sets no budget or guard coefficient, and enables no result.
 
 1. **The measurand** (maintained, `#[ignore]`d, outside the normal test path): `modal::phase_measurand_tests::o4_phase_measurand_sec_a_cantilever` in `core/product_physics/src/modal/phase_measurand_tests.rs`.
    - *Model:* the SEC-A straight cantilever of `tests_eigen::sec_a_cantilever` (L = 6 m, OD 0.2 m, wall 0.008 m, steel with water contents, anchored at x = 0), with n_f/6 elements: n_f free DOFs and 6(n_f/6 + 1) global DOFs. The dense cost depends on n, not on sparsity. The parameters are the labelled TEST-LOCAL set (`TEST_LOCAL_I3A_EXPERIMENTAL`).
@@ -968,6 +968,266 @@ n_max = 8,192 is the largest order the dense guard admits (below, τ_m); n_max·
    - (d) a proposal for the next stage (larger points, repeats, any debug ratio), sized from the measured slopes, for a separate authorization.
 
    D-k's work budget, the dense modal memory constant and the projection guard's coefficients are proposed only from reviewed measurements, never from this stage alone.
+
+##### Stage 1 results (2026-11-04)
+
+**Standing.** Every value in this subsection is **TEST-LOCAL and experimental**: one release observation per process, one host, one model, one `mode_count`. Nothing here pins, enables or adopts a budget, a guard or a coefficient. The guard and measurement texts are proposals for Agent 0, ahead of an independent review. MiB is 2²⁰ B.
+
+**The window** (`window-20261104T120707Z`, kept as raw evidence in the I3a O-4 scratch and not copied here):
+- *Identity.* The binary has SHA-256 `f7c87223…cc6c`, built at `48b3cc692` (release, `debug_assertions=false`, aarch64-macos, rustc 1.97.1). Its identity and the supervision scripts' were recorded before the queue.
+- *Outcome.* The launcher reported `COMPLETED`, cleanup `CONTAINED`, exit 0, and the harness `schedule complete`. All 10 of 10 processes are valid: each exited 0, with no signal and an empty stderr, and lock coverage was proven after each reap. There was no kill, overrun, refusal or lost record, and no memguard event (the log is unchanged since 2026-10-08). From T₀ to the window's end took 20.3 s. The normal path is confirmed.
+- *Background, disclosed only.* During the window, fseventsd was reported at about 50 GB RSS, with 78% of system memory free. This is an operator observation and is not in the retained records. No causal claim is made about any value, and it did not stop the window.
+
+**What each timed phase executes** (from source; `replay_modal_phases` follows `run_modal_dense`'s order):
+- *parse:* the request's `ModalPreviewRequest` parse, on the measurand's side, before the replay. It is not in the phases total.
+- *prepare:* the parameter refusals, `prepare_modal` (the static entry's pre-formation sequence) and `solve_modal_state_case` (this model has no state case).
+- *mass_and_identity:* `assemble_mass` (consistent straight-member mass, as node blocks) and `check_weight_basis`. The identity check compares, on each of 3 axes, every member's nodal load and the model resultant.
+- *pencil_and_screen:* `form_modal_pencil`. In order: the 96·n_g² guard, the sparse `form_basis_stiffness` and the static partition. Then the static dense structural solve on a zero force: the dense K view, the two symmetry views, the scaled prepared matrix, the contribution audit in exact expansions, a dense Cholesky of order n_f with its pivot screen, the gate and the residual. Then K_ff and M_ff, dense and range-checked, p_k and the free-DOF mass.
+- *dense_solve:* `solve_dense_pencil`, in order:
+  - the ordered Cholesky R of K, and C = R⁻¹MR⁻ᵀ;
+  - Householder reduction and implicit QL with vectors (1,279 iterations at 960), then the sort;
+  - the Hager inverse-norm estimate;
+  - φ = R⁻ᵀz for every kept row, and the band screen (no pair was screened here);
+  - the equilibrated mass-block Cholesky (the census).
+
+  The stated 9n³ lists the Cholesky, the formation of C, the reduction and QL. The back-transform (≈ n³ flops) and the census Cholesky (≈ n³/3) also run in this phase and are not in that formula.
+- *clusters_and_reported_set:* the census, the δ_c clusters, the frequencies and `complete_reported_set`.
+- *normalization:* `modal_basis`, then `normalize_modal_shape` for each reported mode. These are dense M_ff bilinear forms, O(n_r·n_f²).
+- *reformation:* the element operands, the element-by-element re-formation (the p128 seam) and the formation difference, with one double-double accumulator per stored entry.
+- *residuals:* check 2 for **every computed mode**, n_c = n_f evaluations here. Each sums K̂φ, M̂φ and M̂φ again (for φᵀM̂φ) exactly, element by element: at most 3·Σ_e d_e² exact products, where d_e is element e's free-DOF count. The cluster e_λ follows.
+- *sturm_evidence:* the union-pattern `ShiftPencil`, the candidate shifts in the gap, the scaled shifted profile and `sparse_direct::factorize_ldlt`, then the inverse-norm solves.
+- *orthogonality:* check 3 on M̂ for the n_r published shapes: n_r exact products M̂φ_j, then n_r(n_r + 1)/2 exact bilinear forms.
+- *The entry pass:*
+  - `run_modal_dense`, timed whole: the same functions, plus the outcome's row assembly;
+  - *binding:* the projection the product refuses at the dense guard, timed but not a product phase;
+  - *projection:* `modal_doc_solved` builds the value tree, with a SHA-256 of each row's checked canonical text and of each table;
+  - *canonical:* `serde_json::to_string`, then `canonical_json_checked_v1_text`, which makes a checked parse into a second tree and then runs the canonical writer.
+
+**Times (seconds), rows, bytes and peaks:**
+
+| n_f (n_g, elements) | pencil_and_screen | dense_solve | residuals | normalization | orthogonality | mass_and_identity | reformation | phases total | run_modal_dense | projection | canonical | rows | canonical bytes | peak RSS phases / entry (MiB) | process wall phases / entry |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 60 (66, 10) | 0.0011 | 0.0004 | 0.0214 | 0.0003 | 0.0048 | 0.0011 | 0.0005 | 0.031 | 0.026 | 0.0140 | 0.0044 | 1,110 | 468,577 | 10.5 / 17.4 | 0.04 / 0.05 |
+| 120 (126, 20) | 0.0029 | 0.0028 | 0.0909 | 0.0007 | 0.0054 | 0.0016 | 0.0011 | 0.106 | 0.108 | 0.0206 | 0.0064 | 2,092 | 860,779 | 12.8 / 24.2 | 0.11 / 0.15 |
+| 240 (246, 40) | 0.0073 | 0.0182 | 0.3639 | 0.0019 | 0.0092 | 0.0027 | 0.0018 | 0.405 | 0.446 | 0.0302 | 0.0129 | 4,058 | 1,647,689 | 20.4 / 41.6 | 0.41 / 0.50 |
+| 480 (486, 80) | 0.0387 | 0.1704 | 1.5082 | 0.0068 | 0.0187 | 0.0056 | 0.0037 | 1.753 | 1.699 | 0.0589 | 0.0263 | 7,982 | 3,219,890 | 48.0 / 88.9 | 1.76 / 1.80 |
+| 960 (966, 160) | 0.2376 | 2.0004 | 5.4650 | 0.0527 | 0.0360 | 0.0107 | 0.0078 | 7.811 | 7.247 | 0.1086 | 0.0458 | 15,848 | 6,383,582 | 150.4 / 220.1 | 7.82 / 7.43 |
+
+Parse, prepare, the clusters and reported set, and the Sturm evidence were each at most 0.001 s at every point. Log–log slopes between adjacent points: dense_solve 2.87, 2.72, 3.23, 3.55; residuals 2.09, 2.00, 2.05, 1.86; pencil_and_screen 1.33, 1.34, 2.41, 2.62; phases total 1.79, 1.94, 2.11, 2.16; run_modal_dense 2.03, 2.05, 1.93, 2.09; projection 0.56, 0.55, 0.97, 0.88; rows 0.91, 0.96, 0.98, 0.99; canonical bytes 0.88, 0.94, 0.97, 0.99.
+
+**Counts** (phases pass). At every point, computed = n_f, reported = 10, clusters = 2n_f/3, the census is `Established` with finite count n_f and no structurally massless DOF, nothing was band-screened, and there was one Sturm candidate, factored once. By n_f = 60, 120, 240, 480 and 960:
+- QL iterations: 79, 152, 316, 628 and 1,279;
+- inverse-norm solves: 5, 5, 9, 11 and 11;
+- shift-pencil pattern entries: 164, 336, 682, 1,366 and 2,752;
+- stored K_ff entries: 534, 1,104, 2,244, 4,524 and 9,084, and stored M_ff entries as for the pattern;
+- residual evaluations: n_f.
+
+**Rows per table** (entry pass, for n_f = 60 / 120 / 240 / 480 / 960):
+- nodes: N = 11 / 21 / 41 / 81 / 161;
+- dofs: 6N;
+- mass_matrix: P_M = 182 / 354 / 700 / 1,384 / 2,770;
+- mass_totals: 3;
+- modes: 10;
+- shapes: 6N·10;
+- participation: 30;
+- clusters: 2n_f/3;
+- computed_modes: n_f;
+- sturm_candidates: 1;
+- identity: 3·(E + 1), E the element count;
+- discretization: E;
+- disclosures: 4;
+- supports and diagnostics: 0.
+
+**Reading limits:**
+- The phases pass and the entry pass are **separate executions**: separate processes with separate peaks, and the entry's `run_modal_dense` re-runs every phase. Their times and peaks are not additive.
+- The slopes are over n_f = 60–960, one process per measurand and one observation per point. They describe this population on this host only, and **they are not complexity bounds.**
+- The source's drivers, for contrast:
+  - dense solve: O(n_f³) flops;
+  - residuals: O(n_c·Σ_e d_e²), which is O(n_f²) here;
+  - screen: O(n_g²) memory and the static Cholesky's n_f³/3 flops;
+  - normalization: O(n_r·n_f²);
+  - orthogonality: O(n_r·Σ_e d_e² + n_r²·n_f);
+  - projection: O(rows).
+- At n_f ≤ 960 the residuals are the largest phase (70% of the phases total at 960). Continuing the last slopes (3.55 against 1.86), or the cubic and quadratic exponents, the dense solve would overtake them somewhere between n_f ≈ 1,700 and 2,600. That is an extrapolation.
+
+**RSS reconciliation from source** (n_g = n_f + 6; the formulas evaluated at 960 / 480, in MiB):
+
+| Buffer (all binary64 unless noted) | Formula | 960 | 480 | Allocated | Dropped |
+|---|---|---|---|---|---|
+| Static screen: dense K view | 8·n_g² | 7.12 | 1.80 | `SparseStiffness::to_dense` in `SparseAssemblyEvidence::solve_assembled` (`DenseScrutiny`) | when `solve_assembled` returns, the end of `form_modal_pencil`'s screen block |
+| Static screen: symmetry views (roundoff, and counts as `usize`) | 16·n_g² | 14.24 | 3.60 | `dense_symmetry_view` | as above |
+| Static screen: prepared matrix | 8·n_f² | 7.03 | 1.76 | `prepare_bound` | when `solve_prepared` returns |
+| Static screen: contribution sums (`Expansion` = `Vec<f64>` + `usize`, 32 B) | 32·n_g² | 28.48 | 7.21 | `contribution_sums` in `audit_contributions` | when `audit_contributions` returns |
+| Static screen: contribution differences (`sums.to_vec()`) | 32·n_g² | 28.48 | 7.21 | `contribution_differences` | as above |
+| Static screen: Cholesky factor | 8·n_f² | 7.03 | 1.76 | `cholesky`, after the audit | when `solve_prepared` returns |
+| K_ff and M_ff (flat) | 16·n_f² | 14.06 | 3.52 | `form_modal_pencil`, after the screen | end of the run: the test's end in phases, the return of `run_modal_dense` in entry |
+| R (K's Cholesky, massless first) | 8·n_f² | 7.03 | 1.76 | `cholesky_ordered` | `drop(r)`, after the back-transform |
+| Work: M R⁻ᵀ, then C, Q/Z and φ | 8·n_f·n_m = 8·n_f² | 7.03 | 1.76 | `solve_dense_pencil` | kept as `solution.vectors` until the end of the run |
+| Census Cholesky of the equilibrated M | 8·n_f² | 7.03 | 1.76 | `established_finite_mode_count`, after `drop(r)` | when it returns |
+
+- **Small terms.** Everything else is O(n) or O(stored entries): the sparse K and its assembly evidence, the stored entries, the `ShiftPencil` (32 B per pattern position, 2,752 positions), the profile and its clone, the per-evaluation `ExactSum` rows of the residual (n × (48 B + limbs)), the re-formed element operands, the formation accumulators (16 B per stored entry) and the n_r·n_f normalized shapes. Together these are of the order of 1 MiB at 960 (an estimate). The Sturm pencil's 32·n_f² of the `sturm` module docs is its full-profile case. This banded model's profile is O(n).
+- **Live sets, from the lifetimes:**
+  - at the contribution audit: 88·n_g² + 8·n_f² = **85.3 / 21.6**. That is the static 96·n_g² to 0.1 MiB: the formula counts the prepared matrix at n_g², not n_f²;
+  - at the static factor: 24·n_g² + 16·n_f² = 35.4 / 9.0;
+  - in the eigen core: 32·n_f² = 28.1 / 7.0, both with K, M, R and the work buffer, and later with K, M, the work buffer and the census factor;
+  - after the solve, to the end: 24·n_f² = 21.1 / 5.3.
+- **Baseline.** The process baseline is B₀ ≈ 10.0 MiB: the 60-point phases peak (10.5) less its own allocations (0.6). The entry pass's smallest peak, at 60, is 17.4 MiB, and it already includes that point's projection.
+- **Phases pass.** The largest live set plus B₀ is 95.3 / 31.5 MiB, but the observed peak is **150.4 / 48.0**. The peak is not the live set of any one instant: it exceeds it by 55.1 / 16.5 MiB. Counting every listed buffer once, with no reuse, gives 88·n_g² + 56·n_f² = 127.5 / 32.1 MiB, or 137.5 / 42.1 with B₀. The observed peak exceeds even that, by **12.9 / 5.9 MiB**; the excess was 0.7 and 2.2 at 120 and 240.
+- **Page faults.** In all ten processes, ru_minflt × 16 KiB exceeds ru_maxrss by 4.3–4.4 MiB, assuming the 16 KiB VM page of arm64 macOS. So nearly every page was faulted once, and freed memory was not returned and faulted again in any material amount. Together with the lifetimes above, this is consistent with freed buffers staying resident: allocator retention, so that ru_maxrss records the high-water of the sum of earlier allocations rather than of the live set.
+- **What the source cannot settle.** Whether the allocator returns a freed block depends on its size classes, not on this repository's source. At 960 the screen's rows are 7.7 KB and 30.9 KB, and each flat n_f² buffer is 7.03 MiB; at n_f = 1,920 each flat buffer is 28.1 MiB. The 12.9 / 5.9 MiB above the cumulative list is not attributed by source. Its candidates are size-class rounding (a 7,728 B row), O(n)–O(stored entries) structures and the test harness.
+- **What would settle it.** A test-only allocation trace per phase (live high-water, cumulative bytes and the largest block), with the resident size read at each phase boundary. This is a deterministic count, not a timing. **It is not proposed now:** the guard decision below rests on measured process peaks. It is needed only if a memory formula is to be extrapolated beyond measured points.
+- **Entry pass.** `run_modal_dense` allocates the same list, and its outcome is small at n_r = 10 (shapes n_r·n_g·8 B and the computed evidence). The binding is the product's projection of the same request refused at the guard, with no n² buffer. Then the projection runs. Every term in it is an estimate, from serde_json's `BTreeMap` map with this toolchain's node layout (a leaf of 11 entries is about 632 B) and assumed 16 B malloc quanta, not from this repository's source:
+  - the value tree T: about 1.7 KB per shape or mass row, 6.5 KB per computed-mode row and 0.8 KB per value object, about 30.7 / 15.5 MiB in all;
+  - the compact text: 6.09 / 3.07 MiB;
+  - the checked-parse tree: ≈ T;
+  - the canonical text: 6.09 / 3.07 MiB.
+
+  All four are live at the canonical write: about **73.5 / 37.2 MiB**, or up to 85.7 / 43.4 MiB with doubled text capacities.
+  - The largest live set of the entry pass is therefore about 95 / 31.5 MiB (the screen, plus B₀), against an observed **220.1 / 88.9**.
+  - If the run's freed memory stays resident, as the phases evidence indicates, the retained run plus the live projection is about 211–236 / 79–91 MiB, which brackets the observed peaks. That consistency is not a proof, and the two passes remain separate executions.
+- **What the stated formulas cover.**
+  - 96·n_g² (`dense_scrutiny_guard`) covers the static screen's six buffers at its audit, and here it also exceeds every other single instant's live set at n_r = 10.
+  - It omits:
+    - the process baseline;
+    - retained memory (the cumulative 88·n_g² + 56·n_f²);
+    - the projection's trees and texts (at 480 the estimated 37.2 MiB exceeds the formula's 21.6);
+    - the orthogonality products, n_r·n_f·(24 + 16k) B for k exact terms per entry, which reach n² scale on a whole-spectrum request;
+    - the outcome's and normalization's n_r·n shapes;
+    - a full-profile Sturm pencil, up to about 32·n_f²;
+    - the residual phase's per-evaluation O(n) buffers.
+  - 32·n_f² (`dense_path_peak_bytes`) covers K, M, R and the work buffer only, and omits everything else.
+  - Neither is a process-peak bound, and neither is fitted here.
+
+**Projection size from format and input lengths.**
+- **Value encoding** (`openpipestress_jcs_ijson_v1`, `canonical_json`):
+  - a binary64 below 2⁵³ in magnitude is ECMAScript `Number::toString` of ryu's shortest digits, at most **25 B** (−0.0000012345678901234567). A value at or above 2⁵³, or not finite, is `null`, with its reason;
+  - an integer is its decimal digits;
+  - a boolean is at most 5 B;
+  - a checksum is 66 B with its quotes;
+  - a string is serde_json's escape: at most 6× its UTF-8 bytes (control characters as `\u00xx`), plus 2;
+  - keys are fixed by source, and the sort order does not change length;
+  - a value object (`below_normal`, `kind`, `undefined_reason`, `unit`, `unit_status`, `value`) carries either a number with a null reason (25 + 4) or a null with its longest reason (4 + up to 28 for `no_neighbour_or_not_formed`).
+- **Identifier dependence.** Model identities are any string with at least one non-whitespace character, Unicode admitted and with no length cap (`schemas/model.schema.yaml`). Let E(x) be x's escaped length, with no quotes. A row adds E for each occurrence of an input identity.
+- **Bound per row**, S_t(D) + Σ E(identity). D is the digit width of the largest integer or reference index in the document (D = 8 covers documents below 10⁸ rows). The values below are at D = 8; each S_t(D) is computed exactly from D:
+
+  | Table | S_t(8), bytes | Identity occurrences |
+  |---|---|---|
+  | shapes | 379 | 2·E(node) |
+  | mass_matrix | 407 | 2·E(node_i) + 2·E(node_j) |
+  | dofs | 175 | 2·E(node) |
+  | nodes | 596 | 2·E(node) |
+  | mass_totals | 525 | none |
+  | modes (one Sensitive reason) | 1,360 | E(node) |
+  | participation | 958 | none |
+  | clusters | 423 | none |
+  | computed_modes | 1,145 | none |
+  | sturm_candidates | 2,394 | none |
+  | identity | 383 | E(subject) |
+  | discretization | 666 | 2·E(member) |
+
+  - *Row lengths taken from their actual strings*, all of which the outcome holds before projection, are each a fixed skeleton plus E of each string:
+    - disclosures: E(text);
+    - diagnostics: id, code, severity, message and affected refs;
+    - supports: E(behavior), E(state), 2·E(support), E(node).
+  - *Each table* adds 128 B + d of wrapper, and one comma between rows.
+  - *The header* is H₀ plus:
+    - the request's option members, at their canonical length;
+    - E(DOF id) + 3 for each restrained DOF of a linearized state;
+    - one ≤ 140 B reason for each Sensitive mode, and one for the orthogonality pair.
+
+    H₀ was not derived from source here. The committed cluster-extension fixture's header, widened to the worst-case value widths, is 8,657 B.
+- **Checked against the committed fixtures** (`fixtures/results/modal_*.json`, 1,691 rows over 12 tables): every row lies within its bound. The smallest margin is 0 B, on a DOF row.
+- **Row counts for a general request:**
+  - shapes: 6N·n_r;
+  - modes: n_r;
+  - participation: 3·n_r;
+  - computed_modes: n_c ≤ n_f, every retained finite mode on the dense path;
+  - clusters: n_cl ≤ n_c (every computed cluster, not only completed ones);
+  - mass_matrix: P_M ≤ 21·N + 36·(distinct node pairs joined by a mass-bearing member);
+  - nodes: N;
+  - dofs: 6N;
+  - mass_totals: 3;
+  - sturm_candidates: ≤ s_max;
+  - identity: 3·(n_straight + n_arc + n_body + 1);
+  - discretization: n_straight;
+  - supports: the nonlinear supports;
+  - disclosures: ≤ 12 fixed and conditional, plus the state case's, plus the identity's (one per applied self-weight primitive or case), plus one per computed mode whose e_λ interval reaches across a cut-off (≤ n_c);
+  - diagnostics: those of the preparation, the mass and the state solve.
+
+  n_r by request:
+  - `mode_count` m: n_r = min(m, n_c) plus the cluster extension, with n_r ≤ n_c;
+  - a cut-off: the modes below it plus the extension, which can reach n_c;
+  - the whole finite spectrum: n_r = n_c = n_f. At the static guard's limit (N = 1,365, n_f = 8,184) that is 6.7·10⁷ shape rows and about 2.6·10¹⁰ B under the bound.
+- **Observed against the bound.** With the observed counts and this model's identities ("n0"–"n160" and "p0"–"p159", 2–4 B), the formulas give exactly the observed rows at all five points. The bound is 498,570 / 915,708 / 1,744,864 / 3,399,848 / 6,750,771 B, against observed bytes of 468,577 / 860,779 / 1,647,689 / 3,219,890 / 6,383,582: 94.0–94.7% of the bound. This is a consistency check and no coefficient is fitted. Ten reported modes of one cantilever with short identities exercise no whole-spectrum, cut-off, arc, component, state, support, diagnostic or long-identity row, and so price none.
+- **Proposed projection guard** (refusing, never truncating; coefficients reserved):
+  - *(i)* optionally, refuse before the solve by the request-level count 6N·min(m, n_f) shape rows for `mode_count` m. This is a stated formula. It can refuse a request whose solved set would have been smaller (rejected μ, massless DOFs), and a cut-off request has no such count;
+  - *(ii)* immediately after `complete_reported_set` and **before the normalization**, refuse unless rows R ≤ R_max and B_doc ≤ B_max. R is the exact count above. B_doc is H + Σ_t Σ_rows (S_t(D) + 1 + ΣE) + 15·(128 + d), with s_max standing in for the Sturm candidates and n_c for the cut-off disclosures.
+  - Placing (ii) there also refuses before the O(n_r·n_f²) normalization and the O(n_r²·n_f) orthogonality of a large set.
+  - B_max follows #59's custody limit (64 MiB displayable). R_max, and any in-memory multiple, are I3b's and Agent 0's to set. The in-memory projection was estimated above at about 12× canonical at its peak (two trees and two texts), which is an estimate, not a bound.
+  - *Still needing source review:* H₀; the disclosure text formats that carry load or case identities; the free-text diagnostics; the supports' `behavior` and `state` strings; and the header's restrained-DOF and standing-reason lists.
+
+**Work-guard proposal.**
+- **Observed scope only** (dense; one anchored straight run of SEC-A's kind, with consistent mass; `mode_count` 10 with n_r = 10; release build, aarch64 macOS): **refuse a dense modal request when n_f > 960, or when the completed reported set exceeds 10 modes.** The second check runs right after `complete_reported_set`, before normalization.
+  - *Evidence:* at n_f = 960, the phases total was 7.81 s, `run_modal_dense` 7.25 s, the process walls 7.82 / 7.43 s, and the peaks 150.4 / 220.1 MiB.
+  - *Equivalent stated form for this scope:* 9n_f³ + s·n_f³/3 ≤ 8.26·10⁹ at s = 1, and 3·n_c·Σ_e d_e² ≤ 6.6·10⁷ exact products.
+  - *Not proposed as the guard:* the formula form. It would admit cost mixes the window did not measure: other element types, dense Sturm profiles, s > 1 factored shifts and larger n_r.
+  - *Limits:* one observation per point, one host under a disclosed background load, one model class and one n_r, and no debug ratio.
+- **The intended dense product scope.**
+  - D-k's target is about 3,000 DOF (§3.2). The static guard admits n_g ≤ 8,192 at 6 GiB.
+  - Continuing the last slopes to n_f = 8,184 is an **extrapolation, not a bound**:
+
+    | Phase | Basis | Time |
+    |---|---|---|
+    | dense solve | 2.00 s × r³ to r^3.55, r = 8.53 | 1,240–4,030 s |
+    | residuals | slopes 1.86–2.05 | 290–440 s |
+    | screen | slopes 2.62–3 | 65–150 s |
+    | normalization | | about 33 s |
+    | **total per pass** | | **about 27–78 min** |
+
+  - The source's live sets at 10 reported modes would be:
+    - screen: 88·n_g² + 8·n_f² ≈ 6.0 GiB, at the 6 GiB ceiling by the guard's construction;
+    - eigen core: 2.0 GiB.
+
+    The cumulative, if retention persisted, would be ≈ 9.0 GiB plus the projection. Both exceed what stage 1 can price, and the retention behaviour of 511 MiB buffers is not known.
+  - Whole-spectrum and cut-off requests add, as an n_r axis that no stage measured:
+    - O(n_r·n_f²) normalization;
+    - O(n_r²·n_f) exact orthogonality;
+    - n_r·n_f-scale orthogonality products.
+- **The only additional measurement needed** (one window; nothing else is proposed). **n_f = 1,920** (320 elements, n_g = 1,926), `MODAL_MEASURAND_MODES=10`, passes `phases` then `entry`, one process each.
+  - *Binary:* the same binary. It is reusable if the head's measurand and product source are unchanged; otherwise rebuild and re-identify outside the window.
+  - *Supervision:* the same scripts and rules.
+  - *Deadlines:* d = 120 s per process, with g = 5 s.
+    - Stage 1's growth rule holds: 8 × 7.82 s = 62.6 s ≤ 120 s.
+    - The worst case is 30 s for the locks, plus 2 × 125 s, plus 60 s of reserve: 340 s, within the 570 s abort and the 600 s window.
+  - *Expected (extrapolation):*
+    - time: phases total ≈ 38–49 s (the dense solve 16–23 s, the residuals 20–23 s), and `run_modal_dense` about the same;
+    - output: about 31,600 rows and about 12.8 MB canonical, under a bound of 13.5 MB;
+    - peak RSS, estimated from the source terms (not bounds): phases 349 MiB if only the live set counts (96·n_g² is 339.6 MiB) to about 520–570 MiB if retention persists. Entry adds about 146–171 MiB of projection, for up to about 740 MiB.
+  - *What it decides:*
+    - whether the dense modal product scope is n_f ≤ 1,920, with the work guard at that measured extent;
+    - whether the process peak follows the live-set formula or the cumulative one once each flat buffer is 28 MiB, which decides whether the dense modal memory constant must count retained memory;
+    - whether D-k's ~3,000 target is affordable.
+- **Conditional, only if Agent 0 keeps the ~3,000-DOF target after reviewing 1,920:** n_f = 3,072 (512 elements, n_g = 3,078), the `entry` pass only (the whole product path and its peak), in its own window.
+  - *Deadline:* d = 360 s with g = 5 s (worst case 455 s). It is re-derived from the 1,920 point's slower wall as (3,072/1,920)^3.6 ≈ 5.4× with margin, and is not raised above 360 s.
+  - *Expected:* 120–195 s, about 50,500 rows and 21.6 MB under the bound, with peak RSS of about 0.9–1.3 GiB for the run plus about 0.23 GiB for the projection (estimates).
+  - *Not proposed:* 3,840. It exceeds the target, and at its upper estimate one process would take a whole window.
+  - *Also not proposed:* repeats, a debug ratio, a larger n_r, or the old 12-point-hour benchmark.
+
+**Proposed D-k and guard decision for Agent 0** (nothing adopted):
+1. **Work, now:** either
+   - (A1) the observed-scope guard above, as TEST-LOCAL (n_f ≤ 960 and n_r ≤ 10, refusing); or
+   - (A2) no work guard until the 1,920 point. The dense modal path has no product entry yet (§5.3.9), so nothing is exposed meanwhile.
+
+   A stated-formula budget with cost coefficients (A3) is not supportable from stage 1.
+2. **Scope:** either
+   - (B1, recommended) narrow D-k's dense modal scope to n_f ≤ 1,920, closed by the single 1,920 point; or
+   - (B2) keep the ~3,000 target and add the conditional 3,072 point; or
+   - (B3) keep the static guard's whole range, n_g ≤ 8,192.
+
+   B3 is not supported: by extrapolation it is 27–78 min and 6–9 GiB per pass, which only the hour-scale benchmark Agent 0 excluded could price.
+3. **Memory:** keep `dense_scrutiny_guard` (96·n_g²) as the refusal before any allocation, recorded as a live-set formula rather than a process-peak bound. At 960 the observed peak was 1.6× the source's largest live set plus baseline. `DENSE_MODAL_BYTES_PER_ENTRY` waits for the 1,920 peak. The source finding stands: the static screen, not the eigen core, sets the live peak.
+4. **Projection:** adopt the guard's structure: rows and the format bound, refusing, applied before the solve and after the reported set. Its limits are set with I3b against #59's custody limit.
+5. **The n_r axis:** larger reported sets stay outside the measured scope. The projection limit bounds n_r·6N, and no n_r measurement is proposed.
 
 #### 5.3.9 Admission: what stays disabled, and why
 
@@ -1088,7 +1348,7 @@ Items that reach the product or data boundary are marked **for Agent 0** in §9.
 | O-1 | Independent Codex review of the W/a basis (§2.3), as Agent 0 directed, and of this design. Round 1 (at `a640e10e50`) and round 2 (at `d3c54e4f72`) are answered in this revision; the next round is pending | Manager, then Agent 0 | Before M1a starts |
 | O-2 | **Settled (D-u, Agent 0, 2026-10-31):** an independent Type 2 verifies a transcription against its source and records agent verification, naming reviewer and source; never acceptance. Unclear rights hold for the owner | — | — |
 | O-3 | **For the owner (data boundary):** the review of each report held for uncertain rights (§4.4; `docs/IP_AND_DATA_BOUNDARY.md`). Nothing is transcribed from a held report | Owner | At acquisition of each report |
-| O-4 | The work budget of the dense guard (§3.2), set by measurement. **Status (I2b-1): unmeasured and unpinned.** No work guard is applied; the operation estimate is recorded as a formula only, and the memory side uses the static guard (§3.2, as built). Measurement needs a separate, bounded, exclusive authorization. **I3a:** the 60-minute window proposal was not approved and is withdrawn; §5.3.8 now holds the stage-1 readiness plan (small ascending points, at most 10 minutes including teardown; not run) and the maintained, ignored phase measurand. The projection's own size guard joins it | M1b | M1b |
+| O-4 | The work budget of the dense guard (§3.2), set by measurement. **Status (I2b-1): unmeasured and unpinned.** No work guard is applied; the operation estimate is recorded as a formula only, and the memory side uses the static guard (§3.2, as built). Measurement needs a separate, bounded, exclusive authorization. **I3a:** the 60-minute window proposal was not approved and is withdrawn; §5.3.8 holds the stage-1 plan and the maintained, ignored phase measurand. **Stage 1 ran once, 2026-11-04** (`window-20261104T120707Z`, binary `f7c87223…` at `48b3cc692`): 10 of 10 processes valid on the normal path, release, n_f = 60–960 at `mode_count` 10, all values TEST-LOCAL; analysis in §5.3.8, "Stage 1 results". **Still unpinned; no guard adopted.** Proposed for Agent 0 there: an observed-scope work guard (n_f ≤ 960, n_r ≤ 10) or none yet; one more window at n_f = 1,920 (both passes, d = 120 s), with 3,072 (entry only) only if the ~3,000-DOF target is kept; the projection guard's structure, from a format bound (limits with I3b). The memory constant waits for the 1,920 peak, because the observed peak exceeds the source's largest live set (150.4 against 95.3 MiB at 960) | M1b | M1b |
 | O-5 | The discretization factor c (§2.6), derived by benchmark. **Status (I2b-1): not adopted.** f_e is computed per straight member and reported with f_e/f_max; no `MODAL_MASS_DISCRETIZATION_COARSE` decision is made. Test-local observations on the SEC-A Rayleigh cantilever (L = 6 m, N = 1, 2, 4, 8) through the product path, f_e/f_n against the frequency error from the continuum: 0.64 → 0.58, 1.2 → 0.22, 2.9 → 1.4·10⁻², 4.0 → 8.5·10⁻³, 5.8 → 7.7·10⁻³, 11.9 → 2.2·10⁻³, 16 → 1.2·10⁻³, 23 → 6.1·10⁻⁴; these match the frozen `fe_convergence.json` errors to 10⁻⁵ relative | M1a | M1a |
 | O-6 | **Measured basis so far (I1, test-local constants, not yet pinned):** over 352 well-separated published shifts of `f1_modal` whose raw counts were all right, e_b·ν ranged 1.8·10⁻¹⁵ to 2.1·10⁻⁴ and the separation ratio 5.7·10³ to 5.6·10¹⁴; over 34 factored binary64 miscounts, e_b·ν ≥ 35.8 and the separation ratio ≤ 6.2·10⁻³. η ≤ 1.44·10⁻¹³ on every dense mode of 11 class (a) cases, actual eigenvalue error ≤ 0.85·e_λ there. The integrity tolerances, the residual threshold τ_r and the orthogonality tolerance (§3.4) and the identity tolerance (§2.5): measured, then pinned under DEC-026; the identity tolerance was measured in I2a (§2.5, largest relative discrepancy 5.45·10⁻¹⁶ nodal, 4.38·10⁻¹⁶ resultant) and stays experimental and unpinned (D-TOL). I2b-1 adds the product-path observations of §3.4 (as built), all test-local, nothing pinned. The algorithm parameters, recorded with their basis: the confirmation of τ_t (§1.5); δ_c, the growth-factor formula g, the growth limit g_max, the conditioning multiple κ_c and the estimator's iteration count, the separation multiple κ_s, the half-arc series switch point (§2.4), the candidate-shift sequence and s_max (§3.4, M1b); the cut-off sizing offsets ε_s (§1.4), the block size limits, restart count and breakdown threshold (§3.3, M2). **I3a:** production-pin proposals with their derivations and margins are §5.3.7. **Agent 0, 2026-11-04:** A1 approved as numerical acceptance and algorithm criteria, not a domain-wide error theorem (τ_t, the identity tolerance, g_max, τ_e, τ_m, s_max, the gap positions, the offsets and the QL limit); A2 decided in part on 2026-11-04 (κ_c, κ_s and τ_o adopted as engineering acceptance and demotion criteria, δ_c as the computed-cluster grouping convention; τ_r held); A3 held (τ_μ, c_μ, κ_μ, c_f). A complete production instance needs all three closed. The targeted A2 evidence and the A3 μ/μ_max table are in §5.3.7; nothing is pinned | M1a, M1b, M2 | As each lands |
 | O-7 | Where the desktop keeps the remembered extraction bound per project (project store or desktop settings), and whether that needs a store version under the one-version rule. It is persistence, so it takes targeted checks | M3 | M3 design |
