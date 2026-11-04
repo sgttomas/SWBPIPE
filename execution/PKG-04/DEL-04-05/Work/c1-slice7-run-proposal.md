@@ -345,8 +345,14 @@ The delta:
 - `perf.mjs`: the web phase `run_preview` (`:725`), and `results_refusal` in the solve refusal's
   message chain (`:663`).
 
-The whole-value (non-C1) driver path is unchanged. Records under the earlier hashes keep their
-binding and meaning; none is relabelled. No build, binding, App or native run, timing or RSS was
+*Correction (second review, F1):* the sentence first written here, "the whole-value (non-C1)
+driver path is unchanged", was wrong. The remainder subtraction was not C1-only: at
+`e1079a816` every run's paint wait used `remaining()`, `paint_ms` minus the rounded time since
+just before the Analyze → Run menu call, where it had used a full `paint_ms` counted from the
+wait's own start after that call returned. So for a non-C1 run the gate shortened by the menu
+call's round trip (plus at most 0.5 ms of rounding). Its other steps were unchanged. The
+repaired gate below applies to both paths and states what changes for each.
+Records under the earlier hashes keep their binding and meaning; none is relabelled. No build, binding, App or native run, timing or RSS was
 made here.
 
 **Offline proof** (unit transport replay of committed fixtures; no timing). The tests are in
@@ -407,10 +413,158 @@ handle's first page marks, once, and two frames later. A value result still pain
 - No Rust and no priced file was changed. `analysis_run_v03_build.rs` and `native_persistence.rs`
   were not touched.
 
-**Open matter.** `criterion-9-measurement.md` §7 still describes `first_paint` only as "two
-animation frames later" after `result_committed`. The native-handle reading above should be
-carried into that section when the next candidate binding is accepted. That section is outside
-this change's write scope.
+**Open matter (closed by the second review repair below).** `criterion-9-measurement.md` §7
+described `first_paint` only as "two animation frames later" after `result_committed`. It now
+carries the reconciled native reading (`result_committed` → visible first page committed → two
+frames; the whole-value reading unchanged), applying from the next candidate binding.
+
+### Second review repair (F1–F3) and integration with main (2026-11-04)
+
+An independent re-review of `e1079a816` **blocked** it on F1 and raised F2 and F3 as
+non-blocking. All three are repaired on `claude/rt-perf-c1-integrate`, which also carries main
+`573051799` (RT-A3 increment 4, §8.49; #105 + #106, §8.50) and the reviewed native record-build
+repair `13d868182`.
+
+**F1 (blocking): a late paint could pass the 300,000 ms gate.** `waitFor` probed before it
+checked its timeout and accepted any `first_paint` mark whatever its time; opening Results used
+the independent `open_ms` budget, so an expired remainder did not stop success; the classifier
+accepted the late mark too. The reviewer's simulated clock (paint at 301 s) gave `first_paint`.
+- `perf-driver.js:133`: one absolute, unrounded deadline on the webview's monotonic clock,
+  `started + paint_ms`, `started` read just before Analyze → Run is sent.
+- `perf-driver.js:48` `waitUntil`: the probe-first loop against that deadline, never sleeping
+  past it. The begun wait and the paint wait use it.
+- `perf-driver.js:154`: a C1 run opens Results within `min(open_ms, remainder)`. When the
+  remainder is the smaller, running out of it is the gate's timeout, not "Results did not open".
+- `perf-driver.js:171`, `:182`: a first paint counts only when its own mark's `at_ms` is at or
+  before the deadline. A timely mark the wait notices late still counts (after any of the
+  waits); a late mark is a `timeout` however it is noticed.
+- `perf-driver.js:188`: `report.solve.gate` records `paint_ms`, the start, the deadline and the
+  mark's time.
+- `perf.mjs:661` `classify`: `ended: "first_paint"` is a `hang` unless the run's `first_paint`
+  mark is at most `run.paint_ms` after `gate.started_at_ms`; a report without the mark or the
+  start cannot show it and is a `hang` too.
+
+What changes for each path:
+- **Both:** the gate is judged on the mark's own time against the deadline (before, a mark up to
+  one 200 ms poll late was accepted by the probe-first loop); the wait sleeps no later than the
+  deadline; the report gains `solve.gate`; the classifier rejects a late or untimed mark.
+- **C1 only:** the begun wait and Results activation are bounded by the remainder as above.
+- **Non-C1:** the gate still runs from just before the Analyze → Run call, as at `e1079a816`
+  (the correction above), now unrounded. Every other step (Record Run, Save Project, the other
+  waits, which keep `waitFor`) is unchanged.
+
+Tests (`perf.test.mjs`, a simulated clock for `performance.now()`, `Date.now()` and
+`setTimeout`; no real waiting):
+- the review's case: Results shows at 300.95 s, the page paints at 300.96 s → `timeout`;
+- a late mark seen: the run begins 50 ms before the deadline, opening Results overruns it by one
+  poll, the paint wait sees a mark 20 ms after the deadline → `timeout`;
+- non-C1: a mark one poll past the gate → `timeout`; one at 299.999 s → `first_paint`;
+- a timely mark (299.99 s) noticed after the deadline → `first_paint`, with the gate record;
+- the classifier: a mark 1 ms after the gate is a `hang`, one at the deadline is `ok`; a missing
+  mark or start is a `hang`.
+
+Fail-without at `e1079a816`'s `perf-driver.js` and `perf.mjs` (new tests kept): all six fail.
+The three late driver cases report `first_paint`, and the two classifier cases report `ok`. The
+timely-mark case fails only on the missing `gate` record: the old driver accepted every mark, so
+that case pins that the repair does not over-reject. The existing C1 solve test's mark now
+carries its `at_ms`, as every real mark does, and the classifier fixtures name a timely mark.
+
+**F2: visibility was checked when the frames were scheduled, not across the paint.** Once a
+visible ready page scheduled its frames, the handle counted as painted, so hiding Results or
+changing the page before the browser painted still marked `first_paint`.
+- `solveTimeline.ts:296` `markSolveFirstPageCommitted(handle, page, stillShown)`: arms the two
+  frames for one qualifying page (held by `WeakRef`, never copied). `:304` checks before each
+  frame's mark that it is still this timeline's pending page and that `stillShown()` holds (a
+  throwing check is "not shown"). Otherwise the frames drop it, and the handle still awaits its
+  paint. The same page does not restart its frames; another page replaces the pending one.
+- `solveTimeline.ts:325` `cancelSolveFirstPage(handle)`: the pending frames mark nothing.
+- `NativeResultsPanel.tsx:297`: each commit records the page that qualifies now (ready, not
+  selection-only without an entity, visible), cancels when none does (`:302`), and arms
+  otherwise with `stillShown = still that page && still visible`. The next qualifying commit
+  re-arms.
+
+Tests: in `solveTimeline.test.ts`, hiding before frame 1 or frame 2 (no mark, then re-armed and
+painted once), replacement, cancel and re-arm, another handle's cancel, and a throwing check. In
+`nativeSolveFirstPaint.session.test.tsx`, through the App: Results hidden before the first frame
+and between the frames (no mark; shown again, two frames, marked), and a filter change and a
+page-size change before the first frame (the old page's frames mark nothing; the new page's two
+frames mark it).
+
+**F3: the keyed-read check missed the aggregate bound.**
+`nativeSolveFirstPaint.session.test.tsx:135` now requires 1 to `RESULT_DETAIL_MAX_KEYS` keys
+across ordinals, ids and kinds together, as `result_detail.rs` `run_lookup` bounds them. A
+semantics batch must carry only nonempty, integer, bounded ordinals. A self-test accepts the
+bound and refuses seven over-bound or malformed requests, all of which the `e1079a816` check
+passed.
+
+**Harness change: a new candidate binding.**
+
+| File | Bound at `e1079a816` | This change |
+| --- | --- | --- |
+| `perf.mjs` | `00ef78d9f41b77068f65d3f419317868ab112009f7f33891d47695f9c2f0ae19` | `0f5d4c82301acc1fd11dcd668e114deeec2ec05135eb5fe7350ada0bff217249` |
+| `perf-driver.js` | `5c5ad47c2c185583ce27b9d6ac47ae8acbfb65b8bb7931228dbb852f36f707a5` | `099c417198acc37e9da9eaef5efa8147a552403f9bb8d363b68f1bc74b0f9bbb` |
+| `perf-sampler.py` | `846f5493cc9cc309140cced0b6ff40ec9b92468db10a4f63e85fe654f9e03d3b` | unchanged |
+| `perf-plan-c1.json` | `25e8a62b828c6251ac36836d11f8b5448fc3138dbd4903e99ef453a732966435` | unchanged |
+
+No build, binding, App or native run, timing or RSS was made.
+
+**Integration with main `573051799` (RT-A3 increment 4).** The merge `0db87d57b` re-pinned
+`RT-A4-HS` on the merged `recorded_tables.rs` and recomputed result_export's routing digest.
+Native custody then mirrors increment 4's contract (no core, `result_export` or priced file
+changed here):
+- `analysis_run_v03_validate.rs` `RECORDED_RUN_TABLE_BASES`: current pressure-2 table
+  `2c20583d…`; a run recorded under the RT-A4 table `10455bf3…` reads as its recorded basis (7
+  rows, equal to `compatibility.py` and `analysisRunCompatibility.ts`).
+- The registry's sixth, binding-only variant (`040ef9a6…`, physics-retained-1) is read through
+  `rv::` from `recorded_tables::VARIANTS`. The registry equality test expects six variants, and
+  its literal reader skips the Python `#` comment main added inside `RECORDED_PRE_RT_A4_TABLES`
+  (Python literals only; every entry is still read). The current tables (pressure-2
+  `2c20583d…`, physics-retained-1 `85c2678a…`) and the v3 identity text are read from core: no
+  native copy pins them.
+- Native reopen regressions: `fixtures/persistence/recorded_model_0_9_0_pre_nl` is the seventh
+  recorded-basis fixture (TS and native lists; their count must equal the bases'). It is stored
+  in a real SQLite store, reopened natively with the webview's findings, and bound to row 6's
+  basis, as the pre-RT-A4 fixture is. Main's `physics_retained_1/main_bbf384dec` run is a sixth
+  saved pre-RT-A4 variant case.
+
+The corpora were regenerated from the merged tree by their generators, each after the one it
+reads:
+- builder corpus and persistence forms: derived digests and lengths. Two pressure-source cases
+  carry increment 4's S7 text ("…linear restraints, springs and nonlinear supports…");
+- reopen cases 206 → 209 (the two additions above, saved and recorded). No existing case's
+  findings changed, only envelope hashes;
+- S outcomes: in 8 cases only the envelope's limitation text changed (S1/S7), and the planes are
+  byte-identical after the header's 8-byte alignment. Detail outcomes: 9 recovery digests;
+- native replay: 193 requests naming fixture bytes increment 4 changed were dropped and 658
+  kept. 206 were recorded from the webview suites (record, merge, actual command, repeated until
+  a pass recorded none), giving 864 requests and 26 kept sources. Of the 658 kept outcomes, 653
+  are byte-identical. In 5 verdicts only the current reader's reported binding differs; standing
+  and findings are unchanged;
+- persistence replies: the result is 977 B larger (increment 4's text), so sizes, digests and the
+  scenario's SQLite limit (row − 1) move with it. Every refusal is still at its boundary;
+- reopen requests, rebuilt from empty: the same 7 and 6 commands. The re-save request's envelope
+  digest moved. The pre-RT-A4 requests and replies are byte-identical.
+
+The reach-scan pins (32 + 3 tests) and every declared `rust_tree_digest` in
+`tools/hosted-ci-routing.json` already match the merged tree, so neither file changed.
+
+The routing declaration of `retained_precision_carriers.rs`'s project-wide `.rs` scan lacked
+`analysis_run_v03_build_old_reference.rs` (merged with `13d868182`), so every selection fell back
+to full, giving 48 routing test failures at `5a6a35cc1`. It is now declared.
+
+**Checks at this stage** (`t3_slot.sh`; the worktree's own `node_modules`; release binaries
+rebuilt on this tree):
+- `node --test` over the four `native-smoke` test files: 95 passed. `tsc --noEmit`: clean.
+- Focused vitest, the 15 affected files (the session, timeline, replay-consuming and corpus
+  parity suites): 223 passed.
+- src-tauri lib, the full run: 1,154 passed, 0 failed, 13 ignored. The reach scans (32 + 3) pass
+  with unchanged pins.
+- Python, the affected tests (recorded runs, compatibility, identity inventory, load/reference):
+  1,210 passed, 17 skipped. Routing (`tests/test_ci_numerical.py`,
+  `tools/software_workflow/test_hosted_ci.py`): 77 passed after the declaration fix.
+- `python3 -m tools.deliverables --project . check`: 0 errors, 1 existing cycle.
+- Retained-pricing tool tests: not run. `o10_rules.py` and every priced or pinned file are
+  unchanged by this change.
 
 ### Repair made (native, src-tauri only; offline): candidates 1 and 2 of (a)
 

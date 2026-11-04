@@ -277,7 +277,18 @@ are in `apps/desktop`:
   - `take_start`, `take_end` (bytes), `decode_end`, `parse_end`;
   - `reader_verdict_start` and `reader_verdict_end` (registered or not, with the reason code);
   - `analysis_run_built`, `result_set`, `result_committed` (the layout effect), and
-    `first_paint` (two animation frames later).
+    `first_paint`, the frame showing the solve's result:
+    - a result read from taken bytes (the whole-value path, unchanged): two animation frames
+      after `result_committed`, since its Results table renders from the value in that commit;
+    - a C1 native handle (applies from the next candidate binding; earlier records keep their
+      reading): `result_committed`, then the Results table's first page committed while the
+      table can be seen, its rows (one bounded native page) and their row semantics read, then
+      two animation frames, across which the page must still be the table's and still visible.
+      A pending or refused page, or one hidden or replaced before the browser paints it, never
+      marks it (`c1-slice7-run-proposal.md`, "Review repair" and "Second review repair").
+
+    The 300,000 ms paint gate is judged on that mark's own time against one deadline from
+    Analyze → Run (`native-smoke/perf-driver.js`, `perf.mjs` `classify`).
 
   Every pass of `checked_json_text`, `native_fingerprint`, `reader_written_text` and each wasm
   reader call is counted and timed per stage. A pass counts as full-envelope when it reads at
