@@ -109,3 +109,50 @@ The QL floor limits a resolved whole spectrum at approximately the span 1/(κ_μ
 The frame kernel's seam has its own tests (`frame_kernel/src/structural/element_reformation_tests.rs`): with the binary64 leaves as operands, a straight (Euler–Bernoulli and Timoshenko), a bend, a connector and a tie rod match K-D5's p128 re-formation bit for bit.
 
 Independent review of numerical source `0ba65b9d4` found no blocking numerical defect. Its additional exact-spectrum probes found above-band errors of 1.58e-5 in a resolved case and about 0.9% in unresolved cases; this candidate makes no whole-spectrum six-decimal claim. The first-order error estimate can safely reject accurate band pairs. An all-negative mass matrix, outside the PSD premise, receives a generic typed QL-floor range refusal. Work §3.2 records these limits for M1b without accepting them as release limitations. The review-supported wording correction limits recovery by decision, rather than asserting that Rayleigh recovery generally worsens low modes.
+
+### Workspace ledger (design §5.3.8, Agent 0's option (c))
+
+These are requested bytes for a 64-bit layout, taken from source. They are no RSS guarantee:
+- Allocator size-class rounding and metadata, B-tree node layout, struct sizes (derived from field types), the lock's OS primitive, stack, closures, the runtime, and the product's custody of the outcome are separate allowances.
+- A passing test does not prove any model's heap peak.
+- No ceiling, ρ or limb allotment value is adopted; 202 is only a proposed allotment.
+
+**Notation:**
+- c(L) = max(4, 2L − 2) limbs bounds the capacity a limb vector *requests* under `reserve_limbs`' growth rule (`exact.rs:59–80`), where L is the longest it has held. `Vec::reserve_exact` may return more, so a vector's actual capacity is an allocator allowance, not c(L). With an allotment A, the request is capped at A.
+- s(L) = max(4, 2L).
+- Sizes: `ExactSum` 48 B, `Term` 16, `WideDd` 24, a `Vec` header 24.
+- n is the free order; n_c the computed pairs; n_r the reported modes.
+- Stages run in the order of `run_modal_dense`: T6, T7, T8, T9, T10. The basis and the re-formed pencil both live until the run ends.
+
+**By stage:**
+- **T6, normalization.** Workspace W6 = 8·c(L₆) + 8·s(L₆) + 8n (`modal_quantities.rs:323`, `:426`).
+  - Outputs: at most 16·n_r·n, at exact length (`:421`, `:441`).
+  - A refusal mid-shape frees the partial shape, of capacity n (`:428`).
+  - W6's capacity stays retained through T7 to T10.
+- **T7, formation.** `new` builds one map per matrix and drops it before building the next (`reformation/mod.rs:521–535`).
+  - Each entry: 64 + 8·c_A(L₇) plus map-node overhead (an allowance), plus one 8·s(L₇) scratch.
+  - In `formation_difference`:
+    - the formed lists, 24·(nnz_l(K) + nnz_l(M)), live for the whole call;
+    - the scaling, 16n, is retained in the output;
+    - per matrix, one at a time: the map, accumulators of 48·nnz_l + 8·c_A(L) each, a scratch of 8·s(L), terms of 16·c(L), the off-pattern map, and 24n for the norms.
+  - Every limb growth is checked against an optional allotment before it is allocated. Map nodes are allocated before that check; their count is bounded by Σ_e d_e(d_e + 1)/2, which the caller's P0 must price.
+- **T8, residuals.** One workspace for all n_c pairs: W8 ≤ 2n·(48 + 8·c(L*)) + 24·c(L*) + 8·s(L*). It holds the rows, the mass rows, the generalized-mass sum, the term list and the scratch (`mod.rs:1037–1062`).
+  - The pencil's element lists and the scaling are live inputs at the same time.
+  - Refusals before `:1037` allocate nothing; later ones leave only W8.
+- **T9, Sturm.** Add W6 + W8's retained capacity to T9's own peak.
+- **T10, orthogonality.** It shares W8: its rows and sum may grow, so W8 uses L* = max(L₈, L₁₀). **All of W8 stays retained while T10 builds the products.**
+  - Retained products: P10 = 24·n_r + 24·n_r·n + 16·Σk_ij ≤ 24·n_r + n_r·n·(24 + 16·L₁₀), plus roots of 24·n_r (`orthogonality.rs:130–136`, `:180`).
+  - The products are freed on return, whether the stage succeeds or refuses.
+
+**Growth and clones:**
+- Growth: one `Vec` grows at a time (`exact.rs:78`). Add one old buffer during the growth: 8·c(L) for limbs, 16·c(L) for terms. The row vector grows once, from 0 to n.
+- Clones: none on this route. A pencil or basis clone starts with an empty workspace (`workspace.rs:34`).
+
+**Not reused:**
+- band recovery's per-row and per-pair allocations (`dense.rs`);
+- two small sums per neighbour in the Sturm mass quotient (`sturm.rs:698–699`).
+
+**Evidence:**
+- `tests/workspace_reuse.rs` compares against digests captured at base `68a039e1c`, over 2,420 lines.
+- A scratch producer-edge dump was also byte-identical at base and head. It covers 26 references, three lower-count retries and four SEC-A runs, 33 records in all, and is not committed.
+- Equal shortest round-trip text establishes identity of finite values, telling −0.0 from 0.0. For NaN it records only `is_nan()`, so NaN payload identity is not established.
