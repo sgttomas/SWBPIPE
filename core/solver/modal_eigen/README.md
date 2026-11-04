@@ -134,8 +134,8 @@ These are requested bytes for a 64-bit layout, taken from source. They are no RS
   - In `formation_difference`:
     - the formed lists, 24·(nnz_l(K) + nnz_l(M)), live for the whole call;
     - the scaling, 16n, is retained in the output;
-    - per matrix, one at a time: the map, accumulators of 48·nnz_l + 8·c_A(L) each, a scratch of 8·s(L), terms of 16·c(L), the off-pattern map, and 24n for the norms.
-  - Every limb growth is checked against an optional allotment before it is allocated. Map nodes are allocated before that check; their count is bounded by Σ_e d_e(d_e + 1)/2, which the caller's P0 must price.
+    - per matrix, one at a time: the map, accumulators of nnz_l·(48 + 8·c_A(L)), a scratch of 8·s(L), terms of 16·c(L), the off-pattern map, and 24n for the norms.
+  - Every limb growth of the formation maps' and accumulators' sums is checked against an optional allotment before it is allocated. Scratch and term-list growth is not allotted; it runs with `None` (`exact.rs:328`, `:368`) and is counted in the ledger above. Map nodes are allocated before that check; their count is bounded by Σ_e d_e(d_e + 1)/2, which the caller's P0 must price.
 - **T8, residuals.** One workspace for all n_c pairs: W8 ≤ 2n·(48 + 8·c(L*)) + 24·c(L*) + 8·s(L*). It holds the rows, the mass rows, the generalized-mass sum, the term list and the scratch (`mod.rs:1037–1062`).
   - The pencil's element lists and the scaling are live inputs at the same time.
   - Refusals before `:1037` allocate nothing; later ones leave only W8.
