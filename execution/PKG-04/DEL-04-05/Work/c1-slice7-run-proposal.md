@@ -20,6 +20,222 @@ All five grants are consumed. `app-c1-main-4d0bb1858` was never launched and is
 pressure-2 bases); its record is kept as history. **No retry, B1000 or further native
 interval is authorized.** Exact selected identities and all raw packets remain preserved.
 
+A sixth, the A-only attempt of 2026-11-04 (`app-c1-main-907e633e2`), has since run once
+and is also consumed; its result, diagnosis and repair are in the next section.
+
+## A-only 500-node attempt: result, diagnosis and repair (2026-11-04)
+
+Agent 0 approved one 500-node A-only attempt of `app-c1-main-907e633e2`, run from clean
+`0328b489d` (runtime source `907e633e2`; repair B excluded). It ran once and is **consumed**.
+**A gain measured, no full C1 success.** This is no usable-size, memory-fit, base-machine,
+1,000-node, C1-completion or acceptance claim.
+
+**Run.** The exclusive wrapper ran 2026-11-04 **12:00:35–12:05:39Z** (304 s including teardown, one-second
+stamps), `rc=1`. The runner's elapsed time was 302.6 s, and the supervisor window
+1793793635715–1793793939148 epoch ms (303,433 ms), with `stop_reason: null`, the group reaped and
+the owned PIDs gone. Host admission was fresh: 80% available, normal pressure. Packet (read-only):
+`scratch/rt-perf-c1-slice7/evidence/n0500-c1-aonly1/`; wrapper log
+`scratch/rt-perf-mgr/c1-aonly1-wrapper.log`.
+
+**Clock scopes.** These clocks are not interchangeable:
+- **Web marks** are WebContent `performance.now()`, time origin 1793793636899 epoch ms, with
+  `solve_requested` at web 453 ms (≈ 12:00:37.350Z). The times below are measured from
+  `solve_requested`.
+- **Native journal `mono_ms`** is the App's own monotonic clock from call 1's first boundary.
+- **`received_epoch_ms`** is the host's receipt of each fsynced journal line.
+- **Sampler rows** are epoch ms.
+- **Wrapper stamps** are UTC at one-second resolution.
+
+**Timeline** (web marks; `report.timeline_after.marks`; outcome `completed`, failure null):
+
+| Mark | Since `solve_requested` |
+| --- | ---: |
+| `job_started` | 0.1 s |
+| `job_done` (918,639,936 result bytes; worker peak footprint 3,485,879,896 B, peak grant 6,375,342,080 B) | 58.0 s |
+| `reader_verdict_start` | 58.0 s |
+| `reader_verdict_end` (registered, no reason code) | 182.6 s |
+| `analysis_run_built` and `result_set` (946,742 rows), the same ms | 238.2 s |
+| `result_committed`, `first_paint` | **never marked** |
+
+The four native reader calls all completed (journal: 76 boundaries plus a terminal record,
+`evidence_complete: true`, no `incomplete`). Durations are the web await (the native validate or
+summary phases):
+
+| Call | Web await | Native phases |
+| --- | ---: | --- |
+| 1, route header | 4.9 s | |
+| 2, registration | 37.3 s | `validate` 32.3 s |
+| 3, model-bound standing | 63.5 s | `validate` 58.8 s |
+| 4, summary | 18.8 s | `summary_health` 5.2 s, `summary_build` 8.9 s |
+
+Each native call also prescanned (≈1.5 s), parsed (≈1.8–2.3 s) and dropped (≈0.7–1.3 s) the held
+918 MB result. The web `summary` exit is web 183,023 ms.
+
+**Findings.**
+- `hang`: no first paint within **300,000 ms** (the gate, unchanged); last stage `result_set`.
+- "C1 solve did not paint: timeout".
+- "Reader allocation evidence is incomplete" and "The connected C1 usability probes did not
+  complete". Both follow from the driver stopping at the paint gate (`perf-driver.js:518` throws
+  before `probeResults`, `profileReaders` and `probePersistence`); `perf.mjs:671` and `:674` then
+  record them.
+
+No navigation, CSV, P3 profile, persistence, reopen, re-save or cleanup gate ran. The last pool
+report still held one result (935,428,224 B reserved) when the driver failed.
+
+**Footprints.** All are physical per-PID sampled footprints on the shared host; unknowns are
+counted, not filled:
+
+| Process | Peak | When (since `solve_requested`) | Notes |
+| --- | ---: | --- | --- |
+| App | 8,434,490,928 B | +92.3 s | During call 2's `validate` |
+| WebContent | 2,669,742,864 B | +239.7 s | 1.5 s after `result_set`; parentage inferred, includes WebKit caches, not attributed |
+| Worker | 3,485,879,896 B | +48.2 s | Equal to the worker's own reported peak |
+
+The aligned App + WebContent sum (worker zero inferred after completion) peaked at
+8,867,472,072 B at +92.3 s. That is sequential reads aligned to one sample, not an atomic
+concurrent maximum. Of 1,463 samples, 27 were unknown. GPU and networking are kept separately in
+the packet. Nothing here establishes fit.
+
+**What it shows.** Repair A carried calls 2 and 3 through (the 2026-11-03 attempt timed out in
+call 3's `validate`), and S, health and the full-verdict agreement completed at 500 nodes. The
+critical path moved to the session after the readers.
+
+### Diagnosis (from the selected source `0328b489d`, runtime `907e633e2`)
+
+**(b) `result_set` → first paint: the mark was unreachable on the native path. This is not render
+work.**
+- `solveTimeline.ts:244` `markSolveCommittedAndPaint` marks only when `isSolveResult(result)`.
+  The timeline learned "the solve's result" only from `noteSolveResult`, called solely in
+  `receiveResultBytes` (`previewService.ts:143`), the taken-bytes path.
+- The C1 session never takes. `readNativeFreshResult` (`previewService.ts:636`) builds a
+  `NativeResult` handle and never noted it. So the layout effect at `workspaceSession.ts:850` ran
+  on the committed handle and returned early: no `result_committed`, no `first_paint`, whatever
+  was painted.
+- No C1 native run had reached this point before, so the defect was latent.
+
+The run's own evidence agrees that the webview was not blocked. The driver polls every 200 ms and
+writes a heartbeat after each stage change and then at least every 5 s. Its heartbeats after
+`result_set` (web 239,775, 245,516, 251,516 … 298,516 ms) keep the same 5–6 s cadence as during
+the idle native awaits. The first came 1.1 s after `result_set`. That bounds the commit's
+main-thread work at about 1 s, as an inference, not a measurement.
+
+The first view is bounded by source. `NativeResultsPanel.tsx:203–229` reads one native page of
+`pageSize` (default `RESULT_PAGE_SIZE_OPTIONS[0]`; at most `RESULT_DETAIL_MAX_PAGE_ROWS` = 1,000)
+with its row semantics, and its tables come from S. No take, C2 full copy or whole-row loop runs
+before the paint.
+
+**(a) `reader_verdict_end` → `analysis_run_built` (55.6 s): one awaited native call, the
+analysis-run preview.** Between the marks, the session (`workspaceSession.ts:1347–1389`) runs:
+- `hasNativeMechanicsInvocation`, which fingerprints the capture and the model;
+- the rule-pack resolution, which makes no call (the rack model has no references);
+- `buildCurrentSessionInputManifest`, which canonicalizes the 1.8 MB model;
+- the model-text comparison;
+- then `await readNativeRunPreview` (`workspaceSession.ts:1384`).
+
+The timed webview passes recorded after `reader_verdict_end` total about 225 ms: three
+`checked_json_text` passes (69 ms) and three `native_fingerprint` passes (156 ms), all at model
+size (≤ 1,814,753 characters). The heartbeat cadence again shows an idle main thread, and no
+journal line exists for the preview because the reader journal covers calls 1–4 only.
+
+The remaining ≈55 s is the native command `read_preview_mechanics_job_analysis_run_preview`,
+which rebuilds the 0.3.0 record from the held bytes. This is by source; the inner split is not
+measured. `analysis_run_v03_build.rs:1651` `run` → `with_built` (`:1613`) performs these
+whole-result passes over the 946,742 rows and 918 MB:
+1. `parse_source` (`:1591`): the prescan (`:1592`), then `serde_json::from_str` of the whole
+   result (`:1600`).
+2. `working_lease(&[&source])` (`:1627`) walks the whole tree (`sort_scratch_bytes`, `:304`).
+3. `preview_parsed` → `validate_route` (`:1469` → `:593`) runs **the route's full reader again**
+   (`rv::validate("pressure" | "preview-physics", source, None, None)`). This is the third full
+   reader validation of the same held bytes in one solve, after registration (call 2, 32.3 s
+   `validate`) and model-bound standing (call 3, 58.8 s). Call 3's model-bound pass is not a
+   model-less one, so this is not a byte-identical repeat of either. Its cost here is unmeasured.
+4. `build` (`:817`):
+   - `expected_load_basis`'s row loops (`:657`, `:664`, `:705`);
+   - per row, `interpret` against the contract table (`:863`; a filtered `Vec` per row) and
+     `has_outside_profile(row)` (`:866`), then `has_outside_profile(source)` over the whole tree
+     again (`:889`);
+   - `canonical_sha256(source)`, the canonical text of the whole result streamed into SHA-256
+     (`:892`);
+   - the record checksum, re-running `interpret` and `canonical_sha256(row)` per row (`:949`,
+     `:1043`);
+   - the stored-length count, `interpret` per row a third time (`:953`);
+   - `validate_built` → `duplicate_ids` (`:955`, `:1001`).
+5. The source drop when `with_built` returns.
+
+The same `parse_source` + `preview_parsed` + `build` chain runs again for Record Run
+(`native_persistence.rs:537–541`) and for Save Project (`native_persistence.rs:863–867`). At
+500 nodes, each later persistence gate would repeat this cost. That is inferred from source, not
+measured.
+
+**Repair of (a) is native and priced. Not made; stopped and reported.**
+`analysis_run_v03_build.rs` is priced C1 native code (leases, admission, "nothing is cached", and
+byte and refusal parity with `buildAnalysisRunV03`). The candidates are for Agent 0's pricing and
+queueing, and each needs independent numerical/permission scrutiny:
+1. Let the preview reuse a custody-bound record of the registration's passed reader instead of
+   `validate_route` (`:1469`). This changes the stated refusal order and parity basis.
+2. Fuse the whole-tree passes: the duplicate `has_outside_profile(source)` (`:889`), the repeated
+   per-row `interpret` (`:863`, `:1043`), and the received and per-row canonical serializations
+   (`:892`, `:949`).
+3. Hold the built record's checksums and stored length natively per (job, manifest, aggregate,
+   exclusions), so Record Run and Save do not rebuild. This replaces "nothing is cached" with a
+   custody-bound cache.
+
+Attributing the 55.6 s among these passes needs native boundaries inside the preview (parse,
+validate, received checksum, record checksum, count, validate_built, drop) in the same fixed
+journal. That is a harness change (the web phase allow-list `perf.mjs:724`, bound hashes), so it
+was **not added**.
+
+### Repair made (TS only): the native handle is the solve's result for the timeline
+
+- `solveTimeline.ts:195` adds `noteSolveHandle(jobId, handle)`. It keeps a WeakRef to the handle,
+  only while `jobId` is the running latest solve's job. It notes no text length, so full-envelope
+  pass classification keeps its 1 MiB floor, unchanged.
+- `previewService.ts:678` calls it in `readNativeFreshResult`, after the handle is built and its
+  registration recorded. That is the analogue of `noteSolveResult` in `receiveResultBytes`.
+- `first_paint` keeps its definition: the commit of the solve's result, then two animation frames.
+  Everything mandatory is already done before `result_set`: the full verdict, registration,
+  standing, S and health, the native record and its manifest, model binding and the proof.
+- Nothing is deferred past the paint or truncated, the gate and its threshold are unchanged, and
+  no early or artificial mark is made. The handle is never a header-made Current (it is noted only
+  for the solve's own job after the readers). The separate native-table-ready probe still measures
+  settled rows.
+- Verdict, health, binding, custody, hash, record, history, reopen and re-save, and CSV are
+  unchanged, since only timeline bookkeeping moved.
+
+**Offline proof** (maintained small fixtures; unit transport replay, no timing, App or native run).
+`nativeSolveFirstPaint.session.test.tsx` renders the actual App (session, native result and
+results panel) on the committed pressure and preview replays:
+1. The mark sequence is exactly `solve_requested … reader_verdict_end, analysis_run_built,
+   result_set, result_committed, first_paint`.
+2. The only native call issued in the `reader_verdict_end` window is the analysis-run preview.
+3. There is no take and no C2 full copy before the paint, and the results view reads only pages
+   of ≤ 1,000 rows.
+4. Holding the preview reply pending reproduces the attempt's state: the last mark stays
+   `reader_verdict_end`, with no other call. Releasing it reaches `first_paint`.
+
+At the unrepaired call site all three cases fail, with the timeline ending at `result_set` after 7
+marks, which is the attempt's state. With the repair they pass. A `solveTimeline.test.ts` case
+pins the handle noting: the running solve's job only, never after the solve ends, and the pass
+floor kept.
+
+**Checks.**
+- `tsc --noEmit`: clean.
+- Focused vitest: 8 files, 90 tests, passed. The files: the new test,
+  `solveTimeline.test.ts`, `nativeResult.connect.test.ts`, `exactSessionSolve.session.test.tsx`,
+  `NativeResultsPanel.native.test.tsx`, `solveJobResource.session.test.tsx`,
+  `nativeReopen.session.test.tsx` and `historicalNativeParity.test.tsx`.
+- No Rust was changed. The full suites were not re-run.
+
+**Unknowns.**
+- The split of the 55.6 s among the preview's passes.
+- The cost of the preview's model-less reader.
+- What a painted first view costs at 500 nodes.
+- The WebContent rise after `result_set`.
+- Every later gate.
+
+No fit, timing prediction or "would have painted at" claim is made. A repaired executable needs a
+new build, binding and Agent 0's decision before any further attempt. None is proposed here.
+
 ## Bounded ONE 500-node attempt proposal (A-only candidate) (2026-11-04; offline, not run)
 
 This proposes **one** 500-node attempt of the A-only candidate, for Agent 0's readiness decision
