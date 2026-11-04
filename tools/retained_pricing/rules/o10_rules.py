@@ -3052,6 +3052,15 @@ if _W7_GE:
         ("for key in global.keys()", "cases*m", O10 + "W7-L1: the reader's (load case, member) keys of load-case global end rows <= cases*m",
          ["global_end_evidence.rs:coverage"]),
     ]
+    # W7-L1, RT-U4 (order): the member loop walks `local`'s (load case, member) keys that pass the member predicate, at
+    # most its cases*m keys. It replaces `for key in &members` over the HashSet of the same keys, which the base chain's
+    # broad `members\b` rule bound at m (straight members) by its name, not its keys.
+    if _fn_has("coverage", _W7_RE, "for (key, locals) in local.iter().filter(|(_, ends)| member(ends)) {"):
+        O10_LOOPS_LAST += [
+            ("for (key, locals) in local.iter().filter(|(_, ends)| member(ends))", "cases*m",
+             O10 + "W7-L1 (RT-U4 order): the members among the reader's (load case, member) keys of load-case element-local "
+             "rows, in key order, <= cases*m", ["global_end_evidence.rs:coverage"]),
+        ]
     # W7-ID: the composed texts at their sites. The case solve's one blocking diagnostic (an unavailable frame or rotation)
     # names the member (IN128) by its stable suffix (IN128) and refs the member and the case (IN128 each); the successor's
     # global end id is the member's suffix (IN128), the checked location (end_i or end_j, 5 B) and the lower-cased
