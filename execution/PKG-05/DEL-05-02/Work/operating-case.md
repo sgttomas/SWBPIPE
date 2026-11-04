@@ -1055,9 +1055,13 @@ becomes current. Regressions: Rust `result_export/tests/recorded_pre_rt_a5_1b.rs
   under option C; about thirty tampers refused by name under option A; the coherent forgery.
 - V-3 (friction history) is DEL-04-04:2's disclosure (CLM-012), not a behaviour change.
 - Fail-before: on main every declared subtraction is withheld by
-  `LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED`, so every admission assertion above fails
-  there; each reader guard was checked by its tamper (the reader without it accepts the
-  forgery).
+  `LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED`, so every admission and gate assertion above
+  fails there. Mutants run on this branch, each restored after: G-1 always contained (four
+  `op1b_difference_basis` tests fail: V-4, V-5 G-1, V-5 G-2 ordering, the corpus); the reader's
+  sign check disabled (`option_a_refuses_tampered_evidence_by_name` fails at "evidence for a
+  plain subtraction"); the model-bound `condition_use` refusal removed (the condition_use test
+  fails: the reader then refuses by `…_DIFFERENCE_BASIS_MODEL` instead, still closed but not
+  by its name). Each other reader guard is exercised by its own named tamper.
 
 ### 6.9 Follow-on seam: `minuend_final` (not built here)
 
