@@ -895,9 +895,10 @@ restored and browser-preview results):
     rebuilt from empty: 426 requests, the same count per command, re-keyed because #98 changed
     fixture bytes. The reopen requests were rebuilt from empty (the same seven commands). On
     `480201bee` every corpus regenerates byte-identical.
-  - **Open matter.** `recorded_tables.rs`'s module documentation (core, write-held) still says
-    "the desktop's native custody makes no recorded read". C1 now does, through the public
-    entries. The correction is for the core owner.
+  - **Resolved.** `recorded_tables.rs`'s module documentation said "the desktop's native
+    custody makes no recorded read". With RT-A4's agreement, `43cea6384` corrects it (native
+    recorded reads run synchronously inside `entry_scope` on their worker thread) and re-pins
+    `RT-A4-HS`.
 - **Open matter: overlapping writes to one store (raised for a product decision; no
   repair in this run's binary).** Each store write opens its own connection with a 5 s busy
   timeout (`lib.rs:864-872`) and writes in one `BEGIN IMMEDIATE` transaction (`lib.rs:1080`;
