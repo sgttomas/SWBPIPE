@@ -49,9 +49,9 @@ def test_a_snapshot_without_the_owners_adds_nothing(tmp_path):
     (MODEL["RP"], "let mut out_of_domain=self.adapter.reserve::<Option<f64>>(self.members.len())?;",
      "let mut out_of_domain=self.adapter.reserve::<Option<f64>>(2*self.members.len())?;"),
     (MODEL["EVID"], "        let mut map = HashMap::new();\n", "        let mut map = HashMap::with_capacity(rows.len() * 2);\n"),
-    # RT-U4: `any`'s component-free map is push-grown from empty and holds <= rows entries.
-    (MODEL["EVID"], "            let mut first = HashMap::new();\n",
-     "            let mut first = HashMap::with_capacity(self.rows.len() * 2);\n"),
+    # RT-U4: `any`'s shear operand map is push-grown from empty and holds <= rows entries.
+    (MODEL["EVID"], "        let mut operands = HashMap::new();\n",
+     "        let mut operands = HashMap::with_capacity(rows.len() * 2);\n"),
     (MODEL["ROWS"], "            input_result_ids: inputs.iter().map(|r| r.id.clone()).collect(),\n",
      "            input_result_ids: inputs.iter().chain(inputs.iter()).map(|r| r.id.clone()).collect(),\n"),
     # U5B-CG (T4-S6): a third group push, or a cloned group vector, is not the reviewed owner.

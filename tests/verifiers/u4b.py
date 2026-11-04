@@ -171,46 +171,81 @@ def pa_upward(mpa: float) -> float:
     return 0.0 if pa == 0 else math.nextafter(pa, math.inf)
 
 
-def _case(row: Mapping[str, Any]) -> str | None:
-    basis = row.get("basis_ref")
-    return basis.get("ref_id") if isinstance(basis, Mapping) and basis.get("ref_type") == "load_case" else None
+# Slot fields as Rust's `serde_json::Value` reads them (`u4b_evidence.rs`): indexing a missing key or a non-object
+# gives null, and `as_str()` admits only a string.
+def _text(value: Any) -> str | None:
+    return value if isinstance(value, str) else None
 
 
-def _basis(row: Mapping[str, Any]) -> str:
-    text = (row.get("metadata") or {}).get("basis") or ""
+def _metadata(row: Any, key: str) -> Any:
+    """``row["metadata"][key]``, None where Rust reads null."""
+    metadata = row.get("metadata") if isinstance(row, Mapping) else None
+    return metadata.get(key) if isinstance(metadata, Mapping) else None
+
+
+def _case(row: Any) -> str | None:
+    """Rust ``case_of``: the string ``ref_id`` of a ``load_case`` basis reference."""
+    basis = row.get("basis_ref") if isinstance(row, Mapping) else None
+    return _text(basis.get("ref_id")) if isinstance(basis, Mapping) and basis.get("ref_type") == "load_case" else None
+
+
+def _basis(row: Any) -> str:
+    text = _text(_metadata(row, "basis")) or ""
     return text.rsplit(SEPARATOR, 1)[1] if SEPARATOR in text else ""
 
 
-def _token(row: Mapping[str, Any]) -> str:
-    text = (row.get("metadata") or {}).get("basis") or ""
+def _token(row: Any) -> str:
+    text = _text(_metadata(row, "basis")) or ""
     return text.rsplit(SEPARATOR, 1)[0] if SEPARATOR in text else text
 
 
-class Rows:
-    """The case rows by (case, entity, kind, component, location, basis)."""
+def _slot(row: Any) -> tuple | None:
+    """Rust ``Index::new``'s slot: (case, entity, kind, component, location, basis), None for a row it skips (no
+    load-case scope, or a non-string entity or kind). Component and location fall back to "" unless strings."""
+    case = _case(row)
+    entity, kind = (_text(row.get("entity_ref")), _text(row.get("kind"))) if case is not None else (None, None)
+    if entity is None or kind is None:
+        return None
+    return (case, entity, kind, _text(_metadata(row, "component")) or "", _text(_metadata(row, "location")) or "", _basis(row))
 
-    def __init__(self, results: list[Mapping[str, Any]]) -> None:
+
+SHEAR_OPERANDS = ("element_local_shear_force_y", "element_local_shear_force_z")
+
+
+class Rows:
+    """The case rows by (case, entity, kind, component, location, basis), and the shear operands by slot without
+    the component (§5.1): every row of such a slot carries the same value bit for bit, or none carries a number;
+    otherwise the envelope is refused (``SHEAR_OPERAND_AMBIGUOUS``), after a duplicate slot of a new kind. ``fail``,
+    when given, states that refusal by code (a caller's ``fail(ok, code)``). ``operands=False`` builds the row index
+    alone, for a check that reads no shear operand (Rust ``Index::rows_only``)."""
+
+    def __init__(self, results: list[Mapping[str, Any]], fail: Any = None, operands: bool = True) -> None:
         self.slots: dict[tuple, Mapping[str, Any]] = {}
         for row in results:
-            case = _case(row)
-            if case is None:
-                continue
-            metadata = row.get("metadata") or {}
-            if row.get("kind") == BRANCH:
-                continue  # RT-A3: bound by its record's id (two tees may name one pipe end), never looked up by slot
-            key = (case, row.get("entity_ref"), row.get("kind"), metadata.get("component", ""), metadata.get("location", ""), _basis(row))
-            _require(not (key in self.slots and row.get("kind") in KINDS), "duplicate row slot")
+            key = _slot(row)
+            if key is None or key[2] == BRANCH:
+                continue  # RT-A3: a branch row is bound by its record's id (two tees may name one pipe end), never by slot
+            _require(not (key in self.slots and key[2] in KINDS), "duplicate row slot")
             self.slots[key] = row
+        self.operands: dict[tuple, float | None] = {}
+        agree = True
+        for row in results if operands else []:
+            key = _slot(row)
+            if key is None or key[2] not in SHEAR_OPERANDS:
+                continue
+            value = float(row["value"]) if _number(row.get("value")) else None
+            held = self.operands.setdefault(key[:3] + key[4:], value)
+            agree = agree and (None if held is None else bits(held)) == (None if value is None else bits(value))
+        if not agree and fail is not None:
+            fail(False, "SHEAR_OPERAND_AMBIGUOUS")
+        _require(agree, "shear operand rows of one station disagree")
 
     def value(self, case: str, entity: str, kind: str, component: str, location: str, basis: str) -> float | None:
         row = self.slots.get((case, entity, kind, component, location, basis))
-        return None if row is None else row["value"]
+        return float(row["value"]) if row is not None and _number(row.get("value")) else None  # Rust `as_f64`
 
     def any(self, case: str, entity: str, kind: str, location: str) -> float | None:
-        for key, row in self.slots.items():
-            if key[0] == case and key[1] == entity and key[2] == kind and key[4] == location and key[5] == "":
-                return row["value"]
-        return None
+        return self.operands.get((case, entity, kind, location, ""))
 
 
 def row_semantics(row: Mapping[str, Any], exact: bool, arc: bool) -> None:
@@ -436,7 +471,7 @@ def directional_model_checks(source: Mapping[str, Any], model: Mapping[str, Any]
     for row in results:
         if row.get("kind") in (DIRECTIONAL, DIRECTIONAL_MAX):
             _require(row.get("entity_ref") in arcs, "directional row outside the model's arcs with the pair")
-    rows = Rows(results)
+    rows = Rows(results, operands=False)
     bases = ("nominal_section", "reduced_section") if exact else ("",)
     suffix = {"nominal_section": ":maximum:nominal-section", "reduced_section": ":maximum:reduced-section", "": ":maximum"}
     for case in (source.get("contract_evidence") or {}).get("exact_cases" if exact else "preview_cases") or []:
