@@ -239,7 +239,10 @@ def inspect_directed_helpers(snapshot):
 # it adds or removes no `.min(`/`.max(` call.
 # DEL-04-09 I2b-2 on RT-U4's candidate (§8.48, merge of 41cf15b95): lib.rs carries both of the above; together they
 # add or remove no `.min(`/`.max(` call, and the observation lane stays deleted.
-B7A_PRIMITIVE_LIB_SOURCE_PIN = 'f2ced8d7ff2fffe3493bac21164b738798c1faef74f752f13c2f3a5e0fa76d80'
+# Operating-case slice 1b D3 (§8.51, merge of 41142f4a3): lib.rs's three 1b items are folded onto existing lines;
+# they add or remove no `.min(`/`.max(` call (2 and 11 on the basis and the head), and the observation lane stays
+# deleted.
+B7A_PRIMITIVE_LIB_SOURCE_PIN = 'dcb744fbc76a6d3ee09fe43b4494542497a4b31282de019f4c831e32d32ec145'
 
 
 def primitive_lib_minmax_callers(snapshot):

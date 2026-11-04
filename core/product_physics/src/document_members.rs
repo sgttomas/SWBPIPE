@@ -19,7 +19,7 @@
 //!
 //! The interim solve behaviour of S1 is here too: the snubber's static refusal,
 //! the skew-direction refusal, the exact route's difference-basis refusal, the
-//! withholding of combinations whose member or operand is not built yet, and the
+//! withholding of `minuend_final` combinations and of those naming one, and the
 //! removal of an exactly axis-aligned `direction`.
 use crate::operating_conditions::{self, ConditionSetInput, ConditionUseInput, TestConditionInput};
 use crate::spectra::{self, SpectrumInput};
@@ -54,7 +54,9 @@ pub const SNUBBER_DYNAMIC_ONLY_MESSAGE: &str =
 pub const LOAD_COMBINATION_DIFFERENCE_BASIS_MISPLACED: &str = "LOAD_COMBINATION_DIFFERENCE_BASIS_MISPLACED";
 /// `difference_basis` is null or not `operating_minus_sustained`.
 pub const LOAD_COMBINATION_DIFFERENCE_BASIS_UNKNOWN: &str = "LOAD_COMBINATION_DIFFERENCE_BASIS_UNKNOWN";
-/// Interim (S1 until the solver lane's 1b): a combination with `difference_basis` is withheld.
+/// Interim (S1 until the solver lane's 1b, which removed it from the solve and the
+/// applier: G-1 and G-2 gate a declared subtraction, `crate::difference_basis`); the code
+/// is kept for the history of its refusals and is no longer emitted.
 pub const LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED: &str = "LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED";
 /// `difference_basis` on a document with `pressure_contract`.
 pub const LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED: &str = "LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED";
@@ -824,10 +826,6 @@ pub(crate) fn lower_axis_aligned_directions(model: &mut PreviewModel) {
 fn interim_reasons(combination: &crate::PreviewCombination) -> Vec<(&'static str, String)> {
     let mut reasons = Vec::new();
     let id = &combination.id;
-    if combination.difference_basis.is_some() {
-        reasons.push((LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED,
-            format!("combination `{id}` declares a difference basis (operating minus sustained); its gates are not built yet, so the combination is withheld")));
-    }
     if combination.subtrahend_support_state == Some(SubtrahendSupportStateSetting::MinuendFinal) {
         reasons.push((LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED,
             format!("combination `{id}` solves its subtrahend at the minuend's final support status; that solve is not built yet, so the combination is withheld")));
@@ -835,8 +833,9 @@ fn interim_reasons(combination: &crate::PreviewCombination) -> Vec<(&'static str
     reasons
 }
 
-/// S1's withholding (§2.2, §2.4) as the RT-A4 wiring leaves it: a combination with a
-/// difference basis or a `minuend_final` subtrahend is withheld with a warning, and
+/// S1's withholding (§2.2, §2.4) as operating-case slice 1b leaves it: a combination
+/// with a `minuend_final` subtrahend is withheld with a warning (a declared difference
+/// basis is no longer withheld here; its gates are G-1 and G-2 at the solve), and
 /// so is each combination that names one, directly or through others
 /// (`LOAD_COMBINATION_OPERAND_WITHHELD`, absolute-sum-srss §4, naming the operand and
 /// its own code). The unsigned bases and combination operands are evaluated. The

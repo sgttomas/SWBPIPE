@@ -225,6 +225,9 @@ def check(source: Mapping[str, Any], model: Mapping[str, Any] | None = None) -> 
     gates = _items(evidence.get("combination_gates"))
     rows = [r for r in _items(source.get("results")) if isinstance(r, Mapping)]
     by_id = {r["id"]: r for r in rows if isinstance(r.get("id"), str)}
+    # Operating-case slice 1b: a declared subtraction's G-1, G-2, evidence and sign.
+    from . import preview_difference_basis
+    preview_difference_basis.check(source, model)
     if model is not None:
         _model_check(source, model, gates, rows, by_id)
     else:
@@ -261,7 +264,10 @@ def _free_check(source: Mapping[str, Any], gates: list, rows: list, by_id: dict)
             operand_withheld = any(o[0] == "combination" and o[1] in withheld for o in operands)
             derived = _gate_before_modulus(basis, operand_withheld, derivation["nonlinear"], oq1, derivation["consuming"], own, operand_kappa)
             reason = stated.get(cid)
-            _require(reason == derived if derived is not None else reason in (None, MODULUS_MIXED), "GATE_DERIVATION")
+            # A declared subtraction's G-1 or G-2 is the difference-basis reader's.
+            _require(reason == derived if derived is not None else (reason in (None, MODULUS_MIXED) or (
+                basis == "result_state_subtraction" and reason in ("EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING", "EXPANSION_BASIS_MODULUS_MIXED"))),
+                "GATE_DERIVATION")
             if derived is None and reason is None:
                 if basis in UNSIGNED_BASES:
                     _unsigned_rows(rows, by_id, cid, basis, terms)
@@ -349,18 +355,11 @@ def _model_check(source: Mapping[str, Any], model: Mapping[str, Any], gates: lis
     if not gates and not any(_combination_of(r) is not None for r in rows):
         _require(DERIVATION_MEMBER not in evidence, "DERIVATION_EVIDENCE")
         return
-    combinations = [c for c in _items(model.get("combinations")) if isinstance(c, Mapping)]
+    from . import preview_difference_basis as difference
     load_cases = [c for c in _items(model.get("load_cases")) if isinstance(c, Mapping)]
     cases = {c["id"] for c in load_cases if isinstance(c.get("id"), str)}
-    # S1's interim withholding removes a difference-basis or minuend_final combination and every one naming one.
-    removed: set[str] = set()
-    for index in graph.model_order(combinations, cases):
-        c = combinations[index]
-        interim = "difference_basis" in c or c.get("subtrahend_support_state") == "minuend_final"
-        if interim or any(o[0] == "combination" and o[1] in removed for o in graph.model_operands(c, cases)):
-            removed.add(c.get("id"))
-    kept = [c for c in combinations if c.get("id") not in removed]
-    order = graph.model_order(kept, cases)
+    # S1's interim withholding (as slice 1b leaves it) removes a minuend_final combination and every one naming one.
+    kept, order = difference.kept_combinations(model)
     _require(len(gates) == len(order), "GATE_DERIVATION")
     supports = [s for s in _items(model.get("supports")) if isinstance(s, Mapping)]
     nodes = {n.get("id") for n in _items(model.get("nodes")) if isinstance(n, Mapping)}
@@ -385,7 +384,8 @@ def _model_check(source: Mapping[str, Any], model: Mapping[str, Any], gates: lis
         oq1 = basis == "mechanics" and combination_graph.solved_state_plus_increments(terms)
         own = combination_graph.add(cid, basis, operands, [f for _, f in terms])
         operand_withheld = any(o[0] == "combination" and o[1] in withheld for o in operands)
-        derived = _gate_before_modulus(basis, operand_withheld, nonlinear, oq1, consuming, own, operand_kappa)
+        derived = difference.model_gate(model, combination)[0] if difference.declared(combination) else None
+        derived = derived or _gate_before_modulus(basis, operand_withheld, nonlinear, oq1, consuming, own, operand_kappa)
         if derived is None and not operand_withheld and basis in graph.TERM_BASES:
             reached = {keys.get(case) for case in combination_graph.reached.get(cid, []) if case in keys}
             derived = MODULUS_MIXED if len(reached) > 1 else None

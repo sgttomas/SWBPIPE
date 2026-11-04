@@ -30,7 +30,8 @@ use open_pipe_stress_frame_kernel::structural::element_reformation::{
 use open_pipe_stress_modal_eigen::clusters::cluster_ids;
 use open_pipe_stress_modal_eigen::dd::Dd;
 use open_pipe_stress_modal_eigen::dense::{
-    established_finite_mode_count, solve_dense_pencil, DenseEigenSolution, DenseOptions,
+    established_finite_mode_count, solve_dense_pencil, solve_dense_pencil_with_allotments,
+    DenseAllotments, DenseEigenSolution, DenseError, DenseOptions,
 };
 use open_pipe_stress_modal_eigen::orthogonality::{m_orthogonality, m_orthogonality_reformed};
 use open_pipe_stress_modal_eigen::reformation::mass::{
@@ -1322,4 +1323,133 @@ fn general_pointmass_negative_generalized_mass_cannot_resolve_the_census() {
         assert!(s.finite_count_unresolved);
         assert!(s.screened.iter().all(|x| x.hard_rejected && !x.retained));
     }
+}
+
+/// Design §5.3.8 S1 on the eigen cases: with no allotment, a generous one
+/// or one exactly at the counts, the outcome is `solve_dense_pencil`'s bit
+/// for bit (equality, Debug text and the bits of λ, μ and the shapes), and
+/// the exposed counts agree with the screened records.
+#[test]
+fn resource_allotments_not_reached_change_no_eigen_case() {
+    for case in eigen_cases() {
+        let id = format!("{} {}", case.id, case.basis);
+        let n = case.free.len();
+        let (k, m) = (dense(n, &entries(&case.k)), dense(n, &entries(&case.m)));
+        let baseline = solve_dense_pencil(&k, &m, &dense_options()).unwrap();
+        assert_eq!(
+            baseline.screened_pair_count,
+            baseline.screened.len() as u64,
+            "{id}"
+        );
+        assert_eq!(
+            baseline.hard_rejected_pair_count,
+            baseline.screened.iter().filter(|x| x.hard_rejected).count() as u64,
+            "{id}"
+        );
+        assert_eq!(
+            baseline.attempted_band_pair_count,
+            baseline
+                .screened
+                .iter()
+                .filter(|x| !x.hard_rejected)
+                .count() as u64,
+            "{id}"
+        );
+        assert!(
+            baseline.ql_rotations
+                <= baseline.ql_iterations as u64
+                    * (baseline.condensed_dimension as u64).saturating_sub(1),
+            "{id}"
+        );
+        for a in [
+            DenseAllotments::default(),
+            DenseAllotments {
+                ql_rotations: Some(u64::MAX),
+                band_pairs: Some(u64::MAX),
+            },
+            DenseAllotments {
+                ql_rotations: Some(baseline.ql_rotations),
+                band_pairs: Some(baseline.attempted_band_pair_count),
+            },
+        ] {
+            let allotted =
+                solve_dense_pencil_with_allotments(&k, &m, &dense_options(), &a).unwrap();
+            assert_eq!(allotted, baseline, "{id} under {a:?}");
+            assert_eq!(
+                format!("{allotted:?}"),
+                format!("{baseline:?}"),
+                "{id} under {a:?}"
+            );
+            let bits = |s: &DenseEigenSolution| -> Vec<u64> {
+                s.eigenvalues
+                    .iter()
+                    .chain(&s.mu)
+                    .chain(&s.vectors)
+                    .map(|x| x.to_bits())
+                    .collect()
+            };
+            assert_eq!(bits(&allotted), bits(&baseline), "{id} under {a:?}");
+        }
+        eprintln!(
+            "{id}: R {}, screened {}, hard-rejected {}, attempted {}",
+            baseline.ql_rotations,
+            baseline.screened_pair_count,
+            baseline.hard_rejected_pair_count,
+            baseline.attempted_band_pair_count
+        );
+    }
+}
+
+/// S1-band on the rigid-scale witness: six attempted pairs (the recovered
+/// band of `recovered_rigid_band_is_accurate_deterministic_and_threshold_insensitive`).
+/// An allotment of six passes with the unallotted outcome; five refuses by
+/// its own name, before the formed scaling. The general point mass's
+/// screened pairs are all hard-rejected, so they attempt nothing.
+#[test]
+fn band_allotment_on_the_rigid_scale_witness() {
+    let cases = eigen_cases();
+    let solve = |id: &str, a: &DenseAllotments| {
+        let case = cases.iter().find(|c| c.id == id).unwrap();
+        let n = case.free.len();
+        let (k, m) = (dense(n, &entries(&case.k)), dense(n, &entries(&case.m)));
+        solve_dense_pencil_with_allotments(&k, &m, &dense_options(), a)
+    };
+    let none = DenseAllotments::default();
+    let band = |p| DenseAllotments {
+        ql_rotations: None,
+        band_pairs: Some(p),
+    };
+    let baseline = solve("E-RIGID-SCALE-1e6", &none).unwrap();
+    assert_eq!(baseline.attempted_band_pair_count, 6);
+    assert_eq!(baseline.hard_rejected_pair_count, 0);
+    assert_eq!(baseline.screened_pair_count, 6);
+    assert_eq!(solve("E-RIGID-SCALE-1e6", &band(6)), Ok(baseline));
+    let refused = solve("E-RIGID-SCALE-1e6", &band(5));
+    assert_eq!(
+        refused,
+        Err(DenseError::BandPairAllotmentExceeded {
+            allotment: 5,
+            attempted: 6
+        })
+    );
+    assert_eq!(
+        refused.unwrap_err().resource_code(),
+        Some("MODAL_RESOURCE_BAND_ALLOTMENT_EXCEEDED")
+    );
+    assert_eq!(
+        solve("E-RIGID-SCALE-1e6", &band(0)),
+        Err(DenseError::BandPairAllotmentExceeded {
+            allotment: 0,
+            attempted: 6
+        })
+    );
+
+    let general = solve("E-POINTMASS-GENERAL", &none).unwrap();
+    assert!(general.hard_rejected_pair_count > 0);
+    assert_eq!(general.attempted_band_pair_count, 0);
+    assert_eq!(
+        general.screened_pair_count,
+        general.hard_rejected_pair_count
+    );
+    assert_eq!(solve("E-POINTMASS-GENERAL", &band(0)), Ok(general));
 }

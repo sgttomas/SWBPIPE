@@ -839,10 +839,11 @@ pub(crate) fn operand_withheld_message(operands: &[(&str, &str)]) -> String {
 }
 
 /// The gates (absolute-sum-srss §5), in precedence order: a withheld operand
-/// combination; nonlinear supports (`mechanics` only, except decision OQ-1); the
+/// combination; a declared operating comparison's G-1 and G-2 (operating-case §1.2,
+/// [`difference_basis`]); nonlinear supports (`mechanics` only, except decision OQ-1); the
 /// fixed-load count of a consuming constant-effort support (`mechanics`,
 /// `absolute_sum`, `srss`); and mixed modulus bases over every load case the
-/// combination reaches (`mechanics`, `absolute_sum`, `srss`). Subtractions and
+/// combination reaches (`mechanics`, `absolute_sum`, `srss`). Plain subtractions and
 /// envelopes are ungated otherwise. A flat combination meets today's gates exactly.
 fn gate_reason(
     rendered: &Rendered,
@@ -858,6 +859,11 @@ fn gate_reason(
         return Some((OPERAND_WITHHELD, operand_withheld_message(&operands)));
     }
     let gated = |code: &'static str| Some((code, gate_message(code).to_string()));
+    // Operating-case slice 1b: a declared operating comparison's G-1, then G-2.
+    if difference_basis::declared(combination) {
+        let mut scratch = Vec::new();
+        return difference_basis::gate(model, combination, |case| modulus_basis_key(case, &mut scratch)).and_then(gated);
+    }
     let basis = combination.basis.as_str();
     if !matches!(basis, "mechanics" | "absolute_sum" | "srss") {
         return None;
@@ -904,6 +910,8 @@ fn gate_message(code: &str) -> &'static str {
         CONSTANT_EFFORT_REQUIRES_SOLVE => "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once.",
         CONSTANT_EFFORT_UNSIGNED_OPERAND => "Combination withheld: a constant-effort support's force acts in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it once per term with its sign discarded.",
         CONSTANT_EFFORT_OPERAND_MIXED => "Combination withheld: an operand's fixed-load count is undefined, so the number of times this combination counts a constant-effort support's force cannot be decided.",
+        difference_basis::SUSTAINED_NOT_IN_OPERATING => difference_basis::SUSTAINED_NOT_IN_OPERATING_MESSAGE,
+        difference_basis::MODULUS_MIXED => difference_basis::MODULUS_MIXED_MESSAGE,
         _ => "Combination withheld: its load cases were solved on different modulus bases.",
     }
 }
@@ -1026,6 +1034,7 @@ pub(crate) fn append_combination_results(
         // derivation in its metadata; a flat combination's keeps none (V-8).
         let derived = nested || expression.is_unsigned();
         let sign = match expression {
+            CombinationExpression::ResultStateSubtraction { .. } if difference_basis::declared(combination) => difference_basis::SIGN.to_string(),
             CombinationExpression::ResultStateSubtraction { .. } => SUBTRACTION_SIGN.to_string(),
             _ => expression.result_sign_convention(rendered.nonlinear && plan.solved_state_plus_increments(combination)),
         };

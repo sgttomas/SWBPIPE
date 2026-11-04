@@ -507,6 +507,10 @@ fn an_exact_route_comparison_refusal_is_never_carried() {
     }
     let outcome = refused(&exact, &clear_use(&exact, "L"), "LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED");
     assert!(!outcome.diagnostics.iter().any(|d| d.code == "LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED" && d.severity == "info"), "{:?}", records(&outcome));
+    // Operating-case slice 1b: authoring a declared difference on the exact route stays refused by name.
+    let declared = json!({"id": "C-NEW", "label": "New", "basis": "result_state_subtraction", "minuend_id": "L", "subtrahend_id": "SUS",
+        "difference_basis": "operating_minus_sustained", "provenance": PROV});
+    refused(&exact, &op("create", "create_combination", "Combination", "C-NEW", "combinations", "not_present", &declared.to_string()), "LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED");
 }
 
 // ------------------------------------------------------------------ S1 refusals kept
@@ -546,12 +550,30 @@ fn every_s1_authoring_refusal_is_preserved() {
         }
         op("create", "create_combination", "Combination", "C-NEW", "combinations", "not_present", &payload.to_string())
     };
+    // Operating-case slice 1b (0.9.0 §2.2, §3.8): a declared difference is authored on the
+    // pressure-free route, as authored; `own` behaves as absence; `minuend_final` stays
+    // refused; an unknown or misplaced member is the document validator's.
+    for extra in [json!({"difference_basis": "operating_minus_sustained"}), json!({"difference_basis": "operating_minus_sustained", "subtrahend_support_state": "own"})] {
+        let (next, _) = applied(&model, &combination(extra.clone()));
+        let created = next["combinations"].as_array().unwrap().iter().find(|c| c["id"] == "C-NEW").unwrap().clone();
+        for (key, value) in extra.as_object().unwrap() {
+            assert_eq!(&created[key], value, "{key} is written as authored");
+        }
+    }
     for (extra, code) in [
-        (json!({"difference_basis": "operating_minus_sustained"}), "LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED"),
-        (json!({"subtrahend_support_state": "own"}), "LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED"),
+        (json!({"difference_basis": "operating_minus_sustained", "subtrahend_support_state": "minuend_final"}), "LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED"),
+        (json!({"subtrahend_support_state": "minuend_final"}), "LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED"),
+        (json!({"subtrahend_support_state": "own"}), "LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_MISPLACED"),
+        (json!({"difference_basis": null}), "LOAD_COMBINATION_DIFFERENCE_BASIS_UNKNOWN"),
+        (json!({"difference_basis": "sustained"}), "LOAD_COMBINATION_DIFFERENCE_BASIS_UNKNOWN"),
+        (json!({"difference_basis": "operating_minus_sustained", "subtrahend_support_state": "held"}), "LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNKNOWN"),
+        (json!({"difference_basis": "operating_minus_sustained", "minuend_id": "C-SUB"}), "LOAD_COMBINATION_DIFFERENCE_BASIS_OPERAND_NOT_LOAD_CASE"),
     ] {
         refused(&model, &combination(extra), code);
     }
+    let misplaced = json!({"id": "C-NEW", "label": "New", "basis": "range_envelope", "operand_ids": ["WIND", "SUS"], "mode": "max",
+        "difference_basis": "operating_minus_sustained", "provenance": PROV});
+    refused(&model, &op("create", "create_combination", "Combination", "C-NEW", "combinations", "not_present", &misplaced.to_string()), "LOAD_COMBINATION_DIFFERENCE_BASIS_MISPLACED");
     applied(&model, &combination(json!({})));
     // The RT-A4 wiring: the unsigned bases and combination operands are authored.
     for payload in [

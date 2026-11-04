@@ -3890,7 +3890,12 @@ if fnkey("append_operand_standing", _OP1A_PP):
     # (pressure_outcome, shared with validate's pressure arm) and four helpers become pub(crate); all outside the retained roots.
     # RT-U4 order and repair B on RT-A3 increment 4 (§8.50, merge of 4a8287001): reader_verdict.rs carries both; inc4's
     # nonlinear model checks follow the pressure arm into pressure_outcome, so validate and standing share them.
-    _op1a_pins = {'core/product_physics/src/preview_physics.rs': 'ecd14d758bd07dc297105ec0e67059cba2fd53f0b312da553c2caccdddd3eb05', 'core/reporting/result_export/src/preview_combination_operands.rs': '8444069d3a1d9c402e8e6d45174305766822b59690fbf7bf548085f9df7d3327', 'core/reporting/result_export/src/preview_physics_evidence.rs': '8e6ce8684802281c6ea05527d5f453a7483a3f85c7fdf0df72b327b894c0114a', 'core/reporting/result_export/src/reader_verdict.rs': 'd880e7e6bd58ca0c7a53507d405c530a716af39c3941f0a06fe0e6168f164813'}
+    # Operating-case slice 1b D3 (§8.51): preview_physics.rs's declared arms (gate_reason, gate_message, the sign; PF1B-DZ);
+    # preview_combination_operands.rs's model_checks admits only gate-admitted subtractions (an `admitted` set over the
+    # gates, model-bound: reader_verdict only, outside the retained roots); preview_physics_evidence.rs admits
+    # difference_basis_derivation as an optional member (a static array element), lists G-1/G-2 in GATE_CODES (static)
+    # and admits a withheld subtraction's modulus-basis records (an existing set's lookup). The OP1A premises stand.
+    _op1a_pins = {'core/product_physics/src/preview_physics.rs': 'cf2ce2e184557018874f99d730c4d77d38c07b829bd0ad39e771550f31a84365', 'core/reporting/result_export/src/preview_combination_operands.rs': '51df5bf357ae42731e612e8dc9c111e1311484fe07ffefebcf76246b315e7413', 'core/reporting/result_export/src/preview_physics_evidence.rs': '195131763035104c69a742dc236d1fe43a78a053d77580072ca8aaebad4beac1', 'core/reporting/result_export/src/reader_verdict.rs': 'd880e7e6bd58ca0c7a53507d405c530a716af39c3941f0a06fe0e6168f164813'}
     for _f, _digest in _op1a_pins.items():
         if __import__("hashlib").sha256(_text_of(_f).encode()).hexdigest() != _digest:
             raise SystemExit("OP1A-PF/RD: reviewed source changed: " + _f)
@@ -3957,7 +3962,8 @@ if fnkey("selects", _TIM):
     # RT-A3 increment 4 D3 (§8.49): reader_verdict.rs and preview_physics_evidence.rs re-read as for OP1A above.
     # RT-U4 repair B: reader_verdict.rs re-read as for OP1A above; the Timoshenko premises stand.
     # RT-U4 order and repair B on RT-A3 increment 4 (§8.50): reader_verdict.rs re-read as for OP1A above.
-    _TIM_PINS = {'core/product_physics/src/pf_timoshenko.rs': '0546472cfba9ca61bff68838cb5add237c70485411c124f5fc14f9aa90217f45', 'core/product_physics/src/model_settings.rs': 'd2f9d52db54bd97b19708c5a8580d484282f97649f08df408f6e0b206a999d8b', 'core/reporting/result_export/src/reader_verdict.rs': 'd880e7e6bd58ca0c7a53507d405c530a716af39c3941f0a06fe0e6168f164813', 'core/reporting/result_export/src/preview_physics_evidence.rs': '8e6ce8684802281c6ea05527d5f453a7483a3f85c7fdf0df72b327b894c0114a', 'core/product_physics/src/case_state/temperature.rs': 'eed9dc272dd37c669cc090d3f4c9c30293a0793e0d0b770ddd25fdd5d08ed9b2', 'core/product_physics/src/case_state/temperature/canonical_decimal.rs': '431ac3204d98ed3420ead918cc2733f77ac3a8258d28625b210a8bc69962b1e2'}
+    # Operating-case slice 1b D3 (§8.51): preview_physics_evidence.rs re-read as for OP1A above; the Timoshenko premises stand.
+    _TIM_PINS = {'core/product_physics/src/pf_timoshenko.rs': '0546472cfba9ca61bff68838cb5add237c70485411c124f5fc14f9aa90217f45', 'core/product_physics/src/model_settings.rs': 'd2f9d52db54bd97b19708c5a8580d484282f97649f08df408f6e0b206a999d8b', 'core/reporting/result_export/src/reader_verdict.rs': 'd880e7e6bd58ca0c7a53507d405c530a716af39c3941f0a06fe0e6168f164813', 'core/reporting/result_export/src/preview_physics_evidence.rs': '195131763035104c69a742dc236d1fe43a78a053d77580072ca8aaebad4beac1', 'core/product_physics/src/case_state/temperature.rs': 'eed9dc272dd37c669cc090d3f4c9c30293a0793e0d0b770ddd25fdd5d08ed9b2', 'core/product_physics/src/case_state/temperature/canonical_decimal.rs': '431ac3204d98ed3420ead918cc2733f77ac3a8258d28625b210a8bc69962b1e2'}
     _TIM_PINS[FK_ + "shear.rs"] = "12b854db0252398a8d61a643eba4fe7162f81e228a1c6239860433fd3188d2c3"
     for _file, _pin in _TIM_PINS.items():
         if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _file), "rb").read()).hexdigest() != _pin:
@@ -4102,7 +4108,10 @@ if fnkey("withhold_interim_combinations", _S1_DM):
     import hashlib as _hashlib
     # S1-PIN: the three modules' complete bytes, read before these rules were written; a change stops the run.
     # RT-A4 D3 (§8.46): document_members.rs re-read: the unsigned and nested interim pushes are deleted (S1-ZS/S1-ID carried).
-    _S1_PINS = {_S1_DM: "a2bc924c6a2e857f4e8f9ebbfc3d8aef7c4af5b67a19e22f5e4ea707e3b5f6b3",
+    # Operating-case slice 1b D3 (§8.51): document_members.rs re-read: interim_reasons' difference-basis push is deleted
+    # (1b gates a declared subtraction at the solve, G-1 and G-2); its two S1-ZS entries are dropped below, as §8.46
+    # dropped the unsigned and nested pushes'. The minuend_final push and the withholding are unchanged.
+    _S1_PINS = {_S1_DM: "7992d86d976aac0cdc2e101f791f01fceeb57a96af3d3d155d7ad77a9b5df50a",
                 _S1_OC: "e3ddf5bdf79698f3cbd555c9bd3ed125227030e60737760479c6c9fd7cadfa38",
                 _S1_SP: "b1ed575817c3d9ffd4edd16fcfefc1f8e9029c13c2985c9219e868d3e3f69060"}
     for _f, _h in _S1_PINS.items():
@@ -4215,7 +4224,9 @@ if fnkey("withhold_interim_combinations", _S1_DM):
         # RT-A4 D3 (§8.46): interim_reasons' unsigned-basis and nested-operand pushes are deleted (the wiring evaluates
         # both); the two remaining pushes keep their zeros.
         + [(_s1_at("interim_reasons", _S1_DM, t), _S1_ZR + "a difference basis or a minuend_final subtrahend (D1.4)") for t in (
-            "declares a difference basis (operating minus sustained)", "solves its subtrahend at the minuend's final support status")]
+            # Operating-case slice 1b (§8.51): the difference-basis push is deleted, so its entry is dropped (§8.46's
+            # precedent for the unsigned and nested pushes); the minuend_final push keeps its entry.
+            "solves its subtrahend at the minuend's final support status",)]
         + [(_s1_at("findings", _S1_OC, t), _S1_D13) for t in (
             'let path = format!("pipe_segments[{index}].condition_set_ref");', "of pipe `{pipe}` names no condition set.",
             "vec![pipe.to_string(), reference.to_string()]")]
@@ -4299,7 +4310,7 @@ if fnkey("withhold_interim_combinations", _S1_DM):
         ("snubber_findings", _S1_DM, 'format!("`{token}` is rotational;', ("token",)),
         ("snubber_findings", _S1_DM, 'format!("{at}.stiffness")', ("at",)),
         ("combinations_findings", _S1_DM, "members.iter().map(|&member| views[member].id.to_string()).collect()", ("views[member].id",)),
-        ("interim_reasons", _S1_DM, "declares a difference basis (operating minus sustained)", ("id",)),
+        # Operating-case slice 1b (§8.51): the difference-basis push's audit entry is dropped with the push (§8.46's precedent).
         ("interim_reasons", _S1_DM, "solves its subtrahend at the minuend's final support status", ("id",)),
         ("withhold_interim_combinations", _S1_DM, '&format!("diagnostic:combination:{}:{}", crate::stable_suffix(&combination.id), code.to_ascii_lowercase()),',
          ("crate::stable_suffix(&combination.id)", "code.to_ascii_lowercase()")),
@@ -4740,8 +4751,11 @@ _A4_PEV = RE_ + "preview_physics_evidence.rs"
 _A4_FLC = "core/loads/load_case_algebra/src/fixed_load_count.rs"
 _A4_UNS = "core/loads/load_case_algebra/src/unsigned.rs"
 if fnkey("solved_state_plus_increments", _A4_PLAN):
+    # Operating-case slice 1b D3 (§8.51): preview_combination_gates.rs re-read (see rta4_owners_model's note): check calls
+    # preview_difference_basis::check (PF1B-FZ on D1), free_check gains an allocation-free stated-reason arm, model_check
+    # (RT-A4-RM) reads the new module's kept combinations and declared gate. Every RT-A4 guard is re-checked on the new bytes.
     _A4_PINS = {_A4_PLAN: "86e8d1c0686b92579aeee96087e0b6e390ee6729d10a56568228f099e64b6cbb",
-                _A4_GATES: "918758e2a1a6c0fe91573619a6cc3e686179463efc96045ec282817cb9a78540",
+                _A4_GATES: "b6c9ad33780eaaa2b2b59dd86d0cc53ff8c622525d5b612d8b252ea0084f8afe",
                 _A4_GRAPH: "f3a3ca6b332896afd19412ee96e18750c271ae323ca34c46876e382c710eaef8",
                 _A4_FLC: "c234ca4cb3fb6a1360edd8d3f55bd9d6e9d9ecf6a8310d68379096167abb38bf",
                 _A4_UNS: "7bde94c46aa9aa15d19560d21b58fd9cddfae3f0d8073706214620c34179ad42"}
@@ -4770,8 +4784,10 @@ if fnkey("solved_state_plus_increments", _A4_PLAN):
                     for _pf in __import__("os").listdir(_os.path.join(_SNAP, PP_)) if _pf.endswith(".rs")),
         _A4_EV.count("Self::AbsoluteSum { terms } => evaluate_absolute_sum(&by_id, &term_list(terms)),") == 1
         and _A4_EV.count("Self::Srss { terms } => evaluate_srss(&by_id, &term_list(terms)),") == 1,
-        # interim_reasons pushes only for a difference basis or a minuend_final subtrahend.
-        _A4_IR.count("reasons.push((") == 2 and _A4_IR.count("if combination.difference_basis.is_some() {") == 1
+        # interim_reasons pushes only for a minuend_final subtrahend (operating-case slice 1b, §8.51: the difference-basis
+        # push is deleted; §8.46 restated this guard the same way when the unsigned and nested pushes went). Fewer pushes
+        # only narrow RT-A4-WZ's premise: the remaining reason is still D1.4-refused.
+        _A4_IR.count("reasons.push((") == 1 and _A4_IR.count("if combination.difference_basis.is_some() {") == 0
         and _A4_IR.count("combination.subtrahend_support_state") == 1,
         _A4_WIC.count("    if withheld.is_empty() {\n        return;\n    }\n") == 1
         and _A4_WIC.count("withheld.insert(index, code);") == 1 and _A4_WIC.count("withheld.insert(") == 2
@@ -5009,9 +5025,16 @@ _A4_RT = RE_ + "recorded_tables.rs"
 # successor table, 040ef9a6; include_bytes! data, base None, reads_under_variant false) and TABLES's OnceLock array
 # takes six slots (const-initialized statics, no heap). No SELECTED write, read_recorded caller or selection path
 # changes; every guard below is re-checked on the new bytes.
+# Operating-case slice 1b D3 (§8.51, RTA4-HS re-pin): VARIANTS gains three entries, main bbf384dec's preview-physics-2,
+# timoshenko-1 and preview-physics-retained-1 tables before 1b's policy restatement (include_bytes! data;
+# reads_under_variant true; the retained table's base index is 1b's preview-physics-2 entry, 6); TABLES takes nine
+# OnceLock slots (const-initialized statics, no heap). Selection stays inside read_recorded, which no retained root
+# reaches; no SELECTED write, read_recorded caller or selection path changes, and every guard below is re-checked.
+# RT-U4 C1 integration (agreed with RT-A4): re-pinned on the merged bytes, 1b's content plus C1's module-documentation
+# line 29 (native custody makes each recorded read inside entry_scope on its worker thread); comment only, no code.
 if fnkey("read_recorded", _A4_RT):
     if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _A4_RT), "rb").read()).hexdigest() != \
-            "a32507652f43714e12fbca3d84393ba203ce7f4ba43c0c13eacdfedf92c1df58":
+            "b59e8817a056728fb659e720249b1245b61f1b3ae91eed7b7f3760fa39d08d18":
         raise SystemExit("RT-A4-HS: recorded_tables.rs changed; re-review §8.46's rules")
     _a4_rt = _production(_A4_RT)
     # One production item's text, from its opening line to its closing brace at the same indent (tests excluded).
@@ -5159,3 +5182,161 @@ if fnkey("read_case", _NL_EV):
     O10_ID_AUDIT += [(site("read_case", _NL_EV, "ended in {} state for load case {case}", full=True, row="format!("),
                       {"s.state": {"bytes": 8, "source": O10 + "RTA3NL-ID: a STATES entry (inactive, active, sticking, "
                                                             "sliding), at most 8 B"}})]
+
+# ---- §8.51: operating-case slice 1b (DEL-05-02 operating-case.md §1.2, §6; DEL-02-01 model-document-0.9.0.md §2.2).
+# A result_state_subtraction declaring difference_basis = "operating_minus_sustained" is gated by G-1 and G-2 at the
+# solve (difference_basis.rs), publishes difference_basis_derivation and is read model-free from it
+# (preview_difference_basis.rs). D1.4 refuses every combination with a difference basis (family_clauses' member
+# clause, RT-A4-D14's guard), so no D1 model declares one: difference_basis::declared is false for every combination D1
+# solves (PF1B-DZ), the producer publishes no derivation member, no G-1/G-2 gate reason and no row with 1b's sign, and
+# the model-free reader, reading the producer's own successor, returns at its no-claim test before any allocation
+# (PF1B-FZ). Its model arm is reached only with a model, which the retained graph never passes (PF1B-RM, RT-A4-RM's).
+_B1_DB = PP_ + "difference_basis.rs"
+_B1_RD = RE_ + "preview_difference_basis.rs"
+if fnkey("derivation", _B1_DB):
+    # PF1B-PIN: the two modules' complete bytes, read before these rules were written; a change stops the run.
+    _B1_PINS = {_B1_DB: "b727d800d771ed3de0c9a1e88adc43bb39e9b8505acd7645c275d708c206ea3a",
+                _B1_RD: "32a96aba30e6e62636d3ad6252ea9a62316121edc2713540d9ea3a41b61d7db2"}
+    for _f, _h in _B1_PINS.items():
+        if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _f), "rb").read()).hexdigest() != _h:
+            raise SystemExit(f"PF1B-PIN: {_f} changed; re-review §8.51's rules")
+    _b1_db, _b1_rd = _production(_B1_DB), _production(_B1_RD)
+    _b1_nc = lambda text: _re.sub(r"//[^\n]*", "", text)
+    _b1_pp = {_pf: _b1_nc(_text_of(PP_ + _pf)) for _pf in __import__("os").listdir(_os.path.join(_SNAP, PP_))
+              if _pf.endswith(".rs") and _pf != "difference_basis.rs"}
+    _b1_lit = lambda name, text: _re.findall(r'(?:pub\(crate\) )?const ' + name + r': &str =\s*"((?:[^"\\]|\\.)*)";', text)
+    _B1_SIGN, _B1_MEMBER = _b1_lit("SIGN", _b1_db), _b1_lit("DERIVATION_MEMBER", _b1_db)
+    _b1_fc = _fn_text("free_check", _B1_RD)
+    _b1_guard = (
+        # DZ: D1.4's member clause refuses a difference basis by name (as RT-A4-D14 reads it).
+        _fn_text("family_clauses", _W16_RM).count("        combination.difference_basis.is_some()\n"
+                                                  "            || combination.subtrahend_support_state.is_some()\n") == 1
+        and _fn_text("family_clauses", _W16_RM).count("        return refuse(C::Invocation, F::CombinationMember);") == 1,
+        # DZ: declared() is true only for an explicit operating_minus_sustained basis.
+        _fn_text("declared", _B1_DB).count("combination.difference_basis == Some(crate::document_members::DifferenceBasisSetting::OperatingMinusSustained)") == 1,
+        # DZ: the producer's uses of the module: gate_reason's declared arm and the sign arm (preview_physics.rs), the
+        # derivation call and the member's insertion (lib.rs); gate_message's two static messages. Nothing else.
+        _b1_pp["preview_physics.rs"].count("difference_basis::declared(combination)") == 2
+        and _fn_text("gate_reason", _A4_PP).count("    if difference_basis::declared(combination) {\n") == 1
+        and _fn_text("gate_reason", _A4_PP).count("difference_basis::gate(") == 1
+        and _fn_text("append_combination_results", _A4_PP).count(
+            "CombinationExpression::ResultStateSubtraction { .. } if difference_basis::declared(combination) => difference_basis::SIGN.to_string(),") == 1,
+        sum(_t.count("difference_basis::SIGN") for _t in _b1_pp.values()) == 1
+        and sum(_t.count("difference_basis::derivation(") for _t in _b1_pp.values()) == 1
+        and _b1_pp["lib.rs"].count("let preview_difference = if combining { difference_basis::derivation(&model, &preview_gates) } else { None };") == 1
+        and _b1_pp["lib.rs"].count("if let (Some(member), Some(serde_json::Value::Object(evidence))) = (preview_difference, "
+                                   "envelope.contract_evidence.as_mut()) { evidence.insert(difference_basis::DERIVATION_MEMBER.to_string(), member); }") == 1
+        and sum(len(_re.findall(r"difference_basis::", _t)) for _t in _b1_pp.values()) == 10,
+        # DZ: derivation keeps only declared combinations and returns None for none.
+        _fn_text("derivation", _B1_DB).count(".filter(|c| declared(c))") == 1
+        and _fn_text("derivation", _B1_DB).count("(!records.is_empty()).then(|| serde_json::Value::Array(records))") == 1,
+        # FZ: the model-free reader returns before read() unless the document claims a declared subtraction: the member,
+        # a G-1/G-2 gate reason, or a combination row with 1b's sign.
+        _b1_fc.count("    let claimed = evidence.get(MEMBER).is_some()\n"
+                     "        || gates.iter().any(|g| is_gate_code(g[\"reason\"].as_str()))\n"
+                     "        || rows.iter().any(|r| combination_of(r).is_some() && r[\"metadata\"][\"sign_convention\"] == SIGN);\n"
+                     "    if !claimed {\n        return Ok(());\n    }\n    let records = read(source)?;\n") == 1
+        and _b1_fc.index("    if !claimed {") < min(_b1_fc.index(_x) for _x in ("read(", "for gate", "for row", "for record", "rows_sign(")),
+        _fn_text("is_gate_code", _B1_RD).count("matches!(code, Some(SUSTAINED_NOT_IN_OPERATING | MODULUS_MIXED))") == 1,
+        # FZ: the claims are 1b's alone: the reader's SIGN and MEMBER are the producer's, and no other producer sign or
+        # member literal equals them.
+        _b1_lit("SIGN", _b1_rd) == _B1_SIGN and len(_B1_SIGN) == 1 and _b1_lit("MEMBER", _b1_rd) == _B1_MEMBER and len(_B1_MEMBER) == 1
+        and not any(_B1_SIGN[0] == _v for _t in _b1_pp.values() for _v in _re.findall(r'const [A-Z_]*SIGN: &str =\s*"((?:[^"\\]|\\.)*)";', _t))
+        and not any(_B1_MEMBER[0] == _v for _t in _b1_pp.values() for _v in _re.findall(r'const [A-Z_]*MEMBER: &str =\s*"((?:[^"\\]|\\.)*)";', _t)),
+        # RM: the reader's model arm is reached only with a model; its one caller is the gate reader's check, which the
+        # retained graph calls with None (RT-A4-RM's guard).
+        _fn_text("check", _B1_RD).count("        Some(model) => model_check(source, model),\n        None => free_check(source),\n") == 1
+        and _fn_text("check", _A4_GATES).count("crate::preview_difference_basis::check(source, model)?;") == 1
+        and _b1_nc(_production(RE_ + "preview_combination_gates.rs")).count("preview_difference_basis::check(") == 1
+        and sum(_b1_nc(_production(RE_ + _f)).count("preview_difference_basis::check(") for _f in __import__("os").listdir(_os.path.join(_SNAP, RE_))
+                if _f.endswith(".rs")) == 1,
+        # BN: the by-name call graph's false in-edges name private fns of these modules (Rust privacy: no caller outside
+        # the file), and the multisets' `new` is BTreeMap's.
+        _re.search(r"(?m)^fn case<'m>\(", _b1_db) is not None and _re.search(r"(?m)^fn read\(", _b1_rd) is not None
+        and _re.search(r"(?m)^fn items\(", _b1_rd) is not None and "type Multiset = BTreeMap<Key, u64>;" in _b1_rd
+        and all(_re.findall(r"(\w+)::new\(", _fn_text(_n, _B1_RD)) and set(_re.findall(r"(\w+)::new\(", _fn_text(_n, _B1_RD))) <= {"Multiset", "String"}
+                for _n in ("read_multiset", "model_multiset"))
+        and not _re.search(r"\.new\(", _fn_text("read_multiset", _B1_RD) + _fn_text("model_multiset", _B1_RD)),
+    )
+    if not all(_b1_guard):
+        raise SystemExit(f"PF1B-DZ/FZ/RM/BN: 1b's D1 premise or its guards changed; re-review §8.51: {_b1_guard}")
+    _B1_DZ = O10 + ("PF1B-DZ: D1.4 refuses every difference basis (family_clauses' member clause), so declared() is false "
+                    "for every combination D1 solves: gate_reason's declared arm, the declared sign and derivation's records never run")
+    _B1_FZ = O10 + ("PF1B-FZ: the producer's own successor on D1 has no difference_basis_derivation member, no G-1/G-2 gate "
+                    "reason and no row with 1b's sign (PF1B-DZ), so free_check returns at `!claimed` before read()")
+    _B1_RM = O10 + ("PF1B-RM: preview_difference_basis::check is called only from the gate reader's check with its model, "
+                    "None on the retained graph (RT-A4-RM), so model_check never runs")
+    _b1 = lambda name, f: fnkey(name, f)
+    O10_EDGE_ZERO += [(_b1("gate_reason", _A4_PP), _b1("gate", _B1_DB), _B1_DZ)]
+    O10_EDGE_ZERO += [(_b1("derivation", _B1_DB), _b1(_n, _B1_DB), _B1_DZ + " (derivation's filter keeps none)")
+                      for _n in ("case", "contents", "contents_evidence")]
+    O10_EDGE_ZERO += [(_b1("free_check", _B1_RD), _b1(_n, _B1_RD), _B1_FZ)
+                      for _n in ("read", "require", "fail", "require_gate", "derived_gate", "contained", "gate_of", "rows_sign")]
+    O10_EDGE_ZERO += [(_b1("check", _B1_RD), _b1("model_check", _B1_RD), _B1_RM)]
+    # PF1B-BN (S1-BN's EDGE_ZERO): existing callers that newly reach a private fn of these modules by name without
+    # calling it; each calls its own module's `case`, `read` or `items`.
+    _B1_BN = O10 + "PF1B-BN: a private fn of another module (Rust privacy); the caller's same-named call is its own module's"
+    for _caller, _file, _target, _tfile in [
+            ("findings", PP_ + "operating_conditions.rs", "case", _B1_DB), ("combine_on", PP_ + "retained_product.rs", "case", _B1_DB),
+            ("logical", PP_ + "retained_wire.rs", "case", _B1_DB), ("validate_publication", PP_ + "source_receipt/composite.rs", "case", _B1_DB),
+            ("validate", RE_ + "exact_combination_evidence.rs", "read", _B1_RD), ("entry_scope", RE_ + "recorded_tables.rs", "read", _B1_RD),
+            ("read_recorded", RE_ + "recorded_tables.rs", "read", _B1_RD), ("json_findings", PP_ + "document_members.rs", "items", _B1_RD)]:
+        if not (fnkey(_caller, _file) and fnkey(_target, _tfile)):
+            raise SystemExit(f"PF1B-BN: {_file}:{_caller} or {_tfile}:{_target} no longer resolves; re-review §8.51")
+        O10_EDGE_ZERO += [(fnkey(_caller, _file), fnkey(_target, _tfile), _B1_BN)]
+    # PF1B-BN (CG_RULES, exact targets): the multisets' `Multiset::new()` is BTreeMap::new (std), not a crate `new`.
+    CG_RULES = list(globals().get("CG_RULES", [])) + [
+        {"caller": _fn_n(_n, _B1_RD, 1, 1), "name": "new", "targets": [], "added": "PF1B-BN",
+         "evidence": "operating-case slice 1b (§8.51): the body's only `new`s are Multiset::new (type Multiset = BTreeMap<Key, u64>) and String::new"}
+        for _n in ("read_multiset", "model_multiset")]
+    # PF1B-DZ (site zero): the declared sign's copy runs only in the declared arm.
+    O10_SITE_ZERO += [(site("append_combination_results", _A4_PP, "difference_basis::SIGN.to_string()"), _B1_DZ + " (the declared sign)")]
+    # PF1B-DZ (site zero): the member key's copy runs only when derivation returns Some (a declared record), never on
+    # D1. Its line also holds the folded evidence assignment and the branch-factor call, which have no TEXT site
+    # (run_linear_static_preview_observed_inner's one TEXT row there is this copy).
+    O10_SITE_ZERO += [(site("run_linear_static_preview_observed_inner", _LIB, "difference_basis::DERIVATION_MEMBER.to_string()"),
+                       _B1_DZ + " (derivation returns None: no member to insert)")]
+    # PF1B-L: the new loops. derivation scans the gates (one per combination the solve gates, <= z) for declared ones
+    # (none on D1); a reader operand's entries are strictly increasing contents of one case's primitive loads in the
+    # producer's own successor (<= l, D1.9; unreached: PF1B-FZ); a model case's primitive loads are <= l (unreached:
+    # PF1B-RM); free_check's loops after its no-claim return run zero times on D1 (PF1B-FZ).
+    _B1_L = O10 + "PF1B-L: "
+    O10_LOOPS_LAST += [
+        ('iter:gates .iter() .filter_map(|g| model.combinations.iter().find(|c| g[" "] == c.id.as_str())) .filter(|c| declared(c)).filter_map', "z",
+         _B1_L + "the gates, one per combination the solve gates (<= z); the declared filter keeps none on D1 (PF1B-DZ)",
+         ["difference_basis.rs:derivation"]),
+        ("for entry in list", "l", _B1_L + "one operand's entries: strictly increasing contents of one case's primitive loads "
+         "(<= l, D1.9; unreached: PF1B-FZ)", ["preview_difference_basis.rs:read_multiset"]),
+        ('for load in items(&case[" "])', "l", _B1_L + "one model case's primitive loads (<= l, D1.9; unreached: PF1B-RM)",
+         ["preview_difference_basis.rs:model_multiset"]),
+        ("for record in &records", "0", _B1_FZ, ["preview_difference_basis.rs:free_check"]),
+        ('for row in rows.iter().filter(|r| combination_of(r) == Some(record.id) && r[" "] != MODULUS_RECORD)', "0", _B1_FZ,
+         ["preview_difference_basis.rs:free_check"]),
+        ('iter:items(&row[" "]).iter().map', "0", _B1_FZ, ["preview_difference_basis.rs:free_check"]),
+        ('for stated in list.iter().filter(|r| r[" "] == record.id)', "0", _B1_FZ, ["preview_difference_basis.rs:free_check"]),
+    ]
+    # PF1B-ID: the new TEXT sites' arguments (the chain classifies every row before its multiplicity). A primitive load's
+    # content fields are authored strings (IN128, as W16S-ID classes a load's dimension and a DOF token); the member key
+    # and the declared sign are the module's static literals; a reader refusal is one of its static codes.
+    _B1_CODES = _re.findall(r'const [A-Z_]+: &str = "([A-Z_]+)";', _b1_rd)
+    _b1_fail = _re.findall(r"\bfail\((\w+)\)", _b1_nc(_b1_rd))
+    _b1_req = _re.findall(r"\brequire\((?:[^;]*?),\s*([A-Z][A-Z_]+),?\s*\)", _b1_nc(_b1_rd), _re.S)
+    if (not _B1_CODES or [_x for _x in _b1_fail if not _x.isupper()] != ["code"]
+            or _fn_text("require", _B1_RD).count("Err(fail(code))") != 1
+            or len(_b1_req) != len(_re.findall(r"\brequire\(", _b1_nc(_b1_rd))) - 1
+            or not all(_x in _re.findall(r"const ([A-Z_]+): &str", _b1_rd) for _x in _b1_req + [_x for _x in _b1_fail if _x.isupper()])):
+        raise SystemExit("PF1B-ID: a reader refusal is no longer one of the module's static codes; re-review §8.51")
+    O10_ID_AUDIT += [
+        (site("content", _B1_DB, 'LoadTargetInput::Node { node } => TargetKey::Typed("node", vec![node.clone()]),', full=True), {"node": IN}),
+        (site("content", _B1_DB, 'LoadTargetInput::Support { support, dof } => TargetKey::Typed("support", vec![support.clone(), dof.clone()]),', full=True),
+         {"dof": IN}),
+        (site("content", _B1_DB, "category: load.category.clone(),", full=True), {"load.category": IN}),
+        (site("content", _B1_DB, "direction: load.direction.clone(),", full=True), {"load.direction": IN}),
+        (site("content", _B1_DB, "dimension: load.dimension.clone(),", full=True), {"load.dimension": IN}),
+        (site("run_linear_static_preview_observed_inner", _LIB, "difference_basis::DERIVATION_MEMBER.to_string()", full=True),
+         {"difference_basis::DERIVATION_MEMBER": {"bytes": len(_B1_MEMBER[0].encode()), "source": O10 + "PF1B-ID: the member key, a static literal"}}),
+        (site("append_combination_results", _A4_PP, "difference_basis::SIGN.to_string()", full=True),
+         {"difference_basis::SIGN": {"bytes": len(_B1_SIGN[0].encode()), "source": O10 + "PF1B-ID: 1b's sign convention, a static literal"}}),
+        (site("fail", _B1_RD, "code.to_string()", full=True),
+         {"code": {"bytes": max(len(_c) for _c in _B1_CODES), "source": O10 + "PF1B-ID: a static refusal code of the module (the longest)"}}),
+    ]

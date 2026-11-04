@@ -447,12 +447,13 @@ fn every_combination_document_code_refuses_at_the_solve() {
 /// without them. The RT-A4 wiring removed the unsigned-basis and nested interim codes.
 #[test]
 fn the_interim_combination_members_withhold_only_their_combinations() {
+    // Operating-case slice 1b removed LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED (0.9.0
+    // §2.2, §3.8): a declared difference is gated by G-1 and G-2 at the solve
+    // (`op1b_difference_basis.rs`), and a `minuend_final` one is withheld by its own code alone.
     let withheld = [
-        (json!({"id": "C-DB", "basis": "result_state_subtraction", "minuend_id": "L1", "subtrahend_id": "L2", "difference_basis": "operating_minus_sustained", "provenance": PROV}),
-         vec!["LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED"]),
         (json!({"id": "C-DB", "basis": "result_state_subtraction", "minuend_id": "L1", "subtrahend_id": "L2", "difference_basis": "operating_minus_sustained",
                 "subtrahend_support_state": "minuend_final", "provenance": PROV}),
-         vec!["LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED", "LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED"]),
+         vec!["LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED"]),
     ];
     for (combination, expected) in withheld {
         let mut document = with_combination(combination.clone());
@@ -470,7 +471,7 @@ fn the_interim_combination_members_withhold_only_their_combinations() {
             let mut want: Vec<String> = expected.iter().map(|code| code.to_string()).collect();
             want.extend(["LOAD_COMBINATION_OPERAND_WITHHELD".to_string(), "LOAD_COMBINATION_OPERAND_WITHHELD".to_string()]);
             assert_eq!(warnings.iter().map(|(code, _, _)| code.clone()).collect::<Vec<_>>(), want, "{combination} {mode:?}");
-            assert_eq!(warnings[warnings.len() - 2].2, "Combination withheld: its operand combination(s) C-DB (LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED) are withheld, so it is withheld whole.");
+            assert_eq!(warnings[warnings.len() - 2].2, "Combination withheld: its operand combination(s) C-DB (LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED) are withheld, so it is withheld whole.");
             assert_eq!(warnings[warnings.len() - 1].2, "Combination withheld: its operand combination(s) C-DEP (LOAD_COMBINATION_OPERAND_WITHHELD) are withheld, so it is withheld whole.");
             for id in ["C-DB", "C-DEP", "C-DEP2"] {
                 assert!(combination_rows(&solved, id).is_empty(), "{mode:?}: {id} withheld");

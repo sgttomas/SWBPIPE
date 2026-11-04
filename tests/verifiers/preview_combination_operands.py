@@ -311,8 +311,11 @@ def model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) -> None:
                 temperature = {"value": kelvin, "unit": "K"}
             _require(bit_equal(operand.get("modulus_basis_ref"), case.get("modulus_basis_ref"))
                      and bit_equal(operand.get("modulus_basis_temperature"), temperature), "MODEL")
+    # Operating-case slice 1b: a subtraction a gate withholds, or the interim withholding removed, has no record.
+    admitted = {g.get("combination_id") for g in _items((source.get("contract_evidence") or {}).get("combination_gates"))
+                if isinstance(g, Mapping) and g.get("withheld") is False}
     for index in order:
         combination = combinations[index]
-        if combination.get("basis") in ("result_state_subtraction", "range_envelope") and all(
+        if combination.get("basis") in ("result_state_subtraction", "range_envelope") and combination.get("id") in admitted and all(
                 kind == "case" or oid in recorded for kind, oid in graph.model_operands(combination, case_ids)):
             _require(combination.get("id") in recorded, "MODEL")
