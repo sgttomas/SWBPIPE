@@ -333,7 +333,8 @@ def _terms(record: Mapping[str, Any], cases: set[str]) -> list[tuple[str, float]
         terms = _items(expression.get("terms"))
         if any(not isinstance(t, Mapping) or "combination_id" in t or t.get("load_case_id") not in cases for t in terms):
             raise LookupError("a combination operand is outside the certificate")
-        return [(t["load_case_id"], float(t["factor"]) if isinstance(t.get("factor"), (int, float)) else math.nan) for t in terms]
+        return [(t["load_case_id"], float(t["factor"]) if isinstance(t.get("factor"), (int, float)) and not isinstance(t.get("factor"), bool)
+                 else math.nan) for t in terms]
     if basis == "result_state_subtraction":
         m, s = expression.get("minuend_id"), expression.get("subtrahend_id")
         if not isinstance(m, str) or not isinstance(s, str):
@@ -608,12 +609,15 @@ def model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) -> None:
         # Absent, or malformed (refused by its shape in `check`, Rust alike).
         return
     combinations = [c for c in _items(model.get("combinations")) if isinstance(c, Mapping)]
-    for record in _items(member.get("combinations")):
+    # A record that is not an object is left to `check`, which refuses it by its shape (`RECORD_SHAPE`), so a
+    # malformed record has the same refusal with and without the model (Rust alike); nothing here dereferences it.
+    for record in (r for r in _items(member.get("combinations")) if isinstance(r, Mapping)):
         c = next((c for c in combinations if c.get("id") == record.get("combination_id")), None)
         _require(c is not None and c.get("basis") == record.get("basis"), "MODEL_BINDING")
         if c["basis"] in ("mechanics", "absolute_sum", "srss"):
+            terms = [t if isinstance(t, Mapping) else {} for t in _items(c.get("terms"))]
             expression = {"terms": [{"combination_id": t["combination"], "factor": t.get("factor")} if t.get("combination") is not None
-                                    else {"load_case_id": t.get("load_case"), "factor": t.get("factor")} for t in _items(c.get("terms"))]}
+                                    else {"load_case_id": t.get("load_case"), "factor": t.get("factor")} for t in terms]}
         elif c["basis"] == "result_state_subtraction":
             expression = {"minuend_id": c.get("minuend_id"), "subtrahend_id": c.get("subtrahend_id")}
         else:

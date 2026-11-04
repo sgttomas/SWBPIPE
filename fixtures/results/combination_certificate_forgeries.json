@@ -860,6 +860,114 @@
    "what": "ex_cantilever: an operand case's groups an object"
   },
   {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations/0",
+     "value": null
+    }
+   ],
+   "code": "RECORD_SHAPE",
+   "what": "ex_cantilever: a combination record null"
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/0",
+     "value": null
+    }
+   ],
+   "code": "SHAPE",
+   "what": "ex_cantilever: an operand case null"
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/0/groups/0",
+     "value": null
+    }
+   ],
+   "code": "SHAPE",
+   "what": "ex_cantilever: an operand group null"
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations/0",
+     "value": 7
+    }
+   ],
+   "code": "RECORD_SHAPE",
+   "what": "ex_cantilever: a combination record a scalar"
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/0",
+     "value": 7
+    }
+   ],
+   "code": "SHAPE",
+   "what": "ex_cantilever: an operand case a scalar"
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/0/groups/0",
+     "value": 7
+    }
+   ],
+   "code": "SHAPE",
+   "what": "ex_cantilever: an operand group a scalar"
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations/0",
+     "value": []
+    }
+   ],
+   "code": "RECORD_SHAPE",
+   "what": "ex_cantilever: a combination record an array"
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/0",
+     "value": []
+    }
+   ],
+   "code": "SHAPE",
+   "what": "ex_cantilever: an operand case an array"
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/0/groups/0",
+     "value": []
+    }
+   ],
+   "code": "SHAPE",
+   "what": "ex_cantilever: an operand group an array"
+  },
+  {
    "document": "pf_cantilever",
    "edits": [
     {
@@ -1156,6 +1264,114 @@
    ],
    "code": "SHAPE",
    "what": "pf_cantilever: an operand case's groups an object"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations/0",
+     "value": null
+    }
+   ],
+   "code": "RECORD_SHAPE",
+   "what": "pf_cantilever: a combination record null"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/0",
+     "value": null
+    }
+   ],
+   "code": "SHAPE",
+   "what": "pf_cantilever: an operand case null"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/0/groups/0",
+     "value": null
+    }
+   ],
+   "code": "SHAPE",
+   "what": "pf_cantilever: an operand group null"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations/0",
+     "value": 7
+    }
+   ],
+   "code": "RECORD_SHAPE",
+   "what": "pf_cantilever: a combination record a scalar"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/0",
+     "value": 7
+    }
+   ],
+   "code": "SHAPE",
+   "what": "pf_cantilever: an operand case a scalar"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/0/groups/0",
+     "value": 7
+    }
+   ],
+   "code": "SHAPE",
+   "what": "pf_cantilever: an operand group a scalar"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations/0",
+     "value": []
+    }
+   ],
+   "code": "RECORD_SHAPE",
+   "what": "pf_cantilever: a combination record an array"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/0",
+     "value": []
+    }
+   ],
+   "code": "SHAPE",
+   "what": "pf_cantilever: an operand case an array"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/0/groups/0",
+     "value": []
+    }
+   ],
+   "code": "SHAPE",
+   "what": "pf_cantilever: an operand group an array"
   },
   {
    "document": "op1a_v1",

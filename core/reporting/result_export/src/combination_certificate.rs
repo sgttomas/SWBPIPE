@@ -645,7 +645,9 @@ pub(crate) fn check(source: &Value) -> Check {
 pub(crate) fn model_checks(source: &Value, model: &Value) -> Check {
     let Some(member) = source["contract_evidence"].get(MEMBER) else { return Ok(()) };
     let combinations = items(&model["combinations"]);
-    for record in items(&member["combinations"]) {
+    // A record that is not an object is left to `check`, which refuses it by its shape
+    // (`RECORD_SHAPE`), so a malformed record has the same refusal with and without the model.
+    for record in items(&member["combinations"]).iter().filter(|r| r.is_object()) {
         let id = record["combination_id"].as_str().unwrap_or_default();
         let c = combinations.iter().find(|c| c["id"] == id).ok_or_else(|| fail("MODEL_BINDING"))?;
         require(c["basis"] == record["basis"], "MODEL_BINDING")?;

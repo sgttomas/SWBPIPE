@@ -213,6 +213,12 @@ def build_forgeries() -> list[dict]:
         add(name, cert + ["operand_cases"], "SHAPE", f"{name}: operand_cases null", None)
         add(name, cert + ["combinations"], "SHAPE", f"{name}: combinations an object", {})
         add(name, cert + ["operand_cases", 0, "groups"], "SHAPE", f"{name}: an operand case's groups an object", {})
+        # Review cert2 finding 2: a nested record that is not an object is refused by its shape, with the same code
+        # with and without the model (the model binding leaves it to the shape check), and never raises.
+        for value, what in ((None, "null"), (7, "a scalar"), ([], "an array")):
+            add(name, cert + ["combinations", 0], "RECORD_SHAPE", f"{name}: a combination record {what}", value)
+            add(name, cert + ["operand_cases", 0], "SHAPE", f"{name}: an operand case {what}", value)
+            add(name, cert + ["operand_cases", 0, "groups", 0], "SHAPE", f"{name}: an operand group {what}", value)
     # A stated member is always fully checked: wrong-type arrays on the gap document (no assessed combination) are
     # refused by their shape, never read as empty.
     for value, what in (({}, "an object"), (None, "null"), ("not an array", "a string")):
