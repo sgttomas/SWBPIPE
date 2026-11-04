@@ -1,0 +1,93 @@
+{
+  "admission": {
+    "parameter_label": "TEST_LOCAL_I3A_EXPERIMENTAL",
+    "parameter_standing": "test_local",
+    "public_engineering_result": false,
+    "status": "experimental"
+  },
+  "binding": {
+    "integrity_parameters": {
+      "cluster_tolerance": 1e-8,
+      "formed_backward_error_multiple": 64.0,
+      "identity_tolerance": {
+        "absolute": 0.0,
+        "relative": 1e-12
+      },
+      "infinite_mu_relative_threshold": 1e-12,
+      "mass_pivot_relative_threshold": 1e-12,
+      "max_ql_iterations_per_eigenvalue": 30,
+      "no_translation_threshold": 1e-6,
+      "orthogonality_threshold": 1e-7,
+      "residual_threshold": 1e-10,
+      "resolution_floor_constant": 1.0,
+      "resolution_floor_multiple": 10.0,
+      "screen_error_estimate_threshold": 1e-6,
+      "sturm_conditioning_multiple": 1000.0,
+      "sturm_gap_log_positions": [
+        0.25,
+        0.75,
+        0.125,
+        0.375,
+        0.625,
+        0.875
+      ],
+      "sturm_growth_limit": 1000000000000000.0,
+      "sturm_max_candidates": 7,
+      "sturm_separation_multiple": 100.0,
+      "sturm_whole_spectrum_offsets": [
+        1.0,
+        0.5,
+        0.25
+      ]
+    },
+    "integrity_parameters_sha256": "5ca6d2fa3cea11d492987addc4e640943c0511c3462089b7dcf134bec0c525ff",
+    "materials_member": "authored",
+    "materials_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "model_sha256": "5b16c91a6564afc2d1b6dfb70479f4d88cc3c2901852a6c0bc4c1cca429983be",
+    "options": {},
+    "request_sha256": "a3ff0c8b827cfd7e38764a4e22cd55199600b832e675afa3a10bd96061a3ed04",
+    "state_case": null,
+    "undeclared_members": []
+  },
+  "canonical_profile": "openpipestress_jcs_ijson_v1",
+  "document_kind": "openpipestress.modal_result",
+  "profile": {
+    "limitations": [
+      "Small-displacement, linear-elastic Euler-Bernoulli frame modal preview about the unloaded configuration, with any nonlinear supports at the stated state of a named solved case, with consistent mass on straight members and lumped rigid-body mass on realized arcs and component bodies; numerical integrity does not establish physical correctness.",
+      "The integrity checks are numerical estimates under stated premises, not mathematical bounds: each mode's residual is evaluated against a double-double re-formation of the stiffness and mass, its eigenvalue error is a first-order estimate, and the Sturm count is relied on only at shifts where the estimated backward error of forming and factoring the shifted matrix is small against both its estimated distance from singularity and the shift's separation from the computed eigenvalues. They do not bound modelling, discretization or input error."
+    ],
+    "profile_id": "product_preview_modal_v1"
+  },
+  "refusals": {
+    "digest": "8c4dbc5c0459913b24d92f094d84c560c08b0debfeea5e89caeda5a2c5f99c82",
+    "row_count": 1,
+    "rows": [
+      {
+        "affected_refs": [
+          "mode_count",
+          "frequency_cutoff"
+        ],
+        "checksum": "79bd7f14dc7a0d0ce5af6a0523af901a5d0ec99778d10a9987acacce66fca6ce",
+        "code": "MODAL_EXTRACTION_BOUND_REQUIRED",
+        "diagnostic_id": "diagnostic:modal:request:extraction-bound",
+        "message": "a modal request names its extraction bound: a mode_count, a frequency_cutoff or both; no bound is defaulted, so nothing is extracted",
+        "ordinal": 0,
+        "row_id": "refusal:0",
+        "severity": "blocking",
+        "source": "modal"
+      }
+    ],
+    "status": "published"
+  },
+  "run": {
+    "mode_id_scope": "run_local",
+    "run_id": "modal-run:e058257cc921cacb",
+    "solver_path": "dense_scrutiny"
+  },
+  "schema_version": "0.1.0",
+  "semantic_contract": {
+    "id": "openpipestress.result_semantics/modal-1",
+    "sha256": "22884200060d6bae480ad922d799131486ac439d77ecd8b03516c310305c8e82"
+  },
+  "status": "refused"
+}

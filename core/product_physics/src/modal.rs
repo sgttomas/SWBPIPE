@@ -22,6 +22,7 @@
 #![allow(dead_code)] // No entry consumes this module until I2b; its tests do.
 
 mod context;
+mod document;
 mod eigen;
 mod integrity;
 mod mass;
@@ -33,6 +34,8 @@ mod stiffness;
 mod weight_basis;
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+mod tests_document;
 #[cfg(test)]
 mod tests_eigen;
 #[cfg(test)]
