@@ -359,18 +359,28 @@ pub fn validate(reader: &str, source: &Value, model: Option<&Value>, invocation:
                     .and_then(|()| crate::preview_combination_operands::model_checks(source, m))
                     // RT-A4 (review r1 P2): the gates and unsigned rows, from the model.
                     .and_then(|()| crate::preview_combination_gates::check(source, Some(m)))
+                    // RT-A3 §4: the certificate's records bound to the model's combinations.
+                    .and_then(|()| crate::combination_certificate::model_checks(source, m))
+                    // RT-A3 §4: the certificate last, after every other check.
+                    .and_then(|()| crate::combination_certificate::check(source))
             })
         })),
         // Current pressure-2 reader, then G2's model checks,
         // which read only the cases, members, connectors and support rows.
-        "pressure" => checked(sc::validate_pressure_evidence(source).and_then(|()| {
+        "pressure" => checked(match model {
+            None => sc::validate_pressure_evidence(source),
+            // RT-A3 §4: with the model, the certificate is read after the model checks.
+            Some(_) => crate::physics_evidence::validate_pressure_evidence_without_certificate(source),
+        }.and_then(|()| {
             // W-16 slice b (§6): the combination records bound to the model's
             // combinations and its operands' modulus selections.
             // RT-A3 increment 4 (R-4 §2.4): the nonlinear supports bound to the
             // model's records and the DEC-067 laws that need their inputs.
             model.map_or(Ok(()), |m| physics_model_checks(source, m).and_then(|()| crate::u4b_evidence::exact_model_checks(source, m))
                 .and_then(|()| crate::exact_combination_evidence::model_checks(source, m))
-                .and_then(|()| crate::nonlinear_support_evidence::model_checks(source, m)))
+                .and_then(|()| crate::nonlinear_support_evidence::model_checks(source, m))
+                .and_then(|()| crate::combination_certificate::model_checks(source, m))
+                .and_then(|()| crate::combination_certificate::check(source)))
         })),
         "pressure-source" => {
             let contract = crate::physics_source::SourceContract::PressureV3;

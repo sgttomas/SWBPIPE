@@ -1703,6 +1703,8 @@ mod preview_combination_gates;
 pub mod section_basis;
 mod preview_physics_evidence;
 mod preview_combination_operands;
+// RT-A3 §4 (DEL-05-02 Work `combination-certificate.md`).
+mod combination_certificate;
 mod nonlinear_support_evidence;
 pub mod physics_source;
 pub mod source_blocks;

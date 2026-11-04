@@ -64,7 +64,7 @@ const INTENSIFIED_UNAVAILABLE: &str = "COMBINATION_INTENSIFIED_STRESS_UNAVAILABL
 const DIAGNOSTIC_PREFIX: &str = "diagnostic:exact-combination:";
 const DIAGNOSTIC_SOURCE: &str = "core/product_physics";
 /// The producer's diagnostic texts (PP `exact_combinations.rs` `append`), re-derived whole.
-const DERIVED_TEXT: &str = "publishes rows derived from case results: they carry no numerical check of their own and never count towards numerical eligibility; each operand's standing and numerical findings are stated in contract_evidence.exact_combinations, and the headlines and stress maxima cover the load cases only";
+const DERIVED_TEXT: &str = "publishes rows derived from case results: they never count towards numerical eligibility, and only the derived row groups that contract_evidence.combination_certificate establishes carry a stated bound; each operand's standing and numerical findings are stated in contract_evidence.exact_combinations, and the headlines and stress maxima cover the load cases only";
 const MAXIMUM_TEXT: &str = "stress maxima and section stress extremes are not combined; combine the signed stress component rows instead";
 const INTENSIFIED_TEXT: &str = "intensified measures are never combined (their ranges and combinations follow the owner's rule in T6)";
 const EXCLUDED_TEXT: &str = "this exact-route document has load combinations, so retained-source recovery is not attempted for any of its cases, primitive cases included; every case publishes ordinary structural recovery";

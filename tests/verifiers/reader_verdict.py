@@ -372,9 +372,17 @@ def validate(reader: str, source: Any, model: Any = None, invocation: Any = None
                 # RT-A4 (review r1 P2): the gates and unsigned rows, re-derived from the model.
                 from . import preview_combination_gates
                 preview_combination_gates.check(source, model)
+                # RT-A3 §4: the certificate's records bound to the model's combinations, then the certificate last.
+                from . import combination_certificate
+                combination_certificate.model_checks(source, model)
+                preview_physics_evidence.certificate_check(source)
             return {"ok": True}
         if reader == "pressure":
-            pressure_2.validate_pressure_evidence(source)
+            if model is None:
+                pressure_2.validate_pressure_evidence(source)
+            else:
+                # RT-A3 §4: with the model, the certificate is read after the model checks.
+                pressure_2.validate_pressure_evidence_without_certificate(source)
             if model is not None:
                 physics_model_checks(source, model)
                 # T4-U4b review item 1: the directional binding (the pressure-2 reader only).
@@ -392,6 +400,10 @@ def validate(reader: str, source: Any, model: Any = None, invocation: Any = None
                 # laws that need their inputs (Rust `nonlinear_support_evidence::model_checks`).
                 from . import nonlinear_support_evidence
                 nonlinear_support_evidence.model_checks(source, model)
+                # RT-A3 §4: the certificate's records bound to the model's combinations, then the certificate last.
+                from . import combination_certificate
+                combination_certificate.model_checks(source, model)
+                pressure_2.certificate_check(source)
             return {"ok": True}
         if reader == "pressure-source":
             eligible = _source_validate(source, invocation)

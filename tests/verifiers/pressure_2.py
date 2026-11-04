@@ -58,7 +58,7 @@ from pathlib import Path
 import struct
 from typing import Any
 
-from . import component_body, exact_combinations, global_end, nonlinear_support_evidence, section_basis as sb, u4b
+from . import combination_certificate, component_body, exact_combinations, global_end, nonlinear_support_evidence, section_basis as sb, u4b
 
 PROJECT = Path(__file__).resolve().parents[2]
 
@@ -70,7 +70,7 @@ TABLE_PATH = PROJECT / "fixtures/results/semantic_contract_v0_3_pressure_2.json"
 # T4-U6 (D-5, §2.4): one stress signature per (recovery token x section basis); T4-U5b adds the tie-rod force and
 # T4-U4b its 22 per-basis signatures: 129 signatures over 66 kinds; W-7 (DEL-04-01) the six global end-action
 # signatures: 135 over 68; RT-A3 increment 1 the two branch intensified signatures: 137 over 69.
-TABLE_SHA256 = "2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645"
+TABLE_SHA256 = "21b7426ec1c50ba5f74539984261554d06b9b6a26ec26f7d5765b5faa7d6bb90"
 TABLE_SIGNATURE_COUNT = 137
 TABLE_KIND_COUNT = 69
 
@@ -199,6 +199,25 @@ def validate_pressure_evidence(source: Mapping[str, Any]) -> None:
     checks directly. W-16 slice b: a document with a load combination takes those
     checks on its view without the combination rows and record, then the
     combination pass (``exact_combinations``) on the whole document."""
+    # RT-A3 §4 (DEL-05-02 Work `combination-certificate.md`): the route's checks read the document without the
+    # certificate first, so their refusals keep precedence; the certificate is then read on the whole document (Rust
+    # `validate_pressure_evidence`).
+    validate_pressure_evidence_without_certificate(source)
+    certificate_check(source)
+
+
+def certificate_check(source: Mapping[str, Any]) -> None:
+    if isinstance(source, Mapping):
+        try:
+            combination_certificate.check(source)
+        except (TypeError, KeyError, AttributeError, OverflowError, IndexError) as error:
+            raise ValueError("SOURCE_COMBINATION_CERTIFICATE_MALFORMED") from error
+
+
+def validate_pressure_evidence_without_certificate(source: Mapping[str, Any]) -> None:
+    """The pass without the certificate (reader_verdict reads the certificate after its model checks)."""
+    if isinstance(source, Mapping):
+        source = combination_certificate.without_member(source)
     if isinstance(source, Mapping) and exact_combinations.present(source):
         _validate_direct_pressure_evidence(exact_combinations.direct_view(source))
         try:

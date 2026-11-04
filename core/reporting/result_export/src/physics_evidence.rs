@@ -397,6 +397,21 @@ fn physical_row(
 /// combination rows and record, then the combination pass on the whole
 /// document (`exact_combination_evidence`).
 pub fn validate_pressure_evidence(source: &Value) -> Check {
+    // RT-A3 §4 (DEL-05-02 Work `combination-certificate.md`): the route's readers read
+    // the document without the certificate, first, so their refusals keep precedence;
+    // the certificate is then read on the whole document.
+    validate_pressure_evidence_without_certificate(source)?;
+    crate::combination_certificate::check(source)
+}
+/// The pressure-2 evidence pass without the certificate (`reader_verdict` reads the
+/// certificate after its model checks).
+pub(crate) fn validate_pressure_evidence_without_certificate(source: &Value) -> Check {
+    match crate::combination_certificate::without_member(source) {
+        Some(view) => validate_pressure_evidence_uncertified(&view),
+        None => validate_pressure_evidence_uncertified(source),
+    }
+}
+fn validate_pressure_evidence_uncertified(source: &Value) -> Check {
     if crate::exact_combination_evidence::present(source) {
         let view = crate::exact_combination_evidence::direct_view(source)?;
         validate_direct_pressure_evidence(&view)?;

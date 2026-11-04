@@ -247,8 +247,9 @@ def _header(source: Mapping[str, Any]) -> None:
     evidence = source.get("contract_evidence")
     # Operating-case slice 1a: `combination_operands` only beside a nonlinear model's admitted combinations. RT-A4
     # section 10.3: `combination_derivation` beside an unsigned or nested combination (`preview_combination_gates`).
+    # RT-A3 §4: `combination_certificate` beside a solved document's combinations (`combination_certificate`).
     _require(isinstance(evidence, Mapping) and {"preview_cases", "combination_gates"} <= set(evidence)
-             <= {"preview_cases", "combination_gates", "combination_operands", "combination_derivation"},
+             <= {"preview_cases", "combination_gates", "combination_operands", "combination_derivation", "combination_certificate"},
              "contract evidence namespace")
     _require(isinstance(evidence["preview_cases"], list) and isinstance(evidence["combination_gates"], list), "contract evidence lists")
     _finite_tree(evidence)
@@ -337,6 +338,18 @@ def validate_preview_physics_evidence(source: Mapping[str, Any], model: Mapping[
             preview_combination_gates.check(source, None)
     except (TypeError, KeyError, AttributeError, OverflowError, IndexError) as error:
         raise ValueError("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: malformed evidence") from error
+    if model is None:
+        # RT-A3 §4 (DEL-05-02 Work `combination-certificate.md`): the certificate last, after every other check; with
+        # the model, reader_verdict reads it after the model checks (Rust `validate_with`).
+        certificate_check(source)
+
+
+def certificate_check(source: Mapping[str, Any]) -> None:
+    from . import combination_certificate
+    try:
+        combination_certificate.check(source)
+    except (TypeError, KeyError, AttributeError, OverflowError, IndexError) as error:
+        raise ValueError("SOURCE_COMBINATION_CERTIFICATE_MALFORMED") from error
 
 
 def _validate(source: Mapping[str, Any]) -> None:
