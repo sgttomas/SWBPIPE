@@ -1,5 +1,14 @@
 import { PressureAuthoringPanel } from "../pressure-authoring/PressureAuthoringPanel";
 import { LoadReferenceStateInputs } from "./LoadReferenceStateInputs";
+import { ConditionUseControl } from "../condition-sets/ConditionUseControl";
+import { isPressureFree } from "../condition-sets/conditionSetIntents";
+import {
+  OPERATING_DIFFERENCE_BASIS,
+  OPERATING_DIFFERENCE_EXACT_REFUSAL,
+  OPERATING_DIFFERENCE_SOLVE_NOTE,
+  OPERATING_DIFFERENCE_TEMPLATE_LABEL,
+  combinationDeclaredMembersText
+} from "./operatingDifferenceTemplate";
 import {
   defaultPrimitiveLoadDirection,
   optionalString,
@@ -92,6 +101,9 @@ type CombinationDraft = {
   mode: string;
   provenance: string;
   rationale: string;
+  /** The "Operating minus sustained difference" template (model document 0.9.0 §2.2): writes
+   * `difference_basis` on a result-state subtraction, only when the person chooses it. */
+  operatingDifference: boolean;
 };
 
 type UnitOption = {
@@ -492,6 +504,11 @@ export function LoadCaseManagerPanel({
     });
   }
 
+  /** Choosing the template clears both cases, so the person chooses which is which. */
+  function updateCombinationDraftTemplate(operatingDifference: boolean) {
+    setCombinationDraft((draft) => ({ ...draft, operatingDifference, ...(operatingDifference ? { minuendId: "", subtrahendId: "" } : {}) }));
+  }
+
   function updateCombinationDraftOperands(operandIds: string[]) {
     setCombinationDraft((draft) => ({ ...draft, operandIds }));
   }
@@ -534,6 +551,7 @@ export function LoadCaseManagerPanel({
 
       <PressureAuthoringPanel model={model} selection={selection} queuedIntents={queuedIntents} operationBusy={operationBusy} preparationEpoch={preparationEpoch} getPreparationEpoch={getPreparationEpoch} onQueueIntent={onQueueIntent} loadCaseId={selectedLoadCase?.id} />
       <LoadReferenceStateInputs model={model} selection={selection} queuedIntents={queuedIntents} operationBusy={operationBusy} preparationEpoch={preparationEpoch} getPreparationEpoch={getPreparationEpoch} onQueueIntent={onQueueIntent} loadCase={selectedLoadCase} />
+      <ConditionUseControl key={selectedLoadCase?.id ?? "no-case"} model={model} queuedIntents={queuedIntents} operationBusy={operationBusy} preparationEpoch={preparationEpoch} getPreparationEpoch={getPreparationEpoch} onQueueIntent={onQueueIntent} loadCase={selectedLoadCase} />
       <section className="load-case-create-editor" aria-label="Create load case">
         <div className="load-editor-heading" data-testid="load-manager-create-load-case-heading">
           <ListPlus size={14} aria-hidden="true" />
@@ -564,9 +582,13 @@ export function LoadCaseManagerPanel({
             <input
               aria-label="New load case kind"
               data-testid="load-manager-create-load-kind"
+              list="load-manager-kind-suggestions"
               onChange={(event) => updateLoadCaseDraft("kind", event.target.value)}
               value={loadCaseDraft.kind}
             />
+            <datalist id="load-manager-kind-suggestions" data-testid="load-manager-kind-suggestions">
+              {loadMetadataOptions(model, "kind", "").filter((value) => value !== "TBD").map((value) => <option key={value} value={value} />)}
+            </datalist>
           </label>
           <label>
             <span>Status</span>
@@ -762,8 +784,32 @@ export function LoadCaseManagerPanel({
           </label>
           {combinationDraft.basis === "result_state_subtraction" ? (
             <>
-              <VirtualTargetPicker label="Subtraction minuend load case" testId="load-manager-create-combination-minuend" options={loadCaseOptions} value={combinationDraft.minuendId} onChange={(value) => updateCombinationDraft("minuendId", value)} />
-              <VirtualTargetPicker label="Subtraction subtrahend load case" testId="load-manager-create-combination-subtrahend" options={loadCaseOptions} value={combinationDraft.subtrahendId} onChange={(value) => updateCombinationDraft("subtrahendId", value)} />
+              <fieldset className="combination-template" data-testid="load-manager-operating-difference">
+                <legend>Template</legend>
+                <label>
+                  <input
+                    type="checkbox"
+                    aria-label={OPERATING_DIFFERENCE_TEMPLATE_LABEL}
+                    data-testid="load-manager-operating-difference-toggle"
+                    checked={combinationDraft.operatingDifference}
+                    disabled={!isPressureFree(model)}
+                    aria-describedby={!isPressureFree(model) ? "load-manager-operating-difference-refused" : undefined}
+                    onChange={(event) => updateCombinationDraftTemplate(event.target.checked)}
+                  />
+                  {OPERATING_DIFFERENCE_TEMPLATE_LABEL} (difference_basis {OPERATING_DIFFERENCE_BASIS})
+                </label>
+                {!isPressureFree(model) ? (
+                  <p role="note" id="load-manager-operating-difference-refused" data-testid="load-manager-operating-difference-refused">
+                    <strong>Refused: {OPERATING_DIFFERENCE_EXACT_REFUSAL.code}</strong> — {OPERATING_DIFFERENCE_EXACT_REFUSAL.text}
+                  </p>
+                ) : combinationDraft.operatingDifference ? (
+                  <p className="muted" data-testid="load-manager-operating-difference-note">
+                    Choose the operating case as the minuend and the sustained case as the subtrahend; neither is chosen for you. {OPERATING_DIFFERENCE_SOLVE_NOTE}
+                  </p>
+                ) : null}
+              </fieldset>
+              <VirtualTargetPicker label={combinationDraft.operatingDifference ? "Operating case (minuend)" : "Subtraction minuend load case"} testId="load-manager-create-combination-minuend" options={loadCaseOptions} value={combinationDraft.minuendId} onChange={(value) => updateCombinationDraft("minuendId", value)} />
+              <VirtualTargetPicker label={combinationDraft.operatingDifference ? "Sustained case (subtrahend)" : "Subtraction subtrahend load case"} testId="load-manager-create-combination-subtrahend" options={loadCaseOptions} value={combinationDraft.subtrahendId} onChange={(value) => updateCombinationDraft("subtrahendId", value)} />
             </>
           ) : combinationDraft.basis === "range_envelope" ? (
             <>
@@ -1086,7 +1132,7 @@ export function LoadCaseManagerPanel({
                 >
                   <strong>{combination.label}</strong>
                   <small>
-                    {combination.id}; basis={combination.basis}; {combinationRowExpression(combination)}
+                    {combination.id}; basis={combination.basis}; {combinationRowExpression(combination)}{combinationDeclaredMembersText(combination)}
                   </small>
                 </button>
                 {terms.length ? (
@@ -1366,7 +1412,12 @@ function loadMetadataOptions(model: PreviewModel, field: LoadMetadataField, curr
   if (currentValue.trim()) values.add(currentValue.trim());
   values.add("TBD");
   if (field === "status") values.add("preview_only");
-  if (field === "kind") values.add("primitive_user_load");
+  if (field === "kind") {
+    values.add("primitive_user_load");
+    // Model document 0.9.0 §2.3: a suggestion only; `kind` stays a free string the solver
+    // ignores, and `operating` implies no composition or other meaning.
+    values.add("operating");
+  }
   return Array.from(values).sort((left, right) => {
     if (left === currentValue) return -1;
     if (right === currentValue) return 1;
@@ -1426,7 +1477,8 @@ function defaultCombinationDraft(model: PreviewModel, id: string): CombinationDr
     operandIds: model.load_cases[0] ? [model.load_cases[0].id] : [],
     mode: "max_abs",
     provenance: "user_entered_local_preview",
-    rationale: "user_entered_combination_create_preview_change"
+    rationale: "user_entered_combination_create_preview_change",
+    operatingDifference: false
   };
 }
 
@@ -1615,7 +1667,9 @@ function combinationCreatePayload(draft: CombinationDraft): Record<string, unkno
       ...common,
       minuend_id: draft.minuendId,
       subtrahend_id: draft.subtrahendId,
-      terms: []
+      terms: [],
+      // Written only when the person chose the template; never subtrahend_support_state.
+      ...(draft.operatingDifference ? { difference_basis: OPERATING_DIFFERENCE_BASIS } : {})
     };
   }
   if (draft.basis === "range_envelope") {
@@ -2454,7 +2508,7 @@ function combinationDraftSummary(draft: CombinationDraft): string {
 
 function combinationDraftExpression(draft: CombinationDraft): string {
   if (draft.basis === "result_state_subtraction") {
-    return `minuend=${draft.minuendId || "TBD"}; subtrahend=${draft.subtrahendId || "TBD"}`;
+    return `minuend=${draft.minuendId || "TBD"}; subtrahend=${draft.subtrahendId || "TBD"}${draft.operatingDifference ? `; difference_basis=${OPERATING_DIFFERENCE_BASIS}` : ""}`;
   }
   if (draft.basis === "range_envelope") {
     return `mode=${draft.mode}; operands=${draft.operandIds.length ? draft.operandIds.join(", ") : "TBD"}`;

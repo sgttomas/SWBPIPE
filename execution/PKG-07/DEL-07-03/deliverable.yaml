@@ -278,6 +278,8 @@ code_paths:
 - apps/desktop/src/services/selfWeightPlanService.ts
 - apps/desktop/src-tauri/src/lib.rs
 - core/gui/editors/**
+- apps/desktop/src/features/condition-sets/ConditionUseControl.tsx
+- apps/desktop/src/services/operatingConditionPreviewService.ts
 checks:
 - apps/desktop/src/features/rule-packs/RulePackManagerPanel.test.tsx
 - apps/desktop/src/features/rule-packs/CheckDefinitionsEditor.test.tsx
@@ -294,3 +296,5 @@ checks:
 - apps/desktop/e2e/load-state-inputs.spec.ts
 - apps/desktop/e2e/r2-smoke.spec.ts
 - tests/test_gui_editors_contract.py
+- apps/desktop/src/features/condition-sets/conditionSets.engine.test.tsx
+- apps/desktop/src/features/condition-sets/conditionSetSurfaces.engine.test.tsx

@@ -48,7 +48,8 @@ a run with no current node is refused (§4).
 
 Every column maps to a member the model already has (`src/types.ts:376-548`;
 `core/model_operations/operation_applier/src/lib.rs:3926-4201`,
-`rich_authoring.rs:85-137`). No column adds one.
+`rich_authoring.rs:85-137`). No column adds one; the Condition set column writes
+model document 0.9.0's `pipe_segments[].condition_set_ref`.
 
 | Column | Meaning | Model member written |
 |---|---|---|
@@ -61,6 +62,7 @@ Every column maps to a member the model already has (`src/types.ts:376-548`;
 | Section | A shared section id | `pipe_segments[].section_ref` (by `assign_section`) |
 | OD, Wall | Inline outside diameter and wall, used when Section is blank; read-only copies of the section's values when it is set | `section.outside_diameter`, `section.wall_thickness` |
 | Material | An existing material id | `pipe_segments[].material` |
+| Condition set | An existing condition set id, or `-` for none (model document 0.9.0) | `pipe_segments[].condition_set_ref` (by `assign_condition_set`) |
 | Orientation | The pipe's `y_reference`, three numbers | `pipe_segments[].y_reference` |
 | Ins. thk, Ins. dens. | Insulation thickness and density | `section.insulation_thickness`, `section.insulation_density` |
 | Contents dens. | Contents density | `section.contents_density` |
@@ -72,13 +74,16 @@ Every column maps to a member the model already has (`src/types.ts:376-548`;
 | Component details (collapsible group) | The valve/flange creation form's explicit inputs, with independent units and the COG convention (§9); no component value inherits | existing component geometry, modifiers, consumption, identity and provenance members |
 | Position, Length | Read-only readouts of the resulting end point and pipe length | none |
 
-**Operating condition.** The model has no per-element operating condition:
-temperatures and pressures belong to load cases (thermal primitive loads,
-pressure regions). The sheet has no operating-condition column and emits no
-load operations. Survey item C1 (operating-condition sets, with its own
-model-document version step) adds a "Condition set" column that inherits like
-Material (§2.1). New pipes join no load case and no pressure region; the
-existing missing-data findings show that.
+**Operating condition.** Model document 0.9.0 (C1; DEL-02-01 Work
+`model-document-0.9.0.md` §1.2, §4.1) gives each pipe an optional reference to
+one operating-condition set. The "Condition set" column names an existing set
+id, chosen from the model's sets; the sheet creates no set and suggests none.
+It inherits like Material (§2.1, §2.3), and `-` means absent and ends
+inheritance (§2.4). It is emitted as one `assign_condition_set` per run row
+whose effective value is present (§3.3). A pipe without a set is valid; a case
+that uses conditions refuses it by name at solve, and the load manager shows
+that. The sheet emits no load operations: new pipes join no load case and no
+pressure region, and the existing missing-data findings show that.
 
 **Quantity units.** Section quantities are stored as entered `{value, unit}`
 pairs; the sheet never converts them. Each quantity column has one column
@@ -114,7 +119,7 @@ such as Open State of one of its saved states, folds the ledger instead
 
 | Inherits | Never inherits |
 |---|---|
-| Section, OD, Wall, Material, Orientation, Ins. thk, Ins. dens., Contents dens., the section extras, Bend R | dX, dY, dZ, Kind, Support, Restraints, Node, k, k source, Label, Node id, Pipe id, the Ids and sources cells |
+| Section, OD, Wall, Material, Condition set, Orientation, Ins. thk, Ins. dens., Contents dens., the section extras, Bend R | dX, dY, dZ, Kind, Support, Restraints, Node, k, k source, Label, Node id, Pipe id, the Ids and sources cells |
 
 - A blank increment means zero on that axis. It is shown as a muted `0`. It
   is not inheritance.
@@ -145,7 +150,9 @@ values. Its blank inheriting cells resolve as follows:
    pipe has the same stored value for a field, that value is inherited, shown
    as "from ⟨pipe id⟩". If they differ, or none meets the node, the field is
    blank and the next run row must enter it. A shared section inherits as the
-   Section id when all meeting pipes have the same `section_ref`.
+   Section id when all meeting pipes have the same `section_ref`. A condition
+   set inherits only when every meeting pipe carries the same set; otherwise
+   (sets differ, or none carries one) the cell is blank.
 3. `P`: nothing; every required field must be entered.
 
 ### 2.4 Ending or continuing inheritance
@@ -154,8 +161,9 @@ values. Its blank inheriting cells resolve as follows:
   chain until another entered value.
 - An entered value equal to the inherited one is still an entered value.
 - Clearing an entered cell (Delete or Backspace) returns it to inheritance.
-- An optional member (insulation, contents density, the section extras) is
-  ended by entering `-`, which means "absent". Absence then inherits.
+- An optional member (insulation, contents density, the section extras, the
+  condition set) is ended by entering `-`, which means "absent". Absence then
+  inherits.
 - Entering a Section blanks the inline OD and Wall, which show the section's
   values read-only. Entering OD or Wall on a row with an inherited Section
   clears the Section for that row and onward; the cell says so.
@@ -286,8 +294,8 @@ Rows are emitted in sheet order. Coordinates are in the stored unit (§6.2).
 
 | Row | Operations, in order |
 |---|---|
-| Run to a new node | `create_node`(end); `connect_pipe_run`(current → end); `assign_section` if Section is set; `create_support`(end) if a support code is set |
-| Run to an existing node (Node cell) | `connect_pipe_run`(current → Node); `assign_section`; `create_support` |
+| Run to a new node | `create_node`(end); `connect_pipe_run`(current → end); `assign_section` if Section is set; `assign_condition_set` if the effective Condition set is present; `create_support`(end) if a support code is set |
+| Run to an existing node (Node cell) | `connect_pipe_run`(current → Node); `assign_section`; `assign_condition_set`; `create_support` |
 | Bend run | as Run. Its `insert_bend_at_corner` is appended after the **next** run row's operations |
 | `S` | `create_support`(current node) |
 | `F` | `create_support`(Node) if a support code is set; otherwise nothing |
@@ -310,6 +318,12 @@ Payloads:
     stored it.
   - `after` is `{"section_ref": id}`. It rewrites OD and wall from the section
     (`section_bindings.rs:142-184`), with values identical to those copied.
+- **`assign_condition_set`** (model document 0.9.0 §4.1, §11): `target`
+  (`Element`, pipe), `field_path` `condition_set_ref`, `unit` `none`,
+  `dimension` `dimensionless`; `before` `not_present`, since
+  `connect_pipe_run` never carries `condition_set_ref` (S1 refuses it in its
+  payload); `after` `{"condition_set_ref": id}`. Emitted only when the
+  effective value is present; a blank or `-` cell emits nothing.
 - **`create_support`**: `after` `{id, label, node, restraints, family,
   provenance}`, `unit` `none`, `dimension` `dimensionless`
   (`lib.rs:4971-5262`).
@@ -354,6 +368,8 @@ verbatim payloads only. Its effects, and nothing else, are:
   normalized as the applier stores them (§3.3);
 - `assign_section` adds `section_ref` and copies the section's OD and wall
   objects verbatim;
+- `assign_condition_set` adds `condition_set_ref`, since a later bend's
+  `before` context holds full pipe records;
 - `insert_bend_at_corner` removes the corner from `nodes` and replaces the
   corner id with the T1 or T2 id in the two straights' ends.
 
@@ -383,6 +399,9 @@ its own context and refuses a mismatch (`OP-BEFORE-VALUE-MISMATCH`,
 - a next row that is a run in the same chain;
 - the same Section, OD, Wall and Material on both rows. The applier requires
   one section and material (`bend_authoring.rs:523-526`);
+- the same effective Condition set on both rows, or none on both (a blank and
+  a `-` cell are both none). The applier gives the arc the straights' set and
+  refuses a mismatch (`OP-BEND-CONDITION-SET-MISMATCH`);
 - no support code on the bend row, and no `F` row naming its corner. Nothing
   may refer to the corner or either pipe (`bend_authoring.rs:605-639`), and the
   corner must join exactly two pipes;
@@ -1054,11 +1073,12 @@ uses a modifier. No clash exists.
 
 Every value the sheet writes lands in an existing member through an existing
 operation (§1.2, §3.3). The sheet's rows, codes, inheritance, numbering and
-follow state are transient and never written. The model document stays 0.8.0
-(`execution/PKG-02/DEL-02-01/Work/model-document-0.8.0.md` §1), with no
-version step. Two later features would need a member, and are not part of B1:
-- an operating-condition column (C1, which brings its own version step);
-- reopening a saved sheet as a sheet (open choice O8).
+follow state are transient and never written. The sheet adds no member of its
+own and takes no version step. Its Condition set column writes model document
+0.9.0's `pipe_segments[].condition_set_ref`, the member C1's version step added
+(`execution/PKG-02/DEL-02-01/Work/model-document-0.9.0.md` §1.2, §4.1), through
+`assign_condition_set`. Reopening a saved sheet as a sheet (open choice O8)
+would need a member and is not part of B1.
 
 ### 6.2 The arithmetic
 

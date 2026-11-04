@@ -21,7 +21,7 @@ import {
 import { COMPONENT_FIELDS, componentColumn, componentField, componentCellsFromRecord, type ComponentColumnKey } from "./runSheetComponents";
 
 export type SheetColumnKey = ComponentColumnKey
-  | "dx" | "dy" | "dz" | "kind" | "support" | "restraints" | "node" | "section" | "od" | "wall" | "material" | "orientation"
+  | "dx" | "dy" | "dz" | "kind" | "support" | "restraints" | "node" | "section" | "od" | "wall" | "material" | "conditionSet" | "orientation"
   | "insulationThickness" | "insulationDensity" | "contentsDensity" | "materialDensity" | "millTolerance" | "corrosionAllowance"
   | "bendRadius" | "k" | "kSource" | "label" | "nodeId" | "pipeId"
   | "supportId" | "supportLabel" | "bendStartId" | "bendEndId" | "bendArcId" | "bendComponentId" | "bendSource"
@@ -49,6 +49,7 @@ export const SHEET_COLUMNS: readonly SheetColumn[] = [
   { key: "od", label: "OD", editable: true, quantity: "od" },
   { key: "wall", label: "Wall", editable: true, quantity: "wall" },
   { key: "material", label: "Material", editable: true },
+  { key: "conditionSet", label: "Condition set", editable: true },
   { key: "orientation", label: "Orientation", editable: true },
   { key: "insulationThickness", label: "Ins. thk", editable: true, quantity: "insulationThickness" },
   { key: "insulationDensity", label: "Ins. dens.", editable: true, quantity: "insulationDensity" },
@@ -422,7 +423,7 @@ export function originText(origin: CellOrigin | undefined, absent?: boolean): st
 }
 const FINDING_COLUMNS: Readonly<Record<string, readonly SheetColumnKey[]>> = {
   "dX, dY, dZ": ["dx", "dy", "dz"], Kind: ["kind"], Support: ["support"], Restraints: ["restraints"], Node: ["node"], Section: ["section"],
-  Material: ["material"], Orientation: ["orientation"], Ids: ["nodeId", "pipeId"], k: ["k", "kSource"],
+  Material: ["material"], "Condition set": ["conditionSet"], Orientation: ["orientation"], Ids: ["nodeId", "pipeId"], k: ["k", "kSource"],
   ...Object.fromEntries(COMPONENT_FIELDS.map((field) => [field.label, [componentColumn(field.key)]])),
   "Support id": ["supportId"], "Support label": ["supportLabel"], "Bend geometry source": ["bendSource"],
   ...Object.fromEntries(BEND_COLUMNS.map(([key, cell]) => [cell.label, [key]])),
@@ -512,6 +513,11 @@ export function cellView(view: SheetView, row: ViewRow, column: SheetColumn, col
     }
     case "length":
       return { ...base, text: resolvedRow.length === null ? "" : fmt(resolvedRow.length), unit: resolvedRow.length === null ? "" : view.resolved.storedLengthUnit, italic: true, origin: "derived: the pipe's length" };
+    case "conditionSet": {
+      const cell = resolvedRow.cells.conditionSet;
+      if (cell.absent) return { ...base, text: "—", muted: cell.origin.kind !== "entered", origin: originText(cell.origin, true) };
+      return { ...base, text: cell.value ?? "", muted: cell.value !== undefined && cell.origin.kind !== "entered", origin: originText(cell.origin) };
+    }
     case "section": case "material": {
       const cell = resolvedRow.cells[column.key];
       return { ...base, text: cell.value ?? "", muted: cell.value !== undefined && cell.origin.kind !== "entered", italic: cell.origin.kind === "derived", origin: originText(cell.origin) };
@@ -634,6 +640,7 @@ export function effectiveText(row: ResolvedRunSheetRow, column: SheetColumnKey, 
   if (field && row.component) return row.component[field];
   if (!(INHERITING_CELLS as readonly string[]).includes(column)) return typed;
   if (column === "section" || column === "material") return row.cells[column].value ?? "";
+  if (column === "conditionSet") return row.cells.conditionSet.absent ? "-" : row.cells.conditionSet.value ?? "";
   if (column === "orientation") {
     const value = row.cells.orientation.value;
     return value ? `${value.x} ${value.y} ${value.z}` : "";
