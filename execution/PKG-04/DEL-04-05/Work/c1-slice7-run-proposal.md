@@ -23,6 +23,10 @@ interval is authorized.** Exact selected identities and all raw packets remain p
 A sixth, the A-only attempt of 2026-11-04 (`app-c1-main-907e633e2`), has since run once
 and is also consumed; its result, diagnosis and repair are in the next section.
 
+The A+B candidate `app-c1-main-4427c3ec0` is built and bound offline; its one-attempt proposal
+(not run, nothing granted) is "Bounded ONE 500-node attempt proposal (A+B candidate, 4427c3ec0)"
+below.
+
 ## A-only 500-node attempt: result, diagnosis and repair (2026-11-04)
 
 Agent 0 approved one 500-node A-only attempt of `app-c1-main-907e633e2`, run from clean
@@ -618,16 +622,19 @@ after F1.
 of `recorded_tables.rs` differs from merged main; all 45 routing digests and the 94-file desktop
 scan match), the inc4 and PF1b native mirrors in exact agreement with TS and Python, and the
 corpora changes as stated (653/658 outcomes unchanged; the other five change only the current
-binding digest). One non-blocking finding is accepted as a recorded limitation, not repaired:
+binding digest). One non-blocking finding is disclosed as a harness observation, not repaired.
+It is not an accepted product or release limitation:
 
-- **N1, Results activation overrun.** `perf-driver.js:154` awaits the `view.section.results`
-  menu call before its bounded visibility wait, so activation can end up to one menu round trip
-  and one 50 ms poll after the gate's absolute deadline (the review's simulated case: run begun
-  at 299,950 ms, Results at 300,040 ms, paint at 300,045 ms, wait returned at 300,050 ms). The
-  outcome is still `timeout`: the gate is judged on the first_paint mark's own `at_ms` against the
-  unrounded deadline, in the driver and in the classifier, so the overrun **cannot admit a late
-  paint**. It only delays reporting the timeout by that amount, inside the run's 900 s window.
-  It is left as is to keep the harness bytes of this candidate stable; carrying the absolute
+- **N1, a disclosed harness observation (Results activation latency).** `perf-driver.js:154–155`
+  awaits the `view.section.results` menu call before its bounded visibility wait, so activation
+  can end up to one menu round trip and one 50 ms poll after the gate's absolute deadline (the
+  review's simulated case: run begun at 299,950 ms, Results at 300,040 ms, paint at 300,045 ms,
+  wait returned at 300,050 ms). The outcome is still `timeout`: the gate is judged on the
+  first_paint mark's own `at_ms` against the unrounded deadline, in the driver and in the
+  classifier, so the overrun **cannot admit a late paint**. It does not change the deadline and
+  grants no permission for a late pass; it only delays reporting the timeout by that amount. The
+  global 900 s including teardown stays the hard intended budget. It is left as is to keep the
+  harness bytes of this candidate stable; carrying the absolute
   deadline through the menu await is a possible later harness change.
 
 ### Repair made (native, src-tauri only; offline): candidates 1 and 2 of (a)
@@ -694,6 +701,316 @@ second profile reading of the rows is gone. The canonical streams are unchanged:
   Independent review read these descriptions but did not re-run them, and neither did the manager.
 - The release interleaving releases an actual held C2 full copy, on a natively held result (review finding 1).
 - The replay corpus's 5 previews after a `pressure` pass reply as committed.
+
+## Bounded ONE 500-node attempt proposal (A+B candidate, 4427c3ec0) (2026-11-04; offline, not run)
+
+This proposes **one** 500-node attempt of the A+B candidate, for Agent 0's readiness decision
+and the owner's approval. It grants nothing. No App, worker, solver, sampler, harness or
+`t3_exclusive.sh` was launched, and no timing or RSS was taken. The A-only attempt's grant
+is consumed and is not reused. Hosted CI on the exact head is still required before readiness.
+
+**Identities.** Each is bound by full SHA-256 in the preparation record and re-verified by the
+pre-launch check. Every count below was derived from this build (cargo dep-info, the published
+engines, `dist/`, the built sources and the kit's directories), not carried from earlier
+records.
+
+| Item | Identity |
+| --- | --- |
+| Candidate basis | main `b32a17761387b3305b855b5bfc99ead17808a60d` (PF1b #107, §8.51; #109), which contains main `573051799` (repair B #106 with #105, §8.50; RT-A3 increment 4, §8.49) and repair A (#102, `800fae7e5`). **Repair B is included**: its head `2b21c367c295ee883bf0dc3694e3036cab1edd9f` is an ancestor. Also contained, each checked as an ancestor: the native record-build repair `13d868182`, the paint gate `2c82b6d6a`, the harness change `9bee2a7f1`, F1–F3 (`8c065d8c2`, `d239039dd`, `6d138d169`), the inc4 mirror `076d2d437`, the PF1b mirror `38cb017cc`, and the reviewed range's end `5a9b5bf44`. Nothing is required to be absent. |
+| Build source (clean) | `4427c3ec09e2b5df200068e77af4e28bca2c52cc`. The independent integration review covers `e1079a816..5a9b5bf44`; since `5a9b5bf44` only this `.md` file changed, and the build reads no `.md` file. |
+| App directory (new) | `/Users/ryan/dev/chirality-t3/scratch/rt-perf-c1-slice7/app-c1-main-4427c3ec0` |
+| App / same-executable worker | `openpipestress-desktop`, 53,318,384 B, SHA-256 `82e4b961e20287ee29be996d110aa1a3bf065ea93279cebc619b2350555d19a4` (built 2026-11-04T18:09:59.008Z; equal to the cargo binary) |
+| `perf-binding.json` | SHA-256 `7d03b71b04d89d7606830e12a195712239ecb584e61c5556112792e8b5069352` (`source_dirty:false`) |
+| Profile | `cargo build --release --locked --offline`, features `native-smoke,tauri/custom-protocol`, the smoke's `TAURI_CONFIG` (window 1440×920, `backgroundThrottling` disabled) |
+| Engine stamps | operation-applier `sha256:4eaf57e5ac2667d359488db5af921dd2b363f8caf2436d8b6705ca641ae77461` (350 inputs); self-weight `sha256:fa339a50323c397937f47426cc9479f41728db83045332a87736de3e6f357c9a` (327 inputs); MBF `sha256:83ec9a7f0eb50f69db89f8fbef8a30b90a432d01993e4fc65c6724f7377aec46` (28 inputs, unchanged). Every file of the three published engines (15) is in the record. |
+| Frontend `dist_digest` | `sha256:f909de99300956b73a80658172e6fbe68ad616dfeb05b645895d864ac868d426` (recomputed from `dist/` after the build: equal) |
+| Harness | `perf.mjs` `0f5d4c82301acc1fd11dcd668e114deeec2ec05135eb5fe7350ada0bff217249`; `perf-driver.js` `099c417198acc37e9da9eaef5efa8147a552403f9bb8d363b68f1bc74b0f9bbb`; `perf-sampler.py` `846f5493cc9cc309140cced0b6ff40ec9b92468db10a4f63e85fe654f9e03d3b` (unchanged); `perf-plan-c1.json` `25e8a62b828c6251ac36836d11f8b5448fc3138dbd4903e99ef453a732966435` (unchanged) |
+| Rack generator | `core/solver/performance_harness/rack/rack_model.py` `1d8155885f2fa60f481943e989268bef77bc2543860a27291fb9c46685ef314c` (unchanged) |
+| Model | `linear-ex-n0500.json`, 1,828,475 B, 500 nodes / 499 pipe segments, raw `42567114a27415b7b042bb9a91d49c8dc640d534953616e5b7efb66b2a2025eb` (unchanged, re-hashed), JCS `0d45797d8aacada487ef418ce0a776239f6fd9801ed315c1a0f6e1ca2e25466c` (carried; raw bytes equal); the plan's model digest equal |
+| Python | `/usr/bin/python3` → Xcode 3.9.6, real executable `b971331ab9beb1dac075006955f035a97332eca21187c4de615ae58346713e2f`, under `RT_C1_PATH` |
+| git | `/usr/bin/git` → `/Applications/Xcode.app/Contents/Developer/usr/bin/git`, `git version 2.54.0 (Apple Git-157)`, SHA-256 `acf0f202ebd6ecf78a731d900673b8a5f923f3b3c2783da599f1762ad4862dc0` (the shim `b8763cf2…`) |
+| node | `/Users/ryan/.local/share/mise/installs/node/24/bin/node` → 24.18.0, SHA-256 `ee6fb0e015284d83a91e8ec5213f43a157f8a392b58555301682892ba928c04a` |
+| Preparation record | `scratch/rt-perf-c1-slice7/c1-main-4427c3ec0-preparation.json` `41c8478046c2d713e3ef137fbd3e3200bbacb3c9f8c184b9d980cdbecc372310`, written by `scratch/rt-perf-mgr/prep-c1-4427c3ec0.mjs` `258dce3a39e26e6dc575c78f8fae976e7fbcd65812eeac37fceb25172d99d87b` |
+| Environment record and check | `scratch/rt-perf-c1-slice7/c1-main-4427c3ec0-environment.json` `da6e0ed71dfb30a52fab2813bb135e77e372c2af748342f159a364328fe43937`; `scratch/rt-perf-mgr/env-check-c1-4427c3ec0.py` `513f8756d6a5e34a46988c308db11e96160449e6a6c7efa912c855779c8b4409` |
+| Pre-launch check | `scratch/rt-perf-mgr/launch-check-c1-4427c3ec0.mjs` `556c9812cdeac14f0af72093859caca11dfed96425f55edd9d73f10ace802780` |
+| Build logs | release `c1-main-4427c3ec0-release-build.log` `7ca97b82a5b63aab4ce571b7769ecc7971a31749aefcf5e004a9c9a706ce3658` (44 `warning` lines, 0 errors); Wasm `c1-main-4427c3ec0-wasm-build.log` `f9a4eda94452c8c0a1e7f0bab1b77acd7cf48f5157df5404b39c2637e9d59629` |
+| Proposed output | `scratch/rt-perf-c1-slice7/evidence/n0500-c1-ab1` (absent); launch record `evidence/a500-c1-ab1-launch-check.json` (absent); neither name is in the slot log |
+
+**Build as run** (2026-11-04, from this worktree exactly clean at `4427c3ec0`, the destination,
+logs and records checked absent first; memguard running, no `exclusive.pending` at start):
+
+```sh
+cd /Users/ryan/dev/chirality-t3/swbpipe-rt-perf-c1
+RT_C1_KIT=/Users/ryan/dev/chirality-t3/scratch/rt-perf-c1-slice7
+RT_C1_TARGET=/Users/ryan/dev/chirality-t3/targets/rt-perf-c1
+env CARGO_TARGET_DIR="$RT_C1_TARGET" /Users/ryan/dev/chirality-t3/tools/t3_slot.sh npm run build:wasm:desktop > "$RT_C1_KIT/c1-main-4427c3ec0-wasm-build.log" 2>&1
+env CARGO_TARGET_DIR="$RT_C1_TARGET" /Users/ryan/dev/chirality-t3/tools/t3_slot.sh node apps/desktop/native-smoke/perf.mjs --build --app-dir "$RT_C1_KIT/app-c1-main-4427c3ec0" --target-dir "$RT_C1_TARGET" > "$RT_C1_KIT/c1-main-4427c3ec0-release-build.log" 2>&1
+```
+
+Both exited 0: the engine job 18:06:56–18:08:45Z in slot 4, the App job 18:08:54–18:09:59Z in
+slot 3. `build:wasm:desktop` rebuilt the operation-applier and self-weight engines. On each, its
+first build found compile reads it did not know before (the four new recorded-table fixtures),
+so the maintained script built again and stamped the second build. MBF was current. That script
+builds engines under `apps/desktop/target/wasm-engines` by design, not in `CARGO_TARGET_DIR`.
+`perf.mjs --build` does no bundling, signing, notarization, keychain access or upload, and none
+was done. The worktree stayed clean. No source changed.
+
+**Runtime equivalence, from the dep-info** (`targets/rt-perf-c1/release/openpipestress-desktop.d`,
+`5e2f671f…46e8`):
+- The build read **369** repository files: 340 tracked sources and fixtures and the 29 `dist/`
+  files the binary embeds. It also lists 30 generated files under `targets/` and one absent path
+  (`src-tauri/capabilities`). The record binds all 369 by SHA-256. No `.md` file is among them,
+  and no build read is untracked outside `dist/`.
+- Against the A-only candidate (`907e633e2`, 362 reads): 35 tracked reads changed, 7 were added
+  and none removed. The added reads are `difference_basis.rs`, `nonlinear_support_evidence.rs`,
+  `preview_difference_basis.rs` and the four new registry fixtures. The changed reads are the
+  six desktop files (`analysis_run_v03_build.rs`, `analysis_run_v03_validate.rs`,
+  `native_persistence.rs`, `native_verdict.rs`, `result_summary_tables.rs`, `solve_jobs.rs`),
+  the producer and reader files of inc4, B and PF1b, `modal_eigen/src/dense.rs` (#109),
+  `exact_report_statements.json`, the results schema and five current tables. Each is named in
+  the record.
+- No replay, reopen or parity corpus name occurs in the bundled JavaScript.
+
+**Contents as built** (parsed from the built sources; each file is in the dep-info with these bytes):
+- `recorded_tables::VARIANTS`: **9** members, each fixture's SHA-256 equal to its member:
+  - preview-physics-2 `1ccc9561…`, Timoshenko `a7b83c37…`, preview retained `b001070e…` (base 0);
+  - physics retained `cf29fd5f…`, `045f6f0d…` and `040ef9a6…` (binding only,
+    `reads_under_variant: false`);
+  - PF1b's three, from `recorded_pre_rt_a5_1b/`: preview-physics-2 `e7b93f41…`, Timoshenko
+    `ce49ebe0…` and preview retained `26dce9c2…` (base 6).
+- `RECORDED_RUN_TABLE_BASES`: **7** pressure-2 rows (`3e2aac3c…`, `5451fbf3…`, `d46e1963…`,
+  `032e861f…`, `a2db16a5…`, `be29fabc…`, `10455bf3…`), each read as current `2c20583d…`. The
+  TypeScript and Python twins are equal row for row.
+- Current tables (**6**; constant = file SHA-256): pressure-2 `2c20583d…`, pressure-source
+  `84f37c63…`, preview-physics-2 `f41b9d3e…`, Timoshenko `6f649490…`, preview retained
+  `b4377e73…`, physics retained `85c2678a…`.
+
+**Delta from the A-only candidate** (source facts; no cost is attributed and none is predicted):
+- **Repair B (#106).** The reader dispatch reads the pressure-2 evidence once on the pressure
+  route (one evidence pass per dispatch). The rack takes that route; which native calls reach the
+  dispatch is not restated here.
+- **The native record-build repair** ("Repair made (native…)" above). The analysis-run preview,
+  Record Run and Save reuse the registration's `pressure` reader pass held with the publication
+  (pressure route only), and the record checksum, stored length and profile passes are coalesced.
+- **The paint gate and its reconciled meaning.** For a native handle, `first_paint` is
+  `result_committed`, then the Results table's first page committed while visible, then two
+  animation frames, all for the solve's current job:
+  - the first page means its rows (one bounded native page) and their row semantics, both read;
+  - a pending or refused page never qualifies, nor does a page committed while Results is dormant
+    or hidden;
+  - the frames drop a page that is hidden, replaced (filter or page-size change) or cancelled
+    before they mark (F2, `solveTimeline.ts:296`, `:325`);
+  - a stale, foreign or completed solve's handle registers nothing (`solveTimeline.ts:208`).
+
+  The C1 driver opens Results once the run has begun. The gate is one exact, unrounded deadline
+  taken just before the driver's own Analyze → Run (`perf-driver.js:133`). A paint counts only
+  when its own mark's `at_ms` is at or before that deadline (`:145`); the classifier rejects a
+  late or untimed mark (`perf.mjs:649`, `:665`). The report records `solve.gate` (`:188`). Every
+  earlier record keeps its own binding and meaning; none is relabelled.
+- **`run_preview`.** The awaited native analysis-run preview (`workspaceSession.ts:1387`) is a
+  web phase in the fixed journal. `evidence_complete` now also requires its `ok` exit
+  (`perf.mjs:733`). The native preview emits no inner boundaries.
+- **The inc4 and PF1b native mirrors**, with their corpora. The independent review found the
+  reviewed corpus changes as stated: of the 658 kept replay outcomes, 653 are byte-identical and
+  the other five change only the current reader's reported binding digest. Standing and findings
+  are unchanged. The corpora are test inputs, not build inputs (see above).
+- **Harness.** `perf.mjs` `7329cca1…` → `0f5d4c82…` and `perf-driver.js` `e53468ab…` →
+  `099c4171…`, the F1 binding. The sampler and plan are unchanged.
+
+**What the attempt tests: the complete native workflow in one session.** Success is not "call 3
+got faster" or "the preview got faster". It passes only if every compulsory gate passes, as
+listed:
+1. **Route header** (native call 1). Journal: call 1's boundary phases; web `header` exit.
+2. **Registration** (native call 2, full `validate`). Journal: call 2's phases; web
+   `registration` exit.
+3. **Model-bound standing** (native call 3, full `validate`). Journal: call 3's phases; web
+   `standing` exit.
+4. **Summary and health.** Journal: `summary_health`, `summary_build`; web `summary` exit.
+5. **Full-verdict agreement.** It is compulsory and may reuse the exact-input full-verdict cache.
+   Recorded in the solve timeline and the findings.
+6. **The analysis-run preview.** Web `run_preview` exit `ok`, required by `evidence_complete`.
+7. **First paint** within **300,000 ms**, native meaning as above:
+   `report.solve.ended === "first_paint"`, `solve.gate.first_paint_timely: true`, the classifier
+   agreeing, and the solve proof matching the model JCS, sparse mode and native custody. A
+   refused first page ends the wait as `results_refused`; that is a failure.
+8. **`table_ready` corroboration.** The driver's own DOM observation after `first_paint`: settled
+   native rows in the same Results table, then two frames (`report.c1.fresh.table_ready_*`). It
+   corroborates the app's mark and starts navigation. It is not a second threshold.
+9. **UI navigation.** Select a row; next and previous kind, case and entity; next and previous
+   page; a no-match filter and its clearing (`report.c1.fresh.actions`).
+10. **Group CSV.** One streamed group CSV with its native receipt, the complete-query row count
+    and at least two pages (`report.c1.fresh.csv`, `csv_file`, checked outside the webview).
+11. **P3 reader allocation profile** (`native_smoke_profile_readers`, 90 s):
+    `report.c1.reader_allocations`.
+12. **Persistence.**
+    - Record Run and Save Project: `report.record_run`, `report.save_project` and the native
+      receipts, with the producer identities equal.
+    - Reopen (`file.open-local`): `report.c1.reopen`, then the historical table probe
+      (`report.c1.historical`).
+    - Integrity `verified_match`, with no fresh Record Run offered.
+    - Re-save from the handle: `report.c1.resave`.
+    - The recorded-run check and disposal: `report.c1.recorded_check`.
+    - No fresh persistence call during reopen or re-save.
+13. **P3 cleanup gates.**
+    - Historical custody released through the session.
+    - The pool back at its starting counts (`report.c1.cleanup`).
+    - Store `quick_check` passes, with no leftover journal or WAL.
+    - Stored lengths and IDs agree with the window.
+    - The sampler's aligned App+worker+WebContent timeline, with unknowns counted.
+
+Any one gate's failure is the attempt's outcome. An `exit ok` grants nothing beyond its own gate.
+A restored result stays historical: never Current, never Solve-bound.
+
+**Rationale for attempting** (support only, not a prediction). The A-only run's measured native
+times (web awaits, with native phases) were:
+- call 2, registration: 37.3 s (`validate` 32.3 s);
+- call 3, standing: 63.5 s (`validate` 58.8 s);
+- call 4, summary: 18.8 s (`summary_health` 5.2 s, `summary_build` 8.9 s);
+- `reader_verdict_end` → `analysis_run_built`: 55.6 s, by source the awaited native preview,
+  its inner split unmeasured.
+
+`first_paint` was unreachable on the native path, so no paint, navigation, CSV, P3 or persistence
+gate has ever run at 500 nodes on any binary. By source, this candidate changes the paths
+named there: B on the pressure route's evidence pass, the record-build repair in the preview,
+Record Run and Save, and the paint gate for the unreachable mark. **No prediction is made** of any
+call's duration, of the preview's, of first paint inside the window, of later gates or of memory
+fit.
+
+**Protocol (unchanged).**
+- The window is **900 s** including teardown, the hard intended budget.
+- The supervisor has **840 s**, the child **810 s**, with a **30 s** post-run reserve.
+- The single run's timeout is **720 s**, and first paint must arrive within **300,000 ms**.
+- The journal is the fixed **256-boundary** scalar journal.
+- All interaction timeouts apply (start 30 s, open 60 s, record and save 150 s, interaction
+  15 s, CSV 120 s, profile 90 s).
+- All four exclusive locks are held through `t3_exclusive.sh`. Queue time is reported separately
+  and does not count against the window.
+- There is **no automatic retry** and **no timeout increase**, and no B1000 or 2,000-node attempt.
+- Any pre-App refusal, timeout, journal overflow or invalid journal, journal write failure or other
+  failure consumes the attempt.
+- "Resource limits, cancellation and cleanup" applies in full: the 12 GiB product limit, fresh
+  host admission, the fresh-unknown stopping rules, process attribution, the 12 GiB aligned-sum
+  protective stop, the 16 GiB per-PID emergency stop, and memguard at 22%.
+
+**Cost limits and teardown** (as in the A-only proposal).
+- **Processes.** On stop, `analyze.cancel` is tried with at most 5 s for its receipt. Then:
+  - the runner, App and helper group is terminated;
+  - product workers in their own process groups are identified by this window's private App
+    path and stopped before that copy is removed;
+  - worker termination is never inferred from App exit;
+  - the owned sampler and caffeinate are stopped;
+  - no global process name or ambiguously attributed WebKit process is signalled.
+- **Locks.** Teardown begins by 840 s, and the exclusive wrapper releases by 900 s even if store
+  inspection hangs. Closure requires that:
+  - all four slot locks have no holder from this attempt;
+  - `exclusive.pending` is absent or not this attempt's;
+  - no App, worker, sampler or runner process remains.
+
+  Acquisition and closure, or a held exception, are announced promptly.
+- **Durable evidence.** The reader-phase journal is fsynced per received entry. The run record is
+  committed by write-then-rename, with an earlier `perf-partial-…` checkpoint. The sampler's
+  JSONL, the report and the window record are written as before. The wrapper log, console,
+  admission, summary and closure records (with the packet hash map) follow the five
+  closure-recorded attempts' pattern.
+- **Preserved.**
+  - Partial journals, samples and records are kept on failure.
+  - The bound App directory and all earlier records stay untouched. The pre-launch check
+    verifies the 8 earlier App directories, 8 earlier preparation, environment and launch
+    records, the 35 closure-hashed packet files of five attempts, and the A-only packet's 11
+    files and wrapper log.
+
+**Discriminating observations** (possible outcomes, not predictions; the journal's terminal
+`incomplete` list names the first pending pair):
+- **Call 2's or call 3's `validate` is pending at the window's end.** Repairs A and B were not
+  enough for that read at 500 nodes on this host and build. This does not locate an inner
+  validator, CPU use or allocation.
+- **Calls 1–4 exit and `run_preview` is entered but not exited.** The delay is in the native
+  analysis-run preview, with the reuse and coalescing in place. Its inner passes are not
+  attributed: the native preview has no inner boundaries.
+- **`run_preview` exits `ok` and first paint is missing.** The delay is after the preview: the
+  commit, the first page's rows or semantics, the frames, or a refused page (`results_refused`,
+  with its text). The page and frame conditions are named, not timed.
+- **First paint passes and a later gate fails or hangs** (`table_ready`, navigation, CSV, P3,
+  Record, Save, reopen, re-save, cleanup). That gate is the named failure. First paint alone
+  establishes nothing about usability.
+- **A resource stop.** Host pressure, unknown attribution, the aligned sum above 12 GiB, or a
+  per-PID reading above 16 GiB. The stop is the outcome; its readings are labelled as they are.
+- **Every gate passes.** This establishes use of these C1 paths at 500 nodes on this host, once.
+  It is not a usable-size, memory-fit, base-machine, 1,000- or 2,000-node, C1-completion or
+  acceptance claim.
+
+**N1, a disclosed harness observation (Results activation latency).** It is not an accepted
+product or release limitation. `perf-driver.js:154–155` awaits the `view.section.results` menu call
+before its bounded visibility wait, so Results activation can end up to one menu round trip and
+one 50 ms poll after the gate's deadline. It does not change the deadline and grants no
+permission for a late pass. The gate stays the paint mark's own timestamp against the exact
+deadline taken at the driver's own Analyze → Run, checked in both the driver and the classifier,
+so the overrun can only delay reporting a `timeout`. The global 900 s including teardown stays
+the hard intended budget.
+
+**Records of the A-only attempt, as found.** The kit holds no closure, admission, summary,
+console or launch-check record for the A-only attempt; only its packet `evidence/n0500-c1-aonly1`
+and the wrapper log `scratch/rt-perf-mgr/c1-aonly1-wrapper.log` (`f822e6bd…79ca2`) exist. The
+preparation therefore binds that packet's 11 files by its own read-only observation, not as a
+closure. Like every earlier packet, the packet keeps its `perf-*` directory (the private App
+copy, HOME and store). Nothing was changed.
+
+**Pre-launch and environment checks (check-only, 2026-11-04T18:15:38Z, at `4427c3ec0`; nothing
+launched or written).** Under `RT_C1_PATH` (PATH option 1: the mise Python and every
+`/opt/homebrew/` directory removed; the same PATH string as the A-only record):
+- `env-check-c1-4427c3ec0.py --check`: **ENV-CHECK-PASSED**, no mismatch. **No tool resolution
+  changed** from `c1-main-907e633e2-environment.json`: node, `python3`, `git`, `env`, `sh`,
+  `pgrep`, `perl`, `caffeinate`, `sysctl` and the two Xcode executables have the same path,
+  real path, version and SHA-256. This record adds the Xcode git's own version.
+- `launch-check-c1-4427c3ec0.mjs --check-only`: **PREFLIGHT-PASSED**. It verified, by full
+  SHA-256 against the preparation record:
+  - the clean selected head, with nothing but `.md` changed since the build source;
+  - all 369 build-read files and the dep-info;
+  - the 13 basis ancestors, including repair B;
+  - the binding, binary, `dist_digest`, engine stamps and the 15 engine files;
+  - the registry, bases and current-table files;
+  - the harness (asserted equal to the F1 hashes), the generator, the model and the plan's
+    model digest;
+  - Python and git under this PATH, and the environment record;
+  - the 8 earlier App directories (and that the kit holds no other), 8 earlier records, 35
+    packet files and the A-only packet's 11 files;
+  - that the output is fresh, with no prior attempt in the slot log and no App process;
+  - memguard.
+- Refusal probes: a wrong preparation digest, the unmodified shell PATH (Python
+  `/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3`) and a wrong expected head
+  each refuse.
+
+The check must pass again at the pushed head before any launch.
+
+**Current resource readiness** (facts at 2026-11-04T18:16Z; no load or timing experiment):
+- memguard is running (PID 78827);
+- `guard/exclusive.pending` names PID 33084, another lane's exclusive job (an RT dynamics AC-004
+  runner), not this one. Slot 1 is held by that lane's exclusive stage (PID 78302) and slot 2 by
+  a slot job; slots 3 and 4 had no holder;
+- `kern.memorystatus_level` was 75;
+- T3 processes' resident sum was about 6.2 GiB;
+- free disk was 694 GiB of 1.8 TiB;
+- no `openpipestress-desktop` process exists.
+
+These are snapshots: the run's own entry rules decide admission at the time.
+
+**Readiness:** prepared offline, nothing run. Still needed: hosted CI on the exact pushed head,
+Agent 0's readiness decision, and the owner's approval of this one attempt.
+
+**Proposed command** (the A-only command with the new App directory, records and output):
+
+```sh
+cd /Users/ryan/dev/chirality-t3/swbpipe-rt-perf-c1
+RT_C1_KIT=/Users/ryan/dev/chirality-t3/scratch/rt-perf-c1-slice7
+RT_C1_PATH="$(printf %s "$PATH" | tr ':' '\n' | grep -v '/mise/installs/python' | grep -v '^/opt/homebrew' | paste -sd: -)"
+test "$(env PATH="$RT_C1_PATH" sh -c 'command -v python3')" = /usr/bin/python3
+env PATH="$RT_C1_PATH" /usr/bin/python3 -I /Users/ryan/dev/chirality-t3/scratch/rt-perf-mgr/env-check-c1-4427c3ec0.py --check
+env EXPECT_HEAD="$(git rev-parse HEAD)" EXPECT_PREP_SHA256=41c8478046c2d713e3ef137fbd3e3200bbacb3c9f8c184b9d980cdbecc372310 PATH="$RT_C1_PATH" node /Users/ryan/dev/chirality-t3/scratch/rt-perf-mgr/launch-check-c1-4427c3ec0.mjs --record
+/Users/ryan/dev/chirality-t3/tools/t3_exclusive.sh env -u SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY PATH="$RT_C1_PATH" node apps/desktop/native-smoke/perf.mjs --run --app-dir "$RT_C1_KIT/app-c1-main-4427c3ec0" --models "$RT_C1_KIT/models" --plan-file apps/desktop/native-smoke/perf-plan-c1.json --subset c1-500 --budget-s 840 --out "$RT_C1_KIT/evidence/n0500-c1-ab1"
+```
+
+If any `test`, check or record step fails, do not launch. #59 remains draft. Shared core, clone
+and pricing writes stay held. ScopeOfWork and dependency conditions are unchanged.
 
 ## Bounded ONE 500-node attempt proposal (A-only candidate) (2026-11-04; offline, not run)
 
