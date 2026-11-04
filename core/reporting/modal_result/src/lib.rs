@@ -237,6 +237,9 @@ pub fn modal_reader_sha256(value: &Value) -> Option<String> {
 pub enum ModalReadStatus {
     Passed,
     Failed,
+    /// Consistent with its operands' stated sets but not decided by them:
+    /// never passed.
+    Unresolved,
     ScopedUnsupported,
     NotChecked,
 }
@@ -246,6 +249,7 @@ impl ModalReadStatus {
         match self {
             Self::Passed => "passed",
             Self::Failed => "failed",
+            Self::Unresolved => "unresolved",
             Self::ScopedUnsupported => "scoped_unsupported",
             Self::NotChecked => "not_checked",
         }
@@ -259,21 +263,42 @@ pub struct ModalReadStanding {
     pub difference: Option<String>,
     /// What is out of scope, for a scoped standing.
     pub scope: Vec<String>,
+    /// The instances left unresolved by their operands' stated sets.
+    pub unresolved: Vec<String>,
 }
 
 impl ModalReadStanding {
     fn mr_unchecked() -> Self {
-        Self { status: ModalReadStatus::NotChecked, difference: None, scope: Vec::new() }
+        Self { status: ModalReadStatus::NotChecked, difference: None, scope: Vec::new(), unresolved: Vec::new() }
     }
+    fn mr_passed() -> Self {
+        Self { status: ModalReadStatus::Passed, difference: None, scope: Vec::new(), unresolved: Vec::new() }
+    }
+    fn mr_failed(difference: String) -> Self {
+        Self { status: ModalReadStatus::Failed, difference: Some(difference), scope: Vec::new(), unresolved: Vec::new() }
+    }
+    /// Failed (the first difference); unresolved, when an instance is left
+    /// open by its operands' sets; scoped, when evidence is withheld or
+    /// outside the catalog; else passed.
     fn mr_of(result: Result<Vec<String>, String>) -> Self {
         match result {
-            Ok(scope) if scope.is_empty() => Self { status: ModalReadStatus::Passed, difference: None, scope },
-            Ok(scope) => Self { status: ModalReadStatus::ScopedUnsupported, difference: None, scope },
-            Err(difference) => Self { status: ModalReadStatus::Failed, difference: Some(difference), scope: Vec::new() },
+            Err(difference) => Self::mr_failed(difference),
+            Ok(items) => {
+                let (unresolved, scope): (Vec<String>, Vec<String>) = items.into_iter().partition(|x| x.starts_with(MR_UNRESOLVED));
+                let unresolved: Vec<String> = unresolved.into_iter().map(|x| x[MR_UNRESOLVED.len()..].to_string()).collect();
+                let status = if !unresolved.is_empty() {
+                    ModalReadStatus::Unresolved
+                } else if !scope.is_empty() {
+                    ModalReadStatus::ScopedUnsupported
+                } else {
+                    ModalReadStatus::Passed
+                };
+                Self { status, difference: None, scope, unresolved }
+            }
         }
     }
     fn mr_json(&self) -> Value {
-        json!({"status": self.status.modal_status_token(), "difference": self.difference, "scope": self.scope})
+        json!({"status": self.status.modal_status_token(), "difference": self.difference, "scope": self.scope, "unresolved": self.unresolved})
     }
 }
 
@@ -293,10 +318,14 @@ pub struct ModalReadVerdict {
     pub health: &'static str,
     /// The blocking codes of a refused document, in order.
     pub refusal_codes: Vec<String>,
-    /// `consistent`, `consistent_with_scoped_unsupported`,
-    /// `refusal_consistent` or `rejected`.
+    /// `consistent`, `consistent_with_unresolved`,
+    /// `consistent_with_scoped_unsupported`, `refusal_consistent` or
+    /// `rejected`.
     pub decision: &'static str,
 }
+
+/// What every verdict establishes, and no more (Design §5.3.4).
+pub const MODAL_VERDICT_LIMIT: &str = "per-relation consistency, not joint realizability: each relation is decided on its own operands, so a document every relation admits may still have no single coherent set of underlying values; feasibility-oracle agreement does not establish payload coherence either";
 
 impl ModalReadVerdict {
     pub fn modal_verdict_json(&self) -> Value {
@@ -308,7 +337,24 @@ impl ModalReadVerdict {
         binding["not_checked"] = json!(self.binding_not_checked);
         json!({"family": MODAL_RESULT_FAMILY, "closure": self.closure.mr_json(), "binding": binding, "relations": relations,
             "health": self.health, "sensitive": self.health == "sensitive", "refusal_codes": self.refusal_codes,
-            "decision": self.decision, "public_admission": {"status": "disabled", "conditions": MODAL_RESULT_ADMISSION_CONDITIONS}})
+            "decision": self.decision, "validation": {"status": self.modal_validation(), "unmet": self.modal_unmet()},
+            "limit": MODAL_VERDICT_LIMIT, "public_admission": {"status": "disabled", "conditions": MODAL_RESULT_ADMISSION_CONDITIONS}})
+    }
+
+    /// The relations that have not passed: every one is mandatory.
+    pub fn modal_unmet(&self) -> Vec<&'static str> {
+        MODAL_RELATIONS.iter().zip(&self.relations).filter(|(_, r)| r.status != ModalReadStatus::Passed).map(|(n, _)| *n).collect()
+    }
+
+    /// `fully_validated` only when every mandatory governing relation has
+    /// passed: unresolved or scoped evidence confers no validated or
+    /// current-authority status. Otherwise `not_fully_validated`.
+    pub fn modal_validation(&self) -> &'static str {
+        if self.decision == "consistent" && self.modal_unmet().is_empty() {
+            "fully_validated"
+        } else {
+            "not_fully_validated"
+        }
     }
 }
 
@@ -493,7 +539,7 @@ pub fn read_modal_result_text(text: &str, supplied: ModalSupplied<'_>) -> ModalR
 
 fn mr_closure_failed(difference: String) -> ModalReadVerdict {
     ModalReadVerdict {
-        closure: ModalReadStanding { status: ModalReadStatus::Failed, difference: Some(difference), scope: Vec::new() },
+        closure: ModalReadStanding::mr_failed(difference),
         binding: ModalReadStanding::mr_unchecked(),
         binding_not_checked: Vec::new(),
         relations: MODAL_RELATIONS.iter().map(|_| ModalReadStanding::mr_unchecked()).collect(),
@@ -537,9 +583,12 @@ pub fn read_modal_result(doc: &Value, supplied: ModalSupplied<'_>) -> ModalReadV
         ModalReadStanding::mr_of(mr_units(&parsed)),
     ];
     let failed = binding.status == ModalReadStatus::Failed || relations.iter().any(|r| r.status == ModalReadStatus::Failed);
+    let unresolved = relations.iter().any(|r| r.status == ModalReadStatus::Unresolved);
     let scoped = relations.iter().any(|r| r.status == ModalReadStatus::ScopedUnsupported);
     let decision = if failed {
         "rejected"
+    } else if unresolved {
+        "consistent_with_unresolved"
     } else if scoped {
         "consistent_with_scoped_unsupported"
     } else {
@@ -547,7 +596,7 @@ pub fn read_modal_result(doc: &Value, supplied: ModalSupplied<'_>) -> ModalReadV
     };
     let health = if failed { "not_assessed" } else if parsed.sensitive { "sensitive" } else { "checks_passed" };
     ModalReadVerdict {
-        closure: ModalReadStanding { status: ModalReadStatus::Passed, difference: None, scope: Vec::new() },
+        closure: ModalReadStanding::mr_passed(),
         binding,
         binding_not_checked: not_checked,
         relations,
@@ -761,9 +810,8 @@ struct Num {
 
 /// 2⁵³: the checked profile carries no integral binary64 this large.
 const PROFILE_FLOOR: f64 = 9_007_199_254_740_992.0;
-/// 2⁻¹⁰⁷⁴ and 2⁻¹⁰²² − 2⁻¹⁰⁷⁴: the smallest and largest subnormal binary64.
+/// 2⁻¹⁰⁷⁴: the smallest subnormal binary64.
 const SUB_LOW: f64 = 4.940_656_458_412_465_4e-324;
-const SUB_HIGH: f64 = 2.225_073_858_507_200_9e-308;
 
 impl Num {
     fn mr_from(vo: &Vo) -> Self {
@@ -771,13 +819,17 @@ impl Num {
     }
 }
 
-/// The values a quantity can take. `parts` are closed intervals of reals (an
-/// infinite end means unbounded, not ±∞); `wild` means the binary64 value can
-/// be ±∞ or NaN, either stated (`not_finite`) or by overflow of a real beyond
-/// the largest binary64. Arithmetic rounds outward and is exact at zero.
+/// The values a quantity can take (Design §5.3.4's relation inventory).
+/// `parts` are closed intervals of reals `(lo, hi, nonzero)`: an infinite end
+/// means unbounded, not ±∞, and `nonzero` excludes 0 (the producer's flagged
+/// 0, which is a nonzero value below 2⁻¹⁰²² with any extended exponent, or a
+/// product of such). `wild` means the binary64 value can be ±∞ or NaN, either
+/// stated (`not_finite`) or by overflow of a real beyond the largest binary64.
+/// Arithmetic rounds outward, is exact at zero, and never turns a nonzero
+/// underflow into 0.
 #[derive(Debug, Clone)]
 struct Reach {
-    parts: Vec<(f64, f64)>,
+    parts: Vec<(f64, f64, bool)>,
     wild: bool,
 }
 
@@ -790,41 +842,65 @@ fn mr_real_mul(x: f64, y: f64) -> f64 {
     }
 }
 
-/// One rounded endpoint widened: 4u relative, and the smallest subnormal
-/// when it may have underflowed (`exact` when it is an exact zero product).
-fn mr_round_out(v: f64, exact: bool) -> (f64, f64) {
-    if v.is_infinite() {
+/// An interval holding the real product of two endpoints: 4u relative, and
+/// the smallest subnormal when the product is below the normal range (an
+/// underflow is never an exact 0).
+fn mr_product_ends(x: f64, y: f64) -> (f64, f64) {
+    let v = mr_real_mul(x, y);
+    if v.is_infinite() || (v == 0.0 && (x == 0.0 || y == 0.0)) {
         return (v, v);
     }
-    let slack = 4.0 * U * v.abs() + if exact { 0.0 } else { SUB_LOW };
+    let slack = 4.0 * U * v.abs() + if v.abs() < f64::MIN_POSITIVE { SUB_LOW } else { 0.0 };
     (v - slack, v + slack)
 }
 
+/// +1 or −1 when every value of the part has that sign, else 0.
+fn mr_part_sign(p: &(f64, f64, bool)) -> i32 {
+    if p.0 > 0.0 || (p.0 == 0.0 && p.2) {
+        1
+    } else if p.1 < 0.0 || (p.1 == 0.0 && p.2) {
+        -1
+    } else {
+        0
+    }
+}
+
+/// Whether the part holds no 0.
+fn mr_part_nonzero(p: &(f64, f64, bool)) -> bool {
+    p.0 > 0.0 || p.1 < 0.0 || p.2
+}
+
+/// The sign class of a part's values, counting a closed 0 end as either.
+fn mr_part_side(p: &(f64, f64, bool)) -> i32 {
+    if p.0 >= 0.0 {
+        1
+    } else if p.1 <= 0.0 {
+        -1
+    } else {
+        0
+    }
+}
+
 impl Reach {
-    fn mr_new(mut parts: Vec<(f64, f64)>, mut wild: bool) -> Reach {
-        parts.sort_by(|a, b| a.0.total_cmp(&b.0));
-        let mut out: Vec<(f64, f64)> = Vec::new();
-        for (lo, hi) in parts {
-            if hi > f64::MAX || lo < -f64::MAX {
-                wild = true;
-            }
-            match out.last_mut() {
-                Some(last) if lo <= last.1 => last.1 = last.1.max(hi),
-                _ => out.push((lo, hi)),
-            }
+    fn mr_new(parts: Vec<(f64, f64, bool)>, mut wild: bool) -> Reach {
+        let mut parts: Vec<(f64, f64, bool)> = parts.into_iter().map(|(lo, hi, nz)| (lo, hi, nz && lo <= 0.0 && 0.0 <= hi)).collect();
+        parts.sort_by(|a, b| a.0.total_cmp(&b.0).then(a.1.total_cmp(&b.1)));
+        if parts.iter().any(|p| p.1 > f64::MAX || p.0 < -f64::MAX) {
+            wild = true;
         }
-        if out.len() > 8 {
-            let top = out.iter().map(|p| p.1).fold(f64::NEG_INFINITY, f64::max);
-            out = vec![(out[0].0, top)];
+        if parts.len() > 8 {
+            let lo = parts.iter().map(|p| p.0).fold(f64::INFINITY, f64::min);
+            let hi = parts.iter().map(|p| p.1).fold(f64::NEG_INFINITY, f64::max);
+            parts = vec![(lo, hi, false)];
         }
-        Reach { parts: out, wild }
+        Reach { parts, wild }
     }
     fn mr_exact(x: f64) -> Reach {
-        Reach { parts: vec![(x, x)], wild: false }
+        Reach { parts: vec![(x, x, false)], wild: false }
     }
     fn mr_point(&self) -> Option<f64> {
         match self.parts.as_slice() {
-            [(lo, hi)] if !self.wild && lo == hi => Some(*lo),
+            [(lo, hi, _)] if !self.wild && lo == hi => Some(*lo),
             _ => None,
         }
     }
@@ -840,19 +916,31 @@ impl Reach {
     fn mr_highest(&self) -> f64 {
         self.parts.iter().map(|p| p.1).fold(f64::NEG_INFINITY, f64::max)
     }
-    /// Each part grown by `relative` times its ends' magnitudes.
+    fn mr_magnitude(&self) -> f64 {
+        self.parts.iter().map(|p| p.0.abs().max(p.1.abs())).fold(0.0, f64::max)
+    }
+    /// Each part grown by `relative` times its ends' magnitudes (0 stays 0).
     fn mr_slack(&self, relative: f64) -> Reach {
-        Reach::mr_new(self.parts.iter().map(|&(lo, hi)| (lo - mr_real_mul(relative, lo.abs()), hi + mr_real_mul(relative, hi.abs()))).collect(), self.wild)
+        Reach::mr_new(self.parts.iter().map(|&(lo, hi, nz)| (lo - mr_real_mul(relative, lo.abs()), hi + mr_real_mul(relative, hi.abs()), nz)).collect(), self.wild)
+    }
+    /// Each part grown by an absolute amount (a nonzero widening admits 0).
+    fn mr_grow(&self, amount: f64) -> Reach {
+        if amount == 0.0 {
+            return self.clone();
+        }
+        Reach::mr_new(self.parts.iter().map(|&(lo, hi, _)| (lo - amount, hi + amount, false)).collect(), self.wild)
     }
     fn mr_squared(&self) -> Reach {
+        if self.mr_point().is_some() {
+            return mr_join(self, self, true);
+        }
         let parts = self
             .parts
             .iter()
-            .map(|&(lo, hi)| {
-                let a = mr_round_out(mr_real_mul(lo, lo), lo == 0.0);
-                let b = mr_round_out(mr_real_mul(hi, hi), hi == 0.0);
-                let bottom = if lo <= 0.0 && 0.0 <= hi { 0.0 } else { a.0.min(b.0).max(0.0) };
-                (bottom, a.1.max(b.1))
+            .map(|p| {
+                let (a, b) = (mr_product_ends(p.0, p.0), mr_product_ends(p.1, p.1));
+                let bottom = if p.0 < 0.0 && 0.0 < p.1 { 0.0 } else { a.0.min(b.0).max(0.0) };
+                (bottom, a.1.max(b.1), mr_part_nonzero(p))
             })
             .collect();
         Reach::mr_new(parts, self.wild)
@@ -861,7 +949,7 @@ impl Reach {
     /// part contributes its ends; a non-finite value contributes `wild`.
     fn mr_can(&self, test: impl Fn(f64) -> bool, wild: (bool, bool)) -> (bool, bool) {
         let (mut yes, mut no) = if self.wild { wild } else { (false, false) };
-        for &(lo, hi) in &self.parts {
+        for &(lo, hi, _) in &self.parts {
             for v in [lo, hi] {
                 if test(v) {
                     yes = true;
@@ -877,13 +965,24 @@ impl Reach {
 /// The values a value object states, or `None` for a null whose reason is a
 /// claim (the relation consuming it checks the claim).
 fn mr_reach(n: &Num, signed: bool) -> Option<Reach> {
-    let span = |lo: f64, hi: f64| if signed { vec![(lo, hi), (-hi, -lo)] } else { vec![(lo, hi)] };
+    let span = |lo: f64, hi: f64, nz: bool| if signed { vec![(lo, hi, nz), (-hi, -lo, nz)] } else { vec![(lo, hi, nz)] };
     match (n.value, n.reason.as_deref()) {
-        (Some(_), _) if n.below => Some(Reach::mr_new(span(SUB_LOW, SUB_HIGH), false)),
+        // The producer's flagged 0: nonzero, below 2⁻¹⁰²², unbounded below.
+        (Some(_), _) if n.below => Some(Reach::mr_new(span(0.0, f64::MIN_POSITIVE, true), false)),
         (Some(v), _) => Some(Reach::mr_exact(v)),
-        (None, Some("outside_canonical_profile")) => Some(Reach::mr_new(span(PROFILE_FLOOR, f64::MAX), false)),
+        (None, Some("outside_canonical_profile")) => Some(Reach::mr_new(span(PROFILE_FLOOR, f64::MAX, false), false)),
         (None, Some("not_finite")) => Some(Reach { parts: Vec::new(), wild: true }),
         _ => None,
+    }
+}
+
+/// The value the producer itself carries forward (the shape into m and φᵀp_k,
+/// a fraction into its cumulative sum): the published number, a flagged 0
+/// being 0; a null outside the profile or not finite as its set.
+fn mr_published(n: &Num, signed: bool) -> Option<Reach> {
+    match n.value {
+        Some(v) => Some(Reach::mr_exact(v)),
+        None => mr_reach(n, signed),
     }
 }
 
@@ -893,32 +992,48 @@ fn mr_need(n: &Num, signed: bool, what: &str) -> R<Reach> {
 }
 
 /// a + b or a·b. Two published points combine as the producer's binary64
-/// operation does (its rounding is the relations' allowance); a real result
-/// beyond the largest binary64 stays real and marks a possible overflow.
+/// operation does (its rounding is the relations' allowance), except that a
+/// nonzero product below the normal range stays nonzero; a real result beyond
+/// the largest binary64 stays real and marks a possible overflow.
 fn mr_join(a: &Reach, b: &Reach, product: bool) -> Reach {
     if let (Some(x), Some(y)) = (a.mr_point(), b.mr_point()) {
         let v = if product { x * y } else { x + y };
-        return if v.is_infinite() {
-            Reach::mr_new(vec![if v > 0.0 { (f64::MAX, f64::INFINITY) } else { (f64::NEG_INFINITY, -f64::MAX) }], true)
-        } else {
-            Reach::mr_exact(v)
-        };
+        if v.is_infinite() {
+            return Reach::mr_new(vec![if v > 0.0 { (f64::MAX, f64::INFINITY, false) } else { (f64::NEG_INFINITY, -f64::MAX, false) }], true);
+        }
+        if product && x != 0.0 && y != 0.0 && v.abs() < f64::MIN_POSITIVE {
+            // Rounded within one subnormal step, and nonzero.
+            let (bottom, top) = ((v.abs() - SUB_LOW).max(0.0), v.abs() + SUB_LOW);
+            let part = if (x > 0.0) == (y > 0.0) { (bottom, top, true) } else { (-top, -bottom, true) };
+            return Reach::mr_new(vec![part], false);
+        }
+        return Reach::mr_exact(v);
     }
     let mut parts = Vec::new();
-    for &(a0, a1) in &a.parts {
-        for &(b0, b1) in &b.parts {
+    for p in &a.parts {
+        for q in &b.parts {
             if product {
                 let (mut lo, mut hi) = (f64::INFINITY, f64::NEG_INFINITY);
-                for x in [a0, a1] {
-                    for y in [b0, b1] {
-                        let (l, h) = mr_round_out(mr_real_mul(x, y), x == 0.0 || y == 0.0);
+                for x in [p.0, p.1] {
+                    for y in [q.0, q.1] {
+                        let (l, h) = mr_product_ends(x, y);
                         lo = lo.min(l);
                         hi = hi.max(h);
                     }
                 }
-                parts.push((lo, hi));
+                match mr_part_sign(p) * mr_part_sign(q) {
+                    1 => lo = lo.max(0.0),
+                    -1 => hi = hi.min(0.0),
+                    _ => {}
+                }
+                parts.push((lo, hi, mr_part_nonzero(p) && mr_part_nonzero(q)));
             } else {
-                parts.push((mr_round_out(a0 + b0, true).0, mr_round_out(a1 + b1, true).1));
+                let (lo, hi) = (p.0 + q.0, p.1 + q.1);
+                let lo = if lo.is_finite() { lo - 4.0 * U * lo.abs() } else { lo };
+                let hi = if hi.is_finite() { hi + 4.0 * U * hi.abs() } else { hi };
+                // Same-signed parts, one of them nonzero, have a nonzero sum.
+                let (sp, sq) = (mr_part_side(p), mr_part_side(q));
+                parts.push((lo, hi, sp == sq && sp != 0 && (mr_part_nonzero(p) || mr_part_nonzero(q))));
             }
         }
     }
@@ -926,13 +1041,20 @@ fn mr_join(a: &Reach, b: &Reach, product: bool) -> Reach {
     Reach::mr_new(parts, a.wild || b.wild)
 }
 
-fn mr_sum<'a>(items: impl IntoIterator<Item = Reach>) -> Reach {
+fn mr_sum(items: impl IntoIterator<Item = Reach>) -> Reach {
     items.into_iter().fold(Reach::mr_exact(0.0), |acc, x| mr_join(&acc, &x, false))
 }
 
-/// Whether some values of `a` and `b` are equal (or both non-finite).
+/// Whether some value lies in both (or both may be non-finite); a shared 0
+/// counts only when neither part excludes it.
 fn mr_overlap(a: &Reach, b: &Reach) -> bool {
-    (a.wild && b.wild) || a.parts.iter().any(|x| b.parts.iter().any(|y| x.0 <= y.1 && y.0 <= x.1))
+    (a.wild && b.wild)
+        || a.parts.iter().any(|x| {
+            b.parts.iter().any(|y| {
+                let (lo, hi) = (x.0.max(y.0), x.1.min(y.1));
+                lo < hi || (lo == hi && (lo != 0.0 || !(mr_part_nonzero(x) || mr_part_nonzero(y))))
+            })
+        })
 }
 
 /// Whether some x in a and y in b have |x − y| ≤ relative·max(|x|, |y|).
@@ -940,14 +1062,18 @@ fn mr_near(a: &Reach, b: &Reach, relative: f64) -> bool {
     mr_overlap(&a.mr_slack(relative), b) || mr_overlap(a, &b.mr_slack(relative))
 }
 
+/// The marker of an unresolved instance among a relation's items: consistent
+/// with its operands' stated sets but not decided by them (never passed).
+const MR_UNRESOLVED: &str = "unresolved: ";
+
 /// A relation the producer forms through a quotient (Γ²·m = m_eff,
 /// fraction·T_k = m_eff, Γ·m = φᵀp_k, m_eff·m = (φᵀp_k)²), on sets of reals.
-/// A non-finite operand leaves it undecidable; a real beyond the largest
+/// A non-finite operand leaves it unresolved; a real beyond the largest
 /// binary64 is not one, and cannot equal a finite side, so only reals count.
 #[allow(clippy::too_many_arguments)]
 fn mr_quotient(scope: &mut Vec<String>, label: &str, operands: &[&Reach], lhs: &Reach, rhs: &Reach, relative: f64, one_sided: bool, failure: String) -> R<()> {
     if operands.iter().any(|x| x.wild) {
-        scope.push(format!("{label}: an operand is not finite (±∞ or NaN)"));
+        scope.push(format!("{MR_UNRESOLVED}{label}: an operand is not finite (±∞ or NaN)"));
         return Ok(());
     }
     let (lhs, rhs) = (lhs.mr_reals(), rhs.mr_reals());
@@ -955,8 +1081,46 @@ fn mr_quotient(scope: &mut Vec<String>, label: &str, operands: &[&Reach], lhs: &
     if !holds {
         return Err(failure);
     }
-    scope.push(format!("{label} is undecidable on the published bounds"));
+    scope.push(format!("{MR_UNRESOLVED}{label} is undecidable on the published bounds"));
     Ok(())
+}
+
+/// Whether a binary64 product of nonzero factors kept the real product's
+/// magnitude: a nonzero product below the normal range would read as (near)
+/// 0 on the point path, so the set path decides it instead.
+fn mr_kept(product: f64, factors: &[f64]) -> bool {
+    !(factors.iter().all(|f| *f != 0.0) && product.abs() < f64::MIN_POSITIVE)
+}
+
+/// φᵀp_k's terms per direction, ONE per mass entry (`entries` as (row,
+/// col)): (entry index, combined coefficient, Σ|coefficients|), and the
+/// incidence count. An entry M_ij meets φᵀp_k in row i (i free, j along k)
+/// and in row j (j free, i along k); its coefficients add (the reviewer's
+/// +1 and −1 on one entry are exactly 0).
+fn mr_excitation_terms(free: &[bool], entries: &[(usize, usize)], phi: &[f64]) -> ([Vec<(usize, f64, f64)>; 3], [usize; 3]) {
+    let mut terms: [Vec<(usize, f64, f64)>; 3] = Default::default();
+    let mut counts = [0usize; 3];
+    for (index, &(i, j)) in entries.iter().enumerate() {
+        let mut held: [Option<(f64, f64)>; 3] = [None; 3];
+        if free[i] && j % 6 < 3 {
+            let h = held[j % 6].get_or_insert((0.0, 0.0));
+            h.0 += phi[i];
+            h.1 += phi[i].abs();
+            counts[j % 6] += 1;
+        }
+        if i != j && free[j] && i % 6 < 3 {
+            let h = held[i % 6].get_or_insert((0.0, 0.0));
+            h.0 += phi[j];
+            h.1 += phi[j].abs();
+            counts[i % 6] += 1;
+        }
+        for (k, h) in held.iter().enumerate() {
+            if let Some((c, w)) = h {
+                terms[k].push((index, *c, *w));
+            }
+        }
+    }
+    (terms, counts)
 }
 
 fn mr_undetermined(sets: &[&Reach]) -> bool {
@@ -1645,7 +1809,7 @@ fn mr_read_refused(doc: &Value, supplied: ModalSupplied<'_>) -> ModalReadVerdict
     let (binding, not_checked) = mr_binding(doc, supplied);
     let decision = if binding.status == ModalReadStatus::Failed { "rejected" } else { "refusal_consistent" };
     ModalReadVerdict {
-        closure: ModalReadStanding { status: ModalReadStatus::Passed, difference: None, scope: Vec::new() },
+        closure: ModalReadStanding::mr_passed(),
         binding,
         binding_not_checked: not_checked,
         relations: MODAL_RELATIONS.iter().map(|_| ModalReadStanding::mr_unchecked()).collect(),
@@ -1779,7 +1943,7 @@ fn mr_mass(p: &Parsed) -> R<Vec<String>> {
         // keeps a lower bound on the sum.
         let effective: Vec<Reach> = (0..n).filter_map(|m| mr_reach(&Num::mr_from(&p.participation[m][k].effective), false)).collect();
         if t.wild || effective.iter().any(|e| e.wild) {
-            scope.push(format!("Σ m_eff,{d} ≤ T_{d}: an operand is not finite (±∞ or NaN)"));
+            scope.push(format!("{MR_UNRESOLVED}Σ m_eff,{d} ≤ T_{d}: an operand is not finite (±∞ or NaN)"));
             continue;
         }
         let lowest: f64 = effective.iter().map(Reach::mr_lowest).sum();
@@ -1791,7 +1955,7 @@ fn mr_mass(p: &Parsed) -> R<Vec<String>> {
         let mut sets: Vec<&Reach> = effective.iter().collect();
         sets.push(&t);
         if highest > t.mr_lowest() * slack && mr_undetermined(&sets) {
-            scope.push(format!("Σ m_eff,{d} ≤ T_{d} is undecidable on the published bounds"));
+            scope.push(format!("{MR_UNRESOLVED}Σ m_eff,{d} ≤ T_{d} is undecidable on the published bounds"));
         }
     }
     let Some(entries) = &p.mass else {
@@ -1831,7 +1995,7 @@ fn mr_mass(p: &Parsed) -> R<Vec<String>> {
             if !mr_overlap(&stated, &derived) {
                 return Err(format!("{name} is not the sum of its mass entries for any value its bounds allow"));
             }
-            scope.push(format!("{name} = Σ of its mass entries is undecidable on the published bounds"));
+            scope.push(format!("{MR_UNRESOLVED}{name} = Σ of its mass entries is undecidable on the published bounds"));
         }
     }
     Ok(scope)
@@ -1941,7 +2105,7 @@ fn mr_participation(p: &Parsed) -> R<Vec<String>> {
             let flagged = |nums: &[&Num]| if nums.iter().any(|x| x.below) { " (a side flagged below-normal)" } else { "" };
             // Γ²·m = m_eff.
             match (gamma.mr_point(), gm.mr_point(), effective.mr_point()) {
-                (Some(g), Some(mass), Some(e)) => {
+                (Some(g), Some(mass), Some(e)) if mr_kept(g * g, &[g, g]) && mr_kept(g * g * mass, &[g, mass]) => {
                     let g2m = g * g * mass;
                     if !mr_tol_close(g2m, e, au * e.max(g2m)) {
                         return Err(format!("mode {label}: Γ_{d}²·m = {g2m:e} is not m_eff = {e:e}"));
@@ -1976,7 +2140,7 @@ fn mr_participation(p: &Parsed) -> R<Vec<String>> {
                 return Err(format!("mode {label}: the fraction along {d} is negative"));
             }
             match (fraction.mr_point(), total.mr_point(), effective.mr_point()) {
-                (Some(f), Some(t), Some(e)) => {
+                (Some(f), Some(t), Some(e)) if mr_kept(f * t, &[f, t]) => {
                     let ft = f * t;
                     if !mr_tol_close(ft, e, au * e.max(ft)) {
                         return Err(format!("mode {label}: fraction {d}·T = {ft:e} is not m_eff = {e:e}"));
@@ -1999,7 +2163,11 @@ fn mr_participation(p: &Parsed) -> R<Vec<String>> {
             if f_num.reason.as_deref() == Some("total_mass_zero") {
                 break;
             }
-            running.push(mr_need(&f_num, false, &format!("mode {label}: fraction along {d}"))?);
+            // The producer sums the PUBLISHED fractions (a flagged fraction is its
+            // published 0), modal_quantities.rs:460.
+            running.push(mr_published(&f_num, false).ok_or_else(|| {
+                format!("mode {label}: fraction along {d}: null, and its reason `{}` states no value where one is needed", f_num.reason.as_deref().unwrap_or(""))
+            })?);
             let c_num = Num::mr_from(&row.cumulative);
             let cumulative = mr_need(&c_num, false, &format!("mode {label}: cumulative fraction along {d}"))?;
             if c_num.value.is_some_and(|v| v < 0.0) {
@@ -2018,7 +2186,7 @@ fn mr_participation(p: &Parsed) -> R<Vec<String>> {
             if !mr_overlap(&cumulative, &derived) {
                 return Err(format!("mode {label}: cumulative fraction {d} is not the running sum for any value its bounds allow"));
             }
-            scope.push(format!("mode {label}: the cumulative fraction along {d} is undecidable on the published bounds"));
+            scope.push(format!("{MR_UNRESOLVED}mode {label}: the cumulative fraction along {d} is undecidable on the published bounds"));
         }
     }
     let (Some(entries), Some(shapes)) = (&p.mass, &p.shapes) else {
@@ -2027,47 +2195,61 @@ fn mr_participation(p: &Parsed) -> R<Vec<String>> {
     };
     for (m, mode) in p.modes.iter().enumerate() {
         let label = m + 1;
+        // m and φᵀp_k are formed from the PUBLISHED shape (a flagged component
+        // is its published 0), modal_quantities.rs:377, :398 and :426.
         let mut phi = Vec::with_capacity(shapes[m].len());
         for s in &shapes[m] {
-            phi.push(mr_reach(s, true).ok_or_else(|| format!("mode {label}: a shape component is not published"))?);
+            phi.push(s.value.ok_or_else(|| format!("mode {label}: a shape component is not published"))?);
         }
-        // Each sum's terms, with the entries it consumes; a term whose
-        // coefficient is exactly 0 is exactly 0 for a finite entry. Every
-        // allowance counts all the sum's entries.
+        // One variable per entry. m = Σ_ij φ_i M_ij φ_j over the full symmetric
+        // M_ff gives an off-diagonal entry the single coefficient 2·φ_i·φ_j.
+        // φᵀp_k, p_k = (M R_k)_f (stiffness.rs:255, mass.rs:147), meets an entry
+        // in row i (free, j along k) and in row j (free, i along k): the
+        // coefficients are combined into one, and the allowance is held to the
+        // sum of their magnitudes (each row of p_k is rounded on its own).
+        let free: Vec<bool> = p.free.iter().map(Option::is_some).collect();
+        let positions: Vec<(usize, usize)> = entries.iter().map(|(i, j, _)| (*i, *j)).collect();
+        let (combined, incidences) = mr_excitation_terms(&free, &positions, &phi);
         let mut mass_terms: Vec<Reach> = Vec::new();
-        let mut excitation: [Vec<Reach>; 3] = Default::default();
+        // Per direction: (combined coefficient, Σ|coefficients|, the entry).
+        let mut excitation: [Vec<(f64, f64, Reach)>; 3] = Default::default();
         let mut consumed: [Vec<Reach>; 4] = Default::default();
-        for (i, j, v) in entries {
+        let mut counts = [incidences[0], incidences[1], incidences[2], 0];
+        let mut cursor = [0usize; 3];
+        for (index, (i, j, v)) in entries.iter().enumerate() {
             let (i, j) = (*i, *j);
-            let (free_i, free_j) = (p.free[i].is_some(), p.free[j].is_some());
-            let mut add = |coefficient: Reach, slot: usize| -> R<()> {
-                let entry = mr_need(v, i != j, &format!("mass entry ({i}, {j})"))?;
-                consumed[slot].push(entry.clone());
-                if coefficient.mr_point() == Some(0.0) && !entry.wild {
-                    return Ok(());
-                }
-                let term = mr_join(&coefficient, &entry, true);
-                if slot == 3 {
-                    mass_terms.push(term);
-                } else {
-                    excitation[slot].push(term);
-                }
-                Ok(())
-            };
-            if free_i && free_j {
-                let w = Reach::mr_exact(if i == j { 1.0 } else { 2.0 });
-                add(mr_join(&mr_join(&w, &phi[i], true), &phi[j], true), 3)?;
+            let in_mass = free[i] && free[j];
+            let hits: Vec<(usize, f64, f64)> = (0..3)
+                .filter_map(|k| {
+                    let t = combined[k].get(cursor[k]).filter(|t| t.0 == index).copied();
+                    if t.is_some() {
+                        cursor[k] += 1;
+                    }
+                    t.map(|(_, c, w)| (k, c, w))
+                })
+                .collect();
+            if !in_mass && hits.is_empty() {
+                continue;
             }
-            if free_i && j % 6 < 3 {
-                add(phi[i].clone(), j % 6)?;
+            let entry = mr_need(v, i != j, &format!("mass entry ({i}, {j})"))?;
+            if in_mass {
+                counts[3] += 1;
+                consumed[3].push(entry.clone());
+                let c = if i == j { 1.0 } else { 2.0 } * phi[i] * phi[j];
+                if c != 0.0 || entry.wild {
+                    mass_terms.push(mr_join(&Reach::mr_exact(c), &entry, true));
+                }
             }
-            if i != j && free_j && i % 6 < 3 {
-                add(phi[j].clone(), i % 6)?;
+            for (k, c, w) in hits {
+                consumed[k].push(entry.clone());
+                if w != 0.0 || entry.wild {
+                    excitation[k].push((c, w, entry.clone()));
+                }
             }
         }
         let gm_num = Num::mr_from(&mode.generalized_mass);
         let gm = mr_need(&gm_num, false, &format!("mode {label}: m"))?;
-        let allowance = ALLOW * ((consumed[3].len() + 4) as f64) * U;
+        let allowance = ALLOW * ((counts[3] + 4) as f64) * U;
         let points: Option<Vec<f64>> = mass_terms.iter().map(Reach::mr_point).collect();
         match (points, gm.mr_point()) {
             (Some(points), Some(published)) => {
@@ -2084,7 +2266,7 @@ fn mr_participation(p: &Parsed) -> R<Vec<String>> {
                     }
                     return Err(format!("mode {label}: m is not φᵀM_ffφ for any value the bounds allow"));
                 }
-                scope.push(format!("mode {label}: m = φᵀM_ffφ is undecidable on the published bounds"));
+                scope.push(format!("{MR_UNRESOLVED}mode {label}: m = φᵀM_ffφ is undecidable on the published bounds"));
             }
         }
         for k in 0..3 {
@@ -2093,10 +2275,18 @@ fn mr_participation(p: &Parsed) -> R<Vec<String>> {
             let (g_num, e_num) = (Num::mr_from(&row.gamma), Num::mr_from(&row.effective));
             let gamma = mr_need(&g_num, true, &format!("mode {label}: Γ along {d}"))?;
             let effective = mr_need(&e_num, false, &format!("mode {label}: m_eff along {d}"))?;
-            let e = ALLOW * ((consumed[k].len() + 6) as f64) * U;
-            let points: Option<Vec<f64>> = excitation[k].iter().map(Reach::mr_point).collect();
-            if let (Some(points), Some(published), Some(g), Some(eff)) = (points, gm.mr_point(), gamma.mr_point(), effective.mr_point()) {
-                let (s, a) = points.iter().fold((0.0f64, 0.0f64), |(s, a), x| (s + x, a + x.abs()));
+            let e = ALLOW * ((counts[k] + 6) as f64) * U;
+            let points: Option<Vec<(f64, f64, f64)>> = excitation[k].iter().map(|(c, w, x)| x.mr_point().map(|x| (*c, *w, x))).collect();
+            let points = points.map(|points| points.iter().fold((0.0f64, 0.0f64), |(s, a), (c, w, x)| (s + c * x, a + w * x.abs())));
+            let decided = match (points, gm.mr_point(), gamma.mr_point(), effective.mr_point()) {
+                (Some((s, a)), Some(published), Some(g), Some(eff))
+                    if mr_kept(g * published, &[g, published]) && mr_kept(eff * published, &[eff, published]) && mr_kept(s * s, &[s, s]) =>
+                {
+                    Some((s, a, published, g, eff))
+                }
+                _ => None,
+            };
+            if let Some((s, a, published, g, eff)) = decided {
                 let gm_ = g * published;
                 if !mr_tol_close(gm_, s, e * (a + gm_.abs())) {
                     return Err(format!("mode {label}: Γ_{d}·m = {gm_:e} is not φᵀp_{d} = {s:e}"));
@@ -2107,7 +2297,9 @@ fn mr_participation(p: &Parsed) -> R<Vec<String>> {
                 }
                 continue;
             }
-            let s = mr_sum(excitation[k].iter().map(|t| t.mr_slack(e)));
+            // Each entry once: c·x ± e·w·|x| is exactly x·[c − e·w, c + e·w] (the
+            // allowance is proportional to the same x).
+            let s = mr_sum(excitation[k].iter().map(|(c, w, x)| mr_join(&Reach::mr_new(vec![(c - e * w, c + e * w, false)], false), x, true)));
             let mut operands: Vec<&Reach> = vec![&gamma, &gm];
             operands.extend(consumed[k].iter());
             let flag = |x: &Num| if x.below { " (flagged below-normal)" } else { "" };
@@ -2302,12 +2494,13 @@ fn mr_clusters(p: &Parsed) -> R<Vec<String>> {
                 } else {
                     let lo = sets.iter().map(Reach::mr_lowest).fold(f64::NEG_INFINITY, f64::max);
                     let hi = sets.iter().map(Reach::mr_highest).fold(f64::NEG_INFINITY, f64::max);
-                    Reach::mr_new(vec![(lo, hi)], false)
+                    let nonzero = sets.iter().all(|s| s.parts.iter().all(mr_part_nonzero));
+                    Reach::mr_new(vec![(lo, hi, nonzero)], false)
                 };
                 if !mr_overlap(&stated, &maximum) {
                     return Err(format!("cluster {id}: its e_λ is not its members' largest for any value the bounds allow"));
                 }
-                scope.push(format!("cluster {id}: its e_λ against its members' is undecidable on the published bounds"));
+                scope.push(format!("{MR_UNRESOLVED}cluster {id}: its e_λ against its members' is undecidable on the published bounds"));
             }
         }
     }
@@ -2365,7 +2558,7 @@ fn mr_formed(scope: &mut Vec<String>, label: &str, lhs: &Reach, a: &Reach, b: &R
     if !mr_overlap(lhs, &mr_join(a, b, product).mr_slack(8.0 * U)) {
         return Err(format!("{label}: {contradiction}"));
     }
-    scope.push(format!("{label}: {relation} is undecidable on the published bounds"));
+    scope.push(format!("{MR_UNRESOLVED}{label}: {relation} is undecidable on the published bounds"));
     Ok(())
 }
 
@@ -2420,7 +2613,7 @@ fn mr_candidate(scope: &mut Vec<String>, c: &Candidate, label: usize, sturm_coun
                     return Err(format!("the accepted shift {failure}: its {name} cannot meet it"));
                 }
                 if no {
-                    scope.push(format!("the accepted {name} is undecidable against its premise on the published bounds"));
+                    scope.push(format!("{MR_UNRESOLVED}the accepted {name} is undecidable against its premise on the published bounds"));
                 }
             }
         }
@@ -2493,11 +2686,11 @@ fn mr_sturm(p: &Parsed) -> R<Vec<String>> {
                 }
             }
             if let Some((shift, null)) = &shift {
-                if !mr_overlap(shift, &Reach::mr_new(vec![(lower, upper)], false)) {
+                if !mr_overlap(shift, &Reach::mr_new(vec![(lower, upper, false)], false)) {
                     return Err(if *null { "the accepted shift is outside the profile (ω ≥ 2⁵³), above its gap" } else { "the accepted shift is not in its gap" }.into());
                 }
                 if shift.mr_point().is_none() {
-                    scope.push("the accepted shift's place in its gap is undecidable on the published bounds".to_string());
+                    scope.push(format!("{MR_UNRESOLVED}the accepted shift's place in its gap is undecidable on the published bounds"));
                 }
             }
         }
@@ -2514,7 +2707,7 @@ fn mr_sturm(p: &Parsed) -> R<Vec<String>> {
                     return Err("the accepted whole-spectrum shift is below the top mode".into());
                 }
                 if shift.mr_point().is_none() {
-                    scope.push("the accepted shift's place above the spectrum is undecidable on the published bounds".to_string());
+                    scope.push(format!("{MR_UNRESOLVED}the accepted shift's place above the spectrum is undecidable on the published bounds"));
                 }
             }
         }
@@ -2540,7 +2733,7 @@ fn mr_evidence(p: &Parsed) -> R<Vec<String>> {
             if !(sets[2].wild && product.wild) && !mr_near(&sets[2], &product.mr_reals(), 8.0 * U) {
                 return Err(format!("computed mode {}: e_λ = η·κ_λ is contradicted by the bounds", i + 1));
             }
-            scope.push(format!("computed mode {}: e_λ = η·κ_λ is undecidable on the published bounds", i + 1));
+            scope.push(format!("{MR_UNRESOLVED}computed mode {}: e_λ = η·κ_λ is undecidable on the published bounds", i + 1));
             continue;
         };
         let product = eta * kappa;
@@ -2572,7 +2765,7 @@ fn mr_evidence(p: &Parsed) -> R<Vec<String>> {
                 });
             }
             if beyond && d.wild {
-                scope.push(format!("identity row {i}: its discrepancy against the tolerance is undecidable (not finite)"));
+                scope.push(format!("{MR_UNRESOLVED}identity row {i}: its discrepancy against the tolerance is undecidable (not finite)"));
             }
         }
     } else {
@@ -2693,7 +2886,7 @@ fn mr_standing(p: &Parsed) -> R<Vec<String>> {
             return Err(format!("mode {}: Sensitive exactly when η > τ_r, with its reason", m + 1));
         }
         if yes && no {
-            scope.push(format!("mode {}: η > τ_r is undecidable (η not finite)", m + 1));
+            scope.push(format!("{MR_UNRESOLVED}mode {}: η > τ_r is undecidable (η not finite)", m + 1));
         }
     }
     // The set: Sensitive when a mode's token is, or the deviation exceeds τ_o.
@@ -2707,7 +2900,7 @@ fn mr_standing(p: &Parsed) -> R<Vec<String>> {
         return Err("the set is Sensitive exactly when a mode is or the orthogonality deviation exceeds τ_o".into());
     }
     if yes && no {
-        scope.push("the set's standing is undecidable (the deviation is not finite)".to_string());
+        scope.push(format!("{MR_UNRESOLVED}the set's standing is undecidable (the deviation is not finite)"));
     }
     Ok(scope)
 }
@@ -2728,5 +2921,38 @@ mod tests {
     #[test]
     fn the_readers_table_names_canonical_catalog_units() {
         assert_eq!(modal_reader_catalog_differences(), Vec::<String>::new());
+    }
+
+    /// Third re-check, finding 3: a free/free off-diagonal entry meets φᵀp_k
+    /// in two rows. With coefficients +1 and −1 it is ONE term with
+    /// coefficient exactly 0 (its allowance held to the magnitudes), so with
+    /// m = 2⁻¹⁰²² and Γ = 0.5 the relation Γ·m = φᵀp_k is contradicted even
+    /// for a flagged (nonzero, below 2⁻¹⁰²²) entry.
+    #[test]
+    fn one_mass_entry_is_one_variable_in_its_excitation_sum() {
+        let free = vec![true; 13];
+        let mut phi = vec![0.0; 13];
+        phi[6] = 1.0;
+        phi[12] = -1.0;
+        let (terms, counts) = mr_excitation_terms(&free, &[(6, 12)], &phi);
+        assert_eq!((terms[0].clone(), counts[0]), (vec![(0, 0.0, 2.0)], 2));
+        let flagged = mr_reach(&Num { value: Some(0.0), reason: None, below: true }, true).unwrap();
+        let e = ALLOW * ((counts[0] + 6) as f64) * U;
+        let s = mr_join(&Reach::mr_new(vec![(-e * 2.0, e * 2.0, false)], false), &flagged, true);
+        let gamma_m = mr_join(&Reach::mr_exact(0.5), &Reach::mr_exact(f64::MIN_POSITIVE), true);
+        assert!(!mr_overlap(&gamma_m.mr_slack(e), &s));
+        // Two independent unknowns would admit it: the identity decides.
+        let independent = mr_sum([mr_join(&Reach::mr_exact(1.0), &flagged, true), mr_join(&Reach::mr_exact(-1.0), &flagged, true)]);
+        assert!(mr_overlap(&gamma_m.mr_slack(e), &independent));
+    }
+
+    /// Third re-check, finding 1: a flagged value is nonzero and unbounded
+    /// below; a nonzero product that underflows is never 0.
+    #[test]
+    fn a_flagged_value_is_nonzero_and_unbounded_below() {
+        let flagged = mr_reach(&Num { value: Some(0.0), reason: None, below: true }, false).unwrap();
+        assert!(!mr_overlap(&flagged, &Reach::mr_exact(0.0)));
+        let product = mr_join(&Reach::mr_exact(3.37e-99), &Reach::mr_exact(1e-300), true);
+        assert!(product.mr_point().is_none() && !mr_overlap(&product, &Reach::mr_exact(0.0)) && mr_overlap(&product, &flagged));
     }
 }

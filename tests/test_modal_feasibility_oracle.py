@@ -4,9 +4,13 @@ Design §5.3.4's dependency table).
 Generated tamperings of small committed fixtures, with a fixed seed: an operand nulled
 with each reason, flagged below-normal, negated, zeroed or scaled; one or two per case.
 For each case the oracle decides, family by family, whether ANY value within the stated
-sets satisfies every relation instance. A reader must fail exactly the infeasible
-families: a failure where the oracle finds an assignment is a false refusal, and a pass
-or a scope where it finds none is a false scoping. The other standings must not fail.
+sets satisfies every relation instance. It is supporting evidence, not the governing
+check. A reader never fails a family the oracle finds feasible (a false refusal), and
+never passes or scopes one the oracle proves infeasible: it fails it, or, where a
+flagged value's extended exponent puts the decision below binary64's reach, leaves it
+`unresolved`. The other standings must not fail. The producer's own edge output
+(`fixtures/results/modal_producer_edges.json`) is the governing false-refusal control:
+both readers and the oracle accept every edge.
 
 The cases and the oracle's verdicts are committed as `fixtures/results/modal_oracle_cases.json`.
 This test requires the committed file to be the regeneration, and it holds the Python
@@ -55,6 +59,15 @@ def _targets(doc):
     return out
 
 
+def _shape_targets(doc):
+    """Free shape components published as an exact 0: flagging one is producer output (a
+    nonzero component below the normal range, which m and φᵀp_k take as its published 0)."""
+    free = [r["free_index"] is not None for r in doc["tables"]["dofs"]["rows"]]
+    ndof = len(free)
+    return [f"/tables/shapes/rows/{i}/value" for i, row in enumerate(doc["tables"]["shapes"]["rows"])
+            if free[i % ndof] and row["value"]["value"] == 0.0 and not row["value"]["below_normal"]]
+
+
 def _tamper(rng, path, vo):
     """Corpus operations that change one value object; None when the change is not
     representable (a value the checked profile cannot carry)."""
@@ -88,7 +101,13 @@ def generate():
     cases = []
     for name in FIXTURES:
         document = f"modal_{name}.json"
-        targets = _targets(load(document))
+        base = load(document)
+        targets = _targets(base)
+        shapes = _shape_targets(base)
+        for path in rng.sample(shapes, min(4, len(shapes))):
+            cases.append({"id": f"oracle:{name}:{len(cases)}", "document": document, "request": f"modal_{name}.request.json",
+                          "request_operations": [], "reseal": True,
+                          "operations": [{"op": "replace", "path": path + "/below_normal", "value": True}]})
         for count, size in ((SINGLES, 1), (PAIRS, 2)):
             made = 0
             while made < count:
@@ -107,7 +126,11 @@ def generate():
                               "operations": operations, "reseal": True})
     cases += _reproductions() + _coordinated()
     for case in cases:
-        case["oracle"] = oracle.verdict(json.loads(entry_text(case)))
+        text = entry_text(case)
+        case["oracle"] = oracle.verdict(json.loads(text))
+        # A flagged value's magnitude can lie below binary64's range: there a reader may
+        # leave an infeasible family unresolved rather than decide it.
+        case["unresolved_allowed"] = '"below_normal": true' in text
     return {"seed": SEED, "fixtures": list(FIXTURES), "cases": cases}
 
 
@@ -186,15 +209,19 @@ def _reproductions():
 
 
 def reader_disagreements(case, verdict):
-    """The families where a reader's verdict is not the oracle's."""
+    """The families where a reader's verdict is not compatible with the oracle's."""
     out = []
     if verdict["closure"]["status"] != "passed":
         return [f"closure {verdict['closure']['status']}: {verdict['closure']['difference']}"]
     for family, truth in case["oracle"].items():
         standing = verdict["relations"][family]
-        failed = standing["status"] == "failed"
-        if failed != (truth == "infeasible"):
-            out.append(f"{family}: oracle {truth}, reader {standing['status']} ({standing['difference']})")
+        status = standing["status"]
+        if truth == "infeasible":
+            agrees = status == "failed" or (status == "unresolved" and case["unresolved_allowed"])
+        else:
+            agrees = status != "failed"
+        if not agrees:
+            out.append(f"{family}: oracle {truth}, reader {status} ({standing['difference']})")
     for name in oracle_other():
         if verdict["relations"][name]["status"] == "failed":
             out.append(f"{name}: failed ({verdict['relations'][name]['difference']})")
@@ -225,3 +252,17 @@ def test_the_python_reader_agrees_with_the_oracle():
     assert not failures, f"{len(failures)} disagreements:\n" + "\n".join(failures[:60])
     infeasible = sum(1 for c in cases if "infeasible" in c["oracle"].values())
     assert 0 < infeasible < len(cases), "the cases reach both verdicts"
+
+
+EDGES = ROOT / "fixtures/results/modal_producer_edges.json"
+
+
+def test_the_producers_edges_are_accepted_by_the_python_reader_and_the_oracle():
+    entries = json.loads(EDGES.read_text(encoding="utf-8"))["entries"]
+    assert len(entries) >= 3
+    for entry in entries:
+        text = entry_text(entry)
+        verdict = me.read_text(text, load(entry["request"]))
+        assert verdict["decision"] != "rejected", (entry["id"], verdict)
+        assert verdict["validation"]["status"] == "not_fully_validated", entry["id"]
+        assert all(v == "feasible" for v in oracle.verdict(json.loads(text)).values()), entry["id"]

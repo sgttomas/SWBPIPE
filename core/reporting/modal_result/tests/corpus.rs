@@ -14,6 +14,8 @@ const CORPUS: &str = include_str!("../../../../fixtures/results/modal_corpus.jso
 const SEMANTIC_TABLE: &str = include_str!("../../../../fixtures/results/semantic_contract_modal_1.json");
 /// The feasibility oracle's cases and verdicts (`tests/modal_feasibility_oracle.py`).
 const ORACLE_CASES: &str = include_str!("../../../../fixtures/results/modal_oracle_cases.json");
+/// Producer-formed edges (`core/product_physics/src/modal/tests_document.rs`).
+const PRODUCER_EDGES: &str = include_str!("../../../../fixtures/results/modal_producer_edges.json");
 
 fn fixture(name: &str) -> &'static str {
     macro_rules! file {
@@ -215,12 +217,13 @@ fn reason_holds(entry: &Value, verdict: &Value) -> bool {
 }
 
 fn intent_holds(entry: &Value, got: &Value) -> bool {
+    let none_failed = || got["relations"].as_object().unwrap().values().all(|s| s != "failed");
     match entry["intent"].as_str().unwrap() {
-        "none" => ["consistent_with_scoped_unsupported", "refusal_consistent"].contains(&got["decision"].as_str().unwrap()),
-        "scoped" => {
-            got["decision"] == "consistent_with_scoped_unsupported"
-                && got["relations"].as_object().unwrap().values().all(|s| s != "failed")
-        }
+        "none" => ["consistent", "consistent_with_unresolved", "consistent_with_scoped_unsupported", "refusal_consistent"]
+            .contains(&got["decision"].as_str().unwrap()),
+        "scoped" => ["consistent_with_unresolved", "consistent_with_scoped_unsupported"].contains(&got["decision"].as_str().unwrap()) && none_failed(),
+        // Left open by an operand's stated set: accepted, never passed.
+        "unresolved" => got["decision"] == "consistent_with_unresolved" && none_failed(),
         "closure" | "binding" => got[entry["intent"].as_str().unwrap()] == "failed" && got["decision"] == "rejected",
         relation => got["relations"][relation] == "failed" && got["decision"] == "rejected",
     }
@@ -248,11 +251,12 @@ fn the_rust_reader_returns_every_corpus_verdict() {
     assert!(failures.is_empty(), "{} corpus entries:\n{}", failures.len(), failures.join("\n"));
 }
 
-/// The reader against the feasibility oracle (Design §5.3.4): it fails a
-/// family exactly when the oracle finds no value within the stated sets that
-/// satisfies it, passes closure, and fails no other standing. A failure where
-/// the oracle finds an assignment is a false refusal; a pass or scope where it
-/// finds none is a false scoping. The Python reader is held to the same file.
+/// The reader against the feasibility oracle (Design §5.3.4), which is
+/// supporting evidence only: the reader never fails a family the oracle finds
+/// feasible (a false refusal), and never passes or scopes one the oracle
+/// proves infeasible: it fails it, or leaves it unresolved where binary64
+/// cannot decide what the oracle's rational arithmetic can. Closure passes and
+/// no other standing fails.
 #[test]
 fn the_rust_reader_agrees_with_the_feasibility_oracle() {
     let cases: Value = serde_json::from_str(ORACLE_CASES).unwrap();
@@ -266,9 +270,10 @@ fn the_rust_reader_agrees_with_the_feasibility_oracle() {
             continue;
         }
         for (family, truth) in case["oracle"].as_object().unwrap() {
-            let failed = got["relations"][family] == "failed";
-            if failed != (truth == "infeasible") {
-                failures.push(format!("{}: {family}: oracle {truth}, reader {} ({})", case["id"], got["relations"][family], verdict["relations"][family]["difference"]));
+            let status = got["relations"][family].as_str().unwrap();
+            let agrees = if truth == "infeasible" { status == "failed" || (status == "unresolved" && case["unresolved_allowed"] == true) } else { status != "failed" };
+            if !agrees {
+                failures.push(format!("{}: {family}: oracle {truth}, reader {status} ({})", case["id"], verdict["relations"][family]["difference"]));
             }
         }
         for other in ["normalization", "counts", "units"] {
@@ -280,12 +285,27 @@ fn the_rust_reader_agrees_with_the_feasibility_oracle() {
     assert!(failures.is_empty(), "{} disagreements:\n{}", failures.len(), failures.iter().take(60).cloned().collect::<Vec<_>>().join("\n"));
 }
 
+/// The producer's own edge output (false-refusal controls): accepted, no
+/// relation failed, and every relation that touches a flagged value left
+/// unresolved or passed, never failed.
+#[test]
+fn the_rust_reader_accepts_every_producer_edge() {
+    let edges: Value = serde_json::from_str(PRODUCER_EDGES).unwrap();
+    let entries = edges["entries"].as_array().unwrap();
+    assert!(entries.len() >= 3);
+    for entry in entries {
+        let (got, verdict) = run(entry);
+        assert!(got["decision"] != "rejected", "{}: {verdict:#}", entry["id"]);
+        assert_eq!(verdict["validation"]["status"], "not_fully_validated", "{}", entry["id"]);
+    }
+}
+
 #[test]
 fn every_tampered_relation_is_targeted_and_both_readers_share_one_corpus() {
     let corpus: Value = serde_json::from_str(CORPUS).unwrap();
     let intents: std::collections::BTreeSet<&str> =
         corpus["entries"].as_array().unwrap().iter().map(|e| e["intent"].as_str().unwrap()).collect();
-    for needed in ["none", "scoped", "closure", "binding", "mass", "normalization", "participation", "counts", "clusters", "sturm", "evidence", "standing", "units"] {
+    for needed in ["none", "scoped", "unresolved", "closure", "binding", "mass", "normalization", "participation", "counts", "clusters", "sturm", "evidence", "standing", "units"] {
         assert!(intents.contains(needed), "the corpus targets `{needed}`");
     }
 }
@@ -316,7 +336,8 @@ fn every_committed_fixture_reads_consistent_up_to_its_scope() {
             assert_eq!(verdict.decision, "refusal_consistent", "{name}");
             assert!(!verdict.refusal_codes.is_empty());
         } else {
-            assert_eq!(verdict.decision, "consistent_with_scoped_unsupported", "{name}: {json:#}");
+            assert!(["consistent_with_scoped_unsupported", "consistent_with_unresolved"].contains(&verdict.decision), "{name}: {json:#}");
+            assert_eq!(verdict.modal_validation(), "not_fully_validated", "{name}");
             assert!(verdict.relations[8].scope.iter().any(|s| s.contains("catalog_family_absent")), "{name}");
             let expected = if name == "cantilever_sensitive" { "sensitive" } else { "checks_passed" };
             assert_eq!(verdict.health, expected, "{name}");

@@ -13,7 +13,13 @@
 //! held to the same committed bytes and read every committed fixture, so the
 //! producer and both readers meet only at committed bytes. All models are
 //! invented.
-use super::document::{modal_doc_sha256, modal_result_document, modal_semantic_table, MODAL_RESULT_KIND};
+use super::document::{modal_doc_sha256, modal_doc_solved, modal_result_document, modal_semantic_table, MODAL_RESULT_KIND};
+use super::outcome::run_modal_dense;
+use super::request::ModalPreviewRequest;
+use open_pipe_stress_modal_eigen::modal_quantities::{
+    cumulative_effective_mass_fractions, normalize_mode, BelowNormalRange, Dof, FreeDof, ModalBasis, NormalizedMode,
+};
+use open_pipe_stress_modal_eigen::SymmetricMatrix;
 use super::integrity::ModalIntegrityParameters;
 use super::tests::{arc_request, ex_request_with_density, pf_request, q, with};
 use super::tests_eigen::{sec_a_cantilever, test_local_parameters};
@@ -23,6 +29,7 @@ use serde_json::{json, Value};
 const U1: &str = include_str!("../../../../validation/references/kd5_nonlinear/u1_request.json");
 const F1: &str = include_str!("../../../../validation/references/kd5_nonlinear/f1_request.json");
 const SEMANTIC_TABLE: &str = include_str!("../../../../fixtures/results/semantic_contract_modal_1.json");
+const PRODUCER_EDGES: &str = include_str!("../../../../fixtures/results/modal_producer_edges.json");
 
 /// The label every fixture's parameter set carries.
 const TEST_LOCAL_LABEL: &str = "TEST_LOCAL_I3A_EXPERIMENTAL";
@@ -173,6 +180,110 @@ fn a_member_named_model_is_not_the_aggregate_subject() {
         assert_eq!(named, vec![("member", "nodal"), ("model", "resultant")], "{axis}");
     }
     assert!(rows.iter().all(|r| ["member", "component_body", "model"].contains(&r["subject_kind"].as_str().unwrap())));
+}
+
+/// Producer edges (Design §5.3.4, the relation inventory): reported modes
+/// whose participation quantities are formed by the producer's own
+/// `normalize_mode` and `cumulative_effective_mass_fractions` on edge bases,
+/// and projected by the producer's own `modal_doc_solved`. Each is a set of
+/// three modes sharing one T_k. They are false-refusal controls: both readers
+/// and the feasibility oracle must accept every one.
+fn modal_edge_modes() -> Vec<(&'static str, &'static str, [f64; 3], Vec<NormalizedMode>)> {
+    const TAU: f64 = 1e-6;
+    let p2 = |e: i32| 2f64.powi(e);
+    let ux = |node| FreeDof { node, dof: Dof::Ux };
+    let one = |m: f64, p: f64, totals: [f64; 3]| {
+        let mass = SymmetricMatrix::from_diagonal(&[m]).unwrap();
+        let (p, zero, dofs) = ([p], [0.0], [ux(1)]);
+        let basis = ModalBasis::new(&mass, &dofs, [&p, &zero, &zero], totals, 1.0, TAU).unwrap();
+        normalize_mode(0, &[1.0], &basis).unwrap()
+    };
+    let mut out = Vec::new();
+    // modal_quantities.rs `a_contribution_dropped_by_alignment_is_not_exposed_by_cancellation`:
+    // m = 2, Γ_x = 2⁻¹⁰⁰², m_eff,x = 2⁻²⁰⁰³ and its fraction below the normal
+    // range (flagged, any extended exponent).
+    let totals = [2.0 + p2(-300), 1.0, 1.0];
+    let mass = SymmetricMatrix::from_diagonal(&[1.0, p2(-300), 1.0]).unwrap();
+    let (p, z) = ([1.0, p2(-300), 1.0], [0.0; 3]);
+    let dofs = [ux(0), ux(1), ux(2)];
+    let basis = ModalBasis::new(&mass, &dofs, [&p, &z, &z], totals, 1.0, TAU).unwrap();
+    let mode = normalize_mode(0, &[1.0, p2(-701), -1.0], &basis).unwrap();
+    assert!(mode.below_normal_range.effective_mass[0] && mode.below_normal_range.effective_mass_fraction[0]);
+    out.push(("extended_exponent_effective_mass", "m_eff,x = 2⁻²⁰⁰³ and its fraction flagged; Γ_x = 2⁻¹⁰⁰² normal", totals, vec![mode.clone(), mode.clone(), mode]));
+    // A flagged fraction inside the cumulative sums: mode 1's m_eff,x and
+    // fraction are about 10⁻³²⁰ (flagged); the producer sums the published
+    // fractions, so mode 1's cumulative is an unflagged 0.
+    let totals = [6.0, 1.0, 1.0];
+    let first = one(1.0, 1e-160, totals);
+    assert!(first.below_normal_range.effective_mass_fraction[0]);
+    out.push(("flagged_fraction_inside_the_cumulative_sums", "mode 1's fraction flagged; cumulative over the published fractions", totals,
+        vec![first, one(2.0, 0.3, totals), one(2.0, 0.6, totals)]));
+    // The reviewer's probe: Γ_x 10⁻²⁰⁰, T_x 10⁻³⁰⁰, m 33.7…: m_eff,x ≈ 3.4·10⁻³⁹⁹
+    // is flagged, its fraction ≈ 3.4·10⁻⁹⁹ is normal.
+    let totals = [1e-300, 1.0, 1.0];
+    let m = 33.718650870752306;
+    let probe = one(m, m * 1e-200, totals);
+    assert!(probe.below_normal_range.effective_mass[0] && !probe.below_normal_range.effective_mass_fraction[0]);
+    out.push(("normal_fraction_of_a_flagged_effective_mass", "Γ_x 10⁻²⁰⁰, T_x 10⁻³⁰⁰: m_eff,x flagged, its fraction normal", totals,
+        vec![probe.clone(), probe.clone(), probe]));
+    out
+}
+
+/// The producer-edge corpus entries: each edge's published values, as the
+/// producer's projection publishes them, onto the committed component-body
+/// fixture, with the payload withheld (it did not form these values).
+fn modal_edge_entries() -> Value {
+    let base = fixtures().into_iter().find(|f| f.name == "component_body").unwrap();
+    let parsed = ModalPreviewRequest::parse_modal_request(base.request.clone()).unwrap();
+    let committed_doc: Value = serde_json::from_str(committed("component_body").0).unwrap();
+    let mut entries = Vec::new();
+    for (id, about, totals, modes) in modal_edge_modes() {
+        let mut outcome = run_modal_dense(&parsed, &base.params).unwrap();
+        assert_eq!(outcome.modes.len(), modes.len());
+        let cumulative = cumulative_effective_mass_fractions(&modes);
+        for ((mode, edge), sums) in outcome.modes.iter_mut().zip(&modes).zip(&cumulative) {
+            mode.generalized_mass = edge.generalized_mass;
+            mode.participation = edge.participation;
+            mode.effective_mass = edge.effective_mass;
+            mode.effective_mass_fraction = edge.effective_mass_fraction;
+            mode.cumulative_effective_mass_fraction = *sums;
+            let shape = std::mem::take(&mut mode.below_normal_range.shape);
+            mode.below_normal_range = BelowNormalRange { shape, ..edge.below_normal_range.clone() };
+        }
+        outcome.mass_summary.total_by_direction = totals;
+        let doc = modal_doc_solved(&outcome, &committed_doc["binding"], base.label);
+        let mut operations = vec![json!({"op": "withhold", "table": "mass_matrix"}), json!({"op": "withhold", "table": "shapes"})];
+        let mut take = |path: String| {
+            let value = doc.pointer(&path).unwrap_or_else(|| panic!("{path}")).clone();
+            operations.push(json!({"op": "replace", "path": path, "value": value}));
+        };
+        for k in 0..3 {
+            take(format!("/tables/mass_totals/rows/{k}/total_mass"));
+        }
+        for m in 0..modes.len() {
+            take(format!("/tables/modes/rows/{m}/generalized_mass"));
+            for k in 0..3 {
+                for field in ["participation_factor", "effective_mass", "effective_mass_fraction", "cumulative_effective_mass_fraction"] {
+                    take(format!("/tables/participation/rows/{}/{field}", 3 * m + k));
+                }
+            }
+        }
+        entries.push(json!({"id": format!("producer:{id}"), "about": about, "document": "modal_component_body.json",
+            "request": "modal_component_body.request.json", "request_operations": [], "operations": operations, "reseal": true}));
+    }
+    json!({"generator": "core/product_physics/src/modal/tests_document.rs modal_edge_entries", "entries": entries})
+}
+
+#[test]
+fn the_producer_edges_are_the_producers_own_formation() {
+    assert!(fixture_text(&modal_edge_entries()) == PRODUCER_EDGES, "regenerate with write_modal_producer_edges");
+}
+
+#[test]
+#[ignore = "writes the producer-edge corpus; run explicitly to regenerate it"]
+fn write_modal_producer_edges() {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../fixtures/results");
+    std::fs::write(root.join("modal_producer_edges.json"), fixture_text(&modal_edge_entries())).unwrap();
 }
 
 /// The deterministic generation script of the committed fixtures: writes

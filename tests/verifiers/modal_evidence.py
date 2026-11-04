@@ -928,26 +928,26 @@ def _close(published, derived, tolerance):
 
 # --- What a published value can be ------------------------------------------------------
 #
-# Design §5.3.4's dependency table. A value object stands for the binary64 value the run
-# computed: a published finite number is exactly that number; `below_normal` is a nonzero
-# subnormal, so its magnitude lies in [2⁻¹⁰⁷⁴, 2⁻¹⁰²² − 2⁻¹⁰⁷⁴]; `outside_canonical_profile`
-# is finite with magnitude in [2⁵³, largest finite]; `not_finite` is ±∞ or NaN. A signed
-# kind (Γ, a shape component, an off-diagonal mass entry) can have either sign; every other
-# kind is nonnegative. Every other reason is a claim that the relation consuming it checks.
+# Design §5.3.4's relation inventory, from the producer's own formation. A value object
+# stands for the value the producer published:
+# - an unflagged number is that binary64 number; 0 is an exact zero (`WideDd::to_published`
+#   and `to_normal_or_zero`, modal_eigen dd.rs:476 and :507, publish a nonzero value
+#   below the normal range only as a flagged 0);
+# - `below_normal` is the producer's flagged 0: a NONZERO value of magnitude below 2⁻¹⁰²²,
+#   decided on the extended-exponent value, so unbounded below (2⁻²⁰⁰³ is one);
+# - `outside_canonical_profile` is finite with magnitude in [2⁵³, largest binary64];
+# - `not_finite` is ±∞ or NaN.
+# A signed kind (Γ, a shape component, an off-diagonal mass entry) takes either sign; every
+# other kind is nonnegative. Every other reason is a claim that the relation consuming it
+# checks. Where the producer forms a quantity from PUBLISHED values (the shape in m and
+# φᵀp_k, the fractions in their cumulative sums), the readers use the published value: a
+# flagged 0 is then 0.
 
 SUBNORMAL_MIN = 2.0 ** -1074
-SUBNORMAL_MAX = 2.0 ** -1022 - 2.0 ** -1074
+NORMAL_MIN = 2.0 ** -1022
 LARGEST = 1.7976931348623157e308
 PROFILE_FLOOR = 2.0 ** 53
-
-
-def _outward(value, exact):
-    """An interval around one rounded endpoint: relative 4u, plus the smallest subnormal
-    when a product may have underflowed (`exact` when a factor was exactly 0)."""
-    if math.isinf(value):
-        return value, value
-    slack = 4.0 * U * abs(value) + (0.0 if exact else SUBNORMAL_MIN)
-    return value - slack, value + slack
+UNRESOLVED = "unresolved: "
 
 
 def _times(x, y):
@@ -955,121 +955,222 @@ def _times(x, y):
     return 0.0 if x == 0.0 or y == 0.0 else x * y
 
 
+def _product_bounds(x, y):
+    """An interval holding the real product of two binary64 endpoints. A nonzero product
+    that underflows (below 2⁻¹⁰²², down to an exact-looking 0) is widened by the smallest
+    subnormal, never taken as an exact 0."""
+    v = _times(x, y)
+    if math.isinf(v) or (v == 0.0 and (x == 0.0 or y == 0.0)):
+        return v, v
+    slack = 4.0 * U * abs(v)
+    if abs(v) < NORMAL_MIN:
+        slack += SUBNORMAL_MIN
+    return v - slack, v + slack
+
+
+class Piece:
+    """A closed interval of reals [lo, hi] (an infinite end means unbounded); `nonzero`
+    excludes 0 from it (a flagged value, or a product of such)."""
+
+    __slots__ = ("lo", "hi", "nonzero")
+
+    def __init__(self, lo, hi, nonzero=False):
+        self.lo, self.hi = lo, hi
+        self.nonzero = nonzero and lo <= 0.0 <= hi
+
+    def excludes_zero(self):
+        return self.lo > 0.0 or self.hi < 0.0 or self.nonzero
+
+    def sign(self):
+        """+1 or −1 when every value has that sign, else 0."""
+        if self.lo > 0.0 or (self.lo == 0.0 and self.nonzero):
+            return 1
+        if self.hi < 0.0 or (self.hi == 0.0 and self.nonzero):
+            return -1
+        return 0
+
+
 class Values:
-    """A set of values: closed pieces of real numbers (an infinite endpoint means
-    unbounded, not ±∞), and whether the binary64 value may be ±∞ or NaN. Arithmetic is
-    outward-rounded and exact at 0. A real result beyond the largest binary64 is kept as
-    a real piece, and marks that the producer's binary64 result may overflow."""
+    """A set of values: pieces of reals, and whether the binary64 value may be ±∞ or NaN.
+    Arithmetic is outward-rounded, exact at 0, and never turns a nonzero underflow into
+    0. A real result beyond the largest binary64 is kept, and marks a possible overflow."""
 
     __slots__ = ("pieces", "nonfinite")
     MAX_PIECES = 8
 
     def __init__(self, pieces=(), nonfinite=False):
-        merged = []
-        for lo, hi in sorted(pieces):
-            if hi > LARGEST or lo < -LARGEST:
+        out = []
+        for p in sorted(pieces, key=lambda q: (q.lo, q.hi)):
+            if p.hi > LARGEST or p.lo < -LARGEST:
                 nonfinite = True
-            if merged and lo <= merged[-1][1]:
-                merged[-1] = (merged[-1][0], max(merged[-1][1], hi))
-            else:
-                merged.append((lo, hi))
-        if len(merged) > self.MAX_PIECES:
-            merged = [(merged[0][0], max(h for _, h in merged))]
-        self.pieces = tuple(merged)
+            out.append(p)
+        if len(out) > self.MAX_PIECES:
+            out = [Piece(min(p.lo for p in out), max(p.hi for p in out))]
+        self.pieces = tuple(out)
         self.nonfinite = nonfinite
 
     @classmethod
     def point(cls, x):
-        return cls(((x, x),))
+        return cls((Piece(x, x),))
 
     @classmethod
     def of(cls, vo, signed=False):
         """The set a value object states, or None for a null whose reason is a claim."""
-        def with_sign(lo, hi):
-            return ((lo, hi), (-hi, -lo)) if signed else ((lo, hi),)
         if vo.value is not None:
-            return cls(with_sign(SUBNORMAL_MIN, SUBNORMAL_MAX)) if vo.below else cls.point(vo.value)
+            if vo.below:
+                flagged = [Piece(0.0, NORMAL_MIN, True)] + ([Piece(-NORMAL_MIN, 0.0, True)] if signed else [])
+                return cls(flagged)
+            return cls.point(vo.value)
         if vo.undefined == "outside_canonical_profile":
-            return cls(with_sign(PROFILE_FLOOR, LARGEST))
+            return cls([Piece(PROFILE_FLOOR, LARGEST)] + ([Piece(-LARGEST, -PROFILE_FLOOR)] if signed else []))
         if vo.undefined == "not_finite":
             return cls((), True)
         return None
 
+    @classmethod
+    def published(cls, vo, signed=False):
+        """The value the producer itself carries forward: the published number (a flagged 0
+        is 0); a null outside the profile or not finite as its set; None for a claim."""
+        if vo.value is not None:
+            return cls.point(vo.value)
+        return cls.of(vo, signed)
+
     def as_point(self):
-        if not self.nonfinite and len(self.pieces) == 1 and self.pieces[0][0] == self.pieces[0][1]:
-            return self.pieces[0][0]
+        if not self.nonfinite and len(self.pieces) == 1 and self.pieces[0].lo == self.pieces[0].hi:
+            return self.pieces[0].lo
         return None
 
     def only_nonfinite(self):
         return self.nonfinite and not self.pieces
 
-    def _points(self, other, op):
-        # Two published points combine as the producer's binary64 operation does; the
-        # relations then allow for its rounding.
-        a, b = self.as_point(), other.as_point()
-        if a is None or b is None:
-            return None
-        v = op(a, b)
-        if math.isinf(v):
-            # The real result is beyond the largest binary64; the producer's overflows.
-            return Values([(LARGEST, math.inf)] if v > 0 else [(-math.inf, -LARGEST)], True)
-        return Values.point(v)
+    def magnitude(self):
+        return max((max(abs(p.lo), abs(p.hi)) for p in self.pieces), default=0.0)
 
     def __add__(self, other):
-        same = self._points(other, lambda a, b: a + b)
-        if same is not None:
-            return same
+        a, b = self.as_point(), other.as_point()
+        if a is not None and b is not None:
+            v = a + b
+            if math.isinf(v):
+                return Values([Piece(LARGEST, math.inf) if v > 0 else Piece(-math.inf, -LARGEST)], True)
+            return Values.point(v)
         out = []
-        for a in self.pieces:
-            for b in other.pieces:
-                out.append((_outward(a[0] + b[0], True)[0], _outward(a[1] + b[1], True)[1]))
+        for p in self.pieces:
+            for q in other.pieces:
+                lo, hi = p.lo + q.lo, p.hi + q.hi
+                lo -= 4.0 * U * abs(lo) if math.isfinite(lo) else 0.0
+                hi += 4.0 * U * abs(hi) if math.isfinite(hi) else 0.0
+                # Two same-signed parts, one of them nonzero, have a nonzero sum.
+                signs = (p.sign() or (1 if p.lo >= 0.0 else -1 if p.hi <= 0.0 else 0),
+                         q.sign() or (1 if q.lo >= 0.0 else -1 if q.hi <= 0.0 else 0))
+                nonzero = signs[0] == signs[1] != 0 and (p.excludes_zero() or q.excludes_zero())
+                out.append(Piece(lo, hi, nonzero))
         return Values(out, self.nonfinite or other.nonfinite)
 
     def __mul__(self, other):
-        same = self._points(other, lambda a, b: a * b)
-        if same is not None:
-            return same
+        a, b = self.as_point(), other.as_point()
+        if a is not None and b is not None:
+            v = a * b
+            if math.isinf(v):
+                return Values([Piece(LARGEST, math.inf) if v > 0 else Piece(-math.inf, -LARGEST)], True)
+            if v != 0.0 and abs(v) >= NORMAL_MIN or a == 0.0 or b == 0.0:
+                return Values.point(v)
+            # A nonzero product below the normal range: nonzero, signed, never 0.
+            # Rounded within one subnormal step, and nonzero.
+            positive = (a > 0.0) == (b > 0.0)
+            bottom, top = max(abs(v) - SUBNORMAL_MIN, 0.0), abs(v) + SUBNORMAL_MIN
+            return Values([Piece(bottom, top, True) if positive else Piece(-top, -bottom, True)])
         out = []
-        for a in self.pieces:
-            for b in other.pieces:
-                corners = []
-                for x in a:
-                    for y in b:
-                        corners.extend(_outward(_times(x, y), x == 0.0 or y == 0.0))
-                out.append((min(corners), max(corners)))
+        for p in self.pieces:
+            for q in other.pieces:
+                ends = [e for x in (p.lo, p.hi) for y in (q.lo, q.hi) for e in _product_bounds(x, y)]
+                lo, hi = min(ends), max(ends)
+                sign = p.sign() * q.sign()
+                nonzero = p.excludes_zero() and q.excludes_zero()
+                if sign > 0:
+                    lo = max(lo, 0.0)
+                elif sign < 0:
+                    hi = min(hi, 0.0)
+                out.append(Piece(lo, hi, nonzero))
         # 0·(±∞ or NaN) is NaN: a non-finite factor gives a non-finite product.
         return Values(out, self.nonfinite or other.nonfinite)
 
     def square(self):
+        a = self.as_point()
+        if a is not None:
+            return self * self
         out = []
-        for lo, hi in self.pieces:
-            ends = [_outward(_times(lo, lo), lo == 0.0), _outward(_times(hi, hi), hi == 0.0)]
-            top = max(e[1] for e in ends)
-            bottom = 0.0 if lo <= 0.0 <= hi else min(e[0] for e in ends)
-            out.append((max(bottom, 0.0), top))
+        for p in self.pieces:
+            ends = [e for x in (p.lo, p.hi) for e in _product_bounds(x, x)]
+            # Across 0 the square reaches 0; on one side it is monotone.
+            bottom = 0.0 if p.lo < 0.0 < p.hi else max(0.0, min(ends))
+            out.append(Piece(bottom, max(ends), p.excludes_zero()))
         return Values(out, self.nonfinite)
 
     def widen(self, relative):
-        """Each piece grown by `relative` times its endpoints' magnitudes: a rounding
-        allowance proportional to the terms it covers."""
-        return Values([(lo - _times(relative, abs(lo)), hi + _times(relative, abs(hi))) for lo, hi in self.pieces], self.nonfinite)
+        """Each piece grown by `relative` times its ends' magnitudes (0 stays 0)."""
+        return Values([Piece(p.lo - _times(relative, abs(p.lo)), p.hi + _times(relative, abs(p.hi)), p.nonzero)
+                       for p in self.pieces], self.nonfinite)
+
+    def widen_by(self, amount):
+        """Each piece grown by an absolute amount (a nonzero widening admits 0)."""
+        if amount == 0.0:
+            return self
+        return Values([Piece(p.lo - amount, p.hi + amount) for p in self.pieces], self.nonfinite)
 
     def meets(self, other):
         if self.nonfinite and other.nonfinite:
             return True
-        return any(a[0] <= b[1] and b[0] <= a[1] for a in self.pieces for b in other.pieces)
+        for p in self.pieces:
+            for q in other.pieces:
+                lo, hi = max(p.lo, q.lo), min(p.hi, q.hi)
+                if lo < hi:
+                    return True
+                if lo == hi and (lo != 0.0 or not (p.excludes_zero() or q.excludes_zero())):
+                    return True
+        return False
 
     def outcomes(self, predicate_low, predicate_high, nonfinite_outcomes):
         """The truth values a monotone threshold predicate can take over the set: each
-        piece contributes its endpoints' values; a non-finite value contributes
+        piece contributes its ends' values; a non-finite value contributes
         `nonfinite_outcomes` (the producer's comparison on ±∞ and NaN)."""
         found = set()
-        for lo, hi in self.pieces:
-            found.add(predicate_low(lo))
-            found.add(predicate_high(hi))
+        for p in self.pieces:
+            found.add(predicate_low(p.lo))
+            found.add(predicate_high(p.hi))
         if self.nonfinite:
             found |= set(nonfinite_outcomes)
         return found
+
+
+def _formed(*pairs):
+    """Whether each binary64 product (product, *factors) is what the real product is up to
+    rounding: not a nonzero product that underflowed below the normal range, which the
+    point path would mistake for (near) 0. Otherwise the set path decides."""
+    for product, *factors in pairs:
+        if all(f != 0.0 for f in factors) and abs(product) < NORMAL_MIN:
+            return False
+    return True
+
+
+def _excitation_terms(free, entries, phi):
+    """φᵀp_k's terms, one per mass entry and direction: {k: {entry index: [c, w]}}, with c
+    the entry's combined coefficient and w the sum of its coefficients' magnitudes, and
+    the incidence count per direction. An entry M_ij meets φᵀp_k in row i (i free, j along
+    k) and in row j (j free, i along k); it is ONE variable (reviewer's repro: +1 and −1 on
+    the same entry sum to exactly 0)."""
+    terms, counts = [dict(), dict(), dict()], [0, 0, 0]
+    for index, (i, j) in enumerate(entries):
+        hits = []
+        if free[i] and j % 6 < 3:
+            hits.append((j % 6, phi[i]))
+        if i != j and free[j] and i % 6 < 3:
+            hits.append((i % 6, phi[j]))
+        for k, c in hits:
+            counts[k] += 1
+            held = terms[k].setdefault(index, [0.0, 0.0])
+            held[0] += c
+            held[1] += abs(c)
+    return terms, counts
 
 
 def _total(sets):
@@ -1117,17 +1218,17 @@ def _mass(p):
         # A claim-null m_eff fails participation; m_eff ≥ 0, so leaving it out keeps a lower bound.
         effective = [e for e in effective if e is not None]
         if t.only_nonfinite() or any(e.nonfinite for e in effective) or t.nonfinite:
-            scope.append(f"Σ m_eff,{direction} ≤ T_{direction}: an operand is not finite (±∞ or NaN)")
+            scope.append(UNRESOLVED + f"Σ m_eff,{direction} ≤ T_{direction}: an operand is not finite (±∞ or NaN)")
             continue
-        lowest = sum(min(lo for lo, _ in e.pieces) for e in effective)
-        highest = sum(max(hi for _, hi in e.pieces) for e in effective)
-        t_low, t_high = min(lo for lo, _ in t.pieces), max(hi for _, hi in t.pieces)
+        lowest = sum(min(p.lo for p in e.pieces) for e in effective)
+        highest = sum(max(p.hi for p in e.pieces) for e in effective)
+        t_low, t_high = min(p.lo for p in t.pieces), max(p.hi for p in t.pieces)
         slack = 1.0 + ALLOW * float(n + 2) * U
         if lowest > t_high * slack:
             _fail(f"Σ m_eff,{direction} exceeds T_{direction} (Bessel's inequality)")
         if highest > t_low * slack:
             if _undetermined(t, *effective):
-                scope.append(f"Σ m_eff,{direction} ≤ T_{direction} is undecidable on the published bounds")
+                scope.append(UNRESOLVED + f"Σ m_eff,{direction} ≤ T_{direction} is undecidable on the published bounds")
     if p.mass is None:
         scope.append("mass_matrix withheld: T_k and the free-DOF mass are not re-derived")
         return scope
@@ -1155,7 +1256,7 @@ def _mass(p):
             derived = _total((Values.point(w) * s).widen(allowance) for w, _, s in terms)
             if not stated.meets(derived):
                 _fail(f"{name} is not the sum of its mass entries for any value its bounds allow")
-            scope.append(f"{name} = Σ of its mass entries is undecidable on the published bounds")
+            scope.append(UNRESOLVED + f"{name} = Σ of its mass entries is undecidable on the published bounds")
     return scope
 
 
@@ -1234,13 +1335,13 @@ def _quotient_relation(scope, label, operands, lhs, rhs, relative, failure, one_
     product beyond the largest binary64 is no such operand, and it cannot equal a finite
     published side, so only the finite pieces count."""
     if any(x.nonfinite for x in operands):
-        scope.append(f"{label}: an operand is not finite (±∞ or NaN)")
+        scope.append(UNRESOLVED + f"{label}: an operand is not finite (±∞ or NaN)")
         return
-    lhs, rhs = Values(lhs.pieces), Values(rhs.pieces)
+    lhs, rhs = Values(lhs.pieces), Values(rhs.pieces)  # the real parts only
     holds = lhs.widen(relative).meets(rhs) if one_sided else _within_relative(lhs, rhs, relative)
     if not holds:
         _fail(failure)
-    scope.append(f"{label} is undecidable on the published bounds")
+    scope.append(UNRESOLVED + f"{label} is undecidable on the published bounds")
 
 
 def _participation(p):
@@ -1259,8 +1360,10 @@ def _participation(p):
             if effective_vo.value is not None and effective_vo.value < 0.0:
                 _fail(f"mode {label}: m_eff is negative")
             # Γ²·m = m_eff.
-            if all(v.as_point() is not None for v in (gamma, gm, effective)):
-                g, mass, e = gamma.as_point(), gm.as_point(), effective.as_point()
+            points = [v.as_point() for v in (gamma, gm, effective)]
+            if all(x is not None for x in points) and _formed((points[0] * points[0], points[0], points[0]),
+                                                               (points[0] * points[0] * points[1], points[0], points[1])):
+                g, mass, e = points
                 g2m = g * g * mass
                 if not _close(g2m, e, ALLOW * U * max(e, g2m)):
                     _fail(f"mode {label}: Γ²·m is not m_eff")
@@ -1286,7 +1389,8 @@ def _participation(p):
             fraction = _needed(fraction_vo, f"mode {label}: fraction along {direction}")
             if fraction_vo.value is not None and fraction_vo.value < 0.0:
                 _fail(f"mode {label}: the fraction along {direction} is negative")
-            if all(v.as_point() is not None for v in (fraction, total, effective)):
+            points = [v.as_point() for v in (fraction, total, effective)]
+            if all(x is not None for x in points) and _formed((points[0] * points[1], points[0], points[1])):
                 ft = fraction.as_point() * total.as_point()
                 e = effective.as_point()
                 if not _close(ft, e, ALLOW * U * max(e, ft)):
@@ -1304,7 +1408,12 @@ def _participation(p):
             row, label = p.participation[m][k], m + 1
             if row["fraction"].undefined == "total_mass_zero":
                 break
-            running.append(_needed(row["fraction"], f"mode {label}: fraction along {direction}"))
+            # The producer sums the PUBLISHED fractions (a flagged fraction is its published 0),
+            # modal_quantities.rs:460.
+            published = Values.published(row["fraction"])
+            if published is None:
+                _fail(f"mode {label}: fraction along {direction}: {_claim_text(row['fraction'])}")
+            running.append(published)
             cumulative_vo = row["cumulative"]
             cumulative = _needed(cumulative_vo, f"mode {label}: cumulative fraction along {direction}")
             if cumulative_vo.value is not None and cumulative_vo.value < 0.0:
@@ -1318,7 +1427,7 @@ def _participation(p):
             derived = _total(running).widen(allowance)
             if not cumulative.meets(derived):
                 _fail(f"mode {label}: cumulative fraction along {direction} is not the running sum for any value its bounds allow")
-            scope.append(f"mode {label}: the cumulative fraction along {direction} is undecidable on the published bounds")
+            scope.append(UNRESOLVED + f"mode {label}: the cumulative fraction along {direction} is undecidable on the published bounds")
     if p.mass is None or p.shapes is None:
         scope.append("mass_matrix or shapes withheld: m_i and φᵀp_k are not re-derived")
         return scope
@@ -1326,32 +1435,41 @@ def _participation(p):
     entries = [(i, j, vo) for i, j, vo in p.mass]
     for m, mode in enumerate(p.modes):
         label = m + 1
-        phi = [Values.of(vo, signed=True) for vo in p.shapes[m]]
-        if any(v is None for v in phi):
+        # m and φᵀp_k are formed from the PUBLISHED shape (a flagged component is its
+        # published 0), modal_quantities.rs:377 and :398, :426.
+        phi = [Values.published(vo, signed=True) for vo in p.shapes[m]]
+        if any(v is None or v.as_point() is None for v in phi):
             _fail(f"mode {label}: a shape component is not published")
         # Each term with the entry it depends on; a term with an exactly-zero coefficient
         # is exactly 0 for a finite entry, and so depends on nothing.
         # Each allowance counts every entry of its sum, zero-coefficient ones included.
-        mass_terms, excitation, counts = [], [[], [], []], [0, 0, 0, 0]
-        used = [[], [], [], []]
-
-        def term(coefficient, i, j, vo, into, slot):
-            counts[slot] += 1
+        # One variable per entry. m = Σ_ij φ_i M_ij φ_j over the full symmetric M_ff gives an
+        # off-diagonal entry the single coefficient 2·φ_i·φ_j; in φᵀp_k (p_k = (M R_k)_f,
+        # stiffness.rs:255, mass.rs:147) each entry's coefficients are combined
+        # (`_excitation_terms`), and the allowance is held to their magnitudes (each row of
+        # p_k is rounded on its own). Every allowance counts all its incidences.
+        free = [f is not None for f in p.free]
+        shape = [v.as_point() for v in phi]
+        combined, incidence_counts = _excitation_terms(free, [(i, j) for i, j, _ in entries], shape)
+        mass_terms, counts, used = [], [0, 0, 0, 0], [[], [], [], []]
+        excitation = [dict(), dict(), dict()]
+        for index, (i, j, vo) in enumerate(entries):
+            in_mass = free[i] and free[j]
+            if not in_mass and not any(index in combined[k] for k in range(3)):
+                continue
             entry = _mass_entry_set(i, j, vo)
-            used[slot].append(entry)
-            c = coefficient.as_point()
-            if c == 0.0 and not entry.nonfinite:
-                return
-            into.append(coefficient * entry)
-
-        for i, j, vo in entries:
-            free_i, free_j = p.free[i] is not None, p.free[j] is not None
-            if free_i and free_j:
-                term(Values.point(1.0 if i == j else 2.0) * phi[i] * phi[j], i, j, vo, mass_terms, 3)
-            if free_i and j % 6 < 3:
-                term(phi[i], i, j, vo, excitation[j % 6], j % 6)
-            if i != j and free_j and i % 6 < 3:
-                term(phi[j], i, j, vo, excitation[i % 6], i % 6)
+            if in_mass:
+                counts[3] += 1
+                used[3].append(entry)
+                c = (1.0 if i == j else 2.0) * shape[i] * shape[j]
+                if c != 0.0 or entry.nonfinite:
+                    mass_terms.append(Values.point(c) * entry)
+            for k in range(3):
+                if index in combined[k]:
+                    c, w = combined[k][index]
+                    excitation[k][index] = [c, w, entry]
+                    used[k].append(entry)
+        counts[:3] = incidence_counts
         gm_vo = mode["generalized_mass"]
         gm = _needed(gm_vo, f"mode {label}: m")
         allowance = ALLOW * float(counts[3] + 4) * U
@@ -1366,23 +1484,28 @@ def _participation(p):
                 if gm_vo.below:
                     _fail(f"mode {label}: m is flagged below-normal, but the payload's φᵀM_ffφ is normal")
                 _fail(f"mode {label}: m is not φᵀM_ffφ for any value the bounds allow")
-            scope.append(f"mode {label}: m = φᵀM_ffφ is undecidable on the published bounds")
+            scope.append(UNRESOLVED + f"mode {label}: m = φᵀM_ffφ is undecidable on the published bounds")
         for k in range(3):
             row, direction = p.participation[m][k], DIRECTIONS[k]
-            terms = excitation[k]
+            terms = [held for held in excitation[k].values() if held[1] != 0.0 or held[2].nonfinite]
             e = ALLOW * float(counts[k] + 6) * U
             gamma = _needed(row["gamma"], f"mode {label}: Γ along {direction}", signed=True)
             effective = _needed(row["effective"], f"mode {label}: m_eff along {direction}")
-            points = [t.as_point() for t in terms]
-            if all(x is not None for x in points) and all(v.as_point() is not None for v in (gamma, effective, gm)):
-                s, a = sum(points), sum(abs(x) for x in points)
+            points_ok = all(t[2].as_point() is not None for t in terms) and all(v.as_point() is not None for v in (gamma, effective, gm))
+            if points_ok:
+                s = sum(c * x.as_point() for c, _, x in terms)
+                a = sum(w * abs(x.as_point()) for _, w, x in terms)
                 published, g, eff = gm.as_point(), gamma.as_point(), effective.as_point()
+                points_ok = _formed((g * published, g, published), (eff * published, eff, published), (s * s, s, s))
+            if points_ok:
                 if not _close(g * published, s, e * (a + abs(g * published))):
                     _fail(f"mode {label}: Γ along {direction} disagrees with φᵀp_k from the payload")
                 if not _close(eff * published, s * s, e * (2.0 * abs(s) * a + abs(eff * published)) + (e * a) * (e * a)):
                     _fail(f"mode {label}: m_eff along {direction} disagrees with φᵀp_k from the payload")
                 continue
-            s = _total(t.widen(e) for t in terms)
+            # Each entry once: c·x ± e·w·|x| is exactly x·[c − e·w, c + e·w] (the allowance is
+            # proportional to the same x).
+            s = _total(Values([Piece(c - e * w, c + e * w)]) * x for c, w, x in terms)
             flag = " (flagged below-normal)"
             _quotient_relation(scope, f"mode {label}: Γ·m = φᵀp_k along {direction}", [gamma, gm] + used[k], gamma * gm, s, e,
                                f"mode {label}: Γ along {direction}{flag if row['gamma'].below else ''} disagrees with "
@@ -1512,17 +1635,19 @@ def _clusters(p):
             maximum = Values()
             if len(finite) == len(sets):
                 # Every member finite: the maximum ranges over [max of lows, max of highs].
-                maximum = Values([(max(min(lo for lo, _ in x.pieces) for x in sets),
-                                   max(max(hi for _, hi in x.pieces) for x in sets))])
+                low = max(min(p.lo for p in x.pieces) for x in sets)
+                maximum = Values([Piece(low, max(max(p.hi for p in x.pieces) for x in sets),
+                                        all(all(p.excludes_zero() for p in x.pieces) for x in sets))])
             maximum.nonfinite = any(x.nonfinite for x in sets)
             if not stated.meets(maximum):
                 _fail(f"cluster {cid}: its e_λ is not its members' largest for any value the bounds allow")
-            scope.append(f"cluster {cid}: its e_λ against its members' is undecidable on the published bounds")
+            scope.append(UNRESOLVED + f"cluster {cid}: its e_λ against its members' is undecidable on the published bounds")
     for m, mode in enumerate(p.modes):
         index = mode["cluster"] - 1
         own = p.clusters[index][3] if 0 <= index < len(p.clusters) else None
         mine = mode["cluster_estimate"]
-        if own is None or (mine.value, mine.undefined) != (own.value, own.undefined):
+        # The copy is the same value object: value, reason and below-normal flag.
+        if own is None or (mine.value, mine.undefined, mine.below) != (own.value, own.undefined, own.below):
             _fail(f"mode {m + 1}: its cluster e_λ is not its cluster's")
     n = len(p.modes)
     if 0 < n < total and p.computed[n - 1]["cluster"] == p.computed[n]["cluster"]:
@@ -1560,7 +1685,7 @@ def _exact_formula(scope, label, lhs, operands, combine, relation, contradiction
         return
     if not lhs.meets(combine(*operands).widen(8.0 * U)):
         _fail(f"{label}: {contradiction}")
-    scope.append(f"{label}: {relation} is undecidable on the published bounds")
+    scope.append(UNRESOLVED + f"{label}: {relation} is undecidable on the published bounds")
 
 
 def _candidate(scope, c, label, sturm_count, limit, g_max, ks):
@@ -1594,7 +1719,7 @@ def _candidate(scope, c, label, sturm_count, limit, g_max, ks):
     # s ≥ κ_s·e_b (a non-finite ratio means e_b = 0, so separated); the growth and the
     # conditioning are its ≤ comparisons, false for ±∞ and NaN.
     separated = sets["separation"].outcomes(lambda lo: lo >= ks * (1.0 - 8.0 * U), lambda hi: hi >= ks * (1.0 - 8.0 * U), (True,))
-    if any(lo < ks * (1.0 + 8.0 * U) for lo, _ in sets["separation"].pieces):
+    if any(p.lo < ks * (1.0 + 8.0 * U) for p in sets["separation"].pieces):
         separated.add(False)
     within = sets["growth"].outcomes(lambda lo: lo <= g_max, lambda hi: hi <= g_max, (False,))
     conditioned = sets["product"].outcomes(lambda lo: lo <= limit, lambda hi: hi <= limit, (False,))
@@ -1608,7 +1733,7 @@ def _candidate(scope, c, label, sturm_count, limit, g_max, ks):
             if True not in outcomes:
                 _fail(f"the accepted shift {failure}: its {name} cannot meet it")
             if False in outcomes:
-                scope.append(f"the accepted {name} is undecidable against its premise on the published bounds")
+                scope.append(UNRESOLVED + f"the accepted {name} is undecidable against its premise on the published bounds")
     elif decision == "growth_limit":
         if True not in separated or False not in within:
             _fail(f"candidate {label}: refused for growth within the limit")
@@ -1671,12 +1796,12 @@ def _sturm(p):
             if not _close(lower, expected, 8.0 * U * expected):
                 _fail("the gap's lower end is not 2π·f_c")
         if shift_set is not None:
-            if not shift_set.meets(Values([(lower, upper)])):
+            if not shift_set.meets(Values([Piece(lower, upper)])):
                 if shift.value is None:
                     _fail("the accepted shift is outside the profile, so above its gap")
                 _fail("the accepted shift is not in its gap")
             if shift_set.as_point() is None:
-                scope.append("the accepted shift's place in its gap is undecidable on the published bounds")
+                scope.append(UNRESOLVED + "the accepted shift's place in its gap is undecidable on the published bounds")
     else:
         if p.placement != "above_spectrum" or p.placement_upper is not None or p.placement_established != n:
             _fail("the whole spectrum is counted above it, on its established count")
@@ -1686,10 +1811,10 @@ def _sturm(p):
         if n == 0 or lower != omega(n - 1):
             _fail("the placement's top is not the top mode's ω")
         if shift_set is not None:
-            if not shift_set.meets(Values([(lower, LARGEST)])):
+            if not shift_set.meets(Values([Piece(lower, LARGEST)])):
                 _fail("the accepted whole-spectrum shift is below the top mode")
             if shift_set.as_point() is None:
-                scope.append("the accepted shift's place above the spectrum is undecidable on the published bounds")
+                scope.append(UNRESOLVED + "the accepted shift's place above the spectrum is undecidable on the published bounds")
     return scope
 
 
@@ -1761,7 +1886,7 @@ def _evidence(p):
         product = eta * kappa
         if not (e.nonfinite and product.nonfinite) and not _within_relative(e, Values(product.pieces), 8.0 * U):
             _fail(f"computed mode {i + 1}: e_λ = η·κ_λ is contradicted by the bounds")
-        scope.append(f"computed mode {i + 1}: e_λ = η·κ_λ is undecidable on the published bounds")
+        scope.append(UNRESOLVED + f"computed mode {i + 1}: e_λ = η·κ_λ is undecidable on the published bounds")
     tolerance = p.params.get("identity_tolerance")
     if not isinstance(tolerance, dict) or not _is_number(tolerance.get("relative")) or not _is_number(tolerance.get("absolute")):
         _fail("the identity tolerance is not bound")
@@ -1781,7 +1906,7 @@ def _evidence(p):
                     _fail(f"identity row {i}: its relative discrepancy is at least 2⁵³, above the bound tolerance")
                 _fail(f"identity row {i}: relative discrepancy exceeds the bound tolerance")
             if False in within:
-                scope.append(f"identity row {i}: its discrepancy against the tolerance is undecidable (not finite)")
+                scope.append(UNRESOLVED + f"identity row {i}: its discrepancy against the tolerance is undecidable (not finite)")
     else:
         scope.append("an absolute identity tolerance: its scale is not published")
     for v in p.formation:
@@ -1811,14 +1936,14 @@ def _standing(p):
         if stated not in possible or (mode["reasons"] > 0) != stated:
             _fail(f"mode {m + 1}: Sensitive exactly when η > τ_r, with its reason")
         if len(possible) > 1:
-            scope.append(f"mode {m + 1}: η > τ_r is undecidable (η not finite)")
+            scope.append(UNRESOLVED + f"mode {m + 1}: η > τ_r is undecidable (η not finite)")
     # The set: Sensitive when a mode's token is, or the deviation is above τ_o.
     ortho = above(p.ortho, tau_o, "the orthogonality deviation")
     possible = {True} if any(mode["sensitive"] for mode in p.modes) else ortho
     if p.sensitive not in possible or (p.set_reasons > 0) != p.sensitive:
         _fail("the set is Sensitive exactly when a mode is or the orthogonality deviation exceeds τ_o")
     if len(possible) > 1:
-        scope.append("the set's standing is undecidable (the deviation is not finite)")
+        scope.append(UNRESOLVED + "the set's standing is undecidable (the deviation is not finite)")
     return scope
 
 
@@ -1832,23 +1957,44 @@ def _units(p):
 # --- The verdict --------------------------------------------------------------------------
 
 def _standing_of(function, *args):
+    """A relation's standing: failed (its first difference); unresolved, when an instance
+    is consistent with its operands' stated sets but not decided by them (never passed);
+    scoped unsupported, when evidence is withheld or outside the catalog; else passed."""
     try:
-        scope = function(*args)
+        items = function(*args)
     except Failure as failure:
-        return {"status": "failed", "difference": str(failure), "scope": []}
+        return {"status": "failed", "difference": str(failure), "scope": [], "unresolved": []}
     except (KeyError, IndexError, TypeError, AttributeError, ValueError, ArithmeticError) as error:
-        return {"status": "failed", "difference": f"malformed: {error!r}", "scope": []}
-    return {"status": "scoped_unsupported" if scope else "passed", "difference": None, "scope": scope}
+        return {"status": "failed", "difference": f"malformed: {error!r}", "scope": [], "unresolved": []}
+    unresolved = [x[len(UNRESOLVED):] for x in items if x.startswith(UNRESOLVED)]
+    scope = [x for x in items if not x.startswith(UNRESOLVED)]
+    status = "unresolved" if unresolved else ("scoped_unsupported" if scope else "passed")
+    return {"status": status, "difference": None, "scope": scope, "unresolved": unresolved}
+
+
+# What the verdict establishes, in every verdict (Design §5.3.4).
+VERDICT_LIMIT = ("per-relation consistency, not joint realizability: each relation is decided on its own operands, "
+                 "so a document every relation admits may still have no single coherent set of underlying values; "
+                 "feasibility-oracle agreement does not establish payload coherence either")
+
+
+def _validation(decision, relations):
+    """`fully_validated` only when every mandatory governing relation has passed: an
+    unresolved or scoped relation confers no validated or current-authority status."""
+    unmet = sorted(name for name, r in relations.items() if r["status"] != "passed")
+    return {"status": "fully_validated" if decision == "consistent" and not unmet else "not_fully_validated",
+            "unmet": unmet}
 
 
 def _unchecked():
-    return {"status": "not_checked", "difference": None, "scope": []}
+    return {"status": "not_checked", "difference": None, "scope": [], "unresolved": []}
 
 
 def _closure_failed(difference):
     return {"family": FAMILY, "closure": {"status": "failed", "difference": difference, "scope": []},
             "binding": dict(_unchecked(), not_checked=[]), "relations": {name: _unchecked() for name in RELATIONS},
-            "health": "not_assessed", "sensitive": False, "refusal_codes": [], "decision": "rejected"}
+            "health": "not_assessed", "sensitive": False, "refusal_codes": [], "decision": "rejected",
+            "validation": {"status": "not_fully_validated", "unmet": list(RELATIONS)}, "limit": VERDICT_LIMIT}
 
 
 def read(doc: Any, request: Any = None) -> dict:
@@ -1875,11 +2021,14 @@ def read(doc: Any, request: Any = None) -> dict:
                  "clusters": _clusters, "sturm": _sturm, "evidence": _evidence, "standing": _standing, "units": _units}
     relations = {name: _standing_of(functions[name], parsed) for name in RELATIONS}
     failed = bound["status"] == "failed" or any(r["status"] == "failed" for r in relations.values())
+    unresolved = any(r["status"] == "unresolved" for r in relations.values())
     scoped = any(r["status"] == "scoped_unsupported" for r in relations.values())
-    decision = "rejected" if failed else ("consistent_with_scoped_unsupported" if scoped else "consistent")
+    decision = ("rejected" if failed else "consistent_with_unresolved" if unresolved
+                else "consistent_with_scoped_unsupported" if scoped else "consistent")
     health = "not_assessed" if failed else ("sensitive" if parsed.sensitive else "checks_passed")
     return {"family": FAMILY, "closure": {"status": "passed", "difference": None, "scope": []}, "binding": bound,
-            "relations": relations, "health": health, "sensitive": health == "sensitive", "refusal_codes": [], "decision": decision}
+            "relations": relations, "health": health, "sensitive": health == "sensitive", "refusal_codes": [], "decision": decision,
+            "validation": _validation(decision, relations), "limit": VERDICT_LIMIT}
 
 
 def _read_refused(doc, request):
@@ -1910,7 +2059,8 @@ def _read_refused(doc, request):
     bound["not_checked"] = not_checked
     return {"family": FAMILY, "closure": {"status": "passed", "difference": None, "scope": []}, "binding": bound,
             "relations": {name: _unchecked() for name in RELATIONS}, "health": "not_assessed", "sensitive": False,
-            "refusal_codes": codes, "decision": "rejected" if bound["status"] == "failed" else "refusal_consistent"}
+            "refusal_codes": codes, "decision": "rejected" if bound["status"] == "failed" else "refusal_consistent",
+            "validation": {"status": "not_fully_validated", "unmet": list(RELATIONS)}, "limit": VERDICT_LIMIT}
 
 
 MAX_SAFE_INTEGER = 2 ** 53 - 1

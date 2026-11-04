@@ -6,8 +6,10 @@ ANY assignment of values within its operands' stated sets satisfies the relation
 uses no reader code. It reads the document's JSON directly, and each operand's set comes
 from its value object:
 
-- a published finite number is that number;
-- `below_normal` is a nonzero subnormal: magnitude in [2⁻¹⁰⁷⁴, 2⁻¹⁰²² − 2⁻¹⁰⁷⁴];
+- a published finite number is that number (0 is an exact zero);
+- `below_normal` is the producer's flagged 0: a NONZERO value of magnitude below 2⁻¹⁰²²,
+  decided on its extended-exponent value (`WideDd::to_published`, modal_eigen dd.rs:476),
+  so unbounded below: (0, 2⁻¹⁰²²), signed for a signed kind;
 - `outside_canonical_profile` is finite with magnitude in [2⁵³, largest finite];
 - `not_finite` is ±∞ or NaN (+∞ or NaN for a nonnegative kind);
 - every other reason is a claim, checked by the relation that consumes it.
@@ -33,8 +35,7 @@ U = Fraction(1, 2 ** 53)
 ALLOW = 16
 MAX = Fraction(1.7976931348623157e308)
 FLOOR = Fraction(2 ** 53)
-SUB_MIN = Fraction(1, 2 ** 1074)
-SUB_MAX = Fraction(1, 2 ** 1022) - SUB_MIN
+NORMAL_MIN = Fraction(1, 2 ** 1022)
 INF, NAN = float("inf"), float("nan")
 DIRECTIONS = ("x", "y", "z")
 FACTORED = ("factor_term", "backward_error", "inverse_norm_estimate", "conditioning_product", "separation_ratio", "growth",
@@ -43,10 +44,11 @@ FAMILIES = ("mass", "participation", "clusters", "sturm", "evidence", "standing"
 
 
 class Domain:
-    """Pieces (closed, rational), non-finite values, or a claim."""
+    """Pieces (rational, closed except at an excluded 0), non-finite values, or a claim.
+    `nonzero` excludes 0 from every piece (a flagged value)."""
 
-    def __init__(self, pieces=(), specials=(), claim=None):
-        self.pieces, self.specials, self.claim = list(pieces), list(specials), claim
+    def __init__(self, pieces=(), specials=(), claim=None, nonzero=False):
+        self.pieces, self.specials, self.claim, self.nonzero = list(pieces), list(specials), claim, nonzero
 
     def point(self):
         if not self.specials and self.claim is None and len(self.pieces) == 1 and self.pieces[0][0] == self.pieces[0][1]:
@@ -59,7 +61,7 @@ def domain(vo, signed=False):
         return [(lo, hi), (-hi, -lo)] if signed else [(lo, hi)]
     if vo["value"] is not None:
         if vo["below_normal"]:
-            return Domain(both(SUB_MIN, SUB_MAX))
+            return Domain(both(Fraction(0), NORMAL_MIN), nonzero=True)
         v = Fraction(vo["value"])
         return Domain([(v, v)])
     reason = vo["undefined_reason"]
@@ -70,13 +72,31 @@ def domain(vo, signed=False):
     return Domain(claim=reason)
 
 
+def published(vo, signed=False):
+    """What the producer carries forward from a published value (the shape into m and
+    φᵀp_k, a fraction into its cumulative sum): the published number, a flagged 0 being 0."""
+    if vo["value"] is not None:
+        v = Fraction(vo["value"])
+        return Domain([(v, v)])
+    return domain(vo, signed)
+
+
 def special(x):
     return isinstance(x, float) and not math.isfinite(x)
+
+
+# Magnitudes a flagged value can take: just below 2⁻¹⁰²², and far below the binary64
+# range (the extended exponent: 2⁻²⁰⁰³ is a producer value).
+FLAGGED = [NORMAL_MIN * (1 - Fraction(1, 2 ** 60)), Fraction(1, 2 ** 1023), Fraction(1, 2 ** 1100),
+           Fraction(1, 2 ** 2003), Fraction(1, 2 ** 4000)]
 
 
 def candidates(d):
     out = []
     for lo, hi in d.pieces:
+        if d.nonzero:
+            out += [m if hi > 0 else -m for m in FLAGGED]
+            continue
         out.append(lo)
         if lo != hi:
             out.append(hi)
@@ -89,7 +109,14 @@ def candidates(d):
 
 
 def clamp(x, d):
-    return [min(max(x, lo), hi) for lo, hi in d.pieces]
+    """The points of each piece nearest x; an excluded 0 is never one."""
+    out = []
+    for lo, hi in d.pieces:
+        y = min(max(x, lo), hi)
+        if d.nonzero and y == 0:
+            continue
+        out.append(y)
+    return out
 
 
 def satisfiable(operands, predicate, solvers=None):
@@ -301,9 +328,10 @@ def participation_family(d):
             c = rows[-1]["cumulative_effective_mass_fraction"]
             if domain(c).claim is not None or (c["value"] is not None and c["value"] < 0):
                 return False
+            # The producer sums the PUBLISHED fractions (modal_quantities.rs:460).
             terms = [(Fraction(1), r["effective_mass_fraction"], 0, 0) for r in rows]
             allowance = ALLOW * (m + 2) * U
-            operands = {"P": domain(c), **{f"x{t}": domain(vo) for t, (_, vo, _, _) in enumerate(terms)}}
+            operands = {"P": domain(c), **{f"x{t}": published(vo) for t, (_, vo, _, _) in enumerate(terms)}}
 
             def holds(a, terms=terms, allowance=allowance):
                 xs = [a[f"x{t}"] for t in range(len(terms))]
@@ -316,33 +344,41 @@ def participation_family(d):
     if d.mass is None or d.shapes is None:
         return True
     for m, mode in enumerate(d.modes):
+        # m and φᵀp_k use the PUBLISHED shape: a flagged component is 0 (modal_quantities.rs:377).
         phi = [Fraction(vo["value"]) for vo in d.shapes[m]]
-        assert not any(vo["below_normal"] for vo in d.shapes[m]), "the oracle's fixtures have no below-normal shape"
         pairs = [(i, j, vo) for i, j, vo in d.mass if d.free[i] and d.free[j]]
         terms = [(Fraction(1 if i == j else 2) * phi[i] * phi[j], vo, i, j) for i, j, vo in pairs]
         if not _sum_relation(mode["generalized_mass"], terms, len(pairs)):
             return False
         for k in range(3):
-            terms = []
+            # One variable per entry: its coefficients in φᵀp_k combined, their magnitudes
+            # kept for the allowance; the count is of incidences.
+            terms, incidences = [], 0
             for i, j, vo in d.mass:
+                hits = []
                 if d.free[i] and j % 6 == k:
-                    terms.append((phi[i], vo, i, j))
+                    hits.append(phi[i])
                 if i != j and d.free[j] and i % 6 == k:
-                    terms.append((phi[j], vo, i, j))
+                    hits.append(phi[j])
+                if hits:
+                    incidences += len(hits)
+                    terms.append((sum(hits), sum(abs(h) for h in hits), vo, i, j))
             row = d.participation[m][k]
-            if not _excitation(mode["generalized_mass"], row["participation_factor"], row["effective_mass"], terms):
+            if not _excitation(mode["generalized_mass"], row["participation_factor"], row["effective_mass"], terms, incidences):
                 return False
     return True
 
 
-def _excitation(gm, g, e, terms):
-    """Γ·m ≈ s and m_eff·m ≈ s², s = Σ c·x (the payload's φᵀp_k), each a quotient
-    relation: e = A(n+6)u, a = Σ|c·x|."""
-    eps = ALLOW * (len(terms) + 6) * U
-    base = {"m": domain(gm), **{f"x{t}": domain(vo, signed=i != j) for t, (_, vo, i, j) in enumerate(terms)}}
+def _excitation(gm, g, e, terms, incidences):
+    """Γ·m ≈ s and m_eff·m ≈ s², s = Σ c·x (the payload's φᵀp_k, one variable per entry
+    with its combined coefficient c), each a quotient relation: e = A(n+6)u over the n
+    incidences, a = Σ w·|x| with w the entry's Σ|coefficients|."""
+    eps = ALLOW * (incidences + 6) * U
+    base = {"m": domain(gm), **{f"x{t}": domain(vo, signed=i != j) for t, (_, _, vo, i, j) in enumerate(terms)}}
 
     def s_of(a):
-        return sum(c * a[f"x{t}"] for t, (c, *_) in enumerate(terms)), sum(abs(c * a[f"x{t}"]) for t, (c, *_) in enumerate(terms))
+        return (sum(c * a[f"x{t}"] for t, (c, *_) in enumerate(terms)),
+                sum(w * abs(a[f"x{t}"]) for t, (_, w, *_) in enumerate(terms)))
 
     def solve_x(target_fn):
         out = {}

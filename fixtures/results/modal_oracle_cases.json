@@ -31,7 +31,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:component_body:1",
@@ -53,7 +54,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:2",
@@ -85,7 +87,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:3",
@@ -107,7 +110,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:4",
@@ -129,7 +133,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:5",
@@ -161,7 +166,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:6",
@@ -183,7 +189,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:7",
@@ -205,7 +212,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:8",
@@ -227,7 +235,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:9",
@@ -259,7 +268,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:10",
@@ -281,7 +291,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:11",
@@ -303,7 +314,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:12",
@@ -325,7 +337,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:13",
@@ -347,7 +360,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:14",
@@ -374,7 +388,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:component_body:15",
@@ -396,7 +411,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:16",
@@ -428,7 +444,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:17",
@@ -450,7 +467,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:18",
@@ -477,7 +495,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:component_body:19",
@@ -499,7 +518,8 @@
         "sturm": "infeasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:20",
@@ -521,7 +541,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:21",
@@ -543,7 +564,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:22",
@@ -565,7 +587,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:23",
@@ -597,7 +620,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:24",
@@ -619,7 +643,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:25",
@@ -651,7 +676,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:26",
@@ -673,7 +699,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:27",
@@ -695,7 +722,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:28",
@@ -717,7 +745,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:29",
@@ -744,7 +773,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:component_body:30",
@@ -776,7 +806,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:31",
@@ -808,7 +839,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:32",
@@ -840,7 +872,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:33",
@@ -862,7 +895,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:34",
@@ -889,7 +923,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:component_body:35",
@@ -921,7 +956,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:36",
@@ -953,7 +989,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:37",
@@ -975,7 +1012,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:38",
@@ -1007,7 +1045,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:39",
@@ -1039,7 +1078,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:40",
@@ -1061,7 +1101,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:41",
@@ -1083,7 +1124,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:42",
@@ -1105,7 +1147,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:43",
@@ -1127,7 +1170,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:44",
@@ -1149,7 +1193,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:45",
@@ -1176,7 +1221,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:component_body:46",
@@ -1208,7 +1254,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "infeasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:47",
@@ -1230,7 +1277,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:48",
@@ -1252,7 +1300,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:49",
@@ -1284,7 +1333,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:50",
@@ -1306,7 +1356,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:51",
@@ -1328,7 +1379,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:52",
@@ -1360,7 +1412,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:53",
@@ -1392,7 +1445,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:54",
@@ -1414,7 +1468,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:55",
@@ -1446,7 +1501,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:56",
@@ -1478,7 +1534,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:57",
@@ -1500,7 +1557,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:58",
@@ -1522,7 +1580,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:59",
@@ -1544,7 +1603,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:60",
@@ -1566,7 +1626,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:61",
@@ -1588,7 +1649,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:62",
@@ -1620,7 +1682,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:63",
@@ -1652,7 +1715,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:64",
@@ -1679,7 +1743,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:component_body:65",
@@ -1706,7 +1771,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:component_body:66",
@@ -1728,7 +1794,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:67",
@@ -1755,7 +1822,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:component_body:68",
@@ -1777,7 +1845,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:69",
@@ -1809,7 +1878,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:70",
@@ -1836,7 +1906,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:component_body:71",
@@ -1858,7 +1929,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:72",
@@ -1890,7 +1962,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:73",
@@ -1917,7 +1990,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:component_body:74",
@@ -1939,7 +2013,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:75",
@@ -1961,7 +2036,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:76",
@@ -1993,7 +2069,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:77",
@@ -2020,7 +2097,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:component_body:78",
@@ -2042,7 +2120,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:79",
@@ -2064,7 +2143,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:80",
@@ -2096,7 +2176,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:81",
@@ -2118,7 +2199,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:82",
@@ -2150,7 +2232,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:83",
@@ -2172,7 +2255,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:84",
@@ -2194,7 +2278,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:85",
@@ -2226,7 +2311,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:86",
@@ -2258,7 +2344,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:87",
@@ -2280,7 +2367,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:88",
@@ -2302,7 +2390,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:89",
@@ -2334,7 +2423,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "infeasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:90",
@@ -2366,7 +2456,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:91",
@@ -2398,7 +2489,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:92",
@@ -2420,7 +2512,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:93",
@@ -2452,7 +2545,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:94",
@@ -2484,7 +2578,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:95",
@@ -2506,7 +2601,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:96",
@@ -2528,7 +2624,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:97",
@@ -2560,7 +2657,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:98",
@@ -2592,7 +2690,8 @@
         "sturm": "infeasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:99",
@@ -2614,7 +2713,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:100",
@@ -2641,7 +2741,8 @@
         "sturm": "infeasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:component_body:101",
@@ -2673,7 +2774,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:102",
@@ -2695,7 +2797,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:103",
@@ -2717,7 +2820,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:104",
@@ -2744,7 +2848,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:component_body:105",
@@ -2766,7 +2871,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:106",
@@ -2788,7 +2894,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:107",
@@ -2820,7 +2927,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:108",
@@ -2852,7 +2960,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:109",
@@ -2884,7 +2993,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:110",
@@ -2911,7 +3021,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:111",
@@ -2958,7 +3069,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:112",
@@ -2990,7 +3102,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:component_body:113",
@@ -3037,7 +3150,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:114",
@@ -3074,7 +3188,8 @@
         "sturm": "infeasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:115",
@@ -3106,7 +3221,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:component_body:116",
@@ -3143,7 +3259,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:117",
@@ -3175,7 +3292,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:component_body:118",
@@ -3212,7 +3330,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:119",
@@ -3239,7 +3358,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:120",
@@ -3271,7 +3391,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:component_body:121",
@@ -3318,7 +3439,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:122",
@@ -3365,7 +3487,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:123",
@@ -3402,7 +3525,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:124",
@@ -3449,7 +3573,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:125",
@@ -3486,7 +3611,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:126",
@@ -3523,7 +3649,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:127",
@@ -3550,7 +3677,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:128",
@@ -3587,7 +3715,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:129",
@@ -3624,7 +3753,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:130",
@@ -3661,7 +3791,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:component_body:131",
@@ -3693,7 +3824,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:component_body:132",
@@ -3725,7 +3857,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:component_body:133",
@@ -3752,7 +3885,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:134",
@@ -3779,7 +3913,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:135",
@@ -3816,7 +3951,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:136",
@@ -3858,7 +3994,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:component_body:137",
@@ -3885,7 +4022,8 @@
         "sturm": "infeasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:138",
@@ -3927,7 +4065,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:component_body:139",
@@ -3954,7 +4093,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:140",
@@ -3991,7 +4131,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:141",
@@ -4028,7 +4169,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:142",
@@ -4065,7 +4207,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:143",
@@ -4092,7 +4235,8 @@
         "sturm": "infeasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:144",
@@ -4119,7 +4263,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:145",
@@ -4146,7 +4291,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:146",
@@ -4173,7 +4319,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:147",
@@ -4210,7 +4357,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:148",
@@ -4237,7 +4385,8 @@
         "sturm": "infeasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:149",
@@ -4264,7 +4413,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:150",
@@ -4291,7 +4441,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:151",
@@ -4328,7 +4479,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:152",
@@ -4365,7 +4517,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:153",
@@ -4402,7 +4555,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:154",
@@ -4439,7 +4593,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:155",
@@ -4466,7 +4621,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:156",
@@ -4503,7 +4659,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:157",
@@ -4545,7 +4702,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:component_body:158",
@@ -4587,7 +4745,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:component_body:159",
@@ -4619,7 +4778,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:component_body:160",
@@ -4646,7 +4806,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:161",
@@ -4683,7 +4844,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:162",
@@ -4710,7 +4872,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:163",
@@ -4747,7 +4910,8 @@
         "sturm": "infeasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:164",
@@ -4774,7 +4938,8 @@
         "sturm": "infeasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:165",
@@ -4811,7 +4976,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:166",
@@ -4848,7 +5014,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:167",
@@ -4875,7 +5042,8 @@
         "sturm": "infeasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:168",
@@ -4902,7 +5070,8 @@
         "sturm": "infeasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:component_body:169",
@@ -4934,7 +5103,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:arc:170",
@@ -4956,7 +5126,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:171",
@@ -4988,7 +5159,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:172",
@@ -5010,7 +5182,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:173",
@@ -5042,7 +5215,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:174",
@@ -5064,7 +5238,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:175",
@@ -5091,7 +5266,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:arc:176",
@@ -5113,7 +5289,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:177",
@@ -5135,7 +5312,8 @@
         "sturm": "infeasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:178",
@@ -5167,7 +5345,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:179",
@@ -5194,7 +5373,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:arc:180",
@@ -5221,7 +5401,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:arc:181",
@@ -5243,7 +5424,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:182",
@@ -5265,7 +5447,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:183",
@@ -5297,7 +5480,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:184",
@@ -5324,7 +5508,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:arc:185",
@@ -5346,7 +5531,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:186",
@@ -5368,7 +5554,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:187",
@@ -5390,7 +5577,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:188",
@@ -5422,7 +5610,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:189",
@@ -5444,7 +5633,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:190",
@@ -5466,7 +5656,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:191",
@@ -5488,7 +5679,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:192",
@@ -5515,7 +5707,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:arc:193",
@@ -5542,7 +5735,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:arc:194",
@@ -5564,7 +5758,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:195",
@@ -5586,7 +5781,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:196",
@@ -5608,7 +5804,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:197",
@@ -5630,7 +5827,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:198",
@@ -5652,7 +5850,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:199",
@@ -5674,7 +5873,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:200",
@@ -5696,7 +5896,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:201",
@@ -5723,7 +5924,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:arc:202",
@@ -5745,7 +5947,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:203",
@@ -5767,7 +5970,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:204",
@@ -5799,7 +6003,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:205",
@@ -5826,7 +6031,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:arc:206",
@@ -5853,7 +6059,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:arc:207",
@@ -5885,7 +6092,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:208",
@@ -5907,7 +6115,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:209",
@@ -5939,7 +6148,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:210",
@@ -5971,7 +6181,8 @@
         "sturm": "infeasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:211",
@@ -5993,7 +6204,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:212",
@@ -6015,7 +6227,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:213",
@@ -6037,7 +6250,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:214",
@@ -6059,7 +6273,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:215",
@@ -6091,7 +6306,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:216",
@@ -6113,7 +6329,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:217",
@@ -6145,7 +6362,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:218",
@@ -6167,7 +6385,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:219",
@@ -6189,7 +6408,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:220",
@@ -6221,7 +6441,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:221",
@@ -6243,7 +6464,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:222",
@@ -6265,7 +6487,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:223",
@@ -6287,7 +6510,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:224",
@@ -6314,7 +6538,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:arc:225",
@@ -6346,7 +6571,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:226",
@@ -6378,7 +6604,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:227",
@@ -6410,7 +6637,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:228",
@@ -6432,7 +6660,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:229",
@@ -6464,7 +6693,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:230",
@@ -6491,7 +6721,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:arc:231",
@@ -6518,7 +6749,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:arc:232",
@@ -6540,7 +6772,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:233",
@@ -6562,7 +6795,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:234",
@@ -6584,7 +6818,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:235",
@@ -6606,7 +6841,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:236",
@@ -6638,7 +6874,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:237",
@@ -6660,7 +6897,8 @@
         "sturm": "infeasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:238",
@@ -6682,7 +6920,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:239",
@@ -6714,7 +6953,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:240",
@@ -6736,7 +6976,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:241",
@@ -6763,7 +7004,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:arc:242",
@@ -6785,7 +7027,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:243",
@@ -6812,7 +7055,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:arc:244",
@@ -6834,7 +7078,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:245",
@@ -6856,7 +7101,8 @@
         "sturm": "infeasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:246",
@@ -6878,7 +7124,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:247",
@@ -6900,7 +7147,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:248",
@@ -6922,7 +7170,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:249",
@@ -6954,7 +7203,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:250",
@@ -6981,7 +7231,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:arc:251",
@@ -7013,7 +7264,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:252",
@@ -7045,7 +7297,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:253",
@@ -7072,7 +7325,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:arc:254",
@@ -7104,7 +7358,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:255",
@@ -7136,7 +7391,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:256",
@@ -7158,7 +7414,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:257",
@@ -7190,7 +7447,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:258",
@@ -7212,7 +7470,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:259",
@@ -7244,7 +7503,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "infeasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:260",
@@ -7266,7 +7526,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:261",
@@ -7288,7 +7549,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:262",
@@ -7310,7 +7572,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:263",
@@ -7332,7 +7595,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:264",
@@ -7364,7 +7628,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:265",
@@ -7391,7 +7656,8 @@
         "sturm": "infeasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:arc:266",
@@ -7423,7 +7689,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:267",
@@ -7445,7 +7712,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:268",
@@ -7472,7 +7740,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:arc:269",
@@ -7504,7 +7773,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:270",
@@ -7536,7 +7806,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:271",
@@ -7558,7 +7829,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:272",
@@ -7590,7 +7862,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "infeasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:273",
@@ -7622,7 +7895,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "infeasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:274",
@@ -7649,7 +7923,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:arc:275",
@@ -7671,7 +7946,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:276",
@@ -7693,7 +7969,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:277",
@@ -7715,7 +7992,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:278",
@@ -7737,7 +8015,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:279",
@@ -7759,7 +8038,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:280",
@@ -7791,7 +8071,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:arc:281",
@@ -7828,7 +8109,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:282",
@@ -7855,7 +8137,8 @@
         "sturm": "infeasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:283",
@@ -7882,7 +8165,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:284",
@@ -7919,7 +8203,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:285",
@@ -7946,7 +8231,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:286",
@@ -7993,7 +8279,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:287",
@@ -8025,7 +8312,8 @@
         "sturm": "infeasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:arc:288",
@@ -8062,7 +8350,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:289",
@@ -8089,7 +8378,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:290",
@@ -8126,7 +8416,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:291",
@@ -8168,7 +8459,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:arc:292",
@@ -8210,7 +8502,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:arc:293",
@@ -8237,7 +8530,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:294",
@@ -8274,7 +8568,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:295",
@@ -8306,7 +8601,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:arc:296",
@@ -8333,7 +8629,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:297",
@@ -8375,7 +8672,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:arc:298",
@@ -8407,7 +8705,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:arc:299",
@@ -8444,7 +8743,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:300",
@@ -8471,7 +8771,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:301",
@@ -8518,7 +8819,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:302",
@@ -8555,7 +8857,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:303",
@@ -8592,7 +8895,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:304",
@@ -8629,7 +8933,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:305",
@@ -8661,7 +8966,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:arc:306",
@@ -8693,7 +8999,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:arc:307",
@@ -8720,7 +9027,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:308",
@@ -8747,7 +9055,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:309",
@@ -8794,7 +9103,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:310",
@@ -8831,7 +9141,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:arc:311",
@@ -8858,7 +9169,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:312",
@@ -8895,7 +9207,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:313",
@@ -8932,7 +9245,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:arc:314",
@@ -8959,7 +9273,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:315",
@@ -8991,7 +9306,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:arc:316",
@@ -9033,7 +9349,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:arc:317",
@@ -9070,7 +9387,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:318",
@@ -9097,7 +9415,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:319",
@@ -9139,7 +9458,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:arc:320",
@@ -9176,7 +9496,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:321",
@@ -9213,7 +9534,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:322",
@@ -9240,7 +9562,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:323",
@@ -9267,7 +9590,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:324",
@@ -9304,7 +9628,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:325",
@@ -9341,7 +9666,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:326",
@@ -9383,7 +9709,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:arc:327",
@@ -9430,7 +9757,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:328",
@@ -9457,7 +9785,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:329",
@@ -9494,7 +9823,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:330",
@@ -9531,7 +9861,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:331",
@@ -9578,7 +9909,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:332",
@@ -9615,7 +9947,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:333",
@@ -9652,7 +9985,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:334",
@@ -9689,7 +10023,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:335",
@@ -9726,7 +10061,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:336",
@@ -9763,7 +10099,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:337",
@@ -9800,7 +10137,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "infeasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:338",
@@ -9837,7 +10175,8 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:arc:339",
@@ -9874,120 +10213,100 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "oracle:state_friction_sliding:340",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
+      "reseal": true,
       "operations": [
         {
           "op": "replace",
-          "path": "/tables/participation/rows/4/cumulative_effective_mass_fraction/value",
-          "value": null
-        },
-        {
-          "op": "replace",
-          "path": "/tables/participation/rows/4/cumulative_effective_mass_fraction/below_normal",
-          "value": false
-        },
-        {
-          "op": "replace",
-          "path": "/tables/participation/rows/4/cumulative_effective_mass_fraction/undefined_reason",
-          "value": "total_mass_zero"
+          "path": "/tables/shapes/rows/35/value/below_normal",
+          "value": true
         }
       ],
-      "reseal": true,
       "oracle": {
         "mass": "feasible",
-        "participation": "infeasible",
+        "participation": "feasible",
         "clusters": "feasible",
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:state_friction_sliding:341",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
+      "reseal": true,
       "operations": [
         {
           "op": "replace",
-          "path": "/tables/mass_totals/rows/2/total_mass/value",
-          "value": 0.0
-        },
-        {
-          "op": "replace",
-          "path": "/tables/mass_totals/rows/2/total_mass/below_normal",
+          "path": "/tables/shapes/rows/6/value/below_normal",
           "value": true
         }
       ],
-      "reseal": true,
       "oracle": {
-        "mass": "infeasible",
-        "participation": "infeasible",
+        "mass": "feasible",
+        "participation": "feasible",
         "clusters": "feasible",
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:state_friction_sliding:342",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
+      "reseal": true,
       "operations": [
         {
           "op": "replace",
-          "path": "/tables/participation/rows/8/effective_mass/value",
-          "value": -7.9337656539351595
+          "path": "/tables/shapes/rows/18/value/below_normal",
+          "value": true
         }
       ],
-      "reseal": true,
       "oracle": {
         "mass": "feasible",
-        "participation": "infeasible",
+        "participation": "feasible",
         "clusters": "feasible",
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:state_friction_sliding:343",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
+      "reseal": true,
       "operations": [
         {
           "op": "replace",
-          "path": "/tables/sturm_candidates/rows/0/shift/value",
-          "value": null
-        },
-        {
-          "op": "replace",
-          "path": "/tables/sturm_candidates/rows/0/shift/below_normal",
-          "value": false
-        },
-        {
-          "op": "replace",
-          "path": "/tables/sturm_candidates/rows/0/shift/undefined_reason",
-          "value": "not_formed"
+          "path": "/tables/shapes/rows/11/value/below_normal",
+          "value": true
         }
       ],
-      "reseal": true,
       "oracle": {
         "mass": "feasible",
         "participation": "feasible",
         "clusters": "feasible",
-        "sturm": "infeasible",
+        "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "oracle:state_friction_sliding:344",
@@ -9997,18 +10316,176 @@
       "operations": [
         {
           "op": "replace",
-          "path": "/tables/clusters/rows/3/error_estimate/value",
+          "path": "/tables/modes/rows/2/generalized_mass/value",
+          "value": 0.0
+        }
+      ],
+      "reseal": true,
+      "oracle": {
+        "mass": "feasible",
+        "participation": "infeasible",
+        "clusters": "feasible",
+        "sturm": "feasible",
+        "evidence": "feasible",
+        "standing": "feasible"
+      },
+      "unresolved_allowed": false
+    },
+    {
+      "id": "oracle:state_friction_sliding:345",
+      "document": "modal_state_friction_sliding.json",
+      "request": "modal_state_friction_sliding.request.json",
+      "request_operations": [],
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/tables/sturm_candidates/rows/0/shift/value",
+          "value": 2599.886357048265
+        }
+      ],
+      "reseal": true,
+      "oracle": {
+        "mass": "feasible",
+        "participation": "feasible",
+        "clusters": "feasible",
+        "sturm": "feasible",
+        "evidence": "feasible",
+        "standing": "feasible"
+      },
+      "unresolved_allowed": false
+    },
+    {
+      "id": "oracle:state_friction_sliding:346",
+      "document": "modal_state_friction_sliding.json",
+      "request": "modal_state_friction_sliding.request.json",
+      "request_operations": [],
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/tables/mass_matrix/rows/5/value/value",
+          "value": -0.12029958931663026
+        }
+      ],
+      "reseal": true,
+      "oracle": {
+        "mass": "infeasible",
+        "participation": "feasible",
+        "clusters": "feasible",
+        "sturm": "feasible",
+        "evidence": "feasible",
+        "standing": "feasible"
+      },
+      "unresolved_allowed": false
+    },
+    {
+      "id": "oracle:state_friction_sliding:347",
+      "document": "modal_state_friction_sliding.json",
+      "request": "modal_state_friction_sliding.request.json",
+      "request_operations": [],
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/effective_mass_fraction/below_normal",
+          "value": true
+        }
+      ],
+      "reseal": true,
+      "oracle": {
+        "mass": "feasible",
+        "participation": "infeasible",
+        "clusters": "feasible",
+        "sturm": "feasible",
+        "evidence": "feasible",
+        "standing": "feasible"
+      },
+      "unresolved_allowed": true
+    },
+    {
+      "id": "oracle:state_friction_sliding:348",
+      "document": "modal_state_friction_sliding.json",
+      "request": "modal_state_friction_sliding.request.json",
+      "request_operations": [],
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/tables/mass_matrix/rows/2/value/value",
           "value": null
         },
         {
           "op": "replace",
-          "path": "/tables/clusters/rows/3/error_estimate/below_normal",
+          "path": "/tables/mass_matrix/rows/2/value/below_normal",
           "value": false
         },
         {
           "op": "replace",
-          "path": "/tables/clusters/rows/3/error_estimate/undefined_reason",
-          "value": "outside_canonical_profile"
+          "path": "/tables/mass_matrix/rows/2/value/undefined_reason",
+          "value": "no_neighbour"
+        }
+      ],
+      "reseal": true,
+      "oracle": {
+        "mass": "infeasible",
+        "participation": "feasible",
+        "clusters": "feasible",
+        "sturm": "feasible",
+        "evidence": "feasible",
+        "standing": "feasible"
+      },
+      "unresolved_allowed": false
+    },
+    {
+      "id": "oracle:state_friction_sliding:349",
+      "document": "modal_state_friction_sliding.json",
+      "request": "modal_state_friction_sliding.request.json",
+      "request_operations": [],
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/effective_mass/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/effective_mass/below_normal",
+          "value": true
+        }
+      ],
+      "reseal": true,
+      "oracle": {
+        "mass": "feasible",
+        "participation": "infeasible",
+        "clusters": "feasible",
+        "sturm": "feasible",
+        "evidence": "feasible",
+        "standing": "feasible"
+      },
+      "unresolved_allowed": true
+    },
+    {
+      "id": "oracle:state_friction_sliding:350",
+      "document": "modal_state_friction_sliding.json",
+      "request": "modal_state_friction_sliding.request.json",
+      "request_operations": [],
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/1/cluster_error_estimate/value",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/1/cluster_error_estimate/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/1/cluster_error_estimate/undefined_reason",
+          "value": "not_formed"
         }
       ],
       "reseal": true,
@@ -10019,28 +10496,29 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:345",
+      "id": "oracle:state_friction_sliding:351",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
       "operations": [
         {
           "op": "replace",
-          "path": "/tables/modes/rows/2/generalized_mass/value",
+          "path": "/tables/participation/rows/8/effective_mass_fraction/value",
           "value": null
         },
         {
           "op": "replace",
-          "path": "/tables/modes/rows/2/generalized_mass/below_normal",
+          "path": "/tables/participation/rows/8/effective_mass_fraction/below_normal",
           "value": false
         },
         {
           "op": "replace",
-          "path": "/tables/modes/rows/2/generalized_mass/undefined_reason",
-          "value": "outside_canonical_profile"
+          "path": "/tables/participation/rows/8/effective_mass_fraction/undefined_reason",
+          "value": "not_factored"
         }
       ],
       "reseal": true,
@@ -10051,103 +10529,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:346",
-      "document": "modal_state_friction_sliding.json",
-      "request": "modal_state_friction_sliding.request.json",
-      "request_operations": [],
-      "operations": [
-        {
-          "op": "replace",
-          "path": "/tables/computed_modes/rows/0/backward_error/value",
-          "value": 2.0963596775529925e-05
-        }
-      ],
-      "reseal": true,
-      "oracle": {
-        "mass": "feasible",
-        "participation": "feasible",
-        "clusters": "feasible",
-        "sturm": "feasible",
-        "evidence": "infeasible",
-        "standing": "infeasible"
-      }
-    },
-    {
-      "id": "oracle:state_friction_sliding:347",
-      "document": "modal_state_friction_sliding.json",
-      "request": "modal_state_friction_sliding.request.json",
-      "request_operations": [],
-      "operations": [
-        {
-          "op": "replace",
-          "path": "/tables/participation/rows/1/effective_mass_fraction/value",
-          "value": 0.0
-        },
-        {
-          "op": "replace",
-          "path": "/tables/participation/rows/1/effective_mass_fraction/below_normal",
-          "value": true
-        }
-      ],
-      "reseal": true,
-      "oracle": {
-        "mass": "feasible",
-        "participation": "infeasible",
-        "clusters": "feasible",
-        "sturm": "feasible",
-        "evidence": "feasible",
-        "standing": "feasible"
-      }
-    },
-    {
-      "id": "oracle:state_friction_sliding:348",
-      "document": "modal_state_friction_sliding.json",
-      "request": "modal_state_friction_sliding.request.json",
-      "request_operations": [],
-      "operations": [
-        {
-          "op": "replace",
-          "path": "/tables/mass_matrix/rows/9/value/value",
-          "value": 7092768560238.545
-        }
-      ],
-      "reseal": true,
-      "oracle": {
-        "mass": "infeasible",
-        "participation": "feasible",
-        "clusters": "feasible",
-        "sturm": "feasible",
-        "evidence": "feasible",
-        "standing": "feasible"
-      }
-    },
-    {
-      "id": "oracle:state_friction_sliding:349",
-      "document": "modal_state_friction_sliding.json",
-      "request": "modal_state_friction_sliding.request.json",
-      "request_operations": [],
-      "operations": [
-        {
-          "op": "replace",
-          "path": "/tables/mass_matrix/rows/6/value/value",
-          "value": -2.141660917991038
-        }
-      ],
-      "reseal": true,
-      "oracle": {
-        "mass": "infeasible",
-        "participation": "feasible",
-        "clusters": "feasible",
-        "sturm": "feasible",
-        "evidence": "feasible",
-        "standing": "feasible"
-      }
-    },
-    {
-      "id": "oracle:state_friction_sliding:350",
+      "id": "oracle:state_friction_sliding:352",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -10176,10 +10562,11 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:351",
+      "id": "oracle:state_friction_sliding:353",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -10198,10 +10585,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:352",
+      "id": "oracle:state_friction_sliding:354",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -10225,10 +10613,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:353",
+      "id": "oracle:state_friction_sliding:355",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -10257,10 +10646,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:354",
+      "id": "oracle:state_friction_sliding:356",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -10284,10 +10674,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:355",
+      "id": "oracle:state_friction_sliding:357",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -10306,10 +10697,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:356",
+      "id": "oracle:state_friction_sliding:358",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -10338,10 +10730,11 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:357",
+      "id": "oracle:state_friction_sliding:359",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -10370,10 +10763,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:358",
+      "id": "oracle:state_friction_sliding:360",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -10402,10 +10796,11 @@
         "sturm": "infeasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:359",
+      "id": "oracle:state_friction_sliding:361",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -10434,10 +10829,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:360",
+      "id": "oracle:state_friction_sliding:362",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -10456,10 +10852,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:361",
+      "id": "oracle:state_friction_sliding:363",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -10488,10 +10885,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:362",
+      "id": "oracle:state_friction_sliding:364",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -10510,10 +10908,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:363",
+      "id": "oracle:state_friction_sliding:365",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -10542,10 +10941,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:364",
+      "id": "oracle:state_friction_sliding:366",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -10564,10 +10964,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:365",
+      "id": "oracle:state_friction_sliding:367",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -10591,10 +10992,11 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:366",
+      "id": "oracle:state_friction_sliding:368",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -10613,10 +11015,11 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:367",
+      "id": "oracle:state_friction_sliding:369",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -10645,10 +11048,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:368",
+      "id": "oracle:state_friction_sliding:370",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -10667,10 +11071,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:369",
+      "id": "oracle:state_friction_sliding:371",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -10689,10 +11094,11 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:370",
+      "id": "oracle:state_friction_sliding:372",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -10716,10 +11122,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:371",
+      "id": "oracle:state_friction_sliding:373",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -10748,10 +11155,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:372",
+      "id": "oracle:state_friction_sliding:374",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -10775,10 +11183,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:373",
+      "id": "oracle:state_friction_sliding:375",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -10802,10 +11211,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:374",
+      "id": "oracle:state_friction_sliding:376",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -10834,10 +11244,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:375",
+      "id": "oracle:state_friction_sliding:377",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -10856,10 +11267,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:376",
+      "id": "oracle:state_friction_sliding:378",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -10878,10 +11290,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:377",
+      "id": "oracle:state_friction_sliding:379",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -10900,10 +11313,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:378",
+      "id": "oracle:state_friction_sliding:380",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -10932,10 +11346,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:379",
+      "id": "oracle:state_friction_sliding:381",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -10954,10 +11369,11 @@
         "sturm": "infeasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:380",
+      "id": "oracle:state_friction_sliding:382",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -10981,10 +11397,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:381",
+      "id": "oracle:state_friction_sliding:383",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11013,10 +11430,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:382",
+      "id": "oracle:state_friction_sliding:384",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11035,10 +11453,11 @@
         "sturm": "infeasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:383",
+      "id": "oracle:state_friction_sliding:385",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11057,10 +11476,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:384",
+      "id": "oracle:state_friction_sliding:386",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11089,10 +11509,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:385",
+      "id": "oracle:state_friction_sliding:387",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11111,10 +11532,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:386",
+      "id": "oracle:state_friction_sliding:388",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11133,10 +11555,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:387",
+      "id": "oracle:state_friction_sliding:389",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11165,10 +11588,11 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:388",
+      "id": "oracle:state_friction_sliding:390",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11197,10 +11621,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:389",
+      "id": "oracle:state_friction_sliding:391",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11219,10 +11644,11 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:390",
+      "id": "oracle:state_friction_sliding:392",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11241,10 +11667,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:391",
+      "id": "oracle:state_friction_sliding:393",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11273,10 +11700,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:392",
+      "id": "oracle:state_friction_sliding:394",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11295,10 +11723,11 @@
         "sturm": "infeasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:393",
+      "id": "oracle:state_friction_sliding:395",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11327,10 +11756,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:394",
+      "id": "oracle:state_friction_sliding:396",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11349,10 +11779,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:395",
+      "id": "oracle:state_friction_sliding:397",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11381,10 +11812,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:396",
+      "id": "oracle:state_friction_sliding:398",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11403,10 +11835,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:397",
+      "id": "oracle:state_friction_sliding:399",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11425,10 +11858,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:398",
+      "id": "oracle:state_friction_sliding:400",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11452,10 +11886,11 @@
         "sturm": "infeasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:399",
+      "id": "oracle:state_friction_sliding:401",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11474,10 +11909,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:400",
+      "id": "oracle:state_friction_sliding:402",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11501,10 +11937,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:401",
+      "id": "oracle:state_friction_sliding:403",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11533,10 +11970,11 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:402",
+      "id": "oracle:state_friction_sliding:404",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11565,10 +12003,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:403",
+      "id": "oracle:state_friction_sliding:405",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11587,10 +12026,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:404",
+      "id": "oracle:state_friction_sliding:406",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11619,10 +12059,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:405",
+      "id": "oracle:state_friction_sliding:407",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11646,10 +12087,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:406",
+      "id": "oracle:state_friction_sliding:408",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11668,10 +12110,11 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:407",
+      "id": "oracle:state_friction_sliding:409",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11700,10 +12143,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:408",
+      "id": "oracle:state_friction_sliding:410",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11722,10 +12166,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:409",
+      "id": "oracle:state_friction_sliding:411",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11754,10 +12199,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:410",
+      "id": "oracle:state_friction_sliding:412",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11776,10 +12222,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:411",
+      "id": "oracle:state_friction_sliding:413",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11798,10 +12245,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:412",
+      "id": "oracle:state_friction_sliding:414",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11830,10 +12278,11 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:413",
+      "id": "oracle:state_friction_sliding:415",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11852,10 +12301,11 @@
         "sturm": "infeasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:414",
+      "id": "oracle:state_friction_sliding:416",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11879,10 +12329,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:415",
+      "id": "oracle:state_friction_sliding:417",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11901,10 +12352,11 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:416",
+      "id": "oracle:state_friction_sliding:418",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11928,10 +12380,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:417",
+      "id": "oracle:state_friction_sliding:419",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11960,10 +12413,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:418",
+      "id": "oracle:state_friction_sliding:420",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -11992,10 +12446,11 @@
         "sturm": "infeasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:419",
+      "id": "oracle:state_friction_sliding:421",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12024,10 +12479,11 @@
         "sturm": "infeasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:420",
+      "id": "oracle:state_friction_sliding:422",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12046,10 +12502,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:421",
+      "id": "oracle:state_friction_sliding:423",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12068,10 +12525,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:422",
+      "id": "oracle:state_friction_sliding:424",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12095,10 +12553,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:423",
+      "id": "oracle:state_friction_sliding:425",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12117,10 +12576,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:424",
+      "id": "oracle:state_friction_sliding:426",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12139,10 +12599,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:425",
+      "id": "oracle:state_friction_sliding:427",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12161,10 +12622,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:426",
+      "id": "oracle:state_friction_sliding:428",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12183,10 +12645,11 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:427",
+      "id": "oracle:state_friction_sliding:429",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12205,10 +12668,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:428",
+      "id": "oracle:state_friction_sliding:430",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12227,10 +12691,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:429",
+      "id": "oracle:state_friction_sliding:431",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12249,10 +12714,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:430",
+      "id": "oracle:state_friction_sliding:432",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12281,10 +12747,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:431",
+      "id": "oracle:state_friction_sliding:433",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12303,10 +12770,11 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:432",
+      "id": "oracle:state_friction_sliding:434",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12325,10 +12793,11 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:433",
+      "id": "oracle:state_friction_sliding:435",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12352,10 +12821,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:434",
+      "id": "oracle:state_friction_sliding:436",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12374,10 +12844,11 @@
         "sturm": "infeasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:435",
+      "id": "oracle:state_friction_sliding:437",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12396,10 +12867,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:436",
+      "id": "oracle:state_friction_sliding:438",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12418,10 +12890,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:437",
+      "id": "oracle:state_friction_sliding:439",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12440,10 +12913,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:438",
+      "id": "oracle:state_friction_sliding:440",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12472,10 +12946,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:439",
+      "id": "oracle:state_friction_sliding:441",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12499,10 +12974,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:440",
+      "id": "oracle:state_friction_sliding:442",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12531,10 +13007,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:441",
+      "id": "oracle:state_friction_sliding:443",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12553,10 +13030,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:442",
+      "id": "oracle:state_friction_sliding:444",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12575,10 +13053,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:443",
+      "id": "oracle:state_friction_sliding:445",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12607,10 +13086,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:444",
+      "id": "oracle:state_friction_sliding:446",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12634,10 +13114,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:445",
+      "id": "oracle:state_friction_sliding:447",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12666,10 +13147,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:446",
+      "id": "oracle:state_friction_sliding:448",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12698,10 +13180,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:447",
+      "id": "oracle:state_friction_sliding:449",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12720,10 +13203,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:448",
+      "id": "oracle:state_friction_sliding:450",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12742,10 +13226,11 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:449",
+      "id": "oracle:state_friction_sliding:451",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12774,10 +13259,11 @@
         "sturm": "infeasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:450",
+      "id": "oracle:state_friction_sliding:452",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12786,20 +13272,38 @@
           "op": "replace",
           "path": "/tables/clusters/rows/2/error_estimate/value",
           "value": -3.386876007745276e-15
-        },
+        }
+      ],
+      "reseal": true,
+      "oracle": {
+        "mass": "feasible",
+        "participation": "feasible",
+        "clusters": "infeasible",
+        "sturm": "feasible",
+        "evidence": "feasible",
+        "standing": "feasible"
+      },
+      "unresolved_allowed": false
+    },
+    {
+      "id": "oracle:state_friction_sliding:453",
+      "document": "modal_state_friction_sliding.json",
+      "request": "modal_state_friction_sliding.request.json",
+      "request_operations": [],
+      "operations": [
         {
           "op": "replace",
-          "path": "/tables/participation/rows/5/cumulative_effective_mass_fraction/value",
+          "path": "/tables/participation/rows/4/effective_mass_fraction/value",
           "value": null
         },
         {
           "op": "replace",
-          "path": "/tables/participation/rows/5/cumulative_effective_mass_fraction/below_normal",
+          "path": "/tables/participation/rows/4/effective_mass_fraction/below_normal",
           "value": false
         },
         {
           "op": "replace",
-          "path": "/tables/participation/rows/5/cumulative_effective_mass_fraction/undefined_reason",
+          "path": "/tables/participation/rows/4/effective_mass_fraction/undefined_reason",
           "value": "no_neighbour"
         }
       ],
@@ -12807,14 +13311,15 @@
       "oracle": {
         "mass": "feasible",
         "participation": "infeasible",
-        "clusters": "infeasible",
+        "clusters": "feasible",
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:451",
+      "id": "oracle:state_friction_sliding:454",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12848,10 +13353,11 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:452",
+      "id": "oracle:state_friction_sliding:455",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12885,10 +13391,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:453",
+      "id": "oracle:state_friction_sliding:456",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12927,10 +13434,11 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:454",
+      "id": "oracle:state_friction_sliding:457",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12954,10 +13462,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:455",
+      "id": "oracle:state_friction_sliding:458",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -12991,10 +13500,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:456",
+      "id": "oracle:state_friction_sliding:459",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -13028,10 +13538,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:457",
+      "id": "oracle:state_friction_sliding:460",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -13075,10 +13586,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:458",
+      "id": "oracle:state_friction_sliding:461",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -13112,10 +13624,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:459",
+      "id": "oracle:state_friction_sliding:462",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -13154,10 +13667,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:460",
+      "id": "oracle:state_friction_sliding:463",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -13181,10 +13695,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:461",
+      "id": "oracle:state_friction_sliding:464",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -13223,10 +13738,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:462",
+      "id": "oracle:state_friction_sliding:465",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -13260,10 +13776,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:463",
+      "id": "oracle:state_friction_sliding:466",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -13297,10 +13814,11 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:464",
+      "id": "oracle:state_friction_sliding:467",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -13339,10 +13857,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:465",
+      "id": "oracle:state_friction_sliding:468",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -13371,10 +13890,11 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:466",
+      "id": "oracle:state_friction_sliding:469",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -13403,10 +13923,11 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:467",
+      "id": "oracle:state_friction_sliding:470",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -13440,10 +13961,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:468",
+      "id": "oracle:state_friction_sliding:471",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -13482,10 +14004,11 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:469",
+      "id": "oracle:state_friction_sliding:472",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -13509,10 +14032,11 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:470",
+      "id": "oracle:state_friction_sliding:473",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -13536,10 +14060,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:471",
+      "id": "oracle:state_friction_sliding:474",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -13568,10 +14093,11 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:472",
+      "id": "oracle:state_friction_sliding:475",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -13595,10 +14121,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:473",
+      "id": "oracle:state_friction_sliding:476",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -13642,10 +14169,11 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:474",
+      "id": "oracle:state_friction_sliding:477",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -13689,10 +14217,11 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "infeasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:475",
+      "id": "oracle:state_friction_sliding:478",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -13726,10 +14255,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:476",
+      "id": "oracle:state_friction_sliding:479",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -13758,10 +14288,11 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:477",
+      "id": "oracle:state_friction_sliding:480",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -13795,10 +14326,11 @@
         "sturm": "infeasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:478",
+      "id": "oracle:state_friction_sliding:481",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -13832,10 +14364,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:479",
+      "id": "oracle:state_friction_sliding:482",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -13879,10 +14412,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:480",
+      "id": "oracle:state_friction_sliding:483",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -13921,10 +14455,11 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:481",
+      "id": "oracle:state_friction_sliding:484",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -13948,10 +14483,11 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:482",
+      "id": "oracle:state_friction_sliding:485",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -13980,10 +14516,11 @@
         "sturm": "infeasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:483",
+      "id": "oracle:state_friction_sliding:486",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -14012,10 +14549,11 @@
         "sturm": "infeasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:484",
+      "id": "oracle:state_friction_sliding:487",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -14039,10 +14577,11 @@
         "sturm": "infeasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:485",
+      "id": "oracle:state_friction_sliding:488",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -14076,10 +14615,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:486",
+      "id": "oracle:state_friction_sliding:489",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -14103,10 +14643,11 @@
         "sturm": "infeasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:487",
+      "id": "oracle:state_friction_sliding:490",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -14140,10 +14681,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:488",
+      "id": "oracle:state_friction_sliding:491",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -14182,10 +14724,11 @@
         "sturm": "infeasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:489",
+      "id": "oracle:state_friction_sliding:492",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -14219,10 +14762,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:490",
+      "id": "oracle:state_friction_sliding:493",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -14256,10 +14800,11 @@
         "sturm": "infeasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:491",
+      "id": "oracle:state_friction_sliding:494",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -14293,10 +14838,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:492",
+      "id": "oracle:state_friction_sliding:495",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -14325,10 +14871,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:493",
+      "id": "oracle:state_friction_sliding:496",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -14352,10 +14899,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:494",
+      "id": "oracle:state_friction_sliding:497",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -14394,10 +14942,11 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:495",
+      "id": "oracle:state_friction_sliding:498",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -14426,10 +14975,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:496",
+      "id": "oracle:state_friction_sliding:499",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -14468,10 +15018,11 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:497",
+      "id": "oracle:state_friction_sliding:500",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -14515,10 +15066,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:498",
+      "id": "oracle:state_friction_sliding:501",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -14547,10 +15099,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:499",
+      "id": "oracle:state_friction_sliding:502",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -14584,10 +15137,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:500",
+      "id": "oracle:state_friction_sliding:503",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -14626,10 +15180,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:501",
+      "id": "oracle:state_friction_sliding:504",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -14663,10 +15218,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:502",
+      "id": "oracle:state_friction_sliding:505",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -14700,10 +15256,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:503",
+      "id": "oracle:state_friction_sliding:506",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -14742,10 +15299,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:504",
+      "id": "oracle:state_friction_sliding:507",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -14769,10 +15327,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:505",
+      "id": "oracle:state_friction_sliding:508",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -14801,10 +15360,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
-      "id": "oracle:state_friction_sliding:506",
+      "id": "oracle:state_friction_sliding:509",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -14838,10 +15398,11 @@
         "sturm": "feasible",
         "evidence": "infeasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:507",
+      "id": "oracle:state_friction_sliding:510",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -14885,10 +15446,11 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:508",
+      "id": "oracle:state_friction_sliding:511",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -14932,10 +15494,11 @@
         "sturm": "infeasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
-      "id": "oracle:state_friction_sliding:509",
+      "id": "oracle:state_friction_sliding:512",
       "document": "modal_state_friction_sliding.json",
       "request": "modal_state_friction_sliding.request.json",
       "request_operations": [],
@@ -14964,7 +15527,36 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
+    },
+    {
+      "id": "oracle:state_friction_sliding:513",
+      "document": "modal_state_friction_sliding.json",
+      "request": "modal_state_friction_sliding.request.json",
+      "request_operations": [],
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/tables/computed_modes/rows/3/error_estimate/value",
+          "value": -4.737497307547961e-15
+        },
+        {
+          "op": "replace",
+          "path": "/tables/clusters/rows/4/error_estimate/value",
+          "value": -3.936390082041421e-16
+        }
+      ],
+      "reseal": true,
+      "oracle": {
+        "mass": "feasible",
+        "participation": "feasible",
+        "clusters": "infeasible",
+        "sturm": "feasible",
+        "evidence": "infeasible",
+        "standing": "feasible"
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "reproduction:restrained_entry_beside_a_reversed_gamma",
@@ -14996,7 +15588,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "reproduction:large_total_beside_total_mass_zero_claims",
@@ -15087,7 +15680,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "reproduction:large_total_beside_a_wrong_cumulative_fraction",
@@ -15148,7 +15742,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "reproduction:zero_backward_error_times_a_large_inverse_norm",
@@ -15190,7 +15785,8 @@
         "sturm": "infeasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "reproduction:below_normal_mass_beside_large_gammas",
@@ -15251,7 +15847,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": true
     },
     {
       "id": "reproduction:one_large_coupling",
@@ -15278,7 +15875,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "coordinated:two_large_couplings_along_x",
@@ -15315,7 +15913,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "coordinated:two_large_couplings_along_y",
@@ -15352,7 +15951,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "coordinated:two_large_couplings_along_z",
@@ -15389,7 +15989,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "coordinated:not_finite_chain_component_body",
@@ -15446,7 +16047,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     },
     {
       "id": "coordinated:not_finite_chain_arc",
@@ -15503,7 +16105,8 @@
         "sturm": "feasible",
         "evidence": "feasible",
         "standing": "feasible"
-      }
+      },
+      "unresolved_allowed": false
     }
   ]
 }

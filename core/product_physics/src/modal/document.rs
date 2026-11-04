@@ -469,7 +469,9 @@ pub(crate) fn modal_result_document(request: &Value, params: &ModalIntegrityPara
     }
 }
 
-fn modal_doc_solved(outcome: &ModalOutcome, binding: &Value, label: &str) -> Value {
+/// The solved document of an outcome. `pub(super)` for the producer-edge
+/// generator in `tests_document.rs` only.
+pub(super) fn modal_doc_solved(outcome: &ModalOutcome, binding: &Value, label: &str) -> Value {
     let ids = &outcome.node_ids;
     let dofs = 6 * ids.len();
     let mut free_index = vec![None; dofs];
