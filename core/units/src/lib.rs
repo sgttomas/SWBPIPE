@@ -227,8 +227,8 @@ impl Dimension {
             Self::LengthPerRotation => DimensionVector::new(1, 0, 0, 0, -1),
             Self::RotationalGeneralizedMass => DimensionVector::new(2, 1, 0, 0, -2),
             // The translation–rotation coupling of a mass matrix whose rotations are in
-            // radians (DEL-04-09 Design `modal-analysis.md` §5.3.5; engineering extension
-            // D-01a): a named dimension, checked by name, never matched by vector.
+            // radians (DEL-04-09 Design `modal-analysis.md` §5.3.5; the D-01 engineering
+            // extension of 2026-11-04): a named dimension, checked by name, never matched by vector.
             Self::MassLengthPerRotation => DimensionVector::new(1, 1, 0, 0, -1),
             Self::Tbd => DimensionVector::TBD,
         }
@@ -1933,7 +1933,7 @@ mod tests {
     }
 
     /// The mass matrix's translation–rotation coupling (DEL-04-09 Design `modal-analysis.md`
-    /// §5.3.5; engineering extension D-01a): each display unit's definitional factor
+    /// §5.3.5; the D-01 engineering extension of 2026-11-04): each display unit's definitional factor
     /// (0.45359237 kg/lb times 0.0254 m/in or 0.3048 m/ft), written out independently,
     /// converts to the canonical unit and back.
     #[test]

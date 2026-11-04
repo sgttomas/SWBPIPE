@@ -176,7 +176,7 @@ def test_units_match_the_crates_committed_witnesses():
     # Model document 0.9.0's dynamics units: one definitional witness per display unit.
     dynamics = re.findall(r'\("([^"]+)", Dimension::(\w+), UnitId::\w+, ([0-9_.]+)\)', _rust_test("dynamics_units_have_definitional_conversion_witnesses"))
     assert len(dynamics) == 6
-    # The mass matrix's translation–rotation coupling (engineering extension D-01a).
+    # The mass matrix's translation–rotation coupling (the D-01 engineering extension of 2026-11-04).
     coupling = re.findall(r'\("([^"]+)", Dimension::(\w+), UnitId::\w+, ([0-9_.]+)\)', _rust_test("mass_length_per_rotation_units_have_definitional_conversion_witnesses"))
     assert len(coupling) == 2
     for symbol, dimension, expected in rows + dynamics + coupling:
