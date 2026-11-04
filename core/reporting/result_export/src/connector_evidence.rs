@@ -298,7 +298,7 @@ fn case_order(exact_cases: &[Value]) -> impl Iterator<Item = &str> {
 /// The connector records and rows of one envelope. `admitted` is true only
 /// under `pressure-2`; `members` are the published case members (pipe IDs of
 /// any case); `cases` the exact case IDs and `exact_cases` their source array;
-/// `published` the source's `results` (the caller's `indexed` pass has refused
+/// `source_rows` the source's `results` (the caller's `indexed` pass has refused
 /// a duplicate row ID); `solved` the mechanics status.
 ///
 /// RT-U4 (order): every scan here runs in a source array order (`results`,
@@ -310,7 +310,7 @@ fn case_order(exact_cases: &[Value]) -> impl Iterator<Item = &str> {
 pub(crate) fn validate(
     evidence: &Value,
     regions: &Value,
-    published: &[Value],
+    source_rows: &[Value],
     members: &HashSet<&str>,
     cases: &HashSet<&str>,
     exact_cases: &[Value],
@@ -330,7 +330,7 @@ pub(crate) fn validate(
     }
     let mut slots = HashSet::new();
     let mut counts: HashMap<(&str, &str), usize> = HashMap::new();
-    for row in published {
+    for row in source_rows {
         let entity = row["entity_ref"].as_str().unwrap_or_default();
         require_connector(!replaced.contains(entity), "REPLACED_SPAN_PUBLISHED")?;
         let kind = row["kind"].as_str().unwrap_or_default();
@@ -397,7 +397,7 @@ pub(crate) fn validate(
             }
         }
     }
-    validate_pressure(records, regions, published, exact_cases, solved)?;
+    validate_pressure(records, regions, source_rows, exact_cases, solved)?;
     Ok(())
 }
 
@@ -418,7 +418,7 @@ fn equal(value: f64, expected: f64, magnitudes: [f64; 2], projection_reserve: f6
     value.is_finite() && expected.is_finite() && tolerance.is_finite()
         && (value - expected).abs() <= tolerance
 }
-fn validate_pressure(records: &[Value], regions: &Value, published: &[Value], exact_cases: &[Value], solved: bool) -> Check {
+fn validate_pressure(records: &[Value], regions: &Value, source_rows: &[Value], exact_cases: &[Value], solved: bool) -> Check {
     let mut participating = HashMap::new();
     for region in regions.as_array().ok_or("SOURCE_PHYSICS_ARRAY_INVALID")? {
         let has_joint = region.get("joint_edges").is_some() || region.get("member_connector_ids").is_some();
@@ -475,7 +475,7 @@ fn validate_pressure(records: &[Value], regions: &Value, published: &[Value], ex
                 // these three kinds at `connector_local` only and whose slot
                 // (case, entity, kind, component, location) refuses a second row
                 // as ROW_DUPLICATE, equal or not. The scan is in `results` order.
-                let row = |kind,component| published.iter().find(|row| row["entity_ref"]==id && row["kind"]==kind && row["metadata"]["component"]==component && row["basis_ref"]["ref_id"]==case);
+                let row = |kind,component| source_rows.iter().find(|row| row["entity_ref"]==id && row["kind"]==kind && row["metadata"]["component"]==component && row["basis_ref"]["ref_id"]==case);
                 let pe_row = row("connector_pressure_force_v1","pe_x");
                 let s_row = row("connector_effective_axial_force_v1","s_x");
                 let pe = if record["pressure_model"] == "unpressurized" {
@@ -500,7 +500,7 @@ fn validate_pressure(records: &[Value], regions: &Value, published: &[Value], ex
                     // case share `validate`'s slot (case, entity, kind, t_r,
                     // tie_rod, rod), so a second row is ROW_DUPLICATE there.
                     let tail = tie_rod_row_tail(id, rod.id);
-                    let t = published.iter().find(|row| row["kind"] == TIE_ROD_KIND && row["entity_ref"] == id
+                    let t = source_rows.iter().find(|row| row["kind"] == TIE_ROD_KIND && row["entity_ref"] == id
                         && row["basis_ref"]["ref_id"] == case && is_tie_rod_row_id(row["id"].as_str().unwrap_or_default(), case, &tail))
                         .ok_or("SOURCE_PHYSICS_CONNECTOR_TIE_ROD_ROWS")?;
                     terms.push((number(&t["value"])?, rod.axial_share));

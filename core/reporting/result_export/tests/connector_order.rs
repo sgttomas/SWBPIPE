@@ -63,7 +63,7 @@ fn controls_admit() {
     s::validate_pressure_evidence(&rods_envelope()).unwrap();
 }
 
-/// `validate`'s row loop (`for row in published`): a second row in an
+/// `validate`'s row loop (`for row in source_rows`): a second row in an
 /// occupied slot (ROW_DUPLICATE) and a row bound to no record (ROW_UNBOUND).
 /// The one later in `results` is reported second.
 #[test]
