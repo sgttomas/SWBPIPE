@@ -163,3 +163,79 @@ fn a_coherent_forgery_is_not_authenticated_without_the_model() {
     assert_eq!(read(&coherent, Some(&model_a), ModelFree::Verify), MODEL, "the model can");
     let _ = model;
 }
+
+// ------------------------------------------------------------------ review r1
+/// `v1_closing` with its plain twin `comb:plain` (same operands) declared too: a second
+/// record for the same two cases, and the twin's rows stating the declared sign.
+fn declare_plain_twin(v: &mut Value) {
+    let mut twin = record(v, 0).clone();
+    twin["combination_id"] = json!("comb:plain");
+    v["contract_evidence"][MEMBER].as_array_mut().unwrap().push(twin);
+    for row in v["results"].as_array_mut().unwrap() {
+        if row["basis_ref"]["ref_id"] == "comb:plain" && row["kind"] != MODULUS_RECORD && row["metadata"]["sign_convention"].is_string() {
+            row["metadata"]["sign_convention"] = json!(SIGN);
+        }
+    }
+}
+fn model_declaring_plain_twin(model: &Value) -> Value {
+    let mut model = model.clone();
+    for c in model["combinations"].as_array_mut().unwrap() {
+        if c["id"] == "comb:plain" {
+            c["difference_basis"] = json!("operating_minus_sustained");
+        }
+    }
+    model
+}
+
+/// Review r1 P1: one producer resolution gives one multiset per case, so a case id that
+/// recurs across records must carry byte-identical contents, in both readings.
+#[test]
+fn a_case_recurring_across_records_carries_identical_contents() {
+    let (model, base) = document("v1_closing");
+    let model = model_declaring_plain_twin(&model);
+    let mut consistent = base.clone();
+    declare_plain_twin(&mut consistent);
+    assert_eq!(read(&consistent, None, ModelFree::Verify), "ok");
+    assert_eq!(read(&consistent, Some(&model), ModelFree::Verify), "ok");
+    assert_eq!(read(&consistent, None, ModelFree::Refuse), UNVERIFIED);
+    // The twin's sustained multiset emptied: the same case bound to two multisets.
+    let mut contradictory = consistent.clone();
+    record(&mut contradictory, 1)["subtrahend"]["primitive_contents"] = json!([]);
+    assert_eq!(read(&contradictory, None, ModelFree::Verify), BINDING);
+    assert_eq!(read(&contradictory, Some(&model), ModelFree::Verify), BINDING, "checked first, under the same code");
+    // A recurring minuend differing in one count, too.
+    let mut minuend = consistent.clone();
+    record(&mut minuend, 1)["minuend"]["primitive_contents"][0]["count"] = json!(2);
+    assert_eq!(read(&minuend, None, ModelFree::Verify), BINDING);
+    assert_eq!(read(&minuend, Some(&model), ModelFree::Verify), BINDING);
+}
+
+/// Review r1 P2/P2: the closed shape and the count domain (an integer token from 1 to
+/// 2^53 - 1, the checked JSON profile's safe integers) are validated before any
+/// comparison with the model's evidence, in both readings, with one validator.
+#[test]
+fn the_count_domain_and_shape_are_checked_before_the_model_comparison() {
+    const MAX: u64 = open_pipe_stress_canonical_json::MAX_SAFE_INTEGER as u64;
+    assert_eq!(MAX, (1u64 << 53) - 1);
+    let (model, base) = document("v1_closing");
+    let with_count = |side: &str, count: Value| {
+        let mut v = base.clone();
+        record(&mut v, 0)[side]["primitive_contents"][0]["count"] = count;
+        v
+    };
+    for (what, count) in [("zero", json!(0)), ("negative", json!(-1)), ("max + 1", json!(MAX + 1)), ("a float", json!(1.0)),
+                          ("a boolean", json!(true)), ("a string", json!("1")), ("2^64 as a float", json!(18446744073709551616.0f64))] {
+        assert_eq!(read(&with_count("subtrahend", count), None, ModelFree::Verify), EVIDENCE, "{what}: model-free");
+    }
+    for (what, count) in [("zero", json!(0)), ("negative", json!(-1)), ("max + 1", json!(MAX + 1)), ("a float", json!(1.0)),
+                          ("a boolean", json!(true)), ("a string", json!("1"))] {
+        assert_eq!(read(&with_count("subtrahend", count), Some(&model), ModelFree::Verify), EVIDENCE, "{what}: with the model");
+    }
+    // The maximum is in the domain: both force entries at MAX stay contained.
+    let mut max = with_count("subtrahend", json!(MAX));
+    record(&mut max, 0)["minuend"]["primitive_contents"][0]["count"] = json!(MAX);
+    assert_eq!(read(&max, None, ModelFree::Verify), "ok", "the maximum is admitted model-free");
+    assert_eq!(read(&max, Some(&model), ModelFree::Verify), MODEL, "and is not the model's evidence");
+    // A subtrahend count of MAX against the minuend's 1 is in the domain and fails G-1.
+    assert_eq!(read(&with_count("subtrahend", json!(MAX)), None, ModelFree::Verify), GATE_DERIVATION);
+}

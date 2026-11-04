@@ -6,19 +6,22 @@ on preview-physics-2: its gates G-1 (``EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATIN
 (``EXPANSION_BASIS_MODULUS_MIXED``), its rows' sign convention and its G-1 derivation evidence
 (``contract_evidence.difference_basis_derivation``).
 
-- With the model: G-1 is re-derived from the model's own primitive loads (category, target, direction, dimension,
+- With the model: after the member passes the same shape, count-domain, binding and recurrence checks as the
+  model-free reading, G-1 is re-derived from the model's own primitive loads (category, target, direction, dimension,
   magnitude normalized by this package's independent unit table, value bits and canonical unit); the published
   evidence must equal it, and the gate must be G-1's, else G-2's from the cases' modulus-basis keys. There is no
   condition resolver here (decision M1): when either operand case carries a ``condition_use`` the verdict is refused
   as unverifiable (``SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_UNVERIFIED``), never read model-free instead.
 - Without the model: fail closed by default (``MODEL_FREE = "refuse"``, option C) until the independent contract
   review of option A clears. Under ``mode="verify"`` (option A) the evidence's closed shape, canonical order, counts
-  and bindings are checked, G-1 is re-derived from its multisets and G-2 from the published modulus-basis records.
+  (an integer from 1 to 2^53 - 1, ``MAX_COUNT``) and bindings are checked, a case id recurring across records must
+  carry byte-identical contents, G-1 is re-derived from its multisets and G-2 from the published modulus-basis records.
   Scope: that checks the record's internal derivation and its binding to the document, not its truth to the absent
   model; a coherent forgery cannot be authenticated without the model.
 """
 from __future__ import annotations
 
+import json
 import math
 import struct
 from collections.abc import Mapping
@@ -43,6 +46,11 @@ EVIDENCE = "SOURCE_PREVIEW_PHYSICS_DIFFERENCE_BASIS_EVIDENCE"
 BINDING = "SOURCE_PREVIEW_PHYSICS_DIFFERENCE_BASIS_BINDING"
 ROW = "SOURCE_PREVIEW_PHYSICS_DIFFERENCE_BASIS_ROW"
 MODEL = "SOURCE_PREVIEW_PHYSICS_DIFFERENCE_BASIS_MODEL"
+# The count domain: an integer from 1 to 2^53 - 1. The producer counts a case's primitive loads, and a published
+# statement is a checked-JSON document (openpipestress_jcs_ijson_v1: integers within +-(2^53 - 1)), so no larger count
+# can be published; a float (1.0), a boolean, a string or a negative number is not a count. The Rust reader states the
+# same domain (count_of).
+MAX_COUNT = 2**53 - 1
 # Fail closed until the independent contract review of option A clears ("refuse" is option C, "verify" option A).
 MODEL_FREE = "refuse"
 # The producer's expected_load_dimension: a load's dimension token and the unit table's dimension.
@@ -123,7 +131,7 @@ def _read_multiset(entries: Any) -> dict:
         _require(_str(hexed) and len(hexed) == 16 and all(c in "0123456789abcdef" for c in hexed) and _str(unit), EVIDENCE)
         _require(math.isfinite(_from_bits(hexed)), EVIDENCE)
         count = entry["count"]
-        _require(type(count) is int and count >= 1, EVIDENCE)
+        _require(type(count) is int and 1 <= count <= MAX_COUNT, EVIDENCE)
         _require(all(_str(entry[k]) for k in ("category", "direction", "dimension")), EVIDENCE)
         key = (entry["category"], target[0], target[1], target[2], entry["direction"], entry["dimension"], hexed, unit)
         _require(last is None or last < key, EVIDENCE)
@@ -163,6 +171,14 @@ def _read(source: Mapping[str, Any]) -> list[dict]:
         _require(sides["minuend"][0] != sides["subtrahend"][0], BINDING)
         records.append({"id": cid, "minuend": sides["minuend"][0], "subtrahend": sides["subtrahend"][0],
                         "m": sides["minuend"][1], "s": sides["subtrahend"][1]})
+    # Review r1 P1: one producer resolution gives each case one multiset, so a case id that recurs (in any record, as
+    # minuend or subtrahend) carries byte-identical contents: the same JSON, members sorted (as the Rust reader's
+    # serialization), so member order alone is not a difference.
+    bound: dict = {}
+    for record in member:
+        for side in ("minuend", "subtrahend"):
+            text = json.dumps(record[side]["primitive_contents"], ensure_ascii=False, separators=(",", ":"), sort_keys=True)
+            _require(bound.setdefault(record[side]["load_case_id"], text) == text, BINDING)
     return records
 
 
@@ -306,6 +322,9 @@ def model_gate(model: Mapping[str, Any], combination: Mapping[str, Any]) -> tupl
 
 
 def _model_check(source: Mapping[str, Any], model: Mapping[str, Any]) -> None:
+    # The member's closed shape, count domain, bindings and case recurrence, by the one validator the model-free
+    # reading uses, before any comparison with the model's evidence (dict equality would take True or 1.0 for 1).
+    _read(source)
     evidence = source.get("contract_evidence") or {}
     gates = [g for g in _items(evidence.get("combination_gates")) if isinstance(g, Mapping)]
     kept, order = kept_combinations(model)

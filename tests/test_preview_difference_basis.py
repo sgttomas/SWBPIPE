@@ -135,3 +135,73 @@ def test_the_model_bound_reader_refuses_evidence_unlike_the_model_and_condition_
     source, model = entry("v1_closing")
     model["load_cases"][0]["condition_use"] = {"temperature": "OPE1"}
     assert read(source, model, monkeypatch=monkeypatch) == difference.UNVERIFIED
+
+
+# ------------------------------------------------------------------ review r1
+MAX_COUNT = 2**53 - 1
+
+
+def _declare_plain_twin(v):
+    twin = copy.deepcopy(v["contract_evidence"][MEMBER][0])
+    twin["combination_id"] = "comb:plain"
+    v["contract_evidence"][MEMBER].append(twin)
+    for row in v["results"]:
+        if (row.get("basis_ref") or {}).get("ref_id") == "comb:plain" and row["kind"] != difference.MODULUS_RECORD \
+                and isinstance((row.get("metadata") or {}).get("sign_convention"), str):
+            row["metadata"]["sign_convention"] = difference.SIGN
+
+
+def _model_declaring_plain_twin(model):
+    model = copy.deepcopy(model)
+    for c in model["combinations"]:
+        if c["id"] == "comb:plain":
+            c["difference_basis"] = "operating_minus_sustained"
+    return model
+
+
+def test_a_case_recurring_across_records_carries_identical_contents(monkeypatch):
+    """Review r1 P1: one producer resolution gives one multiset per case, in both readings."""
+    source, model = entry("v1_closing")
+    model = _model_declaring_plain_twin(model)
+    _declare_plain_twin(source)
+    assert read(source, None, "verify", monkeypatch) == "ok"
+    assert read(source, model, monkeypatch=monkeypatch) == "ok"
+    contradictory = copy.deepcopy(source)
+    contradictory["contract_evidence"][MEMBER][1]["subtrahend"]["primitive_contents"] = []
+    assert read(contradictory, None, "verify", monkeypatch) == difference.BINDING
+    assert read(contradictory, model, monkeypatch=monkeypatch) == difference.BINDING
+    minuend = copy.deepcopy(source)
+    minuend["contract_evidence"][MEMBER][1]["minuend"]["primitive_contents"][0]["count"] = 2
+    assert read(minuend, None, "verify", monkeypatch) == difference.BINDING
+    assert read(minuend, model, monkeypatch=monkeypatch) == difference.BINDING
+
+
+BAD_COUNTS = [("zero", 0), ("negative", -1), ("max + 1", MAX_COUNT + 1), ("2^64", 2**64), ("a float", 1.0), ("a boolean", True), ("a string", "1")]
+
+
+@pytest.mark.parametrize("what,count", BAD_COUNTS, ids=[b[0] for b in BAD_COUNTS])
+def test_the_count_domain_and_shape_are_checked_before_the_model_comparison(what, count, monkeypatch):
+    """Review r1 P2/P2: an integer from 1 to 2^53 - 1 (the checked JSON profile's safe integers), checked by the one
+    shape validator both readings share, before any comparison with the model's evidence."""
+    source, model = entry("v1_closing")
+    source["contract_evidence"][MEMBER][0]["subtrahend"]["primitive_contents"][0]["count"] = count
+    assert read(source, None, "verify", monkeypatch) == difference.EVIDENCE
+    assert read(source, model, monkeypatch=monkeypatch) == difference.EVIDENCE
+
+
+def test_the_maximum_count_is_in_the_domain(monkeypatch):
+    source, model = entry("v1_closing")
+    record = source["contract_evidence"][MEMBER][0]
+    record["subtrahend"]["primitive_contents"][0]["count"] = MAX_COUNT
+    assert read(source, None, "verify", monkeypatch) == difference.GATE_DERIVATION, "in the domain, and not contained"
+    record["minuend"]["primitive_contents"][0]["count"] = MAX_COUNT
+    assert read(source, None, "verify", monkeypatch) == "ok"
+    assert read(source, model, monkeypatch=monkeypatch) == difference.MODEL
+
+
+def test_member_order_alone_is_not_a_contradiction(monkeypatch):
+    source, _ = entry("v1_closing")
+    _declare_plain_twin(source)
+    entry_ = source["contract_evidence"][MEMBER][1]["subtrahend"]["primitive_contents"][0]
+    source["contract_evidence"][MEMBER][1]["subtrahend"]["primitive_contents"][0] = dict(reversed(list(entry_.items())))
+    assert read(source, None, "verify", monkeypatch) == "ok"

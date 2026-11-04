@@ -105,3 +105,26 @@ fn derived_documents_bind_by_value_across_json_forms() {
     wrong["result_envelope"]["result_sets"][0]["values"][0]["magnitude"] = json!(magnitude * 2.0 + 1.0);
     assert!(d::validate_document(&wrong, &source).is_err());
 }
+
+/// Operating-case slice 1b (DEL-05-02 `operating-case.md` §6.5; review r1): the derivative
+/// path reads its source through `semantic_contract::for_source`, without the model, so a
+/// document with a declared operating comparison is refused by name under the shipped
+/// switch (option C), with the same base, model and origin that derive the plain carrier.
+#[test]
+fn a_declared_difference_source_is_refused_by_name_on_the_derivative_path() {
+    let corpus: Value = serde_json::from_str(include_str!("../../../../fixtures/results/preview_physics_difference_basis_corpus.json")).unwrap();
+    let base: Value = serde_json::from_str(include_str!(
+        "../../../../fixtures/results/invented/tp_phys_015_canonical_solve_result_envelope.json"
+    ))
+    .unwrap();
+    for name in ["v1_closing", "v5_sustained_only_load"] {
+        let source = &corpus["documents"].as_array().unwrap().iter().find(|e| e["name"] == name).unwrap()["document"];
+        let carrier = d::checksum(source, "attested_headless_producer_carrier", d::reference("test_carrier", "derivative-contract")).unwrap();
+        let model = source["model_ref"].as_str().unwrap().to_owned();
+        let origin = json!({"origin_id":"derivative-contract-test","origin_class":"attested_headless_producer","qualification_ref":d::reference("test_fixture","not-authentication"),"authentic_producer_available":true,"received_carrier_checksum":carrier,"original_producer_checksum":carrier,"origin_limit":"Retained producer bytes; derivative contract test only","actual_model_ref":d::reference("model_payload",&model),"mechanics_run_ref":d::reference("mechanics_run",source["run_id"].as_str().unwrap()),"request_model_ref":null,"request_run_ref":null,"request_alias_disclosure":null});
+        let refused = d::derive_document(base.clone(), &json!({"project":{"id":model}}), source, origin, None).unwrap_err();
+        assert!(refused.contains("SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_UNVERIFIED"), "{name}: {refused}");
+    }
+    // The plain carrier still derives (the refusal is the declared document's).
+    assert!(project().is_ok());
+}

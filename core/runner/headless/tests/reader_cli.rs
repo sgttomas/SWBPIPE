@@ -292,3 +292,21 @@ fn base_readers_read_through_the_cli_as_reader_verdict() {
         assert!(stderr.contains("unknown reader"), "{reader}: {stderr}");
     }
 }
+
+/// Operating-case slice 1b (DEL-05-02 `operating-case.md` §6.5; review r1): a document with a
+/// declared operating comparison through `openpipestress-runner read preview-physics`. Without
+/// its model the shipped switch refuses the G-1 verdict by name (option C); with the model it
+/// reads.
+#[test]
+fn a_declared_difference_through_the_cli_is_refused_by_name_without_its_model() {
+    let corpus: Value = serde_json::from_str(include_str!("../../../../fixtures/results/preview_physics_difference_basis_corpus.json")).unwrap();
+    for name in ["v1_closing", "v5_sustained_only_load", "v5_g2"] {
+        let entry = corpus["documents"].as_array().unwrap().iter().find(|e| e["name"] == name).unwrap();
+        let (code, verdict, stderr) = run(&["read", "preview-physics"], &json!({"source": entry["document"]}).to_string());
+        assert!(stderr.is_empty(), "{stderr}");
+        assert_eq!(code, 1, "{name}");
+        assert_eq!(verdict["outcome"]["error"]["code"], "SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_UNVERIFIED", "{name}: {verdict}");
+        let (code, verdict, _) = run(&["read", "preview-physics"], &json!({"source": entry["document"], "model": entry["model"]}).to_string());
+        assert_eq!((code, verdict["outcome"]["ok"].clone()), (0, json!(true)), "{name}: {verdict}");
+    }
+}

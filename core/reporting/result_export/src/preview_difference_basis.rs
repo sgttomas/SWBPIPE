@@ -9,7 +9,9 @@
 //!
 //! - **With the model.** For each declared subtraction the model admits (S1's interim
 //!   `minuend_final` withholding removed first), G-1 is re-derived from the model's own
-//!   primitive loads: each load's category, target, direction, dimension, and magnitude
+//!   primitive loads, after the member passes the same shape, count-domain, binding and
+//!   recurrence checks as the model-free reading (so a malformed member is refused by its
+//!   shape code before any comparison): each load's category, target, direction, dimension, and magnitude
 //!   normalized by the shared units authority exactly as the solve's
 //!   `normalize_model_units` does (value bits and canonical unit). The published
 //!   evidence must equal that, record for record (`…_DIFFERENCE_BASIS_MODEL`), and the
@@ -24,7 +26,9 @@
 //!   reason of G-1 or G-2, or a row stating the declared sign convention) is refused as
 //!   unverifiable (`…_COMBINATION_GATE_UNVERIFIED`), until the independent contract
 //!   review of option A clears. Under [`ModelFree::Verify`] (option A, Agent 0's choice),
-//!   the evidence's closed shape, canonical order, counts and bindings are checked; G-1
+//!   the evidence's closed shape, canonical order, counts (an integer token from 1 to
+//!   2^53 - 1, [`count_of`]) and bindings are checked, and a case id recurring across
+//!   records must carry byte-identical contents (`…_DIFFERENCE_BASIS_BINDING`); G-1
 //!   is re-derived from its two multisets, G-2 from the published
 //!   `combination_modulus_basis_record` labels, and the gate must be exactly the derived
 //!   one. **Scope:** this checks the record's internal derivation and its binding to
@@ -121,8 +125,17 @@ fn bits_of(text: &str) -> Option<u64> {
     (text.len() == 16 && text.bytes().all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))).then(|| u64::from_str_radix(text, 16).ok()).flatten()
 }
 
+/// The count domain: a JSON integer token from 1 to 2^53 - 1. The producer counts a case's
+/// primitive loads (`usize`), and a published statement is a checked-JSON document
+/// (`openpipestress_jcs_ijson_v1`: integers within +-(2^53 - 1), `MAX_SAFE_INTEGER`), so no
+/// larger count can be published; a float token (`1.0`), a boolean, a string or a negative
+/// number is not a count. The Python mirror states the same domain.
+fn count_of(value: &Value) -> Option<u64> {
+    value.as_u64().filter(|c| value.is_u64() && (1..=open_pipe_stress_canonical_json::MAX_SAFE_INTEGER as u64).contains(c))
+}
+
 /// One operand's published multiset: closed entries, strictly increasing in the
-/// canonical order (so each content once), integral counts of at least 1, finite values.
+/// canonical order (so each content once), counts in the count domain, finite values.
 fn read_multiset(entries: &Value) -> Result<Multiset, String> {
     let list = entries.as_array().ok_or_else(|| fail(EVIDENCE))?;
     let mut out = Multiset::new();
@@ -137,7 +150,7 @@ fn read_multiset(entries: &Value) -> Result<Multiset, String> {
         let bits = bits_of(hex).ok_or_else(|| fail(EVIDENCE))?;
         require(f64::from_bits(bits).is_finite(), EVIDENCE)?;
         let unit = magnitude["unit"].as_str().ok_or_else(|| fail(EVIDENCE))?.to_string();
-        let count = entry["count"].as_u64().filter(|c| *c >= 1 && entry["count"].is_u64()).ok_or_else(|| fail(EVIDENCE))?;
+        let count = count_of(&entry["count"]).ok_or_else(|| fail(EVIDENCE))?;
         let key: Key = (text("category")?, kind, a, b, text("direction")?, text("dimension")?, hex.to_string(), unit);
         require(last.as_ref().is_none_or(|l| *l < key), EVIDENCE)?;
         last = Some(key.clone());
@@ -194,6 +207,19 @@ fn read(source: &Value) -> Result<Vec<Record<'_>>, String> {
         let (subtrahend, subtrahend_contents) = operand("subtrahend")?;
         require(minuend != subtrahend, BINDING)?;
         records.push(Record { id, minuend, subtrahend, minuend_contents, subtrahend_contents });
+    }
+    // Review r1 P1: one producer resolution gives each case one multiset, so a case id that
+    // recurs (in any record, as minuend or subtrahend) carries byte-identical contents: the
+    // same JSON with members sorted (serde_json's map), as the Python mirror compares it.
+    let mut bound: HashMap<&str, String> = HashMap::new();
+    for record in list {
+        for side in ["minuend", "subtrahend"] {
+            let case = record[side]["load_case_id"].as_str().unwrap_or_default();
+            let bytes = serde_json::to_string(&record[side]["primitive_contents"]).map_err(|_| fail(EVIDENCE))?;
+            if bound.entry(case).or_insert_with(|| bytes.clone()) != &bytes {
+                return Err(fail(BINDING));
+            }
+        }
     }
     Ok(records)
 }
@@ -410,6 +436,9 @@ pub(crate) fn model_gate(model: &Value, combination: &Value) -> Result<(Option<&
 }
 
 fn model_check(source: &Value, model: &Value) -> Check {
+    // The member's closed shape, count domain, bindings and case recurrence, by the one
+    // validator the model-free reading uses, before any comparison with the model's.
+    read(source)?;
     let evidence = &source["contract_evidence"];
     let gates = items(&evidence["combination_gates"]);
     let (kept, order) = kept_combinations(model);

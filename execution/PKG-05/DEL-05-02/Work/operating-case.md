@@ -901,7 +901,14 @@ declared subtraction's, so every other document keeps its bytes:
 - One record per declared subtraction among the gates, in gate (evaluation) order, withheld or
   admitted, binding its combination id and both operand case ids.
 - Each operand's `primitive_contents` is its multiset: one entry per distinct content with its
-  `count` (an integer ≥ 1). `value_bits` is the 16 lowercase hexadecimal digits of the
+  `count`. **Count domain** (review r1): a JSON integer token from 1 to 2^53 − 1. The producer
+  counts a case's primitive loads (`usize`), and a published statement is a checked-JSON
+  document (`openpipestress_jcs_ijson_v1`, whose integers are bounded by ±(2^53 − 1),
+  `MAX_SAFE_INTEGER`), so no larger count can be published; a float token (`1.0`), a
+  boolean, a string, zero or a negative number is not a count. Both readers enforce exactly
+  this (Rust `count_of`, Python `MAX_COUNT`).
+- A case is resolved once, so a case id that recurs across records (as minuend or
+  subtrahend) carries byte-identical contents (the same JSON with members sorted). `value_bits` is the 16 lowercase hexadecimal digits of the
   normalized binary64's IEEE 754 bits (signed zero distinct; always finite); `unit` is the
   normalized unit symbol. Canonical order: byte-wise over category, target type, target ids
   (node; pipe; support then DOF), direction, dimension, `value_bits`, unit; each content once.
@@ -916,7 +923,9 @@ Rust RE `preview_difference_basis.rs` (called from `preview_combination_gates::c
 entry that reads PF gates reaches it: the evidence reader, `reader_verdict`, the runner,
 packaging `bindings.rs` and derivatives `derivative.rs` through `semantic_contract::for_source`,
 and the wasm engine); Python `tests/verifiers/preview_difference_basis.py`.
-- **With the model** (decision M1). G-1 is re-derived from the model's own primitive loads,
+- **With the model** (decision M1). The member first passes the same validator as the
+  model-free reading (closed shape, count domain, bindings, case recurrence; review r1), so a
+  malformed member is refused by its own code before any comparison. G-1 is then re-derived from the model's own primitive loads,
   normalized by the shared units authority (Python: its independent unit table), and the
   published evidence must equal it record for record (`SOURCE_PREVIEW_PHYSICS_DIFFERENCE_BASIS_MODEL`);
   the gate must be G-1's, else G-2's from `modulus_key`
@@ -932,8 +941,9 @@ and the wasm engine); Python `tests/verifiers/preview_difference_basis.py`.
   is enabled: model-free consumers (packaging, derivatives, the runner without a model) refuse
   a PF document carrying a declared subtraction.
 - **Option A (built and tested behind the switch).** The member's closed shape, canonical
-  order, integral counts and finite values are checked
-  (`SOURCE_PREVIEW_PHYSICS_DIFFERENCE_BASIS_EVIDENCE`); its bindings to the document
+  order, counts in the count domain and finite values are checked
+  (`SOURCE_PREVIEW_PHYSICS_DIFFERENCE_BASIS_EVIDENCE`); a case id recurring across records with
+  different contents is refused (`…_DIFFERENCE_BASIS_BINDING`, in both readings); its bindings to the document
   (gate present, published cases, distinct operands, the two `combination_modulus_basis_record`
   rows naming minuend then subtrahend, the rows' operand sources, and any
   `combination_operands` / `combination_derivation` expression) (`…_DIFFERENCE_BASIS_BINDING`);
@@ -1053,6 +1063,14 @@ becomes current. Regressions: Rust `result_export/tests/recorded_pre_rt_a5_1b.rs
 - RE `preview_difference_basis_tests.rs` and Python `tests/test_preview_difference_basis.py`
   over the corpus: every document reads with its model and under option A, and is refused
   under option C; about thirty tampers refused by name under option A; the coherent forgery.
+  Review r1 adds: a case recurring across two declared records with different contents
+  (both readings, `…_BINDING`); counts 0, −1, 2^53, 2^64, `1.0`, `true` and `"1"` refused as
+  `…_EVIDENCE` with and without the model, and 2^53 − 1 admitted.
+- End to end under the shipped switch: `openpipestress-runner read preview-physics`
+  (`core/runner/headless/tests/reader_cli.rs`) refuses a declared document without its model
+  as `…_COMBINATION_GATE_UNVERIFIED` and reads it with the model; the derivative path
+  (`derive_document` through `semantic_contract::for_source`,
+  `result_export/tests/derivative_contract.rs`) refuses it by the same name.
 - V-3 (friction history) is DEL-04-04:2's disclosure (CLM-012), not a behaviour change.
 - Fail-before: on main every declared subtraction is withheld by
   `LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED`, so every admission and gate assertion above
