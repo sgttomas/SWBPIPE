@@ -1313,6 +1313,25 @@ fn complete_iteration(
   slot after P and the current I3a queue.
 - The final merge comes after P.
 
+**Status: S2 built (phase 2 step 1, `d02ec8789`; for RT-A3's boundary review).** Nothing for
+`minuend_final` itself is built. The commit holds only the extraction and the S11-F row that moves
+with it (PP `tests/s11f_site_test.rs` rule 6: `complete_iteration` now reads the input force for the
+receipt).
+- **Conditions 1 and 2, byte identity and H-10 in its extraction form.** A scratch, uncommitted hook
+  recorded each loop call's full `Debug` (mode, springs, input, result, receipt included) before and
+  after the extraction, over every loop call of the NI suite (1,264 calls) and the PP suite (1,139
+  calls), in both modes. Excluding nothing, the before and after multisets are identical, and so are
+  the stored record texts.
+- **Suites.** The suites pass on `d02ec8789`: NI 181, FK `s11_site_table` 3, and PP 1,725 passed, 0
+  failed, 133 ignored, as before the extraction.
+- **Condition 3, the K-1 trace re-read,** is recorded in DEL-04-07 `k1-twin-bound.md` and its K-1
+  need.
+- **Condition 4.** No S11-K row moves: the moved block has no compound assignment or fold, and FK's
+  table passes unchanged.
+- **Conditions 5 and 6, pricing and frame/stack/lifetime.** These are in the step's return.
+  Retained pricing is coefficient-identical to the parent `30b6b34e7` (1,602 equal, 0 higher, 0
+  lower), measured read-only because P's D3 pins are still pending. Nothing is registered.
+
 **Why the held result is honest.**
 - Every field of the result and the receipt is what the step and the shared tail computed for
   `held_input`.
