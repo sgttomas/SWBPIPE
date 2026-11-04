@@ -31,7 +31,7 @@ describe("a run main recorded before operating-case slice 1b", () => {
     expect(recordedPreRtA4Binding(binding)).toEqual(binding);
     const current = createHash("sha256").update(readFileSync(resolve(root, "fixtures/results/semantic_contract_v0_3_preview_physics_2.json"))).digest("hex");
     expect(current).not.toBe(MAIN_SHA);
-    expect((await recordedPreRtA4Table(binding)).semantic_contract_id).toBe(PREVIEW);
+    expect(((await recordedPreRtA4Table(binding)) as { semantic_contract_id?: string }).semantic_contract_id).toBe(PREVIEW);
     expect(await verifyAnalysisRunRecord(record)).toBe("match");
     await validateAnalysisRunV03(record, source, record.analysis_run.load_basis_refs, undefined, RECORDED);
     await expect(validateAnalysisRunV03(record, source, record.analysis_run.load_basis_refs)).rejects.toThrow();

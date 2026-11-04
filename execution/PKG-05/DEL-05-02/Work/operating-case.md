@@ -1093,7 +1093,41 @@ DEL-04-11 `hanger-sizing.md` O-1). No solve semantics are added by 1b.
 - **Removes:** `LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED` at the solve and the
   applier, with its own table texts and pricing.
 
-### 6.10 Pricing (analysis only)
+### 6.10 Pricing (analysis only; no registration)
 
-See the TASK report for the run against main's registered tree; no registration, law-test
-re-pin, carrier regeneration or `tools/retained_pricing/` edit was made here.
+Basis: main `800fae7e5`, whose registered profile is DEL-04-08 §8.47 (priced source
+`a47a9ebf8`; the committed tool reproduces it: all four points complete, no unmapped header
+or unclassified argument, both o10 checks 0). No `generate`, law-test re-pin, carrier
+regeneration or `tools/retained_pricing/` edit was made.
+- **The committed tool stops at the head** (exit 4): B7a's full-file source pin on
+  `core/product_physics/src/lib.rs` (`base/b7a_domain_model.py`). Any change to a pinned file
+  stops it, as designed.
+- **A scratch copy outside the repository** (README "Reproduce … with a scratch copy of the
+  tool"), with three analysis-only restatements: the 17 full-file pins whose value was main's
+  digest of a file 1b changed, restated to 1b's bytes (b7a_domain, kd5_text, rta4_owners,
+  s1_owners, w1_member_load, w1_reductions, o10_rules; files `lib.rs`, `preview_physics.rs`,
+  `document_members.rs`, RE `lib.rs`, `retained_precision.rs`, `semantic_contract.rs`,
+  `preview_combination_gates.rs`, `preview_combination_operands.rs`,
+  `preview_physics_evidence.rs`, `recorded_tables.rs`); rule S1-ZS's two entries for the deleted
+  `interim_reasons` push dropped (§8.46's precedent for the unsigned and nested pushes); and
+  RT-A4-D14's `interim_reasons` shape guard restated to one push (in D1 a declared subtraction
+  never reaches the solve: retained admission declines `CombinationMember`). Each of these needs
+  the registration turn's own audit.
+- **Result:** the line map prunes the same 37 rules as at §8.47 (none new; 875 remapped, 0
+  unmapped). Every point is incomplete only on the new code: unmapped loop headers (L 5-7, E 1)
+  and unclassified arguments (L 2-12, E 1), all in `difference_basis.rs` (the producer's
+  `derivation` and `contents_evidence` loop over the gates, and the content fields `node`,
+  `dof`, `category`, `direction`, `dimension` and the member and sign texts) and
+  `preview_difference_basis.rs` (the readers' loops over records, entries, loads, rows and
+  sources, its error code). D rises by at most 4 (L_21 +2, L_12 +4, L_30 and E_30 equal). No
+  merged tree is formed, so no coefficient comparison is possible yet: whether coefficients
+  move is the registration turn's finding. New allocations: the producer's evidence (one
+  `BTreeMap` per operand case and its JSON) runs in D1 only over zero declared subtractions
+  (retained admission declines the member), so its bound there is zero; the readers'
+  multisets are per declared record.
+- **Retained items the table move makes stale (registration turn):** the protected
+  reviewed-inputs record in `retained_memory.rs` (reviewed inputs naming the three moved
+  tables), so `retained_memory::law_tests::reviewed_inputs_bind_the_lock_and_the_reader_statics`
+  fails and `tests/test_preview_identity_inventory.py` lists `retained_memory.rs`'s `hash` as
+  stale. No retained successor or carrier needed regeneration on this branch (the PF
+  limitations did not move).
