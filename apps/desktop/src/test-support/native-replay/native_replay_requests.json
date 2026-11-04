@@ -71,6 +71,22 @@
    "source_path": "fixtures/product_preview/pressure_source/physics_source/mixed_units-dense_scrutiny.raw.json"
   },
   {
+   "key": "012c103cecc117489c8f55834c69a3f3c5bcd924c7a868d2abbd5b56dc174eea",
+   "command": "read_preview_mechanics_job_summary",
+   "args": {
+    "jobId": "$JOB",
+    "modelJson": "null",
+    "standing": {
+     "eligible": false,
+     "findings": [
+      "REQUESTED_NUMERICAL_BASIS_UNAVAILABLE",
+      "NUMERICAL_CASE_COVERAGE_INCOMPLETE"
+     ]
+    }
+   },
+   "source_sha256": "6ff8936d818d991fae66fa5966216b12cf8f1d238a00d2389ce5a9a97d782db5"
+  },
+  {
    "key": "0162d883929a59843c36e62de99f49f0ba8e84ae20287d733f9676a6ce72a06d",
    "command": "query_preview_mechanics_job_navigator",
    "args": {
@@ -2051,6 +2067,22 @@
    },
    "source_sha256": "34862037bcf42e42fca7d9772f6b1ad79d7961aadadbbba7fe3cc0a7351739d1",
    "source_path": "fixtures/results/preview_physics_connected_sparse.json"
+  },
+  {
+   "key": "253bd0ee729e8e7685aa2c35f8fa0606c9cf54d78206abeb45a09ae648243da1",
+   "command": "read_preview_mechanics_job_summary",
+   "args": {
+    "jobId": "$JOB",
+    "modelJson": "null",
+    "standing": {
+     "eligible": false,
+     "findings": [
+      "REQUESTED_NUMERICAL_BASIS_UNAVAILABLE",
+      "NUMERICAL_CASE_COVERAGE_INCOMPLETE"
+     ]
+    }
+   },
+   "source_sha256": "850ec979829121388afa23a29e41a773950131a61b8ba9955f483caeba703e10"
   },
   {
    "key": "25426a37d9ce79223b35003c29d22c37f5880d1b100cfe02bb476d2ab40f51c8",
@@ -5628,6 +5660,24 @@
    "source_sha256": "1583a27bc8a9715826dcae91210f2be0b03ce8377374beedfe219ad41235ba10"
   },
   {
+   "key": "5bfee14032402fc25d967d09de0b319be4b1d1d5efcf36bbb8b3ceeca6c74085",
+   "command": "read_preview_mechanics_job_summary",
+   "args": {
+    "jobId": "$JOB",
+    "modelJson": "null",
+    "standing": {
+     "eligible": false,
+     "findings": [
+      "SOURCE_PREVIEW_PHYSICS_BLOCKED_ENVELOPE",
+      "REQUESTED_NUMERICAL_BASIS_UNAVAILABLE",
+      "NUMERICAL_CASE_COVERAGE_INCOMPLETE",
+      "MECHANICS_NOT_SOLVED"
+     ]
+    }
+   },
+   "source_sha256": "da73ad0777943b87c10b9d1c6ffe42f99b957b6e1d8ab5d004b933d7e6462ba7"
+  },
+  {
    "key": "5c38791c4b5ee3a25083b58dde9816c22e5be89e5088312cf2464c6029618945",
    "command": "read_preview_mechanics_job_verdict",
    "args": {
@@ -8014,6 +8064,24 @@
     "jobId": "$JOB"
    },
    "source_sha256": "a13190ce31f1d610df967b88e0c602930422d37e10af88b6442e87152bf4d6b4"
+  },
+  {
+   "key": "8b3dcbea55925e2a268d8e2d71cc11c8c617214493f78d2cae3f56ff3b81804b",
+   "command": "read_preview_mechanics_job_summary",
+   "args": {
+    "jobId": "$JOB",
+    "modelJson": "null",
+    "standing": {
+     "eligible": false,
+     "findings": [
+      "SOURCE_PREVIEW_PHYSICS_BLOCKED_ENVELOPE",
+      "REQUESTED_NUMERICAL_BASIS_UNAVAILABLE",
+      "NUMERICAL_CASE_COVERAGE_INCOMPLETE",
+      "MECHANICS_NOT_SOLVED"
+     ]
+    }
+   },
+   "source_sha256": "9241ccc00173b950f284a08c389e626d2c23a36504384bbee914b010aa3ea8f1"
   },
   {
    "key": "8b897a954d681c830c135d4c66541e54e23b4eba9bd99797c2f06e6d1ab05dc4",
@@ -12072,6 +12140,24 @@
     "sha256": "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2"
    },
    "source_sha256": "37802eaaea96160b9ea666d77bd111fcd33d201468865dda6174145449981eb3"
+  },
+  {
+   "key": "d0660043d7f102f1df1fd0d906c0e19db6941abf1cb4c00c9c5e254d23062a19",
+   "command": "read_preview_mechanics_job_summary",
+   "args": {
+    "jobId": "$JOB",
+    "modelJson": "null",
+    "standing": {
+     "eligible": false,
+     "findings": [
+      "SOURCE_PREVIEW_PHYSICS_BLOCKED_ENVELOPE",
+      "REQUESTED_NUMERICAL_BASIS_UNAVAILABLE",
+      "NUMERICAL_CASE_COVERAGE_INCOMPLETE",
+      "MECHANICS_NOT_SOLVED"
+     ]
+    }
+   },
+   "source_sha256": "a13190ce31f1d610df967b88e0c602930422d37e10af88b6442e87152bf4d6b4"
   },
   {
    "key": "d07f999ada700ef250ca543865f83430de2dbeee5679ff712e4934c6caaf8192",
