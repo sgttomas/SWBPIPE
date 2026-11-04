@@ -533,6 +533,56 @@ test("C1 DOM probe covers all navigator axes, pages, no-match and streamed CSV",
   trace.restore();
 });
 
+// A C1 solve's first paint is its Results table's first page (solveTimeline.ts), so the driver
+// opens Results once the run has begun (Analyze > Run itself shows Solve) and ends the wait on a
+// refused first page instead of running out the gate.
+async function c1SolveDom(t, { refuse = false } = {}) {
+  const menus=[];
+  let shown="solve", timeline=null;
+  const ui=await driverDom(t,`<section data-testid="workspace-section-solve"><button data-testid="solver-mode-sparse" aria-pressed="false"></button><p data-testid="solve-job-summary">state=running</p></section><section data-testid="workspace-section-results"></section>`,async (command,args)=>{
+    if(command!=="native_smoke_menu") return null;
+    menus.push({command:args.commandId,sequence:timeline?.sequence??0});
+    if(args.commandId==="analyze.run") { shown="solve"; setTimeout(()=>{timeline={sequence:1,outcome:"running",marks:[{stage:"solve_requested"}]};},20); }
+    else shown=args.commandId.replace("view.section.","");
+    return null;
+  });
+  const doc=ui.dom.window.document;
+  for(const id of ["solve","results"]) Object.defineProperty(doc.querySelector(`[data-testid="workspace-section-${id}"]`),"offsetParent",{get:()=>shown===id?doc.body:null});
+  const sparse=doc.querySelector('[data-testid="solver-mode-sparse"]');
+  sparse.onclick=()=>sparse.setAttribute("aria-pressed","true");
+  ui.context.__openPipeStressSolveTimelineV1={readCurrent:()=>timeline};
+  const results=doc.querySelector('[data-testid="workspace-section-results"]');
+  const commit=()=>{
+    timeline={...timeline,outcome:"completed",marks:[...timeline.marks,{stage:"result_set"},{stage:"result_committed"}]};
+    if(refuse) results.innerHTML='<p data-testid="result-query-refused">The native result query was refused: RESULT-DETAIL-REFUSED</p>';
+    else setTimeout(()=>{timeline={...timeline,marks:[...timeline.marks,{stage:"first_paint"}]};},50);
+  };
+  return {ui,menus,commit,shown:()=>shown};
+}
+
+for (const refuse of [false,true]) {
+  test(`the C1 solve wait opens Results after the run begins and ends at ${refuse?"a refused first page":"first_paint"}`, async (t) => {
+    const dom=await c1SolveDom(t,{refuse});
+    const report={};
+    setTimeout(()=>dom.commit(),400);
+    await dom.ui.hooks.solve({c1_probes:true,timeouts:{open_ms:1000,paint_ms:5000}},report);
+    assert.deepEqual(dom.menus,[{command:"analyze.run",sequence:0},{command:"view.section.results",sequence:1}]);
+    assert.equal(dom.shown(),"results");
+    assert.equal(report.solve.ended,refuse?"results_refused":"first_paint");
+    assert.equal(report.solve.shown.results_refusal,refuse?"The native result query was refused: RESULT-DETAIL-REFUSED":null);
+    assert.ok(report.solve.elapsed_ms<5000);
+  });
+}
+
+test("the C1 solve's paint gate runs from Analyze > Run, including opening Results", async (t) => {
+  const dom=await c1SolveDom(t);
+  const report={};
+  // Never committed: the gate ends at paint_ms from the run, not paint_ms after Results opened.
+  await dom.ui.hooks.solve({c1_probes:true,timeouts:{open_ms:1000,paint_ms:600}},report);
+  assert.equal(report.solve.ended,"timeout");
+  assert.ok(report.solve.elapsed_ms<900,`elapsed ${report.solve.elapsed_ms}`);
+});
+
 test("C1 persistence probe connects actual Rust reply shapes through record/reopen/re-save/check/release", async (t) => {
   // These committed Rust replies establish DTO shape, not live App behaviour.
   const persistence=JSON.parse(readFileSync(new URL("../src/test-support/native-replay/native_persistence_replies.json",import.meta.url),"utf8"));
@@ -923,11 +973,29 @@ test("C1 phase evidence requires all fixed awaits and native boundaries, not jus
   const dir=mkdtempSync(path.join(os.tmpdir(),"c1-phase-coverage-"));
   t.after(()=>rmSync(dir,{recursive:true,force:true}));
   assert.equal(createReaderPhaseEvidence(path.join(dir,"empty.jsonl")).close().evidence_complete,false);
-  const journal=createReaderPhaseEvidence(path.join(dir,"complete.jsonl"));
-  const phases={web:["header","registration","standing","summary"],native:["args_admit","source_prescan","source_admit","inputs_admit","source_parse","inputs_parse","validate","serialize","source_drop","summary_health","summary_build"]};
-  for(const [layer,names] of Object.entries(phases)) for(const phase of names) {
-    journal.accept({layer,phase,call:1,edge:"enter",status:"pending",mono_ms:1});
-    journal.accept({layer,phase,call:1,edge:"exit",status:"ok",mono_ms:2});
-  }
-  assert.equal(journal.close().evidence_complete,true);
+  const phases={web:["header","registration","standing","summary","run_preview"],native:["args_admit","source_prescan","source_admit","inputs_admit","source_parse","inputs_parse","validate","serialize","source_drop","summary_health","summary_build"]};
+  const complete=(name,omit=null)=>{
+    const journal=createReaderPhaseEvidence(path.join(dir,name));
+    for(const [layer,names] of Object.entries(phases)) for(const phase of names) {
+      if(phase===omit) continue;
+      journal.accept({layer,phase,call:1,edge:"enter",status:"pending",mono_ms:1});
+      journal.accept({layer,phase,call:1,edge:"exit",status:"ok",mono_ms:2});
+    }
+    return journal.close();
+  };
+  assert.equal(complete("complete.jsonl").evidence_complete,true);
+  // The fresh solve's analysis-run preview await is a required web phase: without its exit the
+  // evidence is incomplete, as for the four reader awaits.
+  assert.equal(complete("no-run-preview.jsonl","run_preview").evidence_complete,false);
+});
+
+test("the run_preview phase is web-only and its pending entry survives as incomplete", t => {
+  const dir=mkdtempSync(path.join(os.tmpdir(),"c1-run-preview-"));
+  t.after(()=>rmSync(dir,{recursive:true,force:true}));
+  const journal=createReaderPhaseEvidence(path.join(dir,"phases.jsonl"));
+  assert.throws(()=>journal.accept({layer:"native",phase:"run_preview",call:1,edge:"enter",status:"pending",mono_ms:1}),/malformed/);
+  journal.accept({layer:"web",phase:"run_preview",call:7,edge:"enter",status:"pending",mono_ms:1});
+  const closed=journal.close();
+  assert.deepEqual(closed.incomplete.map(({layer,call,phase})=>({layer,call,phase})),[{layer:"web",call:7,phase:"run_preview"}]);
+  assert.equal(closed.evidence_complete,false);
 });

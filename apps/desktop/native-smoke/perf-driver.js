@@ -9,7 +9,9 @@
 //   1. File > Open Model Document… with the plan's model;
 //   2. Analyze > Run (sparse), then wait for the first paint of the result or a
 //      failure, with a timeout, reading the solve timeline (timings, counts and codes)
-//      from `__openPipeStressSolveTimelineV1.readCurrent()`;
+//      from `__openPipeStressSolveTimelineV1.readCurrent()`. A C1 run opens Results once
+//      the solve has begun: a native result's first paint is its Results table's first
+//      page (rows and row semantics) committed, then two frames, so Results must be shown;
 //   3. Record Run… (Project page, Model History), then File > Save Local Project,
 //      each outcome as shown.
 // Progress lines go to the app's stderr as `[native-smoke] perf:{json}` (a crash
@@ -92,6 +94,7 @@
       error: text("solve-job-error"),
       refusal: text("solve-job-resource-refusal"),
       worker_failure: text("solve-job-worker-failure"),
+      results_refusal: text("result-query-refused", byTestId("workspace-section-results") ?? document),
       progress: text("solve-job-progress"),
       queue_reason: text("solve-job-queue-reason"),
       proof: byTestId("status-pill-solve-proof")?.querySelector("code")?.textContent ?? null
@@ -100,7 +103,8 @@
 
   // Analyze > Run, then the first paint of its result, a failure, or the timeout. The
   // marks are the app's own clock readings; the 200 ms poll only bounds when the wait
-  // notices them (and keeps its own load on the webview's main thread small).
+  // notices them (and keeps its own load on the webview's main thread small). The paint
+  // timeout runs from Analyze > Run, whatever the wait spends opening Results (C1).
   async function solve(plan, report) {
     await showSection("solve", plan.timeouts.open_ms);
     click("solver-mode-sparse");
@@ -111,7 +115,17 @@
     let lastStage = null;
     let heartbeat = 0;
     let ended = "timeout";
+    const begun = () => (timeline()?.sequence ?? 0) > priorSequence;
+    const remaining = () => Math.max(0, plan.timeouts.paint_ms - elapsed(started));
     try {
+      if (plan.c1_probes) {
+        // Analyze > Run shows Solve; the result is seen in Results (the native table's first
+        // page gates first_paint). Opened once the run has begun, so the run's own section
+        // change cannot hide it again.
+        await waitFor("solve begun", () => begun() || UNSOLVED_STATE.test(text("solve-job-summary") ?? ""), remaining(), 50);
+        try { await showSection("results", plan.timeouts.open_ms); }
+        catch (error) { throw new Error(`C1 results did not open: ${error?.message ?? error}`); }
+      }
       ended = await waitFor("first paint or failure", () => {
         const current = timeline();
         if (current && current.sequence > priorSequence) {
@@ -123,10 +137,12 @@
           }
           if (current.marks.some((mark) => mark.stage === "first_paint")) return "first_paint";
           if (TERMINAL.has(current.outcome) || current.outcome === "superseded") return current.outcome;
+          // A refused first page never paints: it ends the wait rather than run out the gate.
+          if (plan.c1_probes && text("result-query-refused", byTestId("workspace-section-results") ?? document)) return "results_refused";
         }
         if (UNSOLVED_STATE.test(text("solve-job-summary") ?? "")) return "ui_unsolved";
         return null;
-      }, plan.timeouts.paint_ms, 200);
+      }, remaining(), 200);
     } catch (error) {
       if (!error?.timeout) throw error;
     }
@@ -362,7 +378,7 @@
     await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
     target.table_ready_at_ms = now();
     target.table_ready_elapsed_ms = elapsed(tableStart);
-    target.table_ready_method = "settled native rows and two animation frames after results activation";
+    target.table_ready_method = "settled native rows and two animation frames, observed by the driver after first_paint (Results opened during the solve)";
     target.actions = [];
     const action = async (name, execute, ready) => {
       const before = snapshot(root), start = now();
@@ -515,7 +531,7 @@
       await openModel(plan, report);
       await solve(plan, report);
       if (plan.c1_probes) {
-        if (report.solve.ended !== "first_paint") throw new Error(`C1 solve did not paint: ${report.solve.shown.error ?? report.solve.shown.refusal ?? report.solve.ended}`);
+        if (report.solve.ended !== "first_paint") throw new Error(`C1 solve did not paint: ${report.solve.shown.error ?? report.solve.shown.refusal ?? report.solve.shown.results_refusal ?? report.solve.ended}`);
         if (!report.solve.shown.proof?.includes("identity=match") || !report.solve.shown.proof.includes(`model_sha256=${plan.model_jcs_sha256}`)) throw new Error("C1 solve proof is not bound to the opened model");
         report.c1.fresh = {};
         await probeResults(plan, report.c1.fresh, trace, { csv: true });

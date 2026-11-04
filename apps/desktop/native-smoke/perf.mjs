@@ -660,7 +660,7 @@ export function classify({ report, exit, timedOut, progress, memory, store, run,
     else if (solve.ended === "first_paint") { /* painted */ }
     else if (solve.ended === "timeout") add("hang", { step: "solve", detail: `no first paint within ${run.paint_ms} ms; last stage ${solve.timeline?.marks?.at(-1)?.stage ?? null}` });
     // The window's text, verbatim (the timeline carries only the failure's code and stage).
-    else add("refused_with_message", { step: "solve", message: solve.shown?.error ?? solve.shown?.refusal ?? solve.shown?.summary ?? null, code: solve.timeline?.failure?.code ?? null, stage: solve.timeline?.failure?.stage ?? null, needs_review: true });
+    else add("refused_with_message", { step: "solve", message: solve.shown?.error ?? solve.shown?.refusal ?? solve.shown?.results_refusal ?? solve.shown?.summary ?? null, code: solve.timeline?.failure?.code ?? null, stage: solve.timeline?.failure?.stage ?? null, needs_review: true });
     const record = report.record_run;
     if (record?.timed_out) add("hang", { step: "record_run", detail: `last message: ${record.last_message}` });
     else if (record && record.message && /^(Not recorded|Record Run:)/.test(record.message)) add("refused_with_message", { step: "record_run", message: record.message, needs_review: true });
@@ -721,7 +721,8 @@ export function createReaderPhaseEvidence(file) {
   const fd = openSync(file, "wx", 0o600);
   const events = [], active = new Map();
   let overflow = false, closed = false;
-  const web = new Set(["header", "registration", "standing", "summary"]);
+  // `run_preview`: the fresh solve's awaited native analysis-run preview (web layer only).
+  const web = new Set(["header", "registration", "standing", "summary", "run_preview"]);
   const native = new Set(["args_admit", "source_prescan", "source_admit", "inputs_admit", "source_parse", "inputs_parse", "validate", "serialize", "source_drop", "summary_health", "summary_build"]);
   const write = value => {
     const bytes = Buffer.from(`${JSON.stringify(value)}\n`);
