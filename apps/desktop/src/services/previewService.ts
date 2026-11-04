@@ -674,8 +674,10 @@ export async function readNativeFreshResult(
     recovery
   });
   if (unregistered === null && capture) nativeRegistrations.set(result, capture);
-  // RT-U4: the handle is this solve's result, so its commit and first paint are marked.
-  if (timed) noteSolveHandle(jobId, result);
+  // RT-U4: the handle is this solve's result, so its commit and first paint are marked. The job
+  // is read from the handle's own custody; the timeline refuses it unless it is the running
+  // latest solve's job at this moment (a solve superseded during the reads notes nothing).
+  if (timed) noteSolveHandle(nativeCustody(result).jobId, result);
   return { result, standing, unregistered };
 }
 

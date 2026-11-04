@@ -2,12 +2,14 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   SOLVE_TIMELINE_GLOBAL,
   SOLVE_TIMELINE_SCHEMA,
+  awaitsSolveFirstPage,
   beginSolveTimeline,
   codeOrNull,
   errorCode,
   isSolveJob,
   isSolveResult,
   markSolveCommittedAndPaint,
+  markSolveFirstPageCommitted,
   markSolveStage,
   noteSolveHandle,
   noteSolveResult,
@@ -155,30 +157,92 @@ describe("the latest solve's timeline (RT-U4)", () => {
     expect(frames).toHaveLength(0);
   });
 
-  it("marks a native handle's commit and paint only for the running solve's job, keeping the pass floor", () => {
-    const frames: FrameRequestCallback[] = [];
-    vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => { frames.push(callback); return frames.length; });
+  it("notes a native handle only for the running solve's job, keeping the pass floor", () => {
     const run = beginSolveTimeline();
     const handle = {};
     noteSolveHandle("job-1", handle); // before the job started: not this solve's job
     expect(isSolveResult(handle)).toBe(false);
     run.jobStarted("job-1");
-    noteSolveHandle("job-other", handle); // another job (a rule check's own solve)
+    noteSolveHandle("job-other", handle); // a foreign job (a rule check's own solve)
     expect(isSolveResult(handle)).toBe(false);
     noteSolveHandle("job-1", handle);
     expect(isSolveResult(handle)).toBe(true);
     // No text length is noted for a handle: the 1 MiB floor still classifies full passes.
     recordSolvePass("checked_json_text", performance.now(), 2 << 20);
     expect(readSolveTimeline()!.passes[0]).toMatchObject({ count: 1, full_count: 1 });
-    markSolveCommittedAndPaint(handle);
-    frames.shift()!(0);
-    frames.shift()!(0);
-    expect(readSolveTimeline()!.marks.map((mark) => mark.stage)).toEqual(["solve_requested", "job_started", "result_committed", "first_paint"]);
-    // A finished solve notes no later handle.
+    // A completed solve notes no later handle.
     run.end("completed");
     const later = {};
     noteSolveHandle("job-1", later);
     expect(isSolveResult(later)).toBe(false);
+  });
+
+  it("refuses a stale handle: a superseded, failed or cancelled solve's job notes none, and its handle is not the new solve's", () => {
+    const frames: FrameRequestCallback[] = [];
+    vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => { frames.push(callback); return frames.length; });
+    const first = beginSolveTimeline();
+    first.jobStarted("job-1");
+    const old = {};
+    noteSolveHandle("job-1", old);
+    const second = beginSolveTimeline(); // the old solve is superseded
+    second.jobStarted("job-2");
+    noteSolveHandle("job-1", {});
+    expect(isSolveResult(old)).toBe(false);
+    markSolveCommittedAndPaint(old);
+    markSolveFirstPageCommitted(old);
+    expect(frames).toHaveLength(0);
+    expect(readSolveTimeline()!.marks.map((mark) => mark.stage)).toEqual(["solve_requested", "job_started"]);
+    for (const outcome of ["failed", "cancelled"] as const) {
+      const run = beginSolveTimeline();
+      run.jobStarted("job-3");
+      run.end(outcome);
+      const handle = {};
+      noteSolveHandle("job-3", handle);
+      expect(isSolveResult(handle)).toBe(false);
+    }
+  });
+
+  it("paints a native handle two frames after its Results table's first page, never at the commit alone", () => {
+    const frames: FrameRequestCallback[] = [];
+    vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => { frames.push(callback); return frames.length; });
+    const run = beginSolveTimeline();
+    run.jobStarted("job-1");
+    const handle = {};
+    noteSolveHandle("job-1", handle);
+    // A first page before the handle's commit marks nothing.
+    expect(awaitsSolveFirstPage(handle)).toBe(false);
+    markSolveFirstPageCommitted(handle);
+    markSolveCommittedAndPaint(handle);
+    markSolveCommittedAndPaint(handle);
+    expect(frames).toHaveLength(0);
+    expect(readSolveTimeline()!.marks.map((mark) => mark.stage)).toEqual(["solve_requested", "job_started", "result_committed"]);
+    // Another handle's page (a reopened run's, say) is not this solve's.
+    expect(awaitsSolveFirstPage({})).toBe(false);
+    markSolveFirstPageCommitted({});
+    expect(frames).toHaveLength(0);
+    run.end("completed");
+    expect(awaitsSolveFirstPage(handle)).toBe(true);
+    markSolveFirstPageCommitted(handle);
+    markSolveFirstPageCommitted(handle);
+    expect(awaitsSolveFirstPage(handle)).toBe(false);
+    expect(frames).toHaveLength(1);
+    frames.shift()!(0);
+    expect(readSolveTimeline()!.marks.map((mark) => mark.stage)).toEqual(["solve_requested", "job_started", "result_committed"]);
+    frames.shift()!(0);
+    expect(readSolveTimeline()!.marks.map((mark) => mark.stage)).toEqual(["solve_requested", "job_started", "result_committed", "first_paint"]);
+    expect(frames).toHaveLength(0);
+  });
+
+  it("paints a result read from taken bytes at its commit: no first-page wait applies to it", () => {
+    const frames: FrameRequestCallback[] = [];
+    vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => { frames.push(callback); return frames.length; });
+    beginSolveTimeline();
+    const result = {};
+    noteSolveResult(result, 2);
+    markSolveCommittedAndPaint(result);
+    expect(awaitsSolveFirstPage(result)).toBe(false);
+    markSolveFirstPageCommitted(result);
+    expect(frames).toHaveLength(1);
   });
 
   it("is bounded, and its global reads a recursively frozen copy", () => {

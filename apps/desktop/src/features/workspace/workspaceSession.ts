@@ -71,7 +71,7 @@ import {
 } from "../../services/nativePersistence";
 import type { AnalysisRunPreview } from "../../services/analysisRunPreview";
 import type { C2FullResult } from "../results/C2ResultGate";
-import { beginSolveTimeline, markSolveCommittedAndPaint } from "../../services/solveTimeline";
+import { beginSolveTimeline, markSolveCommittedAndPaint, traceNativeReaderAwait } from "../../services/solveTimeline";
 import { IngressRequestRetiredError, nativeFailureText } from "../../services/nativeIngress";
 import {
   buildBlankLocalModelDocument,
@@ -846,7 +846,8 @@ export function useWorkspaceSession() {
     heldResultRef.current = result;
     if (previous && previous !== result) void disposeDeliveredMechanicsResult(previous);
   }, [result]);
-  // RT-U4: the latest solve's result committed, then its first paint (solveTimeline.ts).
+  // RT-U4: the latest solve's result committed, then its first paint (solveTimeline.ts); a native
+  // handle's paint follows its Results table's first page (NativeResultsPanel).
   useLayoutEffect(() => { markSolveCommittedAndPaint(result); }, [result]);
   useEffect(() => () => { void disposeDeliveredMechanicsResult(heldResultRef.current); }, []);
   // C1 slice 6: a restored run's native custody ends when the session stops showing it and no
@@ -1381,10 +1382,12 @@ export function useWorkspaceSession() {
       }
       // References left out of active_rule_packs become the record's diagnostics. The record is
       // built natively from the held bytes; the webview holds its header only.
-      const runRecord = createNativeAnalysisRun(await readNativeRunPreview(nativeCustody(output).jobId, {
+      // RT-U4: the one awaited native call of reader_verdict_end → analysis_run_built, journalled
+      // as the `run_preview` phase (solveTimeline.ts; native smoke only).
+      const runRecord = createNativeAnalysisRun(await traceNativeReaderAwait("run_preview", () => readNativeRunPreview(nativeCustody(output).jobId, {
         inputManifest: manifest,
         rulePackExclusions: rulePacks.excluded
-      }));
+      })));
       nativeRunInputs.current.set(runRecord, { inputManifest: manifest, ruleCheckAggregate: null, rulePackExclusions: rulePacks.excluded });
       timeline.mark("analysis_run_built");
       if (

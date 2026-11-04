@@ -141,6 +141,10 @@ type Timeline = {
   failure: { stage: SolveStage; code: string | null; error_name: string | null; at_ms: number } | null;
   result: WeakRef<object> | null;
   resultChars: number | null;
+  /** How the result is held: its value read from taken bytes, or a C1 native handle. */
+  resultKind: "value" | "native" | null;
+  committed: boolean;
+  firstPage: boolean;
 };
 
 let sequence = 0;
@@ -159,7 +163,7 @@ export type SolveTimelineHandle = Readonly<{
 /** Starts the timeline of a new solve (Analyze → Run), replacing the previous one. */
 export function beginSolveTimeline(detail: Detail | null = null): SolveTimelineHandle {
   const started = now();
-  const timeline: Timeline = { sequence: ++sequence, started, outcome: "running", jobId: null, marks: [], dropped: 0, passes: new Map(), failure: null, result: null, resultChars: null };
+  const timeline: Timeline = { sequence: ++sequence, started, outcome: "running", jobId: null, marks: [], dropped: 0, passes: new Map(), failure: null, result: null, resultChars: null, resultKind: null, committed: false, firstPage: false };
   current = timeline;
   pushMark(timeline, "solve_requested", started, detail);
   return {
@@ -186,15 +190,20 @@ export function noteSolveResult(result: object, chars: number): void {
   if (!current || typeof WeakRef === "undefined") return;
   current.result = new WeakRef(result);
   current.resultChars = chars;
+  current.resultKind = "value";
 }
 
 /** C1 native custody: the handle a fresh solve's result is held by (by reference only), so its
- * commit and first paint are recognised as they are for a result read from taken bytes. The
- * result's text never enters the webview, so no length is noted: full-envelope passes keep the
- * 1 MiB floor. Only the running latest solve's job notes its handle. */
+ * commit and first paint are recognised. `jobId` is the job the handle's own custody holds; only
+ * the running latest solve's job notes its handle (a stale, foreign or finished job notes none).
+ * The result's text never enters the webview, so no length is noted: full-envelope passes keep
+ * the 1 MiB floor. A handle's first paint follows its Results table's first page
+ * (`markSolveFirstPageCommitted`), not the commit alone. */
 export function noteSolveHandle(jobId: string, handle: object): void {
   if (!isSolveJob(jobId) || typeof WeakRef === "undefined") return;
   current!.result = new WeakRef(handle);
+  current!.resultChars = null;
+  current!.resultKind = "native";
 }
 
 /** Whether `jobId` is the running latest solve's job (a rule check's own solve is not). */
@@ -248,13 +257,38 @@ export function timedSolvePass<T>(kind: SolvePassKind, run: () => T, chars: (val
   return value;
 }
 
-/** Marks the first paint after the latest solve's result was committed: two animation
- * frames after the commit, the frame that shows it has been produced. */
+/** Marks `result_committed` when the session commits the latest solve's result, and its first
+ * paint: two animation frames after the commit that shows the Results table's first page.
+ * - A result read from taken bytes: its Results table renders from the value in that very commit,
+ *   so the paint is two frames after it (unchanged).
+ * - A C1 native handle: the table's rows and their semantics arrive by native page reads after
+ *   the commit, so its paint waits for `markSolveFirstPageCommitted`. */
 export function markSolveCommittedAndPaint(result: object | null): void {
   if (!current || !result || !isSolveResult(result)) return;
   const timeline = current;
-  if (timeline.marks.some((mark) => mark.stage === "result_committed")) return;
+  if (timeline.committed) return;
+  timeline.committed = true;
   markSolveStage("result_committed");
+  if (timeline.resultKind !== "native") schedulePaint(timeline);
+}
+
+/** Whether `handle` is the latest solve's committed native handle and its Results table's first
+ * page has not yet been shown (a cheap check: no layout is read). */
+export function awaitsSolveFirstPage(handle: unknown): boolean {
+  return current !== null && current.resultKind === "native" && current.committed && !current.firstPage && isSolveResult(handle);
+}
+
+/** C1: the native Results table committed its first page for `handle`, its rows and their row
+ * semantics read, while the table could be seen. Its first paint is two animation frames later.
+ * Called by `NativeResultsPanel` only; nothing for any other handle, before the handle's commit,
+ * or a second time. A refused or pending page never calls it. */
+export function markSolveFirstPageCommitted(handle: object): void {
+  if (!awaitsSolveFirstPage(handle)) return;
+  current!.firstPage = true;
+  schedulePaint(current!);
+}
+
+function schedulePaint(timeline: Timeline): void {
   if (typeof requestAnimationFrame !== "function") return;
   requestAnimationFrame(() => requestAnimationFrame(() => {
     if (current === timeline) markSolveStage("first_paint");
@@ -319,10 +353,11 @@ export function resetSolveTimelineForTests(): void {
 }
 
 
-/** C1's four native registration awaits, observed only by the smoke driver.
- * Fixed scalar events; no job/model/result identity or standing contents.
+/** C1's four native registration awaits, and the fresh solve's awaited native analysis-run
+ * preview (`run_preview`, between `reader_verdict_end` and `analysis_run_built`), observed only
+ * by the smoke driver. Fixed scalar events; no job/model/result identity or standing contents.
  * A missing exit remains missing after cancellation/disposal or process exit. */
-export type NativeReaderPhase = "header" | "registration" | "standing" | "summary";
+export type NativeReaderPhase = "header" | "registration" | "standing" | "summary" | "run_preview";
 export type NativeReaderBoundary = Readonly<{ layer: "web"; call: number; phase: NativeReaderPhase; edge: "enter" | "exit"; status: "pending" | "ok" | "error"; mono_ms: number }>;
 let nativeReaderCalls = 0;
 declare global {

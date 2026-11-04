@@ -16,7 +16,8 @@
  * here. A step whose list is still being read waits for it; a reply for a step, filter or result
  * that is no longer current is discarded. A group's CSV is written through the native stream in
  * pages (`resultGroupCsvStream`), byte for byte the CSV the full rows would give. */
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { awaitsSolveFirstPage, markSolveFirstPageCommitted } from "../../services/solveTimeline";
 import { QuantityReadout } from "../display-units";
 import { CsvExportControl } from "../result-export/CsvExportControl";
 import { CSV_SOFTWARE_VERSION, csvAnalysisRoute, csvModelHash, csvResultHash } from "../result-export/csvProvenance";
@@ -286,6 +287,13 @@ export function NativeResultsPanel({
 
   /* ---- A1: the results navigator (DEL-07-05 `results-navigator.md`), on native lists ---- */
   const panelRef = useRef<HTMLElement>(null);
+  // RT-U4: a fresh solve's first paint is the frame showing this table's first page: its rows and
+  // their row semantics read (`ready`) and committed while the table can be seen, then two frames
+  // (solveTimeline.ts). Checked after every commit until marked, so a page read while Results was
+  // dormant or hidden counts when the table is next shown; a pending or refused page never does.
+  useLayoutEffect(() => {
+    if (ready && !selectionOnlyWithoutEntity && awaitsSolveFirstPage(result) && canSurfaceRevealNow(panelRef.current)) markSolveFirstPageCommitted(result);
+  });
   const kindIds = RESULT_FAMILY_OPTIONS
     .filter((option) => option.id === "all" || (familyCounts as Record<string, number>)[option.id] > 0)
     .map((option) => option.id);
