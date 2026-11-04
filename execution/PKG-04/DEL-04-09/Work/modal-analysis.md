@@ -1459,6 +1459,15 @@ The weights rise with n (w_b64 from 0.0925 to 0.1579 over 240–960), so **no we
     - (c) an implementation change that reuses one buffer per stage for those transients, making (a) a source fact.
 
     Allocator allowances cannot stand in for omitted source allocations.
+  - **Agent 0 chose (c), 2026-11-04, and released its implementation:** a bounded reuse of workspace per stage, per pair and per product.
+    - **Numerics unchanged:** the order of every numeric operation, insertion and reduction stays identical, with no change to matrix identity, normalization or rounding.
+    - **Reset:** every accumulator and state is reset explicitly (ExactSum limbs, status and sign), not only the logical arrays.
+    - **The ledger counts capacity, not length:** retained maximum capacity; simultaneous inputs, outputs and workspaces; old plus new allocations during growth; clones and alias copies; error and return paths; and stage overlap. It reserves once at a checked extent, or uses fallible allocation, where the route allows, and later stages' peaks never omit retained capacity.
+    - **What it guarantees:** the reuse of requested allocations becomes a source fact. It is no total-RSS guarantee; the runtime, allocator rounding, layout, stack and custody allowances stay separate. No general allocator trace or custom allocator.
+    - **Formation-map growth:** its guard comes before the allocation that would breach it, because S2b, which runs after formation, cannot repair an earlier overspend.
+    - **Review:** independent numerical and resource review, with bit identity on the existing references and producer edges. That includes many modes reusing a workspace, empty, zero and cancelling inputs, and an early refusal followed by reuse and growth.
+    - **Not adopted:** a ceiling, ρ or a value of L_A; 202 remains a proposed allotment, not a proven limb bound. The 3.8 GiB illustration is updated only after the real workspace ledger is verified in source, and a passing test is no proof of every model's heap peak.
+    - **Not yet confirmed:** the corrections in `f89a36359` are not claimed clear until the focused fix confirmation is done in the implementation review.
 
   | Stage | Allocations, each counted once (bytes) | Exact at |
   |---|---|---|
