@@ -2077,6 +2077,96 @@ pub fn finish_sparse_structural_on(
     )
 }
 
+/// RT-A3 P step 5: the pattern sibling of `ConfirmationAttempt` (DEL-04-01
+/// kd5-nonlinear-active-set.md §1.5): the confirmation attempt's one factor of
+/// the converged state's matrix on the pattern. Its gate
+/// (`finish_sparse_confirmation`), scale exponents, prepared matrix, Hager
+/// estimate and epsilon_E serve every K-D5 evaluation of the attempt, as the
+/// dense attempt's do; the evaluations read K and the prepared matrix through
+/// the pattern's accessors, as the linear route's pattern K-D5 does.
+pub struct SparseConfirmationAttempt<'f, 'p, 's> {
+    factor: &'f SparsePositiveFactor<'p, 's>,
+    condition: (f64, f64, f64),
+    epsilon: std::cell::Cell<Option<f64>>,
+}
+
+/// `finish_confirmation` on the pattern: the gate completed exactly as
+/// `finish_sparse_structural` completes it, on a system prepared without a
+/// formation source, and the attempt whose factor `evaluate_at` reuses.
+pub fn finish_sparse_confirmation<'f, 'p, 's>(
+    factor: &'f SparsePositiveFactor<'p, 's>,
+) -> Result<(StructuralSolution, SparseConfirmationAttempt<'f, 'p, 's>), StructuralError> {
+    if factor.prepared.formation.is_some() {
+        return Err(StructuralError::InvalidInput(
+            "confirmation gate carries a formation source",
+        ));
+    }
+    let solution = finish_sparse_structural(factor)?;
+    let condition = factor
+        .prepared
+        .gate_condition(&|rhs: &[f64]| factor.factor.solve(rhs))?;
+    Ok((
+        solution,
+        SparseConfirmationAttempt {
+            factor,
+            condition,
+            epsilon: std::cell::Cell::new(None),
+        },
+    ))
+}
+
+impl SparseConfirmationAttempt<'_, '_, '_> {
+    /// `ConfirmationAttempt::evaluate_at` on the pattern: `system` must have
+    /// the gate's stiffness (the same `SparseStiffness`), free map and
+    /// contributions; its force and formation source may differ.
+    pub fn evaluate_at(
+        &self,
+        system: &FormationCheckedSparseSystem<'_>,
+        u: &[f64],
+        judged: bool,
+    ) -> Result<(Option<FormationCheck>, Option<MemberBoundInputs>), StructuralError> {
+        let gate = self.factor.prepared.source;
+        let s = &system.system;
+        let same_contributions = match (s.contributions, gate.contributions) {
+            (Some(a), Some(b)) => std::ptr::eq(a, b),
+            _ => false,
+        };
+        if s.free_dofs != gate.free_dofs
+            || !std::ptr::eq(s.stiffness, gate.stiffness)
+            || !same_contributions
+            || s.force.len() != gate.force.len()
+            || u.len() != gate.force.len()
+        {
+            return Err(StructuralError::InvalidInput("confirmation system"));
+        }
+        let prepared = self.factor.prepared;
+        // The dense stiffness placeholder is empty; the callbacks read the
+        // pattern (as `Represented::formation_check` for the pattern does).
+        let view = StructuralSystem {
+            stiffness: &[],
+            force: s.force,
+            free_dofs: s.free_dofs,
+            prescribed: s.prescribed,
+            contributions: s.contributions,
+            contribution_groups: s.contribution_groups,
+            symmetry: None,
+        };
+        Ok(formation_check::check_at(
+            &view,
+            system.source,
+            system.force,
+            &prepared.scale_exponents,
+            u,
+            self.condition,
+            &|i, j| s.stiffness.get(i, j),
+            &|r, c| prepared.gate_value(r, c),
+            &|rhs: &[f64]| self.factor.factor.solve(rhs),
+            judged,
+            Some(&self.epsilon),
+        ))
+    }
+}
+
 /// RT-A3 P: `evaluate_original_residual` (the named binary64 binding) on the
 /// sparse representation, through the shared `evaluate_original_residual_bound`.
 pub fn evaluate_sparse_original_residual(

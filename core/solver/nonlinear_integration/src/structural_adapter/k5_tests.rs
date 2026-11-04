@@ -882,12 +882,15 @@ fn k5_w4_entry_is_named_only_in_the_four_selected_bodies() {
     let code = strip_cfg_test(&lex(include_str!("../structural_adapter.rs")));
     // R2 (DEL-04-01 kd5-nonlinear-active-set.md §1.5): the nonlinear route's
     // confirmation entry is a fifth formation-checked body and screens its
-    // converged state with W4 like the other four.
-    assert_eq!(tokens(&code, "constrained_geometry"), 7);
+    // converged state with W4 like the other four; RT-A3 P step 5 adds its
+    // pattern sibling, which screens the same way.
+    assert_eq!(tokens(&code, "constrained_geometry"), 8);
     assert_eq!(code.matches("fn constrained_geometry(").count(), 2);
-    let confirmation = body_in_impl(&code, "impl AssemblyEvidence {", "confirm_with_formation_check");
-    assert_eq!(tokens(confirmation, "constrained_geometry"), 1);
-    assert_eq!(tokens(confirmation, "geometry"), 0);
+    for header in ["impl AssemblyEvidence {", "impl SparseAssemblyEvidence {"] {
+        let confirmation = body_in_impl(&code, header, "confirm_with_formation_check");
+        assert_eq!(tokens(confirmation, "constrained_geometry"), 1, "{header}");
+        assert_eq!(tokens(confirmation, "geometry"), 0, "{header}");
+    }
     for header in ["impl AssemblyEvidence {", "impl SparseAssemblyEvidence {"] {
         assert_eq!(
             tokens(

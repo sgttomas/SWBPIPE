@@ -948,6 +948,83 @@ impl SparseAssemblyEvidence {
         solution
     }
 
+    /// RT-A3 P step 5: the pattern sibling of
+    /// `AssemblyEvidence::confirm_with_formation_check` (DEL-04-01
+    /// kd5-nonlinear-active-set.md §1.5), the sparse loop's single
+    /// confirmation entry after convergence. The converged state's system is
+    /// prepared on the pattern with `gate_force` as the typed linear solve
+    /// prepares it (`prepare_assembled_sparse_structural`), factored once by the
+    /// pattern's skyline LDL and completed by `finish_sparse_confirmation`;
+    /// every K-D5 evaluation, reaction ball and displacement ball of the
+    /// context reuses that factor, its scale exponents, Hager estimate and
+    /// epsilon_E, reading K and the prepared matrix through the pattern. The
+    /// prepared system is the dense one entry for entry (K1), so the attempt
+    /// is the dense-derived sparse attempt's. Only `SparseInteractive`: dense
+    /// scrutiny confirms on `AssemblyEvidence`.
+    #[allow(clippy::too_many_arguments)]
+    pub fn confirm_with_formation_check(
+        &self,
+        k: &SparseStiffness,
+        gate_force: &AssembledForce,
+        free: &[usize],
+        prescribed: &[(usize, f64)],
+        mode: LinearSolveMode,
+        curved_sources: &[CurvedBendMacroElement],
+        evaluate: impl FnOnce(&StructuralSolution, &ConfirmationContext<'_>) -> crate::confirmation::Confirmation,
+    ) -> Result<crate::confirmation::Confirmation, StructuralError> {
+        if mode != LinearSolveMode::SparseInteractive {
+            return Err(StructuralError::InvalidInput(
+                "pattern confirmation is sparse interactive only",
+            ));
+        }
+        unscaled_evidence(self.force_scale)?;
+        self.check_pattern(k)?;
+        self.constrained_geometry(prescribed, curved_sources)?;
+        let symmetry_basis = symmetry_basis(&self.edges);
+        let gate = SparseStructuralSystem::assembled(
+            k,
+            gate_force,
+            free,
+            prescribed,
+            Some(&self.contributions),
+            Some(self.sparse_symmetry(&symmetry_basis)),
+        )
+        .with_contribution_groups(&self.contribution_groups);
+        let prepared = structural::prepare_assembled_sparse_structural(&gate)?;
+        let factor = match factor_sparse_structural_ldlt(&prepared) {
+            Ok(factor) => factor,
+            Err(error) => {
+                return Err(structural::sparse_negative_pair_witness(&prepared)?.unwrap_or(error))
+            }
+        };
+        let (solution, attempt) = structural::finish_sparse_confirmation(&factor)?;
+        let evaluate_at = |force: &AssembledForce, u: &[f64], judged: bool| {
+            let mut source = formation_source(&self.formation, curved_sources);
+            source.loads = force.load_primitives().into();
+            let system = SparseStructuralSystem::assembled(
+                k,
+                force,
+                free,
+                prescribed,
+                Some(&self.contributions),
+                Some(self.sparse_symmetry(&symmetry_basis)),
+            )
+            .with_contribution_groups(&self.contribution_groups)
+            .with_formation_source(&source);
+            attempt.evaluate_at(&system, u, judged)
+        };
+        let reaction = |force: &AssembledForce, dof: usize, u: &[f64], bound: &structural::MemberBoundInputs| {
+            let mut source = formation_source(&self.formation, curved_sources);
+            source.loads = force.load_primitives().into();
+            structural::certify_support_reaction(&source, force, dof, u, bound)
+        };
+        let context = ConfirmationContext {
+            evaluate_at: &evaluate_at,
+            reaction: &reaction,
+        };
+        Ok(evaluate(&solution, &context))
+    }
+
     /// RT-A3 P: the loop's product-equilibrium measurement (binary64 binding)
     /// on the pattern, over the same contributions and per-entry allowances
     /// as the dense loop's `product_equilibrium::evaluate`.

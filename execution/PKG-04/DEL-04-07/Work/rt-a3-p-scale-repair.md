@@ -222,3 +222,19 @@ estimate minus one and admission at the estimate (loop entry, both modes), and P
   (unit and final) on each coupled iterate; dense scrutiny makes none. The shadow check compares
   every sparse-mode NI solve with the dense-derived separate solves.
 - The 100 corpus outputs are byte-identical to step 4's.
+
+### 8.5 Step 5: the confirmation on the pattern (sparse mode)
+
+- FK `finish_sparse_confirmation` and `SparseConfirmationAttempt::evaluate_at` are the pattern
+  siblings of `finish_confirmation` and `ConfirmationAttempt::evaluate_at`: the same
+  `formation_check::check_at`, reading K and the prepared matrix through the pattern.
+- The NI adapter's `SparseAssemblyEvidence::confirm_with_formation_check` is the pattern sibling of
+  the single confirmation entry. `confirm_with_applied` calls it for a pattern completion in sparse
+  mode, and the dense entry otherwise (a pattern completion confirmed in dense scrutiny lends its
+  dense view). The confirmation is still one attempt after convergence.
+- The R2, option-(c), formation-entry and K5 W4 source pins are extended to "one entry per adapter
+  impl, called once per representation in `confirm_with_applied`". The pattern plumbing is added to
+  the plumbing the product and the loop must not name, and the mutants still fail.
+- Evidence: `p_the_pattern_confirmation_equals_the_dense_derived_one` (six cases, five of them
+  Established, `Debug`-equal to the dense-derived confirmation), and the 100 corpus outputs are
+  byte-identical to step 3's.

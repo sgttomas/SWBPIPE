@@ -741,3 +741,54 @@ fn p_the_coupling_move_stays_inside_the_certified_friction_bound() {
         }
     }
 }
+
+// ------------------------------------------------ RT-A3 P step 5: the pattern confirmation
+
+/// RT-A3 P step 5: in sparse mode the confirmation of a pattern loop's state
+/// runs on the pattern (`SparseAssemblyEvidence::confirm_with_formation_check`).
+/// It equals the confirmation of the dense-derived loop's state (the dense
+/// evidence, the dense prepared system and SD's skyline LDL of it) in `Debug`,
+/// established and named-reason cases alike: F-1's derived sliding both ways
+/// and sticking, the inclined coupled case, an explicit-normal sliding case
+/// and a moved anchor.
+#[test]
+fn p_the_pattern_confirmation_equals_the_dense_derived_one() {
+    let mode = LinearSolveMode::SparseInteractive;
+    let explicit = cantilever(
+        vec![NonlinearSupport::friction("NL-E", 1, FrameDof::Ux, 0.3).unwrap()],
+        vec![SupportStateRecord::new("NL-E", ActiveSetState::Sliding)],
+        vec![FrictionNormalReaction::new("NL-E", 70.0).unwrap()],
+        Vec::new(),
+        &[],
+        &[(6, 40.0)],
+    );
+    let cases = [
+        ("F-1 +80", f1(80.0)),
+        ("F-1 -80", f1(-80.0)),
+        ("F-1 stick", f1(30.0)),
+        ("inclined coupled", inclined_coupled(80.0)),
+        ("explicit", explicit),
+        ("moved anchor", moved_prop(vec![(2, 1.0e-4)])),
+    ];
+    let mut established = 0;
+    for (name, (input, force)) in cases {
+        let run = |representation: Option<crate::LoopRepresentation>| {
+            crate::LOOP_REPRESENTATION_OVERRIDE.with(|cell| cell.set(representation));
+            let solve = solve_active_set_frame_with_mode_and_springs_assembled(&input, &force, mode, &[]);
+            crate::LOOP_REPRESENTATION_OVERRIDE.with(|cell| cell.set(None));
+            let solve = solve.unwrap();
+            let applied = solve.iterations.last().unwrap().applied_sliding_friction_forces.clone();
+            let pattern = matches!(
+                solve.completion.as_ref().unwrap().original_stiffness,
+                crate::LoopStiffness::Pattern(_)
+            );
+            (pattern, format!("{:?}", confirm_with_applied(&input, &[], &solve, &force, &[], &[], mode, &applied)))
+        };
+        let (pattern, on_pattern) = run(None);
+        let (dense, dense_derived) = run(Some(crate::LoopRepresentation::Dense));
+        assert!(pattern && !dense, "{name}");
+        assert_eq!(on_pattern, dense_derived, "{name}");
+        established += usize::from(on_pattern.starts_with("Ok(Established"));
+    }
+    assert!(established >= 5, "non-vacuous: {established}");
+}

@@ -592,9 +592,13 @@ fn option_c_structural_adapter_legacy_variants_reach_only_binary64_entry_points(
     // route's single confirmation entry prepares the converged state's system
     // exactly as `solve_assembled` does; it is an exact variant, defined once,
     // in `impl AssemblyEvidence` only, and its body is blanked the same way.
-    assert_eq!(code.matches(CONFIRMATION_ENTRY).count(), 1);
-    let range = body_in_impl(&code, ADAPTER_IMPLS[0], CONFIRMATION_ENTRY);
-    code.replace_range(range, "{");
+    // RT-A3 P step 5 (pin extension): and its pattern sibling, defined once
+    // in `impl SparseAssemblyEvidence`, blanked the same way.
+    assert_eq!(code.matches(CONFIRMATION_ENTRY).count(), 2);
+    for header in ADAPTER_IMPLS {
+        let range = body_in_impl(&code, header, CONFIRMATION_ENTRY);
+        code.replace_range(range, "{");
+    }
     // RT-A3 P (pin extension): `impl SparseAssemblyEvidence`'s pattern
     // siblings of the binary64 variant build the legacy-vector pattern system
     // (`SparseStructuralSystem::new(`) and reach only the binary64 kernel
@@ -1264,8 +1268,11 @@ fn kd5_nonlinear_sources_name_no_formation_check_entry_point() {
             // R2: the confirmation entry's body holds the nonlinear route's
             // formation plumbing; it is blanked like the K2b sibling.
             let mut confirmation_blanked = k2b_blank_formation_siblings(code);
-            let range = body_in_impl(&confirmation_blanked, ADAPTER_IMPLS[0], CONFIRMATION_ENTRY);
-            confirmation_blanked.replace_range(range, "{");
+            // RT-A3 P step 5: and its pattern sibling's.
+            for header in ADAPTER_IMPLS {
+                let range = body_in_impl(&confirmation_blanked, header, CONFIRMATION_ENTRY);
+                confirmation_blanked.replace_range(range, "{");
+            }
             blanked = confirmation_blanked;
             &blanked
         } else {
@@ -1810,16 +1817,24 @@ fn uniform_constructor_and_attach_staging_is_sequential() {
 const CONFIRMATION_ENTRY: &str = "confirm_with_formation_check";
 
 /// FK's confirmation plumbing, which only the adapter's confirmation entry
-/// reaches (implementation review I1).
-const CONFIRMATION_PLUMBING: [&str; 2] = ["finish_confirmation", "ConfirmationAttempt"];
+/// reaches (implementation review I1); RT-A3 P step 5 adds the pattern's.
+const CONFIRMATION_PLUMBING: [&str; 4] = [
+    "finish_confirmation",
+    "ConfirmationAttempt",
+    "finish_sparse_confirmation",
+    "SparseConfirmationAttempt",
+];
 
 /// R2's re-scope of `kd5_nonlinear_sources_name_no_formation_check_entry_point`:
 /// no formation-check entry inside the nonlinear iteration, and exactly one
 /// source-qualified confirmation entry after convergence.
-/// - The adapter defines `confirm_with_formation_check` once, in
-///   `impl AssemblyEvidence`, and never calls it.
-/// - `confirmation.rs` calls it exactly once, in `fn confirm_with_applied(`,
-///   which is called once, from `fn confirm_converged_state(`.
+/// - The adapter defines `confirm_with_formation_check` once in each adapter
+///   impl (`impl AssemblyEvidence`, and since RT-A3 P step 5 its pattern
+///   sibling in `impl SparseAssemblyEvidence`), and never calls it.
+/// - `confirmation.rs` calls it exactly twice, both in
+///   `fn confirm_with_applied(` (one per representation, in exclusive match
+///   arms, so one attempt runs), which is called once, from
+///   `fn confirm_converged_state(`.
 /// - No other non-test module of this crate (the loop's `lib.rs` included)
 ///   names the entry, `confirm_with_applied` or `confirm_converged_state`.
 /// - No non-adapter module of this crate, and no product module, names FK's
@@ -1843,20 +1858,24 @@ fn r2_confirmation_entry_violations(
         }
         match name.as_str() {
             "structural_adapter.rs" => {
-                if count(code, CONFIRMATION_ENTRY) != 1
-                    || code.matches("fn confirm_with_formation_check(").count() != 1
-                    || !function_body(code, ADAPTER_IMPLS[0])
-                        .contains("fn confirm_with_formation_check(")
+                if count(code, CONFIRMATION_ENTRY) != 2
+                    || code.matches("fn confirm_with_formation_check(").count() != 2
+                    || ADAPTER_IMPLS.iter().any(|header| {
+                        function_body(code, header)
+                            .matches("fn confirm_with_formation_check(")
+                            .count()
+                            != 1
+                    })
                 {
-                    out.push(format!("{name}: the confirmation entry is defined once, in impl AssemblyEvidence, and never called"));
+                    out.push(format!("{name}: the confirmation entry is defined once in each adapter impl, and never called"));
                 }
             }
             "confirmation.rs" => {
                 let body = function_body(code, "fn confirm_with_applied(");
-                if count(code, CONFIRMATION_ENTRY) != 1
-                    || body.matches(".confirm_with_formation_check(").count() != 1
+                if count(code, CONFIRMATION_ENTRY) != 2
+                    || body.matches(".confirm_with_formation_check(").count() != 2
                 {
-                    out.push(format!("{name}: exactly one confirmation entry, in confirm_with_applied"));
+                    out.push(format!("{name}: one confirmation entry per representation, in confirm_with_applied"));
                 }
                 let outer = function_body(code, "fn confirm_converged_state(");
                 if count(code, "confirm_with_applied") != 2
@@ -1927,8 +1946,8 @@ fn r2_confirmation_entry_pin_kills_a_second_or_in_loop_entry() {
     // A second entry in the confirmation module.
     let second = mutate(
         "confirmation.rs",
-        "let attempt = evidence.confirm_with_formation_check(",
-        "let _ = evidence.confirm_with_formation_check(); let attempt = evidence.confirm_with_formation_check(",
+        "let evidence = AssemblyEvidence::new(",
+        "let _ = evidence.confirm_with_formation_check(); let evidence = AssemblyEvidence::new(",
     );
     assert!(!r2_confirmation_entry_violations(&second, &product).is_empty());
     // An entry inside the loop's iteration.
@@ -1971,8 +1990,15 @@ fn r2_confirmation_entry_pin_kills_a_second_or_in_loop_entry() {
     // I1: a non-adapter module of this crate names FK's confirmation plumbing.
     let plumbing = mutate(
         "confirmation.rs",
-        "let attempt = evidence.confirm_with_formation_check(",
-        "let _ = finish_confirmation(); let attempt = evidence.confirm_with_formation_check(",
+        "let evidence = AssemblyEvidence::new(",
+        "let _ = finish_confirmation(); let evidence = AssemblyEvidence::new(",
+    );
+    assert!(!r2_confirmation_entry_violations(&plumbing, &product).is_empty());
+    // RT-A3 P step 5: the pattern's plumbing likewise.
+    let plumbing = mutate(
+        "confirmation.rs",
+        "let evidence = AssemblyEvidence::new(",
+        "let _ = finish_sparse_confirmation(); let evidence = AssemblyEvidence::new(",
     );
     assert!(!r2_confirmation_entry_violations(&plumbing, &product).is_empty());
 }
