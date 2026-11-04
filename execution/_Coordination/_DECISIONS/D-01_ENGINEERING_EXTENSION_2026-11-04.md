@@ -52,7 +52,7 @@
 - **Reviewers.**
   - Agent 0 confirmed the decisions (2026-11-04), and the dynamics manager issued the implementation briefs. The implementation is a TASK's.
   - **`mass_length_per_rotation` and the first trace, at `9b22b5a2b`:** an independent review commissioned by the dynamics manager found no blocking issue and one should-fix. The readers' empty-set rounding allowance did not cover a subnormal (2π·f_c)²; it was fixed in `0307ba57d`, with a producer-generated regression fixture.
-  - **`time_squared`, the code-based trace and that fix:** independent review **pending**. It is recorded here when it completes.
+  - **`time_squared`, the code-based trace and that fix, at `c3f824e85`:** an independent review commissioned by the dynamics manager found no blocking issue and one should-fix. It confirmed that both routes take D from the formed K_ff diagonal (the census's separate mass-diagonal scaling supplies none of these magnitudes), the stated conventions, the kind mapping and the rejections. The should-fix: a cut-off whose square underflows to zero, published with a zero lower end, passed the readers, although the producer refuses that λ_c (`InvalidGap`). It is fixed in `8ff28805d`: both readers require a finite positive square, and two corpus entries fail sturm. This is agent review, not owner acceptance.
 - **D3.** `core/units/src` is priced. Its re-registration belongs to the I3a D3 turn (DEL-04-08), and this record registers nothing.
 
 ## 3. What this does not close
