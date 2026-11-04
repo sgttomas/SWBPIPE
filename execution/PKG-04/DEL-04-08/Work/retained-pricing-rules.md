@@ -4931,7 +4931,7 @@ This record changes no source the registration binds. This is test evidence, not
 PF1b's frozen §8.51 head with main #109, in the order Agent 0 set (#105/B, then PF1b, then I3a). It is made under the
 owner's removal of explicit owner approval for coefficient movement. Source-derived pricing, independent scrutiny and
 preservation of the registered state remain required. This records no acceptance. **No coefficient moves**, so
-§8.51's block is kept. The threshold and M are unchanged. **AC-004: pending** (see "Frames and AC-004" below). The modal
+§8.51's block is kept. The threshold and M are unchanged. **AC-004 passed 7/7** on this registration's binary (see "Frames and AC-004" below). The modal
 result family stays experimental and not public (Design §5.3.9). This registration adopts no production parameter
 instance, guard weights, subject census or recording policy, and the independent numerical review of I3a remains a
 separate obligation.
@@ -5092,8 +5092,7 @@ At `98990d9f6` two I3a test-source reads were still refused by design: `include_
 `price.py run 1028b6d46` is identical_but_basis to `d44e5c538`'s tree: 1,602 equal, o10 0/0, and `generate --check`
 differs only in the header's revision comment.
 
-**Frames and AC-004: pending.** AC-004 was not run here. The witnessed lib-test binary changes in retained-reachable
-code:
+**Frames and AC-004.** The witnessed lib-test binary changes in retained-reachable code:
 - Of the nineteen `core/units` functions on the retained graph, `Dimension::as_str`, `UnitId::definition`,
   `canonical_unit`, `conversion_provenance` and `factor_representation` gain match arms.
 - `unit_by_symbol` and `catalog_definitions` iterate a longer `CATALOG`.
@@ -5102,7 +5101,37 @@ code:
 Heap coefficient identity does not establish stack depth (§8.39), and §8.43's analytical argument (no
 retained-reachable function body changes) does not hold here. §8.51's AC-004 passed 7/7 at `d44e5c538` (above), but it
 does not transfer to this binary. So AC-004 needs the stack witnesses on this registration's binary. Agent 0 required it
-(2026-11-04) and cleared one seven-process window, after the registration review is clear. Frame sizes were not measured here.
+(2026-11-04) and cleared one seven-process window, after the registration review is clear.
+- **Result: 7/7 at `a2c9ec5b1`** (commit `a2c9ec5b152d08e912d95bea24f92ee56ec42b20`, tree `3a400b19ca2f…`). Its `core/` tree,
+  `7292c56b…`, equals the reviewed candidate `ea68fc554`'s. The later commits change only the pricing rules, their tests and
+  this record, none of which is a build input.
+- **Binaries.** `open_pipe_stress_product_physics-17fc6ee4fe08d0e3`, SHA-256
+  `60bb93a12c44e2f365a52711b3e2a831252185629c5bea53b84bce7450151201`, and `retained_memory_challenge-9bd09b4a98c9a5ce`,
+  SHA-256 `d6c312a07f288e817fcd84e50541d75ac237c61230e971a13fb46fe932b11a51`.
+- **Registered inputs.** Profile `retained_memory.rs` `0b8844241d0f7b201b7c6ed609824a9f56b3fea8eb0e4706dd3bf084b0a60ad5`;
+  product_physics `Cargo.lock` `b7ebb02aafa8cfe214c18bc64941381b33ab3f9295e0fc774ee0819e1e4f5653`; rustc 1.97.1 (commit-hash
+  `8bab26f4f68e0e26f0bb7960be334d5b520ea452`); and the 13 reviewed inputs as registered.
+- **Build.** Both binaries were built beforehand under the slot wrapper (`cargo test --offline --no-run --lib --test
+  retained_memory_challenge`, test profile; `RUSTFLAGS`, `CARGO_ENCODED_RUSTFLAGS` and `CARGO_BUILD_RUSTFLAGS` unset). A
+  further `--no-run` reported them fresh.
+- **Clearance and checks.** One `t3_exclusive.sh` window with memguard, at most 55 s internal and 60 s external including
+  teardown (an outer watchdog). Head, core tree, clean state, both binaries, profile, lock, compiler and flag state were
+  verified before queueing and re-verified at admission. No other exclusive job was pending.
+- **Timing.** Queued 2026-11-04T17:48:14Z. An ordinary slot job was running, and the queue wait is separate. Admitted at
+  18:16:59Z, with the internal deadline at 18:17:54Z. Ended and released at 18:17:12Z: 13.3 s, teardown included. The
+  watchdog did not fire.
+- **Discipline.** Each test ran in its own process, prebuilt and invoked directly with `--exact --test-threads=1`
+  (`--ignored` for the witnesses). Nothing was compiled inside the window, both binary hashes were unchanged afterwards,
+  and there was no retry and no extra test. No owned process, lock holder or `exclusive.pending` remained (verified
+  18:17:41Z), and memguard logged no event.
+- **Results, sparse and dense:**
+  - `witness_headroom_w1_at_one_mebibyte`: ok (0.74 s), ok (0.67 s);
+  - `witness_w2_deep_milestone_publishes`: ok (1.33 s), ok (1.32 s);
+  - `witness_w_c2_publishes`: ok (2.50 s), ok (2.49 s);
+  - `retained_direct_peak_is_within_the_profiles_bounds`: ok (3.87 s), against the unchanged `W1_PHASE_BYTES` and
+    `MAX_PHASE_BYTES`.
+
+This is test evidence, not an acceptance. Frame sizes were not measured here.
 
 Run evidence (price.py logs, compares, owner and graph checks) is in
 `/Users/ryan/dev/chirality-t3/scratch/rt-dynamics-i3a-d3/`. It is review input, not a permanent dependency.
