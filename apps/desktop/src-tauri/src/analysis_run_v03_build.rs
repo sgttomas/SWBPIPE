@@ -107,11 +107,13 @@
 //!   run's identity, both checksums, the statuses and counts, and every record
 //!   member except the row-scale ones (`result_refs`, the producer's
 //!   `diagnostics`, the copied `contract_evidence`, `source_block_recovery`
-//!   and `retained_precision`), which it counts or names. Nothing is cached:
-//!   each call reads the held bytes with the arguments it is given. What it
-//!   reuses is existing proof, not a cache: the held publication's own note
-//!   of the `pressure` registration's pass (above). No record, checksum,
-//!   length, row, interpretation or reply is kept between calls.
+//!   and `retained_precision`), which it counts or names. Each call reads the
+//!   held bytes with the arguments it is given. One fact is retained between
+//!   calls, as validation evidence bound to the held publication (not to a job
+//!   id, the webview or any global): the `pressure` registration passed the
+//!   current reader on exactly these bytes (`ReaderEvidence`, above), which
+//!   lets the build skip re-running that reader. No record, checksum, length,
+//!   row, interpretation or reply is cached between calls.
 //! - **Admission and memory** (plan §8; no new budget or rule). Every lease is
 //!   pool-admitted before what it covers is allocated, and none exceeds the
 //!   per-invocation budget or the 12 GiB default:

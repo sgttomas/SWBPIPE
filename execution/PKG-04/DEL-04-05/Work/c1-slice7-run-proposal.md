@@ -287,7 +287,18 @@ second profile reading of the rows is gone. The canonical streams are unchanged:
 - The evidence follows the share through disposal, reset and release interleavings. Another job
   of the same bytes, a restored handle, a dispatch, a refusal and another reader's pass hold no
   evidence.
-- Seven fail-without mutations each fail their tests.
+- Seven fail-without mutations, each a temporary edit reverted afterwards. The implementing TASK reported that
+  each failed its targeted tests; the failing test of each was not recorded individually:
+  - M1, reuse disabled;
+  - M2, any reader's pass noted (not only `pressure` with `{"ok":true}`);
+  - M3, a restored result given evidence;
+  - M4, rows read twice for the profile;
+  - M5, the checksum placeholder one digit short (also reported to fail the TypeScript corpus test);
+  - M6, every array skipped by `outside_besides_rows`;
+  - M7, one global note shared across jobs.
+
+  Independent review read these descriptions but did not re-run them, and neither did the manager.
+- The release interleaving releases an actual held C2 full copy, on a natively held result (review finding 1).
 - The replay corpus's 5 previews after a `pressure` pass reply as committed.
 
 ## Bounded ONE 500-node attempt proposal (A-only candidate) (2026-11-04; offline, not run)

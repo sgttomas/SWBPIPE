@@ -1098,8 +1098,21 @@ fn a_preview_physics_registration_leaves_the_builders_reader_to_run() {
     assert_eq!(registry.pool().reserved_total(), 0);
 }
 
+/// A completed job holding `text` natively (C1 custody), as `retained` does for webview custody.
+fn retained_natively(registry: &crate::solve_jobs::SolveJobRegistry, gate: &crate::solve_worker::test_support::Gate, text: &str) -> String {
+    let started = gate.started_count();
+    let receipt = registry
+        .start_with_custody(br#"{"project":{"id":"p"},"nodes":[1,2,3]}"#, None, crate::solve_jobs::ResultCustody::Native)
+        .unwrap_or_else(|e| panic!("{e:?}"));
+    gate.wait_started(started + 1);
+    gate.release(text);
+    let status = crate::solve_jobs::test_support::wait_terminal(registry, &receipt.job_id);
+    assert_eq!(status.state, "completed", "{status:?}");
+    receipt.job_id
+}
+
 /// RT-U4 (1), with review F1's interleavings: the evidence is part of the
-/// held share. A disposal, a session reset or a C2 full-copy release between
+/// held share. A disposal, a session reset or the release of a held C2 full copy between
 /// the preview's acquisition of its share (the `held` gate) and its read
 /// neither gives the read evidence nor takes it away: a registered share
 /// reuses the pass and an unregistered one reads the reader, and each replies
@@ -1114,13 +1127,19 @@ fn a_disposal_reset_or_release_during_the_build_never_changes_the_evidence_it_re
             let label = format!("registered {registered}, {interleaving}");
             let host = ScriptedHost::normal();
             let (registry, gate) = gated(&host);
-            let job = retained(&registry, &gate, &text);
+            // The release case holds its result natively (C1), the custody whose C2 full copy is releasable.
+            let job = if interleaving == "release" { retained_natively(&registry, &gate, &text) } else { retained(&registry, &gate, &text) };
             if registered {
                 assert_eq!(verdict(&registry, &job, Some("pressure"), Some(&model)).unwrap(), crate::solve_jobs::READER_PASSED);
             }
             let args = preview_args(&job, &case);
             let (expected, undisturbed) = passes::measure(|| call(&registry, super::run, &args).unwrap());
             assert_eq!(undisturbed.reader_validations, u64::from(!registered), "{label}");
+            // Review: the release interleaving releases an actual C2 full copy.
+            if interleaving == "release" {
+                let copy = registry.copy_result_within(&job, text.len() as u64).unwrap();
+                assert_eq!(copy, text.as_bytes(), "{label}: the full copy is the held bytes");
+            }
             let held = gate::hold(&registry, "held", false);
             let reader = std::thread::spawn({
                 let (registry, args) = (registry.clone(), args.clone());
@@ -1130,7 +1149,7 @@ fn a_disposal_reset_or_release_during_the_build_never_changes_the_evidence_it_re
             match interleaving {
                 "disposal" => assert!(registry.dispose_result(&job).unwrap().released, "{label}"),
                 "reset" => assert!(registry.dispose_all_results().released_results >= 1, "{label}"),
-                _ => assert!(!registry.release_full_copy(&job).unwrap(), "{label}: no full copy was held"),
+                _ => assert!(registry.release_full_copy(&job).unwrap(), "{label}: the held full copy was released"),
             }
             if interleaving != "release" {
                 assert!(registry.held_result(&job).is_err(), "{label}: the job is gone while its build reads");
