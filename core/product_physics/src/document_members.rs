@@ -66,7 +66,8 @@ pub const LOAD_COMBINATION_DIFFERENCE_BASIS_OPERAND_NOT_LOAD_CASE: &str = "LOAD_
 pub const LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_MISPLACED: &str = "LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_MISPLACED";
 /// `subtrahend_support_state` is null or not `own` or `minuend_final`.
 pub const LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNKNOWN: &str = "LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNKNOWN";
-/// Interim: a `minuend_final` combination is withheld.
+/// Interim until RT-A5 (DEL-05-02 `operating-case.md` §7.5), which removed it from the solve
+/// and the applier: a `minuend_final` combination was withheld. Kept for its history.
 pub const LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED: &str = "LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED";
 /// Interim until the RT-A4 wiring slice, which removed it from the solve; the
 /// applier keeps the code for its own refusals' history and no longer emits it.
@@ -822,21 +823,17 @@ pub(crate) fn lower_axis_aligned_directions(model: &mut PreviewModel) {
     }
 }
 
-/// The interim withholding codes of one combination, in the order they are stated.
-fn interim_reasons(combination: &crate::PreviewCombination) -> Vec<(&'static str, String)> {
-    let mut reasons = Vec::new();
-    let id = &combination.id;
-    if combination.subtrahend_support_state == Some(SubtrahendSupportStateSetting::MinuendFinal) {
-        reasons.push((LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED,
-            format!("combination `{id}` solves its subtrahend at the minuend's final support status; that solve is not built yet, so the combination is withheld")));
-    }
-    reasons
+/// The interim withholding codes of one combination, in the order they are stated. RT-A5
+/// (DEL-05-02 `operating-case.md` §7.5) removed the last, `minuend_final`'s: the solve forms
+/// it, and its gates are G-1, G-2 and the held-status gates at the solve. None remains.
+fn interim_reasons(_combination: &crate::PreviewCombination) -> Vec<(&'static str, String)> {
+    Vec::new()
 }
 
-/// S1's withholding (§2.2, §2.4) as operating-case slice 1b leaves it: a combination
-/// with a `minuend_final` subtrahend is withheld with a warning (a declared difference
-/// basis is no longer withheld here; its gates are G-1 and G-2 at the solve), and
-/// so is each combination that names one, directly or through others
+/// S1's withholding (§2.2, §2.4) as RT-A5 leaves it: no combination has an interim reason
+/// (a declared difference basis and a `minuend_final` subtrahend are gated at the solve),
+/// so nothing is withheld here; a reason would withhold its combination and each
+/// combination that names one, directly or through others
 /// (`LOAD_COMBINATION_OPERAND_WITHHELD`, absolute-sum-srss §4, naming the operand and
 /// its own code). The unsigned bases and combination operands are evaluated. The
 /// cases and the other combinations publish. Runs after validation, which judged

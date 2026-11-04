@@ -14,19 +14,24 @@
 //!   `ordinary`, the binary64 trial values, and `strict_gap`, the exact proof's signs.
 //!   The record also carries the release kind, E's per-support conditions by class, and
 //!   the outcome and standing (§7.3).
-use crate::{NonlinearQualification, NonlinearStateEvidence, PreviewSolverMode};
+use crate::document_members::SubtrahendSupportStateSetting;
+use crate::{
+    AssembledForce, BuiltModel, LoadCaseSolve, NonlinearQualification, NonlinearStanding, NonlinearStateEvidence, NonlinearStateStanding,
+    PreviewCombination, PreviewLoadCase, PreviewModel, PreviewSolverMode, ResultBasisRef, ResultItem, SpringEntry,
+};
+use open_pipe_stress_solver_diagnostics::SolverDiagnosticCode;
 use open_pipe_stress_frame_kernel::{node_dof_index, FrameDof};
 use open_pipe_stress_nonlinear_integration::confirmation::Confirmation;
 use open_pipe_stress_nonlinear_integration::structural_adapter::StrictGapEvidence;
 use open_pipe_stress_nonlinear_integration::{
-    product_selected_state_is_qualified, HeldStatusSolve, NonlinearFrameIteration, NonlinearFrameSolveInput,
-    NonlinearFrameSolveResult,
+    product_selected_state_is_qualified, solve_held_status_iteration, HeldConfirmation, HeldStatusSolve,
+    NonlinearFrameIteration, NonlinearFrameSolveInput, NonlinearFrameSolveResult,
 };
 use open_pipe_stress_nonlinear_supports::{
     ActivationSense, ActiveSetState, GapDirection, NonlinearSupportBehavior, SupportStateRecord,
 };
 use serde_json::{json, Value};
-use std::collections::HashSet;
+use std::collections::{BTreeMap, HashMap, HashSet};
 use std::sync::atomic::{AtomicU64, Ordering};
 
 /// The minuend has no converged nonlinear support state to lend.
@@ -42,6 +47,8 @@ pub(crate) const SLIDING_GROUND_DIFFERS: &str = "HELD_STATUS_SLIDING_GROUND_DIFF
 pub(crate) const SOLVE_FAILED: &str = "HELD_STATUS_SOLVE_FAILED";
 /// Disclosed with the rows: the target's classifier releases held supports (outcomes R, G).
 pub(crate) const RELEASED: &str = "HELD_STATUS_RELEASED";
+/// `contract_evidence`'s member (§7.6), beside `difference_basis_derivation`.
+pub(crate) const DERIVATION_MEMBER: &str = "held_status_derivation";
 /// The closed typed basis of a held-operand row (§7.6).
 pub(crate) const OPERAND_BASIS: &str = "held_status_operand";
 
@@ -166,14 +173,9 @@ fn ground_of(motion: &[(String, f64)], id: &str) -> Option<f64> {
 /// §7.4's nine checks, in order. Every refusal names its check.
 pub(crate) fn bind<'s>(source: Option<&'s HeldStatusSource>, ctx: &BindingContext<'_>) -> Result<Bound<'s>, HeldStatusRefusal> {
     let minuend = ctx.minuend_id;
-    // 1. Presence.
-    let (Some(source), Some(evidence)) = (source, ctx.minuend_evidence) else {
-        return refuse(SOURCE_UNAVAILABLE, format!("the minuend case {minuend} has no converged nonlinear support state to lend"));
-    };
-    // 2. Qualification (R1: an inspectable unqualified gap state has nothing to lend).
-    if source.evidence.qualification != NonlinearQualification::Qualified {
-        return refuse(SOURCE_UNQUALIFIED, format!("the minuend case {minuend}'s converged state is not qualified"));
-    }
+    // 1. Presence; 2. qualification (R1: an inspectable unqualified gap state has nothing to lend).
+    let source = bind_presence(source, ctx.minuend_evidence, minuend)?;
+    let evidence = ctx.minuend_evidence.expect("present after check 1");
     // 3. The invocation.
     if source.invocation != ctx.invocation {
         return refuse(BINDING, format!("the minuend case {minuend}'s source is from another invocation"));
@@ -454,7 +456,7 @@ pub(crate) fn derive(held: &HeldStatusSolve, orienting: &NonlinearFrameIteration
         }
         let (name, class) = condition(&support.behavior, held_state, derived_source.is_some(), zero_limit);
         let mut cond = json!({"support_id": id, "condition": name, "class": class});
-        if let Confirmation::Established(state) = &held.confirmation {
+        if let (Confirmation::Established(state), "strict_ball") = (&held.confirmation, class) {
             if let Some(row) = state.supports.get(id) {
                 cond["published_bits"] = json!(hex(row.row.published));
                 cond["radius_bits"] = json!(hex(row.row.radius));
@@ -497,6 +499,310 @@ pub(crate) fn released_message(combination_id: &str, released: &[ReleasedSupport
         .collect::<Vec<_>>()
         .join("; ");
     format!("Combination {combination_id} holds the minuend's support status in the subtrahend case, and that case's classifier releases: {items}. The rows are the held system's, published with this standing; the held status is not an admissible state of the subtrahend case.")
+}
+
+/// Whose support state a case solve forms (§7.4).
+pub(crate) enum CaseRole<'r, 's> {
+    /// The case's own loop. With the invocation's token, the case lends its state when it is
+    /// a `minuend_final` combination's minuend; without one (callers outside a document solve),
+    /// it never does.
+    Own(Option<InvocationToken>),
+    /// The case's loads solved with each nonlinear support held at the request's source.
+    Held(&'r mut HeldRequest<'s>),
+}
+
+impl CaseRole<'_, '_> {
+    pub(crate) fn held(&self) -> bool {
+        matches!(self, Self::Held(_))
+    }
+}
+
+/// One held solve's request: the minuend's record and evidence, and, once run, its outcome.
+pub(crate) struct HeldRequest<'s> {
+    pub invocation: InvocationToken,
+    pub minuend_id: &'s str,
+    pub minuend_evidence: Option<&'s NonlinearStateEvidence>,
+    pub source: Option<&'s HeldStatusSource>,
+    pub outcome: Option<Result<HeldRun, HeldStatusRefusal>>,
+}
+
+/// What a held solve that ran states: its evidence, and whether the held iterate converged,
+/// with the loop's exit diagnostic when it did not (a release is never promoted).
+#[derive(Debug, Clone)]
+pub(crate) struct HeldRun {
+    pub evidence: HeldEvidence,
+    pub converged: bool,
+    pub exit: Option<(&'static str, String)>,
+}
+
+/// A declared operating comparison whose subtrahend is held at the minuend's final status.
+pub(crate) fn is_minuend_final(combination: &PreviewCombination) -> bool {
+    crate::difference_basis::declared(combination)
+        && combination.subtrahend_support_state == Some(SubtrahendSupportStateSetting::MinuendFinal)
+}
+
+/// Whether `case_id` is some `minuend_final` combination's minuend (its source is captured).
+pub(crate) fn wanted(model: &PreviewModel, case_id: &str) -> bool {
+    model.combinations.iter().any(|c| is_minuend_final(c) && c.minuend_id.as_deref() == Some(case_id))
+}
+
+/// The built model's node ids, by node index.
+pub(crate) fn node_ids(model: &PreviewModel) -> Vec<String> {
+    model.nodes.iter().map(|node| node.id.clone()).collect()
+}
+
+/// §7.4 checks 1 and 2, which need no target: presence, then qualification.
+fn bind_presence<'s>(source: Option<&'s HeldStatusSource>, evidence: Option<&NonlinearStateEvidence>, minuend: &str) -> Result<&'s HeldStatusSource, HeldStatusRefusal> {
+    let (Some(source), Some(_)) = (source, evidence) else {
+        return refuse(SOURCE_UNAVAILABLE, format!("the minuend case {minuend} has no converged nonlinear support state to lend"));
+    };
+    if source.evidence.qualification != NonlinearQualification::Qualified {
+        return refuse(SOURCE_UNQUALIFIED, format!("the minuend case {minuend}'s converged state is not qualified"));
+    }
+    Ok(source)
+}
+
+fn solve_failed(message: String) -> HeldStatusRefusal {
+    HeldStatusRefusal { code: SOLVE_FAILED, message }
+}
+
+/// The held path of a case solve, in place of the case's own loop: the target's loop input,
+/// the binding, the NI held step with its one confirmation attempt, and the evidence. Every
+/// refusal is recorded on the request; `None` then blocks this (local) solve.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn held_solve(
+    request: &mut HeldRequest<'_>,
+    model: &PreviewModel,
+    built: &BuiltModel,
+    restrained_dofs: &[usize],
+    base_motion: Option<&BTreeMap<usize, f64>>,
+    ground_motion: &[(String, f64)],
+    force: &AssembledForce,
+    solver_mode: PreviewSolverMode,
+    spring_entries: &[SpringEntry],
+    confirm: bool,
+) -> Option<(NonlinearFrameSolveResult, NonlinearStanding, Option<NonlinearQualification>)> {
+    let input = match crate::nonlinear_frame_input(built, restrained_dofs, base_motion, ground_motion, force) {
+        Ok(input) => input,
+        Err(error) => {
+            request.outcome = Some(Err(solve_failed(format!("the held solve's input was refused: {error}"))));
+            return None;
+        }
+    };
+    let springs = crate::loop_springs(spring_entries);
+    let node_ids = node_ids(model);
+    let context = BindingContext {
+        invocation: request.invocation,
+        minuend_id: request.minuend_id,
+        minuend_evidence: request.minuend_evidence,
+        solver_mode,
+        target_input: &input,
+        target_springs: &springs,
+        target_node_ids: &node_ids,
+    };
+    let bound = match bind(request.source, &context) {
+        Ok(bound) => bound,
+        Err(refusal) => {
+            request.outcome = Some(Err(refusal));
+            return None;
+        }
+    };
+    let curved_sources = built.curved_bend_elements.iter().map(|e| e.macro_element).collect::<Vec<_>>();
+    let members = crate::frame_member_identities(built);
+    let confirmation = confirm.then_some(HeldConfirmation { force, curved_sources: &curved_sources, frame_members: &members });
+    let held = match solve_held_status_iteration(&input, &springs, bound.held, Some(bound.orienting), solver_mode.nonlinear_mode(), confirmation) {
+        Ok(held) => held,
+        Err(error) => {
+            request.outcome = Some(Err(solve_failed(format!("the held solve was refused: {error}"))));
+            return None;
+        }
+    };
+    let evidence = derive(&held, bound.orienting, &node_ids);
+    let exit = held
+        .result
+        .diagnostics
+        .iter()
+        .find(|d| d.code == SolverDiagnosticCode::NonConvergence)
+        .map(|d| (crate::solver_diag_code(d.code), d.message.clone()));
+    let converged = held.result.converged;
+    let HeldStatusSolve { result, confirmation, .. } = held;
+    // Only E publishes the certified rows; every other outcome's rows are binary64 recoveries.
+    let standing = match (evidence.outcome, confirmation) {
+        (Outcome::Established, Confirmation::Established(state)) => NonlinearStanding::Confirmed(state),
+        _ => NonlinearStanding::NotEstablished(evidence.standing.clone()),
+    };
+    request.outcome = Some(Ok(HeldRun { evidence, converged, exit }));
+    Some((result, standing, None))
+}
+
+/// A `minuend_final` combination's held operand.
+#[derive(Debug)]
+pub(crate) enum HeldOutcome {
+    /// Withheld by its `HELD_STATUS_*` gate.
+    Withheld(HeldStatusRefusal),
+    Admitted(Box<HeldOperand>),
+}
+
+/// An admitted held operand: the subtrahend case it holds, the run, and the held solve's
+/// rows under their base (unqualified) ids, as the case's own rows are before qualification.
+#[derive(Debug)]
+pub(crate) struct HeldOperand {
+    pub run: HeldRun,
+    pub rows: Vec<ResultItem>,
+}
+
+/// Each `minuend_final` combination's held solve, in model order, after G-1 and G-2 (a
+/// combination either gate withholds reaches no held gate). `solve_target` runs the
+/// subtrahend's case solve on the held path with its own diagnostics, renders it, and
+/// returns it unless it was blocked.
+pub(crate) fn solve_held_combinations<'m>(
+    model: &'m PreviewModel,
+    invocation: InvocationToken,
+    minuend_state: impl Fn(&str) -> (Option<&'m HeldStatusSource>, Option<&'m NonlinearStateEvidence>),
+    mut modulus_key: impl FnMut(&PreviewLoadCase) -> Option<String>,
+    mut solve_target: impl FnMut(&PreviewLoadCase, &mut HeldRequest<'_>) -> Option<LoadCaseSolve>,
+) -> HashMap<String, HeldOutcome> {
+    let mut outcomes = HashMap::new();
+    for combination in model.combinations.iter().filter(|c| is_minuend_final(c)) {
+        if crate::difference_basis::gate(model, combination, &mut modulus_key).is_some() {
+            continue;
+        }
+        let case = |id: Option<&str>| id.and_then(|id| model.load_cases.iter().find(|c| c.id == id));
+        let (Some(minuend), Some(target)) = (case(combination.minuend_id.as_deref()), case(combination.subtrahend_id.as_deref())) else {
+            continue;
+        };
+        let (source, evidence) = minuend_state(&minuend.id);
+        let outcome = match bind_presence(source, evidence, &minuend.id) {
+            Err(refusal) => HeldOutcome::Withheld(refusal),
+            Ok(_) => {
+                let mut request = HeldRequest { invocation, minuend_id: &minuend.id, minuend_evidence: evidence, source, outcome: None };
+                let solve = solve_target(target, &mut request);
+                match (request.outcome.take(), solve) {
+                    (Some(Err(refusal)), _) => HeldOutcome::Withheld(refusal),
+                    (Some(Ok(run)), Some(solve)) => HeldOutcome::Admitted(Box::new(HeldOperand { run, rows: solve.results })),
+                    _ => HeldOutcome::Withheld(solve_failed(format!("the held solve of {} at the minuend case {}'s status was blocked", target.id, minuend.id))),
+                }
+            }
+        };
+        outcomes.insert(combination.id.clone(), outcome);
+    }
+    outcomes
+}
+
+/// A held-operand row's id: `<combination-qualified>:held:<base id>`.
+pub(crate) fn row_id(combination_id: &str, base_id: &str) -> String {
+    crate::qualified_combination_result_id(combination_id, &format!("held:{}", crate::result_tail(base_id)))
+}
+
+/// The held rows as the combination's lookup reads them: each under its base id, with its
+/// published id, and with its own (case-form) metadata, so it pairs with the minuend's rows.
+pub(crate) fn lookup_rows(combination_id: &str, operand: &HeldOperand) -> Vec<(String, ResultItem)> {
+    operand
+        .rows
+        .iter()
+        .map(|row| {
+            let mut keyed = row.clone();
+            keyed.id = row_id(combination_id, &row.id);
+            keyed.source_result_refs = row.source_result_refs.iter().map(|r| row_id(combination_id, r)).collect();
+            (row.id.clone(), keyed)
+        })
+        .collect()
+}
+
+/// The held operand's stated support state (slice 1a's operand record, §7.6).
+pub(crate) const HELD_SUPPORT_STATE: &str = "held_at_minuend_final";
+
+/// The held rows the combination's rows cite, with every held row those cite in turn, in
+/// the held solve's order, as published: so each held row's own references resolve.
+pub(crate) fn cited_rows(combination_id: &str, keyed: &[ResultItem], combined: &[ResultItem]) -> Vec<ResultItem> {
+    let by_id: HashMap<&str, &ResultItem> = keyed.iter().map(|r| (r.id.as_str(), r)).collect();
+    let mut wanted: HashSet<&str> = HashSet::new();
+    let mut pending: Vec<&str> = combined.iter().flat_map(|r| r.source_result_refs.iter().map(String::as_str)).collect();
+    while let Some(id) = pending.pop() {
+        if let Some(row) = by_id.get(id) {
+            if wanted.insert(row.id.as_str()) {
+                pending.extend(row.source_result_refs.iter().map(String::as_str));
+            }
+        }
+    }
+    keyed.iter().filter(|r| wanted.contains(r.id.as_str())).map(|r| publish_row(combination_id, r)).collect()
+}
+
+/// A held-operand row as published (§7.6): under the combination, of basis
+/// `held_status_operand`, its sign convention followed by the operand clause.
+pub(crate) fn publish_row(combination_id: &str, keyed: &ResultItem) -> ResultItem {
+    let mut row = keyed.clone();
+    row.basis_ref = Some(ResultBasisRef { ref_type: "combination".to_string(), ref_id: combination_id.to_string() });
+    let clause = operand_clause(combination_id);
+    match row.metadata.as_mut() {
+        Some(metadata) => {
+            metadata.basis = OPERAND_BASIS.to_string();
+            metadata.sign_convention = format!("{}; {clause}", metadata.sign_convention);
+        }
+        None => row.metadata = Some(crate::derived_magnitude_metadata(OPERAND_BASIS, &clause)),
+    }
+    row
+}
+
+/// The source's standing token for the record.
+pub(crate) fn source_standing(evidence: Option<&NonlinearStateEvidence>) -> Value {
+    match evidence {
+        Some(e) => json!({
+            "qualification": match e.qualification {
+                NonlinearQualification::Qualified => "qualified",
+                NonlinearQualification::InspectableUnqualifiedGap => "inspectable_unqualified_gap",
+            },
+            "standing": match e.standing {
+                NonlinearStateStanding::Confirmed => "confirmed",
+                NonlinearStateStanding::NotEstablished { .. } => "not_established",
+            },
+        }),
+        None => json!({"qualification": null, "standing": null}),
+    }
+}
+
+/// `contract_evidence.held_status_derivation`'s record of one combination (§7.6): withheld
+/// (an empty `held`, no `conditions`) or admitted.
+pub(crate) fn record(
+    combination: &PreviewCombination,
+    solver_mode: PreviewSolverMode,
+    source: &Value,
+    target_modulus_key: Option<String>,
+    outcome: &HeldOutcome,
+) -> Value {
+    let mut record = json!({
+        "combination_id": combination.id,
+        "subtrahend_support_state": "minuend_final",
+        "source": {
+            "load_case_id": combination.minuend_id,
+            "solver_mode": solver_mode.as_str(),
+            "qualification": source["qualification"],
+            "standing": source["standing"],
+        },
+        "target": {"load_case_id": combination.subtrahend_id, "modulus_basis_key": target_modulus_key},
+    });
+    match outcome {
+        HeldOutcome::Withheld(refusal) => {
+            record["outcome"] = json!(refusal.code);
+            record["held"] = json!([]);
+            record["held_solve"] = Value::Null;
+            record["standing"] = json!({"kind": "withheld", "reason": refusal.message});
+        }
+        HeldOutcome::Admitted(operand) => {
+            let run = &operand.run;
+            record["outcome"] = json!("admitted");
+            record["held"] = Value::Array(run.evidence.supports.clone());
+            if let Some(conditions) = &run.evidence.conditions {
+                record["conditions"] = Value::Array(conditions.clone());
+            }
+            record["held_solve"] = json!({
+                "converged": run.converged,
+                "exit_diagnostic": run.exit.as_ref().map(|(code, message)| json!({"code": code, "message": message})),
+            });
+            record["standing"] = json!({"kind": run.evidence.outcome.kind(), "reason": run.evidence.standing});
+        }
+    }
+    record
 }
 
 #[cfg(test)]

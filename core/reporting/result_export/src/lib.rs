@@ -1705,6 +1705,7 @@ mod preview_physics_evidence;
 mod preview_combination_operands;
 // Operating-case slice 1b (DEL-05-02 `operating-case.md` §1.2): the declared difference basis.
 mod preview_difference_basis;
+mod preview_held_status;
 mod nonlinear_support_evidence;
 pub mod physics_source;
 pub mod source_blocks;

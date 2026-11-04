@@ -1069,7 +1069,8 @@ pub(crate) fn state_operand_standing(records: &mut [Value], quality: &NumericalQ
     for record in records {
         if let Some(operands) = record["operands"].as_array_mut() {
             // A combination operand states its standing in its own record (§4).
-            for operand in operands.iter_mut().filter(|o| o.get("load_case_id").is_some()) {
+            // RT-A5: a held operand's standing is the held solve's (`held_standing`), not the case's.
+            for operand in operands.iter_mut().filter(|o| o.get("load_case_id").is_some() && o.get("support_state").is_none()) {
                 let case = operand["load_case_id"].clone();
                 operand["numerical_quality"] = cases
                     .as_array()
