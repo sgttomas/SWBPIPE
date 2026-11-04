@@ -33,6 +33,9 @@
 //!
 //! Every operation carries unit `none` and dimension `dimensionless`. The same
 //! value as stored, and a clear of an absent member, is `OP-DATA-UNCHANGED`.
+//! "The same value" is judged on canonical JSON text (RFC 8785), as the stale
+//! before-value check is, so `20` and `20.0` (or `-0` and `0`) are the same
+//! value whichever lane parsed the document.
 //! The product creates no set and writes no value the person did not enter.
 //!
 //! **Route admission of a use** ([`admit_case_use`], also applied to
@@ -688,10 +691,10 @@ fn resolve_record(model: &Value, intent: &Value) -> Result<GeometryEdit, Geometr
                     ));
                 }
                 let record = Value::Object(record);
-                if record == records[index] {
+                let after_text = canonical_json(&record);
+                if after_text == current {
                     return Err(refusal("OP-DATA-UNCHANGED", "The updated condition set equals the current one; nothing to apply.", &refs));
                 }
-                let after_text = canonical_json(&record);
                 list[index] = record;
                 (current, after_text)
             } else {
@@ -845,7 +848,7 @@ fn resolve_use(model: &Value, intent: &Value) -> Result<GeometryEdit, Vec<Geomet
         }
         Some(parsed)
     };
-    if next.as_ref() == current {
+    if next.as_ref().map(canonical_json) == current.map(canonical_json) {
         let message = if clearing {
             format!("Load case `{target_ref}` has no condition use; nothing to clear.")
         } else {
