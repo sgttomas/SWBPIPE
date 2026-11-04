@@ -1393,8 +1393,27 @@ every reference envelope validates against it
 **Pending.**
 - *Shared-loop hunks:* none were needed. No `LoadCaseSolve` construction or
   early return was added.
-- *Pricing* of the changed static chain (`pressure_runtime.rs`,
-  `exact_admission.rs`), held in the serial pricing order.
+- *Registration (D3, DEL-04-08 §8.49, after #97's §8.48).* The retained route
+  reports `Stale` on this branch until it is registered, so the retained
+  carriers (`RETAINED_PENDING` in
+  `tests/test_rt_a3_nonlinear_text_only_envelope_diff.py`), the in-memory
+  successor pins, the RV120/N2b inputs, the law tests' record and 53
+  product_physics lib tests (41 assert the registered status; 12 read retained
+  outputs the unregistered build does not produce) wait for it. A provisional,
+  unregistered pricing of this branch (merged with main `aa794eb68`) against
+  main: route L and E complete; 8 of 1,602 coefficients higher, none lower;
+  +5,873 B on every phase in both modes (STATICS +629, TAV text +5,244; the
+  new identity and S7 texts); the 12 GiB limit's 0.9 margin holds. To complete,
+  the committed tool needs, as reviewed §8.49 rules rather than the measuring
+  copy's stand-ins: the B7a and W1 full-file pins of `pressure_runtime.rs`,
+  `exact_admission.rs`, `semantic_contract.rs`, `retained_precision.rs` and
+  result_export `lib.rs` and the o10 reader pins (`preview_physics_evidence.rs`,
+  `reader_verdict.rs`, `recorded_tables.rs`); batch 5's pressure prefix pin;
+  the W16C-ES guard's `validate_profile` premise (a second `carries_fields`
+  call, the S6 context); `problem`'s parents re-keyed +11 after
+  `validate_profile`; the reader's state diagnostic argument (`s.state`, at
+  most 8 B); and two reader loops (`case_ids`' row filter and `read`'s case
+  map), empty on D1.
 - *Performance harness:* the rack's "RT-A3 increment 4" ledger entries and
   its interim linear forms (`rack_model.py`, `release_runner.py`).
 - *The reader's equilibrium limit* and the further limits (above).
