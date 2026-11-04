@@ -70,22 +70,22 @@ const RECORD_TABLES: Readonly<Record<string, RecordTable>> = Object.freeze({
 const RECORDED_RUN_TABLE_BASES: ReadonlyArray<Readonly<{ id: string; recorded: string; current: string }>> = Object.freeze([
   { id: "openpipestress.result_semantics/0.3.0/pressure-2",
     recorded: "3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d",
-    current: "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6" },
+    current: "5e224d1730033151f8de2ebcc47c6c80558f9c907f9f15ee477a7ee4b18593e6" },
   { id: "openpipestress.result_semantics/0.3.0/pressure-2",
     recorded: "5451fbf3e10e085c90b523baa7daf5fc723659e0d874d988d23807be7d2fefe6",
-    current: "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6" },
+    current: "5e224d1730033151f8de2ebcc47c6c80558f9c907f9f15ee477a7ee4b18593e6" },
   { id: "openpipestress.result_semantics/0.3.0/pressure-2",
     recorded: "d46e1963d7502b8e41898805128f2807b2670a1d4c738c71876002ed727e5faf",
-    current: "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6" },
+    current: "5e224d1730033151f8de2ebcc47c6c80558f9c907f9f15ee477a7ee4b18593e6" },
   { id: "openpipestress.result_semantics/0.3.0/pressure-2",
     recorded: "032e861fc66bf5f34a081b104ec879a39831bfd6472b186954966ea57d65f025",
-    current: "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6" },
+    current: "5e224d1730033151f8de2ebcc47c6c80558f9c907f9f15ee477a7ee4b18593e6" },
   { id: "openpipestress.result_semantics/0.3.0/pressure-2",
     recorded: "a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e",
-    current: "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6" },
+    current: "5e224d1730033151f8de2ebcc47c6c80558f9c907f9f15ee477a7ee4b18593e6" },
   { id: "openpipestress.result_semantics/0.3.0/pressure-2",
     recorded: "be29fabcfacb1070a51bfb56dcfe61b4e4125638e249c3c0e96d092cc8aba43f",
-    current: "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6" },
+    current: "5e224d1730033151f8de2ebcc47c6c80558f9c907f9f15ee477a7ee4b18593e6" },
 ]);
 /** The binding a record is checked against: the current table's, or the exact recorded basis
  * the record names when it is one of `RECORDED_RUN_TABLE_BASES` for that current table. */

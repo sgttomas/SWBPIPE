@@ -103,7 +103,7 @@ CODES = ["retained_precision_absolute_verified", "retained_precision_not_covered
 # the preview successor's. Both successors, and only they, carry a receipt.
 EXACT = "openpipestress.result_semantics/0.3.0/physics-retained-1"
 # T4-U6 (D-5, §2.4): follows pressure-2's per-basis table by its inherited hash (was 69581249...).
-EXACT_SHA = "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034"
+EXACT_SHA = "ca6bb9834f1cf2f970df4fd21a81e101c9289f2fa8cb3e26e7a11a794f535b5f"
 EXACT_PROFILE = "exact_straight_retained_w1a_v2"
 SUCCESSORS = (SUCC, EXACT)
 # b7-plan's pressure-source join: a tenth run branch (no receipt); its contract

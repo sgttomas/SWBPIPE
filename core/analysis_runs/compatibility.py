@@ -493,7 +493,7 @@ _PRESSURE_SOURCE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure
 # pressure-2: the ordinary exact route (a load/reference-state model publishes it with
 # contract_evidence.load_reference_states). Its record carries neither source_block_recovery nor contract_evidence.
 PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-2"
-PRESSURE_CONTRACT_SHA256 = "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6"
+PRESSURE_CONTRACT_SHA256 = "5e224d1730033151f8de2ebcc47c6c80558f9c907f9f15ee477a7ee4b18593e6"
 _PRESSURE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure_2.json"
 # Model document 0.8.0 (DEL-02-01 Design model-document-0.8.0.md §3.2; owner ruling "0.8.0 a2": recorded runs keep
 # their existing read and compare behaviour). pressure-2's table changed only the model version token of its
@@ -547,7 +547,7 @@ _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3
 # statements are checked only by the accepted reader, which dispatches on this identity, and its standing comes only
 # from that reader.
 PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"
-PHYSICS_RETAINED_CONTRACT_SHA256 = "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034"
+PHYSICS_RETAINED_CONTRACT_SHA256 = "ca6bb9834f1cf2f970df4fd21a81e101c9289f2fa8cb3e26e7a11a794f535b5f"
 _PHYSICS_RETAINED_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_physics_retained_1.json"
 RETAINED_CONTRACTS = {PREVIEW_PHYSICS_RETAINED_CONTRACT_ID: (PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256, _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH),
                       PHYSICS_RETAINED_CONTRACT_ID: (PHYSICS_RETAINED_CONTRACT_SHA256, _PHYSICS_RETAINED_CONTRACT_PATH)}

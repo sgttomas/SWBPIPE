@@ -533,3 +533,17 @@ def test_flat_mechanics_combinations_are_withheld_and_oq1_is_admitted_by_both_re
             next(r for r in tampered["contract_evidence"]["exact_combinations"] if r["combination_id"] == cid)["gate"] = \
                 {"withheld": reason is not None, "reason": reason}
             assert codes(tampered, doc) == (COMBINATION_GATE, COMBINATION_GATE), (mode, cid, reason)
+
+
+def test_every_reference_envelope_validates_against_the_pressure_2_result_schema(solved):
+    """No new reason code or row kind is published: the nonlinear support kinds, their diagnostics, the gap standing and
+    the combination gate are already in ``results_pressure_2.v0.3.schema.json``, and every reference envelope (and the
+    combination document's, gate-withheld) validates."""
+    from tests.test_rt_a3_constant_effort_schema import _pressure_schema, _validate
+    schema = _pressure_schema()
+    for (cid, mode), (_, envelope) in solved.items():
+        _validate(schema, envelope)
+    doc = two_case_document("O1-LIFT", "O1-CONTACT", lambda s, o: [comb("flat", "mechanics", ("case", s, 1.0), ("case", o, 1.0))])
+    envelope = solve(doc, "sparse_interactive")
+    assert gate(envelope, "flat") == {"withheld": True, "reason": GATE_CODE}
+    _validate(schema, envelope)

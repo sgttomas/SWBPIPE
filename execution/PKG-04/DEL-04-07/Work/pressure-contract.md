@@ -1360,14 +1360,37 @@ the graph's mirror of the same predicate). The held assertion is now run:
   solves the same document through the runner and requires the Rust and
   Python readers to give the same code for each envelope and tamper.
 
-**Pending.**
-- *The v3 identity and limitation texts* (held for sequenced integration):
-  - the "Admitted families" sentence;
-  - the support-attribution sentence ("linear restraints, springs and
-    nonlinear supports");
-  - the gap-standing sentence.
+**Disclosure.** The texts held while this increment was reviewed are now
+stated together (R-4 §3.5 "Publication"):
+- the pressure-2 v3 formulation identity (`exact_admission.rs`, S1; 3,007 →
+  3,861 B) names, after the constant-effort clause, the admitted nonlinear
+  supports and their context (plain documents, no objective connector), the
+  active-set loop with K-D5 confirmation, the published states, final
+  displacements and reactions, the gap standing (a case with a gap support is
+  published `NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED`, with no
+  confirmation) and the combination gate with OQ-1's admitted shape. The
+  pressure-source-1 identity is unchanged: source recovery declines any model
+  holding a nonlinear support record (`source_recovery.rs`);
+- the support-attribution limitation S7, shared by both publications, reads
+  "Signed support actions are attributed only for admitted linear restraints,
+  springs and nonlinear supports and, as its constant force, for a consumed
+  constant-effort support; ambiguous coincident rigid attribution is
+  refused." (204 → 224 B; conditional, so pressure-source-1 restates it
+  unchanged in meaning);
+- the pressure-2 table's admitted-families limitation states the family, its
+  context, the loop and the gap standing, and its combinations limitation
+  names `NONLINEAR_COMBINATION_REQUIRES_SOLVE` and OQ-1.
+  `combination_policy.mechanics_gates` already lists the gate (RT-A4). The
+  table digest moves (`10455bf3…` → `5e224d17…`) and physics-retained-1
+  follows (`040ef9a6…` → `ca6bb983…`).
 
-  Their copies and the pressure-2 table move with them.
+The load/reference-state sentences are unchanged: nonlinear supports stay
+refused on load/reference-state documents (S6). No new reason code is
+published: the pressure-2 result schema already lists the gate (RT-A4), and
+every reference envelope validates against it
+(`tests/test_rt_a3_nonlinear_reader.py`).
+
+**Pending.**
 - *Shared-loop hunks:* none were needed. No `LoadCaseSolve` construction or
   early return was added.
 - *Pricing* of the changed static chain (`pressure_runtime.rs`,
