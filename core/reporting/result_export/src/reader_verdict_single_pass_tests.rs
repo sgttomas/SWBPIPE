@@ -3,9 +3,13 @@
 //! to both of its uses, the standing's token (`for_source`) and its findings (the
 //! pressure reader's outcome). Every other route reads as before.
 //!
-//! The reference is the basis's (ad3665dcc) two-pass read, verbatim but for its
-//! names: `dispatch`, `standing`, `validate`, `numerical_use_standing_with_context`
-//! and `for_source`, so it shares none of the changed functions. Its token's
+//! The reference is the basis's two-pass read, verbatim but for its names:
+//! `dispatch`, `standing`, `validate`, `numerical_use_standing_with_context` and
+//! `for_source`, so it shares none of the changed functions. The basis is the
+//! composed predecessor, RT-U4 order (ad3665dcc) with RT-A3 increment 4
+//! (4a8287001, §8.50): the order repair leaves those five functions unchanged, so
+//! they are increment 4's text, whose `validate` adds the nonlinear supports' model
+//! checks to the pressure arm. Its token's
 //! `for_source` runs the reader, and its findings' `validate("pressure", ..)` runs it
 //! again; nothing is computed once and fed to both. The pass count is `present`'s
 //! (`exact_combination_evidence::PRESSURE_PASSES`, tests only): the reader asks it
@@ -139,8 +143,11 @@ fn reference_validate(reader: &str, source: &Value, model: Option<&Value>, invoc
         "pressure" => checked(sc::validate_pressure_evidence(source).and_then(|()| {
             // W-16 slice b (§6): the combination records bound to the model's
             // combinations and its operands' modulus selections.
+            // RT-A3 increment 4 (R-4 §2.4): the nonlinear supports bound to the
+            // model's records and the DEC-067 laws that need their inputs.
             model.map_or(Ok(()), |m| physics_model_checks(source, m).and_then(|()| crate::u4b_evidence::exact_model_checks(source, m))
-                .and_then(|()| crate::exact_combination_evidence::model_checks(source, m)))
+                .and_then(|()| crate::exact_combination_evidence::model_checks(source, m))
+                .and_then(|()| crate::nonlinear_support_evidence::model_checks(source, m)))
         })),
         "pressure-source" => {
             let contract = crate::physics_source::SourceContract::PressureV3;
@@ -306,6 +313,67 @@ fn bases() -> Vec<(String, Value, Option<Value>)> {
     let joint: Value = serde_json::from_str(include_str!("../../../../fixtures/results/pressure_v3_joint_reader_control.json")).unwrap();
     out.push(("joint reader control".into(), joint["envelope"].clone(), None));
     out.push(("U4b arc sparse".into(), serde_json::from_str(include_str!("../../../../fixtures/results/pressure_u4b_arc_sparse.json")).unwrap(), None));
+    let (source, model) = nonlinear_base();
+    out.push(("RT-A3 nonlinear B1 loaded gap".into(), source, Some(model)));
+    out
+}
+
+/// RT-A3 increment 4's committed nonlinear pressure-2 envelope (a gap support that ends
+/// inactive under load) and its model: the pass's nonlinear support binding
+/// (`nonlinear_support_evidence::check`) and the pressure arm's model checks run on it.
+fn nonlinear_base() -> (Value, Value) {
+    let fixture: Value = serde_json::from_str(include_str!("../../../product_physics/tests/fixtures/rt_a3_nonlinear/b1_loaded_inactive_reaction.json")).unwrap();
+    (fixture["source"].clone(), fixture["model"].clone())
+}
+
+/// The nonlinear support defects, alone and in competition with an ordinary row defect
+/// (both row orders), and the model side's nonlinear records.
+fn nonlinear_mutations() -> Vec<(String, Value, Option<Value>)> {
+    let (base, model) = nonlinear_base();
+    let at = |s: &Value, kind: &str| s["results"].as_array().unwrap().iter().position(|r| r["kind"] == kind).unwrap_or_else(|| panic!("no {kind} row"));
+    let label = "RT-A3 nonlinear B1";
+    let mut sources: Vec<(String, Value)> = Vec::new();
+    let reaction = at(&base, "nonlinear_support_final_reaction");
+    let perturb = |s: &mut Value, i: usize| {
+        let v = rows(s)[i]["value"].as_f64().unwrap();
+        rows(s)[i]["value"] = json!(v * 1.5 + 1000.0);
+    };
+    sources.push((format!("{label} / reaction perturbed"), edited(&base, |s| perturb(s, reaction))));
+    sources.push((format!("{label} / state code changed"), edited(&base, |s| {
+        let i = at(s, "nonlinear_support_active_set_state_code");
+        rows(s)[i]["value"] = json!(1);
+    })));
+    sources.push((format!("{label} / not converged"), edited(&base, |s| {
+        let i = at(s, "nonlinear_support_active_set_converged_flag");
+        rows(s)[i]["value"] = json!(0);
+    })));
+    for kind in ["nonlinear_support_active_set_iteration_count", "nonlinear_support_final_displacement", "nonlinear_support_observed_free_dof_force_residual"] {
+        sources.push((format!("{label} / no {kind}"), edited(&base, |s| { let i = at(s, kind); rows(s).remove(i); })));
+    }
+    sources.push((format!("{label} / state row twice"), edited(&base, |s| {
+        let i = at(s, "nonlinear_support_active_set_state_code");
+        let mut twin = rows(s)[i].clone();
+        twin["id"] = json!("result:probe:state-twin");
+        rows(s).push(twin);
+    })));
+    sources.push((format!("{label} / no state review"), edited(&base, |s| {
+        s["diagnostics"].as_array_mut().unwrap().retain(|d| d["code"] != "NONLINEAR_SUPPORT_STATE_REVIEW");
+    })));
+    // Competing: the nonlinear reaction perturbed and an ordinary row removed, in both row orders.
+    let far = if reaction > base["results"].as_array().unwrap().len() / 2 { 0 } else { base["results"].as_array().unwrap().len() - 1 };
+    let competing = edited(&base, |s| { perturb(s, reaction); rows(s).remove(far); });
+    sources.push((format!("{label} / reaction perturbed, row {far} removed, reversed"), edited(&competing, |s| rows(s).reverse())));
+    sources.push((format!("{label} / reaction perturbed, row {far} removed"), competing));
+    let mut out: Vec<(String, Value, Option<Value>)> = sources.into_iter().map(|(l, s)| (l, s, Some(model.clone()))).collect();
+    // The model's nonlinear records (`nonlinear_support_evidence::model_checks`).
+    let edits: [(&str, fn(&mut Value)); 3] = [
+        ("model gap widened", |m| for s in m["supports"].as_array_mut().unwrap() { if s["nonlinear"].is_object() { s["nonlinear"]["gap"]["value"] = json!(2.0) } }),
+        ("model gap now one-way", |m| for s in m["supports"].as_array_mut().unwrap() { if s["nonlinear"].is_object() { s["nonlinear"]["behavior"] = json!("one_way") } }),
+        ("model without its nonlinear support", |m| m["supports"].as_array_mut().unwrap().retain(|s| !s["nonlinear"].is_object())),
+    ];
+    for (name, edit) in edits {
+        out.push((format!("{label} / {name}"), base.clone(), Some(edited(&model, edit))));
+    }
     out
 }
 
@@ -503,6 +571,9 @@ fn inputs(per: usize) -> Vec<Input> {
     for (l, s) in connector_competitions().into_iter().chain(global_end_competitions()) {
         out.push(Input { label: l, source: s, model: None });
     }
+    for (label, source, model) in nonlinear_mutations() {
+        out.push(Input { label, source, model });
+    }
     out
 }
 
@@ -556,6 +627,8 @@ fn dispatch_is_the_two_pass_reference_with_one_pass() {
     let mut first_codes: BTreeMap<String, usize> = BTreeMap::new();
     let mut tokens: BTreeMap<String, usize> = BTreeMap::new();
     let (mut pressure_reads, mut header_refused, mut modeled, mut several) = (0, 0, 0, 0);
+    // RT-A3 increment 4's nonlinear inputs and the nonlinear codes they reach first.
+    let (mut nonlinear_reads, mut nonlinear_codes) = (0, std::collections::BTreeSet::new());
     for input in &inputs {
         for model in std::iter::once(None).chain(input.model.as_ref().map(Some)) {
             let what = format!("{} (model: {})", input.label, model.is_some());
@@ -576,14 +649,21 @@ fn dispatch_is_the_two_pass_reference_with_one_pass() {
             let findings = head["standing"]["findings"].as_array().unwrap();
             several += usize::from(findings.len() > 1);
             let first = findings.first().and_then(Value::as_str).map_or("none".into(), |f| error_json(f)["code"].as_str().unwrap().to_string());
+            if input.label.starts_with("RT-A3 nonlinear") {
+                nonlinear_reads += 1;
+                if first.contains("NONLINEAR") {
+                    nonlinear_codes.insert(first.clone());
+                }
+            }
             *first_codes.entry(first).or_default() += 1;
             *tokens.entry(head["standing"]["token"].as_str().unwrap().into()).or_default() += 1;
         }
     }
     println!("single_pass_agreement inputs={} pressure_reads={pressure_reads} header_refused={header_refused} with_model={modeled} \
-        several_findings={several} first_codes={} tokens={tokens:?}", inputs.len(), first_codes.len());
+        several_findings={several} first_codes={} tokens={tokens:?} nonlinear_reads={nonlinear_reads} nonlinear_codes={nonlinear_codes:?}", inputs.len(), first_codes.len());
     assert!(pressure_reads > 3000 && header_refused > 0 && modeled > 1000 && several > 0);
     assert!(first_codes.len() >= 30, "{first_codes:?}");
+    assert!(nonlinear_reads > 50 && nonlinear_codes.len() >= 3, "{nonlinear_reads} {nonlinear_codes:?}");
     assert!(["numerically_eligible", "needs_recompute", "unsupported"].iter().all(|t| tokens.contains_key(*t)), "{tokens:?}");
 }
 
