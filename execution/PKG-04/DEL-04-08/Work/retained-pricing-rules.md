@@ -4389,8 +4389,9 @@ admitted-families limitation says the same. The bytes priced are these final byt
 | **RT-A4-HS re-pin** | `recorded_tables.rs` `a8c3984a…` → `852783db…`: the sixth variant is `include_bytes!` data with `base: None` and `reads_under_variant: false`, and `TABLES` takes six const-initialized `OnceLock` slots. No `SELECTED` write, `read_recorded` caller or selection path changes; every RT-A4-HS guard is re-checked on these bytes. |
 
 **Run and graph.** The committed tool prices `293e8da85` on all four points with exit 0, no unmapped header or
-unclassified argument and both O-10 checks at zero. The line map equals main's (875 carried keys, 37 prunes, seven
-resolutions). D is unchanged (L(3,0) 43,783, L(2,1) 39,369, L(1,2) 35,231, E 76,356). `reachable_fns` 4,405 → 4,422
+unclassified argument and both O-10 checks at zero. The line map equals main's in counts and dispositions (875 carried
+keys, 37 prunes, seven resolutions); its one difference is the expected +11-line relocation of the pruned
+`edge_zero[36]` caller, `pressure_runtime.rs:716` → `:727` (`build_pressure_case_with_members`). D is unchanged (L(3,0) 43,783, L(2,1) 39,369, L(1,2) 35,231, E 76,356). `reachable_fns` 4,405 → 4,422
 (the reader module); on E, `check`, `read` and `case_ids` have multiplicity 1 and every other new function 0. TAV rises
 by 5,862 B at every point: six copies of S1's +957 B and S7's +20 B. RTA3NL-S6's charge moves no coefficient.
 
@@ -4484,7 +4485,8 @@ The pricing-tool suite (`tools/retained_pricing/tests` and `tests/test_retained_
 
 **AC-004 (pending).** Coefficients, the in-build record and `W1`/`MAX` move, so the six stack-headroom witnesses must
 run on the registered binary (an Agent-0-cleared `t3_exclusive.sh` window); this record does not run them.
-The binary is ready; identities recorded at head `850c82d4b` (clean; later commits change only Work text):
+The binary is ready; identities recorded at head `850c82d4b` (clean; later commits change only Work text, the pricing
+README and the CE pricing test `test_844_rt_a3_ce.py`, and no compiled product source):
 - lib-test binary `open_pipe_stress_product_physics-8057898b0bb36c31`, SHA-256
   `7b986d0955dd6f43a987e4241583c882d7a7439996216b161b46a2a9c818d202`; challenge binary
   `retained_memory_challenge-3f698ddcca32b754`, SHA-256 `6c84ad3a3e1518bf13315685c748b2352c9e37291f1c6758ed9146fbbb003596`,
@@ -4526,7 +4528,7 @@ Two limits keep these bounds fail-closed rather than reachable at the census max
 
 ## 10. Reproducing a registered revision
 
-The committed tool's source pins hold one current value each, so the committed tool reproduces only the revision those pins bind (now §8.48's priced source, the merged head `a0220a641`, whose `core/` source is the registered binary's; §8.47's `a47a9ebf8` is reproduced by `41cf15b95`'s tool cohort; §8.46's `fbd0931d5` and its registered successor `e8a59f1fd` are reproduced by `e8a59f1fd`'s tool cohort; §8.44's `e2dbc7b33` is reproduced by `01e05a486`'s tool cohort; main `6c3cb46d3` (§8.45), §8.42's `92a6f81ff`, §8.41's adopted source `4e1972698` and earlier mains are reproduced with their own tool cohorts); at an earlier revision a pin stops it (exit 4). §8.45's carried block (33 coefficients above the lexer's tree, none below) was reproduced by main `db3151708`'s complete tool cohort; §8.44 regenerates the block on the lexer, so `generate --check` of the committed tool's tree at `e2dbc7b33` with §8.44's basis line matches the registered block again. Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
+The committed tool's source pins hold one current value each, so the committed tool reproduces only the revision those pins bind (now §8.49's priced source `293e8da85`; §8.48's priced source, the merged head `a0220a641`, is reproduced by main `aa794eb68`'s tool cohort; §8.47's `a47a9ebf8` is reproduced by `41cf15b95`'s tool cohort; §8.46's `fbd0931d5` and its registered successor `e8a59f1fd` are reproduced by `e8a59f1fd`'s tool cohort; §8.44's `e2dbc7b33` is reproduced by `01e05a486`'s tool cohort; main `6c3cb46d3` (§8.45), §8.42's `92a6f81ff`, §8.41's adopted source `4e1972698` and earlier mains are reproduced with their own tool cohorts); at an earlier revision a pin stops it (exit 4). §8.45's carried block (33 coefficients above the lexer's tree, none below) was reproduced by main `db3151708`'s complete tool cohort; §8.44 regenerates the block on the lexer, so `generate --check` of the committed tool's tree at `e2dbc7b33` with §8.44's basis line matches the registered block again. Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
 
 The following are historical replay results, not procedures for the current tool. In their pre-W1 tool cohort, the replay restored the B7a/B7b source models (`base/b7a_*.py`, `lib/b7a_retired_carry.py`), `kd5_text_model.py`, `kd5_first_error_model.py`, `batch5_model.py`, the per-invocation pins in `o10_rules.py`, and C7's NumericCase pins in `prescribed_key_model.py`; source before batch 5 also used the original case consumer instead of the wrapper/helper pair.
 - **B7b at `837a04b770`.** With that historical cohort and its restored pins, the scratch tool priced `837a04b770` with exit 0, and `generate --check` of that tree matched the block committed at `e70c115764`. An earlier B7b revision stopped at a result_export pin (exit 4).
