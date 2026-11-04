@@ -1277,8 +1277,8 @@ pub(super) struct RegisteredProfile {
 /// registered by reviewed change, not a test permit; every other build identity is
 /// `Stale` and keeps the ordinary route.
 static REGISTERED_PROFILES: &[RegisteredProfile] = &[RegisteredProfile {
-    // §8.51 D3 at 357dd4dfa (operating-case slice 1b on RT-U4's §8.50 candidate 41142f4a3, which
-    // carries RT-A3 increment 4's §8.49): the regenerated source-derived block. D1.4 refuses every
+    // §8.51 D3 at a82460ad7 (operating-case slice 1b on main 573051799, RT-U4's registered §8.50
+    // candidate 41142f4a3 with RT-A3 increment 4's §8.49): the regenerated source-derived block. D1.4 refuses every
     // difference basis, so the declared arms, the derivation's records and the model-free reader's
     // claims are zero there (PF1B-DZ/FZ/RM). Against §8.50's tree 6 coefficients rise and none fall:
     // STATICS[1] +7,116 B, STATICS[Node(String,Value)] +12 and STATICS[s(Value)] +48, each form
@@ -1547,7 +1547,7 @@ pub(super) fn priced_maximum(estimates: usize, mode: crate::PreviewSolverMode) -
 /// U4 G5 part 2: the cap-priced admission maximum as named in-build expressions. Every term is a
 /// linear form over layout atoms at the D1 caps (l <= 128); every maximum (stages, phases, moving
 /// candidates) is taken here, in the build. Source: the G4 chain with RV84/RV87's corrections,
-/// re-run as operating-case slice 1b on RT-U4's §8.50 candidate at 357dd4dfa (§8.51): the maximum
+/// re-run as operating-case slice 1b on RT-U4's §8.50 candidate at a82460ad7 (§8.51): the maximum
 /// over routes L (C_eq <= 3, worst shape c = 3, z = 0) and E (c = 3), under SQ2 rules; text at l <=
 /// 128.
 pub(super) mod profile {

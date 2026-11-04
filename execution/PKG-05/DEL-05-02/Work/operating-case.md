@@ -1120,8 +1120,8 @@ DEL-04-11 `hanger-sizing.md` O-1). No solve semantics are added by 1b.
 
 ### 6.10 Pricing and registration
 
-Registered at DEL-04-08 `retained-pricing-rules.md` §8.51, on RT-U4's §8.50 candidate (`41142f4a3`), priced source
-`357dd4dfa`. AC-004 is pending.
+Registered at DEL-04-08 `retained-pricing-rules.md` §8.51, on main `573051799` (RT-U4's registered §8.50 candidate
+`41142f4a3`), priced source `a82460ad7`. AC-004 is pending.
 - **Rules.** The 18 full-file pins whose basis value was a file 1b changes are restated on the merged bytes, each with
   its re-audited premise; S1-ZS drops the deleted push's two entries and RT-A4-D14 pins one push (§8.46's precedents).
   The new PF1B rules (DZ, FZ, RM, BN, L, ID) rest on D1.4's refusal of every difference basis: the declared arms, the

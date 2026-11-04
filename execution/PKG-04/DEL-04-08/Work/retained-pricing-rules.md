@@ -4756,8 +4756,11 @@ restate their combination policy (v2 → v3).
 whose registration is §8.50 (priced source `cadd9b577`; the later commits change no priced source), with §8.50's AC-004
 record `a80429ab6` (text only). It contains increment 4's §8.49 (record `03a5cd3b1`), RT-A3 #108's test-pin fix
 `5701a55a5` and main `aa794eb68`. 1b's branch (on main `aa794eb68`) merged it as `a38e05332`, then `a80429ab6`
-(`b03d53048`) and main `252bef969` (#108; `0b9446df6`, whose tree equals its parent's). **Priced source:
-`357dd4dfa`** (that tree plus the pricing rules below; the registration commits follow).
+(`b03d53048`), main `252bef969` (#108; `0b9446df6`) and main `573051799` (#106 with #105 merged, §8.50 registered;
+`a82460ad7`). The last two merges change no file (each tree equals its parent's), and the head's diff against main
+`573051799` lies wholly in 1b's own commits. **Priced source: `a82460ad7`** (contains main `573051799`). Its tree
+prices `identical_but_basis` to the first priced revision, `357dd4dfa`, whose figures below are the same; the
+registration commits follow.
 
 **Merge resolution** (`a38e05332`; merged, not rebased). The tables moved disjointly: increment 4 pressure-2 and
 physics-retained-1, 1b the three preview tables; `derive --check` holds on the merged tree. The recorded registries
@@ -4823,7 +4826,7 @@ The `difference_basis_derivation` payload (at most one record per declared combi
 primitive load per operand) is zero on D1 by PF1B-DZ. Every bound above holds without that premise as well. No
 allowance is dropped and no guard is weakened.
 
-**Run and graph.** `price.py run 357dd4dfa`: exit 0 on all four points, no unmapped header or unclassified argument,
+**Run and graph.** `price.py run a82460ad7` (and `357dd4dfa`, identical but for the basis): exit 0 on all four points, no unmapped header or unclassified argument,
 `text_complete` and `D_converged` everywhere, both O-10 checks 0. The line map equals the basis's (875 carried keys, 37
 prunes, seven resolutions; both premise pins hold; the off-build set is equal). `reachable_fns` is 4,423 → 4,460 (1b's
 module functions and their callees). D: L(3,0) 43,783 and E 76,356 equal; L(2,1) 39,371 (+2) and L(1,2) 35,235 (+4).
@@ -4863,7 +4866,7 @@ trees, W3 E + R dense is E(3) 8,784,342,449, L(3,0) 8,301,813,614, L(2,1) 7,630,
 tightest, E(3) sparse W1, by 76,527,894 B).
 
 **Profile and records.**
-- **Block.** `generate` with basis `, re-run as operating-case slice 1b on RT-U4's §8.50 candidate at 357dd4dfa
+- **Block.** `generate` with basis `, re-run as operating-case slice 1b on RT-U4's §8.50 candidate at a82460ad7
   (§8.51): …` (1,713 lines: the basis line wraps once more; `--check` equal). Only the six coefficients above, the
   basis line and `PYTHON_CHECK` change; `threshold_bytes` is kept.
 - **`REGISTERED_PROFILES`.** Reviewed inputs #4 (preview-physics-retained-1 `b4377e73…`), #5 (preview-physics-2
