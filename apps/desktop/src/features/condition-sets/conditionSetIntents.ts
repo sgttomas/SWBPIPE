@@ -22,7 +22,7 @@ import type {
   PreviewModel,
   QuantityValue
 } from "../../types";
-import { modelDataIntent, type Canonicalize } from "../model-data/modelDataIntents";
+import { modelDataIntent, stableJson, type Canonicalize } from "../model-data/modelDataIntents";
 import { parseQuantities } from "../rich-authoring/formSupport";
 import { MODEL_SCHEMA_VERSION } from "../../services/modelSchemaVersion";
 
@@ -49,15 +49,20 @@ export const DIMENSIONS = {
 } as const;
 
 export type QuantityDraft = { value: string; unit: string };
-export type TriState = "" | "true" | "false";
+/** An exposure mark: not stated (absent), `true`, `false`, or "stored": a stored value the
+ * engine refuses (for example `null`), shown as stored and kept unless the person replaces it. */
+export type TriState = "" | "true" | "false" | "stored";
+export type DirectionDraft = "" | ConditionDirection | "stored";
 export type ConditionDraft = {
   key: string;
   label: string;
   temperature: QuantityDraft;
   pressure: QuantityDraft;
   contentsDensity: QuantityDraft;
-  /** Members of the stored condition the form does not edit, carried as authored. */
-  retained: Record<string, unknown>;
+  /** The index of the stored condition this row edits; absent for a row the person added. */
+  origin?: number;
+  /** Member names of the stored row the person explicitly removed (a refused stored value). */
+  removed: string[];
 };
 export type ConditionSetDraft = {
   id: string;
@@ -70,33 +75,49 @@ export type ConditionSetDraft = {
   peakTemperature: QuantityDraft;
   peakPressure: QuantityDraft;
   addedWeightMagnitude: QuantityDraft;
-  addedWeightDirection: "" | ConditionDirection;
+  addedWeightDirection: DirectionDraft;
   wind: TriState;
   snowIce: TriState;
   wave: TriState;
-  /** Members of the stored set the form does not edit (tags, notes, any other), carried as authored. */
-  retained: Record<string, unknown>;
+  /** Member paths of the stored set the person explicitly removed (a refused stored value). */
+  removed: string[];
+  /** An edit's basis: the stored record and the draft it gave. An update writes the stored
+   * record with only the members whose draft differs from this one changed. */
+  base?: { record: ConditionSet; draft: ConditionSetDraft };
 };
 
 const SET_EDITED = new Set(["id", "label", "provenance", "installation_temperature", "conditions", "design", "peak", "added_weight", "exposure"]);
 const CONDITION_EDITED = new Set(["key", "label", "temperature", "pressure", "contents_density"]);
-const VALUES_EDITED = new Set(["temperature", "pressure"]);
-const EXPOSURE_EDITED = new Set(["wind", "snow_ice", "wave"]);
-const WEIGHT_EDITED = new Set(["magnitude", "direction"]);
+const NESTED_EDITED: ReadonlyArray<readonly [string, ReadonlySet<string>]> = [
+  ["design", new Set(["temperature", "pressure"])], ["peak", new Set(["temperature", "pressure"])],
+  ["added_weight", new Set(["magnitude", "direction"])], ["exposure", new Set(["wind", "snow_ice", "wave"])]
+];
+
+type Json = Record<string, unknown>;
+const isObject = (value: unknown): value is Json => Boolean(value) && typeof value === "object" && !Array.isArray(value);
+const has = (record: unknown, key: string) => isObject(record) && Object.hasOwn(record, key);
+/** A value the form can show and edit as a quantity: exactly `{value: finite number, unit: string}`. */
+function isQuantity(value: unknown): value is QuantityValue {
+  return isObject(value) && Object.keys(value).length === 2 && typeof value.value === "number" && Number.isFinite(value.value) && typeof value.unit === "string";
+}
+const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
+const same = (left: unknown, right: unknown) => stableJson(left) === stableJson(right);
 
 const emptyQuantity = (): QuantityDraft => ({ value: "", unit: "" });
-export function quantityDraft(quantity: QuantityValue | undefined): QuantityDraft {
-  return quantity ? { value: String(quantity.value), unit: quantity.unit } : emptyQuantity();
+/** The text of a stored quantity; a stored value that is not a quantity shows no text (the
+ * form lists it as stored and refused, and keeps it). */
+export function quantityDraft(quantity: unknown): QuantityDraft {
+  return isQuantity(quantity) ? { value: String(quantity.value), unit: quantity.unit } : emptyQuantity();
 }
-function triState(value: unknown): TriState {
-  return value === true ? "true" : value === false ? "false" : "";
-}
-function retainedMembers(record: object | undefined, edited: ReadonlySet<string>): Record<string, unknown> {
-  return Object.fromEntries(Object.entries(record ?? {}).filter(([key]) => !edited.has(key)));
+const text = (value: unknown) => (typeof value === "string" ? value : "");
+function triState(record: unknown, key: string): TriState {
+  if (!has(record, key)) return "";
+  const value = (record as Json)[key];
+  return value === true ? "true" : value === false ? "false" : "stored";
 }
 
 export function emptyConditionDraft(): ConditionDraft {
-  return { key: "", label: "", temperature: emptyQuantity(), pressure: emptyQuantity(), contentsDensity: emptyQuantity(), retained: {} };
+  return { key: "", label: "", temperature: emptyQuantity(), pressure: emptyQuantity(), contentsDensity: emptyQuantity(), removed: [] };
 }
 
 /** A blank draft: no member is prefilled. */
@@ -104,47 +125,52 @@ export function emptyConditionSetDraft(): ConditionSetDraft {
   return {
     id: "", label: "", provenance: "", installationTemperature: emptyQuantity(), conditions: [],
     designTemperature: emptyQuantity(), designPressure: emptyQuantity(), peakTemperature: emptyQuantity(), peakPressure: emptyQuantity(),
-    addedWeightMagnitude: emptyQuantity(), addedWeightDirection: "", wind: "", snowIce: "", wave: "", retained: {}
+    addedWeightMagnitude: emptyQuantity(), addedWeightDirection: "", wind: "", snowIce: "", wave: "", removed: []
   };
 }
 
-/** The draft of a stored set: every value as stored, every other member retained. */
+/** The draft of a stored set: each value the form can show, as stored (text unchanged,
+ * whitespace kept). The stored record is the draft's basis, so an untouched member keeps its
+ * exact stored value and presence. */
 export function draftFromSet(set: ConditionSet): ConditionSetDraft {
-  const weightDirection = set.added_weight?.direction;
-  const retained = retainedMembers(set, SET_EDITED);
-  // Sub-records' unedited members are retained under their parent's name.
-  const nested: Array<[string, object | undefined, ReadonlySet<string>]> = [
-    ["design", set.design, VALUES_EDITED], ["peak", set.peak, VALUES_EDITED],
-    ["exposure", set.exposure, EXPOSURE_EDITED], ["added_weight", set.added_weight, WEIGHT_EDITED]
-  ];
-  for (const [name, record, edited] of nested) {
-    const extra = retainedMembers(record, edited);
-    if (Object.keys(extra).length) retained[`${name}.`] = extra;
-  }
-  return {
-    id: set.id,
-    label: set.label ?? "",
-    provenance: set.provenance ?? "",
-    installationTemperature: quantityDraft(set.installation_temperature),
-    conditions: (set.conditions ?? []).map((condition) => ({
-      key: condition.key ?? "",
-      label: condition.label ?? "",
-      temperature: quantityDraft(condition.temperature),
-      pressure: quantityDraft(condition.pressure),
-      contentsDensity: quantityDraft(condition.contents_density),
-      retained: retainedMembers(condition, CONDITION_EDITED)
+  const record = set as unknown as Json;
+  const design = record.design, peak = record.peak, weight = record.added_weight, exposure = record.exposure;
+  const direction = isObject(weight) && has(weight, "direction")
+    ? ((CONDITION_DIRECTIONS as readonly unknown[]).includes(weight.direction) ? weight.direction as ConditionDirection : "stored")
+    : "";
+  const draft: ConditionSetDraft = {
+    id: text(record.id),
+    label: text(record.label),
+    provenance: text(record.provenance),
+    installationTemperature: quantityDraft(record.installation_temperature),
+    conditions: (Array.isArray(record.conditions) ? record.conditions : []).map((condition: unknown, index: number) => ({
+      key: text(isObject(condition) ? condition.key : undefined),
+      label: text(isObject(condition) ? condition.label : undefined),
+      temperature: quantityDraft(isObject(condition) ? condition.temperature : undefined),
+      pressure: quantityDraft(isObject(condition) ? condition.pressure : undefined),
+      contentsDensity: quantityDraft(isObject(condition) ? condition.contents_density : undefined),
+      origin: index,
+      removed: []
     })),
-    designTemperature: quantityDraft(set.design?.temperature),
-    designPressure: quantityDraft(set.design?.pressure),
-    peakTemperature: quantityDraft(set.peak?.temperature),
-    peakPressure: quantityDraft(set.peak?.pressure),
-    addedWeightMagnitude: quantityDraft(set.added_weight?.magnitude),
-    addedWeightDirection: weightDirection && (CONDITION_DIRECTIONS as readonly string[]).includes(weightDirection) ? weightDirection : "",
-    wind: triState(set.exposure?.wind),
-    snowIce: triState(set.exposure?.snow_ice),
-    wave: triState(set.exposure?.wave),
-    retained
+    designTemperature: quantityDraft(isObject(design) ? design.temperature : undefined),
+    designPressure: quantityDraft(isObject(design) ? design.pressure : undefined),
+    peakTemperature: quantityDraft(isObject(peak) ? peak.temperature : undefined),
+    peakPressure: quantityDraft(isObject(peak) ? peak.pressure : undefined),
+    addedWeightMagnitude: quantityDraft(isObject(weight) ? weight.magnitude : undefined),
+    addedWeightDirection: direction,
+    wind: triState(exposure, "wind"),
+    snowIce: triState(exposure, "snow_ice"),
+    wave: triState(exposure, "wave"),
+    removed: []
   };
+  return { ...draft, base: { record: set, draft } };
+}
+
+/** True when the draft edits nothing of its stored basis (no member changed or removed). */
+export function draftUnchanged(draft: ConditionSetDraft): boolean {
+  if (!draft.base) return false;
+  const { base: _base, ...current } = draft;
+  return same(current, draft.base.draft);
 }
 
 /** An entered quantity, or undefined when both cells are blank. A half-entered quantity
@@ -158,52 +184,170 @@ export function quantityFromDraft(draft: QuantityDraft, label: string): Quantity
 function booleanFrom(state: TriState): boolean | undefined {
   return state === "true" ? true : state === "false" ? false : undefined;
 }
-function compact<T extends object>(record: T): T | undefined {
-  const entries = Object.entries(record).filter(([, value]) => value !== undefined);
-  return entries.length ? (Object.fromEntries(entries) as T) : undefined;
+/** Write `value`, or remove the member when it is undefined. An existing member keeps its place. */
+function put(record: Json, key: string, value: unknown) {
+  if (value === undefined) delete record[key];
+  else record[key] = value;
 }
+const WEIGHT_MESSAGE = "Added weight needs both its magnitude and its direction; the direction is entered, never assumed.";
 
-/** The record the draft states: entered members only, plus every retained member. */
-export function setFromDraft(draft: ConditionSetDraft): ConditionSet {
-  const nested = (name: string) => (draft.retained[`${name}.`] as Record<string, unknown> | undefined) ?? {};
-  const record: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(draft.retained)) if (!key.endsWith(".")) record[key] = value;
-  record.id = draft.id.trim();
+/** A new record: the entered members only (create). */
+function newSet(draft: ConditionSetDraft): ConditionSet {
+  const record: Json = { id: draft.id.trim() };
   if (draft.label.trim()) record.label = draft.label.trim();
   record.provenance = draft.provenance.trim();
-  const installation = quantityFromDraft(draft.installationTemperature, "Installation temperature");
-  if (installation) record.installation_temperature = installation;
-  if (draft.conditions.length) {
-    record.conditions = draft.conditions.map((condition, index): OperatingCondition => {
-      const name = `Condition ${index + 1}`;
-      const out: Record<string, unknown> = { ...condition.retained, key: condition.key.trim() };
-      if (condition.label.trim()) out.label = condition.label.trim();
-      const temperature = quantityFromDraft(condition.temperature, `${name} temperature`);
-      const pressure = quantityFromDraft(condition.pressure, `${name} pressure`);
-      const contents = quantityFromDraft(condition.contentsDensity, `${name} contents density`);
-      if (temperature) out.temperature = temperature;
-      if (pressure) out.pressure = pressure;
-      if (contents) out.contents_density = contents;
-      return out as OperatingCondition;
-    });
+  put(record, "installation_temperature", quantityFromDraft(draft.installationTemperature, "Installation temperature"));
+  if (draft.conditions.length) record.conditions = draft.conditions.map((row, index) => newCondition(row, index));
+  for (const [name, temperature, pressure] of [["design", draft.designTemperature, draft.designPressure], ["peak", draft.peakTemperature, draft.peakPressure]] as const) {
+    const label = name === "design" ? "Design" : "Peak";
+    const values: Json = {};
+    put(values, "temperature", quantityFromDraft(temperature, `${label} temperature`));
+    put(values, "pressure", quantityFromDraft(pressure, `${label} pressure`));
+    if (Object.keys(values).length) record[name] = values;
   }
-  const design = compact({ ...nested("design"), temperature: quantityFromDraft(draft.designTemperature, "Design temperature"), pressure: quantityFromDraft(draft.designPressure, "Design pressure") });
-  if (design) record.design = design;
-  const peak = compact({ ...nested("peak"), temperature: quantityFromDraft(draft.peakTemperature, "Peak temperature"), pressure: quantityFromDraft(draft.peakPressure, "Peak pressure") });
-  if (peak) record.peak = peak;
   const magnitude = quantityFromDraft(draft.addedWeightMagnitude, "Added weight magnitude");
   if (magnitude || draft.addedWeightDirection) {
-    if (!magnitude || !draft.addedWeightDirection) throw new Error("Added weight needs both its magnitude and its direction; the direction is entered, never assumed.");
-    record.added_weight = { ...nested("added_weight"), magnitude, direction: draft.addedWeightDirection };
+    if (!magnitude || !draft.addedWeightDirection || draft.addedWeightDirection === "stored") throw new Error(WEIGHT_MESSAGE);
+    record.added_weight = { magnitude, direction: draft.addedWeightDirection };
   }
-  const exposure = compact({ ...nested("exposure"), wind: booleanFrom(draft.wind), snow_ice: booleanFrom(draft.snowIce), wave: booleanFrom(draft.wave) });
-  if (exposure) record.exposure = exposure;
+  const exposure: Json = {};
+  put(exposure, "wind", booleanFrom(draft.wind));
+  put(exposure, "snow_ice", booleanFrom(draft.snowIce));
+  put(exposure, "wave", booleanFrom(draft.wave));
+  if (Object.keys(exposure).length) record.exposure = exposure;
   return record as ConditionSet;
 }
+function newCondition(row: ConditionDraft, index: number): OperatingCondition {
+  const name = `Condition ${index + 1}`;
+  const out: Json = { key: row.key.trim() };
+  if (row.label.trim()) out.label = row.label.trim();
+  put(out, "temperature", quantityFromDraft(row.temperature, `${name} temperature`));
+  put(out, "pressure", quantityFromDraft(row.pressure, `${name} pressure`));
+  put(out, "contents_density", quantityFromDraft(row.contentsDensity, `${name} contents density`));
+  return out as OperatingCondition;
+}
 
-/** Retained members as `name: JSON` lines, for the "Retained as authored" display. */
-export function retainedLines(retained: Record<string, unknown>): string[] {
-  return Object.entries(retained).map(([key, value]) => `${key.endsWith(".") ? key.slice(0, -1) + " (other members)" : key}: ${JSON.stringify(value)}`);
+/** One stored condition with only the edited members changed. A row the form cannot read
+ * (not an object) is written back as stored. */
+function editedCondition(stored: unknown, row: ConditionDraft, base: ConditionDraft, index: number): unknown {
+  if (!isObject(stored)) return clone(stored);
+  const name = `Condition ${index + 1}`;
+  const out = clone(stored);
+  for (const member of row.removed) delete out[member];
+  if (row.key !== base.key) out.key = row.key.trim();
+  if (row.label !== base.label) put(out, "label", row.label.trim() || undefined);
+  const quantities: Array<[string, keyof ConditionDraft, string]> = [["temperature", "temperature", "temperature"], ["pressure", "pressure", "pressure"], ["contents_density", "contentsDensity", "contents density"]];
+  for (const [member, field, label] of quantities) {
+    if (!same(row[field], base[field])) put(out, member, quantityFromDraft(row[field] as QuantityDraft, `${name} ${label}`));
+  }
+  return out;
+}
+
+/** The record the draft states. A create writes the entered members only. An update starts
+ * from the stored record and changes only the members the person edited or removed; every
+ * other member keeps its exact stored value and presence (empty strings and collections,
+ * whitespace, `null` and members the form does not edit included). */
+export function setFromDraft(draft: ConditionSetDraft): ConditionSet {
+  if (!draft.base) return newSet(draft);
+  const base = draft.base.draft;
+  const out = clone(draft.base.record) as unknown as Json;
+  for (const path of draft.removed) {
+    const [head, tail] = path.split(".");
+    if (tail === undefined) delete out[head];
+    else if (isObject(out[head])) delete (out[head] as Json)[tail];
+  }
+  if (draft.label !== base.label) put(out, "label", draft.label.trim() || undefined);
+  if (draft.provenance !== base.provenance) out.provenance = draft.provenance.trim();
+  if (!same(draft.installationTemperature, base.installationTemperature)) put(out, "installation_temperature", quantityFromDraft(draft.installationTemperature, "Installation temperature"));
+
+  const rows = Array.isArray(draft.base.record.conditions) ? draft.base.record.conditions as unknown[] : [];
+  const rowsUntouched = draft.conditions.length === base.conditions.length && draft.conditions.every((row, index) => same(row, base.conditions[index]));
+  if (!rowsUntouched) {
+    out.conditions = draft.conditions.map((row, index) => row.origin === undefined
+      ? newCondition(row, index)
+      : editedCondition(rows[row.origin], row, base.conditions[row.origin], index));
+  }
+
+  for (const [name, temperature, pressure, baseTemperature, basePressure] of [
+    ["design", draft.designTemperature, draft.designPressure, base.designTemperature, base.designPressure],
+    ["peak", draft.peakTemperature, draft.peakPressure, base.peakTemperature, base.peakPressure]
+  ] as const) {
+    const label = name === "design" ? "Design" : "Peak";
+    const editedTemperature = !same(temperature, baseTemperature), editedPressure = !same(pressure, basePressure);
+    if (!editedTemperature && !editedPressure) continue;
+    const values: Json = isObject(out[name]) ? out[name] as Json : {};
+    if (editedTemperature) put(values, "temperature", quantityFromDraft(temperature, `${label} temperature`));
+    if (editedPressure) put(values, "pressure", quantityFromDraft(pressure, `${label} pressure`));
+    out[name] = values;
+  }
+
+  const editedMagnitude = !same(draft.addedWeightMagnitude, base.addedWeightMagnitude);
+  const editedDirection = draft.addedWeightDirection !== base.addedWeightDirection;
+  if (editedMagnitude || editedDirection) {
+    const weight: Json = isObject(out.added_weight) ? out.added_weight as Json : {};
+    if (editedMagnitude) put(weight, "magnitude", quantityFromDraft(draft.addedWeightMagnitude, "Added weight magnitude"));
+    if (editedDirection) put(weight, "direction", draft.addedWeightDirection || undefined);
+    if (Object.keys(weight).length === 0) delete out.added_weight;
+    else if (!has(weight, "magnitude") || !has(weight, "direction")) throw new Error(WEIGHT_MESSAGE);
+    else out.added_weight = weight;
+  }
+
+  const marks: Array<[string, TriState, TriState]> = [["wind", draft.wind, base.wind], ["snow_ice", draft.snowIce, base.snowIce], ["wave", draft.wave, base.wave]];
+  if (marks.some(([, now, was]) => now !== was)) {
+    const exposure: Json = isObject(out.exposure) ? out.exposure as Json : {};
+    for (const [member, now, was] of marks) if (now !== was) put(exposure, member, booleanFrom(now));
+    out.exposure = exposure;
+  }
+  return out as unknown as ConditionSet;
+}
+
+/** A stored value the form cannot show as an entry (for example `null`, a malformed quantity
+ * or an unknown direction): the engine refuses the document by name. It is listed as stored,
+ * written back unchanged, and removed only when the person removes it. */
+export type RefusedMember = { path: string; value: unknown; row?: number; member?: string };
+export function refusedMembers(set: ConditionSet): RefusedMember[] {
+  const record = set as unknown as Json;
+  const found: RefusedMember[] = [];
+  const check = (path: string, present: boolean, value: unknown, ok: boolean) => { if (present && !ok) found.push({ path, value }); };
+  check("label", has(record, "label"), record.label, typeof record.label === "string");
+  check("provenance", has(record, "provenance"), record.provenance, typeof record.provenance === "string");
+  check("installation_temperature", has(record, "installation_temperature"), record.installation_temperature, isQuantity(record.installation_temperature));
+  check("conditions", has(record, "conditions"), record.conditions, Array.isArray(record.conditions));
+  for (const [name, members] of NESTED_EDITED) {
+    const nested = record[name];
+    check(name, has(record, name), nested, isObject(nested));
+    if (!isObject(nested)) continue;
+    for (const member of members) {
+      const value = nested[member];
+      const ok = member === "direction" ? (CONDITION_DIRECTIONS as readonly unknown[]).includes(value)
+        : name === "exposure" ? typeof value === "boolean" : isQuantity(value);
+      check(`${name}.${member}`, has(nested, member), value, ok);
+    }
+  }
+  (Array.isArray(record.conditions) ? record.conditions : []).forEach((condition: unknown, row: number) => {
+    if (!isObject(condition)) { found.push({ path: `conditions[${row}]`, value: condition, row }); return; }
+    for (const member of ["key", "label", "temperature", "pressure", "contents_density"]) {
+      const value = condition[member];
+      const ok = member === "key" || member === "label" ? typeof value === "string" : isQuantity(value);
+      if (has(condition, member) && !ok) found.push({ path: `conditions[${row}].${member}`, value, row, member });
+    }
+  });
+  return found;
+}
+
+/** Members the form does not edit, as `path: JSON` lines, for "Retained as authored". */
+export function uneditedMembers(set: ConditionSet): string[] {
+  const record = set as unknown as Json;
+  const lines: string[] = [];
+  for (const [key, value] of Object.entries(record)) if (!SET_EDITED.has(key)) lines.push(`${key}: ${JSON.stringify(value)}`);
+  for (const [name, members] of NESTED_EDITED) {
+    const nested = record[name];
+    if (isObject(nested)) for (const [key, value] of Object.entries(nested)) if (!members.has(key)) lines.push(`${name}.${key}: ${JSON.stringify(value)}`);
+  }
+  (Array.isArray(record.conditions) ? record.conditions : []).forEach((condition: unknown, row: number) => {
+    if (isObject(condition)) for (const [key, value] of Object.entries(condition)) if (!CONDITION_EDITED.has(key)) lines.push(`conditions[${row}].${key}: ${JSON.stringify(value)}`);
+  });
+  return lines;
 }
 
 function withSource(intent: EditorOperationIntent, note: string): EditorOperationIntent {

@@ -39,11 +39,27 @@ and a test applies it.
   the unit and dimension either way, and names a mismatch,
   `OPERATING_CONDITION_QUANTITY_INVALID`. Text becomes a number through `parseQuantities`.
 - **Nothing is entered for the person.** Empty cells read "not stated", and nothing is
-  prefilled or suggested. Only entered members are written. A half-entered quantity, or an
-  added weight with only one of its two members, is refused in the form by name, and
-  nothing is queued.
-- **Exposure marks.** Each mark has three states: not stated (absent), marked (`true`) and
-  not marked (`false`), so a stored `false` is shown and kept, never dropped.
+  prefilled or suggested. A create writes the entered members only. A half-entered
+  quantity, or an added weight with only one of its two members, is refused in the form by
+  name, and nothing is queued.
+- **An edit changes only what the person edited** (persistence review r1 of #111). An
+  update starts from the stored record and changes only the members whose entry differs
+  from the stored one, or that the person explicitly removed. Every untouched member keeps
+  its exact stored value and presence: empty strings, empty arrays and objects, whitespace,
+  `null` and key order. An untouched condition row is written back unchanged, and an edited
+  row changes only its edited members. "Check and queue edit" is disabled until a member is
+  edited ("No member is edited; the stored record is unchanged"). A stored record with
+  nothing edited also gives `OP-DATA-UNCHANGED` from the engine.
+- **Stored values the engine refuses.** A stored `null`, a malformed quantity or an unknown
+  direction is never shown as blank or absent. Such a value is:
+  - listed under "Stored values the operation engine refuses", with its path and stored JSON;
+  - shown in its cell as `stored: null (refused; kept)`;
+  - shown in the selects as the option `stored: …`;
+  - written back unchanged, so the engine still refuses the record by name
+    (`MODEL-SLOT-SHAPE` for a `null`);
+  - replaced or removed only when the person enters a value or presses "Remove stored …".
+- **Exposure marks.** Each mark is not stated (absent), marked (`true`) or not marked
+  (`false`); a stored `false` is shown and kept, never dropped.
 - **Members the solve does not read.** Design, peak, snow and ice, wave and each
   condition's contents density carry "(not used by the solve in 0.9.0)".
 - **Pressure.** On a pressure-free document the Pressure column states that no solve of
@@ -72,9 +88,8 @@ Review/Apply then shows the applied outcome's findings, as it does for every ope
 
 The Condition sets section is mounted by `ModelTree.tsx` in its tree-records area, above
 the Lines section, whenever the tree has the operation route. It reads pending intents
-through an optional `queuedIntents` prop, which App does not yet pass. Without them, a
-second pending change to the same record is still refused at apply as stale (`before`
-mismatch), but not before it is queued. App's one-line hunk is listed in §6. The
+through its `queuedIntents` prop, which App passes, so a second pending change to the same
+record is refused before it is queued. The
 inspector field sits after the section assignment. The table column follows Material in
 the pipes grid. The inspector's All properties list shows a pipe's Condition set, or "not
 stated".
@@ -88,7 +103,13 @@ stated".
     by the wasm engine;
   - every operation with its inverse, restoring the canonical document;
   - the in-use refusal naming P1 and P3;
-  - the ID-collision, unchanged and quantity refusals;
+  - the ID-collision and quantity refusals; an unchanged edit not offered;
+  - edits from the stored record:
+    - the reviewer's record round-trips exactly, and the engine gives `OP-DATA-UNCHANGED`;
+    - a one-member edit changes only that member, in the set and in one condition row;
+    - a stored `null` is shown as stored, kept through an unrelated edit (`MODEL-SLOT-SHAPE`)
+      and removed only explicitly;
+    - a stored refused use member is kept and named (`LOAD_CASE_CONDITION_USE_EMPTY`);
   - the form's own refusals;
   - carried info and staged warnings;
   - the not-used labels, "not stated" and a stored pressure;
@@ -98,7 +119,9 @@ stated".
 - `conditionSets.session.test.tsx`:
   - create, bulk assignment and use through the session, each undone through its
     checkpoint to the prior model hash;
-  - a saved and reopened model, edited again.
+  - a saved and reopened model: its use and one set member are edited, applied and saved
+    again (the confirmed replacement), then reopened once more with exactly the applied
+    records.
 - `conditionSetSurfaces.engine.test.tsx`:
   - the table column's assign and clear, applied;
   - the tree section and the inspector field mounted;
@@ -108,20 +131,24 @@ stated".
   - emission order;
   - the bend rule;
   - the projection in later bends' `before`, with the engine applying the chain.
-- `services/operationContractCorpus.test.ts`: S3a's corpus in the browser lanes. One
-  case is recorded as a reported divergence (§6).
+- `services/operationContractCorpus.test.ts`: S3a's corpus in the browser lanes. Each
+  case runs against the corpus's expected outcome. Case `s3a_14` is a tracked known
+  limitation, run as an expected failure (§6). A separate passing test shows the
+  desktop's own `after` text refused as the corpus expects.
 
 ## 6. Open
 
-- **App hunk (not written; held for PR #59).** Pass the pending intents to the tree, so
-  the section can refuse a second pending change before queueing:
-  `<ModelTree … queuedIntents={editorIntents} …>` in `App.tsx`.
-- **Reported to the applier's owner, not repaired here.** `OP-DATA-UNCHANGED` compares
-  serde values, which distinguish `20` from `20.0`. A record whose `after` text is
-  float-form, applied to a model that reached the engine through JS (integer-form),
-  reads as changed and is applied as a no-op. Corpus case `s3a_14` shows it in the
-  browser lanes. The desktop's own `after` text is integer-form, so its unchanged edits
-  are refused.
+- **One tracked limitation in the browser lanes, pending the applier's fix (load-cases
+  lane).** `OP-DATA-UNCHANGED` compares serde values, which distinguish `20` from `20.0`.
+  - **Effect.** A record whose `after` text is float-form, applied to a model that reached
+    the engine through JS (integer-form), reads as changed and is applied as a no-op.
+  - **Where it shows.** Corpus case `s3a_14` does not yet give its expected refusal in the
+    browser lanes. It runs as an expected failure (`it.fails`), and its test name states
+    the limitation.
+  - **When the fix lands.** Vitest reports the case as passing, which fails the run; remove
+    it from `KNOWN_LIMITATIONS` so it runs as a normal case.
+  - **The desktop path.** The desktop's own `after` text is integer-form, so its unchanged
+    edits are refused, and the forms do not offer one.
 - **Not built.** Support `direction`, contents and hydrotest, and EX resolution stay
   refused and offer no input.
 - **Verification still open.** Native and timed walkthroughs.

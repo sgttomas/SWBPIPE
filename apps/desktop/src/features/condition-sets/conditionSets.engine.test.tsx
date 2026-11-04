@@ -5,7 +5,7 @@
 // contract corpus (`fixtures/model_operations/condition_set_contract_corpus.json`).
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
-import type { EditorOperationIntent, OperationOutcome, PreviewModel } from "../../types";
+import type { ConditionSet, EditorOperationIntent, OperationOutcome, PreviewModel } from "../../types";
 import { applyModelOperation, validateModelOperation } from "../../services/operationService";
 import { canonicalJsonString, computeModelHash } from "../../services/hashService";
 import { loadWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
@@ -14,7 +14,7 @@ import { corpusBase } from "../../test-support/conditionSetCorpus";
 import { ConditionSetsSection } from "./ConditionSetsSection";
 import { PipeConditionSetField } from "./PipeConditionSetField";
 import { ConditionUseControl } from "./ConditionUseControl";
-import { NOT_USED_BY_SOLVE, assignConditionSetIntent, conditionUseIntent, createConditionSetIntent, deleteConditionSetIntent, draftFromSet, setFromDraft, updateConditionSetIntent } from "./conditionSetIntents";
+import { NOT_USED_BY_SOLVE, draftUnchanged, assignConditionSetIntent, conditionUseIntent, createConditionSetIntent, deleteConditionSetIntent, draftFromSet, setFromDraft, updateConditionSetIntent } from "./conditionSetIntents";
 
 async function applyOutcome(model: PreviewModel, intent: EditorOperationIntent): Promise<OperationOutcome> {
   return applyModelOperation(model, intent, await computeModelHash(model));
@@ -182,12 +182,12 @@ describe("refusals, staged findings and carried refusals shown in place", () => 
     expect(list).toHaveLength(0);
   });
 
-  it("names the data and document refusals: a repeated id, an unchanged edit and a quantity of the wrong dimension", async () => {
+  it("names the data and document refusals: a repeated id and a quantity of the wrong dimension; an unchanged edit is not offered", async () => {
     const model = corpusBase("s3a_02");
     const list: EditorOperationIntent[] = [];
     render(<ConditionSetsSection model={model} onQueueIntent={(intent) => list.push(intent)} />);
-    fireEvent.click(screen.getByTestId("condition-set-update-cs:a"));
-    expect(await screen.findByTestId("condition-set-cs:a-diagnostic-OP-DATA-UNCHANGED")).toHaveAttribute("data-severity", "blocking");
+    expect(screen.getByTestId("condition-set-update-cs:a")).toBeDisabled();
+    expect(screen.getByTestId("condition-set-update-cs:a")).toHaveAttribute("title", "No member is edited; the stored record is unchanged.");
 
     type("condition-set-new-id", "P1");
     type("condition-set-new-provenance", "invented");
@@ -228,6 +228,110 @@ describe("refusals, staged findings and carried refusals shown in place", () => 
     expect(carried.length).toBeGreaterThan(0);
     for (const item of carried) expect(item).toHaveAttribute("data-severity", "info");
     expect(carried[0]).toHaveTextContent("Carried");
+  });
+});
+
+/** The engine's outcome of an update from `current` to `next` on `model`. */
+async function updateOutcome(model: PreviewModel, current: ConditionSet, next: ConditionSet) {
+  return applyOutcome(model, await updateConditionSetIntent(canonicalJsonString, current, next));
+}
+const codes = (outcome: OperationOutcome) => outcome.diagnostics.filter((item) => item.severity === "blocking").map((item) => item.code);
+/** A model holding `set` as its only condition set (S3a's corpus document, no pipe carrying it). */
+function holding(set: unknown): PreviewModel {
+  const model = corpusBase("s3a_02");
+  model.condition_sets = [set as ConditionSet];
+  return model;
+}
+
+describe("an edit changes only what the person edited (persistence review r1 of #111)", () => {
+  // The reviewer's record: empty label, collections and sub-records, and padded provenance.
+  const REVIEWER = { id: "cs:r", label: "", provenance: " source ", conditions: [], design: {}, peak: {}, exposure: {} };
+  const TWO_ROWS = {
+    id: "cs:t", provenance: "invented", exposure: { wave: false },
+    conditions: [{ label: "", key: "OPE1", temperature: { value: 150, unit: "degC" } }, { key: "OPE2", pressure: { value: 1, unit: "MPa" }, label: "  hot  " }]
+  };
+
+  it("round-trips an untouched record exactly, key order included, and the engine refuses the no-op by name", async () => {
+    for (const record of [REVIEWER, TWO_ROWS]) {
+      const draft = draftFromSet(record as unknown as ConditionSet);
+      expect(draftUnchanged(draft)).toBe(true);
+      expect(JSON.stringify(setFromDraft(draft))).toBe(JSON.stringify(record));
+      const outcome = await updateOutcome(holding(record), record as unknown as ConditionSet, setFromDraft(draft));
+      expect(codes(outcome)).toEqual(["OP-DATA-UNCHANGED"]);
+    }
+    // The form offers no edit until a member is edited.
+    render(<ConditionSetsSection model={holding(REVIEWER)} onQueueIntent={() => undefined} />);
+    expect(screen.getByTestId("condition-set-update-cs:r")).toBeDisabled();
+    type("condition-set-cs:r-label", "Line R");
+    expect(screen.getByTestId("condition-set-update-cs:r")).toBeEnabled();
+    type("condition-set-cs:r-label", "");
+    expect(screen.getByTestId("condition-set-update-cs:r")).toBeDisabled();
+  });
+
+  it("an edit of one member changes only that member, in the set and in one condition row", async () => {
+    const list: EditorOperationIntent[] = [];
+    render(<ConditionSetsSection model={holding(TWO_ROWS)} onQueueIntent={(intent) => list.push(intent)} />);
+    type("condition-set-cs:t-condition-1-pressure-value", "1.5");
+    fireEvent.click(screen.getByTestId("condition-set-update-cs:t"));
+    const edit = await queuedAt(list, 1);
+    const expected = structuredClone(TWO_ROWS);
+    expected.conditions[1].pressure = { value: 1.5, unit: "MPa" };
+    expect(edit.change.after).toBe(JSON.stringify(expected));
+    expect(await canonicalJsonString(JSON.parse(edit.change.after))).toBe(await canonicalJsonString(expected));
+    const applied = await apply(holding(TWO_ROWS), edit);
+    expect(applied.condition_sets![0]).toEqual(expected);
+
+    const draft = draftFromSet(REVIEWER as unknown as ConditionSet);
+    const labelled = setFromDraft({ ...draft, label: "Line R" });
+    expect(labelled).toEqual({ ...REVIEWER, label: "Line R" });
+    expect(Object.keys(labelled)).toEqual(Object.keys(REVIEWER));
+  });
+
+  it("shows a stored null as stored and refused, keeps it through an unrelated edit, and removes it only when the person removes it", async () => {
+    const STORED_NULL = { id: "cs:n", provenance: "invented", installation_temperature: null, exposure: { wind: null } };
+    const model = holding(STORED_NULL);
+    const list: EditorOperationIntent[] = [];
+    render(<ConditionSetsSection model={model} onQueueIntent={(intent) => list.push(intent)} />);
+    const refused = screen.getByTestId("condition-set-cs:n-refused");
+    expect(refused).toHaveTextContent("installation_temperature: null");
+    expect(refused).toHaveTextContent("exposure.wind: null");
+    expect(screen.getByTestId("condition-set-cs:n-installation-temperature-value")).toHaveAttribute("placeholder", "stored: null (refused; kept)");
+    expect(screen.getByTestId("condition-set-cs:n-exposure-wind")).toHaveValue("stored");
+    expect(screen.getByTestId("condition-set-cs:n-exposure-wind")).toHaveDisplayValue("stored: null (refused; kept)");
+
+    // An unrelated edit keeps both nulls, and the engine still refuses the record by name.
+    type("condition-set-cs:n-label", "Line N");
+    const kept = setFromDraft({ ...draftFromSet(STORED_NULL as unknown as ConditionSet), label: "Line N" });
+    expect(kept).toEqual({ ...STORED_NULL, label: "Line N" });
+    fireEvent.click(screen.getByTestId("condition-set-update-cs:n"));
+    expect(await screen.findByTestId("condition-set-cs:n-error")).toHaveTextContent("nothing was queued");
+    expect(screen.getAllByTestId(/^condition-set-cs:n-diagnostic-/).every((item) => item.getAttribute("data-severity") === "blocking")).toBe(true);
+    const outcome = await updateOutcome(model, STORED_NULL as unknown as ConditionSet, kept);
+    expect(codes(outcome)).toEqual(["MODEL-SLOT-SHAPE"]); // the validator's closed-record refusal of the null
+    expect(screen.getByTestId("condition-set-cs:n-diagnostic-MODEL-SLOT-SHAPE")).toHaveTextContent("null");
+    expect(list).toHaveLength(0);
+
+    // The person removes the stored installation temperature explicitly: only that member goes.
+    fireEvent.click(screen.getByTestId("condition-set-cs:n-refused-installation_temperature-remove"));
+    expect(screen.getByTestId("condition-set-cs:n-refused")).not.toHaveTextContent("installation_temperature");
+    expect(screen.getByTestId("condition-set-cs:n-installation-temperature-value")).toHaveAttribute("placeholder", "not stated");
+    fireEvent.click(screen.getByTestId("condition-set-cs:n-refused-exposure.wind-remove"));
+    fireEvent.click(screen.getByTestId("condition-set-update-cs:n"));
+    const cleaned = await queuedAt(list, 1);
+    expect(JSON.parse(cleaned.change.after)).toEqual({ id: "cs:n", provenance: "invented", exposure: {}, label: "Line N" });
+  });
+
+  it("keeps a stored refused use member through an edit of another member", async () => {
+    const model = corpusBase("s3a_09");
+    const sus = model.load_cases.find((item) => item.id === "SUS")!;
+    (sus as unknown as { condition_use: unknown }).condition_use = { temperature: "OPE1", added_weight: false };
+    const list: EditorOperationIntent[] = [];
+    render(<ConditionUseControl model={model} onQueueIntent={(intent) => list.push(intent)} loadCase={sus} />);
+    expect(screen.getByTestId("load-condition-use-retained")).toHaveTextContent("added_weight: false");
+    fireEvent.click(screen.getByTestId("load-condition-use-wind-exposure"));
+    fireEvent.click(screen.getByTestId("load-condition-use-queue"));
+    expect(await screen.findByTestId("load-condition-use-diagnostic-LOAD_CASE_CONDITION_USE_EMPTY")).toHaveAttribute("data-severity", "blocking");
+    expect(list).toHaveLength(0);
   });
 });
 

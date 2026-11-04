@@ -40,15 +40,24 @@ const draftOf = (use: ConditionUse | undefined): UseDraft => ({
   windExposure: use?.wind_exposure === true
 });
 
-/** The use the draft states: chosen members only, plus the stored members the control does
- * not edit (carried as authored, so the engine judges them by name). */
+/** The use the draft states. It starts from the stored use and changes only the members the
+ * person changed; every other member keeps its exact stored value and presence, including a
+ * stored value the engine refuses (for example `added_weight: false` or `temperature: null`),
+ * so the engine judges it by name. A new use carries the chosen members only. */
 export function useFromDraft(draft: UseDraft, stored: ConditionUse | undefined): ConditionUse {
-  const retained = Object.fromEntries(Object.entries(stored ?? {}).filter(([key]) => !EDITED.has(key)));
-  const use: Record<string, unknown> = { ...retained };
-  if (draft.temperature) use.temperature = draft.temperature;
-  if (draft.addedWeight) use.added_weight = true;
-  if (draft.windExposure) use.wind_exposure = true;
+  const base = draftOf(stored);
+  const use: Record<string, unknown> = stored ? JSON.parse(JSON.stringify(stored)) : {};
+  const put = (key: string, value: unknown) => { if (value === undefined) delete use[key]; else use[key] = value; };
+  if (draft.temperature !== base.temperature) put("temperature", draft.temperature || undefined);
+  if (draft.addedWeight !== base.addedWeight) put("added_weight", draft.addedWeight ? true : undefined);
+  if (draft.windExposure !== base.windExposure) put("wind_exposure", draft.windExposure ? true : undefined);
   return use as ConditionUse;
+}
+
+/** Stored members the control edits whose stored value it cannot show (the engine refuses it). */
+function refusedUseMembers(stored: ConditionUse | undefined): Array<[string, unknown]> {
+  const record = (stored ?? {}) as Record<string, unknown>;
+  return Object.entries(record).filter(([key, value]) => key === "temperature" ? typeof value !== "string" : (key === "added_weight" || key === "wind_exposure") && value !== true);
 }
 
 export function ConditionUseControl(props: EngineCheckedQueueProps & { loadCase: LoadCase | null }) {
@@ -59,7 +68,7 @@ export function ConditionUseControl(props: EngineCheckedQueueProps & { loadCase:
   const queue = useEngineCheckedQueue(props);
   if (!loadCase) return null;
   const pressureFree = isPressureFree(model);
-  const retained = Object.entries(stored ?? {}).filter(([key]) => !EDITED.has(key));
+  const retained = [...Object.entries(stored ?? {}).filter(([key]) => !EDITED.has(key)), ...refusedUseMembers(stored)];
   const keys = conditionKeys(model);
   const next = useFromDraft(draft, stored);
   const empty = Object.keys(next).length === 0;
@@ -106,7 +115,7 @@ export function ConditionUseControl(props: EngineCheckedQueueProps & { loadCase:
       )}
       {retained.length ? (
         <p data-testid="load-condition-use-retained">
-          <strong>Retained as authored</strong> (not edited here): {retained.map(([key, value]) => `${key}: ${JSON.stringify(value)}`).join("; ")}.
+          <strong>Retained as authored</strong> (not edited here, or stored as a value the engine refuses): {retained.map(([key, value]) => `${key}: ${JSON.stringify(value)}`).join("; ")}.
           {pressureFree ? " It is written back with the use, and the engine judges it by name." : ""}
         </p>
       ) : null}

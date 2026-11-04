@@ -335,36 +335,25 @@ describe("operation contract corpus — wasm engine lane (native↔wasm parity)"
 // the same case format and comparison rules, blessed by the native runner with
 // CONDITION_SET_CORPUS_BLESS=1). S3a kept it outside contract_corpus/ until the desktop's
 // wasm engine carried its operations; S3b's desktop surfaces emit these operations, so the
-// browser lanes run every case through the adapter seam and the wasm engine directly.
+// browser lanes run every case through the adapter seam and the wasm engine directly, each
+// against the corpus's expected outcome.
 //
-// One case diverges in the browser lanes and is reported to the applier's owner, not
-// repaired here: `OP-DATA-UNCHANGED` compares serde values, which tell an integer-form
-// number (`20`, as every model reaches the engine through JS) from a float-form one (`20.0`,
-// as the case's `after` text is written). Natively both sides are float-form and the edit is
-// refused; through JS the model is integer-form, so the unchanged record reads as changed
-// and is applied (its canonical bytes do not move). The desktop's own forms write `after`
-// with JSON.stringify, integer-form like the model, and are refused as expected
-// (condition-sets/conditionSets.engine.test.tsx).
-const TRANSPORT_DIVERGENCE: Readonly<Record<string, string>> = {
-  s3a_14_block_update_unchanged: "OP-DATA-UNCHANGED compares integer-form and float-form numbers as different values"
+// One case is a tracked known limitation, run as an expected failure (`it.fails`), never
+// excluded, normalized or filtered: `OP-DATA-UNCHANGED` compares serde values, which tell an
+// integer-form number (`20`, as every model reaches the engine through JS) from a float-form
+// one (`20.0`, as case s3a_14's `after` text is written). Natively both sides are float-form
+// and the edit is refused; through JS the unchanged record reads as changed and is applied.
+// The fix is the applier's (load-cases lane). WHEN IT LANDS: vitest reports this expected
+// failure as passing, which fails the run; remove `s3a_14_block_update_unchanged` from
+// KNOWN_LIMITATIONS so the case runs as a normal case.
+const KNOWN_LIMITATIONS: Readonly<Record<string, string>> = {
+  s3a_14_block_update_unchanged:
+    "s3a_14 — KNOWN LIMITATION pending the applier's numeric no-op fix (load-cases lane): OP-DATA-UNCHANGED compares 20 and 20.0 as different through JS"
 };
 
 describe("condition-set contract corpus — browser-mode adapter and wasm engine lanes", () => {
   const conditionSetCorpus = JSON.parse(readFileSync(path.resolve(corpusDir, "..", "condition_set_contract_corpus.json"), "utf8")) as { cases: CorpusCase[] };
   const cases = conditionSetCorpus.cases;
-
-  it("refuses the unchanged update when its after text has the model's own number form, and records the reported divergence", async () => {
-    const corpusCase = cases.find((item) => item.case_id in TRANSPORT_DIVERGENCE)!;
-    const model = JSON.parse(JSON.stringify(corpusCase.base_model)) as PreviewModel;
-    const intent = JSON.parse(JSON.stringify(corpusCase.intent)) as EditorOperationIntent;
-    const asAuthored = await applyModelOperation(model, intent, corpusCase.claimed_model_hash);
-    // The reported divergence: when the applier compares numbers by value, this assertion
-    // fails, and the case leaves TRANSPORT_DIVERGENCE to run with the others.
-    expect(asAuthored.diagnostics.map((item) => item.code)).toEqual([]);
-    intent.change.after = JSON.stringify(JSON.parse(intent.change.after));
-    const consistent = await applyModelOperation(model, intent, corpusCase.claimed_model_hash);
-    expect(semanticOutcome(consistent)).toEqual(corpusCase.expected!.outcome);
-  });
 
   it("holds S3a's twenty cases, with carried refusals reported as info", () => {
     expect(cases).toHaveLength(20);
@@ -372,8 +361,22 @@ describe("condition-set contract corpus — browser-mode adapter and wasm engine
     expect(severities).toEqual(new Set(["blocking", "warning", "info"]));
   });
 
-  for (const corpusCase of cases.filter((item) => !(item.case_id in TRANSPORT_DIVERGENCE))) {
-    it(`case ${corpusCase.case_id} matches the Rust contract reference in both lanes`, async () => {
+  // The desktop path: the forms write `after` with JSON.stringify, integer-form like the model
+  // that reaches the engine through JS, and the unchanged update is refused as the corpus
+  // expects. This is a positive test of the desktop's own path, separate from the limitation.
+  it("refuses s3a_14's unchanged update when its after text is written as the desktop writes it (JSON.stringify)", async () => {
+    const corpusCase = cases.find((item) => item.case_id === "s3a_14_block_update_unchanged")!;
+    const model = JSON.parse(JSON.stringify(corpusCase.base_model)) as PreviewModel;
+    const intent = JSON.parse(JSON.stringify(corpusCase.intent)) as EditorOperationIntent;
+    intent.change.after = JSON.stringify(JSON.parse(intent.change.after));
+    const outcome = await applyModelOperation(model, intent, corpusCase.claimed_model_hash);
+    expect(semanticOutcome(outcome)).toEqual(corpusCase.expected!.outcome);
+  });
+
+  for (const corpusCase of cases) {
+    const limitation = KNOWN_LIMITATIONS[corpusCase.case_id];
+    const test = limitation === undefined ? it : it.fails;
+    test(limitation ?? `case ${corpusCase.case_id} matches the Rust contract reference in both lanes`, async () => {
       const expected = corpusCase.expected!;
       const model = JSON.parse(JSON.stringify(corpusCase.base_model)) as PreviewModel;
       const intent = corpusCase.intent as unknown as EditorOperationIntent;

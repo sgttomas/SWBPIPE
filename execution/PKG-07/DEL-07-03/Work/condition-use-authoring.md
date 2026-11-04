@@ -21,9 +21,11 @@ the load/reference-state inputs, for the selected case.
   refused, with their codes, and offer no input:
   - `LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT`;
   - `LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED`.
-- **Members the control does not edit.** A stored use member the control does not edit is
-  shown as "Retained as authored" and written back with the use, so the engine judges it
-  by name.
+- **Members the control does not edit.** A use edit starts from the stored use and
+  changes only the members the person changed. A stored member the control does not edit,
+  or a stored value the engine refuses (for example `added_weight: false`), is shown as
+  "Retained as authored" and written back unchanged, so the engine judges it by name
+  (`LOAD_CASE_CONDITION_USE_EMPTY`).
 - **Documents with `pressure_contract`.** The control is shown refused,
   `LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED`, and offers no input. A stored use is shown
   as it is.
@@ -91,7 +93,9 @@ These have no UI here:
   - an unticked mark written as absence;
   - the engine's per-pipe 130 K records shown.
 - `conditionSets.session.test.tsx`: a case's use through the session and its Undo; a
-  reopened model's use edited.
+  reopened model's use edited, applied, saved again and reopened with the applied use.
+- `conditionSets.engine.test.tsx`: a stored refused use member kept through an edit and
+  named.
 - `conditionSetSurfaces.engine.test.tsx`:
   - the `operating` suggestion;
   - the template's payload, no prefill and the engine's stored record;

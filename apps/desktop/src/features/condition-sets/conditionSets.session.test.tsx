@@ -6,7 +6,8 @@ import { act, cleanup, fireEvent, render, renderHook, screen, waitFor } from "@t
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as previewService from "../../services/previewService";
 import { canonicalJsonString, computeModelHash } from "../../services/hashService";
-import { openLocalProject, saveLocalProject } from "../../services/projectService";
+import { applyModelOperation } from "../../services/operationService";
+import { findLocalProject, openLocalProject, saveLocalProject } from "../../services/projectService";
 import type { EditorOperationIntent, PreviewModel } from "../../types";
 import { useWorkspaceSession } from "../workspace/workspaceSession";
 import { buildBulkChangeBatch, planBulkChange } from "../bulk-change/bulkChange";
@@ -77,7 +78,7 @@ describe("condition sets through the session (queue, apply, Undo)", () => {
 });
 
 describe("a saved and reopened model", () => {
-  it("reopens with its sets, assignments and use shown, and takes a further edit through the engine", async () => {
+  it("reopens with its sets, assignments and use shown, applies further edits, and saves and reopens them as applied", async () => {
     const edited = corpusBase("s3a_09");
     edited.project.id = "project:s3b-condition-sets-reopen";
     edited.load_cases.find((item) => item.id === "SUS")!.condition_use = { temperature: "OPE1" };
@@ -100,5 +101,30 @@ describe("a saved and reopened model", () => {
     fireEvent.click(screen.getByTestId("load-condition-use-queue"));
     await waitFor(() => expect(list).toHaveLength(1));
     expect(list[0].change).toMatchObject({ change_kind: "set_load_case_condition_use", before: await canonicalJsonString({ temperature: "OPE1" }), after: JSON.stringify({ temperature: "OPE1", added_weight: true }) });
+
+    // Apply the reopened edit, then edit one member of the reopened set and apply that too.
+    const apply = async (model: PreviewModel, intent: EditorOperationIntent) => {
+      const outcome = await applyModelOperation(model, intent, await computeModelHash(model));
+      expect(outcome.diagnostics.filter((item) => item.severity === "blocking")).toEqual([]);
+      expect(outcome.validation.application_status).toBe("applied_to_session_model");
+      return outcome.applied_model as PreviewModel;
+    };
+    let current = await apply(opened, list[0]);
+    cleanup();
+    render(<ConditionSetsSection model={current} onQueueIntent={(intent) => list.push(intent)} />);
+    fireEvent.change(screen.getByTestId("condition-set-cs:a-label"), { target: { value: "Line A (reopened)" } });
+    fireEvent.click(screen.getByTestId("condition-set-update-cs:a"));
+    await waitFor(() => expect(list).toHaveLength(2));
+    current = await apply(current, list[1]);
+
+    // Save again (the replacement the person confirms, as the session's save does) and reopen
+    // once more: the stored records are exactly the applied ones.
+    const stored = await findLocalProject("project:s3b-condition-sets-reopen");
+    await saveLocalProject(current, [], null, null, null, null, null, null, stored!.revision);
+    const reopened = (await openLocalProject("project:s3b-condition-sets-reopen"))!.model as PreviewModel;
+    expect(await canonicalJsonString(reopened)).toBe(await canonicalJsonString(current));
+    expect(reopened.load_cases.find((item) => item.id === "SUS")?.condition_use).toEqual({ temperature: "OPE1", added_weight: true });
+    expect(reopened.condition_sets).toEqual([{ ...edited.condition_sets![0], label: "Line A (reopened)" }]);
+    expect(reopened.pipe_segments.map((pipe) => pipe.condition_set_ref)).toEqual(["cs:a", "cs:a", "cs:a"]);
   });
 });

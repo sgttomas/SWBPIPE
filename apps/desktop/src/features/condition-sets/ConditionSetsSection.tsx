@@ -21,7 +21,10 @@ import {
   emptyConditionSetDraft,
   isPressureFree,
   pipesUsingSet,
-  retainedLines,
+  draftUnchanged,
+  refusedMembers,
+  uneditedMembers,
+  type RefusedMember,
   setFromDraft,
   updateConditionSetIntent,
   type ConditionSetDraft,
@@ -100,7 +103,7 @@ function ConditionSetRow(props: EngineCheckedQueueProps & { set: ConditionSet; r
         <ConditionSetFields draft={draft} onChange={setDraft} model={model} route={props.route} idEditable={false} testId={testId} />
         <div className="model-data-actions">
           <button type="button" data-testid={`condition-set-update-${set.id}`}
-            {...disabledBy(queue.busy, [!draft.provenance.trim(), "Enter the set's provenance (the source of its values)."])}
+            {...disabledBy(queue.busy, [draftUnchanged(draft), "No member is edited; the stored record is unchanged."], [!draft.provenance.trim(), "Enter the set's provenance (the source of its values)."])}
             onClick={() => void queue.submit((canonicalize) => updateConditionSetIntent(canonicalize, set, setFromDraft(draft)))}>
             Check and queue edit
           </button>
@@ -134,8 +137,21 @@ export function ConditionSetFields({ draft, onChange, model, route, idEditable, 
 }) {
   const set = <K extends keyof ConditionSetDraft>(key: K, value: ConditionSetDraft[K]) => onChange({ ...draft, [key]: value });
   const pressureFree = isPressureFree(model);
-  const retained = retainedLines(draft.retained);
-  const conditionRetained = draft.conditions.flatMap((condition, index) => retainedLines(condition.retained).map((line) => `Condition ${index + 1} ${line}`));
+  const retained = draft.base ? uneditedMembers(draft.base.record) : [];
+  // Stored values the engine refuses (for example null): shown as stored, kept unless removed.
+  const refused = (draft.base ? refusedMembers(draft.base.record) : []).filter((item) => item.row === undefined
+    ? !draft.removed.includes(item.path)
+    : !draft.conditions.some((row) => row.origin === item.row && item.member && row.removed.includes(item.member)));
+  const storedAt = (path: string) => refused.find((item) => item.path === path);
+  const remove = (item: RefusedMember) => {
+    if (item.row === undefined) {
+      const cleared: Partial<ConditionSetDraft> = item.path === "exposure.wind" ? { wind: "" } : item.path === "exposure.snow_ice" ? { snowIce: "" }
+        : item.path === "exposure.wave" ? { wave: "" } : item.path === "added_weight.direction" ? { addedWeightDirection: "" } : {};
+      onChange({ ...draft, ...cleared, removed: [...draft.removed, item.path] });
+    } else if (item.member) {
+      onChange({ ...draft, conditions: draft.conditions.map((row) => row.origin === item.row ? { ...row, removed: [...row.removed, item.member!] } : row) });
+    }
+  };
   return (
     <fieldset className="condition-set-fields" data-testid={`${testId}-fields`}>
       <legend>{idEditable ? "New condition set" : `Condition set ${draft.id}`}</legend>
@@ -149,7 +165,7 @@ export function ConditionSetFields({ draft, onChange, model, route, idEditable, 
       <label>Provenance (required)
         <input aria-label="Condition set provenance" data-testid={`${testId}-provenance`} value={draft.provenance} placeholder={NOT_STATED} onChange={(event) => set("provenance", event.target.value)} />
       </label>
-      <QuantityInput label="Installation temperature" dimension={DIMENSIONS.temperature} route={route} value={draft.installationTemperature} onChange={(value) => set("installationTemperature", value)} testId={`${testId}-installation-temperature`} />
+      <QuantityInput label="Installation temperature" dimension={DIMENSIONS.temperature} route={route} value={draft.installationTemperature} stored={storedAt("installation_temperature")} onChange={(value) => set("installationTemperature", value)} testId={`${testId}-installation-temperature`} />
 
       <table data-testid={`${testId}-conditions`}>
         <caption>Conditions</caption>
@@ -173,9 +189,9 @@ export function ConditionSetFields({ draft, onChange, model, route, idEditable, 
               <tr key={index} data-testid={row}>
                 <td><input aria-label={`${name} key`} data-testid={`${row}-key`} value={condition.key} placeholder={NOT_STATED} onChange={(event) => update({ key: event.target.value })} /></td>
                 <td><input aria-label={`${name} label`} data-testid={`${row}-label`} value={condition.label} placeholder={NOT_STATED} onChange={(event) => update({ label: event.target.value })} /></td>
-                <td><QuantityInput compact label={`${name} temperature`} dimension={DIMENSIONS.temperature} route={route} value={condition.temperature} onChange={(value) => update({ temperature: value })} testId={`${row}-temperature`} /></td>
-                <td><QuantityInput compact label={`${name} pressure`} dimension={DIMENSIONS.pressure} route={route} value={condition.pressure} onChange={(value) => update({ pressure: value })} testId={`${row}-pressure`} /></td>
-                <td><QuantityInput compact label={`${name} contents density`} dimension={DIMENSIONS.density} route={route} value={condition.contentsDensity} onChange={(value) => update({ contentsDensity: value })} testId={`${row}-contents-density`} /></td>
+                <td><QuantityInput compact label={`${name} temperature`} dimension={DIMENSIONS.temperature} route={route} value={condition.temperature} stored={condition.origin === undefined ? undefined : storedAt(`conditions[${condition.origin}].temperature`)} onChange={(value) => update({ temperature: value })} testId={`${row}-temperature`} /></td>
+                <td><QuantityInput compact label={`${name} pressure`} dimension={DIMENSIONS.pressure} route={route} value={condition.pressure} stored={condition.origin === undefined ? undefined : storedAt(`conditions[${condition.origin}].pressure`)} onChange={(value) => update({ pressure: value })} testId={`${row}-pressure`} /></td>
+                <td><QuantityInput compact label={`${name} contents density`} dimension={DIMENSIONS.density} route={route} value={condition.contentsDensity} stored={condition.origin === undefined ? undefined : storedAt(`conditions[${condition.origin}].contents_density`)} onChange={(value) => update({ contentsDensity: value })} testId={`${row}-contents-density`} /></td>
                 <td><button type="button" data-testid={`${row}-remove`} onClick={() => set("conditions", draft.conditions.filter((_, at) => at !== index))}>Remove {name.toLowerCase()}</button></td>
               </tr>
             );
@@ -187,21 +203,22 @@ export function ConditionSetFields({ draft, onChange, model, route, idEditable, 
 
       <fieldset>
         <legend>Design values <NotUsed testId={`${testId}-design-not-used`} /></legend>
-        <QuantityInput label="Design temperature" dimension={DIMENSIONS.temperature} route={route} value={draft.designTemperature} onChange={(value) => set("designTemperature", value)} testId={`${testId}-design-temperature`} />
-        <QuantityInput label="Design pressure" dimension={DIMENSIONS.pressure} route={route} value={draft.designPressure} onChange={(value) => set("designPressure", value)} testId={`${testId}-design-pressure`} />
+        <QuantityInput label="Design temperature" dimension={DIMENSIONS.temperature} route={route} value={draft.designTemperature} stored={storedAt("design.temperature")} onChange={(value) => set("designTemperature", value)} testId={`${testId}-design-temperature`} />
+        <QuantityInput label="Design pressure" dimension={DIMENSIONS.pressure} route={route} value={draft.designPressure} stored={storedAt("design.pressure")} onChange={(value) => set("designPressure", value)} testId={`${testId}-design-pressure`} />
       </fieldset>
       <fieldset>
         <legend>Peak values <NotUsed testId={`${testId}-peak-not-used`} /></legend>
-        <QuantityInput label="Peak temperature" dimension={DIMENSIONS.temperature} route={route} value={draft.peakTemperature} onChange={(value) => set("peakTemperature", value)} testId={`${testId}-peak-temperature`} />
-        <QuantityInput label="Peak pressure" dimension={DIMENSIONS.pressure} route={route} value={draft.peakPressure} onChange={(value) => set("peakPressure", value)} testId={`${testId}-peak-pressure`} />
+        <QuantityInput label="Peak temperature" dimension={DIMENSIONS.temperature} route={route} value={draft.peakTemperature} stored={storedAt("peak.temperature")} onChange={(value) => set("peakTemperature", value)} testId={`${testId}-peak-temperature`} />
+        <QuantityInput label="Peak pressure" dimension={DIMENSIONS.pressure} route={route} value={draft.peakPressure} stored={storedAt("peak.pressure")} onChange={(value) => set("peakPressure", value)} testId={`${testId}-peak-pressure`} />
       </fieldset>
       <fieldset>
         <legend>Added weight (uniform, on every pipe carrying the set)</legend>
-        <QuantityInput label="Added weight magnitude" dimension={DIMENSIONS.forcePerLength} route={route} value={draft.addedWeightMagnitude} onChange={(value) => set("addedWeightMagnitude", value)} testId={`${testId}-added-weight-magnitude`} />
+        <QuantityInput label="Added weight magnitude" dimension={DIMENSIONS.forcePerLength} route={route} value={draft.addedWeightMagnitude} stored={storedAt("added_weight.magnitude")} onChange={(value) => set("addedWeightMagnitude", value)} testId={`${testId}-added-weight-magnitude`} />
         <label>Added weight direction
           <select aria-label="Added weight direction" data-testid={`${testId}-added-weight-direction`} value={draft.addedWeightDirection}
             onChange={(event) => set("addedWeightDirection", event.target.value as ConditionSetDraft["addedWeightDirection"])}>
             <option value="">{NOT_STATED}</option>
+            {draft.addedWeightDirection === "stored" ? <option value="stored">{storedText(storedAt("added_weight.direction"))}</option> : null}
             {CONDITION_DIRECTIONS.map((direction) => <option key={direction} value={direction}>{direction}</option>)}
           </select>
         </label>
@@ -209,25 +226,44 @@ export function ConditionSetFields({ draft, onChange, model, route, idEditable, 
       </fieldset>
       <fieldset>
         <legend>Exposure</legend>
-        <ExposureSelect label="Wind exposure" value={draft.wind} onChange={(value) => set("wind", value)} testId={`${testId}-exposure-wind`} />
-        <ExposureSelect label="Snow and ice exposure" value={draft.snowIce} onChange={(value) => set("snowIce", value)} testId={`${testId}-exposure-snow-ice`} notUsed />
-        <ExposureSelect label="Wave exposure" value={draft.wave} onChange={(value) => set("wave", value)} testId={`${testId}-exposure-wave`} notUsed />
+        <ExposureSelect label="Wind exposure" stored={storedAt("exposure.wind")} value={draft.wind} onChange={(value) => set("wind", value)} testId={`${testId}-exposure-wind`} />
+        <ExposureSelect label="Snow and ice exposure" stored={storedAt("exposure.snow_ice")} value={draft.snowIce} onChange={(value) => set("snowIce", value)} testId={`${testId}-exposure-snow-ice`} notUsed />
+        <ExposureSelect label="Wave exposure" stored={storedAt("exposure.wave")} value={draft.wave} onChange={(value) => set("wave", value)} testId={`${testId}-exposure-wave`} notUsed />
       </fieldset>
-      {retained.length || conditionRetained.length ? (
+      {refused.length ? (
+        <div role="note" data-testid={`${testId}-refused`}>
+          <strong>Stored values the operation engine refuses</strong> (shown as stored and written back unchanged unless you replace or remove them):
+          <ul>{refused.map((item) => (
+            <li key={item.path} data-testid={`${testId}-refused-${item.path}`}>
+              <code>{item.path}: {JSON.stringify(item.value)}</code>{" "}
+              {item.row === undefined || item.member ? (
+                <button type="button" data-testid={`${testId}-refused-${item.path}-remove`} onClick={() => remove(item)}>Remove stored {item.path}</button>
+              ) : <span>(remove the condition row to remove it)</span>}
+            </li>
+          ))}</ul>
+        </div>
+      ) : null}
+      {retained.length ? (
         <div data-testid={`${testId}-retained`}>
           <strong>Retained as authored</strong> (not edited here; written back unchanged):
-          <ul>{[...retained, ...conditionRetained].map((line) => <li key={line}><code>{line}</code></li>)}</ul>
+          <ul>{retained.map((line) => <li key={line}><code>{line}</code></li>)}</ul>
         </div>
       ) : null}
     </fieldset>
   );
 }
 
-function ExposureSelect({ label, value, onChange, testId, notUsed = false }: { label: string; value: TriState; onChange: (value: TriState) => void; testId: string; notUsed?: boolean }) {
+/** A stored value the engine refuses, as an option or placeholder text. */
+function storedText(stored: RefusedMember | undefined): string {
+  return `stored: ${stored ? JSON.stringify(stored.value) : "a refused value"} (refused; kept)`;
+}
+
+function ExposureSelect({ label, value, onChange, testId, stored, notUsed = false }: { label: string; value: TriState; onChange: (value: TriState) => void; testId: string; stored?: RefusedMember; notUsed?: boolean }) {
   return (
     <label>{label}{notUsed ? <NotUsed testId={`${testId}-not-used`} /> : null}
       <select aria-label={label} data-testid={testId} value={value} onChange={(event) => onChange(event.target.value as TriState)}>
         <option value="">{NOT_STATED}</option>
+        {value === "stored" ? <option value="stored">{storedText(stored)}</option> : null}
         <option value="true">marked (true)</option>
         <option value="false">not marked (false)</option>
       </select>
@@ -238,8 +274,10 @@ function ExposureSelect({ label, value, onChange, testId, notUsed = false }: { l
 /** One entered quantity: a value and an explicit unit, both blank meaning not stated. The
  * catalog's accepted units of the dimension are offered where the catalog is available;
  * the operation engine checks the unit and its dimension either way. */
-export function QuantityInput({ label, dimension, route, value, onChange, testId, compact = false }: {
+export function QuantityInput({ label, dimension, route, value, onChange, testId, stored, compact = false }: {
   label: string;
+  /** A stored value the engine refuses, shown in place of "not stated" while it is kept. */
+  stored?: RefusedMember;
   dimension: string;
   route: UnitCatalogRoute | null;
   value: QuantityDraft;
@@ -251,7 +289,7 @@ export function QuantityInput({ label, dimension, route, value, onChange, testId
   const catalog = loadedUnitCatalog(route);
   const units = catalog ? acceptedUnits(catalog).filter((entry) => unitEntryMatchesDimension(entry, dimension)).map((entry) => entry.symbol) : [];
   const inputs = <>
-    <input aria-label={`${label} value`} data-testid={`${testId}-value`} inputMode="decimal" value={value.value} placeholder={NOT_STATED}
+    <input aria-label={`${label} value`} data-testid={`${testId}-value`} inputMode="decimal" value={value.value} placeholder={stored ? storedText(stored) : NOT_STATED}
       onChange={(event) => onChange({ ...value, value: event.target.value })} />
     <input aria-label={`${label} unit`} data-testid={`${testId}-unit`} value={value.unit} placeholder={compact ? "unit" : `unit (${dimension})`}
       list={units.length ? listId : undefined} onChange={(event) => onChange({ ...value, unit: event.target.value })} />
