@@ -195,13 +195,107 @@ a combination, so no other document's bytes change.
 
   A stated member is read in full. Each of `operand_cases`, `combinations` and
   every operand case's `groups` must be an array. A partial, null or malformed
-  member is refused by its shape (`SHAPE`), never read as absence. With the
-  member, the reserved notices must be exactly the ones it re-derives, so an
-  extra or renamed establishment notice is refused (`DIAGNOSTICS`).
+  member is refused by its shape (`SHAPE`), never read as absence. This holds
+  for a combination record, an operand case or an operand group that is not an
+  object, which both readers refuse by its shape with and without the model
+  (`RECORD_SHAPE`, `SHAPE`). The model binding leaves such a record to the shape
+  check rather than dereferencing it. With the member, the reserved notices
+  must be exactly the ones it re-derives, so an extra or renamed establishment
+  notice is refused (`DIAGNOSTICS`).
 - *Independently validated retained-precision claims are not §4 claims.* The
   registered W-CB3 retained combination successors were recorded before the
   certificate, and their bytes are unchanged. Their retained-precision standing
   is still governed by their own receipt. They simply make no §4 claim.
+
+**The invariant's scope (Agent 0, 2026-11-04, after review cert2).** The old
+invariant read: "Without valid evidence, no certificate-derived row bound,
+eligibility effect or established notice survives." Review cert1 stated the
+same requirement as "No §4-derived bound, eligibility effect or established
+notice without valid §4 evidence." It is replaced by: **"No READER-ATTESTED
+certificate claim survives without valid bound evidence."** A reader-attested
+claim is one the readers admit as a certificate statement: the member's
+structured bounds and verdicts, and the roster's canonical notices below. The
+new wording does not mean that the reader can recognize all establishment
+prose. Prose the readers do not attest is handled by the roster and the text
+boundary below, not by reading its meaning. Two rules stand unchanged:
+- Absence under the current optional inspection contract does not select
+  history.
+- Historical variants are selected only by a recorded `{id, sha256}`.
+
+**The closed combination-diagnostic roster (review cert2 finding 1, Agent 0's
+option A).** Both readers (RE `combination_certificate.rs` `roster`, Python
+`roster`) read it after the member, on a solved document.
+- *Which diagnostics.* A diagnostic is a combination diagnostic when an
+  affected ref names a combination identity of the document, whatever its id
+  or code. The identities are taken from the gates, the EX records, the
+  certificate and operand records, and the owners of combination-typed rows
+  and numerical cases. With the model, every model combination is added. A
+  literal prefix plays no part: the unicode and W-CB3 documents' identities
+  carry none. An identity shared with another entity (a load case, a row's
+  entity, another model record) is left out, because an untyped ref naming it
+  cannot be told apart.
+- *Canonical form.* Each combination diagnostic must be an entry of the roster.
+  Its id names one entry, and its code, severity, message, source and refs are
+  that entry's, derived from the evidence.
+  - Set-bound, each required once: PF's headline scope, its maximum and
+    intensified notices per admitted gate, and its gate notice per withheld
+    gate (an operand withholding names its withheld operands). The headline's
+    refs are the model's kept combinations in authored order; without the
+    model, the gates' identities in any order, which the document cannot fix.
+    With the model, S1's interim withholdings and their dependants, on both
+    routes.
+  - Form-bound, each parameter bound to the evidence: PF's fixed-load count,
+    source-missing (a row base of the document), row-withheld (each name a row
+    base or a support with a producer reason) and vector notices, and the
+    retained-precision combination notices (their fixed producer texts; their
+    existence is the retained reader's G4).
+  - Read whole by their own readers, which precede the roster: the certificate's
+    own notices (`check`), EX's `diagnostic:exact-combination:` namespace
+    (W-16b's conditional notice included) and PF's operand standing and state
+    notices (`preview_combination_operands`).
+- *Refusals.* `SOURCE_COMBINATION_CERTIFICATE_`:
+  - `ROSTER_EXTRA`: no entry, including a duplicate;
+  - `ROSTER_RENAMED`: a roster code under an id outside every roster family;
+  - `ROSTER_CONTRADICTION`: an entry's id with another form;
+  - `ROSTER_MISSING`: a set-bound entry absent.
+- *Reserved vocabulary.* The reserved certificate codes and canonical notices
+  stay protected by `check` whatever their id (the absence rule above). That
+  protects the known codes and canonical texts. It is not a semantic
+  validation of arbitrary paraphrase, which the roster refuses under a
+  combination ref instead.
+
+**The residual text boundary (Agent 0's item 5).** Diagnostic prose under refs
+that name no combination (a load case, a support, the model, or no ref) is
+admitted only as unchecked supplemental data. The seam that projects it beside
+derived-row and certificate content is the report's diagnostics projection
+(desktop `renderableReportInput.ts` `diagnosticsForSections`, checked on the
+exact route by `report_package` `bindings::expected_report_diagnostics`).
+- On a result with combinations, such a message is quoted after the label
+  "Supplied diagnostic text, unverified (not a combination certificate
+  statement): ".
+- A diagnostic naming a combination is a roster entry the reader admitted in
+  its canonical form, and is copied.
+- Certificate facts and names (established, not established, not assessed,
+  bounds, the per-combination statement) come only from the validated member
+  and the roster's canonical notices. No establishment, eligibility, health,
+  token or summary is derived from free text: no desktop or report code reads
+  a message for standing.
+- Report text keeps the renderer's ordinary escaping, and no phrase list is
+  kept.
+- A result without combinations is unchanged.
+
+The shared parity vectors (`fixtures/reports/invented/report_diagnostics_parity.json`)
+and both languages' test on an actual certificate document hold the rule.
+
+**Not assigned: a document-wide closed diagnostic roster (option B).** Closing
+every diagnostic family of the document, not only those naming a combination,
+is not assigned. There is no new Must and no standing backlog. Free prose under
+non-combination refs is the residual. It is quoted as supplied text where it
+appears beside combination content, and is for later judgement only if a
+concrete consumer needs more.
+
+EX `formulation_basis.limitations` keep their existing reading (non-empty
+text). A roster bound to the selected table variant is a pending decision.
 
 **Transport.** The preview-physics transport metadata check
 (`retained_precision.rs` `preview_physics_transport_metadata`, and Python
@@ -289,6 +383,22 @@ envelopes:
 | member kept, an extra establishment sentence or renamed notices | DIAGNOSTICS |
 | a null member, or `operand_cases` missing or null | SHAPE |
 | `combinations`, `operand_cases` or an operand case's `groups` not an array | SHAPE |
+| a combination record null, a scalar or an array | RECORD_SHAPE (with and without the model) |
+| an operand case or an operand group null, a scalar or an array | SHAPE |
+
+The roster's cases (review cert2 finding 1), applied with and without the model:
+
+| Case | Code |
+|---|---|
+| the review's prose (REVIEW_NOTE, a paraphrase, "bounded by 1e-30", uppercase, NBSP) under a combination ref, member kept or absent | ROSTER_EXTRA |
+| the same prose under a load-case ref, no ref or a model ref | admitted (supplemental) |
+| a maximum notice copied, or renamed, under an id outside every roster family | ROSTER_RENAMED |
+| a maximum, headline or gate notice reworded, a headline missing a combination, a maximum naming two | ROSTER_CONTRADICTION |
+| a row-withheld notice naming prose | ROSTER_CONTRADICTION |
+| a source-missing notice naming no row base | ROSTER_EXTRA |
+| a maximum or gate notice dropped | ROSTER_MISSING |
+| the headline's refs reordered | admitted without the model; ROSTER_CONTRADICTION with it |
+| pf_held's interim notice dropped or reworded | admitted without the model (its combination is not the document's); ROSTER_MISSING or ROSTER_CONTRADICTION with it |
 
 RE `absence_is_inspection_only_with_no_certificate_claim` and its Python
 counterpart admit the both-dropped case. With and without the model, they
@@ -324,9 +434,17 @@ RE:
   admitted in the closed evidence key list and read by its check (two hunks);
 - `preview_physics_evidence.rs` (the optional member and the check);
 - `reader_verdict.rs` (the model binding on both routes);
-- `lib.rs` (`mod`);
+- `lib.rs` (`mod`, and the re-export of `document_combination_identities` for
+  the report's text boundary);
+- `preview_combination_gates.rs`: `RowIndex`, its `new` and `cases` made
+  `pub(crate)` (visibility only), so the roster reads the row bases as the
+  nested-row reader does;
 - `exact_combination_evidence.rs`: the `DERIVED_TEXT` constant only, not the
   held projection code.
+
+Report (the text boundary): `report_package` `bindings.rs`
+(`expected_report_diagnostics` and its label) and the desktop's
+`renderableReportInput.ts` (`diagnosticsForSections`).
 
 Python: `tests/verifiers/pressure_2.py`, `preview_physics_evidence.py`
 (including `validate_transport_metadata`), `reader_verdict.py` and
@@ -341,7 +459,7 @@ view), Python `test_rt_a4_pf_reader_tampers.py` (key set). PP `op1a_operand_stan
 assertions and assert its presence.
 
 None in `preview_physics.rs` combination formation, the `preview_combination_*`
-readers, `combination_plan`, `load_case_algebra`, the EX gate code or
+readers' logic, `combination_plan`, `load_case_algebra`, the EX gate code or
 `exact_combination_evidence.rs`.
 
 ## 5. Desktop carriers (regenerated with their writers)
