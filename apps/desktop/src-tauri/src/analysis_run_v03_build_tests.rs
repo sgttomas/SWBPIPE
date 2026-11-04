@@ -45,6 +45,10 @@ thread_local! {
     pub(crate) static PANIC_IN_BUILD: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
 }
 
+/// RT-U4: the builder's passes as they were (verbatim, e231ea144).
+#[path = "analysis_run_v03_build_old_reference.rs"]
+mod old_reference;
+
 /// RT-U4: test-only counts of the builder's work, per thread (each command
 /// under test runs on the calling thread): calls of the route's full reader
 /// (`validate_route`), row interpretations (`interpret`), values visited by
@@ -689,8 +693,299 @@ fn reserve_does_not_parse_and_the_response_is_a_raw_body() {
 }
 
 // ---------------------------------------------------------------------------
-// RT-U4: the registration's reader pass, reused
+// RT-U4: the native build's repair, against the builder as it was
+// (`old_reference`, verbatim from e231ea144)
 // ---------------------------------------------------------------------------
+
+/// Everything the builder's consumers persist, hash or reply, from one
+/// built record: both checksums and the stored length; the stored bytes
+/// (Save Project's `analysis_run_json`); the preview header's bytes; the
+/// header record Record Run checks; the canonical record Save Project's
+/// envelope hash streams; and Record Run's recorded revision (its checksum,
+/// counted length and stored bytes) for a fixed revision.
+#[derive(Debug, PartialEq, Eq)]
+struct Persisted {
+    received_sha256: String,
+    record_sha256: String,
+    record_bytes: u64,
+    stored: Vec<u8>,
+    header: Vec<u8>,
+    header_record: Value,
+    canonical_record_sha256: String,
+    revision_sha256: String,
+    revision_length: u64,
+    revision_bytes: Vec<u8>,
+}
+
+/// The work of each consumer phase: the preview (the route's reader, if
+/// read, the build and the header), Record Run's revision and Save
+/// Project's record and canonical record.
+#[derive(Debug, Default, PartialEq, Eq)]
+struct Work {
+    preview: passes::Counts,
+    revision: passes::Counts,
+    save: passes::Counts,
+}
+
+const REVISION_CREATED_AT: &str = "2026-11-04T00:00:00.000Z";
+const REVISION_STATE: &str = "state:invented:rt-u4";
+
+fn revision_refs() -> (Vec<Value>, Vec<Value>) {
+    (vec![json!({"object_type": "RulePack", "ref": "rule-pack:invented@1"})], vec![json!({"object_type": "Library", "ref": "library:invented"})])
+}
+
+/// The current builder's consumers on `source` (`validate` reads the route's reader first).
+fn persisted_now(source: &mut Value, route: Option<Route>, inputs: &BuildInputs<'_>) -> (Result<Persisted, String>, Work) {
+    let mut work = Work::default();
+    let start = passes::snapshot();
+    let route = match route.map_or_else(|| dispatch(source).and_then(|route| validate_route(source, &route).map(|()| route)), Ok) {
+        Ok(route) => route,
+        Err(text) => return (Err(text), Work { preview: passes::since(start), ..Work::default() }),
+    };
+    let source: &Value = source;
+    let built = match build(source, route, inputs, &mut no_lease) {
+        Ok(built) => built,
+        Err(error) => return (Err(command_text(error)), Work { preview: passes::since(start), ..Work::default() }),
+    };
+    let (header, ()) = header_bytes(&built, "job-rt-u4", |_| Ok(())).unwrap();
+    work.preview = passes::since(start);
+    let (rule_pack_refs, library_refs) = revision_refs();
+    let ((revision_sha256, revision_length, revision_bytes), counts) = passes::measure(|| {
+        let (revision, length) =
+            Revision { created_at: REVISION_CREATED_AT, state_id: REVISION_STATE, rule_pack_refs: &rule_pack_refs, library_refs: &library_refs, record_sha256: String::new() }.sealed_and_counted(&built);
+        let (bytes, ()) = revision.stored_bytes(&built, length, |_| Ok(())).unwrap();
+        (revision.record_sha256.clone(), length, bytes)
+    });
+    work.revision = counts;
+    let ((stored, canonical_record_sha256), counts) = passes::measure(|| {
+        let (stored, ()) = record_bytes(&built, u64::MAX, |_| Ok(())).unwrap();
+        let mut hasher = Sha256::new();
+        write_canonical_record(&built, &mut hasher);
+        (stored, hex(&hasher.finalize()))
+    });
+    work.save = counts;
+    let persisted = Persisted {
+        received_sha256: built.received_sha256.clone(),
+        record_sha256: built.record_sha256.clone(),
+        record_bytes: built.record_bytes,
+        stored,
+        header,
+        header_record: super::header_record(&built),
+        canonical_record_sha256,
+        revision_sha256,
+        revision_length,
+        revision_bytes,
+    };
+    (Ok(persisted), work)
+}
+
+/// The same consumers through the builder as it was (`old_reference`).
+fn persisted_before(source: &mut Value, route: Option<Route>, inputs: &BuildInputs<'_>) -> (Result<Persisted, String>, Work) {
+    use old_reference as old;
+    let mut work = Work::default();
+    let start = passes::snapshot();
+    let route = match route.map_or_else(|| dispatch(source).and_then(|route| validate_route(source, &route).map(|()| route)), Ok) {
+        Ok(route) => route,
+        Err(text) => return (Err(text), Work { preview: passes::since(start), ..Work::default() }),
+    };
+    let source: &Value = source;
+    let built = match old::build(source, route, inputs, &mut no_lease) {
+        Ok(built) => built,
+        Err(error) => return (Err(command_text(error)), Work { preview: passes::since(start), ..Work::default() }),
+    };
+    let (header, ()) = old::header_bytes(&built, "job-rt-u4", |_| Ok(())).unwrap();
+    work.preview = passes::since(start);
+    let (rule_pack_refs, library_refs) = revision_refs();
+    let ((revision_sha256, revision_length, revision_bytes), counts) = passes::measure(|| {
+        let revision = old::Revision { created_at: REVISION_CREATED_AT, state_id: REVISION_STATE, rule_pack_refs: &rule_pack_refs, library_refs: &library_refs, record_sha256: String::new() }.sealed(&built);
+        let length = revision.stored_length(&built);
+        let (bytes, ()) = revision.stored_bytes(&built, length, |_| Ok(())).unwrap();
+        (revision.record_sha256.clone(), length, bytes)
+    });
+    work.revision = counts;
+    let ((stored, canonical_record_sha256), counts) = passes::measure(|| {
+        let (stored, ()) = old::record_bytes(&built, u64::MAX, |_| Ok(())).unwrap();
+        let mut hasher = Sha256::new();
+        old::write_canonical_record(&built, &mut hasher);
+        (stored, hex(&hasher.finalize()))
+    });
+    work.save = counts;
+    let persisted = Persisted {
+        received_sha256: built.received_sha256.clone(),
+        record_sha256: built.record_sha256.clone(),
+        record_bytes: built.record_bytes,
+        stored,
+        header,
+        header_record: old::header_record(&built),
+        canonical_record_sha256,
+        revision_sha256,
+        revision_length,
+        revision_bytes,
+    };
+    (Ok(persisted), work)
+}
+
+/// The values the checked-profile check visits in `rows` (each read whole:
+/// a row inside the profile is read to its last value).
+fn row_nodes(rows: &[Value]) -> u64 {
+    passes::measure(|| rows.iter().for_each(|row| assert!(!has_outside_profile(row)))).1.outside_nodes
+}
+
+/// What every comparison checks: the same outcome, byte for byte; and, for a
+/// built record of `rows` rows, the work each phase drops: one row
+/// interpretation per row in the preview and in Record Run's revision (their
+/// checksum and length now one traversal), and the rows' second
+/// checked-profile reading (every value of every row, the `results` array and
+/// the source object). The readers run, and the canonical streams, are the same.
+fn compare(id: &str, before: (Result<Persisted, String>, Work), now: (Result<Persisted, String>, Work), rows: Option<&[Value]>, misses: &mut Vec<String>) -> Option<(Work, Work)> {
+    let ((old, old_work), (new, new_work)) = (before, now);
+    if old != new {
+        let summary = |outcome: &Result<Persisted, String>| match outcome {
+            Ok(p) => format!("record {} received {} {} bytes", p.record_sha256, p.received_sha256, p.record_bytes),
+            Err(text) => format!("refused `{text}`"),
+        };
+        misses.push(format!("{id}: before {} / now {}", summary(&old), summary(&new)));
+        return None;
+    }
+    if let (Ok(_), Some(rows)) = (&new, rows) {
+        let n = rows.len() as u64;
+        let expected_preview = passes::Counts {
+            reader_validations: old_work.preview.reader_validations,
+            interpretations: old_work.preview.interpretations - n,
+            // The rows' values, their `results` array and the source object itself
+            // (the other members are read directly).
+            outside_nodes: old_work.preview.outside_nodes - row_nodes(rows) - 2,
+            canonical_hashes: old_work.preview.canonical_hashes,
+        };
+        let expected_revision = passes::Counts { interpretations: old_work.revision.interpretations - n, ..old_work.revision };
+        if new_work.preview != expected_preview || new_work.revision != expected_revision || new_work.save != old_work.save {
+            misses.push(format!("{id}: work before {old_work:?}, now {new_work:?}, expected preview {expected_preview:?}"));
+        }
+        assert_eq!(old_work.preview.interpretations, 3 * n, "{id}: before, the preview interpreted each row three times");
+        assert_eq!((old_work.revision.interpretations, new_work.revision.interpretations), (3 * n, 2 * n), "{id}");
+    } else if new_work.preview.reader_validations != old_work.preview.reader_validations
+        || new_work.preview.interpretations > old_work.preview.interpretations
+        || new_work.preview.canonical_hashes != old_work.preview.canonical_hashes
+    {
+        misses.push(format!("{id}: refused with other work: before {old_work:?}, now {new_work:?}"));
+    }
+    Some((old_work, new_work))
+}
+
+/// RT-U4 (2): on every case of the TypeScript builder's corpus that the
+/// builder reads (records and refusals; preview cases built from their
+/// session manifest), the current builder gives exactly the old builder's
+/// outcome, every persisted and hashed byte included (the stored record, both
+/// checksums, the stored length, the header, the header record, the canonical
+/// record and Record Run's recorded revision), or the same refusal text; and
+/// on each record it drops exactly the passes it claims (see [`compare`]).
+#[test]
+fn the_repaired_builder_writes_the_old_builders_bytes_with_fewer_passes() {
+    let mut misses = Vec::new();
+    let (mut records, mut refusals) = (0, 0);
+    let mut dropped = (0u64, 0u64);
+    let add = |total: &mut passes::Counts, c: passes::Counts| {
+        total.reader_validations += c.reader_validations;
+        total.interpretations += c.interpretations;
+        total.outside_nodes += c.outside_nodes;
+        total.canonical_hashes += c.canonical_hashes;
+    };
+    let (mut before_total, mut now_total) = (Work::default(), Work::default());
+    for case in cases() {
+        let id = case["id"].as_str().unwrap().to_string();
+        let Ok(parsed) = serde_json::from_str::<Value>(&source_text(&case["source"])) else { continue };
+        let exclusions: Vec<Exclusion> = serde_json::from_value(case.get("rule_pack_exclusions").cloned().unwrap_or(json!([]))).unwrap();
+        // A preview case's inputs are its session's (`preview_parsed`'s reading of them).
+        let (manifest_value, load_basis, aggregate);
+        let inputs = if case["kind"] == "preview" {
+            let Ok(manifest) = serde_json::from_str::<Value>(case["input_manifest"]["canonical_bytes"].as_str().unwrap()) else { continue };
+            manifest_value = manifest;
+            let Ok(basis) = model_load_basis_refs(&manifest_value) else { continue };
+            load_basis = basis;
+            aggregate = case["rule_check_aggregate"].as_str().map(|text| Value::String(text.into()));
+            BuildInputs {
+                manifest: ManifestEvidence { manifest_ref: &case["input_manifest"]["manifest_ref"], manifest_sha256: &case["input_manifest"]["manifest_sha256"], manifest: &manifest_value },
+                rule_check_status: applied_rule_check_status(aggregate.as_ref(), get_opt(parsed.get("status"), "rule_check")),
+                load_basis_refs: Some(&load_basis),
+                rule_pack_exclusions: &exclusions,
+            }
+        } else {
+            let manifest = &case["manifest"];
+            BuildInputs {
+                manifest: ManifestEvidence { manifest_ref: &manifest["manifest_ref"], manifest_sha256: &manifest["manifest_sha256"], manifest: &manifest["manifest"] },
+                rule_check_status: case.get("rule_check_status"),
+                load_basis_refs: case.get("load_basis_refs"),
+                rule_pack_exclusions: &exclusions,
+            }
+        };
+        let rows = parsed.get("results").and_then(Value::as_array).cloned().unwrap_or_default();
+        let before = persisted_before(&mut parsed.clone(), None, &inputs);
+        let now = persisted_now(&mut parsed.clone(), None, &inputs);
+        let built = now.0.is_ok();
+        if let Some((old, new)) = compare(&id, before, now, Some(&rows), &mut misses) {
+            if built {
+                records += 1;
+                for (total, work) in [(&mut before_total, &old), (&mut now_total, &new)] {
+                    add(&mut total.preview, work.preview);
+                    add(&mut total.revision, work.revision);
+                    add(&mut total.save, work.save);
+                }
+                dropped.0 += old.preview.interpretations + old.revision.interpretations - new.preview.interpretations - new.revision.interpretations;
+                dropped.1 += old.preview.outside_nodes - new.preview.outside_nodes;
+            } else {
+                refusals += 1;
+            }
+        }
+    }
+    assert!(misses.is_empty(), "{} cases differ:\n{}", misses.len(), misses.join("\n"));
+    eprintln!("RT-U4 corpus: {records} records and {refusals} refusals compared; over the records, before {before_total:?}, now {now_total:?}");
+    assert!(records >= 40 && refusals >= 40, "{records} records, {refusals} refusals compared");
+    assert!(dropped.0 > 0 && dropped.1 > 0, "{dropped:?}");
+}
+
+/// RT-U4 (2) on invented racks: the same bytes and the claimed passes at
+/// each size, and the same refusal, in the same order, where the rows or the
+/// other members leave the checked profile or a row is uninterpretable.
+#[test]
+fn the_repaired_builder_on_racks_and_their_refusals_is_the_old_builder() {
+    let manifest = json!({"manifest_ref": {"object_type": "InputManifest", "ref": "input-manifest:rack"}, "manifest_sha256": "1".repeat(64),
+        "manifest": {"model_basis": {"model_ref": "model:rack"}, "solver_basis": {"solver_name": "invented", "solver_version": "0.0.0", "solver_build_ref": "build:rack"}}});
+    let load_basis = json!([{"object_type": "LoadCase", "ref": "case:a"}]);
+    let inputs = rack_inputs(&manifest, &load_basis);
+    let mut misses = Vec::new();
+    for rows in [1usize, 7, 300, 2_000] {
+        let (source, route) = rack(rows);
+        let results = source["results"].as_array().unwrap().clone();
+        let (before, now) = (persisted_before(&mut source.clone(), Some(route.clone()), &inputs), persisted_now(&mut source.clone(), Some(route.clone()), &inputs));
+        let (old, new) = compare(&format!("rack {rows}"), before, now, Some(&results), &mut misses).expect("the same record");
+        eprintln!("RT-U4 rack {rows}: before {old:?}, now {new:?}");
+        assert_eq!((old.preview.interpretations, new.preview.interpretations), (3 * rows as u64, 2 * rows as u64));
+        // Refusals: (row, member) edits, each alone and with an earlier refusal.
+        let unsafe_number = json!(9_007_199_254_740_993.0f64);
+        let edits: Vec<(&str, Box<dyn Fn(&mut Value)>)> = vec![
+            ("a member outside the profile", Box::new(|s: &mut Value| s["extra"] = json!({"deep": [unsafe_number.clone()]}))),
+            ("a diagnostic outside the profile", Box::new(|s: &mut Value| s["diagnostics"] = json!([{"n": unsafe_number.clone()}]))),
+            ("the last row outside the profile", Box::new(|s: &mut Value| { let last = s["results"].as_array().unwrap().len() - 1; s["results"][last]["value"] = unsafe_number.clone(); })),
+            ("a row outside and a member outside", Box::new(|s: &mut Value| { s["results"][0]["value"] = unsafe_number.clone(); s["extra"] = unsafe_number.clone(); })),
+            ("an outside row before an uninterpretable one", Box::new(|s: &mut Value| { let last = s["results"].as_array().unwrap().len() - 1; s["results"][0]["value"] = unsafe_number.clone(); s["results"][last]["unit"] = json!("m"); })),
+            ("an uninterpretable row and a member outside", Box::new(|s: &mut Value| { s["results"][0]["unit"] = json!("m"); s["extra"] = unsafe_number.clone(); })),
+            ("diagnostics not a list and a member outside", Box::new(|s: &mut Value| { s["diagnostics"] = json!({"n": unsafe_number.clone()}); s["extra"] = unsafe_number.clone(); })),
+            ("duplicate row ids", Box::new(|s: &mut Value| { let last = s["results"].as_array().unwrap().len() - 1; s["results"][last]["id"] = json!("result:r0"); })),
+        ];
+        for (what, edit) in &edits {
+            let mut edited = source.clone();
+            edit(&mut edited);
+            let results = edited["results"].as_array().unwrap().clone();
+            let (before, now) = (persisted_before(&mut edited.clone(), Some(route.clone()), &inputs), persisted_now(&mut edited.clone(), Some(route.clone()), &inputs));
+            let refused = now.0.as_ref().err().cloned();
+            compare(&format!("rack {rows}: {what}"), before, now, Some(&results), &mut misses);
+            if !(rows == 1 && *what == "duplicate row ids") {
+                assert!(refused.is_some(), "rack {rows}: {what} is refused");
+            }
+        }
+    }
+    assert!(misses.is_empty(), "{} differ:\n{}", misses.len(), misses.join("\n"));
+}
 
 /// The native verdict command (`read_preview_mechanics_job_verdict`) in this
 /// thread, as the session's registration and standing call it.
