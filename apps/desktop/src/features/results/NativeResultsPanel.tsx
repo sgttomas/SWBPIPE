@@ -538,8 +538,11 @@ export function NativeResultsPanel({
         onChooseCase={(caseKey) => chooseCase(caseKey)}
       />
       <NativeResultDetail result={result} semanticsOf={semanticsOf} selectedResultId={selectedResultId} selected={selected} analysisRun={analysisRun} exportEndpointPair={async (pair) => {
-        const rows = await Promise.all(pair.map(async (item) => {
-          const quantity: DisplaySourceQuantity = { value: item.value, unit: item.unit, dimension_id: item.dimension ?? "unknown" };
+        // Each row's dimension from its row semantics under the handle's table, as the whole-value
+        // export reads `semanticDimension(row, result, recordedTableRead)`.
+        const pairLabels = labelsOf(pair, await semanticsOf(pair.map((entry) => entry.ordinal)));
+        const rows = await Promise.all(pair.map(async ({ row: item }) => {
+          const quantity: DisplaySourceQuantity = { value: item.value, unit: item.unit, dimension_id: pairLabels.dimension(item) ?? "unknown" };
           return { location: item.metadata?.location ?? "summary", resultId: item.id, fallback: `${item.value} ${item.unit}`, quantity, display: await displayResolver.resolve(quantity) };
         }));
         return endpointPairCsv({
@@ -650,31 +653,38 @@ function refusalText(error: unknown): string {
   return error instanceof NativeQueryRefused ? `the native result query was refused: ${error.message}` : nativeFailureText(error);
 }
 
-/** The selected row's detail, from the panel's bounded lookup: its members, its source rows' ids,
- * and its endpoint pair (the same entity's end rows of the same component, frame and basis, by query). */
+/** The selected row's endpoint pair (the same entity's end rows of the same component, frame and
+ * basis, by query), admitted by the selected row's family from its row semantics. */
 export async function readNativeEndpointPair(result: NativeResult, row: Row, ordinal: number, semanticsOf: (ordinals: readonly number[]) => Promise<readonly RowSemanticsOutcome[]> = (ordinals) => readNativeRowSemantics(result, ordinals)): Promise<Row[]> {
+  return (await readNativeEndpointPairRows(result, row, ordinal, semanticsOf)).map((entry) => entry.row);
+}
+
+/** [`readNativeEndpointPair`] with each row's ordinal, so its semantics can be read (its export). */
+async function readNativeEndpointPairRows(result: NativeResult, row: Row, ordinal: number, semanticsOf: (ordinals: readonly number[]) => Promise<readonly RowSemanticsOutcome[]> = (ordinals) => readNativeRowSemantics(result, ordinals)): Promise<DetailRow[]> {
   const metadata = row.metadata;
   if (!metadata || !["end_i", "end_j"].includes(metadata.location)) return [];
   const [semantics] = await semanticsOf([ordinal]);
   const family = semantics?.ok && semantics.signature?.category === "physical_quantity" ? semantics.signature.family : null;
   if (family !== "force" && family !== "moment" && family !== "stress") return [];
-  const pair: Row[] = [];
+  const pair: DetailRow[] = [];
   for (const station of ["end_i", "end_j"]) {
     for await (const page of resultRowPages(nativeQueryInvoke(result), nativeCustody(result).jobId, { entities: [row.entity_ref], station })) {
-      pair.push(...page.rows.map((entry) => entry.row).filter((candidate) => candidate.metadata?.component === metadata.component
+      pair.push(...page.rows.filter(({ row: candidate }) => candidate.metadata?.component === metadata.component
         && candidate.metadata?.coordinate_system === metadata.coordinate_system && candidate.metadata?.basis === metadata.basis));
     }
   }
   return pair.length >= 2 ? pair : [];
 }
 
-function NativeResultDetail({ result, semanticsOf, selectedResultId, selected, analysisRun, exportEndpointPair }: { result: NativeResult; semanticsOf: (ordinals: readonly number[]) => Promise<readonly RowSemanticsOutcome[]>; selectedResultId: string | null; selected: ReadRow | null; analysisRun: SessionAnalysisRun | null; exportEndpointPair: (pair: Row[]) => Promise<CsvExport> }) {
-  const [pairRead, setPairRead] = useState<{ of: ReadRow; pair: Row[]; error?: string } | null>(null);
+/** The selected row's detail, from the panel's bounded lookup: its members, its source rows' ids,
+ * and its endpoint pair. */
+function NativeResultDetail({ result, semanticsOf, selectedResultId, selected, analysisRun, exportEndpointPair }: { result: NativeResult; semanticsOf: (ordinals: readonly number[]) => Promise<readonly RowSemanticsOutcome[]>; selectedResultId: string | null; selected: ReadRow | null; analysisRun: SessionAnalysisRun | null; exportEndpointPair: (pair: readonly DetailRow[]) => Promise<CsvExport> }) {
+  const [pairRead, setPairRead] = useState<{ of: ReadRow; pair: DetailRow[]; error?: string } | null>(null);
   useEffect(() => {
     if (!selected) return;
     let live = true;
     (async () => {
-      const pair = selected.row && selected.ordinal !== null ? await readNativeEndpointPair(result, selected.row, selected.ordinal, semanticsOf) : [];
+      const pair = selected.row && selected.ordinal !== null ? await readNativeEndpointPairRows(result, selected.row, selected.ordinal, semanticsOf) : [];
       if (live) setPairRead({ of: selected, pair });
     })().catch((error) => { if (live) setPairRead({ of: selected, pair: [], error: `The endpoint pair could not be read: ${refusalText(error)}` }); });
     return () => { live = false; };
@@ -695,7 +705,7 @@ function NativeResultDetail({ result, semanticsOf, selectedResultId, selected, a
         <section className="endpoint-pair" aria-label="Endpoint pair results" data-testid="endpoint-pair-table">
           <CsvExportControl tableLabel="Endpoint pair results" testId="endpoint-pair-export-csv" build={() => exportEndpointPair(read.pair)} />
           <table data-csv-export={ENDPOINT_PAIR_CSV_KIND}>
-            <tbody>{read.pair.map((item) => <tr key={item.id}><td>{item.metadata?.location}</td><td>{item.id}</td><td>{item.value} {item.unit}</td></tr>)}</tbody>
+            <tbody>{read.pair.map(({ row: item }) => <tr key={item.id}><td>{item.metadata?.location}</td><td>{item.id}</td><td>{item.value} {item.unit}</td></tr>)}</tbody>
           </table>
         </section>
       ) : null}
