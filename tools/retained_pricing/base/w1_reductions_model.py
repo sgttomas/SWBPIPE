@@ -91,7 +91,13 @@ RF_PINS = {
 # case_rows); the L5 guard, shadow, insert and call texts are unchanged; no reduction's owner or lifetime changes.
 REDUCED_PINS = {
     # DEL-04-09 I2a D3 (§8.43): lib.rs only appends `mod modal;`; no reduction's owner or lifetime changes.
-    "core/product_physics/src/lib.rs": "d8bffa0d5ffb138581de849580471d8abc2c8c5e764b070bc9ac3a2bdc35af91",
+    # DEL-04-09 I2b-2 D3 (§8.43): the decision-B seam (LoadCaseSolve.nonlinear_state, the qualification element,
+    # capture_nonlinear_state_evidence) changes no reduction's owner or lifetime; the L5 texts are unchanged.
+    # I2b-2 layout (§8.43, cc160d28d; Agent 0): ordinary layout of the same hunks (token-equal but for block-wrapped
+    # arms and trailing commas); no reduction's owner or lifetime changes, the L5 texts are unchanged.
+    # I2b-2 on RT-U4's candidate (§8.48, merge of 41cf15b95): lib.rs carries both of the above; no reduction's owner
+    # or lifetime changes, and the L5 texts are unchanged.
+    "core/product_physics/src/lib.rs": "f2ced8d7ff2fffe3493bac21164b738798c1faef74f752f13c2f3a5e0fa76d80",
     "core/product_physics/src/retained_wire.rs": "1e1e60a02279771574f84df2b45628622936774a879a092842faa1e2f5f0f937",
     "core/product_physics/src/certified_publication.rs": "89cdb23e172136b55ff980f7d4a4cd3643e43894fb2a9ad40c92fd3cd4adcf87",
     "core/product_physics/src/certified_loads.rs": "da7d3decc3a0170da65b38670ec215aaebdb9d8d799e3c76e41879a80589bc73",
