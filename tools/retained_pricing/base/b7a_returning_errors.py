@@ -61,16 +61,21 @@ SOURCES = {
 # DEL-04-09 I2b-2 layout (§8.43, cc160d28d; Agent 0's ordinary layout of the seam's hunks): every lib.rs
 # owner, site and caller moves with unchanged text (+2 to the case solve, +26 after the nonlinear loop); no owner
 # gains a caller.
+# RT-A4 D3 (§8.46): every lib.rs owner, site and caller moves with unchanged text (+7 to the case solve: `mod
+# combination_plan;` and the derivation call; +10 after it: the import line's growth and the modulus-basis records'
+# plan); retained_product.rs and membrane_publication_range.rs are unchanged; no owner gains a caller.
+# I2b-2 on RT-U4's candidate (§8.48): every lib.rs owner, site and caller carries both moves (+9 to the case solve, +36
+# after the nonlinear loop), mapped line by line from the merge base 6c3cb46d3; unchanged text; no owner gains a caller.
 SITES = [
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 12132,
+    "line": 12142,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:12090:exact_straight_summary_extrema",
-    "short": "lib.rs:12132",
-    "from": "lib.rs:12090:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:12100:exact_straight_summary_extrema",
+    "short": "lib.rs:12142",
+    "from": "lib.rs:12100:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:5260:solve_prepared_load_case",
+      "core/product_physics/src/lib.rs:5267:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
       "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
       'core/product_physics/src/retained_product.rs:6191:prepared_maxima'
@@ -78,13 +83,13 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 12138,
+    "line": 12148,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:12090:exact_straight_summary_extrema",
-    "short": "lib.rs:12138",
-    "from": "lib.rs:12090:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:12100:exact_straight_summary_extrema",
+    "short": "lib.rs:12148",
+    "from": "lib.rs:12100:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:5260:solve_prepared_load_case",
+      "core/product_physics/src/lib.rs:5267:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
       "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
       'core/product_physics/src/retained_product.rs:6191:prepared_maxima'
@@ -92,13 +97,13 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 12801,
+    "line": 12811,
     "kind": "to_string",
-    "owner": "core/product_physics/src/lib.rs:12782:recover_curved_bend_local_forces",
-    "short": "lib.rs:12801",
-    "from": "lib.rs:12782:recover_curved_bend_local_forces",
+    "owner": "core/product_physics/src/lib.rs:12792:recover_curved_bend_local_forces",
+    "short": "lib.rs:12811",
+    "from": "lib.rs:12792:recover_curved_bend_local_forces",
     "parents": [
-      "core/product_physics/src/lib.rs:5260:solve_prepared_load_case"
+      "core/product_physics/src/lib.rs:5267:solve_prepared_load_case"
     ]
   },
   {
@@ -192,8 +197,12 @@ MODE_SOURCE = {
            "05db53622d4f17055f36694281ba1c1096db5fcc6e675ad9f5fe661ac6b945fd",
            # Model document 0.9.0 S2 (§8.40): only retained_w1 moves 4044 -> 4093 (the closed wind wire precedes it).
            "d6c252a24716d822a1efc8b3f3cf123927cc1664550656e9634ae6c5f20398cc",
+           # RT-A4 D3 (§8.46): only retained_w1 moves 4093 -> 4100 (`mod combination_plan;` and the derivation call).
+           "0645bdbb6a47522c502f063d3a55592a91771b127f1dc0c25f5a7fa760df0028",
            # DEL-04-09 I2b-2 layout (§8.43, cc160d28d): only retained_w1 moves 4093 -> 4095 (LoadCaseSolve's field lines).
-           "f46428f2d45e7f8b0eeb8146088dbcba51de859df59254b47f0115d62bd13eff"},
+           "f46428f2d45e7f8b0eeb8146088dbcba51de859df59254b47f0115d62bd13eff",
+           # DEL-04-09 I2b-2 on RT-U4's candidate (§8.48): only retained_w1 moves 4093 -> 4102 (both of the above).
+           "5e0e619dd96c9c104cfb90bc952736836e4618f5a86d87c48e500717a5920b6d"},
 }
 
 

@@ -96,8 +96,8 @@ use open_pipe_stress_linear_supports::{
     SupportQuantity,
 };
 use open_pipe_stress_load_case_algebra::{
-    evaluate_linear_combination, evaluate_range_envelope, evaluate_result_state_subtraction,
-    AlgebraOperand, AlgebraQuantity, AlgebraResult, AnalysisStatus as AlgebraAnalysisStatus,
+    evaluate_absolute_sum, evaluate_linear_combination, evaluate_range_envelope, evaluate_result_state_subtraction, evaluate_srss,
+    AlgebraOperand, AlgebraQuantity, AnalysisStatus as AlgebraAnalysisStatus,
     CombinationTerm, RangeMode,
 };
 use open_pipe_stress_nonlinear_integration::structural_adapter::{
@@ -159,6 +159,7 @@ mod pressure_exact;
 mod pressure_material;
 mod exact_admission;
 mod exact_combinations;
+mod combination_plan;
 mod bend_pressure;
 mod u4b_rows;
 mod joint;
@@ -3515,6 +3516,12 @@ fn run_linear_static_preview_observed_inner(
         Some(rendered) if combining => preview_physics::append_operand_standing(&model, rendered, &preview_gates),
         _ => Vec::new(),
     };
+    // RT-A4 (absolute-sum-srss §10.3): what a reader without the model needs to re-derive
+    // the unsigned and nested combinations; none for a flat document.
+    let preview_derivation = match &preview {
+        Some(rendered) if combining => preview_physics::combination_derivation(&model, rendered, &preview_gates),
+        _ => None,
+    };
     // W-16 slice b (DEL-05-02 Design `exact-combinations.md`): an exact-route
     // document's combinations, formed from its published case rows and evidence
     // (a document with a combination is never source-selected).
@@ -3651,7 +3658,7 @@ fn run_linear_static_preview_observed_inner(
     }
     if let (Some(rendered), Some(basis)) = (&preview, preview_basis) {
         envelope.formulation_basis = basis;
-        validation::state_applied_branch_factors(&model.components, &rendered.preview_cases, &mut envelope.diagnostics); envelope.contract_evidence = Some(rendered.evidence(preview_gates));
+        validation::state_applied_branch_factors(&model.components, &rendered.preview_cases, &mut envelope.diagnostics); envelope.contract_evidence = Some(rendered.evidence(preview_gates, preview_derivation));
     }
     preview_physics::state_operand_standing(&mut envelope, preview_operands);
     // B4/D1 (b): only an exact-route composite is ever selected (`source_eligible`).
@@ -11742,7 +11749,10 @@ fn append_combination_modulus_basis_records(model: &PreviewModel, results: &mut 
                 .map(|metadata| (item.entity_ref.clone(), metadata.basis.clone()))
         })
         .collect::<HashMap<_, _>>();
-    for combination in &model.combinations {
+    // In evaluation order (absolute-sum-srss §2), as the combinations' rows; a flat
+    // document's order is its array order.
+    let plan = combination_plan::Plan::new(model);
+    for combination in plan.order.iter().map(|&index| &model.combinations[index]) {
         let operand_ids: Vec<&str> = match combination.basis.as_str() {
             "result_state_subtraction" => combination
                 .minuend_id
@@ -14729,10 +14739,19 @@ fn station_id_location(location: &str) -> &str {
     }
 }
 
-/// Per-basis combination expression over solved load-case result rows;
-/// the variants mirror `open_pipe_stress_load_case_algebra::AlgebraExpression`.
+/// Per-basis combination expression over solved result rows; the variants mirror
+/// `open_pipe_stress_load_case_algebra::AlgebraExpression`. Its operands are load
+/// cases or, from model document 0.9.0, combinations (`combination_plan::Target`).
 enum CombinationExpression<'a> {
     Mechanics {
+        terms: &'a [PreviewCombinationTerm],
+    },
+    /// DEL-05-02 `absolute-sum-srss-combinations.md` §3: A = RN(Σ|fᵢ·xᵢ|).
+    AbsoluteSum {
+        terms: &'a [PreviewCombinationTerm],
+    },
+    /// §3: R = RN(√Σ RN(fᵢ·xᵢ)²).
+    Srss {
         terms: &'a [PreviewCombinationTerm],
     },
     ResultStateSubtraction {
@@ -14745,6 +14764,18 @@ enum CombinationExpression<'a> {
     },
 }
 
+/// §4: the sign conventions of the unsigned bases and of decision OQ-1's rows.
+pub(crate) const ABSOLUTE_SUM_SIGN: &str =
+    "unsigned value: the absolute sum of |factor × source result| over explicit user terms; not an equilibrium state";
+pub(crate) const SRSS_SIGN: &str =
+    "unsigned value: the square root of the sum of squares of factor × source result over explicit user terms; not an equilibrium state";
+pub(crate) const MECHANICS_SIGN: &str =
+    "positive value follows explicit user linear combination of matching source result sign conventions";
+/// §5.2 (decision OQ-1): a solved state plus derived increments in a model with
+/// nonlinear supports.
+pub(crate) const SOLVED_STATE_PLUS_INCREMENTS_SIGN: &str =
+    "positive value follows explicit user linear combination of matching source result sign conventions; a solved state plus derived differences or bounds; not an equilibrium state";
+
 impl<'a> CombinationExpression<'a> {
     /// Structural shape problems are blocked pre-solve by
     /// `validate_combinations`; an unresolvable shape here is unreachable for
@@ -14752,12 +14783,15 @@ impl<'a> CombinationExpression<'a> {
     /// guard (the named blocking diagnostic already exists).
     fn resolve(combination: &'a PreviewCombination) -> Option<Self> {
         match combination.basis.as_str() {
-            "mechanics" => {
+            "mechanics" | "absolute_sum" | "srss" => {
                 if combination.terms.is_empty() {
                     return None;
                 }
-                Some(Self::Mechanics {
-                    terms: &combination.terms,
+                let terms = &combination.terms;
+                Some(match combination.basis.as_str() {
+                    "mechanics" => Self::Mechanics { terms },
+                    "absolute_sum" => Self::AbsoluteSum { terms },
+                    _ => Self::Srss { terms },
                 })
             }
             "result_state_subtraction" => Some(Self::ResultStateSubtraction {
@@ -14779,73 +14813,97 @@ impl<'a> CombinationExpression<'a> {
         }
     }
 
-    /// Operand load-case ids in the deterministic order used for source
-    /// lookup and `source_result_refs` (mechanics: authored term order;
-    /// subtraction: minuend then subtrahend; range: sorted operand ids,
-    /// matching the algebra crate's evaluation order).
-    fn operand_ids(&self) -> Vec<&str> {
+    /// The operands in the deterministic order used for source lookup and
+    /// `source_result_refs` (terms: authored order; subtraction: minuend then
+    /// subtrahend; range: sorted operand ids, the algebra crate's evaluation
+    /// order). A term names its operand by kind; an id resolves to the load case
+    /// when one has it, and to a combination otherwise (§2).
+    fn targets<'s>(&'s self, operands: &combination_plan::Resolver<'_>) -> Vec<combination_plan::Target<'s>> {
+        use combination_plan::Target;
         match self {
-            Self::Mechanics { terms } => terms.iter().map(|term| term.load_case.as_str()).collect(),
-            Self::ResultStateSubtraction {
-                minuend_id,
-                subtrahend_id,
-            } => vec![minuend_id, subtrahend_id],
-            Self::RangeEnvelope {
-                ordered_operand_ids,
-                ..
-            } => ordered_operand_ids.iter().map(String::as_str).collect(),
+            Self::Mechanics { terms } | Self::AbsoluteSum { terms } | Self::Srss { terms } => terms
+                .iter()
+                .map(|term| match &term.combination {
+                    Some(id) => Target::Combination(id.as_str()),
+                    None => Target::Case(term.load_case.as_str()),
+                })
+                .collect(),
+            Self::ResultStateSubtraction { minuend_id, subtrahend_id } => vec![operands.target(minuend_id), operands.target(subtrahend_id)],
+            Self::RangeEnvelope { ordered_operand_ids, .. } => ordered_operand_ids.iter().map(|id| operands.target(id)).collect(),
         }
     }
 
-    /// The operand whose row supplies result identity (kind, unit, entity,
-    /// metadata) for the combined row.
-    fn reference_operand_id(&self) -> &str {
-        match self {
-            Self::Mechanics { terms } => terms[0].load_case.as_str(),
-            Self::ResultStateSubtraction { minuend_id, .. } => minuend_id,
-            Self::RangeEnvelope {
-                ordered_operand_ids,
-                ..
-            } => ordered_operand_ids[0].as_str(),
+    /// The value of one combined row from its operand values, in `targets()`
+    /// order; `None` when the algebra refuses it (a `NonRepresentable` unsigned
+    /// result included), which withholds the row as "load-case algebra refused".
+    /// Terms are keyed by position, since a load case and a combination may share
+    /// an id; a subtraction's and an envelope's authored ids are distinct and keep
+    /// the envelope's tie order by operand id.
+    fn evaluate_values(&self, values: &[f64], dimension: LoadDimension) -> Option<f64> {
+        let tokens: Vec<String> = match self {
+            Self::ResultStateSubtraction { minuend_id, subtrahend_id } => vec![minuend_id.to_string(), subtrahend_id.to_string()],
+            Self::RangeEnvelope { ordered_operand_ids, .. } => ordered_operand_ids.clone(),
+            _ => (0..values.len()).map(|index| index.to_string()).collect(),
+        };
+        if tokens.len() != values.len() {
+            return None;
         }
+        let operands = tokens
+            .iter()
+            .zip(values)
+            .map(|(token, value)| {
+                AlgebraQuantity::new(*value, dimension).ok().map(|quantity| {
+                    AlgebraOperand::new(
+                        token.clone(),
+                        token.clone(),
+                        quantity,
+                        vec![AlgebraAnalysisStatus::MechanicsSolved, AlgebraAnalysisStatus::HumanReviewRequired],
+                    )
+                })
+            })
+            .collect::<Option<Vec<_>>>()?;
+        let by_id: HashMap<&str, &AlgebraOperand> = operands.iter().map(|o| (o.operand_id.as_str(), o)).collect();
+        let term_list = |terms: &[PreviewCombinationTerm]| -> Vec<CombinationTerm> {
+            terms.iter().zip(&tokens).filter_map(|(term, token)| CombinationTerm::new(token.clone(), term.factor).ok()).collect()
+        };
+        let algebra = match self {
+            Self::Mechanics { terms } => evaluate_linear_combination(&by_id, &term_list(terms)),
+            Self::AbsoluteSum { terms } => evaluate_absolute_sum(&by_id, &term_list(terms)),
+            Self::Srss { terms } => evaluate_srss(&by_id, &term_list(terms)),
+            Self::ResultStateSubtraction { minuend_id, subtrahend_id } => evaluate_result_state_subtraction(&by_id, minuend_id, subtrahend_id),
+            Self::RangeEnvelope { ordered_operand_ids, mode } => evaluate_range_envelope(&by_id, ordered_operand_ids, *mode),
+        };
+        if algebra.is_blocked() {
+            return None;
+        }
+        algebra.quantity.map(|q| q.value)
     }
 
-    fn evaluate(&self, operand_by_id: &HashMap<&str, &AlgebraOperand>) -> AlgebraResult {
-        match self {
-            Self::Mechanics { terms } => {
-                let algebra_terms = terms
-                    .iter()
-                    .filter_map(|term| {
-                        CombinationTerm::new(term.load_case.clone(), term.factor).ok()
-                    })
-                    .collect::<Vec<_>>();
-                evaluate_linear_combination(operand_by_id, &algebra_terms)
-            }
-            Self::ResultStateSubtraction {
-                minuend_id,
-                subtrahend_id,
-            } => evaluate_result_state_subtraction(operand_by_id, minuend_id, subtrahend_id),
-            Self::RangeEnvelope {
-                ordered_operand_ids,
-                mode,
-            } => evaluate_range_envelope(operand_by_id, ordered_operand_ids, *mode),
-        }
+    /// §3: an absolute sum or SRSS, whose results are unsigned and whose
+    /// non-representable values withhold their rows (never an infinity).
+    fn is_unsigned(&self) -> bool {
+        matches!(self, Self::AbsoluteSum { .. } | Self::Srss { .. })
     }
 
     fn result_metadata_basis(&self) -> &'static str {
         match self {
             Self::Mechanics { .. } => "explicit_user_linear_combination",
+            Self::AbsoluteSum { .. } => "explicit_user_absolute_sum",
+            Self::Srss { .. } => "explicit_user_srss",
             Self::ResultStateSubtraction { .. } => "explicit_user_result_state_subtraction",
             Self::RangeEnvelope { .. } => "explicit_user_range_envelope",
         }
     }
 
-    fn result_sign_convention(&self) -> String {
+    /// The sign convention of a combined row (a subtraction's is the route's
+    /// `SUBTRACTION_SIGN`). `solved_state_plus_increments` is decision OQ-1's
+    /// admission of a mechanics combination in a model with nonlinear supports.
+    fn result_sign_convention(&self, solved_state_plus_increments: bool) -> String {
         match self {
-            Self::Mechanics { .. } => {
-                "positive value follows explicit user linear combination of matching source result sign conventions"
-                    .to_string()
-            }
+            Self::Mechanics { .. } if solved_state_plus_increments => SOLVED_STATE_PLUS_INCREMENTS_SIGN.to_string(),
+            Self::Mechanics { .. } => MECHANICS_SIGN.to_string(),
+            Self::AbsoluteSum { .. } => ABSOLUTE_SUM_SIGN.to_string(),
+            Self::Srss { .. } => SRSS_SIGN.to_string(),
             Self::ResultStateSubtraction { .. } => {
                 "positive value follows explicit user result-state subtraction (minuend minus subtrahend) of matching source result sign conventions"
                     .to_string()
@@ -14858,26 +14916,52 @@ impl<'a> CombinationExpression<'a> {
     }
 }
 
+/// An operand's row under a base id: a load case's from the case rows, a
+/// combination's from the rows it published (§4, nested operands).
+type OperandRows<'r> = dyn Fn(&str, combination_plan::Target<'_>) -> Option<&'r ResultItem> + 'r;
+
+/// RT-A4 (absolute-sum-srss §4): the metadata of a combination's
+/// `displacement_magnitude` row where its derivation must be stated, on an unsigned
+/// basis or with a combination operand. A load case's row carries none, and so does
+/// a flat combination's, exactly as before (V-8). The physical identity of such a
+/// row is its kind, unit and node; these fields only state its derivation.
+pub(crate) fn derived_magnitude_metadata(basis: &str, sign_convention: &str) -> ResultMetadata {
+    ResultMetadata {
+        component: "displacement_magnitude".to_string(),
+        coordinate_system: "global".to_string(),
+        location: "node".to_string(),
+        basis: basis.to_string(),
+        sign_convention: sign_convention.to_string(),
+    }
+}
+
 /// A combination's `displacement_magnitude` row: the norm of the combined signed
-/// global displacement components (the only caller's reference kind).
+/// global displacement components (the only caller's reference kind). On an
+/// unsigned basis a norm outside the binary64 range is withheld into `withheld` as
+/// "load-case algebra refused" (absolute-sum-srss §3, §6), never published as an
+/// infinity; a linear combination keeps today's rule. `derived` states the row's
+/// derivation in its metadata (`derived_magnitude_metadata`).
+#[allow(clippy::too_many_arguments)]
 fn append_combined_vector_magnitude(
     combination: &PreviewCombination,
     expression: &CombinationExpression<'_>,
+    sign_convention: &str,
+    derived: bool,
+    targets: &[combination_plan::Target<'_>],
     base_id: &str,
     reference: &ResultItem,
-    rows: &HashMap<String, HashMap<String, ResultItem>>,
+    rows: &OperandRows<'_>,
     results: &mut Vec<ResultItem>,
+    withheld: &mut Vec<String>,
     diagnostics: &mut Vec<Diagnostic>,
 ) {
     let mut vector = [0.0; 3];
     let mut source_refs = Vec::new();
     for (axis, suffix) in ["ux", "uy", "uz"].iter().enumerate() {
         let component_id = format!("{base_id}:{suffix}");
-        let mut operands = Vec::new();
-        for case in expression.operand_ids() {
-            let value = rows
-                .get(&component_id)
-                .and_then(|cases| cases.get(case))
+        let mut values = Vec::new();
+        for target in targets {
+            let value = rows(&component_id, *target)
                 .filter(|row| {
                     row.entity_ref == reference.entity_ref
                         && row.unit == reference.unit
@@ -14889,29 +14973,16 @@ fn append_combined_vector_magnitude(
                             ][axis]
                 })
                 .map(|row| row.value);
-            if let Some(value) = value.and_then(|v| AlgebraQuantity::new(v, LoadDimension::Displacement).ok()) {
-                operands.push(AlgebraOperand::new(
-                    case.to_string(),
-                    case.to_string(),
-                    value,
-                    vec![
-                        AlgebraAnalysisStatus::MechanicsSolved,
-                        AlgebraAnalysisStatus::HumanReviewRequired,
-                    ],
-                ));
+            if let Some(value) = value.filter(|v| AlgebraQuantity::new(*v, LoadDimension::Displacement).is_ok()) {
+                values.push(value);
             } else {
                 diagnostics.push(combination_diag(combination, base_id, "LOAD_COMBINATION_VECTOR_COMPONENT_MISSING", "warning",
                     "combined magnitude withheld because a signed source vector component is unavailable",
-                    vec![combination.id.clone(), case.to_string(), reference.entity_ref.clone()]));
+                    vec![combination.id.clone(), target.id().to_string(), reference.entity_ref.clone()]));
                 return;
             }
         }
-        let by_id = operands
-            .iter()
-            .map(|operand| (operand.operand_id.as_str(), operand))
-            .collect();
-        let algebra = expression.evaluate(&by_id);
-        if algebra.is_blocked() || algebra.quantity.is_none() {
+        let Some(value) = expression.evaluate_values(&values, LoadDimension::Displacement) else {
             diagnostics.push(combination_diag(
                 combination,
                 base_id,
@@ -14921,21 +14992,29 @@ fn append_combined_vector_magnitude(
                 vec![combination.id.clone(), reference.id.clone()],
             ));
             return;
-        }
-        vector[axis] = algebra.quantity.unwrap().value;
+        };
+        vector[axis] = value;
         source_refs.push(qualified_combination_result_id(
             &combination.id,
             &component_id,
         ));
     }
+    let value = norm3(vector[0], vector[1], vector[2]);
+    if expression.is_unsigned() && !value.is_finite() {
+        withheld.push(format!("{base_id} (load-case algebra refused)"));
+        return;
+    }
     let mut combined = reference.clone();
     combined.id = qualified_combination_result_id(&combination.id, base_id);
-    combined.value = norm3(vector[0], vector[1], vector[2]);
+    combined.value = value;
     combined.basis_ref = Some(ResultBasisRef {
         ref_type: "combination".to_string(),
         ref_id: combination.id.clone(),
     });
     combined.source_result_refs = source_refs;
+    if derived {
+        combined.metadata = Some(derived_magnitude_metadata(expression.result_metadata_basis(), sign_convention));
+    }
     results.push(combined);
 }
 
@@ -24282,9 +24361,13 @@ mod tests {
         let base_id = "result:disp:node-N-110";
         let reference = rows[base_id][&case].clone();
         assert_eq!((reference.kind.as_str(), reference.entity_ref.as_str()), ("displacement_magnitude", "node:N-110"));
+        let targets = [combination_plan::Target::Case(case.as_str())];
         let run = |rows: &HashMap<String, HashMap<String, ResultItem>>| {
             let (mut results, mut diagnostics) = (Vec::new(), Vec::new());
-            append_combined_vector_magnitude(combination, &expression, base_id, &reference, rows, &mut results, &mut diagnostics);
+            let lookup = |base: &str, target: combination_plan::Target<'_>| rows.get(base).and_then(|cases| cases.get(target.id()));
+            let mut withheld = Vec::new();
+            append_combined_vector_magnitude(combination, &expression, MECHANICS_SIGN, false, &targets, base_id, &reference, &lookup, &mut results, &mut withheld, &mut diagnostics);
+            assert!(withheld.is_empty());
             (results, diagnostics)
         };
         // Control: complete components publish the magnitude (one factor-1 term reproduces the case's own value).

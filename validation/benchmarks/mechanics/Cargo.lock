@@ -109,6 +109,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "open_pipe_stress_load_case_algebra"
+version = "0.1.0"
+dependencies = [
+ "open_pipe_stress_frame_kernel",
+ "open_pipe_stress_primitive_loads",
+]
+
+[[package]]
 name = "open_pipe_stress_mechanics_benchmarks"
 version = "0.1.0"
 dependencies = [
@@ -138,6 +146,7 @@ version = "0.1.0"
 dependencies = [
  "open_pipe_stress_canonical_json",
  "open_pipe_stress_correct_norm",
+ "open_pipe_stress_load_case_algebra",
  "open_pipe_stress_units",
  "serde_json",
  "sha2",

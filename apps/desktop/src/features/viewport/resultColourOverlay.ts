@@ -124,6 +124,65 @@ export const RESULT_COLOUR_QUANTITIES: readonly ResultColourQuantity[] = Object.
 /** Range-envelope rows pick each value separately; they are never one solved state, so neither
  * overlay draws them (as the rotation glyphs do not). */
 export const RANGE_ENVELOPE_BASIS = "explicit_user_range_envelope";
+/** RT-A4 (DEL-05-02 `absolute-sum-srss-combinations.md` §4): an absolute sum or SRSS is an
+ * unsigned value over its terms, and decision OQ-1's mechanics rows are a solved state plus derived
+ * differences or bounds; neither is one solved state either. */
+export const ABSOLUTE_SUM_BASIS = "explicit_user_absolute_sum";
+export const SRSS_BASIS = "explicit_user_srss";
+export const SOLVED_STATE_PLUS_INCREMENTS_SIGN =
+  "positive value follows explicit user linear combination of matching source result sign conventions; a solved state plus derived differences or bounds; not an equilibrium state";
+
+export const ABSOLUTE_SUM_SIGN =
+  "unsigned value: the absolute sum of |factor × source result| over explicit user terms; not an equilibrium state";
+export const SRSS_SIGN =
+  "unsigned value: the square root of the sum of squares of factor × source result over explicit user terms; not an equilibrium state";
+/** The range-envelope sign convention's fixed part, after its mode token. */
+const RANGE_ENVELOPE_SIGN_SUFFIX =
+  " mode-selected source result across explicit user range-envelope operands and keeps that source result sign convention";
+
+export type DerivedRowNote = "range envelope" | "absolute sum, unsigned" | "SRSS, unsigned" | "solved state plus derived bounds";
+
+/** What a row is when it is not one solved state, as its own metadata states it, or null. A
+ * combination row is recognized by its sign convention as well as by its basis (RT-A4 review r1
+ * P4): the exact route's combined stress rows keep their operand rows' basis and state their
+ * derivation by `basis_ref` and sign convention only. */
+export function derivedRowNote(row: Pick<ResultRow, "metadata" | "basis_ref">): DerivedRowNote | null {
+  const basis = row.metadata?.basis;
+  const sign = row.metadata?.sign_convention;
+  const combination = row.basis_ref?.ref_type === "combination";
+  if (basis === RANGE_ENVELOPE_BASIS || (combination && sign?.startsWith("value is the ") === true && sign.endsWith(RANGE_ENVELOPE_SIGN_SUFFIX))) return "range envelope";
+  if (basis === ABSOLUTE_SUM_BASIS || (combination && sign === ABSOLUTE_SUM_SIGN)) return "absolute sum, unsigned";
+  if (basis === SRSS_BASIS || (combination && sign === SRSS_SIGN)) return "SRSS, unsigned";
+  if (sign === SOLVED_STATE_PLUS_INCREMENTS_SIGN) return "solved state plus derived bounds";
+  return null;
+}
+
+const combinationNoteCache = new WeakMap<readonly ResultRow[], ReadonlyMap<string, DerivedRowNote>>();
+
+/** Each combination's note, from any of its rows: a combination has one derivation, so a row of it
+ * that states none (a flat range envelope's displacement magnitude, which carries no metadata)
+ * takes its combination's. Keyed by `basisKey`. */
+export function combinationNotes(rows: readonly ResultRow[]): ReadonlyMap<string, DerivedRowNote> {
+  const cached = combinationNoteCache.get(rows);
+  if (cached) return cached;
+  const notes = new Map<string, DerivedRowNote>();
+  for (const row of rows) {
+    if (row.basis_ref?.ref_type !== "combination") continue;
+    const key = basisKey(row.basis_ref)!;
+    const note = derivedRowNote(row);
+    if (note !== null && !notes.has(key)) notes.set(key, note);
+  }
+  combinationNoteCache.set(rows, notes);
+  return notes;
+}
+
+/** Whether a row may be drawn as one solved state (see `derivedRowNote`); with the result's
+ * `rows`, a row also takes its combination's note (`combinationNotes`). */
+export function isOneSolvedState(row: Pick<ResultRow, "metadata" | "basis_ref">, rows?: readonly ResultRow[]): boolean {
+  if (derivedRowNote(row) !== null) return false;
+  if (!rows || row.basis_ref?.ref_type !== "combination") return true;
+  return !combinationNotes(rows).has(basisKey(row.basis_ref)!);
+}
 
 export type ResultOverlayCase = Readonly<{ key: string; basis: ResultBasisRef; label: string }>;
 
@@ -131,8 +190,8 @@ export function basisKey(basis: ResultBasisRef | undefined): string | null {
   return basis ? `${basis.ref_type}:${basis.ref_id}` : null;
 }
 
-function isDrawableRow(row: ResultRow): boolean {
-  return Number.isFinite(row.value) && row.metadata?.basis !== RANGE_ENVELOPE_BASIS && basisKey(row.basis_ref) !== null;
+function isDrawableRow(row: ResultRow, rows: readonly ResultRow[]): boolean {
+  return Number.isFinite(row.value) && isOneSolvedState(row, rows) && basisKey(row.basis_ref) !== null;
 }
 
 /** The load cases and combinations the result's rows are stated for, in the order they first
@@ -142,7 +201,7 @@ export function resultOverlayCases(model: PreviewModel, result: MechanicsResult 
   const labels = new Map(model.load_cases.map((loadCase) => [loadCase.id, loadCase.label] as const));
   const seen = new Map<string, ResultOverlayCase>();
   for (const row of result.results) {
-    if (!isDrawableRow(row)) continue;
+    if (!isDrawableRow(row, result.results)) continue;
     const basis = row.basis_ref!;
     if (basis.ref_type !== "load_case" && basis.ref_type !== "combination") continue;
     const key = basisKey(basis)!;
@@ -224,7 +283,7 @@ export function availableResultColourQuantities(
   const index = memberIndex(model, result);
   return [
     ...RESULT_COLOUR_QUANTITIES.filter((quantity) =>
-      result.results.some((row) => row.kind === quantity.kind && isDrawableRow(row) && membersOf(row, quantity.attachment, index).length > 0)),
+      result.results.some((row) => row.kind === quantity.kind && isDrawableRow(row, result.results) && membersOf(row, quantity.attachment, index).length > 0)),
     ...ruleRatioColourQuantities(model, ratioTable)
   ];
 }
@@ -344,7 +403,7 @@ function rowContributions(
   const contributions: Contribution[] = [];
   let heldRowCount = 0;
   for (const row of result.results) {
-    if (row.kind !== quantity.kind || row.metadata?.basis === RANGE_ENVELOPE_BASIS || basisKey(row.basis_ref) !== overlayCase.key) continue;
+    if (row.kind !== quantity.kind || !isOneSolvedState(row, result.results) || basisKey(row.basis_ref) !== overlayCase.key) continue;
     const finite = Number.isFinite(row.value);
     // One value per member reads finite rows only, as it always has; along members a non-finite
     // row at a stated station leaves that station without a value.

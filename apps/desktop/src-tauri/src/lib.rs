@@ -7763,8 +7763,8 @@ mod tests {
     fn solves_hand_the_desktop_the_producers_exact_bytes() {
         // W-7 global end rows added (12 element_global_end rows on the one member); no other byte moved.
         const PINS: [(&str, usize, &str); 2] = [
-            ("sparse_interactive", 86484, "ac3bde77f91d0a9d595b08799cae5907c8fbef78c6c4c94761514ff6967b2e0d"),
-            ("dense_scrutiny", 86510, "6da64fa02c206a88e670c75ff6b74364263c94e1ac8722a963f603ddf01ac7db"),
+            ("sparse_interactive", 87170, "d9d2a845381a2785e885b2f9befbb6c4f1d1e7780310732f58edfc7d7809f82e"),
+            ("dense_scrutiny", 87196, "a34cfcf2c4783aec57592228d418db07490516e0ce776e19cb88adb3a0f806ed"),
         ];
         let fixtures = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../fixtures/product_preview");
         let model: Value = serde_json::from_str(include_str!(

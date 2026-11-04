@@ -2402,8 +2402,10 @@ fn the_review_r9_repros_in_scratch_copies() {
         if case == "an edited pinned macro" {
             let file = "headless/src/reader_binding.rs";
             let text = sources.files.get_mut(file).unwrap();
-            assert_eq!(text.matches("required_members: &[\"source\"],\n            optional_members: $optional,").count(), 1);
-            *text = text.replacen("optional_members: $optional,", "optional_members: $optional, ", 1);
+            // RT-A4 §10.4: `transport!` also takes `$optional` now, so the edit is
+            // anchored on text only the `base!` macro holds.
+            assert_eq!(text.matches("Some(binding) => rv::validate_recorded($name,").count(), 1);
+            *text = text.replacen("Some(binding) => rv::validate_recorded($name,", "Some(binding) => rv::validate_recorded($name, ", 1);
         }
         let findings = scan(&sources);
         for expected in &expected {

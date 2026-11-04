@@ -230,12 +230,16 @@ def inspect_directed_helpers(snapshot):
 # Model document 0.9.0 D3 (§8.36): lib.rs's new members, term wire, lowering/withholding calls and snubber token add or
 # remove no `.min(`/`.max(` call.
 # DEL-04-09 I2a D3 (§8.43): lib.rs only appends `mod modal;`; it adds or removes no `.min(`/`.max(` call.
+# RT-A4 D3 (§8.46): lib.rs's combination rewrite adds or removes no `.min(`/`.max(` call; the observation lane stays
+# deleted.
 # DEL-04-09 I2b-2 D3 (§8.43): lib.rs's decision-B seam (LoadCaseSolve.nonlinear_state, the qualification element
 # and capture_nonlinear_state_evidence) adds or removes no `.min(`/`.max(` call, and the observation lane stays deleted.
 # DEL-04-09 I2b-2 layout (§8.43, cc160d28d; Agent 0): the seam's hunks in ordinary layout (one field or statement
 # per line, the qualification let broken after `=`), token-equal but for block-wrapped arms and trailing commas;
 # it adds or removes no `.min(`/`.max(` call.
-B7A_PRIMITIVE_LIB_SOURCE_PIN = '1e9e5896eee8634c6ee9a696847fe85c3047c14ed387f66dc15d8bb2b369231d'
+# DEL-04-09 I2b-2 on RT-U4's candidate (§8.48, merge of 41cf15b95): lib.rs carries both of the above; together they
+# add or remove no `.min(`/`.max(` call, and the observation lane stays deleted.
+B7A_PRIMITIVE_LIB_SOURCE_PIN = 'f2ced8d7ff2fffe3493bac21164b738798c1faef74f752f13c2f3a5e0fa76d80'
 
 
 def primitive_lib_minmax_callers(snapshot):

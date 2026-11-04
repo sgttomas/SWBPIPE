@@ -37,8 +37,11 @@ while todo:
         if w not in reach:
             reach.add(w); todo.append(w)
 
+# RT-A4 D3 (retained-pricing-rules.md §8.46, RT-A4-TK): `token` joins the names. evaluate_values copies each operand's
+# token (an operand id or its position) with `token.clone()` where the deleted preview evaluate_values used
+# `case.to_string()`; without the name the three String copies per operand would be read as data clones.
 TEXT_NAMES = re.compile(
-    r"(^|_)(id|ids|name|unit|code|message|source|label|kind|severity|reason|detail|text|location|basis|"
+    r"(^|_)(id|ids|token|name|unit|code|message|source|label|kind|severity|reason|detail|text|location|basis|"
     r"summary|sentence|key|ref_id|ref_type|entity_ref|component|coordinate_system|sign_convention|"
     r"node|material|dof|direction|dimension|category|family|provenance|schema_version|document_kind|"
     r"status|error|cause|digest|invocation|suffix|prefix|policy|refs|affected_refs|symbol|subject|"

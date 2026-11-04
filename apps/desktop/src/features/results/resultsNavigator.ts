@@ -8,14 +8,13 @@
  * passed in. No row is left out of a list for its numerical standing or health. */
 
 import type { MechanicsResult, ResultBasisRef } from "../../types";
+import { derivedRowNote } from "../viewport/resultColourOverlay";
 
 type ResultRow = MechanicsResult["results"][number];
 
 /** The case list's "every case" position and the key of rows that state no case. */
 export const ALL_CASES = "all";
 export const UNSTATED_CASE = "unstated";
-/** The range-envelope basis (`metadata.basis`), as the viewport overlays name it. */
-const RANGE_ENVELOPE_BASIS = "explicit_user_range_envelope";
 
 export type NavigatorAxis = "kind" | "case" | "entity";
 
@@ -26,6 +25,9 @@ export type NavigatorCase = Readonly<{
   basis: ResultBasisRef | null;
   /** Some row of this case is a range envelope: its values are not one solved state. */
   envelope: boolean;
+  /** RT-A4: present when the case's rows are an absolute sum or SRSS (unsigned) or a solved state
+   * plus derived bounds, which are not one solved state either. */
+  note?: string;
 }>;
 
 /** A row's case key: its `basis_ref` as `ref_type:ref_id`, or `UNSTATED_CASE`. */
@@ -43,18 +45,23 @@ function caseLabel(basis: ResultBasisRef | null): string {
 /** The cases the rows state, each once: load cases, then combinations, then other bases, each in
  * the order they first appear; rows that state none last. Every row's case is listed. */
 export function navigatorCases(rows: readonly ResultRow[]): NavigatorCase[] {
-  const seen = new Map<string, { basis: ResultBasisRef | null; envelope: boolean }>();
+  const seen = new Map<string, { basis: ResultBasisRef | null; envelope: boolean; note?: string }>();
   for (const row of rows) {
     const key = rowCaseKey(row);
     const entry = seen.get(key) ?? { basis: row.basis_ref ? { ref_type: row.basis_ref.ref_type, ref_id: row.basis_ref.ref_id } : null, envelope: false };
-    if (row.metadata?.basis === RANGE_ENVELOPE_BASIS) entry.envelope = true;
+    const note = derivedRowNote(row);
+    if (note === "range envelope") entry.envelope = true;
+    else if (note !== null && entry.note === undefined) entry.note = note;
     seen.set(key, entry);
   }
   const rank = (basis: ResultBasisRef | null) => !basis ? 3 : basis.ref_type === "load_case" ? 0 : basis.ref_type === "combination" ? 1 : 2;
   return [...seen.entries()]
     .map(([key, entry], order) => ({ key, order, ...entry }))
     .sort((a, b) => rank(a.basis) - rank(b.basis) || a.order - b.order)
-    .map(({ key, basis, envelope }) => Object.freeze({ key, basis, envelope, label: `${caseLabel(basis)}${envelope ? " (range envelope)" : ""}` }));
+    .map(({ key, basis, envelope, note }) => Object.freeze({
+      key, basis, envelope, ...(note ? { note } : {}),
+      label: `${caseLabel(basis)}${envelope ? " (range envelope)" : note ? ` (${note})` : ""}`
+    }));
 }
 
 /** The entities the rows are stated for, each once, in the order they first appear. */

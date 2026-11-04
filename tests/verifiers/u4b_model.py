@@ -8,7 +8,7 @@ from __future__ import annotations
 import math
 from typing import Any, Mapping
 
-from .u4b import SHEAR_MAX, Rows, _case, _require, bits, directional_model_checks, poisson_exempt, preview_shear_factor, shear_maximum
+from .u4b import SHEAR_MAX, Rows, _case, _metadata, _require, _text, bits, directional_model_checks, poisson_exempt, preview_shear_factor, shear_maximum
 from .units import to_canonical
 
 
@@ -60,7 +60,7 @@ def preview_model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) ->
                 continue
             for row in results:
                 if row.get("kind") == SHEAR_MAX and _case(row) == cid and row.get("entity_ref") == pid:
-                    location = row["metadata"]["location"]
+                    location = _text(_metadata(row, "location")) or ""  # Rust as_str().unwrap_or("")
                     vy = rows.any(cid, pid, "element_local_shear_force_y", location)
                     vz = rows.any(cid, pid, "element_local_shear_force_z", location)
                     _require(vy is not None and vz is not None and bits(row["value"]) == bits(shear_maximum(vy, vz, factor)), "model-bound transverse shear value")

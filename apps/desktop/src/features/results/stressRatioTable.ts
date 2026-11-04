@@ -18,7 +18,7 @@
 import type { MechanicsResult, PreviewModel, ResultBasisRef } from "../../types";
 import type { SessionRuleCheckRun } from "../report/renderableReportInput";
 import { PASCAL } from "../report/reportQuantityDisplay";
-import { RANGE_ENVELOPE_BASIS, basisKey } from "../viewport/resultColourOverlay";
+import { basisKey, derivedRowNote } from "../viewport/resultColourOverlay";
 import {
   SOLVER_SELECTOR_SECTION_BASES,
   deriveRuleCheckBindingPlan,
@@ -256,7 +256,9 @@ function stressGroups(result: MechanicsResult, cases: ReadonlyMap<string, Suppor
       entry.withheld.set(rowCase.key, held);
       return;
     }
-    const caseLabel = row.metadata?.basis === RANGE_ENVELOPE_BASIS ? `${label} (range envelope)` : label;
+    // A range envelope, an absolute sum or SRSS (unsigned), or a solved state plus derived bounds.
+    const note = derivedRowNote(row);
+    const caseLabel = note ? `${label} (${note})` : label;
     entry.rows.push(Object.freeze({
       key: row.id,
       order,

@@ -36,7 +36,7 @@ MODULE = 'core/reporting/result_export/src/physics_evidence.rs'
 UNITS = 'core/units/src/lib.rs'
 # T4-U6 (D-5, §2.4): the table's per-basis stress signatures (106 signatures, 59 kinds); T4-U5b's tie-rod force
 # and T4-U4b's (§2.2) per-basis kinds (129 signatures, 66 kinds).
-TABLE_SHA256 = 'a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e'
+TABLE_SHA256 = '10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6'
 DEPENDENCIES = {
     # T4-U6/U8 re-pins: the D-5 section bases and the Timoshenko beam theory (8bf263d6..., was 38302413...);
     # then §2.5's realized-arc marker (98bdfeee3e: arcs known by `member_kind`, refused on the composite);
@@ -57,8 +57,9 @@ DEPENDENCIES = {
     # direct pass binds the branch-intensified rows by their records (`u4b_evidence::branch_records`; was c82a0f11...);
     # then the arc-tangent direction bound (DEL-04-07 pressure-contract.md, "Direction magnitudes of arc tangents"): an
     # arc term binds its magnitude exactly to its arc's published end tangent, and joint-area groups bind only to their
-    # connector axis (was f27242f0...).
-    MODULE: 'b3cb5f6dd91b8ef45c93effdbdea3523044375d9bae7044e7d66c9d5a72a4e6b',
+    # connector axis (was f27242f0...); then RT-U4: the region binding counts the published pipe rows once per case and
+    # member instead of rescanning every row per region, with the same outcomes (was b3cb5f6d...).
+    MODULE: 'ea9273d72767bb047e29b620c53c64688d5375fbc3f2fdf585180d363e7e3356',
     TABLE: TABLE_SHA256,
     UNITS: '5a412c57ca3bdc1d150ff580354e709355f442d89971a2f7aff8b575c7e39596',
 }

@@ -187,7 +187,7 @@ NEW.update({
 # (pipe, basis)), so the extrema loops' bound is 2*m.
 O10_LOOPS_FIRST = list(O10_LOOPS_FIRST) + U6_BOTH_E
 O10_LOOPS_LAST = list(O10_LOOPS_LAST) + U6_LOOPS_E
-O10_TYPED_PATCHES = list(globals().get("O10_TYPED_PATCHES", [])) + U6_RB_PATCHES
+O10_TYPED_PATCHES = list(globals().get("O10_TYPED_PATCHES", [])) + U6_RB_PATCHES + RTA4_E_PATCHES   # RT-A4-RE (§8.46)
 if U6_D5:
     NEW['for ex in array(&case[" "])?'] = ("2*m", "RE physics_evidence.rs: an exact case's pipe_stress_extrema, one per member and "
                                            "section basis (U6-EX, D-5)")

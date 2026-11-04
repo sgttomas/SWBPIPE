@@ -473,7 +473,7 @@ describe("Compare… of runs in the History panel", () => {
 function side(name: string, overrides: Partial<RunComparisonSide> = {}): RunComparisonSide {
   return {
     kind: "recorded", id: `runrec:${name}`, description: `"${name}" (runrec:${name})`, createdAt: EARLY, state: `"After solve" (${STATE_ID})`,
-    standing: { contract: "preview_physics", status: "integrity_checked", eligible: true, findings: [] },
+    standing: { contract: "preview_physics", status: "integrity_checked", eligible: true, findings: [] }, recordedTableRead: null,
     input: { rows: [], standing: { contract: "preview_physics", status: "integrity_checked", eligible: true, findings: [] }, semantic_identity: { route: "preview_physics", contract_id: "c", contract_sha256: "s" }, context: {}, diagnostics: [] },
     ...overrides
   };

@@ -168,7 +168,8 @@ describe("the latest solve's timeline (RT-U4)", () => {
 describe("the codes the timeline keeps", () => {
   it("keeps its own codes and drops identifiers, file names and message text", () => {
     for (const kept of ["sparse_interactive", "dense_scrutiny", "completed", "refused", "SOURCE_PHYSICS_RHS_DIRECTION",
-      "SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED", "PREVIEW-SOLVE-RESULT-UTF8-INVALID", "CAPTURE_MISMATCH", "RESOURCE_UNAVAILABLE"]) {
+      "SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED", "PREVIEW-SOLVE-RESULT-UTF8-INVALID", "CAPTURE_MISMATCH", "RESOURCE_UNAVAILABLE",
+      "SOURCE_PHYSICS_SHEAR_OPERAND_AMBIGUOUS", "SOURCE_PREVIEW_PHYSICS_SHEAR_OPERAND_AMBIGUOUS"]) {
       expect(codeOrNull(kept)).toBe(kept);
     }
     for (const dropped of ["SOURCE_CUSTOMER_ACME", "ANALYSIS_PROJECT_SECRET", "SOURCE_PHYSICS_ACME_CORP", "PREVIEW-SOLVE-ACME",
