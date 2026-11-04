@@ -136,10 +136,12 @@ export function knownSemanticNotices(source: MechanicsResult | NativeResult | nu
   }
   // D2 4.9.9 UI summary: per-case counts over the registered validated classes (either
   // successor; B3b's exact successor reads pressure-2's rows since B7b D4 (a), so no preview notice above).
-  // A native result is never a retained successor (a desktop solve never publishes one).
-  if (isRetainedRoute(route) && !isNativeResult(source)) {
-    if (!retainedRowClasses(source)) notices.push({ id: "retained-precision-unvalidated", text: N_RP_UNVALIDATED });
-    for (const c of classificationSummary(source)) {
+  // A native handle is never registered: a desktop solve never publishes a successor, and a reopened
+  // one (a restored handle) never registers its receipt, so it reads as unvalidated here.
+  if (isRetainedRoute(route)) {
+    const registered = source as MechanicsResult;
+    if (!retainedRowClasses(registered)) notices.push({ id: "retained-precision-unvalidated", text: N_RP_UNVALIDATED });
+    for (const c of classificationSummary(registered)) {
       if (c.absolute_verified > 0) notices.push({ id: `retained-precision-absolute:${String(c.case_id)}`, text: `${String(c.case_id)}: ${c.absolute_verified} quantities verified only to an absolute bound, below the relative accuracy floor. Each is labelled and shown for inspection; rule checks cannot bind to them.` });
       if (c.not_covered > 0) notices.push({ id: `retained-precision-not-covered:${String(c.case_id)}`, text: `${String(c.case_id)}: ${c.not_covered} quantities uncovered: no verified accuracy for their quantity kind. Each is labelled and shown for inspection; rule checks cannot bind to them.` });
     }

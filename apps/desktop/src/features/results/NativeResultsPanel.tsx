@@ -235,7 +235,8 @@ export function NativeResultsPanel({
   // DEL-07-05: the historical panel passes no health; a reopened run then shows its own (review F2).
   const ownHealth = useMemo(() => (numericalHealth === undefined ? standaloneNativeHealth(custody) : null), [numericalHealth, custody]);
   const health = routeHealth(route, numericalHealth === undefined ? ownHealth : numericalHealth);
-  const labelSource = route === "preview_physics" ? result : null;
+  // The row labels apply to preview-physics-2 and its successors (a reopened successor included).
+  const labelSource = ["preview_physics", "retained_preview_physics", "retained_physics"].includes(route) ? result : null;
   const intensified = useNativeKindPresence(result, PREVIEW_INTENSIFIED_KIND);
   const notices = useMemo(() => knownSemanticNotices(result, recordedTableRead, { hasIntensified: intensified }), [result, recordedTableRead, intensified]);
   const recovery = custody.recovery;
