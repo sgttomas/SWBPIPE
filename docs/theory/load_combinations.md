@@ -48,6 +48,26 @@ has it, and a combination only otherwise, so a document whose operands are all l
 cases keeps its meaning. The combinations' operand graph must be acyclic. A
 subtraction declaring `difference_basis` names load cases only.
 
+**Declared operating comparison (operating-case slice 1b).** On the pressure-free
+route a `result_state_subtraction` may declare `difference_basis =
+"operating_minus_sustained"` (minuend operating, subtrahend sustained). It is the
+same subtraction, fl(O − S) row by row, gated by two warnings that withhold it:
+G-1, `EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING`, when the subtrahend case's
+primitive loads, as a multiset by content (category, target, direction,
+dimension, and the normalized magnitude's value bits and unit; ids ignored; read
+after the solve's lowering, so condition-generated primitives count), are not
+contained in the minuend case's; then G-2, `EXPANSION_BASIS_MODULUS_MIXED`, when
+the two cases' modulus-basis keys differ. Each case keeps its own solved support
+state; equal final states are not required. Its rows read "operating minus
+sustained difference: a signed difference of two independently solved states,
+… not an equilibrium state" and are never certified. The document states both
+multisets (`difference_basis_derivation`). A reader with the model re-derives
+G-1 from the model; a reader without it re-derives the verdict from those two
+multisets, which checks the record's internal derivation, not that the record is
+true to the model: a coherent forgery cannot be authenticated without the model
+(DEL-05-02 Work `operating-case.md` §6). The
+label "expansion" and any code-range meaning belong to the user's rule pack.
+
 ## Method
 
 **Evaluation order.** Combinations are evaluated in the topological order of the
@@ -126,8 +146,13 @@ are commonly formed in practice; they are labelled as not an equilibrium state.
 - Unsigned rows have no sign or direction; no signed SRSS is formed.
 - The retained routes and the CAEPIPE SI writer decline absolute sums, SRSS and
   combination operands by name.
-- Declared operating comparisons (`difference_basis`) and `minuend_final`
-  subtrahends remain withheld until their own slices.
+- A declared operating comparison (`difference_basis`) is gated on the
+  pressure-free route only (EX refuses it by name), its G-1 compares primitive
+  loads only, and a `minuend_final` subtrahend remains withheld until its own
+  slice. A reader without the model checks a declared subtraction's verdict
+  against the published evidence only, which a coherent forgery can satisfy; with
+  the model, G-1 over an operand that uses `condition_use` is refused as
+  unverifiable.
 - SWBPIPE does not decide which combinations or factors a code requires, and does
   not determine code compliance.
 

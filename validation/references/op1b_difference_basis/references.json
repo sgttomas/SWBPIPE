@@ -1,0 +1,145 @@
+{
+  "g1": [
+    {
+      "contained": true,
+      "minuend": 2,
+      "name": "contained",
+      "one_ulp_value": null,
+      "subtrahend": 1
+    },
+    {
+      "contained": false,
+      "minuend": 2,
+      "name": "sustained_only_load",
+      "one_ulp_value": null,
+      "subtrahend": 2
+    },
+    {
+      "contained": false,
+      "minuend": 2,
+      "name": "one_ulp",
+      "one_ulp_value": "0x1.8000000000001p+10",
+      "subtrahend": 1
+    },
+    {
+      "contained": false,
+      "minuend": 2,
+      "name": "two_against_one",
+      "one_ulp_value": null,
+      "subtrahend": 2
+    },
+    {
+      "contained": true,
+      "minuend": 3,
+      "name": "two_against_two",
+      "one_ulp_value": null,
+      "subtrahend": 2
+    },
+    {
+      "contained": false,
+      "minuend": 1,
+      "name": "swapped",
+      "one_ulp_value": null,
+      "subtrahend": 2
+    },
+    {
+      "contained": true,
+      "minuend": 1,
+      "name": "empty_subtrahend",
+      "one_ulp_value": null,
+      "subtrahend": 0
+    }
+  ],
+  "v1": [
+    {
+      "F": "0x1.8000000000000p+10",
+      "c": "0x1.0000000000000p-9",
+      "difference": {
+        "N": "-0x1.0000000000000p+9",
+        "stop_fx": "-0x1.0000000000000p+9",
+        "u": "0x1.0000000000000p-11"
+      },
+      "name": "closing",
+      "operating": {
+        "N": "0x1.0000000000000p+10",
+        "stop_fx": "-0x1.0000000000000p+9",
+        "u": "0x1.0000000000000p-9"
+      },
+      "sustained": {
+        "N": "0x1.8000000000000p+10",
+        "stop_fx": "0x0.0p+0",
+        "u": "0x1.8000000000000p-10"
+      }
+    },
+    {
+      "F": "0x1.8000000000000p+10",
+      "c": "0x1.0000000000000p-8",
+      "difference": {
+        "N": "0x0.0p+0",
+        "stop_fx": "0x0.0p+0",
+        "u": "0x1.0000000000000p-10"
+      },
+      "name": "both_open",
+      "operating": {
+        "N": "0x1.8000000000000p+10",
+        "stop_fx": "0x0.0p+0",
+        "u": "0x1.4000000000000p-9"
+      },
+      "sustained": {
+        "N": "0x1.8000000000000p+10",
+        "stop_fx": "0x0.0p+0",
+        "u": "0x1.8000000000000p-10"
+      }
+    },
+    {
+      "F": "0x1.4000000000000p+11",
+      "c": "0x1.0000000000000p-9",
+      "difference": {
+        "N": "-0x1.0000000000000p+10",
+        "stop_fx": "-0x1.0000000000000p+10",
+        "u": "0x0.0p+0"
+      },
+      "name": "both_active",
+      "operating": {
+        "N": "0x1.0000000000000p+10",
+        "stop_fx": "-0x1.8000000000000p+10",
+        "u": "0x1.0000000000000p-9"
+      },
+      "sustained": {
+        "N": "0x1.0000000000000p+11",
+        "stop_fx": "-0x1.0000000000000p+9",
+        "u": "0x1.0000000000000p-9"
+      }
+    }
+  ],
+  "v2": [
+    {
+      "difference": {
+        "My_over_PL": "-0x1.4000000000000p-2",
+        "R_over_P": "-0x1.4000000000000p-2",
+        "u_tip": "0x1.0000000000000p-10"
+      },
+      "name": "lift",
+      "operating": {
+        "My_over_PL": "-0x1.0000000000000p-1",
+        "R_over_P": "0x0.0p+0",
+        "u_tip": "0x1.0000000000000p-10"
+      },
+      "rise": "0x1.0000000000000p-9"
+    },
+    {
+      "difference": {
+        "My_over_PL": "-0x1.4000000000000p-3",
+        "R_over_P": "-0x1.4000000000000p-3",
+        "u_tip": "0x0.0p+0"
+      },
+      "name": "active",
+      "operating": {
+        "My_over_PL": "-0x1.6000000000000p-2",
+        "R_over_P": "0x1.4000000000000p-3",
+        "u_tip": "0x0.0p+0"
+      },
+      "rise": "0x1.0000000000000p-11"
+    }
+  ]
+}

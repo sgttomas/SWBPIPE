@@ -8,7 +8,7 @@
  * passed in. No row is left out of a list for its numerical standing or health. */
 
 import type { MechanicsResult, ResultBasisRef } from "../../types";
-import { derivedRowNote } from "../viewport/resultColourOverlay";
+import { declaredDifferenceNote, derivedRowNote } from "../viewport/resultColourOverlay";
 
 type ResultRow = MechanicsResult["results"][number];
 
@@ -49,7 +49,7 @@ export function navigatorCases(rows: readonly ResultRow[]): NavigatorCase[] {
   for (const row of rows) {
     const key = rowCaseKey(row);
     const entry = seen.get(key) ?? { basis: row.basis_ref ? { ref_type: row.basis_ref.ref_type, ref_id: row.basis_ref.ref_id } : null, envelope: false };
-    const note = derivedRowNote(row);
+    const note = derivedRowNote(row) ?? declaredDifferenceNote(row);
     if (note === "range envelope") entry.envelope = true;
     else if (note !== null && entry.note === undefined) entry.note = note;
     seen.set(key, entry);
