@@ -57,6 +57,10 @@ const GATE_CODES: &[&str] = &[
     "NONLINEAR_COMBINATION_REQUIRES_SOLVE",
     "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE",
     "COMBINATION_MODULUS_BASIS_MIXED",
+    // RT-A4 (DEL-05-02 absolute-sum-srss §6).
+    "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND",
+    "CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED",
+    "LOAD_COMBINATION_OPERAND_WITHHELD",
 ];
 const SUPPORT_COMPONENTS: [&str; 8] = [
     "Fx",
@@ -257,6 +261,17 @@ fn preview_arcs(rows: &[Value]) -> HashSet<&str> {
 
 /// Every S1 section 9 check. A failure makes the source unsupported.
 pub fn validate_preview_physics_evidence(source: &Value) -> Check {
+    validate_with(source, None)
+}
+
+/// The reader when the caller has the document's model: the combination gates and
+/// unsigned rows are then not refused here where the document alone cannot verify them;
+/// `reader_verdict` re-derives them from the model after its other model checks.
+pub(crate) fn validate_preview_physics_evidence_with_model(source: &Value, model: Option<&Value>) -> Check {
+    validate_with(source, model)
+}
+
+fn validate_with(source: &Value, model: Option<&Value>) -> Check {
     // pf-timoshenko.md §4: the source's identity selects one complete identity (table,
     // profile and limitation array together); a mixed array is FORMULATION_BASIS.
     let (table, profile) = crate::semantic_contract::preview_physics_identity_of(source);
@@ -273,10 +288,16 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
     )?;
     let evidence = &source["contract_evidence"];
     // Operating-case slice 1a: `combination_operands` only beside a nonlinear
-    // model's admitted combinations (checked below).
+    // model's admitted combinations (checked below). RT-A4 §10.3:
+    // `combination_derivation` beside an unsigned or nested combination
+    // (`preview_combination_gates`).
+    let optional = [crate::preview_combination_operands::MEMBER, crate::preview_combination_gates::DERIVATION_MEMBER];
     require(
-        keys(evidence, &["preview_cases", "combination_gates"])
-            || keys(evidence, &["preview_cases", "combination_gates", crate::preview_combination_operands::MEMBER]),
+        evidence.as_object().is_some_and(|o| {
+            o.contains_key("preview_cases")
+                && o.contains_key("combination_gates")
+                && o.keys().all(|k| matches!(k.as_str(), "preview_cases" | "combination_gates") || optional.contains(&k.as_str()))
+        }),
         "EVIDENCE_SHAPE",
     )?;
     let preview_cases = array(&evidence["preview_cases"])?;
@@ -361,6 +382,7 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
         return require(
             preview_cases.is_empty()
                 && gates.is_empty()
+                && evidence.get(crate::preview_combination_gates::DERIVATION_MEMBER).is_none()
                 && rows_list.is_empty()
                 && summary["max_open_formula_stress"].is_null()
                 && summary["max_displacement"].is_null(),
@@ -782,6 +804,19 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
                 require(rows.contains_key(text(reference)?), "DANGLING_RESULT_REF")?;
             }
         }
+        // RT-A4 (absolute-sum-srss §4): an unsigned row states its unsigned meaning and
+        // is a nonnegative value, never -0.0.
+        let unsigned_sign = match row["metadata"]["basis"].as_str() {
+            Some(crate::combination_graph::ABSOLUTE_SUM_BASIS) => Some(crate::combination_graph::ABSOLUTE_SUM_SIGN),
+            Some(crate::combination_graph::SRSS_BASIS) => Some(crate::combination_graph::SRSS_SIGN),
+            _ => None,
+        };
+        if let Some(sign) = unsigned_sign {
+            require(
+                row["metadata"]["sign_convention"] == sign && row["value"].as_f64().is_some_and(|v| v.is_finite() && v.to_bits() >> 63 == 0),
+                "COMBINATION_UNSIGNED_ROW",
+            )?;
+        }
         let members = combined.entry(combination).or_default();
         if members.is_empty() {
             combination_order.push(combination);
@@ -798,7 +833,13 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
         }
         combination_magnitudes(members)?;
     }
-    Ok(())
+    // RT-A4 (review r1 P2): the gates and the absolute sums and SRSS, re-derived from the
+    // document alone; with the model, `reader_verdict` re-derives them after the other
+    // model checks (`preview_combination_gates::check`).
+    match model {
+        None => crate::preview_combination_gates::check(source, None),
+        Some(_) => Ok(()),
+    }
 }
 
 fn magnitudes(components: &HashMap<&str, &Value>) -> Check {

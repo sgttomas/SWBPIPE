@@ -1,0 +1,640 @@
+{
+ "reference_id": "rt_a4_combinations/v5_cantilever",
+ "generator": "validation/references/rt_a4_combinations/v5/generators/rt_a4_v5_reference.py",
+ "claim_fence": "invented inputs; independent closed forms; no product code; F-PIP-2",
+ "inputs": {
+  "length_m": {
+   "binary64": 5.0,
+   "decimal": "5.00000000000000000000000000000e0"
+  },
+  "axis_unit_vector": [
+   {
+    "binary64": 0.6,
+    "decimal": "6.00000000000000000000000000000e-1"
+   },
+   {
+    "binary64": 0.8,
+    "decimal": "8.00000000000000000000000000000e-1"
+   },
+   {
+    "binary64": 0.0,
+    "decimal": "0"
+   }
+  ],
+  "outside_diameter_m": {
+   "binary64": 0.2,
+   "decimal": "2.00000000000000000000000000000e-1"
+  },
+  "wall_thickness_m": {
+   "binary64": 0.01,
+   "decimal": "1.00000000000000000000000000000e-2"
+  },
+  "elastic_modulus_Pa": {
+   "binary64": 200000000000.0,
+   "decimal": "2.00000000000000000000000000000e11"
+  },
+  "poisson_ratio": {
+   "binary64": 0.3,
+   "decimal": "3.00000000000000000000000000000e-1"
+  },
+  "w_N_per_m": {
+   "x": {
+    "binary64": 1500.0,
+    "decimal": "1.50000000000000000000000000000e3"
+   },
+   "y": {
+    "binary64": 2000.0,
+    "decimal": "2.00000000000000000000000000000e3"
+   },
+   "z": {
+    "binary64": 2500.0,
+    "decimal": "2.50000000000000000000000000000e3"
+   }
+  }
+ },
+ "quantities": [
+  {
+   "name": "tip_ux",
+   "entity": "node:tip",
+   "kind_or_component": "global_nodal_displacement_x"
+  },
+  {
+   "name": "tip_uy",
+   "entity": "node:tip",
+   "kind_or_component": "global_nodal_displacement_y"
+  },
+  {
+   "name": "tip_uz",
+   "entity": "node:tip",
+   "kind_or_component": "global_nodal_displacement_z"
+  },
+  {
+   "name": "tip_rx",
+   "entity": "node:tip",
+   "kind_or_component": "global_nodal_rotation_x"
+  },
+  {
+   "name": "tip_ry",
+   "entity": "node:tip",
+   "kind_or_component": "global_nodal_rotation_y"
+  },
+  {
+   "name": "tip_rz",
+   "entity": "node:tip",
+   "kind_or_component": "global_nodal_rotation_z"
+  },
+  {
+   "name": "anchor_fx",
+   "entity": "support:root",
+   "kind_or_component": "Fx"
+  },
+  {
+   "name": "anchor_fy",
+   "entity": "support:root",
+   "kind_or_component": "Fy"
+  },
+  {
+   "name": "anchor_fz",
+   "entity": "support:root",
+   "kind_or_component": "Fz"
+  },
+  {
+   "name": "anchor_mx",
+   "entity": "support:root",
+   "kind_or_component": "Mx"
+  },
+  {
+   "name": "anchor_my",
+   "entity": "support:root",
+   "kind_or_component": "My"
+  },
+  {
+   "name": "anchor_mz",
+   "entity": "support:root",
+   "kind_or_component": "Mz"
+  }
+ ],
+ "cases": [
+  {
+   "id": "case:EQX",
+   "axis": "x",
+   "unsigned_values": {
+    "tip_ux": {
+     "binary64": 0.013889481733858927,
+     "decimal": "1.38894817338589278986079361400e-2"
+    },
+    "tip_uy": {
+     "binary64": 0.010405331740461408,
+     "decimal": "1.04053317404614076178546366949e-2"
+    },
+    "tip_uz": {
+     "binary64": 0.0,
+     "decimal": "0"
+    },
+    "tip_rx": {
+     "binary64": 0.0,
+     "decimal": "0"
+    },
+    "tip_ry": {
+     "binary64": 0.0,
+     "decimal": "0"
+    },
+    "tip_rz": {
+     "binary64": 0.004627942515030396,
+     "decimal": "4.62794251503039650389310158106e-3"
+    },
+    "anchor_fx": {
+     "binary64": 7500.0,
+     "decimal": "7.50000000000000000000000000000e3"
+    },
+    "anchor_fy": {
+     "binary64": 0.0,
+     "decimal": "0"
+    },
+    "anchor_fz": {
+     "binary64": 0.0,
+     "decimal": "0"
+    },
+    "anchor_mx": {
+     "binary64": 0.0,
+     "decimal": "0"
+    },
+    "anchor_my": {
+     "binary64": 0.0,
+     "decimal": "0"
+    },
+    "anchor_mz": {
+     "binary64": 15000.0,
+     "decimal": "1.50000000000000000000000000000e4"
+    }
+   }
+  },
+  {
+   "id": "case:EQY",
+   "axis": "y",
+   "unsigned_values": {
+    "tip_ux": {
+     "binary64": 0.013873775653948544,
+     "decimal": "1.38737756539485434904728489265e-2"
+    },
+    "tip_uy": {
+     "binary64": 0.01042627318034192,
+     "decimal": "1.04262731803419201620347529796e-2"
+    },
+    "tip_uz": {
+     "binary64": 0.0,
+     "decimal": "0"
+    },
+    "tip_rx": {
+     "binary64": 0.0,
+     "decimal": "0"
+    },
+    "tip_ry": {
+     "binary64": 0.0,
+     "decimal": "0"
+    },
+    "tip_rz": {
+     "binary64": 0.004627942515030396,
+     "decimal": "4.62794251503039650389310158106e-3"
+    },
+    "anchor_fx": {
+     "binary64": 0.0,
+     "decimal": "0"
+    },
+    "anchor_fy": {
+     "binary64": 10000.0,
+     "decimal": "1.00000000000000000000000000000e4"
+    },
+    "anchor_fz": {
+     "binary64": 0.0,
+     "decimal": "0"
+    },
+    "anchor_mx": {
+     "binary64": 0.0,
+     "decimal": "0"
+    },
+    "anchor_my": {
+     "binary64": 0.0,
+     "decimal": "0"
+    },
+    "anchor_mz": {
+     "binary64": 15000.0,
+     "decimal": "1.50000000000000000000000000000e4"
+    }
+   }
+  },
+  {
+   "id": "case:EQZ",
+   "axis": "z",
+   "unsigned_values": {
+    "tip_ux": {
+     "binary64": 0.0,
+     "decimal": "0"
+    },
+    "tip_uy": {
+     "binary64": 0.0,
+     "decimal": "0"
+    },
+    "tip_uz": {
+     "binary64": 0.03615580089867497,
+     "decimal": "3.61558008986749726866648561020e-2"
+    },
+    "tip_rx": {
+     "binary64": 0.0077132375250506605,
+     "decimal": "7.71323752505066083982183596843e-3"
+    },
+    "tip_ry": {
+     "binary64": 0.005784928143787995,
+     "decimal": "5.78492814378799562986637697632e-3"
+    },
+    "tip_rz": {
+     "binary64": 0.0,
+     "decimal": "0"
+    },
+    "anchor_fx": {
+     "binary64": 0.0,
+     "decimal": "0"
+    },
+    "anchor_fy": {
+     "binary64": 0.0,
+     "decimal": "0"
+    },
+    "anchor_fz": {
+     "binary64": 12500.0,
+     "decimal": "1.25000000000000000000000000000e4"
+    },
+    "anchor_mx": {
+     "binary64": 25000.0,
+     "decimal": "2.50000000000000000000000000000e4"
+    },
+    "anchor_my": {
+     "binary64": 18750.0,
+     "decimal": "1.87500000000000000000000000000e4"
+    },
+    "anchor_mz": {
+     "binary64": 0.0,
+     "decimal": "0"
+    }
+   }
+  }
+ ],
+ "combinations": [
+  {
+   "id": "comb:SRSS",
+   "basis": "srss",
+   "terms": [
+    {
+     "load_case": "case:EQX",
+     "factor": {
+      "binary64": 1.0,
+      "decimal": "1.00000000000000000000000000000e0"
+     }
+    },
+    {
+     "load_case": "case:EQY",
+     "factor": {
+      "binary64": 1.0,
+      "decimal": "1.00000000000000000000000000000e0"
+     }
+    },
+    {
+     "load_case": "case:EQZ",
+     "factor": {
+      "binary64": 1.0,
+      "decimal": "1.00000000000000000000000000000e0"
+     }
+    }
+   ],
+   "rows": {
+    "tip_ux": {
+     "binary64": 0.019631590708123887,
+     "decimal": "1.96315907081238871671480410720e-2"
+    },
+    "tip_uy": {
+     "binary64": 0.014730176545451546,
+     "decimal": "1.47301765454515461042512438793e-2"
+    },
+    "tip_uz": {
+     "binary64": 0.03615580089867497,
+     "decimal": "3.61558008986749726866648561020e-2"
+    },
+    "tip_rx": {
+     "binary64": 0.0077132375250506605,
+     "decimal": "7.71323752505066083982183596843e-3"
+    },
+    "tip_ry": {
+     "binary64": 0.005784928143787995,
+     "decimal": "5.78492814378799562986637697632e-3"
+    },
+    "tip_rz": {
+     "binary64": 0.006544899070639038,
+     "decimal": "6.54489907063903801653968588984e-3"
+    },
+    "anchor_fx": {
+     "binary64": 7500.0,
+     "decimal": "7.50000000000000000000000000000e3"
+    },
+    "anchor_fy": {
+     "binary64": 10000.0,
+     "decimal": "1.00000000000000000000000000000e4"
+    },
+    "anchor_fz": {
+     "binary64": 12500.0,
+     "decimal": "1.25000000000000000000000000000e4"
+    },
+    "anchor_mx": {
+     "binary64": 25000.0,
+     "decimal": "2.50000000000000000000000000000e4"
+    },
+    "anchor_my": {
+     "binary64": 18750.0,
+     "decimal": "1.87500000000000000000000000000e4"
+    },
+    "anchor_mz": {
+     "binary64": 21213.203435596424,
+     "decimal": "2.12132034355964257320253308631e4"
+    },
+    "tip_displacement_magnitude": {
+     "binary64": 0.04369919213688158,
+     "decimal": "4.36991921368815804887753594321e-2"
+    },
+    "anchor_force_magnitude": {
+     "binary64": 17677.66952966369,
+     "decimal": "1.76776695296636881100211090526e4"
+    },
+    "anchor_moment_magnitude": {
+     "binary64": 37769.86232434532,
+     "decimal": "3.77698623243453192230370592578e4"
+    }
+   }
+  },
+  {
+   "id": "comb:ABS",
+   "basis": "absolute_sum",
+   "terms": [
+    {
+     "load_case": "case:EQX",
+     "factor": {
+      "binary64": 1.0,
+      "decimal": "1.00000000000000000000000000000e0"
+     }
+    },
+    {
+     "load_case": "case:EQY",
+     "factor": {
+      "binary64": 1.0,
+      "decimal": "1.00000000000000000000000000000e0"
+     }
+    },
+    {
+     "load_case": "case:EQZ",
+     "factor": {
+      "binary64": 1.0,
+      "decimal": "1.00000000000000000000000000000e0"
+     }
+    }
+   ],
+   "rows": {
+    "tip_ux": {
+     "binary64": 0.02776325738780747,
+     "decimal": "2.77632573878074713890807850666e-2"
+    },
+    "tip_uy": {
+     "binary64": 0.02083160492080333,
+     "decimal": "2.08316049208033277798893896745e-2"
+    },
+    "tip_uz": {
+     "binary64": 0.03615580089867497,
+     "decimal": "3.61558008986749726866648561020e-2"
+    },
+    "tip_rx": {
+     "binary64": 0.0077132375250506605,
+     "decimal": "7.71323752505066083982183596843e-3"
+    },
+    "tip_ry": {
+     "binary64": 0.005784928143787995,
+     "decimal": "5.78492814378799562986637697632e-3"
+    },
+    "tip_rz": {
+     "binary64": 0.009255885030060793,
+     "decimal": "9.25588503006079300778620316211e-3"
+    },
+    "anchor_fx": {
+     "binary64": 7500.0,
+     "decimal": "7.50000000000000000000000000000e3"
+    },
+    "anchor_fy": {
+     "binary64": 10000.0,
+     "decimal": "1.00000000000000000000000000000e4"
+    },
+    "anchor_fz": {
+     "binary64": 12500.0,
+     "decimal": "1.25000000000000000000000000000e4"
+    },
+    "anchor_mx": {
+     "binary64": 25000.0,
+     "decimal": "2.50000000000000000000000000000e4"
+    },
+    "anchor_my": {
+     "binary64": 18750.0,
+     "decimal": "1.87500000000000000000000000000e4"
+    },
+    "anchor_mz": {
+     "binary64": 30000.0,
+     "decimal": "3.00000000000000000000000000000e4"
+    },
+    "tip_displacement_magnitude": {
+     "binary64": 0.05011981806613736,
+     "decimal": "5.01198180661373662432403142618e-2"
+    },
+    "anchor_force_magnitude": {
+     "binary64": 17677.66952966369,
+     "decimal": "1.76776695296636881100211090526e4"
+    },
+    "anchor_moment_magnitude": {
+     "binary64": 43319.30862790864,
+     "decimal": "4.33193086279086407120208259003e4"
+    }
+   }
+  },
+  {
+   "id": "comb:SRSS-F",
+   "basis": "srss",
+   "terms": [
+    {
+     "load_case": "case:EQX",
+     "factor": {
+      "binary64": 0.5,
+      "decimal": "5.00000000000000000000000000000e-1"
+     }
+    },
+    {
+     "load_case": "case:EQY",
+     "factor": {
+      "binary64": 2.0,
+      "decimal": "2.00000000000000000000000000000e0"
+     }
+    },
+    {
+     "load_case": "case:EQZ",
+     "factor": {
+      "binary64": 1.5,
+      "decimal": "1.50000000000000000000000000000e0"
+     }
+    }
+   ],
+   "rows": {
+    "tip_ux": {
+     "binary64": 0.028603426880239046,
+     "decimal": "2.86034268802390449660045511569e-2"
+    },
+    "tip_uy": {
+     "binary64": 0.02149177568005334,
+     "decimal": "2.14917756800533417508450825967e-2"
+    },
+    "tip_uz": {
+     "binary64": 0.05423370134801246,
+     "decimal": "5.42337013480124590299972841530e-2"
+    },
+    "tip_rx": {
+     "binary64": 0.01156985628757599,
+     "decimal": "1.15698562875759912597327539526e-2"
+    },
+    "tip_ry": {
+     "binary64": 0.008677392215681994,
+     "decimal": "8.67739221568199344479956546448e-3"
+    },
+    "tip_rz": {
+     "binary64": 0.009540747909378486,
+     "decimal": "9.54074790937848619477876728928e-3"
+    },
+    "anchor_fx": {
+     "binary64": 3750.0,
+     "decimal": "3.75000000000000000000000000000e3"
+    },
+    "anchor_fy": {
+     "binary64": 20000.0,
+     "decimal": "2.00000000000000000000000000000e4"
+    },
+    "anchor_fz": {
+     "binary64": 18750.0,
+     "decimal": "1.87500000000000000000000000000e4"
+    },
+    "anchor_mx": {
+     "binary64": 37500.0,
+     "decimal": "3.75000000000000000000000000000e4"
+    },
+    "anchor_my": {
+     "binary64": 28125.0,
+     "decimal": "2.81250000000000000000000000000e4"
+    },
+    "anchor_mz": {
+     "binary64": 30923.292192132452,
+     "decimal": "3.09232921921324541236605739198e4"
+    },
+    "tip_displacement_magnitude": {
+     "binary64": 0.06497189248498401,
+     "decimal": "6.49718924849840143613014331012e-2"
+    },
+    "anchor_force_magnitude": {
+     "binary64": 27669.92952647332,
+     "decimal": "2.76699295264733191549903185138e4"
+    },
+    "anchor_moment_magnitude": {
+     "binary64": 56156.171744519765,
+     "decimal": "5.61561717445197647618310717711e4"
+    }
+   }
+  },
+  {
+   "id": "comb:ABS-F",
+   "basis": "absolute_sum",
+   "terms": [
+    {
+     "load_case": "case:EQX",
+     "factor": {
+      "binary64": 0.5,
+      "decimal": "5.00000000000000000000000000000e-1"
+     }
+    },
+    {
+     "load_case": "case:EQY",
+     "factor": {
+      "binary64": -2.0,
+      "decimal": "-2.00000000000000000000000000000e0"
+     }
+    },
+    {
+     "load_case": "case:EQZ",
+     "factor": {
+      "binary64": 1.5,
+      "decimal": "1.50000000000000000000000000000e0"
+     }
+    }
+   ],
+   "rows": {
+    "tip_ux": {
+     "binary64": 0.03469229217482655,
+     "decimal": "3.46922921748265509302496659231e-2"
+    },
+    "tip_uy": {
+     "binary64": 0.026055212230914546,
+     "decimal": "2.60552122309145441329968243066e-2"
+    },
+    "tip_uz": {
+     "binary64": 0.05423370134801246,
+     "decimal": "5.42337013480124590299972841530e-2"
+    },
+    "tip_rx": {
+     "binary64": 0.01156985628757599,
+     "decimal": "1.15698562875759912597327539526e-2"
+    },
+    "tip_ry": {
+     "binary64": 0.008677392215681994,
+     "decimal": "8.67739221568199344479956546448e-3"
+    },
+    "tip_rz": {
+     "binary64": 0.01156985628757599,
+     "decimal": "1.15698562875759912597327539526e-2"
+    },
+    "anchor_fx": {
+     "binary64": 3750.0,
+     "decimal": "3.75000000000000000000000000000e3"
+    },
+    "anchor_fy": {
+     "binary64": 20000.0,
+     "decimal": "2.00000000000000000000000000000e4"
+    },
+    "anchor_fz": {
+     "binary64": 18750.0,
+     "decimal": "1.87500000000000000000000000000e4"
+    },
+    "anchor_mx": {
+     "binary64": 37500.0,
+     "decimal": "3.75000000000000000000000000000e4"
+    },
+    "anchor_my": {
+     "binary64": 28125.0,
+     "decimal": "2.81250000000000000000000000000e4"
+    },
+    "anchor_mz": {
+     "binary64": 37500.0,
+     "decimal": "3.75000000000000000000000000000e4"
+    },
+    "tip_displacement_magnitude": {
+     "binary64": 0.0694530314863717,
+     "decimal": "6.94530314863717004232954119770e-2"
+    },
+    "anchor_force_magnitude": {
+     "binary64": 27669.92952647332,
+     "decimal": "2.76699295264733191549903185138e4"
+    },
+    "anchor_moment_magnitude": {
+     "binary64": 60029.289725932955,
+     "decimal": "6.00292897259329564358270406996e4"
+    }
+   }
+  }
+ ],
+ "criterion": "relative 1e-9 against the binary64 value; an exactly zero expectation is compared with 1e-9 times the quantity family's largest case value"
+}

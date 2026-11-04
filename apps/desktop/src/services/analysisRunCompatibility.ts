@@ -1,6 +1,7 @@
-import { validateRetainedPrecision } from "../features/results/retainedPrecisionReader";
+import { validateRetainedPrecision, validateRetainedPrecisionRecorded } from "../features/results/retainedPrecisionReader";
 import { isRetainedRoute } from "../features/results/numericalResultQuality";
-import { hasCurrentSourceContract, readerDispatch, readerValidate, ResultReaderError, sourceContract, sourceSemanticBinding } from "../features/results/resultReader";
+import { hasCurrentSourceContract, readerDispatch, readerValidate, recordedReaderDispatch, recordedReaderValidate, ResultReaderError, sourceContract, sourceSemanticBinding } from "../features/results/resultReader";
+import { recordedPreRtA4RecordBinding, recordedPreRtA4Table, type RecordedBinding } from "./recordedPreRtA4";
 import pressureTable from "../../../../fixtures/results/semantic_contract_v0_3_pressure_2.json";
 import pressureSourceTable from "../../../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json";
 import previewPhysicsTable from "../../../../fixtures/results/semantic_contract_v0_3_preview_physics_2.json";
@@ -58,21 +59,33 @@ const RECORD_TABLES: Readonly<Record<string, RecordTable>> = Object.freeze({
  * run recorded under the 0.8.0-era table is read the same way. RT-A3 reducer 2a (#73) and 2b
  * (#80) each restated only the table's admitted-families disclosure
  * (`supported_profile_limitations[1]`; every row is the same), so runs recorded under the 0.9.0
- * registration's table (d46e1963…) and under 2a's (032e861f…) are read the same way too.
- * Python's twin is `compatibility.py` `RECORDED_RUN_TABLE_BASES`. */
+ * registration's table (d46e1963…) and under 2a's (032e861f…) are read the same way too. RT-A3
+ * increment 3 (DEL-04-07 Design `pressure-contract.md`, "Constant-effort supports") restates two
+ * limitations and appends a combination gate, rows unchanged, so a run recorded under the
+ * pre-increment table (a2db16a5…) is read the same way. RT-A4 (DEL-05-02 Design
+ * `absolute-sum-srss-combinations.md` §10.2) restates the combination policy (v2: combination
+ * operands, absolute sums and SRSS) and adds three vocabulary tokens, rows unchanged, so a run
+ * recorded under the constant-effort table (be29fabc…) is read the same way. Python's twin is
+ * `compatibility.py` `RECORDED_RUN_TABLE_BASES`. */
 const RECORDED_RUN_TABLE_BASES: ReadonlyArray<Readonly<{ id: string; recorded: string; current: string }>> = Object.freeze([
   { id: "openpipestress.result_semantics/0.3.0/pressure-2",
     recorded: "3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d",
-    current: "a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e" },
+    current: "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6" },
   { id: "openpipestress.result_semantics/0.3.0/pressure-2",
     recorded: "5451fbf3e10e085c90b523baa7daf5fc723659e0d874d988d23807be7d2fefe6",
-    current: "a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e" },
+    current: "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6" },
   { id: "openpipestress.result_semantics/0.3.0/pressure-2",
     recorded: "d46e1963d7502b8e41898805128f2807b2670a1d4c738c71876002ed727e5faf",
-    current: "a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e" },
+    current: "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6" },
   { id: "openpipestress.result_semantics/0.3.0/pressure-2",
     recorded: "032e861fc66bf5f34a081b104ec879a39831bfd6472b186954966ea57d65f025",
-    current: "a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e" },
+    current: "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6" },
+  { id: "openpipestress.result_semantics/0.3.0/pressure-2",
+    recorded: "a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e",
+    current: "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6" },
+  { id: "openpipestress.result_semantics/0.3.0/pressure-2",
+    recorded: "be29fabcfacb1070a51bfb56dcfe61b4e4125638e249c3c0e96d092cc8aba43f",
+    current: "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6" },
 ]);
 /** The binding a record is checked against: the current table's, or the exact recorded basis
  * the record names when it is one of `RECORDED_RUN_TABLE_BASES` for that current table. */
@@ -412,19 +425,41 @@ async function validateRecordedBinding(record: AnalysisRunEnvelope, source: Mech
   }
 }
 
+/** RT-A4 §10.4: the recorded-run read of a record whose binding names a registry variant
+ * (`recordedPreRtA4.ts`): its statement read by Rust's recorded entries under that binding, and
+ * its rows interpreted under the variant's table. */
+type RecordedRead = { binding: RecordedBinding; table: RecordTable; route: V03Route | "unsupported" };
+async function recordedRead(record: AnalysisRunEnvelope, source: MechanicsResult): Promise<RecordedRead | null> {
+  const binding = recordedPreRtA4RecordBinding(record);
+  if (!binding) return null;
+  const dispatch = recordedReaderDispatch(source, binding);
+  if (!dispatch.ok) throw new ResultReaderError(dispatch.error!.code, dispatch.error!.detail);
+  return { binding, table: await recordedPreRtA4Table(binding) as RecordTable, route: dispatch.route as V03Route };
+}
+
 /** Source interpretation validation is distinct from checksum verification and producer authentication.
  * A transient record (no `recordedState`) names its synthetic state; a recorded revision
- * (W-12 S2) names the stored state passed in, checked against that state's model hash. */
-export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source: MechanicsResult, expectedBasisRefs?: ObjectRef[], recordedState?: RecordedStateBinding): Promise<void> {
+ * (W-12 S2) names the stored state passed in, checked against that state's model hash.
+ * `options.recordedRead` (RT-A4 §10.4): the recorded-run read and compare paths only. A record
+ * binding a registry variant then reads as it did when recorded; without it (the record
+ * builder, the exports) only the current tables are read. */
+export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source: MechanicsResult, expectedBasisRefs?: ObjectRef[], recordedState?: RecordedStateBinding, options?: { recordedRead?: boolean }): Promise<void> {
   const same = (a: unknown, b: unknown): boolean => {
     if (a === undefined || b === undefined) return a === b;
     const order = (v: any): any => Array.isArray(v) ? v.map(order) : v && typeof v === "object" ? Object.fromEntries(Object.keys(v).sort().map(k => [k, order(v[k])])) : v;
     return JSON.stringify(order(JSON.parse(checkedJsonText(a)))) === JSON.stringify(order(JSON.parse(checkedJsonText(b))));
   };
-  if (!hasCurrentSourceContract(source) || record.schema_version !== ANALYSIS_RUN_V03 || record.run_contract_status.record_contract !== "strict_analysis_run_v0_3") throw new Error("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH");
-  if (sourceContract(source) === "preview_physics") readerValidate("preview-physics", source);
+  const recorded = options?.recordedRead ? await recordedRead(record, source) : null;
+  // The route the record is read on: the recorded dispatch's under a variant (a successor's
+  // header reads only under its variant), else the current dispatch's.
+  const route = recorded ? recorded.route : sourceContract(source);
+  if (!(recorded || hasCurrentSourceContract(source)) || record.schema_version !== ANALYSIS_RUN_V03 || record.run_contract_status.record_contract !== "strict_analysis_run_v0_3") throw new Error("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH");
+  if (route === "preview_physics") {
+    if (recorded) recordedReaderValidate(source, recorded.binding);
+    else readerValidate("preview-physics", source);
+  }
   // B7b: a pressure-2 record is read as Python's validator reads it, after the route's reader.
-  if (sourceContract(source) === "pressure") readerValidate("pressure", source);
+  if (route === "pressure") readerValidate("pressure", source);
   validateSourceRuleStatus(source);
   const run = record.analysis_run;
   // The recorded form (W-12 S2): every member the stored manifest fixes is checked first,
@@ -435,17 +470,18 @@ export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source
     if (expectedBasisRefs !== undefined && !structurallyEqual(expectedBasisRefs, manifestBasis)) throw new Error("ANALYSIS_RECORDED_LOAD_BASIS_MISMATCH");
     expectedBasisRefs = manifestBasis;
   }
-  if (sourceContract(source) === "pressure_source") {
+  if (route === "pressure_source") {
     await validateRetainedRecoverySource(source);
     if (!same(run.source_block_recovery, source.source_block_recovery)) throw new Error("ANALYSIS_SOURCE_BLOCK_RECEIPT_MISMATCH");
   } else if (Object.hasOwn(run, "source_block_recovery")) throw new Error("SOURCE_RECOVERY_METADATA_CONTRADICTION");
-  if (sourceContract(source) === "pressure_source") {
+  if (route === "pressure_source") {
     if (!same(run.contract_evidence, source.contract_evidence)) throw new Error("ANALYSIS_PHYSICS_SOURCE_EVIDENCE_MISMATCH");
   } else if (Object.hasOwn(run, "contract_evidence")) throw new Error("ANALYSIS_PHYSICS_SOURCE_DOWNGRADE_FORBIDDEN");
   // U6d: the successor's record carries its complete receipt, equal to the source's
   // (which the accepted reader verifies); no other record carries one.
-  if (isRetainedRoute(sourceContract(source))) {
-    await validateRetainedPrecision(source);
+  if (isRetainedRoute(route)) {
+    if (recorded) await validateRetainedPrecisionRecorded(source, recorded.binding);
+    else await validateRetainedPrecision(source);
     if (!same(run.retained_precision, source.retained_precision)) throw new Error(ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH);
   } else if (Object.hasOwn(run, "retained_precision")) throw new Error(ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN);
   // The producer's diagnostics, then any rule-pack reference diagnostics (each exactly the
@@ -467,12 +503,12 @@ export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source
   if (run.solver_version?.solver_name !== source.producer!.component_name || run.solver_version?.solver_version !== source.producer!.component_version) throw new Error("ANALYSIS_SOURCE_PRODUCER_MISMATCH");
   if (run.run_id !== source.run_id) throw new Error("ANALYSIS_SOURCE_RUN_MISMATCH");
   if (!recordedState && !same(run.model_state_ref, transientModelStateRef(source.model_ref))) throw new Error("ANALYSIS_SOURCE_MODEL_STATE_MISMATCH");
-  const contract = recordedRunSemanticBinding(run.reproducibility?.semantic_contract, sourceSemanticBinding(source));
+  const contract = recorded ? { ...recorded.binding } : recordedRunSemanticBinding(run.reproducibility?.semantic_contract, sourceSemanticBinding(source));
   if (!same(run.reproducibility.semantic_contract, contract)) throw new Error("ANALYSIS_SEMANTIC_CONTRACT_MISMATCH");
   const checksum = async (scope: string, ref: ObjectRef, value: unknown) => ({algorithm: "sha256", canonicalization: CHECKED_PROFILE_V1, payload_ref: ref, payload_scope: scope, value: await canonicalSha256HexCheckedV1(value)});
   if (!same(run.hashes.filter(h => h.payload_scope === "received_result"), [await checksum("received_result", {object_type:"ResultEnvelope",ref:`result-envelope:${source.run_id}`}, source)])) throw new Error("ANALYSIS_RECEIVED_SOURCE_MISMATCH");
   if (source.results.length !== run.result_refs.length || new Set(source.results.map(r => r.id)).size !== source.results.length) throw new Error("ANALYSIS_ROW_ACCOUNTING_MISMATCH");
-  const interpret = analysisRowSemanticsReader(source);
+  const interpret = recorded ? (row: MechanicsResult["results"][number]) => analysisRowSemanticsIn(recorded.table, row) : analysisRowSemanticsReader(source);
   for (const [index, row] of source.results.entries()) {
     const actual = run.result_refs[index], {semantic, findings} = interpret(row), ref = {object_type:"Result",ref:row.id};
     if (actual.source_row_index !== index || !same(actual.result_ref, ref) || !same(actual.semantic_contract, {...contract,signature_id:semantic?.signature_id ?? null})

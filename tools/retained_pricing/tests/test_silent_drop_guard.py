@@ -128,8 +128,9 @@ def test_the_names_paths_and_withheld_texts_are_audited(monkeypatch):
     assert support["reason"]["bytes"] == len("source support row missing in an operand case")
     named = audit[f"{PREVIEW}:{line_of(PREVIEW, 'withholds {} combined row(s) that could not be formed')}"]["named"]["bytes"]
     assert named == 8 * 1052 + 7 * 2 + len(", and  more") + 20
-    # SD-RK: the two replaced basis keys resolve by name to the same sites.
-    assert f"{PREVIEW}:{line_of(PREVIEW, 'rows.push(combination_row(combination, &expression, sources[0], qualified_combination_result_id(&combination.id, &base(component)), value, sources.iter()')}" in audit
+    # SD-RK: the two replaced basis keys resolve by name to the same sites (RT-A4-RK1, §8.46: the support component
+    # row's call carries the combination's sign convention before `sources[0]`).
+    assert f"{PREVIEW}:{line_of(PREVIEW, 'rows.push(combination_row(combination, &expression, &sign, sources[0], qualified_combination_result_id(&combination.id, &base(component)), value, sources.iter()')}" in audit
     # No basis key of the two sites survives un-re-keyed. The test reads the raw basis keys (plain
     # strings, not `Resolved`), since a by-name key can land on a line that spells a basis key: at
     # the unit factor-sum gate (§8.24) the support row push resolves to :1022 itself.

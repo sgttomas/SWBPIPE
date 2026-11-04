@@ -114,7 +114,7 @@
             "model_sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
             "native_job_id": "invented-solve-job-1",
             "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
-            "received_result_sha256": "8621492753710f4a29ac650efa29be14761b6a0b4cd07d61bd2298880fec2435",
+            "received_result_sha256": "cf805ec8be2bbc7508b50c6a9627c3b6550147ee2d20fdfa01660e98325639d5",
             "result_envelope_id": "result-envelope:run:preview-linear-static-001",
             "run_ref": "run:preview-linear-static-001",
             "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -156,7 +156,7 @@
             }
           ],
           "load_reference_states": null,
-          "received_result_sha256": "8621492753710f4a29ac650efa29be14761b6a0b4cd07d61bd2298880fec2435",
+          "received_result_sha256": "cf805ec8be2bbc7508b50c6a9627c3b6550147ee2d20fdfa01660e98325639d5",
           "result_envelope_id": "result-envelope:run:preview-linear-static-001",
           "run_ref": "run:preview-linear-static-001",
           "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -172,7 +172,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers when their mapped member lies outside every pressure region or forms a pressure step, the only member of its own region between single straight members of other regions with transfers_to_wall at both ends, either concentric and collinear or eccentric or slanted with W-15c's run evidence and any read offset accepted, whose junction caps at the actual nodes along each member's own axis carry the step's pressure force and moment (EXACT_PRESSURE_REDUCER_IN_REGION otherwise); a branch connection (tee) is a record at its node, whose members meet as a rigid joint with no branch flexibility; a tee consumed as mechanics_geometry_only gives its user-entered header and branch SIFs as intensified rows at the ends of its named straight members on each section basis, not a code stress, and a realized arc it names carries none. Pressure regions meeting at a node where every terminal transfers to the wall form a junction, whose caps sum to the fitting's pressure load. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component or support family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
+            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers when their mapped member lies outside every pressure region or forms a pressure step, the only member of its own region between single straight members of other regions with transfers_to_wall at both ends, either concentric and collinear or eccentric or slanted with W-15c's run evidence and any read offset accepted, whose junction caps at the actual nodes along each member's own axis carry the step's pressure force and moment (EXACT_PRESSURE_REDUCER_IN_REGION otherwise); a branch connection (tee) is a record at its node, whose members meet as a rigid joint with no branch flexibility; a tee consumed as mechanics_geometry_only gives its user-entered header and branch SIFs as intensified rows at the ends of its named straight members on each section basis, not a code stress, and a realized arc it names carries none; a constant-effort support (DEC-049) declaring exactly one translational DOF and a finite positive constant load is consumed: it has zero stiffness and applies that load as a constant nodal force along the DOF's positive global axis in every solved case, and a mechanics combination over a model with one is withheld (CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE) when a factor is not finite or the exact factor sum is not within 64 epsilon of 1; a record that is not consumed applies nothing and warns (SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED). Pressure regions meeting at a node where every terminal transfers to the wall form a junction, whose caps sum to the fitting's pressure load. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component or support family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
           },
           {
             "affected_scope": {
@@ -232,7 +232,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused."
+            "statement": "Signed support actions are attributed only for admitted linear restraints and springs and, as its constant force, for a consumed constant-effort support; ambiguous coincident rigid attribution is refused."
           },
           {
             "affected_scope": {
@@ -292,7 +292,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e) are bound by reference and are not restated in this report."
+            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6) are bound by reference and are not restated in this report."
           }
         ]
       },
@@ -313,7 +313,7 @@
             "model_sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
             "native_job_id": "invented-solve-job-1",
             "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
-            "received_result_sha256": "70d5de4b15fa10421d6c696e74dd37be0d23ecb97db4b9d16ba122d712f31132",
+            "received_result_sha256": "417f65ce4d376ea14576d354917fe9e307eadea95e72bf1a35fd1edf221832e6",
             "result_envelope_id": "result-envelope:run:preview-linear-static-001",
             "run_ref": "run:preview-linear-static-001",
             "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -355,7 +355,7 @@
             }
           ],
           "load_reference_states": "This result includes resolved load/reference states (reference configuration reference:installed; load cases case:cold-pressure, case:hot-pressure; history independent_equilibrium). Their published limitations are listed under Limitations.",
-          "received_result_sha256": "70d5de4b15fa10421d6c696e74dd37be0d23ecb97db4b9d16ba122d712f31132",
+          "received_result_sha256": "417f65ce4d376ea14576d354917fe9e307eadea95e72bf1a35fd1edf221832e6",
           "result_envelope_id": "result-envelope:run:preview-linear-static-001",
           "run_ref": "run:preview-linear-static-001",
           "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -371,7 +371,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers when their mapped member lies outside every pressure region or forms a pressure step, the only member of its own region between single straight members of other regions with transfers_to_wall at both ends, either concentric and collinear or eccentric or slanted with W-15c's run evidence and any read offset accepted, whose junction caps at the actual nodes along each member's own axis carry the step's pressure force and moment (EXACT_PRESSURE_REDUCER_IN_REGION otherwise); a branch connection (tee) is a record at its node, whose members meet as a rigid joint with no branch flexibility; a tee consumed as mechanics_geometry_only gives its user-entered header and branch SIFs as intensified rows at the ends of its named straight members on each section basis, not a code stress, and a realized arc it names carries none. Pressure regions meeting at a node where every terminal transfers to the wall form a junction, whose caps sum to the fitting's pressure load. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component or support family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
+            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers when their mapped member lies outside every pressure region or forms a pressure step, the only member of its own region between single straight members of other regions with transfers_to_wall at both ends, either concentric and collinear or eccentric or slanted with W-15c's run evidence and any read offset accepted, whose junction caps at the actual nodes along each member's own axis carry the step's pressure force and moment (EXACT_PRESSURE_REDUCER_IN_REGION otherwise); a branch connection (tee) is a record at its node, whose members meet as a rigid joint with no branch flexibility; a tee consumed as mechanics_geometry_only gives its user-entered header and branch SIFs as intensified rows at the ends of its named straight members on each section basis, not a code stress, and a realized arc it names carries none; a constant-effort support (DEC-049) declaring exactly one translational DOF and a finite positive constant load is consumed: it has zero stiffness and applies that load as a constant nodal force along the DOF's positive global axis in every solved case, and a mechanics combination over a model with one is withheld (CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE) when a factor is not finite or the exact factor sum is not within 64 epsilon of 1; a record that is not consumed applies nothing and warns (SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED). Pressure regions meeting at a node where every terminal transfers to the wall form a junction, whose caps sum to the fitting's pressure load. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component or support family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
           },
           {
             "affected_scope": {
@@ -431,7 +431,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused."
+            "statement": "Signed support actions are attributed only for admitted linear restraints and springs and, as its constant force, for a consumed constant-effort support; ambiguous coincident rigid attribution is refused."
           },
           {
             "affected_scope": {
@@ -491,7 +491,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "Global rigid support translations/rotations are prescribed absolute boundary values through the partitioned solve; reactions come from the unreduced equations. Spring base motion, device preload/reference, inactive or locked supports are not provided."
+            "statement": "Global rigid support translations/rotations are prescribed absolute boundary values through the partitioned solve; reactions come from the unreduced equations. A consumed constant-effort support's constant force is a device action of the active support in every state. Spring base motion, device preload/reference, inactive or locked supports are not provided."
           },
           {
             "affected_scope": {
@@ -551,7 +551,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e) are bound by reference and are not restated in this report."
+            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6) are bound by reference and are not restated in this report."
           }
         ]
       },
@@ -572,7 +572,7 @@
             "model_sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
             "native_job_id": "invented-solve-job-1",
             "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
-            "received_result_sha256": "29c00c571ad4464826a6763fe259eeb0b62f8e8ec7b5435fff1978df6179221e",
+            "received_result_sha256": "cb80a80287a1719a6b447152b18ca87bceacfb8c41093974459ec9aa7ffbe8b1",
             "result_envelope_id": "result-envelope:run:preview-linear-static-001",
             "run_ref": "run:preview-linear-static-001",
             "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -614,7 +614,7 @@
             }
           ],
           "load_reference_states": null,
-          "received_result_sha256": "29c00c571ad4464826a6763fe259eeb0b62f8e8ec7b5435fff1978df6179221e",
+          "received_result_sha256": "cb80a80287a1719a6b447152b18ca87bceacfb8c41093974459ec9aa7ffbe8b1",
           "result_envelope_id": "result-envelope:run:preview-linear-static-001",
           "run_ref": "run:preview-linear-static-001",
           "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -630,7 +630,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers when their mapped member lies outside every pressure region or forms a pressure step, the only member of its own region between single straight members of other regions with transfers_to_wall at both ends, either concentric and collinear or eccentric or slanted with W-15c's run evidence and any read offset accepted, whose junction caps at the actual nodes along each member's own axis carry the step's pressure force and moment (EXACT_PRESSURE_REDUCER_IN_REGION otherwise); a branch connection (tee) is a record at its node, whose members meet as a rigid joint with no branch flexibility; a tee consumed as mechanics_geometry_only gives its user-entered header and branch SIFs as intensified rows at the ends of its named straight members on each section basis, not a code stress, and a realized arc it names carries none. Pressure regions meeting at a node where every terminal transfers to the wall form a junction, whose caps sum to the fitting's pressure load. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component or support family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
+            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers when their mapped member lies outside every pressure region or forms a pressure step, the only member of its own region between single straight members of other regions with transfers_to_wall at both ends, either concentric and collinear or eccentric or slanted with W-15c's run evidence and any read offset accepted, whose junction caps at the actual nodes along each member's own axis carry the step's pressure force and moment (EXACT_PRESSURE_REDUCER_IN_REGION otherwise); a branch connection (tee) is a record at its node, whose members meet as a rigid joint with no branch flexibility; a tee consumed as mechanics_geometry_only gives its user-entered header and branch SIFs as intensified rows at the ends of its named straight members on each section basis, not a code stress, and a realized arc it names carries none; a constant-effort support (DEC-049) declaring exactly one translational DOF and a finite positive constant load is consumed: it has zero stiffness and applies that load as a constant nodal force along the DOF's positive global axis in every solved case, and a mechanics combination over a model with one is withheld (CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE) when a factor is not finite or the exact factor sum is not within 64 epsilon of 1; a record that is not consumed applies nothing and warns (SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED). Pressure regions meeting at a node where every terminal transfers to the wall form a junction, whose caps sum to the fitting's pressure load. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component or support family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
           },
           {
             "affected_scope": {
@@ -690,7 +690,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused."
+            "statement": "Signed support actions are attributed only for admitted linear restraints and springs and, as its constant force, for a consumed constant-effort support; ambiguous coincident rigid attribution is refused."
           },
           {
             "affected_scope": {
@@ -762,7 +762,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e) are bound by reference and are not restated in this report."
+            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6) are bound by reference and are not restated in this report."
           }
         ]
       },
@@ -783,7 +783,7 @@
             "model_sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
             "native_job_id": "invented-solve-job-1",
             "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
-            "received_result_sha256": "6a3fbcf462c51aedba1b3d4999ec98c2749750c5ea0af202b3e563addc626dda",
+            "received_result_sha256": "4947f060ade3c35142ce643394ecc7e0158ea54e76491491ad5310ad070907c9",
             "result_envelope_id": "result-envelope:run:preview-linear-static-001",
             "run_ref": "run:preview-linear-static-001",
             "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -825,7 +825,7 @@
             }
           ],
           "load_reference_states": "This result includes resolved load/reference states (reference configuration reference:installed; load cases case:u2; history independent_equilibrium). Their published limitations are listed under Limitations.",
-          "received_result_sha256": "6a3fbcf462c51aedba1b3d4999ec98c2749750c5ea0af202b3e563addc626dda",
+          "received_result_sha256": "4947f060ade3c35142ce643394ecc7e0158ea54e76491491ad5310ad070907c9",
           "result_envelope_id": "result-envelope:run:preview-linear-static-001",
           "run_ref": "run:preview-linear-static-001",
           "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -841,7 +841,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers when their mapped member lies outside every pressure region or forms a pressure step, the only member of its own region between single straight members of other regions with transfers_to_wall at both ends, either concentric and collinear or eccentric or slanted with W-15c's run evidence and any read offset accepted, whose junction caps at the actual nodes along each member's own axis carry the step's pressure force and moment (EXACT_PRESSURE_REDUCER_IN_REGION otherwise); a branch connection (tee) is a record at its node, whose members meet as a rigid joint with no branch flexibility; a tee consumed as mechanics_geometry_only gives its user-entered header and branch SIFs as intensified rows at the ends of its named straight members on each section basis, not a code stress, and a realized arc it names carries none. Pressure regions meeting at a node where every terminal transfers to the wall form a junction, whose caps sum to the fitting's pressure load. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component or support family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
+            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers when their mapped member lies outside every pressure region or forms a pressure step, the only member of its own region between single straight members of other regions with transfers_to_wall at both ends, either concentric and collinear or eccentric or slanted with W-15c's run evidence and any read offset accepted, whose junction caps at the actual nodes along each member's own axis carry the step's pressure force and moment (EXACT_PRESSURE_REDUCER_IN_REGION otherwise); a branch connection (tee) is a record at its node, whose members meet as a rigid joint with no branch flexibility; a tee consumed as mechanics_geometry_only gives its user-entered header and branch SIFs as intensified rows at the ends of its named straight members on each section basis, not a code stress, and a realized arc it names carries none; a constant-effort support (DEC-049) declaring exactly one translational DOF and a finite positive constant load is consumed: it has zero stiffness and applies that load as a constant nodal force along the DOF's positive global axis in every solved case, and a mechanics combination over a model with one is withheld (CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE) when a factor is not finite or the exact factor sum is not within 64 epsilon of 1; a record that is not consumed applies nothing and warns (SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED). Pressure regions meeting at a node where every terminal transfers to the wall form a junction, whose caps sum to the fitting's pressure load. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component or support family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
           },
           {
             "affected_scope": {
@@ -901,7 +901,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused."
+            "statement": "Signed support actions are attributed only for admitted linear restraints and springs and, as its constant force, for a consumed constant-effort support; ambiguous coincident rigid attribution is refused."
           },
           {
             "affected_scope": {
@@ -961,7 +961,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "Global rigid support translations/rotations are prescribed absolute boundary values through the partitioned solve; reactions come from the unreduced equations. Spring base motion, device preload/reference, inactive or locked supports are not provided."
+            "statement": "Global rigid support translations/rotations are prescribed absolute boundary values through the partitioned solve; reactions come from the unreduced equations. A consumed constant-effort support's constant force is a device action of the active support in every state. Spring base motion, device preload/reference, inactive or locked supports are not provided."
           },
           {
             "affected_scope": {
@@ -1033,7 +1033,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e) are bound by reference and are not restated in this report."
+            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6) are bound by reference and are not restated in this report."
           }
         ]
       },
@@ -1054,7 +1054,7 @@
             "model_sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
             "native_job_id": "invented-solve-job-1",
             "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
-            "received_result_sha256": "84d76fe67a06279182ff94c22f43e38a9a6cc6e8fb38d778e47d4c91acffdeb4",
+            "received_result_sha256": "fd1ea82bde8dad367a39914f92315666cf5f92d391a48609ce88cfa121792380",
             "result_envelope_id": "result-envelope:run:preview-linear-static-001",
             "run_ref": "run:preview-linear-static-001",
             "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -1096,7 +1096,7 @@
             }
           ],
           "load_reference_states": null,
-          "received_result_sha256": "84d76fe67a06279182ff94c22f43e38a9a6cc6e8fb38d778e47d4c91acffdeb4",
+          "received_result_sha256": "fd1ea82bde8dad367a39914f92315666cf5f92d391a48609ce88cfa121792380",
           "result_envelope_id": "result-envelope:run:preview-linear-static-001",
           "run_ref": "run:preview-linear-static-001",
           "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -1112,7 +1112,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers when their mapped member lies outside every pressure region or forms a pressure step, the only member of its own region between single straight members of other regions with transfers_to_wall at both ends, either concentric and collinear or eccentric or slanted with W-15c's run evidence and any read offset accepted, whose junction caps at the actual nodes along each member's own axis carry the step's pressure force and moment (EXACT_PRESSURE_REDUCER_IN_REGION otherwise); a branch connection (tee) is a record at its node, whose members meet as a rigid joint with no branch flexibility; a tee consumed as mechanics_geometry_only gives its user-entered header and branch SIFs as intensified rows at the ends of its named straight members on each section basis, not a code stress, and a realized arc it names carries none. Pressure regions meeting at a node where every terminal transfers to the wall form a junction, whose caps sum to the fitting's pressure load. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component or support family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
+            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers when their mapped member lies outside every pressure region or forms a pressure step, the only member of its own region between single straight members of other regions with transfers_to_wall at both ends, either concentric and collinear or eccentric or slanted with W-15c's run evidence and any read offset accepted, whose junction caps at the actual nodes along each member's own axis carry the step's pressure force and moment (EXACT_PRESSURE_REDUCER_IN_REGION otherwise); a branch connection (tee) is a record at its node, whose members meet as a rigid joint with no branch flexibility; a tee consumed as mechanics_geometry_only gives its user-entered header and branch SIFs as intensified rows at the ends of its named straight members on each section basis, not a code stress, and a realized arc it names carries none; a constant-effort support (DEC-049) declaring exactly one translational DOF and a finite positive constant load is consumed: it has zero stiffness and applies that load as a constant nodal force along the DOF's positive global axis in every solved case, and a mechanics combination over a model with one is withheld (CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE) when a factor is not finite or the exact factor sum is not within 64 epsilon of 1; a record that is not consumed applies nothing and warns (SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED). Pressure regions meeting at a node where every terminal transfers to the wall form a junction, whose caps sum to the fitting's pressure load. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component or support family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
           },
           {
             "affected_scope": {
@@ -1172,7 +1172,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused."
+            "statement": "Signed support actions are attributed only for admitted linear restraints and springs and, as its constant force, for a consumed constant-effort support; ambiguous coincident rigid attribution is refused."
           },
           {
             "affected_scope": {
@@ -1256,7 +1256,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e) are bound by reference and are not restated in this report."
+            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6) are bound by reference and are not restated in this report."
           }
         ]
       },
@@ -1277,7 +1277,7 @@
             "model_sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
             "native_job_id": "invented-solve-job-1",
             "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
-            "received_result_sha256": "af29ad7e22359848b969a3c7fa9ae30cbd1e32d94cc5722723e28ad89d077160",
+            "received_result_sha256": "c6650eef0d4c4bb2249c9b2434ee52dc2e959415bed969135aa709e23328d7f3",
             "result_envelope_id": "result-envelope:run:preview-linear-static-001",
             "run_ref": "run:preview-linear-static-001",
             "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -1319,7 +1319,7 @@
             }
           ],
           "load_reference_states": null,
-          "received_result_sha256": "af29ad7e22359848b969a3c7fa9ae30cbd1e32d94cc5722723e28ad89d077160",
+          "received_result_sha256": "c6650eef0d4c4bb2249c9b2434ee52dc2e959415bed969135aa709e23328d7f3",
           "result_envelope_id": "result-envelope:run:preview-linear-static-001",
           "run_ref": "run:preview-linear-static-001",
           "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -1335,7 +1335,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers when their mapped member lies outside every pressure region or forms a pressure step, the only member of its own region between single straight members of other regions with transfers_to_wall at both ends, either concentric and collinear or eccentric or slanted with W-15c's run evidence and any read offset accepted, whose junction caps at the actual nodes along each member's own axis carry the step's pressure force and moment (EXACT_PRESSURE_REDUCER_IN_REGION otherwise); a branch connection (tee) is a record at its node, whose members meet as a rigid joint with no branch flexibility; a tee consumed as mechanics_geometry_only gives its user-entered header and branch SIFs as intensified rows at the ends of its named straight members on each section basis, not a code stress, and a realized arc it names carries none. Pressure regions meeting at a node where every terminal transfers to the wall form a junction, whose caps sum to the fitting's pressure load. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component or support family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
+            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers when their mapped member lies outside every pressure region or forms a pressure step, the only member of its own region between single straight members of other regions with transfers_to_wall at both ends, either concentric and collinear or eccentric or slanted with W-15c's run evidence and any read offset accepted, whose junction caps at the actual nodes along each member's own axis carry the step's pressure force and moment (EXACT_PRESSURE_REDUCER_IN_REGION otherwise); a branch connection (tee) is a record at its node, whose members meet as a rigid joint with no branch flexibility; a tee consumed as mechanics_geometry_only gives its user-entered header and branch SIFs as intensified rows at the ends of its named straight members on each section basis, not a code stress, and a realized arc it names carries none; a constant-effort support (DEC-049) declaring exactly one translational DOF and a finite positive constant load is consumed: it has zero stiffness and applies that load as a constant nodal force along the DOF's positive global axis in every solved case, and a mechanics combination over a model with one is withheld (CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE) when a factor is not finite or the exact factor sum is not within 64 epsilon of 1; a record that is not consumed applies nothing and warns (SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED). Pressure regions meeting at a node where every terminal transfers to the wall form a junction, whose caps sum to the fitting's pressure load. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component or support family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
           },
           {
             "affected_scope": {
@@ -1395,7 +1395,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused."
+            "statement": "Signed support actions are attributed only for admitted linear restraints and springs and, as its constant force, for a consumed constant-effort support; ambiguous coincident rigid attribution is refused."
           },
           {
             "affected_scope": {
@@ -1467,7 +1467,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e) are bound by reference and are not restated in this report."
+            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6) are bound by reference and are not restated in this report."
           }
         ]
       },
@@ -1488,7 +1488,7 @@
             "model_sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
             "native_job_id": "invented-solve-job-1",
             "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
-            "received_result_sha256": "7749cb9ebebf518d604769f3f36a98c4849755c826a25ce67f4380940886409e",
+            "received_result_sha256": "a80326d029335f140b897529e97ecf2f56736c4208c57061fb6fd35e4f182e47",
             "result_envelope_id": "result-envelope:run:preview-linear-static-001",
             "run_ref": "run:preview-linear-static-001",
             "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -1530,7 +1530,7 @@
             }
           ],
           "load_reference_states": "This result includes resolved load/reference states (reference configuration reference:installed; load cases load:L-100, load:L-200, load:L-300; history independent_equilibrium). Their published limitations are listed under Limitations.",
-          "received_result_sha256": "7749cb9ebebf518d604769f3f36a98c4849755c826a25ce67f4380940886409e",
+          "received_result_sha256": "a80326d029335f140b897529e97ecf2f56736c4208c57061fb6fd35e4f182e47",
           "result_envelope_id": "result-envelope:run:preview-linear-static-001",
           "run_ref": "run:preview-linear-static-001",
           "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -1546,7 +1546,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers when their mapped member lies outside every pressure region or forms a pressure step, the only member of its own region between single straight members of other regions with transfers_to_wall at both ends, either concentric and collinear or eccentric or slanted with W-15c's run evidence and any read offset accepted, whose junction caps at the actual nodes along each member's own axis carry the step's pressure force and moment (EXACT_PRESSURE_REDUCER_IN_REGION otherwise); a branch connection (tee) is a record at its node, whose members meet as a rigid joint with no branch flexibility; a tee consumed as mechanics_geometry_only gives its user-entered header and branch SIFs as intensified rows at the ends of its named straight members on each section basis, not a code stress, and a realized arc it names carries none. Pressure regions meeting at a node where every terminal transfers to the wall form a junction, whose caps sum to the fitting's pressure load. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component or support family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
+            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers when their mapped member lies outside every pressure region or forms a pressure step, the only member of its own region between single straight members of other regions with transfers_to_wall at both ends, either concentric and collinear or eccentric or slanted with W-15c's run evidence and any read offset accepted, whose junction caps at the actual nodes along each member's own axis carry the step's pressure force and moment (EXACT_PRESSURE_REDUCER_IN_REGION otherwise); a branch connection (tee) is a record at its node, whose members meet as a rigid joint with no branch flexibility; a tee consumed as mechanics_geometry_only gives its user-entered header and branch SIFs as intensified rows at the ends of its named straight members on each section basis, not a code stress, and a realized arc it names carries none; a constant-effort support (DEC-049) declaring exactly one translational DOF and a finite positive constant load is consumed: it has zero stiffness and applies that load as a constant nodal force along the DOF's positive global axis in every solved case, and a mechanics combination over a model with one is withheld (CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE) when a factor is not finite or the exact factor sum is not within 64 epsilon of 1; a record that is not consumed applies nothing and warns (SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED). Pressure regions meeting at a node where every terminal transfers to the wall form a junction, whose caps sum to the fitting's pressure load. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component or support family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
           },
           {
             "affected_scope": {
@@ -1606,7 +1606,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused."
+            "statement": "Signed support actions are attributed only for admitted linear restraints and springs and, as its constant force, for a consumed constant-effort support; ambiguous coincident rigid attribution is refused."
           },
           {
             "affected_scope": {
@@ -1666,7 +1666,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "Global rigid support translations/rotations are prescribed absolute boundary values through the partitioned solve; reactions come from the unreduced equations. Spring base motion, device preload/reference, inactive or locked supports are not provided."
+            "statement": "Global rigid support translations/rotations are prescribed absolute boundary values through the partitioned solve; reactions come from the unreduced equations. A consumed constant-effort support's constant force is a device action of the active support in every state. Spring base motion, device preload/reference, inactive or locked supports are not provided."
           },
           {
             "affected_scope": {
@@ -1738,7 +1738,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e) are bound by reference and are not restated in this report."
+            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6) are bound by reference and are not restated in this report."
           }
         ]
       },
@@ -1759,7 +1759,7 @@
             "model_sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
             "native_job_id": "invented-solve-job-1",
             "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
-            "received_result_sha256": "0dd404005c6c3aeb0b9e96f3b163fbb19a4436c570d4fbf9cc101b0f131f5f85",
+            "received_result_sha256": "e071c7a918f67bf4906867da7eced6959ddb36bd5016d2bd071b26341d71fa69",
             "result_envelope_id": "result-envelope:run:preview-linear-static-001",
             "run_ref": "run:preview-linear-static-001",
             "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-source-1"
@@ -1801,7 +1801,7 @@
             }
           ],
           "load_reference_states": null,
-          "received_result_sha256": "0dd404005c6c3aeb0b9e96f3b163fbb19a4436c570d4fbf9cc101b0f131f5f85",
+          "received_result_sha256": "e071c7a918f67bf4906867da7eced6959ddb36bd5016d2bd071b26341d71fa69",
           "result_envelope_id": "result-envelope:run:preview-linear-static-001",
           "run_ref": "run:preview-linear-static-001",
           "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-source-1"
@@ -1877,7 +1877,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-source-1",
               "ref_type": "semantic_contract"
             },
-            "statement": "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused."
+            "statement": "Signed support actions are attributed only for admitted linear restraints and springs and, as its constant force, for a consumed constant-effort support; ambiguous coincident rigid attribution is refused."
           },
           {
             "affected_scope": {
@@ -1958,7 +1958,7 @@
             "model_sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
             "native_job_id": "invented-solve-job-1",
             "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
-            "received_result_sha256": "c50a048271d827820cc249cf9fd45a3d304df6c6a45b2e0a64f97c4e838d978f",
+            "received_result_sha256": "834643726c8c4a4f41802542331b8c3176b2645400de3be8d955f8daae9b6267",
             "result_envelope_id": "result-envelope:run:preview-linear-static-001",
             "run_ref": "run:preview-linear-static-001",
             "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-source-1"
@@ -2000,7 +2000,7 @@
             }
           ],
           "load_reference_states": "This result includes resolved load/reference states (reference configuration reference:companion; load cases case; history independent_equilibrium). Their published limitations are listed under Limitations.",
-          "received_result_sha256": "c50a048271d827820cc249cf9fd45a3d304df6c6a45b2e0a64f97c4e838d978f",
+          "received_result_sha256": "834643726c8c4a4f41802542331b8c3176b2645400de3be8d955f8daae9b6267",
           "result_envelope_id": "result-envelope:run:preview-linear-static-001",
           "run_ref": "run:preview-linear-static-001",
           "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-source-1"
@@ -2076,7 +2076,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-source-1",
               "ref_type": "semantic_contract"
             },
-            "statement": "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused."
+            "statement": "Signed support actions are attributed only for admitted linear restraints and springs and, as its constant force, for a consumed constant-effort support; ambiguous coincident rigid attribution is refused."
           },
           {
             "affected_scope": {
@@ -2136,7 +2136,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-source-1",
               "ref_type": "semantic_contract"
             },
-            "statement": "Global rigid support translations/rotations are prescribed absolute boundary values through the partitioned solve; reactions come from the unreduced equations. Spring base motion, device preload/reference, inactive or locked supports are not provided."
+            "statement": "Global rigid support translations/rotations are prescribed absolute boundary values through the partitioned solve; reactions come from the unreduced equations. A consumed constant-effort support's constant force is a device action of the active support in every state. Spring base motion, device preload/reference, inactive or locked supports are not provided."
           },
           {
             "affected_scope": {
@@ -2217,7 +2217,7 @@
             "model_sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
             "native_job_id": "invented-solve-job-1",
             "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
-            "received_result_sha256": "b74fe4fbcc2ba800f7312c3cdba329826ce96775488477195c68d0898ab51fa9",
+            "received_result_sha256": "fb011592e1a32771302a916debd58754af5185e8bfc4ae35d97db823cf1a2bad",
             "result_envelope_id": "result-envelope:run:preview-linear-static-001",
             "run_ref": "run:preview-linear-static-001",
             "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -2259,7 +2259,7 @@
             }
           ],
           "load_reference_states": null,
-          "received_result_sha256": "b74fe4fbcc2ba800f7312c3cdba329826ce96775488477195c68d0898ab51fa9",
+          "received_result_sha256": "fb011592e1a32771302a916debd58754af5185e8bfc4ae35d97db823cf1a2bad",
           "result_envelope_id": "result-envelope:run:preview-linear-static-001",
           "run_ref": "run:preview-linear-static-001",
           "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -2275,7 +2275,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers when their mapped member lies outside every pressure region or forms a pressure step, the only member of its own region between single straight members of other regions with transfers_to_wall at both ends, either concentric and collinear or eccentric or slanted with W-15c's run evidence and any read offset accepted, whose junction caps at the actual nodes along each member's own axis carry the step's pressure force and moment (EXACT_PRESSURE_REDUCER_IN_REGION otherwise); a branch connection (tee) is a record at its node, whose members meet as a rigid joint with no branch flexibility; a tee consumed as mechanics_geometry_only gives its user-entered header and branch SIFs as intensified rows at the ends of its named straight members on each section basis, not a code stress, and a realized arc it names carries none. Pressure regions meeting at a node where every terminal transfers to the wall form a junction, whose caps sum to the fitting's pressure load. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component or support family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
+            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers when their mapped member lies outside every pressure region or forms a pressure step, the only member of its own region between single straight members of other regions with transfers_to_wall at both ends, either concentric and collinear or eccentric or slanted with W-15c's run evidence and any read offset accepted, whose junction caps at the actual nodes along each member's own axis carry the step's pressure force and moment (EXACT_PRESSURE_REDUCER_IN_REGION otherwise); a branch connection (tee) is a record at its node, whose members meet as a rigid joint with no branch flexibility; a tee consumed as mechanics_geometry_only gives its user-entered header and branch SIFs as intensified rows at the ends of its named straight members on each section basis, not a code stress, and a realized arc it names carries none; a constant-effort support (DEC-049) declaring exactly one translational DOF and a finite positive constant load is consumed: it has zero stiffness and applies that load as a constant nodal force along the DOF's positive global axis in every solved case, and a mechanics combination over a model with one is withheld (CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE) when a factor is not finite or the exact factor sum is not within 64 epsilon of 1; a record that is not consumed applies nothing and warns (SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED). Pressure regions meeting at a node where every terminal transfers to the wall form a junction, whose caps sum to the fitting's pressure load. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component or support family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
           },
           {
             "affected_scope": {
@@ -2335,7 +2335,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused."
+            "statement": "Signed support actions are attributed only for admitted linear restraints and springs and, as its constant force, for a consumed constant-effort support; ambiguous coincident rigid attribution is refused."
           },
           {
             "affected_scope": {
@@ -2395,7 +2395,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e) are bound by reference and are not restated in this report."
+            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6) are bound by reference and are not restated in this report."
           }
         ]
       },

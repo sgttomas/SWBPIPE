@@ -499,3 +499,34 @@ and #11. All 80 native candidate evaluations fit and lie under the kept merged
 phases. Adoption, the law records and the stack witnesses wait for the owner's
 disposition. See the governing rules' §8.41 and
 `tests/test_841_rt_a3_reducer_2b.py`.
+
+### §8.44: RT-A3 increment 3 constant-effort supports (proposed registration)
+
+D1.6 refuses every hanger and every support family but the five it lists, so no
+D1 model holds a constant-effort record; gate 4 runs only inside the zeroed
+exact combination append (W16B-CB), and the pressure-2 reader's model binding
+of applied-load rows is reached only from `reader_verdict`, outside the retained
+graph. `rules/o10_rules.py` adds RTA3CE-ID: `applied_load_row`'s two hanger
+references are IN128 (unreached), guarded by their source in
+`consuming_constant_effort`. The full-file pins of `exact_admission.rs` and the
+two RE hash-constant files follow. Derived on frozen #96 (§8.43). The run is complete and O-10 clear, the line
+map and every function multiplicity equal #96's, and 12 coefficients rise
+(the restated pressure-2 table in STATICS, +788 B with one node and six values;
+the identity's constant-effort clause and the D-2 sentence in TAV, +3,894 B).
+The block is regenerated; reviewed inputs #8 and #11 rebind; every phase rises
+by 5,610 B. After review, S7 restates a consumed constant-effort support's signed
+support action (+67 B, six TAV copies): re-derived on main `6c3cb46d3` with
+§8.45's lexer, the same twelve coefficients rise against main's corrected tree
+(every phase +6,012 B), the block is regenerated on the corrected tool, and
+reviewed input #10 rebinds the pressure-2 result schema (gate 4 in its enum). See the governing
+rules' §8.44 and `tests/test_844_rt_a3_ce.py`.
+
+### §8.46: RT-A4 absolute sums, SRSS and nested combinations
+
+`rules/o10_rules.py`'s RT-A4 block bounds the plan, combination and reader loops (RT-A4-L1), zeros what D1.4 leaves
+unreached (RT-A4-UZ, RT-A4-WZ, RT-A4-RM; nested re-derivation per call RT-A4-NR) and the historical read's selection on
+the retained graph (RT-A4-HS), and classifies the new sites. `base/rta4_owners_model.py` prices the plan (RT-A4-PL),
+the combination callee's buffers and published operand rows (RT-A4-CB), the derivation member (RT-A4-DV) and the
+preview reader's sets (RT-A4-RD, route L only: RT-A4-RE). Two tool repairs: `_production()` removes each
+`#[cfg(test)]` item instead of truncating at the first (RT-A4-PR), and `text_lexicon` reads `token` as text (RT-A4-TK).
+See the governing rules' §8.46.

@@ -204,9 +204,11 @@ def _corpus_entries():
 
 # Model 0.9.0 re-pin (S1; DEL-02-01 Design model-document-0.9.0.md §3.6): read from the regenerated producer bytes on the
 # registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
+# RT-A4 D3 re-pin (DEL-04-08 §8.46): the regenerated carriers move only formulation_basis.limitations[6] (§10.2) and the
+# digests binding it; each restated to the former sentence and resealed (Python 07e) reproduces its former pin.
 MILESTONE_PINS = {
-    "sparse_interactive": ("c4aca00852fd4d6157fe8f80ae709a6bf2ad4b61f8e911e15a414902c99b5a8f", [25, 69, 3, 1]),
-    "dense_scrutiny": ("da3dafab793aa0d43c056f1057987d1feb06d9c0069396e68d5a86e5dc694daa", [25, 69, 3, 1]),
+    "sparse_interactive": ("49dfe6ebab459bbfdb68a541080313199cc24f85e649f1bbfb005c5be155a567", [25, 69, 3, 1]),
+    "dense_scrutiny": ("d1c8edd1efcaf0986d2625714d76dbca81275e2fa32acaf9f4ade798dba48b11", [25, 69, 3, 1]),
 }
 
 
@@ -975,11 +977,13 @@ def test_rv80_n2_integral_normalization_touches_only_the_receipt(monkeypatch):
 # head): (file sha256, receipt sha256, class counts), the counts as all three readers observed them (I68).
 # Model 0.9.0 re-pin (S1; DEL-02-01 Design model-document-0.9.0.md §3.6): read from the regenerated producer bytes on the
 # registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
+# RT-A4 D3 re-pin (DEL-04-08 §8.46): the regenerated carriers move only formulation_basis.limitations[6] (§10.2) and the
+# digests binding it; each restated to the former sentence and resealed (Python 07e) reproduces its former pin.
 L0_PINS = {
-    "sparse_interactive": ("13d6e229f156d09190daa2211a587eda3ebc947a40e817acc18031b605827ad3",
-                           "dc93343aa592077aa34071ee5b91a0a48a27faa663388bd4553a9f61598c26a1", [25, 78, 9, 1]),
-    "dense_scrutiny": ("de5d0a9bd282db08f46ba38e3b4a3ab6de35dadfb002326e2a48540fbe7ea310",
-                       "1b596b40f13b42df703626579d6773f743313a335734d470631460bacb7200c9", [25, 78, 9, 1]),
+    "sparse_interactive": ("c51f7d8d537cba2d5858b24575e41f6dbb3cea13443d2b0bf3116b1dc61ae701",
+                           "604f906008087adabe0c20fa5de5a8c26c893dff7b6c179212fc1fa1ed0c0515", [25, 78, 9, 1]),
+    "dense_scrutiny": ("dad8f1a23aa9c7e9854299316b2b63da8e44d946f0f1891064ee873dd49626f4",
+                       "22ac20311b775a686d9ca8f359b245b7f3e58ad976cbf5753053245329d2a9e0", [25, 78, 9, 1]),
 }
 # The registered dev/test build that published them (PP `REGISTERED_PROFILES` at the U8 head).
 L0_BUILD_IDENTITY = ("v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;"
@@ -1838,8 +1842,10 @@ def test_i4p_ruling5_kernel_reason_without_a_run_is_g5_attempt_in_the_reader():
 # W-8 topology warning added; no number moved.
 # Model 0.9.0 re-pin (S1; DEL-02-01 Design model-document-0.9.0.md §3.6): read from the regenerated producer bytes on the
 # registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
-N07_W_C2 = {"sparse_interactive": ("5516371daa450d255858faf2ceb8f749c7a03134c18b3d2d1029ee892f278036", "59f5507c51fa942786b73f31c2cb2321f3d81c1fe544f698cead922060bad682"),
-            "dense_scrutiny": ("e414484c02e1367532fb0a4a9eecd4a0b9f1e755965f899dedcf3c37900213c6", "74c8dbb8480fd49b18530aee1507d456824540966e9416b1a476aa76ed39f30c")}
+# RT-A4 D3 re-pin (DEL-04-08 §8.46): the regenerated carriers move only formulation_basis.limitations[6] (§10.2) and the
+# digests binding it; each restated to the former sentence and resealed (Python 07e) reproduces its former pin.
+N07_W_C2 = {"sparse_interactive": ("083feb1b4f1f4af1dbf69bd264c66e33068ef650667dbe4b8c1fddbf93988e55", "439b06eeb65e475bb1f7de5885e5accd300299c332dcfb89e2f4db43a87f103b"),
+            "dense_scrutiny": ("f783ddf4ed4af2e30600cb320db004caa44907949a7357eae9446468f8d6b194", "bb155a2605521346b3f21a1119a7862228e79dbc174070cdc817294444b8018b")}
 # PR-N (I109): the dense W-C2 and (C, B, A) successors re-pinned at the correctly rounded `rigid:N0`
 # support force magnitude (one ulp above macOS libm's hypot chain), one pin for every platform.
 # PP `retained_facade_tests.rs` REVERSED_PINNED, CBA_PINNED and AA2_PINNED: (receipt sha256, successor bytes sha256).

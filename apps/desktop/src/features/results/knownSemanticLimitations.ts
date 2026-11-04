@@ -2,7 +2,7 @@
  * Text only. N-A: these strings are UI labels and reasons; they are never
  * written into an exported results or stress-neutral document or its manifest. */
 import { PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID, PRESSURE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, isRetainedIdentity, isRetainedRoute } from "./numericalResultQuality";
-import { currentSemanticContract, sourceContract } from "./resultReader";
+import { currentSemanticContract, displayRoute, type ContractBinding } from "./resultReader";
 import { classificationSummary, retainedRowClasses } from "./retainedPrecisionStanding";
 import { decodeBinary64, type AccuracyClass } from "./retainedPrecisionTypes";
 import type { MechanicsResult } from "../../types";
@@ -113,11 +113,13 @@ export function ruleBindingRefusal(source: MechanicsResult, row: Pick<MechanicsR
 export type KnownSemanticNotice = { id: string; text: string };
 
 /** Text-only notices a surface shows for a received result. The caller decides
- * placement; no notice changes standing, rows or exported bytes. */
-export function knownSemanticNotices(source: MechanicsResult | null | undefined): KnownSemanticNotice[] {
+ * placement; no notice changes standing, rows or exported bytes. RT-A4 §10.4: a reopened run
+ * recorded before RT-A4 passes its recorded table and is classified under it (`displayRoute`);
+ * current callers omit it. */
+export function knownSemanticNotices(source: MechanicsResult | null | undefined, recordedTableRead?: ContractBinding | null): KnownSemanticNotice[] {
   if (!source) return [];
-  let route: ReturnType<typeof sourceContract>;
-  try { route = sourceContract(source); } catch { return []; }
+  let route: ReturnType<typeof displayRoute>;
+  try { route = displayRoute(source, recordedTableRead); } catch { return []; }
   const notices: KnownSemanticNotice[] = [];
   // U6d: the successor reuses the preview notices (its rows and evidence are preview-physics-2's).
   if (route === "preview_physics" || route === "retained_preview_physics") {
@@ -150,11 +152,12 @@ export function previewCombinationGates(source: MechanicsResult): { combination_
 }
 
 /** Row-level label for a listed row of a new kind; null for other rows. A
- * successor row also carries its validated class label (D2 4.9.9: never unlabelled). */
-export function resultRowLabel(row: Pick<MechanicsResult["results"][number], "kind"> & Partial<Pick<MechanicsResult["results"][number], "id" | "unit">>, source: MechanicsResult | null | undefined): string | null {
+ * successor row also carries its validated class label (D2 4.9.9: never unlabelled).
+ * `recordedTableRead` as for `knownSemanticNotices`. */
+export function resultRowLabel(row: Pick<MechanicsResult["results"][number], "kind"> & Partial<Pick<MechanicsResult["results"][number], "id" | "unit">>, source: MechanicsResult | null | undefined, recordedTableRead?: ContractBinding | null): string | null {
   if (!source) return null;
-  let route: ReturnType<typeof sourceContract>;
-  try { route = sourceContract(source); } catch { return null; }
+  let route: ReturnType<typeof displayRoute>;
+  try { route = displayRoute(source, recordedTableRead); } catch { return null; }
   if (route !== "preview_physics" && !isRetainedRoute(route)) return null;
   // B3b: the exact successor's rows are pressure-2's (B7b D4 (a)), which carry no preview kind label;
   // its rows carry their validated class label only.

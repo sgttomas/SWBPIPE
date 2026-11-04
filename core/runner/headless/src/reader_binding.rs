@@ -37,20 +37,45 @@ fn member<'a>(input: &'a Map<String, Value>, name: &str) -> Option<&'a Value> {
     input.get(name).filter(|value| !value.is_null())
 }
 
+/// RT-A4 §10.4: the recorded binding `{id, sha256}` of a recorded-run read. With it, a
+/// reader runs as `reader_verdict::*_recorded` (a registry variant of the statement's
+/// identity is read under its own tables; any other binding but the current one is
+/// refused by name); without it, as the current reader. Only the recorded-run read,
+/// compare and re-save paths supply it (Python's `validate_analysis_run_v0_3(...,
+/// recorded_read=True)`).
+const RECORDED_BINDING: &str = "recorded_binding";
+
 fn retained(input: &Map<String, Value>) -> Value {
-    rp::outcome_json(&rp::validate(&input["source"], member(input, "invocation")))
+    match member(input, RECORDED_BINDING) {
+        Some(binding) => rv::retained_recorded(&input["source"], binding, member(input, "invocation")),
+        None => rp::outcome_json(&rp::validate(&input["source"], member(input, "invocation"))),
+    }
 }
 
 fn retained_transport(input: &Map<String, Value>) -> Value {
-    rp::outcome_json(&rp::validate_transport_metadata(&input["source"]))
+    match member(input, RECORDED_BINDING) {
+        Some(binding) => rv::retained_transport_recorded(&input["source"], binding),
+        None => rp::outcome_json(&rp::validate_transport_metadata(&input["source"])),
+    }
 }
 
 fn dispatch(input: &Map<String, Value>) -> Value {
-    rv::dispatch(&input["source"], member(input, "model"), member(input, "invocation"))
+    match member(input, RECORDED_BINDING) {
+        Some(binding) => rv::dispatch_recorded(&input["source"], binding, member(input, "model"), member(input, "invocation")),
+        None => rv::dispatch(&input["source"], member(input, "model"), member(input, "invocation")),
+    }
 }
 
 fn row_semantics(input: &Map<String, Value>) -> Value {
-    rv::row_semantics(&input["row"], member(input, "source"))
+    match (member(input, RECORDED_BINDING), member(input, "source")) {
+        (Some(binding), Some(source)) => rv::row_semantics_recorded(&input["row"], source, binding),
+        (Some(_), None) => refused(rp_binding_needs_source()),
+        (None, source) => rv::row_semantics(&input["row"], source),
+    }
+}
+/// A recorded binding binds a statement's table: without the statement it names none.
+fn rp_binding_needs_source() -> &'static str {
+    open_pipe_stress_result_export::recorded_tables::SOURCE_RECORDED_BINDING_UNKNOWN
 }
 
 fn refused(text: &str) -> Value {
@@ -100,18 +125,24 @@ macro_rules! base {
             name: $name,
             required_members: &["source"],
             optional_members: $optional,
-            read: |input| rv::validate($name, &input["source"], member(input, "model"), member(input, "invocation")),
+            read: |input| match member(input, RECORDED_BINDING) {
+                Some(binding) => rv::validate_recorded($name, &input["source"], binding, member(input, "model"), member(input, "invocation")),
+                None => rv::validate($name, &input["source"], member(input, "model"), member(input, "invocation")),
+            },
         }
     };
 }
 /// A base reader's transport checks, `<reader>-transport`.
 macro_rules! transport {
-    ($reader:literal) => {
+    ($reader:literal, $optional:expr) => {
         Reader {
             name: concat!($reader, "-transport"),
             required_members: &["source"],
-            optional_members: &[],
-            read: |input| rv::transport($reader, &input["source"]),
+            optional_members: $optional,
+            read: |input| match member(input, RECORDED_BINDING) {
+                Some(binding) => rv::transport_recorded($reader, &input["source"], binding),
+                None => rv::transport($reader, &input["source"]),
+            },
         }
     };
 }
@@ -122,14 +153,14 @@ pub const READERS: &[Reader] = &[
     Reader {
         name: "retained-precision",
         required_members: &["source"],
-        optional_members: &["invocation"],
+        optional_members: &["invocation", RECORDED_BINDING],
         read: retained,
     },
     // `retained_precision::validate_transport_metadata`: `{"source": <successor>}`.
     Reader {
         name: "retained-precision-transport",
         required_members: &["source"],
-        optional_members: &[],
+        optional_members: &[RECORDED_BINDING],
         read: retained_transport,
     },
     // `reader_verdict::dispatch`: `{"source", "model"?, "invocation"?}`; the route,
@@ -138,7 +169,7 @@ pub const READERS: &[Reader] = &[
     Reader {
         name: "dispatch",
         required_members: &["source"],
-        optional_members: &["model", "invocation"],
+        optional_members: &["model", "invocation", RECORDED_BINDING],
         read: dispatch,
     },
     // `reader_verdict::validate`: `{"source", "model"?}` or `{"source", "invocation"?}`.
@@ -146,20 +177,23 @@ pub const READERS: &[Reader] = &[
     // readers (physics, physics-source, load-reference, load-reference-source)
     // have no entry, and a statement under a retired identity is refused by name
     // at `dispatch`.
-    base!("preview-physics", &[]),
+    // RT-A4 (review r1 P2-P3): preview-physics admits the model, which re-derives its
+    // combination gates and unsigned rows.
+    // RT-A4 §10.4: the recorded-run read's `recorded_binding` (preview-physics only).
+    base!("preview-physics", &["model", RECORDED_BINDING]),
     base!("pressure-source", &["invocation"]),
     base!("source-recovery", &[]),
     base!("pressure", &["model"]),
     // `reader_verdict::transport`: `{"source": <statement>}`. pressure-2 has no
     // transport reader; its entry refuses by name (SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED).
-    transport!("preview-physics"),
-    transport!("pressure-source"),
-    transport!("pressure"),
+    transport!("preview-physics", &[RECORDED_BINDING]),
+    transport!("pressure-source", &[]),
+    transport!("pressure", &[]),
     // `reader_verdict::row_semantics`: `{"row", "source"?}`.
     Reader {
         name: "row-semantics",
         required_members: &["row"],
-        optional_members: &["source"],
+        optional_members: &["source", RECORDED_BINDING],
         read: row_semantics,
     },
     // `semantic_contract::numerical_use_standing_with_context` and `standing_reason`:
@@ -217,7 +251,9 @@ pub fn read(reader: &str, input: &str) -> Result<(u8, Value), String> {
             "{reader} input has an unsupported member {unknown}"
         ));
     }
-    let outcome = (entry.read)(&members);
+    // RT-A4 §10.4: the command is an outermost entry, so it reads with no recorded table
+    // selection left over (`recorded_tables::entry_scope`); a recorded reader selects its own.
+    let outcome = open_pipe_stress_result_export::recorded_tables::entry_scope(|| (entry.read)(&members));
     let code = if outcome["ok"] == true {
         EXIT_PASS
     } else {
@@ -253,7 +289,8 @@ mod tests {
             ("dispatch", r#"{"source":{},"extra":1}"#),
             ("pressure", r#"{"source":{},"invocation":null}"#),
             ("pressure-source", r#"{"source":{},"model":null}"#),
-            ("preview-physics", r#"{"source":{},"model":{}}"#),
+            // RT-A4 review r1: preview-physics admits the model; it takes no invocation.
+            ("preview-physics", r#"{"source":{},"invocation":null}"#),
             ("source-recovery", r#"{"source":{},"model":{}}"#),
             ("pressure-transport", r#"{"source":{},"model":{}}"#),
             ("pressure-source-transport", r#"{"source":{},"model":{}}"#),
@@ -271,6 +308,15 @@ mod tests {
             ("classification-summary", r#"{"source":{},"model":{}}"#),
             ("row-semantics", r#"{"source":{}}"#),
             ("row-semantics", r#"{"row":{},"invocation":null}"#),
+            // RT-A4 §10.4: only the recorded-run read's readers admit a recorded binding.
+            ("pressure", r#"{"source":{},"recorded_binding":{}}"#),
+            ("pressure-source", r#"{"source":{},"recorded_binding":{}}"#),
+            ("source-recovery", r#"{"source":{},"recorded_binding":{}}"#),
+            ("pressure-transport", r#"{"source":{},"recorded_binding":{}}"#),
+            ("pressure-source-transport", r#"{"source":{},"recorded_binding":{}}"#),
+            ("standing", r#"{"source":{},"requested_basis_refs":[],"recorded_binding":{}}"#),
+            ("classification-summary", r#"{"source":{},"recorded_binding":{}}"#),
+            ("rule-binding", r#"{"envelope":{},"row":{},"recorded_binding":{}}"#),
         ] {
             assert!(read(reader, input).is_err(), "{reader} {input}");
         }
@@ -341,6 +387,35 @@ mod tests {
                 "row-semantics", "standing", "classification-summary", "rule-binding",
             ]
         );
+    }
+
+    /// RT-A4 §10.4: with a recorded binding, each recorded-run reader is its
+    /// `reader_verdict::*_recorded` entry; a null binding reads as absent.
+    #[test]
+    fn a_recorded_binding_runs_the_recorded_entry() {
+        let pf: Value = serde_json::from_str(include_str!(
+            "../../../../fixtures/persistence/recorded_pre_rt_a4_pf/preview_physics_2/preview_physics_connected_sparse.json"
+        )).unwrap();
+        let recorded = json!({"id": sc::PREVIEW_PHYSICS_ID, "sha256": "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2"});
+        for (reader, input, outcome) in [
+            ("preview-physics", json!({"source": pf, "recorded_binding": recorded}), rv::validate_recorded("preview-physics", &pf, &recorded, None, None)),
+            ("preview-physics-transport", json!({"source": pf, "recorded_binding": recorded}), rv::transport_recorded("preview-physics", &pf, &recorded)),
+            ("dispatch", json!({"source": pf, "recorded_binding": recorded}), rv::dispatch_recorded(&pf, &recorded, None, None)),
+            ("row-semantics", json!({"row": pf["results"][0], "source": pf, "recorded_binding": recorded}), rv::row_semantics_recorded(&pf["results"][0], &pf, &recorded)),
+            ("retained-precision", json!({"source": pf, "recorded_binding": recorded}), rv::retained_recorded(&pf, &recorded, None)),
+            ("retained-precision-transport", json!({"source": pf, "recorded_binding": recorded}), rv::retained_transport_recorded(&pf, &recorded)),
+            ("preview-physics", json!({"source": pf, "recorded_binding": null}), rv::validate("preview-physics", &pf, None, None)),
+        ] {
+            let (code, output) = read(reader, &input.to_string()).unwrap();
+            assert_eq!(output["outcome"], outcome, "{reader}");
+            assert_eq!(code, if outcome["ok"] == true { EXIT_PASS } else { EXIT_REFUSED }, "{reader}");
+        }
+        let (code, _) = read("preview-physics", &json!({"source": pf, "recorded_binding": recorded}).to_string()).unwrap();
+        assert_eq!(code, EXIT_PASS);
+        let (code, output) = read("preview-physics", &json!({"source": pf}).to_string()).unwrap();
+        assert_eq!((code, &output["outcome"]["error"]["code"]), (EXIT_REFUSED, &json!("SOURCE_PREVIEW_PHYSICS_FORMULATION_BASIS")));
+        let (code, output) = read("row-semantics", &json!({"row": pf["results"][0], "recorded_binding": recorded}).to_string()).unwrap();
+        assert_eq!((code, &output["outcome"]["error"]["code"]), (EXIT_REFUSED, &json!("SOURCE_RECORDED_BINDING_UNKNOWN")));
     }
 
     #[test]
