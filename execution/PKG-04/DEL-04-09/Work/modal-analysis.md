@@ -1326,6 +1326,138 @@ The window is `window-20261104T131510Z-nf1920`. Its identity record is `calib192
   - **The ten low modes** are inspectable and reportable only under the accepted lower-gap count and completed-cluster premises. An unresolved whole finite census does not by itself invalidate the lower path, and it never becomes a whole-spectrum proof.
   - The current test-local status, with production disabled, is unchanged, and nothing is adopted from this observation.
 
+##### The source resource guard: cost model, check placement and budget form (proposal, 2026-11-04; nothing adopted)
+
+This proposal comes from source plus the existing cantilever calibration (stage 1 and n_f = 1,920). It keeps the two populations apart: the calibration prices cost only, and the 35-model mathematical references stay separate. Wherever it uses the 1,920 outcome, **the ten low modes are reportable only under the accepted lower-gap count and completed-cluster premises.** The unresolved finite census at 1,920 neither invalidates that lower path nor becomes a whole-spectrum proof.
+
+**Cost model, term by term.** Notation:
+- n_f is the free order; n_m ≤ n_f the massive order after condensation; n_c ≤ n_m the computed (retained) pairs; n_r ≤ n_c the completed reported set; p the band pairs that are not hard-rejected.
+- I is the total QL iteration count, and R = Σ (m − l) the QL rotations, with R ≤ I·(n_m − 1).
+- d_e is element e's free-DOF count; nnz(·) is a stored count over the full symmetric matrix.
+- P_u is the shift pencil's union pattern; w_i are the profile's row widths after RCM; s ≤ s_max are the Sturm candidates.
+- MA is a multiply-add; a *visit* is one `ExactSum::add_product` call, which returns at once on a zero factor (`exact.rs:113`); an *insertion* is a visit with every factor nonzero, or one `add_dd_product`, which also allocates a small `Vec` (`exact.rs:161`).
+
+| # | Term | Exact count from source | Source | Known at |
+|---|---|---|---|---|
+| T1 | State-case solve (only with a state case; runs **before** the screen) | ≤ 4 active-set iterations (`DEC_046_PRODUCT_PREVIEW_ACTIVE_SET_MAX_ITERATIONS`). Each is one `dense_scrutiny` static solve, priced as T2 on that case's free set. With sliding-friction candidates, add one base solve and one per derived branch. Then the confirmation attempt. | product `lib.rs:195`, `:7821`; nonlinear_integration `lib.rs:759`, `:1514`; `confirmation.rs:78`; modal `state.rs:340` | preflight (worst case only: the iteration cap) |
+| T2 | Static screen of the modal pencil | n_f³/3 flops (dense Cholesky), plus a fixed number of O(n_g²) passes: three 32·n_g² sum arrays, the differences, prepare, skew check, audits | frame_kernel `structural.rs:2060`, `:934`, `:1047`, `:1141`, `:1240`, `:1489` | preflight (n_g; n_f ≤ n_f,max, the DOFs the base boundary leaves free) |
+| T3 | Kernel, binary64 | (19/3)·n³ + 6n·R + O(n²) flops, made up of: Cholesky n³/3; reduction 2n_m³; Householder 4n_m³/3, plus accumulation 4n_m³/3; QL 6n_m·R; back-transform ≤ n³; census Cholesky m³/3; Hager ≤ 11 triangular pairs; selection sort ≤ n_m² compares and n_m row swaps | modal_eigen `dense.rs:803`, `:880`, `:955`, `:1061`, `:865`, `:751`, `:1148`; `norm_estimate.rs:8` | R only as it runs: incremental counter (S1-QL) |
+| T4 | Band recovery | Once if any band pair: `formed_scaling`, 2n² visits with two WideDd divisions each. Per band pair: 4n² visits (`recover_band_mode` 2n², `formed_pair_errors` 2n²), of which 2·(nnz(K_ff) + nnz(M_ff)) are insertions. Hard-rejected pairs cost O(1). | `dense.rs:555`, `:590`, `:629`, `:544` | p exact after the QL classification, before `formed_scaling` (S1-band) |
+| T5 | Census, clusters, reported set | O(n_c). n_r ≤ n_c ≤ n_f; cluster completion can take n_r beyond the requested `mode_count` | `eigen.rs`; `clusters.rs` | n_c, n_r exact after `complete_reported_set` (S2) |
+| T6 | Normalization | n_r·n_f² visits (`mass_bilinear` on dense M_ff) plus 3n_f per mode | `modal_quantities.rs:294` | S2 |
+| T7 | Re-formation and formation difference | Per element operand (p128 seam), plus one 16 B accumulator per stored entry | `reformation/mod.rs` | preflight (element counts by kind) |
+| T8 | Residuals, every computed pair | 3·n_c·Σ_e d_e² insertions (`product_into` for K̂ and M̂, plus `mass_product_exact`), plus O(n_f) WideDd per pair. n_c **includes retained recovered pairs**. | `reformation/mod.rs:506`, `:895` | S2 |
+| T9 | Sturm evidence | Per candidate (≤ s_max): form O(P_u), profile O(P), `factorize_ldlt` Σ_i w_i² MA, ≤ 11 inverse-norm solves of 2P each. Banded RCM profile: P = O(n); dense profile: Σ w_i² → n³/6 MA. | `sturm.rs:535`, `:714`, `:859`; `norm_estimate.rs:8` | P exact once the pencil is formed (S2) |
+| T10 | Orthogonality, **published set** | n_r·Σ_e d_e² insertions (M̂φ per shape), plus n_r(n_r + 1)/2 bilinear forms of n_f·k term-products each (k exact terms per entry) | `orthogonality.rs:116`, `:150` | S2 |
+| T11 | Projection | O(rows): per row one serialization, one checked parse, one canonical text and one SHA-256; per document one serialization, one checked parse and one canonical text | `document.rs`; `canonical_json` | S2 (proposed bound), S3 (exact before the tree) |
+
+**Where each check sits** (each refuses by name and truncates nothing; the refused document states the formula and its terms):
+- **P0, the combined preflight.** In `run_modal_dense`, after `prepare_modal` and **before** `solve_modal_state_case` and any n² allocation, using request, model and parameter inputs only. Each unknown enters at its conservative bound, or at a stage allotment that a later check enforces:
+  - n_f ≤ n_f,max;
+  - n_c ≤ n_f, and n_r ≤ n_r,max = min(n_f, ⌊R_max / 6N⌋). That n_r bound is enforced at S2 by the projection's row limit, never assumed ≤ `mode_count`;
+  - p ≤ n_f, or the band allotment A_band;
+  - R ≤ the QL allotment A_QL, enforced in the kernel;
+  - s ≤ s_max, at the profile of the maximal free set or the dense n³/6;
+  - T1 at its iteration cap.
+
+  **A missing finite census never removes work.** The rejected pairs are in p and the computed pairs in n_c, whatever the census verdict. τ_μ is not tightened, and no high-mode check is skipped, to reach admission.
+- **S1, inside the kernel** (a priced `modal_eigen` change with its D3: a budget input in `DenseOptions`):
+  - *S1-QL:* a cumulative rotation counter in `implicit_ql`, refusing when R exceeds A_QL;
+  - *S1-band:* with p exact after the classification thresholds, refuse before `formed_scaling` and before any insertion if T4's exact count exceeds A_band.
+- **S2, after `complete_reported_set` and before normalization.** n_c, n_r, n_cl and P are exact here. Refuse if T6 + T8 + T9 + T10 + T11 exceed their allotment, or if rows or the early B_doc exceed the projection limits.
+- **S3, in the product entry before `modal_doc_solved`.** The same B_doc with the outcome's exact strings and Sturm count. Refuse before the tree is allocated.
+
+**Calibration status per weight** (cantilever family only; seconds per unit, from the phase timings; no rate is adopted):
+
+| Weight | Unit | Existing records give | Status |
+|---|---|---|---|
+| w_ins | one insertion (T8, T10, T4's nonzero part) | 89.4 / 91.8 / 82.7 / 79.4 ns at 240 / 480 / 960 / 1,920 (residual phase) | **determined** for straight elements |
+| w_visit | one zero-skip-dominated visit on dense storage (T6, T4's visits) | 3.30 / 2.95 / 5.72 / 2.43 ns (normalization phase) | determined as a range on T6; **not separately on T4** |
+| w_b64 | one T3 flop counted with R = I·(n − 1) | 0.207 / 0.243 / 0.357 ns at 240 / 480 / 960 (no band). ≤ 0.387 ns at 1,920 if the whole dense phase is charged to it | determined ≤ 960. At 1,920 **only as an upper bound** (the phase also contains the band) |
+| w_band | one T4 visit | ≤ 4.18 ns if the whole 1,920 dense phase is charged to it. With w_visit (2.43 ns) and w_ins, about 27 s of the 39.5 s would be band and about 12 s binary64. That split is an estimate, not recorded. | **not determined** separately. The records also do not split the 640 screened pairs into hard-rejected and recovery-attempted. |
+| w_screen | one n_f³/3 flop, the n_g² passes folded in | 1.58 / 1.05 / 0.81 / 0.69 ns | determined for the no-state screen (conservative: the largest value at ≥ 480, 1.05 ns) |
+| w_reform | one straight element operand | 14.65 ms / 320 ≈ 46 µs | determined for straight members; **arcs not** |
+| w_sturm | per banded profile | ≤ 1.5 ms per run | determined for banded RCM profiles; **dense profiles not** |
+| w_proj | one canonical byte (projection plus canonical) | 24.2 ns at 960; 24.0 ns at 1,920 | determined for these row mixes |
+| T1 | one state-case static solve set | none (no state case was run) | **not determined** |
+| bodies | (no re-formation; mass entries only) | priced by source counts at w_ins | determined by source |
+
+The weights rise with n over 240–960 (w_b64 0.21 → 0.36 ns), so **no weight above n_f = 1,920 is determined by these records.** Rates that would need a future measurement (none is proposed now), with the decision each one holds:
+- the band/binary64 split and the kernel weights above 1,920: the work cap near 3,000 DOF in any family;
+- the T1 solve set (iterations, friction branches, confirmation): admitting state-case families under the budget;
+- a dense Sturm profile: s_max·T9 for branched networks;
+- arc re-formation: the arc family's T7, a minor term.
+
+Until then, a cap can use the conservative upper weights within the measured extent only.
+
+**Proposed budget form.**
+- *Units and comparison.* Counts c_t are u128, and weights w_t are integer picoseconds per unit.
+  - W = Σ_t w_t·c_t, with `checked_mul` and `checked_add`. An overflow refuses as `MODAL_RESOURCE_ARITHMETIC_OVERFLOW`.
+  - Stage allotments are A_s = Σ_{t∈s} w_t·c̄_t, with c̄ the bound P0 uses.
+  - P0 requires Σ_s A_s ≤ W_budget. Each later check requires its exact Σ_{t∈s} w_t·c_t ≤ A_s.
+- *Refusal names* (proposed, blocking):
+  - `MODAL_RESOURCE_PREFLIGHT_EXCEEDED`: P0, for work or memory, naming the dominant term;
+  - `MODAL_RESOURCE_QL_ALLOTMENT_EXCEEDED` and `MODAL_RESOURCE_BAND_ALLOTMENT_EXCEEDED`: S1;
+  - `MODAL_RESOURCE_CHECKS_EXCEEDED`: S2;
+  - `MODAL_PROJECTION_LIMIT_EXCEEDED`: S2 and S3;
+  - `MODAL_RESOURCE_ARITHMETIC_OVERFLOW`.
+- *Checked arithmetic, illustrative only* (SEC-A-like, n_f = 2,994, n_g = 3,000; conservative weights; A_QL at R = 1.5·n·(n − 1); p ≤ n_f; R_max = 2·10⁵ rows, so n_r ≤ 66; k ≤ 4 assumed; W ≈ 7.2·10¹⁴ ps, well inside u64):
+
+  | Term | Seconds |
+  |---|---|
+  | T2 screen | 9.4 |
+  | T3 kernel | 159.2 |
+  | T4 band visits | 448.7 |
+  | T4 band insertions | 37.4 |
+  | T8 residuals | 59.3 |
+  | T6 normalization | 3.4 |
+  | T10 orthogonality | 2.8 |
+  | T11 projection | 1.6 |
+  | **total** | **≈ 722 (12.0 min)** |
+
+  - The conservative p ≤ n_f band term dominates. A_band at S1 is the lever the budget chooses.
+  - Both the kernel and band weights are extrapolated beyond 1,920 here.
+  - This illustrates the form for one family. **It is not a cap.**
+- *What is reserved.* The ~3,000-DOF goal across adopted families, the user-facing cap derived from a reviewed resource budget (W_budget and the allotments), and every weight are Agent 0's to set from that review. No coefficient is adopted.
+- *Memory, the same structure from the ledger.*
+  - Per-stage live sets L_s:
+    - T1 per solve: the static live set on its free set;
+    - T2: 88·n_g² + 8·n_f²;
+    - T3: 32·n_f², with T4 adding no n² buffer;
+    - after the solve: 24·n_f², plus orthogonality's n_r·n_f·(24 + 16k), plus 8·n_r·(n_f + n_g) of shapes;
+    - T11: the trees and texts, estimated only.
+  - The no-reuse cumulative is C = 152·n_g² + 56·n_f² + Σ over T1's solves + T11.
+  - P0 compares B₀ + max_s L_s + ρ·(C − max_s L_s) with the memory budget (the 6 GiB provisional ceiling, ROOT Q8(a), until reviewed). **ρ = 1 (no reuse) is the conservative proposal.**
+  - The observed fractions are calibration evidence only, not a fitted constant: 0.67 / 0.56 / 0.49 at 480 / 960 / 1,920 for phases. At 1,920 the entry's faults exceed its peak by 95 MiB, so some memory was returned and faulted again, in aggregate.
+  - 96·n_g² stays a live formula only.
+  - At 2,994 / 3,000, the illustration gives a live set of 833 MiB, a no-reuse cumulative of 1,793 MiB, a projection estimate of up to about 768 MiB at 64 MiB canonical, and orthogonality products of 17 MiB.
+- *The projection guard under the approved structure.*
+  - At S2, the early check uses B_doc with template bounds. Its "before normalization" placement holds: normalization changes values, not counts or widths (every value is already at its worst-case width), and cluster completion has already run, so N, n_c, n_cl, n_r and P_M are the actual dimensions.
+  - S3 repeats the check with exact strings and the exact Sturm count, before the tree is allocated.
+  - Rows and bytes are checked u128, and nothing is truncated.
+  - B_doc stays **proposed** until its four items are checked independently:
+    1. the transcription of `document.rs`;
+    2. the format widths (`{:e}` ≤ 24 B and the `{:?}` forms);
+    3. the canonicity of the options;
+    4. refused documents.
+
+##### Remaining production pin choices (2026-11-04)
+
+| Choice | Status | Evidence that exists | Decision needed, from whom | Blocked by |
+|---|---|---|---|---|
+| τ_r (residual threshold, A2) | held | §5.3.7's targeted A2 evidence; the per-pair η in the stage-1 and 1,920 records (TEST-LOCAL) | the measured-residual engineering target; Agent 0, under DEC-026 | that target's definition |
+| A3: τ_μ, c_μ, κ_μ, c_f | held | §5.3.7's μ/μ_max table. At 1,920 a genuine high-mode μ fell below the test-local floor (τ_μ = 10⁻¹²): 640 pairs rejected and the census unresolved. The ten low modes stand only under the lower-gap and completed-cluster premises. | the selected μ-domain pins, without tightening τ_μ to force admission; Agent 0 | the decision itself; the whole-spectrum endpoint at this spread waits on it |
+| A1 (τ_t, the identity tolerance, g_max, τ_e, τ_m, s_max, gap positions, offsets, the QL limit) and A2's κ_c, κ_s, τ_o, δ_c | approved or adopted as criteria (Agent 0, 2026-11-04) | §5.3.7 | none, beyond the joint production instance | A3 and τ_r |
+| O-4 work budget: W_budget, the allotments, the user-facing cap | proposed form above; no coefficient | the stage-1 and 1,920 weights (table above) | the reviewed resource budget and the cap across adopted families; Agent 0 | the undetermined weights above, and the S1 kernel hook, a priced change with D3 |
+| O-4 memory budget: ρ, B₀ and the ceiling | proposed form above | the ledger; the observed brackets at 480 / 960 / 1,920 | ρ (1 proposed), and the ceiling beyond the provisional 6 GiB; Agent 0 | none for ρ = 1; T1's solve set for state cases |
+| Projection limits: R_max, B_max, any in-memory multiple | structure approved; no limits | #59's custody limit (64 MiB displayable); the projection estimates | the limits; Agent 0 with I3b | #59 merging; I3b |
+| B_doc | proposed | 1,691 fixture rows and 10 headers within the bound | an independent check of its four items; then Agent 0's adoption | that check |
+| The full reader's scope (§5.3.9 item 4) | open | §5.3.4 | acceptance and wiring into the verdict path; Agent 0 | I3b |
+| Recording policy, O-8 (§5.3.9 item 5) | open | none | task record, store and version; Agent 0 with DEL-00-06 | the decision |
+| D3 and the independent numerical review (§5.3.9 item 6) | open | 8 unclassified I3a arguments at `372a16aa5` | the MODAL-ID classifications and registration; DEL-04-08 | that D3 |
+| Bessel (§5.3.9 item 7) | temporary capability limit | §5.3.4 | option B, or other common-M evidence; Agent 0 | that evidence |
+| Discretization factor c (O-5) | not adopted | the f_e observations (O-5) | whether to adopt `MODAL_MASS_DISCRETIZATION_COARSE`; M1a owner | its benchmark |
+
 #### 5.3.9 Admission: what stays disabled, and why
 
 Public engineering-result admission and every UI stay **disabled**. They remain closed until each of these closes:
@@ -1445,7 +1577,7 @@ Items that reach the product or data boundary are marked **for Agent 0** in §9.
 | O-1 | Independent Codex review of the W/a basis (§2.3), as Agent 0 directed, and of this design. Round 1 (at `a640e10e50`) and round 2 (at `d3c54e4f72`) are answered in this revision; the next round is pending | Manager, then Agent 0 | Before M1a starts |
 | O-2 | **Settled (D-u, Agent 0, 2026-10-31):** an independent Type 2 verifies a transcription against its source and records agent verification, naming reviewer and source; never acceptance. Unclear rights hold for the owner | — | — |
 | O-3 | **For the owner (data boundary):** the review of each report held for uncertain rights (§4.4; `docs/IP_AND_DATA_BOUNDARY.md`). Nothing is transcribed from a held report | Owner | At acquisition of each report |
-| O-4 | The work budget of the dense guard (§3.2), set by measurement. **Status (I2b-1): unmeasured and unpinned.** No work guard is applied; the operation estimate is recorded as a formula only, and the memory side uses the static guard (§3.2, as built). Measurement needs a separate, bounded, exclusive authorization. **I3a:** the 60-minute window proposal was not approved and is withdrawn; §5.3.8 holds the stage-1 plan and the maintained, ignored phase measurand. **Stage 1 ran once, 2026-11-04** (`window-20261104T120707Z`, binary `f7c87223…` at `48b3cc692`): 10 of 10 processes valid on the normal path, release, n_f = 60–960 at `mode_count` 10, all values TEST-LOCAL; analysis in §5.3.8, "Stage 1 results". **Still unpinned; no guard adopted.** Proposed for Agent 0 there: an observed-scope work guard (n_f ≤ 960 and n_r ≤ 10, within the restricted single-straight-run family only) or none yet; one more window at n_f = 1,920 (both passes, d = 120 s), which extends only that family's extent; 3,072 (entry only) only if the ~3,000-DOF target is kept and the slower 1,920 process takes ≤ 45 s (8× rule), or if Agent 0 amends the rule; and the projection guard's structure, from a *proposed* format bound with named open items (limits with I3b). The memory constant waits for the 1,920 peak. The observed 960 peak (150.4 MiB) lies between the source's largest live set (95.0) and its no-reuse cumulative (194.2, both with baseline). **Agent 0, 2026-11-04:** no production work guard comes from one family. The ~3,000-DOF goal holds across adopted families, priced from source plus calibration, with a combined preflight that refuses before the state-case solve. 96·n_g² is a live formula only. B_doc stays proposed. The projection-guard structure is approved without limits. **The n_f = 1,920 calibration ran once** (`window-20261104T131510Z-nf1920`): both processes valid, 55.3 s, 542/589 MiB. Band recovery and the census became active (640 pairs screened, census Unresolved under the test-local τ_μ), so dense_solve grew with slope 4.3. 3,072 is not approved | M1b | M1b |
+| O-4 | The work budget of the dense guard (§3.2), set by measurement. **Status (I2b-1): unmeasured and unpinned.** No work guard is applied; the operation estimate is recorded as a formula only, and the memory side uses the static guard (§3.2, as built). Measurement needs a separate, bounded, exclusive authorization. **I3a:** the 60-minute window proposal was not approved and is withdrawn; §5.3.8 holds the stage-1 plan and the maintained, ignored phase measurand. **Stage 1 ran once, 2026-11-04** (`window-20261104T120707Z`, binary `f7c87223…` at `48b3cc692`): 10 of 10 processes valid on the normal path, release, n_f = 60–960 at `mode_count` 10, all values TEST-LOCAL; analysis in §5.3.8, "Stage 1 results". **Still unpinned; no guard adopted.** Proposed for Agent 0 there: an observed-scope work guard (n_f ≤ 960 and n_r ≤ 10, within the restricted single-straight-run family only) or none yet; one more window at n_f = 1,920 (both passes, d = 120 s), which extends only that family's extent; 3,072 (entry only) only if the ~3,000-DOF target is kept and the slower 1,920 process takes ≤ 45 s (8× rule), or if Agent 0 amends the rule; and the projection guard's structure, from a *proposed* format bound with named open items (limits with I3b). The memory constant waits for the 1,920 peak. The observed 960 peak (150.4 MiB) lies between the source's largest live set (95.0) and its no-reuse cumulative (194.2, both with baseline). **Agent 0, 2026-11-04:** no production work guard comes from one family. The ~3,000-DOF goal holds across adopted families, priced from source plus calibration, with a combined preflight that refuses before the state-case solve. 96·n_g² is a live formula only. B_doc stays proposed. The projection-guard structure is approved without limits. **The n_f = 1,920 calibration ran once** (`window-20261104T131510Z-nf1920`): both processes valid, 55.3 s, 542/589 MiB. Band recovery and the census became active (640 pairs screened, census Unresolved under the test-local τ_μ), so dense_solve grew with slope 4.3. 3,072 is not approved. The ten low modes there are reportable only under the accepted lower-gap count and completed-cluster premises; the unresolved finite census neither invalidates that path nor becomes whole-spectrum proof. **Proposed (not adopted):** §5.3.8's source resource guard, a term-by-term cost model with a preflight before the state-case solve and exact stage checks, and the remaining production pin choices | M1b | M1b |
 | O-5 | The discretization factor c (§2.6), derived by benchmark. **Status (I2b-1): not adopted.** f_e is computed per straight member and reported with f_e/f_max; no `MODAL_MASS_DISCRETIZATION_COARSE` decision is made. Test-local observations on the SEC-A Rayleigh cantilever (L = 6 m, N = 1, 2, 4, 8) through the product path, f_e/f_n against the frequency error from the continuum: 0.64 → 0.58, 1.2 → 0.22, 2.9 → 1.4·10⁻², 4.0 → 8.5·10⁻³, 5.8 → 7.7·10⁻³, 11.9 → 2.2·10⁻³, 16 → 1.2·10⁻³, 23 → 6.1·10⁻⁴; these match the frozen `fe_convergence.json` errors to 10⁻⁵ relative | M1a | M1a |
 | O-6 | **Measured basis so far (I1, test-local constants, not yet pinned):** over 352 well-separated published shifts of `f1_modal` whose raw counts were all right, e_b·ν ranged 1.8·10⁻¹⁵ to 2.1·10⁻⁴ and the separation ratio 5.7·10³ to 5.6·10¹⁴; over 34 factored binary64 miscounts, e_b·ν ≥ 35.8 and the separation ratio ≤ 6.2·10⁻³. η ≤ 1.44·10⁻¹³ on every dense mode of 11 class (a) cases, actual eigenvalue error ≤ 0.85·e_λ there. The integrity tolerances, the residual threshold τ_r and the orthogonality tolerance (§3.4) and the identity tolerance (§2.5): measured, then pinned under DEC-026; the identity tolerance was measured in I2a (§2.5, largest relative discrepancy 5.45·10⁻¹⁶ nodal, 4.38·10⁻¹⁶ resultant) and stays experimental and unpinned (D-TOL). I2b-1 adds the product-path observations of §3.4 (as built), all test-local, nothing pinned. The algorithm parameters, recorded with their basis: the confirmation of τ_t (§1.5); δ_c, the growth-factor formula g, the growth limit g_max, the conditioning multiple κ_c and the estimator's iteration count, the separation multiple κ_s, the half-arc series switch point (§2.4), the candidate-shift sequence and s_max (§3.4, M1b); the cut-off sizing offsets ε_s (§1.4), the block size limits, restart count and breakdown threshold (§3.3, M2). **I3a:** production-pin proposals with their derivations and margins are §5.3.7. **Agent 0, 2026-11-04:** A1 approved as numerical acceptance and algorithm criteria, not a domain-wide error theorem (τ_t, the identity tolerance, g_max, τ_e, τ_m, s_max, the gap positions, the offsets and the QL limit); A2 decided in part on 2026-11-04 (κ_c, κ_s and τ_o adopted as engineering acceptance and demotion criteria, δ_c as the computed-cluster grouping convention; τ_r held); A3 held (τ_μ, c_μ, κ_μ, c_f). A complete production instance needs all three closed. The targeted A2 evidence and the A3 μ/μ_max table are in §5.3.7; nothing is pinned | M1a, M1b, M2 | As each lands |
 | O-7 | Where the desktop keeps the remembered extraction bound per project (project store or desktop settings), and whether that needs a store version under the one-version rule. It is persistence, so it takes targeted checks | M3 | M3 design |
