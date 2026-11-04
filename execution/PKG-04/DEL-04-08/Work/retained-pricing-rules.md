@@ -3658,8 +3658,8 @@ acceptance.
 **Status.** Proposed registration for PR #98 (RT-A4 wiring; design: DEL-05-02 Work
 `absolute-sum-srss-combinations.md` §10, §10.2 policy texts, §10.4 historical read), under the owner's removal of
 explicit owner approval for coefficient movement; source-derived pricing, independent scrutiny and preservation of the
-registered state remain required. This records no acceptance, the threshold and M are unchanged, and the AC-004 stack
-witnesses have not been run for it.
+registered state remain required. This records no acceptance, and the threshold and M are unchanged. The AC-004 stack
+witnesses passed 6/6 on the registered binary (below).
 
 **Priced source.** `fbd0931d5`: `claude/rt-a4-wiring` (RT-A4 wiring, §10.2 applied at `56b7b0012`, on RT-A3's final CE
 candidate `01e05a486`), with the §10.4 historical read (`1b68b8401`, review fix `91329e840`, entry scope `26278a4ce`)
@@ -3828,6 +3828,30 @@ that file's `limitations[6]` and left this digest stale.
 
 Run evidence is in `/tmp/rta4-d3/` (`base`, `run5`, `run6`, the comparisons, the atom logs and evaluations); it is
 review input, not a permanent dependency.
+
+**AC-004.** Coefficients and the registration move, so the six stack-headroom witnesses were run on the registered
+binary. They passed **6/6 at `e8a59f1fd`**, the frozen PR #98 head, whose §8.46 block is the one registered here. The
+binary was `core/product_physics/target/debug/deps/open_pipe_stress_product_physics-0c88b6aa060caad5`, SHA-256
+`ffc37f40d773a3ee451e3de233a681e733928ee92eef2844fe8a01d3b00c0001`, with profile `retained_memory.rs`
+`6ad37e06938c1fc774a930c02f8b6db1873b761af9dad8f691a89705bbd9f93f` and rustc 1.97.1 (8bab26f4f 2026-07-14).
+
+- **Preparation.** The binary was built beforehand under the slot wrapper (`cargo test --offline --lib --no-run`);
+  a second `--no-run` reported it fresh.
+- **Clearance and checks.** Agent 0 cleared one run of `python3 tools/release/check_release_readiness.py --profile
+  stack-witnesses --execute` under `t3_exclusive.sh` with memguard, in a window of at most 60 s including teardown.
+  The run's own child deadline was 55 s. Before queueing and again at admission, the run re-checked the head, a clean
+  tree, both full hashes and the compiler; all matched. No other exclusive job was pending.
+- **Timing.** Queued and acquired 2026-11-04T00:03:47Z, with the child deadline at 00:04:42Z. It ended and released
+  at 00:03:58Z: 10.77 s, teardown included.
+- **Discipline.** One process per test, at `--exact --ignored --test-threads=1`. Nothing was compiled inside the
+  window, the binary hash was unchanged afterwards, and there was no retry and no extra test.
+- **Results, sparse and dense:**
+  - `witness_headroom_w1_at_one_mebibyte`: ok (0.66 s), ok (0.64 s);
+  - `witness_w2_deep_milestone_publishes`: ok (1.25 s), ok (1.26 s);
+  - `witness_w_c2_publishes`: ok (2.38 s), ok (2.36 s).
+- **Closure.** No owned process, lock holder or `exclusive.pending` remained.
+
+This record changes no source the registration binds. This is test evidence, not an acceptance.
 
 ## 9. Memory-profile gates and registration
 
