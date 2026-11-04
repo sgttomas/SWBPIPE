@@ -1335,6 +1335,16 @@ mod wasm_api {
         })
     }
 
+    /// The engine's own number display (`display_number`), the text every delete
+    /// before value and diff row uses. The desktop calls it instead of mirroring it:
+    /// JavaScript and Rust break ties between equally short digit strings differently.
+    #[wasm_bindgen]
+    pub fn display_number_text(value: f64) -> String {
+        entry_scope(|| {
+            super::display_number_text(value)
+        })
+    }
+
     /// Lowercase-hex SHA-256 of the canonical form of a JSON document.
     /// H1 / F-5a hash seam companion to [`canonical_json_string`].
     #[wasm_bindgen]
@@ -10106,6 +10116,14 @@ fn parse_finite_number(raw: &str) -> Option<f64> {
 
 /// Format a number the way the inspector displays integers and short floats;
 /// used for diagnostics/diff display only — staleness checks are numeric.
+/// The engine's number display, exactly as every delete before value and diff row
+/// uses it (`display_number`): exported so the desktop takes the text from the engine
+/// itself, never from a mirror of it (JavaScript and Rust choose differently between
+/// two equally short round-trip digit strings, e.g. 1000000000000000.25).
+pub fn display_number_text(value: f64) -> String {
+    display_number(value)
+}
+
 fn display_number(value: f64) -> String {
     if value.fract() == 0.0 && value.abs() < 1e15 {
         format!("{}", value as i64)
