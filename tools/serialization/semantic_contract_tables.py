@@ -197,7 +197,8 @@ CARRIER_WRITERS.update({
 # commands on a real store) carry records sealed by their own analysis_run_record checksum and the
 # current table digests. Each is written by its generator after the one it reads; a run recorded
 # before RT-A4 is stored and returned verbatim (stored_custody_tests asserts no reseal). Named by
-# exact path: the other C1 corpora hold no sealed record.
+# exact path: the other C1 corpora hold no sealed record, so these four are registered in
+# EXACT_CARRIER_WRITERS and match by equality only; a suffixed or sibling path is no carrier.
 C1_CUSTODY_WRITERS = (
     "ANALYSIS_RUN_V03_CASES_WRITE=1 vitest run (apps/desktop) src/services/analysisRunV03Parity.test.ts; then "
     "HISTORICAL_REOPEN_CASES_WRITE=1 vitest run (apps/desktop) src/services/historicalReopenParity.test.ts; then "
@@ -208,12 +209,22 @@ C1_CUSTODY_WRITERS = (
     "NATIVE_REOPEN_REPLIES_WRITE=1 cargo test (apps/desktop/src-tauri) stored_custody_tests "
     "(record and write until a pass records none)"
 )
-CARRIER_WRITERS.update({
+# Carriers registered by one exact path, matched by equality (CARRIER_WRITERS' keys are prefixes).
+EXACT_CARRIER_WRITERS = {
     "apps/desktop/src/test-support/analysis-run-v03/analysis_run_v03_cases.json": C1_CUSTODY_WRITERS,
     "apps/desktop/src/test-support/native-reopen/historical_reopen_cases.json": C1_CUSTODY_WRITERS,
     "apps/desktop/src/test-support/native-reopen/native_reopen_replies.json": C1_CUSTODY_WRITERS,
     "apps/desktop/src/test-support/native-reopen/native_reopen_pre_rt_a4_replies.json": C1_CUSTODY_WRITERS,
-})
+}
+
+
+def carrier_registrations(consumer: str) -> list[tuple[str, str]]:
+    """The (registration, writer) pairs routing ``consumer``: CARRIER_WRITERS' keys as prefixes,
+    EXACT_CARRIER_WRITERS' keys by equality."""
+    found = [(prefix, writer) for prefix, writer in CARRIER_WRITERS.items() if consumer.startswith(prefix)]
+    if consumer in EXACT_CARRIER_WRITERS:
+        found.append((consumer, EXACT_CARRIER_WRITERS[consumer]))
+    return found
 
 
 # ---------------------------------------------------------------- apply-u4b
@@ -897,7 +908,7 @@ def classify(consumers: list[str]) -> tuple[list[str], list[str], list[str]]:
     for consumer in consumers:
         if consumer.startswith(EXCLUDED):
             excluded.append(consumer)
-        elif any(consumer.startswith(prefix) for prefix in CARRIER_WRITERS):
+        elif carrier_registrations(consumer):
             carriers.append(consumer)
         else:
             editable.append(consumer)
@@ -971,6 +982,9 @@ def repin(revisions: list[str], dry_run: bool = False) -> int:
     for prefix, writer in CARRIER_WRITERS.items():
         if any(c.startswith(prefix) for c in carriers):
             print(f"writers for {prefix}*: {writer}")
+    for path, writer in EXACT_CARRIER_WRITERS.items():
+        if path in carriers:
+            print(f"writers for {path}: {writer}")
     for reason in refused:
         print(f"refused: {reason}")
     print(f"{edits} file edit(s){' listed, none written' if dry_run else ''}")

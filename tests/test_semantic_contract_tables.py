@@ -133,6 +133,80 @@ def test_a_repin_across_a_table_change_leaves_the_user_release_seals_to_their_wr
         assert tool.classify([carrier])[1] == [carrier], carrier
 
 
+C1_CUSTODY_CARRIERS = (
+    "apps/desktop/src/test-support/analysis-run-v03/analysis_run_v03_cases.json",
+    "apps/desktop/src/test-support/native-reopen/historical_reopen_cases.json",
+    "apps/desktop/src/test-support/native-reopen/native_reopen_replies.json",
+    "apps/desktop/src/test-support/native-reopen/native_reopen_pre_rt_a4_replies.json",
+)
+
+
+def test_a_c1_custody_carrier_is_its_exact_path_only():
+    """C1's four custody carriers are registered by exact path: each is a carrier, and a path extending it (a
+    suffixed file or a member beneath it) or a sibling beside it is no carrier, so a self-checksummed record placed
+    there is still caught by the routing guard instead of being taken as routed. Main's prefix registrations keep
+    matching every path they extend."""
+    tool = _tool()
+    for carrier in C1_CUSTODY_CARRIERS:
+        assert tool.classify([carrier]) == ([], [carrier], []), carrier
+        directory, name = carrier.rsplit("/", 1)
+        for other in (carrier + ".extra.json", carrier + "x", carrier + "/member.json",
+                      f"{directory}/{name.removesuffix('.json')}_extra.json", f"{directory}/sibling_{name}",
+                      f"{directory}/sibling.json"):
+            assert tool.classify([other]) == ([other], [], []), other
+    for prefix_carrier in ("fixtures/reports/invented/user_release_record.json.extra.json",
+                           "fixtures/reports/invented/del1005_analysis_record.json.extra.json",
+                           "fixtures/results/pressure_load_state_connected_dense.analysis_run.json",
+                           "fixtures/persistence/recorded_run_witness_rule_packs.json"):
+        assert tool.classify([prefix_carrier]) == ([], [prefix_carrier], []), prefix_carrier
+
+
+def test_the_c1_custody_carriers_route_to_their_writers_by_equality():
+    tool = _tool()
+    assert tuple(tool.EXACT_CARRIER_WRITERS) == C1_CUSTODY_CARRIERS
+    assert not set(tool.EXACT_CARRIER_WRITERS) & set(tool.CARRIER_WRITERS)
+    for carrier in C1_CUSTODY_CARRIERS:
+        assert tool.carrier_registrations(carrier) == [(carrier, tool.C1_CUSTODY_WRITERS)], carrier
+        assert tool.carrier_registrations(carrier + ".extra.json") == [], carrier
+    # Each generator reads the corpus written before it.
+    order = tool.C1_CUSTODY_WRITERS
+    assert (order.index("analysisRunV03Parity") < order.index("historicalReopenParity")
+            < order.index("the_webviews_persistence_replies_are_the_commands_replies")
+            < order.index("NATIVE_REOPEN_RECORD") < order.index("stored_custody_tests"))
+
+
+def test_a_repin_across_a_table_change_leaves_a_c1_custody_carrier_to_its_writers(tmp_path, monkeypatch, capsys):
+    """On a scratch repository holding the pinned files, an editable consumer and C1's builder corpus (both bind the
+    current preview-physics-2 digest), a repin across that table's change edits the consumer, leaves the corpus's
+    bytes untouched and names its exact-path writers."""
+    import os
+    import shutil
+    import subprocess
+    tool = _tool()
+    carrier = C1_CUSTODY_CARRIERS[0]
+    consumer = "core/reporting/result_export/src/semantic_contract.rs"
+    for path in {*tool.PINNED, carrier, consumer}:
+        (tmp_path / path).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(PROJECT / path, tmp_path / path)
+    git_env = {**os.environ, "GIT_AUTHOR_NAME": "repin-test", "GIT_AUTHOR_EMAIL": "repin-test@example.invalid",
+               "GIT_COMMITTER_NAME": "repin-test", "GIT_COMMITTER_EMAIL": "repin-test@example.invalid"}
+    for command in (["init", "-q"], ["add", "-A"], ["commit", "-q", "-m", "scratch"]):
+        subprocess.run(["git", *command], cwd=tmp_path, env=git_env, check=True, capture_output=True)
+    table = tmp_path / tool.PREVIEW
+    old = tool.sha256(table.read_bytes())
+    assert old in (tmp_path / carrier).read_text(encoding="utf-8") and old in (tmp_path / consumer).read_text(encoding="utf-8")
+    table.write_bytes(table.read_bytes() + b"\n")
+    new = tool.sha256(table.read_bytes())
+    before = (tmp_path / carrier).read_bytes()
+    monkeypatch.setattr(tool, "PROJECT", tmp_path)
+    assert tool.repin(["HEAD"]) == 0
+    out = capsys.readouterr().out
+    assert new in (tmp_path / consumer).read_text(encoding="utf-8"), out
+    assert (tmp_path / carrier).read_bytes() == before
+    assert f"{carrier}: carrier; regenerate through its writer" in out
+    assert f"writers for {carrier}: {tool.C1_CUSTODY_WRITERS}" in out
+
+
 def test_repin_dry_run_at_head_lists_nothing(capsys):
     assert _tool().repin(["HEAD"], dry_run=True) == 0
     assert "0 file edit(s) listed, none written" in capsys.readouterr().out
