@@ -4742,7 +4742,7 @@ evaluations, the supplement and the reference check script. It is review input, 
 on RT-U4's frozen, reviewed §8.50 candidate in the order Agent 0 set (#97 §8.48, increment 4 §8.49, RT-U4 §8.50, then
 this). It is made under the owner's removal of explicit owner approval for coefficient movement; source-derived
 pricing, independent scrutiny and preservation of the registered state remain required. This records no acceptance.
-The threshold and M are unchanged. **AC-004: pending** (the binary is named below; the witnesses are not run here).
+The threshold and M are unchanged. **AC-004 passed 7/7** on the registered binary (below).
 
 **What 1b adds.** A `result_state_subtraction` may declare `difference_basis = "operating_minus_sustained"`. The solve
 gates it by G-1 (the subtrahend's primitive loads, by content, contained in the minuend's:
@@ -4890,7 +4890,40 @@ registration (`2b9ee56c0`), and `semantic_contract_tables.repin` routes them to 
 
 **Frames.** `run_linear_static_preview_observed_inner` gains one `Option<Value>` local (`preview_difference`) and the
 member's insertion, and `gate_reason` gains the declared arm. Frame sizes were not measured here. The witness paths run
-through `observed_inner`, so §8.50's 7/7 does not transfer: AC-004 is pending on the binary named in the PR record.
+through `observed_inner`, so §8.50's 7/7 does not transfer, and AC-004 was run on this registration's binary.
+
+**AC-004.** Coefficients, the in-build record and `W1`/`MAX` move, so the six stack-headroom witnesses and §8.40's
+isolated challenge were run on the registered binary. They passed **7/7 at `d44e5c538`** (commit
+`d44e5c538b236a343b612e6e0613e8c65cb8e21f`, tree `8b7d3d53619218515115fe36b1b9e9e1f265d559`), whose `core/` source and
+block are the ones registered here.
+- **Binaries.** `open_pipe_stress_product_physics-0c88b6aa060caad5`, SHA-256
+  `1b5a4eca30ad537e24df69cc42e3c6560e5daa25e266d368e9c932ff321a614f`, and `retained_memory_challenge-5fbd04178d51ba1e`,
+  SHA-256 `de8c05516e191cdf9117e60889e7c0e46deb5b05dec9e704cff832d3a5b14332`.
+- **Registered inputs.** Profile `retained_memory.rs`
+  `0b8844241d0f7b201b7c6ed609824a9f56b3fea8eb0e4706dd3bf084b0a60ad5`; product_physics `Cargo.lock`
+  `b7ebb02aafa8cfe214c18bc64941381b33ab3f9295e0fc774ee0819e1e4f5653`; rustc 1.97.1 (8bab26f4f 2026-07-14, commit-hash
+  `8bab26f4f68e0e26f0bb7960be334d5b520ea452`).
+- **Build.** Both binaries were built beforehand under the slot wrapper (`cargo test --offline --no-run --lib --test
+  retained_memory_challenge`, test profile; `RUSTFLAGS`, `CARGO_ENCODED_RUSTFLAGS` and `CARGO_BUILD_RUSTFLAGS` unset). A
+  further `--no-run` reported them fresh.
+- **Clearance and checks.** Agent 0 cleared one `t3_exclusive.sh` window with memguard, at most 55 s internal and 60 s
+  external including teardown, after the registration review was clear. These identities were verified before queueing
+  and all re-verified at admission: head, tree, clean state, both binaries, profile, lock, compiler and flag state. No
+  other exclusive job was pending or running.
+- **Timing.** Queued and admitted 2026-11-04T15:37:54Z, with the child deadline at 15:38:49Z. It ended and was released
+  at 15:38:08Z: 13.96 s, teardown included.
+- **Discipline.** Each test ran in its own process, prebuilt and invoked directly with `--exact --test-threads=1`
+  (`--ignored` for the witnesses). Nothing was compiled inside the window, both binary hashes were unchanged afterwards,
+  and there was no retry and no extra test. No owned process, lock holder or `exclusive.pending` remained (verified
+  15:38:12Z).
+- **Results, sparse and dense:**
+  - `witness_headroom_w1_at_one_mebibyte`: ok (1.07 s), ok (0.69 s);
+  - `witness_w2_deep_milestone_publishes`: ok (1.43 s), ok (1.41 s);
+  - `witness_w_c2_publishes`: ok (2.61 s), ok (2.53 s);
+  - `retained_direct_peak_is_within_the_profiles_bounds`: ok (3.95 s), against the re-pinned `W1_PHASE_BYTES` and
+    `MAX_PHASE_BYTES`.
+
+This record changes no source the registration binds. This is test evidence, not an acceptance.
 
 ## 9. Memory-profile gates and registration
 
