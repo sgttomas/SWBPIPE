@@ -1450,7 +1450,22 @@ fn inverse_one_norm_reference(a: &Rows) -> Option<(f64, f64)> {
         .map(|j| (0..n).map(|i| a[i][j].abs()).sum::<f64>())
         .fold(0.0, f64::max);
     let indicator = n as f64 * a_norm * norm * 2f64.powi(-104);
-    (norm.is_finite() && indicator <= 1e-6).then_some((norm, indicator))
+    // An actual accuracy check (review of c0a46799a): the residual
+    // R = I − Ã·X in double-double, X the computed inverse. With ‖R‖₁ < 1,
+    // |‖X‖₁ − ‖Ã⁻¹‖₁| ≤ ‖Ã⁻¹‖₁·‖R‖₁/(1 − ‖R‖₁), so requiring ‖R‖₁ ≤ 10⁻⁶
+    // bounds the reference norm's relative error near 10⁻⁶, whatever the
+    // elimination's growth. The indicator alone used the computed norm.
+    let residual = (0..n)
+        .map(|j| {
+            (0..n).fold(Dd::from_f64(0.0), |acc, i| {
+                let product = (0..n).fold(Dd::from_f64(0.0), |sum, k| sum.add(w[k][n + j].mul(Dd::from_f64(a[i][k]))));
+                let entry = Dd::from_f64(if i == j { 1.0 } else { 0.0 }).sub(product);
+                acc.add(entry.abs())
+            })
+            .to_f64()
+        })
+        .fold(0.0, f64::max);
+    (norm.is_finite() && indicator <= 1e-6 && residual <= 1e-6).then_some((norm, indicator))
 }
 
 /// The eigenvalues of the symmetric Ã, ascending, by cyclic Jacobi in
@@ -1489,6 +1504,10 @@ fn jacobi_eigenvalues(a: &Rows) -> Vec<f64> {
             }
         }
     }
+    // Convergence is required, not assumed (review of c0a46799a): an
+    // unconverged diagonal must not enter the ratio tables.
+    let off: f64 = (0..n).flat_map(|i| (0..n).filter(move |&j| j != i).map(move |j| (i, j))).map(|(i, j)| a[i][j] * a[i][j]).sum();
+    assert!(off.sqrt() <= 1e-14 * frobenius, "Jacobi did not converge: off-diagonal {:e} against ‖Ã‖_F {frobenius:e}", off.sqrt());
     let mut values: Vec<f64> = (0..n).map(|i| a[i][i]).collect();
     values.sort_by(f64::total_cmp);
     values
