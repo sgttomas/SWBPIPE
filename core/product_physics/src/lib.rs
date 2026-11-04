@@ -144,7 +144,7 @@ use std::f64::consts::PI;
 
 mod topology;
 mod validation;
-mod imposed_motion;
+mod imposed_motion; mod held_status; // RT-A5 `minuend_final` (DEL-05-02 `operating-case.md` §7), on this line so that no line moves.
 use validation::validate_model_inputs;
 mod rigid_component;
 #[cfg(test)]
