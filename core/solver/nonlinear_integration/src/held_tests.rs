@@ -423,3 +423,35 @@ fn held_inputs_are_refused_when_malformed() {
     short.displacements.pop();
     assert!(refused(&[state("NL-E", ActiveSetState::Sliding)], Some(&short)).contains("DOF count"));
 }
+
+/// R1 (kd5 R2 as amended): a gap-bearing held input is never confirmed through the wrapper,
+/// even when the caller supplies a confirmation and the held state is the strict-gap qualified
+/// one; the attempt is "not run", decided beside the attempt (outcome G at the product). A
+/// mutant without the wrapper's gap rule reaches the confirmation's own R1 refusal instead and
+/// is killed by the exact reason.
+#[test]
+fn a_held_gap_state_is_never_confirmed_through_the_wrapper() {
+    let input = gap_chain();
+    let mut ledger = LoadLedger::new();
+    for (dof, &value) in input.force.iter().enumerate() {
+        if value != 0.0 {
+            ledger.push("nodal", dof, value);
+        }
+    }
+    let force = ledger.finish(input.force.len()).unwrap();
+    for mode in MODES {
+        let looped = solve_active_set_frame_with_mode_and_springs(&input, mode, &[]).unwrap();
+        assert!(looped.iterations.iter().all(|i| matches!(i.strict_gap, StrictGapEvidence::Qualified(_))));
+        let held = solve_held_status_iteration(
+            &input,
+            &[],
+            &looped.final_states,
+            looped.iterations.last(),
+            mode,
+            Some(HeldConfirmation { force: &force, curved_sources: &[], frame_members: &[] }),
+        )
+        .unwrap();
+        assert!(held.result.converged);
+        assert_eq!(confirmation_outcome(&held.confirmation), "not established: confirmation attempt: not run");
+    }
+}

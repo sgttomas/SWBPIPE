@@ -1842,10 +1842,11 @@ const CONFIRMATION_PLUMBING: [&str; 4] = [
 /// - product_physics names neither the adapter entry nor
 ///   `confirm_with_applied`, and calls `confirm_converged_state` exactly once,
 ///   inside `fn append_nonlinear_support_loop_results(`, after the loop's call.
-/// - PROPOSED (RT-A5 `minuend_final`, for RT-A3's and DEL-04-01's approval):
-///   this crate's `lib.rs` may name `confirm_converged_state` once, as the
-///   held-status wrapper's own attempt after its tail (`complete_iteration`)
-///   has finished the one held iterate; nowhere else, and never in the loop.
+/// - RT-A5 `minuend_final` (R2 amended, option A, approved by RT-A3): this
+///   crate's `lib.rs` names `confirm_converged_state` exactly once, as the
+///   held-status wrapper's own attempt strictly after its tail
+///   (`complete_iteration`) has finished the one held iterate, and never for a
+///   gap state; nowhere else, and never in the loop or its tail.
 fn r2_confirmation_entry_violations(
     modules: &[(String, String)],
     product: &[(String, String)],
@@ -1897,20 +1898,21 @@ fn r2_confirmation_entry_violations(
                         out.push(format!("{name} names {token}: a formation-check entry inside the nonlinear iteration"));
                     }
                 }
-                // RT-A5 `minuend_final` (DEL-05-02 Work `operating-case.md` §7.3; PROPOSED
-                // amendment of R2, for RT-A3's and DEL-04-01's approval): the held-status
-                // wrapper's one confirmation attempt, after the loop's own tail has finished
-                // its one held iterate. Nothing else in the crate names the entry: never the
-                // loop, never `complete_iteration`.
+                // RT-A5 `minuend_final` (DEL-05-02 Work `operating-case.md` §7.3; R2 amended,
+                // option A, approved by RT-A3): the held-status wrapper's one confirmation
+                // attempt, strictly after the loop's own tail has finished its one held
+                // iterate. lib.rs names the entry exactly once, inside that wrapper; nothing
+                // else in the crate names it: never the loop, never `complete_iteration`.
                 let named = count(code, "confirm_converged_state");
-                let held_rule_holds = name == "lib.rs" && named <= 1 && (named == 0 || {
+                let wrapper = name == "lib.rs" && code.contains("fn solve_held_status_iteration(");
+                let held_rule_holds = wrapper && named == 1 && {
                     let body = function_body(code, "fn solve_held_status_iteration(");
                     let tail = body.find("complete_iteration(");
                     let entry = body.find("confirm_converged_state(");
                     body.matches("confirm_converged_state(").count() == 1
                         && matches!((tail, entry), (Some(a), Some(b)) if a < b)
-                });
-                if named != 0 && !held_rule_holds {
+                };
+                if (wrapper || named != 0) && !held_rule_holds {
                     out.push(format!(
                         "{name} names confirm_converged_state: only the held-status wrapper's one attempt, after its tail, is admitted"
                     ));
@@ -1979,8 +1981,9 @@ fn r2_confirmation_entry_pin_kills_a_second_or_in_loop_entry() {
         "let _ = confirmation::confirm_converged_state(); let trial_states = build_trial_states(",
     );
     assert!(!r2_confirmation_entry_violations(&in_loop, &product).is_empty());
-    // RT-A5 (PROPOSED R2 amendment): the held wrapper's attempt is admitted only once and
-    // only after its tail; a second attempt, one before the tail, or one in the tail is killed.
+    // RT-A5 (R2 amended, option A): the held wrapper's attempt is admitted exactly once and
+    // only after its tail; a second attempt, one before the tail, the one attempt moved before
+    // the tail, or one in the tail is killed.
     if modules.iter().any(|(n, code)| n == "lib.rs" && code.contains("fn solve_held_status_iteration(")) {
         let twice = mutate(
             "lib.rs",
@@ -1997,9 +2000,9 @@ fn r2_confirmation_entry_pin_kills_a_second_or_in_loop_entry() {
         // The one attempt moved before the tail (the count alone stays 1).
         let mut moved = before_tail.clone();
         let (_, code) = moved.iter_mut().find(|(n, _)| n == "lib.rs").unwrap();
-        let real = "Some(confirm) if passed => confirmation::confirm_converged_state(";
+        let real = "Some(confirm) if passed && !gap => confirmation::confirm_converged_state(";
         assert!(code.contains(real));
-        *code = code.replacen(real, "Some(confirm) if passed => confirmation::confirm_elsewhere(", 1);
+        *code = code.replacen(real, "Some(confirm) if passed && !gap => confirmation::confirm_elsewhere(", 1);
         assert_eq!(token_indices(code, "confirm_converged_state").len(), 1);
         assert!(!r2_confirmation_entry_violations(&moved, &product).is_empty());
         let in_tail = mutate(

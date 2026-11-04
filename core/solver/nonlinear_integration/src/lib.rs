@@ -1887,8 +1887,9 @@ pub struct HeldStatusSolve {
     /// `converged == false` with the loop's non-converged exit diagnostic.
     pub result: NonlinearFrameSolveResult,
     /// `confirm_converged_state`'s outcome on `result`, or `NotEstablished`
-    /// ("confirmation attempt: not run") when the caller asks for none or the
-    /// held iterate's structural report is not Passed.
+    /// ("confirmation attempt: not run") when the caller asks for none, the
+    /// held iterate's structural report is not Passed, or the input has a gap
+    /// support (R1: never confirmed through this path).
     pub confirmation: confirmation::Confirmation,
 }
 
@@ -1994,8 +1995,15 @@ pub fn solve_held_status_iteration(
             iteration.structural_report.quality
                 == open_pipe_stress_frame_kernel::structural::SolveQuality::Passed
         });
+    // R1 (kd5 R2 as amended for RT-A5): a gap state is never confirmed or qualified through
+    // this path; only R-3 may change that. The rule sits beside the attempt, as PP's
+    // `confirm && passed && !gap` does for a case.
+    let gap = held_input
+        .nonlinear_supports
+        .iter()
+        .any(|support| matches!(support.behavior, NonlinearSupportBehavior::Gap { .. }));
     let confirmation = match confirm {
-        Some(confirm) if passed => confirmation::confirm_converged_state(
+        Some(confirm) if passed && !gap => confirmation::confirm_converged_state(
             &held_input,
             springs,
             &result,
