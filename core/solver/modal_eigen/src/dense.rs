@@ -92,6 +92,37 @@ pub struct DenseOptions {
     pub max_ql_iterations_per_eigenvalue: usize,
 }
 
+/// Refusal name of an exceeded QL-rotation allotment (design §5.3.8, S1-QL).
+pub const RESOURCE_QL_ALLOTMENT_EXCEEDED: &str = "MODAL_RESOURCE_QL_ALLOTMENT_EXCEEDED";
+/// Refusal name of an exceeded band-pair allotment (design §5.3.8, S1-band).
+pub const RESOURCE_BAND_ALLOTMENT_EXCEEDED: &str = "MODAL_RESOURCE_BAND_ALLOTMENT_EXCEEDED";
+/// Refusal name of an overflow in the resource counts or comparisons.
+pub const RESOURCE_ARITHMETIC_OVERFLOW: &str = "MODAL_RESOURCE_ARITHMETIC_OVERFLOW";
+
+/// Opt-in resource allotments of the dense kernel (design §5.3.8, stage
+/// S1). Each is supplied by the caller; `None` is *no allotment*, and
+/// `Default` is `None` for both, which runs the kernel exactly as
+/// [`solve_dense_pencil`] does. No numerical allotment is adopted here.
+///
+/// Each allotment is checked **before** the work it bounds, and an exceeded
+/// allotment refuses the whole solve with no partial result. The refusals
+/// are resource-budget refusals, distinct from the kernel's numerical ones
+/// ([`DenseError::resource_code`]).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct DenseAllotments {
+    /// A_QL: the most Givens rotations implicit QL may perform in total
+    /// (R = Σ (m − l) over the sweeps, R ≤ I·(n_m − 1)). Before each QL
+    /// iteration (its shift and its sweep of m − l rotations) the kernel
+    /// checks that the rotations performed plus that sweep's stay within
+    /// A_QL, so it never performs a rotation beyond it.
+    pub ql_rotations: Option<u64>,
+    /// A_band: the most band-recovery pairs that may be attempted (the
+    /// screened pairs that are not hard-rejected). The exact count is taken
+    /// from the classification thresholds before the formed scaling and
+    /// before any per-pair exact product.
+    pub band_pairs: Option<u64>,
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum DenseError {
     DimensionMismatch {
@@ -132,6 +163,40 @@ pub enum DenseError {
         quantity: &'static str,
         index: usize,
     },
+    /// Resource refusal (`MODAL_RESOURCE_QL_ALLOTMENT_EXCEEDED`): the next
+    /// QL iteration's `sweep` rotations would take the `performed` ones past
+    /// the `allotment` A_QL. Refused before that iteration; `performed` never
+    /// exceeds `allotment`.
+    QlRotationAllotmentExceeded {
+        allotment: u64,
+        performed: u64,
+        sweep: u64,
+    },
+    /// Resource refusal (`MODAL_RESOURCE_BAND_ALLOTMENT_EXCEEDED`): the
+    /// exact count of band-recovery pairs to attempt exceeds the `allotment`
+    /// A_band. Refused before the formed scaling and any per-pair work.
+    BandPairAllotmentExceeded {
+        allotment: u64,
+        attempted: u64,
+    },
+    /// Resource refusal (`MODAL_RESOURCE_ARITHMETIC_OVERFLOW`): a resource
+    /// count or comparison (`quantity`) overflowed u64. Never wrapped.
+    ResourceArithmeticOverflow {
+        quantity: &'static str,
+    },
+}
+
+impl DenseError {
+    /// The refusal name of a resource-budget refusal, `None` for the
+    /// kernel's numerical and input refusals.
+    pub fn resource_code(&self) -> Option<&'static str> {
+        match self {
+            Self::QlRotationAllotmentExceeded { .. } => Some(RESOURCE_QL_ALLOTMENT_EXCEEDED),
+            Self::BandPairAllotmentExceeded { .. } => Some(RESOURCE_BAND_ALLOTMENT_EXCEEDED),
+            Self::ResourceArithmeticOverflow { .. } => Some(RESOURCE_ARITHMETIC_OVERFLOW),
+            _ => None,
+        }
+    }
 }
 
 impl fmt::Display for DenseError {
@@ -160,6 +225,27 @@ impl fmt::Display for DenseError {
             Self::ResultOutOfRange { quantity, index } => {
                 write!(f, "dense result `{quantity}`[{index}] is out of range")
             }
+            Self::QlRotationAllotmentExceeded {
+                allotment,
+                performed,
+                sweep,
+            } => write!(
+                f,
+                "{RESOURCE_QL_ALLOTMENT_EXCEEDED}: {performed} QL rotations performed and a sweep of \
+                 {sweep} next exceed the allotment of {allotment}"
+            ),
+            Self::BandPairAllotmentExceeded {
+                allotment,
+                attempted,
+            } => write!(
+                f,
+                "{RESOURCE_BAND_ALLOTMENT_EXCEEDED}: {attempted} band-recovery pairs exceed the \
+                 allotment of {allotment}"
+            ),
+            Self::ResourceArithmeticOverflow { quantity } => write!(
+                f,
+                "{RESOURCE_ARITHMETIC_OVERFLOW}: the resource count `{quantity}` overflowed"
+            ),
         }
     }
 }
@@ -215,6 +301,17 @@ pub struct DenseEigenSolution {
     pub below_threshold_mu_count: usize,
     /// Total implicit QL iterations.
     pub ql_iterations: usize,
+    /// R, the Givens rotations implicit QL performed (Σ (m − l) over its
+    /// sweeps), exact (design §5.3.8, T3).
+    pub ql_rotations: u64,
+    /// Positive QL μ at or below the broad classification threshold:
+    /// `screened.len()`, counted before any band work (T4).
+    pub screened_pair_count: u64,
+    /// Of those, at or below the hard threshold: never recovered, O(1) each.
+    pub hard_rejected_pair_count: u64,
+    /// Of those, in the band: the pairs whose recovery was attempted, p of
+    /// design §5.3.8 T4, counted exactly before the formed scaling.
+    pub attempted_band_pair_count: u64,
     /// min over j of R_jj² / K_jj, a Cholesky pivot-ratio observation (not a
     /// condition number).
     pub min_cholesky_pivot_ratio: f64,
@@ -243,11 +340,26 @@ impl DenseEigenSolution {
 }
 
 /// Solves K φ = λ M φ for K symmetric positive definite and M symmetric
-/// positive semidefinite (possibly singular), both dense n×n.
+/// positive semidefinite (possibly singular), both dense n×n, with no
+/// resource allotment ([`solve_dense_pencil_with_allotments`] with
+/// `DenseAllotments::default()`).
 pub fn solve_dense_pencil(
     stiffness: &SymmetricMatrix,
     mass: &SymmetricMatrix,
     options: &DenseOptions,
+) -> Result<DenseEigenSolution, DenseError> {
+    solve_dense_pencil_with_allotments(stiffness, mass, options, &DenseAllotments::default())
+}
+
+/// [`solve_dense_pencil`] under the opt-in resource allotments of design
+/// §5.3.8 stage S1 ([`DenseAllotments`]). With no allotment the arithmetic,
+/// the outcome and every refusal are those of [`solve_dense_pencil`]; an
+/// allotment adds only its own refusal, checked before the work it bounds.
+pub fn solve_dense_pencil_with_allotments(
+    stiffness: &SymmetricMatrix,
+    mass: &SymmetricMatrix,
+    options: &DenseOptions,
+    allotments: &DenseAllotments,
 ) -> Result<DenseEigenSolution, DenseError> {
     let n = stiffness.dimension();
     if mass.dimension() != n {
@@ -325,15 +437,17 @@ pub fn solve_dense_pencil(
     let mut d = vec![0.0; nm];
     let mut e = vec![0.0; nm];
     let mut ql_iterations = 0;
+    let mut ql_rotations = 0;
     if nm > 0 {
         householder_tridiagonalize(&mut work, nm, &mut d, &mut e);
         transpose_in_place(&mut work, nm);
-        ql_iterations = implicit_ql(
+        (ql_iterations, ql_rotations) = implicit_ql(
             &mut d,
             &mut e,
             &mut work,
             nm,
             options.max_ql_iterations_per_eigenvalue,
+            allotments.ql_rotations,
         )?;
         check_finite("eigenvalues of the reduced matrix", &d)?;
         sort_ascending(&mut d, &mut work, nm);
@@ -427,7 +541,12 @@ pub fn solve_dense_pencil(
             index: 0,
         });
     }
-    let scaling = if d.iter().any(|&mu| mu > hard_cut && mu <= cut) {
+    // S1-band (design §5.3.8 T4): the exact screened, hard-rejected and
+    // attempted counts from the classification alone, before the formed
+    // scaling (2n² WideDd entries) and before any per-pair exact product.
+    let counts = screen_counts(&d, hard_cut, cut)?;
+    charge_band_pairs(counts.attempted, allotments.band_pairs)?;
+    let scaling = if counts.attempted > 0 {
         Some(formed_scaling(stiffness, mass))
     } else {
         None
@@ -461,6 +580,11 @@ pub fn solve_dense_pencil(
             retained,
         });
     }
+    debug_assert_eq!(screened.len() as u64, counts.screened);
+    debug_assert_eq!(
+        screened.iter().filter(|s| s.hard_rejected).count() as u64,
+        counts.hard_rejected
+    );
     let below_threshold_mu_count = screened.iter().filter(|s| !s.retained).count();
     // Keep the retained rows, in order (each moves only to an earlier slot).
     for (slot, &row) in retained_rows.iter().enumerate() {
@@ -511,6 +635,10 @@ pub fn solve_dense_pencil(
         nonpositive_mu_count,
         below_threshold_mu_count,
         ql_iterations,
+        ql_rotations,
+        screened_pair_count: counts.screened,
+        hard_rejected_pair_count: counts.hard_rejected,
+        attempted_band_pair_count: counts.attempted,
         min_cholesky_pivot_ratio,
         structurally_massless_count: n0,
         established_finite_mode_count: established,
@@ -535,6 +663,75 @@ fn classify_mu(mu: f64, hard: f64, broad: f64) -> MuRegion {
     }
 }
 
+/// The exact S1-band counts of one classification (design §5.3.8 T4).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct ScreenCounts {
+    screened: u64,
+    hard_rejected: u64,
+    attempted: u64,
+}
+
+/// Classifies each μ as the screen loop will, counting with checked
+/// arithmetic; reads only μ and the two thresholds.
+fn screen_counts(mu: &[f64], hard: f64, broad: f64) -> Result<ScreenCounts, DenseError> {
+    let mut hard_rejected: u64 = 0;
+    let mut attempted: u64 = 0;
+    for &value in mu {
+        let (count, quantity) = match classify_mu(value, hard, broad) {
+            MuRegion::Direct => continue,
+            MuRegion::HardRejected => (&mut hard_rejected, "hard-rejected pairs"),
+            MuRegion::Band => (&mut attempted, "attempted band pairs"),
+        };
+        *count = checked_count_add(*count, 1, quantity)?;
+    }
+    Ok(ScreenCounts {
+        screened: checked_count_add(hard_rejected, attempted, "screened pairs")?,
+        hard_rejected,
+        attempted,
+    })
+}
+
+/// `count + more`, or the typed overflow refusal; never a wrap.
+fn checked_count_add(count: u64, more: u64, quantity: &'static str) -> Result<u64, DenseError> {
+    count
+        .checked_add(more)
+        .ok_or(DenseError::ResourceArithmeticOverflow { quantity })
+}
+
+/// S1-band: refuses when the attempted pairs exceed A_band (inclusive: a
+/// count equal to the allotment passes).
+fn charge_band_pairs(attempted: u64, allotment: Option<u64>) -> Result<(), DenseError> {
+    match allotment {
+        Some(allotment) if attempted > allotment => Err(DenseError::BandPairAllotmentExceeded {
+            allotment,
+            attempted,
+        }),
+        _ => Ok(()),
+    }
+}
+
+/// S1-QL: the rotation total after a sweep of `sweep` more, refused when it
+/// would exceed A_QL (inclusive) or overflow. Called before the sweep.
+fn charge_ql_rotations(
+    performed: u64,
+    sweep: usize,
+    allotment: Option<u64>,
+) -> Result<u64, DenseError> {
+    let overflow = DenseError::ResourceArithmeticOverflow {
+        quantity: "QL rotations",
+    };
+    let sweep = u64::try_from(sweep).map_err(|_| overflow.clone())?;
+    let total = performed.checked_add(sweep).ok_or(overflow)?;
+    match allotment {
+        Some(allotment) if total > allotment => Err(DenseError::QlRotationAllotmentExceeded {
+            allotment,
+            performed,
+            sweep,
+        }),
+        _ => Ok(total),
+    }
+}
+
 /// Maximum exact-product insertions for p screened pairs: two quadratic
 /// forms and two residual products per dense entry, 4pn². This is additional
 /// work to the binary64 eigensolve's flop estimate, not interchangeable
@@ -552,7 +749,16 @@ struct FormedScaling {
     mass_norm: WideDd,
 }
 
+// Unit-test instrumentation: the band work actually started on this thread,
+// (formed scalings, band recoveries).
+#[cfg(test)]
+thread_local! {
+    static BAND_WORK: std::cell::Cell<(u64, u64)> = const { std::cell::Cell::new((0, 0)) };
+}
+
 fn formed_scaling(k: &SymmetricMatrix, m: &SymmetricMatrix) -> FormedScaling {
+    #[cfg(test)]
+    BAND_WORK.with(|w| w.set((w.get().0 + 1, w.get().1)));
     let n = k.dimension();
     let roots: Vec<f64> = (0..n).map(|i| k.get(i, i).sqrt()).collect();
     let norm = |a: &SymmetricMatrix| {
@@ -593,6 +799,8 @@ fn recover_band_mode(
     scaling: &FormedScaling,
     phi: &[f64],
 ) -> Option<BandRecovery> {
+    #[cfg(test)]
+    BAND_WORK.with(|w| w.set((w.get().0, w.get().1 + 1)));
     let mut energy = ExactSum::new();
     let mut mass = ExactSum::new();
     for i in 0..phi.len() {
@@ -1051,7 +1259,13 @@ fn householder_tridiagonalize(v: &mut [f64], n: usize, d: &mut [f64], e: &mut [f
 /// Implicit QL with Wilkinson shifts on the tridiagonal (d, e), applying
 /// each Givens rotation to the rows of `z` (row j is the j-th vector, the
 /// transpose of the Householder accumulation). Returns the total iteration
-/// count.
+/// and rotation counts.
+///
+/// S1-QL (design §5.3.8 T3): each iteration's sweep performs exactly m − l
+/// rotations. Before the iteration's shift and sweep, the rotations
+/// performed plus m − l are checked against `rotation_allotment` (A_QL),
+/// so no rotation beyond it is performed; `None` checks nothing but the
+/// count's own overflow.
 ///
 /// For each l, the first negligible subdiagonal at or below l
 /// (|e_m| ≤ ε·max_{j≤l}(|d_j| + |e_j|), ε = 2⁻⁵²) bounds the unreduced block
@@ -1064,7 +1278,8 @@ fn implicit_ql(
     z: &mut [f64],
     n: usize,
     limit: usize,
-) -> Result<usize, DenseError> {
+    rotation_allotment: Option<u64>,
+) -> Result<(usize, u64), DenseError> {
     for i in 1..n {
         e[i - 1] = e[i];
     }
@@ -1073,6 +1288,11 @@ fn implicit_ql(
     let mut shift_total = 0.0;
     let mut tst1: f64 = 0.0;
     let mut total = 0;
+    let mut rotations: u64 = 0;
+    // An independent count of the rotations applied (debug builds), against
+    // which the charged count is checked.
+    #[cfg(debug_assertions)]
+    let mut applied: u64 = 0;
     for l in 0..n {
         tst1 = tst1.max(d[l].abs() + e[l].abs());
         let mut m = l;
@@ -1085,6 +1305,7 @@ fn implicit_ql(
                 if iterations == limit {
                     return Err(DenseError::QlIterationLimit { index: l, limit });
                 }
+                rotations = charge_ql_rotations(rotations, m - l, rotation_allotment)?;
                 iterations += 1;
                 total += 1;
                 // Shift.
@@ -1122,6 +1343,10 @@ fn implicit_ql(
                     c = p / r;
                     p = c * d[i] - s * g;
                     d[i + 1] = h + s * (c * g + s * d[i]);
+                    #[cfg(debug_assertions)]
+                    {
+                        applied += 1;
+                    }
                     let (row_i, row_next) = row_pair(z, n, i, i + 1);
                     for k in 0..n {
                         let h = row_next[k];
@@ -1140,7 +1365,9 @@ fn implicit_ql(
         d[l] += shift_total;
         e[l] = 0.0;
     }
-    Ok(total)
+    #[cfg(debug_assertions)]
+    debug_assert_eq!(applied, rotations);
+    Ok((total, rotations))
 }
 
 /// Selection sort of d ascending, swapping the rows of z with it. Equal
@@ -1177,6 +1404,357 @@ mod tests {
             screen_error_estimate_threshold: 1e-6,
             max_ql_iterations_per_eigenvalue: 30,
         }
+    }
+
+    // ---- S1 resource allotments (design §5.3.8) ----
+
+    fn allotted(ql: Option<u64>, band: Option<u64>) -> DenseAllotments {
+        DenseAllotments {
+            ql_rotations: ql,
+            band_pairs: band,
+        }
+    }
+
+    fn second_difference(n: usize) -> SymmetricMatrix {
+        let mut rows = vec![vec![0.0; n]; n];
+        for i in 0..n {
+            rows[i][i] = 2.0;
+            if i + 1 < n {
+                rows[i][i + 1] = -1.0;
+                rows[i + 1][i] = -1.0;
+            }
+        }
+        SymmetricMatrix::from_rows(&rows).unwrap()
+    }
+
+    /// K = Qᵀ diag(1, ε) Q and M = Qᵀ diag(1, m_s) Q, Q the 45° rotation
+    /// (every entry exact), with κ_μ = 2⁴⁰: the soft direction (μ = m_s/ε
+    /// = 2¹⁰) is direct, and the stiff one (μ = 1) lies in the band, above
+    /// hard ≈ 2⁻² and below the broad cut ≈ 2⁸. One attempted pair.
+    fn one_band_pair() -> (SymmetricMatrix, SymmetricMatrix, DenseOptions) {
+        let (eps, soft_mass) = (2f64.powi(-20), 2f64.powi(-10));
+        let rotated = |a: f64, b: f64| {
+            SymmetricMatrix::from_rows(&[
+                vec![(a + b) / 2.0, (a - b) / 2.0],
+                vec![(a - b) / 2.0, (a + b) / 2.0],
+            ])
+            .unwrap()
+        };
+        let opts = DenseOptions {
+            resolution_floor_multiple: 2f64.powi(40),
+            ..options()
+        };
+        (rotated(1.0, eps), rotated(1.0, soft_mass), opts)
+    }
+
+    fn band_work() -> (u64, u64) {
+        BAND_WORK.with(|w| w.get())
+    }
+
+    fn reset_band_work() {
+        BAND_WORK.with(|w| w.set((0, 0)));
+    }
+
+    #[test]
+    fn ql_allotment_at_the_count_passes_and_one_below_refuses_before_it() {
+        let (k, m) = (
+            second_difference(12),
+            SymmetricMatrix::from_diagonal(&[1.0; 12]).unwrap(),
+        );
+        let baseline = solve_dense_pencil(&k, &m, &options()).unwrap();
+        let rotations = baseline.ql_rotations;
+        assert!(rotations > 0);
+        // R ≤ I·(n_m − 1).
+        assert!(rotations <= baseline.ql_iterations as u64 * (12 - 1));
+        let exact = solve_dense_pencil_with_allotments(
+            &k,
+            &m,
+            &options(),
+            &allotted(Some(rotations), None),
+        );
+        assert_eq!(exact, Ok(baseline.clone()));
+        for allotment in [0, 1, rotations / 2, rotations - 1] {
+            match solve_dense_pencil_with_allotments(
+                &k,
+                &m,
+                &options(),
+                &allotted(Some(allotment), None),
+            ) {
+                Err(
+                    error @ DenseError::QlRotationAllotmentExceeded {
+                        allotment: a,
+                        performed,
+                        sweep,
+                    },
+                ) => {
+                    assert_eq!(a, allotment);
+                    // Never a rotation beyond the allotment, and refused
+                    // only because the next whole sweep would pass it.
+                    assert!(performed <= allotment);
+                    assert!(performed + sweep > allotment);
+                    assert!(sweep > 0 && sweep <= 11);
+                    assert_eq!(error.resource_code(), Some(RESOURCE_QL_ALLOTMENT_EXCEEDED));
+                }
+                other => panic!("allotment {allotment}: {other:?}"),
+            }
+        }
+        // The iteration limit, a numerical refusal, keeps its precedence.
+        let opts = DenseOptions {
+            max_ql_iterations_per_eigenvalue: 0,
+            ..options()
+        };
+        assert_eq!(
+            solve_dense_pencil_with_allotments(&k, &m, &opts, &allotted(Some(0), Some(0))),
+            Err(DenseError::QlIterationLimit { index: 0, limit: 0 })
+        );
+    }
+
+    #[test]
+    fn band_allotment_refuses_before_the_formed_scaling_and_any_pair_work() {
+        let (k, m, opts) = one_band_pair();
+        reset_band_work();
+        let baseline = solve_dense_pencil(&k, &m, &opts).unwrap();
+        assert_eq!(band_work(), (1, 1));
+        assert_eq!(baseline.screened_pair_count, 1);
+        assert_eq!(baseline.hard_rejected_pair_count, 0);
+        assert_eq!(baseline.attempted_band_pair_count, 1);
+        assert_eq!(baseline.screened.len(), 1);
+        assert!(!baseline.screened[0].hard_rejected);
+        assert!(baseline.screened[0].recovery.is_some());
+        assert_eq!(baseline.mode_count(), 2);
+
+        reset_band_work();
+        let exact = solve_dense_pencil_with_allotments(&k, &m, &opts, &allotted(None, Some(1)));
+        assert_eq!(exact, Ok(baseline));
+        assert_eq!(band_work(), (1, 1));
+
+        reset_band_work();
+        let refused = solve_dense_pencil_with_allotments(&k, &m, &opts, &allotted(None, Some(0)));
+        assert_eq!(
+            refused,
+            Err(DenseError::BandPairAllotmentExceeded {
+                allotment: 0,
+                attempted: 1
+            })
+        );
+        assert_eq!(
+            band_work(),
+            (0, 0),
+            "no scaling and no pair work before the refusal"
+        );
+        assert_eq!(
+            refused.unwrap_err().resource_code(),
+            Some(RESOURCE_BAND_ALLOTMENT_EXCEEDED)
+        );
+
+        // No band pair: no scaling, and an allotment of 0 passes.
+        let (k, m) = (
+            second_difference(12),
+            SymmetricMatrix::from_diagonal(&[1.0; 12]).unwrap(),
+        );
+        reset_band_work();
+        let plain =
+            solve_dense_pencil_with_allotments(&k, &m, &options(), &allotted(None, Some(0)))
+                .unwrap();
+        assert_eq!(plain.attempted_band_pair_count, 0);
+        assert_eq!(band_work(), (0, 0));
+    }
+
+    #[test]
+    fn screen_counts_follow_the_classification() {
+        let (hard, broad) = (2f64.powi(-40), 2f64.powi(-30));
+        let mu = [
+            1.0,
+            broad.next_up(),
+            broad,
+            hard.next_up(),
+            hard,
+            hard.next_down(),
+            0.0,
+        ];
+        assert_eq!(
+            screen_counts(&mu, hard, broad),
+            Ok(ScreenCounts {
+                screened: 5,
+                hard_rejected: 3,
+                attempted: 2
+            })
+        );
+        assert_eq!(
+            screen_counts(&[], hard, broad),
+            Ok(ScreenCounts {
+                screened: 0,
+                hard_rejected: 0,
+                attempted: 0
+            })
+        );
+    }
+
+    #[test]
+    fn resource_arithmetic_is_checked_never_wrapped() {
+        let overflow = |quantity| Err(DenseError::ResourceArithmeticOverflow { quantity });
+        // QL: the count's own overflow, with or without an allotment.
+        assert_eq!(
+            charge_ql_rotations(u64::MAX, 1, None),
+            overflow("QL rotations")
+        );
+        assert_eq!(
+            charge_ql_rotations(u64::MAX, 1, Some(u64::MAX)),
+            overflow("QL rotations")
+        );
+        assert_eq!(
+            charge_ql_rotations(1, usize::MAX, None),
+            overflow("QL rotations")
+        );
+        assert_eq!(
+            charge_ql_rotations(u64::MAX - 1, 1, Some(u64::MAX)),
+            Ok(u64::MAX)
+        );
+        assert_eq!(
+            charge_ql_rotations(u64::MAX, 0, Some(u64::MAX)),
+            Ok(u64::MAX)
+        );
+        assert_eq!(charge_ql_rotations(u64::MAX - 1, 1, None), Ok(u64::MAX));
+        // Inclusive at the allotment, refused one past it.
+        assert_eq!(charge_ql_rotations(5, 3, Some(8)), Ok(8));
+        assert_eq!(
+            charge_ql_rotations(5, 3, Some(7)),
+            Err(DenseError::QlRotationAllotmentExceeded {
+                allotment: 7,
+                performed: 5,
+                sweep: 3
+            })
+        );
+        // Counts and the band comparison.
+        assert_eq!(checked_count_add(u64::MAX, 1, "pairs"), overflow("pairs"));
+        assert_eq!(checked_count_add(u64::MAX - 1, 1, "pairs"), Ok(u64::MAX));
+        assert_eq!(charge_band_pairs(u64::MAX, Some(u64::MAX)), Ok(()));
+        assert_eq!(charge_band_pairs(u64::MAX, None), Ok(()));
+        assert_eq!(
+            charge_band_pairs(u64::MAX, Some(u64::MAX - 1)),
+            Err(DenseError::BandPairAllotmentExceeded {
+                allotment: u64::MAX - 1,
+                attempted: u64::MAX
+            })
+        );
+        assert_eq!(
+            DenseError::ResourceArithmeticOverflow { quantity: "pairs" }.resource_code(),
+            Some(RESOURCE_ARITHMETIC_OVERFLOW)
+        );
+    }
+
+    #[test]
+    fn resource_refusals_are_distinct_from_numerical_ones() {
+        let codes = [
+            RESOURCE_QL_ALLOTMENT_EXCEEDED,
+            RESOURCE_BAND_ALLOTMENT_EXCEEDED,
+            RESOURCE_ARITHMETIC_OVERFLOW,
+        ];
+        for (i, a) in codes.iter().enumerate() {
+            assert!(a.starts_with("MODAL_RESOURCE_"));
+            assert_ne!(*a, crate::admission::PENCIL_RANGE_UNSUPPORTED);
+            for b in &codes[i + 1..] {
+                assert_ne!(a, b);
+            }
+        }
+        for numerical in [
+            DenseError::EmptySystem,
+            DenseError::InvalidOption { name: "x" },
+            DenseError::NonPositivePivot {
+                index: 0,
+                value: 0.0,
+            },
+            DenseError::QlIterationLimit { index: 0, limit: 0 },
+            DenseError::ReductionOutOfRange {
+                stage: "x",
+                index: 0,
+            },
+            DenseError::ResultOutOfRange {
+                quantity: "x",
+                index: 0,
+            },
+        ] {
+            assert_eq!(numerical.resource_code(), None);
+        }
+        let shown = DenseError::BandPairAllotmentExceeded {
+            allotment: 2,
+            attempted: 3,
+        }
+        .to_string();
+        assert!(
+            shown.starts_with(RESOURCE_BAND_ALLOTMENT_EXCEEDED),
+            "{shown}"
+        );
+    }
+
+    /// With no allotment, or a generous one, every outcome of this module's
+    /// pencils, successes and refusals, is identical to `solve_dense_pencil`'s.
+    #[test]
+    fn allotments_not_reached_change_nothing() {
+        let (band_k, band_m, band_opts) = one_band_pair();
+        let singular = SymmetricMatrix::from_rows(&[vec![1.0, 2.0], vec![2.0, 1.0]]).unwrap();
+        let unit2 = SymmetricMatrix::from_diagonal(&[1.0, 1.0]).unwrap();
+        let unit1 = SymmetricMatrix::from_diagonal(&[1.0]).unwrap();
+        let empty = SymmetricMatrix::from_rows(&[]).unwrap();
+        let zero_limit = DenseOptions {
+            max_ql_iterations_per_eigenvalue: 0,
+            ..options()
+        };
+        let bad_option = DenseOptions {
+            infinite_mu_relative_threshold: f64::NAN,
+            ..options()
+        };
+        let cases: Vec<(SymmetricMatrix, SymmetricMatrix, DenseOptions)> = vec![
+            (band_k, band_m, band_opts),
+            (
+                second_difference(12),
+                SymmetricMatrix::from_diagonal(&[1.0; 12]).unwrap(),
+                options(),
+            ),
+            (
+                second_difference(12),
+                SymmetricMatrix::from_diagonal(&[1.0; 12]).unwrap(),
+                zero_limit,
+            ),
+            (
+                SymmetricMatrix::from_diagonal(&[1.0; 5]).unwrap(),
+                SymmetricMatrix::from_diagonal(&[3.0, 0.5, 7.0, 1.25, 0.0]).unwrap(),
+                options(),
+            ),
+            (
+                unit2.clone(),
+                SymmetricMatrix::from_diagonal(&[1.0, 2f64.powi(-52)]).unwrap(),
+                options(),
+            ),
+            (singular, unit2.clone(), options()),
+            (unit2.clone(), unit1.clone(), options()),
+            (empty.clone(), empty, options()),
+            (unit2.clone(), unit2.clone(), bad_option),
+            (
+                SymmetricMatrix::from_diagonal(&[2f64.powi(-520)]).unwrap(),
+                unit1,
+                options(),
+            ),
+        ];
+        let mut refusals = 0;
+        for (k, m, opts) in &cases {
+            let baseline = solve_dense_pencil(k, m, opts);
+            refusals += usize::from(baseline.is_err());
+            let mut allotments = vec![
+                DenseAllotments::default(),
+                allotted(Some(u64::MAX), Some(u64::MAX)),
+            ];
+            if let Ok(solution) = &baseline {
+                allotments.push(allotted(
+                    Some(solution.ql_rotations),
+                    Some(solution.attempted_band_pair_count),
+                ));
+            }
+            for a in &allotments {
+                assert_eq!(solve_dense_pencil_with_allotments(k, m, opts, a), baseline);
+            }
+        }
+        assert_eq!(refusals, 6);
     }
 
     #[test]

@@ -25,7 +25,8 @@
 use open_pipe_stress_modal_eigen::clusters::cluster_ids;
 use open_pipe_stress_modal_eigen::dd::{Dd, DdAccumulator};
 use open_pipe_stress_modal_eigen::dense::{
-    established_finite_mode_count, solve_dense_pencil, DenseEigenSolution, DenseError, DenseOptions,
+    established_finite_mode_count, solve_dense_pencil, solve_dense_pencil_with_allotments,
+    DenseAllotments, DenseEigenSolution, DenseError, DenseOptions,
 };
 use open_pipe_stress_modal_eigen::sturm::{
     count_above_spectrum, count_at_shift, count_in_gap, Gap, GapLower, Neighbour, ShiftDecision,
@@ -1381,4 +1382,122 @@ fn range(values: &[f64]) -> (f64, f64) {
         .fold((f64::INFINITY, f64::NEG_INFINITY), |(lo, hi), &v| {
             (lo.min(v), hi.max(v))
         })
+}
+
+/// The same outcome, bit for bit: equality, the Debug text (which tells
+/// −0.0 from 0.0) and the bits of every returned value.
+fn assert_same_dense_outcome(
+    a: &Result<DenseEigenSolution, DenseError>,
+    b: &Result<DenseEigenSolution, DenseError>,
+    what: &str,
+) {
+    assert_eq!(a, b, "{what}");
+    assert_eq!(format!("{a:?}"), format!("{b:?}"), "{what}");
+    if let (Ok(a), Ok(b)) = (a, b) {
+        let bits = |s: &DenseEigenSolution| -> Vec<u64> {
+            s.eigenvalues
+                .iter()
+                .chain(&s.mu)
+                .chain(&s.vectors)
+                .map(|x| x.to_bits())
+                .collect()
+        };
+        assert_eq!(bits(a), bits(b), "{what}");
+    }
+}
+
+/// Design §5.3.8 S1: with no allotment, a generous one, or one exactly at
+/// the counts, every fixture pencil (cases and witnesses) and the
+/// overflowing reduction give `solve_dense_pencil`'s outcome bit for bit,
+/// refusals included; one below a nonzero count refuses by its own name.
+#[test]
+fn resource_allotments_not_reached_change_no_fixture_outcome() {
+    let n = 130;
+    let mut overflow_k = vec![vec![0.0; n]; n];
+    for i in 0..n {
+        overflow_k[i][i] = if i == 0 { 1.0 } else { 257.0 };
+        if i + 1 < n {
+            overflow_k[i][i + 1] = 16.0;
+            overflow_k[i + 1][i] = 16.0;
+        }
+    }
+    let identity: Rows = (0..n)
+        .map(|i| (0..n).map(|j| if i == j { 1.0 } else { 0.0 }).collect())
+        .collect();
+    let mut pencils: Vec<(String, Rows, Rows)> =
+        fixture().into_iter().map(|p| (p.id, p.k, p.m)).collect();
+    pencils.push(("overflowing reduction".into(), overflow_k, identity));
+    let (mut refused, mut banded) = (0, 0);
+    for (id, k, m) in &pencils {
+        let (k, m) = (sym(k), sym(m));
+        let baseline = solve_dense_pencil(&k, &m, &dense_options());
+        let mut allotments = vec![
+            DenseAllotments::default(),
+            DenseAllotments {
+                ql_rotations: Some(u64::MAX),
+                band_pairs: Some(u64::MAX),
+            },
+        ];
+        match &baseline {
+            Ok(s) => {
+                assert_eq!(s.screened_pair_count, s.screened.len() as u64, "{id}");
+                assert_eq!(
+                    s.hard_rejected_pair_count,
+                    s.screened.iter().filter(|x| x.hard_rejected).count() as u64,
+                    "{id}"
+                );
+                assert_eq!(
+                    s.attempted_band_pair_count,
+                    s.screened_pair_count - s.hard_rejected_pair_count,
+                    "{id}"
+                );
+                banded += usize::from(s.attempted_band_pair_count > 0);
+                allotments.push(DenseAllotments {
+                    ql_rotations: Some(s.ql_rotations),
+                    band_pairs: Some(s.attempted_band_pair_count),
+                });
+                if s.ql_rotations > 0 {
+                    let below = DenseAllotments {
+                        ql_rotations: Some(s.ql_rotations - 1),
+                        band_pairs: None,
+                    };
+                    assert!(
+                        matches!(
+                            solve_dense_pencil_with_allotments(&k, &m, &dense_options(), &below),
+                            Err(DenseError::QlRotationAllotmentExceeded { performed, allotment, .. })
+                                if performed <= allotment
+                        ),
+                        "{id}"
+                    );
+                }
+                if s.attempted_band_pair_count > 0 {
+                    let below = DenseAllotments {
+                        ql_rotations: None,
+                        band_pairs: Some(s.attempted_band_pair_count - 1),
+                    };
+                    assert_eq!(
+                        solve_dense_pencil_with_allotments(&k, &m, &dense_options(), &below),
+                        Err(DenseError::BandPairAllotmentExceeded {
+                            allotment: s.attempted_band_pair_count - 1,
+                            attempted: s.attempted_band_pair_count,
+                        }),
+                        "{id}"
+                    );
+                }
+            }
+            Err(error) => {
+                assert_eq!(error.resource_code(), None, "{id}");
+                refused += 1;
+            }
+        }
+        for a in &allotments {
+            let allotted = solve_dense_pencil_with_allotments(&k, &m, &dense_options(), a);
+            assert_same_dense_outcome(&allotted, &baseline, &format!("{id} under {a:?}"));
+        }
+    }
+    eprintln!(
+        "S1 identity: {} pencils, {refused} refused, {banded} with band pairs",
+        pencils.len()
+    );
+    assert!(refused >= 1);
 }
