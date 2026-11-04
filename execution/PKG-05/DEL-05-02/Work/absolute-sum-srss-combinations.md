@@ -1092,3 +1092,53 @@ display scope and the masking regression), `HistoricalRunContext.test.tsx` and
 verbatim; main has no recorded Timoshenko or successor run, so those records were built by
 main's own record builder from main's verbatim statements). Repin never edits either
 directory.
+
+### 10.5 Deleting and restoring combinations (applier)
+
+The RT-A4 wiring authored unsigned bases and combination operands, but the applier's
+`delete_combination` and `delete_combination_term` still accepted only records and terms of
+flat `{load_case, factor}` terms. So no subtraction, envelope or nested combination could be
+deleted, and neither could a term that names a combination. This section adds those deletes and
+their exact inverses. No route, member or basis is admitted, and no schema, version or policy
+changes.
+
+- **Before values.**
+  - **Flat records and terms keep their historical display**, byte for byte:
+    `"<id>; <label>; basis=<basis>; terms=<id> x <factor>; …"` and `"<load_case> x <factor>"`.
+  - **Every other record or term** is named by the canonical JSON (RFC 8785) of the stored
+    record or term. This covers a subtraction, an envelope, a record with a combination operand,
+    a record without `terms`, and a term naming a combination.
+  - The before value is a stale check, never an inverse.
+- **References.**
+  - `OP-COMBINATION-DELETE-REFERENCED` refuses deleting a combination that another combination
+    still names, and lists every reference:
+    - a term's `combination`, of any factor including 0;
+    - `minuend_id` or `subtrahend_id`;
+    - an `operand_ids` entry.
+  - Nothing cascades, and no orphan is left. Combinations made by a template delete top-down.
+- **The inverse is the stored record or term itself, at its index.**
+  - `create_combination` takes a restore form, `field_path` `combinations[i]`, and
+    `create_combination_term` takes `terms.i`. The payload is stored exactly as given, at index
+    i, so value types and number forms are kept. Canonical text alone would collapse them: the
+    integer 10^18 + 100 and the float 10^18 + 128 render alike.
+  - The restore form admits exactly what the normalizing create admits: the same closed basis,
+    operand, shape and interim-member checks. The restored id must equal `target.ref` exactly,
+    and the index must lie within the collection.
+  - So a record no create authors deletes, but its restore is refused by create's own name.
+    One example is a termless mechanics record (`OP-CREATE-COMBINATION-PAYLOAD-INVALID`).
+    Another is a record carrying `subtrahend_support_state: minuend_final`
+    (`LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED`). The desktop's session checkpoint
+    still restores such a document exactly.
+  - The plain `combinations` and `terms` paths still create a normalized record at the end.
+- **The document validator still judges every result**, including cycles and operand rules. The
+  existing cardinality rule is unchanged: the model format admits a combination with no terms,
+  so a last term deletes as a load-case term always has.
+- **Verification.**
+  - `operation_applier/tests/combination_delete.rs` covers:
+    - deletes and restores on every basis;
+    - the reference refusal, including factor 0, subtraction and envelope operands;
+    - number forms across the 2^53 collision;
+    - typed nested terms at their index;
+    - negative controls: wrong before, already deleted, index out of range, id mismatch,
+      existing id, a cycle on restore, and a malformed index path.
+  - Contract corpus cases 86–90 run natively and in both wasm browser lanes.
