@@ -1113,7 +1113,8 @@ changes.
     record or term. This covers a record without `terms` (as an authored subtraction or envelope
     may be), a record with a combination operand, and a term naming a combination. The desktop's
     existing producer sends the historical display for these. Before this change those deletes
-    were refused (`OP-COMBINATION-PAYLOAD-INVALID`). They now stay refused, as stale, until the
+    were refused (`OP-COMBINATION-PAYLOAD-INVALID` for a record, `OP-COMBINATION-TERM-PAYLOAD-INVALID`
+    for a term). They now stay refused, as stale, until the
     S3b producer follow-up sends the canonical form. Nothing regresses.
   - The before value is a stale check, never an inverse.
 - **References.**

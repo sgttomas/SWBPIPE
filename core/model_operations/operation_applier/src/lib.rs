@@ -7252,9 +7252,10 @@ fn resolve_delete_combination(
         );
         return None;
     };
-    // A record of flat `{load_case, factor}` terms keeps its historical display;
-    // every other record (a subtraction, an envelope, a combination operand, no
-    // `terms`) is named by its canonical JSON, so its before-value binds it whole.
+    // A record whose `terms` is an array of flat `{load_case, factor}` terms (empty
+    // included, whatever the basis) keeps its historical display; every other record
+    // (no `terms`, a combination operand) is named by its canonical JSON, so its
+    // before-value binds it whole.
     let current_display =
         combination_delete_display(combination).unwrap_or_else(|| canonical_json(combination));
 
