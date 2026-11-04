@@ -1199,6 +1199,15 @@ on its route, independently of the producer. The verifier shares no code with it
     verifier read an integer load case ID as a case, so it disagreed with Rust on such inputs
     (MEMBER_UNRESOLVED where Rust refused BASIS, and the two acceptance differences above).
     Pass or refuse did not depend on the seed.
+- **One evidence pass per dispatch** (RT-U4 repair B, 2026-11-03). On the pressure route,
+  `reader_verdict::standing` reads `validate_pressure_evidence` once and gives the verdict to
+  both of its uses: the token's `for_source` (`semantic_contract::numerical_use_standing_given`)
+  and the findings' reader outcome (`pressure_outcome`, which `validate("pressure")` also
+  uses). Before, each use ran the same model-free pass. The two orders above make the pass a
+  function of the source alone, so the outcome is unchanged on every input. Every other route,
+  preview physics included, keeps its reads, as do `numerical_use_standing_with_context`,
+  `for_source` and `read pressure`. The verifier (`tests/verifiers/reader_verdict.py`) keeps
+  its two independent calls; it reads the same verdicts.
 - **Arc evidence.** `arc_evidence.rs` and `tests/verifiers/pressure_1.py` (renamed
   `pressure_2.py`) drop `withheld_on_arcs`. They require the two definition ids and the new
   rows' coverage. `physics_evidence` stops refusing the formerly withheld kinds on arcs.
