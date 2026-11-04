@@ -362,7 +362,7 @@ pub fn validate(reader: &str, source: &Value, model: Option<&Value>, invocation:
                     // RT-A3 §4: the certificate's records bound to the model's combinations.
                     .and_then(|()| crate::combination_certificate::model_checks(source, m))
                     // RT-A3 §4: the certificate last, after every other check.
-                    .and_then(|()| crate::combination_certificate::check(source))
+                    .and_then(|()| crate::combination_certificate::check_with(source, Some(m)))
             })
         })),
         // Current pressure-2 reader, then G2's model checks,
@@ -380,7 +380,7 @@ pub fn validate(reader: &str, source: &Value, model: Option<&Value>, invocation:
                 .and_then(|()| crate::exact_combination_evidence::model_checks(source, m))
                 .and_then(|()| crate::nonlinear_support_evidence::model_checks(source, m))
                 .and_then(|()| crate::combination_certificate::model_checks(source, m))
-                .and_then(|()| crate::combination_certificate::check(source)))
+                .and_then(|()| crate::combination_certificate::check_with(source, Some(m))))
         })),
         "pressure-source" => {
             let contract = crate::physics_source::SourceContract::PressureV3;

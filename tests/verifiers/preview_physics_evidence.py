@@ -344,10 +344,10 @@ def validate_preview_physics_evidence(source: Mapping[str, Any], model: Mapping[
         certificate_check(source)
 
 
-def certificate_check(source: Mapping[str, Any]) -> None:
+def certificate_check(source: Mapping[str, Any], model: Mapping[str, Any] | None = None) -> None:
     from . import combination_certificate
     try:
-        combination_certificate.check(source)
+        combination_certificate.check(source, model)
     except (TypeError, KeyError, AttributeError, OverflowError, IndexError) as error:
         raise ValueError("SOURCE_COMBINATION_CERTIFICATE_MALFORMED") from error
 

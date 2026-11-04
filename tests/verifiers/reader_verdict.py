@@ -375,7 +375,7 @@ def validate(reader: str, source: Any, model: Any = None, invocation: Any = None
                 # RT-A3 §4: the certificate's records bound to the model's combinations, then the certificate last.
                 from . import combination_certificate
                 combination_certificate.model_checks(source, model)
-                preview_physics_evidence.certificate_check(source)
+                preview_physics_evidence.certificate_check(source, model)
             return {"ok": True}
         if reader == "pressure":
             if model is None:
@@ -403,7 +403,7 @@ def validate(reader: str, source: Any, model: Any = None, invocation: Any = None
                 # RT-A3 §4: the certificate's records bound to the model's combinations, then the certificate last.
                 from . import combination_certificate
                 combination_certificate.model_checks(source, model)
-                pressure_2.certificate_check(source)
+                pressure_2.certificate_check(source, model)
             return {"ok": True}
         if reader == "pressure-source":
             eligible = _source_validate(source, invocation)

@@ -219,6 +219,75 @@ def build_forgeries() -> list[dict]:
             add(name, cert + ["combinations", 0], "RECORD_SHAPE", f"{name}: a combination record {what}", value)
             add(name, cert + ["operand_cases", 0], "SHAPE", f"{name}: an operand case {what}", value)
             add(name, cert + ["operand_cases", 0, "groups", 0], "SHAPE", f"{name}: an operand group {what}", value)
+    # Review cert2 finding 1: the closed combination-diagnostic roster. Prose under a combination ref is no roster
+    # entry, whatever its wording, with or without the member and the model; the same prose under a ref that names no
+    # combination is admitted as unchecked supplemental text (the report quotes it as such).
+    claims = {
+        "REVIEW_NOTE": "combination comb:cancel: all derived row groups are established.",
+        "a paraphrase": "combination comb:cancel: every derived row group holds within its bound.",
+        "bounded by 1e-30": "combination comb:cancel: all derived rows are bounded by 1e-30.",
+        "uppercase": "COMBINATION COMB:CANCEL: ALL DERIVED ROWS ARE ESTABLISHED WITHIN THEIR STATED BOUND.",
+        "NBSP": "combination comb:cancel: all derived rows are established within their stated bound.",
+    }
+    for name, doc in (("ex_cantilever", ex), ("pf_cantilever", pf)):
+        notices = [i for i, d in enumerate(doc["diagnostics"]) if d["id"].startswith(cc.DIAGNOSTIC_PREFIX)]
+        absent = [edit(cert, op="remove"), *(edit(["diagnostics", i], op="remove") for i in reversed(notices))]
+        for label, text in claims.items():
+            note = {"id": "diagnostic:review:claim", "code": "REVIEW_NOTE", "severity": "info", "source": cc.SOURCE,
+                    "affected_refs": ["comb:cancel"], "message": text}
+            out.append({"document": name, "what": f"{name}: {label} under a combination ref, member kept", "code": "ROSTER_EXTRA",
+                        "edits": [edit(["diagnostics", "-"], note, op="add")]})
+            out.append({"document": name, "what": f"{name}: {label} under a combination ref, member absent", "code": "ROSTER_EXTRA",
+                        "edits": [*absent, edit(["diagnostics", "-"], note, op="add")]})
+            for refs, where in ((["case:S"], "a load-case ref"), ([], "no ref")):
+                out.append({"document": name, "what": f"{name}: {label} under {where} (supplemental)", "code": None,
+                            "edits": [edit(["diagnostics", "-"], dict(note, affected_refs=refs), op="add")]})
+        model_note = {"id": "diagnostic:review:model", "code": "REVIEW_NOTE", "severity": "info", "source": cc.SOURCE,
+                      "affected_refs": ["model"], "message": claims["REVIEW_NOTE"]}
+        out.append({"document": name, "what": f"{name}: a model-ref note (supplemental)", "code": None,
+                    "edits": [edit(["diagnostics", "-"], model_note, op="add")]})
+        # A known roster code copied under an id outside every roster family: renamed.
+        maximum = _diagnostic_index(doc, lambda d: d["code"] == "COMBINATION_STRESS_MAXIMUM_UNAVAILABLE")
+        out.append({"document": name, "what": f"{name}: a maximum notice copied under another id", "code": "ROSTER_RENAMED",
+                    "edits": [edit(["diagnostics", "-"], dict(doc["diagnostics"][maximum], id="diagnostic:review:maximum"), op="add")]})
+    # Preview-physics entries the roster derives itself (the EX namespace is read whole by its own reader).
+    maximum = _diagnostic_index(pf, lambda d: d["id"] == "diagnostic:preview-physics:combination-maximum:11:comb:double")
+    add("pf_cantilever", ["diagnostics", maximum], "ROSTER_MISSING", "pf_cantilever: a combination's maximum notice dropped", op="remove")
+    add("pf_cantilever", ["diagnostics", maximum, "id"], "ROSTER_RENAMED", "pf_cantilever: a maximum notice renamed", "diagnostic:review:maximum")
+    add("pf_cantilever", ["diagnostics", maximum, "message"], "ROSTER_CONTRADICTION", "pf_cantilever: a maximum notice reworded",
+        "stress maxima are combined and established within their bound")
+    headline = _diagnostic_index(pf, lambda d: d["id"] == "diagnostic:preview-physics:headline-scope")
+    add("pf_cantilever", ["diagnostics", headline, "message"], "ROSTER_CONTRADICTION", "pf_cantilever: the headline-scope notice reworded",
+        "headlines cover the load cases and the established combination rows")
+    add("pf_cantilever", ["diagnostics", headline, "affected_refs"], "ROSTER_CONTRADICTION", "pf_cantilever: the headline scope missing a combination",
+        pf["diagnostics"][headline]["affected_refs"][:-1])
+    # Without the model the document does not fix the headline's authored order; with it, the order is the model's.
+    add("pf_cantilever", ["diagnostics", headline, "affected_refs"], None, "pf_cantilever: the headline scope's refs reordered",
+        list(reversed(pf["diagnostics"][headline]["affected_refs"])), model_code="ROSTER_CONTRADICTION")
+    add("pf_cantilever", ["diagnostics", maximum, "affected_refs"], "ROSTER_CONTRADICTION", "pf_cantilever: a maximum notice naming two combinations",
+        ["comb:double", "comb:cancel"])
+    v1 = entry("op1a_v1")["document"]
+    gate = _diagnostic_index(v1, lambda d: d["id"].startswith("diagnostic:preview-physics:combination-gate:"))
+    add("op1a_v1", ["diagnostics", gate, "message"], "ROSTER_CONTRADICTION", "op1a_v1: a gate notice reworded",
+        "Combination withheld: its rows are nonetheless established by inspection.")
+    add("op1a_v1", ["diagnostics", gate], "ROSTER_MISSING", "op1a_v1: a gate notice dropped", op="remove")
+    row_withheld = {"id": "diagnostic:preview-physics:combination-row-withheld:11:comb:double", "code": "LOAD_COMBINATION_ROW_WITHHELD",
+                    "severity": "warning", "source": cc.SOURCE, "affected_refs": ["comb:double"],
+                    "message": "combination comb:double withholds 1 combined row(s) that could not be formed: all derived rows are established (verified)"}
+    out.append({"document": "pf_cantilever", "what": "pf_cantilever: a row-withheld notice naming prose", "code": "ROSTER_CONTRADICTION",
+                "edits": [edit(["diagnostics", "-"], row_withheld, op="add")]})
+    missing = {"id": "diagnostic:preview-physics:combination-source-missing:11:comb:double14:result:nowhere", "code": "LOAD_COMBINATION_SOURCE_RESULT_MISSING",
+               "severity": "warning", "source": cc.SOURCE, "affected_refs": ["comb:double"],
+               "message": "combination comb:double omits result:nowhere because a matching source row is missing in an operand case"}
+    out.append({"document": "pf_cantilever", "what": "pf_cantilever: a source-missing notice naming no row base", "code": "ROSTER_EXTRA",
+                "edits": [edit(["diagnostics", "-"], missing, op="add")]})
+    # S1's interim withholdings are the model's: with it they are entries; without it their combinations are not the
+    # document's and their notices name none of its combinations.
+    held = entry("pf_held")["document"]
+    interim = _diagnostic_index(held, lambda d: d["id"] == "diagnostic:combination:comb-held:load_combination_subtrahend_support_state_unsupported")
+    add("pf_held", ["diagnostics", interim], None, "pf_held: an interim withholding notice dropped", op="remove", model_code="ROSTER_MISSING")
+    add("pf_held", ["diagnostics", interim, "message"], None, "pf_held: an interim withholding notice reworded",
+        "combination `comb:held` is solved and its rows are established", model_code="ROSTER_CONTRADICTION")
     # A stated member is always fully checked: wrong-type arrays on the gap document (no assessed combination) are
     # refused by their shape, never read as empty.
     for value, what in (({}, "an object"), (None, "null"), ("not an array", "a string")):

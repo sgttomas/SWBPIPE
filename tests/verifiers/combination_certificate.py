@@ -397,8 +397,14 @@ def _gates(evidence: Mapping[str, Any]) -> list[tuple[str, bool]] | None:
     return None
 
 
-def check(source: Mapping[str, Any]) -> None:
-    """The member's checks (Rust `combination_certificate::check`); a no-op without it."""
+def check(source: Mapping[str, Any], model: Mapping[str, Any] | None = None) -> None:
+    """The member's checks (a no-op without it), then the closed combination-diagnostic roster (Rust `check_with`)."""
+    _member_check(source)
+    roster(source, model)
+
+
+def _member_check(source: Mapping[str, Any]) -> None:
+    """The member's checks (Rust `member_check`); a no-op without it."""
     evidence = source.get("contract_evidence") if isinstance(source.get("contract_evidence"), Mapping) else {}
     solved = isinstance(source.get("status"), Mapping) and source["status"].get("mechanics") == "MECHANICS_SOLVED"
     gate_list = _gates(evidence) or []
@@ -599,6 +605,365 @@ def check(source: Mapping[str, Any]) -> None:
     for expected in expected_diagnostics:
         matching = [d for d in published if d.get("id") == expected["id"]]
         _require(len(matching) == 1 and bit_equal(matching[0], expected), "DIAGNOSTICS")
+
+
+# ----------------------------------------------------------------------------- the closed combination-diagnostic roster
+
+# A diagnostic is a combination diagnostic when an affected ref names a combination identity of the document
+# (`_combination_population`), whatever its id or code. Each must be an entry of the closed roster: its id names one
+# entry, and its code, severity, message, source and refs are that entry's canonical form, derived from the evidence
+# (Rust `roster`). The reserved certificate codes and canonical notices stay protected by `check` whatever their id; that
+# protection is of the known codes and canonical texts, not a semantic reading of arbitrary prose, which the roster
+# instead refuses under a combination ref.
+
+HEADLINE_ID = "diagnostic:preview-physics:headline-scope"
+HEADLINE = "PREVIEW_HEADLINE_SCOPE_LOAD_CASES"
+HEADLINE_TEXT = "headlines cover the load cases only; combinations are excluded"
+MAXIMUM = "COMBINATION_STRESS_MAXIMUM_UNAVAILABLE"
+MAXIMUM_TEXT = "stress maxima and section stress extremes are not combined; combine the signed stress component rows instead"
+INTENSIFIED = "COMBINATION_INTENSIFIED_STRESS_UNAVAILABLE"
+INTENSIFIED_TEXT = "intensified measures are never combined (their ranges and combinations follow the owner's rule in T6)"
+MAXIMUM_KINDS = ("pipe_elastic_normal_stress_maximum_v2", "element_local_normal_stress_extreme", "element_local_transverse_shear_stress_maximum")
+INTENSIFIED_KINDS = ("component_equal_factor_intensified_bending_stress_v1", "curved_bend_directional_intensified_bending_stress_v1",
+                     "curved_bend_directional_intensified_bending_maximum_v1")
+PREVIEW_PREFIX = "diagnostic:preview-physics:combination-"
+EXACT_PREFIX = "diagnostic:exact-combination:"
+INTERIM_PREFIX = "diagnostic:combination:"
+RETAINED_PREFIX = "diagnostic:retained-precision:"
+SOURCE_MISSING = "LOAD_COMBINATION_SOURCE_RESULT_MISSING"
+ROW_WITHHELD = "LOAD_COMBINATION_ROW_WITHHELD"
+VECTOR_MISSING = "LOAD_COMBINATION_VECTOR_COMPONENT_MISSING"
+VECTOR_INVALID = "LOAD_COMBINATION_VECTOR_INVALID"
+DIFFERENCE_BASIS = "LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED"
+SUBTRAHEND_STATE = "LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED"
+OPERAND_STATES = "COMBINATION_OPERAND_SUPPORT_STATES_DIFFER"
+OPERAND_STANDING = "COMBINATION_OPERAND_CHECKS_NOT_PASSED"
+RETAINED_SELECTED = "RETAINED_PRECISION_SELECTED"
+RETAINED_UNAVAILABLE = "RETAINED_PRECISION_UNAVAILABLE"
+RETAINED_SELECTED_TEXT = ("Retained-precision recovery (contribution_preserving_multiprecision_v1) is selected for this load combination, from "
+                          "its own solve and certificate. Its published rows carry recovery_method; the retained_precision receipt binds their "
+                          "certified classes, the native attempts and work, and its operands' sources.")
+RETAINED_UNAVAILABLE_TEXT = ("Retained-precision recovery is unavailable for this load combination. Its published rows keep their ordinary "
+                             "values and diagnostics and are withheld from rule binding; the retained_precision receipt records the actual "
+                             "attempt and its typed cause.")
+WITHHELD_REASONS = ("no algebra dimension", "load-case algebra refused", "source support row missing in an operand case")
+OPERAND_WITHHELD = "LOAD_COMBINATION_OPERAND_WITHHELD"
+FIXED_LOAD_COUNT_UNREPRESENTABLE = "COMBINATION_FIXED_LOAD_COUNT_UNREPRESENTABLE"
+ROSTER_CODES = frozenset({
+    HEADLINE, MAXIMUM, INTENSIFIED, "NONLINEAR_COMBINATION_REQUIRES_SOLVE", "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE",
+    "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND", "CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED", "COMBINATION_MODULUS_BASIS_MIXED",
+    "COMBINATION_RESOLVED_STIFFNESS_MIXED", "COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE", "INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND",
+    OPERAND_WITHHELD, FIXED_LOAD_COUNT_UNREPRESENTABLE, SOURCE_MISSING, ROW_WITHHELD, VECTOR_MISSING, VECTOR_INVALID, DIFFERENCE_BASIS,
+    SUBTRAHEND_STATE, OPERAND_STATES, OPERAND_STANDING, RETAINED_SELECTED, RETAINED_UNAVAILABLE,
+    "EXACT_COMBINATION_DERIVED_FROM_CASE_RESULTS", "EXACT_COMBINATION_SOURCE_RECOVERY_EXCLUDED"})
+_PREVIEW_GATE_TEXT = {
+    "NONLINEAR_COMBINATION_REQUIRES_SOLVE": "Combination withheld: the model has nonlinear supports, so superposing case states is not a solved state.",
+    "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE": "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once.",
+    "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND": "Combination withheld: a constant-effort support's force acts in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it once per term with its sign discarded.",
+    "CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED": "Combination withheld: an operand's fixed-load count is undefined, so the number of times this combination counts a constant-effort support's force cannot be decided.",
+}
+_MODULUS_GATE_TEXT = "Combination withheld: its load cases were solved on different modulus bases."
+
+
+def _suffix(value: str) -> str:
+    return value.replace(":", "-")
+
+
+def _byte_len(value: str) -> int:
+    return len(value.encode("utf-8"))
+
+
+def _withheld_message(named: list[tuple[str, str]]) -> str:
+    text = ", ".join(f"{cid} ({code})" for cid, code in named)
+    return f"Combination withheld: its operand combination(s) {text} are withheld, so it is withheld whole."
+
+
+def _entry(did: str, code: str, severity: str, message: str, refs: list[str]) -> dict[str, Any]:
+    return {"id": did, "code": code, "severity": severity, "message": message, "source": SOURCE, "affected_refs": refs}
+
+
+def _refs(d: Any) -> list[str]:
+    return [r for r in _items(d.get("affected_refs")) if isinstance(r, str)] if isinstance(d, Mapping) else []
+
+
+def _text(value: Any) -> str | None:
+    return value if isinstance(value, str) else None
+
+
+def _get(value: Any, *path: str) -> Any:
+    for key in path:
+        value = value.get(key) if isinstance(value, Mapping) else None
+    return value
+
+
+def _combination_population(source: Mapping[str, Any], model: Mapping[str, Any] | None) -> set[str]:
+    """The combination identities the document states (and the model's), less those shared with another entity."""
+    evidence = _get(source, "contract_evidence")
+
+    def typed(basis: Any) -> str | None:
+        return _text(_get(basis, "ref_id")) if _get(basis, "ref_type") == "combination" else None
+
+    ids: set[str] = set()
+    for member in ("combination_gates", "exact_combinations", "combination_operands"):
+        ids.update(x for x in (_text(_get(r, "combination_id")) for r in _items(_get(evidence, member))) if x is not None)
+    ids.update(x for x in (_text(_get(r, "combination_id")) for r in _items(_get(evidence, MEMBER, "combinations"))) if x is not None)
+    ids.update(x for x in (typed(_get(r, "basis_ref")) for r in _items(source.get("results"))) if x is not None)
+    quality_cases = _items(_get(source, "numerical_quality", "cases"))
+    ids.update(x for x in (typed(_get(c, "basis_ref")) for c in quality_cases) if x is not None)
+    other: set[str] = set()
+    other.update(x for x in (_text(_get(c, "basis_ref", "ref_id")) for c in quality_cases if typed(_get(c, "basis_ref")) is None) if x is not None)
+    for member in ("preview_cases", "exact_cases"):
+        other.update(x for x in (_text(_get(c, "load_case_id")) for c in _items(_get(evidence, member))) if x is not None)
+    other.update(x for x in (_text(_get(r, "entity_ref")) for r in _items(source.get("results"))) if x is not None)
+    if isinstance(model, Mapping):
+        ids.update(x for x in (_text(_get(c, "id")) for c in _items(model.get("combinations"))) if x is not None)
+        for key, value in model.items():
+            if key != "combinations":
+                other.update(x for x in (_text(_get(e, "id")) for e in _items(value)) if x is not None)
+    return {i for i in ids if i and i not in other}
+
+
+def _interim(model: Mapping[str, Any]) -> tuple[list[dict[str, Any]], list[Mapping[str, Any]]]:
+    """S1's interim withholding (PP `withhold_interim_combinations`) as the model states it (Rust `interim`)."""
+    from .combination_graph import model_operands, model_order
+    combinations = [c if isinstance(c, Mapping) else {} for c in _items(model.get("combinations"))]
+    cases = {x for x in (_text(_get(c, "id")) for c in _items(model.get("load_cases"))) if x is not None}
+    notices: list[dict[str, Any]] = []
+    withheld: dict[str, str] = {}
+    for c in combinations:
+        cid = _text(c.get("id")) or ""
+        reasons = []
+        if c.get("difference_basis") is not None:
+            reasons.append((DIFFERENCE_BASIS, f"combination `{cid}` declares a difference basis (operating minus sustained); its gates are not "
+                                              f"built yet, so the combination is withheld"))
+        if c.get("subtrahend_support_state") == "minuend_final":
+            reasons.append((SUBTRAHEND_STATE, f"combination `{cid}` solves its subtrahend at the minuend's final support status; that solve is "
+                                              f"not built yet, so the combination is withheld"))
+        for code, message in reasons:
+            notices.append(_entry(f"{INTERIM_PREFIX}{_suffix(cid)}:{code.lower()}", code, "warning", message, [cid]))
+        if reasons:
+            withheld[cid] = reasons[0][0]
+    if withheld:
+        for index in model_order(combinations, cases):
+            c = combinations[index]
+            cid = _text(c.get("id")) or ""
+            if cid in withheld:
+                continue
+            named: list[tuple[str, str]] = []
+            for kind, operand in model_operands(c, cases):
+                if kind == "combination" and operand in withheld and all(n != operand for n, _ in named):
+                    named.append((operand, withheld[operand]))
+            if not named:
+                continue
+            notices.append(_entry(f"{INTERIM_PREFIX}{_suffix(cid)}:{OPERAND_WITHHELD.lower()}", OPERAND_WITHHELD, "warning",
+                                  _withheld_message(named), [cid] + [n for n, _ in named]))
+            withheld[cid] = OPERAND_WITHHELD
+    kept = [c for c in combinations if not (isinstance(c.get("id"), str) and c["id"] in withheld)]
+    return notices, kept
+
+
+def _withheld_names(named: str, count: int, tokens: set[str]) -> bool:
+    """A `LOAD_COMBINATION_ROW_WITHHELD` list: `count` rows, the first eight named, each an evidence-bound name."""
+    def split(rest: str, left: int) -> bool:
+        for at, char in enumerate(rest):
+            if char != ")" or rest[:at + 1] not in tokens:
+                continue
+            after = rest[at + 1:]
+            if (after == "") if left == 1 else (after.startswith(", ") and split(after[2:], left - 1)):
+                return True
+        return False
+
+    if count <= 0:
+        return False
+    body = named
+    if count > 8:
+        tail = f", and {count - 8} more"
+        if not named.endswith(tail):
+            return False
+        body = named[:-len(tail)]
+    return split(body, min(count, 8))
+
+
+def _canonical_count(text: str) -> int | None:
+    try:
+        n = int(text)
+    except ValueError:
+        return None
+    return n if str(n) == text and 0 <= n < 2 ** 64 else None
+
+
+def _form_bound(d: Mapping[str, Any], preview: bool, index: Any, supports: set[str], case_ids: set[str], population: set[str]) -> Any:
+    """The canonical form of a form-bound entry; None (as Rust `Some(Null)`) is `_NO_ENTRY`; `_NOT_FORM_BOUND` when the
+    id is in no form-bound family (Rust `form_bound`)."""
+    did = d.get("id")
+    if not isinstance(did, str):
+        return _NOT_FORM_BOUND
+    code = d.get("code") if isinstance(d.get("code"), str) else ""
+    refs = _refs(d)
+    cid = refs[0] if refs and refs[0] in population else None
+    if did.startswith(RETAINED_PREFIX):
+        if cid is None:
+            return _NOT_FORM_BOUND
+        rest = did[len(RETAINED_PREFIX):]
+        if rest == f"{cid}:selected":
+            return _entry(did, RETAINED_SELECTED, "info", RETAINED_SELECTED_TEXT, [cid])
+        if rest == f"{cid}:unavailable":
+            return _entry(did, RETAINED_UNAVAILABLE, "info", RETAINED_UNAVAILABLE_TEXT, [cid])
+        return _NO_ENTRY
+    if not preview:
+        return _NOT_FORM_BOUND
+    if did.startswith(PREVIEW_PREFIX):
+        if cid is None:
+            return _NO_ENTRY
+        rest, own = did[len(PREVIEW_PREFIX):], _identity(cid)
+        if rest == f"fixed-load-count:{own}":
+            return _entry(did, FIXED_LOAD_COUNT_UNREPRESENTABLE, "info",
+                          f"combination {cid}: its fixed-load count (the number of times it carries each fixed load) needs more than 4,096 "
+                          f"significand bits exactly, so it is undefined; a gated use never treats an undefined count as passing", [cid])
+        lead = f"source-missing:{own}"
+        if rest.startswith(lead) and ":" in rest[len(lead):]:
+            n, base = rest[len(lead):].split(":", 1)
+            if _canonical_count(n) == _byte_len(base) and base in index.cases:
+                return _entry(did, SOURCE_MISSING, "warning",
+                              f"combination {cid} omits {base} because a matching source row is missing in an operand case", [cid])
+        if rest == f"row-withheld:{own}":
+            tokens = {f"{base} ({r})" for base in index.cases for r in WITHHELD_REASONS[:2]}
+            tokens |= {f"support-action:{_byte_len(s)}:{s} ({r})" for s in supports for r in WITHHELD_REASONS[1:]}
+            message = d.get("message") if isinstance(d.get("message"), str) else ""
+            lead = f"combination {cid} withholds "
+            middle = " combined row(s) that could not be formed: "
+            if message.startswith(lead) and middle in message[len(lead):]:
+                n, named = message[len(lead):].split(middle, 1)
+                count = _canonical_count(n)
+                if count is not None and _withheld_names(named, count, tokens):
+                    return _entry(did, ROW_WITHHELD, "warning", message, [cid])
+            return _NO_ENTRY
+        return _NOT_FORM_BOUND
+    if did.startswith(INTERIM_PREFIX) and code in (VECTOR_MISSING, VECTOR_INVALID):
+        if cid is None:
+            return _NO_ENTRY
+        rest, lead, tail = did[len(INTERIM_PREFIX):], f"{_suffix(cid)}:", f":{_suffix(code)}"
+        if rest.startswith(lead) and rest.endswith(tail) and len(rest) >= len(lead) + len(tail):
+            middle = rest[len(lead):len(rest) - len(tail)]
+            for base in sorted(index.cases):
+                rows = index.cases[base]
+                if _suffix(base) != middle:
+                    continue
+                if code == VECTOR_MISSING and len(refs) == 4:
+                    _, target, entity, b = refs
+                    ok = b == base and (target in case_ids or target in population) and any(_get(r, "entity_ref") == entity for r in rows.values())
+                elif code == VECTOR_INVALID and len(refs) == 3:
+                    _, row_id, b = refs
+                    ok = b == base and any(_get(r, "id") == row_id for r in rows.values())
+                else:
+                    ok = False
+                if ok:
+                    message = ("combined magnitude withheld because a signed source vector component is unavailable" if code == VECTOR_MISSING
+                               else "combined magnitude withheld because signed vector algebra failed")
+                    return _entry(did, code, "warning", message, refs)
+        return _NO_ENTRY
+    return _NOT_FORM_BOUND
+
+
+_NO_ENTRY = object()
+_NOT_FORM_BOUND = object()
+
+
+def roster(source: Mapping[str, Any], model: Mapping[str, Any] | None = None) -> None:
+    """The closed roster of a solved document's combination diagnostics (Rust `roster`): ROSTER_EXTRA, ROSTER_RENAMED,
+    ROSTER_CONTRADICTION and ROSTER_MISSING. The certificate's own notices (`check`), EX's namespace (`exact_combinations`)
+    and PF's operand notices (`preview_combination_operands`) are read whole by their own readers, which precede it."""
+    from .combination_graph import model_operands
+    from .preview_combination_gates import _RowIndex
+    if _get(source, "status", "mechanics") != "MECHANICS_SOLVED":
+        return
+    population = _combination_population(source, model)
+    if not population:
+        return
+    evidence = _get(source, "contract_evidence")
+    evidence = evidence if isinstance(evidence, Mapping) else {}
+    preview, exact = "combination_gates" in evidence, "exact_combinations" in evidence
+    results = _items(source.get("results"))
+    diagnostics = _items(source.get("diagnostics"))
+    case_ids = {x for x in (_text(_get(c, "basis_ref", "ref_id")) for c in _items(_get(source, "numerical_quality", "cases"))
+                            if _get(c, "basis_ref", "ref_type") == "load_case") if x is not None}
+    if isinstance(model, Mapping):
+        case_ids |= {x for x in (_text(_get(c, "id")) for c in _items(model.get("load_cases"))) if x is not None}
+
+    expected: list[dict[str, Any]] = []
+    kept = None
+    if isinstance(model, Mapping):
+        expected, kept = _interim(model)
+    headline = None
+    gates = [(_text(_get(g, "combination_id")) or "", _get(g, "withheld") is True, _text(_get(g, "reason")) or "")
+             for g in _items(evidence.get("combination_gates"))]
+    if preview and gates:
+        refs = [c["id"] for c in kept if isinstance(c.get("id"), str)] if kept is not None else [g[0] for g in gates]
+        headline = len(expected)
+        expected.append(_entry(HEADLINE_ID, HEADLINE, "info", HEADLINE_TEXT, refs))
+
+        def case_row(kinds) -> bool:
+            return any(_get(r, "basis_ref", "ref_type") == "load_case" and _get(r, "kind") in kinds for r in results)
+
+        has_maximum, has_intensified = case_row(MAXIMUM_KINDS), case_row(INTENSIFIED_KINDS)
+        model_cases = {x for x in (_text(_get(c, "id")) for c in _items(model.get("load_cases"))) if x is not None} if isinstance(model, Mapping) else set()
+        withheld: dict[str, str] = {}
+        for cid, gated, code in gates:
+            own = _identity(cid)
+            if not gated:
+                if has_maximum:
+                    expected.append(_entry(f"{PREVIEW_PREFIX}maximum:{own}", MAXIMUM, "info", MAXIMUM_TEXT, [cid]))
+                if has_intensified:
+                    expected.append(_entry(f"{PREVIEW_PREFIX}intensified:{own}", INTENSIFIED, "info", INTENSIFIED_TEXT, [cid]))
+                continue
+            gate_id = f"{PREVIEW_PREFIX}gate:{own}"
+            if code == OPERAND_WITHHELD:
+                combination = next((c for c in kept if c.get("id") == cid), None) if kept is not None else None
+                if combination is not None:
+                    operands = [o for kind, o in model_operands(combination, model_cases) if kind == "combination"]
+                else:
+                    stated = next((d for d in diagnostics if isinstance(d, Mapping) and d.get("id") == gate_id), None)
+                    operands = _refs(stated)[1:] if stated is not None else []
+                named: list[tuple[str, str]] = []
+                for o in operands:
+                    if o in withheld and all(n != o for n, _ in named):
+                        named.append((o, withheld[o]))
+                message, refs = _withheld_message(named), [cid] + [n for n, _ in named]
+            else:
+                message, refs = _PREVIEW_GATE_TEXT.get(code, _MODULUS_GATE_TEXT), [cid]
+            expected.append(_entry(gate_id, code, "warning", message, refs))
+            withheld[cid] = code
+
+    index = _RowIndex([r for r in results if isinstance(r, Mapping)])
+    supports = {x for x in (_text(_get(r, "entity_ref")) for r in results
+                            if _get(r, "basis_ref", "ref_type") == "load_case" and isinstance(_get(r, "kind"), str) and r["kind"].startswith("support_reaction_"))
+                if x is not None}
+    seen = [False] * len(expected)
+    for d in diagnostics:
+        if not any(r in population for r in _refs(d)):
+            continue
+        code = d.get("code") if isinstance(d.get("code"), str) else ""
+        if (reserved_notice(d) or (preview and code in (OPERAND_STATES, OPERAND_STANDING))
+                or (exact and isinstance(d.get("id"), str) and d["id"].startswith(EXACT_PREFIX))):
+            continue
+        at = next((i for i, e in enumerate(expected) if isinstance(d.get("id"), str) and e["id"] == d["id"]), None)
+        if at is not None:
+            _require(not seen[at], "ROSTER_EXTRA")
+            seen[at] = True
+            canonical = dict(expected[at])
+            if at == headline and model is None:
+                stated, wanted = sorted(_refs(d)), sorted(_refs(canonical))
+                if stated == wanted and isinstance(d.get("affected_refs"), list) and len(d["affected_refs"]) == len(wanted):
+                    canonical["affected_refs"] = d["affected_refs"]
+            _require(bit_equal(d, canonical), "ROSTER_CONTRADICTION")
+            continue
+        canonical = _form_bound(d, preview, index, supports, case_ids, population)
+        if canonical is _NOT_FORM_BOUND:
+            did = d.get("id")
+            family = isinstance(did, str) and did.startswith((PREVIEW_PREFIX, HEADLINE_ID, INTERIM_PREFIX, RETAINED_PREFIX, EXACT_PREFIX, DIAGNOSTIC_PREFIX))
+            raise _fail("ROSTER_RENAMED" if not family and code in ROSTER_CODES else "ROSTER_EXTRA")
+        _require(canonical is not _NO_ENTRY and bit_equal(d, canonical), "ROSTER_CONTRADICTION")
+    _require(all(seen), "ROSTER_MISSING")
 
 
 def model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) -> None:

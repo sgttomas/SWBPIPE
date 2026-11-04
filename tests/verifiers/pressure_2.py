@@ -206,10 +206,10 @@ def validate_pressure_evidence(source: Mapping[str, Any]) -> None:
     certificate_check(source)
 
 
-def certificate_check(source: Mapping[str, Any]) -> None:
+def certificate_check(source: Mapping[str, Any], model: Mapping[str, Any] | None = None) -> None:
     if isinstance(source, Mapping):
         try:
-            combination_certificate.check(source)
+            combination_certificate.check(source, model)
         except (TypeError, KeyError, AttributeError, OverflowError, IndexError) as error:
             raise ValueError("SOURCE_COMBINATION_CERTIFICATE_MALFORMED") from error
 

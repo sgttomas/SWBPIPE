@@ -403,8 +403,21 @@ fn gates(evidence: &Value) -> Option<Vec<(String, bool)>> {
     })
 }
 
-/// The member's checks; a no-op on a document without it.
+/// The member's checks (a no-op on a document without it), then the closed combination-diagnostic
+/// roster, without the model.
 pub(crate) fn check(source: &Value) -> Check {
+    check_with(source, None)
+}
+
+/// The member's checks, then the closed combination-diagnostic roster (with the model when the
+/// caller has it: S1's interim withholdings and the headline's authored order are then the model's).
+pub(crate) fn check_with(source: &Value, model: Option<&Value>) -> Check {
+    member_check(source)?;
+    roster(source, model)
+}
+
+/// The member's checks; a no-op on a document without it.
+fn member_check(source: &Value) -> Check {
     let evidence = &source["contract_evidence"];
     let solved = source["status"]["mechanics"] == "MECHANICS_SOLVED";
     let gate_list = gates(evidence).unwrap_or_default();
@@ -639,6 +652,411 @@ pub(crate) fn check(source: &Value) -> Check {
         require(matching.len() == 1 && crate::section_basis::bit_equal(matching[0], expected), "DIAGNOSTICS")?;
     }
     Ok(())
+}
+
+// ------------------------------------------------------------------ the closed combination-diagnostic roster (Work §2)
+//
+// A diagnostic is a combination diagnostic when an affected ref names a combination identity of the
+// document (`combination_population`), whatever its id or code. Each must be an entry of the closed
+// roster: its id names one entry, and its code, severity, message, source and refs are that entry's
+// canonical form, derived from the evidence. The reserved certificate codes and canonical notices stay
+// protected by `check` whatever their id; that protection is of the known codes and canonical texts,
+// not a semantic reading of arbitrary prose, which the roster instead refuses under a combination ref.
+
+const HEADLINE_ID: &str = "diagnostic:preview-physics:headline-scope";
+const HEADLINE: &str = "PREVIEW_HEADLINE_SCOPE_LOAD_CASES";
+const HEADLINE_TEXT: &str = "headlines cover the load cases only; combinations are excluded";
+const MAXIMUM: &str = "COMBINATION_STRESS_MAXIMUM_UNAVAILABLE";
+const MAXIMUM_TEXT: &str = "stress maxima and section stress extremes are not combined; combine the signed stress component rows instead";
+const INTENSIFIED: &str = "COMBINATION_INTENSIFIED_STRESS_UNAVAILABLE";
+const INTENSIFIED_TEXT: &str = "intensified measures are never combined (their ranges and combinations follow the owner's rule in T6)";
+/// The producer's `has_maximum` and `has_intensified` row kinds (`preview_physics.rs`).
+const MAXIMUM_KINDS: [&str; 3] = ["pipe_elastic_normal_stress_maximum_v2", "element_local_normal_stress_extreme", "element_local_transverse_shear_stress_maximum"];
+const INTENSIFIED_KINDS: [&str; 3] = [
+    "component_equal_factor_intensified_bending_stress_v1",
+    "curved_bend_directional_intensified_bending_stress_v1",
+    "curved_bend_directional_intensified_bending_maximum_v1",
+];
+const PREVIEW_PREFIX: &str = "diagnostic:preview-physics:combination-";
+const EXACT_PREFIX: &str = "diagnostic:exact-combination:";
+const INTERIM_PREFIX: &str = "diagnostic:combination:";
+const RETAINED_PREFIX: &str = "diagnostic:retained-precision:";
+const SOURCE_MISSING: &str = "LOAD_COMBINATION_SOURCE_RESULT_MISSING";
+const ROW_WITHHELD: &str = "LOAD_COMBINATION_ROW_WITHHELD";
+const VECTOR_MISSING: &str = "LOAD_COMBINATION_VECTOR_COMPONENT_MISSING";
+const VECTOR_INVALID: &str = "LOAD_COMBINATION_VECTOR_INVALID";
+const DIFFERENCE_BASIS: &str = "LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED";
+const SUBTRAHEND_STATE: &str = "LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED";
+const OPERAND_STATES: &str = "COMBINATION_OPERAND_SUPPORT_STATES_DIFFER";
+const OPERAND_STANDING: &str = "COMBINATION_OPERAND_CHECKS_NOT_PASSED";
+const RETAINED_SELECTED: &str = "RETAINED_PRECISION_SELECTED";
+const RETAINED_UNAVAILABLE: &str = "RETAINED_PRECISION_UNAVAILABLE";
+/// PP `retained_wire.rs` `COMBINATION_SELECTED_MESSAGE` and `COMBINATION_UNAVAILABLE_MESSAGE`.
+const RETAINED_SELECTED_TEXT: &str = "Retained-precision recovery (contribution_preserving_multiprecision_v1) is selected for this load combination, from its own solve and certificate. Its published rows carry recovery_method; the retained_precision receipt binds their certified classes, the native attempts and work, and its operands' sources.";
+const RETAINED_UNAVAILABLE_TEXT: &str = "Retained-precision recovery is unavailable for this load combination. Its published rows keep their ordinary values and diagnostics and are withheld from rule binding; the retained_precision receipt records the actual attempt and its typed cause.";
+const WITHHELD_REASONS: [&str; 3] = ["no algebra dimension", "load-case algebra refused", "source support row missing in an operand case"];
+/// Every code a roster entry carries (the certificate's own are `check`'s): a diagnostic with one of
+/// these under a combination ref and an id that names no entry is a renamed notice.
+const ROSTER_CODES: [&str; 25] = [
+    HEADLINE,
+    MAXIMUM,
+    INTENSIFIED,
+    "NONLINEAR_COMBINATION_REQUIRES_SOLVE",
+    "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE",
+    "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND",
+    "CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED",
+    "COMBINATION_MODULUS_BASIS_MIXED",
+    "COMBINATION_RESOLVED_STIFFNESS_MIXED",
+    "COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE",
+    "INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND",
+    crate::combination_graph::OPERAND_WITHHELD,
+    crate::combination_graph::FIXED_LOAD_COUNT_UNREPRESENTABLE,
+    SOURCE_MISSING,
+    ROW_WITHHELD,
+    VECTOR_MISSING,
+    VECTOR_INVALID,
+    DIFFERENCE_BASIS,
+    SUBTRAHEND_STATE,
+    OPERAND_STATES,
+    OPERAND_STANDING,
+    RETAINED_SELECTED,
+    RETAINED_UNAVAILABLE,
+    "EXACT_COMBINATION_DERIVED_FROM_CASE_RESULTS",
+    "EXACT_COMBINATION_SOURCE_RECOVERY_EXCLUDED",
+];
+
+fn stable_suffix(id: &str) -> String {
+    id.replace(':', "-")
+}
+/// The producer's `gate_message` on preview-physics-2 (`preview_physics.rs`).
+fn preview_gate_message(code: &str) -> &'static str {
+    match code {
+        "NONLINEAR_COMBINATION_REQUIRES_SOLVE" => "Combination withheld: the model has nonlinear supports, so superposing case states is not a solved state.",
+        "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE" => "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once.",
+        "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND" => "Combination withheld: a constant-effort support's force acts in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it once per term with its sign discarded.",
+        "CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED" => "Combination withheld: an operand's fixed-load count is undefined, so the number of times this combination counts a constant-effort support's force cannot be decided.",
+        _ => "Combination withheld: its load cases were solved on different modulus bases.",
+    }
+}
+/// The producer's `operand_withheld_message` (both routes).
+fn operand_withheld_message(named: &[(&str, &str)]) -> String {
+    let named = named.iter().map(|(id, code)| format!("{id} ({code})")).collect::<Vec<_>>().join(", ");
+    format!("Combination withheld: its operand combination(s) {named} are withheld, so it is withheld whole.")
+}
+fn roster_entry(id: String, code: &str, severity: &str, message: String, refs: Vec<&str>) -> Value {
+    json!({"id": id, "code": code, "severity": severity, "message": message, "source": SOURCE, "affected_refs": refs})
+}
+fn refs_of(d: &Value) -> Vec<&str> {
+    items(&d["affected_refs"]).iter().filter_map(Value::as_str).collect()
+}
+
+/// The combination identities the document states (and, with it, the model's): its gates, its EX
+/// records, its certificate and operand records, and the owners of its combination-typed rows and
+/// numerical cases. An identity that is also another entity's (a load case, a row's entity, another
+/// model record) is not recognizable as a combination's in an untyped ref, and is left out.
+fn combination_population<'s>(source: &'s Value, model: Option<&'s Value>) -> HashSet<&'s str> {
+    let evidence = &source["contract_evidence"];
+    let typed = |b: &'s Value| if b["ref_type"] == "combination" { b["ref_id"].as_str() } else { None };
+    let mut ids: HashSet<&str> = HashSet::new();
+    for member in ["combination_gates", "exact_combinations", "combination_operands"] {
+        ids.extend(items(&evidence[member]).iter().filter_map(|r| r["combination_id"].as_str()));
+    }
+    ids.extend(items(&evidence[MEMBER]["combinations"]).iter().filter_map(|r| r["combination_id"].as_str()));
+    ids.extend(items(&source["results"]).iter().filter_map(|r| typed(&r["basis_ref"])));
+    ids.extend(items(&source["numerical_quality"]["cases"]).iter().filter_map(|c| typed(&c["basis_ref"])));
+    let mut other: HashSet<&str> = HashSet::new();
+    other.extend(items(&source["numerical_quality"]["cases"]).iter().filter(|c| typed(&c["basis_ref"]).is_none()).filter_map(|c| c["basis_ref"]["ref_id"].as_str()));
+    for member in ["preview_cases", "exact_cases"] {
+        other.extend(items(&evidence[member]).iter().filter_map(|c| c["load_case_id"].as_str()));
+    }
+    other.extend(items(&source["results"]).iter().filter_map(|r| r["entity_ref"].as_str()));
+    if let Some(model) = model {
+        ids.extend(items(&model["combinations"]).iter().filter_map(|c| c["id"].as_str()));
+        for (key, list) in model.as_object().into_iter().flatten() {
+            if key != "combinations" {
+                other.extend(items(list).iter().filter_map(|e| e["id"].as_str()));
+            }
+        }
+    }
+    ids.retain(|id| !id.is_empty() && !other.contains(id));
+    ids
+}
+
+/// S1's interim withholding (PP `document_members::withhold_interim_combinations`) as the model states
+/// it: the notices, and the model's combinations it leaves, in authored order.
+fn interim<'m>(model: &'m Value) -> (Vec<Value>, Vec<&'m Value>) {
+    use crate::combination_graph::{model_operands, model_order, Operand, OPERAND_WITHHELD};
+    let all = items(&model["combinations"]);
+    let cases: HashSet<&str> = items(&model["load_cases"]).iter().filter_map(|c| c["id"].as_str()).collect();
+    let mut notices = Vec::new();
+    let mut withheld: HashMap<&str, &str> = HashMap::new();
+    for c in all {
+        let id = c["id"].as_str().unwrap_or_default();
+        let mut reasons: Vec<(&str, String)> = Vec::new();
+        if c.get("difference_basis").is_some_and(|b| !b.is_null()) {
+            reasons.push((DIFFERENCE_BASIS, format!("combination `{id}` declares a difference basis (operating minus sustained); its gates are not built yet, so the combination is withheld")));
+        }
+        if c["subtrahend_support_state"] == "minuend_final" {
+            reasons.push((SUBTRAHEND_STATE, format!("combination `{id}` solves its subtrahend at the minuend's final support status; that solve is not built yet, so the combination is withheld")));
+        }
+        for (code, message) in &reasons {
+            notices.push(roster_entry(format!("{INTERIM_PREFIX}{}:{}", stable_suffix(id), code.to_ascii_lowercase()), code, "warning", message.clone(), vec![id]));
+        }
+        if let Some((code, _)) = reasons.first() {
+            withheld.insert(id, *code);
+        }
+    }
+    if !withheld.is_empty() {
+        for index in model_order(all, &cases) {
+            let c = &all[index];
+            let id = c["id"].as_str().unwrap_or_default();
+            if withheld.contains_key(id) {
+                continue;
+            }
+            let mut named: Vec<(&str, &str)> = Vec::new();
+            for operand in model_operands(c, &cases) {
+                if let Operand::Combination(o) = operand {
+                    if let Some(code) = withheld.get(o) {
+                        if !named.iter().any(|(n, _)| *n == o) {
+                            named.push((o, *code));
+                        }
+                    }
+                }
+            }
+            if named.is_empty() {
+                continue;
+            }
+            let mut refs = vec![id];
+            refs.extend(named.iter().map(|(n, _)| *n));
+            notices.push(roster_entry(format!("{INTERIM_PREFIX}{}:{}", stable_suffix(id), OPERAND_WITHHELD.to_ascii_lowercase()), OPERAND_WITHHELD, "warning", operand_withheld_message(&named), refs));
+            withheld.insert(id, OPERAND_WITHHELD);
+        }
+    }
+    let kept = all.iter().filter(|c| !c["id"].as_str().is_some_and(|id| withheld.contains_key(id))).collect();
+    (notices, kept)
+}
+
+/// A `LOAD_COMBINATION_ROW_WITHHELD` list (`preview_physics.rs`): `count` withheld rows, the first
+/// eight named, each name one of the evidence's row bases or supports with a producer reason.
+fn withheld_names(named: &str, count: usize, tokens: &HashSet<String>) -> bool {
+    fn split(rest: &str, left: usize, tokens: &HashSet<String>) -> bool {
+        rest.match_indices(')').any(|(at, _)| {
+            let (token, after) = (&rest[..=at], &rest[at + 1..]);
+            tokens.contains(token)
+                && if left == 1 { after.is_empty() } else { after.strip_prefix(", ").is_some_and(|next| split(next, left - 1, tokens)) }
+        })
+    }
+    let body = if count > 8 { named.strip_suffix(&format!(", and {} more", count - 8)) } else { Some(named) };
+    count > 0 && body.is_some_and(|body| split(body, count.min(8), tokens))
+}
+
+/// The canonical form of a form-bound entry (its parameters read from its id and refs, each bound to
+/// the evidence), `Some(Null)` when the id is in such a family but names no evidence-bound entry, and
+/// `None` when the id is in no form-bound family.
+fn form_bound(d: &Value, preview: bool, index: &crate::preview_combination_gates::RowIndex<'_>, supports: &HashSet<&str>, case_ids: &HashSet<&str>, population: &HashSet<&str>) -> Option<Value> {
+    let id = d["id"].as_str()?;
+    let code = d["code"].as_str().unwrap_or_default();
+    let refs = refs_of(d);
+    let cid = refs.first().copied().filter(|c| population.contains(c));
+    if let Some(rest) = id.strip_prefix(RETAINED_PREFIX) {
+        let cid = cid?;
+        let canonical = match rest.strip_prefix(cid) {
+            Some(":selected") => roster_entry(id.to_string(), RETAINED_SELECTED, "info", RETAINED_SELECTED_TEXT.into(), vec![cid]),
+            Some(":unavailable") => roster_entry(id.to_string(), RETAINED_UNAVAILABLE, "info", RETAINED_UNAVAILABLE_TEXT.into(), vec![cid]),
+            _ => Value::Null,
+        };
+        return Some(canonical);
+    }
+    if !preview {
+        return None;
+    }
+    if let Some(rest) = id.strip_prefix(PREVIEW_PREFIX) {
+        let Some(cid) = cid else { return Some(Value::Null) };
+        let own = identity(&[cid]);
+        let canonical = if rest == format!("fixed-load-count:{own}") {
+            roster_entry(id.to_string(), crate::combination_graph::FIXED_LOAD_COUNT_UNREPRESENTABLE, "info", format!("combination {cid}: its fixed-load count (the number of times it carries each fixed load) needs more than 4,096 significand bits exactly, so it is undefined; a gated use never treats an undefined count as passing"), vec![cid])
+        } else if let Some(base) = rest.strip_prefix(&format!("source-missing:{own}")).and_then(|b| b.split_once(':')).filter(|(n, b)| n.parse::<usize>().ok() == Some(b.len()) && n.parse::<usize>().ok().map(|x| x.to_string()).as_deref() == Some(*n) && index.cases.contains_key(*b)).map(|(_, b)| b) {
+            roster_entry(id.to_string(), SOURCE_MISSING, "warning", format!("combination {cid} omits {base} because a matching source row is missing in an operand case"), vec![cid])
+        } else if rest == format!("row-withheld:{own}") {
+            let mut tokens: HashSet<String> = HashSet::new();
+            for base in index.cases.keys() {
+                tokens.extend(WITHHELD_REASONS[..2].iter().map(|r| format!("{base} ({r})")));
+            }
+            for s in supports {
+                tokens.extend(WITHHELD_REASONS[1..].iter().map(|r| format!("support-action:{}:{s} ({r})", s.len())));
+            }
+            let message = d["message"].as_str().unwrap_or_default();
+            let lead = format!("combination {cid} withholds ");
+            let listed = message.strip_prefix(&lead).and_then(|m| m.split_once(" combined row(s) that could not be formed: ")).filter(|(n, named)| {
+                n.parse::<usize>().ok().is_some_and(|count| count.to_string() == *n && withheld_names(named, count, &tokens))
+            });
+            match listed {
+                Some(_) => roster_entry(id.to_string(), ROW_WITHHELD, "warning", message.to_string(), vec![cid]),
+                None => Value::Null,
+            }
+        } else {
+            return None;
+        };
+        return Some(canonical);
+    }
+    if let (Some(rest), true) = (id.strip_prefix(INTERIM_PREFIX), matches!(code, VECTOR_MISSING | VECTOR_INVALID)) {
+        let Some(cid) = cid else { return Some(Value::Null) };
+        let middle = rest.strip_prefix(&format!("{}:", stable_suffix(cid))).and_then(|r| r.strip_suffix(&format!(":{}", stable_suffix(code))));
+        let found = middle.and_then(|middle| {
+            index.cases.iter().filter(|(base, _)| stable_suffix(base) == middle).find(|(base, rows)| match (code, refs.as_slice()) {
+                (VECTOR_MISSING, [_, target, entity, b]) => {
+                    *b == base.as_str() && (case_ids.contains(*target) || population.contains(*target)) && rows.values().any(|r| r["entity_ref"] == *entity)
+                }
+                (VECTOR_INVALID, [_, row, b]) => *b == base.as_str() && rows.values().any(|r| r["id"] == *row),
+                _ => false,
+            })
+        });
+        let message = if code == VECTOR_MISSING {
+            "combined magnitude withheld because a signed source vector component is unavailable"
+        } else {
+            "combined magnitude withheld because signed vector algebra failed"
+        };
+        return Some(match found {
+            Some(_) => roster_entry(id.to_string(), code, "warning", message.into(), refs),
+            None => Value::Null,
+        });
+    }
+    None
+}
+
+/// The closed roster of a solved document's combination diagnostics (Work `combination-certificate.md`
+/// §2): `ROSTER_EXTRA`, `ROSTER_RENAMED`, `ROSTER_CONTRADICTION` and `ROSTER_MISSING`. Delegated to the
+/// readers that re-derive them whole: the certificate's own notices (`check`), EX's namespace
+/// (`exact_combination_evidence`) and PF's operand notices (`preview_combination_operands`).
+fn roster(source: &Value, model: Option<&Value>) -> Check {
+    if source["status"]["mechanics"] != "MECHANICS_SOLVED" {
+        return Ok(());
+    }
+    let population = combination_population(source, model);
+    if population.is_empty() {
+        return Ok(());
+    }
+    let evidence = &source["contract_evidence"];
+    let preview = evidence.get("combination_gates").is_some();
+    let exact = evidence.get("exact_combinations").is_some();
+    let results = items(&source["results"]);
+    let diagnostics = items(&source["diagnostics"]);
+    let mut case_ids: HashSet<&str> = items(&source["numerical_quality"]["cases"]).iter().filter(|c| c["basis_ref"]["ref_type"] == "load_case").filter_map(|c| c["basis_ref"]["ref_id"].as_str()).collect();
+    if let Some(model) = model {
+        case_ids.extend(items(&model["load_cases"]).iter().filter_map(|c| c["id"].as_str()));
+    }
+    let named = |d: &Value| refs_of(d).iter().any(|r| population.contains(r));
+
+    // The set-bound entries, each required once.
+    let (mut expected, kept) = match model {
+        Some(model) => {
+            let (notices, kept) = interim(model);
+            (notices, Some(kept))
+        }
+        None => (Vec::new(), None),
+    };
+    let mut headline: Option<usize> = None;
+    let gates: Vec<(&str, bool, &str)> = items(&evidence["combination_gates"])
+        .iter()
+        .map(|g| (g["combination_id"].as_str().unwrap_or_default(), g["withheld"] == true, g["reason"].as_str().unwrap_or_default()))
+        .collect();
+    if preview && !gates.is_empty() {
+        let refs: Vec<&str> = match &kept {
+            Some(kept) => kept.iter().filter_map(|c| c["id"].as_str()).collect(),
+            None => gates.iter().map(|g| g.0).collect(),
+        };
+        headline = Some(expected.len());
+        expected.push(roster_entry(HEADLINE_ID.into(), HEADLINE, "info", HEADLINE_TEXT.into(), refs));
+        let case_row = |kinds: &[&str]| results.iter().any(|r| r["basis_ref"]["ref_type"] == "load_case" && r["kind"].as_str().is_some_and(|k| kinds.contains(&k)));
+        let (has_maximum, has_intensified) = (case_row(&MAXIMUM_KINDS), case_row(&INTENSIFIED_KINDS));
+        let model_cases: HashSet<&str> = model.map(|m| items(&m["load_cases"]).iter().filter_map(|c| c["id"].as_str()).collect()).unwrap_or_default();
+        let mut withheld: HashMap<&str, &str> = HashMap::new();
+        for &(id, gated, code) in &gates {
+            let own = identity(&[id]);
+            if !gated {
+                if has_maximum {
+                    expected.push(roster_entry(format!("{PREVIEW_PREFIX}maximum:{own}"), MAXIMUM, "info", MAXIMUM_TEXT.into(), vec![id]));
+                }
+                if has_intensified {
+                    expected.push(roster_entry(format!("{PREVIEW_PREFIX}intensified:{own}"), INTENSIFIED, "info", INTENSIFIED_TEXT.into(), vec![id]));
+                }
+                continue;
+            }
+            let gate_id = format!("{PREVIEW_PREFIX}gate:{own}");
+            let (message, refs) = if code == crate::combination_graph::OPERAND_WITHHELD {
+                // The withheld operand combinations, in operand order: the model's, or as the notice names them.
+                let operands: Vec<&str> = match kept.as_ref().and_then(|k| k.iter().find(|c| c["id"] == id)) {
+                    Some(c) => crate::combination_graph::model_operands(c, &model_cases)
+                        .into_iter()
+                        .filter_map(|o| match o {
+                            crate::combination_graph::Operand::Combination(o) => Some(o),
+                            crate::combination_graph::Operand::Case(_) => None,
+                        })
+                        .collect(),
+                    None => diagnostics.iter().find(|d| d["id"] == gate_id.as_str()).map(|d| refs_of(d).into_iter().skip(1).collect()).unwrap_or_default(),
+                };
+                let mut named_ops: Vec<(&str, &str)> = Vec::new();
+                for o in operands {
+                    if let Some(c) = withheld.get(o) {
+                        if !named_ops.iter().any(|(n, _)| *n == o) {
+                            named_ops.push((o, *c));
+                        }
+                    }
+                }
+                let mut refs = vec![id];
+                refs.extend(named_ops.iter().map(|(n, _)| *n));
+                (operand_withheld_message(&named_ops), refs)
+            } else {
+                (preview_gate_message(code).to_string(), vec![id])
+            };
+            expected.push(roster_entry(gate_id, code, "warning", message, refs));
+            withheld.insert(id, code);
+        }
+    }
+
+    let index = crate::preview_combination_gates::RowIndex::new(results);
+    let supports: HashSet<&str> = results
+        .iter()
+        .filter(|r| r["basis_ref"]["ref_type"] == "load_case" && r["kind"].as_str().is_some_and(|k| k.starts_with("support_reaction_")))
+        .filter_map(|r| r["entity_ref"].as_str())
+        .collect();
+    let mut seen = vec![false; expected.len()];
+    for d in diagnostics.iter().filter(|d| named(d)) {
+        let code = d["code"].as_str().unwrap_or_default();
+        // Read whole by their own readers, which precede this one.
+        if reserved_notice(d)
+            || (preview && matches!(code, OPERAND_STATES | OPERAND_STANDING))
+            || (exact && d["id"].as_str().is_some_and(|i| i.starts_with(EXACT_PREFIX)))
+        {
+            continue;
+        }
+        if let Some(at) = expected.iter().position(|e| e["id"] == d["id"]) {
+            require(!seen[at], "ROSTER_EXTRA")?;
+            seen[at] = true;
+            let mut canonical = expected[at].clone();
+            // Without the model the document does not fix the headline's authored order: its refs are
+            // the gates' identities, each once, in any order.
+            if Some(at) == headline && model.is_none() {
+                let (mut stated, mut wanted) = (refs_of(d), refs_of(&canonical));
+                stated.sort_unstable();
+                wanted.sort_unstable();
+                if stated == wanted && d["affected_refs"].as_array().is_some_and(|a| a.len() == wanted.len()) {
+                    canonical["affected_refs"] = d["affected_refs"].clone();
+                }
+            }
+            require(crate::section_basis::bit_equal(d, &canonical), "ROSTER_CONTRADICTION")?;
+            continue;
+        }
+        match form_bound(d, preview, &index, &supports, &case_ids, &population) {
+            Some(canonical) => require(crate::section_basis::bit_equal(d, &canonical), "ROSTER_CONTRADICTION")?,
+            None => {
+            // A known notice's code under an id outside every roster family is a renamed notice.
+            let family = d["id"].as_str().is_some_and(|i| [PREVIEW_PREFIX, HEADLINE_ID, INTERIM_PREFIX, RETAINED_PREFIX, EXACT_PREFIX, DIAGNOSTIC_PREFIX].iter().any(|p| i.starts_with(p)));
+            return Err(fail(if !family && ROSTER_CODES.contains(&code) { "ROSTER_RENAMED" } else { "ROSTER_EXTRA" }));
+        }
+        }
+    }
+    require(seen.iter().all(|s| *s), "ROSTER_MISSING")
 }
 
 /// With the captured model: each record's id, basis and expression are the model's.

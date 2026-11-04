@@ -1374,6 +1374,1380 @@
    "what": "pf_cantilever: an operand group an array"
   },
   {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: REVIEW_NOTE under a combination ref, member kept",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived row groups are established."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: REVIEW_NOTE under a combination ref, member absent",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/37"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/36"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/35"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/34"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/33"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/32"
+    },
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived row groups are established."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: REVIEW_NOTE under a load-case ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "case:S"
+      ],
+      "message": "combination comb:cancel: all derived row groups are established."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: REVIEW_NOTE under no ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [],
+      "message": "combination comb:cancel: all derived row groups are established."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: a paraphrase under a combination ref, member kept",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: every derived row group holds within its bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: a paraphrase under a combination ref, member absent",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/37"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/36"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/35"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/34"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/33"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/32"
+    },
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: every derived row group holds within its bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: a paraphrase under a load-case ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "case:S"
+      ],
+      "message": "combination comb:cancel: every derived row group holds within its bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: a paraphrase under no ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [],
+      "message": "combination comb:cancel: every derived row group holds within its bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: bounded by 1e-30 under a combination ref, member kept",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived rows are bounded by 1e-30."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: bounded by 1e-30 under a combination ref, member absent",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/37"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/36"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/35"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/34"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/33"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/32"
+    },
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived rows are bounded by 1e-30."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: bounded by 1e-30 under a load-case ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "case:S"
+      ],
+      "message": "combination comb:cancel: all derived rows are bounded by 1e-30."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: bounded by 1e-30 under no ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [],
+      "message": "combination comb:cancel: all derived rows are bounded by 1e-30."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: uppercase under a combination ref, member kept",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "COMBINATION COMB:CANCEL: ALL DERIVED ROWS ARE ESTABLISHED WITHIN THEIR STATED BOUND."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: uppercase under a combination ref, member absent",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/37"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/36"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/35"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/34"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/33"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/32"
+    },
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "COMBINATION COMB:CANCEL: ALL DERIVED ROWS ARE ESTABLISHED WITHIN THEIR STATED BOUND."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: uppercase under a load-case ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "case:S"
+      ],
+      "message": "COMBINATION COMB:CANCEL: ALL DERIVED ROWS ARE ESTABLISHED WITHIN THEIR STATED BOUND."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: uppercase under no ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [],
+      "message": "COMBINATION COMB:CANCEL: ALL DERIVED ROWS ARE ESTABLISHED WITHIN THEIR STATED BOUND."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: NBSP under a combination ref, member kept",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived rows are established within their stated\u00a0bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: NBSP under a combination ref, member absent",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/37"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/36"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/35"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/34"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/33"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/32"
+    },
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived rows are established within their stated\u00a0bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: NBSP under a load-case ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "case:S"
+      ],
+      "message": "combination comb:cancel: all derived rows are established within their stated\u00a0bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: NBSP under no ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [],
+      "message": "combination comb:cancel: all derived rows are established within their stated\u00a0bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: a model-ref note (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:model",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "model"
+      ],
+      "message": "combination comb:cancel: all derived row groups are established."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: a maximum notice copied under another id",
+   "code": "ROSTER_RENAMED",
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "affected_refs": [
+       "comb:double"
+      ],
+      "code": "COMBINATION_STRESS_MAXIMUM_UNAVAILABLE",
+      "id": "diagnostic:review:maximum",
+      "message": "stress maxima and section stress extremes are not combined; combine the signed stress component rows instead",
+      "severity": "info",
+      "source": "core/product_physics"
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: REVIEW_NOTE under a combination ref, member kept",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived row groups are established."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: REVIEW_NOTE under a combination ref, member absent",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/31"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/30"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/29"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/28"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/27"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/26"
+    },
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived row groups are established."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: REVIEW_NOTE under a load-case ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "case:S"
+      ],
+      "message": "combination comb:cancel: all derived row groups are established."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: REVIEW_NOTE under no ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [],
+      "message": "combination comb:cancel: all derived row groups are established."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: a paraphrase under a combination ref, member kept",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: every derived row group holds within its bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: a paraphrase under a combination ref, member absent",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/31"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/30"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/29"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/28"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/27"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/26"
+    },
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: every derived row group holds within its bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: a paraphrase under a load-case ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "case:S"
+      ],
+      "message": "combination comb:cancel: every derived row group holds within its bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: a paraphrase under no ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [],
+      "message": "combination comb:cancel: every derived row group holds within its bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: bounded by 1e-30 under a combination ref, member kept",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived rows are bounded by 1e-30."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: bounded by 1e-30 under a combination ref, member absent",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/31"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/30"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/29"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/28"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/27"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/26"
+    },
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived rows are bounded by 1e-30."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: bounded by 1e-30 under a load-case ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "case:S"
+      ],
+      "message": "combination comb:cancel: all derived rows are bounded by 1e-30."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: bounded by 1e-30 under no ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [],
+      "message": "combination comb:cancel: all derived rows are bounded by 1e-30."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: uppercase under a combination ref, member kept",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "COMBINATION COMB:CANCEL: ALL DERIVED ROWS ARE ESTABLISHED WITHIN THEIR STATED BOUND."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: uppercase under a combination ref, member absent",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/31"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/30"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/29"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/28"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/27"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/26"
+    },
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "COMBINATION COMB:CANCEL: ALL DERIVED ROWS ARE ESTABLISHED WITHIN THEIR STATED BOUND."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: uppercase under a load-case ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "case:S"
+      ],
+      "message": "COMBINATION COMB:CANCEL: ALL DERIVED ROWS ARE ESTABLISHED WITHIN THEIR STATED BOUND."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: uppercase under no ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [],
+      "message": "COMBINATION COMB:CANCEL: ALL DERIVED ROWS ARE ESTABLISHED WITHIN THEIR STATED BOUND."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: NBSP under a combination ref, member kept",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived rows are established within their stated\u00a0bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: NBSP under a combination ref, member absent",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/31"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/30"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/29"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/28"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/27"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/26"
+    },
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived rows are established within their stated\u00a0bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: NBSP under a load-case ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "case:S"
+      ],
+      "message": "combination comb:cancel: all derived rows are established within their stated\u00a0bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: NBSP under no ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [],
+      "message": "combination comb:cancel: all derived rows are established within their stated\u00a0bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: a model-ref note (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:model",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "model"
+      ],
+      "message": "combination comb:cancel: all derived row groups are established."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: a maximum notice copied under another id",
+   "code": "ROSTER_RENAMED",
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "affected_refs": [
+       "comb:double"
+      ],
+      "code": "COMBINATION_STRESS_MAXIMUM_UNAVAILABLE",
+      "id": "diagnostic:review:maximum",
+      "message": "stress maxima and section stress extremes are not combined; combine the signed stress component rows instead",
+      "severity": "info",
+      "source": "core/product_physics"
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/19"
+    }
+   ],
+   "code": "ROSTER_MISSING",
+   "what": "pf_cantilever: a combination's maximum notice dropped"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/diagnostics/19/id",
+     "value": "diagnostic:review:maximum"
+    }
+   ],
+   "code": "ROSTER_RENAMED",
+   "what": "pf_cantilever: a maximum notice renamed"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/diagnostics/19/message",
+     "value": "stress maxima are combined and established within their bound"
+    }
+   ],
+   "code": "ROSTER_CONTRADICTION",
+   "what": "pf_cantilever: a maximum notice reworded"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/diagnostics/18/message",
+     "value": "headlines cover the load cases and the established combination rows"
+    }
+   ],
+   "code": "ROSTER_CONTRADICTION",
+   "what": "pf_cantilever: the headline-scope notice reworded"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/diagnostics/18/affected_refs",
+     "value": [
+      "comb:double",
+      "comb:cancel",
+      "comb:same",
+      "comb:axial",
+      "comb:sum"
+     ]
+    }
+   ],
+   "code": "ROSTER_CONTRADICTION",
+   "what": "pf_cantilever: the headline scope missing a combination"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/diagnostics/18/affected_refs",
+     "value": [
+      "comb:range",
+      "comb:sum",
+      "comb:axial",
+      "comb:same",
+      "comb:cancel",
+      "comb:double"
+     ]
+    }
+   ],
+   "code": null,
+   "what": "pf_cantilever: the headline scope's refs reordered",
+   "model_code": "ROSTER_CONTRADICTION"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/diagnostics/19/affected_refs",
+     "value": [
+      "comb:double",
+      "comb:cancel"
+     ]
+    }
+   ],
+   "code": "ROSTER_CONTRADICTION",
+   "what": "pf_cantilever: a maximum notice naming two combinations"
+  },
+  {
+   "document": "op1a_v1",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/diagnostics/11/message",
+     "value": "Combination withheld: its rows are nonetheless established by inspection."
+    }
+   ],
+   "code": "ROSTER_CONTRADICTION",
+   "what": "op1a_v1: a gate notice reworded"
+  },
+  {
+   "document": "op1a_v1",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/11"
+    }
+   ],
+   "code": "ROSTER_MISSING",
+   "what": "op1a_v1: a gate notice dropped"
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: a row-withheld notice naming prose",
+   "code": "ROSTER_CONTRADICTION",
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:preview-physics:combination-row-withheld:11:comb:double",
+      "code": "LOAD_COMBINATION_ROW_WITHHELD",
+      "severity": "warning",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:double"
+      ],
+      "message": "combination comb:double withholds 1 combined row(s) that could not be formed: all derived rows are established (verified)"
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: a source-missing notice naming no row base",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:preview-physics:combination-source-missing:11:comb:double14:result:nowhere",
+      "code": "LOAD_COMBINATION_SOURCE_RESULT_MISSING",
+      "severity": "warning",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:double"
+      ],
+      "message": "combination comb:double omits result:nowhere because a matching source row is missing in an operand case"
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_held",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/1"
+    }
+   ],
+   "code": null,
+   "what": "pf_held: an interim withholding notice dropped",
+   "model_code": "ROSTER_MISSING"
+  },
+  {
+   "document": "pf_held",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/diagnostics/1/message",
+     "value": "combination `comb:held` is solved and its rows are established"
+    }
+   ],
+   "code": null,
+   "what": "pf_held: an interim withholding notice reworded",
+   "model_code": "ROSTER_CONTRADICTION"
+  },
+  {
    "document": "op1a_v1",
    "edits": [
     {
