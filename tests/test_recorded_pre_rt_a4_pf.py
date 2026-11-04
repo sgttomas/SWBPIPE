@@ -260,7 +260,11 @@ def test_the_registry_is_main_verbatim_and_disjoint_from_the_current_tables():
                "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034": "bbf384dec",
                "e7b93f416f700f8efdb31bf1ba26dedde52963d768d6ead5a73dbf1c645a360c": "bbf384dec",
                "ce49ebe07bc05431ea1f770c1933b5bf58f4b1c8b66fb6f36810f2ef7a58cd43": "bbf384dec",
-               "26dce9c21261b1ca894af05a3b6f4a94db88904894cb47f7296f892e72ecfb7e": "bbf384dec"}.get(digest, MAIN)
+               "26dce9c21261b1ca894af05a3b6f4a94db88904894cb47f7296f892e72ecfb7e": "bbf384dec",
+               # RT-A5 minuend_final's variants are main's at b32a17761 (fixtures/results/recorded_pre_rt_a5_mf).
+               "f41b9d3ed0c1b7abaee0b98ca1a28aa1a2d109bce443b98d53a2080c1c504ce9": "b32a17761",
+               "6f6494907e3ead979ea27e5ff85f54617589c9195dc84d40a02752a0b006ef44": "b32a17761",
+               "b4377e73e8a83edb57b4f0c41dbaef384385e0f6b4810103a106a334c8edbe14": "b32a17761"}.get(digest, MAIN)
         try:
             committed = subprocess.run(["git", "show", f"{rev}:fixtures/results/semantic_contract_v0_3_{origin[identity]}.json"],
                                        cwd=ROOT, capture_output=True, check=True).stdout
