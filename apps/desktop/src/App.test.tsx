@@ -6362,6 +6362,8 @@ describe("SWBPIPE desktop preview", () => {
       "mechanics",
       "result_state_subtraction",
       "range_envelope",
+      "absolute_sum",
+      "srss",
     ]);
 
     fireEvent.change(basisSelect, {
