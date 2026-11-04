@@ -144,8 +144,14 @@ type Timeline = {
   /** How the result is held: its value read from taken bytes, or a C1 native handle. */
   resultKind: "value" | "native" | null;
   committed: boolean;
-  firstPage: boolean;
+  /** C1: the native first page's paint is marked (once). */
+  firstPagePainted: boolean;
+  /** C1: the qualifying first page whose two frames are pending, if any (RT-U4 F2). */
+  firstPagePending: PendingFirstPage | null;
 };
+/** A native first page's two pending frames: the page by reference only (never a copy), and
+ * the panel's check that it is still that page and still visible. */
+type PendingFirstPage = { page: WeakRef<object>; stillShown: () => boolean };
 
 let sequence = 0;
 let current: Timeline | null = null;
@@ -163,7 +169,7 @@ export type SolveTimelineHandle = Readonly<{
 /** Starts the timeline of a new solve (Analyze → Run), replacing the previous one. */
 export function beginSolveTimeline(detail: Detail | null = null): SolveTimelineHandle {
   const started = now();
-  const timeline: Timeline = { sequence: ++sequence, started, outcome: "running", jobId: null, marks: [], dropped: 0, passes: new Map(), failure: null, result: null, resultChars: null, resultKind: null, committed: false, firstPage: false };
+  const timeline: Timeline = { sequence: ++sequence, started, outcome: "running", jobId: null, marks: [], dropped: 0, passes: new Map(), failure: null, result: null, resultChars: null, resultKind: null, committed: false, firstPagePainted: false, firstPagePending: null };
   current = timeline;
   pushMark(timeline, "solve_requested", started, detail);
   return {
@@ -273,19 +279,51 @@ export function markSolveCommittedAndPaint(result: object | null): void {
 }
 
 /** Whether `handle` is the latest solve's committed native handle and its Results table's first
- * page has not yet been shown (a cheap check: no layout is read). */
+ * page has not yet been painted (a cheap check: no layout is read). */
 export function awaitsSolveFirstPage(handle: unknown): boolean {
-  return current !== null && current.resultKind === "native" && current.committed && !current.firstPage && isSolveResult(handle);
+  return current !== null && current.resultKind === "native" && current.committed && !current.firstPagePainted && isSolveResult(handle);
 }
 
-/** C1: the native Results table committed its first page for `handle`, its rows and their row
- * semantics read, while the table could be seen. Its first paint is two animation frames later.
- * Called by `NativeResultsPanel` only; nothing for any other handle, before the handle's commit,
- * or a second time. A refused or pending page never calls it. */
-export function markSolveFirstPageCommitted(handle: object): void {
-  if (!awaitsSolveFirstPage(handle)) return;
-  current!.firstPage = true;
-  schedulePaint(current!);
+/** C1: the native Results table committed `page`, its first page for `handle`, its rows and their
+ * row semantics read, while the table could be seen. Its first paint is two animation frames
+ * later, and only if the page is still the table's and still visible across both: `stillShown`
+ * is checked before each frame's mark (RT-U4 F2). A page hidden or replaced before then marks
+ * nothing; the next qualifying commit arms its own frames.
+ * - Called by `NativeResultsPanel` only; nothing for any other handle, before the handle's
+ *   commit, or after the paint. A refused or pending page never calls it.
+ * - Calling it again for the pending page changes nothing (its frames are not restarted);
+ *   for another page, that page replaces the pending one. */
+export function markSolveFirstPageCommitted(handle: object, page: object, stillShown: () => boolean): void {
+  if (!awaitsSolveFirstPage(handle) || typeof WeakRef === "undefined") return;
+  const timeline = current!;
+  if (timeline.firstPagePending?.page.deref() === page) return;
+  const pending: PendingFirstPage = { page: new WeakRef(page), stillShown };
+  timeline.firstPagePending = pending;
+  if (typeof requestAnimationFrame !== "function") return;
+  // Still this timeline's pending page, unpainted, and still shown; otherwise the frames drop it.
+  const live = (): boolean => {
+    if (current !== timeline || timeline.firstPagePending !== pending || timeline.firstPagePainted) return false;
+    let shown = false;
+    try { shown = pending.stillShown() === true; } catch { shown = false; }
+    if (!shown) timeline.firstPagePending = null;
+    return shown;
+  };
+  requestAnimationFrame(() => {
+    if (!live()) return;
+    requestAnimationFrame(() => {
+      if (!live()) return;
+      timeline.firstPagePending = null;
+      timeline.firstPagePainted = true;
+      markSolveStage("first_paint");
+    });
+  });
+}
+
+/** C1: the native Results table no longer shows a qualifying first page for `handle` (hidden,
+ * refused, pending or another page): any pending frames mark nothing, and a later qualifying
+ * commit may arm them again (RT-U4 F2). */
+export function cancelSolveFirstPage(handle: unknown): void {
+  if (awaitsSolveFirstPage(handle)) current!.firstPagePending = null;
 }
 
 function schedulePaint(timeline: Timeline): void {

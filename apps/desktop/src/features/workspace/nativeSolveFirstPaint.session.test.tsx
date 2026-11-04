@@ -10,12 +10,14 @@
  * - no qualifying paint while the first page or its semantics are pending, then exactly two frames
  *   after they are released and rendered; none for a refused first page; none while Results is
  *   dormant, then two frames after it is opened and its page renders;
+ * - none for a qualifying page hidden, or replaced by a filter or page change, before the browser
+ *   paints it (either frame); the page shown next arms its own two frames (review F2);
  * - that `reader_verdict_end` → `analysis_run_built` awaits exactly one native call, the
  *   analysis-run preview, journalled as the `run_preview` phase; holding it reproduces the attempt;
  * - every row read in the whole call sequence is bounded (no take, no C2 full copy).
  * Unit transport replay of committed producer bytes through mocked IPC; NOT a native UI
  * qualification witness, a timing or a measurement. All data are invented. */
-import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const invokeMock = vi.hoisted(() => vi.fn());
@@ -211,6 +213,76 @@ describe("no qualifying first paint before the Results table's first page is sho
     frames.frame();
     frames.frame();
     expect(stages()).toEqual(ORDER);
+  });
+});
+
+describe("a qualifying first page hidden or replaced before the browser paints it (F2)", () => {
+  /** Analyze → Run with Results open, up to the first page rendered and its frames queued. */
+  async function firstPageArmed() {
+    const frames = manualFrames();
+    const { calls } = await install("pressure");
+    await runThenOpenResults();
+    await waitFor(() => expect(rowShown()).toBe(true), { timeout: 10000 });
+    expect(stages().at(-1)).toBe("result_committed");
+    expect(frames.pending()).toBeGreaterThan(0);
+    return { frames, calls };
+  }
+  async function noPaintAcross(frames: ReturnType<typeof manualFrames>, count = 5) {
+    for (let frame = 0; frame < count; frame += 1) { frames.frame(); await turns(); }
+    expect(stages()).not.toContain("first_paint");
+  }
+
+  for (const hideAfter of [0, 1]) {
+    it(`marks nothing when Results is hidden ${hideAfter ? "between the two frames" : "before the first frame"}, then paints two frames after it is shown again`, async () => {
+      const { frames } = await firstPageArmed();
+      for (let frame = 0; frame < hideAfter; frame += 1) frames.frame();
+      menu("view.section.solve");
+      expect(results().classList.contains("inactive")).toBe(true);
+      await noPaintAcross(frames);
+      expect(frames.pending()).toBe(0);
+      menu("view.section.results");
+      expect(results().classList.contains("inactive")).toBe(false);
+      await turns();
+      expect(stages()).not.toContain("first_paint");
+      frames.frame();
+      expect(stages()).not.toContain("first_paint");
+      frames.frame();
+      expect(stages()).toEqual(ORDER);
+    });
+  }
+
+  it("marks nothing for a page replaced by a filter change before the first frame; the filtered page paints", async () => {
+    const { frames, calls } = await firstPageArmed();
+    const before = calls.filter((call) => call.command === PAGE_QUERY).length;
+    fireEvent.change(screen.getByLabelText("Filter result rows"), { target: { value: "no-such-row-zz" } });
+    // The old page's frames run while (or after) the filtered page is read: they mark nothing.
+    frames.frame();
+    expect(stages()).not.toContain("first_paint");
+    await waitFor(() => expect(calls.filter((call) => call.command === PAGE_QUERY).length).toBeGreaterThan(before), { timeout: 10000 });
+    await waitFor(() => expect(screen.getByTestId("result-filter-empty")).toBeTruthy(), { timeout: 10000 });
+    frames.frame();
+    expect(stages()).not.toContain("first_paint");
+    frames.frame();
+    expect(stages()).toEqual(ORDER);
+  });
+
+  it("marks nothing for a page replaced by a page change before the first frame; the new page paints", async () => {
+    const { frames, calls } = await firstPageArmed();
+    const before = calls.filter((call) => call.command === PAGE_QUERY).length;
+    const size = screen.getByTestId("result-page-size") as HTMLSelectElement;
+    const next = [...size.options].map((option) => Number(option.value)).find((value) => value !== DEFAULT_RESULT_PAGE_SIZE)!;
+    fireEvent.change(size, { target: { value: String(next) } });
+    frames.frame();
+    expect(stages()).not.toContain("first_paint");
+    await waitFor(() => expect(calls.some((call, index) => index >= before && call.command === PAGE_QUERY && (call.args as { limit?: unknown }).limit === next)).toBe(true), { timeout: 10000 });
+    await waitFor(() => expect(rowShown()).toBe(true), { timeout: 10000 });
+    await turns();
+    await noPaintAcross(frames, 0);
+    frames.frame();
+    expect(stages()).not.toContain("first_paint");
+    frames.frame();
+    expect(stages()).toEqual(ORDER);
+    expectBoundedRowReads(calls);
   });
 });
 

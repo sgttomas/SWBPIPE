@@ -17,7 +17,7 @@
  * that is no longer current is discarded. A group's CSV is written through the native stream in
  * pages (`resultGroupCsvStream`), byte for byte the CSV the full rows would give. */
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
-import { awaitsSolveFirstPage, markSolveFirstPageCommitted } from "../../services/solveTimeline";
+import { awaitsSolveFirstPage, cancelSolveFirstPage, markSolveFirstPageCommitted } from "../../services/solveTimeline";
 import { QuantityReadout } from "../display-units";
 import { CsvExportControl } from "../result-export/CsvExportControl";
 import { CSV_SOFTWARE_VERSION, csvAnalysisRoute, csvModelHash, csvResultHash } from "../result-export/csvProvenance";
@@ -291,8 +291,16 @@ export function NativeResultsPanel({
   // their row semantics read (`ready`) and committed while the table can be seen, then two frames
   // (solveTimeline.ts). Checked after every commit until marked, so a page read while Results was
   // dormant or hidden counts when the table is next shown; a pending or refused page never does.
+  // The page that qualifies at this commit, if any; each of the two frames re-checks that it is
+  // still this table's page and still visible, so hiding Results or changing the filter or page
+  // before the browser paints marks nothing, and the next qualifying commit arms again (F2).
+  const firstPageShown = useRef<object | null>(null);
   useLayoutEffect(() => {
-    if (ready && !selectionOnlyWithoutEntity && awaitsSolveFirstPage(result) && canSurfaceRevealNow(panelRef.current)) markSolveFirstPageCommitted(result);
+    const page = ready && !selectionOnlyWithoutEntity && canSurfaceRevealNow(panelRef.current) ? ready : null;
+    firstPageShown.current = page;
+    if (!awaitsSolveFirstPage(result)) return;
+    if (!page) { cancelSolveFirstPage(result); return; }
+    markSolveFirstPageCommitted(result, page, () => firstPageShown.current === page && canSurfaceRevealNow(panelRef.current));
   });
   const kindIds = RESULT_FAMILY_OPTIONS
     .filter((option) => option.id === "all" || (familyCounts as Record<string, number>)[option.id] > 0)

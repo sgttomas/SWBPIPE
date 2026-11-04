@@ -4,6 +4,7 @@ import {
   SOLVE_TIMELINE_SCHEMA,
   awaitsSolveFirstPage,
   beginSolveTimeline,
+  cancelSolveFirstPage,
   codeOrNull,
   errorCode,
   isSolveJob,
@@ -189,7 +190,7 @@ describe("the latest solve's timeline (RT-U4)", () => {
     noteSolveHandle("job-1", {});
     expect(isSolveResult(old)).toBe(false);
     markSolveCommittedAndPaint(old);
-    markSolveFirstPageCommitted(old);
+    markSolveFirstPageCommitted(old, {}, () => true);
     expect(frames).toHaveLength(0);
     expect(readSolveTimeline()!.marks.map((mark) => mark.stage)).toEqual(["solve_requested", "job_started"]);
     for (const outcome of ["failed", "cancelled"] as const) {
@@ -211,26 +212,110 @@ describe("the latest solve's timeline (RT-U4)", () => {
     noteSolveHandle("job-1", handle);
     // A first page before the handle's commit marks nothing.
     expect(awaitsSolveFirstPage(handle)).toBe(false);
-    markSolveFirstPageCommitted(handle);
+    markSolveFirstPageCommitted(handle, {}, () => true);
     markSolveCommittedAndPaint(handle);
     markSolveCommittedAndPaint(handle);
     expect(frames).toHaveLength(0);
     expect(readSolveTimeline()!.marks.map((mark) => mark.stage)).toEqual(["solve_requested", "job_started", "result_committed"]);
     // Another handle's page (a reopened run's, say) is not this solve's.
     expect(awaitsSolveFirstPage({})).toBe(false);
-    markSolveFirstPageCommitted({});
+    markSolveFirstPageCommitted({}, {}, () => true);
     expect(frames).toHaveLength(0);
     run.end("completed");
     expect(awaitsSolveFirstPage(handle)).toBe(true);
-    markSolveFirstPageCommitted(handle);
-    markSolveFirstPageCommitted(handle);
-    expect(awaitsSolveFirstPage(handle)).toBe(false);
+    // The same page again does not restart its frames; the handle awaits its paint until marked.
+    const page = {};
+    markSolveFirstPageCommitted(handle, page, () => true);
+    markSolveFirstPageCommitted(handle, page, () => true);
+    expect(awaitsSolveFirstPage(handle)).toBe(true);
     expect(frames).toHaveLength(1);
     frames.shift()!(0);
     expect(readSolveTimeline()!.marks.map((mark) => mark.stage)).toEqual(["solve_requested", "job_started", "result_committed"]);
     frames.shift()!(0);
     expect(readSolveTimeline()!.marks.map((mark) => mark.stage)).toEqual(["solve_requested", "job_started", "result_committed", "first_paint"]);
     expect(frames).toHaveLength(0);
+    // Painted once: later pages mark nothing.
+    expect(awaitsSolveFirstPage(handle)).toBe(false);
+    markSolveFirstPageCommitted(handle, {}, () => true);
+    expect(frames).toHaveLength(0);
+  });
+
+  // RT-U4 F2: whether the page is still the table's and still visible is checked across the paint
+  // boundary (before each frame's mark), not only when the frames are scheduled.
+  function committedHandle() {
+    const frames: FrameRequestCallback[] = [];
+    vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => { frames.push(callback); return frames.length; });
+    const run = beginSolveTimeline();
+    run.jobStarted("job-1");
+    const handle = {};
+    noteSolveHandle("job-1", handle);
+    markSolveCommittedAndPaint(handle);
+    run.end("completed");
+    const step = () => frames.shift()!(0);
+    const painted = () => readSolveTimeline()!.marks.some((mark) => mark.stage === "first_paint");
+    return { frames, handle, step, painted };
+  }
+
+  for (const hiddenAt of [1, 2]) {
+    it(`marks nothing for a page hidden before frame ${hiddenAt}, and re-arms for the page shown again`, () => {
+      const { frames, handle, step, painted } = committedHandle();
+      let shown = true;
+      const page = {};
+      markSolveFirstPageCommitted(handle, page, () => shown);
+      if (hiddenAt === 2) step();
+      shown = false;
+      step();
+      expect(frames).toHaveLength(0);
+      expect(painted()).toBe(false);
+      expect(awaitsSolveFirstPage(handle)).toBe(true);
+      shown = true;
+      markSolveFirstPageCommitted(handle, page, () => shown);
+      step();
+      expect(painted()).toBe(false);
+      step();
+      expect(painted()).toBe(true);
+      expect(readSolveTimeline()!.marks.filter((mark) => mark.stage === "first_paint")).toHaveLength(1);
+    });
+  }
+
+  it("marks nothing for a page replaced before its frames; the replacing page paints once", () => {
+    const { frames, handle, step, painted } = committedHandle();
+    markSolveFirstPageCommitted(handle, {}, () => true);
+    const replacing = {};
+    markSolveFirstPageCommitted(handle, replacing, () => true);
+    expect(frames).toHaveLength(2);
+    step(); // the replaced page's first frame: dropped
+    step(); // the replacing page's first frame
+    expect(frames).toHaveLength(1);
+    expect(painted()).toBe(false);
+    step();
+    expect(painted()).toBe(true);
+    expect(frames).toHaveLength(0);
+  });
+
+  it("marks nothing after the panel cancels its page (hidden, pending or refused), until it arms again", () => {
+    const { frames, handle, step, painted } = committedHandle();
+    const page = {};
+    markSolveFirstPageCommitted(handle, page, () => true);
+    step();
+    cancelSolveFirstPage(handle);
+    step();
+    expect(painted()).toBe(false);
+    expect(frames).toHaveLength(0);
+    cancelSolveFirstPage({}); // another handle's cancel changes nothing
+    markSolveFirstPageCommitted(handle, page, () => true);
+    cancelSolveFirstPage({});
+    step();
+    step();
+    expect(painted()).toBe(true);
+  });
+
+  it("treats a throwing visibility check as not shown", () => {
+    const { handle, step, painted } = committedHandle();
+    markSolveFirstPageCommitted(handle, {}, () => { throw new Error("detached"); });
+    step();
+    expect(painted()).toBe(false);
+    expect(awaitsSolveFirstPage(handle)).toBe(true);
   });
 
   it("paints a result read from taken bytes at its commit: no first-page wait applies to it", () => {
@@ -241,7 +326,7 @@ describe("the latest solve's timeline (RT-U4)", () => {
     noteSolveResult(result, 2);
     markSolveCommittedAndPaint(result);
     expect(awaitsSolveFirstPage(result)).toBe(false);
-    markSolveFirstPageCommitted(result);
+    markSolveFirstPageCommitted(result, {}, () => true);
     expect(frames).toHaveLength(1);
   });
 
