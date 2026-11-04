@@ -163,18 +163,45 @@ are unchanged. There is no policy switch.
 The producer publishes it exactly when the document is solved and the model has
 a combination, so no other document's bytes change.
 
-**Absence states nothing.** The readers read a stated member in full and refuse
-it on a document that is not solved or has no combination. They accept a
-document without it, provided no certificate diagnostic stands there either:
-its combination rows are then inspection results, as before this build. That is
-because a reader of an envelope cannot tell a document recorded before the
-certificate from one without it. The preview-physics tables did not move, and an
-envelope names its table, not the table's digest. A recorded pre-certificate
-document with a combination, such as the registered W-CB3 retained combination
-successors, therefore reads as before. Dropping the member removes claims and
-cannot add one: no group is then established, and the limitation text makes
-every combination row an inspection result unless the certificate establishes
-its group.
+**Producer emission and reader acceptance are separate obligations.**
+- *Producer (mandatory emission).* The current producer publishes the member
+  exactly when the document is solved and the model has a combination. The
+  schema descriptions state this producer obligation: "present exactly when a
+  solved document has a combination" in `results_pressure_2.v0.3.schema.json`
+  `CombinationCertificate`, and "omitted otherwise" in its
+  `PressureContractEvidence`. They were left unedited so that the schema
+  digests stay as pinned. The closed shapes keep the property optional, and
+  its reading is the readers' rule below.
+- *Reader (absence is no certificate claim).* The readers accept a document
+  without the member as making **no §4 certificate claim**, whatever the
+  document's age. Absence never selects historical semantics: a historical
+  table variant is selected only by a record's recorded `{id, sha256}` binding
+  (`absolute-sum-srss-combinations.md`, the recorded-run table bases), never
+  by the member's presence. Without the member:
+  - its combination rows are inspection results;
+  - no row carries a certificate bound or verdict, and nothing changes the
+    document's numerical eligibility (decision (b): the certificate has no
+    eligibility effect either way);
+  - no certificate notice may stand, under any id. The certificate's notices
+    are a closed reserved vocabulary: an id in `diagnostic:combination-certificate:`,
+    a code in the `COMBINATION_ROWS_` family, or a message that places rows
+    within, or assesses them against, a stated bound (it mentions "stated
+    bound" with "within" or "against"). A document without the member that has
+    any such diagnostic is refused (`SOURCE_COMBINATION_CERTIFICATE_PRESENCE`).
+
+  The readers do not treat a missing member as a defect, because an envelope
+  names its table, not the table's digest. A reader therefore cannot tell a
+  document recorded before the certificate from one without it.
+
+  A stated member is read in full. Each of `operand_cases`, `combinations` and
+  every operand case's `groups` must be an array. A partial, null or malformed
+  member is refused by its shape (`SHAPE`), never read as absence. With the
+  member, the reserved notices must be exactly the ones it re-derives, so an
+  extra or renamed establishment notice is refused (`DIAGNOSTICS`).
+- *Independently validated retained-precision claims are not §4 claims.* The
+  registered W-CB3 retained combination successors were recorded before the
+  certificate, and their bytes are unchanged. Their retained-precision standing
+  is still governed by their own receipt. They simply make no §4 claim.
 
 **Transport.** The preview-physics transport metadata check
 (`retained_precision.rs` `preview_physics_transport_metadata`, and Python
@@ -236,7 +263,7 @@ generator with an independent π enclosure. It reads no product code.
 |---|---|---|
 | Linear EX subtraction | the w16b line (`w16_exact_combinations`), `comb:S1` = C − A | its frozen exact rows: every derived group satisfies ‖v_D − D_exact‖ ≤ B_D; B_D is re-formed by the test's own TwoSum |
 | Mechanics sum | the w16b line `comb:K1` = A + 1.3B; and K4 = C − A − B (exact cancellation) | K1: enclosure of the frozen exact rows; B_D = RU(B_A + RU(1.3·B_B) + ‖e‖); K4: every v_D = 0 and D_exact = 0, so each group is below the floor whenever B_D < 2^-34·S* |
-| Cancellation-unestablished | an EX cantilever (L = 0.3 m) with tip (Fx, Fy); O − S with ΔFy = 2^-20 N | the anchor bending group: q_D/S* ≥ 2^-30 (assessed), and B_D ≥ |fl(Fy_O·L) − Fy_O·L| + |fl(Fy_S·L) − Fy_S·L| − 2^-100·S* > RD(1e-9)·q_D, so not established |
+| Cancellation-unestablished | an EX cantilever (L = 0.3 m) with tip (Fx, Fy); O − S with ΔFy = 2^-16 N | the anchor bending group: q_D/S* ≥ 2^-30 (assessed), and B_D ≥ |fl(Fy_O·L) − Fy_O·L| + |fl(Fy_S·L) − Fy_S·L| − 2^-100·S* > RD(1e-9)·q_D, so not established |
 | Floor-excluded | the same cantilever, S′ − S with identical loads | v_D = 0 = D_exact; every group is below the floor (asserted against B_D < 2^-34·S*) |
 | Equal-pressure axial group | the same cantilever, O − S with ΔFx = 2^-10 N at bit-identical pressure | D(N_w) = D(S) = ΔFx exactly; the wall groups name their elastic group; the wall station group is not established (its rounding gaps of P + F exceed RD(1e-9)·ΔFx) |
 | PF confirmed nonlinear | op1a V-2 (one-way prop, s = 2s*): O − S | ΔR = −5P/16 and ΔMy = −5PL/16 enclosed by B_D; both operands are confirmed, so the combination is assessed |
@@ -245,7 +272,34 @@ generator with an independent π enclosure. It reads no product code.
 Every model runs in both solver modes. The readers (Rust RE and Python) read
 the shared corpus `fixtures/results/combination_certificate_corpus.json`. They
 refuse a forged B_D, verdict, q, floor scale, row binding, operand-bound
-binding, eligibility and diagnostic.
+binding, eligibility and diagnostic. The shared forgery list
+(`combination_certificate_forgeries.json`) is applied with and without each
+document's model. A `model_code` names the code where the model contradicts
+the forged record first. The list includes the absence matrix on both actual
+envelopes:
+
+| Case | Code |
+|---|---|
+| member dropped, its notices kept | PRESENCE |
+| notices dropped, the member kept | DIAGNOSTICS |
+| both dropped | admitted, no certificate claim (asserted separately) |
+| member dropped, notices kept under renamed ids | PRESENCE |
+| member and notices dropped, an establishment sentence under the reserved code | PRESENCE |
+| member and notices dropped, the canonical sentence under another code and id | PRESENCE |
+| member kept, an extra establishment sentence or renamed notices | DIAGNOSTICS |
+| a null member, or `operand_cases` missing or null | SHAPE |
+| `combinations`, `operand_cases` or an operand case's `groups` not an array | SHAPE |
+
+RE `absence_is_inspection_only_with_no_certificate_claim` and its Python
+counterpart admit the both-dropped case. With and without the model, they
+assert three things:
+- no member survives;
+- no certificate-vocabulary diagnostic survives;
+- numerical_quality and the reader standing equal the certified document's.
+
+RE `legacy_w_cb3_successors_are_accepted` and its Python counterpart accept the
+legacy successors under their own receipt. The Python test also pins the
+files' SHA-256.
 
 **The eligibility witness** is the cancellation document. Its numerical
 quality equals the primitive-case statement, unchanged. Its groups show
