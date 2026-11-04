@@ -517,9 +517,9 @@ pub fn source_findings(source: &Value, invocation: &Value) -> Vec<&'static str> 
 /// RT-U4 (single pass): on the pressure route, pressure-2's evidence verdict is
 /// read once and given to both of its uses, the token's `for_source` and the
 /// pressure reader's outcome; every other route reads as before. The verdict is a
-/// function of the source alone (the reader's loops run in array order; its maps
-/// and sets only detect duplicates and answer lookups), so the one verdict is the
-/// one each use read before.
+/// function of the source alone (its loops run in array or ordered-map order; its
+/// hash maps and sets only count, union, look up or refuse with one code), so the
+/// one verdict is the one each use read before.
 pub fn standing(source: &Value, model: Option<&Value>, invocation: Option<&Value>) -> Value {
     let (model, invocation) = (present(model), present(invocation));
     let requested_ids: Vec<&Value> = model
