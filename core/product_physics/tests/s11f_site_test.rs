@@ -426,8 +426,8 @@ const FORCE_FUNCTIONS: &[(&str, &str, &str)] = &[
     ),
     (
         "nonlinear_integration/lib.rs",
-        "solve_active_set_loop",
-        "the loop (option (c), T5's; RT-A3 P: the entry's body)",
+        "complete_iteration",
+        "the loop (option (c), T5's; RT-A3 P: the entry's body; RT-A5 S2: its tail, moved verbatim from solve_active_set_loop, where the input force is read for the receipt)",
     ),
     (
         "nonlinear_integration/lib.rs",

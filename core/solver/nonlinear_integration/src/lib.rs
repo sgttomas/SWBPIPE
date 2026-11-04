@@ -781,8 +781,8 @@ fn solve_active_set_loop(
 
     let system = LoopSystem::assemble(input, springs, loop_representation(linear_solve_mode))?;
     let gap_views = system.gap_views(input);
-    let mut exact_gap_remaining_work = structural_adapter::GAP_RUN_WORK_LIMIT;
-    let mut current_states = normalized_initial_states(input)?;
+    let exact_gap_remaining_work = structural_adapter::GAP_RUN_WORK_LIMIT;
+    let current_states = normalized_initial_states(input)?;
     let recovery_eligible = eligible_contact_dofs(
         input.node_count,
         &input.base_restrained_dofs,
@@ -791,10 +791,16 @@ fn solve_active_set_loop(
     )
     .is_some();
     let mut recovered_path = false;
-    let mut iterations = Vec::new();
-    let mut final_diagnostics = policy_diagnostics(&input.convergence);
+    let iterations = Vec::new();
+    let final_diagnostics = policy_diagnostics(&input.convergence);
     let friction_normals = friction_normal_map(input)?;
     let derived_friction_normals = derived_friction_normal_map(input)?;
+    let mut loop_state = LoopState {
+        iterations,
+        current_states,
+        final_diagnostics,
+        exact_gap_remaining_work,
+    };
 
     for iteration_index in 1..=input.convergence.max_iterations {
         let mut boundary = active_boundary(
@@ -803,42 +809,42 @@ fn solve_active_set_loop(
             &input.base_prescribed,
             &input.ground_motion,
             &input.nonlinear_supports,
-            &current_states,
+            &loop_state.current_states,
         )?;
         // A friction support seeded sliding has no solved iterate yet to
         // orient or scale its bounded force. Defer convergence past this
         // first linearized iterate so the bounded +/- mu*N force is applied
         // before the loop can converge and the converged result does not
         // depend on whether sliding was seeded or reached by transition.
-        let sliding_force_deferred = iterations.is_empty()
-            && sliding_friction_support_present(&input.nonlinear_supports, &current_states);
+        let sliding_force_deferred = loop_state.iterations.is_empty()
+            && sliding_friction_support_present(&input.nonlinear_supports, &loop_state.current_states);
         let attempted_solve = solve_iteration_with_sliding_friction_evidence(
             &system,
             input,
             &boundary,
-            &current_states,
-            iterations.last(),
+            &loop_state.current_states,
+            loop_state.iterations.last(),
             &friction_normals,
             &derived_friction_normals,
             linear_solve_mode,
         );
-        let mut sliding_solve = match attempted_solve {
+        let sliding_solve = match attempted_solve {
             Err(error)
                 if matches!(&error, NonlinearIntegrationError::Structural(error) if structural_adapter::permits_contact_seed_trial(error, system.qualified_passive_family()))
                     && iteration_index == 1
                     && recovery_eligible
-                    && current_states
+                    && loop_state.current_states
                         .iter()
                         .any(|state| state.state == ActiveSetState::Inactive) =>
             {
                 let pivot = error.to_string();
-                let original_states = current_states
+                let original_states = loop_state.current_states
                     .iter()
                     .map(|state| format!("{}={}", state.support_id, state.state.as_str()))
                     .collect::<Vec<_>>()
                     .join(",");
                 let original_ground_dofs = boundary.dofs.clone();
-                let all_active = current_states
+                let all_active = loop_state.current_states
                     .iter()
                     .map(|state| SupportStateRecord::new(&state.support_id, ActiveSetState::Active))
                     .collect::<Vec<_>>();
@@ -865,9 +871,9 @@ fn solve_active_set_loop(
                     .map(|state| format!("{}={}", state.support_id, state.state.as_str()))
                     .collect::<Vec<_>>()
                     .join(",");
-                current_states = all_active;
+                loop_state.current_states = all_active;
                 recovered_path = true;
-                final_diagnostics.push(SolverDiagnostic::new(
+                loop_state.final_diagnostics.push(SolverDiagnostic::new(
                     SolverDiagnosticCode::SingularSystem, DiagnosticSeverity::Warning, DiagnosticSource::SolverIteration,
                     format!("The first-iteration structurally rejected inactive contact seed recovered by one all-active trial in {} mode; original_singular_pivot={pivot}; original_states=[{original_states}]; original_ground_dofs={original_ground_dofs:?}; recovery_states=[{recovery_states}]; recovery_ground_dofs={:?}; authored signed boundaries, forces and stiffness preserved; successful trial counts as iteration 1; later singularity remains failure and no second recovery is permitted.", linear_solve_mode.as_str(), boundary.dofs),
                 ));
@@ -875,152 +881,225 @@ fn solve_active_set_loop(
             }
             result => result?,
         };
-        let strict_gap = structural_adapter::scrutinize_gaps(
+        let context = IterationContext {
             input,
-            &system.gap_source(gap_views.as_ref()),
-            &boundary,
-            &current_states,
-            iteration_index,
+            springs,
+            system: &system,
+            gap_views: gap_views.as_ref(),
+            boundary: &boundary,
+            friction_normals: &friction_normals,
+            derived_friction_normals: &derived_friction_normals,
             linear_solve_mode,
-            &mut sliding_solve,
-            &mut exact_gap_remaining_work,
-        );
-        let trial_states = build_trial_states(
-            &input.nonlinear_supports,
-            &input.ground_motion,
-            &sliding_solve.linearized.displacements,
-            &sliding_solve.reactions,
-            &friction_normals,
-            &derived_friction_normals,
-        )?;
-        let resolved_friction = resolve_sliding_friction_states(
-            &input.nonlinear_supports,
-            &current_states,
-            &trial_states,
-            &sliding_solve.friction_evidence,
+        };
+        if let Some(result) = complete_iteration(
+            &context,
+            iteration_index,
+            sliding_solve,
+            recovered_path,
             sliding_force_deferred,
-        )?;
-        let active_set_input = ActiveSetIterationInput {
-            iteration: iteration_index,
-            max_iterations: input.convergence.max_iterations,
-            tolerance: input.convergence.effective_tolerance(),
-            supports: input.nonlinear_supports.clone(),
-            trial_states,
-            prior_states: current_states.clone(),
-        };
-        let active_set = match &strict_gap {
-            StrictGapEvidence::Qualified(report) => {
-                structural_adapter::exact_gap_iteration(&active_set_input, report)?
-            }
-            _ => evaluate_active_set_iteration_with_resolved_friction_states(
-                &active_set_input,
-                &resolved_friction.states,
-            )?,
-        };
-        let blocked = active_set.is_blocked();
-        let converged = active_set.converged
-            && (!recovered_path || active_set.changed_supports.is_empty())
-            && !blocked
-            && !sliding_force_deferred
-            && resolved_friction.tangential_branches_admissible
-            && sliding_solve.derived_normal_branches_admissible;
-        current_states = active_set.states.clone();
-        let linearized = sliding_solve.linearized;
-        let reactions = sliding_solve.reactions;
-        let applied_sliding_friction_forces = sliding_solve.applied_forces;
-        let residuals = residual_observation(
-            &linearized,
-            &reactions,
-            iterations.last(),
-            active_set.residual_norm,
-        );
-
-        let iteration = NonlinearFrameIteration {
-            strict_gap,
-            product_equilibrium: linearized.product_equilibrium,
-            contact_branches_admissible: resolved_friction.tangential_branches_admissible
-                && sliding_solve.derived_normal_branches_admissible,
-            structural_report: linearized.structural_report,
-            iteration: iteration_index,
-            active_restrained_dofs: boundary.dofs.clone(),
-            active_prescribed_displacements: boundary.displacements.clone(),
-            displacements: linearized.displacements,
-            reactions,
-            applied_sliding_friction_forces,
-            residuals,
-            sparse_evidence: linearized.sparse_evidence,
-            active_set,
-        };
-        iterations.push(iteration);
-
-        if converged || blocked || iteration_index == input.convergence.max_iterations {
-            let final_iteration = iterations
-                .last()
-                .expect("just pushed nonlinear iteration record");
-            final_diagnostics.extend(final_iteration.active_set.diagnostics.clone());
-            // Every non-converged exit must fail loudly. The active-set
-            // classifier emits its residual-based nonconvergence diagnostic
-            // only when the state-change residual exceeds the tolerance, so a
-            // run reaching the iteration cap with a zero residual -- e.g. a
-            // sliding-seeded friction support at max_iterations == 1, whose
-            // first-iterate convergence is deferred so the bounded sliding
-            // force can be applied -- would otherwise return
-            // converged == false without any visible diagnostic (recorded
-            // corner in WORKING_ITEMS_RUN_2026-07-10_TP-PMM-P2-FRICTION-001).
-            if !converged
-                && !final_diagnostics
-                    .iter()
-                    .any(|diagnostic| diagnostic.code == SolverDiagnosticCode::NonConvergence)
-            {
-                final_diagnostics.push(nonconverged_exit_diagnostic(
-                    iteration_index,
-                    sliding_force_deferred,
-                    !sliding_solve.derived_normal_branches_admissible,
-                    &current_states,
-                ));
-            }
-            let mut result = NonlinearFrameSolveResult {
-                completion: None,
-                converged,
-                policy_ref: input.convergence.policy_ref.clone(),
-                final_states: current_states,
-                displacements: final_iteration.displacements.clone(),
-                reactions: final_iteration.reactions.clone(),
-                iterations,
-                diagnostics: final_diagnostics,
-                assumptions: assembled_loop_assumptions(),
-                limitations: assembled_loop_limitations(),
-            };
-            let last = result
-                .iterations
-                .last()
-                .expect("actual completed iteration");
-            let prescribed = last
-                .active_restrained_dofs
-                .iter()
-                .copied()
-                .zip(last.active_prescribed_displacements.iter().copied())
-                .collect::<Vec<_>>();
-            let free_dofs = (0..input.force.len())
-                .filter(|dof| !last.active_restrained_dofs.contains(dof))
-                .collect();
-            let mut final_force = input.force.clone();
-            add_applied_forces(&mut final_force, &last.applied_sliding_friction_forces);
-            result.completion = Some(Box::new(ProductCompletion {
-                input: input.clone(),
-                springs: springs.to_vec(),
-                mode: linear_solve_mode,
-                original_stiffness: system.stiffness(),
-                final_force,
-                free_dofs,
-                prescribed,
-                output: Box::new(result.clone()),
-            }));
+            &mut loop_state,
+            IterationExit::AtConvergenceOrCap,
+        )? {
             return Ok(result);
         }
     }
 
     unreachable!("positive max_iterations loop must return on the capped final iteration")
+}
+
+/// RT-A5 S2 (DEL-05-02 Work `operating-case.md` §7.3; boundary fixed by RT-A3, the loop's owner):
+/// what the loop holds for one solved iterate's tail, borrowed. Crate-private; it adds no meaning.
+struct IterationContext<'a> {
+    input: &'a NonlinearFrameSolveInput,
+    springs: &'a [(usize, f64)],
+    system: &'a LoopSystem,
+    gap_views: Option<&'a structural_adapter::GapViews>,
+    boundary: &'a BoundaryState,
+    friction_normals: &'a HashMap<&'a str, f64>,
+    derived_friction_normals: &'a HashMap<&'a str, &'a DerivedFrictionNormalReaction>,
+    linear_solve_mode: LinearSolveMode,
+}
+
+/// RT-A5 S2: the loop's own state across iterates, as `solve_active_set_loop` held it in locals.
+struct LoopState {
+    iterations: Vec<NonlinearFrameIteration>,
+    current_states: Vec<SupportStateRecord>,
+    final_diagnostics: Vec<SolverDiagnostic>,
+    exact_gap_remaining_work: usize,
+}
+
+/// RT-A5 S2: when `complete_iteration` finishes the solve.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum IterationExit {
+    /// The loop: on convergence, a blocking classification or the iteration cap.
+    AtConvergenceOrCap,
+    /// After this iterate, whatever its outcome.
+    // RT-A5 phase 2 step 2: the held-status wrapper (`operating-case.md` §7.3) is its only caller.
+    #[allow(dead_code)]
+    Now,
+}
+
+/// Everything the loop does with one solved iterate: gap scrutiny, trial states,
+/// friction resolution, the active-set step, the converged predicate, residual
+/// observation, the iteration record, and (on exit) diagnostics, result and
+/// ProductCompletion receipt. Pure extraction of the loop tail (RT-A5 S2): the
+/// evaluation order, mutations, `?` returns and the receipt are the loop's own.
+/// `Some` is the finished solve; `None` continues the loop.
+fn complete_iteration(
+    ctx: &IterationContext<'_>,
+    iteration_index: usize,
+    mut sliding_solve: SlidingIterationSolve,
+    recovered_path: bool,
+    sliding_force_deferred: bool,
+    state: &mut LoopState,
+    exit: IterationExit,
+) -> Result<Option<NonlinearFrameSolveResult>, NonlinearIntegrationError> {
+    let strict_gap = structural_adapter::scrutinize_gaps(
+        ctx.input,
+        &ctx.system.gap_source(ctx.gap_views),
+        ctx.boundary,
+        &state.current_states,
+        iteration_index,
+        ctx.linear_solve_mode,
+        &mut sliding_solve,
+        &mut state.exact_gap_remaining_work,
+    );
+    let trial_states = build_trial_states(
+        &ctx.input.nonlinear_supports,
+        &ctx.input.ground_motion,
+        &sliding_solve.linearized.displacements,
+        &sliding_solve.reactions,
+        ctx.friction_normals,
+        ctx.derived_friction_normals,
+    )?;
+    let resolved_friction = resolve_sliding_friction_states(
+        &ctx.input.nonlinear_supports,
+        &state.current_states,
+        &trial_states,
+        &sliding_solve.friction_evidence,
+        sliding_force_deferred,
+    )?;
+    let active_set_input = ActiveSetIterationInput {
+        iteration: iteration_index,
+        max_iterations: ctx.input.convergence.max_iterations,
+        tolerance: ctx.input.convergence.effective_tolerance(),
+        supports: ctx.input.nonlinear_supports.clone(),
+        trial_states,
+        prior_states: state.current_states.clone(),
+    };
+    let active_set = match &strict_gap {
+        StrictGapEvidence::Qualified(report) => {
+            structural_adapter::exact_gap_iteration(&active_set_input, report)?
+        }
+        _ => evaluate_active_set_iteration_with_resolved_friction_states(
+            &active_set_input,
+            &resolved_friction.states,
+        )?,
+    };
+    let blocked = active_set.is_blocked();
+    let converged = active_set.converged
+        && (!recovered_path || active_set.changed_supports.is_empty())
+        && !blocked
+        && !sliding_force_deferred
+        && resolved_friction.tangential_branches_admissible
+        && sliding_solve.derived_normal_branches_admissible;
+    state.current_states = active_set.states.clone();
+    let linearized = sliding_solve.linearized;
+    let reactions = sliding_solve.reactions;
+    let applied_sliding_friction_forces = sliding_solve.applied_forces;
+    let residuals = residual_observation(
+        &linearized,
+        &reactions,
+        state.iterations.last(),
+        active_set.residual_norm,
+    );
+
+    let iteration = NonlinearFrameIteration {
+        strict_gap,
+        product_equilibrium: linearized.product_equilibrium,
+        contact_branches_admissible: resolved_friction.tangential_branches_admissible
+            && sliding_solve.derived_normal_branches_admissible,
+        structural_report: linearized.structural_report,
+        iteration: iteration_index,
+        active_restrained_dofs: ctx.boundary.dofs.clone(),
+        active_prescribed_displacements: ctx.boundary.displacements.clone(),
+        displacements: linearized.displacements,
+        reactions,
+        applied_sliding_friction_forces,
+        residuals,
+        sparse_evidence: linearized.sparse_evidence,
+        active_set,
+    };
+    state.iterations.push(iteration);
+
+    if converged || blocked || iteration_index == ctx.input.convergence.max_iterations || exit == IterationExit::Now {
+        let final_iteration = state
+            .iterations
+            .last()
+            .expect("just pushed nonlinear iteration record");
+        state.final_diagnostics.extend(final_iteration.active_set.diagnostics.clone());
+        // Every non-converged exit must fail loudly. The active-set
+        // classifier emits its residual-based nonconvergence diagnostic
+        // only when the state-change residual exceeds the tolerance, so a
+        // run reaching the iteration cap with a zero residual -- e.g. a
+        // sliding-seeded friction support at max_iterations == 1, whose
+        // first-iterate convergence is deferred so the bounded sliding
+        // force can be applied -- would otherwise return
+        // converged == false without any visible diagnostic (recorded
+        // corner in WORKING_ITEMS_RUN_2026-07-10_TP-PMM-P2-FRICTION-001).
+        if !converged
+            && !state
+                .final_diagnostics
+                .iter()
+                .any(|diagnostic| diagnostic.code == SolverDiagnosticCode::NonConvergence)
+        {
+            state.final_diagnostics.push(nonconverged_exit_diagnostic(
+                iteration_index,
+                sliding_force_deferred,
+                !sliding_solve.derived_normal_branches_admissible,
+                &state.current_states,
+            ));
+        }
+        let mut result = NonlinearFrameSolveResult {
+            completion: None,
+            converged,
+            policy_ref: ctx.input.convergence.policy_ref.clone(),
+            final_states: std::mem::take(&mut state.current_states),
+            displacements: final_iteration.displacements.clone(),
+            reactions: final_iteration.reactions.clone(),
+            iterations: std::mem::take(&mut state.iterations),
+            diagnostics: std::mem::take(&mut state.final_diagnostics),
+            assumptions: assembled_loop_assumptions(),
+            limitations: assembled_loop_limitations(),
+        };
+        let last = result
+            .iterations
+            .last()
+            .expect("actual completed iteration");
+        let prescribed = last
+            .active_restrained_dofs
+            .iter()
+            .copied()
+            .zip(last.active_prescribed_displacements.iter().copied())
+            .collect::<Vec<_>>();
+        let free_dofs = (0..ctx.input.force.len())
+            .filter(|dof| !last.active_restrained_dofs.contains(dof))
+            .collect();
+        let mut final_force = ctx.input.force.clone();
+        add_applied_forces(&mut final_force, &last.applied_sliding_friction_forces);
+        result.completion = Some(Box::new(ProductCompletion {
+            input: ctx.input.clone(),
+            springs: ctx.springs.to_vec(),
+            mode: ctx.linear_solve_mode,
+            original_stiffness: ctx.system.stiffness(),
+            final_force,
+            free_dofs,
+            prescribed,
+            output: Box::new(result.clone()),
+        }));
+        return Ok(Some(result));
+    }
+    Ok(None)
 }
 
 /// Product qualification requires zero classified state changes in addition to
