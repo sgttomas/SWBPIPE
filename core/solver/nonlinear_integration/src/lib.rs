@@ -11,6 +11,8 @@ pub mod product_equilibrium;
 #[cfg(test)]
 mod dense_memory_guard_tests;
 #[cfg(test)]
+mod held_tests;
+#[cfg(test)]
 mod p_tests;
 #[cfg(test)]
 mod s11k_tests;
@@ -933,9 +935,8 @@ struct LoopState {
 enum IterationExit {
     /// The loop: on convergence, a blocking classification or the iteration cap.
     AtConvergenceOrCap,
-    /// After this iterate, whatever its outcome.
-    // RT-A5 phase 2 step 2: the held-status wrapper (`operating-case.md` §7.3) is its only caller.
-    #[allow(dead_code)]
+    /// After this iterate, whatever its outcome: the held-status wrapper
+    /// (`solve_held_status_iteration`, `operating-case.md` §7.3) is its only caller.
     Now,
 }
 
@@ -1855,6 +1856,166 @@ fn solve_iteration_with_sliding_friction_evidence(
         applied_forces,
         friction_evidence,
         derived_normal_branches_admissible,
+    })
+}
+
+/// RT-A5 `minuend_final` (DEL-05-02 Work `operating-case.md` §7.1, §7.3): what
+/// confirming a held solve needs, exactly the arguments of
+/// `confirmation::confirm_converged_state` that the loop's input does not carry.
+pub struct HeldConfirmation<'a> {
+    /// The target case's own ledger force (`input.force` bit for bit).
+    pub force: &'a AssembledForce,
+    pub curved_sources: &'a [CurvedBendMacroElement],
+    /// Each of `input.elements`' member identity.
+    pub frame_members: &'a [String],
+}
+
+/// RT-A5 `minuend_final`: one held-status step and its confirmation attempt.
+#[derive(Debug)]
+pub struct HeldStatusSolve {
+    /// The input the step ran on: the caller's input with `initial_states`
+    /// replaced by the held records. The receipt and the confirmation bind it.
+    pub input: NonlinearFrameSolveInput,
+    /// The held records, sorted by support id: the states the boundary was formed from.
+    pub held_states: Vec<SupportStateRecord>,
+    /// The loop's own result type, formed by the loop's own tail
+    /// (`complete_iteration` with `IterationExit::Now`). `iterations` holds the
+    /// orienting iterate first, when one was given (it is the source case's
+    /// iterate, not a held iterate), then the one held iterate. `final_states`
+    /// are the target classifier's states; `converged` is the loop's predicate on
+    /// the held iterate, so a held state the classifier would change gives
+    /// `converged == false` with the loop's non-converged exit diagnostic.
+    pub result: NonlinearFrameSolveResult,
+    /// `confirm_converged_state`'s outcome on `result`, or `NotEstablished`
+    /// ("confirmation attempt: not run") when the caller asks for none or the
+    /// held iterate's structural report is not Passed.
+    pub confirmation: confirmation::Confirmation,
+}
+
+/// RT-A5 `minuend_final` (DEL-05-02 Work `operating-case.md` §7.1-§7.3): the
+/// target system with each nonlinear support held at `held`, solved by one step
+/// of the loop's own unit and completed by the loop's own tail, never iterated
+/// and never recovered, then one unchanged confirmation attempt.
+///
+/// `orienting` is the iterate that orients held sliding forces and their
+/// derived-normal branches (the source case's final iterate); it seeds the
+/// tail's iteration history, as the loop's previous iterate does. A held
+/// sliding friction support without it is refused. The gap work allotment is
+/// the loop's own starting allotment.
+pub fn solve_held_status_iteration(
+    input: &NonlinearFrameSolveInput,
+    springs: &[(usize, f64)],
+    held: &[SupportStateRecord],
+    orienting: Option<&NonlinearFrameIteration>,
+    linear_solve_mode: LinearSolveMode,
+    confirm: Option<HeldConfirmation<'_>>,
+) -> Result<HeldStatusSolve, NonlinearIntegrationError> {
+    dense_loop_memory_guard(
+        input.node_count,
+        &input.base_restrained_dofs,
+        dense_loop_ceiling_bytes(),
+    )
+    .map_err(NonlinearIntegrationError::DenseMemoryLimitExceeded)?;
+    let held_input = NonlinearFrameSolveInput {
+        initial_states: held.to_vec(),
+        ..input.clone()
+    };
+    validate_input(&held_input)?;
+    // Missing, unknown and repeated held records are refused here, as seeds are.
+    let held_states = normalized_initial_states(&held_input)?;
+    if let Some(iterate) = orienting {
+        let dofs = held_input.node_count * DOF_PER_NODE;
+        if iterate.displacements.len() != dofs || iterate.reactions.len() != dofs {
+            return Err(NonlinearIntegrationError::InvalidInput {
+                detail: "held status: the orienting iterate does not match the system's DOF count".to_string(),
+            });
+        }
+    } else if sliding_friction_support_present(&held_input.nonlinear_supports, &held_states) {
+        return Err(NonlinearIntegrationError::InvalidInput {
+            detail: "held status: a support held sliding needs the orienting iterate".to_string(),
+        });
+    }
+
+    let system = LoopSystem::assemble(&held_input, springs, loop_representation(linear_solve_mode))?;
+    let gap_views = system.gap_views(&held_input);
+    let friction_normals = friction_normal_map(&held_input)?;
+    let derived_friction_normals = derived_friction_normal_map(&held_input)?;
+    let boundary = active_boundary(
+        held_input.node_count,
+        &held_input.base_restrained_dofs,
+        &held_input.base_prescribed,
+        &held_input.ground_motion,
+        &held_input.nonlinear_supports,
+        &held_states,
+    )?;
+    let mut loop_state = LoopState {
+        iterations: orienting.cloned().into_iter().collect(),
+        current_states: held_states.clone(),
+        final_diagnostics: policy_diagnostics(&held_input.convergence),
+        exact_gap_remaining_work: structural_adapter::GAP_RUN_WORK_LIMIT,
+    };
+    // The loop's own deferral rule: false whenever an orienting iterate exists.
+    let sliding_force_deferred = loop_state.iterations.is_empty()
+        && sliding_friction_support_present(&held_input.nonlinear_supports, &loop_state.current_states);
+    let sliding_solve = solve_iteration_with_sliding_friction_evidence(
+        &system,
+        &held_input,
+        &boundary,
+        &loop_state.current_states,
+        loop_state.iterations.last(),
+        &friction_normals,
+        &derived_friction_normals,
+        linear_solve_mode,
+    )?;
+    let context = IterationContext {
+        input: &held_input,
+        springs,
+        system: &system,
+        gap_views: gap_views.as_ref(),
+        boundary: &boundary,
+        friction_normals: &friction_normals,
+        derived_friction_normals: &derived_friction_normals,
+        linear_solve_mode,
+    };
+    let result = complete_iteration(
+        &context,
+        1,
+        sliding_solve,
+        false,
+        sliding_force_deferred,
+        &mut loop_state,
+        IterationExit::Now,
+    )?
+    .expect("IterationExit::Now always finishes the solve");
+    let passed = result
+        .iterations
+        .last()
+        .is_some_and(|iteration| {
+            iteration.structural_report.quality
+                == open_pipe_stress_frame_kernel::structural::SolveQuality::Passed
+        });
+    let confirmation = match confirm {
+        Some(confirm) if passed => confirmation::confirm_converged_state(
+            &held_input,
+            springs,
+            &result,
+            confirm.force,
+            confirm.curved_sources,
+            confirm.frame_members,
+            linear_solve_mode,
+        )
+        .unwrap_or_else(|error| confirmation::Confirmation::NotEstablished {
+            reason: format!("confirmation attempt: {error}"),
+        }),
+        _ => confirmation::Confirmation::NotEstablished {
+            reason: "confirmation attempt: not run".to_string(),
+        },
+    };
+    Ok(HeldStatusSolve {
+        input: held_input,
+        held_states,
+        result,
+        confirmation,
     })
 }
 
