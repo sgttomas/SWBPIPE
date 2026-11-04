@@ -2582,9 +2582,15 @@ fn mr_clusters(p: &Parsed) -> R<Vec<String>> {
     let mut undetermined = 0usize;
     for i in 1..total {
         let (a, b) = (p.computed[i - 1].omega.unwrap_or(f64::NAN), p.computed[i].omega.unwrap_or(f64::NAN));
+        // The kernel breaks a cluster where fl(λ_b − λ_a) > fl(δ_c·λ_b)
+        // (clusters.rs:71); the published ω = fl(√λ), so each fl(ω²) is within
+        // 3u·λ (+O(u²)) of its λ. With the subtractions and products rounded,
+        // reader and kernel differ by at most (8u + 5u·δ_c)·λ_b + O(u²);
+        // 16u(1 + δ_c)·ω_b² covers it, and the sum with the threshold, for
+        // every admitted δ_c in (0, 1).
         let gap = b * b - a * a;
         let threshold = delta * (b * b);
-        let margin = 8.0 * U * (b * b);
+        let margin = 16.0 * U * (1.0 + delta) * (b * b);
         let same = p.computed[i].cluster == p.computed[i - 1].cluster;
         if gap > threshold + margin && same {
             return Err(format!("computed modes {} and {}: share a cluster across a relative gap above δ_c", i, i + 1));

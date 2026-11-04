@@ -1715,9 +1715,13 @@ def _clusters(p):
     for i in range(1, total):
         a = p.computed[i - 1]["omega"] if p.computed[i - 1]["omega"] is not None else math.nan
         b = p.computed[i]["omega"] if p.computed[i]["omega"] is not None else math.nan
+        # The kernel breaks where fl(lambda_b - lambda_a) > fl(delta_c * lambda_b); each
+        # published omega is fl(sqrt(lambda)), so fl(omega^2) is within 3u*lambda (+O(u^2)).
+        # The reader and the kernel then differ by at most (8u + 5u*delta_c)*lambda_b +
+        # O(u^2), which 16u*(1 + delta_c)*omega_b^2 covers for every delta_c in (0, 1).
         gap = b * b - a * a
         threshold = delta * (b * b)
-        margin = 8.0 * U * (b * b)
+        margin = 16.0 * U * (1.0 + delta) * (b * b)
         same = p.computed[i]["cluster"] == p.computed[i - 1]["cluster"]
         if gap > threshold + margin and same:
             _fail(f"computed modes {i} and {i + 1}: share a cluster across a relative gap above δ_c")
