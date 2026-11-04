@@ -10,6 +10,7 @@
 // attempt and never deletes the referencers.
 import type { PreviewModel } from "../../types";
 import { trimLikeRust } from "../../services/rustTrim";
+import { loadedWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
 import type { Combination, CombinationTerm } from "./combinationOperands";
 
 export const DELETE_REFERENCED_CODE = "OP-COMBINATION-DELETE-REFERENCED";
@@ -17,41 +18,38 @@ export const DELETE_REFERENCED_CODE = "OP-COMBINATION-DELETE-REFERENCED";
 /** Asynchronous canonical JSON (the wasm engine's RFC 8785 form), as `canonicalJsonString`. */
 export type Canonicalize = (value: unknown) => Promise<string>;
 
-/** The engine's `display_number`: an integral value below 1e15 in magnitude as an integer,
- * otherwise Rust's `{}` for f64 (the shortest round-trip digits, never an exponent). */
-export function engineDisplayNumber(value: number): string {
-  if (Number.isInteger(value) && Math.abs(value) < 1e15) return String(Math.trunc(value) + 0);
-  return plainDecimal(value);
+export const NUMBER_DISPLAY_ENGINE_ABSENT =
+  "The delete's before value needs the wasm operation engine's number display, which is not loaded; no delete is built.";
+
+/** Thrown when a flat record's or term's historical display needs a factor's text and the
+ * wasm engine is not loaded: no `before` is built, and nothing is mirrored. */
+export class NumberDisplayUnavailable extends Error {
+  constructor() { super(NUMBER_DISPLAY_ENGINE_ABSENT); }
 }
 
-function plainDecimal(value: number): string {
-  const sign = value < 0 ? "-" : "";
-  const text = String(Math.abs(value));
-  const [mantissa, exponentText] = text.split("e");
-  const exponent = exponentText === undefined ? 0 : Number(exponentText);
-  const pointAt = mantissa.indexOf(".");
-  const digits = mantissa.replace(".", "");
-  const point = (pointAt === -1 ? mantissa.length : pointAt) + exponent;
-  let body: string;
-  if (point <= 0) body = `0.${"0".repeat(-point)}${digits}`;
-  else if (point >= digits.length) body = `${digits}${"0".repeat(point - digits.length)}`;
-  else body = `${digits.slice(0, point)}.${digits.slice(point)}`;
-  body = body.replace(/^0+(?=\d)/, "");
-  return `${sign}${body}`;
+/** A factor as the engine prints it: its own `display_number` through the wasm export
+ * `display_number_text` (#118), never a desktop mirror (JavaScript and Rust break ties between
+ * equally short digit strings differently: 1000000000000000.25 is 1000000000000000.3 there). */
+function engineNumberText(value: number): string {
+  const text = loadedWasmEngine()?.displayNumberText(value);
+  if (text === undefined) throw new NumberDisplayUnavailable();
+  return text;
 }
 
 // The applier trims with Rust's `str::trim` (Unicode White_Space: U+0085 is trimmed, U+FEFF
 // is not), so every trim here is `trimLikeRust`, never `String.prototype.trim`.
 const textOr = (value: unknown, fallback: string) => (typeof value === "string" ? trimLikeRust(value) : fallback);
 
-/** A flat term's historical display, or null for any other stored term (engine `combination_term_display`). */
+/** A flat term's historical display, or null for any other stored term (engine
+ * `combination_term_display`). Throws `NumberDisplayUnavailable` for a flat term while the
+ * engine is not loaded. */
 export function historicalTermDisplay(term: unknown): string | null {
   if (!term || typeof term !== "object" || Array.isArray(term)) return null;
   const record = term as Record<string, unknown>;
   const loadCase = typeof record.load_case === "string" ? trimLikeRust(record.load_case) : "";
   const factor = record.factor;
   if (!loadCase || typeof factor !== "number" || !Number.isFinite(factor)) return null;
-  return `${loadCase} x ${engineDisplayNumber(factor)}`;
+  return `${loadCase} x ${engineNumberText(factor)}`;
 }
 
 /** The historical record display, or null when `terms` is absent or any term is not flat (engine `combination_delete_display`). */

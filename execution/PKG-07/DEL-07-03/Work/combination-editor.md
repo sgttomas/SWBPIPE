@@ -83,10 +83,16 @@ and `LoadCaseManagerPanel.tsx`.
   - `delete_combination`: the historical display `"<id>; <label>; basis=<basis>;
     terms=<lc> x <factor>; …"` (or `terms=none`) when the stored `terms` is an array of flat
     `{load_case: non-empty string, factor: finite number}` terms, empty included, whatever
-    the basis. Factors are written as the engine's `display_number` writes them: an integer
-    below 10^15 in magnitude, otherwise Rust's plain shortest decimal, for example
-    `0.0000001`. Otherwise, with no `terms` or any non-flat term, the before is the stored
-    record's canonical JSON, from the wasm engine's `canonicalJsonString`.
+    the basis. Each factor's text comes from the engine itself, through the wasm export
+    `display_number_text` (#118), the engine's own `display_number`. It is read synchronously
+    from the loaded engine (`loadedWasmEngine()`) and never mirrored: JavaScript and Rust
+    break ties between equally short digit strings differently, so 1000000000000000.25 is
+    `1000000000000000.3` in the engine. Labels, basis and `load_case` are trimmed with
+    `trimLikeRust`, as the applier's `str::trim`: U+0085 is trimmed and U+FEFF kept.
+    Otherwise, with no `terms` or any non-flat term, the before is the stored record's
+    canonical JSON, from the wasm engine's `canonicalJsonString`.
+  - If the engine is not loaded, a flat record or term gets no `before`. No delete is built,
+    and the preview says why. The desktop loads the engine before it renders.
   - `delete_combination_term` (`terms.<i>`): `"<lc> x <factor>"` for a flat term, otherwise
     the stored term's canonical JSON.
   - The preview shows the before value. A canonical value is computed by the engine, so the
@@ -198,8 +204,13 @@ constant-effort support), with invented axis-state cases. No fixture file was ad
     factor entered; a template draft changed during a pending check queues nothing; distinct
     raw ids give distinct operation ids and pass batch preflight; "Go to Create load case"
     focuses the ID field and shows its status line.
-- `combinationDelete.engine.test.tsx` (7):
-  - `display_number` and the historical display;
+- `combinationDelete.engine.test.tsx` (11):
+  - the engine's `display_number_text` pinned by bit pattern through wasm (12 values,
+    including the tie `0x430c6bf526340002` → `1000000000000000.3` and −0 → `0`), and the
+    historical display;
+  - review r1 of #117: labels `"\u0085hi\u0085"` and `"\uFEFFhi\uFEFF"`, and a `"\u0085"`
+    `load_case` taking the canonical form, each deleted through the engine; a record and a
+    term with the exact-tie factor 1000000000000000.25 deleted through the engine;
   - deletes through the panel and the engine: an SRSS of combinations (canonical), a
     subtraction with `terms: []` (historical), a subtraction without `terms` and an
     envelope without `terms` (canonical), and a flat mechanics record with factors 1.5 and
@@ -212,6 +223,8 @@ constant-effort support), with invented axis-state cases. No fixture file was ad
   - the inverse restores at `combinations[i]` and `terms.0`;
   - the termless mechanics and `minuend_final` restores refused by name, with session Undo
     restoring exactly.
+- `deleteTexts.engineAbsent.test.ts` (2): with no loaded engine, no combination, term or
+  node `before` that needs a number is built, and none is formatted another way.
 - `combinationEditor.session.test.tsx` (3): the session route:
   - the four changes applied singly in order, the out-of-order apply refused by name, and
     Undo restoring each document;

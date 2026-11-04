@@ -2,12 +2,21 @@
 // compares, or the inspector's own Delete is refused as stale. Each deletion here is
 // applied by the actual wasm engine on an invented model whose labels carry padding
 // and whose coordinates print with an exponent in ECMAScript.
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
+import { loadWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
 import { applyOperationBatch } from "../../services/operationBatchService";
 import { computeModelHash } from "../../services/hashService";
 import { bulkChangeModel } from "../../test-support/bulkChangeModel";
 import type { EditorOperationIntent, PreviewModel } from "../../types";
-import { applierDisplayNumber, buildDeleteNodeIntent, buildDeletePipeIntent, buildDeleteSupportIntent } from "./removalIntents";
+import { applierDisplayNumber, buildDeleteNodeIntent as buildDeleteNodeIntentOrNull, buildDeletePipeIntent, buildDeleteSupportIntent } from "./removalIntents";
+
+// The node texts take the engine's own number display, so the engine is loaded first (as main.tsx does).
+beforeAll(async () => { await loadWasmEngine(); });
+function buildDeleteNodeIntent(node: PreviewModel["nodes"][number], model: PreviewModel): EditorOperationIntent {
+  const intent = buildDeleteNodeIntentOrNull(node, model);
+  if (!intent) throw new Error("the wasm engine is not loaded");
+  return intent;
+}
 
 const PROV = "invented removal-intent test input";
 
@@ -80,6 +89,17 @@ describe("removal intents", () => {
       model = outcome.applied_model!;
     }
     expect(model.nodes.map(node => node.id)).not.toContain("node:G");
+  });
+
+  it("a node whose coordinate is an exact tie deletes through the engine (the engine's own display_number)", async () => {
+    let model = paddedModel();
+    model.nodes.push({ id: "node:TIE", label: "Tie", position: { x: 1000000000000000.25, y: 0, z: 0 }, provenance: PROV });
+    const intent = buildDeleteNodeIntent(model.nodes.at(-1)!, model);
+    expect(intent.change.before).toBe("Tie; x=1000000000000000.3; y=0; z=0");
+    const outcome = await apply(model, intent);
+    expect(outcome.validation.batch_validation_status, JSON.stringify(outcome.diagnostics)).toBe("passed");
+    model = outcome.applied_model!;
+    expect(model.nodes.map(node => node.id)).not.toContain("node:TIE");
   });
 
   it("format numbers as the applier's display_number does", () => {

@@ -62,6 +62,8 @@ import { SeismicTemplateSection } from "./SeismicTemplateSection";
 import { SEISMIC_TEMPLATE_PROVENANCE } from "./seismicTemplate";
 import {
   DELETE_REFERENCED_CODE,
+  NUMBER_DISPLAY_ENGINE_ABSENT,
+  NumberDisplayUnavailable,
   combinationDeleteBefore,
   combinationReferencePaths,
   combinationTermDeleteBefore,
@@ -334,7 +336,7 @@ export function LoadCaseManagerPanel({
   // Delete before-values come only from the stored record or term: the historical display
   // where the engine keeps it, otherwise the stored JSON's canonical form (computed by the
   // wasm engine, so shown once ready).
-  const termDeleteBefore = useStoredBefore(selectedCombinationTerm?.term ?? null, historicalTermDisplay);
+  const { before: termDeleteBefore, unavailable: termDeleteUnavailable } = useStoredBefore(selectedCombinationTerm?.term ?? null, historicalTermDisplay);
   const combinationDeleteIntent =
     selectedCombinationTerm && combinationDeleteRationale.trim() && termDeleteBefore !== null
       ? buildDeleteCombinationTermIntent({
@@ -356,7 +358,7 @@ export function LoadCaseManagerPanel({
           rationale: combinationBasisRationale
       })
       : null;
-  const entityDeleteBefore = useStoredBefore(selectedCombination, historicalCombinationDisplay);
+  const { before: entityDeleteBefore, unavailable: entityDeleteUnavailable } = useStoredBefore(selectedCombination, historicalCombinationDisplay);
   const combinationEntityDeleteIntent =
     selectedCombination && combinationEntityDeleteRationale.trim() && entityDeleteBefore !== null
       ? buildDeleteCombinationIntent({
@@ -1497,7 +1499,9 @@ export function LoadCaseManagerPanel({
           <p className="muted load-edit-preview" data-testid="load-manager-combination-entity-delete-preview">
             {combinationEntityDeleteIntent
               ? `${combinationEntityDeleteIntent.operation_id}; before=${combinationEntityDeleteIntent.change.before}; after=${combinationEntityDeleteIntent.change.after}; unit=${combinationEntityDeleteIntent.change.unit}; ${combinationEntityDeleteIntent.change.dimension}; unit_validation=${combinationEntityDeleteIntent.validation.unit_validation}; direct_model_mutation_allowed=false; professional_approval=false`
-              : selectedCombination && combinationEntityDeleteRationale.trim()
+              : entityDeleteUnavailable
+                ? NUMBER_DISPLAY_ENGINE_ABSENT
+                : selectedCombination && combinationEntityDeleteRationale.trim()
                 ? "computing the stored record's canonical JSON for the delete's before value"
                 : "select a combination and provide rationale to queue deletion"}
           </p>
@@ -1580,7 +1584,9 @@ export function LoadCaseManagerPanel({
           <p className="muted load-edit-preview" data-testid="load-manager-combination-delete-preview">
             {combinationDeleteIntent
               ? `${combinationDeleteIntent.operation_id}; before=${combinationDeleteIntent.change.before}; after=${combinationDeleteIntent.change.after}; unit=${combinationDeleteIntent.change.unit}; ${combinationDeleteIntent.change.dimension}; unit_validation=${combinationDeleteIntent.validation.unit_validation}; direct_model_mutation_allowed=false; professional_approval=false`
-              : selectedCombinationTerm && combinationDeleteRationale.trim()
+              : termDeleteUnavailable
+                ? NUMBER_DISPLAY_ENGINE_ABSENT
+                : selectedCombinationTerm && combinationDeleteRationale.trim()
                 ? "computing the stored term's canonical JSON for the delete's before value"
                 : "select a combination term and provide rationale to queue deletion"}
           </p>
@@ -2779,18 +2785,30 @@ function combinationDeleteReferenceText(model: PreviewModel, combinationId: stri
 }
 
 /** A before value built only from the stored value: `historical` when it applies, else the
- * stored value's canonical JSON from the wasm engine (null until it is ready). */
-function useStoredBefore<T>(stored: T | null, historical: (value: T) => string | null): string | null {
+ * stored value's canonical JSON from the wasm engine (null until it is ready). Null as well
+ * when the historical display needs the engine's number text and the engine is not loaded:
+ * then no delete is built (`unavailable`). */
+function useStoredBefore<T>(stored: T | null, historical: (value: T) => string | null): { before: string | null; unavailable: boolean } {
   const [canonical, setCanonical] = useState<{ stored: T; value: string } | null>(null);
-  const sync = stored === null ? null : historical(stored);
+  let sync: string | null = null;
+  let unavailable = false;
+  if (stored !== null) {
+    try {
+      sync = historical(stored);
+    } catch (error) {
+      if (!(error instanceof NumberDisplayUnavailable)) throw error;
+      unavailable = true;
+    }
+  }
+  const needsCanonical = stored !== null && sync === null && !unavailable;
   useEffect(() => {
-    if (stored === null || sync !== null) return;
+    if (!needsCanonical || stored === null) return;
     let live = true;
     void canonicalJsonString(stored).then((value) => { if (live) setCanonical({ stored, value }); }).catch(() => undefined);
     return () => { live = false; };
-  }, [stored, sync]);
-  if (stored === null) return null;
-  return sync ?? (canonical?.stored === stored ? canonical.value : null);
+  }, [stored, needsCanonical]);
+  if (stored === null || unavailable) return { before: null, unavailable };
+  return { before: sync ?? (canonical?.stored === stored ? canonical.value : null), unavailable };
 }
 
 function combinationRowExpression(combination: Combination): string {

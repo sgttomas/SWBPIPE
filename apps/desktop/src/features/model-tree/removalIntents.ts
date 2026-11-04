@@ -1,5 +1,6 @@
 import type { EditorOperationIntent, PreviewModel } from "../../types";
 import { trimLikeRust } from "../../services/rustTrim";
+import { loadedWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
 
 // The node, pipe and support removal intents. The inspector's Delete panels and the context
 // menus (B9) queue these same intents; the builders moved here unchanged from
@@ -17,30 +18,29 @@ function safeToken(value: string): string {
 // builds its `before` here. The applier trims with Rust's `str::trim`, so these texts
 // trim with `trimLikeRust` (U+0085 trimmed, U+FEFF kept), never `String.prototype.trim`.
 
-/** The applier's `display_number`: an integral value below 1e15 as an integer,
- * any other in Rust's shortest round-trip decimal, which never uses an exponent
- * (1e-7 is `0.0000001`, 2.5e21 is `2500000000000000000000`). */
-export function applierDisplayNumber(value: number): string {
-  if (Number.isInteger(value) && Math.abs(value) < 1e15) return String(value);
-  const text = String(value);
-  const match = /^(-?)(\d)(?:\.(\d+))?e([+-]\d+)$/.exec(text);
-  if (!match) return text;
-  const [, sign, lead, fraction = "", exponent] = match;
-  const digits = lead + fraction;
-  const point = 1 + Number(exponent);
-  if (point <= 0) return `${sign}0.${"0".repeat(-point)}${digits}`;
-  if (point >= digits.length) return sign + digits + "0".repeat(point - digits.length);
-  return `${sign}${digits.slice(0, point)}.${digits.slice(point)}`;
+/** The applier's own `display_number`, through the loaded wasm engine's export
+ * (`display_number_text`, #118): never mirrored, since JavaScript and Rust break ties
+ * between equally short digit strings differently. Null when the engine is not loaded
+ * (the desktop loads it before it renders); a caller then builds no `before`. */
+export function applierDisplayNumber(value: number): string | null {
+  return loadedWasmEngine()?.displayNumberText(value) ?? null;
 }
 
 /* The deletion texts mirror the applier's (`node_delete_display`, `pipe_delete_display`):
- * an absent or blank member gives the empty text, never a crash or an invented one. */
-export function nodeDeletionSummary(node: PreviewModel["nodes"][number]): string {
+ * an absent or blank member gives the empty text, never a crash or an invented one. A node's
+ * coordinates take the engine's own number text; without the loaded engine the summary is
+ * null and no deletion is built. */
+export function nodeDeletionSummary(node: PreviewModel["nodes"][number]): string | null {
   const { x, y, z } = node.position;
   const label = trimLikeRust(node.label ?? "");
   if (!label) return "";
-  return `${label}; x=${applierDisplayNumber(x)}; y=${applierDisplayNumber(y)}; z=${applierDisplayNumber(z)}`;
+  const [tx, ty, tz] = [x, y, z].map(applierDisplayNumber);
+  if (tx === null || ty === null || tz === null) return null;
+  return `${label}; x=${tx}; y=${ty}; z=${tz}`;
 }
+
+export const NODE_DELETE_ENGINE_ABSENT =
+  "The node's deletion text needs the wasm operation engine's number display, which is not loaded; no deletion is built.";
 
 export function pipeDeletionSummary(pipe: PreviewModel["pipe_segments"][number]): string {
   const [label, from, to, material] = [pipe.label, pipe.from, pipe.to, pipe.material].map((value) => trimLikeRust(value ?? ""));
@@ -107,9 +107,11 @@ export function buildDeleteSupportIntent(
   };
 }
 
-export function buildDeleteNodeIntent(node: PreviewModel["nodes"][number], model: PreviewModel): EditorOperationIntent {
+/** Null when the engine is not loaded (`nodeDeletionSummary`). */
+export function buildDeleteNodeIntent(node: PreviewModel["nodes"][number], model: PreviewModel): EditorOperationIntent | null {
   const nodeId = node.id.trim();
   const before = nodeDeletionSummary(node);
+  if (before === null) return null;
   return {
     operation_id: `op:delete-node-${safeToken(nodeId)}`,
     operation_kind: "delete",

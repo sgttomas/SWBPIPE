@@ -12,12 +12,12 @@ import demoModel from "../../../../../fixtures/product_preview/invented_demo_mod
 import * as previewService from "../../services/previewService";
 import { applyModelOperation } from "../../services/operationService";
 import { canonicalJsonString, computeModelHash } from "../../services/hashService";
-import { loadWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
+import { loadWasmEngine, loadedWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
 import type { EditorOperationIntent, EntityRef, OperationOutcome, PreviewModel } from "../../types";
 import { useWorkspaceSession } from "../workspace/workspaceSession";
 import { LoadCaseManagerPanel } from "./LoadCaseManagerPanel";
 import { createCombinationIntent } from "./combinationAuthoring";
-import { engineDisplayNumber, historicalCombinationDisplay } from "./combinationDelete";
+import { historicalCombinationDisplay } from "./combinationDelete";
 import { emptySeismicTemplateDraft, seismicTemplateIntents } from "./seismicTemplate";
 import type { Combination } from "./combinationOperands";
 
@@ -104,9 +104,26 @@ beforeAll(async () => {
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
 describe("the before value is built from the stored record only", () => {
-  it("mirrors the engine's display_number", () => {
-    expect([1, -3, 0, -0, 1.5, 1e-7, 1e15, 1e21, 123456789.125, -2.5e-10].map(engineDisplayNumber)).toEqual(
-      ["1", "-3", "0", "0", "1.5", "0.0000001", "1000000000000000", "1000000000000000000000", "123456789.125", "-0.00000000025"]);
+  it("takes the engine's display_number through the wasm export, pinned by bit pattern", () => {
+    const pins: Array<[bigint, string]> = [
+      [0x430c6bf526340002n, "1000000000000000.3"],
+      [0x430c6bf526340000n, "1000000000000000"],
+      [0x430c6bf52633fff8n, "999999999999999"],
+      [0x4034000000000000n, "20"],
+      [0x444b1ae4d6e2ef50n, "1000000000000000000000"],
+      [0x3e7ad7f29abcaf48n, "0.0000001"],
+      [0x43abc16d674ec801n, "1000000000000000100"],
+      [0x8000000000000000n, "0"],
+      [0x3fb999999999999an, "0.1"],
+      [0x4004000000000000n, "2.5"],
+      [0xbff8000000000000n, "-1.5"],
+      [0x419d6f3454800000n, "123456789.125"]
+    ];
+    const view = new DataView(new ArrayBuffer(8));
+    const fromBits = (bits: bigint) => { view.setBigUint64(0, bits); return view.getFloat64(0); };
+    const engine = loadedWasmEngine()!;
+    expect(pins.map(([bits]) => engine.displayNumberText(fromBits(bits)))).toEqual(pins.map(([, text]) => text));
+    expect(Object.is(fromBits(0x8000000000000000n), -0)).toBe(true);
     expect(historicalCombinationDisplay(SUB_T)).toBe("combination:SUB-T; sub with empty terms; basis=result_state_subtraction; terms=none");
     expect(historicalCombinationDisplay(MECH)).toBe("combination:M; flat mechanics; basis=mechanics; terms=load:L-100 x 1.5; load:L-200 x 0.0000001");
     expect(historicalCombinationDisplay(SUB_N)).toBeNull();
@@ -217,33 +234,25 @@ describe("review r1 of #117", () => {
     expect(ids(model)).toEqual(["combination:C-OPER-ALT"]);
   });
 
-  // The engine's display_number is Rust's f64 `{}`, which rounds an exact tie differently from
-  // ECMAScript's shortest decimal: 1000000000000000.25 is 1000000000000000.3 in Rust and
-  // 1000000000000000.2 here. Not hand-ported; the desktop switches to the engine's own export.
+  // An exact tie: the engine's display_number (Rust's f64 `{}`) prints 1000000000000000.25 as
+  // 1000000000000000.3 where ECMAScript's shortest decimal gives ...0.2. The desktop takes the
+  // engine's own text (`display_number_text`), so these deletes apply.
   const TIE = 1000000000000000.25;
-  it("today the engine refuses an exact-tie delete as stale, by name, and nothing is queued (the reason the two cases below fail)", async () => {
-    const record = { id: "combination:TIE", label: "tie", basis: "mechanics", terms: [{ load_case: "load:L-100", factor: 1 }, { load_case: "load:L-200", factor: TIE }], provenance: "test" };
-    const panel = mountPanel(modelWith(record));
-    fireEvent.click(byId(`load-manager-combination-select-${record.id}`));
-    await waitFor(() => expect(byId("queue-delete-combination-intent")).toBeEnabled());
-    fireEvent.click(byId("queue-delete-combination-intent"));
-    const stale = await screen.findByTestId("load-manager-combination-entity-delete-engine-diagnostic-OP-STALE-BEFORE-VALUE");
-    expect(stale).toHaveTextContent("load:L-200 x 1000000000000000.2` no longer matches the current value `combination:TIE; tie; basis=mechanics; terms=load:L-100 x 1; load:L-200 x 1000000000000000.3`");
-    expect(panel.queued).toEqual([]);
-  });
-  it.fails("deletes a record whose factor is an exact tie (pending the engine's display_number export)", async () => {
+  it("deletes a record whose factor is an exact tie, with the engine's own number text", async () => {
     const record = { id: "combination:TIE", label: "tie", basis: "mechanics", terms: [{ load_case: "load:L-100", factor: TIE }], provenance: "test" };
     const model = modelWith(record);
     const panel = mountPanel(model);
     const intent = await queueEntityDelete(panel, record.id);
-    await apply(model, intent);
+    expect(intent.change.before).toBe("combination:TIE; tie; basis=mechanics; terms=load:L-100 x 1000000000000000.3");
+    expect(ids(await apply(model, intent))).not.toContain(record.id);
   });
-  it.fails("deletes a term whose factor is an exact tie (pending the engine's display_number export)", async () => {
+  it("deletes a term whose factor is an exact tie, with the engine's own number text", async () => {
     const record = { id: "combination:TIE", label: "tie", basis: "mechanics", terms: [{ load_case: "load:L-100", factor: 1 }, { load_case: "load:L-200", factor: TIE }], provenance: "test" };
     const model = modelWith(record);
     const panel = mountPanel(model);
     const intent = await queueTermDelete(panel, record.id, 1);
-    await apply(model, intent);
+    expect(intent.change.before).toBe("load:L-200 x 1000000000000000.3");
+    expect(stored(await apply(model, intent), record.id).terms).toEqual([{ load_case: "load:L-100", factor: 1 }]);
   });
 });
 
