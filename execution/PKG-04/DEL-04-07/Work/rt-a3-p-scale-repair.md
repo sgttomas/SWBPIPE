@@ -144,4 +144,66 @@ taken by this TASK.
 
 ## 8. Record
 
-(Filled in as the steps land.)
+### 8.1 Step 1: the named guard
+
+The guard was already on main (§8.30 correction 2). It is unchanged. The regression
+`the_guard_refuses_exactly_above_its_estimate_and_never_below_104_n_squared` (NI
+`dense_memory_guard_tests.rs`) ties it to R-4 §3.6's 104·(6N)²: it refuses exactly when its own
+estimate exceeds the limit, never admits less than 104·(6N)² does, and equals it on a fully free
+model (1,759 nodes admitted, 1,760 refused). The existing regressions remain: refusal by name at the
+estimate minus one and admission at the estimate (loop entry, both modes), and PP's
+`nonlinear_dense_memory_guard.rs` refusal at the real limit with a peak heap increment below 64 MiB.
+
+### 8.2 Step 2: the loop on the pattern
+
+- **K6/K1.** FK `p_binary64_binding_is_byte_identical_for_a_fixed_order`,
+  `p_binary64_rows_keep_the_dense_fold_sign_range_and_order` and
+  `p_binary64_reduction_refuses_as_the_dense_reduction` (`sparse/tests.rs`), FK's option-(c) residual
+  pin extended to the pattern entry (`s11k_tests.rs`), and SD's
+  `k1_pattern_path_report_is_byte_identical_to_the_dense_derived_sparse_path` extended to the binary64
+  binding. All pass.
+- **NI.** A test-only shadow check in `solve_active_set_frame_with_mode_and_springs` re-runs every
+  sparse-mode loop solve of NI's tests on the dense-derived sequence and asserts `Debug` equality (the
+  completion's stiffness aside). `p_tests.rs` shows that it runs, and covers the strict-gap view's
+  256-DOF boundary on both sides. A mutation (the pattern solve on the exact, non-binary64
+  preparation) fails 18 NI tests, the shadow among them. The option-(c) source pins are extended to
+  the pattern siblings: the siblings must reach only the binary64 preparations and contain no other
+  exact entry.
+- **Committed outputs.** A scratch driver over PP's public value entry solved 50 committed nonlinear
+  requests and models in both modes (100 outputs, 80 of them solving with nonlinear rows): the kd5
+  requests, the W-16 nonlinear-motion requests, the PF Timoshenko nonlinear requests, PP's preview
+  fixtures and the demo models, each at the current model schema as their tests run them. Main
+  `252bef969` and this branch with the old coupling are byte-identical on all 100. PP's lib tests
+  (1,105) pass.
+
+### 8.3 Step 4: the coupling move (sparse mode only)
+
+- **Where it moves.** With the coupling in the requested mode, 7 of the 100 outputs move, all sparse:
+  `preview_physics_invented`, `preview_physics_range_envelope`, the demo, kd5 F-2 and W-16 A2,
+  A2-translated and A3. No dense output moves.
+- **What moves.** In every moved output the status and the `numerical_quality` standing are
+  unchanged, and no support state, support reaction, friction or displacement row moves. What moves:
+  - the loop's binary64 evidence rows: iterate deltas (at most 1.3e-13 relative on F-2, 1.8e-11 on
+    the demo's 0.0096 mm delta, 1.7e-13 mm absolute), free-row residuals and the work residual (one
+    or a few binary64 quanta), and one work row's observed governing DOF (F-2, A3);
+  - certified member rows of magnitude 1e-44 to 1e-33 (zero up to noise);
+  - the integrity diagnostics' text, which embeds the final iterate's report.
+- **Bound check (independent of the solver's bits).** Each moved certified member row was compared
+  against its own certified radius from a scratch build that prints every straight-member certified
+  row: |new − old| ≤ r_old + r_new for every moved row, the worst at 0.164 of the sum (the demo and
+  `preview_physics_invented`, 39 of 672 rows moved), 1.7e-7 on F-2 and 6.5e-7 on A3.
+- **References.** kd5's F-2 (the strongly coupled case, c·g = −0.748) stays within its bound of the
+  exact coupled force in both modes (PP `kd5_nonlinear_tests.rs`), and the K-1 twin corpus passes in
+  both modes. NI `p_the_coupling_move_stays_inside_the_certified_friction_bound` runs an inclined
+  coupled cantilever both ways. On that small model the two couplings give the same φ⁰ bits, so it is
+  a regression of the mechanism, not evidence of a bounded move; the corpus above is that evidence.
+- **Regenerated with their maintained generators:**
+  - `fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json` and the two
+    generation records (`generate_product_preview_mechanics.mjs`). The records also had stale source
+    hashes from earlier merges;
+  - `fixtures/results/preview_physics_invented_sparse.json` and
+    `preview_physics_range_envelope_sparse.json` (`preview_physics_capture`).
+
+  The carrier cases' pinned hash of `preview_physics_invented_sparse.json` follows. The dense and
+  refused-demo envelopes are byte-identical. The native smoke's demo expectations (837 rows,
+  `checks_passed` in both modes) are unchanged.

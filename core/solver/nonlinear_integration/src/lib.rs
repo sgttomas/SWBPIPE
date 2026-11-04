@@ -1604,7 +1604,7 @@ fn solve_iteration_with_sliding_friction_evidence(
         let base = system.solve_iterate(
             &base_force,
             boundary,
-            LinearSolveMode::DenseScrutiny,
+            coupling_mode(linear_solve_mode),
             Role::Coupling,
         )?;
         let base_reactions = reported_reactions(&base.reactions, &explicit_forces)?;
@@ -1636,7 +1636,7 @@ fn solve_iteration_with_sliding_friction_evidence(
             let unit = system.solve_iterate(
                 &unit_force,
                 boundary,
-                LinearSolveMode::DenseScrutiny,
+                coupling_mode(linear_solve_mode),
                 Role::Coupling,
             )?;
             let mut unit_applied = explicit_forces.clone();
@@ -2259,6 +2259,27 @@ fn loop_representation(mode: LinearSolveMode) -> LoopRepresentation {
         LinearSolveMode::DenseScrutiny => LoopRepresentation::Dense,
         LinearSolveMode::SparseInteractive => LoopRepresentation::Pattern,
     }
+}
+
+#[cfg(test)]
+thread_local! {
+    /// Tests only: the coupling solves' mode before RT-A3 P step 4
+    /// (`DenseScrutiny` in both modes), to measure the declared move of φ⁰.
+    static COUPLING_MODE_OVERRIDE: std::cell::Cell<Option<LinearSolveMode>> =
+        const { std::cell::Cell::new(None) };
+}
+
+/// RT-A3 P step 4: the derived-normal coupling solves (base and unit loads)
+/// run in the requested mode. Until P they were `DenseScrutiny` in both modes,
+/// so φ⁰ was mode-independent; in sparse mode it is now the skyline LDL's
+/// (a declared move: each solve still passes its own M03 gate, and the
+/// published friction row is Stage A/B's certified value).
+fn coupling_mode(linear_solve_mode: LinearSolveMode) -> LinearSolveMode {
+    #[cfg(test)]
+    if let Some(mode) = COUPLING_MODE_OVERRIDE.with(|cell| cell.get()) {
+        return mode;
+    }
+    linear_solve_mode
 }
 
 /// The loop's assembled stiffness, as the result's completion records it.

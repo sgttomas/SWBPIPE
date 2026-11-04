@@ -1590,13 +1590,15 @@ fn kd5_nonlinear_loop_unit_force_solves_reach_no_formation_check() {
                 assert!(!boundary.dofs.contains(&TANGENT), "{ctx}: friction sliding");
                 let mut unit_force = input.force.clone();
                 unit_force[TANGENT] += 1.0;
+                // RT-A3 P step 4: the coupling solves run in the loop's mode
+                // (they were DenseScrutiny in both modes before P).
                 let legacy = |force: &Vec<f64>| {
                     crate::solve_linearized_system_evidence(
                         Some(&assembly),
                         &k,
                         force,
                         &boundary,
-                        LinearSolveMode::DenseScrutiny,
+                        mode,
                     )
                     .unwrap()
                 };
