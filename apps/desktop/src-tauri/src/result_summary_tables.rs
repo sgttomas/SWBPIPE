@@ -31,6 +31,62 @@ use std::borrow::Cow;
 use std::collections::{HashMap, HashSet};
 
 pub(crate) const RANGE_ENVELOPE_BASIS: &str = "explicit_user_range_envelope";
+/// RT-A4 (DEL-05-02 `absolute-sum-srss-combinations.md` §4; `resultColourOverlay.ts`): an
+/// absolute sum or SRSS is an unsigned value over its terms, and decision OQ-1's mechanics rows
+/// are a solved state plus derived differences or bounds; neither is one solved state either.
+pub(crate) const ABSOLUTE_SUM_BASIS: &str = "explicit_user_absolute_sum";
+pub(crate) const SRSS_BASIS: &str = "explicit_user_srss";
+const SOLVED_STATE_PLUS_INCREMENTS_SIGN: &str =
+    "positive value follows explicit user linear combination of matching source result sign conventions; a solved state plus derived differences or bounds; not an equilibrium state";
+const ABSOLUTE_SUM_SIGN: &str = "unsigned value: the absolute sum of |factor × source result| over explicit user terms; not an equilibrium state";
+const SRSS_SIGN: &str = "unsigned value: the square root of the sum of squares of factor × source result over explicit user terms; not an equilibrium state";
+/// The range-envelope sign convention's fixed part, after its mode token.
+const RANGE_ENVELOPE_SIGN_SUFFIX: &str =
+    " mode-selected source result across explicit user range-envelope operands and keeps that source result sign convention";
+pub(crate) const NOTE_RANGE_ENVELOPE: &str = "range envelope";
+
+/// `derivedRowNote(row)`: what a row is when it is not one solved state, as its own metadata
+/// states it. A combination row is recognized by its sign convention as well as by its basis.
+pub(crate) fn derived_row_note(row: &Value) -> Option<&'static str> {
+    let basis = meta(row, "basis");
+    let sign = str_of(meta(row, "sign_convention"));
+    let combination = is_str(row.get("basis_ref").and_then(|basis| basis.get("ref_type")), "combination");
+    if is_str(basis, RANGE_ENVELOPE_BASIS) || (combination && sign.is_some_and(|s| s.starts_with("value is the ") && s.ends_with(RANGE_ENVELOPE_SIGN_SUFFIX))) {
+        return Some(NOTE_RANGE_ENVELOPE);
+    }
+    if is_str(basis, ABSOLUTE_SUM_BASIS) || (combination && sign == Some(ABSOLUTE_SUM_SIGN)) {
+        return Some("absolute sum, unsigned");
+    }
+    if is_str(basis, SRSS_BASIS) || (combination && sign == Some(SRSS_SIGN)) {
+        return Some("SRSS, unsigned");
+    }
+    (sign == Some(SOLVED_STATE_PLUS_INCREMENTS_SIGN)).then_some("solved state plus derived bounds")
+}
+
+/// `combinationNotes(rows)`: each combination's note, from the first of its rows that states
+/// one, keyed by `basisKey`.
+pub(crate) fn combination_notes(rows: &[Value]) -> HashMap<String, &'static str> {
+    let mut notes = HashMap::new();
+    for row in rows {
+        let basis = row.get("basis_ref");
+        if !is_str(basis.and_then(|basis| basis.get("ref_type")), "combination") {
+            continue;
+        }
+        if let (Some(key), Some(note)) = (basis_key(basis), derived_row_note(row)) {
+            notes.entry(key).or_insert(note);
+        }
+    }
+    notes
+}
+
+/// `isOneSolvedState(row, rows)`, the result's combination notes given.
+pub(crate) fn is_one_solved_state(row: &Value, notes: &HashMap<String, &'static str>) -> bool {
+    if derived_row_note(row).is_some() {
+        return false;
+    }
+    let basis = row.get("basis_ref");
+    !is_str(basis.and_then(|basis| basis.get("ref_type")), "combination") || !basis_key(basis).is_some_and(|key| notes.contains_key(&key))
+}
 pub(crate) const REACTION_COMPONENT_KIND: &str = "support_reaction_component_v2";
 pub(crate) const REACTION_FORCE_MAGNITUDE_KIND: &str = "support_reaction_force_magnitude_v2";
 pub(crate) const REACTION_MOMENT_MAGNITUDE_KIND: &str = "support_reaction_moment_magnitude_v2";
@@ -462,6 +518,8 @@ pub(crate) struct Case<'a> {
     pub(crate) basis: Value,
     pub(crate) label: Option<Value>,
     pub(crate) envelope: bool,
+    /// RT-A4: what the case is when it is not a range envelope but not one solved state either.
+    pub(crate) note: Option<&'static str>,
 }
 
 impl Case<'_> {
@@ -471,6 +529,7 @@ impl Case<'_> {
             ("basis", Some(self.basis.clone())),
             ("label", self.label.clone()),
             ("envelope", Some(json!(self.envelope))),
+            ("note", self.note.map(|note| json!(note))),
         ])
     }
 }
@@ -513,11 +572,15 @@ pub(crate) fn support_load_cases<'a>(model: &'a Value, source: &'a Value) -> Vec
         let key = basis_key(basis).expect("truthy");
         let index = *seen.entry(key.clone()).or_insert_with(|| {
             let ref_id = basis.and_then(|b| b.get("ref_id"));
-            order.push(Case { key, ref_type, ref_id, basis: frozen_basis(ref_type, ref_id), label: None, envelope: false });
+            order.push(Case { key, ref_type, ref_id, basis: frozen_basis(ref_type, ref_id), label: None, envelope: false, note: None });
             order.len() - 1
         });
-        if is_str(meta(row, "basis"), RANGE_ENVELOPE_BASIS) {
+        // RT-A4: a range envelope, an absolute sum or SRSS, or a solved state plus derived bounds.
+        if let Some(note) = derived_row_note(row) {
             order[index].envelope = true;
+            if note != NOTE_RANGE_ENVELOPE && order[index].note.is_none() {
+                order[index].note = Some(note);
+            }
         }
     }
     for case in &mut order {
@@ -537,8 +600,9 @@ pub(crate) fn overlay_cases(model: &Value, source: &Value) -> Vec<Value> {
     let labels = by_id(array(model.get("load_cases")), "label");
     let mut seen = HashSet::new();
     let mut cases = Vec::new();
+    let notes = combination_notes(rows(source));
     for row in rows(source) {
-        if !drawable(row) {
+        if !drawable(row, &notes) {
             continue;
         }
         let basis = row.get("basis_ref");
@@ -555,9 +619,9 @@ pub(crate) fn overlay_cases(model: &Value, source: &Value) -> Vec<Value> {
     load_cases_first(cases, |case| case.0).into_iter().map(|case| case.1).collect()
 }
 
-/// `isDrawableRow`.
-fn drawable(row: &Value) -> bool {
-    finite(row.get("value")).is_some() && !is_str(meta(row, "basis"), RANGE_ENVELOPE_BASIS) && basis_key(row.get("basis_ref")).is_some()
+/// `isDrawableRow(row, rows)`, the result's combination notes given.
+fn drawable(row: &Value, notes: &HashMap<String, &'static str>) -> bool {
+    finite(row.get("value")).is_some() && is_one_solved_state(row, notes) && basis_key(row.get("basis_ref")).is_some()
 }
 
 // ---------------------------------------------------------------------------
@@ -626,6 +690,7 @@ pub(crate) fn navigator_cases(source: &Value) -> Vec<Value> {
         key: String,
         basis: Option<&'a Value>,
         envelope: bool,
+        note: Option<&'static str>,
     }
     let mut entries: Vec<Entry> = Vec::new();
     let mut seen: HashMap<String, usize> = HashMap::new();
@@ -633,11 +698,13 @@ pub(crate) fn navigator_cases(source: &Value) -> Vec<Value> {
         let basis = row.get("basis_ref").filter(|b| truthy(Some(b)));
         let key = basis_key(basis).unwrap_or_else(|| "unstated".into());
         let at = *seen.entry(key.clone()).or_insert_with(|| {
-            entries.push(Entry { key, basis, envelope: false });
+            entries.push(Entry { key, basis, envelope: false, note: None });
             entries.len() - 1
         });
-        if is_str(meta(row, "basis"), RANGE_ENVELOPE_BASIS) {
-            entries[at].envelope = true;
+        match derived_row_note(row) {
+            Some(NOTE_RANGE_ENVELOPE) => entries[at].envelope = true,
+            Some(note) if entries[at].note.is_none() => entries[at].note = Some(note),
+            _ => {}
         }
     }
     let rank = |basis: Option<&Value>| match basis {
@@ -658,8 +725,17 @@ pub(crate) fn navigator_cases(source: &Value) -> Vec<Value> {
                 Some(b) if is_str(b.get("ref_type"), "combination") => format!("Combination {}", js_string(b.get("ref_id"))),
                 Some(b) => format!("{} {}", js_string(b.get("ref_type")), js_string(b.get("ref_id"))),
             };
-            let label = if entry.envelope { format!("{label} (range envelope)") } else { label };
-            json!({"key": entry.key, "basis": basis.unwrap_or(Value::Null), "envelope": entry.envelope, "label": label})
+            let label = match (entry.envelope, entry.note) {
+                (true, _) => format!("{label} (range envelope)"),
+                (false, Some(note)) => format!("{label} ({note})"),
+                (false, None) => label,
+            };
+            let mut case = json!({"key": entry.key, "basis": basis.unwrap_or(Value::Null), "envelope": entry.envelope});
+            if let Some(note) = entry.note {
+                case["note"] = json!(note);
+            }
+            case["label"] = json!(label);
+            case
         })
         .collect()
 }
@@ -1181,13 +1257,12 @@ pub(crate) fn stress_row(row: &Value, cases: &HashMap<&str, usize>, standing: Op
     Some((kind, case, overlay_may_show(standing, basis), value))
 }
 
-/// An admitted stress row's `caseLabel`: its case's label, with " (range
-/// envelope)" for an envelope row.
+/// An admitted stress row's `caseLabel`: its case's label, with its derived-row note (RT-A4: a
+/// range envelope, an absolute sum or SRSS, or a solved state plus derived bounds).
 pub(crate) fn stress_case_label(row: &Value, case: &Case) -> Value {
-    if is_str(meta(row, "basis"), RANGE_ENVELOPE_BASIS) {
-        json!(format!("{} (range envelope)", js_string(case.label.as_ref())))
-    } else {
-        case.label.clone().unwrap_or(Value::Null)
+    match derived_row_note(row) {
+        Some(note) => json!(format!("{} ({note})", js_string(case.label.as_ref()))),
+        None => case.label.clone().unwrap_or(Value::Null),
     }
 }
 
@@ -1416,10 +1491,11 @@ pub(crate) fn colour_quantities(model: &Value, source: &Value) -> Value {
             .iter()
             .any(|r| by_id.get(&js_key(Some(r))).is_some_and(|s| pipe_ids.contains(&js_key(s.get("entity_ref"))))),
     };
+    let notes = combination_notes(rows);
     Value::Array(
         COLOUR_QUANTITIES
             .iter()
-            .filter(|(_, kind, attachment)| rows.iter().any(|row| is_str(row.get("kind"), kind) && drawable(row) && attached(row, attachment)))
+            .filter(|(_, kind, attachment)| rows.iter().any(|row| is_str(row.get("kind"), kind) && drawable(row, &notes) && attached(row, attachment)))
             .map(|(id, _, _)| json!(id))
             .collect(),
     )

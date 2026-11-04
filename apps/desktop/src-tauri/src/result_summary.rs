@@ -276,7 +276,12 @@ pub(crate) fn build<R, E>(
                 "navigator_cases": tables::navigator_cases(source),
             },
             "support_load_cases": cases.iter().map(|case| {
-                json!({"key": case.key, "basis": case.basis, "label": case.label, "envelope": case.envelope})
+                let mut value = json!({"key": case.key, "basis": case.basis, "label": case.label, "envelope": case.envelope});
+                // RT-A4: `...(note ? { note } : {})`.
+                if let Some(note) = case.note {
+                    value["note"] = json!(note);
+                }
+                value
             }).collect::<Vec<_>>(),
             "overlay_cases": overlay_cases,
             "displacement_extremes": tables::displacement_extremes(model, source, &cases, standing),

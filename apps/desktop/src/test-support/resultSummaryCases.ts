@@ -84,6 +84,16 @@ const C1 = { ref_type: "combination", ref_id: "comb:C1" } as const;
 const RANGE = { ref_type: "combination", ref_id: "comb:R" } as const;
 const ENVELOPE_META = { coordinate_system: "global", basis: "explicit_user_range_envelope" };
 const global = (extra: Record<string, unknown> = {}) => ({ coordinate_system: "global", ...extra });
+/** RT-A4 (`derivedRowNote`): an absolute sum by its basis, an SRSS and a flat range envelope by
+ * their combination sign conventions alone, and a solved state plus derived bounds by its sign. */
+const ABS = { ref_type: "combination", ref_id: "comb:ABS" } as const;
+const SRSS = { ref_type: "combination", ref_id: "comb:SRSS" } as const;
+const BOUNDS = { ref_type: "combination", ref_id: "comb:B" } as const;
+const FLAT = { ref_type: "combination", ref_id: "comb:F" } as const;
+const ABS_META = { coordinate_system: "global", basis: "explicit_user_absolute_sum" };
+const SRSS_META = { coordinate_system: "global", basis: "explicit_user_linear_combination", sign_convention: "unsigned value: the square root of the sum of squares of factor × source result over explicit user terms; not an equilibrium state" };
+const BOUNDS_META = { coordinate_system: "global", sign_convention: "positive value follows explicit user linear combination of matching source result sign conventions; a solved state plus derived differences or bounds; not an equilibrium state" };
+const FLAT_META = { coordinate_system: "global", basis: "explicit_user_linear_combination", sign_convention: "value is the maximum mode-selected source result across explicit user range-envelope operands and keeps that source result sign convention" };
 
 /** A model with every support form the tables read: anchors, a hanger by its explicit type, a
  * nonlinear support, a snubber (model 0.9.0's family), an unknown family, none stated, a boundary
@@ -121,6 +131,9 @@ function supportRows(): Row[] {
     reaction("support:S-A", "Fy", -0, "N", { id: "r:S-A:Fy:L2", basis_ref: L2 }),
     reaction("support:S-A", "Fx", 0.6, "kN", { id: "r:S-A:Fx:C1", basis_ref: C1 }),
     reaction("support:S-A", "Fx", 999, "N", { id: "r:S-A:Fx:R", basis_ref: RANGE, metadata: { component: "Fx", ...ENVELOPE_META } }),
+    reaction("support:S-A", "Fx", 700, "N", { id: "r:S-A:Fx:ABS", basis_ref: ABS, metadata: { component: "Fx", ...ABS_META } }),
+    reaction("support:S-A", "Fy", 70, "N", { id: "r:S-A:Fy:SRSS", basis_ref: SRSS, metadata: { component: "Fy", ...SRSS_META } }),
+    reaction("support:S-A", "Fz", -7, "N", { id: "r:S-A:Fz:B", basis_ref: BOUNDS, metadata: { component: "Fz", ...BOUNDS_META } }),
     reaction("support:S-C", "Fx", 5, "N", { metadata: { component: "Fx", coordinate_system: "element_local" } }),
     reaction("support:S-C", "Fy", 6, "N", { id: "r:S-C:Fy:L2", basis_ref: L2, metadata: { component: "Fy" } }),
     reaction("support:S-D", "Fz", 7, "N", { id: "r:S-D:Fz:L2", basis_ref: L2 }),
@@ -137,6 +150,11 @@ function supportRows(): Row[] {
     movement("node:C", "global_nodal_displacement_z", 3, L2, { metadata: undefined }),
     movement("node:C", "global_nodal_displacement_z", 4, L1, { unit: "in" }),
     movement("node:D", "global_nodal_displacement_x", 9, RANGE, { metadata: ENVELOPE_META }),
+    movement("node:A", "global_nodal_displacement_x", 2.5, ABS, { metadata: ABS_META }),
+    movement("node:A", "global_nodal_displacement_y", 0.5, SRSS, { metadata: SRSS_META }),
+    movement("node:A", "global_nodal_displacement_z", -0.5, BOUNDS, { metadata: BOUNDS_META }),
+    movement("node:E", "global_nodal_displacement_x", 4.5, FLAT, { metadata: FLAT_META }),
+    row("d:E:F", "displacement_magnitude", "node:E", 4.5, "mm", { basis_ref: FLAT }),
     movement("node:D", "global_nodal_displacement_x", null, L1),
     movement("node:Z", "global_nodal_displacement_x", 3, L1),
     movement("node:E", "global_nodal_rotation_x", 0.5, L2, { unit: undefined }),
@@ -170,6 +188,9 @@ function stressRows(): Row[] {
     row("s:13", "element_local_axial_force", "pipe:P-2", 50, "kN", { basis_ref: L2, metadata: station("end_j") }),
     row("s:14", "element_local_normal_stress_extreme", "pipe:P-1", 5, "MPa", { basis_ref: { ref_type: "load_case", ref_id: "load:L-9" }, metadata: station("end_i") }),
     row("s:15", "pipe_lame_hoop_stress_v2", "pipe:P-1", 12, "MPa", { basis_ref: C1, metadata: station("end_i") }),
+    row("s:16", "element_local_normal_stress_extreme", "pipe:P-1", 9, "MPa", { basis_ref: ABS, metadata: { ...station("end_i"), basis: "explicit_user_absolute_sum" } as Row["metadata"] }),
+    row("s:17", "element_local_normal_stress_extreme", "pipe:P-2", 6, "MPa", { basis_ref: SRSS, metadata: { ...station("end_j"), sign_convention: SRSS_META.sign_convention } as Row["metadata"] }),
+    row("s:18", "element_local_normal_stress_extreme", "pipe:P-2", -6, "MPa", { basis_ref: BOUNDS, metadata: { ...station("midspan"), sign_convention: BOUNDS_META.sign_convention } as Row["metadata"] }),
     row("ib:1", "component_equal_factor_intensified_bending_stress_v1", "component:C-1", 7e6, "Pa", { source_result_refs: ["s:1", "missing", "s:dup"] }),
     row("s:dup", "element_local_bending_normal_stress_y", "pipe:P-2", 1, "MPa"),
     row("s:dup", "element_local_bending_normal_stress_y", "pipe:P-3", 2, "MPa"),
