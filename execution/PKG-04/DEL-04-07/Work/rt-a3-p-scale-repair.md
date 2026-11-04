@@ -238,3 +238,64 @@ estimate minus one and admission at the estimate (loop entry, both modes), and P
 - Evidence: `p_the_pattern_confirmation_equals_the_dense_derived_one` (six cases, five of them
   Established, `Debug`-equal to the dense-derived confirmation), and the 100 corpus outputs are
   byte-identical to step 3's.
+
+### 8.6 The heavy run (R-4 §5.4 M-3): planned, not run
+
+**Needs Agent 0's approval, and one `t3_exclusive.sh` window.** It is not a product change.
+
+- **Blocker to name first.** The guard is unchanged (§7), so any nonlinear model above 1,759 fully
+  free nodes is refused in both modes, and the 2,000- and 10,000-member points cannot run on the
+  product build. The observation needs a scratch build of the head in which the loop entry (NI
+  `solve_active_set_frame_with_mode_and_springs`) and PP's invocation guard apply
+  `dense_loop_memory_guard` in dense scrutiny only. That build is observation only and never
+  committed. Lifting or re-pricing the sparse-mode guard is O-2's decision, informed by this run.
+- **What it observes.** One sparse-mode loop iteration and the whole PF nonlinear solve, at 1,000,
+  2,000 and 10,000 nodes (members = nodes − 1), on DEL-04-05's maintained `nonlinear-pf` racks
+  (`rack_model.py`: one-way supports at N/10, explicit-normal friction at N/40, and seven cases).
+  The racks carry no derived-normal friction, so k = 0: one factorization per iterate. A k = 1
+  variant would need a rack change, which this plan does not make.
+- **Commands** (`S` = `/Users/ryan/dev/chirality-t3/scratch/rt-a3/p/m3`, `R` = the SWBPIPE checkout):
+  ```
+  git -C $R archive <P head> | tar -x -C $S/src          # then the scratch guard patch above
+  t3_cargo.sh build --release --manifest-path $S/src/core/solver/release_timing/Cargo.toml \
+      --target-dir $S/target
+  for n in 1000 2000 10000; do
+    python3 $S/src/core/solver/performance_harness/rack/rack_model.py --profile nonlinear-pf \
+        --nodes $n -o $S/models/nonlinear-pf-$n.json
+  done
+  t3_exclusive.sh python3 $S/src/core/solver/performance_harness/runner/release_runner.py --run \
+      --subset nonlinear-pf --mode sparse --models $S/models --binary $S/target/release/release_timing \
+      --out $S/records        # 1,000 and 2,000 from the runner's plan (its 250/500/1,500 points too)
+  ```
+  The 10,000-node point is not in the runner's plan, so it runs as one direct `release_timing`
+  invocation under `/usr/bin/time -l`, inside the same window, with the runner's 12 GiB footprint
+  kill and 16 GiB RSS cap applied by hand.
+- **Estimated resources (development host; dry-run guesses, not measurements).**
+  - *1,000 nodes:* on main, 71 s and 6.40 GB (§5.4a M-2). With P the loop's n² buffers go, so about
+    40–80 s and 1.5–3 GB, publication-bound like EX linear (39 s, 2.6 GB after 1b).
+  - *2,000 nodes:* refused on main. About 140–300 s and 3–6 GB, near EX linear's 138 s and 5.2 GB.
+  - *10,000 nodes:* about 3.5 M rows, about 2.6 GB of JSON per case set, and the confirmation's
+    ε_E pass (FK `formation_check`, O(n_f × (contributions + n_f)) accessor work with
+    n_f ≈ 60,000), so plausibly hours and above the 12 GiB budget. Run it last, with a 2-hour
+    timeout, and record a kill as a finding.
+  - Total window: about 15–30 minutes without the 10,000-node point, up to 2.5 hours with it.
+  - Disk: about 5 GB for records and results (`--write-results` off), plus about 3 GB for the
+    release target directory.
+- **Readings to record:** per stage seconds, `ru_maxrss`, the lifetime-maximum `phys_footprint`,
+  rows and bytes, the iteration counts, and whether the case was confirmed. They feed O-2 and the
+  sparse-mode guard's re-pricing or lifting; this TASK asserts no time or memory bound.
+
+### 8.7 K-1: the trace re-check
+
+- **Verdict.** The loop rules are untouched: the authored seeds, no friction force on the first
+  iterate, the deferred first iterate, the slip direction, the normal branch, the classification and
+  the seed recovery are byte-identical in P's diff. The solve path changed (the representation, the
+  coupling solves' mode, one factor per iterate in sparse mode), but every right-hand side keeps its
+  own M03 gate through the same completion and binary64 residual. So the derivation's premises hold
+  in both modes and its numbers are unchanged.
+- **Revised.** `k1-twin-bound.md` (the solve and coupled-force items, and a re-check paragraph),
+  `k1_twin_bound.py`'s docstring (the solve path), and DEL-04-07's K-1 need on DEL-04-01 (the
+  pattern completions named beside `finish_structural`).
+- **Re-run.** The revised script's output equals main's byte for byte (constants, enclosures, the
+  F-2 E_φ 2.132e-6 N and the margins). `rt_a3_nonlinear_k1_twins.rs` passes on P's head in both
+  modes (6 tests; the superseded bit-identity test stays held).
