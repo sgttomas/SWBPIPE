@@ -2752,7 +2752,14 @@ fn mr_sturm(p: &Parsed) -> R<Vec<String>> {
                 // 2.4·10⁻¹⁵⁵ Hz) the square keeps fewer significant bits, so no relative
                 // allowance about 2π·f_c holds: the same binary64 operations, bit for bit.
                 let omega_c = TWO_PI * cut;
-                let expected = (omega_c * omega_c).sqrt();
+                // The producer refuses λ_c unless it is finite and positive
+                // (`InvalidGap`, sturm.rs), so a square that underflows to zero
+                // or overflows has no solved document.
+                let square = omega_c * omega_c;
+                if !(square.is_finite() && square > 0.0) {
+                    return Err("the cut-off's square fl((2π·f_c)²) is not a finite positive eigenvalue, which the producer refuses".into());
+                }
+                let expected = square.sqrt();
                 if lower.to_bits() != expected.to_bits() {
                     return Err("the gap's lower end is not √fl((2π·f_c)²)".into());
                 }

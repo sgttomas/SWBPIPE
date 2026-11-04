@@ -1856,7 +1856,12 @@ def _sturm(p):
             # A square below the normal range (f_c under about 2.4e-155 Hz) has fewer significant
             # bits, so a relative allowance about 2*pi*f_c does not hold; repeat the operations.
             omega_c = TWO_PI * p.cutoff
-            if lower != math.sqrt(omega_c * omega_c):
+            # The producer refuses a cut-off eigenvalue that is not finite and positive
+            # (InvalidGap), so a square that underflows to zero or overflows has no solved document.
+            square = omega_c * omega_c
+            if not (math.isfinite(square) and square > 0.0):
+                _fail("the cut-off's square fl((2π·f_c)²) is not a finite positive eigenvalue, which the producer refuses")
+            if lower != math.sqrt(square) or math.copysign(1.0, lower) < 0:
                 _fail("the gap's lower end is not √fl((2π·f_c)²)")
         if shift_set is not None:
             if not shift_set.meets(Values([Piece(lower, upper)])):

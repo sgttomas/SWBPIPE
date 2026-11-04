@@ -11161,6 +11161,106 @@
       "request": "modal_cantilever_subnormal_cutoff.request.json",
       "request_operations": [],
       "reseal": true
+    },
+    {
+      "difference_contains": "is not a finite positive eigenvalue",
+      "document": "modal_cantilever_subnormal_cutoff.json",
+      "expected": {
+        "binding": "failed",
+        "closure": "passed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "scoped_unsupported",
+          "mass": "passed",
+          "normalization": "passed",
+          "participation": "passed",
+          "standing": "passed",
+          "sturm": "failed",
+          "units": "passed"
+        }
+      },
+      "id": "sturm:cutoff_square_underflows_to_zero_lower_end_zero",
+      "intent": "sturm",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/binding/options/frequency_cutoff/value",
+          "value": 1e-200
+        },
+        {
+          "op": "replace",
+          "path": "/extraction/frequency_cutoff/value",
+          "value": 1e-200
+        },
+        {
+          "op": "replace",
+          "path": "/sturm/placement/lower/value",
+          "value": 0.0
+        }
+      ],
+      "request": "modal_cantilever_subnormal_cutoff.request.json",
+      "request_operations": [
+        {
+          "op": "replace",
+          "path": "/frequency_cutoff/value",
+          "value": 1e-200
+        }
+      ],
+      "reseal": true
+    },
+    {
+      "difference_contains": "is not a finite positive eigenvalue",
+      "document": "modal_cantilever_subnormal_cutoff.json",
+      "expected": {
+        "binding": "failed",
+        "closure": "passed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "scoped_unsupported",
+          "mass": "passed",
+          "normalization": "passed",
+          "participation": "passed",
+          "standing": "passed",
+          "sturm": "failed",
+          "units": "passed"
+        }
+      },
+      "id": "sturm:cutoff_square_underflows_to_zero_lower_end_negative_zero",
+      "intent": "sturm",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/binding/options/frequency_cutoff/value",
+          "value": 1e-200
+        },
+        {
+          "op": "replace",
+          "path": "/extraction/frequency_cutoff/value",
+          "value": 1e-200
+        },
+        {
+          "op": "replace",
+          "path": "/sturm/placement/lower/value",
+          "value": -0.0
+        }
+      ],
+      "request": "modal_cantilever_subnormal_cutoff.request.json",
+      "request_operations": [
+        {
+          "op": "replace",
+          "path": "/frequency_cutoff/value",
+          "value": 1e-200
+        }
+      ],
+      "reseal": true
     }
   ]
 }
