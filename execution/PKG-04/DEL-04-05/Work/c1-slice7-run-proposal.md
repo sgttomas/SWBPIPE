@@ -236,6 +236,60 @@ floor kept.
 No fit, timing prediction or "would have painted at" claim is made. A repaired executable needs a
 new build, binding and Agent 0's decision before any further attempt. None is proposed here.
 
+### Repair made (native, src-tauri only; offline): candidates 1 and 2 of (a)
+
+Agent 0 released candidates 1 and 2 above for `apps/desktop/src-tauri` (outside
+`tools/retained_pricing/base/crate_dirs.txt`, so no D3 registration). Candidate 3, a per-job
+record, checksum or length cache, stays out of scope. No core, `result_export` or
+`canonical_json` file changed.
+
+**1. Reuse: the `pressure` route only.**
+- `HeldResult` (`solve_jobs.rs`) holds `ReaderEvidence`, one fact: the current `pressure` reader
+  passed on these exact bytes.
+- `native_verdict::run` notes it from its own reply on the share it read. It does so only for a
+  solve's publication (a restored result has no slot), only for `reader: "pressure"`, and only
+  when the reply is the pass `{"ok":true}`.
+- `validate_route_held` (`analysis_run_v03_build.rs`) skips that route's model-free reader when
+  the share holds the note.
+- Why this is exact: `reader_verdict::validate("pressure")` is `validate_pressure_evidence(source)`
+  followed by model-only G2 checks. The registration's model-bound pass therefore implies the
+  build's model-free pass on the same parse (one serde_json) under the same current tables (both
+  inside `entry_scope`). The outcome is `Ok`, so the refusal order is unchanged.
+- **Not reused** (seams; each would need a `result_export` change, priced):
+  - preview-physics: the model-free reader alone runs `preview_combination_gates::check(source,
+    None)`, which is `pub(crate)`;
+  - pressure-source: the registration reads the invocation, and the build's reader does not;
+  - retained: no native registration.
+
+The A500 rack is the exact route (`pressure`), so its preview, Record Run and Save would each skip
+one full reader read. This is by source and was not measured.
+
+**2. Coalesced passes. Nothing is kept per row beyond the leased fingerprints.**
+- The whole-source checked-profile check reads only the non-row members, because every row was
+  just read and found inside.
+- The record checksum and the stored length are one traversal (`ProjectionAndLength`). Record
+  Run's revision is sealed and counted in one traversal (`Revision::sealed_and_counted`).
+
+Per row, the preview's interpretations go from 3 to 2 and Record Run's revision from 3 to 2. The
+second profile reading of the rows is gone. The canonical streams are unchanged: received result
+1, record checksum 1 per row.
+
+**Offline proof** (maintained fixtures and invented racks; no App, native run, timing or RSS):
+- `analysis_run_v03_build_old_reference.rs` is a verbatim copy of the e231ea144 functions.
+  Against it, all 61 records and 59 refusals of the builder corpus and the racks (1, 7, 300 and
+  2,000 rows, plus 8 refusal edits each) are byte-identical: stored record, both checksums,
+  stored length, header, header record, canonical record, and the recorded revision's checksum,
+  length and bytes, or the same refusal text.
+- Test-only counters show the exact drops. On the 2,000-row rack: preview interpretations 6,000
+  → 4,000, profile nodes 64,020 → 34,018, revision interpretations 6,000 → 4,000.
+- The registered preview, bytes route, Record Run and Save read 0 full readers where the same
+  job unregistered reads 1, and they store and reply byte for byte as before.
+- The evidence follows the share through disposal, reset and release interleavings. Another job
+  of the same bytes, a restored handle, a dispatch, a refusal and another reader's pass hold no
+  evidence.
+- Seven fail-without mutations each fail their tests.
+- The replay corpus's 5 previews after a `pressure` pass reply as committed.
+
 ## Bounded ONE 500-node attempt proposal (A-only candidate) (2026-11-04; offline, not run)
 
 This proposes **one** 500-node attempt of the A-only candidate, for Agent 0's readiness decision
