@@ -1567,5 +1567,36 @@
       "reseal": true
     }
   ],
-  "generator": "core/product_physics/src/modal/tests_document.rs modal_edge_entries"
+  "generator": "core/product_physics/src/modal/tests_document.rs modal_edge_entries",
+  "relation_probes": [
+    {
+      "formation": "modal_quantities.rs:294 mass_bilinear, through normalize_mode",
+      "generalized_mass": {
+        "below_normal": true,
+        "value": 0.0
+      },
+      "global_dofs": [
+        11,
+        6
+      ],
+      "id": "generalized_mass_of_an_underflowing_triple_product",
+      "mass_entries": [
+        [
+          6,
+          6,
+          1.0
+        ]
+      ],
+      "shape": [
+        {
+          "below_normal": false,
+          "value": 1.0
+        },
+        {
+          "below_normal": false,
+          "value": 2.409919865102884e-181
+        }
+      ]
+    }
+  ]
 }

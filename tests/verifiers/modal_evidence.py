@@ -1043,9 +1043,6 @@ class Values:
     def only_nonfinite(self):
         return self.nonfinite and not self.pieces
 
-    def magnitude(self):
-        return max((max(abs(p.lo), abs(p.hi)) for p in self.pieces), default=0.0)
-
     def __add__(self, other):
         a, b = self.as_point(), other.as_point()
         if a is not None and b is not None:
@@ -1111,12 +1108,6 @@ class Values:
         return Values([Piece(p.lo - _times(relative, abs(p.lo)), p.hi + _times(relative, abs(p.hi)), p.nonzero)
                        for p in self.pieces], self.nonfinite)
 
-    def widen_by(self, amount):
-        """Each piece grown by an absolute amount (a nonzero widening admits 0)."""
-        if amount == 0.0:
-            return self
-        return Values([Piece(p.lo - amount, p.hi + amount) for p in self.pieces], self.nonfinite)
-
     def meets(self, other):
         if self.nonfinite and other.nonfinite:
             return True
@@ -1152,6 +1143,36 @@ def _formed(*pairs):
     return True
 
 
+def _generalized_mass_term(i, j, shape, entry):
+    """One entry's term of m = Σ_ij φ_i·M_ij·φ_j. The producer sums each full triple
+    product exactly (`mass_bilinear`, modal_quantities.rs:294, `ExactSum::add_product`),
+    so the coefficient w·φ_i·φ_j is never a binary64 product that can underflow: it is
+    formed on sets, which keep a nonzero underflow nonzero. None only for an exactly zero
+    coefficient against a finite entry."""
+    coefficient = Values.point(1.0 if i == j else 2.0) * Values.point(shape[i]) * Values.point(shape[j])
+    if coefficient.as_point() == 0.0 and not entry.nonfinite:
+        return None
+    return coefficient * entry
+
+
+def _generalized_mass_check(scope, label, gm_vo, gm, mass_terms, count):
+    """m against φᵀM_ffφ from its terms (`_generalized_mass_term`), within A(N+4)u·Σ|terms|
+    over the N free pairs: decided on points only when every term is a point."""
+    allowance = ALLOW * float(count + 4) * U
+    points = [t.as_point() for t in mass_terms]
+    if all(x is not None for x in points) and gm.as_point() is not None:
+        total = sum(points)
+        if not _close(gm.as_point(), total, allowance * sum(abs(x) for x in points)):
+            _fail(f"mode {label}: m is not φᵀM_ffφ")
+        return
+    derived = _total(t.widen(allowance) for t in mass_terms)
+    if not gm.meets(derived):
+        if gm_vo.below:
+            _fail(f"mode {label}: m is flagged below-normal, but the payload's φᵀM_ffφ is normal")
+        _fail(f"mode {label}: m is not φᵀM_ffφ for any value the bounds allow")
+    scope.append(UNRESOLVED + f"mode {label}: m = φᵀM_ffφ is undecidable on the published bounds")
+
+
 def _excitation_terms(free, entries, phi):
     """φᵀp_k's terms, one per mass entry and direction: {k: {entry index: [c, w]}}, with c
     the entry's combined coefficient and w the sum of its coefficients' magnitudes, and
@@ -1184,16 +1205,32 @@ def _claim_text(vo):
     return f"null, and its reason `{vo.undefined}` states no value where one is needed"
 
 
+TO_PUBLISHED, NORMAL_OR_ZERO, BINARY64 = "to_published", "to_normal_or_zero", "binary64"
+
+
+def _producer_domain(vo, rule, what):
+    """The field's own domain from the producer's rounding rule (Design §5.3.4):
+    `to_published` (dd.rs:476) is 0, normal, or a flagged nonzero below 2⁻¹⁰²²;
+    `to_normal_or_zero` (dd.rs:507) is 0 or normal and never flagged (a subnormal refuses
+    the run); a plain binary64 value is never flagged. A value outside it is no producer
+    output."""
+    if vo.value is None:
+        return
+    subnormal = vo.value != 0.0 and abs(vo.value) < NORMAL_MIN
+    if rule == NORMAL_OR_ZERO and (vo.below or subnormal):
+        _fail(f"{what}: {'flagged below-normal' if vo.below else 'subnormal'}, but the producer publishes it only as 0 or normal (to_normal_or_zero)")
+    if rule == TO_PUBLISHED and not vo.below and subnormal:
+        _fail(f"{what}: an unflagged subnormal, but the producer flags every nonzero value below 2⁻¹⁰²² (to_published)")
+    if rule == BINARY64 and vo.below:
+        _fail(f"{what}: flagged below-normal, but the producer never flags this field")
+
+
 def _needed(vo, what, signed=False):
     """The set of a value a relation needs; a claim-null fails that relation."""
     s = Values.of(vo, signed)
     if s is None:
         _fail(f"{what}: {_claim_text(vo)}")
     return s
-
-
-def _undetermined(*sets):
-    return any(s.as_point() is None and not s.only_nonfinite() for s in sets)
 
 
 def _mass_entry_set(i, j, vo):
@@ -1207,6 +1244,7 @@ def _mass(p):
     for k in range(3):
         direction = DIRECTIONS[k]
         for name, vo in ((f"T_{direction}", p.totals[k]), (f"free-DOF mass {direction}", p.free_totals[k])):
+            _producer_domain(vo, BINARY64, name)
             _needed(vo, name)
             if vo.value is not None and vo.value < 0.0:
                 _fail(f"{name}: negative")
@@ -1220,20 +1258,23 @@ def _mass(p):
         if t.only_nonfinite() or any(e.nonfinite for e in effective) or t.nonfinite:
             scope.append(UNRESOLVED + f"Σ m_eff,{direction} ≤ T_{direction}: an operand is not finite (±∞ or NaN)")
             continue
-        lowest = sum(min(p.lo for p in e.pieces) for e in effective)
         highest = sum(max(p.hi for p in e.pieces) for e in effective)
-        t_low, t_high = min(p.lo for p in t.pieces), max(p.hi for p in t.pieces)
+        t_low = min(p.lo for p in t.pieces)
+        # Agent 0's interim contract (Design §5.3.4): Bessel passes only where sound
+        # arithmetic establishes Σ m_eff ≤ T_k from the published operands; otherwise it
+        # is unresolved, never refused. Σ m_eff ≤ T_k holds for modes orthogonal in the
+        # assembled M, which the document does not evidence (the published deviation is
+        # on the re-formed M̂).
         slack = 1.0 + ALLOW * float(n + 2) * U
-        if lowest > t_high * slack:
-            _fail(f"Σ m_eff,{direction} exceeds T_{direction} (Bessel's inequality)")
         if highest > t_low * slack:
-            if _undetermined(t, *effective):
-                scope.append(UNRESOLVED + f"Σ m_eff,{direction} ≤ T_{direction} is undecidable on the published bounds")
+            scope.append(UNRESOLVED + f"Bessel: Σ m_eff,{direction} ≤ T_{direction} is not established within the strict "
+                         "rounding allowance, and no common-M orthogonality bound is published (a temporary capability limit)")
     if p.mass is None:
         scope.append("mass_matrix withheld: T_k and the free-DOF mass are not re-derived")
         return scope
     sets = []
     for i, j, vo in p.mass:
+        _producer_domain(vo, BINARY64, f"mass entry ({i}, {j})")
         s = _mass_entry_set(i, j, vo)
         if i == j and vo.value is not None and vo.value < 0.0:
             _fail(f"mass diagonal at DOF {i} is negative")
@@ -1297,6 +1338,7 @@ def _normalization(p):
             _fail(f"mode {label}: its reference component is not exactly +1")
         t, theta = 0.0, 0.0
         for dof, vo in enumerate(shape):
+            _producer_domain(vo, TO_PUBLISHED, f"mode {label}: shape component {dof}")
             v = vo.value
             if v is None:
                 _fail(f"mode {label}: a shape component is not published")
@@ -1349,6 +1391,11 @@ def _participation(p):
     n = len(p.modes)
     for m, mode in enumerate(p.modes):
         label, gm_vo = m + 1, mode["generalized_mass"]
+        _producer_domain(gm_vo, TO_PUBLISHED, f"mode {label}: m")
+        for k in range(3):
+            for field in ("gamma", "effective", "fraction"):
+                _producer_domain(p.participation[m][k][field], TO_PUBLISHED, f"mode {label}: {field} along {DIRECTIONS[k]}")
+            _producer_domain(p.participation[m][k]["cumulative"], BINARY64, f"mode {label}: cumulative fraction along {DIRECTIONS[k]}")
         gm = _needed(gm_vo, f"mode {label}: m")
         if gm_vo.value is not None and not gm_vo.below and gm_vo.value <= 0.0:
             _fail(f"mode {label}: m is not positive")
@@ -1461,9 +1508,9 @@ def _participation(p):
             if in_mass:
                 counts[3] += 1
                 used[3].append(entry)
-                c = (1.0 if i == j else 2.0) * shape[i] * shape[j]
-                if c != 0.0 or entry.nonfinite:
-                    mass_terms.append(Values.point(c) * entry)
+                term = _generalized_mass_term(i, j, shape, entry)
+                if term is not None:
+                    mass_terms.append(term)
             for k in range(3):
                 if index in combined[k]:
                     c, w = combined[k][index]
@@ -1472,26 +1519,15 @@ def _participation(p):
         counts[:3] = incidence_counts
         gm_vo = mode["generalized_mass"]
         gm = _needed(gm_vo, f"mode {label}: m")
-        allowance = ALLOW * float(counts[3] + 4) * U
-        points = [t.as_point() for t in mass_terms]
-        if all(x is not None for x in points) and gm.as_point() is not None:
-            total = sum(points)
-            if not _close(gm.as_point(), total, allowance * sum(abs(x) for x in points)):
-                _fail(f"mode {label}: m is not φᵀM_ffφ")
-        else:
-            derived = _total(t.widen(allowance) for t in mass_terms)
-            if not gm.meets(derived):
-                if gm_vo.below:
-                    _fail(f"mode {label}: m is flagged below-normal, but the payload's φᵀM_ffφ is normal")
-                _fail(f"mode {label}: m is not φᵀM_ffφ for any value the bounds allow")
-            scope.append(UNRESOLVED + f"mode {label}: m = φᵀM_ffφ is undecidable on the published bounds")
+        _generalized_mass_check(scope, label, gm_vo, gm, mass_terms, counts[3])
         for k in range(3):
             row, direction = p.participation[m][k], DIRECTIONS[k]
             terms = [held for held in excitation[k].values() if held[1] != 0.0 or held[2].nonfinite]
             e = ALLOW * float(counts[k] + 6) * U
             gamma = _needed(row["gamma"], f"mode {label}: Γ along {direction}", signed=True)
             effective = _needed(row["effective"], f"mode {label}: m_eff along {direction}")
-            points_ok = all(t[2].as_point() is not None for t in terms) and all(v.as_point() is not None for v in (gamma, effective, gm))
+            points_ok = (all(t[2].as_point() is not None for t in terms) and all(v.as_point() is not None for v in (gamma, effective, gm))
+                         and _formed(*((c * x.as_point(), c, x.as_point()) for c, _, x in terms)))
             if points_ok:
                 s = sum(c * x.as_point() for c, _, x in terms)
                 a = sum(w * abs(x.as_point()) for _, w, x in terms)
@@ -1625,6 +1661,7 @@ def _clusters(p):
             _fail(f"cluster {cid}: its reported flag is not the set's")
         # The cluster's e_λ is the members' maximum, NaN-propagating (the producer's
         # `max_propagating_nan`): exactly when all are published; else on sets.
+        _producer_domain(estimate, NORMAL_OR_ZERO, f"cluster {cid}: e_λ")
         sets = [_needed(p.computed[i]["estimate"], f"computed mode {i + 1}: e_λ") for i in members]
         stated = _needed(estimate, f"cluster {cid}: e_λ")
         if all(x.as_point() is not None for x in sets) and stated.as_point() is not None:
@@ -1646,6 +1683,7 @@ def _clusters(p):
         index = mode["cluster"] - 1
         own = p.clusters[index][3] if 0 <= index < len(p.clusters) else None
         mine = mode["cluster_estimate"]
+        _producer_domain(mine, NORMAL_OR_ZERO, f"mode {m + 1}: its cluster e_λ")
         # The copy is the same value object: value, reason and below-normal flag.
         if own is None or (mine.value, mine.undefined, mine.below) != (own.value, own.undefined, own.below):
             _fail(f"mode {m + 1}: its cluster e_λ is not its cluster's")
@@ -1691,6 +1729,8 @@ def _exact_formula(scope, label, lhs, operands, combine, relation, contradiction
 def _candidate(scope, c, label, sturm_count, limit, g_max, ks):
     """One candidate: its claims, its two formulas and its decision against its premises,
     each on its own operands."""
+    for key in ("shift", "formation_term") + FACTORED:
+        _producer_domain(c[key], BINARY64, f"candidate {label}: {key.replace('_', ' ')}")
     factored = c["pivots"] is not None
     if not factored:
         for key in FACTORED:
@@ -1872,12 +1912,18 @@ def _evidence(p):
     scope = []
     for i, c in enumerate(p.computed):
         vos = (c["eta"], c["condition"], c["estimate"])
+        for name, vo in zip(("η", "κ_λ", "e_λ"), vos):
+            _producer_domain(vo, NORMAL_OR_ZERO, f"computed mode {i + 1}: {name}")
         if any(vo.value is None and Values.of(vo) is None for vo in vos):
             _fail(f"computed mode {i + 1}: a check-2 value is null, and its null states no bound")
         if any(vo.value is not None and vo.value < 0.0 for vo in vos):
             _fail(f"computed mode {i + 1}: a negative check-2 value")
         eta, kappa, e = (Values.of(vo) for vo in vos)
-        if all(x.as_point() is not None for x in (eta, kappa, e)):
+        # The producer multiplies in extended range and then requires 0 or normal
+        # (reformation/mod.rs:964): a nonzero product below the normal range is no
+        # published 0, so the point path decides only a product it kept.
+        if all(x.as_point() is not None for x in (eta, kappa, e)) and _formed(
+                (eta.as_point() * kappa.as_point(), eta.as_point(), kappa.as_point())):
             product = eta.as_point() * kappa.as_point()
             if not _close(e.as_point(), product, 8.0 * U * max(e.as_point(), product)):
                 _fail(f"computed mode {i + 1}: e_λ is not η·κ_λ")
@@ -1897,6 +1943,7 @@ def _evidence(p):
         _fail("disclosures: the fixed numerical-integrity disclosure is missing")
     if tolerance["absolute"] == 0.0:
         for i, vo in enumerate(row["relative"] for row in p.identity):
+            _producer_domain(vo, BINARY64, f"identity row {i}")
             d = _needed(vo, f"identity row {i}")
             if vo.value is not None and vo.value < 0.0:
                 _fail(f"identity row {i}: a negative relative discrepancy")
@@ -1912,6 +1959,7 @@ def _evidence(p):
     for v in p.formation:
         if v is not None and v < 0.0:
             _fail("a negative formation-difference or norm")
+    _producer_domain(p.ortho, TO_PUBLISHED, "the orthogonality deviation")
     _needed(p.ortho, "the orthogonality deviation")
     if p.ortho.value is not None and p.ortho.value < 0.0:
         _fail("a negative orthogonality deviation")

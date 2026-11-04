@@ -72,6 +72,24 @@ def domain(vo, signed=False):
     return Domain(claim=reason)
 
 
+PUBLISHED_RULE, NORMAL_OR_ZERO, BINARY64 = "to_published", "to_normal_or_zero", "binary64"
+
+
+def off_domain(vo, rule):
+    """Whether the value lies outside its field's producer domain (dd.rs:476 and :507):
+    `to_normal_or_zero` is 0 or normal and never flagged; `to_published` flags every
+    nonzero value below 2⁻¹⁰²²; a plain binary64 value is never flagged."""
+    if vo["value"] is None:
+        return False
+    v = vo["value"]
+    subnormal = v != 0 and abs(v) < 2.0 ** -1022
+    if rule == NORMAL_OR_ZERO:
+        return vo["below_normal"] or subnormal
+    if rule == PUBLISHED_RULE:
+        return not vo["below_normal"] and subnormal
+    return vo["below_normal"]
+
+
 def published(vo, signed=False):
     """What the producer carries forward from a published value (the shape into m and
     φᵀp_k, a fraction into its cumulative sum): the published number, a flagged 0 being 0."""
@@ -229,26 +247,15 @@ def mass_family(d):
     for k in DIRECTIONS:
         for key in ("total_mass", "free_dof_mass"):
             vo = d.totals[k][key]
-            if domain(vo).claim is not None or (vo["value"] is not None and vo["value"] < 0):
+            if off_domain(vo, BINARY64) or domain(vo).claim is not None or (vo["value"] is not None and vo["value"] < 0):
                 return False
-    for k in range(3):
-        operands = {"T": domain(d.totals[DIRECTIONS[k]]["total_mass"])}
-        for m in range(n):
-            dm = domain(d.participation[m][k]["effective_mass"])
-            if dm.claim is None:
-                operands[f"e{m}"] = dm
-
-        def bessel(a, k=k):
-            values = list(a.values())
-            if any(special(x) for x in values):
-                return True
-            return sum(a[f"e{m}"] for m in range(n) if f"e{m}" in a) <= a["T"] * (1 + ALLOW * (n + 2) * U)
-        if not satisfiable(operands, bessel):
-            return False
+    # Bessel (Σ m_eff ≤ T_k) is never a contradiction under Agent 0's interim contract:
+    # it holds for modes orthogonal in the assembled M, which the document does not
+    # evidence; the readers pass it only where they establish it, else leave it unresolved.
     if d.mass is None:
         return True
     for i, j, vo in d.mass:
-        if domain(vo, signed=i != j).claim is not None or (i == j and vo["value"] is not None and vo["value"] < 0):
+        if off_domain(vo, BINARY64) or domain(vo, signed=i != j).claim is not None or (i == j and vo["value"] is not None and vo["value"] < 0):
             return False
     for k in range(3):
         for key, free_only in (("total_mass", False), ("free_dof_mass", True)):
@@ -285,6 +292,11 @@ def participation_family(d):
     n = len(d.modes)
     for m, mode in enumerate(d.modes):
         gm = mode["generalized_mass"]
+        rows = d.participation[m]
+        if off_domain(gm, PUBLISHED_RULE) or any(
+                off_domain(r[f], PUBLISHED_RULE) for r in rows for f in ("participation_factor", "effective_mass", "effective_mass_fraction")) or any(
+                off_domain(r["cumulative_effective_mass_fraction"], BINARY64) for r in rows):
+            return False
         if domain(gm).claim is not None or (gm["value"] is not None and not gm["below_normal"] and gm["value"] <= 0):
             return False
         for k in range(3):
@@ -416,6 +428,9 @@ def _excitation(gm, g, e, terms, incidences):
 
 
 def clusters_family(d):
+    if any(off_domain(r["error_estimate"], NORMAL_OR_ZERO) for r in d.clusters) or any(
+            off_domain(mode["cluster_error_estimate"], NORMAL_OR_ZERO) for mode in d.modes):
+        return False
     for c, row in enumerate(d.clusters):
         cid = c + 1
         members = [r for r in d.computed if _cluster_of(r["cluster_ref"]) == cid]
@@ -446,6 +461,9 @@ def _truths(d, test):
 
 def sturm_family(d):
     ks, g_max, limit = d.ks, d.g_max, d.limit
+    for c in d.candidates:
+        if any(off_domain(c[f], BINARY64) for f in ("shift", "formation_term") + FACTORED):
+            return False
     for index, c in enumerate(d.candidates):
         if c["negative_pivot_count"] is None:
             if any(c[f]["value"] is not None or c[f]["undefined_reason"] != "not_factored" for f in FACTORED):
@@ -500,6 +518,8 @@ def sturm_family(d):
 def evidence_family(d):
     for c in d.computed:
         vos = (c["backward_error"], c["condition"], c["error_estimate"])
+        if any(off_domain(vo, NORMAL_OR_ZERO) for vo in vos):
+            return False
         doms = [domain(vo) for vo in vos]
         if any(x.claim is not None for x in doms) or any(vo["value"] is not None and vo["value"] < 0 for vo in vos):
             return False
@@ -517,13 +537,15 @@ def evidence_family(d):
         rel = Fraction(tolerance["relative"])
         for row in d.identity:
             vo = row["relative"]
+            if off_domain(vo, BINARY64):
+                return False
             x = domain(vo)
             if x.claim is not None or (vo["value"] is not None and vo["value"] < 0):
                 return False
             if not satisfiable({"d": x}, lambda a: special(a["d"]) or a["d"] <= rel):
                 return False
     o = domain(d.ortho)
-    if o.claim is not None or (d.ortho["value"] is not None and d.ortho["value"] < 0):
+    if off_domain(d.ortho, PUBLISHED_RULE) or o.claim is not None or (d.ortho["value"] is not None and d.ortho["value"] < 0):
         return False
     return True
 

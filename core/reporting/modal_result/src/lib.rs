@@ -904,9 +904,6 @@ impl Reach {
             _ => None,
         }
     }
-    fn mr_only_wild(&self) -> bool {
-        self.wild && self.parts.is_empty()
-    }
     fn mr_reals(&self) -> Reach {
         Reach { parts: self.parts.clone(), wild: false }
     }
@@ -916,19 +913,9 @@ impl Reach {
     fn mr_highest(&self) -> f64 {
         self.parts.iter().map(|p| p.1).fold(f64::NEG_INFINITY, f64::max)
     }
-    fn mr_magnitude(&self) -> f64 {
-        self.parts.iter().map(|p| p.0.abs().max(p.1.abs())).fold(0.0, f64::max)
-    }
     /// Each part grown by `relative` times its ends' magnitudes (0 stays 0).
     fn mr_slack(&self, relative: f64) -> Reach {
         Reach::mr_new(self.parts.iter().map(|&(lo, hi, nz)| (lo - mr_real_mul(relative, lo.abs()), hi + mr_real_mul(relative, hi.abs()), nz)).collect(), self.wild)
-    }
-    /// Each part grown by an absolute amount (a nonzero widening admits 0).
-    fn mr_grow(&self, amount: f64) -> Reach {
-        if amount == 0.0 {
-            return self.clone();
-        }
-        Reach::mr_new(self.parts.iter().map(|&(lo, hi, _)| (lo - amount, hi + amount, false)).collect(), self.wild)
     }
     fn mr_squared(&self) -> Reach {
         if self.mr_point().is_some() {
@@ -983,6 +970,35 @@ fn mr_published(n: &Num, signed: bool) -> Option<Reach> {
     match n.value {
         Some(v) => Some(Reach::mr_exact(v)),
         None => mr_reach(n, signed),
+    }
+}
+
+/// The producer's rounding rule a field is published under (Design §5.3.4).
+#[derive(Clone, Copy, PartialEq)]
+enum MrRule {
+    /// `WideDd::to_published` (dd.rs:476): 0, normal, or a flagged nonzero
+    /// below 2⁻¹⁰²².
+    Published,
+    /// `to_normal_or_zero` (dd.rs:507): 0 or normal, never flagged.
+    NormalOrZero,
+    /// A plain binary64 value: never flagged.
+    Binary64,
+}
+
+/// A value outside its field's producer domain is no producer output.
+fn mr_domain(n: &Num, rule: MrRule, what: &str) -> R<()> {
+    let Some(v) = n.value else { return Ok(()) };
+    let subnormal = v != 0.0 && v.abs() < f64::MIN_POSITIVE;
+    match rule {
+        MrRule::NormalOrZero if n.below || subnormal => Err(format!(
+            "{what}: {}, but the producer publishes it only as 0 or normal (to_normal_or_zero)",
+            if n.below { "flagged below-normal" } else { "subnormal" }
+        )),
+        MrRule::Published if !n.below && subnormal => {
+            Err(format!("{what}: an unflagged subnormal, but the producer flags every nonzero value below 2⁻¹⁰²² (to_published)"))
+        }
+        MrRule::Binary64 if n.below => Err(format!("{what}: flagged below-normal, but the producer never flags this field")),
+        _ => Ok(()),
     }
 }
 
@@ -1092,6 +1108,44 @@ fn mr_kept(product: f64, factors: &[f64]) -> bool {
     !(factors.iter().all(|f| *f != 0.0) && product.abs() < f64::MIN_POSITIVE)
 }
 
+/// One entry's term of m = Σ_ij φ_i·M_ij·φ_j. The producer sums each full
+/// triple product exactly (`mass_bilinear`, modal_quantities.rs:294,
+/// `ExactSum::add_product`), so the coefficient w·φ_i·φ_j is formed on sets,
+/// which keep a nonzero underflow nonzero, never as a binary64 product.
+/// `None` only for an exactly zero coefficient against a finite entry.
+fn mr_generalized_mass_term(i: usize, j: usize, phi: &[f64], entry: &Reach) -> Option<Reach> {
+    let w = Reach::mr_exact(if i == j { 1.0 } else { 2.0 });
+    let coefficient = mr_join(&mr_join(&w, &Reach::mr_exact(phi[i]), true), &Reach::mr_exact(phi[j]), true);
+    if coefficient.mr_point() == Some(0.0) && !entry.wild {
+        return None;
+    }
+    Some(mr_join(&coefficient, entry, true))
+}
+
+/// m against φᵀM_ffφ from its terms (`mr_generalized_mass_term`), within
+/// A(N+4)u·Σ|terms| over the N free pairs: decided on points only when every
+/// term is a point.
+fn mr_generalized_mass_check(scope: &mut Vec<String>, label: usize, gm_num: &Num, gm: &Reach, mass_terms: &[Reach], count: usize) -> R<()> {
+    let allowance = ALLOW * ((count + 4) as f64) * U;
+    let points: Option<Vec<f64>> = mass_terms.iter().map(Reach::mr_point).collect();
+    if let (Some(points), Some(published)) = (points, gm.mr_point()) {
+        let (s, a) = points.iter().fold((0.0f64, 0.0f64), |(s, a), x| (s + x, a + x.abs()));
+        if !mr_tol_close(published, s, allowance * a) {
+            return Err(format!("mode {label}: m = {published:e} is not φᵀM_ffφ = {s:e}"));
+        }
+        return Ok(());
+    }
+    let derived = mr_sum(mass_terms.iter().map(|t| t.mr_slack(allowance)));
+    if !mr_overlap(gm, &derived) {
+        if gm_num.below {
+            return Err(format!("mode {label}: m published as below-normal, but φᵀM_ffφ from the payload is normal"));
+        }
+        return Err(format!("mode {label}: m is not φᵀM_ffφ for any value the bounds allow"));
+    }
+    scope.push(format!("{MR_UNRESOLVED}mode {label}: m = φᵀM_ffφ is undecidable on the published bounds"));
+    Ok(())
+}
+
 /// φᵀp_k's terms per direction, ONE per mass entry (`entries` as (row,
 /// col)): (entry index, combined coefficient, Σ|coefficients|), and the
 /// incidence count. An entry M_ij meets φᵀp_k in row i (i free, j along k)
@@ -1123,9 +1177,6 @@ fn mr_excitation_terms(free: &[bool], entries: &[(usize, usize)], phi: &[f64]) -
     (terms, counts)
 }
 
-fn mr_undetermined(sets: &[&Reach]) -> bool {
-    sets.iter().any(|s| s.mr_point().is_none() && !s.mr_only_wild())
-}
 
 
 /// One identity row: what it compares and its relative discrepancy.
@@ -1930,6 +1981,7 @@ fn mr_mass(p: &Parsed) -> R<Vec<String>> {
     for k in 0..3 {
         let d = DIRECTIONS[k];
         for (name, num) in [(format!("T_{d}"), &p.totals[k]), (format!("free-DOF mass {d}"), &p.free_totals[k])] {
+            mr_domain(num, MrRule::Binary64, &name)?;
             mr_need(num, false, &name)?;
             if num.value.is_some_and(|v| v < 0.0) {
                 return Err(format!("{name}: negative"));
@@ -1946,16 +1998,15 @@ fn mr_mass(p: &Parsed) -> R<Vec<String>> {
             scope.push(format!("{MR_UNRESOLVED}Σ m_eff,{d} ≤ T_{d}: an operand is not finite (±∞ or NaN)"));
             continue;
         }
-        let lowest: f64 = effective.iter().map(Reach::mr_lowest).sum();
+        // Agent 0's interim contract (Design §5.3.4): Bessel passes only where
+        // sound arithmetic establishes Σ m_eff ≤ T_k from the published operands;
+        // otherwise it is unresolved, never refused. The inequality holds for
+        // modes orthogonal in the assembled M, which the document does not
+        // evidence (its published deviation is on the re-formed M̂).
         let highest: f64 = effective.iter().map(Reach::mr_highest).sum();
         let slack = 1.0 + ALLOW * ((n + 2) as f64) * U;
-        if lowest > t.mr_highest() * slack {
-            return Err(format!("Σ m_eff,{d} = {lowest:e} exceeds T_{d} (Bessel's inequality)"));
-        }
-        let mut sets: Vec<&Reach> = effective.iter().collect();
-        sets.push(&t);
-        if highest > t.mr_lowest() * slack && mr_undetermined(&sets) {
-            scope.push(format!("{MR_UNRESOLVED}Σ m_eff,{d} ≤ T_{d} is undecidable on the published bounds"));
+        if highest > t.mr_lowest() * slack {
+            scope.push(format!("{MR_UNRESOLVED}Bessel: Σ m_eff,{d} ≤ T_{d} is not established within the strict rounding allowance, and no common-M orthogonality bound is published (a temporary capability limit)"));
         }
     }
     let Some(entries) = &p.mass else {
@@ -1964,6 +2015,7 @@ fn mr_mass(p: &Parsed) -> R<Vec<String>> {
     };
     let mut sets = Vec::with_capacity(entries.len());
     for (i, j, v) in entries {
+        mr_domain(v, MrRule::Binary64, &format!("mass entry ({i}, {j})"))?;
         // A diagonal entry is a mass (nonnegative); an off-diagonal one has either sign.
         let s = mr_need(v, i != j, &format!("mass entry ({i}, {j})"))?;
         if i == j && v.value.is_some_and(|x| x < 0.0) {
@@ -2046,6 +2098,7 @@ fn mr_normalization(p: &Parsed) -> R<Vec<String>> {
         }
         let (mut t, mut theta) = (0.0f64, 0.0f64);
         for (dof, value) in shape.iter().enumerate() {
+            mr_domain(value, MrRule::Published, &format!("mode {label}: shape component {dof}"))?;
             let v = value.value.ok_or_else(|| format!("mode {label}: a shape component is not published"))?;
             if p.free[dof].is_none() {
                 // A below-normal component is nonzero.
@@ -2089,6 +2142,14 @@ fn mr_participation(p: &Parsed) -> R<Vec<String>> {
     for (m, mode) in p.modes.iter().enumerate() {
         let label = m + 1;
         let gm_num = Num::mr_from(&mode.generalized_mass);
+        mr_domain(&gm_num, MrRule::Published, &format!("mode {label}: m"))?;
+        for k in 0..3 {
+            let row = &p.participation[m][k];
+            for (name, vo) in [("Γ", &row.gamma), ("m_eff", &row.effective), ("fraction", &row.fraction)] {
+                mr_domain(&Num::mr_from(vo), MrRule::Published, &format!("mode {label}: {name} along {}", DIRECTIONS[k]))?;
+            }
+            mr_domain(&Num::mr_from(&row.cumulative), MrRule::Binary64, &format!("mode {label}: cumulative fraction along {}", DIRECTIONS[k]))?;
+        }
         let gm = mr_need(&gm_num, false, &format!("mode {label}: m"))?;
         if gm_num.value.is_some_and(|v| !gm_num.below && v <= 0.0) {
             return Err(format!("mode {label}: m is not positive"));
@@ -2235,9 +2296,8 @@ fn mr_participation(p: &Parsed) -> R<Vec<String>> {
             if in_mass {
                 counts[3] += 1;
                 consumed[3].push(entry.clone());
-                let c = if i == j { 1.0 } else { 2.0 } * phi[i] * phi[j];
-                if c != 0.0 || entry.wild {
-                    mass_terms.push(mr_join(&Reach::mr_exact(c), &entry, true));
+                if let Some(term) = mr_generalized_mass_term(i, j, &phi, &entry) {
+                    mass_terms.push(term);
                 }
             }
             for (k, c, w) in hits {
@@ -2249,26 +2309,7 @@ fn mr_participation(p: &Parsed) -> R<Vec<String>> {
         }
         let gm_num = Num::mr_from(&mode.generalized_mass);
         let gm = mr_need(&gm_num, false, &format!("mode {label}: m"))?;
-        let allowance = ALLOW * ((counts[3] + 4) as f64) * U;
-        let points: Option<Vec<f64>> = mass_terms.iter().map(Reach::mr_point).collect();
-        match (points, gm.mr_point()) {
-            (Some(points), Some(published)) => {
-                let (s, a) = points.iter().fold((0.0f64, 0.0f64), |(s, a), x| (s + x, a + x.abs()));
-                if !mr_tol_close(published, s, allowance * a) {
-                    return Err(format!("mode {label}: m = {published:e} is not φᵀM_ffφ = {s:e}"));
-                }
-            }
-            _ => {
-                let derived = mr_sum(mass_terms.iter().map(|t| t.mr_slack(allowance)));
-                if !mr_overlap(&gm, &derived) {
-                    if gm_num.below {
-                        return Err(format!("mode {label}: m published as below-normal, but φᵀM_ffφ from the payload is normal"));
-                    }
-                    return Err(format!("mode {label}: m is not φᵀM_ffφ for any value the bounds allow"));
-                }
-                scope.push(format!("{MR_UNRESOLVED}mode {label}: m = φᵀM_ffφ is undecidable on the published bounds"));
-            }
-        }
+        mr_generalized_mass_check(&mut scope, label, &gm_num, &gm, &mass_terms, counts[3])?;
         for k in 0..3 {
             let d = DIRECTIONS[k];
             let row = &p.participation[m][k];
@@ -2276,7 +2317,8 @@ fn mr_participation(p: &Parsed) -> R<Vec<String>> {
             let gamma = mr_need(&g_num, true, &format!("mode {label}: Γ along {d}"))?;
             let effective = mr_need(&e_num, false, &format!("mode {label}: m_eff along {d}"))?;
             let e = ALLOW * ((counts[k] + 6) as f64) * U;
-            let points: Option<Vec<(f64, f64, f64)>> = excitation[k].iter().map(|(c, w, x)| x.mr_point().map(|x| (*c, *w, x))).collect();
+            let points: Option<Vec<(f64, f64, f64)>> =
+                excitation[k].iter().map(|(c, w, x)| x.mr_point().filter(|x| mr_kept(c * x, &[*c, *x])).map(|x| (*c, *w, x))).collect();
             let points = points.map(|points| points.iter().fold((0.0f64, 0.0f64), |(s, a), (c, w, x)| (s + c * x, a + w * x.abs())));
             let decided = match (points, gm.mr_point(), gamma.mr_point(), effective.mr_point()) {
                 (Some((s, a)), Some(published), Some(g), Some(eff))
@@ -2473,6 +2515,7 @@ fn mr_clusters(p: &Parsed) -> R<Vec<String>> {
         }
         // The cluster's e_λ is its members' NaN-propagating maximum (the
         // producer's `max_propagating_nan`): bit for bit when all are published.
+        mr_domain(estimate, MrRule::NormalOrZero, &format!("cluster {id}: e_λ"))?;
         let mut sets = Vec::with_capacity(members.len());
         for &i in &members {
             sets.push(mr_need(&p.computed[i].estimate, false, &format!("computed mode {}: e_λ", i + 1))?);
@@ -2505,6 +2548,7 @@ fn mr_clusters(p: &Parsed) -> R<Vec<String>> {
         }
     }
     for (m, mode) in p.modes.iter().enumerate() {
+        mr_domain(&mode.cluster_estimate, MrRule::NormalOrZero, &format!("mode {}: its cluster e_λ", m + 1))?;
         if Some(&mode.cluster_estimate) != p.clusters.get(mode.cluster.wrapping_sub(1)).map(|c| &c.3) {
             return Err(format!("mode {}: its cluster e_λ is not its cluster's", m + 1));
         }
@@ -2565,6 +2609,9 @@ fn mr_formed(scope: &mut Vec<String>, label: &str, lhs: &Reach, a: &Reach, b: &R
 /// One candidate: its claims, its two formulas and its decision against the
 /// producer's three tests, each on its own operands.
 fn mr_candidate(scope: &mut Vec<String>, c: &Candidate, label: usize, sturm_count: usize, limit: f64, g_max: f64, ks: f64) -> R<()> {
+    for (name, v) in [("shift", &c.shift), ("formation term", &c.formation_term)].into_iter().chain(MR_FACTORED.iter().copied().zip(mr_factored(c))) {
+        mr_domain(v, MrRule::Binary64, &format!("candidate {label}: {name}"))?;
+    }
     let Some(pivots) = c.pivots else {
         for (name, v) in MR_FACTORED.iter().zip(mr_factored(c)) {
             if v.value.is_some() || v.reason.as_deref() != Some("not_factored") {
@@ -2720,6 +2767,9 @@ fn mr_evidence(p: &Parsed) -> R<Vec<String>> {
     let mut scope = Vec::new();
     for (i, c) in p.computed.iter().enumerate() {
         let nums = [&c.eta, &c.condition, &c.estimate];
+        for (name, v) in ["η", "κ_λ", "e_λ"].iter().zip(nums) {
+            mr_domain(v, MrRule::NormalOrZero, &format!("computed mode {}: {name}", i + 1))?;
+        }
         let mut sets = Vec::with_capacity(3);
         for v in nums {
             sets.push(mr_reach(v, false).ok_or_else(|| format!("computed mode {}: a check-2 value is null without a profile bound", i + 1))?);
@@ -2727,7 +2777,14 @@ fn mr_evidence(p: &Parsed) -> R<Vec<String>> {
         if nums.iter().any(|v| v.value.is_some_and(|x| x < 0.0)) {
             return Err(format!("computed mode {}: a negative check-2 value", i + 1));
         }
-        let (Some(eta), Some(kappa), Some(e)) = (sets[0].mr_point(), sets[1].mr_point(), sets[2].mr_point()) else {
+        // The producer multiplies in extended range and then requires 0 or
+        // normal (reformation/mod.rs:964): a nonzero product below the normal
+        // range is no published 0, so the point path decides only a kept product.
+        let kept = match (sets[0].mr_point(), sets[1].mr_point()) {
+            (Some(a), Some(b)) => mr_kept(a * b, &[a, b]),
+            _ => true,
+        };
+        let (Some(eta), Some(kappa), Some(e), true) = (sets[0].mr_point(), sets[1].mr_point(), sets[2].mr_point(), kept) else {
             // e_λ is the producer's η·κ_λ: a non-finite factor gives a non-finite e_λ.
             let product = mr_join(&sets[0], &sets[1], true);
             if !(sets[2].wild && product.wild) && !mr_near(&sets[2], &product.mr_reals(), 8.0 * U) {
@@ -2751,6 +2808,7 @@ fn mr_evidence(p: &Parsed) -> R<Vec<String>> {
     let absolute = tolerance.and_then(|t| t["absolute"].as_f64()).ok_or("the identity tolerance is not bound")?;
     if absolute == 0.0 {
         for (i, row) in p.identity.iter().enumerate() {
+            mr_domain(&row.relative, MrRule::Binary64, &format!("identity row {i}"))?;
             let d = mr_need(&row.relative, false, &format!("identity row {i}"))?;
             if row.relative.value.is_some_and(|x| x < 0.0) {
                 return Err(format!("identity row {i}: a negative relative discrepancy"));
@@ -2776,6 +2834,7 @@ fn mr_evidence(p: &Parsed) -> R<Vec<String>> {
             return Err("a negative formation-difference or norm".into());
         }
     }
+    mr_domain(&p.ortho, MrRule::Published, "the orthogonality deviation")?;
     mr_need(&p.ortho, false, "the orthogonality deviation")?;
     if let Some(ortho) = p.ortho.value {
         if ortho < 0.0 {
@@ -2944,6 +3003,48 @@ mod tests {
         // Two independent unknowns would admit it: the identity decides.
         let independent = mr_sum([mr_join(&Reach::mr_exact(1.0), &flagged, true), mr_join(&Reach::mr_exact(-1.0), &flagged, true)]);
         assert!(mr_overlap(&gamma_m.mr_slack(e), &independent));
+    }
+
+    /// Class confirmation of cab0ea356, finding 1: the producer sums m's
+    /// triple products exactly (`mass_bilinear`, modal_quantities.rs:294).
+    /// Its probe (`modal_producer_edges.json`, from `normalize_mode`: a unit
+    /// rotation, a 2⁻⁶⁰⁰ translation, mass 1 on that translation only) has
+    /// m = 2⁻¹²⁰⁰, a flagged 0. The reader's own m reconstruction keeps the
+    /// underflowing coefficient nonzero and accepts it as unresolved.
+    #[test]
+    fn the_producers_underflowing_generalized_mass_is_accepted_unresolved() {
+        let edges: Value = serde_json::from_str(include_str!("../../../../fixtures/results/modal_producer_edges.json")).unwrap();
+        let probe = &edges["relation_probes"][0];
+        let mut phi = vec![0.0; 12];
+        for (dof, vo) in probe["global_dofs"].as_array().unwrap().iter().zip(probe["shape"].as_array().unwrap()) {
+            assert_eq!(vo["below_normal"], false);
+            phi[dof.as_u64().unwrap() as usize] = vo["value"].as_f64().unwrap();
+        }
+        let entry = &probe["mass_entries"][0];
+        let (i, j, value) = (entry[0].as_u64().unwrap() as usize, entry[1].as_u64().unwrap() as usize, entry[2].as_f64().unwrap());
+        assert_eq!(phi[i] * phi[j], 0.0, "the binary64 coefficient underflows");
+        let term = mr_generalized_mass_term(i, j, &phi, &Reach::mr_exact(value)).unwrap();
+        let gm_num = Num { value: probe["generalized_mass"]["value"].as_f64(), reason: None, below: probe["generalized_mass"]["below_normal"] == true };
+        let gm = mr_reach(&gm_num, false).unwrap();
+        let mut scope = Vec::new();
+        mr_generalized_mass_check(&mut scope, 1, &gm_num, &gm, &[term], 1).unwrap();
+        assert!(scope.first().is_some_and(|x| x.starts_with(MR_UNRESOLVED)), "{scope:?}");
+    }
+
+    /// Agent 0's Bessel contract: the re-formed M̂'s deviation bounds nothing
+    /// on the assembled M. M = I, M̂ = [[1, −1], [−1, 2]], φ₁ = (1, 0),
+    /// φ₂ = (1, 1), r = (1, 1): exactly M̂-orthogonal, yet on M
+    /// Σ m_eff = 1 + 2 = 3 > T = 2. The corpus carries these modes with
+    /// T_x = 3.5 (passed), T_x = 2 (unresolved), each with a wrong Γ²m too
+    /// (refused).
+    #[test]
+    fn bessel_correlated_mode_witness() {
+        let dot = |a: [f64; 2], b: [f64; 2], m: [[f64; 2]; 2]| (0..2).flat_map(|i| (0..2).map(move |j| a[i] * m[i][j] * b[j])).sum::<f64>();
+        let (m, m_hat, r) = ([[1.0, 0.0], [0.0, 1.0]], [[1.0, -1.0], [-1.0, 2.0]], [1.0, 1.0]);
+        let phi = [[1.0, 0.0], [1.0, 1.0]];
+        assert!(dot(phi[0], phi[1], m_hat) == 0.0 && dot(phi[0], phi[1], m) != 0.0);
+        let total: f64 = phi.iter().map(|p| dot(*p, r, m).powi(2) / dot(*p, *p, m)).sum();
+        assert_eq!((total, dot(r, r, m)), (3.0, 2.0));
     }
 
     /// Third re-check, finding 1: a flagged value is nonzero and unbounded

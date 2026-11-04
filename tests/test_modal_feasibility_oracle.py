@@ -266,3 +266,17 @@ def test_the_producers_edges_are_accepted_by_the_python_reader_and_the_oracle():
         assert verdict["decision"] != "rejected", (entry["id"], verdict)
         assert verdict["validation"]["status"] == "not_fully_validated", entry["id"]
         assert all(v == "feasible" for v in oracle.verdict(json.loads(text)).values()), entry["id"]
+
+
+def test_the_oracle_accepts_the_producers_generalized_mass_probe():
+    """m = 2⁻¹²⁰⁰ from `normalize_mode` (modal_quantities.rs:294), a flagged 0: the oracle's
+    exact sum admits it."""
+    probe = json.loads(EDGES.read_text(encoding="utf-8"))["relation_probes"][0]
+    shape = {dof: vo["value"] for dof, vo in zip(probe["global_dofs"], probe["shape"])}
+    (i, j, value), = probe["mass_entries"]
+    from fractions import Fraction
+    terms = [(Fraction(1) * Fraction(shape[i]) * Fraction(shape[j]),
+              {"value": value, "below_normal": False, "undefined_reason": None}, i, j)]
+    gm = {"value": probe["generalized_mass"]["value"], "below_normal": probe["generalized_mass"]["below_normal"],
+          "undefined_reason": None}
+    assert oracle._sum_relation(gm, terms, 1)

@@ -262,7 +262,7 @@
       ],
       "reseal": true,
       "oracle": {
-        "mass": "infeasible",
+        "mass": "feasible",
         "participation": "infeasible",
         "clusters": "feasible",
         "sturm": "feasible",
@@ -493,7 +493,7 @@
         "participation": "feasible",
         "clusters": "feasible",
         "sturm": "feasible",
-        "evidence": "feasible",
+        "evidence": "infeasible",
         "standing": "feasible"
       },
       "unresolved_allowed": true
@@ -767,7 +767,7 @@
       ],
       "reseal": true,
       "oracle": {
-        "mass": "feasible",
+        "mass": "infeasible",
         "participation": "infeasible",
         "clusters": "feasible",
         "sturm": "feasible",
@@ -1737,7 +1737,7 @@
       ],
       "reseal": true,
       "oracle": {
-        "mass": "feasible",
+        "mass": "infeasible",
         "participation": "feasible",
         "clusters": "feasible",
         "sturm": "feasible",
@@ -3785,10 +3785,10 @@
       ],
       "reseal": true,
       "oracle": {
-        "mass": "feasible",
+        "mass": "infeasible",
         "participation": "infeasible",
         "clusters": "feasible",
-        "sturm": "feasible",
+        "sturm": "infeasible",
         "evidence": "feasible",
         "standing": "feasible"
       },
@@ -3818,7 +3818,7 @@
       ],
       "reseal": true,
       "oracle": {
-        "mass": "feasible",
+        "mass": "infeasible",
         "participation": "infeasible",
         "clusters": "feasible",
         "sturm": "feasible",
@@ -4059,7 +4059,7 @@
       ],
       "reseal": true,
       "oracle": {
-        "mass": "feasible",
+        "mass": "infeasible",
         "participation": "feasible",
         "clusters": "infeasible",
         "sturm": "feasible",
@@ -6053,7 +6053,7 @@
       ],
       "reseal": true,
       "oracle": {
-        "mass": "feasible",
+        "mass": "infeasible",
         "participation": "infeasible",
         "clusters": "feasible",
         "sturm": "feasible",
@@ -7319,7 +7319,7 @@
       ],
       "reseal": true,
       "oracle": {
-        "mass": "feasible",
+        "mass": "infeasible",
         "participation": "feasible",
         "clusters": "feasible",
         "sturm": "feasible",
@@ -11116,7 +11116,7 @@
       ],
       "reseal": true,
       "oracle": {
-        "mass": "feasible",
+        "mass": "infeasible",
         "participation": "infeasible",
         "clusters": "feasible",
         "sturm": "feasible",
@@ -11209,7 +11209,7 @@
         "participation": "feasible",
         "clusters": "feasible",
         "sturm": "feasible",
-        "evidence": "feasible",
+        "evidence": "infeasible",
         "standing": "feasible"
       },
       "unresolved_allowed": true
@@ -12081,7 +12081,7 @@
       ],
       "reseal": true,
       "oracle": {
-        "mass": "feasible",
+        "mass": "infeasible",
         "participation": "feasible",
         "clusters": "feasible",
         "sturm": "feasible",
@@ -12972,7 +12972,7 @@
         "participation": "feasible",
         "clusters": "feasible",
         "sturm": "feasible",
-        "evidence": "feasible",
+        "evidence": "infeasible",
         "standing": "feasible"
       },
       "unresolved_allowed": true
@@ -13532,7 +13532,7 @@
       ],
       "reseal": true,
       "oracle": {
-        "mass": "feasible",
+        "mass": "infeasible",
         "participation": "infeasible",
         "clusters": "feasible",
         "sturm": "feasible",
@@ -13661,7 +13661,7 @@
       ],
       "reseal": true,
       "oracle": {
-        "mass": "feasible",
+        "mass": "infeasible",
         "participation": "infeasible",
         "clusters": "feasible",
         "sturm": "feasible",
@@ -13851,7 +13851,7 @@
       ],
       "reseal": true,
       "oracle": {
-        "mass": "feasible",
+        "mass": "infeasible",
         "participation": "feasible",
         "clusters": "infeasible",
         "sturm": "feasible",
@@ -14756,7 +14756,7 @@
       ],
       "reseal": true,
       "oracle": {
-        "mass": "feasible",
+        "mass": "infeasible",
         "participation": "infeasible",
         "clusters": "feasible",
         "sturm": "feasible",
@@ -14969,7 +14969,7 @@
       ],
       "reseal": true,
       "oracle": {
-        "mass": "feasible",
+        "mass": "infeasible",
         "participation": "infeasible",
         "clusters": "feasible",
         "sturm": "feasible",
@@ -15174,7 +15174,7 @@
       ],
       "reseal": true,
       "oracle": {
-        "mass": "feasible",
+        "mass": "infeasible",
         "participation": "infeasible",
         "clusters": "feasible",
         "sturm": "feasible",
@@ -15250,7 +15250,7 @@
       ],
       "reseal": true,
       "oracle": {
-        "mass": "feasible",
+        "mass": "infeasible",
         "participation": "infeasible",
         "clusters": "feasible",
         "sturm": "feasible",

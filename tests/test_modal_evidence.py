@@ -215,3 +215,49 @@ def test_a_flagged_value_is_nonzero_and_unbounded_below():
     assert not flagged.meets(me.Values.point(0.0))
     product = me.Values.point(3.37e-99) * me.Values.point(1e-300)  # ≈ 3.4·10⁻³⁹⁹
     assert product.as_point() is None and not product.meets(me.Values.point(0.0)) and product.meets(flagged)
+
+
+EDGES = json.loads((RESULTS / "modal_producer_edges.json").read_text(encoding="utf-8"))
+
+
+def test_the_producers_underflowing_generalized_mass_is_accepted_unresolved():
+    """Class confirmation of cab0ea356, finding 1: the producer sums m's triple products
+    exactly (`mass_bilinear`, modal_quantities.rs:294). Its probe (a unit rotation, a 2⁻⁶⁰⁰
+    translation, mass 1 on that translation only) has m = 2⁻¹²⁰⁰, a flagged 0. The reader's
+    own m reconstruction keeps the underflowing coefficient nonzero, so it accepts the
+    probe as unresolved, where a binary64 coefficient would have dropped the term."""
+    probe = EDGES["relation_probes"][0]
+    shape = [0.0] * 12
+    for dof, vo in zip(probe["global_dofs"], probe["shape"]):
+        assert not vo["below_normal"]
+        shape[dof] = vo["value"]
+    (i, j, value), = probe["mass_entries"]
+    assert (1.0 * shape[i]) * shape[j] == 0.0, "the binary64 coefficient underflows"
+    term = me._generalized_mass_term(i, j, shape, me.Values.point(value))
+    gm_vo = type("V", (), {"value": probe["generalized_mass"]["value"], "below": probe["generalized_mass"]["below_normal"],
+                           "undefined": None})()
+    scope = []
+    me._generalized_mass_check(scope, 1, gm_vo, me.Values.of(gm_vo), [term], 1)
+    assert scope and scope[0].startswith(me.UNRESOLVED), scope
+
+
+def test_bessel_correlated_mode_witness():
+    """Agent 0's Bessel contract: a witness that the re-formed M̂'s deviation d̂ bounds
+    nothing on the assembled M. With M = I, M̂ = [[1, −1], [−1, 2]], φ₁ = (1, 0), φ₂ = (1, 1)
+    and r = (1, 1), the modes are exactly M̂-orthogonal (d̂ = 0), yet on M
+    Σ m_eff = (φ₁ᵀr)²/φ₁ᵀφ₁ + (φ₂ᵀr)²/φ₂ᵀφ₂ = 1 + 2 = 3 > T = rᵀr = 2. The corpus carries
+    these two modes in a document with T_x = 3.5 (established: passed) and T_x = 2 (beyond
+    the strict allowance: unresolved), each also with a wrong Γ²m (refused)."""
+    def dot(a, b, m):
+        return sum(a[i] * m[i][j] * b[j] for i in range(2) for j in range(2))
+    M, M_hat, r = [[1, 0], [0, 1]], [[1, -1], [-1, 2]], (1, 1)
+    phi = [(1, 0), (1, 1)]
+    assert dot(phi[0], phi[1], M_hat) == 0 and dot(phi[0], phi[1], M) != 0
+    total = sum(dot(p, r, M) ** 2 / dot(p, p, M) for p in phi)
+    assert total == 3 and dot(r, r, M) == 2
+    verdicts = {e["id"]: e["expected"] for e in CORPUS}
+    assert verdicts["none:bessel_established_for_correlated_modes"]["relations"]["mass"] != "failed"
+    assert verdicts["unresolved:bessel_beyond_the_strict_allowance_without_a_common_m_bound"]["relations"]["mass"] == "unresolved"
+    for refused in ("participation:bessel_established_beside_a_wrong_gamma_squared",
+                    "participation:bessel_unresolved_beside_a_wrong_gamma_squared"):
+        assert verdicts[refused]["decision"] == "rejected" and verdicts[refused]["relations"]["mass"] != "failed"

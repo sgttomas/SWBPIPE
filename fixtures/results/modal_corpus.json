@@ -429,6 +429,7 @@
       "reseal": true
     },
     {
+      "difference_contains": "Γ",
       "document": "modal_component_body.json",
       "expected": {
         "binding": "passed",
@@ -440,7 +441,7 @@
           "clusters": "passed",
           "counts": "passed",
           "evidence": "scoped_unsupported",
-          "mass": "failed",
+          "mass": "unresolved",
           "normalization": "passed",
           "participation": "failed",
           "standing": "passed",
@@ -448,8 +449,8 @@
           "units": "scoped_unsupported"
         }
       },
-      "id": "mass:bessel_exceeded",
-      "intent": "mass",
+      "id": "participation:a_bessel_excess_beside_a_wrong_gamma_squared",
+      "intent": "participation",
       "operations": [
         {
           "op": "replace",
@@ -3383,7 +3384,7 @@
           "clusters": "passed",
           "counts": "passed",
           "evidence": "scoped_unsupported",
-          "mass": "failed",
+          "mass": "unresolved",
           "normalization": "passed",
           "participation": "failed",
           "standing": "passed",
@@ -7969,6 +7970,2880 @@
           "op": "replace",
           "path": "/tables/participation/rows/6/cumulative_effective_mass_fraction/value",
           "value": 1.3487460348300923e-98
+        }
+      ],
+      "request": "modal_component_body.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "document": "modal_component_body.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "consistent_with_scoped_unsupported",
+        "health": "checks_passed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "scoped_unsupported",
+          "mass": "scoped_unsupported",
+          "normalization": "scoped_unsupported",
+          "participation": "scoped_unsupported",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "scoped_unsupported"
+        }
+      },
+      "id": "none:bessel_established_for_correlated_modes",
+      "intent": "none",
+      "operations": [
+        {
+          "op": "withhold",
+          "table": "mass_matrix"
+        },
+        {
+          "op": "withhold",
+          "table": "shapes"
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/0/total_mass/value",
+          "value": 3.5
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/0/total_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/0/total_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/1/total_mass/value",
+          "value": 1.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/1/total_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/1/total_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/2/total_mass/value",
+          "value": 1.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/2/total_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/2/total_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/0/generalized_mass/value",
+          "value": 1.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/0/generalized_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/0/generalized_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/participation_factor/value",
+          "value": 1.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/effective_mass/value",
+          "value": 1.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/effective_mass_fraction/value",
+          "value": 0.2857142857142857
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/cumulative_effective_mass_fraction/value",
+          "value": 0.2857142857142857
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/participation_factor/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/effective_mass/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/cumulative_effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/participation_factor/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/effective_mass/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/cumulative_effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/1/generalized_mass/value",
+          "value": 2.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/1/generalized_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/1/generalized_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/participation_factor/value",
+          "value": 1.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/effective_mass/value",
+          "value": 2.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/effective_mass_fraction/value",
+          "value": 0.5714285714285714
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/cumulative_effective_mass_fraction/value",
+          "value": 0.8571428571428571
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/participation_factor/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/effective_mass/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/cumulative_effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/participation_factor/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/effective_mass/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/cumulative_effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/2/generalized_mass/value",
+          "value": 1.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/2/generalized_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/2/generalized_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/participation_factor/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/effective_mass/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/cumulative_effective_mass_fraction/value",
+          "value": 0.8571428571428571
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/participation_factor/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/effective_mass/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/cumulative_effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/participation_factor/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/effective_mass/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/cumulative_effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        }
+      ],
+      "request": "modal_component_body.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "Γ",
+      "document": "modal_component_body.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "scoped_unsupported",
+          "mass": "scoped_unsupported",
+          "normalization": "scoped_unsupported",
+          "participation": "failed",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "scoped_unsupported"
+        }
+      },
+      "id": "participation:bessel_established_beside_a_wrong_gamma_squared",
+      "intent": "participation",
+      "operations": [
+        {
+          "op": "withhold",
+          "table": "mass_matrix"
+        },
+        {
+          "op": "withhold",
+          "table": "shapes"
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/0/total_mass/value",
+          "value": 3.5
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/0/total_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/0/total_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/1/total_mass/value",
+          "value": 1.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/1/total_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/1/total_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/2/total_mass/value",
+          "value": 1.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/2/total_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/2/total_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/0/generalized_mass/value",
+          "value": 1.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/0/generalized_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/0/generalized_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/participation_factor/value",
+          "value": 1.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/effective_mass/value",
+          "value": 1.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/effective_mass_fraction/value",
+          "value": 0.2857142857142857
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/cumulative_effective_mass_fraction/value",
+          "value": 0.2857142857142857
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/participation_factor/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/effective_mass/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/cumulative_effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/participation_factor/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/effective_mass/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/cumulative_effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/1/generalized_mass/value",
+          "value": 2.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/1/generalized_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/1/generalized_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/participation_factor/value",
+          "value": 1.1
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/effective_mass/value",
+          "value": 2.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/effective_mass_fraction/value",
+          "value": 0.5714285714285714
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/cumulative_effective_mass_fraction/value",
+          "value": 0.8571428571428571
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/participation_factor/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/effective_mass/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/cumulative_effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/participation_factor/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/effective_mass/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/cumulative_effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/2/generalized_mass/value",
+          "value": 1.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/2/generalized_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/2/generalized_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/participation_factor/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/effective_mass/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/cumulative_effective_mass_fraction/value",
+          "value": 0.8571428571428571
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/participation_factor/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/effective_mass/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/cumulative_effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/participation_factor/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/effective_mass/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/cumulative_effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        }
+      ],
+      "request": "modal_component_body.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "document": "modal_component_body.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "consistent_with_unresolved",
+        "health": "checks_passed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "scoped_unsupported",
+          "mass": "unresolved",
+          "normalization": "scoped_unsupported",
+          "participation": "scoped_unsupported",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "scoped_unsupported"
+        }
+      },
+      "id": "unresolved:bessel_beyond_the_strict_allowance_without_a_common_m_bound",
+      "intent": "unresolved",
+      "operations": [
+        {
+          "op": "withhold",
+          "table": "mass_matrix"
+        },
+        {
+          "op": "withhold",
+          "table": "shapes"
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/0/total_mass/value",
+          "value": 2.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/0/total_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/0/total_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/1/total_mass/value",
+          "value": 1.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/1/total_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/1/total_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/2/total_mass/value",
+          "value": 1.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/2/total_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/2/total_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/0/generalized_mass/value",
+          "value": 1.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/0/generalized_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/0/generalized_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/participation_factor/value",
+          "value": 1.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/effective_mass/value",
+          "value": 1.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/effective_mass_fraction/value",
+          "value": 0.5
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/cumulative_effective_mass_fraction/value",
+          "value": 0.5
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/participation_factor/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/effective_mass/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/cumulative_effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/participation_factor/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/effective_mass/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/cumulative_effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/1/generalized_mass/value",
+          "value": 2.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/1/generalized_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/1/generalized_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/participation_factor/value",
+          "value": 1.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/effective_mass/value",
+          "value": 2.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/effective_mass_fraction/value",
+          "value": 1.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/cumulative_effective_mass_fraction/value",
+          "value": 1.5
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/participation_factor/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/effective_mass/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/cumulative_effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/participation_factor/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/effective_mass/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/cumulative_effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/2/generalized_mass/value",
+          "value": 1.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/2/generalized_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/2/generalized_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/participation_factor/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/effective_mass/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/cumulative_effective_mass_fraction/value",
+          "value": 1.5
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/participation_factor/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/effective_mass/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/cumulative_effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/participation_factor/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/effective_mass/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/cumulative_effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        }
+      ],
+      "request": "modal_component_body.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "Γ",
+      "document": "modal_component_body.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "scoped_unsupported",
+          "mass": "unresolved",
+          "normalization": "scoped_unsupported",
+          "participation": "failed",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "scoped_unsupported"
+        }
+      },
+      "id": "participation:bessel_unresolved_beside_a_wrong_gamma_squared",
+      "intent": "participation",
+      "operations": [
+        {
+          "op": "withhold",
+          "table": "mass_matrix"
+        },
+        {
+          "op": "withhold",
+          "table": "shapes"
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/0/total_mass/value",
+          "value": 2.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/0/total_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/0/total_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/1/total_mass/value",
+          "value": 1.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/1/total_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/1/total_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/2/total_mass/value",
+          "value": 1.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/2/total_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/2/total_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/0/generalized_mass/value",
+          "value": 1.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/0/generalized_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/0/generalized_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/participation_factor/value",
+          "value": 1.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/effective_mass/value",
+          "value": 1.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/effective_mass_fraction/value",
+          "value": 0.5
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/cumulative_effective_mass_fraction/value",
+          "value": 0.5
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/participation_factor/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/effective_mass/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/cumulative_effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/participation_factor/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/effective_mass/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/cumulative_effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/1/generalized_mass/value",
+          "value": 2.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/1/generalized_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/1/generalized_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/participation_factor/value",
+          "value": 1.1
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/effective_mass/value",
+          "value": 2.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/effective_mass_fraction/value",
+          "value": 1.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/cumulative_effective_mass_fraction/value",
+          "value": 1.5
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/participation_factor/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/effective_mass/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/cumulative_effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/participation_factor/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/effective_mass/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/cumulative_effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/2/generalized_mass/value",
+          "value": 1.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/2/generalized_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/2/generalized_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/participation_factor/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/effective_mass/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/cumulative_effective_mass_fraction/value",
+          "value": 1.5
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/participation_factor/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/effective_mass/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/cumulative_effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/participation_factor/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/participation_factor/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/participation_factor/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/effective_mass/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/effective_mass/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/effective_mass/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/effective_mass_fraction/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/cumulative_effective_mass_fraction/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/cumulative_effective_mass_fraction/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/cumulative_effective_mass_fraction/undefined_reason",
+          "value": null
+        }
+      ],
+      "request": "modal_component_body.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "e_λ = η·κ_λ is contradicted",
+      "document": "modal_component_body.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "failed",
+          "mass": "passed",
+          "normalization": "passed",
+          "participation": "passed",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "scoped_unsupported"
+        }
+      },
+      "id": "evidence:a_nonzero_eta_kappa_product_published_as_zero",
+      "intent": "evidence",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/tables/computed_modes/rows/0/backward_error/value",
+          "value": 2.409919865102884e-181
+        },
+        {
+          "op": "replace",
+          "path": "/tables/computed_modes/rows/0/backward_error/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/computed_modes/rows/0/backward_error/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/computed_modes/rows/0/condition/value",
+          "value": 2.409919865102884e-181
+        },
+        {
+          "op": "replace",
+          "path": "/tables/computed_modes/rows/0/condition/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/computed_modes/rows/0/condition/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/computed_modes/rows/0/error_estimate/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/computed_modes/rows/0/error_estimate/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/computed_modes/rows/0/error_estimate/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/clusters/rows/0/error_estimate/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/clusters/rows/0/error_estimate/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/clusters/rows/0/error_estimate/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/0/cluster_error_estimate/value",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/0/cluster_error_estimate/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/0/cluster_error_estimate/undefined_reason",
+          "value": null
+        }
+      ],
+      "request": "modal_component_body.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "to_normal_or_zero",
+      "document": "modal_component_body.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "failed",
+          "counts": "passed",
+          "evidence": "failed",
+          "mass": "passed",
+          "normalization": "passed",
+          "participation": "passed",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "scoped_unsupported"
+        }
+      },
+      "id": "evidence:a_subnormal_eta_and_estimate_outside_normal_or_zero",
+      "intent": "evidence",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/tables/computed_modes/rows/0/backward_error/value",
+          "value": 1.1125369292536007e-308
+        },
+        {
+          "op": "replace",
+          "path": "/tables/computed_modes/rows/0/backward_error/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/computed_modes/rows/0/backward_error/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/computed_modes/rows/0/condition/value",
+          "value": 1.0
+        },
+        {
+          "op": "replace",
+          "path": "/tables/computed_modes/rows/0/condition/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/computed_modes/rows/0/condition/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/computed_modes/rows/0/error_estimate/value",
+          "value": 1.1125369292536007e-308
+        },
+        {
+          "op": "replace",
+          "path": "/tables/computed_modes/rows/0/error_estimate/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/computed_modes/rows/0/error_estimate/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/clusters/rows/0/error_estimate/value",
+          "value": 1.1125369292536007e-308
+        },
+        {
+          "op": "replace",
+          "path": "/tables/clusters/rows/0/error_estimate/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/clusters/rows/0/error_estimate/undefined_reason",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/0/cluster_error_estimate/value",
+          "value": 1.1125369292536007e-308
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/0/cluster_error_estimate/below_normal",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/0/cluster_error_estimate/undefined_reason",
+          "value": null
         }
       ],
       "request": "modal_component_body.request.json",

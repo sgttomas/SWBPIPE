@@ -271,7 +271,32 @@ fn modal_edge_entries() -> Value {
         entries.push(json!({"id": format!("producer:{id}"), "about": about, "document": "modal_component_body.json",
             "request": "modal_component_body.request.json", "request_operations": [], "operations": operations, "reseal": true}));
     }
-    json!({"generator": "core/product_physics/src/modal/tests_document.rs modal_edge_entries", "entries": entries})
+    json!({"generator": "core/product_physics/src/modal/tests_document.rs modal_edge_entries", "entries": entries,
+        "relation_probes": [modal_generalized_mass_probe()]})
+}
+
+/// A relation-level producer probe (the payload of a real model cannot carry
+/// it): the reviewer's input driven through the producer's own
+/// `normalize_mode`, whose m is `mass_bilinear`'s exact sum
+/// (modal_quantities.rs:294). A unit rotation and a 2⁻⁶⁰⁰ translation with
+/// mass only on the translation (M_ii = 1) give m = 2⁻¹²⁰⁰ > 0, published as
+/// a flagged 0. Each reader's m reconstruction, and the oracle, accept it.
+fn modal_generalized_mass_probe() -> Value {
+    let p2 = |e: i32| 2f64.powi(e);
+    // Global DOFs 11 (node 1, rz) and 6 (node 1, ux), in that free order.
+    let dofs = [FreeDof { node: 1, dof: Dof::Rz }, FreeDof { node: 1, dof: Dof::Ux }];
+    let mass = SymmetricMatrix::from_diagonal(&[0.0, 1.0]).unwrap();
+    let (p, z) = ([0.0, 1.0], [0.0, 0.0]);
+    let basis = ModalBasis::new(&mass, &dofs, [&p, &z, &z], [1.0, 1.0, 1.0], 1.0, 1e-6).unwrap();
+    let mode = normalize_mode(0, &[1.0, p2(-600)], &basis).unwrap();
+    assert!(mode.generalized_mass == 0.0 && mode.below_normal_range.generalized_mass);
+    let flagged = |i: usize| mode.below_normal_range.shape.contains(&i);
+    json!({"id": "generalized_mass_of_an_underflowing_triple_product",
+        "formation": "modal_quantities.rs:294 mass_bilinear, through normalize_mode",
+        "global_dofs": [11, 6],
+        "shape": [{"value": mode.shape[0], "below_normal": flagged(0)}, {"value": mode.shape[1], "below_normal": flagged(1)}],
+        "mass_entries": [[6, 6, 1.0]],
+        "generalized_mass": {"value": mode.generalized_mass, "below_normal": mode.below_normal_range.generalized_mass}})
 }
 
 #[test]
