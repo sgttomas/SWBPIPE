@@ -81,8 +81,11 @@ fn e2_the_authored_conditions_solve_as_their_twin_byte_for_byte() {
         for case in ["OPE", "SUS", "WIND", "PLAIN"] {
             assert!(!case_rows(&solved, case).is_empty(), "{mode:?}: {case} publishes");
         }
-        // The difference-basis combination keeps its interim withholding (1b is not built).
-        assert!(diagnostics(&solved).iter().any(|(code, severity, _)| code == "LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED" && severity == "warning"));
+        // Operating-case slice 1b: the declared difference is gated on the lowered model, so
+        // its condition-generated primitives count by content (E7, 0.9.0 §2.2); D and T(D)
+        // agree byte for byte, its derivation evidence included.
+        assert!(!diagnostics(&solved).iter().any(|(code, _, _)| code == "LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED"));
+        assert!(solved["contract_evidence"].get("difference_basis_derivation").is_some(), "{mode:?}");
         assert_same_bytes(&solved, &reference, &format!("{mode:?}: D against T(D)"));
     }
     assert_eq!(text(&json!(pre_formation(&d))), text(&json!(pre_formation(&t))), "pre-formation checks");

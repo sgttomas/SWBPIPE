@@ -6273,21 +6273,38 @@ fn refuse_interim_member(checker: &mut Checker, target_ref: &str, code: &'static
     checker.push(code, "blocking", message, "Author the record without this member; documents carrying it still open, validate and edit.", vec![target_ref.to_string()]);
 }
 
-/// §2.2: a difference basis or a subtrahend support state is refused by name in a
-/// create payload. The unsigned bases and combination operands are authored since
-/// the RT-A4 wiring (absolute-sum-srss §2); the document validator judges the result
-/// (unknown operands, cycles and a difference basis naming a combination).
-fn refuse_unauthored_combination_members(record: &serde_json::Map<String, Value>, target_ref: &str, checker: &mut Checker) -> bool {
-    let refusal = if record.contains_key("difference_basis") {
-        Some((pp_members::LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED, "A combination's difference_basis is not authored until its gates are built."))
-    } else if record.contains_key("subtrahend_support_state") {
-        Some((pp_members::LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED, "A combination's subtrahend_support_state is not authored until its solve is built."))
+/// §2.2 as operating-case slice 1b leaves it: a declared difference basis is authored
+/// on the pressure-free route (its gates are G-1 and G-2 at the solve), and refused by
+/// name on a document with a pressure contract (`…_DIFFERENCE_BASIS_EXACT_UNSUPPORTED`);
+/// a `minuend_final` subtrahend support state stays refused until its solve is built
+/// (`own` behaves as absence). The unsigned bases and combination operands are authored
+/// since the RT-A4 wiring (absolute-sum-srss §2); the document validator judges the
+/// result (an unknown or misplaced member, unknown operands, cycles and a difference
+/// basis naming a combination).
+fn refuse_unauthored_combination_members(model: &Value, record: &serde_json::Map<String, Value>, target_ref: &str, checker: &mut Checker) -> bool {
+    let exact = model.get("pressure_contract").is_some_and(|contract| !contract.is_null());
+    let refusal = if record.contains_key("difference_basis") && exact {
+        Some((pp_members::LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED, "A combination's difference_basis is refused on a document with a pressure contract; the exact route's operating comparison is not built."))
+    } else if record.get("subtrahend_support_state").and_then(Value::as_str) == Some("minuend_final") {
+        Some((pp_members::LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED, "A combination's subtrahend_support_state minuend_final is not authored until its solve is built."))
     } else {
         None
     };
     let Some((code, message)) = refusal else { return false };
     refuse_interim_member(checker, target_ref, code, message.into());
     true
+}
+
+/// The declared-comparison members of a create payload, written as authored (never
+/// dropped), so the document validator names any unknown or misplaced value.
+fn carry_declared_members(record: &serde_json::Map<String, Value>, created: Option<Value>) -> Option<Value> {
+    let mut created = created?;
+    for key in ["difference_basis", "subtrahend_support_state"] {
+        if let (Some(value), Some(object)) = (record.get(key), created.as_object_mut()) {
+            object.insert(key.to_string(), value.clone());
+        }
+    }
+    Some(created)
 }
 
 fn resolve_create_combination(
@@ -6387,7 +6404,7 @@ fn resolve_create_combination(
         );
         return None;
     };
-    if refuse_unauthored_combination_members(record, target_ref, checker) {
+    if refuse_unauthored_combination_members(model, record, target_ref, checker) {
         return None;
     }
     let id = record
@@ -6434,7 +6451,7 @@ fn resolve_create_combination(
         return None;
     }
 
-    match basis {
+    let created = match basis {
         "result_state_subtraction" => resolve_create_subtraction_combination(
             model, record, target_ref, checker,
         )
@@ -6472,7 +6489,8 @@ fn resolve_create_combination(
                 })
             })
         }
-    }
+    };
+    carry_declared_members(record, created)
 }
 
 /// Per-basis payload shape: blocks create payloads that carry fields
@@ -15946,9 +15964,13 @@ mod tests {
             }
             create("Combination", "combination:C-NEW", "create_combination", "combinations", payload)
         };
+        // Operating-case slice 1b: a declared difference is authored on the pressure-free
+        // route; `minuend_final` stays refused, and `own` alone is misplaced.
+        let declared = combination(json!({"difference_basis": "operating_minus_sustained"}));
+        assert!(declared.applied_model.is_some(), "{:?}", codes(&declared));
         for (outcome, code) in [
-            (combination(json!({"difference_basis": "operating_minus_sustained"})), "LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED"),
-            (combination(json!({"subtrahend_support_state": "own"})), "LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED"),
+            (combination(json!({"difference_basis": "operating_minus_sustained", "subtrahend_support_state": "minuend_final"})), "LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED"),
+            (combination(json!({"subtrahend_support_state": "own"})), "LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_MISPLACED"),
             // A term naming its own combination is a cycle, refused by the document validator.
             (create("Combination", "combination:C-OP", "create_combination_term", "terms", json!({"combination": "combination:C-OP", "factor": 1.0})),
              "LOAD_COMBINATION_OPERAND_CYCLE"),

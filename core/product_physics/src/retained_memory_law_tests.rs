@@ -501,7 +501,17 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // preview_physics_identity(id) (the current table, or a recorded variant only inside a recorded read,
             // RT-A4-HS); the closed `b7b_current_table_tests` module and E14 are byte-identical, and no include,
             // path module or static entered the suffix.
-            complete_suffix_sha256: "d67f47820070b24fb7d16b415d30ae855491c59c85f9dd1e66607d1df73f3b02",
+            // Re-audited for RT-U4 repair B on RT-A3 increment 4 (§8.50, the merge of 4a8287001), on the
+            // merged bytes: the suffix still starts at line 400. Only the inspected production after the
+            // resume changed: numerical_use_standing_with_context calls the new private for_source_given
+            // through numerical_use_standing_given, and for_source is byte-identical. The closed
+            // `b7b_current_table_tests` module and E14 are byte-identical, and no include, path module or
+            // static entered the suffix. Increment 4's two table-hash constants lie in the inspected prefix,
+            // so the merged suffix is repair B's byte for byte.
+            // Re-audited for operating-case slice 1b on the §8.50 candidate (§8.51), on the merged bytes:
+            // the suffix still starts at line 400 and is §8.50's byte for byte. 1b changes only the three
+            // preview table-hash constants (lines 129, 139 and 180), in the inspected prefix.
+            complete_suffix_sha256: "333ae77d6313e20d4b6b0445630a0efcda49a07f6d4547d402412d86df75014d",
             production_resume: Some("/// Header dispatch only; canonical envelopes have no raw rows. This does not"),
             trailing_test: Some(SEMANTIC_E14_TEST_ITEM),
         })),
@@ -883,20 +893,23 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     // (Cargo.lock: result_export's edge to open_pipe_stress_load_case_algebra), #4, #5, #8, #11 and #12 (the
     // restated combination policies and limitation) and #10 (the pressure-2 result schema's RT-A4 shapes);
     // its D3 registration records these bytes.
+    // Operating-case slice 1b (DEL-05-02 `operating-case.md` §6; retained-pricing-rules.md §8.51) moves #4,
+    // #5 and #12 (the three preview tables' combination policy v3: G-1 and G-2, gate precedence and the
+    // declared subtraction's sign); its D3 registration records these bytes.
     const REVIEWED: [&str; build_identity::REVIEWED_INPUT_COUNT] = [
         "b7ebb02aafa8cfe214c18bc64941381b33ab3f9295e0fc774ee0819e1e4f5653",
         "ae45b97742fd463866d8f231004f2053834d5bd413a1430e766f24516d3569ac",
         "73bebc5fb562b7f519c7d59be8e7830f98b21ce29fa0b7c017e43426f50cfcaa",
         "a056c395e27f964c842a1347db689eb24377d0b5a79a3b954435105a2c422d08",
-        "26dce9c21261b1ca894af05a3b6f4a94db88904894cb47f7296f892e72ecfb7e",
-        "e7b93f416f700f8efdb31bf1ba26dedde52963d768d6ead5a73dbf1c645a360c",
+        "b4377e73e8a83edb57b4f0c41dbaef384385e0f6b4810103a106a334c8edbe14",
+        "f41b9d3ed0c1b7abaee0b98ca1a28aa1a2d109bce443b98d53a2080c1c504ce9",
         "fe371e07cd727154235f3725eeeef393ad0a433f0e8c98656f98468940d9aea2",
         "8d48e3d97bc4f69bf9b0da58db7538b0661cf52d05f771dc126be2c3cca8c163",
-        "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034",
+        "85c2678a78e794b44761c11efb73c215645c7e2560d802ac8ad6075e7804c691",
         "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9",
         "3dd8523f2f03cd72e9dbeb10955e9492711cf1334ba8d1dc4919d4ba2512b416",
-        "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6",
-        "ce49ebe07bc05431ea1f770c1933b5bf58f4b1c8b66fb6f36810f2ef7a58cd43",
+        "2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645",
+        "6f6494907e3ead979ea27e5ff85f54617589c9195dc84d40a02752a0b006ef44",
     ];
     // The same files, read here at compile time (test-only), by the sha2 dependency.
     let files: [&[u8]; build_identity::REVIEWED_INPUT_COUNT] = [
@@ -2022,9 +2035,19 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 // §8.48: DEL-04-09 I2b-2 on RT-U4's candidate: no coefficient moves; the in-build atom s(PreparedCaseResult)
 // is 1,888 B (was 1,880: LoadCaseSolve's Option<Box<NonlinearStateEvidence>>), charged twice per case at three
 // cases: +48 B in every phase and mode, from maintained eval at the 328 in-build atoms, without R.
+// §8.49: RT-A3 increment 4 (the restated pressure-2 table in STATICS, +754 B; S1's nonlinear clause and S7
+// in six TAV copies, +5,862 B): +6,616 B in every phase and mode, from maintained eval at the same 328 in-build
+// atoms, without R.
+// §8.50: RT-U4 order and repair B on RT-A3 increment 4 (W7-L1's ordered member loop at cases*m, +373,760 B on
+// TAV_W[1] and the two TAV text atoms; W7-RD's removed member HashSet, T17_V5 -238 B - 192 s(PairBorrowed)):
+// +373,760 B on W1, W2, W3 and W5, +367,378 B on W4, X1-X3 unchanged, in both modes, from maintained eval at the
+// same 328 in-build atoms, without R. Repair B moves nothing.
+// §8.51: operating-case slice 1b on RT-U4's §8.50 candidate (the three preview tables' combination policy v3
+// in STATICS: four static owners, +7,116 B, +12 Node(String,Value) and +48 s(Value)): +17,484 B in every phase
+// and mode, from maintained eval at the same 328 in-build atoms, without R.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_449_924_793, 6_791_919_354, 8_743_655_182, 8_537_377_836, 7_611_067_252, 8_526_278_765, 7_258_896_155, 6_932_186_031],
-    [6_509_056_137, 6_851_050_698, 8_802_786_526, 8_596_509_180, 7_670_198_596, 8_585_410_109, 7_318_027_499, 6_991_317_375],
+    [6_450_322_653, 6_792_317_214, 8_744_053_042, 8_537_769_314, 7_611_465_112, 8_526_302_865, 7_258_920_255, 6_932_210_131],
+    [6_509_453_997, 6_851_448_558, 8_803_184_386, 8_596_900_658, 7_670_596_456, 8_585_434_209, 7_318_051_599, 6_991_341_475],
 ];
 
 #[test]

@@ -136,6 +136,18 @@ export const ABSOLUTE_SUM_SIGN =
   "unsigned value: the absolute sum of |factor × source result| over explicit user terms; not an equilibrium state";
 export const SRSS_SIGN =
   "unsigned value: the square root of the sum of squares of factor × source result over explicit user terms; not an equilibrium state";
+/** Operating-case slice 1b (DEL-05-02 `operating-case.md` §1.3 c5, §5 B option 3): a subtraction
+ * declaring `difference_basis = "operating_minus_sustained"` states this sign convention. Its
+ * rows are a signed difference of two independently solved states, as a plain subtraction's
+ * are, so they are drawn as a plain subtraction's; the navigator names them
+ * (`declaredDifferenceNote`). */
+export const OPERATING_MINUS_SUSTAINED_SIGN =
+  "positive value follows explicit user result-state subtraction (minuend minus subtrahend) of matching source result sign conventions; operating minus sustained difference: a signed difference of two independently solved states, each using its own reported support state and carrying its own numerical standing under the static, history-free friction model; derived from case results; not an equilibrium state";
+
+/** The navigator's name for a declared operating comparison's rows, or null. */
+export function declaredDifferenceNote(row: Pick<ResultRow, "metadata" | "basis_ref">): "operating minus sustained difference" | null {
+  return row.basis_ref?.ref_type === "combination" && row.metadata?.sign_convention === OPERATING_MINUS_SUSTAINED_SIGN ? "operating minus sustained difference" : null;
+}
 /** The range-envelope sign convention's fixed part, after its mode token. */
 const RANGE_ENVELOPE_SIGN_SUFFIX =
   " mode-selected source result across explicit user range-envelope operands and keeps that source result sign convention";

@@ -45,7 +45,9 @@ const VARIANTS: Variant[] = [
     sha256: "cf29fd5fc5d61de0f1133e9668b05f3d62ae8f696944fe04de7470029f5357dd", refusal: "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH" },
   { name: "physics-retained-1 (#101)", record: () => json("physics_retained_1/pr101/retained_precision_exact_successor_sparse_interactive.analysis_run.json"),
     source: () => statementOf(json("physics_retained_1/pr101/retained_precision_exact_successor_sparse_interactive.json")),
-    sha256: "045f6f0d8ce350246b21fb712d2dd14bf3a7f7f3690e66e062cbbf77d3696a3b", refusal: "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH" },
+    sha256: "045f6f0d8ce350246b21fb712d2dd14bf3a7f7f3690e66e062cbbf77d3696a3b", refusal: "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH" },  { name: "physics-retained-1 (main, RT-A4)", record: () => json("physics_retained_1/main_bbf384dec/retained_precision_exact_successor_sparse_interactive.analysis_run.json"),
+    source: () => statementOf(json("physics_retained_1/main_bbf384dec/retained_precision_exact_successor_sparse_interactive.json")),
+    sha256: "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034", refusal: "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH" },
 ];
 const RECORDED = { recordedRead: true } as const;
 const basis = (record: AnalysisRunEnvelope) => record.analysis_run.load_basis_refs;
@@ -152,7 +154,7 @@ describe("a run recorded before RT-A4 (historical read)", () => {
       expect(table.semantic_contract_id).toBe(variant.id);
     }
     expect(recordedPreRtA4Binding({ id: "openpipestress.result_semantics/0.3.0/preview-physics-2", sha256: VARIANTS[0].sha256, extra: 1 })).toBeNull();
-    expect(recordedPreRtA4Binding({ id: "openpipestress.result_semantics/0.3.0/preview-physics-2", sha256: "e7b93f416f700f8efdb31bf1ba26dedde52963d768d6ead5a73dbf1c645a360c" })).toBeNull();
+    expect(recordedPreRtA4Binding({ id: "openpipestress.result_semantics/0.3.0/preview-physics-2", sha256: "f41b9d3ed0c1b7abaee0b98ca1a28aa1a2d109bce443b98d53a2080c1c504ce9" })).toBeNull();
     await expect(recordedPreRtA4Table({ id: "openpipestress.result_semantics/0.3.0/preview-physics-2", sha256: "0".repeat(64) })).rejects.toThrow("SOURCE_RECORDED_BINDING_UNKNOWN");
   });
 });

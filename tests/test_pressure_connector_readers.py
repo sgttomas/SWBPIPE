@@ -351,3 +351,86 @@ def test_a_joint_axis_component_just_above_one_binds_exactly():
     group["direction_component_magnitude"] = 1.0 + 2.0 ** -51
     with pytest.raises(ValueError):
         validate_pressure_evidence(envelope)
+
+
+# RT-U4 (order): envelopes with two defects of different codes in one connector scan. Rust's first refusal follows
+# the source's array order (`results`, then `exact_cases`); the verifier's follows the same order under every hash
+# seed. (Rust's own determinism under fresh hash maps: result_export `tests/connector_order.rs`.)
+COMBINATION_CORPUS = json.loads((PROJECT / "fixtures/results/pressure_v3_combination_reader_corpus.json").read_text())
+_FIRST, _SECOND = "result:connector:component-C-J:", "result:loadcase:case-second:connector:component-C-J:"
+_ROD, _END, _SX = "tie-rod-force:tie_rod:rod-yp:t_r", "connector-endpoint-force:end_i:fx", "connector-effective-axial-force:connector_local:s_x"
+# Rust code -> the verifier's detail.
+ORDER_DETAILS = {
+    "SOURCE_PHYSICS_CONNECTOR_ROW_DUPLICATE": "duplicate connector row",
+    "SOURCE_PHYSICS_CONNECTOR_ROW_UNBOUND": "unbound connector row",
+    "SOURCE_PHYSICS_CONNECTOR_TIE_ROD_ROWS": "connector tie-rod rows missing",
+    "SOURCE_PHYSICS_CONNECTOR_ROW_COVERAGE": "connector row coverage",
+    "SOURCE_PHYSICS_CONNECTOR_UNPRESSURIZED_ROWS": "unpressurized joint pressure rows",
+    "SOURCE_PHYSICS_CONNECTOR_EFFECTIVE_ROW_BINDING": "joint effective row binding",
+}
+
+
+def _rods_envelope():
+    entry = next(c for c in COMBINATION_CORPUS["cases"] if c["label"] == "W16B MO-F: two tie rods withheld by name")
+    return deepcopy(entry["envelope"])
+
+
+def _drop(envelope, row_id):
+    envelope["results"].remove(next(r for r in envelope["results"] if r["id"] == row_id))
+
+
+def competing_envelopes():
+    """(name, envelope, Rust's first code), mirroring `tests/connector_order.rs`."""
+    out = []
+    generalized = [r for r in CASES[0][1]["results"] if r["kind"] == "connector_generalized_force_v1"]
+    duplicate = dict(deepcopy(generalized[0]), id="result:probe:duplicate")
+    unbound = dict(deepcopy(generalized[1]), id="result:probe:unbound", entity_ref="component:probe-unknown")
+    for name, extra, code in [("duplicate then unbound", [duplicate, unbound], "ROW_DUPLICATE"), ("unbound then duplicate", [unbound, duplicate], "ROW_UNBOUND")]:
+        envelope = deepcopy(CASES[0][1])
+        envelope["results"].extend(deepcopy(extra))
+        out.append((name, envelope, "SOURCE_PHYSICS_CONNECTOR_" + code))
+    for rod_case, end_case, code in [(_FIRST, _SECOND, "TIE_ROD_ROWS"), (_SECOND, _FIRST, "ROW_COVERAGE")]:
+        envelope = _rods_envelope()
+        _drop(envelope, rod_case + _ROD)
+        _drop(envelope, end_case + _END)
+        out.append((f"coverage {code}", envelope, "SOURCE_PHYSICS_CONNECTOR_" + code))
+    for pe_case, s_case, code in [(_FIRST, _SECOND, "UNPRESSURIZED_ROWS"), (_SECOND, _FIRST, "EFFECTIVE_ROW_BINDING")]:
+        envelope = _rods_envelope()
+        _drop(envelope, pe_case + _END)
+        pe = deepcopy(next(r for r in envelope["results"] if r["id"] == pe_case + _SX))
+        pe.update(id=pe_case + "connector-pressure-force:connector_local:pe_x", kind="connector_pressure_force_v1", value=0.0)
+        pe["metadata"]["component"] = "pe_x"
+        envelope["results"].append(pe)
+        s_row = next(r for r in envelope["results"] if r["id"] == s_case + _SX)
+        s_row["value"] = s_row["value"] * 1.5 + 1000.0
+        out.append((f"pressure {code}", envelope, "SOURCE_PHYSICS_CONNECTOR_" + code))
+    return out
+
+
+def competing_details():
+    """The verifier's first refusal detail for each competing envelope, in this process."""
+    details = {}
+    for name, envelope, _ in competing_envelopes():
+        with pytest.raises(ValueError) as refused:
+            validate_pressure_evidence(envelope)
+        details[name] = str(refused.value).rsplit("SOURCE_PHYSICS_EVIDENCE_INVALID: ", 1)[-1]
+    return details
+
+
+def test_connector_first_refusal_follows_source_order_in_rust_and_the_verifier():
+    import os
+    import subprocess
+    import sys
+    expected = {}
+    for name, envelope, code in competing_envelopes():
+        with pytest.raises(rust_reader.ReaderRefusal) as refused:
+            rust_reader.validate("pressure", envelope)
+        assert refused.value.code == code, name
+        expected[name] = ORDER_DETAILS[code]
+    assert competing_details() == expected
+    # Each process has its own string hash seed; a set of case IDs would be walked in its order.
+    script = "import json; from tests import test_pressure_connector_readers as t; print(json.dumps(t.competing_details()))"
+    for seed in range(8):
+        run = subprocess.run([sys.executable, "-c", script], cwd=PROJECT, capture_output=True, text=True, check=True,
+                             env=dict(os.environ, PYTHONHASHSEED=str(seed)))
+        assert json.loads(run.stdout.strip().splitlines()[-1]) == expected, seed

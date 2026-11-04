@@ -489,8 +489,10 @@ never means the model solves.
 Nothing is defaulted at any step: no set is created or suggested, no pipe is
 given a set it was not assigned, and no temperature, weight, exposure or wind
 input is filled in. A hydrostatic `test_condition`, a support `direction` and
-a combination's `difference_basis` and `subtrahend_support_state` stay refused
-at authoring; absolute sums, SRSS and combination operands are authored (§6.2).
+a `subtrahend_support_state` of `minuend_final` stay refused at authoring; a
+declared operating comparison (`difference_basis`) is authored on a model
+without a pressure contract and refused by name on one with it; absolute sums,
+SRSS and combination operands are authored (§6.2).
 These are mechanics inputs only: no code operating, design or occasional load
 definition is implied, and the results carry no code-compliance claim.
 
@@ -520,6 +522,23 @@ that shares a load case's id, use a term's `combination`. Combinations may name
 combinations declared later in the list, but never in a cycle
 (`LOAD_COMBINATION_OPERAND_CYCLE`). A declared operating comparison
 (`difference_basis`) names load cases only.
+
+**Declared operating minus sustained difference.** On a model without a pressure
+contract, a `result_state_subtraction` may set `difference_basis` to
+`operating_minus_sustained` (the minuend is the operating case, the subtrahend the
+sustained case). Its rows are the same signed difference as a plain subtraction,
+labelled "operating minus sustained difference", with each case at its own solved
+support state; it is not an equilibrium state and makes no claim that it is an
+expansion range (that meaning is your rule pack's). It is withheld, with a
+warning, when the sustained case has a primitive load the operating case lacks
+(compared by category, target, direction, dimension, value and unit; ids are
+ignored; each counts once: `EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING`), or when
+the two cases use different modulus bases (`EXPANSION_BASIS_MODULUS_MIXED`).
+`subtrahend_support_state: minuend_final` is still withheld, and the exact route
+refuses the member. A result reader given the document without its model checks
+the verdict against the two load multisets the document states, which shows the
+document is consistent with itself but cannot show it is true to its model; give
+the reader the model to check that.
 
 **Method.** The absolute sum is the exact sum of |factor × value|, rounded once.
 The SRSS rounds each factor × value once and takes the correctly rounded square

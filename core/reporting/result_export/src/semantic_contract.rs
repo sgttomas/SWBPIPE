@@ -100,7 +100,7 @@ pub const PRESSURE_SOURCE_ID: &str = crate::physics_source::PRESSURE_CONTRACT_ID
 /// T4-U6 (D-5, §2.4): both tables carry one stress signature per (recovery
 /// token × section basis), each with its `source_basis`.
 pub const PRESSURE_SOURCE_TABLE_SHA256: &str = "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9";
-pub const PRESSURE_TABLE_SHA256: &str = "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6";
+pub const PRESSURE_TABLE_SHA256: &str = "2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645";
 /// The pinned counts, re-derived from the tables (T4-U6: pressure-2 106
 /// signatures over 59 kinds, T4-U5b: plus the tie-rod force, 107 over 60, T4-U4b:
 /// plus 22 section stress, toroidal and directional signatures, 129 over 66,
@@ -126,7 +126,7 @@ pub const RETIRED_PREVIEW_PHYSICS_1_ID: &str = "openpipestress.result_semantics/
 pub const SOURCE_PREVIEW_PHYSICS_1_RETIRED: &str = "SOURCE_PREVIEW_PHYSICS_1_RETIRED";
 pub const PREVIEW_PHYSICS_ID: &str = "openpipestress.result_semantics/0.3.0/preview-physics-2";
 pub const PREVIEW_PHYSICS_SHA256: &str =
-    "e7b93f416f700f8efdb31bf1ba26dedde52963d768d6ead5a73dbf1c645a360c";
+    "f41b9d3ed0c1b7abaee0b98ca1a28aa1a2d109bce443b98d53a2080c1c504ce9";
 pub const PREVIEW_PHYSICS_PROFILE: &str = "product_preview_mechanics_v1";
 /// DEL-05-03 Design `pf-timoshenko.md` §4: the pressure-free Timoshenko identity, a
 /// second complete identity on the preview-physics route. Its table is preview-physics-2's
@@ -136,7 +136,7 @@ pub const PREVIEW_PHYSICS_TIMOSHENKO_ID: &str =
     "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1";
 pub const PREVIEW_PHYSICS_TIMOSHENKO_PROFILE: &str = "product_preview_mechanics_timoshenko_v1";
 pub const PREVIEW_PHYSICS_TIMOSHENKO_SHA256: &str =
-    "ce49ebe07bc05431ea1f770c1933b5bf58f4b1c8b66fb6f36810f2ef7a58cd43";
+    "6f6494907e3ead979ea27e5ff85f54617589c9195dc84d40a02752a0b006ef44";
 /// The preview-physics route's admitted identities, `(id, profile)`, in one place: every
 /// identity-aware site keys by the envelope's `semantic_contract_id` through this list.
 pub const PREVIEW_PHYSICS_IDENTITIES: [(&str, &str); 2] = [
@@ -177,7 +177,7 @@ pub fn preview_physics_identity_of(source: &Value) -> (&'static Value, &'static 
 pub const PREVIEW_PHYSICS_RETAINED_ID: &str = crate::retained_precision::CONTRACT_ID;
 pub const PREVIEW_PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::PROFILE;
 pub const PREVIEW_PHYSICS_RETAINED_SHA256: &str =
-    "26dce9c21261b1ca894af05a3b6f4a94db88904894cb47f7296f892e72ecfb7e";
+    "b4377e73e8a83edb57b4f0c41dbaef384385e0f6b4810103a106a334c8edbe14";
 /// B3b (B3-D §6.1): the exact successor `<physics-retained>`, whose base is
 /// pressure-2 since B7b D4 (a). Like the preview successor, its raw and transport statements are
 /// checked only by the accepted reader (`crate::retained_precision`, its exact
@@ -186,7 +186,7 @@ pub const PHYSICS_RETAINED_ID: &str = crate::retained_precision::EXACT_CONTRACT_
 pub const PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::EXACT_PROFILE;
 /// T4-U6: its rows, vocabulary and counts follow the inherited pressure-2 table.
 pub const PHYSICS_RETAINED_SHA256: &str =
-    "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034";
+    "85c2678a78e794b44761c11efb73c215645c7e2560d802ac8ad6075e7804c691";
 /// A receipt member or a W1 method-token row offered under any other identity
 /// (I66 F-5: the base readers' closed lists do not name `retained_precision`).
 pub const RETAINED_PRECISION_DOWNGRADE_FORBIDDEN: &str = "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN";
@@ -250,7 +250,7 @@ pub(crate) fn is_retained(source: &Value) -> bool {
 }
 /// The successor's own pinned table, by identity (RT-A4 §10.4: inside a recorded-run read,
 /// the recorded variant's).
-fn retained_contract(source: &Value) -> &'static Value {
+pub(crate) fn retained_contract(source: &Value) -> &'static Value {
     if let Some(table) = source["producer"]["semantic_contract_id"].as_str().and_then(crate::recorded_tables::selected_table) {
         table
     } else if source["producer"]["semantic_contract_id"] == PHYSICS_RETAINED_ID {
@@ -261,7 +261,7 @@ fn retained_contract(source: &Value) -> &'static Value {
 }
 /// The reader's first failure as this module's error text: a G7 failure keeps
 /// the base validator's own text, every other gate its code.
-fn retained_error(error: crate::retained_precision::ValidationError) -> String {
+pub(crate) fn retained_error(error: crate::retained_precision::ValidationError) -> String {
     error.detail.unwrap_or(error.code)
 }
 /// F-5: no identity but the successor may carry a receipt member.
@@ -730,6 +730,21 @@ pub fn for_source(source: &Value) -> Result<(&'static Value, &'static str), Stri
     }
     Ok(selected)
 }
+/// RT-U4 (single pass): [`for_source`] of a source whose pressure-2 evidence
+/// verdict (`validate_pressure_evidence`'s) its caller has read
+/// (`reader_verdict::standing`, whose pressure route reads it once for its token
+/// and its findings): `for_source`'s steps for that identity, the verdict in
+/// place of the reader's call. A change to those steps is a change to both. Any
+/// other source reads as `for_source`.
+fn for_source_given(source: &Value, verdict: &Result<(), String>) -> Result<(&'static Value, &'static str), String> {
+    if is_retained(source) || source["producer"]["semantic_contract_id"] != PRESSURE_ID {
+        return for_source(source);
+    }
+    let selected = for_source_metadata(source)?;
+    forbid_retained_rows(source)?;
+    verdict.clone()?;
+    Ok(selected)
+}
 pub use crate::physics_evidence::{validate_pressure_evidence, PressureContract};
 pub use crate::preview_physics_evidence::validate_preview_physics_evidence;
 
@@ -872,7 +887,7 @@ fn not_required_cases_ordinarily_eligible(source: &Value, cases: &[Value]) -> bo
             })
     })
 }
-fn retained_standing(
+pub(crate) fn retained_standing(
     source: &Value,
     requested_basis_refs: &[Value],
     actual_invocation: Option<&Value>,
@@ -961,11 +976,25 @@ pub fn numerical_use_standing_with_context(
     requested_basis_refs: &[Value],
     actual_invocation: Option<&Value>,
 ) -> &'static str {
+    numerical_use_standing_given(source, requested_basis_refs, actual_invocation, None)
+}
+/// RT-U4 (single pass): [`numerical_use_standing_with_context`], given
+/// pressure-2's evidence verdict (`for_source_given`); `None` reads `for_source`.
+pub(crate) fn numerical_use_standing_given(
+    source: &Value,
+    requested_basis_refs: &[Value],
+    actual_invocation: Option<&Value>,
+    pressure: Option<&Result<(), String>>,
+) -> &'static str {
     if is_retained(source) {
         // Validated once, with the invocation; G7 includes the base dispatch.
         return retained_standing(source, requested_basis_refs, actual_invocation);
     }
-    let Ok((_, version)) = for_source(source) else {
+    let selected = match pressure {
+        Some(verdict) => for_source_given(source, verdict),
+        None => for_source(source),
+    };
+    let Ok((_, version)) = selected else {
         return "unsupported";
     };
     // T0R (A2 item 10): validate first. (B1 and B4/D1 (b) refuse precision-1

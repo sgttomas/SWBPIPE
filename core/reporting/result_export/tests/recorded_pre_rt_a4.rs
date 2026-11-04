@@ -1,8 +1,9 @@
 //! RT-A4 §10.4 (DEL-05-02 Design `absolute-sum-srss-combinations.md`, "Recorded results from
 //! before RT-A4 (historical read)"): main's statements recorded before RT-A4 read under their
 //! recorded table variants on the recorded-run read entries only, and stay refused on every
-//! current entry. Fixtures: `fixtures/persistence/recorded_pre_rt_a4_pf` (main 6c3cb46d3 and
-//! #101 01e05a486, verbatim). At a4ff570dc there was no recorded entry: every current entry
+//! current entry. Fixtures: `fixtures/persistence/recorded_pre_rt_a4_pf` (main 6c3cb46d3,
+//! #101 01e05a486 and, for the exact successor RT-A3 increment 4 makes history, main
+//! bbf384dec, verbatim). At a4ff570dc there was no recorded entry: every current entry
 //! below refused them, as it still does.
 use open_pipe_stress_result_export::reader_verdict as rv;
 use open_pipe_stress_result_export::recorded_tables::{self, SOURCE_RECORDED_BINDING_IDENTITY, SOURCE_RECORDED_BINDING_UNKNOWN};
@@ -15,6 +16,7 @@ const TIMOSHENKO: &str = include_str!("../../../../fixtures/persistence/recorded
 const PF_RETAINED: &str = include_str!("../../../../fixtures/persistence/recorded_pre_rt_a4_pf/preview_physics_retained_1/retained_precision_milestone_successor_sparse_interactive.json");
 const EXACT_MAIN: &str = include_str!("../../../../fixtures/persistence/recorded_pre_rt_a4_pf/physics_retained_1/main/retained_precision_exact_successor_sparse_interactive.json");
 const EXACT_101: &str = include_str!("../../../../fixtures/persistence/recorded_pre_rt_a4_pf/physics_retained_1/pr101/retained_precision_exact_successor_sparse_interactive.json");
+const EXACT_RT_A4: &str = include_str!("../../../../fixtures/persistence/recorded_pre_rt_a4_pf/physics_retained_1/main_bbf384dec/retained_precision_exact_successor_sparse_interactive.json");
 const CURRENT_PF2: &str = include_str!("../../../../fixtures/results/preview_physics_connected_sparse.json");
 
 fn statement(text: &str) -> Value {
@@ -29,6 +31,7 @@ const TIMOSHENKO_SHA: &str = "a7b83c37a4af9bf70f56513f80883003a2a3860387319311ea
 const PF_RETAINED_SHA: &str = "b001070e5fedeeb101522b22ce0d61bb7cf85f82e86b8d851713f8d9fc8c4c46";
 const EXACT_MAIN_SHA: &str = "cf29fd5fc5d61de0f1133e9668b05f3d62ae8f696944fe04de7470029f5357dd";
 const EXACT_101_SHA: &str = "045f6f0d8ce350246b21fb712d2dd14bf3a7f7f3690e66e062cbbf77d3696a3b";
+const EXACT_RT_A4_SHA: &str = "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034";
 
 fn code(outcome: &Value) -> &str {
     outcome["error"]["code"].as_str().unwrap_or_default()
@@ -110,7 +113,7 @@ fn successors_recorded_before_rt_a4_read_under_their_variant_only() {
     assert_eq!(rp::outcome_json(&rp::validate(&source, None))["ok"], false);
 
     // The exact successor: its statements read under the current reader (a binding-only variant).
-    for (text, sha) in [(EXACT_MAIN, EXACT_MAIN_SHA), (EXACT_101, EXACT_101_SHA)] {
+    for (text, sha) in [(EXACT_MAIN, EXACT_MAIN_SHA), (EXACT_101, EXACT_101_SHA), (EXACT_RT_A4, EXACT_RT_A4_SHA)] {
         let source = statement(text);
         let recorded = binding(sc::PHYSICS_RETAINED_ID, sha);
         assert_eq!(rp::outcome_json(&rp::validate(&source, None))["ok"], true);
@@ -125,7 +128,11 @@ fn successors_recorded_before_rt_a4_read_under_their_variant_only() {
 #[test]
 fn the_registry_is_closed_and_each_variant_is_its_pinned_bytes() {
     let shas: Vec<&str> = recorded_tables::VARIANTS.iter().map(|v| v.sha256).collect();
-    assert_eq!(shas, [PF2_SHA, TIMOSHENKO_SHA, PF_RETAINED_SHA, EXACT_MAIN_SHA, EXACT_101_SHA]);
+    assert_eq!(shas, [PF2_SHA, TIMOSHENKO_SHA, PF_RETAINED_SHA, EXACT_MAIN_SHA, EXACT_101_SHA, EXACT_RT_A4_SHA,
+        // Operating-case slice 1b: main's tables at bbf384dec (`recorded_pre_rt_a5_1b.rs`).
+        "e7b93f416f700f8efdb31bf1ba26dedde52963d768d6ead5a73dbf1c645a360c",
+        "ce49ebe07bc05431ea1f770c1933b5bf58f4b1c8b66fb6f36810f2ef7a58cd43",
+        "26dce9c21261b1ca894af05a3b6f4a94db88904894cb47f7296f892e72ecfb7e"]);
     for variant in &recorded_tables::VARIANTS {
         assert_eq!(variant.table()["semantic_contract_id"], variant.id);
         assert!(recorded_tables::variant_of(&binding(variant.id, variant.sha256)).is_some());

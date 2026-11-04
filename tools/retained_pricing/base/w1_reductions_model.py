@@ -97,11 +97,13 @@ REDUCED_PINS = {
     # arms and trailing commas); no reduction's owner or lifetime changes, the L5 texts are unchanged.
     # I2b-2 on RT-U4's candidate (§8.48, merge of 41cf15b95): lib.rs carries both of the above; no reduction's owner
     # or lifetime changes, and the L5 texts are unchanged.
-    "core/product_physics/src/lib.rs": "f2ced8d7ff2fffe3493bac21164b738798c1faef74f752f13c2f3a5e0fa76d80",
+    # Operating-case slice 1b (§8.51, merge of 41142f4a3): lib.rs's three 1b items are folded onto existing lines and
+    # preview_physics.rs adds the declared arms; no reduction's owner or lifetime changes, the L5 texts are unchanged.
+    "core/product_physics/src/lib.rs": "dcb744fbc76a6d3ee09fe43b4494542497a4b31282de019f4c831e32d32ec145",
     "core/product_physics/src/retained_wire.rs": "1e1e60a02279771574f84df2b45628622936774a879a092842faa1e2f5f0f937",
     "core/product_physics/src/certified_publication.rs": "89cdb23e172136b55ff980f7d4a4cd3643e43894fb2a9ad40c92fd3cd4adcf87",
     "core/product_physics/src/certified_loads.rs": "da7d3decc3a0170da65b38670ec215aaebdb9d8d799e3c76e41879a80589bc73",
-    "core/product_physics/src/preview_physics.rs": "ecd14d758bd07dc297105ec0e67059cba2fd53f0b312da553c2caccdddd3eb05",
+    "core/product_physics/src/preview_physics.rs": "cf2ce2e184557018874f99d730c4d77d38c07b829bd0ad39e771550f31a84365",
     "core/solver/frame_kernel/src/structural/formation_check.rs": "8931fb3dad1fd7f17b32c07eebb2e934ee9af53bb4d15fa611201829128c7893",
     "core/solver/frame_kernel/src/structural/certified_recovery.rs": "8f69bb9bea7c7696b1f78fc985998faa03a507dfc47be13cc6a2b6aa062980c9",
     "core/solver/frame_kernel/src/load_ledger.rs": "8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f",

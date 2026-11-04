@@ -279,15 +279,25 @@ fn a1_precedence_follows_emission_order() {
         assert!(!envelope["diagnostics"].as_array().unwrap().iter()
             .any(|d| d["code"] == FAMILY && d["affected_refs"] == json!(["combination:sum"])));
 
-        // Component before support.
+        // Component before support. RT-A3 increment 4 admits the nonlinear
+        // support on the plain document (X0), so there only the component is
+        // named; on the load/reference-state document (Y0, S6) the support
+        // keeps its refusal, after the component.
         let mut document = with_support(base, gap(base), true);
         push(&mut document, "components", other(base));
         let envelope = run_all(&document);
         assert_blocked(&envelope, base);
-        assert!(
-            position(&envelope, FAMILY, &["component:other"])
-                < position(&envelope, FAMILY, &["support:gap"])
-        );
+        match base {
+            Base::X0 => {
+                position(&envelope, FAMILY, &["component:other"]);
+                assert!(!envelope["diagnostics"].as_array().unwrap().iter()
+                    .any(|d| d["code"] == FAMILY && d["affected_refs"] == json!(["support:gap"])));
+            }
+            Base::Y0 => assert!(
+                position(&envelope, FAMILY, &["component:other"])
+                    < position(&envelope, FAMILY, &["support:gap"])
+            ),
+        }
 
         // A combination beside the per-case equivalent_static code. W-16 slice
         // c admits generation at the seam and slice b the combination; the

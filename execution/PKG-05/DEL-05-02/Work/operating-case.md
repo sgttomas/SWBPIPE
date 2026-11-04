@@ -1,6 +1,6 @@
 # Operating case with nonlinear supports, and the kernel side of skewed restraints
 
-> **Status: adopted plan; truthfulness fixes (#1695), stage 2 (#1671) and slice 1a (#1752) built; R-6 unbuilt and scheduled for v1.0 after 1b (2026-10-31, below); superseded by any later Design text.**
+> **Status: adopted plan; truthfulness fixes (#1695), stage 2 (#1671) and slice 1a (#1752) built; slice 1b built on branch `claude/rt-a5-slice1b` (§6, candidate, not yet integrated; reviewed in r1 and its focused confirmation; its model-free G-1 reading, option A, enabled after that review); R-6 unbuilt and scheduled for v1.0 after 1b (2026-10-31, below); `minuend_final` unbuilt (§6.9 seam); superseded by any later Design text.**
 > Committed from the solver lane's working note so that the adopted decisions are
 > discoverable on main. The text is unchanged except that local absolute paths are
 > shortened to `scratch/…`. Working-file references (`scratch/…` and
@@ -778,3 +778,359 @@ represents.
 - Option 2 stays R-1's remaining item for the owner.
 - Under this recommendation, §4's "established" says nothing about which option is the
   right engineering basis.
+
+---
+
+## 6. As built (1b)
+
+Slice 1b on branch `claude/rt-a5-slice1b` (from main `bbf384dec`, merged with main
+`800fae7e5`). Candidate: not integrated, not independently reviewed. Risk class: numerical
+meaning, persistence and contract. Nothing here records acceptance, issuance or release.
+
+### 6.1 What ships
+
+On the pressure-free route (PF, preview-physics-2), a `result_state_subtraction` declaring
+`difference_basis = "operating_minus_sustained"` (0.9.0 §2.2) is gated, published and
+authored:
+- **Solve.** S1's interim `LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED` withholding is
+  removed (0.9.0 §2.2 "Interim … 1b removes both and adds G-1/G-2"; §3.8 row "the solver
+  lane's 1b"). The combination is gated by G-1 then G-2 (§6.2). An admitted one publishes the
+  plain subtraction's rows bit for bit (fl(O − S), the same pairing, the same
+  `metadata.basis` `explicit_user_result_state_subtraction`) with the declared sign
+  convention (§6.3), and slice 1a's operand standing is still published in a nonlinear model
+  (§0 R-5, publish with standing). A withheld one publishes no row, as every gated
+  combination; its dependants are withheld whole by the existing
+  `LOAD_COMBINATION_OPERAND_WITHHELD`.
+- **Applier.** `create_combination` writes `difference_basis` (and `subtrahend_support_state`)
+  as authored on a document without a pressure contract. On a document with one it is
+  refused by name, `LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED`; `minuend_final` stays
+  refused (`LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED`); `own` is authored and
+  behaves as absence; an unknown or misplaced member, and a combination operand, are the
+  document validator's (`…_UNKNOWN`, `…_MISPLACED`, `…_OPERAND_NOT_LOAD_CASE`). No other
+  combination operation sets the member.
+- **Unchanged.** EX keeps its blocking `LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED`
+  before any gate (`exact_admission`, the EX gate code and the pressure-2 table untouched).
+  Every `*_EXACT_UNSUPPORTED` refusal stands. A plain subtraction is byte-identical
+  (`pressure_free_byte_identity`, V-8). The retained routes keep declining the member
+  (`FamilyFact::CombinationMember`); the CAEPIPE SI writer keeps refusing it (0.9.0 §3.8,
+  DEL-17-04's mapping).
+
+Interpretations applied (manager-accepted, 2026-11-03):
+- **(i) The interim warning's removal.** 0.9.0 §2.2's interim rule and §3.8's row remove
+  `LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED` from the solve at 1b. A `minuend_final`
+  combination is therefore withheld by `LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED`
+  alone (its former second warning said "its gates are not built yet", which is no longer
+  true). EX still blocks first. The code constant is kept for the history of its refusals.
+- **(ii) The sign convention** (§1.3 c5; §5 B option 3, "Row text uses 'operating minus
+  sustained difference'"): the plain subtraction's positive-value clause, then c5 under
+  option 3's name (§6.3). `metadata.basis` is unchanged.
+
+Separable additions not in 1b (§1.2 "Separable additions"; pf-nonlinear-operand-standing.md
+§5): the desktop `operating` kind token and the "operating − sustained" template. The desktop
+only names a declared subtraction's rows in the results navigator ("operating minus sustained
+difference") and draws them as it draws a plain subtraction's.
+
+### 6.2 Gates: semantics and order
+
+In `preview_physics::gate_reason`, for a declared subtraction:
+1. the withheld-operand rule (`LOAD_COMBINATION_OPERAND_WITHHELD`) comes first for every
+   combination; a declared subtraction never meets it, since its operands are load cases
+   (absolute-sum-srss §2, r1 F7, `LOAD_COMBINATION_DIFFERENCE_BASIS_OPERAND_NOT_LOAD_CASE`,
+   blocking at validation);
+2. **G-1**, `EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING`;
+3. **G-2**, `EXPANSION_BASIS_MODULUS_MIXED`.
+
+The term-basis gates (nonlinear except OQ-1, the κ gates, `COMBINATION_MODULUS_BASIS_MIXED`)
+apply to `mechanics`, `absolute_sum` and `srss` only, so they never reach a subtraction. Each
+withholding is a warning, id `diagnostic:preview-physics:combination-gate:<identity>`, source
+`core/product_physics`, affected refs `[combination id]`; the gate record is `{withheld: true,
+reason}`.
+
+- **G-1** (§1.2 and 0.9.0 §2.2, verbatim there). Each operand case's primitive loads are read
+  from the model the solve gated and solved: the lowered model (so S2's condition-generated
+  thermal and added-weight primitives count by content, E7) after `normalize_model_units`.
+  A primitive's content is its category, target (`node` and its node; `element` and its pipe;
+  `support`, its support and DOF), direction, dimension, the magnitude's value bits and its
+  unit. Tokens are compared as authored (no alias mapping, so `distributed_force` and `weight`
+  differ); value bits exactly (so +0.0 and −0.0 are different contents; validation admits
+  finite values only). Ids and provenance are not content. G-1 passes when, for every content,
+  the subtrahend's count does not exceed the minuend's. It does not compare final active sets,
+  and it reads primitive loads only: a case's `equivalent_static` generation inputs, its
+  case-state records and its modulus selection are not G-1 content (G-2 reads the modulus).
+  Message: "Combination withheld: it declares an operating minus sustained difference, and the
+  subtrahend case's primitive loads, as a multiset by content (category, target, direction,
+  dimension, value and unit after normalization; ids ignored), are not contained in the
+  minuend case's."
+- **G-2** (§1.2). The two cases' `modulus_basis_key` (the solve's own key: `exact:<ref>`,
+  `temperature_kelvin_bits:<bits>`, or none) differ. Message: "Combination withheld: it
+  declares an operating minus sustained difference, and its two load cases were solved on
+  different modulus bases."
+
+The producer is `core/product_physics/src/difference_basis.rs`; G-1 and the evidence (§6.4)
+read one function (`contents`) over the one model: there is no second resolver.
+
+### 6.3 Row text
+
+Sign convention of an admitted declared subtraction's rows (§1.3 c5; §5 option 3):
+
+    positive value follows explicit user result-state subtraction (minuend minus subtrahend) of matching source result sign conventions; operating minus sustained difference: a signed difference of two independently solved states, each using its own reported support state and carrying its own numerical standing under the static, history-free friction model; derived from case results; not an equilibrium state
+
+A plain subtraction keeps "… ; a signed difference of solved states, not an equilibrium
+state". Never "certified" or "established" (§4 is unbuilt).
+
+### 6.4 G-1's derivation evidence (Agent 0's decision A)
+
+`contract_evidence.difference_basis_derivation`, an optional member of results.v0.3's (and
+stress_neutral_export.v0.3's) closed `PreviewPhysicsContractEvidence`, admitted there beside
+`combination_derivation` because a reader without the model otherwise has no basis for G-1
+(§10.3's reasoning). No version change; no other family widens. Present only when a gate is a
+declared subtraction's, so every other document keeps its bytes:
+
+```json
+[{"combination_id": "comb:o-s", "difference_basis": "operating_minus_sustained",
+  "minuend": {"load_case_id": "case:O", "primitive_contents": [
+    {"category": "concentrated_force", "target": {"type": "node", "node": "node:b"},
+     "direction": "global_x", "dimension": "force",
+     "magnitude": {"value_bits": "4098000000000000", "unit": "N"}, "count": 1},
+    {"category": "thermal", "target": {"type": "element", "pipe": "pipe:a-b"},
+     "direction": "global_x", "dimension": "temperature_interval",
+     "magnitude": {"value_bits": "4030000000000000", "unit": "K"}, "count": 1}]},
+  "subtrahend": {"load_case_id": "case:S", "primitive_contents": [ ... ]}}]
+```
+
+- One record per declared subtraction among the gates, in gate (evaluation) order, withheld or
+  admitted, binding its combination id and both operand case ids.
+- Each operand's `primitive_contents` is its multiset: one entry per distinct content with its
+  `count`. **Count domain** (review r1): a JSON integer token from 1 to 2^53 − 1. The producer
+  counts a case's primitive loads (`usize`), and a published statement is a checked-JSON
+  document (`openpipestress_jcs_ijson_v1`, whose integers are bounded by ±(2^53 − 1),
+  `MAX_SAFE_INTEGER`), so no larger count can be published; a float token (`1.0`), a
+  boolean, a string, zero or a negative number is not a count. Both readers enforce exactly
+  this (Rust `count_of`, Python `MAX_COUNT`).
+- A case is resolved once, so a case id that recurs across records (as minuend or
+  subtrahend) carries byte-identical contents (the same JSON with members sorted). `value_bits` is the 16 lowercase hexadecimal digits of the
+  normalized binary64's IEEE 754 bits (signed zero distinct; always finite); `unit` is the
+  normalized unit symbol. Canonical order: byte-wise over category, target type, target ids
+  (node; pipe; support then DOF), direction, dimension, `value_bits`, unit; each content once.
+- Size: at most one record per combination and, per operand, at most one entry per primitive
+  load of that case, so it is bounded by the admitted model's own limits; it lives in the
+  statement's contract evidence beside its rows, not in any record header, and meets the
+  existing size guards. No new threshold.
+
+### 6.5 Readers
+
+Rust RE `preview_difference_basis.rs` (called from `preview_combination_gates::check`, so every
+entry that reads PF gates reaches it: the evidence reader, `reader_verdict`, the runner,
+packaging `bindings.rs` and derivatives `derivative.rs` through `semantic_contract::for_source`,
+and the wasm engine); Python `tests/verifiers/preview_difference_basis.py`.
+- **With the model** (decision M1). The member first passes the same validator as the
+  model-free reading (closed shape, count domain, bindings, case recurrence; review r1), so a
+  malformed member is refused by its own code before any comparison. G-1 is then re-derived from the model's own primitive loads,
+  normalized by the shared units authority (Python: its independent unit table), and the
+  published evidence must equal it record for record (`SOURCE_PREVIEW_PHYSICS_DIFFERENCE_BASIS_MODEL`);
+  the gate must be G-1's, else G-2's from `modulus_key`
+  (`SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_DERIVATION`). **Limit:** the readers have no
+  condition resolver (0.9.0 §3.8: the source readers decline `condition_use`), so where either
+  operand case carries a `condition_use` G-1 cannot be re-derived and the document is refused
+  by name, `SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_UNVERIFIED`; it never falls back to the
+  model-free reading. A common pure lowering for readers was not built.
+- **Without the model: option A, shipped** (Agent 0's decision; enabled after review r1 and
+  its focused confirmation cleared it). Any declared claim (the evidence member, a G-1 or G-2
+  gate reason, or a row stating §6.3's sign) is read from the published evidence, so
+  model-free consumers (packaging, derivatives, the runner without a model) read a valid
+  declared document and refuse a forged one by name. The interim fail-closed switch (option
+  C) is deleted, not kept as a mode: no design or consumer names it. The member's closed shape, canonical
+  order, counts in the count domain and finite values are checked
+  (`SOURCE_PREVIEW_PHYSICS_DIFFERENCE_BASIS_EVIDENCE`); a case id recurring across records with
+  different contents is refused (`…_DIFFERENCE_BASIS_BINDING`, in both readings); its bindings to the document
+  (gate present, published cases, distinct operands, the two `combination_modulus_basis_record`
+  rows naming minuend then subtrahend, the rows' operand sources, and any
+  `combination_operands` / `combination_derivation` expression) (`…_DIFFERENCE_BASIS_BINDING`);
+  every G-1/G-2 reason and every declared-sign row has its record (`…_EVIDENCE`); G-1 is
+  re-derived from the two multisets and G-2 from the published modulus-basis labels (equal
+  key, equal label), and the gate must be the derived one (`…_COMBINATION_GATE_DERIVATION`);
+  a declared subtraction's rows state §6.3's sign and the subtraction basis and no other
+  combination's row states it (`…_DIFFERENCE_BASIS_ROW`). **Scope:** this verifies the
+  record's internal derivation and its binding to the document, not its truth to the absent
+  model. A coherent forgery (evidence, gate and rows altered together) passes without the
+  model and is refused with it (`a_coherent_forgery_is_not_authenticated_without_the_model`,
+  both languages).
+- The evidence readers admit the new member and the two gate reasons, refuse the member on a
+  blocked envelope, and admit a withheld subtraction's `combination_modulus_basis_record` rows
+  (DEC-068 item 1; G-2's model-free source; before 1b a withheld subtraction could not arise,
+  and a withheld range envelope with a load-case operand would have been refused by
+  `GATED_COMBINATION_ROW`). The slice-1a model check requires an operand record only for an
+  admitted subtraction or envelope.
+- The desktop reads PF verdicts through the wasm reader; it re-derives no gate. Its solve
+  timeline code table is unchanged (regenerated; no recording-path code added).
+- **Pre-existing limit, unchanged:** PF readers do not re-derive a flat subtraction's (or
+  flat mechanics combination's or envelope's) signed values (absolute-sum-srss §10.1); a
+  declared subtraction is flat, so its values are checked as a plain subtraction's are, and
+  its gates, evidence and sign text as above.
+
+### 6.6 Contract texts (old → new) and digests
+
+The preview-physics-2 `combination_policy` (and preview-physics-retained-1's copy, by hand;
+timoshenko-1 by `derive`). Members not listed are unchanged; `gated_forms` stays
+`["mechanics", "absolute_sum", "srss"]` (always-gated forms), the declared subtraction being
+named by the new member and `gate_precedence`.
+- `policy_id`: old "PREVIEW-PHYSICS-1-COMBINATION-v2"; new "PREVIEW-PHYSICS-1-COMBINATION-v3"
+  (the policy's meaning grows, §10.2's rule: a v2 consumer must not read a v3 document's
+  subtractions as ungated).
+- `difference_basis_gates` (new, after `unsigned_gates`):
+  - EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING: "the subtraction declares difference_basis
+    operating_minus_sustained and the subtrahend case's primitive loads, as a multiset by
+    content (category, target, direction, dimension, and the magnitude's value bits and unit
+    after the solve's own unit normalization, on the lowered model, so condition-generated
+    primitives count; ids and provenance are not content), are not contained in the minuend
+    case's: some content occurs more often in the subtrahend; equal final support states are
+    not required";
+  - EXPANSION_BASIS_MODULUS_MIXED: "the subtraction declares difference_basis
+    operating_minus_sustained and its two load cases have different modulus-basis keys".
+- `gate_precedence`: old "operand_gate first, then the first gate in list order of the
+  combination's form supplies the single withheld reason"; new: old text, then "; a
+  result_state_subtraction declaring difference_basis operating_minus_sustained takes
+  difference_basis_gates (its operands are load cases, so operand_gate never applies), and any
+  other subtraction or range envelope is not gated".
+- `result_state_subtraction`: old "signed difference of solved states over linear_state_kinds,
+  with recomputed magnitudes; no equilibrium claim"; new: old text, then "; with
+  difference_basis operating_minus_sustained (minuend and subtrahend load cases) its rows' sign
+  convention reads \"<§6.3's text>\", their metadata basis is unchanged, and
+  contract_evidence.difference_basis_derivation states both cases' primitive-content
+  multisets; a subtrahend_support_state minuend_final is withheld before the gates
+  (LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED) and own behaves as absence".
+
+**Not moved (a choice for review):** PF `LIMITATIONS[6]` ("… Subtraction is a labelled
+difference. …") stays true and is not restated, so no PF document's `formulation_basis`
+moves and no full-envelope pin moves. The pressure-2 table and its reason enums do not move,
+so physics-retained-1 does not either.
+
+Digests (applied through `semantic_contract_tables.py`: the two tables by hand, `derive`,
+`apply-u4b`, `repin --from-rev HEAD`, the carriers by their writers):
+
+| Table | Main (bbf384dec = 800fae7e5) | 1b |
+|---|---|---|
+| preview-physics-2 | e7b93f41… | f41b9d3e… |
+| preview-physics-timoshenko-1 | ce49ebe0… | 6f649490… |
+| preview-physics-retained-1 | 26dce9c2… | b4377e73… (inherits f41b9d3e…) |
+| physics-retained-1 | 040ef9a6… | unchanged |
+| pressure-2 | 10455bf3… | unchanged |
+
+Schemas: results.v0.3.schema.yaml 59d405ff… → f4fa46fa…, stress_neutral_export.v0.3
+3121f979… → 4dd626d2…, analysis_run.v0.3 d30507f1… → bc5147fd… (its embedded table digests);
+`tools/release/schema_manifest.json` regenerated.
+
+### 6.7 Recorded runs (§10.4's registry)
+
+The closed registry (Rust `recorded_tables::VARIANTS`, Python
+`compatibility.RECORDED_PRE_RT_A4_TABLES`, desktop `recordedPreRtA4.ts`) gains main's three
+moved tables verbatim (`fixtures/results/recorded_pre_rt_a5_1b/`): preview-physics-2 e7b93f41…,
+timoshenko-1 ce49ebe0… and preview-physics-retained-1 26dce9c2… (its base the new e7b93f41…
+variant), each read under the variant's table. Their rows and limitations are the current
+tables', so a statement recorded under them reads as it read then. Main's records and
+statements are kept verbatim in `fixtures/persistence/recorded_pre_rt_a5_1b_pf/` (README there;
+as at RT-A4, main has no committed timoshenko or successor record, so those identities are
+covered by main's verbatim statements on the recorded entries). `repin` protects both
+directories (it had rewritten the three new registry digests on its first run; they were
+restored by hand and the directories added to its protected prefixes). Selection, scope and
+the display rule are §10.4's, unchanged; nothing is migrated or resealed, and no old record
+becomes current. Regressions: Rust `result_export/tests/recorded_pre_rt_a5_1b.rs`, Python
+`tests/test_recorded_pre_rt_a5_1b_pf.py`, desktop `src/services/recordedPreRtA51b.test.ts`.
+
+### 6.8 Verification
+
+- PP `tests/op1b_difference_basis.rs`, both solver modes, against the independent references
+  `validation/references/op1b_difference_basis/` (standard-library generator, exact
+  fractions):
+  - V-1: closing, both open and both active; Δu, ΔN and Δstop against the closed forms;
+    every declared row equal bit for bit to its plain twin and to fl(O − S) of its cited rows;
+    evidence equal to an independently written record.
+  - V-2: prop lift-off and the active twin.
+  - V-4: a plain S − O negates every finite nonzero row; the declared S − O is withheld by G-1
+    (a reversed-operand mutant is killed). Case independence is unchanged by 1b (no solve
+    change); its seed instrumentation is `op1a_seed_tests`.
+  - V-5 negatives: a sustained-only load, a one-ulp magnitude, two identical sustained
+    primitives against one, each withheld by G-1, with the dependant withheld whole; two
+    against two and identical content under other ids and provenance admitted (an id-comparing
+    mutant is killed); G-2 mixed bases withheld, equal bases admitted, G-1 before G-2; the
+    member on `mechanics` and `range_envelope` (`…_MISPLACED`) and naming a combination
+    (`…_OPERAND_NOT_LOAD_CASE`), blocking; `minuend_final` withheld by its own code alone;
+    `own` as absence; EX blocking by name; a blocked operand blocks the document.
+  - Readers: condition_use refused with the model; forged evidence (a bit, a unit, missing,
+    swapped cases), a forged gate and forged signs refused with the model; the shared corpus
+    `fixtures/results/preview_physics_difference_basis_corpus.json` is the producer's output.
+- RE `preview_difference_basis_tests.rs` and Python `tests/test_preview_difference_basis.py`
+  over the corpus: every document reads with its model and without it; about thirty tampers
+  refused by name without the model; the coherent forgery.
+  Review r1 adds: a case recurring across two declared records with different contents
+  (both readings, `…_BINDING`); counts 0, −1, 2^53, 2^64, `1.0`, `true` and `"1"` refused as
+  `…_EVIDENCE` with and without the model, and 2^53 − 1 admitted.
+- End to end: `openpipestress-runner read preview-physics`
+  (`core/runner/headless/tests/reader_cli.rs`) reads three declared documents with and
+  without their model and refuses a forgery inside each record by name
+  (`…_COMBINATION_GATE_DERIVATION`); the derivative path (`derive_document` through
+  `semantic_contract::for_source`, `result_export/tests/derivative_contract.rs`) derives and
+  validates a declared document and refuses a forged one by the same name. Packaging reads its
+  source through the same `for_source` (`bindings.rs`) inside a complete package request (audit
+  manifest, solver identity, rendered report), so it has no separate entry short of a full
+  package; the derivative test drives that function.
+- V-3 (friction history) is DEL-04-04:2's disclosure (CLM-012), not a behaviour change.
+- Fail-before: on main every declared subtraction is withheld by
+  `LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED`, so every admission and gate assertion above
+  fails there. Mutants run on this branch, each restored after: G-1 always contained (four
+  `op1b_difference_basis` tests fail: V-4, V-5 G-1, V-5 G-2 ordering, the corpus); the reader's
+  sign check disabled (`option_a_refuses_tampered_evidence_by_name` fails at "evidence for a
+  plain subtraction"); the model-bound `condition_use` refusal removed (the condition_use test
+  fails: the reader then refuses by `…_DIFFERENCE_BASIS_MODEL` instead, still closed but not
+  by its name). Each other reader guard is exercised by its own named tamper.
+
+### 6.9 Follow-on seam: `minuend_final` (not built here)
+
+What the frozen-status solve needs (§0 "`minuend_final` as a callable mechanism"; §5 option 2;
+DEL-04-11 `hanger-sizing.md` O-1). No solve semantics are added by 1b.
+- **Product function.** One PP function, e.g.
+  `solve_case_at_held_status(model: &PreviewModel, built: &BuiltModel, case: &PreviewLoadCase,
+  held: &NonlinearStateEvidence, solver_mode, …) -> Result<LoadCaseSolve, FrameKernelError>`:
+  the named case solved linearly with each nonlinear support held at the named other case's
+  final status (active one-way, lift-off and sticking supports prescribed at their ground,
+  an active gap at σ(c + σg_s), inactive and sliding supports free), reusing
+  `solve_prepared_load_case`'s assembly with the held states in place of
+  `built.nonlinear_initial_states` and no iteration. It may require tensile unilateral
+  reactions and is never an admissible sustained state.
+- **Input seam.** The held status comes from the minuend's completed solve through the
+  dynamics lane's typed seam (#97, DEL-04-09 I2b-2 decision B):
+  `LoadCaseSolve.nonlinear_state: Option<Box<NonlinearStateEvidence>>` (case id, solver mode,
+  converged, qualification, standing, final states), formed once on the completed
+  construction, never by parsing rows. A non-converged or unqualified minuend has no held
+  status to lend: the combination is withheld by name.
+- **Consumers.** The declared subtraction with `subtrahend_support_state: minuend_final`
+  (publishing the held solve under the combination, never as the sustained case's rows,
+  0.9.0 §2.2), and DEL-04-11's single derived solve `weight_support_state:
+  design_operating_final`. Neither keeps its own copy.
+- **Certificate.** The held solve is a linear solve at a fixed active set, so its K-D5
+  member bound is the linear certificate against the held system; it states that system and
+  never the admissible nonlinear one. Its standing and the held-constraint caveat are
+  published per consumer.
+- **Readers.** RE and Python: with the model, re-derive the held states from the minuend's
+  published state rows and check the held solve's evidence binding (case, source case,
+  states); model-free, refuse or verify by a published record as §6.4 does. G-1 and G-2 apply
+  unchanged to the comparison.
+- **Removes:** `LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED` at the solve and the
+  applier, with its own table texts and pricing.
+
+### 6.10 Pricing and registration
+
+Registered at DEL-04-08 `retained-pricing-rules.md` §8.51, on main `573051799` (RT-U4's registered §8.50 candidate
+`41142f4a3`), priced source `a82460ad7`. AC-004 is pending.
+- **Rules.** The 18 full-file pins whose basis value was a file 1b changes are restated on the merged bytes, each with
+  its re-audited premise; S1-ZS drops the deleted push's two entries and RT-A4-D14 pins one push (§8.46's precedents).
+  The new PF1B rules (DZ, FZ, RM, BN, L, ID) rest on D1.4's refusal of every difference basis: the declared arms, the
+  derivation's records and the model-free reader's claims are zero on D1, and the by-name call graph's false edges into
+  the modules' private functions are removed. The analysis-only record's unmapped headers, unclassified arguments and
+  text rise are all resolved by these rules.
+- **Profile.** Against §8.50's tree 6 coefficients rise and none fall: STATICS, +7,116 B, +12 nodes and +48 slots (the
+  three preview tables' combination policy v3 in four static owners). Every phase moves +17,484 B in both modes. W3
+  stays the maximum, 2,726,118,449 B (dense) below ⌊0.9M⌋; the threshold and M are unchanged.
+- **Records.** Reviewed inputs #4, #5 and #12 (the three preview tables) take the restated bytes, which clears
+  `reviewed_inputs_bind_the_lock_and_the_reader_statics` and the identity inventory by registration. `PINNED_RECORD`
+  and the challenge constants are re-pinned. No retained successor or carrier needed regeneration.

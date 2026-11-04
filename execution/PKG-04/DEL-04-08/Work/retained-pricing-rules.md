@@ -106,6 +106,12 @@ These rules rest on P3: an admitted model has no connector. `o10_check` confirms
 
 **E3.** `for row in rows.values()` → `Pall`. This is a true count, not a zero: one pass over the validated envelope's result rows (physics_evidence `rows`, indexed by id), at most C · P_final.
 
+**RT-U4 order (re-key, no bound moved).** Once `validate` walks the source's `results` array, E3's header is `for row in source_rows`: the same rows, since `indexed` has refused a duplicate ID. The parameter is named so that the header is its own; RT-A4's `for row in published` rule (`P+8*g`, `preview_combination_gates::derived_rows`) would otherwise match it, since a header rule matches by header alone. The region binding's counting pass in `validate_physics_evidence_in` keeps `for row in rows.values()` at `Pall` under its own key; it forms no refusal, so its order reaches no result. U5B-L's `Pall` lookup `iter:rows.values().find` becomes `iter:source_rows.iter().find` in `validate_pressure`. E2 applies only to a source that still has `spans.keys()`. The coverage loop over `records` that replaces it falls under the generic `record in records` rule, as `validate_pressure`'s loop already does. The loop allocates only `require_connector`'s failure text, which E5 bounds per call, so no coefficient moves.
+
+**RT-U4 repair B (pins re-read, no bound moved).** `reader_verdict::standing` reads pressure-2's evidence once on the pressure route. B7a's full-file pin of `semantic_contract.rs` and O-10's OP1A and TIM pins of `reader_verdict.rs` are re-read. `for_source`, the retained G7 call that the loop, premise, SQ2 and O-10 rules key, is byte-identical. The new private `for_source_given` and `numerical_use_standing_given`, `pressure_outcome`, and the pub(crate) helpers sit outside the retained roots. `exact_combination_evidence::present`'s pass counter is `#[cfg(test)]` and blanked. At 9c2ebdb2a the tool prices all four points with exit 0 and O-10 checks 0/0. Against ad3665dcc the merged tree differs only in its basis line: 1602 coefficients equal, and D, TAV, E+R and TAV_W/X are equal at every point. The line map's 37 prunes and 7 resolutions are unchanged. Registered with RT-U4 order at §8.50, on RT-A3 increment 4, with the pins re-read on the merged bytes.
+
+**RT-U4 order, global end coverage (W7-RD, W7-L1; re-priced; registered with repair B at §8.50).** Once `global_end_evidence::coverage` walks `local`'s (load case, member) keys in order, with MEMBER_UNRESOLVED a lookup in `local`, it no longer collects the member keys into a `HashSet`. W7-RD charges that set's `HashMov("PairBorrowed", K)` only on a source that still has it (`w7_owners_model.reader_member_set`, bound to the exact statements; a changed walk stops the run). The member loop's header `for (key, locals) in local.iter().filter(|(_, ends)| member(ends))` gets a W7-L1 rule at `cases*m`, the same bound as `for key in global.keys()`: it visits at most the keys of `local`, which are (load case, member) pairs. The former header `for key in &members` had no rule of its own. The base chain's broad `members\b` rule (D1's straight-member cap) bound it at `m` by the variable's name, so the new bound raises the multiplicity of the `require` failure text under the loop.
+
 **E4 / B7b-E4 and A3.** Both are added only where `connector_evidence.rs` defines `row_basis`; U2 deleted it, so neither is added at B7b or later source. Guarding each by the function's name avoids a null stale key without weakening a surviving function's rule. E4 zeroes the edge `validate → row_basis`. On B7b sources (B7b-E4) `row_basis` is called only for a connector-kind row after the kind check, and the producer publishes connector rows only for built connectors (`append_connector_results` iterates `built.connectors`; L1), so `project(successor)` has no connector row. On the B7a pair `row_basis` is reached only after `require_connector(admitted, …)?`, which returns Err when not admitted (E1). A3 audits `row_basis`'s `span` as IN128: a replaced pipe id, at most 128 B under D1's text cap. The row has multiplicity 0 by E4, but its argument is still classified.
 
 **E5 / B7b-E5.** `O10_SITE_FROM` at `require_connector`'s `Err(format!("SOURCE_PHYSICS_CONNECTOR_{code}"))`, at most 1 per call of `validate_pressure_evidence` (`validate_physics_evidence` on the B7a pair). `require_connector` allocates only on Err. All 31 current calls in `connector_evidence.rs` are `require_connector(…)?` with a literal code, and `validate`'s caller `validate_physics_evidence_in` propagates with `?`. This is the registered rule for `physics_evidence.rs require()`. B7b-E5: route E's reached entry is `validate_pressure_evidence` (D4 (a)), whose physics arm returns `validate_physics_evidence_in`'s Result unchanged.
@@ -4333,6 +4339,559 @@ Run evidence is in `/Users/ryan/dev/chirality-t3/scratch/rt-dynamics-final-basis
 atom logs, the evaluation and the frame and owner-check scripts in `…-final-scripts/`. It is review input, not a
 permanent dependency.
 
+### §8.49 RT-A3 increment 4: nonlinear supports on the exact route (actual-source D3)
+
+**Status.** Proposed registration for RT-A3 increment 4 (`claude/rt-a3-nonlinear`; DEL-04-07 `pressure-contract.md`,
+"Nonlinear supports on EX (RT-A3 increment 4)"), placed after #102's §8.47 and #97's §8.48 on main `aa794eb68`. It is
+made under the owner's removal of explicit owner approval for coefficient movement; source-derived pricing,
+independent scrutiny and preservation of the registered state remain required. This records no acceptance. The
+threshold and M are unchanged. **AC-004 is pending**: the six stack witnesses on the binary named below are a separate,
+Agent-0-cleared exclusive run. It repairs the integration review of `49acf3b11` (findings 1–4), whose provisional
+pricing it replaces.
+
+**Priced source.** `293e8da85` (product source = `7ce12c46a`): the increment merged normally with main `aa794eb68`
+(`800f2b6c8`), S1's conditional confirmation wording (`7ce12c46a`, review finding 3) and the committed §8.49 rules.
+Against main the priced product changes are:
+- PP `exact_admission.rs`: the `NonlinearSupport` admission arm and `nonlinear_support_admission` (a match returning
+  `Admitted` or the family's static refusal); S1 (3,007 → 3,964 B) and S7 (204 → 224 B);
+- PP `pressure_runtime.rs`: `validate_profile` forms the S6 context (`case_state::carries_fields`,
+  `components.iter().any(..)`) once per call before its support loop and judges a `NonlinearSupport` family by
+  `nonlinear_support_admission`;
+- RE `nonlinear_support_evidence.rs` (new), its `check` called from `validate_direct_pressure_evidence` and its
+  `model_checks` from `reader_verdict::validate`; `preview_physics_evidence::guarded` made `pub(crate)`; `lib.rs`'s
+  module line; `recorded_tables.rs`'s sixth binding-only variant (main `bbf384dec`'s exact successor table);
+- the table-hash constants of `retained_precision.rs` and `semantic_contract.rs`, and the pressure-2 table (+754 B of
+  strings: the admitted-families and combinations limitations) with physics-retained-1's parent digest.
+
+**S1's wording (review finding 3).** S1 said admitted nonlinear supports "are solved in each case ... with K-D5
+confirmation", which overstated admitted non-gap cases that the confirmation does not establish (`F1-P0-SLIDELOAD`
+solves, both readers admit it, and it is published `NUMERICAL_INTEGRITY_SENSITIVE`). It now reads "… are solved in each
+case by the active-set loop from their authored initial states and publish their states, final displacements and
+reactions; K-D5 confirmation is attempted for an eligible non-gap state, and the case's published numerical standing
+reflects its outcome; a case with a gap support is published with the unqualified recovery basis
+(NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED) and no confirmation, …" (SHA-256 `c6f80e44…` → `dabc0b5c…`). The table's
+admitted-families limitation says the same. The bytes priced are these final bytes: pressure-2 `5e224d17…` →
+`2c20583d…`, physics-retained-1 `ca6bb983…` → `85c2678a…` (against main: `10455bf3…` → `2c20583d…` and `040ef9a6…` →
+`85c2678a…`).
+
+**D1 premises.**
+- **No nonlinear support on D1.** D1.6 (`family_clauses`) refuses every support with a `nonlinear` record on both
+  routes, so `support_family` never yields `NonlinearSupport` there: `nonlinear_support_admission` is not called, the
+  producer publishes no `nonlinear_support_*` row and no state-review diagnostic, and the projected successor carries
+  none.
+- **The S6 context runs on every exact D1 model** (the review's counterexample). It sits in the `if let Some(contract)`
+  arm, outside every loop, so an admitted plain EX model with no component and no nonlinear support still evaluates
+  `carries_fields`. Its closure is `carries_fields` and `Authored::is_authored`: four short-circuit tests, no owner and
+  no TEXT site. `components.iter().any(..)` runs over D1.4's empty components.
+- **S1 and S7** are static literals of the formulation basis, priced with the identity by U6-J4 (six copies per point).
+
+| Rule | Premise, argument and guard |
+|---|---|
+| **RTA3NL-S6** (`o10_rules.py`, corrects W16C-ES) | W16C-ES zeroed the whole edge `validate_profile` → `carries_fields` because its one call was inside `case.equivalent_static.is_some()`. The S6 call is unconditional, so the edge is no longer zeroed on a source with the S6 statement: it is charged at `EDGE_PER_CALL` `"1"` (the S6 call; the case loop's call stays 0 by D1.5, W16C-ES). Main's source keeps the §8.27 zero (its run's applied rules list it). Guard: the S6 statement verbatim, once; the first of exactly two calls; after the reducer-region refusals and before the support loop, with only the exact-contract arm open between them; its two uses in `nonlinear_support_admission`; `carries_fields`'s four-test body. W16C-ES's own guard now counts one call plus the S6 call and checks the last call follows the equivalent-static arm. |
+| **RTA3NL-RD** (`o10_rules.py`) | `case_ids`' filtered row loop (`nonlinear_support_*` rows outside combinations) and `read`'s map over the case list: bound 0 (D1.6). Only `nonlinear_support_evidence.rs:case_ids` and `:read` may match. Guard: D1.6's refusal statement, the one `check` call in `validate_direct_pressure_evidence`, and `check`, `read` and `case_ids`' statements. |
+| **RTA3NL-ID** (`o10_rules.py`) | `read_case`'s state-review message names `s.state`, at most 8 B: the `Support` struct's `&'static str`, set in its one literal from the only `let state = STATES[code as usize]` (`inactive`, `active`, `sticking`, `sliding`). The site is unreached (multiplicity 0); the chain classifies its arguments regardless. Without the rule every point has one unclassified argument. |
+| **RTA3NL-PP** (`b7a_scoped_text_model.py`) | `problem`'s parents after `validate_profile` move +11 (532, 657, 671, 744, 1228, 1478, 1626, 1893, 1970), each body byte-identical to main's; `validate_profile`'s 30 calls are unchanged. The scoped-TEXT inventory check binds the parents to the call graph. |
+| **RTA3NL-PIN** (guards) | Full-file pins re-read after the diffs: B7a `SOURCE_FILES` (`exact_admission.rs` `96d3a5bf…` → `87c301c1…`, `pressure_runtime.rs` `59774c3e…` → `76630dd7…`, RE `retained_precision.rs` `e8a408da…` → `ba7902d0…`, RE `semantic_contract.rs` `12248dc1…` → `2861ad5b…`); W1 member load (RE `lib.rs` `394e2bb6…` → `d0c6fc38…`, `retained_precision.rs`); OP1A and TIM (`preview_physics_evidence.rs` `ef560ae7…` → `8e6ce868…`, `reader_verdict.rs` `e1d2f7d0…` → `f70665b7…`); batch 5's pressure prefix (`0ba7ea7e…` → `6868b756…`). |
+| **RT-A4-HS re-pin** | `recorded_tables.rs` `a8c3984a…` → `852783db…`: the sixth variant is `include_bytes!` data with `base: None` and `reads_under_variant: false`, and `TABLES` takes six const-initialized `OnceLock` slots. No `SELECTED` write, `read_recorded` caller or selection path changes; every RT-A4-HS guard is re-checked on these bytes. |
+
+**Run and graph.** The committed tool prices `293e8da85` on all four points with exit 0, no unmapped header or
+unclassified argument and both O-10 checks at zero. The line map equals main's in counts and dispositions (875 carried
+keys, 37 prunes, seven resolutions); its one difference is the expected +11-line relocation of the pruned
+`edge_zero[36]` caller, `pressure_runtime.rs:716` → `:727` (`build_pressure_case_with_members`). D is unchanged (L(3,0) 43,783, L(2,1) 39,369, L(1,2) 35,231, E 76,356). `reachable_fns` 4,405 → 4,422
+(the reader module); on E, `check`, `read` and `case_ids` have multiplicity 1 and every other new function 0. TAV rises
+by 5,862 B at every point: six copies of S1's +957 B and S7's +20 B. RTA3NL-S6's charge moves no coefficient.
+
+**Comparison.** Main `aa794eb68` priced with its own tool cohort (a scratch copy of its `tools/`, `run aa794eb68
+--repo`) exits 0, O-10 clear, and its `generate --check` with §8.47's basis line equals main's `retained_memory.rs`
+(1,712 lines, empty diff). Against it the candidate has **1,594 coefficients equal, 8 higher, none lower** (`a_ge_b`):
+
+| Coefficient (and its `success__` copy) | Main | Candidate | Change | Source |
+|---|---:|---:|---:|---|
+| `STATICS[1]` | 610,105 | 610,859 | +754 | the pressure-2 table's admitted-families and combinations limitations |
+| `TAV_W[1]` | 4,954,976,558 | 4,954,982,420 | +5,862 | S1 and S7, six copies |
+| `TAV_X[1]` | 5,437,237,796 | 5,437,243,658 | +5,862 | S1 and S7, six copies |
+| `TAV_text_requested` | 7,229,041,042 | 7,229,046,904 | +5,862 | (text atom, no copy) |
+| `TAV_text_moving` | 7,231,641,138 | 7,231,647,000 | +5,862 | (text atom, no copy) |
+
+The merged check moves +6,616 B per mode: sparse 8,593,478,059 → 8,593,484,675, dense 8,652,609,403 → 8,652,616,019.
+The provisional measurement (+5,873 B) priced the superseded S1 wording (+854 B).
+
+**Native atoms and evaluation.** The PP lib-test binary of the candidate (rustc 1.97.1, debug, opt-level 0, no
+RUSTFLAGS) collects 328 `I65_G5_ATOM`s, identical to the earlier integration build's; main's tree evaluated at them
+reproduces §8.48's table exactly, so no atom moved. Maintained `eval` of the merged tree, with R = 64 MiB:
+
+| Mode | W1 | W2 | W3 (maximum) | W4 | W5 | X1 | X2 | X3 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| sparse | 6,517,040,273 | 6,859,034,834 | 8,810,770,662 | 8,604,493,316 | 7,678,182,732 | 8,593,394,245 | 7,326,011,635 | 6,999,301,511 |
+| dense | 6,576,171,617 | 6,918,166,178 | 8,869,902,006 | 8,663,624,660 | 7,737,314,076 | 8,652,525,589 | 7,385,142,979 | 7,058,432,855 |
+
+Each is §8.48's value +6,616 B. W3 stays the maximum, 2,726,509,693 B (dense) below ⌊0.9M⌋ = 11,596,411,699 B at the
+unchanged M = 12,884,901,888 B; the law tests (all phases, R, the 0.9 margin and the 5% TAV_W/TAV_X reserve) pass.
+
+**All points.** With §8.46's 16-atom same-build supplement (no underlying type changes in this increment), each point
+moves +6,616 B in every phase and mode against main's same point, and all 64 point-phase-mode values are at or below
+the merged tree. W3 E + R dense: E(3) 8,783,951,205, L(3,0) 8,301,422,370, L(2,1) 7,630,441,313 and L(1,2)
+6,917,692,590 B.
+
+**Profile and records.**
+- **Block.** `generate` with basis `, re-run as RT-A3 increment 4 at 293e8da85 (§8.49): …` (1,712 lines; `--check`
+  equal).
+- **`REGISTERED_PROFILES`.** Reviewed inputs #8 (physics-retained-1 `040ef9a6…` → `85c2678a…`) and #11 (pressure-2
+  `10455bf3…` → `2c20583d…`), counted from 0, take the derived table bytes, with a registration comment. The identity,
+  the other eleven inputs, the reader layouts, the reader audit and the threshold are unchanged; the law test's
+  `REVIEWED` carries the same two digests (`semantic_contract_tables.py repin`).
+- **Law records.** `PINNED_RECORD` takes maintained `eval` less R (main's eval less R reproduces the old pins exactly):
+  sparse [6,449,931,409, 6,791,925,970, 8,743,661,798, 8,537,384,452, 7,611,073,868, 8,526,285,381, 7,258,902,771,
+  6,932,192,647]; dense [6,509,062,753, 6,851,057,314, 8,802,793,142, 8,596,515,796, 7,670,205,212, 8,585,416,725,
+  7,318,034,115, 6,991,323,991]; each +6,616 B.
+- **Challenge.** `W1_PHASE_BYTES` [6,449,931,409, 6,509,062,753] and `MAX_PHASE_BYTES` [8,743,661,798, 8,802,793,142].
+- **Results.** `profile_` 8 passed; the `retained_memory` lib tests 84 passed (71 ignored); the default
+  `retained_memory_challenge` 1 passed (43 ignored).
+
+**Retained outputs and preservation (reseal-to-base).** On the registered build the retained writers emit the
+successors: `I105_B3B_OUT` (exact), `O4_W1E_OUT` (four O4), `I76_T6S2_OUT` (exact derivative goldens), the corpus tool's
+expand, edit and pack (the six mirrored cases: source, fixture/producer-record and receipt digests), `B3B_INPUTS_OUT`
+with `RV120_INPUTS_WRITE`, and `RETAINED_READER_OUTCOMES_OUT`.
+- **In-memory pins.** The sixteen pins of `retained_facade_tests.rs` (EXACT receipt/bytes/document in two modes, MIX
+  receipt/bytes in two, TWO_MEMBER four, UNAVAILABLE two) were re-pinned one mode at a time, each only after its proof:
+  the producer's capture (`RTA3_RETAINED_PIN_OUT`; the exact one by an uncommitted, test-only call of the same writer)
+  hashes to the printed value; restating S1 and S7 to main's texts and resealing with the Python 07e rule changes only
+  `publication_sha256` and `receipt_sha256`; and substituting those reproduces main's pin exactly (and main's receipt
+  pin for EXACT and MIX). No table digest is carried by a successor. **All ten successors and all sixteen old pins
+  are restored.**
+- **Documents.** The six regenerated successor documents (exact and O4) reseal the same way to main's committed bytes,
+  byte for byte, and main's exact fixtures hash to main's document pins.
+- **Consumers.** The exact successor's receipt and document digests and the exact goldens' digests follow in the
+  desktop (`retainedPrecisionResultExport.test.tsx`), result_export (`retained_precision_contract.rs`,
+  `retained_precision_derivative_golden.rs`) and Python (`test_retained_precision_b3.py`) consumers. The recorded
+  runs (`fixtures/persistence/recorded_pre_rt_a4_pf/`) are history and unchanged. The eight RV120/N2b JCS pins of
+  `retained_precision_contract.rs` take the Python materialization (`rv120_input`) of the rewritten RV120 inputs.
+
+**The text-only guard (review finding 2).** `tests/test_rt_a3_nonlinear_text_only_envelope_diff.py` no longer has a
+pending set. All eleven retained carriers are compared field by field: the compact corpus through its lossless
+expansion, the RV120 inputs with both endpoints' input digests rematerialized from their own bases, and the reader
+outcomes by `check_reader_outcomes`: keys, readings and summaries token for token; each of the 59 moved input digests
+rematerialized at both endpoints (118 derivations; a moved input it cannot rematerialize is refused); an unmoved
+input's entry byte-identical; every refusal's outcome digest (1,486 per endpoint) recomputed from its summary. A pass's
+outcome digest binds its publication seal and classifications, which only the native reader computes: it may move only
+with its input, and `r1_native_reader_outcomes` and the desktop's wasm equivalence test bind its value. Negative
+controls: a numerical token changed in five retained carriers (the exact and O4 successors, an exact golden, a corpus
+scalar node and an RV120 edit), the reader outcomes left at the endpoint's bytes, an exact successor left at the
+endpoint's bytes, and a forged input or refusal digest are each refused. Completeness requires no JSON file outside the
+frozen and historical scopes to state an old text.
+
+**Maintained tests.** `tools/retained_pricing/tests/test_849_rt_a3_nonlinear.py`: the per-call charge on both routes
+(not a zero), the S6 statement's position, a moved or repeated S6 call and an owning `carries_fields` stop, the
+reader's loops and class, four changed reader premises stop (D1.6, a longer state, another state source, a widened
+case scan), and the parents follow their functions. `test_w16bc_combinations_equivalent_static.py`'s expected zero
+set drops the corrected edge; `test_841_rt_a3_reducer_2b.py`'s parent keys follow +11. The whole-scope long-literal
+check passes with the six reviewed dispositions unchanged: the pressure-2 identity, now 3,964 B, keeps its own-bound
+disposition measured by U6-J4, and S7 (224 B) stays below the static class; `test_844_rt_a3_ce.py` follows both.
+The pricing-tool suite (`tools/retained_pricing/tests` and `tests/test_retained_pricing_tool.py`) passes: 1,035.
+
+**AC-004: the six witnesses and the isolated challenge pass on this registration's binary (7/7).** Coefficients, the
+in-build record and `W1`/`MAX` move, so Agent 0 cleared one exclusive run of the six stack witnesses plus §8.40's
+isolated `retained_memory_challenge`, after the independent registration review cleared (no blocking or should-fix
+finding; its descriptive notes are corrected above).
+- **Identities**, recorded before queueing and re-verified at admission by the harness:
+  - head `4a82870016521f1643e18959cdbdfbf05ebdc103`, clean; its `core/` tree `2c1a8dc42950688cd794a98812ef351d14b985ba`
+    is the binary record head `850c82d4b`'s (the commits between change only Work text, the pricing README and the CE
+    pricing test `test_844_rt_a3_ce.py`, and no compiled product source);
+  - lib-test binary `open_pipe_stress_product_physics-8057898b0bb36c31`, SHA-256
+    `7b986d0955dd6f43a987e4241583c882d7a7439996216b161b46a2a9c818d202`;
+  - challenge binary `retained_memory_challenge-3f698ddcca32b754`, SHA-256
+    `6c84ad3a3e1518bf13315685c748b2352c9e37291f1c6758ed9146fbbb003596`, source `tests/retained_memory_challenge.rs`
+    `0fe5a78419b63c8d8334da195a21fa5facb6c825b1c18d454517886abd5c98ed`;
+  - profile `retained_memory.rs` `2c6ae607e0112c26ac15560cdf15614b2c08ff5ab673633bb4d2ec2bb12f6d3a`, product_physics
+    `Cargo.lock` `b7ebb02aafa8cfe214c18bc64941381b33ab3f9295e0fc774ee0819e1e4f5653` (unchanged);
+  - rustc 1.97.1 (`8bab26f4f68e0e26f0bb7960be334d5b520ea452`, aarch64-apple-darwin), RUSTFLAGS and
+    CARGO_ENCODED_RUSTFLAGS unset, no repository Cargo configuration.
+  Both binaries were built beforehand under the slot wrapper (`cargo test --offline --no-run --lib --test
+  retained_memory_challenge`, test profile), and a `--no-run` immediately before queueing reported them fresh.
+- **Window.** One `t3_exclusive.sh` run with memguard: WAIT-EXCLUSIVE and START-EXCLUSIVE 2026-11-04T10:56:05Z
+  (admission verified at 10:56:05.710Z), END-EXCLUSIVE 10:56:18Z, rc 0. That is 13 s including teardown against 60 s;
+  the internal harness took 12.57 s against its 55 s deadline (hard deadline 10:57:00.6Z).
+- **Discipline.** Each test ran once in its own process, invoked directly from its prebuilt binary with `--exact
+  --test-threads=1` (`--ignored` for the witnesses). Nothing was compiled inside the window, and there was no retry
+  and no extra test.
+- **Results, all pass:**
+
+  | Test | Sparse | Dense |
+  |---|---|---|
+  | `witness_headroom_w1_at_one_mebibyte` | 0.69 s | 0.70 s |
+  | `witness_w2_deep_milestone_publishes` | 1.35 s | 1.25 s |
+  | `witness_w_c2_publishes` | 2.45 s | 2.39 s |
+  | `retained_direct_peak_is_within_the_profiles_bounds` (isolated challenge, both modes, one process) | 3.64 s | |
+
+- **Closure.** Verified at 10:56:28Z: `exclusive.pending` absent, no harness, wrapper or test process of this run, no
+  holder on the four slot locks, and both binary hashes unchanged. This is test evidence, not an acceptance.
+- **Review process exception (recorded as it occurred).** During the independent registration review, the pricing
+  tool's child interpreters wrote ten Python bytecode caches under `tools/retained_pricing` outside the review's
+  scratch; the reviewer removed only those new files, and later runs disabled bytecode writing. No tracked file
+  changed. The removal restores the tree; it is not evidence or authority for this registration.
+
+Run evidence is in `/Users/ryan/dev/chirality-t3/scratch/rt-a3/nl-reg/` and the window's record in `…/rt-a3/nl-witness/` (the head and main runs, the comparison, the atom
+logs and evaluations, the pin captures and reseal scripts). It is review input, not a permanent dependency.
+
+### §8.50 RT-U4: deterministic diagnostic order (#105) and repair B's single pressure evidence pass (#106) on RT-A3 increment 4 (combined actual-source D3)
+
+**Status.** Proposed registration of two RT-U4 repairs, made together on RT-A3 increment 4's registered candidate in the
+order Agent 0 set (§8.49, then this, then PF1b). It is made under the owner's removal of explicit owner approval for
+coefficient movement; source-derived pricing, independent scrutiny and preservation of the registered state remain
+required. This records no acceptance. The threshold and M are unchanged. **AC-004: 7/7 on the registered binary** (below). Agent 0's condition
+binds this shared registration: the derivation accounts for the actual composed source, and the absence of movement in
+either PR on its own is not taken as proof for the composition.
+
+**The repairs.**
+- **#105, deterministic diagnostic order** (head `d8fb95678`). `connector_evidence::validate` scans the source's
+  `results` array (parameter `source_rows`) and the `exact_cases` array, cases before records (`case_order`), instead of
+  hash order; `global_end_evidence::coverage` walks `local`'s `BTreeMap` in (load case, member) byte order, with
+  MEMBER_UNRESOLVED a lookup in `local`, instead of a member `HashSet`. The Python verifier follows (`pressure_2.py`'s
+  case list; `global_end.py`'s `_case` and coverage parity). Pass or refuse never varied; only the first refusal of an
+  envelope with two different-code defects was seed-dependent.
+- **#106, repair B** (head `2b21c367c`, on #105). On the pressure route `reader_verdict::standing` reads
+  `validate_pressure_evidence` once and gives the verdict to both the token (`numerical_use_standing_given`, through the
+  private `semantic_contract::for_source_given`) and the findings (`pressure_outcome`, shared with `validate`'s pressure
+  arm). `for_source`, the retained G7 call, is byte-identical.
+
+**Predecessor.** `claude/rt-a3-nonlinear` at `03a5cd3b1` (final §8.49 record; docs only), whose registered source is
+identical to `4a8287001`'s (§8.49: priced source `293e8da85`, registered-binary record `850c82d4b`; `core/` tree
+`2c1a8dc4…` across `850c82d4b..4a8287001`). It contains main `aa794eb68`.
+
+**Priced source.** `cadd9b577`: no-ff merges of `4a8287001` (`10f50c39f`) and `03a5cd3b1` (`cadd9b577`) into repair B,
+with the reference update (`a1c093456`) and the suffix re-pin (`64c21f46b`). Conflicts were resolved from source:
+- `reader_verdict.rs`: B's pressure arm calls `pressure_outcome`; increment 4's
+  `nonlinear_support_evidence::model_checks` moves into `pressure_outcome`, after the combination model checks, so
+  `validate` and `standing` share it and the outcome is increment 4's two-pass outcome;
+- the pins below, each re-read on the merged bytes, and result_export's routing digest (`rust_tree_digest`; the scan
+  list holds both sides' files).
+
+**B's single pass on increment 4's code.** Increment 4 adds `nonlinear_support_evidence::check` to the pressure evidence
+pass (`validate_direct_pressure_evidence`) and its `model_checks` after it. Both read the envelope (and the model) only:
+no hash collection, `static`, `Cell`, `RefCell`, `OnceLock` or thread-local, every scan in source-array order
+(`case_ids`' first-row order, the per-case row filters, the model's `supports` order). Increment 4's other change on
+the route, `recorded_tables`' sixth variant, is a `const`-initialized `OnceLock` table slot with `reads_under_variant:
+false`; no `SELECTED` write or read path changes. So the pass stays a pure function of its input, and reading it once is
+the two-pass read.
+
+**Pins restated on the merged bytes** (old → new, each recomputed, not carried):
+
+| Pin | File | Old | New |
+|---|---|---|---|
+| B7a `SOURCE_FILES` | RE `semantic_contract.rs` | `481547a3…` (B), `2861ad5b…` (inc4) | `d4dd238e…` |
+| O-10 OP1A (`_op1a_pins`, text) and TIM (`_TIM_PINS`, raw) | RE `reader_verdict.rs` | `3d689996…` (B), `f70665b7…` (inc4) | `d880e7e6…` |
+| `qualification_physics.py` `MODULE` | RE `physics_evidence.rs` | `fe65101b…` (B), `2e9b087d…` (inc4) | `0baf783f…` |
+| `retained_memory_law_tests` `complete_suffix_sha256` | RE `semantic_contract.rs` suffix | `d67f4782…` (inc4 and B's base) | `333ae77d…` |
+
+The suffix starts at line 400 (`mod b7b_current_table_tests`) on every side. Increment 4's two table-hash constants lie
+in the inspected prefix, so the merged suffix is repair B's byte for byte: `for_source_given` (line 739) and the token's
+call sit in the inspected production after the resume (line 494), the closed module and E14 (from line 1089) are
+unchanged, and no include, path module or static entered. Not restated, because the merged bytes equal increment 4's:
+B7a's other entries (`exact_admission.rs`, `pressure_runtime.rs`, `retained_precision.rs`), W1's RE `lib.rs`,
+OP1A/TIM's `preview_physics_evidence.rs`, RT-A4-HS's `recorded_tables.rs` (`852783db…`) and batch 5's pressure prefix.
+#105's E3, U5B-L, W7-RD and W7-L1 rules apply unchanged; the pricing-tool test that each re-keyed header is unique
+passes.
+
+**Run and graph.** The committed tool prices `cadd9b577` on all four points with exit 0, no unmapped header or
+unclassified argument and both O-10 checks at zero. The line map equals the predecessor's (875 carried keys, 37 prunes,
+seven resolutions). D is unchanged (L(3,0) 43,783, L(2,1) 39,369, L(1,2) 35,231, E 76,356). The call graph gains four
+functions; one is reachable (`reachable_fns` 4,422 → 4,423): #105's `connector_evidence::case_order`, which allocates
+nothing. B's `pressure_outcome`, `numerical_use_standing_given` and `for_source_given` are outside the retained roots.
+The applied rules differ from the predecessor's only by #105's: E3 splits into `connector_evidence::validate`'s `for row
+in source_rows` and the counting pass's `for row in rows.values()` (both `Pall`), E2's `spans.keys()` zero is retired,
+U5B-L's lookup is `iter:source_rows.iter().find`, and W7-L1 binds the ordered member loop at `cases*m`. B's
+`#[cfg(test)]` pass counter moves `exact_combination_evidence.rs`'s keys +10 (W16B-RD, W16BC-BN), with the same rules.
+No RTA3NL rule changes. TAV rises by 373,760 B at L(3,0) and E, 186,880 B at L(2,1) and 0 at L(1,2), which is
+(c − 1)·m times the loop's failure text: the bound moves from `m` to `cases*m`.
+
+**Comparison.** The predecessor `4a8287001`, priced with its own tool in a clean worktree, exits 0 and is O-10 clear.
+Its `generate --check` with §8.49's basis line equals §8.49's committed block (1,712 lines, empty diff). Against it the
+candidate has **1,594 coefficients equal, 4 higher, 4 lower**:
+
+| Coefficient (and its `success__` copy) | §8.49 | Candidate | Change | Source |
+|---|---:|---:|---:|---|
+| `TAV_W[1]` | 4,954,982,420 | 4,955,356,180 | +373,760 | W7-L1: the ordered member loop at `cases*m` (was `m` by the broad `members\b` rule) |
+| `TAV_text_moving` | 7,231,647,000 | 7,232,020,760 | +373,760 | the same (text atom, no copy) |
+| `TAV_text_requested` | 7,229,046,904 | 7,229,420,664 | +373,760 | the same (text atom, no copy) |
+| `T17_V5[1]` | 621,579,426 | 621,579,188 | −238 | W7-RD: the member `HashSet` is gone |
+| `T17_V5[s(PairBorrowed)]` | 4,484 | 4,292 | −192 | the same |
+
+The merged check moves +373,760 B per mode: sparse 8,593,484,675 → 8,593,858,435, dense 8,652,616,019 → 8,652,989,779.
+
+**Composition.** These are exactly #105's movements against its own basis `41cf15b95` (W7-RD −192·s(PairBorrowed) and
+−238 B on T17_V5; W7-L1 +373,760 B on TAV_W[1] and the two TAV text atoms; the check +373,760 B). Repair B's
+pricing on `ad3665dcc` was `identical_but_basis`, and it moves nothing here. Increment 4's +6,616 B is in the
+predecessor and unchanged. The change sets meet only in files the retained graph either does not reach or reaches
+unchanged:
+- `reader_verdict.rs` is outside the retained roots;
+- `semantic_contract.rs`'s `for_source` is byte-identical, and increment 4 changed only constants there;
+- in `physics_evidence.rs`, increment 4's added `check` call (RTA3NL-RD: its loops at 0 on D1.6) and #105's
+  connector-call arguments are separate statements, and their rules apply to each as on its own side.
+
+Increment 4 does not touch `connector_evidence.rs` or `global_end_evidence.rs`, so W7-L1's loop text and multiplicity
+are #105's. No cross term arises, and none is observed: each coefficient is the predecessor's plus #105's delta.
+
+**Native atoms and evaluation.** The candidate's PP lib-test build (rustc 1.97.1, debug, opt-level 0, no RUSTFLAGS)
+collects 328 `I65_G5_ATOM`s, the same before and after the re-pin. The predecessor's tree evaluated at them reproduces
+§8.49's table exactly, so no atom moved. Maintained `eval` of the merged tree, with R = 64 MiB:
+
+| Mode | W1 | W2 | W3 (maximum) | W4 | W5 | X1 | X2 | X3 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| sparse | 6,517,414,033 | 6,859,408,594 | 8,811,144,422 | 8,604,860,694 | 7,678,556,492 | 8,593,394,245 | 7,326,011,635 | 6,999,301,511 |
+| dense | 6,576,545,377 | 6,918,539,938 | 8,870,275,766 | 8,663,992,038 | 7,737,687,836 | 8,652,525,589 | 7,385,142,979 | 7,058,432,855 |
+
+Against §8.49: W1, W2, W3 and W5 +373,760 B (TAV_W); W4 +367,378 B (TAV_W, plus T17_V5's −238 − 192·32 B at
+s(PairBorrowed) = 32 B); X1–X3 unchanged; in both modes. W3 stays the maximum, 2,726,135,933 B (dense) below
+⌊0.9M⌋ = 11,596,411,699 B at the unchanged M = 12,884,901,888 B. The law tests (all phases, R, the 0.9 margin and the
+5% TAV_W/TAV_X reserve) pass.
+
+**All points.** With §8.46's 16-atom same-build supplement (no underlying type changes in either repair), the predecessor's
+points reproduce §8.49's W3 E + R dense: E(3) 8,783,951,205, L(3,0) 8,301,422,370, L(2,1) 7,630,441,313 and L(1,2)
+6,917,692,590 B. The candidate's are 8,784,324,965, 8,301,796,130, 7,630,628,193 and 6,917,692,590 B. All 64
+point-phase-mode values are at or below the merged tree.
+
+**Profile and records.**
+- **Block.** `generate` with basis `, re-run as RT-U4 order and repair B on RT-A3 increment 4 at cadd9b577 (§8.50): …`
+  (1,712 lines; `--check` equal). Only the eight coefficients above, the basis line and `PYTHON_CHECK` change.
+- **`REGISTERED_PROFILES`.** Unchanged: no reviewed input (table) or reader layout moves, and the identity, the reader
+  audit and the threshold are §8.49's.
+- **Law records.** `PINNED_RECORD` takes maintained `eval` less R. Sparse: [6,450,305,169, 6,792,299,730,
+  8,744,035,558, 8,537,751,830, 7,611,447,628, 8,526,285,381, 7,258,902,771, 6,932,192,647]. Dense: [6,509,436,513,
+  6,851,431,074, 8,803,166,902, 8,596,883,174, 7,670,578,972, 8,585,416,725, 7,318,034,115, 6,991,323,991].
+- **Challenge.** `W1_PHASE_BYTES` [6,450,305,169, 6,509,436,513] and `MAX_PHASE_BYTES` [8,744,035,558, 8,803,166,902].
+- **Results.** `profile_` 8 passed (before the re-pin only `profile_in_build_record` failed, at the old pins); the
+  `retained_memory` lib tests 84 passed (71 ignored). The `retained_memory_challenge` binary was not run: it records peak
+  heap, which is a measurement.
+
+**Repair B's behaviour identity on the composed source.** `reader_verdict_single_pass_tests.rs`'s reference is the
+composed predecessor's two-pass read: `dispatch`, `standing`, `validate`, `numerical_use_standing_with_context` and
+`for_source`, verbatim but for their names. The order repair leaves those five functions unchanged, so they are
+`4a8287001`'s text. A script checks all five against `4a8287001` (identical, renamed only); against `ad3665dcc` only
+`validate`'s added nonlinear model check differs. The corpus adds increment 4's committed nonlinear pressure-2
+envelope (`b1_loaded_inactive_reaction.json`, a gap ending inactive under load, with its model) with:
+- the generic mutations;
+- nonlinear-row defects (reaction, state code, convergence flag, three missing rows, a twin state row, the missing
+  state review);
+- a nonlinear defect competing with an ordinary row defect, in both row orders;
+- three model-side edits of its nonlinear record.
+
+On the merged source, the full serialized `dispatch` is byte-identical to the reference over 2,569 inputs:
+- 3,735 pressure-route reads take 2 passes in the reference and 1 at head;
+- 74 header-refused reads keep their passes;
+- 1,240 reads carry a model, and 2,803 have several findings;
+- there are 60 first-finding codes and all three tokens;
+- 226 nonlinear reads reach 10 `SOURCE_PHYSICS_NONLINEAR_*` first codes.
+
+The token-given and other-route tests pass, and the counter counts one pass per reader call. Repair B's earlier
+evidence (3,583 reads on `ad3665dcc`, mutations, the native differential) stands for the order repair's source. On
+this source, its in-crate agreement is re-run, not carried.
+
+**AC-004.** Coefficients, the in-build record and `W1`/`MAX` move, so the six stack-headroom witnesses and §8.40's
+isolated challenge were run on the registered binary. They passed **7/7 at `41142f4a3`** (tree `62f83f23dc10…`), whose
+`core/` source and block are the ones registered here; later commits change only this Work text.
+- **Binaries.** `open_pipe_stress_product_physics-969a8c7254e96a03` SHA-256
+  `37bc5401d1a6d599c29998ff647481411df75e1707c94e734092eb7a4f1259fb` and `retained_memory_challenge-9ee840740e605021`
+  SHA-256 `efbcd4308c539d917d09d2af6e41c025df344b6228cb4ae4fe12429af668e933`. Profile `retained_memory.rs`
+  `63087c0f5447829cb8fea9851d863687ca3ad1e598ae4e888210aa63a5042f6d`, product_physics `Cargo.lock`
+  `b7ebb02aafa8cfe214c18bc64941381b33ab3f9295e0fc774ee0819e1e4f5653`, rustc 1.97.1 (8bab26f4f 2026-07-14). Built
+  beforehand under the slot wrapper (`cargo test --offline --no-run --lib --test retained_memory_challenge`, test
+  profile; `RUSTFLAGS`, `CARGO_ENCODED_RUSTFLAGS` and `CARGO_BUILD_RUSTFLAGS` unset); a second `--no-run` reported them
+  fresh.
+- **Clearance and checks.** Agent 0 cleared one `t3_exclusive.sh` window with memguard, at most 55 s internal and 60 s
+  external including teardown. The identities above were recorded before queueing and all re-verified at admission
+  (head, tree, clean state, profile, lock, both binaries, compiler, flag state). No other exclusive job was pending.
+- **Timing.** Queued and admitted 2026-11-04T12:20:11Z; ended 12:20:25Z: 14.48 s, teardown included.
+- **Discipline.** Each test ran in its own process, prebuilt and invoked directly with `--exact --test-threads=1`
+  (`--ignored` for the witnesses). Nothing was compiled inside the window, both binary hashes were unchanged afterwards,
+  and there was no retry and no extra test. No owned process, lock holder or `exclusive.pending` remained (verified
+  12:20:32Z).
+- **Results, sparse and dense:**
+  - `witness_headroom_w1_at_one_mebibyte`: ok (2.00 s), ok (0.63 s);
+  - `witness_w2_deep_milestone_publishes`: ok (1.28 s), ok (1.28 s);
+  - `witness_w_c2_publishes`: ok (2.36 s), ok (2.43 s);
+  - `retained_direct_peak_is_within_the_profiles_bounds`: ok (4.25 s), against the re-pinned `W1_PHASE_BYTES`/
+    `MAX_PHASE_BYTES` above.
+
+This is test evidence, not an acceptance.
+
+**Checks** (on the priced source; the registration commit changes only the profile, the law record and the challenge).
+- **result_export:** all 30 test binaries, 424 passed, 2 ignored. These include the lib tests (138: the single-pass
+  agreement, token and other-route tests, `record_order_tests`, global end coverage order and `any_tests`),
+  `connector_order.rs` 5, `region_result_binding.rs` 1 and `reader_verdict.rs` 21.
+- **product_physics law tests:** `profile_` 8 and the `retained_memory` lib tests 84 (71 ignored). The
+  `retained_memory_challenge` binary is not run here.
+- **Runner and applier:** runner `reader_cli` 4 passed; the applier's `reader_verdict_binding` 6 passed. Both ran at `67bb2d70f` after the C1 exclusive window closed.
+- **Python reader and verifier tests,** 23 files, including `test_qualification_exact_pressure`,
+  `test_rt_u4_global_end_order`, `test_preview_identity_inventory` and `test_rt_a3_nonlinear_reader`: 2,173 passed, 8
+  skipped, 1 failed. The failure, `test_load_reference_readers.py::test_frozen_inputs_and_table_identity`, is inherited
+  from the predecessor. Increment 4 regenerated `fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json`
+  (`c4c8779d…` → `c5ed19df…`), and the test's `FROZEN` pin still names `c4c8779d…`. Both files are byte-identical to
+  `4a8287001`'s, so it fails there the same way. RT-A3 repaired it in #108's `5701a55a5`: all four load/reference
+  raw pins now follow increment 4's regenerated envelopes (test file only; no runtime, profile or pin change). That
+  commit is merged here as `45bc33590`, where `tests/test_load_reference_readers.py` passes 240 (1 skipped).
+- **Pricing tool and routing** (`tools/retained_pricing/tests`, `tests/test_retained_pricing_tool.py`,
+  `tests/test_ci_numerical.py`, `tools/software_workflow/test_hosted_ci.py`): 1,116 passed (120 subtests).
+- **`deliverables check`:** 0 errors.
+
+Run evidence is in `/Users/ryan/dev/chirality-t3/scratch/rt-perf-d4/`: the two runs, the comparison, the atom logs, the
+evaluations, the supplement and the reference check script. It is review input, not a permanent dependency.
+
+### §8.51 Operating-case slice 1b: the declared operating-minus-sustained difference on RT-U4's §8.50 candidate (actual-source D3)
+
+**Status.** Proposed registration of operating-case slice 1b (DEL-05-02 `operating-case.md` §1.2, §6; PR #107), made
+on RT-U4's frozen, reviewed §8.50 candidate in the order Agent 0 set (#97 §8.48, increment 4 §8.49, RT-U4 §8.50, then
+this). It is made under the owner's removal of explicit owner approval for coefficient movement; source-derived
+pricing, independent scrutiny and preservation of the registered state remain required. This records no acceptance.
+The threshold and M are unchanged. **AC-004: pending** (the binary is named below; the witnesses are not run here).
+
+**What 1b adds.** A `result_state_subtraction` may declare `difference_basis = "operating_minus_sustained"`. The solve
+gates it by G-1 (the subtrahend's primitive loads, by content, contained in the minuend's:
+`EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING`) and G-2 (the two cases' modulus bases differ:
+`EXPANSION_BASIS_MODULUS_MIXED`) in `product_physics::difference_basis`, publishes the operands' content multisets as
+`contract_evidence.difference_basis_derivation`, and states its rows' sign. `result_export::preview_difference_basis`
+re-derives G-1 from that evidence without the model and checks it against the model with one. The three preview tables
+restate their combination policy (v2 → v3).
+
+**Basis and integration chain.** The basis is `41142f4a3` on `claude/rt-perf-single-pass` (PR #106, containing #105),
+whose registration is §8.50 (priced source `cadd9b577`; the later commits change no priced source), with §8.50's AC-004
+record `a80429ab6` (text only). It contains increment 4's §8.49 (record `03a5cd3b1`), RT-A3 #108's test-pin fix
+`5701a55a5` and main `aa794eb68`. 1b's branch (on main `aa794eb68`) merged it as `a38e05332`, then `a80429ab6`
+(`b03d53048`), main `252bef969` (#108; `0b9446df6`) and main `573051799` (#106 with #105 merged, §8.50 registered;
+`a82460ad7`). The last two merges change no file (each tree equals its parent's), and the head's diff against main
+`573051799` lies wholly in 1b's own commits. **Priced source: `a82460ad7`** (contains main `573051799`). Its tree
+prices `identical_but_basis` to the first priced revision, `357dd4dfa`, whose figures below are the same; the
+registration commits follow.
+
+**Merge resolution** (`a38e05332`; merged, not rebased). The tables moved disjointly: increment 4 pressure-2 and
+physics-retained-1, 1b the three preview tables; `derive --check` holds on the merged tree. The recorded registries
+(Rust `recorded_tables::VARIANTS`, Python `RECORDED_PRE_RT_A4_TABLES`, desktop `recordedPreRtA4.ts`) keep every
+historical variant: increment 4's physics-retained-1 `040ef9a6` at index 5 and 1b's three bbf384dec tables at 6–8 (the
+retained variant's base index 5 → 6). The analysis-run schema's table-digest enum takes each position from the side that
+changed it. The schema digests in the product-preview generation manifests were repinned by
+`semantic_contract_tables.repin` restricted to the three v0.3 schemas: a full repin would have rewritten the historical
+registry rows, whose digests are both sides' old table values. `schema_manifest.json` is regenerated, and the routing
+digests are recomputed.
+
+**Pins restated on the merged bytes** (basis → head; each premise re-read on the merged bytes, its reason at the pin):
+
+| Pin | File | Basis | Head | Reason |
+|---|---|---|---|---|
+| B7a `SOURCE_FILES`, KD5 `B7A_PRIMITIVE_LIB_SOURCE_PIN`, W1 reductions | PP `lib.rs` | `f2ced8d7…` | `dcb744fb…` | three items folded onto existing lines (no line moves); `.min(`/`.max(` 2/11 on both |
+| B7a, W1 reductions, O-10 OP1A | PP `preview_physics.rs` | `ecd14d75…` | `cf2ce2e1…` | the declared arms (PF1B-DZ) |
+| S1-PIN, `s1_owners_model` | PP `document_members.rs` | `a2bc924c…` | `7992d86d…` | the difference-basis push deleted |
+| W1 member load | RE `lib.rs` | `d0c6fc38…` | `a1699800…` | declares `preview_difference_basis` |
+| B7a, W1 member load | RE `retained_precision.rs` | `ba7902d0…` | `7db0e51b…` | `TABLE_HASH` only |
+| B7a | RE `semantic_contract.rs` | `d4dd238e…` | `7cd4bebd…` | three table-hash constants only |
+| RT-A4-PIN, `rta4_owners_model` | RE `preview_combination_gates.rs` | `918758e2…` | `b6c9ad33…` | PF1B-FZ call, an allocation-free arm, model-bound reads (RT-A4-RM) |
+| O-10 OP1A | RE `preview_combination_operands.rs` | `8444069d…` | `51df5bf3…` | `model_checks`' admitted set (reader_verdict only) |
+| O-10 OP1A, TIM | RE `preview_physics_evidence.rs` | `8e6ce868…` | `19513176…` | an optional member, two static gate codes, an existing set's lookup |
+| RT-A4-HS | RE `recorded_tables.rs` | `852783db…` | `b3b238c7…` | three include_bytes! variants, nine OnceLock slots; no selection path changes |
+
+Eighteen pin values in all (the analysis-only record's "17" was a miscount). Not restated, because the merged bytes
+equal the basis's: O-10 OP1A/TIM `reader_verdict.rs` (`d880e7e6…`) and `qualification_physics.py`'s
+`physics_evidence.rs` (`0baf783f…`). `semantic_contract.rs`'s audited suffix (from line 400) is §8.50's `333ae77d…`
+byte for byte: 1b's three constants (lines 129, 139, 180) lie in the inspected prefix.
+
+**Restated rules (§8.46's precedents).** S1-ZS drops its two entries for the deleted difference-basis push, as §8.46
+dropped the unsigned and nested pushes'. RT-A4-D14's guard pins `interim_reasons` at one push and no difference-basis
+branch (it pinned two). The remaining reason is still D1.4-refused, so RT-A4-WZ's zero stands; a re-added push stops
+the run.
+
+**New rules (PF1B, `o10_rules.py`).** Guarded on the two new modules' bytes (PF1B-PIN) and on the code each zero reads:
+- **PF1B-DZ.** D1.4 refuses every difference basis (family_clauses' member clause), so `declared()` is false for every
+  combination D1 solves. Zero edges: `gate_reason → gate`; `derivation → case`, `→ contents` and `→ contents_evidence`
+  (its declared filter keeps none). Site zeros: the declared sign's copy and the member key's copy (the folded `lib.rs`
+  line's only TEXT site). The guard pins the producer's ten uses of the module, `declared()`'s one test and
+  `derivation`'s filter and `None` return.
+- **PF1B-FZ.** The reader reads the producer's own successor. On D1 that has no derivation member, no G-1/G-2 reason and
+  no row with 1b's sign (the guard checks that the reader's `SIGN` and `MEMBER` are the producer's and equal no other
+  producer literal), so `free_check` returns at `!claimed` before `read()`. Zero edges from `free_check` to its eight
+  callees, and `0` for its four loops.
+- **PF1B-RM.** `preview_difference_basis::check` has one caller, the gate reader's `check`, which passes its model,
+  `None` on the retained graph (RT-A4-RM's guard). Zero edge `check → model_check`.
+- **PF1B-BN.** The by-name call graph adds false in-edges to the modules' private `case`, `read` and `items` from eight
+  existing callers (`operating_conditions::findings`, `retained_product::combine_on`, `retained_wire::logical`,
+  `composite::validate_publication`, `exact_combination_evidence::validate`, `recorded_tables::entry_scope` and
+  `::read_recorded`, `document_members::json_findings`). Rust privacy rules them out, so they are zeroed as S1-BN did.
+  `read_multiset`'s and `model_multiset`'s `new` is `BTreeMap::new` (`CG_RULES` targets `[]`), which removes their
+  false edges to `Reference::new`, `PressureReference::new` and `RowIndex::new`. Those edges were the analysis-only
+  record's text rise.
+- **PF1B-L.** `derivation`'s gate scan ≤ z; a reader operand's entries ≤ l (strictly increasing contents of one case's
+  primitive loads, D1.9; unreached: FZ); a model case's loads ≤ l (unreached: RM).
+- **PF1B-ID.** The content fields `node`, `dof`, `load.category`, `.direction` and `.dimension` are IN128 (authored
+  strings, as W16S-ID classes a dimension and a DOF token). The member key (27 B), the sign and the reader's refusal
+  codes are classed at their static lengths; a guard pins every refusal to a module constant.
+
+The `difference_basis_derivation` payload (at most one record per declared combination, at most one entry per
+primitive load per operand) is zero on D1 by PF1B-DZ. Every bound above holds without that premise as well. No
+allowance is dropped and no guard is weakened.
+
+**Run and graph.** `price.py run a82460ad7` (and `357dd4dfa`, identical but for the basis): exit 0 on all four points, no unmapped header or unclassified argument,
+`text_complete` and `D_converged` everywhere, both O-10 checks 0. The line map equals the basis's (875 carried keys, 37
+prunes, seven resolutions; both premise pins hold; the off-build set is equal). `reachable_fns` is 4,423 → 4,460 (1b's
+module functions and their callees). D: L(3,0) 43,783 and E 76,356 equal; L(2,1) 39,371 (+2) and L(1,2) 35,235 (+4).
+The non-maximum points' extra diagnostics and `modulus_basis_key` multiplicity come from the declared arm's G-2 call to
+`modulus_basis_key` in `gate_reason`. The tool has no per-call-site zero, so this is priced conservatively; it moves
+neither maximum point. TAV is the basis's at L(3,0) and E.
+
+**Comparison.** The basis `41142f4a3`, priced with its own tool, exits 0 and is O-10 clear. Its `generate --check` with
+§8.50's basis line equals the committed block (1,712 lines, empty diff). Against it the head has **1,596 coefficients
+equal, 6 higher, 0 lower**:
+
+| Coefficient (and its `success__` copy) | §8.50 | Head | Change | Source |
+|---|---:|---:|---:|---|
+| `STATICS[1]` | 610,859 | 617,975 | +7,116 | the three preview tables' policy v3 texts and keys, +1,779 B each, in four static owners |
+| `STATICS[Node(String,Value)]` | 7,846 | 7,858 | +12 | +3 nodes per table, four owners |
+| `STATICS[s(Value)]` | 31,224 | 31,272 | +48 | +2 array slots (6 × s(Value) each) per table, four owners |
+
+The four owners are B7a's `STATIC_OWNERS`: preview-physics-2, timoshenko-1 and preview-physics-retained-1 twice
+(`retained_precision::table` and `semantic_contract::preview_physics_retained_contract`). Each delta is the tool's
+`static_tree` count of the table change, reproduced exactly. The merged check moves +17,484 B per mode: sparse
+8,593,858,435 → 8,593,875,919, dense 8,652,989,779 → 8,653,007,263.
+
+**Native atoms and evaluation.** The head's PP lib-test build (rustc 1.97.1, debug, opt-level 0) collects 328
+`I65_G5_ATOM`s. Maintained `eval` of the merged tree, with R = 64 MiB:
+
+| Mode | W1 | W2 | W3 (maximum) | W4 | W5 | X1 | X2 | X3 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| sparse | 6,517,431,517 | 6,859,426,078 | 8,811,161,906 | 8,604,878,178 | 7,678,573,976 | 8,593,411,729 | 7,326,029,119 | 6,999,318,995 |
+| dense | 6,576,562,861 | 6,918,557,422 | 8,870,293,250 | 8,664,009,522 | 7,737,705,320 | 8,652,543,073 | 7,385,160,463 | 7,058,450,339 |
+
+Each is §8.50's value +17,484 B. W3 stays the maximum, 2,726,118,449 B (dense) below ⌊0.9M⌋ = 11,596,411,699 B at the
+unchanged M = 12,884,901,888 B. The law tests (all phases, R, the 0.9 margin and the 5% TAV_W/TAV_X reserve) pass.
+
+**All points.** §8.46's 16-atom same-build supplement reproduces §8.50's points exactly on the basis trees. On the head's
+trees, W3 E + R dense is E(3) 8,784,342,449, L(3,0) 8,301,813,614, L(2,1) 7,630,755,545 and L(1,2) 6,917,929,074 B
+(+17,484, +17,484, +127,352 and +236,484 B). All 64 point-phase-mode values are at or below the merged tree (the
+tightest, E(3) sparse W1, by 76,527,894 B).
+
+**Profile and records.**
+- **Block.** `generate` with basis `, re-run as operating-case slice 1b on RT-U4's §8.50 candidate at a82460ad7
+  (§8.51): …` (1,713 lines: the basis line wraps once more; `--check` equal). Only the six coefficients above, the
+  basis line and `PYTHON_CHECK` change; `threshold_bytes` is kept.
+- **`REGISTERED_PROFILES`.** Reviewed inputs #4 (preview-physics-retained-1 `b4377e73…`), #5 (preview-physics-2
+  `f41b9d3e…`) and #12 (preview-physics-timoshenko-1 `6f649490…`), counted from 0, take the restated tables' bytes, in
+  the record and in the law test's `REVIEWED`. The other ten inputs hash equal on the head, and
+  `core/product_physics/Cargo.lock` stays `b7ebb02a…`. The identity, the reader layouts, the reader audit and the
+  threshold are unchanged.
+- **Law records.** `PINNED_RECORD` takes maintained `eval` less R. Sparse: [6,450,322,653, 6,792,317,214,
+  8,744,053,042, 8,537,769,314, 7,611,465,112, 8,526,302,865, 7,258,920,255, 6,932,210,131]. Dense: [6,509,453,997,
+  6,851,448,558, 8,803,184,386, 8,596,900,658, 7,670,596,456, 8,585,434,209, 7,318,051,599, 6,991,341,475].
+- **Challenge.** `W1_PHASE_BYTES` [6,450,322,653, 6,509,453,997] and `MAX_PHASE_BYTES` [8,744,053,042, 8,803,184,386].
+- **Results.** Before the re-pin, `profile_` failed only `profile_in_build_record` (at the old pins, +17,484 B), and
+  `reviewed_inputs_bind_the_lock_and_the_reader_statics` failed at the three tables. After it, the `retained_memory`
+  lib tests pass (84, 71 ignored) and `test_preview_identity_inventory.py` passes. The challenge binary's one
+  non-measurement test passes; its 43 measurement tests are ignored.
+
+**Carriers.** No retained successor or carrier binds a preview table digest: the old and new digests occur only in the
+registries, constants, schemas and tests. result_export's retained carrier, contract and golden suites pass on the
+merged tables, so nothing is resealed. The user-release carriers were regenerated through their writers before this
+registration (`2b9ee56c0`), and `semantic_contract_tables.repin` routes them to their writers (`391d2aeaf`).
+
+**Frames.** `run_linear_static_preview_observed_inner` gains one `Option<Value>` local (`preview_difference`) and the
+member's insertion, and `gate_reason` gains the declared arm. Frame sizes were not measured here. The witness paths run
+through `observed_inner`, so §8.50's 7/7 does not transfer: AC-004 is pending on the binary named in the PR record.
+
 ## 9. Memory-profile gates and registration
 
 ### Gate bounds (registration)
@@ -4356,7 +4915,7 @@ Two limits keep these bounds fail-closed rather than reachable at the census max
 
 ## 10. Reproducing a registered revision
 
-The committed tool's source pins hold one current value each, so the committed tool reproduces only the revision those pins bind (now §8.48's priced source, the merged head `a0220a641`, whose `core/` source is the registered binary's; §8.47's `a47a9ebf8` is reproduced by `41cf15b95`'s tool cohort; §8.46's `fbd0931d5` and its registered successor `e8a59f1fd` are reproduced by `e8a59f1fd`'s tool cohort; §8.44's `e2dbc7b33` is reproduced by `01e05a486`'s tool cohort; main `6c3cb46d3` (§8.45), §8.42's `92a6f81ff`, §8.41's adopted source `4e1972698` and earlier mains are reproduced with their own tool cohorts); at an earlier revision a pin stops it (exit 4). §8.45's carried block (33 coefficients above the lexer's tree, none below) was reproduced by main `db3151708`'s complete tool cohort; §8.44 regenerates the block on the lexer, so `generate --check` of the committed tool's tree at `e2dbc7b33` with §8.44's basis line matches the registered block again. Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
+The committed tool's source pins hold one current value each, so the committed tool reproduces only the revision those pins bind (now §8.50's priced source `cadd9b577`; §8.49's priced source `293e8da85` and its registered successor `4a8287001` are reproduced by `4a8287001`'s tool cohort (equally `03a5cd3b1`'s, whose tool tree is the same); §8.48's priced source, the merged head `a0220a641`, is reproduced by main `aa794eb68`'s tool cohort; §8.47's `a47a9ebf8` is reproduced by `41cf15b95`'s tool cohort; §8.46's `fbd0931d5` and its registered successor `e8a59f1fd` are reproduced by `e8a59f1fd`'s tool cohort; §8.44's `e2dbc7b33` is reproduced by `01e05a486`'s tool cohort; main `6c3cb46d3` (§8.45), §8.42's `92a6f81ff`, §8.41's adopted source `4e1972698` and earlier mains are reproduced with their own tool cohorts); at an earlier revision a pin stops it (exit 4). §8.45's carried block (33 coefficients above the lexer's tree, none below) was reproduced by main `db3151708`'s complete tool cohort; §8.44 regenerates the block on the lexer, so `generate --check` of the committed tool's tree at `e2dbc7b33` with §8.44's basis line matches the registered block again. Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
 
 The following are historical replay results, not procedures for the current tool. In their pre-W1 tool cohort, the replay restored the B7a/B7b source models (`base/b7a_*.py`, `lib/b7a_retired_carry.py`), `kd5_text_model.py`, `kd5_first_error_model.py`, `batch5_model.py`, the per-invocation pins in `o10_rules.py`, and C7's NumericCase pins in `prescribed_key_model.py`; source before batch 5 also used the original case consumer instead of the wrapper/helper pair.
 - **B7b at `837a04b770`.** With that historical cohort and its restored pins, the scratch tool priced `837a04b770` with exit 0, and `generate --check` of that tree matched the block committed at `e70c115764`. An earlier B7b revision stopped at a result_export pin (exit 4).
@@ -4448,3 +5007,4 @@ Code, tools and other designs cite this text by these earlier section names and 
 | "DEL-04-09 I2a: the product modal module and its self-weight seam", "§8.43" (MODAL-FB, MODAL-ID, MODAL-SEAM) | §8.43 |
 | "Static and report literal classes: a Rust lexer replaces quote pairing", "§8.45" (SL-LIM) | §8.45 |
 | "RT-A4: absolute sums, SRSS and nested combinations on both routes", "§8.46" (RT-A4-PIN, RT-A4-D14, RT-A4-UZ, RT-A4-WZ, RT-A4-L1, RT-A4-RM, RT-A4-NR, RT-A4-ER, RT-A4-ID, RT-A4-EV, RT-A4-DC, RT-A4-HS, RT-A4-RE, RT-A4-TK, RT-A4-PR, RT-A4-RK1–RK4, RT-A4-PL, RT-A4-CB, RT-A4-DV, RT-A4-RD) | §8.46 |
+| "RT-A3 increment 4: nonlinear supports on the exact route", "§8.49" (RTA3NL-S6, RTA3NL-RD, RTA3NL-ID, RTA3NL-PP, RTA3NL-PIN) | §8.49 |
