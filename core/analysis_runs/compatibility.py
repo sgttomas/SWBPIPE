@@ -508,7 +508,9 @@ _PRESSURE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure_2.json
 # combination gate, rows unchanged, so a run recorded under the pre-increment table (a2db16a5…) is read the same way.
 # RT-A4 (DEL-05-02 Design absolute-sum-srss-combinations.md §10.2) restates the combination policy (v2: combination
 # operands, absolute sums and SRSS) and adds three vocabulary tokens, rows unchanged, so a run recorded under the
-# constant-effort table (be29fabc…) is read the same way.
+# constant-effort table (be29fabc…) is read the same way. RT-A3 increment 4 (DEL-04-07 Design pressure-contract.md,
+# "Nonlinear supports on EX") restates two limitations, rows and gates unchanged, so a run recorded under the RT-A4 table
+# (10455bf3…) is read the same way.
 # The desktop's twin is analysisRunCompatibility.ts RECORDED_RUN_TABLE_BASES.
 RECORDED_RUN_TABLE_BASES = (
     (PRESSURE_CONTRACT_ID, "3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d", PRESSURE_CONTRACT_SHA256),
@@ -517,6 +519,7 @@ RECORDED_RUN_TABLE_BASES = (
     (PRESSURE_CONTRACT_ID, "032e861fc66bf5f34a081b104ec879a39831bfd6472b186954966ea57d65f025", PRESSURE_CONTRACT_SHA256),
     (PRESSURE_CONTRACT_ID, "a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e", PRESSURE_CONTRACT_SHA256),
     (PRESSURE_CONTRACT_ID, "be29fabcfacb1070a51bfb56dcfe61b4e4125638e249c3c0e96d092cc8aba43f", PRESSURE_CONTRACT_SHA256),
+    (PRESSURE_CONTRACT_ID, "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6", PRESSURE_CONTRACT_SHA256),
 )
 
 
@@ -600,6 +603,10 @@ RECORDED_PRE_RT_A4_TABLES = {
         _RECORDED_DIR / "semantic_contract_v0_3_physics_retained_1.cf29fd5f.json",
     (PHYSICS_RETAINED_CONTRACT_ID, "045f6f0d8ce350246b21fb712d2dd14bf3a7f7f3690e66e062cbbf77d3696a3b"):
         _RECORDED_DIR / "semantic_contract_v0_3_physics_retained_1.045f6f0d.json",
+    # RT-A3 increment 4 restates pressure-2's limitations, so physics-retained-1's inherited digest moves again: the
+    # RT-A4 main line's exact successor table (main at bbf384dec) is history too, a recorded binding only.
+    (PHYSICS_RETAINED_CONTRACT_ID, "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034"):
+        _RECORDED_DIR / "semantic_contract_v0_3_physics_retained_1.040ef9a6.json",
 }
 SOURCE_RECORDED_TABLE_HASH = "SOURCE_RECORDED_TABLE_HASH"
 
