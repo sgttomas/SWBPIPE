@@ -191,14 +191,24 @@ def _require_gate(gates: list, cid: str, derived: str | None) -> None:
     _require(gate is not None and gate.get("withheld") is (derived is not None) and gate.get("reason") == derived, GATE_DERIVATION)
 
 
-def _rows_sign(rows: list, declared: set) -> None:
+def _held_ids(source: Mapping[str, Any]) -> set:
+    """The combinations the held-status evidence records (``preview_held_status``)."""
+    from .preview_held_status import MEMBER as HELD_MEMBER
+    return {r.get("combination_id") for r in _items((source.get("contract_evidence") or {}).get(HELD_MEMBER)) if isinstance(r, Mapping)}
+
+
+def _rows_sign(rows: list, declared: set, held: set) -> None:
+    """A ``minuend_final`` subtraction's rows state the held sign and its held-operand rows their clause, which
+    ``preview_held_status`` checks."""
     for row in rows:
         cid = _combination_of(row)
         if cid is None or row.get("kind") == MODULUS_RECORD:
             continue
         metadata = row.get("metadata") if isinstance(row.get("metadata"), Mapping) else {}
         sign = metadata.get("sign_convention")
-        if cid in declared:
+        if cid in held:
+            _require(sign != SIGN, ROW)
+        elif cid in declared:
             _require(sign is None or (sign == SIGN and metadata.get("basis") == SUBTRACTION_BASIS), ROW)
         else:
             _require(sign != SIGN, ROW)
@@ -255,8 +265,11 @@ def _free_check(source: Mapping[str, Any]) -> None:
             for r in listed:
                 if isinstance(r, Mapping) and r.get("combination_id") == cid:
                     _require(r.get("basis") == "result_state_subtraction" and r.get("expression") == expression, BINDING)
-        _require_gate(gates, cid, _derived_gate(_contained(record["m"], record["s"]), modulus[0][1] == modulus[1][1]))
-    _rows_sign(rows, declared)
+        from .preview_held_status import stated_gate
+        derived = _derived_gate(_contained(record["m"], record["s"]), modulus[0][1] == modulus[1][1])
+        # RT-A5 (section 7.5): past G-1 and G-2 a minuend_final subtraction may be withheld by its record's held gate.
+        _require_gate(gates, cid, derived if derived is not None else stated_gate(source, cid))
+    _rows_sign(rows, declared, _held_ids(source))
 
 
 def _model_multiset(case: Mapping[str, Any]) -> dict:
@@ -285,16 +298,11 @@ def _model_multiset(case: Mapping[str, Any]) -> dict:
 
 
 def kept_combinations(model: Mapping[str, Any]) -> tuple[list, list]:
-    """The combinations the solve gates, in evaluation order: S1's interim withholding (as slice 1b leaves it) removes
-    a ``minuend_final`` combination and every combination naming one."""
-    combinations = [c for c in _items(model.get("combinations")) if isinstance(c, Mapping)]
+    """The combinations the solve gates, in evaluation order. S1's interim withholding removed a ``minuend_final``
+    combination and every combination naming one until RT-A5 (operating-case section 7.5), which gates it at the solve:
+    every combination is kept."""
+    kept = [c for c in _items(model.get("combinations")) if isinstance(c, Mapping)]
     cases = {c.get("id") for c in _items(model.get("load_cases")) if isinstance(c, Mapping) and _str(c.get("id"))}
-    removed: set = set()
-    for index in graph.model_order(combinations, cases):
-        c = combinations[index]
-        if c.get("subtrahend_support_state") == "minuend_final" or any(o[0] == "combination" and o[1] in removed for o in graph.model_operands(c, cases)):
-            removed.add(c.get("id"))
-    kept = [c for c in combinations if c.get("id") not in removed]
     return kept, graph.model_order(kept, cases)
 
 
@@ -331,6 +339,9 @@ def _model_check(source: Mapping[str, Any], model: Mapping[str, Any]) -> None:
         if not declared(combination):
             continue
         derived, record = model_gate(model, combination)
+        if derived is None:
+            from .preview_held_status import minuend_final, stated_gate
+            derived = stated_gate(source, combination.get("id")) if minuend_final(combination) else None
         _require_gate(gates, combination.get("id"), derived)
         expected.append(record)
         ids.add(combination.get("id"))
@@ -338,4 +349,4 @@ def _model_check(source: Mapping[str, Any], model: Mapping[str, Any]) -> None:
         _require(expected and evidence[MEMBER] == expected, MODEL)
     else:
         _require(not expected, MODEL)
-    _rows_sign([r for r in _items(source.get("results")) if isinstance(r, Mapping)], ids)
+    _rows_sign([r for r in _items(source.get("results")) if isinstance(r, Mapping)], ids, _held_ids(source))
