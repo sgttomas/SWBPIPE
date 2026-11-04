@@ -3585,6 +3585,11 @@ if fnkey("exact_equivalent_static_record", _LIB):
     _W16C_PSB = _fn_text("physical_source_built", PP_ + "source_receipt/composite.rs")
     _w16c_psb = '    if case.equivalent_static.is_some() {\n        expected_keys.insert("equivalent_static");\n'
     _W16C_VP = _fn_text("validate_profile", PP_ + "pressure_runtime.rs")
+    # RTA3NL-S6 (RT-A3 increment 4, §8.49): the S6 context, formed once per validate_profile call (after the
+    # reducer-region refusals, before the support loop, at the `if let Some(contract) = contract` arm's own depth).
+    _W16C_S6_TEXT = ("        let s6_context = (\n            super::case_state::carries_fields(model),\n"
+                     "            model.components.iter().any(|component| component.objective_connector.is_some()),\n        );\n"
+                     "        for support in &model.supports {\n")
     _W16C_PEI = _fn_text("validate_physics_evidence_in", RE_ + "physics_evidence.rs")
     _W16C_TMI = _fn_text("validate_transport_metadata_in", RE_ + "physics_source.rs")
     _W16C_LIBP = _re.sub(r"//[^\n]*", "", _text_of(_LIB))   # lib.rs opens with #[cfg(test)] module declarations
@@ -3610,8 +3615,11 @@ if fnkey("exact_equivalent_static_record", _LIB):
         _W16C_PSB.count(_w16c_psb) == 1 and _W16C_PSB.count("exact_equivalent_static_record(") == 1
         and _W16C_PSB.count("build_load_case_primitive_loads(") == 1
         and _W16C_PSB.split(_w16c_psb, 1)[0].count("build_load_case_primitive_loads(") == 0,
-        _W16C_VP.count("        if case.equivalent_static.is_some() {\n") == 1 and _W16C_VP.count("carries_fields(") == 1
-        and _W16C_VP.index("carries_fields(") > _W16C_VP.index("        if case.equivalent_static.is_some() {\n"),
+        # RT-A3 increment 4 (§8.49, RTA3NL-S6): validate_profile's original call of carries_fields is the last one, inside
+        # the case loop's `case.equivalent_static.is_some()` arm; the S6 context's unconditional call (below) is the other.
+        _W16C_VP.count("        if case.equivalent_static.is_some() {\n") == 1
+        and _W16C_VP.count("carries_fields(") == (1 + int(_W16C_VP.count(_W16C_S6_TEXT) == 1))
+        and _W16C_VP.rindex("carries_fields(") > _W16C_VP.index("        if case.equivalent_static.is_some() {\n"),
         _W16C_PEI.count('        let generation = case.get("equivalent_static").is_some();\n        if generation {\n'
                         '            equivalent_static_record(case_id, &case["equivalent_static"])?;') == 1
         and _W16C_PEI.count("equivalent_static_record(") == 1,
@@ -3637,13 +3645,49 @@ if fnkey("exact_equivalent_static_record", _LIB):
          _W16C_ES + " (the companion binding re-forms the record only under `case.equivalent_static.is_some()`)"),
         (fnkey("physical_source_built", PP_ + "source_receipt/composite.rs"), fnkey("build_load_case_primitive_loads", _LIB),
          _W16C_ES + " (the companion binding re-forms the record only under `case.equivalent_static.is_some()`)"),
+    ] + ([] if _W16C_VP.count(_W16C_S6_TEXT) == 1 else [
+        # Before RT-A3 increment 4 the only call is the conditional one, and the whole edge is zero (§8.27).
         (fnkey("validate_profile", PP_ + "pressure_runtime.rs"), fnkey("carries_fields", PP_ + "case_state/mod.rs"),
          _W16C_ES + " (validate_profile's load/reference-state refusal is inside `case.equivalent_static.is_some()`)"),
+    ]) + [
         (fnkey("validate_physics_evidence_in", RE_ + "physics_evidence.rs"), fnkey("equivalent_static_record", RE_ + "physics_evidence.rs"),
          _W16C_ES + "; the producer writes the record only under `load_case.equivalent_static.is_some()` (solve_prepared_load_case)"),
         (fnkey("validate_transport_metadata_in", RE_ + "physics_source.rs"), fnkey("equivalent_static_record", RE_ + "physics_evidence.rs"),
          _W16C_ES + "; the producer writes the record only under `load_case.equivalent_static.is_some()` (solve_prepared_load_case)"),
     ]
+    # RTA3NL-S6 (RT-A3 increment 4, §8.49; the review's W16C-ES counterexample): an admitted plain EX D1 model with no
+    # component and no nonlinear support still evaluates carries_fields while forming the S6 context, before the support
+    # loop, so validate_profile -> carries_fields is no longer a zero edge. The whole edge is charged at its per-call
+    # count: one unconditional S6 call, plus the case loop's call inside `case.equivalent_static.is_some()` (0 on D1 by
+    # D1.5, W16C-ES). carries_fields's reachable closure is charged at that multiplicity like any other callee. Guard:
+    # the S6 statement occurs once, verbatim; it is the first of exactly two calls, it follows the reducer-region
+    # refusals and precedes the support loop, and the only open block around it is the `if let Some(contract) = contract`
+    # arm (no loop). A moved, repeated or looped S6 call stops the run.
+    if _W16C_VP.count(_W16C_S6_TEXT) == 1:
+        _s6_at = _W16C_VP.index(_W16C_S6_TEXT)
+        _s6_arm = "    if let Some(contract) = contract {\n"
+        _s6_before = _W16C_VP[_W16C_VP.index(_s6_arm) + len(_s6_arm):_s6_at] if _W16C_VP.count(_s6_arm) == 1 else None
+        _rta3nl_s6 = (
+            _W16C_VP.count("carries_fields(") == 2 and _W16C_VP.index("carries_fields(") > _s6_at,
+            _s6_before is not None and _s6_before.count("{") == _s6_before.count("}"),
+            _s6_before is not None and _s6_before.count("for refs in exact_admission::reducer_region_refusals(model) {\n") == 1
+            and "for support in" not in _s6_before and "for case in" not in _s6_before,
+            _W16C_VP.count("s6_context.0") == 1 and _W16C_VP.count("s6_context.1") == 1
+            and _W16C_VP.count("exact_admission::nonlinear_support_admission(contract, s6_context.0, s6_context.1)") == 1,
+            # carries_fields is a pure predicate: four short-circuit is_authored/is_empty tests, no owner.
+            _text_of(PP_ + "case_state/mod.rs").count(
+                "pub(crate) fn carries_fields(model: &PreviewModel) -> bool {\n"
+                "    model.reference_configurations.is_authored()\n"
+                "        || model.material_expansion_laws.iter().any(crate::Authored::is_authored)\n"
+                "        || !model.request_material_expansion_laws.is_empty()\n"
+                "        || model.load_cases.iter().any(|case| case.analysis_state.is_authored())\n}\n") == 1,
+        )
+        if not all(_rta3nl_s6):
+            raise SystemExit(f"RTA3NL-S6: validate_profile's S6 context changed; re-review its per-call count: {_rta3nl_s6}")
+        EDGE_PER_CALL = list(EDGE_PER_CALL) + [(fnkey("validate_profile", PP_ + "pressure_runtime.rs"),
+            fnkey("carries_fields", PP_ + "case_state/mod.rs"), "1",
+            O10 + "RTA3NL-S6: the S6 context's one unconditional call per validate_profile call; the case loop's call is "
+            "inside `case.equivalent_static.is_some()`, refused on every retained branch (D1.5, W16C-ES)")]
 # W16BC-BN: the call graph links a call by its name; these callers name a different function (a method, a binding or
 # a function of their own module) that shares a name with a private function of exact_combinations.rs or
 # exact_combination_evidence.rs. A private module-level function or method is visible only inside its module, so none
@@ -3839,9 +3883,14 @@ if fnkey("append_operand_standing", _OP1A_PP):
     # RT-A4 D3 (§8.46): preview_physics.rs (combination rewrite, LIMITATIONS[6]), preview_combination_operands.rs (operands may
     # name combinations; the record and notice loops stay empty on D1, OP1A-RD), preview_physics_evidence.rs (validate_with and the
     # model-free gate check, RT-A4-RD) and reader_verdict.rs (the *_recorded entries, outside the retained roots) re-read.
+    # RT-A3 increment 4 D3 (§8.49, RTA3NL-PIN): preview_physics_evidence.rs makes `guarded` pub(crate) (the nonlinear
+    # reader's representation guard; body unchanged), and reader_verdict.rs's model-bound pressure dispatch adds
+    # nonlinear_support_evidence::model_checks, reached only from reader_verdict::validate (outside the retained roots).
     # RT-U4 repair B: reader_verdict.rs re-read: standing reads pressure-2's evidence once on the pressure route
     # (pressure_outcome, shared with validate's pressure arm) and four helpers become pub(crate); all outside the retained roots.
-    _op1a_pins = {'core/product_physics/src/preview_physics.rs': 'ecd14d758bd07dc297105ec0e67059cba2fd53f0b312da553c2caccdddd3eb05', 'core/reporting/result_export/src/preview_combination_operands.rs': '8444069d3a1d9c402e8e6d45174305766822b59690fbf7bf548085f9df7d3327', 'core/reporting/result_export/src/preview_physics_evidence.rs': 'ef560ae70b7d1973853aa908cfd7355e0c564c5c4ccc2dcbac62056cea56a353', 'core/reporting/result_export/src/reader_verdict.rs': '3d689996d78f0ce35e0c35ec3264be1481e6e9249c16a5d1e053505d3e9ba768'}
+    # RT-U4 order and repair B on RT-A3 increment 4 (§8.50, merge of 4a8287001): reader_verdict.rs carries both; inc4's
+    # nonlinear model checks follow the pressure arm into pressure_outcome, so validate and standing share them.
+    _op1a_pins = {'core/product_physics/src/preview_physics.rs': 'ecd14d758bd07dc297105ec0e67059cba2fd53f0b312da553c2caccdddd3eb05', 'core/reporting/result_export/src/preview_combination_operands.rs': '8444069d3a1d9c402e8e6d45174305766822b59690fbf7bf548085f9df7d3327', 'core/reporting/result_export/src/preview_physics_evidence.rs': '8e6ce8684802281c6ea05527d5f453a7483a3f85c7fdf0df72b327b894c0114a', 'core/reporting/result_export/src/reader_verdict.rs': 'd880e7e6bd58ca0c7a53507d405c530a716af39c3941f0a06fe0e6168f164813'}
     for _f, _digest in _op1a_pins.items():
         if __import__("hashlib").sha256(_text_of(_f).encode()).hexdigest() != _digest:
             raise SystemExit("OP1A-PF/RD: reviewed source changed: " + _f)
@@ -3905,8 +3954,10 @@ if fnkey("selects", _TIM):
     # row_semantics_each reads several rows with one table selection; both are reached only from standing/dispatch
     # and the wasm and runner entries, outside the retained roots. validate is unchanged.
     # RT-A4 D3 (§8.46): reader_verdict.rs and preview_physics_evidence.rs re-read as for OP1A above; the Timoshenko premises stand.
+    # RT-A3 increment 4 D3 (§8.49): reader_verdict.rs and preview_physics_evidence.rs re-read as for OP1A above.
     # RT-U4 repair B: reader_verdict.rs re-read as for OP1A above; the Timoshenko premises stand.
-    _TIM_PINS = {'core/product_physics/src/pf_timoshenko.rs': '0546472cfba9ca61bff68838cb5add237c70485411c124f5fc14f9aa90217f45', 'core/product_physics/src/model_settings.rs': 'd2f9d52db54bd97b19708c5a8580d484282f97649f08df408f6e0b206a999d8b', 'core/reporting/result_export/src/reader_verdict.rs': '3d689996d78f0ce35e0c35ec3264be1481e6e9249c16a5d1e053505d3e9ba768', 'core/reporting/result_export/src/preview_physics_evidence.rs': 'ef560ae70b7d1973853aa908cfd7355e0c564c5c4ccc2dcbac62056cea56a353', 'core/product_physics/src/case_state/temperature.rs': 'eed9dc272dd37c669cc090d3f4c9c30293a0793e0d0b770ddd25fdd5d08ed9b2', 'core/product_physics/src/case_state/temperature/canonical_decimal.rs': '431ac3204d98ed3420ead918cc2733f77ac3a8258d28625b210a8bc69962b1e2'}
+    # RT-U4 order and repair B on RT-A3 increment 4 (§8.50): reader_verdict.rs re-read as for OP1A above.
+    _TIM_PINS = {'core/product_physics/src/pf_timoshenko.rs': '0546472cfba9ca61bff68838cb5add237c70485411c124f5fc14f9aa90217f45', 'core/product_physics/src/model_settings.rs': 'd2f9d52db54bd97b19708c5a8580d484282f97649f08df408f6e0b206a999d8b', 'core/reporting/result_export/src/reader_verdict.rs': 'd880e7e6bd58ca0c7a53507d405c530a716af39c3941f0a06fe0e6168f164813', 'core/reporting/result_export/src/preview_physics_evidence.rs': '8e6ce8684802281c6ea05527d5f453a7483a3f85c7fdf0df72b327b894c0114a', 'core/product_physics/src/case_state/temperature.rs': 'eed9dc272dd37c669cc090d3f4c9c30293a0793e0d0b770ddd25fdd5d08ed9b2', 'core/product_physics/src/case_state/temperature/canonical_decimal.rs': '431ac3204d98ed3420ead918cc2733f77ac3a8258d28625b210a8bc69962b1e2'}
     _TIM_PINS[FK_ + "shear.rs"] = "12b854db0252398a8d61a643eba4fe7162f81e228a1c6239860433fd3188d2c3"
     for _file, _pin in _TIM_PINS.items():
         if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _file), "rb").read()).hexdigest() != _pin:
@@ -4429,8 +4480,6 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
         (site("assemble_mass", _MODAL + "mass.rs", "the body mass W/a of component {}", full=True),
          {"weight.weight": _M_F64, "a": _M_F64, "weight.cog|?": _md(78, "[f64; 3] Debug: three f64 Debug (24) and four bracket/separator bytes"),
           "operand": _md(23, "ComponentRangeOperand Display, the longest static name `spatial block m*r_i*r_j`")}),
-        (site("prepare_modal", _MODAL + "prepare.rs", '"the model has nonlinear supports ({}); their linearization', full=True, row="format!("),
-         {'nonlinear.join(",")': _M_EMPTY}),
         (site("state_case_requirement", _MODAL + "request.rs", 'reasons.push(format!("the model has nonlinear supports ({})"', full=True),
          {'nonlinear.join(",")': _M_EMPTY}),
         (site("state_case_unavailable", _MODAL + "prepare.rs", "({carried} blocking diagnostic(s), returned with this one)", full=True),
@@ -4453,6 +4502,14 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
         (site("check_weight_basis", _MODAL + "weight_basis.rs", "of straight member {} differs from its consistent", full=True), {"AXES[k]": _M_AX}),
         (site("compare_resultant", _MODAL + "weight_basis.rs", '"the resultant of a·M·r_k for {subject} along {}', full=True, row="format!("), {"AXES[k]": _M_AX}),
     ]
+    # I2b-2 (#97) deletes prepare_modal's interim nonlinear-support refusal (state.rs's same-run solve replaces it), so
+    # its audit applies only where the state module is absent (there site() requires the refusal); a head with the
+    # state module that kept the refusal would report its argument unclassified.
+    if not fnkey("solve_modal_state_case", _MODAL + "state.rs"):
+        O10_ID_AUDIT += [
+            (site("prepare_modal", _MODAL + "prepare.rs", '"the model has nonlinear supports ({}); their linearization', full=True, row="format!("),
+             {'nonlinear.join(",")': _M_EMPTY}),
+        ]
     if fnkey("modal_sturm_count", _MODAL + "eigen.rs"):
         # MODAL-ID, I2b-1 (#96): the dense solve's files (eigen.rs, integrity.rs, outcome.rs; tests_eigen.rs is the
         # #[cfg(test)] module). Mode numbers and counts are usize decimals. Each set of static reasons is read here
@@ -4594,6 +4651,77 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
             # No audit: modal_parameter_refusals' `{:?}` of sturm_gap_log_positions and sturm_whole_spectrum_offsets
             # (Vec<f64>, caller-supplied, with no length cap in the source or D1); the run reports them unclassified.
         ]
+    if fnkey("solve_modal_state_case", _MODAL + "state.rs"):
+        # I2b-2 (#97): the state case's same-run solve (modal/state.rs; tests_state.rs is the #[cfg(test)] module) and
+        # lib.rs's decision-B seam.
+        _ST = _MODAL + "state.rs"
+
+        def _m_vocabulary(f, owner, why):
+            # The longest literal of `owner`'s `as_str`, read only when every arm of its one match is `Self::X =>
+            # "literal",` (a computed or wildcard arm breaks the shape and stops the run).
+            _src = _text_of(f)
+            _impl = _re.findall(r"impl " + owner + r" \{.*?pub fn as_str\(self\) -> &'static str \{\s*match self \{"
+                                r"((?:\s*Self::\w+ => \"[^\"\\]*\",)+)\s*\}\s*\}", _src, _re.S)
+            _arms = _re.findall(r'Self::\w+ => "([^"\\]*)",', _impl[0]) if len(_impl) == 1 else []
+            if len(_impl) != 1 or len(_arms) < 2:
+                raise SystemExit(f"MODAL-ID: {owner}::as_str is not an all-literal match ({len(_impl)}); re-review (§8.43)")
+            return _md(max(len(_a.encode()) for _a in _arms), why)
+
+        _M_MODE = _m_vocabulary(_LIB, "PreviewSolverMode", "PreviewSolverMode::as_str, its longest literal (sparse_interactive)")
+        _M_STATE = _m_vocabulary("core/solver/nonlinear_supports/src/lib.rs", "ActiveSetState",
+                                 "ActiveSetState::as_str, its longest literal")
+        # NotEstablished's sentence is nonlinear_not_established_sentence's text: its literal bytes and its `reason`,
+        # which the base classifies by name as error_display (8192 B, TEXT.md section 3).
+        _ne = _fn_text("nonlinear_not_established_sentence", _LIB)
+        _ne_fmt = _re.findall(r'format!\("((?:[^"\\]|\\.)*)"\)', _ne)
+        if len(_ne_fmt) != 1 or _re.findall(r"\{[^{}]*\}", _ne_fmt[0]) != ["{reason}"] or "{{" in _ne_fmt[0]:
+            raise SystemExit("MODAL-ID: nonlinear_not_established_sentence's format changed; re-review (§8.43)")
+        _M_SENTENCE = _md(len(_ne_fmt[0].replace("{reason}", "").encode()) + 8192,
+                          "nonlinear_not_established_sentence's literal bytes and its reason (error_display, 8192 B)")
+        O10_ID_AUDIT += [
+            (site("modal_refusal_reason", _ST, '"its same-run solve completed with no nonlinear-state evidence ({} blocking', full=True,
+                  row="format!("), {"codes.len()": _M_INT}),
+            (site("modal_refusal_reason", _ST, "published blocking diagnostics ({} of them", full=True), {"codes.len()": _M_INT}),
+            (site("modal_refusal_reason", _ST, "the solve's evidence is bound to case `{found}`", full=True), {"found": IN}),
+            (site("modal_refusal_reason", _ST, "the solve's evidence records solver mode {}, not the requested {}", full=True),
+             {"solved.as_str()": _M_MODE, "requested.as_str()": _M_MODE}),
+            (site("modal_refusal_reason", _ST, "its converged support state is not confirmed: {sentence}", full=True),
+             {"sentence": _M_SENTENCE}),
+            (site("modal_refusal_reason", _ST, "ended {}, which the modal state table does not admit", full=True, row="format!("),
+             {"state.as_str()": _M_STATE}),
+            # tests_state.rs (#[cfg(test)]): node numbers are usize decimals.
+            (site("alternating_chain", _MODAL + "tests_state.rs", 'format!("n{}", i + 1)', full=True), {"i+1": _M_INT}),
+            # lib.rs's capture (decision B): the case's id, an IN128 id; its multiplicity is zero by MODAL-SEAM below.
+            (site("capture_nonlinear_state_evidence", _LIB, "case_id: case_id.to_string(),", full=True), {"case_id": IN}),
+        ]
+        # MODAL-SEAM (O10_EDGE_ZERO; the G4 R-1 and OP1A-PF premise): D1.6 refuses every nonlinear support, so
+        # built.nonlinear_supports is empty and append_nonlinear_support_loop_results returns None at its first
+        # statement (base fn_zero, G4 R-1). selected_nonlinear is then None and capture_nonlinear_state_evidence
+        # returns None at its first statement, before its text, Box or final-state clone. The shapes that carry the
+        # premise are checked here; the capture's body is pinned. Shapes and pin re-read in ordinary layout (cc160d28d).
+        _seam = _fn_text("capture_nonlinear_state_evidence", _LIB)
+        _loop = _fn_text("append_nonlinear_support_loop_results", _LIB)
+        _case = _fn_text("solve_prepared_load_case", _LIB)
+        _lib_text = _text_of(_LIB)
+        if (_modal_hashlib.sha256(_seam.encode()).hexdigest()
+                != "7fb71ea14f4d8c5d7f51bd487e9b8b59933c8f79476b23d729c47153a8e2ca71"
+                or not _re.search(r"\) -> Option<Box<NonlinearStateEvidence>> \{\n    let solve = solve\.filter\(\|solve\| solve\.converged\)\?;\n", _seam)
+                or not _re.search(r"\{\n    if built\.nonlinear_supports\.is_empty\(\) \{\n        return None;\n    \}\n", _loop)
+                or _case.count("capture_nonlinear_state_evidence(\n        &load_case.id,\n        solver_mode,\n"
+                               "        selected_nonlinear.as_ref(),\n") != 1
+                or _case.count("let (selected_nonlinear, nonlinear_standing, nonlinear_qualification) =\n"
+                               "        match append_nonlinear_support_loop_results(") != 1
+                or _re.search(r"\bselected_nonlinear\s*=[^=]", _case)
+                or _case.count("Some((solve, nonlinear, qualification)) => {\n"
+                               "                (Some(solve), Some(nonlinear), qualification)\n"
+                               "            }\n"
+                               "            None => (None, None, None),") != 1
+                or len(_re.findall(r"\bcapture_nonlinear_state_evidence\b", _lib_text)) != 2):
+            raise SystemExit("MODAL-SEAM: the capture, its call or the nonlinear loop's early return changed; re-review (§8.43)")
+        O10_EDGE_ZERO += [(fnkey("solve_prepared_load_case", _LIB), fnkey("capture_nonlinear_state_evidence", _LIB),
+                           O10 + "MODAL-SEAM: D1.6 refuses every nonlinear support, so append_nonlinear_support_loop_results "
+                           "returns None first (G4 R-1), selected_nonlinear is None, and capture_nonlinear_state_evidence "
+                           "returns None before its text, Box or final-state clone")]
 
 # ---- RT-A4 (DEL-05-02 Work absolute-sum-srss-combinations.md §10; retained-pricing-rules.md §8.46): absolute sums, SRSS
 # and nested combinations on both routes. D1.4 (retained_memory.rs family_clauses) refuses on both routes every absolute_sum
@@ -4877,9 +5005,13 @@ if fnkey("solved_state_plus_increments", _A4_PLAN):
 # variants' bytes are include_bytes! statics (read-only data, not heap). `SELECTED.with(..)` is LocalKey::with, never
 # exact_combination_evidence's private Key::with that the by-name call graph names.
 _A4_RT = RE_ + "recorded_tables.rs"
+# RT-A3 increment 4 D3 (§8.49, RTA4-HS re-pin): VARIANTS gains a sixth, binding-only entry (main bbf384dec's exact
+# successor table, 040ef9a6; include_bytes! data, base None, reads_under_variant false) and TABLES's OnceLock array
+# takes six slots (const-initialized statics, no heap). No SELECTED write, read_recorded caller or selection path
+# changes; every guard below is re-checked on the new bytes.
 if fnkey("read_recorded", _A4_RT):
     if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _A4_RT), "rb").read()).hexdigest() != \
-            "a8c3984a2d516f1ceb29ad6ad1d726d366e1423fa4b505822fcac33f07d0b718":
+            "852783db768f19a462edc63ee3fc1ffe10f7f957e5025afc8fb00fe63ff143e2":
         raise SystemExit("RT-A4-HS: recorded_tables.rs changed; re-review §8.46's rules")
     _a4_rt = _production(_A4_RT)
     # One production item's text, from its opening line to its closing brace at the same indent (tests excluded).
@@ -4982,3 +5114,48 @@ if fnkey("evaluate_values", _LIB):
         raise SystemExit(f"RT-A4-TK: combination_graph's token copies changed; re-review: {_a4_gtk}")
     LEX_SITE_SIZE = list(LEX_SITE_SIZE) + [(Resolved(f"combination_graph.rs:{_l}"), {"class": 128, "why": O10 + "RT-A4-TK: a copied operand token (IN128)"})
                                            for _l in sorted(set(_a4_gtk))]
+
+# ---- §8.49: RT-A3 increment 4, nonlinear supports on the exact route (DEL-04-07 pressure-contract.md, "Nonlinear
+# supports on EX"). D1.6 refuses every support with a `nonlinear` record on both routes (family_clauses), so no D1
+# model holds a nonlinear support: validate_profile's NonlinearSupport arm never runs, the producer publishes no
+# `nonlinear_support_*` row and no state-review diagnostic, and the projected successor carries none.
+_NL_EV = RE_ + "nonlinear_support_evidence.rs"
+if fnkey("read_case", _NL_EV):
+    _nl_fc = _fn_text("family_clauses", _W16_RM) if fnkey("family_clauses", _W16_RM) else ""
+    _nl_prod = _production(_NL_EV)
+    _nl_dpe = _fn_text("validate_direct_pressure_evidence", RE_ + "physics_evidence.rs")
+    _nl_guard = (
+        # D1.6: a nonlinear support record is refused by name on every retained branch.
+        _nl_fc.count("        if support.nonlinear.is_some() {\n") == 1,
+        # The retained graph reaches the reader once per direct pass, through `check`, a no-op without nonlinear rows.
+        _nl_dpe.count("crate::nonlinear_support_evidence::check(source)") == 1,
+        _nl_prod.count("pub(crate) fn check(source: &Value) -> Check {\n    read(source).map(|_| ())\n}\n") == 1,
+        _nl_prod.count("    let rows = items(&source[\"results\"]);\n"
+                       "    case_ids(rows)?.into_iter().map(|case| read_case(source, case)).collect()\n") == 1,
+        _nl_prod.count("    let mut cases: Vec<&str> = Vec::new();\n") == 1
+        and _nl_prod.count("    for row in rows.iter().filter(|r| kind(r).starts_with(\"nonlinear_support_\") "
+                           "&& r[\"basis_ref\"][\"ref_type\"] != \"combination\") {\n") == 1,
+        # Every Support's state is a STATES entry (the longest is 8 B), set at one place.
+        _nl_prod.count('const STATES: [&str; 4] = ["inactive", "active", "sticking", "sliding"];') == 1
+        and _nl_prod.count("    state: &'static str,\n") == 1 and _nl_prod.count("let state = STATES[code as usize];") == 1
+        # The one Support literal sets its state from that local, which only `let state = STATES[..]` binds.
+        and _nl_prod.count("Support {") == 1 and _nl_prod.count("        supports.push(Support {\n            id,\n            dof,\n"
+                                                                  "            state,\n") == 1
+        and len(_re.findall(r"\blet (mut )?state\b(?!\w)", _nl_prod)) == 1,
+    )
+    if not all(_nl_guard):
+        raise SystemExit(f"RTA3NL-RD/ID: the nonlinear reader's D1 premise or its guards changed; re-review: {_nl_guard}")
+    # RTA3NL-RD: the reader's case scan visits only `nonlinear_support_*` rows outside combinations (none on D1), and
+    # `read` maps read_case over the resulting empty case list; its other loops lie inside read_case (unreached).
+    _NL_RD = (O10 + "RTA3NL-RD: D1.6 refuses every nonlinear support, so the projected successor has no "
+              "nonlinear_support_* row: case_ids' filtered row loop and read's case map run zero times")
+    O10_LOOPS_LAST += [
+        ('for row in rows.iter().filter(|r| kind(r).starts_with(" ") && r[" "][" "] != " ")', "0", _NL_RD,
+         ["nonlinear_support_evidence.rs:case_ids"]),
+        ("iter:case_ids(rows)?.into_iter().map", "0", _NL_RD, ["nonlinear_support_evidence.rs:read"]),
+    ]
+    # RTA3NL-ID: read_case's state-review message names a support's state, one of STATES (at most 8 B). The site is
+    # unreached on D1 (multiplicity 0); the chain classifies every format row's arguments regardless.
+    O10_ID_AUDIT += [(site("read_case", _NL_EV, "ended in {} state for load case {case}", full=True, row="format!("),
+                      {"s.state": {"bytes": 8, "source": O10 + "RTA3NL-ID: a STATES entry (inactive, active, sticking, "
+                                                            "sliding), at most 8 B"}})]

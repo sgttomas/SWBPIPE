@@ -2622,10 +2622,12 @@ fn b3b_witness_inputs_and_routes() {
 /// RT-A3 increment 3 (identity and, after review, S7): read from the producer; independently, restating the
 /// two texts back and resealing with the Python 07e rule reproduces #96's pins byte for byte (DEL-04-08
 /// `retained-pricing-rules.md` §8.44, "Preservation of the in-memory successors").
+/// RT-A3 increment 4 (S1's nonlinear clause and S7; §8.49): read from the producer on the registered build; restating
+/// both texts to main aa794eb68's and resealing with the Python 07e rule reproduces main's pins byte for byte.
 const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
     // W-15 (DEL-03-05) on W-7: re-pinned for the pressure-2 identity limitation and the hashes binding it.
-    ("sparse_interactive", "f31760066b8991d68f1319e870ae1cc4344ce951f33a68cb491f98352d0e4b9e", "4965734c1d7736a5d8f1fc18b1021c3d046bf11394b02070bd3f4c52c578e039", "4d3fa2c743d8addc26a7dedb00084cb8454ace6ee21e066a83a3152d015403e3"),
-    ("dense_scrutiny", "6dadf1ca7977218b7cfbced93cbc74923d7911946cc64ea42fbe56646f252e89", "c085c3047a51f76769ffa7f0dd80a56ef815089ae8db18c81e8f5bfe1b0516a6", "7384cbb8d81ff2804f672a06acc83772e0529ffbf3f5e1e6fb426978f5c44bbd"),
+    ("sparse_interactive", "4105eac05a90ef4d3432d695f7c339ff50630965f4967fd83837d6192e07848e", "13a4678e9a46df1fd1dd14f880f2dfc8f65528c20fb380af79040c99d53c6691", "418d74b398604cc98ee328a004175494b04f48998f819a5243d84ae1bbb70bfc"),
+    ("dense_scrutiny", "5d1873121399be8dc0f310287a00b257197ccb0f9551a1edb726ec1fe7b30bc9", "de087a88979cc66056b41bc1e97ce630d01e1581774c1cf23d225c71f815b71f", "0424d9d1015988e91ece8d223a6067fefdf150501ecefe5c06b1b54618d13bc2"),
 ];
 /// The mixed exact base's pinned successor: (mode, receipt sha256, successor bytes sha256).
 /// Current B7a pins follow genuine public Direct outputs after H4/E14/E15 and
@@ -2645,7 +2647,9 @@ const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
 /// RT-A3 increment 3 (identity and, after review, S7): read from the producer; independently, restating the
 /// two texts back and resealing with the Python 07e rule reproduces #96's pins byte for byte (DEL-04-08
 /// `retained-pricing-rules.md` §8.44, "Preservation of the in-memory successors").
-const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "bbd4e16d0cd35b7e4d94aaf1c1f1741f8a1f7781fa4aca89c261e3cb454a9faf", "40b4ac1adde4cc016b1a57aae4e20d4e6438ccafc3819d12c902e2c9e9273d15"),("dense_scrutiny", "de9a3dcb13514f01e8ecac65ba101c288f2df45a61876081ebd7dedbe14d5b4a", "474879f658492250000105803a54d1392d09d1f8b905cc11c4a664d48bdf51f9")];
+/// RT-A3 increment 4 (S1's nonlinear clause and S7; §8.49): read from the producer on the registered build; restating
+/// both texts to main aa794eb68's and resealing with the Python 07e rule reproduces main's pins byte for byte.
+const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "d4c21832a36a3ecdfc278cadc0acdc04438b0c96055244418c46d06d37b1cd1c", "e1d446344f6c755bfff4620cf3b2bf09695bd40c947b9d6ca4e6dfa923cbc0b4"),("dense_scrutiny", "e6ff7059f4dcf976b09fd78d962013ae3592b70db94c28c5e01f3eb874e1d97f", "5dc5baea944047778238c7c63cd3740ae4c5b7d7130e2a0298e1499491ad228b")];
 /// The exact successor's fixture document (D-U6-5's form).
 fn exact_document(raw: &Value, mode: PreviewSolverMode, successor: &Value) -> String {
     serde_json::to_string_pretty(&json!({"id":format!("b3b_m3x_{}", mode.as_str()),"source":successor,
@@ -3685,11 +3689,13 @@ fn two_member_exact(reversed: bool) -> Value {
 /// RT-A3 increment 3 (identity and, after review, S7): read from the producer; independently, restating the
 /// two texts back and resealing with the Python 07e rule reproduces #96's pins byte for byte (DEL-04-08
 /// `retained-pricing-rules.md` §8.44, "Preservation of the in-memory successors").
+/// RT-A3 increment 4 (S1's nonlinear clause and S7; §8.49): read from the producer on the registered build; restating
+/// both texts to main aa794eb68's and resealing with the Python 07e rule reproduces main's pins byte for byte.
 const TWO_MEMBER_PINNED: [(bool, &str, &str); 4] = [
-    (false, "sparse_interactive", "5166af31724d77c9a297f068f7a0085b8b77cb6e2fe7ccd50056d994f3dc84f4"),
-    (false, "dense_scrutiny", "a95fd59c1947dae89acb0961757af0ebbb2f757226c9b31c61badee7f56fd33c"),
-    (true, "sparse_interactive", "d032e3fa162a672c1a46cf8ecaef1b53d342dcbd5c2c5bcbd8afeb727da8baad"),
-    (true, "dense_scrutiny", "85d8c6fd7cba69833271bdb6ba2dc04f033db7989b8effd552385496ddc8bae7")];
+    (false, "sparse_interactive", "9cea35f5b3789d4bc1ca45c64de3adbdb7e701c6a01aa4a55ce8f0a25aae0ad7"),
+    (false, "dense_scrutiny", "e9d4c11e7b264b4bea6a87ac005df37961b84ebc0431bfa33ea1e7992cbf6381"),
+    (true, "sparse_interactive", "1b31f708a8d153e3dabf32970ff533b7156a87aef518f7af1c0fc6f41c36b834"),
+    (true, "dense_scrutiny", "926d32a086379b0503f9b4f02da211bddc09830b3a6a9701b8ea64694b7216c2")];
 /// RV123 S-1: a two-member exact successor, in both authored member orders and both modes: each
 /// member's `pipe_sections` entry takes its own prepared A, I, J and Z (`assert_exact_successor`),
 /// and M2's prepared section differs from its source annulus's in at least one value, so the
@@ -3745,8 +3751,10 @@ fn b3b_rv123_s1_two_member_exact_overlays_each_member() {
 /// RT-A3 increment 3 (identity and, after review, S7): read from the producer; independently, restating the
 /// two texts back and resealing with the Python 07e rule reproduces #96's pins byte for byte (DEL-04-08
 /// `retained-pricing-rules.md` §8.44, "Preservation of the in-memory successors").
-const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "8464b417744038450ba1c805fef83019e0114daba0b5c1ed4ec58830beade4b8"),
-    ("dense_scrutiny", "1c69a5cfabff59428268f96e89dc4ac35412887e8d147b5534acb012f851b035")];
+/// RT-A3 increment 4 (S1's nonlinear clause and S7; §8.49): read from the producer on the registered build; restating
+/// both texts to main aa794eb68's and resealing with the Python 07e rule reproduces main's pins byte for byte.
+const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "95dd43a4484286bd310669fd3859b36bc5f618d0a9214084e68a1c8f672c37d3"),
+    ("dense_scrutiny", "1f20f3c7853a7e3d3c647ab611220f495a17d55b21c79a3ebaaac8ff082f0c93")];
 /// RV123 S-2: an exact successor with an `unavailable` prepared case, at the n-case serializer's
 /// unavailable branch: the two-case exact input with case-2's freeze refused after its selected
 /// Run (`fail_freeze_of_case`). Case-2 is `unavailable` (`facade_certificate`, phase `facade`),

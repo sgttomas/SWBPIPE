@@ -540,3 +540,14 @@ and bounds the region's id loop by Pall. `rules/o10_rules.py`'s E3 also covers t
 `INDEX_PIN` binds `Index`'s `operands` map (#104), charged as §8.42's map at the row index's stride. Against §8.46,
 four coefficients rise (T17_V5 and its success copy) and only W4 moves, +7,918 B at native atoms. The predecessor
 `e8a59f1fd` is reproduced by its own tool cohort. See the governing rules' §8.47.
+
+### §8.49: RT-A3 increment 4, nonlinear supports on the exact route
+
+D1.6 refuses every support with a `nonlinear` record, so validate_profile's nonlinear arm, the producer's nonlinear
+rows and the reader's case scan are unreached. `rules/o10_rules.py` adds RTA3NL-S6, which corrects W16C-ES: the S6
+context's `carries_fields` call is unconditional, so `validate_profile` → `carries_fields` is charged once per call
+(`EDGE_PER_CALL`) instead of zeroed (its closure has no owner or TEXT site). It also adds RTA3NL-RD (the reader's two
+D1-empty loops), RTA3NL-ID (a support state, at most 8 B) and the re-read pins (RTA3NL-PIN, and RT-A4-HS's
+`recorded_tables.rs`). `base/b7a_scoped_text_model.py`'s `problem` parents move +11 (RTA3NL-PP). Against main
+`aa794eb68`, eight coefficients rise (STATICS[1] +754 B; TAV +5,862 B) and every phase moves +6,616 B. See the
+governing rules' §8.49 and `tests/test_849_rt_a3_nonlinear.py`.

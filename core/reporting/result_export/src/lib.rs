@@ -1703,6 +1703,7 @@ mod preview_combination_gates;
 pub mod section_basis;
 mod preview_physics_evidence;
 mod preview_combination_operands;
+mod nonlinear_support_evidence;
 pub mod physics_source;
 pub mod source_blocks;
 pub mod retained_precision;

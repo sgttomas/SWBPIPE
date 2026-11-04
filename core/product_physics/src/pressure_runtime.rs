@@ -313,11 +313,22 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
         for refs in exact_admission::reducer_region_refusals(model) {
             problem(diagnostics, exact_admission::REDUCER_IN_REGION, &refs, exact_admission::REDUCER_IN_REGION_TEXT);
         }
+        // RT-A3 increment 4 (R-4 §3.5 S5): a nonlinear support is admitted on a
+        // plain document only; a load/reference-state document or a model with
+        // an objective connector (S6) keeps the family's named refusal.
+        let s6_context = (
+            super::case_state::carries_fields(model),
+            model.components.iter().any(|component| component.objective_connector.is_some()),
+        );
         for support in &model.supports {
             if let Some(family) = support_family(support) {
-                if let Admission::Refused { code, message } =
-                    exact_admission::admission(contract, family)
-                {
+                let verdict = match family {
+                    ExactFamily::NonlinearSupport => {
+                        exact_admission::nonlinear_support_admission(contract, s6_context.0, s6_context.1)
+                    }
+                    _ => exact_admission::admission(contract, family),
+                };
+                if let Admission::Refused { code, message } = verdict {
                     problem(diagnostics, code, &[&support.id], message);
                 }
             }

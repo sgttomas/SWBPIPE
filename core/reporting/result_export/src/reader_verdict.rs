@@ -386,8 +386,11 @@ fn pressure_outcome(source: &Value, model: Option<&Value>, evidence: Result<(), 
     let check = evidence.and_then(|()| {
         // W-16 slice b (§6): the combination records bound to the model's
         // combinations and its operands' modulus selections.
+        // RT-A3 increment 4 (R-4 §2.4): the nonlinear supports bound to the
+        // model's records and the DEC-067 laws that need their inputs.
         model.map_or(Ok(()), |m| physics_model_checks(source, m).and_then(|()| crate::u4b_evidence::exact_model_checks(source, m))
-            .and_then(|()| crate::exact_combination_evidence::model_checks(source, m)))
+            .and_then(|()| crate::exact_combination_evidence::model_checks(source, m))
+            .and_then(|()| crate::nonlinear_support_evidence::model_checks(source, m)))
     });
     match check {
         Ok(()) => json!({"ok": true}),

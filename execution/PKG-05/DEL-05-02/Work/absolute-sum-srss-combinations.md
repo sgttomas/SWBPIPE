@@ -874,8 +874,9 @@ under `fixtures/results/recorded_pre_rt_a4/`, its SHA-256 checked when it is fir
 | preview-physics-2 | 1ccc9561… | e7b93f41… | main 6c3cb46d3 | under the variant's table |
 | preview-physics-timoshenko-1 | a7b83c37… | ce49ebe0… | main 6c3cb46d3 | under the variant's table |
 | preview-physics-retained-1 | b001070e… | 26dce9c2… | main 6c3cb46d3 | under the variant's table, its base under preview-physics-2 1ccc9561… (its inherited digest) |
-| physics-retained-1 | cf29fd5f… | 040ef9a6… | main 6c3cb46d3 | binding only |
-| physics-retained-1 | 045f6f0d… | 040ef9a6… | #101 01e05a486 (main once RT-A3 increment 3 lands first) | binding only |
+| physics-retained-1 | cf29fd5f… | ca6bb983… | main 6c3cb46d3 | binding only |
+| physics-retained-1 | 045f6f0d… | ca6bb983… | #101 01e05a486 (main once RT-A3 increment 3 lands first) | binding only |
+| physics-retained-1 | 040ef9a6… | ca6bb983… | main bbf384dec (RT-A4; history once RT-A3 increment 4 restates pressure-2) | binding only |
 
 Every variant's rows are the current table's; only limitations, combination-policy text,
 vocabulary and inherited digests moved. The exact successor's statements still read under the
@@ -883,6 +884,11 @@ current reader (its rows and receipt bindings are unchanged), so its variants ch
 table: they are recorded bindings, as pressure-2's bases are. pressure-2 itself needs no
 entry: its main digest (a2db16a5…) and #101's (be29fabc…) are already
 `RECORDED_RUN_TABLE_BASES`, and its statements carry no limitation the reader compares.
+RT-A3 increment 4 (DEL-04-07 `pressure-contract.md`, "Nonlinear supports on EX") restates
+two pressure-2 limitations, so the RT-A4 main line's pressure-2 digest (10455bf3…) joins
+`RECORDED_RUN_TABLE_BASES` and its exact successor table (040ef9a6…) joins this registry as a
+binding-only variant (records: main bbf384dec's statement verbatim and a record built by that
+revision's builder, `fixtures/persistence/recorded_pre_rt_a4_pf/physics_retained_1/main_bbf384dec/`).
 
 **Selection rule.** A variant is selected only by a record's binding
 `analysis_run.reproducibility.semantic_contract` that is exactly `{id, sha256}` and equal to a

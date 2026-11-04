@@ -892,10 +892,10 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "e7b93f416f700f8efdb31bf1ba26dedde52963d768d6ead5a73dbf1c645a360c",
         "fe371e07cd727154235f3725eeeef393ad0a433f0e8c98656f98468940d9aea2",
         "8d48e3d97bc4f69bf9b0da58db7538b0661cf52d05f771dc126be2c3cca8c163",
-        "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034",
+        "85c2678a78e794b44761c11efb73c215645c7e2560d802ac8ad6075e7804c691",
         "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9",
         "3dd8523f2f03cd72e9dbeb10955e9492711cf1334ba8d1dc4919d4ba2512b416",
-        "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6",
+        "2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645",
         "ce49ebe07bc05431ea1f770c1933b5bf58f4b1c8b66fb6f36810f2ef7a58cd43",
     ];
     // The same files, read here at compile time (test-only), by the sha2 dependency.
@@ -2019,9 +2019,15 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 // +62,583 B in both modes, from maintained eval at the same 328 in-build atoms, without R.
 // §8.47: RT-U4's region-binding count map (RTU4-RC, T17_V5 +192 s(PairBorrowed) + 1,774 B): W4 +7,918 B
 // in both modes, every other phase unchanged, from maintained eval at the same 328 in-build atoms, without R.
+// §8.48: DEL-04-09 I2b-2 on RT-U4's candidate: no coefficient moves; the in-build atom s(PreparedCaseResult)
+// is 1,888 B (was 1,880: LoadCaseSolve's Option<Box<NonlinearStateEvidence>>), charged twice per case at three
+// cases: +48 B in every phase and mode, from maintained eval at the 328 in-build atoms, without R.
+// §8.49: RT-A3 increment 4 (the restated pressure-2 table in STATICS, +754 B; S1's nonlinear clause and S7
+// in six TAV copies, +5,862 B): +6,616 B in every phase and mode, from maintained eval at the same 328 in-build
+// atoms, without R.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_449_924_745, 6_791_919_306, 8_743_655_134, 8_537_377_788, 7_611_067_204, 8_526_278_717, 7_258_896_107, 6_932_185_983],
-    [6_509_056_089, 6_851_050_650, 8_802_786_478, 8_596_509_132, 7_670_198_548, 8_585_410_061, 7_318_027_451, 6_991_317_327],
+    [6_449_931_409, 6_791_925_970, 8_743_661_798, 8_537_384_452, 7_611_073_868, 8_526_285_381, 7_258_902_771, 6_932_192_647],
+    [6_509_062_753, 6_851_057_314, 8_802_793_142, 8_596_515_796, 7_670_205_212, 8_585_416_725, 7_318_034_115, 6_991_323_991],
 ];
 
 #[test]
