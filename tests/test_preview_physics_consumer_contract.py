@@ -58,6 +58,12 @@ def meta(component, coordinate, location, basis, sign="positive value follows th
     return {"component": component, "coordinate_system": coordinate, "location": location, "basis": basis, "sign_convention": sign}
 
 
+# The producer's `has_maximum` and `has_intensified` row kinds (`preview_physics.rs`).
+ROSTER_KINDS = {"maximum": ("pipe_elastic_normal_stress_maximum_v2", "element_local_normal_stress_extreme", "element_local_transverse_shear_stress_maximum"),
+                "intensified": ("component_equal_factor_intensified_bending_stress_v1", "curved_bend_directional_intensified_bending_stress_v1",
+                                "curved_bend_directional_intensified_bending_maximum_v1")}
+
+
 def envelope():
     """Two cases, two straight pipes, one attributed and one withheld support,
     one intensified end, one admitted and one gated mechanics combination."""
@@ -125,7 +131,19 @@ def envelope():
         value = math.hypot(math.hypot(sums[names[0]], sums[names[1]]), sums[names[2]])
         combined.append({"id": f"result:combination:C-OK:support-action:{R('support:S1')}:{component}", "kind": kind, "value": value, "unit": unit, "entity_ref": "support:S1", "basis_ref": {"ref_type": "combination", "ref_id": comb}, "source_result_refs": [f"result:combination:C-OK:support-action:{R('support:S1')}:{name}" for name in names], "metadata": meta(component, "global", "node", linear)})
     results.extend(combined)
-    diagnostics.append({"id": f"diagnostic:preview-physics:combination-gate:{L('combination:C-NL')}", "code": "NONLINEAR_COMBINATION_REQUIRES_SOLVE", "severity": "warning", "message": "synthetic", "affected_refs": ["combination:C-NL"]})
+    # RT-A3 §4 (the closed combination-diagnostic roster): the producer's notices for the two combinations, in its
+    # canonical form: the headline scope, the admitted combination's maximum and intensified notices, and the gate's.
+    diagnostics.append({"id": "diagnostic:preview-physics:headline-scope", "code": "PREVIEW_HEADLINE_SCOPE_LOAD_CASES", "severity": "info",
+                        "message": "headlines cover the load cases only; combinations are excluded", "source": "core/product_physics",
+                        "affected_refs": ["combination:C-OK", "combination:C-NL"]})
+    diagnostics.append({"id": f"diagnostic:preview-physics:combination-gate:{L('combination:C-NL')}", "code": "NONLINEAR_COMBINATION_REQUIRES_SOLVE", "severity": "warning",
+                        "message": "Combination withheld: the model has nonlinear supports, so superposing case states is not a solved state.",
+                        "source": "core/product_physics", "affected_refs": ["combination:C-NL"]})
+    for kind, code, message in (("maximum", "COMBINATION_STRESS_MAXIMUM_UNAVAILABLE", "stress maxima and section stress extremes are not combined; combine the signed stress component rows instead"),
+                                ("intensified", "COMBINATION_INTENSIFIED_STRESS_UNAVAILABLE", "intensified measures are never combined (their ranges and combinations follow the owner's rule in T6)")):
+        if any(row["kind"] in ROSTER_KINDS[kind] and row["basis_ref"]["ref_type"] == "load_case" for row in results):
+            diagnostics.append({"id": f"diagnostic:preview-physics:combination-{kind}:{L('combination:C-OK')}", "code": code, "severity": "info",
+                                "message": message, "source": "core/product_physics", "affected_refs": ["combination:C-OK"]})
     maxima = [row for row in results if row["kind"] == "pipe_elastic_normal_stress_maximum_v2"]
     top = max(maxima, key=lambda row: row["value"])
     disp = [row for row in results if row["kind"] == "displacement_magnitude" and row["basis_ref"]["ref_type"] == "load_case"]
@@ -549,6 +567,12 @@ def test_a1_b_per_support_nonlinear_rows_name_listed_supports():
     source["results"] = [row for row in source["results"] if (row.get("basis_ref") or {}).get("ref_type") != "combination"]
     for gate in source["contract_evidence"]["combination_gates"]:
         gate.update(withheld=True, reason="NONLINEAR_COMBINATION_REQUIRES_SOLVE")
+    # RT-A3 §4 (the closed roster): a withheld combination has the producer's gate notice and no maximum or
+    # intensified notice.
+    source["diagnostics"] = [d for d in source["diagnostics"] if d["affected_refs"] != ["combination:C-OK"]]
+    source["diagnostics"].append({"id": f"diagnostic:preview-physics:combination-gate:{L('combination:C-OK')}", "code": "NONLINEAR_COMBINATION_REQUIRES_SOLVE",
+                                  "severity": "warning", "message": "Combination withheld: the model has nonlinear supports, so superposing case states is not a solved state.",
+                                  "source": "core/product_physics", "affected_refs": ["combination:C-OK"]})
     source["results"].append(_nonlinear_row("support:NL"))  # withheld but listed: allowed
     source["results"].append(_nonlinear_row("support:S1", "nonlinear_support_active_set_state_code", "state_code"))
     source["results"].append(_nonlinear_row("support:S1", "nonlinear_support_final_reaction", "N"))
