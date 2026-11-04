@@ -530,3 +530,13 @@ the combination callee's buffers and published operand rows (RT-A4-CB), the deri
 preview reader's sets (RT-A4-RD, route L only: RT-A4-RE). Two tool repairs: `_production()` removes each
 `#[cfg(test)]` item instead of truncating at the first (RT-A4-PR), and `text_lexicon` reads `token` as text (RT-A4-TK).
 See the governing rules' §8.46.
+
+### §8.47: RT-U4 region binding in one pass and the shear operand rule
+
+`base/rtu4_owners_model.py` binds the exact reader's one-pass region binding by its three statements and prices
+RTU4-RC in T17 V5: the `(load case, member)` count map, at most C·m keys, push-grown with its previous table
+(HashMov of s(PairBorrowed)) plus an 8 B count per slot. `rules/i95_new_loops.json` retires the per-region row scan
+and bounds the region's id loop by Pall. `rules/o10_rules.py`'s E3 also covers the counting pass. U4B-RD's
+`INDEX_PIN` binds `Index`'s `operands` map (#104), charged as §8.42's map at the row index's stride. Against §8.46,
+four coefficients rise (T17_V5 and its success copy) and only W4 moves, +7,918 B at native atoms. The predecessor
+`e8a59f1fd` is reproduced by its own tool cohort. See the governing rules' §8.47.

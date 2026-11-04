@@ -57,12 +57,15 @@ LN = {
     # RT-A3 increment 1 D3 (§8.33): +12 each (10366/15340/15289/15339 at §8.32), unchanged text.
     # Model document 0.9.0 D3 (§8.36): all four lib.rs sites +83, unchanged text (the 0.9.0 modules, members, closed
     # term wire, lowering and withholding calls and the snubber token precede them).
+    # DEL-04-09 I2b-2 layout (§8.43, cc160d28d; Agent 0's ordinary layout): +26 (unit_message) and
+    # +26 (the three helpers), unchanged text.
     # RT-A4 D3 (§8.46): +7 (unit_message: the `mod combination_plan;` line and the derivation call's six lines precede
     # it) and +79 (the three helpers: the wiring's lib.rs additions precede them), unchanged text.
-    'unit_message': 10521, # lib.rs `message.into()` (9162) [9159]
-    'suffix': 15567,      # lib.rs `id.replace(':', "-")` (13614) [13619]
-    'diag_fn': 15516,     # lib.rs fn diag (13563) [13568]
-    'suffix_fn': 15566,   # lib.rs fn stable_suffix (13613) [13618]
+    # I2b-2 on RT-U4's candidate (§8.48): both moves, +33 (unit_message) and +105 (the three helpers), unchanged text.
+    'unit_message': 10547, # lib.rs `message.into()` (9162) [9159]
+    'suffix': 15593,      # lib.rs `id.replace(':', "-")` (13614) [13619]
+    'diag_fn': 15542,     # lib.rs fn diag (13563) [13568]
+    'suffix_fn': 15592,   # lib.rs fn stable_suffix (13613) [13618]
     # Model document 0.9.0 D3 (§8.36): physics_source.rs's require moves +23 with unchanged text (model_uses_conditions
     # and the three condition-set, spectrum and set-reference predicates precede it); the new details are at most 24 B
     # (ACTUAL_CONDITION_SET_REF), so the longest stays ACTUAL_MATERIAL_DUPLICATE_TEMPERATURE's 37 B and 40 holds.

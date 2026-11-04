@@ -2017,9 +2017,14 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 // resolver and LIMITATIONS[6] in O_base, the preview reader's row index and case set in T17_V5,
 // LIMITATIONS[6]'s failed-manifest clones in TAV_W): W1, W2, W3 and W5 +65,327 B, W4 +458,607 B, X1-X3
 // +62,583 B in both modes, from maintained eval at the same 328 in-build atoms, without R.
+// §8.47: RT-U4's region-binding count map (RTU4-RC, T17_V5 +192 s(PairBorrowed) + 1,774 B): W4 +7,918 B
+// in both modes, every other phase unchanged, from maintained eval at the same 328 in-build atoms, without R.
+// §8.48: DEL-04-09 I2b-2 on RT-U4's candidate: no coefficient moves; the in-build atom s(PreparedCaseResult)
+// is 1,888 B (was 1,880: LoadCaseSolve's Option<Box<NonlinearStateEvidence>>), charged twice per case at three
+// cases: +48 B in every phase and mode, from maintained eval at the 328 in-build atoms, without R.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_449_924_745, 6_791_919_306, 8_743_655_134, 8_537_369_870, 7_611_067_204, 8_526_278_717, 7_258_896_107, 6_932_185_983],
-    [6_509_056_089, 6_851_050_650, 8_802_786_478, 8_596_501_214, 7_670_198_548, 8_585_410_061, 7_318_027_451, 6_991_317_327],
+    [6_449_924_793, 6_791_919_354, 8_743_655_182, 8_537_377_836, 7_611_067_252, 8_526_278_765, 7_258_896_155, 6_932_186_031],
+    [6_509_056_137, 6_851_050_698, 8_802_786_526, 8_596_509_180, 7_670_198_596, 8_585_410_109, 7_318_027_499, 6_991_317_375],
 ];
 
 #[test]

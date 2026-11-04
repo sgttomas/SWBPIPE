@@ -158,13 +158,18 @@ pub(crate) fn toroidal_hoop(p: f64, ri: f64, wall: f64, ro: f64, r: f64) -> Opti
 /// One case row's slot.
 type Slot<'a> = (&'a str, &'a str, &'a str, &'a str, &'a str, &'a str);
 
+/// The kinds `any` reads without their component: a station's shear operands
+/// (§2.4, §5.1).
+pub(crate) const SHEAR_OPERANDS: [&str; 2] = ["element_local_shear_force_y", "element_local_shear_force_z"];
+
 /// The case rows of one envelope by (case, entity, kind, component, location,
 /// basis); the basis is "" for a row without a section basis.
 pub(crate) struct Index<'a> {
     rows: HashMap<Slot<'a>, &'a Value>,
-    /// `any`'s lookup, built on first use: per slot without its component, the
-    /// first row of `rows` in its iteration order, the row `any`'s scan found.
-    first: std::cell::OnceCell<HashMap<(&'a str, &'a str, &'a str, &'a str, &'a str), &'a Value>>,
+    /// `any`'s lookup (§5.1, the shear operand rule): per component-free slot
+    /// of a `SHEAR_OPERANDS` row, one of its rows, every row of the slot
+    /// carrying the same value (`new` refuses the envelope otherwise).
+    operands: HashMap<(&'a str, &'a str, &'a str, &'a str, &'a str), &'a Value>,
 }
 fn case_of(row: &Value) -> Option<&str> {
     (row["basis_ref"]["ref_type"] == "load_case").then(|| row["basis_ref"]["ref_id"].as_str()).flatten()
@@ -177,7 +182,22 @@ fn token_of(row: &Value) -> &str {
     b.rsplit_once("; section_basis=").map_or(b, |(t, _)| t)
 }
 impl<'a> Index<'a> {
+    /// Refuses a duplicate slot of a new kind (`ROW_SLOT_DUPLICATE`), then a
+    /// shear operand slot whose rows carry different values
+    /// (`SHEAR_OPERAND_AMBIGUOUS`): two values, or a number beside a missing
+    /// or non-numeric value. Rows agreeing bit for bit (or all without a
+    /// number) are one operand. The second pass runs once the row index is
+    /// complete; each row is compared with its slot's first, so the verdict
+    /// is the same in every row order and hash seed.
     pub(crate) fn new(rows: &'a [Value], route: Route) -> Result<Self, String> {
+        Self::build(rows, route, true)
+    }
+    /// The row index alone, for a check that reads no shear operand
+    /// (`directional_model_checks`; its `any` finds nothing).
+    pub(crate) fn rows_only(rows: &'a [Value], route: Route) -> Result<Self, String> {
+        Self::build(rows, route, false)
+    }
+    fn build(rows: &'a [Value], route: Route, with_operands: bool) -> Result<Self, String> {
         let mut map = HashMap::new();
         for row in rows {
             let Some(case) = case_of(row) else { continue };
@@ -194,20 +214,27 @@ impl<'a> Index<'a> {
                 return Err(route.fail("ROW_SLOT_DUPLICATE"));
             }
         }
-        Ok(Self { rows: map, first: std::cell::OnceCell::new() })
+        let mut operands = HashMap::new();
+        for row in if with_operands { rows } else { &[] } {
+            let (Some(case), Some(entity), Some(kind)) = (case_of(row), row["entity_ref"].as_str(), row["kind"].as_str()) else { continue };
+            if !SHEAR_OPERANDS.contains(&kind) {
+                continue;
+            }
+            let slot = (case, entity, kind, row["metadata"]["location"].as_str().unwrap_or(""), basis_of(row));
+            let held = *operands.entry(slot).or_insert(row);
+            if held["value"].as_f64().map(f64::to_bits) != row["value"].as_f64().map(f64::to_bits) {
+                return Err(route.fail("SHEAR_OPERAND_AMBIGUOUS"));
+            }
+        }
+        Ok(Self { rows: map, operands })
     }
     fn value(&self, case: &str, entity: &str, kind: &str, component: &str, location: &str, basis: &str) -> Option<f64> {
         self.rows.get(&(case, entity, kind, component, location, basis)).and_then(|r| r["value"].as_f64())
     }
+    /// A shear operand by its slot without the component.
     fn any(&self, case: &str, entity: &str, kind: &str, location: &str, basis: &str) -> Option<f64> {
-        let first = self.first.get_or_init(|| {
-            let mut first = HashMap::new();
-            for (s, row) in &self.rows {
-                first.entry((s.0, s.1, s.2, s.4, s.5)).or_insert(*row);
-            }
-            first
-        });
-        first.get(&(case, entity, kind, location, basis)).and_then(|r| r["value"].as_f64())
+        debug_assert!(SHEAR_OPERANDS.contains(&kind));
+        self.operands.get(&(case, entity, kind, location, basis)).and_then(|r| r["value"].as_f64())
     }
 }
 
@@ -479,7 +506,7 @@ pub(crate) fn directional_model_checks(source: &Value, model: &Value, route: Rou
             route.require(row["entity_ref"].as_str().is_some_and(|pipe| arcs.contains_key(pipe)), "INTENSIFIED_MODEL")?;
         }
     }
-    let index = Index::new(rows, route)?;
+    let index = Index::rows_only(rows, route)?;
     let (key, bases): (&str, &[&str]) = match route {
         Route::Exact => ("exact_cases", &["nominal_section", "reduced_section"]),
         Route::Preview => ("preview_cases", &[""]),
@@ -730,7 +757,7 @@ pub(crate) fn preview_model_checks(source: &Value, model: &Value) -> Check {
     directional_model_checks(source, model, route)
 }
 
-// `Index::any` against the scan it replaced; the bodies are in their own file.
+// `Index::any`'s shear operand rule; the bodies are in their own file.
 #[cfg(test)]
 #[path = "u4b_evidence_any_tests.rs"]
 mod any_tests;
