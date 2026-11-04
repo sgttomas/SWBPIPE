@@ -1625,6 +1625,11 @@ fn conditioning_and_separation_premises_against_independent_references() {
     // solves' rounding (observed: ν at most 1.5·10⁻⁶ above it). On a
     // refused (ill-conditioned) shift the binary64 solves can make ν exceed
     // the true norm, so it is no lower bound there (observed below).
+    eprintln!("largest relative excess of ν over ‖Ã⁻¹‖₁ on a counted shift: {:.3e}", (1.0 - nu_lo_c).max(0.0));
+    // Every factored shift has an accepted reference (n·κ₁·2⁻¹⁰⁴ ≤ 10⁻⁶ and
+    // ‖I − Ã·X‖₁ ≤ 10⁻⁶): a rejected reference fails here rather than
+    // silently leaving the population.
+    assert_eq!(unresolved_inverse, 0, "{unresolved_inverse} factored shifts have no accepted inverse reference");
     assert!(nu_lo_c >= 1.0 - 1e-4, "an estimate above the reference on a counted shift: ratio {nu_lo_c}");
     let mut worst_counted: Vec<_> = sep_rows.iter().filter(|r| r.2).collect();
     worst_counted.sort_by(|a, b| b.3.total_cmp(&a.3));
