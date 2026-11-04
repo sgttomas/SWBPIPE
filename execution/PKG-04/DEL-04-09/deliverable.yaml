@@ -164,13 +164,17 @@ needs:
     families, carried by model document 0.9.0's first slice (S1) in its D3 turn (agreed with the load-case
     lane, Work `model-document-0.9.0.md` §2.4 at `c42a72491`). DEL-04-09 defines no unit or conversion of
     its own (Design §1.5). I3a (Design §5.3.5): the modal result's mass payload also needs a family for a
-    translation–rotation mass entry, kg·m·rad⁻¹ (exponents L 1, M 1, A −1), which the catalog lacks; it is
-    published with its exponents as `catalog_family_absent`, the proposed `mass_length_per_rotation` family
-    (and `angular_frequency_squared`, only if λ is to be published) waits on DEL-02-02's owner, and
-    `core/units` is unchanged. Public admission of the modal result needs that decision, and the owner's
-    decision on the unitless equilibrated-basis evidence.
+    translation–rotation mass entry, kg·m·rad⁻¹ (exponents L 1, M 1, A −1). `mass_length_per_rotation`
+    (canonical kg*m/rad; displays lb*in/rad, lb*ft/rad) is added to `core/units` as a named dimension
+    with conversion witnesses, under the D-01 engineering extension of 2026-11-04 (Agent 0's decisions;
+    a manager decision under the engineering delegation). No `angular_frequency_squared` is added, since
+    λ is not published. The equilibrated-basis magnitudes are traced (Design §5.3.5): the Sturm and
+    stiffness-side ones are `unit:one`, and modal-1's closed `equilibrated_basis` list is empty. The two
+    mass-side formation magnitudes are time squared (s²), which the catalog lacks; they are published
+    with their exponents as `catalog_family_absent` until a representation is decided. Public admission
+    needs that decision.
   gating: true
-  when: The unit families (with 0.9.0's S1) before M1b publishes modal results; the mass-coupling family before public admission.
+  when: The unit families (with 0.9.0's S1) before M1b publishes modal results; a representation of the time-squared formation magnitudes before public admission.
   evidence: core/units/README.md
 - from: DEL-00-06
   condition: >-
