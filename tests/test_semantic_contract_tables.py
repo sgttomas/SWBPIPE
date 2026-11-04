@@ -57,23 +57,80 @@ def test_repin_routes_the_desktop_run_carriers_to_their_writers():
     assert order.index("recordedRunParity") < order.index("analysis_runs_tests")
 
 
+def _seals_a_run_record(value) -> bool:
+    """Whether `value` holds, at any depth, an AnalysisRun record sealed by its own analysis_run_record checksum."""
+    if isinstance(value, list):
+        return any(_seals_a_run_record(item) for item in value)
+    if not isinstance(value, dict):
+        return False
+    run = value.get("analysis_run")
+    hashes = run.get("hashes") if isinstance(run, dict) else None
+    if isinstance(hashes, list) and any(isinstance(row, dict) and row.get("payload_scope") == "analysis_run_record" for row in hashes):
+        return True
+    return any(_seals_a_run_record(item) for item in value.values())
+
+
 def test_repin_routes_every_self_checksummed_run_record_to_a_writer():
     """A committed AnalysisRun record checksums its own bytes, so a text edit of a digest inside it leaves the
-    checksum stale; every such file is a carrier (or frozen), never an editable consumer."""
+    checksum stale; every file holding one, at the top level or nested (the user-release vectors carry the solve's
+    record under each vector), is a carrier (or frozen), never an editable consumer."""
     import json
     import subprocess
     tool = _tool()
     listed = subprocess.run(["git", "grep", "-l", '"analysis_run_record"', "--", "*.json"], cwd=PROJECT,
                             capture_output=True, text=True, check=True).stdout.split()
-    records = []
-    for path in listed:
-        document = json.loads((PROJECT / path).read_text(encoding="utf-8"))
-        hashes = document.get("analysis_run", {}).get("hashes", []) if isinstance(document, dict) else []
-        if any(row.get("payload_scope") == "analysis_run_record" for row in hashes):
-            records.append(path)
-    assert records
+    records = [path for path in listed if _seals_a_run_record(json.loads((PROJECT / path).read_text(encoding="utf-8")))]
+    assert "fixtures/reports/invented/user_release_derivation_vectors.json" in records
     editable, _, _ = tool.classify(records)
     assert editable == []
+
+
+USER_RELEASE_CARRIERS = (
+    "fixtures/reports/invented/user_release_derivation_vectors.json",
+    "fixtures/reports/invented/user_release_record.json",
+    "fixtures/reports/invented/user_release_runner_refusal_request.json",
+    "fixtures/reports/invented/user_release_exact/pressure_2_straight.json",
+    "fixtures/reports/invented/user_release_exact/pressure_source_1.json",
+)
+
+
+def test_a_repin_across_a_table_change_leaves_the_user_release_seals_to_their_writers(tmp_path, monkeypatch, capsys):
+    """RT-A5 1b: a repin rewrote the preview-physics-2 digest inside the user-release vectors as text, leaving each
+    vector's run record sealed by its old checksum (route 010 refused it). On a scratch repository holding the pinned
+    files, these carriers and an editable consumer, a repin across a table change edits the consumer, leaves every
+    carrier's bytes untouched and names their writers."""
+    import os
+    import shutil
+    import subprocess
+    tool = _tool()
+    consumer = "core/reporting/result_export/src/semantic_contract.rs"
+    for path in {*tool.PINNED, *USER_RELEASE_CARRIERS, consumer}:
+        (tmp_path / path).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(PROJECT / path, tmp_path / path)
+    git_env = {**os.environ, "GIT_AUTHOR_NAME": "repin-test", "GIT_AUTHOR_EMAIL": "repin-test@example.invalid",
+               "GIT_COMMITTER_NAME": "repin-test", "GIT_COMMITTER_EMAIL": "repin-test@example.invalid"}
+    for command in (["init", "-q"], ["add", "-A"], ["commit", "-q", "-m", "scratch"]):
+        subprocess.run(["git", *command], cwd=tmp_path, env=git_env, check=True, capture_output=True)
+    table = tmp_path / tool.PREVIEW
+    old = tool.sha256(table.read_bytes())
+    vectors = (tmp_path / USER_RELEASE_CARRIERS[0]).read_text(encoding="utf-8")
+    assert old in vectors and old in (tmp_path / consumer).read_text(encoding="utf-8")
+    table.write_bytes(table.read_bytes() + b"\n")
+    new = tool.sha256(table.read_bytes())
+    before = {path: (tmp_path / path).read_bytes() for path in USER_RELEASE_CARRIERS}
+    monkeypatch.setattr(tool, "PROJECT", tmp_path)
+    assert tool.repin(["HEAD"]) == 0
+    out = capsys.readouterr().out
+    assert new in (tmp_path / consumer).read_text(encoding="utf-8"), out
+    assert {path: (tmp_path / path).read_bytes() for path in USER_RELEASE_CARRIERS} == before
+    assert f"{USER_RELEASE_CARRIERS[0]}: carrier; regenerate through its writer" in out
+    assert tool.USER_RELEASE_WRITERS in out
+    # The writer chain runs in the order its producers require.
+    order = tool.USER_RELEASE_WRITERS
+    assert (order.index("userReleaseDerivation.parity") < order.index("user_release_record.json")
+            < order.index("OPENPIPESTRESS_UPDATE_USER_RELEASE_RUNNER_REQUEST") < order.index("userReleaseExact.parity"))
+    for carrier in USER_RELEASE_CARRIERS:
+        assert tool.classify([carrier])[1] == [carrier], carrier
 
 
 def test_repin_dry_run_at_head_lists_nothing(capsys):

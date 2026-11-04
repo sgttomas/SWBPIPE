@@ -533,18 +533,18 @@ def recorded_run_semantic_binding(recorded: Any, contract_id: str, contract_hash
 
 
 PREVIEW_PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2"
-PREVIEW_PHYSICS_CONTRACT_SHA256 = "e7b93f416f700f8efdb31bf1ba26dedde52963d768d6ead5a73dbf1c645a360c"
+PREVIEW_PHYSICS_CONTRACT_SHA256 = "f41b9d3ed0c1b7abaee0b98ca1a28aa1a2d109bce443b98d53a2080c1c504ce9"
 _PREVIEW_PHYSICS_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_2.json"
 # DEL-05-03 Design pf-timoshenko.md §4: the pressure-free Timoshenko identity, beside preview-physics-2 on the
 # preview-physics route. Its own table and hash; preview-physics-2's are unchanged, so existing records stay compatible.
 PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1"
-PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_SHA256 = "ce49ebe07bc05431ea1f770c1933b5bf58f4b1c8b66fb6f36810f2ef7a58cd43"
+PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_SHA256 = "6f6494907e3ead979ea27e5ff85f54617589c9195dc84d40a02752a0b006ef44"
 _PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_timoshenko_1.json"
 # U6b (D-U6-6; D2 4.7 S-1, 4.9.6): the F2a preview successor. Its statements are
 # checked only by the accepted reader (`retained_precision`), and its standing
 # comes only from that reader's verified receipt (D1 5 item 3).
 PREVIEW_PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
-PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 = "26dce9c21261b1ca894af05a3b6f4a94db88904894cb47f7296f892e72ecfb7e"
+PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 = "b4377e73e8a83edb57b4f0c41dbaef384385e0f6b4810103a106a334c8edbe14"
 _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_retained_1.json"
 # B3b (B3-D §2, §6.1): the exact successor, whose base is pressure-2 since B7b D4 (a). As the preview successor, its
 # statements are checked only by the accepted reader, which dispatches on this identity, and its standing comes only
@@ -592,6 +592,7 @@ _TABLES = {PRESSURE_SOURCE_CONTRACT_ID: (PRESSURE_SOURCE_CONTRACT_SHA256, _PRESS
 # (validate_analysis_run_v0_3(..., recorded_read=True)); the record builder, the export and every other current path
 # bind the current tables only, and a statement carrying a variant's limitations stays refused there.
 _RECORDED_DIR = _RESULTS_DIR / "recorded_pre_rt_a4"
+_RECORDED_1B_DIR = _RESULTS_DIR / "recorded_pre_rt_a5_1b"
 RECORDED_PRE_RT_A4_TABLES = {
     (PREVIEW_PHYSICS_CONTRACT_ID, "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2"):
         _RECORDED_DIR / "semantic_contract_v0_3_preview_physics_2.1ccc9561.json",
@@ -607,6 +608,14 @@ RECORDED_PRE_RT_A4_TABLES = {
     # RT-A4 main line's exact successor table (main at bbf384dec) is history too, a recorded binding only.
     (PHYSICS_RETAINED_CONTRACT_ID, "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034"):
         _RECORDED_DIR / "semantic_contract_v0_3_physics_retained_1.040ef9a6.json",
+    # Operating-case slice 1b (DEL-05-02 operating-case.md "As built (1b)"): main's tables at bbf384dec, before 1b
+    # restated the preview-physics combination policy (v2 -> v3).
+    (PREVIEW_PHYSICS_CONTRACT_ID, "e7b93f416f700f8efdb31bf1ba26dedde52963d768d6ead5a73dbf1c645a360c"):
+        _RECORDED_1B_DIR / "semantic_contract_v0_3_preview_physics_2.e7b93f41.json",
+    (PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID, "ce49ebe07bc05431ea1f770c1933b5bf58f4b1c8b66fb6f36810f2ef7a58cd43"):
+        _RECORDED_1B_DIR / "semantic_contract_v0_3_preview_physics_timoshenko_1.ce49ebe0.json",
+    (PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, "26dce9c21261b1ca894af05a3b6f4a94db88904894cb47f7296f892e72ecfb7e"):
+        _RECORDED_1B_DIR / "semantic_contract_v0_3_preview_physics_retained_1.26dce9c2.json",
 }
 SOURCE_RECORDED_TABLE_HASH = "SOURCE_RECORDED_TABLE_HASH"
 

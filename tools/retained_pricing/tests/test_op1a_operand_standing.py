@@ -45,7 +45,10 @@ def test_only_nonlinear_tails_are_zero(monkeypatch, route):
      'let nonlinear = true;', "OP1A-PF/RD: reviewed source changed"),
     (RE, 'let mut expected: Vec<Value> = Vec::new();',
      'let mut expected: Vec<Value> = vec![Value::Null];', "OP1A-PF/RD: reviewed source changed"),
-    (RE, '.filter(|g| g["withheld"] == false)', '.filter(|_| true)', "OP1A-PF/RD: reviewed source changed"),
+    # Operating-case slice 1b (§8.51): model_checks' admitted set repeats the filter; the anchor names check's.
+    (RE, 'let admitted: Vec<&str> = items(&source["contract_evidence"]["combination_gates"])\n        .iter()\n        .filter(|g| g["withheld"] == false)',
+     'let admitted: Vec<&str> = items(&source["contract_evidence"]["combination_gates"])\n        .iter()\n        .filter(|_| true)',
+     "OP1A-PF/RD: reviewed source changed"),
     (RE, 'fn text(v: &Value)', 'pub(crate) fn text(v: &Value)', "OP1A-PF/RD: reviewed source changed"),
     # OP1A-ER: swallowing the first error invalidates the one-returning-error cap.
     (RE, 'require(keys(record, &RECORD_KEYS) && record["standing"] == STANDING, "SHAPE")?;',

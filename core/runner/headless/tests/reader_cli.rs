@@ -292,3 +292,42 @@ fn base_readers_read_through_the_cli_as_reader_verdict() {
         assert!(stderr.contains("unknown reader"), "{reader}: {stderr}");
     }
 }
+
+/// Operating-case slice 1b (DEL-05-02 `operating-case.md` §6.5): a document with a declared
+/// operating comparison through `openpipestress-runner read preview-physics`. Without its model
+/// the G-1 verdict is re-derived from the published evidence (option A), so a valid document
+/// reads and a forged one is refused by name; with the model it reads too.
+#[test]
+fn a_declared_difference_through_the_cli_reads_without_its_model_and_a_forgery_is_refused() {
+    let corpus: Value = serde_json::from_str(include_str!("../../../../fixtures/results/preview_physics_difference_basis_corpus.json")).unwrap();
+    for name in ["v1_closing", "v5_sustained_only_load", "v5_g2"] {
+        let entry = corpus["documents"].as_array().unwrap().iter().find(|e| e["name"] == name).unwrap();
+        for input in [json!({"source": entry["document"]}), json!({"source": entry["document"], "model": entry["model"]})] {
+            let (code, verdict, stderr) = run(&["read", "preview-physics"], &input.to_string());
+            assert!(stderr.is_empty(), "{stderr}");
+            assert_eq!((code, verdict["outcome"]["ok"].clone()), (0, json!(true)), "{name}: {verdict}");
+        }
+        // A forgery inside the record: the admitted one's subtrahend value one bit off (no
+        // longer contained), a withheld one's reason restated as the other gate's.
+        let mut forged = entry["document"].clone();
+        let gate = forged["contract_evidence"]["combination_gates"].as_array().unwrap().iter().find(|g| g["combination_id"] == "comb:o-s").unwrap().clone();
+        match gate["reason"].as_str() {
+            None => {
+                let bits = &mut forged["contract_evidence"]["difference_basis_derivation"][0]["subtrahend"]["primitive_contents"][0]["magnitude"]["value_bits"];
+                let flipped = u64::from_str_radix(bits.as_str().unwrap(), 16).unwrap() ^ 1;
+                *bits = json!(format!("{flipped:016x}"));
+            }
+            Some(reason) => {
+                let other = if reason == "EXPANSION_BASIS_MODULUS_MIXED" { "EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING" } else { "EXPANSION_BASIS_MODULUS_MIXED" };
+                for g in forged["contract_evidence"]["combination_gates"].as_array_mut().unwrap() {
+                    if g["combination_id"] == "comb:o-s" {
+                        g["reason"] = json!(other);
+                    }
+                }
+            }
+        }
+        let (code, verdict, _) = run(&["read", "preview-physics"], &json!({"source": forged}).to_string());
+        assert_eq!(code, 1, "{name}");
+        assert_eq!(verdict["outcome"]["error"]["code"], "SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_DERIVATION", "{name}: {verdict}");
+    }
+}

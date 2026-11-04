@@ -23,7 +23,7 @@
 //!   components keeps the norm).
 use open_pipe_stress_correct_norm::norm3;
 use serde_json::Value;
-use std::collections::{BTreeMap, BTreeSet, HashSet};
+use std::collections::{BTreeMap, BTreeSet};
 
 /// The frame kernel admits local axes (`FrameOrientation::new`) that are unit
 /// length and mutually orthogonal each to within `AXIS_TOLERANCE` = t = 1e-12
@@ -173,17 +173,15 @@ pub(crate) fn coverage(rows: &[Value]) -> Check {
     }
     // Members publishing element-local end rows: the shear rows, which no
     // route removes (a pressure member's axial rows are replaced by its wall).
-    let members: HashSet<Key<'_>> = local
-        .iter()
-        .filter(|(_, ends)| ends.iter().all(|e| e[1].is_some() && e[2].is_some()))
-        .map(|(key, _)| *key)
-        .collect();
+    let member = |ends: &[[Option<f64>; 6]; 2]| ends.iter().all(|e| e[1].is_some() && e[2].is_some());
     for key in global.keys() {
-        require(members.contains(key), "MEMBER_UNRESOLVED")?;
+        require(local.get(key).is_some_and(member), "MEMBER_UNRESOLVED")?;
     }
-    for key in &members {
+    // RT-U4 (order): the members in `local`'s canonical key order, (load case
+    // ID, member ID) compared bytewise, so the first refusal is the same in
+    // every process and pass (the verifier walks `sorted(members)`).
+    for (key, locals) in local.iter().filter(|(_, ends)| member(ends)) {
         let ends = global.get(key).ok_or("SOURCE_GLOBAL_END_COVERAGE")?;
-        let locals = &local[key];
         let walls = wall.get(key).copied().unwrap_or([None; 2]);
         for end in 0..2 {
             require(ends[end].iter().all(Option::is_some), "COVERAGE")?;
@@ -233,24 +231,58 @@ mod tests {
     }
     /// One member along global y (local x = +y, y = -x, z = +z): f = (3, 4, 12), m = (1, 2, 2) at each end.
     fn member(wall: bool) -> Vec<Value> {
+        member_in("c", "pipe:a", wall)
+    }
+    fn member_in(case: &str, id: &str, wall: bool) -> Vec<Value> {
         let mut rows = Vec::new();
         for end in ENDS {
             for (slot, kind) in LOCAL_KINDS.iter().enumerate() {
                 if slot == 0 && wall {
                     continue;
                 }
-                rows.push(local("c", "pipe:a", kind, end, [3.0, 4.0, 12.0, 1.0, 2.0, 2.0][slot]));
+                rows.push(local(case, id, kind, end, [3.0, 4.0, 12.0, 1.0, 2.0, 2.0][slot]));
             }
             if wall {
-                rows.push(local("c", "pipe:a", WALL_KIND, end, 3.0));
+                rows.push(local(case, id, WALL_KIND, end, 3.0));
             }
             let basis = if wall { WALL_BASIS } else { BASIS };
             // F = R^T f with rows x=(0,1,0), y=(-1,0,0), z=(0,0,1): (-4, 3, 12), (-2, 1, 2).
             for (name, value) in [("Fx", -4.0), ("Fy", 3.0), ("Fz", 12.0), ("Mx", -2.0), ("My", 1.0), ("Mz", 2.0)] {
-                rows.push(global("c", "pipe:a", end, name, value, basis));
+                rows.push(global(case, id, end, name, value, basis));
             }
         }
         rows
+    }
+    /// RT-U4 (order): a member whose end_j My row is missing (COVERAGE).
+    fn missing(case: &str, id: &str) -> Vec<Value> {
+        let rows = member_in(case, id, false);
+        rows.into_iter().filter(|r| !(r["kind"] == MOMENT && r["metadata"]["location"] == "end_j" && r["metadata"]["component"] == "My")).collect()
+    }
+    /// RT-U4 (order): a member whose global Fz is not a rotation of its local force (ROTATION_NORM).
+    fn off_norm(case: &str, id: &str) -> Vec<Value> {
+        let mut rows = member_in(case, id, false);
+        rows.iter_mut().find(|r| r["kind"] == FORCE && r["metadata"]["component"] == "Fz").unwrap()["value"] = json!(12.5);
+        rows
+    }
+    type Defect = fn(&str, &str) -> Vec<Value>;
+    /// Each (first, second) pair sorts first-before-second in (load case ID,
+    /// member ID) byte order; each defect arrangement and both row orders
+    /// name the first key's code on every fresh call (each builds its own maps).
+    fn first_in_key_order(pairs: &[((&str, &str), (&str, &str))]) {
+        let defects: [(Defect, Defect, &str); 2] = [(missing, off_norm, "COVERAGE"), (off_norm, missing, "ROTATION_NORM")];
+        for &((c1, m1), (c2, m2)) in pairs {
+            assert!((c1.as_bytes(), m1.as_bytes()) < (c2.as_bytes(), m2.as_bytes()));
+            for (first, second, code) in defects {
+                let mut forward = first(c1, m1);
+                forward.extend(second(c2, m2));
+                let mut reversed = second(c2, m2);
+                reversed.extend(first(c1, m1));
+                for _ in 0..32 {
+                    refused(&forward, code);
+                    refused(&reversed, code);
+                }
+            }
+        }
     }
     fn refused(rows: &[Value], code: &str) {
         assert_eq!(coverage(rows).unwrap_err(), format!("SOURCE_GLOBAL_END_{code}"));
@@ -356,5 +388,63 @@ mod tests {
         let mut both = member(true);
         both.push(local("c", "pipe:a", "element_local_axial_force", "end_i", 3.0));
         refused(&both, "AXIAL_OPERAND");
+    }
+
+    /// RT-U4 (order): two members with different defects (COVERAGE, ROTATION_NORM),
+    /// in one case, across cases (the case ID compared first) and for a prefix
+    /// ("pipe:a" before "pipe:a b", where the verifier's former `key=repr` put
+    /// "pipe:a b" first).
+    #[test]
+    fn competing_defects_refuse_in_case_member_byte_order() {
+        first_in_key_order(&[
+            (("c", "pipe:a"), ("c", "pipe:b")),
+            (("c1", "pipe:z"), ("c2", "pipe:a")),
+            (("c", "pipe:a"), ("c", "pipe:a b")),
+        ]);
+    }
+
+    /// RT-U4 (order): "z" (0x7A) before "é" (0xC3 0xA9, U+00E9), as member and
+    /// as case ID; UTF-8 byte order is code point order, the verifier's
+    /// `sorted` (`tests/test_rt_u4_global_end_order.py` pins the same codes).
+    #[test]
+    fn non_ascii_ids_refuse_in_byte_order() {
+        first_in_key_order(&[(("c", "pipe:z"), ("c", "pipe:é")), (("z", "pipe:a"), ("é", "pipe:a"))]);
+    }
+
+    /// RT-U4 (order): a row whose load case ID or member is not a string is no
+    /// key (`case_of` / `entity_ref.as_str()`); beside a valid member it moves
+    /// no verdict (the verifier skips the same rows).
+    #[test]
+    fn non_string_keys_are_skipped() {
+        let int_member = || {
+            member_in("c", "pipe:c", false).into_iter().map(|mut r| {
+                r["basis_ref"]["ref_id"] = json!(7);
+                r
+            })
+        };
+        let strays = |rows: &mut Vec<Value>| {
+            let mut int_case = global("c", "pipe:b", "end_i", "Fx", 0.0, BASIS);
+            int_case["basis_ref"]["ref_id"] = json!(7);
+            let mut null_member = global("c", "pipe:a", "end_i", "Fx", 0.0, BASIS);
+            null_member["entity_ref"] = Value::Null;
+            let mut null_local = local("c", "pipe:a", "element_local_shear_force_y", "end_i", 4.0);
+            null_local["entity_ref"] = Value::Null;
+            let mut int_local = local("c", "pipe:a", "element_local_shear_force_y", "end_i", 4.0);
+            int_local["basis_ref"]["ref_id"] = json!(7);
+            rows.extend([int_case, null_member, null_local, int_local]);
+            // A whole member under an integer case ID: no key, so no member.
+            rows.extend(int_member());
+        };
+        let mut rows = member(false);
+        strays(&mut rows);
+        coverage(&rows).unwrap();
+        coverage(&member(false).into_iter().chain(int_member()).collect::<Vec<_>>()).unwrap();
+        // `case_of`: an integer load case ID is no case, so its row needs a combination basis.
+        let mut int_case = global("c", "pipe:a", "end_i", "Fx", -4.0, BASIS);
+        int_case["basis_ref"]["ref_id"] = json!(7);
+        assert_eq!(row_semantics(&int_case, true).unwrap_err(), "SOURCE_GLOBAL_END_BASIS");
+        let mut defective = off_norm("c", "pipe:a");
+        strays(&mut defective);
+        refused(&defective, "ROTATION_NORM");
     }
 }

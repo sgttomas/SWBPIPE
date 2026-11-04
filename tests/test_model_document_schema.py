@@ -272,11 +272,13 @@ def is_recorded_run_request(relative: str) -> bool:
 # their recorded runs for the historical read. Their invocation model is the producer's
 # request model, as in their originals under fixtures/results/ (format profile).
 RECORDED_PRE_RT_A4_PREFIX = "fixtures/persistence/recorded_pre_rt_a4_pf/"
+# Operating-case slice 1b: main's bbf384dec copies, kept the same way.
+RECORDED_PRE_RT_A5_1B_PREFIX = "fixtures/persistence/recorded_pre_rt_a5_1b_pf/"
 
 
 def is_recorded_pre_rt_a4_statement(relative: str) -> bool:
     name = relative.rsplit("/", 1)[-1]
-    return (relative.startswith(RECORDED_PRE_RT_A4_PREFIX) and name.startswith("retained_precision_")
+    return (relative.startswith((RECORDED_PRE_RT_A4_PREFIX, RECORDED_PRE_RT_A5_1B_PREFIX)) and name.startswith("retained_precision_")
             and not name.endswith(".analysis_run.json"))
 
 

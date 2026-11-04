@@ -46,8 +46,11 @@ def _require(condition: Any, code: str) -> None:
 
 
 def _case(row: Mapping[str, Any]) -> str | None:
+    """Rust ``case_of``: the string ``ref_id`` of a ``load_case`` basis reference, else None (a row with any other
+    ``ref_id`` is read as no case's, so ``row_semantics`` asks for a combination basis, as Rust does)."""
     basis = row.get("basis_ref")
-    return basis.get("ref_id") if isinstance(basis, Mapping) and basis.get("ref_type") == "load_case" else None
+    ref_id = basis.get("ref_id") if isinstance(basis, Mapping) and basis.get("ref_type") == "load_case" else None
+    return ref_id if isinstance(ref_id, str) else None
 
 
 def row_semantics(row: Mapping[str, Any], wall_admitted: bool) -> None:
@@ -79,7 +82,9 @@ def coverage(rows: list[Mapping[str, Any]]) -> None:
     for row in rows:
         case = _case(row)
         md = row.get("metadata") if isinstance(row.get("metadata"), Mapping) else {}
-        if case is None or md.get("location") not in ENDS:
+        # As the Rust reader's `case_of(..)` / `row["entity_ref"].as_str()` `continue`: a load case ID (`_case`) or
+        # member that is not a string is no key, so every key is (str, str) and `sorted(members)` is total.
+        if case is None or not isinstance(row.get("entity_ref"), str) or md.get("location") not in ENDS:
             continue
         key, end, kind = (case, row.get("entity_ref")), ENDS.index(md["location"]), row.get("kind")
         if kind in LOCAL_KINDS and md.get("coordinate_system") == "element_local":
@@ -99,7 +104,8 @@ def coverage(rows: list[Mapping[str, Any]]) -> None:
     members = {key for key, ends in local.items() if all(e[1] is not None and e[2] is not None for e in ends)}
     for key in glob:
         _require(key in members, "MEMBER_UNRESOLVED")
-    for key in sorted(members, key=repr):
+    # RT-U4 (order): (load case ID, member ID) in code point order, which is the Rust reader's bytewise BTreeMap order.
+    for key in sorted(members):
         _require(key in glob, "COVERAGE")
         walls = wall.get(key, [None, None])
         for end in range(2):
