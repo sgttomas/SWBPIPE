@@ -1,6 +1,6 @@
 # Operating case with nonlinear supports, and the kernel side of skewed restraints
 
-> **Status: adopted plan; truthfulness fixes (#1695), stage 2 (#1671) and slice 1a (#1752) built; R-6 unbuilt and scheduled for v1.0 after 1b (2026-10-31, below); superseded by any later Design text.**
+> **Status: adopted plan; truthfulness fixes (#1695), stage 2 (#1671) and slice 1a (#1752) built; R-6 unbuilt and scheduled for v1.0 after 1b (2026-10-31, below); §4 built as `combination-certificate.md` (eligibility (b), 2026-11-04); superseded by any later Design text.**
 > Committed from the solver lane's working note so that the adopted decisions are
 > discoverable on main. The text is unchanged except that local absolute paths are
 > shortened to `scratch/…`. Working-file references (`scratch/…` and
@@ -74,7 +74,7 @@ sustained (§1.5, V-1 and V-2).
 | `minuend_final` as a callable mechanism (agreed with DEL-04-11, 2026-10-31) | The frozen-status solve that `subtrahend_support_state: minuend_final` needs is built as one product function: solve a named case with its nonlinear supports held at a named other case's final status. The subtraction calls it, and so does hanger sizing's single derived solve (DEL-04-11 `weight_support_state: design_operating_final`), so neither keeps its own copy. Its design and certificate are RT-A5's Should slice. | One mechanism, two consumers; the held-constraint caveats of §5 option 2 apply to both. |
 | Skew kernel scheduled (SWBPIPE Agent 0, 2026-10-31, under the owner's 2026-10-27 scope delegation) | The skew kernel (R-6 and R-7, §2) is in v1.0, carried by the load-cases lane after 1b. It is built on the division-free nullspace basis T of §2.2, which the dynamics lane (DEL-04-09) has adopted for modal, so static and modal restrain the same subspace; modal's skew refusal lifts with the static one. It changes numerical meaning, so it takes targeted references and independent review. Until it lands, 0.9.0's `SUPPORT_DIRECTION_SKEW_UNSUPPORTED` is an interim refusal with this scheduled remover, not a release limitation. | Skewed restraints are ordinary in real systems and a CAEPIPE-class tool has them; the reference system does not need one, so it is not on criterion 1's path, but omitting it would leave a common modelling gap. |
 | §4 A, derived O−S rows | Option (i) is adopted, without (ii): a per-group combination certificate, B_D = RU(B_O + B_S + exact subtraction rounding). Cancellation stays honestly unestablished, range envelopes are deferred, and readers recompute B_D from the published operand bounds. The wording is "established within its stated bound", never "certified". Design after 1a, build before R-3, independent of R-4. It also bounds W-16b's linear EX combinations. | Each operand bound is against its own intended system, so operand-state agreement is not needed numerically (Codex r2). Without a certificate, O−S rows in nonlinear models stay inspection evidence even after G2. |
-| §4 A, eligibility | Not decided. Agent 0 decides at the build design, which must state both consequences: (a) established derived rows count toward the document's numerical eligibility; (b) they do not, as today. Each must show the effect on a document with one cancellation-unestablished row. The certificate is built so either answer is a one-line policy switch, not a structural fork. | This changes today's rule that combination rows never count, which is a claims decision. |
+| §4 A, eligibility (decided (b), Agent 0, 2026-11-04) | (b). An established derived group carries its own evidence, "established within its stated bound", and does not count toward the document's numerical eligibility. The document-scope and primitive-case eligibility rule is unchanged. Groups not established by cancellation, groups below the floor and uncovered rows stay explicitly inspection-only or not assessed, and no favourable operand or document standing hides them. No policy switch is built. | The row certificate is useful on its own without document promotion, and counting derived rows would change the claims rule that combination rows never count. The build and its witness, a document with one cancellation-unestablished group, are in `combination-certificate.md`. |
 | §5 B, the meaning of "expansion" | Option (3), computed as (1), is adopted. The product reports an "operating minus sustained difference" under the member's own name, with each case at its own state. The "expansion" label and its code-range meaning stay with the user's rule pack. The held-constraint option (2) remains R-1's remaining item for the owner, and can be added later as a second declared basis without renaming. | It makes the least product claim. The 0.9.0 member is already named `operating_minus_sustained`, and the engineering meaning is a design-basis choice the user's rule pack makes. |
 
 ---
@@ -682,6 +682,11 @@ For a subtraction D = O − S and each group g present in both operands:
      sets are.
    - Equal states remain a meaning question (§5).
    - G-1 and G-2 apply under the declared basis.
+   - The operand bounds are each operand case's own; a held operand is a different
+     system and is not assessed. A combination whose `subtrahend_support_state` is not
+     the default independent solve (today `minuend_final`, the frozen-status solve of §0;
+     O-C2 of the load-cases lane's §7) is not assessed, failing
+     closed on any non-default value (`combination-certificate.md` §1).
 2. **Same route.** Operands are cases of one document, so they are on one route by
    construction. The certificate is route-agnostic: it applies equally to EX linear
    combinations (W-16b) and to EX nonlinear operands after R-4.
@@ -737,10 +742,13 @@ For a subtraction D = O − S and each group g present in both operands:
 
 ### 4.4 Remaining choice, size and order
 
-- **Eligibility, a claim decision.** Whether an established derived row may count toward
-  the document's numerical-eligibility verdict changes today's rule that combination
-  rows never count. That is for Agent 0 or the owner under the claims registry. The
-  certificate is useful either way, since rows can then carry their standing.
+- **Eligibility, decided (b) (Agent 0, 2026-11-04).** An established derived group
+  carries its own evidence and does not count toward the document's
+  numerical-eligibility verdict, so today's rule that combination rows never count
+  stands. The document-scope and primitive-case eligibility rule is unchanged. Groups
+  not established by cancellation, groups below the floor and uncovered rows stay
+  explicitly inspection-only or not assessed. The witness is in
+  `combination-certificate.md` §3.
 - **Size: M–L.**
   - PP: retain the group bounds per operand and form the combination groups.
   - New evidence and schemas.

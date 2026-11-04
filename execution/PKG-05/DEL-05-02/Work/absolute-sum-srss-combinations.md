@@ -877,6 +877,7 @@ under `fixtures/results/recorded_pre_rt_a4/`, its SHA-256 checked when it is fir
 | physics-retained-1 | cf29fd5f… | ca6bb983… | main 6c3cb46d3 | binding only |
 | physics-retained-1 | 045f6f0d… | ca6bb983… | #101 01e05a486 (main once RT-A3 increment 3 lands first) | binding only |
 | physics-retained-1 | 040ef9a6… | ca6bb983… | main bbf384dec (RT-A4; history once RT-A3 increment 4 restates pressure-2) | binding only |
+| physics-retained-1 | 85c2678a… | 320dc3f1… | main 252bef969 (history once RT-A3 §4, the combination certificate, restates pressure-2) | binding only |
 
 Every variant's rows are the current table's; only limitations, combination-policy text,
 vocabulary and inherited digests moved. The exact successor's statements still read under the
@@ -888,7 +889,7 @@ RT-A3 increment 4 (DEL-04-07 `pressure-contract.md`, "Nonlinear supports on EX")
 two pressure-2 limitations, so the RT-A4 main line's pressure-2 digest (10455bf3…) joins
 `RECORDED_RUN_TABLE_BASES` and its exact successor table (040ef9a6…) joins this registry as a
 binding-only variant (records: main bbf384dec's statement verbatim and a record built by that
-revision's builder, `fixtures/persistence/recorded_pre_rt_a4_pf/physics_retained_1/main_bbf384dec/`).
+revision's builder, `fixtures/persistence/recorded_pre_rt_a4_pf/physics_retained_1/main_bbf384dec/`). RT-A3 §4 (DEL-05-02 Work `combination-certificate.md`) restates pressure-2's combination standing and limitation in the same way: main 252bef969's pressure-2 digest (2c20583d…) joins `RECORDED_RUN_TABLE_BASES` (records: main's verbatim, `fixtures/persistence/recorded_model_0_9_0_pre_cert/`), and its exact successor table (85c2678a…) joins this registry as a seventh, binding-only variant (records: `physics_retained_1/main_252bef969/`).
 
 **Selection rule.** A variant is selected only by a record's binding
 `analysis_run.reproducibility.semantic_contract` that is exactly `{id, sha256}` and equal to a

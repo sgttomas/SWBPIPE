@@ -56,21 +56,21 @@ rows' own unit and `coordinate_system`.
 
 | Group (location) | Covered row set(s), each at the row location named |
 |---|---|
-| `axial` (end_i, end_j) | `element_local_axial_force` at the end, when the member's published axial rows are its elastic/effective force |
+| `axial` (end_i, end_j) | `element_local_axial_force` at the end |
 | `axial` (quarter_1, midspan, quarter_3) | the same at the station; also `pipe_effective_axial_force_v2` at the station |
 | `axial` (cut_i, cut_j) | `pipe_effective_axial_force_v2` at end_i, end_j |
 | `shear`, `torsion`, `bending` (ends, stations) | `element_local_shear_force_y`+`_z`; `element_local_torsional_moment`; `element_local_bending_moment_y`+`_z` |
-| `pipe_wall` (wall_end_i, wall_end_j) | `pipe_wall_endpoint_action_v2` at the end; also `element_local_axial_force` at the end when the member's axial rows are wall rows |
+| `pipe_wall` (wall_end_i, wall_end_j) | `pipe_wall_endpoint_action_v2` at the end |
 | `pipe_wall` (wall_cut_i, wall_cut_j) | `pipe_wall_axial_force_v2` at end_i, end_j |
-| `pipe_wall` (wall stations) | `pipe_wall_axial_force_v2` at the station; also `element_local_axial_force` there when the axial rows are wall rows |
+| `pipe_wall` (wall stations) | `pipe_wall_axial_force_v2` at the station |
 | `support_force`, `support_moment` (node) | `support_reaction_component_v2` Fx, Fy, Fz; Mx, My, Mz |
 | `support_force_magnitude`, `support_moment_magnitude` | `support_reaction_force_magnitude_v2`; `…_moment_magnitude_v2` |
 
-A member's axial rows are wall rows on a pressurized straight EX member: the
-producer publishes `wall` as the member rows there (PP `lib.rs`, the
-`certified_publication::pressure_adjustment` branch). The case record names
-those members (`wall_axial_members`). A reader admits a listed member only when
-its global end rows carry `GLOBAL_END_WALL_BASIS`. Connector and tie-rod
+A pressurized straight EX member publishes no `element_local_axial_force` row; its
+wall and effective rows replace it. So its end `axial` groups have no row set, and
+no row is covered by two groups' meanings. As built, the binding (q equal to the
+rows' correctly rounded norm) is the producer's self-check and the readers'
+re-derivation. Connector and tie-rod
 groups, displacement rows, global end rows and stress rows have no row set.
 Their combination rows are not covered and remain inspection results, and each
 combination states their count.
@@ -117,6 +117,18 @@ floor scale is the component group's.
    reason `bound_exceeds_criterion`. This is where the operands nearly cancel.
 4. Otherwise the group is `established`.
 
+**Premise: the operand bounds are each operand case's own; a held operand is a
+different system and is not assessed.** A combination whose
+`subtrahend_support_state` is anything but the default independent solve
+(absent or `own`), today `minuend_final` (`operating-case.md` §0; O-C2 of the load-cases lane's §7), is not
+assessed, whatever its gate says. Its subtrahend is re-solved at the minuend's
+final support status, a different system from that load case, so the load
+case's own B_g does not bound it. The record names the member
+(`subtrahend_support_state`: null, `own`, `minuend_final`, or `unrecognized`
+for any other present value) and both readers fail closed on any value but null
+or `own`. Admitting held operands with their own bound is a later premise change,
+not part of this build.
+
 **Combinations not assessed** keep their rows as inspection results, and each
 is named with its reason:
 - withheld by a gate (no rows);
@@ -148,18 +160,55 @@ are unchanged. There is no policy switch.
 ## 2. What publishes
 
 `contract_evidence.combination_certificate` is a closed member on PF and EX.
-It is present exactly when the document is solved and the model has a
-combination, so no other document's bytes change.
+The producer publishes it exactly when the document is solved and the model has
+a combination, so no other document's bytes change.
+
+**Absence states nothing.** The readers read a stated member in full and refuse
+it on a document that is not solved or has no combination. They accept a
+document without it, provided no certificate diagnostic stands there either:
+its combination rows are then inspection results, as before this build. That is
+because a reader of an envelope cannot tell a document recorded before the
+certificate from one without it. The preview-physics tables did not move, and an
+envelope names its table, not the table's digest. A recorded pre-certificate
+document with a combination, such as the registered W-CB3 retained combination
+successors, therefore reads as before. Dropping the member removes claims and
+cannot add one: no group is then established, and the limitation text makes
+every combination row an inspection result unless the certificate establishes
+its group.
+
+**Transport.** The preview-physics transport metadata check
+(`retained_precision.rs` `preview_physics_transport_metadata`, and Python
+`validate_transport_metadata`) admits the member on its closed shape
+(`combinations` and `operand_cases`, both arrays). It cannot do more: the
+transport view has no rows, diagnostics or status (the stress-neutral package's
+`_transport_contract`), and the source reading checks the member against the
+rows. Before that change, the transport refused the producer's own current
+documents with a combination.
+
+**Retained successors (for D3).** A retained successor is staged from the
+ordinary run's envelope, so on the registered build it carries the ordinary
+run's certificate. The precommit validation reads that certificate against the
+successor's rows. An operand with a retained source selected is not eligible,
+so its combinations are not assessed. An assessed combination's operands keep
+their ordinary rows. The certificate should therefore read true on the
+successor, but this lane could not run the registered route (the profile is
+Stale), so this is not shown. The D3 registration must regenerate the W-CB3
+combination successors and confirm that they publish with no Precommit
+fallback. If they fall back, the member must be dropped at staging.
 - `operand_cases`: one record per eligible load case that is an operand of an
   assessed combination, in the order of `numerical_quality.cases`. Each record
-  is `{load_case_id, wall_axial_members, groups}`, where each group is
-  `{entity, location, group, moment, unit, frame, rows, q, bound,
-  floor_scale}`. `rows` is a list of row sets.
+  is `{load_case_id, groups}`, where each group is
+  `{entity, location, group, moment, rows, q, bound, floor_scale}`. `rows`
+  lists, per row set of the coverage table, the covered result ids in component
+  order, or null. The unit and frame are the covered rows' own (`unit`,
+  `metadata.coordinate_system`). `bound` is null when the case's bound for that
+  entity is unavailable.
 - `combinations`: one record per model combination in gate order. Each record
-  is `{combination_id, basis, expression, assessment, reason, groups,
+  is `{combination_id, basis, expression, subtrahend_support_state, assessment, reason, groups,
   uncovered_row_count}`, where each group is `{entity, location, group,
   row_set, rows, factors_bound, rounding_error, bound, q, q_hat, floor_scale,
-  verdict, reason, equal_pressure_elastic_group}`.
+  verdict, reason, equal_pressure}`. `equal_pressure` is null, or
+  `{elastic_group}` on a D-6 wall group. Non-finite numbers are null.
 
 The departure from §4.3's "extends W-16b's `exact_combinations` record shape"
 is that this is a sibling member, not new keys in that record. It has the same
@@ -206,18 +255,36 @@ quality equals the primitive-case statement, unchanged. Its groups show
 ## 4. Shared-file hunks (reported, not widened)
 
 PP:
-- `lib.rs`: a `LoadCaseSolve` field, retaining the records after the recovery
-  finding, and one call after the envelope is assembled;
+- `lib.rs`: a `LoadCaseSolve` field set before `nonlinear_state` in every
+  construction, because the dynamics lane's structural test reads `nonlinear_state`
+  as the last field; the operand retained after the recovery finding; the operands
+  collected in the assembly loop; and one call after the envelope is assembled.
 - `formation_guard.rs`: two constants made `pub(crate)`.
+- `exact_combinations.rs`: one string, the `EXACT_COMBINATION_DERIVED_FROM_CASE_RESULTS`
+  text. "They carry no numerical check of their own" became untrue.
 
 RE:
-- `physics_evidence.rs` (`validate_pressure_evidence` strips and checks the
-  member);
+- `physics_evidence.rs` (`validate_pressure_evidence` checks the member and
+  strips it);
+- `retained_precision.rs` `preview_physics_transport_metadata`: the member
+  admitted in the closed evidence key list and read by its check (two hunks);
 - `preview_physics_evidence.rs` (the optional member and the check);
-- `lib.rs` (`mod`).
+- `reader_verdict.rs` (the model binding on both routes);
+- `lib.rs` (`mod`);
+- `exact_combination_evidence.rs`: the `DERIVED_TEXT` constant only, not the
+  held projection code.
 
-Python: `tests/verifiers/pressure_2.py` and `preview_physics_evidence.py`, the
-same two calls.
+Python: `tests/verifiers/pressure_2.py`, `preview_physics_evidence.py`
+(including `validate_transport_metadata`), `reader_verdict.py` and
+`exact_combinations.py` (`DERIVED_TEXT`), the same calls.
+
+Tests that build documents from a producer document without its certificate
+drop the member and its notices: RE `preview_physics_contract.rs`
+`with_admitted_combination`, RE `exact_combination_contract.rs` (the direct
+view), Python `test_rt_a4_pf_reader_tampers.py` (key set). PP `op1a_operand_standing.rs`,
+`preview_physics_runtime.rs`, `w16_exact_combinations.rs` and
+`rt_a4_combinations.rs` filter the member in their key-set and equality
+assertions and assert its presence.
 
 None in `preview_physics.rs` combination formation, the `preview_combination_*`
 readers, `combination_plan`, `load_case_algebra`, the EX gate code or
