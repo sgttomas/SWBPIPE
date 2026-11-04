@@ -114,6 +114,9 @@ CATALOG = (
     Unit("kg*m^2/rad^2", "rotational_generalized_mass", 1.0),
     Unit("lb*in^2/rad^2", "rotational_generalized_mass", POUND_MASS * SQUARE_INCH),
     Unit("lb*ft^2/rad^2", "rotational_generalized_mass", POUND_MASS * (FOOT * FOOT)),
+    Unit("kg*m/rad", "mass_length_per_rotation", 1.0),
+    Unit("lb*in/rad", "mass_length_per_rotation", POUND_MASS * INCH),
+    Unit("lb*ft/rad", "mass_length_per_rotation", POUND_MASS * FOOT),
 )
 
 # canonical_unit(dimension), as a catalog entry; TBD has none.
@@ -134,6 +137,7 @@ CANONICAL = {
     "frequency": ("Hz", "frequency"), "angular_frequency": ("rad/s", "angular_frequency"),
     "rotation_per_length": ("rad/m", "rotation_per_length"), "length_per_rotation": ("m/rad", "length_per_rotation"),
     "rotational_generalized_mass": ("kg*m^2/rad^2", "rotational_generalized_mass"),
+    "mass_length_per_rotation": ("kg*m/rad", "mass_length_per_rotation"),
 }
 DIMENSIONS = frozenset(CANONICAL) | {"TBD"}
 # unit_supports_dimension: a unit of the first dimension serves the second.

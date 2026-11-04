@@ -96,6 +96,7 @@ CANONICAL_DIMENSIONS = {
     "rotation_per_length",
     "length_per_rotation",
     "rotational_generalized_mass",
+    "mass_length_per_rotation",
     "TBD",
 }
 PROVENANCE_FIELDS = (
