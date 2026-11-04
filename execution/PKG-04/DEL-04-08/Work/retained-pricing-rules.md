@@ -4696,7 +4696,7 @@ exclusive window. This record does not run them and records no binary identity.
   `connector_order.rs` 5, `region_result_binding.rs` 1 and `reader_verdict.rs` 21.
 - **product_physics law tests:** `profile_` 8 and the `retained_memory` lib tests 84 (71 ignored). The
   `retained_memory_challenge` binary is not run here.
-- **Runner and applier:** runner `reader_cli` and the applier's `reader_verdict_binding` are not yet run: they are held while the C1 exclusive window runs.
+- **Runner and applier:** runner `reader_cli` 4 passed; the applier's `reader_verdict_binding` 6 passed. Both ran at `67bb2d70f` after the C1 exclusive window closed.
 - **Python reader and verifier tests,** 23 files, including `test_qualification_exact_pressure`,
   `test_rt_u4_global_end_order`, `test_preview_identity_inventory` and `test_rt_a3_nonlinear_reader`: 2,173 passed, 8
   skipped, 1 failed. The failure, `test_load_reference_readers.py::test_frozen_inputs_and_table_identity`, is inherited
