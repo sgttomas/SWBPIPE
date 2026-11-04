@@ -1602,6 +1602,8 @@ mod tests {
             charge_ql_rotations(u64::MAX, 1, Some(u64::MAX)),
             overflow("QL rotations")
         );
+        // 1 + usize::MAX exceeds u64 only where usize is 64 bits wide.
+        #[cfg(target_pointer_width = "64")]
         assert_eq!(
             charge_ql_rotations(1, usize::MAX, None),
             overflow("QL rotations")
