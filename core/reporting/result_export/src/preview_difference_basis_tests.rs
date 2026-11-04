@@ -1,8 +1,8 @@
 //! Operating-case slice 1b readers over the shared corpus
 //! (`fixtures/results/preview_physics_difference_basis_corpus.json`, written by
 //! `core/product_physics/tests/op1b_difference_basis.rs`): with the model, and
-//! without it under both settings of the model-free switch (option C, the shipped
-//! default, and option A, behind the switch until its review).
+//! without it (option A, the shipped model-free reading: re-derived from the published
+//! evidence).
 use super::*;
 use crate::reader_verdict;
 
@@ -19,35 +19,26 @@ fn document(name: &str) -> (Value, Value) {
 fn code(verdict: &Value) -> String {
     if verdict["ok"] == true { "ok".into() } else { verdict["error"]["code"].as_str().unwrap_or_default().to_string() }
 }
-fn read(source: &Value, model: Option<&Value>, mode: ModelFree) -> String {
-    TEST_MODE.with(|m| m.set(mode));
-    let verdict = reader_verdict::validate("preview-physics", source, model, None);
-    TEST_MODE.with(|m| m.set(MODEL_FREE));
-    code(&verdict)
+fn read(source: &Value, model: Option<&Value>) -> String {
+    code(&reader_verdict::validate("preview-physics", source, model, None))
 }
 fn record<'a>(v: &'a mut Value, index: usize) -> &'a mut Value {
     &mut v["contract_evidence"][MEMBER][index]
 }
 
 #[test]
-fn the_shipped_switch_fails_closed() {
-    assert_eq!(MODEL_FREE, ModelFree::Refuse);
-}
-
-#[test]
-fn every_corpus_document_reads_with_its_model_and_under_option_a_and_is_refused_under_option_c() {
+fn every_corpus_document_reads_with_its_model_and_without_it() {
     let documents = corpus();
     assert!(documents.len() >= 9);
     for (name, model, document) in documents {
-        assert_eq!(read(&document, Some(&model), ModelFree::Refuse), "ok", "{name}: with the model");
-        assert_eq!(read(&document, None, ModelFree::Verify), "ok", "{name}: option A");
-        assert_eq!(read(&document, None, ModelFree::Refuse), UNVERIFIED, "{name}: option C");
+        assert_eq!(read(&document, Some(&model)), "ok", "{name}: with the model");
+        assert_eq!(read(&document, None), "ok", "{name}: without the model");
     }
 }
 
-/// Option A refuses by name what it can see inside the document.
+/// The model-free reading refuses by name what it can see inside the document.
 #[test]
-fn option_a_refuses_tampered_evidence_by_name() {
+fn the_model_free_reading_refuses_tampered_evidence_by_name() {
     let (_, admitted) = document("v1_closing");
     let (_, withheld) = document("v5_sustained_only_load");
     let (_, g2) = document("v5_g2");
@@ -138,14 +129,14 @@ fn option_a_refuses_tampered_evidence_by_name() {
     });
     tamper("a G-1 reason without its record", &withheld, EVIDENCE, &|v| { v["contract_evidence"].as_object_mut().unwrap().remove(MEMBER); });
     for (what, forged, expected) in &cases {
-        assert_eq!(read(forged, None, ModelFree::Verify), *expected, "{what}");
+        assert_eq!(read(forged, None), *expected, "{what}");
     }
     let (_, forged, _) = cases.iter().find(|(what, _, _)| *what == "a withheld gate made admitted").unwrap();
-    assert_eq!(check_with(forged, None, ModelFree::Verify).unwrap_err(), GATE_DERIVATION);
+    assert_eq!(check(forged, None).unwrap_err(), GATE_DERIVATION);
     assert!(cases.len() >= 30);
 }
 
-/// The scope option A states: it checks the record's internal derivation, not its
+/// The scope the model-free reading states: it checks the record's internal derivation, not its
 /// truth to the absent model. A coherent forgery (the evidence and the gate altered
 /// together) passes without the model and is refused with it.
 #[test]
@@ -154,13 +145,13 @@ fn a_coherent_forgery_is_not_authenticated_without_the_model() {
     record(&mut forged, 0)["subtrahend"]["primitive_contents"].as_array_mut().unwrap().retain(|e| e["category"] != "weight");
     // Without the model it remains a withheld, internally inconsistent claim: the gate is
     // still G-1's, so it is refused.
-    assert_eq!(read(&forged, None, ModelFree::Verify), GATE_DERIVATION);
+    assert_eq!(read(&forged, None), GATE_DERIVATION);
     // An admitted declared difference whose evidence states a different but still
     // contained subtrahend: internally consistent, so admitted without the model.
     let (model_a, mut coherent) = document("v1_closing");
     record(&mut coherent, 0)["subtrahend"]["primitive_contents"] = json!([]);
-    assert_eq!(read(&coherent, None, ModelFree::Verify), "ok", "option A cannot see a coherent forgery");
-    assert_eq!(read(&coherent, Some(&model_a), ModelFree::Verify), MODEL, "the model can");
+    assert_eq!(read(&coherent, None), "ok", "the model-free reading cannot see a coherent forgery");
+    assert_eq!(read(&coherent, Some(&model_a)), MODEL, "the model can");
     let _ = model;
 }
 
@@ -195,19 +186,18 @@ fn a_case_recurring_across_records_carries_identical_contents() {
     let model = model_declaring_plain_twin(&model);
     let mut consistent = base.clone();
     declare_plain_twin(&mut consistent);
-    assert_eq!(read(&consistent, None, ModelFree::Verify), "ok");
-    assert_eq!(read(&consistent, Some(&model), ModelFree::Verify), "ok");
-    assert_eq!(read(&consistent, None, ModelFree::Refuse), UNVERIFIED);
+    assert_eq!(read(&consistent, None), "ok");
+    assert_eq!(read(&consistent, Some(&model)), "ok");
     // The twin's sustained multiset emptied: the same case bound to two multisets.
     let mut contradictory = consistent.clone();
     record(&mut contradictory, 1)["subtrahend"]["primitive_contents"] = json!([]);
-    assert_eq!(read(&contradictory, None, ModelFree::Verify), BINDING);
-    assert_eq!(read(&contradictory, Some(&model), ModelFree::Verify), BINDING, "checked first, under the same code");
+    assert_eq!(read(&contradictory, None), BINDING);
+    assert_eq!(read(&contradictory, Some(&model)), BINDING, "checked first, under the same code");
     // A recurring minuend differing in one count, too.
     let mut minuend = consistent.clone();
     record(&mut minuend, 1)["minuend"]["primitive_contents"][0]["count"] = json!(2);
-    assert_eq!(read(&minuend, None, ModelFree::Verify), BINDING);
-    assert_eq!(read(&minuend, Some(&model), ModelFree::Verify), BINDING);
+    assert_eq!(read(&minuend, None), BINDING);
+    assert_eq!(read(&minuend, Some(&model)), BINDING);
 }
 
 /// Review r1 P2/P2: the closed shape and the count domain (an integer token from 1 to
@@ -225,17 +215,17 @@ fn the_count_domain_and_shape_are_checked_before_the_model_comparison() {
     };
     for (what, count) in [("zero", json!(0)), ("negative", json!(-1)), ("max + 1", json!(MAX + 1)), ("a float", json!(1.0)),
                           ("a boolean", json!(true)), ("a string", json!("1")), ("2^64 as a float", json!(18446744073709551616.0f64))] {
-        assert_eq!(read(&with_count("subtrahend", count), None, ModelFree::Verify), EVIDENCE, "{what}: model-free");
+        assert_eq!(read(&with_count("subtrahend", count), None), EVIDENCE, "{what}: model-free");
     }
     for (what, count) in [("zero", json!(0)), ("negative", json!(-1)), ("max + 1", json!(MAX + 1)), ("a float", json!(1.0)),
                           ("a boolean", json!(true)), ("a string", json!("1"))] {
-        assert_eq!(read(&with_count("subtrahend", count), Some(&model), ModelFree::Verify), EVIDENCE, "{what}: with the model");
+        assert_eq!(read(&with_count("subtrahend", count), Some(&model)), EVIDENCE, "{what}: with the model");
     }
     // The maximum is in the domain: both force entries at MAX stay contained.
     let mut max = with_count("subtrahend", json!(MAX));
     record(&mut max, 0)["minuend"]["primitive_contents"][0]["count"] = json!(MAX);
-    assert_eq!(read(&max, None, ModelFree::Verify), "ok", "the maximum is admitted model-free");
-    assert_eq!(read(&max, Some(&model), ModelFree::Verify), MODEL, "and is not the model's evidence");
+    assert_eq!(read(&max, None), "ok", "the maximum is admitted model-free");
+    assert_eq!(read(&max, Some(&model)), MODEL, "and is not the model's evidence");
     // A subtrahend count of MAX against the minuend's 1 is in the domain and fails G-1.
-    assert_eq!(read(&with_count("subtrahend", json!(MAX)), None, ModelFree::Verify), GATE_DERIVATION);
+    assert_eq!(read(&with_count("subtrahend", json!(MAX)), None), GATE_DERIVATION);
 }

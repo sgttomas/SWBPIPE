@@ -106,25 +106,42 @@ fn derived_documents_bind_by_value_across_json_forms() {
     assert!(d::validate_document(&wrong, &source).is_err());
 }
 
-/// Operating-case slice 1b (DEL-05-02 `operating-case.md` §6.5; review r1): the derivative
-/// path reads its source through `semantic_contract::for_source`, without the model, so a
-/// document with a declared operating comparison is refused by name under the shipped
-/// switch (option C), with the same base, model and origin that derive the plain carrier.
+/// Operating-case slice 1b (DEL-05-02 `operating-case.md` §6.5): the derivative path reads its
+/// source through `semantic_contract::for_source`, without the model, so a document with a
+/// declared operating comparison derives when its evidence re-derives its verdict (option A),
+/// and a forged one is refused by name.
 #[test]
-fn a_declared_difference_source_is_refused_by_name_on_the_derivative_path() {
+fn a_declared_difference_source_derives_and_a_forgery_is_refused_on_the_derivative_path() {
     let corpus: Value = serde_json::from_str(include_str!("../../../../fixtures/results/preview_physics_difference_basis_corpus.json")).unwrap();
     let base: Value = serde_json::from_str(include_str!(
         "../../../../fixtures/results/invented/tp_phys_015_canonical_solve_result_envelope.json"
     ))
     .unwrap();
-    for name in ["v1_closing", "v5_sustained_only_load"] {
-        let source = &corpus["documents"].as_array().unwrap().iter().find(|e| e["name"] == name).unwrap()["document"];
+    let derive = |source: &Value| {
         let carrier = d::checksum(source, "attested_headless_producer_carrier", d::reference("test_carrier", "derivative-contract")).unwrap();
         let model = source["model_ref"].as_str().unwrap().to_owned();
         let origin = json!({"origin_id":"derivative-contract-test","origin_class":"attested_headless_producer","qualification_ref":d::reference("test_fixture","not-authentication"),"authentic_producer_available":true,"received_carrier_checksum":carrier,"original_producer_checksum":carrier,"origin_limit":"Retained producer bytes; derivative contract test only","actual_model_ref":d::reference("model_payload",&model),"mechanics_run_ref":d::reference("mechanics_run",source["run_id"].as_str().unwrap()),"request_model_ref":null,"request_run_ref":null,"request_alias_disclosure":null});
-        let refused = d::derive_document(base.clone(), &json!({"project":{"id":model}}), source, origin, None).unwrap_err();
-        assert!(refused.contains("SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_UNVERIFIED"), "{name}: {refused}");
+        d::derive_document(base.clone(), &json!({"project":{"id":model}}), source, origin, None)
+    };
+    for name in ["v1_closing", "v5_sustained_only_load"] {
+        let source = &corpus["documents"].as_array().unwrap().iter().find(|e| e["name"] == name).unwrap()["document"];
+        let document = derive(source).unwrap_or_else(|e| panic!("{name}: {e}"));
+        d::validate_document(&document, source).unwrap_or_else(|e| panic!("{name}: {e}"));
+        // A forgery inside the record: the admitted one's subtrahend value one bit off (no
+        // longer contained), the withheld one's G-1 reason restated as G-2's.
+        let mut forged = source.clone();
+        if name == "v1_closing" {
+            let bits = &mut forged["contract_evidence"]["difference_basis_derivation"][0]["subtrahend"]["primitive_contents"][0]["magnitude"]["value_bits"];
+            let flipped = u64::from_str_radix(bits.as_str().unwrap(), 16).unwrap() ^ 1;
+            *bits = json!(format!("{flipped:016x}"));
+        } else {
+            for gate in forged["contract_evidence"]["combination_gates"].as_array_mut().unwrap() {
+                if gate["combination_id"] == "comb:o-s" {
+                    gate["reason"] = json!("EXPANSION_BASIS_MODULUS_MIXED");
+                }
+            }
+        }
+        let refused = derive(&forged).unwrap_err();
+        assert!(refused.contains("SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_DERIVATION"), "{name}: {refused}");
     }
-    // The plain carrier still derives (the refusal is the declared document's).
-    assert!(project().is_ok());
 }

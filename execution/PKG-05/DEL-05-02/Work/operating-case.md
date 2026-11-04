@@ -1,6 +1,6 @@
 # Operating case with nonlinear supports, and the kernel side of skewed restraints
 
-> **Status: adopted plan; truthfulness fixes (#1695), stage 2 (#1671) and slice 1a (#1752) built; slice 1b built on branch `claude/rt-a5-slice1b` (§6, candidate, not yet integrated or reviewed; its model-free G-1 reading ships fail-closed until its contract review); R-6 unbuilt and scheduled for v1.0 after 1b (2026-10-31, below); `minuend_final` unbuilt (§6.9 seam); superseded by any later Design text.**
+> **Status: adopted plan; truthfulness fixes (#1695), stage 2 (#1671) and slice 1a (#1752) built; slice 1b built on branch `claude/rt-a5-slice1b` (§6, candidate, not yet integrated; reviewed in r1 and its focused confirmation; its model-free G-1 reading, option A, enabled after that review); R-6 unbuilt and scheduled for v1.0 after 1b (2026-10-31, below); `minuend_final` unbuilt (§6.9 seam); superseded by any later Design text.**
 > Committed from the solver lane's working note so that the adopted decisions are
 > discoverable on main. The text is unchanged except that local absolute paths are
 > shortened to `scratch/…`. Working-file references (`scratch/…` and
@@ -878,7 +878,7 @@ Sign convention of an admitted declared subtraction's rows (§1.3 c5; §5 option
 A plain subtraction keeps "… ; a signed difference of solved states, not an equilibrium
 state". Never "certified" or "established" (§4 is unbuilt).
 
-### 6.4 G-1's derivation evidence (Agent 0's decision A; ships behind the reader switch)
+### 6.4 G-1's derivation evidence (Agent 0's decision A)
 
 `contract_evidence.difference_basis_derivation`, an optional member of results.v0.3's (and
 stress_neutral_export.v0.3's) closed `PreviewPhysicsContractEvidence`, admitted there beside
@@ -934,13 +934,12 @@ and the wasm engine); Python `tests/verifiers/preview_difference_basis.py`.
   operand case carries a `condition_use` G-1 cannot be re-derived and the document is refused
   by name, `SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_UNVERIFIED`; it never falls back to the
   model-free reading. A common pure lowering for readers was not built.
-- **Without the model: fail closed (option C) until review.** The shipped switch
-  (`preview_difference_basis::MODEL_FREE`, Python `MODEL_FREE`) is `Refuse`: any declared
-  claim (the evidence member, a G-1 or G-2 gate reason, or a row stating §6.3's sign) is
-  refused as `SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_UNVERIFIED`. Consequence until option A
-  is enabled: model-free consumers (packaging, derivatives, the runner without a model) refuse
-  a PF document carrying a declared subtraction.
-- **Option A (built and tested behind the switch).** The member's closed shape, canonical
+- **Without the model: option A, shipped** (Agent 0's decision; enabled after review r1 and
+  its focused confirmation cleared it). Any declared claim (the evidence member, a G-1 or G-2
+  gate reason, or a row stating §6.3's sign) is read from the published evidence, so
+  model-free consumers (packaging, derivatives, the runner without a model) read a valid
+  declared document and refuse a forged one by name. The interim fail-closed switch (option
+  C) is deleted, not kept as a mode: no design or consumer names it. The member's closed shape, canonical
   order, counts in the count domain and finite values are checked
   (`SOURCE_PREVIEW_PHYSICS_DIFFERENCE_BASIS_EVIDENCE`); a case id recurring across records with
   different contents is refused (`…_DIFFERENCE_BASIS_BINDING`, in both readings); its bindings to the document
@@ -1061,16 +1060,20 @@ becomes current. Regressions: Rust `result_export/tests/recorded_pre_rt_a5_1b.rs
     swapped cases), a forged gate and forged signs refused with the model; the shared corpus
     `fixtures/results/preview_physics_difference_basis_corpus.json` is the producer's output.
 - RE `preview_difference_basis_tests.rs` and Python `tests/test_preview_difference_basis.py`
-  over the corpus: every document reads with its model and under option A, and is refused
-  under option C; about thirty tampers refused by name under option A; the coherent forgery.
+  over the corpus: every document reads with its model and without it; about thirty tampers
+  refused by name without the model; the coherent forgery.
   Review r1 adds: a case recurring across two declared records with different contents
   (both readings, `…_BINDING`); counts 0, −1, 2^53, 2^64, `1.0`, `true` and `"1"` refused as
   `…_EVIDENCE` with and without the model, and 2^53 − 1 admitted.
-- End to end under the shipped switch: `openpipestress-runner read preview-physics`
-  (`core/runner/headless/tests/reader_cli.rs`) refuses a declared document without its model
-  as `…_COMBINATION_GATE_UNVERIFIED` and reads it with the model; the derivative path
-  (`derive_document` through `semantic_contract::for_source`,
-  `result_export/tests/derivative_contract.rs`) refuses it by the same name.
+- End to end: `openpipestress-runner read preview-physics`
+  (`core/runner/headless/tests/reader_cli.rs`) reads three declared documents with and
+  without their model and refuses a forgery inside each record by name
+  (`…_COMBINATION_GATE_DERIVATION`); the derivative path (`derive_document` through
+  `semantic_contract::for_source`, `result_export/tests/derivative_contract.rs`) derives and
+  validates a declared document and refuses a forged one by the same name. Packaging reads its
+  source through the same `for_source` (`bindings.rs`) inside a complete package request (audit
+  manifest, solver identity, rendered report), so it has no separate entry short of a full
+  package; the derivative test drives that function.
 - V-3 (friction history) is DEL-04-04:2's disclosure (CLM-012), not a behaviour change.
 - Fail-before: on main every declared subtraction is withheld by
   `LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED`, so every admission and gate assertion above

@@ -62,9 +62,10 @@ state; equal final states are not required. Its rows read "operating minus
 sustained difference: a signed difference of two independently solved states,
 … not an equilibrium state" and are never certified. The document states both
 multisets (`difference_basis_derivation`). A reader with the model re-derives
-G-1 from the model; a reader without it can check only the record's internal
-derivation, not that the record is true to the model, and until that reading is
-reviewed it refuses the verdict (DEL-05-02 Work `operating-case.md` §6). The
+G-1 from the model; a reader without it re-derives the verdict from those two
+multisets, which checks the record's internal derivation, not that the record is
+true to the model: a coherent forgery cannot be authenticated without the model
+(DEL-05-02 Work `operating-case.md` §6). The
 label "expansion" and any code-range meaning belong to the user's rule pack.
 
 ## Method
@@ -148,9 +149,10 @@ are commonly formed in practice; they are labelled as not an equilibrium state.
 - A declared operating comparison (`difference_basis`) is gated on the
   pressure-free route only (EX refuses it by name), its G-1 compares primitive
   loads only, and a `minuend_final` subtrahend remains withheld until its own
-  slice. A reader without the model refuses a declared subtraction's G-1 verdict
-  until the model-free reading's review clears; with the model, G-1 over an
-  operand that uses `condition_use` is refused as unverifiable.
+  slice. A reader without the model checks a declared subtraction's verdict
+  against the published evidence only, which a coherent forgery can satisfy; with
+  the model, G-1 over an operand that uses `condition_use` is refused as
+  unverifiable.
 - SWBPIPE does not decide which combinations or factors a code requires, and does
   not determine code compliance.
 

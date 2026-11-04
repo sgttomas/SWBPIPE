@@ -535,8 +535,10 @@ warning, when the sustained case has a primitive load the operating case lacks
 ignored; each counts once: `EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING`), or when
 the two cases use different modulus bases (`EXPANSION_BASIS_MODULUS_MIXED`).
 `subtrahend_support_state: minuend_final` is still withheld, and the exact route
-refuses the member. A result reader given the document without its model refuses
-a declared difference's verdict for now; give it the model.
+refuses the member. A result reader given the document without its model checks
+the verdict against the two load multisets the document states, which shows the
+document is consistent with itself but cannot show it is true to its model; give
+the reader the model to check that.
 
 **Method.** The absolute sum is the exact sum of |factor × value|, rounded once.
 The SRSS rounds each factor × value once and takes the correctly rounded square

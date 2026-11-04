@@ -12,8 +12,8 @@ on preview-physics-2: its gates G-1 (``EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATIN
   evidence must equal it, and the gate must be G-1's, else G-2's from the cases' modulus-basis keys. There is no
   condition resolver here (decision M1): when either operand case carries a ``condition_use`` the verdict is refused
   as unverifiable (``SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_UNVERIFIED``), never read model-free instead.
-- Without the model: fail closed by default (``MODEL_FREE = "refuse"``, option C) until the independent contract
-  review of option A clears. Under ``mode="verify"`` (option A) the evidence's closed shape, canonical order, counts
+- Without the model (option A, enabled after its independent contract review): any declared-subtraction claim is
+  read from the evidence: the evidence's closed shape, canonical order, counts
   (an integer from 1 to 2^53 - 1, ``MAX_COUNT``) and bindings are checked, a case id recurring across records must
   carry byte-identical contents, G-1 is re-derived from its multisets and G-2 from the published modulus-basis records.
   Scope: that checks the record's internal derivation and its binding to the document, not its truth to the absent
@@ -51,8 +51,6 @@ MODEL = "SOURCE_PREVIEW_PHYSICS_DIFFERENCE_BASIS_MODEL"
 # can be published; a float (1.0), a boolean, a string or a negative number is not a count. The Rust reader states the
 # same domain (count_of).
 MAX_COUNT = 2**53 - 1
-# Fail closed until the independent contract review of option A clears ("refuse" is option C, "verify" option A).
-MODEL_FREE = "refuse"
 # The producer's expected_load_dimension: a load's dimension token and the unit table's dimension.
 LOAD_DIMENSIONS = {"force": "force", "moment": "moment", "force_per_length": "force_per_length", "pressure": "pressure",
                    "temperature_change": "temperature_interval", "temperature_interval": "temperature_interval",
@@ -206,15 +204,15 @@ def _rows_sign(rows: list, declared: set) -> None:
             _require(sign != SIGN, ROW)
 
 
-def check(source: Mapping[str, Any], model: Mapping[str, Any] | None = None, mode: str | None = None) -> None:
-    """A solved preview-physics-2 document's declared subtractions; ``mode`` defaults to ``MODEL_FREE``."""
+def check(source: Mapping[str, Any], model: Mapping[str, Any] | None = None) -> None:
+    """A solved preview-physics-2 document's declared subtractions, read with the model when it is supplied."""
     if model is not None:
         _model_check(source, model)
     else:
-        _free_check(source, MODEL_FREE if mode is None else mode)
+        _free_check(source)
 
 
-def _free_check(source: Mapping[str, Any], mode: str) -> None:
+def _free_check(source: Mapping[str, Any]) -> None:
     evidence = source.get("contract_evidence") or {}
     gates = [g for g in _items(evidence.get("combination_gates")) if isinstance(g, Mapping)]
     rows = [r for r in _items(source.get("results")) if isinstance(r, Mapping)]
@@ -224,7 +222,6 @@ def _free_check(source: Mapping[str, Any], mode: str) -> None:
                or any(_combination_of(r) is not None and sign_of(r) == SIGN for r in rows))
     if not claimed:
         return
-    _require(mode == "verify", UNVERIFIED)
     records = _read(source)
     declared = {r["id"] for r in records}
     for gate in gates:

@@ -21,12 +21,10 @@
 //!   re-derived and the document is refused by name
 //!   (`SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_UNVERIFIED`); it never falls back to the
 //!   model-free reading.
-//! - **Without the model.** Fail closed by default ([`MODEL_FREE`] is
-//!   [`ModelFree::Refuse`]): any declared-subtraction claim (the evidence member, a gate
-//!   reason of G-1 or G-2, or a row stating the declared sign convention) is refused as
-//!   unverifiable (`…_COMBINATION_GATE_UNVERIFIED`), until the independent contract
-//!   review of option A clears. Under [`ModelFree::Verify`] (option A, Agent 0's choice),
-//!   the evidence's closed shape, canonical order, counts (an integer token from 1 to
+//! - **Without the model** (option A, Agent 0's choice; enabled after its independent
+//!   contract review). Any declared-subtraction claim (the evidence member, a gate reason
+//!   of G-1 or G-2, or a row stating the declared sign convention) is read from the
+//!   evidence: the evidence's closed shape, canonical order, counts (an integer token from 1 to
 //!   2^53 - 1, [`count_of`]) and bindings are checked, and a case id recurring across
 //!   records must carry byte-identical contents (`…_DIFFERENCE_BASIS_BINDING`); G-1
 //!   is re-derived from its two multisets, G-2 from the published
@@ -57,18 +55,6 @@ const EVIDENCE: &str = "SOURCE_PREVIEW_PHYSICS_DIFFERENCE_BASIS_EVIDENCE";
 const BINDING: &str = "SOURCE_PREVIEW_PHYSICS_DIFFERENCE_BASIS_BINDING";
 const ROW: &str = "SOURCE_PREVIEW_PHYSICS_DIFFERENCE_BASIS_ROW";
 const MODEL: &str = "SOURCE_PREVIEW_PHYSICS_DIFFERENCE_BASIS_MODEL";
-
-/// How a reader without the model treats a declared subtraction's G-1 verdict.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum ModelFree {
-    /// Option C: refused by name as unverifiable.
-    Refuse,
-    /// Option A: re-derived from the published evidence (internal derivation only).
-    Verify,
-}
-
-/// Fail closed until the independent contract review of option A clears.
-pub(crate) const MODEL_FREE: ModelFree = ModelFree::Refuse;
 
 fn fail(code: &str) -> String {
     code.to_string()
@@ -263,33 +249,13 @@ fn rows_sign(rows: &[Value], declared: &HashSet<&str>) -> Check {
 
 /// Entry from `preview_combination_gates::check` on a solved document.
 pub(crate) fn check(source: &Value, model: Option<&Value>) -> Check {
-    check_with(source, model, mode())
-}
-
-#[cfg(not(test))]
-fn mode() -> ModelFree {
-    MODEL_FREE
-}
-
-// Tests read option A through the whole reader chain on their own thread; the product
-// build has no override.
-#[cfg(test)]
-thread_local! {
-    pub(crate) static TEST_MODE: std::cell::Cell<ModelFree> = const { std::cell::Cell::new(MODEL_FREE) };
-}
-#[cfg(test)]
-fn mode() -> ModelFree {
-    TEST_MODE.with(std::cell::Cell::get)
-}
-
-pub(crate) fn check_with(source: &Value, model: Option<&Value>, mode: ModelFree) -> Check {
     match model {
         Some(model) => model_check(source, model),
-        None => free_check(source, mode),
+        None => free_check(source),
     }
 }
 
-fn free_check(source: &Value, mode: ModelFree) -> Check {
+fn free_check(source: &Value) -> Check {
     let evidence = &source["contract_evidence"];
     let gates = items(&evidence["combination_gates"]);
     let rows = items(&source["results"]);
@@ -298,9 +264,6 @@ fn free_check(source: &Value, mode: ModelFree) -> Check {
         || rows.iter().any(|r| combination_of(r).is_some() && r["metadata"]["sign_convention"] == SIGN);
     if !claimed {
         return Ok(());
-    }
-    if mode == ModelFree::Refuse {
-        return Err(fail(UNVERIFIED));
     }
     let records = read(source)?;
     let declared: HashSet<&str> = records.iter().map(|r| r.id).collect();

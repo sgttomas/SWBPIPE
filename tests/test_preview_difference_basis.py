@@ -1,7 +1,7 @@
 """Operating-case slice 1b (DEL-05-02 Work ``operating-case.md`` section 1.2 and "As built (1b)"): the Python mirror of
 the declared-difference readers over the shared corpus (``fixtures/results/preview_physics_difference_basis_corpus.json``,
-written by PP ``op1b_difference_basis.rs``). Every producer document reads with its model, is refused without it under
-the shipped switch (option C), and reads without it under option A; each forgery is refused with the Rust reader's code
+written by PP ``op1b_difference_basis.rs``). Every producer document reads with its model and without it (option A,
+re-derived from the published evidence); each forgery is refused with the Rust reader's code
 (RE ``preview_difference_basis_tests.rs``)."""
 from __future__ import annotations
 
@@ -30,8 +30,7 @@ def code(outcome: dict) -> str:
     return "ok" if outcome["ok"] else outcome["error"]["code"]
 
 
-def read(source: dict, model: dict | None = None, mode: str = "refuse", monkeypatch=None) -> str:
-    monkeypatch.setattr(difference, "MODEL_FREE", mode)
+def read(source: dict, model: dict | None = None) -> str:
     return code(reader_verdict.validate("preview-physics", source, model))
 
 
@@ -39,17 +38,16 @@ def bits(value: float) -> str:
     return f"{struct.unpack('>Q', struct.pack('>d', value))[0]:016x}"
 
 
-def test_the_shipped_switch_fails_closed():
-    assert difference.MODEL_FREE == "refuse"
+def test_the_switch_is_gone():
+    assert not hasattr(difference, "MODEL_FREE")
     assert len(NAMES) >= 9
 
 
 @pytest.mark.parametrize("name", NAMES)
-def test_producer_documents_read_with_the_model_under_option_a_and_are_refused_under_option_c(name, monkeypatch):
+def test_producer_documents_read_with_their_model_and_without_it(name):
     source, model = entry(name)
-    assert read(source, model, monkeypatch=monkeypatch) == "ok"
-    assert read(source, None, "verify", monkeypatch) == "ok"
-    assert read(source, None, "refuse", monkeypatch) == difference.UNVERIFIED
+    assert read(source, model) == "ok"
+    assert read(source) == "ok"
 
 
 def _sub(v):
@@ -115,26 +113,26 @@ TAMPERS = [
 
 
 @pytest.mark.parametrize("what,name,expected,edit", TAMPERS, ids=[t[0] for t in TAMPERS])
-def test_option_a_refuses_tampered_evidence_by_name(what, name, expected, edit, monkeypatch):
+def test_the_model_free_reading_refuses_tampered_evidence_by_name(what, name, expected, edit):
     source, _ = entry(name)
     edit(source)
-    assert read(source, None, "verify", monkeypatch) == expected
+    assert read(source) == expected
 
 
-def test_a_coherent_forgery_is_not_authenticated_without_the_model(monkeypatch):
+def test_a_coherent_forgery_is_not_authenticated_without_the_model():
     source, model = entry("v1_closing")
     source["contract_evidence"][MEMBER][0]["subtrahend"]["primitive_contents"] = []
-    assert read(source, None, "verify", monkeypatch) == "ok"
-    assert read(source, model, monkeypatch=monkeypatch) == difference.MODEL
+    assert read(source) == "ok"
+    assert read(source, model) == difference.MODEL
 
 
-def test_the_model_bound_reader_refuses_evidence_unlike_the_model_and_condition_use(monkeypatch):
+def test_the_model_bound_reader_refuses_evidence_unlike_the_model_and_condition_use():
     source, model = entry("v1_closing")
     _bump(source)
-    assert read(source, model, monkeypatch=monkeypatch) == difference.MODEL
+    assert read(source, model) == difference.MODEL
     source, model = entry("v1_closing")
     model["load_cases"][0]["condition_use"] = {"temperature": "OPE1"}
-    assert read(source, model, monkeypatch=monkeypatch) == difference.UNVERIFIED
+    assert read(source, model) == difference.UNVERIFIED
 
 
 # ------------------------------------------------------------------ review r1
@@ -159,49 +157,49 @@ def _model_declaring_plain_twin(model):
     return model
 
 
-def test_a_case_recurring_across_records_carries_identical_contents(monkeypatch):
+def test_a_case_recurring_across_records_carries_identical_contents():
     """Review r1 P1: one producer resolution gives one multiset per case, in both readings."""
     source, model = entry("v1_closing")
     model = _model_declaring_plain_twin(model)
     _declare_plain_twin(source)
-    assert read(source, None, "verify", monkeypatch) == "ok"
-    assert read(source, model, monkeypatch=monkeypatch) == "ok"
+    assert read(source) == "ok"
+    assert read(source, model) == "ok"
     contradictory = copy.deepcopy(source)
     contradictory["contract_evidence"][MEMBER][1]["subtrahend"]["primitive_contents"] = []
-    assert read(contradictory, None, "verify", monkeypatch) == difference.BINDING
-    assert read(contradictory, model, monkeypatch=monkeypatch) == difference.BINDING
+    assert read(contradictory) == difference.BINDING
+    assert read(contradictory, model) == difference.BINDING
     minuend = copy.deepcopy(source)
     minuend["contract_evidence"][MEMBER][1]["minuend"]["primitive_contents"][0]["count"] = 2
-    assert read(minuend, None, "verify", monkeypatch) == difference.BINDING
-    assert read(minuend, model, monkeypatch=monkeypatch) == difference.BINDING
+    assert read(minuend) == difference.BINDING
+    assert read(minuend, model) == difference.BINDING
 
 
 BAD_COUNTS = [("zero", 0), ("negative", -1), ("max + 1", MAX_COUNT + 1), ("2^64", 2**64), ("a float", 1.0), ("a boolean", True), ("a string", "1")]
 
 
 @pytest.mark.parametrize("what,count", BAD_COUNTS, ids=[b[0] for b in BAD_COUNTS])
-def test_the_count_domain_and_shape_are_checked_before_the_model_comparison(what, count, monkeypatch):
+def test_the_count_domain_and_shape_are_checked_before_the_model_comparison(what, count):
     """Review r1 P2/P2: an integer from 1 to 2^53 - 1 (the checked JSON profile's safe integers), checked by the one
     shape validator both readings share, before any comparison with the model's evidence."""
     source, model = entry("v1_closing")
     source["contract_evidence"][MEMBER][0]["subtrahend"]["primitive_contents"][0]["count"] = count
-    assert read(source, None, "verify", monkeypatch) == difference.EVIDENCE
-    assert read(source, model, monkeypatch=monkeypatch) == difference.EVIDENCE
+    assert read(source) == difference.EVIDENCE
+    assert read(source, model) == difference.EVIDENCE
 
 
-def test_the_maximum_count_is_in_the_domain(monkeypatch):
+def test_the_maximum_count_is_in_the_domain():
     source, model = entry("v1_closing")
     record = source["contract_evidence"][MEMBER][0]
     record["subtrahend"]["primitive_contents"][0]["count"] = MAX_COUNT
-    assert read(source, None, "verify", monkeypatch) == difference.GATE_DERIVATION, "in the domain, and not contained"
+    assert read(source) == difference.GATE_DERIVATION, "in the domain, and not contained"
     record["minuend"]["primitive_contents"][0]["count"] = MAX_COUNT
-    assert read(source, None, "verify", monkeypatch) == "ok"
-    assert read(source, model, monkeypatch=monkeypatch) == difference.MODEL
+    assert read(source) == "ok"
+    assert read(source, model) == difference.MODEL
 
 
-def test_member_order_alone_is_not_a_contradiction(monkeypatch):
+def test_member_order_alone_is_not_a_contradiction():
     source, _ = entry("v1_closing")
     _declare_plain_twin(source)
     entry_ = source["contract_evidence"][MEMBER][1]["subtrahend"]["primitive_contents"][0]
     source["contract_evidence"][MEMBER][1]["subtrahend"]["primitive_contents"][0] = dict(reversed(list(entry_.items())))
-    assert read(source, None, "verify", monkeypatch) == "ok"
+    assert read(source) == "ok"

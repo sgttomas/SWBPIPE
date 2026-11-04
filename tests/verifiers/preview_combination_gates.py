@@ -217,7 +217,7 @@ def _cites_combination(row: Mapping[str, Any], by_id: dict, cid: str) -> bool:
     return False
 
 
-def check(source: Mapping[str, Any], model: Mapping[str, Any] | None = None, mode: str | None = None) -> None:
+def check(source: Mapping[str, Any], model: Mapping[str, Any] | None = None) -> None:
     """The gates and unsigned rows of a solved preview-physics-2 document; ``model``, when supplied, is its model."""
     if (source.get("status") or {}).get("mechanics") != "MECHANICS_SOLVED":
         return
@@ -227,7 +227,7 @@ def check(source: Mapping[str, Any], model: Mapping[str, Any] | None = None, mod
     by_id = {r["id"]: r for r in rows if isinstance(r.get("id"), str)}
     # Operating-case slice 1b: a declared subtraction's G-1, G-2, evidence and sign.
     from . import preview_difference_basis
-    preview_difference_basis.check(source, model, mode)
+    preview_difference_basis.check(source, model)
     if model is not None:
         _model_check(source, model, gates, rows, by_id)
     else:

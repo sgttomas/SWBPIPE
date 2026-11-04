@@ -157,9 +157,9 @@ fn verdict(v: &Value, model: Option<&Value>) -> Value {
 fn assert_reads(v: &Value, wire: &Value, what: &str) {
     let with = verdict(v, Some(&wire["model"]));
     assert_eq!(with["ok"], true, "{what}: with the model {with}");
-    // Fail closed until option A's review: a reader without the model refuses the claim.
+    // Option A: a reader without the model re-derives the verdict from the published evidence.
     let without = verdict(v, None);
-    assert_eq!(without["error"]["code"], UNVERIFIED, "{what}: model-free {without}");
+    assert_eq!(without["ok"], true, "{what}: model-free {without}");
 }
 
 /// The evidence record §2.2 implies, written from the authored loads (independent of
@@ -509,7 +509,9 @@ fn the_model_bound_reader_refuses_g1_over_condition_use_by_name() {
         let v = solve(&wire, mode);
         let with = verdict(&v, Some(&wire["model"]));
         assert_eq!(with["error"]["code"], UNVERIFIED, "{with}");
-        assert_eq!(verdict(&v, None)["error"]["code"], UNVERIFIED);
+        // Without the model the evidence (the lowered contents, condition-generated primitives
+        // included) is read as published: its internal derivation, not its truth to the model.
+        assert_eq!(verdict(&v, None)["ok"], true, "{}", verdict(&v, None));
     }
 }
 
