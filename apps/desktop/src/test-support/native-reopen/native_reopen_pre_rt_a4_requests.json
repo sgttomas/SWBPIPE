@@ -3,14 +3,6 @@
  "note": "Written by nativeReopenPreRtA4.session.test.tsx (NATIVE_REOPEN_RECORD=1): the requests the historical panel sends on the restored pre-RT-A4 handle; stored_custody_tests.rs answers each with its actual command.",
  "requests": [
   {
-   "command": "read_preview_mechanics_job_summary",
-   "args": {
-    "jobId": "$HANDLE",
-    "modelJson": "null",
-    "standing": null
-   }
-  },
-  {
    "command": "read_preview_mechanics_job_verdict",
    "args": {
     "jobId": "$HANDLE"
@@ -109,6 +101,20 @@
      48,
      49
     ]
+   }
+  },
+  {
+   "command": "read_preview_mechanics_job_summary",
+   "args": {
+    "jobId": "$HANDLE",
+    "modelJson": "null",
+    "standing": {
+     "eligible": false,
+     "findings": [
+      "REQUESTED_NUMERICAL_BASIS_UNAVAILABLE",
+      "NUMERICAL_CASE_COVERAGE_INCOMPLETE"
+     ]
+    }
    }
   }
  ]
