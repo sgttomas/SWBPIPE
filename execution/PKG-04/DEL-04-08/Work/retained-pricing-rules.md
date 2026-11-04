@@ -3784,8 +3784,12 @@ unchanged M = 12,884,901,888 B; the law tests (all phases, R, the 0.9 margin and
 **All points** (supplement: the S1 atoms and RT-A4's ten new atoms, measured natively in the same build: Target 24,
 FixedLoadCount 40, PublishedBase 72, (&str,FixedLoadCount) 56, (String,&Value) 32, (&str,&str) 32,
 (&str,PublishedTails) 64, GateRecord 96, Node(String,(String,CaseRows)) 1,176, Node(String,CaseRows) 912;
-Node(String,BTreeMap) 648): W3 E + R dense E(3) 8,783,944,541, L(3,0) 8,301,415,706, L(2,1) 7,622,760,025,
-L(1,2) 6,883,640,486 B, each at or below the merged tree in every phase and mode.
+Node(String,BTreeMap) 648): W3 E + R dense E(3) 8,783,944,541, L(3,0) 8,301,415,706, L(2,1) 7,630,434,649,
+L(1,2) 6,917,685,926 B, each at or below the merged tree in every phase and mode (all 64 point-phase-mode values). These
+are the final evidence's per-point trees (the run that generated the block, reproduced by the runs at `fbd0931d5` and
+`6bee016aa`). An earlier text carried run3's (`401c9914d`) L(2,1) 7,622,760,025 and L(1,2) 6,883,640,486 B; its
+merged, E(3) and L(3,0) trees equal the final ones, so the block, the registration and the margins are unchanged
+(found by RT-U4's §8.47 reproduction).
 
 **Profile and records.**
 - **Block.** `generate` with basis `, re-run as RT-A4 at fbd0931d5 (§8.46): …` (1,712 lines; `--check` equal).
