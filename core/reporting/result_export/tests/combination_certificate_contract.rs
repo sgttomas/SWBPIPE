@@ -99,3 +99,24 @@ fn model_binding_refuses_a_forged_expression() {
     let verdict = reader_verdict::validate("preview-physics", &e["document"], Some(&model), None);
     assert_eq!(verdict["ok"], false, "{verdict}");
 }
+
+/// Transport is metadata-only (no rows, diagnostics or status): it admits the member on
+/// its closed shape and leaves the reading against the rows to the source check. The
+/// producer's documents are admitted, also without their results; a malformed member is
+/// refused by name (the Python mirror alike).
+#[test]
+fn transport_reads_the_member_shape_only() {
+    let e = documents().into_iter().find(|e| e["name"] == "pf_cantilever").unwrap();
+    assert_eq!(reader_verdict::transport("preview-physics", &e["document"])["ok"], true);
+    let mut metadata = e["document"].clone();
+    for key in ["results", "diagnostics", "status"] {
+        metadata.as_object_mut().unwrap().remove(key);
+    }
+    assert_eq!(reader_verdict::transport("preview-physics", &metadata)["ok"], true, "{}", reader_verdict::transport("preview-physics", &metadata));
+    for forged in [serde_json::json!([]), serde_json::json!({"combinations": []}), serde_json::json!({"combinations": [], "operand_cases": {}})] {
+        let mut document = e["document"].clone();
+        document["contract_evidence"]["combination_certificate"] = forged;
+        let verdict = reader_verdict::transport("preview-physics", &document);
+        assert!(verdict["ok"] == false && verdict.to_string().contains("transport combination certificate shape"), "{verdict}");
+    }
+}

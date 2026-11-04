@@ -6708,8 +6708,9 @@ fn preview_physics_transport_metadata(p: &Value) -> Result<(), String> {
         "formulation profile or limitations",
     )?;
     let evidence = &p["contract_evidence"];
-    // RT-A3 §4: a document with a combination may carry the combination certificate,
-    // which its own check reads (DEL-05-02 Work `combination-certificate.md`).
+    // RT-A3 §4: a document with a combination may carry the combination certificate
+    // (DEL-05-02 Work `combination-certificate.md`). Transport has no rows, so only its
+    // closed shape is read here; the source reading checks it against the rows.
     let certificate = evidence.get("combination_certificate").is_some();
     demand(
         if certificate {
@@ -7012,7 +7013,13 @@ fn preview_physics_transport_metadata(p: &Value) -> Result<(), String> {
         )?;
     }
     if certificate {
-        crate::combination_certificate::check(p)?;
+        let member = &evidence["combination_certificate"];
+        demand(
+            shape(member, &["combinations", "operand_cases"])
+                && member["combinations"].is_array()
+                && member["operand_cases"].is_array(),
+            "transport combination certificate shape",
+        )?;
     }
     Ok(())
 }

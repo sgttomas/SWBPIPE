@@ -604,13 +604,19 @@ def validate_transport_metadata(source: Mapping[str, Any]) -> None:
         _require(formulation["profile_id"] == profile and formulation["limitations"] == limitations, "formulation profile or limitations")
         schema = json.loads((ROOT / "schemas/results.v0.3.schema.yaml").read_text(encoding="utf-8"))
         evidence = source.get("contract_evidence")
-        _require(schema_shape(evidence, schema["$defs"]["PreviewPhysicsContractEvidence"], schema), "transport evidence shape")
+        # RT-A3 §4: a carried certificate's shape is read below (Rust's transport alike).
+        shaped = {k: v for k, v in evidence.items() if k != "combination_certificate"} if isinstance(evidence, Mapping) else evidence
+        _require(schema_shape(shaped, schema["$defs"]["PreviewPhysicsContractEvidence"], schema), "transport evidence shape")
         _finite_tree(evidence)
         _cases(evidence, withheld_multiset=True)
         _gates(evidence)
     except (TypeError, KeyError, AttributeError, OverflowError, IndexError) as error:
         raise ValueError("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: malformed evidence") from error
-    # RT-A3 §4: a carried combination certificate is read by its own check (Rust's transport alike).
+    # RT-A3 §4: transport has no rows, so a carried certificate's closed shape only (Rust's transport alike); the
+    # source reading checks it against the rows.
     if "combination_certificate" in evidence:
-        certificate_check(source)
+        member = evidence["combination_certificate"]
+        _require(isinstance(member, Mapping) and set(member) == {"combinations", "operand_cases"}
+                 and isinstance(member["combinations"], list) and isinstance(member["operand_cases"], list),
+                 "transport combination certificate shape")
 

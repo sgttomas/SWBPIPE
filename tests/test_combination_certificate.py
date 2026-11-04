@@ -63,6 +63,20 @@ def test_a_non_ascii_combination_identity_is_length_prefixed_in_utf8_bytes():
     assert reader_verdict.validate("preview-physics", document) == {"ok": True}
 
 
+def test_transport_reads_the_member_shape_only():
+    """Transport is metadata-only: the member is admitted on its closed shape, also without results, diagnostics or
+    status, and a malformed member is refused by name (Rust `transport_reads_the_member_shape_only` alike)."""
+    document = entry("pf_cantilever")["document"]
+    assert reader_verdict.transport("preview-physics", document) == {"ok": True}
+    metadata = {k: v for k, v in document.items() if k not in {"results", "diagnostics", "status"}}
+    assert reader_verdict.transport("preview-physics", metadata) == {"ok": True}
+    for forged in ([], {"combinations": []}, {"combinations": [], "operand_cases": {}}):
+        changed = copy.deepcopy(document)
+        changed["contract_evidence"]["combination_certificate"] = forged
+        verdict = reader_verdict.transport("preview-physics", changed)
+        assert verdict["ok"] is False and "transport combination certificate shape" in json.dumps(verdict), verdict
+
+
 # ----------------------------------------------------------------------------- forgeries (shared with the Rust reader)
 
 def _pointer(path: list) -> str:
