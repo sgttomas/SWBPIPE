@@ -57,9 +57,11 @@ DEPENDENCIES = {
     # direct pass binds the branch-intensified rows by their records (`u4b_evidence::branch_records`; was c82a0f11...);
     # then the arc-tangent direction bound (DEL-04-07 pressure-contract.md, "Direction magnitudes of arc tangents"): an
     # arc term binds its magnitude exactly to its arc's published end tangent, and joint-area groups bind only to their
-    # connector axis (was f27242f0...); then RT-A3 increment 4 (DEL-04-07 pressure-contract.md, "Nonlinear supports on
-    # EX"): the direct pass calls the nonlinear support binding (`nonlinear_support_evidence`; was b3cb5f6d...).
-    MODULE: 'e088ededb058899d521521d849a3e36fefe21ae8d23afc2f75ac2a010122b90e',
+    # connector axis (was f27242f0...); then RT-U4: the region binding counts the published pipe rows once per case and
+    # member instead of rescanning every row per region, with the same outcomes (was b3cb5f6d...); then RT-A3 increment 4
+    # (DEL-04-07 pressure-contract.md, "Nonlinear supports on EX"): the direct pass calls the nonlinear support binding
+    # (`nonlinear_support_evidence`; was ea9273d7...).
+    MODULE: '2e9b087dd5792090409e4334bde6fb8ca8a0108b940fca31aa6283f1dc74c725',
     TABLE: TABLE_SHA256,
     UNITS: '5a412c57ca3bdc1d150ff580354e709355f442d89971a2f7aff8b575c7e39596',
 }

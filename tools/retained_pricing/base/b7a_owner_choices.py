@@ -59,9 +59,13 @@ ROWS_ERROR_LINE = 2803          # the one error site owned by bind_rows_subject 
 # 15351/15352 -> 15434/15435).
 # §8.30 D3: the helpers move with unchanged text (14820/14821 -> 14822/14823, 15292/15293 -> 15294/15295).
 # W-16 stage 2 D3 (§8.29): the helpers move with unchanged text (14765/14766 -> 14820/14821, 15186/15187 -> 15292/15293).
+# DEL-04-09 I2b-2 layout (§8.43, cc160d28d; Agent 0's ordinary layout of the seam's hunks): the helpers move
+# with unchanged text (15014/15015 -> 15040/15041, 15487/15488 -> 15513/15514).
 # RT-A4 D3 (§8.46): the helpers move +79 with unchanged text (15014/15015 -> 15093/15094, 15487/15488 -> 15566/15567;
 # the wiring's lib.rs additions precede them).
-HELPER_FNS = (PP + "lib.rs:15093:qualified_load_case_result_id", PP + "lib.rs:15566:stable_suffix")
+# I2b-2 on RT-U4's candidate (§8.48): both moves, 15014/15015 -> 15119/15120 and 15487/15488 -> 15592/15593, mapped
+# line by line from the merge base 6c3cb46d3 through each side's hunks; unchanged text.
+HELPER_FNS = (PP + "lib.rs:15119:qualified_load_case_result_id", PP + "lib.rs:15592:stable_suffix")
 ERROR_OWNER = PP+'retained_product.rs:2553:bind_rows_subject'
 ERROR_WHY = "B7a metadata first error: immediate propagation out of whole bind_rows_subject; full owner M/content/capacity and independent errors/detail copies retained"
 SOURCE_WHY = ("B7a row-source ownership: audited success or terminal Range fallback "
@@ -352,17 +356,17 @@ PREIMAGES = {'source_from': {'from': ['structural.rs:1240:audit_load_fidelity',
 # diagnostics and the case solve's branch rows precede them), unchanged text.
  # B7b snapshot lib.rs lines (B7a: 13239/13238 and 13614/13613; unchanged text).
  'helper_rows': [{'file': 'core/product_physics/src/lib.rs',
-                  'line': 15094,
+                  'line': 15120,
                   'kind': 'format',
                   'template': 'result:loadcase:{}:{}',
                   'literal_bytes': 17,
                   'placeholders': [{'spec': '', 'arg': 'stable_suffix(load_case_id)'},
                                    {'spec': '', 'arg': 'result_tail(base_id)'}],
-                  'fn': 'core/product_physics/src/lib.rs:15093:qualified_load_case_result_id'},
+                  'fn': 'core/product_physics/src/lib.rs:15119:qualified_load_case_result_id'},
                  {'file': 'core/product_physics/src/lib.rs',
-                  'line': 15567,
+                  'line': 15593,
                   'kind': 'replace',
-                  'fn': 'core/product_physics/src/lib.rs:15566:stable_suffix',
+                  'fn': 'core/product_physics/src/lib.rs:15592:stable_suffix',
                   'receiver': 'id',
                   'literal_bytes': None,
                   'arg': '\' \', " "'}],
@@ -374,11 +378,11 @@ PREIMAGES = {'source_from': {'from': ['structural.rs:1240:audit_load_fidelity',
                                                                       'super::result_tail(&expected)': {'bytes': 1024,
                                                                                                         'source': 'RES'}},
                 'core/product_physics/src/retained_product.rs:3546': None,
-                'core/product_physics/src/lib.rs:15094': {'result_tail(base_id)': {'bytes': 600,
+                'core/product_physics/src/lib.rs:15120': {'result_tail(base_id)': {'bytes': 600,
                                                                                    'source': 'COMP'},
                                                           'stable_suffix(load_case_id)': {'bytes': 128,
                                                                                           'source': 'IN128'}},
-                'core/product_physics/src/lib.rs:15567': {'id': {'bytes': 128, 'source': 'IN128'}},
+                'core/product_physics/src/lib.rs:15593': {'id': {'bytes': 128, 'source': 'IN128'}},
                 'core/product_physics/src/retained_product.rs:2803': {'r.kind': {'bytes': 128,
                                                                                  'source': 'STATIC'}},
                 'core/product_physics/src/retained_product.rs:3366': {'row.id': {'bytes': 1024,

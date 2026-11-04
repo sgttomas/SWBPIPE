@@ -12,7 +12,7 @@ Text atoms (Text(...), D) are closed by TEXT.md; their values are read from
 text_closure.<which>.json. Layout atoms are evaluated with g3lib.ASSUMED (illustrative).
 Usage: python3 ordinary_caps.py <caps|milestone>
 """
-import json, os, sys
+import json, os, re, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from g3lib import X, B, s, atom, V, A, Xc, Mat, HashReq, buckets, pushcap, appendcap, total, ASSUMED, textcap
 # R-A D3 (§8.13): on R-A's source, register the illustrative s(Option<u32>) its T07 rows use (in-build at G5).
@@ -614,7 +614,15 @@ add("Retained diagnostics (Vec<Diagnostic> backing; strings are in T08 TAV)", "D
 # until the solves drop (an append leaves its capacity). Strings and the
 # count inside D are already priced; only the separate backings are added.
 _lib_path = os.path.join(_snapshot, "core/product_physics/src/lib.rs") if KD5 else None
-if KD5 and "    withheld_summaries: Vec<Diagnostic>,\n" in open(_lib_path, encoding="utf-8").read():
+# DEL-04-09 I2b-2 (§8.43): the declaration is matched as its whole line. Its earlier candidate put decision B's
+# `nonlinear_state` on that line, which the old whole-line test missed silently; in ordinary layout (cc160d28d) the
+# field is on its own line again. Any other form of a `withheld_summaries` line, without the exact declaration,
+# stops the run rather than silently dropping the owner.
+_kd5o14_text = open(_lib_path, encoding="utf-8").read() if KD5 else ""
+_kd5o14 = re.search(r"^    withheld_summaries: Vec<Diagnostic>,\n", _kd5o14_text, re.M) is not None
+if KD5 and not _kd5o14 and re.search(r"^\s*(?:pub(?:\([a-z]+\))?\s+)?withheld_summaries\s*:", _kd5o14_text, re.M):
+    raise SystemExit("KD5O14: LoadCaseSolve.withheld_summaries changed form; re-review its backing")
+if KD5 and _kd5o14:
     add("Withheld certified-summary diagnostics backing per case (KD5O14)", "Diagnostics",
         V("Diagnostic", m) * CC)
 

@@ -480,8 +480,12 @@ fn a_contents_density_state_case_is_refused_upstream() {
 
 #[test]
 fn interim_refusals_are_by_name() {
-    let found = prepare_modal(&modal(with(arc_request(true), json!({"mode_count": 1, "state_case": "case:z"})))).err().unwrap();
-    assert_eq!(found.last().unwrap().code, MODAL_NONLINEAR_SUPPORT_INTERIM_UNSUPPORTED, "{found:#?}");
+    // I2b-2 retires the nonlinear interim refusal: a nonlinear model passes
+    // preparation, and its state case is judged by the same-run solve.
+    let request = modal(with(arc_request(true), json!({"mode_count": 1, "state_case": "case:z"})));
+    let prepared = prepared(&request);
+    assert_eq!(prepared.built.nonlinear_supports.len(), 1);
+    assert_eq!(prepared.bound_case.as_ref().unwrap().case_id, "case:z");
     let mut timoshenko = pf_request(false);
     timoshenko["model"]["model_settings"] = json!({"shear_model": "timoshenko_annulus_energy_v1"});
     timoshenko["model"]["materials"][0]["poisson_ratio"] = q(0.25, "1");

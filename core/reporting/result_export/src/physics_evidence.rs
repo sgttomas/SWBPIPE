@@ -241,6 +241,16 @@ fn case_basis(row: &Value) -> Result<&str, String> {
     )?;
     text(&b["ref_id"])
 }
+/// `case_basis(row).ok()` without forming the refusal text: the same reads in
+/// the same order, for a caller that would discard the refusal.
+fn case_basis_ok(row: &Value) -> Option<&str> {
+    let b = &row["basis_ref"];
+    if keys(b, &["ref_type", "ref_id"]) && b["ref_type"] == "load_case" {
+        b["ref_id"].as_str().filter(|s| !s.is_empty())
+    } else {
+        None
+    }
+}
 /// A row's load case, which must be one of the evidence's exact cases.
 fn row_case<'a>(row: &'a Value, cases: &HashMap<&str, &Value>) -> Result<&'a str, String> {
     let case = case_basis(row)?;
@@ -916,6 +926,20 @@ pub(crate) fn validate_physics_evidence_in(
             "SUPPORT_COMPONENT_COVERAGE",
         )?;
     }
+    // RT-U4: the published pipe rows by (case, entity), in one pass, with the
+    // region binding's predicate (a row whose case basis does not read is no
+    // case's; `case_basis_ok` forms no refusal text). No refusal: a row's own
+    // checks are the loops above. Each row adds one to one count, so every
+    // count, and any sum over distinct keys, is at most `rows.len()`. The keys
+    // are (case, member) pairs: a pipe row's case and member resolved above.
+    let mut pipe_rows: HashMap<(&str, &str), usize> = HashMap::new();
+    for row in rows.values() {
+        if let Some(case) = case_basis_ok(row) {
+            if pipe_kind(row["kind"].as_str().unwrap_or("")) {
+                *pipe_rows.entry((case, row["entity_ref"].as_str().unwrap_or(""))).or_insert(0) += 1;
+            }
+        }
+    }
     let mut regions = HashMap::new();
     let mut owned_members = HashSet::new();
     let mut bound_results = HashSet::new();
@@ -1089,17 +1113,22 @@ pub(crate) fn validate_physics_evidence_in(
         if !arcs.is_empty() {
             crate::arc_evidence::region(region, &arcs, p)?;
         }
+        // The region's ids are exactly the published pipe rows of its case and
+        // members: each id names such a row (so `actual` is a subset of them;
+        // both are sets), and there are as many ids as such rows (each row
+        // counted once above, under its one (case, entity)).
         let actual = strings(&region["result_ids"])?;
-        let expected: HashSet<_> = rows
-            .iter()
-            .filter(|(_, row)| {
+        let bound = actual.iter().all(|id| {
+            rows.get(id).is_some_and(|row| {
                 case_basis(row).ok() == Some(case)
                     && members.contains(row["entity_ref"].as_str().unwrap_or(""))
                     && pipe_kind(row["kind"].as_str().unwrap_or(""))
             })
-            .map(|(id, _)| *id)
-            .collect();
-        require(actual == expected, "REGION_RESULT_BINDING")?;
+        });
+        let expected = members.iter().try_fold(0usize, |n, member| {
+            n.checked_add(pipe_rows.get(&(case, *member)).copied().unwrap_or(0))
+        });
+        require(bound && expected == Some(actual.len()), "REGION_RESULT_BINDING")?;
         for id in array(&region["result_ids"])? {
             require(bound_results.insert(text(id)?), "REGION_RESULT_DUPLICATE")?;
         }
@@ -1803,3 +1832,7 @@ mod static_field_slice_tests {
         println!("static_field_backing={}",json!({"material":size_of_val(MATERIAL_KEYS),"resolved_material":size_of_val(RESOLVED_MATERIAL_KEYS),"evidence":size_of_val(EVIDENCE_KEYS),"resolved_evidence":size_of_val(RESOLVED_EVIDENCE_KEYS),"str_reference":size_of::<&str>(),"slice_reference":size_of::<&[&str]>()}));
     }
 }
+
+#[cfg(test)]
+#[path = "case_basis_ok_tests.rs"]
+mod case_basis_ok_tests;

@@ -15,7 +15,11 @@
 //   solve job (`solve_jobs.rs`, `solve_worker.rs`, outside their tests, and the
 //   `start_preview_mechanics_job` command in lib.rs);
 // - reader verdicts: the code literals of `reader_verdict.rs` and `physics_evidence.rs` (the latter's
-//   `require(…, "X")` checks publish `SOURCE_PHYSICS_X`), outside their tests;
+//   `require(…, "X")` checks publish `SOURCE_PHYSICS_X`), outside their tests; and the U4b checks of
+//   `u4b_evidence.rs`, shared by both ordinary readers: only the code arguments of its
+//   `route.fail("X")` and `route.require(…, "X")`, each published as `SOURCE_PHYSICS_X` and
+//   `SOURCE_PREVIEW_PHYSICS_X` (`Route::fail`), and none of its other literals (row kinds, tokens
+//   and the producer's diagnostic codes it reads);
 // - the four reason codes `previewService.ts` records when registration does not happen.
 // Comments are removed first. A code is UPPER_SNAKE or UPPER-KEBAB with at least two segments of two or more characters,
 // immediately followed in its literal by `:`, a quote or white space.
@@ -44,6 +48,8 @@ const SOLVE_PATH_TS = [
 ];
 const SOLVE_PATH_RUST = ["apps/desktop/src-tauri/src/solve_jobs.rs", "apps/desktop/src-tauri/src/solve_worker.rs"];
 const READER_RUST = ["core/reporting/result_export/src/reader_verdict.rs", "core/reporting/result_export/src/physics_evidence.rs"];
+const ROUTE_RUST = "core/reporting/result_export/src/u4b_evidence.rs";
+const ROUTE_PREFIXES = ["SOURCE_PHYSICS_", "SOURCE_PREVIEW_PHYSICS_"];
 export const LOCAL_REASONS = ["CAPTURE_UNAVAILABLE", "CAPTURE_MISMATCH", "CHANGED_DURING_VALIDATION", "UNCODED_REFUSAL"];
 
 // Comments are not sources of codes (they name decisions, deliverables and constants).
@@ -73,6 +79,13 @@ export function extractSolveTimelineCodes() {
     const checks = new Set([...text.matchAll(/require\([^;]*?,\s*"([A-Z][A-Z0-9_]+)"\s*\)/gs)].map((match) => match[1]));
     return [...codesIn(text).filter((code) => !checks.has(code)), ...[...checks].map((check) => `SOURCE_PHYSICS_${check}`)];
   });
+  const routed = outsideTests(read(ROUTE_RUST));
+  const routeChecks = [
+    ...routed.matchAll(/route\.fail\(\s*"([A-Z][A-Z0-9_]+)"\s*\)/g),
+    ...routed.matchAll(/route\.require\([^;]*?,\s*"([A-Z][A-Z0-9_]+)"\s*,?\s*\)/gs)
+  ].map((match) => match[1]);
+  if (routeChecks.length === 0) throw new Error("solveTimelineCodes: u4b_evidence.rs: no route checks found");
+  reader.push(...routeChecks.flatMap((check) => ROUTE_PREFIXES.map((prefix) => `${prefix}${check}`)));
   return { solvePath: sorted(solvePath), reader: sorted(reader), local: [...LOCAL_REASONS] };
 }
 
@@ -87,7 +100,7 @@ export const SOLVE_PATH_CODES: readonly string[] = [
 ${list(solvePath)}
 ];
 
-/** Reader verdict codes (reader_verdict.rs, physics_evidence.rs). */
+/** Reader verdict codes (reader_verdict.rs, physics_evidence.rs, u4b_evidence.rs's route checks). */
 export const READER_VERDICT_CODES: readonly string[] = [
 ${list(reader)}
 ];

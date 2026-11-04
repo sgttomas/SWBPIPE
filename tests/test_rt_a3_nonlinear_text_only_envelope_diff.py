@@ -1,6 +1,7 @@
 """RT-A3 increment 4 regenerates current producer fixtures, never numerical references.
 
-The preserved endpoint is RT-A4's, integrated main bbf384dec (#98);
+The preserved endpoint is main aa794eb68 (#98 RT-A4, then #102 and #97, which change no carrier: every
+carrier in this scope is byte-identical to RT-A4's merge bbf384dec);
 test_rt_a3_constant_effort_text_only_envelope_diff keeps the constant-effort stage's
 proof frozen at its own endpoint. This stage restates producer texts (DEL-04-07
 `pressure-contract.md`, "Nonlinear supports on EX (RT-A3 increment 4)", Disclosure):
@@ -51,7 +52,7 @@ from tests.test_rt_a3_reducer_2b_text_only_envelope_diff import _matches
 from tests import test_rt_a3_constant_effort_text_only_envelope_diff as ce
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE = "bbf384dec4b320b88ecdbfece96e0ae5cc8c9205"
+BASE = "aa794eb68cd9af3ce821430138685ab3d0d80508"
 
 CE_TAIL = "(SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED)"
 NL_CLAUSE = (

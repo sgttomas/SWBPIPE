@@ -1127,6 +1127,34 @@ on its route, independently of the producer. The verifier shares no code with it
 | `connector_tie_rod_force_v1` | One row per authored rod, bound to its `tie_rods` entry by row id. Finite and in N. The value is not rederived from the published displacements. The published displacements are the corrected displacement rounded once to binary64, or the solve's own where no member bound exists, while the certified T_r is formed from the unrounded corrected displacement, so an exact relation does not hold between them. This is the existing connector practice for g. |
 | `s_x` | \|s_x − Σ\| ≤ (64 + n_r)ε(\|g_x\| + \|Pe\| + Σ\|t_r·axial_share\|) + (n_r + 2)·2^-1074. Σ = g_x − Pe + Σ_r RN(t_r·axial_share_r) is accumulated exactly, rounded once: `ExactAccumulator` in Rust, exact rationals in the verifier. So the reader adds no addition error for any rod count. The (64 + n_r)ε coefficient covers the producer's at-p rounding and the n_r rounded published products, so no rod cap is needed. This extends today's rule, 64ε\|g\| + 64ε\|Pe\| plus a least-subnormal reserve (`connector_evidence.rs` around :271–280 and :345), to the rod terms. Pe is the published `pe_x`, or 0 on an unpressurized connector. The rule applies to every connector with rods or a constant-effective-area model. The current `UNPRESSURIZED_ROWS` rule, which forbids s_x on an unpressurized connector (around :336–339), becomes keyed on hardware: s_x is required with rods and forbidden without them. Tests cover cancellation, subnormal edges, and a many-rod control (for example 1,024 parallel rods each contributing 2^-54 beside g_x = 1). |
 
+- **Shear operands** (RT-U4, 2026-11-03). τ's operands are read by their slot without the
+  component: (case, member, kind, location, section basis), the kind
+  `element_local_shear_force_y` or `_z`. The producer publishes one such row per slot (the
+  section row inside, the end-force row at an end). The readers consume only its value, as
+  binary64 (`as_f64`), absent when the row carries no number. Unit, basis token and component
+  are not consumed.
+  - Rows of one slot are *equivalent* when their values are the same binary64 bit for bit, or
+    when none carries a number. Equivalent rows are one operand. This admits nothing the old
+    reader refused: every row of the slot gives the same verdict.
+  - Otherwise the slot is *ambiguous*: two numbers that differ in any bit, including −0 beside
+    +0, or a number beside a null, a non-numeric or an absent value. A non-finite value
+    cannot reach the Rust reader: `serde_json` refuses an out-of-range literal. The Python
+    verifier, whose parser accepts one, treats it as a number with its own bits. The reader
+    refuses an ambiguous slot by name: `SOURCE_PHYSICS_SHEAR_OPERAND_AMBIGUOUS` on pressure-2
+    and `SOURCE_PREVIEW_PHYSICS_SHEAR_OPERAND_AMBIGUOUS` on preview-physics-2. It names no
+    winner.
+  - The check runs when the row index is built (`u4b_evidence::Index::new`; the verifier's
+    `u4b.Rows`). It covers every case-scoped slot of the two kinds, so it does not depend on
+    which members a reader visits or in what order. It runs after the index's own
+    `ROW_SLOT_DUPLICATE` refusal and before any station check. The directional model
+    checks read no shear operand and build the row index alone (`Index::rows_only`). The verdict is the same in
+    every row order, hash seed and process.
+  - *Repaired defect.* Until this change, an ambiguous slot was read as its first row in the
+    index's `HashMap` iteration order (Rust; random per process) or in source order (Python).
+    The verdict on such a source therefore depended on the seed. That was a defect, not
+    contract. Valid producers never publish such a slot. No committed corpus or fixture has
+    one, so no stored valid result reads differently. A stored result that does carry one now
+    reopens with the named refusal.
 - **Arc evidence.** `arc_evidence.rs` and `tests/verifiers/pressure_1.py` (renamed
   `pressure_2.py`) drop `withheld_on_arcs`. They require the two definition ids and the new
   rows' coverage. `physics_evidence` stops refusing the formerly withheld kinds on arcs.
