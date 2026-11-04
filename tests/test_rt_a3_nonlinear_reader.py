@@ -451,3 +451,85 @@ def test_inactive_residuals_support_nodes_and_standings_are_bound_by_both_reader
         set_quality(e, ("numerically_unresolved", "unresolved", "assembly_uncertainty", "unresolved"))
     # Limit (kd5 §2.4, preserved earlier reasons): a consistent non-Passed relabel of a non-gap case.
     assert forged(solved, "F1-P0-SLIDELOAD", unresolved) == (None, None)
+
+
+# -- combinations: #98's EX gate and decision OQ-1, consumed unchanged ----------------------------------------------
+GATE_CODE = "NONLINEAR_COMBINATION_REQUIRES_SOLVE"
+COMBINATION_GATE = "SOURCE_PHYSICS_COMBINATION_GATE"
+OQ1_SIGN = ("positive value follows explicit user linear combination of matching source result sign conventions; "
+            "a solved state plus derived differences or bounds; not an equilibrium state")
+
+
+def two_case_document(first: str, second: str, combinations) -> dict:
+    """The Rust binding's ``two_case_document``: ``first``'s model with ``first``'s and ``second``'s load cases."""
+    cases = {c["id"]: c for c in REFERENCES["cases"]}
+    doc, other = document(cases[first]), document(cases[second])
+    pair = []
+    for source, name in ((doc, first), (other, second)):
+        case = deepcopy(source["model"]["load_cases"][0])
+        case["id"] = f"case:{name}"
+        for load in case["primitive_loads"]:
+            load["id"] = f"{load['id']}:{name}"
+        pair.append(case)
+    doc["model"]["load_cases"] = pair
+    doc["model"]["combinations"] = combinations(f"case:{first}", f"case:{second}")
+    return doc
+
+
+def comb(cid: str, basis: str, *terms) -> dict:
+    return {"id": cid, "basis": basis, "provenance": PROVENANCE,
+            "terms": [{"load_case" if kind == "case" else "combination": operand, "factor": factor} for kind, operand, factor in terms]}
+
+
+def gate(envelope: dict, cid: str) -> dict:
+    return next(r for r in envelope["contract_evidence"]["exact_combinations"] if r["combination_id"] == cid)["gate"]
+
+
+def combination_rows(envelope: dict, cid: str) -> list:
+    return [r for r in envelope["results"] if r.get("basis_ref") == {"ref_type": "combination", "ref_id": cid}
+            and r["kind"] != "combination_modulus_basis_record"]
+
+
+def test_flat_mechanics_combinations_are_withheld_and_oq1_is_admitted_by_both_readers():
+    """EX's ``NONLINEAR_COMBINATION_REQUIRES_SOLVE`` (#98) on an admitted nonlinear model: every flat mechanics
+    combination (the singleton included) is withheld; decision OQ-1's one solved case at factor exactly 1 plus
+    κ-zero combinations is admitted and nothing broader. Both readers admit the envelope with and without its model
+    and refuse the same forged gates by the same code."""
+    def combinations(s: str, o: str) -> list:
+        return [
+            {"id": "D", "basis": "result_state_subtraction", "minuend_id": o, "subtrahend_id": s, "provenance": PROVENANCE},
+            comb("E", "srss", ("comb", "D", 1.0)),
+            comb("occ", "mechanics", ("case", s, 1.0), ("comb", "E", 1.0)),
+            comb("occ-minus", "mechanics", ("comb", "E", -1.0), ("case", s, 1.0), ("comb", "D", 0.5)),
+            comb("factor", "mechanics", ("case", s, 1.5), ("comb", "E", 1.0)),
+            comb("two-cases", "mechanics", ("case", s, 1.0), ("case", o, 1.0), ("comb", "E", 1.0)),
+            {"id": "R", "basis": "range_envelope", "operand_ids": [s, o], "mode": "max_abs", "provenance": PROVENANCE},
+            comb("kappa-one", "mechanics", ("case", s, 1.0), ("comb", "R", 1.0)),
+            comb("srss-case", "srss", ("case", o, 1.0)),
+            comb("undefined", "mechanics", ("case", s, 1.0), ("comb", "srss-case", 1.0)),
+            comb("singleton", "mechanics", ("case", s, 1.0)),
+            comb("flat", "mechanics", ("case", s, 1.0), ("case", o, 1.0)),
+            comb("half", "mechanics", ("case", s, 0.5), ("case", o, 0.5)),
+            comb("abs", "absolute_sum", ("comb", "D", 1.0), ("case", o, 1.0)),
+        ]
+    doc = two_case_document("O1-LIFT", "O1-CONTACT", combinations)
+    admitted, withheld = {"withheld": False, "reason": None}, {"withheld": True, "reason": GATE_CODE}
+    for mode in MODES:
+        envelope = solve(doc, mode)
+        for cid in ("D", "E", "occ", "occ-minus", "R", "srss-case", "abs"):
+            assert gate(envelope, cid) == admitted, (mode, cid)
+        for cid in ("factor", "two-cases", "kappa-one", "undefined", "singleton", "flat", "half"):
+            assert gate(envelope, cid) == withheld, (mode, cid)
+            assert combination_rows(envelope, cid) == [], (mode, cid)
+        for cid in ("occ", "occ-minus"):
+            rows = combination_rows(envelope, cid)
+            assert rows and all(r["metadata"]["sign_convention"] == OQ1_SIGN for r in rows), (mode, cid)
+        assert any(d["code"] == GATE_CODE for d in envelope["diagnostics"]), mode
+        assert codes(envelope, doc) == (None, None), mode
+        for cid, reason in (("occ", GATE_CODE), ("singleton", None), ("flat", None), ("half", None), ("factor", None),
+                            ("flat", "COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE"),
+                            ("flat", "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE")):
+            tampered = deepcopy(envelope)
+            next(r for r in tampered["contract_evidence"]["exact_combinations"] if r["combination_id"] == cid)["gate"] = \
+                {"withheld": reason is not None, "reason": reason}
+            assert codes(tampered, doc) == (COMBINATION_GATE, COMBINATION_GATE), (mode, cid, reason)

@@ -53,9 +53,10 @@
 //! limits pinned there (a consistently scaled contact; a non-Passed inactive
 //! reaction's magnitude, which no published record bounds).
 //!
-//! Combinations: the EX gate `NONLINEAR_COMBINATION_REQUIRES_SOLVE` and OQ-1
-//! are the load-case lane's (RT-A4). On this base EX has no such gate; the
-//! withholding assertion is held `#[ignore]`d until RT-A4 supplies it.
+//! Combinations: the EX gate `NONLINEAR_COMBINATION_REQUIRES_SOLVE` and decision
+//! OQ-1 are RT-A4's (#98), consumed unchanged: every flat mechanics combination
+//! of a nonlinear model is withheld, OQ-1's one solved case at factor 1 plus
+//! κ-zero combinations is admitted, and both readers refuse forged gates.
 
 use open_pipe_stress_product_physics::result_export::reader_verdict;
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode, MODEL_SCHEMA_VERSION};
@@ -77,6 +78,12 @@ const PASSED: &str = "NUMERICAL_INTEGRITY_CHECKS_PASSED";
 const NORMAL_NOT_ESTABLISHED: &str = "support support:FRICTION: friction normal not established";
 const FAMILY: &str = "EXACT_PRESSURE_FAMILY_NOT_ADMITTED";
 const GATE_CODE: &str = "NONLINEAR_COMBINATION_REQUIRES_SOLVE";
+/// The gate's text (PF's and EX's `gate_message`).
+const GATE_TEXT: &str = "Combination withheld: the model has nonlinear supports, so superposing case states is not a solved state.";
+/// The readers' refusal of a gate that is not the one they re-derive.
+const COMBINATION_GATE: &str = "SOURCE_PHYSICS_COMBINATION_GATE";
+/// Decision OQ-1's sign convention on an admitted combined row.
+const OQ1_SIGN: &str = "positive value follows explicit user linear combination of matching source result sign conventions; a solved state plus derived differences or bounds; not an equilibrium state";
 /// Cases the model format cannot state as the packet does (see the test).
 const INEXPRESSIBLE: [&str; 1] = ["G1-P0"];
 const LAME: [(&str, &str, &str); 4] = [
@@ -1215,22 +1222,31 @@ fn s6_contexts_keep_the_named_family_refusal() {
 }
 
 /// Every flat mechanics combination of these nonlinear models (the singleton
-/// included) is withheld on EX with `NONLINEAR_COMBINATION_REQUIRES_SOLVE`.
-/// Pending RT-A4 (the load-case lane's EX gate and OQ-1): on this base EX has
-/// no such gate, so the assertion is held; run with `--ignored` to see it.
+/// included) is withheld on EX with `NONLINEAR_COMBINATION_REQUIRES_SOLVE`, in
+/// both solver modes, with the gate's text and no combined row (#98's gate,
+/// `exact_combinations::gate_reason`, absolute-sum-srss §5.2); both readers
+/// admit each envelope with and without its model.
 #[test]
-#[ignore = "pending RT-A4: EX has no NONLINEAR_COMBINATION_REQUIRES_SOLVE gate on this base"]
 fn flat_mechanics_combinations_of_nonlinear_models_are_withheld() {
-    for (envelope, ids) in flat_combination_envelopes() {
-        for id in ids {
-            let record = envelope["contract_evidence"]["exact_combinations"].as_array().unwrap().iter().find(|r| r["combination_id"] == id).unwrap();
-            assert_eq!(record["gate"], json!({"withheld": true, "reason": GATE_CODE}), "{id}");
+    for mode in MODES {
+        for (document, envelope, ids) in flat_combination_envelopes(mode) {
+            for id in &ids {
+                let record = envelope["contract_evidence"]["exact_combinations"].as_array().unwrap().iter().find(|r| r["combination_id"] == *id).unwrap();
+                assert_eq!(record["gate"], json!({"withheld": true, "reason": GATE_CODE}), "{mode:?} {id}");
+                assert!(combination_rows(&envelope, id).is_empty(), "{mode:?} {id}: a withheld combination publishes no row");
+            }
+            let gated = with_code(&envelope, GATE_CODE);
+            assert!(!gated.is_empty(), "{mode:?}: {:#?}", envelope["diagnostics"]);
+            for diagnostic in gated {
+                assert!(diagnostic["message"].as_str().unwrap().contains(GATE_TEXT), "{mode:?}: {diagnostic}");
+            }
+            assert_reader_ok(&envelope, &document, &format!("{mode:?} {ids:?}"));
         }
     }
 }
 
 /// The README's withheld examples as two-case documents of one model each.
-fn flat_combination_envelopes() -> Vec<(Value, Vec<String>)> {
+fn flat_combination_envelopes(mode: PreviewSolverMode) -> Vec<(Value, Value, Vec<String>)> {
     let references = references();
     let mut out = Vec::new();
     for (first, second, terms) in [
@@ -1238,44 +1254,110 @@ fn flat_combination_envelopes() -> Vec<(Value, Vec<String>)> {
         ("F1-SLIDE", "F1-P0-SLIDELOAD", vec![("combination:f-sum", vec![(0, 1.0), (1, 1.0)])]),
         ("O1-LIFT", "O1-CONTACT", vec![("combination:o-unit", vec![(0, 0.3), (1, 0.7)])]),
     ] {
-        let mut document = document(&references, case(&references, first));
-        let other = document_for_case(&references, second);
-        let mut a = document["model"]["load_cases"][0].clone();
-        let mut b = other["model"]["load_cases"][0].clone();
-        a["id"] = json!(format!("case:{first}"));
-        b["id"] = json!(format!("case:{second}"));
-        for (c, name) in [(&mut a, first), (&mut b, second)] {
-            for load in c["primitive_loads"].as_array_mut().unwrap() {
-                load["id"] = json!(format!("{}:{name}", load["id"].as_str().unwrap()));
-            }
-        }
-        let names = [format!("case:{first}"), format!("case:{second}")];
-        document["model"]["load_cases"] = json!([a, b]);
+        let (mut document, names) = two_case_document(&references, first, second);
         document["model"]["combinations"] = Value::Array(terms.iter().map(|(id, t)| json!({"id": id, "basis": "mechanics",
             "terms": t.iter().map(|(i, f)| json!({"load_case": names[*i], "factor": f})).collect::<Vec<_>>(), "provenance": PROVENANCE})).collect());
-        let envelope = solve(&document, PreviewSolverMode::DenseScrutiny);
+        let envelope = solve(&document, mode);
         assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{first}: {:#?}", envelope["diagnostics"]);
-        out.push((envelope, terms.iter().map(|(id, _)| id.to_string()).collect()));
+        out.push((document, envelope, terms.iter().map(|(id, _)| id.to_string()).collect()));
     }
     out
 }
 
-fn document_for_case(references: &Value, id: &str) -> Value {
-    document(references, case(references, id))
+/// The model of `first` with two load cases, `first`'s and `second`'s, renamed
+/// `case:{first}` and `case:{second}` (their loads' ids qualified by the case).
+fn two_case_document(references: &Value, first: &str, second: &str) -> (Value, [String; 2]) {
+    let mut document = document(references, case(references, first));
+    let other = document_for_case(references, second);
+    let mut a = document["model"]["load_cases"][0].clone();
+    let mut b = other["model"]["load_cases"][0].clone();
+    a["id"] = json!(format!("case:{first}"));
+    b["id"] = json!(format!("case:{second}"));
+    for (c, name) in [(&mut a, first), (&mut b, second)] {
+        for load in c["primitive_loads"].as_array_mut().unwrap() {
+            load["id"] = json!(format!("{}:{name}", load["id"].as_str().unwrap()));
+        }
+    }
+    document["model"]["load_cases"] = json!([a, b]);
+    (document, [format!("case:{first}"), format!("case:{second}")])
 }
 
-/// What EX does today with those combinations (recorded, not endorsed): the
-/// state of the seam RT-A4 owns.
+fn combination_rows<'a>(envelope: &'a Value, id: &str) -> Vec<&'a Value> {
+    envelope["results"].as_array().unwrap().iter()
+        .filter(|r| r["basis_ref"]["ref_type"] == "combination" && r["basis_ref"]["ref_id"] == id && r["kind"] != "combination_modulus_basis_record")
+        .collect()
+}
+
+fn exact_gate(envelope: &Value, id: &str) -> Value {
+    envelope["contract_evidence"]["exact_combinations"].as_array().unwrap().iter()
+        .find(|r| r["combination_id"] == id).unwrap_or_else(|| panic!("no record {id}"))["gate"].clone()
+}
+
+/// Decision OQ-1 on EX (absolute-sum-srss §5.2, #98's
+/// `combination_plan::Plan::solved_state_plus_increments`, unchanged): in a model
+/// with nonlinear supports a mechanics combination is admitted exactly when it is
+/// one solved load case at factor exactly 1 plus at least one combination whose
+/// fixed-load count κ is exactly 0. Nothing broader superposes: a factor other
+/// than 1, two load cases, a κ = 1 or undefined operand, the singleton and the
+/// flat sum are withheld with `NONLINEAR_COMBINATION_REQUIRES_SOLVE`. Subtractions,
+/// SRSS, absolute sums and range envelopes are not mechanics combinations and are
+/// not gated by it. The admitted rows state OQ-1's sign convention; both readers
+/// admit the envelope with and without its model and refuse each forged gate.
 #[test]
-#[ignore = "observation for the RT-A4 seam; prints the current EX combination records"]
-fn observe_flat_mechanics_combinations_on_this_base() {
-    for (envelope, ids) in flat_combination_envelopes() {
-        for id in ids {
-            let record = envelope["contract_evidence"]["exact_combinations"].as_array().unwrap().iter().find(|r| r["combination_id"] == id).cloned();
-            println!("{id}: gate {}", record.map_or(json!("no record"), |r| r["gate"].clone()));
+fn oq1_admits_one_solved_case_plus_kappa_zero_combinations_on_ex() {
+    let references = references();
+    let (mut document, [s, o]) = two_case_document(&references, "O1-LIFT", "O1-CONTACT");
+    let comb = |id: &str, basis: &str, terms: &[(&str, &str, f64)]| json!({"id": id, "basis": basis, "provenance": PROVENANCE,
+        "terms": terms.iter().map(|(kind, operand, factor)| if *kind == "case" { json!({"load_case": operand, "factor": factor}) }
+            else { json!({"combination": operand, "factor": factor}) }).collect::<Vec<_>>()});
+    document["model"]["combinations"] = json!([
+        {"id": "D", "basis": "result_state_subtraction", "minuend_id": o, "subtrahend_id": s, "provenance": PROVENANCE},
+        comb("E", "srss", &[("comb", "D", 1.0)]),
+        comb("occ", "mechanics", &[("case", &s, 1.0), ("comb", "E", 1.0)]),
+        comb("occ-minus", "mechanics", &[("comb", "E", -1.0), ("case", &s, 1.0), ("comb", "D", 0.5)]),
+        comb("factor", "mechanics", &[("case", &s, 1.5), ("comb", "E", 1.0)]),
+        comb("two-cases", "mechanics", &[("case", &s, 1.0), ("case", &o, 1.0), ("comb", "E", 1.0)]),
+        {"id": "R", "basis": "range_envelope", "operand_ids": [s, o], "mode": "max_abs", "provenance": PROVENANCE},
+        comb("kappa-one", "mechanics", &[("case", &s, 1.0), ("comb", "R", 1.0)]),
+        comb("srss-case", "srss", &[("case", &o, 1.0)]),
+        comb("undefined", "mechanics", &[("case", &s, 1.0), ("comb", "srss-case", 1.0)]),
+        comb("singleton", "mechanics", &[("case", &s, 1.0)]),
+        comb("flat", "mechanics", &[("case", &s, 1.0), ("case", &o, 1.0)]),
+        comb("abs", "absolute_sum", &[("comb", "D", 1.0), ("case", &o, 1.0)]),
+    ]);
+    let admitted = json!({"withheld": false, "reason": null});
+    let withheld = json!({"withheld": true, "reason": GATE_CODE});
+    for mode in MODES {
+        let envelope = solve(&document, mode);
+        assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{mode:?}: {:#?}", envelope["diagnostics"]);
+        for id in ["D", "E", "occ", "occ-minus", "R", "srss-case", "abs"] {
+            assert_eq!(exact_gate(&envelope, id), admitted, "{mode:?} {id}");
         }
-        let gated = with_code(&envelope, GATE_CODE);
-        println!("{GATE_CODE} diagnostics: {}", gated.len());
+        for id in ["factor", "two-cases", "kappa-one", "undefined", "singleton", "flat"] {
+            assert_eq!(exact_gate(&envelope, id), withheld, "{mode:?} {id}");
+            assert!(combination_rows(&envelope, id).is_empty(), "{mode:?} {id}");
+        }
+        for id in ["occ", "occ-minus"] {
+            let rows = combination_rows(&envelope, id);
+            assert!(!rows.is_empty(), "{mode:?} {id}");
+            for row in rows {
+                assert_eq!(row["metadata"]["sign_convention"], OQ1_SIGN, "{mode:?} {id}: {row}");
+            }
+        }
+        assert_reader_ok(&envelope, &document, &format!("OQ-1 {mode:?}"));
+        // Forged gates: an admitted OQ-1 combination stated withheld, a withheld one
+        // stated admitted, and the nonlinear reason swapped for gate 3's and gate 4's.
+        for (id, reason) in [("occ", Some(GATE_CODE)), ("singleton", None), ("flat", None), ("factor", None),
+            ("flat", Some("COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE")), ("flat", Some("CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE"))] {
+            let mut forged = envelope.clone();
+            let record = forged["contract_evidence"]["exact_combinations"].as_array_mut().unwrap().iter_mut().find(|r| r["combination_id"] == id).unwrap();
+            record["gate"] = json!({"withheld": reason.is_some(), "reason": reason});
+            let refused = Some(COMBINATION_GATE.to_string());
+            assert_eq!(reader_codes(&forged, &document), (refused.clone(), refused), "{mode:?} {id} forged {reason:?}");
+        }
     }
+}
+fn document_for_case(references: &Value, id: &str) -> Value {
+    document(references, case(references, id))
 }
 

@@ -985,8 +985,8 @@ one realized bend (O-1).
   - the loop's own connector refusal.
 - *The retained sub-route:* source recovery stays ineligible for nonlinear
   cases (§2.4, D1 unchanged).
-- *`difference_basis` on EX:* stays refused. Its S5 lift belongs to the
-  combination seam (below).
+- *`difference_basis` on EX:* stays refused (`document_members.rs`). Its S5
+  lift belongs to the load-case lane's combination seam.
 
 **Standings.** Each is published identically in both solver modes.
 - Gap-bearing cases take R1's unqualified branch:
@@ -1326,6 +1326,40 @@ twins are refused by name (`EXACT_PRESSURE_FAMILY_NOT_ADMITTED`) on the
 geometry-only bend `component:C-110` (D-2; S6's inventory) and the terminal
 `component:C-140`. This is pinned, not adapted.
 
+**Combinations (RT-A4's gate consumed).** RT-A4 (#98, merged at `bbf384dec`)
+supplies EX's `NONLINEAR_COMBINATION_REQUIRES_SOLVE` and decision OQ-1
+(DEL-05-02 `absolute-sum-srss-combinations.md` §5.2), which this increment
+consumes unchanged: `exact_combinations::gate_reason` withholds a `mechanics`
+combination of a model with a nonlinear support unless
+`combination_plan::Plan::solved_state_plus_increments` admits it, that is, one
+load case at factor exactly 1 plus at least one combination whose fixed-load
+count κ is exactly 0. No broader nonlinear superposition is admitted. The
+nonlinear gate is checked before the modulus and stiffness gates, as on PF;
+gate 3 (installed reference) still precedes gate 4 (constant effort), each
+under its own codes. The readers re-derive the gate from the published state
+rows (`exact_combination_evidence.rs` and `tests/verifiers/exact_combinations.py`,
+the graph's mirror of the same predicate). The held assertion is now run:
+- `rt_a3_nonlinear_references.rs`
+  `flat_mechanics_combinations_of_nonlinear_models_are_withheld` (both modes):
+  the README's flat examples, the singleton included, are withheld with the
+  gate's text and publish no combined row; the reader admits each envelope
+  with and without its model;
+- `oq1_admits_one_solved_case_plus_kappa_zero_combinations_on_ex` (both
+  modes, O1-LIFT and O1-CONTACT as two cases): `S + srss(O − S)` and
+  `−srss(O − S) + S + ½(O − S)` are admitted with OQ-1's sign convention; a
+  factor 1.5, two load cases, a κ = 1 range operand, an undefined-κ SRSS
+  operand, the singleton and the flat sum are withheld; subtraction, SRSS,
+  absolute sum and range envelope are not gated. The reader refuses
+  (`SOURCE_PHYSICS_COMBINATION_GATE`, with and without the model) the OQ-1
+  combination stated withheld, the singleton, flat, half-sum and factor-1.5
+  combinations stated admitted, and the flat sum's reason swapped for gate 3's
+  or gate 4's;
+- the Python mirror,
+  `tests/test_rt_a3_nonlinear_reader.py`
+  `test_flat_mechanics_combinations_are_withheld_and_oq1_is_admitted_by_both_readers`,
+  solves the same document through the runner and requires the Rust and
+  Python readers to give the same code for each envelope and tamper.
+
 **Pending.**
 - *The v3 identity and limitation texts* (held for sequenced integration):
   - the "Admitted families" sentence;
@@ -1334,12 +1368,6 @@ geometry-only bend `component:C-110` (D-2; S6's inventory) and the terminal
   - the gap-standing sentence.
 
   Their copies and the pressure-2 table move with them.
-- *Combinations, OQ-1 and κ:* the load-case lane's RT-A4 implements EX's
-  `NONLINEAR_COMBINATION_REQUIRES_SOLVE` gate and OQ-1 with both readers. On
-  this base EX still forms every flat mechanics combination of a nonlinear
-  model, singleton included (`withheld: false`). This increment must
-  therefore not integrate ahead of that gate. The binding holds the
-  withholding assertion `#[ignore]`d until RT-A4 lands.
 - *Shared-loop hunks:* none were needed. No `LoadCaseSolve` construction or
   early return was added.
 - *Pricing* of the changed static chain (`pressure_runtime.rs`,
