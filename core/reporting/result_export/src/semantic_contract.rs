@@ -702,16 +702,6 @@ fn current_header(source: &Value) -> Result<(&'static Value, &'static str), Stri
 /// Raw dispatch validates the selected physical contract, never inferring it
 /// from a profile name or a numerical/accuracy label.
 pub fn for_source(source: &Value) -> Result<(&'static Value, &'static str), String> {
-    for_source_given(source, None)
-}
-/// RT-U4 (single pass): [`for_source`], given pressure-2's evidence verdict
-/// (`validate_pressure_evidence`'s) by a caller that read it for this source
-/// (`reader_verdict::standing`, whose pressure route reads it once for its token
-/// and its findings). `None` reads it here. Only a pressure-2 source consults it.
-pub(crate) fn for_source_given(
-    source: &Value,
-    pressure: Option<&Result<(), String>>,
-) -> Result<(&'static Value, &'static str), String> {
     if is_retained(source) {
         // The accepted reader, G0-G7 without an invocation. Its G7 runs this
         // function's unchanged base branch on its own projection, which drops
@@ -723,10 +713,7 @@ pub(crate) fn for_source_given(
     forbid_retained_rows(source)?;
     match source["producer"]["semantic_contract_id"].as_str() {
         Some(PREVIEW_PHYSICS_ID | PREVIEW_PHYSICS_TIMOSHENKO_ID) => validate_preview_physics_evidence(source)?,
-        Some(PRESSURE_ID) => match pressure {
-            Some(verdict) => verdict.clone()?,
-            None => validate_pressure_evidence(source)?,
-        },
+        Some(PRESSURE_ID) => validate_pressure_evidence(source)?,
         Some(PRESSURE_SOURCE_ID) => {
             crate::physics_source::validate_in(source, None, crate::physics_source::SourceContract::PressureV3)?;
         }
@@ -741,6 +728,21 @@ pub(crate) fn for_source_given(
             }
         }
     }
+    Ok(selected)
+}
+/// RT-U4 (single pass): [`for_source`] of a source whose pressure-2 evidence
+/// verdict (`validate_pressure_evidence`'s) its caller has read
+/// (`reader_verdict::standing`, whose pressure route reads it once for its token
+/// and its findings): `for_source`'s steps for that identity, the verdict in
+/// place of the reader's call. A change to those steps is a change to both. Any
+/// other source reads as `for_source`.
+fn for_source_given(source: &Value, verdict: &Result<(), String>) -> Result<(&'static Value, &'static str), String> {
+    if is_retained(source) || source["producer"]["semantic_contract_id"] != PRESSURE_ID {
+        return for_source(source);
+    }
+    let selected = for_source_metadata(source)?;
+    forbid_retained_rows(source)?;
+    verdict.clone()?;
     Ok(selected)
 }
 pub use crate::physics_evidence::{validate_pressure_evidence, PressureContract};
@@ -977,7 +979,7 @@ pub fn numerical_use_standing_with_context(
     numerical_use_standing_given(source, requested_basis_refs, actual_invocation, None)
 }
 /// RT-U4 (single pass): [`numerical_use_standing_with_context`], given
-/// pressure-2's evidence verdict as [`for_source_given`] is.
+/// pressure-2's evidence verdict (`for_source_given`); `None` reads `for_source`.
 pub(crate) fn numerical_use_standing_given(
     source: &Value,
     requested_basis_refs: &[Value],
@@ -988,7 +990,11 @@ pub(crate) fn numerical_use_standing_given(
         // Validated once, with the invocation; G7 includes the base dispatch.
         return retained_standing(source, requested_basis_refs, actual_invocation);
     }
-    let Ok((_, version)) = for_source_given(source, pressure) else {
+    let selected = match pressure {
+        Some(verdict) => for_source_given(source, verdict),
+        None => for_source(source),
+    };
+    let Ok((_, version)) = selected else {
         return "unsupported";
     };
     // T0R (A2 item 10): validate first. (B1 and B4/D1 (b) refuse precision-1

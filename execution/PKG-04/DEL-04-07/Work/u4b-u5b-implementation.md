@@ -1201,9 +1201,11 @@ on its route, independently of the producer. The verifier shares no code with it
     Pass or refuse did not depend on the seed.
 - **One evidence pass per dispatch** (RT-U4 repair B, 2026-11-03). On the pressure route,
   `reader_verdict::standing` reads `validate_pressure_evidence` once and gives the verdict to
-  both of its uses: the token's `for_source` (`semantic_contract::numerical_use_standing_given`)
-  and the findings' reader outcome (`pressure_outcome`, which `validate("pressure")` also
-  uses). Before, each use ran the same model-free pass. The two orders above make the pass a
+  both of its uses: the token (`semantic_contract::numerical_use_standing_given`, whose
+  `for_source_given` repeats `for_source`'s pressure-2 steps with the verdict in place of the
+  reader's call) and the findings' reader outcome (`pressure_outcome`, which
+  `validate("pressure")` also uses). Before, each use ran the same model-free pass.
+  `for_source` itself is unchanged; the retained route's pricing rules key its body. The two orders above make the pass a
   function of the source alone, so the outcome is unchanged on every input. Every other route,
   preview physics included, keeps its reads, as do `numerical_use_standing_with_context`,
   `for_source` and `read pressure`. The verifier (`tests/verifiers/reader_verdict.py`) keeps
