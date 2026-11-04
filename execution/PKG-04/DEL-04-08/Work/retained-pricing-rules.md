@@ -4296,17 +4296,38 @@ accepted subject to final review.
 - The pricing-tool suite passes: `tools/retained_pricing/tests` and `tests/test_retained_pricing_tool.py`, 1,022 tests
   under the slot wrapper with `OPENPIPESTRESS_NO_CARGO_BUILD=1`; the tools are unchanged after the merge.
 
-**AC-004: pending.** Coefficients do not move, but the in-build record and the witness-path frames do. AC-004 needs
-the six stack witnesses on this head's binary, in the manager's exclusive window. No witness was run here. Preflight
-identities:
-- the registration's source head (named in the PR record, clean);
-- the lib-test binary `core/product_physics/target/debug/deps/open_pipe_stress_product_physics-67d011a2c0159c21`,
-  SHA-256 `ec3ad99ee4b62007c4216116b244639e385ec00c965f03fe23a9ae4555322df3`;
-- the challenge binary `retained_memory_challenge-dd453a5d84a29f20`, SHA-256
-  `586bf6c4adb48cfd627a3b98840f2953a6d1c1d7501e6f8c6bca513fafa63e7d`;
-- both binaries built under the slot wrapper (test profile, RUSTFLAGS unset), and a further `--no-run` reported them
-  fresh;
-- `Cargo.lock` `b7ebb02a…`.
+**AC-004: the six witnesses and the isolated challenge pass on this registration's binary (7/7).** Coefficients do
+not move, but the in-build record, `W1`/`MAX` and the witness-path frames do, so Agent 0 cleared one exclusive run of
+the six stack witnesses plus §8.40's isolated `retained_memory_challenge`, after the independent review cleared.
+- **Identities**, recorded before queueing and all re-verified at admission:
+  - head `362bdbec6a758138141ae4bba072827259d3a084`, clean;
+  - lib-test binary `open_pipe_stress_product_physics-67d011a2c0159c21`, SHA-256
+    `ec3ad99ee4b62007c4216116b244639e385ec00c965f03fe23a9ae4555322df3`;
+  - challenge binary `retained_memory_challenge-dd453a5d84a29f20`, SHA-256
+    `586bf6c4adb48cfd627a3b98840f2953a6d1c1d7501e6f8c6bca513fafa63e7d`, source `tests/retained_memory_challenge.rs`
+    `930d70dbea8411ade89576915bcd499dc42a001a678aec8527fb15d3b6ec7ec2`;
+  - profile `retained_memory.rs` `1f49c1d59fdbe04a74fb167345c2a3bda6ffd842d1c1822bfd8177afcbf11645`, product_physics
+    `Cargo.lock` `b7ebb02aafa8cfe214c18bc64941381b33ab3f9295e0fc774ee0819e1e4f5653`;
+  - rustc 1.97.1 (`8bab26f4f68e0e26f0bb7960be334d5b520ea452`, aarch64-apple-darwin, LLVM 22.1.6), RUSTFLAGS unset.
+  Both binaries were built beforehand under the slot wrapper (`cargo test --offline --no-run --lib --test
+  retained_memory_challenge`, test profile), and a second `--no-run` reported them fresh.
+- **Window.** One `t3_exclusive.sh` run with memguard: WAIT-EXCLUSIVE 2026-11-04T02:05:56Z, START-EXCLUSIVE 02:12:08Z
+  (admission verified at 02:12:09Z), END-EXCLUSIVE 02:12:21Z, rc 0. That is 13 s including teardown against 60 s; the
+  internal harness took 12.41 s against its 55 s deadline.
+- **Discipline.** Each test ran once in its own process, invoked directly from its prebuilt binary with `--exact
+  --test-threads=1` (`--ignored` for the witnesses). Nothing was compiled inside the window, and there was no retry
+  and no extra test.
+- **Results, all pass:**
+
+  | Test | Sparse | Dense |
+  |---|---|---|
+  | `witness_headroom_w1_at_one_mebibyte` | 0.67 s | 0.64 s |
+  | `witness_w2_deep_milestone_publishes` | 1.28 s | 1.29 s |
+  | `witness_w_c2_publishes` | 2.40 s | 2.42 s |
+  | `retained_direct_peak_is_within_the_profiles_bounds` (isolated challenge, both modes, one process) | 3.72 s | |
+
+- **Closure.** Afterwards `exclusive.pending` is absent, no harness, wrapper or test process of this run remains, and
+  both binary hashes are unchanged. Later commits on the PR change only this Work text and `deliverable.yaml`.
 
 Run evidence is in `/Users/ryan/dev/chirality-t3/scratch/rt-dynamics-final-basis/` and `…-final-merged/`, with the
 atom logs, the evaluation and the frame and owner-check scripts in `…-final-scripts/`. It is review input, not a
@@ -4335,7 +4356,7 @@ Two limits keep these bounds fail-closed rather than reachable at the census max
 
 ## 10. Reproducing a registered revision
 
-The committed tool's source pins hold one current value each, so the committed tool reproduces only the revision those pins bind (now §8.47's priced source, `a47a9ebf8`; §8.46's `fbd0931d5` and its registered successor `e8a59f1fd` are reproduced by `e8a59f1fd`'s tool cohort; §8.44's `e2dbc7b33` is reproduced by `01e05a486`'s tool cohort; main `6c3cb46d3` (§8.45), §8.42's `92a6f81ff`, §8.41's adopted source `4e1972698` and earlier mains are reproduced with their own tool cohorts); at an earlier revision a pin stops it (exit 4). §8.45's carried block (33 coefficients above the lexer's tree, none below) was reproduced by main `db3151708`'s complete tool cohort; §8.44 regenerates the block on the lexer, so `generate --check` of the committed tool's tree at `e2dbc7b33` with §8.44's basis line matches the registered block again. Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
+The committed tool's source pins hold one current value each, so the committed tool reproduces only the revision those pins bind (now §8.48's priced source, the merged head `a0220a641`, whose `core/` source is the registered binary's; §8.47's `a47a9ebf8` is reproduced by `41cf15b95`'s tool cohort; §8.46's `fbd0931d5` and its registered successor `e8a59f1fd` are reproduced by `e8a59f1fd`'s tool cohort; §8.44's `e2dbc7b33` is reproduced by `01e05a486`'s tool cohort; main `6c3cb46d3` (§8.45), §8.42's `92a6f81ff`, §8.41's adopted source `4e1972698` and earlier mains are reproduced with their own tool cohorts); at an earlier revision a pin stops it (exit 4). §8.45's carried block (33 coefficients above the lexer's tree, none below) was reproduced by main `db3151708`'s complete tool cohort; §8.44 regenerates the block on the lexer, so `generate --check` of the committed tool's tree at `e2dbc7b33` with §8.44's basis line matches the registered block again. Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
 
 The following are historical replay results, not procedures for the current tool. In their pre-W1 tool cohort, the replay restored the B7a/B7b source models (`base/b7a_*.py`, `lib/b7a_retired_carry.py`), `kd5_text_model.py`, `kd5_first_error_model.py`, `batch5_model.py`, the per-invocation pins in `o10_rules.py`, and C7's NumericCase pins in `prescribed_key_model.py`; source before batch 5 also used the original case consumer instead of the wrapper/helper pair.
 - **B7b at `837a04b770`.** With that historical cohort and its restored pins, the scratch tool priced `837a04b770` with exit 0, and `generate --check` of that tree matched the block committed at `e70c115764`. An earlier B7b revision stopped at a result_export pin (exit 4).
