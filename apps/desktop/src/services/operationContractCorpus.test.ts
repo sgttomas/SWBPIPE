@@ -338,18 +338,10 @@ describe("operation contract corpus — wasm engine lane (native↔wasm parity)"
 // browser lanes run every case through the adapter seam and the wasm engine directly, each
 // against the corpus's expected outcome.
 //
-// One case is a tracked known limitation, run as an expected failure (`it.fails`), never
-// excluded, normalized or filtered: `OP-DATA-UNCHANGED` compares serde values, which tell an
-// integer-form number (`20`, as every model reaches the engine through JS) from a float-form
-// one (`20.0`, as case s3a_14's `after` text is written). Natively both sides are float-form
-// and the edit is refused; through JS the unchanged record reads as changed and is applied.
-// The fix is the applier's (load-cases lane). WHEN IT LANDS: vitest reports this expected
-// failure as passing, which fails the run; remove `s3a_14_block_update_unchanged` from
-// KNOWN_LIMITATIONS so the case runs as a normal case.
-const KNOWN_LIMITATIONS: Readonly<Record<string, string>> = {
-  s3a_14_block_update_unchanged:
-    "s3a_14 — KNOWN LIMITATION pending the applier's numeric no-op fix (load-cases lane): OP-DATA-UNCHANGED compares 20 and 20.0 as different through JS"
-};
+// Every case runs as a normal case. Case s3a_14 writes its `after` with float-form numbers
+// (`20.0`) while the model reaches the engine through JS in integer form (`20`); since the
+// applier's numeric no-op fix (#112) both forms are one value, and the unchanged update is
+// refused in both lanes as the corpus expects.
 
 describe("condition-set contract corpus — browser-mode adapter and wasm engine lanes", () => {
   const conditionSetCorpus = JSON.parse(readFileSync(path.resolve(corpusDir, "..", "condition_set_contract_corpus.json"), "utf8")) as { cases: CorpusCase[] };
@@ -363,7 +355,7 @@ describe("condition-set contract corpus — browser-mode adapter and wasm engine
 
   // The desktop path: the forms write `after` with JSON.stringify, integer-form like the model
   // that reaches the engine through JS, and the unchanged update is refused as the corpus
-  // expects. This is a positive test of the desktop's own path, separate from the limitation.
+  // expects. This is a positive test of the desktop's own path.
   it("refuses s3a_14's unchanged update when its after text is written as the desktop writes it (JSON.stringify)", async () => {
     const corpusCase = cases.find((item) => item.case_id === "s3a_14_block_update_unchanged")!;
     const model = JSON.parse(JSON.stringify(corpusCase.base_model)) as PreviewModel;
@@ -374,9 +366,7 @@ describe("condition-set contract corpus — browser-mode adapter and wasm engine
   });
 
   for (const corpusCase of cases) {
-    const limitation = KNOWN_LIMITATIONS[corpusCase.case_id];
-    const test = limitation === undefined ? it : it.fails;
-    test(limitation ?? `case ${corpusCase.case_id} matches the Rust contract reference in both lanes`, async () => {
+    it(`case ${corpusCase.case_id} matches the Rust contract reference in both lanes`, async () => {
       const expected = corpusCase.expected!;
       const model = JSON.parse(JSON.stringify(corpusCase.base_model)) as PreviewModel;
       const intent = corpusCase.intent as unknown as EditorOperationIntent;

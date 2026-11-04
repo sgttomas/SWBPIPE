@@ -132,23 +132,12 @@ stated".
   - the bend rule;
   - the projection in later bends' `before`, with the engine applying the chain.
 - `services/operationContractCorpus.test.ts`: S3a's corpus in the browser lanes. Each
-  case runs against the corpus's expected outcome. Case `s3a_14` is a tracked known
-  limitation, run as an expected failure (§6). A separate passing test shows the
+  case runs against the corpus's expected outcome, `s3a_14` included since the applier's
+  numeric no-op fix (#112): `20` and `20.0` are one value there. A separate test shows the
   desktop's own `after` text refused as the corpus expects.
 
 ## 6. Open
 
-- **One tracked limitation in the browser lanes, pending the applier's fix (load-cases
-  lane).** `OP-DATA-UNCHANGED` compares serde values, which distinguish `20` from `20.0`.
-  - **Effect.** A record whose `after` text is float-form, applied to a model that reached
-    the engine through JS (integer-form), reads as changed and is applied as a no-op.
-  - **Where it shows.** Corpus case `s3a_14` does not yet give its expected refusal in the
-    browser lanes. It runs as an expected failure (`it.fails`), and its test name states
-    the limitation.
-  - **When the fix lands.** Vitest reports the case as passing, which fails the run; remove
-    it from `KNOWN_LIMITATIONS` so it runs as a normal case.
-  - **The desktop path.** The desktop's own `after` text is integer-form, so its unchanged
-    edits are refused, and the forms do not offer one.
 - **Not built.** Support `direction`, contents and hydrotest, and EX resolution stay
   refused and offer no input.
 - **Verification still open.** Native and timed walkthroughs.
