@@ -25,6 +25,8 @@ pub(crate) const MEMBER: &str = "combination_certificate";
 const WITHIN: &str = "COMBINATION_ROWS_WITHIN_STATED_BOUND";
 const NOT_ASSESSED: &str = "COMBINATION_ROWS_NOT_ASSESSED";
 const DIAGNOSTIC_PREFIX: &str = "diagnostic:combination-certificate:";
+/// The reserved code family of the certificate's notices.
+const CODE_PREFIX: &str = "COMBINATION_ROWS_";
 const SOURCE: &str = "core/product_physics";
 const PASSED: &str = "NUMERICAL_INTEGRITY_CHECKS_PASSED";
 const SENSITIVE: &str = "NUMERICAL_INTEGRITY_SENSITIVE";
@@ -62,6 +64,22 @@ fn require(ok: bool, code: &str) -> Check {
 }
 fn items(v: &Value) -> &[Value] {
     v.as_array().map(Vec::as_slice).unwrap_or(&[])
+}
+/// A member array, refused by its shape when it is anything but an array.
+fn array<'v>(v: &'v Value) -> Result<&'v [Value], String> {
+    v.as_array().map(Vec::as_slice).ok_or_else(|| fail("SHAPE"))
+}
+/// Whether a diagnostic is in the certificate's closed reserved vocabulary (Work
+/// `combination-certificate.md` §2), whatever its id spelling: its id is in the
+/// certificate's namespace, its code in the reserved `COMBINATION_ROWS_` family, or its
+/// message states rows within, or not assessed against, a stated bound. Such a notice
+/// stands only as the one a valid member re-derives.
+fn reserved_notice(d: &Value) -> bool {
+    let text = |k: &str| d[k].as_str().unwrap_or_default();
+    let message = text("message");
+    text("id").starts_with(DIAGNOSTIC_PREFIX)
+        || text("code").starts_with(CODE_PREFIX)
+        || (message.contains("stated bound") && (message.contains("within") || message.contains("against")))
 }
 fn keys(v: &Value, wanted: &[&str]) -> bool {
     v.as_object().is_some_and(|o| o.len() == wanted.len() && wanted.iter().all(|k| o.contains_key(*k)))
@@ -391,17 +409,18 @@ pub(crate) fn check(source: &Value) -> Check {
     let solved = source["status"]["mechanics"] == "MECHANICS_SOLVED";
     let gate_list = gates(evidence).unwrap_or_default();
     let member = evidence.get(MEMBER);
-    // The member is stated only on a solved document with a combination. Its absence
-    // states nothing: a document recorded before the certificate (whose table identity
-    // the envelope cannot distinguish) is read as before, its combination rows
-    // inspection results; a document that states it is read in full. Without it, no
-    // certificate notice may stand.
+    // Absence of the member is no §4 certificate claim, whatever the document's age; it
+    // selects no historical semantics (only a recorded `{id, sha256}` binding does). The
+    // combination rows are then inspection results and no certificate notice may stand,
+    // under any id. A stated member is read in full, and only on a solved document with a
+    // combination; a partial or malformed one is refused, never read as absence.
     let Some(member) = member else {
-        let notice = |d: &Value| d["id"].as_str().is_some_and(|id| id.starts_with(DIAGNOSTIC_PREFIX));
-        return require(!items(&source["diagnostics"]).iter().any(notice), "PRESENCE");
+        return require(!items(&source["diagnostics"]).iter().any(reserved_notice), "PRESENCE");
     };
     require(solved && !gate_list.is_empty(), "PRESENCE")?;
     require(keys(member, &MEMBER_KEYS), "SHAPE")?;
+    let operand_cases = array(&member["operand_cases"])?;
+    let records = array(&member["combinations"])?;
     let results = items(&source["results"]);
     let diagnostics = items(&source["diagnostics"]);
     let rows = Rows::new(results);
@@ -415,14 +434,14 @@ pub(crate) fn check(source: &Value) -> Check {
 
     // The operand records: shape, uniqueness, coverage and binding.
     let mut operands: HashMap<&str, Vec<OperandGroup>> = HashMap::new();
-    for case in items(&member["operand_cases"]) {
+    for case in operand_cases {
         require(keys(case, &CASE_KEYS), "SHAPE")?;
         let id = case["load_case_id"].as_str().ok_or_else(|| fail("SHAPE"))?;
         require(cases.contains(id) && !operands.contains_key(id), "OPERAND_CASE")?;
         require(eligible(diagnostics, id), "OPERAND_ELIGIBILITY")?;
         let mut groups = Vec::new();
         let mut seen = HashSet::new();
-        for g in items(&case["groups"]) {
+        for g in array(&case["groups"])? {
             require(keys(g, &OPERAND_GROUP_KEYS), "SHAPE")?;
             let (Some(entity), Some(location), Some(group), Some(moment), Some(q)) =
                 (g["entity"].as_str(), g["location"].as_str(), g["group"].as_str(), g["moment"].as_bool(), g["q"].as_f64())
@@ -450,7 +469,6 @@ pub(crate) fn check(source: &Value) -> Check {
     }
 
     // The combination records, re-derived whole.
-    let records = items(&member["combinations"]);
     require(records.len() == gate_list.len(), "RECORDS")?;
     let mut used: HashSet<String> = HashSet::new();
     let mut expected_diagnostics: Vec<Value> = Vec::new();
@@ -610,11 +628,11 @@ pub(crate) fn check(source: &Value) -> Check {
         require(crate::section_basis::bit_equal(record, &expected), "RECORD")?;
     }
     // Exactly the cases the assessed combinations use, in the document's case order.
-    let stated: Vec<&str> = items(&member["operand_cases"]).iter().filter_map(|c| c["load_case_id"].as_str()).collect();
+    let stated: Vec<&str> = operand_cases.iter().filter_map(|c| c["load_case_id"].as_str()).collect();
     let wanted: Vec<&str> = case_order.iter().copied().filter(|c| used.contains(*c)).collect();
     require(stated == wanted, "OPERAND_CASES")?;
-    // The diagnostics, whole, and none other in the namespace.
-    let published: Vec<&Value> = diagnostics.iter().filter(|d| d["id"].as_str().is_some_and(|i| i.starts_with(DIAGNOSTIC_PREFIX))).collect();
+    // The diagnostics, whole, and none other in the reserved vocabulary (any id spelling).
+    let published: Vec<&Value> = diagnostics.iter().filter(|d| reserved_notice(d)).collect();
     require(published.len() == expected_diagnostics.len(), "DIAGNOSTICS")?;
     for expected in &expected_diagnostics {
         let matching: Vec<&&Value> = published.iter().filter(|d| d["id"] == expected["id"]).collect();

@@ -4,8 +4,11 @@
 //! `tests/combination_certificate.rs`). The producer documents are admitted with and
 //! without their models; every forgery of `fixtures/results/combination_certificate_forgeries.json`
 //! (the list the Python mirror applies, `tests/test_combination_certificate.py`) is
-//! refused with the same code.
-use open_pipe_stress_result_export::reader_verdict;
+//! refused with the same code, without and with its model (`model_code` where the model
+//! contradicts the forged record first). The absence rule's matrix (the certificate
+//! review's threat cases on both actual envelopes) is part of that list; the
+//! inspection-only meaning of absence and the legacy W-CB3 successors are tested below.
+use open_pipe_stress_result_export::{reader_verdict, retained_precision as rp};
 use serde_json::Value;
 
 const CORPUS: &str = include_str!("../../../../fixtures/results/combination_certificate_corpus.json");
@@ -35,18 +38,98 @@ fn every_forgery_is_refused_with_the_shared_code() {
     let documents = documents();
     for forgery in list {
         let e = documents.iter().find(|e| e["name"] == forgery["document"]).unwrap();
-        let mut document = e["document"].clone();
-        for edit in forgery["edits"].as_array().unwrap() {
-            apply(&mut document, edit);
-        }
-        let verdict = reader_verdict::validate(e["reader"].as_str().unwrap(), &document, None, None);
-        match forgery["code"].as_str() {
-            None => assert_eq!(verdict["ok"], true, "{}: {verdict}", forgery["what"]),
-            Some(code) => {
-                let code = format!("SOURCE_COMBINATION_CERTIFICATE_{code}");
-                assert!(verdict["ok"] == false && verdict.to_string().contains(&code), "{}: {verdict}", forgery["what"]);
+        let document = forged(&e["document"], forgery);
+        for model in [None, Some(&e["model"])] {
+            let verdict = reader_verdict::validate(e["reader"].as_str().unwrap(), &document, model, None);
+            let code = match model {
+                Some(_) if forgery.get("model_code").is_some() => &forgery["model_code"],
+                _ => &forgery["code"],
+            };
+            let label = if model.is_some() { "with model" } else { "without model" };
+            match code.as_str() {
+                None => assert_eq!(verdict["ok"], true, "{} ({label}): {verdict}", forgery["what"]),
+                Some(code) => {
+                    let code = format!("SOURCE_COMBINATION_CERTIFICATE_{code}");
+                    assert!(verdict["ok"] == false && verdict.to_string().contains(&code), "{} ({label}): {verdict}", forgery["what"]);
+                }
             }
         }
+    }
+}
+
+fn forged(document: &Value, forgery: &Value) -> Value {
+    let mut document = document.clone();
+    for edit in forgery["edits"].as_array().unwrap() {
+        apply(&mut document, edit);
+    }
+    document
+}
+
+/// Any §4 certificate claim a document still makes: the member, or a diagnostic in the
+/// certificate's vocabulary, restated independently of the reader (the Python test's
+/// `_claims_survive` alike). W-16b's derived-rows notice is conditional on the member.
+fn claims_survive(document: &Value) -> Vec<String> {
+    let mut found = Vec::new();
+    if document["contract_evidence"].get("combination_certificate").is_some() {
+        found.push("member".to_string());
+    }
+    for d in document["diagnostics"].as_array().unwrap() {
+        let (id, code, message) = (d["id"].as_str().unwrap(), d["code"].as_str().unwrap(), d["message"].as_str().unwrap_or_default());
+        if id.starts_with("diagnostic:combination-certificate:")
+            || code.starts_with("COMBINATION_ROWS_")
+            || ["established within", "within their stated bound", "within its stated bound", "against a stated bound"].iter().any(|t| message.contains(t))
+        {
+            found.push(id.to_string());
+        }
+    }
+    found
+}
+
+/// Absence of the member (member and notices both dropped, the current identity kept)
+/// is admitted as no §4 certificate claim: no member, no certificate notice under any
+/// id, and no eligibility effect (decision (b)): numerical_quality and the standing are
+/// the certified document's.
+#[test]
+fn absence_is_inspection_only_with_no_certificate_claim() {
+    let forgeries: Value = serde_json::from_str(FORGERIES).unwrap();
+    let documents = documents();
+    for name in ["ex_cantilever", "pf_cantilever"] {
+        let e = documents.iter().find(|e| e["name"] == name).unwrap();
+        let forgery = forgeries["forgeries"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|f| f["document"] == name && f["what"] == "member and its notices absent (no certificate claim)")
+            .unwrap();
+        let stripped = forged(&e["document"], forgery);
+        for model in [None, Some(&e["model"])] {
+            let verdict = reader_verdict::validate(e["reader"].as_str().unwrap(), &stripped, model, None);
+            assert_eq!(verdict, serde_json::json!({"ok": true}), "{name}");
+            assert_eq!(reader_verdict::standing(&stripped, model, None), reader_verdict::standing(&e["document"], model, None), "{name}");
+        }
+        assert!(claims_survive(&stripped).is_empty(), "{name}: {:?}", claims_survive(&stripped));
+        assert!(!claims_survive(&e["document"]).is_empty(), "{name}");
+        assert_eq!(stripped["numerical_quality"], e["document"]["numerical_quality"], "{name}");
+        assert_eq!(stripped["formulation_basis"], e["document"]["formulation_basis"], "{name}");
+    }
+}
+
+/// The registered W-CB3 retained combination successors, recorded before the certificate
+/// and byte-untouched (the Python test pins their SHA-256), are accepted with and
+/// without their invocation; their standing is their own retained-precision receipt's,
+/// and they make no §4 certificate claim.
+#[test]
+fn legacy_w_cb3_successors_are_accepted() {
+    for text in [
+        include_str!("../../../../fixtures/results/retained_precision_combination_successor_sparse_interactive.json"),
+        include_str!("../../../../fixtures/results/retained_precision_combination_successor_dense_scrutiny.json"),
+    ] {
+        let w: Value = serde_json::from_str(text).unwrap();
+        assert!(claims_survive(&w["source"]).is_empty());
+        let bound = rp::validate(&w["source"], Some(&w["invocation"])).unwrap();
+        assert!(bound.invocation_bound && bound.numerical_eligible);
+        let unbound = rp::validate(&w["source"], None).unwrap();
+        assert!(!unbound.invocation_bound && !unbound.numerical_eligible);
     }
 }
 
@@ -62,6 +145,8 @@ fn apply(document: &mut Value, edit: &Value) {
         ("remove", Value::Object(map)) => {
             map.remove(&last);
         }
+        ("add", Value::Array(items)) if last == "-" => items.push(edit["value"].clone()),
+        ("add", Value::Array(items)) => items.insert(last.parse::<usize>().unwrap(), edit["value"].clone()),
         (_, Value::Array(items)) => items[last.parse::<usize>().unwrap()] = edit["value"].clone(),
         (_, Value::Object(map)) => {
             map.insert(last, edit["value"].clone());

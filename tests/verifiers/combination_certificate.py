@@ -23,6 +23,7 @@ MEMBER = "combination_certificate"
 WITHIN = "COMBINATION_ROWS_WITHIN_STATED_BOUND"
 NOT_ASSESSED = "COMBINATION_ROWS_NOT_ASSESSED"
 DIAGNOSTIC_PREFIX = "diagnostic:combination-certificate:"
+CODE_PREFIX = "COMBINATION_ROWS_"
 SOURCE = "core/product_physics"
 PASSED = "NUMERICAL_INTEGRITY_CHECKS_PASSED"
 SENSITIVE = "NUMERICAL_INTEGRITY_SENSITIVE"
@@ -73,6 +74,28 @@ def _require(ok: Any, code: str) -> None:
 
 def _items(value: Any) -> list[Any]:
     return value if isinstance(value, list) else []
+
+
+def _array(value: Any) -> list[Any]:
+    """A member array, refused by its shape when it is anything but an array (Rust `array`)."""
+    _require(isinstance(value, list), "SHAPE")
+    return value
+
+
+def reserved_notice(d: Any) -> bool:
+    """Whether a diagnostic is in the certificate's closed reserved vocabulary, whatever its id spelling (Rust
+    `reserved_notice`): its id in the certificate's namespace, its code in the `COMBINATION_ROWS_` family, or its
+    message stating rows within, or not assessed against, a stated bound."""
+    if not isinstance(d, Mapping):
+        return False
+
+    def text(key: str) -> str:
+        value = d.get(key)
+        return value if isinstance(value, str) else ""
+
+    message = text("message")
+    return (text("id").startswith(DIAGNOSTIC_PREFIX) or text("code").startswith(CODE_PREFIX)
+            or ("stated bound" in message and ("within" in message or "against" in message)))
 
 
 def _keys(value: Any, keys: set[str]) -> bool:
@@ -379,15 +402,16 @@ def check(source: Mapping[str, Any]) -> None:
     solved = isinstance(source.get("status"), Mapping) and source["status"].get("mechanics") == "MECHANICS_SOLVED"
     gate_list = _gates(evidence) or []
     member = evidence.get(MEMBER)
-    # Absence states nothing (a document recorded before the certificate is read as before); a stated member is
-    # read in full, and only on a solved document with a combination (Rust alike).
+    # Absence of the member is no §4 certificate claim, whatever the document's age; it selects no historical
+    # semantics. No certificate notice may then stand, under any id. A stated member is read in full, and only on a
+    # solved document with a combination; a partial or malformed one is refused, never read as absence (Rust alike).
     if MEMBER not in evidence:
-        # Without it, no certificate notice may stand.
-        _require(not any(isinstance(d, Mapping) and isinstance(d.get("id"), str) and d["id"].startswith(DIAGNOSTIC_PREFIX)
-                         for d in _items(source.get("diagnostics"))), "PRESENCE")
+        _require(not any(reserved_notice(d) for d in _items(source.get("diagnostics"))), "PRESENCE")
         return
     _require(solved and bool(gate_list), "PRESENCE")
     _require(_keys(member, MEMBER_KEYS), "SHAPE")
+    operand_cases = _array(member.get("operand_cases"))
+    records = _array(member.get("combinations"))
     results = _items(source.get("results"))
     diagnostics = _items(source.get("diagnostics"))
     rows = _Rows(results)
@@ -399,14 +423,14 @@ def check(source: Mapping[str, Any]) -> None:
     pressure = _items(evidence.get("pressure"))
 
     operands: dict[str, list[dict[str, Any]]] = {}
-    for case in _items(member.get("operand_cases")):
+    for case in operand_cases:
         _require(_keys(case, CASE_KEYS), "SHAPE")
         cid = case.get("load_case_id")
         _require(isinstance(cid, str), "SHAPE")
         _require(cid in cases and cid not in operands, "OPERAND_CASE")
         _require(_eligible(diagnostics, cid), "OPERAND_ELIGIBILITY")
         groups, seen = [], set()
-        for g in _items(case.get("groups")):
+        for g in _array(case.get("groups")):
             _require(_keys(g, OPERAND_GROUP_KEYS), "SHAPE")
             entity, location, group, moment, q = g.get("entity"), g.get("location"), g.get("group"), g.get("moment"), g.get("q")
             _require(isinstance(entity, str) and isinstance(location, str) and isinstance(group, str) and isinstance(moment, bool)
@@ -427,7 +451,6 @@ def check(source: Mapping[str, Any]) -> None:
             groups.append({"entity": entity, "location": location, "group": group, "q": q, "bound": bound, "floor_scale": floor})
         operands[cid] = groups
 
-    records = _items(member.get("combinations"))
     _require(len(records) == len(gate_list), "RECORDS")
     used: set[str] = set()
     expected_diagnostics: list[dict[str, Any]] = []
@@ -567,9 +590,10 @@ def check(source: Mapping[str, Any]) -> None:
                     "subtrahend_support_state": record.get("subtrahend_support_state"), "assessment": "assessed",
                     "reason": None, "groups": [d["json"] for d in derived], "uncovered_row_count": uncovered}
         _require(bit_equal(record, expected), "RECORD")
-    stated = [c.get("load_case_id") for c in _items(member.get("operand_cases")) if isinstance(c, Mapping)]
+    stated = [c.get("load_case_id") for c in operand_cases if isinstance(c, Mapping)]
     _require(stated == [c for c in case_order if c in used], "OPERAND_CASES")
-    published = [d for d in diagnostics if isinstance(d, Mapping) and isinstance(d.get("id"), str) and d["id"].startswith(DIAGNOSTIC_PREFIX)]
+    # The diagnostics, whole, and none other in the reserved vocabulary (any id spelling).
+    published = [d for d in diagnostics if reserved_notice(d)]
     _require(len(published) == len(expected_diagnostics), "DIAGNOSTICS")
     for expected in expected_diagnostics:
         matching = [d for d in published if d.get("id") == expected["id"]]
@@ -580,7 +604,8 @@ def model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) -> None:
     """With the captured model: each record's id, basis and expression are the model's (Rust `model_checks`)."""
     evidence = source.get("contract_evidence") if isinstance(source.get("contract_evidence"), Mapping) else {}
     member = evidence.get(MEMBER)
-    if member is None:
+    if not isinstance(member, Mapping):
+        # Absent, or malformed (refused by its shape in `check`, Rust alike).
         return
     combinations = [c for c in _items(model.get("combinations")) if isinstance(c, Mapping)]
     for record in _items(member.get("combinations")):

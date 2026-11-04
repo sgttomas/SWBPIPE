@@ -97,12 +97,15 @@ def build_forgeries() -> list[dict]:
 
     def edit(path, value=None, op="set"):
         item = {"op": op, "pointer": _pointer(path)}
-        if op == "set":
+        if op in ("set", "add"):
             item["value"] = value
         return item
 
-    def add(name, path, code, what, value=None, op="set"):
-        out.append({"document": name, "edits": [edit(path, value, op)], "code": code, "what": what})
+    def add(name, path, code, what, value=None, op="set", model_code=None):
+        item = {"document": name, "edits": [edit(path, value, op)], "code": code, "what": what}
+        if model_code is not None:
+            item["model_code"] = model_code
+        out.append(item)
 
     pf, ex, w16 = entry("pf_cantilever")["document"], entry("ex_cantilever")["document"], entry("w16_line")["document"]
     cert = ["contract_evidence", "combination_certificate"]
@@ -132,12 +135,12 @@ def build_forgeries() -> list[dict]:
     add("ex_cantilever", ["diagnostics", within, "message"], "DIAGNOSTICS", "forged notice", "combination comb:double: certified")
     add("ex_cantilever", ["diagnostics", within], "DIAGNOSTICS", "notice dropped", op="remove")
     add("ex_cantilever", cert, "PRESENCE", "member dropped, its notices kept", op="remove")
-    # Absence states nothing: a document recorded before the certificate (member and notices absent) is read as before.
+    # Absence is no certificate claim, whatever the document's age: member and notices absent are admitted, claiming nothing.
     notices = [i for i, d in enumerate(ex["diagnostics"]) if d["id"].startswith(cc.DIAGNOSTIC_PREFIX)]
-    out.append({"document": "ex_cantilever", "what": "member and its notices absent (recorded before the certificate)",
+    out.append({"document": "ex_cantilever", "what": "member and its notices absent (no certificate claim)",
                       "code": None, "edits": [edit(cert, op="remove"), *(edit(["diagnostics", i], op="remove") for i in reversed(notices))]})
     pf_notices = [i for i, d in enumerate(pf["diagnostics"]) if d["id"].startswith(cc.DIAGNOSTIC_PREFIX)]
-    out.append({"document": "pf_cantilever", "what": "member and its notices absent (recorded before the certificate)",
+    out.append({"document": "pf_cantilever", "what": "member and its notices absent (no certificate claim)",
                       "code": None, "edits": [edit(cert, op="remove"), *(edit(["diagnostics", i], op="remove") for i in reversed(pf_notices))]})
     add("ex_cantilever", cert + ["certified"], "SHAPE", "extra member key", True)
     axial = _record_index(ex, "comb:axial")
@@ -145,14 +148,17 @@ def build_forgeries() -> list[dict]:
     add("ex_cantilever", cert + ["combinations", axial, "groups", wall, "equal_pressure"], "RECORD", "D-6 statement dropped", None)
     ex_double = _record_index(ex, "comb:double")
     add("ex_cantilever", cert + ["combinations", ex_double, "expression"], "EXPRESSION", "swapped operands",
-        {"minuend_id": "case:S", "subtrahend_id": "case:O2"})
+        {"minuend_id": "case:S", "subtrahend_id": "case:O2"}, model_code="MODEL_BINDING")
     integrity = _diagnostic_index(ex, lambda d: d["id"] == "diagnostic:numerical-integrity:case:S")
     add("ex_cantilever", ["diagnostics", integrity, "code"], "OPERAND_ELIGIBILITY", "operand standing without a member bound",
         "NUMERICAL_INTEGRITY_SENSITIVE")
     # Premise: the operand bounds are each operand case's own; a held subtrahend is not assessed (fail closed).
-    add("pf_cantilever", cert + ["combinations", double, "subtrahend_support_state"], "RECORD", "an assessed record named held", "minuend_final")
-    add("pf_cantilever", cert + ["combinations", double, "subtrahend_support_state"], "RECORD", "an unrecognized support state fails closed", "frozen")
-    add("pf_cantilever", cert + ["combinations", double, "subtrahend_support_state"], "RECORD_SHAPE", "a non-text support state", 1)
+    add("pf_cantilever", cert + ["combinations", double, "subtrahend_support_state"], "RECORD", "an assessed record named held", "minuend_final",
+        model_code="MODEL_BINDING")
+    add("pf_cantilever", cert + ["combinations", double, "subtrahend_support_state"], "RECORD", "an unrecognized support state fails closed", "frozen",
+        model_code="MODEL_BINDING")
+    add("pf_cantilever", cert + ["combinations", double, "subtrahend_support_state"], "RECORD_SHAPE", "a non-text support state", 1,
+        model_code="MODEL_BINDING")
     # Synthetic envelopes (this base withholds or refuses the member upstream): a held subtraction stated not assessed,
     # with no group, its subtrahend's other uses kept and its notice the not-assessed one, is admitted by both readers.
     reason = cc.held_reason("minuend_final")
@@ -170,9 +176,48 @@ def build_forgeries() -> list[dict]:
             edit(["diagnostics", notice], cc._diagnostic(combination, cc.NOT_ASSESSED, cc.not_assessed_message(combination, reason))),
             edit(cert + ["operand_cases", o2], op="remove"),
         ]
-        out.append({"document": name, "edits": synthetic, "code": None, "what": f"{name}: a held subtraction stated not assessed is admitted"})
-        out.append({"document": name, "edits": synthetic[:1] + synthetic[2:], "code": "DIAGNOSTICS", "what": f"{name}: a held subtraction keeps its assessed notice"})
-        out.append({"document": name, "edits": synthetic[:2], "code": "OPERAND_CASES", "what": f"{name}: a held subtraction keeps its subtrahend's operand statement"})
+        # Their model solves the subtrahend on its own support state, so with it the held record is the model's
+        # contradiction (MODEL_BINDING) before the certificate's own reading.
+        held = {"model_code": "MODEL_BINDING"}
+        out.append({"document": name, "edits": synthetic, "code": None, "what": f"{name}: a held subtraction stated not assessed is admitted", **held})
+        out.append({"document": name, "edits": synthetic[:1] + synthetic[2:], "code": "DIAGNOSTICS", "what": f"{name}: a held subtraction keeps its assessed notice", **held})
+        out.append({"document": name, "edits": synthetic[:2], "code": "OPERAND_CASES", "what": f"{name}: a held subtraction keeps its subtrahend's operand statement", **held})
+    # The absence matrix (review of the certificate, threat cases (b)-(e)) on both actual envelopes. Absence of the
+    # member is no certificate claim; a certificate notice is recognized by its reserved id namespace, code family or
+    # canonical text, never by its id spelling alone.
+    for name, doc in (("ex_cantilever", ex), ("pf_cantilever", pf)):
+        ids = [i for i, d in enumerate(doc["diagnostics"]) if d["id"].startswith(cc.DIAGNOSTIC_PREFIX)]
+        cancel_id = "comb:cancel"
+        within_text = next(d["message"] for d in doc["diagnostics"] if d["code"] == cc.WITHIN and d["affected_refs"] == [cancel_id])
+        drop_notices = [edit(["diagnostics", i], op="remove") for i in reversed(ids)]
+        renamed = [edit(["diagnostics", i, "id"], doc["diagnostics"][i]["id"].replace("combination-certificate:", "renamed-certificate:"))
+                   for i in ids]
+        invented = {"id": "diagnostic:review:bound", "code": cc.WITHIN, "severity": "info", "source": cc.SOURCE,
+                    "affected_refs": [cancel_id], "message": f"combination {cancel_id}: all derived row groups are established within their stated bound."}
+        canonical_elsewhere = {"id": "diagnostic:review:note", "code": "REVIEW_NOTE", "severity": "info", "source": cc.SOURCE,
+                               "affected_refs": [cancel_id], "message": within_text}
+        if name == "pf_cantilever":
+            add(name, cert, "PRESENCE", f"{name}: member dropped, its notices kept", op="remove")
+        out.append({"document": name, "what": f"{name}: notices dropped, the member kept", "code": "DIAGNOSTICS", "edits": drop_notices})
+        out.append({"document": name, "what": f"{name}: member dropped, its notices kept under renamed ids", "code": "PRESENCE",
+                    "edits": [edit(cert, op="remove"), *renamed]})
+        out.append({"document": name, "what": f"{name}: member and notices dropped, an establishment sentence under the reserved code",
+                    "code": "PRESENCE", "edits": [edit(cert, op="remove"), *drop_notices, edit(["diagnostics", "-"], invented, op="add")]})
+        out.append({"document": name, "what": f"{name}: member and notices dropped, the canonical sentence under another code and id",
+                    "code": "PRESENCE", "edits": [edit(cert, op="remove"), *drop_notices, edit(["diagnostics", "-"], canonical_elsewhere, op="add")]})
+        out.append({"document": name, "what": f"{name}: member kept, an extra establishment sentence under another id", "code": "DIAGNOSTICS",
+                    "edits": [edit(["diagnostics", "-"], invented, op="add")]})
+        out.append({"document": name, "what": f"{name}: member kept, its notices under renamed ids", "code": "DIAGNOSTICS", "edits": renamed})
+        add(name, cert, "SHAPE", f"{name}: a null member", None)
+        add(name, cert + ["operand_cases"], "SHAPE", f"{name}: operand_cases missing", op="remove")
+        add(name, cert + ["operand_cases"], "SHAPE", f"{name}: operand_cases null", None)
+        add(name, cert + ["combinations"], "SHAPE", f"{name}: combinations an object", {})
+        add(name, cert + ["operand_cases", 0, "groups"], "SHAPE", f"{name}: an operand case's groups an object", {})
+    # A stated member is always fully checked: wrong-type arrays on the gap document (no assessed combination) are
+    # refused by their shape, never read as empty.
+    for value, what in (({}, "an object"), (None, "null"), ("not an array", "a string")):
+        add("op1a_v1", cert + ["operand_cases"], "SHAPE", f"op1a_v1: operand_cases {what}", value)
+    add("op1a_v1", cert + ["combinations"], "SHAPE", "op1a_v1: combinations a string", "not an array")
     k1 = _record_index(w16, "comb:K1")
     add("w16_line", cert + ["combinations", k1, "groups", 0, "factors_bound"], "RECORD", "forged factor bound",
         math.nextafter(certificate(w16)["combinations"][k1]["groups"][0]["factors_bound"], math.inf))
@@ -201,7 +246,12 @@ def _apply_one(document: dict, forgery: dict) -> dict:
     for p in parts[:-1]:
         target = target[int(p)] if isinstance(target, list) else target[p]
     last = parts[-1]
-    if forgery["op"] == "remove":
+    if forgery["op"] == "add":
+        if last == "-":
+            target.append(forgery["value"])
+        else:
+            target.insert(int(last), forgery["value"])
+    elif forgery["op"] == "remove":
         if isinstance(target, list):
             target.pop(int(last))
         else:
@@ -216,15 +266,83 @@ def _apply_one(document: dict, forgery: dict) -> dict:
     return document
 
 
+@pytest.mark.parametrize("with_model", [False, True], ids=["without-model", "with-model"])
 @pytest.mark.parametrize("forgery", json.loads(FORGERIES_PATH.read_text(encoding="utf-8"))["forgeries"], ids=lambda f: f["what"])
-def test_every_forgery_is_refused_with_the_rust_code(forgery):
+def test_every_forgery_is_refused_with_the_rust_code(forgery, with_model):
+    """Each forgery, without and with its model; `model_code` is the code with the model where the model contradicts
+    the forged record first (Rust `every_forgery_is_refused_with_the_shared_code` alike)."""
     e = entry(forgery["document"])
     forged = _apply(e["document"], forgery)
-    outcome = reader_verdict.validate(e["reader"], forged)
-    if forgery["code"] is None:
+    code = forgery.get("model_code", forgery["code"]) if with_model else forgery["code"]
+    outcome = reader_verdict.validate(e["reader"], forged, e["model"] if with_model else None)
+    if code is None:
         assert outcome == {"ok": True}, (forgery["what"], outcome)
     else:
-        assert outcome["ok"] is False and PREFIX + forgery["code"] in json.dumps(outcome), (forgery["what"], outcome)
+        assert outcome["ok"] is False and PREFIX + code in json.dumps(outcome), (forgery["what"], outcome)
+
+
+# ----------------------------------------------------------------------------- the absence rule (review matrix)
+
+def _forgery(document: str, what: str) -> dict:
+    return next(f for f in json.loads(FORGERIES_PATH.read_text(encoding="utf-8"))["forgeries"] if (f["document"], f["what"]) == (document, what))
+
+
+def _claims_survive(document: dict) -> list:
+    """Any §4 certificate claim the document still makes: the member (its bounds and verdicts), or a diagnostic in the
+    certificate's vocabulary, restated here independently of the readers (id namespace, the `COMBINATION_ROWS_` code
+    family, or a sentence placing rows within, or assessing them against, a stated bound). W-16b's derived-rows
+    notice ("only the derived row groups that contract_evidence.combination_certificate establishes carry a stated
+    bound") is conditional on the member and claims nothing without it."""
+    found = [] if "combination_certificate" not in document["contract_evidence"] else ["member"]
+    for d in document["diagnostics"]:
+        message = d.get("message", "")
+        if (d["id"].startswith("diagnostic:combination-certificate:") or d["code"].startswith("COMBINATION_ROWS_")
+                or "established within" in message or "within their stated bound" in message
+                or "within its stated bound" in message or "against a stated bound" in message):
+            found.append(d["id"])
+    return found
+
+
+@pytest.mark.parametrize("with_model", [False, True], ids=["without-model", "with-model"])
+@pytest.mark.parametrize("name", ["ex_cantilever", "pf_cantilever"])
+def test_absence_is_inspection_only_with_no_certificate_claim(name, with_model):
+    """Absence of the member (member and notices both dropped, the current identity kept) is admitted as no §4
+    certificate claim: no member, no certificate notice under any id, and no eligibility effect, the document's
+    numerical_quality and its desktop standing being those of the certified document (decision (b))."""
+    e = entry(name)
+    model = e["model"] if with_model else None
+    stripped = _apply(copy.deepcopy(e["document"]), _forgery(name, "member and its notices absent (no certificate claim)"))
+    assert reader_verdict.validate(e["reader"], stripped, model) == {"ok": True}
+    assert _claims_survive(stripped) == []
+    assert _claims_survive(e["document"]) != []
+    assert stripped["numerical_quality"] == e["document"]["numerical_quality"]
+    assert stripped["formulation_basis"] == e["document"]["formulation_basis"]
+    assert reader_verdict.standing(stripped, model) == reader_verdict.standing(e["document"], model)
+
+
+W_CB3 = {
+    "sparse_interactive": "7a1b99f7ac24e2990472830054310ec1276d9804a86dd0111c290749a134ddd6",
+    "dense_scrutiny": "3f38c729bbed2d484459c13b21c2b8bc08fb9d06f691b90740286f492b87824e",
+}
+
+
+@pytest.mark.parametrize("mode", sorted(W_CB3))
+def test_legacy_w_cb3_successors_are_accepted_with_their_own_receipt_and_no_certificate_claim(mode):
+    """The registered W-CB3 retained combination successors (recorded before the certificate, bytes untouched) are
+    accepted with and without their invocation; their retained-precision standing is their own receipt's, and they
+    make no §4 certificate claim (Rust `legacy_w_cb3_successors_are_accepted` alike)."""
+    import hashlib
+
+    from tests.verifiers import retained_precision
+
+    raw = (PROJECT / f"fixtures/results/retained_precision_combination_successor_{mode}.json").read_bytes()
+    assert hashlib.sha256(raw).hexdigest() == W_CB3[mode]
+    w = json.loads(raw)
+    assert _claims_survive(w["source"]) == []
+    bound = retained_precision.validate_retained_precision(w["source"], w["invocation"])
+    assert (bound["invocation_bound"], bound["numerical_eligible"], bound["standing"]) == (True, True, "eligible"), bound
+    unbound = retained_precision.validate_retained_precision(w["source"])
+    assert (unbound["invocation_bound"], unbound["standing"]) == (False, "needs_recompute"), unbound
 
 
 def test_model_binding_refuses_a_held_subtrahend_missing_from_the_record():

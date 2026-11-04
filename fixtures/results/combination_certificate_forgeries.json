@@ -191,7 +191,7 @@
   },
   {
    "document": "ex_cantilever",
-   "what": "member and its notices absent (recorded before the certificate)",
+   "what": "member and its notices absent (no certificate claim)",
    "code": null,
    "edits": [
     {
@@ -226,7 +226,7 @@
   },
   {
    "document": "pf_cantilever",
-   "what": "member and its notices absent (recorded before the certificate)",
+   "what": "member and its notices absent (no certificate claim)",
    "code": null,
    "edits": [
     {
@@ -296,7 +296,8 @@
     }
    ],
    "code": "EXPRESSION",
-   "what": "swapped operands"
+   "what": "swapped operands",
+   "model_code": "MODEL_BINDING"
   },
   {
    "document": "ex_cantilever",
@@ -320,7 +321,8 @@
     }
    ],
    "code": "RECORD",
-   "what": "an assessed record named held"
+   "what": "an assessed record named held",
+   "model_code": "MODEL_BINDING"
   },
   {
    "document": "pf_cantilever",
@@ -332,7 +334,8 @@
     }
    ],
    "code": "RECORD",
-   "what": "an unrecognized support state fails closed"
+   "what": "an unrecognized support state fails closed",
+   "model_code": "MODEL_BINDING"
   },
   {
    "document": "pf_cantilever",
@@ -344,7 +347,8 @@
     }
    ],
    "code": "RECORD_SHAPE",
-   "what": "a non-text support state"
+   "what": "a non-text support state",
+   "model_code": "MODEL_BINDING"
   },
   {
    "document": "ex_cantilever",
@@ -386,7 +390,8 @@
     }
    ],
    "code": null,
-   "what": "ex_cantilever: a held subtraction stated not assessed is admitted"
+   "what": "ex_cantilever: a held subtraction stated not assessed is admitted",
+   "model_code": "MODEL_BINDING"
   },
   {
    "document": "ex_cantilever",
@@ -414,7 +419,8 @@
     }
    ],
    "code": "DIAGNOSTICS",
-   "what": "ex_cantilever: a held subtraction keeps its assessed notice"
+   "what": "ex_cantilever: a held subtraction keeps its assessed notice",
+   "model_code": "MODEL_BINDING"
   },
   {
    "document": "ex_cantilever",
@@ -452,7 +458,8 @@
     }
    ],
    "code": "OPERAND_CASES",
-   "what": "ex_cantilever: a held subtraction keeps its subtrahend's operand statement"
+   "what": "ex_cantilever: a held subtraction keeps its subtrahend's operand statement",
+   "model_code": "MODEL_BINDING"
   },
   {
    "document": "pf_cantilever",
@@ -494,7 +501,8 @@
     }
    ],
    "code": null,
-   "what": "pf_cantilever: a held subtraction stated not assessed is admitted"
+   "what": "pf_cantilever: a held subtraction stated not assessed is admitted",
+   "model_code": "MODEL_BINDING"
   },
   {
    "document": "pf_cantilever",
@@ -522,7 +530,8 @@
     }
    ],
    "code": "DIAGNOSTICS",
-   "what": "pf_cantilever: a held subtraction keeps its assessed notice"
+   "what": "pf_cantilever: a held subtraction keeps its assessed notice",
+   "model_code": "MODEL_BINDING"
   },
   {
    "document": "pf_cantilever",
@@ -560,7 +569,641 @@
     }
    ],
    "code": "OPERAND_CASES",
-   "what": "pf_cantilever: a held subtraction keeps its subtrahend's operand statement"
+   "what": "pf_cantilever: a held subtraction keeps its subtrahend's operand statement",
+   "model_code": "MODEL_BINDING"
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: notices dropped, the member kept",
+   "code": "DIAGNOSTICS",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/37"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/36"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/35"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/34"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/33"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/32"
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: member dropped, its notices kept under renamed ids",
+   "code": "PRESENCE",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/32/id",
+     "value": "diagnostic:renamed-certificate:11:comb:double"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/33/id",
+     "value": "diagnostic:renamed-certificate:11:comb:cancel"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/34/id",
+     "value": "diagnostic:renamed-certificate:9:comb:same"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/35/id",
+     "value": "diagnostic:renamed-certificate:10:comb:axial"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/36/id",
+     "value": "diagnostic:renamed-certificate:8:comb:sum"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/37/id",
+     "value": "diagnostic:renamed-certificate:10:comb:range"
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: member and notices dropped, an establishment sentence under the reserved code",
+   "code": "PRESENCE",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/37"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/36"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/35"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/34"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/33"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/32"
+    },
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:bound",
+      "code": "COMBINATION_ROWS_WITHIN_STATED_BOUND",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived row groups are established within their stated bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: member and notices dropped, the canonical sentence under another code and id",
+   "code": "PRESENCE",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/37"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/36"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/35"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/34"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/33"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/32"
+    },
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:note",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: 7 derived row group(s) are established within their stated bound against the operand cases' intended systems; 6 are not established (the bound exceeds the 1e-9 criterion, as where the operands nearly cancel, or the comparison is unavailable); 18 are not assessed (below the floor); 106 of its rows are covered by no group and remain inspection results. This is a numerical statement about the difference of two independently solved states; it does not establish the meaning of \"expansion\" or engineering acceptance, and these rows do not count toward the document's numerical eligibility. Each group's bound and verdict are stated in contract_evidence.combination_certificate."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: member kept, an extra establishment sentence under another id",
+   "code": "DIAGNOSTICS",
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:bound",
+      "code": "COMBINATION_ROWS_WITHIN_STATED_BOUND",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived row groups are established within their stated bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: member kept, its notices under renamed ids",
+   "code": "DIAGNOSTICS",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/diagnostics/32/id",
+     "value": "diagnostic:renamed-certificate:11:comb:double"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/33/id",
+     "value": "diagnostic:renamed-certificate:11:comb:cancel"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/34/id",
+     "value": "diagnostic:renamed-certificate:9:comb:same"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/35/id",
+     "value": "diagnostic:renamed-certificate:10:comb:axial"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/36/id",
+     "value": "diagnostic:renamed-certificate:8:comb:sum"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/37/id",
+     "value": "diagnostic:renamed-certificate:10:comb:range"
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate",
+     "value": null
+    }
+   ],
+   "code": "SHAPE",
+   "what": "ex_cantilever: a null member"
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases"
+    }
+   ],
+   "code": "SHAPE",
+   "what": "ex_cantilever: operand_cases missing"
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases",
+     "value": null
+    }
+   ],
+   "code": "SHAPE",
+   "what": "ex_cantilever: operand_cases null"
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations",
+     "value": {}
+    }
+   ],
+   "code": "SHAPE",
+   "what": "ex_cantilever: combinations an object"
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/0/groups",
+     "value": {}
+    }
+   ],
+   "code": "SHAPE",
+   "what": "ex_cantilever: an operand case's groups an object"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    }
+   ],
+   "code": "PRESENCE",
+   "what": "pf_cantilever: member dropped, its notices kept"
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: notices dropped, the member kept",
+   "code": "DIAGNOSTICS",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/31"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/30"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/29"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/28"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/27"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/26"
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: member dropped, its notices kept under renamed ids",
+   "code": "PRESENCE",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/26/id",
+     "value": "diagnostic:renamed-certificate:11:comb:double"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/27/id",
+     "value": "diagnostic:renamed-certificate:11:comb:cancel"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/28/id",
+     "value": "diagnostic:renamed-certificate:9:comb:same"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/29/id",
+     "value": "diagnostic:renamed-certificate:10:comb:axial"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/30/id",
+     "value": "diagnostic:renamed-certificate:8:comb:sum"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/31/id",
+     "value": "diagnostic:renamed-certificate:10:comb:range"
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: member and notices dropped, an establishment sentence under the reserved code",
+   "code": "PRESENCE",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/31"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/30"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/29"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/28"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/27"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/26"
+    },
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:bound",
+      "code": "COMBINATION_ROWS_WITHIN_STATED_BOUND",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived row groups are established within their stated bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: member and notices dropped, the canonical sentence under another code and id",
+   "code": "PRESENCE",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/31"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/30"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/29"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/28"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/27"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/26"
+    },
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:note",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: 7 derived row group(s) are established within their stated bound against the operand cases' intended systems; 6 are not established (the bound exceeds the 1e-9 criterion, as where the operands nearly cancel, or the comparison is unavailable); 11 are not assessed (below the floor); 46 of its rows are covered by no group and remain inspection results. This is a numerical statement about the difference of two independently solved states; it does not establish the meaning of \"expansion\" or engineering acceptance, and these rows do not count toward the document's numerical eligibility. Each group's bound and verdict are stated in contract_evidence.combination_certificate."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: member kept, an extra establishment sentence under another id",
+   "code": "DIAGNOSTICS",
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:bound",
+      "code": "COMBINATION_ROWS_WITHIN_STATED_BOUND",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived row groups are established within their stated bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: member kept, its notices under renamed ids",
+   "code": "DIAGNOSTICS",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/diagnostics/26/id",
+     "value": "diagnostic:renamed-certificate:11:comb:double"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/27/id",
+     "value": "diagnostic:renamed-certificate:11:comb:cancel"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/28/id",
+     "value": "diagnostic:renamed-certificate:9:comb:same"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/29/id",
+     "value": "diagnostic:renamed-certificate:10:comb:axial"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/30/id",
+     "value": "diagnostic:renamed-certificate:8:comb:sum"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/31/id",
+     "value": "diagnostic:renamed-certificate:10:comb:range"
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate",
+     "value": null
+    }
+   ],
+   "code": "SHAPE",
+   "what": "pf_cantilever: a null member"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases"
+    }
+   ],
+   "code": "SHAPE",
+   "what": "pf_cantilever: operand_cases missing"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases",
+     "value": null
+    }
+   ],
+   "code": "SHAPE",
+   "what": "pf_cantilever: operand_cases null"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations",
+     "value": {}
+    }
+   ],
+   "code": "SHAPE",
+   "what": "pf_cantilever: combinations an object"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/0/groups",
+     "value": {}
+    }
+   ],
+   "code": "SHAPE",
+   "what": "pf_cantilever: an operand case's groups an object"
+  },
+  {
+   "document": "op1a_v1",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases",
+     "value": {}
+    }
+   ],
+   "code": "SHAPE",
+   "what": "op1a_v1: operand_cases an object"
+  },
+  {
+   "document": "op1a_v1",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases",
+     "value": null
+    }
+   ],
+   "code": "SHAPE",
+   "what": "op1a_v1: operand_cases null"
+  },
+  {
+   "document": "op1a_v1",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases",
+     "value": "not an array"
+    }
+   ],
+   "code": "SHAPE",
+   "what": "op1a_v1: operand_cases a string"
+  },
+  {
+   "document": "op1a_v1",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations",
+     "value": "not an array"
+    }
+   ],
+   "code": "SHAPE",
+   "what": "op1a_v1: combinations a string"
   },
   {
    "document": "w16_line",
