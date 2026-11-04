@@ -60,7 +60,8 @@ use b1_sq_inputs as inputs;
 // §8.44 on the §8.45 lexer: the regenerated block's value (+6,012 B against main's corrected tree).
 // §8.46 (RT-A4): +65,327 B (the restated tables, the plan resolver and LIMITATIONS[6]).
 // §8.47 (RT-U4 region binding and Index::any): unchanged (only W4 moves).
-const W1_PHASE_BYTES: [u64; 2] = [6_449_924_745, 6_509_056_089];
+// §8.48 (I2b-2's state carrier): +48 B (s(PreparedCaseResult) 1,880 -> 1,888 B, two per case at three cases).
+const W1_PHASE_BYTES: [u64; 2] = [6_449_924_793, 6_509_056_137];
 /// The profile's in-build maximum over every phase (E_mov,max, without R; W3 in both modes),
 /// the bound once a run has done W1 work (a registered build, G6). W-8 topology warnings D3 at
 /// 34e96d6b17 (retained-pricing-rules.md §8.16): +219,136 B in both modes from the pre-0.4
@@ -87,7 +88,8 @@ const W1_PHASE_BYTES: [u64; 2] = [6_449_924_745, 6_509_056_089];
 // §8.44 on the §8.45 lexer: the regenerated block's value (+6,012 B against main's corrected tree).
 // §8.46 (RT-A4): +65,327 B (W3 stays the maximum; W4 rises +458,607 B and stays below it).
 // §8.47 (RT-U4): unchanged (W3 stays the maximum; W4 rises +7,918 B and stays below it).
-const MAX_PHASE_BYTES: [u64; 2] = [8_743_655_134, 8_802_786_478];
+// §8.48 (I2b-2's state carrier): +48 B (W3 stays the maximum; every phase +48 B).
+const MAX_PHASE_BYTES: [u64; 2] = [8_743_655_182, 8_802_786_526];
 /// The abort cap: above E_mov,max + R at M and within T3's host allowance (PLAN_v2 §3.5).
 const CAP_BYTES: usize = 16 << 30;
 /// The N1 notice's fixed text (lib.rs `RETAINED_UNAVAILABLE_NOTICE`), as the base publication shows it.

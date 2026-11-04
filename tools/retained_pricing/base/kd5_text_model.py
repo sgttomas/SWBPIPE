@@ -19,7 +19,15 @@ import hashlib, os, re
 # `load_case.equivalent_static.is_some()` (none on D1); no record constructor, label or route string changes.
 # RT-A3 increment 1 D3 (§8.33): solve_prepared_load_case appends a straight exact member's branch-connection rows
 # (u4b_rows::append_branch_intensified, none on D1 by D1.4); no record constructor, label or route string changes.
-PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8e95c345590bf4472a4310f155259cb9ced56b58da3c0316b62b0f394', 'magnitude_group': '600d0d42c5dbb53c489b4bf86a1fba82fdcc8d00440e4f86a2cfb6e6d7bfd953', 'member_record': '201b9a9c9390794c15207731efe9f524d1c14f0c80a15afa02b1e3b601580547', 'support_record': '1b5b46b845578a05a14879b1bae657f832f48a5b2122b404350588490571fd44', 'unavailable_record': '79931f5662ae9277f7ddbc008799340757f0e581e29a053cbdd90ff7a0eaf1a6', 'connector_record': '42cbb33f9c55a26951f72198fdbdc017670a472ce85fb80caf83acd5b09e477a', 'straight_stress_spans': '8fa6015c0c0b6ae5c87f241c29b1187f6e3e4a3bc3e624969d37aff1c3164efe', 'fallback_circular_maximum': 'bf5ab4f4c3577ffb0b068e1a9b918793e22b04a8c68764610cec3fe6e648210c', 'fallback_product_up': '5476bd4c93f66d5aee68c465b7da0ee39ab1d123dc75825931f2502cf0b607bb'}, 'core/product_physics/src/formation_guard.rs': {'recovery_finding': 'c499ed59986310186a5825c2043363ca131a5b44d41755a7700e1f7d6c1f5f9b', 'member_group_decision': '76a37c824097b528c638214d913166d24ffa81698222ad9199a511f32f0d5e59'}, 'core/product_physics/src/preview_physics.rs': {'extrema_evidence': 'a79bfa6c33095f97bc672ea78e27a3b768d901399978fac58d5ed9d804f3aac3'}, 'core/product_physics/src/lib.rs': {'solve_load_case_observed': '5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061', 'solve_prepared_load_case': '0c19c5708e7608a07283561956d922ca2ae42c5852542072507ef443c8e7e34b'}}
+# DEL-04-09 I2b-2 D3 (§8.43, decision B): solve_prepared_load_case sets LoadCaseSolve's new `nonlinear_state` to None
+# at each of its seven early returns, takes the nonlinear loop's third element (which qualification branch admitted
+# the state) and stores capture_nonlinear_state_evidence's result, which allocates only for a converged nonlinear
+# solve (none on D1: D1.6). No literal, label, record constructor, route string, staging, fallback attempt or
+# first-return alternative changes; LoadCaseSolve's stride is the in-build atom s(PreparedCaseResult).
+# DEL-04-09 I2b-2 layout (§8.43, cc160d28d; Agent 0): the seam's hunks in ordinary layout (one field or statement
+# per line, the qualification let broken after `=`), token-equal but for block-wrapped arms and trailing commas;
+# no literal, label, record constructor or route string changes.
+PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8e95c345590bf4472a4310f155259cb9ced56b58da3c0316b62b0f394', 'magnitude_group': '600d0d42c5dbb53c489b4bf86a1fba82fdcc8d00440e4f86a2cfb6e6d7bfd953', 'member_record': '201b9a9c9390794c15207731efe9f524d1c14f0c80a15afa02b1e3b601580547', 'support_record': '1b5b46b845578a05a14879b1bae657f832f48a5b2122b404350588490571fd44', 'unavailable_record': '79931f5662ae9277f7ddbc008799340757f0e581e29a053cbdd90ff7a0eaf1a6', 'connector_record': '42cbb33f9c55a26951f72198fdbdc017670a472ce85fb80caf83acd5b09e477a', 'straight_stress_spans': '8fa6015c0c0b6ae5c87f241c29b1187f6e3e4a3bc3e624969d37aff1c3164efe', 'fallback_circular_maximum': 'bf5ab4f4c3577ffb0b068e1a9b918793e22b04a8c68764610cec3fe6e648210c', 'fallback_product_up': '5476bd4c93f66d5aee68c465b7da0ee39ab1d123dc75825931f2502cf0b607bb'}, 'core/product_physics/src/formation_guard.rs': {'recovery_finding': 'c499ed59986310186a5825c2043363ca131a5b44d41755a7700e1f7d6c1f5f9b', 'member_group_decision': '76a37c824097b528c638214d913166d24ffa81698222ad9199a511f32f0d5e59'}, 'core/product_physics/src/preview_physics.rs': {'extrema_evidence': 'a79bfa6c33095f97bc672ea78e27a3b768d901399978fac58d5ed9d804f3aac3'}, 'core/product_physics/src/lib.rs': {'solve_load_case_observed': '5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061', 'solve_prepared_load_case': 'b957a124af56c315ccc23c60b7259d2a482dfec48ead8fccdaec261a5dad642d'}}
 # Epoch addbdc030e: solve_prepared_load_case's `pipe_sections` is `exact_pipe_sections(built)`, the same entries plus
 # the realized-arc marker on a realized arc (none on D1); no record constructor or label changes.
 # T4-U6/U8 D3 (retained-pricing-rules.md, "T4-U6/U8: actual-source D3"): straight_stress_spans,
@@ -224,7 +232,14 @@ def inspect_directed_helpers(snapshot):
 # DEL-04-09 I2a D3 (§8.43): lib.rs only appends `mod modal;`; it adds or removes no `.min(`/`.max(` call.
 # RT-A4 D3 (§8.46): lib.rs's combination rewrite adds or removes no `.min(`/`.max(` call; the observation lane stays
 # deleted.
-B7A_PRIMITIVE_LIB_SOURCE_PIN = 'd8bffa0d5ffb138581de849580471d8abc2c8c5e764b070bc9ac3a2bdc35af91'
+# DEL-04-09 I2b-2 D3 (§8.43): lib.rs's decision-B seam (LoadCaseSolve.nonlinear_state, the qualification element
+# and capture_nonlinear_state_evidence) adds or removes no `.min(`/`.max(` call, and the observation lane stays deleted.
+# DEL-04-09 I2b-2 layout (§8.43, cc160d28d; Agent 0): the seam's hunks in ordinary layout (one field or statement
+# per line, the qualification let broken after `=`), token-equal but for block-wrapped arms and trailing commas;
+# it adds or removes no `.min(`/`.max(` call.
+# DEL-04-09 I2b-2 on RT-U4's candidate (§8.48, merge of 41cf15b95): lib.rs carries both of the above; together they
+# add or remove no `.min(`/`.max(` call, and the observation lane stays deleted.
+B7A_PRIMITIVE_LIB_SOURCE_PIN = 'f2ced8d7ff2fffe3493bac21164b738798c1faef74f752f13c2f3a5e0fa76d80'
 
 
 def primitive_lib_minmax_callers(snapshot):
