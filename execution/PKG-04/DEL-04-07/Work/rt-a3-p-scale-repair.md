@@ -299,3 +299,45 @@ estimate minus one and admission at the estimate (loop entry, both modes), and P
 - **Re-run.** The revised script's output equals main's byte for byte (constants, enclosures, the
   F-2 E_φ 2.132e-6 N and the margins). `rt_a3_nonlinear_k1_twins.rs` passes on P's head in both
   modes (6 tests; the superseded bit-identity test stays held).
+
+### 8.8 Pricing (read-only; no profile write)
+
+- **The maintained tool stops on P's head** (exit 4) at three full-file premise pins: the B7a domain
+  model and the W1 reductions model on NI `structural_adapter.rs`, and the B7a formation model on FK
+  `structural.rs` and `structural/sparse.rs`. Diff review of what each pin binds:
+  - the adapter's removed lines are one import, `sparse_symmetry`'s visibility and
+    `scrutinize_gaps`'s parameter (loop only); every other hunk adds a pattern sibling. No retained
+    (EX linear) entry, reduction owner or lifetime changes;
+  - `structural.rs` changes only its export list;
+  - `sparse.rs`'s only behavioural change is the Binary64 arm of `prepare_sparse_bound`, which the
+    retained route (Legacy and Assembled bindings) never takes.
+- **Measurement.** In a scratch copy of `tools/`, those three pins were restated to the head's
+  bytes, and `b7a_owner_choices.py`'s hand-kept FK line keys were relocated by the main→head line
+  map (`row_sources` 1301 → 1304 and `audit_load_fidelity` 1240 → 1243 in `structural.rs`;
+  `audit_sparse_load_fidelity` 1891 → 2182 in `sparse.rs`). With that, `run c91af13e9` completes on
+  all four points (exit 0): no unmapped header or unclassified argument, both O-10 checks at 0. The
+  line map is main's: 875 carried keys, 37 prunes, 7 resolutions. D is unchanged (L(3,0) 43,783,
+  E 76,356).
+- **Comparison with main `252bef969`** (the maintained tool, exit 0): 1,602 coefficients equal, none
+  higher, none lower. The merged check is identical: sparse 8,593,484,675 B and dense
+  8,652,616,019 B, §8.49's values.
+- **Priced sites P touches.** E's static call graph grows from 5,456 to 5,487 nodes. 28 functions are
+  new, all P's:
+  - FK `sparse.rs`: `prepare_sparse_structural_binary64`, the binary64 reduction,
+    `evaluate_sparse_original_residual`, `share`, `finish_sparse_structural_on`,
+    `finish_sparse_confirmation` and `SparseConfirmationAttempt::evaluate_at`;
+  - NI: the `LoopSystem` methods, the pattern solve and observation helpers, `coupling_mode`,
+    `loop_representation`, `evaluate_sparse` and `report`, and the adapter's pattern siblings and
+    `GapSource`/`GapViews` constructors.
+
+  All sit behind the nonlinear loop, which D1.6 refuses on both routes, so each is charged at
+  multiplicity 0 and no coefficient moves. The one changed function that is reached with nonzero
+  multiplicity on D1 is FK `prepare_sparse_bound` (the linear route's pattern preparation). It gains
+  an empty `Vec` (no allocation outside the Binary64 binding) and the Binary64 branch.
+- **Frame growth (not measured).** `prepare_sparse_bound`'s frame gains one `Vec` header (24 B) and
+  the Binary64 branch's temporaries. Whether the compiled frame grows is a stack-witness question
+  (AC-004's exclusive run), not part of this TASK.
+- **Registration.** Nothing is written: no `retained_memory.rs`, no §8.x section, no
+  `REGISTERED_PROFILES` and no witness record. The D3 registration (after #105B, PF1b and I3a) must
+  restate the three pins and the owner-choices line keys after its own review, and run the stack
+  witnesses.
