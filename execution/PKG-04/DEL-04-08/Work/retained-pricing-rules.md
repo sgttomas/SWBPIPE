@@ -5059,26 +5059,35 @@ classed by name below their true bound; their audits now govern, since an audit 
 - *Pricing tool.* `tools/retained_pricing/tests` and `tests/test_retained_pricing_tool.py` pass under the slot wrapper
   with `OPENPIPESTRESS_NO_CARGO_BUILD=1` (1,053 tests).
 - *Deliverables.* `python3 -m tools.deliverables --project . check` reports no error.
-- *Routing.* `tests/test_ci_numerical.py` and `tools/software_workflow/test_hosted_ci.py` fail on the real tree (10 tests,
-  63 with subtests): each selection falls back to the full suite at the refused `include_str!(concat!(…))` reads named
-  under "Routing". With those two reads set aside, the checker resolves every declaration.
+- *Routing.* At `1028b6d46` and after, `tests/test_ci_numerical.py` and `tools/software_workflow/test_hosted_ci.py` pass
+  (77 tests, 120 subtests). At `98990d9f6` they failed: 10 tests, 63 with subtests, because each selection fell back to
+  the full suite at two refused `include_str!(concat!(…))` reads (see "Routing").
 - *The new regressions.* `tests/test_852_i3a_modal_document.py` carries the ten audits on both routes. It re-prices a
   longer `COMPONENTS` token and stops on a computed `DIRECTIONS` token, a changed DOF-id or mode-ref helper, a rebound
   `id` or `ids` taken from elsewhere. A head without `modal_result_document` adds no audit.
+  - **Strengthened after review of `ea68fc554`.** The guard missed a rebinding after a tuple's first element: `let (_, id) =
+    ((), id.repeat(2));` passed and kept the 135 B audit for a value of up to 270 B. The guard now also stops when:
+    - any `let` pattern binds `a`, `b`, `id` or `ids` other than the three reviewed lets;
+    - the exact token counts of those four names in `modal_doc_solved` change (7, 5, 9, 12).
+
+    The second covers closure, `for` and match-arm rebindings. That mutation and a closure rebinding are now regressions
+    (11 tests). No coefficient moves.
 
 **Routing** (`tools/hosted-ci-routing.json`). I3a's branch had not routed its files. This registration does it with
 the maintained checker (`tools/ci/numerical_ci.py`'s `source_read_dependencies` and `rust_tree_digest`):
-- *Tree digests.* `source_trees` moves for product_physics (`97c5e298…` → `1bbd5860…`) and units (`00e6e906…` →
-  `4b50bd10…`).
+- *Tree digests.* `source_trees` moves for product_physics (`97c5e298…` → `1bbd5860…` at `98990d9f6`, then `b0665981…`
+  at `1028b6d46` after the include fix below; recomputed with `rust_tree_digest`) and units (`00e6e906…` → `4b50bd10…`).
 - *The three project-wide source-scan declarations.* result_export's `retained_precision_carriers.rs` input 14 and
   nonlinear_integration's `s11k_tests.rs` and `structural_adapter/k5_tests.rs` input 0 list the four new PP modal files.
   The first also lists `core/reporting/modal_result/src/lib.rs`.
 - *The fixture scans.* `hash_corpus.rs` and `combination_algebra.rs` list the 28 new modal fixtures, and
   `feature_guard.rs` input 6 lists `modal_result/Cargo.toml`.
 
-With those changes the checker resolves every declaration except two I3a test-source reads that it refuses by design
-(`include_str!(concat!(…))`, at `modal/tests_document.rs:95-96` and `modal_result/tests/corpus.rs:23`). Those are I3a
-test-source shapes outside this registration, so the routing tests stay failing until they are resolved (see "Tests").
+At `98990d9f6` two I3a test-source reads were still refused by design: `include_str!(concat!(…))` at
+`modal/tests_document.rs:95-96` and `modal_result/tests/corpus.rs:23`. `1028b6d46` expands both macros into literal
+`include_str!` calls over the same files (all 12 pairs and all 24 files). The checker then resolves every declaration.
+`price.py run 1028b6d46` is identical_but_basis to `d44e5c538`'s tree: 1,602 equal, o10 0/0, and `generate --check`
+differs only in the header's revision comment.
 
 **Frames and AC-004: pending.** AC-004 was not run here. The witnessed lib-test binary changes in retained-reachable
 code:
@@ -5088,8 +5097,9 @@ code:
 - `document.rs` and #109's and I3a's `modal_eigen` changes compile into the same binary.
 
 Heap coefficient identity does not establish stack depth (§8.39), and §8.43's analytical argument (no
-retained-reachable function body changes) does not hold here. §8.51's own AC-004 is also pending. So AC-004 needs the stack witnesses
-on this registration's binary. Frame sizes were not measured here.
+retained-reachable function body changes) does not hold here. §8.51's AC-004 passed 7/7 at `d44e5c538` (above), but it
+does not transfer to this binary. So AC-004 needs the stack witnesses on this registration's binary. Agent 0 required it
+(2026-11-04) and cleared one seven-process window, after the registration review is clear. Frame sizes were not measured here.
 
 Run evidence (price.py logs, compares, owner and graph checks) is in
 `/Users/ryan/dev/chirality-t3/scratch/rt-dynamics-i3a-d3/`. It is review input, not a permanent dependency.

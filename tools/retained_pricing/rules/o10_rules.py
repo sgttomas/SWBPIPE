@@ -4759,7 +4759,13 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
                 or _solved.count("let ids = &outcome.node_ids;") != 1
                 or _solved.count("let (a, b) = (modal_doc_dof_id(ids, row), modal_doc_dof_id(ids, col));") != 1
                 or _solved.count("let id = modal_doc_dof_id(ids, dof);") != 1
-                or len(_re.findall(r"\blet\s*(?:\(\s*)?(?:mut\s+)?(?:a|b|id|ids)\b", _solved)) != 3):
+                or len(_re.findall(r"\blet\s*(?:\(\s*)?(?:mut\s+)?(?:a|b|id|ids)\b", _solved)) != 3
+                # Review of ea68fc554: a binding anywhere in a let pattern (e.g. `let (_, id) = ..`), and any other
+                # rebinding or use (closure or for parameters, match arms), changes these exact counts and stops.
+                or [_p for _p in _re.findall(r"\blet\s+([^=;]*?)\s*=", _solved)
+                    if _re.search(r"\b(?:a|b|id|ids)\b", _p)] != ["ids", "(a, b)", "id"]
+                or {_n: len(_re.findall(r"\b" + _n + r"\b", _solved)) for _n in ("a", "b", "id", "ids")}
+                != {"a": 7, "b": 5, "id": 9, "ids": 12}):
             raise SystemExit("MODAL-ID: document.rs's DOF id or mode ref, or modal_doc_solved's bindings of them, changed; "
                              "re-review (§8.52)")
         _M_DOF = _md(len("dof:") + IN["bytes"] + len(":") + _M_COMPONENT,

@@ -88,6 +88,11 @@ def test_a_longer_component_token_reprices(tmp_path, monkeypatch):
     ("            let id = modal_doc_dof_id(ids, dof);\n",
      "            let id = modal_doc_dof_id(ids, dof);\n            let id = format!(\"{id}{id}\");\n"),
     ("    let ids = &outcome.node_ids;\n", "    let ids = &outcome.node_ids.clone();\n"),
+    # Review of ea68fc554: a rebinding after the first tuple element, and a closure rebinding.
+    ("            let id = modal_doc_dof_id(ids, dof);\n",
+     "            let id = modal_doc_dof_id(ids, dof);\n            let (_, id) = ((), id.repeat(2));\n"),
+    ("            let id = modal_doc_dof_id(ids, dof);\n",
+     "            let id = modal_doc_dof_id(ids, dof);\n            let id = (|id: String| id.repeat(2))(id);\n"),
 ])
 def test_a_changed_helper_or_binding_stops(tmp_path, monkeypatch, old, new):
     snap = copy_core(tmp_path)
