@@ -320,3 +320,17 @@ describe("the load manager's Conditions control", () => {
     expect(engine.cases[0].generated_primitive_loads.map((record) => record.magnitude)).toEqual([{ value: 130, unit: "K" }, { value: 130, unit: "K" }, { value: 130, unit: "K" }]);
   });
 });
+
+describe("a second pending edit of one set (App passes the queued intents)", () => {
+  it("is refused before queueing while an edit of the same set waits for review", async () => {
+    const model = corpusBase("s3a_04");
+    const set = model.condition_sets![0];
+    const pending = await updateConditionSetIntent(canonicalJsonString, set, { ...set, label: "first edit" });
+    const queued: EditorOperationIntent[] = [];
+    render(<ConditionSetsSection model={model} queuedIntents={[pending]} onQueueIntent={(intent) => queued.push(intent)} />);
+    type(`condition-set-${set.id}-label`, "second edit");
+    fireEvent.click(screen.getByTestId(`condition-set-update-${set.id}`));
+    expect(await screen.findByText(/Review or remove the pending change for this record before queuing another\./)).toBeInTheDocument();
+    expect(queued).toEqual([]);
+  });
+});
