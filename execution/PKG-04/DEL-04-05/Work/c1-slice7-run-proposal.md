@@ -79,6 +79,12 @@ Each native call also prescanned (≈1.5 s), parsed (≈1.8–2.3 s) and dropped
   before `probeResults`, `profileReaders` and `probePersistence`); `perf.mjs:671` and `:674` then
   record them.
 
+**Standing of this run for paint: failed, and inconclusive about rendering.** The paint gate
+failed: no `first_paint` was marked within 300,000 ms. The classifier's `hang` names that missing
+mark; it is not a proven render hang. Neither is this run a pass after the fact: no repair below
+turns it into one, and no "would have painted" claim is made. The heartbeats cited below are
+supporting inference only.
+
 No navigation, CSV, P3 profile, persistence, reopen, re-save or cleanup gate ran. The last pool
 report still held one result (935,428,224 B reserved) when the driver failed.
 
@@ -102,8 +108,8 @@ critical path moved to the session after the readers.
 
 ### Diagnosis (from the selected source `0328b489d`, runtime `907e633e2`)
 
-**(b) `result_set` → first paint: the mark was unreachable on the native path. This is not render
-work.**
+**(b) `result_set` → first paint: the mark was unreachable on the native path.** The missing mark
+is explained by source, whatever was rendered. What rendering cost is not known.
 - `solveTimeline.ts:244` `markSolveCommittedAndPaint` marks only when `isSolveResult(result)`.
   The timeline learned "the solve's result" only from `noteSolveResult`, called solely in
   `receiveResultBytes` (`previewService.ts:143`), the taken-bytes path.
@@ -113,16 +119,18 @@ work.**
   was painted.
 - No C1 native run had reached this point before, so the defect was latent.
 
-The run's own evidence agrees that the webview was not blocked. The driver polls every 200 ms and
-writes a heartbeat after each stage change and then at least every 5 s. Its heartbeats after
-`result_set` (web 239,775, 245,516, 251,516 … 298,516 ms) keep the same 5–6 s cadence as during
-the idle native awaits. The first came 1.1 s after `result_set`. That bounds the commit's
-main-thread work at about 1 s, as an inference, not a measurement.
+The heartbeats are supporting inference only. The driver polls every 200 ms and writes a
+heartbeat after each stage change and then at least every 5 s. Its heartbeats after `result_set`
+(web 239,775, 245,516, 251,516 … 298,516 ms) keep the same 5–6 s cadence as during the idle
+native awaits. They show only that the webview's event loop had resumed by the first heartbeat,
+**1,125 ms after `result_set`**, and kept making progress after that. They do not measure the
+commit, the rendering or the paint: total rendering duration and what was actually painted
+remain unknown.
 
 The first view is bounded by source. `NativeResultsPanel.tsx:203–229` reads one native page of
 `pageSize` (default `RESULT_PAGE_SIZE_OPTIONS[0]`; at most `RESULT_DETAIL_MAX_PAGE_ROWS` = 1,000)
 with its row semantics, and its tables come from S. No take, C2 full copy or whole-row loop runs
-before the paint.
+before the paint (the paint as repaired below: that page rendered, then two frames).
 
 **(a) `reader_verdict_end` → `analysis_run_built` (55.6 s): one awaited native call, the
 analysis-run preview.** Between the marks, the session (`workspaceSession.ts:1347–1389`) runs:
@@ -183,9 +191,15 @@ queueing, and each needs independent numerical/permission scrutiny:
 Attributing the 55.6 s among these passes needs native boundaries inside the preview (parse,
 validate, received checksum, record checksum, count, validate_built, drop) in the same fixed
 journal. That is a harness change (the web phase allow-list `perf.mjs:724`, bound hashes), so it
-was **not added**.
+was **not added**. Agent 0 later approved one web phase only, `run_preview`, which attributes the
+whole window to the awaited native call (see "Review repair" below). The native boundaries
+inside the preview are still not added.
 
 ### Repair made (TS only): the native handle is the solve's result for the timeline
+
+*Blocked by independent review and repaired below ("Review repair"). Kept as the record of
+`def3cf281`. Its statement that "`first_paint` keeps its definition" let the mark precede the
+native first page.*
 
 - `solveTimeline.ts:195` adds `noteSolveHandle(jobId, handle)`. It keeps a WeakRef to the handle,
   only while `jobId` is the running latest solve's job. It notes no text length, so full-envelope
@@ -235,6 +249,168 @@ floor kept.
 
 No fit, timing prediction or "would have painted at" claim is made. A repaired executable needs a
 new build, binding and Agent 0's decision before any further attempt. None is proposed here.
+
+### Review repair: first paint is the Results table's first page; `run_preview` phase (2026-11-04)
+
+An independent review **blocked** `e231ea144`. Registering the handle let the session's layout
+effect (`workspaceSession.ts:851`) schedule the two frames at the commit. But a native handle's
+rows and their semantics arrive later, through the panel's own asynchronous effect
+(`NativeResultsPanel.tsx:203`), and nothing gated the mark on them. With Results shown and its
+row query delayed or refused, `first_paint` could be marked while the table still read "Reading
+the result rows natively…". The test then waited for the paint *before* opening Results.
+
+**The required view, from the contract text.**
+- Criterion 9's clock runs "until the result is verified and first painted"
+  (`criterion-9-measurement.md` §1).
+- The result's view is the Results table. On the native path it is S's counts plus paged rows
+  (`c1-native-custody-plan.md` §3, the `ResultsPanel.tsx` row).
+- The approved probes "wait for actual result rows as well as the two-animation-frame timeline
+  mark" ("Interactions and usable-size gate", item 1). The binding says "the older solve
+  `first_paint` mark alone does not show that table" ("Verification status").
+- Gate 7 starts from "settled native rows" in the Results surface the driver opens
+  (`perf-driver.js` `probeResults`).
+
+So the required view is the **Results table's first native page with its row semantics**. Analyze
+→ Run itself shows Solve (`workspaceSession.ts` `analyze.run`), and the fresh solve does not open
+Results by itself, so the C1 driver now opens it during the solve.
+
+**Reconciled gate wording (applies from the next candidate binding; earlier records keep theirs).**
+- **`first_paint`** (the 300,000 ms gate, `report.solve.ended === "first_paint"`). It is the
+  app's own mark: the frame showing the solve's result.
+  - For a native handle (C1): `result_committed`, then the Results table's first page committed
+    while the table can be seen, with its rows (one bounded native page) and their row semantics
+    read, then **two animation frames**.
+  - For a result read from taken bytes (the whole-value path, unchanged): the table renders from
+    the value in the commit itself, so the paint is two frames after `result_committed`.
+  - A pending page never qualifies. Nor does a refused page or a page committed while Results is
+    dormant or hidden.
+  - The threshold, every mandatory step before `result_set` (verdict, registration, standing, S
+    and health, the native record and manifest, binding, proof), the no-deferral and
+    no-truncation rules, and "no artificial early mark" are all unchanged.
+- **`table_ready`** (`report.c1.fresh.table_ready_*`, method text in `perf-driver.js:381`). It is
+  the driver's own DOM observation, taken after `first_paint`: settled native rows in the same
+  Results table, then two frames. It corroborates the app's mark from outside it and starts the
+  navigation gate (gate 7). It is not a second threshold. Because Results is already open,
+  its elapsed time is the driver's check, not the time to the user's view; that time is
+  `first_paint`.
+
+**Repair design (TS; file:line at this change).**
+- `solveTimeline.ts:202` `noteSolveHandle` records the result as `"native"`. The caller
+  (`previewService.ts:680`) now passes the job read from the handle's own custody. It is still
+  refused unless that job is the running latest solve's at that moment. So a stale handle (a
+  superseded solve), a foreign one (a rule check's job), or a handle after the solve completed,
+  failed or was cancelled, registers nothing.
+- `solveTimeline.ts:266` `markSolveCommittedAndPaint` marks `result_committed`. It schedules the
+  two frames only for a value result; a native handle waits.
+- `solveTimeline.ts:277` `awaitsSolveFirstPage(handle)` and `:285`
+  `markSolveFirstPageCommitted(handle)`: once only, only for the solve's committed handle, then
+  the same two-frame `schedulePaint` (`:291`).
+- `NativeResultsPanel.tsx:294`: a layout effect, checked after every commit until it marks. It
+  marks when the page state is `ready` for the current request (rows and row semantics read; not
+  a refusal, not "Selected entity only" without an entity), the handle awaits its first page, and
+  the panel is visible by the shell's existing rule (`canSurfaceRevealNow`). A page read while
+  Results was dormant or hidden counts when the table is next shown and rendered.
+
+**`run_preview` journal phase (Agent 0, approved; this one phase only).**
+- `workspaceSession.ts:1387` wraps the fresh solve's `readNativeRunPreview` in the existing
+  `traceNativeReaderAwait("run_preview", …)`. That is the one awaited native call of
+  `reader_verdict_end` → `analysis_run_built`. It is not wrapped at the rule-check revision
+  (`:1515`), which is outside the gate window.
+- `solveTimeline.ts:360` adds `run_preview` to `NativeReaderPhase`. It is web layer only, with
+  the same enter/exit events, call numbering and 32-await cap. The native preview
+  (`analysis_run_v03_build.rs`) is untouched and emits no boundaries.
+- `perf.mjs:725` adds it to the web allow-list. `evidence_complete` therefore now also requires a
+  `run_preview` exit `ok`. A missing, pending or error exit leaves the journal incomplete, as for
+  the four reader awaits. The 256-boundary cap, the native allow-list and all other checks are
+  unchanged. `validatePlan` names no phases, and `perf-plan-c1.json` is unchanged.
+
+**Harness change: a new candidate binding.** These are the harness bytes `perf.mjs` records in
+`harness.files_sha256` and `plan_sha256`:
+
+| File | Bound before (`2470f0108` … `e231ea144`) | This change |
+| --- | --- | --- |
+| `perf.mjs` | `7329cca1c7c4de7a8758f3457c54dc00c8f5de9dbbe61db65e13f331844be8a5` | `00ef78d9f41b77068f65d3f419317868ab112009f7f33891d47695f9c2f0ae19` |
+| `perf-driver.js` | `e53468ab84d333a83df2305c76e26fc9d33d97f52215e4086fc27b69c14dfff1` | `5c5ad47c2c185583ce27b9d6ac47ae8acbfb65b8bb7931228dbb852f36f707a5` |
+| `perf-sampler.py` | `846f5493cc9cc309140cced0b6ff40ec9b92468db10a4f63e85fe654f9e03d3b` | unchanged |
+| `perf-plan-c1.json` | `25e8a62b828c6251ac36836d11f8b5448fc3138dbd4903e99ef453a732966435` | unchanged |
+
+The delta:
+- `perf-driver.js`, C1 only:
+  - after Analyze → Run, the driver waits for the solve to begin, then opens Results (`:121`);
+  - the paint wait's timeout is what remains of `paint_ms` from Analyze → Run, so the gate
+    stays 300,000 ms from the run (`:145`);
+  - a refused first page ends the wait as `results_refused` (`:141`), with its text in
+    `solve.shown.results_refusal` (`:97`);
+  - the `table_ready_method` text (`:381`).
+- `perf.mjs`: the web phase `run_preview` (`:725`), and `results_refusal` in the solve refusal's
+  message chain (`:663`).
+
+The whole-value (non-C1) driver path is unchanged. Records under the earlier hashes keep their
+binding and meaning; none is relabelled. No build, binding, App or native run, timing or RSS was
+made here.
+
+**Offline proof** (unit transport replay of committed fixtures; no timing). The tests are in
+`nativeSolveFirstPaint.session.test.tsx`, through the actual App, session, native result and
+results panel:
+1. Pressure and preview replays, with Results opened during the solve as the driver does: the
+   exact mark sequence, first page and semantics read between `result_committed` and
+   `first_paint`, and the bounded-read check below.
+2. The first page's query held pending, then its semantics held pending, each with frames under
+   test control. Five frames pass while held: the table reads "Reading…", no row is shown, and
+   there is no `first_paint`. After release the rows render; one frame later there is still no
+   mark; the second frame marks it.
+3. A refused first page: the refusal is shown, all queued frames are run, `result_committed` is
+   marked and `first_paint` never is.
+4. Results dormant (never opened): no page is read and there is no paint across frames. Opening
+   Results renders the page, and two frames later `first_paint` is marked.
+5. The analysis-run preview held: the session waits on it alone. The journal reads `header`,
+   `registration`, `standing`, `summary`, then `run_preview` entered at `reader_verdict_end` and
+   not exited. After release it exits `ok` and the solve reaches `first_paint`.
+
+The bounded-read check (review finding 3) runs over the whole captured call sequence:
+- Every row, semantics, recovery, take or full-copy command is identified.
+- Paged reads must carry an integer `limit` from 1 to 1,000. Keyed reads (lookup, semantics) must
+  carry at most 1,000 keys.
+- Any other row command fails the test, including a take or the C2 full copy.
+- The expected first-page query must have occurred: offset 0, limit `DEFAULT_RESULT_PAGE_SIZE`.
+
+`solveTimeline.test.ts` pins the handle rules: before the job, a foreign job, after completion,
+superseded, failed and cancelled. It also pins that a commit alone never paints a handle, and that
+another handle's page, or a page before the commit, marks nothing. Only the solve's committed
+handle's first page marks, once, and two frames later. A value result still paints at its commit.
+
+`perf.test.mjs` pins the harness side:
+- `run_preview` is required for `evidence_complete`, is web-only, and stays incomplete while
+  pending;
+- the C1 solve wait opens Results only after the run has begun, and ends at `first_paint` or at
+  `results_refused`;
+- the paint timeout counts from Analyze → Run.
+
+**Fail-without.**
+- With the four product files restored to `e231ea144` (the new tests kept), five of the seven
+  session cases fail: both held cases, the refusal, the dormant case and the `run_preview`
+  journal case. The two full-sequence cases pass there too, since `e231ea144` also reached a mark.
+- With `perf.mjs` and `perf-driver.js` restored, four `perf.test.mjs` cases fail: both C1 solve
+  waits and both `run_preview` journal cases.
+
+**Checks** (this change, `t3_slot.sh`, the worktree's own `node_modules`):
+- `tsc --noEmit`: clean.
+- Focused vitest: 12 files, 117 tests, passed. The files: the session test above,
+  `solveTimeline`, `solveTimelineCodes`, `solveTimelineGlobal.install`,
+  `NativeResultsPanel.native`, `nativeResult.connect`, `exactSessionSolve.session`,
+  `nativeReopen.session`, `historicalNativeParity`, `solveJobResource.session`,
+  `App.nativeCustody` and `ResultsPanel.navigator`.
+- `node --test native-smoke/perf.test.mjs`: 49 tests, passed.
+- The full `apps/desktop` vitest run, once, at the end: 394 files; 7,566 tests passed, 1 todo.
+- `node --test` over the four `native-smoke` test files: 89 tests, passed.
+- `python3 -m tools.deliverables --project . check`: 0 errors.
+- No Rust and no priced file was changed. `analysis_run_v03_build.rs` and `native_persistence.rs`
+  were not touched.
+
+**Open matter.** `criterion-9-measurement.md` §7 still describes `first_paint` only as "two
+animation frames later" after `result_committed`. The native-handle reading above should be
+carried into that section when the next candidate binding is accepted. That section is outside
+this change's write scope.
 
 ## Bounded ONE 500-node attempt proposal (A-only candidate) (2026-11-04; offline, not run)
 
