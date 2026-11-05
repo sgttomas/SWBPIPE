@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { buildBlankLocalModelDocument } from "../../services/projectService";
-import { chooseVirtualTarget } from "../../test-support/workspaceTestControls";
+import { chooseVirtualMultiTarget, chooseVirtualTarget } from "../../test-support/workspaceTestControls";
 import type { EditorOperationIntent, EntityRef, PreviewModel } from "../../types";
 import { LoadCaseManagerPanel } from "./LoadCaseManagerPanel";
 
@@ -110,7 +110,8 @@ describe("LoadCaseManagerPanel load-case creation", () => {
     expect(queue).toHaveBeenCalledOnce();
     const intent = lastIntent(queue);
     expect(intent).toMatchObject({
-      operation_id: "op:load-manager-create-load:new-case",
+      // A character outside [A-Za-z0-9_.:-] is escaped reversibly (space -> ~20), so distinct ids never share an operation id.
+      operation_id: "op:load-manager-create-load:new~20case",
       operation_kind: "create",
       target: { object_type: "Load", ref: "load:new case" },
       change: { change_kind: "create_load_case", field_path: "load_cases", before: "not_present", unit: "none", dimension: "dimensionless" },
@@ -400,10 +401,16 @@ describe("LoadCaseManagerPanel existing primitive editing", () => {
 });
 
 describe("LoadCaseManagerPanel combination creation", () => {
-  it("queues the default mechanics combination and refuses a non-finite factor or existing id", () => {
+  it("queues an explicitly entered mechanics combination and refuses a non-finite factor or existing id", () => {
     const { queue } = mount();
     expect(byId("load-manager-create-combination-heading")).toHaveTextContent("combination:C-300");
-    expect(byId("load-manager-create-combination-heading")).toHaveTextContent("basis=mechanics; term=load:dead x 1");
+    // Nothing is proposed: no first case, no factor 1.
+    expect(byId("load-manager-create-combination-heading")).toHaveTextContent("basis=mechanics; term=TBD x TBD");
+    expect(byId("queue-create-combination-intent")).toBeDisabled();
+    expect(byId("load-manager-create-combination-preview")).toHaveTextContent("term 1: not chosen: its load case");
+    chooseVirtualTarget("load-manager-create-combination-load-case", "load:dead");
+    expect(byId("queue-create-combination-intent")).toBeDisabled();
+    expect(byId("load-manager-create-combination-preview")).toHaveTextContent("term 1: not entered: its factor");
     for (const factor of ["1e", "", "abc"]) {
       type("load-manager-create-combination-factor", factor);
       expect(byId("queue-create-combination-intent")).toBeDisabled();
@@ -433,6 +440,12 @@ describe("LoadCaseManagerPanel combination creation", () => {
   it("requires distinct minuend and subtrahend for a subtraction", () => {
     const { queue } = mount();
     type("load-manager-create-combination-basis", "result_state_subtraction");
+    expect(byId("load-manager-create-combination-heading")).toHaveTextContent("minuend=TBD; subtrahend=TBD");
+    expect(byId("queue-create-combination-intent")).toBeDisabled();
+    expect(byId("load-manager-create-combination-preview")).toHaveTextContent("not chosen: the minuend");
+    chooseVirtualTarget("load-manager-create-combination-minuend", "load:dead");
+    expect(byId("load-manager-create-combination-preview")).toHaveTextContent("not chosen: the subtrahend");
+    chooseVirtualTarget("load-manager-create-combination-subtrahend", "load:hot");
     expect(byId("load-manager-create-combination-heading")).toHaveTextContent("minuend=load:dead; subtrahend=load:hot");
     fireEvent.click(byId("queue-create-combination-intent"));
     expect(JSON.parse(lastIntent(queue).change.after)).toEqual({
@@ -449,6 +462,7 @@ describe("LoadCaseManagerPanel combination creation", () => {
     model.load_cases = [model.load_cases[0]];
     mount(model);
     type("load-manager-create-combination-basis", "result_state_subtraction");
+    chooseVirtualTarget("load-manager-create-combination-minuend", "load:dead");
     expect(byId("load-manager-create-combination-heading")).toHaveTextContent("minuend=load:dead; subtrahend=TBD");
     expect(byId("queue-create-combination-intent")).toBeDisabled();
   });
@@ -456,6 +470,11 @@ describe("LoadCaseManagerPanel combination creation", () => {
   it("queues a range envelope with its operands and mode", () => {
     const { queue } = mount();
     type("load-manager-create-combination-basis", "range_envelope");
+    expect(byId("load-manager-create-combination-heading")).toHaveTextContent("mode=TBD; operands=TBD");
+    expect(byId("queue-create-combination-intent")).toBeDisabled();
+    expect(byId("load-manager-create-combination-preview")).toHaveTextContent("not chosen: any operand");
+    chooseVirtualMultiTarget("load-manager-create-combination-operands", "load:dead");
+    expect(byId("load-manager-create-combination-preview")).toHaveTextContent("not chosen: the mode");
     type("load-manager-create-combination-mode", "min");
     expect(byId("load-manager-create-combination-heading")).toHaveTextContent("mode=min; operands=load:dead");
     fireEvent.click(byId("queue-create-combination-intent"));
@@ -471,6 +490,8 @@ describe("LoadCaseManagerPanel combination creation", () => {
     next.combinations!.push({ id: "combination:C-300", label: "Applied", basis: "mechanics", terms: [], provenance: "invented" });
     rerender(next);
     expect(byId("load-manager-create-combination-id")).toHaveValue("combination:C-301");
+    chooseVirtualTarget("load-manager-create-combination-load-case", "load:dead");
+    type("load-manager-create-combination-factor", "1");
     expect(byId("queue-create-combination-intent")).toBeEnabled();
   });
 });
@@ -492,9 +513,11 @@ describe("LoadCaseManagerPanel combination editing", () => {
     });
   });
 
-  it("queues a whole-combination delete with the engine before-display", () => {
+  it("queues a whole-combination delete with the engine before-display", async () => {
     const { queue } = mount(inventedModel(), { type: "combination", id: "combo:legacy" });
+    // The delete is checked by the operation engine before it is queued.
     fireEvent.click(byId("queue-delete-combination-intent"));
+    await waitFor(() => expect(queue).toHaveBeenCalledOnce());
     expect(lastIntent(queue).change).toMatchObject({ change_kind: "delete_combination", field_label: "Legacy combination", before: "combo:legacy; Legacy; basis=custom_basis; terms=none", after: "not_present" });
     cleanup();
     const second = mount(inventedModel(), { type: "combination", id: "combo:ops" });
@@ -503,10 +526,11 @@ describe("LoadCaseManagerPanel combination editing", () => {
     expect(byId("load-manager-combination-entity-delete-preview")).toHaveTextContent("select a combination and provide rationale to queue deletion");
     type("load-manager-combination-entity-delete-rationale", "invented");
     fireEvent.click(byId("queue-delete-combination-intent"));
+    await waitFor(() => expect(second.queue).toHaveBeenCalledOnce());
     expect(lastIntent(second.queue).change.before).toBe("combo:ops; Operating; basis=mechanics; terms=load:dead x 1");
   });
 
-  it("edits and deletes an indexed combination term", () => {
+  it("edits and deletes an indexed combination term", async () => {
     const { queue } = mount();
     expect(byId("load-manager-selected-combination-term")).toHaveTextContent("combo:ops");
     expect(byId("load-manager-selected-combination-term")).toHaveTextContent("term=load:dead; path=terms.0.factor");
@@ -521,6 +545,7 @@ describe("LoadCaseManagerPanel combination editing", () => {
       change: { field_label: "load:dead combination factor", field_path: "terms.0.factor", before: "1", after: "1.5", unit: "none", dimension: "dimensionless" }
     });
     fireEvent.click(byId("queue-delete-combination-term-intent"));
+    await waitFor(() => expect(queue).toHaveBeenCalledTimes(2));
     expect(lastIntent(queue)).toMatchObject({
       operation_id: "op:load-manager-combo:ops-term-0-delete",
       operation_kind: "delete",
@@ -541,9 +566,17 @@ describe("LoadCaseManagerPanel combination editing", () => {
     expect(lastIntent(queue).change.after).toBe("0");
   });
 
-  it("drafts a new term against a case the combination does not yet use", () => {
+  it("drafts a new term only from an explicitly chosen case and entered factor", () => {
     const { queue } = mount();
     expect(byId("load-manager-create-combination-term-heading")).toHaveTextContent("combo:ops");
+    // No prefill: neither a case nor a factor is proposed.
+    expect(byId("load-manager-create-combination-term-heading")).toHaveTextContent("new term; load=TBD; factor=TBD");
+    expect(byId("queue-create-combination-term-intent")).toBeDisabled();
+    expect(byId("load-manager-create-combination-term-preview")).toHaveTextContent("not chosen: the load case the new term names");
+    chooseVirtualTarget("load-manager-create-combination-term-load-case", "load:hot");
+    expect(byId("queue-create-combination-term-intent")).toBeDisabled();
+    expect(byId("load-manager-create-combination-term-preview")).toHaveTextContent("not entered: the factor");
+    type("load-manager-create-combination-term-factor", "1");
     expect(byId("load-manager-create-combination-term-heading")).toHaveTextContent("new term; load=load:hot; factor=1");
     fireEvent.click(byId("queue-create-combination-term-intent"));
     const intent = lastIntent(queue);
@@ -552,8 +585,10 @@ describe("LoadCaseManagerPanel combination editing", () => {
       target: { object_type: "Combination", ref: "combo:ops" },
       change: { change_kind: "create_combination_term", field_path: "terms", before: "not_present", after: JSON.stringify({ load_case: "load:hot", factor: 1 }) }
     });
+    // A new target combination clears the chosen case; the entered factor stays as typed.
     chooseVirtualTarget("load-manager-create-combination-term-combination", "combo:legacy");
-    expect(byId("load-manager-create-combination-term-heading")).toHaveTextContent("new term; load=load:dead; factor=1");
+    expect(byId("load-manager-create-combination-term-heading")).toHaveTextContent("new term; load=TBD; factor=1");
+    chooseVirtualTarget("load-manager-create-combination-term-load-case", "load:dead");
     type("load-manager-create-combination-term-factor", "x");
     expect(byId("queue-create-combination-term-intent")).toBeDisabled();
     expect(byId("load-manager-create-combination-term-preview")).toHaveTextContent("select combination/load case and finite factor to queue a combination term");
@@ -566,6 +601,6 @@ describe("LoadCaseManagerPanel combination editing", () => {
     mount();
     fireEvent.click(byId("load-manager-combination-select-combo:range"));
     expect(byId("load-manager-create-combination-term-heading")).toHaveTextContent("combo:range");
-    expect(byId("load-manager-create-combination-term-heading")).toHaveTextContent("load=load:dead");
+    expect(byId("load-manager-create-combination-term-heading")).toHaveTextContent("load=TBD");
   });
 });

@@ -8,7 +8,7 @@ import { WindExposureForm } from "../wind-exposure/WindExposureForm";
 import { SectionAssignment } from "../toolkit/SectionAssignment";
 import { PipeConditionSetField } from "../condition-sets/PipeConditionSetField";
 import { GuardedRemoval } from "../toolkit/GuardedRemoval";
-import { buildDeleteNodeIntent, buildDeletePipeIntent, buildDeleteSupportIntent } from "./removalIntents";
+import { NODE_DELETE_ENGINE_ABSENT, buildDeleteNodeIntent, buildDeletePipeIntent, buildDeleteSupportIntent } from "./removalIntents";
 import { draftSupportFamily, SUPPORT_FAMILY_OPTIONS, suggestedSupportFamily, supportFamilySuggestionText } from "./supportFamilyDraft";
 import { ModelDataAnnotations } from "../model-data/ModelDataAnnotations";
 import { combinationTermsText } from "../load-cases/combinationOperands";
@@ -1046,6 +1046,8 @@ export function PropertyInspector({
           </div>
           <OperationIntentPreview intent={nodeDeleteIntent} />
         </section>
+      ) : mutationNode ? (
+        <p className="muted" role="note" data-testid="delete-node-engine-absent">{NODE_DELETE_ENGINE_ABSENT}</p>
       ) : null}
       {pipeDeleteIntent ? (
         <section className="editor-intent" aria-label="Delete pipe intent" data-testid="delete-pipe-intent-panel">
