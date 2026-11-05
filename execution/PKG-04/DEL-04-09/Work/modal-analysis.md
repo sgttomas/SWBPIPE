@@ -881,7 +881,7 @@ n_max = 8,192 is the largest order the dense guard admits (below, τ_m); n_max·
 | s_max, gap positions, offsets | 7; ¼, ¾, ⅛, ⅜, ⅝, ⅞; 1, ½, ¼ | **A1: unchanged** | Dyadic positions of levels 2 and 3 (≤ `MAX_GAP_POSITION_LEVEL`) after the geometric mean: the gap at log-resolution ⅛; s_max = 1 + 6 bounds the Sturm work at 7·n³/3 | Every product final shift was accepted at its first candidate (§3.4, as built; fixtures) |
 | τ_e (band screen) | 10⁻⁶ | **A1: 10⁻⁶** (a stated accuracy requirement, not a fitted value) | Recovered band pairs must estimate about six significant digits of λ. **Band only:** τ_e judges only the band-recovered pairs of §3.2; a pair above the band is retained from QL without it, and every computed pair, above the band or in it, keeps its full re-formed evidence (§3.4 check 2: η, κ_λ and e_λ on the re-formed pencil) and its standing (a reported mode with η > τ_r is Sensitive). τ_e is not a whole-spectrum accuracy criterion | Genuine band e_λ ≤ 3·10⁻⁸ (33× below); I3a product band pairs (E-RIGID-SCALE-1e5, -1e6) ≤ 1.50·10⁻⁸ (67× below); diagnosed false pairs ≥ 3·10³ (§3.2) |
 | τ_m (mass pivot) | 10⁻¹² | **A1: 2⁻³⁶ ≈ 1.46·10⁻¹¹** | An equilibrated mass pivot of a structurally singular block rounds at about n·u, so τ_m ≥ 16·n·u, and 2⁻³⁶ = 16·n_max·u exactly at n_max = 8,192, with n the order of the equilibrated block (n_f less the structurally massless DOFs ≤ n_f ≤ the global order). **The criterion holds only where a guard establishes n ≤ 8,192 at every use of τ_m.** *Source check (I3a):* τ_m has one use, `established_finite_mode_count` (`modal_eigen/src/dense.rs:751`), called only from `solve_dense_pencil` (`:491`). The product reaches that only through `solve_modal_pencil`, after `form_modal_pencil` has applied `dense_scrutiny_guard` to the global order 6N before any n² allocation (`modal/stiffness.rs:137–141`): 96·n² ≤ 6 GiB admits n ≤ 8,192, so the block order ≤ 8,192 on the product path. Not guarded: the kernel's public `solve_dense_pencil` and `established_finite_mode_count` carry no order limit of their own, so any other caller (M2's sparse path, a native or headless entry) must establish n ≤ 8,192 itself; the 6 GiB ceiling is provisional (ROOT Q8(a)); and the test-only `DENSE_SCRUTINY_CEILING_OVERRIDE` (compiled in tests only) can set any ceiling. **If a resource or admission guard later widens n beyond 8,192 where τ_m is used, the 16·n·u basis is revised and reviewed first** | Genuine equilibrated pivots ≥ 0.22 (the small-bore witness), 1.5·10¹⁰× above |
-| τ_μ, c_μ, κ_μ, c_f | 10⁻¹², 1, 10, 64 | **HOLD (A3); values unselected** | τ_μ ≥ n·u where κ_μ·δ_q (= 10·n·u·μ_max) does not already dominate (n < 900); c_μ, κ_μ and c_f as §3.2 states them. No value is proposed | The μ/μ_max observation table (item 6 below). **The high-mode issue:** EX n05's top retained mode has μ/μ_max = 3.86·10⁻¹², 3.9× above the test-local τ_μ = 10⁻¹² |
+| τ_μ, c_μ, κ_μ, c_f | 10⁻¹², 1, 10, 64 | **HOLD (A3); values unselected** | τ_μ sets the hard cut only where κ_μ·δ_q (= 10·n·u·μ_max) does not already dominate (n ≤ 900); it is inert at n ≥ 901. The classification depends on κ_μ·c_μ only; c_μ, κ_μ and c_f as §3.2 states them. **Proposal (2026-11-05, not adopted):** "A3: minimum resolution and screening proposal" below, with τ_μ = 2⁻⁵³ (inert), c_μ = 1, κ_μ = 10 and c_f = 64 | The μ/μ_max observation table (item 6 below). **The high-mode issue:** EX n05's top retained mode has μ/μ_max = 3.86·10⁻¹², 3.9× above the test-local τ_μ = 10⁻¹² |
 | QL limit | 30 | **A1: 30** | 30 is tql2's established iteration limit; a failure refuses (`MODAL_EIGENSOLVE_UNAVAILABLE`) | Every product solve within it |
 
 **A2 and A3 evidence (I3a, 2026-11-04; TEST-LOCAL observations, debug build, aarch64-apple-darwin; nothing is pinned or proposed by it).** Every observation comes from existing correctness fixtures plus small additions, in maintained deterministic tests: `modal::observation_tests` (product path) and `modal_eigen/tests/sturm_counts.rs` (`conditioning_and_separation_premises_against_independent_references`, `exact_repeat_and_close_distinct_controls_in_a_rotated_basis`). The product population is 35 models: the 26 class (a) cases, SEC-A at N = 1, 2, 4, 8 (whole spectrum), EX n05, the arc, the component body and the two I2b-2 state cases, n ≤ 48. They run through `replay_modal_phases`, which `the_phase_replay_is_the_product_path` holds bit for bit to `run_modal_dense`, so every computed pair, reported or not, and the re-formed pencil are visible. Each test asserts regression tripwires at the next power of ten (or more) above the observed extreme; a tripwire is not a threshold or a pin. **What applies to every item:** an empirical ratio describes this population only. It cannot turn an assumption into a domain-wide theorem: an estimator with no worst-case bound stays an estimator, and witness evidence informs the choice without proving it.
@@ -908,6 +908,96 @@ n_max = 8,192 is the largest order the dense guard admits (below, τ_m); n_max·
    | the other 23 models | ≥ 9.2·10⁻⁶ | ≤ 1.04·10⁻¹² | 0 | – | established | – |
 
    *Shows:* genuine retained values reach down to 3.86·10⁻¹² (EX n05's top mode, spread λ_max/λ_min ≈ 2.6·10¹¹), only 3.9× above the test-local τ_μ. The rejected values (rounding-level μ of the offset point lumps' non-coordinate nullspaces) lie at ≤ 6.6·10⁻¹⁷. The population's window between rejected and genuine is about 6·10⁴ wide, and EX n05's top mode sits near its upper end. The census limit stands as found: AXIAL, LATERAL, GENERAL and the component body's offset point lump leave the count unresolved (their whole-spectrum endpoint stays refused; lower bounds are served). Nothing is truncated, and nothing below either hard floor is recovered. Band pairs' η̃/(n·u) ≤ 0.15 against c_f = 64 and e_λ ≤ 1.5·10⁻⁸ against τ_e. *Assumed:* nothing; no value is proposed. *Limits:* the census limit and the high-mode issue are not resolved by any choice of τ_μ within this window. A model with a wider spread than EX n05 would put a genuine top mode below 10⁻¹², and a τ_μ chosen inside the window is a population fit, not a derived bound.
+
+##### A3: minimum resolution and screening proposal (2026-11-05; PROPOSAL, nothing adopted)
+
+This is a proposal for independent review. It adopts, pins and implements nothing, and it starts no measurement. Source is read at `874378dde`, which contains I3a (`08bfdfdaf`). The figures are hand arithmetic on the recorded observations, with u = 2⁻⁵³ and n the full free order.
+
+**1. What each parameter decides (source).** After the QL solve the kernel forms two cuts (`core/solver/modal_eigen/src/dense.rs:486–496`):
+- the hard cut h = max(τ_μ·μ_max, κ_μ·δ_q), with δ_q = c_μ·n·u·μ_max;
+- the broad cut b = max(h, κ_μ·δ_μ), with δ_μ = c_μ·n·u·ν(K̃̂)·‖M̃_mm‖_∞ (:478–482).
+
+Each condensed μ then falls in one of these regions (`classify_mu` :656; the loop :556–584):
+
+| μ region | Verdict | Census effect |
+|---|---|---|
+| μ ≤ 0 | infinite, not returned (:508) | unresolved |
+| 0 < μ ≤ h | hard-rejected; never recovered, even with a zero residual | unresolved |
+| h < μ ≤ b | band: μ_R is recovered on the formed pencil (`recover_band_mode` :796). The pair is retained only if μ_R > h, η̃ ≤ τ_f = c_f·n·u and e_λ ≤ τ_e (:537, :568–569, `screen_passes` :882); otherwise it is rejected | retained: none; rejected: unresolved |
+| μ > b | retained from QL, without τ_f or τ_e; it keeps check 2's re-formed evidence and standing | none |
+
+The census is unresolved when any pair is rejected or when the τ_m mass-block Cholesky fails (:588, :615–617, `established_finite_mode_count` :959). The product maps that to `FiniteCensus` (`product_physics/src/modal/eigen.rs:106–118`).
+
+| Parameter (test-local) | Where it enters | What it decides | Source |
+|---|---|---|---|
+| τ_μ (10⁻¹²) | h = max(τ_μ·μ_max, κ_μ·δ_q) | Hard rejection, but **only where τ_μ > κ_μ·c_μ·n·u**, that is n ≤ 900 at the test-local values. At n ≥ 901 it is inert: κ_μ·c_μ·n·u is 1.07·10⁻¹² at n = 960 and 2.13·10⁻¹² at 1,920 | dense.rs:376, :489–492; the product validator requires (0, 1), `integrity.rs:146`; the kernel accepts [0, 1), dense.rs:377 |
+| c_μ (1) | δ_q and δ_μ, always multiplied by κ_μ | **Nothing on its own.** The classification depends only on κ_μ·c_μ; c_μ alone rescales the reported δ_q and δ_μ | :478–482, :487–496 |
+| κ_μ (10) | κ_μ·δ_q in h, κ_μ·δ_μ in b | the reduction's hard resolution floor, and the band edge, which decides which pairs need recovery | :489–496 |
+| c_f (64) | τ_f = c_f·n·u | band acceptance on the formed η̃, inclusive | :537, :882–889 |
+
+**Where a genuine finite mode can be lost.** These are the only two routes:
+- (i) a genuine μ ≤ h, which is always dropped;
+- (ii) a genuine band μ whose recovery fails: η̃ > τ_f, e_λ > τ_e, a non-positive g or h, μ_R ≤ h, or a non-normal value.
+
+A genuine μ > b is never dropped by an A3 parameter. The cuts act on μ, so a dropped mode always comes from the top of the spectrum. Every drop raises `below_threshold_mu_count`, so the census is unresolved (:588, :616–617). The system then does three things:
+- It refuses the whole-spectrum endpoint by name (`MODAL_FINITE_COUNT_UNRESOLVED`, eigen.rs:178–195).
+- It still serves a set that ends below a completed computed cluster, with a disclosure (outcome.rs:534–536), and only if the Sturm count at the gap shift equals the reported count (eigen.rs:229–266). A mode dropped below the final shift is therefore caught as `MODAL_STURM_COUNT_MISMATCH`, not hidden.
+- It never adds a dropped mode to a count.
+
+The opposite risk is a spurious μ. Below b it goes to recovery, which rejects it. Above b it would be retained, and h and b are what guard that direction.
+
+**2. Known failure behaviour.** In each case below the criterion claims no resolved count.
+- **(a) SEC-A at n_f = 1,920 (§5.3.8).** The census reads `Unresolved { rejected_mu: 640, mass_block_established: true }`. The mass block establishes 1,920 finite modes; 1,280 are returned, so 640 genuine top modes are missing.
+  - **Attribution corrected:** at n = 1,920, κ_μ·c_μ·n·u = 2.13·10⁻¹² exceeds τ_μ = 10⁻¹². The hard cut was therefore κ_μ·δ_q, and **τ_μ decided no pair**.
+  - The record does not split the 640 into hard-rejected and band-failed pairs. `band_screened` is `screened.len()` (`phase_measurand_tests.rs:387`), and the kernel's `hard_rejected_pair_count` and `attempted_band_pair_count` (dense.rs:309–314) were not printed. For the same reason, 4pn² with p = 640 is an upper estimate.
+  - dense_solve grew 19.7× against about 8× for n³. That is consistent with recovery being attempted on most of the 640, which would make band acceptance (route ii) the rejecting verdict. It is not established.
+  - Either way, at this spread the binary64 reduction cannot carry these modes. No value of τ_μ, including 0, returns them.
+  - The criterion drops them, leaves the census unresolved, refuses the endpoint, and serves the ten low modes under the lower-gap count.
+- **(b) The offset point lumps and the component body (item 6).** M has a non-coordinate nullspace, so these μ are true infinite eigenvalues computed at rounding level. Every rejected value is at most 6.6·10⁻¹⁷·μ_max: at most 0.050·n·u·μ_max on component PF (n = 12) and at most 0.016 on the lumps (n = 24). They are hard-rejected, which is correct. The count is not established because the structural premise (coordinate nullspaces only) fails. Unresolved is the true answer, not a defect of τ_μ, and it is not removed by truncation.
+- **(c) EX n05 (n = 7, spread ≈ 2.6·10¹¹).** At n = 7 the active hard cut is τ_μ (κ_μ·c_μ·n·u = 7.8·10⁻¹⁵). The top mode sits at 3.86·10⁻¹², 3.9× above it, and the census is established at 7. With a spread about 4× wider, τ_μ would hard-reject a mode lying 500× above the reduction's own floor. The census would then be unresolved, the endpoint refused and the lower modes served. That is τ_μ's own failure mode: **it drops modes the reduction resolves.**
+
+**3. The minimum proposal.** A fixed τ_μ cannot be defended across spreads.
+- The only derived floor is the reduction's resolution. QL is backward stable on the symmetric C, with ‖C‖₂ = μ_max, so by Weyl each computed μ lies within c·n·u·μ_max of an eigenvalue of C. A μ at or below a modest multiple of n·u·μ_max cannot be told apart from 0. This is a rounding argument with an assumed O(1) constant, not a certified bound.
+- A fixed τ_μ either lies below κ_μ·c_μ·n·u, where it is inert (every n ≥ 901 today), or above it, where it drops resolvable modes (case c).
+- No fixed value changes case (a).
+
+The proposal is therefore a role change plus three values:
+- **P1. τ_μ becomes inert, and the hard floor is κ_μ·δ_q alone. Proposed value τ_μ = 2⁻⁵³ (= u).**
+  - **Why it is inert:** κ_μ·c_μ·n ≥ 1 for every n ≥ 1 once κ_μ·c_μ ≥ 1, so u·μ_max ≤ κ_μ·δ_q and τ_μ never sets h. The value passes the product's (0, 1) validation, so no code changes.
+  - **Case (a):** no change. h is the same at n ≥ 901, the 640 stay dropped and the census stays unresolved. **This is not a recapture.**
+  - **Case (b):** h falls to 1.33·10⁻¹⁴ (n = 12) and 2.66·10⁻¹⁴ (n = 24). Every rejected value stays at least 200× below it, and the census stays unresolved.
+  - **Case (c):** the top mode sits about 500× above h, not 3.9×. The high-mode issue at n ≤ 900 becomes the same spread limit as at large n.
+  - **Population:** no verdict changes on the 35 models. Genuine values are ≥ 3.86·10⁻¹² and rejected values ≤ 6.6·10⁻¹⁷, with nothing in between.
+  - **Cost:** at n ≤ 900 the extra fixed margin against a spurious pair above the derived floor is removed. Protection then rests on κ_μ and on the band with recovery. That trade is the decision.
+- **P2. c_μ = 1 and κ_μ = 10, with the product κ_μ·c_μ stated as the only acting quantity.**
+  - c_μ = 1 normalizes δ_q and δ_μ to plain n·u-scale quantities. κ_μ is the single allowance on the reduction's constant, and it carries both h and b.
+  - **Basis:** an assumed allowance. Observed true zeros are at most 0.050·n·u·μ_max, 200× below 10. The band edge errs in the safe direction (the rigid-scale band pairs are recovered).
+  - **The resulting resolvable-spread limit at order n** is λ_max/λ_min < 1/(κ_μ·c_μ·n·u): about 4.7·10¹¹ at n = 1,920 and 1.1·10¹¹ at n_max = 8,192. Beyond it, top modes are dropped and the census is unresolved.
+  - κ_μ is not lowered toward the observed 0.05 to widen that limit. Doing so would be the excluded tuning.
+- **P3. c_f = 64 = 2⁶.**
+  - **Basis:** a recovered pair with an accurate vector has a formed η̃ at rounding level, because the sums are exact and only φ and λ_R carry rounding. Observed band η̃/(n·u) ≤ 0.152, 420× below 64.
+  - It rescues no vector: an inaccurate QL vector rightly fails it, and e_λ ≤ τ_e (A1) catches the normwise-blind pair (dense.rs `normwise_blind_pair_is_not_an_accurate_eigenvalue`).
+  - In case (a), band-attempted pairs fail here. Loosening c_f to accept them is excluded.
+- **P4. The census rule is unchanged.** The census is unresolved on any μ ≤ 0, any rejected screened pair or a failed mass block. Nothing is truncated, the whole-spectrum endpoint is refused, and lower sets are served only under the Sturm count and completed-cluster premises.
+
+Taken together: μ is resolved if and only if μ > κ_μ·c_μ·n·u·μ_max, and either μ > κ_μ·δ_μ or band recovery passes c_f and τ_e. Every failure leaves the count unresolved and never produces a count claim.
+
+**4. Changes kept apart from adoption (none adopted, none implemented).**
+- **K1.** Only if Agent 0 prefers τ_μ = 0 or removing τ_μ: widen the product validator to [0, 1) (`integrity.rs:146`), or remove τ_μ from h (dense.rs:489–492) and from the recorded parameter names (`document.rs:357`, `reporting/modal_result/src/lib.rs:96`), which is a schema change. P1 at u needs neither.
+- **K2.** A test-harness change only: record `hard_rejected_pair_count`, `attempted_band_pair_count` and each band pair's recovery outcome in the O-4 line (`phase_measurand_tests.rs:387–418`). No window is requested.
+- **K3.** Resolving genuine modes below κ_μ·δ_q (case a) needs a different kernel route: refinement on the formed pencil (inverse iteration), a mass-side reduction where the block is established, or M2's shift-invert path. It is named only so that no parameter is mistaken for it. It is not proposed for A3.
+- **K4.** Establishing the count with a non-coordinate nullspace (case b) needs a structural mass-model change, such as expressing an offset lump through a rigid-offset transform so that its nullspace becomes coordinate-aligned. That is M1a scope, not A3.
+
+**5. Decisions needed from Agent 0.**
+- **D1, τ_μ:**
+  - (i) P1, τ_μ = 2⁻⁵³ and inert (recommended);
+  - (ii) keep 10⁻¹² as an explicit population floor at n ≤ 900, accepting failure (c);
+  - (iii) τ_μ = 0 with K1.
+  - Not offered: a τ_μ chosen to recapture case (a), which does not exist; or a fixed τ_μ ≥ κ_μ·c_μ·n_max·u = 9.09·10⁻¹², which would reject EX n05's top mode.
+- **D2, κ_μ·c_μ:** c_μ = 1 with κ_μ = 10 (recommended), or a power of two (2³ or 2⁴) in margin form.
+- **D3, c_f:** 64.
+- **D4:** whether to accept the case (a) attribution correction and K2.
+- **D5:** whether the resolvable-spread limit and the unresolved census of cases (a) and (b) are recorded as experimental capability limits, not release limitations, until K3 or K4.
 
 #### 5.3.8 Resources: the recount, and the O-4 stage-1 readiness plan
 
@@ -1314,7 +1404,7 @@ The window is `window-20261104T131510Z-nf1920`. Its identity record is `calib192
   - **entry:** wall 55.70 s, peak RSS 589.1 MiB. run_modal_dense 55.37 s, projection 0.20 s, 30,581 rows, 11,905,720 canonical bytes.
 - **The point leaves the stage-1 profile.**
   - 1,280 of 1,920 modes are computed. The band screen took 640 pairs and retained none.
-  - The census is **Unresolved** (`rejected_mu: 640`, mass block established) under the test-local τ_μ = 10⁻¹². At this mesh, SEC-A's spread puts genuine high modes below the test-local μ floor, which is §5.3.7's high-mode issue on a product-path model. The ten reported low modes are served, and the whole-spectrum endpoint stays refused.
+  - The census is **Unresolved** (`rejected_mu: 640`, mass block established) under the test-local τ_μ = 10⁻¹². (Corrected 2026-11-05: at this order the active hard cut is κ_μ·δ_q = 2.13·10⁻¹²·μ_max, not τ_μ, and the record does not split hard rejections from failed band recovery; see §5.3.7's A3 proposal.) At this mesh, SEC-A's spread puts genuine high modes below the test-local μ floor, which is §5.3.7's high-mode issue on a product-path model. The ten reported low modes are served, and the whole-spectrum endpoint stays refused.
   - This adds to A3's held evidence and decides nothing.
 - **Cost shape.**
   - The band recovery's exact insertions (4pn² ≈ 9.4·10⁹) run inside dense_solve, which grew 19.7× from n_f = 960, a log–log slope of 4.3 against stage 1's roughly cubic trend.
@@ -1514,7 +1604,7 @@ The weights rise with n (w_b64 from 0.0925 to 0.1579 over 240–960), so **no we
 | Choice | Status | Evidence that exists | Decision needed, from whom | Blocked by |
 |---|---|---|---|---|
 | τ_r (residual threshold, A2) | **adopted, 2⁻³⁰**, as an engineering measured-residual demotion criterion (Agent 0, 2026-11-04) | §5.3.7's targeted A2 evidence | focused text, source and regression confirmation | the production instance (with A3) |
-| A3: τ_μ, c_μ, κ_μ, c_f | held | §5.3.7's μ/μ_max table. At 1,920 a genuine high-mode μ fell below the test-local floor (τ_μ = 10⁻¹²): 640 pairs rejected and the census unresolved. The ten low modes stand only under the lower-gap and completed-cluster premises. | the selected μ-domain pins, without tightening τ_μ to force admission; Agent 0 | the decision itself; the whole-spectrum endpoint at this spread waits on it |
+| A3: τ_μ, c_μ, κ_μ, c_f | held; **minimum proposal written (2026-11-05, not adopted)**, under independent review | §5.3.7's μ/μ_max table and its A3 proposal. At 1,920, 640 genuine top modes were rejected below the dense screen's hard cut κ_μ·δ_q = 2.13·10⁻¹²·μ_max or by failed band recovery (τ_μ was inert at that order, and the record does not split the two), so the census is unresolved. The ten low modes stand only under the lower-gap and completed-cluster premises. | D1–D5 of the proposal (τ_μ's role, κ_μ·c_μ, c_f, the attribution correction and K2, the capability-limit record), without tightening τ_μ to force admission; Agent 0 | the decision itself, after the independent review; no parameter recaptures the 1,920 top modes (K3, a kernel route, is separate) |
 | A1 (τ_t, the identity tolerance, g_max, τ_e, τ_m, s_max, gap positions, offsets, the QL limit) and A2's κ_c, κ_s, τ_o, δ_c | approved or adopted as criteria (Agent 0, 2026-11-04) | §5.3.7 | none, beyond the joint production instance | A3 (held); τ_r is adopted (2⁻³⁰), and only its focused text, source and regression confirmation is pending |
 | O-4 work budget: W_budget, the allotments, the user-facing cap | proposed form above; no coefficient | the stage-1 and 1,920 weights (table above) | the reviewed resource budget and the cap across adopted families; Agent 0 | the undetermined weights above (w_band, w_scale, w_limb, kernel above 1,920, T1/K-D5, dense Sturm, arcs), the S1 kernel hook and the S2/S2b reordering, priced changes with D3 |
 | O-4 memory budget: ρ, B₀ and the ceiling | proposed form above | the ledger; the observed brackets at 480 / 960 / 1,920 | ρ (1 proposed), the allowance for allocator rounding and library layout, and the ceiling beyond the provisional 6 GiB; Agent 0 | the stated allowance (outside repository source); A_conf and the K-D5 buffers for state cases |
