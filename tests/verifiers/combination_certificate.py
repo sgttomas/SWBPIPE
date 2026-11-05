@@ -788,6 +788,46 @@ def _held_gate_message(evidence: Mapping[str, Any], cid: str, code: str) -> str:
     return f"Combination withheld: {refusal}."
 
 
+HELD_RELEASED = "HELD_STATUS_RELEASED"
+
+
+def _held_released_entry(record: Any) -> dict[str, Any] | None:
+    """RT-A5 (DEL-05-02 operating-case.md section 7.5; Rust `held_released_entry`): the HELD_STATUS_RELEASED entry of a
+    held combination whose held-status record releases a support, None otherwise, rebuilt from the record's recorded
+    fields only (support ids, held and classified states, release reasons, and the deciding bit token or strict-gap
+    signs); no binary64 value is formatted. The held-status reader, which precedes the roster, validated the record."""
+    if not isinstance(record, Mapping) or not isinstance(record.get("combination_id"), str):
+        return None
+    cid = record["combination_id"]
+    released = [e for e in _items(record.get("held")) if isinstance(e, Mapping) and e.get("released") != "none"]
+    if not released:
+        return None
+    listed = "; ".join(_released_item(e) for e in released)
+    message = (f"Combination {cid} holds the minuend's support status in the subtrahend case, and that case's classifier "
+               f"releases: {listed}. The rows are the held system's, published with this standing; the held status is not "
+               f"an admissible state of the subtrahend case.")
+    refs = [cid] + [e.get("support_id") if isinstance(e.get("support_id"), str) else "" for e in released]
+    return _entry(f"diagnostic:preview-physics:held-status-released:{_identity(cid)}", HELD_RELEASED, "warning", message, refs)
+
+
+def _released_item(e: Mapping[str, Any]) -> str:
+    """One released support's clause (Rust `released_item`; PP `released_message` and `released_quantity`)."""
+    def text(*path: str) -> str:
+        value = _get(e, *path)
+        return value if isinstance(value, str) else ""
+    held, reason = text("held_state"), text("released")
+    if e.get("decision") == "strict_gap":
+        quantity = (f"gap_sign {text('strict_gap', 'gap_sign')}, reaction_sign {text('strict_gap', 'reaction_sign')} in the "
+                    f"contact's own sense, {text('strict_gap', 'prior')} to {text('strict_gap', 'state')}")
+    elif reason == "branch":
+        quantity = f"derived normal normal_signed_bits {text('inputs', 'normal_signed_bits')}"
+    elif held in ("active", "sticking"):
+        quantity = f"reaction_bits {text('inputs', 'reaction_bits')}"
+    else:
+        quantity = f"displacement_bits {text('inputs', 'displacement_bits')} from its ground"
+    return f"{text('support_id')} held {held}, classified {text('classified_state')} ({reason.replace('_', ' ')}: {quantity})"
+
+
 def _interim(model: Mapping[str, Any]) -> tuple[list[dict[str, Any]], list[Mapping[str, Any]]]:
     """S1's interim withholding (PP `withhold_interim_combinations`) as the model states it (Rust `interim`); as RT-A5
     leaves it no combination has an interim reason (G-1, G-2 and the held gates are gate notices), so nothing is
@@ -1021,6 +1061,8 @@ def roster(source: Mapping[str, Any], model: Mapping[str, Any] | None = None) ->
                 message, refs = _PREVIEW_GATE_TEXT.get(code, _MODULUS_GATE_TEXT), [cid]
             expected.append(_entry(gate_id, code, "warning", message, refs))
             withheld[cid] = code
+        # RT-A5: each held combination's HELD_STATUS_RELEASED notice, set-bound, rebuilt from its validated record.
+        expected.extend(e for e in (_held_released_entry(r) for r in _items(evidence.get(HELD_MEMBER))) if e is not None)
 
     index = _RowIndex([r for r in results if isinstance(r, Mapping)])
     supports = {x for x in (_text(_get(r, "entity_ref")) for r in results

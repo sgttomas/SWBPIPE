@@ -436,3 +436,61 @@ fn held_gate_claim_like_refusals_are_bound_never_policed_and_claim_nothing() {
         }
     }
 }
+
+// ------------------------------------------------------------------ HELD_STATUS_RELEASED (RT-A5, P1)
+
+const HELD_RELEASED: &str = "diagnostic:preview-physics:held-status-released:13:comb:o-s-held";
+fn released_notice(d: &mut Value) -> &mut Value {
+    d["diagnostics"].as_array_mut().unwrap().iter_mut().find(|n| n["id"] == HELD_RELEASED).unwrap()
+}
+fn replace_in_released(d: &mut Value, old: &str, new: &str) {
+    let notice = released_notice(d);
+    let message = notice["message"].as_str().unwrap().to_string();
+    assert!(message.contains(old), "{old}: {message}");
+    notice["message"] = message.replace(old, new).into();
+}
+
+/// RT-A5 (Work `combination-certificate.md` §2): one set-bound HELD_STATUS_RELEASED entry per held
+/// combination whose record releases a support, its message rebuilt from the record's recorded fields
+/// only, at the full reader, with and without the model; the Python mirror's `HELD_RELEASED_CASES`.
+/// h2 is an ordinary release with a negative bit token, h7g a strict-gap one, h5 a displacement and h13
+/// a branch.
+#[test]
+fn held_status_released_notices_are_rebuilt_from_the_record() {
+    type Edit = fn(&mut Value);
+    const CONTRADICTION: &str = "SOURCE_COMBINATION_CERTIFICATE_ROSTER_CONTRADICTION";
+    const DERIVATION: &str = "SOURCE_PREVIEW_PHYSICS_HELD_STATUS_DERIVATION";
+    let cases: [(&str, &str, Option<Edit>, Option<&str>); 12] = [
+        ("canonical ordinary (negative bit token)", "h2_released", None, None),
+        ("canonical strict gap", "h7g_gap", None, None),
+        ("canonical displacement", "h5_slip_sense", None, None),
+        ("canonical branch", "h13_branch", None, None),
+        // The roster rebuilds the whole message from the validated record and compares it bit for bit.
+        ("a changed bit token", "h2_released", Some(|d| replace_in_released(d, "c080000000000000", "c080000000000001")), Some(CONTRADICTION)),
+        ("a changed sign", "h7g_gap", Some(|d| replace_in_released(d, "reaction_sign positive", "reaction_sign negative")), Some(CONTRADICTION)),
+        ("a changed state", "h2_released", Some(|d| replace_in_released(d, "classified inactive", "classified active")), Some(CONTRADICTION)),
+        ("a changed reason", "h2_released", Some(|d| replace_in_released(d, "(changed state:", "(branch:")), Some(CONTRADICTION)),
+        // The held-status reader, which precedes the roster, refuses first what it binds: the notice's
+        // named supports in record order, exactly one notice for a released record, and none for a
+        // record that releases nothing (the roster's MISSING and EXTRA stand behind it).
+        ("its supports out of order", "h2_released", Some(|d| { let n = released_notice(d); let mut refs = n["affected_refs"].as_array().unwrap().clone(); refs.reverse(); n["affected_refs"] = refs.into(); }), Some(DERIVATION)),
+        ("duplicated", "h2_released", Some(|d| { let n = released_notice(d).clone(); d["diagnostics"].as_array_mut().unwrap().push(n); }), Some(DERIVATION)),
+        ("dropped", "h2_released", Some(|d| d["diagnostics"].as_array_mut().unwrap().retain(|n| n["id"] != HELD_RELEASED)), Some(DERIVATION)),
+        ("on a combination that releases nothing", "h4_kept_explicit",
+         Some(|d| { let n = released_notice(&mut held_entry("h2_released")["document"]).clone(); d["diagnostics"].as_array_mut().unwrap().push(n); }), Some(DERIVATION)),
+    ];
+    for (what, name, edit, code) in cases {
+        let mut e = held_entry(name);
+        if let Some(edit) = edit {
+            edit(&mut e["document"]);
+        }
+        for model in [None, Some(&e["model"])] {
+            let verdict = reader_verdict::validate("preview-physics", &e["document"], model, None);
+            let label = if model.is_some() { "with model" } else { "without model" };
+            match code {
+                None => assert_eq!(verdict["ok"], true, "{what} ({label}): {verdict}"),
+                Some(code) => assert_eq!((&verdict["ok"], verdict["error"]["code"].as_str()), (&Value::Bool(false), Some(code)), "{what} ({label}): {verdict}"),
+            }
+        }
+    }
+}

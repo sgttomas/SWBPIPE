@@ -5454,7 +5454,7 @@ if fnkey("publish", _C3_PP) and fnkey("member_check", _C3_RE):
     # reserved vocabulary's typed-identity exemption of that one notice (reserved, bound_held_gate; non-allocating) and
     # S1's interim without a minuend_final reason (interim_reasons); roster's first statement unchanged (RTA3C-RB).
     for _f, _h in {_C3_PP: "5b85e6c57ae9c3b7cf9722e8be424532e12866f8b825597b20334c3e98ab5b1a",
-                   _C3_RE: "1b160e321efbab58ab37d2e229401da8589e412c027bb6092f2e61da826947f5"}.items():
+                   _C3_RE: "b4421e368e1add640bf97db1a28c7ba259109cb97068559b1640055f0b17b21e"}.items():
         if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _f), "rb").read()).hexdigest() != _h:
             raise SystemExit(f"RTA3C-PIN: {_f} changed; re-review §8.53's rules")
     _c3_lib = _re.sub(r"//[^\n]*", "", _text_of(_LIB))

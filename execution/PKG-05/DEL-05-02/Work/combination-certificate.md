@@ -297,12 +297,19 @@ option A).** Both readers (RE `combination_certificate.rs` `roster`, Python
     interpretation and the report projection), the run comparison, and Rust
     `report_package::bindings` (every native report path). Raw diagnostic
     bytes and evidence are unchanged.
-  - *Open: `HELD_STATUS_RELEASED` as a roster entry.* Its message's deciding
-    quantity is the producer's `{:e}` (LowerExp) text of a solved value, and
-    for a strict-gap entry that value is not in the record; no shared
-    authoritative formatting rule exists in both readers, so the roster does
-    not yet derive the entry, and a released held document is refused
-    (`ROSTER_EXTRA`) until RT-A3 decides. The headline's
+  - *`HELD_STATUS_RELEASED` (P1, RT-A3).* One set-bound entry per held
+    combination whose validated held-status record releases a support: id
+    `diagnostic:preview-physics:held-status-released:<identity>`, warning, refs
+    the combination then the released supports in record order, and the whole
+    message rebuilt from the record's recorded fields only (support ids, held
+    and classified states, release reasons, and the deciding bit token or
+    strict-gap signs; `operating-case.md` §7.5), compared bit for bit. The
+    held-status reader, which precedes the roster, binds those fields to the
+    record's re-derived decisions and refuses first a notice naming its
+    supports out of order, a duplicate, a dropped notice and one on a
+    combination that releases nothing; the roster refuses a changed token,
+    sign, state or reason (`ROSTER_CONTRADICTION`). The wording is outside the
+    reserved vocabulary, and the notice is quoted whole by every presenter. The headline's
     refs are the model's kept combinations in authored order; without the
     model, the gates' identities in any order, which the document cannot fix.
     With the model, S1's interim withholdings and their dependants, on both
@@ -548,6 +555,8 @@ The roster's cases (review cert2 finding 1), applied with and without the model:
 | pf_held: the held record stated assessed | RECORD |
 | a held gate notice (RT-A5's held-status corpus): its inner text not the record's refusal; its frame changed; the refusal changed in the record only | ROSTER_CONTRADICTION |
 | a held gate notice duplicated; dropped | ROSTER_EXTRA; ROSTER_MISSING |
+| a HELD_STATUS_RELEASED notice: a changed bit token, sign, state or reason | ROSTER_CONTRADICTION |
+| a HELD_STATUS_RELEASED notice: its supports out of order, duplicated, dropped, or on a combination that releases nothing | the held-status reader's HELD_STATUS_DERIVATION |
 | a held code on a gate with no held record; another code on a held record's gate | the gates reader's GATE_DERIVATION |
 | a claim-like refusal ("established", a tiny bound, any capitalization, Unicode) in a well-bound record | admitted; no row bound, eligibility or certificate standing changes |
 | the same refusal in the notice only | the certificate's own notice reader's DIAGNOSTICS for the reserved wording, else ROSTER_CONTRADICTION |

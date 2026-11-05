@@ -793,6 +793,44 @@ fn held_gate_message(evidence: &Value, id: &str, code: &str) -> Result<String, S
     };
     refusal.filter(|r| !r.is_empty()).map(|r| format!("Combination withheld: {r}.")).ok_or_else(|| fail("ROSTER_CONTRADICTION"))
 }
+/// RT-A5 (DEL-05-02 `operating-case.md` §7.5; Work `combination-certificate.md` §2): the
+/// `HELD_STATUS_RELEASED` entry of a held combination whose held-status record releases a support,
+/// none otherwise: id `diagnostic:preview-physics:held-status-released:<identity>`, warning, refs the
+/// combination then the released supports in record order, and the message PP
+/// `held_status::released_message` forms, rebuilt here from the record's recorded fields only (its
+/// support ids, held and classified states, release reasons, and the deciding bit token or
+/// strict-gap signs, `released_item`); no binary64 value is formatted. The held-status reader,
+/// which precedes the roster, has validated the record and re-derived each release.
+fn held_released_entry(record: &Value) -> Option<Value> {
+    let cid = record["combination_id"].as_str()?;
+    let released: Vec<&Value> = items(&record["held"]).iter().filter(|e| e["released"] != "none").collect();
+    if released.is_empty() {
+        return None;
+    }
+    let listed = released.iter().map(|e| released_item(e)).collect::<Vec<_>>().join("; ");
+    let message = format!("Combination {cid} holds the minuend's support status in the subtrahend case, and that case's classifier releases: {listed}. The rows are the held system's, published with this standing; the held status is not an admissible state of the subtrahend case.");
+    let mut refs = vec![cid];
+    refs.extend(released.iter().map(|e| e["support_id"].as_str().unwrap_or_default()));
+    Some(roster_entry(format!("diagnostic:preview-physics:held-status-released:{}", identity(&[cid])), crate::preview_held_status::RELEASED, "warning", message, refs))
+}
+/// One released support's clause (PP `released_message` and `released_quantity`).
+fn released_item(e: &Value) -> String {
+    fn text(v: &Value) -> &str {
+        v.as_str().unwrap_or_default()
+    }
+    let (held, reason) = (text(&e["held_state"]), text(&e["released"]));
+    let quantity = if e["decision"] == "strict_gap" {
+        let s = &e["strict_gap"];
+        format!("gap_sign {}, reaction_sign {} in the contact's own sense, {} to {}", text(&s["gap_sign"]), text(&s["reaction_sign"]), text(&s["prior"]), text(&s["state"]))
+    } else if reason == "branch" {
+        format!("derived normal normal_signed_bits {}", text(&e["inputs"]["normal_signed_bits"]))
+    } else if matches!(held, "active" | "sticking") {
+        format!("reaction_bits {}", text(&e["inputs"]["reaction_bits"]))
+    } else {
+        format!("displacement_bits {} from its ground", text(&e["inputs"]["displacement_bits"]))
+    };
+    format!("{} held {held}, classified {} ({}: {quantity})", text(&e["support_id"]), text(&e["classified_state"]), reason.replace('_', " "))
+}
 /// The producer's `operand_withheld_message` (both routes).
 fn operand_withheld_message(named: &[(&str, &str)]) -> String {
     let named = named.iter().map(|(id, code)| format!("{id} ({code})")).collect::<Vec<_>>().join(", ");
@@ -1121,6 +1159,9 @@ fn roster(source: &Value, model: Option<&Value>) -> Check {
             expected.push(roster_entry(gate_id, code, "warning", message, refs));
             withheld.insert(id, code);
         }
+        // RT-A5: each held combination's HELD_STATUS_RELEASED notice, set-bound, rebuilt from its
+        // validated held-status record (`held_released_entry`).
+        expected.extend(items(&evidence[crate::preview_held_status::MEMBER]).iter().filter_map(held_released_entry));
     }
 
     let index = crate::preview_combination_gates::RowIndex::new(results);
@@ -1241,6 +1282,22 @@ mod retained_base_read_tests {
     /// Under the context the roster's text closure is not applied, and only it: prose under a combination ref is
     /// left to the receipt, while a reserved certificate notice without a member is still refused (PRESENCE). The
     /// context is restored after the read, also on an error.
+    /// RT-A5: the rebuilt HELD_STATUS_RELEASED wording is outside the reserved vocabulary, for
+    /// each kind of clause, so no exemption is needed for it (it is not `bound_held_gate`'s).
+    #[test]
+    fn the_held_status_released_wording_is_not_reserved() {
+        let record = json!({"combination_id": "comb:x", "held": [
+            {"support_id": "s:1", "held_state": "active", "classified_state": "inactive", "released": "changed_state", "decision": "ordinary", "inputs": {"reaction_bits": "8000000000000000"}},
+            {"support_id": "s:2", "held_state": "sliding", "classified_state": "sticking", "released": "changed_state", "decision": "ordinary", "inputs": {"displacement_bits": "bf68000000000000"}},
+            {"support_id": "s:3", "held_state": "sliding", "classified_state": "sliding", "released": "branch", "decision": "ordinary", "inputs": {"normal_signed_bits": "c0b0000000000000"}},
+            {"support_id": "s:4", "held_state": "active", "classified_state": "inactive", "released": "changed_state", "decision": "strict_gap", "strict_gap": {"prior": "active", "gap_sign": "zero", "reaction_sign": "positive", "state": "inactive"}},
+            {"support_id": "s:5", "held_state": "active", "classified_state": "active", "released": "none", "decision": "ordinary", "inputs": {}}]});
+        let entry = super::held_released_entry(&record).unwrap();
+        assert_eq!(entry["affected_refs"], json!(["comb:x", "s:1", "s:2", "s:3", "s:4"]));
+        assert!(!reserved_notice(&entry));
+        assert!(super::held_released_entry(&json!({"combination_id": "comb:x", "held": [{"released": "none"}]})).is_none());
+    }
+
     #[test]
     fn under_the_context_only_the_roster_text_closure_is_lifted() {
         let mut noted = base();

@@ -1406,7 +1406,7 @@ these approvals and deviations:
 |---|---|---|---|
 | **E** | non-gap; not released; every required predicate of the confirmation passes (`Established`) | Stage B's certified values, with K-D5's member bound against the **held system** | `established`: "Established within its stated numerical bound for the explicitly held system at this case's loads. The verdict does not establish this case's own support state, an admissible sustained state, a load history or uniqueness." (Agent 0's wording.) The per-support conditions are listed in the evidence (§7.6), not in prose |
 | **N** | non-gap; not released; the confirmation returns `NotEstablished` (weakly active, H-18; Sensitive; k > 1 coupled friction; a load-row finding; …) | binary64 iterate values; member rows are binary64 recoveries | `not_established`: "Not established: <the confirmation's reason>. The held status is kept by this case's classifier; rows are inspection evidence." |
-| **R** | released, as above | binary64; no bound (the confirmation returns "the converged state is not qualified") | `not_established`: "Not established: the held status is not consistent with this case's loads; rows are inspection evidence." Plus a warning `HELD_STATUS_RELEASED` naming each released support: its held state, its classified state, the reason (changed state, or derived-normal branch with β^S and the signed R_n^T) and the deciding quantity. It publishes with this standing and is never withheld (R-5) |
+| **R** | released, as above | binary64; no bound (the confirmation returns "the converged state is not qualified") | `not_established`: "Not established: the held status is not consistent with this case's loads; rows are inspection evidence." Plus a warning `HELD_STATUS_RELEASED` naming each released support: its held state, its classified state, the reason (changed state, or derived-normal branch) and the deciding quantity as its recorded bit token or strict-gap signs (§7.5). It publishes with this standing and is never withheld (R-5) |
 | **G** | any gap support (R1) | binary64; strict-gap evidence as the case path states it | `gap_inspection`: "Gap supports keep their recovery-basis branch (R1); not established." Plus `HELD_STATUS_RELEASED` if released. The source must still be `Qualified` (§7.4), so R1 is not bypassed |
 
 **What E's evidence lists** (§7.6). This replaces revision 0's sentence "each held support's
@@ -1546,6 +1546,21 @@ consumer reuses them (Agent 0).
 
 **Disclosed, not withheld.**
 - `HELD_STATUS_RELEASED` (warning; outcome R or G).
+  - Its wording (P1, RT-A3, 2026-11-05) uses only the held-status record's recorded fields, so
+    both readers rebuild it whole (Work `combination-certificate.md` §2); no binary64 value is
+    formatted. Per released support: `<support> held <held state>, classified <classified
+    state> (<reason, underscores as spaces>: <quantity>)`, joined by `; ` inside "Combination
+    `<id>` holds the minuend's support status in the subtrahend case, and that case's classifier
+    releases: … . The rows are the held system's, published with this standing; the held status
+    is not an admissible state of the subtrahend case." The quantity is, for a strict-gap
+    decision, `gap_sign <g>, reaction_sign <r> in the contact's own sense, <prior> to <state>`;
+    for an ordinary one, the recorded bit token that decided it: `derived normal
+    normal_signed_bits <token>` for a branch release (β is not stated), `reaction_bits <token>`
+    for a support held active or sticking, else `displacement_bits <token> from its ground`.
+    Example: `support:t held active, classified inactive (changed state: reaction_bits
+    c080000000000000)`; strict gap: `support:t held active, classified inactive (changed state:
+    gap_sign zero, reaction_sign positive in the contact's own sense, active to inactive)`.
+    Presenters quote it whole as supplied text (`HELD_STATUS_QUOTED_CODES`).
 - The standing record (E, N, R, G).
 - The held solver's own diagnostics (policy diagnostics, the active-set diagnostics, the
   non-converged exit diagnostic) are not republished as case diagnostics.

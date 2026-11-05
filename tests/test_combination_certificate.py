@@ -913,3 +913,67 @@ def test_a_stated_retired_preview_physics_1_identity_is_refused_by_the_full_read
     e["document"]["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/preview-physics-1"
     outcome = reader_verdict.validate("preview-physics", e["document"], e["model"] if with_model else None)
     assert outcome["ok"] is False and outcome["error"]["code"] == "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID", outcome
+
+
+# ----------------------------------------------------------------------------- HELD_STATUS_RELEASED (RT-A5, P1)
+
+HELD_RELEASED_ID = "diagnostic:preview-physics:held-status-released:13:comb:o-s-held"
+
+
+def _released_notice(document: dict) -> dict:
+    return next(d for d in document["diagnostics"] if d["id"] == HELD_RELEASED_ID)
+
+
+def _replace_in_released(old: str, new: str):
+    def edit(document: dict) -> None:
+        notice = _released_notice(document)
+        assert old in notice["message"], (old, notice["message"])
+        notice["message"] = notice["message"].replace(old, new)
+    return edit
+
+
+# (what, document, edit, code): the same list as RE `held_status_released_notices_are_rebuilt_from_the_record`.
+# h2 is an ordinary release with a negative bit token, h7g a strict-gap one, h5 a displacement, h13 a branch.
+HELD_RELEASED_CASES = [
+    ("canonical ordinary (negative bit token)", "h2_released", None, None),
+    ("canonical strict gap", "h7g_gap", None, None),
+    ("canonical displacement", "h5_slip_sense", None, None),
+    ("canonical branch", "h13_branch", None, None),
+    # The roster rebuilds the whole message from the validated record and compares it bit for bit.
+    ("a changed bit token", "h2_released", _replace_in_released("c080000000000000", "c080000000000001"), "SOURCE_COMBINATION_CERTIFICATE_ROSTER_CONTRADICTION"),
+    ("a changed sign", "h7g_gap", _replace_in_released("reaction_sign positive", "reaction_sign negative"), "SOURCE_COMBINATION_CERTIFICATE_ROSTER_CONTRADICTION"),
+    ("a changed state", "h2_released", _replace_in_released("classified inactive", "classified active"), "SOURCE_COMBINATION_CERTIFICATE_ROSTER_CONTRADICTION"),
+    ("a changed reason", "h2_released", _replace_in_released("(changed state:", "(branch:"), "SOURCE_COMBINATION_CERTIFICATE_ROSTER_CONTRADICTION"),
+    # The held-status reader, which precedes the roster, refuses first what it binds: the notice's named supports in
+    # record order, exactly one notice for a released record, and none for a record that releases nothing (the
+    # roster's MISSING and EXTRA stand behind it).
+    ("its supports out of order", "h2_released", lambda d: _released_notice(d).update(affected_refs=list(reversed(_released_notice(d)["affected_refs"]))),
+     "SOURCE_PREVIEW_PHYSICS_HELD_STATUS_DERIVATION"),
+    ("duplicated", "h2_released", lambda d: d["diagnostics"].append(copy.deepcopy(_released_notice(d))), "SOURCE_PREVIEW_PHYSICS_HELD_STATUS_DERIVATION"),
+    ("dropped", "h2_released", lambda d: d["diagnostics"].remove(_released_notice(d)), "SOURCE_PREVIEW_PHYSICS_HELD_STATUS_DERIVATION"),
+    ("on a combination that releases nothing", "h4_kept_explicit",
+     lambda d: d["diagnostics"].append(_released_notice(_held_entry("h2_released")["document"])), "SOURCE_PREVIEW_PHYSICS_HELD_STATUS_DERIVATION"),
+]
+
+
+@pytest.mark.parametrize("with_model", [False, True], ids=["without-model", "with-model"])
+@pytest.mark.parametrize("what,name,edit,code", HELD_RELEASED_CASES, ids=[c[0] for c in HELD_RELEASED_CASES])
+def test_a_held_status_released_notice_is_rebuilt_from_its_record(what, name, edit, code, with_model):
+    """RT-A5 (Work combination-certificate.md section 2): one set-bound HELD_STATUS_RELEASED entry per held combination
+    whose record releases a support, its message rebuilt from the record's recorded fields only, at the full reader."""
+    e = _held_entry(name)
+    if edit is not None:
+        edit(e["document"])
+    outcome = reader_verdict.validate("preview-physics", e["document"], e["model"] if with_model else None)
+    if code is None:
+        assert outcome == {"ok": True}, (what, outcome)
+    else:
+        assert outcome["ok"] is False and outcome["error"]["code"] == code, (what, outcome)
+
+
+def test_the_held_status_released_wording_is_not_reserved():
+    """The rebuilt wording is outside the certificate's reserved vocabulary (Rust `the_held_status_released_wording_is_not_reserved`)."""
+    for name in ("h2_released", "h5_slip_sense", "h13_branch", "h7g_gap"):
+        notice = _released_notice(_held_entry(name)["document"])
+        assert not cc.reserved_notice(notice), notice["message"]
+        assert cc._held_released_entry(_held_entry(name)["document"]["contract_evidence"]["held_status_derivation"][0]) == notice

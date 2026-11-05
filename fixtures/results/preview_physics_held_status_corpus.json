@@ -359,7 +359,7 @@
             ],
             "code": "HELD_STATUS_RELEASED",
             "id": "diagnostic:preview-physics:held-status-released:13:comb:o-s-held",
-            "message": "Combination comb:o-s-held holds the minuend's support status in the subtrahend case, and that case's classifier releases: support:t held active, classified inactive (changed state: reaction -5.12e2). The rows are the held system's, published with this standing; the held status is not an admissible state of the subtrahend case.",
+            "message": "Combination comb:o-s-held holds the minuend's support status in the subtrahend case, and that case's classifier releases: support:t held active, classified inactive (changed state: reaction_bits c080000000000000). The rows are the held system's, published with this standing; the held status is not an admissible state of the subtrahend case.",
             "severity": "warning",
             "source": "core/product_physics"
           },
@@ -17601,7 +17601,7 @@
             ],
             "code": "HELD_STATUS_RELEASED",
             "id": "diagnostic:preview-physics:held-status-released:13:comb:o-s-held",
-            "message": "Combination comb:o-s-held holds the minuend's support status in the subtrahend case, and that case's classifier releases: support:t held sliding, classified sticking (changed state: displacement 2.9296875e-3 from its ground). The rows are the held system's, published with this standing; the held status is not an admissible state of the subtrahend case.",
+            "message": "Combination comb:o-s-held holds the minuend's support status in the subtrahend case, and that case's classifier releases: support:t held sliding, classified sticking (changed state: displacement_bits 3f68000000000000 from its ground). The rows are the held system's, published with this standing; the held status is not an admissible state of the subtrahend case.",
             "severity": "warning",
             "source": "core/product_physics"
           },
@@ -35746,7 +35746,7 @@
             ],
             "code": "HELD_STATUS_RELEASED",
             "id": "diagnostic:preview-physics:held-status-released:13:comb:o-s-held",
-            "message": "Combination comb:o-s-held holds the minuend's support status in the subtrahend case, and that case's classifier releases: support:t held sliding, classified sliding (branch: derived normal -4.096e3 against the held branch 1). The rows are the held system's, published with this standing; the held status is not an admissible state of the subtrahend case.",
+            "message": "Combination comb:o-s-held holds the minuend's support status in the subtrahend case, and that case's classifier releases: support:t held sliding, classified sliding (branch: derived normal normal_signed_bits c0b0000000000000). The rows are the held system's, published with this standing; the held status is not an admissible state of the subtrahend case.",
             "severity": "warning",
             "source": "core/product_physics"
           },
@@ -71013,7 +71013,7 @@
             ],
             "code": "HELD_STATUS_RELEASED",
             "id": "diagnostic:preview-physics:held-status-released:13:comb:o-s-held",
-            "message": "Combination comb:o-s-held holds the minuend's support status in the subtrahend case, and that case's classifier releases: support:t held active, classified inactive (changed state: reaction -5.76171875e-2). The rows are the held system's, published with this standing; the held status is not an admissible state of the subtrahend case.",
+            "message": "Combination comb:o-s-held holds the minuend's support status in the subtrahend case, and that case's classifier releases: support:t held active, classified inactive (changed state: gap_sign zero, reaction_sign positive in the contact's own sense, active to inactive). The rows are the held system's, published with this standing; the held status is not an admissible state of the subtrahend case.",
             "severity": "warning",
             "source": "core/product_physics"
           },
