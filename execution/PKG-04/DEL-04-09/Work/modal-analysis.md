@@ -148,6 +148,8 @@ Rotational participation (about axes) is left to F2.
 
 **As built (I2b-1): an in-crate typed outcome, not a publication.** `modal/outcome.rs` holds `ModalOutcome` (`pub(crate)`), returned by `run_modal_dense`; no row, schema, profile or entry publishes it (O-8). Per reported mode: index, cluster, λ, ω, f, T, its normalization case with the +1 DOF, the shape over every global DOF (restrained DOFs exactly 0), m_i, Γ_ik, m_eff,ik, the fractions and their cumulative sums, the per-value below-normal flags (shape indices as global DOFs), its check-2 evidence, its cluster e_λ and its standing. A fraction is `None` where T_k = 0, never 0 in its place; a product model cannot reach that case (a pipe's or a body's mass is the same in every translation, so T_k = 0 in one direction means M_ff = 0, refused `MODAL_NO_FINITE_MODES`), so it is tested on a constructed two-DOF pencil. Per result: the extraction bound, the stop reason, the count by the bound and the cluster extension, the completed endpoint (below a computed cluster, empty below the lowest mode, or the whole finite spectrum on an established census), the clusters, the integrity evidence, the standing, I2a's mass summary and identity report, the free-DOF mass R_k,fᵀM_ff R_k,f, the bound state case, the guard record, f_e per straight member, the disclosures (including any computed mode whose e_λ reaches across f_c) and the preparation's non-blocking diagnostics.
 
+**As built (I3a): the published projection.** `ModalOutcome` also keeps the run's own authoritative payload (node ids and coordinates, the free DOFs, the formed global mass's stored upper entries, ℓ, τ_t and a), and `modal/document.rs` projects it as the experimental modal result family of §5.3. Every per-mode quantity above is published with its own case-aware unit, flag and reason; λ is not published (§5.3.5).
+
 ---
 
 ## 2. The mass model, on the self-weight basis
@@ -421,6 +423,7 @@ Standing:
 - A new module, `core/product_physics/src/modal.rs`: the request DTO, refusals, mass assembly, the weight-basis check and result rows. **As built (I2a):** `modal.rs` holds the codes and the `pub(crate)` submodules `modal/request.rs` (the closed request and its refusals), `modal/context.rs` (the post-lowering binding, D-L), `modal/prepare.rs` (the pre-formation mirror; its `Prepared` has no constructor outside `prepare_modal`, so nothing that takes it is reachable before preparation passes), `modal/mass.rs` (`mass_bearing_members`, the one selection; `assemble_mass`, held as 6×6 upper node blocks, dense only on demand; the mass summary rows) and `modal/weight_basis.rs` (the identity, the acceleration agreement and the non-blocking applied-case row). `lib.rs` gains only `mod modal;`, appended at its end so no snapshot-keyed line moves; `self_weight.rs` gains three line-preserving `pub(crate)` visibilities (`stable_mass_per_length`, `ComponentWeight` and its fields, `component_weights`) and `inspect_generated_self_weight` before its test module (D-SW); `core/product_physics/Cargo.toml` takes a path dependency on `open_pipe_stress_modal_eigen`. Nothing is public and no entry reaches it until I2b. Because the retained-pricing call graph resolves calls by name over the priced crate sources, the module's function names are chosen so that none is a call token elsewhere in them, and the request is parsed through a derived wire type with no hand-written `Deserialize` (serde entry points reach every custom one); the D3 analysis still decides reachability on its own graph.
 - **As built (I2b-1):** `modal/stiffness.rs` (the pencil on the static partition, the static guard and the singular-model screen), `modal/eigen.rs` (the dense solve, the census, the reported set and its endpoint, the Sturm count), `modal/integrity.rs` (`ModalIntegrityParameters`, the re-formation operands, checks 1 to 3 and the code mapping, with the slice's codes as its constants), `modal/outcome.rs` (`ModalOutcome`, `run_modal_dense`) and `modal/tests_eigen.rs`; `modal.rs` gains only their declarations; `modal/tests.rs` makes its builders `pub(super)` and its reference converter falls back to the last node when every node carries a support (E-AXIAL-WITNESS). No priced file outside `modal/` changes, and every new function name is checked against the priced sources' call tokens. Nothing is public and nothing outside the tests calls `run_modal_dense`.
 - **As built (I2b-2):** `modal/state.rs` (the state case's same-run solve, the admission of its evidence and the linearization, §1.3) and `modal/tests_state.rs`; `modal/prepare.rs` drops the interim refusal and keeps the state case's resolution and basis record; `modal/stiffness.rs` forms the pencil on the restrained set its caller passes; `modal/outcome.rs` records the state. In PP `lib.rs`, the decision-B seam (§1.3, as built): one field on `LoadCaseSolve`, a third return member of `append_nonlinear_support_loop_results`, the capture on the completed construction, and three types and one helper appended at the end of the file. The new names (`NonlinearStateEvidence`, `NonlinearQualification`, `NonlinearStateStanding`, `capture_nonlinear_state_evidence`, `nonlinear_state`, `solve_modal_state_case`, `admit_modal_state_evidence`, `linearize_modal_supports`, `ModalStateCase`, `ModalSupportState`, `ModalSupportTreatment`, `StateCaseRefusal`, `MODAL_DENSE_PATH_MODE`) occur nowhere else in the priced sources. `modal/state.rs` is the first modal caller of a static solve function (`solve_load_case_observed`); it is reached only from `run_modal_dense`, which nothing outside the tests calls.
+- **As built (I3a):** `modal/document.rs` (the projection, §5.3; `pub(crate)`, called only by tests) and `modal/tests_document.rs`; `modal/outcome.rs` keeps the payload fields; `modal.rs` gains the two declarations. The Rust reader is the new leaf crate `core/reporting/modal_result` (unpriced: it is not in `crate_dirs.txt` and depends on no priced crate's code beyond `canonical_json` and `units`), the Python reader `tests/verifiers/modal_evidence.py`. Every new function name in the priced sources has the `modal_doc_` prefix or is `modal_semantic_table`/`modal_result_document`, none a call token elsewhere in them.
 - A public entry, `run_modal_preview_with_mode`, beside `run_linear_static_preview_with_mode` (PP `lib.rs:2580`).
 - Mass is formed in a **separate pass over `BuiltModel`**, never inside `build_model_for_members` or `build_member`. [design] `build_member` is a 50,544 B frame in the measured AC-004 peak stack chain (DEL-04-08 `Work/stack-headroom-repair.md:30-45`), so growing it would risk the R/64 headroom witnesses.
 
@@ -437,6 +440,7 @@ Standing:
   - **`core/solver/frame_kernel/src`**, for the re-formation entry (§3.4, check 1 (i)), and the wide arithmetic if it is exposed, in M1b.
   - **`core/units/src`**, for the unit-catalog families (§1.5): carried and priced by model document 0.9.0's S1 in its D3 turn, not by F1.
   - **PP `lib.rs`, the I2b-2 seam** (§1.3, as built). It changes the bodies of `solve_prepared_load_case` and `append_nonlinear_support_loop_results` and the `LoadCaseSolve` type, so the function-body pins on them move, and `LoadCaseSolve`'s size moves 1,880 → 1,888 B, which enters B5O1's CasePrefix carrier `2·s(Result<LoadCaseSolve,FrameKernelError>)` (DEL-04-08 `retained-pricing-rules.md` §5.2). On the retained route D1.6 refuses every nonlinear support, so the loop's early return and the capture's `None` are the only paths reached there; the new helper adds one call edge from the case solve. The edits preserve every line before the appended block. D3 decides the re-pricing; no pin is written here.
+- **I3a** (§5.3). Priced change: `core/product_physics/src/modal/` only (`document.rs` new, `outcome.rs`'s payload fields and their copy, `modal.rs`'s two declarations, the tests); no `lib.rs`, `self_weight.rs`, lock or other crate changes, and no MODAL-FB body moves. The reader crate is outside the priced directories. One preparation on the final head (`084ae2036`, after an earlier one on the abandoned `result_export` placement stopped at exit 4 on that crate's W1 stage-2 `lib.rs` pin): exit 5, every point incomplete only for **five unclassified TEXT arguments**, all in `document.rs` (`DIRECTIONS[k]` at two sites, the row `ordinal`, the run id's `run.get(..16)`, a mass row's DOF id `a`, the candidate index `j + 1`); no unmapped header, no pin or premise stop; D and TAV equal §8.48's at every point (D: L(3,0) 43,783, L(2,1) 39,369, L(1,2) 35,231, E 76,356). The coefficient comparison needs the classification first; the expectation, to be shown by D3, is no coefficient movement (no retained root reaches modal). Nothing is registered here; the D3 is DEL-04-08 §8.52 (all 1,602 coefficients equal on the composition with PF1b and #109).
 - **Not touched:** the preview-physics-2 table (reviewed input #5, `build_identity.rs:166`); F1 adds its own table, which is not a reviewed input. `results.v0.3.schema.yaml` is not a reviewed input (`build_identity.rs:158-181`).
 - **Expectation, to be measured:** modal code is unreached from the retained Direct entry, so the priced tree should move only by line shifts and pins, coefficient-identical as W-16's was. The AC-004 stack witnesses are re-run if the D3 moves them.
 - **[decided]** The first D3 is done in the first PR that touches priced files (M1a). The units extension, the frame_kernel seam and the sparse_direct accessor (both M1b) each re-register D3 in the change that makes them, or join a neighbouring slice's D3 when they merge together. M2 is expected to touch no priced file beyond what M1b has registered; if it does, it re-registers D3 in that change. Other slices stay out of priced files where possible. D3 runs join the queue on Agent 0's go (§6).
@@ -531,6 +535,8 @@ The generator re-derives every formula and root below; they are stated from memo
 
 ### 5.2 Result schema and semantic contract (M1b)
 
+**Superseded in part by §5.3 (I3a).** The profile and its two limitations below stand and are published by §5.3's family. The `results.v0.3` and `analysis_run.v0.3` additions, the table identity `…/0.3.0/modal-1`, the readers' placement in `result_export` and the desktop and headless commands are a **superseded proposal**: the modal result is a family of its own (§5.3.1), its run recording is open policy (§9 O-8), and the native and desktop path is §5.3.10's later slice. The text below is kept as the record of the proposal.
+
 - **[code]** Result profiles today: `formulation_basis.profile_id` ∈ {`product_preview_mechanics_v1`, `exact_pressure_v3`, `product_preview_retained_w1a_v2`, `exact_straight_retained_w1a_v2`} (`schemas/results.v0.3.schema.yaml:1035-1041`). Semantic tables are identified as at `core/reporting/result_export/src/semantic_contract.rs:126-128` (`…/preview-physics-2`).
 - **[decided] Additions:**
   - **Profile:** `product_preview_modal_v1`, with two fixed limitations.
@@ -545,9 +551,1163 @@ The generator re-derives every formula and root below; they are stated from memo
     - `modal_residual_backward_error`, `modal_eigenvalue_error_estimate`, `modal_formation_difference`, `modal_orthogonality_deviation`, `modal_sturm_count`, `modal_sturm_shift` (with e_b, ν, the conditioning product and κ_c, the separation ratio, the growth factor and each premise's decision).
     - Every row's unit is a catalog unit with integer exponents (§1.5).
     - Each row carries `basis_ref {ref_type: "mode", ref_id: "mode:<i>"}` and, where one exists, `cluster_ref`.
-  - **Run kind:** a `modal` analysis run in `schemas/analysis_run.v0.3.schema.json`, so stored results keep the request (extraction bound, modulus basis, a).
+  - **Run kind** (superseded proposal, open policy: §9 O-8): a `modal` analysis run in `schemas/analysis_run.v0.3.schema.json`, so stored results keep the request (extraction bound, modulus basis, a). Not implemented or adopted; §5.3's document binds the request itself.
   - **Readers:** a Rust `core/reporting/result_export/src/modal_evidence.rs` and a Python mirror under `tests/verifiers/`, sharing no code. They check the profile and limitation against the request; re-derive the free-DOF and total masses from the model (§2) and check Σ_i m_eff,ik ≤ T_k = R_kᵀM R_k; check each mode's normalization case and sign (its normalizing component is +1; in case (b) every translation is at most τ_t·ℓ), and that Γ_ik² m_i = m_eff,ik; and check the counts, ordering, cluster structure and any cluster extension. They do not re-run the eigen-solve (the DEF-O stance, DEL-04-08 REQ-005).
   - **Desktop and headless:** a Tauri command beside the static one (`apps/desktop/src-tauri/src/lib.rs:44`, `:1904`), TS types, and a headless runner command (`core/runner/headless`).
+
+### 5.3 The modal result family (I3a, experimental)
+
+**Status.** Agent 0 released I3, starting with I3a: the dense modal result contract, its full Rust reader and an independent Python reader, with fixtures (2026-11-03). Built and tested with labelled test-local parameters only. **Public engineering-result admission and every UI stay disabled** (§5.3.9). Nothing here adopts the joint task record, a store, a version policy, an `analysis_run` kind or recording support; no native, worker, Tauri, TS or UI code changes. Agent 0's binding scope for I3a governs where this section is silent.
+
+#### 5.3.1 Identity and placement
+
+- **[decided] A family of its own.** The document is not a `MechanicsEnvelope`, and nothing is added to `results.v0.3` or `analysis_run.v0.3` (§5.2's results.v0.3/analysis_run additions are **superseded**, §9 O-8). Wire identifiers:
+
+  | Member | Value |
+  |---|---|
+  | `document_kind` | `openpipestress.modal_result` |
+  | `schema_version` | `0.1.0` |
+  | `semantic_contract` | `{id: "openpipestress.result_semantics/modal-1", sha256}` |
+  | `profile` | `{profile_id: "product_preview_modal_v1", limitations: [§5.2's two texts, byte-equal]}` |
+  | `canonical_profile` | `openpipestress_jcs_ijson_v1` (every hash is the SHA-256 of the checked canonical text) |
+  | `admission` | `{status: "experimental", public_engineering_result: false, parameter_standing: "test_local", parameter_label}`; 0.1.0 cannot express a public result |
+  | `run` | `{run_id: "modal-run:" + the first 16 hex of SHA-256({request_sha256, integrity_parameters_sha256}), mode_id_scope: "run_local", solver_path: "dense_scrutiny"}` |
+  | `status` | `solved` or `refused` |
+
+- **[decided] Table bytes.** modal-1 is `fixtures/results/semantic_contract_modal_1.json` (16,798 B as committed after the units slice, pretty JSON with a final newline; its checked canonical text's SHA-256 is `21d0012729d8466436d0c064d7edecbdc0fc481bf101b6514a65eecbee6fb23b`). It lists every value kind with its table, its unit selector (`fixed`, `normalization_case` or `dof_pair_class`) and, per selector key, its unit rule, `{unit_status: "catalog", unit, symbol, dimension}` for every kind. The former `catalog_family_absent` form, with `dimension_exponents`, is retired (§5.3.5). It also carries the closed list `equilibrated_basis_kinds` (empty, §5.3.5); a rule `{unit_status: "equilibrated_basis", unit: null}` may be stated only for a listed kind. The producer and each reader state the table independently, and each is held to these bytes. The earlier name `…/0.3.0/modal-1` and `semantic_contract_v0_3_modal_1.json` (§5.2) are not used.
+- **[decided] Placement.** The projection is `core/product_physics/src/modal/document.rs` (`modal_result_document`, `pub(crate)`), because `ModalOutcome` is crate-private; nothing outside the tests calls it. The Rust reader is a leaf crate of its own, `core/reporting/modal_result` (`open_pipe_stress_modal_result`, dependencies: `canonical_json`, `units`, `serde_json`, `sha2`), as the hanger-sizing family's reader is. Reasons, on merit: the family is deliberately not the `results.v0.3` envelope that `result_export` reads; the reader is reached from no retained root, so placing it in `result_export` would add about 190 format sites and six name-resolved `max`/`min` call edges (the MODAL-FB pattern, §8.43) to a priced crate whose `lib.rs` is pinned by the W1 stage-2 owner model, enlarging the retained proof surface with code the retained route never runs (the first preparation, on that placement, stopped at that pin); and the reader needs nothing from any product crate. The Python reader is `tests/verifiers/modal_evidence.py`. The producer and both readers meet only at committed bytes.
+
+#### 5.3.2 The document
+
+- **Only in-run typed evidence.** Every value is copied from the `ModalOutcome` this run returned, or derived from it by a stated function: f, ω, T of a computed mode by the kernel's own `frequency_from_eigenvalue`, and ω of a shift or gap end as √σ. `ModalOutcome` gains the payload the projection needs, copied from the run's own formed values: the node ids and canonical coordinates, the free DOFs, the formed global mass as its stored nonzero upper entries (the binary64 values the pencil, T_k and p_k were formed from), ℓ, τ_t and the request's normalized a. No header, stored result or current authority is read.
+- **Solved documents** carry `basis` (route, τ_t, ℓ, a, the identity's acceleration, the mass centre, the state case with its linearization), `extraction` (the bound, the stop, bounded and extension counts, the count, the computed count and the endpoint), `census`, `standing`, `sturm` (count, reported, placement with its gap ends as ω, κ_c, 1/κ_c, κ_s, g_max), `orthogonality`, `formation`, `guard` (the stated formulas as decimal strings) and fifteen tables: `nodes`, `dofs`, `mass_matrix`, `mass_totals`, `modes`, `shapes`, `participation`, `clusters`, `computed_modes`, `sturm_candidates`, `identity`, `supports`, `discretization`, `disclosures` and `diagnostics`. **Refused documents** carry the identity, the binding and `refusals` (every blocking diagnostic of the run, its code, message and references). An unparsable request is refused as `MODAL_REQUEST_INVALID` (new in I3a, for the document only).
+- **Rows.** Every row has a `row_id` unique in the document, its source `ordinal` (its position in the run's own sequence: node order, global DOF order, node-block order of the mass, mode, computed-mode and candidate order; equal to its position in the table) and a `checksum`, the SHA-256 of the row's checked canonical text without its checksum. A table is `{status: "published", row_count, digest, rows}`, the digest being the SHA-256 of the canonical array of its rows' checksums. A row is a record of named scalars, never an array packed as one value. Ids: `node:<id>`, `dof:<node>:<ux…rz>`, `mass:<dof>|<dof>` (row ≤ col), `mass-total:<x|y|z>`, `mode:<i>` (1-based, **run-local**), `shape:mode:<i>:<dof>`, `participation:mode:<i>:<x|y|z>`, `cluster:<c>`, `computed:<j>`, `sturm-candidate:<k>`, `identity:<n>`, `support:<id>`, `member:<pipe>`, `disclosure:<n>`, `diagnostic:<n>`, `refusal:<n>`.
+- **Values.** Each published number is a value object `{kind, value, unit, unit_status, below_normal, undefined_reason}` (every unit is a catalog unit, §5.3.5). Its unit follows modal-1 for its kind and selector: a mode's shape, generalized mass and Γ take its normalization case's unit; a mass entry takes its DOF pair's. A nonzero value below the binary64 normal range is 0 with `below_normal` true; an undefined value is null with its reason (`total_mass_zero`, `not_factored`, `no_neighbour`, `no_reported_mode`, `not_finite`, or `outside_canonical_profile` for a magnitude of 2⁵³ or more, which the checked profile cannot carry). The global mass rows use the model basis (`{ref_type: "model", ref_id: "model"}`).
+- **Identity rows** (second review, 2026-11-04). Each row carries `subject_kind` (`member`, `component_body` or `model`) beside `subject`, so the model's aggregate resultant (kind `model`, subject `model`) stays distinct from a member or body that is itself named `model`. A row of kind `model` names subject `model`. Along each axis each (kind, subject) appears once, and the aggregate row comes last.
+- **Subject census: proposed, not built.** No document lists what bears mass or what supports the model. Identity coverage therefore covers only the straight members the `discretization` table lists and the aggregate. The `supports` table cannot be shown to be a complete inventory either. The proposal adds a `binding.subject_census` record: the counts of straight members, arcs, component bodies and supports, and the SHA-256 of the canonical sorted list of (kind, id) pairs that the run read from the model. The record is bound by `binding.model_sha256` and formed by the same pass that forms the identity rows and the supports table.
+  - Without a request, a reader checks that each axis carries one row per counted member and body, plus the aggregate, and that the supports table has the counted rows.
+  - With a request, a reader that implements the model's subject rule re-derives the list from the supplied model and compares its digest.
+  - It is not built in I3a. It changes the binding's shape, both readers and every fixture, and the subject rule (which arcs and bodies bear mass, and which supports a case lists) must be stated once for both readers. That is a slice of its own (§5.3.10).
+- **Authoritative payload.** `mass_matrix` and `shapes` are the payload the relations re-derive from. Either may be `{status: "withheld", reason}`; no other table may. A withheld payload makes the relations that need it scoped unsupported; it is never reconstructed from a digest.
+- **Not published.** λ = ω² (Agent 0, 2026-11-04: no `angular_frequency_squared`, §5.3.5) and the μ-domain evidence (μ_max, δ_μ, δ_q, the screened μ). ω and the cluster rule's ω-form serve instead.
+
+#### 5.3.3 The binding
+
+`binding` captures the request exactly: `request_sha256`, `model_sha256`, `materials_sha256` (with whether `materials` was authored), every request option verbatim (`mode_count`, `frequency_cutoff`, `state_case`, `modulus_basis_ref`, `modulus_basis_temperature`, `weight_to_mass_acceleration`, `include_dynamic_only_restraints`), any undeclared member's name, the state case (`case_id`, `case_index`, the SHA-256 of its authored case object) and the full integrity-parameter set with its SHA-256. The run id derives from the request and parameter hashes.
+
+#### 5.3.4 The readers
+
+**Corrected after independent review (2026-11-04).** The governed entry reads the **original text**, admitted first by the checked profile `openpipestress_jcs_ijson_v1` (duplicate members, NaN and Infinity, unsafe integers and integral values beyond 2⁵³ − 1 refuse the closure), so a duplicate `public_engineering_result` cannot collapse in a map. A **below-normal flag is a claim held to the payload**: a flagged m_i, Γ_k or m_eff,ik whose payload-derived value is normal, beyond its rounding allowance, fails; a flagged fraction or m_eff is held to the other published side of m_eff = fraction·T_k; only a withheld payload scopes the flags. 
+
+**The relation inventory, anchored to the producer** (re-check of b87c5b58e, 2026-11-04, under Agent 0's steer; it replaces the third review's dependency table). Every governing relation is listed with:
+- the exact producer operands and formation (`file:line` in `core/solver/modal_eigen/src` and `core/product_physics/src/modal`);
+- operand identity;
+- the accumulation order;
+- each operand's domain from the producer's flagging rule;
+- the full-reader check;
+- what is explicitly unresolved.
+
+Both readers implement THIS, independently: Python with `Values`, Rust with `Reach`. Where the producer forms a quantity from published values, the readers use published values.
+
+**Domains** (from `WideDd::to_published`, dd.rs:476, and `to_normal_or_zero`, dd.rs:507):
+- an unflagged number is that binary64 number, and an unflagged 0 is an exact zero;
+- a flagged 0 is the producer's `to_published` result for a NONZERO value of magnitude below 2⁻¹⁰²², decided on the extended-exponent value. Its domain is (0, 2⁻¹⁰²²), signed for a signed kind, with no lower bound: 2⁻²⁰⁰³ is producer output (modal_quantities.rs:852);
+- **each field's own domain** (class confirmation of cab0ea356) follows the rounding rule the producer publishes it under. A value outside it is no producer output and fails its owning relation. The readers and the oracle enforce the same rules:
+
+  | Producer rule | Fields (owning relation) | Domain | Violation (fails) |
+  |---|---|---|---|
+  | `to_published` (dd.rs:476) | shape (normalization); m, Γ, m_eff, fraction (participation); orthogonality deviation (evidence) | 0, normal, or flagged (0, 2⁻¹⁰²²); Γ and the shape signed | an unflagged subnormal |
+  | `to_normal_or_zero` (dd.rs:507; a subnormal refuses the run) | η, κ_λ, e_λ (evidence); cluster e_λ and the mode's copy (clusters) | 0 or normal, never flagged | a flag, or a subnormal |
+  | plain binary64 (`Dd::to_f64`, f64 arithmetic) | mass entries, T_k, free-DOF mass (mass); cumulative fractions (participation); Sturm values and the shift, including the formation-separation ratio, which is not re-derived (sturm); identity relative discrepancy, whatever the identity tolerance (evidence) | any finite binary64, never flagged; an off-diagonal entry signed | a flag |
+
+- `outside_canonical_profile` (document.rs:239) is finite, magnitude in [2⁵³, largest binary64]; `not_finite` (:238) is ±∞ or NaN;
+- every other reason is a claim, checked where it is consumed: `total_mass_zero` (document.rs:687, :691) needs a published T_k = 0 and m_eff = 0; `not_factored` needs an unfactored candidate; `no_neighbour` (:754) cannot hold, since every placement has a neighbour (sturm.rs:1075, :1109); `not_formed` states no value.
+
+**Arithmetic and outcomes:**
+- Products are real and outward-rounded; 0 times a finite value is exactly 0.
+- A nonzero product that underflows is never 0: it is kept within one subnormal step, nonzero, and the point paths defer to the set path.
+- m's coefficient w·φ_i·φ_j is formed on sets, never as a binary64 product that can drop the term, because the producer sums each full triple product exactly (`mass_bilinear`, modal_quantities.rs:294). The φᵀp_k and e_λ point paths decide only products they kept, because the producer multiplies in extended range (reformation/mod.rs:964). T_k and the free-DOF mass multiply by 1 or 2 only, so they are exact.
+- A relation instance **fails** when no value in its operands' domains satisfies it.
+- It is **unresolved** (never passed) when some value does but the domains do not decide it.
+- It **passes** only when all its operands are published points and it holds.
+- Each instance is decided on its own operands. A null leaves unresolved only the instances that consume it; counts, basis, units and independent contradictions still run.
+
+| Relation | Producer formation and operands | Identity and order | Domains | Reader check | Unresolved |
+|---|---|---|---|---|---|
+| T_k | `summarize_mass` (mass.rs:401, :409): Σ over nodes of (M r_k) in double-double from the DD mass blocks (`apply_mass` :147, `rigid_product` :171), rounded once. The published entries are those blocks rounded (outcome.rs:220) | each entry once, weight 1 on the diagonal and 2 off it; all DOFs, restrained included | entries: published or outside the profile (never flagged); off-diagonal signed | Σ w·M_ij within A(N+4)u·Σ\|terms\| | two or more entries outside the profile in one block |
+| Free-DOF mass | stiffness.rs:256–268: a DD sum over the free pairs of the axis, rounded | each entry once | as T_k | as T_k, over free pairs | as T_k |
+| Bessel | no producer formation: Σ_i m_eff,ik ≤ T_k for modes orthogonal in the assembled M | each m_eff once | m_eff flagged: (0, 2⁻¹⁰²²) | **interim contract** (below): passes where highest Σ ≤ lowest T_k·(1 + A(n+2)u); never refused | otherwise, a named Bessel unresolved (a temporary capability limit) |
+| Shape | `normalize_mode` (modal_quantities.rs:346, :373–396): v/pivot, flagged on the exact quotient \|v\| < \|pivot\|·2⁻¹⁰²² and published as 0 | — | flagged: (0, 2⁻¹⁰²²); everything downstream uses the PUBLISHED 0 | normalization bounds (a flagged component is inside them; a flagged restrained one fails) | — |
+| m | modal_quantities.rs:395 (`mass_bilinear` :294): Σ_ij φ_i·M_ij·φ_j over the full symmetric M_ff, exact sum, rounded once, flagged by `to_published` | each entry ONE variable, coefficient w·φ_i·φ_j (2 off the diagonal); φ published (flagged → 0) | m flagged: (0, 2⁻¹⁰²²) | within A(N+4)u·Σ\|terms\|, N counting every free pair | an entry outside the profile with a nonzero coefficient |
+| φᵀp_k (not published) | p_k = (M r_k)_f, one DD row sum per free DOF, rounded (stiffness.rs:255–259); q = exact Σ φ_i·p_k,i (`wide_dot` :306, :429) | each entry ONE variable: its coefficients φ_i (row i) and φ_j (row j) are added; allowance e·Σ\|coefficients\|·\|M_ij\|, as x·[c − e·w, c + e·w] | φ published | enters Γ and m_eff below | — |
+| Γ_k | q/m in WideDd, `to_published` (:433) | — | flagged: (0, 2⁻¹⁰²²), signed | Γ·m ≈ φᵀp_k within e(Σ w\|x\| + \|Γm\|), e = A(n+6)u over the n incidences | a flagged Γ or m; an entry outside the profile |
+| m_eff,k | q²/m (:434–435) | — | flagged: (0, 2⁻¹⁰²²) | m_eff·m ≈ (φᵀp_k)² (as above); Γ²·m = m_eff within Au | a flagged operand whose set covers the other side |
+| Fraction | q²/(m·T_k) (:437), from q and m, NOT from the published m_eff; `None` when T_k = 0 → `total_mass_zero` | — | flagged: (0, 2⁻¹⁰²²) | fraction·T_k ≈ m_eff within Au; T_k = 0 exactly when `total_mass_zero` | as m_eff |
+| Cumulative fraction | `cumulative_effective_mass_fractions` (:460): a DD accumulation of the PUBLISHED fractions, in mode order, rounded once each | each published fraction once | the published value (a flagged fraction is 0) | the running sum of published fractions within A(i+2)u·Σ | a fraction outside the profile (never a flagged one) |
+| e_λ | reformation/mod.rs:952–964: η·κ_λ from the extended values, each `to_normal_or_zero` | — | 0 exact, or normal | within 8u·max | a non-finite operand |
+| Cluster e_λ | `cluster_error_estimates` (reformation/mod.rs:976): it first refuses any estimate that is not finite and nonnegative (:985–989), then takes the maximum per cluster; the mode copies it (outcome.rs:302–306) | each member once | as e_λ (0 or normal) | bit for bit; the copy is the same value object (value, reason, flag) | a member outside the profile |
+| e_b, e_b·ν | sturm.rs:879–883: f64 `factor_term + formation_term` and `backward_error * inverse_norm_estimate` | — | published, outside the profile, not finite | bit for bit when published, else within 8u | an operand outside the profile that the sum or product admits |
+| Decision | sturm.rs:841, :888–905: separated is s ≥ κ_s·e_b (ratio s/e_b); within is g ≤ g_max; conditioned is the product ≤ 1/κ_c; the first failing test in that order names the decision | — | a non-finite ratio is separated; ≤ is false for ±∞ and NaN | each decision's tests possible on the published sets | a ratio within 8u of κ_s |
+| Accepted shift | ω = √σ (document.rs:745) in its gap | — | published or outside the profile | some value in [lower, upper], or ≥ the top mode | a shift outside the profile against an unbounded end |
+| Orthogonality, standing | orthogonality.rs:193 (`to_published`, flagged); outcome.rs:342 (η > τ_r), :383 (deviation > τ_o) | — | deviation flagged: (0, 2⁻¹⁰²²) | the token possible for the published η and deviation | a non-finite η or deviation |
+| Identity tolerance | weight_basis.rs:93: the largest relative discrepancy | — | published | ≤ the bound tolerance | a non-finite value |
+
+ω, f, T, the coordinates, ℓ and the shape components are published-only: a null in them is refused. This is conservative and is not an adopted narrowing. Withheld payloads and the census remain `scoped_unsupported`.
+
+**Publication status.** Every verdict carries `validation`. It is `fully_validated` only when every mandatory governing relation has passed (decision `consistent`), and `not_fully_validated` otherwise, listing the relations not passed. Unresolved or scoped evidence confers no validated or current-authority status. Public admission stays disabled (§5.3.9).
+
+**The exact limit, stated in every verdict (`limit`).** The verdict establishes per-relation consistency, not joint realizability. Each relation is decided on its own operands, so a document every relation admits may still have no single coherent set of underlying values: for example, x needing m ≈ 10¹⁶ while y needs m ≈ 4·10¹⁶. Agreement with the feasibility oracle does not establish payload coherence either. No joint solver is built (Agent 0, 2026-11-04).
+
+**Bessel: Agent 0's interim reader contract (option C, corrected; 2026-11-04). This is a temporary capability limit, not an accepted release limitation.**
+- **Old governing text:** "Bessel's Σ_i m_eff,ik ≤ T_k(1 + A(n+2)u)" is a check whose violation rejects the document.
+- **New governing text:** "Bessel's Σ_i m_eff,ik ≤ T_k is established, and passes, where the readers' sound rounded or interval arithmetic shows highest Σ m_eff ≤ lowest T_k·(1 + A(n+2)u) from the published operands, whatever the orthogonality deviation. Otherwise it is a named Bessel-relation unresolved: not a contradiction, and not passed. It is refused only under an independent, existing common-M premise that proves the violation impossible for valid producer output; none exists today, so it is never refused."
+- **How the comparison is decided** (review of `f5c66b167`): the decision itself must not round in the passing direction. The Python reader compares in exact rationals (every operand is a finite binary64 value); the Rust reader rounds outward, stepping each partial sum of the m_eff upper ends up one ulp and the allowed total T_k,low·(1 + 16(n+2)u) down one ulp, with the slack exact in binary64. Outward rounding can only turn an established case into `unresolved`, never the reverse. A boundary witness (T = 1.3, m_eff = [1.3000000000000094, 0], exactly 8.9·10⁻¹⁷ above the allowed total) is not established by either reader.
+
+Why: Σ m_eff ≤ T_k holds for modes orthogonal in the assembled M, which participation uses. The published deviation d̂ is measured on the re-formed M̂. Nothing is inferred from d̂ alone in either direction, and 1 + (n − 1)·d̂ is not a bound. The excess bound [1 + (n − 1)·d]·T holds only for a common metric, so it would need a metric transfer from M̂ to M that is not justified. The unit-test witness: M = I, M̂ = [[1, −1], [−1, 2]], φ₁ = (1, 0), φ₂ = (1, 1), r = (1, 1) are exactly M̂-orthogonal, yet Σ m_eff = 3 > T = 2.
+
+What still runs, and the gating:
+- Every independent check keeps running: units, nonnegativity, the mass basis, Γ²m = m_eff, the fraction, the cumulative sums, the counts and the per-mode checks.
+- An unresolved Bessel confers no `fully_validated` status and no fresh publication. The document stays inspectable with that scope.
+- The producer's numerical Sensitive standing is separate from a reader-unresolved relation.
+
+Agent 0 approved selecting this scoped handling subject to review. It does not adopt the earlier rationale (the 1 + (n − 1)·d proposal of cab0ea356) and gives no universal never-reject guarantee.
+
+**Open item: option B, not built, cost to be analysed.** The producer would publish direct Gram evidence on the common assembled M (φᵢᵀMφⱼ for the reported modes, or a bound on it), so that Bessel could be decided without a metric transfer.
+
+The controls are in both readers:
+- the two-mode witness as a unit test;
+- a corpus document where the sum is established (passed);
+- a document beyond the strict allowance (unresolved);
+- each beside a wrong Γ²m, which still refuses.
+
+**Controls.**
+- **Producer-generated edges (governing false-refusal controls).** `modal::tests_document::modal_edge_entries` runs the real solve on the component-body request. It replaces the reported modes' participation quantities with modal_eigen's own `normalize_mode` and `cumulative_effective_mass_fractions` outputs on edge bases, and projects through the producer's own `modal_doc_solved`. The result is `fixtures/results/modal_producer_edges.json`, held by a byte test. Its three edges: the m_eff = 2⁻²⁰⁰³ regression; a flagged fraction inside the cumulative sums; and the reviewer's probe (Γ_x 10⁻²⁰⁰, T_x 10⁻³⁰⁰, a flagged m_eff with a normal fraction). Both readers and the oracle accept all three; each is `unresolved`, never `passed`.
+- **Independently derived mutations.** Four mutations of those edges have expectations derived from the formation above, not from either reader:
+  - an unflagged 0 m_eff beside Γ²m = 2⁻²⁰⁰³ (reject);
+  - a flagged m_eff beside Γ = 0.5 (reject);
+  - a cumulative counting the flagged fraction's true value (reject);
+  - a doubled normal fraction of a flagged m_eff (unresolved).
+- **Unit tests in both readers.** The duplicated free/free entry with +1 and −1 is ONE variable whose coefficient is exactly 0. With m = 2⁻¹⁰²² and Γ = 0.5 it is rejected; two independent unknowns would have admitted it. A flagged value is nonzero, and an underflowing product is never 0.
+- **The feasibility oracle is supporting evidence only.** It has the same domains, published operands and per-entry identity. The 525 cases include flagged free shape components. A reader never fails a family the oracle finds feasible. It never passes one the oracle proves infeasible: it fails it, or leaves it unresolved where a flagged value's extended exponent is beyond binary64. That allowance is used in 0 of 525 cases.
+- **Disagreements found and fixed this round:**
+  - three Python false scopings, where an entry's allowance was taken against its set's largest magnitude instead of the same x;
+  - a subnormal point product widened down to 0, caught by the Rust unit test and fixed in both readers.
+
+ω, f and T must be positive and finite before any division. **Coverage is required by construction, over what the document lists:** at least one computed mode; the identity rows along each axis in order, each straight member of the discretization table compared nodally as kind `member` (and nothing else nodally), the aggregate (kind `model`) last and once, and one (kind, subject) list on every axis; a linearized state case's supports, its restrained set equal to the document's restrained DOFs and every rigid treatment's DOF restrained, and no supports without one; and the fixed numerical-integrity disclosure. **Coverage is conditional on the listed census.** Identity coverage is established for the straight members the discretization table lists and for the aggregate only. A subject missing from every axis cannot be detected: an arc, a body, or a straight member also missing from the discretization table. The supports table cannot be shown to be complete. Both are stated in every solved document's scope, and the census binding is proposed in §5.3.2.
+
+Both readers return the same verdict: `closure`, `binding` (with the inputs not supplied), nine relations, `health` (`checks_passed`, `sensitive` or `not_assessed`), the refused document's blocking codes, a `decision` (`consistent`, `consistent_with_unresolved`, `consistent_with_scoped_unsupported`, `refusal_consistent` or `rejected`), `validation` and the `limit` and `public_admission: disabled` with §5.3.9's conditions. Each standing is passed, failed (with the first difference), unresolved (with the instances its operands leave open; never passed), scoped unsupported (with its scope) or not checked. When closure fails nothing else is checked. They re-derive **without an eigen solve**, from the payload, in binary64, summing in the document's row order, with u = 2⁻⁵³ and the reader allowance A = 16 (a rounding allowance, not an engineering threshold):
+
+- **closure:** members, constants, fixed texts, the table digest, row ids, ordinals, checksums, digests, every reference, every value object's shape and kind, the DOF order and free numbering, the guard's DOF counts.
+- **binding:** the parameter hash and run id; the extraction bound, f_c and a against the options (through the unit catalog, within 4u); the state case; τ_t, κ_c, κ_s and g_max against the parameters; with a supplied request, its hashes, options and state-case object.
+- **mass:** T_k = Σ w·M_ij over the entries with both DOFs translational along k (w = 2 off the diagonal) within A(N+4)u·Σ|terms|; the free-DOF mass likewise over free pairs; a non-negative diagonal; Bessel's Σ_i m_eff,ik ≤ T_k(1 + A(n+2)u).
+- **normalization:** ℓ re-derived from the nodes (within 8u); each mode's reference DOF free, of its case's kind and exactly +1; restrained components exactly 0; case (a) translations at most 1 and not τ_t·ℓ·θ ≥ 1 within 8u; case (b) rotations at most 1 and translations at most τ_t·ℓ(1 + 8u).
+- **participation:** m_i = φᵀM_ffφ within A(N+4)u·Σ|terms|; s_k = φᵀp_k, p_k = (M R_k)_f, with Γ_k·m against s_k and m_eff·m against s_k² within A(N+6)u-scaled bounds; Γ²m = m_eff within Au; fractions against T_k within Au, undefined exactly when T_k = 0 (then m_eff = 0); the cumulative sums within A(i+2)u.
+- **counts:** f = ω/2π and T = 1/f bit for bit; ascending computed modes; the reported set re-derived from the bound by the kernel's rule over the published f and cluster ids (bounded count, stop and cluster completion, exactly); the endpoint against the census; the Sturm count and its reported count equal to the modes reported.
+- **clusters:** ids chained from 1; each row's members; the set ending at a cluster boundary; δ_c from ω, ω²_{i+1} − ω²_i against δ_c·ω²_{i+1} with margin 16u·(1 + δ_c)·ω²_{i+1} (§5.3.5), a pair inside the margin scoped unsupported (λ is not published); each cluster e_λ the largest member's, bit for bit.
+- **sturm:** at most s_max candidates, only the last accepted; e_b = factor term + formation term and e_b·ν bit for bit; the accepted shift's count, e_b·ν ≤ 1/κ_c, g ≤ g_max and separation ≥ κ_s(1 − 8u); each refused candidate's decision consistent with its evidence; the placement's ends equal the neighbouring modes' ω (for an empty set, fl(√fl(fl(2π·f_c)²)), the producer's own operations, which must be a finite positive square: the producer refuses a zero or overflowing λ_c as `InvalidGap`) and the shift inside its gap.
+- **evidence:** e_λ = η·κ_λ within 8u; the identity discrepancies within the bound tolerance (scoped when its absolute part is not 0, whose scale is not published); non-negative formation values; the orthogonality pair stated exactly when two modes are reported.
+- **standing:** a mode Sensitive exactly when η > τ_r, the set exactly when a mode is or the orthogonality deviation exceeds τ_o, each with its reasons.
+- **units:** every value against modal-1, by name. Each value's status must be `catalog` (or `equilibrated_basis` for a kind in the closed list, which is empty) and its unit the kind's catalog unit: the mass coupling `unit:kilogram_meter_per_radian`; the Sturm and stiffness-side formation magnitudes `unit:one`; the mass-side ones `unit:square_second` (§5.3.5). The standing is passed or failed, never scoped. It closes no other relation: a document is still not `fully_validated` while Bessel is unresolved or the evidence relation is scoped by the subject census.
+
+They do not re-derive K, the double-double re-formation (the orthogonality deviation and η are evaluated on M̂ and K̂, not published), the census's μ evidence or the eigen-solve (the DEF-O stance). **Tests:** the Rust reader's `tests/corpus.rs` and the Python `tests/test_modal_evidence.py` hold each reader to every verdict of `fixtures/results/modal_corpus.json` (124 entries: every fixture coherent, with and without a supplied request; tampered T_k, a mass entry, the free-DOF mass, Bessel's inequality, the shape sign, the normalization case, a case (b) translation, a restrained component, ℓ, Γ, m_eff, m_i, a cumulative fraction, the count, the extension, a frequency, the endpoint, a cluster id, a cluster e_λ, a pivot count, a shift outside its gap, a premise, e_λ, an identity discrepancy, the set and a mode standing, a unit, the coupling's unit, a row id, a stale checksum and digest, a claimed public admission, a limitation, a withheld non-payload table, the table digest, the parameters, a different request, an option, the state case, a withheld mass and withheld shapes (scoped unsupported), and three refused-document cases; and 30 adversarial entries on the absence and contradiction paths of each relation: below-normal flags contradicting the payload or the other published side, a withheld payload with a flag (scoped), missing Sturm evidence beside a contradictory count or conditioning product, a profile-null product, an accepted growth null without a bound (a failure since the second review), no candidates, duplicate members in the header and in a row, a NaN and an unsafe integer in the text, zero ω, f and T, an emptied identity table, a dropped axis row, a dropped straight member's row, a straight member compared as a resultant, emptied supports, a changed restrained set, supports without a state case, emptied disclosures, an emptied mass matrix, a restrained reference DOF, emptied participation and cluster tables, dropped options and reasons without a Sensitive token); and 16 entries on the profile bounds and the subject kind. The bound entries are:
+
+- against published values: a factor term, a formation term, an e_b, a conditioning product and an accepted growth each outside the profile;
+- an undecided e_b sum beside a failed conditioning premise;
+- a separation ratio null without a bound on a factored candidate;
+- an e_λ outside the profile, against η·κ_λ and against its cluster's e_λ;
+- a T_k outside the profile against its entries;
+- an m_eff outside the profile against Γ²·m;
+- an η outside the profile, which must make the mode Sensitive;
+- an off-diagonal mass entry outside the profile (scoped).
+
+The subject-kind entries are a straight member named `model` (consistent), the aggregate row relabelled as a member, and a member's row labelled as the aggregate (closure).
+
+The third review adds 9 entries:
+- the reviewers' reproductions: a restrained entry outside the profile beside a reversed Γ; `total_mass_zero` claims beside a T_x outside the profile; a wrong cumulative fraction beside a T_x outside the profile; and a zero e_b times an outside-the-profile ν;
+- three genuinely undecidable cases (scoped): a below-normal m with Γs outside the profile and the payload withheld; two couplings outside the profile along x (arc); and a not-finite η → e_λ → cluster chain;
+- two cases the oracle found: a claim-null restrained entry, which fails mass only; and a Γ outside the profile against a published m_eff.
+
+Two earlier entries change intent:
+- `scoped:large_mass_coupling_is_undecidable` was contradictory (no single coupling of magnitude ≥ 2⁵³ closes T_x) and is now `mass:one_large_coupling_cannot_close_its_sum`;
+- `scoped:below_normal_mass_with_payload_withheld` contradicts its published Γ and m_eff (Γ²·m ≤ 2⁻¹⁰²²·Γ²) and is now `participation:below_normal_mass_against_published_gamma_squared`.
+
+The re-check of b87c5b58e adds 7 entries: the three producer edges (`unresolved`) and the four independently derived mutations of them (see the controls above), for 118 in all. Earlier entries whose relations a flagged or outside-the-profile operand leaves open now read `unresolved` where they read `scoped_unsupported`; no rejection or pass changed.
+
+The class confirmation of cab0ea356 adds 6 controls, for 124 in all:
+- a nonzero η·κ_λ published as e_λ = 0 (reject);
+- a subnormal η and e_λ, outside to_normal_or_zero (reject);
+- the four Bessel documents: established (passed), unresolved, and each beside a wrong Γ²m (refused).
+
+The units slice (§5.3.5) adds 3 adversarial units entries, for 127 in all. Each fails units only:
+- a Sturm e_b published `equilibrated_basis` (outside the closed list);
+- a translation–rotation mass entry published in its former form, `catalog_family_absent` (not modal-1's `unit:kilogram_meter_per_radian`);
+- the time-squared ‖DM̂D‖_∞ claimed as `unit:one`.
+
+Regenerating the expectations changed no verdict of the 124 earlier entries, and `units:coupling_given_a_unit` still fails units.
+
+The `time_squared` change and the empty-set correction (§5.3.5) add 5 entries, for 132 in all:
+- `coherent:cantilever_subnormal_cutoff`, consistent with its census scope;
+- three time-squared rejections (the obsolete `catalog_family_absent` form, `equilibrated_basis`, and the spelling `unit:second_squared`);
+- the subnormal cut-off's lower end published as 2π·f_c, which fails sturm.
+
+The review of `c3f824e85` adds 2 more, for 134: a cut-off of 10⁻²⁰⁰ Hz, whose square underflows to zero, with the lower end published as 0.0 and as −0.0. The producer refuses a zero λ_c (`InvalidGap`), so no solved document has one, and both fail sturm (`sturm:cutoff_square_underflows_to_zero_lower_end_zero`, `…_negative_zero`).
+
+The earlier `units:time_squared_claimed_dimensionless` now fails against `unit:square_second`. `units:coupling_published_without_its_catalog_family` now fails at the status vocabulary, and its phrase follows.
+
+Regeneration delta: units turn from `scoped_unsupported` to `passed` in 102 earlier entries. No decision, closure, binding, health or other relation changes, because the evidence relation's census scope keeps every coherent solved document `consistent_with_scoped_unsupported`.
+
+`mass:bessel_exceeded` is now `participation:a_bessel_excess_beside_a_wrong_gamma_squared`: its Bessel is unresolved under the interim contract, and its Γ²m still refuses. m's producer probe (m = 2⁻¹²⁰⁰ from `normalize_mode`) is a relation-level control in `modal_producer_edges.json`, run through each reader's own m reconstruction and the oracle, because a real model's payload cannot carry it.
+
+The readers agree on every decision; each entry also names the standing it targets, which must fail, and each adversarial entry a phrase that the failing standing's difference must contain in each reader. Corpus agreement alone is weak evidence of independence, because the readers were written to one rule set and can share a blind spot (the reviews found four: the flags, the Sturm `continue`, profile-null operands that hid contradictions, and inexact intervals that skipped families or mis-handled zero, sign and below-normal values; the last is why the feasibility oracle tests feasibility directly, not only agreement); the adversarial entries test absence and contradiction paths, not only tampered values, and each reader states its own reason. Both readers are held to the committed modal-1 bytes and check the catalog's canonical units; the Python reader imports only the standard library and its two siblings.
+
+#### 5.3.5 Units: the dimensional trace, the catalog families and the closed equilibrated-basis list
+
+**Decided by Agent 0 (2026-11-04), implemented in the I3a units slice.** Agent 0 made four decisions:
+- add `mass_length_per_rotation`;
+- add no `angular_frequency_squared`;
+- keep `equilibrated_basis` only as an explicit coordinate-basis magnitude category with an exact closed list of kinds;
+- after the trace, add `time_squared` for the two D·M·D magnitudes (option (a)).
+
+Both additions are recorded as dated engineering extensions beside D-01 (`execution/_Coordination/_DECISIONS/D-01_ENGINEERING_EXTENSION_2026-11-04.md`). D-01 and DEC-018 are unchanged.
+
+**What passing units means.** Every published value now has its catalog unit, so the units standing passes for current documents. It closes no other condition. The mandatory Bessel relation (interim contract C), the evidence relation's subject-census scope and the production conditions (§5.3.9) stay open, and no current document is `fully_validated`: every solved fixture leaves `evidence` unmet.
+
+- **The families.**
+  - **`mass_length_per_rotation`.**
+    - Vector (L, M, T, Θ, A) = (1, 1, 0, 0, −1).
+    - Units: `unit:kilogram_meter_per_radian` `kg*m/rad` ×1 (canonical, a project-governed binding); `unit:pound_mass_inch_per_radian` `lb*in/rad` ×(0.45359237·0.0254); `unit:pound_mass_foot_per_radian` `lb*ft/rad` ×(0.45359237·0.3048). The display factors are definitional products of the reviewed constants.
+    - Witnesses: `mass_length_per_rotation_units_have_definitional_conversion_witnesses` (0.011521246198 and 0.138254954376 kg·m/rad, each in both directions).
+    - It covers the translation–rotation mass entries (unit chosen by `dof_pair_class`) and the rotational rows of M·R_k (p_k is not published).
+  - **`time_squared`.**
+    - Vector (0, 0, 2, 0, 0).
+    - One unit: `unit:square_second` `s^2` ×1, SI canonical, with no display unit.
+    - Witness: `time_squared_has_one_canonical_unit_and_is_matched_by_name`.
+  - **Both** are named dimensions, checked by name and never matched by vector, and both are transcribed in `tests/verifiers/units.py`. Every earlier unit identity is unchanged.
+- **Coordinate conventions.**
+  - Each free DOF i has a coordinate q_i: a translation in m, a rotation in rad.
+  - Through virtual work, δW = Σ_i F_i·δq_i, the generalized force conjugate to a rotation is a moment in J/rad. So K_ij = ∂F_i/∂q_j is in J/(q_i·q_j): N/m, N/rad and J/rad².
+  - A rotational stiffness authored in N·m/rad (the catalog's `rotational_stiffness`) is the same number read as J/rad², since the moment's N·m is J/rad.
+  - Likewise M_ij is in J·s²/(q_i·q_j), which is what modal-1 publishes: kg, kg·m/rad and kg·m²/rad².
+  - The product's matrices are SI binary64 numbers with rotations in radians. They are the same numbers under either reading of the radian; the trace uses the virtual-work reading, the only one under which K − λM is homogeneous with one λ.
+- **The eigenparameter against the published frequencies.**
+  - λ (an eigenvalue of K φ = λ M φ) and σ (a Sturm shift) are in s⁻²: J/(q_i·q_j) over J·s²/(q_i·q_j), entry by entry.
+  - The published circular frequency is ω = √λ in s⁻¹, written rad/s by the catalog's `angular_frequency` convention: the radian there is the phase angle (one cycle is 2π rad, and 1 rad = 1), not a coordinate rotation, so it does not enter any q_i.
+  - f = ω/(2π) in Hz (one cycle is 2π rad), and T = 1/f in s.
+  - The rounding: ω = fl(√λ), within u of √λ; fl(ω²) is within 3u·λ of λ (+O(u²)); f = fl(ω/fl(2π)).
+- **Which D each route uses (the code, not only the convention).**
+  - **Sturm.** `ShiftPencil::from_entries(n, &pencil.stiffness_entries, &pencil.mass_entries)` (eigen.rs:226) forms d_i = fl(1/fl(√k_ii)) in binary64 (sturm.rs:627), refusing k_ii ≤ 0. The k_ii are the diagonal of the **formed** free–free stiffness K_ff of `ModalPencil` (stiffness.rs:204–218, the assembled stiffness partitioned to the free DOFs).
+  - **Formation.** `reform_modal_pencil` is called with the same `&pencil.stiffness_entries` (outcome.rs:287–294) and passes them to `formation_difference` (integrity.rs:422). It forms d_i = 1/√|k_ii| in double-double from that **formed** diagonal (reformation/mod.rs:809), not from the re-formed K̂. That D is applied to the formed and to the re-formed matrices alike.
+  - **The same normalization in units.** Both are |k_ii|^−½ of the same formed entries (k_ii > 0, so |·| changes nothing), so d_i carries J^−½·q_i on both routes. Numerically, Sturm's binary64 d_i and the formation's double-double d_i differ by the binary64 rounding of the root and the reciprocal (about 1.5u relative), which has no unit consequence.
+  - **The result.** (D X D)_ij = d_i·X_ij·d_j = X_ij·q_i·q_j/J, entry by entry and whatever the DOF classes. For X = K or K̂ it is dimensionless. For X = M or M̂ it is s². For Sturm's shifted entry a_ij = fl(k_ij − fl(σ·m_ij)), σ·m_ij is in J/(q_i·q_j) like k_ij, so ã_ij is dimensionless.
+  - **The code is consistent with this.** It adds the two scaled norms weighted by the eigenparameter: ‖DK̂D‖_∞ + λ·‖DM̂D‖_∞ in η's scale (reformation/mod.rs:950), and Σ\|k̃_ij\| + σ·Σ\|m̃_ij\| in the formation term (sturm.rs:758). Those sums are homogeneous exactly when D M D is s² against a dimensionless D K D. The arc fixture is **numerical support only, not the dimensional proof**: ‖DK̂D‖_∞ = 4.20 (at least 1 for a unit-diagonal K̃), while ‖DM̂D‖_∞ = 9.3·10⁻⁸ s², of the order of 1/ω² for ω up to 4.9·10³ rad/s.
+- **The trace.** Every kind formerly published as `equilibrated_basis`, with its assigned unit; the trace holds for every row:
+
+  | Kind (modal-1) | Formula (producer) | D from | Dimension | Assigned |
+  |---|---|---|---|---|
+  | `sturm_formation_term` | c_f·u·‖\|K̃\| + \|σ\|·\|M̃\|‖_∞ (sturm.rs:758) | formed K_ff, binary64 | K̃: 1; σ·M̃: s⁻²·s² = 1 | `unit:one` |
+  | `sturm_factor_term` | γ_n·‖\|L̂\|\|D̂\|\|L̂ᵀ\|‖_∞, LDLᵀ of Ã = D(K − σM)D | formed K_ff, binary64 | 1 | `unit:one` |
+  | `sturm_backward_error` | e_b = factor term + formation term (sturm.rs:880) | formed K_ff, binary64 | 1 | `unit:one` |
+  | `sturm_inverse_norm_estimate` | ν, the Hager–Higham estimate of ‖Ã⁻¹‖₁ | formed K_ff, binary64 | 1 | `unit:one` |
+  | `sturm_max_abs_lower_factor` | max\|L̂_ij\| (unit lower factor of Ã) | formed K_ff, binary64 | 1 | `unit:one` |
+  | `sturm_max_abs_pivot` | max\|d̂_j\| (pivots of Ã) | formed K_ff, binary64 | 1 | `unit:one` |
+  | `sturm_max_abs_scaled_diagonal` | max\|ã_jj\| | formed K_ff, binary64 | 1 | `unit:one` |
+  | `stiffness_formation_difference` | ‖D(K_ff − K̂)D‖_∞ (reformation/mod.rs:706, `scaled_norm`) | formed K_ff, double-double | 1 | `unit:one` |
+  | `reformed_stiffness_norm` | ‖D K̂ D‖_∞ | formed K_ff, double-double | 1 | `unit:one` |
+  | `mass_formation_difference` | ‖D(M_ff − M̂)D‖_∞ | formed K_ff, double-double | s² (0, 0, 2, 0, 0) | `unit:square_second` |
+  | `reformed_mass_norm` | ‖D M̂ D‖_∞ | formed K_ff, double-double | s² (0, 0, 2, 0, 0) | `unit:square_second` |
+
+  - **Already `unit:one`, unchanged.** The derived quantities: the conditioning product e_b·ν, the growth factor max(1, max\|L̂\|)²·max\|d̂\|/max\|ã_jj\|, the separation ratio s/e_b and the formation-separation ratio. s_j(σ) = (\|λ_j − σ\| − e_λ·λ_j)·(φ̃ᵀM̃φ̃)/‖φ̃‖₂² is s⁻²·s², so it is dimensionless too.
+  - **Split kinds.** `formation_difference` and `reformed_norm` each carried a K value and an M value of different dimension under one kind. They were split by matrix into the four kinds above (named for the matrix, with unchanged formulas), and the documents' header members bind them by name: `stiffness_difference`, `mass_difference`, `reformed_stiffness_norm` and `reformed_mass_norm`.
+  - **No escape status.** No kind keeps a non-catalog status. The `catalog_family_absent` rule form is retired from modal-1 because every kind now has its family.
+- **The closed list and the status vocabulary.**
+  - modal-1 carries `equilibrated_basis_kinds`, the coordinate-basis magnitudes whose exponents genuinely mix. Such a magnitude claims no dimension and no physical unit, and is never called dimensionless.
+  - The trace leaves the list **empty**, `[]`.
+  - Each reader, from its own statement of the table, holds a value's status to `catalog`, or to `equilibrated_basis` for a listed kind only.
+  - So each of these fails units: an obsolete `catalog_family_absent` ("… is not a modal-1 unit status"); an `equilibrated_basis` ("… is not in modal-1's closed equilibrated_basis list"); a misassigned `unit:one`; and any other spelling, such as `unit:second_squared` ("… is not modal-1's unit:square_second").
+  - Adding a kind to the list needs a trace showing mixed exponents and a modal-1 change.
+- **Superseded provenance.** The first units finding (I3a, before 2026-11-04) is **superseded 2026-11-04**, after the code trace above. It claimed that a K̃ translation–rotation entry carries rad^−½ and that the equilibrated magnitudes therefore have no catalog dimension. That figure read the K diagonal in the catalog's `rotational_stiffness` units (N·m/rad) without the virtual-work reading of the moment (J/rad). Under that reading K − λM is not homogeneous, and the code's own sums ‖K̃‖ + λ‖M̃‖ would mix dimensions; it is not the dimension of what the code forms. It is kept verbatim:
+
+  > - **Finding.** Every per-mode quantity stands on existing families: f (`unit:hertz`), ω (`unit:radian_per_second`), T (`unit:second`), the shapes (`unit:one`, `unit:radian_per_meter`, `unit:meter_per_radian`), m_i (`unit:kilogram`, `unit:kilogram_square_meter_per_square_radian`), Γ, m_eff and the fractions. **λ need not be published:** ω carries the spectrum, and the δ_c and Sturm relations are re-derived from ω with a stated rounding margin (a pair inside it is scoped unsupported, not guessed). **The mass payload does not stand on the catalog:** with angle tracked as a dimension, a translation–rotation entry of M (and p_k's rotational rows) is kg·m·rad⁻¹, exponents (L, M, T, Θ, A) = (1, 1, 0, 0, −1), for which the catalog has no family; it is published with its exponents and `catalog_family_absent`. The equilibrated-basis magnitudes (e_b and its terms, ν, the formation differences and re-formed norms, max|L|, max|d|, max|ã|) are norms of the diagonally scaled pencil, which mixes angle exponents (a K̃ translation–rotation entry carries rad^−½), so no catalog dimension is claimed (`equilibrated_basis`). No dimensionless token is used for either.
+
+  Its proposal to DEL-02-02's owner (`mass_length_per_rotation` as built above; `angular_frequency_squared` only if λ were published) is in the Git history of this file at `c0a46799a`.
+- **λ, σ and ω where they interconvert.** No λ or σ value is published. ω, f and T come from `frequency_from_eigenvalue` (ω = fl(√λ), f = ω/2π, T = 1/f). The Sturm shift is `sturm_shift_circular_frequency` = fl(√σ) in rad/s (document.rs:745), and the placement ends are fl(√λ) through the same `sqrt` (document.rs:558). Both readers account for the rounding:
+  - **(i) Clusters.**
+    - The kernel breaks where fl(λ_b − λ_a) > fl(δ_c·λ_b) (clusters.rs:71). The readers decide this from ω_b² − ω_a² against δ_c·ω_b².
+    - Each fl(ω²) lies within 3u·λ of its λ, so reader and kernel differ by at most (8u + 5u·δ_c)·λ_b + O(u²).
+    - Both readers use a margin of 16u·(1 + δ_c)·ω_b² (the former 8u·ω_b² fell short of the bound for any δ_c > 0), and a pair inside it is scoped. A targeted search found no binary64 pair that the old margin misjudged.
+  - **(ii) The gap.** λ_lo < σ < λ_hi strictly (sturm.rs, `count_in_gap`), and a correctly rounded √ is monotone, so ω_lo ≤ ω_σ ≤ ω_hi, possibly with equality. The readers test membership of the closed interval, and test the whole-spectrum shift only as ≥ the top ω.
+  - **(iii) The ends.** The gap ends equal the neighbouring modes' ω bit for bit, because they are the same function of the same λ.
+  - **(iv) The empty set (corrected 2026-11-04 after the review of `9b22b5a2b`).**
+    - The lower end is fl(√λ_c), with λ_c = fl(ω_c²) and ω_c = fl(2π·f_c) (outcome.rs:310).
+    - The earlier claim, "within 1.5u of fl(2π·f_c), and the readers allow 8u", holds only while ω_c² is normal. Below f_c ≈ 2.4·10⁻¹⁵⁵ Hz the square is subnormal and keeps fewer significant bits. At f_c = 10⁻¹⁶⁰ Hz the published lower end is 6.283177176472489·10⁻¹⁶⁰, against 2π·f_c = 6.283185307179586·10⁻¹⁶⁰: 8.1·10⁻¹⁶⁶ apart, beyond 8u·ω_c = 5.6·10⁻¹⁷⁵. That refused a valid document.
+    - Each reader now repeats the producer's binary64 operations, fl(√fl(ω_c²)), and compares bit for bit.
+    - `modal_cantilever_subnormal_cutoff` (producer-generated, f_c = 10⁻¹⁶⁰ Hz) is read consistent by both readers, and the corpus mutation that publishes 2π·f_c instead fails sturm.
+  - **(v) The cut-off** is compared in f by the kernel (clusters.rs, `reported_set`: f ≤ f_c) and by the readers on the same published f. The cut-off disclosure ("reaches across the cut-off") compares λ in the producer and publishes only text.
+- **No `angular_frequency_squared`.** λ is not published, and ω carries the spectrum.
+
+#### 5.3.6 Fixtures and their generation
+
+Twelve maintained fixtures, `fixtures/results/modal_<name>.json` with their requests `modal_<name>.request.json`, projected from real `ModalOutcome`s under the **TEST-LOCAL, EXPERIMENTAL** parameter set `TEST_LOCAL_I3A_EXPERIMENTAL` (I2b-1's `test_local_parameters`): EX n05 (3 modes), the arc model (6), the component body (3, a = 9.8125 m/s²), the I2b-2 state cases `load:PRESSED` of K-D5 U-1 (one-way active, restrained) and `load:SLIDE-POS` of F-1 (friction sliding, frozen), the SEC-A two-element cantilever's whole finite spectrum (12 modes, two case (b) torsion modes), its cluster extension (bound 1, two reported), an empty set below a 0.5 Hz cut-off, an empty set below a 10⁻¹⁶⁰ Hz cut-off (a subnormal (2πf_c)², §5.3.5), a Sensitive set (`TEST_LOCAL_I3A_EXPERIMENTAL_SENSITIVE`: τ_r = 10⁻³⁰), and two refused documents (EX n05 with 4 modes, `MODAL_STURM_SHIFT_UNSEPARATED`; no bound, `MODAL_EXTRACTION_BOUND_REQUIRED`). `modal::tests_document::fixtures_are_the_projection_of_their_requests` re-projects each and requires its committed bytes (and a second projection's equality); the ignored `write_modal_fixtures` is the deterministic generation script (`fixtures/results/modal_README.md`). They are test fixtures, not run evidence.
+
+#### 5.3.7 Production parameters: Agent 0's A1 and A2 records, the held set and the μ-domain evidence (no production instance)
+
+`ModalIntegrityParameters` keeps no `Default` and no production instance; every document carries the labelled test-local set. **Agent 0's decisions (2026-11-04):**
+- **A1, approved as numerical acceptance and algorithm criteria, not as a domain-wide error theorem:** τ_t = 10⁻⁶; the identity tolerance (relative 2⁻⁴⁴, absolute 0); g_max = 2⁵²; τ_e = 10⁻⁶; τ_m = 2⁻³⁶; and the existing s_max = 7, gap positions, whole-spectrum offsets and QL limit of 30. The empirical witness margins in the table stay empirical: they describe the witnesses, not every admitted model. The identity tolerance is not a guarantee that every physical error is detectable. The approval enables no public result and creates no production default.
+- **A2, decided in part (2026-11-04, on the I3a evidence below):**
+  - **κ_c = 2¹⁰, κ_s = 2⁷ and τ_o = 2⁻²³ are adopted as explicit engineering acceptance and demotion criteria.** Each carries its stated assumptions and observed margins (table). None is a guaranteed error or count theorem. τ_o is applied to the measured deviation on the re-formed M̂ (check 3); a large estimated bound alone demotes nothing. Every other premise is unchanged and still mandatory: the Sturm count and its separation and conditioning premises (check 4), the full per-mode re-formed evidence (check 2) and the numerical Sensitive standing. **These three criteria establish no count certificate by themselves.**
+  - **δ_c = 2⁻²⁰ is adopted as the computed-cluster grouping convention** (an algorithm threshold, not an exception to a release criterion). The cluster definition stays §3.4 check 5: the adjacent relative gap, chained. Being a convention, it need not classify exact physical multiplicities and distinct modes perfectly. Close distinct modes may merge into one cluster, and the cluster's completion and extension are disclosed. That the n·S sufficient bound (item 5) fails on a model does not by itself invalidate the fixed grouping. Count completeness and the Sturm separation premise stay mandatory, and a grouping that is not numerically established refuses with its named refusal. Nothing claims that every repeat is captured, that a cluster identifies a persistent physical mode, or that every model resolves. No spread-dependent clustering redesign is started. If a specific witness shows that the convention violates an existing mandatory check, rather than merging clusters, the exact failure is reported before the value is pinned. None is known: EX n05's second bending pair, which refuses `MODAL_STURM_SHIFT_UNSEPARATED` at the test-local 10⁻⁸, is one cluster at 2⁻²⁰.
+  - **τ_r = 2⁻³⁰ ≈ 9.31·10⁻¹⁰ is adopted (Agent 0, 2026-11-04, second decision)** as an explicit engineering measured-residual demotion criterion on the re-formed η (check 2). It corresponds to a normalized-residual quality target below 10⁻⁹. It is not a stable-algorithm guarantee, not an O(n·u) bound, and not a value fitted so that every mode comes out Good.
+    - A mode whose η exceeds τ_r stays Sensitive, as governed. A residual alone never causes a refusal.
+    - τ_r alone promises no eigenvalue or frequency accuracy. The full κ_λ, e_λ, orthogonality and count checks, and the governing standing above the band, all remain.
+    - The earlier "constant ≤ 10³" claim stays withdrawn, and no global growth proof is needed for this criterion.
+    - Focused text, source and regression confirmation comes before any production instance.
+- **A3, decided (Agent 0, 2026-11-05), on the proposal below (D1–D5):** τ_μ = 2⁻⁵³, c_μ = 1 with κ_μ = 10, and c_f = 64, as **explicit retention and screening criteria**. They are not binary64 resolution theorems, true-rank decisions or all-count certificates. "A3, as decided" below the proposal states the exact scope. The unresolved finite census of the component body and of point lumps offset from their nodes stays a limitation of a structural premise. It is not removed by tuning a parameter or truncating rank.
+- **A complete production parameter instance needs A1, A2 and A3 all closed.** All three are now selected (Agent 0, 2026-11-05). The instance may be implemented as a bounded explicit constructor with no `Default`, under the existing product implementation, review and D3 scope, with the source and regression evidence that "A3, as decided" lists. Selecting the parameters enables nothing. Public and native admission stay disabled until every other §5.3.9 prerequisite closes (the resource guards and their weights, the subject census, the full reader, Bessel). Until that instance is reviewed, only the test-local set exists.
+
+n_max = 8,192 is the largest order the dense guard admits (below, τ_m); n_max·u = 9.09·10⁻¹³. Values are powers of two where a margin rule sets them.
+
+**How to read the table** (corrected after independent review, 2026-11-04). Each row separates three things. *Established:* what follows from a stated argument (a rounding bound, a theorem, a definition) for every admitted model. *Assumed:* an allowance that is a judgment, not derived (such as a growth or underestimate factor), and what it covers. *Empirical margin:* the ratio to the extreme observed value on the witnesses (I1's kernel cases, I2b-1's product observations, I2a's identity measurement, the eleven fixtures and I3a's observations below); it describes those witnesses only and is not a domain-wide guarantee. *Needed before pinning:* the evidence that would turn an assumption into an established allowance, or the review that accepts it as a stated assumption.
+
+| Parameter | Test-local | Agent 0 (2026-11-04) | Derivation | Evidence and margin |
+|---|---|---|---|---|
+| τ_r (residual) | 10⁻¹⁰ | **A2: 2⁻³⁰ ≈ 9.31·10⁻¹⁰** (Agent 0, 2026-11-04, second decision), an engineering measured-residual demotion criterion on the re-formed η. Exceeding it means Sensitive, never a refusal. It is not an O(n·u) bound or an accuracy promise. The ≤ 10³ claim stays withdrawn | *Established:* a backward-stable reduction gives η = O(n·u) for a constant that depends on the reduction's conditioning (‖R⁻¹‖ in the K-based reduction). *Assumed (withdrawn as a basis):* the proposal took that constant to be at most 10³ at every admitted order, so 2⁻³⁰ ≥ 10³·n_max·u. **I3a contradicts it on an existing witness:** EX n05's unreported computed mode 5 has η/(n·u) = 2.44·10⁵ (item 1 below). A fixed τ_r therefore has no n·u derivation; at n_max, 2⁻³⁰ corresponds to η/(n·u) ≤ 1,024, and a model conditioned like EX n05 at that order would be demoted to Sensitive (the safe direction, a loss of service, not a refusal). A breach demotes, it does not refuse | *Empirical margin:* the largest η on any computed pair, 1.90·10⁻¹⁰ (EX n05 mode 5, unreported), is 4.9× below 2⁻³⁰; on a reported mode 2.45·10⁻¹¹ (EX n05 mode 3), 38× below; the other 34 models ≤ 5.5·10⁻¹³ (E-CANT-8, unreported). *Decided (Agent 0, 2026-11-04):* 2⁻³⁰ as the measured-residual engineering target, set jointly with the κ_λ and e_λ checks. Not a universal growth bound, and not a value fitted to remove sensitive modes. Focused text, source and regression confirmation comes before the production instance |
+| τ_o (orthogonality) | 10⁻⁷ | **A2: 2⁻²³ ≈ 1.19·10⁻⁷**, an engineering acceptance and demotion criterion on the measured deviation on the re-formed M̂; a large estimated bound alone demotes nothing | **Corrected (second review, 2026-11-04).** QL's orthogonality alone does not bound the M-orthogonality by n·u·κ(R). Counterexample: R = I and M̃ = diag(1, 10⁻⁸); a rotation of the exact eigenvectors by an angle u gives a deviation of u/√(10⁻⁸) ≈ 1.11·10⁻¹², against n·u·κ(R) = 2.2·10⁻¹⁶. The bound depends on the reduced spectrum. With C = R⁻ᵀM̃R⁻¹ (eigenvalues μ = 1/λ), φᵢᵀM̃φⱼ = zᵢᵀCzⱼ and m_i = μ_i for unit z, so the deviation is \|zᵢᵀCzⱼ\|/√(μᵢμⱼ). *Established (first order, the reduced problem):* QL with accumulated orthogonal transformations returns z that are orthonormal to O(n·u) and exact eigenvectors of C + E, with ‖E‖₂ ≤ c·n·u·‖C‖₂. Then \|zᵢᵀCzⱼ\| = \|zᵢᵀEzⱼ\| + O(n·u)·μ_max ≤ c′·n·u·μ_max, so the deviation is at most c′·n·u·μ_max/√(μᵢμⱼ) = c′·n·u·√(λᵢλⱼ)/λ_min. The counterexample attains this form. No eigenvalue gap enters this bound for accumulated orthogonal transformations: gaps govern each vector's accuracy (sin θ ≲ ‖E‖/gap), not the C-orthogonality of the computed set. A gap term ‖E‖/gap does enter for vectors not produced by those transformations (the recovered band modes, §3.2), and none is derived for them. *Assumed:* forming C from the computed R̂ and M̃, and back-transforming φ = R̂⁻¹z, add first-order terms that scale with n·u·‖R̂⁻¹‖₂²‖M̃‖₂ and n·u·κ(R)·‖R̂⁻¹‖₂²‖M̃‖₂, each over √(μᵢμⱼ). No derivation bounds those factors for the product population; the constants c, c′ are taken as O(1). **Corrected (third review):** only the reduced-problem contribution has a threshold statement. c′·n·u·√(λᵢλⱼ)/λ_min stays below 2⁻²³ while c′·√(λᵢλⱼ)/λ_min ≤ 2⁻²³/(n_max·u) = 1.3·10⁵. The formation and back-transformation terms carry the factors ‖R̂⁻¹‖₂²‖M̃‖₂/μ_max and κ(R)·‖R̂⁻¹‖₂²‖M̃‖₂/μ_max, which nothing bounds for admitted models. So no condition is stated under which the combined bound stays below τ_o, and τ_o is not derived from it. **A large bound does not demote anything.** Sensitive is triggered only by the measured deviation, evaluated in double-double on the re-formed M̂, exceeding τ_o. A high κ(K̃) or a wide spectral spread makes demotion possible, not certain. *Observed (the committed fixtures, from their published ω and n_free; no new run):* the whole-spectrum cantilever deviates 7.7·10⁻¹⁴ against n·u·√(λᵢλⱼ)/λ_min = 2.2·10⁻¹¹ (spread 1.6·10⁴); the arc 5.7·10⁻¹⁵ against 1.3·10⁻¹³. EX n05's bound is 3.8·10⁻⁷, above the proposed τ_o (spread 4.9·10⁸ between its reported modes), while its measured deviation is 0. *Empirical margin:* class (a) ≤ 2.1·10⁻⁹ (E-RIGID-SCALE-1e6), 57× below; fixtures ≤ 7.7·10⁻¹⁴. *Needed:* the measured deviation against n·u·√(λᵢλⱼ)/λ_min and ‖R̂⁻¹‖₂²‖M̃‖₂/μ_max per witness, to confirm the form and the O(1) constants, a stated treatment of band-recovered vectors, and Agent 0's acceptance that the measured deviation, not the bound, decides the standing (**accepted, 2026-11-04**). **I3a:** item 4 below measures every computed pair, band-recovered ones included: c′ ≤ 0.394, and the largest deviation, 2.10·10⁻⁹, is 57× below 2⁻²³. The form and the O(1) constants remain assumptions, and the formation factors are still not computed |
+| δ_c (cluster) | 10⁻⁸ | **A2: 2⁻²⁰ ≈ 9.54·10⁻⁷**, the computed-cluster grouping convention (above); not a physical-multiplicity classifier | *Established:* δ_c must exceed the computed split of an exact multiplicity, or the exact pair is two clusters and the gap between them refuses. *Empirical rule (proposal):* the smallest power of two ≥ 64× the largest split observed. It covers the observed exact-pair splits only; it is not a separation guarantee. **I3a:** an exact repeat's computed split scales with n·u·λ/λ_min (item 5: 0.06–0.14·n·u·S on rotated controls at spread S), so a fixed relative δ_c splits an exact pair once n·u·S exceeds about 7·δ_c (then the gap refuses: safe, a loss of service), and two distinct modes closer than δ_c are merged, extended and disclosed | *Empirical margin:* EX n05's second bending pair splits 1.38·10⁻⁸, inside its upper member's own e_λ = 1.42·10⁻⁸ (at 10⁻⁸ it refuses `MODAL_STURM_SHIFT_UNSEPARATED`; at 2⁻²⁰ it is one cluster), 69× below 2⁻²⁰; it is not an independently established multiplicity. The 82 reference multiplicities split at most 1.40·10⁻¹⁰; the smallest distinct reference gap is 7.96·10⁻⁴ (E-SPRINGS). *Decided (Agent 0, 2026-11-04):* merging modes closer than δ_c is accepted, with completion and extension disclosed. No spread-dependent rule is started; where an exact pair splits beyond δ_c, the gap's separation premise decides, and it refuses by name if unestablished |
+| τ_t (no translation) | 10⁻⁶ | **A1: 10⁻⁶** | §1.5's M1b rule: at least 100× the largest translation of a mode rotational in exact arithmetic | Case (b) max t/(ℓθ) = 7.8·10⁻¹⁶ (fixtures), 1.3·10⁹× below; a rounding-level bound n_max·u, 1.1·10⁶× below; the smallest case (a) ratio 0.013 (arc mode 4), 1.3·10⁴× above |
+| Identity tolerance | (10⁻¹², 0) | **A1: (2⁻⁴⁴ ≈ 5.68·10⁻¹⁴, 0)** | The smallest power of two ≥ 100× the largest measured intact discrepancy; absolute 0 keeps the scale-relative check scale-free (§2.5). It is an acceptance criterion for the formed mass against the self-weight basis, not a detection guarantee: an error whose effect on a compared row is below 2⁻⁴⁴ of that row's scale passes, and an error that leaves a·M·r_k unchanged (rotary and torsional inertia, which vanish for a rigid translation, §2.5) is invisible to the identity by construction | Intact: I2a 5.45·10⁻¹⁶ nodal, 4.38·10⁻¹⁶ resultant; fixtures ≤ 2.2·10⁻¹⁶. **Corrected (I3a):** the earlier statement that a 1 % density error, a dropped body or a body on the wrong node is always ≥ 10⁻² relative is withdrawn. The injected witnesses (`modal::observation_tests::identity_discrepancies_of_injected_mass_errors`; each error injected into the lowered model so the formed mass is assembled from it while the inspection reads the authored model; largest relative discrepancy per compared row, own row / model row): PF pipe-only, pipe:p1 density ×(1 + 10⁻⁹): 6.48·10⁻¹⁰ / 3.24·10⁻¹⁰ (the I2a test refuses it at the test-local 10⁻¹²); density ×1.01: **6.48·10⁻³** / 3.24·10⁻³ (the density scales the metal share of m̄ only); component PF valve, W = 500 N: weight ×1.01: 1.00·10⁻² / 4.13·10⁻³; centre of gravity (−0.5, 0.25, 0) → (−0.5, 0, 0) m: 0.500 / 5.17·10⁻²; on node b instead of c: 0.658 / 0.207. The same three on a light body, W = 0.5 N: the body's own row is unchanged (it is judged on its own scale), the model row falls to **7.04·10⁻⁶**, 8.80·10⁻⁵ and 3.52·10⁻⁴. A body record dropped from the mass is refused by the body census ("a body on one basis only") before any tolerance applies. So a light body's or a diluted member's effect can be far below 10⁻² in a row; the smallest witness value, 3.24·10⁻¹⁰, is 5.7·10³× above 2⁻⁴⁴ |
+| κ_c (conditioning) | 10³ | **A2: 2¹⁰ = 1,024**, an engineering acceptance criterion within check 4's premises, not a count theorem | **Corrected (second review, 2026-11-04).** The earlier row stated two √n conversions but concluded a single √n factor, which was inconsistent. Symmetry removes both. *Established:* Ã and the backward perturbation E are symmetric (L̂D̂L̂ᵀ is symmetric by construction, so E = L̂D̂L̂ᵀ − Ã is). The count is the exact inertia of Ã + E (Sylvester), and it equals Ã's when ‖E‖₂ < σ_min(Ã) = 1/‖Ã⁻¹‖₂ (Weyl). For a symmetric matrix the 2-norm is the spectral radius, which every induced norm bounds, so ‖E‖₂ ≤ ‖E‖_∞ and ‖Ã⁻¹‖₂ ≤ ‖Ã⁻¹‖₁. With e_b bounding ‖E‖_∞ to first order, ‖E‖₂·‖Ã⁻¹‖₂ ≤ e_b·‖Ã⁻¹‖₁, and **no √n factor is needed**. The premise e_b·ν ≤ 1/κ_c therefore establishes the count whenever ‖Ã⁻¹‖₁/ν < κ_c. *Assumed:* κ_c covers only the estimator's underestimate (and e_b's first-order omissions). The Hager–Higham estimate is a lower bound with no worst-case ratio, so the allowance of 1,024 is a judgment, not derived. *Empirical margin:* correct counts have e_b·ν ≤ 2.1·10⁻⁴ (I1), 4.7× below 1/κ_c = 9.77·10⁻⁴; product ≤ 2.5·10⁻⁶; every observed miscount ≥ 35.8, 3.7·10⁴× above. *Needed:* the estimator's ratio ν/‖Ã⁻¹‖₁ on the witnesses (computable exactly for small orders) before the 1,024-fold underestimate allowance is accepted. **I3a:** item 2 below compares ν with an independently computed ‖Ã⁻¹‖₁: the underestimate factor is 1.0000–3.01 on the counted shifts, 340× below 1,024. The estimator still has no worst-case ratio, so the adopted allowance stays a judgment |
+| κ_s (separation) | 10² | **A2: 2⁷ = 128**, an engineering acceptance criterion within check 4's premises, not a separation theorem | **Corrected (second review, 2026-11-04).** The earlier √n_max = 90.5 conversion is withdrawn. s_j is the first-order 2-norm size of a symmetric perturbation that would move λ_j to σ, and for the symmetric E, ‖E‖₂ ≤ ‖E‖_∞ ≤ e_b, so no norm conversion is needed. *Assumed:* κ_s = 2⁷ covers the first-order omission in s_j and the reliance on λ_j's own estimate e_λ,j (check 2). Both are judgments, not derived. *Needed:* s_j against the exact eigenvalue displacement on the witnesses. **I3a:** item 3 below compares s_j with the true separation |α|: s_j overstates it by up to 15.3×, which 2⁷ covers 8.4×. Nothing bounds that factor's growth for wider gaps or spreads | Correct: ratio ≥ 5.7·10³ (I1), 44× above; product ≥ 5.3·10⁵; fixtures ≥ 1.8·10¹¹; miscounts ≤ 6.2·10⁻³ |
+| g_max (growth) | 10¹⁵ | **A1: 2⁵² ≈ 4.50·10¹⁵** | 1/(2u): beyond it the factor's pivots exceed the scaled matrix by more than the inverse unit roundoff; e_b's factor term carries the growth below it (§3.4: g does not discriminate counts) | Correct g ≤ 4·10¹³ (I1 rigid scales), 113× below; product ≤ 1.6·10⁷; fixtures ≤ 1.4·10³. It is also below 2⁵³, so the checked profile carries it |
+| s_max, gap positions, offsets | 7; ¼, ¾, ⅛, ⅜, ⅝, ⅞; 1, ½, ¼ | **A1: unchanged** | Dyadic positions of levels 2 and 3 (≤ `MAX_GAP_POSITION_LEVEL`) after the geometric mean: the gap at log-resolution ⅛; s_max = 1 + 6 bounds the Sturm work at 7·n³/3 | Every product final shift was accepted at its first candidate (§3.4, as built; fixtures) |
+| τ_e (band screen) | 10⁻⁶ | **A1: 10⁻⁶** (a stated accuracy requirement, not a fitted value) | Recovered band pairs must estimate about six significant digits of λ. **Band only:** τ_e judges only the band-recovered pairs of §3.2; a pair above the band is retained from QL without it, and every computed pair, above the band or in it, keeps its full re-formed evidence (§3.4 check 2: η, κ_λ and e_λ on the re-formed pencil) and its standing (a reported mode with η > τ_r is Sensitive). τ_e is not a whole-spectrum accuracy criterion | Genuine band e_λ ≤ 3·10⁻⁸ (33× below); I3a product band pairs (E-RIGID-SCALE-1e5, -1e6) ≤ 1.50·10⁻⁸ (67× below); diagnosed false pairs ≥ 3·10³ (§3.2) |
+| τ_m (mass pivot) | 10⁻¹² | **A1: 2⁻³⁶ ≈ 1.46·10⁻¹¹** | An equilibrated mass pivot of a structurally singular block rounds at about n·u, so τ_m ≥ 16·n·u, and 2⁻³⁶ = 16·n_max·u exactly at n_max = 8,192, with n the order of the equilibrated block (n_f less the structurally massless DOFs ≤ n_f ≤ the global order). **The criterion holds only where a guard establishes n ≤ 8,192 at every use of τ_m.** *Source check (I3a):* τ_m has one use, `established_finite_mode_count` (`modal_eigen/src/dense.rs:751`), called only from `solve_dense_pencil` (`:491`). The product reaches that only through `solve_modal_pencil`, after `form_modal_pencil` has applied `dense_scrutiny_guard` to the global order 6N before any n² allocation (`modal/stiffness.rs:137–141`): 96·n² ≤ 6 GiB admits n ≤ 8,192, so the block order ≤ 8,192 on the product path. Not guarded: the kernel's public `solve_dense_pencil` and `established_finite_mode_count` carry no order limit of their own, so any other caller (M2's sparse path, a native or headless entry) must establish n ≤ 8,192 itself; the 6 GiB ceiling is provisional (ROOT Q8(a)); and the test-only `DENSE_SCRUTINY_CEILING_OVERRIDE` (compiled in tests only) can set any ceiling. **If a resource or admission guard later widens n beyond 8,192 where τ_m is used, the 16·n·u basis is revised and reviewed first** | Genuine equilibrated pivots ≥ 0.22 (the small-bore witness), 1.5·10¹⁰× above |
+| τ_μ, c_μ, κ_μ, c_f | 10⁻¹², 1, 10, 64 | **A3 (2026-11-05): τ_μ = 2⁻⁵³, c_μ = 1, κ_μ = 10, c_f = 64**, explicit retention and screening criteria; scope under "A3, as decided" below | At the test-local values, τ_μ sets the hard cut only where κ_μ·δ_q (= 10·n·u·μ_max) does not already dominate (n ≤ 900), and is inert at n ≥ 901. Under the decided tuple it never sets h above κ_μ·δ_q for n ≥ 1, in the kernel's actual binary64 evaluation (scope under "A3, as decided"). The classification depends on the paired product κ_μ·c_μ = 10 only, an engineering criterion, not a derived worst-case rounding bound; c_μ, κ_μ and c_f as §3.2 states them. Proposal and decision: "A3: minimum resolution and screening proposal" below | The μ/μ_max observation table (item 6 below). **The high-mode issue:** EX n05's top retained mode has μ/μ_max = 3.86·10⁻¹², 3.9× above the test-local τ_μ = 10⁻¹² |
+| QL limit | 30 | **A1: 30** | 30 is tql2's established iteration limit; a failure refuses (`MODAL_EIGENSOLVE_UNAVAILABLE`) | Every product solve within it |
+
+**A2 and A3 evidence (I3a, 2026-11-04; TEST-LOCAL observations, debug build, aarch64-apple-darwin; nothing is pinned or proposed by it).** Every observation comes from existing correctness fixtures plus small additions, in maintained deterministic tests: `modal::observation_tests` (product path) and `modal_eigen/tests/sturm_counts.rs` (`conditioning_and_separation_premises_against_independent_references`, `exact_repeat_and_close_distinct_controls_in_a_rotated_basis`). The product population is 35 models: the 26 class (a) cases, SEC-A at N = 1, 2, 4, 8 (whole spectrum), EX n05, the arc, the component body and the two I2b-2 state cases, n ≤ 48. They run through `replay_modal_phases`, which `the_phase_replay_is_the_product_path` holds bit for bit to `run_modal_dense`, so every computed pair, reported or not, and the re-formed pencil are visible. Each test asserts regression tripwires at the next power of ten (or more) above the observed extreme; a tripwire is not a threshold or a pin. **What applies to every item:** an empirical ratio describes this population only. It cannot turn an assumption into a domain-wide theorem: an estimator with no worst-case bound stays an estimator, and witness evidence informs the choice without proving it.
+
+1. **τ_r: η/(n·u) over every computed pair.** *Shows:* the largest is 2.44·10⁵, on EX n05's unreported computed mode 5 (η = 1.90·10⁻¹⁰, n = 7, the condensed stiffness's inverse-norm estimate ν(K̃̂) ≈ 4.3·10¹⁰, κ_λ up to 8.6·10¹⁰). The next are E-CANT-8 (104, ν ≈ 1.3·10⁴), SEC-A N = 8 (89.9), E-POINTMASS-AXIAL (42.7) and E-CANT-4 (27.7). The rigid-scale family 10³–10⁶ stays ≤ 0.24, band pairs included, although its ν(K̃̂) reaches 1.5·10⁸; so η/(n·u) does not track ν alone. The largest reported η is 2.45·10⁻¹¹ (EX n05 mode 3). *Assumed:* nothing new. The proposal's "constant ≤ 10³" is contradicted on an existing witness and is withdrawn as a basis (table). *Limits:* n ≤ 48, one exact-route witness, and ν is an estimate. Nothing here predicts η at larger orders.
+2. **κ_c: ν against the true ‖Ã⁻¹‖₁.** *Population:* the 376 factored shifts of the inertia suite's fixture (8 witnesses and 9 class (a) pencils; one shift that lies exactly on an eigenvalue, where Ã is singular, is skipped), of which 222 are counted. *Independent basis:* Ã(σ) is formed densely in the kernel's own operation order (a = k − σ·m, then (d_i·a)·d_j), so the reference describes the matrix the factorization was given. ‖Ã⁻¹‖₁ comes from Gauss–Jordan elimination with partial pivoting in double-double, used only where n·κ₁·2⁻¹⁰⁴ ≤ 10⁻⁶ and the reference's own residual ‖I − Ã·X‖₁, evaluated in double-double, is ≤ 10⁻⁶ (both hold on all 376 shifts; the test fails otherwise). It shares nothing with the estimator: no profile LDLᵀ, no unpivoted order, no solve with the binary64 factor, none of the estimator's vectors. *Shows:* on the counted shifts the underestimate factor ‖Ã⁻¹‖₁/ν is 1.0000 to 3.01 (largest: E-FF-4, a gap geometric mean), 340× below κ_c = 1,024. On a counted shift ν exceeds the true norm by at most 1.5·10⁻⁶ relative, the solves' rounding. On 65 refused shifts ν exceeds ‖Ã⁻¹‖₁, by up to 8.1× (E-RIGID-SCALE-1e6, `cluster_18_binary64_nearest`), because the binary64 solves are inaccurate there. So ν is no lower bound where the premise refuses. That direction is safe, since a larger ν refuses sooner. *Established, unchanged:* ‖Ã⁻¹‖₂ ≤ ‖Ã⁻¹‖₁ for a symmetric Ã, so the 1-norm factor bounds the 2-norm factor the premise needs. *Assumed:* the Hager–Higham estimator has no worst-case ratio, so the 1,024 allowance remains a judgment, and e_b bounds ‖E‖ only to first order. *Limits:* n ≤ 48 and the fixture's pencils.
+3. **κ_s: s_j against the true separation.** *Independent basis:* by Sylvester's law Ã(σ) has c negative eigenvalues, with c the fixture's exact count (from the references' generator, not the binary64 inertia). The eigenvalue of Ã that changes sign at σ = λ_j is α_c for the neighbour below and α_{c+1} for the neighbour above. α comes from cyclic Jacobi on Ã, a standard symmetric eigenproblem, and the test fails unless Jacobi converges (off-diagonal Frobenius norm ≤ 10⁻¹⁴·‖Ã‖_F): no pencil eigenpair, no first-order formula and no inertia count enters. By Weyl's theorem |α| is the 2-norm of the smallest symmetric perturbation of Ã that moves that eigenvalue to zero, which is the quantity s_j estimates to first order. A pair is used only when α has the sign the count requires and |α| ≥ 10³·n·u·‖Ã‖_F: that holds for 559 neighbour separations, 420 of them on counted shifts. The 150 unresolved all lie on refused shifts. The test re-evaluates s_j and requires its minimum to reproduce the kernel's. *Shows:* on counted shifts s_j/|α| runs from 1.7·10⁻⁵ to **15.3** (E-RIGID-SCALE-1e6, a gap geometric mean; then WIT-SCALE-1E3 10.5, E-SPRINGS 5.2, E-Z-BEND-K1 below its lowest mode 4.1). 157 of the 420 exceed 1. Leaving out the e_λ allowance (s⁰_j = |λ_j − σ|·q_j) changes nothing at the printed precision. So the first-order s_j overstates the true separation by up to 15× at shifts in wide gaps, and κ_s must cover that omission: the test-local 10² covers the observed factor 6.5×, the proposed 2⁷ 8.4×. The miscount population's separation ratios (≤ 6.2·10⁻³) remain far below either. *Assumed:* that the observed overstatement does not grow much beyond 15× for wider gaps and larger spreads. The largest factors occur in the rigid-scale and wide-gap cases, and nothing bounds the growth. *Limits:* n ≤ 48, Jacobi's absolute accuracy, and e_b as a first-order bound of ‖E‖.
+4. **τ_o: measured orthogonality, formed and re-formed, every computed pair.** Per model: check 3's measure on the published shapes (re-formed M̂), the same over every computed vector on M̂ and on the formed M_ff, and c′ = deviation / (n·u·√(λᵢλⱼ)/λ_min) per pair on M_ff (double-double, exact products). *Shows:* the largest c′ is 0.394 (SEC-A N = 2, pair (2, 4)), so c′ < 0.40 over every pair of all 35 models, consistent with the reduced-problem form with c′ = O(1). On EX n05 c′ is 5·10⁻⁴: the form is pessimistic there. The formed (M_ff) and re-formed (M̂) measurements over all computed vectors agree to the printed three digits on 31 models and differ on four, all at rounding level: E-CANT-1 9.35·10⁻¹⁶ on M̂ against 8.98·10⁻¹⁶ on M_ff, SEC-A N = 1 2.32·10⁻¹⁵ against 2.02·10⁻¹⁵, E-CANT-2 5.62 against 5.61·10⁻¹⁴, and the component body 4.72 against 4.73·10⁻¹⁴. So the two measurements are close on this population but not interchangeable, and a criterion names the one it uses. The re-formed values come from the product's own check-3 measure, so they observe the production checker; they do not verify it independently. Unreported pairs exceed published ones: E-CANT-8 6.8·10⁻¹² against 3.4·10⁻¹³ published; EX n05 1.83·10⁻⁹ (modes 3 and 5, mode 5 unreported) against 0 published. The overall largest, 2.10·10⁻⁹ (E-RIGID-SCALE-1e6), is attained on a pair with a band-recovered vector: band-recovered pairs carry the model maximum on 1e5 (1.37·10⁻¹⁰) and 1e6, and their c′ stays ≤ 0.12, although the reduced-problem derivation does not cover recovered vectors. 2.10·10⁻⁹ is 57× below 2⁻²³. *Assumed:* the formation and back-transformation factors (‖R̂⁻¹‖₂²‖M̃‖₂/μ_max) are not computed, and the measured deviation, not a bound, decides the standing. *Limits:* n ≤ 48, and only two band witnesses.
+5. **δ_c: exact repeats and close-distinct controls.** *Independent basis:* the class (a) references state each exact multiplicity (`clusters[].multiplicity`, from their 80-digit generator), and the kernel controls construct K = Q·Λ·Qᵀ from a fixed Householder Q with M = I, so the exact eigenvalues are Λ to rounding (≲ n·u·‖Λ‖). *Shows (product):* the 82 reference multiplicities split at most 1.40·10⁻¹⁰ (E-POINTMASS-AXIAL at λ ≈ 1.05·10⁹), and a split can exceed its members' own e_λ (by up to 1.39×, E-CANT-2). The smallest distinct reference gap in the population is 7.96·10⁻⁴ (E-SPRINGS), computed to 2.3·10⁻¹⁰ relative: no population pair lies near 2⁻²⁰. *Shows (kernel controls, n = 8, top pair at spread S = 10²…10¹⁰):* an exact repeat splits by 0.057–0.137·n·u·S; a distinct pair with gap g ≥ 10³·n·u·S is computed to ≤ 3.7·10⁻⁶ relative error of its gap (≤ 3.3·10⁻⁵ down to g ≈ 270·n·u·S); below that resolution the computed gap is not reliable (at S = 10¹⁰, g = 2⁻²⁴, it is 9.9× the true gap). So a fixed relative δ_c separates exact repeats from distinct pairs only while n·u·λ/λ_min is well below δ_c. At 2⁻²⁰ that means n·S below about 6·10¹⁰ on these controls; beyond it, exact pairs split (and refuse) and close-distinct pairs are unresolved. *Assumed:* that product models' spreads behave as these controls do. *Limits:* one construction, n = 8, and the population's spreads (EX n05 is about 2.6·10¹¹, whose computed split of 1.38·10⁻⁸ is not an established multiplicity).
+6. **A3: the μ/μ_max observation table** (`mu_domain_observation_table`; τ_μ = 10⁻¹², c_μ = 1, κ_μ = 10, c_f = 64, test-local). The hard threshold over μ_max is 10⁻¹² on every model (τ_μ dominates κ_μ·c_μ·n·u at n ≤ 48), and the band edge κ_μ·δ_μ/μ_max differs from it on the rigid-scale family (9.0·10⁻¹¹ to 8.9·10⁻⁸) and, marginally, on E-L-LINE-K1 (1.04·10⁻¹²).
+
+   | Model (n) | min retained μ/μ_max | band edge/μ_max | screened / band kept / rejected (≤ 0, floor or band) | largest rejected μ/μ_max | census | band η̃/(n·u), e_λ |
+   |---|---|---|---|---|---|---|
+   | EX n05 (7) | **3.86·10⁻¹²** | 10⁻¹² | 0 / 0 / 0, 0 | – | established 7 | – |
+   | E-RIGID-SCALE-1e6 (21) | 2.69·10⁻¹¹ | 8.90·10⁻⁸ | 6 / 6 / 0, 0 | – | established 21 | 0.051, 1.50·10⁻⁸ |
+   | E-RIGID-SCALE-1e5 (21) | 2.69·10⁻¹⁰ | 8.91·10⁻⁹ | 5 / 5 / 0, 0 | – | established 21 | 0.152, 9.57·10⁻⁹ |
+   | E-RIGID-SCALE-1e4, -1e3 (21) | 2.69·10⁻⁹, 2.69·10⁻⁸ | 8.93·10⁻¹⁰, 9.00·10⁻¹¹ | 0 | – | established 21 | – |
+   | E-POINTMASS-NODE (24) | 6.54·10⁻⁷ | 10⁻¹² | 0 | – | established 21 (3 massless rotations) | – |
+   | E-POINTMASS-AXIAL (24) | 6.98·10⁻⁷ | 10⁻¹² | 2 / 0 / 0, 2 | 3.51·10⁻¹⁷ | unresolved | – |
+   | E-POINTMASS-LATERAL (24) | 4.61·10⁻⁷ | 10⁻¹² | 1 / 0 / 1, 1 | 4.24·10⁻¹⁷ | unresolved | – |
+   | E-POINTMASS-GENERAL (24) | 4.13·10⁻⁷ | 10⁻¹² | 1 / 0 / 2, 1 | 8.44·10⁻¹⁹ | unresolved | – |
+   | component PF (12) | 3.00·10⁻⁴ | 10⁻¹² | 2 / 0 / 1, 2 | 6.63·10⁻¹⁷ | unresolved | – |
+   | E-CANT-8, SEC-A N = 8 (48) | 1.74·10⁻⁶, 1.16·10⁻⁶ | 10⁻¹² | 0 | – | established 48 | – |
+   | the other 23 models | ≥ 9.2·10⁻⁶ | ≤ 1.04·10⁻¹² | 0 | – | established | – |
+
+   *Shows:* genuine retained values reach down to 3.86·10⁻¹² (EX n05's top mode, spread λ_max/λ_min ≈ 2.6·10¹¹), only 3.9× above the test-local τ_μ. The rejected values (rounding-level μ of the offset point lumps' non-coordinate nullspaces) lie at ≤ 6.6·10⁻¹⁷. The population's window between rejected and genuine is about 6·10⁴ wide, and EX n05's top mode sits near its upper end. The census limit stands as found: AXIAL, LATERAL, GENERAL and the component body's offset point lump leave the count unresolved (their whole-spectrum endpoint stays refused; lower bounds are served). Nothing is truncated, and nothing below either hard floor is recovered. Band pairs' η̃/(n·u) ≤ 0.15 against c_f = 64 and e_λ ≤ 1.5·10⁻⁸ against τ_e. *Assumed:* nothing; no value is proposed. *Limits:* the census limit and the high-mode issue are not resolved by any choice of τ_μ within this window. A model with a wider spread than EX n05 would put a genuine top mode below 10⁻¹², and a τ_μ chosen inside the window is a population fit, not a derived bound.
+
+##### A3: minimum resolution and screening proposal (2026-11-05; decided as D1–D5, see "A3, as decided" at its end)
+
+The proposal is kept as written for review; Agent 0's decision and its exact scope follow it. It implements nothing and starts no measurement. Source is read at `874378dde`, which contains I3a (`08bfdfdaf`). The figures are hand arithmetic on the recorded observations, with u = 2⁻⁵³ and n the full free order.
+
+**1. What each parameter decides (source).** After the QL solve the kernel forms two cuts (`core/solver/modal_eigen/src/dense.rs:486–496`):
+- the hard cut h = max(τ_μ·μ_max, κ_μ·δ_q), with δ_q = c_μ·n·u·μ_max;
+- the broad cut b = max(h, κ_μ·δ_μ), with δ_μ = c_μ·n·u·ν(K̃̂)·‖M̃_mm‖_∞ (:478–482).
+
+Each condensed μ then falls in one of these regions (`classify_mu` :656; the loop :556–584):
+
+| μ region | Verdict | Census effect |
+|---|---|---|
+| μ ≤ 0 | infinite, not returned (:508) | unresolved |
+| 0 < μ ≤ h | hard-rejected; never recovered, even with a zero residual | unresolved |
+| h < μ ≤ b | band: μ_R is recovered on the formed pencil (`recover_band_mode` :796). The pair is retained only if μ_R > h, η̃ ≤ τ_f = c_f·n·u and e_λ ≤ τ_e (:537, :568–569, `screen_passes` :882); otherwise it is rejected | retained: none; rejected: unresolved |
+| μ > b | retained from QL, without τ_f or τ_e; it keeps check 2's re-formed evidence and standing | none |
+
+The census is unresolved when any pair is rejected or when the τ_m mass-block Cholesky fails (:588, :615–617, `established_finite_mode_count` :959). The product maps that to `FiniteCensus` (`product_physics/src/modal/eigen.rs:106–118`).
+
+| Parameter (test-local) | Where it enters | What it decides | Source |
+|---|---|---|---|
+| τ_μ (10⁻¹²) | h = max(τ_μ·μ_max, κ_μ·δ_q) | Hard rejection, but **only where τ_μ > κ_μ·c_μ·n·u**, that is n ≤ 900 at the test-local values. At n ≥ 901 it is inert: κ_μ·c_μ·n·u is 1.07·10⁻¹² at n = 960 and 2.13·10⁻¹² at 1,920 | dense.rs:376, :489–492; the product validator requires (0, 1), `integrity.rs:146`; the kernel accepts [0, 1), dense.rs:377 |
+| c_μ (1) | δ_q and δ_μ, always multiplied by κ_μ | **Nothing on its own.** The classification depends only on κ_μ·c_μ; c_μ alone rescales the reported δ_q and δ_μ | :478–482, :487–496 |
+| κ_μ (10) | κ_μ·δ_q in h, κ_μ·δ_μ in b | the reduction's hard resolution floor, and the band edge, which decides which pairs need recovery | :489–496 |
+| c_f (64) | τ_f = c_f·n·u | band acceptance on the formed η̃, inclusive | :537, :882–889 |
+
+**Where a genuine finite mode can be lost.** These are the only two routes:
+- (i) a genuine μ ≤ h, which is always dropped;
+- (ii) a genuine band μ whose recovery fails: η̃ > τ_f, e_λ > τ_e, a non-positive g or h, μ_R ≤ h, or a non-normal value.
+
+A genuine μ > b is never dropped by an A3 parameter. The cuts act on μ, so a dropped mode always comes from the top of the spectrum. Every drop raises `below_threshold_mu_count`, so the census is unresolved (:588, :616–617). The system then does three things:
+- It refuses the whole-spectrum endpoint by name (`MODAL_FINITE_COUNT_UNRESOLVED`, eigen.rs:178–195).
+- It still serves a set that ends below a completed computed cluster, with a disclosure (outcome.rs:534–536), and only if the Sturm count at the gap shift equals the reported count (eigen.rs:229–266). A mode dropped below the final shift is therefore caught as `MODAL_STURM_COUNT_MISMATCH`, not hidden.
+- It never adds a dropped mode to a count.
+
+The opposite risk is a spurious μ. A μ ≤ h is rejected without recovery. One in (h, b] goes to band recovery, whose screens are estimated-error criteria (c_f, τ_e and μ_R > h), not a theorem that rejects every spurious pair. Above b it is retained from QL, so h and b are the current kernel's admission floors in that direction, not a certification.
+
+**2. Known failure behaviour.** In each case below the criterion claims no resolved count.
+- **(a) SEC-A at n_f = 1,920 (§5.3.8).** The census reads `Unresolved { rejected_mu: 640, mass_block_established: true }`. The mass block establishes 1,920 finite modes; 1,280 are returned, so 640 genuine top modes are missing.
+  - **Attribution corrected:** at n = 1,920, κ_μ·c_μ·n·u = 2.13·10⁻¹² exceeds τ_μ = 10⁻¹². The hard cut was therefore κ_μ·δ_q, and **τ_μ decided no pair**.
+  - The record does not split the 640 into hard-rejected and band-failed pairs. `band_screened` is `screened.len()` (`phase_measurand_tests.rs:387`), and the kernel's `hard_rejected_pair_count` and `attempted_band_pair_count` (dense.rs:309–314) were not printed. For the same reason, 4pn² with p = 640 is an upper estimate.
+  - dense_solve grew 19.7× against about 8× for n³. That is consistent with recovery being attempted on most of the 640, which would make band acceptance (route ii) the rejecting verdict. It is not established.
+  - Either way, these modes fall below the current kernel's admission floors at this spread: rejected at h, or not retained by band recovery. No value of τ_μ, including 0, returns them. This describes the kernel as built, not a proven binary64 resolution limit.
+  - The criterion drops them, leaves the census unresolved, refuses the endpoint, and serves the ten low modes under the lower-gap count.
+- **(b) The offset point lumps and the component body (item 6).** M has a non-coordinate nullspace, so these μ are true infinite eigenvalues computed at rounding level. Every rejected value is at most 6.6·10⁻¹⁷·μ_max: at most 0.050·n·u·μ_max on component PF (n = 12) and at most 0.016 on the lumps (n = 24). They are hard-rejected, which is correct. The count is not established because the structural premise (coordinate nullspaces only) fails. Unresolved is the true answer, not a defect of τ_μ, and it is not removed by truncation.
+- **(c) EX n05 (n = 7, spread ≈ 2.6·10¹¹).** At n = 7 the active hard cut is τ_μ (κ_μ·c_μ·n·u = 7.8·10⁻¹⁵). The top mode sits at 3.86·10⁻¹², 3.9× above it, and the census is established at 7. With a spread about 4× wider, τ_μ would hard-reject a mode lying about 124× above the derived floor κ_μ·c_μ·n·u·μ_max. The current top mode is about 497× above it, and being above that floor does not by itself establish that a mode is accurately resolved. The census would then be unresolved, the endpoint refused and the lower modes served. That is τ_μ's own failure mode: **it drops modes the reduction resolves.**
+
+**3. The minimum proposal.** A fixed τ_μ cannot be defended across spreads.
+- The only derived floor is the reduction's resolution. QL is backward stable on the symmetric C, with ‖C‖₂ = μ_max, so by Weyl each computed μ lies within c·n·u·μ_max of an eigenvalue of C. A μ at or below a modest multiple of n·u·μ_max cannot be told apart from 0. This is a rounding argument with an assumed O(1) constant, not a certified bound. QL's backward stability on the reduced C also does not certify C's formation, or its correspondence to the original pencil; the integrity checks of §3.4 cover those.
+- A fixed τ_μ either lies below κ_μ·c_μ·n·u, where it is inert (every n ≥ 901 today), or above it, where it drops resolvable modes (case c).
+- No fixed value changes case (a).
+
+The proposal is therefore a role change plus three values:
+- **P1. τ_μ becomes inert, and the hard floor is κ_μ·δ_q alone. Proposed value τ_μ = 2⁻⁵³ (= u).**
+  - **Why it is inert:** κ_μ·c_μ·n ≥ 1 for every n ≥ 1 once κ_μ·c_μ ≥ 1, so u·μ_max ≤ κ_μ·δ_q and τ_μ never sets h. The value passes the product's (0, 1) validation, so no code changes.
+  - **Case (a):** no change. h is the same at n ≥ 901, the 640 stay dropped and the census stays unresolved. **This is not a recapture.**
+  - **Case (b):** h falls to 1.33·10⁻¹⁴ (n = 12) and 2.66·10⁻¹⁴ (n = 24). Every rejected value stays at least 200× below it, and the census stays unresolved.
+  - **Case (c):** the top mode sits about 500× above h, not 3.9×. The high-mode issue at n ≤ 900 becomes the same spread limit as at large n.
+  - **Population:** no verdict changes on the 35 models. Genuine values are ≥ 3.86·10⁻¹² and rejected values ≤ 6.6·10⁻¹⁷, with nothing in between.
+  - **Cost:** at n ≤ 900 the extra fixed margin against a spurious pair above the derived floor is removed. Protection then rests on κ_μ and on the band with recovery. That trade is the decision.
+- **P2. c_μ = 1 and κ_μ = 10, with the product κ_μ·c_μ stated as the only acting quantity.**
+  - c_μ = 1 normalizes δ_q and δ_μ to plain n·u-scale quantities. κ_μ is the single allowance on the reduction's constant, and it carries both h and b.
+  - **Basis:** an assumed allowance. Observed true zeros are at most 0.050·n·u·μ_max, 200× below 10. The band edge errs in the safe direction (the rigid-scale band pairs are recovered).
+  - **The resulting admission limit on spread at order n** (the current kernel's floor, not a proven resolution limit) is λ_max/λ_min < 1/(κ_μ·c_μ·n·u): about 4.7·10¹¹ at n = 1,920 and 1.1·10¹¹ at n_max = 8,192. Beyond it, top modes are not retained and the census is unresolved.
+  - κ_μ is not lowered toward the observed 0.05 to widen that limit. Doing so would be the excluded tuning.
+- **P3. c_f = 64 = 2⁶.**
+  - **Basis:** a recovered pair with an accurate vector has a formed η̃ at rounding level, because the sums are exact and only φ and λ_R carry rounding. Observed band η̃/(n·u) ≤ 0.152, 420× below 64.
+  - c_f alone guarantees no vector accuracy. It is one conjunct of band acceptance, with e_λ ≤ τ_e (A1, which catches the normwise-blind pair, dense.rs `normwise_blind_pair_is_not_an_accurate_eigenvalue`) and μ_R > h. On the witnesses no false acceptance was seen; that is an observation, not a guarantee.
+  - In case (a), the record shows 640 screened and 0 retained. It does not show which pairs were attempted, or which recovery condition (c_f, τ_e or μ_R > h) failed (see (a)). Loosening c_f to accept them is excluded either way.
+- **P4. The census rule is unchanged.** The census is unresolved on any μ ≤ 0, any rejected screened pair or a failed mass block. Nothing is truncated, the whole-spectrum endpoint is refused, and lower sets are served only under the Sturm count and completed-cluster premises.
+
+Taken together, the current kernel's **retention** criterion (not a proof of resolution) is: μ > h, and either μ > b, or band recovery passes η̃ ≤ c_f·n·u and e_λ ≤ τ_e and its recovered μ_R > h (`dense.rs:568–569`). Here h = max(τ_μ·μ_max, κ_μ·δ_q) and b = max(h, κ_μ·δ_μ). Every failure leaves the count unresolved and never produces a count claim.
+
+**4. Changes kept apart from adoption (none adopted, none implemented).**
+- **K1.** Only if Agent 0 prefers τ_μ = 0 or removing τ_μ: widen the product validator to [0, 1) (`integrity.rs:146`), or remove τ_μ from h (dense.rs:489–492) and from the recorded parameter names (`document.rs:357`, `reporting/modal_result/src/lib.rs:96`), which is a schema change. P1 at u needs neither.
+- **K2.** A test-harness change only: record `hard_rejected_pair_count`, `attempted_band_pair_count` and each band pair's recovery outcome in the O-4 line (`phase_measurand_tests.rs:387–418`). No window is requested.
+- **K3.** Resolving genuine modes below κ_μ·δ_q (case a) needs a different kernel route: refinement on the formed pencil (inverse iteration), a mass-side reduction where the block is established, or M2's shift-invert path. It is named only so that no parameter is mistaken for it. It is not proposed for A3.
+- **K4.** Establishing the count with a non-coordinate nullspace (case b) needs a structural mass-model change, such as expressing an offset lump through a rigid-offset transform so that its nullspace becomes coordinate-aligned. That is M1a scope, not A3.
+
+**5. Decisions needed from Agent 0.**
+- **D1, τ_μ:**
+  - (i) P1, τ_μ = 2⁻⁵³ and inert (recommended);
+  - (ii) keep 10⁻¹² as an explicit population floor at n ≤ 900, accepting failure (c);
+  - (iii) τ_μ = 0 with K1.
+  - Not offered: a τ_μ chosen to recapture case (a), which does not exist; or a fixed τ_μ ≥ κ_μ·c_μ·n_max·u = 9.09·10⁻¹², which would reject EX n05's top mode.
+- **D2, κ_μ·c_μ:** c_μ = 1 with κ_μ = 10 (recommended), or a power of two (2³ or 2⁴) in margin form.
+- **D3, c_f:** 64.
+- **D4:** whether to accept the case (a) attribution correction and K2.
+- **D5:** whether the resolvable-spread limit and the unresolved census of cases (a) and (b) are recorded as experimental capability limits, not release limitations, until K3 or K4.
+
+##### A3, as decided (Agent 0, 2026-11-05)
+
+**D1–D3, the criteria.** τ_μ = 2⁻⁵³ (D1), c_μ = 1 with κ_μ = 10, keeping the current product 10 (D2), and c_f = 64 (D3). These are explicit retention and screening criteria. They are not binary64 resolution theorems, true-rank decisions or all-count certificates.
+- **τ_μ is never the active floor, within this scope only:** this tuple, n ≥ 1, and the kernel's actual arithmetic. The kernel evaluates both terms of h in binary64, left to right (`dense.rs:486–492`): τ_μ·μ_max = u·μ_max, and κ_μ·δ_q = 10·(((1·n)·u)·μ_max). For μ_max > 0 the exact value of the second is at least 10× the first, and rounding is monotone, so the computed second term is never below the computed first. Under underflow both can be zero, and h is the same value. For μ_max ≤ 0 no μ is positive, so h decides nothing. Nothing is claimed for other parameters.
+- **What the decision removes:** the separate 10⁻¹² low-n population floor, deliberately. It does not recapture the 1,920 top modes and does not truncate the mass nullspace. This supersedes the earlier "no lowering of μ" instruction for that removal only.
+- **What it preserves:** h = max(τ_μ·μ_max, κ_μ·c_μ·n·u·μ_max); the band edge b and the full band-recovery criterion (η̃ ≤ c_f·n·u, e_λ ≤ τ_e and μ_R > h, `dense.rs:568–569`); every computed pair's full re-formed per-mode evidence, above the band included (§3.4 check 2); and the accepted lower-gap Sturm count and completed-cluster premises.
+- **c_μ and κ_μ are a paired criterion.** Only the product κ_μ·c_μ = 10 acts. It is an engineering criterion, not a derived worst-case rounding bound.
+- **c_f** is a conjunctive acceptance criterion, with e_λ ≤ τ_e and μ_R > h. Alone it guarantees no vector accuracy. No false acceptance was seen on the witnesses.
+
+**D4, the 1,920 attribution and K2.**
+- The attribution correction is accepted: at n_f = 1,920 the active hard cut was κ_μ·δ_q, and the earlier τ_μ-only attribution is withdrawn.
+- The existing records (640 screened, 0 retained) do not say which pairs were hard-cut and which failed attempted recovery. Every cost claim that assumed p = 640 attempted pairs is restated as an upper or scenario value, not measured attempt work (§5.3.8: the 4pn² ≈ 9.4·10⁹ insertions, w_band, and the 27 s band / 12 s binary64 split).
+- No raw record is rewritten, and no mode failure is assigned retroactively. No extra 1,920 run or window fills the gap.
+- **K2 is approved:** test-only, opt-in diagnostic aggregate counters for hard-cut, attempted-band, rejected by actual first failure (η̃, e_λ or μ_R) and retained pairs.
+  - The counters match the actual branch order and identity. Counts are bounded, arithmetic is checked, and they reset per call. They reuse the existing S1 counts where possible.
+  - No public wire or algorithm change.
+  - Evidence: small unit count examples and exact known-reference controls only. A future measurand includes these counts only if separately cleared.
+
+**D5, capability limits.** Recorded here as experimental capability limits, not an accepted release limitation and not a standing new Must.
+- **The retained-spread limit.** At order n the kernel retains top modes only while λ_max/λ_min < 1/(κ_μ·c_μ·n·u): about 4.7·10¹¹ at n = 1,920 and 1.1·10¹¹ at n_max = 8,192. These numbers are relative to the floor under the stated tuple and evaluation order. They are not a physical solver impossibility. Beyond the limit, top modes are not retained, the census is unresolved, the whole-spectrum endpoint is refused, and lower sets are served only under the Sturm count and completed-cluster premises.
+- **Coordinate and general-nullspace counts** (case b) stay unresolved wherever their premise is absent.
+- No optional rank truncation or rescue, and no mass-model change.
+- K3 and K4 are not adopted or assigned. No new kernel route starts without its own scope.
+
+**The production instance.** With A1, A2 and A3 selected, the instance may proceed as a bounded explicit constructor with no `Default`, under the existing product implementation, review and D3 scope. Its source and regression evidence:
+- a true positive below the old τ_μ = 10⁻¹² and above the derived floor, now retained;
+- true zeros still rejected;
+- the n = 1,920 derived floor unchanged;
+- the unresolved whole-endpoint refusal and the lower-path count premises.
+
+Selecting the parameters does not enable public or native admission. The resource guards and their weights, the subject census, the full reader and the Bessel item remain conditions (§5.3.9). No new measurement is authorized. The confirmation is focused on the implementation and its new claims, with reference evidence, reusing the earlier reviews of unchanged source.
+
+#### 5.3.8 Resources: the recount, and the O-4 stage-1 readiness plan
+
+**Recount from source (no measurement).** With N nodes (6N global DOFs), n_f free DOFs, n_c computed modes (on the dense path every finite mode, ≤ n_f), n_r reported modes and P_M stored mass entries:
+- **Rows:** N + 6N + P_M + 3 + n_r + **6N·n_r** (shapes) + 3n_r + (clusters ≤ n_c) + n_c + (≤ s_max) + identity, support, member, disclosure and diagnostic rows. The shapes dominate, then the computed modes.
+- **Canonical bytes per row** (the committed fixtures): shape 338–357; mass entry 406–462; DOF 165–193; node ≈ 515; participation ≈ 840–900; computed mode ≈ 1,070; mode ≈ 1,150; Sturm candidate ≈ 2,285; the header ≈ 7 KB. The pretty committed text is about 1.6× the canonical. So a document is about 7 KB + 0.35 KB·6N·n_r + 1.07 KB·n_c + 0.43 KB·P_M + 3.8 KB·n_r.
+- **Peak (producer):** the outcome, plus the document as a `serde_json` tree (each value object a six-member map: an estimated 1–2 KB per shape row in memory, several times its canonical size), plus one row's transient re-serialization for its checksum. **Work:** one serialization, one checked parse and one SHA-256 per row and per table: O(document bytes), about three passes.
+- **Readers:** the parsed tree (as above) plus the Rust reader's parsed copy (16 B per shape entry, 32 B per mass entry) and one clone per value object for the units relation; closure costs one canonical re-serialization and SHA-256 per row; the relations cost about 7·P_M·n_r multiply-adds (m_i and three φᵀp_k per mode), 3·P_M for the totals, 6N·n_r for the normalization and n_cl·n_c for the cluster rows. The Python reader holds the same tree as Python objects, several times larger.
+- **Growth.** Output is O(6N·n_r) rows. At the dense guard's largest order (n_f ≈ 8,190, N ≈ 1,365) a whole-spectrum request would publish about 6.7·10⁷ shape rows, about 23 GB canonical and far more in memory: **the projection needs its own pre-allocation guard on its row and byte counts** (stated formula, refusing, never truncating) before any native path forms one. Even N = 500 and n_r = 50 give 1.5·10⁵ shape rows, about 51 MB canonical, near the native custody path's 64 MiB displayable-result limit (#59, `MAX_DISPLAYABLE_RESULT_BYTES`).
+- **The recount is from source.** The coefficients above are fixture observations, not bounds; the format bound that replaces them for a guard is under "Stage 1 results" below.
+
+**O-4 stage 1: readiness plan (run once, 2026-11-04; results below; replaces the withdrawn 60-minute proposal, which was not approved).** Stage 1 measures small points only. Its measured phase costs are what any larger stage is then proposed from. It reserves no 3-repeat series and no 3,000-DOF hour. Every O-4 value it yields stays **test-local and experimental** until separately reviewed measurements adopt one. The window pins nothing, sets no budget or guard coefficient, and enables no result.
+
+1. **The measurand** (maintained, `#[ignore]`d, outside the normal test path): `modal::phase_measurand_tests::o4_phase_measurand_sec_a_cantilever` in `core/product_physics/src/modal/phase_measurand_tests.rs`.
+   - *Model:* the SEC-A straight cantilever of `tests_eigen::sec_a_cantilever` (L = 6 m, OD 0.2 m, wall 0.008 m, steel with water contents, anchored at x = 0), with n_f/6 elements: n_f free DOFs and 6(n_f/6 + 1) global DOFs. The dense cost depends on n, not on sparsity. The parameters are the labelled TEST-LOCAL set (`TEST_LOCAL_I3A_EXPERIMENTAL`).
+   - *Environment:* `MODAL_MEASURAND_NF` (a positive multiple of 6), `MODAL_MEASURAND_MODES` (the request's `mode_count`) and `MODAL_MEASURAND_PASS` ∈ {`phases`, `entry`, `both`}. None has a default.
+   - *Pass `phases`:* `replay_modal_phases` times, with a monotonic clock, each of the product's own phase functions in `run_modal_dense`'s order: parse; prepare (including the state-case solve); mass and identity; pencil and screen (the dense guard, K and M and the static singular-model screen); dense solve (Cholesky, reduction, QL, band recovery, census); clusters and the reported set; normalization; re-formation (check 1); residuals (check 2, every computed pair); Sturm evidence (check 4, every candidate); orthogonality (check 3). The maintained `the_phase_replay_is_the_product_path` holds the replay to `run_modal_dense` bit for bit, so the timed sequence is the product's. Band recovery runs inside the kernel's dense solve and is timed with it. Its work is reported as a count (screened pairs p, exact insertions 4pn²). Timing it separately would need kernel instrumentation, which is not added.
+   - *Pass `entry`:* `run_modal_dense` timed whole (the product path, including the row assembly the replay omits), then the document projection (`modal_doc_solved`) and its canonical text, each timed separately. The binding comes from the product's own projection of the same request refused at the dense guard (test-only ceiling override). The same test shows that this binding reproduces the full entry's document byte for byte.
+   - *Reports* (`O4 key=value` lines): the build (`debug_assertions`, target, pointer width), n_f, n_global, `mode_count`, reported and computed counts, clusters, census and QL iterations; Sturm placement, candidates, factored shifts, inverse-norm solves and the shift pencil's pattern entries; re-formation operands, stored K and M entries and residual evaluations; output rows per table, total rows and canonical and compact bytes. Work is reported in three kinds that are never added together: the **binary64 flop estimate** 9n³ + s·n³/3 at the factored count (a stated formula, not a measurement); the **band recovery's exact-product insertions** 4pn²; and the **exact re-formation**, by its drivers (operands, stored entries, residual evaluations). It also prints the static guard's and the eigen core's stated byte formulas, labelled as formulas. **No ~64n² final guard is assumed.** The recovery, Sturm-evidence and output peaks are observed only as the process peak. *Peak RSS* is taken per process by the window's harness from `os.wait4` (`ru_maxrss`). No in-process sampler exists, so no per-phase RSS is reported.
+   - *Priced-source impact:* none. The two new product files end in `_tests.rs`, which every retained-pricing scanner skips (`price.py`'s template inventory, `callgraph_g5.py`, `loopscan.py`'s test-file rule, the line map). `modal.rs` gains only two `#[cfg(test)]` module items, which the scanners blank. The pricing preparation at `372a16aa5` confirms that neither file enters the template inventory. Its 8 unclassified arguments are all at sites of the earlier I3a source (`modal/document.rs`, `modal/tests_document.rs`), which that change's own D3 still owes (§5.3.9 item 6). The measurand changes no reachable priced input, so it can be planned before that D3. It runs through the product's own dense guard and the labelled test-local set, and no measurement is a registration.
+2. **The binary, built outside the window under normal slots** (not exclusive; the exclusive clearance is granted later and separately), from `core/product_physics` at the reviewed head:
+   - release: `/Users/ryan/dev/chirality-t3/tools/t3_cargo.sh test --release --lib --no-run`;
+   - debug, only if the debug point is taken: `/Users/ryan/dev/chirality-t3/tools/t3_cargo.sh test --lib --no-run`.
+
+   Each executable named by Cargo's `Executable` line is identified by `shasum -a 256` before the window, together with the head and `rustc -Vv`. The window builds nothing.
+3. **Points, ascending, one release observation each:** n_f = 60, 120, 240, 480 and 960 (10, 20, 40, 80 and 160 elements), `MODAL_MEASURAND_MODES=10`. Each point is two processes, `phases` then `entry`, so that each pass has its own peak RSS. Each process is `<binary> modal::phase_measurand_tests::o4_phase_measurand_sec_a_cantilever --exact --ignored --nocapture --test-threads=1`, with the three variables set. The operation estimates at s = 1 factored shift are 2.0·10⁶, 1.6·10⁷, 1.3·10⁸, 1.0·10⁹ and 8.2·10⁹; their rate is unmeasured.
+4. **The debug point, only if needed:** one `phases` process at n_f = 60 on the debug binary, taken last, and only if the release points leave time and the build ratio is wanted (the registered retained identity is a debug build).
+5. **Deadlines** (wall clock per process, d): 20 s at 60 and 120, 30 s at 240, 45 s at 480, 90 s at 960, and 60 s for the debug point. The termination grace is g = 5 s for every process.
+6. **Supervision (accepted in principle by Agent 0, 2026-11-04; the launcher, harness and inert-child tests are authorized for writing and review only, with no measurement, native run or exclusive window).**
+   - **Deadlines.** A practical userspace abort at T₀ + 570 s and an intended total deadline of T₀ + 600 s, with 30 s of margin. An overrun is reported at once. **This is not a mathematically absolute promise about kernel exit.** A userspace design bounds when it acts (each wait, each signal sent), not when the kernel schedules the launcher, delivers a signal or completes an exit. T₀ is when the launcher invokes `t3_exclusive.sh`, so the queue wait for the locks is counted inside the window explicitly. `t3_exclusive.sh` holds slot 1 while it waits for slots 2–4 (`t3_exclusive_stage2.sh`). The window ends when the last lock the invocation holds is released. All times are on `time.monotonic()`, the system-wide clock on macOS, with T₀ passed to the harness as an argument.
+   - **The owned group.** The launcher starts the invocation as the leader of a new process group G. The launcher created G, and it is the leader's parent, so G is verified as owned without matching any name or pattern. No process of the window leaves G. The lock scripts create no session or group (they `exec` and fork `lockf`, which keeps its group). The harness starts every measurement as its own direct child with no new session or group. Membership is inherited atomically at fork, so `killpg(G, SIGKILL)` reaches every process of the window: the four `lockf` holders, the lock scripts, the harness and any measurement. A `lockf` lock is released when its holder exits. The exit of G's leader alone never means that the window is over, because nested holders can outlive the outer `lockf`. **No pattern signal and no cleanup of anything outside G.**
+   - **The harness** is the command under the locks. As its first action it writes a start marker to a file the launcher named. The marker records its pid, its parent chain up to G's leader (the lock-holder and lock-script pids) and G. It then runs points. Each measurement is started with `subprocess.Popen` (no `start_new_session`, no `process_group`) on the reviewed executable directly; `/usr/bin/time` is not used. The harness waits at most d. At the deadline it sends SIGTERM to the child's pid, waits g, sends SIGKILL and reaps the child with `os.wait4`, its only reaping call. **The lock-holding command stays alive until its children are reaped:** on every catchable path (normal end, an exception, SIGTERM, SIGINT) it kills and reaps any running child before it returns. It never exits on purpose with a child running, so it never releases the exclusive while one runs. **Remaining-time rule:** a process starts only if (now − T₀) + d + g + R ≤ 570 s, with R = 60 s the teardown reserve. Otherwise no further point is taken. Teardown copies the `O4` lines and the rusage records to the window's scratch, then writes a done marker.
+   - **Lock coverage is proven after each measurement, not by atomic arming.** A process confirmed alive by identity (pid and start time) at time t was alive at every earlier time since its start. So after each measurement is reaped, the harness confirms every recorded lock holder and lock script alive by identity. That one check proves the locks covered the whole measurement. If it fails, the measurement is discarded and the window is an ABORTED FAILURE. The checks before a spawn, and the launcher's arming check, only avoid starting a doomed point; they prove nothing. A holder exit seen before the final post-reap check is an abort, and one after it is teardown. The launcher never stops handling exits. Losing the controller at any time before the harness's acknowledgement is an ABORTED FAILURE, and measurements already proven valid are kept and labelled valid-before-abort. A listed group member that is neither excluded by identity nor confirmed a zombie counts as live. Containment is confirmed only when every such member is gone, and a kill error leaves it unconfirmed and recorded.
+   - **The launcher** is the independent watchdog. It runs outside the locks and acts only through system calls on G and on the pids its marker names (`killpg`, `waitpid`, kqueue `EVFILT_PROC`/`NOTE_EXIT` on those pids, file checks). (a) It records T₀ and starts G. (b) **The lock wait is bounded:** if no start marker exists by T₀ + 30 s, it kills G and the window is abandoned with nothing measured. The harness abandons in the same way, with nothing measured, if the remaining budget when it starts admits no first point. (c) **Abort on loss of control or lock coverage:** if the harness or any recorded lock holder exits before the done marker exists, the launcher kills G at once. That is an **ABORTED FAILURE**. The affected measurement is discarded, no later point is taken and nothing is retried. If the harness dies uncatchably, its running measurement can outlive the lock release by the kernel events between the exits, the launcher's wake-up and the kill. The record gives the observed times: when each exit notification was received and when the kill was sent, with their uncertainty. Receipt time is at or after exit time, and a kill is sent before the process dies, so these times bound the overlap in neither direction exactly. They are recorded raw and labelled as an estimate with that uncertainty. 0.1 s is a polling interval, not a bound. (d) At T₀ + 570 s, if G still has any member, it kills G. (e) **After the window ends, the parent checks:**
+     - no member of G remains, zombies included, from a group-membership listing that includes zombies (not `killpg(G, 0)` alone: XNU's group signalling skips zombies, and on this host, Darwin 25.6, it returns `EPERM` rather than `ESRCH` when only zombies remain; the scripts use libproc's `proc_listpids(PROC_PGRP_ONLY)`, verified to list a zombie); the launcher reaps the leader, and launchd reaps any reparented member;
+     - on the normal path, every measurement the harness started is reaped, from the harness's `wait4` records. On an aborted path, where the harness may have died before it could reap, those records prove nothing for the measurement it was running. The evidence then is the launcher's own: the zombie-inclusive check that G is empty;
+     - every child of the harness belonged to G, from the pgid recorded at each start;
+     - `exclusive.pending` does not name a live process of this window;
+     - every recorded lock-holder pid has exited (lock closure).
+
+     It writes its record: T₀, the markers, each exit and kill with its time, the overlap if any, and each check's result. If G still has a running member at T₀ + 600 s, it reports an overrun at once and keeps checking until T₀ + 660 s, when it marks the window unresolved. That limit is proposed, not decided. Every overrun or aborted failure goes to Agent 0, and the window is not reused.
+   - **Limits of this supervision** (from the scripts' tests):
+     - If the launcher itself dies, nothing enforces T₀ + 570 s or runs the post-window checks. The harness then kills and reaps its child and exits without a done marker. Its own remaining-time rule bounds the window, and the harness record is the only evidence.
+     - A memguard event is not visible to the harness. The abort rule for it (item 7) applies only through a measurement that exits nonzero, or through the operator.
+     - A refusal is caught only if the measurand exits nonzero.
+   - **The inert-child tests** (authorized; no measurement):
+     - **Scope.** Bounded tests of the launcher and harness with inert children: processes that sleep, ignore SIGTERM, exit early, allocate a known size, or are left running when the harness is SIGKILLed. The lock command is a stand-in nested `lockf` chain on test-only lock files, built like `t3_exclusive.sh`'s. The existing exclusive tools and their semantics are untouched; this is not a replacement lock manager. The tests run under the normal slot wrapper, with short deadlines.
+     - **Coverage.** A timeout escalates TERM to KILL. Harness death and controller death each produce an ABORTED FAILURE with G empty and the stand-in locks closed. A lock-holder exit triggers the abort. The lock-wait abandonment, the remaining-time refusal, the zombie-inclusive membership check and the overrun report all work.
+     - **The rusage reading.** `ru_maxrss` is in bytes on macOS, checked against an inert child allocating a known size. It is the measurement process's own peak, its whole life included, not a per-phase peak. The harness's own memory is not in it.
+   - **Schedule not approved.** After the containment tests are reviewed, the exact binaries, points, deadlines and resource proposal (items 2–5) are brought for a separate decision. The ten release points and the debug point are a proposal, and not all of them are promised to fit. Their worst-case sum, with each process at its deadline and 30 s for the locks, is 30 + 460 = 490 s for the release processes, so the debug point (60 s + 5 s) is not admitted in the worst case. The models and numerical parameters stay source-bound and labelled experimental until every pin closes.
+7. **Abort rules:**
+   - a process that reaches its deadline is terminated and reaped as above, and no larger point is taken;
+   - the next point is taken only if 8× the current point's slower process wall time (the cubic step for a doubled n) is within the next point's deadline;
+   - any memguard event, test failure, refusal or panic stops the window;
+   - an `O4 build` line that does not match the binary's profile (`debug_assertions=false` for release) stops the window.
+
+   Nothing is retried within the window.
+8. **O-4 evidence proposals (from the stage-1 table, for review; nothing adopted):**
+   - (a) per-phase wall time against n_f, with the log–log slope between adjacent points, to separate the cubic phases (the dense solve, and the Sturm evidence if the profile is dense) from the quadratic and linear ones (re-formation, residuals, projection);
+   - (b) each pass's peak RSS against the stated formulas (the static 96·n_global², the eigen core's 32·n_f², the shift pattern), as the basis for counting the dense modal path's real peak, instead of assuming one;
+   - (c) the document's rows and canonical bytes against the per-row coefficients above, for the projection's size guard;
+   - (d) a proposal for the next stage (larger points, repeats, any debug ratio), sized from the measured slopes, for a separate authorization.
+
+   D-k's work budget, the dense modal memory constant and the projection guard's coefficients are proposed only from reviewed measurements, never from this stage alone.
+
+##### Stage 1 results (2026-11-04)
+
+**Standing.** Every value in this subsection is **TEST-LOCAL and experimental**: one release observation per process, one host, one model, one `mode_count`. Nothing here pins, enables or adopts a budget, a guard or a coefficient. The guard and measurement texts are proposals for Agent 0, ahead of an independent review. MiB is 2²⁰ B.
+
+**The window** (`window-20261104T120707Z`, kept as raw evidence in the I3a O-4 scratch and not copied here):
+- *Identity.* The binary has SHA-256 `f7c87223…cc6c`, built at `48b3cc692` (release, `debug_assertions=false`, aarch64-macos, rustc 1.97.1). Its identity and the supervision scripts' were recorded before the queue.
+- *Outcome.* The launcher reported `COMPLETED`, cleanup `CONTAINED`, exit 0, and the harness `schedule complete`. All 10 of 10 processes are valid: each exited 0, with no signal and an empty stderr, and lock coverage was proven after each reap. There was no kill, overrun, refusal or lost record, and no memguard event (the log is unchanged since 2026-10-08). From T₀ to the window's end took 20.3 s. The normal path is confirmed.
+- *Background, disclosed only.* During the window, fseventsd was reported at about 50 GB RSS, with 78% of system memory free. This is an operator observation and is not in the retained records. No causal claim is made about any value, and it did not stop the window.
+
+**What each timed phase executes** (from source; `replay_modal_phases` follows `run_modal_dense`'s order):
+- *parse:* the request's `ModalPreviewRequest` parse, on the measurand's side, before the replay. It is not in the phases total.
+- *prepare:* the parameter refusals, `prepare_modal` (the static entry's pre-formation sequence) and `solve_modal_state_case` (this model has no state case).
+- *mass_and_identity:* `assemble_mass` (consistent straight-member mass, as node blocks) and `check_weight_basis`. The identity check compares, on each of 3 axes, every member's nodal load and the model resultant.
+- *pencil_and_screen:* `form_modal_pencil`. In order: the 96·n_g² guard, the sparse `form_basis_stiffness` and the static partition. Then the static dense structural solve on a zero force: the dense K view, the two symmetry views, the scaled prepared matrix, the contribution audit in exact expansions, a dense Cholesky of order n_f with its pivot screen, the gate and the residual. Then K_ff and M_ff, dense and range-checked, p_k and the free-DOF mass.
+- *dense_solve:* `solve_dense_pencil`, in order:
+  - the ordered Cholesky R of K, and C = R⁻¹MR⁻ᵀ;
+  - Householder reduction and implicit QL with vectors (1,279 iterations at 960), then the sort;
+  - the Hager inverse-norm estimate;
+  - φ = R⁻ᵀz for every kept row, and the band screen (no pair was screened here);
+  - the equilibrated mass-block Cholesky (the census).
+
+  The stated 9n³ lists the Cholesky, the formation of C, the reduction and QL. The back-transform (≈ n³ flops) and the census Cholesky (≈ n³/3) also run in this phase and are not in that formula.
+- *clusters_and_reported_set:* the census, the δ_c clusters, the frequencies and `complete_reported_set`.
+- *normalization:* `modal_basis`, then `normalize_modal_shape` for each reported mode. These are dense M_ff bilinear forms, O(n_r·n_f²).
+- *reformation:* the element operands, the element-by-element re-formation (the p128 seam) and the formation difference, with one double-double accumulator per stored entry.
+- *residuals:* check 2 for **every computed mode**, n_c = n_f evaluations here. Each sums K̂φ, M̂φ and M̂φ again (for φᵀM̂φ) exactly, element by element: at most 3·Σ_e d_e² exact products, where d_e is element e's free-DOF count. The cluster e_λ follows.
+- *sturm_evidence:* the union-pattern `ShiftPencil`, the candidate shifts in the gap, the scaled shifted profile and `sparse_direct::factorize_ldlt`, then the inverse-norm solves.
+- *orthogonality:* check 3 on M̂ for the n_r published shapes: n_r exact products M̂φ_j, then n_r(n_r + 1)/2 exact bilinear forms.
+- *The entry pass:*
+  - `run_modal_dense`, timed whole: the same functions, plus the outcome's row assembly;
+  - *binding:* the projection the product refuses at the dense guard, timed but not a product phase;
+  - *projection:* `modal_doc_solved` builds the value tree, with a SHA-256 of each row's checked canonical text and of each table;
+  - *canonical:* `serde_json::to_string`, then `canonical_json_checked_v1_text`, which makes a checked parse into a second tree and then runs the canonical writer.
+
+**Times (seconds), rows, bytes and peaks:**
+
+| n_f (n_g, elements) | pencil_and_screen | dense_solve | residuals | normalization | orthogonality | mass_and_identity | reformation | phases total | run_modal_dense | projection | canonical | rows | canonical bytes | peak RSS phases / entry (MiB) | process wall phases / entry |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 60 (66, 10) | 0.0011 | 0.0004 | 0.0214 | 0.0003 | 0.0048 | 0.0011 | 0.0005 | 0.031 | 0.026 | 0.0140 | 0.0044 | 1,110 | 468,577 | 10.5 / 17.4 | 0.04 / 0.05 |
+| 120 (126, 20) | 0.0029 | 0.0028 | 0.0909 | 0.0007 | 0.0054 | 0.0016 | 0.0011 | 0.106 | 0.108 | 0.0206 | 0.0064 | 2,092 | 860,779 | 12.8 / 24.2 | 0.11 / 0.15 |
+| 240 (246, 40) | 0.0073 | 0.0182 | 0.3639 | 0.0019 | 0.0092 | 0.0027 | 0.0018 | 0.405 | 0.446 | 0.0302 | 0.0129 | 4,058 | 1,647,689 | 20.4 / 41.6 | 0.41 / 0.50 |
+| 480 (486, 80) | 0.0387 | 0.1704 | 1.5082 | 0.0068 | 0.0187 | 0.0056 | 0.0037 | 1.753 | 1.699 | 0.0589 | 0.0263 | 7,982 | 3,219,890 | 48.0 / 88.9 | 1.76 / 1.80 |
+| 960 (966, 160) | 0.2376 | 2.0004 | 5.4650 | 0.0527 | 0.0360 | 0.0107 | 0.0078 | 7.811 | 7.247 | 0.1086 | 0.0458 | 15,848 | 6,383,582 | 150.4 / 220.1 | 7.82 / 7.43 |
+
+Parse, prepare, the clusters and reported set, and the Sturm evidence were each at most 0.001 s at every point. Log–log slopes between adjacent points: dense_solve 2.87, 2.72, 3.23, 3.55; residuals 2.09, 2.00, 2.05, 1.86; pencil_and_screen 1.33, 1.34, 2.41, 2.62; phases total 1.79, 1.94, 2.11, 2.16; run_modal_dense 2.03, 2.05, 1.93, 2.09; projection 0.56, 0.55, 0.97, 0.88; rows 0.91, 0.96, 0.98, 0.99; canonical bytes 0.88, 0.94, 0.97, 0.99.
+
+**Counts** (phases pass). At every point, computed = n_f, reported = 10, clusters = 2n_f/3, the census is `Established` with finite count n_f and no structurally massless DOF, nothing was band-screened, and there was one Sturm candidate, factored once. By n_f = 60, 120, 240, 480 and 960:
+- QL iterations: 79, 152, 316, 628 and 1,279;
+- inverse-norm solves: 5, 5, 9, 11 and 11;
+- shift-pencil pattern entries: 164, 336, 682, 1,366 and 2,752;
+- stored K_ff entries: 534, 1,104, 2,244, 4,524 and 9,084, and stored M_ff entries as for the pattern;
+- residual evaluations: n_f.
+
+**Rows per table** (entry pass, for n_f = 60 / 120 / 240 / 480 / 960):
+- nodes: N = 11 / 21 / 41 / 81 / 161;
+- dofs: 6N;
+- mass_matrix: P_M = 182 / 354 / 700 / 1,384 / 2,770;
+- mass_totals: 3;
+- modes: 10;
+- shapes: 6N·10;
+- participation: 30;
+- clusters: 2n_f/3;
+- computed_modes: n_f;
+- sturm_candidates: 1;
+- identity: 3·(E + 1), E the element count;
+- discretization: E;
+- disclosures: 4;
+- supports and diagnostics: 0.
+
+**Reading limits:**
+- The phases pass and the entry pass are **separate executions**: separate processes with separate peaks, and the entry's `run_modal_dense` re-runs every phase. Their times and peaks are not additive.
+- The slopes are over n_f = 60–960, one process per measurand and one observation per point. They describe this population on this host only, and **they are not complexity bounds.**
+- The source's drivers, for contrast:
+  - dense solve: O(n_f³) flops;
+  - residuals: O(n_c·Σ_e d_e²), which is O(n_f²) here;
+  - screen: O(n_g²) memory and the static Cholesky's n_f³/3 flops;
+  - normalization: O(n_r·n_f²);
+  - orthogonality: O(n_r·Σ_e d_e² + n_r²·n_f);
+  - projection: O(rows).
+- At n_f ≤ 960 the residuals are the largest phase (70% of the phases total at 960). Continuing the last slopes (3.55 against 1.86), or the cubic and quadratic exponents, the dense solve would overtake them somewhere between n_f ≈ 1,700 and 2,600. That is an extrapolation.
+
+**RSS reconciliation from source** (n_g = n_f + 6; the formulas evaluated at 960 / 480, in MiB):
+
+| Buffer (all binary64 unless noted) | Formula | 960 | 480 | Allocated | Dropped |
+|---|---|---|---|---|---|
+| Static screen: dense K view | 8·n_g² | 7.12 | 1.80 | `SparseStiffness::to_dense` in `SparseAssemblyEvidence::solve_assembled` (`DenseScrutiny`) | when `solve_assembled` returns, the end of `form_modal_pencil`'s screen block |
+| Static screen: symmetry views (roundoff, and counts as `usize`) | 16·n_g² | 14.24 | 3.60 | `dense_symmetry_view` | as above |
+| Static screen: prepared matrix | 8·n_f² | 7.03 | 1.76 | `prepare_bound` | when `solve_prepared` returns |
+| Static screen: contribution sums (`Expansion` = `Vec<f64>` + `usize`, 32 B) | 32·n_g² | 28.48 | 7.21 | `contribution_sums` in `audit_contributions` | when `audit_contributions` returns |
+| Static screen: contribution differences (`sums.to_vec()`) | 32·n_g² | 28.48 | 7.21 | `contribution_differences` | as above |
+| Static screen: Cholesky factor | 8·n_f² | 7.03 | 1.76 | `cholesky`, after the audit | when `solve_prepared` returns |
+| Static screen: intended-action sums (a second `contribution_sums`) | 32·n_g² | 28.48 | 7.21 | `audit_intended_action` (frame_kernel `structural.rs:1145`), called from `finish_checked_factor` (`:1941`) once the residual passes | when `audit_intended_action` returns |
+| Static screen: load-fidelity sums (a third `contribution_sums`) | 32·n_g² | 28.48 | 7.21 | `audit_load_fidelity` (`:1257`), reached because the assembled force binding's `audit_terms()` is `Some` (`:298`) | when `audit_load_fidelity` returns |
+| K_ff and M_ff (flat) | 16·n_f² | 14.06 | 3.52 | `form_modal_pencil`, after the screen | end of the run: the test's end in phases, the return of `run_modal_dense` in entry |
+| R (K's Cholesky, massless first) | 8·n_f² | 7.03 | 1.76 | `cholesky_ordered` | `drop(r)`, after the back-transform |
+| Work: M R⁻ᵀ, then C, Q/Z and φ | 8·n_f·n_m = 8·n_f² | 7.03 | 1.76 | `solve_dense_pencil` | kept as `solution.vectors` until the end of the run |
+| Census Cholesky of the equilibrated M | 8·n_f² | 7.03 | 1.76 | `established_finite_mode_count`, after `drop(r)` | when it returns |
+
+- **Small terms.** Everything else is O(n) or O(stored entries): the sparse K and its assembly evidence, the stored entries, the `ShiftPencil` (32 B per pattern position, 2,752 positions), the profile and its clone, the per-evaluation `ExactSum` rows of the residual (n × (48 B + limbs)), the re-formed element operands, the formation accumulators (16 B per stored entry) and the n_r·n_f normalized shapes. Together these are of the order of 1 MiB at 960 (an estimate). The Sturm pencil's 32·n_f² of the `sturm` module docs is its full-profile case. This banded model's profile is O(n).
+- **Route re-checked for further n²-scale allocations** (after the review of `cfcd55f24` found the two later audits):
+  - The formation check does not run: `prepare_assembled_structural` builds no formation source, so `gate_formation()` is `None`.
+  - The condition estimate, the original-equation residual bound and the bounded refinement are O(n).
+  - `ModalMass::to_symmetric` (dense M) has no caller on this route.
+  - The re-formation, normalization, Sturm, orthogonality and cluster code forms no n_f² buffer at n_r = 10.
+  - No further term was found.
+- **Live sets, from the lifetimes:**
+  - at the contribution audit: 88·n_g² + 8·n_f² = **85.3 / 21.6**. That is the static 96·n_g² to 0.1 MiB: the formula counts the prepared matrix at n_g², not n_f²;
+  - at the static factor: 24·n_g² + 16·n_f² = 35.4 / 9.0;
+  - during each of the two later audits: 56·n_g² + 16·n_f² = 63.9 / 16.1. Each array is dropped before the next is formed, so they are sequential, not simultaneous;
+  - in the eigen core: 32·n_f² = 28.1 / 7.0, both with K, M, R and the work buffer, and later with K, M, the work buffer and the census factor;
+  - after the solve, to the end: 24·n_f² = 21.1 / 5.3.
+- **Cumulative.** Counting every listed buffer once, with no reuse, the static screen is 152·n_g² + 16·n_f² and the modal path 40·n_f². That gives **152·n_g² + 56·n_f² = 184.5 / 46.5 MiB**, before the baseline and the small terms.
+- **Baseline.** The process baseline is B₀ ≈ 9.7 MiB: the 60-point phases peak (10.5) less that point's cumulative (0.8). The entry pass's smallest peak, at 60, is 17.4 MiB, and it already includes that point's projection.
+- **Phases pass.** The source brackets the peak: the largest live set plus B₀ is 95.0 / 31.3 MiB, and the no-reuse cumulative plus B₀ is 194.2 / 56.2 MiB. The observed peaks, **150.4 / 48.0**, lie inside that bracket: above the live set by 55.4 / 16.7, and below the cumulative by 43.8 / 8.2. At 120 and 240 the brackets are 11.1–12.8 and 15.2–21.5, against observed 12.8 and 20.4. **No excess over the corrected ledger remains to be explained.** The peak is not the live set of any one instant.
+- **Page faults.** In all ten processes, ru_minflt × 16 KiB exceeds ru_maxrss by 4.3–4.4 MiB, assuming the 16 KiB VM page of arm64 macOS.
+  - The listed buffers are written or read through in full (source). So if minor faults count every first touch of an anonymous page, about 40 MiB of the 960 point's listed allocations were served from pages already resident: allocated bytes exceed faulted bytes.
+  - **Plausible hypothesis, not a finding:** freed buffers stayed resident (allocator retention) and later buffers reused part of them in place, so that ru_maxrss is a high-water above the live set and below the no-reuse sum.
+  - Cumulative faults and the maximum RSS do not identify allocation lifetimes. Other patterns of resident-page reuse give similar aggregates, with the high-water at another instant or with different buffers sharing pages.
+  - What would distinguish them is the per-phase trace below.
+- **What the source cannot settle.** Whether the allocator returns or reuses a freed block depends on its size classes, not on this repository's source. At 960 the screen's rows are 7.7 KB and 30.9 KB, and each flat n_f² buffer is 7.03 MiB; at n_f = 1,920 each flat buffer is 28.1 MiB. Nor can the source say where in the bracket a peak falls, or at which instant it occurs.
+- **What would settle it.** A test-only allocation trace per phase (live high-water, cumulative bytes and the largest block), with the resident size read at each phase boundary. This is a deterministic count, not a timing. **It is not proposed now:** the guard decision below rests on measured process peaks. It is needed only if a memory formula is to be extrapolated beyond measured points.
+- **Entry pass.** `run_modal_dense` allocates the same list, and its outcome is small at n_r = 10 (shapes n_r·n_g·8 B and the computed evidence). The binding is the product's projection of the same request refused at the guard, with no n² buffer. Then the projection runs. Every term in it is an estimate, from serde_json's `BTreeMap` map with this toolchain's node layout (a leaf of 11 entries is about 632 B) and assumed 16 B malloc quanta, not from this repository's source:
+  - the value tree T: about 1.7 KB per shape or mass row, 6.5 KB per computed-mode row and 0.8 KB per value object, about 30.7 / 15.5 MiB in all;
+  - the compact text: 6.09 / 3.07 MiB;
+  - the checked-parse tree: ≈ T;
+  - the canonical text: 6.09 / 3.07 MiB.
+
+  All four are live at the canonical write: about **73.5 / 37.2 MiB**, or up to 85.7 / 43.4 MiB with doubled text capacities. With B₀ that is 83.2–95.4 / 46.9–53.1 MiB, before the outcome and the request, which are small here.
+  - **The governing live phase differs by size.** At 960 the screen's audit (95.0 with B₀) and the projection's canonical write (83.2–95.4) are comparable. At 480 the projection governs (46.9–53.1, against 31.3 for the screen).
+  - The source bracket for the entry peak runs from that largest live set, about 95 / 47–53 MiB, to the no-reuse run plus B₀ plus the projection's upper estimate, about 280 / 100 MiB. The observed peaks, **220.1 / 88.9**, lie inside it.
+  - The two passes remain separate executions. Nothing is added across them.
+- **What the stated formulas cover.**
+  - 96·n_g² (`dense_scrutiny_guard`) covers the static screen's six buffers at its audit, and so its live peak.
+    - At n_r = 10 it exceeds the eigen-core, after-solve and later-audit live sets.
+    - It does **not** cover the entry's projection instant: at 960 the estimate (73.5–85.7 MiB) is comparable to the formula's 85.4 MiB, and at 480 it exceeds the formula's 21.6 MiB (37.2–43.4).
+  - It omits:
+    - the process baseline;
+    - retained or reused memory (the no-reuse cumulative 152·n_g² + 56·n_f² is the source's upper term);
+    - the projection's trees and texts (at 480 the estimated 37.2 MiB exceeds the formula's 21.6);
+    - the orthogonality products, n_r·n_f·(24 + 16k) B for k exact terms per entry, which reach n² scale on a whole-spectrum request;
+    - the outcome's and normalization's n_r·n shapes;
+    - a full-profile Sturm pencil, up to about 32·n_f²;
+    - the residual phase's per-evaluation O(n) buffers;
+    - outside this route, the state case's static load-case solve in `dense_scrutiny` mode (`state.rs`), which runs before the modal screen and is not reconciled here.
+  - 32·n_f² (`dense_path_peak_bytes`) covers K, M, R and the work buffer only, and omits everything else.
+  - Neither is a process-peak bound, and neither is fitted here.
+
+**Projection size: a proposed bound from format and input lengths.** B_doc below is a **proposed bound**, not yet a bound. Its open items are named at the end of this part, and closing them is a prerequisite to adopting it.
+- **Value encoding** (`openpipestress_jcs_ijson_v1`, `canonical_json`):
+  - a binary64 below 2⁵³ in magnitude is ECMAScript `Number::toString` of ryu's shortest digits, at most **25 B** (−0.0000012345678901234567). A value at or above 2⁵³, or not finite, is `null`, with its reason;
+  - an integer is its decimal digits;
+  - a boolean is at most 5 B;
+  - a checksum is 66 B with its quotes;
+  - a string is serde_json's escape: at most 6× its UTF-8 bytes (control characters as `\u00xx`), plus 2;
+  - keys are fixed by source, and the sort order does not change length;
+  - a value object (`below_normal`, `kind`, `undefined_reason`, `unit`, `unit_status`, `value`) carries either a number with a null reason (25 + 4) or a null with its longest reason (4 + up to 28 for `no_neighbour_or_not_formed`).
+- **Identifier dependence.** Model identities are any string with at least one non-whitespace character, Unicode admitted and with no length cap (`schemas/model.schema.yaml`). Let E(x) be x's escaped length, with no quotes. A row adds E for each occurrence of an input identity.
+- **Bound per row**, S_t(D) + Σ E(identity). D is the digit width of the largest integer or reference index in the document (D = 8 covers documents below 10⁸ rows). The values below are at D = 8; each S_t(D) is computed exactly from D:
+
+  | Table | S_t(8), bytes | Identity occurrences |
+  |---|---|---|
+  | shapes | 379 | 2·E(node) |
+  | mass_matrix | 407 | 2·E(node_i) + 2·E(node_j) |
+  | dofs | 175 | 2·E(node) |
+  | nodes | 596 | 2·E(node) |
+  | mass_totals | 525 | none |
+  | modes (one Sensitive reason) | 1,360 | E(node) |
+  | participation | 958 | none |
+  | clusters | 423 | none |
+  | computed_modes | 1,145 | none |
+  | sturm_candidates | 2,394 | none |
+  | identity | 383 | E(subject) |
+  | discretization | 666 | 2·E(member) |
+
+  - *Rows with string payloads* are each a fixed skeleton plus E of each string:
+    - disclosures: E(text), on a 163 B skeleton at D = 8;
+    - diagnostics: id, code, severity, message and affected refs;
+    - supports: E(behavior), E(state), 2·E(support), E(node).
+  - *Each table* adds 121 + d B of wrapper (d the digits of its row count) and one comma between rows. The `tables` object's 15 keys add 204 B.
+  - **The header, from source** (`document.rs`: `modal_doc_identity`, `modal_doc_binding`, `modal_doc_solved`). Transcribed with every variant at its widest at D = 8, the fixed part is **H₀ = 8,450 B**. The variants taken are:
+    - a state case present in both `binding.state_case` and `basis.state_case`;
+    - a mass centre, a formation section, a frequency cut-off and an acceleration;
+    - the above-spectrum placement, the below-cluster endpoint, the unresolved census and an orthogonality pair;
+    - each u128 guard string at 41 B and each usize parameter at 20 digits.
+
+    The variable-length fields, each added to H₀, are:
+    - E(`admission.parameter_label`);
+    - the canonical length of `binding.options` less 2: the request's option members, verbatim;
+    - E(state-case id) **twice**: `binding.state_case.case_id` (`:393`) and `basis.state_case.case_id` (`:482`);
+    - Σ (E(node) + 10) over `basis.state_case.restrained_dof_refs`: one quoted DOF id, with its comma, for each restrained DOF of a linearized state;
+    - E(node) for each of `formation.stiffness_row_ref` (`:574`) and `formation.mass_row_ref` (`:577`). Each is null or a DOF id, and the id's skeleton is in H₀;
+    - 26 B for each element of `sturm_gap_log_positions` and `sturm_whole_spectrum_offsets`;
+    - `standing.reasons`: at most n_r mode reasons of ≤ 110 B each, plus one orthogonality reason of ≤ 128 B, each with a comma (D = 8, `{:e}` at ≤ 24 B).
+
+    `binding.undeclared_members` is empty on a solved document: the request is `deny_unknown_fields`, and `unknown_field_refusal` refuses an undeclared member before any solve. On all 10 solved fixtures, the actual header lies within H₀ plus its variable terms, with margins of 1,456–1,832 B. The fixtures include the state-case, Sensitive, cut-off, body and arc variants.
+- **Checked against the committed fixtures** (`fixtures/results/modal_*.json`, 1,691 rows over 12 tables): every row lies within its bound. The smallest margin is 0 B, on a DOF row.
+- **Row counts for a general request:**
+  - shapes: 6N·n_r;
+  - modes: n_r;
+  - participation: 3·n_r;
+  - computed_modes: n_c ≤ n_f, every retained finite mode on the dense path;
+  - clusters: n_cl ≤ n_c (every computed cluster, not only completed ones);
+  - mass_matrix: P_M ≤ 21·N + 36·(distinct node pairs joined by a mass-bearing member);
+  - nodes: N;
+  - dofs: 6N;
+  - mass_totals: 3;
+  - sturm_candidates: ≤ s_max;
+  - identity: 3·(n_straight + n_arc + n_body + 1);
+  - discretization: n_straight;
+  - supports: the nonlinear supports;
+  - disclosures: ≤ 12 fixed and conditional, plus the state case's, plus the identity's (one per applied self-weight primitive or case), plus one per computed mode whose e_λ interval reaches across a cut-off (≤ n_c);
+  - diagnostics: those of the preparation, the mass and the state solve.
+
+  n_r by request:
+  - `mode_count` m: n_r = min(m, n_c) plus the cluster extension, with n_r ≤ n_c;
+  - a cut-off: the modes below it plus the extension, which can reach n_c;
+  - the whole finite spectrum: n_r = n_c ≤ n_f. The endpoint needs an established census, whose finite count is n_f less the structurally massless DOFs. At the static guard's limit (N = 1,365, n_f up to 8,184) that is up to 6.7·10⁷ shape rows and about 2.6·10¹⁰ B under the proposed bound.
+- **Observed against the proposed bound.** With the observed counts and this model's identities ("n0"–"n160" and "p0"–"p159", 2–4 B), the formulas give exactly the observed rows at all five points. The proposed bound, with the corrected header and table keys, is 499,985 / 917,126 / 1,746,284 / 3,401,269 / 6,752,196 B. The observed bytes are 468,577 / 860,779 / 1,647,689 / 3,219,890 / 6,383,582: 93.7–94.7% of it. This is a consistency check and no coefficient is fitted. Ten reported modes of one cantilever with short identities exercise no whole-spectrum, cut-off, arc, component, state, support, diagnostic or long-identity row, and so price none.
+- **Proposed projection guard** (refusing, never truncating; coefficients reserved):
+  - *(i)* optionally, refuse before the solve by the request-level count 6N·min(m, n_f) shape rows for `mode_count` m. This is a stated formula. It can refuse a request whose solved set would have been smaller (rejected μ, massless DOFs), and a cut-off request has no such count;
+  - *(ii)* immediately after `complete_reported_set` and **before the normalization**, refuse unless rows R ≤ R_max and B_doc ≤ B_max. R is the exact count above. B_doc is H + Σ_t Σ_rows (S_t(D) + 1 + ΣE) + Σ_t (121 + d_t) + 204.
+  - **Position kept, with template bounds** for what is formed later. Some strings exist only after the residuals, the re-formation or the Sturm check: the cut-off disclosures (`run_modal_dense`, after the residuals), the Sensitive reasons, the Sturm candidates and the formation row refs. At the check they are bounded from their format templates and input lengths:
+    - *cut-off disclosures:* "computed mode {} ({}) has a first-order eigenvalue error estimate e_λ = {:e} that reaches across the cut-off", with ({}) at most "not reported" and `{:e}` at most 24 B. That is ≤ 308 B a row at D = 8, for at most n_c rows when the request names a cut-off, and none otherwise;
+    - *Sensitive reasons:* every reported mode's row is bounded with one reason, and the header with n_r + 1;
+    - *Sturm candidates:* s_max rows at S_sturm;
+    - *formation row refs:* E of the longest node identity;
+    - *orthogonality pair:* present.
+
+    Everything else exists at the check, and the guard takes its exact length:
+    - the other members of `modal_disclosures`, whose inputs (`prepared`, `mass`, `pencil`, `completed`, `census`) are formed by then;
+    - the state-case and identity disclosures;
+    - the diagnostics, supports, identities and request options.
+  - Placing (ii) there also refuses before the O(n_r·n_f²) normalization and the O(n_r²·n_f) orthogonality of a large set.
+  - B_max follows #59's custody limit (64 MiB displayable). R_max, and any in-memory multiple, are I3b's and Agent 0's to set. The in-memory projection was estimated above at about 12× canonical at its peak (two trees and two texts), which is an estimate, not a bound.
+  - **Open items, before B_doc may be called a bound:**
+    1. An independent check of the hand transcription of `document.rs`: the row skeletons, H₀ and its variable fields. The fixture checks cover 1,691 rows and 10 headers, not every producer path. A maintained test computing the bound from an outcome and asserting it on the fixtures and the producer-edge corpus would close this (a code change, outside this write boundary).
+    2. The std formatting widths relied on: `{:e}` of a binary64 at ≤ 24 B, and the `{:?}` forms of `Option<(usize, usize)>` and `FiniteCensus`.
+    3. That `binding.options` carries each option member exactly as the request's canonical text has it.
+    4. Refused documents, which are not bounded here (their size is their diagnostics').
+
+**Work-guard proposal.**
+- **Observed scope only:** **n_f ≤ 960 AND a completed reported set of n_r ≤ 10**, refusing otherwise. The n_r check runs right after `complete_reported_set`, before normalization.
+  - *The family it applies within* is explicitly restricted to:
+    - a single straight-member, SEC-A-like model: one anchored straight run with consistent mass;
+    - no arcs, no component bodies, and no state-case solve (so no nonlinear support);
+    - the observed screening: the zero-force static dense screen on a banded K, with no band recovery and an established census with no massless DOF;
+    - the observed Sturm profile: a banded RCM profile, one candidate, one factored shift;
+    - `mode_count` requests only, with no cut-off;
+    - a release build on aarch64 macOS.
+
+    **Everything else stays outside the evidence**, and the guard says nothing about it.
+  - *Evidence:* at n_f = 960, the phases total was 7.81 s, `run_modal_dense` 7.25 s, the process walls 7.82 / 7.43 s, and the peaks 150.4 / 220.1 MiB.
+  - *Equivalent stated form within the family:* 9n_f³ + s·n_f³/3 ≤ 8.26·10⁹ at s = 1, and 3·n_c·Σ_e d_e² ≤ 6.6·10⁷ exact products.
+  - *Not proposed as the guard:* the formula form. It would admit cost mixes the window did not measure: other element types, dense Sturm profiles, s > 1 factored shifts and larger n_r.
+  - *Limits:* one observation per point, one host under a disclosed background load, one model family and one n_r, and no debug ratio.
+- **The intended dense product scope.**
+  - D-k's target is about 3,000 DOF (§3.2). The static guard admits n_g ≤ 8,192 at 6 GiB.
+  - Continuing the last slopes to n_f = 8,184 is an **extrapolation, not a bound**:
+
+    | Phase | Basis | Time |
+    |---|---|---|
+    | dense solve | 2.00 s × r³ to r^3.55, r = 8.53 | 1,240–4,030 s |
+    | residuals | slopes 1.86–2.05 | 290–440 s |
+    | screen | slopes 2.62–3 | 65–150 s |
+    | normalization | | about 33 s |
+    | **total per pass** | | **about 27–78 min** |
+
+  - The source's live sets at 10 reported modes would be:
+    - screen: 88·n_g² + 8·n_f² ≈ 6.0 GiB, at the 6 GiB ceiling by the guard's construction;
+    - eigen core: 2.0 GiB.
+
+    The no-reuse cumulative 152·n_g² + 56·n_f² would be ≈ 13.0 GiB, plus the projection. Both exceed what stage 1 can price. Where a peak of 511 MiB buffers would fall within the 6.0–13.0 GiB bracket is not known.
+  - Whole-spectrum and cut-off requests add, as an n_r axis that no stage measured:
+    - O(n_r·n_f²) normalization;
+    - O(n_r²·n_f) exact orthogonality;
+    - n_r·n_f-scale orthogonality products.
+- **What a larger cantilever can and cannot close.** A larger point of the same family extends only **this family's** measured extent. It cannot close arcs, component bodies, state cases, dense Sturm profiles, other screening, cut-off or whole-spectrum requests, or larger n_r. Those stay outside the evidence, whatever n_f is measured, and closing them would need measurements of their own. None is proposed here.
+- **The only additional measurement proposed** (one window, extending the observed family's extent; nothing else is proposed). **n_f = 1,920** (320 elements, n_g = 1,926), `MODAL_MEASURAND_MODES=10`, passes `phases` then `entry`, one process each.
+  - *Binary:* the same binary. It is reusable if the head's measurand and product source are unchanged; otherwise rebuild and re-identify outside the window.
+  - *Supervision:* the same scripts and rules.
+  - *Deadlines:* d = 120 s per process, with g = 5 s.
+    - Stage 1's growth rule holds: 8 × 7.82 s = 62.6 s ≤ 120 s.
+    - The worst case is 30 s for the locks, plus 2 × 125 s, plus 60 s of reserve: 340 s, within the 570 s abort and the 600 s window.
+  - *Expected (extrapolation):*
+    - time: phases total ≈ 38–49 s (the dense solve 16–23 s, the residuals 20–23 s), and `run_modal_dense` about the same;
+    - output: about 31,600 rows and about 12.8 MB canonical, under a proposed bound of 13.5 MB;
+    - peak RSS, as a source bracket (estimates, not bounds): phases from 349 MiB (the largest live set plus B₀; 96·n_g² is 339.6 MiB) to 744 MiB (the no-reuse cumulative 152·n_g² + 56·n_f² = 734.6, plus B₀). Entry runs from about 349 MiB to about 915 MiB, the upper end adding the projection's 146–171 MiB.
+  - *What it decides, for this family only:*
+    - whether the family's measured extent, and with it the work guard, moves to n_f ≤ 1,920;
+    - where the process peak falls within the source bracket once each flat buffer is 28 MiB, which bears on whether the dense modal memory constant must count retained or reused memory;
+    - whether D-k's ~3,000 target is affordable for this family.
+- **Conditional, only if Agent 0 keeps the ~3,000-DOF target after reviewing 1,920:** n_f = 3,072 (512 elements, n_g = 3,078), the `entry` pass only (the whole product path and its peak), in its own window.
+  - **Admitted only under stage 1's 8× growth rule:** the slower 1,920 process must take **≤ 45 s**, so that 8 × 45 s = 360 s fits the deadline.
+    - The 1,920 extrapolation runs to 49 s, so the rule may refuse the point.
+    - If it does, the point is not taken. It needs Agent 0 to amend the rule explicitly, for example to (n_next/n)^3.6 × the slower wall, which is about 5.4× for 1,920 → 3,072 and follows the steepest observed dense-solve slope. That amendment is proposed for Agent 0's decision and is not assumed.
+  - *Deadline:* d = 360 s with g = 5 s (worst case 455 s), not raised above 360 s.
+  - *Expected:* 120–195 s, about 50,500 rows and 21.6 MB under the proposed bound. Peak RSS is bracketed at about 0.86–1.84 GiB for the run (the live set to the no-reuse cumulative, plus B₀), plus up to about 0.27 GiB of projection (estimates).
+  - *Not proposed:* 3,840. It exceeds the target, and at its upper estimate one process would take a whole window.
+  - *Also not proposed:* repeats, a debug ratio, a larger n_r, or the old 12-point-hour benchmark.
+
+**Proposed D-k and guard decision for Agent 0** (nothing adopted):
+1. **Work, now:** either
+   - (A1) the observed-scope guard above, as TEST-LOCAL (n_f ≤ 960 and n_r ≤ 10, refusing, within the restricted family only); or
+   - (A2) no work guard until the 1,920 point. The dense modal path has no product entry yet (§5.3.9), so nothing is exposed meanwhile.
+
+   A stated-formula budget with cost coefficients (A3) is not supportable from stage 1.
+2. **Scope:** either
+   - (B1, recommended) narrow D-k's measured dense modal scope to the restricted family at n_f ≤ 1,920, extended by the single 1,920 point; or
+   - (B2) keep the ~3,000 target for that family and add the conditional 3,072 point, under the 8× rule or an amendment Agent 0 makes; or
+   - (B3) keep the static guard's whole range, n_g ≤ 8,192.
+
+   B3 is not supported: by extrapolation it is 27–78 min per pass, with a 6.0–13.0 GiB source bracket, which only the hour-scale benchmark Agent 0 excluded could price. Under every option, the other model and request families stay outside the evidence.
+3. **Memory:** keep `dense_scrutiny_guard` (96·n_g²) as the refusal before any allocation, recorded as a live-set formula rather than a process-peak bound. At 960 the observed peak was 1.6× the source's largest live set plus baseline, inside the source bracket that the no-reuse cumulative closes. `DENSE_MODAL_BYTES_PER_ENTRY` waits for the 1,920 peak. The source finding stands: the static screen, not the eigen core, sets the live peak.
+4. **Projection:** adopt the guard's structure: rows and the proposed format bound, refusing, applied before the solve and after the reported set. The bound itself is adopted only after its open items close, and its limits are set with I3b against #59's custody limit.
+5. **The n_r axis:** larger reported sets stay outside the measured scope. The projection limit bounds n_r·6N, and no n_r measurement is proposed.
+
+##### Agent 0's decisions on the stage-1 analysis (2026-11-04, on `95808fec1`)
+
+- **No production work guard from one benchmark family.** The observed n_f ≤ 960, n_r ≤ 10 family may serve as an explicit *experimental* measured profile and refusal boundary. It does not replace general modal admission, and it is not an accepted release limitation.
+  - The dense-path goal stays about 3,000 DOF across the adopted families. The exact user-facing cap comes from a reviewed resource budget, without any obligation to support the whole static range (n_g ≤ 8,192).
+  - Arcs, component bodies and state cases are not narrowed away for lack of measurement. They are priced from source cost components plus representative calibration.
+  - Every required check is sourced and accounted: computed pairs, band recovery, cluster and Sturm variation, and the state case's static solve.
+  - The state-case solve runs **before** the modal screen, so a combined preflight budget must refuse before that allocation and solve; a guard placed after it is too late.
+  - One cantilever is not a worst-case claim.
+- **Memory.** 96·n_g² is recorded as a live-buffer formula only, and no universal peak constant is fitted from any point. Bounded source allocations, output and reader peaks and their lifetimes are reconciled with calibration, every model and string cost included.
+- **B_doc stays PROPOSED** until four things are independently checked: the transcription, the format widths, the canonicity of the options, and refused documents.
+- **The projection-guard STRUCTURE is approved:** checked arithmetic, refusal before allocation, no truncation, and a model that stays editable. No numerical limits or coefficients yet.
+  - "Before normalization" holds only if the bound covers normalization's expansion and the actual dimensions. Otherwise there is a conservative early bound plus an exact second check before projection.
+  - A completed cluster is never assumed to stay within the requested mode count.
+- **One calibration window at n_f = 1,920 was cleared.** The point at 3,072 is not approved. A fixed target of about 3,000 DOF does not trigger it automatically, and any further proposal uses the 1,920 data plus source.
+
+##### The n_f = 1,920 calibration (2026-11-04; measured outcome only, TEST-LOCAL)
+
+The window is `window-20261104T131510Z-nf1920`. Its identity record is `calib1920-prep.txt`: the same reviewed scripts, config `0344ce9f…9005`, and a binary rebuilt outside the window that is byte-identical (`f7c87223…cc6c`) at exactly `48b3cc692`.
+- **Acquisition:** immediate at 13:15:10Z. The window ended at 13:17:02Z, rc 0, 112 s from T₀ including teardown. No overrun, kill or retry.
+- **Closure:** verified by the launcher (group empty with zombies included, normal-path reaps, every child in G, no pending marker, lock holders exited) and independently at 13:17:21Z. memguard logged no event.
+- **Both processes valid**, each with a post-reap identity proof.
+  - **phases:** wall 56.24 s, peak RSS 542.1 MiB. dense_solve 39.47 s, residuals 14.01 s, pencil and screen 1.62 s, total 55.31 s.
+  - **entry:** wall 55.70 s, peak RSS 589.1 MiB. run_modal_dense 55.37 s, projection 0.20 s, 30,581 rows, 11,905,720 canonical bytes.
+- **The point leaves the stage-1 profile.**
+  - 1,280 of 1,920 modes are computed. The band screen took 640 pairs and retained none. (The record does not say how many were hard-cut and how many were attempted and failed recovery, §5.3.7 "A3, as decided", D4.)
+  - The census is **Unresolved** (`rejected_mu: 640`, mass block established) under the test-local τ_μ = 10⁻¹². (Corrected 2026-11-05: at this order the active hard cut is κ_μ·δ_q = 2.13·10⁻¹²·μ_max, not τ_μ, and the record does not split hard rejections from failed band recovery; see §5.3.7's A3 proposal.) At this mesh, SEC-A's spread puts genuine high modes below the test-local μ floor, which is §5.3.7's high-mode issue on a product-path model. The ten reported low modes are served, and the whole-spectrum endpoint stays refused.
+  - This was A3 evidence and decided nothing by itself; A3's decision (§5.3.7, 2026-11-05) does not refit it.
+- **Cost shape.**
+  - The band recovery's exact insertions run inside dense_solve, which grew 19.7× from n_f = 960, a log–log slope of 4.3 against stage 1's roughly cubic trend. Their count is 4pn² for p attempted pairs. p is not recorded, so 4·640·1,920² ≈ 9.4·10⁹ is an upper (scenario) value, not measured attempt work (corrected 2026-11-05, D4).
+  - Residuals cover 1,280 pairs, a slope of 1.36.
+  - The growth ratio is 7.07 against the 8× rule.
+  - Peak RSS is inside the source analysis's estimates (349–744 MiB for phases, up to about 915 MiB for entry). No peak constant is fitted.
+- **Consequence for pricing:** band recovery and census variation are now measured cost components within one model family. The source cost model must carry them, and must not treat them as outside the profile.
+- **Agent 0 on the outcome (2026-11-04).** The calibration is accepted as complete and contained. No further measurement is approved; the 3,072 condition is not met, and no larger point is proposed merely to fit a curve.
+  - **What the source guard must cost, term by term:** the binary64 dense work; the band recovery's exact insertions (4·p·n²) and its 2n² visits; every check on computed and recovered pairs; the Sturm profiles; the state-solve preparation; and the projection. One fitted cubic coefficient is not a guard.
+  - **When it must cost them:** p and the census and request variation are bounded **before** the costly stage, by a conservative upper bound on p or by a stage-specific budget check. A missing finite census never drops work from the account.
+  - **What must not change:** τ_μ is not tightened artificially, and no high-mode check is skipped, to force admission or hide cost.
+  - **Keep the populations separate:** the 35-model mathematical references stay separate from the cantilever cost calibration. The memory bracket from source plus the observed RSS is not a universal peak bound, and B_doc's open items still have to close.
+  - **The ten low modes** are inspectable and reportable only under the accepted lower-gap count and completed-cluster premises. An unresolved whole finite census does not by itself invalidate the lower path, and it never becomes a whole-spectrum proof.
+  - The current test-local status, with production disabled, is unchanged, and nothing is adopted from this observation.
+
+##### The source resource guard: cost model, check placement and budget form (proposal, 2026-11-04; nothing adopted)
+
+This proposal comes from source plus the existing cantilever calibration (stage 1 and n_f = 1,920). It keeps the two populations apart: the calibration prices cost only, and the 35-model mathematical references stay separate. Wherever it uses the 1,920 outcome, **the ten low modes are reportable only under the accepted lower-gap count and completed-cluster premises.** The unresolved finite census at 1,920 neither invalidates that lower path nor becomes a whole-spectrum proof.
+
+**Cost model, term by term** (revised after the focused review of `d1d36002c`). Notation:
+- n_f is the free order; n_m ≤ n_f the massive order; n_c ≤ n_m the computed (retained) pairs; n_r ≤ n_c the completed reported set.
+- p is the **attempted** band pairs (μ in the band, not hard-rejected). The raw O4 line's `band_screened` counts hard rejects too, so it does not supply p.
+- I is the total QL iterations, and R = Σ (m − l) the QL rotations, with R ≤ I·(n_m − 1).
+- d_e is element e's free-DOF count; nnz(·) is a stored count over the full symmetric matrix.
+- P_u is the shift pencil's union pattern; w_i are the profile's row widths after RCM, and P = Σ w_i; s ≤ s_max are the Sturm candidates. N_ns is the nonlinear supports, and d ≤ the friction supports is the derived sliding-friction candidates per iteration.
+- MA is a multiply-add. A *visit* is one `ExactSum::add_product` call, which returns at once on a zero factor (`exact.rs:113`). An *insertion* is a visit with every factor nonzero, or one `add_dd_product`, which also builds a small `Vec` (`exact.rs:161`).
+- **L is an accumulator's limb span.** `ExactSum` keeps 32-bit limbs from its lowest to its highest part (`exact.rs:51`–`:100`). It grows by `splice` when a lower part arrives, and `terms()` returns one term per nonzero limb (`exact.rs:217`).
+  - So k (terms per entry) ≤ L, and limb moves per sum ≤ L × its adds.
+  - **No data-independent bound on L is established** (narrow re-check, 2026-11-04). The earlier derivation of a 6,243-bit span, and so of L ≤ 202, is withdrawn, for three reasons:
+    - three minimum subnormals enter `add_scaled` at scale −3,222 with a normalized part of 1.0, whose encoded lsb is −3,274 (`exact.rs:63`, `:153`), not −3,222;
+    - `normalize()` can append limbs;
+    - the generalized-mass and orthogonality terms multiply accumulated sums, and a factor count alone does not bound carry growth.
+
+    No underlying monomial was found with more than three binary64 factors, so some bound near 202 may hold under explicit count bounds, but none is proved.
+  - **So L is held by an enforced allotment, not a bound.** P0 charges every L-dependent term at a proposed allotment L_A; 202 is the working proposal, and the value is not adopted. S2b's exact scan, after re-formation and before any residual or orthogonality array is built, refuses (`MODAL_RESOURCE_CHECKS_EXCEEDED`) if the exact L exceeds L_A. The formation maps (T7) are built before S2b, so their per-entry limb growth is checked against L_A as the sums grow, before the next allocation.
+
+**Counts are upper bounds** wherever data can only lower them: zero factors skip insertions, and an early failure skips the rest of a pair's work.
+
+| # | Term | Count from source (upper bound unless stated) | Source | Bounded / checked at |
+|---|---|---|---|---|
+| T1 | State-case solve (with a state case only; runs **before** the screen) | Structural solves S_T1 ≤ (I_as + 1)·(2 + d) + 1. Here:<br>• I_as = 4 iterations;<br>• the +1 is the single all-active recovery trial that iteration 1 may add after a structurally failed first attempt, both counted as iteration 1 (`lib.rs:813`);<br>• 2 + d is, with derived friction, one base solve, d unit solves and the final solve (`:1574`–`:1680`), and without it one solve;<br>• the last +1 is the confirmation's gate factorization.<br>Each solve is priced as T2 on its free set, including `reduce_system_with_prescribed_displacements_binary64` (`:2219`). Per iteration with friction, add the d × d influence and coupling matrices and `solve_dense`. That is general Gaussian elimination with pivoting, not Cholesky: 2d³/3 flops leading, plus validation and lower-order work (frame_kernel `lib.rs:2003`, `:2029`) (`:1590`, `:1655`). The confirmation also runs E_conf K-D5 formation evaluations (`structural_adapter.rs:375`; `confirmation.rs:332`, `:696`, `:711`), each re-forming every element from primitives (`formation_check::check_at`) and solving with the gate factor, and reaction certifications (`confirmation.rs:961`, `:1030`). | product `lib.rs:195`; nonlinear_integration `lib.rs:759`, `:813`, `:1514`, `:2212`; `confirmation.rs:78` | P0: S_T1 and d³ from inputs (d ≤ friction supports). **E_conf is not bounded here from source:** an enforced allotment A_conf, a counter on `ConfirmationContext::evaluate_at` and `reaction`, refusing before the next evaluation |
+| T2 | Static screen of the modal pencil | n_f³/3 flops (dense Cholesky), plus O(n_g²) passes: three 32·n_g² sum arrays, the differences, prepare, skew check, audits | frame_kernel `structural.rs:2060`, `:934`, `:1047`, `:1141`, `:1240`, `:1489` | P0 (n_g; n_f ≤ n_f,max) |
+| T3 | Kernel, binary64 | (19/3)·n³ + 6n·R + O(n²) flops: Cholesky n³/3; reduction 2n_m³; Householder 4n_m³/3 plus accumulation 4n_m³/3; QL 6n_m·R; back-transform ≤ n³; census Cholesky m³/3; Hager ≤ 11 triangular pairs; sort ≤ n_m² compares and n_m swaps | modal_eigen `dense.rs:803`, `:880`, `:955`, `:1061`, `:865`, `:751`, `:1148`; `norm_estimate.rs:8` | R: enforced allotment A_QL (S1-QL counter) |
+| T4 | Band recovery | Two separately priced parts:<br>• *scaling:* once if p > 0, `formed_scaling`, 2n² entries, each two WideDd divisions and one WideDd addition (`:555`), which is not an `add_product` visit;<br>• *per attempted pair:* ≤ 2n² visits in `recover_band_mode` (`:590`) and ≤ 2n² in `formed_pair_errors` (`:629`), of which ≤ 2·(nnz(K_ff) + nnz(M_ff)) are insertions. A zero shape component removes insertions, and a failed energy, mass or μ premise skips `formed_pair_errors`.<br>Hard-rejected pairs cost O(1). | `dense.rs:544`–`:629` | p ≤ n_f at P0, or allotment A_band. **S1-band** counts p exactly before `formed_scaling` and before any insertion |
+| T5 | Census, clusters, reported set | O(n_c). n_r ≤ n_c ≤ n_f; cluster completion can take n_r beyond `mode_count` | `eigen.rs`; `clusters.rs` | S2 (exact) |
+| T6 | Normalization | ≤ n_r·n_f² visits (`mass_bilinear` on dense M_ff), plus 3 exact dots of n_f per mode | `modal_quantities.rs:294` | S2 (exact n_r) |
+| T7 | Re-formation and formation difference | Per element, one p128-seam re-formation (stiffness and mass). Assembly into a `BTreeMap<(r, c), ExactSum>` per matrix: Σ_e d_e² insertions, each with an O(log P) map step (`reformation/mod.rs:559`). Per formed stored entry, one `ExactSum` accumulator (`:745`). Per re-formed position, one `binary_search` and one `terms()` (≤ L terms) folded into the difference (`:754`). Two scaled norms: n WideDd row sums each (`scaled_norm`, `:706`). Every `ExactSum` has dynamically allocated limbs (≤ L). | `reformation/mod.rs:559`, `:700`–`:800` | P0 (element counts; L_A); S2 |
+| T8 | Residuals, every computed pair, **including retained recovered pairs** | Per pair:<br>• 3·Σ_e d_e² insertions (`product_into` for K̂ and λM̂, and `mass_product_exact`; `:506`, `:553`);<br>• the generalized mass's `add_terms_product` over each of n_f rows' `terms()`, ≤ L terms each, so ≤ n_f·L insertions (`:937`);<br>• n_f `to_wide` reads of O(L) each;<br>• O(n_f) WideDd.<br>Limb moves ≤ L·(3Σ_e d_e² + 3n_f). | `reformation/mod.rs:506`, `:895`–`:940` | P0 at n_c ≤ n_f and L_A; **S2b** (exact L) |
+| T9 | Sturm evidence | *Construction, once:* the merged-entry sort O(P_u log P_u), RCM O(n + P_u), adjacency (`sturm.rs:535`–`:690`).<br>*Per candidate (≤ s_max):* the formed list O(P_u); the profile O(P); `factorize_ldlt`, whose inner loops execute ≤ ½·Σ_i w_i² + Σ_i w_i MA (`sparse_direct/src/lib.rs:419`; n³/6 + O(n²) for a full profile); the factor observations O(P) a pass (`sturm.rs:935`); ≤ 11 inverse-norm solves of 2P each.<br>*Per neighbour (≤ 2):* the mass quotient's exact sums over P_u (`sturm.rs:700`). | as given | P0: s_max with the dense profile (P ≤ n(n + 1)/2). **S2:** an explicitly priced symbolic step (pattern sort, RCM and the profile's first columns, O(P_u log P_u + n + P)), moved ahead of `modal_sturm_count` and its result reused there, gives the exact P and w_i. Today the RCM runs inside `modal_sturm_count`, after the residuals. |
+| T10 | Orthogonality, **published set** | n_r·Σ_e d_e² insertions (`mass_product_exact` per shape), **retaining every product** (`orthogonality.rs:121`). Then n_r(n_r + 1)/2 bilinear forms, each n_f `add_terms_product` calls of ≤ L terms (`:150`). | `orthogonality.rs:116`–`:190` | P0 at n_r,max and L_A; S2b (exact L) |
+| T11 | Projection | O(rows): per row one serialization, one checked parse, one canonical text and one SHA-256; per document one serialization, one checked parse and one canonical text | `document.rs`; `canonical_json` | S2 (early B_doc), S3 (exact strings) |
+
+**Where each check sits.** Each refuses by name and truncates nothing; the refused document states the formula and its terms.
+- **P0, the combined preflight.** In `run_modal_dense`, after `prepare_modal` and **before** `solve_modal_state_case` and any n² allocation, from request, model and parameter inputs only. Each unknown enters at its conservative bound, or at an allotment that a later check enforces:
+  - n_f ≤ n_f,max;
+  - n_c ≤ n_f, and n_r ≤ n_r,max = min(n_f, ⌊R_max / 6N⌋), enforced at S2, never assumed ≤ `mode_count`;
+  - p ≤ n_f, or A_band;
+  - R ≤ A_QL;
+  - s ≤ s_max, with the dense profile;
+  - L = L_A (an enforced allotment; no data-independent bound is established);
+  - S_T1 and d from the state case's supports, with A_conf.
+
+  **A missing finite census never removes work.** The rejected pairs are in p and the computed pairs in n_c, whatever the census verdict. τ_μ is not tightened, and no high-mode check is skipped, to reach admission.
+- **S1, inside the kernel** (**built: #109, merged `23f68bd7d`**, 2026-11-04). `modal_eigen` is outside the priced crates (`tools/retained_pricing/base/crate_dirs.txt`), and `price.py` at base and head compared equal on all 1,602 coefficients, so S1 needed no D3. The budget input is an additive `DenseAllotments` passed to `solve_dense_pencil_with_allotments`, not a field of `DenseOptions`, and it defaults to no allotment. Refusals are typed and map to the approved `MODAL_RESOURCE_*` names, and the exact rotation and band-pair counts are exposed. No allotment value is adopted. The design as specified:
+  - *S1-QL:* a cumulative rotation counter in `implicit_ql` against A_QL;
+  - *S1-band:* p counted exactly from the classification thresholds, before `formed_scaling` and any insertion, against A_band.
+- **S2, after `complete_reported_set` and before normalization.** Exact here: n_c, n_r, n_cl, the computed vectors and the symbolic Sturm profile (P, w_i). It checks T6, T7 (still at L_A), T9 and the early B_doc, and reserves T8 and T10 at L_A.
+- **S2b, after `reform_modal_pencil` and before the residuals** (new). One scan reads the binary exponents of the stored K_ff and M_ff entries, the re-formed element entries (both dd words), every computed vector, and λ. The published shapes' range is each computed vector's, shifted by its normalization scale, whose exponent is the normalizing class's largest component's, ±1. From that scan S2b takes the exact span bound L_S2b ≤ L_A, and checks T8 and T10's insertions, limb moves and storage before either is constructed.
+- **S3, in the product entry before `modal_doc_solved`.** The same B_doc with the outcome's exact strings and Sturm count. Refuse before the tree is allocated.
+
+**Calibration status per weight** (cantilever family only; one definition per weight; from the raw phase times, not the rounded table; no rate is adopted). Each weight is time per **counted unit** under the stated count, not per executed operation.
+
+| Weight | Counted unit | Existing records give (240 / 480 / 960 / 1,920) | Status |
+|---|---|---|---|
+| w_b64 | one T3 flop counted with R = I·(n − 1), i.e. (19/3)n³ + 6n·I·(n − 1) | 0.0925 / 0.1087 / 0.1579 / 0.3871 ns. The 1,920 value includes the band, so it bounds only the binary64 share from above | determined ≤ 960; at 1,920 only as that bound |
+| w_ins | one T8 insertion, counted as 3·n_c·Σ_e d_e² (the generalized-mass terms and limb work at the observed, narrow spreads are folded in) | 89.4 / 91.8 / 82.7 / 79.4 ns | determined for straight elements at the observed spreads; **broad spreads not determined** |
+| w_visit | one T6 visit (n_r·n_f²) | 3.375 / 2.950 / 5.721 / 2.431 ns | determined as a range |
+| w_band | one T4 visit | **Not determined, and not bounded.** 4.18 ns is the whole 1,920 dense phase divided by 4·640·1,920², which assumes that all 640 screened pairs were attempted (the records do not say) and charges none of the phase to binary64. An upper count cannot give an upper rate. Scenario only: if all 640 were attempted, and visits cost w_visit at 1,920, the band would be about 27 s and binary64 about 12 s. That split rests on both assumptions and is not measured attempt work (D4, 2026-11-05); the K2 counters would supply p only in a separately cleared measurand. | not determined |
+| w_scale | one `formed_scaling` entry (two WideDd divisions) | none separately | not determined |
+| w_screen | one n_f³/3 flop, the n_g² passes folded in | 1.583 / 1.050 / 0.806 / 0.686 ns | determined for the no-state screen (conservative: 1.05 ns at ≥ 480) |
+| w_reform | one straight element operand (T7, the formation difference included) | 45.6 / 46.0 / 49.0 / 45.8 µs | determined for straight members at the observed spreads; **arcs not** |
+| w_sturm | per banded run | ≤ 1.5 ms | banded RCM only; **dense profiles not** |
+| w_proj | one canonical byte (projection plus canonical) | 24.2 ns at 960, 24.0 ns at 1,920 | determined for these row mixes |
+| w_limb | one limb move | none: the observed spreads are narrow | not determined |
+| T1, K-D5 | one state-case solve set; one formation evaluation | none (no state case was run) | not determined |
+| bodies | (no re-formation; mass entries only) | priced by source counts at w_ins | determined by source |
+
+The weights rise with n (w_b64 from 0.0925 to 0.1579 over 240–960), so **no weight above n_f = 1,920 is determined.** Rates that would need a future measurement (none is proposed now), with the decision each one holds:
+- the band/binary64 split, w_scale, and the kernel weights above 1,920: the work cap near 3,000 DOF in any family;
+- T1, K-D5 and A_conf: admitting state-case families;
+- dense Sturm profiles: s_max·T9 for branched networks;
+- w_limb and broad-spread w_ins: models with wide magnitude ranges (P0 bounds their counts at L_A, but cannot price them);
+- arc re-formation: a minor term.
+
+**Proposed budget form.**
+- *Units and comparison.* Counts c_t are u128, and weights w_t are integer picoseconds per counted unit.
+  - W = Σ_t w_t·c_t, with `checked_mul` and `checked_add`. An overflow refuses as `MODAL_RESOURCE_ARITHMETIC_OVERFLOW`.
+  - Stage allotments are A_s = Σ_{t∈s} w_t·c̄_t, with c̄ the bound P0 uses.
+  - P0 requires Σ_s A_s ≤ W_budget. Each later check requires its exact Σ_{t∈s} w_t·c_t ≤ A_s.
+  - **A term whose weight is not determined cannot be admitted by arithmetic.** Until its weight is reviewed, the budget either assigns it a reviewed conservative weight or refuses requests in which its count is nonzero.
+- *Refusal names* (proposed, blocking):
+  - `MODAL_RESOURCE_PREFLIGHT_EXCEEDED`: P0, for work or memory, naming the dominant term;
+  - `MODAL_RESOURCE_QL_ALLOTMENT_EXCEEDED` and `MODAL_RESOURCE_BAND_ALLOTMENT_EXCEEDED`: S1;
+  - `MODAL_RESOURCE_CONFIRMATION_ALLOTMENT_EXCEEDED`: T1's counter;
+  - `MODAL_RESOURCE_CHECKS_EXCEEDED`: S2 and S2b;
+  - `MODAL_PROJECTION_LIMIT_EXCEEDED`: S2 and S3;
+  - `MODAL_RESOURCE_ARITHMETIC_OVERFLOW`.
+- *Checked arithmetic, illustrative only.* The case is a SEC-A-like model at n_f = 2,994, n_g = 3,000, with no state case, at P0 bounds:
+  - A_QL at R = 1.5·n·(n − 1);
+  - p ≤ n_f;
+  - R_max = 2·10⁵ rows, so n_r ≤ 66;
+  - L = L_A = 202 (a proposed allotment, enforced at S2b);
+  - s_max = 7;
+  - w_band = 4.18 ns as a stated proxy, not a bound.
+
+  W ≈ 1.0·10¹⁵ ps, within u64.
+
+  | Term | Seconds |
+  |---|---|
+  | T2 screen | 9.4 |
+  | T3 kernel | 159.3 |
+  | T4 visits | 448.7 |
+  | T4 insertions | 37.4 |
+  | T4 scaling (proxy) | 0.1 |
+  | T8, L-dependent terms at L_A included | 225.9 |
+  | T6 normalization | 3.4 |
+  | T10, at L_A | 123.5 |
+  | T11 projection | 1.6 |
+  | **total** | **≈ 1,009 (16.8 min)** |
+
+  - The T8 limb moves (≤ 1.4·10¹¹), T7, and T9's dense-profile work are counted but **not priced**, because their weights are not determined.
+  - S1-band, S2 and S2b replace the p and L_A terms with exact counts before that work starts.
+  - **It is not a cap.**
+- *What is reserved.* The ~3,000-DOF goal across adopted families, the user-facing cap derived from a reviewed resource budget (W_budget and the allotments), and every weight are Agent 0's to set from that review. No coefficient is adopted.
+- *Memory: a cumulative ledger in requested bytes.* With ρ = 1 (no reuse), P0 compares B₀ + C with the memory budget, where C is the sum of every allocation of every stage. Each stage checks its own entries when their sizes become exact. Those checks are S1-band and S2; S2b is the first exact check of the L-dependent entries.
+  - **Correction (narrow re-check, 2026-11-04).** The ledger below lists per-pair and per-product transients (T8, T10, and the `terms()`/`to_wide()` clones and per-product `Vec`s at `exact.rs:163`, `:177`, `:204`) once each, which is a reuse assumption. A true no-reuse C counts them for every pair.
+    - T8 alone is n_c × 2n_f × (48 + 8L) + 16L·n_c. At the illustration's P0 bounds (n_c = n_f = 2,994, L = 202) that is **27.78 GiB**, before anything else.
+    - The ρ = 1 cumulative form is therefore not usable as stated for the exact stages. The 3.8 GiB illustration below is the live-plus-one-transient sum, not a no-reuse cumulative bound.
+  - **The options for Agent 0 (none adopted):**
+    - (a) a stage-wise form, the largest live set plus the largest single transient per stage. This depends on the allocator returning freed transients, which is an allowance to review, not a source fact;
+    - (b) the true no-reuse cumulative, which would refuse every large request on the exact stages;
+    - (c) an implementation change that reuses one buffer per stage for those transients, making (a) a source fact.
+
+    Allocator allowances cannot stand in for omitted source allocations.
+  - **Agent 0 chose (c), 2026-11-04, and released its implementation:** a bounded reuse of workspace per stage, per pair and per product.
+    - **Numerics unchanged:** the order of every numeric operation, insertion and reduction stays identical, with no change to matrix identity, normalization or rounding.
+    - **Reset:** every accumulator and state is reset explicitly (ExactSum limbs, status and sign), not only the logical arrays.
+    - **The ledger counts capacity, not length:** retained maximum capacity; simultaneous inputs, outputs and workspaces; old plus new allocations during growth; clones and alias copies; error and return paths; and stage overlap. It reserves once at a checked extent, or uses fallible allocation, where the route allows, and later stages' peaks never omit retained capacity.
+    - **What it guarantees:** the reuse of requested allocations becomes a source fact. It is no total-RSS guarantee; the runtime, allocator rounding, layout, stack and custody allowances stay separate. No general allocator trace or custom allocator.
+    - **Formation-map growth:** its guard comes before the allocation that would breach it, because S2b, which runs after formation, cannot repair an earlier overspend.
+    - **Review:** independent numerical and resource review, with bit identity on the existing references and producer edges. That includes many modes reusing a workspace, empty, zero and cancelling inputs, and an early refusal followed by reuse and growth.
+    - **Not adopted:** a ceiling, ρ or a value of L_A; 202 remains a proposed allotment, not a proven limb bound. The 3.8 GiB illustration is updated only after the real workspace ledger is verified in source, and a passing test is no proof of every model's heap peak.
+    - **Not yet confirmed:** the corrections in `f89a36359` are not claimed clear until the focused fix confirmation is done in the implementation review.
+
+  | Stage | Allocations, each counted once (bytes) | Exact at |
+  |---|---|---|
+  | T1 (state case) | S_T1 × the T2 ledger on its free set; per iteration with friction, 16·d² + 8·d·n_g (influence, coupling, unit forces), plus `solve_dense`'s matrix clone 8·d² and its cumulative pivot-tail allocations, ≤ 8·d² (frame_kernel `lib.rs:2000`, `:2025`); E_conf × the K-D5 evaluation's buffers (not derived here, so held under A_conf) | P0 (A_conf enforced) |
+  | T2 | 152·n_g² + 16·n_f² + O(nnz) (rounding records) | P0 |
+  | Pencil | K, M 16·n_f²; entries 24·(nnz_l(K) + nnz_l(M)); labels, maps and p_k O(n_g) | P0 |
+  | T3 | R 8·n_f²; work 8·n_m·n_f; census factor 8·m²; O(n) vectors | P0 |
+  | T4 | roots 8n; p screened records; one O(n_f·L) row sum at a time | S1-band |
+  | T5 | ids, frequencies, clusters O(n_c) | S2 |
+  | T6 | ≤ 16·n_r·n_f (shapes and below-normal lists), plus one `ExactSum` per call | S2 |
+  | T7 | about 4.8 KB per element (`Mapped` rows and the 12 × 12 dd matrices for K and M); the two `BTreeMap`s, ≤ (80 + 8·L) per re-formed position; formed-entry accumulators, (48 + 8·L) per stored entry; the off-pattern map; 2 × n WideDd | S2 at L_A |
+  | T8 | transient 2·n_f·(48 + 8·L) + 16·L per pair; retained n_c records | S2b |
+  | T9 | `ShiftPencil` 32·P_u + adjacency 8·(n + 2P_u) + merged entries 24·(nnz_l + n) (transient); **per candidate, cumulative** 24·P_u + 16·P + 40·n (formed list, profile, its clone in `factorize_ldlt`, first columns and work, observation vectors) (`sturm.rs:50`) | S2 (symbolic P) |
+  | T10 | **every product retained**: n_r·n_f·(24 + 16·L) + 24·n_r; transient rows n_f·(48 + 8·L) per shape | S2b |
+  | Outcome | shapes 8·n_r·n_g; computed evidence O(n_c); mass entries 24·P_M | S2 |
+  | T11 | two value trees and two texts | S3 |
+
+  - *Illustration at n_f = 2,994* (P0, L_A = 202, dense Sturm profile): **the live set plus one transient per stage** ≈ **3.8 GiB**, under the provisional 6 GiB. It is not the no-reuse cumulative; see the correction above. The parts are:
+    - T2: 1,441 MiB;
+    - pencil: 137 MiB;
+    - T3: 205 MiB;
+    - T9: 487 MiB at the dense profile;
+    - T7: 222 MiB;
+    - T10: 614 MiB;
+    - the projection estimate: 768 MiB;
+    - the rest: under 30 MiB.
+  - The L_A and dense-profile terms shrink at S2 and S2b.
+  - **Still outside repository source, and held by a stated allowance:**
+    - allocator size-class rounding and metadata (macOS libmalloc);
+    - the value trees' per-node size (serde_json's `BTreeMap` layout at the pinned toolchain). S3 checks a per-row bound derived from that layout, which is an open item.
+  - The observed phase fractions (0.67 / 0.56 / 0.49 at 480 / 960 / 1,920) are calibration evidence only, not a fitted constant. At 1,920 the entry's faults exceed its peak by 95 MiB, so in aggregate some memory was returned and faulted again. 96·n_g² stays a live formula only.
+- *The projection guard under the approved structure.*
+  - At S2, the early check uses B_doc with template bounds. Its "before normalization" placement holds: N, n_c, n_cl, n_r and P_M are the actual dimensions once cluster completion has run, and normalization changes values only. **The widths stay bounded: the 25-byte allowance covers normalization's change.**
+  - S3 repeats the check with exact strings and the exact Sturm count, before the tree is allocated.
+  - Rows and bytes are checked u128, and nothing is truncated.
+  - B_doc stays **proposed** until its four items are checked independently:
+    1. the transcription of `document.rs`;
+    2. the format widths (`{:e}` ≤ 24 B and the `{:?}` forms);
+    3. the canonicity of the options;
+    4. refused documents.
+
+##### Remaining production pin choices (2026-11-04)
+
+| Choice | Status | Evidence that exists | Decision needed, from whom | Blocked by |
+|---|---|---|---|---|
+| τ_r (residual threshold, A2) | **adopted, 2⁻³⁰**, as an engineering measured-residual demotion criterion (Agent 0, 2026-11-04) | §5.3.7's targeted A2 evidence | focused text, source and regression confirmation | the production instance (with A3) |
+| A3: τ_μ, c_μ, κ_μ, c_f | **decided (Agent 0, 2026-11-05): τ_μ = 2⁻⁵³, c_μ = 1, κ_μ = 10, c_f = 64**, as explicit retention and screening criteria; K2 approved (test-only counters) | §5.3.7's μ/μ_max table, its A3 proposal and "A3, as decided". At 1,920, 640 genuine top modes were not retained (hard cut κ_μ·δ_q = 2.13·10⁻¹²·μ_max, or failed band recovery; the record does not split them), so the census is unresolved, a recorded experimental capability limit (D5) | none for the values; the production instance's source, regression and D3 | K2's implementation; no parameter recaptures the 1,920 top modes (K3, K4 not adopted) |
+| A1 (τ_t, the identity tolerance, g_max, τ_e, τ_m, s_max, gap positions, offsets, the QL limit) and A2's κ_c, κ_s, τ_o, δ_c | approved or adopted as criteria (Agent 0, 2026-11-04) | §5.3.7 | none, beyond the joint production instance | nothing among the pins (A3 decided 2026-11-05); τ_r (2⁻³⁰) and the A3 criteria take their focused source and regression confirmation with the instance |
+| O-4 work budget: W_budget, the allotments, the user-facing cap | proposed form above; no coefficient | the stage-1 and 1,920 weights (table above) | the reviewed resource budget and the cap across adopted families; Agent 0 | the undetermined weights above (w_band, w_scale, w_limb, kernel above 1,920, T1/K-D5, dense Sturm, arcs), the S1 kernel hook and the S2/S2b reordering, priced changes with D3 |
+| O-4 memory budget: ρ, B₀ and the ceiling | proposed form above | the ledger; the observed brackets at 480 / 960 / 1,920 | ρ (1 proposed), the allowance for allocator rounding and library layout, and the ceiling beyond the provisional 6 GiB; Agent 0 | the stated allowance (outside repository source); A_conf and the K-D5 buffers for state cases |
+| Projection limits: R_max, B_max, any in-memory multiple | structure approved; no limits | #59's custody limit (64 MiB displayable); the projection estimates | the limits; Agent 0 with I3b | #59 merging; I3b |
+| B_doc | proposed | 1,691 fixture rows and 10 headers within the bound | an independent check of its four items; then Agent 0's adoption | that check |
+| The full reader's scope (§5.3.9 item 4) | open | §5.3.4 | acceptance and wiring into the verdict path; Agent 0 | I3b |
+| Recording policy, O-8 (§5.3.9 item 5) | open | none | task record, store and version; Agent 0 with DEL-00-06 | the decision |
+| D3 (§5.3.9 item 6) | **registered:** DEL-04-08 §8.52 merged with I3a (PR #113, `08bfdfdaf`; coefficient-equal, AC-004 recorded in that PR) | §8.52 | none for I3a; later priced changes (the production instance, the O-4 guard stages) take their own D3 | — |
+| Independent numerical review of I3a (§5.3.9 item 6) | open; a separate obligation from D3 | the reviews of the slices so far (PR #33 and the I3a rounds) | an independent numerical review of the I3a result family and readers; Agent 0 to commission | its scheduling |
+| Subject census (§5.3.2, §5.3.10) | not implemented; required before admission | §5.3.2's design | `binding.subject_census`, the stated subject rule in both readers, regenerated fixtures, corpus cases for a missing arc, body, straight member and support; a separate small slice, Agent 0 | the slice |
+| Bessel (§5.3.9 item 7) | temporary capability limit | §5.3.4 | option B, or other common-M evidence; Agent 0 | that evidence |
+| Discretization factor c (O-5) | not adopted | the f_e observations (O-5) | whether to adopt `MODAL_MASS_DISCRETIZATION_COARSE`; M1a owner | its benchmark |
+
+##### Agent 0's decisions on the source guard (2026-11-04, on `8d02280c7`)
+
+- **Approved for bounded implementation: the guard FORM and the staged placement P0, S1, S2, S2b and S3.** No numerical weight, allotment or ceiling is adopted.
+- **What W is.** W, a checked u128 sum of picosecond weights × counts, is a calibrated WEIGHTED-WORK budget in nominal time units. It is not a runtime guarantee.
+- **What the counts and allotments include:** the state case and the static confirmation, before their work; every computed and recovered pair; the massless census; and refused outcomes. Nothing is dropped when a quantity is unresolved.
+- **When each allotment is checked.** QL-rotation and band-pair allotments are checked before the expensive iteration or scaling. The confirmation allotment is checked before each unbounded formation evaluation. A refusal refuses the whole operation cleanly, with no partial authority.
+- **The S2 symbolic-RCM move** keeps exactly the old ordering, selection and diagnostics, and accounts for its own cost.
+- **Bounds and allotments.** P0 may use conservative bounds, and later exact checks refine them. A bounded projection allotment is reserved, rather than allocating or charging a full-spectrum document unconditionally when the request is small. A completed cluster is never truncated.
+- **Refusal names approved** as proposed, in the existing MODAL namespace. Readers and outcomes distinguish a numerical refusal, a resource-budget refusal and a counter overflow.
+- **The conservative-reviewed-weight-or-refuse-a-nonzero-term rule is approved** for the experimental and production admission guard, as an honest capability boundary.
+  - It is NOT an accepted release limitation, and it is no permission to drop arcs, bodies or state cases permanently.
+  - A concrete conservative weight needs an independent basis, and a guessed weight is never called a hard bound.
+  - The release target's adopted families and the ~3,000-DOF dense goal stay. Budget fit against usability is weighed without a new benchmark programme.
+- **Not adopted by this decision:** the user cap, the weights, the stage allotments, R_max, B_max, the memory ρ and the ceiling.
+  - ρ = 1 over cumulative REQUESTED bytes is no guarantee of process RSS or the allocator's peak. The allowance for rounding, layout, stack, runtime and result custody has to be covered explicitly and reviewed.
+- **B_doc stays proposed** until its four items close, refused documents included. The 25-byte allowance is verified against the actual std format paths, not a sample width.
+- **Coordination.** The S1 `modal_eigen` change and the static-confirmation allotment seams are coordinated with RT-A3 P and the certificate changes before any shared write. The modal resource budget may not silently change any ordinary static output.
+  - **RT-A3's post-P shape (2026-11-04; P at `claude/rt-a3-p` `7d320980c`, under review, may still change).** Writes to NI `confirmation.rs`, `structural_adapter.rs` and NI `lib.rs` are held until P integrates.
+    - **Solves are counted separately from factorizations.**
+      - Sparse mode: one factorization per iterate and k+1 completions (k unit loads plus the final), plus one legacy DEC-050/053 observation factorization on the final solve.
+      - Dense mode: k+2 full solves, each with its own factorization.
+      - The all-active recovery trial: a separate step with one factorization (k = 0).
+      - Confirmation: one gate factorization per converged state.
+      - T1's term therefore becomes separate solve and factorization counts per mode, replacing "≤ (I_as+1)·(2+d)+1 solves".
+    - **Hook points**, neither inside evidence arithmetic:
+      - the solve count at `LoopSystem::solve_iterate`, the single funnel for every loop solve in both modes;
+      - the confirmation allotment inside `ConfirmationContext::{evaluate_at, reaction, displacement}`, or at their call sites in `confirmation.rs`, refusing before each evaluation. Entry is `confirm_converged_state`, then `confirm_with_applied`, then the dense or sparse `confirm_with_formation_check`.
+    - **Registration:** hooks there require restating the R2/option-(c) source pins and the B7a adapter pin.
+    - **R-3's G2** keeps its own exact-work allotment in `scrutinize_gaps`. The modal counter stays out of it, and the order of refusal between the two is defined. If R-3 routes per-iterate checks through `ConfirmationContext`, the modal allotment is scoped to post-convergence confirmation.
+- **Sequence.** The priced closure and D3 order stays #105/B → PF1b → I3a; an isolated, pre-registered implementation is fine. No measurement window, native enablement or recording-policy adoption follows.
+- **A3 was then held** (decided 2026-11-05, §5.3.7 "A3, as decided"). The next step was a minimum concrete proposal for a resolution and screening criterion: the exact roles of τ_μ, c_μ, κ_μ and c_f, and their known failure behaviour.
+  - τ_μ is not tightened to recapture the 1,920 high modes.
+  - The general nullspace is not truncated.
+  - No resolved finite count is claimed.
+  - Any eigen-kernel change it needs stays clearly separate from adopting parameters.
+
+#### 5.3.9 Admission: what stays disabled, and why
+
+Public engineering-result admission and every UI stay **disabled**. They remain closed until each of these closes:
+1. **Production parameters:** one complete instance, which needs **A1, A2 and A3 all closed** (§5.3.7): A1's approved criteria, A2's adopted criteria (κ_c, κ_s, τ_o, δ_c, and τ_r = 2⁻³⁰, 2026-11-04), and A3's criteria (τ_μ = 2⁻⁵³, c_μ = 1, κ_μ = 10, c_f = 64, 2026-11-05). All three are selected. The instance may now be implemented as a bounded explicit constructor with no `Default`, reviewed with its source, regression and D3 under DEC-026 (O-6, D-TOL). Selecting the parameters enables nothing: admission still waits for every other item here. Until the instance is reviewed, every document carries a labelled test-local set.
+2. **Units:** the mass-coupling family is adopted (`mass_length_per_rotation`, §5.3.5; D-01 engineering extension 2026-11-04), the equilibrated-basis list is closed and empty, and λ is not published (Agent 0, 2026-11-04). The two D·M·D magnitudes are `time_squared` (option (a)), so units pass for current documents. Units passing closes none of the other conditions here.
+3. **Resources:** O-4 measured in stages (§5.3.8: stage 1's small points first, any larger stage proposed from its measured phase costs and separately authorized), then D-k's work guard, the dense modal path's counted memory peak and the projection's own size guard built from reviewed measurements. Stage 1 alone closes none of them.
+4. **The full reader's scope:** Agent 0's acceptance that the reader re-derives what the payload allows and not K, the re-formation or the eigen-solve, and the reader wired into the verdict path that a native consumer uses.
+5. **Recording policy:** O-8 (task record, store, version) decided; until then documents are transient.
+6. **D3:** I3a's priced change registered (DEL-04-08), and an independent numerical review of I3a. The pricing preparation at `372a16aa5` stopped (exit 5, every point incomplete) at 8 arguments with no class, all at I3a sites in `modal/document.rs` and `modal/tests_document.rs`. The O-4 measurand and the A2 and A3 observation tests add none (§5.3.8). **The D3 is proposed at DEL-04-08 `retained-pricing-rules.md` §8.52**, on PF1b's §8.51 head with #109 (priced source `687fafdca`). It adds MODAL-ID classifications for those arguments and corrects three by-name classes below the DOF-id and mode-ref bounds. It re-pins B7a's `UNITS_SHA` for the two unit-catalog dimensions. All 1,602 coefficients are equal, so §8.51's block is kept. It merged with I3a in PR #113 (`08bfdfdaf`), with AC-004 run on its binary and recorded in that PR. The independent numerical review of I3a remains open and is separate from the D3.
+7. **Bessel (temporary capability limit, not an accepted release limitation):** under Agent 0's interim contract (§5.3.4), Bessel passes only where the readers establish it, and is otherwise unresolved, which confers no `fully_validated` status. Closing it needs option B, common assembled-M Gram evidence, or another justified common-M bound, reviewed by Agent 0.
+
+FR-SOL-016 stays partial (REQ-010; O-3's benchmark rights stay held), and the gap-support limitation (O-14 (a)) stands; neither is changed here, and no O-3 preview gate is added.
+
+#### 5.3.10 The next slice (proposed, not started)
+
+**I3b, the native worker and custody path,** after #59 (RT-U4 C1, native result custody) merges, or stacked on it at the hunk boundary agreed with the performance lane:
+- **No second job stack.** One modal job kind in the existing `SolveJobRegistry` (`apps/desktop/src-tauri/src/solve_jobs.rs`) and its same-executable worker (`solve_worker.rs`), through one public product entry that parses the request, runs `run_modal_dense` and projects the document (a priced `lib.rs` change with its D3).
+- **Custody.** The document's bytes are held natively as #59's `HeldResult` with `ResultCustody::Native` (its `solve_jobs.rs` hunks adding the custody constants and `HeldResult`/`ResultOrigin`); the webview receives the reader's verdict and paged projections (the modes table, the header lines, one mode's shape), never the full bytes.
+- **No header shortcut.** Health, standing and admission shown come only from `open_pipe_stress_modal_result::read_modal_result` run natively on the held bytes with the bound request, never from a transport header or the document's own `standing` member.
+- **Guards first.** The projection's size guard (§5.3.8) runs before the document is formed, against #59's custody limits.
+- **The subject census (§5.3.2), a separate small slice before admission:** the `binding.subject_census` record, the stated subject rule for both readers, the regenerated fixtures and the corpus cases for a missing arc, body, straight member and support.
+- **Still needed as production evidence:** the pins (§5.3.7), the units extension (§5.3.5), the O-4 measurement, the size-guard coefficients from that window, a native memory-fit observation of the held document under #59's custody, and one native smoke of a modal request. UI (M3) follows I3b.
 
 ---
 
@@ -645,14 +1805,14 @@ Items that reach the product or data boundary are marked **for Agent 0** in §9.
 | O-1 | Independent Codex review of the W/a basis (§2.3), as Agent 0 directed, and of this design. Round 1 (at `a640e10e50`) and round 2 (at `d3c54e4f72`) are answered in this revision; the next round is pending | Manager, then Agent 0 | Before M1a starts |
 | O-2 | **Settled (D-u, Agent 0, 2026-10-31):** an independent Type 2 verifies a transcription against its source and records agent verification, naming reviewer and source; never acceptance. Unclear rights hold for the owner | — | — |
 | O-3 | **For the owner (data boundary):** the review of each report held for uncertain rights (§4.4; `docs/IP_AND_DATA_BOUNDARY.md`). Nothing is transcribed from a held report | Owner | At acquisition of each report |
-| O-4 | The work budget of the dense guard (§3.2), set by measurement. **Status (I2b-1): unmeasured and unpinned.** No work guard is applied; the operation estimate is recorded as a formula only, and the memory side uses the static guard (§3.2, as built). Measurement needs a separate, bounded, exclusive authorization | M1b | M1b |
+| O-4 | The work budget of the dense guard (§3.2), set by measurement. **Status (I2b-1): unmeasured and unpinned.** No work guard is applied; the operation estimate is recorded as a formula only, and the memory side uses the static guard (§3.2, as built). Measurement needs a separate, bounded, exclusive authorization. **I3a:** the 60-minute window proposal was not approved and is withdrawn; §5.3.8 holds the stage-1 plan and the maintained, ignored phase measurand. **Stage 1 ran once, 2026-11-04** (`window-20261104T120707Z`, binary `f7c87223…` at `48b3cc692`): 10 of 10 processes valid on the normal path, release, n_f = 60–960 at `mode_count` 10, all values TEST-LOCAL; analysis in §5.3.8, "Stage 1 results". **Still unpinned; no guard adopted.** Proposed for Agent 0 there: an observed-scope work guard (n_f ≤ 960 and n_r ≤ 10, within the restricted single-straight-run family only) or none yet; one more window at n_f = 1,920 (both passes, d = 120 s), which extends only that family's extent; 3,072 (entry only) only if the ~3,000-DOF target is kept and the slower 1,920 process takes ≤ 45 s (8× rule), or if Agent 0 amends the rule; and the projection guard's structure, from a *proposed* format bound with named open items (limits with I3b). The memory constant waits for the 1,920 peak. The observed 960 peak (150.4 MiB) lies between the source's largest live set (95.0) and its no-reuse cumulative (194.2, both with baseline). **Agent 0, 2026-11-04:** no production work guard comes from one family. The ~3,000-DOF goal holds across adopted families, priced from source plus calibration, with a combined preflight that refuses before the state-case solve. 96·n_g² is a live formula only. B_doc stays proposed. The projection-guard structure is approved without limits. **The n_f = 1,920 calibration ran once** (`window-20261104T131510Z-nf1920`): both processes valid, 55.3 s, 542/589 MiB. Band recovery and the census became active (640 pairs screened, census Unresolved under the test-local τ_μ), so dense_solve grew with slope 4.3. 3,072 is not approved. The ten low modes there are reportable only under the accepted lower-gap count and completed-cluster premises; the unresolved finite census neither invalidates that path nor becomes whole-spectrum proof. **Proposed (not adopted):** §5.3.8's source resource guard, a term-by-term cost model with a preflight before the state-case solve and exact stage checks, and the remaining production pin choices | M1b | M1b |
 | O-5 | The discretization factor c (§2.6), derived by benchmark. **Status (I2b-1): not adopted.** f_e is computed per straight member and reported with f_e/f_max; no `MODAL_MASS_DISCRETIZATION_COARSE` decision is made. Test-local observations on the SEC-A Rayleigh cantilever (L = 6 m, N = 1, 2, 4, 8) through the product path, f_e/f_n against the frequency error from the continuum: 0.64 → 0.58, 1.2 → 0.22, 2.9 → 1.4·10⁻², 4.0 → 8.5·10⁻³, 5.8 → 7.7·10⁻³, 11.9 → 2.2·10⁻³, 16 → 1.2·10⁻³, 23 → 6.1·10⁻⁴; these match the frozen `fe_convergence.json` errors to 10⁻⁵ relative | M1a | M1a |
-| O-6 | **Measured basis so far (I1, test-local constants, not yet pinned):** over 352 well-separated published shifts of `f1_modal` whose raw counts were all right, e_b·ν ranged 1.8·10⁻¹⁵ to 2.1·10⁻⁴ and the separation ratio 5.7·10³ to 5.6·10¹⁴; over 34 factored binary64 miscounts, e_b·ν ≥ 35.8 and the separation ratio ≤ 6.2·10⁻³. η ≤ 1.44·10⁻¹³ on every dense mode of 11 class (a) cases, actual eigenvalue error ≤ 0.85·e_λ there. The integrity tolerances, the residual threshold τ_r and the orthogonality tolerance (§3.4) and the identity tolerance (§2.5): measured, then pinned under DEC-026; the identity tolerance was measured in I2a (§2.5, largest relative discrepancy 5.45·10⁻¹⁶ nodal, 4.38·10⁻¹⁶ resultant) and stays experimental and unpinned (D-TOL). I2b-1 adds the product-path observations of §3.4 (as built), all test-local, nothing pinned. The algorithm parameters, recorded with their basis: the confirmation of τ_t (§1.5); δ_c, the growth-factor formula g, the growth limit g_max, the conditioning multiple κ_c and the estimator's iteration count, the separation multiple κ_s, the half-arc series switch point (§2.4), the candidate-shift sequence and s_max (§3.4, M1b); the cut-off sizing offsets ε_s (§1.4), the block size limits, restart count and breakdown threshold (§3.3, M2) | M1a, M1b, M2 | As each lands |
+| O-6 | **Measured basis so far (I1, test-local constants, not yet pinned):** over 352 well-separated published shifts of `f1_modal` whose raw counts were all right, e_b·ν ranged 1.8·10⁻¹⁵ to 2.1·10⁻⁴ and the separation ratio 5.7·10³ to 5.6·10¹⁴; over 34 factored binary64 miscounts, e_b·ν ≥ 35.8 and the separation ratio ≤ 6.2·10⁻³. η ≤ 1.44·10⁻¹³ on every dense mode of 11 class (a) cases, actual eigenvalue error ≤ 0.85·e_λ there. The integrity tolerances, the residual threshold τ_r and the orthogonality tolerance (§3.4) and the identity tolerance (§2.5): measured, then pinned under DEC-026; the identity tolerance was measured in I2a (§2.5, largest relative discrepancy 5.45·10⁻¹⁶ nodal, 4.38·10⁻¹⁶ resultant) and stays experimental and unpinned (D-TOL). I2b-1 adds the product-path observations of §3.4 (as built), all test-local, nothing pinned. The algorithm parameters, recorded with their basis: the confirmation of τ_t (§1.5); δ_c, the growth-factor formula g, the growth limit g_max, the conditioning multiple κ_c and the estimator's iteration count, the separation multiple κ_s, the half-arc series switch point (§2.4), the candidate-shift sequence and s_max (§3.4, M1b); the cut-off sizing offsets ε_s (§1.4), the block size limits, restart count and breakdown threshold (§3.3, M2). **I3a:** production-pin proposals with their derivations and margins are §5.3.7. **Agent 0, 2026-11-04:** A1 approved as numerical acceptance and algorithm criteria, not a domain-wide error theorem (τ_t, the identity tolerance, g_max, τ_e, τ_m, s_max, the gap positions, the offsets and the QL limit); A2 decided in part on 2026-11-04 (κ_c, κ_s and τ_o adopted as engineering acceptance and demotion criteria, δ_c as the computed-cluster grouping convention; τ_r = 2⁻³⁰ adopted later that day as a measured-residual demotion criterion); A3 decided 2026-11-05 (τ_μ = 2⁻⁵³, c_μ = 1, κ_μ = 10, c_f = 64, as explicit retention and screening criteria). With all three closed, the production instance may be built as a bounded explicit constructor; it pins nothing until reviewed. The targeted A2 evidence and the A3 μ/μ_max table are in §5.3.7; nothing is pinned | M1a, M1b, M2 | As each lands |
 | O-7 | Where the desktop keeps the remembered extraction bound per project (project store or desktop settings), and whether that needs a store version under the one-version rule. It is persistence, so it takes targeted checks | M3 | M3 design |
-| O-8 | Adding `product_preview_modal_v1` to `results.v0.3` and the `modal` run kind to `analysis_run.v0.3`: whether they are additions within the current versions or need new versions under the one-version rule (DEL-00-06's contracts) | M1b, with DEL-00-06 | M1b design |
+| O-8 | **Superseded proposal; open policy (I3a, Agent 0's I3 release).** The earlier plan added `product_preview_modal_v1` to `results.v0.3` and a `modal` run kind to `analysis_run.v0.3`. Neither is implemented or adopted: the modal result is its own family (§5.3), and `results.v0.3`, `analysis_run.v0.3` and the mechanics envelope are unchanged. Open, and unadopted: the joint task record, a store, the version policy for a stored modal result and recording support. A result-family-only design proceeds without them; no exact collision with an adopted policy was found | Agent 0, with DEL-00-06 | Before any recording or store work |
 | O-9 | A concentrated-mass field and component rotary inertia (W-17), entering self-weight and modal together | W-17 lane | After F1's core |
 | O-10 | M4 (Timoshenko mass, on either route), M6 (mass-point helper); M5 moved into M1b (D-s) | Later slices | After F1's core |
 | O-11 | One mass basis: PF seismic generation and self-weight (finding R5), with the deferred PF seismic-mass alignment to D-5 | Remaining items (`docs/COMPLETENESS_MAP.md` §4.3) | Not in F1 |
-| O-12 | The unit-catalog families of §1.5 (frequency, angular frequency, rotation per length, length per rotation, rotational generalized mass in kg·m²·rad⁻²; carried by model document 0.9.0's S1), with their D3 re-registration | DEL-02-02 | Before M1b |
+| O-12 | The unit-catalog families of §1.5 (frequency, angular frequency, rotation per length, length per rotation, rotational generalized mass in kg·m²·rad⁻²; carried by model document 0.9.0's S1), with their D3 re-registration. **Landed** with 0.9.0's S1. **I3a:** `mass_length_per_rotation` (kg·m·rad⁻¹) is added for the translation–rotation mass entries, and λ is not published (Agent 0, 2026-11-04; D-01 engineering extension 2026-11-04). The equilibrated-basis magnitudes are traced and assigned, and the closed list is empty (§5.3.5). `time_squared` (s²) is added for the two D·M·D magnitudes (option (a)) | DEL-02-02 | Before public admission |
 | O-13 | **A later option: rigorous eigenvalue enclosures.** The checks of §3.4 are estimates under premises. Enclosures would need interval or exact arithmetic: interval-verified inertia counts (or exact rational LDLᵀ for small models), and then Kato–Temple or Lehmann bounds across a gap that those counts establish, on a pencil whose formation is itself enclosed. Kato–Temple across gaps between *computed* eigenvalues proves nothing if one is missed (K = I, M = diag(1, 2, 3): with μ = 2 missed, the computed vector (cos t, sin t, 0) has a Kato–Temple bound of sin²t·cos²t / (2 − sin²t) against a true error of sin²t). Codex's round-2 witnesses show that the binary64 versions of these steps do not give enclosures. Any such option is a new commitment, outside F1's | Later change | Not in F1 |
 | O-14 | **I2b-2's stated limits.** (a) Gap supports: every model with one is refused, since the static path qualifies and confirms no gap state; required for criterion 1 and owned by **RT-A3 R-3** (§1.3). (b) **Closed** (Agent 0, 2026-11-02): friction inactive (its normal does not bear) is free, as the static path treats it (`prescribed_displacement_for_state`), with its normal support following its own state; §1.3's table has its row, admission is unchanged, and a solved, confirmed case matches its linear twin. Only an explicit normal that is not positive confirms; a derived normal that does not bear stays `NotEstablished` in the static confirmation (`confirmation.rs:870`) and is refused. (c) A load/reference-state document with a nonlinear support waits on **RT-A3 S6** (nonlinear supports on load/reference-state documents, with connectors) | RT-A3 for (a) (R-3) and (c) (S6) | (a), (c) when R-3 and S6 land |

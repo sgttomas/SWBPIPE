@@ -20,6 +20,7 @@ use crate::dd::WideDd;
 use crate::exact::{ExactSum, Term};
 use crate::matrix::SymmetricMatrix;
 use crate::reformation::ReformedPencil;
+use crate::workspace::{reset_rows, ProductWorkspace};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum OrthogonalityError {
@@ -95,21 +96,23 @@ pub fn m_orthogonality(
     let n = mass.dimension();
     check_dense(PencilMatrix::Mass, mass).map_err(OrthogonalityError::PencilRangeUnsupported)?;
     check_vectors(n, vectors)?;
-    let products: Vec<Vec<Vec<Term>>> = vectors
-        .iter()
-        .map(|v| {
-            (0..n)
-                .map(|i| {
-                    let mut row = ExactSum::new();
-                    for (j, &vj) in v.iter().enumerate() {
-                        row.add_product(&[mass.get(i, j), vj]);
-                    }
-                    row.terms()
-                })
-                .collect()
-        })
-        .collect();
-    from_products(vectors, &products)
+    // One accumulator and one scratch vector for the whole call, reset for
+    // every row and every bilinear form.
+    let mut workspace = ProductWorkspace::default();
+    let mut products: Vec<Vec<Vec<Term>>> = Vec::with_capacity(vectors.len());
+    for v in vectors {
+        let mut shape = Vec::with_capacity(n);
+        for i in 0..n {
+            let row = &mut workspace.sum;
+            row.reset();
+            for (j, &vj) in v.iter().enumerate() {
+                row.add_product(&[mass.get(i, j), vj]);
+            }
+            shape.push(row.terms_with(&mut workspace.limbs));
+        }
+        products.push(shape);
+    }
+    from_products(vectors, &products, &mut workspace)
 }
 
 /// Check 3 on the re-formed M̂: M̂φⱼ element by element, exactly
@@ -118,12 +121,24 @@ pub fn m_orthogonality_reformed(
     pencil: &ReformedPencil,
     vectors: &[&[f64]],
 ) -> Result<MOrthogonality, OrthogonalityError> {
-    check_vectors(pencil.dimension(), vectors)?;
-    let products: Vec<Vec<Vec<Term>>> = vectors
-        .iter()
-        .map(|v| pencil.mass_product_exact(v).iter().map(ExactSum::terms).collect())
-        .collect();
-    from_products(vectors, &products)
+    let n = pencil.dimension();
+    check_vectors(n, vectors)?;
+    // M̂φⱼ in the pencil's workspace rows (reset for every shape, shared with
+    // the residual stage); every product's exact terms are retained, each
+    // row's at exact capacity.
+    pencil.workspace().with(|workspace| {
+        let mut products: Vec<Vec<Vec<Term>>> = Vec::with_capacity(vectors.len());
+        for v in vectors {
+            let rows = reset_rows(&mut workspace.rows, n);
+            pencil.mass_product_into(v, rows);
+            let mut shape = Vec::with_capacity(n);
+            for row in rows.iter() {
+                shape.push(row.terms_with(&mut workspace.limbs));
+            }
+            products.push(shape);
+        }
+        from_products(vectors, &products, workspace)
+    })
 }
 
 fn check_vectors(n: usize, vectors: &[&[f64]]) -> Result<(), OrthogonalityError> {
@@ -149,16 +164,18 @@ fn check_vectors(n: usize, vectors: &[&[f64]]) -> Result<(), OrthogonalityError>
 fn from_products(
     vectors: &[&[f64]],
     products: &[Vec<Vec<Term>>],
+    workspace: &mut ProductWorkspace,
 ) -> Result<MOrthogonality, OrthogonalityError> {
     // φᵢᵀ(Mφⱼ) summed exactly from the exact terms of Mφⱼ, then rounded
     // once: no contribution is lost before the cancellation that a pair of
-    // orthogonal modes produces.
-    let bilinear = |i: usize, j: usize| -> WideDd {
-        let mut sum = ExactSum::new();
+    // orthogonal modes produces. One accumulator, reset for every form.
+    let mut bilinear = |i: usize, j: usize| -> WideDd {
+        let sum: &mut ExactSum = &mut workspace.sum;
+        sum.reset();
         for (&x, terms) in vectors[i].iter().zip(&products[j]) {
             sum.add_terms_product(terms, &[x]);
         }
-        sum.to_wide()
+        sum.to_wide_with(&mut workspace.limbs)
     };
     let mut roots = Vec::with_capacity(vectors.len());
     for mode in 0..vectors.len() {

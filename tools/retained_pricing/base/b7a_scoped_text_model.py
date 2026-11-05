@@ -14,7 +14,10 @@ UNITS = 'core/units/src/lib.rs'
 # m/rad, kg*m^2/rad^2 and display units), conversions and tests. UnitError's Display is unchanged; the longest dimension
 # name stays thermal_expansion_coefficient (29 B, 29 -> 34 names) and an unknown symbol is the authored one (IN128), so
 # the unit-conversion message keeps its 600 B class. Catalog lookups iterate a static table and allocate nothing.
-UNITS_SHA = '5a412c57ca3bdc1d150ff580354e709355f442d89971a2f7aff8b575c7e39596'
+# DEL-04-09 I3a D3 (§8.52): mass_length_per_rotation (kg*m/rad, lb*in/rad, lb*ft/rad) and time_squared (s^2) add two
+# dimensions (34 -> 36 names) and four units, as table arms and static entries only; UnitError is unchanged, the longest
+# dimension name stays thermal_expansion_coefficient (29 B) and the longest symbol lb*in^2/rad^2 (13 B).
+UNITS_SHA = 'e5033f832e86596970191b3e3b49824b98a6ba04ab3eae4586ce906e4c8fc75d'
 PP = 'core/product_physics/src/'
 RE = 'core/reporting/result_export/src/'
 # B7b: the snapshot lines of the bound sites (B7a 3e89c23ea1 values in comments).

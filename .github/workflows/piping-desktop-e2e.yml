@@ -357,6 +357,37 @@ jobs:
         run: python3 tools/software_workflow/result_cache.py reuse --suite numerical --shard "${{ matrix.shard }}" --record "${{ runner.temp }}/verified-numerical-${{ matrix.shard }}/result.json"
       - uses: dtolnay/rust-toolchain@1.97.1
         if: steps.verified.outputs.cache-hit != 'true'
+      # Runner housekeeping (Agent 0, 2026-11-04). The physics shard's test build fills the hosted runner's disk
+      # ("No space left on device" on #113). This step runs only on GitHub-hosted Linux and only when the shard builds,
+      # and it acts only on the physics shard. It removes three preinstalled SDKs that this job never uses (.NET, the Android SDK and GHC).
+      # The paths are fixed literals; a missing one is normal, and a failed removal fails the step. The checks, flags,
+      # profile and tests are unchanged.
+      - name: Free runner disk for the physics build (GitHub-hosted Linux only)
+        if: steps.verified.outputs.cache-hit != 'true' && runner.os == 'Linux' && runner.environment == 'github-hosted'
+        timeout-minutes: 5
+        shell: bash
+        env:
+          SHARD: ${{ matrix.shard }}
+        run: |
+          set -euo pipefail
+          # The shard is tested here, not in `if`, so no step condition names matrix.shard
+          # (test_numerical_matrix_keeps_all_shards_and_gates_selected_coverage). The other shards do nothing.
+          if [ "$SHARD" != physics ]; then echo "no housekeeping for shard $SHARD"; exit 0; fi
+          if [ "${RUNNER_OS:-}" != Linux ] || [ "${RUNNER_ENVIRONMENT:-}" != github-hosted ] || [ "${GITHUB_ACTIONS:-}" != true ]; then
+            echo "refusing: not a GitHub-hosted Linux Actions runner" >&2
+            exit 1
+          fi
+          df -h /
+          for d in /usr/share/dotnet /usr/local/lib/android /opt/ghc; do
+            if [ -e "$d" ]; then
+              sudo rm -rf -- "$d"
+              if [ -e "$d" ]; then echo "could not remove $d" >&2; exit 1; fi
+              echo "removed $d"
+            else
+              echo "absent $d"
+            fi
+          done
+          df -h /
       # Shared dependency cache contract: docs/CI_SELECTION.md.
       - name: Restore main-scoped numerical build dependencies
         if: steps.verified.outputs.cache-hit != 'true'
@@ -395,7 +426,10 @@ jobs:
     if: needs.selection.outputs.python_mode == 'full'
     runs-on: ubuntu-latest
     # The initial import selects the complete Python suite on a cold runner.
-    timeout-minutes: 90
+    # Execution budget (Agent 0, 2026-11-04): 90 -> 120 min. The same 13,039 tests took 64 min on one hosted runner and
+    # over 90 min (+35% worker time, a broad slowdown) on two others (#113), so 90 left no margin. The tests,
+    # workers, selection and sharding are unchanged.
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
         with:

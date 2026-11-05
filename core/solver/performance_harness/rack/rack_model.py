@@ -89,7 +89,8 @@ def label_of(entity_id: str) -> str:
 
 
 LEDGER_BASIS = ("observed on main at 7e061cf2e (model document schema of that revision) through the headless runner's "
-                "solve, sparse_interactive")
+                "solve, sparse_interactive; the nonlinear entries re-read after RT-A3 increment 4 (nonlinear supports "
+                "on EX) merged, on main at 2f2946eee")
 
 # -- invented inputs ----------------------------------------------------------------------------------------------
 SPACING = 1.5  # m, header and branch node spacing
@@ -141,22 +142,25 @@ PROFILES = {
         "route": "EX",
         "nonlinear": True,
         "min_nodes": BASE_NODES + BAY_NODES + 5,
-        "description": "criterion 9 nonlinear operating on the exact route: OPE (W + P + T); lift-off, friction and "
-                       "gap supports in their interim linear forms until EX admits nonlinear supports",
+        "description": "criterion 9 nonlinear operating on the exact route: OPE (W + P + T) with lift-off, friction "
+                       "and gap supports (admitted on EX since RT-A3 increment 4)",
         "timed": "OPE",
     },
     "nonlinear-pf": {
         "route": "PF",
         "nonlinear": True,
         "min_nodes": BASE_NODES + BAY_NODES + 5,
-        "description": "nonlinear-ex's interim twin on the pressure-free route: OPE (W + T) with lift-off, friction "
-                       "and gap supports, no pressure contract, regions or pressure",
+        "description": "nonlinear-ex's twin on the pressure-free route: OPE (W + T) with the same lift-off, friction "
+                       "and gap supports, no pressure contract, regions or pressure (pressure with nonlinear supports "
+                       "is nonlinear-ex's)",
         "timed": "OPE",
     },
 }
 
 # -- pending-family ledger ------------------------------------------------------------------------------------------
-NONLINEAR_DENSE_GUARD_NODES = 1775  # the first nonlinear-pf node count the dense-loop memory guard refuses
+# The first node count the dense-loop memory guard refuses; nonlinear-ex and nonlinear-pf share the supports, so the
+# restrained DOFs and the bound are the same for both.
+NONLINEAR_DENSE_GUARD_NODES = 1775
 TWIN_NOTE = ("admitted on the pressure-free route; omitted from nonlinear-pf so that the twin keeps nonlinear-ex's "
              "topology")
 LEDGER = [
@@ -175,34 +179,18 @@ LEDGER = [
      "waits_for": "RT-A3 reducer follow-on beyond initial 2a (own-region, tee-adjacent)",
      "profiles": ["linear-ex", "nonlinear-ex", "nonlinear-pf"],
      "note": f"initial 2a admits a plain collinear run, not this tee-adjacent target; nonlinear-pf: {TWIN_NOTE}"},
-    {"family": "nonlinear supports on the exact route (lift-off, friction shoe, gap)",
-     "target_form": "nonlinear lift_off UZ at rests i % 3 == 1; friction UX (mu 0.30, normal from the rest) at rests "
-                    "i % 12 in {2, 5, 8}; gap UY (5 mm, closes on positive displacement) replacing the guide's UY at "
-                    "guides i % 6 == 0 (nonlinear-pf's supports)",
-     "interim_form": "the linear forms: lift-off rests stay vertical supports, friction shoes are omitted, gapped "
-                     "guides keep their linear UY; the OPE solve is linear",
-     "refusal_code": "EXACT_PRESSURE_FAMILY_NOT_ADMITTED",
-     "waits_for": "RT-A3 increment 4 (nonlinear on EX)",
-     "profiles": ["nonlinear-ex"]},
     {"family": "lift-off friction shoe (friction normal from a one-way rest)",
      "target_form": "the friction shoe's normal_reaction_source names a one_way UZ rest at the same node",
      "interim_form": "normal_reaction_source names a linear vertical support UZ at the same node",
      "refusal_code": "NONLINEAR_FRICTION_NORMAL_SOURCE_INVALID",
      "waits_for": "RT-A3 S7 (lift-off friction shoe)",
      "profiles": ["nonlinear-ex", "nonlinear-pf"]},
-    {"family": "pressure on the nonlinear twin",
-     "target_form": "nonlinear-ex's pressure contract, regions and operating pressure",
-     "interim_form": "omitted: nonlinear-pf is pressure-free (no pressure_contract, regions, mill tolerance or "
-                     "corrosion allowance; E and G material)",
-     "refusal_code": "EXACT_PRESSURE_FAMILY_NOT_ADMITTED (nonlinear supports on EX)",
-     "waits_for": "RT-A3 increment 4 (nonlinear on EX)",
-     "profiles": ["nonlinear-pf"]},
     {"family": "nonlinear operating solve above about 1,760 nodes",
      "target_form": "the nonlinear OPE solve of the rack",
      "interim_form": "document emitted unchanged; the product refuses the solve before any case",
      "refusal_code": "NONLINEAR_DENSE_MEMORY_LIMIT_EXCEEDED",
      "waits_for": "RT-A3 stage P (nonlinear above ~1,760 nodes)",
-     "profiles": ["nonlinear-pf"],
+     "profiles": ["nonlinear-ex", "nonlinear-pf"],
      "min_nodes": NONLINEAR_DENSE_GUARD_NODES},
     {"family": "SAM: anchor movement on the end anchor, with dSAM",
      "target_form": "analysis_state.support_states[].boundary_motion (absolute_reference_displacement) on the end "
@@ -599,8 +587,7 @@ def build(profile: str, nodes: int) -> tuple[dict, dict]:
                          f"two end anchors' runs and every support family); got {nodes}")
     exact = spec["route"] == "EX"
     rack = Rack(nodes)
-    # On EX the nonlinear supports wait for RT-A3 increment 4: their linear interim forms are emitted.
-    nonlinear = spec["nonlinear"] and not exact
+    nonlinear = spec["nonlinear"]
     cases, combinations = load_cases(rack, profile)
     pipes = [{"id": p["id"], "label": label_of(p["id"]), "from": p["from"], "to": p["to"], "material": "material:RK-M1",
               "section_ref": f"section:RK-{p['section']}", "section": section_record(p["section"], exact),

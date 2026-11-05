@@ -28,7 +28,7 @@ Working Desktop Application Standard current target stage.
 **Current target stage - historical v0.1 R5 (= v0.3 §24 R6) exit criterion (advanced 2026-06-23 by
 `DEC-054`, after the conditional R4 target-stage gate in `D-27`).** Phase D/R4
 evidence was reviewed through
-`plans/VERIFICATION_2026-06-23_r4_exit_chain_refresh.md`
+`plans/VERIFICATION_2026-06-23_r4_exit_chain_refresh.md` (retired, in Git history at `3330e7108`)
 (`TP-R4-D9-EXITCHAINREFRESH-001`) and clean-head sweep
 `validation/evidence/sweeps/SWEEP_20260623T051552Z_16cca07f3b64.json`.
 The human project authority accepted the refreshed packet as a conditional R4
@@ -68,7 +68,7 @@ pending resolution. Later approved DAG versions are event-driven by a
 decomposition revision / SCA or another explicit governance rectification,
 not periodic. Canonical doctrine: the shared repo-root
 `docs/CYCLE_DRIVEN_RESOLUTION.md`. This project's adoption and rollout record:
-`plans/PLAN_2026-06-13_cycle_driven_resolution_doctrine.md`.
+`plans/PLAN_2026-06-13_cycle_driven_resolution_doctrine.md` (retired, in Git history at `3330e7108`).
 
 Guidance-surface correction rule, unchanged (applies to the decision register
 and the standing workplans under `loop/`): they are non-governing guidance
@@ -89,7 +89,7 @@ history at this path.
 ## Ruled workflow records
 
 - UI evidence posture (human-approved H4 amendment, 2026-06-11; draft basis
-  `plans/DRAFT_2026-06-11_H4_coordination_evidence_posture.md`) remains
+  `plans/DRAFT_2026-06-11_H4_coordination_evidence_posture.md`, retired, in Git history at `3330e7108`) remains
   binding on the workplan's validation step: user-visible desktop behavior
   changes default to Playwright e2e spec extensions; manual `SMOKE.md`-only
   evidence is the recorded exception; new React components land with unit

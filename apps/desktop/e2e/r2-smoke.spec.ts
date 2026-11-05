@@ -513,6 +513,11 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
     "target=support:S-100; direction=RX; unit=rad; rotation"
   );
   await expect(page.getByTestId("load-manager-create-combination-id")).toHaveValue("combination:C-300");
+  // No operand or factor is proposed (review r1 of #114): the person enters both.
+  await expect(page.getByTestId("queue-create-combination-intent")).toBeDisabled();
+  await expect(page.getByTestId("load-manager-create-combination-preview")).toContainText("term 1: not chosen: its load case");
+  await chooseVirtualTarget(page, "load-manager-create-combination-load-case", "load:L-100");
+  await page.getByTestId("load-manager-create-combination-factor").fill("1");
   await expect(page.getByTestId("load-manager-create-combination-preview")).toContainText(
     "op:load-manager-create-combination:C-300"
   );
@@ -570,6 +575,12 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await expect(page.getByTestId("load-manager-create-combination-term-heading")).toContainText(
     "combination:C-OPER-ALT"
   );
+  // No case or factor is proposed for a new term: the person enters both.
+  await expect(page.getByTestId("load-manager-create-combination-term-preview")).toContainText(
+    "not chosen: the load case the new term names"
+  );
+  await chooseVirtualTarget(page, "load-manager-create-combination-term-load-case", "load:L-100");
+  await page.getByTestId("load-manager-create-combination-term-factor").fill("1");
   await expect(page.getByTestId("load-manager-create-combination-term-preview")).toContainText(
     "op:load-manager-combination:C-OPER-ALT-term-2-create"
   );
@@ -874,7 +885,7 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   // engine in browser mode.
   await openWorkspaceSection(page, "loads");
   await page.getByTestId("load-manager-create-combination-basis").selectOption("result_state_subtraction");
-  await expectVirtualTarget(page, "load-manager-create-combination-minuend", "load:L-100");
+  await chooseVirtualTarget(page, "load-manager-create-combination-minuend", "load:L-100");
   await chooseVirtualTarget(page, "load-manager-create-combination-subtrahend", "load:L-200");
   await page.getByTestId("load-manager-create-combination-label").fill("Operating minus alternate subtraction");
   await expect(page.getByTestId("load-manager-create-combination-preview")).toContainText(
