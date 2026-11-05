@@ -1182,7 +1182,7 @@ fn project_lengths(
 
 /// The bytes the search row being replaced holds (FTS5 reads it to remove its
 /// terms): the stored slots it was made of, from their record headers.
-fn replaced_search_bytes(transaction: &Transaction<'_>, project_id: &str) -> Result<u64, String> {
+pub(crate) fn replaced_search_bytes(transaction: &Transaction<'_>, project_id: &str) -> Result<u64, String> {
     let stored: Option<i64> = transaction
         .query_row(
             "SELECT 4 + COALESCE(octet_length(model_json), 0) + COALESCE(octet_length(editor_intents_json), 0) + COALESCE(octet_length(proposal_json), 0)
