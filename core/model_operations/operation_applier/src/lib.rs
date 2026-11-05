@@ -5475,12 +5475,17 @@ fn resolve_create_support(
         );
         return None;
     }
+    // A variable spring hanger acts through its explicit stiffness DOF, not a rigid row,
+    // so an actually empty restraint list is its authored form (RS-VS1, SH-140).
+    let empty_admitted = raw_restraints.is_empty()
+        && variable_spring_hanger_admits_empty_restraints(&payload);
     let restraints = normalize_restraint_tokens(
         raw_restraints
             .iter()
             .filter_map(Value::as_str)
             .map(str::to_string)
             .collect(),
+        empty_admitted,
         target_ref,
         checker,
     )?;
@@ -8176,8 +8181,13 @@ fn resolve_field(
             let current_display = current_tokens.join(", ");
             check_before(&current_display, before, target_ref, field_path, checker);
 
+            // The empty set only for the support's own variable spring hanger context, and
+            // only for an actually empty replacement.
+            let empty_admitted = after.is_empty()
+                && variable_spring_hanger_admits_empty_restraints(entity);
             let tokens = normalize_restraint_tokens(
                 after.split(',').map(str::to_string).collect(),
+                empty_admitted,
                 target_ref,
                 checker,
             )?;
@@ -9705,8 +9715,28 @@ fn vector_value(record: &serde_json::Map<String, Value>, key: &str) -> Option<(f
     (x != 0.0 || y != 0.0 || z != 0.0).then_some((x, y, z))
 }
 
+/// A support whose family is exactly `variable_spring_hanger` and whose hanger stiffness
+/// names its acting DOF exactly (`UX`, `UY` or `UZ`) is solved as a spring on that DOF
+/// (`LinearSupport::spring`), never through rigid restraint rows; its empty restraint list is
+/// the authored form. Exact strings only: no default DOF, trimming or case folding. The rest
+/// of the hanger (stiffness value and unit, loads, travel, source) is the rich validator's.
+fn variable_spring_hanger_admits_empty_restraints(support: &Value) -> bool {
+    support.get("family").and_then(Value::as_str) == Some("variable_spring_hanger")
+        && matches!(
+            support
+                .get("hanger")
+                .and_then(|hanger| hanger.get("stiffness"))
+                .and_then(|stiffness| stiffness.get("dof"))
+                .and_then(Value::as_str),
+            Some("UX" | "UY" | "UZ")
+        )
+}
+
+/// `empty_admitted` is the caller's context-aware exception (an actually empty list on a
+/// support that admits it); every other empty result keeps `OP-RESTRAINT-SET-EMPTY`.
 fn normalize_restraint_tokens(
     raw_tokens: Vec<String>,
+    empty_admitted: bool,
     target_ref: &str,
     checker: &mut Checker,
 ) -> Option<Vec<String>> {
@@ -9732,6 +9762,9 @@ fn normalize_restraint_tokens(
         if !tokens.contains(&token) {
             tokens.push(token);
         }
+    }
+    if tokens.is_empty() && empty_admitted {
+        return Some(tokens);
     }
     if tokens.is_empty() {
         checker.push(
