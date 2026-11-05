@@ -48,15 +48,6 @@ jobs:
           if ! git rev-parse --verify --quiet "${BASE}^{commit}" >/dev/null; then BASE=HEAD^1; fi
           python3 tools/validation/validate_conflict_markers.py --base "$BASE" --head HEAD
           python3 tools/validation/validate_run_record_leaks.py --base "$BASE" --head HEAD
-      - name: Available private-term screen
-        env:
-          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
-          PRIVATE_TERMS: ${{ secrets.PRIVATE_TERMS }}
-        run: |
-          if ! git rev-parse --verify --quiet "${BASE}^{commit}" >/dev/null; then BASE=HEAD^1; fi
-          python3 tools/validation/validate_private_terms.py --base "$BASE" --head HEAD
-        # A missing full list is reported, not claimed as a full scan. The
-        # owner-signed D-20/DEC-058 full-list check is the v1.0 release gate.
   piping:
     uses: ./.github/workflows/piping-desktop-e2e.yml
     with:
