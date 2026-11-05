@@ -204,6 +204,43 @@ def test_the_model_bound_reading_refuses_a_derived_normal_source_the_model_moves
     assert _model_check(source, model) == held.MODEL
 
 
+def _support(model, sid):
+    return next(s for s in model["supports"] if s["id"] == sid)
+
+
+MODEL_SOURCE_ALONE = [
+    ("support only", lambda m: _support(m, "support:t")["nonlinear"]["normal_reaction_source"].__setitem__("support_ref", "support:t")),
+    ("DOF only", lambda m: _support(m, "support:t")["nonlinear"]["normal_reaction_source"].__setitem__("dof", "UX")),
+    ("node only", lambda m: _support(m, "support:z").__setitem__("node", "node:a")),
+]
+
+
+@pytest.mark.parametrize("what,edit", MODEL_SOURCE_ALONE, ids=[c[0] for c in MODEL_SOURCE_ALONE])
+def test_each_member_of_the_models_normal_source_alone_is_refused(what, edit):
+    """Each member alone, so no other guard masks it (support:t sits on the same node and keeps UZ); the document is
+    unchanged, so the model-free reading admits it."""
+    source, model = entry("h6b_kept_derived")
+    edit(model)
+    assert read(source) == "ok"
+    assert _model_check(source, model) == held.MODEL
+    assert read(source, model) != "ok"
+
+
+DOCUMENT_SOURCE_ALONE = [("support only", "support", "support:t", held.BINDING), ("DOF only", "dof", "UX", held.BINDING),
+                         ("node only", "node", "node:a", "ok")]
+
+
+@pytest.mark.parametrize("what,member,value,without", DOCUMENT_SOURCE_ALONE, ids=[c[0] for c in DOCUMENT_SOURCE_ALONE])
+def test_each_member_of_the_documents_normal_source_alone_is_refused(what, member, value, without):
+    """The support and the DOF against the minuend's derived-normal row (model-free); the node against the model only."""
+    source, model = entry("h6b_kept_derived")
+    first(source)["inputs"]["normal_source_ref"][member] = value
+    assert read(source) == without
+    assert read(source, model) != "ok"
+    if without == "ok":
+        assert _model_check(source, model) == held.MODEL
+
+
 def test_the_model_bound_reading_refuses_a_target_modulus_key_forged_coherently():
     """Review P2-2: a key and its modulus record label forged together read without the model, never with it."""
     source, model = entry("h4_kept_explicit")

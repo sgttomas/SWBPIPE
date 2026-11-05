@@ -224,3 +224,39 @@ fn the_model_bound_reading_refuses_inputs_the_model_contradicts() {
     model["load_cases"][0]["condition_use"] = json!({"condition_set": "x"});
     assert_eq!(read(&document, Some(&model)), UNVERIFIED);
 }
+
+/// Each member of the derived normal's source alone (review of 92eb066f5): the model's
+/// assignment and the document's reference, so no other guard masks it.
+#[test]
+fn each_member_of_the_normal_source_alone_is_refused() {
+    // Each member of that assignment alone, so no other guard masks it: the support only
+    // (support:t sits on the same node and keeps UZ), the DOF only, and the source support's
+    // node only. The document is unchanged, so the model-free reading admits each.
+    fn source_of(model: &mut Value) -> &mut Value {
+        let t = model["supports"].as_array_mut().unwrap().iter_mut().find(|s| s["id"] == "support:t").unwrap();
+        &mut t["nonlinear"]["normal_reaction_source"]
+    }
+    let alone: [(&str, &dyn Fn(&mut Value)); 3] = [
+        ("support only", &|m| source_of(m)["support_ref"] = json!("support:t")),
+        ("DOF only", &|m| source_of(m)["dof"] = json!("UX")),
+        ("node only", &|m| m["supports"].as_array_mut().unwrap().iter_mut().find(|s| s["id"] == "support:z").unwrap()["node"] = json!("node:a")),
+    ];
+    for (what, edit) in alone {
+        let (mut model, document) = super::tests::document("h6b_kept_derived");
+        edit(&mut model);
+        assert_eq!(read(&document, None), "ok", "{what}");
+        assert_eq!(super::model_check(&document, &model, &super::read(&document).unwrap()), Err(MODEL.to_string()), "{what}");
+        assert_ne!(read(&document, Some(&model)), "ok", "{what}");
+    }
+    // The document's own reference, each member alone: the support and the DOF against the
+    // minuend's derived-normal row (model-free), the node against the model only.
+    for (what, member, value, without) in [("support only", "support", "support:t", BINDING), ("DOF only", "dof", "UX", BINDING), ("node only", "node", "node:a", "ok")] {
+        let (model, mut forged) = super::tests::document("h6b_kept_derived");
+        entry(&mut forged)["inputs"]["normal_source_ref"][member] = json!(value);
+        assert_eq!(read(&forged, None), without, "document {what}");
+        assert_ne!(read(&forged, Some(&model)), "ok", "document {what}");
+        if without == "ok" {
+            assert_eq!(super::model_check(&forged, &model, &super::read(&forged).unwrap()), Err(MODEL.to_string()), "document {what}");
+        }
+    }
+}
