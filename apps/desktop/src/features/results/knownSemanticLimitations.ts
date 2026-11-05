@@ -48,6 +48,11 @@ export function heldStatusStandings(source: MechanicsResult): { combination_id: 
 
 export const PREVIEW_INTENSIFIED_KIND = "component_equal_factor_intensified_bending_stress_v1";
 export const PREVIEW_MAXIMUM_KIND = "pipe_elastic_normal_stress_maximum_v2";
+/** R-6/R-7 S-K1 (DEL-04-03 Work `skew-restraints.md` §7.1): a skewed support's reaction along its
+ * stored direction. A known kind with its own row label and notice; it is not a global component,
+ * so the reaction overlay (`REACTION_COMPONENT_KIND`) never draws it. */
+export const PREVIEW_ALONG_DIRECTION_KIND = "support_reaction_along_direction_v1";
+export const N_ALONG_DIRECTION = "reaction along the support's stored direction, positive when the support acts on the pipe along the authored direction; the producer's own row, not a global component";
 
 /** D2 4.9.9 (revision 4, N-5): binding refusals for classified successor rows
  * before S-I. They never demote the envelope's standing. */
@@ -139,6 +144,7 @@ export function knownSemanticNotices(source: MechanicsResult | null | undefined,
     if (source.summary.max_open_formula_stress) notices.push({ id: "headline-label", text: `Stress headline: ${N_HEADLINE}.` });
     else if (solved) notices.push({ id: "headline-withheld", text: N_HEADLINE_WITHHELD });
     if (source.results.some(row => row.kind === PREVIEW_INTENSIFIED_KIND)) notices.push({ id: "intensified-label", text: `Intensified measure: ${N_INTENSIFIED}.` });
+    if (source.results.some(row => row.kind === PREVIEW_ALONG_DIRECTION_KIND)) notices.push({ id: "along-direction-label", text: `Along-direction reaction: ${N_ALONG_DIRECTION}.` });
     for (const gate of previewCombinationGates(source)) {
       if (gate.withheld && gate.reason) notices.push({ id: `combination-gate:${gate.combination_id}`, text: `${gate.combination_id}: ${COMBINATION_GATE_REASONS[gate.reason] ?? gate.reason}` });
     }
@@ -177,7 +183,8 @@ export function resultRowLabel(row: Pick<MechanicsResult["results"][number], "ki
   if (route !== "preview_physics" && !isRetainedRoute(route)) return null;
   // B3b: the exact successor's rows are pressure-2's (B7b D4 (a)), which carry no preview kind label;
   // its rows carry their validated class label only.
-  const kindLabel = route === "retained_physics" ? null : row.kind === PREVIEW_INTENSIFIED_KIND ? N_INTENSIFIED : row.kind === PREVIEW_MAXIMUM_KIND ? N_HEADLINE : null;
+  const kindLabel = route === "retained_physics" ? null : row.kind === PREVIEW_INTENSIFIED_KIND ? N_INTENSIFIED : row.kind === PREVIEW_MAXIMUM_KIND ? N_HEADLINE
+    : row.kind === PREVIEW_ALONG_DIRECTION_KIND ? N_ALONG_DIRECTION : null;
   // Only a registered successor has validated classes; any other source has none.
   const classLabel = retainedRowClassLabel(row, source);
   return classLabel && kindLabel ? `${classLabel} ${kindLabel}` : classLabel ?? kindLabel;

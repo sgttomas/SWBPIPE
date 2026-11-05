@@ -301,4 +301,55 @@ mod tests {
         assert_eq!(code(&read_model_document_file(&demo)), "opened");
         fs::remove_dir_all(&dir).unwrap();
     }
+
+    /// Agent 0 (2026-11-05, S-K1 applier slice; native half of the parity the webview pins in
+    /// `nullPressureContract.engine.test.ts`): native open refuses a present
+    /// `pressure_contract: null` by name through the one shared validator, `MODEL-SLOT-SHAPE` at
+    /// `pressure_contract` with the same message; the file's bytes are left as they were (nothing
+    /// is removed or rewritten); and the supported repair, the pressure profile operation that
+    /// B7b's activation queues, replaces the null with an object, after which the document opens.
+    #[test]
+    fn a_present_null_pressure_contract_is_refused_at_open_and_the_activation_repairs_it() {
+        use open_pipe_stress_operation_applier::{apply_operation, canonical_json, sha256_hex};
+        const EXACT: &str = include_str!("../../../../fixtures/model_operations/exact_pressure_authoring_model.json");
+        const MESSAGE: &str = "pressure_contract is null; an authored object is required, and absence means the pressure-free route.";
+        let valid: Value = serde_json::from_str(EXACT).unwrap();
+        let mut null = valid.clone();
+        null["pressure_contract"] = Value::Null;
+        let bytes = serde_json::to_vec_pretty(&null).unwrap();
+        let dir = std::env::temp_dir().join(format!("swbpipe-null-contract-{}", std::process::id()));
+        fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("null-contract.json");
+        fs::write(&path, &bytes).unwrap();
+        let outcome = read_model_document_file(&path);
+        let ModelDocumentOpenOutcome::Refused { file_name, diagnostics } = outcome else {
+            panic!("a null contract opened: {outcome:?}");
+        };
+        assert_eq!(file_name, "null-contract.json");
+        let named: Vec<_> = diagnostics.iter().filter(|d| d.path == "pressure_contract").collect();
+        assert_eq!(named, vec![&ModelFileDiagnostic { code: "MODEL-SLOT-SHAPE", path: "pressure_contract".into(), message: MESSAGE.into() }]);
+        assert_eq!(fs::read(&path).unwrap(), bytes, "the file is left as it was");
+        fs::remove_dir_all(&dir).unwrap();
+        // Absence is the pressure-free route, never this finding.
+        let mut absent = valid.clone();
+        absent.as_object_mut().unwrap().remove("pressure_contract");
+        if let ModelDocumentOpenOutcome::Refused { diagnostics, .. } = read_model_document_bytes("absent.json".into(), absent.to_string().as_bytes()) {
+            assert!(diagnostics.iter().all(|d| d.path != "pressure_contract"), "{diagnostics:?}");
+        }
+        // The repair: the pressure profile operation, from the null to the valid contract.
+        let profile = |m: &Value| json!({"schema_version": m["schema_version"], "pressure_contract": m["pressure_contract"]});
+        let hash = json!({"algorithm": "sha256", "canonicalization": "rfc8785_jcs", "payload_scope": "model_payload", "value": format!("sha256:{}", sha256_hex(&canonical_json(&null)))});
+        let id = null["project"]["id"].as_str().unwrap();
+        let op = json!({"operation_id": "op:null:repair", "operation_kind": "modify", "operation_status": "proposed", "author_type": "user", "target": {"object_type": "Model", "ref": id},
+            "change": {"change_id": "change:null:repair", "change_kind": "set_field", "field_label": "pressure_profile", "field_path": "pressure_profile",
+                "before": canonical_json(&profile(&null)), "after": canonical_json(&profile(&valid)), "unit": "none", "dimension": "dimensionless", "source_note": "Synthetic explicitly entered fixture values"},
+            "validation": {"schema_validation": "not_run", "constraint_validation": "not_run", "unit_validation": "not_run", "diff_preview_status": "not_generated", "application_status": "not_applied"},
+            "rationale": "Synthetic explicit user authoring",
+            "audit_boundary": {"mutation_route": "structured_operations_only", "direct_model_mutation_allowed": false, "requires_user_acceptance": true, "mutates_accepted_model_state": false},
+            "professional_boundary": {"human_review_required": true, "software_makes_compliance_claim": false, "software_makes_certification_claim": false, "software_makes_sealing_claim": false, "software_makes_approval_claim": false, "software_makes_authentication_claim": false}});
+        let applied = apply_operation(&null, &op, Some(&hash));
+        let repaired = applied.applied_model.unwrap_or_else(|| panic!("{:?}", applied.diagnostics.iter().map(|d| (&d.code, &d.message)).collect::<Vec<_>>()));
+        assert_eq!(repaired["pressure_contract"], valid["pressure_contract"]);
+        assert_eq!(code(&read_model_document_bytes("repaired.json".into(), repaired.to_string().as_bytes())), "opened");
+    }
 }
