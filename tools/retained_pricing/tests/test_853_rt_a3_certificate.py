@@ -219,6 +219,125 @@ def test_at_z_zero_only_the_case_ids_are_priced():
         assert MODEL["case_ids"](c) == MODEL["s"]("&str") * c
 
 
+# ---- RTA3C-OWN's Value-tree census (§8.53 S1) ----------------------------------------------------------------------
+#
+# The member's counts follow the producer's json! literals (RTA3C-PIN binds the module): at the maximal shape every
+# array-slot, object and number count equals the census (arr carries a fixed slack of 2 and ent one of 2 per record,
+# for the expression's alternatives) and key bytes are bounded; every registered successor and corpus document with a
+# member is bounded component by component.
+
+def _walk(value, row_ids=()):
+    """Array slots, objects, entries, string bytes (less the row ids'), key bytes and numbers of a JSON tree."""
+    c = dict(arr=0, obj=0, ent=0, strb=0, keyb=0, nums=0, rid=0)
+
+    def w(x, rows=False):
+        if isinstance(x, list):
+            c["arr"] += len(x)
+            for y in x:
+                w(y, rows)
+        elif isinstance(x, dict):
+            c["obj"] += 1
+            c["ent"] += len(x)
+            for k, y in x.items():
+                c["keyb"] += len(k.encode())
+                w(y, rows or k == "rows")
+        elif isinstance(x, str):
+            c["rid" if rows else "strb"] += len(x.encode())
+        elif isinstance(x, (int, float)) and not isinstance(x, bool):
+            c["nums"] += 1
+    w(value)
+    return c
+
+
+def _maximal_member(used, z, G):
+    """The producer's member at its largest shape (combination_certificate.rs publish's json! literals)."""
+    rid = lambda i: "r%d" % i   # noqa: E731
+    group = {"entity": "e", "location": "l", "group": "g", "moment": False, "rows": [[rid(0)] * 3, [rid(1)] * 3],
+             "q": 0.0, "bound": 0.0, "floor_scale": 0.0}
+    derived = {"entity": "e", "location": "wall_l", "group": "pipe_wall", "row_set": 0, "rows": [rid(2)] * 3,
+               "factors_bound": 0.0, "rounding_error": 0.0, "bound": 0.0, "q": 0.0, "q_hat": 0.0, "floor_scale": 0.0,
+               "verdict": "not_established", "reason": "bound_exceeds_criterion",
+               "equal_pressure": {"elastic_group": {"entity": "e", "location": "l", "group": "axial", "row_set": 1}}}
+    record = {"combination_id": "c", "basis": "mechanics",
+              "expression": {"terms": [{"combination_id": "x", "factor": 1.0}] * 3}, "subtrahend_support_state": None,
+              "assessment": "assessed", "reason": None, "groups": [derived] * (2 * G), "uncovered_row_count": 0}
+    return {"operand_cases": [{"load_case_id": "k", "groups": [group] * G}] * used, "combinations": [record] * z}
+
+
+@pytest.mark.parametrize("used,z,G", [(1, 1, 1), (2, 1, 5), (3, 2, 7), (6, 2, 3)])
+def test_the_member_census_is_the_producers_maximal_topology(used, z, G):
+    actual = _walk(_maximal_member(used, z, G))
+    arr, obj, ent, strb, keyb, nums = MODEL["member_counts"](used, z, G, 64)
+    assert (arr, obj, ent) == (actual["arr"] + 2, actual["obj"], actual["ent"] + 2 * z)
+    assert nums >= actual["nums"] and keyb >= actual["keyb"]
+    # The row ids are the chain's TEXT (RTA3C-RS) in the resident member; their slots are the census's.
+    assert MODEL["_row_id_bytes"](used, z, G) == 1024 * (z * 2 * G * 3 + used * G * 6)
+
+
+def test_one_derived_group_is_its_literal():
+    d = MODEL["_derived_value"](1, 64)
+    one = _walk({"groups": [_maximal_member(0, 1, 1)["combinations"][0]["groups"][0]]})
+    assert (d["arr"], d["obj"], d["ent"], d["nums"]) == (2 * one["arr"], 2 * (one["obj"] - 1), 2 * (one["ent"] - 1), 2 * one["nums"])
+    assert d["keyb"] == 2 * (one["keyb"] - len("groups"))
+
+
+def _members():
+    sys.path.insert(0, str(SOURCE / "tests"))
+    import retained_precision_corpus as corpus
+    for case in corpus.load_corpus()["cases"]:
+        member = case["source"].get("contract_evidence", {}).get("combination_certificate")
+        if member:
+            yield case["id"], member
+    for i, doc in enumerate(json.loads((SOURCE / "fixtures/results/combination_certificate_corpus.json").read_text())["documents"]):
+        member = doc["document"].get("contract_evidence", {}).get("combination_certificate")
+        if member:
+            yield f"corpus[{i}]", member
+
+
+def test_the_member_census_bounds_every_registered_member():
+    seen = {}
+    for name, member in _members():
+        used, z = len(member["operand_cases"]), len(member["combinations"])
+        G = max([len(o["groups"]) for o in member["operand_cases"]] + [0])
+        derived = [g for r in member["combinations"] for g in r["groups"]]
+        assert all(len(r["groups"]) <= 2 * G for r in member["combinations"]), name
+        assert all(len(g["rows"]) <= 3 for g in derived), name
+        assert all(len(s_) <= 2 and all(r is None or len(r) <= 3 for r in s_) for o in member["operand_cases"] for s_ in
+                   (g["rows"] for g in o["groups"])), name
+        actual = _walk(member)
+        arr, obj, ent, strb, keyb, nums = MODEL["member_counts"](used, z, G, 64)
+        assert all(a <= b for a, b in zip((actual["arr"], actual["obj"], actual["ent"], actual["keyb"], actual["nums"], actual["strb"]),
+                                         (arr, obj, ent, keyb, nums, strb))), (name, actual)
+        assert actual["rid"] <= MODEL["_row_id_bytes"](used, z, G), name
+        seen[name] = (len(derived), sum(len(g["rows"]) for g in derived))
+    # W-CB5 (the assessed registered successors): 40 derived groups, 70 row-id slots.
+    assert seen["w_cb5_sparse_interactive"] == seen["w_cb5_dense_scrutiny"] == (40, 70)
+    assert len(seen) >= 20
+
+
+def _slots(a, o, e, sb, kb):
+    return MODEL["X"]({"arr": a, "obj": o, "ent": e, "1": sb + kb})
+
+
+@pytest.mark.parametrize("c,z", [(2, 1), (1, 2), (3, 2)])
+def test_the_value_copies_are_charged(c, z):
+    m, g, p, pa = 32, 32, 2115, 3 * 2115
+    G, used, rows = 28 * (m + g), min(c, 3 * z), p + 8 * g + 1
+    d = MODEL["_derived_value"](G, 64)
+    member = MODEL["member_counts"](used, z, G, 64)
+    publish = MODEL["publish"](c, z, m, g, p, pa, _slots)
+    # quality twice, the derived groups twice, the member copy, one case's groups and one group's rows.
+    assert publish["arr"] == 2 * 2 * (c + z) + 2 * d["arr"] + member[0] + G * 9 + 2 * 4
+    assert publish["obj"] == 2 * 4 * (c + z) + 2 * d["obj"] + member[1] + G
+    reader = MODEL["reader"](c, z, m, g, p, pa, lambda *a: _slots(*a))
+    d128 = MODEL["_derived_value"](G, 128)
+    # one group's expected rows and its copy, the derived trees three times, the expected diagnostics.
+    assert reader["arr"] == 2 * 8 + 3 * d128["arr"] + z
+    for x in (publish, reader):
+        assert x["s(usize)"] == 2 * G * 3 + __import__("g3lib").buckets(min(2 * G * 3, rows)), x
+        assert x["s((String,f64))"] == 3
+
+
 # ---- the point atoms (§8.53 B1) -------------------------------------------------------------------------------------
 
 LAW = SOURCE / PP / "retained_memory_law_tests.rs"

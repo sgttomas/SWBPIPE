@@ -128,6 +128,7 @@ BIND = {
     "s(C3PerOperand)": upr("size_of::<&'static u8>() + size_of::<f64>() + size_of::<Vec<u8>>()",
                            "RTA3C-PB/RD: one (&group, bound, coverage) per operand"),
     "s((String,bool))": sz("(String, bool)"),   # RTA3C-PB
+    "s((String,f64))": sz("(String, f64)"),   # RTA3C-PB/RD: a combination's (load case, factor) terms (§8.53 S1)
     "s(C3ROperandEntry)": sz("(&'static str, Vec<u8>)"),   # RTA3C-RD: (case, Vec<OperandGroup>) (a Vec header)
     "s(C3ROperandGroup)": upr("3 * size_of::<&'static str>() + 2 * size_of::<f64>() + size_of::<Option<f64>>()",
                               "RTA3C-RD: the reader's private OperandGroup (entity, location, group; q, floor_scale; bound)"),

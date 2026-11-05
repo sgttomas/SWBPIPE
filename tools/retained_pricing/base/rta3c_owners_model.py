@@ -17,17 +17,32 @@ RTA3C-OP (z >= 1; the case solves to aggregation): each formed operand's group v
   for <= min(c, 3z) cases, held in its LoadCaseSolve and then the run's map (its entries); operand's transient
   member_scales map (<= m + g bodies of ActionScales).
 RTA3C-PB (z >= 1; publish's transient): the gates (z), the case-row index over PA rows (one Vec<usize> each), the
-  combination rows by sources and by combination (ZR), the case order's serde copy of numerical_quality.cases and its
-  ids, the used cases, the records and diagnostics vectors, and one combination at a time: its rows (P + 8g + 1), the
-  derived vector (<= 2G) and formed map (<= 2G), and one group's per-operand coverage and exact arithmetic.
+  combination rows by sources and by combination (ZR), the case order's serde copy of numerical_quality.cases and the
+  array clone taken from it while it lives (two trees), and its ids, the used cases, the records and diagnostics
+  vectors, and one combination at a time: its rows (P + 8g + 1), its terms and missing list, the derived vector
+  (<= 2G) with each Derived's own `rows` backing (<= 3 usize), the formed map (<= 2G), the covered row set (a
+  HashSet<usize> of <= min(6G, P + 8g + 1) rows), one group's per-operand coverage, spec pair and exact arithmetic.
+  The Value copies (§8.53 S1): json! interpolates by serialization (`to_value(&expr)`), so each nesting copies what it
+  wraps. The record push holds the derived Values, their collected clone and the record's copy of that (the record
+  is the resident member's part); the operand-case build holds one case's collected group Values and one group's
+  rows Values beside their copies; `json!({"operand_cases": .., "combinations": records})` copies the whole member
+  while both source vectors live to the return. Charged: the derived groups twice and one member tree beyond the
+  resident one, one case's groups and one group's rows, each with the row-id bytes the chain's TEXT row-id clones
+  (RTA3C-RS) do not hold. `pressure` clones the evidence's pressure array: absent on route L (D1.5), it allocates
+  nothing there.
 RTA3C-MV (z >= 1; resident in the envelope and so in the successor): the member Value: <= min(c, 3z) operand cases of
-  G group objects (8 entries; rows: <= 2 arrays of <= 3 ids) and z records (8 entries, an expression of <= 3 terms) of
-  <= 2G derived group objects (14 entries; rows <= 3 ids; equal_pressure null or a 4-entry object).
+  G group objects (8 entries; rows: <= 2 slots, each null or an array of <= 3 ids) and z records (8 entries, an
+  expression of <= 3 terms) of <= 2G derived group objects (14 entries; rows: an array of <= 3 ids; equal_pressure
+  null or an outer {elastic_group} object whose value is null or the inner 4-entry object {entity, location, group,
+  row_set}; on route L always null, D1.5, priced at its largest form).
 RTA3C-RD (z >= 1; the G7 base read's member_check, route L): the row index (by id, by case key, by sources, by
   combination), the case order and set, the operand map (<= min(c, 3z) vectors of <= G groups), one case's duplicate
-  set (G) and expected rows Value, and one record at a time: its rows, the derived vector and formed map (<= 2G), the
-  derived Value trees (strings copied from &str by json!) and the expected record's clone of them, the expected
-  diagnostics (z) and the published list.
+  set (G) and one group's expected rows (a Vec<Value> of <= 2 slots, each null or an array of <= 3 ids) beside its
+  json! copy, and one record at a time: its rows, terms and missing list, the derived vector (each `rows` backing
+  <= 3 usize) and formed map (<= 2G), the covered row set, the two spec vectors of cloned (kind, location) Values, the
+  derived Value trees (strings copied from &str by json!), their collected clone and the expected record's copy (three
+  trees), the expected diagnostics (z), the used cases' id clones, the stated and wanted case lists and the published
+  list.
 
 Bound to the two modules' complete bytes (RTA3C-PIN's digests) and the owning statements; a snapshot without the
 producer module adds nothing; a changed module stops the run."""
@@ -101,33 +116,54 @@ def operands(c, z, m, g):
             + HashReq("(usize,ActionScales)", m + g))
 
 
+# The member's Value-tree shapes (the producer's json! literals; RTA3C-PIN binds them). A derived group object: 14
+# entries; its rows an array of <= SET_ROWS ids; equal_pressure at most the outer one-entry {elastic_group} object
+# holding the inner four-entry {entity, location, group, row_set} object.
+DERIVED_KEYS = ("entity", "location", "group", "row_set", "rows", "factors_bound", "rounding_error", "bound", "q", "q_hat",
+                "floor_scale", "verdict", "reason", "equal_pressure")
+ELASTIC_KEYS = ("entity", "location", "group", "row_set")
+OPERAND_GROUP_KEYS = ("entity", "location", "group", "moment", "rows", "q", "bound", "floor_scale")
+
+
 def _derived_value(G, label):
-    """<= 2G derived group objects of one combination: 14 entries, <= 3 row ids (their bytes are the chain's row-id
-    clones), entity, location, group, verdict and reason strings copied; equal_pressure a 4-entry object at most."""
+    """<= 2G derived group objects of one combination (n = 2G), each: its object (14 entries), one slot in `groups`
+    and <= 3 row-id slots in `rows` (the ids' bytes are the chain's row-id clones, RTA3C-RS); entity, location, group,
+    verdict and reason strings copied; equal_pressure at most an outer one-entry object and the inner four-entry
+    object (entity, location, group "axial", row_set)."""
     n = 2 * G
-    return dict(arr=n, obj=2 * n, ent=(14 + 4) * n, strb=n * (IN + 2 * label + len("not_established") + len("bound_exceeds_criterion") + IN + label),
-                keyb=n * (len("entity") + len("location") + len("group") + len("row_set") + len("rows") + len("factors_bound")
-                          + len("rounding_error") + len("bound") + len("q") + len("q_hat") + len("floor_scale") + len("verdict")
-                          + len("reason") + len("equal_pressure") + len("elastic_group") + len("entity") + len("location") + len("group")),
+    return dict(arr=n * (1 + SET_ROWS), obj=3 * n, ent=(len(DERIVED_KEYS) + 1 + len(ELASTIC_KEYS)) * n,
+                strb=n * (IN + 2 * label + len("not_established") + len("bound_exceeds_criterion") + IN + label + len("axial")),
+                keyb=n * (sum(map(len, DERIVED_KEYS)) + len("elastic_group") + sum(map(len, ELASTIC_KEYS))),
                 nums=8 * n)
+
+
+def _row_id_bytes(used, z, G):
+    """The member's row-id string bytes: <= 3 per derived group (2G per combination) and <= 2 x 3 per operand group."""
+    return RID * SET_ROWS * (z * 2 * G + used * G * SETS)
 
 
 def member_value(c, z, m, g, label):
     """RTA3C-MV: the resident member Value as (arr, obj, ent, strb, keyb, nums); zeros below z = 1."""
     if not z:
         return (0, 0, 0, 0, 0, 0)
-    G = _groups(m, g)
-    used = _used(c, z)
+    return member_counts(_used(c, z), z, _groups(m, g), label)
+
+
+def member_counts(used, z, G, label):
+    """The member Value's counts for `used` operand cases of <= G groups and z records (the strings exclude the row ids,
+    _row_id_bytes)."""
     d = _derived_value(G, label)
-    arr = 2 + used * (1 + G * (1 + SETS)) + z * (1 + TERMS) + z * d["arr"]
+    arr = 2 + used * (1 + G * (1 + SETS + SETS * SET_ROWS)) + z * (1 + TERMS) + z * d["arr"]
     obj = 1 + used * (1 + G) + z * (2 + TERMS) + z * d["obj"]
     ent = 2 + used * (2 + 8 * G) + z * (8 + 3 + 2 * TERMS) + z * d["ent"]
     strb = used * (IN + G * (IN + 2 * label)) + z * (IN + len("result_state_subtraction") + len("not_assessed") + 429 + 13
                                                       + TERMS * IN) + z * d["strb"]
     keyb = (len("operand_cases") + len("combinations") + used * (len("load_case_id") + len("groups")
-            + G * (len("entity") + len("location") + len("group") + len("moment") + len("rows") + len("q") + len("bound") + len("floor_scale")))
+            + G * sum(map(len, OPERAND_GROUP_KEYS)))
             + z * (len("combination_id") + len("basis") + len("expression") + len("subtrahend_support_state") + len("assessment")
-                   + len("reason") + len("groups") + len("uncovered_row_count") + TERMS * (len("load_case_id") + len("factor")))
+                   + len("reason") + len("groups") + len("uncovered_row_count")
+                   # the expression: {terms: [{load_case_id | combination_id, factor}]} or {minuend_id, subtrahend_id}
+                   + max(len("terms") + TERMS * (len("combination_id") + len("factor")), len("minuend_id") + len("subtrahend_id")))
             + z * d["keyb"])
     nums = used * G * 4 + z * (1 + TERMS) + z * d["nums"]
     return (arr, obj, ent, strb, keyb, nums)
@@ -141,14 +177,37 @@ def publish(c, z, m, g, p, pa, value_tree):
     G = _groups(m, g)
     zr = z * (p + 8 * g + 1)
     rows = p + 8 * g + 1
-    quality = value_tree(2 * (c + z), 4 * (c + z), 24 * (c + z), (c + z) * (4 * RID + 512), (c + z) * 24 * 32)
+    used = _used(c, z)
+    # The case order's to_value tree and the array clone taken while it lives.
+    quality = value_tree(2 * (c + z), 4 * (c + z), 24 * (c + z), (c + z) * (4 * RID + 512), (c + z) * 24 * 32) * 2
     one_combination = (B(8 * pushcap(rows)) + s("C3Derived") * pushcap(2 * G) + HashMov("C3FormedEntry", 2 * G)
-                       + s("C3PerOperand") * pushcap(TERMS) + B(TERMS * (SETS * 24 + 4 * 8 * pushcap(SET_ROWS))) + B(4 * 576))
+                       + s("C3PerOperand") * pushcap(TERMS) + B(TERMS * (SETS * 24 + 4 * 8 * pushcap(SET_ROWS))) + B(4 * 576)
+                       + _combination_owners(G, rows) + s("(&str,&str)") * (2 * SET_ROWS)
+                       # The derived Values and their collected clone beside the record's copy (the clone's row ids).
+                       + _value(_derived_value(G, 64), value_tree) * 2 + B(2 * G * SET_ROWS * RID))
+    # The whole member copied by json! while records and operand_cases live (with its row ids), one case's collected
+    # group Values and one group's rows Values (each beside its copy).
+    member_copy = value_tree(*member_counts(used, z, G, 64)[:5]) + B(_row_id_bytes(used, z, G))
+    case_groups = (value_tree(G * (1 + SETS + SETS * SET_ROWS), G, len(OPERAND_GROUP_KEYS) * G, G * (IN + 2 * 64),
+                              G * sum(map(len, OPERAND_GROUP_KEYS))) + B(_row_id_bytes(1, 0, G)))
+    group_rows = value_tree(SETS * (1 + SET_ROWS), 0, 0, SETS * SET_ROWS * RID, 0)
     return (s("(String,bool)") * z + HashMov("C3CaseKey", pa) + B(8 * pushcap(1) * pa)
             + HashMov("C3SourcesKey", zr) + B((TERMS * 16 + 8 * pushcap(1)) * zr)
             + HashMov("C3RowsOf", z) + B(8 * pushcap(rows) * z)
-            + quality + s("String") * c + B(IN * c) + HashReq("String", _used(c, z)) + B(IN * _used(c, z))
-            + s("Value") * pushcap(z) + s("Diagnostic") * pushcap(z) + one_combination)
+            + quality + s("String") * c + B(IN * c) + HashReq("String", used) + B(IN * used)
+            + s("Value") * pushcap(z) + s("Diagnostic") * pushcap(z) + one_combination
+            + member_copy + case_groups + group_rows)
+
+
+def _value(d, value_tree):
+    return value_tree(d["arr"], d["obj"], d["ent"], d["strb"], d["keyb"])
+
+
+def _combination_owners(G, rows):
+    """One combination's owners outside the Value trees (both modules): each Derived's `rows` backing (<= 3 usize, exact
+    capacity), the covered row set (<= min(6G, rows) usize), the terms (<= 3 (String, f64)) and the missing list."""
+    return (s("usize") * (2 * G * SET_ROWS) + HashReq("usize", min(2 * G * SET_ROWS, rows))
+            + s("(String,f64)") * TERMS + s("&str") * pushcap(TERMS))
 
 
 def reader(c, z, m, g, p, pa, value_tree):
@@ -164,16 +223,22 @@ def reader(c, z, m, g, p, pa, value_tree):
              + HashMov("C3SourcesKey", zr) + B((TERMS * 16 + 8 * pushcap(1)) * zr) + HashMov("C3RowsOf", z) + B(8 * pushcap(rows) * z))
     cases = s("&str") * pushcap(c) + HashReq("&str", c)
     operand_map = HashMov("C3ROperandEntry", used) + s("C3ROperandGroup") * (pushcap(G) * used)
-    one_case = HashMov("C3Triple", G) + value_tree(SETS + 1, 0, SETS * SET_ROWS, SETS * SET_ROWS * RID, 0)
+    # One group's expected rows (<= 2 slots, each null or an array of <= 3 ids copied from &str) and its json! copy.
+    one_case = HashMov("C3Triple", G) + value_tree(SETS * (1 + SET_ROWS), 0, 0, SETS * SET_ROWS * RID, 0) * 2
     d = _derived_value(G, 128)
     derived_tree = value_tree(d["arr"], d["obj"], d["ent"], d["strb"] + 2 * G * SET_ROWS * RID, d["keyb"])
+    # The two spec vectors of (kind, location) Value clones (<= 3 each; a kind or location string <= 64 B).
+    specs = s("Value") * (2 * 2 * SET_ROWS) + B(2 * SET_ROWS * 2 * 64)
     one_record = (B(8 * pushcap(rows)) + s("C3RDerived") * pushcap(2 * G) + HashMov("C3FormedEntry", 2 * G)
-                  + derived_tree * 2 + s("C3PerOperand") * pushcap(TERMS) + B(TERMS * (SETS * 24 + 4 * 8 * pushcap(SET_ROWS))) + B(4 * 576))
-    tail = s("Value") * pushcap(z) + value_tree(z, z, 6 * z, z * (64 + 32 + 16), z * 40) + s("&Value") * pushcap(z) + HashReq("String", used)
+                  + derived_tree * 3 + s("C3PerOperand") * pushcap(TERMS) + B(TERMS * (SETS * 24 + 4 * 8 * pushcap(SET_ROWS))) + B(4 * 576)
+                  + _combination_owners(G, rows) + specs)
+    tail = (s("Value") * pushcap(z) + value_tree(z, z, 6 * z, z * (64 + 32 + 16), z * 40) + s("&Value") * pushcap(z) + HashReq("String", used)
+            + B(IN * used) + s("&str") * (2 * pushcap(used)))
     return index + cases + operand_map + one_case + one_record + tail + B(label)
 
 
 # Illustrative strides for the chain's own check only (G5 evaluates every atom in-build).
 ASSUMED = {"s(C3OperandGroup)": 112, "s(C3OperandEntry)": 48, "s((usize,ActionScales))": 24, "s(C3CaseKey)": 104,
            "s(C3SourcesKey)": 64, "s(C3RowsOf)": 40, "s(C3Derived)": 88, "s(C3FormedEntry)": 88, "s(C3PerOperand)": 40,
-           "s((String,bool))": 32, "s(C3ROperandEntry)": 40, "s(C3ROperandGroup)": 80, "s(C3Triple)": 48, "s(C3RDerived)": 72}
+           "s((String,bool))": 32, "s(C3ROperandEntry)": 40, "s(C3ROperandGroup)": 80, "s(C3Triple)": 48, "s(C3RDerived)": 72,
+           "s((String,f64))": 32}
