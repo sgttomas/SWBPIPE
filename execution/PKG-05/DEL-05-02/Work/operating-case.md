@@ -1101,7 +1101,7 @@ built). §7 replaces the seam sketch that stood here and corrects two of its sta
 ### 6.10 Pricing and registration
 
 Registered at DEL-04-08 `retained-pricing-rules.md` §8.51, on main `573051799` (RT-U4's registered §8.50 candidate
-`41142f4a3`), priced source `a82460ad7`. AC-004 is recorded (seven witnesses and the isolated challenge, 7/7 on the
+`41142f4a3`), priced source `a82460ad7`. AC-004 is recorded (six witnesses and the isolated challenge, 7/7 on the
 registered binary at `d44e5c538`; `61c6214a2`).
 - **Rules.** The 18 full-file pins whose basis value was a file 1b changes are restated on the merged bytes, each with
   its re-audited premise; S1-ZS drops the deleted push's two entries and RT-A4-D14 pins one push (§8.46's precedents).
@@ -1832,9 +1832,13 @@ Phase 2 applies the reviewed text with the code. None of it makes a code-complia
        support would need a reaction it cannot supply), and".
 10. **`docs/RELEASE_TARGET_v1.0.md` RT-A5 status** (Agent 0 applies the reviewed text).
     - **Old:** "`minuend_final` unbuilt"
-    - **New:** "`minuend_final` (candidate, `claude/rt-a5-minuend-final`): the subtrahend solved with
-      each nonlinear support held at the minuend's final status, published under the combination as
-      a held-constraint comparison with its own standing (DEL-05-02 `operating-case.md` §7)".
+    - **New (Agent 0's wording, 2026-11-04, applied on main through #120):** status "PF operand
+      standing and the declared operating-minus-sustained basis are built (#107); EX refuses the
+      declared basis. Held operating support status (`minuend_final`) is a reviewed candidate
+      (#122), with its own held-system standing; not yet integrated."; open work "`minuend_final`
+      registration/integration after P + §4; EX declared-basis admission and downstream consumer
+      integration". When this PR merges, "a reviewed candidate (#122) … not yet integrated" becomes
+      "built" with the actual merge, and the EX and open-consumer limits stay.
 11. **This document** (applied with phase 2).
     - **Line 3.**
       - **Old:** "slice 1b built on branch `claude/rt-a5-slice1b` (§6, candidate, not yet
@@ -1845,7 +1849,7 @@ Phase 2 applies the reviewed text with the code. None of it makes a code-complia
       - **New:** "Integrated by #107 (`b32a17761`) after review r1 and its focused confirmation."
     - **§6.10.**
       - **Old:** "AC-004 is pending."
-      - **New:** "AC-004 is recorded (seven witnesses and the isolated challenge, 7/7 on the
+      - **New:** "AC-004 is recorded (six witnesses and the isolated challenge, 7/7 on the
         registered binary at `d44e5c538`; `61c6214a2`)."
     - **§0 R-1, the Reason cell.** The old text is kept, and this is appended: "Status (2026-11-04):
       the owner-accepted release target (2026-10-28) carries frozen operating status as RT-A5
