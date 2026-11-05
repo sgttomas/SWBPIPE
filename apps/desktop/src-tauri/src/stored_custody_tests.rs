@@ -160,8 +160,8 @@ fn reseal(record: &mut Value) {
 fn file_value(reference: &Value) -> Value {
     let path = reference["path"].as_str().unwrap();
     assert!(
-        ["fixtures/persistence/recorded_pre_rt_a4_pf/", "fixtures/persistence/recorded_pre_rt_a5_1b_pf/"].iter().any(|dir| path.starts_with(dir)),
-        "{path}: no pre-RT-A4 or pre-1b fixture"
+        ["fixtures/persistence/recorded_pre_rt_a4_pf/", "fixtures/persistence/recorded_pre_rt_a5_1b_pf/", "fixtures/persistence/recorded_pre_rt_a5_mf_pf/"].iter().any(|dir| path.starts_with(dir)),
+        "{path}: no pre-RT-A4, pre-1b or pre-minuend_final fixture"
     );
     let value: Value = serde_json::from_str(&read_text(path)).unwrap();
     value.pointer(reference["pointer"].as_str().unwrap()).unwrap_or_else(|| panic!("{reference}")).clone()
@@ -270,20 +270,33 @@ fn runs_recorded_before_rt_a4_reopen_natively_under_their_recorded_table() {
 /// combination policy (`recorded_pre_rt_a5_1b_pf`, binding e7b93f41…, a registry variant) reopens
 /// natively as the webview reopens it, saved and as main's recorded revision: read under its
 /// recorded table, with the webview's findings in their scopes and none of a current-only reader's
-/// refusals. Without the native recorded read it reads under the current table (f41b9d3e…) and is
+/// refusals. Without the native recorded read it reads under the current table (563db3c7…) and is
 /// refused, so this fails.
 #[test]
 fn runs_recorded_before_operating_case_1b_reopen_natively_under_their_recorded_table() {
+    runs_recorded_before_a_policy_restatement_reopen_natively("pre-rt-a5-1b", "e7b93f416f700f8efdb31bf1ba26dedde52963d768d6ead5a73dbf1c645a360c");
+}
+
+/// RT-A5 `minuend_final` (DEL-05-02 `operating-case.md` §7.6): main's preview-physics-2 run
+/// recorded before `minuend_final` restated the combination policy (`recorded_pre_rt_a5_mf_pf`,
+/// binding f41b9d3e…, a registry variant) reopens natively as the webview reopens it, saved and as
+/// main's recorded revision, under its recorded table, as above.
+#[test]
+fn runs_recorded_before_minuend_final_reopen_natively_under_their_recorded_table() {
+    runs_recorded_before_a_policy_restatement_reopen_natively("pre-rt-a5-mf", "f41b9d3ed0c1b7abaee0b98ca1a28aa1a2d109bce443b98d53a2080c1c504ce9");
+}
+
+fn runs_recorded_before_a_policy_restatement_reopen_natively(tag: &str, recorded_sha256: &str) {
     const CURRENT_ONLY: [&str; 4] = ["SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED", "ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH", "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH", "SOURCE_RECORDED_BINDING"];
     let builder = builder_cases();
-    let cases: Vec<Value> = reopen_cases().into_iter().filter(|case| case["id"].as_str().unwrap().contains("pre-rt-a5-1b:")).collect();
-    assert_eq!(cases.iter().map(|case| case["id"].as_str().unwrap()).collect::<Vec<_>>(), ["saved-pre-rt-a5-1b:preview-physics-2", "recorded-pre-rt-a5-1b:preview-physics-2"]);
-    let variant = json!({"id": "openpipestress.result_semantics/0.3.0/preview-physics-2", "sha256": "e7b93f416f700f8efdb31bf1ba26dedde52963d768d6ead5a73dbf1c645a360c"});
+    let cases: Vec<Value> = reopen_cases().into_iter().filter(|case| case["id"].as_str().unwrap().contains(&format!("{tag}:"))).collect();
+    assert_eq!(cases.iter().map(|case| case["id"].as_str().unwrap().to_string()).collect::<Vec<_>>(), [format!("saved-{tag}:preview-physics-2"), format!("recorded-{tag}:preview-physics-2")]);
+    let variant = json!({"id": "openpipestress.result_semantics/0.3.0/preview-physics-2", "sha256": recorded_sha256});
     for case in &cases {
         let id = case["id"].as_str().unwrap();
         let actual = native_findings(case, &builder);
         assert_eq!(&actual, &case["expected"], "{id}: the webview's findings, in their scopes");
-        assert_eq!(actual["recorded_table_read"], variant, "{id}: read under main's pre-1b table");
+        assert_eq!(actual["recorded_table_read"], variant, "{id}: read under main's recorded table");
         let shown: Vec<&str> = actual["findings"].as_array().unwrap().iter().chain(actual["historical_reader_findings"].as_array().unwrap()).map(|f| f.as_str().unwrap()).collect();
         for marker in CURRENT_ONLY {
             assert!(!shown.iter().any(|finding| finding.contains(marker)), "{id}: {marker} in {shown:?}");
@@ -542,19 +555,19 @@ fn the_recorded_pre_rt_a4_registry_is_the_typescript_and_python_registry() {
         assigned[0].trim_matches('"').to_string()
     };
     // A table directory: `NAME = _RESULTS_DIR / "dir"`, once at module level (`_RECORDED_DIR`, and
-    // operating-case slice 1b's `_RECORDED_1B_DIR`).
+    // operating-case slice 1b's `_RECORDED_1B_DIR`, and RT-A5 `minuend_final`'s `_RECORDED_MF_DIR`).
     let py_dir = |name: &str| -> String {
         let assigned: Vec<&str> = py.lines().filter_map(|line| line.strip_prefix(&format!("{name} = _RESULTS_DIR / \""))).collect();
         assert_eq!(assigned.len(), 1, "Python: {name} is not one table directory");
         format!("fixtures/results/{}", assigned[0].strip_suffix('"').unwrap_or_else(|| panic!("Python: {name}")))
     };
     let python: Vec<[String; 3]> = entries(&tokens, '{', '}', "Python").iter().map(|entry| match entry.as_slice() {
-        [Token::Punct('('), Token::Name(id), Token::Punct(','), Token::Str(sha), Token::Punct(')'), Token::Punct(':'), Token::Name(dir), Token::Punct('/'), Token::Str(file)] if ["_RECORDED_DIR", "_RECORDED_1B_DIR"].contains(&dir.as_str()) => {
+        [Token::Punct('('), Token::Name(id), Token::Punct(','), Token::Str(sha), Token::Punct(')'), Token::Punct(':'), Token::Name(dir), Token::Punct('/'), Token::Str(file)] if ["_RECORDED_DIR", "_RECORDED_1B_DIR", "_RECORDED_MF_DIR"].contains(&dir.as_str()) => {
             [py_constant(id), sha.clone(), format!("{}/{file}", py_dir(dir))]
         }
         other => panic!("Python: unrecognized entry {other:?}"),
     }).collect();
-    assert_eq!(native.len(), 10, "{native:?}");
+    assert_eq!(native.len(), 13, "{native:?}");
     assert_eq!(typescript.iter().map(|[id, sha, _]| [id.clone(), sha.clone()]).collect::<Vec<_>>(), native, "the TypeScript registry");
     assert_eq!(python.iter().map(|[id, sha, _]| [id.clone(), sha.clone()]).collect::<Vec<_>>(), native, "the Python registry");
     for ([_, sha, ts_file], [_, _, py_file]) in typescript.iter().zip(&python) {

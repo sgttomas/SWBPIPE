@@ -372,18 +372,22 @@ async function preRtA4Cases(): Promise<{ saved: SavedCase[]; recorded: RecordedC
 }
 
 const PRE_RT_A5_1B = "fixtures/persistence/recorded_pre_rt_a5_1b_pf";
+const PRE_RT_A5_MF = "fixtures/persistence/recorded_pre_rt_a5_mf_pf";
 /** Operating-case slice 1b (PF1b, DEL-05-02 `operating-case.md` "As built (1b)"): main's
  * preview-physics-2 run recorded before 1b restated the combination policy (verbatim; it binds
  * e7b93f41…, a registry variant), as a saved project's run and as main's recorded revision of it.
- * Main holds no record of a timoshenko-1 or retained-1 run before 1b (the fixture README's "Gap"). */
-async function preRtA51bCases(): Promise<{ saved: SavedCase[]; recorded: RecordedCase[] }> {
-  const pf2 = `${PRE_RT_A5_1B}/preview_physics_2`;
+ * RT-A5 `minuend_final` (`operating-case.md` §7.6): main's run recorded before it restated the
+ * policy again (`recorded_pre_rt_a5_mf_pf`, verbatim; it binds f41b9d3e…), the same two ways.
+ * Main holds no record of a timoshenko-1 or retained-1 run before either (the fixture READMEs'
+ * "Gap"). */
+async function prePolicyRestatementCases(dir = PRE_RT_A5_1B, tag = "pre-rt-a5-1b"): Promise<{ saved: SavedCase[]; recorded: RecordedCase[] }> {
+  const pf2 = `${dir}/preview_physics_2`;
   const transient = file(`${pf2}/transient_run_input.json`);
   const resultRef = file(`${pf2}/preview_physics_connected_sparse.json`), recordRef = file(transient.path, "/run_record");
   const result = fileValue(resultRef), record = fileValue(recordRef);
   const manifestText = fileValue(file(transient.path, "/input_manifest_canonical")) as string;
   const p = await project(clone(JSON.parse(manifestText).model_basis.model_payload), result, record);
-  const saved: SavedCase[] = [{ id: "saved-pre-rt-a5-1b:preview-physics-2", kind: "saved", project: p, files: { result: resultRef, record: recordRef }, expected: await savedExpected(p, result, record) }];
+  const saved: SavedCase[] = [{ id: `saved-${tag}:preview-physics-2`, kind: "saved", project: p, files: { result: resultRef, record: recordRef }, expected: await savedExpected(p, result, record) }];
   const witness = fileValue(file(`${pf2}/recorded_run_witness.json`));
   const read: RecordedRead = {
     run: { state_id: witness.state_id, producer_run_id: witness.recorded_record.analysis_run.run_id, run_record_hash: witness.run_record_hash },
@@ -391,7 +395,7 @@ async function preRtA51bCases(): Promise<{ saved: SavedCase[]; recorded: Recorde
     record: witness.recorded_record, result_json: readFileSync(resolve(ROOT, resultRef.path), "utf8"), input_manifest_canonical: manifestText,
   };
   const { record: _record, result_json: _result, ...rest } = read;
-  const recorded: RecordedCase[] = [{ id: "recorded-pre-rt-a5-1b:preview-physics-2", kind: "recorded",
+  const recorded: RecordedCase[] = [{ id: `recorded-${tag}:preview-physics-2`, kind: "recorded",
     read: { ...rest, files: { result: resultRef, record: file(`${pf2}/recorded_run_witness.json`, "/recorded_record") } },
     expected: await recordedExpected(read) }];
   return { saved, recorded };
@@ -405,8 +409,9 @@ export async function historicalReopenCases(): Promise<HistoricalReopenCases> {
   const base = builder.cases.filter(c => "record" in c.expected).map(c => ({ c, source: JSON.parse(heldText(c.source)), record: (c.expected as { record: Json }).record }));
   const basis = await recordedBasisCases();
   const preRtA4 = await preRtA4Cases();
-  const preRtA51b = await preRtA51bCases();
-  const cases: ReopenCase[] = [...(await savedCases(base)), ...basis.saved, ...preRtA4.saved, ...preRtA51b.saved, ...(await recordedCases(base)), ...basis.recorded, ...preRtA4.recorded, ...preRtA51b.recorded];
+  const preRtA51b = await prePolicyRestatementCases();
+  const preRtA5Mf = await prePolicyRestatementCases(PRE_RT_A5_MF, "pre-rt-a5-mf");
+  const cases: ReopenCase[] = [...(await savedCases(base)), ...basis.saved, ...preRtA4.saved, ...preRtA51b.saved, ...preRtA5Mf.saved, ...(await recordedCases(base)), ...basis.recorded, ...preRtA4.recorded, ...preRtA51b.recorded, ...preRtA5Mf.recorded];
   const ids = new Set(cases.map(c => c.id));
   if (ids.size !== cases.length) throw new Error("duplicate case ids");
   return {
