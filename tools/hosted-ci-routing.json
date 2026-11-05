@@ -220,7 +220,7 @@
       "core/reporting/report_package/Cargo.toml": "8810941626d46d92607f938e9391bcb4e80aab08c2132c56b04d632aa6e90113",
       "core/reporting/report_renderer/Cargo.toml": "08008d76e93e1d92e580f2e4cb158b2c787bd337581ab9e112935c27faef0074",
       "core/reporting/report_sections/Cargo.toml": "44acb66312edbc9bfd77aa2980a898511ac34de67fba0fc773b70007a3aad0f1",
-      "core/reporting/result_export/Cargo.toml": "49726e71f980baa3c1ff2723d1eefd9d34d47663645ce9eed1ab634fa5372056",
+      "core/reporting/result_export/Cargo.toml": "a4767d1902b9372840d222635d7ee0426d62fc98d4fc28625f395083e4b2b526",
       "core/rules/completeness_checker/Cargo.toml": "95cf7430d70fffc65a984a6841980f2c65f12000e28004da89efc092f1152737",
       "core/rules/expression_evaluator/Cargo.toml": "7018210dadfb7c2b855298730f5f8cddedbe09f7f03b05421b81c3694f873b18",
       "core/rules/rule_check_runner/Cargo.toml": "88971098b7a02b7cd79ee97788e76d31425865b98a0e51dbdd7d6e8711fb9dc1",
@@ -2127,7 +2127,7 @@
         ]
       },
       "core/reporting/result_export/tests/reader_verdict.rs": {
-        "sha256": "db1e507706ffc8ed37f0466faeb84013576fc1649196b151bfee85181ae8e144",
+        "sha256": "420972d76d73fb0331f7f4ac310a95850a795be15468a69db8ae770defcdbbff",
         "source_trees": [
           "core/reporting/result_export/Cargo.toml"
         ],

@@ -396,9 +396,10 @@ def _along_direction(source: Mapping[str, Any], model: Mapping[str, Any] | None)
                 continue
             d = _skewed_direction(supports.get(entity) or {})
             _require(d is not None, "ALONG_DIRECTION_UNEXPECTED")
-            largest = max(abs(c) for c in d)
-            scale = 2.0 ** -math.floor(math.log2(largest))
-            d = tuple(c * scale for c in d)
+            # Astra B3: an exact power-of-two rescale to max|d_i| in [1, 2) by frexp/ldexp, component by component; the
+            # scale itself is never formed (2.0 ** e overflows for a subnormal direction whose scaled components fit).
+            shift = 1 - math.frexp(max(abs(c) for c in d))[1]
+            d = tuple(math.ldexp(c, shift) for c in d)
             r = [components[(entity, c)] for c in ("Fx", "Fy", "Fz")]
             s = row["value"]
             _require(_number(s) and all(math.isfinite(x) for x in r), "ALONG_DIRECTION_INCONSISTENT")

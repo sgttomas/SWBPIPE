@@ -180,4 +180,16 @@ mod tests {
         assert_eq!(check([1.0, 1.0, 1.0], r, f64::MAX / 3f64.sqrt()), Ok(()));
         assert_eq!(check([1.0, 1.0, 1.0], r, 0.0), Err("ALONG_DIRECTION_INCONSISTENT".into()));
     }
+
+    /// Astra B3 (the Rust half): a direction rescaled by 2^-1026 (a subnormal pair) reads as
+    /// its unscaled twin; `canonical` steps by powers of two and never forms the scale.
+    #[test]
+    fn a_subnormal_scaled_direction_reads_as_its_twin() {
+        let tiny = 2f64.powi(-1000) * 2f64.powi(-26);
+        assert!(tiny > 0.0 && tiny < f64::MIN_POSITIVE);
+        let (r, s) = ([-3.0, -4.0, 0.0], -5.0);
+        assert_eq!(check([3.0, 4.0, 0.0], r, s), Ok(()));
+        assert_eq!(check([3.0 * tiny, 4.0 * tiny, 0.0], r, s), Ok(()));
+        assert_eq!(check([3.0 * tiny, 4.0 * tiny, 0.0], r, -s), Err("ALONG_DIRECTION_INCONSISTENT".into()));
+    }
 }

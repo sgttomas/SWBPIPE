@@ -116,3 +116,25 @@ def test_a_large_finite_reaction_never_makes_the_guard_accept_a_wrong_value():
     _along_direction(*_synthetic((1.0, 1.0, 1.0), big, 1.7976931348623157e308 / math.sqrt(3.0)))
     with pytest.raises(ValueError, match="ALONG_DIRECTION_INCONSISTENT"):
         _along_direction(*_synthetic((1.0, 1.0, 1.0), big, 0.0))
+
+
+@pytest.mark.parametrize("fixture", [FIXTURE, COMBINATIONS], ids=["one-case", "combinations"])
+def test_a_subnormal_scaled_direction_reads_as_its_twin_through_the_reader_entry(fixture):
+    """Astra B3: every skewed direction scaled by 2^-1026 (subnormal components, the same canonical direction) reads
+    through validate_preview_physics_evidence as its unscaled twin; the scale is never formed (2.0 ** 1026 overflowed and
+    the validator reported malformed evidence). A wrong along value is refused under the scaled model too."""
+    import math
+    source, model = copy.deepcopy(fixture["envelope"]), copy.deepcopy(fixture["request"]["model"])
+    scaled = copy.deepcopy(model)
+    for support in scaled["supports"]:
+        if "direction" in support:
+            support["direction"] = {axis: math.ldexp(value, -1026) for axis, value in support["direction"].items()}
+    assert scaled != model
+    validate_preview_physics_evidence(source, model)
+    validate_preview_physics_evidence(copy.deepcopy(source), scaled)
+    wrong = copy.deepcopy(source)
+    row = next(r for r in wrong["results"] if r["kind"] == KIND and r["basis_ref"]["ref_type"] == "load_case")
+    row["value"] = -row["value"]
+    for m in (model, scaled):
+        with pytest.raises(ValueError, match="ALONG_DIRECTION_INCONSISTENT"):
+            validate_preview_physics_evidence(copy.deepcopy(wrong), m)
