@@ -4,8 +4,7 @@
 // the table's own conversion function for the column's displayed unit.
 
 /** The `notice` preamble value: the registry's BS-VALID canonical text, verbatim
- * (`docs/claims_registry.md` §1). GEN-13 pins this declaration as an anchor
- * (`tools/validation/validate_claims_language.py`), so a drift here fails the check. */
+ * (`docs/claims_registry.md` §1). */
 export const CSV_PREAMBLE_NOTICE = "Candidate designs are validated in the user's accepted professional tools (external-prover correlation, PRD §22.5). Internal benchmarks and rule checks are development verification and screening evidence.";
 
 /** The fixed preamble keys, in file order (column A). Machine keys only. */

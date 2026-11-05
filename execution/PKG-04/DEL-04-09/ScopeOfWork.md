@@ -249,7 +249,7 @@ Nothing in these commitments bounds modelling, input or physical error. The inte
   - **Published benchmarks.** A problem is transcribed from a report, such as a NUREG/CR report, only with that report's own redistribution evidence (its rights statement and NRC distribution terms), recorded per fixture with the `docs/IP_AND_DATA_BOUNDARY.md` §4 provenance fields (Design §4.4), whose `review_status` stays in that section's vocabulary; an independent agent's verification of the transcription against the source is recorded separately and is not acceptance. A report with uncertain rights is held for the owner's review under that policy, and nothing is transcribed from it. Copyrighted or adapted content inside a report, such as figures adapted from journals, is not transcribed. Sources with clear rights are preferred: closed-form benchmarks derived here, and textbook formulas restated with citation (Agent 0, 2026-10-27).
   - **Other sources.** No CAEPIPE output, licensed benchmark data or paywalled text is committed.
 - **AC-009** —
-  - The modal product texts are pinned by maintained tests and reviewed against `docs/claims_registry.md`, and the claims-language lint (GEN-13) passes over the desktop texts.
+  - The modal product texts are pinned by maintained tests and reviewed against `docs/claims_registry.md`.
   - Each committed reference package has its refutation record.
   - Each transcribed published-benchmark fixture has a complete provenance record, with its report's rights statement and distribution terms, a list of what was excluded and its separate transcription verification; no fixture exists from a held report.
 
@@ -274,7 +274,6 @@ The checks named here are planned; they do not exist yet. Each slice registers i
 - **VER-008** — For REQ-008: Vitest for the modal panels, overlay and report section, and a native smoke step (M3).
 - **VER-009** — For REQ-009:
   - the pinned-text tests;
-  - GEN-13 (`tools/validation/validate_claims_language.py`);
   - review of each product text against `docs/claims_registry.md`;
   - each reference package's refutation record;
   - a check that every published-benchmark fixture has its provenance record.

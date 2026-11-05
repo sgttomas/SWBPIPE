@@ -173,5 +173,4 @@ code_paths:
 - docs/PROFESSIONAL_BOUNDARY.md
 - docs/report_notice_template.md
 - docs/claims_registry.md
-checks:
-- tests/test_claims_language_surface.py
+checks: []

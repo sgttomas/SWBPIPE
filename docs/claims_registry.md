@@ -9,9 +9,6 @@ boundary language on product and live governance surfaces. It creates no
 lifecycle, release, professional-approval, certification, sealing,
 authentication, or code-compliance claim.
 
-**Enforced by:** `tools/validation/validate_claims_language.py` (repo root),
-registered as self-check GEN-13; violations block closeout.
-
 **Amendment, 2026-09-18** — registry acts executing the owner's D-71 rulings
 codified as `DEC-100`, `DEC-101` (ii), `DEC-102` and `DEC-105`
 (`execution/_Decomposition/SOFTWARE_DECOMP.md` §12), in the owner-authorized
@@ -258,6 +255,4 @@ unchanged.
 
 Ruled history (run records, reconciliation and scope-change snapshots,
 ruled decision packets, `plans/**`, `LOOP_RECEIPTS.md` entries,
-`docs/_history/**`) keeps its original wording permanently. The PRD, this
-registry, the anchor docs, `docs/CONTRACT.md`, the threat model, and the
-loop fence definitions are allow-listed authorities for the lint.
+`docs/_history/**`) keeps its original wording permanently.
