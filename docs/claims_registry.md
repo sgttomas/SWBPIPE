@@ -71,8 +71,8 @@ the responsible engineer"
 
 **Belongs on:** the live `ScopeOfWork.md` files that already carry it, as
 existing placements only; there the canonical text and the listed short
-variants remain registered statements. The PRD, the anchor document
-`docs/PROFESSIONAL_BOUNDARY.md`, `docs/CONTRACT.md` and `docs/SPEC.md` state
+variants remain registered statements. The PRD, `docs/CONTRACT.md` and
+`docs/SPEC.md` state
 the boundary in their own words, carry no registered text, and are untouched.
 
 **Not on:** any product surface, any emitted notice, or the project's user-,
@@ -96,7 +96,7 @@ display forms with their authority domains and by the PRD §19.3 report notice.
 and multi-noun prohibition litanies on product surfaces.
 
 **Untouched by `DEC-100`:** the PRD §19.3 required report notice; PRD §5.9,
-§21.2 and §21.3; `docs/PROFESSIONAL_BOUNDARY.md`; `docs/CONTRACT.md`; the
+§21.2 and §21.3; `docs/CONTRACT.md`; the
 control word "Accept" for a proposed edit.
 
 ### BS-VALID — validation posture
@@ -231,8 +231,7 @@ appears on product surfaces.
   renderer emits it. Changes require a PRD-level owner act.
 - **PRD §21.2 prohibited-claims table** — the claims authority this registry
   implements.
-- `docs/PROFESSIONAL_BOUNDARY.md` (BS-ACCEPT anchor doc) and
-  `docs/IP_AND_DATA_BOUNDARY.md` (BS-IP anchor doc) — policy depth behind
+- `docs/IP_AND_DATA_BOUNDARY.md` (BS-IP anchor doc) — policy depth behind
   the one-line statements.
 
 ## 4. Authoring directive (agents)

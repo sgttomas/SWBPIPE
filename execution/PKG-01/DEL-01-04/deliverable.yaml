@@ -131,25 +131,6 @@ needs:
 
     Target description — TargetName: Human project authority acceptance; TargetRefID: HUMAN_PROJECT_AUTHORITY'
   evidence: execution/PKG-01/DEL-01-04/Specification.md
-- from: doc:docs/PROFESSIONAL_BOUNDARY.md
-  condition: 'DEL-01-04 provides and constrains the draft professional-boundary policy document; final
-    acceptance remains human-gated.
-
-
-    Notes: FACT; draft repo-level policy artifact exists; final acceptance or revision remains TBD and
-    no issued policy or professional/code-compliance claim is made.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=DOWNSTREAM; legacy_dependencytype=HANDOVER; legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: Professional-boundary policy document; TargetRefID: docs/PROFESSIONAL_BOUNDARY.md;
-    TargetLocation: docs/PROFESSIONAL_BOUNDARY.md'
-  direction: downstream
-  gating: false
-  evidence: docs/PROFESSIONAL_BOUNDARY.md
 - from: doc:docs/report_notice_template.md
   condition: 'DEL-01-04 provides and constrains the draft report notice template; final acceptance remains
     human-gated.
@@ -170,7 +151,6 @@ needs:
   gating: false
   evidence: docs/report_notice_template.md
 code_paths:
-- docs/PROFESSIONAL_BOUNDARY.md
 - docs/report_notice_template.md
 - docs/claims_registry.md
 checks: []

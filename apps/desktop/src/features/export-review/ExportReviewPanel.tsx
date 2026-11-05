@@ -699,9 +699,9 @@ function buildExportReviewManifest({
         "apps/desktop/src/features/validation-evidence/ValidationEvidencePanel.tsx"
       ],
       manual_section_count: 10,
-      evidence_area_count: 8,
+      evidence_area_count: 7,
       release_profile_count: 5,
-      required_release_path_count: 7,
+      required_release_path_count: 6,
       skeleton_check_count: 2,
       validation_manual_open_decision_count: 5,
       release_gate_family_count: 5,
