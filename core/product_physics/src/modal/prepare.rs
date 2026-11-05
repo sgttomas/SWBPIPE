@@ -320,6 +320,13 @@ pub(crate) fn prepare_modal(req: &ModalPreviewRequest) -> Result<Prepared<'_>, V
     topology::append_topology_diagnostics(&model, &built, &mut diagnostics);
 
     // The restraint pre-checks, as the static entry states them.
+    // R-6/R-7 S-K1: interim, until D-1 consumes the basis in the pencil (the next
+    // change): a skew model's modal solve is refused by name, never solved without its stop.
+    if built.skew.is_some() {
+        diagnostics.push(diag("diagnostic:modal:skew-restraint", "MODAL_SKEW_RESTRAINT_INTERIM_UNSUPPORTED", "blocking",
+            "modal analysis of a model with a skewed restraint is not built yet; nothing is solved", vec!["supports".to_string()]));
+        return Err(diagnostics);
+    }
     let boundary = prepare_boundary(built.nodes.len(), &built.supports);
     let potential_contact_dofs = eligible_contact_dofs(
         built.nodes.len(),

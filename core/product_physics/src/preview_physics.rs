@@ -123,6 +123,8 @@ pub(crate) enum Slot {
 pub(crate) struct CaseRecord {
     /// Per model support with a node: the device-law six-vector from the case loop.
     pub support_vectors: Vec<(String, [f64; 6])>,
+    /// R-6/R-7 S-K1 (§7.1): each skewed record's along-direction value.
+    pub along_directions: Vec<(String, f64)>,
     pub certified_support_norms: Vec<(String,[f64;2])>,
     pub members: Vec<MemberRecord>,
     /// (position among the case's rows, slot), in the case loop's order.
@@ -593,6 +595,10 @@ pub(crate) fn render(
                     append_signed_support_results(&mut rows, load_case, support, *vector);
                     if let Some((_,norms)) = record.certified_support_norms.iter().find(|(id,_)| id == support_id) {
                         rows[6].value = norms[0]; rows[7].value = norms[1];
+                    }
+                    if let Some((_, along)) = record.along_directions.iter().find(|(id, _)| id == support_id) {
+                        let basis = rows[0].metadata.as_ref().map_or(String::new(), |m| m.basis.clone());
+                        rows.push(crate::skew::along_direction_row(&case_id, support_id, *along, &basis));
                     }
                     support_rows.insert(support_id.clone(), rows);
                     attributed.push(serde_json::json!(support_id));
@@ -1181,6 +1187,15 @@ pub(crate) fn append_combination_results(
                     let value = expression.evaluate_values(&values, dimension).ok_or("load-case algebra refused")?;
                     combined[slot] = value;
                     rows.push(combination_row(combination, &expression, &sign, sources[0], qualified_combination_result_id(&combination.id, &base(component)), value, sources.iter().map(|s| s.id.clone()).collect()));
+                }
+                // R-6/R-7 (§7.1): a skewed record's along-direction value is the
+                // combination of the case values, with the components.
+                let along: Vec<Option<&ResultItem>> = targets.iter().map(|target| find(*target, "along_direction")).collect();
+                if along.iter().any(Option::is_some) {
+                    let sources: Vec<&ResultItem> = along.into_iter().collect::<Option<_>>().ok_or("source support row missing in an operand case")?;
+                    let values: Vec<f64> = sources.iter().map(|s| s.value).collect();
+                    let value = expression.evaluate_values(&values, LoadDimension::Force).ok_or("load-case algebra refused")?;
+                    rows.push(combination_row(combination, &expression, &sign, sources[0], qualified_combination_result_id(&combination.id, &base("along_direction")), value, sources.iter().map(|s| s.id.clone()).collect()));
                 }
                 for (component, value) in [
                     ("force_magnitude", norm3(combined[0], combined[1], combined[2])),

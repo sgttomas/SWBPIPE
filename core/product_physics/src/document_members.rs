@@ -25,6 +25,7 @@ use crate::operating_conditions::{self, ConditionSetInput, ConditionUseInput, Te
 use crate::spectra::{self, SpectrumInput};
 use crate::{Diagnostic, PreviewModel};
 use open_pipe_stress_units::{unit_by_symbol, Dimension};
+use open_pipe_stress_frame_kernel::restraint_basis::{self, DirectionError, SkewCode, SkewRecordFacts};
 use serde::Deserialize;
 use serde_json::{Map, Value};
 use std::collections::{HashMap, HashSet};
@@ -38,7 +39,53 @@ pub const SUPPORT_DIRECTION_RECORD_UNSUPPORTED: &str = "SUPPORT_DIRECTION_RECORD
 /// `direction` on a record whose DOF is rotational.
 pub const SUPPORT_DIRECTION_ROTATIONAL_UNSUPPORTED: &str = "SUPPORT_DIRECTION_ROTATIONAL_UNSUPPORTED";
 /// Solve and applier only; interim until the skew kernel: two or more nonzero components.
+/// No longer emitted since S-K1 (DEL-04-03 Work `skew-restraints.md` §2.2); kept for the
+/// history of its refusals.
 pub const SUPPORT_DIRECTION_SKEW_UNSUPPORTED: &str = "SUPPORT_DIRECTION_SKEW_UNSUPPORTED";
+/// §2.2 item 2: a skewed record on a document with a `pressure_contract` (S-K5 removes it).
+pub const SUPPORT_DIRECTION_SKEW_EXACT_UNSUPPORTED: &str = "SUPPORT_DIRECTION_SKEW_EXACT_UNSUPPORTED";
+/// §2.2 item 3: a skewed record in a model with any nonlinear support (S-K4 removes it).
+pub const SUPPORT_DIRECTION_SKEW_NONLINEAR_MODEL_UNSUPPORTED: &str = "SUPPORT_DIRECTION_SKEW_NONLINEAR_MODEL_UNSUPPORTED";
+/// §2.2 item 4 (§4.2): a nonzero component of the canonical scaling 2^s·d is subnormal.
+pub const SUPPORT_DIRECTION_RANGE_UNSUPPORTED: &str = "SUPPORT_DIRECTION_RANGE_UNSUPPORTED";
+/// §2.2 item 5: an `imposed_displacement` primitive targeting a skewed record (S-K3 removes it).
+pub const IMPOSED_DISPLACEMENT_SKEW_SUPPORT_UNSUPPORTED: &str = "IMPOSED_DISPLACEMENT_SKEW_SUPPORT_UNSUPPORTED";
+/// §2.2 item 6: a skewed record on a node with no element.
+pub const SUPPORT_DIRECTION_NODE_UNCONNECTED: &str = "SUPPORT_DIRECTION_NODE_UNCONNECTED";
+/// §2.2 item 7: a node with two or more skewed stops (S-K2 removes it).
+pub const SUPPORT_SKEW_STOPS_PER_NODE_UNSUPPORTED: &str = "SUPPORT_SKEW_STOPS_PER_NODE_UNSUPPORTED";
+/// §2.2 item 8: a node's exact constraint rank is below its row count.
+pub const SUPPORT_CONSTRAINT_REDUNDANT: &str = "SUPPORT_CONSTRAINT_REDUNDANT";
+/// §2.2 item 9: a nonzero prescribed translation on an axis restraint at a skewed stop's node.
+pub const SUPPORT_SKEW_NODE_PRESCRIBED_MOTION_UNSUPPORTED: &str = "SUPPORT_SKEW_NODE_PRESCRIBED_MOTION_UNSUPPORTED";
+/// §2.2 item 10: a skew model's ordinary formation leaves binary64 or would need W2/K2b.
+pub const SUPPORT_DIRECTION_SKEW_FORCE_SCALED_UNSUPPORTED: &str = "SUPPORT_DIRECTION_SKEW_FORCE_SCALED_UNSUPPORTED";
+/// §2.2 item 11: a published attributed value is outside binary64.
+pub const SUPPORT_SKEW_REACTION_RANGE_UNSUPPORTED: &str = "SUPPORT_SKEW_REACTION_RANGE_UNSUPPORTED";
+
+/// The one source of the skew code strings (M-1; §11.2): the kernel's codes by name.
+pub fn skew_code(code: SkewCode) -> &'static str {
+    match code {
+        SkewCode::DirectionInvalid => SUPPORT_DIRECTION_INVALID,
+        SkewCode::DirectionZero => SUPPORT_DIRECTION_ZERO,
+        SkewCode::ExactUnsupported => SUPPORT_DIRECTION_SKEW_EXACT_UNSUPPORTED,
+        SkewCode::NonlinearModelUnsupported => SUPPORT_DIRECTION_SKEW_NONLINEAR_MODEL_UNSUPPORTED,
+        SkewCode::RangeUnsupported => SUPPORT_DIRECTION_RANGE_UNSUPPORTED,
+        SkewCode::ImposedDisplacementSkewSupport => IMPOSED_DISPLACEMENT_SKEW_SUPPORT_UNSUPPORTED,
+        SkewCode::NodeUnconnected => SUPPORT_DIRECTION_NODE_UNCONNECTED,
+        SkewCode::StopsPerNode => SUPPORT_SKEW_STOPS_PER_NODE_UNSUPPORTED,
+        SkewCode::ConstraintRedundant => SUPPORT_CONSTRAINT_REDUNDANT,
+        SkewCode::NodePrescribedMotion => SUPPORT_SKEW_NODE_PRESCRIBED_MOTION_UNSUPPORTED,
+        SkewCode::ForceScaledUnsupported => SUPPORT_DIRECTION_SKEW_FORCE_SCALED_UNSUPPORTED,
+        SkewCode::ReactionRange => SUPPORT_SKEW_REACTION_RANGE_UNSUPPORTED,
+    }
+}
+
+/// Whether a support carries a skewed `direction` (two or more nonzero components)
+/// that the record rules admit on a static solve (not a snubber, whose refusal governs).
+pub fn is_skewed_record(support: &crate::PreviewSupport) -> bool {
+    support.family.as_deref() != Some("snubber") && support.direction.as_ref().is_some_and(is_skew)
+}
 /// A snubber restraint on a rotational DOF.
 pub const SNUBBER_ROTATIONAL_RESTRAINT_UNSUPPORTED: &str = "SNUBBER_ROTATIONAL_RESTRAINT_UNSUPPORTED";
 /// A snubber's stiffness is not on its one restraint, or not a positive finite linear stiffness.
@@ -753,18 +800,46 @@ pub(crate) fn interim_support_refusals(model: &PreviewModel, diagnostics: &mut V
                 format!("support `{}`: {SNUBBER_DYNAMIC_ONLY_MESSAGE}", support.id),
                 vec![support.id.clone()],
             ));
-        } else if let Some(DirectionInput::Vector(d)) = support.direction {
-            if single_axis(d).is_none() {
-                diagnostics.push(crate::diag(
-                    &format!("diagnostic:support:{}:direction-skew", crate::stable_suffix(&support.id)),
-                    SUPPORT_DIRECTION_SKEW_UNSUPPORTED,
-                    "blocking",
-                    skew_message(&support.id),
-                    vec![support.id.clone()],
-                ));
-            }
+        } else if let (true, Some(DirectionInput::Vector(authored))) = (is_skewed_record(support), support.direction) {
+            skew_admission(model, support, authored, diagnostics);
         }
     }
+}
+
+/// S-K1 skew admission (DEL-04-03 Work `skew-restraints.md` §2.2 items 2 to 4), one code
+/// per record, in document order: the first that applies of a pressure contract (EX), a
+/// nonlinear support anywhere in the model, and §4.2's range rule. An admitted record
+/// solves on the pressure-free linear route.
+fn skew_admission(model: &PreviewModel, support: &crate::PreviewSupport, authored: [f64; 3], diagnostics: &mut Vec<Diagnostic>) {
+    let facts = SkewRecordFacts {
+        authored,
+        pressure_contract: model.pressure_contract.is_some(),
+        nonlinear_model: model.supports.iter().any(|s| s.nonlinear.is_some()),
+    };
+    let Err(refusal) = restraint_basis::judge(&facts) else { return };
+    let (slug, reason) = match refusal.code {
+        SkewCode::ExactUnsupported => ("direction-skew-exact", "is on a document with a pressure contract; skewed restraints are built on the pressure-free route only, so nothing is solved".to_string()),
+        SkewCode::NonlinearModelUnsupported => ("direction-skew-nonlinear-model", "is in a model with a nonlinear support; skewed restraints are built for linear models only, so nothing is solved".to_string()),
+        SkewCode::RangeUnsupported => {
+            let named = match refusal.direction {
+                Some(DirectionError::RangeUnsupported { components, scale_exponent }) => {
+                    let axes: Vec<&str> = (0..3).filter(|&i| components[i]).map(restraint_basis::axis_name).collect();
+                    format!("component(s) {} are subnormal after the exact canonical scaling 2^{scale_exponent}", axes.join(", "))
+                }
+                _ => "has a subnormal canonical component".to_string(),
+            };
+            ("direction-range", format!("has a direction whose {named}; an axis-aligned direction is the authored form if that axis is meant"))
+        }
+        // The record rules give the invalid and zero codes first (§2.2 item 1).
+        _ => return,
+    };
+    diagnostics.push(crate::diag(
+        &format!("diagnostic:support:{}:{slug}", crate::stable_suffix(&support.id)),
+        skew_code(refusal.code),
+        "blocking",
+        format!("support `{}` {reason}", support.id),
+        vec![support.id.clone()],
+    ));
 }
 
 /// The skew refusal's message, at the solve and the applier.

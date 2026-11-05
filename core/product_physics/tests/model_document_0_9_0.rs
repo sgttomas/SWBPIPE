@@ -339,8 +339,17 @@ fn every_direction_code_refuses_at_the_solve() {
     assert_refused_by(&mutated(|d| { let s = support_mut(d, "stop"); s["direction"] = json!({"x": 1, "y": 0, "z": 0});
             s["nonlinear"] = json!({"behavior": "one_way", "dof": "UX", "initial_state": "active", "active_when": "negative_reaction"}); }),
         "SUPPORT_DIRECTION_RECORD_UNSUPPORTED", "nonlinear member");
-    // Interim until the skew kernel: two or more nonzero components.
-    assert_refused_by(&direct("spring", json!({"x": 0.0, "y": 3.0, "z": 4.0})), "SUPPORT_DIRECTION_SKEW_UNSUPPORTED", "two or more nonzero components");
+    // S-K1 (DEL-04-03 skew-restraints.md §2.2): two or more nonzero components are a
+    // skewed record, admitted and solved; the slice's refusals are exercised by
+    // `skew_restraints_references.rs`.
+    let skewed = direct("spring", json!({"x": 0.0, "y": 3.0, "z": 4.0}));
+    for mode in MODES {
+        let solved = solve(&skewed, mode);
+        assert_eq!(solved["status"]["mechanics"], "MECHANICS_SOLVED", "{mode:?}: {:?}", diagnostics(&solved));
+        assert!(!codes(&solved).iter().any(|c| c == "SUPPORT_DIRECTION_SKEW_UNSUPPORTED"), "{mode:?}");
+        assert!(solved["results"].as_array().unwrap().iter()
+            .any(|r| r["kind"] == "support_reaction_along_direction_v1" && r["entity_ref"] == "spring"), "{mode:?}: the along-direction row");
+    }
 }
 
 fn snubber(extra: Value) -> Value {

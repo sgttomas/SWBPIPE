@@ -240,6 +240,14 @@ fn validate_pressure_free(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic
                     Some(support_id));
                 continue;
             };
+            // R-6/R-7 S-K1 (DEL-04-03 Work `skew-restraints.md` §2.2 item 5): motion at or
+            // along a skewed record is S-K3's (meaning B, §8.3); refused by name.
+            if crate::document_members::is_skewed_record(support) {
+                refuse(diagnostics, case, load, crate::document_members::IMPOSED_DISPLACEMENT_SKEW_SUPPORT_UNSUPPORTED,
+                    format!("load {} in {} imposes a displacement on support {support_id}, which has a skewed direction; motion of a skewed restraint is not built yet, so nothing is solved", load.id, case.id),
+                    Some(support_id));
+                continue;
+            }
             let dof = match (parse_dof(dof), parse_dof(&load.direction)) {
                 (Ok(target), Ok(direction)) if target == direction => target,
                 _ => {
