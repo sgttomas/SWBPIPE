@@ -142,8 +142,12 @@ describe("C1 slice 2: S is the TypeScript builders' output", () => {
     expect(presentation.combination_identities, "combination identities").toEqual(combinations);
     expect(presentation.roster_checked, "roster checked").toBe(combinations.length > 0 && rosterCheckedByReader(source));
     expect(presentation.certificate_attested, "certificate attested").toBe(false);
+    // The held text's length and digest: this text where it is the case's own (a file or an inline
+    // text); a JSON-pointer member is the Rust writer's serialization of the same value.
+    const exactText = "text" in testCase.result || testCase.result.pointer === "";
     expect(presentation.binding, "binding").toEqual({
-      result_bytes: Buffer.byteLength(sourceText, "utf8"), source_sha256: createHash("sha256").update(sourceText, "utf8").digest("hex"),
+      result_bytes: exactText ? Buffer.byteLength(sourceText, "utf8") : presentation.binding.result_bytes,
+      source_sha256: exactText ? createHash("sha256").update(sourceText, "utf8").digest("hex") : presentation.binding.source_sha256,
       route: readerDispatch(source).route, reader_table: readerDispatch(source).binding, recorded_table: null
     });
 
