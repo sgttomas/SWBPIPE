@@ -14,7 +14,11 @@
  *   paints it (either frame); the page shown next arms its own two frames (review F2);
  * - that `reader_verdict_end` → `analysis_run_built` awaits exactly one native call, the
  *   analysis-run preview, journalled as the `run_preview` phase; holding it reproduces the attempt;
- * - every row read in the whole call sequence is bounded (no take, no C2 full copy).
+ * - every row read in the whole call sequence is bounded (no take, no C2 full copy);
+ * - (A+B diagnosis) a page that is not shown, where WebKit runs no animation frame, marks no paint
+ *   however long its first page has been committed; the first frames after it is shown mark it;
+ * - (A+B diagnosis) a stale handle's first page, answered while a newer solve runs, marks nothing
+ *   in the newer solve's timeline; the newer solve paints from its own first page.
  * Unit transport replay of committed producer bytes through mocked IPC; NOT a native UI
  * qualification witness, a timing or a measurement. All data are invented. */
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
@@ -56,12 +60,14 @@ type Options = {
   afterCommit?: boolean;
   /** Refuses this command (after the commit) as the native detail reader does. */
   refuse?: string;
+  /** Holds one call until the returned promise settles (null: answer at once). */
+  gate?: (command: string, stage: SolveStage | null) => Promise<void> | null;
 };
 const COMMITTED: ReadonlySet<SolveStage | null> = new Set(["result_committed", "first_paint"]);
 
 /** The App on a native replay of `profile`, every native call recorded with the timeline's last
  * stage when it was issued. */
-async function install(profile: NativeMechanicsReplayProfile, { hold, afterCommit = false, refuse }: Options = {}) {
+async function install(profile: NativeMechanicsReplayProfile, { hold, afterCommit = false, refuse, gate }: Options = {}) {
   const storage = await getLocalStorageCapability();
   const knowledge = await loadDesignKnowledge();
   const mechanics = createNativeMechanicsReplay({ profile });
@@ -78,6 +84,8 @@ async function install(profile: NativeMechanicsReplayProfile, { hold, afterCommi
     const inScope = !afterCommit || COMMITTED.has(stage);
     if (command === refuse && inScope) throw new Error("RESULT-DETAIL-REFUSED: the page was refused (unit replay)");
     if (command === hold && inScope) await held;
+    const gated = gate?.(command, stage);
+    if (gated) await gated;
     return mechanics.invoke(command, args, options);
   });
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
@@ -345,5 +353,92 @@ describe("the reader_verdict_end → analysis_run_built window", () => {
     expect(stages()).toEqual(ORDER);
     expect(events.at(-1)).toMatchObject({ phase: "run_preview", edge: "exit", status: "ok", stage: "reader_verdict_end" });
     expect(events.filter((event) => event.phase === "run_preview")).toHaveLength(2);
+  });
+});
+
+/** A promise and its release, for one held native call. */
+function deferred() {
+  let release: () => void = () => undefined;
+  const promise = new Promise<void>((resolve) => { release = resolve; });
+  return { promise, release };
+}
+
+describe("the A+B attempt's conditions through the connected App (c1-slice7-run-proposal.md)", () => {
+  it("marks no paint on a page that is not shown (no animation frames) however long its first page has been committed; the first two frames after it is shown mark it", async () => {
+    const frames = manualFrames();
+    // WebKit's hidden page: the document is hidden and no animation frame runs (modelled by
+    // frames that are not delivered); the product reads neither, it only waits for frames.
+    let state: DocumentVisibilityState = "hidden";
+    Object.defineProperty(document, "visibilityState", { configurable: true, get: () => state });
+    try {
+      const { calls } = await install("pressure");
+      await runThenOpenResults();
+      // The first page and its row semantics are read, after the commit, and rendered: armed.
+      await waitFor(() => expect(rowShown()).toBe(true), { timeout: 10000 });
+      expect(calls.some((call) => call.command === SEMANTICS && call.stage === "result_committed")).toBe(true);
+      expect(frames.pending()).toBeGreaterThan(0);
+      for (let turn = 0; turn < 5; turn += 1) await turns();
+      expect(stages().at(-1)).toBe("result_committed");
+      // Shown again: the browser runs the queued frames; the paint is the second of them.
+      state = "visible";
+      const shownAt = performance.now();
+      frames.frame();
+      expect(stages()).not.toContain("first_paint");
+      frames.frame();
+      expect(stages()).toEqual(ORDER);
+      expect(readSolveTimeline()!.marks.at(-1)!.at_ms).toBeGreaterThanOrEqual(shownAt);
+      expectBoundedRowReads(calls);
+    } finally {
+      delete (document as unknown as Record<string, unknown>).visibilityState;
+    }
+  });
+
+  it("marks nothing in a newer solve's timeline for a stale handle's first page answered during it; the newer solve paints from its own", async () => {
+    const frames = manualFrames();
+    const oldPage = deferred();
+    const newerPreview = deferred();
+    const sequence = () => readSolveTimeline()?.sequence ?? 0;
+    const firstSequence = { value: 0 };
+    let oldPageAnswered = false;
+    const { calls } = await install("pressure", {
+      gate: (command, stage) => {
+        // The first solve's first page is held after its commit; the newer solve's record
+        // preview is held, so the newer solve is still running when the old page arrives.
+        if (command === PAGE_QUERY && sequence() === firstSequence.value && COMMITTED.has(stage)) return oldPage.promise.then(() => { oldPageAnswered = true; });
+        if (command === ANALYSIS_RUN_PREVIEW_COMMAND && sequence() > firstSequence.value && firstSequence.value > 0) return newerPreview.promise;
+        return null;
+      }
+    });
+    menu("analyze.run");
+    await waitFor(() => expect(stages()).toContain("solve_requested"));
+    firstSequence.value = sequence();
+    menu("view.section.results");
+    await waitFor(() => expect(stages()).toContain("result_committed"), { timeout: 10000 });
+    await waitFor(() => expect(calls.some((call) => call.command === PAGE_QUERY && COMMITTED.has(call.stage))).toBe(true));
+    // A newer solve begins (Analyze > Run shows Solve; Results is opened again) and waits on its preview.
+    menu("analyze.run");
+    await waitFor(() => expect(sequence()).toBeGreaterThan(firstSequence.value));
+    menu("view.section.results");
+    await waitFor(() => expect(calls.some((call) => call.command === ANALYSIS_RUN_PREVIEW_COMMAND && call.stage === "reader_verdict_end")).toBe(true), { timeout: 10000 });
+    expect(stages().at(-1)).toBe("reader_verdict_end");
+    // The newer solve retired the older result when it began (workspaceSession `setResult(null)`);
+    // the stale handle's first page is answered now, after that: it renders nothing and arms nothing.
+    oldPage.release();
+    await waitFor(() => expect(oldPageAnswered).toBe(true), { timeout: 10000 });
+    await turns();
+    expect(rowShown()).toBe(false);
+    for (let frame = 0; frame < 5; frame += 1) { frames.frame(); await turns(); }
+    expect(frames.pending()).toBe(0);
+    expect(stages().at(-1)).toBe("reader_verdict_end");
+    expect(stages()).not.toContain("first_paint");
+    // The newer solve completes and paints from its own first page, two frames after it renders.
+    newerPreview.release();
+    await waitFor(() => expect(stages()).toContain("result_committed"), { timeout: 10000 });
+    await waitFor(() => expect(frames.pending()).toBeGreaterThan(0), { timeout: 10000 });
+    expect(stages()).not.toContain("first_paint");
+    frames.frame();
+    frames.frame();
+    expect(stages()).toEqual(ORDER);
+    expect(sequence()).toBeGreaterThan(firstSequence.value);
   });
 });
