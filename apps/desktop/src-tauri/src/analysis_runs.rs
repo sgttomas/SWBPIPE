@@ -1742,10 +1742,14 @@ fn summary_from_row(connection: &Connection, row: SummaryRow, memory: &dyn ReadM
     let record = verified_run_record(&columns, record, memory)?;
     #[cfg(test)]
     stored_read::phase_probe::mark("run readback: record verified");
-    if written_differs.is_some() {
+    // The old readback runs to its end first (review of #133): its status and
+    // label checks refuse as they always did. Only bytes it accepts in full,
+    // but that are not the bytes written (P2), get the new refusal.
+    let differs_id = written_differs.is_some().then(|| recording_id.clone());
+    let summary = summary_tail(&recording_id.clone(), columns_owned(project_id, recording_id, state_id, producer_run_id, created_at, run_record_hash, result_hash), (name, tags, notes, assumptions, updated_at), &record, memory)?;
+    if let Some(recording_id) = differs_id {
         return Err(integrity_of(&recording_id, "the stored record is not the record written"));
     }
-    let summary = summary_tail(&recording_id.clone(), columns_owned(project_id, recording_id, state_id, producer_run_id, created_at, run_record_hash, result_hash), (name, tags, notes, assumptions, updated_at), &record, memory)?;
     Ok((summary, Metered::new(record).holding(record_reservation)))
 }
 

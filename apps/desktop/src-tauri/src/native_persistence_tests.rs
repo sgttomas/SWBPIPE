@@ -1789,6 +1789,50 @@ fn p2_a_run_tampered_after_its_insert_is_refused_and_rolled_back() {
     assert_eq!(registry.pool().reserved_total(), 0);
 }
 
+/// Review of #133 (blocking finding 1): stored bytes that differ from the
+/// staged record get P2's new refusal only when the old readback accepts them
+/// in full. With a malformed label list as well (an after-insert labels
+/// trigger), the old readback's own label refusal stands, exactly as with the
+/// label tamper alone, and every row is rolled back.
+#[test]
+fn p2_changed_bytes_with_a_malformed_label_list_keep_the_old_label_refusal() {
+    const BAD_TAGS: &str = "CREATE TEMP TRIGGER bad_run_tags AFTER INSERT ON analysis_run_labels BEGIN UPDATE analysis_run_labels SET tags_json = '{}' WHERE recording_id = NEW.recording_id; END";
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let dir = scratch("p2-bytes-and-labels");
+    let case = case_named("preview:pressure");
+    let job = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
+    let args = case.record_args(&job, native_request(None));
+    let held_bytes = registry.pool().reserved_total();
+    let refused = |name: &str, sql: String| -> String {
+        let path = dir.join(format!("{name}.sqlite"));
+        stored_project(&path, case.project_id(), case.model());
+        let before = store_snapshot(&path);
+        let tamper = |transaction: &Transaction<'_>, stage: &str| -> Result<(), String> {
+            if stage == "run" {
+                transaction.execute_batch(&format!("PRAGMA defer_foreign_keys = ON; DROP TRIGGER analysis_runs_immutable; {sql};")).map_err(|error| error.to_string())?;
+            }
+            Ok(())
+        };
+        let hooks = RunWriteHooks { now: &frozen_now, state_token: &frozen_token, between_rows: &tamper };
+        let text = native_record_with(&registry, &path, &args, &hooks).expect_err(name);
+        assert_eq!(store_snapshot(&path), before, "{name}: every row rolled back, the trigger restored");
+        assert_eq!(registry.pool().reserved_total(), held_bytes, "{name}: every lease of the command ended");
+        text
+    };
+    let labels_only = refused("labels-only", BAD_TAGS.to_string());
+    let combined = refused("bytes-and-labels", format!("UPDATE analysis_runs SET run_record_json = ' ' || run_record_json; {BAD_TAGS}"));
+    assert!(labels_only.starts_with("ANALYSIS-RUN-INTEGRITY: ") && labels_only.contains("label list is malformed"), "{labels_only}");
+    assert!(!labels_only.contains("not the record written"), "{labels_only}");
+    assert_eq!(combined, labels_only, "the old label refusal precedes P2's byte refusal");
+    // The whitespace alone, which the old readback accepts, is P2's refusal.
+    let bytes_only = refused("bytes-only", "UPDATE analysis_runs SET run_record_json = ' ' || run_record_json".to_string());
+    assert!(bytes_only.contains("the stored record is not the record written"), "{bytes_only}");
+    assert!(registry.dispose_result(&job).unwrap().released);
+    std::fs::remove_dir_all(&dir).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
+
 /// The texts, request and plan inputs of `case`'s run as a native Record Run
 /// stored them in `reference` (the direct writer tests).
 fn stored_run_texts(reference: &Path) -> std::collections::BTreeMap<String, String> {

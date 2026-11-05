@@ -586,8 +586,12 @@ the History panel and `useModelStateHistory.ts`.
   type, length and SHA-256, streamed from SQLite), and the run's identity,
   time, hash and label columns are read and checked as every read-back checks
   them. A staged text the stream cannot read as the parse does gets the full
-  read-back. Stored bytes that are not the staged text get its refusal, or are
-  refused as not the record written. Either refusal rolls everything back.
+  read-back. Stored bytes that are not the staged text get its refusal (the
+  full read-back runs to its end first), or, only where it accepts them in
+  full, are refused as not the record written, a new text. A staged record
+  failing the checks is refused before anything is written. Either refusal
+  rolls everything back. These and P1's memory-refusal changes are stated in
+  DEL-04-05 `c1-native-custody-plan.md` slice 5, "Refusal changes".
   That text digest is never stored and is not the record's hash; every other
   read keeps the full verification.
 - **Checks before the store.**

@@ -716,9 +716,10 @@ restored and browser-preview results):
   a new snapshot included. Save uses `PROJECT-SAVE-TOO-LARGE` for this no-save backstop, distinct
   from a successful model-only save's `PROJECT-SAVE-RESULT-TOO-LARGE` result code.
 - **Lifetimes and Record Run's readback (RT-U4, 2026-11-04; Agent 0's P1/P2 decision).** Stored
-  bytes, canonical hashes, storage and schema versions, historical selection, refusal texts and
-  their order, and the one transaction committed after the response are unchanged; no new value is
-  stored. P1 ends each row-scale allocation at its last use:
+  bytes, canonical hashes, storage and schema versions, historical selection and the one
+  transaction committed after the response are unchanged, and no new value is stored. Refusal texts
+  and their order are unchanged **except** for the stated exceptions below ("Refusal changes"). P1
+  ends each row-scale allocation at its last use:
   - Record Run writes the recorded revision while the parse M is alive, ends M and the builder's
     leases, then writes the result text from the held text. The two texts, their leases and the
     lease of SQLite's statement copies end as soon as the run row is inserted, before its labels
@@ -754,6 +755,24 @@ restored and browser-preview results):
   would accept them. Either way every row rolls back. Every other reader keeps full validation.
   A staged record failing its checks is now refused before the INSERT with the text the readback
   gave after it.
+
+  **Refusal changes** (each still rolls back every row and releases every lease; reconciled with
+  Agent 0's decision, which required the byte-fidelity check and named its bounded exceptions):
+  - *New text, P2 only:* stored bytes the full readback would accept in full (its record, column,
+    status and label checks all pass) but that are not the staged bytes, such as added
+    whitespace, are refused `ANALYSIS-RUN-INTEGRITY: … the stored record is not the record
+    written`. The full readback runs to its end first, so any refusal it gives (a malformed label
+    list, a column mismatch) stands with its own text (review of #133, finding 1;
+    `p2_changed_bytes_with_a_malformed_label_list_keep_the_old_label_refusal`).
+  - *Earlier staged refusal, P2 only:* a staged record failing the readback's checks (which only
+    a broken builder produces) is refused before the run is written, so before every later
+    write-stage failure: the state insertion, the between-rows hooks, the label insertion and
+    SQLite's row-size backstop. Its text is the readback's.
+  - *Memory refusals, P1:* each statement's copies are now leased per statement and texts end
+    earlier, so under memory pressure a different reservation may be the one refused, and at a
+    different point. In particular a save's search-row reservation is now admitted after the
+    project row is upserted; its refusal rolls the transaction back, so nothing is written. The
+    refusal is `STORE-READ-MEMORY-UNAVAILABLE` naming that reservation.
   Evidence: `p1_stored_bytes_hashes_and_replies_are_the_pre_change_implementations` (every stored
   column and reply of Record Run, Create/Save, the recorded-run read, the reopen and the re-save on
   every persistence case, against digests generated at `c8865f384`), the `p1_*` and `p2_*` tests in

@@ -76,8 +76,14 @@
 //!   at its exact length until it is handed to Tauri. The store's own reads
 //!   lease through [`NativeLeaseMemory`].
 //! - **Lifetimes (RT-U4).** Each row-scale allocation ends at its last use,
-//!   its lease with it; stored bytes, hashes, refusals and their order, and
-//!   the one transaction committed after the response are unchanged.
+//!   its lease with it; stored bytes, hashes and the one transaction committed
+//!   after the response are unchanged. Refusals and their order are unchanged
+//!   except as DEL-04-05 `c1-native-custody-plan.md` slice 5 states ("Refusal
+//!   changes"): P2's new not-the-record-written text (only for bytes the full
+//!   readback accepts), P2's staged refusal before every write stage, and,
+//!   under memory pressure, which per-statement reservation is refused and
+//!   where (a save's search-row reservation now after the project upsert,
+//!   rolled back).
 //!   - Record Run writes the record's text while the parse is alive (the
 //!     record is written from it), ends the parse, then writes the result's
 //!     text from the held text. The two texts and SQLite's copies of the row
@@ -104,8 +110,9 @@
 //!     cannot read as the parse would (another key order, a repeated key, a
 //!     number outside the profile, deep nesting) gets the full readback, and
 //!     stored bytes that are not the staged text get the full readback's
-//!     refusal or are refused as not the record written; either rolls back
-//!     every row.
+//!     refusal (it runs to its end first) or, only where it accepts them in
+//!     full, are refused as not the record written; either rolls back every
+//!     row.
 //!   - Save Project (and a restored run's re-save, `stored_save`) writes the
 //!     project row with SQLite's copies of it leased, ends the result's text,
 //!     builds the search text from its slots (byte for byte
