@@ -16,6 +16,7 @@ import { buildDiagnosticInterpretation } from "./resultInterpretation";
 import { readerValidate } from "./resultReader";
 import {
   HELD_STATUS_GATE_CODES,
+  HELD_STATUS_QUOTED_CODES,
   presentedResultDiagnostics,
   SUPPLEMENTAL_DIAGNOSTIC_LABEL,
   suppliedDiagnosticMessage
@@ -41,8 +42,9 @@ const CLAIMS = [
 function held(name = "source_unavailable"): Entry {
   return structuredClone((heldCorpus as unknown as { documents: Entry[] }).documents.find((e) => e.name === name)!);
 }
-function notice(result: MechanicsResult): Diagnostic {
-  return result.diagnostics.find((d) => d.id === GATE)!;
+const RELEASED = "diagnostic:preview-physics:held-status-released:13:comb:o-s-held";
+function notice(result: MechanicsResult, id = GATE): Diagnostic {
+  return result.diagnostics.find((d) => d.id === id)!;
 }
 function record(result: MechanicsResult): { standing: { kind: string; reason: string } } {
   return (result.contract_evidence as unknown as Record<string, { standing: { kind: string; reason: string } }[]>).held_status_derivation[0];
@@ -54,31 +56,31 @@ function panelModel(result: MechanicsResult): PreviewModel {
   return { diagnostics: [], project: { id: (result as { model_ref?: string }).model_ref }, rule_pack_refs: [], library_refs: [] } as unknown as PreviewModel;
 }
 /** The held notice as every presenting path shows it, and the raw bytes before and after. */
-function presented(result: MechanicsResult) {
+function presented(result: MechanicsResult, id = GATE) {
   const before = JSON.stringify(result);
-  const raw = notice(result);
+  const raw = notice(result, id);
   const view = render(<DiagnosticsPanel model={panelModel(result)} knowledge={null} result={result} selectedDiagnosticId={raw.id!} onSelectDiagnostic={() => {}} />);
   const listed = screen.getAllByTestId(`diagnostic-${raw.code}`).map((item) => item.querySelector("p")!.textContent);
   const explanation = screen.getByTestId("selected-diagnostic-explanation").querySelector("dd")!.textContent!;
   view.unmount();
-  const webview = presentedResultDiagnostics(result).find((d) => d.id === GATE)!.message;
-  const interpretation = buildDiagnosticInterpretation({ model: panelModel(result), knowledge: null, result, diagnosticId: GATE })!.message;
+  const webview = presentedResultDiagnostics(result).find((d) => d.id === id)!.message;
+  const interpretation = buildDiagnosticInterpretation({ model: panelModel(result), knowledge: null, result, diagnosticId: id })!.message;
   const report = diagnosticsForSections(result, PROVENANCE)[result.diagnostics.indexOf(raw)].message;
   expect(JSON.stringify(result)).toBe(before);
   return { raw: raw.message, listed, explanation, webview, interpretation, report };
 }
-function expectQuoted(result: MechanicsResult) {
-  const shown = presented(result);
+function expectQuoted(result: MechanicsResult, id = GATE) {
+  const shown = presented(result, id);
   for (const message of [shown.webview, shown.interpretation, shown.report]) expect(message).toBe(supplied(shown.raw));
   expect(shown.listed).toEqual([supplied(shown.raw)]);
   expect(shown.explanation.startsWith(supplied(shown.raw))).toBe(true);
 }
 
 describe("held gate notices: always quoted as supplied text", () => {
-  it("keys the rule on the five typed codes only", () => {
-    expect([...HELD_STATUS_GATE_CODES].sort()).toEqual([
-      "HELD_STATUS_BINDING", "HELD_STATUS_SLIDING_GROUND_DIFFERS", "HELD_STATUS_SOLVE_FAILED", "HELD_STATUS_SOURCE_UNAVAILABLE", "HELD_STATUS_SOURCE_UNQUALIFIED"
-    ]);
+  it("keys the rule on the six typed held-status codes only", () => {
+    const gates = ["HELD_STATUS_BINDING", "HELD_STATUS_SLIDING_GROUND_DIFFERS", "HELD_STATUS_SOLVE_FAILED", "HELD_STATUS_SOURCE_UNAVAILABLE", "HELD_STATUS_SOURCE_UNQUALIFIED"];
+    expect([...HELD_STATUS_GATE_CODES].sort()).toEqual(gates);
+    expect([...HELD_STATUS_QUOTED_CODES].sort()).toEqual([...gates, "HELD_STATUS_RELEASED"].sort());
     // The same message under another code follows the ordinary classification.
     const other = { code: "REVIEW_NOTE", message: "the minuend case case:O has no converged nonlinear support state to lend", affected_refs: ["comb:o-s-held"] };
     expect(suppliedDiagnosticMessage(other, new Set(["comb:o-s-held"]), true)).toBe(other.message);
@@ -95,6 +97,10 @@ describe("held gate notices: always quoted as supplied text", () => {
       expect(headline.message).toBe(result.diagnostics.find((d) => d.code === "PREVIEW_HEADLINE_SCOPE_LOAD_CASES")!.message);
       expectQuoted(result);
     }
+  });
+
+  it("quotes a held-status-released notice on every path and keeps the raw bytes", () => {
+    for (const name of ["h2_released", "h5_slip_sense", "h13_branch", "h7g_gap"]) expectQuoted(held(name).document, RELEASED);
   });
 
   it("quotes a claim-like refusal and changes no other presentation or standing", () => {
@@ -126,10 +132,11 @@ describe("held gate notices: always quoted as supplied text", () => {
       expect(admitted(result), label).toBe(false);
       expectQuoted(result);
     }
-    // Stale: a source stating a superseded semantic contract identity. Whatever the reader makes of
-    // it, the held notice is quoted, because the rule reads the typed code, not the reading.
+    // Stale: a source stating the retired preview-physics-1 identity, refused by the full reader;
+    // the held notice is quoted, because the rule reads the typed code, not the reading.
     const stale = held().document;
     (stale.producer as unknown as Record<string, string>).semantic_contract_id = "openpipestress.result_semantics/0.3.0/preview-physics-1";
+    expect(admitted(stale)).toBe(false);
     expectQuoted(stale);
     // Unread: a result no ordinary route reader reads here (a retained successor's shape) is never roster-checked.
     const unread = held().document;

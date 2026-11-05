@@ -338,7 +338,8 @@ fn held_gate_notices_are_the_records_refusal_in_their_frame() {
         ("frame without its period", true, "source_unavailable",
          Some(|d| { let m = held_notice(d)["message"].as_str().unwrap().trim_end_matches('.').to_string(); held_notice(d)["message"] = m.into(); }), Some("SOURCE_COMBINATION_CERTIFICATE_ROSTER_CONTRADICTION")),
         // The held-status reader binds the record's kind and a non-empty refusal, not its text (R is
-        // bound, not verified), so a refusal changed in the evidence alone is refused by the roster.
+        // bound, not verified), so a refusal changed in the evidence alone is refused first by the
+        // roster, at this full public reader.
         ("refusal changed in the evidence only", true, "source_unavailable",
          Some(|d| { let r = format!("{} (edited)", held_refusal(d).as_str().unwrap()); *held_refusal(d) = r.into(); }), Some("SOURCE_COMBINATION_CERTIFICATE_ROSTER_CONTRADICTION")),
         // The gates reader (`preview_combination_gates`), which precedes the held-status reader and
@@ -402,7 +403,13 @@ fn held_gate_claim_like_refusals_are_bound_never_policed_and_claim_nothing() {
             let held = bound["contract_evidence"]["combination_certificate"]["combinations"].as_array().unwrap().iter()
                 .find(|r| r["combination_id"] == "comb:o-s-held").unwrap();
             assert_eq!((&held["assessment"], &held["groups"], &held["uncovered_row_count"]), (&Value::from("not_assessed"), &serde_json::json!([]), &Value::from(0)));
-            for notice_side in [true, false] {
+            // Forged on one side only, refused at the full public reader. In the notice only, it is no
+            // longer the bound entry (its whole message is not the record's canonical one), so the
+            // certificate's own notice reader (`check`'s DIAGNOSTICS, before the roster) owns a notice in
+            // its reserved wording (read case-sensitively: the mixed-case claim is the roster's), and the
+            // roster any other; in the record only, the roster refuses first.
+            let notice_owner = if claim == HELD_CLAIMS[2] { "SOURCE_COMBINATION_CERTIFICATE_ROSTER_CONTRADICTION" } else { "SOURCE_COMBINATION_CERTIFICATE_DIAGNOSTICS" };
+            for (notice_side, code) in [(true, notice_owner), (false, "SOURCE_COMBINATION_CERTIFICATE_ROSTER_CONTRADICTION")] {
                 let mut forged = benign["document"].clone();
                 if notice_side {
                     held_notice(&mut forged)["message"] = format!("Combination withheld: {claim}.").into();
@@ -410,7 +417,21 @@ fn held_gate_claim_like_refusals_are_bound_never_policed_and_claim_nothing() {
                     *held_refusal(&mut forged) = claim.into();
                 }
                 let verdict = reader_verdict::validate("preview-physics", &forged, model, None);
-                assert_eq!(verdict["error"]["code"], "SOURCE_COMBINATION_CERTIFICATE_ROSTER_CONTRADICTION", "{claim} (notice side {notice_side}): {verdict}");
+                assert_eq!(verdict["error"]["code"], code, "{claim} (notice side {notice_side}): {verdict}");
+            }
+            // A well-bound claim-like refusal lifts only the vocabulary test: a forged binding or state
+            // is still refused by the mandatory readers before the certificate (gates, then held status).
+            let forgeries: [(&str, fn(&mut Value), &str); 4] = [
+                ("its record's outcome", |d| d["contract_evidence"]["held_status_derivation"][0]["outcome"] = "HELD_STATUS_BINDING".into(), "SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_DERIVATION"),
+                ("its record's source case", |d| d["contract_evidence"]["held_status_derivation"][0]["source"]["load_case_id"] = "case:S".into(), "SOURCE_PREVIEW_PHYSICS_HELD_STATUS_BINDING"),
+                ("its record's state", |d| d["contract_evidence"]["held_status_derivation"][0]["standing"]["kind"] = "established".into(), "SOURCE_PREVIEW_PHYSICS_HELD_STATUS_EVIDENCE"),
+                ("its gate", |d| gate(d, "comb:o-s-held")["withheld"] = false.into(), "SOURCE_PREVIEW_PHYSICS_GATE_REASON"),
+            ];
+            for (what, forge, code) in forgeries {
+                let mut forged = bound.clone();
+                forge(&mut forged);
+                let verdict = reader_verdict::validate("preview-physics", &forged, model, None);
+                assert_eq!((&verdict["ok"], verdict["error"]["code"].as_str()), (&Value::Bool(false), Some(code)), "{claim}: {what}: {verdict}");
             }
         }
     }

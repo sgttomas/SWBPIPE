@@ -20,9 +20,9 @@ import {
   type RunComparisonEntry,
   type RunComparisonStatusFilter
 } from "./runComparisonCsv";
-import { heldStatusGateNotice, suppliedDiagnosticMessage } from "../results/suppliedDiagnostics";
+import { heldStatusQuotedNotice, suppliedDiagnosticMessage } from "../results/suppliedDiagnostics";
 
-/** RT-A5: a held gate notice is quoted whole as supplied text here too (`suppliedDiagnosticMessage`). */
+/** RT-A5: a held-status notice (`HELD_STATUS_QUOTED_CODES`) is quoted whole as supplied text here too (`suppliedDiagnosticMessage`). */
 const NO_COMBINATIONS: ReadonlySet<string> = new Set();
 
 // The comparison of two runs (W-12 S3b; DEL-14-01 Design
@@ -164,7 +164,7 @@ export function RunComparisonView({ result, onClose }: { result: RunComparisonRe
               <li key={`${diagnostic.change}:${index}`} data-kind={diagnostic.change}>
                 <span className="muted">{diagnostic.change === "added" ? "Only in the right run" : "Only in the left run"}:</span> <code>{diagnostic.code}</code>
                 {diagnostic.affected_refs.length ? <> on {diagnostic.affected_refs.join(", ")}</> : null}
-                {diagnostic.message ? <span className="muted"> ({heldStatusGateNotice(diagnostic) ? suppliedDiagnosticMessage({ code: diagnostic.code, message: diagnostic.message }, NO_COMBINATIONS, false) : storedValueText(diagnostic.message)})</span> : null}
+                {diagnostic.message ? <span className="muted"> ({heldStatusQuotedNotice(diagnostic) ? suppliedDiagnosticMessage({ code: diagnostic.code, message: diagnostic.message }, NO_COMBINATIONS, false) : storedValueText(diagnostic.message)})</span> : null}
               </li>
             ))}
           </ul>

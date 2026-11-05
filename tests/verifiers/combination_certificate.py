@@ -106,10 +106,11 @@ def _reserved(source: Mapping[str, Any], d: Any) -> bool:
 
 def _bound_held_gate(source: Mapping[str, Any], d: Any) -> bool:
     """RT-A5 (Work combination-certificate.md section 2; Rust `bound_held_gate`): whether a diagnostic is a withheld
-    held gate's own notice, by typed identity and never by its text: one of the five held gate codes, exactly one
-    named combination, that combination's gate id, the document's gate for it withheld with that code, and exactly one
-    held-status record of that outcome. Its message is bound to that record by the roster, not verified as true; it
-    supplies no row bound, eligibility, certificate notice or standing."""
+    held gate's own notice, by typed identity and its whole canonical message: one of the five held gate codes, exactly
+    one named combination, that combination's gate id, the document's gate for it withheld with that code, exactly one
+    held-status record, a withheld one of that outcome, and the message exactly "Combination withheld: " + R + "." with
+    R that record's refusal. R is bound to the record, not verified as true; it supplies no row bound, eligibility,
+    certificate notice or standing. Any other notice keeps the reserved vocabulary's message test."""
     if not isinstance(d, Mapping) or d.get("code") not in HELD_GATES:
         return False
     refs = _items(d.get("affected_refs"))
@@ -124,10 +125,14 @@ def _bound_held_gate(source: Mapping[str, Any], d: Any) -> bool:
         return False
     evidence = _get(source, "contract_evidence")
     evidence = evidence if isinstance(evidence, Mapping) else {}
-    return (any(isinstance(g, Mapping) and g.get("combination_id") == cid and g.get("withheld") is True and g.get("reason") == code
-                for g in _items(evidence.get("combination_gates")))
-            and sum(1 for r in _items(evidence.get(HELD_MEMBER)) if isinstance(r, Mapping) and r.get("combination_id") == cid
-                    and r.get("outcome") == code) == 1)
+    if not any(isinstance(g, Mapping) and g.get("combination_id") == cid and g.get("withheld") is True and g.get("reason") == code
+               for g in _items(evidence.get("combination_gates"))):
+        return False
+    records = [r for r in _items(evidence.get(HELD_MEMBER)) if isinstance(r, Mapping) and r.get("combination_id") == cid]
+    if len(records) != 1 or records[0].get("outcome") != code or _get(records[0], "standing", "kind") != "withheld":
+        return False
+    refusal = _get(records[0], "standing", "reason")
+    return isinstance(refusal, str) and refusal != "" and d.get("message") == f"Combination withheld: {refusal}."
 
 
 def _keys(value: Any, keys: set[str]) -> bool:

@@ -166,6 +166,11 @@ pub fn preview_physics_identity(id: &str) -> Option<(&'static Value, &'static st
 }
 /// A preview-physics source's identity, by its producer's `semantic_contract_id`: the
 /// Timoshenko identity when named, else preview-physics-2 (the readers' unchanged default).
+/// Precondition: the caller has kept the stated identity within the route's
+/// (`PREVIEW_PHYSICS_IDENTITIES`, or none): the full public reader
+/// (`reader_verdict::validate`'s `preview_route_identity`) and the header dispatch
+/// (`for_source_metadata`) refuse any other, the retired preview-physics-1 by name; this
+/// helper does not, and reads it as preview-physics-2's.
 pub fn preview_physics_identity_of(source: &Value) -> (&'static Value, &'static str) {
     preview_physics_identity(source["producer"]["semantic_contract_id"].as_str().unwrap_or_default())
         .unwrap_or_else(|| (preview_physics_contract(), PREVIEW_PHYSICS_PROFILE))

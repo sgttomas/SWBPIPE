@@ -800,7 +800,8 @@ HELD_GATE_CASES = [
     ("frame without its period", "held", "source_unavailable",
      lambda d: _held_notice(d).update(message=_held_notice(d)["message"].removesuffix(".")), "SOURCE_COMBINATION_CERTIFICATE_ROSTER_CONTRADICTION"),
     # The held-status reader binds the record's kind and a non-empty refusal, not its text (R is bound, not verified),
-    # so a refusal changed in the evidence alone is refused by the roster, whose canonical notice it no longer is.
+    # so a refusal changed in the evidence alone is refused first by the roster, at the full public reader, whose
+    # canonical notice it no longer is.
     ("refusal changed in the evidence only", "held", "source_unavailable",
      lambda d: _held_record(d)["standing"].update(reason=_held_record(d)["standing"]["reason"] + " (edited)"), "SOURCE_COMBINATION_CERTIFICATE_ROSTER_CONTRADICTION"),
     # The gates reader (`preview_combination_gates`), which precedes the held-status reader and the roster, refuses a
@@ -858,11 +859,57 @@ def test_a_claim_like_refusal_is_bound_never_policed_and_claims_nothing(claim, w
     assert _standing(bound) == _standing(benign["document"])
     held = next(r for r in certificate(bound)["combinations"] if r["combination_id"] == "comb:o-s-held")
     assert (held["assessment"], held["groups"], held["uncovered_row_count"]) == ("not_assessed", [], 0)
-    for side in ("notice", "record"):
+    # Forged on one side only, refused at the full public reader. In the notice only, it is no longer the bound entry
+    # (its whole message is not the record's canonical one), so the certificate's own notice reader (`check`'s
+    # DIAGNOSTICS, which precedes the roster) owns a notice in its reserved wording, and the roster any other; in the
+    # record only, the roster refuses first.
+    # Main's absence rule reads its reserved wording case-sensitively, so the mixed-case claim is the roster's.
+    notice_owner = "SOURCE_COMBINATION_CERTIFICATE_ROSTER_CONTRADICTION" if claim == HELD_CLAIMS[2] else "SOURCE_COMBINATION_CERTIFICATE_DIAGNOSTICS"
+    for side, code in (("notice", notice_owner), ("record", "SOURCE_COMBINATION_CERTIFICATE_ROSTER_CONTRADICTION")):
         forged = copy.deepcopy(benign["document"])
         if side == "notice":
             _held_notice(forged)["message"] = f"Combination withheld: {claim}."
         else:
             _held_record(forged)["standing"]["reason"] = claim
         outcome = reader_verdict.validate("preview-physics", forged, model)
-        assert outcome["ok"] is False and outcome["error"]["code"] == "SOURCE_COMBINATION_CERTIFICATE_ROSTER_CONTRADICTION", (side, outcome)
+        assert outcome["ok"] is False and outcome["error"]["code"] == code, (side, outcome)
+    # A well-bound claim-like refusal lifts only the vocabulary test: a forged binding or state is still refused by the
+    # mandatory readers that precede the certificate (the gates reader, then the held-status reader).
+    for what, forge, code in (
+            ("its record's outcome", lambda d: _held_record(d).update(outcome="HELD_STATUS_BINDING"), "SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_DERIVATION"),
+            ("its record's source case", lambda d: _held_record(d)["source"].update(load_case_id="case:S"), "SOURCE_PREVIEW_PHYSICS_HELD_STATUS_BINDING"),
+            ("its record's state", lambda d: _held_record(d)["standing"].update(kind="established"), "SOURCE_PREVIEW_PHYSICS_HELD_STATUS_EVIDENCE"),
+            ("its gate", lambda d: _gate(d, "comb:o-s-held").update(withheld=False), "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID")):
+        forged = copy.deepcopy(bound)
+        forge(forged)
+        outcome = reader_verdict.validate("preview-physics", forged, model)
+        assert outcome["ok"] is False and outcome["error"]["code"] == code, (what, outcome)
+
+
+@pytest.mark.parametrize("text,inside", [("Combination withheld: the minuend case case:O lent a state.", None),
+                                         (f"Combination withheld: {HELD_CLAIMS[0]}.", "SOURCE_COMBINATION_CERTIFICATE_DIAGNOSTICS")])
+def test_in_the_retained_base_read_a_held_notice_other_than_its_refusal_is_unread_or_refused_never_attested(text, inside):
+    """The retained base read (G7, `retained_precision.py`'s `with retained_base_read(): _source_contract(projected)`;
+    Rust retained_precision.rs's `retained_base_read(|| for_source(&projected))`) applies no roster: a held notice whose
+    text is not its record's refusal is not compared there. With ordinary wording it is admitted unread, and G7 attests no
+    combination diagnostic prose, while every presenter quotes a held code whole as supplied text; with the reserved
+    wording it is not the bound entry, so the absence rule refuses it there too. Outside, the roster or that rule refuses."""
+    e = _held_entry("source_unavailable")
+    _held_notice(e["document"])["message"] = text
+    with cc.retained_base_read():
+        outcome = reader_verdict.validate("preview-physics", e["document"])
+    assert not cc.in_retained_base_read()
+    assert outcome == {"ok": True} if inside is None else outcome["error"]["code"] == inside, outcome
+    outside = reader_verdict.validate("preview-physics", e["document"])
+    assert outside["ok"] is False and outside["error"]["code"] == (inside or "SOURCE_COMBINATION_CERTIFICATE_ROSTER_CONTRADICTION"), outside
+
+
+@pytest.mark.parametrize("with_model", [False, True], ids=["without-model", "with-model"])
+@pytest.mark.parametrize("corpus,name", [("held", "source_unavailable"), ("cert", "pf_cantilever")])
+def test_a_stated_retired_preview_physics_1_identity_is_refused_by_the_full_reader(corpus, name, with_model):
+    """The full public reader refuses a source stating the retired preview-physics-1 identity (Rust
+    `a_stated_retired_preview_physics_1_identity_is_refused_by_the_full_reader`; this mirror's header check)."""
+    e = _held_entry(name) if corpus == "held" else entry(name)
+    e["document"]["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/preview-physics-1"
+    outcome = reader_verdict.validate("preview-physics", e["document"], e["model"] if with_model else None)
+    assert outcome["ok"] is False and outcome["error"]["code"] == "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID", outcome

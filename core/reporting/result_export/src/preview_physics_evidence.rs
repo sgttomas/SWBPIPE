@@ -268,7 +268,10 @@ fn preview_arcs(rows: &[Value]) -> HashSet<&str> {
         .collect()
 }
 
-/// Every S1 section 9 check. A failure makes the source unsupported.
+/// Every S1 section 9 check. A failure makes the source unsupported. Precondition: the
+/// stated identity is within the preview-physics route's or none
+/// (`semantic_contract::preview_physics_identity_of`); the full public reader
+/// (`reader_verdict::validate`) and the header dispatch refuse any other, this check does not.
 pub fn validate_preview_physics_evidence(source: &Value) -> Check {
     validate_with(source, None)
 }

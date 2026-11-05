@@ -253,3 +253,21 @@ fn a_held_gate_notice_is_quoted_as_supplied_text_whatever_its_refusal() {
         assert!(check_report_diagnostics(&report_with(&entries), &source).is_ok());
     }
 }
+
+/// RT-A5: `HELD_STATUS_RELEASED` is the sixth quoted held-status code (`HELD_STATUS_QUOTED_CODES`):
+/// the report quotes it whole as supplied text on every released held document, bytes unchanged.
+#[test]
+fn a_held_status_released_notice_is_quoted_as_supplied_text() {
+    const HELD: &str = include_str!("../../../../fixtures/results/preview_physics_held_status_corpus.json");
+    let corpus: Value = serde_json::from_str(HELD).unwrap();
+    for name in ["h2_released", "h5_slip_sense", "h13_branch", "h7g_gap"] {
+        let source = corpus["documents"].as_array().unwrap().iter().find(|e| e["name"] == name).unwrap()["document"].clone();
+        let before = serde_json::to_vec(&source).unwrap();
+        let entries = expected_report_diagnostics(&source).unwrap();
+        assert_eq!(serde_json::to_vec(&source).unwrap(), before, "{name}: raw bytes");
+        let released: Vec<(usize, &Value)> = source["diagnostics"].as_array().unwrap().iter().enumerate().filter(|(_, d)| d["code"] == "HELD_STATUS_RELEASED").collect();
+        assert_eq!(released.len(), 1, "{name}");
+        let (index, diagnostic) = released[0];
+        assert_eq!(entries[index]["message"], json!(format!("{SUPPLEMENTAL_DIAGNOSTIC_LABEL}\"{}\"", diagnostic["message"].as_str().unwrap())), "{name}");
+    }
+}

@@ -276,16 +276,33 @@ option A).** Both readers (RE `combination_certificate.rs` `roster`, Python
     numerical standing; the held combination's record stays `not_assessed`
     with no group and no bound. Its language is not policed: the reserved
     vocabulary's message test does not apply to the one notice that is a
-    withheld held gate's own, recognized by typed identity (its code, its one
-    combination, that gate's id, the gate withheld with that code and exactly
-    one held-status record of that outcome; RE `bound_held_gate`), never by
-    its text, so a claim-like R in a well-bound record is admitted and changes
-    nothing. Every presenting path quotes a notice whose typed code is a held
-    gate code whole as supplied text, whatever the roster or a certificate
-    attests: desktop `suppliedDiagnostics.ts` (`HELD_STATUS_GATE_CODES`, the
-    Diagnostics panel, the result interpretation and the report projection),
-    the run comparison, and Rust `report_package::bindings` (every native
-    report path). Raw diagnostic bytes and evidence are unchanged. The headline's
+    withheld held gate's own, recognized by typed identity and its whole
+    canonical message (its code, its one combination, that gate's id, the
+    gate withheld with that code, exactly one held-status record, a withheld
+    one of that outcome, and the message exactly "Combination withheld: " + R
+    + "."; RE `bound_held_gate`), so a claim-like R in a well-bound record is
+    admitted and changes nothing. The exemption lifts only that test: the
+    gates and held-status readers, which precede the certificate, still
+    refuse a forged binding or state. In the retained base read (G7,
+    `retained_precision.rs`'s `retained_base_read(|| for_source(&projected))`)
+    the roster is not applied, so a held notice whose text is not R is
+    admitted unread with ordinary wording (G7 attests no combination
+    diagnostic prose) and refused by the absence rule with the reserved
+    wording, since it is then not the bound entry.
+  - *Presentation.* Every presenting path quotes a notice whose typed code is
+    a held-status code whole as supplied text, whatever the roster or a
+    certificate attests: the five held gates and `HELD_STATUS_RELEASED`
+    (`HELD_STATUS_QUOTED_CODES`, a set distinct from the gate set), in desktop
+    `suppliedDiagnostics.ts` (the Diagnostics panel, the result
+    interpretation and the report projection), the run comparison, and Rust
+    `report_package::bindings` (every native report path). Raw diagnostic
+    bytes and evidence are unchanged.
+  - *Open: `HELD_STATUS_RELEASED` as a roster entry.* Its message's deciding
+    quantity is the producer's `{:e}` (LowerExp) text of a solved value, and
+    for a strict-gap entry that value is not in the record; no shared
+    authoritative formatting rule exists in both readers, so the roster does
+    not yet derive the entry, and a released held document is refused
+    (`ROSTER_EXTRA`) until RT-A3 decides. The headline's
     refs are the model's kept combinations in authored order; without the
     model, the gates' identities in any order, which the document cannot fix.
     With the model, S1's interim withholdings and their dependants, on both
@@ -533,7 +550,9 @@ The roster's cases (review cert2 finding 1), applied with and without the model:
 | a held gate notice duplicated; dropped | ROSTER_EXTRA; ROSTER_MISSING |
 | a held code on a gate with no held record; another code on a held record's gate | the gates reader's GATE_DERIVATION |
 | a claim-like refusal ("established", a tiny bound, any capitalization, Unicode) in a well-bound record | admitted; no row bound, eligibility or certificate standing changes |
-| the same refusal in the notice only, or in the record only | ROSTER_CONTRADICTION |
+| the same refusal in the notice only | the certificate's own notice reader's DIAGNOSTICS for the reserved wording, else ROSTER_CONTRADICTION |
+| the same refusal in the record only | ROSTER_CONTRADICTION |
+| a well-bound claim-like refusal with a forged record outcome, source case or state, or its gate not withheld | the gates or held-status reader's refusal |
 
 RE `absence_is_inspection_only_with_no_certificate_claim` and its Python
 counterpart admit the both-dropped case. With and without the model, they

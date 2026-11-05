@@ -88,11 +88,13 @@ fn reserved(source: &Value, d: &Value) -> bool {
     reserved_notice(d) && !bound_held_gate(source, d)
 }
 /// RT-A5 (Work `combination-certificate.md` §2): whether a diagnostic is a withheld held gate's
-/// own notice, by typed identity and never by its text: its code is one of the five held gate
-/// codes, it names exactly one combination, its id is that combination's gate id, the document's
-/// gate for it is withheld with that code, and it has exactly one held-status record of that
-/// outcome. Its message, R in its frame, is bound to that record by the roster, not verified as
-/// true; it supplies no row bound, eligibility, certificate notice or standing.
+/// own notice, by typed identity and its whole canonical message: its code is one of the five
+/// held gate codes, it names exactly one combination, its id is that combination's gate id, the
+/// document's gate for it is withheld with that code, it has exactly one held-status record of
+/// that outcome, a withheld one, and its message is exactly "Combination withheld: " + R + "."
+/// with R that record's refusal ([`held_gate_message`]'s, compared without allocating). R is
+/// bound to the record, not verified as true; it supplies no row bound, eligibility, certificate
+/// notice or standing. Any other notice keeps the reserved vocabulary's message test.
 fn bound_held_gate(source: &Value, d: &Value) -> bool {
     let code = d["code"].as_str().unwrap_or_default();
     let [cid] = items(&d["affected_refs"]) else { return false };
@@ -101,7 +103,17 @@ fn bound_held_gate(source: &Value, d: &Value) -> bool {
     let gate_id = d["id"].as_str().and_then(|i| i.strip_prefix(PREVIEW_PREFIX)).and_then(|r| r.strip_prefix("gate:")).and_then(|r| r.split_once(':'));
     gate_id.is_some_and(|(n, c)| c == cid && n.bytes().all(|b| b.is_ascii_digit()) && n.parse::<usize>().ok() == Some(cid.len()))
         && items(&evidence["combination_gates"]).iter().any(|g| g["combination_id"] == cid && g["withheld"] == true && g["reason"] == code)
-        && items(&evidence[crate::preview_held_status::MEMBER]).iter().filter(|r| r["combination_id"] == cid && r["outcome"] == code).count() == 1
+        && {
+            let mut records = items(&evidence[crate::preview_held_status::MEMBER]).iter().filter(|r| r["combination_id"] == cid);
+            match (records.next(), records.next()) {
+                (Some(record), None) if record["outcome"] == code && record["standing"]["kind"] == "withheld" => {
+                    let refusal = record["standing"]["reason"].as_str().filter(|r| !r.is_empty());
+                    let stated = d["message"].as_str().and_then(|m| m.strip_prefix("Combination withheld: ")).and_then(|m| m.strip_suffix('.'));
+                    refusal.is_some() && stated == refusal
+                }
+                _ => false,
+            }
+        }
 }
 fn keys(v: &Value, wanted: &[&str]) -> bool {
     v.as_object().is_some_and(|o| o.len() == wanted.len() && wanted.iter().all(|k| o.contains_key(*k)))

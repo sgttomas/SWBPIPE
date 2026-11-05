@@ -57,7 +57,7 @@ RE = "core/reporting/result_export/src/"
 # RT-A5 composition repair: then the roster's held gate notices, the reserved vocabulary's typed-identity exemption of
 # a withheld held gate's own notice and S1's interim without a minuend_final reason (member_check's presence call, in place).
 PINS = {PP + "combination_certificate.rs": "5b85e6c57ae9c3b7cf9722e8be424532e12866f8b825597b20334c3e98ab5b1a",
-        RE + "combination_certificate.rs": "89b11d7af14f24d276bc9fec733456588dbb1628e639ecc63c3e6aae81e15691"}
+        RE + "combination_certificate.rs": "1b160e321efbab58ab37d2e229401da8589e412c027bb6092f2e61da826947f5"}
 # (file, statement): each exactly once in its file.
 STATEMENTS = (
     (PP + "lib.rs", "let case_ids: Vec<&str> = model.load_cases.iter().map(|case| case.id.as_str()).collect();"),
