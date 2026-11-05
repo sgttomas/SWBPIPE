@@ -944,20 +944,20 @@ A genuine μ > b is never dropped by an A3 parameter. The cuts act on μ, so a d
 - It still serves a set that ends below a completed computed cluster, with a disclosure (outcome.rs:534–536), and only if the Sturm count at the gap shift equals the reported count (eigen.rs:229–266). A mode dropped below the final shift is therefore caught as `MODAL_STURM_COUNT_MISMATCH`, not hidden.
 - It never adds a dropped mode to a count.
 
-The opposite risk is a spurious μ. Below b it goes to recovery, which rejects it. Above b it would be retained, and h and b are what guard that direction.
+The opposite risk is a spurious μ. A μ ≤ h is rejected without recovery. One in (h, b] goes to band recovery, whose screens are estimated-error criteria (c_f, τ_e and μ_R > h), not a theorem that rejects every spurious pair. Above b it is retained from QL, so h and b are the current kernel's admission floors in that direction, not a certification.
 
 **2. Known failure behaviour.** In each case below the criterion claims no resolved count.
 - **(a) SEC-A at n_f = 1,920 (§5.3.8).** The census reads `Unresolved { rejected_mu: 640, mass_block_established: true }`. The mass block establishes 1,920 finite modes; 1,280 are returned, so 640 genuine top modes are missing.
   - **Attribution corrected:** at n = 1,920, κ_μ·c_μ·n·u = 2.13·10⁻¹² exceeds τ_μ = 10⁻¹². The hard cut was therefore κ_μ·δ_q, and **τ_μ decided no pair**.
   - The record does not split the 640 into hard-rejected and band-failed pairs. `band_screened` is `screened.len()` (`phase_measurand_tests.rs:387`), and the kernel's `hard_rejected_pair_count` and `attempted_band_pair_count` (dense.rs:309–314) were not printed. For the same reason, 4pn² with p = 640 is an upper estimate.
   - dense_solve grew 19.7× against about 8× for n³. That is consistent with recovery being attempted on most of the 640, which would make band acceptance (route ii) the rejecting verdict. It is not established.
-  - Either way, at this spread the binary64 reduction cannot carry these modes. No value of τ_μ, including 0, returns them.
+  - Either way, these modes fall below the current kernel's admission floors at this spread: rejected at h, or not retained by band recovery. No value of τ_μ, including 0, returns them. This describes the kernel as built, not a proven binary64 resolution limit.
   - The criterion drops them, leaves the census unresolved, refuses the endpoint, and serves the ten low modes under the lower-gap count.
 - **(b) The offset point lumps and the component body (item 6).** M has a non-coordinate nullspace, so these μ are true infinite eigenvalues computed at rounding level. Every rejected value is at most 6.6·10⁻¹⁷·μ_max: at most 0.050·n·u·μ_max on component PF (n = 12) and at most 0.016 on the lumps (n = 24). They are hard-rejected, which is correct. The count is not established because the structural premise (coordinate nullspaces only) fails. Unresolved is the true answer, not a defect of τ_μ, and it is not removed by truncation.
-- **(c) EX n05 (n = 7, spread ≈ 2.6·10¹¹).** At n = 7 the active hard cut is τ_μ (κ_μ·c_μ·n·u = 7.8·10⁻¹⁵). The top mode sits at 3.86·10⁻¹², 3.9× above it, and the census is established at 7. With a spread about 4× wider, τ_μ would hard-reject a mode lying 500× above the reduction's own floor. The census would then be unresolved, the endpoint refused and the lower modes served. That is τ_μ's own failure mode: **it drops modes the reduction resolves.**
+- **(c) EX n05 (n = 7, spread ≈ 2.6·10¹¹).** At n = 7 the active hard cut is τ_μ (κ_μ·c_μ·n·u = 7.8·10⁻¹⁵). The top mode sits at 3.86·10⁻¹², 3.9× above it, and the census is established at 7. With a spread about 4× wider, τ_μ would hard-reject a mode lying about 124× above the derived floor κ_μ·c_μ·n·u·μ_max. The current top mode is about 497× above it, and being above that floor does not by itself establish that a mode is accurately resolved. The census would then be unresolved, the endpoint refused and the lower modes served. That is τ_μ's own failure mode: **it drops modes the reduction resolves.**
 
 **3. The minimum proposal.** A fixed τ_μ cannot be defended across spreads.
-- The only derived floor is the reduction's resolution. QL is backward stable on the symmetric C, with ‖C‖₂ = μ_max, so by Weyl each computed μ lies within c·n·u·μ_max of an eigenvalue of C. A μ at or below a modest multiple of n·u·μ_max cannot be told apart from 0. This is a rounding argument with an assumed O(1) constant, not a certified bound.
+- The only derived floor is the reduction's resolution. QL is backward stable on the symmetric C, with ‖C‖₂ = μ_max, so by Weyl each computed μ lies within c·n·u·μ_max of an eigenvalue of C. A μ at or below a modest multiple of n·u·μ_max cannot be told apart from 0. This is a rounding argument with an assumed O(1) constant, not a certified bound. QL's backward stability on the reduced C also does not certify C's formation, or its correspondence to the original pencil; the integrity checks of §3.4 cover those.
 - A fixed τ_μ either lies below κ_μ·c_μ·n·u, where it is inert (every n ≥ 901 today), or above it, where it drops resolvable modes (case c).
 - No fixed value changes case (a).
 
@@ -972,15 +972,15 @@ The proposal is therefore a role change plus three values:
 - **P2. c_μ = 1 and κ_μ = 10, with the product κ_μ·c_μ stated as the only acting quantity.**
   - c_μ = 1 normalizes δ_q and δ_μ to plain n·u-scale quantities. κ_μ is the single allowance on the reduction's constant, and it carries both h and b.
   - **Basis:** an assumed allowance. Observed true zeros are at most 0.050·n·u·μ_max, 200× below 10. The band edge errs in the safe direction (the rigid-scale band pairs are recovered).
-  - **The resulting resolvable-spread limit at order n** is λ_max/λ_min < 1/(κ_μ·c_μ·n·u): about 4.7·10¹¹ at n = 1,920 and 1.1·10¹¹ at n_max = 8,192. Beyond it, top modes are dropped and the census is unresolved.
+  - **The resulting admission limit on spread at order n** (the current kernel's floor, not a proven resolution limit) is λ_max/λ_min < 1/(κ_μ·c_μ·n·u): about 4.7·10¹¹ at n = 1,920 and 1.1·10¹¹ at n_max = 8,192. Beyond it, top modes are not retained and the census is unresolved.
   - κ_μ is not lowered toward the observed 0.05 to widen that limit. Doing so would be the excluded tuning.
 - **P3. c_f = 64 = 2⁶.**
   - **Basis:** a recovered pair with an accurate vector has a formed η̃ at rounding level, because the sums are exact and only φ and λ_R carry rounding. Observed band η̃/(n·u) ≤ 0.152, 420× below 64.
   - It rescues no vector: an inaccurate QL vector rightly fails it, and e_λ ≤ τ_e (A1) catches the normwise-blind pair (dense.rs `normwise_blind_pair_is_not_an_accurate_eigenvalue`).
-  - In case (a), band-attempted pairs fail here. Loosening c_f to accept them is excluded.
+  - In case (a), the record shows 640 screened and 0 retained. It does not show which pairs were attempted, or which recovery condition (c_f, τ_e or μ_R > h) failed (see (a)). Loosening c_f to accept them is excluded either way.
 - **P4. The census rule is unchanged.** The census is unresolved on any μ ≤ 0, any rejected screened pair or a failed mass block. Nothing is truncated, the whole-spectrum endpoint is refused, and lower sets are served only under the Sturm count and completed-cluster premises.
 
-Taken together: μ is resolved if and only if μ > κ_μ·c_μ·n·u·μ_max, and either μ > κ_μ·δ_μ or band recovery passes c_f and τ_e. Every failure leaves the count unresolved and never produces a count claim.
+Taken together, the current kernel's **retention** criterion (not a proof of resolution) is: μ > h, and either μ > b, or band recovery passes η̃ ≤ c_f·n·u and e_λ ≤ τ_e and its recovered μ_R > h (`dense.rs:568–569`). Here h = max(τ_μ·μ_max, κ_μ·δ_q) and b = max(h, κ_μ·δ_μ). Every failure leaves the count unresolved and never produces a count claim.
 
 **4. Changes kept apart from adoption (none adopted, none implemented).**
 - **K1.** Only if Agent 0 prefers τ_μ = 0 or removing τ_μ: widen the product validator to [0, 1) (`integrity.rs:146`), or remove τ_μ from h (dense.rs:489–492) and from the recorded parameter names (`document.rs:357`, `reporting/modal_result/src/lib.rs:96`), which is a schema change. P1 at u needs neither.
