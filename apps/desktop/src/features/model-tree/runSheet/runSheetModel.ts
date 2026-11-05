@@ -12,6 +12,7 @@ import { convertDisplayQuantities, type DisplayQuantityRequest } from "../../../
 import { trimLikeRust } from "../../../services/rustTrim";
 import type { PreviewModel } from "../../../types";
 import type { ComponentDraft } from "../../component-creation/componentIntent";
+import { SIF_PAIR_REFUSAL, directionalPair } from "../../bend-authoring/BendAuthoringForms";
 import { COMPONENT_FIELDS, componentRowDraft, componentRowIssues, type ComponentRowInput } from "./runSheetComponents";
 
 export type Vec3 = { x: number; y: number; z: number };
@@ -66,6 +67,8 @@ export type RunSheetRowInput = {
   insulationThickness?: string; insulationDensity?: string; contentsDensity?: string;
   materialDensity?: string; millTolerance?: string; corrosionAllowance?: string;
   bendRadius?: string; k?: string; kSource?: string;
+  /** A bend row's directional SIF pair, as typed: both or neither, under the k source (never inherited). */
+  sifInPlane?: string; sifOutOfPlane?: string;
   label?: string;
   /** Explicit rigid-component inputs, on V/L rows only; never inherited. */
   component?: ComponentRowInput;
@@ -84,6 +87,9 @@ export type RunSheetRowInput = {
   /** An applied bend row's stored geometry source, read from its component; `""` when the
    * component no longer exists. Shown in place of the sheet's current Source (§3.4). */
   storedBendSource?: string;
+  /** An applied bend row's stored directional SIF values, read from its component (display only);
+   * `""` where the component holds none. `missing` names a component that no longer exists. */
+  storedSifs?: StoredSifs;
   /** An applied row's stored end position (§3.4, §6.2): the resolver uses it in
    * place of `x_{k−1} + c(Δ)`, so later rows continue from stored geometry. For
    * an applied bend row it is the stored outgoing tangent point, named by
@@ -202,7 +208,11 @@ export type ResolvedRunSheetRow = {
   pipeIdRule?: string;
   labels: { pipe?: string; support?: string };
   support: { family: string; restraints: string[] } | null;
-  bend: { radius: Quantity; k: number; kSource: string } | null;
+  /** `sifs` is present only when the row enters the directional pair: the `bend_realization`
+   * members as `directionalPair` forms them, under the same source as k. */
+  bend: { radius: Quantity; k: number; kSource: string; sifs?: BendSifPair } | null;
+  /** An applied bend row's stored SIF values (display only). */
+  storedSifs?: StoredSifs;
   component?: ComponentDraft | null;
   componentMissing?: string;
   componentMismatch?: string;
@@ -213,6 +223,12 @@ export type ResolvedRunSheetRow = {
   refusals: RunSheetFinding[];
   warnings: RunSheetFinding[];
 };
+
+export type StoredSifs = { inPlane: string; outOfPlane: string; missing?: string };
+/** The directional SIF members of `bend_realization` (`bend_authoring.rs`, T4-U4b §2.6). */
+export type BendSifPair = { sif_in_plane_user_value: { value: number; unit: string }; sif_out_of_plane_user_value: { value: number; unit: string } };
+/** The SIF cells' finding column (both cells show it). */
+export const BEND_SIF_COLUMN = "Bend SIFs";
 
 export type ResolvedRunSheet = {
   basis: PreviewModel;
@@ -280,6 +296,10 @@ export const MESSAGES = {
   bendCornerPipes: (count: number) => `A bend corner joins exactly two pipes; this one would join ${count}.`,
   bendRadius: "Enter a positive bend radius R.",
   bendK: "Enter k and its source for this bend; none is suggested.",
+  /** `directionalPair`'s refusal, under the engine's code for the same rule. */
+  bendSifPair: `OP-BEND-DIRECTIONAL-SIF-INCOMPLETE: ${SIF_PAIR_REFUSAL}`,
+  bendSifSource: "The directional SIFs share this bend's k source; enter k source.",
+  bendSifNotApplicable: "In-plane SIF i_ip and Out-of-plane SIF i_op apply only to B rows; clear them.",
   bendOutgoingMissing: (id: string) => `The bend's outgoing point ${id} no longer exists.`,
   bendIncomingMissing: (id: string) => `The bend's incoming point ${id} no longer exists.`,
   notChecked: "Not checked: an earlier row is refused.",
@@ -871,6 +891,8 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
         if (text(overrides[cell.input])) refusals.push({ rule: "bend", column: cell.label, message: MESSAGES.notApplicable(cell.label, "B rows") });
       }
       if (entered("bendSource")) refusals.push({ rule: "bend", column: "Bend geometry source", message: MESSAGES.notApplicable("Bend geometry source", "B rows") });
+      // SIFs entered on another kind stay visible, refused, never discarded.
+      if (entered("sifInPlane") || entered("sifOutOfPlane")) refusals.push({ rule: "bend", column: BEND_SIF_COLUMN, message: MESSAGES.bendSifNotApplicable });
     }
     if (kind === "bend") {
       const radius = cells.bendRadius;
@@ -879,6 +901,18 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
       const k = parseNumber(enteredValue("k"));
       const kSource = enteredValue("kSource");
       if (k === null || k <= 0 || !kSource) refusals.push({ rule: "bend", column: "k", message: MESSAGES.bendK });
+      // The directional SIF pair (T4-U4b): both or neither, each a number as k is typed, finite
+      // and positive; the payload is `directionalPair`'s, under the row's k source.
+      const sifTexts = [enteredValue("sifInPlane"), enteredValue("sifOutOfPlane")] as const;
+      let sifs: BendSifPair | undefined;
+      if (sifTexts[0] || sifTexts[1]) {
+        const numbers = sifTexts.map((typed) => parseNumber(typed));
+        if (numbers.some((value) => value === null || value <= 0)) refusals.push({ rule: "bend", column: BEND_SIF_COLUMN, message: MESSAGES.bendSifPair });
+        else {
+          sifs = directionalPair(sifTexts[0], sifTexts[1]) as BendSifPair;
+          if (!kSource) refusals.push({ rule: "bend", column: BEND_SIF_COLUMN, message: MESSAGES.bendSifSource });
+        }
+      }
       if (supportText) refusals.push({ rule: "bend", column: "Support", message: MESSAGES.bendSupport });
       // Blank bend ids follow its corner; an applied bend row's end is its outgoing tangent point.
       const corner = raw.storedEndId || raw.storedEndMissing ? ids.node || end?.id : end?.id;
@@ -887,7 +921,7 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
         ids.bend = { ...derived };
         for (const cell of BEND_ID_CELLS) ids.bend[cell.member] = text(overrides[cell.input]) || derived[cell.member];
       }
-      if (radius.value && radius.value.value > 0 && k !== null && k > 0 && kSource) bend = { radius: radius.value, k, kSource };
+      if (radius.value && radius.value.value > 0 && k !== null && k > 0 && kSource) bend = { radius: radius.value, k, kSource, ...(sifs ? { sifs } : {}) };
     }
 
     // Rigid runs use the creation forms' fields and completeness checks. Only
@@ -915,6 +949,7 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
       ...(raw.storedComponentMismatch ? { componentMismatch: raw.storedComponentMismatch } : {}),
       ...(pipeIdRule ? { pipeIdRule } : {}),
       ...(raw.storedEndMissing ? { endMissing: raw.storedEndMissing } : {}),
+      ...(raw.storedSifs ? { storedSifs: raw.storedSifs } : {}),
     };
     rows.push(row);
     if (fallbackPipe) fallbackPipes.push({ row, ...fallbackPipe });

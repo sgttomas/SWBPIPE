@@ -14,6 +14,9 @@ export const K_HINT = "k multiplies the bend's bending flexibility; k = 1 means 
 export const SIF_HINT = "Optional directional SIFs: i_ip multiplies the in-plane bending moment M_z and i_op the out-of-plane M_y of the arc's tangent frame (intensified bending rows only; never k). Enter both or neither, with their source above; none is suggested.";
 export const GEOMETRY_ONLY_BANNER = "Geometry-only bend: analysed as a straight chord with no flexibility. The exact pressure contract refuses it. Realize this bend.";
 const CURVED = "curved_bend_macro_element";
+/** The directional pair's refusal (`directionalPair`); the engine names the same rule
+ * `OP-BEND-DIRECTIONAL-SIF-INCOMPLETE`. */
+export const SIF_PAIR_REFUSAL = "Enter both directional SIFs (finite and positive), or neither.";
 
 const isBend = (component: PreviewComponent) => component.kind === "bend" || component.kind === "elbow";
 const realized = (component: PreviewComponent) => isBend(component) && component.mechanics_interface?.solver_consumption === CURVED;
@@ -49,10 +52,16 @@ export function directionalPair(inPlane: string, outOfPlane: string): DraftRecor
   if (inPlane.trim() === "" && outOfPlane.trim() === "") return {};
   const factor = (text: string) => {
     const value = Number(text);
-    if (text.trim() === "" || !Number.isFinite(value) || value <= 0) throw new Error("Enter both directional SIFs (finite and positive), or neither.");
+    if (text.trim() === "" || !Number.isFinite(value) || value <= 0) throw new Error(SIF_PAIR_REFUSAL);
     return { value, unit: "1" };
   };
   return { sif_in_plane_user_value: factor(inPlane), sif_out_of_plane_user_value: factor(outOfPlane) };
+}
+
+/** The `bend_realization` payload that realizes a bend with the user's k, its source and the
+ * optional directional pair (`directionalPair`'s output), as the realization editor queues it. */
+export function realizedBendAfter(k: number, source: string, pair: DraftRecord): DraftRecord {
+  return { solver_consumption: CURVED, flexibility_factor_user_value: { value: k, unit: "none" }, source_reference: source, ...pair };
 }
 
 export function BendRealizationForm(props: RichFormProps & { component: PreviewComponent }) {
@@ -69,7 +78,7 @@ export function BendRealizationForm(props: RichFormProps & { component: PreviewC
   const before = realizationProjection(component);
   const queue = (after: DraftRecord, label: string) => state.queue({ object_type: "Component", ref: component.id }, "set_field", "bend_realization", before, after, label, before === undefined);
   async function realize() { try {
-    await queue({ solver_consumption: CURVED, flexibility_factor_user_value: { value: flexibilityValue(k), unit: "none" }, source_reference: requireText(source, "Source of k"), ...directionalPair(ip, op) }, "Bend realization");
+    await queue(realizedBendAfter(flexibilityValue(k), requireText(source, "Source of k"), directionalPair(ip, op)), "Bend realization");
   } catch (e) { state.setError(e instanceof Error ? e.message : String(e)); } }
   const isRealized = realized(component);
   return <section aria-label="Bend realization" data-testid="bend-realization-form"><h3>Bend realization</h3>
