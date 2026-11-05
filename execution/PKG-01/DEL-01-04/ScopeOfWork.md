@@ -74,9 +74,7 @@ This Scope of Work defines `DEL-01-04` in service of project scope [SOW-034, SOW
 >
 > | Local Artifact | Intended Repo-Level Artifact Discussed | Construction Note |
 > |---|---|---|
-> | ScopeOfWork.md — definition | docs/PROFESSIONAL_BOUNDARY.md | Structured identity and policy attributes only. |
-> | ScopeOfWork.md — requirements | docs/PROFESSIONAL_BOUNDARY.md; docs/report_notice_template.md | Normative requirements and acceptance boundaries for draft repo-level policy surfaces. |
-> | ScopeOfWork.md — rationale | docs/PROFESSIONAL_BOUNDARY.md | Rationale and examples for product-claims boundaries. |
+> | ScopeOfWork.md — requirements | docs/report_notice_template.md | Normative requirements and acceptance boundaries for draft repo-level policy surfaces. |
 > | ScopeOfWork.md — procedure | docs/report_notice_template.md | Operational workflow for drafting/reviewing claims and notices. |
 >
 
@@ -97,7 +95,6 @@ This Scope of Work defines `DEL-01-04` in service of project scope [SOW-034, SOW
 > - docs/_Registers/Deliverables.csv (retired in `48584391de`; see Git history)
 > - docs/_Registers/ScopeLedger.csv (retired in `48584391de`; see Git history)
 > - docs/_Registers/ContextBudgetQA.csv (retired in `48584391de`; see Git history)
-> - docs/PROFESSIONAL_BOUNDARY.md
 > - docs/report_notice_template.md
 >
 
@@ -152,7 +149,6 @@ This Scope of Work defines `DEL-01-04` in service of project scope [SOW-034, SOW
 > | docs/TYPES.md | Vocabulary for analysis statuses, epistemic labels, and professional approval. | Repo-local |
 > | docs/SPEC.md | Report and architecture requirements that notices must align with. | Repo-local |
 > | docs/IP_AND_DATA_BOUNDARY.md | Protected-content and private-data rules that public report notices and claims must preserve. | Repo-local |
-> | docs/PROFESSIONAL_BOUNDARY.md | Existing draft professional-boundary policy surface for this deliverable. | Repo-local |
 > | docs/report_notice_template.md | Existing draft report notice template surface for this deliverable. | Repo-local |
 > | Protected engineering codes/standards | Not a source for this draft unless lawfully available and explicitly authorized; do not reproduce. | TBD |
 >
@@ -175,12 +171,13 @@ This Scope of Work defines `DEL-01-04` in service of project scope [SOW-034, SOW
 
 > ##### Documentation
 >
-> Draft repo-level artifacts already present:
+> Draft repo-level artifact already present:
 >
-> - `docs/PROFESSIONAL_BOUNDARY.md`
 > - `docs/report_notice_template.md`
 >
-> This refresh records those artifacts as draft evidence only. Final issuance, legal/professional wording, and lifecycle acceptance remain human-gated.
+> The former draft professional-boundary policy document was removed by the owner's direction ("I don't see any value in it"); PRD §21 states the professional boundary.
+>
+> This refresh records that artifact as draft evidence only. Final issuance, legal/professional wording, and lifecycle acceptance remain human-gated.
 >
 
 ### CLM-014 — Open TBDs
@@ -189,7 +186,7 @@ This Scope of Work defines `DEL-01-04` in service of project scope [SOW-034, SOW
 >
 > | TBD ID | Item | Resolution Owner |
 > |---|---|---|
-> | DEL-01-04-TBD-01 | Final acceptance or revision of `docs/PROFESSIONAL_BOUNDARY.md`. | Human project authority |
+> | DEL-01-04-TBD-01 | Closed: the draft professional-boundary policy document was removed by the owner's direction ("I don't see any value in it"). | Human project authority |
 > | DEL-01-04-TBD-02 | Final acceptance or revision of `docs/report_notice_template.md`. | Human project authority |
 > | DEL-01-04-TBD-03 | Jurisdiction-specific legal/professional-practice language, if any. | Qualified human/legal/professional reviewer |
 > | DEL-01-04-TBD-04 | Exact storage and invalidation workflow for hash-bound human acceptance records. | Future persistence/report/governance deliverables |
@@ -322,7 +319,7 @@ This Scope of Work defines `DEL-01-04` in service of project scope [SOW-034, SOW
 > | Automated report convenience vs. human review | Reports may assemble evidence, but reliance remains a human decision. |
 > | User-rule pass/fail vs. code compliance | Treat user-rule pass/fail as a computational result using user-supplied inputs, not a professional compliance declaration. |
 > | Draft agent output vs. accepted governance | Treat agent output as draft/proposal until human acceptance. |
-> | Draft repo-level policy vs. accepted governance | Treat `docs/PROFESSIONAL_BOUNDARY.md` and `docs/report_notice_template.md` as draft evidence until a human gate accepts or revises them. |
+> | Draft repo-level policy vs. accepted governance | Treat `docs/report_notice_template.md` as draft evidence until a human gate accepts or revises it. |
 >
 
 ### CLM-027 — Examples

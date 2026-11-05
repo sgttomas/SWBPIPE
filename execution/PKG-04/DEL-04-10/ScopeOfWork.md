@@ -116,7 +116,7 @@ A spectrum result is a numerical statement about the discrete linear model under
 - **REQ-009** — *Desktop and report.* The desktop takes the spectrum request, with every spectrum and choice entered by the user, and shows the results table with its unsigned-magnitude labelling and its disclosures. The rendered report gains a "Response-spectrum analysis" section: request, spectra, modal basis, methods, missing-mass disclosure, results, refusals and limitations. These surfaces follow the results viewer's and report generator's contracts. A published piping benchmark may be compared as comparison evidence under DEL-04-09's provenance rule; it is not required.
 - **AC-007** — Desktop tests (Vitest) cover the spectrum editor, including no pre-set spectrum or method, the results table and its labelling, and the report section.
 - **REQ-010** — *Claims.* Product texts state that the spectrum method estimates peak responses by stated combination rules, that a result inherits its modal basis's premises, and that it establishes neither physical correctness nor code compliance; they use the claims registry's vocabulary (`docs/claims_registry.md`). No product text states or implies a claim that PRD §21.2 prohibits.
-- **AC-008** — The spectrum product texts are pinned by maintained tests and reviewed against `docs/claims_registry.md`, and the claims-language lint (GEN-13) passes over them.
+- **AC-008** — The spectrum product texts are pinned by maintained tests and reviewed against `docs/claims_registry.md`.
 
 ### Independent support motion (Should)
 

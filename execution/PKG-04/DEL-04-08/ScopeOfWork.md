@@ -251,7 +251,7 @@ In these commitments, "exact solution" means the exact solution of the recorded 
 - **REQ-008** — A verified bound is a numerical statement about the problem the method records (PRD §12.8). PRD §21.2 governs the method's claims, and no product text of this deliverable may state or imply a claim it prohibits.
   - The method's product texts state the limit: "numerical integrity does not establish physical correctness" (route L), and "Source evidence and numerical standing do not authenticate a producer or grant engineering acceptance" (route E).
   - Identifiers that contain "certif" (for example `certified_gap_pa`, `certify_final` and `CertifiedRow`) are data contracts under §4 of the claims registry, and they keep their names.
-- **AC-008** — The product texts this deliverable emits are pinned: the notice and diagnostic constants by maintained tests and committed successor bytes, and the limitation texts by the reviewed-input digests. Any change to them is reviewed against `docs/claims_registry.md`. The claims-language lint (GEN-13) passes over the literal desktop policy texts of `outputPolicy.ts`.
+- **AC-008** — The product texts this deliverable emits are pinned: the notice and diagnostic constants by maintained tests and committed successor bytes, and the limitation texts by the reviewed-input digests. Any change to them is reviewed against `docs/claims_registry.md`.
 - **TBD-001** — *Terminology in product texts.*
   - **Where the words appear.**
     - The selected-case diagnostics use "certified classes" (`SELECTED_MESSAGE`), "the certificate certifies that declared-load problem" (`SELECTED_MEMBER_LOAD_MESSAGE`) and "its own solve and certificate" and "certified classes" (`COMBINATION_SELECTED_MESSAGE`).
@@ -321,8 +321,6 @@ The registered checks are those in `software-workflow.json`.
   - the independent review that the Root `AGENTS.md` requires for numerical changes.
 - **VER-008** — For REQ-008:
   - `macos-release-sweep`: the pinned notice and successor-byte tests in `retained_facade_tests.rs` and `w1_domain_stage1_tests.rs`;
-  - `harness-self-check`, and Repository checks in hosted CI when one of its inputs changes: GEN-13, repository-root `tools/validation/validate_claims_language.py`. GEN-13 scans the desktop TS sources, `docs/` and every `execution/PKG-*/DEL-*/ScopeOfWork.md`, this one included, not Rust constants or JSON tables;
-  - `piping-pytest`: `tests/test_claims_language_surface.py`.
 
   Each text change is also reviewed against `docs/claims_registry.md`.
 

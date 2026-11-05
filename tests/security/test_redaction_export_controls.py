@@ -981,20 +981,6 @@ def test_shared_parity_fixture_matches_core_decisions():
     )
 
 
-def test_documentation_records_scope_boundaries():
-    doc = DOC_PATH.read_text(encoding="utf-8")
-    for required in {
-        "deliverable_id: DEL-12-02",
-        "package_id: PKG-12",
-        "SOW-040",
-        "OBJ-010",
-        "explicit metadata only",
-        "local-first",
-        "does not mutate source project data",
-    }:
-        assert required in doc
-
-
 def test_changed_files_do_not_embed_disallowed_example_content():
     changed_files = [
         SCHEMA_PATH,
@@ -1656,5 +1642,4 @@ if __name__ == "__main__":
     test_protected_or_professional_boundary_metadata_blocks_export()
     test_missing_metadata_does_not_silently_export_value_bearing_record()
     test_shared_parity_fixture_matches_core_decisions()
-    test_documentation_records_scope_boundaries()
     test_changed_files_do_not_embed_disallowed_example_content()

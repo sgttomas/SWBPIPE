@@ -9,9 +9,6 @@ boundary language on product and live governance surfaces. It creates no
 lifecycle, release, professional-approval, certification, sealing,
 authentication, or code-compliance claim.
 
-**Enforced by:** `tools/validation/validate_claims_language.py` (repo root),
-registered as self-check GEN-13; violations block closeout.
-
 **Amendment, 2026-09-18** — registry acts executing the owner's D-71 rulings
 codified as `DEC-100`, `DEC-101` (ii), `DEC-102` and `DEC-105`
 (`execution/_Decomposition/SOFTWARE_DECOMP.md` §12), in the owner-authorized
@@ -74,8 +71,8 @@ the responsible engineer"
 
 **Belongs on:** the live `ScopeOfWork.md` files that already carry it, as
 existing placements only; there the canonical text and the listed short
-variants remain registered statements. The PRD, the anchor document
-`docs/PROFESSIONAL_BOUNDARY.md`, `docs/CONTRACT.md` and `docs/SPEC.md` state
+variants remain registered statements. The PRD, `docs/CONTRACT.md` and
+`docs/SPEC.md` state
 the boundary in their own words, carry no registered text, and are untouched.
 
 **Not on:** any product surface, any emitted notice, or the project's user-,
@@ -99,7 +96,7 @@ display forms with their authority domains and by the PRD §19.3 report notice.
 and multi-noun prohibition litanies on product surfaces.
 
 **Untouched by `DEC-100`:** the PRD §19.3 required report notice; PRD §5.9,
-§21.2 and §21.3; `docs/PROFESSIONAL_BOUNDARY.md`; `docs/CONTRACT.md`; the
+§21.2 and §21.3; `docs/CONTRACT.md`; the
 control word "Accept" for a proposed edit.
 
 ### BS-VALID — validation posture
@@ -234,8 +231,7 @@ appears on product surfaces.
   renderer emits it. Changes require a PRD-level owner act.
 - **PRD §21.2 prohibited-claims table** — the claims authority this registry
   implements.
-- `docs/PROFESSIONAL_BOUNDARY.md` (BS-ACCEPT anchor doc) and
-  `docs/IP_AND_DATA_BOUNDARY.md` (BS-IP anchor doc) — policy depth behind
+- `docs/IP_AND_DATA_BOUNDARY.md` (BS-IP anchor doc) — policy depth behind
   the one-line statements.
 
 ## 4. Authoring directive (agents)
@@ -258,6 +254,4 @@ unchanged.
 
 Ruled history (run records, reconciliation and scope-change snapshots,
 ruled decision packets, the retired `plans/**` (Git history), `LOOP_RECEIPTS.md` entries,
-`docs/_history/**`) keeps its original wording permanently. The PRD, this
-registry, the anchor docs, `docs/CONTRACT.md`, the threat model, and the
-loop fence definitions are allow-listed authorities for the lint.
+`docs/_history/**`) keeps its original wording permanently.
