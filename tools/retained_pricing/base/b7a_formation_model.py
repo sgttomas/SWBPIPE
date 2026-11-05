@@ -14,7 +14,7 @@ import runpy
 
 # W1-L1a: borrow/lifetime annotations only; source traversal bounds unchanged.
 SOURCE_FILES = {
-    "core/product_physics/src/formation_guard.rs": "9de2c2afdc7350c8928ba341c309a2e47326e2eefeabce1eabed2d6b1f11a1a6",
+    "core/product_physics/src/formation_guard.rs": "ac8e4c8a84e29b42020133ab36ad73ff74d1ad298cbb2591348503315a83a27b",
     # PP (D-5 mass): an exact-contract section's generated self-weight uses EXACT_MASS_METHOD (metal on the nominal
     # wall, contents on the pressure bore, the allowance among its inputs); the added refusals are static `invalid`
     # messages and retained_basis checks one more input key. The formed-load and finding owners are unchanged.
@@ -49,7 +49,7 @@ SOURCE_FILES = {
     # DEL-04-09 dynamics D3 (read 393a11ee7..0468d2ca2): structural.rs only declares `pub mod element_reformation;`
     # (+2 lines after line 4; every later line moves with unchanged text). The module's reform_* entries and wide
     # leaves are reached only from modal_eigen, outside crate_dirs. No formed-load traversal or finding owner changes.
-    "core/solver/frame_kernel/src/structural.rs": "73c3cc5d03394bde643270d5b6727dcac6fa291b9e538abe05ac7fbb9bbd703e",
+    "core/solver/frame_kernel/src/structural.rs": "740cceff60dc483e94d7fe03f5cec1504d8f01bccf307ea945b348f90f87d0ef",
     # T4-U6/U8 (O4): prepare_sources declines Timoshenko, nonzero mill tolerance and nonzero allowance with static
     # `unsupported(..)` messages after the existing declines; close_load_state names the nominal section's area.
     # No formed-load or finding owner changes.
@@ -61,7 +61,7 @@ SOURCE_FILES = {
     # Model document 0.8.0 (§8.26): source_recovery.rs changes two comments (the current version); no owner changes.
     # Model document 0.9.0 (§8.36): source_recovery.rs changes two comments (the current version); no owner changes.
     "core/product_physics/src/source_recovery.rs": "49aa5d3e4343a0d0b13ae4e8e0d5e1e5bf25dca592ab43a34cbec3f3eee1f5ef",
-    "core/solver/frame_kernel/src/structural/sparse.rs": "e316bc9d2738285ef9a87392436436c667b60b9ab0a744f6650051fcf918f4fb",
+    "core/solver/frame_kernel/src/structural/sparse.rs": "d3600fbac2693dff340c0b2b1a225193c33f442b2d54416e890eed72c870dada",
 }
 RANGE_CONTENT = 59
 REASON = 165057

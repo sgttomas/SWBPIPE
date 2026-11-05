@@ -98,6 +98,28 @@ BIND = {
     "s(GateRecord)": upr("3 * size_of::<&'static str>() + 2 * size_of::<Vec<u8>>()",
                          "RT-A4-RD: preview_combination_gates' private Record (id, basis: &str; operands, terms: Vec; mode: Option<&str>, the size of a &str)"),
     "Node(String,(String,CaseRows))": node("String", "(String, std::collections::HashMap<&'static str, &'static Value>)"),   # RT-A4-RD
+    # RT-A3 §4 D3 (retained-pricing-rules.md §8.53): the certificate's owners (rta3c_owners_model.py). The RE reader's and
+    # the producer's private structs are bounded by their fields' sizes (all 8-aligned; the modules are pinned).
+    "s(C3OperandGroup)": sz("crate::combination_certificate::OperandGroup"),   # RTA3C-OP
+    "s(C3OperandEntry)": sz("(String, crate::combination_certificate::Operand)"),   # RTA3C-OP
+    "s((usize,ActionScales))": sz("(usize, crate::formation_guard::ActionScales)"),   # RTA3C-OP
+    "s(C3CaseKey)": upr("5 * size_of::<&'static str>() + size_of::<Vec<usize>>()",
+                        "RTA3C-PB/RD: a case-row index entry ((case, kind, entity, location, Option<&str> component), Vec<usize>)"),
+    "s(C3SourcesKey)": upr("size_of::<&'static str>() + size_of::<Vec<&'static str>>() + size_of::<Vec<usize>>()",
+                           "RTA3C-PB/RD: a by-sources entry ((combination, Vec<&str> sources), Vec<usize>)"),
+    "s(C3RowsOf)": sz("(&'static str, Vec<usize>)"),   # RTA3C-PB/RD
+    "s(C3Derived)": upr("size_of::<Value>() + size_of::<Vec<usize>>() + 2 * size_of::<f64>() + size_of::<&'static str>()",
+                        "RTA3C-PB: the producer's private Derived (json, rows, bound, floor_scale, verdict)"),
+    "s(C3FormedEntry)": sz("((String, String, String, usize), usize)"),   # RTA3C-PB/RD
+    "s(C3PerOperand)": upr("size_of::<&'static u8>() + size_of::<f64>() + size_of::<Vec<u8>>()",
+                           "RTA3C-PB/RD: one (&group, bound, coverage) per operand"),
+    "s((String,bool))": sz("(String, bool)"),   # RTA3C-PB
+    "s(C3ROperandEntry)": sz("(&'static str, Vec<u8>)"),   # RTA3C-RD: (case, Vec<OperandGroup>) (a Vec header)
+    "s(C3ROperandGroup)": upr("3 * size_of::<&'static str>() + 2 * size_of::<f64>() + size_of::<Option<f64>>()",
+                              "RTA3C-RD: the reader's private OperandGroup (entity, location, group; q, floor_scale; bound)"),
+    "s(C3Triple)": sz("(&'static str, &'static str, &'static str)"),   # RTA3C-RD
+    "s(C3RDerived)": upr("size_of::<Value>() + size_of::<Vec<usize>>() + 2 * size_of::<f64>()",
+                         "RTA3C-RD: the reader's private Derived (json, rows, bound, floor_scale)"),
     "Node(String,CaseRows)": node("String", "std::collections::HashMap<&'static str, &'static Value>"),   # RT-A4-RD
     "s(StationResultants)": sz("crate::StationResultants"), "s(MemberRecord)": sz("crate::preview_physics::MemberRecord"),
     "s(RecoveryGroup)": sz("crate::formation_guard::RecoveryGroup"),

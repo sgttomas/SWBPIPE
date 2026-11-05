@@ -406,7 +406,7 @@ if not fnkey("arc_recovery_finding", PP_ + "formation_guard.rs") and _os.path.ex
 if fnkey("member_group_fires", PP_ + "formation_guard.rs"):
     REBIND = list(globals().get("REBIND", [])) + [("record in records", "m+g",
         "KD5L1: RecoveryRecord has one record per admitted straight member and support; arcs/connectors excluded by D1.4/8")]
-    O10_LOOPS_LAST += [("for group in &record.groups", "28", O10 + "KD5L2: each member has at most seven locations times four groups; a support has two <=28", ["formation_guard.rs:member_scales", "formation_guard.rs:recovery_finding"])]
+    O10_LOOPS_LAST += [("for group in &record.groups", "28", O10 + "KD5L2: each member has at most seven locations times four groups; a support has two <=28", ["formation_guard.rs:member_scales", "formation_guard.rs:recovery_finding", "combination_certificate.rs:operand"])]
 
 
 # KD5A1: current certified publication's input ids and fixed owned labels.
@@ -1864,7 +1864,9 @@ if fnkey("append_station_quantities", _U4R) and fnkey("member_stations", _U4E):
         ("for &(_, pipe, record, row) in arc_extrema.iter().filter(|e| e.0 == case_id)", "cases*m", _U4L + "preview arc extrema: at most one per case and member", ["preview_physics_evidence.rs:validate_preview_physics_evidence",
          # RT-A4 D3 (§8.46): the reader's body moved unchanged into validate_with (validate_preview_physics_evidence
          # now calls validate_with(source, None)); the loop and its bound move with it.
-         "preview_physics_evidence.rs:validate_with"]),
+         # RT-A3 §4 D3 (§8.53): and again, unchanged, into validate_uncertified_with (validate_with reads the certificate
+         # after it); the loop and its bound move with it.
+         "preview_physics_evidence.rs:validate_with", "preview_physics_evidence.rs:validate_uncertified_with"]),
         ('for row in results.iter().filter(|r| r[" "][" "] == case_id)', "Pall", _U4L + "one pass over the envelope's rows", ["physics_evidence.rs:u4b_cases"]),
         ("for (position, row) in published.iter().enumerate()", "Pall", _U4L + "one pass over the envelope's rows", ["physics_evidence.rs:validate_physics_evidence_in"]),
         ("for r in view.case_rows()", "P", O10 + "U4B-W1: one case's rows (<= P_final)", ["retained_product.rs:prepared_not_covered"]),
@@ -3551,7 +3553,11 @@ if fnkey("append", _W16B_EC):
          _W16B_CB + " (state_operand_standing runs only on that member)"),
     ]
 if fnkey("validate", _W16B_EV) and fnkey("validate_direct_pressure_evidence", RE_ + "physics_evidence.rs"):
-    _W16B_VPE = _fn_text("validate_pressure_evidence", RE_ + "physics_evidence.rs")
+    # RT-A3 §4 (§8.53): the certificate moves the dispatch into validate_pressure_evidence_uncertified, which
+    # validate_pressure_evidence reaches through validate_pressure_evidence_without_certificate (W16B-RD's three keys).
+    _W16B_PE = RE_ + "physics_evidence.rs"
+    _W16B_DISPATCH = "validate_pressure_evidence_uncertified" if fnkey("validate_pressure_evidence_uncertified", _W16B_PE) else "validate_pressure_evidence"
+    _W16B_VPE = _fn_text(_W16B_DISPATCH, _W16B_PE)
     _W16B_PRESENT = _fn_text("present", _W16B_EV)
     # W16B-RD (guard): the reader enters its combination pass only when `present`; otherwise it runs the direct pass
     # once and returns its Result.
@@ -3566,16 +3572,33 @@ if fnkey("validate", _W16B_EV) and fnkey("validate_direct_pressure_evidence", RE
                             "        || items(&source[\"results\"]).iter().any(is_combination_row)") == 1,
         _fn_text("is_combination_row", _W16B_EV).count('row["basis_ref"]["ref_type"] == "combination"') == 1,
     )
+    if _W16B_DISPATCH != "validate_pressure_evidence":
+        # RTA3C-WC (§8.53): the wrapper reads the uncertified pass once, then the certificate; the uncertified pass
+        # is reached from one of two exclusive match arms (the view without the member, or the source).
+        _w16b_rd += (
+            _fn_text("validate_pressure_evidence", _W16B_PE).count(
+                "    validate_pressure_evidence_without_certificate(source)?;\n"
+                "    crate::combination_certificate::check(source)\n}") == 1,
+            _fn_text("validate_pressure_evidence_without_certificate", _W16B_PE).count(
+                "    match crate::combination_certificate::without_member(source) {\n"
+                "        Some(view) => validate_pressure_evidence_uncertified(&view),\n"
+                "        None => validate_pressure_evidence_uncertified(source),\n    }\n}") == 1,
+            _text_of(_W16B_PE).count("validate_pressure_evidence_uncertified(") == 3,
+        )
     if not all(_w16b_rd):
         raise SystemExit(f"W16B-RD: the reader's combination dispatch changed; re-review its zeros: {_w16b_rd}")
     _W16B_RD = (O10 + "W16B-RD: present(source) is false on D1: the successor carries no contract_evidence.exact_combinations "
                 "(W16B-CB) and no row whose basis_ref names a combination (route E has none, D1.4's exact clause; route L "
                 "never reaches this reader, R1), so the combination pass and its view never run")
-    O10_EDGE_ZERO += [(fnkey("validate_pressure_evidence", RE_ + "physics_evidence.rs"), fnkey(_n, _W16B_EV), _W16B_RD)
+    O10_EDGE_ZERO += [(fnkey(_W16B_DISPATCH, _W16B_PE), fnkey(_n, _W16B_EV), _W16B_RD)
                       for _n in ("direct_view", "validate")]
-    EDGE_PER_CALL = list(EDGE_PER_CALL) + [(fnkey("validate_pressure_evidence", RE_ + "physics_evidence.rs"),
-        fnkey("validate_direct_pressure_evidence", RE_ + "physics_evidence.rs"), "1",
+    EDGE_PER_CALL = list(EDGE_PER_CALL) + [(fnkey(_W16B_DISPATCH, _W16B_PE),
+        fnkey("validate_direct_pressure_evidence", _W16B_PE), "1",
         O10 + "W16B-RD: of the two direct-pass calls, the `present` arm's returns and is unreached on D1; the other runs once")]
+    if _W16B_DISPATCH != "validate_pressure_evidence":
+        EDGE_PER_CALL = list(EDGE_PER_CALL) + [(fnkey("validate_pressure_evidence_without_certificate", _W16B_PE),
+            fnkey("validate_pressure_evidence_uncertified", _W16B_PE), "1",
+            O10 + "RTA3C-WC (§8.53): the two calls are the arms of one match on without_member, so exactly one runs per call")]
 _W16C_FAMILY = _fn_text("family_clauses", _W16_RM) if fnkey("family_clauses", _W16_RM) else ""
 if fnkey("exact_equivalent_static_record", _LIB):
     _W16C_GEN = _fn_text("append_equivalent_static_generated_loads", _LIB)
@@ -3895,7 +3918,7 @@ if fnkey("append_operand_standing", _OP1A_PP):
     # gates, model-bound: reader_verdict only, outside the retained roots); preview_physics_evidence.rs admits
     # difference_basis_derivation as an optional member (a static array element), lists G-1/G-2 in GATE_CODES (static)
     # and admits a withheld subtraction's modulus-basis records (an existing set's lookup). The OP1A premises stand.
-    _op1a_pins = {'core/product_physics/src/preview_physics.rs': 'cf2ce2e184557018874f99d730c4d77d38c07b829bd0ad39e771550f31a84365', 'core/reporting/result_export/src/preview_combination_operands.rs': '51df5bf357ae42731e612e8dc9c111e1311484fe07ffefebcf76246b315e7413', 'core/reporting/result_export/src/preview_physics_evidence.rs': '195131763035104c69a742dc236d1fe43a78a053d77580072ca8aaebad4beac1', 'core/reporting/result_export/src/reader_verdict.rs': 'd880e7e6bd58ca0c7a53507d405c530a716af39c3941f0a06fe0e6168f164813'}
+    _op1a_pins = {'core/product_physics/src/preview_physics.rs': 'cf2ce2e184557018874f99d730c4d77d38c07b829bd0ad39e771550f31a84365', 'core/reporting/result_export/src/preview_combination_operands.rs': '51df5bf357ae42731e612e8dc9c111e1311484fe07ffefebcf76246b315e7413', 'core/reporting/result_export/src/preview_physics_evidence.rs': '4c14f274418de1832926a3e826b0c22c9dc7487c39bcac1d32393c763979f62f', 'core/reporting/result_export/src/reader_verdict.rs': '6c856f4b5073102e67f4d5cb13e2467bc3f014afa14f0c06d5c523175038411b'}
     for _f, _digest in _op1a_pins.items():
         if __import__("hashlib").sha256(_text_of(_f).encode()).hexdigest() != _digest:
             raise SystemExit("OP1A-PF/RD: reviewed source changed: " + _f)
@@ -3944,8 +3967,8 @@ if fnkey("append_operand_standing", _OP1A_PP):
     # OP1A-OWN: admitted Vec<&str> is push-collected from <=z gates, with
     # old backing during growth. expected/stated are empty on D1. The full
     # requested+moving sum beside V5 is conservative; native &str is witnessed.
-    O10_TYPED_PATCHES = list(globals().get("O10_TYPED_PATCHES", [])) + [("g4_caps.py", ' + _W7_RD + _W15_RB + _RTA4_RD,',
-                          ' + _W7_RD + _W15_RB + _RTA4_RD + s("&str") * (pushcap(CAPS.get("z", 0)) + pushcap(CAPS.get("z", 0)) // 2),',
+    O10_TYPED_PATCHES = list(globals().get("O10_TYPED_PATCHES", [])) + [("g4_caps.py", ' + _W7_RD + _W15_RB + _RTA4_RD + _RTA3C_RD,',
+                          ' + _W7_RD + _W15_RB + _RTA4_RD + _RTA3C_RD + s("&str") * (pushcap(CAPS.get("z", 0)) + pushcap(CAPS.get("z", 0)) // 2),',
                           O10 + "OP1A-OWN: V5 also holds admitted's <=z borrowed str entries and previous push backing; all other new Vecs are empty on D1")]
 
 # §8.32 combined D3: PF Timoshenko declines D1 before charged work.
@@ -3963,7 +3986,7 @@ if fnkey("selects", _TIM):
     # RT-U4 repair B: reader_verdict.rs re-read as for OP1A above; the Timoshenko premises stand.
     # RT-U4 order and repair B on RT-A3 increment 4 (§8.50): reader_verdict.rs re-read as for OP1A above.
     # Operating-case slice 1b D3 (§8.51): preview_physics_evidence.rs re-read as for OP1A above; the Timoshenko premises stand.
-    _TIM_PINS = {'core/product_physics/src/pf_timoshenko.rs': '0546472cfba9ca61bff68838cb5add237c70485411c124f5fc14f9aa90217f45', 'core/product_physics/src/model_settings.rs': 'd2f9d52db54bd97b19708c5a8580d484282f97649f08df408f6e0b206a999d8b', 'core/reporting/result_export/src/reader_verdict.rs': 'd880e7e6bd58ca0c7a53507d405c530a716af39c3941f0a06fe0e6168f164813', 'core/reporting/result_export/src/preview_physics_evidence.rs': '195131763035104c69a742dc236d1fe43a78a053d77580072ca8aaebad4beac1', 'core/product_physics/src/case_state/temperature.rs': 'eed9dc272dd37c669cc090d3f4c9c30293a0793e0d0b770ddd25fdd5d08ed9b2', 'core/product_physics/src/case_state/temperature/canonical_decimal.rs': '431ac3204d98ed3420ead918cc2733f77ac3a8258d28625b210a8bc69962b1e2'}
+    _TIM_PINS = {'core/product_physics/src/pf_timoshenko.rs': '0546472cfba9ca61bff68838cb5add237c70485411c124f5fc14f9aa90217f45', 'core/product_physics/src/model_settings.rs': 'd2f9d52db54bd97b19708c5a8580d484282f97649f08df408f6e0b206a999d8b', 'core/reporting/result_export/src/reader_verdict.rs': '6c856f4b5073102e67f4d5cb13e2467bc3f014afa14f0c06d5c523175038411b', 'core/reporting/result_export/src/preview_physics_evidence.rs': '4c14f274418de1832926a3e826b0c22c9dc7487c39bcac1d32393c763979f62f', 'core/product_physics/src/case_state/temperature.rs': 'eed9dc272dd37c669cc090d3f4c9c30293a0793e0d0b770ddd25fdd5d08ed9b2', 'core/product_physics/src/case_state/temperature/canonical_decimal.rs': '431ac3204d98ed3420ead918cc2733f77ac3a8258d28625b210a8bc69962b1e2'}
     _TIM_PINS[FK_ + "shear.rs"] = "12b854db0252398a8d61a643eba4fe7162f81e228a1c6239860433fd3188d2c3"
     for _file, _pin in _TIM_PINS.items():
         if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _file), "rb").read()).hexdigest() != _pin:
@@ -4818,7 +4841,7 @@ if fnkey("solved_state_plus_increments", _A4_PLAN):
     # preview_difference_basis::check (PF1B-FZ on D1), free_check gains an allocation-free stated-reason arm, model_check
     # (RT-A4-RM) reads the new module's kept combinations and declared gate. Every RT-A4 guard is re-checked on the new bytes.
     _A4_PINS = {_A4_PLAN: "86e8d1c0686b92579aeee96087e0b6e390ee6729d10a56568228f099e64b6cbb",
-                _A4_GATES: "b6c9ad33780eaaa2b2b59dd86d0cc53ff8c622525d5b612d8b252ea0084f8afe",
+                _A4_GATES: "9ba79f6adbb4e372ae55586e19009e3d8be79ba80cdd0dc1f2d97f949f43aa50",
                 _A4_GRAPH: "f3a3ca6b332896afd19412ee96e18750c271ae323ca34c46876e382c710eaef8",
                 _A4_FLC: "c234ca4cb3fb6a1360edd8d3f55bd9d6e9d9ecf6a8310d68379096167abb38bf",
                 _A4_UNS: "7bde94c46aa9aa15d19560d21b58fd9cddfae3f0d8073706214620c34179ad42"}
@@ -4925,7 +4948,10 @@ if fnkey("solved_state_plus_increments", _A4_PLAN):
     # model-bound preview dispatch (outside every retained root, §8.35/§8.44). The retained graph reaches it only through
     # validate_preview_physics_evidence -> validate_with(source, None) -> `None => check(source, None)` (G7's for_source).
     _A4_CHECK = _fn_text("check", _A4_GATES)
-    _A4_VW = _fn_text("validate_with", _A4_PEV)
+    # RT-A3 §4 (§8.53): validate_with runs validate_uncertified_with (the former body, RT-A4-RM's key) once, then
+    # the certificate only without the model.
+    _A4_UW = "validate_uncertified_with" if fnkey("validate_uncertified_with", _A4_PEV) else "validate_with"
+    _A4_VW = _fn_text(_A4_UW, _A4_PEV)
     _a4_rm = (
         _A4_CHECK.count("        Some(model) => model_check(source, model, gates, rows, &by_id),\n"
                         "        None => free_check(source, gates, rows, &by_id),\n") == 1,
@@ -4935,6 +4961,11 @@ if fnkey("solved_state_plus_increments", _A4_PLAN):
         _text_of(_A4_PEV).count("validate_with(source, model)") == 1
         and _re.sub(r"//[^\n]*", "", _text_of(RE_ + "reader_verdict.rs")).count("validate_preview_physics_evidence_with_model(") == 1,
     )
+    if _A4_UW != "validate_with":
+        _a4_rm += (_fn_text("validate_with", _A4_PEV).count(
+            "    validate_uncertified_with(source, model)?;\n    if model.is_none() {\n"
+            "        crate::combination_certificate::check(source)?;\n    }\n    Ok(())\n}") == 1,
+                   _text_of(_A4_PEV).count("validate_uncertified_with(") == 2)
     if not all(_a4_rm):
         raise SystemExit(f"RT-A4-RM: the gate reader's model dispatch changed; re-review its zero: {_a4_rm}")
     O10_EDGE_ZERO += [(fnkey("check", _A4_GATES), fnkey("model_check", _A4_GATES), O10 + "RT-A4-RM: on the retained graph "
@@ -5003,7 +5034,7 @@ if fnkey("solved_state_plus_increments", _A4_PLAN):
         ("iter:(0..values.len()).map", "3", _A4_L + "one value per term (unreached: RT-A4-UZ)", ["combination_graph.rs:unsigned_value"]),
         ("iter:> ids.iter().map", "3", _A4_L + "one combination's operand ids", ["combination_graph.rs:value"]),
         ("iter:operands.iter().map", "3", _A4_L + "one combination's withheld operands", ["preview_physics.rs:operand_withheld_message"]),
-        ("iter:parts.iter().map", "2", _A4_L + "identity's parts: [id] or [id, base] at every call", ["preview_combination_gates.rs:identity"]),
+        ("iter:parts.iter().map", "2", _A4_L + "identity's parts: [id] or [id, base] at every call", ["preview_combination_gates.rs:identity", "combination_certificate.rs:identity"]),
         ("iter:|basis: &str| basis.split_once(SECTION).map", "1", _A4_L + "an Option's map", ["preview_physics.rs:nested_source_identity_matches"]),
         ('iter:|m: &Value| m[" "].as_str().unwrap_or_default().split_once(SECTION).map', "1", _A4_L + "an Option's map",
          ["preview_combination_gates.rs:nested_identity"]),
@@ -5095,7 +5126,7 @@ _A4_RT = RE_ + "recorded_tables.rs"
 # reaches; no SELECTED write, read_recorded caller or selection path changes, and every guard below is re-checked.
 if fnkey("read_recorded", _A4_RT):
     if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _A4_RT), "rb").read()).hexdigest() != \
-            "b3b238c74192e26a240f2b4212338d548dda7db6a396953f949213ce371afeb3":
+            "d768c82e4e81f91367b4102392b61215fc593aedaed4f8d0b636285eec2f25a0":
         raise SystemExit("RT-A4-HS: recorded_tables.rs changed; re-review §8.46's rules")
     _a4_rt = _production(_A4_RT)
     # One production item's text, from its opening line to its closing brace at the same indent (tests excluded).
@@ -5401,3 +5432,259 @@ if fnkey("derivation", _B1_DB):
         (site("fail", _B1_RD, "code.to_string()", full=True),
          {"code": {"bytes": max(len(_c) for _c in _B1_CODES), "source": O10 + "PF1B-ID: a static refusal code of the module (the longest)"}}),
     ]
+
+# ---- §8.53: RT-A3 §4, the combination certificate (DEL-05-02 Work combination-certificate.md), with RT-A3 P.
+# The producer (PP combination_certificate.rs) forms each eligible case's operand groups (`operand`, only on a model with
+# a combination and a formed member bound) and publishes the member and one notice per combination (`publish`, which
+# returns before any allocation without a combination). The reader (RE combination_certificate.rs) runs inside every
+# pressure-2 and preview-physics evidence read: `member_check` scans the diagnostics and returns when the member is
+# absent; the roster (`roster`) returns at its first statement in the retained base-read context, the only context the
+# retained graph reaches it in (RTA3C-RB). On D1 route E refuses every combination and route L admits z <= 2 (D1.9), so at
+# the profile's points L(3,0) and E(3) (z = 0) the certificate's work is the member-absent scan, the empty operand map
+# and the case-id vector (RTA3C-OWN, priced by rta3c_owners_model), and at L(2,1) and L(1,2) its loops are bounded by z.
+_C3_PP = PP_ + "combination_certificate.rs"
+_C3_RE = RE_ + "combination_certificate.rs"
+if fnkey("publish", _C3_PP) and fnkey("member_check", _C3_RE):
+    # RTA3C-PIN: the two modules' complete bytes, read before these rules were written; a change stops the run.
+    for _f, _h in {_C3_PP: "5b85e6c57ae9c3b7cf9722e8be424532e12866f8b825597b20334c3e98ab5b1a",
+                   _C3_RE: "0f688c6e80faad61888e8e677ad8a6c03256631858c0d4f797d9af77d3542f0f"}.items():
+        if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _f), "rb").read()).hexdigest() != _h:
+            raise SystemExit(f"RTA3C-PIN: {_f} changed; re-review §8.53's rules")
+    _c3_lib = _re.sub(r"//[^\n]*", "", _text_of(_LIB))
+    _c3_rp = _re.sub(r"//[^\n]*", "", _production(RE_ + "retained_precision.rs"))
+    _c3_guard = (
+        # The producer's three lib.rs statements, each once: the operand formed only with a combination and a formed
+        # member bound; taken into the run's map; the one publish call after the envelope is assembled.
+        _c3_lib.count("let certificate_operand = (!model.combinations.is_empty() && member_bound.is_some())\n"
+                      "        .then(|| combination_certificate::operand(&recovery_records, &formation_bodies));") == 1,
+        _c3_lib.count("if let Some(operand) = solve.certificate_operand.take() {\n"
+                      "            certificate_operands.insert(load_case_id.clone(), operand);\n        }") == 1,
+        _c3_lib.count("combination_certificate::publish(&model.combinations, &case_ids, &mut envelope, &certificate_operands);") == 1
+        and _c3_lib.count("combination_certificate::") == 4
+        and _c3_lib.count("certificate_operand: Option<combination_certificate::Operand>,") == 1
+        and _c3_lib.count("let mut certificate_operands: HashMap<String, combination_certificate::Operand> = HashMap::new();") == 1,
+        # publish's first statement: no combination (or an unsolved envelope) returns before any allocation.
+        _fn_text("publish", _C3_PP).count("    if combinations.is_empty() || envelope.status.mechanics != \"MECHANICS_SOLVED\" {\n"
+                                          "        return;\n    }\n") == 1,
+        # RTA3C-RB: the retained reader's one semantic_contract read is G7's, inside the retained base-read context,
+        # and the roster returns at its first statement there.
+        _c3_rp.count("semantic_contract::for_source(") == 1
+        and _c3_rp.count("crate::combination_certificate::retained_base_read(|| crate::semantic_contract::for_source(&projected))") == 1,
+        _fn_text("roster", _C3_RE).count("    if in_retained_base_read() || source[\"status\"][\"mechanics\"] != \"MECHANICS_SOLVED\" {\n"
+                                         "        return Ok(());\n    }\n") == 1,
+        # member_check: the member-absent return precedes every other use of the member.
+        _fn_text("member_check", _C3_RE).count("    let Some(member) = member else {\n"
+                                               "        return require(!items(&source[\"diagnostics\"]).iter().any(reserved_notice), \"PRESENCE\");\n    };\n") == 1,
+    )
+    if not all(_c3_guard):
+        raise SystemExit(f"RTA3C: the certificate's D1 premises or their guards changed; re-review §8.53: {_c3_guard}")
+    _C3_Z = O10 + ("RTA3C-Z: the certificate allocates only with a combination: publish returns at its first statement "
+                   "without one, operand is formed only on a model with one, and the producer publishes the member only "
+                   "then, so member_check returns at its presence test; D1.9: route E refuses every combination and route "
+                   "L admits z <= 2, so at z = 0 none of these runs")
+    EDGE_PER_CALL = list(EDGE_PER_CALL) + [
+        (fnkey("run_linear_static_preview_observed_inner", _LIB), fnkey("publish", _C3_PP), "min(1,z)", _C3_Z),
+        (fnkey("solve_prepared_load_case", _LIB), fnkey("operand", _C3_PP), "min(1,z)", _C3_Z + " (once per case solve)"),
+        # The reader's post-presence calls: the row index once, eligibility per operand case and per term of each
+        # combination (operand cases <= min(c, 3z): at most three terms each, D1.4), the records' helpers per combination.
+        (fnkey("member_check", _C3_RE), fnkey("new", _C3_RE), "min(1,z)", _C3_Z),
+        (fnkey("member_check", _C3_RE), fnkey("eligible", _C3_RE), "min(cases,3*z)+3*z", _C3_Z),
+        # bit_equal binds each stated operand group's rows (<= min(c, 3z) cases x G groups), each record's expression and
+        # whole record (2z) and each notice (z).
+        (fnkey("member_check", _C3_RE), fnkey("bit_equal", RE_ + "section_basis.rs"), "min(cases,3*z)*28*(m+g)+3*z", _C3_Z),
+    ]
+    # RTA3C-RB: the roster runs only inside the retained base read on the retained graph and returns there at once.
+    _C3_RB = O10 + ("RTA3C-RB: the retained graph reaches the certificate reader only through G7's for_source, which "
+                    "retained_precision.rs runs inside combination_certificate::retained_base_read; roster returns Ok at its "
+                    "first statement in that context, before any allocation")
+    O10_EDGE_ZERO += [(fnkey("check_with", _C3_RE), fnkey("roster", _C3_RE), _C3_RB)]
+    # RTA3C-NC: by-name call-graph edges that are not calls of these functions: LocalKey::with on the read-context Cell
+    # (exact_combination_evidence's private Key::with is not nameable here, as RT-A4-HS reads it), and the read context's
+    # closure parameter `read` (not 1b's or the nonlinear reader's `read`).
+    _c3_with = fnkey("with", _W16B_EV)
+    if not _re.match(r"\s*fn with\(&self", _text_of(_W16B_EV).split("\n")[int(_c3_with.split(":")[1]) - 1]):
+        raise SystemExit("RTA3C-NC: exact_combination_evidence's Key::with is no longer a private method; re-review")
+    if _fn_text("retained_base_read", _C3_RE).count("read()") != 1 or "read: impl FnOnce() -> R" not in _fn_text("retained_base_read", _C3_RE):
+        raise SystemExit("RTA3C-NC: retained_base_read's closure call changed; re-review")
+    O10_EDGE_ZERO += [(fnkey(_n, _C3_RE), _c3_with, O10 + "RTA3C-NC: RETAINED_BASE_READ.with(..) is LocalKey::with, not "
+                       "exact_combination_evidence's private Key::with") for _n in ("retained_base_read", "drop", "in_retained_base_read", "clear_read_context")]
+    O10_EDGE_ZERO += [(fnkey("retained_base_read", _C3_RE), fnkey("read", _f), O10 + "RTA3C-NC: `read()` calls the closure "
+                       "parameter (G7's for_source, charged at gates_after_g0), not this module's read")
+                      for _f in (RE_ + "preview_difference_basis.rs", RE_ + "nonlinear_support_evidence.rs") if fnkey("read", _f)]
+    # RTA3C-FB (the MODAL-FB pattern): the producer's `.min()` is Iterator::min over usize counts and its `.max(..)`
+    # receivers are f64 (floor scales and q); the name-based resolver bound them to certified_publication's private
+    # min/max, which KD5C6's entry cutset forbids. Bodies are bound by RTA3C-PIN.
+    for _fn, _methods in (("publish", ("min", "max")), ("magnitude_group", ("max",))):
+        for _m in _methods:
+            _target = fnkey(_m, _CP)
+            if not _target:
+                raise SystemExit(f"RTA3C-FB: certified_publication's {_m} is not unique; re-review (§8.53)")
+            CG_RULES += [{"caller": Resolved(_C3_PP + ":" + fnkey(_fn, _C3_PP).split(":", 1)[1]), "name": _m,
+                          "exclude_targets": [Resolved(_CP + ":" + _target.split(":", 1)[1])], "added": "RTA3C-FB",
+                          "evidence": "Iterator::min over usize and f64::max receivers; private FallbackError is not nameable here (KD5C5); module pinned (§8.53)"}]
+    # RTA3C-L: the loops, each bound by D1's caps. G = 28(m + g) groups per case (KD5L1/KD5L2: m + g records of at most
+    # seven locations x four groups); a group has at most two row sets (the station axial: elastic and effective) of at
+    # most three rows; R = Pall + z(P + 8g + 1) rows in the envelope (the cases' P each, a combination's <= P + 8g as
+    # RT-A4-CB reads it, and its modulus record).
+    _C3_G, _C3_R = "28*(m+g)", "Pall+z*(P+8*g+1)"
+    # RTA3C-OWN: rta3c_owners_model prices a copied location, group or kind label at 64 B; KD5T2's label bound must fit.
+    if _fixed["label_bytes"] > 64:
+        raise SystemExit("RTA3C-OWN: the KD5T2 label bound exceeds rta3c_owners_model's 64 B; re-review")
+    _c3 = lambda *fns: ["combination_certificate.rs:" + _n for _n in fns]
+    O10_LOOPS_LAST += [
+        ("iter:gates.iter().map", "z", O10 + "RTA3C-L: the document's combination gates (z, D1.9)", _c3("publish", "gates")),
+        ("iter:records.iter().map", "z", O10 + "RTA3C-L: EX combination records (z; none on E)", _c3("publish", "gates")),
+        ('iter:evidence.get(" ").and_then(Value::as_array) { return Some(gates.iter().map(|g| (g[" "].as_str().unwrap_or_default().to_string(), g[" "] == true)).collect()); } evidence.get(" ").and_then(Value::as_array).map',
+         "z", O10 + "RTA3C-L: EX combination records (z; none on E)", _c3("gates")),
+        ("for (index, row) in results.iter().enumerate()", _C3_R, O10 + "RTA3C-L: the envelope's rows", _c3("new")),
+        ("for (i, row) in results.iter().enumerate()", _C3_R, O10 + "RTA3C-L: the envelope's (successor's) rows", _c3("publish", "new")),
+        ("for (id, withheld) in &gates", "z", O10 + "RTA3C-L: one pass per combination gate", _c3("publish")),
+        ("for (record, (id, withheld)) in records.iter().zip(&gate_list)", "z", O10 + "RTA3C-L: one record per gate", _c3("member_check")),
+        ("for (case, _) in &terms", "3", O10 + "RTA3C-L: a combination's load-case terms (<= 3, D1.4)", _c3("publish", "member_check")),
+        ("for group in &first.groups", _C3_G, O10 + "RTA3C-L: the first operand's groups", _c3("publish")),
+        ("for group in &operands[terms[0].0.as_str()]", _C3_G, O10 + "RTA3C-L: the first operand's groups", _c3("member_check")),
+        ('for g in array(&case[" "])?', _C3_G, O10 + "RTA3C-L: one operand case's stated groups (the producer's)", _c3("member_check")),
+        ("for set in 0..sets", "2", O10 + "RTA3C-L: a group's row sets (<= 2)", _c3("publish", "member_check")),
+        ("iter:(0..components).map", "3", O10 + "RTA3C-L: a row set's components (<= 3)", _c3("publish")),
+        ("for d in derived.iter_mut()", "2*" + _C3_G, O10 + "RTA3C-L: a combination's derived groups (<= 2 per group; "
+         "entered only for a subtraction with pressure evidence: never on route L)", _c3("publish", "member_check")),
+        ("iter:(0..4).find_map", "4", O10 + "RTA3C-L: the literal 0..4", _c3("publish")),
+        ("iter:(0..4).find", "4", O10 + "RTA3C-L: the literal 0..4", _c3("member_check")),
+        ("iter:case_order .iter() .filter(|case| used_cases.contains(*case)) .filter_map(|case| operands.get(case).map(|o| (case, o))).map",
+         "min(cases,3*z)", O10 + "RTA3C-L: the operand cases the assessed combinations use (<= 3 per combination)", _c3("publish")),
+        ('iter:" ": operand.groups.iter().map', _C3_G, O10 + "RTA3C-L: one operand case's groups", _c3("publish")),
+        ("iter:coverage(&index, results, case, g).into_iter().map", "2", O10 + "RTA3C-L: a group's row sets (<= 2)", _c3("publish")),
+        ('for stated in items(&evidence[" "]).iter().filter(|r| r[" "] == id.as_str())', "1",
+         O10 + "RTA3C-L: the one EX record of a combination (none on route L)", _c3("member_check")),
+        ("for (factor, value) in terms", "3", O10 + "RTA3C-L: a combination's terms (<= 3, D1.4)", _c3("rounding_error")),
+        ("for expected in &expected_diagnostics", "z", O10 + "RTA3C-L: <= one notice per combination", _c3("member_check")),
+        # The roster's loops: its edge is zero on the retained graph (RTA3C-RB); bounds stated for completeness.
+        ("for &(id, gated, code) in &gates", "z", O10 + "RTA3C-L: the gates (unreached: RTA3C-RB)", _c3("roster")),
+        ("for d in diagnostics.iter().filter(|d| named(d))", "D", O10 + "RTA3C-L: the diagnostics (unreached: RTA3C-RB)", _c3("roster")),
+        ("for c in all", "z", O10 + "RTA3C-L: the model's combinations (unreached: RTA3C-RB; model only)", _c3("interim")),
+        ("for index in model_order(all, &cases)", "z", O10 + "RTA3C-L: the model's combinations (unreached: RTA3C-RB; model only)", _c3("interim")),
+    ]
+    # RTA3C-ER: the reader's `fail` allocates only on Err and every call propagates it (`?`, `return`, or a tail), so one
+    # read returns at most one; the code is one of the module's static suffixes (the longest, 23 B).
+    _c3_codes = (set(_re.findall(r'fail\("([A-Z_]+)"\)', _production(_C3_RE)))
+                 | set(_re.findall(r'require\([^;]*?,\s*"([A-Z_]+)"\s*\)', _production(_C3_RE), _re.S)))
+    O10_SITE_FROM += [(site("fail", _C3_RE, 'format!("SOURCE_COMBINATION_CERTIFICATE_{code}")'),
+                       {"from": [fnkey("check_with", _C3_RE)], "per": "1",
+                        "why": O10 + "RTA3C-ER: fail allocates only on Err; every call propagates it, at most one per read"}),
+                      (site("run_linear_static_preview_observed_inner", _LIB, "certificate_operands.insert(load_case_id.clone(), operand);"),
+                       {"from": [fnkey("run_linear_static_preview_observed_inner", _LIB)], "per": "min(cases,3*z)",
+                        "why": _C3_Z + " (the id's clone, once per formed operand)"}),
+                      # RTA3C-RS: the row-id clones of the derived groups (<= 3 rows each, <= 2G per combination) and of the
+                      # operand cases' stated row sets (<= 2 sets of <= 3 rows per group, G groups, <= min(c, 3z) cases): the
+                      # innermost `rows.iter().map` is one row set, not the generic rule's P rows.
+                      (site("publish", _C3_PP, '"rows": rows.iter().map(|&r| results[r].id.clone()).collect::<Vec<_>>(),'),
+                       {"from": [fnkey("publish", _C3_PP)], "per": "z*2*28*(m+g)*3",
+                        "why": O10 + "RTA3C-RS: a derived group's <= 3 row ids, <= 2G derived groups per combination"}),
+                      (site("publish", _C3_PP, "json!(rows.iter().map(|&r| results[r].id.clone()).collect::<Vec<_>>())"),
+                       {"from": [fnkey("publish", _C3_PP)], "per": "min(cases,3*z)*28*(m+g)*2*3",
+                        "why": O10 + "RTA3C-RS: an operand group's <= 2 row sets of <= 3 row ids, G groups per used case"}),
+                      (site("without_member", _C3_RE, "let mut view = source.clone();"),
+                       {"from": [fnkey("validate_pressure_evidence_without_certificate", RE_ + "physics_evidence.rs")], "per": "min(1,z)",
+                        "why": _C3_Z + " (the member-less view is formed only when the member is present; route E: z = 0)"})]
+    O10_MULT0_SITES = list(globals().get("O10_MULT0_SITES", [])) + [
+        (site("without_member", _C3_RE, "let mut view = source.clone();"), _C3_Z + " (the member-less view's document clone)")]
+    # RTA3C-ID: the arguments no generic class covers. Ids are IN128; counts usize (20 B); labels the KD5T2 constructor
+    # label class; tokens and reasons the modules' static texts (their longest), the joined ids at most three (D1.4).
+    _c3_n = {"bytes": 20, "source": O10 + "RTA3C-ID: a usize decimal"}
+    _c3_ident = {"bytes": 3 + 1 + 128, "source": O10 + "RTA3C-ID: identity(&[id]): an id's decimal length, ':' and the id"}
+    _c3_join = {"bytes": 3 * 128 + 2 * 2, "source": O10 + "RTA3C-ID: <= 3 operand case ids joined by \", \" (D1.4)"}
+    O10_ID_AUDIT += [
+        (site("operand", _C3_PP, "location: group.location.clone(),", full=True), {"group.location": _label}),
+        (site("operand", _C3_PP, "group: group.kind.clone(),", full=True), {"group.kind": _label}),
+        (site("held_reason", _C3_PP, "(subtrahend_support_state {token})", full=True, row="format!("),
+         {"token": {"bytes": 13, "source": O10 + "RTA3C-ID: subtrahend_support_token's non-own tokens (minuend_final, unrecognized)"}}),
+        (site("publish", _C3_PP, 'Err(format!("operand case(s) {} carry no certified rows", missing.join(", ")))', full=True),
+         {'missing.join(",")': _c3_join}),
+        (site("within_message", _C3_PP, "{established} derived row group(s)", full=True, row="format!("),
+         {"established": _c3_n, "not_established": _c3_n, "not_assessed": _c3_n, "uncovered": _c3_n}),
+        (site("run_linear_static_preview_observed_inner", _LIB, "certificate_operands.insert(load_case_id.clone(), operand);", full=True),
+         {"load_case_id": IN}),
+        (site("fail", _C3_RE, 'format!("SOURCE_COMBINATION_CERTIFICATE_{code}")', full=True),
+         {"code": {"bytes": max(len(_c) for _c in _c3_codes), "source": O10 + "RTA3C-ID: a static refusal code of the module (the longest)"}}),
+        (site("eligible", _C3_RE, 'let id = format!("diagnostic:numerical-integrity:{case}");', full=True), {"case": IN}),
+        (site("eligible", _C3_RE, "is Sensitive because", full=True), {"case": IN}),
+        (site("within_message", _C3_RE, "{e} derived row group(s)", full=True, row="format!("),
+         {"a": _c3_n, "n": _c3_n, "u": _c3_n}),
+        (site("without_member", _C3_RE, "let mut view = source.clone();", full=True),
+         {"source": {"bytes": 128, "source": O10 + "RTA3C-ID: unreached on D1 (RTA3C-Z; o10_check guards multiplicity 0)"}}),
+        # The roster's (unreached: RTA3C-RB).
+        (site("interim", _C3_RE, "code.to_ascii_lowercase()), code,", full=True),
+         {"code.to_ascii_lowercase()": {"bytes": len("LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED"), "source": O10 + "RTA3C-ID: the interim code"}}),
+        (site("interim", _C3_RE, "OPERAND_WITHHELD.to_ascii_lowercase()), OPERAND_WITHHELD,", full=True),
+         {"OPERAND_WITHHELD.to_ascii_lowercase()": {"bytes": len("LOAD_COMBINATION_OPERAND_WITHHELD"), "source": O10 + "RTA3C-ID: a static code"}}),
+        (site("form_bound", _C3_RE, 'format!("fixed-load-count:{own}")', full=True), {"own": _c3_ident}),
+        (site("form_bound", _C3_RE, 'format!("source-missing:{own}")', full=True), {"own": _c3_ident}),
+        (site("form_bound", _C3_RE, 'format!("row-withheld:{own}")', full=True), {"own": _c3_ident}),
+        (site("form_bound", _C3_RE, "omits {base} because a matching source row", full=True), {"base": RS_}),
+        (site("form_bound", _C3_RE, 'format!("{base} ({r})")', full=True),
+         {"base": RS_, "r": {"bytes": 46, "source": O10 + "RTA3C-ID: a WITHHELD_REASONS entry (the longest)"}}),
+        (site("form_bound", _C3_RE, 'format!("support-action:{}:{s} ({r})", s.len())', full=True),
+         {"r": {"bytes": 46, "source": O10 + "RTA3C-ID: a WITHHELD_REASONS entry (the longest)"}}),
+        (site("roster", _C3_RE, 'format!("{PREVIEW_PREFIX}maximum:{own}")', full=True), {"own": _c3_ident}),
+        (site("roster", _C3_RE, 'format!("{PREVIEW_PREFIX}intensified:{own}")', full=True), {"own": _c3_ident}),
+        (site("roster", _C3_RE, 'format!("{PREVIEW_PREFIX}gate:{own}")', full=True), {"own": _c3_ident}),
+    ]
+    # RTA3C-ID (z >= 1): the producer's and reader's derived-group keys and ids. Entities are member or support ids
+    # (IN128); locations and group kinds the KD5T2 labels; result ids the RES class (1,024 B); `components` one of two
+    # static group kinds ("support_force", "support_moment"); a not-assessed reason at most the missing-operands sentence
+    # (41 B) with three joined ids, above held_reason's 169 + 13 B and the static reasons (<= 52 B).
+    _c3_reason = {"bytes": 41 + _c3_join["bytes"], "source": O10 + "RTA3C-ID: the longest not-assessed reason (the missing-operands sentence with its ids)"}
+    _c3_comp = {"bytes": len("support_moment"), "source": O10 + "RTA3C-ID: a magnitude's component group kind (the longer of two)"}
+    _c3_cid = lambda: {"bytes": 128, "source": "IN128: a combination or load-case id the producer wrote"}
+    for _f in (_C3_PP, _C3_RE):
+        _fn_gates = "publish" if _f == _C3_PP else "gates"
+        O10_ID_AUDIT += [
+            (site(_fn_gates, _f, 'gates.iter().map(|g| (g["combination_id"].as_str().unwrap_or_default().to_string()', full=True),
+             {'g[""].as_str().unwrap_or_default()': _c3_cid()}),
+            (site(_fn_gates, _f, 'records.iter().map(|r| (r["combination_id"].as_str().unwrap_or_default().to_string()', full=True),
+             {'r[""].as_str().unwrap_or_default()': _c3_cid()}),
+        ]
+    _c3_pid = [_l for _l, _t in enumerate(_text_of(_C3_PP).split("\n"), 1) if '&format!("{DIAGNOSTIC_PREFIX}{}", exact_source_identity(&[id])),' in _t]
+    _c3_pvid = [_l for _l, _t in enumerate(_text_of(_C3_PP).split("\n"), 1) if _t.strip() == "vec![id.clone()],"]
+    if len(_c3_pid) != 2 or len(_c3_pvid) != 2:
+        raise SystemExit("RTA3C-ID: publish's two notices changed; re-review")
+    O10_ID_AUDIT += [(Resolved(_C3_PP + ":%d" % _l), {"exact_source_identity(&[id])": _c3_ident}) for _l in _c3_pid]
+    O10_ID_AUDIT += [(Resolved(_C3_PP + ":%d" % _l), {"id": IN}) for _l in _c3_pvid]
+    O10_ID_AUDIT += [
+        (site("publish", _C3_PP, "formed.insert((group.entity.clone(), group.location.clone(), group.group.clone(), set), derived.len());", full=True),
+         {"group.location": _label}),
+        (site("publish", _C3_PP, '"rows": rows.iter().map(|&r| results[r].id.clone()).collect::<Vec<_>>(),', full=True), {"results[r].id": RS_}),
+        (site("publish", _C3_PP, 'let member = d.json["entity"].as_str().unwrap_or_default().to_string();', full=True),
+         {'d.json[""].as_str().unwrap_or_default()': IN}),
+        (site("publish", _C3_PP, 'let location = d.json["location"].as_str().unwrap_or_default().trim_start_matches("wall_").to_string();', full=True),
+         {'d.json[""].as_str().unwrap_or_default().trim_start_matches("")': _label}),
+        (site("publish", _C3_PP, '.find_map(|set| formed.get(&(member.clone(), location.clone(), "axial".to_string(), set)).map(|_| set))', full=True),
+         {"location": _label}),
+        (site("publish", _C3_PP, "json!(rows.iter().map(|&r| results[r].id.clone()).collect::<Vec<_>>())", full=True), {"results[r].id": RS_}),
+        (site("magnitude_group", _C3_PP, "components.to_string(), 0))?];", full=True), {"components": _c3_comp, "group.location": _label}),
+        (site("within_message", _C3_PP, "{established} derived row group(s)", full=True, row="format!("), {"id": IN}),
+        (site("not_assessed_message", _C3_PP, "its rows are not assessed against a stated bound ({reason})", full=True, row="format!("),
+         {"id": IN, "reason": _c3_reason}),
+        (site("terms_of", _C3_RE, 'Ok(terms.iter().map(|t| (t["load_case_id"].as_str().unwrap_or_default().to_string()', full=True),
+         {'t[""].as_str().unwrap_or_default()': _c3_cid()}),
+        (site("terms_of", _C3_RE, "Ok(vec![(m.to_string(), 1.0), (s.to_string(), -1.0)])", full=True), {"m": IN}),
+        (site("within_message", _C3_RE, "{e} derived row group(s)", full=True, row="format!("), {"id": IN}),
+        (site("not_assessed_message", _C3_RE, "its rows are not assessed against a stated bound ({reason})", full=True), {"id": IN, "reason": _c3_reason}),
+        (site("diagnostic", _C3_RE, 'json!({"id": format!("{DIAGNOSTIC_PREFIX}{}", identity(&[id]))', full=True), {"identity(&[id])": _c3_ident}),
+        (site("member_check", _C3_RE, "formed.get(&(group.entity.to_string(), group.location.to_string(), components.to_string(), 0))", full=True),
+         {"group.entity": IN, "group.location": _label, "components": _c3_comp}),
+        (site("member_check", _C3_RE, "formed.insert((group.entity.to_string(), group.location.to_string(), group.group.to_string(), set), derived.len());", full=True),
+         {"group.entity": IN, "group.location": _label, "group.group": _label}),
+        (site("member_check", _C3_RE, 'let member = d.json["entity"].as_str().unwrap_or_default().to_string();', full=True),
+         {'d.json[""].as_str().unwrap_or_default()': IN}),
+        (site("member_check", _C3_RE, 'let location = d.json["location"].as_str().unwrap_or_default().trim_start_matches("wall_").to_string();', full=True),
+         {'d.json[""].as_str().unwrap_or_default().trim_start_matches("")': _label}),
+        (site("member_check", _C3_RE, '.find(|set| formed.contains_key(&(member.clone(), location.clone(), "axial".to_string(), *set)))', full=True),
+         {"location": _label}),
+    ]
+    _c3_na = 159 + 128 + _c3_reason["bytes"]
+    O10_ARGS_FIRST = [{"re": r"^not_assessed_message\(id, &reason\)$", "max": _c3_na,
+                       "why": O10 + "RTA3C-ID: the not-assessed notice: 159 literal bytes, the id (IN128) and the longest reason"}] + O10_ARGS_FIRST
+    if max(len(_c) for _c in _c3_codes) > 23 or max(len(_r) for _r in _re.findall(r'"([^"]*)"', _re.search(
+            r"const WITHHELD_REASONS: \[&str; 3\] = \[([^\]]*)\]", _text_of(_C3_RE)).group(1))) > 46:
+        raise SystemExit("RTA3C-ID: a static code or reason grew; re-review its class")
