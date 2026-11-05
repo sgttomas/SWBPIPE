@@ -112,7 +112,6 @@
     },
     {
       "paths": [
-        "plans/**",
         "execution/**",
         "init/**",
         ".github/workflows/governance-harness.yml",
@@ -123,7 +122,6 @@
         "execution/**",
         "loop/**",
         "init/**",
-        "plans/**",
         "AGENTS.md",
         "README.md"
       ],

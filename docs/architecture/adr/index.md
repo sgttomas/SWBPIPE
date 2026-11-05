@@ -43,4 +43,4 @@ into ADR form is unscheduled (`TBD`).
 
 | ID | Title | Status | Date | Human authority / ruling record |
 |---|---|---|---|---|
-| [ADR-0001](ADR-0001_operation_seam_engine_unification.md) | Operation-seam engine unification — wasm32 `operation_applier` as the sole browser-mode engine | accepted | 2026-06-11 | Human project authority ruling 2026-06-11, `plans/PLAN_2026-06-11_operation_seam_unification.md` §2; `DEC-020` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12; register row `D-13` |
+| [ADR-0001](ADR-0001_operation_seam_engine_unification.md) | Operation-seam engine unification — wasm32 `operation_applier` as the sole browser-mode engine | accepted | 2026-06-11 | Human project authority ruling 2026-06-11, `plans/PLAN_2026-06-11_operation_seam_unification.md` §2 (retired plan, in Git history at `3330e7108`); `DEC-020` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12; register row `D-13` |

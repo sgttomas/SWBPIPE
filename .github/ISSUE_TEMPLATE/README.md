@@ -16,8 +16,8 @@ refs:
 # Public Issue Templates
 
 This directory holds the SWBPIPE **public issue templates** named as a
-PRD §22.6 deliverable ("Public issue templates"; completion-plan row E6 in
-`plans/PLAN_2026-06-17_prd_completion.md`). They are GitHub issue forms:
+PRD §22.6 deliverable ("Public issue templates"; completion-plan row E6 in the retired
+`plans/PLAN_2026-06-17_prd_completion.md`, in Git history at `3330e7108`). They are GitHub issue forms:
 
 | File | Purpose |
 |---|---|
