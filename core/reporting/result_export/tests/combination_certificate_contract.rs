@@ -132,8 +132,9 @@ fn absence_is_inspection_only_with_no_certificate_claim() {
 #[test]
 fn legacy_w_cb3_successors_are_accepted() {
     for text in [
-        include_str!("../../../../fixtures/results/retained_precision_combination_successor_sparse_interactive.json"),
-        include_str!("../../../../fixtures/results/retained_precision_combination_successor_dense_scrutiny.json"),
+        // The registered pre-certificate bytes, kept when §8.53 regenerated the live successors with the member.
+        include_str!("../../../../fixtures/results/retained_precision_combination_successor_sparse_interactive_pre_certificate.json"),
+        include_str!("../../../../fixtures/results/retained_precision_combination_successor_dense_scrutiny_pre_certificate.json"),
     ] {
         let w: Value = serde_json::from_str(text).unwrap();
         assert!(claims_survive(&w["source"]).is_empty());
@@ -141,6 +142,46 @@ fn legacy_w_cb3_successors_are_accepted() {
         assert!(bound.invocation_bound && bound.numerical_eligible);
         let unbound = rp::validate(&w["source"], None).unwrap();
         assert!(!unbound.invocation_bound && !unbound.numerical_eligible);
+    }
+}
+
+/// §8.53 D3 (a) (Work `combination-certificate.md` §2, "Retained successors (for D3)"): on the registered build the
+/// W1 freeze admits the member, so the live W-CB3 successors carry the ordinary run's certificate. The full retained
+/// reader accepts them with and without their invocation (G7's base read checks the member against the projected
+/// rows), the projected base reads true from an ordinary entry too (member, records, notices and roster), and the
+/// certificate's notices are exactly the member's, one per record.
+#[test]
+fn registered_w_cb3_successors_carry_the_certificate_and_it_reads_true() {
+    for text in [
+        include_str!("../../../../fixtures/results/retained_precision_combination_successor_sparse_interactive.json"),
+        include_str!("../../../../fixtures/results/retained_precision_combination_successor_dense_scrutiny.json"),
+    ] {
+        let w: Value = serde_json::from_str(text).unwrap();
+        let source = &w["source"];
+        let member = &source["contract_evidence"]["combination_certificate"];
+        assert!(member.is_object() && claims_survive(source).iter().any(|c| c == "member"));
+        let bound = rp::validate(source, Some(&w["invocation"])).unwrap();
+        assert!(bound.invocation_bound && bound.numerical_eligible);
+        let unbound = rp::validate(source, None).unwrap();
+        assert!(!unbound.invocation_bound && !unbound.numerical_eligible);
+        let mut base = source.clone();
+        base.as_object_mut().unwrap().remove("retained_precision");
+        base["producer"]["semantic_contract_id"] = serde_json::json!("openpipestress.result_semantics/0.3.0/preview-physics-2");
+        base["formulation_basis"]["profile_id"] = serde_json::json!("product_preview_mechanics_v1");
+        let rows = base["results"].as_array_mut().unwrap();
+        rows.retain(|r| r["kind"] != rp::REQUESTED_MODE_KIND);
+        rows.iter_mut().for_each(|r| {
+            r.as_object_mut().unwrap().remove("recovery_method");
+        });
+        assert!(!open_pipe_stress_result_export::in_retained_base_read());
+        assert!(open_pipe_stress_result_export::semantic_contract::for_source(&base).is_ok());
+        let notices: Vec<&Value> = source["diagnostics"].as_array().unwrap().iter()
+            .filter(|d| d["id"].as_str().unwrap().starts_with("diagnostic:combination-certificate:")).collect();
+        let records = member["combinations"].as_array().unwrap();
+        assert_eq!(notices.len(), records.len());
+        for (notice, record) in notices.iter().zip(records) {
+            assert_eq!(notice["affected_refs"], serde_json::json!([record["combination_id"]]));
+        }
     }
 }
 

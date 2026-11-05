@@ -38,8 +38,9 @@ from g3lib import B, X, Xc, s, pushcap, HashReq, HashMov
 
 PP = "core/product_physics/src/"
 RE = "core/reporting/result_export/src/"
+# The RE pin follows its unit tests reading the legacy W-CB3 successor (§8.53; one test line, in place).
 PINS = {PP + "combination_certificate.rs": "5b85e6c57ae9c3b7cf9722e8be424532e12866f8b825597b20334c3e98ab5b1a",
-        RE + "combination_certificate.rs": "0f688c6e80faad61888e8e677ad8a6c03256631858c0d4f797d9af77d3542f0f"}
+        RE + "combination_certificate.rs": "71439493d6c2b5b35d9e58893a69731d6f4cdbf7b36ddcf00f7682dd22948ae0"}
 # (file, statement): each exactly once in its file.
 STATEMENTS = (
     (PP + "lib.rs", "let case_ids: Vec<&str> = model.load_cases.iter().map(|case| case.id.as_str()).collect();"),

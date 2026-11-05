@@ -1152,9 +1152,9 @@ mod retained_base_read_tests {
     //! The retained base-read context (Work `combination-certificate.md` §2, Agent 0's ruling after review cert2).
     use super::*;
 
-    /// A W-CB3 successor's ordinary base, as the retained reader's G7 projects it.
+    /// A legacy (pre-certificate, §8.53) W-CB3 successor's ordinary base, as the retained reader's G7 projects it.
     fn base() -> Value {
-        let w: Value = serde_json::from_str(include_str!("../../../../fixtures/results/retained_precision_combination_successor_sparse_interactive.json")).unwrap();
+        let w: Value = serde_json::from_str(include_str!("../../../../fixtures/results/retained_precision_combination_successor_sparse_interactive_pre_certificate.json")).unwrap();
         let mut b = w["source"].clone();
         b.as_object_mut().unwrap().remove("retained_precision");
         b["producer"]["semantic_contract_id"] = json!(crate::semantic_contract::PREVIEW_PHYSICS_ID);

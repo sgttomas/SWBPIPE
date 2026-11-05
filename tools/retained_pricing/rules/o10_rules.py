@@ -5445,9 +5445,11 @@ if fnkey("derivation", _B1_DB):
 _C3_PP = PP_ + "combination_certificate.rs"
 _C3_RE = RE_ + "combination_certificate.rs"
 if fnkey("publish", _C3_PP) and fnkey("member_check", _C3_RE):
-    # RTA3C-PIN: the two modules' complete bytes, read before these rules were written; a change stops the run.
+    # RTA3C-PIN: the two modules' complete bytes, read before these rules were written; a change stops the run. The RE
+    # module's retained_base_read_tests read the legacy pre-certificate W-CB3 successor since §8.53 regenerated the live
+    # one with the member (one test line, in place; no production line).
     for _f, _h in {_C3_PP: "5b85e6c57ae9c3b7cf9722e8be424532e12866f8b825597b20334c3e98ab5b1a",
-                   _C3_RE: "0f688c6e80faad61888e8e677ad8a6c03256631858c0d4f797d9af77d3542f0f"}.items():
+                   _C3_RE: "71439493d6c2b5b35d9e58893a69731d6f4cdbf7b36ddcf00f7682dd22948ae0"}.items():
         if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _f), "rb").read()).hexdigest() != _h:
             raise SystemExit(f"RTA3C-PIN: {_f} changed; re-review §8.53's rules")
     _c3_lib = _re.sub(r"//[^\n]*", "", _text_of(_LIB))

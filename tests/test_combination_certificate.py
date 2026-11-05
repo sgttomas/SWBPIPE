@@ -413,6 +413,8 @@ def test_absence_is_inspection_only_with_no_certificate_claim(name, with_model):
     assert reader_verdict.standing(stripped, model) == reader_verdict.standing(e["document"], model)
 
 
+# The legacy W-CB3 successors: the committed successor documents as registered before the certificate, kept byte for
+# byte as `..._pre_certificate.json` when §8.53's registration regenerated the live successors with the member.
 W_CB3 = {
     "sparse_interactive": "7a1b99f7ac24e2990472830054310ec1276d9804a86dd0111c290749a134ddd6",
     "dense_scrutiny": "3f38c729bbed2d484459c13b21c2b8bc08fb9d06f691b90740286f492b87824e",
@@ -428,7 +430,7 @@ def test_legacy_w_cb3_successors_are_accepted_with_their_own_receipt_and_no_cert
 
     from tests.verifiers import retained_precision
 
-    raw = (PROJECT / f"fixtures/results/retained_precision_combination_successor_{mode}.json").read_bytes()
+    raw = (PROJECT / f"fixtures/results/retained_precision_combination_successor_{mode}_pre_certificate.json").read_bytes()
     assert hashlib.sha256(raw).hexdigest() == W_CB3[mode]
     w = json.loads(raw)
     assert _claims_survive(w["source"]) == []
@@ -639,8 +641,9 @@ def test_an_appended_ex_limitation_claim_is_untrusted_text_and_attests_nothing(w
     assert reader_verdict.standing(forged, model) == reader_verdict.standing(e["document"], model)
 
 
-def _successor(mode: str = "sparse_interactive") -> dict:
-    return json.loads((PROJECT / f"fixtures/results/retained_precision_combination_successor_{mode}.json").read_text(encoding="utf-8"))
+def _successor(mode: str = "sparse_interactive", legacy: bool = False) -> dict:
+    suffix = "_pre_certificate" if legacy else ""
+    return json.loads((PROJECT / f"fixtures/results/retained_precision_combination_successor_{mode}{suffix}.json").read_text(encoding="utf-8"))
 
 
 def _base_of(successor: dict) -> dict:
@@ -684,9 +687,44 @@ def test_under_the_retained_context_a_reserved_certificate_notice_without_a_memb
     """Under the retained base-read context the reserved certificate vocabulary stays protected: a W-CB3 successor's
     G7 base (no member) with an added certificate notice is refused by the absence rule (Rust
     `under_the_context_only_the_roster_text_closure_is_lifted`)."""
-    reserved = _base_of(_successor()["source"])
+    reserved = _base_of(_successor(legacy=True)["source"])
     reserved["diagnostics"].append(cc._diagnostic("combination:ab", cc.WITHIN, cc.within_message("combination:ab", True, 1, 0, 0, 0)))
     with cc.retained_base_read():
         outcome = reader_verdict.validate("preview-physics", reserved)
     assert outcome["ok"] is False and PREFIX + "PRESENCE" in json.dumps(outcome), outcome
     assert not cc.in_retained_base_read()
+
+
+def _corpus_case(case_id: str) -> dict:
+    from tests.retained_precision_corpus import load_corpus
+    return next(c for c in load_corpus()["cases"] if c["id"] == case_id)
+
+
+@pytest.mark.parametrize("label", ["fixture:sparse_interactive", "fixture:dense_scrutiny", "corpus:w_cb5_sparse_interactive",
+                                   "corpus:w_cb5_dense_scrutiny", "corpus:w_cb2_sparse_interactive"])
+def test_a_registered_retained_successor_carries_the_certificate_and_it_reads_true(label):
+    """§8.53 D3 (a) (DEL-05-02 Work §2, "Retained successors (for D3)"): on the registered build the W1 freeze admits the
+    member, so the successor carries the ordinary run's certificate. The full retained reader accepts it with and
+    without its invocation (G7's base read checks the member against the projected rows); the projected base reads
+    true outside the retained context too (member, records and notices re-derived from the unchanged rows, and the
+    roster); and the certificate's notices are exactly the member's, one per record (W-CB5's `assessed` record states
+    its bound, so the claim survives)."""
+    from tests.verifiers import retained_precision
+    kind, name = label.split(":")
+    w = _successor(name) if kind == "fixture" else _corpus_case(name)
+    source = w["source"]
+    member = source["contract_evidence"]["combination_certificate"]
+    bound = retained_precision.validate_retained_precision(copy.deepcopy(source), copy.deepcopy(w["invocation"]))
+    assert (bound["invocation_bound"], bound["numerical_eligible"]) == (True, True), bound
+    unbound = retained_precision.validate_retained_precision(copy.deepcopy(source))
+    assert (unbound["invocation_bound"], unbound["numerical_eligible"]) == (False, False), unbound
+    assert not cc.in_retained_base_read()
+    base = _base_of(source)
+    assert reader_verdict.validate("preview-physics", base) == {"ok": True}
+    cc.check(base)
+    notices = [d for d in source["diagnostics"] if d["id"].startswith("diagnostic:combination-certificate:")]
+    assert [d["affected_refs"] for d in notices] == [[r["combination_id"]] for r in member["combinations"]]
+    assessed = [r for r in member["combinations"] if r["assessment"] == "assessed"]
+    assert bool(assessed) == name.startswith("w_cb5")
+    assert ("member" in _claims_survive(source)) and _claims_survive(base) != []
+
