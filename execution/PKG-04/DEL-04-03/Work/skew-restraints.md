@@ -997,6 +997,13 @@ write. Nothing in a shared file is written before agreement.
       orthogonality on M̂′) run on the reduced re-formed pencil. Sturm stays on formed K′, M′.
     - This touches `modal_eigen/src/reformation/*`, `modal/outcome.rs` and `integrity.rs`,
       and keeps #110's reset and capacity discipline.
+    - *As implemented (the modal review of `ae1e47b60`):* a skewed spring's re-formed
+      rank-one block k·d̃d̃ᵀ/(d̃ᵀd̃) is formed from the canonical d̃ = 2^s·d (`SkewDirection::scaled`,
+      §5), the vector the formed K uses, never from the authored d, whose squares leave the
+      double-double range at 2^±600. The block is the same exactly, and §4.3 I1 holds on the
+      modal result: d·2^±600, d·2^−1020 and the subnormal pair give their twin's result bit for
+      bit (`modal/tests_skew.rs`). The static product path, whose intended blocks use the wide
+      exponent, is pinned the same way (`tests/skew_restraints_references.rs`).
   - **(b)** The weight-basis identity check (`modal/weight_basis.rs`) stays on the global M.
     The excitation uses the global M and R_k before Qᵀ.
   - **(c)** The census and structural masslessness are judged on the reduced M′, and the text

@@ -247,6 +247,39 @@ fn s_k1_product_cases_match_references_in_both_modes() {
     }
 }
 
+/// §4.3 I1 on the static product path (the modal review asked for every direction
+/// consumer): a stop or a spring authored at d·2^600, d·2^-600, d·2^-1020, or as the
+/// subnormal pair (2^-1074, 2^-1074, 0) against (1, 1, 0), publishes its twin's result
+/// rows and diagnostics bit for bit, in both modes, through the typed entry (2^600 is
+/// beyond the value entry's checked JSON domain, as for CE2's factor).
+#[test]
+fn power_of_two_rescaled_directions_publish_their_twins_rows_bit_for_bit() {
+    let tiny = f64::from_bits(1);
+    let groups: [Vec<[f64; 3]>; 2] = [
+        vec![[3.0, 4.0, 0.0], [3.0 * p(600), 4.0 * p(600), 0.0], [3.0 * p(-600), 4.0 * p(-600), 0.0], [3.0 * p(-1020), 4.0 * p(-1020), 0.0]],
+        vec![[1.0, 1.0, 0.0], [tiny, tiny, 0.0]],
+    ];
+    let typed = |doc: &Value, mode| {
+        let request: LinearStaticPreviewRequest = serde_json::from_value(doc.clone()).unwrap();
+        serde_json::to_value(run_linear_static_preview_with_mode(request, mode)).unwrap()
+    };
+    for make in [stop as fn(&'static str, [f64; 3]) -> Record, spring] {
+        for group in &groups {
+            for mode in MODES {
+                let base = typed(&document(&[make("r_B", group[0])], [0.0, -1024.0, 0.0]), mode);
+                assert_eq!(base["status"]["mechanics"], "MECHANICS_SOLVED", "{:?}: {:?}", group[0], blocking(&base));
+                for &d in &group[1..] {
+                    let twin = typed(&document(&[make("r_B", d)], [0.0, -1024.0, 0.0]), mode);
+                    let what = format!("{d:?} {mode:?} against {:?}", group[0]);
+                    assert_eq!(twin["status"], base["status"], "{what}: {:?}", blocking(&twin));
+                    assert_eq!(serde_json::to_string(&twin["results"]).unwrap(), serde_json::to_string(&base["results"]).unwrap(), "{what}: rows");
+                    assert_eq!(serde_json::to_string(&twin["diagnostics"]).unwrap(), serde_json::to_string(&base["diagnostics"]).unwrap(), "{what}: diagnostics");
+                }
+            }
+        }
+    }
+}
+
 /// §7.1 and §4.3: an exactly axis-aligned direction is lowered and publishes the
 /// same document bytes as the plain record (no along-direction row).
 #[test]

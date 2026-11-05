@@ -399,14 +399,19 @@ pub(crate) fn modal_reformation_operands(prepared: &Prepared, mass: &ModalMass) 
         });
     }
     // R-6/R-7 D-1 (a): each skewed spring re-formed as k·n̂n̂ᵀ on its node's
-    // translations from the authored direction (the block K-D5 intends).
+    // translations (the block K-D5 intends), from the direction's canonical
+    // power-of-two scaling d̃ = 2^s·d (§4.3 I1, §5: `SkewDirection::scaled`, the
+    // vector the formed K's spring block uses). k·d̃d̃ᵀ/(d̃ᵀd̃) is the authored
+    // k·ddᵀ/(dᵀd) exactly, and d̃ is the same for every power-of-two rescaling of d,
+    // so a direction authored at 2^±600, or as a subnormal pair, re-forms bit for bit
+    // as its canonical twin. The authored vector would square out of range there.
     for spring in built.skew.iter().flat_map(|basis| basis.springs()).filter(|spring| spring.stiffness != 0.0) {
         operands.push(NamedOperand {
             subject: spring.support_id.clone(),
             operand: ElementOperand::Spring(SpringOperand::RankOne {
                 node: spring.node,
                 rotational: false,
-                direction: spring.direction.authored(),
+                direction: spring.direction.scaled(),
                 stiffness: spring.stiffness,
             }),
         });

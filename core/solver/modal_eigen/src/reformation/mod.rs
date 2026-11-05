@@ -112,7 +112,10 @@ pub struct ArcOperand {
 pub enum SpringOperand {
     /// k on one global DOF.
     Axis { dof: usize, stiffness: f64 },
-    /// k·n̂n̂ᵀ on a node's translations (or rotations), n̂ = n/|n|.
+    /// k·n̂n̂ᵀ on a node's translations (or rotations), n̂ = n/|n|. n is squared in
+    /// ordinary-exponent double-double, so a caller passes a canonically scaled n
+    /// (R-6/R-7: `SkewDirection::scaled`, max|n_i| ∈ [1, 2)); the block is invariant
+    /// under that exact power-of-two scaling.
     RankOne {
         node: usize,
         rotational: bool,
@@ -1356,7 +1359,8 @@ mod tests {
     /// R-6/R-7 D-1 (a): the coordinate re-formation. No mixed DOF is today's pencil
     /// bit for bit; an explicit identity weight takes the mixed path and gives the
     /// same assembled entries; a weight of 2 on DOF 0 scales its row and column
-    /// exactly (K′₀₀ = 4K₀₀, K′₀c = 2K₀c).
+    /// exactly (K′₀₀ = 4K₀₀, K′₀c = 2K₀c), in K′ and in M′ alike (the modal review:
+    /// the M′ half fails if the mass congruence drops its weight).
     #[test]
     fn coordinate_reformation_is_the_congruence() {
         let identity = small_pencil(None).unwrap();
@@ -1390,6 +1394,24 @@ mod tests {
         let base = identity.stiffness_product(&base_x);
         within(product[1].to_dd(), base[1].to_dd(), "row 1");
         within(product[0].to_dd(), base[0].to_dd().mul_pow2(1), "row 0");
+        // M′ under the same weight: the body's mass touches DOF 0's row and column (its
+        // diagonal and its offset-centre-of-gravity coupling), so a dropped weight shows.
+        let weighted: Vec<_> = identity.assembled_mass().into_iter().filter(|((r, c), v)| (*r == 0 || *c == 0) && v.hi != 0.0).collect();
+        assert!(weighted.iter().any(|((r, c), _)| *r == 0 && *c == 0), "M has a DOF 0 diagonal");
+        assert!(weighted.iter().any(|((r, c), _)| *r != *c), "M has a DOF 0 coupling");
+        assert_eq!(scaled.assembled_mass().len(), identity.assembled_mass().len());
+        for ((key, value), (base_key, base)) in scaled.assembled_mass().into_iter().zip(identity.assembled_mass()) {
+            assert_eq!(key, base_key);
+            let factor = [key.0, key.1].iter().filter(|&&i| i == 0).count() as i32;
+            within(value, base.mul_pow2(factor), &format!("M {key:?}"));
+            if factor > 0 && base.hi != 0.0 {
+                assert!(value.sub(base).to_f64().abs() > base.hi.abs() * 0.5, "M {key:?}: the weight is applied");
+            }
+        }
+        let mass_product = scaled.mass_product(&x);
+        let mass_base = identity.mass_product(&base_x);
+        within(mass_product[1].to_dd(), mass_base[1].to_dd(), "M row 1");
+        within(mass_product[0].to_dd(), mass_base[0].to_dd().mul_pow2(1), "M row 0");
     }
 
     fn small_elements() -> Vec<ElementOperand> {

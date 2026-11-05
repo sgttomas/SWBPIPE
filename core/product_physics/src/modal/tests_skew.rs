@@ -172,3 +172,44 @@ fn the_phase_replay_refuses_a_skew_model_by_name() {
     assert_eq!(refused[0].code, super::integrity::MODAL_PHASE_REPLAY_SKEW_RESTRAINT_UNSUPPORTED);
     assert!(super::phase_measurand_tests::replay_modal_phases(&modal(request(true, stop(None))), &test_local_parameters()).is_ok());
 }
+
+/// 2^e, exactly (normal range).
+fn pow2(e: i32) -> f64 {
+    assert!((-1022..=1023).contains(&e));
+    f64::from_bits(((e + 1023) as u64) << 52)
+}
+
+/// The modal review's blocking finding (§4.3 I1, references `invariance`): a
+/// direction rescaled by a power of two (2^600, 2^-600, 2^-1020) or authored as a
+/// subnormal pair has the same canonical d̃ and pivot as its twin, so the modal
+/// result is bit for bit its twin's, for a stop and for a spring. The spring's
+/// re-formation squared the authored vector in ordinary-exponent double-double,
+/// so 2^±600 refused with a NaN stiffness entry (`PencilRangeUnsupported`); it
+/// now re-forms on d̃. Each request goes through the typed modal entry
+/// (`parse_modal_request`), from f64 members (no text round trip).
+#[test]
+fn a_power_of_two_rescaled_direction_gives_its_twin_modal_result_bit_for_bit() {
+    let scaled = |d: [f64; 3], e: i32| d.map(|x| x * pow2(e));
+    let tiny = f64::from_bits(1); // 2^-1074
+    let groups: [Vec<[f64; 3]>; 2] = [
+        vec![[3.0, 4.0, 0.0], scaled([3.0, 4.0, 0.0], 600), scaled([3.0, 4.0, 0.0], -600), scaled([3.0, 4.0, 0.0], -1020)],
+        // d11 and the admitted subnormal pair (2^-1074, 2^-1074, 0).
+        vec![[1.0, 1.0, 0.0], [tiny, tiny, 0.0]],
+    ];
+    let record: [(&str, fn(Option<[f64; 3]>) -> Value); 2] = [("stop", stop), ("spring", spring)];
+    let fingerprint = |o: &ModalOutcome| {
+        format!("{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}", o.modes, o.clusters, o.integrity, o.standing, o.mass_summary, o.free_dof_mass, o.reported, o.disclosures)
+    };
+    for (name, make) in record {
+        for group in &groups {
+            let base = solved(request(false, make(Some(group[0]))));
+            assert!(matches!(base.standing, ModalStanding::ChecksPassed), "{name} {:?}: {:?}", group[0], base.standing);
+            assert!(!base.modes.is_empty());
+            for &d in &group[1..] {
+                let twin = run_modal_dense(&modal(request(false, make(Some(d)))), &test_local_parameters())
+                    .unwrap_or_else(|found| panic!("{name} {d:?} refused: {found:#?}"));
+                assert_eq!(fingerprint(&twin), fingerprint(&base), "{name} {d:?} against {:?}", group[0]);
+            }
+        }
+    }
+}
