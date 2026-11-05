@@ -2,12 +2,21 @@
 // compares, or the inspector's own Delete is refused as stale. Each deletion here is
 // applied by the actual wasm engine on an invented model whose labels carry padding
 // and whose coordinates print with an exponent in ECMAScript.
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
+import { loadWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
 import { applyOperationBatch } from "../../services/operationBatchService";
 import { computeModelHash } from "../../services/hashService";
 import { bulkChangeModel } from "../../test-support/bulkChangeModel";
 import type { EditorOperationIntent, PreviewModel } from "../../types";
-import { applierDisplayNumber, buildDeleteNodeIntent, buildDeletePipeIntent, buildDeleteSupportIntent } from "./removalIntents";
+import { applierDisplayNumber, buildDeleteNodeIntent as buildDeleteNodeIntentOrNull, buildDeletePipeIntent, buildDeleteSupportIntent } from "./removalIntents";
+
+// The node texts take the engine's own number display, so the engine is loaded first (as main.tsx does).
+beforeAll(async () => { await loadWasmEngine(); });
+function buildDeleteNodeIntent(node: PreviewModel["nodes"][number], model: PreviewModel): EditorOperationIntent {
+  const intent = buildDeleteNodeIntentOrNull(node, model);
+  if (!intent) throw new Error("the wasm engine is not loaded");
+  return intent;
+}
 
 const PROV = "invented removal-intent test input";
 
@@ -56,6 +65,41 @@ describe("removal intents", () => {
     }
     expect(model.nodes.map(node => node.id)).toEqual(["node:A", "node:B", "node:C", "node:D"]);
     expect(model.supports.map(support => support.id)).not.toContain("support:E");
+  });
+
+  it("trim as the applier's Rust str::trim does (U+0085 trimmed, U+FEFF kept), so the deletes apply through the engine", async () => {
+    let model = paddedModel();
+    const pipe = model.pipe_segments[0];
+    model.nodes.push({ id: "node:G", label: "\u0085G\u0085", position: { x: 0, y: 0, z: 9 }, provenance: PROV });
+    model.pipe_segments.push({ ...structuredClone(pipe), id: "pipe:P5", label: "\uFEFFP5\uFEFF", from: "node:E", to: "node:G" });
+    model.supports.push({ id: "support:G", label: "\u0085Stop G\u0085", node: "node:G", family: "line_stop", restraints: ["UX"], provenance: PROV } as PreviewModel["supports"][number]);
+    const support = buildDeleteSupportIntent(model.supports.at(-1)!, model);
+    const pipeDelete = buildDeletePipeIntent(model.pipe_segments.at(-1)!, model);
+    expect(support.change.before).toBe("Stop G");
+    expect(pipeDelete.change.before).toBe("\uFEFFP5\uFEFF; node:E->node:G; material=material:steel");
+    expect(buildDeleteNodeIntent(model.nodes.at(-1)!, model).change.before).toBe("G; x=0; y=0; z=9");
+    for (const step of [
+      (current: PreviewModel) => buildDeleteSupportIntent(current.supports.find(item => item.id === "support:G")!, current),
+      (current: PreviewModel) => buildDeletePipeIntent(current.pipe_segments.find(item => item.id === "pipe:P5")!, current),
+      (current: PreviewModel) => buildDeleteNodeIntent(current.nodes.find(item => item.id === "node:G")!, current)
+    ]) {
+      const intent = step(model);
+      const outcome = await apply(model, intent);
+      expect(outcome.validation.batch_validation_status, `${intent.target.ref}: ${JSON.stringify(outcome.diagnostics)}`).toBe("passed");
+      model = outcome.applied_model!;
+    }
+    expect(model.nodes.map(node => node.id)).not.toContain("node:G");
+  });
+
+  it("a node whose coordinate is an exact tie deletes through the engine (the engine's own display_number)", async () => {
+    let model = paddedModel();
+    model.nodes.push({ id: "node:TIE", label: "Tie", position: { x: 1000000000000000.25, y: 0, z: 0 }, provenance: PROV });
+    const intent = buildDeleteNodeIntent(model.nodes.at(-1)!, model);
+    expect(intent.change.before).toBe("Tie; x=1000000000000000.3; y=0; z=0");
+    const outcome = await apply(model, intent);
+    expect(outcome.validation.batch_validation_status, JSON.stringify(outcome.diagnostics)).toBe("passed");
+    model = outcome.applied_model!;
+    expect(model.nodes.map(node => node.id)).not.toContain("node:TIE");
   });
 
   it("format numbers as the applier's display_number does", () => {

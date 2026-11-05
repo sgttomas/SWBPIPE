@@ -68,7 +68,7 @@ const REQUIRED_ACCEPTED_KINDS = [
   "delete_combination_term"
 ] as const;
 
-const EXPECTED_CORPUS_CASES = 85;
+const EXPECTED_CORPUS_CASES = 90;
 
 const REQUIRED_BLOCK_CODES = [
   "OP-TARGET-ALREADY-EXISTS", // duplicate id
@@ -325,6 +325,64 @@ describe("operation contract corpus — wasm engine lane (native↔wasm parity)"
           outcome.applied_model_backend_hash,
           "the engine's applied_model_backend_hash must byte-equal the blessed canonical hash in every lane (H5 full byte-equality)"
         ).toBe(expected.applied_model_canonical_sha256);
+      }
+    });
+  }
+});
+
+// Model document 0.9.0 S3a/S3b (DEL-02-01 Work `model-document-0.9.0.md` §11, §12): S3a's
+// condition-set corpus (`fixtures/model_operations/condition_set_contract_corpus.json`,
+// the same case format and comparison rules, blessed by the native runner with
+// CONDITION_SET_CORPUS_BLESS=1). S3a kept it outside contract_corpus/ until the desktop's
+// wasm engine carried its operations; S3b's desktop surfaces emit these operations, so the
+// browser lanes run every case through the adapter seam and the wasm engine directly, each
+// against the corpus's expected outcome.
+//
+// Every case runs as a normal case. Case s3a_14 writes its `after` with float-form numbers
+// (`20.0`) while the model reaches the engine through JS in integer form (`20`); since the
+// applier's numeric no-op fix (#112) both forms are one value, and the unchanged update is
+// refused in both lanes as the corpus expects.
+
+describe("condition-set contract corpus — browser-mode adapter and wasm engine lanes", () => {
+  const conditionSetCorpus = JSON.parse(readFileSync(path.resolve(corpusDir, "..", "condition_set_contract_corpus.json"), "utf8")) as { cases: CorpusCase[] };
+  const cases = conditionSetCorpus.cases;
+
+  it("holds S3a's twenty cases, with carried refusals reported as info", () => {
+    expect(cases).toHaveLength(20);
+    const severities = new Set(cases.flatMap((item) => item.expected?.outcome.diagnostics ?? []).map((item) => item.severity));
+    expect(severities).toEqual(new Set(["blocking", "warning", "info"]));
+  });
+
+  // The desktop path: the forms write `after` with JSON.stringify, integer-form like the model
+  // that reaches the engine through JS, and the unchanged update is refused as the corpus
+  // expects. This is a positive test of the desktop's own path.
+  it("refuses s3a_14's unchanged update when its after text is written as the desktop writes it (JSON.stringify)", async () => {
+    const corpusCase = cases.find((item) => item.case_id === "s3a_14_block_update_unchanged")!;
+    const model = JSON.parse(JSON.stringify(corpusCase.base_model)) as PreviewModel;
+    const intent = JSON.parse(JSON.stringify(corpusCase.intent)) as EditorOperationIntent;
+    intent.change.after = JSON.stringify(JSON.parse(intent.change.after));
+    const outcome = await applyModelOperation(model, intent, corpusCase.claimed_model_hash);
+    expect(semanticOutcome(outcome)).toEqual(corpusCase.expected!.outcome);
+  });
+
+  for (const corpusCase of cases) {
+    it(`case ${corpusCase.case_id} matches the Rust contract reference in both lanes`, async () => {
+      const expected = corpusCase.expected!;
+      const model = JSON.parse(JSON.stringify(corpusCase.base_model)) as PreviewModel;
+      const intent = corpusCase.intent as unknown as EditorOperationIntent;
+      const adapter = corpusCase.mode === "apply"
+        ? await applyModelOperation(model, intent, corpusCase.claimed_model_hash)
+        : await validateModelOperation(model, intent, corpusCase.claimed_model_hash);
+      const run = corpusCase.mode === "apply" ? harnessEngine.applyOperationJson : harnessEngine.validateOperationJson;
+      const direct = JSON.parse(run(JSON.stringify(corpusCase.base_model), JSON.stringify(corpusCase.intent), JSON.stringify(corpusCase.claimed_model_hash ?? null))) as OperationOutcome;
+      for (const outcome of [adapter, direct]) {
+        expect(semanticOutcome(outcome)).toEqual(expected.outcome);
+        if (expected.applied_model === null) expect(outcome.applied_model).toBeNull();
+        else {
+          expect(outcome.applied_model).toEqual(expected.applied_model);
+          expect(outcome.applied_model_backend_hash).toBe(expected.applied_model_canonical_sha256);
+          expect(corpusCanonicalHash(outcome.applied_model)).toBe(expected.applied_model_canonical_sha256);
+        }
       }
     });
   }

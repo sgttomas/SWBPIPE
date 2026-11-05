@@ -126,7 +126,7 @@ deliverable; "new" means a scope change assigns it.
 | RT-A2 | Nonlinear static operating (gaps, lift-off, friction) | Must | PF only, stage 2 built (#1671); a dense-memory guard refuses oversized nonlinear models (#1742). In nonlinear models a mechanics combination is withheld unless it has decision OQ-1's shape (one solved load case with factor exactly 1 plus combinations whose fixed-load count is exactly 0), which is formed from rows as a solved state plus derived differences or bounds, not an equilibrium state; subtractions, envelopes, absolute sums and SRSS are formed from rows; combinations publish operand standing (#1752; DEL-05-02 `absolute-sum-srss-combinations.md` §5.2) | R-4 (EX admission) / DEL-04-04, DEL-04-07 |
 | RT-A3 | One route: EX admits every family PF has (tees, nonlinear and constant-effort supports, reducers in pressure regions) | Must | EX refuses these by name (`EXACT_PRESSURE_FAMILY_NOT_ADMITTED`, `EXACT_PRESSURE_REDUCER_IN_REGION`) and, since #1742, compensated shared-terminal junctions (`exact_admission.rs`). Route unification R-4 is designed (#1743, DEL-04-07 `Work/route-unification-r4.md`), not built | R-4 S1–S8 / DEL-04-07 |
 | RT-A4 | Combinations: algebraic, difference, envelope, absolute sum, SRSS | Must | Algebraic, difference and envelope on both routes (`load_case_algebra`, #1698). Absolute sum and SRSS, and combinations of combinations, on both routes with the fixed-load count gates and decision OQ-1 (DEL-05-02 `absolute-sum-srss-combinations.md` §10); the retained routes decline them by name | unscheduled / DEL-05-02 |
-| RT-A5 | Sustained, operating and expansion sets. The expansion basis is recorded; sustained can take the operating support status | Must (basis), Should (status) | Slice 1a built: nonlinear PF operand standing (#1752). Model document 0.9.0 carries `difference_basis` (#50). Slice 1b (candidate, `claude/rt-a5-slice1b`, not integrated): PF gates G-1/G-2, the declared row text, the derivation evidence (read without the model from that evidence) and the applier; EX refuses the member. `minuend_final` unbuilt | slice 1b with 0.9.0 / DEL-05-02, DEL-02-01 |
+| RT-A5 | Sustained, operating and expansion sets. The expansion basis is recorded; sustained can take the operating support status | Must (basis), Should (status) | PF operand standing and the declared operating-minus-sustained basis are built (#107); EX refuses the declared basis. Held operating support status (`minuend_final`) is a reviewed candidate (#122), with its own held-system standing; not yet integrated. | `minuend_final` registration/integration after P + §4; EX declared-basis admission and downstream consumer integration / DEL-05-02, DEL-02-01 |
 | RT-A6 | Hydrostatic test: test pressure, test contents, springs held, marked as a test case | Must | PF blocks hydrotest pressure (PP `validation.rs:62-66`); no test condition exists | unscheduled / DEL-05-01, after RT-G5 |
 | RT-A7 | Modal analysis (PRD §12.9) | Must | Design (DEL-04-09 CLM-003); kernel merged (#33); product internals in review (#94, #96, #97), no product entry yet. Gap state cases depend on RT-A3 R-3, and load/reference-state cases with nonlinear supports on RT-A3 S6 | M1a–M3 / DEL-04-09 |
 | RT-A8 | Response spectrum, uniform support motion: user spectra, mode and directional combination, missing mass; snubbers as dynamic-only restraints. Independent (multi-level) support motion is Should | Must (uniform), Should (independent) | Absent | I5 of the dynamics lane / DEL-04-10 |
@@ -185,7 +185,7 @@ deliverable; "new" means a scope change assigns it.
 | RT-V2 | Benchmark set against CAEPIPE (§3) | Must | Tranche 1 built: 60 invented models, two-way screening against the §3 profile, settings guard and print parser (#1733). Method and harness only; no agreement established | further tranches, publication checker / DEL-17-05 |
 | RT-V3 | Validation manual and a fresh reproduction bundle | Must | Procedure current; last bundle predates W-12 | W-2 / DEL-09-04 |
 | RT-V4 | User guide and theory notes for every Must analysis | Must | Statics only (`docs/theory/centerline_analysis.md`) | DEL-11-01, DEL-11-03 |
-| RT-V5 | Claim fence on every surface (notice, GEN-13, release labels) | Must | GEN-13 clean (#1701) and run in hosted CI (#1705) | release labels / DEL-09-05, DEL-16-04 |
+| RT-V5 | Claim fence on every surface (notice, release labels) | Must | The GEN-13 claims-language lint was removed from hosted CI and the repository (owner's test-and-CI review direction) | release labels / DEL-09-05, DEL-16-04 |
 | RT-V6 | Signed, notarized macOS build; MIT licence recorded consistently | Must | Signing decided (D-06b), not executed. MIT in `LICENSE.md` (D-74) and DEL-01-01; the repository's `LICENSE` (initial commit) and `LICENSE.md` spell the holder's name differently | DEL-10-04; the holder's name is the owner's to state |
 | RT-V7 | Windows build | Later (revisited immediately after v1.0) | Release baseline: macOS Apple Silicon only (DEC-057); Windows development authorized alongside macOS v1.0; native x64 desktop unqualified | DEL-10-04 Work/windows-port.md |
 | RT-V8 | Independent public SWBPIPE repository | Must | Split done: verified import (SWBPIPE #1) and standalone governance; unsigned scan findings remain; no signed scan or release acceptance | owner-signed D-20/DEC-058 repository scan including full private-term scan and finding dispositions before v1.0 / DEL-10-04 |
@@ -285,10 +285,8 @@ after the walkthrough.
 13. **Documentation.** The user guide and theory notes cover every Must
     analysis: inputs, method, assumptions and limitations. They state that
     SWBPIPE does not determine code compliance.
-14. **Claims and content checks.**
-    - GEN-13 passes over all product texts in hosted CI.
-    - The release-candidate protected-content scan is signed off by the owner
-      (DEL-08-05:2).
+14. **Content check.** The release-candidate protected-content scan is signed
+    off by the owner (DEL-08-05:2).
 15. **Build and licence.** The build is signed and notarized, and MIT is
     recorded consistently.
 16. **Public repository.** `sgttomas/SWBPIPE` is SWBPIPE's independent public

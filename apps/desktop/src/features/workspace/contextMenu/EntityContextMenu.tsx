@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { canonicalJsonString } from "../../../services/hashService";
 import type { EditorOperationIntent, EntityRef, PreviewModel } from "../../../types";
-import { buildDeleteNodeIntent, buildDeletePipeIntent, buildDeleteSupportIntent } from "../../model-tree/removalIntents";
+import { NODE_DELETE_ENGINE_ABSENT, buildDeleteNodeIntent, buildDeletePipeIntent, buildDeleteSupportIntent } from "../../model-tree/removalIntents";
 import { buildGuardedRemoval, removalEntity } from "../../toolkit/GuardedRemoval";
 import { displayedBoundsForEntityKeys, visibilityEligibleSelectionKeys, type ViewportViewCommand } from "../../viewport/viewportSelection";
 import type { ModelIndex } from "../modelIndex";
@@ -76,7 +76,10 @@ function removalEntry(env: EntityCommandEnvironment, target: EntityRef, prepared
       : target.type === "pipe"
         ? (() => { const pipe = env.model.pipe_segments.find((candidate) => candidate.id === target.id); return pipe ? buildDeletePipeIntent(pipe, env.model) : null; })()
         : (() => { const support = env.model.supports.find((candidate) => candidate.id === target.id); return support ? buildDeleteSupportIntent(support, env.model) : null; })();
-    if (!intent) return disabled(`${target.id} is not in the current model.`);
+    if (!intent) {
+      const present = target.type === "node" ? env.model.nodes.some((candidate) => candidate.id === target.id) : false;
+      return disabled(present ? NODE_DELETE_ENGINE_ABSENT : `${target.id} is not in the current model.`);
+    }
     return { ...base, run: () => queue(intent) };
   }
   // The inspector's Remove panel for materials, sections and components (GuardedRemoval).

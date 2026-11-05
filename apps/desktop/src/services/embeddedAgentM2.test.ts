@@ -66,7 +66,7 @@ describe("embedded agent milestone 2 component journey (webview link)", () => {
       const inspector = family === "supports" ? buildDeleteSupportIntent(record as unknown as PreviewModel["supports"][number], model)
         : family === "pipe_segments" ? buildDeletePipeIntent(record as unknown as PreviewModel["pipe_segments"][number], model)
         : buildDeleteNodeIntent(record as unknown as PreviewModel["nodes"][number], model);
-      expect(inspector.change.before).toBe(before);
+      expect(inspector!.change.before).toBe(before);
       const operation = { operation_id: `op:delete:${id}`, operation_kind: "delete", target: { object_type: objectType, ref: id }, change: { change_id: `change:delete:${id}`, change_kind: changeKind, field_label: "Deletion", field_path: family, before, after: "not_present", unit: "none", dimension: "dimensionless", source_note: "invented" }, rationale: "invented" };
       const hash = await computeModelHash(model);
       if (id === "node:free-a") {

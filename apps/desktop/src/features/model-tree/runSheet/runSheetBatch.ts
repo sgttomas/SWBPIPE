@@ -6,10 +6,12 @@
 //
 // The record projection is the basis model plus the records this batch's own
 // earlier steps write, by id and verbatim payload only (O10). It forms the
-// `before` texts of `assign_section` and `insert_bend_at_corner`; a wrong
+// `before` texts of `assign_section`, `insert_bend_at_corner` and a bend's
+// `bend_realization` (its directional SIF pair); a wrong
 // projection cannot change the model, since the engine compares each `before`
 // with its own state and refuses a mismatch.
 import { buildCreateComponentIntent } from "../../component-creation/componentIntent";
+import { realizationProjection, realizedBendAfter } from "../../bend-authoring/BendAuthoringForms";
 import { canonicalJsonString } from "../../../services/hashService";
 import type { OperationBatch, OperationBatchOutcome } from "../../../services/operationBatchService";
 import type { EditorOperationIntent, OperationOutcomeDiagnostic, PreviewModel } from "../../../types";
@@ -25,6 +27,9 @@ export const BEND_LABELS = { start: "Bend start", end: "Bend end", arc: "Bend ar
 
 type NodeRecord = PreviewModel["nodes"][number];
 type PipeRecord = PreviewModel["pipe_segments"][number];
+type ComponentRecord = PreviewModel["components"][number];
+/** The solver consumption `insert_bend_at_corner` gives a new bend (`bend_authoring.rs` CURVED). */
+const CURVED = "curved_bend_macro_element";
 
 export type RunSheetRowBuild = {
   key: string;
@@ -168,6 +173,16 @@ export async function buildRunSheetBatch(resolved: ResolvedRunSheet): Promise<Ru
       stored.section.outside_diameter = clone(section.properties.outside_diameter!);
       stored.section.wall_thickness = clone(section.properties.wall_thickness!);
     }
+    // Model document 0.9.0 §4.1: one `assign_condition_set` after `connect_pipe_run` (and
+    // `assign_section`), only when the effective value is present. `connect_pipe_run` never
+    // carries `condition_set_ref`, so `before` is `not_present`; the projection adds the
+    // reference, since a later bend's `before` context holds full pipe records.
+    const conditionSet = row.cells.conditionSet;
+    if (conditionSet.value !== undefined && !conditionSet.absent) {
+      const stored = projection.pipe_segments.find((pipe) => pipe.id === record.id)!;
+      push(row, { operationKind: "modify", objectType: "Element", ref: record.id, changeKind: "assign_condition_set", fieldLabel: "Run-sheet condition set", fieldPath: "condition_set_ref", before: "not_present", after: { condition_set_ref: conditionSet.value }, unit: "none", dimension: "dimensionless" });
+      stored.condition_set_ref = conditionSet.value;
+    }
   };
   const insertBend = async (row: ResolvedRunSheetRow) => {
     const corner = row.end!.id;
@@ -196,6 +211,28 @@ export async function buildRunSheetBatch(resolved: ResolvedRunSheet): Promise<Ru
       if (pipe.from === corner) pipe.from = replacement;
       if (pipe.to === corner) pipe.to = replacement;
     });
+    // The new bend component, as `insert_at_corner` stores it: ids and verbatim payload members
+    // only (no tangent point or arc geometry), so a realization step can name its projection.
+    projection.components.push({
+      id: ids.component, label: BEND_LABELS.component, kind: "bend", node: ids.start,
+      geometry: { bend_pipe_ref: ids.arc, bend_radius: { ...after.radius }, bend_geometry_source_reference: after.component.geometry_source_reference },
+      modifiers: { flexibility_factor_user_value: { ...after.flexibility_factor }, source_reference: after.flexibility_source_reference },
+      mechanics_interface: { solver_consumption: CURVED },
+      provenance: source,
+    } as ComponentRecord);
+  };
+  /** A bend row's directional SIF pair (T4-U4b): one `bend_realization` on the component just
+   * inserted, with the realization editor's payload, the row's k and k source (the one
+   * `source_reference` the engine keeps for k and SIFs) and `before` from the projection. */
+  const realizeSifs = async (row: ResolvedRunSheetRow) => {
+    const bend = row.bend!;
+    const sifs = bend.sifs!;
+    const ids = row.ids.bend!;
+    const component = projection.components.find((item) => item.id === ids.component)!;
+    const before = await canonicalJsonString(realizationProjection(component));
+    const after = realizedBendAfter(bend.k, bend.kSource, sifs);
+    push(row, { operationKind: "modify", objectType: "Component", ref: ids.component, changeKind: "set_field", fieldLabel: "Run-sheet bend realization", fieldPath: "bend_realization", before, after, unit: "none", dimension: "dimensionless" });
+    component.modifiers = { ...component.modifiers, ...clone(sifs) };
   };
 
   let pendingBend: ResolvedRunSheetRow | null = null;
@@ -246,6 +283,7 @@ export async function buildRunSheetBatch(resolved: ResolvedRunSheet): Promise<Ru
     // A bend run's insertion follows the next run row's operations (§3.3).
     if (pendingBend) {
       await insertBend(pendingBend);
+      if (pendingBend.bend!.sifs) await realizeSifs(pendingBend);
       const ids = pendingBend.ids.bend!;
       rows.find((item) => item.key === pendingBend!.key)!.ownedIds.push(ids.start, ids.end, ids.arc, ids.component);
       pendingBend = null;

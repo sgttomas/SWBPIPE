@@ -458,7 +458,7 @@ describe("run sheet S2: a bend whose tangent node was deleted outside the sheet 
       change: { ...buildDeletePipeIntent(model.pipe_segments[0], model).change, change_id: "change:delete-bend-component", change_kind: "delete_component", field_path: "components", before: await canonicalJsonString(component), after: "deleted" },
     } as EditorOperationIntent];
     for (const id of pipes) operations.push(buildDeletePipeIntent(model.pipe_segments.find((pipe) => pipe.id === id)!, model));
-    for (const id of nodes) operations.push(buildDeleteNodeIntent(model.nodes.find((node) => node.id === id)!, model));
+    for (const id of nodes) operations.push(buildDeleteNodeIntent(model.nodes.find((node) => node.id === id)!, model)!);
     await act(async () => { await result.current.session.operations.handleQueueOperationBatch({ batch_id: "batch:outside-delete", operations }); });
     await apply(result, "batch:outside-delete");
     expect(result.current.session.operations.undoStack[0].operation_id).toBe("batch:outside-delete");

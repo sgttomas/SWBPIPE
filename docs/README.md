@@ -1,6 +1,6 @@
 # SWBPIPE documentation
 
-[Chirality thesis](https://github.com/sgttomas/chirality/blob/main/docs/thesis/README.md) develops the reasons for this engineering
+[Chirality thesis](https://github.com/sgttomas/chirality-library/blob/main/docs/thesis/README.md) develops the reasons for this engineering
 design environment and its place in the Chirality approach. It is explanatory
 research; the PRD and adopted product documents retain their authority.
 
@@ -14,7 +14,7 @@ supplies the governing data and accepts engineering reliance.
 - [Build and release](BUILD_AND_RELEASE.md), [CI](CI_STRATEGY.md), [release quality](RELEASE_QUALITY_GATES.md), [historical 0.1.0 release notes draft](RELEASE_NOTES_v0.1.0_DRAFT.md).
 - [Completeness and reconciliation map](COMPLETENESS_MAP.md): which PRD outcomes are delivered today, document drift and the proposed work plan (replaceable, basis commit stated).
 - [Validation strategy](VALIDATION_STRATEGY.md), [validation manual](validation_manual/index.md), [theory](theory/centerline_analysis.md), [hanger sizing theory](theory/hanger_sizing.md).
-- [IP and data boundary](IP_AND_DATA_BOUNDARY.md), [professional boundary](PROFESSIONAL_BOUNDARY.md), [claims](claims_registry.md), [security](security/threat_model.md).
+- [IP and data boundary](IP_AND_DATA_BOUNDARY.md), [claims](claims_registry.md), [security](security/threat_model.md).
 
 Development starts at [LOOP_INIT](../loop/LOOP_INIT.md) and the repository's [AGENTS.md](../AGENTS.md).
 Current commitments, Work and dependency conditions live in the deliverable

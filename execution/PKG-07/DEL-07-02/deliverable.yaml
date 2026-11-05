@@ -176,6 +176,10 @@ needs:
   condition: 'Run-sheet valve and flange rows require the rigid-component geometry, independent quantity-unit choices, COG convention and existing insertion payload contract consumed from DEL-03-05; engineering values remain explicit.'
   gating: true
   evidence: execution/PKG-03/DEL-03-05/Work/component-quantity-units.md
+- from: DEL-03-03
+  condition: 'Run-sheet bend SIF cells require the user-entered directional SIF and flexibility slots of the bend component and the existing bend_realization contract consumed from DEL-03-03 bend authoring (both SIFs or neither, one source_reference shared with k, user authors only); the sheet supplies no value.'
+  gating: true
+  evidence: execution/PKG-03/DEL-03-03/ScopeOfWork.md
 code_paths:
 - apps/desktop/e2e/ui-foundation.spec.ts
 - apps/desktop/package.json
@@ -194,6 +198,7 @@ code_paths:
 - apps/desktop/src/features/bulk-change/**
 - apps/desktop/src/features/workspace/sessionEvents.ts
 - apps/desktop/src/features/toolkit/BatchReviewPanel.tsx
+- apps/desktop/src/features/condition-sets/**
 checks:
 - apps/desktop/src/features/model-tree/ModelTree.test.tsx
 - apps/desktop/src/features/model-tree/removalIntents.test.ts
@@ -235,3 +240,7 @@ checks:
 - apps/desktop/src/features/model-tree/PropertyInspector.supportFamily.test.tsx
 - apps/desktop/src/features/model-tree/PropertyInspector.supportFamilyEngine.test.tsx
 - apps/desktop/src/App.splitAndSlope.test.tsx
+- apps/desktop/src/features/condition-sets/conditionSets.engine.test.tsx
+- apps/desktop/src/features/condition-sets/conditionSets.session.test.tsx
+- apps/desktop/src/features/condition-sets/conditionSetSurfaces.engine.test.tsx
+- apps/desktop/src/features/model-tree/runSheet/conditionSetColumn.test.ts

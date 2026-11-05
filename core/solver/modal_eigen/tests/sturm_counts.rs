@@ -1501,3 +1501,324 @@ fn resource_allotments_not_reached_change_no_fixture_outcome() {
     );
     assert!(refused >= 1);
 }
+
+// ---------------------------------------------------------------------------
+// I3a A2 observations (design §5.3.7; Agent 0 held κ_c and κ_s pending this
+// evidence). TEST-LOCAL observations on this suite's pencils; nothing is
+// pinned, and no ratio observed here is a bound outside this population.
+// ---------------------------------------------------------------------------
+
+const U: f64 = f64::EPSILON / 2.0;
+
+/// Ã(σ) = D(K − σM)D formed densely with `ShiftPencil`'s own operation
+/// order (a = k − σ·m, then (d_i·a)·d_j, lower triangle mirrored), so the
+/// references below describe the matrix the factorization was given.
+fn shifted_scaled_dense(pencil: &Pencil, scaling: &[f64], sigma: f64) -> Rows {
+    let n = pencil.k.len();
+    let mut a = vec![vec![0.0; n]; n];
+    for i in 0..n {
+        for j in 0..=i {
+            let value = (scaling[i] * (pencil.k[i][j] - sigma * pencil.m[i][j])) * scaling[j];
+            a[i][j] = value;
+            a[j][i] = value;
+        }
+    }
+    a
+}
+
+/// ‖Ã⁻¹‖₁ by Gauss–Jordan elimination with partial pivoting on the dense
+/// Ã, in double-double (≈106-bit significand), and the a-posteriori
+/// accuracy indicator n·κ₁·2⁻¹⁰⁴ (κ₁ = ‖Ã‖₁·‖Ã⁻¹‖₁): the reference is used
+/// only where that indicator is at most 10⁻⁶. It shares nothing with the
+/// estimator under test: no profile LDLᵀ, no pivot-free order, no solve
+/// with the binary64 factor and none of the estimator's vectors.
+fn inverse_one_norm_reference(a: &Rows) -> Option<(f64, f64)> {
+    let n = a.len();
+    let mut w: Vec<Vec<Dd>> = (0..n)
+        .map(|i| {
+            (0..2 * n)
+                .map(|j| Dd::from_f64(if j < n { a[i][j] } else if j - n == i { 1.0 } else { 0.0 }))
+                .collect()
+        })
+        .collect();
+    for k in 0..n {
+        let pivot = (k..n).max_by(|&p, &q| w[p][k].hi.abs().total_cmp(&w[q][k].hi.abs()))?;
+        if w[pivot][k].hi == 0.0 {
+            return None;
+        }
+        w.swap(k, pivot);
+        let inv = Dd::from_f64(1.0).div(w[k][k]);
+        for j in 0..2 * n {
+            w[k][j] = w[k][j].mul(inv);
+        }
+        for i in 0..n {
+            if i == k || w[i][k].hi == 0.0 {
+                continue;
+            }
+            let factor = w[i][k];
+            for j in 0..2 * n {
+                let update = factor.mul(w[k][j]);
+                w[i][j] = w[i][j].sub(update);
+            }
+        }
+    }
+    let norm = (0..n)
+        .map(|j| (0..n).fold(Dd::from_f64(0.0), |acc, i| acc.add(w[i][n + j].abs())).to_f64())
+        .fold(0.0, f64::max);
+    let a_norm = (0..n)
+        .map(|j| (0..n).map(|i| a[i][j].abs()).sum::<f64>())
+        .fold(0.0, f64::max);
+    let indicator = n as f64 * a_norm * norm * 2f64.powi(-104);
+    // An actual accuracy check (review of c0a46799a): the residual
+    // R = I − Ã·X in double-double, X the computed inverse. With ‖R‖₁ < 1,
+    // |‖X‖₁ − ‖Ã⁻¹‖₁| ≤ ‖Ã⁻¹‖₁·‖R‖₁/(1 − ‖R‖₁), so requiring ‖R‖₁ ≤ 10⁻⁶
+    // bounds the reference norm's relative error near 10⁻⁶, whatever the
+    // elimination's growth. The indicator alone used the computed norm.
+    let residual = (0..n)
+        .map(|j| {
+            (0..n).fold(Dd::from_f64(0.0), |acc, i| {
+                let product = (0..n).fold(Dd::from_f64(0.0), |sum, k| sum.add(w[k][n + j].mul(Dd::from_f64(a[i][k]))));
+                let entry = Dd::from_f64(if i == j { 1.0 } else { 0.0 }).sub(product);
+                acc.add(entry.abs())
+            })
+            .to_f64()
+        })
+        .fold(0.0, f64::max);
+    (norm.is_finite() && indicator <= 1e-6 && residual <= 1e-6).then_some((norm, indicator))
+}
+
+/// The eigenvalues of the symmetric Ã, ascending, by cyclic Jacobi in
+/// binary64 (a standard symmetric eigenproblem: no pencil eigenpair, no
+/// first-order formula and no inertia count enters). Absolute accuracy
+/// about a small multiple of u·‖Ã‖_F.
+fn jacobi_eigenvalues(a: &Rows) -> Vec<f64> {
+    let n = a.len();
+    let mut a = a.clone();
+    let frobenius = a.iter().flatten().map(|x| x * x).sum::<f64>().sqrt();
+    for _sweep in 0..100 {
+        let off: f64 = (0..n).flat_map(|i| (0..n).filter(move |&j| j != i).map(move |j| (i, j))).map(|(i, j)| a[i][j] * a[i][j]).sum();
+        if off.sqrt() <= 1e-30 * frobenius {
+            break;
+        }
+        for p in 0..n {
+            for q in p + 1..n {
+                if a[p][q] == 0.0 {
+                    continue;
+                }
+                let theta = (a[q][q] - a[p][p]) / (2.0 * a[p][q]);
+                let t = theta.signum() / (theta.abs() + (theta * theta + 1.0).sqrt());
+                let t = if theta == 0.0 { 1.0 } else { t };
+                let c = 1.0 / (t * t + 1.0).sqrt();
+                let s = t * c;
+                for k in 0..n {
+                    let (akp, akq) = (a[k][p], a[k][q]);
+                    a[k][p] = c * akp - s * akq;
+                    a[k][q] = s * akp + c * akq;
+                }
+                for k in 0..n {
+                    let (apk, aqk) = (a[p][k], a[q][k]);
+                    a[p][k] = c * apk - s * aqk;
+                    a[q][k] = s * apk + c * aqk;
+                }
+            }
+        }
+    }
+    // Convergence is required, not assumed (review of c0a46799a): an
+    // unconverged diagonal must not enter the ratio tables.
+    let off: f64 = (0..n).flat_map(|i| (0..n).filter(move |&j| j != i).map(move |j| (i, j))).map(|(i, j)| a[i][j] * a[i][j]).sum();
+    assert!(off.sqrt() <= 1e-14 * frobenius, "Jacobi did not converge: off-diagonal {:e} against ‖Ã‖_F {frobenius:e}", off.sqrt());
+    let mut values: Vec<f64> = (0..n).map(|i| a[i][i]).collect();
+    values.sort_by(f64::total_cmp);
+    values
+}
+
+/// φᵀMφ / Σ k_ii·φ_i², the scaled mass quotient of the separation s_j,
+/// re-evaluated here in double-double (the kernel's is exact; the two
+/// agree to rounding, which the test checks on the minimum).
+fn mass_quotient(pencil: &Pencil, phi: &[f64]) -> f64 {
+    let n = phi.len();
+    let mut quadratic = DdAccumulator::new();
+    let mut norm = DdAccumulator::new();
+    for i in 0..n {
+        norm.add_dd(Dd::product(phi[i], phi[i]).mul_f64(pencil.k[i][i]));
+        for j in 0..n {
+            quadratic.add_dd(Dd::product(pencil.m[i][j], phi[i]).mul_f64(phi[j]));
+        }
+    }
+    quadratic.value().div(norm.value()).to_f64()
+}
+
+/// Items 2 and 3 of §5.3.7's held set, at every published shift of the
+/// fixture (witnesses and class (a) cases) that the kernel factored.
+///
+/// κ_c: the estimate ν against ‖Ã⁻¹‖₁ from [`inverse_one_norm_reference`].
+/// The premise needs ‖Ã⁻¹‖₂ ≤ κ_c·ν, and ‖Ã⁻¹‖₂ ≤ ‖Ã⁻¹‖₁ for symmetric Ã, so
+/// ‖Ã⁻¹‖₁/ν is the underestimate factor κ_c must cover (an upper bound on
+/// the one that matters).
+///
+/// κ_s: each neighbour's separation s_j against |α|, where α is the
+/// eigenvalue of Ã that changes sign at σ = λ_j: by Sylvester's law Ã(σ)
+/// has c negative eigenvalues with c the exact count, so α = α_c (1-based)
+/// for the neighbour below and α_{c+1} for the neighbour above, with c the
+/// fixture's exact count (from the references' generator, not the binary64
+/// inertia), and α from [`jacobi_eigenvalues`]. By Weyl's theorem |α| is
+/// the 2-norm of the smallest symmetric perturbation of Ã that moves that
+/// eigenvalue to zero, the quantity s_j estimates to first order. A pair is
+/// used only when α has the sign the exact count requires and
+/// |α| ≥ 10³·n·u·‖Ã‖_F. s_j/|α| > 1 means s_j overstates the true
+/// separation by that factor, which κ_s must cover; s⁰_j = |λ_j − σ|·q_j,
+/// without the e_λ allowance, isolates the first-order term.
+#[test]
+fn conditioning_and_separation_premises_against_independent_references() {
+    let mut nu_rows: Vec<(String, String, bool, f64)> = Vec::new(); // (id, kind, counted, ‖Ã⁻¹‖₁/ν)
+    let mut sep_rows: Vec<(String, String, bool, f64, f64)> = Vec::new(); // (id, kind, counted, s/|α|, s⁰/|α|)
+    let (mut factored, mut unresolved_inverse, mut unresolved_alpha, mut on_eigenvalue) = (0, 0, 0, 0);
+    let mut unresolved_alpha_counted = 0usize;
+    for pencil in fixture() {
+        let (spectrum, _) = Spectrum::of(&pencil.k, &pencil.m);
+        let shifted = pencil_of(&pencil.k, &pencil.m);
+        let scaling = shifted.scaling().to_vec();
+        let n = pencil.k.len();
+        for shift in &pencil.shifts {
+            if shift.equal > 0 {
+                // σ is an exact eigenvalue: Ã is exactly singular, with no
+                // separation or finite inverse norm to compare.
+                on_eigenvalue += 1;
+                continue;
+            }
+            let neighbours = spectrum.neighbours_of(shift.sigma);
+            let outcome = count_at_shift(&shifted, shift.sigma, &neighbours, &parameters()).unwrap();
+            let candidate = outcome.evidence().candidates.last().unwrap();
+            let Some(f) = candidate.factored.as_ref() else { continue };
+            factored += 1;
+            let counted = outcome.count().is_some();
+            let a = shifted_scaled_dense(&pencil, &scaling, shift.sigma);
+            match inverse_one_norm_reference(&a) {
+                Some((norm, _)) => nu_rows.push((pencil.id.clone(), shift.kind.clone(), counted, norm / f.inverse_norm_estimate)),
+                None => unresolved_inverse += 1,
+            }
+            let alpha = jacobi_eigenvalues(&a);
+            let frobenius = a.iter().flatten().map(|x| x * x).sum::<f64>().sqrt();
+            let resolution = 1e3 * n as f64 * U * frobenius;
+            let mut smallest_s = f64::INFINITY;
+            for nb in &neighbours {
+                let q = mass_quotient(&pencil, nb.vector);
+                let s = ((nb.eigenvalue - shift.sigma).abs() - nb.relative_error_estimate * nb.eigenvalue) * q;
+                let s0 = (nb.eigenvalue - shift.sigma).abs() * q;
+                smallest_s = smallest_s.min(s);
+                let below = nb.eigenvalue < shift.sigma;
+                let index = if below { shift.below.checked_sub(1) } else { Some(shift.below) };
+                let Some(value) = index.and_then(|i| alpha.get(i).copied()) else {
+                    unresolved_alpha += 1;
+                    unresolved_alpha_counted += usize::from(counted);
+                    continue;
+                };
+                if (below && value >= 0.0) || (!below && value <= 0.0) || value.abs() < resolution {
+                    unresolved_alpha += 1;
+                    unresolved_alpha_counted += usize::from(counted);
+                    continue;
+                }
+                sep_rows.push((pencil.id.clone(), shift.kind.clone(), counted, s / value.abs(), s0 / value.abs()));
+            }
+            // The re-evaluated separations reproduce the kernel's minimum.
+            if let Some(ratio) = f.separation_ratio {
+                let kernel = ratio * f.backward_error;
+                assert!((smallest_s - kernel).abs() <= 1e-10 * kernel.abs().max(1e-300) + 1e-300, "{} {}: {smallest_s:e} against {kernel:e}", pencil.id, shift.kind);
+            }
+        }
+    }
+    let fold = |rows: &mut dyn Iterator<Item = f64>| rows.fold((f64::INFINITY, 0.0f64), |(lo, hi), v| (lo.min(v), hi.max(v)));
+    let (nu_lo_c, nu_hi_c) = fold(&mut nu_rows.iter().filter(|r| r.2).map(|r| r.3));
+    let (nu_lo_all, nu_hi_all) = fold(&mut nu_rows.iter().map(|r| r.3));
+    let (s_lo_c, s_hi_c) = fold(&mut sep_rows.iter().filter(|r| r.2).map(|r| r.3));
+    let (s0_lo_c, s0_hi_c) = fold(&mut sep_rows.iter().filter(|r| r.2).map(|r| r.4));
+    let (s_lo_all, s_hi_all) = fold(&mut sep_rows.iter().map(|r| r.3));
+    let worst_nu = nu_rows.iter().max_by(|a, b| a.3.total_cmp(&b.3)).unwrap();
+    let worst_s = sep_rows.iter().filter(|r| r.2).max_by(|a, b| a.3.total_cmp(&b.3)).unwrap();
+    eprintln!("κ_c/κ_s observations (TEST-LOCAL): {on_eigenvalue} shifts exactly on an eigenvalue skipped; {factored} factored shifts; inverse reference resolved on {}, unresolved on {unresolved_inverse}; {} neighbour separations resolved, {unresolved_alpha} not ({unresolved_alpha_counted} of them on counted shifts)", nu_rows.len(), sep_rows.len());
+    eprintln!("‖Ã⁻¹‖₁/ν on counted shifts ({}): {nu_lo_c:.4} to {nu_hi_c:.4}; on all resolved factored shifts: {nu_lo_all:.4} to {nu_hi_all:.4} (largest {} {})",
+        nu_rows.iter().filter(|r| r.2).count(), worst_nu.0, worst_nu.1);
+    eprintln!("s_j/|α| on counted shifts ({}): {s_lo_c:.3e} to {s_hi_c:.3e} (largest {} {}); s⁰_j/|α|: {s0_lo_c:.3e} to {s0_hi_c:.3e}; on all resolved: {s_lo_all:.3e} to {s_hi_all:.3e}",
+        sep_rows.iter().filter(|r| r.2).count(), worst_s.0, worst_s.1);
+    // On a counted shift ν is a lower bound on ‖Ã⁻¹‖₁ up to the binary64
+    // solves' rounding (observed: ν at most 1.5·10⁻⁶ above it). On a
+    // refused (ill-conditioned) shift the binary64 solves can make ν exceed
+    // the true norm, so it is no lower bound there (observed below).
+    eprintln!("largest excess of ν over ‖Ã⁻¹‖₁ on a counted shift, relative to ‖Ã⁻¹‖₁: {:.3e}", (1.0 / nu_lo_c - 1.0).max(0.0));
+    // Every factored shift has an accepted reference (n·κ₁·2⁻¹⁰⁴ ≤ 10⁻⁶ and
+    // ‖I − Ã·X‖₁ ≤ 10⁻⁶): a rejected reference fails here rather than
+    // silently leaving the population.
+    assert_eq!(unresolved_inverse, 0, "{unresolved_inverse} factored shifts have no accepted inverse reference");
+    assert!(nu_lo_c >= 1.0 - 1e-4, "an estimate above the reference on a counted shift: ratio {nu_lo_c}");
+    let mut worst_counted: Vec<_> = sep_rows.iter().filter(|r| r.2).collect();
+    worst_counted.sort_by(|a, b| b.3.total_cmp(&a.3));
+    for r in worst_counted.iter().take(6) {
+        eprintln!("  counted: {} {}: s/|α| = {:.3e}, s⁰/|α| = {:.3e}", r.0, r.1, r.3, r.4);
+    }
+    let above_one = worst_counted.iter().filter(|r| r.3 > 1.0).count();
+    eprintln!("counted separations with s/|α| > 1: {above_one} of {}", worst_counted.len());
+    let mut overestimates: Vec<_> = nu_rows.iter().filter(|r| !r.2 && r.3 < 1.0 - 1e-6).collect();
+    overestimates.sort_by(|a, b| a.3.total_cmp(&b.3));
+    eprintln!("refused shifts where ν exceeds ‖Ã⁻¹‖₁: {} (smallest ratio {:?})", overestimates.len(), overestimates.first().map(|r| (r.0.as_str(), r.1.as_str(), r.3)));
+    // TEST-LOCAL regression tripwires on this population (§5.3.7 records the
+    // observed extremes they sit above); not proposed pins.
+    assert!(nu_hi_c <= 10.0, "the estimator's underestimate on a counted shift moved to {nu_hi_c}");
+    assert!(s_hi_c <= 100.0, "a counted shift's separation overstates the true one by {s_hi_c}");
+    assert_eq!(unresolved_alpha_counted, 0, "a counted shift's neighbour separation is below the reference's resolution");
+}
+
+/// Item 5 (δ_c), kernel controls. K = Q·Λ·Qᵀ formed in binary64 from a
+/// fixed Householder Q and M = I, so the eigenvalues are Λ to rounding
+/// (≲ n·u·‖Λ‖ absolute), independently of the solve. Λ holds the lowest
+/// value 1, four distinct values up to 8 and a top pair (S, S·(1 + g)) at
+/// spread S. With g = 0 (an exact repeat) the computed relative split is
+/// observed against n·u·S (the reduction's resolution relative to the top
+/// eigenvalue grows with the spread λ/λ_min); with g > 0 (close-distinct
+/// controls) the computed gap is compared with g.
+#[test]
+fn exact_repeat_and_close_distinct_controls_in_a_rotated_basis() {
+    let n = 8;
+    let v: Vec<f64> = (0..n).map(|i| 1.0 + i as f64 / 7.0).collect();
+    let vv: f64 = v.iter().map(|x| x * x).sum();
+    let q: Rows = (0..n).map(|i| (0..n).map(|j| if i == j { 1.0 } else { 0.0 } - 2.0 * v[i] * v[j] / vv).collect()).collect();
+    let identity: Rows = (0..n).map(|i| (0..n).map(|j| if i == j { 1.0 } else { 0.0 }).collect()).collect();
+    eprintln!("δ_c kernel controls (TEST-LOCAL; δ_c candidates are not applied here)");
+    eprintln!("| spread S | g | computed relative split or gap | n·u·S | split / (n·u·S) | gap error / g |");
+    let mut worst_split = 0.0f64;
+    for spread in [1e2, 1e4, 1e6, 1e8, 1e10] {
+        for g in [0.0, 2f64.powi(-24), 2f64.powi(-22), 2f64.powi(-20), 2f64.powi(-18)] {
+            let lambda = [1.0, 1.5, 2.0, 3.0, 5.0, 8.0, spread, spread * (1.0 + g)];
+            let k: Rows = (0..n)
+                .map(|i| {
+                    (0..n)
+                        .map(|j| {
+                            let mut acc = DdAccumulator::new();
+                            for (p, &l) in lambda.iter().enumerate() {
+                                acc.add_dd(Dd::product(q[i][p], l).mul_f64(q[j][p]));
+                            }
+                            acc.value().to_f64()
+                        })
+                        .collect()
+                })
+                .collect();
+            let solution = solve_dense_pencil(&sym(&k), &sym(&identity), &dense_options()).unwrap();
+            let top = &solution.eigenvalues[n - 2..];
+            let computed = (top[1] - top[0]) / top[1];
+            let resolution = n as f64 * U * spread;
+            if g == 0.0 {
+                worst_split = worst_split.max(computed / resolution);
+                eprintln!("| {spread:.0e} | 0 | {computed:.3e} | {resolution:.3e} | {:.3e} | - |", computed / resolution);
+            } else {
+                let exact = g / (1.0 + g);
+                let error = (computed - exact).abs() / exact;
+                eprintln!("| {spread:.0e} | {g:.3e} | {computed:.6e} | {resolution:.3e} | - | {error:.3e} |");
+                if 1e3 * resolution <= exact {
+                    assert!(error <= 1e-2, "S {spread:e}, g {g:e}: gap {computed:e} against {exact:e}");
+                }
+            }
+        }
+    }
+    eprintln!("largest exact-repeat split / (n·u·S): {worst_split:.3e}");
+    // TEST-LOCAL regression tripwire, not a pin.
+    assert!(worst_split <= 10.0, "an exact repeat split by {worst_split:e}·n·u·S");
+}

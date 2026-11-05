@@ -23,6 +23,7 @@ operation checks for staleness.
 | Remove a support kind | supports | `delete_support`, Support, `supports` | the support's trimmed label | `not_present` | `model-tree/removalIntents.ts` `buildDeleteSupportIntent` (reused) |
 | Set the bend radius | bend and elbow components | `set_field`, Component, `geometry.bend_radius.value` | the current value, or `TBD` when absent | `{"value": <n>, "unit": <unit>}`, with the intent's `unit` and dimension `length` | the inspector's Bend radius field |
 | Add a tag | every entity type that takes tags | the family's annotation kind (`set_field`; `update_support` for supports; `update_load` for load cases), `tags` | canonical JSON of the current tags, or `not_present` | the current tags with the new tag appended | `model-data/modelDataIntents.ts` `annotationIntent` (reused) |
+| Assign condition set (model document 0.9.0) | pipes | `assign_condition_set`, Element, `condition_set_ref` | `{"condition_set_ref": <id>}` canonical, or `not_present` | `{"condition_set_ref": <id>}`, or `not_present` for "Clear the condition set" | `condition-sets/conditionSetIntents.ts` `assignConditionSetIntent` (reused by the inspector field) |
 
 Canonical JSON comes from the operation engine (`canonicalJsonString`), as the
 existing editors use it. The builder is `features/bulk-change/bulkChange.ts`.
@@ -40,7 +41,11 @@ selections too and need nothing further here.
 
 Each change reads the scope in its own family:
 
-- **Section and material** act on the selected pipes.
+- **Section, material and condition set** act on the selected pipes. A
+  condition set is chosen from the model's sets; none is suggested, and the
+  request is refused until one is chosen. A pipe that already carries the
+  chosen set (or none, when clearing) is unchanged; other selected types are
+  refused with the reason.
 - **Support changes** act on the selected supports, the supports at the
   selected nodes, and the supports at both end nodes of the selected pipes.
   This lets a range of a run reach the supports along it.
@@ -169,9 +174,6 @@ panel shows the scope as the selection count.
 
 ## Out of scope
 
-- **Operating-condition sets.** They arrive with C1 and a model-document
-  version step. The model is 0.8.0 and has no such member, so nothing is
-  reassigned.
 - **Element-kind replacement** (for example valve to flange). The applier
   defers `Component.kind` (`lib.rs` `DEFERRED_FIELDS`: "component-kind editing
   is deferred to the component editor scope"). A kind change also moves
@@ -190,6 +192,13 @@ panel shows the scope as the selection count.
   both routes.
 
 ## Evidence
+
+- `features/condition-sets/conditionSetSurfaces.engine.test.tsx` (S3b): the
+  panel's Assign condition set preview (before and after, unchanged), the
+  one-batch hand-over and the clear choice.
+- `features/condition-sets/conditionSets.session.test.tsx` (S3b): the
+  condition-set batch over three pipes runs through the session and the wasm
+  engine, applies once and is undone by one Undo to the prior model hash.
 
 - `features/bulk-change/bulkChange.test.ts`:
   - for each change, the generated batch equals a hand-built batch;

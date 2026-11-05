@@ -1335,6 +1335,16 @@ mod wasm_api {
         })
     }
 
+    /// The engine's own number display (`display_number`), the text every delete
+    /// before value and diff row uses. The desktop calls it instead of mirroring it:
+    /// JavaScript and Rust break ties between equally short digit strings differently.
+    #[wasm_bindgen]
+    pub fn display_number_text(value: f64) -> String {
+        entry_scope(|| {
+            super::display_number_text(value)
+        })
+    }
+
     /// Lowercase-hex SHA-256 of the canonical form of a JSON document.
     /// H1 / F-5a hash seam companion to [`canonical_json_string`].
     #[wasm_bindgen]
@@ -2371,7 +2381,7 @@ fn run_with_context(
             &mut checker,
         );
     }
-    let mut created_combination: Option<Value> = None;
+    let mut created_combination: Option<(Value, Option<usize>)> = None;
     if !checker.schema_blocked && change_kind == "create_combination" {
         created_combination = resolve_create_combination(
             model,
@@ -2399,7 +2409,7 @@ fn run_with_context(
             &mut checker,
         );
     }
-    let mut created_combination_term: Option<(String, Value)> = None;
+    let mut created_combination_term: Option<(String, Value, Option<usize>)> = None;
     if !checker.schema_blocked && change_kind == "create_combination_term" {
         created_combination_term = resolve_create_combination_term(
             model,
@@ -2653,9 +2663,9 @@ fn run_with_context(
                 ));
                 applied_model = Some(next_model);
             }
-        } else if let Some(combination) = &created_combination {
+        } else if let Some((combination, index)) = &created_combination {
             let mut next_model = model.clone();
-            if apply_created_combination(&mut next_model, combination) {
+            if apply_created_combination(&mut next_model, combination, *index) {
                 applied_model_backend_hash = Some(format!(
                     "sha256:{}",
                     sha256_hex(&canonical_json(&next_model))
@@ -2671,9 +2681,9 @@ fn run_with_context(
                 ));
                 applied_model = Some(next_model);
             }
-        } else if let Some((combination_id, term)) = &created_combination_term {
+        } else if let Some((combination_id, term, index)) = &created_combination_term {
             let mut next_model = model.clone();
-            if apply_created_combination_term(&mut next_model, combination_id, term) {
+            if apply_created_combination_term(&mut next_model, combination_id, term, *index) {
                 applied_model_backend_hash = Some(format!(
                     "sha256:{}",
                     sha256_hex(&canonical_json(&next_model))
@@ -5465,12 +5475,17 @@ fn resolve_create_support(
         );
         return None;
     }
+    // A variable spring hanger acts through its explicit stiffness DOF, not a rigid row,
+    // so an actually empty restraint list is its authored form (RS-VS1, SH-140).
+    let empty_admitted = raw_restraints.is_empty()
+        && variable_spring_hanger_admits_empty_restraints(&payload);
     let restraints = normalize_restraint_tokens(
         raw_restraints
             .iter()
             .filter_map(Value::as_str)
             .map(str::to_string)
             .collect(),
+        empty_admitted,
         target_ref,
         checker,
     )?;
@@ -6317,13 +6332,17 @@ fn resolve_create_combination(
     dimension: &str,
     object_type: &str,
     checker: &mut Checker,
-) -> Option<Value> {
-    if object_type != "Combination" || field_path != "combinations" {
+) -> Option<(Value, Option<usize>)> {
+    // `combinations` creates a normalized record at the end; `combinations[i]` is the
+    // restore form (the inverse of a delete): the payload is stored exactly as given,
+    // at index i, after the same admission.
+    let restore_index = combination_index_from_field_path(field_path);
+    if object_type != "Combination" || (field_path != "combinations" && restore_index.is_none()) {
         checker.schema_blocked = true;
         checker.push(
             "OP-CREATE-COMBINATION-SHAPE-INVALID",
             "blocking",
-            "Create-combination intents must target object_type `Combination` with field_path `combinations`.".to_string(),
+            "Create-combination intents must target object_type `Combination` with field_path `combinations` (or `combinations[i]`, the restore form).".to_string(),
             "Refresh the combination creation intent from the explicit Load Cases manager form.",
             vec![target_ref.to_string()],
         );
@@ -6490,7 +6509,40 @@ fn resolve_create_combination(
             })
         }
     };
-    carry_declared_members(record, created)
+    let created = carry_declared_members(record, created)?;
+    let Some(index) = restore_index else {
+        return Some((created, None));
+    };
+    let count = model.get("combinations").and_then(Value::as_array).map_or(0, Vec::len);
+    if index > count {
+        checker.push(
+            "OP-CREATE-COMBINATION-INDEX-INVALID",
+            "blocking",
+            format!("combinations has {count} records; a restored combination is placed at 0 to {count}."),
+            "Restore the combination at the index its delete reported.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if record.get("id").and_then(Value::as_str) != Some(target_ref) {
+        checker.push(
+            "OP-CREATE-COMBINATION-PAYLOAD-INVALID",
+            "blocking",
+            format!("A restored combination's `id` must equal target.ref `{target_ref}` exactly."),
+            "Restore the combination record exactly as it was stored.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    Some((payload, Some(index)))
+}
+
+fn combination_index_from_field_path(field_path: &str) -> Option<usize> {
+    let digits = field_path.strip_prefix("combinations[")?.strip_suffix(']')?;
+    if digits.is_empty() || !digits.chars().all(|ch| ch.is_ascii_digit()) {
+        return None;
+    }
+    digits.parse().ok()
 }
 
 /// Per-basis payload shape: blocks create payloads that carry fields
@@ -6795,8 +6847,11 @@ fn resolve_create_combination_term(
     dimension: &str,
     object_type: &str,
     checker: &mut Checker,
-) -> Option<(String, Value)> {
-    if object_type != "Combination" || field_path != "terms" {
+) -> Option<(String, Value, Option<usize>)> {
+    // `terms` appends a normalized term; `terms.i` is the restore form (the inverse of
+    // a term delete): the payload is stored exactly as given, at index i.
+    let restore_index = combination_term_index_from_field_path(field_path);
+    if object_type != "Combination" || (field_path != "terms" && restore_index.is_none()) {
         checker.schema_blocked = true;
         checker.push(
             "OP-CREATE-COMBINATION-TERM-SHAPE-INVALID",
@@ -6922,7 +6977,8 @@ fn resolve_create_combination_term(
             return None;
         }
         checker.reference_state = "passed";
-        return Some((target_ref.to_string(), serde_json::json!({ "combination": operand, "factor": factor })));
+        let normalized = serde_json::json!({ "combination": operand, "factor": factor });
+        return restored_term(combination, target_ref, &payload, normalized, restore_index, checker);
     }
     let load_case = record
         .get("load_case")
@@ -6964,10 +7020,35 @@ fn resolve_create_combination_term(
         return None;
     }
     checker.reference_state = "passed";
-    Some((
-        target_ref.to_string(),
-        serde_json::json!({ "load_case": load_case, "factor": factor.unwrap() }),
-    ))
+    let normalized = serde_json::json!({ "load_case": load_case, "factor": factor.unwrap() });
+    restored_term(combination, target_ref, &payload, normalized, restore_index, checker)
+}
+
+/// The appended normalized term, or (the restore form) the payload exactly as
+/// given at its index, which must lie within the current terms.
+fn restored_term(
+    combination: &Value,
+    target_ref: &str,
+    payload: &Value,
+    normalized: Value,
+    restore_index: Option<usize>,
+    checker: &mut Checker,
+) -> Option<(String, Value, Option<usize>)> {
+    let Some(index) = restore_index else {
+        return Some((target_ref.to_string(), normalized, None));
+    };
+    let count = combination.get("terms").and_then(Value::as_array).map_or(0, Vec::len);
+    if index > count {
+        checker.push(
+            "OP-CREATE-COMBINATION-TERM-INDEX-INVALID",
+            "blocking",
+            format!("Combination `{target_ref}` has {count} terms; a restored term is placed at 0 to {count}."),
+            "Restore the term at the index its delete reported.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    Some((target_ref.to_string(), payload.clone(), Some(index)))
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -7186,17 +7267,30 @@ fn resolve_delete_combination(
         );
         return None;
     };
-    let Some(current_display) = combination_delete_display(combination) else {
+    // A record whose `terms` is an array of flat `{load_case, factor}` terms (empty
+    // included, whatever the basis) keeps its historical display; every other record
+    // (no `terms`, a combination operand) is named by its canonical JSON, so its
+    // before-value binds it whole.
+    let current_display =
+        combination_delete_display(combination).unwrap_or_else(|| canonical_json(combination));
+
+    let references = combination_operand_references(model, target_ref);
+    if !references.is_empty() {
         checker.reference_state = "blocked";
         checker.push(
-            "OP-COMBINATION-PAYLOAD-INVALID",
+            "OP-COMBINATION-DELETE-REFERENCED",
             "blocking",
-            format!("Combination `{target_ref}` is not a valid deletable combination record."),
-            "Repair the model document before deleting combinations.",
-            vec![target_ref.to_string()],
+            format!(
+                "Combination `{target_ref}` is still referenced by combinations: {}.",
+                references.join(", ")
+            ),
+            "Delete or retarget the combinations that name it before deleting this combination.",
+            std::iter::once(target_ref.to_string())
+                .chain(references)
+                .collect(),
         );
         return None;
-    };
+    }
 
     checker.reference_state = "passed";
     check_before(&current_display, before, target_ref, field_path, checker);
@@ -7307,32 +7401,20 @@ fn resolve_delete_combination_term(
         );
         return None;
     };
+    // A `{load_case, factor}` term keeps its historical display; any other stored
+    // term (one naming a combination) is named by its canonical JSON.
     let load_case = term
         .get("load_case")
         .and_then(Value::as_str)
         .unwrap_or("")
         .trim();
-    let factor = term.get("factor").and_then(Value::as_f64);
-    let factor_is_finite = factor.map(f64::is_finite).unwrap_or(false);
-    if load_case.is_empty() || !factor_is_finite {
-        checker.reference_state = "blocked";
-        checker.push(
-            "OP-COMBINATION-TERM-PAYLOAD-INVALID",
-            "blocking",
-            format!("Combination `{target_ref}` term {term_index} is not a valid {{ load_case, factor }} record."),
-            "Repair the model document before deleting combination terms.",
-            vec![target_ref.to_string()],
-        );
-        return None;
-    }
+    let factor = term.get("factor").and_then(Value::as_f64).filter(|factor| factor.is_finite());
+    let current_display = match factor {
+        Some(factor) if !load_case.is_empty() => combination_term_display(load_case, factor),
+        _ => canonical_json(term),
+    };
     checker.reference_state = "passed";
-    check_before(
-        &combination_term_display(load_case, factor.unwrap()),
-        before,
-        target_ref,
-        field_path,
-        checker,
-    );
+    check_before(&current_display, before, target_ref, field_path, checker);
     Some((target_ref.to_string(), term_index))
 }
 
@@ -8099,8 +8181,13 @@ fn resolve_field(
             let current_display = current_tokens.join(", ");
             check_before(&current_display, before, target_ref, field_path, checker);
 
+            // The empty set only for the support's own variable spring hanger context, and
+            // only for an actually empty replacement.
+            let empty_admitted = after.is_empty()
+                && variable_spring_hanger_admits_empty_restraints(entity);
             let tokens = normalize_restraint_tokens(
                 after.split(',').map(str::to_string).collect(),
+                empty_admitted,
                 target_ref,
                 checker,
             )?;
@@ -9007,14 +9094,18 @@ fn apply_deleted_primitive_load(
     true
 }
 
-fn apply_created_combination(model: &mut Value, combination: &Value) -> bool {
+fn apply_created_combination(model: &mut Value, combination: &Value, index: Option<usize>) -> bool {
     if model.get("combinations").is_none() {
         model["combinations"] = Value::Array(Vec::new());
     }
     let Some(combinations) = model.get_mut("combinations").and_then(Value::as_array_mut) else {
         return false;
     };
-    combinations.push(combination.clone());
+    match index {
+        Some(index) if index <= combinations.len() => combinations.insert(index, combination.clone()),
+        Some(_) => return false,
+        None => combinations.push(combination.clone()),
+    }
     true
 }
 
@@ -9031,14 +9122,18 @@ fn apply_deleted_combination(model: &mut Value, combination_id: &str) -> bool {
     true
 }
 
-fn apply_created_combination_term(model: &mut Value, combination_id: &str, term: &Value) -> bool {
+fn apply_created_combination_term(model: &mut Value, combination_id: &str, term: &Value, index: Option<usize>) -> bool {
     let Some(combination) = find_entity_mut(model, "combinations", combination_id) else {
         return false;
     };
     let Some(terms) = combination.get_mut("terms").and_then(Value::as_array_mut) else {
         return false;
     };
-    terms.push(term.clone());
+    match index {
+        Some(index) if index <= terms.len() => terms.insert(index, term.clone()),
+        Some(_) => return false,
+        None => terms.push(term.clone()),
+    }
     true
 }
 
@@ -9620,8 +9715,28 @@ fn vector_value(record: &serde_json::Map<String, Value>, key: &str) -> Option<(f
     (x != 0.0 || y != 0.0 || z != 0.0).then_some((x, y, z))
 }
 
+/// A support whose family is exactly `variable_spring_hanger` and whose hanger stiffness
+/// names its acting DOF exactly (`UX`, `UY` or `UZ`) is solved as a spring on that DOF
+/// (`LinearSupport::spring`), never through rigid restraint rows; its empty restraint list is
+/// the authored form. Exact strings only: no default DOF, trimming or case folding. The rest
+/// of the hanger (stiffness value and unit, loads, travel, source) is the rich validator's.
+fn variable_spring_hanger_admits_empty_restraints(support: &Value) -> bool {
+    support.get("family").and_then(Value::as_str) == Some("variable_spring_hanger")
+        && matches!(
+            support
+                .get("hanger")
+                .and_then(|hanger| hanger.get("stiffness"))
+                .and_then(|stiffness| stiffness.get("dof"))
+                .and_then(Value::as_str),
+            Some("UX" | "UY" | "UZ")
+        )
+}
+
+/// `empty_admitted` is the caller's context-aware exception (an actually empty list on a
+/// support that admits it); every other empty result keeps `OP-RESTRAINT-SET-EMPTY`.
 fn normalize_restraint_tokens(
     raw_tokens: Vec<String>,
+    empty_admitted: bool,
     target_ref: &str,
     checker: &mut Checker,
 ) -> Option<Vec<String>> {
@@ -9647,6 +9762,9 @@ fn normalize_restraint_tokens(
         if !tokens.contains(&token) {
             tokens.push(token);
         }
+    }
+    if tokens.is_empty() && empty_admitted {
+        return Some(tokens);
     }
     if tokens.is_empty() {
         checker.push(
@@ -9900,6 +10018,46 @@ fn pipe_delete_display(pipe: &Value) -> String {
     format!("{label}; {from}->{to}; material={material}")
 }
 
+/// Every other combination's operand that names `combination_ref`: a term's
+/// `combination`, `minuend_id`, `subtrahend_id` or an `operand_ids` entry.
+fn combination_operand_references(model: &Value, combination_ref: &str) -> Vec<String> {
+    let Some(combinations) = model.get("combinations").and_then(Value::as_array) else {
+        return Vec::new();
+    };
+    let mut references = Vec::new();
+    for combination in combinations {
+        let combination_id = combination
+            .get("id")
+            .and_then(Value::as_str)
+            .unwrap_or("combination:unknown");
+        if combination_id == combination_ref {
+            continue;
+        }
+        if let Some(terms) = combination.get("terms").and_then(Value::as_array) {
+            for (index, term) in terms.iter().enumerate() {
+                if term.get("combination").and_then(Value::as_str) == Some(combination_ref) {
+                    references.push(format!("{combination_id}.terms.{index}"));
+                }
+            }
+        }
+        for field in ["minuend_id", "subtrahend_id"] {
+            if combination.get(field).and_then(Value::as_str) == Some(combination_ref) {
+                references.push(format!("{combination_id}.{field}"));
+            }
+        }
+        if let Some(operand_ids) = combination.get("operand_ids").and_then(Value::as_array) {
+            for (index, operand) in operand_ids.iter().enumerate() {
+                if operand.as_str() == Some(combination_ref) {
+                    references.push(format!("{combination_id}.operand_ids.{index}"));
+                }
+            }
+        }
+    }
+    references.sort();
+    references.dedup();
+    references
+}
+
 fn load_case_combination_references(model: &Value, load_case_ref: &str) -> Vec<String> {
     let Some(combinations) = model.get("combinations").and_then(Value::as_array) else {
         return Vec::new();
@@ -9991,6 +10149,14 @@ fn parse_finite_number(raw: &str) -> Option<f64> {
 
 /// Format a number the way the inspector displays integers and short floats;
 /// used for diagnostics/diff display only — staleness checks are numeric.
+/// The engine's number display, exactly as every delete before value and diff row
+/// uses it (`display_number`): exported so the desktop takes the text from the engine
+/// itself, never from a mirror of it (JavaScript and Rust choose differently between
+/// two equally short round-trip digit strings, e.g. 1000000000000000.25).
+pub fn display_number_text(value: f64) -> String {
+    display_number(value)
+}
+
 fn display_number(value: f64) -> String {
     if value.fract() == 0.0 && value.abs() < 1e15 {
         format!("{}", value as i64)

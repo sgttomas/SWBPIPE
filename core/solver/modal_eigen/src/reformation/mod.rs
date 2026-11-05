@@ -55,7 +55,8 @@ use open_pipe_stress_sparse_direct::SymmetricMatrixEntry;
 
 use crate::admission::{check_entry, PencilMatrix, PencilRangeUnsupported};
 use crate::dd::{max_propagating_nan, Dd, WideDd};
-use crate::exact::ExactSum;
+use crate::exact::{ExactSum, LimbAllotmentExceeded, Term};
+use crate::workspace::{reset_rows, ProductWorkspace, Retained};
 use mass::{
     arc_lumps, component_mass, straight_mass, ComponentBody, ComponentRangeOperand, GeometryError,
 };
@@ -156,6 +157,10 @@ pub enum ReformationFailure {
     /// (`MODAL_PENCIL_RANGE_UNSUPPORTED`); `element` is the first element
     /// contributing to it. Row and column are free indices.
     PencilRangeUnsupported(PencilRangeUnsupported),
+    /// An assembled entry's exact sum would grow past the caller's limb
+    /// allotment ([`ReformedPencil::new_within_limb_allotment`]); refused
+    /// before that growth. `element` is the contributing element.
+    LimbAllotmentExceeded(LimbAllotmentExceeded),
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -405,12 +410,30 @@ struct Mapped {
 }
 
 /// The re-formed pencil K̂, M̂ on the free DOFs, kept element by element.
-#[derive(Debug, Clone, PartialEq)]
+///
+/// It owns the workspace of the residual and orthogonality stages
+/// (`workspace`): the accumulators and scratch vectors reused for every pair
+/// and every product, retained until the pencil is dropped. The workspace
+/// is not part of the pencil's value (equality, `Debug` and a clone ignore
+/// it).
+#[derive(Clone, PartialEq)]
 pub struct ReformedPencil {
     dimension: usize,
     stiffness: Vec<Mapped>,
     mass: Vec<Mapped>,
     section_difference: Option<SectionDerivationDifference>,
+    workspace: Retained<ProductWorkspace>,
+}
+
+impl fmt::Debug for ReformedPencil {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("ReformedPencil")
+            .field("dimension", &self.dimension)
+            .field("stiffness", &self.stiffness)
+            .field("mass", &self.mass)
+            .field("section_difference", &self.section_difference)
+            .finish()
+    }
 }
 
 impl ReformedPencil {
@@ -421,6 +444,21 @@ impl ReformedPencil {
         dof_map: &[Option<usize>],
         basis: MassBasis,
         elements: &[ElementOperand],
+    ) -> Result<Self, ReformationError> {
+        Self::new_within_limb_allotment(dimension, dof_map, basis, elements, None)
+    }
+
+    /// [`ReformedPencil::new`] with an optional limb allotment on the
+    /// assembled entries' exact sums (the formation maps, design §5.3.8):
+    /// an entry whose sum would need more limbs refuses
+    /// (`ReformationFailure::LimbAllotmentExceeded`) before that growth is
+    /// allocated. `None` is `new`.
+    pub fn new_within_limb_allotment(
+        dimension: usize,
+        dof_map: &[Option<usize>],
+        basis: MassBasis,
+        elements: &[ElementOperand],
+        limb_allotment: Option<usize>,
     ) -> Result<Self, ReformationError> {
         let map = |element: usize, matrix: ElementMatrix| -> Result<Mapped, ReformationError> {
             let mut rows = Vec::with_capacity(matrix.size());
@@ -447,6 +485,7 @@ impl ReformedPencil {
             stiffness: Vec::new(),
             mass: Vec::new(),
             section_difference: None,
+            workspace: Retained::default(),
         };
         for (index, element) in elements.iter().enumerate() {
             let fail = |failure| ReformationError {
@@ -472,11 +511,22 @@ impl ReformedPencil {
                     Some(pencil.section_difference.map_or(d, |p| p.combine(d)));
             }
         }
+        // One scratch vector for every entry read; each map is read in key
+        // order and dropped before the next is built.
+        let mut scratch = Vec::new();
         for (matrix, list) in [
             (PencilMatrix::Stiffness, &pencil.stiffness),
             (PencilMatrix::Mass, &pencil.mass),
         ] {
-            for ((row, col), value) in Self::assembled(list) {
+            let assembled =
+                Self::assembled_exact(list, limb_allotment).map_err(|(element, exceeded)| {
+                    ReformationError {
+                        element,
+                        failure: ReformationFailure::LimbAllotmentExceeded(exceeded),
+                    }
+                })?;
+            for (&(row, col), sum) in &assembled {
+                let value = sum.to_wide_with(&mut scratch).to_dd();
                 if let Err(range) = check_entry(matrix, row, col, value.to_f64()) {
                     let element = list
                         .iter()
@@ -500,6 +550,22 @@ impl ReformedPencil {
     /// supplied their formed section, componentwise.
     pub fn section_derivation_difference(&self) -> Option<SectionDerivationDifference> {
         self.section_difference
+    }
+
+    /// M̂x into `rows` (each row's exact sum, element by element), in the
+    /// order of [`ReformedPencil::mass_product_exact`].
+    pub(crate) fn mass_product_into(&self, x: &[f64], rows: &mut [ExactSum]) {
+        assert_eq!(
+            x.len(),
+            self.dimension,
+            "vector length differs from the pencil"
+        );
+        Self::product_into(&self.mass, x, None, rows);
+    }
+
+    /// The pencil's stage workspace (`crate::workspace`).
+    pub(crate) fn workspace(&self) -> &Retained<ProductWorkspace> {
+        &self.workspace
     }
 
     /// Σ_b factor·e_ab·x_b into each row's exact sum, element by element.
@@ -555,8 +621,15 @@ impl ReformedPencil {
     }
 
     /// The assembled entries, each the exact sum of the element
-    /// contributions.
-    fn assembled_exact(list: &[Mapped]) -> BTreeMap<(usize, usize), ExactSum> {
+    /// contributions. Under a limb allotment, an entry whose sum would grow
+    /// past it refuses before that growth, naming the contributing element
+    /// (the formation-map guard, design §5.3.8). The map gains at most one
+    /// entry per distinct position, Σ_e d_e(d_e + 1)/2 at most, which the
+    /// element counts bound before formation.
+    fn assembled_exact(
+        list: &[Mapped],
+        limb_allotment: Option<usize>,
+    ) -> Result<BTreeMap<(usize, usize), ExactSum>, (usize, LimbAllotmentExceeded)> {
         let mut out: BTreeMap<(usize, usize), ExactSum> = BTreeMap::new();
         for e in list {
             for (a, ra) in e.rows.iter().enumerate() {
@@ -566,19 +639,24 @@ impl ReformedPencil {
                     let key = if ra >= rb { (ra, rb) } else { (rb, ra) };
                     let entry = e.matrix.get(a, b);
                     let slot = out.entry(key).or_default();
-                    slot.add_f64(entry.hi);
-                    slot.add_f64(entry.lo);
+                    let refused = |exceeded| (e.element, exceeded);
+                    slot.add_scaled_within(entry.hi, 0, limb_allotment)
+                        .map_err(refused)?;
+                    slot.add_scaled_within(entry.lo, 0, limb_allotment)
+                        .map_err(refused)?;
                 }
             }
         }
-        out
+        Ok(out)
     }
 
     /// The assembled entries rounded once to double-double.
     fn assembled(list: &[Mapped]) -> BTreeMap<(usize, usize), Dd> {
-        Self::assembled_exact(list)
+        let mut scratch = Vec::new();
+        Self::assembled_exact(list, None)
+            .expect("no allotment")
             .into_iter()
-            .map(|(key, sum)| (key, sum.to_wide().to_dd()))
+            .map(|(key, sum)| (key, sum.to_wide_with(&mut scratch).to_dd()))
             .collect()
     }
 
@@ -619,6 +697,11 @@ pub enum FormationError {
     ResultOutOfRange {
         quantity: &'static str,
     },
+    /// An exact sum of the formation difference (an assembled re-formed
+    /// entry or a formed entry's accumulator) would grow past the caller's
+    /// limb allotment ([`formation_difference_within_limb_allotment`]);
+    /// refused before that growth.
+    LimbAllotmentExceeded(LimbAllotmentExceeded),
 }
 
 impl fmt::Display for FormationError {
@@ -687,7 +770,9 @@ fn formed_lower(
         check_entry(matrix, key.0, key.1, e.value).map_err(FormationError::PencilRangeUnsupported)?;
         out.push((key, e.value));
     }
-    out.sort_by_key(|x| x.0);
+    // Unstable (no sort buffer): equal keys are refused below, naming the
+    // key, so the order among them is never observed.
+    out.sort_unstable_by_key(|x| x.0);
     for w in out.windows(2) {
         if w[0].0 == w[1].0 {
             return Err(FormationError::DuplicateEntry {
@@ -738,27 +823,34 @@ fn difference(
     formed: &[((usize, usize), f64)],
     reformed: &BTreeMap<(usize, usize), ExactSum>,
     names: [&'static str; 2],
+    limb_allotment: Option<usize>,
 ) -> Result<(MatrixDifference, f64), FormationError> {
+    let exceeded = FormationError::LimbAllotmentExceeded;
     // One exact accumulator per stored formed entry, in the formed order:
     // the formed value minus every element contribution, rounded once.
-    let mut accumulators: Vec<ExactSum> = formed
-        .iter()
-        .map(|&(_, f)| {
-            let mut sum = ExactSum::new();
-            sum.add_f64(f);
-            sum
-        })
-        .collect();
+    let mut accumulators: Vec<ExactSum> = Vec::with_capacity(formed.len());
+    for &(_, f) in formed {
+        let mut sum = ExactSum::new();
+        sum.add_scaled_within(f, 0, limb_allotment)
+            .map_err(exceeded)?;
+        accumulators.push(sum);
+    }
+    // One scratch vector and one term list, reused for every entry read.
+    let mut scratch = Vec::new();
+    let mut terms: Vec<Term> = Vec::new();
     let mut off_pattern = BTreeMap::new();
     for (key, sum) in reformed {
         match formed.binary_search_by_key(key, |x| x.0) {
             Ok(at) => {
-                for (value, exponent) in sum.terms() {
-                    accumulators[at].add_scaled(-value, exponent);
+                sum.terms_into(&mut scratch, &mut terms);
+                for &(value, exponent) in &terms {
+                    accumulators[at]
+                        .add_scaled_within(-value, exponent, limb_allotment)
+                        .map_err(exceeded)?;
                 }
             }
             Err(_) => {
-                let value = sum.to_wide();
+                let value = sum.to_wide_with(&mut scratch);
                 if !value.is_zero() {
                     off_pattern.insert(*key, value.neg());
                 }
@@ -768,13 +860,15 @@ fn difference(
     let deltas = formed
         .iter()
         .zip(&accumulators)
-        .map(|(&(key, _), sum)| (key, sum.to_wide()))
+        .map(|(&(key, _), sum)| (key, sum.to_wide_with(&mut scratch)))
         .chain(off_pattern.iter().map(|(&key, &v)| (key, v)));
     let (norm, row) = scaled_norm(n, d, deltas, names[0])?;
     let (reformed_norm, _) = scaled_norm(
         n,
         d,
-        reformed.iter().map(|(&k, sum)| (k, sum.to_wide())),
+        reformed
+            .iter()
+            .map(|(&k, sum)| (k, sum.to_wide_with(&mut scratch))),
         names[1],
     )?;
     Ok((
@@ -795,7 +889,25 @@ pub fn formation_difference(
     formed_stiffness: &[SymmetricMatrixEntry],
     formed_mass: &[SymmetricMatrixEntry],
 ) -> Result<FormationDifference, FormationError> {
+    formation_difference_within_limb_allotment(pencil, formed_stiffness, formed_mass, None)
+}
+
+/// [`formation_difference`] with an optional limb allotment on its exact
+/// sums (the formation maps and the formed entries' accumulators, design
+/// §5.3.8): a sum that would need more limbs refuses
+/// (`FormationError::LimbAllotmentExceeded`) before that growth is
+/// allocated. `None` is `formation_difference`.
+pub fn formation_difference_within_limb_allotment(
+    pencil: &ReformedPencil,
+    formed_stiffness: &[SymmetricMatrixEntry],
+    formed_mass: &[SymmetricMatrixEntry],
+    limb_allotment: Option<usize>,
+) -> Result<FormationDifference, FormationError> {
     let n = pencil.dimension;
+    let assembled = |list: &[Mapped]| {
+        ReformedPencil::assembled_exact(list, limb_allotment)
+            .map_err(|(_, exceeded)| FormationError::LimbAllotmentExceeded(exceeded))
+    };
     let k = formed_lower(n, PencilMatrix::Stiffness, formed_stiffness)?;
     let m = formed_lower(n, PencilMatrix::Mass, formed_mass)?;
     let mut scaling = vec![Dd::ZERO; n];
@@ -812,15 +924,17 @@ pub fn formation_difference(
         n,
         &scaling,
         &k,
-        &ReformedPencil::assembled_exact(&pencil.stiffness),
+        &assembled(&pencil.stiffness)?,
         ["stiffness formation difference", "re-formed stiffness norm"],
+        limb_allotment,
     )?;
     let (mass, reformed_mass_norm) = difference(
         n,
         &scaling,
         &m,
-        &ReformedPencil::assembled_exact(&pencil.mass),
+        &assembled(&pencil.mass)?,
         ["mass formation difference", "re-formed mass norm"],
+        limb_allotment,
     )?;
     Ok(FormationDifference {
         stiffness,
@@ -916,23 +1030,38 @@ pub fn residual_estimate(
     // exactly from M̂φ's exact terms. The squares and norms (sums of
     // nonnegative terms) are in WideDd: φ may be scaled arbitrarily, and η,
     // κ_λ and e_λ do not depend on its scale.
-    let mut rows = vec![ExactSum::new(); n];
-    ReformedPencil::product_into(&pencil.stiffness, vector, None, &mut rows);
-    ReformedPencil::product_into(&pencil.mass, vector, Some(-eigenvalue), &mut rows);
-    let mx = pencil.mass_product_exact(vector);
+    //
+    // The row sums, the generalized-mass sum and the scratch vectors are the
+    // pencil's workspace, reset here and reused for every pair (module
+    // `workspace`); the operations and their order are those of fresh ones.
+    let (residual, tilde, generalized) = pencil.workspace.with(|w| {
+        let ProductWorkspace {
+            rows,
+            mass_rows,
+            sum: generalized_sum,
+            limbs,
+            terms,
+        } = w;
+        let rows = reset_rows(rows, n);
+        ReformedPencil::product_into(&pencil.stiffness, vector, None, rows);
+        ReformedPencil::product_into(&pencil.mass, vector, Some(-eigenvalue), rows);
+        let mx = reset_rows(mass_rows, n);
+        pencil.mass_product_into(vector, mx);
+        let mut residual = WideDd::ZERO;
+        let mut tilde = WideDd::ZERO;
+        generalized_sum.reset();
+        for i in 0..n {
+            let d = WideDd::from_dd(scaling.scaling[i]);
+            let r = rows[i].to_wide_with(limbs).mul(d);
+            residual = residual.add(r.mul(r));
+            let t = WideDd::from_f64(vector[i]).div(d);
+            tilde = tilde.add(t.mul(t));
+            mx[i].terms_into(limbs, terms);
+            generalized_sum.add_terms_product(terms, &[vector[i]]);
+        }
+        (residual, tilde, generalized_sum.to_wide_with(limbs))
+    });
     let lambda = WideDd::from_f64(eigenvalue);
-    let mut residual = WideDd::ZERO;
-    let mut tilde = WideDd::ZERO;
-    let mut generalized_sum = ExactSum::new();
-    for i in 0..n {
-        let d = WideDd::from_dd(scaling.scaling[i]);
-        let r = rows[i].to_wide().mul(d);
-        residual = residual.add(r.mul(r));
-        let t = WideDd::from_f64(vector[i]).div(d);
-        tilde = tilde.add(t.mul(t));
-        generalized_sum.add_terms_product(&mx[i].terms(), &[vector[i]]);
-    }
-    let generalized = generalized_sum.to_wide();
     let out_of_range = |quantity| ResidualError::ResultOutOfRange { quantity };
     if !generalized.is_finite() {
         return Err(out_of_range("generalized_mass"));
@@ -1018,6 +1147,155 @@ mod tests {
             ((1, 0), WideDd::from_f64(-3.0)),
         ];
         assert_eq!(scaled_norm(2, &d, finite.into_iter(), "test"), Ok((5.0, 0)));
+    }
+
+    /// One node, six free DOFs: axis springs and a rank-one spring for K, a
+    /// component body with an offset centre of gravity for M (entries with
+    /// nonzero low words, so the exact sums grow below).
+    fn small_pencil(limb_allotment: Option<usize>) -> Result<ReformedPencil, ReformationError> {
+        let mut elements: Vec<ElementOperand> = (0..6)
+            .map(|dof| {
+                ElementOperand::Spring(SpringOperand::Axis {
+                    dof,
+                    stiffness: 1e3 * (dof + 1) as f64 / 7.0,
+                })
+            })
+            .collect();
+        elements.push(ElementOperand::Spring(SpringOperand::RankOne {
+            node: 0,
+            rotational: false,
+            direction: [1.0, 2.0, 3.0],
+            stiffness: 5e2,
+        }));
+        elements.push(ElementOperand::ComponentBody(ComponentBody {
+            node: 0,
+            weight: 1000.0,
+            acceleration: 9.80665,
+            center_of_gravity: [0.3, 0.7, 1.1],
+        }));
+        let map: Vec<Option<usize>> = (0..6).map(Some).collect();
+        ReformedPencil::new_within_limb_allotment(
+            6,
+            &map,
+            MassBasis::EffectiveWall,
+            &elements,
+            limb_allotment,
+        )
+    }
+
+    fn formed(list: Vec<((usize, usize), Dd)>) -> Vec<SymmetricMatrixEntry> {
+        list.into_iter()
+            .map(|((row, col), v)| SymmetricMatrixEntry {
+                row,
+                col,
+                value: v.hi,
+            })
+            .collect()
+    }
+
+    /// The formation-map guard (design §5.3.8): under a limb allotment the
+    /// re-formation and the formation difference refuse before the growth
+    /// that would exceed it, naming the element; at or above the largest
+    /// span they used, their results are those without one.
+    #[test]
+    fn formation_refuses_past_a_limb_allotment_before_growing() {
+        let pencil = small_pencil(None).unwrap();
+        let (k, m) = (
+            formed(pencil.assembled_stiffness()),
+            formed(pencil.assembled_mass()),
+        );
+        let unguarded = formation_difference(&pencil, &k, &m).unwrap();
+        let mut smallest = None;
+        for allotment in 0..64 {
+            match small_pencil(Some(allotment)) {
+                Ok(p) => {
+                    assert_eq!(p, pencil);
+                    smallest.get_or_insert(allotment);
+                }
+                Err(ReformationError {
+                    element,
+                    failure: ReformationFailure::LimbAllotmentExceeded(e),
+                }) => {
+                    assert!(smallest.is_none(), "{allotment}");
+                    assert!(element < 8 && e.allotment == allotment && e.required > allotment);
+                }
+                Err(other) => panic!("{other:?}"),
+            }
+        }
+        let smallest = smallest.expect("an allotment admits the pencil");
+        assert!(smallest > 4, "{smallest}");
+        let mut admitted = false;
+        for allotment in 0..64 {
+            match formation_difference_within_limb_allotment(&pencil, &k, &m, Some(allotment)) {
+                Ok(d) => {
+                    assert_eq!(d, unguarded);
+                    admitted = true;
+                }
+                Err(FormationError::LimbAllotmentExceeded(e)) => {
+                    assert!(!admitted && e.allotment == allotment && e.required > allotment);
+                }
+                Err(other) => panic!("{other:?}"),
+            }
+        }
+        assert!(admitted);
+    }
+
+    /// Workspace reuse in the residual and orthogonality stages: after a
+    /// wide-span pair (many limbs), an early refusal and the other stage,
+    /// each call gives exactly what a fresh pencil (a clone, whose
+    /// workspace is empty) gives, and the retained capacity is reused, not
+    /// reallocated.
+    #[test]
+    fn a_reused_pencil_workspace_gives_the_fresh_result() {
+        let pencil = small_pencil(None).unwrap();
+        let (k, m) = (
+            formed(pencil.assembled_stiffness()),
+            formed(pencil.assembled_mass()),
+        );
+        let scaling = formation_difference(&pencil, &k, &m).unwrap().scaling;
+        let narrow = [1.0, -0.5, 0.25, 0.125, -2.0, 0.75];
+        let wide = [p(-400), 1.0, p(300), -p(-200), p(100), -3.0];
+        let zero = [0.0; 6];
+        let fresh =
+            |lambda: f64, v: &[f64]| residual_estimate(&pencil.clone(), &scaling, lambda, v);
+        let reused = |lambda: f64, v: &[f64]| residual_estimate(&pencil, &scaling, lambda, v);
+        assert_eq!(reused(3.0, &wide), fresh(3.0, &wide));
+        let storage = |p: &ReformedPencil| {
+            p.workspace().with(|w| {
+                w.rows
+                    .iter()
+                    .chain(&w.mass_rows)
+                    .map(|r| r.limb_storage().1)
+                    .collect::<Vec<_>>()
+            })
+        };
+        let after_wide = storage(&pencil);
+        assert!(after_wide.iter().any(|&c| c > 20), "{after_wide:?}");
+        assert_eq!(
+            reused(3.0, &zero),
+            Err(ResidualError::NonPositiveGeneralizedMass)
+        );
+        for lambda in [3.0, 0.5, 1e6] {
+            assert_eq!(reused(lambda, &narrow), fresh(lambda, &narrow));
+        }
+        let shapes: [&[f64]; 3] = [&narrow, &wide, &[0.0, 1.0, 0.0, 0.0, 0.0, 1.0]];
+        let orthogonality = crate::orthogonality::m_orthogonality_reformed(&pencil, &shapes);
+        assert_eq!(
+            orthogonality,
+            crate::orthogonality::m_orthogonality_reformed(&pencil.clone(), &shapes)
+        );
+        assert_eq!(reused(3.0, &wide), fresh(3.0, &wide));
+        assert_eq!(reused(3.0, &narrow), fresh(3.0, &narrow));
+        // The narrow pairs and the orthogonality stage needed no growth.
+        assert_eq!(storage(&pencil), after_wide);
+        // A clone, compared equal, starts with an empty workspace.
+        let clone = pencil.clone();
+        assert_eq!(clone, pencil);
+        assert!(storage(&clone).is_empty());
+    }
+
+    fn p(e: i32) -> f64 {
+        crate::dd::scale_by_pow2(1.0, e)
     }
 
     /// Review round 3, item B: a NaN estimate was dropped by f64::max.

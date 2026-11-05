@@ -45,19 +45,25 @@ its model's sha256.
   pressure regions per case.
 - **`linear-ex`.** Exact pressure route. Cases SUS, OPE, HYD (interim), WIN, EQX, EQY and EQZ,
   with the subtractions EXP, dWIN, dEQX, dEQY and dEQZ.
-- **`nonlinear-ex`.** OPE, with lift-off, friction-shoe and gap supports.
-- **`nonlinear-pf`.** `nonlinear-ex`'s interim twin on the pressure-free route, kept until EX
-  admits nonlinear supports.
+- **`nonlinear-ex`.** OPE, with lift-off, friction-shoe and gap supports. EX admits them
+  since RT-A3 increment 4 (DEL-04-07 `Work/pressure-contract.md`, "Nonlinear supports on
+  EX"), so the rack carries them and OPE runs the nonlinear active-set loop. The case has gap
+  supports, so it is published `NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED`, with no
+  confirmation until R-3.
+- **`nonlinear-pf`.** `nonlinear-ex`'s twin on the pressure-free route, with the same supports
+  and no pressure.
 - **Interim forms.** The generator emits only what main admits. Each target family or case
   form that main refuses is in the generator's `LEDGER` with its interim form, the refusal
   observed and what it waits for:
-  - the tee, the reducer and the EX nonlinear supports wait for RT-A3 increments 1, 2 and 4;
+  - the tee and the reducer wait for RT-A3 increments 1 and 2;
   - the lift-off friction shoe waits for S7;
   - SAM waits for #1678;
   - HYD's test condition and the SRSS and absolute-sum combinations wait for 0.9.0 S1;
   - nonlinear solves above about 1,760 nodes wait for RT-A3 stage P.
 
-  Until increment 4, `nonlinear-ex` solves OPE linearly and is not a nonlinear measurement.
+  The last applies to both nonlinear racks. The dense-memory guard therefore refuses
+  `nonlinear-ex` at criterion 9's 2,000 nodes before any case, as it refuses `nonlinear-pf`.
+  Below the guard, `nonlinear-ex` takes the dense loop's cost (§5.3).
 - **Field shapes.** These mirror the reference system (DEL-09-01 `Work/reference-system.md`):
   the same material values and section sizes, the `RK-` id prefix and no reference-system
   id. No rack value is a reference for an expected result.

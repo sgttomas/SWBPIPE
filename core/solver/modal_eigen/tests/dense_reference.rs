@@ -24,13 +24,18 @@
 //! computed results allows twice each bound.
 
 use open_pipe_stress_modal_eigen::clusters::cluster_ids;
-use open_pipe_stress_modal_eigen::dense::{solve_dense_pencil, DenseEigenSolution, DenseOptions};
+use open_pipe_stress_modal_eigen::dense::{
+    solve_dense_pencil, BandRecovery, DenseEigenSolution, DenseOptions, ScreenedMode,
+};
 use open_pipe_stress_modal_eigen::modal_quantities::{
     cumulative_effective_mass_fractions, normalize_mode, Dof, FreeDof, ModalBasis,
     NormalizationCase,
 };
 use open_pipe_stress_modal_eigen::orthogonality::m_orthogonality;
 use open_pipe_stress_modal_eigen::SymmetricMatrix;
+
+mod screen_outcomes;
+use screen_outcomes::{aggregate, classify, tally, ScreenOutcome, ScreenOutcomeCounts};
 
 const U: f64 = f64::EPSILON / 2.0;
 
@@ -793,4 +798,290 @@ fn torsion_modes_take_unit_max_rotation() {
         );
     }
     assert_eq!(last[2], Some(0.0));
+}
+
+// ---- A3 K2: test-only screen outcome counts (design §5.3.7) ----
+
+/// dense.rs's one-band pencil with a decoupled third DOF: K =
+/// blockdiag(Qᵀ diag(1, ε) Q, 1), M = blockdiag(Qᵀ diag(1, m_s) Q, 2⁻⁴), Q
+/// the 45° rotation (every entry exact), ε = 2⁻²⁰, m_s = 2⁻¹⁰, κ_μ = 2⁴⁰.
+/// μ = m_s/ε = 2¹⁰ is direct, μ = 1 lies in the band, and μ = 2⁻⁴ is at
+/// or below h ≈ κ_μ·3u·2¹⁰ = 0.375.
+fn k2_pencil() -> (Rows, Rows, DenseOptions) {
+    let (eps, soft_mass) = (2f64.powi(-20), 2f64.powi(-10));
+    let block = |a: f64, b: f64, last: f64| -> Rows {
+        vec![
+            vec![(a + b) / 2.0, (a - b) / 2.0, 0.0],
+            vec![(a - b) / 2.0, (a + b) / 2.0, 0.0],
+            vec![0.0, 0.0, last],
+        ]
+    };
+    let opts = DenseOptions {
+        resolution_floor_multiple: 2f64.powi(40),
+        ..options()
+    };
+    (
+        block(1.0, eps, 1.0),
+        block(1.0, soft_mass, 2f64.powi(-4)),
+        opts,
+    )
+}
+
+#[test]
+fn screen_outcome_counts_on_small_pencils() {
+    use ScreenOutcome::*;
+    let solve_with = |k: &Rows, m: &Rows, o: &DenseOptions| {
+        let solution = solve_dense_pencil(&sym(k), &sym(m), o).unwrap();
+        let counts = aggregate(&solution, o);
+        (solution, counts)
+    };
+
+    // Closed form: K = I, M = diag(1, 2⁻⁵⁰); μ = 2⁻⁵⁰ ≤ τ_μ·μ_max = 1e-12.
+    let (s, c) = solve_with(
+        &diagonal(&[1.0, 1.0]),
+        &diagonal(&[1.0, 2f64.powi(-50)]),
+        &options(),
+    );
+    assert_eq!(c.nonzero(), [(HardCut, 1)]);
+    assert_eq!((c.screened(), c.attempted(), c.rejected()), (1, 0, 1));
+    assert_eq!(s.mode_count(), 1);
+
+    let (k, m, base) = k2_pencil();
+    let (s, c) = solve_with(&k, &m, &base);
+    assert_eq!(c.nonzero(), [(HardCut, 1), (Retained, 1)]);
+    assert_eq!(
+        (
+            c.screened(),
+            c.hard_cut(),
+            c.attempted(),
+            c.band_rejected(),
+            c.retained()
+        ),
+        (2, 1, 1, 0, 1)
+    );
+    assert_eq!(s.mode_count(), 2);
+    let band = s.screened.iter().find(|x| !x.hard_rejected).unwrap();
+    let recovery = band.recovery.clone().unwrap();
+    // Both estimates are positive, so a smaller threshold rejects the pair.
+    let (eta, e_lambda) = (recovery.backward_error, recovery.error_estimate);
+    assert!(eta > 0.0 && e_lambda > 0.0, "{recovery:?}");
+
+    // τ_f = c_f·n·u at half the observed η̃; τ_e at half the observed e_λ.
+    // Neither changes the recovery, only the screen's verdict.
+    let n_u = 3.0 * (f64::EPSILON / 2.0);
+    let tight_f = DenseOptions {
+        formed_backward_error_multiple: eta / 2.0 / n_u,
+        ..base
+    };
+    let tight_e = DenseOptions {
+        screen_error_estimate_threshold: e_lambda / 2.0,
+        ..base
+    };
+    let tight_both = DenseOptions {
+        screen_error_estimate_threshold: e_lambda / 2.0,
+        ..tight_f
+    };
+    for (o, expected) in [
+        (&tight_f, BackwardErrorAboveTauF),
+        (&tight_e, ErrorEstimateAboveTauE),
+        // Both fail; the first failing conjunct is η̃ ≤ τ_f.
+        (&tight_both, BackwardErrorAboveTauF),
+    ] {
+        let (s, c) = solve_with(&k, &m, o);
+        assert_eq!(c.nonzero(), [(HardCut, 1), (expected, 1)], "{o:?}");
+        assert_eq!((c.attempted(), c.band_rejected(), c.retained()), (1, 1, 0));
+        assert_eq!(s.mode_count(), 1);
+        let rejected = s.screened.iter().find(|x| !x.hard_rejected).unwrap();
+        assert_eq!(rejected.recovery.as_ref(), Some(&recovery));
+    }
+
+    // Counts are a pure function of one solve: recomputing after other
+    // solves gives the same result (no accumulation).
+    let (s, c) = solve_with(&k, &m, &base);
+    assert_eq!(aggregate(&s, &base), c);
+    assert_eq!(c.nonzero(), [(HardCut, 1), (Retained, 1)]);
+}
+
+/// Constructed records (no solve; `tally`, no identity check) for every
+/// outcome, including the four sign and finiteness conjuncts that no solve
+/// can reach: a recovery exists only when `formed_pair_errors` returned η̃
+/// and e_λ each +0 or a positive normal number.
+#[test]
+fn screen_outcome_classification_follows_the_kernel_order() {
+    use ScreenOutcome::*;
+    let (h, tau_f, tau_e) = (2f64.powi(-40), 1e-13, 1e-6);
+    let mode = |hard: bool, r: Option<(f64, f64, f64)>| {
+        let mu = if hard { h } else { h.next_up() };
+        ScreenedMode {
+            mu,
+            eigenvalue: 1.0 / mu,
+            hard_rejected: hard,
+            recovery: r.map(|(mu, backward_error, error_estimate)| BandRecovery {
+                mu,
+                eigenvalue: 1.0 / mu,
+                backward_error,
+                error_estimate,
+            }),
+            retained: false,
+        }
+    };
+    let above = h.next_up();
+    let nan = f64::NAN;
+    let cases = [
+        (mode(true, None), HardCut),
+        // The hard verdict precedes everything (the kernel never recovers it).
+        (mode(true, Some((1.0, 0.0, 0.0))), HardCut),
+        (mode(false, None), RecoveryUnavailable),
+        // r.mu ≤ h (inclusive) precedes the estimates.
+        (mode(false, Some((h, nan, nan))), RecoveredMuNotAboveHardCut),
+        (
+            mode(false, Some((h.next_down(), 0.0, 0.0))),
+            RecoveredMuNotAboveHardCut,
+        ),
+        (
+            mode(false, Some((above, nan, -1.0))),
+            BackwardErrorNonFinite,
+        ),
+        (
+            mode(false, Some((above, f64::INFINITY, 0.0))),
+            BackwardErrorNonFinite,
+        ),
+        // Finiteness of e_λ precedes the sign and bound of η̃.
+        (
+            mode(false, Some((above, -1.0, nan))),
+            ErrorEstimateNonFinite,
+        ),
+        (
+            mode(false, Some((above, 1.0, f64::INFINITY))),
+            ErrorEstimateNonFinite,
+        ),
+        (
+            mode(false, Some((above, -tau_f, -1.0))),
+            BackwardErrorNegative,
+        ),
+        // The sign of e_λ precedes η̃ ≤ τ_f.
+        (
+            mode(false, Some((above, 2.0 * tau_f, -1.0))),
+            ErrorEstimateNegative,
+        ),
+        (
+            mode(false, Some((above, tau_f.next_up(), 2.0 * tau_e))),
+            BackwardErrorAboveTauF,
+        ),
+        (
+            mode(false, Some((above, tau_f, tau_e.next_up()))),
+            ErrorEstimateAboveTauE,
+        ),
+        // Inclusive bounds; −0 ≥ 0.
+        (mode(false, Some((above, tau_f, tau_e))), Retained),
+        (mode(false, Some((above, -0.0, -0.0))), Retained),
+    ];
+    for (i, (record, expected)) in cases.iter().enumerate() {
+        assert_eq!(classify(record, h, tau_f, tau_e), *expected, "case {i}");
+    }
+    let records: Vec<ScreenedMode> = cases.iter().map(|(r, _)| r.clone()).collect();
+    let c = tally(&records, h, tau_f, tau_e);
+    assert_eq!(
+        c.nonzero(),
+        [
+            (HardCut, 2),
+            (RecoveryUnavailable, 1),
+            (RecoveredMuNotAboveHardCut, 2),
+            (BackwardErrorNonFinite, 2),
+            (ErrorEstimateNonFinite, 2),
+            (BackwardErrorNegative, 1),
+            (ErrorEstimateNegative, 1),
+            (BackwardErrorAboveTauF, 1),
+            (ErrorEstimateAboveTauE, 1),
+            (Retained, 2),
+        ]
+    );
+    assert_eq!(
+        (
+            c.screened(),
+            c.hard_cut(),
+            c.attempted(),
+            c.band_rejected(),
+            c.rejected(),
+            c.retained()
+        ),
+        (15, 2, 13, 11, 13, 2)
+    );
+    assert_eq!(tally(&[], h, tau_f, tau_e), ScreenOutcomeCounts::default());
+}
+
+#[test]
+fn screen_outcome_counts_are_checked_never_wrapped() {
+    let mut full = [0; ScreenOutcome::ALL.len()];
+    full[ScreenOutcome::ALL.len() - 1] = u64::MAX;
+    let recorded = std::panic::catch_unwind(|| {
+        ScreenOutcomeCounts::from_array(full).record(ScreenOutcome::Retained)
+    });
+    assert!(recorded.is_err());
+    full[0] = 1;
+    let summed = std::panic::catch_unwind(|| ScreenOutcomeCounts::from_array(full).screened());
+    assert!(summed.is_err());
+    let mut last = ScreenOutcomeCounts::from_array([0; ScreenOutcome::ALL.len()]);
+    last.record(ScreenOutcome::HardCut);
+    assert_eq!(
+        (last.screened(), last.hard_cut(), last.attempted()),
+        (1, 1, 0)
+    );
+}
+
+/// The reference pencils of this file under its options: every μ is
+/// direct, so no pair is screened (an exact tripwire), and the identity
+/// holds.
+#[test]
+fn reference_pencils_screen_no_pair() {
+    let mut pencils: Vec<(String, Rows, Rows)> = vec![
+        (
+            "2-DOF M = I".into(),
+            vec![vec![2.0, -1.0], vec![-1.0, 1.0]],
+            diagonal(&[1.0, 1.0]),
+        ),
+        (
+            "2-DOF consistent-like M".into(),
+            diagonal(&[1.0, 3.0]),
+            vec![vec![2.0, 1.0], vec![1.0, 2.0]],
+        ),
+        (
+            "T20, M = I".into(),
+            second_difference(20),
+            diagonal(&[1.0; 20]),
+        ),
+        (
+            "T17, singular lumped M".into(),
+            second_difference(17),
+            diagonal(&(0..17).map(|i| (i % 2) as f64).collect::<Vec<_>>()),
+        ),
+    ];
+    for exponent in 3..=6 {
+        let s = 10f64.powi(exponent);
+        let mut ke = vec![1.0; 12];
+        ke[6] = s;
+        pencils.push((
+            format!("2-DOF scale {s:e}"),
+            vec![vec![1.0 + s, -s], vec![-s, s]],
+            diagonal(&[1.0, 1.0]),
+        ));
+        pencils.push((
+            format!("12-DOF chain scale {s:e}"),
+            spring_chain(&ke),
+            diagonal(
+                &(0..12)
+                    .map(|i| 1.0 + 0.25 * (i % 4) as f64)
+                    .collect::<Vec<_>>(),
+            ),
+        ));
+    }
+    for (n, seed, dense_mass) in [(30, 1, false), (30, 2, true), (60, 3, true), (40, 7, true)] {
+        let (k, m) = random_pencil(n, seed, dense_mass);
+        pencils.push((format!("random n {n} seed {seed}"), k, m));
+    }
+    for (name, k, m) in &pencils {
+        let solution = solve(k, m);
+        let counts = aggregate(&solution, &options());
+        assert_eq!(counts, ScreenOutcomeCounts::default(), "{name}");
+    }
 }

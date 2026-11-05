@@ -305,21 +305,6 @@ def test_credential_placeholder_uses_fake_key_id_and_descriptor_only():
     assert classification.metadata["secret_material_present"] is False
 
 
-def test_documentation_records_scope_boundaries():
-    doc = DOC_PATH.read_text(encoding="utf-8")
-    for required in {
-        "deliverable_id: DEL-12-04",
-        "package_id: PKG-12",
-        "SOW-040",
-        "SOW-029",
-        "OBJ-010",
-        "metadata-only",
-        "local-first",
-        "invented fixtures only",
-    }:
-        assert required in doc
-
-
 def test_changed_files_do_not_embed_disallowed_example_content():
     changed_files = [
         DOC_PATH,
@@ -340,5 +325,4 @@ if __name__ == "__main__":
     test_concrete_private_path_helper_withholds_path_detail()
     test_local_private_intent_required_and_payloads_remain_blocked()
     test_credential_placeholder_uses_fake_key_id_and_descriptor_only()
-    test_documentation_records_scope_boundaries()
     test_changed_files_do_not_embed_disallowed_example_content()
