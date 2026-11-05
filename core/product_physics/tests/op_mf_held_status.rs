@@ -493,7 +493,11 @@ fn h7g_a_held_gap_is_gap_inspection_and_never_confirmed() {
 /// negative with c = 2^-12; S: 2^-6 N toward the gap; O: S and 1 N more.
 fn gap_chain() -> Value {
     let inner = OD - 2.0 * WALL;
-    let i = std::f64::consts::PI / 64.0 * (OD.powi(4) - inner.powi(4));
+    // Fourth powers by explicit, fixed-order products: `powi` is not guaranteed to round the
+    // same on every platform and optimization level (CI's opt-level=2 Linux build differed
+    // from the committed corpus by an ulp in E), and the corpus must be reproducible.
+    let fourth = |x: f64| { let x2 = x * x; x2 * x2 };
+    let i = std::f64::consts::PI / 64.0 * (fourth(OD) - fourth(inner));
     let e = 100.0 / i;
     let load = |id: &str, f: f64| json!({"id":id,"category":"concentrated_force","target":{"type":"node","node":"node:b"},"direction":"global_z","magnitude":{"value":f,"unit":"N"},"dimension":"force","provenance":PROV});
     json!({"model":{"schema_version":"0.9.0","document_kind":"openpipestress.product_preview.model",
