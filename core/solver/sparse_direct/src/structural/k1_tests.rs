@@ -574,6 +574,21 @@ fn k1_pattern_path_report_is_byte_identical_to_the_dense_derived_sparse_path() {
                     format!("{:?}", solve_sparse_structural(&ss)),
                     "{ctx}: legacy"
                 );
+                // RT-A3 P: the option-(c) binary64 binding (the nonlinear
+                // loop's), today's dense-derived sparse path against the pattern.
+                assert_eq!(
+                    format!(
+                        "{:?}",
+                        today(structural::prepare_structural_binary64(&ds).unwrap())
+                    ),
+                    format!(
+                        "{:?}",
+                        solve_sparse_prepared(
+                            structural::prepare_sparse_structural_binary64(&ss).unwrap()
+                        )
+                    ),
+                    "{ctx}: binary64"
+                );
                 // C3-detect: the vector audited against the ledger's terms.
                 assert_eq!(
                     format!(

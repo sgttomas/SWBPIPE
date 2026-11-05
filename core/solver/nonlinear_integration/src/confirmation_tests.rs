@@ -667,3 +667,128 @@ fn shifted_conditions_compare_with_the_ground_exactly() {
     assert_eq!(slip(-1.0, 1.5), None);
     assert_eq!(slip(-1.0, 1.25), Some("slip direction not established"));
 }
+
+// ------------------------------------------------ RT-A3 P step 4: the coupling move
+
+/// A 2 m member inclined at (2, 1, 0) m, anchored at node 0, its tip UY a
+/// base restraint (the normal source) and its tip UX a derived-normal friction
+/// support (mu = 0.5, seeded sliding): the unit UX load moves the UY reaction,
+/// so the coupling gain g is nonzero (unlike F-1's g = 0).
+fn inclined_coupled(px: f64) -> (NonlinearFrameSolveInput, AssembledForce) {
+    let (s, st, d) = derived_friction("NL-F", FrameDof::Ux, FrameDof::Uy, 0.5);
+    let (mut input, force) = cantilever(vec![s], vec![st], Vec::new(), vec![d], &[7], &[(7, -100.0), (6, px)]);
+    let node_i = FrameNode::new(0, [0.0, 0.0, 0.0]).unwrap();
+    let node_j = FrameNode::new(1, [2.0, 1.0, 0.0]).unwrap();
+    let section = FrameSection::new(2.0e11, 8.0e10, 3.5e-3, 1.15e-5, 1.15e-5, 2.3e-5).unwrap();
+    input.elements = vec![FrameElement::new(node_i, node_j, section, [0.0, 0.0, 1.0]).unwrap()];
+    (input, force)
+}
+
+/// RT-A3 P step 4 (DEL-04-07 `Work/rt-a3-p-scale-repair.md` §3): in sparse
+/// mode the coupling solves moved from dense Cholesky to the skyline LDL, so
+/// φ⁰'s bits may move. The move stays inside the published bound: with the
+/// old and the new coupling the loop reaches the same states in the same
+/// iterations, both confirmations are Established, and their certified
+/// friction rows (Stage A's balls, each containing the exact coupled force)
+/// agree within the sum of their radii. Dense scrutiny is unchanged.
+#[test]
+fn p_the_coupling_move_stays_inside_the_certified_friction_bound() {
+    let old = |input: &NonlinearFrameSolveInput, force: &AssembledForce, mode| {
+        crate::COUPLING_MODE_OVERRIDE.with(|cell| cell.set(Some(LinearSolveMode::DenseScrutiny)));
+        let solve = solve_active_set_frame_with_mode_and_springs_assembled(input, force, mode, &[]);
+        crate::COUPLING_MODE_OVERRIDE.with(|cell| cell.set(None));
+        solve.unwrap()
+    };
+    for px in [80.0, -80.0, 150.0] {
+        let (input, force) = inclined_coupled(px);
+        for mode in MODES {
+            let ctx = format!("px={px} {mode:?}");
+            let before = old(&input, &force, mode);
+            let after = solve_active_set_frame_with_mode_and_springs_assembled(&input, &force, mode, &[]).unwrap();
+            assert!(before.converged && after.converged, "{ctx}");
+            assert_eq!(before.final_states, after.final_states, "{ctx}");
+            assert_eq!(before.iterations.len(), after.iterations.len(), "{ctx}");
+            let phi = |solve: &NonlinearFrameSolveResult| {
+                solve.iterations.last().unwrap().applied_sliding_friction_forces[0].force
+            };
+            let (phi_old, phi_new) = (phi(&before), phi(&after));
+            // Precondition: coupled (|phi| is not mu * 100 N, the decoupled value).
+            assert!((phi_new.abs() - 50.0).abs() > 1.0, "{ctx}: {phi_new}");
+            if mode == LinearSolveMode::DenseScrutiny {
+                assert_eq!(before, after, "{ctx}: dense scrutiny is unchanged");
+            }
+            let row = |solve: &NonlinearFrameSolveResult| {
+                let applied = solve.iterations.last().unwrap().applied_sliding_friction_forces.clone();
+                let Confirmation::Established(state) =
+                    confirm_with_applied(&input, &[], solve, &force, &[], &[], mode, &applied).unwrap()
+                else {
+                    panic!("{ctx}: not established")
+                };
+                state.supports["NL-F"].row
+            };
+            let (row_old, row_new) = (row(&before), row(&after));
+            let gap = (row_new.published - row_old.published).abs();
+            let bound = row_old.radius + row_new.radius;
+            eprintln!(
+                "RT-A3 P coupling move {ctx}: phi0 {phi_old:e} -> {phi_new:e} ({} ulp); certified row {:e} r {:e} -> {:e} r {:e}",
+                (phi_new.to_bits() as i64 - phi_old.to_bits() as i64).abs(),
+                row_old.published,
+                row_old.radius,
+                row_new.published,
+                row_new.radius,
+            );
+            assert!(gap <= bound, "{ctx}: certified rows {row_old:?} and {row_new:?} disagree beyond their radii");
+        }
+    }
+}
+
+// ------------------------------------------------ RT-A3 P step 5: the pattern confirmation
+
+/// RT-A3 P step 5: in sparse mode the confirmation of a pattern loop's state
+/// runs on the pattern (`SparseAssemblyEvidence::confirm_with_formation_check`).
+/// It equals the confirmation of the dense-derived loop's state (the dense
+/// evidence, the dense prepared system and SD's skyline LDL of it) in `Debug`,
+/// established and named-reason cases alike: F-1's derived sliding both ways
+/// and sticking, the inclined coupled case, an explicit-normal sliding case
+/// and a moved anchor.
+#[test]
+fn p_the_pattern_confirmation_equals_the_dense_derived_one() {
+    let mode = LinearSolveMode::SparseInteractive;
+    let explicit = cantilever(
+        vec![NonlinearSupport::friction("NL-E", 1, FrameDof::Ux, 0.3).unwrap()],
+        vec![SupportStateRecord::new("NL-E", ActiveSetState::Sliding)],
+        vec![FrictionNormalReaction::new("NL-E", 70.0).unwrap()],
+        Vec::new(),
+        &[],
+        &[(6, 40.0)],
+    );
+    let cases = [
+        ("F-1 +80", f1(80.0)),
+        ("F-1 -80", f1(-80.0)),
+        ("F-1 stick", f1(30.0)),
+        ("inclined coupled", inclined_coupled(80.0)),
+        ("explicit", explicit),
+        ("moved anchor", moved_prop(vec![(2, 1.0e-4)])),
+    ];
+    let mut established = 0;
+    for (name, (input, force)) in cases {
+        let run = |representation: Option<crate::LoopRepresentation>| {
+            crate::LOOP_REPRESENTATION_OVERRIDE.with(|cell| cell.set(representation));
+            let solve = solve_active_set_frame_with_mode_and_springs_assembled(&input, &force, mode, &[]);
+            crate::LOOP_REPRESENTATION_OVERRIDE.with(|cell| cell.set(None));
+            let solve = solve.unwrap();
+            let applied = solve.iterations.last().unwrap().applied_sliding_friction_forces.clone();
+            let pattern = matches!(
+                solve.completion.as_ref().unwrap().original_stiffness,
+                crate::LoopStiffness::Pattern(_)
+            );
+            (pattern, format!("{:?}", confirm_with_applied(&input, &[], &solve, &force, &[], &[], mode, &applied)))
+        };
+        let (pattern, on_pattern) = run(None);
+        let (dense, dense_derived) = run(Some(crate::LoopRepresentation::Dense));
+        assert!(pattern && !dense, "{name}");
+        assert_eq!(on_pattern, dense_derived, "{name}");
+        established += usize::from(on_pattern.starts_with("Ok(Established"));
+    }
+    assert!(established >= 5, "non-vacuous: {established}");
+}

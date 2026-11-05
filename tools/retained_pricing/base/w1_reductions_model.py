@@ -99,7 +99,7 @@ REDUCED_PINS = {
     # or lifetime changes, and the L5 texts are unchanged.
     # Operating-case slice 1b (§8.51, merge of 41142f4a3): lib.rs's three 1b items are folded onto existing lines and
     # preview_physics.rs adds the declared arms; no reduction's owner or lifetime changes, the L5 texts are unchanged.
-    "core/product_physics/src/lib.rs": "dcb744fbc76a6d3ee09fe43b4494542497a4b31282de019f4c831e32d32ec145",
+    "core/product_physics/src/lib.rs": "e34a3c60cc81acafdba3f8b0913911c658898d773760e3574b1c2fefa4e773d2",
     "core/product_physics/src/retained_wire.rs": "1e1e60a02279771574f84df2b45628622936774a879a092842faa1e2f5f0f937",
     "core/product_physics/src/certified_publication.rs": "89cdb23e172136b55ff980f7d4a4cd3643e43894fb2a9ad40c92fd3cd4adcf87",
     "core/product_physics/src/certified_loads.rs": "da7d3decc3a0170da65b38670ec215aaebdb9d8d799e3c76e41879a80589bc73",
@@ -107,7 +107,7 @@ REDUCED_PINS = {
     "core/solver/frame_kernel/src/structural/formation_check.rs": "8931fb3dad1fd7f17b32c07eebb2e934ee9af53bb4d15fa611201829128c7893",
     "core/solver/frame_kernel/src/structural/certified_recovery.rs": "8f69bb9bea7c7696b1f78fc985998faa03a507dfc47be13cc6a2b6aa062980c9",
     "core/solver/frame_kernel/src/load_ledger.rs": "8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f",
-    "core/solver/nonlinear_integration/src/structural_adapter.rs": "1ca609bda4e56138aab980f5ff4be8f9f664e3300b8bc51f808bc60b45e4d0a3",
+    "core/solver/nonlinear_integration/src/structural_adapter.rs": "a85cab550bc3220448a906c73523d4961a6df0a007f7cc94d666fd729016e50d",
     "core/solver/straight_pipe/src/lib.rs": "9a4cb59ab52b6f4340fbd74bab9c83847b89691835d0e043a4971b261df452f7"
 }
 

@@ -3,7 +3,7 @@
   "members": [
     {
       "path": "apps/desktop/src/test-support/desktop-shaped/desktop_shaped_pressure_plain_connected_dense.stress_neutral.json",
-      "sha256": "9f1b846cb2bf5fb42573c2ac8853444d4b2c846590f4ed09030869bdebb3ba91",
+      "sha256": "96d0d41e4e5c2ed1db5e089ec5b8119ca16cc4341bfe6948a89500bf05a0c2a6",
       "labels": [
         [
           "\"invented_non_engineering_example\"",
@@ -18,7 +18,7 @@
     },
     {
       "path": "apps/desktop/src/test-support/desktop-shaped/desktop_shaped_pressure_plain_connected_sparse.stress_neutral.json",
-      "sha256": "990c1a946d763a02435c748a39ea98968d3dd66827781366668010f0560965df",
+      "sha256": "d476a9fd1e1bbbce9f426b590cf7a978b474d4daef5b9ef8569eefa933029149",
       "labels": [
         [
           "\"invented_non_engineering_example\"",

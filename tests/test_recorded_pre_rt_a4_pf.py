@@ -56,6 +56,9 @@ VARIANTS = [
     ("physics-retained-1 (main, RT-A4)", "physics_retained_1/main_bbf384dec/retained_precision_exact_successor_sparse_interactive.analysis_run.json",
      "physics_retained_1/main_bbf384dec/retained_precision_exact_successor_sparse_interactive.json",
      "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034", "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"),
+    ("physics-retained-1 (main, before the combination certificate)", "physics_retained_1/main_252bef969/retained_precision_exact_successor_sparse_interactive.analysis_run.json",
+     "physics_retained_1/main_252bef969/retained_precision_exact_successor_sparse_interactive.json",
+     "85c2678a78e794b44761c11efb73c215645c7e2560d802ac8ad6075e7804c691", "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"),
 ]
 IDS = [v[0] for v in VARIANTS]
 
@@ -260,7 +263,8 @@ def test_the_registry_is_main_verbatim_and_disjoint_from_the_current_tables():
                "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034": "bbf384dec",
                "e7b93f416f700f8efdb31bf1ba26dedde52963d768d6ead5a73dbf1c645a360c": "bbf384dec",
                "ce49ebe07bc05431ea1f770c1933b5bf58f4b1c8b66fb6f36810f2ef7a58cd43": "bbf384dec",
-               "26dce9c21261b1ca894af05a3b6f4a94db88904894cb47f7296f892e72ecfb7e": "bbf384dec"}.get(digest, MAIN)
+               "26dce9c21261b1ca894af05a3b6f4a94db88904894cb47f7296f892e72ecfb7e": "bbf384dec",
+               "85c2678a78e794b44761c11efb73c215645c7e2560d802ac8ad6075e7804c691": "252bef969"}.get(digest, MAIN)
         try:
             committed = subprocess.run(["git", "show", f"{rev}:fixtures/results/semantic_contract_v0_3_{origin[identity]}.json"],
                                        cwd=ROOT, capture_output=True, check=True).stdout

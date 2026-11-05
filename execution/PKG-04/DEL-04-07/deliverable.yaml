@@ -300,7 +300,8 @@ needs:
     The RT-A3 increment 4 K-1 bound (Work/k1-twin-bound.md, option (a)) rests on two DEL-04-01
     sources. First, every structural solve returns only when each free row's original-equation
     residual meets 64*gamma(n) of its row denominator (frame_kernel structural finish_structural
-    over evaluate_original_residual). Second, the independent kd5 reference formation
+    over evaluate_original_residual; on the pattern since RT-A3 P, finish_sparse_structural and
+    finish_sparse_structural_on through the same completion and binary64 residual). Second, the independent kd5 reference formation
     (validation/references/kd5_nonlinear/reference.py and its oracles' normalized sections). A
     change to either re-runs Work/k1_twin_bound.py before the bound's constants are asserted again.
     Its iterate-delta part also rests on this deliverable's loop rules (nonlinear_integration: the

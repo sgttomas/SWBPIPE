@@ -911,6 +911,106 @@ pub fn reduce_assembled_sparse_system(
     })
 }
 
+/// The free map and right-hand side of the named binary64 reduction
+/// (`reduce_sparse_system_with_prescribed_displacements_binary64`).
+#[derive(Debug, Clone, PartialEq)]
+pub struct SparseBinary64Reduction {
+    /// Free DOFs, ascending (the dense reduction's order).
+    pub free_dofs: Vec<usize>,
+    /// `f_i - sum_c K_ic * g_c` per free row, folded in binary64.
+    pub force: Vec<f64>,
+}
+
+/// RT-A3 P: the pattern sibling of the dense
+/// `reduce_system_with_prescribed_displacements_binary64` (ROOT option (c)),
+/// with no reduced stiffness: its checks in its order with its errors, and on
+/// every free row the fold `f_i - K_ic * g_c` in binary64 over every boundary
+/// DOF in list order, an unstored K_ic being +0.0, so each value is the dense
+/// reduction's bit for bit (signed zeros included).
+pub fn reduce_sparse_system_with_prescribed_displacements_binary64(
+    stiffness: &SparseStiffness,
+    force: &[f64],
+    prescribed_dofs: &[usize],
+    prescribed_displacements: &[f64],
+) -> Result<SparseBinary64Reduction, FrameKernelError> {
+    let size = stiffness.dimension();
+    // `validate_square_matrix`: rows in order, each row's first non-finite
+    // entry (only stored entries can be non-finite).
+    for row in 0..size {
+        for (_, value) in stiffness.row(row) {
+            if !value.is_finite() {
+                return Err(FrameKernelError::NonFiniteInput {
+                    name: "matrix/vector entry",
+                    value,
+                });
+            }
+        }
+    }
+    if force.len() != size {
+        return Err(FrameKernelError::InvalidVectorLength {
+            expected: size,
+            actual: force.len(),
+        });
+    }
+    if let Some(&value) = force.iter().find(|v| !v.is_finite()) {
+        return Err(FrameKernelError::NonFiniteInput {
+            name: "matrix/vector entry",
+            value,
+        });
+    }
+    if prescribed_displacements.len() != prescribed_dofs.len() {
+        return Err(FrameKernelError::InvalidVectorLength {
+            expected: prescribed_dofs.len(),
+            actual: prescribed_displacements.len(),
+        });
+    }
+    if let Some(&value) = prescribed_displacements.iter().find(|v| !v.is_finite()) {
+        return Err(FrameKernelError::NonFiniteInput {
+            name: "prescribed displacement",
+            value,
+        });
+    }
+    let mut constrained = vec![false; size];
+    for &dof in prescribed_dofs {
+        if dof >= size {
+            return Err(FrameKernelError::PrescribedDofOutOfRange {
+                dof,
+                total_dofs: size,
+            });
+        }
+        if constrained[dof] {
+            return Err(FrameKernelError::RepeatedPrescribedDof { dof });
+        }
+        constrained[dof] = true;
+    }
+    let free_dofs: Vec<usize> = (0..size).filter(|&dof| !constrained[dof]).collect();
+    let mut scattered = vec![0.0; size];
+    let mut reduced = Vec::with_capacity(free_dofs.len());
+    for &row in &free_dofs {
+        for (col, k) in stiffness.row(row) {
+            scattered[col] = k;
+        }
+        let mut adjusted = force[row];
+        for (&dof, &g) in prescribed_dofs.iter().zip(prescribed_displacements) {
+            adjusted -= scattered[dof] * g;
+        }
+        for (col, _) in stiffness.row(row) {
+            scattered[col] = 0.0;
+        }
+        reduced.push(adjusted);
+    }
+    if let Some(&value) = reduced.iter().find(|v| !v.is_finite()) {
+        return Err(FrameKernelError::NonFiniteInput {
+            name: "adjusted force",
+            value,
+        });
+    }
+    Ok(SparseBinary64Reduction {
+        free_dofs,
+        force: reduced,
+    })
+}
+
 // ------------------------------------------------------------------ system
 
 /// Per-pattern-entry symmetry provenance (the sparse `SymmetryEvidence`).
@@ -1361,6 +1461,17 @@ pub fn prepare_formation_checked_sparse_structural<'s>(
     prepared.formation = Some(system.source);
     Ok(prepared)
 }
+/// The named, unchanged binary64 sibling (`prepare_structural_binary64`, ROOT
+/// option (c)) for the nonlinear active-set loop (RT-A3 P): every row's
+/// right-hand side is the dense fold `b = checked_value(b -
+/// checked_product(K_ij, g_j)?)?` over every prescribed (j, g_j) in
+/// `prescribed` order, an unstored K_ij being +0.0, so it is the dense
+/// preparation's bit for bit (and refuses as it does).
+pub fn prepare_sparse_structural_binary64<'s>(
+    system: &'s SparseStructuralSystem<'s>,
+) -> Result<SparsePreparedSystem<'s>, StructuralError> {
+    prepare_sparse_bound(system, ForceBinding::Binary64)
+}
 /// The C3-detect sibling (`prepare_structural_with_force_terms`).
 pub fn prepare_sparse_structural_with_force_terms<'s>(
     system: &'s SparseStructuralSystem<'s>,
@@ -1373,13 +1484,6 @@ fn prepare_sparse_bound<'s>(
     system: &'s SparseStructuralSystem<'s>,
     force_binding: ForceBinding<'s>,
 ) -> Result<SparsePreparedSystem<'s>, StructuralError> {
-    if force_binding.binary64() {
-        // The option-(c) binary64 fold is not offered on the pattern: the
-        // nonlinear loop stays on the dense `_binary64` path until F1b.
-        return Err(StructuralError::InvalidInput(
-            "binary64 binding on the sparse representation",
-        ));
-    }
     validate_sparse(system)?;
     let stiffness = system.stiffness;
     let pattern = &stiffness.pattern;
@@ -1415,6 +1519,12 @@ fn prepare_sparse_bound<'s>(
     let mut source_entries = Vec::new();
     let mut diagonal = Vec::with_capacity(n);
     let mut rhs = vec![0.0; n];
+    // RT-A3 P: the binary64 binding's row of K, scattered (+0.0 elsewhere).
+    let mut scattered = if force_binding.binary64() {
+        vec![0.0; system.force.len()]
+    } else {
+        Vec::new()
+    };
     for (r, &i) in system.free_dofs.iter().enumerate() {
         let mut entries: Vec<(usize, usize)> = pattern
             .row_range(i)
@@ -1443,6 +1553,21 @@ fn prepare_sparse_bound<'s>(
                 })?,
         );
         row_starts.push(columns.len());
+        if force_binding.binary64() {
+            // The dense fold, term for term: the unstored K_ij are +0.0.
+            for (j, k) in stiffness.row(i) {
+                scattered[j] = k;
+            }
+            let mut b = system.force[i];
+            for &(j, u) in system.prescribed {
+                b = checked_value(b - checked_product(scattered[j], u)?)?;
+            }
+            for (j, _) in stiffness.row(i) {
+                scattered[j] = 0.0;
+            }
+            rhs[r] = radix_scale(b, exponents[r])?;
+            continue;
+        }
         let couplings = system.prescribed_couplings(i);
         let coupled = couplings.iter().any(|&(_, k, g)| k != 0.0 && g != 0.0);
         if force_binding.assembled().is_some() || coupled {
@@ -1883,6 +2008,172 @@ pub fn finish_sparse_structural(
         "positive skyline LDL",
         |rhs| factor.factor.solve(rhs),
     )
+}
+
+/// RT-A3 P step 3: a positive skyline factor kept for further right-hand sides
+/// of the same prepared matrix (the nonlinear loop's base, unit-load coupling
+/// and final solves of one iterate). It holds the factor, its pivot evidence,
+/// and the prepared matrix it factors (free map, scale exponents and stored
+/// entries), against which every later prepared system is compared bit for
+/// bit before its completion (`finish_sparse_structural_on`).
+pub struct SharedSparseFactor {
+    factor: ProfileFactor,
+    pivots: Vec<PivotEvidence>,
+    free_dofs: Vec<usize>,
+    scale_exponents: Vec<i32>,
+    row_starts: Vec<usize>,
+    columns: Vec<usize>,
+    values: Vec<u64>,
+}
+
+impl SparsePositiveFactor<'_, '_> {
+    /// Keeps this factor for further right-hand sides of its prepared matrix.
+    pub fn share(self) -> SharedSparseFactor {
+        SharedSparseFactor {
+            free_dofs: self.prepared.source.free_dofs.to_vec(),
+            scale_exponents: self.prepared.scale_exponents.clone(),
+            row_starts: self.prepared.row_starts.clone(),
+            columns: self.prepared.columns.clone(),
+            values: self.prepared.values.iter().map(|v| v.to_bits()).collect(),
+            factor: self.factor,
+            pivots: self.pivots,
+        }
+    }
+}
+
+/// RT-A3 P step 3: `finish_sparse_structural` of `prepared` on a kept factor.
+/// `prepared` is validated as `factor_sparse_structural_profile` validates it,
+/// and its prepared matrix (free map, scale exponents, stored entries, bit for
+/// bit) must be the kept factor's; otherwise it is refused. A factor is a
+/// deterministic function of that matrix (SD's order and skyline read only its
+/// stored nonzero entries), so the result is the separate solve's
+/// (`solve_sparse_prepared`) bit for bit.
+pub fn finish_sparse_structural_on(
+    factor: &SharedSparseFactor,
+    prepared: &SparsePreparedSystem<'_>,
+) -> Result<StructuralSolution, StructuralError> {
+    validate_sparse_prepared(prepared)?;
+    if prepared.source.free_dofs != factor.free_dofs.as_slice()
+        || prepared.scale_exponents != factor.scale_exponents
+        || prepared.row_starts != factor.row_starts
+        || prepared.columns != factor.columns
+        || prepared.values.len() != factor.values.len()
+        || prepared
+            .values
+            .iter()
+            .zip(&factor.values)
+            .any(|(v, bits)| v.to_bits() != *bits)
+    {
+        return Err(StructuralError::InvalidInput(
+            "prepared matrix differs from the shared factor's",
+        ));
+    }
+    finish_checked_factor(
+        prepared.source,
+        prepared,
+        factor.pivots.clone(),
+        "positive skyline LDL",
+        |rhs| factor.factor.solve(rhs),
+    )
+}
+
+/// RT-A3 P step 5: the pattern sibling of `ConfirmationAttempt` (DEL-04-01
+/// kd5-nonlinear-active-set.md §1.5): the confirmation attempt's one factor of
+/// the converged state's matrix on the pattern. Its gate
+/// (`finish_sparse_confirmation`), scale exponents, prepared matrix, Hager
+/// estimate and epsilon_E serve every K-D5 evaluation of the attempt, as the
+/// dense attempt's do; the evaluations read K and the prepared matrix through
+/// the pattern's accessors, as the linear route's pattern K-D5 does.
+pub struct SparseConfirmationAttempt<'f, 'p, 's> {
+    factor: &'f SparsePositiveFactor<'p, 's>,
+    condition: (f64, f64, f64),
+    epsilon: std::cell::Cell<Option<f64>>,
+}
+
+/// `finish_confirmation` on the pattern: the gate completed exactly as
+/// `finish_sparse_structural` completes it, on a system prepared without a
+/// formation source, and the attempt whose factor `evaluate_at` reuses.
+pub fn finish_sparse_confirmation<'f, 'p, 's>(
+    factor: &'f SparsePositiveFactor<'p, 's>,
+) -> Result<(StructuralSolution, SparseConfirmationAttempt<'f, 'p, 's>), StructuralError> {
+    if factor.prepared.formation.is_some() {
+        return Err(StructuralError::InvalidInput(
+            "confirmation gate carries a formation source",
+        ));
+    }
+    let solution = finish_sparse_structural(factor)?;
+    let condition = factor
+        .prepared
+        .gate_condition(&|rhs: &[f64]| factor.factor.solve(rhs))?;
+    Ok((
+        solution,
+        SparseConfirmationAttempt {
+            factor,
+            condition,
+            epsilon: std::cell::Cell::new(None),
+        },
+    ))
+}
+
+impl SparseConfirmationAttempt<'_, '_, '_> {
+    /// `ConfirmationAttempt::evaluate_at` on the pattern: `system` must have
+    /// the gate's stiffness (the same `SparseStiffness`), free map and
+    /// contributions; its force and formation source may differ.
+    pub fn evaluate_at(
+        &self,
+        system: &FormationCheckedSparseSystem<'_>,
+        u: &[f64],
+        judged: bool,
+    ) -> Result<(Option<FormationCheck>, Option<MemberBoundInputs>), StructuralError> {
+        let gate = self.factor.prepared.source;
+        let s = &system.system;
+        let same_contributions = match (s.contributions, gate.contributions) {
+            (Some(a), Some(b)) => std::ptr::eq(a, b),
+            _ => false,
+        };
+        if s.free_dofs != gate.free_dofs
+            || !std::ptr::eq(s.stiffness, gate.stiffness)
+            || !same_contributions
+            || s.force.len() != gate.force.len()
+            || u.len() != gate.force.len()
+        {
+            return Err(StructuralError::InvalidInput("confirmation system"));
+        }
+        let prepared = self.factor.prepared;
+        // The dense stiffness placeholder is empty; the callbacks read the
+        // pattern (as `Represented::formation_check` for the pattern does).
+        let view = StructuralSystem {
+            stiffness: &[],
+            force: s.force,
+            free_dofs: s.free_dofs,
+            prescribed: s.prescribed,
+            contributions: s.contributions,
+            contribution_groups: s.contribution_groups,
+            symmetry: None,
+        };
+        Ok(formation_check::check_at(
+            &view,
+            system.source,
+            system.force,
+            &prepared.scale_exponents,
+            u,
+            self.condition,
+            &|i, j| s.stiffness.get(i, j),
+            &|r, c| prepared.gate_value(r, c),
+            &|rhs: &[f64]| self.factor.factor.solve(rhs),
+            judged,
+            Some(&self.epsilon),
+        ))
+    }
+}
+
+/// RT-A3 P: `evaluate_original_residual` (the named binary64 binding) on the
+/// sparse representation, through the shared `evaluate_original_residual_bound`.
+pub fn evaluate_sparse_original_residual(
+    system: &SparseStructuralSystem<'_>,
+    u: &[f64],
+) -> Result<Vec<ResidualRow>, StructuralError> {
+    evaluate_original_residual_bound(system, ForceBinding::Binary64, u)
 }
 
 /// `audit_load_fidelity` on the sparse representation: the same prologue, and

@@ -20,6 +20,8 @@ history: `tools/serialization/semantic_contract_tables.py repin` never edits thi
 | | `retained_precision_exact_successor_sparse_interactive.analysis_run.json` | Built by that revision's record builder from its `source`; binds 045f6f0d… |
 | `physics_retained_1/main_bbf384dec/` | `retained_precision_exact_successor_sparse_interactive.json` | Main at bbf384dec (RT-A4, #98), verbatim (`fixtures/results/`). RT-A3 increment 4 restates pressure-2's limitations, so this exact successor table (040ef9a6…) becomes history |
 | | `retained_precision_exact_successor_sparse_interactive.analysis_run.json` | Built by that revision's record builder from its `source`, with its own `openpipestress-runner`; binds 040ef9a6… |
+| `physics_retained_1/main_252bef969/` | `retained_precision_exact_successor_sparse_interactive.json` | Main at 252bef969 (#108), verbatim (`fixtures/results/`). RT-A3 §4 (the combination certificate) restates pressure-2's combination standing and limitation, so this exact successor table (85c2678a…) becomes history |
+| | `retained_precision_exact_successor_sparse_interactive.analysis_run.json` | Built by that revision's record builder from its `source`, with its own `openpipestress-runner`; binds 85c2678a… |
 
 **Gap.** Main holds no committed record of a preview-physics-timoshenko-1,
 preview-physics-retained-1 or physics-retained-1 run; its only recorded runs are the

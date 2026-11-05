@@ -68,29 +68,34 @@ const RECORD_TABLES: Readonly<Record<string, RecordTable>> = Object.freeze({
  * recorded under the constant-effort table (be29fabc…) is read the same way. RT-A3 increment 4
  * (DEL-04-07 Design `pressure-contract.md`, "Nonlinear supports on EX") restates two limitations,
  * rows and gates unchanged, so a run recorded under the RT-A4 table (10455bf3…) is read the same
- * way. Python's twin is `compatibility.py` `RECORDED_RUN_TABLE_BASES`. */
+ * way. RT-A3 §4 (DEL-05-02 Work `combination-certificate.md`) restates the combination standing and
+ * the combinations limitation, rows and gates unchanged, so a run recorded under main's table at
+ * 252bef969 (2c20583d…) is read the same way. Python's twin is `compatibility.py` `RECORDED_RUN_TABLE_BASES`. */
 const RECORDED_RUN_TABLE_BASES: ReadonlyArray<Readonly<{ id: string; recorded: string; current: string }>> = Object.freeze([
   { id: "openpipestress.result_semantics/0.3.0/pressure-2",
     recorded: "3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d",
-    current: "2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645" },
+    current: "21b7426ec1c50ba5f74539984261554d06b9b6a26ec26f7d5765b5faa7d6bb90" },
   { id: "openpipestress.result_semantics/0.3.0/pressure-2",
     recorded: "5451fbf3e10e085c90b523baa7daf5fc723659e0d874d988d23807be7d2fefe6",
-    current: "2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645" },
+    current: "21b7426ec1c50ba5f74539984261554d06b9b6a26ec26f7d5765b5faa7d6bb90" },
   { id: "openpipestress.result_semantics/0.3.0/pressure-2",
     recorded: "d46e1963d7502b8e41898805128f2807b2670a1d4c738c71876002ed727e5faf",
-    current: "2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645" },
+    current: "21b7426ec1c50ba5f74539984261554d06b9b6a26ec26f7d5765b5faa7d6bb90" },
   { id: "openpipestress.result_semantics/0.3.0/pressure-2",
     recorded: "032e861fc66bf5f34a081b104ec879a39831bfd6472b186954966ea57d65f025",
-    current: "2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645" },
+    current: "21b7426ec1c50ba5f74539984261554d06b9b6a26ec26f7d5765b5faa7d6bb90" },
   { id: "openpipestress.result_semantics/0.3.0/pressure-2",
     recorded: "a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e",
-    current: "2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645" },
+    current: "21b7426ec1c50ba5f74539984261554d06b9b6a26ec26f7d5765b5faa7d6bb90" },
   { id: "openpipestress.result_semantics/0.3.0/pressure-2",
     recorded: "be29fabcfacb1070a51bfb56dcfe61b4e4125638e249c3c0e96d092cc8aba43f",
-    current: "2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645" },
+    current: "21b7426ec1c50ba5f74539984261554d06b9b6a26ec26f7d5765b5faa7d6bb90" },
   { id: "openpipestress.result_semantics/0.3.0/pressure-2",
     recorded: "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6",
-    current: "2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645" },
+    current: "21b7426ec1c50ba5f74539984261554d06b9b6a26ec26f7d5765b5faa7d6bb90" },
+  { id: "openpipestress.result_semantics/0.3.0/pressure-2",
+    recorded: "2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645",
+    current: "21b7426ec1c50ba5f74539984261554d06b9b6a26ec26f7d5765b5faa7d6bb90" },
 ]);
 /** The binding a record is checked against: the current table's, or the exact recorded basis
  * the record names when it is one of `RECORDED_RUN_TABLE_BASES` for that current table. */

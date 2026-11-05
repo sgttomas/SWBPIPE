@@ -45,6 +45,9 @@ fn every_corpus_envelope_is_admitted_with_and_without_its_model() {
         let standing = reader_verdict::standing(envelope, Some(&case["model"]), None);
         let mut direct = envelope.clone();
         direct["contract_evidence"].as_object_mut().unwrap().remove("exact_combinations");
+        // RT-A3 §4: the certificate goes with the combinations.
+        direct["contract_evidence"].as_object_mut().unwrap().remove("combination_certificate");
+        direct["diagnostics"].as_array_mut().unwrap().retain(|d| !d["id"].as_str().unwrap().starts_with("diagnostic:combination-certificate:"));
         direct["results"].as_array_mut().unwrap().retain(|r| r["basis_ref"]["ref_type"] != "combination");
         direct["diagnostics"].as_array_mut().unwrap().retain(|d| !d["id"].as_str().unwrap().starts_with("diagnostic:exact-combination:"));
         let mut model = case["model"].clone();

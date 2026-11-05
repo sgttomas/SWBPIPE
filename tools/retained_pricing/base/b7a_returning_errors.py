@@ -69,13 +69,13 @@ SOURCES = {
 SITES = [
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 12142,
+    "line": 12169,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:12100:exact_straight_summary_extrema",
-    "short": "lib.rs:12142",
-    "from": "lib.rs:12100:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:12127:exact_straight_summary_extrema",
+    "short": "lib.rs:12169",
+    "from": "lib.rs:12127:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:5267:solve_prepared_load_case",
+      "core/product_physics/src/lib.rs:5282:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
       "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
       'core/product_physics/src/retained_product.rs:6191:prepared_maxima'
@@ -83,13 +83,13 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 12148,
+    "line": 12175,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:12100:exact_straight_summary_extrema",
-    "short": "lib.rs:12148",
-    "from": "lib.rs:12100:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:12127:exact_straight_summary_extrema",
+    "short": "lib.rs:12175",
+    "from": "lib.rs:12127:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:5267:solve_prepared_load_case",
+      "core/product_physics/src/lib.rs:5282:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
       "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
       'core/product_physics/src/retained_product.rs:6191:prepared_maxima'
@@ -97,13 +97,13 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 12811,
+    "line": 12838,
     "kind": "to_string",
-    "owner": "core/product_physics/src/lib.rs:12792:recover_curved_bend_local_forces",
-    "short": "lib.rs:12811",
-    "from": "lib.rs:12792:recover_curved_bend_local_forces",
+    "owner": "core/product_physics/src/lib.rs:12819:recover_curved_bend_local_forces",
+    "short": "lib.rs:12838",
+    "from": "lib.rs:12819:recover_curved_bend_local_forces",
     "parents": [
-      "core/product_physics/src/lib.rs:5267:solve_prepared_load_case"
+      "core/product_physics/src/lib.rs:5282:solve_prepared_load_case"
     ]
   },
   {
@@ -202,7 +202,10 @@ MODE_SOURCE = {
            # DEL-04-09 I2b-2 layout (§8.43, cc160d28d): only retained_w1 moves 4093 -> 4095 (LoadCaseSolve's field lines).
            "f46428f2d45e7f8b0eeb8146088dbcba51de859df59254b47f0115d62bd13eff",
            # DEL-04-09 I2b-2 on RT-U4's candidate (§8.48): only retained_w1 moves 4093 -> 4102 (both of the above).
-           "5e0e619dd96c9c104cfb90bc952736836e4618f5a86d87c48e500717a5920b6d"},
+           "5e0e619dd96c9c104cfb90bc952736836e4618f5a86d87c48e500717a5920b6d",
+           # RT-A3 §4 D3 (§8.53): only retained_w1 moves 4102 -> 4117 (the certificate's module lines, LoadCaseSolve
+           # field, operand map, take and publish call precede it).
+           "811786a5d537254c6d7b5838b1302ef1c3576297b63262a9a6eae1b76fe91326"},
 }
 
 

@@ -871,6 +871,250 @@ fn k1_legacy_zero_product_rows_keep_the_dense_zero_sign_and_range_refusal() {
     assert!(outcomes.contains(&0.0_f64.to_bits()) && outcomes.contains(&(-0.0_f64).to_bits()));
 }
 
+/// RT-A3 P (K6/K1 for the nonlinear loop): the option-(c) binary64 binding on
+/// the pattern. The preparation equals `prepare_structural_binary64` entry for
+/// entry (rhs bits, exponents, matrix, audit, projection) and the fixed-order
+/// factor and completion equal the dense ones in `Debug`, on every model
+/// (settled rows fold nonzero prescribed products in binary64; the tree's
+/// prescribed list is not in DOF order), with and without contributions, with
+/// and without formation allowances.
+#[test]
+fn p_binary64_binding_is_byte_identical_for_a_fixed_order() {
+    for (name, model) in models() {
+        let pair = Pair::new(&model);
+        for contributions in [false, true] {
+            let ctx = format!("{name} contributions={contributions} binary64");
+            let ds = pair.dense_system(contributions);
+            let ss = pair.sparse_system(contributions);
+            let solved = solve_both(
+                prepare_structural_binary64(&ds),
+                prepare_sparse_structural_binary64(&ss),
+                &ctx,
+            );
+            assert!(matches!(solved, Some(Ok(_))), "{ctx}: {solved:?}");
+            let bare_dense = StructuralSystem {
+                symmetry: None,
+                ..pair.dense_system(contributions)
+            };
+            let bare_sparse = SparseStructuralSystem::new(
+                &pair.sparse,
+                &pair.force,
+                &pair.free,
+                &pair.prescribed,
+                contributions.then_some(pair.contributions.as_slice()),
+                None,
+            );
+            solve_both(
+                prepare_structural_binary64(&bare_dense),
+                prepare_sparse_structural_binary64(&bare_sparse),
+                &format!("{ctx} bare"),
+            );
+            // The residual entry (product equilibrium's) agrees row for row.
+            if let Some(Ok(solution)) = solved {
+                assert_eq!(
+                    format!("{:?}", evaluate_original_residual(&ds, &solution.displacements)),
+                    format!(
+                        "{:?}",
+                        evaluate_sparse_original_residual(&ss, &solution.displacements)
+                    ),
+                    "{ctx}: residual"
+                );
+            }
+        }
+    }
+}
+
+/// RT-A3 P: the binary64 fold is the dense one term for term, so the dense
+/// signed-zero rule, its subnormal refusal and the order of a cancelling fold
+/// all carry over, on rows with stored and unstored prescribed columns and
+/// prescribed lists in and out of DOF order.
+#[test]
+fn p_binary64_rows_keep_the_dense_fold_sign_range_and_order() {
+    let k = vec![
+        vec![4.0, 0.0, 1.5, 3.0],
+        vec![0.0, 4.0, 0.0, 0.0],
+        vec![1.5, 0.0, 4.0, 0.0],
+        vec![3.0, 0.0, 0.0, 4.0],
+    ];
+    let sparse = SparseStiffness::from_dense(&k).unwrap();
+    let tiny = f64::MIN_POSITIVE / 4.0;
+    let mut outcomes = std::collections::BTreeSet::new();
+    let mut refusals = 0;
+    for force0 in [-0.0, 0.0, 1.0, tiny, -tiny, 1e300] {
+        for g1 in [0.0, -0.0, 1e-300] {
+            for g2 in [0.0, -0.0, 0.1, -1e300] {
+                for g3 in [0.0, -0.0, 1.0 / 3.0] {
+                    for order in [[1, 2, 3], [3, 1, 2], [2, 3, 1]] {
+                        let values = [0.0, g1, g2, g3];
+                        let prescribed: Vec<(usize, f64)> =
+                            order.iter().map(|&d| (d, values[d])).collect();
+                        let force = [force0, 0.0, 0.0, 0.0];
+                        let free = [0];
+                        let ds = StructuralSystem {
+                            stiffness: &k,
+                            force: &force,
+                            free_dofs: &free,
+                            prescribed: &prescribed,
+                            contributions: None,
+                            contribution_groups: None,
+                            symmetry: None,
+                        };
+                        let ss = SparseStructuralSystem::new(
+                            &sparse, &force, &free, &prescribed, None, None,
+                        );
+                        let d = prepare_structural_binary64(&ds);
+                        let s = prepare_sparse_structural_binary64(&ss);
+                        let ctx = format!("f={force0:?} g=({g1:?},{g2:?},{g3:?}) order={order:?}");
+                        match (&d, &s) {
+                            (Ok(d), Ok(s)) => {
+                                assert_eq!(bits(&d.rhs), bits(&s.rhs), "{ctx}");
+                                outcomes.insert(d.rhs[0].to_bits());
+                            }
+                            _ => {
+                                refusals += 1;
+                                assert_eq!(
+                                    format!("{:?}", d.as_ref().err()),
+                                    format!("{:?}", s.as_ref().err()),
+                                    "{ctx}"
+                                );
+                            }
+                        }
+                        let dense = crate::reduce_system_with_prescribed_displacements_binary64(
+                            &k,
+                            &force,
+                            &prescribed.iter().map(|p| p.0).collect::<Vec<_>>(),
+                            &prescribed.iter().map(|p| p.1).collect::<Vec<_>>(),
+                        );
+                        let pattern = reduce_sparse_system_with_prescribed_displacements_binary64(
+                            &sparse,
+                            &force,
+                            &prescribed.iter().map(|p| p.0).collect::<Vec<_>>(),
+                            &prescribed.iter().map(|p| p.1).collect::<Vec<_>>(),
+                        );
+                        match (dense, pattern) {
+                            (Ok(d), Ok(p)) => {
+                                assert_eq!(d.free_dofs, p.free_dofs, "{ctx}");
+                                assert_eq!(bits(&d.force), bits(&p.force), "{ctx}: reduction");
+                            }
+                            (d, p) => assert_eq!(
+                                format!("{:?}", d.err()),
+                                format!("{:?}", p.err()),
+                                "{ctx}: reduction"
+                            ),
+                        }
+                    }
+                }
+            }
+        }
+    }
+    // Not vacuous: both signs of a zero right-hand side occur, and so do refusals.
+    assert!(outcomes.contains(&0.0_f64.to_bits()) && outcomes.contains(&(-0.0_f64).to_bits()));
+    assert!(refusals > 0);
+}
+
+/// RT-A3 P: the binary64 reduction's checks, in the dense order, with the
+/// dense errors.
+#[test]
+fn p_binary64_reduction_refuses_as_the_dense_reduction() {
+    let model = chain(3, 200e9, 0.004);
+    let pair = Pair::new(&model);
+    let dofs: Vec<usize> = pair.prescribed.iter().map(|p| p.0).collect();
+    let values: Vec<f64> = pair.prescribed.iter().map(|p| p.1).collect();
+    let both = |force: &[f64], dofs: &[usize], values: &[f64], ctx: &str| {
+        let d = crate::reduce_system_with_prescribed_displacements_binary64(
+            &pair.dense, force, dofs, values,
+        );
+        let s = reduce_sparse_system_with_prescribed_displacements_binary64(
+            &pair.sparse, force, dofs, values,
+        );
+        match (d, s) {
+            (Ok(d), Ok(s)) => {
+                assert_eq!(d.free_dofs, s.free_dofs, "{ctx}");
+                assert_eq!(bits(&d.force), bits(&s.force), "{ctx}");
+                None
+            }
+            (d, s) => {
+                let d = format!("{:?}", d.err());
+                assert_eq!(d, format!("{:?}", s.err()), "{ctx}");
+                Some(d)
+            }
+        }
+    };
+    assert_eq!(both(&pair.force, &dofs, &values, "ordinary"), None);
+    let mut bad = pair.force.clone();
+    bad[7] = f64::NAN;
+    assert!(both(&bad, &dofs, &values, "nan force").is_some());
+    assert!(both(&pair.force[1..], &dofs, &values, "short force").is_some());
+    assert!(both(&pair.force, &dofs, &values[1..], "short values").is_some());
+    let mut inf = values.clone();
+    inf[0] = f64::INFINITY;
+    assert!(both(&pair.force, &dofs, &inf, "infinite value").is_some());
+    let mut out = dofs.clone();
+    out[0] = 10_000;
+    assert!(both(&pair.force, &out, &values, "out of range").is_some());
+    let mut repeated = dofs.clone();
+    repeated[1] = repeated[0];
+    assert!(both(&pair.force, &repeated, &values, "repeated").is_some());
+    let mut huge = values.clone();
+    huge[1] = f64::MAX;
+    assert!(both(&pair.force, &dofs, &huge, "adjusted overflow").is_some());
+}
+
+/// RT-A3 P step 3: a kept factor completes further right-hand sides of the
+/// same prepared matrix exactly as separate solves do (the SD RCM order and
+/// skyline, here the natural order, are functions of the matrix), and refuses
+/// a prepared system whose matrix differs.
+#[test]
+fn p_a_shared_factor_completes_other_right_hand_sides_as_separate_solves() {
+    for (name, model) in models() {
+        let pair = Pair::new(&model);
+        let first = pair.sparse_system(true);
+        let prepared = prepare_sparse_structural_binary64(&first).unwrap();
+        let dense_system = pair.dense_system(true);
+        let (order, first_columns) =
+            natural_profile(&prepare_structural_binary64(&dense_system).unwrap());
+        let factor = factor_sparse_structural_profile(&prepared, &order, &first_columns).unwrap();
+        let separate_first = finish_sparse_structural(&factor).unwrap();
+        let shared = factor.share();
+        assert_eq!(
+            format!("{separate_first:?}"),
+            format!("{:?}", finish_sparse_structural_on(&shared, &prepared).unwrap()),
+            "{name}: first"
+        );
+        for scale in [1.0, -0.5, 3.0] {
+            let force: Vec<f64> = pair.force.iter().enumerate().map(|(i, f)| f * scale + i as f64).collect();
+            let other = SparseStructuralSystem::new(
+                &pair.sparse,
+                &force,
+                &pair.free,
+                &pair.prescribed,
+                Some(&pair.contributions),
+                Some(pair.sparse_evidence()),
+            );
+            let prepared = prepare_sparse_structural_binary64(&other).unwrap();
+            let separate = factor_sparse_structural_profile(&prepared, &order, &first_columns)
+                .and_then(|f| finish_sparse_structural(&f));
+            assert_eq!(
+                format!("{separate:?}"),
+                format!("{:?}", finish_sparse_structural_on(&shared, &prepared)),
+                "{name}: scale {scale}"
+            );
+        }
+        // Another matrix (the stiffness tripled) is refused.
+        let doubled = SparseStiffness::from_dense(
+            &pair.dense.iter().map(|row| row.iter().map(|v| 3.0 * v).collect()).collect::<Vec<Vec<f64>>>(),
+        )
+        .unwrap();
+        let other = SparseStructuralSystem::new(&doubled, &pair.force, &pair.free, &pair.prescribed, None, None);
+        if let Ok(prepared) = prepare_sparse_structural_binary64(&other) {
+            assert!(matches!(
+                finish_sparse_structural_on(&shared, &prepared),
+                Err(StructuralError::InvalidInput("prepared matrix differs from the shared factor's"))
+            ), "{name}");
+        }
+    }
+}
+
 fn dense_multiply(k: &[Vec<f64>], u: &[f64]) -> Vec<f64> {
     k.iter()
         .map(|row| row.iter().zip(u).map(|(a, b)| a * b).sum())

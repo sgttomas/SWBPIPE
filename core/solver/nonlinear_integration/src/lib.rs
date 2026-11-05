@@ -11,13 +11,17 @@ pub mod product_equilibrium;
 #[cfg(test)]
 mod dense_memory_guard_tests;
 #[cfg(test)]
+mod p_tests;
+#[cfg(test)]
 mod s11k_tests;
 pub mod structural_adapter;
 use open_pipe_stress_frame_kernel::load_ledger::AssembledForce;
 use open_pipe_stress_frame_kernel::structural::{
-    StructuralError, StructuralReport, StructuralSystem,
+    assemble_sparse_stiffness, reduce_sparse_system_with_prescribed_displacements_binary64,
+    SharedSparseFactor, SparseAssemblyOptions, SparseStiffness, StiffnessBlock, StructuralError,
+    StructuralReport, StructuralSystem,
 };
-use structural_adapter::{AssemblyEvidence, StrictGapEvidence};
+use structural_adapter::{AssemblyEvidence, SparseAssemblyEvidence, StrictGapEvidence};
 
 use open_pipe_stress_curved_bend::CurvedBendMacroElement;
 use open_pipe_stress_frame_kernel::{
@@ -369,7 +373,7 @@ struct ProductCompletion {
     input: NonlinearFrameSolveInput,
     springs: Vec<(usize, f64)>,
     mode: LinearSolveMode,
-    original_stiffness: DenseMatrix,
+    original_stiffness: LoopStiffness,
     final_force: DenseVector,
     free_dofs: Vec<usize>,
     prescribed: Vec<(usize, f64)>,
@@ -449,14 +453,17 @@ impl From<NonlinearSupportError> for NonlinearIntegrationError {
 }
 
 /// §8.30 correction 2 (RT-U4, RT-A2; R-4 design C-6 and §3.6): the leading
-/// dense storage of the active-set loop, in bytes per entry. In both solver
-/// modes the loop holds the dense global stiffness and, inside FK's
-/// `prepare_bound` audit, its two dense symmetry views and the contribution
-/// sums and differences (`Expansion`, 32 + 32): 8 + 16 + 64 = 88 bytes per
-/// global entry. The prepared matrix and the loop's reduced copy add 8 + 8 = 16
-/// bytes per free entry. This is a leading-buffer estimate, not a complete
-/// memory bound: vectors, the model, results, the friction coupling solves'
-/// transient state and the process itself are not counted.
+/// dense storage of the dense-scrutiny active-set loop, in bytes per entry. That
+/// loop holds the dense global stiffness and, inside FK's `prepare_bound` audit,
+/// its two dense symmetry views and the contribution sums and differences
+/// (`Expansion`, 32 + 32): 8 + 16 + 64 = 88 bytes per global entry. The prepared
+/// matrix and the loop's reduced copy add 8 + 8 = 16 bytes per free entry. This
+/// is a leading-buffer estimate, not a complete memory bound: vectors, the
+/// model, results, the friction coupling solves' transient state and the
+/// process itself are not counted. Since R-4 stage P the sparse-interactive loop
+/// runs on the sparse pattern and holds none of these dense buffers; the same
+/// estimate and limit are deliberately kept as its admission cap until the
+/// owner's O-2 decision on heavy-run evidence (R-4 §6.3).
 pub const DENSE_LOOP_BYTES_PER_GLOBAL_ENTRY: u128 = 88;
 /// See [`DENSE_LOOP_BYTES_PER_GLOBAL_ENTRY`].
 pub const DENSE_LOOP_BYTES_PER_FREE_ENTRY: u128 = 16;
@@ -464,8 +471,8 @@ pub const DENSE_LOOP_BYTES_PER_FREE_ENTRY: u128 = 16;
 /// product's per-invocation memory budget on the 16 GiB base machine (owner,
 /// 2026-10-11; DEL-04-07 Design `memory-budget-decision.md`), less the 0.9 M
 /// qualification margin, which leaves 0.1 M for what the estimate does not
-/// count. It admits about 1,759 nodes when every DOF is free. To be revisited
-/// with R-4 stage P (the sparse nonlinear loop).
+/// count. It admits about 1,759 nodes when every DOF is free. It applies in
+/// both modes; in sparse mode it is the retained admission cap described above.
 pub const DENSE_LOOP_MEMORY_CEILING_BYTES: u128 = 12 * (1 << 30) * 9 / 10;
 
 /// The loop's memory guard refusal: the estimate's inputs and its value
@@ -486,7 +493,7 @@ impl fmt::Display for DenseLoopMemoryRefusal {
             .map_or("more than u128::MAX".to_string(), |value| value.to_string());
         write!(
             f,
-            "nonlinear dense loop memory guard: estimated leading dense storage {estimated} bytes ({DENSE_LOOP_BYTES_PER_GLOBAL_ENTRY} bytes x {}^2 global DOFs + {DENSE_LOOP_BYTES_PER_FREE_ENTRY} bytes x {}^2 free DOFs) exceeds the provisional limit {} bytes; the model is refused before any n^2 allocation. The estimate counts the loop's leading dense buffers only and is not a complete memory bound; the limit is provisional until the sparse nonlinear loop (R-4 stage P)",
+            "nonlinear dense loop memory guard: estimated leading dense storage {estimated} bytes ({DENSE_LOOP_BYTES_PER_GLOBAL_ENTRY} bytes x {}^2 global DOFs + {DENSE_LOOP_BYTES_PER_FREE_ENTRY} bytes x {}^2 free DOFs) exceeds the provisional limit {} bytes; the model is refused before any n^2 allocation. The estimate counts the dense loop's leading buffers only and is not a complete memory bound; in sparse mode the same limit is kept as a provisional admission cap pending the owner's decision (R-4 \u{a7}6.3 O-2)",
             shown(self.global_dofs),
             shown(self.free_dofs),
             self.ceiling_bytes,
@@ -704,6 +711,63 @@ pub fn solve_active_set_frame_with_mode_and_springs(
     linear_solve_mode: LinearSolveMode,
     springs: &[(usize, f64)],
 ) -> Result<NonlinearFrameSolveResult, NonlinearIntegrationError> {
+    let result = solve_active_set_loop(input, linear_solve_mode, springs);
+    #[cfg(test)]
+    shadow_pattern_loop_check(input, linear_solve_mode, springs, &result);
+    result
+}
+
+/// Tests only (RT-A3 P): every sparse-mode loop solve of this crate's tests
+/// is re-run on today's dense-derived sequence (the dense K and evidence, the
+/// dense binary64 preparation and SD's skyline LDL of it), and the pattern
+/// loop's result must equal it in `Debug` (the completion's stiffness, the
+/// one field that records the representation, aside).
+#[cfg(test)]
+fn shadow_pattern_loop_check(
+    input: &NonlinearFrameSolveInput,
+    linear_solve_mode: LinearSolveMode,
+    springs: &[(usize, f64)],
+    result: &Result<NonlinearFrameSolveResult, NonlinearIntegrationError>,
+) {
+    if linear_solve_mode != LinearSolveMode::SparseInteractive
+        || LOOP_REPRESENTATION_OVERRIDE.with(|cell| cell.get()).is_some()
+    {
+        return;
+    }
+    LOOP_REPRESENTATION_OVERRIDE.with(|cell| cell.set(Some(LoopRepresentation::Dense)));
+    let reference = solve_active_set_loop(input, linear_solve_mode, springs);
+    LOOP_REPRESENTATION_OVERRIDE.with(|cell| cell.set(None));
+    SHADOW_CHECKS.with(|cell| cell.set(cell.get() + 1));
+    let strip = |result: &Result<NonlinearFrameSolveResult, NonlinearIntegrationError>| {
+        format!(
+            "{:?}",
+            result.as_ref().map(|solve| {
+                let mut solve = solve.clone();
+                if let Some(completion) = solve.completion.as_mut() {
+                    completion.original_stiffness = LoopStiffness::Dense(Vec::new());
+                }
+                solve
+            })
+        )
+    };
+    assert_eq!(
+        strip(result),
+        strip(&reference),
+        "RT-A3 P: the pattern loop differs from the dense-derived loop in sparse mode"
+    );
+}
+
+#[cfg(test)]
+thread_local! {
+    /// Tests only: the number of shadow comparisons made on this thread.
+    static SHADOW_CHECKS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+}
+
+fn solve_active_set_loop(
+    input: &NonlinearFrameSolveInput,
+    linear_solve_mode: LinearSolveMode,
+    springs: &[(usize, f64)],
+) -> Result<NonlinearFrameSolveResult, NonlinearIntegrationError> {
     // §8.30 correction 2: in both modes, before the first n^2 allocation and
     // ahead of `validate_input`, whose DOF count is unchecked arithmetic: an
     // overflowing node count refuses here instead of panicking there.
@@ -715,32 +779,8 @@ pub fn solve_active_set_frame_with_mode_and_springs(
     .map_err(NonlinearIntegrationError::DenseMemoryLimitExceeded)?;
     validate_input(input)?;
 
-    let mut stiffness = assemble_global_stiffness_with_connectors(
-        input.node_count,
-        &input.elements,
-        &input.connectors,
-    )?;
-    add_curved_bend_stiffness_contributions(&mut stiffness, &input.curved_bend_elements);
-    for &(dof, value) in springs {
-        validate_nonnegative_finite("linear spring stiffness", value)?;
-        if dof >= stiffness.len() {
-            return Err(NonlinearIntegrationError::InvalidInput {
-                detail: "linear spring DOF is outside the assembled system".to_string(),
-            });
-        }
-        stiffness[dof][dof] += value;
-    }
-    for value in stiffness.iter().flatten() {
-        validate_finite("assembled stiffness", *value)?;
-    }
-
-    let assembly = AssemblyEvidence::new(
-        input.node_count,
-        &input.elements,
-        &input.connectors,
-        &input.curved_bend_elements,
-        springs,
-    )?;
+    let system = LoopSystem::assemble(input, springs, loop_representation(linear_solve_mode))?;
+    let gap_views = system.gap_views(input);
     let mut exact_gap_remaining_work = structural_adapter::GAP_RUN_WORK_LIMIT;
     let mut current_states = normalized_initial_states(input)?;
     let recovery_eligible = eligible_contact_dofs(
@@ -773,9 +813,8 @@ pub fn solve_active_set_frame_with_mode_and_springs(
         let sliding_force_deferred = iterations.is_empty()
             && sliding_friction_support_present(&input.nonlinear_supports, &current_states);
         let attempted_solve = solve_iteration_with_sliding_friction_evidence(
-            &assembly,
+            &system,
             input,
-            &stiffness,
             &boundary,
             &current_states,
             iterations.last(),
@@ -785,7 +824,7 @@ pub fn solve_active_set_frame_with_mode_and_springs(
         );
         let mut sliding_solve = match attempted_solve {
             Err(error)
-                if matches!(&error, NonlinearIntegrationError::Structural(error) if structural_adapter::permits_contact_seed_trial(error, assembly.qualified_passive_family()))
+                if matches!(&error, NonlinearIntegrationError::Structural(error) if structural_adapter::permits_contact_seed_trial(error, system.qualified_passive_family()))
                     && iteration_index == 1
                     && recovery_eligible
                     && current_states
@@ -812,9 +851,8 @@ pub fn solve_active_set_frame_with_mode_and_springs(
                     &all_active,
                 )?;
                 let trial = solve_iteration_with_sliding_friction_evidence(
-                    &assembly,
+                    &system,
                     input,
-                    &stiffness,
                     &boundary,
                     &all_active,
                     None,
@@ -839,8 +877,7 @@ pub fn solve_active_set_frame_with_mode_and_springs(
         };
         let strict_gap = structural_adapter::scrutinize_gaps(
             input,
-            &assembly,
-            &stiffness,
+            &system.gap_source(gap_views.as_ref()),
             &boundary,
             &current_states,
             iteration_index,
@@ -973,7 +1010,7 @@ pub fn solve_active_set_frame_with_mode_and_springs(
                 input: input.clone(),
                 springs: springs.to_vec(),
                 mode: linear_solve_mode,
-                original_stiffness: stiffness.clone(),
+                original_stiffness: system.stiffness(),
                 final_force,
                 free_dofs,
                 prescribed,
@@ -1085,7 +1122,7 @@ fn product_completion_matches_source(
     add_applied_forces(&mut actual_force, &last.applied_sliding_friction_forces);
     if actual_prescribed != receipt.prescribed
         || actual_force != receipt.final_force
-        || receipt.original_stiffness.len() != input.force.len()
+        || receipt.original_stiffness.dimension() != input.force.len()
     {
         return Ok(false);
     }
@@ -1498,10 +1535,13 @@ fn solve_iteration_with_sliding_friction(
         &input.curved_bend_elements,
         &[],
     )?;
+    let system = LoopSystem::Dense {
+        stiffness: stiffness.clone(),
+        assembly,
+    };
     solve_iteration_with_sliding_friction_evidence(
-        &assembly,
+        &system,
         input,
-        stiffness,
         boundary,
         states,
         previous,
@@ -1511,10 +1551,14 @@ fn solve_iteration_with_sliding_friction(
     )
 }
 
+/// The loop's per-iteration step (RT-A3 P, kept one unit for a held solve):
+/// the assembled `system`, a given support-state assignment `states` with the
+/// previous iterate that orients its sliding forces, and the requested mode.
+/// It solves the base and unit-load coupling right-hand sides and the final
+/// one on `system`'s representation.
 fn solve_iteration_with_sliding_friction_evidence(
-    assembly: &AssemblyEvidence,
+    system: &LoopSystem,
     input: &NonlinearFrameSolveInput,
-    stiffness: &DenseMatrix,
     boundary: &BoundaryState,
     states: &[SupportStateRecord],
     previous: Option<&NonlinearFrameIteration>,
@@ -1556,16 +1600,19 @@ fn solve_iteration_with_sliding_friction_evidence(
 
     let mut base_force = input.force.clone();
     add_applied_forces(&mut base_force, &explicit_forces);
+    // RT-A3 P step 3: the iterate's one factor (sparse mode), kept from its
+    // first solve for the coupling and final right-hand sides.
+    let mut shared = None;
 
     let mut solved_derived_forces = HashMap::new();
     let mut assumed_branches = HashMap::new();
     if !derived_candidates.is_empty() {
-        let base = solve_linearized_system_evidence(
-            Some(assembly),
-            stiffness,
+        let base = system.solve_iterate(
             &base_force,
             boundary,
-            LinearSolveMode::DenseScrutiny,
+            coupling_mode(linear_solve_mode),
+            Role::Coupling,
+            &mut shared,
         )?;
         let base_reactions = reported_reactions(&base.reactions, &explicit_forces)?;
 
@@ -1593,12 +1640,12 @@ fn solve_iteration_with_sliding_friction_evidence(
             let load_candidate = &candidates[load_candidate_index];
             let mut unit_force = base_force.clone();
             unit_force[load_candidate.global_dof] += 1.0;
-            let unit = solve_linearized_system_evidence(
-                Some(assembly),
-                stiffness,
+            let unit = system.solve_iterate(
                 &unit_force,
                 boundary,
-                LinearSolveMode::DenseScrutiny,
+                coupling_mode(linear_solve_mode),
+                Role::Coupling,
+                &mut shared,
             )?;
             let mut unit_applied = explicit_forces.clone();
             unit_applied.push(AppliedSlidingFrictionForce {
@@ -1676,13 +1723,8 @@ fn solve_iteration_with_sliding_friction_evidence(
 
     let mut final_force = input.force.clone();
     add_applied_forces(&mut final_force, &applied_forces);
-    let linearized = solve_linearized_system_evidence(
-        Some(assembly),
-        stiffness,
-        &final_force,
-        boundary,
-        linear_solve_mode,
-    )?;
+    let linearized =
+        system.solve_iterate(&final_force, boundary, linear_solve_mode, Role::Final, &mut shared)?;
     let reactions = reported_reactions(&linearized.reactions, &applied_forces)?;
 
     let mut derived_branch_admissibility = HashMap::new();
@@ -2199,6 +2241,435 @@ pub(crate) fn ground_offset(ground_motion: &[(String, f64)], support_id: &str) -
         .map(|&(_, value)| value)
 }
 
+/// RT-A3 P: the representation the loop holds. Dense scrutiny keeps the dense
+/// K and `AssemblyEvidence` (unchanged); sparse interactive holds the pattern
+/// (`assemble_sparse_stiffness`, entries bit-identical to the dense ones) and
+/// `SparseAssemblyEvidence` (allowances bit-identical), with no n^2 buffer.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum LoopRepresentation {
+    Dense,
+    Pattern,
+}
+
+#[cfg(test)]
+thread_local! {
+    /// Tests only: the dense-derived loop in sparse mode (today's sequence),
+    /// the reference the pattern loop is compared with bit for bit.
+    static LOOP_REPRESENTATION_OVERRIDE: std::cell::Cell<Option<LoopRepresentation>> =
+        const { std::cell::Cell::new(None) };
+}
+
+fn loop_representation(mode: LinearSolveMode) -> LoopRepresentation {
+    #[cfg(test)]
+    if let Some(representation) = LOOP_REPRESENTATION_OVERRIDE.with(|cell| cell.get()) {
+        return representation;
+    }
+    match mode {
+        LinearSolveMode::DenseScrutiny => LoopRepresentation::Dense,
+        LinearSolveMode::SparseInteractive => LoopRepresentation::Pattern,
+    }
+}
+
+#[cfg(test)]
+thread_local! {
+    /// Tests only: the coupling solves' mode before RT-A3 P step 4
+    /// (`DenseScrutiny` in both modes), to measure the declared move of φ⁰.
+    static COUPLING_MODE_OVERRIDE: std::cell::Cell<Option<LinearSolveMode>> =
+        const { std::cell::Cell::new(None) };
+}
+
+/// RT-A3 P step 4: the derived-normal coupling solves (base and unit loads)
+/// run in the requested mode. Until P they were `DenseScrutiny` in both modes,
+/// so φ⁰ was mode-independent; in sparse mode it is now the skyline LDL's
+/// (a declared move: each solve still passes its own M03 gate, and the
+/// published friction row is Stage A/B's certified value).
+fn coupling_mode(linear_solve_mode: LinearSolveMode) -> LinearSolveMode {
+    #[cfg(test)]
+    if let Some(mode) = COUPLING_MODE_OVERRIDE.with(|cell| cell.get()) {
+        return mode;
+    }
+    linear_solve_mode
+}
+
+/// The loop's assembled stiffness, as the result's completion records it.
+#[derive(Debug, Clone, PartialEq)]
+enum LoopStiffness {
+    Dense(DenseMatrix),
+    Pattern(SparseStiffness),
+}
+
+impl LoopStiffness {
+    fn dimension(&self) -> usize {
+        match self {
+            Self::Dense(k) => k.len(),
+            Self::Pattern(k) => k.dimension(),
+        }
+    }
+}
+
+/// What a solve of the step is for: a coupling solve's reactions only, or the
+/// iterate's published solve (with the DEC-050/053 observation).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Role {
+    Coupling,
+    Final,
+}
+
+enum LoopSystem {
+    Dense {
+        stiffness: DenseMatrix,
+        assembly: AssemblyEvidence,
+    },
+    Pattern {
+        stiffness: SparseStiffness,
+        assembly: SparseAssemblyEvidence,
+    },
+}
+
+impl LoopSystem {
+    /// The loop's assembly. `Dense` is today's sequence; `Pattern` gives the
+    /// same values (K6 D1, K1) and the same errors in the same order: the
+    /// frame and connector formation first, then the springs' checks, then
+    /// the assembled entries' finiteness.
+    fn assemble(
+        input: &NonlinearFrameSolveInput,
+        springs: &[(usize, f64)],
+        representation: LoopRepresentation,
+    ) -> Result<Self, NonlinearIntegrationError> {
+        match representation {
+            LoopRepresentation::Dense => {
+                let mut stiffness = assemble_global_stiffness_with_connectors(
+                    input.node_count,
+                    &input.elements,
+                    &input.connectors,
+                )?;
+                add_curved_bend_stiffness_contributions(&mut stiffness, &input.curved_bend_elements);
+                for &(dof, value) in springs {
+                    validate_nonnegative_finite("linear spring stiffness", value)?;
+                    if dof >= stiffness.len() {
+                        return Err(NonlinearIntegrationError::InvalidInput {
+                            detail: "linear spring DOF is outside the assembled system".to_string(),
+                        });
+                    }
+                    stiffness[dof][dof] += value;
+                }
+                for value in stiffness.iter().flatten() {
+                    validate_finite("assembled stiffness", *value)?;
+                }
+
+                let assembly = AssemblyEvidence::new(
+                    input.node_count,
+                    &input.elements,
+                    &input.connectors,
+                    &input.curved_bend_elements,
+                    springs,
+                )?;
+                Ok(Self::Dense { stiffness, assembly })
+            }
+            LoopRepresentation::Pattern => {
+                let blocks = input
+                    .curved_bend_elements
+                    .iter()
+                    .map(|element| StiffnessBlock {
+                        node_i: element.node_i,
+                        node_j: element.node_j,
+                        stiffness: element.global_stiffness,
+                    })
+                    .collect::<Vec<_>>();
+                let dimension = input.node_count * DOF_PER_NODE;
+                let spring_refusal = springs.iter().find_map(|&(dof, value)| {
+                    validate_nonnegative_finite("linear spring stiffness", value)
+                        .err()
+                        .or_else(|| {
+                            (dof >= dimension).then(|| NonlinearIntegrationError::InvalidInput {
+                                detail: "linear spring DOF is outside the assembled system"
+                                    .to_string(),
+                            })
+                        })
+                });
+                if let Some(refusal) = spring_refusal {
+                    // The dense order: the frame assembly's own refusal first.
+                    assemble_sparse_stiffness(
+                        input.node_count,
+                        &input.elements,
+                        &input.connectors,
+                        &blocks,
+                        &[],
+                        &SparseAssemblyOptions::new(),
+                    )?;
+                    return Err(refusal);
+                }
+                let stiffness = assemble_sparse_stiffness(
+                    input.node_count,
+                    &input.elements,
+                    &input.connectors,
+                    &blocks,
+                    springs,
+                    &SparseAssemblyOptions::new(),
+                )?;
+                // Row-major, stored entries only (an unstored entry is +0.0).
+                for &value in stiffness.values() {
+                    validate_finite("assembled stiffness", value)?;
+                }
+                let assembly = SparseAssemblyEvidence::new(
+                    stiffness.pattern(),
+                    input.node_count,
+                    &input.elements,
+                    &input.connectors,
+                    &input.curved_bend_elements,
+                    springs,
+                )?;
+                Ok(Self::Pattern { stiffness, assembly })
+            }
+        }
+    }
+
+    fn qualified_passive_family(&self) -> bool {
+        match self {
+            Self::Dense { assembly, .. } => assembly.qualified_passive_family(),
+            Self::Pattern { assembly, .. } => assembly.qualified_passive_family(),
+        }
+    }
+
+    fn stiffness(&self) -> LoopStiffness {
+        match self {
+            Self::Dense { stiffness, .. } => LoopStiffness::Dense(stiffness.clone()),
+            Self::Pattern { stiffness, .. } => LoopStiffness::Pattern(stiffness.clone()),
+        }
+    }
+
+    /// The pattern loop's dense views for the strict-gap proof, formed once,
+    /// only when the model has a gap support.
+    fn gap_views(&self, input: &NonlinearFrameSolveInput) -> Option<structural_adapter::GapViews> {
+        match self {
+            Self::Pattern { stiffness, assembly }
+                if input
+                    .nonlinear_supports
+                    .iter()
+                    .any(|s| matches!(s.behavior, NonlinearSupportBehavior::Gap { .. })) =>
+            {
+                Some(structural_adapter::GapViews::new(assembly, stiffness))
+            }
+            _ => None,
+        }
+    }
+
+    fn gap_source<'a>(
+        &'a self,
+        views: Option<&'a structural_adapter::GapViews>,
+    ) -> structural_adapter::GapSource<'a> {
+        match (self, views) {
+            (Self::Dense { stiffness, assembly }, _) => {
+                structural_adapter::GapSource::dense(assembly, stiffness)
+            }
+            (Self::Pattern { assembly, .. }, Some(views)) => views.source(assembly),
+            (Self::Pattern { assembly, .. }, None) => structural_adapter::GapSource {
+                qualified_passive_family: assembly.qualified_passive_family(),
+                stiffness: &[],
+                contributions: assembly.contributions(),
+                contribution_groups: assembly.contribution_groups(),
+                absolute_roundoff: &[],
+                operation_counts: &[],
+            },
+        }
+    }
+
+    /// One linearized solve of the step on this representation.
+    fn solve_iterate(
+        &self,
+        force: &DenseVector,
+        boundary: &BoundaryState,
+        linear_solve_mode: LinearSolveMode,
+        role: Role,
+        shared: &mut Option<SharedSparseFactor>,
+    ) -> Result<LinearizedSolve, NonlinearIntegrationError> {
+        match self {
+            Self::Dense { stiffness, assembly } => solve_linearized_system_evidence(
+                Some(assembly),
+                stiffness,
+                force,
+                boundary,
+                linear_solve_mode,
+            ),
+            Self::Pattern { stiffness, assembly } => solve_linearized_pattern_evidence(
+                assembly,
+                stiffness,
+                force,
+                boundary,
+                linear_solve_mode,
+                role,
+                shared,
+            ),
+        }
+    }
+}
+
+/// RT-A3 P: `solve_linearized_system_evidence` on the pattern. The binary64
+/// reduction, the binary64 solve, product equilibrium and the reactions are
+/// the dense loop's bit for bit (FK and SD's K1/K6 binary64 regressions); the
+/// DEC-050/053 observation reads the same free entries from the pattern. A
+/// coupling solve (only its reactions are read) skips the observation, which
+/// never refuses and is discarded there.
+fn solve_linearized_pattern_evidence(
+    assembly: &SparseAssemblyEvidence,
+    stiffness: &SparseStiffness,
+    force: &DenseVector,
+    boundary: &BoundaryState,
+    linear_solve_mode: LinearSolveMode,
+    role: Role,
+    shared: &mut Option<SharedSparseFactor>,
+) -> Result<LinearizedSolve, NonlinearIntegrationError> {
+    let reduced = reduce_sparse_system_with_prescribed_displacements_binary64(
+        stiffness,
+        force,
+        &boundary.dofs,
+        &boundary.displacements,
+    )?;
+    let prescribed = boundary
+        .dofs
+        .iter()
+        .copied()
+        .zip(boundary.displacements.iter().copied())
+        .collect::<Vec<_>>();
+    // Sparse mode: one factor per iterate (step 3); dense scrutiny of a
+    // pattern system (only reached through the test-only old coupling)
+    // factors per solve.
+    let checked = match linear_solve_mode {
+        LinearSolveMode::SparseInteractive => assembly.solve_binary64_shared(
+            stiffness,
+            force,
+            &reduced.free_dofs,
+            &prescribed,
+            shared,
+        )?,
+        LinearSolveMode::DenseScrutiny => assembly.solve_binary64(
+            stiffness,
+            force,
+            &reduced.free_dofs,
+            &prescribed,
+            linear_solve_mode,
+        )?,
+    };
+    let displacements = checked.displacements;
+    let product_equilibrium = assembly.product_equilibrium_binary64(
+        stiffness,
+        force,
+        &reduced.free_dofs,
+        &prescribed,
+        &displacements,
+    )?;
+    let sparse_evidence = match (role, linear_solve_mode) {
+        (Role::Coupling, _) => sparse_evidence_unavailable(
+            reduced.force.len(),
+            "not observed: a coupling solve, whose reactions alone are read".to_string(),
+            linear_solve_mode,
+        ),
+        (Role::Final, LinearSolveMode::SparseInteractive) => observe_sparse_entries(
+            pattern_reduced_profile_entries(stiffness, &reduced.free_dofs),
+            &reduced.force,
+            None,
+            linear_solve_mode,
+        ),
+        (Role::Final, LinearSolveMode::DenseScrutiny) => {
+            let dense = pattern_reduced_dense(stiffness, &reduced.free_dofs);
+            match solve_dense(&dense, &reduced.force) {
+                Ok(legacy_dense) => observe_sparse_entries(
+                    pattern_reduced_profile_entries(stiffness, &reduced.free_dofs),
+                    &reduced.force,
+                    Some(&legacy_dense),
+                    linear_solve_mode,
+                ),
+                Err(error) => sparse_evidence_unavailable(
+                    reduced.force.len(),
+                    format!("legacy DEC050/053 dense reference unavailable: {error}"),
+                    linear_solve_mode,
+                ),
+            }
+        }
+    };
+    let reactions: DenseVector = stiffness
+        .multiply(&displacements)?
+        .into_iter()
+        .zip(force.iter())
+        .map(|(internal, applied)| internal - applied)
+        .collect();
+    for value in displacements.iter().chain(reactions.iter()) {
+        validate_finite("computed displacement or reaction", *value)?;
+    }
+    let max_abs_free_dof_force_residual =
+        max_abs_by_dof_group(&reactions, &reduced.free_dofs, true);
+    let max_abs_free_dof_moment_residual =
+        max_abs_by_dof_group(&reactions, &reduced.free_dofs, false);
+    let max_abs_free_dof_work_residual =
+        max_abs_free_dof_work_residual(&reactions, &displacements, &reduced.free_dofs);
+
+    validate_finite("free DOF work residual", max_abs_free_dof_work_residual)?;
+    Ok(LinearizedSolve {
+        product_equilibrium,
+        structural_report: checked.report,
+        displacements,
+        reactions,
+        max_abs_free_dof_force_residual,
+        max_abs_free_dof_moment_residual,
+        max_abs_free_dof_work_residual,
+        sparse_evidence,
+    })
+}
+
+/// `direct_reduced_profile_entries` from the pattern: row r's stored free
+/// columns c <= r, ascending (the free map is ascending, so this is the dense
+/// order), nonzero values only, with the dense refusal of a non-finite entry.
+fn pattern_reduced_profile_entries(
+    stiffness: &SparseStiffness,
+    free_dofs: &[usize],
+) -> Result<Vec<SymmetricMatrixEntry>, String> {
+    let mut position = vec![usize::MAX; stiffness.dimension()];
+    for (reduced, &global) in free_dofs.iter().enumerate() {
+        position[global] = reduced;
+    }
+    let mut entries = Vec::new();
+    for (reduced_row, &global_row) in free_dofs.iter().enumerate() {
+        for (global_col, value) in stiffness.row(global_row) {
+            let reduced_col = position[global_col];
+            if reduced_col == usize::MAX || reduced_col > reduced_row {
+                continue;
+            }
+            if !value.is_finite() {
+                return Err(format!(
+                    "direct reduced sparse entry ({reduced_row}, {reduced_col}) is non-finite"
+                ));
+            }
+            if value == 0.0 {
+                continue;
+            }
+            entries.push(SymmetricMatrixEntry {
+                row: reduced_row,
+                col: reduced_col,
+                value,
+            });
+        }
+    }
+    Ok(entries)
+}
+
+/// The dense reduced stiffness of the pattern's free block, for the legacy
+/// dense LU observation (dense scrutiny of a pattern system only).
+fn pattern_reduced_dense(stiffness: &SparseStiffness, free_dofs: &[usize]) -> DenseMatrix {
+    let mut position = vec![usize::MAX; stiffness.dimension()];
+    for (reduced, &global) in free_dofs.iter().enumerate() {
+        position[global] = reduced;
+    }
+    let mut dense = vec![vec![0.0; free_dofs.len()]; free_dofs.len()];
+    for (reduced_row, &global_row) in free_dofs.iter().enumerate() {
+        for (global_col, value) in stiffness.row(global_row) {
+            if position[global_col] != usize::MAX {
+                dense[reduced_row][position[global_col]] = value;
+            }
+        }
+    }
+    dense
+}
+
 #[cfg(test)]
 fn solve_linearized_system(
     stiffness: &DenseMatrix,
@@ -2337,7 +2808,22 @@ fn observe_sparse_linearized_solve(
     dense_solution: Option<&[f64]>,
     linear_solve_mode: LinearSolveMode,
 ) -> SparseLinearSolveEvidence {
-    let entries = match direct_reduced_profile_entries(global_stiffness, free_dofs) {
+    observe_sparse_entries(
+        direct_reduced_profile_entries(global_stiffness, free_dofs),
+        reduced_force,
+        dense_solution,
+        linear_solve_mode,
+    )
+}
+
+/// The DEC-050/053 observation of the given reduced entries.
+fn observe_sparse_entries(
+    entries: Result<Vec<SymmetricMatrixEntry>, String>,
+    reduced_force: &[f64],
+    dense_solution: Option<&[f64]>,
+    linear_solve_mode: LinearSolveMode,
+) -> SparseLinearSolveEvidence {
+    let entries = match entries {
         Ok(entries) => entries,
         Err(error) => {
             return sparse_evidence_unavailable(reduced_force.len(), error, linear_solve_mode);
@@ -5271,10 +5757,13 @@ mod tests {
                 &input.initial_states,
             )
             .unwrap();
+            let system = LoopSystem::Dense {
+                stiffness: stiffness.clone(),
+                assembly: assembly.clone(),
+            };
             let mut solved = solve_iteration_with_sliding_friction_evidence(
-                &assembly,
+                &system,
                 &input,
-                &stiffness,
                 &boundary,
                 &input.initial_states,
                 None,
@@ -5287,8 +5776,7 @@ mod tests {
             let mut budget = 0;
             let evidence = structural_adapter::scrutinize_gaps(
                 &input,
-                &assembly,
-                &stiffness,
+                &structural_adapter::GapSource::dense(&assembly, &stiffness),
                 &boundary,
                 &input.initial_states,
                 1,
@@ -5305,8 +5793,7 @@ mod tests {
             let mut budget = structural_adapter::GAP_RUN_WORK_LIMIT;
             let evidence = structural_adapter::scrutinize_gaps(
                 &duplicated,
-                &assembly,
-                &stiffness,
+                &structural_adapter::GapSource::dense(&assembly, &stiffness),
                 &boundary,
                 &duplicated.initial_states,
                 1,
