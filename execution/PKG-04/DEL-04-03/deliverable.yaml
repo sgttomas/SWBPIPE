@@ -138,9 +138,12 @@ code_paths:
 # in the nonlinear loop and the K-D5 intended-map check.
 - core/solver/nonlinear_integration/src/lib.rs
 - core/solver/nonlinear_integration/src/confirmation.rs
+# R-6/R-7 skewed restraints (Design skew-restraints.md): the independent references.
+- validation/references/skew_restraints/**
 checks:
 - core/solver/linear_supports/src/lib.rs
 - core/product_physics/tests/w16_imposed_motion.rs
 - core/product_physics/src/w16_nonlinear_motion_tests.rs
 - core/solver/nonlinear_integration/src/confirmation_tests.rs
 - validation/references/w16_nonlinear_motion/generators/w16_nl_reference.py
+- validation/references/skew_restraints/generators/skew_reference.py
