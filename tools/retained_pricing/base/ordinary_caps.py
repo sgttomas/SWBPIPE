@@ -144,6 +144,11 @@ if _o4:
 import rta4_owners_model as _rta4_pv
 if _snapshot and _rta4_pv.inspect(_snapshot) and which == "caps":
     PREVIEW = PREVIEW + value_tree(*_rta4_pv.derivation_value(__import__("g3lib").g4_caps().get("z", 0)))
+# RT-A3 §4 D3 (§8.53, RTA3C-MV): the combination certificate member in the envelope evidence at z >= 1.
+import rta3c_owners_model as _rta3c_pv
+if _snapshot and _rta3c_pv.inspect(_snapshot) and which == "caps":
+    _c3_mv = _rta3c_pv.member_value(__import__("g3lib").g4_caps().get("lc", CC), __import__("g3lib").g4_caps().get("z", 0), m, g, 64)
+    PREVIEW = PREVIEW + value_tree(*_c3_mv[:5])
 T = {}   # text atoms (values from TEXT.md)
 def tx(name):
     return atom("Text(" + name + ")")
@@ -580,6 +585,21 @@ if _snapshot and _rta4_model.inspect(_snapshot):
         add("Combination callee plan, buffers and published operand rows (RT-A4-CB)", "AggregationSuffix",
             _rta4_model.callee(_a4_c, _a4_z, P, g))
         add("Combination derivation evidence transient (RT-A4-DV)", "AggregationSuffix", _rta4_model.derivation(_a4_c, _a4_z))
+# RT-A3 §4 D3 (retained-pricing-rules.md §8.53): the certificate's case-id vector (RTA3C-CI, every z) and, on route L with
+# combinations, the formed operands (RTA3C-OP, held from the case solves to aggregation: priced in each later phase) and
+# publish's transient (RTA3C-PB) (rta3c_owners_model binds the modules and statements).
+import rta3c_owners_model as _rta3c_model
+if _snapshot and _rta3c_model.inspect(_snapshot):
+    for _k, _v in _rta3c_model.ASSUMED.items():
+        ASSUMED.setdefault(_k, _v)
+    _c3_z = _mc.get("z", 0) if which == "caps" else 0
+    _c3_c = _mc.get("lc", CC) if which == "caps" else 1
+    add("Certificate case-id vector (RTA3C-CI)", "AggregationSuffix", _rta3c_model.case_ids(_c3_c))
+    if _c3_z:
+        for _ph in ("OldCaseStaging", "PreviewRewrite", "AggregationSuffix"):
+            add("Certificate operand groups (RTA3C-OP, " + _ph + ")", _ph, _rta3c_model.operands(_c3_c, _c3_z, m, g))
+        add("Certificate publication transient (RTA3C-PB)", "AggregationSuffix",
+            _rta3c_model.publish(_c3_c, _c3_z, m, g, P, PA, value_tree))
 # Model document 0.9.0 D3 (retained-pricing-rules.md §8.36): the lowering's views, findings and operand resolution
 # (S1-VW) and the withholding pass (S1-WH), once per ordinary run, priced positively where the reviewed modules exist
 # (s1_owners_model binds their bytes and the two calls).

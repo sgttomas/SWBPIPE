@@ -1451,12 +1451,6 @@
     "source": "IN128"
    }
   },
-  "core/product_physics/src/lib.rs:2735": {
-   "load_case_id": {
-    "bytes": 128,
-    "source": "IN128"
-   }
-  },
   "core/product_physics/src/lib.rs:2741": {
    "row.id": {
     "bytes": 1024,

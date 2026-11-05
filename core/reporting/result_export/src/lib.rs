@@ -1703,6 +1703,10 @@ mod preview_combination_gates;
 pub mod section_basis;
 mod preview_physics_evidence;
 mod preview_combination_operands;
+// RT-A3 §4 (DEL-05-02 Work `combination-certificate.md`).
+mod combination_certificate;
+/// RT-A3 §4: the combination identities a document states (the report's supplemental-text boundary).
+pub use combination_certificate::{document_combination_identities, in_retained_base_read};
 // Operating-case slice 1b (DEL-05-02 `operating-case.md` §1.2): the declared difference basis.
 mod preview_difference_basis;
 mod preview_held_status;

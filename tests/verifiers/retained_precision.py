@@ -53,7 +53,7 @@ EXACT_DEFINITION_ID = "RP-PREPARED-EXACT-DUAL-v1"
 # T4-U6: DEF-E states zero mill tolerance and lists the reduced-basis rows and both headlines; the table follows the
 # inherited pressure-2 table's per-basis rows.
 EXACT_DEFINITION_HASH = "b60e69d4995c11274c53800e4d5d1e04b05c8d1aa3029f5017d7f0ea41bf047c"
-EXACT_TABLE_HASH = "85c2678a78e794b44761c11efb73c215645c7e2560d802ac8ad6075e7804c691"
+EXACT_TABLE_HASH = "320dc3f1f75944af8b66da1287e6f8ee5e1fcd5fe005752f2c90bf8c89a9c894"
 RECEIPT_POLICY = "M03-INTEGRITY-MP-v2"
 # The current model document version the namespace gates accept (b7-plan "Current model format").
 MODEL_VERSION = "0.9.0"
@@ -2665,7 +2665,8 @@ def _g3_combinations(snapshot, body, ids, crows):
 def _g4_combinations(combos, diags):
     """CONTRACT §10.1 G4 (DIAGNOSTIC_MISMATCH): one RETAINED_PRECISION_SELECTED per `retained_selected` and one
     RETAINED_PRECISION_UNAVAILABLE per `retained_unavailable` combination, each naming exactly that combination;
-    none for an `ordinary` or `base_withheld` one; an unavailable entry's `diagnostic_ref` is its diagnostic's id."""
+    none for an `ordinary` or `base_withheld` one; an unavailable entry's `diagnostic_ref` is its diagnostic's id. Their
+    message text is not checked (RT-A3 §4: Work `combination-certificate.md` §2)."""
     need = lambda ok: _need(ok, "G4", "DIAGNOSTIC_MISMATCH")
     for entry in combos:
         cid, disposition = entry["basis_ref"]["ref_id"], entry["disposition"]
@@ -3275,7 +3276,12 @@ def _gates_after_g0(snapshot, receipt, schema, invocation, route, raw=True, stat
             # CONTRACT §10.1 G6: recovery_method exactly on a retained_selected combination's rows.
             for row in all_rows[c["basis_ref"]["ref_id"]]:_need(row.get("recovery_method")==METHOD if c["disposition"]=="retained_selected" else "recovery_method" not in row,state["gate"],"ROW_METHOD_MISMATCH")
         state["gate"]="G7";projected=_project(snapshot,route)
-        try:_source_contract(projected)
+        # RT-A3 §4 (Work `combination-certificate.md` §2): the base read runs in the retained read context, without the
+        # roster's text closure (Rust `retained_base_read`). G7 is base consistency only: it attests no combination
+        # diagnostic prose, which G4 (codes, cardinalities, refs) and G5 (membership) do not bind either.
+        from .combination_certificate import retained_base_read
+        try:
+            with retained_base_read():_source_contract(projected)
         except ValueError as exc:
             text=str(exc);match=re.match(r"[A-Z][A-Z0-9_]*",text)
             error=RetainedPrecisionError("G7",match.group(0) if match else route.base_invalid);error.detail=text

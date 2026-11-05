@@ -3513,7 +3513,7 @@
     {
      "path": [
       "diagnostics",
-      9,
+      10,
       "affected_refs",
       0
      ],
@@ -3523,7 +3523,7 @@
     {
      "path": [
       "diagnostics",
-      9,
+      10,
       "id"
      ],
      "op": "set",
@@ -8793,7 +8793,7 @@
     {
      "path": [
       "diagnostics",
-      9,
+      10,
       "affected_refs",
       0
      ],
@@ -8803,7 +8803,7 @@
     {
      "path": [
       "diagnostics",
-      9,
+      10,
       "id"
      ],
      "op": "set",

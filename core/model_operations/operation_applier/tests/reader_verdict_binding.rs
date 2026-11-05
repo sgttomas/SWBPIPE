@@ -201,6 +201,12 @@ fn e17_magnitude_controls_through_the_reader_binding() {
             let mut s = statement();
             let combination = "invented:e17:combination";
             s["contract_evidence"]["combination_gates"] = json!([{"combination_id": combination, "withheld": false, "reason": null}]);
+            // RT-A3 §4's roster (DEL-05-02 Work combination-certificate.md §2): a preview document with a combination
+            // carries the producer's canonical headline-scope notice naming it (§8.53 found these controls without it).
+            s["diagnostics"].as_array_mut().unwrap().push(json!({"id": "diagnostic:preview-physics:headline-scope",
+                "code": "PREVIEW_HEADLINE_SCOPE_LOAD_CASES", "severity": "info",
+                "message": "headlines cover the load cases only; combinations are excluded", "source": "core/product_physics",
+                "affected_refs": [combination]}));
             let (entity, cbasis) = ("invented:e17:combined", json!({"ref_type": "combination", "ref_id": combination}));
             let unit = if target == force { "N" } else if target == moment { "N*m" } else { "mm" };
             let names = if target == force { ["Fx", "Fy", "Fz"] } else if target == moment { ["Mx", "My", "Mz"] }

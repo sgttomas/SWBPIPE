@@ -69,8 +69,11 @@ import runpy
 # text other than the identity is added.
 # RT-A3 increment 4 D3 (§8.49, RTA3NL-PIN): RE lib.rs declares `mod nonlinear_support_evidence` (one line);
 # retained_precision.rs moves its EXACT_TABLE_HASH constant (physics-retained-1). No member-load owner changes.
+# RT-A3 §4 D3 (§8.53): retained_product.rs's preview freeze admits the certificate's optional member in its closed
+# evidence-key list (two lines rewritten in place); RE lib.rs declares combination_certificate and retained_precision.rs
+# wraps G7's for_source in the base-read context. No member-load owner changes.
 SOURCE_FILES = {
-    "core/product_physics/src/retained_product.rs": 'cf3a1240ee380d8bb4e6999c101e224fe740ea7eb50f24a54f531ab987b9908c',
+    "core/product_physics/src/retained_product.rs": '7f8ac0d3654432e08e419619fe04a391c2776e7a7dfe01cbca067e52e68c505f',
     "core/product_physics/src/retained_wire.rs": "1e1e60a02279771574f84df2b45628622936774a879a092842faa1e2f5f0f937",
     "core/product_physics/src/retained_receipt.rs": "bf10f382e247fe84164dac5916e0b6fc69134e4b4934fd832132f59e86ca7251",
     # RT-A4 D3 (§8.46): RE lib.rs declares combination_graph, preview_combination_gates and recorded_tables; retained_precision.rs
@@ -78,8 +81,8 @@ SOURCE_FILES = {
     # member-load owner changes.
     # Operating-case slice 1b (§8.51): RE lib.rs declares preview_difference_basis; retained_precision.rs changes only its
     # TABLE_HASH constant. No member-load owner changes.
-    "core/reporting/result_export/src/lib.rs": "a1699800cb4d7afa278460e9b6c27cc6fc5015e8dee7b33528c5943f0a4df23c",
-    "core/reporting/result_export/src/retained_precision.rs": "7db0e51bb75fade20acfa33912da776e583a8c1a996ab8e89405e87caecacda5",
+    "core/reporting/result_export/src/lib.rs": "4cc4ce8f620e5936cbec0327513d7a0e8265acbc3111758515206fcdbdb5811d",
+    "core/reporting/result_export/src/retained_precision.rs": "157bb3d3954dab4a80e81c182eeabea22d0d29118462f0283c1f20d5ea56f251",
     "core/reporting/result_export/src/declared_member_load.rs": '93787b8894f752cd4c577c58513449471672956e934d35157e31178e9c53a52c',
     "core/solver/frame_kernel/src/structural/retained_resource.rs": "ca0516b5b88ed0d55abf9780c0782f42acd68f4f80b73543415c920fd3da5b7b",
     "core/solver/frame_kernel/src/structural/retained/source.rs": "053b59579d6d5a2c18026029d6a8c8648617a341a2787f6f248ce0d5c4379053",

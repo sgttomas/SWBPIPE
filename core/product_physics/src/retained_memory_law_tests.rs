@@ -826,7 +826,7 @@ fn pressure_schema_is_the_only_nonresident_binding() {
     let schema_hash = format!("{:x}", Sha256::digest(schema_bytes));
     // B7b A5: the result schema takes v3 only. T4-U6 (462b777b22): it carries the D-5
     // geometry, per-basis records and limitations (reviewed input #10, re-bound at D3).
-    assert_eq!(schema_hash, "3dd8523f2f03cd72e9dbeb10955e9492711cf1334ba8d1dc4919d4ba2512b416");
+    assert_eq!(schema_hash, "612bb8167b89bc582f14dc1c29e56b6fab15197234b55a69d6e5fb416259f341");
     let compiled = COMPILED_REVIEWED_INPUTS.expect("build.rs sets all current inputs");
     let tokens: Vec<_> = compiled.split(';').collect();
     assert_eq!(tokens.len(), build_identity::REVIEWED_INPUT_COUNT + 1);
@@ -899,6 +899,11 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     // RT-A5 `minuend_final` (DEL-05-02 `operating-case.md` §7.8 item 3) moves #4, #5 and #12 (the three
     // preview tables' combination policy v4: the held-status gates, gate precedence, the subtraction's
     // held tail and the held_status_operand basis); its D3 registration records these bytes.
+    // RT-A3 §4 (DEL-05-02 Work `combination-certificate.md`, the combination certificate) moves #8
+    // (physics-retained-1's inherited pressure-2 digest), #10 (the pressure-2 result schema's
+    // combination_certificate member) and #11 (pressure-2's restated combination standing and limitation);
+    // the registered profile is Stale until its D3 registration records these bytes (with P's, after
+    // #105B, PF1b and I3a).
     const REVIEWED: [&str; build_identity::REVIEWED_INPUT_COUNT] = [
         "b7ebb02aafa8cfe214c18bc64941381b33ab3f9295e0fc774ee0819e1e4f5653",
         "ae45b97742fd463866d8f231004f2053834d5bd413a1430e766f24516d3569ac",
@@ -908,10 +913,10 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "563db3c7c44279face3adc60a76a512de38520357e89ea4b49ad11d20946db89",
         "fe371e07cd727154235f3725eeeef393ad0a433f0e8c98656f98468940d9aea2",
         "8d48e3d97bc4f69bf9b0da58db7538b0661cf52d05f771dc126be2c3cca8c163",
-        "85c2678a78e794b44761c11efb73c215645c7e2560d802ac8ad6075e7804c691",
+        "320dc3f1f75944af8b66da1287e6f8ee5e1fcd5fe005752f2c90bf8c89a9c894",
         "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9",
-        "3dd8523f2f03cd72e9dbeb10955e9492711cf1334ba8d1dc4919d4ba2512b416",
-        "2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645",
+        "612bb8167b89bc582f14dc1c29e56b6fab15197234b55a69d6e5fb416259f341",
+        "21b7426ec1c50ba5f74539984261554d06b9b6a26ec26f7d5765b5faa7d6bb90",
         "f64473f5a60ac2bb34d8006b40bf044800f0c97454c570bbe88d1f1d96b7bdfc",
     ];
     // The same files, read here at compile time (test-only), by the sha2 dependency.
@@ -1865,6 +1870,176 @@ fn late_facts_read_the_actual_owners() {
 
 // ---- G5 part 2: the generated profile ---------------------------------------------
 
+// ---- BEGIN GENERATED POINT ATOMS (tools/retained_pricing/base/g5_profile.py --point-atoms; do not edit by hand) ----
+/// retained-pricing-rules.md §8.53: the atoms the separate points L(2,1) and L(1,2) use beyond the merged profile's,
+/// bound by g5_profile.py's BIND exactly as the profile binds its own, so that `price.py eval` evaluates every point
+/// at in-build values (`profile_point_atoms_in_build` prints them as I65_G5_ATOM lines). Test-only: no product code
+/// reads them, and the registered profile, its record and its laws are unchanged by them.
+pub(super) mod point_atoms {
+    #![allow(clippy::all, dead_code)]
+    use crate::retained_memory::profile::{btree_node_upper, Binding};
+    use open_pipe_stress_frame_kernel::structural::retained_resource as fkr;
+    use serde_json::Value;
+    use std::mem::{align_of, size_of};
+
+    const fn up(x: usize, a: usize) -> usize {
+        (x + a - 1) / a * a
+    }
+    const fn max_usize(a: usize, b: usize) -> usize {
+        if a > b { a } else { b }
+    }
+    pub(crate) const ATOMS: usize = 31;
+    pub(crate) const ATOM_NAMES: [&str; ATOMS] = [
+        "Node(String,(String,CaseRows))",
+        "Node(String,BTreeMap)",
+        "Node(String,CaseRows)",
+        "s((&str,&str))",
+        "s((&str,FixedLoadCount))",
+        "s((&str,PublishedTails))",
+        "s((&str,String))",
+        "s((String,&Value))",
+        "s((String,&str,Operand))",
+        "s((String,bool))",
+        "s((String,f64))",
+        "s((usize,ActionScales))",
+        "s(C3CaseKey)",
+        "s(C3Derived)",
+        "s(C3FormedEntry)",
+        "s(C3OperandEntry)",
+        "s(C3OperandGroup)",
+        "s(C3PerOperand)",
+        "s(C3RDerived)",
+        "s(C3ROperandEntry)",
+        "s(C3ROperandGroup)",
+        "s(C3RowsOf)",
+        "s(C3SourcesKey)",
+        "s(C3Triple)",
+        "s(CombinationView)",
+        "s(Finding)",
+        "s(FixedLoadCount)",
+        "s(GateRecord)",
+        "s(PublishedBase)",
+        "s(Target)",
+        "s(TermView)",
+    ];
+    pub(crate) const ATOM_BINDINGS: [Binding; ATOMS] = [
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::SourceUpper,
+        Binding::SourceUpper,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::SourceUpper,
+        Binding::SourceUpper,
+        Binding::InBuild,
+        Binding::SourceUpper,
+        Binding::InBuild,
+        Binding::SourceUpper,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::SourceUpper,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+    ];
+    pub(crate) const ATOM_VALUES: [u64; ATOMS] = [
+        (btree_node_upper(size_of::<String>(), align_of::<String>(), size_of::<(String, std::collections::HashMap<&'static str, &'static Value>)>(), align_of::<(String, std::collections::HashMap<&'static str, &'static Value>)>())) as u64, // Node(String,(String,CaseRows)) (BUILD.md §4: max(Leaf_up, Internal_up) at the in-build size and alignment of K and V)
+        (btree_node_upper(size_of::<String>(), align_of::<String>(), size_of::<std::collections::BTreeMap<String, String>>(), align_of::<std::collections::BTreeMap<String, String>>())) as u64, // Node(String,BTreeMap) (BUILD.md §4: max(Leaf_up, Internal_up) at the in-build size and alignment of K and V)
+        (btree_node_upper(size_of::<String>(), align_of::<String>(), size_of::<std::collections::HashMap<&'static str, &'static Value>>(), align_of::<std::collections::HashMap<&'static str, &'static Value>>())) as u64, // Node(String,CaseRows) (BUILD.md §4: max(Leaf_up, Internal_up) at the in-build size and alignment of K and V)
+        (size_of::<(&'static str, &'static str)>()) as u64, // s((&str,&str))
+        (size_of::<(&'static str, open_pipe_stress_load_case_algebra::FixedLoadCount)>()) as u64, // s((&str,FixedLoadCount))
+        (size_of::<(&'static str, std::collections::HashMap<String, &'static Value>)>()) as u64, // s((&str,PublishedTails))
+        (size_of::<(&'static str, String)>()) as u64, // s((&str,String))
+        (size_of::<(String, &'static Value)>()) as u64, // s((String,&Value))
+        (size_of::<(String, &'static str, crate::document_members::Operand)>()) as u64, // s((String,&str,Operand))
+        (size_of::<(String, bool)>()) as u64, // s((String,bool))
+        (size_of::<(String, f64)>()) as u64, // s((String,f64))
+        (size_of::<(usize, crate::formation_guard::ActionScales)>()) as u64, // s((usize,ActionScales))
+        (5 * size_of::<&'static str>() + size_of::<Vec<usize>>()) as u64, // s(C3CaseKey) (RTA3C-PB/RD: a case-row index entry ((case, kind, entity, location, Option<&str> component), Vec<usize>))
+        (size_of::<Value>() + size_of::<Vec<usize>>() + 2 * size_of::<f64>() + size_of::<&'static str>()) as u64, // s(C3Derived) (RTA3C-PB: the producer's private Derived (json, rows, bound, floor_scale, verdict))
+        (size_of::<((String, String, String, usize), usize)>()) as u64, // s(C3FormedEntry)
+        (size_of::<(String, crate::combination_certificate::Operand)>()) as u64, // s(C3OperandEntry)
+        (size_of::<crate::combination_certificate::OperandGroup>()) as u64, // s(C3OperandGroup)
+        (size_of::<&'static u8>() + size_of::<f64>() + size_of::<Vec<u8>>()) as u64, // s(C3PerOperand) (RTA3C-PB/RD: one (&group, bound, coverage) per operand)
+        (size_of::<Value>() + size_of::<Vec<usize>>() + 2 * size_of::<f64>()) as u64, // s(C3RDerived) (RTA3C-RD: the reader's private Derived (json, rows, bound, floor_scale))
+        (size_of::<(&'static str, Vec<u8>)>()) as u64, // s(C3ROperandEntry)
+        (3 * size_of::<&'static str>() + 2 * size_of::<f64>() + size_of::<Option<f64>>()) as u64, // s(C3ROperandGroup) (RTA3C-RD: the reader's private OperandGroup (entity, location, group; q, floor_scale; bound))
+        (size_of::<(&'static str, Vec<usize>)>()) as u64, // s(C3RowsOf)
+        (size_of::<&'static str>() + size_of::<Vec<&'static str>>() + size_of::<Vec<usize>>()) as u64, // s(C3SourcesKey) (RTA3C-PB/RD: a by-sources entry ((combination, Vec<&str> sources), Vec<usize>))
+        (size_of::<(&'static str, &'static str, &'static str)>()) as u64, // s(C3Triple)
+        (size_of::<crate::document_members::CombinationView<'static>>()) as u64, // s(CombinationView)
+        (size_of::<crate::document_members::Finding>()) as u64, // s(Finding)
+        (size_of::<open_pipe_stress_load_case_algebra::FixedLoadCount>()) as u64, // s(FixedLoadCount)
+        (3 * size_of::<&'static str>() + 2 * size_of::<Vec<u8>>()) as u64, // s(GateRecord) (RT-A4-RD: preview_combination_gates' private Record (id, basis: &str; operands, terms: Vec; mode: Option<&str>, the size of a &str))
+        (size_of::<(String, std::collections::HashMap<String, crate::ResultItem>)>()) as u64, // s(PublishedBase)
+        (size_of::<crate::combination_plan::Target<'static>>()) as u64, // s(Target)
+        (size_of::<crate::document_members::TermView<'static>>()) as u64, // s(TermView)
+    ];
+    /// The points' illustrative strides, for the record only (never an evaluation input).
+    pub(crate) const ATOM_ASSUMED: [u64; ATOMS] = [
+        1100,
+        640,
+        800,
+        32,
+        56,
+        64,
+        40,
+        32,
+        56,
+        32,
+        32,
+        24,
+        104,
+        88,
+        88,
+        48,
+        112,
+        40,
+        72,
+        40,
+        80,
+        40,
+        64,
+        48,
+        112,
+        112,
+        40,
+        96,
+        72,
+        24,
+        16,
+    ];
+}
+// ---- END GENERATED POINT ATOMS ----
+
+#[test]
+fn profile_point_atoms_in_build() {
+    // §8.53: the merged profile is the maximum over L(3,0) and E(3); the separate points L(2,1) and L(1,2) must stay
+    // at or below it in every phase and mode (retained_pricing README, "Merge"), at in-build values. Their atoms
+    // beyond the profile's are bound here by the generator's own bindings and printed beside the profile's
+    // (`profile_in_build_record`), so `price.py eval` reads every atom of every point from this build.
+    use point_atoms::*;
+    for i in 0..ATOMS {
+        assert!(!profile::ATOM_NAMES.contains(&ATOM_NAMES[i]), "{} is the profile's own atom", ATOM_NAMES[i]);
+        assert!(ATOM_BINDINGS[i] != profile::Binding::Estimate, "{} has no in-build binding", ATOM_NAMES[i]);
+        assert!(ATOM_VALUES[i] > 0, "{} binds to zero bytes", ATOM_NAMES[i]);
+        println!("I65_G5_ATOM {:?}\t{}\t{}\t{}", ATOM_BINDINGS[i], ATOM_NAMES[i], ATOM_VALUES[i], ATOM_ASSUMED[i]);
+    }
+}
+
 #[test]
 fn profile_transcribes_the_python_chain_exactly() {
     // Under the chain's own illustrative values, the generated expressions reproduce its
@@ -2048,9 +2223,14 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 // §8.51: operating-case slice 1b on RT-U4's §8.50 candidate (the three preview tables' combination policy v3
 // in STATICS: four static owners, +7,116 B, +12 Node(String,Value) and +48 s(Value)): +17,484 B in every phase
 // and mode, from maintained eval at the same 328 in-build atoms, without R.
+// §8.53: RT-A3 P and the §4 combination certificate (STATICS[1] +561 B, the pressure-2 table's restated
+// standing; O_base +3 s(&str), the case-id vector; TAV_W +194 B, the certificate reader's refusal and P's
+// guard text; TAV_X +86 B, P's guard text; and the in-build s(PreparedCaseResult) 1,888 -> 1,912 B,
+// LoadCaseSolve's certificate_operand, two per case at three cases, +144 B): W1-W5 +947 B, X1-X3 +839 B in
+// both modes, from maintained eval at the same 328 in-build atoms, without R.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_450_322_653, 6_792_317_214, 8_744_053_042, 8_537_769_314, 7_611_465_112, 8_526_302_865, 7_258_920_255, 6_932_210_131],
-    [6_509_453_997, 6_851_448_558, 8_803_184_386, 8_596_900_658, 7_670_596_456, 8_585_434_209, 7_318_051_599, 6_991_341_475],
+    [6_450_323_600, 6_792_318_161, 8_744_053_989, 8_537_770_261, 7_611_466_059, 8_526_303_704, 7_258_921_094, 6_932_210_970],
+    [6_509_454_944, 6_851_449_505, 8_803_185_333, 8_596_901_605, 7_670_597_403, 8_585_435_048, 7_318_052_438, 6_991_342_314],
 ];
 
 #[test]

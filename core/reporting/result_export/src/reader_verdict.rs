@@ -359,10 +359,18 @@ pub fn validate(reader: &str, source: &Value, model: Option<&Value>, invocation:
                     .and_then(|()| crate::preview_combination_operands::model_checks(source, m))
                     // RT-A4 (review r1 P2): the gates and unsigned rows, from the model.
                     .and_then(|()| crate::preview_combination_gates::check(source, Some(m)))
+                    // RT-A3 §4: the certificate's records bound to the model's combinations.
+                    .and_then(|()| crate::combination_certificate::model_checks(source, m))
+                    // RT-A3 §4: the certificate last, after every other check.
+                    .and_then(|()| crate::combination_certificate::check_with(source, Some(m)))
             })
         })),
         // Current pressure-2 reader, then G2's model checks (`pressure_outcome`).
-        "pressure" => pressure_outcome(source, model, sc::validate_pressure_evidence(source)),
+        // RT-A3 §4: with the model, the certificate is read after the model checks.
+        "pressure" => pressure_outcome(source, model, match model {
+            None => sc::validate_pressure_evidence(source),
+            Some(_) => crate::physics_evidence::validate_pressure_evidence_without_certificate(source),
+        }),
         "pressure-source" => {
             let contract = crate::physics_source::SourceContract::PressureV3;
             match source_validate_in(source, invocation, contract) {
@@ -381,8 +389,11 @@ pub fn validate(reader: &str, source: &Value, model: Option<&Value>, invocation:
 /// (`validate_pressure_evidence`'s, read by the caller for this source): the
 /// verdict, then G2's model checks, which read only the cases, members,
 /// connectors and support rows. RT-U4 (single pass): `standing` gives it the
-/// verdict its token read; `validate` reads its own.
+/// evidence pass its token read; `validate` reads its own.
 fn pressure_outcome(source: &Value, model: Option<&Value>, evidence: Result<(), String>) -> Value {
+    // `evidence` is pressure-2's whole evidence verdict without the model, and its
+    // verdict without the certificate with it (RT-A3 §4: the certificate is then read
+    // after the model checks, with the model).
     let check = evidence.and_then(|()| {
         // W-16 slice b (§6): the combination records bound to the model's
         // combinations and its operands' modulus selections.
@@ -390,7 +401,9 @@ fn pressure_outcome(source: &Value, model: Option<&Value>, evidence: Result<(), 
         // model's records and the DEC-067 laws that need their inputs.
         model.map_or(Ok(()), |m| physics_model_checks(source, m).and_then(|()| crate::u4b_evidence::exact_model_checks(source, m))
             .and_then(|()| crate::exact_combination_evidence::model_checks(source, m))
-            .and_then(|()| crate::nonlinear_support_evidence::model_checks(source, m)))
+            .and_then(|()| crate::nonlinear_support_evidence::model_checks(source, m))
+            .and_then(|()| crate::combination_certificate::model_checks(source, m))
+            .and_then(|()| crate::combination_certificate::check_with(source, Some(m))))
     });
     match check {
         Ok(()) => json!({"ok": true}),
@@ -522,7 +535,9 @@ pub fn source_findings(source: &Value, invocation: &Value) -> Vec<&'static str> 
 /// pressure reader's outcome; every other route reads as before. The verdict is a
 /// function of the source alone (its loops run in array or ordered-map order; its
 /// hash maps and sets only count, union, look up or refuse with one code), so the
-/// one verdict is the one each use read before.
+/// one verdict is the one each use read before. RT-A3 §4: the one pass is the
+/// evidence without the certificate; each use then reads the certificate as
+/// `validate` does (without the model for the token).
 pub fn standing(source: &Value, model: Option<&Value>, invocation: Option<&Value>) -> Value {
     let (model, invocation) = (present(model), present(invocation));
     let requested_ids: Vec<&Value> = model
@@ -534,7 +549,12 @@ pub fn standing(source: &Value, model: Option<&Value>, invocation: Option<&Value
         .map(|id| json!({"ref_type": "load_case", "ref_id": id}))
         .collect();
     let routed = route(source);
-    let pressure = matches!(routed, Ok(("pressure", _))).then(|| sc::validate_pressure_evidence(source));
+    // RT-A3 §4: the evidence pass without the certificate is the one pass; the token reads
+    // it with the certificate (`validate_pressure_evidence`'s verdict), and the outcome
+    // reads it so with no model, or with the model-bound certificate after the model checks.
+    let uncertified = matches!(routed, Ok(("pressure", _)))
+        .then(|| crate::physics_evidence::validate_pressure_evidence_without_certificate(source));
+    let pressure = uncertified.clone().map(|verdict| verdict.and_then(|()| crate::combination_certificate::check(source)));
     let token = sc::numerical_use_standing_given(source, &requested_refs, invocation, pressure.as_ref());
     let mut findings: Vec<String> = Vec::new();
     let route = match routed {
@@ -580,7 +600,7 @@ pub fn standing(source: &Value, model: Option<&Value>, invocation: Option<&Value
         }
         _ => {
             let checked = match route {
-                "pressure" => pressure.map(|verdict| pressure_outcome(source, model, verdict)),
+                "pressure" => if model.is_some() { uncertified } else { pressure }.map(|verdict| pressure_outcome(source, model, verdict)),
                 "preview_physics" => Some(validate("preview-physics", source, model, None)),
                 _ => None,
             };

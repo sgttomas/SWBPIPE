@@ -2431,7 +2431,7 @@
     "PressureContractEvidence": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Raw producer contract_evidence for pressure-2 (3.0.0/exact_pressure_v3): pressure regions including realized arcs, connector records and exact cases; a model carrying the load/reference-state group also publishes load_reference_states (load_reference_state.schema.json LoadReferenceStateRecord), and a model with a load combination publishes exact_combinations (W-16 slice b; omitted otherwise). Carriers preserve it verbatim. Closed shape only; cross-binding is executable reader validation.",
+      "description": "Raw producer contract_evidence for pressure-2 (3.0.0/exact_pressure_v3): pressure regions including realized arcs, connector records and exact cases; a model carrying the load/reference-state group also publishes load_reference_states (load_reference_state.schema.json LoadReferenceStateRecord), and a model with a load combination publishes exact_combinations (W-16 slice b; omitted otherwise) and combination_certificate (RT-A3 §4; omitted otherwise). Carriers preserve it verbatim. Closed shape only; cross-binding is executable reader validation.",
       "required": [
         "pressure",
         "connector",
@@ -2468,6 +2468,9 @@
           "items": {
             "$ref": "#/$defs/PressureExactCombination"
           }
+        },
+        "combination_certificate": {
+          "$ref": "#/$defs/CombinationCertificate"
         }
       }
     },
@@ -2860,6 +2863,316 @@
         },
         "section_role": {
           "const": "reference_pipe_section"
+        }
+      }
+    },
+    "CombinationCertificate": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "RT-A3 §4 combination certificate (DEL-05-02 Work combination-certificate.md; operating-case.md §4): present exactly when a solved document has a combination, on preview-physics-2 and pressure-2. operand_cases: each eligible load case (its member bound was formed: Passed, or Sensitive by the recovery guard; never a gap-bearing case before G2) that an assessed combination uses, in numerical_quality order, with its K-D5 groups as published statements: the bound B_g (null when unavailable), the coupled floor scale S*_g, q and the covered row sets of the closed coverage table, each a list of result ids in component order or null. combinations: one record per combination in gate order; an assessed subtraction or mechanics combination over eligible load cases states each derived group's rows, factors_bound (sum |f_i| B_i, rounded upward), rounding_error (the norm of the exact rounding error, rounded upward), bound B_D, q, q_hat, floor_scale, verdict (established within the stated bound against the operand cases' intended systems, not_established, or not_assessed below the floor) and D-6's equal-pressure statement; every other combination is not_assessed with its reason. Non-finite values are null. The derived rows never count towards numerical eligibility (Agent 0, 2026-11-04, decision (b)); uncovered rows remain inspection results. Readers re-derive every combination record bit for bit from the rows and the operand statements.",
+      "required": [
+        "operand_cases",
+        "combinations"
+      ],
+      "properties": {
+        "operand_cases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "load_case_id",
+              "groups"
+            ],
+            "properties": {
+              "load_case_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "groups": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "entity",
+                    "location",
+                    "group",
+                    "moment",
+                    "rows",
+                    "q",
+                    "bound",
+                    "floor_scale"
+                  ],
+                  "properties": {
+                    "entity": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "location": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "group": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "moment": {
+                      "type": "boolean"
+                    },
+                    "rows": {
+                      "type": "array",
+                      "items": {
+                        "oneOf": [
+                          {
+                            "type": "null"
+                          },
+                          {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "q": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "bound": {
+                      "oneOf": [
+                        {
+                          "type": "null"
+                        },
+                        {
+                          "type": "number",
+                          "minimum": 0
+                        }
+                      ]
+                    },
+                    "floor_scale": {
+                      "type": "number",
+                      "minimum": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "combinations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "combination_id",
+              "basis",
+              "expression",
+              "subtrahend_support_state",
+              "assessment",
+              "reason",
+              "groups",
+              "uncovered_row_count"
+            ],
+            "properties": {
+              "combination_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "basis": {
+                "enum": [
+                  "mechanics",
+                  "result_state_subtraction",
+                  "range_envelope",
+                  "absolute_sum",
+                  "srss"
+                ]
+              },
+              "expression": {
+                "type": "object"
+              },
+              "subtrahend_support_state": {
+                "enum": [
+                  null,
+                  "own",
+                  "minuend_final",
+                  "unrecognized"
+                ],
+                "description": "The combination's subtrahend_support_state: null when absent, the token otherwise (unrecognized for any other present value). Any value but null or own holds the subtrahend at another case's support state, a different system from its load case, so the combination is not assessed."
+              },
+              "assessment": {
+                "enum": [
+                  "assessed",
+                  "not_assessed"
+                ]
+              },
+              "reason": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "groups": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "entity",
+                    "location",
+                    "group",
+                    "row_set",
+                    "rows",
+                    "factors_bound",
+                    "rounding_error",
+                    "bound",
+                    "q",
+                    "q_hat",
+                    "floor_scale",
+                    "verdict",
+                    "reason",
+                    "equal_pressure"
+                  ],
+                  "properties": {
+                    "entity": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "location": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "group": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "row_set": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "rows": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "factors_bound": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "rounding_error": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "bound": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "q": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "q_hat": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "floor_scale": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "verdict": {
+                      "enum": [
+                        "established",
+                        "not_established",
+                        "not_assessed"
+                      ]
+                    },
+                    "reason": {
+                      "enum": [
+                        null,
+                        "comparison_unavailable",
+                        "below_floor",
+                        "bound_exceeds_criterion"
+                      ]
+                    },
+                    "equal_pressure": {
+                      "oneOf": [
+                        {
+                          "type": "null"
+                        },
+                        {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "elastic_group"
+                          ],
+                          "properties": {
+                            "elastic_group": {
+                              "oneOf": [
+                                {
+                                  "type": "null"
+                                },
+                                {
+                                  "type": "object",
+                                  "additionalProperties": false,
+                                  "required": [
+                                    "entity",
+                                    "location",
+                                    "group",
+                                    "row_set"
+                                  ],
+                                  "properties": {
+                                    "entity": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    },
+                                    "location": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    },
+                                    "group": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    },
+                                    "row_set": {
+                                      "type": "integer",
+                                      "minimum": 0
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              "uncovered_row_count": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
         }
       }
     }

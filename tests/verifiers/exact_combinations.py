@@ -83,9 +83,10 @@ CONSTANT_EFFORT_OPERAND_MIXED = "CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED"
 NONLINEAR = "NONLINEAR_COMBINATION_REQUIRES_SOLVE"
 GATE_MESSAGES[NONLINEAR] = "Combination withheld: the model has nonlinear supports, so superposing case states is not a solved state."
 STATE_CODE = "nonlinear_support_active_set_state_code"
-DERIVED_TEXT = ("publishes rows derived from case results: they carry no numerical check of their own and never count towards numerical "
-                "eligibility; each operand's standing and numerical findings are stated in contract_evidence.exact_combinations, and the "
-                "headlines and stress maxima cover the load cases only")
+DERIVED_TEXT = ("publishes rows derived from case results: they never count towards numerical eligibility, and only the derived row "
+                "groups that contract_evidence.combination_certificate establishes carry a stated bound; each operand's standing and "
+                "numerical findings are stated in contract_evidence.exact_combinations, and the headlines and stress maxima cover the load "
+                "cases only")
 MAXIMUM_TEXT = "stress maxima and section stress extremes are not combined; combine the signed stress component rows instead"
 INTENSIFIED_TEXT = "intensified measures are never combined (their ranges and combinations follow the owner's rule in T6)"
 EXCLUDED_TEXT = ("this exact-route document has load combinations, so retained-source recovery is not attempted for any of its cases, "

@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "description": "Shared parity vectors for the report's projection of a result's diagnostics (DEL-08-01 Design exact-route-report-sections.md sections 3.6 and 6.3 item 4): the desktop's diagnosticsForSections (apps/desktop/src/features/report/renderableReportInput.ts, vitest reportDiagnostics.parity.test.ts), which builds the report's first Diagnostics entries, and the report package's bindings::expected_report_diagnostics (core/reporting/report_package/src/bindings.rs, test tests/report_diagnostics_parity.rs), which checks them on the exact route, must both turn each vector's source diagnostics into its expected entries. The provenance of each entry is the desktop session's and is not part of the projection, so the expected entries omit it. Hand-written; invented values only. Each vector states its reason.",
+  "description": "Shared parity vectors for the report's projection of a result's diagnostics (DEL-08-01 Design exact-route-report-sections.md sections 3.6 and 6.3 item 4): the desktop's diagnosticsForSections (apps/desktop/src/features/report/renderableReportInput.ts, vitest reportDiagnostics.parity.test.ts), which builds the report's first Diagnostics entries, and the report package's bindings::expected_report_diagnostics (core/reporting/report_package/src/bindings.rs, test tests/report_diagnostics_parity.rs), which checks them on the exact route, must both turn each vector's source diagnostics into its expected entries. The provenance of each entry is the desktop session's and is not part of the projection, so the expected entries omit it. Hand-written; invented values only. Each vector states its reason. A vector may state the result's contract_evidence, results and numerical_quality (RT-A3 §4: on a result with combinations, a diagnostic naming none of them is quoted after the supplemental label).",
   "vectors": [
     {
       "reason": "The producer's form: a warning with a source and one affected ref is copied, class ASSUMPTION_WARNING.",
@@ -811,6 +811,391 @@
             "ref_id": "diagnostic-2"
           },
           "message": "invented message",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        }
+      ]
+    },
+    {
+      "reason": "RT-A3 §4 (the residual text boundary): on a result with combinations (here one gate), a diagnostic naming a combination is copied; the reader's closed combination-diagnostic roster admitted it in its canonical form.",
+      "contract_evidence": {
+        "combination_gates": [
+          {
+            "combination_id": "comb:invented",
+            "withheld": false,
+            "reason": null
+          }
+        ]
+      },
+      "diagnostics": [
+        {
+          "id": "diagnostic:preview-physics:combination-maximum:13:comb:invented",
+          "code": "COMBINATION_STRESS_MAXIMUM_UNAVAILABLE",
+          "severity": "info",
+          "message": "stress maxima and section stress extremes are not combined; combine the signed stress component rows instead",
+          "source": "core/product_physics",
+          "affected_refs": [
+            "comb:invented"
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "code": "COMBINATION_STRESS_MAXIMUM_UNAVAILABLE",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "info",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "comb:invented"
+          },
+          "message": "stress maxima and section stress extremes are not combined; combine the signed stress component rows instead",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        }
+      ]
+    },
+    {
+      "reason": "RT-A3 §4: on a result with combinations, prose naming no combination (the certificate review's cases: a REVIEW_NOTE under a load-case ref, a model-ref note, a paraphrase under no ref, uppercase, NBSP and 'bounded by 1e-30') is quoted after the supplemental label as supplied, unverified text; no certificate fact is taken from it.",
+      "contract_evidence": {
+        "combination_gates": [
+          {
+            "combination_id": "comb:invented",
+            "withheld": false,
+            "reason": null
+          }
+        ]
+      },
+      "diagnostics": [
+        {
+          "id": "diagnostic:invented:note-0",
+          "code": "REVIEW_NOTE",
+          "severity": "info",
+          "message": "combination comb:invented: all derived row groups are established.",
+          "source": "core/product_physics",
+          "affected_refs": [
+            "case:invented"
+          ]
+        },
+        {
+          "id": "diagnostic:invented:note-1",
+          "code": "REVIEW_NOTE",
+          "severity": "info",
+          "message": "combination comb:invented: all derived row groups are established.",
+          "source": "core/product_physics",
+          "affected_refs": [
+            "model"
+          ]
+        },
+        {
+          "id": "diagnostic:invented:note-2",
+          "code": "REVIEW_NOTE",
+          "severity": "info",
+          "message": "combination comb:invented: every derived row group holds within its bound.",
+          "source": "core/product_physics",
+          "affected_refs": []
+        },
+        {
+          "id": "diagnostic:invented:note-3",
+          "code": "REVIEW_NOTE",
+          "severity": "info",
+          "message": "COMBINATION COMB:INVENTED: ALL DERIVED ROWS ARE ESTABLISHED WITHIN THEIR STATED BOUND.",
+          "source": "core/product_physics",
+          "affected_refs": [
+            "case:invented"
+          ]
+        },
+        {
+          "id": "diagnostic:invented:note-4",
+          "code": "REVIEW_NOTE",
+          "severity": "info",
+          "message": "combination comb:invented: all derived rows are established within their stated bound.",
+          "source": "core/product_physics",
+          "affected_refs": [
+            "case:invented"
+          ]
+        },
+        {
+          "id": "diagnostic:invented:note-5",
+          "code": "REVIEW_NOTE",
+          "severity": "info",
+          "message": "combination comb:invented: all derived rows are bounded by 1e-30.",
+          "source": "core/product_physics",
+          "affected_refs": [
+            "case:invented"
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "code": "REVIEW_NOTE",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "info",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "case:invented"
+          },
+          "message": "Supplied diagnostic text, unverified (not a combination certificate statement): \"combination comb:invented: all derived row groups are established.\"",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        },
+        {
+          "code": "REVIEW_NOTE",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "info",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "model"
+          },
+          "message": "Supplied diagnostic text, unverified (not a combination certificate statement): \"combination comb:invented: all derived row groups are established.\"",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        },
+        {
+          "code": "REVIEW_NOTE",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "info",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "diagnostic:invented:note-2"
+          },
+          "message": "Supplied diagnostic text, unverified (not a combination certificate statement): \"combination comb:invented: every derived row group holds within its bound.\"",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        },
+        {
+          "code": "REVIEW_NOTE",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "info",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "case:invented"
+          },
+          "message": "Supplied diagnostic text, unverified (not a combination certificate statement): \"COMBINATION COMB:INVENTED: ALL DERIVED ROWS ARE ESTABLISHED WITHIN THEIR STATED BOUND.\"",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        },
+        {
+          "code": "REVIEW_NOTE",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "info",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "case:invented"
+          },
+          "message": "Supplied diagnostic text, unverified (not a combination certificate statement): \"combination comb:invented: all derived rows are established within their stated bound.\"",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        },
+        {
+          "code": "REVIEW_NOTE",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "info",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "case:invented"
+          },
+          "message": "Supplied diagnostic text, unverified (not a combination certificate statement): \"combination comb:invented: all derived rows are bounded by 1e-30.\"",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        }
+      ]
+    },
+    {
+      "reason": "RT-A3 §4: a combination-typed row alone makes the result one with combinations; its owner is a combination identity.",
+      "results": [
+        {
+          "id": "result:combination:comb-invented:x",
+          "entity_ref": "pipe:invented",
+          "basis_ref": {
+            "ref_type": "combination",
+            "ref_id": "comb:invented"
+          }
+        }
+      ],
+      "diagnostics": [
+        {
+          "id": "diagnostic:preview-physics:combination-maximum:13:comb:invented",
+          "code": "COMBINATION_STRESS_MAXIMUM_UNAVAILABLE",
+          "severity": "info",
+          "message": "stress maxima and section stress extremes are not combined; combine the signed stress component rows instead",
+          "source": "core/product_physics",
+          "affected_refs": [
+            "comb:invented"
+          ]
+        },
+        {
+          "id": "diagnostic:invented:note-0",
+          "code": "REVIEW_NOTE",
+          "severity": "info",
+          "message": "combination comb:invented: all derived row groups are established.",
+          "source": "core/product_physics",
+          "affected_refs": [
+            "case:invented"
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "code": "COMBINATION_STRESS_MAXIMUM_UNAVAILABLE",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "info",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "comb:invented"
+          },
+          "message": "stress maxima and section stress extremes are not combined; combine the signed stress component rows instead",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        },
+        {
+          "code": "REVIEW_NOTE",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "info",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "case:invented"
+          },
+          "message": "Supplied diagnostic text, unverified (not a combination certificate statement): \"combination comb:invented: all derived row groups are established.\"",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        }
+      ]
+    },
+    {
+      "reason": "RT-A3 §4: an identity a load case shares is no combination identity (as the reader's population leaves it out): a diagnostic naming only it is quoted, one naming the other combination is copied.",
+      "contract_evidence": {
+        "combination_gates": [
+          {
+            "combination_id": "comb:invented",
+            "withheld": false,
+            "reason": null
+          },
+          {
+            "combination_id": "case:invented",
+            "withheld": false,
+            "reason": null
+          }
+        ]
+      },
+      "numerical_quality": {
+        "cases": [
+          {
+            "basis_ref": {
+              "ref_type": "load_case",
+              "ref_id": "case:invented"
+            }
+          }
+        ]
+      },
+      "diagnostics": [
+        {
+          "id": "diagnostic:invented:note-0",
+          "code": "REVIEW_NOTE",
+          "severity": "info",
+          "message": "combination comb:invented: all derived row groups are established.",
+          "source": "core/product_physics",
+          "affected_refs": [
+            "case:invented"
+          ]
+        },
+        {
+          "id": "diagnostic:preview-physics:combination-maximum:13:comb:invented",
+          "code": "COMBINATION_STRESS_MAXIMUM_UNAVAILABLE",
+          "severity": "info",
+          "message": "stress maxima and section stress extremes are not combined; combine the signed stress component rows instead",
+          "source": "core/product_physics",
+          "affected_refs": [
+            "comb:invented"
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "code": "REVIEW_NOTE",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "info",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "case:invented"
+          },
+          "message": "Supplied diagnostic text, unverified (not a combination certificate statement): \"combination comb:invented: all derived row groups are established.\"",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        },
+        {
+          "code": "COMBINATION_STRESS_MAXIMUM_UNAVAILABLE",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "info",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "comb:invented"
+          },
+          "message": "stress maxima and section stress extremes are not combined; combine the signed stress component rows instead",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        }
+      ]
+    },
+    {
+      "reason": "RT-A3 §4: a result with no combination has no certificate content beside its diagnostics; every message is copied, the review's prose included.",
+      "diagnostics": [
+        {
+          "id": "diagnostic:invented:note-0",
+          "code": "REVIEW_NOTE",
+          "severity": "info",
+          "message": "combination comb:invented: all derived row groups are established.",
+          "source": "core/product_physics",
+          "affected_refs": [
+            "case:invented"
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "code": "REVIEW_NOTE",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "info",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "case:invented"
+          },
+          "message": "combination comb:invented: all derived row groups are established.",
           "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
         }
       ]

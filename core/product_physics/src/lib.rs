@@ -159,6 +159,8 @@ mod pressure_exact;
 mod pressure_material;
 mod exact_admission;
 mod exact_combinations;
+// RT-A3 (DEL-05-02 Work `combination-certificate.md`): the §4 combination certificate.
+mod combination_certificate;
 mod combination_plan; mod difference_basis; // Operating-case slice 1b (DEL-05-02 `operating-case.md` §6), on this line so that no line moves.
 mod bend_pressure;
 mod u4b_rows;
@@ -2673,6 +2675,10 @@ struct LoadCaseSolve {
     held_status_source: Option<Box<held_status::HeldStatusSource>>,
     /// DEL-04-09 I2b-2 (decision B): see `NonlinearStateEvidence`.
     nonlinear_state: Option<Box<NonlinearStateEvidence>>,
+    /// RT-A3 §4 (DEL-05-02 Work `combination-certificate.md`): the case's K-D5
+    /// groups as a combination operand; only on a document with a combination and
+    /// when the case formed its member bound.
+    certificate_operand: Option<combination_certificate::Operand>,
 }
 
 #[derive(Debug, Clone)]
@@ -3209,12 +3215,12 @@ fn run_linear_static_preview_observed_inner(
         Ok(stiffness) => stiffness,
         Err(error) => return solver_blocked(model, diagnostics, error),
     };
-    // §8.30 correction 2 (RT-U4, RT-A2): the nonlinear active-set loop is
-    // dense in both modes; an invocation with a nonlinear support is refused,
-    // once and before any case or n^2 allocation (ahead of F1b's dense-scrutiny
-    // guard, so both modes name the same refusal), when the loop's estimated
-    // leading dense storage exceeds its provisional limit (NI
-    // `dense_loop_memory_guard`).
+    // §8.30 correction 2 (RT-U4, RT-A2): the dense-scrutiny active-set loop holds
+    // n^2 buffers; since R-4 stage P the sparse-mode loop runs on the pattern, and NI
+    // keeps the same limit there as a provisional admission cap pending O-2 (R-4 §6.3).
+    // An invocation with a nonlinear support is refused once, before any case or n^2
+    // allocation (ahead of F1b's dense-scrutiny guard, so both modes name the same
+    // refusal), when the estimate exceeds the limit (NI `dense_loop_memory_guard`).
     if !built.nonlinear_supports.is_empty() {
         if let Err(refusal) = dense_loop_memory_guard(
             built.nodes.len(),
@@ -3511,6 +3517,8 @@ fn run_linear_static_preview_observed_inner(
     let mut exact_cases = Vec::new();
     let mut load_reference_states = Vec::new();
     let mut rows_by_base_id: HashMap<String, HashMap<String, ResultItem>> = HashMap::new();
+    // RT-A3 §4: the eligible operand cases' K-D5 groups (none without a combination).
+    let mut certificate_operands: HashMap<String, combination_certificate::Operand> = HashMap::new();
     let combining = preview.is_some() && !model.combinations.is_empty();
     #[cfg(test)]
     let combining = combining || (l5_tests::former_aggregation() && preview.is_some());
@@ -3534,6 +3542,9 @@ fn run_linear_static_preview_observed_inner(
         }
         let is_default = index == 0;
         let load_case_id = solve.load_case_id.clone();
+        if let Some(operand) = solve.certificate_operand.take() {
+            certificate_operands.insert(load_case_id.clone(), operand);
+        }
         let id_map = solve
             .results
             .iter()
@@ -3765,6 +3776,10 @@ fn run_linear_static_preview_observed_inner(
     }
     // W-15 slice d (DEL-03-05 Design `rigid-component-stiffness-scaling.md` §5).
     rigid_component::annotate_component_bodies(&mut envelope, &built.pipes, &built.scaled_members);
+    // RT-A3 §4 (DEL-05-02 Work `combination-certificate.md`): each combination's
+    // derived groups with their stated bounds; only on a document with a combination.
+    let case_ids: Vec<&str> = model.load_cases.iter().map(|case| case.id.as_str()).collect();
+    combination_certificate::publish(&model.combinations, &case_ids, &mut envelope, &certificate_operands);
     if let Some(observer) = product.as_deref_mut() { observer.finish(&envelope); }
     envelope
 }
@@ -5394,6 +5409,7 @@ fn solve_prepared_load_case(
             preview: None,
             withheld_summaries: Vec::new(),
             held_status_source: None,
+            certificate_operand: None,
             nonlinear_state: None,
         });
     }
@@ -5432,6 +5448,7 @@ fn solve_prepared_load_case(
                 preview: None,
                 withheld_summaries: Vec::new(),
                 held_status_source: None,
+                certificate_operand: None,
                 nonlinear_state: None,
             });
         }
@@ -5541,6 +5558,7 @@ fn solve_prepared_load_case(
             preview: None,
             withheld_summaries: Vec::new(),
             held_status_source: None,
+            certificate_operand: None,
             nonlinear_state: None,
         });
     }
@@ -5583,6 +5601,7 @@ fn solve_prepared_load_case(
                 preview: None,
                 withheld_summaries: Vec::new(),
                 held_status_source: None,
+                certificate_operand: None,
                 nonlinear_state: None,
             });
         }
@@ -5851,6 +5870,7 @@ fn solve_prepared_load_case(
                 preview: None,
                 withheld_summaries: Vec::new(),
                 held_status_source: None,
+                certificate_operand: None,
                 nonlinear_state: None,
             });
                     }
@@ -5885,6 +5905,7 @@ fn solve_prepared_load_case(
                 preview: None,
                 withheld_summaries: Vec::new(),
                 held_status_source: None,
+                certificate_operand: None,
                 nonlinear_state: None,
             });
                 }
@@ -5989,6 +6010,7 @@ fn solve_prepared_load_case(
                     preview: None,
                     withheld_summaries: Vec::new(),
                     held_status_source: None,
+                    certificate_operand: None,
                     nonlinear_state: None,
                 });
             }
@@ -7342,6 +7364,11 @@ fn solve_prepared_load_case(
             }
         }
     }
+    // RT-A3 §4 (DEL-05-02 Work `combination-certificate.md`): an operand's groups exist
+    // exactly when its member bound was formed.
+    // RT-A5: never on the held path (`role.held()`).
+    let certificate_operand = (!held && !model.combinations.is_empty() && member_bound.is_some())
+        .then(|| combination_certificate::operand(&recovery_records, &formation_bodies));
     require_finite_mechanics(results.iter().map(|row| row.value))?;
     let pressure_assembly_evidence = exact_pressure.as_ref().map(|p| p.assembly_evidence.clone());
     let pressure_evidence = exact_pressure
@@ -7493,10 +7520,11 @@ fn solve_prepared_load_case(
         component_stress_modifier_count,
         preview: preview_record,
         withheld_summaries,
-        // RT-A5 (manager's condition): once RT-A3's certificate lands, every LoadCaseSolve on
-        // the held path (`role.held()`) sets `certificate_operand: None` here; a held solve's
-        // rows are the combination's, never a case certificate's operand.
         held_status_source,
+        // RT-A5 (manager's condition): a held solve (`role.held()`) carries no
+        // certificate operand; a held solve's rows are the combination's, never a
+        // case certificate's operand.
+        certificate_operand,
         nonlinear_state,
     })
 }
@@ -15860,6 +15888,7 @@ mod kd5_withheld_summary_tests {
                 Vec::new()
             },
             held_status_source: None,
+            certificate_operand: None,
             nonlinear_state: None,
         }
     }

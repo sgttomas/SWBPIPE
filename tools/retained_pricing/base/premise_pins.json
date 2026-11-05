@@ -8,8 +8,8 @@
   },
   {
    "key": "core/reporting/result_export/src/retained_precision.rs:5860",
-   "text": "crate::semantic_contract::for_source(&projected).map_err(base_error)?;",
-   "why": "validate's one call into semantic_contract: for_source on the projection"
+   "text": "crate::combination_certificate::retained_base_read(|| crate::semantic_contract::for_source(&projected)).map_err(base_error)?;",
+   "why": "validate's one call into semantic_contract: for_source on the projection (RT-A3 §4, §8.53: inside combination_certificate::retained_base_read's closure, the retained read context; still one call, on the projection)"
   }
  ]
 }
