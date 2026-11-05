@@ -48,7 +48,7 @@ numerical accuracy or model freshness):
 """
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from copy import deepcopy
 from fractions import Fraction
 import hashlib
@@ -862,6 +862,17 @@ def _is_tie_rod_row_id(row_id: Any, case: str, tail: str) -> bool:
     return isinstance(row_id, str) and row_id in (f"result:{tail}", f"result:loadcase:{_stable_suffix(case)}:{tail}")
 
 
+def _rust_f64_sum(values: Iterable[float]) -> float:
+    """The Rust reader's ``Iterator::sum::<f64>()`` (connector_evidence.rs: the tie-rod direction's |n|^2 and the s_x
+    tolerance's rod terms): start from -0.0, as current Rust std does, and add each term in source order, one binary64
+    rounding per addition. Python 3.12+'s built-in ``sum()`` of floats is compensated, so it can decide a boundary the
+    other way."""
+    total = -0.0
+    for value in values:
+        total += value
+    return total
+
+
 def _tie_rods(record: Mapping[str, Any]) -> list[tuple[str, float]]:
     """T4-U5b (§3.3, §5.1): a record's closed ``tie_rods`` entries, as (id, axial share). The axial share is
     RN(n.Q_x), recomputed here from the published direction and the record's Q as an exact rational."""
@@ -881,7 +892,7 @@ def _tie_rods(record: Mapping[str, Any]) -> list[tuple[str, float]]:
                  and _number(rod["length_m"]) and rod["length_m"] > 0 and _vector(rod["direction_global"], 3) and _text(rod["source_reference"]),
                  "connector tie-rod record")
         n = rod["direction_global"]
-        _require(abs(sum(v * v for v in n) - 1.0) <= 16 * math.ulp(1.0), "connector tie-rod direction")
+        _require(abs(_rust_f64_sum(v * v for v in n) - 1.0) <= 16 * math.ulp(1.0), "connector tie-rod direction")
         axis = [record["connector_axes_global"][k][0] for k in range(3)]
         share = rod["axial_share"]
         _require(_number(share) and float(sum(Fraction(n[k]) * Fraction(axis[k]) for k in range(3))) == share, "connector tie-rod axial share")
@@ -900,7 +911,7 @@ def _effective_axial_binding(s: float, g: float, pe: float, rods: list[tuple[flo
     except OverflowError:
         return False
     coefficient = (64 + len(rods)) * math.ulp(1.0)
-    tolerance = coefficient * abs(g) + coefficient * abs(pe) + sum(coefficient * abs(p) for p in products) + (len(rods) + 2) * math.ulp(0.0)
+    tolerance = coefficient * abs(g) + coefficient * abs(pe) + _rust_f64_sum(coefficient * abs(p) for p in products) + (len(rods) + 2) * math.ulp(0.0)
     return math.isfinite(tolerance) and abs(s - expected) <= tolerance
 
 
