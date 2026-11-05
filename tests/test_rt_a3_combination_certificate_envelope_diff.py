@@ -42,6 +42,12 @@ materializes are named (`UNMATERIALIZED`) with the pairs derived from the writer
 records. Every regenerated desktop carrier also passes an inverse proof: restating
 only its moved texts and digests back to the endpoint's reproduces the endpoint's
 bytes (`test_desktop_carriers_restate_back_to_the_endpoint_bytes`).
+
+The endpoint was the working tree: the stage's carriers as committed on its branch.
+Its D3 registration (DEL-04-08 `retained-pricing-rules.md` §8.53) merges dynamics I3a
+(with operating-case slice 1b and RT-U4 order), whose producer and table changes move
+carriers again, and regenerates the retained carriers on the registered build. This
+proof keeps this stage's endpoint: 268c8289f, the reviewed certificate candidate.
 """
 from functools import cache
 from pathlib import Path
@@ -58,6 +64,9 @@ from tests import test_rt_a3_constant_effort_text_only_envelope_diff as ce
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "78580da7e0334c35fd1fc7906057844de07e2e69"
+# This stage's endpoint, frozen when its D3 registration (retained-pricing-rules.md §8.53) merged dynamics I3a
+# (with PF1b and RT-U4 order) and regenerated the retained carriers on the registered build.
+END = "268c8289f00ec77abec80ae9cb18234a8b476c37"
 
 CERTIFICATE = "combination_certificate"
 DIAGNOSTIC = "diagnostic:combination-certificate:"
@@ -192,7 +201,12 @@ def _at(rev, name):
 
 
 def current(name):
-    return (ROOT / name).read_text(encoding="utf-8")
+    return _at(END, name)
+
+
+@cache
+def _bytes_at(rev, name):
+    return subprocess.check_output(["git", "show", f"{rev}:{name}"], cwd=ROOT)
 
 
 def binding_kind(path):
@@ -365,11 +379,11 @@ def test_generation_records_move_only_source_and_output_digests(name):
     inventory = json.dumps(after["source_input_files"], separators=(",", ":"), ensure_ascii=False)
     assert after["inventory_json_sha256"] == _sha(inventory)
     for path, digest in after["source_input_files"].items():
-        assert digest == hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), path
+        assert digest == hashlib.sha256(_bytes_at(END, path)).hexdigest(), path
     assert len(before["outputs"]) == len(after["outputs"])
     for b, a in zip(before["outputs"], after["outputs"]):
         assert {k: v for k, v in b.items() if k != "sha256"} == {k: v for k, v in a.items() if k != "sha256"}
-        assert a["sha256"] == hashlib.sha256((ROOT / a["path"]).read_bytes()).hexdigest(), a["path"]
+        assert a["sha256"] == hashlib.sha256(_bytes_at(END, a["path"])).hexdigest(), a["path"]
 
 
 def test_the_table_texts_and_digests_are_the_table_files():
@@ -434,7 +448,7 @@ def test_every_json_file_binding_the_endpoint_table_is_compared():
     listed = set(SCOPE) | set(NOT_CARRIERS)
     assert at_base - listed == set(), sorted(at_base - listed)
     assert set(DESKTOP_WRITERS) <= set(SCOPE)
-    assert _stating(None, old) == set(), sorted(_stating(None, old))
+    assert _stating(END, old) == set(), sorted(_stating(END, old))
 
 
 def test_every_published_document_with_a_combination_states_the_certificate():
@@ -472,7 +486,7 @@ def test_every_json_file_stating_the_old_derived_notice_is_compared():
     it now."""
     at_base = _stating(BASE, OLD_DERIVED)
     assert at_base and at_base <= set(DOCUMENTS), sorted(at_base - set(DOCUMENTS))
-    assert _stating(None, OLD_DERIVED) == set(), sorted(_stating(None, OLD_DERIVED))
+    assert _stating(END, OLD_DERIVED) == set(), sorted(_stating(END, OLD_DERIVED))
 
 
 def test_the_derived_notice_is_the_producers_and_the_readers():
@@ -568,12 +582,12 @@ def test_a_forged_certificate_and_a_numerical_mutation_are_refused():
 def test_desktop_carriers_are_named_with_their_writers():
     """Each regenerated desktop carrier is named with the desktop writer that writes it and that writer's switch."""
     for name, writer in DESKTOP_WRITERS.items():
-        assert (ROOT / name).is_file(), name
+        tree = subprocess.check_output(["git", "ls-tree", "-r", "--name-only", END], cwd=ROOT, text=True).split()
+        assert name in tree, name
         test_file, variable = writer.split(" ", 1)
-        found = [p for p in subprocess.check_output(["git", "ls-files", "apps/desktop/src"], cwd=ROOT, text=True).split()
-                 if p.endswith("/" + test_file)]
+        found = [p for p in tree if p.startswith("apps/desktop/src/") and p.endswith("/" + test_file)]
         assert len(found) == 1, writer
-        assert variable.strip("()") in (ROOT / found[0]).read_text(encoding="utf-8"), writer
+        assert variable.strip("()") in _at(END, found[0]), writer
     for name in (*(n for n in DESKTOP_WRITERS if n.startswith(_W11)),):
         assert json.loads(current(name))["generator"] == "apps/desktop/src/features/report/exactReportBelowGate.test.tsx", name
 
