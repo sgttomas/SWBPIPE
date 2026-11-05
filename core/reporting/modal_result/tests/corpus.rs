@@ -11,6 +11,8 @@ use open_pipe_stress_modal_result::{
 use serde_json::{json, Value};
 
 const CORPUS: &str = include_str!("../../../../fixtures/results/modal_corpus.json");
+/// Point-sum evaluation-order boundaries (Design §5.3.4), in the corpus entry format.
+const SUM_ORDER: &str = include_str!("../../../../fixtures/results/modal_sum_order_boundaries.json");
 const SEMANTIC_TABLE: &str = include_str!("../../../../fixtures/results/semantic_contract_modal_1.json");
 /// The feasibility oracle's cases and verdicts (`tests/modal_feasibility_oracle.py`).
 const ORACLE_CASES: &str = include_str!("../../../../fixtures/results/modal_oracle_cases.json");
@@ -226,12 +228,9 @@ fn intent_holds(entry: &Value, got: &Value) -> bool {
     }
 }
 
-#[test]
-fn the_rust_reader_returns_every_corpus_verdict() {
-    let corpus: Value = serde_json::from_str(CORPUS).unwrap();
-    let entries = corpus["entries"].as_array().unwrap();
-    assert!(entries.len() >= 50);
-    // Every entry is read before the test fails, so one run names them all.
+/// Each entry's targeted standing, stated reason and `expected` verdict; every
+/// entry is read before a caller fails, so one run names them all.
+fn entry_failures(entries: &[Value]) -> Vec<String> {
     let mut failures = Vec::new();
     for entry in entries {
         let (got, verdict) = run(entry);
@@ -245,7 +244,29 @@ fn the_rust_reader_returns_every_corpus_verdict() {
             failures.push(format!("{}: {got} is not the expected {}", entry["id"], entry["expected"]));
         }
     }
+    failures
+}
+
+#[test]
+fn the_rust_reader_returns_every_corpus_verdict() {
+    let corpus: Value = serde_json::from_str(CORPUS).unwrap();
+    let entries = corpus["entries"].as_array().unwrap();
+    assert!(entries.len() >= 50);
+    let failures = entry_failures(entries);
     assert!(failures.is_empty(), "{} corpus entries:\n{}", failures.len(), failures.join("\n"));
+}
+
+/// The point-sum boundaries: this reader's verdicts, which the Python reader is
+/// held to (`tests/test_modal_evidence.py`), on both sides of each of the four
+/// relations that sum (m, T_k / free-DOF mass, the cumulative fraction, Γ / m_eff).
+#[test]
+fn the_rust_reader_returns_every_sum_order_boundary_verdict() {
+    let corpus: Value = serde_json::from_str(SUM_ORDER).unwrap();
+    let entries = corpus["entries"].as_array().unwrap();
+    let relations: std::collections::BTreeSet<&str> = entries.iter().map(|e| e["sum_relation"].as_str().unwrap()).collect();
+    assert_eq!(relations, ["cumulative_fraction", "effective_mass_excitation", "generalized_mass", "total_mass"].into_iter().collect());
+    let failures = entry_failures(entries);
+    assert!(failures.is_empty(), "{} sum-order entries:\n{}", failures.len(), failures.join("\n"));
 }
 
 /// The reader against the feasibility oracle (Design §5.3.4), which is
@@ -358,6 +379,22 @@ fn write_modal_corpus_expectations() {
         entry["expected"] = got;
     }
     let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../fixtures/results/modal_corpus.json");
+    let mut text = serde_json::to_string_pretty(&corpus).unwrap();
+    text.push('\n');
+    std::fs::write(path, text).unwrap();
+}
+
+/// Writes each sum-order boundary entry's `expected` from this reader (run
+/// explicitly to regenerate; the Python reader is then held to it).
+#[test]
+#[ignore = "writes the sum-order boundary expectations; run explicitly after a reviewed change"]
+fn write_modal_sum_order_expectations() {
+    let mut corpus: Value = serde_json::from_str(SUM_ORDER).unwrap();
+    for entry in corpus["entries"].as_array_mut().unwrap() {
+        let (got, _) = run(entry);
+        entry["expected"] = got;
+    }
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../fixtures/results/modal_sum_order_boundaries.json");
     let mut text = serde_json::to_string_pretty(&corpus).unwrap();
     text.push('\n');
     std::fs::write(path, text).unwrap();

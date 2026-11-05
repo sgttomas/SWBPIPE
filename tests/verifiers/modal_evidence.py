@@ -933,6 +933,19 @@ def _close(published, derived, tolerance):
     return abs(published - derived) <= tolerance
 
 
+def _sequential_sum(values, start=0.0):
+    """Left-to-right binary64 addition from `start`: the Rust reader's evaluation of a
+    point sum (`modal_result`). Python's built-in `sum` of floats is compensated (3.12+),
+    so on a payload at an allowance boundary the two readers could reach different
+    verdicts. The start mirrors the paired Rust site: `fold((0.0, 0.0), ..)` starts from
+    +0.0 (the default); `Iterator::sum::<f64>` starts from -0.0 (`[]` sums to -0.0,
+    `[0.0]` to +0.0, `[-0.0]` to -0.0), which the cumulative fraction passes."""
+    total = start
+    for value in values:
+        total += value
+    return total
+
+
 # --- What a published value can be ------------------------------------------------------
 #
 # Design §5.3.4's relation inventory, from the producer's own formation. A value object
@@ -1168,8 +1181,8 @@ def _generalized_mass_check(scope, label, gm_vo, gm, mass_terms, count):
     allowance = ALLOW * float(count + 4) * U
     points = [t.as_point() for t in mass_terms]
     if all(x is not None for x in points) and gm.as_point() is not None:
-        total = sum(points)
-        if not _close(gm.as_point(), total, allowance * sum(abs(x) for x in points)):
+        total = _sequential_sum(points)
+        if not _close(gm.as_point(), total, allowance * _sequential_sum(abs(x) for x in points)):
             _fail(f"mode {label}: m is not φᵀM_ffφ")
         return
     derived = _total(t.widen(allowance) for t in mass_terms)
@@ -1303,8 +1316,8 @@ def _mass(p):
             allowance = ALLOW * float(len(terms) + 4) * U
             stated = _needed(published, name)
             if all(s.as_point() is not None for _, _, s in terms) and stated.as_point() is not None:
-                total = sum(w * s.as_point() for w, _, s in terms)
-                magnitude = sum(abs(w * s.as_point()) for w, _, s in terms)
+                total = _sequential_sum(w * s.as_point() for w, _, s in terms)
+                magnitude = _sequential_sum(abs(w * s.as_point()) for w, _, s in terms)
                 if not _close(stated.as_point(), total, allowance * magnitude):
                     _fail(f"{name} is not the sum of its mass entries")
                 continue
@@ -1481,7 +1494,8 @@ def _participation(p):
                 _fail(f"mode {label}: the cumulative fraction along {direction} is negative")
             allowance = ALLOW * float(m + 2) * U
             if all(f.as_point() is not None for f in running) and cumulative.as_point() is not None:
-                total = sum(f.as_point() for f in running)
+                # modal_result sums these with `Iterator::sum`, from -0.0.
+                total = _sequential_sum((f.as_point() for f in running), start=-0.0)
                 if not _close(cumulative.as_point(), total, allowance * total):
                     _fail(f"mode {label}: cumulative fraction is not the running sum")
                 continue
@@ -1543,8 +1557,8 @@ def _participation(p):
             points_ok = (all(t[2].as_point() is not None for t in terms) and all(v.as_point() is not None for v in (gamma, effective, gm))
                          and _formed(*((c * x.as_point(), c, x.as_point()) for c, _, x in terms)))
             if points_ok:
-                s = sum(c * x.as_point() for c, _, x in terms)
-                a = sum(w * abs(x.as_point()) for _, w, x in terms)
+                s = _sequential_sum(c * x.as_point() for c, _, x in terms)
+                a = _sequential_sum(w * abs(x.as_point()) for _, w, x in terms)
                 published, g, eff = gm.as_point(), gamma.as_point(), effective.as_point()
                 points_ok = _formed((g * published, g, published), (eff * published, eff, published), (s * s, s, s))
             if points_ok:

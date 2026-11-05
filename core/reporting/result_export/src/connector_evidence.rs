@@ -738,6 +738,73 @@ mod u5b_effective_axial_tests {
         assert!(effective_axial_binding(sum + 0.5 * tolerance, 1.0, 0.0, &rods));
         assert!(!effective_axial_binding(sum + 2.0 * tolerance, 1.0, 0.0, &rods));
     }
+
+    /// The axial share is the exact dot RN(n·Q_x) compared by bits (`to_bits`): an exactly
+    /// zero dot rounds to +0.0, so a -0.0 share is refused. The pressure-2 verifier
+    /// (`tests/test_pressure_connector_readers.py`) asserts the same verdicts.
+    #[test]
+    fn the_axial_share_is_compared_by_bits_so_a_negative_zero_share_is_refused() {
+        use serde_json::json;
+        let rod = |axis0: [f64; 3], n: [f64; 3], share: f64| {
+            let record = json!({"connector_axes_global": [[axis0[0], 0.0, 0.0], [axis0[1], 1.0, 0.0], [axis0[2], 0.0, 1.0]],
+                "tie_rods": [{"id": "rod:a", "law": "bilateral_linear", "offset_global_m": [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
+                    "stiffness_n_per_m": 1.0e6, "reference_extension_m": 0.0, "length_m": 1.0, "direction_global": n,
+                    "axial_share": share, "source_reference": "invented signed-zero case"}]});
+            super::tie_rods(&record).map(|rods| rods.len())
+        };
+        let refused = Err("SOURCE_PHYSICS_CONNECTOR_TIE_ROD_AXIAL_SHARE".into());
+        // A dot that is zero term by term: +0.0 is the exact dot's rounding; -0.0 is refused.
+        assert_eq!(rod([1.0, 0.0, 0.0], [0.0, 1.0, 0.0], 0.0), Ok(1));
+        assert_eq!(rod([1.0, 0.0, 0.0], [0.0, 1.0, 0.0], -0.0), refused);
+        // Cancellation: 0.6·0.8 − 0.8·0.6 is exactly zero, rounded to +0.0: +0.0 admitted, -0.0 refused.
+        assert_eq!(rod([0.8, -0.6, 0.0], [0.6, 0.8, 0.0], 0.0), Ok(1));
+        assert_eq!(rod([0.8, -0.6, 0.0], [0.6, 0.8, 0.0], -0.0), refused);
+        // Nonzero controls: the exact dot's rounding admitted, its neighbours refused.
+        assert_eq!(rod([1.0, 0.0, 0.0], [1.0, 0.0, 0.0], 1.0), Ok(1));
+        assert_eq!(rod([1.0, 0.0, 0.0], [1.0, 0.0, 0.0], f64::from_bits(1.0f64.to_bits() - 1)), refused);
+        assert_eq!(rod([1.0, 0.0, 0.0], [-1.0, 0.0, 0.0], -1.0), Ok(1));
+        assert_eq!(rod([1.0, 0.0, 0.0], [-1.0, 0.0, 0.0], 1.0), refused);
+    }
+
+    /// The direction check's |n|² and the s_x tolerance's rod terms are
+    /// `Iterator::sum::<f64>()`: from −0.0, in source order, one rounding per
+    /// addition. These cases sit where a compensated sum (Python ≥ 3.12's
+    /// `sum()`) decides the other way; the pressure-2 verifier
+    /// (`tests/test_pressure_connector_readers.py`) asserts the same verdicts.
+    #[test]
+    fn sequential_f64_sums_decide_the_direction_and_tolerance_boundaries() {
+        use serde_json::{json, Value};
+        let f = f64::from_bits;
+        assert!(std::iter::empty::<f64>().sum::<f64>().is_sign_negative());
+        let direction = |n: [f64; 3]| {
+            let record = json!({"connector_axes_global": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+                "tie_rods": [{"id": "rod:a", "law": "bilateral_linear", "offset_global_m": [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
+                    "stiffness_n_per_m": 1.0e6, "reference_extension_m": 0.0, "length_m": 1.0, "direction_global": n,
+                    "axial_share": n[0], "source_reference": "invented boundary case"}]});
+            super::tie_rods(&record).map(|rods| rods.len())
+        };
+        // |n|² sequentially is 1 + 17ε, compensated 1 + 16ε: refused.
+        assert_eq!(direction([f(0xbfee1566e2522cf2), f(0x3fcc6bcd304d6a58), f(0x3fd08d4e90b4b2ab)]),
+            Err("SOURCE_PHYSICS_CONNECTOR_TIE_ROD_DIRECTION".into()));
+        // The other way: admitted.
+        assert_eq!(direction([f(0xbfeb5c74874966c6), f(0xbfc10ad15e97fa48), f(0x3fe009b5284e420d)]), Ok(1));
+        // Three rods: the sequential tolerance is one ulp below the compensated one, and s_x lies between: refused.
+        let rods = [(f(0x40829836406c80d9), f(0x3fcac156b94353c8)), (f(0x40e6dbb249249249), f(0xbfe51ce637c961ac)),
+            (f(0x40d8322276276276), f(0x3fe97da8c79e5f96))];
+        assert!(!effective_axial_binding(f(0x3e15a9fe831de478), f(0xc0c6910000000000), f(0xc0d60cdcf3c47754), &rods));
+        // One ulp above: admitted.
+        let rods = [(f(0x4046456ed0af15bb), f(0xbfda1558c3f83d18)), (f(0x41193b1800000000), f(0xbfe607d49c6fc934)),
+            (f(0x40e50d2276276276), f(0x3fa2457a67fbe500))];
+        assert!(effective_axial_binding(f(0x3e4227bf314ad803), f(0x40d8f69555555555), f(0xc10f6f444ec1d244), &rods));
+        // A JSON integer operand is read as binary64 (`as_f64`) before it is multiplied: 2^53 + 1 is 2^53, so
+        // Sigma = 0 and s = 261 exceeds the tolerance 260: refused. An exact integer product would give Sigma = 1.
+        let t = json!(9007199254740993u64).as_f64().unwrap();
+        assert!(!effective_axial_binding(261.0, 0.0, 9007199254740992.0, &[(t, 1.0)]));
+        // Integer operands that binary64 holds exactly, and an integer direction: admitted.
+        let int = |v: Value| v.as_f64().unwrap();
+        assert!(effective_axial_binding(int(json!(0)), int(json!(553)), int(json!(800)), &[(int(json!(247)), int(json!(1)))]));
+        assert_eq!(direction([int(json!(1)), int(json!(0)), int(json!(0))]), Ok(1));
+    }
 }
 
 #[cfg(test)]
