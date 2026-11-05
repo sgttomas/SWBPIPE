@@ -269,7 +269,7 @@
      "payload_scope": "project_envelope_payload",
      "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
      "payload_ref": "project:exact-pressure-connected-fixture",
-     "value": "sha256:3f41cbe66e714d8f85dfba55f0ac205f4302cc59c5420c6687b8fd55c2a1563c",
+     "value": "sha256:430698d238da3f00c4c875befdff9e6bcdd22ea1405505571c1d345b99971223",
      "hash_status": "computed_local_preview"
     },
     "model_only_envelope_hash": {

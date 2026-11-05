@@ -9,6 +9,20 @@
    }
   },
   {
+   "command": "read_preview_mechanics_job_summary",
+   "args": {
+    "jobId": "$HANDLE",
+    "modelJson": "null",
+    "standing": {
+     "eligible": false,
+     "findings": [
+      "REQUESTED_NUMERICAL_BASIS_UNAVAILABLE",
+      "NUMERICAL_CASE_COVERAGE_INCOMPLETE"
+     ]
+    }
+   }
+  },
+  {
    "command": "query_preview_mechanics_job_rows",
    "args": {
     "jobId": "$HANDLE",
@@ -52,12 +66,12 @@
     "expectedSource": {
      "kind": "saved_project_run",
      "project_id": "project:exact-pressure-connected-fixture",
-     "record_sha256": "3990ad567b0bb66021a2da7310696421efb63a1513c8488e1b0de71a06e0786f",
+     "record_sha256": "ffd9feb37ebd1f4ac2a2a3a51ab7e0da0c467d0f856f8373073c16e5a4e6119f",
      "recording_id": null,
      "result_sha256": "9b32b2a24a90356392bd0af5f3dd76a333ee843c75b5162a40362188ad591204"
     },
     "envelopeBasis": {
-     "payload_sha256": "sha256:ba3d59dabbe028efcd26c285cef63cae163fa127e039809597b520901381948a",
+     "payload_sha256": "sha256:48ec9398b12ea687a5df3971cdd49e4db33820d331bde5f71a9f74fc036940c5",
      "evidence": {
       "algorithm": "sha256",
       "canonicalization": "rfc8785_jcs",
@@ -65,7 +79,7 @@
       "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
       "payload_ref": "project:exact-pressure-connected-fixture",
       "payload_scope": "project_envelope_payload",
-      "value": "sha256:ba3d59dabbe028efcd26c285cef63cae163fa127e039809597b520901381948a"
+      "value": "sha256:48ec9398b12ea687a5df3971cdd49e4db33820d331bde5f71a9f74fc036940c5"
      }
     },
     "mode": "save",
@@ -328,7 +342,7 @@
     "proposal": null,
     "selectedReviewTarget": null,
     "confirmedRevision": null,
-    "expectedBase": "sha256:ba3d59dabbe028efcd26c285cef63cae163fa127e039809597b520901381948a"
+    "expectedBase": "sha256:48ec9398b12ea687a5df3971cdd49e4db33820d331bde5f71a9f74fc036940c5"
    }
   },
   {
@@ -387,20 +401,6 @@
      48,
      49
     ]
-   }
-  },
-  {
-   "command": "read_preview_mechanics_job_summary",
-   "args": {
-    "jobId": "$HANDLE",
-    "modelJson": "null",
-    "standing": {
-     "eligible": false,
-     "findings": [
-      "REQUESTED_NUMERICAL_BASIS_UNAVAILABLE",
-      "NUMERICAL_CASE_COVERAGE_INCOMPLETE"
-     ]
-    }
    }
   }
  ]
