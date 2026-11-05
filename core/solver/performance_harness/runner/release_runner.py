@@ -87,10 +87,13 @@ _DEFAULT = (
     # The dense loop's cubic cost puts these beyond one window until RT-A3 stage P.
     ('nonlinear-pf', 1000, 2400, 1500, 'solved'),
     ('nonlinear-pf', 1500, 7200, 5000, 'solved'),
-    # Until RT-A3 increment 4 the exact route's nonlinear supports are emitted in their linear
-    # interim forms, so these solve OPE linearly (rack_model.py LEDGER).
-    ('nonlinear-ex', 1000, 480, 40, 'solved'),
-    ('nonlinear-ex', 2000, 900, 120, 'solved'),
+    # Since RT-A3 increment 4 the exact route carries the rack's nonlinear supports (rack_model.py),
+    # so nonlinear-ex runs the same dense active-set loop and shares nonlinear-pf's supports and
+    # restrained DOFs: the dense-memory guard refuses criterion 9's 2,000 nodes before any case,
+    # and 1,000 nodes takes the dense loop's cost. Their timeout and estimate are nonlinear-pf's at
+    # the same size, assumed, not dry runs or measurements of nonlinear-ex.
+    ('nonlinear-ex', 2000, 60, 2, 'refused:NONLINEAR_DENSE_MEMORY_LIMIT_EXCEEDED'),
+    ('nonlinear-ex', 1000, 2400, 1500, 'solved'),
 )
 
 SUBSETS = {
@@ -98,7 +101,7 @@ SUBSETS = {
     # One exclusive window of at most 15 minutes: the scaling points that fit.
     'window': lambda r: not r['attribute'] and (r['profile'], r['nodes']) in {
         ('linear-ex', 250), ('linear-ex', 500), ('linear-ex', 1000), ('nonlinear-pf', 250), ('nonlinear-pf', 500),
-        ('nonlinear-pf', 2000)},
+        ('nonlinear-pf', 2000), ('nonlinear-ex', 2000)},
     # A second window: linear-ex 1000 timed, then its attribution twin.
     'window2': lambda r: (r['profile'], r['nodes']) == ('linear-ex', 1000),
     'linear': lambda r: r['profile'] == 'linear-ex',
