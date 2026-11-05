@@ -365,6 +365,7 @@ pub(crate) fn blocked_case(case_id: &str) -> LoadCaseSolve {
         preview: None,
         withheld_summaries: Vec::new(),
         held_status_source: None,
+        certificate_operand: None,
         nonlinear_state: None,
     }
 }

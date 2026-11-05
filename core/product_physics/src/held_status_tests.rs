@@ -244,10 +244,13 @@ fn derived_evidence_states_each_outcome() {
     assert_eq!(evidence.outcome, Outcome::Released);
     assert_eq!(evidence.outcome.kind(), "not_established");
     assert_eq!(evidence.released[0].reason, "changed_state");
-    assert!(evidence.released[0].quantity.starts_with("reaction -"), "{}", evidence.released[0].quantity);
+    // P1 (§7.5): the recorded reaction bit token that decided it (-100.0 N: the tensile reaction), never a
+    // formatted binary64.
+    assert_eq!(evidence.released[0].quantity, "reaction_bits c059000000000000");
+    assert_eq!(evidence.supports[0]["inputs"]["reaction_bits"], "c059000000000000");
     assert!(evidence.conditions.is_none());
     assert_eq!(evidence.supports[0]["released"], "changed_state");
-    assert!(released_message("comb:held", &evidence.released).contains("OW held active, classified inactive (changed state: reaction -"));
+    assert!(released_message("comb:held", &evidence.released).contains("OW held active, classified inactive (changed state: reaction_bits c059000000000000)"));
 
     // R by branch: a source pressing the shoe (beta = +1), a target lifting it; Sliding is kept.
     let o = solve_active_set_frame_with_mode_and_springs(&derived_shoe(-100.0, 80.0), MODE.nonlinear_mode(), &[]).unwrap();

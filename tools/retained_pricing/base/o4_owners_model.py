@@ -93,7 +93,13 @@ BODY_PINS = {
     # maxima are unchanged.
     # I2b-2 layout (§8.43, cc160d28d; Agent 0): ordinary layout of the same hunks (token-equal but for block-wrapped
     # arms and trailing commas); O4-ID/O4-SR's blocks and maxima are unchanged.
-    (LIB, "solve_prepared_load_case"): "faeb168f1a8ec8e6f72fc73f6f6e3030770e002c1e099e871111396e923f4022",
+    # RT-A3 §4 D3 (§8.53): LoadCaseSolve.certificate_operand (None at every early return; the operand's groups on a model
+    # with a combination and a formed member bound); O4-ID/O4-SR's Timoshenko blocks and maxima are unchanged.
+    # RT-A5 minuend_final D3 (§8.54): the case's role (`held = role.held()`, false for the case's own loop),
+    # LoadCaseSolve.held_status_source (None at every early return; captured only when `wanted`, never on D1, RTA5-DZ),
+    # a held result's unconverged displacements (`|| held`, never on D1) and `!held` on the certificate operand;
+    # O4-ID/O4-SR's Timoshenko blocks and maxima are unchanged.
+    (LIB, "solve_prepared_load_case"): "5a4f52edfa541c70eb49e38be0c34d538f9a16b58ac50a99b27081499b2170ca",
     (SRC, "distinct_reduced_section"): "179e447476ae2a7cf8b01d1e5da22bddd66b9057403453ffc79f9e57747fd100",
     (SRC, "stress_operands"): "de7a26eb0574635be8c808bc42070cdb132f8f8b67fee83542bd79f667cb6050",
     (SRC, "commitment"): "279ce112036664d7802e2952d87a67abe6dd7fe04879a4d498fd2544fe86753d",

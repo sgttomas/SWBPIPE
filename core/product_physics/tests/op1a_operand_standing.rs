@@ -473,7 +473,11 @@ fn v4_operand_swap_negates_and_case_order_changes_no_case_row() {
 #[test]
 fn documents_without_the_condition_publish_no_member_and_no_notice() {
     let absent = |v: &Value, what: &str| {
-        let keys: Vec<&str> = v["contract_evidence"].as_object().unwrap().keys().map(String::as_str).collect();
+        // RT-A3 §4 (DEL-05-02 Work `combination-certificate.md`): `combination_certificate`
+        // accompanies every solved document's combinations, a member of its own.
+        let has_gates = !v["contract_evidence"]["combination_gates"].as_array().unwrap().is_empty();
+        assert_eq!(v["contract_evidence"].get("combination_certificate").is_some(), has_gates, "{what}");
+        let keys: Vec<&str> = v["contract_evidence"].as_object().unwrap().keys().map(String::as_str).filter(|k| *k != "combination_certificate").collect();
         assert_eq!(keys, ["combination_gates", "preview_cases"], "{what}");
         assert!(diagnostics(v, STATES_DIFFER).is_empty() && diagnostics(v, NOT_PASSED).is_empty(), "{what}");
     };

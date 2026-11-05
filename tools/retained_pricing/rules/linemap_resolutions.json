@@ -34,6 +34,12 @@
    "as": "deleted",
    "fn": "imposed_displacement_refusal",
    "why": "W-16 slice a (retained-pricing-rules.md §8.23): the pressure-free route maps a support-targeted primitive into the prescribed boundary (imposed_motion.rs), so preview_physics.rs's pre-parse refusal fn imposed_displacement_refusal (basis 1080-1129: the offending tuple's three to_string()s at 1093-1095, the diagnostic id and message format!s at 1119 and 1122) and its one call in lib.rs's value dispatch are deleted with IMPOSED_DISPLACEMENT_REQUIRES_LOAD_STATE_MODEL; these ID-audit sites no longer exist"
+  },
+  "core/reporting/result_export/src/retained_precision.rs:5860": {
+   "as": "text",
+   "text": "crate::combination_certificate::retained_base_read(|| crate::semantic_contract::for_source(&projected)).map_err(base_error)?;",
+   "fn": "gates_after_g0",
+   "why": "RT-A3 §4 (retained-pricing-rules.md §8.53; DEL-05-02 Work combination-certificate.md §2) wraps G7's one base read in the retained read context: the call is still the retained reader's one semantic_contract::for_source on the projection, now inside combination_certificate::retained_base_read's closure (a thread-local flag set and restored around it); the line moved from validate to gates_after_g0 by an earlier refactor and was carried by offset until this rewrite"
   }
  }
 }

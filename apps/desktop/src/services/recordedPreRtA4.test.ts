@@ -48,6 +48,9 @@ const VARIANTS: Variant[] = [
     sha256: "045f6f0d8ce350246b21fb712d2dd14bf3a7f7f3690e66e062cbbf77d3696a3b", refusal: "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH" },  { name: "physics-retained-1 (main, RT-A4)", record: () => json("physics_retained_1/main_bbf384dec/retained_precision_exact_successor_sparse_interactive.analysis_run.json"),
     source: () => statementOf(json("physics_retained_1/main_bbf384dec/retained_precision_exact_successor_sparse_interactive.json")),
     sha256: "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034", refusal: "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH" },
+  { name: "physics-retained-1 (main, before the combination certificate)", record: () => json("physics_retained_1/main_252bef969/retained_precision_exact_successor_sparse_interactive.analysis_run.json"),
+    source: () => statementOf(json("physics_retained_1/main_252bef969/retained_precision_exact_successor_sparse_interactive.json")),
+    sha256: "85c2678a78e794b44761c11efb73c215645c7e2560d802ac8ad6075e7804c691", refusal: "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH" },
 ];
 const RECORDED = { recordedRead: true } as const;
 const basis = (record: AnalysisRunEnvelope) => record.analysis_run.load_basis_refs;
@@ -159,7 +162,7 @@ describe("a run recorded before RT-A4 (historical read)", () => {
   });
 });
 
-// R-6/R-7 S-K1: the S-K1 base's three tables at 6ebd92ce9 (fixtures/results/recorded_pre_sk1), the
+// R-6/R-7 S-K1: main's three tables at 9e5c69797, before S-K1 (fixtures/results/recorded_pre_sk1), the
 // Rust (`recorded_tables::VARIANTS`) and Python (`RECORDED_PRE_RT_A4_TABLES`) registries' twins.
 describe("the S-K1 base's tables (before the along-direction kind)", () => {
   const SK1 = [

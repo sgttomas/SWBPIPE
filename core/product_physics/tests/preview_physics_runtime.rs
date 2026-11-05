@@ -241,7 +241,10 @@ fn assert_contract(v: &Value) {
     let evidence = &v["contract_evidence"];
     // Operating-case slice 1a (RT-A5; DEL-05-02 `pf-nonlinear-operand-standing.md` §2.1):
     // a nonlinear model's admitted combinations add `combination_operands`.
-    let keys: HashSet<&str> = evidence.as_object().unwrap().keys().map(String::as_str).collect();
+    // RT-A3 §4 (DEL-05-02 Work `combination-certificate.md`): `combination_certificate`
+    // accompanies every solved document's combinations, a member of its own.
+    assert_eq!(evidence.get("combination_certificate").is_some(), !evidence["combination_gates"].as_array().unwrap().is_empty());
+    let keys: HashSet<&str> = evidence.as_object().unwrap().keys().map(String::as_str).filter(|k| *k != "combination_certificate").collect();
     let nonlinear = results(v).iter().any(|r| r["kind"] == "nonlinear_support_active_set_state_code");
     let admitted = evidence["combination_gates"].as_array().unwrap().iter().any(|g| g["withheld"] == false);
     if nonlinear && admitted {

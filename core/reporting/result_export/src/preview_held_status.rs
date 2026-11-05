@@ -43,14 +43,18 @@ pub(crate) const MEMBER: &str = "held_status_derivation";
 pub(crate) const OPERAND_BASIS: &str = "held_status_operand";
 pub(crate) const HELD_SUPPORT_STATE: &str = "held_at_minuend_final";
 pub(crate) const RELEASED: &str = "HELD_STATUS_RELEASED";
-/// §7.5's held gates, in gate order.
-pub(crate) const GATES: [&str; 5] = [
+/// §7.5's held gates, in gate order (exported as [`crate::HELD_STATUS_GATE_CODES`]).
+pub const GATES: [&str; 5] = [
     "HELD_STATUS_SOURCE_UNAVAILABLE",
     "HELD_STATUS_SOURCE_UNQUALIFIED",
     "HELD_STATUS_BINDING",
     "HELD_STATUS_SLIDING_GROUND_DIFFERS",
     "HELD_STATUS_SOLVE_FAILED",
 ];
+/// The held-status codes presenters quote whole as supplied text (exported as
+/// [`crate::HELD_STATUS_QUOTED_CODES`]): the five held gates and `HELD_STATUS_RELEASED`. A
+/// distinct set from [`GATES`]: quoting is presentation, the gates are the roster's.
+pub const QUOTED: [&str; 6] = [GATES[0], GATES[1], GATES[2], GATES[3], GATES[4], RELEASED];
 const SLIDING_GROUND_DIFFERS: &str = "HELD_STATUS_SLIDING_GROUND_DIFFERS";
 /// The producer's `held_status::SIGN`.
 pub(crate) const SIGN: &str = "positive value follows explicit user result-state subtraction (minuend minus subtrahend) of matching source result sign conventions; operating minus sustained difference at the operating support status: the minuend case's own solved state minus the subtrahend case's loads solved with each nonlinear support held at the minuend's final status, a held-constraint comparison that can need a reaction a unilateral support cannot supply and is not an admissible sustained state, under the static, history-free friction model; derived from case results; not an equilibrium state";

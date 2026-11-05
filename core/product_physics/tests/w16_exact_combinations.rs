@@ -402,6 +402,10 @@ fn a_combination_adds_rows_and_moves_no_case_row() {
         assert!(without["contract_evidence"].get("exact_combinations").is_none());
         let mut evidence = with["contract_evidence"].clone();
         evidence.as_object_mut().unwrap().remove("exact_combinations");
+        // RT-A3 §4 (DEL-05-02 Work `combination-certificate.md`): the certificate is the
+        // combinations' own member too.
+        assert!(without["contract_evidence"].get("combination_certificate").is_none());
+        evidence.as_object_mut().unwrap().remove("combination_certificate").expect("the certificate member");
         assert_eq!(evidence, without["contract_evidence"]);
         assert_eq!(with["summary"], without["summary"]);
         assert_eq!(with["numerical_quality"], without["numerical_quality"]);

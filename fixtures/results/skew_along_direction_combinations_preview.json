@@ -2,6 +2,2738 @@
   "envelope": {
     "accepted_model_state_mutated": false,
     "contract_evidence": {
+      "combination_certificate": {
+        "combinations": [
+          {
+            "assessment": "assessed",
+            "basis": "mechanics",
+            "combination_id": "C_SIGNED",
+            "expression": {
+              "terms": [
+                {
+                  "factor": 2.0,
+                  "load_case_id": "case:skew"
+                },
+                {
+                  "factor": -1.0,
+                  "load_case_id": "case:b"
+                }
+              ]
+            },
+            "groups": [
+              {
+                "bound": 8.663999727674819e-14,
+                "entity": "anchor_A",
+                "equal_pressure": null,
+                "factors_bound": 2.9796578415940153e-14,
+                "floor_scale": 2553.7263100847285,
+                "group": "support_force",
+                "location": "node",
+                "q": 1021.494518026711,
+                "q_hat": 1021.4945180267113,
+                "reason": null,
+                "rounding_error": 5.684341886080802e-14,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:support-action:8:anchor_A:Fx",
+                  "result:combination:C_SIGNED:support-action:8:anchor_A:Fy",
+                  "result:combination:C_SIGNED:support-action:8:anchor_A:Fz"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 5.94137422469505e-16,
+                "entity": "anchor_A",
+                "equal_pressure": null,
+                "factors_bound": 5.94137422469505e-16,
+                "floor_scale": 10214.905240338914,
+                "group": "support_moment",
+                "location": "node",
+                "q": 5.71302637434646,
+                "q_hat": 5.7130263743464615,
+                "reason": null,
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:support-action:8:anchor_A:Mx",
+                  "result:combination:C_SIGNED:support-action:8:anchor_A:My",
+                  "result:combination:C_SIGNED:support-action:8:anchor_A:Mz"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 2.0032683499836423e-13,
+                "entity": "anchor_A",
+                "equal_pressure": null,
+                "factors_bound": 8.663999727674819e-14,
+                "floor_scale": 2553.7263100847285,
+                "group": "support_force_magnitude",
+                "location": "node",
+                "q": 1021.494518026711,
+                "q_hat": 1021.4945180267114,
+                "reason": null,
+                "rounding_error": 1.1368683772161603e-13,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:support-action:8:anchor_A:force_magnitude"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 1.4823158421696303e-15,
+                "entity": "anchor_A",
+                "equal_pressure": null,
+                "factors_bound": 5.94137422469505e-16,
+                "floor_scale": 10214.905240338914,
+                "group": "support_moment_magnitude",
+                "location": "node",
+                "q": 5.71302637434646,
+                "q_hat": 5.713026374346462,
+                "reason": null,
+                "rounding_error": 8.881784197001252e-16,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:support-action:8:anchor_A:moment_magnitude"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 0.0,
+                "entity": "rot_B",
+                "equal_pressure": null,
+                "factors_bound": 0.0,
+                "floor_scale": 2553.7263100847285,
+                "group": "support_force",
+                "location": "node",
+                "q": 0.0,
+                "q_hat": 0.0,
+                "reason": "below_floor",
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:support-action:5:rot_B:Fx",
+                  "result:combination:C_SIGNED:support-action:5:rot_B:Fy",
+                  "result:combination:C_SIGNED:support-action:5:rot_B:Fz"
+                ],
+                "verdict": "not_assessed"
+              },
+              {
+                "bound": 5.94137422469505e-16,
+                "entity": "rot_B",
+                "equal_pressure": null,
+                "factors_bound": 5.94137422469505e-16,
+                "floor_scale": 10214.905240338914,
+                "group": "support_moment",
+                "location": "node",
+                "q": 5.71302637434646,
+                "q_hat": 5.7130263743464615,
+                "reason": null,
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:support-action:5:rot_B:Mx",
+                  "result:combination:C_SIGNED:support-action:5:rot_B:My",
+                  "result:combination:C_SIGNED:support-action:5:rot_B:Mz"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 0.0,
+                "entity": "rot_B",
+                "equal_pressure": null,
+                "factors_bound": 0.0,
+                "floor_scale": 2553.7263100847285,
+                "group": "support_force_magnitude",
+                "location": "node",
+                "q": 0.0,
+                "q_hat": 0.0,
+                "reason": "below_floor",
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:support-action:5:rot_B:force_magnitude"
+                ],
+                "verdict": "not_assessed"
+              },
+              {
+                "bound": 1.4823158421696303e-15,
+                "entity": "rot_B",
+                "equal_pressure": null,
+                "factors_bound": 5.94137422469505e-16,
+                "floor_scale": 10214.905240338914,
+                "group": "support_moment_magnitude",
+                "location": "node",
+                "q": 5.71302637434646,
+                "q_hat": 5.713026374346462,
+                "reason": null,
+                "rounding_error": 8.881784197001252e-16,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:support-action:5:rot_B:moment_magnitude"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 1.4756035021179873e-13,
+                "entity": "stop_B",
+                "equal_pressure": null,
+                "factors_bound": 5.6525040888405316e-14,
+                "floor_scale": 2553.7263100847285,
+                "group": "support_force",
+                "location": "node",
+                "q": 2555.8175400564855,
+                "q_hat": 2555.817540056486,
+                "reason": null,
+                "rounding_error": 9.10353093233934e-14,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:support-action:6:stop_B:Fx",
+                  "result:combination:C_SIGNED:support-action:6:stop_B:Fy",
+                  "result:combination:C_SIGNED:support-action:6:stop_B:Fz"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 0.0,
+                "entity": "stop_B",
+                "equal_pressure": null,
+                "factors_bound": 0.0,
+                "floor_scale": 10214.905240338914,
+                "group": "support_moment",
+                "location": "node",
+                "q": 0.0,
+                "q_hat": 0.0,
+                "reason": "below_floor",
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:support-action:6:stop_B:Mx",
+                  "result:combination:C_SIGNED:support-action:6:stop_B:My",
+                  "result:combination:C_SIGNED:support-action:6:stop_B:Mz"
+                ],
+                "verdict": "not_assessed"
+              },
+              {
+                "bound": 6.02307701098263e-13,
+                "entity": "stop_B",
+                "equal_pressure": null,
+                "factors_bound": 1.4756035021179873e-13,
+                "floor_scale": 2553.7263100847285,
+                "group": "support_force_magnitude",
+                "location": "node",
+                "q": 2555.8175400564855,
+                "q_hat": 2555.8175400564865,
+                "reason": null,
+                "rounding_error": 4.547473508864641e-13,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:support-action:6:stop_B:force_magnitude"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 0.0,
+                "entity": "stop_B",
+                "equal_pressure": null,
+                "factors_bound": 0.0,
+                "floor_scale": 10214.905240338914,
+                "group": "support_moment_magnitude",
+                "location": "node",
+                "q": 0.0,
+                "q_hat": 0.0,
+                "reason": "below_floor",
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:support-action:6:stop_B:moment_magnitude"
+                ],
+                "verdict": "not_assessed"
+              },
+              {
+                "bound": 1.132715994909405e-16,
+                "entity": "spring_B",
+                "equal_pressure": null,
+                "factors_bound": 5.776044825968267e-17,
+                "floor_scale": 2553.7263100847285,
+                "group": "support_force",
+                "location": "node",
+                "q": 1.0103112037461044,
+                "q_hat": 1.0103112037461048,
+                "reason": null,
+                "rounding_error": 5.551115123125783e-17,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:support-action:8:spring_B:Fx",
+                  "result:combination:C_SIGNED:support-action:8:spring_B:Fy",
+                  "result:combination:C_SIGNED:support-action:8:spring_B:Fz"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 0.0,
+                "entity": "spring_B",
+                "equal_pressure": null,
+                "factors_bound": 0.0,
+                "floor_scale": 10214.905240338914,
+                "group": "support_moment",
+                "location": "node",
+                "q": 0.0,
+                "q_hat": 0.0,
+                "reason": "below_floor",
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:support-action:8:spring_B:Mx",
+                  "result:combination:C_SIGNED:support-action:8:spring_B:My",
+                  "result:combination:C_SIGNED:support-action:8:spring_B:Mz"
+                ],
+                "verdict": "not_assessed"
+              },
+              {
+                "bound": 3.353162044159719e-16,
+                "entity": "spring_B",
+                "equal_pressure": null,
+                "factors_bound": 1.132715994909405e-16,
+                "floor_scale": 2553.7263100847285,
+                "group": "support_force_magnitude",
+                "location": "node",
+                "q": 1.0103112037461044,
+                "q_hat": 1.010311203746105,
+                "reason": null,
+                "rounding_error": 2.220446049250313e-16,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:support-action:8:spring_B:force_magnitude"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 0.0,
+                "entity": "spring_B",
+                "equal_pressure": null,
+                "factors_bound": 0.0,
+                "floor_scale": 10214.905240338914,
+                "group": "support_moment_magnitude",
+                "location": "node",
+                "q": 0.0,
+                "q_hat": 0.0,
+                "reason": "below_floor",
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:support-action:8:spring_B:moment_magnitude"
+                ],
+                "verdict": "not_assessed"
+              },
+              {
+                "bound": 8.663827948929934e-14,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 2.979486062849133e-14,
+                "floor_scale": 2553.7263100847285,
+                "group": "axial",
+                "location": "end_i",
+                "q": 1021.4905240338915,
+                "q_hat": 1021.4905240338917,
+                "reason": null,
+                "rounding_error": 5.684341886080802e-14,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:force:pipe-AB:axial"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 2.970687112347525e-16,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 2.970687112347525e-16,
+                "floor_scale": 2553.7263100847285,
+                "group": "shear",
+                "location": "end_i",
+                "q": 2.85651318717323,
+                "q_hat": 2.8565131871732308,
+                "reason": null,
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:force:pipe-AB:shear-y",
+                  "result:combination:C_SIGNED:force:pipe-AB:shear-z"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 0.0,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 0.0,
+                "floor_scale": 10214.905240338914,
+                "group": "torsion",
+                "location": "end_i",
+                "q": 0.0,
+                "q_hat": 0.0,
+                "reason": "below_floor",
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:moment:pipe-AB:torsion"
+                ],
+                "verdict": "not_assessed"
+              },
+              {
+                "bound": 5.94137422469505e-16,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 5.94137422469505e-16,
+                "floor_scale": 10214.905240338914,
+                "group": "bending",
+                "location": "end_i",
+                "q": 5.71302637434646,
+                "q_hat": 5.7130263743464615,
+                "reason": null,
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:moment:pipe-AB:bending-y",
+                  "result:combination:C_SIGNED:moment:pipe-AB:bending-z"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 8.663827948929934e-14,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 2.979486062849133e-14,
+                "floor_scale": 2553.7263100847285,
+                "group": "axial",
+                "location": "end_j",
+                "q": 1021.4905240338915,
+                "q_hat": 1021.4905240338917,
+                "reason": null,
+                "rounding_error": 5.684341886080802e-14,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:force:pipe-AB:axial:end-j"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 2.970687112347525e-16,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 2.970687112347525e-16,
+                "floor_scale": 2553.7263100847285,
+                "group": "shear",
+                "location": "end_j",
+                "q": 2.85651318717323,
+                "q_hat": 2.8565131871732308,
+                "reason": null,
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:force:pipe-AB:shear-y:end-j",
+                  "result:combination:C_SIGNED:force:pipe-AB:shear-z:end-j"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 0.0,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 0.0,
+                "floor_scale": 10214.905240338914,
+                "group": "torsion",
+                "location": "end_j",
+                "q": 0.0,
+                "q_hat": 0.0,
+                "reason": "below_floor",
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:moment:pipe-AB:torsion:end-j"
+                ],
+                "verdict": "not_assessed"
+              },
+              {
+                "bound": 5.94137422469505e-16,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 5.94137422469505e-16,
+                "floor_scale": 10214.905240338914,
+                "group": "bending",
+                "location": "end_j",
+                "q": 5.71302637434646,
+                "q_hat": 5.7130263743464615,
+                "reason": null,
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:moment:pipe-AB:bending-y:end-j",
+                  "result:combination:C_SIGNED:moment:pipe-AB:bending-z:end-j"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 8.663827948929934e-14,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 2.979486062849133e-14,
+                "floor_scale": 2553.7263100847285,
+                "group": "axial",
+                "location": "quarter_1",
+                "q": 1021.4905240338915,
+                "q_hat": 1021.4905240338917,
+                "reason": null,
+                "rounding_error": 5.684341886080802e-14,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:force:pipe-AB:quarter-1:axial"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 2.970687112347525e-16,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 2.970687112347525e-16,
+                "floor_scale": 2553.7263100847285,
+                "group": "shear",
+                "location": "quarter_1",
+                "q": 2.85651318717323,
+                "q_hat": 2.8565131871732308,
+                "reason": null,
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:force:pipe-AB:quarter-1:shear-y",
+                  "result:combination:C_SIGNED:force:pipe-AB:quarter-1:shear-z"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 0.0,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 0.0,
+                "floor_scale": 10214.905240338914,
+                "group": "torsion",
+                "location": "quarter_1",
+                "q": 0.0,
+                "q_hat": 0.0,
+                "reason": "below_floor",
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:moment:pipe-AB:quarter-1:torsion"
+                ],
+                "verdict": "not_assessed"
+              },
+              {
+                "bound": 2.970687112347525e-16,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 2.970687112347525e-16,
+                "floor_scale": 10214.905240338914,
+                "group": "bending",
+                "location": "quarter_1",
+                "q": 2.85651318717323,
+                "q_hat": 2.8565131871732308,
+                "reason": null,
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:moment:pipe-AB:quarter-1:bending-y",
+                  "result:combination:C_SIGNED:moment:pipe-AB:quarter-1:bending-z"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 8.663827948929934e-14,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 2.979486062849133e-14,
+                "floor_scale": 2553.7263100847285,
+                "group": "axial",
+                "location": "midspan",
+                "q": 1021.4905240338915,
+                "q_hat": 1021.4905240338917,
+                "reason": null,
+                "rounding_error": 5.684341886080802e-14,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:force:pipe-AB:midspan:axial"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 2.970687112347525e-16,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 2.970687112347525e-16,
+                "floor_scale": 2553.7263100847285,
+                "group": "shear",
+                "location": "midspan",
+                "q": 2.85651318717323,
+                "q_hat": 2.8565131871732308,
+                "reason": null,
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:force:pipe-AB:midspan:shear-y",
+                  "result:combination:C_SIGNED:force:pipe-AB:midspan:shear-z"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 0.0,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 0.0,
+                "floor_scale": 10214.905240338914,
+                "group": "torsion",
+                "location": "midspan",
+                "q": 0.0,
+                "q_hat": 0.0,
+                "reason": "below_floor",
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:moment:pipe-AB:midspan:torsion"
+                ],
+                "verdict": "not_assessed"
+              },
+              {
+                "bound": 2.3504705802000535e-37,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 2.3504705802000535e-37,
+                "floor_scale": 10214.905240338914,
+                "group": "bending",
+                "location": "midspan",
+                "q": 0.0,
+                "q_hat": 2.3504705802000535e-37,
+                "reason": "below_floor",
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:moment:pipe-AB:midspan:bending-y",
+                  "result:combination:C_SIGNED:moment:pipe-AB:midspan:bending-z"
+                ],
+                "verdict": "not_assessed"
+              },
+              {
+                "bound": 8.663827948929934e-14,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 2.979486062849133e-14,
+                "floor_scale": 2553.7263100847285,
+                "group": "axial",
+                "location": "quarter_3",
+                "q": 1021.4905240338915,
+                "q_hat": 1021.4905240338917,
+                "reason": null,
+                "rounding_error": 5.684341886080802e-14,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:force:pipe-AB:quarter-3:axial"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 2.970687112347525e-16,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 2.970687112347525e-16,
+                "floor_scale": 2553.7263100847285,
+                "group": "shear",
+                "location": "quarter_3",
+                "q": 2.85651318717323,
+                "q_hat": 2.8565131871732308,
+                "reason": null,
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:force:pipe-AB:quarter-3:shear-y",
+                  "result:combination:C_SIGNED:force:pipe-AB:quarter-3:shear-z"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 0.0,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 0.0,
+                "floor_scale": 10214.905240338914,
+                "group": "torsion",
+                "location": "quarter_3",
+                "q": 0.0,
+                "q_hat": 0.0,
+                "reason": "below_floor",
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:moment:pipe-AB:quarter-3:torsion"
+                ],
+                "verdict": "not_assessed"
+              },
+              {
+                "bound": 2.970687112347525e-16,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 2.970687112347525e-16,
+                "floor_scale": 10214.905240338914,
+                "group": "bending",
+                "location": "quarter_3",
+                "q": 2.85651318717323,
+                "q_hat": 2.8565131871732308,
+                "reason": null,
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_SIGNED:moment:pipe-AB:quarter-3:bending-y",
+                  "result:combination:C_SIGNED:moment:pipe-AB:quarter-3:bending-z"
+                ],
+                "verdict": "established"
+              }
+            ],
+            "reason": null,
+            "subtrahend_support_state": null,
+            "uncovered_row_count": 48
+          },
+          {
+            "assessment": "not_assessed",
+            "basis": "absolute_sum",
+            "combination_id": "C_ABS",
+            "expression": {
+              "terms": [
+                {
+                  "factor": 1.0,
+                  "load_case_id": "case:skew"
+                },
+                {
+                  "factor": 1.0,
+                  "load_case_id": "case:b"
+                }
+              ]
+            },
+            "groups": [],
+            "reason": "absolute sums and SRSS are outside the certificate",
+            "subtrahend_support_state": null,
+            "uncovered_row_count": 110
+          },
+          {
+            "assessment": "not_assessed",
+            "basis": "srss",
+            "combination_id": "C_SRSS",
+            "expression": {
+              "terms": [
+                {
+                  "factor": 1.0,
+                  "load_case_id": "case:skew"
+                },
+                {
+                  "factor": 1.0,
+                  "load_case_id": "case:b"
+                }
+              ]
+            },
+            "groups": [],
+            "reason": "absolute sums and SRSS are outside the certificate",
+            "subtrahend_support_state": null,
+            "uncovered_row_count": 110
+          },
+          {
+            "assessment": "not_assessed",
+            "basis": "range_envelope",
+            "combination_id": "C_ENV",
+            "expression": {
+              "mode": "max",
+              "operand_ids": [
+                "case:skew",
+                "case:b"
+              ]
+            },
+            "groups": [],
+            "reason": "range-envelope certification is deferred",
+            "subtrahend_support_state": null,
+            "uncovered_row_count": 110
+          },
+          {
+            "assessment": "assessed",
+            "basis": "result_state_subtraction",
+            "combination_id": "C_DIFF",
+            "expression": {
+              "minuend_id": "case:skew",
+              "subtrahend_id": "case:b"
+            },
+            "groups": [
+              {
+                "bound": 2.1660534664106173e-14,
+                "entity": "anchor_A",
+                "equal_pressure": null,
+                "factors_bound": 2.1660534664106173e-14,
+                "floor_scale": 1276.8631550423643,
+                "group": "support_force",
+                "location": "node",
+                "q": 255.37362950667776,
+                "q_hat": 255.37362950667782,
+                "reason": null,
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:support-action:8:anchor_A:Fx",
+                  "result:combination:C_DIFF:support-action:8:anchor_A:Fy",
+                  "result:combination:C_DIFF:support-action:8:anchor_A:Fz"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 3.727577089576016e-16,
+                "entity": "anchor_A",
+                "equal_pressure": null,
+                "factors_bound": 3.727577089576016e-16,
+                "floor_scale": 5107.452620169457,
+                "group": "support_moment",
+                "location": "node",
+                "q": 1.4282565935866152,
+                "q_hat": 1.4282565935866158,
+                "reason": null,
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:support-action:8:anchor_A:Mx",
+                  "result:combination:C_DIFF:support-action:8:anchor_A:My",
+                  "result:combination:C_DIFF:support-action:8:anchor_A:Mz"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 5.008224409451018e-14,
+                "entity": "anchor_A",
+                "equal_pressure": null,
+                "factors_bound": 2.1660534664106173e-14,
+                "floor_scale": 1276.8631550423643,
+                "group": "support_force_magnitude",
+                "location": "node",
+                "q": 255.37362950667776,
+                "q_hat": 255.37362950667784,
+                "reason": null,
+                "rounding_error": 2.842170943040401e-14,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:support-action:8:anchor_A:force_magnitude"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 5.94802313882633e-16,
+                "entity": "anchor_A",
+                "equal_pressure": null,
+                "factors_bound": 3.727577089576016e-16,
+                "floor_scale": 5107.452620169457,
+                "group": "support_moment_magnitude",
+                "location": "node",
+                "q": 1.4282565935866152,
+                "q_hat": 1.428256593586616,
+                "reason": null,
+                "rounding_error": 2.220446049250313e-16,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:support-action:8:anchor_A:moment_magnitude"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 0.0,
+                "entity": "rot_B",
+                "equal_pressure": null,
+                "factors_bound": 0.0,
+                "floor_scale": 1276.8631550423643,
+                "group": "support_force",
+                "location": "node",
+                "q": 0.0,
+                "q_hat": 0.0,
+                "reason": "below_floor",
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:support-action:5:rot_B:Fx",
+                  "result:combination:C_DIFF:support-action:5:rot_B:Fy",
+                  "result:combination:C_DIFF:support-action:5:rot_B:Fz"
+                ],
+                "verdict": "not_assessed"
+              },
+              {
+                "bound": 3.727577089576016e-16,
+                "entity": "rot_B",
+                "equal_pressure": null,
+                "factors_bound": 3.727577089576016e-16,
+                "floor_scale": 5107.452620169457,
+                "group": "support_moment",
+                "location": "node",
+                "q": 1.4282565935866152,
+                "q_hat": 1.4282565935866158,
+                "reason": null,
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:support-action:5:rot_B:Mx",
+                  "result:combination:C_DIFF:support-action:5:rot_B:My",
+                  "result:combination:C_DIFF:support-action:5:rot_B:Mz"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 0.0,
+                "entity": "rot_B",
+                "equal_pressure": null,
+                "factors_bound": 0.0,
+                "floor_scale": 1276.8631550423643,
+                "group": "support_force_magnitude",
+                "location": "node",
+                "q": 0.0,
+                "q_hat": 0.0,
+                "reason": "below_floor",
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:support-action:5:rot_B:force_magnitude"
+                ],
+                "verdict": "not_assessed"
+              },
+              {
+                "bound": 5.94802313882633e-16,
+                "entity": "rot_B",
+                "equal_pressure": null,
+                "factors_bound": 3.727577089576016e-16,
+                "floor_scale": 5107.452620169457,
+                "group": "support_moment_magnitude",
+                "location": "node",
+                "q": 1.4282565935866152,
+                "q_hat": 1.428256593586616,
+                "reason": null,
+                "rounding_error": 2.220446049250313e-16,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:support-action:5:rot_B:moment_magnitude"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 9.90309946694768e-14,
+                "entity": "stop_B",
+                "equal_pressure": null,
+                "factors_bound": 2.8279555264426455e-14,
+                "floor_scale": 1276.8631550423643,
+                "group": "support_force",
+                "location": "node",
+                "q": 1278.9543850141215,
+                "q_hat": 1278.9543850141217,
+                "reason": null,
+                "rounding_error": 7.075143940505033e-14,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:support-action:6:stop_B:Fx",
+                  "result:combination:C_DIFF:support-action:6:stop_B:Fy",
+                  "result:combination:C_DIFF:support-action:6:stop_B:Fz"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 0.0,
+                "entity": "stop_B",
+                "equal_pressure": null,
+                "factors_bound": 0.0,
+                "floor_scale": 5107.452620169457,
+                "group": "support_moment",
+                "location": "node",
+                "q": 0.0,
+                "q_hat": 0.0,
+                "reason": "below_floor",
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:support-action:6:stop_B:Mx",
+                  "result:combination:C_DIFF:support-action:6:stop_B:My",
+                  "result:combination:C_DIFF:support-action:6:stop_B:Mz"
+                ],
+                "verdict": "not_assessed"
+              },
+              {
+                "bound": 3.264046701127089e-13,
+                "entity": "stop_B",
+                "equal_pressure": null,
+                "factors_bound": 9.90309946694768e-14,
+                "floor_scale": 1276.8631550423643,
+                "group": "support_force_magnitude",
+                "location": "node",
+                "q": 1278.9543850141215,
+                "q_hat": 1278.954385014122,
+                "reason": null,
+                "rounding_error": 2.2737367544323206e-13,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:support-action:6:stop_B:force_magnitude"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 0.0,
+                "entity": "stop_B",
+                "equal_pressure": null,
+                "factors_bound": 0.0,
+                "floor_scale": 5107.452620169457,
+                "group": "support_moment_magnitude",
+                "location": "node",
+                "q": 0.0,
+                "q_hat": 0.0,
+                "reason": "below_floor",
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:support-action:6:stop_B:moment_magnitude"
+                ],
+                "verdict": "not_assessed"
+              },
+              {
+                "bound": 3.5375902913710145e-17,
+                "entity": "spring_B",
+                "equal_pressure": null,
+                "factors_bound": 3.5375902913710145e-17,
+                "floor_scale": 1276.8631550423643,
+                "group": "support_force",
+                "location": "node",
+                "q": 0.2525778009365261,
+                "q_hat": 0.2525778009365262,
+                "reason": null,
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:support-action:8:spring_B:Fx",
+                  "result:combination:C_DIFF:support-action:8:spring_B:Fy",
+                  "result:combination:C_DIFF:support-action:8:spring_B:Fz"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 0.0,
+                "entity": "spring_B",
+                "equal_pressure": null,
+                "factors_bound": 0.0,
+                "floor_scale": 5107.452620169457,
+                "group": "support_moment",
+                "location": "node",
+                "q": 0.0,
+                "q_hat": 0.0,
+                "reason": "below_floor",
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:support-action:8:spring_B:Mx",
+                  "result:combination:C_DIFF:support-action:8:spring_B:My",
+                  "result:combination:C_DIFF:support-action:8:spring_B:Mz"
+                ],
+                "verdict": "not_assessed"
+              },
+              {
+                "bound": 9.088705414496797e-17,
+                "entity": "spring_B",
+                "equal_pressure": null,
+                "factors_bound": 3.5375902913710145e-17,
+                "floor_scale": 1276.8631550423643,
+                "group": "support_force_magnitude",
+                "location": "node",
+                "q": 0.2525778009365261,
+                "q_hat": 0.25257780093652626,
+                "reason": null,
+                "rounding_error": 5.551115123125783e-17,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:support-action:8:spring_B:force_magnitude"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 0.0,
+                "entity": "spring_B",
+                "equal_pressure": null,
+                "factors_bound": 0.0,
+                "floor_scale": 5107.452620169457,
+                "group": "support_moment_magnitude",
+                "location": "node",
+                "q": 0.0,
+                "q_hat": 0.0,
+                "reason": "below_floor",
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:support-action:8:spring_B:moment_magnitude"
+                ],
+                "verdict": "not_assessed"
+              },
+              {
+                "bound": 2.1659569872324842e-14,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 2.1659569872324842e-14,
+                "floor_scale": 1276.8631550423643,
+                "group": "axial",
+                "location": "end_i",
+                "q": 255.37263100847287,
+                "q_hat": 255.37263100847292,
+                "reason": null,
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:force:pipe-AB:axial"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 1.863788544788008e-16,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 1.863788544788008e-16,
+                "floor_scale": 1276.8631550423643,
+                "group": "shear",
+                "location": "end_i",
+                "q": 0.7141282967933076,
+                "q_hat": 0.7141282967933079,
+                "reason": null,
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:force:pipe-AB:shear-y",
+                  "result:combination:C_DIFF:force:pipe-AB:shear-z"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 0.0,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 0.0,
+                "floor_scale": 5107.452620169457,
+                "group": "torsion",
+                "location": "end_i",
+                "q": 0.0,
+                "q_hat": 0.0,
+                "reason": "below_floor",
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:moment:pipe-AB:torsion"
+                ],
+                "verdict": "not_assessed"
+              },
+              {
+                "bound": 3.727577089576016e-16,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 3.727577089576016e-16,
+                "floor_scale": 5107.452620169457,
+                "group": "bending",
+                "location": "end_i",
+                "q": 1.4282565935866152,
+                "q_hat": 1.4282565935866158,
+                "reason": null,
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:moment:pipe-AB:bending-y",
+                  "result:combination:C_DIFF:moment:pipe-AB:bending-z"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 2.1659569872324842e-14,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 2.1659569872324842e-14,
+                "floor_scale": 1276.8631550423643,
+                "group": "axial",
+                "location": "end_j",
+                "q": 255.37263100847287,
+                "q_hat": 255.37263100847292,
+                "reason": null,
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:force:pipe-AB:axial:end-j"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 1.863788544788008e-16,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 1.863788544788008e-16,
+                "floor_scale": 1276.8631550423643,
+                "group": "shear",
+                "location": "end_j",
+                "q": 0.7141282967933076,
+                "q_hat": 0.7141282967933079,
+                "reason": null,
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:force:pipe-AB:shear-y:end-j",
+                  "result:combination:C_DIFF:force:pipe-AB:shear-z:end-j"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 0.0,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 0.0,
+                "floor_scale": 5107.452620169457,
+                "group": "torsion",
+                "location": "end_j",
+                "q": 0.0,
+                "q_hat": 0.0,
+                "reason": "below_floor",
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:moment:pipe-AB:torsion:end-j"
+                ],
+                "verdict": "not_assessed"
+              },
+              {
+                "bound": 3.727577089576016e-16,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 3.727577089576016e-16,
+                "floor_scale": 5107.452620169457,
+                "group": "bending",
+                "location": "end_j",
+                "q": 1.4282565935866152,
+                "q_hat": 1.4282565935866158,
+                "reason": null,
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:moment:pipe-AB:bending-y:end-j",
+                  "result:combination:C_DIFF:moment:pipe-AB:bending-z:end-j"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 2.1659569872324842e-14,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 2.1659569872324842e-14,
+                "floor_scale": 1276.8631550423643,
+                "group": "axial",
+                "location": "quarter_1",
+                "q": 255.37263100847287,
+                "q_hat": 255.37263100847292,
+                "reason": null,
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:force:pipe-AB:quarter-1:axial"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 1.863788544788008e-16,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 1.863788544788008e-16,
+                "floor_scale": 1276.8631550423643,
+                "group": "shear",
+                "location": "quarter_1",
+                "q": 0.7141282967933076,
+                "q_hat": 0.7141282967933079,
+                "reason": null,
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:force:pipe-AB:quarter-1:shear-y",
+                  "result:combination:C_DIFF:force:pipe-AB:quarter-1:shear-z"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 0.0,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 0.0,
+                "floor_scale": 5107.452620169457,
+                "group": "torsion",
+                "location": "quarter_1",
+                "q": 0.0,
+                "q_hat": 0.0,
+                "reason": "below_floor",
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:moment:pipe-AB:quarter-1:torsion"
+                ],
+                "verdict": "not_assessed"
+              },
+              {
+                "bound": 1.863788544788008e-16,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 1.863788544788008e-16,
+                "floor_scale": 5107.452620169457,
+                "group": "bending",
+                "location": "quarter_1",
+                "q": 0.7141282967933076,
+                "q_hat": 0.7141282967933079,
+                "reason": null,
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:moment:pipe-AB:quarter-1:bending-y",
+                  "result:combination:C_DIFF:moment:pipe-AB:quarter-1:bending-z"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 2.1659569872324842e-14,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 2.1659569872324842e-14,
+                "floor_scale": 1276.8631550423643,
+                "group": "axial",
+                "location": "midspan",
+                "q": 255.37263100847287,
+                "q_hat": 255.37263100847292,
+                "reason": null,
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:force:pipe-AB:midspan:axial"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 1.863788544788008e-16,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 1.863788544788008e-16,
+                "floor_scale": 1276.8631550423643,
+                "group": "shear",
+                "location": "midspan",
+                "q": 0.7141282967933076,
+                "q_hat": 0.7141282967933079,
+                "reason": null,
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:force:pipe-AB:midspan:shear-y",
+                  "result:combination:C_DIFF:force:pipe-AB:midspan:shear-z"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 0.0,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 0.0,
+                "floor_scale": 5107.452620169457,
+                "group": "torsion",
+                "location": "midspan",
+                "q": 0.0,
+                "q_hat": 0.0,
+                "reason": "below_floor",
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:moment:pipe-AB:midspan:torsion"
+                ],
+                "verdict": "not_assessed"
+              },
+              {
+                "bound": 1.4690441126250335e-37,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 1.4690441126250335e-37,
+                "floor_scale": 5107.452620169457,
+                "group": "bending",
+                "location": "midspan",
+                "q": 0.0,
+                "q_hat": 1.4690441126250335e-37,
+                "reason": "below_floor",
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:moment:pipe-AB:midspan:bending-y",
+                  "result:combination:C_DIFF:moment:pipe-AB:midspan:bending-z"
+                ],
+                "verdict": "not_assessed"
+              },
+              {
+                "bound": 2.1659569872324842e-14,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 2.1659569872324842e-14,
+                "floor_scale": 1276.8631550423643,
+                "group": "axial",
+                "location": "quarter_3",
+                "q": 255.37263100847287,
+                "q_hat": 255.37263100847292,
+                "reason": null,
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:force:pipe-AB:quarter-3:axial"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 1.863788544788008e-16,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 1.863788544788008e-16,
+                "floor_scale": 1276.8631550423643,
+                "group": "shear",
+                "location": "quarter_3",
+                "q": 0.7141282967933076,
+                "q_hat": 0.7141282967933079,
+                "reason": null,
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:force:pipe-AB:quarter-3:shear-y",
+                  "result:combination:C_DIFF:force:pipe-AB:quarter-3:shear-z"
+                ],
+                "verdict": "established"
+              },
+              {
+                "bound": 0.0,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 0.0,
+                "floor_scale": 5107.452620169457,
+                "group": "torsion",
+                "location": "quarter_3",
+                "q": 0.0,
+                "q_hat": 0.0,
+                "reason": "below_floor",
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:moment:pipe-AB:quarter-3:torsion"
+                ],
+                "verdict": "not_assessed"
+              },
+              {
+                "bound": 1.863788544788008e-16,
+                "entity": "pipe:AB",
+                "equal_pressure": null,
+                "factors_bound": 1.863788544788008e-16,
+                "floor_scale": 5107.452620169457,
+                "group": "bending",
+                "location": "quarter_3",
+                "q": 0.7141282967933076,
+                "q_hat": 0.7141282967933079,
+                "reason": null,
+                "rounding_error": 0.0,
+                "row_set": 0,
+                "rows": [
+                  "result:combination:C_DIFF:moment:pipe-AB:quarter-3:bending-y",
+                  "result:combination:C_DIFF:moment:pipe-AB:quarter-3:bending-z"
+                ],
+                "verdict": "established"
+              }
+            ],
+            "reason": null,
+            "subtrahend_support_state": null,
+            "uncovered_row_count": 48
+          }
+        ],
+        "operand_cases": [
+          {
+            "groups": [
+              {
+                "bound": 8.13604375183397e-15,
+                "entity": "anchor_A",
+                "floor_scale": 1276.8631550423643,
+                "group": "support_force",
+                "location": "node",
+                "moment": false,
+                "q": 766.1208885200332,
+                "rows": [
+                  [
+                    "result:support-action:9:case:skew:8:anchor_A:Fx",
+                    "result:support-action:9:case:skew:8:anchor_A:Fy",
+                    "result:support-action:9:case:skew:8:anchor_A:Fz"
+                  ]
+                ]
+              },
+              {
+                "bound": 2.2137971351190335e-16,
+                "entity": "anchor_A",
+                "floor_scale": 5107.452620169457,
+                "group": "support_moment",
+                "location": "node",
+                "moment": true,
+                "q": 4.284769780759845,
+                "rows": [
+                  [
+                    "result:support-action:9:case:skew:8:anchor_A:Mx",
+                    "result:support-action:9:case:skew:8:anchor_A:My",
+                    "result:support-action:9:case:skew:8:anchor_A:Mz"
+                  ]
+                ]
+              },
+              {
+                "bound": 2.333123642737462e-14,
+                "entity": "anchor_A",
+                "floor_scale": 1276.8631550423643,
+                "group": "support_force_magnitude",
+                "location": "node",
+                "moment": false,
+                "q": 766.1208885200332,
+                "rows": [
+                  [
+                    "result:support-action:9:case:skew:8:anchor_A:force_magnitude"
+                  ]
+                ]
+              },
+              {
+                "bound": 3.8567347316236684e-16,
+                "entity": "anchor_A",
+                "floor_scale": 5107.452620169457,
+                "group": "support_moment_magnitude",
+                "location": "node",
+                "moment": true,
+                "q": 4.284769780759844,
+                "rows": [
+                  [
+                    "result:support-action:9:case:skew:8:anchor_A:moment_magnitude"
+                  ]
+                ]
+              },
+              {
+                "bound": 0.0,
+                "entity": "rot_B",
+                "floor_scale": 1276.8631550423643,
+                "group": "support_force",
+                "location": "node",
+                "moment": false,
+                "q": 0.0,
+                "rows": [
+                  [
+                    "result:support-action:9:case:skew:5:rot_B:Fx",
+                    "result:support-action:9:case:skew:5:rot_B:Fy",
+                    "result:support-action:9:case:skew:5:rot_B:Fz"
+                  ]
+                ]
+              },
+              {
+                "bound": 2.2137971351190335e-16,
+                "entity": "rot_B",
+                "floor_scale": 5107.452620169457,
+                "group": "support_moment",
+                "location": "node",
+                "moment": true,
+                "q": 4.284769780759845,
+                "rows": [
+                  [
+                    "result:support-action:9:case:skew:5:rot_B:Mx",
+                    "result:support-action:9:case:skew:5:rot_B:My",
+                    "result:support-action:9:case:skew:5:rot_B:Mz"
+                  ]
+                ]
+              },
+              {
+                "bound": 0.0,
+                "entity": "rot_B",
+                "floor_scale": 1276.8631550423643,
+                "group": "support_force_magnitude",
+                "location": "node",
+                "moment": false,
+                "q": 0.0,
+                "rows": [
+                  [
+                    "result:support-action:9:case:skew:5:rot_B:force_magnitude"
+                  ]
+                ]
+              },
+              {
+                "bound": 3.8567347316236684e-16,
+                "entity": "rot_B",
+                "floor_scale": 5107.452620169457,
+                "group": "support_moment_magnitude",
+                "location": "node",
+                "moment": true,
+                "q": 4.284769780759844,
+                "rows": [
+                  [
+                    "result:support-action:9:case:skew:5:rot_B:moment_magnitude"
+                  ]
+                ]
+              },
+              {
+                "bound": 2.8245485623978855e-14,
+                "entity": "stop_B",
+                "floor_scale": 1276.8631550423643,
+                "group": "support_force",
+                "location": "node",
+                "moment": false,
+                "q": 1276.8631550423643,
+                "rows": [
+                  [
+                    "result:support-action:9:case:skew:6:stop_B:Fx",
+                    "result:support-action:9:case:skew:6:stop_B:Fy",
+                    "result:support-action:9:case:skew:6:stop_B:Fz"
+                  ]
+                ]
+              },
+              {
+                "bound": 0.0,
+                "entity": "stop_B",
+                "floor_scale": 5107.452620169457,
+                "group": "support_moment",
+                "location": "node",
+                "moment": true,
+                "q": 0.0,
+                "rows": [
+                  [
+                    "result:support-action:9:case:skew:6:stop_B:Mx",
+                    "result:support-action:9:case:skew:6:stop_B:My",
+                    "result:support-action:9:case:skew:6:stop_B:Mz"
+                  ]
+                ]
+              },
+              {
+                "bound": 5.1454430500816167e-14,
+                "entity": "stop_B",
+                "floor_scale": 1276.8631550423643,
+                "group": "support_force_magnitude",
+                "location": "node",
+                "moment": false,
+                "q": 1276.8631550423643,
+                "rows": [
+                  [
+                    "result:support-action:9:case:skew:6:stop_B:force_magnitude"
+                  ]
+                ]
+              },
+              {
+                "bound": 0.0,
+                "entity": "stop_B",
+                "floor_scale": 5107.452620169457,
+                "group": "support_moment_magnitude",
+                "location": "node",
+                "moment": true,
+                "q": 0.0,
+                "rows": [
+                  [
+                    "result:support-action:9:case:skew:6:stop_B:moment_magnitude"
+                  ]
+                ]
+              },
+              {
+                "bound": 5.1454430500816167e-14,
+                "entity": "stop_B",
+                "floor_scale": 1276.8631550423643,
+                "group": "along_direction",
+                "location": "node",
+                "moment": false,
+                "q": 1276.8631550423643,
+                "rows": []
+              },
+              {
+                "bound": 2.238454534597251e-17,
+                "entity": "spring_B",
+                "floor_scale": 1276.8631550423643,
+                "group": "support_force",
+                "location": "node",
+                "moment": false,
+                "q": 0.7577334028095782,
+                "rows": [
+                  [
+                    "result:support-action:9:case:skew:8:spring_B:Fx",
+                    "result:support-action:9:case:skew:8:spring_B:Fy",
+                    "result:support-action:9:case:skew:8:spring_B:Fz"
+                  ]
+                ]
+              },
+              {
+                "bound": 0.0,
+                "entity": "spring_B",
+                "floor_scale": 5107.452620169457,
+                "group": "support_moment",
+                "location": "node",
+                "moment": true,
+                "q": 0.0,
+                "rows": [
+                  [
+                    "result:support-action:9:case:skew:8:spring_B:Mx",
+                    "result:support-action:9:case:skew:8:spring_B:My",
+                    "result:support-action:9:case:skew:8:spring_B:Mz"
+                  ]
+                ]
+              },
+              {
+                "bound": 8.268539264022479e-18,
+                "entity": "spring_B",
+                "floor_scale": 1276.8631550423643,
+                "group": "support_force_magnitude",
+                "location": "node",
+                "moment": false,
+                "q": 0.7577334028095782,
+                "rows": [
+                  [
+                    "result:support-action:9:case:skew:8:spring_B:force_magnitude"
+                  ]
+                ]
+              },
+              {
+                "bound": 0.0,
+                "entity": "spring_B",
+                "floor_scale": 5107.452620169457,
+                "group": "support_moment_magnitude",
+                "location": "node",
+                "moment": true,
+                "q": 0.0,
+                "rows": [
+                  [
+                    "result:support-action:9:case:skew:8:spring_B:moment_magnitude"
+                  ]
+                ]
+              },
+              {
+                "bound": 8.268539264022479e-18,
+                "entity": "spring_B",
+                "floor_scale": 1276.8631550423643,
+                "group": "along_direction",
+                "location": "node",
+                "moment": false,
+                "q": 0.7577334028095782,
+                "rows": []
+              },
+              {
+                "bound": 8.135290756166486e-15,
+                "entity": "pipe:AB",
+                "floor_scale": 1276.8631550423643,
+                "group": "axial",
+                "location": "end_i",
+                "moment": false,
+                "q": 766.1178930254185,
+                "rows": [
+                  [
+                    "result:force:pipe-AB:axial"
+                  ]
+                ]
+              },
+              {
+                "bound": 1.1068985675595168e-16,
+                "entity": "pipe:AB",
+                "floor_scale": 1276.8631550423643,
+                "group": "shear",
+                "location": "end_i",
+                "moment": false,
+                "q": 2.1423848903799225,
+                "rows": [
+                  [
+                    "result:force:pipe-AB:shear-y",
+                    "result:force:pipe-AB:shear-z"
+                  ]
+                ]
+              },
+              {
+                "bound": 0.0,
+                "entity": "pipe:AB",
+                "floor_scale": 5107.452620169457,
+                "group": "torsion",
+                "location": "end_i",
+                "moment": true,
+                "q": 0.0,
+                "rows": [
+                  [
+                    "result:moment:pipe-AB:torsion"
+                  ]
+                ]
+              },
+              {
+                "bound": 2.2137971351190335e-16,
+                "entity": "pipe:AB",
+                "floor_scale": 5107.452620169457,
+                "group": "bending",
+                "location": "end_i",
+                "moment": true,
+                "q": 4.284769780759845,
+                "rows": [
+                  [
+                    "result:moment:pipe-AB:bending-y",
+                    "result:moment:pipe-AB:bending-z"
+                  ]
+                ]
+              },
+              {
+                "bound": 8.135290756166486e-15,
+                "entity": "pipe:AB",
+                "floor_scale": 1276.8631550423643,
+                "group": "axial",
+                "location": "end_j",
+                "moment": false,
+                "q": 766.1178930254185,
+                "rows": [
+                  [
+                    "result:force:pipe-AB:axial:end-j"
+                  ]
+                ]
+              },
+              {
+                "bound": 1.1068985675595168e-16,
+                "entity": "pipe:AB",
+                "floor_scale": 1276.8631550423643,
+                "group": "shear",
+                "location": "end_j",
+                "moment": false,
+                "q": 2.1423848903799225,
+                "rows": [
+                  [
+                    "result:force:pipe-AB:shear-y:end-j",
+                    "result:force:pipe-AB:shear-z:end-j"
+                  ]
+                ]
+              },
+              {
+                "bound": 0.0,
+                "entity": "pipe:AB",
+                "floor_scale": 5107.452620169457,
+                "group": "torsion",
+                "location": "end_j",
+                "moment": true,
+                "q": 0.0,
+                "rows": [
+                  [
+                    "result:moment:pipe-AB:torsion:end-j"
+                  ]
+                ]
+              },
+              {
+                "bound": 2.2137971351190335e-16,
+                "entity": "pipe:AB",
+                "floor_scale": 5107.452620169457,
+                "group": "bending",
+                "location": "end_j",
+                "moment": true,
+                "q": 4.284769780759845,
+                "rows": [
+                  [
+                    "result:moment:pipe-AB:bending-y:end-j",
+                    "result:moment:pipe-AB:bending-z:end-j"
+                  ]
+                ]
+              },
+              {
+                "bound": 8.135290756166486e-15,
+                "entity": "pipe:AB",
+                "floor_scale": 1276.8631550423643,
+                "group": "axial",
+                "location": "cut_i",
+                "moment": false,
+                "q": 766.1178930254185,
+                "rows": [
+                  null
+                ]
+              },
+              {
+                "bound": 1.1068985675595168e-16,
+                "entity": "pipe:AB",
+                "floor_scale": 1276.8631550423643,
+                "group": "shear",
+                "location": "cut_i",
+                "moment": false,
+                "q": 2.1423848903799225,
+                "rows": []
+              },
+              {
+                "bound": 0.0,
+                "entity": "pipe:AB",
+                "floor_scale": 5107.452620169457,
+                "group": "torsion",
+                "location": "cut_i",
+                "moment": true,
+                "q": 0.0,
+                "rows": []
+              },
+              {
+                "bound": 2.2137971351190335e-16,
+                "entity": "pipe:AB",
+                "floor_scale": 5107.452620169457,
+                "group": "bending",
+                "location": "cut_i",
+                "moment": true,
+                "q": 4.284769780759845,
+                "rows": []
+              },
+              {
+                "bound": 8.135290756166486e-15,
+                "entity": "pipe:AB",
+                "floor_scale": 1276.8631550423643,
+                "group": "axial",
+                "location": "quarter_1",
+                "moment": false,
+                "q": 766.1178930254185,
+                "rows": [
+                  [
+                    "result:force:pipe-AB:quarter-1:axial"
+                  ],
+                  null
+                ]
+              },
+              {
+                "bound": 1.1068985675595168e-16,
+                "entity": "pipe:AB",
+                "floor_scale": 1276.8631550423643,
+                "group": "shear",
+                "location": "quarter_1",
+                "moment": false,
+                "q": 2.1423848903799225,
+                "rows": [
+                  [
+                    "result:force:pipe-AB:quarter-1:shear-y",
+                    "result:force:pipe-AB:quarter-1:shear-z"
+                  ]
+                ]
+              },
+              {
+                "bound": 0.0,
+                "entity": "pipe:AB",
+                "floor_scale": 5107.452620169457,
+                "group": "torsion",
+                "location": "quarter_1",
+                "moment": true,
+                "q": 0.0,
+                "rows": [
+                  [
+                    "result:moment:pipe-AB:quarter-1:torsion"
+                  ]
+                ]
+              },
+              {
+                "bound": 1.1068985675595168e-16,
+                "entity": "pipe:AB",
+                "floor_scale": 5107.452620169457,
+                "group": "bending",
+                "location": "quarter_1",
+                "moment": true,
+                "q": 2.1423848903799225,
+                "rows": [
+                  [
+                    "result:moment:pipe-AB:quarter-1:bending-y",
+                    "result:moment:pipe-AB:quarter-1:bending-z"
+                  ]
+                ]
+              },
+              {
+                "bound": 8.135290756166486e-15,
+                "entity": "pipe:AB",
+                "floor_scale": 1276.8631550423643,
+                "group": "axial",
+                "location": "midspan",
+                "moment": false,
+                "q": 766.1178930254185,
+                "rows": [
+                  [
+                    "result:force:pipe-AB:midspan:axial"
+                  ],
+                  null
+                ]
+              },
+              {
+                "bound": 1.1068985675595168e-16,
+                "entity": "pipe:AB",
+                "floor_scale": 1276.8631550423643,
+                "group": "shear",
+                "location": "midspan",
+                "moment": false,
+                "q": 2.1423848903799225,
+                "rows": [
+                  [
+                    "result:force:pipe-AB:midspan:shear-y",
+                    "result:force:pipe-AB:midspan:shear-z"
+                  ]
+                ]
+              },
+              {
+                "bound": 0.0,
+                "entity": "pipe:AB",
+                "floor_scale": 5107.452620169457,
+                "group": "torsion",
+                "location": "midspan",
+                "moment": true,
+                "q": 0.0,
+                "rows": [
+                  [
+                    "result:moment:pipe-AB:midspan:torsion"
+                  ]
+                ]
+              },
+              {
+                "bound": 8.814264675750199e-38,
+                "entity": "pipe:AB",
+                "floor_scale": 5107.452620169457,
+                "group": "bending",
+                "location": "midspan",
+                "moment": true,
+                "q": 0.0,
+                "rows": [
+                  [
+                    "result:moment:pipe-AB:midspan:bending-y",
+                    "result:moment:pipe-AB:midspan:bending-z"
+                  ]
+                ]
+              },
+              {
+                "bound": 8.135290756166486e-15,
+                "entity": "pipe:AB",
+                "floor_scale": 1276.8631550423643,
+                "group": "axial",
+                "location": "quarter_3",
+                "moment": false,
+                "q": 766.1178930254185,
+                "rows": [
+                  [
+                    "result:force:pipe-AB:quarter-3:axial"
+                  ],
+                  null
+                ]
+              },
+              {
+                "bound": 1.1068985675595168e-16,
+                "entity": "pipe:AB",
+                "floor_scale": 1276.8631550423643,
+                "group": "shear",
+                "location": "quarter_3",
+                "moment": false,
+                "q": 2.1423848903799225,
+                "rows": [
+                  [
+                    "result:force:pipe-AB:quarter-3:shear-y",
+                    "result:force:pipe-AB:quarter-3:shear-z"
+                  ]
+                ]
+              },
+              {
+                "bound": 0.0,
+                "entity": "pipe:AB",
+                "floor_scale": 5107.452620169457,
+                "group": "torsion",
+                "location": "quarter_3",
+                "moment": true,
+                "q": 0.0,
+                "rows": [
+                  [
+                    "result:moment:pipe-AB:quarter-3:torsion"
+                  ]
+                ]
+              },
+              {
+                "bound": 1.1068985675595168e-16,
+                "entity": "pipe:AB",
+                "floor_scale": 5107.452620169457,
+                "group": "bending",
+                "location": "quarter_3",
+                "moment": true,
+                "q": 2.1423848903799225,
+                "rows": [
+                  [
+                    "result:moment:pipe-AB:quarter-3:bending-y",
+                    "result:moment:pipe-AB:quarter-3:bending-z"
+                  ]
+                ]
+              },
+              {
+                "bound": 8.135290756166486e-15,
+                "entity": "pipe:AB",
+                "floor_scale": 1276.8631550423643,
+                "group": "axial",
+                "location": "cut_j",
+                "moment": false,
+                "q": 766.1178930254185,
+                "rows": [
+                  null
+                ]
+              },
+              {
+                "bound": 1.1068985675595168e-16,
+                "entity": "pipe:AB",
+                "floor_scale": 1276.8631550423643,
+                "group": "shear",
+                "location": "cut_j",
+                "moment": false,
+                "q": 2.1423848903799225,
+                "rows": []
+              },
+              {
+                "bound": 0.0,
+                "entity": "pipe:AB",
+                "floor_scale": 5107.452620169457,
+                "group": "torsion",
+                "location": "cut_j",
+                "moment": true,
+                "q": 0.0,
+                "rows": []
+              },
+              {
+                "bound": 2.2137971351190335e-16,
+                "entity": "pipe:AB",
+                "floor_scale": 5107.452620169457,
+                "group": "bending",
+                "location": "cut_j",
+                "moment": true,
+                "q": 4.284769780759845,
+                "rows": []
+              }
+            ],
+            "load_case_id": "case:skew"
+          },
+          {
+            "groups": [
+              {
+                "bound": 1.3524490912272203e-14,
+                "entity": "anchor_A",
+                "floor_scale": 510.74725901335546,
+                "group": "support_force",
+                "location": "node",
+                "moment": false,
+                "q": 510.74725901335546,
+                "rows": [
+                  [
+                    "result:support-action:6:case:b:8:anchor_A:Fx",
+                    "result:support-action:6:case:b:8:anchor_A:Fy",
+                    "result:support-action:6:case:b:8:anchor_A:Fz"
+                  ]
+                ]
+              },
+              {
+                "bound": 1.5137799544569825e-16,
+                "entity": "anchor_A",
+                "floor_scale": 2042.9890360534218,
+                "group": "support_moment",
+                "location": "node",
+                "moment": true,
+                "q": 2.8565131871732294,
+                "rows": [
+                  [
+                    "result:support-action:6:case:b:8:anchor_A:Mx",
+                    "result:support-action:6:case:b:8:anchor_A:My",
+                    "result:support-action:6:case:b:8:anchor_A:Mz"
+                  ]
+                ]
+              },
+              {
+                "bound": 1.555415761824975e-14,
+                "entity": "anchor_A",
+                "floor_scale": 510.74725901335546,
+                "group": "support_force_magnitude",
+                "location": "node",
+                "moment": false,
+                "q": 510.74725901335546,
+                "rows": [
+                  [
+                    "result:support-action:6:case:b:8:anchor_A:force_magnitude"
+                  ]
+                ]
+              },
+              {
+                "bound": 1.8697356107515158e-16,
+                "entity": "anchor_A",
+                "floor_scale": 2042.9890360534218,
+                "group": "support_moment_magnitude",
+                "location": "node",
+                "moment": true,
+                "q": 2.85651318717323,
+                "rows": [
+                  [
+                    "result:support-action:6:case:b:8:anchor_A:moment_magnitude"
+                  ]
+                ]
+              },
+              {
+                "bound": 0.0,
+                "entity": "rot_B",
+                "floor_scale": 510.74725901335546,
+                "group": "support_force",
+                "location": "node",
+                "moment": false,
+                "q": 0.0,
+                "rows": [
+                  [
+                    "result:support-action:6:case:b:5:rot_B:Fx",
+                    "result:support-action:6:case:b:5:rot_B:Fy",
+                    "result:support-action:6:case:b:5:rot_B:Fz"
+                  ]
+                ]
+              },
+              {
+                "bound": 1.5137799544569825e-16,
+                "entity": "rot_B",
+                "floor_scale": 2042.9890360534218,
+                "group": "support_moment",
+                "location": "node",
+                "moment": true,
+                "q": 2.8565131871732294,
+                "rows": [
+                  [
+                    "result:support-action:6:case:b:5:rot_B:Mx",
+                    "result:support-action:6:case:b:5:rot_B:My",
+                    "result:support-action:6:case:b:5:rot_B:Mz"
+                  ]
+                ]
+              },
+              {
+                "bound": 0.0,
+                "entity": "rot_B",
+                "floor_scale": 510.74725901335546,
+                "group": "support_force_magnitude",
+                "location": "node",
+                "moment": false,
+                "q": 0.0,
+                "rows": [
+                  [
+                    "result:support-action:6:case:b:5:rot_B:force_magnitude"
+                  ]
+                ]
+              },
+              {
+                "bound": 1.8697356107515158e-16,
+                "entity": "rot_B",
+                "floor_scale": 2042.9890360534218,
+                "group": "support_moment_magnitude",
+                "location": "node",
+                "moment": true,
+                "q": 2.85651318717323,
+                "rows": [
+                  [
+                    "result:support-action:6:case:b:5:rot_B:moment_magnitude"
+                  ]
+                ]
+              },
+              {
+                "bound": 3.40696404475974e-17,
+                "entity": "stop_B",
+                "floor_scale": 510.74725901335546,
+                "group": "support_force",
+                "location": "node",
+                "moment": false,
+                "q": 2.091229971757188,
+                "rows": [
+                  [
+                    "result:support-action:6:case:b:6:stop_B:Fx",
+                    "result:support-action:6:case:b:6:stop_B:Fy",
+                    "result:support-action:6:case:b:6:stop_B:Fz"
+                  ]
+                ]
+              },
+              {
+                "bound": 0.0,
+                "entity": "stop_B",
+                "floor_scale": 2042.9890360534218,
+                "group": "support_moment",
+                "location": "node",
+                "moment": true,
+                "q": 0.0,
+                "rows": [
+                  [
+                    "result:support-action:6:case:b:6:stop_B:Mx",
+                    "result:support-action:6:case:b:6:stop_B:My",
+                    "result:support-action:6:case:b:6:stop_B:Mz"
+                  ]
+                ]
+              },
+              {
+                "bound": 1.8797496447743403e-16,
+                "entity": "stop_B",
+                "floor_scale": 510.74725901335546,
+                "group": "support_force_magnitude",
+                "location": "node",
+                "moment": false,
+                "q": 2.0912299717571883,
+                "rows": [
+                  [
+                    "result:support-action:6:case:b:6:stop_B:force_magnitude"
+                  ]
+                ]
+              },
+              {
+                "bound": 0.0,
+                "entity": "stop_B",
+                "floor_scale": 2042.9890360534218,
+                "group": "support_moment_magnitude",
+                "location": "node",
+                "moment": true,
+                "q": 0.0,
+                "rows": [
+                  [
+                    "result:support-action:6:case:b:6:stop_B:moment_magnitude"
+                  ]
+                ]
+              },
+              {
+                "bound": 1.8797496447743403e-16,
+                "entity": "stop_B",
+                "floor_scale": 510.74725901335546,
+                "group": "along_direction",
+                "location": "node",
+                "moment": false,
+                "q": 2.0912299717571883,
+                "rows": []
+              },
+              {
+                "bound": 1.2991357567737636e-17,
+                "entity": "spring_B",
+                "floor_scale": 510.74725901335546,
+                "group": "support_force",
+                "location": "node",
+                "moment": false,
+                "q": 0.5051556018730521,
+                "rows": [
+                  [
+                    "result:support-action:6:case:b:8:spring_B:Fx",
+                    "result:support-action:6:case:b:8:spring_B:Fy",
+                    "result:support-action:6:case:b:8:spring_B:Fz"
+                  ]
+                ]
+              },
+              {
+                "bound": 0.0,
+                "entity": "spring_B",
+                "floor_scale": 2042.9890360534218,
+                "group": "support_moment",
+                "location": "node",
+                "moment": true,
+                "q": 0.0,
+                "rows": [
+                  [
+                    "result:support-action:6:case:b:8:spring_B:Mx",
+                    "result:support-action:6:case:b:8:spring_B:My",
+                    "result:support-action:6:case:b:8:spring_B:Mz"
+                  ]
+                ]
+              },
+              {
+                "bound": 4.251979366352022e-17,
+                "entity": "spring_B",
+                "floor_scale": 510.74725901335546,
+                "group": "support_force_magnitude",
+                "location": "node",
+                "moment": false,
+                "q": 0.5051556018730522,
+                "rows": [
+                  [
+                    "result:support-action:6:case:b:8:spring_B:force_magnitude"
+                  ]
+                ]
+              },
+              {
+                "bound": 0.0,
+                "entity": "spring_B",
+                "floor_scale": 2042.9890360534218,
+                "group": "support_moment_magnitude",
+                "location": "node",
+                "moment": true,
+                "q": 0.0,
+                "rows": [
+                  [
+                    "result:support-action:6:case:b:8:spring_B:moment_magnitude"
+                  ]
+                ]
+              },
+              {
+                "bound": 4.251979366352022e-17,
+                "entity": "spring_B",
+                "floor_scale": 510.74725901335546,
+                "group": "along_direction",
+                "location": "node",
+                "moment": false,
+                "q": 0.5051556018730522,
+                "rows": []
+              },
+              {
+                "bound": 1.3524279116158356e-14,
+                "entity": "pipe:AB",
+                "floor_scale": 510.74725901335546,
+                "group": "axial",
+                "location": "end_i",
+                "moment": false,
+                "q": 510.7452620169457,
+                "rows": [
+                  [
+                    "result:loadcase:case-b:force:pipe-AB:axial"
+                  ]
+                ]
+              },
+              {
+                "bound": 7.568899772284912e-17,
+                "entity": "pipe:AB",
+                "floor_scale": 510.74725901335546,
+                "group": "shear",
+                "location": "end_i",
+                "moment": false,
+                "q": 1.4282565935866147,
+                "rows": [
+                  [
+                    "result:loadcase:case-b:force:pipe-AB:shear-y",
+                    "result:loadcase:case-b:force:pipe-AB:shear-z"
+                  ]
+                ]
+              },
+              {
+                "bound": 0.0,
+                "entity": "pipe:AB",
+                "floor_scale": 2042.9890360534218,
+                "group": "torsion",
+                "location": "end_i",
+                "moment": true,
+                "q": 0.0,
+                "rows": [
+                  [
+                    "result:loadcase:case-b:moment:pipe-AB:torsion"
+                  ]
+                ]
+              },
+              {
+                "bound": 1.5137799544569825e-16,
+                "entity": "pipe:AB",
+                "floor_scale": 2042.9890360534218,
+                "group": "bending",
+                "location": "end_i",
+                "moment": true,
+                "q": 2.8565131871732294,
+                "rows": [
+                  [
+                    "result:loadcase:case-b:moment:pipe-AB:bending-y",
+                    "result:loadcase:case-b:moment:pipe-AB:bending-z"
+                  ]
+                ]
+              },
+              {
+                "bound": 1.3524279116158356e-14,
+                "entity": "pipe:AB",
+                "floor_scale": 510.74725901335546,
+                "group": "axial",
+                "location": "end_j",
+                "moment": false,
+                "q": 510.7452620169457,
+                "rows": [
+                  [
+                    "result:loadcase:case-b:force:pipe-AB:axial:end-j"
+                  ]
+                ]
+              },
+              {
+                "bound": 7.568899772284912e-17,
+                "entity": "pipe:AB",
+                "floor_scale": 510.74725901335546,
+                "group": "shear",
+                "location": "end_j",
+                "moment": false,
+                "q": 1.4282565935866147,
+                "rows": [
+                  [
+                    "result:loadcase:case-b:force:pipe-AB:shear-y:end-j",
+                    "result:loadcase:case-b:force:pipe-AB:shear-z:end-j"
+                  ]
+                ]
+              },
+              {
+                "bound": 0.0,
+                "entity": "pipe:AB",
+                "floor_scale": 2042.9890360534218,
+                "group": "torsion",
+                "location": "end_j",
+                "moment": true,
+                "q": 0.0,
+                "rows": [
+                  [
+                    "result:loadcase:case-b:moment:pipe-AB:torsion:end-j"
+                  ]
+                ]
+              },
+              {
+                "bound": 1.5137799544569825e-16,
+                "entity": "pipe:AB",
+                "floor_scale": 2042.9890360534218,
+                "group": "bending",
+                "location": "end_j",
+                "moment": true,
+                "q": 2.8565131871732294,
+                "rows": [
+                  [
+                    "result:loadcase:case-b:moment:pipe-AB:bending-y:end-j",
+                    "result:loadcase:case-b:moment:pipe-AB:bending-z:end-j"
+                  ]
+                ]
+              },
+              {
+                "bound": 1.3524279116158356e-14,
+                "entity": "pipe:AB",
+                "floor_scale": 510.74725901335546,
+                "group": "axial",
+                "location": "cut_i",
+                "moment": false,
+                "q": 510.7452620169457,
+                "rows": [
+                  null
+                ]
+              },
+              {
+                "bound": 7.568899772284912e-17,
+                "entity": "pipe:AB",
+                "floor_scale": 510.74725901335546,
+                "group": "shear",
+                "location": "cut_i",
+                "moment": false,
+                "q": 1.4282565935866147,
+                "rows": []
+              },
+              {
+                "bound": 0.0,
+                "entity": "pipe:AB",
+                "floor_scale": 2042.9890360534218,
+                "group": "torsion",
+                "location": "cut_i",
+                "moment": true,
+                "q": 0.0,
+                "rows": []
+              },
+              {
+                "bound": 1.5137799544569825e-16,
+                "entity": "pipe:AB",
+                "floor_scale": 2042.9890360534218,
+                "group": "bending",
+                "location": "cut_i",
+                "moment": true,
+                "q": 2.8565131871732294,
+                "rows": []
+              },
+              {
+                "bound": 1.3524279116158356e-14,
+                "entity": "pipe:AB",
+                "floor_scale": 510.74725901335546,
+                "group": "axial",
+                "location": "quarter_1",
+                "moment": false,
+                "q": 510.7452620169457,
+                "rows": [
+                  [
+                    "result:loadcase:case-b:force:pipe-AB:quarter-1:axial"
+                  ],
+                  null
+                ]
+              },
+              {
+                "bound": 7.568899772284912e-17,
+                "entity": "pipe:AB",
+                "floor_scale": 510.74725901335546,
+                "group": "shear",
+                "location": "quarter_1",
+                "moment": false,
+                "q": 1.4282565935866147,
+                "rows": [
+                  [
+                    "result:loadcase:case-b:force:pipe-AB:quarter-1:shear-y",
+                    "result:loadcase:case-b:force:pipe-AB:quarter-1:shear-z"
+                  ]
+                ]
+              },
+              {
+                "bound": 0.0,
+                "entity": "pipe:AB",
+                "floor_scale": 2042.9890360534218,
+                "group": "torsion",
+                "location": "quarter_1",
+                "moment": true,
+                "q": 0.0,
+                "rows": [
+                  [
+                    "result:loadcase:case-b:moment:pipe-AB:quarter-1:torsion"
+                  ]
+                ]
+              },
+              {
+                "bound": 7.568899772284912e-17,
+                "entity": "pipe:AB",
+                "floor_scale": 2042.9890360534218,
+                "group": "bending",
+                "location": "quarter_1",
+                "moment": true,
+                "q": 1.4282565935866147,
+                "rows": [
+                  [
+                    "result:loadcase:case-b:moment:pipe-AB:quarter-1:bending-y",
+                    "result:loadcase:case-b:moment:pipe-AB:quarter-1:bending-z"
+                  ]
+                ]
+              },
+              {
+                "bound": 1.3524279116158356e-14,
+                "entity": "pipe:AB",
+                "floor_scale": 510.74725901335546,
+                "group": "axial",
+                "location": "midspan",
+                "moment": false,
+                "q": 510.7452620169457,
+                "rows": [
+                  [
+                    "result:loadcase:case-b:force:pipe-AB:midspan:axial"
+                  ],
+                  null
+                ]
+              },
+              {
+                "bound": 7.568899772284912e-17,
+                "entity": "pipe:AB",
+                "floor_scale": 510.74725901335546,
+                "group": "shear",
+                "location": "midspan",
+                "moment": false,
+                "q": 1.4282565935866147,
+                "rows": [
+                  [
+                    "result:loadcase:case-b:force:pipe-AB:midspan:shear-y",
+                    "result:loadcase:case-b:force:pipe-AB:midspan:shear-z"
+                  ]
+                ]
+              },
+              {
+                "bound": 0.0,
+                "entity": "pipe:AB",
+                "floor_scale": 2042.9890360534218,
+                "group": "torsion",
+                "location": "midspan",
+                "moment": true,
+                "q": 0.0,
+                "rows": [
+                  [
+                    "result:loadcase:case-b:moment:pipe-AB:midspan:torsion"
+                  ]
+                ]
+              },
+              {
+                "bound": 5.876176450500135e-38,
+                "entity": "pipe:AB",
+                "floor_scale": 2042.9890360534218,
+                "group": "bending",
+                "location": "midspan",
+                "moment": true,
+                "q": 0.0,
+                "rows": [
+                  [
+                    "result:loadcase:case-b:moment:pipe-AB:midspan:bending-y",
+                    "result:loadcase:case-b:moment:pipe-AB:midspan:bending-z"
+                  ]
+                ]
+              },
+              {
+                "bound": 1.3524279116158356e-14,
+                "entity": "pipe:AB",
+                "floor_scale": 510.74725901335546,
+                "group": "axial",
+                "location": "quarter_3",
+                "moment": false,
+                "q": 510.7452620169457,
+                "rows": [
+                  [
+                    "result:loadcase:case-b:force:pipe-AB:quarter-3:axial"
+                  ],
+                  null
+                ]
+              },
+              {
+                "bound": 7.568899772284912e-17,
+                "entity": "pipe:AB",
+                "floor_scale": 510.74725901335546,
+                "group": "shear",
+                "location": "quarter_3",
+                "moment": false,
+                "q": 1.4282565935866147,
+                "rows": [
+                  [
+                    "result:loadcase:case-b:force:pipe-AB:quarter-3:shear-y",
+                    "result:loadcase:case-b:force:pipe-AB:quarter-3:shear-z"
+                  ]
+                ]
+              },
+              {
+                "bound": 0.0,
+                "entity": "pipe:AB",
+                "floor_scale": 2042.9890360534218,
+                "group": "torsion",
+                "location": "quarter_3",
+                "moment": true,
+                "q": 0.0,
+                "rows": [
+                  [
+                    "result:loadcase:case-b:moment:pipe-AB:quarter-3:torsion"
+                  ]
+                ]
+              },
+              {
+                "bound": 7.568899772284912e-17,
+                "entity": "pipe:AB",
+                "floor_scale": 2042.9890360534218,
+                "group": "bending",
+                "location": "quarter_3",
+                "moment": true,
+                "q": 1.4282565935866147,
+                "rows": [
+                  [
+                    "result:loadcase:case-b:moment:pipe-AB:quarter-3:bending-y",
+                    "result:loadcase:case-b:moment:pipe-AB:quarter-3:bending-z"
+                  ]
+                ]
+              },
+              {
+                "bound": 1.3524279116158356e-14,
+                "entity": "pipe:AB",
+                "floor_scale": 510.74725901335546,
+                "group": "axial",
+                "location": "cut_j",
+                "moment": false,
+                "q": 510.7452620169457,
+                "rows": [
+                  null
+                ]
+              },
+              {
+                "bound": 7.568899772284912e-17,
+                "entity": "pipe:AB",
+                "floor_scale": 510.74725901335546,
+                "group": "shear",
+                "location": "cut_j",
+                "moment": false,
+                "q": 1.4282565935866147,
+                "rows": []
+              },
+              {
+                "bound": 0.0,
+                "entity": "pipe:AB",
+                "floor_scale": 2042.9890360534218,
+                "group": "torsion",
+                "location": "cut_j",
+                "moment": true,
+                "q": 0.0,
+                "rows": []
+              },
+              {
+                "bound": 1.5137799544569825e-16,
+                "entity": "pipe:AB",
+                "floor_scale": 2042.9890360534218,
+                "group": "bending",
+                "location": "cut_j",
+                "moment": true,
+                "q": 2.8565131871732294,
+                "rows": []
+              }
+            ],
+            "load_case_id": "case:b"
+          }
+        ]
+      },
       "combination_derivation": {
         "combinations": [
           {
@@ -252,6 +2984,56 @@
         "id": "diagnostic:physics:rule-inputs-missing",
         "message": "rule-check inputs and protected criteria are absent; no compliance result is produced",
         "severity": "warning",
+        "source": "core/product_physics"
+      },
+      {
+        "affected_refs": [
+          "C_SIGNED"
+        ],
+        "code": "COMBINATION_ROWS_WITHIN_STATED_BOUND",
+        "id": "diagnostic:combination-certificate:8:C_SIGNED",
+        "message": "combination C_SIGNED: 24 derived row group(s) are established within their stated bound against the operand cases' intended systems; 0 are not established (the bound exceeds the 1e-9 criterion, as where the operands nearly cancel, or the comparison is unavailable); 12 are not assessed (below the floor); 48 of its rows are covered by no group and remain inspection results. This is a numerical statement about a combination of independently solved states; it does not establish the meaning of \"expansion\" or engineering acceptance, and these rows do not count toward the document's numerical eligibility. Each group's bound and verdict are stated in contract_evidence.combination_certificate.",
+        "severity": "info",
+        "source": "core/product_physics"
+      },
+      {
+        "affected_refs": [
+          "C_ABS"
+        ],
+        "code": "COMBINATION_ROWS_NOT_ASSESSED",
+        "id": "diagnostic:combination-certificate:5:C_ABS",
+        "message": "combination C_ABS: its rows are not assessed against a stated bound (absolute sums and SRSS are outside the certificate); they remain inspection results and do not count toward the document's numerical eligibility.",
+        "severity": "info",
+        "source": "core/product_physics"
+      },
+      {
+        "affected_refs": [
+          "C_SRSS"
+        ],
+        "code": "COMBINATION_ROWS_NOT_ASSESSED",
+        "id": "diagnostic:combination-certificate:6:C_SRSS",
+        "message": "combination C_SRSS: its rows are not assessed against a stated bound (absolute sums and SRSS are outside the certificate); they remain inspection results and do not count toward the document's numerical eligibility.",
+        "severity": "info",
+        "source": "core/product_physics"
+      },
+      {
+        "affected_refs": [
+          "C_ENV"
+        ],
+        "code": "COMBINATION_ROWS_NOT_ASSESSED",
+        "id": "diagnostic:combination-certificate:5:C_ENV",
+        "message": "combination C_ENV: its rows are not assessed against a stated bound (range-envelope certification is deferred); they remain inspection results and do not count toward the document's numerical eligibility.",
+        "severity": "info",
+        "source": "core/product_physics"
+      },
+      {
+        "affected_refs": [
+          "C_DIFF"
+        ],
+        "code": "COMBINATION_ROWS_WITHIN_STATED_BOUND",
+        "id": "diagnostic:combination-certificate:6:C_DIFF",
+        "message": "combination C_DIFF: 24 derived row group(s) are established within their stated bound against the operand cases' intended systems; 0 are not established (the bound exceeds the 1e-9 criterion, as where the operands nearly cancel, or the comparison is unavailable); 12 are not assessed (below the floor); 48 of its rows are covered by no group and remain inspection results. This is a numerical statement about the difference of two independently solved states; it does not establish the meaning of \"expansion\" or engineering acceptance, and these rows do not count toward the document's numerical eligibility. Each group's bound and verdict are stated in contract_evidence.combination_certificate.",
+        "severity": "info",
         "source": "core/product_physics"
       }
     ],

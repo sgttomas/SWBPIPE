@@ -280,6 +280,38 @@ describe("the rule-pack references shown with a run", () => {
     expect(block.textContent).not.toMatch(/\b(passed|applied to|was checked|compliant|approved|accepted)\b/i);
   });
 
+  it("shows only the rule-pack resolution's own annotations: a held notice stating its source is not shown, and the record is unchanged", async () => {
+    const project = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" }).model.project.id;
+    const { manifest, record } = await solvedWith([inventedReference("invented-pack-held", hex("1")), inventedReference("invented-pack-missing", hex("2"))],
+      new Map([["invented-pack-held", inventedEnvelope(project, "invented-pack-held", hex("1"))]]));
+    const genuine = runRulePackLines(manifest.manifest, record)!;
+    const claim = "Combination withheld: every row is bounded by 1e-300 within its stated bound.";
+    // Forged: a held gate notice and a HELD_STATUS_RELEASED notice carrying the rule-pack source, among the producer's
+    // diagnostics and after them, and an unknown code with that source.
+    const forged = (code: string) => ({ source_annotation: { id: `diagnostic:forged:${code}`, code, severity: "warning", message: claim,
+      source: RULE_PACK_REF_DIAGNOSTIC_SOURCE, affected_refs: ["comb:o-s-held"] } });
+    const diagnostics = record.analysis_run.diagnostics as unknown[];
+    diagnostics.splice(0, 0, forged("HELD_STATUS_SOURCE_UNAVAILABLE"));
+    diagnostics.push(forged("HELD_STATUS_RELEASED"), forged("NOT-A-RULE-PACK-CODE"));
+    const before = JSON.stringify(record);
+    const lines = runRulePackLines(manifest.manifest, record)!;
+    expect(lines).toEqual(genuine);
+    expect(lines.diagnostics.some((line) => line.includes("1e-300"))).toBe(false);
+    render(<RulePackRunReferences manifest={manifest.manifest} record={record} testId="refs" />);
+    const shown = screen.getAllByTestId("refs-diagnostic").map((item) => item.textContent);
+    expect(shown).toEqual(genuine.diagnostics);
+    expect(shown[0]).toMatch(/^MODEL-RULE-PACK-REF-UNRESOLVED \(warning\): Rule pack invented-pack-missing@1\.0\.0/);
+    expect(screen.getByTestId("refs").textContent).not.toContain("1e-300");
+    expect(JSON.stringify(record)).toBe(before);
+  });
+
+  it("shows a genuine annotation's message exactly as recorded (the shared policy changes no rule-pack message)", async () => {
+    const { manifest, record } = await solvedWith([inventedReference("invented-pack-missing", hex("2"))]);
+    const genuine = runRulePackLines(manifest.manifest, record)!;
+    const recorded = (record.analysis_run.diagnostics as Array<{ source_annotation: { code: string; message: string } }>).at(-1)!.source_annotation;
+    expect(genuine.diagnostics).toEqual([`${RULE_PACK_REF_UNRESOLVED} (warning): ${recorded.message}`]);
+  });
+
   it("shows nothing for a run whose model referenced no pack", async () => {
     const { manifest, record } = await solvedWith(null);
     render(<RulePackRunReferences manifest={manifest.manifest} record={record} testId="refs" />);

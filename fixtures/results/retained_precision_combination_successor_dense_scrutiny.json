@@ -265,6 +265,32 @@
   "source": {
     "accepted_model_state_mutated": false,
     "contract_evidence": {
+      "combination_certificate": {
+        "combinations": [
+          {
+            "assessment": "not_assessed",
+            "basis": "mechanics",
+            "combination_id": "combination:ab",
+            "expression": {
+              "terms": [
+                {
+                  "factor": 1.0,
+                  "load_case_id": "case:a"
+                },
+                {
+                  "factor": 1.0,
+                  "load_case_id": "case:b"
+                }
+              ]
+            },
+            "groups": [],
+            "reason": "operand case(s) case:a carry no certified rows",
+            "subtrahend_support_state": null,
+            "uncovered_row_count": 123
+          }
+        ],
+        "operand_cases": []
+      },
       "combination_gates": [
         {
           "combination_id": "combination:ab",
@@ -437,6 +463,16 @@
         "id": "diagnostic:physics:rule-inputs-missing",
         "message": "rule-check inputs and protected criteria are absent; no compliance result is produced",
         "severity": "warning",
+        "source": "core/product_physics"
+      },
+      {
+        "affected_refs": [
+          "combination:ab"
+        ],
+        "code": "COMBINATION_ROWS_NOT_ASSESSED",
+        "id": "diagnostic:combination-certificate:14:combination:ab",
+        "message": "combination combination:ab: its rows are not assessed against a stated bound (operand case(s) case:a carry no certified rows); they remain inspection results and do not count toward the document's numerical eligibility.",
+        "severity": "info",
         "source": "core/product_physics"
       },
       {
@@ -9481,7 +9517,8 @@
             "call_ref": 1,
             "diagnostic_refs": [
               "diagnostic:preview-physics:headline-scope",
-              "diagnostic:preview-physics:combination-maximum:14:combination:ab"
+              "diagnostic:preview-physics:combination-maximum:14:combination:ab",
+              "diagnostic:combination-certificate:14:combination:ab"
             ],
             "disposition": "retained_selected",
             "expression": {
@@ -10474,11 +10511,11 @@
             "adapter": {
               "counts": [
                 534,
-                3889,
+                3890,
                 1155,
-                7189,
-                176314,
-                6449,
+                7192,
+                176360,
+                6452,
                 144,
                 379,
                 1308,
@@ -10840,11 +10877,11 @@
             "adapter": {
               "counts": [
                 504,
-                3889,
+                3890,
                 1088,
-                7180,
-                176314,
-                6449,
+                7183,
+                176360,
+                6452,
                 121,
                 379,
                 1051,
@@ -12304,11 +12341,11 @@
             "adapter": {
               "counts": [
                 534,
-                4807,
+                4808,
                 1812,
-                11245,
-                292542,
-                10154,
+                11248,
+                292588,
+                10157,
                 151,
                 872,
                 1308,
@@ -13493,7 +13530,7 @@
           }
         ],
         "projection_policy": "RP-LOGICAL-ATTEMPTS-v1",
-        "publication_sha256": "a0c885e1ada13e94f2e960006ca8b921fb395380f9a77f46ece3168b3d4e9c71",
+        "publication_sha256": "accfd16efda78f79d57fd85f5a10a655f02136abd62c188e8f21af07b0dc10c9",
         "receipt_version": 1,
         "sources": [
           {
@@ -16012,7 +16049,7 @@
         },
         "work_policy": "W1-LME-20B-60B-v1"
       },
-      "receipt_sha256": "46760f4488f6d2d62f9ddc6fa31d21a2f2c2101fb5a14f67741462aaa8b873fc"
+      "receipt_sha256": "14b9f0956e0f403310adc2836a23f0a5da5569ebc09d7c32dc68de8c22a1d640"
     },
     "run_id": "run:preview-linear-static-001",
     "schema_version": "0.2.0",

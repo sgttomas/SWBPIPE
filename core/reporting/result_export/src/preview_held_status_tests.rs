@@ -260,3 +260,30 @@ fn each_member_of_the_normal_source_alone_is_refused() {
         }
     }
 }
+
+/// The retained base read (G7: `retained_precision.rs`'s `retained_base_read(|| for_source(&projected))`)
+/// applies no roster (`roster` returns at its first statement there), so a held notice whose text is
+/// not its record's refusal is not compared there. With ordinary wording it is admitted unread, and G7
+/// attests no combination diagnostic prose, while every presenter quotes a held code whole as supplied
+/// text (desktop `suppliedDiagnostics.ts`, `report_package::bindings`); with the reserved wording it is
+/// not the bound entry (`bound_held_gate` requires the whole canonical message), so the absence rule
+/// refuses it there too. Outside the context the roster, or that rule, refuses it (the Python mirror's
+/// `test_in_the_retained_base_read_a_held_notice_other_than_its_refusal_is_unread_or_refused_never_attested`).
+#[test]
+fn in_the_retained_base_read_a_held_notice_other_than_its_refusal_is_unread_or_refused() {
+    const GATE: &str = "diagnostic:preview-physics:combination-gate:13:comb:o-s-held";
+    let (_, base) = document("source_unavailable");
+    for (text, inside) in [
+        ("Combination withheld: the minuend case case:O lent a state.", None),
+        ("Combination withheld: its rows are established within their stated bound.", Some("SOURCE_COMBINATION_CERTIFICATE_DIAGNOSTICS")),
+    ] {
+        let mut forged = base.clone();
+        let notice = forged["diagnostics"].as_array_mut().unwrap().iter_mut().find(|d| d["id"] == GATE).unwrap();
+        notice["message"] = json!(text);
+        let read = crate::combination_certificate::retained_base_read(|| crate::semantic_contract::for_source(&forged).map(|_| ()));
+        assert!(!crate::combination_certificate::in_retained_base_read());
+        assert_eq!(read.err().as_deref(), inside, "{text}");
+        let outside = crate::semantic_contract::for_source(&forged).map(|_| ()).err();
+        assert_eq!(outside.as_deref(), Some(inside.unwrap_or("SOURCE_COMBINATION_CERTIFICATE_ROSTER_CONTRADICTION")), "{text}");
+    }
+}

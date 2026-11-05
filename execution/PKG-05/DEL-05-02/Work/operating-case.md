@@ -1,6 +1,6 @@
 # Operating case with nonlinear supports, and the kernel side of skewed restraints
 
-> **Status: adopted plan; truthfulness fixes (#1695), stage 2 (#1671) and slice 1a (#1752) built; slice 1b integrated (#107, §6); R-6 unbuilt and scheduled for v1.0 after 1b (2026-10-31, below); `minuend_final` designed (§7) and built as a candidate on `claude/rt-a5-minuend-final` (§7.3 status); superseded by any later Design text.**
+> **Status: adopted plan; truthfulness fixes (#1695), stage 2 (#1671) and slice 1a (#1752) built; slice 1b integrated (#107, §6); R-6 unbuilt and scheduled for v1.0 after 1b (2026-10-31, below); `minuend_final` designed (§7) and built as a candidate on `claude/rt-a5-minuend-final` (§7.3 status); §4 built as `combination-certificate.md` (eligibility (b), 2026-11-04); superseded by any later Design text.**
 > Committed from the solver lane's working note so that the adopted decisions are
 > discoverable on main. The text is unchanged except that local absolute paths are
 > shortened to `scratch/…`. Working-file references (`scratch/…` and
@@ -74,7 +74,7 @@ sustained (§1.5, V-1 and V-2).
 | `minuend_final` as a callable mechanism (agreed with DEL-04-11, 2026-10-31) | The frozen-status solve that `subtrahend_support_state: minuend_final` needs is built as one product function: solve a named case with its nonlinear supports held at a named other case's final status. The subtraction calls it, and so does hanger sizing's single derived solve (DEL-04-11 `weight_support_state: design_operating_final`), so neither keeps its own copy. Its design and certificate are RT-A5's Should slice. | One mechanism, two consumers; the held-constraint caveats of §5 option 2 apply to both. |
 | Skew kernel scheduled (SWBPIPE Agent 0, 2026-10-31, under the owner's 2026-10-27 scope delegation) | The skew kernel (R-6 and R-7, §2) is in v1.0, carried by the load-cases lane after 1b. It is built on the division-free nullspace basis T of §2.2, which the dynamics lane (DEL-04-09) has adopted for modal, so static and modal restrain the same subspace; modal's skew refusal lifts with the static one. It changes numerical meaning, so it takes targeted references and independent review. Until it lands, 0.9.0's `SUPPORT_DIRECTION_SKEW_UNSUPPORTED` is an interim refusal with this scheduled remover, not a release limitation. | Skewed restraints are ordinary in real systems and a CAEPIPE-class tool has them; the reference system does not need one, so it is not on criterion 1's path, but omitting it would leave a common modelling gap. |
 | §4 A, derived O−S rows | Option (i) is adopted, without (ii): a per-group combination certificate, B_D = RU(B_O + B_S + exact subtraction rounding). Cancellation stays honestly unestablished, range envelopes are deferred, and readers recompute B_D from the published operand bounds. The wording is "established within its stated bound", never "certified". Design after 1a, build before R-3, independent of R-4. It also bounds W-16b's linear EX combinations. | Each operand bound is against its own intended system, so operand-state agreement is not needed numerically (Codex r2). Without a certificate, O−S rows in nonlinear models stay inspection evidence even after G2. |
-| §4 A, eligibility | Not decided. Agent 0 decides at the build design, which must state both consequences: (a) established derived rows count toward the document's numerical eligibility; (b) they do not, as today. Each must show the effect on a document with one cancellation-unestablished row. The certificate is built so either answer is a one-line policy switch, not a structural fork. | This changes today's rule that combination rows never count, which is a claims decision. |
+| §4 A, eligibility (decided (b), Agent 0, 2026-11-04) | (b). An established derived group carries its own evidence, "established within its stated bound", and does not count toward the document's numerical eligibility. The document-scope and primitive-case eligibility rule is unchanged. Groups not established by cancellation, groups below the floor and uncovered rows stay explicitly inspection-only or not assessed, and no favourable operand or document standing hides them. No policy switch is built. | The row certificate is useful on its own without document promotion, and counting derived rows would change the claims rule that combination rows never count. The build and its witness, a document with one cancellation-unestablished group, are in `combination-certificate.md`. |
 | §5 B, the meaning of "expansion" | Option (3), computed as (1), is adopted. The product reports an "operating minus sustained difference" under the member's own name, with each case at its own state. The "expansion" label and its code-range meaning stay with the user's rule pack. The held-constraint option (2) is the declared `minuend_final` comparison of §7, added without renaming; the engineering meaning of either difference stays with the user's rule pack. | It makes the least product claim. The 0.9.0 member is already named `operating_minus_sustained`, and the engineering meaning is a design-basis choice the user's rule pack makes. |
 
 ---
@@ -687,6 +687,11 @@ For a subtraction D = O − S and each group g present in both operands:
      sets are.
    - Equal states remain a meaning question (§5).
    - G-1 and G-2 apply under the declared basis.
+   - The operand bounds are each operand case's own; a held operand is a different
+     system and is not assessed. A combination whose `subtrahend_support_state` is not
+     the default independent solve (today `minuend_final`, the frozen-status solve of §0;
+     O-C2 of the load-cases lane's §7) is not assessed, failing
+     closed on any non-default value (`combination-certificate.md` §1).
 2. **Same route.** Operands are cases of one document, so they are on one route by
    construction. The certificate is route-agnostic: it applies equally to EX linear
    combinations (W-16b) and to EX nonlinear operands after R-4.
@@ -742,10 +747,13 @@ For a subtraction D = O − S and each group g present in both operands:
 
 ### 4.4 Remaining choice, size and order
 
-- **Eligibility, a claim decision.** Whether an established derived row may count toward
-  the document's numerical-eligibility verdict changes today's rule that combination
-  rows never count. That is for Agent 0 or the owner under the claims registry. The
-  certificate is useful either way, since rows can then carry their standing.
+- **Eligibility, decided (b) (Agent 0, 2026-11-04).** An established derived group
+  carries its own evidence and does not count toward the document's
+  numerical-eligibility verdict, so today's rule that combination rows never count
+  stands. The document-scope and primitive-case eligibility rule is unchanged. Groups
+  not established by cancellation, groups below the floor and uncovered rows stay
+  explicitly inspection-only or not assessed. The witness is in
+  `combination-certificate.md` §3.
 - **Size: M–L.**
   - PP: retain the group bounds per operand and form the combination groups.
   - New evidence and schemas.
@@ -1398,7 +1406,7 @@ these approvals and deviations:
 |---|---|---|---|
 | **E** | non-gap; not released; every required predicate of the confirmation passes (`Established`) | Stage B's certified values, with K-D5's member bound against the **held system** | `established`: "Established within its stated numerical bound for the explicitly held system at this case's loads. The verdict does not establish this case's own support state, an admissible sustained state, a load history or uniqueness." (Agent 0's wording.) The per-support conditions are listed in the evidence (§7.6), not in prose |
 | **N** | non-gap; not released; the confirmation returns `NotEstablished` (weakly active, H-18; Sensitive; k > 1 coupled friction; a load-row finding; …) | binary64 iterate values; member rows are binary64 recoveries | `not_established`: "Not established: <the confirmation's reason>. The held status is kept by this case's classifier; rows are inspection evidence." |
-| **R** | released, as above | binary64; no bound (the confirmation returns "the converged state is not qualified") | `not_established`: "Not established: the held status is not consistent with this case's loads; rows are inspection evidence." Plus a warning `HELD_STATUS_RELEASED` naming each released support: its held state, its classified state, the reason (changed state, or derived-normal branch with β^S and the signed R_n^T) and the deciding quantity. It publishes with this standing and is never withheld (R-5) |
+| **R** | released, as above | binary64; no bound (the confirmation returns "the converged state is not qualified") | `not_established`: "Not established: the held status is not consistent with this case's loads; rows are inspection evidence." Plus a warning `HELD_STATUS_RELEASED` naming each released support: its held state, its classified state, the reason (changed state, or derived-normal branch) and the deciding quantity as its recorded bit token or strict-gap signs (§7.5). It publishes with this standing and is never withheld (R-5) |
 | **G** | any gap support (R1) | binary64; strict-gap evidence as the case path states it | `gap_inspection`: "Gap supports keep their recovery-basis branch (R1); not established." Plus `HELD_STATUS_RELEASED` if released. The source must still be `Qualified` (§7.4), so R1 is not bypassed |
 
 **What E's evidence lists** (§7.6). This replaces revision 0's sentence "each held support's
@@ -1538,6 +1546,25 @@ consumer reuses them (Agent 0).
 
 **Disclosed, not withheld.**
 - `HELD_STATUS_RELEASED` (warning; outcome R or G).
+  - Its wording (P1, RT-A3, 2026-11-05) uses only the held-status record's recorded fields, so
+    both readers rebuild it whole (Work `combination-certificate.md` §2); no binary64 value is
+    formatted. Per released support: `<support> held <held state>, classified <classified
+    state> (<reason, underscores as spaces>: <quantity>)`, joined by `; ` inside "Combination
+    `<id>` holds the minuend's support status in the subtrahend case, and that case's classifier
+    releases: … . The rows are the held system's, published with this standing; the held status
+    is not an admissible state of the subtrahend case." The quantity is, for a strict-gap
+    decision, `gap_sign <g>, reaction_sign <r> in the contact's own sense, <prior> to <state>`;
+    for an ordinary one, the recorded bit token that decided it: `derived normal
+    normal_signed_bits <token>` for a branch release (β is not stated), `reaction_bits <token>`
+    for a support held active or sticking, else `displacement_bits <token> from its ground`.
+    Example: `support:t held active, classified inactive (changed state: reaction_bits
+    c080000000000000)`; strict gap: `support:t held active, classified inactive (changed state:
+    gap_sign zero, reaction_sign positive in the contact's own sense, active to inactive)`.
+    Presenters quote it whole as supplied text (`HELD_STATUS_QUOTED_CODES`). Quoting is presentation
+    only: it leaves the result's raw diagnostic and evidence bytes untouched. The wording itself is
+    the producer's, changed on purpose for fresh output by P1 and priced in DEL-04-08 Work
+    `retained-pricing-rules.md` §8.54; recorded results keep their recorded bytes, and the recorded
+    table variants are selected as before (§7.6, "History").
 - The standing record (E, N, R, G).
 - The held solver's own diagnostics (policy diagnostics, the active-set diagnostics, the
   non-converged exit diagnostic) are not republished as case diagnostics.
@@ -1693,6 +1720,12 @@ contracts per support, kept apart:
   the held codes (`preview_physics_evidence.rs:60–70`, `.py:80–86`, `preview_combination_gates.py:269`).
 - **History.** The historic recorded variants are preserved: the §10.4 registry gains the moved
   tables verbatim, as §6.7 did, with no silent reseal (Agent 0).
+- **Presentation and bytes.** Every presenter quotes a notice whose typed code is a held gate code
+  or `HELD_STATUS_RELEASED` whole as supplied text (Work `combination-certificate.md` §2). That is
+  presentation only and changes no raw diagnostic or evidence byte of the result. What changes a
+  fresh result's bytes is the producer: the held gate notice `Combination withheld: <R>.` and
+  P1's `HELD_STATUS_RELEASED` wording (§7.5), both recorded and priced in §8.54. Recorded bytes and
+  the recorded variant selection are unchanged.
 
 ### 7.7 (f) The hanger-facing callable contract
 

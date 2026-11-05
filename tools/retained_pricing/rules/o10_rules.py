@@ -406,7 +406,7 @@ if not fnkey("arc_recovery_finding", PP_ + "formation_guard.rs") and _os.path.ex
 if fnkey("member_group_fires", PP_ + "formation_guard.rs"):
     REBIND = list(globals().get("REBIND", [])) + [("record in records", "m+g",
         "KD5L1: RecoveryRecord has one record per admitted straight member and support; arcs/connectors excluded by D1.4/8")]
-    O10_LOOPS_LAST += [("for group in &record.groups", "28", O10 + "KD5L2: each member has at most seven locations times four groups; a support has two <=28", ["formation_guard.rs:member_scales", "formation_guard.rs:recovery_finding"])]
+    O10_LOOPS_LAST += [("for group in &record.groups", "28", O10 + "KD5L2: each member has at most seven locations times four groups; a support has two <=28", ["formation_guard.rs:member_scales", "formation_guard.rs:recovery_finding", "combination_certificate.rs:operand"])]
 
 
 # KD5A1: current certified publication's input ids and fixed owned labels.
@@ -1864,7 +1864,9 @@ if fnkey("append_station_quantities", _U4R) and fnkey("member_stations", _U4E):
         ("for &(_, pipe, record, row) in arc_extrema.iter().filter(|e| e.0 == case_id)", "cases*m", _U4L + "preview arc extrema: at most one per case and member", ["preview_physics_evidence.rs:validate_preview_physics_evidence",
          # RT-A4 D3 (§8.46): the reader's body moved unchanged into validate_with (validate_preview_physics_evidence
          # now calls validate_with(source, None)); the loop and its bound move with it.
-         "preview_physics_evidence.rs:validate_with"]),
+         # RT-A3 §4 D3 (§8.53): and again, unchanged, into validate_uncertified_with (validate_with reads the certificate
+         # after it); the loop and its bound move with it.
+         "preview_physics_evidence.rs:validate_with", "preview_physics_evidence.rs:validate_uncertified_with"]),
         ('for row in results.iter().filter(|r| r[" "][" "] == case_id)', "Pall", _U4L + "one pass over the envelope's rows", ["physics_evidence.rs:u4b_cases"]),
         ("for (position, row) in published.iter().enumerate()", "Pall", _U4L + "one pass over the envelope's rows", ["physics_evidence.rs:validate_physics_evidence_in"]),
         ("for r in view.case_rows()", "P", O10 + "U4B-W1: one case's rows (<= P_final)", ["retained_product.rs:prepared_not_covered"]),
@@ -3551,7 +3553,11 @@ if fnkey("append", _W16B_EC):
          _W16B_CB + " (state_operand_standing runs only on that member)"),
     ]
 if fnkey("validate", _W16B_EV) and fnkey("validate_direct_pressure_evidence", RE_ + "physics_evidence.rs"):
-    _W16B_VPE = _fn_text("validate_pressure_evidence", RE_ + "physics_evidence.rs")
+    # RT-A3 §4 (§8.53): the certificate moves the dispatch into validate_pressure_evidence_uncertified, which
+    # validate_pressure_evidence reaches through validate_pressure_evidence_without_certificate (W16B-RD's three keys).
+    _W16B_PE = RE_ + "physics_evidence.rs"
+    _W16B_DISPATCH = "validate_pressure_evidence_uncertified" if fnkey("validate_pressure_evidence_uncertified", _W16B_PE) else "validate_pressure_evidence"
+    _W16B_VPE = _fn_text(_W16B_DISPATCH, _W16B_PE)
     _W16B_PRESENT = _fn_text("present", _W16B_EV)
     # W16B-RD (guard): the reader enters its combination pass only when `present`; otherwise it runs the direct pass
     # once and returns its Result.
@@ -3566,16 +3572,33 @@ if fnkey("validate", _W16B_EV) and fnkey("validate_direct_pressure_evidence", RE
                             "        || items(&source[\"results\"]).iter().any(is_combination_row)") == 1,
         _fn_text("is_combination_row", _W16B_EV).count('row["basis_ref"]["ref_type"] == "combination"') == 1,
     )
+    if _W16B_DISPATCH != "validate_pressure_evidence":
+        # RTA3C-WC (§8.53): the wrapper reads the uncertified pass once, then the certificate; the uncertified pass
+        # is reached from one of two exclusive match arms (the view without the member, or the source).
+        _w16b_rd += (
+            _fn_text("validate_pressure_evidence", _W16B_PE).count(
+                "    validate_pressure_evidence_without_certificate(source)?;\n"
+                "    crate::combination_certificate::check(source)\n}") == 1,
+            _fn_text("validate_pressure_evidence_without_certificate", _W16B_PE).count(
+                "    match crate::combination_certificate::without_member(source) {\n"
+                "        Some(view) => validate_pressure_evidence_uncertified(&view),\n"
+                "        None => validate_pressure_evidence_uncertified(source),\n    }\n}") == 1,
+            _text_of(_W16B_PE).count("validate_pressure_evidence_uncertified(") == 3,
+        )
     if not all(_w16b_rd):
         raise SystemExit(f"W16B-RD: the reader's combination dispatch changed; re-review its zeros: {_w16b_rd}")
     _W16B_RD = (O10 + "W16B-RD: present(source) is false on D1: the successor carries no contract_evidence.exact_combinations "
                 "(W16B-CB) and no row whose basis_ref names a combination (route E has none, D1.4's exact clause; route L "
                 "never reaches this reader, R1), so the combination pass and its view never run")
-    O10_EDGE_ZERO += [(fnkey("validate_pressure_evidence", RE_ + "physics_evidence.rs"), fnkey(_n, _W16B_EV), _W16B_RD)
+    O10_EDGE_ZERO += [(fnkey(_W16B_DISPATCH, _W16B_PE), fnkey(_n, _W16B_EV), _W16B_RD)
                       for _n in ("direct_view", "validate")]
-    EDGE_PER_CALL = list(EDGE_PER_CALL) + [(fnkey("validate_pressure_evidence", RE_ + "physics_evidence.rs"),
-        fnkey("validate_direct_pressure_evidence", RE_ + "physics_evidence.rs"), "1",
+    EDGE_PER_CALL = list(EDGE_PER_CALL) + [(fnkey(_W16B_DISPATCH, _W16B_PE),
+        fnkey("validate_direct_pressure_evidence", _W16B_PE), "1",
         O10 + "W16B-RD: of the two direct-pass calls, the `present` arm's returns and is unreached on D1; the other runs once")]
+    if _W16B_DISPATCH != "validate_pressure_evidence":
+        EDGE_PER_CALL = list(EDGE_PER_CALL) + [(fnkey("validate_pressure_evidence_without_certificate", _W16B_PE),
+            fnkey("validate_pressure_evidence_uncertified", _W16B_PE), "1",
+            O10 + "RTA3C-WC (§8.53): the two calls are the arms of one match on without_member, so exactly one runs per call")]
 _W16C_FAMILY = _fn_text("family_clauses", _W16_RM) if fnkey("family_clauses", _W16_RM) else ""
 if fnkey("exact_equivalent_static_record", _LIB):
     _W16C_GEN = _fn_text("append_equivalent_static_generated_loads", _LIB)
@@ -3895,7 +3918,7 @@ if fnkey("append_operand_standing", _OP1A_PP):
     # gates, model-bound: reader_verdict only, outside the retained roots); preview_physics_evidence.rs admits
     # difference_basis_derivation as an optional member (a static array element), lists G-1/G-2 in GATE_CODES (static)
     # and admits a withheld subtraction's modulus-basis records (an existing set's lookup). The OP1A premises stand.
-    _op1a_pins = {'core/product_physics/src/preview_physics.rs': 'cf2ce2e184557018874f99d730c4d77d38c07b829bd0ad39e771550f31a84365', 'core/reporting/result_export/src/preview_combination_operands.rs': '51df5bf357ae42731e612e8dc9c111e1311484fe07ffefebcf76246b315e7413', 'core/reporting/result_export/src/preview_physics_evidence.rs': '195131763035104c69a742dc236d1fe43a78a053d77580072ca8aaebad4beac1', 'core/reporting/result_export/src/reader_verdict.rs': 'd880e7e6bd58ca0c7a53507d405c530a716af39c3941f0a06fe0e6168f164813'}
+    _op1a_pins = {'core/product_physics/src/preview_physics.rs': '35dd73c00eaa321a5811e1b1f64cd0cabc78c91bfca50510ab146cccf4ad63cd', 'core/reporting/result_export/src/preview_combination_operands.rs': 'b075900f31f83709543fa0aff7998ae19ca89d50ca7983803f773076db6d8b22', 'core/reporting/result_export/src/preview_physics_evidence.rs': 'f15622365ffe9a4a94de15c5388088989e4856f2ac54f15ec1750f8ce1255d7a', 'core/reporting/result_export/src/reader_verdict.rs': '7d3fdcd1a4a318ee49439e1a75db61420db2a9c9e2c9d1f7977be5b1cef41df3'}
     for _f, _digest in _op1a_pins.items():
         if __import__("hashlib").sha256(_text_of(_f).encode()).hexdigest() != _digest:
             raise SystemExit("OP1A-PF/RD: reviewed source changed: " + _f)
@@ -3915,9 +3938,10 @@ if fnkey("append_operand_standing", _OP1A_PP):
         ("for row in rows.iter().filter(|r| combination_of(r) == Some(id))", "Pall"),
         # RT-A4 D3 (§8.46): the two operand loops' bindings are renamed (`case` -> `target`, `case` -> `operand`): an
         # operand is a load case or a combination (combination_graph::Operand); bounds and premise unchanged.
-        ("for (operand, target) in operands.iter().zip(&order)", "3"),
+        # RT-A5 (§8.54): both loops now also `.enumerate()` their position (the held operand's); same items, bound unchanged.
+        ("for (position, (operand, target)) in operands.iter().zip(&order).enumerate()", "3"),
         ("for (reference, (component_kind, component)) in refs.iter().zip(components)", "6"),
-        ("for (reference, operand) in refs.iter().zip(&order)", "3"))]
+        ("for (position, (reference, operand)) in refs.iter().zip(&order).enumerate()", "3"))]
     # The name-only scanner mistakes patterns/local bindings for calls to these
     # private helpers. Rust visibility rules exclude all four edges.
     for _n, _f, _callee in (("publish", _LIB, "notice"), ("identity_match", _W16_RM, "text"),
@@ -3944,8 +3968,8 @@ if fnkey("append_operand_standing", _OP1A_PP):
     # OP1A-OWN: admitted Vec<&str> is push-collected from <=z gates, with
     # old backing during growth. expected/stated are empty on D1. The full
     # requested+moving sum beside V5 is conservative; native &str is witnessed.
-    O10_TYPED_PATCHES = list(globals().get("O10_TYPED_PATCHES", [])) + [("g4_caps.py", ' + _W7_RD + _W15_RB + _RTA4_RD,',
-                          ' + _W7_RD + _W15_RB + _RTA4_RD + s("&str") * (pushcap(CAPS.get("z", 0)) + pushcap(CAPS.get("z", 0)) // 2),',
+    O10_TYPED_PATCHES = list(globals().get("O10_TYPED_PATCHES", [])) + [("g4_caps.py", ' + _W7_RD + _W15_RB + _RTA4_RD + _RTA3C_RD,',
+                          ' + _W7_RD + _W15_RB + _RTA4_RD + _RTA3C_RD + s("&str") * (pushcap(CAPS.get("z", 0)) + pushcap(CAPS.get("z", 0)) // 2),',
                           O10 + "OP1A-OWN: V5 also holds admitted's <=z borrowed str entries and previous push backing; all other new Vecs are empty on D1")]
 
 # §8.32 combined D3: PF Timoshenko declines D1 before charged work.
@@ -3963,7 +3987,7 @@ if fnkey("selects", _TIM):
     # RT-U4 repair B: reader_verdict.rs re-read as for OP1A above; the Timoshenko premises stand.
     # RT-U4 order and repair B on RT-A3 increment 4 (§8.50): reader_verdict.rs re-read as for OP1A above.
     # Operating-case slice 1b D3 (§8.51): preview_physics_evidence.rs re-read as for OP1A above; the Timoshenko premises stand.
-    _TIM_PINS = {'core/product_physics/src/pf_timoshenko.rs': '0546472cfba9ca61bff68838cb5add237c70485411c124f5fc14f9aa90217f45', 'core/product_physics/src/model_settings.rs': 'd2f9d52db54bd97b19708c5a8580d484282f97649f08df408f6e0b206a999d8b', 'core/reporting/result_export/src/reader_verdict.rs': 'd880e7e6bd58ca0c7a53507d405c530a716af39c3941f0a06fe0e6168f164813', 'core/reporting/result_export/src/preview_physics_evidence.rs': '195131763035104c69a742dc236d1fe43a78a053d77580072ca8aaebad4beac1', 'core/product_physics/src/case_state/temperature.rs': 'eed9dc272dd37c669cc090d3f4c9c30293a0793e0d0b770ddd25fdd5d08ed9b2', 'core/product_physics/src/case_state/temperature/canonical_decimal.rs': '431ac3204d98ed3420ead918cc2733f77ac3a8258d28625b210a8bc69962b1e2'}
+    _TIM_PINS = {'core/product_physics/src/pf_timoshenko.rs': '0546472cfba9ca61bff68838cb5add237c70485411c124f5fc14f9aa90217f45', 'core/product_physics/src/model_settings.rs': 'd2f9d52db54bd97b19708c5a8580d484282f97649f08df408f6e0b206a999d8b', 'core/reporting/result_export/src/reader_verdict.rs': '7d3fdcd1a4a318ee49439e1a75db61420db2a9c9e2c9d1f7977be5b1cef41df3', 'core/reporting/result_export/src/preview_physics_evidence.rs': 'f15622365ffe9a4a94de15c5388088989e4856f2ac54f15ec1750f8ce1255d7a', 'core/product_physics/src/case_state/temperature.rs': 'eed9dc272dd37c669cc090d3f4c9c30293a0793e0d0b770ddd25fdd5d08ed9b2', 'core/product_physics/src/case_state/temperature/canonical_decimal.rs': '431ac3204d98ed3420ead918cc2733f77ac3a8258d28625b210a8bc69962b1e2'}
     _TIM_PINS[FK_ + "shear.rs"] = "12b854db0252398a8d61a643eba4fe7162f81e228a1c6239860433fd3188d2c3"
     for _file, _pin in _TIM_PINS.items():
         if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _file), "rb").read()).hexdigest() != _pin:
@@ -4111,7 +4135,11 @@ if fnkey("withhold_interim_combinations", _S1_DM):
     # Operating-case slice 1b D3 (§8.51): document_members.rs re-read: interim_reasons' difference-basis push is deleted
     # (1b gates a declared subtraction at the solve, G-1 and G-2); its two S1-ZS entries are dropped below, as §8.46
     # dropped the unsigned and nested pushes'. The minuend_final push and the withholding are unchanged.
-    _S1_PINS = {_S1_DM: "7992d86d976aac0cdc2e101f791f01fceeb57a96af3d3d155d7ad77a9b5df50a",
+    # RT-A5 minuend_final D3 (§8.54): document_members.rs re-read: interim_reasons' last push, minuend_final's, is
+    # deleted (the solve forms the held comparison and gates it at G-1, G-2 and the held-status gates); interim_reasons
+    # returns `Vec::new()`, and its S1-ZS and S1-ID entries are dropped below (§8.46's and §8.51's precedent). The
+    # withholding's body is unchanged; only its doc comment and interim_reasons' are restated.
+    _S1_PINS = {_S1_DM: "6fb0a8769657353a00bfc1e3c0d244e493334994951743a04ae363d180aabeab",
                 _S1_OC: "e3ddf5bdf79698f3cbd555c9bd3ed125227030e60737760479c6c9fd7cadfa38",
                 _S1_SP: "b1ed575817c3d9ffd4edd16fcfefc1f8e9029c13c2985c9219e868d3e3f69060"}
     for _f, _h in _S1_PINS.items():
@@ -4222,11 +4250,8 @@ if fnkey("withhold_interim_combinations", _S1_DM):
         + [(_s1_at("combinations_findings", _S1_DM, "vec![view.id.to_string(), id.to_string()]", 2), _S1_D14 + " (the declared comparison's refs)")]
         + [(_s1_at("operand_refs", _S1_DM, 'refs.push((format!("{at}.terms[{j}].combination"), id, operands.combination(id)));'), _S1_ZR + "a term's combination operand (D1.4)")]
         # RT-A4 D3 (§8.46): interim_reasons' unsigned-basis and nested-operand pushes are deleted (the wiring evaluates
-        # both); the two remaining pushes keep their zeros.
-        + [(_s1_at("interim_reasons", _S1_DM, t), _S1_ZR + "a difference basis or a minuend_final subtrahend (D1.4)") for t in (
-            # Operating-case slice 1b (§8.51): the difference-basis push is deleted, so its entry is dropped (§8.46's
-            # precedent for the unsigned and nested pushes); the minuend_final push keeps its entry.
-            "solves its subtrahend at the minuend's final support status",)]
+        # both). Operating-case slice 1b (§8.51) deleted the difference-basis push and RT-A5 (§8.54) the minuend_final
+        # push, so interim_reasons has no push left and no zero entry.
         + [(_s1_at("findings", _S1_OC, t), _S1_D13) for t in (
             'let path = format!("pipe_segments[{index}].condition_set_ref");', "of pipe `{pipe}` names no condition set.",
             "vec![pipe.to_string(), reference.to_string()]")]
@@ -4310,8 +4335,8 @@ if fnkey("withhold_interim_combinations", _S1_DM):
         ("snubber_findings", _S1_DM, 'format!("`{token}` is rotational;', ("token",)),
         ("snubber_findings", _S1_DM, 'format!("{at}.stiffness")', ("at",)),
         ("combinations_findings", _S1_DM, "members.iter().map(|&member| views[member].id.to_string()).collect()", ("views[member].id",)),
-        # Operating-case slice 1b (§8.51): the difference-basis push's audit entry is dropped with the push (§8.46's precedent).
-        ("interim_reasons", _S1_DM, "solves its subtrahend at the minuend's final support status", ("id",)),
+        # Operating-case slice 1b (§8.51) and RT-A5 (§8.54): the difference-basis and minuend_final pushes' audit
+        # entries are dropped with the pushes (§8.46's precedent).
         ("withhold_interim_combinations", _S1_DM, '&format!("diagnostic:combination:{}:{}", crate::stable_suffix(&combination.id), code.to_ascii_lowercase()),',
          ("crate::stable_suffix(&combination.id)", "code.to_ascii_lowercase()")),
         ("withhold_interim_combinations", _S1_DM, "vec![combination.id.clone()],", ("combination.id",)),
@@ -4818,7 +4843,7 @@ if fnkey("solved_state_plus_increments", _A4_PLAN):
     # preview_difference_basis::check (PF1B-FZ on D1), free_check gains an allocation-free stated-reason arm, model_check
     # (RT-A4-RM) reads the new module's kept combinations and declared gate. Every RT-A4 guard is re-checked on the new bytes.
     _A4_PINS = {_A4_PLAN: "86e8d1c0686b92579aeee96087e0b6e390ee6729d10a56568228f099e64b6cbb",
-                _A4_GATES: "b6c9ad33780eaaa2b2b59dd86d0cc53ff8c622525d5b612d8b252ea0084f8afe",
+                _A4_GATES: "c6bcf2272793cf59df89c4d4c2e0f062939933ccf4d0cbec25f7bc1552d01225",
                 _A4_GRAPH: "f3a3ca6b332896afd19412ee96e18750c271ae323ca34c46876e382c710eaef8",
                 _A4_FLC: "c234ca4cb3fb6a1360edd8d3f55bd9d6e9d9ecf6a8310d68379096167abb38bf",
                 _A4_UNS: "7bde94c46aa9aa15d19560d21b58fd9cddfae3f0d8073706214620c34179ad42"}
@@ -4847,11 +4872,12 @@ if fnkey("solved_state_plus_increments", _A4_PLAN):
                     for _pf in __import__("os").listdir(_os.path.join(_SNAP, PP_)) if _pf.endswith(".rs")),
         _A4_EV.count("Self::AbsoluteSum { terms } => evaluate_absolute_sum(&by_id, &term_list(terms)),") == 1
         and _A4_EV.count("Self::Srss { terms } => evaluate_srss(&by_id, &term_list(terms)),") == 1,
-        # interim_reasons pushes only for a minuend_final subtrahend (operating-case slice 1b, §8.51: the difference-basis
-        # push is deleted; §8.46 restated this guard the same way when the unsigned and nested pushes went). Fewer pushes
-        # only narrow RT-A4-WZ's premise: the remaining reason is still D1.4-refused.
-        _A4_IR.count("reasons.push((") == 1 and _A4_IR.count("if combination.difference_basis.is_some() {") == 0
-        and _A4_IR.count("combination.subtrahend_support_state") == 1,
+        # interim_reasons has no reason (RT-A5, §8.54: the minuend_final push is deleted, as operating-case slice 1b
+        # deleted the difference-basis push and §8.46 the unsigned and nested ones): its body is `Vec::new()`, so
+        # RT-A4-WZ's premise (`withheld` stays empty) now holds on every model, not only through D1.4.
+        _A4_IR.count("reasons.push(") == 0 and _A4_IR.count("combination.") == 0
+        and _A4_IR.startswith("fn interim_reasons(_combination: &crate::PreviewCombination) -> Vec<(&'static str, String)> {\n"
+                              "    Vec::new()\n}\n"),
         _A4_WIC.count("    if withheld.is_empty() {\n        return;\n    }\n") == 1
         and _A4_WIC.count("withheld.insert(index, code);") == 1 and _A4_WIC.count("withheld.insert(") == 2
         and _A4_WIC.index("    if withheld.is_empty() {\n        return;\n    }\n") < _A4_WIC.index("let plan = crate::combination_plan::Plan::new(model);"),
@@ -4925,7 +4951,10 @@ if fnkey("solved_state_plus_increments", _A4_PLAN):
     # model-bound preview dispatch (outside every retained root, §8.35/§8.44). The retained graph reaches it only through
     # validate_preview_physics_evidence -> validate_with(source, None) -> `None => check(source, None)` (G7's for_source).
     _A4_CHECK = _fn_text("check", _A4_GATES)
-    _A4_VW = _fn_text("validate_with", _A4_PEV)
+    # RT-A3 §4 (§8.53): validate_with runs validate_uncertified_with (the former body, RT-A4-RM's key) once, then
+    # the certificate only without the model.
+    _A4_UW = "validate_uncertified_with" if fnkey("validate_uncertified_with", _A4_PEV) else "validate_with"
+    _A4_VW = _fn_text(_A4_UW, _A4_PEV)
     _a4_rm = (
         _A4_CHECK.count("        Some(model) => model_check(source, model, gates, rows, &by_id),\n"
                         "        None => free_check(source, gates, rows, &by_id),\n") == 1,
@@ -4935,6 +4964,11 @@ if fnkey("solved_state_plus_increments", _A4_PLAN):
         _text_of(_A4_PEV).count("validate_with(source, model)") == 1
         and _re.sub(r"//[^\n]*", "", _text_of(RE_ + "reader_verdict.rs")).count("validate_preview_physics_evidence_with_model(") == 1,
     )
+    if _A4_UW != "validate_with":
+        _a4_rm += (_fn_text("validate_with", _A4_PEV).count(
+            "    validate_uncertified_with(source, model)?;\n    if model.is_none() {\n"
+            "        crate::combination_certificate::check(source)?;\n    }\n    Ok(())\n}") == 1,
+                   _text_of(_A4_PEV).count("validate_uncertified_with(") == 2)
     if not all(_a4_rm):
         raise SystemExit(f"RT-A4-RM: the gate reader's model dispatch changed; re-review its zero: {_a4_rm}")
     O10_EDGE_ZERO += [(fnkey("check", _A4_GATES), fnkey("model_check", _A4_GATES), O10 + "RT-A4-RM: on the retained graph "
@@ -5003,7 +5037,7 @@ if fnkey("solved_state_plus_increments", _A4_PLAN):
         ("iter:(0..values.len()).map", "3", _A4_L + "one value per term (unreached: RT-A4-UZ)", ["combination_graph.rs:unsigned_value"]),
         ("iter:> ids.iter().map", "3", _A4_L + "one combination's operand ids", ["combination_graph.rs:value"]),
         ("iter:operands.iter().map", "3", _A4_L + "one combination's withheld operands", ["preview_physics.rs:operand_withheld_message"]),
-        ("iter:parts.iter().map", "2", _A4_L + "identity's parts: [id] or [id, base] at every call", ["preview_combination_gates.rs:identity"]),
+        ("iter:parts.iter().map", "2", _A4_L + "identity's parts: [id] or [id, base] at every call", ["preview_combination_gates.rs:identity", "combination_certificate.rs:identity"]),
         ("iter:|basis: &str| basis.split_once(SECTION).map", "1", _A4_L + "an Option's map", ["preview_physics.rs:nested_source_identity_matches"]),
         ('iter:|m: &Value| m[" "].as_str().unwrap_or_default().split_once(SECTION).map', "1", _A4_L + "an Option's map",
          ["preview_combination_gates.rs:nested_identity"]),
@@ -5095,7 +5129,7 @@ _A4_RT = RE_ + "recorded_tables.rs"
 # reaches; no SELECTED write, read_recorded caller or selection path changes, and every guard below is re-checked.
 if fnkey("read_recorded", _A4_RT):
     if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _A4_RT), "rb").read()).hexdigest() != \
-            "b3b238c74192e26a240f2b4212338d548dda7db6a396953f949213ce371afeb3":
+            "f9dd9a5c8a3f69e1da3057e6cb194851dd9edebe1d8a4ad8dad3c8a583505e35":
         raise SystemExit("RT-A4-HS: recorded_tables.rs changed; re-review §8.46's rules")
     _a4_rt = _production(_A4_RT)
     # One production item's text, from its opening line to its closing brace at the same indent (tests excluded).
@@ -5257,7 +5291,7 @@ _B1_RD = RE_ + "preview_difference_basis.rs"
 if fnkey("derivation", _B1_DB):
     # PF1B-PIN: the two modules' complete bytes, read before these rules were written; a change stops the run.
     _B1_PINS = {_B1_DB: "b727d800d771ed3de0c9a1e88adc43bb39e9b8505acd7645c275d708c206ea3a",
-                _B1_RD: "32a96aba30e6e62636d3ad6252ea9a62316121edc2713540d9ea3a41b61d7db2"}
+                _B1_RD: "d5a04069144bb3a708ca639e7f3ccc40232b2da87c571cfc8c86d0f10ed71c73"}
     for _f, _h in _B1_PINS.items():
         if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _f), "rb").read()).hexdigest() != _h:
             raise SystemExit(f"PF1B-PIN: {_f} changed; re-review §8.51's rules")
@@ -5287,7 +5321,15 @@ if fnkey("derivation", _B1_DB):
         and _b1_pp["lib.rs"].count("let preview_difference = if combining { difference_basis::derivation(&model, &preview_gates) } else { None };") == 1
         and _b1_pp["lib.rs"].count("if let (Some(member), Some(serde_json::Value::Object(evidence))) = (preview_difference, "
                                    "envelope.contract_evidence.as_mut()) { evidence.insert(difference_basis::DERIVATION_MEMBER.to_string(), member); }") == 1
-        and sum(len(_re.findall(r"difference_basis::", _t)) for _t in _b1_pp.values()) == 10,
+        # RT-A5 minuend_final (§8.54): held_status.rs adds two uses, both behind declared(): is_minuend_final is
+        # `declared(combination)` and a minuend_final subtrahend, so it is false wherever declared() is (DZ, the premise of
+        # RTA5's zeros), and solve_held_combinations' G-1/G-2 `gate` call runs only inside its is_minuend_final filter.
+        and _b1_pp["held_status.rs"].count("crate::difference_basis::declared(combination)\n        && combination.subtrahend_support_state == Some(SubtrahendSupportStateSetting::MinuendFinal)") == 1
+        and _fn_text("solve_held_combinations", PP_ + "held_status.rs").count(
+            "    for combination in model.combinations.iter().filter(|c| is_minuend_final(c)) {\n"
+            "        if crate::difference_basis::gate(model, combination, &mut modulus_key).is_some() {\n") == 1
+        and len(_re.findall(r"difference_basis::", _b1_pp["held_status.rs"])) == 2
+        and sum(len(_re.findall(r"difference_basis::", _t)) for _t in _b1_pp.values()) == 12,
         # DZ: derivation keeps only declared combinations and returns None for none.
         _fn_text("derivation", _B1_DB).count(".filter(|c| declared(c))") == 1
         and _fn_text("derivation", _B1_DB).count("(!records.is_empty()).then(|| serde_json::Value::Array(records))") == 1,
@@ -5401,3 +5443,541 @@ if fnkey("derivation", _B1_DB):
         (site("fail", _B1_RD, "code.to_string()", full=True),
          {"code": {"bytes": max(len(_c) for _c in _B1_CODES), "source": O10 + "PF1B-ID: a static refusal code of the module (the longest)"}}),
     ]
+
+# ---- §8.53: RT-A3 §4, the combination certificate (DEL-05-02 Work combination-certificate.md), with RT-A3 P.
+# The producer (PP combination_certificate.rs) forms each eligible case's operand groups (`operand`, only on a model with
+# a combination and a formed member bound) and publishes the member and one notice per combination (`publish`, which
+# returns before any allocation without a combination). The reader (RE combination_certificate.rs) runs inside every
+# pressure-2 and preview-physics evidence read: `member_check` scans the diagnostics and returns when the member is
+# absent; the roster (`roster`) returns at its first statement in the retained base-read context, the only context the
+# retained graph reaches it in (RTA3C-RB). On D1 route E refuses every combination and route L admits z <= 2 (D1.9), so at
+# the profile's points L(3,0) and E(3) (z = 0) the certificate's work is the member-absent scan, the empty operand map
+# and the case-id vector (RTA3C-OWN, priced by rta3c_owners_model), and at L(2,1) and L(1,2) its loops are bounded by z.
+_C3_PP = PP_ + "combination_certificate.rs"
+_C3_RE = RE_ + "combination_certificate.rs"
+if fnkey("publish", _C3_PP) and fnkey("member_check", _C3_RE):
+    # RTA3C-PIN: the two modules' complete bytes, read before these rules were written; a change stops the run. The RE
+    # module's retained_base_read_tests read the legacy pre-certificate W-CB3 successor since §8.53 regenerated the live
+    # one with the member (one test line, in place; no production line). The RE pin then follows the roster's exact-id
+    # read of a set-bound entry outside the population (the §8.53 shared-id amendment; roster's first statement unchanged).
+    # RT-A5 composition repair (DEL-05-02 Work combination-certificate.md §2): the RE pin then follows the roster's held
+    # gate notices (held_gate_message, the canonical "Combination withheld: " + R + "." from the held-status record), the
+    # reserved vocabulary's typed-identity exemption of that one notice (reserved, bound_held_gate; non-allocating) and
+    # S1's interim without a minuend_final reason (interim_reasons); roster's first statement unchanged (RTA3C-RB).
+    for _f, _h in {_C3_PP: "5b85e6c57ae9c3b7cf9722e8be424532e12866f8b825597b20334c3e98ab5b1a",
+                   _C3_RE: "b4421e368e1add640bf97db1a28c7ba259109cb97068559b1640055f0b17b21e"}.items():
+        if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _f), "rb").read()).hexdigest() != _h:
+            raise SystemExit(f"RTA3C-PIN: {_f} changed; re-review §8.53's rules")
+    _c3_lib = _re.sub(r"//[^\n]*", "", _text_of(_LIB))
+    _c3_rp = _re.sub(r"//[^\n]*", "", _production(RE_ + "retained_precision.rs"))
+    _c3_guard = (
+        # The producer's three lib.rs statements, each once: the operand formed only with a combination and a formed
+        # member bound; taken into the run's map; the one publish call after the envelope is assembled.
+        # RT-A5 minuend_final (§8.54): the operand is also never formed on the held path (`!held &&`, `role.held()`);
+        # a held solve exists only inside held_status::solve_held_combinations, which D1 never calls (PF1B-DZ, RTA5),
+        # so on D1 `held` is false and the operand's condition is §8.53's.
+        _c3_lib.count("let certificate_operand = (!held && !model.combinations.is_empty() && member_bound.is_some())\n"
+                      "        .then(|| combination_certificate::operand(&recovery_records, &formation_bodies));") == 1,
+        _c3_lib.count("if let Some(operand) = solve.certificate_operand.take() {\n"
+                      "            certificate_operands.insert(load_case_id.clone(), operand);\n        }") == 1,
+        _c3_lib.count("combination_certificate::publish(&model.combinations, &case_ids, &mut envelope, &certificate_operands);") == 1
+        and _c3_lib.count("combination_certificate::") == 4
+        and _c3_lib.count("certificate_operand: Option<combination_certificate::Operand>,") == 1
+        and _c3_lib.count("let mut certificate_operands: HashMap<String, combination_certificate::Operand> = HashMap::new();") == 1,
+        # publish's first statement: no combination (or an unsolved envelope) returns before any allocation.
+        _fn_text("publish", _C3_PP).count("    if combinations.is_empty() || envelope.status.mechanics != \"MECHANICS_SOLVED\" {\n"
+                                          "        return;\n    }\n") == 1,
+        # RTA3C-RB: the retained reader's one semantic_contract read is G7's, inside the retained base-read context,
+        # and the roster returns at its first statement there.
+        _c3_rp.count("semantic_contract::for_source(") == 1
+        and _c3_rp.count("crate::combination_certificate::retained_base_read(|| crate::semantic_contract::for_source(&projected))") == 1,
+        _fn_text("roster", _C3_RE).count("    if in_retained_base_read() || source[\"status\"][\"mechanics\"] != \"MECHANICS_SOLVED\" {\n"
+                                         "        return Ok(());\n    }\n") == 1,
+        # member_check: the member-absent return precedes every other use of the member.
+        _fn_text("member_check", _C3_RE).count("    let Some(member) = member else {\n"
+                                               "        return require(!items(&source[\"diagnostics\"]).iter().any(|d| reserved(source, d)), \"PRESENCE\");\n    };\n") == 1,
+    )
+    if not all(_c3_guard):
+        raise SystemExit(f"RTA3C: the certificate's D1 premises or their guards changed; re-review §8.53: {_c3_guard}")
+    _C3_Z = O10 + ("RTA3C-Z: the certificate allocates only with a combination: publish returns at its first statement "
+                   "without one, operand is formed only on a model with one, and the producer publishes the member only "
+                   "then, so member_check returns at its presence test; D1.9: route E refuses every combination and route "
+                   "L admits z <= 2, so at z = 0 none of these runs")
+    EDGE_PER_CALL = list(EDGE_PER_CALL) + [
+        (fnkey("run_linear_static_preview_observed_inner", _LIB), fnkey("publish", _C3_PP), "min(1,z)", _C3_Z),
+        (fnkey("solve_prepared_load_case", _LIB), fnkey("operand", _C3_PP), "min(1,z)", _C3_Z + " (once per case solve)"),
+        # The reader's post-presence calls: the row index once, eligibility per operand case and per term of each
+        # combination (operand cases <= min(c, 3z): at most three terms each, D1.4), the records' helpers per combination.
+        (fnkey("member_check", _C3_RE), fnkey("new", _C3_RE), "min(1,z)", _C3_Z),
+        (fnkey("member_check", _C3_RE), fnkey("eligible", _C3_RE), "min(cases,3*z)+3*z", _C3_Z),
+        # bit_equal binds each stated operand group's rows (<= min(c, 3z) cases x G groups), each record's expression and
+        # whole record (2z) and each notice (z).
+        (fnkey("member_check", _C3_RE), fnkey("bit_equal", RE_ + "section_basis.rs"), "min(cases,3*z)*28*(m+g)+3*z", _C3_Z),
+    ]
+    # RTA3C-RB: the roster runs only inside the retained base read on the retained graph and returns there at once.
+    _C3_RB = O10 + ("RTA3C-RB: the retained graph reaches the certificate reader only through G7's for_source, which "
+                    "retained_precision.rs runs inside combination_certificate::retained_base_read; roster returns Ok at its "
+                    "first statement in that context, before any allocation")
+    O10_EDGE_ZERO += [(fnkey("check_with", _C3_RE), fnkey("roster", _C3_RE), _C3_RB)]
+    # RTA3C-NC: by-name call-graph edges that are not calls of these functions: LocalKey::with on the read-context Cell
+    # (exact_combination_evidence's private Key::with is not nameable here, as RT-A4-HS reads it), and the read context's
+    # closure parameter `read` (not 1b's or the nonlinear reader's `read`).
+    _c3_with = fnkey("with", _W16B_EV)
+    if not _re.match(r"\s*fn with\(&self", _text_of(_W16B_EV).split("\n")[int(_c3_with.split(":")[1]) - 1]):
+        raise SystemExit("RTA3C-NC: exact_combination_evidence's Key::with is no longer a private method; re-review")
+    if _fn_text("retained_base_read", _C3_RE).count("read()") != 1 or "read: impl FnOnce() -> R" not in _fn_text("retained_base_read", _C3_RE):
+        raise SystemExit("RTA3C-NC: retained_base_read's closure call changed; re-review")
+    O10_EDGE_ZERO += [(fnkey(_n, _C3_RE), _c3_with, O10 + "RTA3C-NC: RETAINED_BASE_READ.with(..) is LocalKey::with, not "
+                       "exact_combination_evidence's private Key::with") for _n in ("retained_base_read", "drop", "in_retained_base_read", "clear_read_context")]
+    O10_EDGE_ZERO += [(fnkey("retained_base_read", _C3_RE), fnkey("read", _f), O10 + "RTA3C-NC: `read()` calls the closure "
+                       "parameter (G7's for_source, charged at gates_after_g0), not this module's read")
+                      for _f in (RE_ + "preview_difference_basis.rs", RE_ + "nonlinear_support_evidence.rs") if fnkey("read", _f)]
+    # RTA3C-FB (the MODAL-FB pattern): the producer's `.min()` is Iterator::min over usize counts and its `.max(..)`
+    # receivers are f64 (floor scales and q); the name-based resolver bound them to certified_publication's private
+    # min/max, which KD5C6's entry cutset forbids. Bodies are bound by RTA3C-PIN.
+    for _fn, _methods in (("publish", ("min", "max")), ("magnitude_group", ("max",))):
+        for _m in _methods:
+            _target = fnkey(_m, _CP)
+            if not _target:
+                raise SystemExit(f"RTA3C-FB: certified_publication's {_m} is not unique; re-review (§8.53)")
+            CG_RULES += [{"caller": Resolved(_C3_PP + ":" + fnkey(_fn, _C3_PP).split(":", 1)[1]), "name": _m,
+                          "exclude_targets": [Resolved(_CP + ":" + _target.split(":", 1)[1])], "added": "RTA3C-FB",
+                          "evidence": "Iterator::min over usize and f64::max receivers; private FallbackError is not nameable here (KD5C5); module pinned (§8.53)"}]
+    # RTA3C-L: the loops, each bound by D1's caps. G = 28(m + g) groups per case (KD5L1/KD5L2: m + g records of at most
+    # seven locations x four groups); a group has at most two row sets (the station axial: elastic and effective) of at
+    # most three rows; R = Pall + z(P + 8g + 1) rows in the envelope (the cases' P each, a combination's <= P + 8g as
+    # RT-A4-CB reads it, and its modulus record).
+    _C3_G, _C3_R = "28*(m+g)", "Pall+z*(P+8*g+1)"
+    # RTA3C-OWN: rta3c_owners_model prices a copied location, group or kind label at 64 B; KD5T2's label bound must fit.
+    if _fixed["label_bytes"] > 64:
+        raise SystemExit("RTA3C-OWN: the KD5T2 label bound exceeds rta3c_owners_model's 64 B; re-review")
+    _c3 = lambda *fns: ["combination_certificate.rs:" + _n for _n in fns]
+    O10_LOOPS_LAST += [
+        ("iter:gates.iter().map", "z", O10 + "RTA3C-L: the document's combination gates (z, D1.9)", _c3("publish", "gates")),
+        ("iter:records.iter().map", "z", O10 + "RTA3C-L: EX combination records (z; none on E)", _c3("publish", "gates")),
+        ('iter:evidence.get(" ").and_then(Value::as_array) { return Some(gates.iter().map(|g| (g[" "].as_str().unwrap_or_default().to_string(), g[" "] == true)).collect()); } evidence.get(" ").and_then(Value::as_array).map',
+         "z", O10 + "RTA3C-L: EX combination records (z; none on E)", _c3("gates")),
+        ("for (index, row) in results.iter().enumerate()", _C3_R, O10 + "RTA3C-L: the envelope's rows", _c3("new")),
+        ("for (i, row) in results.iter().enumerate()", _C3_R, O10 + "RTA3C-L: the envelope's (successor's) rows", _c3("publish", "new")),
+        ("for (id, withheld) in &gates", "z", O10 + "RTA3C-L: one pass per combination gate", _c3("publish")),
+        ("for (record, (id, withheld)) in records.iter().zip(&gate_list)", "z", O10 + "RTA3C-L: one record per gate", _c3("member_check")),
+        ("for (case, _) in &terms", "3", O10 + "RTA3C-L: a combination's load-case terms (<= 3, D1.4)", _c3("publish", "member_check")),
+        ("for group in &first.groups", _C3_G, O10 + "RTA3C-L: the first operand's groups", _c3("publish")),
+        ("for group in &operands[terms[0].0.as_str()]", _C3_G, O10 + "RTA3C-L: the first operand's groups", _c3("member_check")),
+        ('for g in array(&case[" "])?', _C3_G, O10 + "RTA3C-L: one operand case's stated groups (the producer's)", _c3("member_check")),
+        ("for set in 0..sets", "2", O10 + "RTA3C-L: a group's row sets (<= 2)", _c3("publish", "member_check")),
+        ("iter:(0..components).map", "3", O10 + "RTA3C-L: a row set's components (<= 3)", _c3("publish")),
+        ("for d in derived.iter_mut()", "2*" + _C3_G, O10 + "RTA3C-L: a combination's derived groups (<= 2 per group; "
+         "entered only for a subtraction with pressure evidence: never on route L)", _c3("publish", "member_check")),
+        ("iter:(0..4).find_map", "4", O10 + "RTA3C-L: the literal 0..4", _c3("publish")),
+        ("iter:(0..4).find", "4", O10 + "RTA3C-L: the literal 0..4", _c3("member_check")),
+        ("iter:case_order .iter() .filter(|case| used_cases.contains(*case)) .filter_map(|case| operands.get(case).map(|o| (case, o))).map",
+         "min(cases,3*z)", O10 + "RTA3C-L: the operand cases the assessed combinations use (<= 3 per combination)", _c3("publish")),
+        ('iter:" ": operand.groups.iter().map', _C3_G, O10 + "RTA3C-L: one operand case's groups", _c3("publish")),
+        ("iter:coverage(&index, results, case, g).into_iter().map", "2", O10 + "RTA3C-L: a group's row sets (<= 2)", _c3("publish")),
+        ('for stated in items(&evidence[" "]).iter().filter(|r| r[" "] == id.as_str())', "1",
+         O10 + "RTA3C-L: the one EX record of a combination (none on route L)", _c3("member_check")),
+        ("for (factor, value) in terms", "3", O10 + "RTA3C-L: a combination's terms (<= 3, D1.4)", _c3("rounding_error")),
+        ("for expected in &expected_diagnostics", "z", O10 + "RTA3C-L: <= one notice per combination", _c3("member_check")),
+        # The roster's loops: its edge is zero on the retained graph (RTA3C-RB); bounds stated for completeness.
+        ("for &(id, gated, code) in &gates", "z", O10 + "RTA3C-L: the gates (unreached: RTA3C-RB)", _c3("roster")),
+        # The scan visits a diagnostic that names the population or carries a set-bound entry's exact id (`listed`, a
+        # non-allocating `any` over the expected entries, as the loop's `position`; the §8.53 shared-id amendment).
+        ("for d in diagnostics.iter().filter(|d| named(d) || listed(d))", "D", O10 + "RTA3C-L: the diagnostics (unreached: RTA3C-RB)", _c3("roster")),
+        ("for c in all", "z", O10 + "RTA3C-L: the model's combinations (unreached: RTA3C-RB; model only)", _c3("interim")),
+        ("for index in model_order(all, &cases)", "z", O10 + "RTA3C-L: the model's combinations (unreached: RTA3C-RB; model only)", _c3("interim")),
+    ]
+    # RTA3C-ER: the reader's `fail` allocates only on Err and every call propagates it (`?`, `return`, or a tail), so one
+    # read returns at most one; the code is one of the module's static suffixes (the longest, 23 B).
+    _c3_codes = (set(_re.findall(r'fail\("([A-Z_]+)"\)', _production(_C3_RE)))
+                 | set(_re.findall(r'require\([^;]*?,\s*"([A-Z_]+)"\s*\)', _production(_C3_RE), _re.S)))
+    O10_SITE_FROM += [(site("fail", _C3_RE, 'format!("SOURCE_COMBINATION_CERTIFICATE_{code}")'),
+                       {"from": [fnkey("check_with", _C3_RE)], "per": "1",
+                        "why": O10 + "RTA3C-ER: fail allocates only on Err; every call propagates it, at most one per read"}),
+                      (site("run_linear_static_preview_observed_inner", _LIB, "certificate_operands.insert(load_case_id.clone(), operand);"),
+                       {"from": [fnkey("run_linear_static_preview_observed_inner", _LIB)], "per": "min(cases,3*z)",
+                        "why": _C3_Z + " (the id's clone, once per formed operand)"}),
+                      # RTA3C-RS: the row-id clones of the derived groups (<= 3 rows each, <= 2G per combination) and of the
+                      # operand cases' stated row sets (<= 2 sets of <= 3 rows per group, G groups, <= min(c, 3z) cases): the
+                      # innermost `rows.iter().map` is one row set, not the generic rule's P rows.
+                      (site("publish", _C3_PP, '"rows": rows.iter().map(|&r| results[r].id.clone()).collect::<Vec<_>>(),'),
+                       {"from": [fnkey("publish", _C3_PP)], "per": "z*2*28*(m+g)*3",
+                        "why": O10 + "RTA3C-RS: a derived group's <= 3 row ids, <= 2G derived groups per combination"}),
+                      (site("publish", _C3_PP, "json!(rows.iter().map(|&r| results[r].id.clone()).collect::<Vec<_>>())"),
+                       {"from": [fnkey("publish", _C3_PP)], "per": "min(cases,3*z)*28*(m+g)*2*3",
+                        "why": O10 + "RTA3C-RS: an operand group's <= 2 row sets of <= 3 row ids, G groups per used case"}),
+                      (site("without_member", _C3_RE, "let mut view = source.clone();"),
+                       {"from": [fnkey("validate_pressure_evidence_without_certificate", RE_ + "physics_evidence.rs")], "per": "min(1,z)",
+                        "why": _C3_Z + " (the member-less view is formed only when the member is present; route E: z = 0)"})]
+    O10_MULT0_SITES = list(globals().get("O10_MULT0_SITES", [])) + [
+        (site("without_member", _C3_RE, "let mut view = source.clone();"), _C3_Z + " (the member-less view's document clone)")]
+    # RTA3C-ID: the arguments no generic class covers. Ids are IN128; counts usize (20 B); labels the KD5T2 constructor
+    # label class; tokens and reasons the modules' static texts (their longest), the joined ids at most three (D1.4).
+    _c3_n = {"bytes": 20, "source": O10 + "RTA3C-ID: a usize decimal"}
+    _c3_ident = {"bytes": 3 + 1 + 128, "source": O10 + "RTA3C-ID: identity(&[id]): an id's decimal length, ':' and the id"}
+    _c3_join = {"bytes": 3 * 128 + 2 * 2, "source": O10 + "RTA3C-ID: <= 3 operand case ids joined by \", \" (D1.4)"}
+    O10_ID_AUDIT += [
+        (site("operand", _C3_PP, "location: group.location.clone(),", full=True), {"group.location": _label}),
+        (site("operand", _C3_PP, "group: group.kind.clone(),", full=True), {"group.kind": _label}),
+        (site("held_reason", _C3_PP, "(subtrahend_support_state {token})", full=True, row="format!("),
+         {"token": {"bytes": 13, "source": O10 + "RTA3C-ID: subtrahend_support_token's non-own tokens (minuend_final, unrecognized)"}}),
+        (site("publish", _C3_PP, 'Err(format!("operand case(s) {} carry no certified rows", missing.join(", ")))', full=True),
+         {'missing.join(",")': _c3_join}),
+        (site("within_message", _C3_PP, "{established} derived row group(s)", full=True, row="format!("),
+         {"established": _c3_n, "not_established": _c3_n, "not_assessed": _c3_n, "uncovered": _c3_n}),
+        (site("run_linear_static_preview_observed_inner", _LIB, "certificate_operands.insert(load_case_id.clone(), operand);", full=True),
+         {"load_case_id": IN}),
+        (site("fail", _C3_RE, 'format!("SOURCE_COMBINATION_CERTIFICATE_{code}")', full=True),
+         {"code": {"bytes": max(len(_c) for _c in _c3_codes), "source": O10 + "RTA3C-ID: a static refusal code of the module (the longest)"}}),
+        (site("eligible", _C3_RE, 'let id = format!("diagnostic:numerical-integrity:{case}");', full=True), {"case": IN}),
+        (site("eligible", _C3_RE, "is Sensitive because", full=True), {"case": IN}),
+        (site("within_message", _C3_RE, "{e} derived row group(s)", full=True, row="format!("),
+         {"a": _c3_n, "n": _c3_n, "u": _c3_n}),
+        (site("without_member", _C3_RE, "let mut view = source.clone();", full=True),
+         {"source": {"bytes": 128, "source": O10 + "RTA3C-ID: unreached on D1 (RTA3C-Z; o10_check guards multiplicity 0)"}}),
+        # The roster's (unreached: RTA3C-RB).
+        (site("interim", _C3_RE, "code.to_ascii_lowercase()), code,", full=True),
+         {"code.to_ascii_lowercase()": {"bytes": len("LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED"), "source": O10 + "RTA3C-ID: the interim code"}}),
+        (site("interim", _C3_RE, "OPERAND_WITHHELD.to_ascii_lowercase()), OPERAND_WITHHELD,", full=True),
+         {"OPERAND_WITHHELD.to_ascii_lowercase()": {"bytes": len("LOAD_COMBINATION_OPERAND_WITHHELD"), "source": O10 + "RTA3C-ID: a static code"}}),
+        (site("form_bound", _C3_RE, 'format!("fixed-load-count:{own}")', full=True), {"own": _c3_ident}),
+        (site("form_bound", _C3_RE, 'format!("source-missing:{own}")', full=True), {"own": _c3_ident}),
+        (site("form_bound", _C3_RE, 'format!("row-withheld:{own}")', full=True), {"own": _c3_ident}),
+        (site("form_bound", _C3_RE, "omits {base} because a matching source row", full=True), {"base": RS_}),
+        (site("form_bound", _C3_RE, 'format!("{base} ({r})")', full=True),
+         {"base": RS_, "r": {"bytes": 46, "source": O10 + "RTA3C-ID: a WITHHELD_REASONS entry (the longest)"}}),
+        (site("form_bound", _C3_RE, 'format!("support-action:{}:{s} ({r})", s.len())', full=True),
+         {"r": {"bytes": 46, "source": O10 + "RTA3C-ID: a WITHHELD_REASONS entry (the longest)"}}),
+        (site("roster", _C3_RE, 'format!("{PREVIEW_PREFIX}maximum:{own}")', full=True), {"own": _c3_ident}),
+        (site("roster", _C3_RE, 'format!("{PREVIEW_PREFIX}intensified:{own}")', full=True), {"own": _c3_ident}),
+        (site("roster", _C3_RE, 'format!("{PREVIEW_PREFIX}gate:{own}")', full=True), {"own": _c3_ident}),
+    ]
+    # RTA3C-ID (z >= 1): the producer's and reader's derived-group keys and ids. Entities are member or support ids
+    # (IN128); locations and group kinds the KD5T2 labels; result ids the RES class (1,024 B); `components` one of two
+    # static group kinds ("support_force", "support_moment"); a not-assessed reason at most the missing-operands sentence
+    # (41 B) with three joined ids, above held_reason's 169 + 13 B and the static reasons (<= 52 B).
+    _c3_reason = {"bytes": 41 + _c3_join["bytes"], "source": O10 + "RTA3C-ID: the longest not-assessed reason (the missing-operands sentence with its ids)"}
+    _c3_comp = {"bytes": len("support_moment"), "source": O10 + "RTA3C-ID: a magnitude's component group kind (the longer of two)"}
+    _c3_cid = lambda: {"bytes": 128, "source": "IN128: a combination or load-case id the producer wrote"}
+    for _f in (_C3_PP, _C3_RE):
+        _fn_gates = "publish" if _f == _C3_PP else "gates"
+        O10_ID_AUDIT += [
+            (site(_fn_gates, _f, 'gates.iter().map(|g| (g["combination_id"].as_str().unwrap_or_default().to_string()', full=True),
+             {'g[""].as_str().unwrap_or_default()': _c3_cid()}),
+            (site(_fn_gates, _f, 'records.iter().map(|r| (r["combination_id"].as_str().unwrap_or_default().to_string()', full=True),
+             {'r[""].as_str().unwrap_or_default()': _c3_cid()}),
+        ]
+    _c3_pid = [_l for _l, _t in enumerate(_text_of(_C3_PP).split("\n"), 1) if '&format!("{DIAGNOSTIC_PREFIX}{}", exact_source_identity(&[id])),' in _t]
+    _c3_pvid = [_l for _l, _t in enumerate(_text_of(_C3_PP).split("\n"), 1) if _t.strip() == "vec![id.clone()],"]
+    if len(_c3_pid) != 2 or len(_c3_pvid) != 2:
+        raise SystemExit("RTA3C-ID: publish's two notices changed; re-review")
+    O10_ID_AUDIT += [(Resolved(_C3_PP + ":%d" % _l), {"exact_source_identity(&[id])": _c3_ident}) for _l in _c3_pid]
+    O10_ID_AUDIT += [(Resolved(_C3_PP + ":%d" % _l), {"id": IN}) for _l in _c3_pvid]
+    O10_ID_AUDIT += [
+        (site("publish", _C3_PP, "formed.insert((group.entity.clone(), group.location.clone(), group.group.clone(), set), derived.len());", full=True),
+         {"group.location": _label}),
+        (site("publish", _C3_PP, '"rows": rows.iter().map(|&r| results[r].id.clone()).collect::<Vec<_>>(),', full=True), {"results[r].id": RS_}),
+        (site("publish", _C3_PP, 'let member = d.json["entity"].as_str().unwrap_or_default().to_string();', full=True),
+         {'d.json[""].as_str().unwrap_or_default()': IN}),
+        (site("publish", _C3_PP, 'let location = d.json["location"].as_str().unwrap_or_default().trim_start_matches("wall_").to_string();', full=True),
+         {'d.json[""].as_str().unwrap_or_default().trim_start_matches("")': _label}),
+        (site("publish", _C3_PP, '.find_map(|set| formed.get(&(member.clone(), location.clone(), "axial".to_string(), set)).map(|_| set))', full=True),
+         {"location": _label}),
+        (site("publish", _C3_PP, "json!(rows.iter().map(|&r| results[r].id.clone()).collect::<Vec<_>>())", full=True), {"results[r].id": RS_}),
+        (site("magnitude_group", _C3_PP, "components.to_string(), 0))?];", full=True), {"components": _c3_comp, "group.location": _label}),
+        (site("within_message", _C3_PP, "{established} derived row group(s)", full=True, row="format!("), {"id": IN}),
+        (site("not_assessed_message", _C3_PP, "its rows are not assessed against a stated bound ({reason})", full=True, row="format!("),
+         {"id": IN, "reason": _c3_reason}),
+        (site("terms_of", _C3_RE, 'Ok(terms.iter().map(|t| (t["load_case_id"].as_str().unwrap_or_default().to_string()', full=True),
+         {'t[""].as_str().unwrap_or_default()': _c3_cid()}),
+        (site("terms_of", _C3_RE, "Ok(vec![(m.to_string(), 1.0), (s.to_string(), -1.0)])", full=True), {"m": IN}),
+        (site("within_message", _C3_RE, "{e} derived row group(s)", full=True, row="format!("), {"id": IN}),
+        (site("not_assessed_message", _C3_RE, "its rows are not assessed against a stated bound ({reason})", full=True), {"id": IN, "reason": _c3_reason}),
+        (site("diagnostic", _C3_RE, 'json!({"id": format!("{DIAGNOSTIC_PREFIX}{}", identity(&[id]))', full=True), {"identity(&[id])": _c3_ident}),
+        (site("member_check", _C3_RE, "formed.get(&(group.entity.to_string(), group.location.to_string(), components.to_string(), 0))", full=True),
+         {"group.entity": IN, "group.location": _label, "components": _c3_comp}),
+        (site("member_check", _C3_RE, "formed.insert((group.entity.to_string(), group.location.to_string(), group.group.to_string(), set), derived.len());", full=True),
+         {"group.entity": IN, "group.location": _label, "group.group": _label}),
+        (site("member_check", _C3_RE, 'let member = d.json["entity"].as_str().unwrap_or_default().to_string();', full=True),
+         {'d.json[""].as_str().unwrap_or_default()': IN}),
+        (site("member_check", _C3_RE, 'let location = d.json["location"].as_str().unwrap_or_default().trim_start_matches("wall_").to_string();', full=True),
+         {'d.json[""].as_str().unwrap_or_default().trim_start_matches("")': _label}),
+        (site("member_check", _C3_RE, '.find(|set| formed.contains_key(&(member.clone(), location.clone(), "axial".to_string(), *set)))', full=True),
+         {"location": _label}),
+    ]
+    _c3_na = 159 + 128 + _c3_reason["bytes"]
+    O10_ARGS_FIRST = [{"re": r"^not_assessed_message\(id, &reason\)$", "max": _c3_na,
+                       "why": O10 + "RTA3C-ID: the not-assessed notice: 159 literal bytes, the id (IN128) and the longest reason"}] + O10_ARGS_FIRST
+    if max(len(_c) for _c in _c3_codes) > 23 or max(len(_r) for _r in _re.findall(r'"([^"]*)"', _re.search(
+            r"const WITHHELD_REASONS: \[&str; 3\] = \[([^\]]*)\]", _text_of(_C3_RE)).group(1))) > 46:
+        raise SystemExit("RTA3C-ID: a static code or reason grew; re-review its class")
+
+# ---- §8.54: RT-A5 minuend_final (DEL-05-02 operating-case.md §7): the held-status solve. The producer
+# (PP held_status.rs) solves a declared `minuend_final` subtraction's subtrahend with each nonlinear support held at the
+# minuend's final status, after its G-1 and G-2; the reader (RE preview_held_status.rs) checks the held-status record,
+# rows and notices. D1.4 refuses every difference basis (PF1B-DZ's guard), so `difference_basis::declared` is false and
+# `held_status::is_minuend_final` is false for every combination D1 solves: the run's held operands are an empty map, no
+# case is a held minuend (`wanted`), no case solve is held, and the producer's successor has no held-status record, gate,
+# row or notice, so the reader returns at `!claimed`.
+_H_PP = PP_ + "held_status.rs"
+_H_RE = RE_ + "preview_held_status.rs"
+if fnkey("solve_held_combinations", _H_PP) and fnkey("check", _H_RE):
+    import hashlib as _h_hashlib
+    # RTA5-PIN: both modules' complete bytes, read before these rules were written; a change stops the run.
+    for _f, _h in {_H_PP: "4e28fd1c40df1f9ce50add83c15f64b403c708a54c0a752f72e9e7beadf779bb",
+                   _H_RE: "486718ea649ddc185518ae1f205e5f4a0a7d35cdc461d84f2eac39674ec5fec9"}.items():
+        if _h_hashlib.sha256(open(_os.path.join(_SNAP, _f), "rb").read()).hexdigest() != _h:
+            raise SystemExit(f"RTA5-PIN: {_f} changed; re-review §8.54's rules")
+    _h_nc = lambda text: _re.sub(r"//[^\n]*", "", text)
+    _h_lib, _h_pp, _h_hs = _h_nc(_text_of(_LIB)), _h_nc(_text_of(_A4_PP)), _h_nc(_text_of(_H_PP))
+    _h_guard = (
+        # DZ: is_minuend_final is declared() and a minuend_final subtrahend (PF1B-DZ's census reads it); wanted is any
+        # combination's is_minuend_final with that minuend.
+        _fn_text("is_minuend_final", _H_PP).count("crate::difference_basis::declared(combination)\n        && ") == 1,
+        _fn_text("wanted", _H_PP).count("model.combinations.iter().any(|c| is_minuend_final(c) && c.minuend_id.as_deref() == Some(case_id))") == 1,
+        # DZ: the run's held operands: solve_held_combinations is called only when some combination is minuend_final,
+        # else the map is empty; the held sources and the held derivation read only that map.
+        _h_lib.count("let held_operands = if !pressure_runtime::is_exact(&model) && model.combinations.iter().any(held_status::is_minuend_final) {\n"
+                     "        held_status::solve_held_combinations(") == 1
+        and _h_lib.count("held_status::solve_held_combinations(") == 1
+        and _h_lib.count("    } else {\n        HashMap::new()\n    };\n") >= 1
+        and _h_lib.count(".filter(|c| held_operands.contains_key(&c.id))") == 1
+        and _h_lib.count("held_status::source_standing(") == 1
+        and _h_lib.count("let outcome = held_operands.get(&combination.id)?;") == 1
+        and _h_lib.count("held_status::record(") == 1,
+        # DZ: a case lends its state only when wanted; a held case solve (CaseRole::Held) is constructed only in the
+        # held solve's closure, inside solve_held_combinations' call.
+        _h_lib.count("held_status::CaseRole::Own(Some(invocation)) if held_status::wanted(model, &load_case.id) => {") == 1
+        and _h_lib.count("held_status::capture_held_status_source(") == 1
+        # DZ: solve_prepared_load_case calls nonlinear_frame_input only inside that `wanted` arm (the arm's first call).
+        and _fn_text("solve_prepared_load_case", _LIB).count("nonlinear_frame_input(") == 1
+        and _fn_text("solve_prepared_load_case", _LIB).count(
+            "held_status::CaseRole::Own(Some(invocation)) if held_status::wanted(model, &load_case.id) => {\n"
+            "            nonlinear_frame_input(built, restrained_dofs, pf_motion.as_ref(), &ground_motion, &force).ok().and_then(|input| {") == 1
+        and _h_lib.count("held_status::CaseRole::Held(request),") == 1
+        and _h_lib.index("held_status::CaseRole::Held(request),") > _h_lib.index("held_status::solve_held_combinations(")
+        and len(_re.findall(r"CaseRole::Held\(", _h_lib)) == 2 and _h_lib.count("if let held_status::CaseRole::Held(request) = role {") == 1
+        and not any("CaseRole::Held(" in _h_nc(_text_of(PP_ + _pf)) for _pf in __import__("os").listdir(_os.path.join(_SNAP, PP_))
+                    if _pf.endswith(".rs") and _pf not in ("lib.rs", "held_status.rs")),
+        # DZ: the preview producer reads the held map only through `held.get(&combination.id)` (empty on D1).
+        _fn_text("append_combination_results", _A4_PP).count("let held_operand = match held.get(&combination.id) {") == 1
+        and _fn_text("append_combination_results", _A4_PP).count("if let Some(operand) = held_operand {") == 2
+        and _fn_text("append_operand_standing", _A4_PP).count("if let Some(held_status::HeldOutcome::Admitted(operand)) = held.get(&combination.id) {") == 1
+        and _fn_text("gate_reason", _A4_PP).count("return match held.get(&combination.id) {") == 1,
+        # FZ: the reader returns at `!claimed` before every other statement on a successor without held content.
+        _fn_text("check", _H_RE).count("    if !claimed(source) {\n        return Ok(());\n    }\n    let records = read(source)?;\n") == 1,
+        # BN: the reader module's private helpers (Rust privacy: no caller outside the file).
+        all(_re.search(r"(?m)^fn " + _n + r"\b", _text_of(_H_RE)) for _n in ("items", "text", "bits", "require", "state")),
+        # BN: the reader's `read` is pub(crate) but named nowhere else: no other RE or PP file qualifies or imports it, so
+        # an unqualified `read(` elsewhere resolves in its own module's scope (or is a closure parameter).
+        _re.search(r"(?m)^pub\(crate\) fn read\(", _text_of(_H_RE)) is not None
+        and not any(_re.search(r"preview_held_status::(read\b|\{[^}]*\bread\b)", _h_nc(_text_of(_d + _pf)))
+                    for _d in (RE_, PP_) for _pf in __import__("os").listdir(_os.path.join(_SNAP, _d))
+                    if _pf.endswith(".rs") and _d + _pf != _H_RE),
+    )
+    if not all(_h_guard):
+        raise SystemExit(f"RTA5-DZ/FZ/BN: the held-status solve's D1 premise or its guards changed; re-review §8.54: {_h_guard}")
+    _H_DZ = O10 + ("RTA5-DZ: D1.4 refuses every difference basis, so held_status::is_minuend_final is false for every "
+                   "combination D1 solves: the run's held operands are an empty map, no case is a held minuend and no held "
+                   "case solve exists")
+    _H_FZ = O10 + ("RTA5-FZ: the producer's successor on D1 has no held-status record, held gate, held row or "
+                   "HELD_STATUS_RELEASED notice (RTA5-DZ), so preview_held_status::check returns at `!claimed`")
+    _hp = lambda name: fnkey(name, _H_PP)
+    _hr = lambda name: fnkey(name, _H_RE)
+    O10_EDGE_ZERO += [(fnkey("run_linear_static_preview_observed_inner", _LIB), _hp(_n), _H_DZ)
+                      for _n in ("solve_held_combinations", "source_standing", "record")]
+    O10_EDGE_ZERO += [(fnkey("solve_prepared_load_case", _LIB), _hp(_n), _H_DZ + " (`wanted` is false)")
+                      for _n in ("capture_held_status_source", "node_ids")]
+    # The `wanted` arm's own frame input (its convergence control validates finite inputs, NI lib.rs).
+    O10_EDGE_ZERO += [(fnkey("solve_prepared_load_case", _LIB), fnkey("nonlinear_frame_input", _LIB), _H_DZ + " (`wanted` is false)")]
+    O10_EDGE_ZERO += [(fnkey("append_combination_results", _A4_PP), _hp(_n), _H_DZ + " (`held.get` is None)")
+                      for _n in ("lookup_rows", "cited_rows", "released_message")]
+    O10_EDGE_ZERO += [(fnkey("append_operand_standing", _A4_PP), _hp("kind"), _H_DZ + " (`held.get` is None)")]
+    O10_EDGE_ZERO += [(_hr("check"), _hr(_n), _H_FZ) for _n in ("read", "rows_check", "model_check", "require")]
+    O10_EDGE_ZERO += [(fnkey("free_check", _B1_RD), _hr("stated_gate"), _B1_FZ)]
+    # RTA5-BN (S1-BN's and PF1B-BN's EDGE_ZERO; sq2_decisions_common's FV): the by-name call graph adds false edges into
+    # the new modules. In PP each caller's token is a binding, a field or another type's method: `record` (a tuple
+    # binding or field), `derive` (ExactSectionBases::derive), `wanted` (a loop binding); in solve_held_combinations
+    # `run` is the pattern binding `Some(Ok(run))`, read as a function value (FV), which closed a false cycle through
+    # run_linear_static_preview_observed_inner (an edge_zero edge closes no cycle). In RE the reader's `items`, `text`
+    # and `bits` are private to its module, and its pub(crate) `read` is named by no other file (the guard above).
+    _H_BN = O10 + "RTA5-BN: a binding, field, another type's method, or a private fn of another module (Rust privacy); not a call"
+    _h_bn = [("case_ground_motion", PP_ + "imposed_motion.rs", "record", _H_PP), ("add_tie_rod_reference_loads", _LIB, "record", _H_PP),
+             ("build_model_for_basis", _LIB, "derive", _H_PP), ("build_model_for_basis", _LIB, "record", _H_PP),
+             ("bind_state_case", PP_ + "modal/context.rs", "wanted", _H_PP), ("successful_basis_record", PP_ + "retained_product.rs", "record", _H_PP),
+             ("json_findings", PP_ + "document_members.rs", "items", _H_RE), ("identity_match", PP_ + "retained_memory.rs", "text", _H_RE),
+             ("successful_basis_record", PP_ + "retained_product.rs", "bits", _H_RE), ("custody_for", PP_ + "retained_product.rs", "bits", _H_RE),
+             ("pending_error_bytes", PP_ + "retained_product.rs", "text", _H_RE), ("selection", PP_ + "retained_product.rs", "bits", _H_RE),
+             ("matrix12", PP_ + "source_receipt/source.rs", "bits", _H_RE), ("products", PP_ + "source_receipt/source.rs", "bits", _H_RE),
+             ("commitment", PP_ + "source_receipt/source.rs", "bits", _H_RE), ("matrix", PP_ + "source_receipt/source.rs", "bits", _H_RE),
+             ("region", RE_ + "arc_evidence.rs", "bits", _H_RE), ("applied", RE_ + "arc_evidence.rs", "bits", _H_RE),
+             ("retained_base_read", RE_ + "combination_certificate.rs", "read", _H_RE), ("validate", RE_ + "exact_combination_evidence.rs", "read", _H_RE),
+             ("entry_scope", RE_ + "recorded_tables.rs", "read", _H_RE), ("read_recorded", RE_ + "recorded_tables.rs", "read", _H_RE),
+             ("evaluation_order", RE_ + "preview_combination_operands.rs", "text", _H_RE), ("free_check", _B1_RD, "items", _H_RE),
+             ("g5b_exact_evidence", RE_ + "retained_precision.rs", "bits", _H_RE), ("expression_matches", RE_ + "retained_precision.rs", "text", _H_RE),
+             ("verify_new_operational", RE_ + "retained_precision.rs", "bits", _H_RE)]
+    for _caller, _file, _name, _tfile in _h_bn:
+        if not (fnkey(_caller, _file) and fnkey(_name, _tfile)):
+            raise SystemExit(f"RTA5-BN: {_file}:{_caller} or {_tfile}:{_name} no longer resolves; re-review §8.54")
+        O10_EDGE_ZERO += [(fnkey(_caller, _file), fnkey(_name, _tfile), _H_BN)]
+    if "Some(Ok(run))" not in _fn_text("solve_held_combinations", _H_PP) or _re.search(r"\brun\s*\(", _h_nc(_fn_text("solve_held_combinations", _H_PP))):
+        raise SystemExit("RTA5-BN: solve_held_combinations' `run` is no longer only a pattern binding; re-review §8.54")
+    O10_EDGE_ZERO += [(_hp("solve_held_combinations"), fnkey("run", _f), _H_BN + ": `Some(Ok(run))` is a pattern binding (FV)")
+                      for _f in (PP_ + "source_recovery/j7_rf_census.rs", FK_ + "structural/retained/product_certificate/bridge.rs",
+                                 FK_ + "structural/retained/product_certificate/source_residual.rs")]
+    # RTA5-PC: run_linear_static_preview_observed_inner's fourth solve_load_case_observed call is the held solve's
+    # closure, an argument of solve_held_combinations' call (RTA5-DZ: never called on D1). The call graph attributes the
+    # closure to its enclosing fn, outside the case loop, which would add one case solve per run; the per-call count
+    # restates the three case-loop calls §8.53 priced (each once per case, `cases`), so it changes no earlier charge.
+    _h_oi = _h_nc(_fn_text("run_linear_static_preview_observed_inner", _LIB))
+    _h_call = _h_oi.index("held_status::solve_held_combinations(")
+    _h_sites = [_m.start() for _m in _re.finditer(r"\bsolve_load_case_observed\(", _h_oi)]
+    _h_loop = _h_oi.index("for (case_index, load_case) in model.load_cases.iter().enumerate() {")
+    if (len(_h_sites) != 4 or not all(_h_loop < _s < _h_call for _s in _h_sites[:3]) or not _h_call < _h_sites[3]
+            or _h_oi.index("let held_sources: HashMap<String, serde_json::Value> = model") < _h_sites[3]):
+        raise SystemExit("RTA5-PC: observed_inner's case solves or the held closure changed; re-review §8.54")
+    EDGE_PER_CALL = list(EDGE_PER_CALL) + [(fnkey("run_linear_static_preview_observed_inner", _LIB), fnkey("solve_load_case_observed", _LIB),
+        "3*cases", O10 + "RTA5-PC: the case loop's three calls, once per case each (§8.53's sites); the held closure's call "
+        "runs only inside solve_held_combinations (RTA5-DZ)")]
+    # The held closures also render the held solve (one `preview_physics::render`) and read two basis keys
+    # (`modulus_basis_key`); the held derivation's key follows `held_operands.get(&combination.id)?` (None on D1). The
+    # per-call counts restate §8.53's: the publication's one render, and the case loop's one key per case.
+    _h_end = _h_oi.index("let held_sources: HashMap<String, serde_json::Value> = model")
+    _h_render = [_m.start() for _m in _re.finditer(r"\bpreview_physics::render\(", _h_oi)]
+    _h_keys = [_m.start() for _m in _re.finditer(r"\bmodulus_basis_key\(", _h_oi)]
+    _h_get = _h_oi.index("let outcome = held_operands.get(&combination.id)?;")
+    if (len(_h_render) != 2 or not _h_call < _h_render[0] < _h_end < _h_render[1]
+            or len(_h_keys) != 4 or not (_h_loop < _h_keys[0] < _h_call)
+            or not all(_h_call < _k < _h_end for _k in _h_keys[1:3]) or not _h_get < _h_keys[3]
+            or _h_oi[_h_get:_h_keys[3]].count("\n") != 2):
+        raise SystemExit("RTA5-PC: observed_inner's render or basis-key calls changed; re-review §8.54")
+    EDGE_PER_CALL = list(EDGE_PER_CALL) + [
+        (fnkey("run_linear_static_preview_observed_inner", _LIB), fnkey("render", _A4_PP), "1",
+         O10 + "RTA5-PC: the publication's one render (§8.53's site); the held closure's render runs only inside "
+         "solve_held_combinations (RTA5-DZ)"),
+        (fnkey("run_linear_static_preview_observed_inner", _LIB), fnkey("modulus_basis_key", _LIB), "cases",
+         O10 + "RTA5-PC: the case loop's one key per case (§8.53's site); the held closures' keys run only inside "
+         "solve_held_combinations and the held derivation's only after `held_operands.get(..)?` (RTA5-DZ)")]
+    # RTA5-SZ: the held branches' TEXT sites, each run only with a held operand or a held record (RTA5-DZ). The held
+    # closure's load-state key (its basis state's index); the held rows' keys and the held sign (`held_operand` is None:
+    # `held.get` is None); the released notice (inside `if let Some(operand) = held_operand`); the derivation member's
+    # key (held_derivation is None: its records are empty and `.filter(|records| !records.is_empty())` drops them).
+    O10_SITE_ZERO += [
+        (site("run_linear_static_preview_observed_inner", _LIB, 'let key = format!("load_state:{}", target.id);'), _H_DZ + " (the held closure)"),
+        (site("run_linear_static_preview_observed_inner", _LIB, "evidence.insert(held_status::DERIVATION_MEMBER.to_string(), serde_json::Value::Array(records));"),
+         _H_DZ + " (held_derivation is None)"),
+        (site("append_combination_results", _A4_PP, "published_by_base.entry(base.clone()).or_default().insert(held_key.clone(), row.clone());"),
+         _H_DZ + " (`held_operand` is None)"),
+        (site("append_combination_results", _A4_PP, "published_rows.insert(held_key.clone(), keyed.into_iter().map(|(_, row)| row).collect());"),
+         _H_DZ + " (`held_operand` is None)"),
+        (site("append_combination_results", _A4_PP, "if held_operand.is_some() => held_status::SIGN.to_string(),"), _H_DZ + " (`held_operand` is None)"),
+        (site("append_combination_results", _A4_PP, '&format!("diagnostic:preview-physics:held-status-released:{}", identity(&[&combination.id])),'),
+         _H_DZ + " (`held_operand` is None)"),
+        (site("append_combination_results", _A4_PP, "held_status::RELEASED,", row="diagnostics.push(diag("), _H_DZ + " (`held_operand` is None)"),
+        (site("append_combination_results", _A4_PP, "std::iter::once(combination.id.clone()).chain(operand.run.evidence.released.iter()"),
+         _H_DZ + " (`held_operand` is None: the released notice's refs)"),
+    ]
+    # RTA5-PC (preview): the released notice's diag and identity calls are a seventh call site of each in
+    # append_combination_results, inside `if let Some(operand) = held_operand` (None on D1); the per-call counts
+    # restate §8.53's six (five once per combination in plan order, `z`; one per combination and row base, `z*P`).
+    _h_pa_nc = _h_nc(_fn_text("append_combination_results", _A4_PP))
+    _h_ids = _re.findall(r'diagnostics\.push\(diag\(\n\s*&format!\("diagnostic:preview-physics:([a-z-]+):\{\}", identity\(&\[([^\]]*)\]\)\)', _h_pa_nc)
+    if (_h_ids != [("combination-fixed-load-count", "&combination.id"), ("combination-gate", "&combination.id"),
+                   ("combination-source-missing", "&combination.id, base_id"), ("combination-row-withheld", "&combination.id"),
+                   ("combination-maximum", "&combination.id"), ("combination-intensified", "&combination.id"),
+                   ("held-status-released", "&combination.id")]
+            or len(_re.findall(r"\bdiag\(", _h_pa_nc)) != 7 or len(_re.findall(r"\bidentity\(", _h_pa_nc)) != 7
+            or _h_pa_nc.index("diagnostic:preview-physics:held-status-released:") < _h_pa_nc.rindex("if let Some(operand) = held_operand {")):
+        raise SystemExit("RTA5-PC: append_combination_results' notices changed; re-review §8.54")
+    EDGE_PER_CALL = list(EDGE_PER_CALL) + [
+        (fnkey("append_combination_results", _A4_PP), _k, "5*z+z*P",
+         O10 + "RTA5-PC: §8.53's six notice sites (five per combination, one per combination and row base); the released "
+         "notice runs only with a held operand (RTA5-DZ)")
+        for _k in (fnkey("diag", _LIB), fnkey("identity", _A4_PP))]
+    # RTA5-BN (preview): gate_reason's `refusal` is the pattern binding `HeldOutcome::Withheld(refusal)` (its `.code`
+    # and `.message` fields), read as a function value (FV); it names no retained_wire fn. Its held gate notice runs
+    # only on a declared subtraction (`if difference_basis::declared(combination)`, false on D1: PF1B-DZ).
+    if (_fn_text("gate_reason", _A4_PP).count("Some(held_status::HeldOutcome::Withheld(refusal)) => Some((refusal.code, format!(\"Combination withheld: {}.\", refusal.message))),") != 1
+            or _re.search(r"\brefusal\s*\(", _h_nc(_fn_text("gate_reason", _A4_PP)))
+            or _fn_text("gate_reason", _A4_PP).index("if difference_basis::declared(combination) {") > _fn_text("gate_reason", _A4_PP).index("HeldOutcome::Withheld(refusal)")):
+        raise SystemExit("RTA5-BN: gate_reason's held refusal binding or its guard changed; re-review §8.54")
+    O10_EDGE_ZERO += [(fnkey("gate_reason", _A4_PP), fnkey("refusal", PP_ + "retained_wire.rs"), _H_BN + ": `Withheld(refusal)` is a pattern binding (FV)")]
+    O10_SITE_ZERO += [(site("gate_reason", _A4_PP, 'format!("Combination withheld: {}.", refusal.message)'), _B1_DZ + " (the held gate notice: no declared subtraction)")]
+    _h_pa = _fn_text("append_combination_results", _A4_PP)
+    if (_h_pa.count("if let Some(operand) = held_operand {") != 2 or _h_pa.count("held_key.clone()") != 2
+            or _h_pa.index("if let Some(operand) = held_operand {") > _h_pa.index("held_key.clone()")
+            or _h_pa.index("held_status::released_message(") < _h_pa.rindex("if let Some(operand) = held_operand {")
+            or _h_lib.count(".filter(|records| !records.is_empty());") != 1):
+        raise SystemExit("RTA5-SZ: a held branch's guard changed; re-review §8.54")
+    # RTA5-L: the new loops. The held sources map only the combinations with a held operand (`0`, RTA5-DZ); the held
+    # derivation scans the gates (<= z, D1.9) and returns at `held_operands.get(..)?` before any TEXT site on D1. A held
+    # operand's keyed rows run only with a held operand (`0`, RTA5-DZ).
+    O10_LOOPS_LAST += [
+        ("iter:model .combinations .iter() .filter(|c| held_operands.contains_key(&c.id)).map", "0",
+         _H_DZ + " (the map runs once per combination with a held operand; held_operands is empty)", ["lib.rs:run_linear_static_preview_observed_inner"]),
+        ('iter:preview_gates .iter() .filter_map(|gate| model.combinations.iter().find(|c| gate[" "] == c.id.as_str())).filter_map', "z",
+         O10 + "RTA5-L: the gates, one per combination the solve gates (<= z); none has a held outcome on D1 (RTA5-DZ)",
+         ["lib.rs:run_linear_static_preview_observed_inner"]),
+        ("for (base, row) in &keyed", "0", _H_DZ + " (`held_operand` is None)", ["preview_physics.rs:append_combination_results"]),
+    ]
+    # RTA5-ID: the new TEXT sites' arguments (the chain classifies every row before its multiplicity; all but the held
+    # key are unreached on D1 or at multiplicity 0). The held key is formed for every combination the preview loop
+    # forms (its one positive-multiplicity site): an IN128 combination id. A recorded sign is a Sign's lowercase Debug
+    # token (negative, zero, positive), a state an ActiveSetState token (active, inactive, sticking, sliding), a bit
+    # token `hex`'s 16 digits, a release reason `branch` or `changed_state` (13 B with its space), the deciding quantity
+    # the longest of released_quantity's four forms, a released list at most s (D1 cap 32) items joined by "; ". A
+    # sign convention is a row's metadata string (RES), an exact-point reference an IN128 id, a refusal R a held
+    # refusal's text (error_display). Each literal length is read from the pinned module.
+    _h_sign = max(len(_x) for _x in ("negative", "zero", "positive"))
+    _h_state = max(len(_x) for _x in ("active", "inactive", "sticking", "sliding"))
+    _h_reason = max(len(_x.replace("_", " ")) for _x in ("branch", "changed_state"))
+    if (_re.search(r"pub enum Sign \{\n    Negative,\n    Zero,\n    Positive,\n\}", _text_of(FK_ + "structural/exact_boundary.rs")) is None
+            or _h_hs.count('let reason = if !branch_admissible {\n            Some("branch")\n        } else if classified != held_state {\n'
+                           '            Some("changed_state")\n        } else {\n            None\n') != 1
+            or _fn_text("hex", _H_PP).count('format!("{:016x}", value.to_bits())') != 1):
+        raise SystemExit("RTA5-ID: a recorded token's source changed; re-review §8.54")
+    _h_lits = lambda f, pat: [len(_re.sub(r"\{[^}]*\}", "", _x).encode()) for _x in _re.findall(pat, _text_of(f))]
+    _h_q = max([_h_lits(_H_PP, r'format!\("(gap_sign \{\}, reaction_sign \{\}[^"]*)"')[0] + 2 * _h_sign + 2 * _h_state]
+               + [_l + 16 for _l in _h_lits(_H_PP, r'format!\("((?:derived normal normal_signed_bits|reaction_bits|displacement_bits) \{\}[^"]*)"')])
+    _h_item = _h_lits(_H_PP, r'format!\("(\{\} held \{\}, classified \{\} \(\{\}: \{\}\))"')[0] + 128 + 2 * _h_state + _h_reason + _h_q
+    _h_items = 32 * _h_item + 31 * len("; ")
+    _h_clause = _h_lits(_H_PP, r'format!\("(held-status operand of \{combination_id\}[^"]*)"')[0] + 128
+    _hb = lambda n, why: {"bytes": n, "source": O10 + "RTA5-ID: " + why}
+    _h_tok = {"sign": _hb(_h_sign, "a Sign token"), "state": _hb(_h_state, "an ActiveSetState token"), "bits": _hb(16, "a 16-digit bit token")}
+    _CC = RE_ + "combination_certificate.rs"
+    O10_ID_AUDIT += [
+        (site("append_combination_results", _A4_PP, 'let held_key = format!("{}\\u{0}held", combination.id);', full=True),
+         {"combination.id": _hb(128, "the combination id (IN128); formed for every combination the preview loop forms")}),
+        (site("released_quantity", _H_PP, 'format!("gap_sign {}, reaction_sign {}', full=True),
+         {'text(&s["gap_sign"])': _h_tok["sign"], 'text(&s["reaction_sign"])': _h_tok["sign"], 'text(&s["prior"])': _h_tok["state"], 'text(&s["state"])': _h_tok["state"]}),
+        (site("released_quantity", _H_PP, 'format!("derived normal normal_signed_bits {}"', full=True), {'text(&entry["inputs"]["normal_signed_bits"])': _h_tok["bits"]}),
+        (site("released_quantity", _H_PP, 'format!("reaction_bits {}"', full=True), {'text(&entry["inputs"]["reaction_bits"])': _h_tok["bits"]}),
+        (site("released_quantity", _H_PP, 'format!("displacement_bits {} from its ground"', full=True), {'text(&entry["inputs"]["displacement_bits"])': _h_tok["bits"]}),
+        (site("released_message", _H_PP, '.map(|r| format!("{} held {}, classified {} ({}: {})"', full=True),
+         {"r.support_id": IN, "r.held.as_str()": _h_tok["state"], "r.classified.as_str()": _h_tok["state"],
+          "r.reason.replace('_',\"\")": _hb(_h_reason, "a release reason with its space"), "r.quantity": _hb(_h_q, "the longest deciding quantity")}),
+        (site("released_message", _H_PP, 'format!("Combination {combination_id} holds', full=True),
+         {"combination_id": IN, "items": _hb(_h_items, "at most s (32) released items joined by '; '")}),
+        (site("publish_row", _H_PP, 'metadata.sign_convention = format!("{}; {clause}", metadata.sign_convention);', full=True),
+         {"metadata.sign_convention": RS_, "clause": _hb(_h_clause, "operand_clause: its literal and the IN128 id")}),
+        (site("held_gate_message", _CC, 'format!("Combination withheld: {r}.")', full=True),
+         {"r": _hb(8192, "a held refusal's text (error_display; unreached: RTA3C-RB)")}),
+        (site("held_released_entry", _CC, 'let message = format!("Combination {cid} holds', full=True),
+         {"cid": IN, "listed": _hb(_h_items, "at most s (32) released items joined by '; ' (unreached: RTA3C-RB)")}),
+        (site("released_item", _CC, 'format!("gap_sign {}, reaction_sign {}', full=True),
+         {'text(&s["gap_sign"])': _h_tok["sign"], 'text(&s["reaction_sign"])': _h_tok["sign"], 'text(&s["prior"])': _h_tok["state"], 'text(&s["state"])': _h_tok["state"]}),
+        (site("released_item", _CC, 'format!("derived normal normal_signed_bits {}"', full=True), {'text(&e["inputs"]["normal_signed_bits"])': _h_tok["bits"]}),
+        (site("released_item", _CC, 'format!("reaction_bits {}"', full=True), {'text(&e["inputs"]["reaction_bits"])': _h_tok["bits"]}),
+        (site("released_item", _CC, 'format!("displacement_bits {} from its ground"', full=True), {'text(&e["inputs"]["displacement_bits"])': _h_tok["bits"]}),
+        (site("released_item", _CC, 'format!("{} held {held}, classified {} ({}: {quantity})"', full=True),
+         {'text(&e["support_id"])': IN, "held": _h_tok["state"], 'text(&e["classified_state"])': _h_tok["state"],
+          "reason.replace('_',\"\")": _hb(_h_reason, "a release reason with its space"), "quantity": _hb(_h_q, "the longest deciding quantity")}),
+        (site("modulus_label_states", _H_RE, 'format!("temperature_point:{reference}; selection=exact_user_entered_point;")', full=True),
+         {"reference": IN}),
+        (site("rows_check", _H_RE, "s.ends_with(&format!(\"; {clause}\"))", full=True),
+         {"clause": _hb(_h_clause, "operand_clause: its literal and the IN128 id")}),
+        (site("run_linear_static_preview_observed_inner", _LIB, "evidence.insert(held_status::DERIVATION_MEMBER.to_string(), serde_json::Value::Array(records));", full=True),
+         {"held_status::DERIVATION_MEMBER": _hb(len("held_status_derivation"), "the member key, a static literal")}),
+    ]
+    if _h_hs.count('pub(crate) const DERIVATION_MEMBER: &str = "held_status_derivation";') != 1:
+        raise SystemExit("RTA5-ID: the held derivation member key changed; re-review §8.54")

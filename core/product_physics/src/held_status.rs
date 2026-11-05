@@ -453,14 +453,7 @@ pub(crate) fn derive(held: &HeldStatusSolve, orienting: &NonlinearFrameIteration
         };
         entry["released"] = json!(reason.unwrap_or("none"));
         if let Some(reason) = reason {
-            let quantity = if reason == "branch" {
-                let normal = entry["inputs"]["normal_signed_bits"].as_str().and_then(|b| u64::from_str_radix(b, 16).ok()).map(f64::from_bits).unwrap_or(0.0);
-                format!("derived normal {normal:e} against the held branch {}", entry["inputs"]["beta"])
-            } else if matches!(held_state, ActiveSetState::Active | ActiveSetState::Sticking) {
-                format!("reaction {reaction:e}")
-            } else {
-                format!("displacement {trial:e} from its ground")
-            };
+            let quantity = released_quantity(&entry, reason);
             released.push(ReleasedSupport { support_id: id.to_string(), held: held_state, classified, reason, quantity });
         }
         let (name, class) = condition(&support.behavior, held_state, derived_source.is_some(), zero_limit);
@@ -499,8 +492,29 @@ pub(crate) fn derive(held: &HeldStatusSolve, orienting: &NonlinearFrameIteration
     }
 }
 
+/// The deciding quantity of a released entry (§7.5), worded from the entry's recorded fields
+/// only, so a reader rebuilds it from the record (RE `combination_certificate`'s roster): no
+/// binary64 value is formatted. A strict-gap decision states its recorded signs in the
+/// contact's own sense and its prior and decided states; an ordinary one quotes the recorded
+/// bit token that decided it, exactly as the record serializes it: the signed normal for a
+/// branch release, the reaction for a support held active or sticking, else the displacement
+/// from its ground.
+fn released_quantity(entry: &Value, reason: &str) -> String {
+    let text = |v: &Value| v.as_str().unwrap_or_default().to_string();
+    if entry["decision"] == "strict_gap" {
+        let s = &entry["strict_gap"];
+        format!("gap_sign {}, reaction_sign {} in the contact's own sense, {} to {}", text(&s["gap_sign"]), text(&s["reaction_sign"]), text(&s["prior"]), text(&s["state"]))
+    } else if reason == "branch" {
+        format!("derived normal normal_signed_bits {}", text(&entry["inputs"]["normal_signed_bits"]))
+    } else if matches!(entry["held_state"].as_str(), Some("active" | "sticking")) {
+        format!("reaction_bits {}", text(&entry["inputs"]["reaction_bits"]))
+    } else {
+        format!("displacement_bits {} from its ground", text(&entry["inputs"]["displacement_bits"]))
+    }
+}
+
 /// `HELD_STATUS_RELEASED`'s message: each released support, its held and classified states,
-/// the reason and the deciding quantity (§7.3).
+/// the reason and the deciding quantity from the record (§7.3, §7.5; `released_quantity`).
 pub(crate) fn released_message(combination_id: &str, released: &[ReleasedSupport]) -> String {
     let items = released
         .iter()

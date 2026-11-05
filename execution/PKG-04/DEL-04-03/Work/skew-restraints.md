@@ -1644,7 +1644,10 @@ owners.
 - **Readers (R-1):** RE `along_direction_evidence` and the Python verifier re-check it, with
   the RE and Python combination mirrors. The tables went through the generator (`apply-sk1`),
   with the S-K1 base's tables kept as the `recorded_pre_sk1` variants in the Rust, Python and
-  webview registries. Both readers rescale the direction by a power of two to max|d̃_i| ∈ [1, 2)
+  webview registries. Re-derived at the merge of main `9e5c69797` (#122's final composition):
+  main's preview-physics-2, timoshenko-1 and retained-1 tables there are byte-identical to the
+  earlier base's (`563db3c7…`, `f64473f5…`, `d0bab350…`), so the variants keep those bytes and
+  follow main's thirteenth (RT-A3 §4's `85c2678a…`) as the registry's last three. Both readers rescale the direction by a power of two to max|d̃_i| ∈ [1, 2)
   without forming the scale. The rescaling is exact on the admitted domain only (every nonzero
   d̃_i normal, §4.2). Outside it, for example d = (8, 5·2^−1074, 0), the stepping may round a
   component that becomes subnormal; the product refuses such a direction and publishes no row.

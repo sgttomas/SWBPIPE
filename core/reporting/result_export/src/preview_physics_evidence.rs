@@ -272,7 +272,10 @@ fn preview_arcs(rows: &[Value]) -> HashSet<&str> {
         .collect()
 }
 
-/// Every S1 section 9 check. A failure makes the source unsupported.
+/// Every S1 section 9 check. A failure makes the source unsupported. Precondition: the
+/// stated identity is within the preview-physics route's or none
+/// (`semantic_contract::preview_physics_identity_of`); the full public reader
+/// (`reader_verdict::validate`) and the header dispatch refuse any other, this check does not.
 pub fn validate_preview_physics_evidence(source: &Value) -> Check {
     validate_with(source, None)
 }
@@ -284,7 +287,18 @@ pub(crate) fn validate_preview_physics_evidence_with_model(source: &Value, model
     validate_with(source, model)
 }
 
+/// RT-A3 §4 (DEL-05-02 Work `combination-certificate.md`): the certificate is read
+/// after every other check, so their refusals keep precedence; with the model,
+/// `reader_verdict` reads it after its model checks.
 fn validate_with(source: &Value, model: Option<&Value>) -> Check {
+    validate_uncertified_with(source, model)?;
+    if model.is_none() {
+        crate::combination_certificate::check(source)?;
+    }
+    Ok(())
+}
+
+fn validate_uncertified_with(source: &Value, model: Option<&Value>) -> Check {
     // pf-timoshenko.md §4: the source's identity selects one complete identity (table,
     // profile and limitation array together); a mixed array is FORMULATION_BASIS.
     let (table, profile) = crate::semantic_contract::preview_physics_identity_of(source);
@@ -306,7 +320,9 @@ fn validate_with(source: &Value, model: Option<&Value>) -> Check {
     // (`preview_combination_gates`). Operating-case slice 1b:
     // `difference_basis_derivation` beside a declared subtraction (`preview_difference_basis`).
     // RT-A5 (operating-case §7.6): `held_status_derivation` beside a `minuend_final` subtraction.
-    let optional = [crate::preview_combination_operands::MEMBER, crate::preview_combination_gates::DERIVATION_MEMBER, crate::preview_difference_basis::MEMBER, crate::preview_held_status::MEMBER];
+    // RT-A3 §4: `combination_certificate` beside a solved document's combinations
+    // (`combination_certificate`, checked below).
+    let optional = [crate::preview_combination_operands::MEMBER, crate::preview_combination_gates::DERIVATION_MEMBER, crate::preview_difference_basis::MEMBER, crate::preview_held_status::MEMBER, crate::combination_certificate::MEMBER];
     require(
         evidence.as_object().is_some_and(|o| {
             o.contains_key("preview_cases")

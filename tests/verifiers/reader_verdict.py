@@ -347,6 +347,18 @@ def source_recovery(source: Any) -> None:
         raise Refused("SOURCE_BLOCKS_PUBLICATION_HASH")
 
 
+def _preview_route_identity(source: Any) -> None:
+    """Rust `reader_verdict::preview_route_identity`: a stated string identity that is not a preview-physics one
+    (`PREVIEW_PHYSICS_CONTRACTS`, Rust `sc::PREVIEW_PHYSICS_IDENTITIES`) takes the metadata header's own verdict,
+    then SOURCE_PRODUCER_CONTRACT_UNSUPPORTED; a source stating none, or a preview-physics identity, is unchanged
+    (the inner readers' default)."""
+    producer = source.get("producer") if isinstance(source, Mapping) else None
+    identity = producer.get("semantic_contract_id") if isinstance(producer, Mapping) else None
+    if isinstance(identity, str) and identity not in c.PREVIEW_PHYSICS_CONTRACTS:
+        _metadata_header(source)
+        raise Refused("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
+
+
 def validate(reader: str, source: Any, model: Any = None, invocation: Any = None) -> dict[str, Any]:
     """One reader's raw validation: `{"ok": true}` (with `eligible`, and the source reader's G1 `findings`) or the refusal."""
     model, invocation = _present(model), _present(invocation)
@@ -355,6 +367,11 @@ def validate(reader: str, source: Any, model: Any = None, invocation: Any = None
             source_recovery(source)
             return {"ok": True}
         if reader == "preview-physics":
+            # The route/profile boundary (Rust `reader_verdict::preview_route_identity`): a source stating an
+            # identity outside the preview-physics route's is never read under its table; the header's own
+            # verdict refuses it by name (the retired preview-physics-1 is SOURCE_PREVIEW_PHYSICS_1_RETIRED),
+            # and another route's identity is not this reader's (SOURCE_PRODUCER_CONTRACT_UNSUPPORTED).
+            _preview_route_identity(source)
             # RT-A4 (review r1 P2): with the model, the combination gates and unsigned rows are re-derived from it.
             preview_physics_evidence.validate_preview_physics_evidence(source, model)
             if model is not None:
@@ -372,9 +389,17 @@ def validate(reader: str, source: Any, model: Any = None, invocation: Any = None
                 # RT-A4 (review r1 P2): the gates and unsigned rows, re-derived from the model.
                 from . import preview_combination_gates
                 preview_combination_gates.check(source, model)
+                # RT-A3 §4: the certificate's records bound to the model's combinations, then the certificate last.
+                from . import combination_certificate
+                combination_certificate.model_checks(source, model)
+                preview_physics_evidence.certificate_check(source, model)
             return {"ok": True}
         if reader == "pressure":
-            pressure_2.validate_pressure_evidence(source)
+            if model is None:
+                pressure_2.validate_pressure_evidence(source)
+            else:
+                # RT-A3 §4: with the model, the certificate is read after the model checks.
+                pressure_2.validate_pressure_evidence_without_certificate(source)
             if model is not None:
                 physics_model_checks(source, model)
                 # T4-U4b review item 1: the directional binding (the pressure-2 reader only).
@@ -392,6 +417,10 @@ def validate(reader: str, source: Any, model: Any = None, invocation: Any = None
                 # laws that need their inputs (Rust `nonlinear_support_evidence::model_checks`).
                 from . import nonlinear_support_evidence
                 nonlinear_support_evidence.model_checks(source, model)
+                # RT-A3 §4: the certificate's records bound to the model's combinations, then the certificate last.
+                from . import combination_certificate
+                combination_certificate.model_checks(source, model)
+                pressure_2.certificate_check(source, model)
             return {"ok": True}
         if reader == "pressure-source":
             eligible = _source_validate(source, invocation)

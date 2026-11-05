@@ -241,7 +241,7 @@ MVP requirement (PRD §15.6).
 | FR-CMP-008, -009, -010 (549-551) | Should | P | `schemas/comparison_tolerance.schema.json`; `ComparisonPanel.tsx:55-70` | DEL-14-05, DEL-08-06 | No profiles, overlays or CSV. |
 | FR-CMP-011 (552) | Could | P | `schemas/caepipe_external_run.schema.json` | DEL-14-05 | §15.6: not MVP. |
 | §21.3 human acceptance (1385) | — | D | `docs/claims_registry.md:6,184-186` | DEL-01-04 | No acceptance workflow, as required. |
-| §22.4 regression (1435) | Must | P | `tools/release/run_evidence_sweep.py:163`; last sweep `validation/evidence/sweeps/SWEEP_20260924T162044Z_b9dda2addccc.json` | DEL-00-08, DEL-09-05, DEL-10-04 | The cited sweep predates desktop states and recorded runs (W-12). The sweep is optional release preparation; the hosted `harness` is the merge check. |
+| §22.4 regression (1435) | Must | P | `tools/release/run_evidence_sweep.py:163`; last sweep `SWEEP_20260924T162044Z_b9dda2addccc.json` (retired from the tree on 2026-11-05; recoverable at `24ac867e0d`) | DEL-00-08, DEL-09-05, DEL-10-04 | The cited sweep predates desktop states and recorded runs (W-12). The sweep is optional release preparation; the hosted `harness` is the merge check. |
 | §22.5 prover correlation (1455) | — | O | DEC-080: activation is a future owner-gated row | DEL-09-04, PKG-15 | The schema lacks the §22.5 fields. |
 | R6 reproduction (1636) | — | P | Current runnable procedure `docs/validation_manual/headless_runner_reproduction.md:47-193` (W-2); last bundle still `validation/evidence/reproduction/REPRO_DEL0904_20260720T074714Z_a5235340aae3/` | DEL-09-04 | No fresh bundle (the heavy half of W-2). |
 

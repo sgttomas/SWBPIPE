@@ -48,7 +48,7 @@ numerical accuracy or model freshness):
 """
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from copy import deepcopy
 from fractions import Fraction
 import hashlib
@@ -58,7 +58,7 @@ from pathlib import Path
 import struct
 from typing import Any
 
-from . import component_body, exact_combinations, global_end, nonlinear_support_evidence, section_basis as sb, u4b
+from . import combination_certificate, component_body, exact_combinations, global_end, nonlinear_support_evidence, section_basis as sb, u4b
 
 PROJECT = Path(__file__).resolve().parents[2]
 
@@ -70,7 +70,7 @@ TABLE_PATH = PROJECT / "fixtures/results/semantic_contract_v0_3_pressure_2.json"
 # T4-U6 (D-5, §2.4): one stress signature per (recovery token x section basis); T4-U5b adds the tie-rod force and
 # T4-U4b its 22 per-basis signatures: 129 signatures over 66 kinds; W-7 (DEL-04-01) the six global end-action
 # signatures: 135 over 68; RT-A3 increment 1 the two branch intensified signatures: 137 over 69.
-TABLE_SHA256 = "2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645"
+TABLE_SHA256 = "21b7426ec1c50ba5f74539984261554d06b9b6a26ec26f7d5765b5faa7d6bb90"
 TABLE_SIGNATURE_COUNT = 137
 TABLE_KIND_COUNT = 69
 
@@ -199,6 +199,25 @@ def validate_pressure_evidence(source: Mapping[str, Any]) -> None:
     checks directly. W-16 slice b: a document with a load combination takes those
     checks on its view without the combination rows and record, then the
     combination pass (``exact_combinations``) on the whole document."""
+    # RT-A3 §4 (DEL-05-02 Work `combination-certificate.md`): the route's checks read the document without the
+    # certificate first, so their refusals keep precedence; the certificate is then read on the whole document (Rust
+    # `validate_pressure_evidence`).
+    validate_pressure_evidence_without_certificate(source)
+    certificate_check(source)
+
+
+def certificate_check(source: Mapping[str, Any], model: Mapping[str, Any] | None = None) -> None:
+    if isinstance(source, Mapping):
+        try:
+            combination_certificate.check(source, model)
+        except (TypeError, KeyError, AttributeError, OverflowError, IndexError) as error:
+            raise ValueError("SOURCE_COMBINATION_CERTIFICATE_MALFORMED") from error
+
+
+def validate_pressure_evidence_without_certificate(source: Mapping[str, Any]) -> None:
+    """The pass without the certificate (reader_verdict reads the certificate after its model checks)."""
+    if isinstance(source, Mapping):
+        source = combination_certificate.without_member(source)
     if isinstance(source, Mapping) and exact_combinations.present(source):
         _validate_direct_pressure_evidence(exact_combinations.direct_view(source))
         try:
@@ -843,6 +862,17 @@ def _is_tie_rod_row_id(row_id: Any, case: str, tail: str) -> bool:
     return isinstance(row_id, str) and row_id in (f"result:{tail}", f"result:loadcase:{_stable_suffix(case)}:{tail}")
 
 
+def _rust_f64_sum(values: Iterable[float]) -> float:
+    """The Rust reader's ``Iterator::sum::<f64>()`` (connector_evidence.rs: the tie-rod direction's |n|^2 and the s_x
+    tolerance's rod terms): start from -0.0, as current Rust std does, and add each term in source order, one binary64
+    rounding per addition. Python 3.12+'s built-in ``sum()`` of floats is compensated, so it can decide a boundary the
+    other way."""
+    total = -0.0
+    for value in values:
+        total += value
+    return total
+
+
 def _tie_rods(record: Mapping[str, Any]) -> list[tuple[str, float]]:
     """T4-U5b (§3.3, §5.1): a record's closed ``tie_rods`` entries, as (id, axial share). The axial share is
     RN(n.Q_x), recomputed here from the published direction and the record's Q as an exact rational."""
@@ -861,18 +891,27 @@ def _tie_rods(record: Mapping[str, Any]) -> list[tuple[str, float]]:
                  and _number(rod["stiffness_n_per_m"]) and rod["stiffness_n_per_m"] > 0 and _number(rod["reference_extension_m"])
                  and _number(rod["length_m"]) and rod["length_m"] > 0 and _vector(rod["direction_global"], 3) and _text(rod["source_reference"]),
                  "connector tie-rod record")
-        n = rod["direction_global"]
-        _require(abs(sum(v * v for v in n) - 1.0) <= 16 * math.ulp(1.0), "connector tie-rod direction")
+        # Rust reads each component as binary64 (`as_f64`) before any arithmetic; a JSON integer is converted first.
+        n = [float(v) for v in rod["direction_global"]]
+        _require(abs(_rust_f64_sum(v * v for v in n) - 1.0) <= 16 * math.ulp(1.0), "connector tie-rod direction")
         axis = [record["connector_axes_global"][k][0] for k in range(3)]
         share = rod["axial_share"]
-        _require(_number(share) and float(sum(Fraction(n[k]) * Fraction(axis[k]) for k in range(3))) == share, "connector tie-rod axial share")
+        _require(_number(share), "connector tie-rod axial share")
+        axis, share = [float(a) for a in axis], float(share)
+        # Rust compares the exact dot's binary64 rounding with the share by bits (`to_bits`), so -0.0 is not +0.0; an
+        # exactly zero dot rounds to +0.0 in both readers (Rust `ExactSum::round`, `float(Fraction(0))`).
+        dot = float(sum(Fraction(n[k]) * Fraction(axis[k]) for k in range(3)))
+        _require(struct.pack("<d", dot) == struct.pack("<d", share), "connector tie-rod axial share")
         out.append((rod["id"], share))
     return out
 
 
 def _effective_axial_binding(s: float, g: float, pe: float, rods: list[tuple[float, float]]) -> bool:
     """§5.1: |s_x - Sigma| <= (64 + n_r)eps(|g_x| + |Pe| + sum|t_r*share|) + (n_r + 2)*2^-1074, with
-    Sigma = g_x - Pe + sum_r RN(t_r*share_r) summed as exact rationals and rounded once."""
+    Sigma = g_x - Pe + sum_r RN(t_r*share_r) summed as exact rationals and rounded once. Every operand is binary64, as
+    the Rust reader's (`as_f64`): a JSON integer is converted before it is multiplied or summed."""
+    s, g, pe = float(s), float(g), float(pe)
+    rods = [(float(t), float(share)) for t, share in rods]
     products = [t * share for t, share in rods]
     if not all(math.isfinite(v) for v in [s, g, pe, *products]):
         return False
@@ -881,7 +920,7 @@ def _effective_axial_binding(s: float, g: float, pe: float, rods: list[tuple[flo
     except OverflowError:
         return False
     coefficient = (64 + len(rods)) * math.ulp(1.0)
-    tolerance = coefficient * abs(g) + coefficient * abs(pe) + sum(coefficient * abs(p) for p in products) + (len(rods) + 2) * math.ulp(0.0)
+    tolerance = coefficient * abs(g) + coefficient * abs(pe) + _rust_f64_sum(coefficient * abs(p) for p in products) + (len(rods) + 2) * math.ulp(0.0)
     return math.isfinite(tolerance) and abs(s - expected) <= tolerance
 
 

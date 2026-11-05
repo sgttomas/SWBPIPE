@@ -15,7 +15,7 @@ import runpy
 HELPERS = runpy.run_path(os.path.join(os.path.dirname(__file__), "kd5_text_model.py"))
 PINS = {
     "core/product_physics/src/lib.rs": {
-        "solve_load_case_observed": "5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061",
+        "solve_load_case_observed": "cb2a9686a9e5a42373c5c0f10b545cabfcc60ffe4d6a1515bdb19790ffd98b2a",
         # T4-U6/U8: D-5's stress rows, per-basis maxima, extrema and coverage (priced at their own sites and by the
         # U6 rules); its carriers, staging and prepared-pressure calls are unchanged. Epoch addbdc030e: the case
         # evidence's `pipe_sections` is `exact_pipe_sections(built)`, the same entries plus the realized-arc marker
@@ -46,7 +46,12 @@ PINS = {
         # Staging and prepared-pressure calls unchanged.
         # I2b-2 layout (§8.43, cc160d28d; Agent 0): ordinary layout of the same hunks (token-equal but for
         # block-wrapped arms and trailing commas); carriers, counts, staging and prepared-pressure calls unchanged.
-        "solve_prepared_load_case": "b957a124af56c315ccc23c60b7259d2a482dfec48ead8fccdaec261a5dad642d",
+        # RT-A3 §4 D3 (§8.53): LoadCaseSolve.certificate_operand (None at every early return) and, on a model with a
+        # combination whose case formed its member bound, combination_certificate::operand over the case's recovery
+        # records. The carrier set and counts are unchanged; the two Result<LoadCaseSolve, _> carriers stay bound to
+        # their in-build size (the field's bytes reach the profile through the in-build atoms). Staging and
+        # prepared-pressure calls unchanged.
+        "solve_prepared_load_case": "f5aaf1082b7a61da9fccb07a2bb39f9d3196aa4ae0db2ea8485d4ee9241a1c2c",
         "append_curved_bend_macro_element_results": "9e9b5010a84aa73268d72fabcf99c5cb2012f6f35ef5a15adb41bb30bf045a4e",
     },
     # B7b: branch E is 0.5.0 with {3.0.0, exact_pressure_v3, euler_bernoulli}; the

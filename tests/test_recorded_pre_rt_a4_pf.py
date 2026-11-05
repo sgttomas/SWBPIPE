@@ -56,6 +56,9 @@ VARIANTS = [
     ("physics-retained-1 (main, RT-A4)", "physics_retained_1/main_bbf384dec/retained_precision_exact_successor_sparse_interactive.analysis_run.json",
      "physics_retained_1/main_bbf384dec/retained_precision_exact_successor_sparse_interactive.json",
      "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034", "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"),
+    ("physics-retained-1 (main, before the combination certificate)", "physics_retained_1/main_252bef969/retained_precision_exact_successor_sparse_interactive.analysis_run.json",
+     "physics_retained_1/main_252bef969/retained_precision_exact_successor_sparse_interactive.json",
+     "85c2678a78e794b44761c11efb73c215645c7e2560d802ac8ad6075e7804c691", "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"),
 ]
 IDS = [v[0] for v in VARIANTS]
 
@@ -267,10 +270,12 @@ def test_the_registry_is_main_verbatim_and_disjoint_from_the_current_tables():
                "f41b9d3ed0c1b7abaee0b98ca1a28aa1a2d109bce443b98d53a2080c1c504ce9": "b32a17761",
                "6f6494907e3ead979ea27e5ff85f54617589c9195dc84d40a02752a0b006ef44": "b32a17761",
                "b4377e73e8a83edb57b4f0c41dbaef384385e0f6b4810103a106a334c8edbe14": "b32a17761",
-               # R-6/R-7 S-K1's variants are its base's at 6ebd92ce9 (fixtures/results/recorded_pre_sk1).
-               "563db3c7c44279face3adc60a76a512de38520357e89ea4b49ad11d20946db89": "6ebd92ce9",
-               "f64473f5a60ac2bb34d8006b40bf044800f0c97454c570bbe88d1f1d96b7bdfc": "6ebd92ce9",
-               "d0bab3502b4018ce0596757a933bd6306f402dc3741a10af24a094e8c66544e8": "6ebd92ce9"}.get(digest, MAIN)
+               # RT-A3 §4's variant is main's exact successor table at 252bef969.
+               "85c2678a78e794b44761c11efb73c215645c7e2560d802ac8ad6075e7804c691": "252bef969",
+               # R-6/R-7 S-K1's variants are main's at 9e5c69797, before S-K1 (fixtures/results/recorded_pre_sk1).
+               "563db3c7c44279face3adc60a76a512de38520357e89ea4b49ad11d20946db89": "9e5c69797",
+               "f64473f5a60ac2bb34d8006b40bf044800f0c97454c570bbe88d1f1d96b7bdfc": "9e5c69797",
+               "d0bab3502b4018ce0596757a933bd6306f402dc3741a10af24a094e8c66544e8": "9e5c69797"}.get(digest, MAIN)
         try:
             committed = subprocess.run(["git", "show", f"{rev}:fixtures/results/semantic_contract_v0_3_{origin[identity]}.json"],
                                        cwd=ROOT, capture_output=True, check=True).stdout
