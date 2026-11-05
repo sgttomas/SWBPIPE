@@ -293,12 +293,21 @@ def test_point_sums_follow_the_rust_readers_left_to_right_order():
 
 
 def test_the_reader_has_no_compensated_float_sum():
-    """Every float total in verdict arithmetic uses `_sequential_sum`; a built-in `sum` is
-    allowed only with an explicit start value (the exact `Fraction` total)."""
+    """A direct-call regression check, not a proof of arithmetic parity (the paired-site
+    audit and the shared boundary fixtures carry that): the only built-in `sum` call in the
+    reader is the exact `Fraction` total of the Bessel bound, whose start is
+    `Fraction(0)`. Every float total in verdict arithmetic uses `_sequential_sum`."""
     tree = ast.parse((ROOT / "tests/verifiers/modal_evidence.py").read_text(encoding="utf-8"))
-    bare = [node.lineno for node in ast.walk(tree)
-            if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == "sum" and len(node.args) < 2]
-    assert bare == []
+    calls = [node for node in ast.walk(tree)
+             if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == "sum"]
+
+    def exact_fraction_start(call):
+        start = call.args[1] if len(call.args) == 2 else next((k.value for k in call.keywords if k.arg == "start"), None)
+        return (isinstance(start, ast.Call) and isinstance(start.func, ast.Name) and start.func.id == "Fraction"
+                and len(start.args) == 1 and isinstance(start.args[0], ast.Constant) and start.args[0].value == 0)
+
+    assert [call.lineno for call in calls if not exact_fraction_start(call)] == []
+    assert len(calls) == 1
 
 
 EDGES = json.loads((RESULTS / "modal_producer_edges.json").read_text(encoding="utf-8"))
