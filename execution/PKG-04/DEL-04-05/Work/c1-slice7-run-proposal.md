@@ -25,8 +25,63 @@ and is also consumed; its result, diagnosis and repair are in "A-only 500-node a
 
 A seventh, the A+B attempt of 2026-11-05 (`app-c1-main-4427c3ec0`, proposal "Bounded ONE
 500-node attempt proposal (A+B candidate, 4427c3ec0)" below), has run once and is consumed. Its
-result, diagnosis and harness repair, and the prepared small connected validation (not run,
-nothing granted), are in the next section. **No further 500-node attempt is proposed.**
+result, diagnosis and harness repair, and the small connected validation's preparation, are in
+"A+B 500-node attempt" below. **No further 500-node attempt is proposed.**
+
+The prepared small connected validation (82 nodes) has since run once under Agent 0's exact
+approval and the owner's arranged window, and passed; its result and closure are in the next
+section. It is consumed.
+
+## Small connected validation (82 nodes): result and closure (2026-11-05)
+
+One run, `native-linear-ex-n0082`, plan `perf-plan-c1-small.json` subset `c1-82`, App binary
+`app-c1-main-4427c3ec0` (`82e4b961…19a4`, built from clean `4427c3ec0`), harness at clean
+`dd458d1d3` (perf.mjs `c0099235…`, perf-driver.js `d2926803…`, perf-sampler.py `846f5493…`, plan
+`fe9f6924…`), model raw `a3ca6fbc…` / JCS `12e904f3…` (proof identity match). The launch record
+(`a0082-c1-small1-launch-check.json`, `c3c2cd34…`) and the environment record (`8c39fe46…`) were
+checked before queueing. t3_exclusive acquired at 02:54:08Z with no wait; END-EXCLUSIVE at
+02:58:26Z (258 s of the 900 s budget). No retry, build, model change or host change.
+
+**Result: class `ok`, rc 0** — the first connected native C1 pass. Every compulsory gate ran:
+- *Host:* the page preflights were visible with two frames at start (183 ms) and before the run
+  (109 ms); visibility stayed visible throughout (0 hidden polls; 7 of 7 frame probes
+  acknowledged).
+- *Solve and first paint* (ms after Analyze → Run): job_done 5,531; reader verdict 5,531 → 11,394;
+  result_committed 13,608; **first_paint 14,493** (the visible native first page, rows and
+  semantics, then two frames), against the 300,000 ms gate.
+- *Fresh table:* table_ready +25 ms after first paint; 153,178 rows (14 cases, 8 kinds); all
+  eleven navigation actions (row, kind, case, entity and page next/previous; no-match and clear
+  filter).
+- *CSV:* displacement, 3,936 of 3,936 expected rows, 720,084 B over 10 pages; receipt and file
+  verified (`6d826922…`).
+- *Reader profile (pressure route):* 7.3 s; phase evidence complete (120 events, none incomplete,
+  no overflow); 154 semantics batches.
+- *Record Run:* 20.7 s. *Persistence:* save (249,790,118 B run record over a 147,357,703 B result),
+  reopen and re-save of the saved run, and the recorded-run read; the historical table was ready
+  in 3.7 s and the eleven actions passed again. The recorded-run read has no findings; the
+  restored saved run reports `HISTORICAL_INPUT_MANIFEST_MISSING` on reopen and re-save, recorded
+  here as observed (no gate failed on it).
+- *Release (P3):* the pool returned to 0 jobs, workers, retained and webview-custody results and
+  0 reserved bytes at normal pressure; all three handles disposed.
+- *Trace:* 0 errors, refusals and violations; the IPC transport was not lost (no fallback event).
+
+**Observations for the larger path** (single-run observations on this 128 GiB host, not
+measurements of criterion 9, a memory fit or a 500-node prediction):
+- The first project save took 150.1 s; the second 14.9 s. The first-paint path is about 15 s.
+- The App's peak footprint was 6.66 GB; the aligned App + WebContent sampled peak was 7.82 GB,
+  after the reader probe (1.38 GB before it, 1.04 GB during it). The project store was 1.19 GB
+  (`quick_check` ok).
+- Both scale with the result's rows, so the save path and its retained copies are the next C1
+  diagnosis, source first. No run is implied.
+
+**Closure** (verified 02:58:37Z): no App, harness or sampler process; no holder on the cargo job
+lock or slots 2–4; no `exclusive.pending`; the throwaway HOME removed. The successful run removed
+its private `perf-c6UaBF` scratch. Kept in the kit's `evidence/n0082-c1-small1/`: the report
+(`4b31484a…`), run record (`9fabf637…`), samples (`67ad98c8…`), reader phases (`7f0df683…`) and
+window record (`a46dc476…`); the wrapper log is beside the manager's kit tools.
+
+This pass shows the whole connected path once, on this host, at 82 nodes. It is no 500-node,
+usable-size, memory-fit, base-machine or acceptance claim.
 
 ## A+B 500-node attempt: result, diagnosis and repair (2026-11-05)
 
@@ -395,7 +450,7 @@ defect is established. App source and every build-read file are unchanged.
     were not run.
   - `tsc --noEmit`: clean. Deliverables check: exit 0, no errors.
 
-### Small connected validation (prepared offline; not run, nothing granted)
+### Small connected validation (prepared offline; since run once and passed, above)
 
 Before any further 500-node proposal, the complete connected path on the smallest maintained
 model:
