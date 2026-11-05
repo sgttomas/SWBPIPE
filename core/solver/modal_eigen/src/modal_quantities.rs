@@ -464,7 +464,10 @@ pub fn lifted_normalization(
 /// raw lifted vector `lifted_normalization` chose on: shape_d = fl(lifted_d/pivot),
 /// with `normalize_mode`'s below-normal rule applied per global DOF
 /// (|lifted_d| < |pivot|·2⁻¹⁰²², decided in WideDd before rounding: 0, flagged).
-/// The reference entry is exactly 1 and every entry has magnitude ≤ 1.
+/// The reference entry is exactly 1, and every entry of the normalizing class
+/// (translations under UnitMaxTranslation, rotations under UnitMaxRotation) has
+/// magnitude ≤ 1. An entry of the other class can exceed 1 (its unit differs), as on
+/// the axis path.
 #[derive(Debug, Clone, PartialEq)]
 pub struct LiftedShape {
     /// Over the global DOFs.

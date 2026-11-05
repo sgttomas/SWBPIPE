@@ -1180,7 +1180,9 @@ merge, followed by one independent dynamics review.
     are chosen on the raw lifted vector φ = Q̃φ′. The published shape is
     fl(φ_d / pivot) over the global DOFs. Today's below-normal rule applies per global DOF:
     |φ_d| < |pivot|·2⁻¹⁰²², compared in WideDd, publishes 0 and flags d. So the reference
-    entry is exactly 1, and every entry of its class has magnitude ≤ 1. The generalized
+    entry is exactly 1, and every entry of the normalizing class (translations under
+    UnitMaxTranslation, rotations under UnitMaxRotation) has magnitude ≤ 1; an entry of the
+    other class can exceed 1, as on the axis path. The generalized
     mass, participation and effective masses are the reduced-coordinate quantities, on
     φ′/pivot with M′ and Q̃ᵀ(M r_k). They are consistent with the published lifted shape to
     rounding. Checks 2 and 3 read the reduced φ′/pivot. The coordinate re-formation has a
