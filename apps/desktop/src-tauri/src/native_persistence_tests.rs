@@ -1446,44 +1446,65 @@ fn p1_stored_bytes_hashes_and_replies_are_the_pre_change_implementations() {
 
 /// The peak requested bytes (`ingress::counting`, this thread's Rust
 /// allocations; SQLite's own heap is not counted) of each persistence
-/// command for `case`, with the result's and record's stored lengths.
+/// command for `case`, with the result's and record's stored lengths. The
+/// commands run once unmeasured first ([`warm_up`]), so a process-wide lazy
+/// initialization is never charged to the command measured.
 fn command_peaks(case: &Case, registry: &SolveJobRegistry, gate: &Gate, dir: &Path) -> std::collections::BTreeMap<&'static str, u64> {
+    let mut peaks = std::collections::BTreeMap::new();
+    for pass in ["warm-up", "measured"] {
+        persistence_sequence(case, registry, gate, dir, pass, &mut |name, peak| {
+            if pass == "measured" {
+                peaks.insert(name, peak);
+            }
+        });
+    }
+    peaks
+}
+
+/// Each persistence command once on fresh stores of `case`, unmeasured: the
+/// process-wide lazy state the commands initialize on first use (tables,
+/// readers) then exists before a measurement, whichever thread made it.
+pub(crate) fn warm_up(case: &Case, registry: &SolveJobRegistry, gate: &Gate, dir: &Path) {
+    persistence_sequence(case, registry, gate, dir, "warm-up", &mut |_, _| {});
+}
+
+/// Record Run, Create, Save again, the recorded-run read and the restored
+/// re-save of `case`, each measured, its peak handed to `peak`; and `R`, `Q`.
+fn persistence_sequence(case: &Case, registry: &SolveJobRegistry, gate: &Gate, dir: &Path, pass: &str, peak: &mut dyn FnMut(&'static str, u64)) {
     use crate::ingress::counting::measure;
     use crate::stored_custody::tests::{native_open, native_read};
     use crate::stored_save::tests::{native_resave, opened_fields, resave_args};
-    let name = case.id.replace(|c: char| !c.is_ascii_alphanumeric(), "-");
-    let mut peaks = std::collections::BTreeMap::new();
+    let name = format!("{}-{pass}", case.id.replace(|c: char| !c.is_ascii_alphanumeric(), "-"));
     let job = held(registry, gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
     let recorded = dir.join(format!("{name}-peaks-record.sqlite"));
     stored_project(&recorded, case.project_id(), case.model());
     let args = case.record_args(&job, native_request(None));
     let (reply, measured) = measure(|| native_record(registry, &recorded, &args, None).unwrap());
-    peaks.insert("record_run", measured.peak_requested);
+    peak("record_run", measured.peak_requested);
     let recording_id = reply["run"]["recording_id"].as_str().unwrap().to_string();
     let saved = dir.join(format!("{name}-peaks-save.sqlite"));
     let args = case.save_args(&job, "create", Value::Null, Value::Null);
     let (created, measured) = measure(|| native_save(registry, &saved, &args, &unlimited()).unwrap());
-    peaks.insert("fresh_create", measured.peak_requested);
+    peak("fresh_create", measured.peak_requested);
     let args = case.save_args(&job, "save", created["project_envelope_hash"]["value"].clone(), Value::Null);
     let (_, measured) = measure(|| native_save(registry, &saved, &args, &unlimited()).unwrap());
-    peaks.insert("fresh_save_again", measured.peak_requested);
+    peak("fresh_save_again", measured.peak_requested);
     registry.dispose_all_results();
     let (_, measured) = measure(|| native_read(registry, &recorded, case.project_id(), &recording_id).unwrap());
-    peaks.insert("recorded_read", measured.peak_requested);
+    peak("recorded_read", measured.peak_requested);
     registry.dispose_all_results();
     let opened = native_open(registry, &saved, Some(case.project_id())).unwrap();
     let args = resave_args(&opened, &opened_fields(&opened), "save", opened["project_envelope_hash"]["value"].clone(), Value::Null);
     let (_, measured) = measure(|| native_resave(registry, &saved, &args, &unlimited()).unwrap());
-    peaks.insert("restored_resave", measured.peak_requested);
+    peak("restored_resave", measured.peak_requested);
     registry.dispose_all_results();
     let stored = dump(&recorded, "analysis_runs", &[]);
     let length = |column: &str| match &stored[0].iter().find(|(name, _)| name == column).unwrap().1 {
         rusqlite::types::Value::Text(text) => text.len() as u64,
         other => panic!("{other:?}"),
     };
-    peaks.insert("R", length("result_json"));
-    peaks.insert("Q", length("run_record_json"));
-    peaks
+    peak("R", length("result_json"));
+    peak("Q", length("run_record_json"));
 }
 
 /// Prints each persistence command's peak (the allocation evidence's
@@ -1612,9 +1633,10 @@ pub(crate) fn print_phases(title: &str, marks: &[stored_read::phase_probe::Mark]
 }
 
 /// Each command's peak requested bytes before the change (this thread's Rust
-/// allocations, `command_peaks` at c8865f384): the `preview:pressure` case.
+/// allocations, after [`warm_up`]; `command_peaks` of this file run on
+/// c8865f384's production code): the `preview:pressure` case.
 const PRE_CHANGE_PEAKS: [(&str, u64); 5] =
-    [("record_run", 10_446_522), ("recorded_read", 9_597_909), ("fresh_create", 1_798_668), ("fresh_save_again", 1_797_870), ("restored_resave", 4_214_394)];
+    [("record_run", 10_446_522), ("recorded_read", 9_597_918), ("fresh_create", 1_798_677), ("fresh_save_again", 1_797_879), ("restored_resave", 4_214_403)];
 
 /// P1's allocation evidence (`ingress::counting`: allocations, not leases):
 /// the result's parse ends before its text is written; the run's texts end at
@@ -1629,6 +1651,7 @@ fn p1_allocations_end_where_their_last_use_is() {
     let (registry, gate) = gated(&host);
     let dir = scratch("p1-phases");
     let case = case_named("preview:pressure");
+    warm_up(&case, &registry, &gate, &dir);
     let job = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
     let recorded = dir.join("record.sqlite");
     stored_project(&recorded, case.project_id(), case.model());
@@ -1860,10 +1883,6 @@ fn p2_staged_checks_refuse_before_writing_and_every_refusal_rolls_back() {
     assert_eq!(registry.pool().reserved_total(), 0);
 }
 
-/// Record Run's peak requested bytes after P1 (`preview:pressure`), against
-/// which P2's readback is measured.
-const P1_RECORD_RUN_PEAK: u64 = 2_962_320;
-
 /// P2's allocation evidence: Record Run's readback loads no record, builds no
 /// parse of it and reserves nothing of its size; the staged pass before the
 /// INSERT builds no record tree. The command's peak is its build stage.
@@ -1873,6 +1892,7 @@ fn p2_record_runs_readback_loads_and_parses_no_record() {
     let (registry, gate) = gated(&host);
     let dir = scratch("p2-phases");
     let case = case_named("preview:pressure");
+    warm_up(&case, &registry, &gate, &dir);
     let job = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
     let path = dir.join("record.sqlite");
     stored_project(&path, case.project_id(), case.model());
@@ -1894,7 +1914,10 @@ fn p2_record_runs_readback_loads_and_parses_no_record() {
     // identity columns and the status (P1's readback reserved twice the
     // record's parse, about 26 times Q here).
     assert!(verified.reserved - released.reserved < stored_read::READ_OVERHEAD_BYTES + (q as u64) / 4, "nor reserves it: {marks:?}");
-    assert!(peak + q as u64 <= P1_RECORD_RUN_PEAK, "Record Run: {peak} against P1's {P1_RECORD_RUN_PEAK}");
+    // The command's peak is its build stage (the held result's parse and the
+    // record staged from it), no longer its readback.
+    assert_eq!(peak as i64, marks.iter().map(|mark| mark.peak).max().unwrap(), "{marks:?}");
+    assert_eq!(peak as i64, mark(&marks, "record run: record staged, result parse held").peak, "{marks:?}");
     assert!(registry.dispose_result(&job).unwrap().released);
     std::fs::remove_dir_all(&dir).unwrap();
     assert_eq!(registry.pool().reserved_total(), 0);
@@ -2546,3 +2569,4 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:rule-pack-excluded save local_projects[0].updated_at_unix", "Integer(1793000000)"),
     ("preview:rule-pack-excluded save reply", "e625cd4cdfdb51578166f7ce5eb8107f12f463127babc6f43afde72ab438d888:3414"),
 ];
+
