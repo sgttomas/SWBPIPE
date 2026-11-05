@@ -4547,7 +4547,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(boundary.textContent).toContain(
       "technical_preview_requires_human_engineering_review",
     );
-  });
+  }, 120_000); // full <App/> render through ~3,300 lines of shell checks: 26 s locally, over 30 s on a loaded hosted runner
 
   it("dispatches packaged native-menu DOM events through the shared command sink", async () => {
     render(<App />);

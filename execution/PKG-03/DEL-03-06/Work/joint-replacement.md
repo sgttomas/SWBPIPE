@@ -8,7 +8,7 @@ The declared SP-1 exception covers only joint-containing models' refused diagnos
 
 The replacement uses `replaces_span`, not parallel/series ambiguity. A nonzero resolved eigenstrain or self-weight on the replaced span refuses with `JOINT_REPLACED_SPAN_LOAD_UNOWNED` until its producer is implemented. Applied-set presence matters: an explicit zero eigenstrain and a stored load not applied by a case remain admitted, consistent with the frozen references. Slot-table revision 01 still needs RV130 confirmation before code; its S20 wording must preserve this distinction.
 
-Sources: [T4 frozen rulings: D-4, H-3 and SP-1 exception](https://github.com/sgttomas/chirality/blob/f2211ecef6/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/PRESSURE_STRESS_T4/T4_RULINGS.md); [T4 frozen log: slot table revision 01 and applied-load clarification](https://github.com/sgttomas/chirality/blob/f2211ecef6/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/PRESSURE_STRESS_T4/WORKING_ITEMS_LOG.md).
+Sources: T4 frozen rulings: D-4, H-3 and SP-1 exception (private `sgttomas/chirality@f2211ecef6`, `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/PRESSURE_STRESS_T4/T4_RULINGS.md`); T4 frozen log: slot table revision 01 and applied-load clarification (private `sgttomas/chirality@f2211ecef6`, `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/PRESSURE_STRESS_T4/WORKING_ITEMS_LOG.md`).
 
 ## T4-U3 as implemented
 

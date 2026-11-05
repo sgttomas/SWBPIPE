@@ -112,7 +112,6 @@
     },
     {
       "paths": [
-        "plans/**",
         "execution/**",
         "init/**",
         ".github/workflows/governance-harness.yml",
@@ -123,7 +122,6 @@
         "execution/**",
         "loop/**",
         "init/**",
-        "plans/**",
         "AGENTS.md",
         "README.md"
       ],
@@ -212,7 +210,7 @@
       "core/loads/self_weight_wasm/Cargo.toml": "7041b262bcf36c8b00d380e041d2375016101856a62c61551c0e8abb3d21dc7d",
       "core/loads/stress_recovery/Cargo.toml": "0d389f7473d9286a9df529c273beadc3cb880977ed8991aa5ce378e6263fea6c",
       "core/loads/user_loads/Cargo.toml": "6c0add4912f9400459da5f89cfccfe6c7419d29a6641ebff65dbb8dc0c6a3ef6",
-      "core/model_operations/operation_applier/Cargo.toml": "cbfee5464b7d58252bcfb1e190058fe743e20a4d414d643a2154a24867910c44",
+      "core/model_operations/operation_applier/Cargo.toml": "82e7189d888f77766748b08fc3dd620928aa8fb940dd13aee45d9fd6e2d29843",
       "core/numerics/correct_norm/Cargo.toml": "57cbcd985c88d79c7ebf198d9a5d3a68fa67fe74bfd11440791be7c9a44c8844",
       "core/product_physics/Cargo.toml": "b0665981ff0af51371c64b9de739c226f1c00780a8506e6c6c1c1fb0466e4580",
       "core/reporting/audit_manifest/Cargo.toml": "b8bc4623a383ed2c22205326bc737486becd9d931bf869e1e8cf40e147f4fad7",

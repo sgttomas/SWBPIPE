@@ -253,5 +253,5 @@ unchanged.
 ## 5. Out of scope / exclusions
 
 Ruled history (run records, reconciliation and scope-change snapshots,
-ruled decision packets, `plans/**`, `LOOP_RECEIPTS.md` entries,
+ruled decision packets, the retired `plans/**` (Git history), `LOOP_RECEIPTS.md` entries,
 `docs/_history/**`) keeps its original wording permanently.
