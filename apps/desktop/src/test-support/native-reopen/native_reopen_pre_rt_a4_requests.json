@@ -9,6 +9,20 @@
    }
   },
   {
+   "command": "read_preview_mechanics_job_summary",
+   "args": {
+    "jobId": "$HANDLE",
+    "modelJson": "null",
+    "standing": {
+     "eligible": false,
+     "findings": [
+      "REQUESTED_NUMERICAL_BASIS_UNAVAILABLE",
+      "NUMERICAL_CASE_COVERAGE_INCOMPLETE"
+     ]
+    }
+   }
+  },
+  {
    "command": "query_preview_mechanics_job_rows",
    "args": {
     "jobId": "$HANDLE",
@@ -101,20 +115,6 @@
      48,
      49
     ]
-   }
-  },
-  {
-   "command": "read_preview_mechanics_job_summary",
-   "args": {
-    "jobId": "$HANDLE",
-    "modelJson": "null",
-    "standing": {
-     "eligible": false,
-     "findings": [
-      "REQUESTED_NUMERICAL_BASIS_UNAVAILABLE",
-      "NUMERICAL_CASE_COVERAGE_INCOMPLETE"
-     ]
-    }
    }
   }
  ]
