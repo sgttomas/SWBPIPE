@@ -596,8 +596,14 @@ fn identity(parts: &[&str]) -> String {
 fn kind(row: &Value) -> &str {
     row["kind"].as_str().unwrap_or_default()
 }
+/// The producer's `skew::case_named_id`: the `_v2` kinds and §7.1's along-direction kind
+/// name their case in their id, so they are combined in their support's group, never by
+/// base id.
+fn case_named_id(kind: &str) -> bool {
+    kind.ends_with("_v2") || kind == "support_reaction_along_direction_v1"
+}
 fn combined_kind(kind: &str) -> bool {
-    !kind.ends_with("_v2") && (LINEAR_STATE_KINDS.contains(&kind) || kind == "displacement_magnitude")
+    !case_named_id(kind) && (LINEAR_STATE_KINDS.contains(&kind) || kind == "displacement_magnitude")
 }
 /// The producer's `algebra_dimension`.
 fn dimension(row: &Value) -> Option<LoadDimension> {
@@ -871,6 +877,15 @@ fn form(index: &RowIndex<'_>, id: &str, expression: &Expression<'_>, targets: &[
                 combined[slot] = value;
                 let refs = sources.iter().map(|s| s["id"].as_str().unwrap_or_default().to_string()).collect();
                 rows.push(combination_row(sources[0], id, row_id(&base(component)), value, refs, basis, sign));
+            }
+            // R-6/R-7 (§7.1): the along-direction value in its support's group (producer).
+            let along: Vec<Option<&Value>> = targets.iter().map(|t| index.support_row(*t, support, "along_direction")).collect();
+            if along.iter().any(Option::is_some) {
+                let sources: Vec<&Value> = along.into_iter().collect::<Option<_>>()?;
+                let values: Vec<f64> = sources.iter().map(|s| s["value"].as_f64()).collect::<Option<_>>()?;
+                let value = expression.value(&values, LoadDimension::Force)?;
+                let refs = sources.iter().map(|s| s["id"].as_str().unwrap_or_default().to_string()).collect();
+                rows.push(combination_row(sources[0], id, row_id(&base("along_direction")), value, refs, basis, sign));
             }
             for (component, norm, dimension) in [
                 ("force_magnitude", norm3(combined[0], combined[1], combined[2]), LoadDimension::Force),

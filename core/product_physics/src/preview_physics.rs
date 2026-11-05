@@ -178,7 +178,7 @@ pub(crate) fn identity(parts: &[&str]) -> String {
 }
 
 fn final_id(case_index: usize, case_id: &str, row: &ResultItem) -> String {
-    if case_index == 0 || row.kind.ends_with("_v2") {
+    if case_index == 0 || crate::skew::case_named_id(&row.kind) {
         row.id.clone()
     } else {
         qualified_load_case_result_id(case_id, &row.id)
@@ -959,7 +959,7 @@ fn combination_row(
 /// (`displacement_magnitude` combines on both paths: as the norm of combined
 /// signed components, or range-selected directly.)
 fn combined_kind(kind: &str) -> bool {
-    !kind.ends_with("_v2") && (LINEAR_STATE_KINDS.contains(&kind) || kind == "displacement_magnitude")
+    !crate::skew::case_named_id(kind) && (LINEAR_STATE_KINDS.contains(&kind) || kind == "displacement_magnitude")
 }
 
 /// §4 (r1 F4): with a combination operand, rows pair by kind, unit, entity and
@@ -1190,6 +1190,16 @@ pub(crate) fn append_combination_results(
                     let value = expression.evaluate_values(&values, dimension).ok_or("load-case algebra refused")?;
                     combined[slot] = value;
                     rows.push(combination_row(combination, &expression, &sign, sources[0], qualified_combination_result_id(&combination.id, &base(component)), value, sources.iter().map(|s| s.id.clone()).collect()));
+                }
+                // R-6/R-7 (§7.1): a skewed record's along-direction value is the combination
+                // of its case values, in its support's group (its case-named id pairs by
+                // support, never by base id), with the group's expression and sign.
+                let along: Vec<Option<&ResultItem>> = targets.iter().map(|target| find(*target, "along_direction")).collect();
+                if along.iter().any(Option::is_some) {
+                    let sources: Vec<&ResultItem> = along.into_iter().collect::<Option<_>>().ok_or("source support row missing in an operand case")?;
+                    let values: Vec<f64> = sources.iter().map(|s| s.value).collect();
+                    let value = expression.evaluate_values(&values, LoadDimension::Force).ok_or("load-case algebra refused")?;
+                    rows.push(combination_row(combination, &expression, &sign, sources[0], qualified_combination_result_id(&combination.id, &base("along_direction")), value, sources.iter().map(|s| s.id.clone()).collect()));
                 }
                 for (component, value) in [
                     ("force_magnitude", norm3(combined[0], combined[1], combined[2])),

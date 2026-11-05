@@ -3540,7 +3540,7 @@ fn run_linear_static_preview_observed_inner(
             .map(|row| {
                 (
                     row.id.clone(),
-                    if is_default || ((pressure_runtime::is_exact(&model) || preview.is_some()) && row.kind.ends_with("_v2")) {
+                    if is_default || ((pressure_runtime::is_exact(&model) || preview.is_some()) && skew::case_named_id(&row.kind)) {
                         row.id.clone()
                     } else {
                         qualified_load_case_result_id(&load_case_id, &row.id)
@@ -3554,7 +3554,7 @@ fn run_linear_static_preview_observed_inner(
                 ref_type: "load_case".to_string(),
                 ref_id: load_case_id.clone(),
             });
-            if !is_default && !((pressure_runtime::is_exact(&model) || preview.is_some()) && result.kind.ends_with("_v2")) {
+            if !is_default && !((pressure_runtime::is_exact(&model) || preview.is_some()) && skew::case_named_id(&result.kind)) {
                 result.id = qualified_load_case_result_id(&load_case_id, &base_id);
             }
             for source_ref in &mut result.source_result_refs {

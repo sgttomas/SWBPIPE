@@ -64,3 +64,25 @@ def test_tampered_documents_are_refused_by_name(entity):
             del support["direction"]
     with pytest.raises(ValueError, match="ALONG_DIRECTION_UNEXPECTED"):
         validate_preview_physics_evidence(_source(), unskewed)
+
+
+COMBINATIONS = json.loads((ROOT / "fixtures/results/skew_along_direction_combinations_preview.json").read_text(encoding="utf-8"))
+
+
+def test_the_combinations_fixture_reads_with_its_model():
+    """Two cases and one combination of each PF form (signed mechanics, absolute sum, SRSS, range envelope, subtraction):
+    the document reads with its model; the combination verifier (``preview_combination_gates.check`` with the model)
+    re-derives each combination's along-direction row in its support's group, as the producer forms it, and refuses an
+    absolute sum's along row with a changed value."""
+    from tests.verifiers import preview_combination_gates
+    source, model = copy.deepcopy(COMBINATIONS["envelope"]), copy.deepcopy(COMBINATIONS["request"]["model"])
+    validate_preview_physics_evidence(source, model)
+    preview_combination_gates.check(source, model)
+    along = [r for r in source["results"] if r["kind"] == KIND and r["basis_ref"]["ref_type"] == "combination"]
+    assert sorted({r["basis_ref"]["ref_id"] for r in along}) == ["C_ABS", "C_DIFF", "C_ENV", "C_SIGNED", "C_SRSS"]
+    assert len(along) == 10
+    tampered = copy.deepcopy(COMBINATIONS["envelope"])
+    row = next(r for r in tampered["results"] if r["kind"] == KIND and r["basis_ref"]["ref_id"] == "C_ABS")
+    row["value"] = row["value"] * (1 + 1e-9)
+    with pytest.raises(ValueError):
+        preview_combination_gates.check(tampered, model)

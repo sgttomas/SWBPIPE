@@ -456,8 +456,14 @@ def _kind(row: Any) -> str:
     return kind if isinstance(kind, str) else ""
 
 
+def _case_named_id(kind: str) -> bool:
+    """The producer's skew::case_named_id: the _v2 kinds and the along-direction kind (section 7.1) name their case
+    in their id, so they are combined in their support's group, never by base id."""
+    return kind.endswith("_v2") or kind == "support_reaction_along_direction_v1"
+
+
 def _combined_kind(kind: str) -> bool:
-    return not kind.endswith("_v2") and (kind in LINEAR_STATE_KINDS or kind == "displacement_magnitude")
+    return not _case_named_id(kind) and (kind in LINEAR_STATE_KINDS or kind == "displacement_magnitude")
 
 
 def _field(metadata: Any, key: str) -> Any:
@@ -665,6 +671,15 @@ def _support_group(index: _RowIndex, cid: str, expression: graph.Expression, tar
             return None
         combined.append(value)
         rows.append(_combination_row(sources[0], cid, _row_id(cid, base(component)), value, ids(sources), basis, sign))
+    # R-6/R-7 S-K1 (section 7.1): the along-direction value in its support's group (the producer's).
+    along = [index.support_row(t, support, "along_direction") for t in targets]
+    if any(r is not None for r in along):
+        if any(r is None or _value(r) is None for r in along):
+            return None
+        value = expression.value([_value(r) for r in along])
+        if value is None:
+            return None
+        rows.append(_combination_row(along[0], cid, _row_id(cid, base("along_direction")), value, ids(along), basis, sign))
     range_ = expression.is_range()
     for component, norm in (("force_magnitude", norm3(*combined[:3])), ("moment_magnitude", norm3(*combined[3:]))):
         if not range_ and expression.is_unsigned() and not math.isfinite(norm):

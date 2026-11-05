@@ -4010,48 +4010,6 @@
           "ref_id": "C2",
           "ref_type": "combination"
         },
-        "entity_ref": "stop_B",
-        "id": "result:combination:C2:support-along-direction-v1:9:case:skew6:stop_B",
-        "kind": "support_reaction_along_direction_v1",
-        "metadata": {
-          "basis": "explicit_user_linear_combination",
-          "component": "along_direction",
-          "coordinate_system": "support_direction",
-          "location": "node",
-          "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
-        },
-        "source_result_refs": [
-          "result:support-along-direction-v1:9:case:skew6:stop_B"
-        ],
-        "unit": "N",
-        "value": 2553.7263100847285
-      },
-      {
-        "basis_ref": {
-          "ref_id": "C2",
-          "ref_type": "combination"
-        },
-        "entity_ref": "spring_B",
-        "id": "result:combination:C2:support-along-direction-v1:9:case:skew8:spring_B",
-        "kind": "support_reaction_along_direction_v1",
-        "metadata": {
-          "basis": "explicit_user_linear_combination",
-          "component": "along_direction",
-          "coordinate_system": "support_direction",
-          "location": "node",
-          "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
-        },
-        "source_result_refs": [
-          "result:support-along-direction-v1:9:case:skew8:spring_B"
-        ],
-        "unit": "N",
-        "value": 1.5154668056191565
-      },
-      {
-        "basis_ref": {
-          "ref_id": "C2",
-          "ref_type": "combination"
-        },
         "entity_ref": "anchor_A",
         "id": "result:combination:C2:support-action:8:anchor_A:Fx",
         "kind": "support_reaction_component_v2",
@@ -4535,6 +4493,27 @@
           "ref_type": "combination"
         },
         "entity_ref": "stop_B",
+        "id": "result:combination:C2:support-action:6:stop_B:along_direction",
+        "kind": "support_reaction_along_direction_v1",
+        "metadata": {
+          "basis": "explicit_user_linear_combination",
+          "component": "along_direction",
+          "coordinate_system": "support_direction",
+          "location": "node",
+          "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+        },
+        "source_result_refs": [
+          "result:support-along-direction-v1:9:case:skew6:stop_B"
+        ],
+        "unit": "N",
+        "value": 2553.7263100847285
+      },
+      {
+        "basis_ref": {
+          "ref_id": "C2",
+          "ref_type": "combination"
+        },
+        "entity_ref": "stop_B",
         "id": "result:combination:C2:support-action:6:stop_B:force_magnitude",
         "kind": "support_reaction_force_magnitude_v2",
         "metadata": {
@@ -4706,6 +4685,27 @@
         ],
         "unit": "N*m",
         "value": 0.0
+      },
+      {
+        "basis_ref": {
+          "ref_id": "C2",
+          "ref_type": "combination"
+        },
+        "entity_ref": "spring_B",
+        "id": "result:combination:C2:support-action:8:spring_B:along_direction",
+        "kind": "support_reaction_along_direction_v1",
+        "metadata": {
+          "basis": "explicit_user_linear_combination",
+          "component": "along_direction",
+          "coordinate_system": "support_direction",
+          "location": "node",
+          "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+        },
+        "source_result_refs": [
+          "result:support-along-direction-v1:9:case:skew8:spring_B"
+        ],
+        "unit": "N",
+        "value": 1.5154668056191565
       },
       {
         "basis_ref": {

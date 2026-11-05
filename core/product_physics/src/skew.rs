@@ -325,6 +325,17 @@ pub(crate) fn along_direction_row(case_id: &str, support_id: &str, value: f64, b
 /// §7.1's row kind.
 pub(crate) const SUPPORT_ALONG_DIRECTION_KIND: &str = "support_reaction_along_direction_v1";
 
+/// Whether a row kind's id already names its load case, so that a later case's row is
+/// published under it unqualified and is combined by its support group, never by base id:
+/// the `_v2` kinds and §7.1's along-direction kind, whose agreed id
+/// (`result:support-along-direction-v1:` + the exact source identity of case and record)
+/// names the case although the kind ends in `_v1`. Before this predicate the along row
+/// of a second case was qualified (`result:loadcase:…`), and no combination over two
+/// cases published one (its case-named base id matches in no other case).
+pub(crate) fn case_named_id(kind: &str) -> bool {
+    kind.ends_with("_v2") || kind == SUPPORT_ALONG_DIRECTION_KIND
+}
+
 /// A case refused by a skew code before anything is published.
 pub(crate) fn blocked_case(case_id: &str) -> LoadCaseSolve {
     LoadCaseSolve {

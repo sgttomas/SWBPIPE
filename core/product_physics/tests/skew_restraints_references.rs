@@ -463,3 +463,59 @@ fn the_reader_fixture_is_the_product_output() {
     }
     assert_eq!(text, include_str!("../../../fixtures/results/skew_along_direction_preview.json"), "rewrite with OPENPIPESTRESS_WRITE_SKEW_ALONG_FIXTURE");
 }
+
+/// R-1 desktop (Agent 0's correction 2, §7.1): the committed combinations fixture
+/// (`fixtures/results/skew_along_direction_combinations_preview.json`) for the desktop's
+/// along-direction list. P_RS_stop_and_spring with two cases (case:skew, −1024 N along Y;
+/// case:b, 512 N along X) and one combination of each PF form: a signed mechanics
+/// combination, an absolute sum, an SRSS, a range envelope and a result-state
+/// subtraction. Each combination publishes an along-direction row per skewed record with
+/// its own basis and sign convention, and the independent reader accepts the document
+/// with its model. `OPENPIPESTRESS_WRITE_SKEW_ALONG_COMBINATIONS_FIXTURE=<path>` rewrites it.
+#[test]
+fn the_combinations_reader_fixture_is_the_product_output() {
+    use open_pipe_stress_product_physics::result_export::reader_verdict;
+    let mut doc = document(&[stop("stop_B", [3.0, 4.0, 0.0]), spring("spring_B", [0.0, 3.0, 4.0])], [0.0, -1024.0, 0.0]);
+    doc["model"]["load_cases"].as_array_mut().unwrap().push(json!({"id": "case:b", "primitive_loads": [{"id": "load:b", "category": "concentrated_force",
+        "target": {"type": "node", "node": "B"}, "direction": "global_x", "magnitude": qv(512.0, "N"), "dimension": "force", "provenance": PROV}], "provenance": PROV}));
+    let terms = json!([{"load_case": CASE, "factor": 1.0}, {"load_case": "case:b", "factor": 1.0}]);
+    doc["model"]["combinations"] = json!([
+        {"id": "C_SIGNED", "basis": "mechanics", "terms": [{"load_case": CASE, "factor": 2.0}, {"load_case": "case:b", "factor": -1.0}], "provenance": PROV},
+        {"id": "C_ABS", "basis": "absolute_sum", "terms": terms, "provenance": PROV},
+        {"id": "C_SRSS", "basis": "srss", "terms": terms, "provenance": PROV},
+        {"id": "C_ENV", "basis": "range_envelope", "operand_ids": [CASE, "case:b"], "mode": "max", "provenance": PROV},
+        {"id": "C_DIFF", "basis": "result_state_subtraction", "minuend_id": CASE, "subtrahend_id": "case:b", "provenance": PROV},
+    ]);
+    let out = run(&doc, PreviewSolverMode::SparseInteractive);
+    assert_eq!(out["status"]["mechanics"], "MECHANICS_SOLVED", "{:?}", blocking(&out));
+    let verdict = reader_verdict::validate("preview-physics", &out, Some(&doc["model"]), None);
+    assert_eq!(verdict["ok"], true, "{verdict}");
+    let along_of = |id: &str, basis: &str| -> Vec<&Value> { rows(&out).iter().filter(|r| r["kind"] == ALONG && r["entity_ref"] == id && r["basis_ref"]["ref_id"] == basis).collect() };
+    for id in ["stop_B", "spring_B"] {
+        // Each case's row under the agreed id, unqualified in the second case too.
+        for case in [CASE, "case:b"] {
+            let row = along_of(id, case);
+            assert_eq!(row.len(), 1, "{case} {id}");
+            assert_eq!(row[0]["id"], format!("result:support-along-direction-v1:{}:{case}{}:{id}", case.len(), id.len()), "{case} {id}");
+        }
+        let (a, b) = (along_of(id, CASE)[0]["value"].as_f64().unwrap(), along_of(id, "case:b")[0]["value"].as_f64().unwrap());
+        for combination in ["C_SIGNED", "C_ABS", "C_SRSS", "C_ENV", "C_DIFF"] {
+            let along = along_of(id, combination);
+            assert_eq!(along.len(), 1, "{combination} {id}: {along:?}");
+            assert_eq!(along[0]["id"], format!("result:combination:{combination}:support-action:{}:{id}:along_direction", id.len()), "{combination} {id}");
+            let component = rows(&out).iter().find(|r| r["kind"] == "support_reaction_component_v2" && r["entity_ref"] == id && r["basis_ref"]["ref_id"] == combination && r["metadata"]["component"] == "Fx").unwrap();
+            // The group's derivation and sign meaning, as its components'.
+            assert_eq!(along[0]["metadata"]["basis"], component["metadata"]["basis"], "{combination} {id}");
+            assert_eq!(along[0]["metadata"]["sign_convention"], component["metadata"]["sign_convention"], "{combination} {id}");
+        }
+        assert_eq!(along_of(id, "C_SIGNED")[0]["value"].as_f64().unwrap(), 2.0 * a - b, "{id}: 2a - b");
+        assert_eq!(along_of(id, "C_ABS")[0]["value"].as_f64().unwrap(), a.abs() + b.abs(), "{id}: |a| + |b|");
+        assert_eq!(along_of(id, "C_DIFF")[0]["value"].as_f64().unwrap(), a - b, "{id}: a - b");
+    }
+    let text = serde_json::to_string_pretty(&json!({"request": doc, "envelope": out})).unwrap() + "\n";
+    if let Ok(path) = std::env::var("OPENPIPESTRESS_WRITE_SKEW_ALONG_COMBINATIONS_FIXTURE") {
+        std::fs::write(path, &text).unwrap();
+        return;
+    }
+    assert_eq!(text, include_str!("../../../fixtures/results/skew_along_direction_combinations_preview.json"), "rewrite with OPENPIPESTRESS_WRITE_SKEW_ALONG_COMBINATIONS_FIXTURE");
+}

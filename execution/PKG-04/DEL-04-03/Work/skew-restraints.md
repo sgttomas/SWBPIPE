@@ -558,6 +558,17 @@ under `has_constraint_transform()`. With `None`, PP, FK, NI and modal execute to
   `preview_physics.rs`'s row kinds and in PF combinations (`mechanics`, `absolute_sum`, `srss`,
   subtraction), so a combination's along-direction value is the combination of the case
   values.
+  *As implemented (R-1 desktop review, Agent 0's correction 2):* the agreed row id
+  `result:support-along-direction-v1:` + the exact source identity of (case, record) names the
+  case, as the `_v2` kinds' ids do, although the kind ends in `_v1`. The producer, RE and the
+  Python verifier therefore treat it as those kinds (`skew::case_named_id`): every case's row
+  keeps the agreed id unqualified, and a combination forms it in its support's group, beside
+  Fx–Mz, as `result:combination:<id>:support-action:<n>:<record>:along_direction`, with the
+  group's derivation and sign convention. Before this, a second case's row was qualified
+  (`result:loadcase:…`, refused by the reader as `ALONG_DIRECTION_ROW_ID`) and no combination
+  over two or more cases published one; the single-case fixture hid it. Pinned by
+  `fixtures/results/skew_along_direction_combinations_preview.json` (two cases; signed,
+  absolute-sum, SRSS, envelope and subtraction combinations).
 
 ### 7.2 Attribution (binary64 path; K-D5's certified twin in §10.5)
 
