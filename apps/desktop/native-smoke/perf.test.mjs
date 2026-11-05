@@ -1277,7 +1277,7 @@ test("the driver's journal lines are accepted by the fixed phase journal and lea
   strict.close();
 });
 
-async function persistenceFixture(t, lateSave = false) {
+async function persistenceFixture(t, lateSave = false, storedProject = false) {
   // These committed Rust replies establish DTO shape, not live App behaviour.
   const persistence=JSON.parse(readFileSync(new URL("../src/test-support/native-replay/native_persistence_replies.json",import.meta.url),"utf8"));
   const reopen=JSON.parse(readFileSync(new URL("../src/test-support/native-reopen/native_reopen_replies.json",import.meta.url),"utf8"));
@@ -1335,7 +1335,8 @@ async function persistenceFixture(t, lateSave = false) {
     forms.innerHTML='<div data-testid="record-run-form"><input data-testid="record-run-name"><input data-testid="record-run-snapshot-name"><button type="button" data-testid="record-run-submit">Submit</button></div>';
     forms.querySelector("button").onclick=()=>{void(async()=>{
       recorded.run.run_name=forms.querySelector('[data-testid="record-run-name"]').value;
-      await ui.call("save_preview_mechanics_job_local_project",{});
+      // An unstored project is saved first (Record Run's prerequisite); a stored one is not.
+      if(!storedProject) await ui.call("save_preview_mechanics_job_local_project",{});
       await ui.call("record_preview_mechanics_job_analysis_run",{});
       forms.innerHTML="";
       doc.querySelector('[data-testid="model-history-message"]').textContent="Recorded run perf c1-fixture.";
@@ -1365,14 +1366,16 @@ async function persistenceFixture(t, lateSave = false) {
   assert.equal(report.c1.cleanup.retained_results,0);
   assert.equal(trace.data.counts.save_restored_result_local_project,1);
   // The probe reconciled every save: Record Run's prerequisite, File > Save, then the re-save.
-  assert.equal(JSON.stringify(report.c1.expected_saves),JSON.stringify(["save_preview_mechanics_job_local_project","save_preview_mechanics_job_local_project","save_restored_result_local_project"]));
-  assert.equal(trace.data.saves.length,3);
+  const expectedSaves=[...(storedProject?[]:["save_preview_mechanics_job_local_project"]),"save_preview_mechanics_job_local_project","save_restored_result_local_project"];
+  assert.equal(JSON.stringify(report.c1.expected_saves),JSON.stringify(expectedSaves));
+  assert.equal(trace.data.saves.length,expectedSaves.length);
   assert.ok(trace.data.saves.every(save=>save.read&&save.refusal===null&&save.error===null&&save.reply.result.outcome==="saved"));
   assert.equal(trace.data.violations.length,0);
   trace.restore();
 }
 test("C1 persistence probe connects actual Rust reply shapes through record/reopen/re-save/check/release", async (t) => persistenceFixture(t));
 test("C1 persistence probe: a re-save arriving after its step returned fails the probe's reconciliation", async (t) => persistenceFixture(t, true));
+test("C1 persistence probe: an already-stored project's Record Run sends no prerequisite save and reconciles to two saves", async (t) => persistenceFixture(t, false, true));
 
 // RT-U4 (82-node lesson): Record Run's prerequisite save and the File > Save after it show the
 // same status text. A save step ends on its own native save invocation, never on the status
