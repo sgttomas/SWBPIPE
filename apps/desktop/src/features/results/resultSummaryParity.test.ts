@@ -27,7 +27,8 @@ import { buildKeyResults, withheldSupportStateRows } from "./keyResults";
 import { numericalHealthView, parseNumericalHealth, type ResultOverlayStanding } from "./numericalHealth";
 import { countResultFamilies, countResultFrames } from "./ResultsPanel";
 import { navigatorCases } from "./resultsNavigator";
-import { rememberReceivedText } from "./resultReader";
+import { readerDispatch, rememberReceivedText } from "./resultReader";
+import { documentCombinationIdentities, rosterCheckedByReader } from "./suppliedDiagnostics";
 import { semanticLabels } from "./resultSemantics";
 import { buildStressRatioTable } from "./stressRatioTable";
 import { buildSupportLoadSummaries, supportLoadCases } from "./supportLoadSummary";
@@ -134,6 +135,21 @@ describe("C1 slice 2: S is the TypeScript builders' output", () => {
     expect(header.units, "units").toEqual([...new Set(rows.map((row) => row.unit))].map((unit) => unit ?? null));
     expect(header.numerical_health, "numerical health").toEqual(health);
     expect(header.standing, "standing").toEqual(standing ? { eligible: standing.eligible, health_view: standing.health !== null } : null);
+    // The diagnostics presentation facts (Rust `diagnostics_presentation`): each its whole-value helper
+    // on the same bytes (the reader's acceptance is read only for a population), bound to those bytes.
+    const presentation = (header as unknown as { diagnostics_presentation: Record<string, Json> }).diagnostics_presentation;
+    const combinations = [...documentCombinationIdentities(source)].sort();
+    expect(presentation.combination_identities, "combination identities").toEqual(combinations);
+    expect(presentation.roster_checked, "roster checked").toBe(combinations.length > 0 && rosterCheckedByReader(source));
+    expect(presentation.certificate_attested, "certificate attested").toBe(false);
+    // The held text's length and digest: this text where it is the case's own (a file or an inline
+    // text); a JSON-pointer member is the Rust writer's serialization of the same value.
+    const exactText = "text" in testCase.result || testCase.result.pointer === "";
+    expect(presentation.binding, "binding").toEqual({
+      result_bytes: exactText ? Buffer.byteLength(sourceText, "utf8") : presentation.binding.result_bytes,
+      source_sha256: exactText ? createHash("sha256").update(sourceText, "utf8").digest("hex") : presentation.binding.source_sha256,
+      route: readerDispatch(source).route, reader_table: readerDispatch(source).binding, recorded_table: null
+    });
 
     // The tables, each its builder's output.
     expect(tables.results_panel.family_counts, "families").toEqual(countResultFamilies(rows, semanticLabels(source)));

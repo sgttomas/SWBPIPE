@@ -126,6 +126,8 @@ connection to the job handle (the rest of slice 5) follows the switch.
 - `contract_evidence` without the per-row combination evidence: `exact_combinations[].rows`,
   `.recoveries` and `.missing_sources` are counted in `combination_evidence_counts`, not copied.
   Other top-level members are named in `omitted_members`, not copied;
+- the diagnostics presentation facts of the same held bytes (`diagnostics_presentation`; slice 4,
+  "Native diagnostics presentation");
 - the row count and the distinct units, in first-seen order (each consumer sorts them as today);
 - the numerical health: `numerical_health_json` with the standing's findings, `null` without a
   standing;
@@ -569,6 +571,56 @@ than immediately; and begin currently accepts an untaken legacy held job. These 
 limits, not claims of tested recovery or owner risk acceptance. The review did not classify them
 as blockers for this increment. Its full-copy reply and lone-surrogate replay exceptions remain
 stated evidence limits; no actual App or memory result is implied.
+
+#### Native diagnostics presentation (RT-A3 §4 on a native handle, 2026-11-05)
+
+#138 classifies a result's diagnostics for the Diagnostics list and explanation
+(`suppliedDiagnostics.ts` `presentedResultDiagnostics`; DEL-05-02 Work `combination-certificate.md`
+§2). Its whole-value helpers read `results` and `retained_precision`, which a native handle guards.
+The native handle is classified by the same code with three facts Rust reads of the held bytes
+(`diagnostics_presentation.rs`) and S carries as `diagnostics_presentation`:
+
+- **The facts.** Each is its whole-value helper on the same bytes:
+  - `combination_identities`: `result_export::document_combination_identities`, the population
+    `documentCombinationIdentities` documents as the same (the same ambiguous-identity exclusions);
+  - `roster_checked`: `rosterCheckedByReader`: false on a retained successor; else the current reader
+    of the source's route (`reader_verdict::route`) accepts the source alone
+    (`reader_verdict::validate(reader, source, None, None)` on S's parse, current tables, never a
+    recorded table). It is read only for a non-empty population. The fresh registration's
+    model-bound validations are not reused: with a model, the readers read the certificate's roster
+    with the model;
+  - `certificate_attested`: `certificateAttestedByRetainedReader`. It is false for every native
+    snapshot. No native custody holds a registered retained reader's acceptance of its bytes: a
+    fresh solve never registers a retained successor natively, and a restored run never registers.
+- **One snapshot.** The facts, S's diagnostics and the validation come from the one share S's
+  command holds (bytes and recorded table, immutable). Their cache (`HeldResult::presentation`: a
+  digest and a flag) is a field of that share, so no other job, restore or new solve of the same
+  bytes reads it. Nothing is taken from a request, a stored claim, route metadata or a message.
+- **Binding and fail-closed rule.** `binding` states the held bytes' length and SHA-256, the route,
+  its current table and the recorded table the handle holds. The webview
+  (`nativeResult.ts` `nativeDiagnosticsPresentation`) decodes the member strictly (exact keys,
+  version 1, sorted non-empty ids, no roster flag without a population or together with the
+  certificate flag). It then requires the length, route, table and recorded table to be the handle's
+  own custody and the custody to be live. Otherwise there is no fact: every message is quoted as
+  supplied text, through the same `suppliedDiagnosticMessage`, and nothing is attested. The
+  whole-value path is unchanged; the native branch reads no guarded member and runs no reader on
+  the webview handle. Any later classifier rule (for example #122's held-status quoting) applies to
+  both branches, because both use the same map.
+- **The report.** It reads the C2 full copy (`C2ResultGate`, `loadC2Full`), never the handle.
+  `diagnosticsForSections` refuses a native handle by type (`NotNativeResult`), and its guarded rows
+  throw at run time.
+- **Memory.** S's command is not a ledger command. The population, the source-only validation's
+  working memory and the streamed digest are S's working set and reader working memory (U3,
+  unpriced). The header text is inside S's response, which is admitted at its exact length. The
+  validation adds one source-only reader pass per held snapshot with combinations to S's first read.
+- **Evidence.** `diagnostics_presentation_tests.rs` checks each fact against its definition over the
+  certificate corpus, its claims and forgeries, the retained successors and a result without
+  combinations. It also checks that the cache is the share's own and that S carries its share's
+  facts: fresh, restored under the tenth registry variant, and disposed.
+  `resultSummaryParity.test.ts` checks the facts against the whole-value helpers over the S corpus.
+  `DiagnosticsPanel.native.supplied.test.tsx` checks the native list, explanation and interpretation
+  against the whole value's on recorded Rust replies. It also checks the fail-closed and no-read
+  cases and the report's refusal.
 
 ### Slice 5: native analysis-run preview, Record Run and Save Project (v0.3, exact bytes)
 
@@ -1404,6 +1456,7 @@ or measurement window has been launched or authorized by that preparation.
 | JSON export (`resultExportAdapter.ts`) and Save Result JSON (`save_local_result_json`) | every row (the derivative document) | C2; in C1 full rows up to 64 MiB, refused by name above (Save Result JSON writes the derivative, not the envelope: slice 4 status) |
 | Embedded agent (`embeddedAgentSession.ts`) | filtered rows | C2 (catalog v5); C1 serves its current pages from the detail query, unchanged output |
 | Knowledge and Toolkit lookups (`KnowledgePanel.tsx`, `ResultQuantity.tsx`) | rows by id or kind | native by-id and by-kind page (slice 3), no full fetch |
+| Diagnostics list and explanation (`DiagnosticsPanel.tsx`, `resultInterpretation.ts`, `suppliedDiagnostics.ts`) | the combination population and the readers' acceptance (RT-A3 §4) | S's `diagnostics_presentation`, Rust's facts of the held bytes (slice 4, "Native diagnostics presentation") |
 | Analysis-run record (`analysisRunCompatibility.ts`) | every row | native builder (slice 5) |
 
 ## 4. Verdicts stay identical

@@ -359,6 +359,18 @@ component on the EX cantilever with the review's model-ref note, the
 model-only id collision, both retained counterexamples, and a result without
 combinations.
 
+*Consumer note (C1 native custody; DEL-04-05 `c1-native-custody-plan.md`, "Native diagnostics
+presentation"; changes no rule above).* A result held natively is classified by the same
+classification. Its three inputs are read by Rust from the held bytes and delivered with the
+result's summary:
+- the population (`document_combination_identities`);
+- the route reader's acceptance of the source alone (false on a retained successor);
+- the retained attestation (false: no native custody holds a retained registration).
+
+Facts that are missing, malformed, not the handle's or of an ended custody attest nothing: every
+message is then quoted. The report reads the whole-value copy, never the native handle
+(`DiagnosticsPanel.native.supplied.test.tsx`).
+
 **Not assigned: a document-wide closed diagnostic roster (option B).** Closing
 every diagnostic family of the document, not only those naming a combination,
 is not assigned. There is no new Must and no standing backlog. Free prose under

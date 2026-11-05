@@ -48,6 +48,7 @@ mod native_smoke_reach_scan_tests;
 mod native_csv_stream;
 mod native_result_download;
 mod native_verdict;
+mod diagnostics_presentation;
 mod result_planes;
 mod result_detail;
 mod result_summary;

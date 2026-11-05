@@ -449,6 +449,11 @@ pub(crate) struct HeldResult {
     detail: Mutex<Option<Arc<crate::result_detail::DetailIndex>>>,
     recorded_table: Option<crate::analysis_run_v03_validate::RecordedTable>,
     evidence: Option<ReaderEvidence>,
+    /// The diagnostics presentation facts already read of these bytes
+    /// (`diagnostics_presentation`): part of this immutable snapshot, so no
+    /// other snapshot (another job, a restore or a new solve of the same
+    /// bytes) can read them.
+    presentation: crate::diagnostics_presentation::PresentationCache,
     /// Restored bytes loaded under a C1 command's lease
     /// ([`Self::restored_in_custody`]): the lease's charge in that command's
     /// ledger, dropped when [`SolveJobRegistry::restore_with_basis`]
@@ -496,7 +501,7 @@ impl HeldResult {
     /// bytes by the last holder.
     pub(crate) fn restored(text: String, mut lease: Lease) -> Self {
         lease.set_purpose(LeasePurpose::Result);
-        Self { text, lease, detail: Mutex::new(None), recorded_table: None, evidence: None, command_charge: None }
+        Self { text, lease, detail: Mutex::new(None), recorded_table: None, evidence: None, presentation: Default::default(), command_charge: None }
     }
 
     /// [`Self::restored`] for bytes loaded under a C1 command's lease
@@ -521,7 +526,7 @@ impl HeldResult {
     /// A solve's published bytes under their result lease, with an empty
     /// evidence slot ([`ReaderEvidence`]).
     fn published(text: String, lease: Lease) -> Self {
-        Self { text, lease, detail: Mutex::new(None), recorded_table: None, evidence: Some(ReaderEvidence::default()), command_charge: None }
+        Self { text, lease, detail: Mutex::new(None), recorded_table: None, evidence: Some(ReaderEvidence::default()), presentation: Default::default(), command_charge: None }
     }
 
     /// RT-U4: notes `reader`'s outcome `outcome` on these bytes (the native
@@ -559,6 +564,12 @@ impl HeldResult {
     /// while a reader holds its share cannot change it.
     pub(crate) fn recorded_table(&self) -> Option<crate::analysis_run_v03_validate::RecordedTable> {
         self.recorded_table
+    }
+
+    /// The diagnostics presentation facts' cache of this snapshot
+    /// (`diagnostics_presentation::facts`).
+    pub(crate) fn presentation(&self) -> &crate::diagnostics_presentation::PresentationCache {
+        &self.presentation
     }
 
     /// The bytes (a solve's publication, or a restored stored column).

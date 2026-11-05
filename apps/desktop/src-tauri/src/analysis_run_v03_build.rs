@@ -37,10 +37,16 @@
 //!   session's registration pass of it ([`validate_route_held`],
 //!   `solve_jobs::ReaderEvidence`): the native verdict notes, on the share it
 //!   read, that its `pressure` validation of those exact bytes returned the
-//!   pass. That reader is `validate_pressure_evidence` of the source and then,
-//!   only with a model, G2's model checks, so the registration's model-bound
-//!   pass is a pass of the model-free reader read here; the outcome is the
-//!   same (`Ok`), so the refusal order is unchanged. The note is the
+//!   pass. That reader is the pressure-2 evidence without the certificate,
+//!   then, with a model, G2's model checks and the certificate's closed roster
+//!   over the document's and the model's combinations; the model-free reader
+//!   reads that roster over the document's alone (RT-A3 §4). So the
+//!   registration's pass establishes the model-free reader's only on a document
+//!   whose own combination population is empty, where the model-free roster
+//!   reads nothing and the member checks are the same; the builder reuses it
+//!   only there and reads the reader on every document naming a combination
+//!   (review of #143). Where reused, the outcome is the same (`Ok`), so the
+//!   refusal order is unchanged. The note is the
 //!   publication's own, fixed with its bytes in the share a disposal or reset
 //!   cannot change; a restored result has none; no webview flag, header or
 //!   token sets it. Nothing else is reused: the preview-physics registration
@@ -1618,11 +1624,20 @@ fn applied_rule_check_status<'a>(aggregate: Option<&'a Value>, solve: Option<&'a
 /// `held`'s own evidence already holds its pass (RT-U4, module docs, "The
 /// readers"): only the `pressure` route's, whose model-free reader the
 /// registration's pass of the same bytes establishes
-/// (`solve_jobs::ReaderEvidence`). Every other route, and a held result
-/// without that evidence, reads [`validate_route`] as before. Its outcome is
-/// [`validate_route`]'s in every case.
+/// (`solve_jobs::ReaderEvidence`), and only on a document whose own
+/// combination population is empty. Since RT-A3 §4 the registration reads the
+/// certificate's closed roster with the model (the document's population and
+/// the model's combinations) and the model-free reader reads it without (the
+/// document's alone), so on a document naming a combination a model-bound pass
+/// no longer establishes the model-free one (review of #143). With the
+/// document's population empty the model-free roster reads nothing
+/// (`combination_certificate::roster`) and the member checks are the same with
+/// or without the model, so the pass still establishes it. Every other route,
+/// every document with a combination, and a held result without that evidence
+/// read [`validate_route`] as before. Its outcome is [`validate_route`]'s in
+/// every case.
 pub(crate) fn validate_route_held(source: &mut Value, route: &Route, held: &crate::solve_jobs::HeldResult) -> Result<(), String> {
-    if route.name == "pressure" && held.pressure_reader_passed() {
+    if route.name == "pressure" && held.pressure_reader_passed() && open_pipe_stress_result_export::document_combination_identities(source).is_empty() {
         return Ok(());
     }
     validate_route(source, route)

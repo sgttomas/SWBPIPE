@@ -2434,6 +2434,8 @@
               "apps/desktop/src-tauri/src/autosave_tests.rs",
               "apps/desktop/src-tauri/src/close_guard.rs",
               "apps/desktop/src-tauri/src/command_ingress.rs",
+              "apps/desktop/src-tauri/src/diagnostics_presentation.rs",
+              "apps/desktop/src-tauri/src/diagnostics_presentation_tests.rs",
               "apps/desktop/src-tauri/src/embedded_agent/catalog.rs",
               "apps/desktop/src-tauri/src/embedded_agent/dispatcher.rs",
               "apps/desktop/src-tauri/src/embedded_agent/framing.rs",

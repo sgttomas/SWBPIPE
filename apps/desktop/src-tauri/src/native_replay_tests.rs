@@ -30,7 +30,7 @@ fn root() -> std::path::PathBuf {
     std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..")
 }
 
-fn registry() -> (SolveJobRegistry, Arc<Gate>) {
+pub(crate) fn registry() -> (SolveJobRegistry, Arc<Gate>) {
     let host = ScriptedHost::normal();
     let gate = Gate::new("native-replay");
     let pool = MemoryPool::with_timing(host, Duration::from_millis(5), Duration::from_millis(40), Duration::from_millis(5));
@@ -40,7 +40,7 @@ fn registry() -> (SolveJobRegistry, Arc<Gate>) {
 }
 
 /// A native-custody job holding `text`, as a completed desktop solve leaves it.
-fn held(registry: &SolveJobRegistry, gate: &Gate, text: &str) -> String {
+pub(crate) fn held(registry: &SolveJobRegistry, gate: &Gate, text: &str) -> String {
     let receipt = registry.start_with_custody(br#"{"project":{"id":"p"}}"#, None, ResultCustody::Native).unwrap();
     gate.wait_started(1);
     gate.release(text);
@@ -52,7 +52,7 @@ fn held(registry: &SolveJobRegistry, gate: &Gate, text: &str) -> String {
 /// RT-A4 §10.4: a restored handle holding `text`, read under the registry table `table` names (a
 /// request recorded with its handle's `recorded_table`, `nativeReopenEmulation.ts`), as
 /// `stored_custody` restores a run recorded before RT-A4.
-fn restored(registry: &SolveJobRegistry, text: &str, table: &Value) -> String {
+pub(crate) fn restored(registry: &SolveJobRegistry, text: &str, table: &Value) -> String {
     use crate::analysis_run_v03_validate::RecordedTable;
     use crate::solve_jobs::{HeldResult, RestoredSource};
     let variant = open_pipe_stress_result_export::recorded_tables::variant_of(table).unwrap_or_else(|| panic!("{table} names no registry variant"));
