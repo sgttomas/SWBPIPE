@@ -879,9 +879,9 @@ fn form(index: &RowIndex<'_>, id: &str, expression: &Expression<'_>, targets: &[
                 rows.push(combination_row(sources[0], id, row_id(&base(component)), value, refs, basis, sign));
             }
             // R-6/R-7 (§7.1): the along-direction value in its support's group (producer).
-            let along: Vec<Option<&Value>> = targets.iter().map(|t| index.support_row(*t, support, "along_direction")).collect();
-            if along.iter().any(Option::is_some) {
-                let sources: Vec<&Value> = along.into_iter().collect::<Option<_>>()?;
+            // Nothing is formed unless an operand has the row (§12: none on D1).
+            if targets.iter().any(|t| index.support_row(*t, support, "along_direction").is_some()) {
+                let sources: Vec<&Value> = targets.iter().map(|t| index.support_row(*t, support, "along_direction")).collect::<Option<_>>()?;
                 let values: Vec<f64> = sources.iter().map(|s| s["value"].as_f64()).collect::<Option<_>>()?;
                 let value = expression.value(&values, LoadDimension::Force)?;
                 let refs = sources.iter().map(|s| s["id"].as_str().unwrap_or_default().to_string()).collect();

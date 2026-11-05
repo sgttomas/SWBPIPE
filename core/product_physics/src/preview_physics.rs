@@ -1193,10 +1193,13 @@ pub(crate) fn append_combination_results(
                 }
                 // R-6/R-7 (§7.1): a skewed record's along-direction value is the combination
                 // of its case values, in its support's group (its case-named id pairs by
-                // support, never by base id), with the group's expression and sign.
-                let along: Vec<Option<&ResultItem>> = targets.iter().map(|target| find(*target, "along_direction")).collect();
-                if along.iter().any(Option::is_some) {
-                    let sources: Vec<&ResultItem> = along.into_iter().collect::<Option<_>>().ok_or("source support row missing in an operand case")?;
+                // support, never by base id), with the group's expression and sign. Only a
+                // skewed record publishes the row, so any other support (every support on
+                // D1, which refuses `direction`) forms and scans nothing here (§12).
+                if crate::document_members::is_skewed_record(support)
+                    && targets.iter().any(|target| find(*target, "along_direction").is_some())
+                {
+                    let sources: Vec<&ResultItem> = targets.iter().map(|target| find(*target, "along_direction")).collect::<Option<_>>().ok_or("source support row missing in an operand case")?;
                     let values: Vec<f64> = sources.iter().map(|s| s.value).collect();
                     let value = expression.evaluate_values(&values, LoadDimension::Force).ok_or("load-case algebra refused")?;
                     rows.push(combination_row(combination, &expression, &sign, sources[0], qualified_combination_result_id(&combination.id, &base("along_direction")), value, sources.iter().map(|s| s.id.clone()).collect()));
