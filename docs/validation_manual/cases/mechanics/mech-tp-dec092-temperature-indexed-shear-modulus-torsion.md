@@ -62,7 +62,7 @@ result `PASS; producing mechanics suite 39 passed with zero failures, and the co
 suite output and the exact commit are recorded in the run record
 `execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-02_Load-case algebra engine/_run_records/WORKING_ITEMS_RUN_2026-08-02_DEC092_TEMPERATURE_G_IMPLEMENTATION.md`.
 
-Evidence basis: Implementation commit `c394365ca72b8383c7d7203ce5be2cb9ea67d508`; passing commit-bound sweep `validation/evidence/sweeps/SWEEP_20260803T194132Z_c394365ca72b.json`; mechanics fixture/oracle and named test in `validation/benchmarks/mechanics/src/lib.rs`; product behavior and the seven named tests in `core/product_physics/src/lib.rs`. Receipt-87 records closeout and routes this derivative, but is not used as the sole basis for any mechanics or product claim.
+Evidence basis: Implementation commit `c394365ca72b8383c7d7203ce5be2cb9ea67d508`; passing commit-bound sweep `SWEEP_20260803T194132Z_c394365ca72b.json` (committed sweep artifacts were retired on 2026-11-05; recoverable from Git history at `24ac867e0d`); mechanics fixture/oracle and named test in `validation/benchmarks/mechanics/src/lib.rs`; product behavior and the seven named tests in `core/product_physics/src/lib.rs`. Receipt-87 records closeout and routes this derivative, but is not used as the sole basis for any mechanics or product claim.
 
 Reproduction is through the listed locked/offline crate tests. No GUI or external-runner reproduction was executed for this case.
 
