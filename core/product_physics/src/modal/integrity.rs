@@ -3,11 +3,15 @@
 //!
 //! **Thresholds (DEC-026): none is pinned.** [`ModalIntegrityParameters`]
 //! carries every threshold and algorithm parameter the dense solve and the
-//! checks need as a required field. It has no `Default`, no constructor with
-//! values and no production instance anywhere in the crate: a caller states
-//! each value, and only the tests supply one (a labelled `TEST_LOCAL_…` set).
-//! Each value is validated, finite and in its domain, and refused by name
-//! otherwise (`MODAL_INTEGRITY_PARAMETER_INVALID`).
+//! checks need as a required field. It has no `Default`. Its one constructor
+//! with values is [`ModalIntegrityParameters::selected_a1_a2_a3_criteria`],
+//! the parameter instance of Agent 0's A1, A2 and A3 selections (design
+//! §5.3.7). No product, native, headless, desktop or document path calls it;
+//! only tests do. It is not admitted for any public or native use, and
+//! selecting it enables nothing (§5.3.9). Otherwise a caller states each
+//! value, and the tests also supply a labelled `TEST_LOCAL_…` set. Each value
+//! is validated, finite and in its domain, and refused by name otherwise
+//! (`MODAL_INTEGRITY_PARAMETER_INVALID`).
 //!
 //! **The checks** are numerical-integrity checks with stated premises, not
 //! certified enclosures (§3.4, D-n). They run on the re-formed pencil:
@@ -135,6 +139,62 @@ fn parameter_refusal(name: &str, value: String, domain: &str) -> Diagnostic {
 }
 
 impl ModalIntegrityParameters {
+    /// The parameter instance of Agent 0's A1, A2 and A3 selections (design
+    /// §5.3.7: A1 and A2 2026-11-04, A3 2026-11-05). **It is not admitted for
+    /// public or native use.** No product, native, headless, desktop or
+    /// document path calls it, and selecting it enables nothing: admission
+    /// waits on every other §5.3.9 prerequisite.
+    ///
+    /// Each value is an explicit engineering acceptance, demotion, screening
+    /// or algorithm criterion. None is a resolution, accuracy, error or count
+    /// theorem, a true-rank decision or an all-count certificate.
+    /// - **A1:** τ_t = 10⁻⁶; the identity tolerance, relative 2⁻⁴⁴ and
+    ///   absolute 0 (an acceptance criterion for the formed mass, not a
+    ///   detection guarantee); g_max = 2⁵²; τ_e = 10⁻⁶ (band-recovered pairs
+    ///   only); τ_m = 2⁻³⁶; s_max = 7 with the gap log-positions ¼, ¾, ⅛, ⅜,
+    ///   ⅝, ⅞ and the whole-spectrum offsets 1, ½, ¼; and the QL limit 30.
+    ///   τ_m = 2⁻³⁶ = 16·n·u at n = 8,192: that basis holds only where a guard
+    ///   establishes n ≤ 8,192 at every use of τ_m. On the product path,
+    ///   `dense_scrutiny_guard` establishes it. The kernel's own entries do
+    ///   not, so any other caller must establish it first.
+    /// - **A2:** κ_c = 2¹⁰ and κ_s = 2⁷, within check 4's premises, establish
+    ///   no count by themselves. τ_o = 2⁻²³ applies to the measured deviation
+    ///   on the re-formed M̂. δ_c = 2⁻²⁰ is the computed-cluster grouping
+    ///   convention, not a classifier of physical multiplicity. τ_r = 2⁻³⁰ is
+    ///   a measured-residual demotion criterion: exceeding it makes a mode
+    ///   Sensitive and never refuses, and it promises no eigenvalue accuracy.
+    /// - **A3:** τ_μ = 2⁻⁵³, c_μ = 1, κ_μ = 10 and c_f = 64 are retention and
+    ///   screening criteria. Only the product κ_μ·c_μ = 10 acts. τ_μ is never
+    ///   the active hard floor for this tuple, at n ≥ 1 and μ_max > 0, in the
+    ///   kernel's binary64 evaluation of h = max(τ_μ·μ_max, κ_μ·c_μ·n·u·μ_max).
+    ///   That claim covers this tuple and that evaluation only. c_f is one
+    ///   conjunct of band acceptance, with e_λ ≤ τ_e and μ_R > h. A rejected
+    ///   or non-positive μ still leaves the finite census unresolved. Nothing
+    ///   is truncated, and the census limit of a non-coordinate mass
+    ///   nullspace remains.
+    pub(crate) fn selected_a1_a2_a3_criteria() -> Self {
+        Self {
+            infinite_mu_relative_threshold: 1.1102230246251565e-16, // 2⁻⁵³
+            mass_pivot_relative_threshold: 1.4551915228366852e-11, // 2⁻³⁶
+            resolution_floor_constant: 1.0,
+            resolution_floor_multiple: 10.0,
+            formed_backward_error_multiple: 64.0, // 2⁶
+            screen_error_estimate_threshold: 1e-6,
+            max_ql_iterations_per_eigenvalue: 30,
+            residual_threshold: 9.313225746154785e-10, // 2⁻³⁰
+            orthogonality_threshold: 1.1920928955078125e-7, // 2⁻²³
+            cluster_tolerance: 9.5367431640625e-7, // 2⁻²⁰
+            no_translation_threshold: 1e-6,
+            sturm_conditioning_multiple: 1024.0, // 2¹⁰
+            sturm_separation_multiple: 128.0, // 2⁷
+            sturm_growth_limit: 4503599627370496.0, // 2⁵²
+            sturm_max_candidates: 7,
+            sturm_gap_log_positions: vec![0.25, 0.75, 0.125, 0.375, 0.625, 0.875],
+            sturm_whole_spectrum_offsets: vec![1.0, 0.5, 0.25],
+            identity_tolerance: IdentityTolerance { relative: 5.684341886080802e-14, absolute: 0.0 }, // 2⁻⁴⁴, 0
+        }
+    }
+
     /// Every out-of-domain value, by name, in field order; empty when all
     /// are admitted.
     pub(crate) fn modal_parameter_refusals(&self) -> Vec<Diagnostic> {
