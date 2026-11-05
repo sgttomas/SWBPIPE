@@ -686,7 +686,8 @@
             "toroidal_crown_hoop_stress",
             "toroidal_extrados_hoop_stress",
             "toroidal_inner_radial_stress",
-            "toroidal_outer_radial_stress"
+            "toroidal_outer_radial_stress",
+            "along_direction"
           ]
         },
         "coordinate_system": {
@@ -695,7 +696,8 @@
             "global",
             "element_local",
             "pipe_section",
-            "TBD"
+            "TBD",
+            "support_direction"
           ]
         },
         "location": {
@@ -5329,7 +5331,8 @@
             "sigma_minus",
             "tau_v_max",
             "intensified_bending",
-            "intensified_bending_maximum"
+            "intensified_bending_maximum",
+            "along_direction"
           ]
         },
         "coordinate_system": {
@@ -5338,7 +5341,8 @@
             "global",
             "element_local",
             "pipe_section",
-            "TBD"
+            "TBD",
+            "support_direction"
           ]
         },
         "location": {

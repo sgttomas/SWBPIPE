@@ -1,7 +1,7 @@
 {
   "schema_version": "0.3.0",
-  "source_signature_count": 81,
-  "source_kind_count": 53,
+  "source_signature_count": 82,
+  "source_kind_count": 54,
   "canonical_metadata_vocabulary": {
     "component": {
       "type": "string",
@@ -51,7 +51,8 @@
         "sigma_minus",
         "tau_v_max",
         "intensified_bending",
-        "intensified_bending_maximum"
+        "intensified_bending_maximum",
+        "along_direction"
       ]
     },
     "coordinate_system": {
@@ -60,7 +61,8 @@
         "global",
         "element_local",
         "pipe_section",
-        "TBD"
+        "TBD",
+        "support_direction"
       ]
     },
     "location": {
@@ -1337,6 +1339,21 @@
       "legacy_run_creation_admission": "accepts_with_preserved_legacy_dimension_different_from_new_semantics",
       "governing_ratio_eligible": false,
       "combination_algebra": "never_combined"
+    },
+    {
+      "signature_id": "supported-source-082",
+      "kind": "support_reaction_along_direction_v1",
+      "unit": "N",
+      "component": "along_direction",
+      "source_physical_semantic_dimension": "force",
+      "derivative_target_dimension": "force",
+      "category": "physical_quantity",
+      "family": "reaction",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
     }
   ],
   "hash_vectors": [
@@ -1484,7 +1501,8 @@
       "support_reaction_component_v2",
       "constant_effort_support_applied_load",
       "element_global_end_force_v1",
-      "element_global_end_moment_v1"
+      "element_global_end_moment_v1",
+      "support_reaction_along_direction_v1"
     ],
     "recomputed_magnitude_kinds": [
       "displacement_magnitude",

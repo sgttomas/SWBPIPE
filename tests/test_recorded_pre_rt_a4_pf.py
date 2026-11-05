@@ -252,8 +252,10 @@ def test_the_registry_is_main_verbatim_and_disjoint_from_the_current_tables():
         assert digest != c._TABLES[identity][0]
         table = json.loads(path.read_text(encoding="utf-8"))
         assert table["semantic_contract_id"] == identity
-        # Rows are the current table's: only limitations, policy text, vocabulary and inherited digests moved.
-        assert table["rows"] == json.loads(c._TABLES[identity][1].read_text(encoding="utf-8"))["rows"]
+        # Rows are the current table's: only limitations, policy text, vocabulary and inherited digests moved,
+        # and R-6/R-7 S-K1 added one kind (support_reaction_along_direction_v1) without moving any other row.
+        current = json.loads(c._TABLES[identity][1].read_text(encoding="utf-8"))["rows"]
+        assert table["rows"] == [row for row in current if row["kind"] != "support_reaction_along_direction_v1"]
         # Increment 4's and operating-case slice 1b's variants are main's at bbf384dec (1b's under
         # fixtures/results/recorded_pre_rt_a5_1b).
         rev = {"045f6f0d8ce350246b21fb712d2dd14bf3a7f7f3690e66e062cbbf77d3696a3b": "01e05a486",
@@ -264,7 +266,11 @@ def test_the_registry_is_main_verbatim_and_disjoint_from_the_current_tables():
                # RT-A5 minuend_final's variants are main's at b32a17761 (fixtures/results/recorded_pre_rt_a5_mf).
                "f41b9d3ed0c1b7abaee0b98ca1a28aa1a2d109bce443b98d53a2080c1c504ce9": "b32a17761",
                "6f6494907e3ead979ea27e5ff85f54617589c9195dc84d40a02752a0b006ef44": "b32a17761",
-               "b4377e73e8a83edb57b4f0c41dbaef384385e0f6b4810103a106a334c8edbe14": "b32a17761"}.get(digest, MAIN)
+               "b4377e73e8a83edb57b4f0c41dbaef384385e0f6b4810103a106a334c8edbe14": "b32a17761",
+               # R-6/R-7 S-K1's variants are its base's at 6ebd92ce9 (fixtures/results/recorded_pre_sk1).
+               "563db3c7c44279face3adc60a76a512de38520357e89ea4b49ad11d20946db89": "6ebd92ce9",
+               "f64473f5a60ac2bb34d8006b40bf044800f0c97454c570bbe88d1f1d96b7bdfc": "6ebd92ce9",
+               "d0bab3502b4018ce0596757a933bd6306f402dc3741a10af24a094e8c66544e8": "6ebd92ce9"}.get(digest, MAIN)
         try:
             committed = subprocess.run(["git", "show", f"{rev}:fixtures/results/semantic_contract_v0_3_{origin[identity]}.json"],
                                        cwd=ROOT, capture_output=True, check=True).stdout

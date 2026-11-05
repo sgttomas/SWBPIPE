@@ -63,7 +63,7 @@ fn derive(raw: &Value) -> Result<Value, String> {
 fn the_timoshenko_table_is_pinned_and_preview_physics_2_is_unchanged() {
     assert_eq!(sha256(TIMOSHENKO_TABLE), s::PREVIEW_PHYSICS_TIMOSHENKO_SHA256);
     assert_eq!(sha256(PREVIEW_TABLE), s::PREVIEW_PHYSICS_SHA256);
-    assert_eq!(s::PREVIEW_PHYSICS_SHA256, "563db3c7c44279face3adc60a76a512de38520357e89ea4b49ad11d20946db89");
+    assert_eq!(s::PREVIEW_PHYSICS_SHA256, "16eeb49cb298c6d3634594bbd9ebf6bf86be8f114e2e524dbd624e401e31a729");
     let (eb, ti) = (s::preview_physics_contract(), s::preview_physics_timoshenko_contract());
     let differing: Vec<&String> =
         eb.as_object().unwrap().keys().filter(|k| eb[k.as_str()] != ti[k.as_str()]).collect();

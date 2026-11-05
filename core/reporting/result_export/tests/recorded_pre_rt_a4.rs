@@ -136,7 +136,11 @@ fn the_registry_is_closed_and_each_variant_is_its_pinned_bytes() {
         // RT-A5 minuend_final: main's tables at b32a17761 (`recorded_pre_rt_a5_mf.rs`).
         "f41b9d3ed0c1b7abaee0b98ca1a28aa1a2d109bce443b98d53a2080c1c504ce9",
         "6f6494907e3ead979ea27e5ff85f54617589c9195dc84d40a02752a0b006ef44",
-        "b4377e73e8a83edb57b4f0c41dbaef384385e0f6b4810103a106a334c8edbe14"]);
+        "b4377e73e8a83edb57b4f0c41dbaef384385e0f6b4810103a106a334c8edbe14",
+        // R-6/R-7 S-K1: its base's tables at 6ebd92ce9 (`recorded_pre_sk1/`).
+        "563db3c7c44279face3adc60a76a512de38520357e89ea4b49ad11d20946db89",
+        "f64473f5a60ac2bb34d8006b40bf044800f0c97454c570bbe88d1f1d96b7bdfc",
+        "d0bab3502b4018ce0596757a933bd6306f402dc3741a10af24a094e8c66544e8"]);
     for variant in &recorded_tables::VARIANTS {
         assert_eq!(variant.table()["semantic_contract_id"], variant.id);
         assert!(recorded_tables::variant_of(&binding(variant.id, variant.sha256)).is_some());

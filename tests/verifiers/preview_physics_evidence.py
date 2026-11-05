@@ -337,12 +337,79 @@ def validate_preview_physics_evidence(source: Mapping[str, Any], model: Mapping[
     of being refused where the document alone cannot verify them (RT-A4 review r1 P2, ``preview_combination_gates``)."""
     try:
         _validate(source)
+        _along_direction(source, model)
         if model is None:
             # With the model, reader_verdict re-derives them after the other model checks.
             from . import preview_combination_gates
             preview_combination_gates.check(source, None)
     except (TypeError, KeyError, AttributeError, OverflowError, IndexError) as error:
         raise ValueError("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: malformed evidence") from error
+
+
+ALONG_DIRECTION_KIND = "support_reaction_along_direction_v1"
+
+
+def _skewed_direction(support: Mapping[str, Any]) -> tuple[float, float, float] | None:
+    """A skewed record's authored direction: two or more nonzero components (not a snubber)."""
+    d = support.get("direction")
+    if not isinstance(d, Mapping) or support.get("family") == "snubber":
+        return None
+    v = tuple(d.get(axis) for axis in ("x", "y", "z"))
+    if not all(_number(c) for c in v) or sum(1 for c in v if c != 0) < 2:
+        return None
+    return v  # type: ignore[return-value]
+
+
+def _along_direction(source: Mapping[str, Any], model: Mapping[str, Any] | None) -> None:
+    """R-6/R-7 S-K1 (DEL-04-03 skew-restraints.md sections 7.1 and 10.5, R-1): each case's
+    `support_reaction_along_direction_v1` rows: the exact strings, one per record and case beside its Fx/Fy/Fz rows,
+    and with the model s*|d| = d.R within a representation guard (d exactly rescaled to max|d_i| in [1, 2))."""
+    by_case: dict[str, list[Mapping[str, Any]]] = {}
+    for row in source["results"]:
+        basis = row.get("basis_ref") or {}
+        if row["kind"] == ALONG_DIRECTION_KIND:
+            metadata = row.get("metadata") or {}
+            _require(row.get("unit") == "N" and metadata.get("component") == "along_direction"
+                     and metadata.get("coordinate_system") == "support_direction" and metadata.get("location") == "node",
+                     "along-direction row semantics")
+            if basis.get("ref_type") == "load_case":
+                _require(metadata.get("basis") == "recovered_from_assembled_support_law"
+                         and metadata.get("sign_convention") == "support_on_pipe_positive_along_authored_direction",
+                         "along-direction row semantics")
+        if basis.get("ref_type") == "load_case":
+            by_case.setdefault(basis["ref_id"], []).append(row)
+    supports = {s.get("id"): s for s in (model or {}).get("supports", [])}
+    for case, rows in by_case.items():
+        along: dict[str, Mapping[str, Any]] = {}
+        components: dict[tuple[str, str], float] = {}
+        for row in rows:
+            entity = row["entity_ref"]
+            if row["kind"] == ALONG_DIRECTION_KIND:
+                _require(row["id"] == "result:support-along-direction-v1:" + _length_prefixed(case, entity), "ALONG_DIRECTION_ROW_ID")
+                _require(entity not in along, "ALONG_DIRECTION_DUPLICATE")
+                along[entity] = row
+            elif row["kind"] == SUPPORT_COMPONENT_KIND:
+                components[(entity, (row.get("metadata") or {}).get("component"))] = row["value"]
+        for entity, row in along.items():
+            _require(all((entity, c) in components for c in ("Fx", "Fy", "Fz")), "ALONG_DIRECTION_COMPONENTS_MISSING")
+            if model is None:
+                continue
+            d = _skewed_direction(supports.get(entity) or {})
+            _require(d is not None, "ALONG_DIRECTION_UNEXPECTED")
+            largest = max(abs(c) for c in d)
+            scale = 2.0 ** -math.floor(math.log2(largest))
+            d = tuple(c * scale for c in d)
+            r = [components[(entity, c)] for c in ("Fx", "Fy", "Fz")]
+            s = row["value"]
+            norm = math.sqrt(sum(c * c for c in d))
+            dot = sum(d[i] * r[i] for i in range(3))
+            bound = 64.0 * sys.float_info.epsilon * max(norm * sum(abs(x) for x in r), sys.float_info.min)
+            _require(_number(s) and abs(s * norm - dot) <= bound, "ALONG_DIRECTION_INCONSISTENT")
+        if model is not None:
+            published = {entity for entity, _ in components}
+            for sid, support in supports.items():
+                if _skewed_direction(support) is not None and sid in published:
+                    _require(sid in along, "ALONG_DIRECTION_MISSING")
 
 
 def _validate(source: Mapping[str, Any]) -> None:

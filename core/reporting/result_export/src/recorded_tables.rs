@@ -67,8 +67,10 @@ const EXACT_RETAINED: &str = crate::retained_precision::EXACT_CONTRACT_ID;
 /// main holds once that lands before RT-A4; the sixth is the RT-A4 main line's exact
 /// successor table (main at bbf384dec), whose inherited pressure-2 digest RT-A3
 /// increment 4 moves; the next three are main's at bbf384dec, before operating-case
-/// slice 1b; the last three are main's at b32a17761, before RT-A5 `minuend_final`.
-pub static VARIANTS: [RecordedVariant; 12] = [
+/// slice 1b; the next three are main's at b32a17761, before RT-A5 `minuend_final`; the
+/// last three are the S-K1 base's (`claude/rt-skew-sk1` at 6ebd92ce9, RT-A5's tables),
+/// before R-6/R-7 S-K1.
+pub static VARIANTS: [RecordedVariant; 15] = [
     RecordedVariant {
         id: PREVIEW,
         sha256: "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2",
@@ -173,6 +175,34 @@ pub static VARIANTS: [RecordedVariant; 12] = [
         bytes: include_bytes!("../../../../fixtures/results/recorded_pre_rt_a5_mf/semantic_contract_v0_3_preview_physics_retained_1.b4377e73.json"),
         base: Some(9),
         reads_under_variant: true,
+    },    // R-6/R-7 S-K1 (DEL-04-03 `skew-restraints.md` §7.1, R-1): S-K1's base held these.
+    // S-K1 added one kind (`support_reaction_along_direction_v1`: one row, the component
+    // `along_direction`, the coordinate system `support_direction` and a linear state
+    // kind); no older statement changes, so a statement recorded under them reads under
+    // the variant exactly as it read then.
+    RecordedVariant {
+        id: PREVIEW,
+        sha256: "563db3c7c44279face3adc60a76a512de38520357e89ea4b49ad11d20946db89",
+        profile: crate::semantic_contract::PREVIEW_PHYSICS_PROFILE,
+        bytes: include_bytes!("../../../../fixtures/results/recorded_pre_sk1/semantic_contract_v0_3_preview_physics_2.563db3c7.json"),
+        base: None,
+        reads_under_variant: true,
+    },
+    RecordedVariant {
+        id: TIMOSHENKO,
+        sha256: "f64473f5a60ac2bb34d8006b40bf044800f0c97454c570bbe88d1f1d96b7bdfc",
+        profile: crate::semantic_contract::PREVIEW_PHYSICS_TIMOSHENKO_PROFILE,
+        bytes: include_bytes!("../../../../fixtures/results/recorded_pre_sk1/semantic_contract_v0_3_preview_physics_timoshenko_1.f64473f5.json"),
+        base: None,
+        reads_under_variant: true,
+    },
+    RecordedVariant {
+        id: RETAINED,
+        sha256: "d0bab3502b4018ce0596757a933bd6306f402dc3741a10af24a094e8c66544e8",
+        profile: crate::retained_precision::PROFILE,
+        bytes: include_bytes!("../../../../fixtures/results/recorded_pre_sk1/semantic_contract_v0_3_preview_physics_retained_1.d0bab350.json"),
+        base: Some(12),
+        reads_under_variant: true,
     },
 ];
 
@@ -201,7 +231,7 @@ impl RecordedVariant {
     }
     /// The variant's table, its bytes checked on first read.
     pub fn table(&'static self) -> &'static Value {
-        static TABLES: [OnceLock<Value>; 12] = [const { OnceLock::new() }; 12];
+        static TABLES: [OnceLock<Value>; 15] = [const { OnceLock::new() }; 15];
         TABLES[self.index()].get_or_init(|| verify(self, self.bytes).expect("a registry table's pinned bytes"))
     }
     /// The base variant a successor's base inherits (preview-physics-2's), if any.
@@ -314,10 +344,20 @@ mod tests {
             assert_ne!(current, variant.sha256, "{}: a variant is never the current table", variant.id);
         }
         // Rows are unchanged from each current table: only limitations, policy text,
-        // vocabulary and inherited digests moved.
-        assert_eq!(VARIANTS[0].table()["rows"], crate::semantic_contract::preview_physics_contract()["rows"]);
-        assert_eq!(VARIANTS[1].table()["rows"], crate::semantic_contract::preview_physics_timoshenko_contract()["rows"]);
-        assert_eq!(VARIANTS[2].table()["rows"], crate::semantic_contract::preview_physics_retained_contract()["rows"]);
+        // vocabulary and inherited digests moved, and R-6/R-7 S-K1 added exactly one
+        // preview signature (`support_reaction_along_direction_v1`) without moving any other
+        // row. Every older row is compared exactly; the one added row is pinned.
+        let without_sk1 = |current: &Value| -> Value {
+            let rows = current["rows"].as_array().unwrap();
+            let added: Vec<&Value> = rows.iter().filter(|r| r["kind"] == "support_reaction_along_direction_v1").collect();
+            assert_eq!(added.len(), 1, "S-K1 adds one row");
+            assert_eq!((added[0]["signature_id"].as_str(), added[0]["component"].as_str(), added[0]["unit"].as_str(), added[0]["combination_algebra"].as_str()),
+                (Some("supported-source-082"), Some("along_direction"), Some("N"), Some("signed_linear")));
+            Value::Array(rows.iter().filter(|r| r["kind"] != "support_reaction_along_direction_v1").cloned().collect())
+        };
+        assert_eq!(VARIANTS[0].table()["rows"], without_sk1(crate::semantic_contract::preview_physics_contract()));
+        assert_eq!(VARIANTS[1].table()["rows"], without_sk1(crate::semantic_contract::preview_physics_timoshenko_contract()));
+        assert_eq!(VARIANTS[2].table()["rows"], without_sk1(crate::semantic_contract::preview_physics_retained_contract()));
         assert_eq!(VARIANTS[3].table()["rows"], crate::semantic_contract::physics_retained_contract()["rows"]);
         assert_eq!(VARIANTS[4].table()["rows"], crate::semantic_contract::physics_retained_contract()["rows"]);
         assert_eq!(VARIANTS[5].table()["rows"], crate::semantic_contract::physics_retained_contract()["rows"]);

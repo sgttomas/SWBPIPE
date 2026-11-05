@@ -250,6 +250,10 @@ fn row_semantics(row: &Value, kind: &str, arc: bool) -> Check {
             require(direct, "ROW_SEMANTICS")?;
             crate::u4b_evidence::row_semantics(row, crate::u4b_evidence::Route::Preview, arc)?;
         }
+        // R-6/R-7 S-K1 (§7.1): the along-direction row's declared semantics.
+        crate::along_direction_evidence::KIND => {
+            crate::along_direction_evidence::row_semantics(row, direct)?;
+        }
         // W-7 (DEL-04-01 Design `global-end-actions.md`): no wall basis off pressure-2.
         _ if crate::global_end_evidence::is_kind(kind) => {
             crate::global_end_evidence::row_semantics(row, false)?;
@@ -857,6 +861,19 @@ fn validate_with(source: &Value, model: Option<&Value>) -> Check {
     // RT-A4 (review r1 P2): the gates and the absolute sums and SRSS, re-derived from the
     // document alone; with the model, `reader_verdict` re-derives them after the other
     // model checks (`preview_combination_gates::check`).
+    // R-6/R-7 S-K1 (§7.1, R-1): each case's along-direction rows.
+    let rows_all = array(&source["results"])?;
+    let mut by_case: Vec<(&str, Vec<&Value>)> = Vec::new();
+    for row in rows_all.iter() {
+        let Some(case) = case_of(row) else { continue };
+        match by_case.iter_mut().find(|(c, _)| *c == case) {
+            Some((_, rows)) => rows.push(row),
+            None => by_case.push((case, vec![row])),
+        }
+    }
+    for (case, rows) in &by_case {
+        crate::along_direction_evidence::check_case(rows, case, model)?;
+    }
     match model {
         None => crate::preview_combination_gates::check(source, None),
         Some(_) => Ok(()),

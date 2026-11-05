@@ -558,7 +558,7 @@ const SUPPORT_COMPONENTS: [&str; 6] = ["Fx", "Fy", "Fz", "Mx", "My", "Mz"];
 const DISPLACEMENT_AXES: [(&str, &str); 3] = [("ux", "global_nodal_displacement_x"), ("uy", "global_nodal_displacement_y"), ("uz", "global_nodal_displacement_z")];
 /// The producer's `LINEAR_STATE_KINDS` (`preview_physics.rs`): with
 /// `displacement_magnitude`, the kinds a combination combines, except `_v2` kinds.
-const LINEAR_STATE_KINDS: [&str; 22] = [
+const LINEAR_STATE_KINDS: [&str; 23] = [
     "global_nodal_displacement_x",
     "global_nodal_displacement_y",
     "global_nodal_displacement_z",
@@ -581,6 +581,7 @@ const LINEAR_STATE_KINDS: [&str; 22] = [
     "constant_effort_support_applied_load",
     "element_global_end_force_v1",
     "element_global_end_moment_v1",
+    "support_reaction_along_direction_v1",
 ];
 
 fn stable_suffix(id: &str) -> String {

@@ -359,3 +359,74 @@ fn named_codes_win_over_the_invalid_input_backstop() {
         }
     }
 }
+
+/// R-1: the independent reader (`reader_verdict`, RE `along_direction_evidence`) accepts
+/// every S-K1 product case's document with its model and refuses the tampered
+/// documents by name: a wrong sign, a scaled s, a missing along row, a missing
+/// component row, and an along row on a record that is not skewed.
+#[test]
+fn the_reader_re_checks_the_along_direction_row() {
+    use open_pipe_stress_product_physics::result_export::reader_verdict;
+    let verdict = |out: &Value, doc: &Value| reader_verdict::validate("preview-physics", out, Some(&doc["model"]), None);
+    let refused = |out: &Value, doc: &Value, code: &str, what: &str| {
+        let found = verdict(out, doc);
+        assert_eq!(found["ok"], false, "{what}: {found}");
+        assert!(found.to_string().contains(code), "{what}: expected {code}: {found}");
+    };
+    for (name, records) in s_k1_cases().into_iter().filter(|(name, _)| !name.ends_with("2p600")) {
+        let doc = document(&records, load_of(&product_case(name)));
+        for mode in MODES {
+            let out = run(&doc, mode);
+            assert_eq!(verdict(&out, &doc)["ok"], true, "{name} {mode:?}: {}", verdict(&out, &doc));
+        }
+    }
+    let doc = document(&[stop("stop_B", [3.0, 4.0, 0.0])], [0.0, -1024.0, 0.0]);
+    let out = run(&doc, MODES[0]);
+    let at = |out: &Value, kind: &str, component: &str| rows(out).iter().position(|r| r["kind"] == kind && r["entity_ref"] == "stop_B" && r["metadata"]["component"] == component).unwrap();
+    let along = at(&out, ALONG, "along_direction");
+    let mut negated = out.clone();
+    negated["results"][along]["value"] = json!(-out["results"][along]["value"].as_f64().unwrap());
+    refused(&negated, &doc, "ALONG_DIRECTION_INCONSISTENT", "wrong sign");
+    let mut scaled = out.clone();
+    scaled["results"][along]["value"] = json!(out["results"][along]["value"].as_f64().unwrap() * (1.0 + 1e-9));
+    refused(&scaled, &doc, "ALONG_DIRECTION_INCONSISTENT", "scaled s");
+    let mut missing = out.clone();
+    missing["results"].as_array_mut().unwrap().remove(along);
+    refused(&missing, &doc, "ALONG_DIRECTION_MISSING", "missing along row");
+    let mut unexpected = doc.clone();
+    unexpected["model"]["supports"][2].as_object_mut().unwrap().remove("direction");
+    refused(&out, &unexpected, "ALONG_DIRECTION_UNEXPECTED", "a record that is not skewed");
+    let mut no_fy = out.clone();
+    let fy = at(&out, "support_reaction_component_v2", "Fy");
+    no_fy["results"].as_array_mut().unwrap().remove(fy);
+    let found = verdict(&no_fy, &doc);
+    assert_eq!(found["ok"], false, "missing component row: {found}");
+    // A linear state kind: a mechanics combination 2·case publishes 2s, and the reader
+    // (its combination pass re-derives every combined row) accepts it.
+    let mut combined = doc.clone();
+    combined["model"]["combinations"] = json!([{"id": "C2", "basis": "mechanics", "terms": [{"load_case": CASE, "factor": 2.0}], "provenance": PROV}]);
+    for mode in MODES {
+        let out = run(&combined, mode);
+        let case_s = rows(&out).iter().find(|r| r["kind"] == ALONG && r["basis_ref"]["ref_type"] == "load_case").unwrap()["value"].as_f64().unwrap();
+        let combo = rows(&out).iter().find(|r| r["kind"] == ALONG && r["basis_ref"]["ref_type"] == "combination").unwrap_or_else(|| panic!("{mode:?}: combined along row"));
+        assert_eq!(combo["value"].as_f64().unwrap().to_bits(), (2.0 * case_s).to_bits(), "{mode:?}");
+        assert_eq!(verdict(&out, &combined)["ok"], true, "{mode:?}: {}", verdict(&out, &combined));
+    }
+}
+
+/// R-1: the committed reader fixture (`fixtures/results/skew_along_direction_preview.json`,
+/// P_RS_stop_and_spring with a mechanics combination 2·case, sparse) for the Python
+/// verifier's tests (`tests/test_skew_along_direction_reader.py`): the request and its
+/// envelope, bytes checked here; `OPENPIPESTRESS_WRITE_SKEW_ALONG_FIXTURE=<path>` rewrites it.
+#[test]
+fn the_reader_fixture_is_the_product_output() {
+    let mut doc = document(&[stop("stop_B", [3.0, 4.0, 0.0]), spring("spring_B", [0.0, 3.0, 4.0])], [0.0, -1024.0, 0.0]);
+    doc["model"]["combinations"] = json!([{"id": "C2", "basis": "mechanics", "terms": [{"load_case": CASE, "factor": 2.0}], "provenance": PROV}]);
+    let out = run(&doc, PreviewSolverMode::SparseInteractive);
+    let text = serde_json::to_string_pretty(&json!({"request": doc, "envelope": out})).unwrap() + "\n";
+    if let Ok(path) = std::env::var("OPENPIPESTRESS_WRITE_SKEW_ALONG_FIXTURE") {
+        std::fs::write(path, &text).unwrap();
+        return;
+    }
+    assert_eq!(text, include_str!("../../../fixtures/results/skew_along_direction_preview.json"), "rewrite with OPENPIPESTRESS_WRITE_SKEW_ALONG_FIXTURE");
+}
