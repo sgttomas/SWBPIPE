@@ -108,12 +108,56 @@ impl WideBinary64 {
         let q = Self::from_f64(self.m / other.m);
         Self { m: q.m, e: q.e + self.e - other.e }
     }
-    fn neg(self) -> Self {
-        Self { m: -self.m, e: self.e }
+    /// Astra B1′: the published binary64 of the exact product self·x, rounded once (the
+    /// exact sum and `round_scaled`), subnormals included; `None` outside binary64. The
+    /// product is never first rounded at 53 bits.
+    fn publish_product(self, x: f64) -> Option<f64> {
+        if self.m == 0.0 || x == 0.0 {
+            return Some(self.m * x);
+        }
+        let mut sum = ExactAccumulator::new();
+        sum.add_product(self.m, x).ok()?;
+        sum.round_scaled(self.e).ok().filter(|v| v.is_finite())
     }
-    /// The published binary64: m·2^e rounded once (the module's exact sum and
-    /// `round_scaled`), `None` outside binary64.
-    fn publish(self) -> Option<f64> {
+    /// Astra B1′: the published binary64 of the exact quotient self/x (x a positive normal
+    /// binary64), rounded once. A normal result is the significands' quotient rounded at 53
+    /// bits and moved by its exponent (one rounding). Below 2·2^-1022 the result is
+    /// rounded once onto the subnormal grid instead: N·2^-1074 with N the integer nearest
+    /// A/x (A = m·2^(e+1074), exact), chosen by exact residuals |A − N·x|, ties to even.
+    fn publish_quotient(self, x: f64) -> Option<f64> {
+        let q = self.div(Self::from_f64(x));
+        let v = q.publish_wide()?;
+        if v == 0.0 || v.abs() >= 2.0 * f64::MIN_POSITIVE {
+            return Some(v);
+        }
+        let a = scale_pow2(self.m, self.e + 1074);
+        let estimate = (a / x).round();
+        let residual = |n: f64| {
+            let mut r = ExactAccumulator::new();
+            r.add(a).ok()?;
+            r.add_product(-n, x).ok()?;
+            Some(r)
+        };
+        let mut best = estimate;
+        for candidate in [estimate - 1.0, estimate + 1.0] {
+            // |r(candidate)| < |r(best)|, or equal with an even candidate.
+            let (rc, rb) = (residual(candidate)?, residual(best)?);
+            let (sc, sb) = (f64::from(rc.signum()), f64::from(rb.signum()));
+            let mut diff = ExactAccumulator::new();
+            diff.add(sc * a).ok()?;
+            diff.add_product(-sc * candidate, x).ok()?;
+            diff.add(-sb * a).ok()?;
+            diff.add_product(sb * best, x).ok()?;
+            if diff.signum() < 0 || (diff.signum() == 0 && candidate % 2.0 == 0.0) {
+                best = candidate;
+            }
+        }
+        Some(scale_pow2(best, -1074))
+    }
+    /// m·2^e rounded once to binary64 (the module's exact sum and `round_scaled`), `None`
+    /// outside binary64. Exact for a value of 53 bits in the normal range; a subnormal
+    /// result is a second rounding (the callers above avoid it).
+    fn publish_wide(self) -> Option<f64> {
         if self.m == 0.0 {
             return Some(self.m);
         }
@@ -1458,10 +1502,11 @@ impl RestraintBasis {
         let kappa = WideBinary64::from_f64(record.stiffness).mul(t);
         let per_n = kappa.div(WideBinary64::from_f64(record.direction.scaled_norm_squared()));
         let mut global = [0.0; 3];
+        // Astra B1′: each published value is rounded once from its exact final operation.
         for i in 0..3 {
-            global[i] = per_n.mul(WideBinary64::from_f64(d[i])).neg().publish().ok_or(range(PublishedValue::SpringComponent { axis: i }))?;
+            global[i] = -per_n.publish_product(d[i]).ok_or(range(PublishedValue::SpringComponent { axis: i }))?;
         }
-        let along = kappa.div(WideBinary64::from_f64(record.direction.scaled_norm())).neg().publish().ok_or(range(PublishedValue::SpringAlongDirection))?;
+        let along = -kappa.publish_quotient(record.direction.scaled_norm()).ok_or(range(PublishedValue::SpringAlongDirection))?;
         Ok(StopReaction { global, along })
     }
 

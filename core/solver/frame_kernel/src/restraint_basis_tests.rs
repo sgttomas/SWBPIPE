@@ -1689,3 +1689,70 @@ fn spring_recovery_publishes_finite_values_past_an_overflowing_intermediate() {
     assert_eq!(r.global.map(f64::to_bits), [-(kappa / 2.0), -(kappa / 2.0), -((kappa / 2.0) * 0.0)].map(f64::to_bits));
     assert_eq!(r.along.to_bits(), (-(kappa / nu)).to_bits());
 }
+
+/// Astra B1′: the wide path's published component is the exact final product rounded once,
+/// subnormals included, never rounded at 53 bits and then again onto the subnormal grid.
+/// The reviewer's admitted counterexample: d = (1, 1, 0x1.2000000000001p-1022),
+/// u = (MAX, MAX, 0), k = 2^-1074. t = 2·MAX overflows, κ = 2^-1074·2·MAX and κ/n are exact
+/// (n = fl(2 + d_z²) = 2), and Rz = −RN(κ/n · d_z): the exact product is 4.5·2^-1074 plus
+/// about 2^-53 of it, so its single rounding is −5·2^-1074 (the double rounding gave −4).
+#[test]
+fn the_wide_spring_path_rounds_a_subnormal_component_once() {
+    use crate::exact_sum::ExactAccumulator;
+    let max = f64::MAX;
+    let dz = f64::from_bits(0x0012_0000_0000_0001); // 0x1.2000000000001p-1022
+    assert_eq!(dz, (1.125 + 2f64.powi(-52)) * 2f64.powi(-1022));
+    let tiny = f64::from_bits(1);
+    let basis = RestraintBasis::build(1, &[3, 4, 5], Vec::new(), vec![SkewSpring {
+        support_id: "s".into(),
+        node: 0,
+        direction: SkewDirection::new([1.0, 1.0, dz]).unwrap(),
+        stiffness: tiny,
+    }])
+    .unwrap();
+    assert_eq!(basis.springs()[0].direction.scaled_norm_squared(), 2.0);
+    let r = basis.spring_reaction(0, &[max, max, 0.0, 0.0, 0.0, 0.0]).expect("finite published values");
+    // The exact reference: κ/n = MAX·2^-1074 (exact: a power-of-two scaling of MAX), and
+    // Rz = −RN(κ/n · d_z), one exact product rounded once.
+    let per_n = max * 2f64.powi(-1000) * 2f64.powi(-74);
+    let mut exact = ExactAccumulator::new();
+    exact.add_product(per_n, dz).unwrap();
+    let expect_z = -exact.round().unwrap();
+    assert_eq!(expect_z.to_bits(), (-5.0 * tiny).to_bits());
+    assert_eq!(r.global[2].to_bits(), expect_z.to_bits(), "Rz {:e} against {:e}", r.global[2], expect_z);
+    assert_eq!(r.global[0].to_bits(), (-per_n).to_bits());
+    assert_eq!(r.global[1].to_bits(), (-per_n).to_bits());
+    // The along value −κ/ν (normal here) is one rounding of the exact quotient.
+    let kappa = 2.0 * per_n;
+    assert_eq!(r.along.to_bits(), (-(kappa / basis.springs()[0].direction.scaled_norm())).to_bits());
+}
+
+/// Astra B1′: the once-rounded quotient onto the subnormal grid (`publish_quotient`), checked
+/// against exact residuals: for κ/ν landing in the subnormal range the published value is the
+/// grid point nearest the exact quotient (ties to even), never a 53-bit rounding then a second.
+#[test]
+fn the_wide_quotient_rounds_once_onto_the_subnormal_grid() {
+    let nu = std::f64::consts::SQRT_2;
+    for (m, e) in [(1.5, -1070), (1.0 + 2f64.powi(-52), -1073), (1.9, -1060), (1.25, -1075)] {
+        let w = WideBinary64 { m, e };
+        let got = w.publish_quotient(nu).unwrap();
+        // Exact check: |m·2^e − got·ν| ≤ |m·2^e − c·ν| for the grid neighbours c of got.
+        let a = scale_pow2(m, e + 1074);
+        let n = scale_pow2(got, 1074);
+        let dist = |c: f64| {
+            let mut r = crate::exact_sum::ExactAccumulator::new();
+            r.add(a).unwrap();
+            r.add_product(-c, nu).unwrap();
+            r
+        };
+        for c in [n - 1.0, n + 1.0] {
+            let (rc, rn) = (dist(c), dist(n));
+            let mut diff = crate::exact_sum::ExactAccumulator::new();
+            diff.add(f64::from(rn.signum()) * a).unwrap();
+            diff.add_product(-f64::from(rn.signum()) * n, nu).unwrap();
+            diff.add(-f64::from(rc.signum()) * a).unwrap();
+            diff.add_product(f64::from(rc.signum()) * c, nu).unwrap();
+            assert!(diff.signum() <= 0, "({m}, {e}): {got:e} is not the nearest grid point");
+        }
+    }
+}
