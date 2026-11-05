@@ -1076,6 +1076,100 @@ these conditions on phase B.
     combined, both basis changes are named.
   - **C1 mirror.** It follows once phase B implements the row and its digests exist.
 
+### 11.3 Agent 0's phase-B scope decision and dynamics' modal corrections (2026-11-04)
+
+**Agent 0** decided the following. These are development decisions, not personal owner
+acceptance. Agent 0 signs for this bounded cross-deliverable change, and the load-cases manager
+owns implementation and integration in the S-K1 PR. General ownership of DEL-03-06 and DEL-04-06
+does not transfer, and no S6 work is assigned.
+- **DEL-04-06 diagnostics.**
+  - `SkewDirectionRange`, `SkewStopsPerNode` and `ConstraintRedundant` join the existing
+    `InvalidRestraint` mapping.
+  - `FrameKernelError::InvalidInput(&'static str)` maps to a blocking ModelValidation input
+    diagnostic. It is a backstop only, never NumericalRange, deferred-range, or a
+    factorization or convergence failure.
+  - The earlier named PP and applier refusals stay authoritative. Regressions show that the
+    unconnected-node and force-scale refusals occur before the backstop on product paths.
+  - Code, severity, source and detail are tested for the new mappings, and existing mappings
+    are preserved.
+- **DEL-03-06 split constant.** `connector.rs` owns the crate-visible `SPLIT_EXACT_MIN`;
+  `tie_rod.rs` and `restraint_basis.rs` import it.
+  - Every local duplicate of this threshold is removed.
+  - The value stays `f64::from_bits(54 << 52)` = 2⁻⁹⁶⁹, with its bits pinned.
+  - No change to the numerical predicates, existing connector and tie-rod uses, the public
+    API, or the boundary and range reference behaviour.
+- **F-2.** The 02 plumbing and the phase-B numerical scope remain authorized under this
+  reviewed design, §11.1 and RT-A3's seam review.
+  - The actual F-2, A-1 and P-2 code goes to RT-A3 and to the independent Astra MEDIUM
+    numerical and persistence review. Compiled plumbing does not establish the numerical
+    bodies.
+  - The rigid-body screen's n counts all ground rows, with the single-stop test, and no new
+    threshold is added.
+- **Desktop routing correction.** `reactionOverlay.ts:15` (`REACTION_COMPONENT_KIND` =
+  `support_reaction_component_v2`) is an arrow renderer's kind constant. Its loop at :123 consumes
+  global Fx/Fy/Fz, Mx/My/Mz and magnitude rows. It is not a reader registry.
+  - It is not replaced, and `along_direction` is not admitted as a component.
+  - The new scalar (`coordinate_system: support_direction`) must not double-count a reaction,
+    invent a global direction, or alter the standing or frame gates. The existing arrows go on
+    consuming the emitted global component rows.
+  - The actual reader, table and kind dispatch sites are updated through the maintained
+    generators. A real-result consumer regression shows that adding the scalar leaves the
+    component arrow unchanged.
+- **Authoring's should-fix** is part of phase B (§11.2).
+- **Debug and pricing.**
+  - `MemberBoundInputs` reaches `StructuralSolution`'s derived Debug. At S-K1's D3 the
+    actual-source text model, layout atoms, frame, call and heap owners and pinned strings are
+    updated, including `FormationSource`'s added field.
+  - An empty Vec is not assumed free of layout or text cost. Layout statements stay candidates
+    until native layout and registration evidence exists, and historical revisions' pricing
+    identities stay intact.
+- **Reconciliation.** DEL-04-03, DEL-04-01, DEL-04-06 and DEL-03-06, and any changed consumer
+  or dependency meaning, are reconciled in the same PR. Unchanged declarations are left alone.
+- **Out of scope.** No native app run, no exclusive measurement, no public admission outside
+  S-K1, and no release authority. Retained pricing and witness order stay P+cert → #122 → S-K1.
+
+**Dynamics (D-1): the spec is OK, with these corrections.** Dynamics reviews the actual code before
+merge, followed by one independent dynamics review.
+- **C1. Structural singularity evidence.** `form_modal_pencil`'s zero-force structural solve
+  (about :176–188) and its partition (`reduce_assembled_sparse_system`) use the same
+  skew-reduced K′ on `restrained_coordinates` that the static path solves; otherwise the model
+  is refused. The hunk names the static-path routine that supplies the evidence.
+- **C2. Formed K′ and M′.**
+  - Each entry is at most 9 three-factor terms over the **full symmetric** global blocks, using
+    both M_ij and M_jiᵀ, since ModalMass stores only i ≤ j.
+  - Entries are accumulated exactly and rounded once. The lower triangle is formed and
+    mirrored, so the result is exactly symmetric.
+  - `stiffness_asymmetric_entries` stays measured on the global K, before the transform.
+- **C3. Check 1.** Its criterion covers formed K′ and M′ against the re-formed exact Q̃ᵀK̂Q̃ and
+  Q̃ᵀM̂Q̃: at most one extra rounding per entry, plus |Q̃|ᵀ|E||Q̃|.
+  - The difference measured on the AC-006 oblique case is reported.
+  - Q̃ is the same rounded basis on both sides and in the lift. No orthogonality of Q̃ is
+    assumed.
+- **C4. `free_dof_mass`.** With a basis it is aₖᵀM′aₖ, where aₖ = Q̃_fᵀrₖ, accumulated in Dd and
+  rounded once. For skew models it is labelled "kept-subspace mass". Unchanged nodes keep
+  today's value bit for bit.
+- **C5. Labels.** Rotated coordinates get their own labels (node plus skew coordinate index or
+  basis id), and non-skew coordinates keep today's. No diagnostic prints a global DOF name for
+  a mixed coordinate.
+- **C6. Reduced versus lifted.**
+  - On the reduced system: checks 1–3, Sturm, the τ_m census and structural masslessness on
+    M′. A massless coordinate means an exactly zero row and column of M′.
+  - On the lifted φ = Q̃φ′: τ_t (M1b), participation L = φ′ᵀQ̃ᵀ(M rₖ) with Q̃ᵀ(M rₖ) rounded
+    once from Dd, member and node reporting, and the dᵀφ = 0 test.
+  - Published shapes are lifted in binary64. Check 3's M̂′-orthogonality is the governing
+    measure and is not re-measured on global M.
+- **C7. Resources.** `dense_scrutiny_guard` stays on the global 6N, before any allocation.
+  - The kernel and its allotments see the reduced n′.
+  - Congruence formation and re-formation are countable as terms per entry (≤ 9, ≤ 4 in S-K1)
+    × entries.
+  - Per-node scratch goes through #110's reserve and limb accounting.
+- **C8.** `MODAL_DOCUMENT_SKEW_RESTRAINT_UNSUPPORTED` is raised in `modal_result_document`'s
+  caller, before `modal_doc_solved`, so §8.52's pin is untouched.
+  - It is registered wherever MODAL refusal codes are catalogued and tested.
+  - A refused model produces no document.
+- **C9.** Skew modal tests run under `test_local_parameters()` only. The production parameter
+  instance on `claude/rt-dynamics-instance` is not involved.
+
 ---
 
 ## 12. Pricing outlook (no tool run, no profile)
