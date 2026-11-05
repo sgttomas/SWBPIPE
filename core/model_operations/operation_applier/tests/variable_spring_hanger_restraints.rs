@@ -95,7 +95,9 @@ fn create_admits_an_actually_empty_list_for_an_explicit_translational_dof() {
         let record = hanger("variable_spring_hanger", json!(dof), json!([]));
         let created = applied(&base(), &create(&record));
         assert_eq!(canonical_json(&created["supports"][0]), canonical_json(&record), "{dof}: stored as authored");
-        // Undo (the inverse delete), redo (the same create) and save/reopen are exact.
+        // Inverse-operation checks (undo by the inverse delete, redo by the same create) and a
+        // canonical-serialization round trip. Desktop history and file save/open are integration
+        // evidence (the authoring lane's real-engine coverage), not claimed here.
         let undone = applied(&created, &delete(&record));
         assert_eq!(undone, base());
         let redone = applied(&undone, &create(&record));
@@ -117,7 +119,7 @@ fn the_reference_systems_rs_vs1_is_authored_as_stored() {
     without["supports"].as_array_mut().unwrap().remove(index);
     let created = applied(&without, &create(&record));
     let stored = created["supports"].as_array().unwrap().iter().find(|s| s["id"] == "support:RS-VS1").unwrap();
-    assert_eq!(canonical_json(stored), canonical_json(&record), "the fixture's record is authored byte for byte");
+    assert_eq!(canonical_json(stored), canonical_json(&record), "the fixture's record is authored with canonical JSON equality");
 }
 
 #[test]
