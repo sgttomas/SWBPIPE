@@ -2761,6 +2761,33 @@ mod ledger_tests {
         assert_eq!((ledger.total_bytes(), pool.reserved_total()), (0, 0));
     }
 
+    /// Review of #136 (non-blocking 1): the budget is the one the argument
+    /// lease was ADMITTED under, not the pool's setting when the ledger is
+    /// seeded. A budget change between that admission and the seed does not
+    /// move it, in either direction.
+    #[test]
+    fn a_budget_change_between_the_argument_admission_and_the_seed_does_not_move_the_captured_budget() {
+        let host = ScriptedHost::with(Some(64 * GIB), Some(1 << 50), PressureLevel::Normal);
+        let pool = pool(&host);
+        pool.configure(48 * GIB, 64 * MIB, false).unwrap();
+        let admitted = pool.acquire_interactive_capped(MIB).unwrap();
+        pool.configure(48 * GIB, 8 * MIB, false).unwrap();
+        let lowered = CommandLedger::seed(admitted);
+        assert_eq!(lowered.ledger().budget_bytes(), 64 * MIB, "lowered before the seed: the admitted 64 MiB stands");
+        let parse = lowered.ledger().acquire(32 * MIB, AdmissionClass::Adaptive).expect("under the admitted budget, not the lowered setting");
+        drop((parse, lowered));
+        let admitted = pool.acquire_interactive_capped(MIB).unwrap();
+        pool.configure(48 * GIB, 1 * GIB, false).unwrap();
+        let raised = CommandLedger::seed(admitted);
+        assert_eq!(raised.ledger().budget_bytes(), 8 * MIB, "raised before the seed: the admitted 8 MiB stands");
+        assert_eq!(
+            raised.ledger().acquire(8 * MIB, AdmissionClass::Adaptive).unwrap_err(),
+            CommandRefusal::OverBudget(OverBudget { required_bytes: 9 * MIB, budget_bytes: 8 * MIB })
+        );
+        drop(raised);
+        assert_eq!(pool.reserved_total(), 0);
+    }
+
     /// The crossing admission is refused by its total before the pool is
     /// asked; the boundary itself is admitted.
     #[test]
