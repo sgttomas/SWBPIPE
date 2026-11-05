@@ -7,8 +7,8 @@ references, source meaning and unrelated work; initialization alone starts none.
 
 ## Shared roles and methods
 
-Use the selected Chirality library, `/Users/ryan/dev/chirality` on this workspace
-or an owner-selected checkout of `https://github.com/sgttomas/chirality` elsewhere.
+Use the selected Chirality library, `/Users/ryan/dev/chirality-library` on this workspace
+or an owner-selected checkout of `https://github.com/sgttomas/chirality-library` elsewhere.
 Resolve shared `agents/` and `workflows/` paths against that library. Tool-use
 instructions are repository content kept beside the tool they instruct, not
 harness skills. Load the active role's `agents/AGENT_<ROLE>.md` and other method bodies
@@ -33,7 +33,7 @@ not update those inputs or establish product adoption.
 
 ## Coordination between projects
 
-Chirality Root (`sgttomas/chirality`), App v4 (`sgttomas/chirality-app`) and
+Chirality Root (`sgttomas/chirality-library`), App v4 (`sgttomas/chirality-app`) and
 SWBPIPE (`sgttomas/SWBPIPE`) each have one top-level Agent 0, working in its own
 T3 Code session. When work here needs Root or App v4, such as a shared interface, a
 library change a consumer will adopt, a defect found in the other project, or a
