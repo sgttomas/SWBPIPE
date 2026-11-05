@@ -187,6 +187,20 @@ const presentationTable = (value: unknown): ContractBinding | null | undefined =
 const sameTable = (decoded: ContractBinding | null | undefined, own: ContractBinding | null): boolean =>
   decoded !== undefined && (decoded === null || own === null ? decoded === own : decoded.id === own.id && decoded.sha256 === own.sha256);
 
+/** Strict Unicode scalar-value (code point) order: Rust's `String` order, its UTF-8 bytes, in which
+ * `diagnostics_presentation` sorts the population. JavaScript's `<` compares UTF-16 code units and
+ * disagrees for a supplementary-plane character against U+E000..U+FFFF (review of #143), so it is
+ * not used. Equal strings are not less, so a duplicate is refused. */
+export function codePointLess(a: string, b: string): boolean {
+  const left = a[Symbol.iterator](), right = b[Symbol.iterator]();
+  for (;;) {
+    const x = left.next(), y = right.next();
+    if (x.done || y.done) return Boolean(x.done) && !y.done;
+    const cx = x.value.codePointAt(0)!, cy = y.value.codePointAt(0)!;
+    if (cx !== cy) return cx < cy;
+  }
+}
+
 /** The diagnostics presentation facts of a native handle, or null (fail closed: the classifier then
  * quotes every message) when they are missing, malformed or not this handle's: a disposed custody,
  * or a binding (the held bytes' length, the route and its table, the recorded table the handle
@@ -201,7 +215,7 @@ export function nativeDiagnosticsPresentation(result: NativeResult): NativeDiagn
   const binding = facts.binding, ids = facts.combination_identities;
   if (!plain(binding) || !exact(binding, PRESENTATION_BINDING_KEYS)) return null;
   if (typeof facts.roster_checked !== "boolean" || typeof facts.certificate_attested !== "boolean") return null;
-  if (!Array.isArray(ids) || !ids.every((id, i) => typeof id === "string" && id !== "" && (i === 0 || (ids[i - 1] as string) < id))) return null;
+  if (!Array.isArray(ids) || !ids.every((id, i) => typeof id === "string" && id !== "" && (i === 0 || codePointLess(ids[i - 1] as string, id)))) return null;
   // The route reader's acceptance is read only for a population, and never on a retained successor,
   // whose certificate attestation it excludes.
   if ((facts.roster_checked && ids.length === 0) || (facts.roster_checked && facts.certificate_attested)) return null;

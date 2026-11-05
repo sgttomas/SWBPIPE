@@ -21,6 +21,7 @@ import {
   createNativeResult,
   forgetNativeJob,
   nativeCustody,
+  codePointLess,
   nativeDiagnosticsPresentation,
   NATIVE_GUARDED_MEMBERS,
   NativeResultRowsGuarded,
@@ -62,6 +63,10 @@ const SHARED_ID = JSON.stringify(documentOf("pf_shared_id").document);
 const TAMPERED = withNote(documentOf("pf_held"), note([firstCombination(CANONICAL)], "diagnostic:review:claim"));
 const SHARED_ID_TAMPERED = withNote(documentOf("pf_shared_id"), note([firstCombination(SHARED_ID)], "diagnostic:review:shared"));
 const PROSE = withNote(documentOf("pf_held"), note(["model"], "diagnostic:review:prose", "Supplied prose naming no combination."));
+// Review of #143: a canonical source whose combination identities differ at one character, U+E000
+// against U+10000 (both admitted model identities), where Rust's order (code points, its UTF-8 bytes)
+// and JavaScript's UTF-16 `<` disagree.
+const UNICODE = CANONICAL.replaceAll("comb:double", "comb:\uE000").replaceAll("comb:own", "comb:\u{10000}");
 const RETAINED = JSON.stringify((successor as Json).source);
 const RETAINED_LEGACY = JSON.stringify((legacySuccessor as Json).source);
 const NO_COMBINATIONS = readFileSync(resolve(ROOT, "fixtures/results/preview_physics_connected_sparse.json"), "utf8");
@@ -153,6 +158,34 @@ describe("a native handle's Diagnostics are the whole value's", () => {
     expect(interpretation(handle)).toBe(interpretation(whole));
   });
 
+  it("decodes a population ordered by code point (Rust's order), where UTF-16 order disagrees, and keeps list and explanation parity", async () => {
+    const whole = receivedFromText<MechanicsResult>(UNICODE);
+    const ids = [...documentCombinationIdentities(whole)];
+    const byCodePoint = [...ids].sort((a, b) => (codePointLess(a, b) ? -1 : codePointLess(b, a) ? 1 : 0));
+    // The case discriminates: UTF-16 order is not code point order on these identities.
+    expect([...ids].sort()).not.toEqual(byCodePoint);
+    expect(ids.some((id) => id.includes("\uE000")) && ids.some((id) => id.includes("\u{10000}"))).toBe(true);
+    const handle = await restoredHandle(UNICODE);
+    const facts = nativeDiagnosticsPresentation(handle)!;
+    expect(facts).not.toBeNull();
+    expect([...facts.combinations]).toEqual(byCodePoint);
+    expect(facts.rosterChecked).toBe(rosterCheckedByReader(whole));
+    const { proxy, reads } = watched(handle);
+    expect(presentedResultDiagnostics(proxy)).toEqual(presentedResultDiagnostics(whole));
+    expect(guardedReads(reads)).toEqual([]);
+    // Every diagnostic's list entry and classified explanation message; the last one's whole explanation
+    // (as the cases above: a native explanation's linked-row sentence comes from an asynchronous row lookup).
+    for (const selected of whole.diagnostics) {
+      expect(shown(handle, selected).listed).toEqual(shown(whole, selected).listed);
+      const interpretation = (result: MechanicsResult | NativeResult) => buildDiagnosticInterpretation({ model: panelModel(whole), knowledge: null, result, diagnosticId: selected.id! })!.message;
+      expect(interpretation(handle)).toBe(interpretation(whole));
+    }
+    const last = whole.diagnostics.at(-1)!;
+    expect(shown(handle, last)).toEqual(shown(whole, last));
+    // A duplicate and a UTF-16-ordered list are refused (fail closed).
+    expect(codePointLess(ids[0], ids[0])).toBe(false);
+  });
+
   it("copies a registered retained successor's certificate notices only on the whole value (no native registration exists)", async () => {
     const doc = structuredClone(successor) as unknown as { source: MechanicsResult; invocation: unknown };
     const handle = await restoredHandle(RETAINED);
@@ -165,6 +198,16 @@ describe("a native handle's Diagnostics are the whole value's", () => {
     // certificate notices quoted with every other message.
     expect(nativeDiagnosticsPresentation(handle)!.certificateAttested).toBe(false);
     expect(presentedResultDiagnostics(handle)).toEqual(unregistered);
+  });
+
+  it("reads a registered retained successor without the certificate member as the native handle does (nothing to attest)", async () => {
+    const doc = structuredClone(legacySuccessor) as unknown as { source: MechanicsResult; invocation: unknown };
+    const handle = await restoredHandle(RETAINED_LEGACY);
+    await registerRetainedPrecision(doc.source, doc.invocation);
+    // Registered, but without the member: the whole value attests no certificate notice either.
+    expect(certificateAttestedByRetainedReader(doc.source)).toBe(false);
+    expect(nativeDiagnosticsPresentation(handle)!.certificateAttested).toBe(false);
+    expect(presentedResultDiagnostics(handle)).toEqual(presentedResultDiagnostics(doc.source));
   });
 
   it("reads a historical run restored under its recorded table (the tenth registry variant) as the whole value", async () => {

@@ -81,6 +81,8 @@ pub(crate) fn facts(text: &str, source: &Value, recorded: Option<RecordedTable>,
         Err(_) => (rv::UNSUPPORTED, Value::Null),
     };
     let mut identities: Vec<String> = open_pipe_stress_result_export::document_combination_identities(source).into_iter().collect();
+    // Unicode scalar-value order (a `String`'s UTF-8 byte order), the order the webview decoder
+    // requires (`nativeResult.ts` `codePointLess`; review of #143: not UTF-16 code-unit order).
     identities.sort_unstable();
     let retained = source.get("retained_precision").is_some();
     let roster_checked = !identities.is_empty()
