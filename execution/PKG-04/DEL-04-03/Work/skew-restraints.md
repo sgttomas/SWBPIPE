@@ -1,6 +1,9 @@
 # Skewed restraints (R-6, R-7): build design, shared interface and first-implementation brief
 
-> **Status: candidate design, not independently reviewed.** Design and references only: no product
+> **Status: candidate design, revision 2.** Revision 1 (`24f343662`) was reviewed independently
+> (gpt-6-astra, medium): no P0; this revision applies its P1-1 to P1-3 and P2-4, P2-5, and the two
+> required statements (§4.3 I3 and §10.1), and records Agent 0's C-3 decision. It has not been
+> re-reviewed. Design and references only: no product
 > or kernel code is changed by it. It builds on the adopted kernel design (DEL-05-02 Work
 > `operating-case.md` §0 rows R-6, R-7 and "Skew kernel scheduled"; §2.1–§2.6; §6.2) and
 > does not reopen it. It changes numerical meaning when built, so it takes targeted references
@@ -26,12 +29,12 @@ adapter), DEL-04-09 (modal), DEL-02-01 (the applier's authoring of `direction`) 
 |---|---|
 | First build slice (S-K1) | PF route, models with no nonlinear support, both solver modes, K-D5 included. Admits skewed `spring` records (any number per node) and at most one skewed rigid `line_stop` per node. The stop may share its node with axis rigid restraints held at zero, axis springs and rotational restraints. Everything else is refused by an exact named code (§2). |
 | Shared interface | `open_pipe_stress_frame_kernel::restraint_basis::RestraintBasis`, a new FK module, built by LSUP. One constructor, one congruence-term enumeration, one lift and one attribution. Static, K-D5, modal and (later) NI all call them (§3). |
-| Authored vector | Stored as authored. The canonical form is d̃ = 2^s·d with max\|d̃_i\| ∈ [1, 2). It is admitted iff every nonzero d̃_i is normal; otherwise `SUPPORT_DIRECTION_RANGE_UNSUPPORTED`, with no rounding and no tolerance. Power-of-two rescalings are bit for bit invariant. Positive rescalings keep the exact system. Negation keeps u and R and negates the along-direction scalar (§4). |
+| Authored vector | Stored as authored. The canonical form is d̃ = 2^s·d with max\|d̃_i\| ∈ [1, 2). It is admitted iff every nonzero d̃_i is normal; otherwise `SUPPORT_DIRECTION_RANGE_UNSUPPORTED`, with no rounding and no tolerance. Power-of-two rescalings are bit for bit invariant. Positive rescalings keep the exact system. Negation keeps the exact u and R (bit for bit only under the solve's sign-symmetry premise P-SYM, which a test checks) and negates the along-direction scalar (§4). |
 | Rank | Per node and exact. S-K1 needs no arithmetic: with axis rows A and one stop, the rank is \|A\| + [d̃_F ≠ 0] on the free axes F. S-K2's joint case decides rank by exact 2×2 and 3×3 minors. A dependent set is `SUPPORT_CONSTRAINT_REDUNDANT`. A near-dependent set is admitted when exactly independent, as an exact reduction (§5). |
-| Reactions | Global support-on-pipe components, plus a new row `support_reaction_along_direction_v1` (N, positive along authored +d). Attribution comes from the unique multipliers, never from a split (§7). |
+| Reactions | Global support-on-pipe components, plus a new row `support_reaction_along_direction_v1` (N, positive along authored +d). Attribution comes from the unique multipliers, never from a split. It is range-safe: the restricted direction is rescaled exactly before its norm is formed. Physical reaction rows include every skewed spring block (§7, §10.5). |
 | Certificate | K-D5's existing machinery on the transformed system QᵀK_intQ, with exact splits for triple products and the existing `SPLIT_EXACT_MIN` premise. The binary64 factorization and correction are unchanged. The member bound is lifted to physical DOFs with one new per-DOF lift radius. No new certificate is introduced (§10). |
 | Pricing | The retained route never admits `direction` (D1 premise), so every skew arm is zero on D1. Pinned identity-path bodies and some layouts change, so a D3 actual-source turn is needed (§12). |
-| Exact obstacles | None that blocks S-K1. Three reserved choices are raised in §14: the meaning of imposed motion on a skewed record, the order of later slices, and whether an exact fallback should widen the range rule. |
+| Exact obstacles | None that blocks S-K1. Two reserved choices are raised in §14: the meaning of imposed motion on a skewed record (C-1, open for the owner) and the order of later slices (C-2). C-3 is decided: keep the range refusal. |
 
 ---
 
@@ -114,6 +117,7 @@ penalty spring.
 | 8 | `SUPPORT_CONSTRAINT_REDUNDANT` (adopted name, blocking) | Boundary preparation. §5's exact rank is below the node's row count | Permanent (attribution would not be unique) |
 | 9 | `SUPPORT_SKEW_NODE_PRESCRIBED_MOTION_UNSUPPORTED` (new, blocking for the case) | Case solve, before reduction. A nonzero prescribed translation on an axis restraint at a skewed stop's node (W-16 primitive or load-state motion) | S-K3 (affine reduction, §8.3) |
 | 10 | `SUPPORT_DIRECTION_SKEW_FORCE_SCALED_UNSUPPORTED` (new, blocking for the case) | Case solve. A skew model's ordinary formation leaves the binary64 range (`RangeDeferred`) or would need W2/K2b. The ordinary failure is published as today and W2 is not attempted | S-K2 |
+| 11 | `SUPPORT_SKEW_REACTION_RANGE_UNSUPPORTED` (new, blocking for the case) | Case publication. A constrained node's multiplier, attributed component or along-direction value leaves the binary64 range (§7.2) | Permanent (a genuine out-of-range result) |
 
 Also unchanged:
 - `SNUBBER_DYNAMIC_ONLY_UNSUPPORTED` refuses every static snubber; DEL-04-10 consumes the basis.
@@ -125,7 +129,7 @@ Also unchanged:
 **Order within a stage.** Skew admission runs in `judge` and gives one code per record, in
 document order, the first that applies of 2, 3, 4. Boundary preparation is per node, in
 ascending node order, the first that applies of 6, 7, 8, and reports every node. Case-level
-codes 9 and 10 are per case. A record refused at one stage does not reach later stages, because
+codes 9 to 11 are per case. A record refused at one stage does not reach later stages, because
 the stage's blocking return stops the solve.
 
 `SUPPORT_DIRECTION_SKEW_UNSUPPORTED` is no longer emitted by S-K1. Its constant is kept for the
@@ -315,17 +319,30 @@ Let d be admitted and c ≠ 0 with d′ = c·d exactly representable (each c·d_
   K-D5 bounds, when established, contain the same exact values. Examples: d = (3,4,0) with
   (9,12,0) and (2.25,3,0); (1,2,0) with (0.1, 0.2, 0), whose binary64 components are exactly
   in ratio 1 : 2.
-- **(I3) Negation, c = −1: u and the global reactions are bit for bit identical up to the sign
-  of a zero, and the along-direction scalar is exactly negated.**
-  - d̃′ = −d̃ and m′ = m. Q′ negates the columns j ≠ m and keeps e_m.
-  - K′′ = Q′ᵀKQ′ equals K′ except that each entry in exactly one negated index changes sign
-    (exactly, since negation is exact). So the reduced system is DK′_ffD v′ = D f′_f with
-    D = diag(±1). The binary64 solves are sign-symmetric under round-to-nearest-even, so
-    v′ = D v bit for bit, and u′ = Q′v′ = Q v.
-  - R = K u − f is unchanged. The scalar s′ = R·d̃′/|d̃′| = −s.
+- **(I3) Negation, c = −1.**
+  - **Guaranteed.** d̃′ = −d̃ and m′ = m, so the constraint set and spring blocks are identical,
+    and so are the exact u* and R*. The exact along-direction scalar is exactly negated:
+    R*·d̃′/|d̃′| = −s*. Both cases' established K-D5 bounds contain these same exact values, and
+    their binary64 outputs agree within those bounds.
+  - **Bit for bit, only under premise P-SYM.** Q′ negates the columns j ≠ m and keeps e_m. So
+    K′′ = Q′ᵀKQ′ = D K′ D and f′′ = D f′ with D = diag(±1), and negation of a binary64 value is
+    exact. Bitwise equality v′ = D v (hence u′ = Q′v′ = Q v, R′ = R, s′ = −s) holds only if every
+    step from K′ and f′ to the published values commutes with D. **P-SYM:**
+    - each operation is odd in its sign-flipped inputs: products and sums of binary64 values
+      under round-to-nearest-even, Cholesky on D K′ D (its factor is D L, with the same
+      pivots);
+    - no branch depends on a value's sign. Magnitude-only choices such as equilibration
+      exponents and pivot screens are sign-free; a comparison against a signed value would not
+      be;
+    - the reduction, the K-D5 correction and the lift form the same exact sums up to sign, and
+      `ExactAccumulator::round` is symmetric except that it never returns −0.0.
 
-  Signed zeros may differ. A review point for the implementation is to normalize published
-  zeros as today.
+    The premise is not proved here for every product path (sparse and dense, M03, W-paths), so
+    it is a stated premise with a maintained test: `restraint_basis_tests.rs` and
+    `skew_restraints_references.rs` assert bitwise u and R (up to the sign of a zero) and the
+    exactly negated scalar for the `invariance.negation` pairs, in both solver modes. If an
+    implementation cannot meet the test, As built records the guaranteed claim only, and the
+    code is not changed merely to pass it.
 - **(I4) Non-representable factors** are not rescalings of an authored binary64 vector; the
   user authors whatever binary64 vector they mean.
 
@@ -336,13 +353,10 @@ The references hold groups for I1 to I3 (`invariance`, `direction_policy`).
 An inexact canonical scaling means the components span more than the normal range: the ratio
 max/min is at least 2^1023. No exact power-of-two scaling then puts the largest component in
 [1, 2) and keeps every component normal. Every other power-of-two scaling has the same span.
-The adopted design's fallback is the refusal by name
-(`SUPPORT_DIRECTION_RANGE_UNSUPPORTED`), and it is kept. Its message names the subnormal
-component and states that an axis-aligned direction is the authored form if that axis is meant.
-
-A wider exact fallback exists (§14 C-3). It scales so the *smallest* nonzero component is
-normal, and lets formation's own finite checks refuse a too-large entry. It needs no threshold,
-but it widens formation and certificate ranges, so it is raised, not adopted.
+The fallback is the refusal by name (`SUPPORT_DIRECTION_RANGE_UNSUPPORTED`), as the adopted
+design states and as Agent 0 decided (C-3, 2026-11-04: keep the refusal). Its message names the
+subnormal component and states that an axis-aligned direction is the authored form if that axis
+is meant. Scaling so the smallest component is normal was considered and is not adopted.
 
 ---
 
@@ -507,15 +521,37 @@ under `has_constraint_transform()`. With `None`, PP, FK, NI and modal execute to
 
 At a constrained node, let r = (K u − f) on its three translations, where u is the lifted
 displacement and each row is one exact sum rounded once, as `restrained_reactions`.
-- **Stop.** λ̃ = (Σ_{i∈F} d̃_i r_i) / n_F, with the numerator an exact dot rounded once and
-  n_F = Σ_{i∈F} d̃_i² exact rounded once. In exact arithmetic r_F = λ̃ d̃_F, so this is the unique
-  multiplier, not a split. Then R_i = fl(λ̃·d̃_i) and s = fl(λ̃·|d̃|), with |d̃| from
-  `correct_norm::norm3`.
-- **Axis record a ∈ A.** fl(r_a − λ̃·d̃_a), as an exact sum rounded once.
+- **Stop: range-safe multiplier (review P1-1).** n_F = Σ_{i∈F} d̃_i² is not formed directly. It
+  can underflow in an admitted, well-defined case: d = (1, 2⁻⁶⁰⁰, 0) with UX and UZ held gives
+  n_F = 2⁻¹²⁰⁰, which rounds to 0, although the rank is exactly 3 and the true multiplier is
+  2⁶⁰⁰ per unit d̃. Instead the restricted direction is rescaled exactly:
+  - ŝ ≥ 0 is the exponent with max_{i∈F}|d̃_i|·2^ŝ ∈ [1, 2). d̃_F ≠ 0 by §5.1, and every nonzero
+    d̃_i is normal by §4.2, so ŝ ≤ 1022.
+  - w = 2^ŝ·d̃ on all three axes. It is exact: scaling up never loses bits, and |w_a| < 2^1023
+    for a ∈ A, so nothing overflows.
+  - n_w = Σ_{i∈F} w_i² ∈ [1, 12), formed exactly and rounded once, so it never underflows.
+  - μ = fl(N_w)/n_w, with N_w = Σ_{i∈F} w_i r_i an exact dot rounded once. μ is the multiplier
+    per unit w; per unit d̃ it is 2^ŝ·μ. In exact arithmetic r_F = μ w_F, so μ is the unique
+    multiplier, not a split.
+  - **Stop components:** R_i = fl(μ·w_i) for every i.
+  - **Along-direction value:** s = round(2^ŝ·μ·ν), with ν = `correct_norm::norm3(d̃)`
+    (correctly rounded, in [1, 2√3)). The exact product μ·ν is formed in an `ExactAccumulator`
+    and rounded once by `round_scaled(ŝ)`.
+  - **Range.** N_w, a component or s that leaves the binary64 range is a genuine
+    out-of-range reaction. It is refused for the case by name,
+    `SUPPORT_SKEW_REACTION_RANGE_UNSUPPORTED` (§2.2 item 11), never flushed or published as
+    infinite.
+  - **Regression:** `R4_tiny_restricted_direction` in `kernel` (r_y = 1 N; stop (2⁶⁰⁰, 1, 0) N,
+    UX −2⁶⁰⁰ N, s = 2⁶⁰⁰·√(1 + 2⁻¹²⁰⁰), whose binary64 value is 2⁶⁰⁰) and its product twin.
+- **Axis record a ∈ A.** fl(r_a − μ·w_a), as one exact sum (r_a plus the exact product −μ·w_a)
+  rounded once.
 - **Skewed spring.**
   - t = d̃ᵀ(u − 0) is an exact dot, rounded once. The ground is fixed in S-K1; S-K3 adds g.
-  - μ = fl(fl(k·t)/n).
-  - R_i = fl(−μ·d̃_i) and s = −fl(fl(k·t)/|d̃|).
+  - Both values branch from the one product κ = fl(k·t); there is no chained division.
+  - Components: R_i = fl(−fl(κ/n)·d̃_i), where n = d̃ᵀd̃ is formed exactly and rounded once.
+    This is −k t d̃_i/n.
+  - Along-direction value: s = −fl(κ/ν), with ν = `correct_norm::norm3(d̃)`. This is −k t/|d̃|.
+  - For `S1_spring_isotropic`: R = (6/25, 8/25, 0) P and s = +2/5 P.
 - Units are N, as for the force components. Rotational skew is refused.
 
 ### 7.3 Transformed loads
@@ -543,23 +579,58 @@ The partition carries them unchanged: their DOFs are axis coordinates.
 
 ### 8.3 S-K3 (designed; the meaning of item 5 is reserved, §14 C-1)
 
-- **Affine reduction.** u = u₀ + Q v with C u₀ = g. Choose u₀ = Σ_a g_a e_a + Δ, where:
-  - the axis-restrained values g_a sit at their DOFs;
-  - Δ is the stop ground's particular solution;
-  - Q is unchanged.
+**The constraint right-hand side first, then the particular solution (review P2-5).** A
+motion primitive on a skewed record does not supply a particular solution. It supplies the stop
+row's right-hand side h, so the node's constraints are C u = (g_A, h). Here g_A are the axis
+rows' prescribed values, from their own W-16 primitives or load-state motion. In scaled form the
+stop row reads d̃ᵀu = h̃ with h̃ = 2^s·h. Only after that is the complete system C u₀ = (g_A, h̃)
+solved for u₀:
 
-  The right-hand side becomes Qᵀ(f − K u₀). K-D5's residual and the lift carry u₀ exactly.
-  Example: `K3_moving_guide_plus_stop`, with UZ at h and stop (3,4,5), gives 3u_x + 4u_y = −5h.
-- **Meaning A (exact, division-free; recommended).** A primitive on a skewed record with target
-  DOF a moves the stop's ground by g along the global axis a: Δ = g e_a, so dᵀu = d_a g. For a
-  skewed spring, the force is −k d̃ d̃ᵀ(u − g e_a)/n and the formed load is k g d̃ d̃_a/n
-  (certified division, as the block). Reference: `K3_stop_ground_meaning_A`.
-- **Meaning B (the adopted §2.4 reading).** g along +d/|d|, so dᵀu = |d| g, with |d| generally
-  irrational. u₀ = (g/|d|)·d is carried as a p-ball, and its radius enters the residual's ψ, as
-  load re-formation radii do. Reference: `K3_stop_ground_meaning_B` (d = (3,4,0), |d| = 5).
+- **The particular solution (one stop, axis rows A, pivot m ∈ F).** u₀ = Σ_{a∈A} g_a e_a + τ e_m,
+  with τ = (h̃ − Σ_{a∈A} d̃_a g_a)/d̃_m.
+  - It satisfies every row exactly: e_aᵀu₀ = g_a and d̃ᵀu₀ = h̃.
+  - τ is an exact datum, but generally not a binary64 value: it is a quotient by d̃_m ∈ [1, 2),
+    and under meaning B also irrational.
+  - The solve uses τ_b, a binary64 value inside a certified ball [τ] formed in `WideArith` from
+    the exact numerator, the exact d̃_m and, for B, the certified square root.
+- **The affine reduction.** u = u₀ + Q v with Q unchanged. The right-hand side becomes
+  Qᵀ(f − K u₀).
+  - K-D5 evaluates the intended right-hand side with u₀'s exact part and τ's ball. The term
+    K_int e_m τ_b enters ρ exactly, and |K_int e_m|·rad([τ]) enters ψ, as load re-formation
+    radii do.
+  - The lift publishes fl(u₀_b + Q v). Its lift radius also carries rad([τ]) on DOF m.
+  - The intended u* = u₀ + Q v* satisfies C u* = (g_A, h̃) exactly.
+  - S-K2's joint nodes solve C u₀ = g on §5.3's attribution minor by exact Cramer numerators,
+    with one certified division per component.
+- **A moving axis restraint alone** is h = 0 with g_A ≠ 0. Example: `K3_moving_guide_plus_stop`:
+  UZ at h = 2⁻¹⁰ and stop (3,4,5) give 3u_x + 4u_y = −5h.
 
-Both are exact designs. The choice changes the authoring contract's meaning, so it is not this
-design's.
+**The two candidate meanings of a primitive on a skewed record (§14 C-1, open for the owner).**
+Each defines h only; the particular solution then follows from the complete system above.
+
+- **Meaning B (the adopted §2.4 reading; the reviewer prefers it).**
+  - A primitive moves the record's ground by g along +d/|d|. So h = |d|·g, equivalently
+    h̃ = |d̃|·g, which is scale-free. It is generally irrational, carried as a certified ball;
+    no rounded |d| defines the constraint.
+  - A skewed spring under B acts with −k d̃(d̃ᵀu − |d̃| g)/n, with formed load k g d̃/|d̃|.
+  - References with irrational norms, as exact values a + b√q:
+    - `K3_B_plane_13` (d = (1,3,0), |d| = √10);
+    - `K3_B_guide_plus_stop_345` (UZ held, d = (3,4,5), |d| = 5√2);
+    - `K3_B_moving_guide_plus_stop_345` (UZ moved and the ground moved, both nonzero);
+    - the rational control `K3_stop_ground_meaning_B` (d = (3,4,0)).
+- **Meaning A (valid only if the owner deliberately chooses global-axis ground motion).**
+  - A primitive with target DOF b moves the record's ground by the vector Δ = g e_b. So
+    h = dᵀΔ = d_b·g, exact and division-free in h.
+  - Δ is the ground's displacement, **not** a particular solution. With UX held and a stop
+    (3,4,0) whose ground moves along X by g, Δ = g e_x would violate UX. The complete system
+    gives u_x = 0 and u_y = 3g/4 (`K3_A_ground_x_with_ux_held`).
+  - A skewed spring under A acts with −k d̃ d̃ᵀ(u − g e_b)/n, with formed load k g d̃ d̃_b/n.
+  - References: `K3_stop_ground_meaning_A`, `K3_A_ground_x_with_ux_held`,
+    `K3_A_guide_plus_stop_ground_y` and the product twin `P_K3_A_ground_x_with_ux_held`.
+
+The meanings differ in what the authored primitive says. B keeps the adopted directional-motion
+meaning; A reinterprets the target DOF as a global ground axis. The choice is the owner's, and
+this design does not recommend A over B.
 
 ---
 
@@ -597,6 +668,19 @@ intended system. Its premises are stated below; each failure demotes the case by
   binary64 entries) and u₀ = 0 in S-K1.
 - For every v, u = Q v satisfies dᵀu = 0 exactly, in exact arithmetic, so the constraint is the
   authored one (R-6). The rounded-division mutant is killed by `mutant`.
+- **What is exact, what is published, and what the certificate covers (stated as the review
+  requires).**
+  - **Exact.** The **unrounded** lift u = Q v, for the binary64 coordinates v the solve returns,
+    satisfies dᵀu = 0 exactly. Tests check this with an `ExactAccumulator`, and the mutant fails
+    it.
+  - **Published.** Displacement rows are, as for every PF case, the ordinary binary64 solution:
+    here u_p = fl(Q v), each component rounded once. u_p need **not** satisfy dᵀu_p = 0 exactly;
+    |d̃ᵀu_p| ≤ Σ_i |d̃_i|·½ulp(u_p,i) (× 2^−s for the authored d), and tests check that bound.
+  - **Covered by the certificate.** K-D5's established groups (members, stations, reactions and
+    along-direction values) enclose values of the intended exact solution u* = Q v*, where v*
+    solves the intended reduced system and so lies on the constraint plane. They use
+    u_p + w_p + w₂,p, the lift radius and the remainder (§10.4). The certificate makes no claim
+    that the published u_p lies on the plane, and none that displacement rows are corrected.
 
 ### 10.2 The residual rows ρ (`evaluate`, `subtract_action`)
 
@@ -646,7 +730,11 @@ entries, used by the M03 gate and the dense-scrutiny contribution audit: Σ|q_ir
   - **`lift_radius`** (new field, `Vec<f64>`, empty meaning zero everywhere) is
     |exact(Q(v + w + w₂)) − u_p − w_p − w₂,p| rounded up;
   - exponent E_i is the least integer with 2^E_i ≥ Σ_j |q_ij|·2^(exp_j), over free coordinates j
-    (exact dyadic sum). It stays `i32::MIN` at axis-restrained DOFs.
+    (exact dyadic sum). **When that sum is zero, E_i = `i32::MIN`** (review P2-4): no free
+    coordinate maps to DOF i, so u_i is exactly prescribed and has no remainder. This covers
+    every axis-restrained DOF and the pivot of a stop-fixed node (|F| = 1, e.g.
+    `R4_full_fix_one_free_axis`, where u_m = 0 exactly). Its lift values and lift radius are
+    then exactly 0.
 - **`evaluate_row_inner`** adds ku·lift_radius[i] to the radius (no change when empty).
 - Premise **P3**: the coordinate remainder bound |e_v,j| ≤ 2^(exp_j)·λ_σ maps to
   |Q e_v|_i ≤ 2^(E_i)·λ_σ, and lift_radius encloses the lift's rounding. So every existing
@@ -654,19 +742,40 @@ entries, used by the M03 gate and the dense-scrutiny contribution audit: Σ|q_ir
 
 ### 10.5 Certified reactions (FK `certified_recovery.rs`)
 
+- **Physical reaction rows include every skewed spring block (review P1-2).**
+  `certify_support_reaction` today accumulates element rows and axis springs only. When
+  `source.restraint` is `Some`, it also accumulates, after the axis springs, each skewed spring
+  block touching the row's DOF. The block's intended entries are the p-formed k·d_i d_j/(dᵀd)
+  of §6.1, as balls. They are applied to u + w + w₂ with the lifted bound: physical exponents
+  E_i and the lift radius.
+  - This applies to the three translation rows at a stop's node, and to every axis reaction at
+    a node carrying a skewed spring, with or without a stop.
+  - Omitting the block is a defect, not a tolerance matter. In `RS_stop_and_spring` (stop
+    (3,4,0), spring (0,3,4)), dropping the block leaves r_z = 54/553 P against a stop direction
+    with no z component, so attribution's consistency check fails on a valid case. The
+    references record the omitted-block row (`regressions.reaction_rows_include_skew_springs`).
+  - With `restraint: None` the function is unchanged.
 - **`certify_node_attribution(source, force, basis, node, u, bound) -> CertifiedNodeAttribution`.**
-  - r_i = `certify_support_reaction` at each of the node's three translations. At the pivot DOF,
-    the exponent from §10.4 includes the remainder; free coordinates have no prescribed columns.
-  - λ̃ = (Σ_{i∈F} d̃_i r_i)/n_F in ball arithmetic: exact d̃, an exact n_F, and the certified
-    division of `WideArith`.
-  - Consistency: each |r_i − λ̃ d̃_i| for i ∈ F must be within the balls' radii. Otherwise
+  - r_i is the extended `certify_support_reaction` at each of the node's three translations. At
+    the pivot DOF the exponent from §10.4 includes the remainder, unless the node is fixed
+    (`i32::MIN`).
+  - **The multiplier is range-safe, as in §7.2 (review P1-1).** w = 2^ŝ d̃ is exact, and
+    n_w = Σ_{i∈F} w_i² ∈ [1, 12) is exact. μ = (Σ_{i∈F} w_i r_i)/n_w in ball arithmetic, by the
+    certified division of `WideArith`. Wide2's exponent is i64, so no intermediate leaves its
+    range.
+  - Consistency: each |r_i − μ w_i| for i ∈ F must be within the balls' radii. Otherwise
     `RecoveryFailure` "restraint_basis: reaction not along the constraint", which leaves the
     record unavailable, as any recovery failure does.
-  - Stop rows: λ̃ d̃_i. Axis rows: r_a − λ̃ d̃_a. The along-direction row: λ̃·|d̃|, with a
-    certified square root as in `certified_magnitude`.
-- **`certify_skew_spring_reaction(spring, u, bound)`.** Mirrors `certify_spring_reaction`:
-  d̃ᵀ(u + w + w₂) by exact products per term, with the lift radius and remainder, then
-  × −k ÷ n, components × d̃_i, and the along-direction ÷ |d̃|.
+  - Stop rows: μ·w_i. Axis rows: r_a − μ·w_a. The along-direction row is μ·2^ŝ·|d̃|, with a
+    certified square root as in `certified_magnitude` and an exact `mul_pow2`.
+  - A published value outside binary64 is §2.2 item 11.
+- **`certify_skew_spring_reaction(spring, u, bound)` (review P1-3).** It mirrors
+  `certify_spring_reaction`. t = d̃ᵀ(u + w + w₂) is formed by exact products per term, with the
+  lift radius and remainder, and κ = −k·t is a ball. **Both outputs branch from κ:**
+  - components: κ·d̃_i/n (n = d̃ᵀd̃ exact), i.e. −k t d̃_i/n;
+  - along-direction: κ/|d̃| (certified square root), i.e. −k t/|d̃|.
+
+  No output divides by n and then by |d̃|. `S1_spring_isotropic` pins +2/5 P, not 32/125 P.
 - `certified_publication::support_record` gains the group `along_direction` (one row) for a
   skewed record. Readers re-check s·|d| = dᵀR within the published bounds (§11 R-1).
 
@@ -778,14 +887,30 @@ two independent routes (KKT and RREF nullspace). Contents:
 - **`direction_policy`:** 30 authored vectors with the expected class, scale, canonical vector,
   pivot, T and Q bits, or refusal code. The canonical T and Q are checked bit for bit.
 - **`invariance`:** I1 to I3 groups.
-- **`kernel`:** §2.6's S-1, S-2, R-1 to R-4; the S-K1 reductions, redundant and near-dependent
-  cases; the S-K2 joint, orthogonal, oblique, near-parallel, parallel, antiparallel and
-  three-stop cases; the S-K3 moving guide and both ground-motion meanings.
+- **`kernel`:**
+  - §2.6's S-1, S-2, R-1 to R-4;
+  - the S-K1 reductions, redundant and near-dependent cases, and the range regression
+    `R4_tiny_restricted_direction` (n_F rounds to 0; n_w = 1);
+  - per single-stop case an `attribution` block: F, the pivot on F, ŝ, w, n_w, μ, each physical
+    translation's free coordinates or `i32::MIN`, and the particular solution u₀;
+  - the S-K2 joint, orthogonal, oblique, near-parallel, parallel, antiparallel and three-stop
+    cases;
+  - S-K3: the moving guide; meaning A alone and with axis rows (`K3_A_ground_x_with_ux_held`,
+    `K3_A_guide_plus_stop_ground_y`); meaning B as a rational control and with irrational norms
+    (`K3_B_plane_13`, `K3_B_guide_plus_stop_345`, `K3_B_moving_guide_plus_stop_345`), given
+    exactly as a + b√q with correctly rounded binary64 values.
 - **`mutant`:** fl(1/3), with residual 2^−54 per unit coordinate.
 - **`product`:** the guided cantilever (anchor, rotations held at B); exact u_B and every
   record's reaction for the S-K1 springs and stops (scaled, ×3, negated, plane (1,3,0), joint
   with UZ, full fix, redundant, stop + spring), the axis twins, S-K2 and S-K3.
 - **`modal_kernel`:** a point mass with a stop or a spring, exact ω².
+- **`regressions`:** the review's findings on revision 1, each asserted exactly by the generator:
+  - `spring_along_direction`: −k t d̃_i/n and −k t/|d̃|, against the rejected chain (2/5 against
+    32/125 P);
+  - `reaction_rows_include_skew_springs`: r = λd with the block; r_z = 54/553 P without it;
+  - `attribution_range`;
+  - `lifted_remainder_exponent_minimum`;
+  - `particular_solution_not_ground_displacement`.
 - **`negatives`:** every code of §2.2 with its stage.
 
 **Acceptance checks for S-K1** (each test named in §15):
@@ -793,9 +918,13 @@ two independent routes (KKT and RREF nullspace). Contents:
   - u_B and each reaction within 1e-9 relative of the exact value (an exact zero against 1e-9 of
     the case's largest magnitude), as W-16 does;
   - every established K-D5 group's bound contains the exact value;
-  - the exact constraint check on the unrounded lift is exactly zero.
-- I1 cases bit for bit equal. I3 cases bit for bit in u and R (up to the sign of a zero), and the
-  along-direction value negated.
+  - the exact constraint check on the unrounded lift is exactly zero, and the published u_p's
+    residual |d̃ᵀu_p| is within §10.1's stated bound;
+  - `R4_tiny_restricted_direction` and its product twin publish finite values matching the exact
+    ones (no division by zero), and its attribution block's ŝ, w and n_w bits match.
+- I1 cases bit for bit equal.
+- I3 cases equal within the stated bounds (guaranteed), with the along-direction value negated.
+  Bit for bit in u and R up to the sign of a zero is the P-SYM test (§4.3), in both modes.
 - Axis twins byte-identical documents.
 - `pressure_free_byte_identity` and every existing fixture unchanged.
 - Each negative's code and named object.
@@ -803,18 +932,20 @@ two independent routes (KKT and RREF nullspace). Contents:
 
 ---
 
-## 14. Reserved choices and obstacles (raised, not decided)
+## 14. Reserved choices and obstacles
 
-- **C-1 (Agent 0 / authoring lane): the meaning of an imposed-motion primitive on a skewed
-  record.** Option A is a global-axis ground displacement: exact and division-free, with the
-  existing primitive shape, but it reads the target DOF as a ground axis, not "the record's DOF".
-  Option B is g along +d/|d|, the adopted §2.4 reading: an irrational datum carried as a p-ball.
-  S-K3 is blocked on it; S-K1 is not.
+- **C-1 (open for the owner, through Agent 0): the meaning of an imposed-motion primitive on a
+  skewed record.** Each meaning defines only the stop row's right-hand side h. The particular
+  solution then comes from the complete C u₀ = (g_A, h) (§8.3, review P2-5).
+  - **B** (the adopted §2.4 reading; the reviewer prefers it): g along +d/|d|, h = |d| g, an
+    irrational datum carried as a certified ball.
+  - **A**: the ground moves by g e_b, h = d_b g, exact in h. It is valid only if the owner
+    deliberately chooses global-axis ground motion.
+
+  S-K3 is blocked on this choice; S-K1 is not.
 - **C-2 (Agent 0): the order of S-K2 to S-K5.** EX (S-K5) matters for pressurized imports, but
   the MBF importer does not map skewed records yet (DEL-17-04).
-- **C-3 (Agent 0): widening §4.4's fallback** from refusal to "scale the smallest component to
-  normal". It is exact and needs no threshold, but it widens formation ranges. Recommendation:
-  keep the refusal.
+- **C-3: decided** (Agent 0, 2026-11-04): keep the range refusal (§4.4).
 - **No exact obstacle to S-K1 was found.** One design limit is recorded: a skewed record on an
   unconnected node is refused (item 6), not supported.
 - **Thresholds, eligibility, acceptance, P's step, the #97 seam, modal internals and
@@ -862,6 +993,13 @@ Output: a note in the PR description of who agreed what.
     diag tip, rotations = 1, rotations restrained): K′ symmetric bit for bit, the lifted u within
     1e-12 relative, the exact constraint on the unrounded lift (ExactAccumulator of dᵀ(Qv) == 0),
     `attribute` within 1e-12 relative;
+  - attribution's range safety: `R4_tiny_restricted_direction` gives finite values equal to the
+    exact ones, and ŝ, w and n_w match the `attribution` bits (the regression for n_F = 2⁻¹²⁰⁰,
+    which rounds to 0);
+  - the published-lift bound: |d̃ᵀu_p| ≤ Σ|d̃_i|·½ulp(u_p,i), next to the exact zero of the
+    unrounded lift;
+  - I3 under P-SYM: bitwise u and R (up to zero signs) for the negation pairs. A failure is
+    reported, not silenced (§4.3);
   - the `mutant` kill: a basis built with c = (fl(1/3), 1) gives a nonzero exact residual;
   - `K2_*` give `StopsPerNode`; `R4_redundant_axes` gives `Redundant`.
 - **References:** `direction_policy`, `invariance`, `kernel`, `mutant`.
@@ -897,8 +1035,17 @@ Output: a note in the PR description of who agreed what.
   - `MemberBoundInputs.lift_radius` (update the about 20 literal sites with `lift_radius:
     Vec::new()`), and `evaluate_row_inner`'s radius;
   - `restraint_basis.rs` `lift_member_bound`;
-  - `certified_recovery.rs` `certify_node_attribution` and `certify_skew_spring_reaction`.
+  - `certified_recovery.rs` `certify_node_attribution` (range-safe w and n_w, §10.5) and
+    `certify_skew_spring_reaction` (both outputs from κ = −k t: components κ d̃_i/n,
+    along-direction κ/|d̃|);
+  - `lift_member_bound`'s exponent rule: `i32::MIN` whenever no free coordinate maps to the DOF
+    (§10.4).
 - **Tests:** new `structural/skew_kd5_tests.rs`:
+  - `regressions.spring_along_direction`: the certified ball contains 2/5 P for `S1`, not
+    32/125 P;
+  - `regressions.lifted_remainder_exponent_minimum`: every physical translation of
+    `R4_full_fix_one_free_axis` gets `i32::MIN`, and its lift radius is 0;
+  - `R4_tiny_restricted_direction`: the certified attribution's balls contain the exact values;
   - the residual of the exact intended solution is zero, so the check passes;
   - a seeded displacement perturbation is detected;
   - every product S-K1 case's certified groups contain the exact values (a test-local frame
@@ -909,6 +1056,25 @@ Output: a note in the PR description of who agreed what.
 - **Seams cleared:** F-2.
 - **Review point RV-2** (independent numerical scrutiny, required): P1 to P3, ε_E's mapping,
   the lift radius and attribution bounds.
+
+**Step 4b. Physical reaction recovery includes every skewed spring block (FK; review P1-2).**
+- **Files:** `structural/certified_recovery.rs` `certify_support_reaction`. When
+  `source.restraint` is `Some`, after the axis springs, accumulate each skewed spring block
+  touching the reaction DOF. The block is p-formed per §6.1 as balls and applied to
+  u + w + w₂ with the lifted bound (exponents E_i, lift radius). With `None` it is unchanged.
+  `certify_node_attribution` and every axis reaction at a node carrying a skewed spring use it.
+- **Binary64 path:** the physical `restrained_reactions` already reads the assembled K, which
+  holds the blocks (step 2). Its test asserts that.
+- **Tests** (in `skew_kd5_tests.rs`):
+  - `regressions.reaction_rows_include_skew_springs`: with the block the certified rows contain
+    λ(3,4,0), and the attribution's consistency check passes;
+  - a mutant that skips the block reproduces r_z = 54/553 P and fails the check;
+  - an axis UZ guide at a node with a skewed spring and no stop: its certified row contains the
+    exact reaction;
+  - `P_RS_stop_and_spring` (product) in both modes.
+- **References:** `regressions`, `kernel` `RS_stop_and_spring`, `product`.
+- **Seams cleared:** F-2.
+- **Review point:** part of RV-2.
 
 **Step 5. LSUP construction.**
 - **Files:** `core/solver/linear_supports/src/lib.rs` (`SkewSupport`, `SkewFamily`,
@@ -955,7 +1121,8 @@ Output: a note in the PR description of who agreed what.
   - in `solve_prepared_load_case`, the skew branch: code 9 after `case_prescribed`; code 10 for
     `RangeDeferred` or an ordinary range failure; `transform_stiffness`, `basis.reduce`, and
     `solve_preview_reduced_system`'s skew sibling with `with_restraint_basis`; `lift`; physical
-    `restrained_reactions`; `attribute`; rows of §7.1;
+    `restrained_reactions`; `attribute` (range-safe, §7.2); code 11 for an out-of-range
+    attributed value; rows of §7.1;
   - in `certified_publication.rs`: `source` sets `restraint`, `support` uses
     `certify_node_attribution` and `certify_skew_spring_reaction`, and `support_record` adds
     `along_direction`; `lift_member_bound` before any member recovery;
@@ -966,7 +1133,8 @@ Output: a note in the PR description of who agreed what.
   - `modal/prepare.rs`: the basis and the ground count.
 - **Tests:**
   - new `core/product_physics/tests/skew_restraints_references.rs`: every `product` S-K1 case
-    and twin in both solver modes, as in §13;
+    and twin in both solver modes, as in §13, including `P_R4_tiny_restricted_direction`, and
+    the P-SYM negation test;
   - `pressure_free_byte_identity` and `formation_check_runtime` unchanged;
   - new `core/product_physics/src/modal/tests_skew.rs`: `modal_kernel` ω², shapes orthogonal to
     d, and a product oblique case.

@@ -18,8 +18,9 @@ are textbook constrained-equilibrium and matrix structural analysis
 Ziemian, *Matrix Structural Analysis*). Standard claim fence applies (F-PIP-2;
 claims taxonomy per DEC-081).
 
-Status: candidate references, derived and cross-checked by their author TASK.
-They have not yet been independently refuted. No consumer exists yet; the
+Status: candidate references, revision 2. Revision 1 was reviewed independently
+(no P0, sampled values recomputed). Revision 2 adds the review's regressions and
+the corrected S-K3 cases; it has not been re-reviewed. No consumer exists yet; the
 first-implementation brief (design §15) names the tests that read them.
 
 ## Files
@@ -76,10 +77,20 @@ to R-4), the spring-pair equivalence and the invariance groups.
   near-dependent axis case (2^−500), a stop with a spring, and the S-K2 joint
   cases (two orthogonal stops, an oblique pair, a near-parallel pair at 2^−48, the
   parallel and antiparallel redundant pairs, three stops, an axis-restricted
-  parallel pair). It also holds the S-K3 imposed-motion cases (a moving guide at a
-  stop's node, and a moving stop ground under each of the two candidate
-  meanings). Each case names the slice that admits it and, if later than S-K1,
-  the S-K1 refusal code.
+  parallel pair). It includes the range regression `R4_tiny_restricted_direction`
+  (d = (1, 2^−600, 0) with UX and UZ held: n_F = 2^−1200 rounds to 0, while the
+  rescaled n_w is 1). Each single-stop case has an `attribution` block: F, the
+  pivot on F, ŝ, w = 2^ŝ·d̃, n_w, the multiplier μ per unit w, each physical
+  translation's free coordinates or `i32::MIN`, and the particular solution
+  u₀. It also holds the S-K3 imposed-motion cases:
+  - the moving guide at a stop's node;
+  - meaning A alone and with axis rows, where the ground displacement is not
+    a particular solution;
+  - meaning B as a rational control and with irrational norms (d = (1,3,0) and
+    (3,4,5)), written exactly as a + b√q with correctly rounded binary64 values.
+
+  Each case names the slice that admits it and, if later than S-K1, the S-K1
+  refusal code.
 - **`mutant`.** The rounded-division basis for d = (1, 3, 0): its exact
   constraint residual per unit coordinate is 2^−54, so an exact check of the
   unrounded lift kills it.
@@ -93,6 +104,16 @@ to R-4), the spring-pair equivalence and the invariance groups.
   axis-aligned direction.
 - **`modal_kernel`.** A point mass with a stop or a spring: the exact ω² (units
   k/m) of the restrained subspace, for the dynamics lane's consumers.
+- **`regressions`.** The independent review's findings on revision 1, each
+  asserted exactly by the generator:
+  - the spring's along-direction value −k t/|d̃|, against the rejected chain
+    (2/5 against 32/125 P);
+  - reaction rows with and without a skewed spring block (r_z = 54/553 P
+    without it);
+  - the attribution range case;
+  - the `i32::MIN` exponents of a stop-fixed node;
+  - a ground displacement that violates an axis row, with the correct
+    particular solution.
 - **`negatives`.** Every named refusal of the first slice, with its stage and
   inputs.
 

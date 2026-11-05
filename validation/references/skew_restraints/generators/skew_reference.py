@@ -53,7 +53,17 @@ def is_square(q: F) -> F | None:
 
 
 def sqrt_nearest(q: F) -> float:
-    """The binary64 nearest to sqrt(q), q > 0, decided by exact comparisons."""
+    """The binary64 nearest to sqrt(q), q > 0, decided by exact comparisons. q is first
+    scaled by an even power of two, 4^e, so the estimate never leaves the float range;
+    the result is then scaled by 2^e exactly (it stays normal for every value here)."""
+    e = (q.numerator.bit_length() - q.denominator.bit_length()) // 2
+    root = sqrt_nearest_scaled(q / F(4) ** e)
+    out = math.ldexp(root, e)
+    assert F(out) == F(root) * F(2) ** e and out != 0.0 and math.isfinite(out)
+    return out
+
+
+def sqrt_nearest_scaled(q: F) -> float:
     x = math.sqrt(float(q))
     while True:
         lo = (F(math.nextafter(x, 0.0)) + F(x)) / 2
@@ -78,6 +88,50 @@ def scalar(s_sign: int, s_square: F) -> dict:
 
 def vec(v) -> list:
     return [num(F(x)) for x in v]
+
+
+def squarefree(n: int) -> tuple[int, int]:
+    """n = r^2 * q with q squarefree (n > 0)."""
+    r, q, f = 1, 1, 2
+    while f * f <= n:
+        while n % (f * f) == 0:
+            n //= f * f
+            r *= f
+        f += 1
+    return r, n
+
+
+def sign_qs(c: F, b: F, q: int) -> int:
+    """The sign of c + b*sqrt(q), exactly (sqrt(q) irrational or q = 1)."""
+    sc, sb = (c > 0) - (c < 0), (b > 0) - (b < 0)
+    if sb == 0 or sc == sb:
+        return sc if sc else sb
+    if sc == 0:
+        return sb
+    return sc if c * c > b * b * q else sb
+
+
+def nearest_qs(a: F, b: F, q: int) -> float:
+    """The binary64 nearest to a + b*sqrt(q), decided by exact comparisons."""
+    x = float(a) + float(b) * math.sqrt(q)
+    while True:
+        lo = (F(math.nextafter(x, -math.inf)) + F(x)) / 2
+        hi = (F(x) + F(math.nextafter(x, math.inf))) / 2
+        if sign_qs(a - lo, b, q) < 0:
+            x = math.nextafter(x, -math.inf)
+        elif sign_qs(a - hi, b, q) > 0:
+            x = math.nextafter(x, math.inf)
+        else:
+            assert sign_qs(a - lo, b, q) != 0 and sign_qs(a - hi, b, q) != 0, "a tie needs the even rule"
+            return x
+
+
+def qnum(a: F, b: F, q: int) -> dict:
+    """a + b*sqrt(q), q squarefree > 1, exactly, with its correctly rounded binary64."""
+    if b == 0:
+        return num(a)
+    return {"rational": f"{a.numerator}/{a.denominator}", "sqrt_coefficient": f"{b.numerator}/{b.denominator}",
+            "radicand": q, "binary64": nearest_qs(a, b, q).hex()}
 
 
 # ---------------------------------------------------------------- exact algebra
@@ -279,8 +333,10 @@ def invariance_groups(cases: list[dict]) -> dict:
         "negation": [["d345", "d345_neg"]],
         "statement": ("bitwise: identical canonical scaled vector and pivot, so every output is bit for bit "
                       "identical; positive factor: same constraint, spring block and exact solution, while "
-                      "binary64 outputs may differ by rounding; negation: same u and global reactions bit for "
-                      "bit up to the sign of a zero, and the along-direction scalar exactly negated"),
+                      "binary64 outputs may differ by rounding; negation: the same exact u and global reactions "
+                      "and the exactly negated along-direction value are guaranteed (equal within the stated "
+                      "bounds); bit for bit up to the sign of a zero only under the solve's sign-symmetry premise "
+                      "P-SYM (design section 4.3), which a maintained test checks"),
     }
 
 
@@ -392,6 +448,61 @@ def record_results(model: Model, u, lam) -> dict:
     return out
 
 
+def single_stop_info(model: Model, u, lam, offset: int) -> dict | None:
+    """S-K1's range-safe attribution data (design section 7.2) and the lifted-remainder
+    exponent rule (section 10.4) for a node with axis rows and exactly one stop."""
+    stops = [r for r in model.records if r["kind"] == "skew"]
+    if len(stops) != 1:
+        return None
+    stop = stops[0]
+    authored = [float(F(x)) for x in stop["direction"]]
+    assert all(F(a) == F(x) for a, x in zip(authored, stop["direction"]))
+    verdict = classify(authored)
+    if verdict["class"] != "skew":
+        return None
+    scaled = [F(x) for x in verdict["scaled"]]
+    held = {}
+    j = 0
+    for rec in model.records:
+        k = len(rec["rows"])
+        if rec["kind"] == "axis":
+            for (c, g), mult in zip(rec["rows"], lam[j:j + k]):
+                i = next(i for i, x in enumerate(c) if x != 0)
+                if offset <= i < offset + 3:
+                    held[i - offset] = g
+        j += k
+    free = [i for i in range(3) if i not in held]
+    if all(scaled[i] == 0 for i in free):
+        return None
+    top = max(abs(scaled[i]) for i in free if scaled[i] != 0)
+    s_hat = 0
+    while top * F(2) ** s_hat < 1:
+        s_hat += 1
+    w = [x * F(2) ** s_hat for x in scaled]
+    n_w = sum((w[i] ** 2 for i in free), F(0))
+    n_f = sum((scaled[i] ** 2 for i in free), F(0))
+    lam_d = lam[sum(len(r["rows"]) for r in model.records[:model.records.index(stop)])]
+    d = [F(x) for x in stop["direction"]]
+    i0 = next(i for i in range(3) if d[i] != 0)
+    mu = lam_d * d[i0] / w[i0]
+    pivot = max((i for i in free if scaled[i] != 0), key=lambda i: (abs(scaled[i]), -i))
+    coords = {i: ([] if i in held else [i] if i != pivot else [j for j in free if j != pivot and scaled[j] != 0])
+              for i in range(3)}
+    h = stop["rows"][0][1]
+    tau = (h - sum((d[a] * g for a, g in held.items()), F(0))) / d[pivot]
+    u0 = [held.get(i, F(0)) for i in range(3)]
+    u0[pivot] += tau
+    assert dot(d, u0) == h and all(u0[a] == g for a, g in held.items()), "C u0 = (g_A, h) exactly"
+    return {
+        "free_axes": ["xyz"[i] for i in free], "pivot_on_F": "xyz"[pivot],
+        "restricted_scale_exponent": s_hat, "w": [float(x).hex() for x in w],
+        "n_w": num(n_w), "n_F_exact": num(n_f), "n_F_rounds_to_zero": float(n_f) == 0.0,
+        "mu_per_unit_w": num(mu),
+        "lifted_remainder_exponent": {"xyz"[i]: ("i32::MIN" if not coords[i] else ["xyz"[j] for j in coords[i]]) for i in range(3)},
+        "particular_solution_u0": vec(u0),
+    }
+
+
 # ---------------------------------------------------------------- kernel set (units: forces in P, u in P/k)
 
 
@@ -419,6 +530,9 @@ def kernel_cases() -> list[dict]:
             u, lam = result
             entry["expect"] = {"u": vec(u), "records": record_results(m, u, lam),
                                "rank": rank([c for c, _ in m.constraints()]) if m.constraints() else 0}
+            info = single_stop_info(m, u, lam, 0)
+            if info:
+                entry["expect"]["attribution"] = info
         out.append(entry)
         return entry
 
@@ -427,6 +541,47 @@ def kernel_cases() -> list[dict]:
 
     def axis(name, i, g=F(0)):
         return lambda m: m.rigid(name, [(unit(3, i), g)])
+
+    def sqrt_case(name, axes, d, h_rat, h_sqrt, note):
+        """Meaning B with an irrational norm: d^T u = h_rat + h_sqrt*sqrt(q), q = squarefree(d^T d)."""
+        d = [F(x) for x in d]
+        r_d, q = squarefree(int(dot(d, d)))
+        m0, m1 = Model(3, tip([1, 1, 1]), load_y), Model(3, tip([1, 1, 1]), [F(0)] * 3)
+        for nm, i, g in axes:
+            m0.rigid(nm, [(unit(3, i), g)])
+            m1.rigid(nm, [(unit(3, i), F(0))])
+        m0.rigid("stop", [(d, h_rat)], kind="skew", direction=d)
+        m1.rigid("stop", [(d, h_sqrt)], kind="skew", direction=d)
+        (u0, l0), (u1, l1) = m0.solve(), m1.solve()
+        records, j = {}, 0
+        for rec in m0.records:
+            k = len(rec["rows"])
+            a, b = l0[j:j + k], l1[j:j + k]
+            j += k
+            if rec["kind"] == "axis":
+                records[rec["name"]] = {"kind": "rigid_axis_rows", "components": [qnum(x, y, q) for x, y in zip(a, b)]}
+            else:
+                records[rec["name"]] = {"kind": "skew_stop", "global_force": [qnum(a[0] * c, b[0] * c, q) for c in d],
+                                        "along_direction": qnum(b[0] * r_d * q, a[0] * r_d, q)}
+        # The design's particular solution (section 8.3) in Q(sqrt q).
+        held = {i: g for _, i, g in axes}
+        free = [i for i in range(3) if i not in held]
+        scaled = [F(x) for x in classify([float(x) for x in d])["scaled"]]
+        pivot = max((i for i in free if scaled[i] != 0), key=lambda i: (abs(scaled[i]), -i))
+        tau_r = (h_rat - sum((d[a] * g for a, g in held.items()), F(0))) / d[pivot]
+        tau_s = h_sqrt / d[pivot]
+        u0r = [held.get(i, F(0)) for i in range(3)]
+        u0s = [F(0)] * 3
+        u0r[pivot] += tau_r
+        u0s[pivot] += tau_s
+        assert dot(d, u0r) == h_rat and dot(d, u0s) == h_sqrt
+        assert dot(d, u0) == h_rat and dot(d, u1) == h_sqrt, "the constraint holds exactly in Q(sqrt q)"
+        out.append({"name": name, "tip_stiffness_diagonal": [num(F(1))] * 3, "load": vec(load_y), "slice": "S-K3",
+                    "s_k1_refusal": "IMPOSED_DISPLACEMENT_SKEW_SUPPORT_UNSUPPORTED", "note": note,
+                    "meaning": "B", "norm": {"r": r_d, "radicand": q},
+                    "expect": {"u": [qnum(a, b, q) for a, b in zip(u0, u1)], "records": records,
+                               "particular_solution_u0": [qnum(a, b, q) for a, b in zip(u0r, u0s)],
+                               "pivot_on_F": "xyz"[pivot]}})
 
     def both(*fs):
         def run(m):
@@ -458,6 +613,9 @@ def kernel_cases() -> list[dict]:
          "d_F = 0 on F = {z}: the stop row is redundant")
     case("R4_near_dependent_axis", [1, 1, 1], load_y, both(axis("ux", 0), stop("stop", [1, F(2) ** -500, 0])), "S-K1",
          "d_F = (2^-500, 0) != 0: exact rank 2, u_y = 0 exactly; the stop's multiplier is 2^500 times the y residual")
+    case("R4_tiny_restricted_direction", [1, 1, 1], load_y, both(axis("ux", 0), axis("uz", 2), stop("stop", [1, F(2) ** -600, 0])), "S-K1",
+         "review P1-1: rank exactly 3, r_y = 1 P; n_F = 2^-1200 rounds to 0 in binary64, so attribution rescales "
+         "d_F exactly (s_hat = 600, n_w = 1): stop (2^600, 1, 0) P, UX -2^600 P, along +2^600*sqrt(1 + 2^-1200) P")
     case("RS_stop_and_spring", [1, 1, 1], load_y, both(stop("stop", [3, 4, 0]), lambda m: m.spring("spring", 0, [0, 3, 4], 1)), "S-K1",
          "a skew stop and a skew spring at one node")
     case("K2_two_stops_3d", [1, 1, 1], load_y, both(stop("stop1", [3, 4, 0]), stop("stop2", [0, 3, 4])), "S-K2",
@@ -491,8 +649,21 @@ def kernel_cases() -> list[dict]:
          "meaning A (reserved choice): the stop's ground moves by Delta = g e_y (a global-axis primitive), so d^T u = d^T Delta = 4g",
          "IMPOSED_DISPLACEMENT_SKEW_SUPPORT_UNSUPPORTED")
     case("K3_stop_ground_meaning_B", [1, 1, 1], load_y, stop("stop", [3, 4, 0], g * 5), "S-K3",
-         "meaning B (reserved choice): the stop's ground moves by g along +d/|d|, so d^T u = |d| g = 5g",
+         "meaning B (reserved choice), the rational control: the stop's ground moves by g along +d/|d|, so d^T u = |d| g = 5g",
          "IMPOSED_DISPLACEMENT_SKEW_SUPPORT_UNSUPPORTED")
+    case("K3_A_ground_x_with_ux_held", [1, 1, 1], load_y, both(axis("ux", 0), stop("stop", [3, 4, 0], 3 * g)), "S-K3",
+         "meaning A with an axis row (review P2-5): the ground moves by Delta = g e_x, so h = d^T Delta = 3g; Delta "
+         "violates UX, and the complete system gives u0 = (0, 3g/4, 0), u_y = 3g/4",
+         "IMPOSED_DISPLACEMENT_SKEW_SUPPORT_UNSUPPORTED")
+    case("K3_A_guide_plus_stop_ground_y", [1, 1, 1], load_y, both(axis("guide_uz", 2), stop("stop", [3, 4, 5], 4 * g)), "S-K3",
+         "meaning A with UZ held and stop (3,4,5): Delta = g e_y, h = 4g; u0 = (0, g, 0)",
+         "IMPOSED_DISPLACEMENT_SKEW_SUPPORT_UNSUPPORTED")
+    sqrt_case("K3_B_plane_13", [], [1, 3, 0], F(0), g,
+              "meaning B with an irrational norm: d = (1,3,0), d^T u = sqrt(10) g")
+    sqrt_case("K3_B_guide_plus_stop_345", [("guide_uz", 2, F(0))], [3, 4, 5], F(0), 5 * g,
+              "meaning B with UZ held: d = (3,4,5), d^T u = 5 sqrt(2) g")
+    sqrt_case("K3_B_moving_guide_plus_stop_345", [("guide_uz", 2, g / 2)], [3, 4, 5], F(0), 5 * g,
+              "meaning B with UZ moved by g/2 and the stop's ground by g: d^T u = 5 sqrt(2) g, u_z = g/2")
     return out
 
 
@@ -573,6 +744,9 @@ def product_cases() -> tuple[dict, list[dict]]:
             u, lam = result
             assert all(x == 0 for x in u[:6] + u[9:12]), "A fixed, B rotations fixed"
             entry["expect"] = {"u_B_translations": vec(u[6:9]), "records": record_results(m, u, lam)}
+            info = single_stop_info(m, u, lam, 6)
+            if info:
+                entry["expect"]["attribution"] = info
         out.append(entry)
 
     def stop(name, d, g=F(0)):
@@ -612,6 +786,8 @@ def product_cases() -> tuple[dict, list[dict]]:
          "UZ rigid record plus stop (3,4,5): reduced to 3u_x + 4u_y = 0 on F = {x, y}")
     case("P_R4_full_fix", ly, both(axis("ux_B", 0), axis("uz_B", 2), stop("stop_B", [3, 4, 0])), "S-K1",
          "the node's translations fixed; attribution unique")
+    case("P_R4_tiny_restricted_direction", ly, both(axis("ux_B", 0), axis("uz_B", 2), stop("stop_B", [1, F(2) ** -600, 0])), "S-K1",
+         "review P1-1's regression at product level: the node fixed, d_F = (2^-600); attribution must rescale d_F exactly")
     case("P_R4_redundant", ly, both(axis("ux_B", 0), axis("uy_B", 1), stop("stop_B", [3, 4, 0])), "S-K1",
          "redundant: SUPPORT_CONSTRAINT_REDUNDANT")
     case("P_RS_stop_and_spring", ly, both(stop("stop_B", [3, 4, 0]), spring("spring_B", [0, 3, 4])), "S-K1",
@@ -637,6 +813,9 @@ def product_cases() -> tuple[dict, list[dict]]:
          "meaning A: the stop's ground moves by h e_y: d^T u = 4h", "IMPOSED_DISPLACEMENT_SKEW_SUPPORT_UNSUPPORTED")
     case("P_K3_stop_ground_meaning_B", ly, stop("stop_B", [3, 4, 0], 5 * h), "S-K3",
          "meaning B: the stop's ground moves by h along +d/|d|: d^T u = 5h", "IMPOSED_DISPLACEMENT_SKEW_SUPPORT_UNSUPPORTED")
+    case("P_K3_A_ground_x_with_ux_held", ly, both(axis("ux_B", 0), stop("stop_B", [3, 4, 0], 3 * h)), "S-K3",
+         "meaning A with UX held at B: Delta = h e_x gives d^T u = 3h; Delta is not a particular solution",
+         "IMPOSED_DISPLACEMENT_SKEW_SUPPORT_UNSUPPORTED")
     return spec, out
 
 
@@ -699,8 +878,73 @@ def negatives() -> list[dict]:
         {"code": "SUPPORT_CONSTRAINT_REDUNDANT", "stage": "boundary preparation", "inputs": "R4_redundant_axes, P_R4_redundant (S-K1); K2_parallel and the other redundant K2 cases (S-K2)"},
         {"code": "IMPOSED_DISPLACEMENT_SKEW_SUPPORT_UNSUPPORTED", "stage": "imposed-motion validation", "inputs": "an imposed_displacement primitive targeting a skewed record"},
         {"code": "SUPPORT_SKEW_NODE_PRESCRIBED_MOTION_UNSUPPORTED", "stage": "case solve, before reduction", "inputs": "K3_moving_guide_plus_stop, P_K3_moving_guide_plus_stop"},
+        {"code": "SUPPORT_SKEW_REACTION_RANGE_UNSUPPORTED", "stage": "case publication (range-safe attribution, design 7.2)", "inputs": "a constrained node whose multiplier, attributed component or along-direction value leaves binary64"},
         {"code": "SUPPORT_DIRECTION_SKEW_FORCE_SCALED_UNSUPPORTED", "stage": "case solve (W2 not attempted; a range-deferred basis)", "inputs": "a skew model whose ordinary formation leaves the binary64 range"},
     ]
+
+
+def regressions(kernel: list[dict]) -> dict:
+    """The independent review's findings on revision 1, as exact regressions."""
+    by = {c["name"]: c for c in kernel}
+    out = {}
+    # P1-3: the skewed spring's along-direction value branches from -k t.
+    springs = []
+    for name in ("S1_spring_isotropic", "S2_spring_pair", "RS_stop_and_spring"):
+        m = Model(3, tip([1, 1, 1]), [F(0), F(-1), F(0)])
+        if name == "S1_spring_isotropic":
+            m.spring("s", 0, [3, 4, 0], 1)
+        elif name == "S2_spring_pair":
+            m.spring("s1", 0, [3, 4, 0], 1)
+            m.spring("s2", 0, [-4, 3, 0], 1)
+        else:
+            m.rigid("stop", [([F(3), F(4), F(0)], F(0))], kind="skew", direction=[3, 4, 0])
+            m.spring("spring", 0, [0, 3, 4], 1)
+        u, lam = m.solve()
+        for sp in m.springs:
+            dt = [F(x) for x in classify([float(x) for x in sp["c"]])["scaled"]]
+            t, n = dot(dt, u), dot(dt, dt)
+            kt = sp["k"] * t
+            comps = [-kt * x / n for x in dt]
+            assert [num(x) for x in comps] == by[name]["expect"]["records"][sp["name"]]["global_force"]
+            correct, wrong = kt * kt / n, kt * kt / n ** 3
+            assert scalar((-kt > 0) - (-kt < 0), correct) == by[name]["expect"]["records"][sp["name"]]["along_direction"]
+            springs.append({"case": name, "spring": sp["name"], "t_scaled": num(t), "n_scaled": num(n),
+                            "components_minus_kt_d_over_n": [num(x) for x in comps],
+                            "along_minus_kt_over_norm": scalar((-kt > 0) - (-kt < 0), correct),
+                            "rejected_chain_minus_kt_over_n_over_norm": scalar((-kt > 0) - (-kt < 0), wrong)})
+    assert springs[0]["along_minus_kt_over_norm"]["exact"] == "2/5"
+    assert springs[0]["rejected_chain_minus_kt_over_n_over_norm"]["exact"] == "32/125"
+    out["spring_along_direction"] = springs
+    # P1-2: physical reaction rows must include every skewed spring block.
+    m = Model(3, tip([1, 1, 1]), [F(0), F(-1), F(0)])
+    m.rigid("stop", [([F(3), F(4), F(0)], F(0))], kind="skew", direction=[3, 4, 0])
+    m.spring("spring", 0, [0, 3, 4], 1)
+    u, lam = m.solve()
+    full = [ku - f for ku, f in zip(matvec(m.k, u), m.f)]
+    c = [F(0), F(3), F(4)]
+    block = [[x * y / dot(c, c) for y in c] for x in c]
+    omitted = [r - b for r, b in zip(full, matvec(block, u))]
+    assert full == [lam[0] * x for x in (F(3), F(4), F(0))], "with the block, r = lambda d exactly"
+    assert omitted[2] == F(54, 553), "the reviewer's value"
+    out["reaction_rows_include_skew_springs"] = {
+        "case": "RS_stop_and_spring", "rows_with_block": vec(full), "rows_block_omitted": vec(omitted),
+        "statement": "with the spring block r = lambda (3,4,0) exactly; omitting it leaves r_z = 54/553 P, so the "
+                     "attribution's consistency check would fail on a valid case"}
+    # P1-1: attribution's n_F underflows; the rescaled n_w does not.
+    att = by["R4_tiny_restricted_direction"]["expect"]["attribution"]
+    assert att["n_F_rounds_to_zero"] and att["restricted_scale_exponent"] == 600 and att["n_w"]["exact"] == "1/1"
+    out["attribution_range"] = {"case": "R4_tiny_restricted_direction", "attribution": att}
+    # P2-4: a stop-fixed node's physical translations have no free coordinate.
+    ff = by["R4_full_fix_one_free_axis"]["expect"]["attribution"]["lifted_remainder_exponent"]
+    assert set(ff.values()) == {"i32::MIN"}
+    out["lifted_remainder_exponent_minimum"] = {"case": "R4_full_fix_one_free_axis", "exponents": ff}
+    # P2-5: a ground displacement is not a particular solution.
+    a = by["K3_A_ground_x_with_ux_held"]["expect"]["attribution"]["particular_solution_u0"]
+    assert [x["exact"] for x in a] == ["0/1", "3/4096", "0/1"]
+    out["particular_solution_not_ground_displacement"] = {
+        "case": "K3_A_ground_x_with_ux_held", "ground_displacement_delta": vec([F(1, 1024), F(0), F(0)]),
+        "violated_row": "ux (u_x = 0)", "particular_solution_u0": a}
+    return out
 
 
 # ---------------------------------------------------------------- build
@@ -732,6 +976,7 @@ def build() -> dict[str, bytes]:
         "mutant": mutant_case(),
         "product": {"spec": spec, "cases": product},
         "modal_kernel": modal_cases(),
+        "regressions": regressions(kernel),
         "negatives": negatives(),
     }
     text = (json.dumps(references, indent=1, sort_keys=True) + "\n").encode()
