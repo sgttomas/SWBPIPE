@@ -185,7 +185,7 @@ deliverable; "new" means a scope change assigns it.
 | RT-V2 | Benchmark set against CAEPIPE (§3) | Must | Tranche 1 built: 60 invented models, two-way screening against the §3 profile, settings guard and print parser (#1733). Method and harness only; no agreement established | further tranches, publication checker / DEL-17-05 |
 | RT-V3 | Validation manual and a fresh reproduction bundle | Must | Procedure current; last bundle predates W-12 | W-2 / DEL-09-04 |
 | RT-V4 | User guide and theory notes for every Must analysis | Must | Statics only (`docs/theory/centerline_analysis.md`) | DEL-11-01, DEL-11-03 |
-| RT-V5 | Claim fence on every surface (notice, GEN-13, release labels) | Must | GEN-13 clean (#1701) and run in hosted CI (#1705) | release labels / DEL-09-05, DEL-16-04 |
+| RT-V5 | Claim fence on every surface (notice, release labels) | Must | The GEN-13 claims-language lint was removed from hosted CI and the repository (owner's test-and-CI review direction) | release labels / DEL-09-05, DEL-16-04 |
 | RT-V6 | Signed, notarized macOS build; MIT licence recorded consistently | Must | Signing decided (D-06b), not executed. MIT in `LICENSE.md` (D-74) and DEL-01-01; the repository's `LICENSE` (initial commit) and `LICENSE.md` spell the holder's name differently | DEL-10-04; the holder's name is the owner's to state |
 | RT-V7 | Windows build | Later (revisited immediately after v1.0) | Release baseline: macOS Apple Silicon only (DEC-057); Windows development authorized alongside macOS v1.0; native x64 desktop unqualified | DEL-10-04 Work/windows-port.md |
 | RT-V8 | Independent public SWBPIPE repository | Must | Split done: verified import (SWBPIPE #1) and standalone governance; unsigned scan findings remain; no signed scan or release acceptance | owner-signed D-20/DEC-058 repository scan including full private-term scan and finding dispositions before v1.0 / DEL-10-04 |
@@ -285,10 +285,8 @@ after the walkthrough.
 13. **Documentation.** The user guide and theory notes cover every Must
     analysis: inputs, method, assumptions and limitations. They state that
     SWBPIPE does not determine code compliance.
-14. **Claims and content checks.**
-    - GEN-13 passes over all product texts in hosted CI.
-    - The release-candidate protected-content scan is signed off by the owner
-      (DEL-08-05:2).
+14. **Content check.** The release-candidate protected-content scan is signed
+    off by the owner (DEL-08-05:2).
 15. **Build and licence.** The build is signed and notarized, and MIT is
     recorded consistently.
 16. **Public repository.** `sgttomas/SWBPIPE` is SWBPIPE's independent public

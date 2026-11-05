@@ -27,7 +27,7 @@ Boundary posture (F-PIP-2, PB-TBD-003, RGAP-007):
 - A gate record documents measured gate outcomes at a commit. It is NOT a
   release, release-readiness, or publication claim and it mints no release
   label or status — the release-label vocabulary remains human-gated
-  (`PB-TBD-003`, `docs/PROFESSIONAL_BOUNDARY.md`).
+  (`PB-TBD-003`).
 - No numeric coverage floor exists (`DEC-060`); this tool records the live
   clean-head coverage-telemetry artifact count and never promotes a floor —
   promotion needs at least five clean-head artifacts across at least two
@@ -104,8 +104,8 @@ RELEASE_LABELS_BLOCK = {
     "policy": (
         "This record does not evaluate, assign, or propose any release label "
         "or readiness status. The release-label vocabulary and final release "
-        "policy language remain human-gated (PB-TBD-003, "
-        "docs/PROFESSIONAL_BOUNDARY.md); the docs/RELEASE_QUALITY_GATES.md "
+        "policy language remain human-gated (PB-TBD-003); the "
+        "docs/RELEASE_QUALITY_GATES.md "
         "section 8 minimum engineering-beta condition is a human "
         "release-label consideration outside this record's scope."
     ),

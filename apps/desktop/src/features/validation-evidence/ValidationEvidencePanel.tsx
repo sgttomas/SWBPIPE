@@ -21,8 +21,7 @@ const EVIDENCE_AREAS = [
   "gui_workflow_validation",
   "report_protected_content_lint",
   "release_quality_evidence",
-  "validation_evidence_bundles",
-  "professional_boundary"
+  "validation_evidence_bundles"
 ] as const;
 
 const RELEASE_PROFILES = ["skeleton", "python", "security", "cargo", "all"] as const;
@@ -32,7 +31,6 @@ const REQUIRED_RELEASE_PATHS = [
   "docs/RELEASE_QUALITY_GATES.md",
   "docs/VALIDATION_STRATEGY.md",
   "docs/IP_AND_DATA_BOUNDARY.md",
-  "docs/PROFESSIONAL_BOUNDARY.md",
   "execution/_DAG/_LATEST.md"
 ] as const;
 
@@ -178,8 +176,7 @@ function buildValidationEvidencePacket(model: PreviewModel) {
       gui_workflow_validation: evidenceArea("PLANNED", "apps/desktop/SMOKE.md"),
       report_protected_content_lint: evidenceArea("draft_review_evidence", "core/reporting/protected_content_linter/"),
       release_quality_evidence: evidenceArea("TBD", "docs/RELEASE_QUALITY_GATES.md"),
-      validation_evidence_bundles: evidenceArea("TBD", "future evidence package location/format"),
-      professional_boundary: evidenceArea("draft_policy_surface", "docs/PROFESSIONAL_BOUNDARY.md")
+      validation_evidence_bundles: evidenceArea("TBD", "future evidence package location/format")
     },
     unit_policy_evidence: unitPolicyEvidence,
     release_readiness_tool: {

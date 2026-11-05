@@ -52,8 +52,7 @@
     },
     {
       "paths": [
-        "tools/validation/**",
-        "docs/claims_registry.md"
+        "tools/validation/**"
       ],
       "checks": [
         "validation"
