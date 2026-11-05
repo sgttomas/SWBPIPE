@@ -898,7 +898,10 @@ def _tie_rods(record: Mapping[str, Any]) -> list[tuple[str, float]]:
         share = rod["axial_share"]
         _require(_number(share), "connector tie-rod axial share")
         axis, share = [float(a) for a in axis], float(share)
-        _require(float(sum(Fraction(n[k]) * Fraction(axis[k]) for k in range(3))) == share, "connector tie-rod axial share")
+        # Rust compares the exact dot's binary64 rounding with the share by bits (`to_bits`), so -0.0 is not +0.0; an
+        # exactly zero dot rounds to +0.0 in both readers (Rust `ExactSum::round`, `float(Fraction(0))`).
+        dot = float(sum(Fraction(n[k]) * Fraction(axis[k]) for k in range(3)))
+        _require(struct.pack("<d", dot) == struct.pack("<d", share), "connector tie-rod axial share")
         out.append((rod["id"], share))
     return out
 
