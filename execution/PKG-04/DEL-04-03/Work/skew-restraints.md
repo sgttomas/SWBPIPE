@@ -1,9 +1,17 @@
 # Skewed restraints (R-6, R-7): build design, shared interface and first-implementation brief
 
-> **Status: candidate design, revision 2.** Revision 1 (`24f343662`) was reviewed independently
-> (gpt-6-astra, medium): no P0; this revision applies its P1-1 to P1-3 and P2-4, P2-5, and the two
-> required statements (§4.3 I3 and §10.1), and records Agent 0's C-3 decision. It has not been
-> re-reviewed. Design and references only: no product
+> **Status: candidate design, revision 3.**
+> - Revision 1 (`24f343662`) was reviewed independently (gpt-6-astra, medium) with no P0.
+> - Revision 2 (`fd9710a72`) applied that review. A focused confirmation closed most of it and
+>   left four items.
+> - Revision 3 fixes those four:
+>   - the attribution numerator and quotient are range-safe up to the published values (§7.2,
+>     §10.5);
+>   - S-K3's radius is taken about τ_b (§8.3);
+>   - the restricted rescale w is used for the pivot and for Q on F (§5.1, §8.3);
+>   - the Cholesky factor of D K′ D is D L D (§4.3).
+>
+> Revision 3 has not been re-reviewed. Design and references only: no product
 > or kernel code is changed by it. It builds on the adopted kernel design (DEL-05-02 Work
 > `operating-case.md` §0 rows R-6, R-7 and "Skew kernel scheduled"; §2.1–§2.6; §6.2) and
 > does not reopen it. It changes numerical meaning when built, so it takes targeted references
@@ -117,7 +125,7 @@ penalty spring.
 | 8 | `SUPPORT_CONSTRAINT_REDUNDANT` (adopted name, blocking) | Boundary preparation. §5's exact rank is below the node's row count | Permanent (attribution would not be unique) |
 | 9 | `SUPPORT_SKEW_NODE_PRESCRIBED_MOTION_UNSUPPORTED` (new, blocking for the case) | Case solve, before reduction. A nonzero prescribed translation on an axis restraint at a skewed stop's node (W-16 primitive or load-state motion) | S-K3 (affine reduction, §8.3) |
 | 10 | `SUPPORT_DIRECTION_SKEW_FORCE_SCALED_UNSUPPORTED` (new, blocking for the case) | Case solve. A skew model's ordinary formation leaves the binary64 range (`RangeDeferred`) or would need W2/K2b. The ordinary failure is published as today and W2 is not attempted | S-K2 |
-| 11 | `SUPPORT_SKEW_REACTION_RANGE_UNSUPPORTED` (new, blocking for the case) | Case publication. A constrained node's multiplier, attributed component or along-direction value leaves the binary64 range (§7.2) | Permanent (a genuine out-of-range result) |
+| 11 | `SUPPORT_SKEW_REACTION_RANGE_UNSUPPORTED` (new, blocking for the case) | Case publication. A **published** value (a stop or axis component, or the along-direction value) is outside binary64 (§7.2). An intermediate such as N_w never triggers it | Permanent (a genuine out-of-range result) |
 
 Also unchanged:
 - `SNUBBER_DYNAMIC_ONLY_UNSUPPORTED` refuses every static snubber; DEL-04-10 consumes the basis.
@@ -248,9 +256,12 @@ never enters `LinearSupport`, so its DOF token is never restrained or sprung (§
 
 ### 3.3 What it returns
 
-- **The basis T.** Per constrained node, Q is node-local, with columns d̃_m e_j − d̃_j e_m
-  (j ∈ F, j ≠ m), e_m for the pivot coordinate, and e_a for each axis-restrained a. Every entry
-  is an authored scaled component, 1.0 or +0.0.
+- **The basis T.** Per constrained node, Q is node-local, with columns w_m e_j − w_j e_m
+  (j ∈ F, j ≠ m), e_m for the pivot coordinate, and e_a for each axis-restrained a.
+  - w = 2^ŝ·d̃ is §5.1's exact restricted rescale, with max_{i∈F}|w_i| ∈ [1, 2). With no axis
+    row at the node, ŝ = 0 and w = d̃.
+  - Every entry is an exact binary64 of magnitude below 2 (an authored component times a power
+    of two), 1.0 or +0.0.
 - **The partition.** `restrained_coordinates()`.
 - **The reduced system.** `transform_stiffness` + `reduce`.
 - **The lift.** `lift`, `lift_exact`, `lift_member_bound`.
@@ -329,8 +340,9 @@ Let d be admitted and c ≠ 0 with d′ = c·d exactly representable (each c·d_
     exact. Bitwise equality v′ = D v (hence u′ = Q′v′ = Q v, R′ = R, s′ = −s) holds only if every
     step from K′ and f′ to the published values commutes with D. **P-SYM:**
     - each operation is odd in its sign-flipped inputs: products and sums of binary64 values
-      under round-to-nearest-even, Cholesky on D K′ D (its factor is D L, with the same
-      pivots);
+      under round-to-nearest-even, Cholesky on D K′ D (with K′ = L Lᵀ and the
+      conventional positive diagonal, its factor is D L D: (D L D)(D L D)ᵀ = D L Lᵀ D, and
+      diag(D L D) = diag(L); the pivots are the same);
     - no branch depends on a value's sign. Magnitude-only choices such as equilibration
       exponents and pivot screens are sign-free; a comparison against a signed value would not
       be;
@@ -371,13 +383,26 @@ translations. The constraint rows are e_a (a ∈ A) and d̃.
 - d̃_F = 0 gives `SUPPORT_CONSTRAINT_REDUNDANT`. The stop restrains nothing beyond A, and its
   multiplier would not be unique.
 - **Pivot on F.** m = argmax_{i∈F}|d̃_i| (ties lowest).
-- **Q.** Columns d̃_m e_j − d̃_j e_m for j ∈ F∖{m}; e_m (the pivot coordinate, restrained at 0);
-  e_a for a ∈ A (restrained at 0).
+- **The restricted rescale (revision 3).** d̃_m is not in [1, 2) in general. It is the largest
+  component on F only, and can be as small as 2⁻¹⁰²². For example, d = (1, 2⁻⁶⁰⁰, 0) with UX
+  held gives d̃_m = 2⁻⁶⁰⁰.
+  - So the node uses w = 2^ŝ·d̃, with ŝ ≥ 0 the exponent that puts max_{i∈F}|w_i| = |w_m| in
+    [1, 2). Then ŝ ≤ 1022, and w is exact (scaling up never loses bits). On F,
+    w_Fᵀu_F = 0 ⇔ d̃_Fᵀu_F = 0, so the constraint is unchanged.
+  - With A = ∅, ŝ = 0 and w = d̃, so revision 1's nodes and the `direction_policy` bits are
+    unchanged.
+- **Q.** Columns w_m e_j − w_j e_m for j ∈ F∖{m}; e_m (the pivot coordinate, restrained at 0);
+  e_a for a ∈ A (restrained at 0). Every entry of Q on F has magnitude below 2, as §10.4's
+  exponent sum and §10.2's split products assume.
+  - Without the rescale, a column such as 2⁻⁶⁰⁰ e_z would scale K′ by about 2⁻¹²⁰⁰ there and
+    push its triple products under the split range.
+  - The references list each single-stop node's columns (`attribution.Q_on_F_columns_from_w`).
+    `R4_near_dependent_axis` gets e_z, not 2⁻⁵⁰⁰ e_z.
 
 | \|F\| | d̃_F | Result |
 |---|---|---|
 | 3 | ≠ 0 | two free coordinates (§2.2 of the adopted design) |
-| 2 | ≠ 0 | one free coordinate. If d̃_F has one nonzero entry, the column is d̃_m e_j: the stop fixes u_m, and still carries the reaction |
+| 2 | ≠ 0 | one free coordinate. If d̃_F has one nonzero entry, the column is w_m e_j: the stop fixes u_m, and still carries the reaction |
 | 1 | ≠ 0 | none: the node's translations are fixed; attribution is unique |
 | any | = 0 | redundant |
 
@@ -525,26 +550,45 @@ displacement and each row is one exact sum rounded once, as `restrained_reaction
   can underflow in an admitted, well-defined case: d = (1, 2⁻⁶⁰⁰, 0) with UX and UZ held gives
   n_F = 2⁻¹²⁰⁰, which rounds to 0, although the rank is exactly 3 and the true multiplier is
   2⁶⁰⁰ per unit d̃. Instead the restricted direction is rescaled exactly:
-  - ŝ ≥ 0 is the exponent with max_{i∈F}|d̃_i|·2^ŝ ∈ [1, 2). d̃_F ≠ 0 by §5.1, and every nonzero
-    d̃_i is normal by §4.2, so ŝ ≤ 1022.
-  - w = 2^ŝ·d̃ on all three axes. It is exact: scaling up never loses bits, and |w_a| < 2^1023
-    for a ∈ A, so nothing overflows.
+  - ŝ and w = 2^ŝ·d̃ are §5.1's restricted rescale: exact, ŝ ≤ 1022, |w_a| < 2^1023 for
+    a ∈ A, and max_{i∈F}|w_i| ∈ [1, 2).
   - n_w = Σ_{i∈F} w_i² ∈ [1, 12), formed exactly and rounded once, so it never underflows.
-  - μ = fl(N_w)/n_w, with N_w = Σ_{i∈F} w_i r_i an exact dot rounded once. μ is the multiplier
-    per unit w; per unit d̃ it is 2^ŝ·μ. In exact arithmetic r_F = μ w_F, so μ is the unique
-    multiplier, not a split.
-  - **Stop components:** R_i = fl(μ·w_i) for every i.
+  - **The numerator stays exact (revision 3).** N_w = Σ_{i∈F} w_i r_i is held exactly in an
+    `ExactAccumulator`, never rounded on its own. An unrepresentable N_w does not mean an
+    unrepresentable reaction. Example: d = (1,1,0), r = (2¹⁰²³, 2¹⁰²³, 0) gives N_w = 2¹⁰²⁴,
+    while μ, both components and s = √2·2¹⁰²³ are finite.
+  - **The quotient is range-safe.** Let k = 0 when N_w rounds to a finite binary64, otherwise
+    k = 4.
+    - N′ = `round_scaled(−k)` of N_w. It is finite in both cases, since |N_w| < 6·2¹⁰²⁴.
+    - μ′ = fl(N′/n_w), and μ = μ′·2^k. With k = 4, N′ ≥ 2¹⁰²⁰ is normal, so μ is exactly what an
+      unbounded-exponent rounding would give.
+    - μ is the multiplier per unit w; per unit d̃ it is 2^ŝ·μ. In exact arithmetic
+      r_F = μ w_F, so μ is the unique multiplier, not a split.
+  - **Stop components:** R_i = fl(μ·w_i) for every i. They are formed from the finite μ; if μ′·2^k
+    itself overflows, see Range.
   - **Along-direction value:** s = round(2^ŝ·μ·ν), with ν = `correct_norm::norm3(d̃)`
     (correctly rounded, in [1, 2√3)). The exact product μ·ν is formed in an `ExactAccumulator`
-    and rounded once by `round_scaled(ŝ)`.
-  - **Range.** N_w, a component or s that leaves the binary64 range is a genuine
-    out-of-range reaction. It is refused for the case by name,
-    `SUPPORT_SKEW_REACTION_RANGE_UNSUPPORTED` (§2.2 item 11), never flushed or published as
-    infinite.
-  - **Regression:** `R4_tiny_restricted_direction` in `kernel` (r_y = 1 N; stop (2⁶⁰⁰, 1, 0) N,
-    UX −2⁶⁰⁰ N, s = 2⁶⁰⁰·√(1 + 2⁻¹²⁰⁰), whose binary64 value is 2⁶⁰⁰) and its product twin.
-- **Axis record a ∈ A.** fl(r_a − μ·w_a), as one exact sum (r_a plus the exact product −μ·w_a)
-  rounded once.
+    and rounded once by `round_scaled(ŝ)`, so no intermediate overflows.
+  - **Range (revision 3).** `SUPPORT_SKEW_REACTION_RANGE_UNSUPPORTED` fires only when a
+    **published** value is outside binary64: a stop component R_i, an axis component, or s.
+    - μ is not published.
+    - If μ′·2^k overflows, the stop component at the restricted pivot (|w_m| ≥ 1) has
+      |R_m| ≥ |μ|. That published component is then out of range, and it is the value named.
+    - Nothing is flushed or published as infinite.
+  - **Regressions** (`attribution_range` in the references, inputs r given directly to
+    `attribute`):
+    - `N_w_overflow_published_finite`: k = 4, μ = 2¹⁰²³, R = (2¹⁰²³, 2¹⁰²³, 0), s =
+      0x1.6a09e667f3bcdp+1023; **no refusal**.
+    - `published_along_overflow`: r = 1.5·2¹⁰²³(1,1,0). μ and both components are
+      1.5·2¹⁰²³ (finite); s = 1.5·√2·2¹⁰²³ is not; **refused**, on the along-direction value
+      only.
+    - `tiny_restricted_direction`: d = (1, 2⁻⁶⁰⁰, 0) with UX and UZ held, r_y = 1.
+      n_F = 2⁻¹²⁰⁰ rounds to 0; ŝ = 600, n_w = 1, μ = 1. Stop (2⁶⁰⁰, 1, 0), UX −2⁶⁰⁰,
+      s = 2⁶⁰⁰.
+    - The model-level twins are `R4_tiny_restricted_direction` (kernel and product).
+- **Axis record a ∈ A.** fl(r_a − μ·w_a), as one exact sum (r_a plus the exact product −μ·w_a,
+  with μ the finite binary64 above) rounded once. If that sum is outside binary64, the case is
+  refused on that published component.
 - **Skewed spring.**
   - t = d̃ᵀ(u − 0) is an exact dot, rounded once. The ground is fixed in S-K1; S-K3 adds g.
   - Both values branch from the one product κ = fl(k·t); there is no chained division.
@@ -587,18 +631,35 @@ stop row reads d̃ᵀu = h̃ with h̃ = 2^s·h. Only after that is the complete 
 solved for u₀:
 
 - **The particular solution (one stop, axis rows A, pivot m ∈ F).** u₀ = Σ_{a∈A} g_a e_a + τ e_m,
-  with τ = (h̃ − Σ_{a∈A} d̃_a g_a)/d̃_m.
+  with τ = (h̃ − Σ_{a∈A} d̃_a g_a)/d̃_m = (2^ŝ h̃ − Σ_{a∈A} w_a g_a)/w_m.
   - It satisfies every row exactly: e_aᵀu₀ = g_a and d̃ᵀu₀ = h̃.
-  - τ is an exact datum, but generally not a binary64 value: it is a quotient by d̃_m ∈ [1, 2),
-    and under meaning B also irrational.
-  - The solve uses τ_b, a binary64 value inside a certified ball [τ] formed in `WideArith` from
-    the exact numerator, the exact d̃_m and, for B, the certified square root.
+  - **The range (revision 3).** d̃_m alone lies in [2⁻¹⁰²², 2), not [1, 2) (§5.1), so τ is
+    formed with §5.1's restricted rescale: the divisor w_m ∈ [1, 2).
+    - The numerator 2^ŝ h̃ − Σ w_a g_a is formed exactly for A, or as a ball for B, in
+      `WideArith` (i64 exponent), so no intermediate leaves its range.
+    - τ itself can be large when d̃_F is small, because the constraint plane's offset along e_m
+      is then large.
+    - τ_b = round(mid([τ])), rounded once. If τ_b, or the formed term K e_m τ_b, is outside
+      binary64, the case is refused by name, `SUPPORT_SKEW_MOTION_RANGE_UNSUPPORTED`. That is
+      an S-K3 code, designed here and not emitted by S-K1.
+  - τ is an exact datum, but generally not a binary64 value: it is a quotient by w_m, and under
+    meaning B also irrational.
+  - **The radius about τ_b (revision 3).** [τ] is a certified `WideArith` ball (midpoint
+    mid([τ]), radius rad([τ])) containing τ, formed from the exact numerator, the exact w_m and,
+    for B, the certified square root.
+    - A tight ball may contain no binary64 value at all, so rad([τ]) is not an error bound about
+      τ_b.
+    - The radius used about τ_b is ρ_τ = |τ_b − mid([τ])| + rad([τ]), evaluated with upward
+      rounding. Then |τ − τ_b| ≤ ρ_τ.
+    - Example: in `K3_B_plane_13`, |τ − τ_b| ≈ 6.2106×10⁻²⁰. The references record each case's
+      exact τ − τ_b and its upward binary64 bound (`tau.error_abs_upper_binary64`), which ρ_τ
+      must not undercut.
 - **The affine reduction.** u = u₀ + Q v with Q unchanged. The right-hand side becomes
   Qᵀ(f − K u₀).
-  - K-D5 evaluates the intended right-hand side with u₀'s exact part and τ's ball. The term
-    K_int e_m τ_b enters ρ exactly, and |K_int e_m|·rad([τ]) enters ψ, as load re-formation
-    radii do.
-  - The lift publishes fl(u₀_b + Q v). Its lift radius also carries rad([τ]) on DOF m.
+  - K-D5 evaluates the intended right-hand side with u₀'s exact part and τ about τ_b. The term
+    K_int e_m τ_b enters ρ exactly, and |K_int e_m|·ρ_τ enters ψ, as load re-formation radii do.
+  - The lift publishes fl(u₀_b + Q v). Its lift radius also carries ρ_τ on DOF m, about τ_b and
+    never rad([τ]) alone.
   - The intended u* = u₀ + Q v* satisfies C u* = (g_A, h̃) exactly.
   - S-K2's joint nodes solve C u₀ = g on §5.3's attribution minor by exact Cramer numerators,
     with one certified division per component.
@@ -759,10 +820,12 @@ entries, used by the M03 gate and the dense-scrutiny contribution audit: Σ|q_ir
   - r_i is the extended `certify_support_reaction` at each of the node's three translations. At
     the pivot DOF the exponent from §10.4 includes the remainder, unless the node is fixed
     (`i32::MIN`).
-  - **The multiplier is range-safe, as in §7.2 (review P1-1).** w = 2^ŝ d̃ is exact, and
-    n_w = Σ_{i∈F} w_i² ∈ [1, 12) is exact. μ = (Σ_{i∈F} w_i r_i)/n_w in ball arithmetic, by the
-    certified division of `WideArith`. Wide2's exponent is i64, so no intermediate leaves its
-    range.
+  - **The multiplier is range-safe, as in §7.2.** w = 2^ŝ d̃ and n_w = Σ_{i∈F} w_i² ∈ [1, 12)
+    are exact. The numerator Σ_{i∈F} w_i r_i, the quotient μ, the components and s are all
+    formed as `WideArith` balls (i64 exponent), so no intermediate leaves its range.
+    - Each published value is the ball's midpoint, rounded once.
+    - `SUPPORT_SKEW_REACTION_RANGE_UNSUPPORTED` fires only when that published rounding is
+      outside binary64 (revision 3).
   - Consistency: each |r_i − μ w_i| for i ∈ F must be within the balls' radii. Otherwise
     `RecoveryFailure` "restraint_basis: reaction not along the constraint", which leaves the
     record unavailable, as any recovery failure does.
@@ -891,6 +954,8 @@ two independent routes (KKT and RREF nullspace). Contents:
   - §2.6's S-1, S-2, R-1 to R-4;
   - the S-K1 reductions, redundant and near-dependent cases, and the range regression
     `R4_tiny_restricted_direction` (n_F rounds to 0; n_w = 1);
+  - each single-stop case's Q columns on F from w, and τ with its nearest binary64 τ_b, its exact
+    error τ − τ_b and that error's upward binary64 bound;
   - per single-stop case an `attribution` block: F, the pivot on F, ŝ, w, n_w, μ, each physical
     translation's free coordinates or `i32::MIN`, and the particular solution u₀;
   - the S-K2 joint, orthogonal, oblique, near-parallel, parallel, antiparallel and three-stop
@@ -911,6 +976,12 @@ two independent routes (KKT and RREF nullspace). Contents:
   - `attribution_range`;
   - `lifted_remainder_exponent_minimum`;
   - `particular_solution_not_ground_displacement`.
+- **`attribution_range`:** direct `attribute` inputs.
+  - `N_w_overflow_published_finite`: no refusal.
+  - `published_along_overflow`: refused on s only.
+  - `tiny_restricted_direction`.
+
+  Each gives exact values and §7.2's binary64 values: k, N′, μ′, μ, components, s and axis.
 - **`negatives`:** every code of §2.2 with its stage.
 
 **Acceptance checks for S-K1** (each test named in §15):
@@ -993,9 +1064,13 @@ Output: a note in the PR description of who agreed what.
     diag tip, rotations = 1, rotations restrained): K′ symmetric bit for bit, the lifted u within
     1e-12 relative, the exact constraint on the unrounded lift (ExactAccumulator of dᵀ(Qv) == 0),
     `attribute` within 1e-12 relative;
-  - attribution's range safety: `R4_tiny_restricted_direction` gives finite values equal to the
-    exact ones, and ŝ, w and n_w match the `attribution` bits (the regression for n_F = 2⁻¹²⁰⁰,
-    which rounds to 0);
+  - attribution's range safety:
+    - `R4_tiny_restricted_direction` gives finite values equal to the exact ones, and ŝ, w and
+      n_w match the `attribution` bits (the regression for n_F = 2⁻¹²⁰⁰, which rounds to 0);
+    - every `attribution_range` case gives §7.2's binary64 bits;
+    - `published_along_overflow` is the only one refused, and the refusal names the
+      along-direction value;
+  - Q on F equals `attribution.Q_on_F_columns_from_w` bit for bit in every single-stop case;
   - the published-lift bound: |d̃ᵀu_p| ≤ Σ|d̃_i|·½ulp(u_p,i), next to the exact zero of the
     unrounded lift;
   - I3 under P-SYM: bitwise u and R (up to zero signs) for the negation pairs. A failure is

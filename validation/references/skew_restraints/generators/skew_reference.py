@@ -112,8 +112,10 @@ def sign_qs(c: F, b: F, q: int) -> int:
 
 
 def nearest_qs(a: F, b: F, q: int) -> float:
-    """The binary64 nearest to a + b*sqrt(q), decided by exact comparisons."""
-    x = float(a) + float(b) * math.sqrt(q)
+    """The binary64 nearest to a + b*sqrt(q), decided by exact comparisons. The starting
+    estimate uses sqrt(q) to 600 bits, so cancellation in a + b*sqrt(q) leaves it within a few
+    ulps of the result and the exact search below takes a few steps."""
+    x = float(a + b * F(math.isqrt(q << 1200), 1 << 600))
     while True:
         lo = (F(math.nextafter(x, -math.inf)) + F(x)) / 2
         hi = (F(x) + F(math.nextafter(x, math.inf))) / 2
@@ -124,6 +126,38 @@ def nearest_qs(a: F, b: F, q: int) -> float:
         else:
             assert sign_qs(a - lo, b, q) != 0 and sign_qs(a - hi, b, q) != 0, "a tie needs the even rule"
             return x
+
+
+OVERFLOW = F(2) ** 1024 - F(2) ** 970  # |x| >= this rounds to infinity (round to nearest)
+
+
+def representable(a: F, b: F = F(0), q: int = 1) -> bool:
+    """Whether a + b*sqrt(q) rounds to a finite binary64."""
+    if sign_qs(a - OVERFLOW, b, q) >= 0:
+        return False
+    return sign_qs(a + OVERFLOW, b, q) > 0
+
+
+def upper_abs(a: F, b: F, q: int) -> float:
+    """The least binary64 >= |a + b*sqrt(q)| (upward rounding of the magnitude)."""
+    if sign_qs(a, b, q) < 0:
+        a, b = -a, -b
+    x = nearest_qs(a, b, q) if b != 0 else float(a)
+    while sign_qs(a - F(x), b, q) > 0:
+        x = math.nextafter(x, math.inf)
+    while x > 0 and sign_qs(a - F(math.nextafter(x, 0.0)), b, q) <= 0:
+        x = math.nextafter(x, 0.0)
+    return x
+
+
+def tau_record(a: F, b: F, q: int) -> dict:
+    """tau = a + b*sqrt(q); tau_b its nearest binary64; the error about tau_b (design 8.3: the
+    radius about tau_b must be at least |tau - tau_b|; rad([tau]) alone is about mid([tau]))."""
+    tb = nearest_qs(a, b, q) if b != 0 else float(a)
+    ea = a - F(tb)
+    return {"tau": qnum(a, b, q), "tau_b": tb.hex(),
+            "error_tau_minus_tau_b": qnum(ea, b, q) if b != 0 else num(ea),
+            "error_abs_upper_binary64": upper_abs(ea, b, q).hex() if (ea != 0 or b != 0) else 0.0.hex()}
 
 
 def qnum(a: F, b: F, q: int) -> dict:
@@ -490,16 +524,31 @@ def single_stop_info(model: Model, u, lam, offset: int) -> dict | None:
               for i in range(3)}
     h = stop["rows"][0][1]
     tau = (h - sum((d[a] * g for a, g in held.items()), F(0))) / d[pivot]
+    # Design 8.3 (revision 3): the same tau from the restricted rescale, with w_m in [1, 2).
+    ratio = w[i0] / d[i0]  # w = ratio * d exactly (a power of two times 2^s)
+    assert 1 <= abs(w[pivot]) < 2
+    assert tau == (ratio * h - sum((w[a] * g for a, g in held.items()), F(0))) / w[pivot]
     u0 = [held.get(i, F(0)) for i in range(3)]
     u0[pivot] += tau
     assert dot(d, u0) == h and all(u0[a] == g for a, g in held.items()), "C u0 = (g_A, h) exactly"
+    q_cols = []
+    for j in free:
+        if j == pivot:
+            continue
+        col = [0.0, 0.0, 0.0]
+        col[j] = float(w[pivot])
+        col[pivot] = float(-w[j]) if w[j] != 0 else 0.0
+        assert dot([w[i] for i in range(3) if i in free], [F(col[i]) for i in range(3) if i in free]) == 0
+        q_cols.append([x.hex() for x in col])
     return {
         "free_axes": ["xyz"[i] for i in free], "pivot_on_F": "xyz"[pivot],
         "restricted_scale_exponent": s_hat, "w": [float(x).hex() for x in w],
         "n_w": num(n_w), "n_F_exact": num(n_f), "n_F_rounds_to_zero": float(n_f) == 0.0,
         "mu_per_unit_w": num(mu),
         "lifted_remainder_exponent": {"xyz"[i]: ("i32::MIN" if not coords[i] else ["xyz"[j] for j in coords[i]]) for i in range(3)},
+        "Q_on_F_columns_from_w": q_cols,
         "particular_solution_u0": vec(u0),
+        "tau": tau_record(tau, F(0), 1),
     }
 
 
@@ -581,6 +630,7 @@ def kernel_cases() -> list[dict]:
                     "meaning": "B", "norm": {"r": r_d, "radicand": q},
                     "expect": {"u": [qnum(a, b, q) for a, b in zip(u0, u1)], "records": records,
                                "particular_solution_u0": [qnum(a, b, q) for a, b in zip(u0r, u0s)],
+                               "tau": tau_record(tau_r, tau_s, q),
                                "pivot_on_F": "xyz"[pivot]}})
 
     def both(*fs):
@@ -883,6 +933,70 @@ def negatives() -> list[dict]:
     ]
 
 
+def attribution_range_cases() -> list[dict]:
+    """Design 7.2 (revision 3): the multiplier and every published value stay range-safe; the
+    refusal fires only when a published value is outside binary64. Inputs are the node's
+    physical rows r directly (an `attribute` unit test); outputs are exact, plus the binary64
+    values of 7.2's stated arithmetic."""
+    two = F(2)
+    rows = [
+        ("N_w_overflow_published_finite", [1.0, 1.0, 0.0], [], [two ** 1023, two ** 1023, F(0)],
+         "N_w = 2^1024 overflows binary64, but mu = 2^1023, both components and s = sqrt(2) 2^1023 are finite: no refusal"),
+        ("published_along_overflow", [1.0, 1.0, 0.0], [], [F(3, 2) * two ** 1023, F(3, 2) * two ** 1023, F(0)],
+         "mu and both components (1.5 * 2^1023) are finite; s = 1.5 sqrt(2) 2^1023 is not: refused on the along-direction value"),
+        ("tiny_restricted_direction", [1.0, 2.0 ** -600, 0.0], [0, 2], [F(0), F(1), F(0)],
+         "n_F = 2^-1200 rounds to 0; s_hat = 600, n_w = 1, mu = 1: stop (2^600, 1, 0), UX -2^600, s = 2^600 in binary64"),
+    ]
+    out = []
+    for name, d, held, r, note in rows:
+        v = classify(d)
+        dt = [F(x) for x in v["scaled"]]
+        free = [i for i in range(3) if i not in held]
+        top = max(abs(dt[i]) for i in free if dt[i] != 0)
+        s_hat = 0
+        while top * two ** s_hat < 1:
+            s_hat += 1
+        w = [x * two ** s_hat for x in dt]
+        n_w = sum((w[i] ** 2 for i in free), F(0))
+        n_big = sum((w[i] * r[i] for i in free), F(0))
+        mu = n_big / n_w
+        comps = [mu * x for x in w]
+        axis = {"xyz"[a]: r[a] - mu * w[a] for a in held}
+        norm_sq = dot(w, w)  # |w|^2; s = mu * |w|
+        s_sign = (mu > 0) - (mu < 0)
+        s_square = mu * mu * norm_sq
+        published = {"components": [representable(x) for x in comps],
+                      "along_direction": s_square < OVERFLOW ** 2,  # |s| < OVERFLOW
+                      "axis": {k: representable(x) for k, x in axis.items()}}
+        # 7.2's binary64 arithmetic: k = 0 when N_w rounds finite, else 4.
+        k = 0 if representable(n_big) else 4
+        n_prime = float(n_big / two ** k)
+        mu_prime = float(F(n_prime) / F(float(n_w)))
+        mu_b = F(mu_prime) * two ** k
+        nu = sqrt_nearest(dot(dt, dt))
+        design = {"k": k, "N_prime": n_prime.hex(), "mu_prime": mu_prime.hex(),
+                  "mu": float(mu_b).hex() if representable(mu_b) else "outside binary64",
+                  "components": [float(mu_b * x).hex() if representable(mu_b * x) else "outside binary64" for x in w],
+                  "along_direction": float(mu_b * F(nu) * two ** s_hat).hex() if representable(mu_b * F(nu) * two ** s_hat) else "outside binary64",
+                  "axis": {"xyz"[a]: float(r[a] - mu_b * w[a]).hex() for a in held}}
+        refused = not (all(published["components"]) and published["along_direction"] and all(published["axis"].values()))
+        out.append({"name": name, "authored": [x.hex() for x in d], "held_axes": ["xyz"[a] for a in held],
+                    "rows_r": vec(r), "note": note, "restricted_scale_exponent": s_hat,
+                    "w": [float(x).hex() for x in w], "n_w": num(n_w),
+                    "N_w_exact": f"{n_big.numerator}/{n_big.denominator}", "N_w_representable": representable(n_big),
+                    "expect": {"mu_per_unit_w": f"{mu.numerator}/{mu.denominator}",
+                               "components_exact": [f"{x.numerator}/{x.denominator}" for x in comps],
+                               "along_direction_square": f"{s_square.numerator}/{s_square.denominator}", "along_sign": s_sign,
+                               "axis_exact": {k2: f"{x.numerator}/{x.denominator}" for k2, x in axis.items()},
+                               "published_representable": published, "binary64_per_design_7_2": design,
+                               "code": "SUPPORT_SKEW_REACTION_RANGE_UNSUPPORTED" if refused else None}})
+    by = {c["name"]: c for c in out}
+    assert not by["N_w_overflow_published_finite"]["N_w_representable"] and by["N_w_overflow_published_finite"]["expect"]["code"] is None
+    assert by["published_along_overflow"]["expect"]["code"] and all(by["published_along_overflow"]["expect"]["published_representable"]["components"])
+    assert by["tiny_restricted_direction"]["expect"]["binary64_per_design_7_2"]["along_direction"] == (2.0 ** 600).hex()
+    return out
+
+
 def regressions(kernel: list[dict]) -> dict:
     """The independent review's findings on revision 1, as exact regressions."""
     by = {c["name"]: c for c in kernel}
@@ -977,6 +1091,7 @@ def build() -> dict[str, bytes]:
         "product": {"spec": spec, "cases": product},
         "modal_kernel": modal_cases(),
         "regressions": regressions(kernel),
+        "attribution_range": attribution_range_cases(),
         "negatives": negatives(),
     }
     text = (json.dumps(references, indent=1, sort_keys=True) + "\n").encode()

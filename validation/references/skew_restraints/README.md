@@ -18,9 +18,18 @@ are textbook constrained-equilibrium and matrix structural analysis
 Ziemian, *Matrix Structural Analysis*). Standard claim fence applies (F-PIP-2;
 claims taxonomy per DEC-081).
 
-Status: candidate references, revision 2. Revision 1 was reviewed independently
-(no P0, sampled values recomputed). Revision 2 adds the review's regressions and
-the corrected S-K3 cases; it has not been re-reviewed. No consumer exists yet; the
+Status: candidate references, revision 3.
+
+- Revision 1 was reviewed independently (no P0, sampled values recomputed).
+- Revision 2 added the review's regressions and the corrected S-K3 cases; its
+  focused confirmation passed them.
+- Revision 3 adds three things:
+  - `attribution_range` (an unrepresentable N_w with finite published values,
+    and a genuinely overflowing published value);
+  - each single-stop case's Q columns on F from the restricted rescale w;
+  - τ's nearest binary64 τ_b and the exact error about it.
+
+  It has not been re-reviewed. No consumer exists yet; the
 first-implementation brief (design §15) names the tests that read them.
 
 ## Files
@@ -114,6 +123,10 @@ to R-4), the spring-pair equivalence and the invariance groups.
   - the `i32::MIN` exponents of a stop-fixed node;
   - a ground displacement that violates an axis row, with the correct
     particular solution.
+- **`attribution_range`.** Inputs r given directly to `attribute`. Each case
+  gives exact μ, components, axis values and s², and design §7.2's binary64
+  values (k, N′, μ′, μ, components, s). An overflowing N_w with finite published
+  values is not refused; only a published value outside binary64 is.
 - **`negatives`.** Every named refusal of the first slice, with its stage and
   inputs.
 
