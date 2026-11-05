@@ -222,7 +222,7 @@
       "core/reporting/report_package/Cargo.toml": "8810941626d46d92607f938e9391bcb4e80aab08c2132c56b04d632aa6e90113",
       "core/reporting/report_renderer/Cargo.toml": "e16d788aa9def79409f139ca48b73f03bde62ce9ff898456aaac697dc00bcb0e",
       "core/reporting/report_sections/Cargo.toml": "44acb66312edbc9bfd77aa2980a898511ac34de67fba0fc773b70007a3aad0f1",
-      "core/reporting/result_export/Cargo.toml": "c7435b05163d33be7d379e8596b49bab9facec44019d88079bb366da267fdcef",
+      "core/reporting/result_export/Cargo.toml": "29b5b7719842ad5210ee257bf172871e51d8ffbbd6a606c8604571e4b2b1e89d",
       "core/rules/completeness_checker/Cargo.toml": "95cf7430d70fffc65a984a6841980f2c65f12000e28004da89efc092f1152737",
       "core/rules/expression_evaluator/Cargo.toml": "7018210dadfb7c2b855298730f5f8cddedbe09f7f03b05421b81c3694f873b18",
       "core/rules/rule_check_runner/Cargo.toml": "88971098b7a02b7cd79ee97788e76d31425865b98a0e51dbdd7d6e8711fb9dc1",
@@ -234,7 +234,7 @@
       "core/solver/diagnostics/Cargo.toml": "11db1409fcfd3b0312ef80085e36eac4d7a66eb0f4298832137119835b1c92e8",
       "core/solver/frame_kernel/Cargo.toml": "e0bb2f7b5da70df444a9db84bfc4a20831bb8ead7e63e58a0c71c739621f4a0b",
       "core/solver/linear_supports/Cargo.toml": "8d38681e7d09f9f1502d8986ccbea888bfb678b0ea8022885d3f67503ba4881d",
-      "core/solver/nonlinear_integration/Cargo.toml": "4984cffe3072331fd5c46aec0f9e828363d5c55cbfb626dc46d550c8bd02be71",
+      "core/solver/nonlinear_integration/Cargo.toml": "0cdf049b4d001053541651c3bf9dc891a14a98c4acc3a858463ad47a5b343bda",
       "core/solver/nonlinear_supports/Cargo.toml": "c34c7d2a46294e3c2ab57b4b15028c48664670dfe25278b8b6d22147743a10a6",
       "core/solver/performance_harness/Cargo.toml": "a40eb2f667e3e42e701b520849ade8c79bcbc4adcfb29ad866c795e7b31b9144",
       "core/solver/release_timing/Cargo.toml": "3a9145d9c3023bd7f75fc21da33c9b3ee9973b8206278707df04506355185a35",
@@ -3900,7 +3900,7 @@
         }
       },
       "core/solver/nonlinear_integration/src/s11k_tests.rs": {
-        "sha256": "eac6442153fc36bf3b78c9b4252cc6268053b8ad46844049e191874dd08141dd",
+        "sha256": "4da42a0a1402ab1d9b3419208077b6c4dcd9296f31d3646dcf3e10c93b8594b0",
         "source_trees": [
           "core/analysis/hanger_sizing/Cargo.toml",
           "core/loads/self_weight_wasm/Cargo.toml",

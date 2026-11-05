@@ -1343,7 +1343,7 @@ fn kd5_nonlinear_sources_name_no_formation_check_entry_point() {
     let wrapper_compact=wrapper.split_whitespace().collect::<String>();
     let selection="letload_case=load_state.map_or(load_case,|state|&state.effective_case);";
     let preparation="letexact_pressure=pressure_runtime::build_pressure_case_with_members(model,built,materials,load_case,load_state.map(|state|&state.pairs),diagnostics,);";
-    let delegation="solve_prepared_load_case(model,built,materials,stiffness,restrained_dofs,spring_entries,load_case,modulus_basis_record,solver_mode,capture,source_budget,load_state,exact_pressure,diagnostics,product)";
+    let delegation="solve_prepared_load_case(model,built,materials,stiffness,restrained_dofs,spring_entries,load_case,modulus_basis_record,solver_mode,capture,source_budget,load_state,exact_pressure,diagnostics,product,role)";
     assert_eq!(wrapper_compact.matches(selection).count(),1);
     assert_eq!(wrapper_compact.matches(preparation).count(),1);
     assert_eq!(wrapper_compact.matches(delegation).count(),1);
