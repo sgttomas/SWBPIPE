@@ -1077,6 +1077,56 @@ fn the_registrations_pressure_pass_is_reused_only_for_its_own_publication() {
     assert_eq!(registry.pool().reserved_total(), 0);
 }
 
+/// Review of #143 (open matter 1): since RT-A3 §4 the model-bound `pressure`
+/// registration reads the certificate roster over the document's combination
+/// population and the model's, and the model-free reader over the document's
+/// alone, so on a document naming a combination a registration's pass does not
+/// establish the model-free reader's. On every certificate-corpus `pressure`
+/// document (each names combinations), and on each with a supplied claim
+/// added, a held result carrying the registration's pass still reads the
+/// model-free reader, once, with exactly its outcome.
+#[test]
+fn a_pressure_registration_is_not_reused_on_a_document_naming_a_combination() {
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let path = concat!(env!("CARGO_MANIFEST_DIR"), "/../../../fixtures/results/combination_certificate_corpus.json");
+    let corpus: Value = serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap();
+    let mut registered = 0;
+    for entry in corpus["documents"].as_array().unwrap().iter().filter(|entry| entry["reader"] == "pressure") {
+        let name = entry["name"].as_str().unwrap();
+        let mut documents = vec![(name.to_string(), entry["document"].clone())];
+        let ids = open_pipe_stress_result_export::document_combination_identities(&entry["document"]);
+        assert!(!ids.is_empty(), "{name}: a certificate-corpus document names a combination");
+        let mut first: Vec<&String> = ids.iter().collect();
+        first.sort();
+        let mut claimed = entry["document"].clone();
+        let source = claimed["diagnostics"][0]["source"].clone();
+        claimed["diagnostics"].as_array_mut().unwrap().push(json!({"id": "diagnostic:review:claim", "code": "REVIEW_NOTE", "severity": "info",
+            "source": source, "affected_refs": [first[0]], "message": "a supplied claim naming a combination"}));
+        documents.push((format!("{name}+claim"), claimed));
+        let model = serde_json::to_string(&entry["model"]).unwrap();
+        for (label, document) in documents {
+            let text = serde_json::to_string(&document).unwrap();
+            let job = retained(&registry, &gate, &text);
+            if verdict(&registry, &job, Some("pressure"), Some(&model)).unwrap() == crate::solve_jobs::READER_PASSED {
+                let held = registry.held_result(&job).unwrap();
+                assert!(held.pressure_reader_passed(), "{label}");
+                let mut source: Value = serde_json::from_str(&text).unwrap();
+                let route = dispatch(&source).unwrap();
+                let mut model_free = source.clone();
+                let expected = validate_route(&mut model_free, &route);
+                let (outcome, work) = passes::measure(|| validate_route_held(&mut source, &route, &held));
+                assert_eq!(work.reader_validations, 1, "{label}: the model-free reader is read, not the registration's pass reused");
+                assert_eq!(outcome, expected, "{label}: the model-free reader's own outcome");
+                registered += 1;
+            }
+            registry.dispose_result(&job).unwrap();
+        }
+    }
+    assert!(registered > 0, "at least one corpus document's registration passes");
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
+
 /// RT-U4 (1): no other route reuses a pass. The preview-physics
 /// registration's model-bound pass does not establish the model-free
 /// reader's (the latter alone re-derives the combination gates from the
