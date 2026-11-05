@@ -285,13 +285,15 @@ fn cases() -> Vec<Case> {
     for (old, new) in [(fx(Json, 16, 0), fx(Distinct, 16, 1)), (fx(Distinct, 16, 0), fx(Json, 16, 1)), (fx(Distinct, 64, 0), fx(Repeated, 64, 1)), (fx(Repeated, 64, 0), fx(Distinct, 64, 1))] {
         cases.push(Case { name: format!("cross/{}->{}", old.label(), new.label()), kind: "cross", prior: vec![(0, old)], new });
     }
-    let multi: [(&str, Vec<(usize, Fx)>, Fx); 6] = [
+    let multi: [(&str, Vec<(usize, Fx)>, Fx); 8] = [
         ("M1 B json16 then A fresh json1", vec![(1, fx(Json, 16, 2))], fx(Json, 1, 1)),
         ("M2 B json16 then A json1, A 1->1", vec![(1, fx(Json, 16, 2)), (0, fx(Json, 1, 0))], fx(Json, 1, 1)),
         ("M3 A json1 then B json16, A 1->1", vec![(0, fx(Json, 1, 0)), (1, fx(Json, 16, 2))], fx(Json, 1, 1)),
         ("M4 B distinct64 then A distinct1, A 1->4", vec![(1, fx(Distinct, 64, 2)), (0, fx(Distinct, 1, 0))], fx(Distinct, 4, 1)),
         ("M5 B json16, A json4, C json16, A 4->4", vec![(1, fx(Json, 16, 2)), (0, fx(Json, 4, 0)), (2, fx(Json, 16, 3))], fx(Json, 4, 1)),
         ("M6 A distinct16 then B distinct16, A 16->16", vec![(0, fx(Distinct, 16, 0)), (1, fx(Distinct, 16, 2))], fx(Distinct, 16, 1)),
+        ("M7 B, C, D json16 then A fresh json1", vec![(1, fx(Json, 16, 2)), (2, fx(Json, 16, 3)), (3, fx(Json, 16, 4))], fx(Json, 1, 1)),
+        ("M8 B, C, D, E json4 then A fresh json1", vec![(1, fx(Json, 4, 2)), (2, fx(Json, 4, 3)), (3, fx(Json, 4, 4)), (4, fx(Json, 4, 5))], fx(Json, 1, 1)),
     ];
     for (name, prior, new) in multi {
         cases.push(Case { name: format!("multi/{name}"), kind: "multi", prior, new });
@@ -317,7 +319,7 @@ struct Project {
 
 impl Project {
     fn new(index: usize, record: String) -> Self {
-        let letter = ["A", "B", "C"][index];
+        let letter = ["A", "B", "C", "D", "E"][index];
         let id = format!("project:u1-{}", letter.to_lowercase());
         let name = format!("U1 project {letter}");
         let model = format!("{{\"project\":{{\"id\":\"{id}\",\"name\":\"{name}\"}},\"schema_version\":\"u1-fixture-model\"}}");
@@ -461,7 +463,7 @@ fn scratch() -> PathBuf {
 // ---------------------------------------------------------------------------
 
 fn fixture_row(role: &str, project: usize, fx: Fx, text: &str) -> Value {
-    let project = ["A", "B", "C"][project];
+    let project = ["A", "B", "C", "D", "E"][project];
     json!({
         "role": role,
         "project": project,
@@ -864,6 +866,49 @@ fn render(raw: &[String], head: &str) -> String {
         } else {
             writeln!(w, "| {} | {} | {c:.3} |", family.name(), members.len()).unwrap();
         }
+    }
+    writeln!(w).unwrap();
+
+    writeln!(w, "#### G5b. Derived checks over the measured cases").unwrap();
+    writeln!(w).unwrap();
+    let tmax = |value: &Value| value["other_rows_search_bytes"].as_array().into_iter().flatten().map(number).max().unwrap_or(0);
+    let larger = |value: &Value| number(&value["search_bytes"]).max(number(&value["replaced_search_bytes"]));
+    let s = |value: &Value, key: &str| number(&value["summary"][key]);
+    let all_zero = |key: &str| measured.iter().all(|value| s(value, key) == 0);
+    writeln!(w, "- cases measured: {}; memory statistics enabled in every process: {}", measured.len(), values[1..].iter().all(|value| value["memstatus_enabled"] == true)).unwrap();
+    writeln!(w, "- baseline current 0 in every process: {}; live after close 0 in every process: {}", all_zero("baseline_current"), all_zero("close_end")).unwrap();
+    let caches: std::collections::BTreeSet<i64> = measured.iter().map(|value| s(value, "page_cache_used_after_commit")).collect();
+    writeln!(w, "- page cache in use after COMMIT (`SQLITE_DBSTATUS_CACHE_USED`), distinct values: {caches:?}").unwrap();
+    writeln!(w, "- longest nested-statement SQL text seen by the trace callback (bounds the trace's own `-- <sql>` allocation): {} bytes", values[1..].iter().map(|value| number(&value["trace"]["nested_sql_max_bytes"])).max().unwrap_or(0)).unwrap();
+    let commit_own = measured.iter().map(|value| (s(value, "commit_peak") - s(value, "replace_end"), value["case"].as_str().unwrap_or_default())).max().unwrap_or((0, ""));
+    writeln!(w, "- COMMIT's own rise over the live bytes it began with, largest: {} bytes ({})", commit_own.0, commit_own.1).unwrap();
+    let by_commit = measured.iter().filter(|value| s(value, "delta_commit") > s(value, "excess_replace")).count();
+    writeln!(w, "- U1 set by Δcommit in {by_commit} cases, by the replace's excess in {}", measured.len() - by_commit).unwrap();
+    let retained = measured.iter().map(|value| ((s(value, "commit_end") - s(value, "replace_start")) as f64 / larger(value).max(1) as f64, value["case"].as_str().unwrap_or_default())).fold((f64::MIN, ""), |a, b| if b.0 > a.0 { b } else { a });
+    writeln!(w, "- live after COMMIT − R0 (held until the connection closes), largest per byte of max(\\|S\\|, \\|S'\\|): {:.3} ({})", retained.0, retained.1).unwrap();
+    let upsert = measured.iter().map(|value| ((s(value, "upsert_peak") - s(value, "upsert_start")) - 2 * number(&value["search_bytes"]), value["case"].as_str().unwrap_or_default())).max().unwrap_or((0, ""));
+    writeln!(w, "- upsert rise over its start minus 2·\\|S\\| (the row's texts and its record, approximately what its ledger reservation covers), largest: {} bytes ({})", upsert.0, upsert.1).unwrap();
+    writeln!(w).unwrap();
+    writeln!(w, "Multi-project cases: the FTS delete phase's rise over R0 against the largest other stored search text.").unwrap();
+    writeln!(w).unwrap();
+    writeln!(w, "| case | FTS delete hw − R0 | Tmax | sum of other rows | ratio to Tmax |").unwrap();
+    writeln!(w, "|---|---:|---:|---:|---:|").unwrap();
+    for value in measured.iter().filter(|value| value["kind"] == "multi") {
+        let rise = s(value, "delete_peak") - s(value, "replace_start");
+        let sum: i64 = value["other_rows_search_bytes"].as_array().into_iter().flatten().map(number).sum();
+        writeln!(w, "| {} | {rise} | {} | {sum} | {:.3} |", value["case"].as_str().unwrap_or_default(), tmax(value), rise as f64 / tmax(value).max(1) as f64).unwrap();
+    }
+    writeln!(w).unwrap();
+    writeln!(w, "Candidate envelopes E (proposal inputs, chosen after the data): the least E/U1 over every measured case.").unwrap();
+    writeln!(w).unwrap();
+    writeln!(w, "| E | least E/U1 | at case |").unwrap();
+    writeln!(w, "|---|---:|---|").unwrap();
+    for (a, b, k) in [(32.0, 1.25, 4i64), (36.0, 1.25, 4), (40.0, 1.5, 8)] {
+        let worst = measured
+            .iter()
+            .map(|value| ((a * larger(value) as f64 + b * tmax(value) as f64 + (k * MIB as i64) as f64) / s(value, "u1").max(1) as f64, value["case"].as_str().unwrap_or_default()))
+            .fold((f64::MAX, ""), |a, b| if b.0 < a.0 { b } else { a });
+        writeln!(w, "| {a}·max(\\|S\\|, \\|S'\\|) + {b}·Tmax + {k} MiB | {:.3} | {} |", worst.0, worst.1).unwrap();
     }
     writeln!(w).unwrap();
 
