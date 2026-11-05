@@ -739,6 +739,33 @@ mod u5b_effective_axial_tests {
         assert!(!effective_axial_binding(sum + 2.0 * tolerance, 1.0, 0.0, &rods));
     }
 
+    /// The axial share is the exact dot RN(n·Q_x) compared by bits (`to_bits`): an exactly
+    /// zero dot rounds to +0.0, so a -0.0 share is refused. The pressure-2 verifier
+    /// (`tests/test_pressure_connector_readers.py`) asserts the same verdicts.
+    #[test]
+    fn the_axial_share_is_compared_by_bits_so_a_negative_zero_share_is_refused() {
+        use serde_json::json;
+        let rod = |axis0: [f64; 3], n: [f64; 3], share: f64| {
+            let record = json!({"connector_axes_global": [[axis0[0], 0.0, 0.0], [axis0[1], 1.0, 0.0], [axis0[2], 0.0, 1.0]],
+                "tie_rods": [{"id": "rod:a", "law": "bilateral_linear", "offset_global_m": [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
+                    "stiffness_n_per_m": 1.0e6, "reference_extension_m": 0.0, "length_m": 1.0, "direction_global": n,
+                    "axial_share": share, "source_reference": "invented signed-zero case"}]});
+            super::tie_rods(&record).map(|rods| rods.len())
+        };
+        let refused = Err("SOURCE_PHYSICS_CONNECTOR_TIE_ROD_AXIAL_SHARE".into());
+        // A dot that is zero term by term: +0.0 is the exact dot's rounding; -0.0 is refused.
+        assert_eq!(rod([1.0, 0.0, 0.0], [0.0, 1.0, 0.0], 0.0), Ok(1));
+        assert_eq!(rod([1.0, 0.0, 0.0], [0.0, 1.0, 0.0], -0.0), refused);
+        // Cancellation: 0.6·0.8 − 0.8·0.6 is exactly zero, rounded to +0.0: +0.0 admitted, -0.0 refused.
+        assert_eq!(rod([0.8, -0.6, 0.0], [0.6, 0.8, 0.0], 0.0), Ok(1));
+        assert_eq!(rod([0.8, -0.6, 0.0], [0.6, 0.8, 0.0], -0.0), refused);
+        // Nonzero controls: the exact dot's rounding admitted, its neighbours refused.
+        assert_eq!(rod([1.0, 0.0, 0.0], [1.0, 0.0, 0.0], 1.0), Ok(1));
+        assert_eq!(rod([1.0, 0.0, 0.0], [1.0, 0.0, 0.0], f64::from_bits(1.0f64.to_bits() - 1)), refused);
+        assert_eq!(rod([1.0, 0.0, 0.0], [-1.0, 0.0, 0.0], -1.0), Ok(1));
+        assert_eq!(rod([1.0, 0.0, 0.0], [-1.0, 0.0, 0.0], 1.0), refused);
+    }
+
     /// The direction check's |n|² and the s_x tolerance's rod terms are
     /// `Iterator::sum::<f64>()`: from −0.0, in source order, one rounding per
     /// addition. These cases sit where a compensated sum (Python ≥ 3.12's
