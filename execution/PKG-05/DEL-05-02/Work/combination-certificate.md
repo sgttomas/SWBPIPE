@@ -295,8 +295,12 @@ option A).** Both readers (RE `combination_certificate.rs` `roster`, Python
     (`HELD_STATUS_QUOTED_CODES`, a set distinct from the gate set), in desktop
     `suppliedDiagnostics.ts` (the Diagnostics panel, the result
     interpretation and the report projection), the run comparison, and Rust
-    `report_package::bindings` (every native report path). Raw diagnostic
-    bytes and evidence are unchanged.
+    `report_package::bindings` (every native report path). Quoting is
+    presentation only: it leaves the result's raw diagnostic and evidence
+    bytes untouched. The producer's `HELD_STATUS_RELEASED` wording changes on
+    purpose for fresh output (P1, below; priced and recorded in DEL-04-08
+    Work `retained-pricing-rules.md` §8.54); recorded bytes and the recorded
+    variant selection are preserved.
   - *`HELD_STATUS_RELEASED` (P1, RT-A3).* One set-bound entry per held
     combination whose validated held-status record releases a support: id
     `diagnostic:preview-physics:held-status-released:<identity>`, warning, refs

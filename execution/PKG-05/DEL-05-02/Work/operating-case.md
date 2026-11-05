@@ -1560,7 +1560,11 @@ consumer reuses them (Agent 0).
     Example: `support:t held active, classified inactive (changed state: reaction_bits
     c080000000000000)`; strict gap: `support:t held active, classified inactive (changed state:
     gap_sign zero, reaction_sign positive in the contact's own sense, active to inactive)`.
-    Presenters quote it whole as supplied text (`HELD_STATUS_QUOTED_CODES`).
+    Presenters quote it whole as supplied text (`HELD_STATUS_QUOTED_CODES`). Quoting is presentation
+    only: it leaves the result's raw diagnostic and evidence bytes untouched. The wording itself is
+    the producer's, changed on purpose for fresh output by P1 and priced in DEL-04-08 Work
+    `retained-pricing-rules.md` §8.54; recorded results keep their recorded bytes, and the recorded
+    table variants are selected as before (§7.6, "History").
 - The standing record (E, N, R, G).
 - The held solver's own diagnostics (policy diagnostics, the active-set diagnostics, the
   non-converged exit diagnostic) are not republished as case diagnostics.
@@ -1716,6 +1720,12 @@ contracts per support, kept apart:
   the held codes (`preview_physics_evidence.rs:60–70`, `.py:80–86`, `preview_combination_gates.py:269`).
 - **History.** The historic recorded variants are preserved: the §10.4 registry gains the moved
   tables verbatim, as §6.7 did, with no silent reseal (Agent 0).
+- **Presentation and bytes.** Every presenter quotes a notice whose typed code is a held gate code
+  or `HELD_STATUS_RELEASED` whole as supplied text (Work `combination-certificate.md` §2). That is
+  presentation only and changes no raw diagnostic or evidence byte of the result. What changes a
+  fresh result's bytes is the producer: the held gate notice `Combination withheld: <R>.` and
+  P1's `HELD_STATUS_RELEASED` wording (§7.5), both recorded and priced in §8.54. Recorded bytes and
+  the recorded variant selection are unchanged.
 
 ### 7.7 (f) The hanger-facing callable contract
 

@@ -2228,9 +2228,13 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 // guard text; TAV_X +86 B, P's guard text; and the in-build s(PreparedCaseResult) 1,888 -> 1,912 B,
 // LoadCaseSolve's certificate_operand, two per case at three cases, +144 B): W1-W5 +947 B, X1-X3 +839 B in
 // both modes, from maintained eval at the same 328 in-build atoms, without R.
+// §8.54: RT-A5 minuend_final (STATICS[1] +7,744 B, +28 Node(String,Value) and +144 s(Value): the restated
+// preview-physics-retained-1 table's held-status gates, kind and policy, two static owners; and the in-build
+// s(PreparedCaseResult) 1,912 -> 1,920 B, LoadCaseSolve's held_status_source, two per case at three cases,
+// +48 B): +33,008 B in every phase and mode, from maintained eval at the same 328 in-build atoms, without R.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_450_323_600, 6_792_318_161, 8_744_053_989, 8_537_770_261, 7_611_466_059, 8_526_303_704, 7_258_921_094, 6_932_210_970],
-    [6_509_454_944, 6_851_449_505, 8_803_185_333, 8_596_901_605, 7_670_597_403, 8_585_435_048, 7_318_052_438, 6_991_342_314],
+    [6_450_356_608, 6_792_351_169, 8_744_086_997, 8_537_803_269, 7_611_499_067, 8_526_336_712, 7_258_954_102, 6_932_243_978],
+    [6_509_487_952, 6_851_482_513, 8_803_218_341, 8_596_934_613, 7_670_630_411, 8_585_468_056, 7_318_085_446, 6_991_375_322],
 ];
 
 #[test]
