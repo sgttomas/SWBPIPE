@@ -844,6 +844,8 @@ fn the_navigator_lists_each_admitted_entity_once_in_first_publication_order() {
     let (mut compared, mut refused) = (0, 0);
     for (name, source) in sources() {
         let job = retained(&registry, &gate, &source);
+        // The source's row count, read once for every filter's probes.
+        let rows_total = serde_json::from_str::<Value>(&source).unwrap()["results"].as_array().map_or(0, Vec::len) as u64;
         for filter in &filters {
             let navigator = navigate(&registry, &json!({"jobId": job, "filter": filter, "probe": null}));
             let Ok((ordinals, texts)) = admitted(&registry, &job, filter) else {
@@ -875,7 +877,6 @@ fn the_navigator_lists_each_admitted_entity_once_in_first_publication_order() {
             assert_eq!(navigator.header["probe"], Value::Null);
             assert!(navigator.texts.is_empty());
             // Probes: an admitted row at its position, a row the filter leaves out, a past-end ordinal.
-            let rows_total = serde_json::from_str::<Value>(&source).unwrap()["results"].as_array().map_or(0, Vec::len) as u64;
             for probe in [ordinals.first().copied(), ordinals.last().copied(), (0..rows_total).find(|o| !ordinals.contains(o)), Some(rows_total + 3)].into_iter().flatten() {
                 let probed = navigate(&registry, &json!({"jobId": job, "filter": filter, "probe": probe})).unwrap();
                 let at = ordinals.iter().position(|o| *o == probe);

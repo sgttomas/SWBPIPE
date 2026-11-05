@@ -97,14 +97,26 @@ pub(crate) fn source_text(source: &Value) -> String {
     }
 }
 
+/// A committed corpus file's parsed JSON, read and parsed once per test process. Only maintained
+/// fixture files that no test writes are read here; the shared value is immutable (`&'static`),
+/// and every caller clones what it takes, so each test owns its own copy and sees no other's edits.
+pub(crate) fn fixture_json(path: &'static str) -> &'static Value {
+    use std::sync::{Mutex, PoisonError};
+    static PARSED: Mutex<std::collections::BTreeMap<&'static str, &'static Value>> = Mutex::new(std::collections::BTreeMap::new());
+    if let Some(value) = PARSED.lock().unwrap_or_else(PoisonError::into_inner).get(path) {
+        return value;
+    }
+    let value: &'static Value = Box::leak(Box::new(serde_json::from_str(&read_text(path)).unwrap()));
+    PARSED.lock().unwrap_or_else(PoisonError::into_inner).entry(path).or_insert(value)
+}
+
 /// The builder corpus's cases by id.
 pub(crate) fn builder_cases() -> std::collections::HashMap<String, Value> {
-    let file: Value = serde_json::from_str(&read_text(BUILDER_CASES)).unwrap();
-    file["cases"].as_array().unwrap().iter().map(|case| (case["id"].as_str().unwrap().to_string(), case.clone())).collect()
+    fixture_json(BUILDER_CASES)["cases"].as_array().unwrap().iter().map(|case| (case["id"].as_str().unwrap().to_string(), case.clone())).collect()
 }
 
 pub(crate) fn reopen_cases() -> Vec<Value> {
-    serde_json::from_str::<Value>(&read_text(REOPEN_CASES)).unwrap()["cases"].as_array().unwrap().clone()
+    fixture_json(REOPEN_CASES)["cases"].as_array().unwrap().clone()
 }
 
 /// `applyPatches` of the generator.

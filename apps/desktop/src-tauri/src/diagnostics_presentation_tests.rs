@@ -22,9 +22,9 @@ fn hex(bytes: &[u8]) -> String {
 
 /// The whole-value definitions, read independently: the population, and the route reader's
 /// acceptance of the source alone (`reader_validate_json`, the wasm export's function, on the text).
-fn expected(text: &str) -> (Vec<String>, bool) {
-    let source: Value = serde_json::from_str(text).unwrap();
-    let mut ids: Vec<String> = open_pipe_stress_result_export::document_combination_identities(&source).into_iter().collect();
+/// `source` is `text` parsed by the caller; the dispatch it read is returned for the binding check.
+fn expected(text: &str, source: &Value) -> (Vec<String>, bool, Value) {
+    let mut ids: Vec<String> = open_pipe_stress_result_export::document_combination_identities(source).into_iter().collect();
     ids.sort();
     let dispatch: Value = serde_json::from_str(&open_pipe_stress_operation_applier::reader_dispatch_json(text, None, None).unwrap()).unwrap();
     let reader = match dispatch["route"].as_str().unwrap() {
@@ -39,13 +39,19 @@ fn expected(text: &str) -> (Vec<String>, bool) {
             let outcome: Value = serde_json::from_str(&open_pipe_stress_operation_applier::reader_validate_json(reader, text, None, None).unwrap()).unwrap();
             outcome["ok"] == true
         });
-    (ids, roster)
+    (ids, roster, dispatch)
 }
 
 /// The certificate corpus's documents, their review claims (a supplied note naming one of the
 /// document's combinations, which the closed roster refuses) and the forgeries, the retained
 /// successors with and without the certificate member, and a result without combinations.
+/// Built once per process from the committed fixtures (immutable input texts); each call returns
+/// its own copy.
 fn sources() -> Vec<(String, String)> {
+    static SOURCES: std::sync::OnceLock<Vec<(String, String)>> = std::sync::OnceLock::new();
+    SOURCES.get_or_init(build_sources).clone()
+}
+fn build_sources() -> Vec<(String, String)> {
     let corpus: Value = serde_json::from_str(&read("fixtures/results/combination_certificate_corpus.json")).unwrap();
     let forgeries: Value = serde_json::from_str(&read("fixtures/results/combination_certificate_forgeries.json")).unwrap();
     let mut out = Vec::new();
@@ -105,13 +111,12 @@ fn each_fact_is_its_whole_value_definition_on_the_same_bytes() {
     for (name, text) in sources() {
         let source: Value = serde_json::from_str(&text).unwrap();
         let facts = facts(&text, &source, None, None);
-        let (ids, roster) = expected(&text);
+        let (ids, roster, dispatch) = expected(&text, &source);
         assert_eq!(facts["combination_identities"], json!(ids), "{name}");
         assert_eq!(facts["roster_checked"], json!(roster), "{name}");
         assert_eq!(facts["certificate_attested"], json!(false), "{name}: no native snapshot holds a retained registration");
         assert_eq!(facts["binding"]["result_bytes"], json!(text.len()), "{name}");
         assert_eq!(facts["binding"]["source_sha256"], json!(hex(&Sha256::digest(text.as_bytes()))), "{name}");
-        let dispatch: Value = serde_json::from_str(&open_pipe_stress_operation_applier::reader_dispatch_json(&text, None, None).unwrap()).unwrap();
         assert_eq!(facts["binding"]["route"], dispatch["route"], "{name}: the route the dispatch states");
         assert_eq!(facts["binding"]["reader_table"], dispatch["binding"], "{name}: the table the dispatch states");
         assert_eq!(facts["binding"]["recorded_table"], Value::Null, "{name}");
@@ -138,7 +143,7 @@ fn a_shared_id_document_reads_its_population_without_ambiguous_identities() {
     let document = &corpus["documents"].as_array().unwrap().iter().find(|e| e["name"] == "pf_shared_id").unwrap()["document"];
     let text = serde_json::to_string(document).unwrap();
     let facts = facts(&text, document, None, None);
-    let (ids, roster) = expected(&text);
+    let (ids, roster, _) = expected(&text, &serde_json::from_str(&text).unwrap());
     assert_eq!(facts["combination_identities"], json!(ids));
     assert_eq!(facts["roster_checked"], json!(roster));
     assert!(!ids.is_empty());
@@ -212,7 +217,7 @@ fn s_carries_the_facts_of_the_share_it_read() {
     let recorded = crate::analysis_run_v03_validate::RecordedTable::of(open_pipe_stress_result_export::recorded_tables::variant_of(&table).unwrap());
     assert_eq!(header[MEMBER], facts(&text, &source, Some(recorded), None));
     assert_eq!(header[MEMBER]["binding"]["recorded_table"], table);
-    let (ids, roster) = expected(&text);
+    let (ids, roster, _) = expected(&text, &source);
     assert_eq!(header[MEMBER]["combination_identities"], json!(ids));
     assert_eq!(header[MEMBER]["roster_checked"], json!(roster));
     assert_eq!(header[MEMBER]["roster_checked"], json!(false), "a retained successor");

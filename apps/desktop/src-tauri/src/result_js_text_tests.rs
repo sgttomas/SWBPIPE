@@ -36,7 +36,7 @@ pub(crate) fn source_text(source: &Value) -> String {
 }
 /// The preview cases of the builder's corpus by id.
 pub(crate) fn preview_cases() -> std::collections::BTreeMap<String, Value> {
-    let cases: Value = serde_json::from_str(&read_text(CASES)).unwrap();
+    let cases = crate::stored_custody::tests::fixture_json(CASES);
     cases["cases"].as_array().unwrap().iter().filter(|case| case["kind"] == "preview").map(|case| (case["id"].as_str().unwrap().to_string(), case.clone())).collect()
 }
 

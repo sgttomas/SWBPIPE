@@ -121,12 +121,22 @@ fn every_recorded_webview_request_is_answered_by_its_actual_command() {
     let requests: Value = serde_json::from_str(&std::fs::read_to_string(root().join(REQUESTS)).unwrap()).unwrap();
     // Grouped by the held bytes and, for a restored handle, the table it holds (RT-A4 §10.4).
     let mut by_source: std::collections::BTreeMap<(String, String), (String, Vec<&Value>)> = Default::default();
+    // Each distinct source (a committed fixture path, or a kept text by its digest) is read and
+    // hashed once; every request still checks its recorded digest against that source's digest.
+    let mut read: std::collections::HashMap<(Option<&str>, Option<&str>), (String, String)> = Default::default();
     for request in requests["requests"].as_array().unwrap() {
-        let text = source_text(request, &requests["sources"]);
-        let sha: String = Sha256::digest(text.as_bytes()).iter().map(|byte| format!("{byte:02x}")).collect();
+        let key = match request["source_path"].as_str() {
+            Some(path) => (Some(path), None),
+            None => (None, request["source_sha256"].as_str()),
+        };
+        let (text, sha) = read.entry(key).or_insert_with(|| {
+            let text = source_text(request, &requests["sources"]);
+            let sha: String = Sha256::digest(text.as_bytes()).iter().map(|byte| format!("{byte:02x}")).collect();
+            (text, sha)
+        });
         assert_eq!(request["source_sha256"].as_str(), Some(sha.as_str()), "the recorded source digest is the source's");
         let table = request.get("recorded_table").map(Value::to_string).unwrap_or_default();
-        by_source.entry((sha, table)).or_insert_with(|| (text, Vec::new())).1.push(request);
+        by_source.entry((sha.clone(), table)).or_insert_with(|| (text.clone(), Vec::new())).1.push(request);
     }
     let mut outcomes = Vec::new();
     for ((sha, table), (text, list)) in &by_source {

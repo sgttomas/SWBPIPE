@@ -101,7 +101,7 @@ fn read_text(path: &str) -> String {
     std::fs::read_to_string(root().join(path)).unwrap_or_else(|e| panic!("{path}: {e}"))
 }
 fn cases() -> Vec<Value> {
-    serde_json::from_str::<Value>(&read_text(CASES)).unwrap()["cases"].as_array().unwrap().clone()
+    crate::stored_custody::tests::fixture_json(CASES)["cases"].as_array().unwrap().clone()
 }
 
 /// A case's held text: a file, a file's top-level member (its exact bytes),
