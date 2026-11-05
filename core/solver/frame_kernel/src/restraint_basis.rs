@@ -76,6 +76,53 @@ fn scale_pow2(mut x: f64, mut k: i32) -> f64 {
     x
 }
 
+/// Astra B1: a binary64 significand with an unbounded exponent, m·2^e with m = ±0 or
+/// |m| ∈ [1, 2). A product or quotient of two of them rounds the significands' product or
+/// quotient once in binary64, which is exactly binary64's rounding of the operation without
+/// its exponent range: the spring recovery's intermediates (t, κ = k·t) carry their
+/// exponent, and only a published value is rounded to binary64 (`publish`).
+#[derive(Debug, Clone, Copy)]
+struct WideBinary64 {
+    m: f64,
+    e: i32,
+}
+
+impl WideBinary64 {
+    /// A finite binary64, subnormals included (exact).
+    fn from_f64(x: f64) -> Self {
+        if x == 0.0 {
+            return Self { m: x, e: 0 };
+        }
+        let e = frexp_exponent(x) - 1;
+        Self { m: scale_pow2(x, -e), e }
+    }
+    /// fl(m·2^shift) unchanged in significand: the exponent moves.
+    fn shifted(self, shift: i32) -> Self {
+        Self { m: self.m, e: self.e + shift }
+    }
+    fn mul(self, other: Self) -> Self {
+        let p = Self::from_f64(self.m * other.m);
+        Self { m: p.m, e: p.e + self.e + other.e }
+    }
+    fn div(self, other: Self) -> Self {
+        let q = Self::from_f64(self.m / other.m);
+        Self { m: q.m, e: q.e + self.e - other.e }
+    }
+    fn neg(self) -> Self {
+        Self { m: -self.m, e: self.e }
+    }
+    /// The published binary64: m·2^e rounded once (the module's exact sum and
+    /// `round_scaled`), `None` outside binary64.
+    fn publish(self) -> Option<f64> {
+        if self.m == 0.0 {
+            return Some(self.m);
+        }
+        let mut sum = ExactAccumulator::new();
+        sum.add(self.m).ok()?;
+        sum.round_scaled(self.e).ok().filter(|x| x.is_finite())
+    }
+}
+
 // ------------------------------------------------------------------ exact helpers
 
 /// Adds the exact product a·b·c. A factor of magnitude 1 is applied by sign;
@@ -1367,6 +1414,12 @@ impl RestraintBasis {
     /// One skewed spring's reaction (§7.2): t = d̃ᵀu (exact, rounded once),
     /// κ = fl(k·t); components fl(−fl(κ/n)·d̃_i), along −fl(κ/ν). Both branch
     /// from κ; no chained division.
+    ///
+    /// Astra B1: t and κ are intermediates. When both are finite binary64 the path is
+    /// today's, bit for bit. Otherwise t is rounded once at 53 bits with its exponent
+    /// (`round_scaled`), and κ, κ/n and κ/ν are the same roundings with an unbounded
+    /// exponent (`WideBinary64`); each published value is rounded to binary64 once, and only
+    /// a published value outside binary64 is refused (`ReactionRange`).
     pub fn spring_reaction(&self, spring: usize, u: &[f64]) -> Result<StopReaction, BasisError> {
         let record = self.springs.get(spring).ok_or(BasisError::Shape("spring index"))?;
         if u.len() != self.dimension() {
@@ -1379,13 +1432,11 @@ impl RestraintBasis {
             dot.add_product(d[i], u[base + i])?;
         }
         let node = record.node;
-        let t = dot
-            .round()
-            .map_err(|_| BasisError::ReactionRange { node, value: PublishedValue::SpringAlongDirection })?;
-        let kappa = record.stiffness * t;
-        if !kappa.is_finite() {
-            return Err(BasisError::ReactionRange { node, value: PublishedValue::SpringAlongDirection });
-        }
+        let t = dot.round().ok().filter(|t| t.is_finite());
+        let kappa = t.map(|t| record.stiffness * t).filter(|kappa| kappa.is_finite());
+        let (Some(_), Some(kappa)) = (t, kappa) else {
+            return self.spring_reaction_wide(record, &dot, d);
+        };
         let per_n = kappa / record.direction.scaled_norm_squared();
         let mut global = [0.0; 3];
         for i in 0..3 {
@@ -1395,6 +1446,22 @@ impl RestraintBasis {
             }
         }
         let along = -(kappa / record.direction.scaled_norm());
+        Ok(StopReaction { global, along })
+    }
+
+    /// Astra B1: `spring_reaction` when t or κ leaves binary64. |d̃ᵀu| < 6·MAX, so
+    /// t·2^-3 is finite: its once-rounded significand is t's at an unbounded exponent.
+    fn spring_reaction_wide(&self, record: &SkewSpring, dot: &ExactAccumulator, d: [f64; 3]) -> Result<StopReaction, BasisError> {
+        let node = record.node;
+        let range = |value| BasisError::ReactionRange { node, value };
+        let t = WideBinary64::from_f64(dot.round_scaled(-3).map_err(|_| range(PublishedValue::SpringAlongDirection))?).shifted(3);
+        let kappa = WideBinary64::from_f64(record.stiffness).mul(t);
+        let per_n = kappa.div(WideBinary64::from_f64(record.direction.scaled_norm_squared()));
+        let mut global = [0.0; 3];
+        for i in 0..3 {
+            global[i] = per_n.mul(WideBinary64::from_f64(d[i])).neg().publish().ok_or(range(PublishedValue::SpringComponent { axis: i }))?;
+        }
+        let along = kappa.div(WideBinary64::from_f64(record.direction.scaled_norm())).neg().publish().ok_or(range(PublishedValue::SpringAlongDirection))?;
         Ok(StopReaction { global, along })
     }
 

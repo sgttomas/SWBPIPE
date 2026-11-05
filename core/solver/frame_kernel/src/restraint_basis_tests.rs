@@ -1646,3 +1646,46 @@ fn certified_skew_spring_branches_from_kappa() {
         }
     }
 }
+
+// ------------------------------------------------------------------ Astra B1
+
+/// Astra B1: an intermediate of the spring recovery (t = d̃ᵀu, κ = k·t) may leave binary64
+/// while every published value fits; the reaction is published, and only a published value
+/// outside binary64 is refused. d = (1, 1, 0) is canonical (n = 2, ν = RN(√2)).
+#[test]
+fn spring_recovery_publishes_finite_values_past_an_overflowing_intermediate() {
+    let spring = |k: f64| {
+        RestraintBasis::build(1, &[3, 4, 5], Vec::new(), vec![SkewSpring {
+            support_id: "s".into(),
+            node: 0,
+            direction: SkewDirection::new([1.0, 1.0, 0.0]).unwrap(),
+            stiffness: k,
+        }])
+        .unwrap()
+    };
+    let max = f64::MAX;
+    // κ = 2^1023·2 overflows; the components −κ/2 = −2^1023 and −κ/ν fit.
+    let basis = spring(2f64.powi(1023));
+    let nu = basis.springs()[0].direction.scaled_norm();
+    let r = basis.spring_reaction(0, &[1.0, 1.0, 0.0, 0.0, 0.0, 0.0]).expect("finite published values");
+    assert_eq!(r.global.map(f64::to_bits), [-(2f64.powi(1023)), -(2f64.powi(1023)), -0.0].map(f64::to_bits));
+    // fl(2^1024/ν) = 2·fl(2^1023/ν) (a power of two moves only the exponent).
+    assert_eq!(r.along.to_bits(), (-(2f64.powi(1023) / nu) * 2.0).to_bits());
+    // t = 2·MAX overflows; with k = 2^-4, κ = MAX/8 and every published value fits.
+    let basis = spring(2f64.powi(-4));
+    let r = basis.spring_reaction(0, &[max, max, 0.0, 0.0, 0.0, 0.0]).expect("finite published values");
+    assert_eq!(r.global.map(f64::to_bits), [-(max / 16.0), -(max / 16.0), -0.0].map(f64::to_bits));
+    assert_eq!(r.along.to_bits(), (-((max / 8.0) / nu)).to_bits());
+    // A published component outside binary64 is still refused, by name.
+    let basis = spring(2.0);
+    assert!(matches!(
+        basis.spring_reaction(0, &[max, max, 0.0, 0.0, 0.0, 0.0]),
+        Err(BasisError::ReactionRange { node: 0, value: PublishedValue::SpringComponent { axis: 0 } })
+    ));
+    // The ordinary path is unchanged: a finite κ gives today's bits.
+    let basis = spring(3.0);
+    let r = basis.spring_reaction(0, &[0.5, 0.25, 0.0, 0.0, 0.0, 0.0]).unwrap();
+    let kappa = 3.0 * 0.75;
+    assert_eq!(r.global.map(f64::to_bits), [-(kappa / 2.0), -(kappa / 2.0), -((kappa / 2.0) * 0.0)].map(f64::to_bits));
+    assert_eq!(r.along.to_bits(), (-(kappa / nu)).to_bits());
+}

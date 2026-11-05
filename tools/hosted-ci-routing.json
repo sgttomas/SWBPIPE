@@ -230,7 +230,7 @@
       "core/serialization/canonical_json/Cargo.toml": "fb2259bdfcb6adebc877b46e4e1b3126fdf1b08c0b6441a5e4ba49ab75e670a0",
       "core/solver/curved_bend/Cargo.toml": "5d7cf1288eac698c209aa4fd7493fa669aa57494950e75374ac07248001502d8",
       "core/solver/diagnostics/Cargo.toml": "33f62709325dd0aee1a7e4996ee1424e2dcbc9fd54418704f87c8f39e64b875c",
-      "core/solver/frame_kernel/Cargo.toml": "7b28a46b0dc23a3b3ccf464fae83f5e590103f4aaa27563369e2406b53232ff9",
+      "core/solver/frame_kernel/Cargo.toml": "455b30fa9cf48c89b2bbc6ce1ce44e302766a6924cab5532450b871ca2a5d966",
       "core/solver/linear_supports/Cargo.toml": "74cab9f6444ce421810b8a9778c1ad0257dcaf34815c4449ea2267fca23909cb",
       "core/solver/nonlinear_integration/Cargo.toml": "4445e235560efa6c9de94c548a54eeb0109f48bb30da063fcb9afe5809058349",
       "core/solver/nonlinear_supports/Cargo.toml": "c34c7d2a46294e3c2ab57b4b15028c48664670dfe25278b8b6d22147743a10a6",
