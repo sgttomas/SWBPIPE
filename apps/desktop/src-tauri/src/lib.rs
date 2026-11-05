@@ -55,6 +55,9 @@ mod result_summary_tables;
 #[cfg(test)]
 #[path = "native_replay_tests.rs"]
 mod native_replay_tests;
+#[cfg(test)]
+#[path = "native_ledger_tests.rs"]
+mod native_ledger_tests;
 mod report_package_bridge;
 mod report_package_save;
 mod report_render_exact;

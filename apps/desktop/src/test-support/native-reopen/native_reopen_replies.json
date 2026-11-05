@@ -780,7 +780,7 @@
         "stored_run": {
           "analysis_run_bytes": 520532,
           "code": "STORED-RESULT-RESTORE-REFUSED",
-          "message": "STORED-RESULT-RESTORE-REFUSED: project `project:exact-pressure-connected-fixture`'s stored run (result 254695 bytes (0.24 MiB), analysis-run record 520532 bytes (0.5 MiB)) was not opened: STORE-READ-MEMORY-UNAVAILABLE: project `project:exact-pressure-connected-fixture`'s stored run's result (254695 bytes) needs 262144 bytes of the memory pool, which refused them ({\"kind\":\"ingress_exceeds_budget\",\"required_bytes\":262144,\"budget_bytes\":262143}); nothing more was read. The stored run is kept unchanged and the model is open for editing; saving the project in place is refused until a new solve replaces the run (model edits can be kept with File > Save Model Document…).",
+          "message": "STORED-RESULT-RESTORE-REFUSED: project `project:exact-pressure-connected-fixture`'s stored run (result 254695 bytes (0.24 MiB), analysis-run record 520532 bytes (0.5 MiB)) was not opened: STORE-READ-MEMORY-UNAVAILABLE: project `project:exact-pressure-connected-fixture`'s stored run's result (254695 bytes) needs 269552 bytes in all, above the per-invocation budget of 262143 bytes; nothing more was read. The stored run is kept unchanged and the model is open for editing; saving the project in place is refused until a new solve replaces the run (model edits can be kept with File > Save Model Document…).",
           "result_bytes": 254695,
           "state": "refused"
         },

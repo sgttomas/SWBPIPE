@@ -119,8 +119,12 @@
 //!   lets the build skip re-running that reader. No record, checksum, length,
 //!   row, interpretation or reply is cached between calls.
 //! - **Admission and memory** (plan §8; no new budget or rule). Every lease is
-//!   pool-admitted before what it covers is allocated, and none exceeds the
-//!   per-invocation budget or the 12 GiB default:
+//!   pool-admitted before what it covers is allocated, and the command's live
+//!   leases together, from its argument lease on, stay within min(the
+//!   per-invocation budget that lease was admitted under, 12 GiB): one
+//!   running total per command (`stored_read::NativeLeaseMemory`), each
+//!   lease's delta reserved there before the pool admits it. The held
+//!   result's bytes are not counted in it (they stay counted in the pool):
 //!   - the args lease, as the other C1 commands': the raw body's copy, grown
 //!     by the args' admission bound and by the manifest text's priced parse;
 //!   - the parse lease of M (`acquire_result_parse`), held while the tree is
@@ -145,7 +149,8 @@ use crate::analysis_runs::{
 };
 use crate::command_ingress::{self, ArgsDecoding, CommandError};
 use crate::ingress;
-use crate::memory_pool::Lease;
+use crate::memory_pool::{CommandLease, Lease};
+use crate::stored_read::NativeLeaseMemory;
 use crate::native_verdict;
 use crate::solve_jobs::SolveJobRegistry;
 use open_pipe_stress_canonical_json::{canonical_number, ecma_number_to_string, CHECKED_PROFILE_V1};
@@ -958,7 +963,7 @@ pub(crate) struct Built<'a> {
 pub(crate) fn build_v03<'a>(
     source: &'a mut Value,
     inputs: &BuildInputs<'a>,
-    reserve: &mut dyn FnMut(u64) -> Result<Option<Lease>, CommandError<String>>,
+    reserve: &mut dyn FnMut(u64) -> Result<Option<CommandLease>, CommandError<String>>,
 ) -> Result<Built<'a>, CommandError<String>> {
     let route = dispatch(source).map_err(CommandError::Command)?;
     validate_route(source, &route).map_err(CommandError::Command)?;
@@ -973,7 +978,7 @@ pub(crate) fn build<'a>(
     source: &'a Value,
     route: Route,
     inputs: &BuildInputs<'a>,
-    reserve: &mut dyn FnMut(u64) -> Result<Option<Lease>, CommandError<String>>,
+    reserve: &mut dyn FnMut(u64) -> Result<Option<CommandLease>, CommandError<String>>,
 ) -> Result<Built<'a>, CommandError<String>> {
     let refuse = |text: String| CommandError::Command(text);
     let manifest = inputs.manifest;
@@ -1141,7 +1146,7 @@ fn statuses(mechanics: Option<&Value>, rule: &str) -> Vec<Value> {
 /// built: the checks such a record can fail, in its order (the appended
 /// diagnostics' codes and identities, the mechanics status, the producer,
 /// duplicate row ids); the rest hold by construction.
-fn validate_built(built: &Built<'_>, source: &Value, inputs: &BuildInputs<'_>, reserve: &mut dyn FnMut(u64) -> Result<Option<Lease>, CommandError<String>>) -> Result<(), CommandError<String>> {
+fn validate_built(built: &Built<'_>, source: &Value, inputs: &BuildInputs<'_>, reserve: &mut dyn FnMut(u64) -> Result<Option<CommandLease>, CommandError<String>>) -> Result<(), CommandError<String>> {
     let refuse = |text: &str| CommandError::Command(text.to_string());
     let mut seen = std::collections::HashSet::new();
     for exclusion in inputs.rule_pack_exclusions {
@@ -1167,7 +1172,7 @@ fn validate_built(built: &Built<'_>, source: &Value, inputs: &BuildInputs<'_>, r
 /// fingerprint and ordinal per row, sorted in place, and the ids of rows
 /// whose fingerprints agree compared. The fingerprints' allocation is
 /// admitted at its exact size first.
-pub(crate) fn duplicate_ids(rows: &[Value], reserve: &mut dyn FnMut(u64) -> Result<Option<Lease>, CommandError<String>>) -> Result<bool, CommandError<String>> {
+pub(crate) fn duplicate_ids(rows: &[Value], reserve: &mut dyn FnMut(u64) -> Result<Option<CommandLease>, CommandError<String>>) -> Result<bool, CommandError<String>> {
     use std::hash::{Hash, Hasher};
     let bytes = (rows.len() as u64).saturating_mul(std::mem::size_of::<(u64, usize)>() as u64);
     let _lease = reserve(ingress::allocation_envelope(bytes).unwrap_or(u64::MAX))?;
@@ -1637,7 +1642,7 @@ pub(crate) fn preview_parsed<'a>(
     aggregate: Option<&'a Value>,
     exclusions: &'a [Exclusion],
     load_basis: &'a mut Value,
-    reserve: &mut dyn FnMut(u64) -> Result<Option<Lease>, CommandError<String>>,
+    reserve: &mut dyn FnMut(u64) -> Result<Option<CommandLease>, CommandError<String>>,
 ) -> Result<Built<'a>, CommandError<String>> {
     let refuse = CommandError::Command;
     let status = get(Some(&*source), "status", "result").map_err(refuse)?;
@@ -1691,33 +1696,38 @@ pub(crate) struct Prepared {
     pub(crate) aggregate: Option<Value>,
     pub(crate) exclusions: Vec<Exclusion>,
     pub(crate) held: std::sync::Arc<crate::solve_jobs::HeldResult>,
-    /// Held, never read: the args lease lives as long as the decoded arguments.
+    /// Held, never read: the args lease lives as long as the decoded
+    /// arguments, counted in the command's ledger.
     #[allow(dead_code)]
-    pub(crate) args_lease: Lease,
+    pub(crate) args_lease: CommandLease,
 }
 
 /// The arguments' admission and decoding, the held result, and the input
 /// manifest's priced parse (the args lease grows by it before it is parsed;
 /// canonical bytes that are not JSON leave no manifest, which the check
 /// refuses).
-pub(crate) fn admit(registry: &SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> Result<Prepared, CommandError<String>> {
-    admit_for(registry, raw, copy, COMMAND, |_| Ok(())).map(|(prepared, ())| prepared)
+pub(crate) fn admit(memory: &NativeLeaseMemory<'_>, raw: Vec<u8>, copy: CommandLease) -> Result<Prepared, CommandError<String>> {
+    admit_for(memory, raw, copy, COMMAND, |_| Ok(())).map(|(prepared, ())| prepared)
 }
 
 /// [`admit`] for another command reading the same arguments and its own
 /// (`extra` decodes them before the held result is found), under that
 /// command's name. The persistence commands (`native_persistence`) admit here.
+/// `copy` is the raw body's lease, seeded into the command's ledger
+/// (`memory`); its growth by the arguments' bound and by the manifest's parse
+/// is a delta in that ledger.
 pub(crate) fn admit_for<E>(
-    registry: &SolveJobRegistry,
+    memory: &NativeLeaseMemory<'_>,
     raw: Vec<u8>,
-    copy: Lease,
+    copy: CommandLease,
     command: &'static str,
     extra: impl FnOnce(&mut command_ingress::Args) -> Result<E, CommandError<String>>,
 ) -> Result<(Prepared, E), CommandError<String>> {
+    let registry = memory.registry();
     let copy_bytes = copy.bytes();
     let (mut args, mut lease) = command_ingress::admit_raw(registry, &raw, command, ArgsDecoding::Moved, |bytes| {
         let mut lease = copy;
-        lease.grow_to(copy_bytes.saturating_add(bytes)).map_err(|refusal| registry.refuse(refusal))?;
+        memory.grow(&mut lease, copy_bytes.saturating_add(bytes))?;
         Ok(lease)
     })?;
     drop(raw);
@@ -1741,7 +1751,8 @@ pub(crate) fn admit_for<E>(
     let manifest = match command_ingress::text_parse_bytes(&evidence.canonical_bytes, ArgsDecoding::Moved) {
         Ok(bytes) => {
             // Capped as the args lease was admitted (`acquire_interactive_capped`).
-            lease.grow_to(lease.bytes().saturating_add(bytes)).map_err(|refusal| CommandError::Ingress(registry.refuse(refusal)))?;
+            let grown = lease.bytes().saturating_add(bytes);
+            memory.grow(&mut lease, grown).map_err(CommandError::Ingress)?;
             serde_json::from_str::<Value>(&evidence.canonical_bytes).ok()
         }
         Err(_) => None,
@@ -1766,24 +1777,24 @@ pub(crate) fn admit_for<E>(
 /// [`SOURCE_CONTRACT_UNSUPPORTED`], as the dispatch reads it through the
 /// wasm engine; the `RawValue` token key keeps slice 1's refusal
 /// (`native_verdict` module docs).
-pub(crate) fn parse_source(registry: &SolveJobRegistry, text: &str) -> Result<(Value, Lease), CommandError<String>> {
+pub(crate) fn parse_source(memory: &NativeLeaseMemory<'_>, text: &str) -> Result<(Value, CommandLease), CommandError<String>> {
     let bound = match ingress::prescan_allowances(text.as_bytes()) {
         Ok((bound, _)) => bound,
         Err(invalid) if invalid.reason == "reserved RawValue token key" => return Err(CommandError::Command(native_verdict::prescan_refusal("source", invalid))),
         Err(_) => return Err(CommandError::Command(SOURCE_CONTRACT_UNSUPPORTED.into())),
     };
-    let reading = registry.acquire_result_parse(bound.materialization_bytes)?;
+    let reading = memory.lease(bound.materialization_bytes)?;
     #[cfg(test)]
-    tests::gate::pass(tests::gate::key(registry, "read"));
+    tests::gate::pass(tests::gate::key(memory.registry(), "read"));
     let source = serde_json::from_str(text).map_err(|_| CommandError::Command(SOURCE_CONTRACT_UNSUPPORTED.into()))?;
     Ok((source, reading))
 }
 
 /// The working lease (module docs): the fixed allowance and the canonical
 /// writer's key-order scratch for the deepest of the values it writes.
-pub(crate) fn working_lease(registry: &SolveJobRegistry, values: &[&Value]) -> Result<Lease, CommandError<String>> {
+pub(crate) fn working_lease(memory: &NativeLeaseMemory<'_>, values: &[&Value]) -> Result<CommandLease, CommandError<String>> {
     let scratch = values.iter().map(|value| sort_scratch_bytes(value)).max().unwrap_or(0);
-    Ok(registry.acquire_result_parse(WORKING_ALLOWANCE_BYTES.saturating_add(scratch))?)
+    Ok(memory.lease(WORKING_ALLOWANCE_BYTES.saturating_add(scratch))?)
 }
 
 /// Admission, the manifest check, the parse and the passes, then `finish`
@@ -1792,23 +1803,24 @@ fn with_built<T>(
     registry: &SolveJobRegistry,
     raw: Vec<u8>,
     copy: Lease,
-    finish: impl FnOnce(&Built<'_>, &str) -> Result<T, CommandError<String>>,
+    finish: impl FnOnce(&Built<'_>, &str, &NativeLeaseMemory<'_>) -> Result<T, CommandError<String>>,
 ) -> Result<T, CommandError<String>> {
     #[cfg(test)]
     tests::gate::pass(tests::gate::key(registry, "admit"));
-    let prepared = admit(registry, raw, copy)?;
+    let (memory, copy) = NativeLeaseMemory::seeded(registry, copy);
+    let prepared = admit(&memory, raw, copy)?;
     let mut values = vec![&prepared.evidence.manifest_ref];
     values.extend(prepared.manifest.as_ref());
-    let working = working_lease(registry, &values)?;
+    let working = working_lease(&memory, &values)?;
     verify_manifest(&prepared.evidence, prepared.manifest.as_ref()).map_err(CommandError::Command)?;
-    let (mut source, reading) = parse_source(registry, prepared.held.text())?;
-    let scratch = working_lease(registry, &[&source])?;
+    let (mut source, reading) = parse_source(&memory, prepared.held.text())?;
+    let scratch = working_lease(&memory, &[&source])?;
     #[cfg(test)]
     if tests::PANIC_IN_BUILD.with(std::cell::Cell::get) {
         panic!("injected panic inside the build");
     }
     let mut load_basis = Value::Null;
-    let mut reserve = |bytes: u64| registry.acquire_result_parse(bytes).map(Some).map_err(CommandError::from);
+    let mut reserve = |bytes: u64| memory.lease(bytes).map(Some).map_err(CommandError::from);
     let built = preview_parsed(
         &prepared.held,
         &mut source,
@@ -1820,7 +1832,7 @@ fn with_built<T>(
         &mut load_basis,
         &mut reserve,
     )?;
-    let finished = finish(&built, &prepared.job_id);
+    let finished = finish(&built, &prepared.job_id, &memory);
     drop(built);
     drop((scratch, working, reading, source, prepared));
     finished
@@ -1828,8 +1840,8 @@ fn with_built<T>(
 
 /// The blocking part of the command: the record's preview header.
 pub(crate) fn run(registry: SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> Result<Vec<u8>, CommandError<String>> {
-    with_built(&registry, raw, copy, |built, job_id| {
-        let (response, written) = header_bytes(built, job_id, |bytes| Ok(registry.acquire_result_parse(bytes)?))?;
+    with_built(&registry, raw, copy, |built, job_id, memory| {
+        let (response, written) = header_bytes(built, job_id, |bytes| Ok(memory.lease(bytes)?))?;
         drop(written);
         Ok(response)
     })
@@ -1842,8 +1854,8 @@ pub(crate) fn run(registry: SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> Resu
 /// connection's SQLite length limit), the record lease returned with the
 /// bytes so it lives exactly as long.
 #[cfg_attr(not(test), allow(dead_code))]
-pub(crate) fn run_record_bytes_within(registry: SolveJobRegistry, raw: Vec<u8>, copy: Lease, max_bytes: u64) -> Result<(Vec<u8>, Lease), CommandError<String>> {
-    with_built(&registry, raw, copy, |built, _| record_bytes(built, max_bytes, |bytes| Ok(registry.acquire_result_parse(bytes)?)))
+pub(crate) fn run_record_bytes_within(registry: SolveJobRegistry, raw: Vec<u8>, copy: Lease, max_bytes: u64) -> Result<(Vec<u8>, CommandLease), CommandError<String>> {
+    with_built(&registry, raw, copy, |built, _, memory| record_bytes(built, max_bytes, |bytes| Ok(memory.lease(bytes)?)))
 }
 
 #[cfg(test)]

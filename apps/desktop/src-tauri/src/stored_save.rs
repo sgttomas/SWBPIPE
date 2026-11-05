@@ -49,13 +49,17 @@
 //!   model-only save drops a stored run, the no-save refusal
 //!   (`PROJECT-SAVE-TOO-LARGE`, rolled back) and the reply are the fresh native
 //!   save's (`native_persistence::stage_save` and `finish_save`, shared).
-//! - **Leases** (no new budget or rule; each capped at min(per-invocation
-//!   budget, 12 GiB)). The raw body's copy and the decoded arguments; each
+//! - **Leases** (no new budget or rule): one running total per command
+//!   (`stored_read::NativeLeaseMemory`), started from the raw body's copy
+//!   lease, keeps the command's live leases together within min(the
+//!   per-invocation budget that lease was admitted under, 12 GiB), each
+//!   delta reserved there before the pool admits it. The raw body's copy and the decoded arguments; each
 //!   held text's parse (the prescan's materialization M, admitted before the
 //!   parse); the canonical writer's working lease; each output text at its
 //!   exact length; SQLite's statement copies; the reply at its exact length.
 //!   The held texts are the handle's, already leased as result leases: this
-//!   path shares them and credits them nothing more; a disposal or reset
+//!   path shares them, counts them in no command total (they stay counted in
+//!   the pool) and credits them nothing more; a disposal or reset
 //!   while it runs releases them when its share drops. The parses and the
 //!   working lease end before the statements run.
 //! - **Residuals, unpriced** (slice 7): the validator's working memory for
@@ -65,7 +69,7 @@
 use crate::analysis_run_v03_build as build;
 use crate::analysis_run_v03_validate::{self as validate, HistoricalFindings, SavedProject};
 use crate::command_ingress::{self, ArgsDecoding, CommandError};
-use crate::memory_pool::Lease;
+use crate::memory_pool::{CommandLease, Lease};
 use crate::native_persistence::{self as persistence, refusal, same_js_data, ProjectFields, SaveLimits, SaveRun, CUSTODY, PERSISTENCE_FAILED};
 use crate::solve_jobs::{sha256_in_place, EnvelopeBasis, HeldResult, ResultOrigin, RestoredSource, SolveJobRegistry};
 use crate::stored_read::{self, NativeLeaseMemory, Serialized};
@@ -245,9 +249,10 @@ fn as_sent(mut value: Value) -> Value {
     value
 }
 
-/// A held text's parse under its materialization's lease, admitted first.
-fn parse(registry: &SolveJobRegistry, what: &str, text: &str) -> Result<(Value, Lease), CommandError<String>> {
-    crate::stored_custody::parse_leased(registry, what, text).map_err(|error| match error {
+/// A held text's parse under its materialization's lease, admitted first in
+/// the command's ledger.
+fn parse(memory: &NativeLeaseMemory<'_>, what: &str, text: &str) -> Result<(Value, CommandLease), CommandError<String>> {
+    crate::stored_custody::parse_leased(memory, what, text).map_err(|error| match error {
         Ok(message) => refusal(format!("{CUSTODY}: {what} is not JSON this app reads ({message}); nothing was written.")),
         Err(pool) => refusal(pool),
     })
@@ -271,11 +276,11 @@ pub(crate) fn run_save(
 ) -> Result<Serialized, CommandError<String>> {
     #[cfg(test)]
     tests::command_gate::pass(tests::command_gate::key(registry, COMMAND));
-    let memory = NativeLeaseMemory::new(registry);
+    let (memory, copy) = NativeLeaseMemory::seeded(registry, copy);
     let copy_bytes = copy.bytes();
     let (mut args, args_lease) = command_ingress::admit_raw(registry, &raw, COMMAND, ArgsDecoding::Moved, |bytes| {
         let mut lease = copy;
-        lease.grow_to(copy_bytes.saturating_add(bytes)).map_err(|refused| registry.refuse(refused))?;
+        memory.grow(&mut lease, copy_bytes.saturating_add(bytes))?;
         Ok(lease)
     })?;
     drop(raw);
@@ -308,14 +313,14 @@ pub(crate) fn run_save(
     let transaction: Transaction<'_>;
     let sqlite: stored_read::ReadReservation;
     let (path, migration, document_version, staged, findings) = {
-        let (mut result, result_parse) = parse(registry, "the stored result", bound.result.text())?;
-        let (mut record, record_parse) = parse(registry, "the stored record", bound.record.text())?;
+        let (mut result, result_parse) = parse(&memory, "the stored result", bound.result.text())?;
+        let (mut record, record_parse) = parse(&memory, "the stored record", bound.record.text())?;
         // The values as the legacy session sent them: JavaScript's numbers (`JSON.stringify` of
         // `JSON.parse`), so the envelope hash is the one it computed over them, and the stored
         // writer and the findings read what is stored.
         build::js_numbers(&mut result);
         build::js_numbers(&mut record);
-        let working = build::working_lease(registry, &[&result, &record, &model, &editor_intents, &proposal, &selected_review_target, &model_hash])?;
+        let working = build::working_lease(&memory, &[&result, &record, &model, &editor_intents, &proposal, &selected_review_target, &model_hash])?;
         let document_version = crate::check_model_document_for_persist(&model).map_err(refusal)?;
         let path = store().map_err(refusal)?;
         let (opened, migration) = crate::open_project_store(&path).map_err(|error| refusal(stored_read::capped(error)))?;

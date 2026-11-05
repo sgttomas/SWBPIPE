@@ -2435,6 +2435,7 @@
               "apps/desktop/src-tauri/src/model_states.rs",
               "apps/desktop/src-tauri/src/native_csv_stream.rs",
               "apps/desktop/src-tauri/src/native_csv_stream_tests.rs",
+              "apps/desktop/src-tauri/src/native_ledger_tests.rs",
               "apps/desktop/src-tauri/src/native_persistence.rs",
               "apps/desktop/src-tauri/src/native_persistence_tests.rs",
               "apps/desktop/src-tauri/src/native_replay_tests.rs",

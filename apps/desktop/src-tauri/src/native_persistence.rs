@@ -63,8 +63,13 @@
 //!     result: [`PROJECT_SAVE_TOO_LARGE`], nothing written. No field is cut.
 //!   - A row SQLite still refuses as too big rolls the transaction back and
 //!     is refused by name (a backstop).
-//! - **Leases** (no new budget or rule; each a pool lease capped at the
-//!   per-invocation budget and the 12 GiB default): the raw body's copy and
+//! - **Leases** (no new budget or rule): one running total per command
+//!   ([`NativeLeaseMemory`], its `memory_pool::CommandLedger`), started from
+//!   the raw body's copy lease and kept, with every later lease of the
+//!   command, within min(the per-invocation budget that lease was admitted
+//!   under, 12 GiB); each lease's delta is reserved there before the pool
+//!   admits it, and the pool's own admission is unchanged. The held result H
+//!   is not counted (it stays counted in the pool). The command's leases: the raw body's copy and
 //!   the decoded arguments' lease (the re-sent intake text included), the
 //!   intake's parse (admitted at its priced parse and ended once compared,
 //!   before the held result is parsed), the held result's parse M and the builder's
@@ -74,7 +79,12 @@
 //!   copies (it copies every bound text) and records; the parse M and the
 //!   builder's leases end before the statements run. The response is leased
 //!   at its exact length until it is handed to Tauri. The store's own reads
-//!   lease through [`NativeLeaseMemory`].
+//!   lease through the same [`NativeLeaseMemory`]. A reservation above the
+//!   command's budget is refused by name before what it covers is allocated
+//!   (`STORE-READ-MEMORY-UNAVAILABLE: <what> needs <total> bytes in all,
+//!   above the per-invocation budget of <budget> bytes; nothing more was
+//!   read or written.`; a typed lease, the pool's `ingress_exceeds_budget`
+//!   with the command's total); inside the transaction it rolls back.
 //! - **Lifetimes (RT-U4).** Each row-scale allocation ends at its last use,
 //!   its lease with it; stored bytes, hashes and the one transaction committed
 //!   after the response are unchanged. Refusals and their order are unchanged
@@ -128,7 +138,7 @@ use crate::analysis_run_v03_build::{
 use crate::analysis_runs::{self, NativeRunRequest, NativeRunTexts, RunWriteHooks};
 use crate::command_ingress::{self, ArgsDecoding, CommandError};
 use crate::ingress;
-use crate::memory_pool::Lease;
+use crate::memory_pool::{CommandLease, Lease};
 use crate::result_js_text::{self, NegativeZero};
 use crate::solve_jobs::{sha256_in_place, CustodyDigests, ResultCustody, SolveJobRegistry};
 use crate::stored_read::{self, NativeLeaseMemory, ReadMemory, Serialized};
@@ -399,15 +409,15 @@ fn bound_custody(registry: &SolveJobRegistry, prepared: &build::Prepared, manife
 /// 2. its exact bytes hash, in place and without allocating, to the intake
 ///    digest the registry recorded when it admitted the job's body;
 /// 3. its parse, priced as an argument's (`text_parse_bytes`) and admitted
-///    first as an interactive lease capped as the arguments' was (a refusal
-///    is the pool's typed refusal), reads it;
+///    first as an interactive lease in the command's ledger (a refusal is
+///    the pool's typed refusal), reads it;
 /// 4. the parsed model is the manifest's `model_basis.model_payload` as JSON
 ///    data with JavaScript's numbers ([`same_js_data`]), so a manifest whose
 ///    model differs under the same project id is refused, while the session's
 ///    member order and number texts are not compared.
 ///
 /// The parse and its lease end here, before the held result is parsed.
-fn bound_intake(registry: &SolveJobRegistry, job_id: &str, digests: &CustodyDigests, intake: Option<String>, manifest: &Value) -> Result<(), CommandError<String>> {
+fn bound_intake(memory: &NativeLeaseMemory<'_>, job_id: &str, digests: &CustodyDigests, intake: Option<String>, manifest: &Value) -> Result<(), CommandError<String>> {
     let job = stored_read::shown(job_id).into_owned();
     let refuse = |what: &str| CommandError::Command(format!("{CUSTODY}: {what}; nothing was written."));
     let intake = intake.ok_or_else(|| refuse(&format!("the model text job `{job}` was sent is not in the request")))?;
@@ -415,7 +425,7 @@ fn bound_intake(registry: &SolveJobRegistry, job_id: &str, digests: &CustodyDige
         return Err(refuse(&format!("the model text in the request is not the body job `{job}` admitted")));
     }
     let priced = command_ingress::text_parse_bytes(&intake, ArgsDecoding::Moved).map_err(|_| refuse(&format!("job `{job}`'s model text is not JSON this app reads")))?;
-    let parsing = registry.acquire_interactive_ingress_capped(priced)?;
+    let parsing = memory.interactive_lease(priced)?;
     let model: Value = serde_json::from_str(&intake).map_err(|_| refuse(&format!("job `{job}`'s model text is not JSON this app reads")))?;
     drop(intake);
     let payload = manifest.pointer("/model_basis/model_payload").ok_or_else(|| refuse("the input manifest has no model payload"))?;
@@ -489,9 +499,9 @@ fn leased_json(memory: &dyn ReadMemory, what: &str, value: &Value) -> Result<(St
 /// The held result's parse and the builder's leases, dropped together with
 /// the record built on them, before any statement runs.
 struct Building {
-    _working: Lease,
-    _scratch: Lease,
-    _reading: Lease,
+    _working: CommandLease,
+    _scratch: CommandLease,
+    _reading: CommandLease,
 }
 
 // ---------------------------------------------------------------------------
@@ -567,25 +577,25 @@ pub(crate) fn run_record(
     hooks: &RunWriteHooks<'_>,
     limit: Option<i32>,
 ) -> Result<Serialized, CommandError<String>> {
-    let memory = NativeLeaseMemory::new(registry);
-    let (prepared, (expected, intake, mut request)) = build::admit_for(registry, raw, copy, RECORD_COMMAND, decode_record)?;
+    let (memory, copy) = NativeLeaseMemory::seeded(registry, copy);
+    let (prepared, (expected, intake, mut request)) = build::admit_for(&memory, raw, copy, RECORD_COMMAND, decode_record)?;
     let mut values = vec![&prepared.evidence.manifest_ref];
     values.extend(prepared.manifest.as_ref());
-    let working = build::working_lease(registry, &values)?;
+    let working = build::working_lease(&memory, &values)?;
     build::verify_manifest(&prepared.evidence, prepared.manifest.as_ref()).map_err(CommandError::Command)?;
     let manifest = prepared.manifest.as_ref().expect("verified");
     let digests = bound_custody(registry, &prepared, manifest).map_err(refusal)?;
-    bound_intake(registry, &prepared.job_id, &digests, intake, manifest)?;
+    bound_intake(&memory, &prepared.job_id, &digests, intake, manifest)?;
     let manifest_text = prepared.evidence.canonical_bytes.as_str();
     let held_text = prepared.held.text();
     let mut connection: Option<rusqlite::Connection> = None;
     let transaction: Transaction<'_>;
     let sqlite: stored_read::ReadReservation;
     let staged = {
-        let (mut source, reading) = build::parse_source(registry, held_text)?;
-        let scratch = build::working_lease(registry, &[&source])?;
+        let (mut source, reading) = build::parse_source(&memory, held_text)?;
+        let scratch = build::working_lease(&memory, &[&source])?;
         let mut load_basis = Value::Null;
-        let mut reserve = |bytes: u64| registry.acquire_result_parse(bytes).map(Some).map_err(CommandError::from);
+        let mut reserve = |bytes: u64| memory.lease(bytes).map(Some).map_err(CommandError::from);
         let built = build::preview_parsed(
             &prepared.held,
             &mut source,
@@ -893,16 +903,16 @@ pub(crate) fn run_save(
     limits: &SaveLimits,
     now: &dyn Fn() -> Result<i64, String>,
 ) -> Result<Serialized, CommandError<String>> {
-    let memory = NativeLeaseMemory::new(registry);
-    let (prepared, request) = build::admit_for(registry, raw, copy, SAVE_COMMAND, decode_save)?;
+    let (memory, copy) = NativeLeaseMemory::seeded(registry, copy);
+    let (prepared, request) = build::admit_for(&memory, raw, copy, SAVE_COMMAND, decode_save)?;
     let mut values = vec![&prepared.evidence.manifest_ref];
     values.extend(prepared.manifest.as_ref());
-    let working = build::working_lease(registry, &values)?;
+    let working = build::working_lease(&memory, &values)?;
     build::verify_manifest(&prepared.evidence, prepared.manifest.as_ref()).map_err(CommandError::Command)?;
     let manifest = prepared.manifest.as_ref().expect("verified");
     let digests = bound_custody(registry, &prepared, manifest).map_err(refusal)?;
     let SaveRequest { create, project_id, project_name, model, editor_intents, proposal, selected_review_target, model_hash, confirmed_revision, expected_base, expected, intake } = request;
-    bound_intake(registry, &prepared.job_id, &digests, intake, manifest)?;
+    bound_intake(&memory, &prepared.job_id, &digests, intake, manifest)?;
     let (project_id, project_name, expected_base) = if create {
         (crate::project_id_from_model(&model), crate::project_name_from_model(&model), None)
     } else {
@@ -924,10 +934,10 @@ pub(crate) fn run_save(
     let transaction: Transaction<'_>;
     let sqlite: stored_read::ReadReservation;
     let (path, migration, document_version, staged) = {
-        let (mut source, reading) = build::parse_source(registry, prepared.held.text())?;
-        let scratch = build::working_lease(registry, &[&source])?;
+        let (mut source, reading) = build::parse_source(&memory, prepared.held.text())?;
+        let scratch = build::working_lease(&memory, &[&source])?;
         let mut load_basis = Value::Null;
-        let mut reserve = |bytes: u64| registry.acquire_result_parse(bytes).map(Some).map_err(CommandError::from);
+        let mut reserve = |bytes: u64| memory.lease(bytes).map(Some).map_err(CommandError::from);
         let built = build::preview_parsed(
             &prepared.held,
             &mut source,
