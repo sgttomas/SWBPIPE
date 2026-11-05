@@ -1321,3 +1321,832 @@ fn a_registered_solve_is_recorded_and_saved_without_its_reader_and_stores_the_sa
     std::fs::remove_dir_all(&dir).unwrap();
     assert_eq!(registry.pool().reserved_total(), 0, "every lease ended with its command");
 }
+
+// ---------------------------------------------------------------------------
+// RT-U4, C1 persistence lifetimes (DEL-04-05 `c1-native-custody-plan.md`
+// slice 5): the bytes and hashes every persistence command stores and
+// replies with are those of the implementation before the lifetime changes
+// (`PARITY`, generated at c8865f384 by this test with
+// `SWBPIPE_PRINT_PERSISTENCE_PARITY=1`, before any of them).
+// ---------------------------------------------------------------------------
+
+/// Removes the members whose values name this run's scratch paths or
+/// registry handles, which differ between runs of the test.
+fn without_run_local(value: &mut Value) {
+    match value {
+        Value::Object(map) => {
+            for key in ["database_path", "handle"] {
+                map.remove(key);
+            }
+            map.values_mut().for_each(without_run_local);
+        }
+        Value::Array(items) => items.iter_mut().for_each(without_run_local),
+        _ => {}
+    }
+}
+
+fn parity_digest(text: &str) -> String {
+    let sha: String = Sha256::digest(text.as_bytes()).iter().map(|byte| format!("{byte:02x}")).collect();
+    format!("{sha}:{}", text.len())
+}
+
+/// Every column of every row of `table`, as `table[row].column = digest`.
+fn parity_rows(path: &Path, table: &str, into: &mut std::collections::BTreeMap<String, String>, prefix: &str) {
+    for (index, row) in dump(path, table, &[]).iter().enumerate() {
+        for (name, value) in row {
+            let shown = match value {
+                rusqlite::types::Value::Text(text) => parity_digest(text),
+                other => format!("{other:?}"),
+            };
+            into.insert(format!("{prefix} {table}[{index}].{name}"), shown);
+        }
+    }
+}
+
+fn parity_reply(reply: &Value, into: &mut std::collections::BTreeMap<String, String>, key: String) {
+    let mut reply = reply.clone();
+    without_run_local(&mut reply);
+    into.insert(key, parity_digest(&serde_json::to_string(&reply).unwrap()));
+}
+
+/// For every persistence case: Record Run twice (a new post-solve snapshot,
+/// then the existing state), each recorded run read back and reopened;
+/// Create then Save (repeated saves); the saved project reopened and
+/// re-saved from its restored handle. Every stored column (record, result,
+/// manifest, hashes, project row, search row, labels, states) and every reply
+/// is the pre-change implementation's, byte for byte.
+#[test]
+fn p1_stored_bytes_hashes_and_replies_are_the_pre_change_implementations() {
+    use crate::stored_custody::tests::{native_open, native_read};
+    use crate::stored_save::tests::{native_resave, opened_fields, resave_args};
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let dir = scratch("parity");
+    let mut found = std::collections::BTreeMap::new();
+    for case in &cases() {
+        let name = case.id.replace(|c: char| !c.is_ascii_alphanumeric(), "-");
+        let job = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
+        let recorded = dir.join(format!("{name}-record.sqlite"));
+        stored_project(&recorded, case.project_id(), case.model());
+        let mut state_id: Option<String> = None;
+        let mut recordings = Vec::new();
+        for at in 0..2 {
+            let reply = native_record(&registry, &recorded, &case.record_args(&job, native_request(state_id.as_deref())), None).unwrap_or_else(|e| panic!("{}: {e}", case.id));
+            parity_reply(&reply, &mut found, format!("{} record#{at} reply", case.id));
+            state_id = Some(reply["state"]["state_id"].as_str().unwrap().to_string());
+            recordings.push(reply["run"]["recording_id"].as_str().unwrap().to_string());
+        }
+        for table in RUN_TABLES {
+            parity_rows(&recorded, table, &mut found, &format!("{} record", case.id));
+        }
+        let saved = dir.join(format!("{name}-save.sqlite"));
+        let created = native_save(&registry, &saved, &case.save_args(&job, "create", Value::Null, Value::Null), &unlimited()).unwrap_or_else(|e| panic!("{}: {e}", case.id));
+        parity_reply(&created, &mut found, format!("{} create reply", case.id));
+        let base = created["project_envelope_hash"]["value"].clone();
+        let again = native_save(&registry, &saved, &case.save_args(&job, "save", base, Value::Null), &unlimited()).unwrap_or_else(|e| panic!("{}: {e}", case.id));
+        parity_reply(&again, &mut found, format!("{} save reply", case.id));
+        for table in ["local_projects", "local_project_fts"] {
+            parity_rows(&saved, table, &mut found, &format!("{} save", case.id));
+        }
+        registry.dispose_all_results();
+        for (at, recording_id) in recordings.iter().enumerate() {
+            let read = native_read(&registry, &recorded, case.project_id(), recording_id).unwrap_or_else(|e| panic!("{}: {e}", case.id));
+            parity_reply(&read, &mut found, format!("{} recorded read#{at} reply", case.id));
+            let legacy = analysis_runs::read_run_in_store(&recorded, case.project_id(), recording_id).unwrap();
+            found.insert(format!("{} recorded read#{at} legacy record", case.id), parity_digest(&serde_json::to_string(&legacy.record).unwrap()));
+            registry.dispose_all_results();
+        }
+        let opened = native_open(&registry, &saved, Some(case.project_id())).unwrap();
+        parity_reply(&opened, &mut found, format!("{} reopen reply", case.id));
+        let base = opened["project_envelope_hash"]["value"].clone();
+        let resaved = native_resave(&registry, &saved, &resave_args(&opened, &opened_fields(&opened), "save", base, Value::Null), &unlimited()).unwrap_or_else(|e| panic!("{}: {e}", case.id));
+        parity_reply(&resaved, &mut found, format!("{} resave reply", case.id));
+        for table in ["local_projects", "local_project_fts"] {
+            parity_rows(&saved, table, &mut found, &format!("{} resave", case.id));
+        }
+        registry.dispose_all_results();
+    }
+    std::fs::remove_dir_all(&dir).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0, "every lease ended with its command");
+    if std::env::var_os("SWBPIPE_PRINT_PERSISTENCE_PARITY").is_some() {
+        let mut out = String::from("const PARITY: &[(&str, &str)] = &[\n");
+        for (key, value) in &found {
+            out.push_str(&format!("    ({key:?}, {value:?}),\n"));
+        }
+        out.push_str("];\n");
+        std::fs::write(std::env::var("SWBPIPE_PRINT_PERSISTENCE_PARITY").unwrap(), out).unwrap();
+        return;
+    }
+    let expected: std::collections::BTreeMap<String, String> = PARITY.iter().map(|(key, value)| (key.to_string(), value.to_string())).collect();
+    assert_eq!(found.len(), expected.len(), "the same stored columns and replies");
+    for (key, value) in &expected {
+        assert_eq!(found.get(key), Some(value), "{key}");
+    }
+}
+
+/// The peak requested bytes (`ingress::counting`, this thread's Rust
+/// allocations; SQLite's own heap is not counted) of each persistence
+/// command for `case`, with the result's and record's stored lengths.
+fn command_peaks(case: &Case, registry: &SolveJobRegistry, gate: &Gate, dir: &Path) -> std::collections::BTreeMap<&'static str, u64> {
+    use crate::ingress::counting::measure;
+    use crate::stored_custody::tests::{native_open, native_read};
+    use crate::stored_save::tests::{native_resave, opened_fields, resave_args};
+    let name = case.id.replace(|c: char| !c.is_ascii_alphanumeric(), "-");
+    let mut peaks = std::collections::BTreeMap::new();
+    let job = held(registry, gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
+    let recorded = dir.join(format!("{name}-peaks-record.sqlite"));
+    stored_project(&recorded, case.project_id(), case.model());
+    let args = case.record_args(&job, native_request(None));
+    let (reply, measured) = measure(|| native_record(registry, &recorded, &args, None).unwrap());
+    peaks.insert("record_run", measured.peak_requested);
+    let recording_id = reply["run"]["recording_id"].as_str().unwrap().to_string();
+    let saved = dir.join(format!("{name}-peaks-save.sqlite"));
+    let args = case.save_args(&job, "create", Value::Null, Value::Null);
+    let (created, measured) = measure(|| native_save(registry, &saved, &args, &unlimited()).unwrap());
+    peaks.insert("fresh_create", measured.peak_requested);
+    let args = case.save_args(&job, "save", created["project_envelope_hash"]["value"].clone(), Value::Null);
+    let (_, measured) = measure(|| native_save(registry, &saved, &args, &unlimited()).unwrap());
+    peaks.insert("fresh_save_again", measured.peak_requested);
+    registry.dispose_all_results();
+    let (_, measured) = measure(|| native_read(registry, &recorded, case.project_id(), &recording_id).unwrap());
+    peaks.insert("recorded_read", measured.peak_requested);
+    registry.dispose_all_results();
+    let opened = native_open(registry, &saved, Some(case.project_id())).unwrap();
+    let args = resave_args(&opened, &opened_fields(&opened), "save", opened["project_envelope_hash"]["value"].clone(), Value::Null);
+    let (_, measured) = measure(|| native_resave(registry, &saved, &args, &unlimited()).unwrap());
+    peaks.insert("restored_resave", measured.peak_requested);
+    registry.dispose_all_results();
+    let stored = dump(&recorded, "analysis_runs", &[]);
+    let length = |column: &str| match &stored[0].iter().find(|(name, _)| name == column).unwrap().1 {
+        rusqlite::types::Value::Text(text) => text.len() as u64,
+        other => panic!("{other:?}"),
+    };
+    peaks.insert("R", length("result_json"));
+    peaks.insert("Q", length("run_record_json"));
+    peaks
+}
+
+/// Prints each persistence command's peak (the allocation evidence's
+/// reference values, `SWBPIPE_PRINT_PERSISTENCE_PEAKS=1`).
+#[test]
+fn print_persistence_command_peaks() {
+    if std::env::var_os("SWBPIPE_PRINT_PERSISTENCE_PEAKS").is_none() {
+        return;
+    }
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let dir = scratch("peaks");
+    let mut out = String::new();
+    for case in &cases() {
+        out.push_str(&format!("{} {:?}\n", case.id, command_peaks(case, &registry, &gate, &dir)));
+    }
+    std::fs::remove_dir_all(&dir).unwrap();
+    std::fs::write(std::env::var("SWBPIPE_PRINT_PERSISTENCE_PEAKS").unwrap(), out).unwrap();
+}
+/// Generated at c8865f384 (module section docs).
+const PARITY: &[(&str, &str)] = &[
+    ("preview:aggregate-failed create reply", "cadbf7883ba940d69f44e954f42f9558cbe7cb8607caa05aa1e572be7a97432c:3866"),
+    ("preview:aggregate-failed record analysis_run_labels[0].assumptions_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:aggregate-failed record analysis_run_labels[0].notes_json", "5df6d4f94dea81443474cd8fd8b70333654763c9dfbea861d2428c19e7d00a73:18"),
+    ("preview:aggregate-failed record analysis_run_labels[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:aggregate-failed record analysis_run_labels[0].recording_id", "8dce5f891e6d1d9c59ab313c610d8e57321e4a298a0deb0e90ae08aee3b818eb:39"),
+    ("preview:aggregate-failed record analysis_run_labels[0].run_name", "a89023ff6219b358cf8bbb555afdc6d5f4303df5bfe187d902c3622679b8092f:22"),
+    ("preview:aggregate-failed record analysis_run_labels[0].tags_json", "c38f1b165048a14cf0612830edb0f61f56be4cb4f1f3d01fbaa14e6655c52c55:10"),
+    ("preview:aggregate-failed record analysis_run_labels[0].updated_at", "04199ee21ddec3cb0080ba7ae86be72bbf19e53d97bc7b59ff3f343c25431d0e:24"),
+    ("preview:aggregate-failed record analysis_run_labels[1].assumptions_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:aggregate-failed record analysis_run_labels[1].notes_json", "5df6d4f94dea81443474cd8fd8b70333654763c9dfbea861d2428c19e7d00a73:18"),
+    ("preview:aggregate-failed record analysis_run_labels[1].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:aggregate-failed record analysis_run_labels[1].recording_id", "5780fdac89a37de6eeea6aebf1dc85880e5a2fabe087f6e0bc34b54f5979baf4:39"),
+    ("preview:aggregate-failed record analysis_run_labels[1].run_name", "a89023ff6219b358cf8bbb555afdc6d5f4303df5bfe187d902c3622679b8092f:22"),
+    ("preview:aggregate-failed record analysis_run_labels[1].tags_json", "c38f1b165048a14cf0612830edb0f61f56be4cb4f1f3d01fbaa14e6655c52c55:10"),
+    ("preview:aggregate-failed record analysis_run_labels[1].updated_at", "1ac8477c538da6e93db66aa8df1bdf6f18a246ad755914704dcf06733e26b2fc:24"),
+    ("preview:aggregate-failed record analysis_runs[0].created_at", "04199ee21ddec3cb0080ba7ae86be72bbf19e53d97bc7b59ff3f343c25431d0e:24"),
+    ("preview:aggregate-failed record analysis_runs[0].input_manifest_json", "ec2b590838e26dbff151fe097131cd7a9ace800cb409041dbdf68a25a3e2c81e:6295"),
+    ("preview:aggregate-failed record analysis_runs[0].producer_run_id", "b3862e6694684d4c24986f49ec8e862f3872f1ae70359b7f55b3a8f340507b70:29"),
+    ("preview:aggregate-failed record analysis_runs[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:aggregate-failed record analysis_runs[0].recording_id", "8dce5f891e6d1d9c59ab313c610d8e57321e4a298a0deb0e90ae08aee3b818eb:39"),
+    ("preview:aggregate-failed record analysis_runs[0].result_hash", "a8a20c6b217680871c9035cf81cfbcbbb6d84b058908d3f7ee90afdfbc4b360b:64"),
+    ("preview:aggregate-failed record analysis_runs[0].result_json", "76cb429be9d4557ca4b08467853a5d0f054cc5152438ecc7b13917621c680431:71477"),
+    ("preview:aggregate-failed record analysis_runs[0].run_record_hash", "dd3e282bc735d0d98a5b421a7c2791e1d200f908a4cebedb386f70a2a975455c:64"),
+    ("preview:aggregate-failed record analysis_runs[0].run_record_json", "698dff6d4546f92a3adcd1c52e0509844d6aeb654bbcbe76f3100f71e3cc3a53:143577"),
+    ("preview:aggregate-failed record analysis_runs[0].state_id", "3a3cd6490a1651ab2f9fd668c3dc0d5628c6d0120efb67da96e265d81bb849d8:38"),
+    ("preview:aggregate-failed record analysis_runs[1].created_at", "1ac8477c538da6e93db66aa8df1bdf6f18a246ad755914704dcf06733e26b2fc:24"),
+    ("preview:aggregate-failed record analysis_runs[1].input_manifest_json", "ec2b590838e26dbff151fe097131cd7a9ace800cb409041dbdf68a25a3e2c81e:6295"),
+    ("preview:aggregate-failed record analysis_runs[1].producer_run_id", "b3862e6694684d4c24986f49ec8e862f3872f1ae70359b7f55b3a8f340507b70:29"),
+    ("preview:aggregate-failed record analysis_runs[1].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:aggregate-failed record analysis_runs[1].recording_id", "5780fdac89a37de6eeea6aebf1dc85880e5a2fabe087f6e0bc34b54f5979baf4:39"),
+    ("preview:aggregate-failed record analysis_runs[1].result_hash", "a8a20c6b217680871c9035cf81cfbcbbb6d84b058908d3f7ee90afdfbc4b360b:64"),
+    ("preview:aggregate-failed record analysis_runs[1].result_json", "76cb429be9d4557ca4b08467853a5d0f054cc5152438ecc7b13917621c680431:71477"),
+    ("preview:aggregate-failed record analysis_runs[1].run_record_hash", "018ffd4f28e5e3eb64dbb30e78e0103167c67c40ed420c753bde51807ac10385:64"),
+    ("preview:aggregate-failed record analysis_runs[1].run_record_json", "5267c77c7c060b4fd5db63a05f78a71037b981b426e31a8e97a2e3704ff05ed7:143577"),
+    ("preview:aggregate-failed record analysis_runs[1].state_id", "3a3cd6490a1651ab2f9fd668c3dc0d5628c6d0120efb67da96e265d81bb849d8:38"),
+    ("preview:aggregate-failed record model_state_labels[0].assumptions_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:aggregate-failed record model_state_labels[0].notes_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:aggregate-failed record model_state_labels[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:aggregate-failed record model_state_labels[0].state_id", "3a3cd6490a1651ab2f9fd668c3dc0d5628c6d0120efb67da96e265d81bb849d8:38"),
+    ("preview:aggregate-failed record model_state_labels[0].state_name", "d081e834436746542ed6bc8d1327bda6c85dea255b2af1f44313fa8fe075de15:11"),
+    ("preview:aggregate-failed record model_state_labels[0].tags_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:aggregate-failed record model_state_labels[0].updated_at", "04199ee21ddec3cb0080ba7ae86be72bbf19e53d97bc7b59ff3f343c25431d0e:24"),
+    ("preview:aggregate-failed record model_states[0].created_at", "04199ee21ddec3cb0080ba7ae86be72bbf19e53d97bc7b59ff3f343c25431d0e:24"),
+    ("preview:aggregate-failed record model_states[0].model_canonical", "4a1babd4a449831aeeea1835dfff057ebae6c91c14675443fde9da061f07ff3c:3584"),
+    ("preview:aggregate-failed record model_states[0].model_hash", "b357d5f9e868c425b7b4c4798a8b0ac2c88c46635d806460cbf996d3d1fce416:71"),
+    ("preview:aggregate-failed record model_states[0].parent_state_id", "Null"),
+    ("preview:aggregate-failed record model_states[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:aggregate-failed record model_states[0].record_hash", "c3a5e9ad1fa5ff45041703986f7f5a9f7f88d4c84ff79c9e0628734ad4042f5f:64"),
+    ("preview:aggregate-failed record model_states[0].record_json", "471bc60490823530e98857c539d997e949385a9864c5b6206998cc6e4c18f3d7:1718"),
+    ("preview:aggregate-failed record model_states[0].state_id", "3a3cd6490a1651ab2f9fd668c3dc0d5628c6d0120efb67da96e265d81bb849d8:38"),
+    ("preview:aggregate-failed record model_states[0].state_kind", "37e47861edf4c99a70c0e2513fc6d386a62547cb0a25f064d10785d204386944:19"),
+    ("preview:aggregate-failed record#0 reply", "62e2e19eeccd26eb96badc794a8240e0680a1227af6feb7e723f0f14229e2dc8:1539"),
+    ("preview:aggregate-failed record#1 reply", "dd1fd12f9f02f55c4554a43636f0edbfb50a28be4779a4d5ee8a655f1222f4c8:1524"),
+    ("preview:aggregate-failed recorded read#0 legacy record", "698dff6d4546f92a3adcd1c52e0509844d6aeb654bbcbe76f3100f71e3cc3a53:143577"),
+    ("preview:aggregate-failed recorded read#0 reply", "d35aa34f872cd6061d888de07eea4d3f5ff9496e56834fbfa739500a9351d461:13071"),
+    ("preview:aggregate-failed recorded read#1 legacy record", "5267c77c7c060b4fd5db63a05f78a71037b981b426e31a8e97a2e3704ff05ed7:143577"),
+    ("preview:aggregate-failed recorded read#1 reply", "3f823451f8a3e7c8625c7dcbfb054cbaf4093e423f791230fab68c13fe8cfff8:13071"),
+    ("preview:aggregate-failed reopen reply", "9a376c58377cc351571dca9be2d9471ae0713b90d8c7f1b4def1e3ba6c723f0a:11448"),
+    ("preview:aggregate-failed resave local_project_fts[0].model_text", "c68f0547ff3fa7cadc5269c2ebeb41a6bced1a48024130b9463d557af6185180:147455"),
+    ("preview:aggregate-failed resave local_project_fts[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:aggregate-failed resave local_project_fts[0].project_name", "65a4ab50988845fb64d0c0005c5b1af7eadee7b8c9b6935eb905722cc8a07773:45"),
+    ("preview:aggregate-failed resave local_projects[0].analysis_run_json", "10c22506abbec2ddd38e294bf195a36f0ee5fdd990ccb258b6c25ec6b165406a:143591"),
+    ("preview:aggregate-failed resave local_projects[0].created_at_unix", "Integer(1793000000)"),
+    ("preview:aggregate-failed resave local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
+    ("preview:aggregate-failed resave local_projects[0].mechanics_result_json", "5613c1d834bc0125003ddfdafe753ffeed4b065fa1ae09409aa8b468a3b2eea9:71477"),
+    ("preview:aggregate-failed resave local_projects[0].model_hash_json", "1e64c7d4d580e54c4b39dfc7592ed08ae5b50ff23277b7063bcbf6b0df7427ba:260"),
+    ("preview:aggregate-failed resave local_projects[0].model_json", "4a1babd4a449831aeeea1835dfff057ebae6c91c14675443fde9da061f07ff3c:3584"),
+    ("preview:aggregate-failed resave local_projects[0].model_migration_ledger_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:aggregate-failed resave local_projects[0].project_envelope_hash_json", "8c6e3477a7272d8cbce0891f5e73056e7ec229d52d7d5bf1e2e7e4ab97fe28db:341"),
+    ("preview:aggregate-failed resave local_projects[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:aggregate-failed resave local_projects[0].project_name", "65a4ab50988845fb64d0c0005c5b1af7eadee7b8c9b6935eb905722cc8a07773:45"),
+    ("preview:aggregate-failed resave local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
+    ("preview:aggregate-failed resave local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
+    ("preview:aggregate-failed resave local_projects[0].updated_at_unix", "Integer(1793000000)"),
+    ("preview:aggregate-failed resave reply", "1a0849110da505d71a1b122ca64ccc11e4c03ac525c96b4d23f1bafaabbb6e9a:4239"),
+    ("preview:aggregate-failed save local_project_fts[0].model_text", "c68f0547ff3fa7cadc5269c2ebeb41a6bced1a48024130b9463d557af6185180:147455"),
+    ("preview:aggregate-failed save local_project_fts[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:aggregate-failed save local_project_fts[0].project_name", "65a4ab50988845fb64d0c0005c5b1af7eadee7b8c9b6935eb905722cc8a07773:45"),
+    ("preview:aggregate-failed save local_projects[0].analysis_run_json", "10c22506abbec2ddd38e294bf195a36f0ee5fdd990ccb258b6c25ec6b165406a:143591"),
+    ("preview:aggregate-failed save local_projects[0].created_at_unix", "Integer(1793000000)"),
+    ("preview:aggregate-failed save local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
+    ("preview:aggregate-failed save local_projects[0].mechanics_result_json", "5613c1d834bc0125003ddfdafe753ffeed4b065fa1ae09409aa8b468a3b2eea9:71477"),
+    ("preview:aggregate-failed save local_projects[0].model_hash_json", "1e64c7d4d580e54c4b39dfc7592ed08ae5b50ff23277b7063bcbf6b0df7427ba:260"),
+    ("preview:aggregate-failed save local_projects[0].model_json", "4a1babd4a449831aeeea1835dfff057ebae6c91c14675443fde9da061f07ff3c:3584"),
+    ("preview:aggregate-failed save local_projects[0].model_migration_ledger_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:aggregate-failed save local_projects[0].project_envelope_hash_json", "8c6e3477a7272d8cbce0891f5e73056e7ec229d52d7d5bf1e2e7e4ab97fe28db:341"),
+    ("preview:aggregate-failed save local_projects[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:aggregate-failed save local_projects[0].project_name", "65a4ab50988845fb64d0c0005c5b1af7eadee7b8c9b6935eb905722cc8a07773:45"),
+    ("preview:aggregate-failed save local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
+    ("preview:aggregate-failed save local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
+    ("preview:aggregate-failed save local_projects[0].updated_at_unix", "Integer(1793000000)"),
+    ("preview:aggregate-failed save reply", "0b0b57c860890baa59de0b484e400b63b47e927276f37f1213436f1906e63471:3414"),
+    ("preview:aggregate-unrecognized create reply", "96f184a4bf7cc2d1cb51aaaf474dec7bd1ec9691170f09cf2477af2ad30bd197:3866"),
+    ("preview:aggregate-unrecognized record analysis_run_labels[0].assumptions_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:aggregate-unrecognized record analysis_run_labels[0].notes_json", "5df6d4f94dea81443474cd8fd8b70333654763c9dfbea861d2428c19e7d00a73:18"),
+    ("preview:aggregate-unrecognized record analysis_run_labels[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:aggregate-unrecognized record analysis_run_labels[0].recording_id", "b20800ff9c7fe2c34be6c3dcdde4a494eeee18d1b5ebc8b405422426be25930b:39"),
+    ("preview:aggregate-unrecognized record analysis_run_labels[0].run_name", "a89023ff6219b358cf8bbb555afdc6d5f4303df5bfe187d902c3622679b8092f:22"),
+    ("preview:aggregate-unrecognized record analysis_run_labels[0].tags_json", "c38f1b165048a14cf0612830edb0f61f56be4cb4f1f3d01fbaa14e6655c52c55:10"),
+    ("preview:aggregate-unrecognized record analysis_run_labels[0].updated_at", "04199ee21ddec3cb0080ba7ae86be72bbf19e53d97bc7b59ff3f343c25431d0e:24"),
+    ("preview:aggregate-unrecognized record analysis_run_labels[1].assumptions_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:aggregate-unrecognized record analysis_run_labels[1].notes_json", "5df6d4f94dea81443474cd8fd8b70333654763c9dfbea861d2428c19e7d00a73:18"),
+    ("preview:aggregate-unrecognized record analysis_run_labels[1].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:aggregate-unrecognized record analysis_run_labels[1].recording_id", "336792ad5e25829c6d5937f22e735fe0cc4fe11ce72c823d5923c36def49548f:39"),
+    ("preview:aggregate-unrecognized record analysis_run_labels[1].run_name", "a89023ff6219b358cf8bbb555afdc6d5f4303df5bfe187d902c3622679b8092f:22"),
+    ("preview:aggregate-unrecognized record analysis_run_labels[1].tags_json", "c38f1b165048a14cf0612830edb0f61f56be4cb4f1f3d01fbaa14e6655c52c55:10"),
+    ("preview:aggregate-unrecognized record analysis_run_labels[1].updated_at", "1ac8477c538da6e93db66aa8df1bdf6f18a246ad755914704dcf06733e26b2fc:24"),
+    ("preview:aggregate-unrecognized record analysis_runs[0].created_at", "04199ee21ddec3cb0080ba7ae86be72bbf19e53d97bc7b59ff3f343c25431d0e:24"),
+    ("preview:aggregate-unrecognized record analysis_runs[0].input_manifest_json", "ec2b590838e26dbff151fe097131cd7a9ace800cb409041dbdf68a25a3e2c81e:6295"),
+    ("preview:aggregate-unrecognized record analysis_runs[0].producer_run_id", "b3862e6694684d4c24986f49ec8e862f3872f1ae70359b7f55b3a8f340507b70:29"),
+    ("preview:aggregate-unrecognized record analysis_runs[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:aggregate-unrecognized record analysis_runs[0].recording_id", "b20800ff9c7fe2c34be6c3dcdde4a494eeee18d1b5ebc8b405422426be25930b:39"),
+    ("preview:aggregate-unrecognized record analysis_runs[0].result_hash", "a8a20c6b217680871c9035cf81cfbcbbb6d84b058908d3f7ee90afdfbc4b360b:64"),
+    ("preview:aggregate-unrecognized record analysis_runs[0].result_json", "76cb429be9d4557ca4b08467853a5d0f054cc5152438ecc7b13917621c680431:71477"),
+    ("preview:aggregate-unrecognized record analysis_runs[0].run_record_hash", "ad5d535c256d351010562e4db87f5d4d39f5a702f7804e356254df6e5d9b8cfc:64"),
+    ("preview:aggregate-unrecognized record analysis_runs[0].run_record_json", "5d6cda3bdd3b6323310d47518e222ea804a73330ddc8cc1cc8d6eb800d758591:143583"),
+    ("preview:aggregate-unrecognized record analysis_runs[0].state_id", "3a3cd6490a1651ab2f9fd668c3dc0d5628c6d0120efb67da96e265d81bb849d8:38"),
+    ("preview:aggregate-unrecognized record analysis_runs[1].created_at", "1ac8477c538da6e93db66aa8df1bdf6f18a246ad755914704dcf06733e26b2fc:24"),
+    ("preview:aggregate-unrecognized record analysis_runs[1].input_manifest_json", "ec2b590838e26dbff151fe097131cd7a9ace800cb409041dbdf68a25a3e2c81e:6295"),
+    ("preview:aggregate-unrecognized record analysis_runs[1].producer_run_id", "b3862e6694684d4c24986f49ec8e862f3872f1ae70359b7f55b3a8f340507b70:29"),
+    ("preview:aggregate-unrecognized record analysis_runs[1].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:aggregate-unrecognized record analysis_runs[1].recording_id", "336792ad5e25829c6d5937f22e735fe0cc4fe11ce72c823d5923c36def49548f:39"),
+    ("preview:aggregate-unrecognized record analysis_runs[1].result_hash", "a8a20c6b217680871c9035cf81cfbcbbb6d84b058908d3f7ee90afdfbc4b360b:64"),
+    ("preview:aggregate-unrecognized record analysis_runs[1].result_json", "76cb429be9d4557ca4b08467853a5d0f054cc5152438ecc7b13917621c680431:71477"),
+    ("preview:aggregate-unrecognized record analysis_runs[1].run_record_hash", "318c8d9433122dbe8e133f543eaea54b4f6b531f2ece8d22d03ee2314b405dad:64"),
+    ("preview:aggregate-unrecognized record analysis_runs[1].run_record_json", "19c0536a39836783b2bc94d60d7cea1c93bfa168ba53117a748850ff2850b0e1:143583"),
+    ("preview:aggregate-unrecognized record analysis_runs[1].state_id", "3a3cd6490a1651ab2f9fd668c3dc0d5628c6d0120efb67da96e265d81bb849d8:38"),
+    ("preview:aggregate-unrecognized record model_state_labels[0].assumptions_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:aggregate-unrecognized record model_state_labels[0].notes_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:aggregate-unrecognized record model_state_labels[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:aggregate-unrecognized record model_state_labels[0].state_id", "3a3cd6490a1651ab2f9fd668c3dc0d5628c6d0120efb67da96e265d81bb849d8:38"),
+    ("preview:aggregate-unrecognized record model_state_labels[0].state_name", "d081e834436746542ed6bc8d1327bda6c85dea255b2af1f44313fa8fe075de15:11"),
+    ("preview:aggregate-unrecognized record model_state_labels[0].tags_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:aggregate-unrecognized record model_state_labels[0].updated_at", "04199ee21ddec3cb0080ba7ae86be72bbf19e53d97bc7b59ff3f343c25431d0e:24"),
+    ("preview:aggregate-unrecognized record model_states[0].created_at", "04199ee21ddec3cb0080ba7ae86be72bbf19e53d97bc7b59ff3f343c25431d0e:24"),
+    ("preview:aggregate-unrecognized record model_states[0].model_canonical", "4a1babd4a449831aeeea1835dfff057ebae6c91c14675443fde9da061f07ff3c:3584"),
+    ("preview:aggregate-unrecognized record model_states[0].model_hash", "b357d5f9e868c425b7b4c4798a8b0ac2c88c46635d806460cbf996d3d1fce416:71"),
+    ("preview:aggregate-unrecognized record model_states[0].parent_state_id", "Null"),
+    ("preview:aggregate-unrecognized record model_states[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:aggregate-unrecognized record model_states[0].record_hash", "c3a5e9ad1fa5ff45041703986f7f5a9f7f88d4c84ff79c9e0628734ad4042f5f:64"),
+    ("preview:aggregate-unrecognized record model_states[0].record_json", "471bc60490823530e98857c539d997e949385a9864c5b6206998cc6e4c18f3d7:1718"),
+    ("preview:aggregate-unrecognized record model_states[0].state_id", "3a3cd6490a1651ab2f9fd668c3dc0d5628c6d0120efb67da96e265d81bb849d8:38"),
+    ("preview:aggregate-unrecognized record model_states[0].state_kind", "37e47861edf4c99a70c0e2513fc6d386a62547cb0a25f064d10785d204386944:19"),
+    ("preview:aggregate-unrecognized record#0 reply", "d9c6cb91b12fe124d6a15f7ce461127079be55363ae2e5e77b090bdd695c000a:1545"),
+    ("preview:aggregate-unrecognized record#1 reply", "6573ff4c19bfdf8307c937eaccb75dd1c800bbdaf7b16ee50239a916a73ac75b:1530"),
+    ("preview:aggregate-unrecognized recorded read#0 legacy record", "5d6cda3bdd3b6323310d47518e222ea804a73330ddc8cc1cc8d6eb800d758591:143583"),
+    ("preview:aggregate-unrecognized recorded read#0 reply", "ddfd33ad938c3952edc9cff8ba7d703ceddbb2b7e1b9f09ab4a1b273002ede61:13083"),
+    ("preview:aggregate-unrecognized recorded read#1 legacy record", "19c0536a39836783b2bc94d60d7cea1c93bfa168ba53117a748850ff2850b0e1:143583"),
+    ("preview:aggregate-unrecognized recorded read#1 reply", "7beff0e9e84ab45d4b538e75fc059311521b04117204ab4d0d63882b4a6b54d9:13083"),
+    ("preview:aggregate-unrecognized reopen reply", "49cf104065f5fdbaed62c11dfbf64b8ec7a2f1a8011035c9510819d2bcacd41b:11454"),
+    ("preview:aggregate-unrecognized resave local_project_fts[0].model_text", "3b28d5ea9698eef3d0f7476851235853cc1c65197db25b2406abfdbd24427079:147461"),
+    ("preview:aggregate-unrecognized resave local_project_fts[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:aggregate-unrecognized resave local_project_fts[0].project_name", "65a4ab50988845fb64d0c0005c5b1af7eadee7b8c9b6935eb905722cc8a07773:45"),
+    ("preview:aggregate-unrecognized resave local_projects[0].analysis_run_json", "11fd5388f478a0fd2278a59375a48ec23269925533639df1828b92c0f0fbcd0f:143597"),
+    ("preview:aggregate-unrecognized resave local_projects[0].created_at_unix", "Integer(1793000000)"),
+    ("preview:aggregate-unrecognized resave local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
+    ("preview:aggregate-unrecognized resave local_projects[0].mechanics_result_json", "5613c1d834bc0125003ddfdafe753ffeed4b065fa1ae09409aa8b468a3b2eea9:71477"),
+    ("preview:aggregate-unrecognized resave local_projects[0].model_hash_json", "1e64c7d4d580e54c4b39dfc7592ed08ae5b50ff23277b7063bcbf6b0df7427ba:260"),
+    ("preview:aggregate-unrecognized resave local_projects[0].model_json", "4a1babd4a449831aeeea1835dfff057ebae6c91c14675443fde9da061f07ff3c:3584"),
+    ("preview:aggregate-unrecognized resave local_projects[0].model_migration_ledger_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:aggregate-unrecognized resave local_projects[0].project_envelope_hash_json", "716208885838776daab67688d90d1d6ce516e64d8015d018291e8d1259e88682:341"),
+    ("preview:aggregate-unrecognized resave local_projects[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:aggregate-unrecognized resave local_projects[0].project_name", "65a4ab50988845fb64d0c0005c5b1af7eadee7b8c9b6935eb905722cc8a07773:45"),
+    ("preview:aggregate-unrecognized resave local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
+    ("preview:aggregate-unrecognized resave local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
+    ("preview:aggregate-unrecognized resave local_projects[0].updated_at_unix", "Integer(1793000000)"),
+    ("preview:aggregate-unrecognized resave reply", "2e377852ff673378a931aa5ea2a390cf772a1657ce11dc8d88d1fb5bba1a801e:4239"),
+    ("preview:aggregate-unrecognized save local_project_fts[0].model_text", "3b28d5ea9698eef3d0f7476851235853cc1c65197db25b2406abfdbd24427079:147461"),
+    ("preview:aggregate-unrecognized save local_project_fts[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:aggregate-unrecognized save local_project_fts[0].project_name", "65a4ab50988845fb64d0c0005c5b1af7eadee7b8c9b6935eb905722cc8a07773:45"),
+    ("preview:aggregate-unrecognized save local_projects[0].analysis_run_json", "11fd5388f478a0fd2278a59375a48ec23269925533639df1828b92c0f0fbcd0f:143597"),
+    ("preview:aggregate-unrecognized save local_projects[0].created_at_unix", "Integer(1793000000)"),
+    ("preview:aggregate-unrecognized save local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
+    ("preview:aggregate-unrecognized save local_projects[0].mechanics_result_json", "5613c1d834bc0125003ddfdafe753ffeed4b065fa1ae09409aa8b468a3b2eea9:71477"),
+    ("preview:aggregate-unrecognized save local_projects[0].model_hash_json", "1e64c7d4d580e54c4b39dfc7592ed08ae5b50ff23277b7063bcbf6b0df7427ba:260"),
+    ("preview:aggregate-unrecognized save local_projects[0].model_json", "4a1babd4a449831aeeea1835dfff057ebae6c91c14675443fde9da061f07ff3c:3584"),
+    ("preview:aggregate-unrecognized save local_projects[0].model_migration_ledger_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:aggregate-unrecognized save local_projects[0].project_envelope_hash_json", "716208885838776daab67688d90d1d6ce516e64d8015d018291e8d1259e88682:341"),
+    ("preview:aggregate-unrecognized save local_projects[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:aggregate-unrecognized save local_projects[0].project_name", "65a4ab50988845fb64d0c0005c5b1af7eadee7b8c9b6935eb905722cc8a07773:45"),
+    ("preview:aggregate-unrecognized save local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
+    ("preview:aggregate-unrecognized save local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
+    ("preview:aggregate-unrecognized save local_projects[0].updated_at_unix", "Integer(1793000000)"),
+    ("preview:aggregate-unrecognized save reply", "dba949aae8dc5eeb5351f94d4213b8374fe3979bcf509f0c3061ad3f847c0f85:3414"),
+    ("preview:connected create reply", "96f184a4bf7cc2d1cb51aaaf474dec7bd1ec9691170f09cf2477af2ad30bd197:3866"),
+    ("preview:connected record analysis_run_labels[0].assumptions_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:connected record analysis_run_labels[0].notes_json", "5df6d4f94dea81443474cd8fd8b70333654763c9dfbea861d2428c19e7d00a73:18"),
+    ("preview:connected record analysis_run_labels[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:connected record analysis_run_labels[0].recording_id", "b20800ff9c7fe2c34be6c3dcdde4a494eeee18d1b5ebc8b405422426be25930b:39"),
+    ("preview:connected record analysis_run_labels[0].run_name", "a89023ff6219b358cf8bbb555afdc6d5f4303df5bfe187d902c3622679b8092f:22"),
+    ("preview:connected record analysis_run_labels[0].tags_json", "c38f1b165048a14cf0612830edb0f61f56be4cb4f1f3d01fbaa14e6655c52c55:10"),
+    ("preview:connected record analysis_run_labels[0].updated_at", "04199ee21ddec3cb0080ba7ae86be72bbf19e53d97bc7b59ff3f343c25431d0e:24"),
+    ("preview:connected record analysis_run_labels[1].assumptions_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:connected record analysis_run_labels[1].notes_json", "5df6d4f94dea81443474cd8fd8b70333654763c9dfbea861d2428c19e7d00a73:18"),
+    ("preview:connected record analysis_run_labels[1].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:connected record analysis_run_labels[1].recording_id", "336792ad5e25829c6d5937f22e735fe0cc4fe11ce72c823d5923c36def49548f:39"),
+    ("preview:connected record analysis_run_labels[1].run_name", "a89023ff6219b358cf8bbb555afdc6d5f4303df5bfe187d902c3622679b8092f:22"),
+    ("preview:connected record analysis_run_labels[1].tags_json", "c38f1b165048a14cf0612830edb0f61f56be4cb4f1f3d01fbaa14e6655c52c55:10"),
+    ("preview:connected record analysis_run_labels[1].updated_at", "1ac8477c538da6e93db66aa8df1bdf6f18a246ad755914704dcf06733e26b2fc:24"),
+    ("preview:connected record analysis_runs[0].created_at", "04199ee21ddec3cb0080ba7ae86be72bbf19e53d97bc7b59ff3f343c25431d0e:24"),
+    ("preview:connected record analysis_runs[0].input_manifest_json", "ec2b590838e26dbff151fe097131cd7a9ace800cb409041dbdf68a25a3e2c81e:6295"),
+    ("preview:connected record analysis_runs[0].producer_run_id", "b3862e6694684d4c24986f49ec8e862f3872f1ae70359b7f55b3a8f340507b70:29"),
+    ("preview:connected record analysis_runs[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:connected record analysis_runs[0].recording_id", "b20800ff9c7fe2c34be6c3dcdde4a494eeee18d1b5ebc8b405422426be25930b:39"),
+    ("preview:connected record analysis_runs[0].result_hash", "a8a20c6b217680871c9035cf81cfbcbbb6d84b058908d3f7ee90afdfbc4b360b:64"),
+    ("preview:connected record analysis_runs[0].result_json", "76cb429be9d4557ca4b08467853a5d0f054cc5152438ecc7b13917621c680431:71477"),
+    ("preview:connected record analysis_runs[0].run_record_hash", "ad5d535c256d351010562e4db87f5d4d39f5a702f7804e356254df6e5d9b8cfc:64"),
+    ("preview:connected record analysis_runs[0].run_record_json", "5d6cda3bdd3b6323310d47518e222ea804a73330ddc8cc1cc8d6eb800d758591:143583"),
+    ("preview:connected record analysis_runs[0].state_id", "3a3cd6490a1651ab2f9fd668c3dc0d5628c6d0120efb67da96e265d81bb849d8:38"),
+    ("preview:connected record analysis_runs[1].created_at", "1ac8477c538da6e93db66aa8df1bdf6f18a246ad755914704dcf06733e26b2fc:24"),
+    ("preview:connected record analysis_runs[1].input_manifest_json", "ec2b590838e26dbff151fe097131cd7a9ace800cb409041dbdf68a25a3e2c81e:6295"),
+    ("preview:connected record analysis_runs[1].producer_run_id", "b3862e6694684d4c24986f49ec8e862f3872f1ae70359b7f55b3a8f340507b70:29"),
+    ("preview:connected record analysis_runs[1].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:connected record analysis_runs[1].recording_id", "336792ad5e25829c6d5937f22e735fe0cc4fe11ce72c823d5923c36def49548f:39"),
+    ("preview:connected record analysis_runs[1].result_hash", "a8a20c6b217680871c9035cf81cfbcbbb6d84b058908d3f7ee90afdfbc4b360b:64"),
+    ("preview:connected record analysis_runs[1].result_json", "76cb429be9d4557ca4b08467853a5d0f054cc5152438ecc7b13917621c680431:71477"),
+    ("preview:connected record analysis_runs[1].run_record_hash", "318c8d9433122dbe8e133f543eaea54b4f6b531f2ece8d22d03ee2314b405dad:64"),
+    ("preview:connected record analysis_runs[1].run_record_json", "19c0536a39836783b2bc94d60d7cea1c93bfa168ba53117a748850ff2850b0e1:143583"),
+    ("preview:connected record analysis_runs[1].state_id", "3a3cd6490a1651ab2f9fd668c3dc0d5628c6d0120efb67da96e265d81bb849d8:38"),
+    ("preview:connected record model_state_labels[0].assumptions_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:connected record model_state_labels[0].notes_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:connected record model_state_labels[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:connected record model_state_labels[0].state_id", "3a3cd6490a1651ab2f9fd668c3dc0d5628c6d0120efb67da96e265d81bb849d8:38"),
+    ("preview:connected record model_state_labels[0].state_name", "d081e834436746542ed6bc8d1327bda6c85dea255b2af1f44313fa8fe075de15:11"),
+    ("preview:connected record model_state_labels[0].tags_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:connected record model_state_labels[0].updated_at", "04199ee21ddec3cb0080ba7ae86be72bbf19e53d97bc7b59ff3f343c25431d0e:24"),
+    ("preview:connected record model_states[0].created_at", "04199ee21ddec3cb0080ba7ae86be72bbf19e53d97bc7b59ff3f343c25431d0e:24"),
+    ("preview:connected record model_states[0].model_canonical", "4a1babd4a449831aeeea1835dfff057ebae6c91c14675443fde9da061f07ff3c:3584"),
+    ("preview:connected record model_states[0].model_hash", "b357d5f9e868c425b7b4c4798a8b0ac2c88c46635d806460cbf996d3d1fce416:71"),
+    ("preview:connected record model_states[0].parent_state_id", "Null"),
+    ("preview:connected record model_states[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:connected record model_states[0].record_hash", "c3a5e9ad1fa5ff45041703986f7f5a9f7f88d4c84ff79c9e0628734ad4042f5f:64"),
+    ("preview:connected record model_states[0].record_json", "471bc60490823530e98857c539d997e949385a9864c5b6206998cc6e4c18f3d7:1718"),
+    ("preview:connected record model_states[0].state_id", "3a3cd6490a1651ab2f9fd668c3dc0d5628c6d0120efb67da96e265d81bb849d8:38"),
+    ("preview:connected record model_states[0].state_kind", "37e47861edf4c99a70c0e2513fc6d386a62547cb0a25f064d10785d204386944:19"),
+    ("preview:connected record#0 reply", "d9c6cb91b12fe124d6a15f7ce461127079be55363ae2e5e77b090bdd695c000a:1545"),
+    ("preview:connected record#1 reply", "6573ff4c19bfdf8307c937eaccb75dd1c800bbdaf7b16ee50239a916a73ac75b:1530"),
+    ("preview:connected recorded read#0 legacy record", "5d6cda3bdd3b6323310d47518e222ea804a73330ddc8cc1cc8d6eb800d758591:143583"),
+    ("preview:connected recorded read#0 reply", "ddfd33ad938c3952edc9cff8ba7d703ceddbb2b7e1b9f09ab4a1b273002ede61:13083"),
+    ("preview:connected recorded read#1 legacy record", "19c0536a39836783b2bc94d60d7cea1c93bfa168ba53117a748850ff2850b0e1:143583"),
+    ("preview:connected recorded read#1 reply", "7beff0e9e84ab45d4b538e75fc059311521b04117204ab4d0d63882b4a6b54d9:13083"),
+    ("preview:connected reopen reply", "49cf104065f5fdbaed62c11dfbf64b8ec7a2f1a8011035c9510819d2bcacd41b:11454"),
+    ("preview:connected resave local_project_fts[0].model_text", "3b28d5ea9698eef3d0f7476851235853cc1c65197db25b2406abfdbd24427079:147461"),
+    ("preview:connected resave local_project_fts[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:connected resave local_project_fts[0].project_name", "65a4ab50988845fb64d0c0005c5b1af7eadee7b8c9b6935eb905722cc8a07773:45"),
+    ("preview:connected resave local_projects[0].analysis_run_json", "11fd5388f478a0fd2278a59375a48ec23269925533639df1828b92c0f0fbcd0f:143597"),
+    ("preview:connected resave local_projects[0].created_at_unix", "Integer(1793000000)"),
+    ("preview:connected resave local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
+    ("preview:connected resave local_projects[0].mechanics_result_json", "5613c1d834bc0125003ddfdafe753ffeed4b065fa1ae09409aa8b468a3b2eea9:71477"),
+    ("preview:connected resave local_projects[0].model_hash_json", "1e64c7d4d580e54c4b39dfc7592ed08ae5b50ff23277b7063bcbf6b0df7427ba:260"),
+    ("preview:connected resave local_projects[0].model_json", "4a1babd4a449831aeeea1835dfff057ebae6c91c14675443fde9da061f07ff3c:3584"),
+    ("preview:connected resave local_projects[0].model_migration_ledger_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:connected resave local_projects[0].project_envelope_hash_json", "716208885838776daab67688d90d1d6ce516e64d8015d018291e8d1259e88682:341"),
+    ("preview:connected resave local_projects[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:connected resave local_projects[0].project_name", "65a4ab50988845fb64d0c0005c5b1af7eadee7b8c9b6935eb905722cc8a07773:45"),
+    ("preview:connected resave local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
+    ("preview:connected resave local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
+    ("preview:connected resave local_projects[0].updated_at_unix", "Integer(1793000000)"),
+    ("preview:connected resave reply", "2e377852ff673378a931aa5ea2a390cf772a1657ce11dc8d88d1fb5bba1a801e:4239"),
+    ("preview:connected save local_project_fts[0].model_text", "3b28d5ea9698eef3d0f7476851235853cc1c65197db25b2406abfdbd24427079:147461"),
+    ("preview:connected save local_project_fts[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:connected save local_project_fts[0].project_name", "65a4ab50988845fb64d0c0005c5b1af7eadee7b8c9b6935eb905722cc8a07773:45"),
+    ("preview:connected save local_projects[0].analysis_run_json", "11fd5388f478a0fd2278a59375a48ec23269925533639df1828b92c0f0fbcd0f:143597"),
+    ("preview:connected save local_projects[0].created_at_unix", "Integer(1793000000)"),
+    ("preview:connected save local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
+    ("preview:connected save local_projects[0].mechanics_result_json", "5613c1d834bc0125003ddfdafe753ffeed4b065fa1ae09409aa8b468a3b2eea9:71477"),
+    ("preview:connected save local_projects[0].model_hash_json", "1e64c7d4d580e54c4b39dfc7592ed08ae5b50ff23277b7063bcbf6b0df7427ba:260"),
+    ("preview:connected save local_projects[0].model_json", "4a1babd4a449831aeeea1835dfff057ebae6c91c14675443fde9da061f07ff3c:3584"),
+    ("preview:connected save local_projects[0].model_migration_ledger_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:connected save local_projects[0].project_envelope_hash_json", "716208885838776daab67688d90d1d6ce516e64d8015d018291e8d1259e88682:341"),
+    ("preview:connected save local_projects[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:connected save local_projects[0].project_name", "65a4ab50988845fb64d0c0005c5b1af7eadee7b8c9b6935eb905722cc8a07773:45"),
+    ("preview:connected save local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
+    ("preview:connected save local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
+    ("preview:connected save local_projects[0].updated_at_unix", "Integer(1793000000)"),
+    ("preview:connected save reply", "dba949aae8dc5eeb5351f94d4213b8374fe3979bcf509f0c3061ad3f847c0f85:3414"),
+    ("preview:pressure create reply", "7f4c21088b2a4f1c7598a92be077d1be90ee8ef9ffc9c06c5560764ca5074dac:4026"),
+    ("preview:pressure record analysis_run_labels[0].assumptions_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:pressure record analysis_run_labels[0].notes_json", "5df6d4f94dea81443474cd8fd8b70333654763c9dfbea861d2428c19e7d00a73:18"),
+    ("preview:pressure record analysis_run_labels[0].project_id", "a6246e580c56c6f2e381d6c56e6dc78b5e615a7c342071f9c92fe17c44f0ff84:40"),
+    ("preview:pressure record analysis_run_labels[0].recording_id", "0f9891432156891a8356cb44a963c5caebff84778eeab9f272975f8073a8f6fc:39"),
+    ("preview:pressure record analysis_run_labels[0].run_name", "a89023ff6219b358cf8bbb555afdc6d5f4303df5bfe187d902c3622679b8092f:22"),
+    ("preview:pressure record analysis_run_labels[0].tags_json", "c38f1b165048a14cf0612830edb0f61f56be4cb4f1f3d01fbaa14e6655c52c55:10"),
+    ("preview:pressure record analysis_run_labels[0].updated_at", "04199ee21ddec3cb0080ba7ae86be72bbf19e53d97bc7b59ff3f343c25431d0e:24"),
+    ("preview:pressure record analysis_run_labels[1].assumptions_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:pressure record analysis_run_labels[1].notes_json", "5df6d4f94dea81443474cd8fd8b70333654763c9dfbea861d2428c19e7d00a73:18"),
+    ("preview:pressure record analysis_run_labels[1].project_id", "a6246e580c56c6f2e381d6c56e6dc78b5e615a7c342071f9c92fe17c44f0ff84:40"),
+    ("preview:pressure record analysis_run_labels[1].recording_id", "3027fd21326c7640a20300a0c65aafc79a75010eec07a40ea6ae979cc6127268:39"),
+    ("preview:pressure record analysis_run_labels[1].run_name", "a89023ff6219b358cf8bbb555afdc6d5f4303df5bfe187d902c3622679b8092f:22"),
+    ("preview:pressure record analysis_run_labels[1].tags_json", "c38f1b165048a14cf0612830edb0f61f56be4cb4f1f3d01fbaa14e6655c52c55:10"),
+    ("preview:pressure record analysis_run_labels[1].updated_at", "1ac8477c538da6e93db66aa8df1bdf6f18a246ad755914704dcf06733e26b2fc:24"),
+    ("preview:pressure record analysis_runs[0].created_at", "04199ee21ddec3cb0080ba7ae86be72bbf19e53d97bc7b59ff3f343c25431d0e:24"),
+    ("preview:pressure record analysis_runs[0].input_manifest_json", "ba562c8d1d6eac48e500fed9801c046d2fa43376dc07035017d15c1d29a27e09:7900"),
+    ("preview:pressure record analysis_runs[0].producer_run_id", "b3862e6694684d4c24986f49ec8e862f3872f1ae70359b7f55b3a8f340507b70:29"),
+    ("preview:pressure record analysis_runs[0].project_id", "a6246e580c56c6f2e381d6c56e6dc78b5e615a7c342071f9c92fe17c44f0ff84:40"),
+    ("preview:pressure record analysis_runs[0].recording_id", "0f9891432156891a8356cb44a963c5caebff84778eeab9f272975f8073a8f6fc:39"),
+    ("preview:pressure record analysis_runs[0].result_hash", "829d5d575abbf08c247297b2182447445f75d7163686aa17a1687b66b678fad0:64"),
+    ("preview:pressure record analysis_runs[0].result_json", "ea603e07de931c444ca510b209ebc51cc03c1ad4181f30f01fb0d0f1f798b99c:254717"),
+    ("preview:pressure record analysis_runs[0].run_record_hash", "f87642165162219f80ad764b9bcbcb5d4ba35b7a96139d41b9cba8f7cdf28081:64"),
+    ("preview:pressure record analysis_runs[0].run_record_json", "98e260449d0f9dce8c1c5efce6640306bcce329f4ecbfd4cd0141629e0798e60:520513"),
+    ("preview:pressure record analysis_runs[0].state_id", "3a3cd6490a1651ab2f9fd668c3dc0d5628c6d0120efb67da96e265d81bb849d8:38"),
+    ("preview:pressure record analysis_runs[1].created_at", "1ac8477c538da6e93db66aa8df1bdf6f18a246ad755914704dcf06733e26b2fc:24"),
+    ("preview:pressure record analysis_runs[1].input_manifest_json", "ba562c8d1d6eac48e500fed9801c046d2fa43376dc07035017d15c1d29a27e09:7900"),
+    ("preview:pressure record analysis_runs[1].producer_run_id", "b3862e6694684d4c24986f49ec8e862f3872f1ae70359b7f55b3a8f340507b70:29"),
+    ("preview:pressure record analysis_runs[1].project_id", "a6246e580c56c6f2e381d6c56e6dc78b5e615a7c342071f9c92fe17c44f0ff84:40"),
+    ("preview:pressure record analysis_runs[1].recording_id", "3027fd21326c7640a20300a0c65aafc79a75010eec07a40ea6ae979cc6127268:39"),
+    ("preview:pressure record analysis_runs[1].result_hash", "829d5d575abbf08c247297b2182447445f75d7163686aa17a1687b66b678fad0:64"),
+    ("preview:pressure record analysis_runs[1].result_json", "ea603e07de931c444ca510b209ebc51cc03c1ad4181f30f01fb0d0f1f798b99c:254717"),
+    ("preview:pressure record analysis_runs[1].run_record_hash", "8ed1842103828573caed81a2e7d699fb1b0b6a85b12643724974edf52f2950ea:64"),
+    ("preview:pressure record analysis_runs[1].run_record_json", "6dd13c1e84fb02aa3d7aa5eaf4aa1e4b27aad2c0cc519a2a1da481698d102fc0:520513"),
+    ("preview:pressure record analysis_runs[1].state_id", "3a3cd6490a1651ab2f9fd668c3dc0d5628c6d0120efb67da96e265d81bb849d8:38"),
+    ("preview:pressure record model_state_labels[0].assumptions_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:pressure record model_state_labels[0].notes_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:pressure record model_state_labels[0].project_id", "a6246e580c56c6f2e381d6c56e6dc78b5e615a7c342071f9c92fe17c44f0ff84:40"),
+    ("preview:pressure record model_state_labels[0].state_id", "3a3cd6490a1651ab2f9fd668c3dc0d5628c6d0120efb67da96e265d81bb849d8:38"),
+    ("preview:pressure record model_state_labels[0].state_name", "d081e834436746542ed6bc8d1327bda6c85dea255b2af1f44313fa8fe075de15:11"),
+    ("preview:pressure record model_state_labels[0].tags_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:pressure record model_state_labels[0].updated_at", "04199ee21ddec3cb0080ba7ae86be72bbf19e53d97bc7b59ff3f343c25431d0e:24"),
+    ("preview:pressure record model_states[0].created_at", "04199ee21ddec3cb0080ba7ae86be72bbf19e53d97bc7b59ff3f343c25431d0e:24"),
+    ("preview:pressure record model_states[0].model_canonical", "f4ef1881023cd3f9a92de87d77522b96ccc5da71d25b6e7a356fd070b8de1787:4444"),
+    ("preview:pressure record model_states[0].model_hash", "8a0f09502c2b2db0759cd2869324aa836efbb53771da506d608dc6dddbd13e78:71"),
+    ("preview:pressure record model_states[0].parent_state_id", "Null"),
+    ("preview:pressure record model_states[0].project_id", "a6246e580c56c6f2e381d6c56e6dc78b5e615a7c342071f9c92fe17c44f0ff84:40"),
+    ("preview:pressure record model_states[0].record_hash", "e3547e1e4174b6d4140df02d97e7f3dce46d5167f15b6b59c13d83949a38e926:64"),
+    ("preview:pressure record model_states[0].record_json", "aec7675c6066b3333125440bd9efa1b21d962c8867199a83eedc359074b2b244:1728"),
+    ("preview:pressure record model_states[0].state_id", "3a3cd6490a1651ab2f9fd668c3dc0d5628c6d0120efb67da96e265d81bb849d8:38"),
+    ("preview:pressure record model_states[0].state_kind", "37e47861edf4c99a70c0e2513fc6d386a62547cb0a25f064d10785d204386944:19"),
+    ("preview:pressure record#0 reply", "fb138b1dcd831cb988e42078662b9f45f95eaa8df0636f3134824c204afdb600:1555"),
+    ("preview:pressure record#1 reply", "4c7cd4793038de20456b7b8f460182a605803df82618dc7743e62f98d6120703:1540"),
+    ("preview:pressure recorded read#0 legacy record", "98e260449d0f9dce8c1c5efce6640306bcce329f4ecbfd4cd0141629e0798e60:520513"),
+    ("preview:pressure recorded read#0 reply", "228dfee933e9755ffbdba9a0d88edc5e93c2764e6f648e691e612e2ba1f15e4f:14957"),
+    ("preview:pressure recorded read#1 legacy record", "6dd13c1e84fb02aa3d7aa5eaf4aa1e4b27aad2c0cc519a2a1da481698d102fc0:520513"),
+    ("preview:pressure recorded read#1 reply", "67ad7a4edbff3d45d3dcea1355fb0ddfd8f63322823a085887b8e51fa8f973d4:14957"),
+    ("preview:pressure reopen reply", "448d2215a6fe8f9ed1b0510d5d93b9fa0aed00e905a70e4715499017ea4f6537:12554"),
+    ("preview:pressure resave local_project_fts[0].model_text", "35f07a903ed83b97a29544a05f3228e585cedd1415ca3fc1a75e55ccfce0e8a4:525256"),
+    ("preview:pressure resave local_project_fts[0].project_id", "a6246e580c56c6f2e381d6c56e6dc78b5e615a7c342071f9c92fe17c44f0ff84:40"),
+    ("preview:pressure resave local_project_fts[0].project_name", "a3be13fbc758ede01e3aed6c502f013fd0465bc37324e55e04b68b3be9588a79:42"),
+    ("preview:pressure resave local_projects[0].analysis_run_json", "3990ad567b0bb66021a2da7310696421efb63a1513c8488e1b0de71a06e0786f:520532"),
+    ("preview:pressure resave local_projects[0].created_at_unix", "Integer(1793000000)"),
+    ("preview:pressure resave local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
+    ("preview:pressure resave local_projects[0].mechanics_result_json", "9b32b2a24a90356392bd0af5f3dd76a333ee843c75b5162a40362188ad591204:254695"),
+    ("preview:pressure resave local_projects[0].model_hash_json", "ecc80889d0c64234951fc1291db140994980ecef8d5e2b94f389bac93fcdf732:265"),
+    ("preview:pressure resave local_projects[0].model_json", "f4ef1881023cd3f9a92de87d77522b96ccc5da71d25b6e7a356fd070b8de1787:4444"),
+    ("preview:pressure resave local_projects[0].model_migration_ledger_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:pressure resave local_projects[0].project_envelope_hash_json", "a4733af7c35f5b7b10c50e86cac077e14a9b70faf69e16789707f689582611d6:346"),
+    ("preview:pressure resave local_projects[0].project_id", "a6246e580c56c6f2e381d6c56e6dc78b5e615a7c342071f9c92fe17c44f0ff84:40"),
+    ("preview:pressure resave local_projects[0].project_name", "a3be13fbc758ede01e3aed6c502f013fd0465bc37324e55e04b68b3be9588a79:42"),
+    ("preview:pressure resave local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
+    ("preview:pressure resave local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
+    ("preview:pressure resave local_projects[0].updated_at_unix", "Integer(1793000000)"),
+    ("preview:pressure resave reply", "3f3da112ab7786c41b86b46d7e385b689073a57b3d4a4697db43dbacd80fed4b:4404"),
+    ("preview:pressure save local_project_fts[0].model_text", "35f07a903ed83b97a29544a05f3228e585cedd1415ca3fc1a75e55ccfce0e8a4:525256"),
+    ("preview:pressure save local_project_fts[0].project_id", "a6246e580c56c6f2e381d6c56e6dc78b5e615a7c342071f9c92fe17c44f0ff84:40"),
+    ("preview:pressure save local_project_fts[0].project_name", "a3be13fbc758ede01e3aed6c502f013fd0465bc37324e55e04b68b3be9588a79:42"),
+    ("preview:pressure save local_projects[0].analysis_run_json", "3990ad567b0bb66021a2da7310696421efb63a1513c8488e1b0de71a06e0786f:520532"),
+    ("preview:pressure save local_projects[0].created_at_unix", "Integer(1793000000)"),
+    ("preview:pressure save local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
+    ("preview:pressure save local_projects[0].mechanics_result_json", "9b32b2a24a90356392bd0af5f3dd76a333ee843c75b5162a40362188ad591204:254695"),
+    ("preview:pressure save local_projects[0].model_hash_json", "ecc80889d0c64234951fc1291db140994980ecef8d5e2b94f389bac93fcdf732:265"),
+    ("preview:pressure save local_projects[0].model_json", "f4ef1881023cd3f9a92de87d77522b96ccc5da71d25b6e7a356fd070b8de1787:4444"),
+    ("preview:pressure save local_projects[0].model_migration_ledger_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:pressure save local_projects[0].project_envelope_hash_json", "a4733af7c35f5b7b10c50e86cac077e14a9b70faf69e16789707f689582611d6:346"),
+    ("preview:pressure save local_projects[0].project_id", "a6246e580c56c6f2e381d6c56e6dc78b5e615a7c342071f9c92fe17c44f0ff84:40"),
+    ("preview:pressure save local_projects[0].project_name", "a3be13fbc758ede01e3aed6c502f013fd0465bc37324e55e04b68b3be9588a79:42"),
+    ("preview:pressure save local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
+    ("preview:pressure save local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
+    ("preview:pressure save local_projects[0].updated_at_unix", "Integer(1793000000)"),
+    ("preview:pressure save reply", "88dadae7af26be20f5ea2a6ab7b64682895dfb7d804de93f96ba94e12209ccd2:3574"),
+    ("preview:pressure-source create reply", "c961c4fab92c3cb08581e2184652877b452e089deeac7decf81f8be18f038e7c:3421"),
+    ("preview:pressure-source record analysis_run_labels[0].assumptions_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:pressure-source record analysis_run_labels[0].notes_json", "5df6d4f94dea81443474cd8fd8b70333654763c9dfbea861d2428c19e7d00a73:18"),
+    ("preview:pressure-source record analysis_run_labels[0].project_id", "0693e489f130b54637dcd80cc4ded978a783ee61ac6c8c39c32e94620c0ad4ef:28"),
+    ("preview:pressure-source record analysis_run_labels[0].recording_id", "a978c567ff2d646859fd0da5aae07951c561dc4a7a9ee87e8b58efd7fcae9765:39"),
+    ("preview:pressure-source record analysis_run_labels[0].run_name", "a89023ff6219b358cf8bbb555afdc6d5f4303df5bfe187d902c3622679b8092f:22"),
+    ("preview:pressure-source record analysis_run_labels[0].tags_json", "c38f1b165048a14cf0612830edb0f61f56be4cb4f1f3d01fbaa14e6655c52c55:10"),
+    ("preview:pressure-source record analysis_run_labels[0].updated_at", "04199ee21ddec3cb0080ba7ae86be72bbf19e53d97bc7b59ff3f343c25431d0e:24"),
+    ("preview:pressure-source record analysis_run_labels[1].assumptions_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:pressure-source record analysis_run_labels[1].notes_json", "5df6d4f94dea81443474cd8fd8b70333654763c9dfbea861d2428c19e7d00a73:18"),
+    ("preview:pressure-source record analysis_run_labels[1].project_id", "0693e489f130b54637dcd80cc4ded978a783ee61ac6c8c39c32e94620c0ad4ef:28"),
+    ("preview:pressure-source record analysis_run_labels[1].recording_id", "de23953c415774fced29bbc2b16bd33a9e196fe16783c8c56d33019dc36b7861:39"),
+    ("preview:pressure-source record analysis_run_labels[1].run_name", "a89023ff6219b358cf8bbb555afdc6d5f4303df5bfe187d902c3622679b8092f:22"),
+    ("preview:pressure-source record analysis_run_labels[1].tags_json", "c38f1b165048a14cf0612830edb0f61f56be4cb4f1f3d01fbaa14e6655c52c55:10"),
+    ("preview:pressure-source record analysis_run_labels[1].updated_at", "1ac8477c538da6e93db66aa8df1bdf6f18a246ad755914704dcf06733e26b2fc:24"),
+    ("preview:pressure-source record analysis_runs[0].created_at", "04199ee21ddec3cb0080ba7ae86be72bbf19e53d97bc7b59ff3f343c25431d0e:24"),
+    ("preview:pressure-source record analysis_runs[0].input_manifest_json", "1e30137a32aef60b22cb5760dc68dfbccddfe2a6955614d8c51dc590abb2ed1f:4610"),
+    ("preview:pressure-source record analysis_runs[0].producer_run_id", "b3862e6694684d4c24986f49ec8e862f3872f1ae70359b7f55b3a8f340507b70:29"),
+    ("preview:pressure-source record analysis_runs[0].project_id", "0693e489f130b54637dcd80cc4ded978a783ee61ac6c8c39c32e94620c0ad4ef:28"),
+    ("preview:pressure-source record analysis_runs[0].recording_id", "a978c567ff2d646859fd0da5aae07951c561dc4a7a9ee87e8b58efd7fcae9765:39"),
+    ("preview:pressure-source record analysis_runs[0].result_hash", "de31f6d6465ff3630ea241d43343771d83dfaf238687e0e4edc28527542daff3:64"),
+    ("preview:pressure-source record analysis_runs[0].result_json", "5bd099d9ecd48e1f421382596b6c8dcb61aee6c675600404162496177aedca54:187574"),
+    ("preview:pressure-source record analysis_runs[0].run_record_hash", "157f4c785f38aec2628bc73c266a34063667df3e2a038ae40ae145944ea790b7:64"),
+    ("preview:pressure-source record analysis_runs[0].run_record_json", "7125ba04e1fbd840866fe754a28cb7a7351733189cb3f4be8b9858c0be56503d:304292"),
+    ("preview:pressure-source record analysis_runs[0].state_id", "3a3cd6490a1651ab2f9fd668c3dc0d5628c6d0120efb67da96e265d81bb849d8:38"),
+    ("preview:pressure-source record analysis_runs[1].created_at", "1ac8477c538da6e93db66aa8df1bdf6f18a246ad755914704dcf06733e26b2fc:24"),
+    ("preview:pressure-source record analysis_runs[1].input_manifest_json", "1e30137a32aef60b22cb5760dc68dfbccddfe2a6955614d8c51dc590abb2ed1f:4610"),
+    ("preview:pressure-source record analysis_runs[1].producer_run_id", "b3862e6694684d4c24986f49ec8e862f3872f1ae70359b7f55b3a8f340507b70:29"),
+    ("preview:pressure-source record analysis_runs[1].project_id", "0693e489f130b54637dcd80cc4ded978a783ee61ac6c8c39c32e94620c0ad4ef:28"),
+    ("preview:pressure-source record analysis_runs[1].recording_id", "de23953c415774fced29bbc2b16bd33a9e196fe16783c8c56d33019dc36b7861:39"),
+    ("preview:pressure-source record analysis_runs[1].result_hash", "de31f6d6465ff3630ea241d43343771d83dfaf238687e0e4edc28527542daff3:64"),
+    ("preview:pressure-source record analysis_runs[1].result_json", "5bd099d9ecd48e1f421382596b6c8dcb61aee6c675600404162496177aedca54:187574"),
+    ("preview:pressure-source record analysis_runs[1].run_record_hash", "dea7ab2e4b6d68f56ea3086c5934f13a245bbb5cea410cd17ac016aae93a2c62:64"),
+    ("preview:pressure-source record analysis_runs[1].run_record_json", "115ddcfe8010b558a3a4e0f691f30ee664d3ce579f213f6b8140138233027eff:304292"),
+    ("preview:pressure-source record analysis_runs[1].state_id", "3a3cd6490a1651ab2f9fd668c3dc0d5628c6d0120efb67da96e265d81bb849d8:38"),
+    ("preview:pressure-source record model_state_labels[0].assumptions_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:pressure-source record model_state_labels[0].notes_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:pressure-source record model_state_labels[0].project_id", "0693e489f130b54637dcd80cc4ded978a783ee61ac6c8c39c32e94620c0ad4ef:28"),
+    ("preview:pressure-source record model_state_labels[0].state_id", "3a3cd6490a1651ab2f9fd668c3dc0d5628c6d0120efb67da96e265d81bb849d8:38"),
+    ("preview:pressure-source record model_state_labels[0].state_name", "d081e834436746542ed6bc8d1327bda6c85dea255b2af1f44313fa8fe075de15:11"),
+    ("preview:pressure-source record model_state_labels[0].tags_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:pressure-source record model_state_labels[0].updated_at", "04199ee21ddec3cb0080ba7ae86be72bbf19e53d97bc7b59ff3f343c25431d0e:24"),
+    ("preview:pressure-source record model_states[0].created_at", "04199ee21ddec3cb0080ba7ae86be72bbf19e53d97bc7b59ff3f343c25431d0e:24"),
+    ("preview:pressure-source record model_states[0].model_canonical", "ed9e8b65562e1a328ea7293fe8cc7e696ee7e776c4b27810b1f116535a0b1c67:3162"),
+    ("preview:pressure-source record model_states[0].model_hash", "834ac26a0718b6d5d402ab6805a3fd4f150e7d0edf45de158f9bfd60bcdf54f3:71"),
+    ("preview:pressure-source record model_states[0].parent_state_id", "Null"),
+    ("preview:pressure-source record model_states[0].project_id", "0693e489f130b54637dcd80cc4ded978a783ee61ac6c8c39c32e94620c0ad4ef:28"),
+    ("preview:pressure-source record model_states[0].record_hash", "918e8d4138338145b701eabe76dfb6270b8520046a6ea9de6dd207dce30cc6ce:64"),
+    ("preview:pressure-source record model_states[0].record_json", "6816c48d1c3f81e73437dcf494cc4a94f973e36ce21ddef9dd8e68d293db7435:1704"),
+    ("preview:pressure-source record model_states[0].state_id", "3a3cd6490a1651ab2f9fd668c3dc0d5628c6d0120efb67da96e265d81bb849d8:38"),
+    ("preview:pressure-source record model_states[0].state_kind", "37e47861edf4c99a70c0e2513fc6d386a62547cb0a25f064d10785d204386944:19"),
+    ("preview:pressure-source record#0 reply", "98eba7d6bfc4a332cf7082ce1ae252f66af310f514141b74b6915c0e28ac188e:1531"),
+    ("preview:pressure-source record#1 reply", "ef9d98c741ee9cbbe27271ac54c71fbcc524f69461ae9de5b0983d5c83d211bb:1516"),
+    ("preview:pressure-source recorded read#0 legacy record", "7125ba04e1fbd840866fe754a28cb7a7351733189cb3f4be8b9858c0be56503d:304292"),
+    ("preview:pressure-source recorded read#0 reply", "13c7610cb203fd2724afd99a18137a2ade194f9d01f9842f71436266f82dcb30:11119"),
+    ("preview:pressure-source recorded read#1 legacy record", "115ddcfe8010b558a3a4e0f691f30ee664d3ce579f213f6b8140138233027eff:304292"),
+    ("preview:pressure-source recorded read#1 reply", "db97c1a183563dd82ff262fd0852c20fe10d61f9aebf07a8e26457c8b52bf4ac:11119"),
+    ("preview:pressure-source reopen reply", "e30e43bd1924a0f11b0f01cfe762fd72f861e0076b5ba71b6a7288376ee69fc7:10616"),
+    ("preview:pressure-source resave local_project_fts[0].model_text", "3a93d45890902c5502a0912fb6003bffec65ba134acfa9d0acfc3b1205ce0b5c:307732"),
+    ("preview:pressure-source resave local_project_fts[0].project_id", "0693e489f130b54637dcd80cc4ded978a783ee61ac6c8c39c32e94620c0ad4ef:28"),
+    ("preview:pressure-source resave local_project_fts[0].project_name", "ed4d498abca0d8e212e2fb959bc79a253ecd89531261e18d45740b2d40ec76a8:43"),
+    ("preview:pressure-source resave local_projects[0].analysis_run_json", "98d89c4f6a5d6dc0bd0e05d0710df277a5805e2ca7551ddb754a10849806861c:304299"),
+    ("preview:pressure-source resave local_projects[0].created_at_unix", "Integer(1793000000)"),
+    ("preview:pressure-source resave local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
+    ("preview:pressure-source resave local_projects[0].mechanics_result_json", "be35999cd2f5d01ebd08a6ee24cd7c3c6d88e54a2fb1ab58fd9c48f35a6e6958:187574"),
+    ("preview:pressure-source resave local_projects[0].model_hash_json", "a0330a79164a3502f0e5b51d30c6af25a815d4a8bb336be84c2bf37dc14bf674:253"),
+    ("preview:pressure-source resave local_projects[0].model_json", "ed9e8b65562e1a328ea7293fe8cc7e696ee7e776c4b27810b1f116535a0b1c67:3162"),
+    ("preview:pressure-source resave local_projects[0].model_migration_ledger_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:pressure-source resave local_projects[0].project_envelope_hash_json", "90541e48fba161cd2a68a12510c233431eb08871456e6a62daf424ef42ffca19:334"),
+    ("preview:pressure-source resave local_projects[0].project_id", "0693e489f130b54637dcd80cc4ded978a783ee61ac6c8c39c32e94620c0ad4ef:28"),
+    ("preview:pressure-source resave local_projects[0].project_name", "ed4d498abca0d8e212e2fb959bc79a253ecd89531261e18d45740b2d40ec76a8:43"),
+    ("preview:pressure-source resave local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
+    ("preview:pressure-source resave local_projects[0].selected_review_target_json", "ba3aa40eae8d2c0209a00ad34f486243ccf8eefdcb1fedd76203c20e1b607773:60"),
+    ("preview:pressure-source resave local_projects[0].updated_at_unix", "Integer(1793000000)"),
+    ("preview:pressure-source resave reply", "bc7bb6615f8840ab5baa217fdfe22101f5873d1b2d60078b05278a8b550e347e:3833"),
+    ("preview:pressure-source save local_project_fts[0].model_text", "3a93d45890902c5502a0912fb6003bffec65ba134acfa9d0acfc3b1205ce0b5c:307732"),
+    ("preview:pressure-source save local_project_fts[0].project_id", "0693e489f130b54637dcd80cc4ded978a783ee61ac6c8c39c32e94620c0ad4ef:28"),
+    ("preview:pressure-source save local_project_fts[0].project_name", "ed4d498abca0d8e212e2fb959bc79a253ecd89531261e18d45740b2d40ec76a8:43"),
+    ("preview:pressure-source save local_projects[0].analysis_run_json", "98d89c4f6a5d6dc0bd0e05d0710df277a5805e2ca7551ddb754a10849806861c:304299"),
+    ("preview:pressure-source save local_projects[0].created_at_unix", "Integer(1793000000)"),
+    ("preview:pressure-source save local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
+    ("preview:pressure-source save local_projects[0].mechanics_result_json", "be35999cd2f5d01ebd08a6ee24cd7c3c6d88e54a2fb1ab58fd9c48f35a6e6958:187574"),
+    ("preview:pressure-source save local_projects[0].model_hash_json", "a0330a79164a3502f0e5b51d30c6af25a815d4a8bb336be84c2bf37dc14bf674:253"),
+    ("preview:pressure-source save local_projects[0].model_json", "ed9e8b65562e1a328ea7293fe8cc7e696ee7e776c4b27810b1f116535a0b1c67:3162"),
+    ("preview:pressure-source save local_projects[0].model_migration_ledger_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:pressure-source save local_projects[0].project_envelope_hash_json", "90541e48fba161cd2a68a12510c233431eb08871456e6a62daf424ef42ffca19:334"),
+    ("preview:pressure-source save local_projects[0].project_id", "0693e489f130b54637dcd80cc4ded978a783ee61ac6c8c39c32e94620c0ad4ef:28"),
+    ("preview:pressure-source save local_projects[0].project_name", "ed4d498abca0d8e212e2fb959bc79a253ecd89531261e18d45740b2d40ec76a8:43"),
+    ("preview:pressure-source save local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
+    ("preview:pressure-source save local_projects[0].selected_review_target_json", "ba3aa40eae8d2c0209a00ad34f486243ccf8eefdcb1fedd76203c20e1b607773:60"),
+    ("preview:pressure-source save local_projects[0].updated_at_unix", "Integer(1793000000)"),
+    ("preview:pressure-source save reply", "44b2d3beed3adbb7a07de06773a8bf9759c993f118528de32fbb24623e0492db:2969"),
+    ("preview:retained create reply", "505a415418a4f10dd8ea265af16ca4937a04aad96a48582b4d96ca0e6b7d47f8:3438"),
+    ("preview:retained record analysis_run_labels[0].assumptions_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:retained record analysis_run_labels[0].notes_json", "5df6d4f94dea81443474cd8fd8b70333654763c9dfbea861d2428c19e7d00a73:18"),
+    ("preview:retained record analysis_run_labels[0].project_id", "d8225a4b1710080c08117f701329684ab30b1d6fb3889f5aeb9f6fea6ad90c35:44"),
+    ("preview:retained record analysis_run_labels[0].recording_id", "5c7e0194edced52e56a3e7d33c709d27041c27f0f39522f09e9cb89e19122e44:39"),
+    ("preview:retained record analysis_run_labels[0].run_name", "a89023ff6219b358cf8bbb555afdc6d5f4303df5bfe187d902c3622679b8092f:22"),
+    ("preview:retained record analysis_run_labels[0].tags_json", "c38f1b165048a14cf0612830edb0f61f56be4cb4f1f3d01fbaa14e6655c52c55:10"),
+    ("preview:retained record analysis_run_labels[0].updated_at", "04199ee21ddec3cb0080ba7ae86be72bbf19e53d97bc7b59ff3f343c25431d0e:24"),
+    ("preview:retained record analysis_run_labels[1].assumptions_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:retained record analysis_run_labels[1].notes_json", "5df6d4f94dea81443474cd8fd8b70333654763c9dfbea861d2428c19e7d00a73:18"),
+    ("preview:retained record analysis_run_labels[1].project_id", "d8225a4b1710080c08117f701329684ab30b1d6fb3889f5aeb9f6fea6ad90c35:44"),
+    ("preview:retained record analysis_run_labels[1].recording_id", "32605e563da5620371706f9e42d5e9238cc0589700daac1809feb195a58677ae:39"),
+    ("preview:retained record analysis_run_labels[1].run_name", "a89023ff6219b358cf8bbb555afdc6d5f4303df5bfe187d902c3622679b8092f:22"),
+    ("preview:retained record analysis_run_labels[1].tags_json", "c38f1b165048a14cf0612830edb0f61f56be4cb4f1f3d01fbaa14e6655c52c55:10"),
+    ("preview:retained record analysis_run_labels[1].updated_at", "1ac8477c538da6e93db66aa8df1bdf6f18a246ad755914704dcf06733e26b2fc:24"),
+    ("preview:retained record analysis_runs[0].created_at", "04199ee21ddec3cb0080ba7ae86be72bbf19e53d97bc7b59ff3f343c25431d0e:24"),
+    ("preview:retained record analysis_runs[0].input_manifest_json", "637d7eaa945b1e402c694b59bf1cee426e080e27eff991b3366c687c98dffea9:4585"),
+    ("preview:retained record analysis_runs[0].producer_run_id", "b3862e6694684d4c24986f49ec8e862f3872f1ae70359b7f55b3a8f340507b70:29"),
+    ("preview:retained record analysis_runs[0].project_id", "d8225a4b1710080c08117f701329684ab30b1d6fb3889f5aeb9f6fea6ad90c35:44"),
+    ("preview:retained record analysis_runs[0].recording_id", "5c7e0194edced52e56a3e7d33c709d27041c27f0f39522f09e9cb89e19122e44:39"),
+    ("preview:retained record analysis_runs[0].result_hash", "ac84fa79ee1ee4f7b18059c692ed0941d6084521b2adf72f1f3d67385e65dd53:64"),
+    ("preview:retained record analysis_runs[0].result_json", "f3777ffbfbabf817e87877157258a443e8609249885cf2293666cca501d26ae9:135586"),
+    ("preview:retained record analysis_runs[0].run_record_hash", "84bf5669fa02658dfa17d725d0d19a320594fdc28d42c0d57318fd2565f1937b:64"),
+    ("preview:retained record analysis_runs[0].run_record_json", "308bfc9dd36ffd829cf112602d81ea08459c4abafaf33b40b257d889fdb1c489:233161"),
+    ("preview:retained record analysis_runs[0].state_id", "3a3cd6490a1651ab2f9fd668c3dc0d5628c6d0120efb67da96e265d81bb849d8:38"),
+    ("preview:retained record analysis_runs[1].created_at", "1ac8477c538da6e93db66aa8df1bdf6f18a246ad755914704dcf06733e26b2fc:24"),
+    ("preview:retained record analysis_runs[1].input_manifest_json", "637d7eaa945b1e402c694b59bf1cee426e080e27eff991b3366c687c98dffea9:4585"),
+    ("preview:retained record analysis_runs[1].producer_run_id", "b3862e6694684d4c24986f49ec8e862f3872f1ae70359b7f55b3a8f340507b70:29"),
+    ("preview:retained record analysis_runs[1].project_id", "d8225a4b1710080c08117f701329684ab30b1d6fb3889f5aeb9f6fea6ad90c35:44"),
+    ("preview:retained record analysis_runs[1].recording_id", "32605e563da5620371706f9e42d5e9238cc0589700daac1809feb195a58677ae:39"),
+    ("preview:retained record analysis_runs[1].result_hash", "ac84fa79ee1ee4f7b18059c692ed0941d6084521b2adf72f1f3d67385e65dd53:64"),
+    ("preview:retained record analysis_runs[1].result_json", "f3777ffbfbabf817e87877157258a443e8609249885cf2293666cca501d26ae9:135586"),
+    ("preview:retained record analysis_runs[1].run_record_hash", "2c4731191198baf2696233d9eaa22961651a775029f7393beb0c717355a17153:64"),
+    ("preview:retained record analysis_runs[1].run_record_json", "8e410d75f63387dd4db2525bba6d74d1872f393cff5debceaa4717c3196c0c98:233161"),
+    ("preview:retained record analysis_runs[1].state_id", "3a3cd6490a1651ab2f9fd668c3dc0d5628c6d0120efb67da96e265d81bb849d8:38"),
+    ("preview:retained record model_state_labels[0].assumptions_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:retained record model_state_labels[0].notes_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:retained record model_state_labels[0].project_id", "d8225a4b1710080c08117f701329684ab30b1d6fb3889f5aeb9f6fea6ad90c35:44"),
+    ("preview:retained record model_state_labels[0].state_id", "3a3cd6490a1651ab2f9fd668c3dc0d5628c6d0120efb67da96e265d81bb849d8:38"),
+    ("preview:retained record model_state_labels[0].state_name", "d081e834436746542ed6bc8d1327bda6c85dea255b2af1f44313fa8fe075de15:11"),
+    ("preview:retained record model_state_labels[0].tags_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:retained record model_state_labels[0].updated_at", "04199ee21ddec3cb0080ba7ae86be72bbf19e53d97bc7b59ff3f343c25431d0e:24"),
+    ("preview:retained record model_states[0].created_at", "04199ee21ddec3cb0080ba7ae86be72bbf19e53d97bc7b59ff3f343c25431d0e:24"),
+    ("preview:retained record model_states[0].model_canonical", "af5f9efba3803af453bc5604c5993b8240f37874fb204a5abf03d502750567fb:2732"),
+    ("preview:retained record model_states[0].model_hash", "cb1564600ed513a6bdab9fb7f70a3e02ce35995ef627f9ed0d5524bdcac2cecd:71"),
+    ("preview:retained record model_states[0].parent_state_id", "Null"),
+    ("preview:retained record model_states[0].project_id", "d8225a4b1710080c08117f701329684ab30b1d6fb3889f5aeb9f6fea6ad90c35:44"),
+    ("preview:retained record model_states[0].record_hash", "d2474ac78c2c347645a004b7b4d39f34d187ec6bebae7aa8c3815d219bac626d:64"),
+    ("preview:retained record model_states[0].record_json", "b063c0e85518de790fe33366f17582a84214eb99d1f06dece21c8c53ffcf569b:1736"),
+    ("preview:retained record model_states[0].state_id", "3a3cd6490a1651ab2f9fd668c3dc0d5628c6d0120efb67da96e265d81bb849d8:38"),
+    ("preview:retained record model_states[0].state_kind", "37e47861edf4c99a70c0e2513fc6d386a62547cb0a25f064d10785d204386944:19"),
+    ("preview:retained record#0 reply", "77aab28d30e5292cfdb02c90224d3d6ef076dbf408f6748bf130e05c8250c15f:1563"),
+    ("preview:retained record#1 reply", "c5dafad1d883bbad7e0fed40586d0507fd1e8a29226ecff240be88c6108e73ce:1548"),
+    ("preview:retained recorded read#0 legacy record", "308bfc9dd36ffd829cf112602d81ea08459c4abafaf33b40b257d889fdb1c489:233161"),
+    ("preview:retained recorded read#0 reply", "98c2d4911bc9e797422fcd1085cac99aa62b932b632797654d6dd0eec3b0226f:11323"),
+    ("preview:retained recorded read#1 legacy record", "8e410d75f63387dd4db2525bba6d74d1872f393cff5debceaa4717c3196c0c98:233161"),
+    ("preview:retained recorded read#1 reply", "d1c6a2e470d684eff4066b0788c8656bdd93000cf8b33651b96241b5a1c22287:11323"),
+    ("preview:retained reopen reply", "159de4da0d3131ac66011d4d084117c4fe2ba6665856b9fa7230444a3a95cdab:10280"),
+    ("preview:retained resave local_project_fts[0].model_text", "61a5113d304325092ec2eca5ac3ada90ac6093a4b2d0372fc25b8b3509caea4f:236196"),
+    ("preview:retained resave local_project_fts[0].project_id", "d8225a4b1710080c08117f701329684ab30b1d6fb3889f5aeb9f6fea6ad90c35:44"),
+    ("preview:retained resave local_project_fts[0].project_name", "e0cc4a728074e1d2d4743cc8006c9dd07c1736850a300b956f7fe6ebc6ab9c63:24"),
+    ("preview:retained resave local_projects[0].analysis_run_json", "55619d472134c2337f048747b584e0c9b869b10d217b30bd1296361c797c7749:233184"),
+    ("preview:retained resave local_projects[0].created_at_unix", "Integer(1793000000)"),
+    ("preview:retained resave local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
+    ("preview:retained resave local_projects[0].mechanics_result_json", "f3777ffbfbabf817e87877157258a443e8609249885cf2293666cca501d26ae9:135586"),
+    ("preview:retained resave local_projects[0].model_hash_json", "6f891091cd88740cee9560b29a3b323d3fbf5099b2cc6340150c260785e60ade:269"),
+    ("preview:retained resave local_projects[0].model_json", "af5f9efba3803af453bc5604c5993b8240f37874fb204a5abf03d502750567fb:2732"),
+    ("preview:retained resave local_projects[0].model_migration_ledger_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:retained resave local_projects[0].project_envelope_hash_json", "6c97548f2cc8fea0b2a7ffcfce8e97b148a4cd103b4e8e7c1cb1f9e2dd43c8b2:350"),
+    ("preview:retained resave local_projects[0].project_id", "d8225a4b1710080c08117f701329684ab30b1d6fb3889f5aeb9f6fea6ad90c35:44"),
+    ("preview:retained resave local_projects[0].project_name", "e0cc4a728074e1d2d4743cc8006c9dd07c1736850a300b956f7fe6ebc6ab9c63:24"),
+    ("preview:retained resave local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
+    ("preview:retained resave local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
+    ("preview:retained resave local_projects[0].updated_at_unix", "Integer(1793000000)"),
+    ("preview:retained resave reply", "7a5fd0b97e1a22b11235e2947dbc8556e28e5c2b237be122f260be2cf19c1db9:3861"),
+    ("preview:retained save local_project_fts[0].model_text", "61a5113d304325092ec2eca5ac3ada90ac6093a4b2d0372fc25b8b3509caea4f:236196"),
+    ("preview:retained save local_project_fts[0].project_id", "d8225a4b1710080c08117f701329684ab30b1d6fb3889f5aeb9f6fea6ad90c35:44"),
+    ("preview:retained save local_project_fts[0].project_name", "e0cc4a728074e1d2d4743cc8006c9dd07c1736850a300b956f7fe6ebc6ab9c63:24"),
+    ("preview:retained save local_projects[0].analysis_run_json", "55619d472134c2337f048747b584e0c9b869b10d217b30bd1296361c797c7749:233184"),
+    ("preview:retained save local_projects[0].created_at_unix", "Integer(1793000000)"),
+    ("preview:retained save local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
+    ("preview:retained save local_projects[0].mechanics_result_json", "f3777ffbfbabf817e87877157258a443e8609249885cf2293666cca501d26ae9:135586"),
+    ("preview:retained save local_projects[0].model_hash_json", "6f891091cd88740cee9560b29a3b323d3fbf5099b2cc6340150c260785e60ade:269"),
+    ("preview:retained save local_projects[0].model_json", "af5f9efba3803af453bc5604c5993b8240f37874fb204a5abf03d502750567fb:2732"),
+    ("preview:retained save local_projects[0].model_migration_ledger_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:retained save local_projects[0].project_envelope_hash_json", "6c97548f2cc8fea0b2a7ffcfce8e97b148a4cd103b4e8e7c1cb1f9e2dd43c8b2:350"),
+    ("preview:retained save local_projects[0].project_id", "d8225a4b1710080c08117f701329684ab30b1d6fb3889f5aeb9f6fea6ad90c35:44"),
+    ("preview:retained save local_projects[0].project_name", "e0cc4a728074e1d2d4743cc8006c9dd07c1736850a300b956f7fe6ebc6ab9c63:24"),
+    ("preview:retained save local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
+    ("preview:retained save local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
+    ("preview:retained save local_projects[0].updated_at_unix", "Integer(1793000000)"),
+    ("preview:retained save reply", "606ea6627dd0467495f583bcdb7eaa5593b95e248c41844ab7006ae170d09644:2986"),
+    ("preview:rule-pack-excluded create reply", "fb3c70d72182fc5d78eabc7ae83f88681b550a5fa2bce4dbfe6d208ea58dd90d:3866"),
+    ("preview:rule-pack-excluded record analysis_run_labels[0].assumptions_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:rule-pack-excluded record analysis_run_labels[0].notes_json", "5df6d4f94dea81443474cd8fd8b70333654763c9dfbea861d2428c19e7d00a73:18"),
+    ("preview:rule-pack-excluded record analysis_run_labels[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:rule-pack-excluded record analysis_run_labels[0].recording_id", "99c24c7d3b6e987c7a18ff76951cc20410451796e7b9c6e36ef9fd5a9745befe:39"),
+    ("preview:rule-pack-excluded record analysis_run_labels[0].run_name", "a89023ff6219b358cf8bbb555afdc6d5f4303df5bfe187d902c3622679b8092f:22"),
+    ("preview:rule-pack-excluded record analysis_run_labels[0].tags_json", "c38f1b165048a14cf0612830edb0f61f56be4cb4f1f3d01fbaa14e6655c52c55:10"),
+    ("preview:rule-pack-excluded record analysis_run_labels[0].updated_at", "04199ee21ddec3cb0080ba7ae86be72bbf19e53d97bc7b59ff3f343c25431d0e:24"),
+    ("preview:rule-pack-excluded record analysis_run_labels[1].assumptions_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:rule-pack-excluded record analysis_run_labels[1].notes_json", "5df6d4f94dea81443474cd8fd8b70333654763c9dfbea861d2428c19e7d00a73:18"),
+    ("preview:rule-pack-excluded record analysis_run_labels[1].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:rule-pack-excluded record analysis_run_labels[1].recording_id", "5571522eb104cdcdfec01f0c169f660fe5773f42e355140a022305edaec0dfbf:39"),
+    ("preview:rule-pack-excluded record analysis_run_labels[1].run_name", "a89023ff6219b358cf8bbb555afdc6d5f4303df5bfe187d902c3622679b8092f:22"),
+    ("preview:rule-pack-excluded record analysis_run_labels[1].tags_json", "c38f1b165048a14cf0612830edb0f61f56be4cb4f1f3d01fbaa14e6655c52c55:10"),
+    ("preview:rule-pack-excluded record analysis_run_labels[1].updated_at", "1ac8477c538da6e93db66aa8df1bdf6f18a246ad755914704dcf06733e26b2fc:24"),
+    ("preview:rule-pack-excluded record analysis_runs[0].created_at", "04199ee21ddec3cb0080ba7ae86be72bbf19e53d97bc7b59ff3f343c25431d0e:24"),
+    ("preview:rule-pack-excluded record analysis_runs[0].input_manifest_json", "dcd76d60ffaf01c46e92fed2bd5aab5aa2298670617aec581094d4e51e1a4300:7195"),
+    ("preview:rule-pack-excluded record analysis_runs[0].producer_run_id", "b3862e6694684d4c24986f49ec8e862f3872f1ae70359b7f55b3a8f340507b70:29"),
+    ("preview:rule-pack-excluded record analysis_runs[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:rule-pack-excluded record analysis_runs[0].recording_id", "99c24c7d3b6e987c7a18ff76951cc20410451796e7b9c6e36ef9fd5a9745befe:39"),
+    ("preview:rule-pack-excluded record analysis_runs[0].result_hash", "a8a20c6b217680871c9035cf81cfbcbbb6d84b058908d3f7ee90afdfbc4b360b:64"),
+    ("preview:rule-pack-excluded record analysis_runs[0].result_json", "76cb429be9d4557ca4b08467853a5d0f054cc5152438ecc7b13917621c680431:71477"),
+    ("preview:rule-pack-excluded record analysis_runs[0].run_record_hash", "595917c6bf85401fe18046e92e3ffa3a8f6b4746b671e9bb4d22437a980779b3:64"),
+    ("preview:rule-pack-excluded record analysis_runs[0].run_record_json", "5e7d3e794dc6d6d67d8806d478e4b4593f596de1081ba1ef272f6bd2d04189e5:144051"),
+    ("preview:rule-pack-excluded record analysis_runs[0].state_id", "3a3cd6490a1651ab2f9fd668c3dc0d5628c6d0120efb67da96e265d81bb849d8:38"),
+    ("preview:rule-pack-excluded record analysis_runs[1].created_at", "1ac8477c538da6e93db66aa8df1bdf6f18a246ad755914704dcf06733e26b2fc:24"),
+    ("preview:rule-pack-excluded record analysis_runs[1].input_manifest_json", "dcd76d60ffaf01c46e92fed2bd5aab5aa2298670617aec581094d4e51e1a4300:7195"),
+    ("preview:rule-pack-excluded record analysis_runs[1].producer_run_id", "b3862e6694684d4c24986f49ec8e862f3872f1ae70359b7f55b3a8f340507b70:29"),
+    ("preview:rule-pack-excluded record analysis_runs[1].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:rule-pack-excluded record analysis_runs[1].recording_id", "5571522eb104cdcdfec01f0c169f660fe5773f42e355140a022305edaec0dfbf:39"),
+    ("preview:rule-pack-excluded record analysis_runs[1].result_hash", "a8a20c6b217680871c9035cf81cfbcbbb6d84b058908d3f7ee90afdfbc4b360b:64"),
+    ("preview:rule-pack-excluded record analysis_runs[1].result_json", "76cb429be9d4557ca4b08467853a5d0f054cc5152438ecc7b13917621c680431:71477"),
+    ("preview:rule-pack-excluded record analysis_runs[1].run_record_hash", "f4510b0624ce7d1f70f98af66063784b1abf6ba436351e0fab6ba037ce5468ae:64"),
+    ("preview:rule-pack-excluded record analysis_runs[1].run_record_json", "0549bbca1510805c0b18e55efbf9f7cbc280c12b254d72f1c08584645b44d450:144051"),
+    ("preview:rule-pack-excluded record analysis_runs[1].state_id", "3a3cd6490a1651ab2f9fd668c3dc0d5628c6d0120efb67da96e265d81bb849d8:38"),
+    ("preview:rule-pack-excluded record model_state_labels[0].assumptions_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:rule-pack-excluded record model_state_labels[0].notes_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:rule-pack-excluded record model_state_labels[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:rule-pack-excluded record model_state_labels[0].state_id", "3a3cd6490a1651ab2f9fd668c3dc0d5628c6d0120efb67da96e265d81bb849d8:38"),
+    ("preview:rule-pack-excluded record model_state_labels[0].state_name", "d081e834436746542ed6bc8d1327bda6c85dea255b2af1f44313fa8fe075de15:11"),
+    ("preview:rule-pack-excluded record model_state_labels[0].tags_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:rule-pack-excluded record model_state_labels[0].updated_at", "04199ee21ddec3cb0080ba7ae86be72bbf19e53d97bc7b59ff3f343c25431d0e:24"),
+    ("preview:rule-pack-excluded record model_states[0].created_at", "04199ee21ddec3cb0080ba7ae86be72bbf19e53d97bc7b59ff3f343c25431d0e:24"),
+    ("preview:rule-pack-excluded record model_states[0].model_canonical", "54ad48de41e3a1df4998d3761082670f98db0197117f8dc3823f8300e4e984be:4311"),
+    ("preview:rule-pack-excluded record model_states[0].model_hash", "94ea0db9a27da1274e56303309309bdbadfdcbba7c3fe775c4066c30f080c486:71"),
+    ("preview:rule-pack-excluded record model_states[0].parent_state_id", "Null"),
+    ("preview:rule-pack-excluded record model_states[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:rule-pack-excluded record model_states[0].record_hash", "c3a5e9ad1fa5ff45041703986f7f5a9f7f88d4c84ff79c9e0628734ad4042f5f:64"),
+    ("preview:rule-pack-excluded record model_states[0].record_json", "5563d357b6637ebb564f995fb2c49e3b8d9535ad0cd236e0b0745a5187cb0a5b:1718"),
+    ("preview:rule-pack-excluded record model_states[0].state_id", "3a3cd6490a1651ab2f9fd668c3dc0d5628c6d0120efb67da96e265d81bb849d8:38"),
+    ("preview:rule-pack-excluded record model_states[0].state_kind", "37e47861edf4c99a70c0e2513fc6d386a62547cb0a25f064d10785d204386944:19"),
+    ("preview:rule-pack-excluded record#0 reply", "533da217de9216c4ca3ee347df02c579a4365589cb18a36579775954ff31761c:1540"),
+    ("preview:rule-pack-excluded record#1 reply", "df2a32b1c53e691c924aaf42ad46489d9f30bcbd4f1143d7b22676ce832fa83d:1525"),
+    ("preview:rule-pack-excluded recorded read#0 legacy record", "5e7d3e794dc6d6d67d8806d478e4b4593f596de1081ba1ef272f6bd2d04189e5:144051"),
+    ("preview:rule-pack-excluded recorded read#0 reply", "fcfd91d30ec99da59b821abea70359cc8a5da4636f0511564d8dd42ec563cc8e:14539"),
+    ("preview:rule-pack-excluded recorded read#1 legacy record", "0549bbca1510805c0b18e55efbf9f7cbc280c12b254d72f1c08584645b44d450:144051"),
+    ("preview:rule-pack-excluded recorded read#1 reply", "a2b9ca4d2cd52cf3fd3afd5d721f6cb37e1e3a528392212b5272da3a6be4b1c4:14539"),
+    ("preview:rule-pack-excluded reopen reply", "0c153c4cbba9c29559b1e144aff4145323b13fac9f6bbbcffecb57953e4c3c39:12594"),
+    ("preview:rule-pack-excluded resave local_project_fts[0].model_text", "ef4ecb207934aec06aaa94576680f78f94c3748f598c3559d6d7f3d67dc4ce31:148602"),
+    ("preview:rule-pack-excluded resave local_project_fts[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:rule-pack-excluded resave local_project_fts[0].project_name", "65a4ab50988845fb64d0c0005c5b1af7eadee7b8c9b6935eb905722cc8a07773:45"),
+    ("preview:rule-pack-excluded resave local_projects[0].analysis_run_json", "10ad219ac355c1de2ef27ec1a0bce414f1267daef205c40c8f51c4298100fe6e:144011"),
+    ("preview:rule-pack-excluded resave local_projects[0].created_at_unix", "Integer(1793000000)"),
+    ("preview:rule-pack-excluded resave local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
+    ("preview:rule-pack-excluded resave local_projects[0].mechanics_result_json", "5613c1d834bc0125003ddfdafe753ffeed4b065fa1ae09409aa8b468a3b2eea9:71477"),
+    ("preview:rule-pack-excluded resave local_projects[0].model_hash_json", "e54c5d83195550d8ec55989c7e1f545c674d276284da517a606f33766ac85b86:260"),
+    ("preview:rule-pack-excluded resave local_projects[0].model_json", "54ad48de41e3a1df4998d3761082670f98db0197117f8dc3823f8300e4e984be:4311"),
+    ("preview:rule-pack-excluded resave local_projects[0].model_migration_ledger_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:rule-pack-excluded resave local_projects[0].project_envelope_hash_json", "eed3725622512263a73a5f9b3e460223a74c757ad4f2564faa35fa7f95315f55:341"),
+    ("preview:rule-pack-excluded resave local_projects[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:rule-pack-excluded resave local_projects[0].project_name", "65a4ab50988845fb64d0c0005c5b1af7eadee7b8c9b6935eb905722cc8a07773:45"),
+    ("preview:rule-pack-excluded resave local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
+    ("preview:rule-pack-excluded resave local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
+    ("preview:rule-pack-excluded resave local_projects[0].updated_at_unix", "Integer(1793000000)"),
+    ("preview:rule-pack-excluded resave reply", "0e8ff2703e0e7dfe9cb62d4273fed5ebdfa40bb0b2d03918574ea3d9193c7b75:4239"),
+    ("preview:rule-pack-excluded save local_project_fts[0].model_text", "ef4ecb207934aec06aaa94576680f78f94c3748f598c3559d6d7f3d67dc4ce31:148602"),
+    ("preview:rule-pack-excluded save local_project_fts[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:rule-pack-excluded save local_project_fts[0].project_name", "65a4ab50988845fb64d0c0005c5b1af7eadee7b8c9b6935eb905722cc8a07773:45"),
+    ("preview:rule-pack-excluded save local_projects[0].analysis_run_json", "10ad219ac355c1de2ef27ec1a0bce414f1267daef205c40c8f51c4298100fe6e:144011"),
+    ("preview:rule-pack-excluded save local_projects[0].created_at_unix", "Integer(1793000000)"),
+    ("preview:rule-pack-excluded save local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
+    ("preview:rule-pack-excluded save local_projects[0].mechanics_result_json", "5613c1d834bc0125003ddfdafe753ffeed4b065fa1ae09409aa8b468a3b2eea9:71477"),
+    ("preview:rule-pack-excluded save local_projects[0].model_hash_json", "e54c5d83195550d8ec55989c7e1f545c674d276284da517a606f33766ac85b86:260"),
+    ("preview:rule-pack-excluded save local_projects[0].model_json", "54ad48de41e3a1df4998d3761082670f98db0197117f8dc3823f8300e4e984be:4311"),
+    ("preview:rule-pack-excluded save local_projects[0].model_migration_ledger_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
+    ("preview:rule-pack-excluded save local_projects[0].project_envelope_hash_json", "eed3725622512263a73a5f9b3e460223a74c757ad4f2564faa35fa7f95315f55:341"),
+    ("preview:rule-pack-excluded save local_projects[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
+    ("preview:rule-pack-excluded save local_projects[0].project_name", "65a4ab50988845fb64d0c0005c5b1af7eadee7b8c9b6935eb905722cc8a07773:45"),
+    ("preview:rule-pack-excluded save local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
+    ("preview:rule-pack-excluded save local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
+    ("preview:rule-pack-excluded save local_projects[0].updated_at_unix", "Integer(1793000000)"),
+    ("preview:rule-pack-excluded save reply", "e625cd4cdfdb51578166f7ce5eb8107f12f463127babc6f43afde72ab438d888:3414"),
+];
