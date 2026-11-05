@@ -233,7 +233,7 @@ const INTEGRITY_CODE_PREFIX: &str = open_pipe_stress_report_renderer::INTEGRITY_
 const DIAGNOSTIC_FIELDS: [&str; 7] = ["code", "class", "severity", "source", "affected_object", "message", "remediation"];
 
 /// The label before a diagnostic message the report passes through as supplied text (desktop
-/// `SUPPLEMENTAL_DIAGNOSTIC_LABEL`).
+/// `features/results/suppliedDiagnostics.ts` `SUPPLEMENTAL_DIAGNOSTIC_LABEL`).
 pub const SUPPLEMENTAL_DIAGNOSTIC_LABEL: &str = "Supplied diagnostic text, unverified (not a combination certificate statement): ";
 
 /// A diagnostic's report message: quoted after the supplemental label when the source has
@@ -269,8 +269,10 @@ pub fn expected_report_diagnostics(source: &Value) -> Result<Vec<Value>, String>
     // RT-A3 §4 (DEL-05-02 Work `combination-certificate.md` §2, the residual text boundary): on a
     // source with combinations, a diagnostic naming none of them is no entry of the reader's closed
     // combination-diagnostic roster, and its message is quoted as supplied text (desktop
-    // `supplementalMessage`). Certificate facts come only from the validated member and the
-    // roster's canonical notices, never from a message.
+    // `suppliedDiagnosticMessage`). The source's population is always within the reader's with
+    // the model (no model record removes a typed source identity), so a copied message is one
+    // every admitting reading checked. Certificate facts come only from the validated member and
+    // the roster's canonical notices, never from a message.
     let combinations = open_pipe_stress_result_export::document_combination_identities(source);
     diagnostics
         .iter()

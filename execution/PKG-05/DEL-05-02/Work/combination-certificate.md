@@ -295,15 +295,25 @@ option A).** Both readers (RE `combination_certificate.rs` `roster`, Python
 
 **The residual text boundary (Agent 0's item 5).** Diagnostic prose under refs
 that name no combination (a load case, a support, the model, or no ref) is
-admitted only as unchecked supplemental data. The seam that projects it beside
-derived-row and certificate content is the report's diagnostics projection
-(desktop `renderableReportInput.ts` `diagnosticsForSections`, checked on the
-exact route by `report_package` `bindings::expected_report_diagnostics`).
-- On a result with combinations, such a message is quoted after the label
-  "Supplied diagnostic text, unverified (not a combination certificate
+admitted only as unchecked supplemental data. Two consumers show it beside
+derived-row and certificate content, with one classification (desktop
+`features/results/suppliedDiagnostics.ts`): the report's diagnostics
+projection (`renderableReportInput.ts` `diagnosticsForSections`, checked on
+the exact route by `report_package` `bindings::expected_report_diagnostics`),
+and the Diagnostics panel's list and explanation (review cert3 finding 1:
+`DiagnosticsPanel.tsx`, `resultInterpretation.ts`).
+- On a result with combinations, such a message is quoted whole after the
+  label "Supplied diagnostic text, unverified (not a combination certificate
   statement): ".
 - A diagnostic naming a combination is a roster entry the reader admitted in
-  its canonical form, and is copied.
+  its canonical form, and is copied. The report takes the roster as checked
+  because its exact and PF routes are admitted by the reader before assembly.
+  The panel copies it only when the current Rust reader admits the result
+  itself, whole, on an ordinary route (the header dispatch's route and that
+  route's full reader, `readerValidate`, without the model, whose population
+  is the result's). On a refused or unread result, and on a
+  retained successor (whose G7 base read applies no text closure, above),
+  every message is quoted as supplied.
 - Certificate facts and names (established, not established, not assessed,
   bounds, the per-combination statement) come only from the validated member
   and the roster's canonical notices. No establishment, eligibility, health,
@@ -314,7 +324,11 @@ exact route by `report_package` `bindings::expected_report_diagnostics`).
 - A result without combinations is unchanged.
 
 The shared parity vectors (`fixtures/reports/invented/report_diagnostics_parity.json`)
-and both languages' test on an actual certificate document hold the rule.
+and both languages' test on an actual certificate document hold the rule. The
+panel's test (`DiagnosticsPanel.supplied.test.tsx`) renders the actual
+component on the EX cantilever with the review's model-ref note, the
+model-only id collision, both retained counterexamples, and a result without
+combinations.
 
 **Not assigned: a document-wide closed diagnostic roster (option B).** Closing
 every diagnostic family of the document, not only those naming a combination,
