@@ -3212,12 +3212,12 @@ fn run_linear_static_preview_observed_inner(
         Ok(stiffness) => stiffness,
         Err(error) => return solver_blocked(model, diagnostics, error),
     };
-    // §8.30 correction 2 (RT-U4, RT-A2): the nonlinear active-set loop is
-    // dense in both modes; an invocation with a nonlinear support is refused,
-    // once and before any case or n^2 allocation (ahead of F1b's dense-scrutiny
-    // guard, so both modes name the same refusal), when the loop's estimated
-    // leading dense storage exceeds its provisional limit (NI
-    // `dense_loop_memory_guard`).
+    // §8.30 correction 2 (RT-U4, RT-A2): the dense-scrutiny active-set loop holds
+    // n^2 buffers; since R-4 stage P the sparse-mode loop runs on the pattern, and NI
+    // keeps the same limit there as a provisional admission cap pending O-2 (R-4 §6.3).
+    // An invocation with a nonlinear support is refused once, before any case or n^2
+    // allocation (ahead of F1b's dense-scrutiny guard, so both modes name the same
+    // refusal), when the estimate exceeds the limit (NI `dense_loop_memory_guard`).
     if !built.nonlinear_supports.is_empty() {
         if let Err(refusal) = dense_loop_memory_guard(
             built.nodes.len(),
