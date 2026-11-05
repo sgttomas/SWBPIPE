@@ -75,6 +75,14 @@ pub(crate) const MODAL_STURM_COUNT_MISMATCH: &str = "MODAL_STURM_COUNT_MISMATCH"
 /// name (a non-SPD K_ff after the static screen, the QL iteration limit).
 /// (New in I2b-1; the design names no code for it.)
 pub(crate) const MODAL_EIGENSOLVE_UNAVAILABLE: &str = "MODAL_EIGENSOLVE_UNAVAILABLE";
+/// R-6/R-7 S-K1 (DEL-04-03 skew-restraints.md §11.3 C8): the modal-1 document (0.1.0)
+/// publishes the global M_ff with global shapes, which a reduced (skew-coordinate) pencil
+/// does not have; a model with a restraint basis is refused by name before the solved
+/// projection. Publishing lifted shapes would be a modal-1 revision.
+pub(crate) const MODAL_DOCUMENT_SKEW_RESTRAINT_UNSUPPORTED: &str = "MODAL_DOCUMENT_SKEW_RESTRAINT_UNSUPPORTED";
+/// R-6/R-7 S-K1 (§11.3 C8, dynamics' B2 (b)): the test-only phase replay mirrors only the
+/// axis path, so a model with a restraint basis is refused by name, never replayed through it.
+pub(crate) const MODAL_PHASE_REPLAY_SKEW_RESTRAINT_UNSUPPORTED: &str = "MODAL_PHASE_REPLAY_SKEW_RESTRAINT_UNSUPPORTED";
 
 /// Every threshold and algorithm parameter of the dense modal solve and its
 /// integrity checks (module docs). No field has a default.

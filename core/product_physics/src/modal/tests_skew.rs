@@ -143,3 +143,32 @@ fn a_skew_only_mechanism_is_refused_before_any_eigen_solve() {
     assert_eq!(blocking[0].code, "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM");
     assert!(blocking[0].message.contains("Mechanism { direction: [0.0, 0.0, 0.0, 1.0"), "{}", blocking[0].message);
 }
+
+/// C8 (a), dynamics' B2: `modal_result_document` refuses a model with a restraint basis
+/// by name before the solved projection (`modal_doc_solved`, whose text is untouched); its
+/// rotated axis twin still publishes a solved document.
+#[test]
+fn the_modal_document_refuses_a_skew_model_by_name() {
+    let params = test_local_parameters();
+    for record in [stop(Some([3.0, 4.0, 0.0])), spring(Some([3.0, 4.0, 0.0]))] {
+        let doc = super::document::modal_result_document(&request(false, record.clone()), &params, "test-local");
+        assert_eq!(doc["status"], "refused", "{doc}");
+        assert!(doc.to_string().contains(super::integrity::MODAL_DOCUMENT_SKEW_RESTRAINT_UNSUPPORTED), "{doc}");
+        let mut axis = record;
+        axis.as_object_mut().unwrap().remove("direction");
+        let twin = super::document::modal_result_document(&request(true, axis), &params, "test-local");
+        assert_ne!(twin["status"], "refused", "{twin}");
+    }
+}
+
+/// C8 (b), dynamics' B2: the test-only phase replay mirrors the axis path only, so it refuses
+/// a model with a restraint basis by name; no observation or measurand replays it.
+#[test]
+fn the_phase_replay_refuses_a_skew_model_by_name() {
+    let refused = super::phase_measurand_tests::replay_modal_phases(&modal(request(false, stop(Some([3.0, 4.0, 0.0])))), &test_local_parameters())
+        .err()
+        .expect("refused");
+    assert_eq!(refused.len(), 1);
+    assert_eq!(refused[0].code, super::integrity::MODAL_PHASE_REPLAY_SKEW_RESTRAINT_UNSUPPORTED);
+    assert!(super::phase_measurand_tests::replay_modal_phases(&modal(request(true, stop(None))), &test_local_parameters()).is_ok());
+}
