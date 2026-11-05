@@ -1031,6 +1031,14 @@ Taken together, the current kernel's **retention** criterion (not a proof of res
 
 Selecting the parameters does not enable public or native admission. The resource guards and their weights, the subject census, the full reader and the Bessel item remain conditions (§5.3.9). No new measurement is authorized. The confirmation is focused on the implementation and its new claims, with reference evidence, reusing the earlier reviews of unchanged source.
 
+**As built (PR #131, under review; D3 pending).** The constructor is `ModalIntegrityParameters::selected_a1_a2_a3_criteria()` (`core/product_physics/src/modal/integrity.rs`). Only tests call it, and nothing native, public or in a document reads it. Its evidence is in `modal::observation_tests`:
+- **The true positive:** an exact 4-DOF pencil whose top mode has μ/μ_max = 2⁻⁴³, retained under the instance and hard-rejected by τ_μ alone under the test-local set.
+- **True zeros:** the offset point lumps and component PF stay hard-rejected, with the census unresolved.
+- **The n = 1,920 floor:** h is bit-identical under both sets over the **normal** μ_max range. At deep-subnormal μ_max (about 2.6·10⁻³¹² to 1.1·10⁻³¹¹) it differs by at most two subnormal ulps, because there the old τ_μ term was the active one. An exact-spectrum scale argument puts admitted pencils far above that range. It is not a certified exclusion for computed results.
+- **The endpoint:** the whole-spectrum endpoint refusal and the lower-path Sturm premises hold under the instance.
+
+On a verdict projection of the 35-model population plus EX n05 at a bound of 4, the only differences come from δ_c = 2⁻²⁰. EX n05's modes 4 and 5 form one cluster, and at bound 4 five modes are served where the test-local set refused `MODAL_STURM_SHIFT_UNSEPARATED`.
+
 #### 5.3.8 Resources: the recount, and the O-4 stage-1 readiness plan
 
 **Recount from source (no measurement).** With N nodes (6N global DOFs), n_f free DOFs, n_c computed modes (on the dense path every finite mode, ≤ n_f), n_r reported modes and P_M stored mass entries:
