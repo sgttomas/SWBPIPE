@@ -123,3 +123,23 @@ fn an_oblique_spring_matches_its_rotated_axis_twin() {
     let twin = solved(request(true, spring(None)));
     compare_with_twin("spring", &skew, &twin, d);
 }
+
+/// RT-A3 condition 4, modal: the same skew-only mechanism (A, M, B on X, each with a
+/// stop (3, 4, 0) and a spring (0, 3, 4); six ground rows) passes prepare's count and
+/// is refused by name by the static path's ground screen in C1's evidence solve.
+#[test]
+fn a_skew_only_mechanism_is_refused_before_any_eigen_solve() {
+    let mut wire = request(false, stop(Some([3.0, 4.0, 0.0])));
+    let mut supports = Vec::new();
+    for node in ["A", "M", "B"] {
+        supports.push(json!({"id": format!("stop_{node}"), "node": node, "family": "line_stop", "restraints": ["UY"], "direction": {"x": 3.0, "y": 4.0, "z": 0.0}, "provenance": PROV}));
+        supports.push(json!({"id": format!("spring_{node}"), "node": node, "family": "spring", "restraints": ["UY"], "direction": {"x": 0.0, "y": 3.0, "z": 4.0},
+            "stiffness": {"dof": "UY", "value": q(2.0e6, "N/m")}, "provenance": PROV}));
+    }
+    wire["model"]["supports"] = json!(supports);
+    let found = run_modal_dense(&modal(wire), &test_local_parameters()).err().expect("refused");
+    let blocking: Vec<_> = found.iter().filter(|d| d.severity == "blocking").collect();
+    assert_eq!(blocking.len(), 1, "{blocking:?}");
+    assert_eq!(blocking[0].code, "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM");
+    assert!(blocking[0].message.contains("Mechanism { direction: [0.0, 0.0, 0.0, 1.0"), "{}", blocking[0].message);
+}

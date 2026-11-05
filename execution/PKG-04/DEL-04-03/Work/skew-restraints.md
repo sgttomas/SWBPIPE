@@ -135,6 +135,10 @@ Also unchanged:
 - The CAEPIPE SI writer and MBF importer refuse non-axis directions. That mapping is
   DEL-17-04's, and none is scheduled here.
 
+**The coordinate transform's range** is not a §2.2 code. A product of the coordinate transform
+below the exact-split range, or a non-finite rounding, refuses the case on the ordinary
+`NumericallyUnresolved` path, named in §6.2. It is not a K-D5 demotion (§10.7).
+
 **Order within a stage.** Skew admission runs in `judge` and gives one code per record, in
 document order, the first that applies of 2, 3, 4. Boundary preparation is per node, in
 ascending node order, the first that applies of 6, 7, 8, and reports every node. Case-level
@@ -488,6 +492,18 @@ rows, as in §5.1.
 - **Range.** A product below the split range, or a non-finite rounding, is
   `BasisError::SplitRange` or `NonFinite`. The case is then refused by the existing ordinary
   failure path with the error named (S-K1 never rounds such a product).
+  - **As built (RT-A3 condition 1).** NI's linear skew entry maps the two errors to
+    `StructuralError::NumericallyUnresolved` with the reasons
+    `restraint_basis: split range in the coordinate transform` and
+    `restraint_basis: non-finite rounding in the coordinate transform`, and `global_dof:
+    None`, because a coordinate is not a physical DOF.
+  - PP publishes it on its existing `NumericallyUnresolved` arm, as a blocking
+    `NUMERICAL_INTEGRITY_UNRESOLVED` for the case. It never takes the pivot-screen special
+    case (`PIVOT_SCREEN_REASON`) or the `InvalidInput` backstop.
+  - It is a refusal of the case. It is not K-D5's §10.7 demotion to Sensitive, which applies
+    to a case that solved.
+  - A shape or sum error stays the backstop, because it is outside the entry's contract.
+  - Regression: a UZ guide and a stop (1, 2⁻⁶⁰⁰, 0), whose k·q·q falls below 2⁻⁹⁶⁹.
 - **When.** Formed per case in the skew branch, from the basis's formed K. This is O(entries in
   constrained rows) work plus one copy of the values. Caching per modulus basis is an
   optimization left to the implementation.
@@ -827,7 +843,9 @@ entries, used by the M03 gate and the dense-scrutiny contribution audit: Σ|q_ir
     - Each published value is the ball's midpoint, rounded once.
     - `SUPPORT_SKEW_REACTION_RANGE_UNSUPPORTED` fires only when that published rounding is
       outside binary64 (revision 3).
-  - Consistency: each |r_i − μ w_i| for i ∈ F must be within the balls' radii. Otherwise
+  - Consistency: each |r_i − μ w_i| for i ∈ F must be within their enclosures (radii and
+    remainders). This is a necessary consistency check, not a proof of validity: validity rests
+    on the §10 derivation and the references. Otherwise
     `RecoveryFailure` "restraint_basis: reaction not along the constraint", which leaves the
     record unavailable, as any recovery failure does.
   - Stop rows: μ·w_i. Axis rows: r_a − μ·w_a. The along-direction row is μ·2^ŝ·|d̃|, with a
@@ -1243,6 +1261,10 @@ two independent routes (KKT and RREF nullspace). Contents:
 - **`product`:** the guided cantilever (anchor, rotations held at B); exact u_B and every
   record's reaction for the S-K1 springs and stops (scaled, ×3, negated, plane (1,3,0), joint
   with UZ, full fix, redundant, stop + spring), the axis twins, S-K2 and S-K3.
+  - The ±2⁶⁰⁰-scaled directions (`P_R1_stop_scaled_2p600`) are reachable only through the
+    typed entry. The value entry's checked JSON refuses an integral float above 2⁵³
+    (`CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT`), as for the CE2 factor. The product test solves
+    that case through the typed entry and asserts the value entry's refusal.
 - **`modal_kernel`:** a point mass with a stop or a spring, exact ω².
 - **`regressions`:** the review's findings on revision 1, each asserted exactly by the generator:
   - `spring_along_direction`: −k t d̃_i/n and −k t/|d̃|, against the rejected chain (2/5 against
