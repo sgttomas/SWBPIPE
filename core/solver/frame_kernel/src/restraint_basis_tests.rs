@@ -1369,6 +1369,14 @@ fn split_range_guard_refuses_inexact_triples() {
     assert!(add_triple(&mut sum, 0.75, tiny, 1.25).unwrap());
     sum.add_product(-0.9375, tiny).unwrap();
     assert!(sum.is_zero(), "exact");
+    // A split with a nonzero low part: (1 + 2^-30)²·3 = 3 + 3·2^-29 + 3·2^-60.
+    let x = 1.0 + pow2(-30);
+    let mut sum = ExactAccumulator::new();
+    assert!(add_triple(&mut sum, x, x, 3.0).unwrap());
+    for part in [3.0, 3.0 * pow2(-29), 3.0 * pow2(-60)] {
+        sum.add(-part).unwrap();
+    }
+    assert!(sum.is_zero(), "the TwoProduct low part is kept");
     // The transformed ledger refuses a product it cannot split, by row.
     let (basis, _) = two_node();
     // Row 0's weights are 1.25 and −0.75; q·t is below 2^-969 for both factors.
