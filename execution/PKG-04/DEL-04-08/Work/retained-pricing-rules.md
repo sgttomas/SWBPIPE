@@ -5149,6 +5149,8 @@ the registered state remain required. This records no acceptance.
   the freeze now admits the certificate's member (below, "The W1 freeze and the certificate"). No coefficient moves
   with it.
 - **AC-004 passed 7/7** on this registration's binary at `0b78bc342` (below, "AC-004"), in one window Agent 0 cleared.
+  That result is history for its frozen pre-repair identity: the shared-id amendment (below) changes the witnessed
+  binary, and AC-004 is pending on the amended one.
 - **Review repair.** The independent review of `fade98a74` found that the combination points could not be evaluated at
   in-build atoms (B1), that the owners' Value-tree census did not match the source's topology (S1), and that the
   witness filters were not fully qualified (N1). All three are repaired below ("Review repair: native combination
@@ -5503,12 +5505,46 @@ This is test evidence, not an acceptance. Frame sizes were not measured here.
 **Review.** The independent review of `fade98a74` (B1, S1, N1) and its re-check of the repair cleared the registration
 before Agent 0's AC-004 clearance of `0b78bc342`.
 
+**Amendment: the roster's shared-id read (`ef50eaef1`, pricing `56a9a8125`).** Hosted CI on #138 (head `51abd3dbe`)
+failed PP `rt_a4_combinations::v7_a_shared_id_resolves_to_the_load_case`. A `--no-fail-fast` sweep of all 80 PP test
+binaries found no other failure. The defect was present at `0b78bc342`: the registration's local suites had not run that
+binary.
+- *Defect.* With a combination `S` sharing a load case's id, the roster's population leaves `S` out by design (an
+  untyped ref to it is ambiguous). The scan then visited only diagnostics naming the population, so the producer's
+  correct `diagnostic:preview-physics:combination-maximum:1:S` (refs `["S"]`) was never read, and its set-bound entry
+  gave `ROSTER_MISSING` with the model.
+- *Repair.* Both readers (RE `combination_certificate.rs` `roster` and the Python reader), reader only, with the
+  producer unchanged. A diagnostic carrying a set-bound entry's exact id is visited even when no ref is in the
+  population (`listed`). The id only selects the entry, against which the notice is compared whole and at most once.
+  The delegated skips still come first, and the form-bound, EXTRA and RENAMED paths still take only named
+  diagnostics. The population, the presence rules and `roster`'s first statement are unchanged. DEL-05-02 Work
+  `combination-certificate.md` §2 and its case table state it.
+- *Regressions.* The unchanged PP v7 passes in both modes. A `pf_shared_id` document from real PP output joins the
+  shared certificate corpus (existing corpus and forgery bytes unchanged, as a prefix). Its notice, reworded, under
+  another code, naming a load case or with an extra field, gives `ROSTER_CONTRADICTION`; duplicated gives `ROSTER_EXTRA`;
+  dropped gives `ROSTER_MISSING`; canonical is admitted, each with and without the model, in both readers.
+- *Pricing.* RTA3C-PIN and the owners' `PINS` take the RE module at `ef50eaef1` (`71439493…` → `6c08cf17…`). The roster
+  loop's source rule names its filter `named(d) || listed(d)` with the same bound; `listed` is a non-allocating `any`
+  over the expected entries, as the loop's existing `position`. RTA3C-RB is unchanged: `roster`'s first statement is
+  byte-identical, so the `check_with` → `roster` edge stays zero. `price.py run 56a9a8125` exits 0 with O-10 0/0. The
+  merged tree is identical but for the basis to `2738f2d14`'s (1,602 equal, none higher or lower). All four points'
+  `point.json` are byte-identical. `point-atoms --check` is equal (154 lines). `generate --check` with the committed
+  basis sentence is equal (1,713 lines). No coefficient moves, and the block, `PINNED_RECORD` and the challenge's
+  values are unchanged.
+- *AC-004.* The witnessed lib-test binary changes (`roster`'s body is compiled in, and its frame is allocated on its
+  early return in the retained base read), so `0b78bc342`'s 7/7 does not transfer. Agent 0 chose a fresh single
+  seven-process window on the amended, rebuilt and re-identified binaries (2026-11-05), to be cleared once the
+  amendment's review is clear.
+
 **Open.**
+- AC-004 on the amended binaries (above).
+- The amendment's independent review (the repair, the RTA3C-RB premise and the pricing result).
 - P's stated non-identity (+86 B) and the freeze repair are reported to DEL-04-07 and DEL-05-02.
 
 Run evidence (logs, compares, proofs and scripts) is in `/Users/ryan/dev/chirality-t3/scratch/rt-a3/pc-d3/` and, for
 the review repair (the run, atoms, evaluations and identities), `/Users/ryan/dev/chirality-t3/scratch/rt-a3/pc-d3-fix/`;
-the AC-004 harness and its `window.json` are in `/Users/ryan/dev/chirality-t3/scratch/rt-a3/pc-witness/`. It is review input, not a permanent dependency.
+the AC-004 harness and its `window.json` are in `/Users/ryan/dev/chirality-t3/scratch/rt-a3/pc-witness/`; the
+amendment's run and compares are in `/Users/ryan/dev/chirality-t3/scratch/rt-a3/pc-sid/`. It is review input, not a permanent dependency.
 
 ## 9. Memory-profile gates and registration
 
