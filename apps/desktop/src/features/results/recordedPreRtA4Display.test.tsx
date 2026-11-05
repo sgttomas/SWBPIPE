@@ -196,7 +196,7 @@ describe("a reopened run recorded before RT-A4 shows no current-only verdict on 
     // under its recorded table, and a refused statement stays refused.
     expect(readerDispatch(source).binding?.sha256 ?? null).not.toBe(variant.sha256);
     if (!variant.name.startsWith("physics-retained-1")) expect(numericalResultStanding(source).eligible).toBe(false);
-  });
+  }, 120_000); // two full ResultsPanel walks per variant (timoshenko-1: 18 s locally); timed out at 30 s on the hosted runner
 });
 
 describe("the recorded table is the only authority the display paths take", () => {
