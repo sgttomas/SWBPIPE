@@ -105,6 +105,31 @@ window record (`a46dc476…`); the wrapper log is beside the manager's kit tools
 This pass shows the whole connected path once, on this host, at 82 nodes. It is no 500-node,
 usable-size, memory-fit, base-machine or acceptance claim.
 
+**Harness repair: save steps (after this run; harness and tests only, App runtime unchanged).**
+The two defects the run exposed are repaired for future runs; this run's record and verdict are
+unchanged and it is not re-judged.
+- *Each save step ends on its own native save.* The C1 trace keeps one record per native save
+  invocation (`trace.data.saves`: send order `seq`, command, reply receipt or refusal, and
+  whether the App's read of the reply completed). `saveProject` ends a C1 step on the first save
+  invocation sent after its own menu command, once that reply is read or refused; the status
+  line is recorded but no longer decides the end. A receipt from an earlier invocation never
+  ends a later step, a step that sees two invocations fails, and a step with no invocation of
+  its own times out (a cancelled replace prompt still ends on its own refusal text). The
+  persistence probe checks each step's own receipt (fresh save, then restored re-save) and
+  fails a step that timed out, sent the wrong command or was not saved. Plain (non-C1) plans
+  keep the status-line wait.
+- *Each step keeps its own record.* `report.save_projects` lists every step; `report.save_project`
+  is the first step's and is never replaced. The classifier judges every step (`save_project#n`)
+  and every save receipt, so a later successful re-save cannot mask an earlier step's timeout,
+  refusal or `not_saved` receipt.
+- *Tests* (`perf.test.mjs`, "C1 save steps"): the 82-node sequence (Record Run's same-text save,
+  then File > Save) ends on receipt 2 well before `save_ms`; without the trace the old wait still
+  times out (the defect, kept as a control); no own invocation times out despite an earlier
+  receipt and unchanged text; a refused save ends with its refusal; two invocations in one step
+  fail; an earlier timed-out step and an earlier `not_saved` receipt are classified despite a later
+  success. Two mutations (correlating from invocation 0; judging only the last step and latest
+  receipt) each fail the intended tests.
+
 ## A+B 500-node attempt: result, diagnosis and repair (2026-11-05)
 
 Agent 0 released one 500-node attempt of the A+B candidate `app-c1-main-4427c3ec0` (binary

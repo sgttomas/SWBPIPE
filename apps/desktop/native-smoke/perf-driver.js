@@ -397,11 +397,22 @@
   }
 
   // File > Save Local Project, answered as shown (a replace prompt is cancelled and recorded).
-  async function saveProject(plan, report) {
+  // Every step keeps its own record in `report.save_projects` (RT-U4, 82-node lesson: a later
+  // save once replaced an earlier step's timed-out record); `report.save_project` is the first
+  // step's, never replaced. With the C1 trace, a step ends on its OWN native save: the first save
+  // invocation sent after this step's menu command, once its reply is read (or refused). The
+  // status line is recorded but does not decide the end, because two consecutive saves can show
+  // the same text (Record Run's prerequisite save, then File > Save). A save receipt from an
+  // earlier invocation never ends a later step, and a step that sees two invocations fails.
+  // Without the trace (plain plans), the status line's change ends it, as before.
+  async function saveProject(plan, report, trace = null) {
     const started = now();
-    const outcome = { message: null, prompted: null, elapsed_ms: null };
-    report.save_project = outcome;
+    const steps = report.save_projects ??= [];
+    const outcome = { step: steps.length + 1, message: null, prompted: null, elapsed_ms: null, receipt: null };
+    steps.push(outcome);
+    report.save_project ??= outcome;
     const before = message();
+    const sent = trace ? trace.data.saves.length : 0;
     await menu("file.save-local");
     try {
       outcome.message = await waitFor("save outcome", () => {
@@ -410,15 +421,26 @@
           click("replace-project-cancel");
         }
         const current = message();
-        return current !== before && /^(Saved|Created|Not saved|Save failed|Create failed)|SQLite project snapshot/.test(current) ? current : null;
+        const terminal = /^(Saved|Created|Not saved|Save failed|Create failed)|SQLite project snapshot/.test(current);
+        if (!trace) return current !== before && terminal ? current : null;
+        const own = trace.data.saves.slice(sent);
+        if (own.length > 1) throw new Error(`C1 one File > Save sent ${own.length} native saves`);
+        const invocation = own[0];
+        if (invocation && (invocation.refusal !== null || invocation.error !== null)) return current || "native save refused";
+        if (invocation?.read && terminal) return current;
+        // A cancelled replace prompt sends no save; its own refusal text ends the step.
+        if (!invocation && outcome.prompted !== null && current !== before && terminal) return current;
+        return null;
       }, plan.timeouts.save_ms, 100);
     } catch (error) {
       if (!error?.timeout) throw error;
       outcome.timed_out = true;
       outcome.last_message = message();
     }
+    if (trace) outcome.receipt = trace.data.saves[sent] ? { ...trace.data.saves[sent] } : null;
     outcome.elapsed_ms = elapsed(started);
-    await progress("save_project", { message: outcome.message, elapsed_ms: outcome.elapsed_ms });
+    await progress("save_project", { step: outcome.step, message: outcome.message, elapsed_ms: outcome.elapsed_ms, timed_out: outcome.timed_out === true, receipt_seq: outcome.receipt?.seq ?? null });
+    return outcome;
   }
 
   // Bounded reads of a reply body (C1 observation). Each chunk is checked before any of it is kept,
@@ -537,9 +559,13 @@
   function beginC1Trace() {
     const IPC_PREFIX = "ipc://localhost/";
     const originalFetch = window.fetch;
-    const data = { counts: {}, completed: {}, errors: [], violations: [], refusals: [], refusals_omitted: 0, disposed: {}, csv: null, open: null, recordedRead: null, record: null, save: null, restoredSave: null,
+    const data = { counts: {}, completed: {}, errors: [], violations: [], refusals: [], refusals_omitted: 0, disposed: {}, csv: null, open: null, recordedRead: null, record: null, save: null, restoredSave: null, saves: [],
       transport: { lost: false, events: [], events_omitted: 0, fallback_observer: null, fallback_counts: {} }, reply_bytes_max: 0 };
     const forbidden = new Set(["take_preview_mechanics_job_result", "read_preview_mechanics_job_rows_all", "read_restored_result_record_all", "open_local_project", "read_analysis_run", "record_analysis_run", "save_local_project", "create_local_project", "save_local_result_json", "configure_memory_pool"]);
+    // One record per native save invocation, in send order (`seq`): its reply's receipt or
+    // refusal and whether the App's read of the reply completed. `saveProject` correlates a step
+    // with its own invocation through these, never through the latest receipt.
+    const SAVES = new Set(["save_preview_mechanics_job_local_project", "save_restored_result_local_project"]);
     const RECEIPTS = new Set(["finish_local_csv_stream", "record_preview_mechanics_job_analysis_run", "save_preview_mechanics_job_local_project", "open_local_project_in_native_custody", "read_analysis_run_in_native_custody", "save_restored_result_local_project", "dispose_preview_mechanics_result"]);
     const note = (bytes) => { if (bytes > data.reply_bytes_max) data.reply_bytes_max = bytes; };
     const bump = (counts, command) => { counts[command] = (counts[command] ?? 0) + 1; };
@@ -580,10 +606,11 @@
     function refusedReply(message) {
       return new Response(JSON.stringify(message), { status: 200, headers: { "Content-Type": "application/json", "Tauri-Response": "error" } });
     }
-    async function observe(command, body, response, csv) {
+    async function observe(command, body, response, csv, invocation) {
       if (response.headers.get("Tauri-Response") !== "ok") {
         const { bytes, truncated } = await bodyPrefix(response.clone(), REFUSAL_LIMIT, note);
         const message = new TextDecoder().decode(bytes);
+        if (invocation) invocation.refusal = message.slice(0, 512);
         if (data.refusals.length < 16) data.refusals.push({ command, message: message.slice(0, 512), truncated: truncated || message.length > 512 });
         else data.refusals_omitted++;
         return;
@@ -603,20 +630,22 @@
       if (command === "finish_local_csv_stream" && csv) csv.receipt = { file_name: value.file_name, byte_count: value.byte_count };
       if (command === "record_preview_mechanics_job_analysis_run") data.record = { message: typeof value.message === "string" ? value.message.slice(0, 512) : null, state_outcome: value.state_outcome, run: { recording_id: value.run?.recording_id, run_name: value.run?.run_name, producer_run_id: value.run?.producer_run_id, project_id: value.run?.project_id } };
       if (command === "save_preview_mechanics_job_local_project") data.save = { result: savedResult(value.result), envelope_hash: value.project_envelope_hash?.value };
+      if (invocation && command === "save_preview_mechanics_job_local_project") invocation.reply = { ...data.save };
       if (command === "open_local_project_in_native_custody") data.open = { ...restored(value.stored_run), envelope_hash: value.project_envelope_hash?.value };
       if (command === "read_analysis_run_in_native_custody") data.recordedRead = restored(value.restored);
       if (command === "save_restored_result_local_project") data.restoredSave = { ...restored(value.restored), kept: value.restored?.envelope_basis_kept, result: savedResult(value.result), envelope_hash: value.project_envelope_hash?.value };
+      if (invocation && command === "save_restored_result_local_project") invocation.reply = { ...data.restoredSave };
       if (command === "dispose_preview_mechanics_result" && value?.released) data.disposed[value.job_id] = (data.disposed[value.job_id] ?? 0) + 1;
     }
     // The App's own read of the reply (Tauri reads it with `json`, `text` or `arrayBuffer` by its
     // content type): unchanged, except that success completes the round trip and failure, which
     // makes Tauri fall back, is recorded.
-    function observeAppRead(command, response) {
+    function observeAppRead(command, response, invocation) {
       for (const method of ["json", "text", "arrayBuffer"]) {
         const read = response[method];
         if (typeof read !== "function") continue;
         Object.defineProperty(response, method, { configurable: true, writable: true, value: function (...args) {
-          return read.apply(this, args).then((value) => { bump(data.completed, command); return value; },
+          return read.apply(this, args).then((value) => { bump(data.completed, command); if (invocation) invocation.read = true; return value; },
             (error) => { lost("the App's read of an IPC reply failed", command); throw error; });
         } });
       }
@@ -630,12 +659,18 @@
         return refusedReply(refusalText(command));
       }
       const csv = data.csv; // pin the send phase, including a delayed reply
+      let invocation = null;
+      if (SAVES.has(command)) {
+        if (data.saves.length >= 16) throw new Error("C1 probe sent more than 16 native saves");
+        invocation = { seq: data.saves.length + 1, command, sent_at_ms: now(), reply: null, refusal: null, error: null, read: false };
+        data.saves.push(invocation);
+      }
       let response;
       try { response = await originalFetch.call(window, input, init); }
-      catch (error) { lost("an IPC fetch was rejected", command); throw error; }
-      try { await observe(command, init?.body, response, csv); }
-      catch (error) { if (data.errors.length < 16) data.errors.push(String(error?.message ?? error)); }
-      observeAppRead(command, response);
+      catch (error) { lost("an IPC fetch was rejected", command); if (invocation) invocation.error = "fetch rejected"; throw error; }
+      try { await observe(command, init?.body, response, csv, invocation); }
+      catch (error) { if (data.errors.length < 16) data.errors.push(String(error?.message ?? error)); if (invocation) invocation.error = String(error?.message ?? error).slice(0, 512); }
+      observeAppRead(command, response, invocation);
       return response;
     };
     // Tauri 2.11.1 `ipc-protocol.js` warns with exactly this text immediately before it falls back
@@ -848,9 +883,11 @@
     const recorded = trace.data.record;
     if (!recorded?.message?.startsWith("Recorded run") || typeof recorded.run.recording_id !== "string") throw new Error(`C1 Record Run did not complete: ${report.record_run?.message ?? "no native receipt"}`);
     if (recorded.run.run_name !== `perf ${plan.run_id}` || recorded.run.project_id !== plan.project_id) throw new Error("C1 recorded labels/project differ from the UI request");
-    await saveProject(plan, report);
-    const saved = trace.data.save;
-    if (saved?.result?.outcome !== "saved") throw new Error(`C1 result was not saved: ${saved?.result?.code ?? report.save_project?.message ?? "no native receipt"}`);
+    const saveStep = await saveProject(plan, report, trace);
+    if (saveStep.timed_out) throw new Error(`C1 File > Save did not finish on its own native save within ${plan.timeouts.save_ms} ms: ${saveStep.receipt ? `invocation ${saveStep.receipt.seq} read=${saveStep.receipt.read}` : "no native save was sent"}`);
+    if (saveStep.receipt?.command !== "save_preview_mechanics_job_local_project") throw new Error(`C1 File > Save sent no fresh native save: ${saveStep.receipt?.command ?? "none"}`);
+    const saved = saveStep.receipt.reply;
+    if (saved?.result?.outcome !== "saved") throw new Error(`C1 result was not saved: ${saved?.result?.code ?? saveStep.receipt.refusal ?? saveStep.receipt.error ?? saveStep.message ?? "no native receipt"}`);
     if (recorded.run.producer_run_id !== saved.result.run_id) throw new Error("C1 recorded and saved producer identities differ");
     const freshSaves = trace.data.counts.save_preview_mechanics_job_local_project;
     const freshRecords = trace.data.counts.record_preview_mechanics_job_analysis_run;
@@ -868,8 +905,10 @@
     await showSection("project", plan.timeouts.open_ms);
     await waitFor("historical envelope integrity", () => text("project-validation-envelope-hash")?.includes("integrity=verified_match"), plan.timeouts.interaction_ms);
     if (!text("record-run-unavailable")) throw new Error("C1 restored result incorrectly offers fresh Record Run");
-    await saveProject(plan, report);
-    const resaved = trace.data.restoredSave;
+    const resaveStep = await saveProject(plan, report, trace);
+    if (resaveStep.timed_out) throw new Error(`C1 re-save did not finish on its own native save within ${plan.timeouts.save_ms} ms: ${resaveStep.receipt ? `invocation ${resaveStep.receipt.seq} read=${resaveStep.receipt.read}` : "no native save was sent"}`);
+    if (resaveStep.receipt?.command !== "save_restored_result_local_project") throw new Error(`C1 re-save sent no restored native save: ${resaveStep.receipt?.command ?? "none"}`);
+    const resaved = resaveStep.receipt.reply;
     if (resaved?.result?.outcome !== "saved" || resaved.findings_truncated || resaved.handle !== opened.handle || resaved.origin !== "restored_saved_run" || resaved.kept !== true || resaved.envelope_hash !== opened.envelope_hash || JSON.stringify(resaved.findings) !== JSON.stringify(opened.findings)) throw new Error(`C1 restored re-save did not preserve historical evidence: ${resaved?.result?.code ?? "receipt mismatch"}`);
     report.c1.resave = resaved;
     const checkId = `recorded-run-${recorded.run.recording_id}-check-run`;

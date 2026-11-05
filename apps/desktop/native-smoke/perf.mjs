@@ -711,14 +711,21 @@ export function classify({ report, exit, timedOut, progress, memory, store, run,
     const record = report.record_run;
     if (record?.timed_out) add("hang", { step: "record_run", detail: `last message: ${record.last_message}` });
     else if (record && record.message && /^(Not recorded|Record Run:)/.test(record.message)) add("refused_with_message", { step: "record_run", message: record.message, needs_review: true });
+    // Every save step on its own record (RT-U4: a later step must not mask an earlier one's
+    // timeout or refusal); `report.save_project` is the first step's.
     const save = report.save_project;
-    if (save?.timed_out) add("hang", { step: "save_project", detail: `last message: ${save.last_message}` });
-    else if (save && save.message && !/^(Saved|Created)|SQLite project snapshot/.test(save.message)) add("refused_with_message", { step: "save_project", message: save.message, needs_review: true });
+    const saveSteps = Array.isArray(report.save_projects) ? report.save_projects : save ? [save] : [];
+    for (const step of saveSteps) {
+      const name = saveSteps.length > 1 ? `save_project#${step.step}` : "save_project";
+      if (step?.timed_out) add("hang", { step: name, detail: `last message: ${step.last_message}` });
+      else if (step && step.message && !/^(Saved|Created)|SQLite project snapshot/.test(step.message)) add("refused_with_message", { step: name, message: step.message, needs_review: true });
+    }
     if (report.error && solve && !unobservable) add("refused_with_message", { step: "driver", message: report.error.split("\n")[0], needs_review: true });
     if (run.c1_probes && report.c1?.trace?.transport?.lost) add("refused_with_message", { step: "c1_observation", message: `The command observation lost Tauri's IPC transport: ${report.c1.trace.transport.events?.[0]?.reason ?? "unknown"}.`, needs_review: true });
     if (unobservable) { /* the probes below could not be observed */ }
     else if (run.c1_profile_readers && !report.c1?.reader_allocations) add("refused_with_message", { step: "reader_allocations", message: "Reader allocation evidence is incomplete.", needs_review: true });
-    const omitted = [report.c1?.trace?.save?.result, report.c1?.trace?.restoredSave?.result].find(result => result?.outcome === "not_saved");
+    const saveReceipts = Array.isArray(report.c1?.trace?.saves) ? report.c1.trace.saves.map(invocation => invocation?.reply?.result) : [report.c1?.trace?.save?.result, report.c1?.trace?.restoredSave?.result];
+    const omitted = saveReceipts.find(result => result?.outcome === "not_saved");
     if (omitted) add("refused_with_message", { step: "save_result", message: omitted.code ?? "The native save kept only the model.", needs_review: true });
     if (run.c1_probes && !unobservable && report.c1?.completed !== true) add("refused_with_message", { step: "c1_probes", message: "The connected C1 usability probes did not complete.", needs_review: true });
     if (run.c1_probes && report.c1?.completed && report.c1.csv_file?.verified !== true) {

@@ -1361,6 +1361,103 @@ test("C1 persistence probe connects actual Rust reply shapes through record/reop
   trace.restore();
 });
 
+// RT-U4 (82-node lesson): Record Run's prerequisite save and the File > Save after it show the
+// same status text. A save step ends on its own native save invocation, never on the status
+// line's change, an earlier receipt or a later step.
+const SAME_SAVE_TEXT = "Saved current project model snapshot without external file copies.";
+async function saveStepDom(t, onSave) {
+  let ui;
+  const sent = [];
+  ui = await driverDom(t, `<p data-testid="local-project-message">${SAME_SAVE_TEXT}</p>`, async (command, args) => {
+    if (command === "native_smoke_menu" && args.commandId === "file.save-local") {
+      // The App answers the menu at once and saves afterwards, as the native menu does.
+      setTimeout(() => { void onSave(ui, sent); }, 20);
+      return null;
+    }
+    if (command === "save_preview_mechanics_job_local_project" || command === "save_restored_result_local_project") {
+      sent.push(command);
+      const reply = await (ui.reply ?? (() => ({ result: { outcome: "saved", run_id: "run:x", result_bytes: 1, record_bytes: 2 }, project_envelope_hash: { value: "sha256:e" } })))(command);
+      return reply;
+    }
+    return null;
+  });
+  return ui;
+}
+const setLocalMessage = (ui, value) => { ui.dom.window.document.querySelector('[data-testid="local-project-message"]').textContent = value; };
+const savePlan = (save_ms = 2000) => ({ timeouts: { save_ms } });
+
+test("C1 save steps: a File > Save after Record Run's same-text save ends on its own fresh receipt, not a timeout", async (t) => {
+  const ui = await saveStepDom(t, async (ui) => { await ui.call("save_preview_mechanics_job_local_project", {}); setLocalMessage(ui, SAME_SAVE_TEXT); });
+  const trace = ui.hooks.beginC1Trace();
+  t.after(() => trace.restore());
+  // Record Run's prerequisite save: invocation 1, leaving the same status text.
+  await ui.call("save_preview_mechanics_job_local_project", {});
+  const report = {};
+  const started = performance.now();
+  const step = await ui.hooks.saveProject(savePlan(), report, trace);
+  assert.ok(performance.now() - started < 1500, "ended on its receipt, well before save_ms");
+  assert.equal(step.timed_out, undefined);
+  assert.equal(step.message, SAME_SAVE_TEXT);
+  assert.equal(step.receipt.seq, 2);
+  assert.equal(step.receipt.command, "save_preview_mechanics_job_local_project");
+  assert.equal(step.receipt.read, true);
+  assert.equal(step.receipt.reply.result.outcome, "saved");
+  assert.equal(report.save_projects.length, 1);
+  assert.equal(report.save_projects[0], step);
+  assert.equal(report.save_project, step);
+});
+
+test("C1 save steps: the old changed-text wait times out on the same sequence (the defect, without the trace)", async (t) => {
+  const ui = await saveStepDom(t, async (ui) => { await ui.call("save_preview_mechanics_job_local_project", {}); setLocalMessage(ui, SAME_SAVE_TEXT); });
+  const report = {};
+  const step = await ui.hooks.saveProject(savePlan(300), report);
+  assert.equal(step.timed_out, true);
+  assert.equal(step.message, null);
+});
+
+test("C1 save steps: no own native save cannot finish on an earlier receipt or the unchanged status text", async (t) => {
+  const ui = await saveStepDom(t, async () => { /* File > Save sends nothing */ });
+  const trace = ui.hooks.beginC1Trace();
+  t.after(() => trace.restore());
+  await ui.call("save_preview_mechanics_job_local_project", {}); // an earlier, successful receipt
+  const report = {};
+  const step = await ui.hooks.saveProject(savePlan(300), report, trace);
+  assert.equal(step.timed_out, true);
+  assert.equal(step.receipt, null);
+  assert.equal(trace.data.saves.length, 1);
+});
+
+test("C1 save steps: a refused native save ends its step with the refusal and no saved reply", async (t) => {
+  const ui = await saveStepDom(t, async (ui) => { await ui.call("save_preview_mechanics_job_local_project", {}).catch(() => {}); setLocalMessage(ui, "Save failed: PROJECT-SAVE-TOO-LARGE"); });
+  ui.reply = () => { throw new Error("PROJECT-SAVE-TOO-LARGE: the project does not fit"); };
+  const trace = ui.hooks.beginC1Trace();
+  t.after(() => trace.restore());
+  const step = await ui.hooks.saveProject(savePlan(), {}, trace);
+  assert.equal(step.timed_out, undefined);
+  assert.equal(step.receipt.seq, 1);
+  assert.equal(step.receipt.reply, null);
+  assert.match(step.receipt.refusal, /PROJECT-SAVE-TOO-LARGE/);
+});
+
+test("C1 save steps: one File > Save that sends two native saves fails the step", async (t) => {
+  const ui = await saveStepDom(t, async (ui) => { await ui.call("save_preview_mechanics_job_local_project", {}); await ui.call("save_preview_mechanics_job_local_project", {}); setLocalMessage(ui, SAME_SAVE_TEXT); });
+  const trace = ui.hooks.beginC1Trace();
+  t.after(() => trace.restore());
+  await assert.rejects(ui.hooks.saveProject(savePlan(), {}, trace), /sent 2 native saves/);
+});
+
+test("C1 save steps: a later successful re-save does not mask an earlier step's timeout or not_saved receipt", () => {
+  const first = { step: 1, message: null, timed_out: true, last_message: SAME_SAVE_TEXT, receipt: null };
+  const second = { step: 2, message: "Saved restored SQLite project snapshot.", receipt: { seq: 2, command: "save_restored_result_local_project", read: true, reply: { result: { outcome: "saved" } } } };
+  const timedOut = classify(base({ report: { solve: painted(), record_run: { attempted: true, message: "Recorded run perf r." }, save_project: first, save_projects: [first, second] } }));
+  assert.equal(timedOut.class, "hang");
+  assert.ok(timedOut.findings.some((finding) => finding.step === "save_project#1"));
+  const omitted = base();
+  omitted.report.c1 = { trace: { saves: [{ seq: 1, reply: { result: { outcome: "not_saved", code: "PROJECT-SAVE-RESULT-TOO-LARGE" } } }, { seq: 2, reply: { result: { outcome: "saved" } } }], save: { result: { outcome: "saved" } } } };
+  const refused = classify(omitted);
+  assert.ok(refused.findings.some((finding) => finding.step === "save_result" && finding.message === "PROJECT-SAVE-RESULT-TOO-LARGE"));
+});
+
 test("C1 CSV file inspection counts quoted rows and checks receipt and containment", async (t) => {
   const home=mkdtempSync(path.join(os.tmpdir(),"perf-csv-"));
   t.after(()=>rmSync(home,{recursive:true,force:true}));
