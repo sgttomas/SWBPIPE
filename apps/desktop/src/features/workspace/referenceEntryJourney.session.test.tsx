@@ -24,6 +24,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import referenceJson from "../../../../../fixtures/reference_system/reference_system.json";
 import { buildBlankLoadStateModelDocument, buildBlankLocalModelDocument } from "../../services/projectService";
 import * as previewService from "../../services/previewService";
+import { computeModelHash } from "../../services/hashService";
 import type { EntityRef, PreviewModel } from "../../types";
 import { useModelledVisibility } from "../../test-support/modelledVisibility";
 import { chooseCompactOption, chooseVirtualTarget, chooseVirtualMultiTarget } from "../../test-support/workspaceTestControls";
@@ -166,13 +167,20 @@ function allowDifferences(entered: Record<string, Record<string, AnyRecord>>, fi
     expect(combination.terms, `${id}.terms`).toEqual([]);
     delete combination.terms;
   }
-  for (const side of [entered, fixture]) for (const loadCase of Object.values(side.load_cases)) for (const load of (loadCase.primitive_loads as AnyRecord[] | undefined) ?? []) {
+  // Entered side: each primitive names exactly the hash of the model it was generated from,
+  // captured in the journey before Generate. Fixture side: the generator's own capture model,
+  // which this test cannot reproduce, so only its form is checked (§3.14).
+  for (const [side, entered_] of [[entered, true], [fixture, false]] as const) for (const [caseId, loadCase] of Object.entries(side.load_cases)) for (const load of (loadCase.primitive_loads as AnyRecord[] | undefined) ?? []) {
     const provenance = JSON.parse(String(load.provenance)) as AnyRecord;
-    expect(provenance.source_model_hash, `${String(load.id)}.provenance.source_model_hash`).toMatch(/^sha256:[0-9a-f]{64}$/);
+    if (entered_) expect(provenance.source_model_hash, `${String(load.id)}.provenance.source_model_hash`).toBe(generatingHashes.get(caseId));
+    else expect(provenance.source_model_hash, `${String(load.id)}.provenance.source_model_hash`).toMatch(/^sha256:[0-9a-f]{64}$/);
     provenance.source_model_hash = "(the generating model's hash)";
     load.provenance = provenance;
   }
 }
+
+/** The hash of the model each self-weight case was generated from, captured in the journey. */
+const generatingHashes = new Map<string, string>();
 
 /** The journey's document against the fixture, by record. Returns the ids compared. */
 function compareWithFixture(model: PreviewModel, where: string): number {
@@ -180,6 +188,18 @@ function compareWithFixture(model: PreviewModel, where: string): number {
   // A blocked record is absent from the entered document, not merely left out of the comparison.
   const enteredIds = COLLECTIONS.flatMap((collection) => (((model as unknown as AnyRecord)[collection] ?? []) as AnyRecord[]).map((record) => String(record.id)));
   for (const id of blocked) expect(enteredIds, `${where}: blocked ${id}`).not.toContain(id);
+  // Nested references to a blocked record (review r1 of #128): the entered document holds none,
+  // and the fixture holds exactly one support state per blocked support in each case that has
+  // an analysis state, so the filter below removes exactly those and nothing else.
+  for (const loadCase of model.load_cases) {
+    const states = ((loadCase.analysis_state as AnyRecord | undefined)?.support_states as AnyRecord[] | undefined) ?? [];
+    expect(states.filter((entry) => blocked.has(String(entry.support_ref))), `${where}: ${loadCase.id} blocked support states`).toEqual([]);
+  }
+  for (const loadCase of reference.load_cases) {
+    const states = ((loadCase.analysis_state as AnyRecord | undefined)?.support_states as AnyRecord[] | undefined);
+    if (!states) continue;
+    for (const id of blocked) if (id.startsWith("support:")) expect(states.filter((entry) => entry.support_ref === id), `fixture: ${loadCase.id} ${id} support states`).toHaveLength(1);
+  }
   const entered = keyed(model, blocked);
   const fixture = keyed(reference, blocked);
   allowDifferences(entered, fixture);
@@ -428,7 +448,9 @@ describe("the reference system entered from blank through the desktop's authorin
     // §3.4/§3.5 The run sheet (Model tree Grid › Run sheet): header, 26 rows with their labels,
     // bends with SIFs, valve and flanges; Queue rows, Validate batch, Apply entire batch.
     // Typed UI: the bend rows and the valve/flange rows (with Component details) and their labels.
-    // UI function: the other rows and the header, through the sheet's own commit functions.
+    // Draft setup: the header and column units are set in the sheet's draft state directly
+    // (not through the header controls). UI function: the other rows, through the sheet's own
+    // commit functions.
     const beforeSheet = model();
     current.sheet = true; current.rerender();
     await screen.findByTestId("run-sheet");
@@ -582,6 +604,9 @@ describe("the reference system entered from blank through the desktop's authorin
       // The panel keeps its pipe choice after a plan is queued: the 25 are picked for RS-SUS and kept for the next two cases.
       if (id === "load:RS-SUS") for (const pipe of weighted) chooseVirtualMultiTarget("self-weight-pipes", pipe);
       expect(screen.getByTestId("self-weight-pipes").querySelector(".virtual-target-picker-current")).toHaveTextContent("25 selected");
+      // The generating model's hash, captured as the panel captures it: each primitive's
+      // provenance must name exactly this hash (review r1 of #128).
+      generatingHashes.set(id, (await computeModelHash(model()))!.value);
       click(selfWeight, "Generate self-weight plan");
       const queuePlan = await selfWeight.findByRole("button", { name: "Queue complete self-weight plan" }, { timeout: 20_000 });
       await act(async () => { fireEvent.click(queuePlan); });

@@ -62,7 +62,8 @@ export function referenceComponentCells(reference: PreviewModel, id: string): Co
 
 type Store = ReturnType<typeof useRunSheetStore>;
 
-/** The run sheet's header (§2): Source ⟨P⟩, m, node:RS- / pipe:RS-P, 10/10, pad 3, from its start node; the six column units. */
+/** The run sheet's header (§2): Source ⟨P⟩, m, node:RS- / pipe:RS-P, 10/10, pad 3, from its start node; the six column units.
+ * Draft setup: it sets the sheet's draft state directly, not through the header controls' handlers. */
 export function enterReferenceHeader(store: Store, model: PreviewModel): void {
   act(() => store.update(() => {
     const state = initialRunSheetState(model.project.id, "reference", 1);

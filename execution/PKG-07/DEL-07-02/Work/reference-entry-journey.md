@@ -42,7 +42,7 @@ load-case list call.
 | §3.1 Pressure profile | typed UI | `pressure_contract` |
 | §3.2 Material RS-M1, four temperature points, expansion law | typed UI | `material:RS-M1` |
 | §3.3 Sections | typed UI (New section, three times) | 3 sections |
-| §3.4/§3.5 Run sheet, 26 rows | Header and the 20 other rows: UI function, the sheet's own commit functions, as `referenceBendSifs.test.tsx` does. Typed in the grid: bend rows 8, 10 and 25 and valve/flange rows 3–5, 105 cells with their SIFs, Component details and three node labels. Queue rows, Validate batch and Apply entire batch: typed UI | 27 nodes, 26 pipes, `RS-B1`–`B3`, `RS-F1`, `RS-V1`, `RS-F2`, 10 supports |
+| §3.4/§3.5 Run sheet, 26 rows | Header and column units: draft setup (the sheet's draft state is set directly, not through the header controls, so a defect in those controls is outside this evidence). The 20 other rows: UI function, the sheet's own commit functions, as `referenceBendSifs.test.tsx` does. Typed in the grid: bend rows 8, 10 and 25 and valve/flange rows 3–5, 105 cells with their SIFs, Component details and three node labels. Queue rows, Validate batch and Apply entire batch: typed UI | 27 nodes, 26 pipes, `RS-B1`–`B3`, `RS-F1`, `RS-V1`, `RS-F2`, 10 supports |
 | §3.4 RS-050 X = 1.3 | typed UI (Task, X position, Add, Apply) | `node:RS-050` |
 | §3.6.1 Expansion joint RS-EJ1 | typed UI (New component, expansion_joint, tie rods, pressure model) | `component:RS-EJ1` |
 | §3.6.2 Tee RS-T1, two SIFs, modifier source | typed UI (New component; three Task edits) | `component:RS-T1` |
@@ -84,7 +84,11 @@ Skew and the spec §10 pending families are not part of tranche 1's fixture.
 ## Comparison allowances
 
 Each allowance below is applied by member path. The test checks that the entered value is the
-stated derived value before it sets the fixture's value in its place.
+stated derived value before it sets the fixture's value in its place. For `source_model_hash`,
+the entered value must equal the hash of the model each case was generated from, captured in the
+journey; the fixture's value comes from its generator's capture model, so only its form is checked.
+Nested references to the blocked record are asserted exactly: none in the entered document, and
+one per case in the fixture.
 
 From §3.14:
 
