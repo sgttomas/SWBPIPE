@@ -202025,6 +202025,19 @@
                 "reason": null,
                 "subtrahend_support_state": null,
                 "uncovered_row_count": 46
+              },
+              {
+                "assessment": "not_assessed",
+                "basis": "result_state_subtraction",
+                "combination_id": "comb:own",
+                "expression": {
+                  "minuend_id": "case:O2",
+                  "subtrahend_id": "case:S"
+                },
+                "groups": [],
+                "reason": "withheld by its gate",
+                "subtrahend_support_state": "own",
+                "uncovered_row_count": 0
               }
             ],
             "operand_cases": [
@@ -202919,6 +202932,83 @@
               "combination_id": "comb:double",
               "reason": null,
               "withheld": false
+            },
+            {
+              "combination_id": "comb:own",
+              "reason": "EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING",
+              "withheld": true
+            }
+          ],
+          "difference_basis_derivation": [
+            {
+              "combination_id": "comb:own",
+              "difference_basis": "operating_minus_sustained",
+              "minuend": {
+                "load_case_id": "case:O2",
+                "primitive_contents": [
+                  {
+                    "category": "concentrated_force",
+                    "count": 1,
+                    "dimension": "force",
+                    "direction": "global_x",
+                    "magnitude": {
+                      "unit": "N",
+                      "value_bits": "409f400000000000"
+                    },
+                    "target": {
+                      "node": "node:b",
+                      "type": "node"
+                    }
+                  },
+                  {
+                    "category": "concentrated_force",
+                    "count": 1,
+                    "dimension": "force",
+                    "direction": "global_y",
+                    "magnitude": {
+                      "unit": "N",
+                      "value_bits": "4092c00000000000"
+                    },
+                    "target": {
+                      "node": "node:b",
+                      "type": "node"
+                    }
+                  }
+                ]
+              },
+              "subtrahend": {
+                "load_case_id": "case:S",
+                "primitive_contents": [
+                  {
+                    "category": "concentrated_force",
+                    "count": 1,
+                    "dimension": "force",
+                    "direction": "global_x",
+                    "magnitude": {
+                      "unit": "N",
+                      "value_bits": "408f400000000000"
+                    },
+                    "target": {
+                      "node": "node:b",
+                      "type": "node"
+                    }
+                  },
+                  {
+                    "category": "concentrated_force",
+                    "count": 1,
+                    "dimension": "force",
+                    "direction": "global_y",
+                    "magnitude": {
+                      "unit": "N",
+                      "value_bits": "4082c00000000000"
+                    },
+                    "target": {
+                      "node": "node:b",
+                      "type": "node"
+                    }
+                  }
+                ]
+              }
             }
           ],
           "preview_cases": [
@@ -202993,29 +203083,9 @@
             "affected_refs": [
               "comb:held"
             ],
-            "code": "LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED",
-            "id": "diagnostic:combination:comb-held:load_combination_difference_basis_unsupported",
-            "message": "combination `comb:held` declares a difference basis (operating minus sustained); its gates are not built yet, so the combination is withheld",
-            "severity": "warning",
-            "source": "core/product_physics"
-          },
-          {
-            "affected_refs": [
-              "comb:held"
-            ],
             "code": "LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED",
             "id": "diagnostic:combination:comb-held:load_combination_subtrahend_support_state_unsupported",
             "message": "combination `comb:held` solves its subtrahend at the minuend's final support status; that solve is not built yet, so the combination is withheld",
-            "severity": "warning",
-            "source": "core/product_physics"
-          },
-          {
-            "affected_refs": [
-              "comb:own"
-            ],
-            "code": "LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED",
-            "id": "diagnostic:combination:comb-own:load_combination_difference_basis_unsupported",
-            "message": "combination `comb:own` declares a difference basis (operating minus sustained); its gates are not built yet, so the combination is withheld",
             "severity": "warning",
             "source": "core/product_physics"
           },
@@ -203085,7 +203155,8 @@
           },
           {
             "affected_refs": [
-              "comb:double"
+              "comb:double",
+              "comb:own"
             ],
             "code": "PREVIEW_HEADLINE_SCOPE_LOAD_CASES",
             "id": "diagnostic:preview-physics:headline-scope",
@@ -203101,6 +203172,16 @@
             "id": "diagnostic:preview-physics:combination-maximum:11:comb:double",
             "message": "stress maxima and section stress extremes are not combined; combine the signed stress component rows instead",
             "severity": "info",
+            "source": "core/product_physics"
+          },
+          {
+            "affected_refs": [
+              "comb:own"
+            ],
+            "code": "EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING",
+            "id": "diagnostic:preview-physics:combination-gate:8:comb:own",
+            "message": "Combination withheld: it declares an operating minus sustained difference, and the subtrahend case's primitive loads, as a multiset by content (category, target, direction, dimension, value and unit after normalization; ids ignored), are not contained in the minuend case's.",
+            "severity": "warning",
             "source": "core/product_physics"
           },
           {
@@ -208667,6 +208748,42 @@
               "component": "material_modulus_basis",
               "coordinate_system": "not_applicable",
               "location": "comb:double",
+              "sign_convention": "presence record; each range operand's solve basis is recorded explicitly"
+            },
+            "unit": "record",
+            "value": 1.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "comb:own",
+              "ref_type": "combination"
+            },
+            "entity_ref": "case:O2",
+            "id": "result:combination:comb-own:modulus-basis:case-O2",
+            "kind": "combination_modulus_basis_record",
+            "metadata": {
+              "basis": "material_base_values",
+              "component": "material_modulus_basis",
+              "coordinate_system": "not_applicable",
+              "location": "comb:own",
+              "sign_convention": "presence record; each range operand's solve basis is recorded explicitly"
+            },
+            "unit": "record",
+            "value": 1.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "comb:own",
+              "ref_type": "combination"
+            },
+            "entity_ref": "case:S",
+            "id": "result:combination:comb-own:modulus-basis:case-S",
+            "kind": "combination_modulus_basis_record",
+            "metadata": {
+              "basis": "material_base_values",
+              "component": "material_modulus_basis",
+              "coordinate_system": "not_applicable",
+              "location": "comb:own",
               "sign_convention": "presence record; each range operand's solve basis is recorded explicitly"
             },
             "unit": "record",

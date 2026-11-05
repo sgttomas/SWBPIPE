@@ -2855,7 +2855,7 @@
    "edits": [
     {
      "op": "remove",
-     "pointer": "/diagnostics/1"
+     "pointer": "/diagnostics/0"
     }
    ],
    "code": null,
@@ -2867,7 +2867,7 @@
    "edits": [
     {
      "op": "set",
-     "pointer": "/diagnostics/1/message",
+     "pointer": "/diagnostics/0/message",
      "value": "combination `comb:held` is solved and its rows are established"
     }
    ],

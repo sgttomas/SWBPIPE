@@ -394,16 +394,22 @@ fn held_cantilever() -> Value {
 
 #[test]
 fn a_held_subtrahend_is_not_assessed_and_binds_no_bound() {
-    // On this base S1's interim withholds a declared basis and `minuend_final` before the
-    // solve: the combination publishes no row, no record and no bound. The producer's own
-    // premise (`combination_certificate::held_reason`, unit-tested there) and the readers'
+    // S1's interim withholds `minuend_final` before the solve: that combination publishes no
+    // row, no record and no bound. Since operating-case slice 1b a declared difference basis
+    // with its own subtrahend (`comb:own`) is no longer withheld there: G-1/G-2 gate it at the
+    // solve, and here G-1 withholds it (its subtrahend's loads are not in the minuend's), so its
+    // record is not assessed, withheld by its gate, with no group and no notice. The producer's
+    // own premise (`combination_certificate::held_reason`, unit-tested there) and the readers'
     // (a synthetic envelope in the shared forgeries) refuse any held subtrahend in a record.
     let wire = held_cantilever();
     for mode in MODES {
         let v = solve(&wire, mode);
         let ids: Vec<&str> = certificate(&v)["combinations"].as_array().unwrap().iter().map(|r| r["combination_id"].as_str().unwrap()).collect();
-        assert_eq!(ids, ["comb:double"], "{mode:?}: no record for a withheld held subtrahend");
+        assert_eq!(ids, ["comb:double", "comb:own"], "{mode:?}: no record for a withheld held subtrahend");
         assert!(v["results"].as_array().unwrap().iter().all(|r| r["basis_ref"]["ref_id"] != "comb:held"));
+        let own = record(&v, "comb:own");
+        assert_eq!((&own["subtrahend_support_state"], &own["assessment"], &own["reason"]), (&json!("own"), &json!("not_assessed"), &json!("withheld by its gate")), "{mode:?}");
+        assert_eq!(own["groups"], json!([]), "{mode:?}");
         assert_eq!(record(&v, "comb:double")["subtrahend_support_state"], Value::Null);
         assert_eq!(record(&v, "comb:double")["assessment"], "assessed");
         read(&v, &wire, false, &format!("held {mode:?}"));
