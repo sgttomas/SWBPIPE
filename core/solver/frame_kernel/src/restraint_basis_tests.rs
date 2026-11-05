@@ -1265,6 +1265,23 @@ fn reduce_forms_the_transformed_ledger_exactly() {
     }
     // Load terms stay physical in kind: a product enters as products.
     assert!(reduction.force.terms_for(0).all(|t| matches!(t.kind, ForceTermKind::Product(..))));
+    // A product whose split has a nonzero low part: coordinate row 0 takes
+    // q = 1.25 = 5/4 of physical DOF 0's a·b, exactly: 4·Σ terms − 5·a·b = 0.
+    let (a, b) = (1.0_f64 / 3.0, 1.0_f64 / 7.0);
+    assert_ne!(1.25_f64.mul_add(a, -(1.25 * a)), 0.0);
+    let mut ledger = LoadLedger::new();
+    ledger.push_product("p", 0, a, b);
+    let transformed = basis.transform_force(&ledger.finish(12).unwrap()).unwrap();
+    let mut check = ExactAccumulator::new();
+    for term in transformed.terms_for(0) {
+        for _ in 0..4 {
+            term.accumulate(&mut check, false).unwrap();
+        }
+    }
+    for _ in 0..5 {
+        check.add_product(-a, b).unwrap();
+    }
+    assert!(check.is_zero(), "f′_0 = (5/4)·a·b exactly");
 }
 
 /// σ·(exact(Q(v + w + w₂))_dof − u_p − w_p − w₂,p), exactly.
