@@ -2050,9 +2050,14 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 // §8.51: operating-case slice 1b on RT-U4's §8.50 candidate (the three preview tables' combination policy v3
 // in STATICS: four static owners, +7,116 B, +12 Node(String,Value) and +48 s(Value)): +17,484 B in every phase
 // and mode, from maintained eval at the same 328 in-build atoms, without R.
+// §8.53: RT-A3 P and the §4 combination certificate (STATICS[1] +561 B, the pressure-2 table's restated
+// standing; O_base +3 s(&str), the case-id vector; TAV_W +194 B, the certificate reader's refusal and P's
+// guard text; TAV_X +86 B, P's guard text; and the in-build s(PreparedCaseResult) 1,888 -> 1,912 B,
+// LoadCaseSolve's certificate_operand, two per case at three cases, +144 B): W1-W5 +947 B, X1-X3 +839 B in
+// both modes, from maintained eval at the same 328 in-build atoms, without R.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_450_322_653, 6_792_317_214, 8_744_053_042, 8_537_769_314, 7_611_465_112, 8_526_302_865, 7_258_920_255, 6_932_210_131],
-    [6_509_453_997, 6_851_448_558, 8_803_184_386, 8_596_900_658, 7_670_596_456, 8_585_434_209, 7_318_051_599, 6_991_341_475],
+    [6_450_323_600, 6_792_318_161, 8_744_053_989, 8_537_770_261, 7_611_466_059, 8_526_303_704, 7_258_921_094, 6_932_210_970],
+    [6_509_454_944, 6_851_449_505, 8_803_185_333, 8_596_901_605, 7_670_597_403, 8_585_435_048, 7_318_052_438, 6_991_342_314],
 ];
 
 #[test]
