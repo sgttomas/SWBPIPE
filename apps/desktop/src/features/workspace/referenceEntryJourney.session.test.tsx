@@ -8,8 +8,8 @@
 // record, keyed by id, with only the run sheet's §3.14 differences allowed, each by member path;
 // then it is saved in the browser store, reopened, and compared again.
 //
-// Functional authoring-path evidence only: not a human timing, native usability or physics
-// result. No solve runs here (§3.13 is a native job, out of this test's scope); every duration in
+// Functional authoring-path evidence only: not a human timing, native usability, physics or
+// acceptance result. No solve runs here (§3.13 is a native job, out of this test's scope); every duration in
 // the run sheet stays an estimate.
 //
 // Routes, per step: "typed UI" is a person's entry in a rendered control; "UI function" is the
@@ -57,18 +57,12 @@ type AnyRecord = Record<string, unknown>;
 const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 
 /**
- * Steps the desktop cannot enter as the fixture records them, and the fixture records each leaves
- * unmatched. The final comparison excludes exactly these ids; the list is asserted, so it cannot
- * grow silently. Empty when every step is entered.
+ * Steps the desktop cannot enter as the fixture records them. Empty: every step is entered, and
+ * the comparison excludes no record. The list is asserted empty, so a step that stops entering
+ * fails the comparison rather than being left out of it. (RS-VS1, §3.7, was the last: #130 admits
+ * its `restraints: []` for a variable spring hanger whose hanger stiffness DOF is UX/UY/UZ.)
  */
-const BLOCKED: ReadonlyArray<{ step: string; missing: string; evidence: string; records: readonly string[] }> = [
-  {
-    step: "§3.7 Variable spring RS-VS1",
-    missing: "engine refusal: create_support refuses an empty restraint set (OP-RESTRAINT-SET-EMPTY); the fixture's spring has restraints [] and §3.7 checks no Restrain box",
-    evidence: "core/model_operations/operation_applier/src/lib.rs:5478 (create_support's restraints), :9735-9744 (the refusal)",
-    records: ["support:RS-VS1"],
-  },
-];
+const BLOCKED: ReadonlyArray<{ step: string; missing: string; evidence: string; records: readonly string[] }> = [];
 
 /** The run sheet's §3.14 differences, each allowed by member path (and checked to be the stated value). */
 const ALLOWED_DIFFERENCES = [
@@ -115,23 +109,20 @@ const BENDS = ["component:RS-B1", "component:RS-B2", "component:RS-B3"];
 const token = (id: string) => id.slice(id.indexOf(":") + 1);
 const byKey = (key: string) => (a: AnyRecord, b: AnyRecord) => String(a[key]).localeCompare(String(b[key]));
 
-/**
- * One side of the comparison: each collection keyed by id, nested lists in key order. A blocked
- * record's nested entries (its support state in each case's analysis state) are left out with it.
- */
-function keyed(model: PreviewModel, blocked: ReadonlySet<string>): Record<string, Record<string, AnyRecord>> {
+/** One side of the comparison: each collection keyed by id, nested lists in key order. */
+function keyed(model: PreviewModel): Record<string, Record<string, AnyRecord>> {
   const out: Record<string, Record<string, AnyRecord>> = {};
   for (const collection of COLLECTIONS) {
     const list = clone(((model as unknown as AnyRecord)[collection] ?? []) as AnyRecord[]);
     expect(new Set(list.map((record) => record.id)).size, `${collection}: unique ids`).toBe(list.length);
-    out[collection] = Object.fromEntries(list.filter((record) => !blocked.has(String(record.id))).map((record) => [String(record.id), record]));
+    out[collection] = Object.fromEntries(list.map((record) => [String(record.id), record]));
   }
   for (const configuration of Object.values(out.reference_configurations)) (configuration.member_references as AnyRecord[] | undefined)?.sort(byKey("pipe_ref"));
   for (const loadCase of Object.values(out.load_cases)) {
     for (const region of (loadCase.pressure_regions as AnyRecord[] | undefined) ?? []) (region.member_pipe_ids as string[]).sort();
     const state = loadCase.analysis_state as AnyRecord | undefined;
     (state?.element_states as AnyRecord[] | undefined)?.sort(byKey("pipe_ref"));
-    if (state?.support_states) state.support_states = (state.support_states as AnyRecord[]).filter((entry) => !blocked.has(String(entry.support_ref))).sort(byKey("support_ref"));
+    (state?.support_states as AnyRecord[] | undefined)?.sort(byKey("support_ref"));
   }
   return out;
 }
@@ -184,24 +175,18 @@ const generatingHashes = new Map<string, string>();
 
 /** The journey's document against the fixture, by record. Returns the ids compared. */
 function compareWithFixture(model: PreviewModel, where: string): number {
-  const blocked = new Set(BLOCKED.flatMap((step) => step.records));
-  // A blocked record is absent from the entered document, not merely left out of the comparison.
-  const enteredIds = COLLECTIONS.flatMap((collection) => (((model as unknown as AnyRecord)[collection] ?? []) as AnyRecord[]).map((record) => String(record.id)));
-  for (const id of blocked) expect(enteredIds, `${where}: blocked ${id}`).not.toContain(id);
-  // Nested references to a blocked record (review r1 of #128): the entered document holds none,
-  // and the fixture holds exactly one support state per blocked support in each case that has
-  // an analysis state, so the filter below removes exactly those and nothing else.
-  for (const loadCase of model.load_cases) {
-    const states = ((loadCase.analysis_state as AnyRecord | undefined)?.support_states as AnyRecord[] | undefined) ?? [];
-    expect(states.filter((entry) => blocked.has(String(entry.support_ref))), `${where}: ${loadCase.id} blocked support states`).toEqual([]);
+  // RS-VS1's nested entries (review r1 of #128, formerly excluded): each case with an analysis
+  // state holds exactly one RS-VS1 support state, in the fixture and in the entered document,
+  // and the two are equal. The record comparison below compares the whole lists as well.
+  const vs1States = (document: PreviewModel, caseId: string) => ((document.load_cases.find((item) => item.id === caseId)?.analysis_state as AnyRecord | undefined)?.support_states as AnyRecord[] | undefined)?.filter((entry) => entry.support_ref === "support:RS-VS1");
+  const statedCases = reference.load_cases.filter((item) => (item.analysis_state as AnyRecord | undefined)?.support_states).map((item) => item.id);
+  expect(statedCases, "fixture: cases with support states").toEqual(["load:RS-SUS", "load:RS-OPE", "load:RS-SAM"]);
+  for (const caseId of statedCases) {
+    expect(vs1States(reference, caseId), `fixture: ${caseId} RS-VS1 support states`).toHaveLength(1);
+    expect(vs1States(model, caseId), `${where}: ${caseId} RS-VS1 support states`).toEqual(vs1States(reference, caseId));
   }
-  for (const loadCase of reference.load_cases) {
-    const states = ((loadCase.analysis_state as AnyRecord | undefined)?.support_states as AnyRecord[] | undefined);
-    if (!states) continue;
-    for (const id of blocked) if (id.startsWith("support:")) expect(states.filter((entry) => entry.support_ref === id), `fixture: ${loadCase.id} ${id} support states`).toHaveLength(1);
-  }
-  const entered = keyed(model, blocked);
-  const fixture = keyed(reference, blocked);
+  const entered = keyed(model);
+  const fixture = keyed(reference);
   allowDifferences(entered, fixture);
   let compared = 0;
   for (const collection of COLLECTIONS) {
@@ -319,22 +304,6 @@ describe("the reference system entered from blank through the desktop's authorin
       await waitFor(() => expect(ops().undoStack[0] !== head && !ops().operationBusy, `${what}: applied (${ops().operationMessage} ${diagnostics()})`).toBe(true), { timeout: 20_000 });
       await waitFor(() => expect(ops().editorIntents, what).toHaveLength(0));
       cycles.push(what);
-    }
-    /** Review/Apply refuses the one queued intent with `code`; nothing applies. Then Clear pending
-     * changes (UI function: `handleClearReviewQueue`, the Batch review button's handler, which is
-     * disabled while no batch is queued). */
-    async function refuseQueuedIntent(what: string, code: string) {
-      await waitFor(() => expect(ops().editorIntents, `${what}: queued (${alerts()})`).toHaveLength(1), { timeout: 20_000 });
-      const before = model();
-      const head = ops().undoStack[0];
-      const button = screen.getByTestId("operation-apply-panel").querySelector<HTMLButtonElement>('[data-testid^="apply-intent-"]')!;
-      await waitFor(() => expect(button).toBeEnabled());
-      await act(async () => { fireEvent.click(button); });
-      await waitFor(() => expect(diagnostics(), what).toContain(code), { timeout: 20_000 });
-      expect(ops().undoStack[0]).toBe(head);
-      expect(model()).toBe(before);
-      act(() => ops().handleClearReviewQueue());
-      expect(ops().editorIntents).toHaveLength(0);
     }
     /** Batch review: Validate batch, then Apply entire batch (`BatchReviewPanel`). One Undo step. */
     async function applyQueuedBatch(what: string) {
@@ -466,7 +435,7 @@ describe("the reference system entered from blank through the desktop's authorin
     expect(model().pipe_segments).toHaveLength(26);
     expect(model().supports).toHaveLength(10);
     // Undo/Redo, geometry and support families: the run sheet's batch, which creates the nodes,
-    // pipes and bends and ten of the eleven supports (the eleventh, RS-VS1, is blocked).
+    // pipes and bends and ten of the eleven supports (the eleventh, RS-VS1, is the form's, §3.7).
     expect(beforeSheet.supports).toEqual([]);
     await undoRedo("geometry and supports: the run sheet's batch (§3.4)", beforeSheet);
     // §3.4 RS-050 correction (typed UI): Start task from current selection, X position 1.3, Add, Apply.
@@ -562,9 +531,19 @@ describe("the reference system entered from blank through the desktop's authorin
     change(form, "Hanger source reference", S5);
     change(form, "Hanger mechanics consumption", "linear_spring_primitive_user_stiffness");
     click(form, "Queue support creation");
-    // Blocked (BLOCKED[0]): the engine refuses a support with no restraints.
-    await refuseQueuedIntent("§3.7 RS-VS1", "OP-RESTRAINT-SET-EMPTY");
-    expect(model()).toBe(beforeSpring);
+    // The form sends the record as typed: exactly the fixture's RS-VS1, `restraints: []` (no
+    // Restrain box) and hanger stiffness DOF "UZ", nothing added, normalized or defaulted.
+    await waitFor(() => expect(ops().editorIntents, `§3.7 RS-VS1: queued (${alerts()})`).toHaveLength(1), { timeout: 20_000 });
+    const springIntent = ops().editorIntents[0];
+    expect([springIntent.operation_kind, springIntent.change.change_kind, springIntent.target]).toEqual(["create", "create_support", { object_type: "Support", ref: "support:RS-VS1" }]);
+    const springPayload = JSON.parse(springIntent.change.after) as AnyRecord;
+    expect(springPayload).toEqual(reference.supports.find((item) => item.id === "support:RS-VS1"));
+    expect(springPayload.restraints).toEqual([]);
+    expect((springPayload.hanger as AnyRecord).stiffness).toEqual({ dof: "UZ", value: { value: 180000, unit: "N/m" } });
+    await applyQueuedIntent("§3.7 RS-VS1");
+    expect(model().supports.find((item) => item.id === "support:RS-VS1")).toEqual(springPayload);
+    // Undo/Redo, support family: the variable spring's creation.
+    await undoRedo("support: the variable spring RS-VS1 (§3.7)", beforeSpring);
 
     // §3.8 Reference configuration (typed UI, with the member fill).
     select({ type: "project", id: model().project.id });
@@ -738,18 +717,19 @@ describe("the reference system entered from blank through the desktop's authorin
     await undoRedo("combination: RS-dSAM (§3.12)", beforeCombination);
 
     // The comparison, by record keyed by id, with the §3.14 differences allowed by member path.
-    expect(BLOCKED.map((item) => [item.step, item.records])).toEqual([["§3.7 Variable spring RS-VS1", ["support:RS-VS1"]]]);
+    expect(BLOCKED).toEqual([]);
     expect(ALLOWED_DIFFERENCES).toHaveLength(15);
     expect(DOCUMENT_DIFFERENCES_NOT_IN_3_14).toEqual(["analysis_status", "data_boundary", "diagnostics"]);
-    // 26 queue/apply cycles, and RS-VS1's refused one: the run sheet's §5 count of 27 per-intent cycles.
-    expect(cycles).toHaveLength(26);
+    // 27 queue/apply cycles: the run sheet's §5 count of 27 per-intent cycles.
+    expect(cycles).toHaveLength(27);
     expect(undoRedone).toEqual([
       "geometry and supports: the run sheet's batch (§3.4)", "component: the tee RS-T1 (§3.6)",
-      "load/reference state: RS-INSTALLED (§3.8)", "combination: RS-dSAM (§3.12)",
+      "support: the variable spring RS-VS1 (§3.7)", "load/reference state: RS-INSTALLED (§3.8)", "combination: RS-dSAM (§3.12)",
     ]);
     const compared = compareWithFixture(model(), "entered");
-    // materials, sections, nodes, pipes, components, supports (less RS-VS1), cases, combinations, reference configurations.
-    expect(compared).toBe(1 + 3 + 27 + 26 + 8 + 10 + 3 + 2 + 1);
+    // materials, sections, nodes, pipes, components, supports, cases, combinations, reference configurations: 82 of 82.
+    expect(compared).toBe(1 + 3 + 27 + 26 + 8 + 11 + 3 + 2 + 1);
+    expect(compared).toBe(82);
 
     // Browser save and reopen through the session (`handleSaveProject`, `handleOpenProject`), compared again.
     const projectId = model().project.id;
