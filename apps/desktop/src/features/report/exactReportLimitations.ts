@@ -14,9 +14,8 @@
  * the coverage fixture and writes it as `fixtures/reports/exact_report_statements.json`,
  * the table's only Rust form (`core/reporting/report_renderer/src/exact_statements.rs`).
  * A producer text change therefore needs a reviewed table change before it
- * reaches a report on either side. Each statement is one string literal, so
- * the claims-language scan (GEN-13) reads it whole. Standard claim fence
- * applies (claims taxonomy per DEC-081). */
+ * reaches a report on either side. Each statement is one string literal.
+ * Standard claim fence applies (claims taxonomy per DEC-081). */
 
 export type ExactReportStatement = Readonly<{ producer_sha256: string; statement: string }>;
 

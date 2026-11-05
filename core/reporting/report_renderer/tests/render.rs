@@ -906,7 +906,7 @@ fn an_unknown_field_in_the_new_structs_refuses() {
 
 #[test]
 fn exact_route_texts_pass_the_claims_check() {
-    // GEN-13's litany vocabulary (`tools/validation/validate_claims_language.py`).
+    // The claim-litany vocabulary the exact-route texts must not use.
     const LITANY: [&str; 11] = [
         "certif", "seal", "authenticat", "code-compliance", "code compliance", "professional", "approval", "approve",
         "endorse", "release-readiness", "production-readiness",

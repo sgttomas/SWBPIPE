@@ -98,8 +98,8 @@ class HostedCITests(unittest.TestCase):
         return make_plan(self.root, PROFILE, event, base or self.base, "HEAD")
 
     def test_evergreen_instruction_pr_uses_only_bundle_and_governance(self):
-        # Python tests read these paths (docs/PRD.md is a claims-language surface; a test whose reads the code does
-        # not show reads every path), so they start only the Python job.
+        # Python tests read these paths (a test whose reads the code does not show reads every path), so they
+        # start only the Python job.
         paths = ["AGENTS.md", "docs/PRD.md", "loop/LOOP_INIT.md", "execution/_Coordination/NOTICE.md"]
         for path in paths:
             self.write(path)

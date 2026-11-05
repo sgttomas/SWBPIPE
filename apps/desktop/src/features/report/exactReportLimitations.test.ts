@@ -31,7 +31,7 @@ const GENERATOR = "apps/desktop/src/features/report/exactReportLimitations.test.
 /** The source paragraphs' last sentence, which the report omits (DEC-107). */
 const OMITTED_SENTENCE = "No code compliance or professional acceptance is produced, and actual numerical admission remains separate.";
 
-/** GEN-13's litany vocabulary (`tools/validation/validate_claims_language.py`, LITANY_TERMS). */
+/** The claim-litany vocabulary these product statements must not use. */
 const LITANY_TERMS = [
   "certif", "seal", "authenticat", "code-compliance", "code compliance", "professional",
   "approval", "approve", "endorse", "release-readiness", "production-readiness"

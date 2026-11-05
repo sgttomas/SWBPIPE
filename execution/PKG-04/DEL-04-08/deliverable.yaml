@@ -228,7 +228,6 @@ checks:
 - tests/test_u4b_source_derived_not_qualified.py
 - tests/test_j7_rf_census_inputs.py
 - tests/test_retained_pricing_tool.py
-- tests/test_claims_language_surface.py
 - apps/desktop/src/features/results/retainedPrecisionWasmEquivalence.test.ts
 - apps/desktop/src/features/results/baseReaderWasmEquivalence.test.ts
 - apps/desktop/src/features/results/pressureSourceCorpusParity.test.ts

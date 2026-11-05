@@ -16,8 +16,7 @@ refs:
 # Contributing to SWBPIPE
 
 SWBPIPE accepts contributions only within the project boundaries in
-`docs/CONTRACT.md`, `docs/DIRECTIVE.md`, `docs/IP_AND_DATA_BOUNDARY.md`, and
-`docs/PROFESSIONAL_BOUNDARY.md`.
+`docs/CONTRACT.md`, `docs/DIRECTIVE.md` and `docs/IP_AND_DATA_BOUNDARY.md`.
 
 New contributors should start with the tutorial path in
 [`docs/contributor_guide/index.md`](docs/contributor_guide/index.md) and the
@@ -116,7 +115,7 @@ Use this routing:
 | Redistribution status is `unknown` | Do not accept as public data; request clarification or reject. |
 | Redistribution status is `private_only` | Keep outside public examples and bundled public data. |
 | Redistribution status is `protected_suspected` | Stop review, quarantine metadata, and escalate for human/legal review. |
-| Contribution includes product or report claims | Check against `docs/PROFESSIONAL_BOUNDARY.md` before merge. |
+| Contribution includes product or report claims | Check against PRD §21 (`docs/PRD.md`) before merge. |
 
 Maintainer acceptance is repository governance only. It does not approve a
 piping calculation, certify engineering work, or determine code compliance for
