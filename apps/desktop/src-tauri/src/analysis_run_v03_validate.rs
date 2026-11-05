@@ -960,19 +960,22 @@ pub(crate) fn validate_v03(record: &Value, source: &mut Value, expected_basis: O
 /// vocabulary tokens, rows unchanged, so a run recorded under the constant-effort table
 /// (be29fabc…) is read the same way. RT-A3 increment 4 (DEL-04-07 Design `pressure-contract.md`,
 /// "Nonlinear supports on EX") restates two limitations, rows and gates unchanged, so a run
-/// recorded under the RT-A4 table (10455bf3…) is read the same way against the current table
-/// (2c20583d…).
+/// recorded under the RT-A4 table (10455bf3…) is read the same way. RT-A3 §4 (DEL-05-02 Work
+/// `combination-certificate.md`) restates the combination standing and the combinations
+/// limitation, rows and gates unchanged, so a run recorded under main's table at 252bef969
+/// (2c20583d…) is read the same way against the current table (21b7426e…).
 /// The native mirror of `analysisRunCompatibility.ts` `RECORDED_RUN_TABLE_BASES` (id,
 /// recorded, current), row for row and in order; Python's twin is `compatibility.py`
 /// `RECORDED_RUN_TABLE_BASES`. `stored_custody_tests.rs` requires all three to be equal.
-pub(crate) const RECORDED_RUN_TABLE_BASES: [(&str, &str, &str); 7] = [
-    ("openpipestress.result_semantics/0.3.0/pressure-2", "3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d", "2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645"),
-    ("openpipestress.result_semantics/0.3.0/pressure-2", "5451fbf3e10e085c90b523baa7daf5fc723659e0d874d988d23807be7d2fefe6", "2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645"),
-    ("openpipestress.result_semantics/0.3.0/pressure-2", "d46e1963d7502b8e41898805128f2807b2670a1d4c738c71876002ed727e5faf", "2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645"),
-    ("openpipestress.result_semantics/0.3.0/pressure-2", "032e861fc66bf5f34a081b104ec879a39831bfd6472b186954966ea57d65f025", "2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645"),
-    ("openpipestress.result_semantics/0.3.0/pressure-2", "a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e", "2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645"),
-    ("openpipestress.result_semantics/0.3.0/pressure-2", "be29fabcfacb1070a51bfb56dcfe61b4e4125638e249c3c0e96d092cc8aba43f", "2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645"),
-    ("openpipestress.result_semantics/0.3.0/pressure-2", "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6", "2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645"),
+pub(crate) const RECORDED_RUN_TABLE_BASES: [(&str, &str, &str); 8] = [
+    ("openpipestress.result_semantics/0.3.0/pressure-2", "3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d", "21b7426ec1c50ba5f74539984261554d06b9b6a26ec26f7d5765b5faa7d6bb90"),
+    ("openpipestress.result_semantics/0.3.0/pressure-2", "5451fbf3e10e085c90b523baa7daf5fc723659e0d874d988d23807be7d2fefe6", "21b7426ec1c50ba5f74539984261554d06b9b6a26ec26f7d5765b5faa7d6bb90"),
+    ("openpipestress.result_semantics/0.3.0/pressure-2", "d46e1963d7502b8e41898805128f2807b2670a1d4c738c71876002ed727e5faf", "21b7426ec1c50ba5f74539984261554d06b9b6a26ec26f7d5765b5faa7d6bb90"),
+    ("openpipestress.result_semantics/0.3.0/pressure-2", "032e861fc66bf5f34a081b104ec879a39831bfd6472b186954966ea57d65f025", "21b7426ec1c50ba5f74539984261554d06b9b6a26ec26f7d5765b5faa7d6bb90"),
+    ("openpipestress.result_semantics/0.3.0/pressure-2", "a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e", "21b7426ec1c50ba5f74539984261554d06b9b6a26ec26f7d5765b5faa7d6bb90"),
+    ("openpipestress.result_semantics/0.3.0/pressure-2", "be29fabcfacb1070a51bfb56dcfe61b4e4125638e249c3c0e96d092cc8aba43f", "21b7426ec1c50ba5f74539984261554d06b9b6a26ec26f7d5765b5faa7d6bb90"),
+    ("openpipestress.result_semantics/0.3.0/pressure-2", "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6", "21b7426ec1c50ba5f74539984261554d06b9b6a26ec26f7d5765b5faa7d6bb90"),
+    ("openpipestress.result_semantics/0.3.0/pressure-2", "2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645", "21b7426ec1c50ba5f74539984261554d06b9b6a26ec26f7d5765b5faa7d6bb90"),
 ];
 
 /// `recordedRunSemanticBinding(recorded, sourceSemanticBinding(source))`: the

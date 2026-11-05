@@ -24,7 +24,7 @@ const BUILDER_CASES: &str = "apps/desktop/src/test-support/analysis-run-v03/anal
 /// `RECORDED_BASIS_FIXTURES` of `historicalReopenCases.ts`: main's verbatim recorded pressure-2
 /// runs (a record, its source and its request model), one per row of
 /// `RECORDED_RUN_TABLE_BASES` in its order. Read, never rewritten.
-const RECORDED_BASIS_FIXTURES: [&str; 7] = [
+const RECORDED_BASIS_FIXTURES: [&str; 8] = [
     "fixtures/persistence/recorded_model_0_7_0",
     "fixtures/persistence/recorded_model_0_8_0",
     "fixtures/persistence/recorded_model_0_9_0_pre_2a",
@@ -32,6 +32,7 @@ const RECORDED_BASIS_FIXTURES: [&str; 7] = [
     "fixtures/persistence/recorded_model_0_9_0_pre_ce",
     "fixtures/persistence/recorded_model_0_9_0_pre_rt_a4",
     "fixtures/persistence/recorded_model_0_9_0_pre_nl",
+    "fixtures/persistence/recorded_model_0_9_0_pre_cert",
 ];
 const FIXTURE_RECORD: &str = "pressure_plain_connected_sparse.analysis_run.json";
 const FIXTURE_SOURCE: &str = "pressure_connected_mechanics_sparse.json";
@@ -246,7 +247,7 @@ fn runs_recorded_before_rt_a4_reopen_natively_under_their_recorded_table() {
     const CURRENT_ONLY: [&str; 5] = ["SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED", "SOURCE_PREVIEW_PHYSICS_FORMULATION_BASIS", "ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH", "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH", "SOURCE_RECORDED_BINDING"];
     let builder = builder_cases();
     let cases: Vec<Value> = reopen_cases().into_iter().filter(|case| case["id"].as_str().unwrap().contains("pre-rt-a4:")).collect();
-    assert_eq!(cases.len(), 8, "six saved variants, one unknown digest, one recorded revision");
+    assert_eq!(cases.len(), 9, "seven saved variants, one unknown digest, one recorded revision");
     for case in &cases {
         let id = case["id"].as_str().unwrap();
         let actual = native_findings(case, &builder);
@@ -482,7 +483,7 @@ fn the_recorded_table_bases_are_the_typescript_and_python_tables() {
         }).collect();
         <[String; 3]>::try_from(items).unwrap_or_else(|items| panic!("Python: a row of {} items: {items:?}", items.len()))
     }).collect();
-    assert_eq!(native.len(), 7, "{native:?}");
+    assert_eq!(native.len(), 8, "{native:?}");
     assert_eq!(typescript, native, "the TypeScript table");
     assert_eq!(python, native, "the Python table");
 }
@@ -553,7 +554,7 @@ fn the_recorded_pre_rt_a4_registry_is_the_typescript_and_python_registry() {
         }
         other => panic!("Python: unrecognized entry {other:?}"),
     }).collect();
-    assert_eq!(native.len(), 9, "{native:?}");
+    assert_eq!(native.len(), 10, "{native:?}");
     assert_eq!(typescript.iter().map(|[id, sha, _]| [id.clone(), sha.clone()]).collect::<Vec<_>>(), native, "the TypeScript registry");
     assert_eq!(python.iter().map(|[id, sha, _]| [id.clone(), sha.clone()]).collect::<Vec<_>>(), native, "the Python registry");
     for ([_, sha, ts_file], [_, _, py_file]) in typescript.iter().zip(&python) {
@@ -566,7 +567,7 @@ fn the_recorded_pre_rt_a4_registry_is_the_typescript_and_python_registry() {
 /// RT-A3 #99: main's verbatim pressure-2 runs recorded under each recorded table basis
 /// (`RECORDED_BASIS_FIXTURES`: the 0.7.0- and 0.8.0-era tables, the 0.9.0 registration's
 /// `d46e1963…`, reducer 2a's `032e861f…`, … and RT-A3 increment 4's RT-A4-era `10455bf3…`,
-/// `recorded_model_0_9_0_pre_nl`) reopen natively with the webview's findings and
+/// `recorded_model_0_9_0_pre_nl`, and RT-A3 §4's `2c20583d…`, `recorded_model_0_9_0_pre_cert`) reopen natively with the webview's findings and
 /// none of them is refused as `ANALYSIS_SEMANTIC_CONTRACT_MISMATCH`: each as a recorded revision
 /// read by the native reader's findings, and, when its model document is current, as a saved
 /// project's run, which the native open restores from a real store with those findings. A
