@@ -45,7 +45,7 @@
      "payload_scope": "project_envelope_payload",
      "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
      "payload_ref": "project:precision-connected-fixture",
-     "value": "sha256:5c9e0f51ef498f048e7da21134367840852534d0e61b9bd6ece81e2b9c8afe7b",
+     "value": "sha256:4ac3a3fb6d00735a990ed58e43787de4db043e374bd15a51d9dafc666f0617a4",
      "hash_status": "computed_local_preview"
     },
     "model_only_envelope_hash": {
@@ -101,7 +101,7 @@
      "payload_scope": "project_envelope_payload",
      "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
      "payload_ref": "project:precision-connected-fixture",
-     "value": "sha256:9a0dcbef98428785ca8b202c843c166b2261eddd39a9ae244235f7396bf6acda",
+     "value": "sha256:1248fb9cc7404a363800f6ef0ab1d8cb473efd807c10fcb48a68b1c6dfa9a55a",
      "hash_status": "computed_local_preview"
     },
     "model_only_envelope_hash": {
@@ -157,7 +157,7 @@
      "payload_scope": "project_envelope_payload",
      "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
      "payload_ref": "project:precision-connected-fixture",
-     "value": "sha256:5c9e0f51ef498f048e7da21134367840852534d0e61b9bd6ece81e2b9c8afe7b",
+     "value": "sha256:4ac3a3fb6d00735a990ed58e43787de4db043e374bd15a51d9dafc666f0617a4",
      "hash_status": "computed_local_preview"
     },
     "model_only_envelope_hash": {
@@ -213,7 +213,7 @@
      "payload_scope": "project_envelope_payload",
      "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
      "payload_ref": "project:precision-connected-fixture",
-     "value": "sha256:15bd9e2762805e8bbce79dcb8cc102458f27953b9056564bad37a7102ec1fd74",
+     "value": "sha256:7a65b6e2259ed63291816c1865bc29b238b900e17d2be2a5c07471d86c1d2a33",
      "hash_status": "computed_local_preview"
     },
     "model_only_envelope_hash": {
@@ -381,7 +381,7 @@
      "payload_scope": "project_envelope_payload",
      "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
      "payload_ref": "invented:t3-p1:RF-SKEW-T-CANT-OFF-122-r1e-04",
-     "value": "sha256:e2576db435d1c79e3763f1bea2a97be284505f2597f181bf08392a4cc0a24270",
+     "value": "sha256:7021765718542181d7fe8cc71eb4394be6c9ea96151826d5670d049d96b05207",
      "hash_status": "computed_local_preview"
     },
     "model_only_envelope_hash": {
