@@ -65,7 +65,10 @@ DEPENDENCIES = {
     # merged with RT-U4 order (was fe65101b... on RT-U4 order and 2e9b087d... on RT-A3 increment 4).
     MODULE: '0baf783f42697e520c8ad3ebc284ef6e23a11986c1b32c5d23f72f7596a9f5cc',
     TABLE: TABLE_SHA256,
-    UNITS: '5a412c57ca3bdc1d150ff580354e709355f442d89971a2f7aff8b575c7e39596',
+    # The units authority: then DEL-04-09 I3a's mass_length_per_rotation family (kg*m/rad, lb*in/rad, lb*ft/rad),
+    # an addition only; every existing unit, dimension and conversion is unchanged (was 5a412c57...); then the
+    # time_squared family (s^2, canonical only), likewise an addition only (was fa24112d...).
+    UNITS: 'e5033f832e86596970191b3e3b49824b98a6ba04ab3eae4586ce906e4c8fc75d',
 }
 # Version 3: the binding names the pressure-2 reader (version 2 named the retired physics-1 Rust reader,
 # version 1 the former Python reader); both older formats are refused.

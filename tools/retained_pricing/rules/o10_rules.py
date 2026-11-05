@@ -4733,6 +4733,69 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
                            O10 + "MODAL-SEAM: D1.6 refuses every nonlinear support, so append_nonlinear_support_loop_results "
                            "returns None first (G4 R-1), selected_nonlinear is None, and capture_nonlinear_state_evidence "
                            "returns None before its text, Box or final-state clone")]
+    if fnkey("modal_result_document", _MODAL + "document.rs"):
+        # MODAL-ID, I3a (§8.52): the modal result document (document.rs; tests_document.rs is the #[cfg(test)] module;
+        # the `*_tests.rs` modules are test files the chain excludes). Row ids are composed by document.rs's own
+        # helpers from its own constants, read here in their exact shapes, so a longer token re-prices and another
+        # shape stops the run. Ordinals, indices and counts are usize decimals; node ids are IN128.
+        _DOC, _TDOC = _MODAL + "document.rs", _MODAL + "tests_document.rs"
+        _doc_text = _text_of(_DOC)
+
+        def _m_tokens(name, n):
+            # The longest token of the one all-literal `const name: [&str; n]` in document.rs.
+            _c = _re.findall(r"^const " + name + r": \[&str; " + str(n) + r"\] = \[((?:\"[^\"\\]*\", )*\"[^\"\\]*\")\];$",
+                             _doc_text, _re.M)
+            _t = _re.findall(r'"([^"\\]*)"', _c[0]) if len(_c) == 1 else []
+            if len(_c) != 1 or len(_t) != n:
+                raise SystemExit(f"MODAL-ID: document.rs's {name} is not an all-literal [&str; {n}]; re-review (§8.52)")
+            return max(len(_x.encode()) for _x in _t)
+
+        _M_COMPONENT, _M_DIRECTION = _m_tokens("COMPONENTS", 6), _m_tokens("DIRECTIONS", 3)
+        _solved = _fn_text("modal_doc_solved", _DOC)
+        # Narrow re-check of e98ad5add: token counts can be offset (e.g. a `for id in [..]` loop with one use removed), so
+        # modal_doc_solved's exact text is pinned, the MODAL-FB way. Any edit stops the run for re-review.
+        _solved_digest = _modal_hashlib.sha256(_solved.encode()).hexdigest()
+        if _solved_digest != "f490771728ca9c55a9a33fbbe28b3c21935714854d371ca424e160ca235db7ed":
+            raise SystemExit(f"MODAL-ID: document.rs's modal_doc_solved changed ({_solved_digest}); re-review its bindings "
+                             "and re-pin (§8.52)")
+        if (_fn_text("modal_doc_dof_id", _DOC) != "fn modal_doc_dof_id(node_ids: &[String], dof: usize) -> String {\n"
+                                                  '    format!("dof:{}:{}", node_ids[dof / 6], COMPONENTS[dof % 6])\n}\n'
+                or _fn_text("modal_doc_mode_ref", _DOC) != 'fn modal_doc_mode_ref(index: usize) -> String {\n'
+                                                           '    format!("mode:{index}")\n}\n'
+                or _solved.count("let ids = &outcome.node_ids;") != 1
+                or _solved.count("let (a, b) = (modal_doc_dof_id(ids, row), modal_doc_dof_id(ids, col));") != 1
+                or _solved.count("let id = modal_doc_dof_id(ids, dof);") != 1
+                or len(_re.findall(r"\blet\s*(?:\(\s*)?(?:mut\s+)?(?:a|b|id|ids)\b", _solved)) != 3
+                # Review of ea68fc554: a binding anywhere in a let pattern (e.g. `let (_, id) = ..`), and any other
+                # rebinding or use (closure or for parameters, match arms), changes these exact counts and stops.
+                or [_p for _p in _re.findall(r"\blet\s+([^=;]*?)\s*=", _solved)
+                    if _re.search(r"\b(?:a|b|id|ids)\b", _p)] != ["ids", "(a, b)", "id"]
+                or {_n: len(_re.findall(r"\b" + _n + r"\b", _solved)) for _n in ("a", "b", "id", "ids")}
+                != {"a": 7, "b": 5, "id": 9, "ids": 12}):
+            raise SystemExit("MODAL-ID: document.rs's DOF id or mode ref, or modal_doc_solved's bindings of them, changed; "
+                             "re-review (§8.52)")
+        _M_DOF = _md(len("dof:") + IN["bytes"] + len(":") + _M_COMPONENT,
+                     "modal_doc_dof_id: `dof:`, an IN128 node id, `:` and one COMPONENTS token (135 B)")
+        _M_MREF = _md(len("mode:") + _M_INT["bytes"], "modal_doc_mode_ref: `mode:` and a usize decimal (25 B)")
+        _M_DIR = _md(_M_DIRECTION, "one of DIRECTIONS' three one-byte tokens")
+        O10_ID_AUDIT += [
+            (site("modal_doc_diagnostic_row", _DOC, 'format!("{prefix}:{ordinal}")', full=True), {"ordinal": _M_INT}),
+            (site("modal_doc_identity", _DOC, 'format!("modal-run:{}", run.get(..16).unwrap_or(""))', full=True),
+             {'run.get(..16).unwrap_or("")': _md(16, "str::get(..16): at most 16 B, else empty")}),
+            # The two by-name classes below (b: 20 B, id: 128 B) are lower than the helper's 135 B; the audit governs.
+            (site("modal_doc_solved", _DOC, 'format!("mass:{a}|{b}")', full=True), {"a": _M_DOF, "b": _M_DOF}),
+            (site("modal_doc_solved", _DOC, 'format!("mass-total:{}", DIRECTIONS[k])', full=True), {"DIRECTIONS[k]": _M_DIR}),
+            (site("modal_doc_solved", _DOC, 'format!("shape:{}:{id}", modal_doc_mode_ref(mode.index))', full=True),
+             {"modal_doc_mode_ref(mode.index)": _M_MREF, "id": _M_DOF}),
+            (site("modal_doc_solved", _DOC, 'format!("participation:{}:{}", modal_doc_mode_ref(mode.index), DIRECTIONS[k])',
+                  full=True), {"modal_doc_mode_ref(mode.index)": _M_MREF, "DIRECTIONS[k]": _M_DIR}),
+            (site("modal_doc_solved", _DOC, 'format!("sturm-candidate:{}", j + 1)', full=True), {"j+1": _M_INT}),
+            # tests_document.rs (#[cfg(test)]): fixture-edge pointer indices are usize decimals.
+            (site("modal_edge_entries", _TDOC, 'format!("/tables/mass_totals/rows/{k}/total_mass")', full=True), {"k": _M_INT}),
+            (site("modal_edge_entries", _TDOC, 'format!("/tables/modes/rows/{m}/generalized_mass")', full=True), {"m": _M_INT}),
+            (site("modal_edge_entries", _TDOC, 'format!("/tables/participation/rows/{}/{field}", 3 * m + k)', full=True),
+             {"3*m+k": _M_INT}),
+        ]
 
 # ---- RT-A4 (DEL-05-02 Work absolute-sum-srss-combinations.md §10; retained-pricing-rules.md §8.46): absolute sums, SRSS
 # and nested combinations on both routes. D1.4 (retained_memory.rs family_clauses) refuses on both routes every absolute_sum
