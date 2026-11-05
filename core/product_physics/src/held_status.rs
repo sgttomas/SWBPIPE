@@ -410,6 +410,15 @@ pub(crate) fn derive(held: &HeldStatusSolve, orienting: &NonlinearFrameIteration
                 zero_limit = mu * trial_normal.abs() == 0.0;
                 inputs["coefficient_bits"] = json!(hex(mu));
                 inputs["normal_source"] = json!(source);
+                // The derived normal's own source, typed and closed (review P2-1): the support, its
+                // node and the DOF whose reaction the classifier read.
+                if let (Some(d), "derived") = (derived_source, source) {
+                    inputs["normal_source_ref"] = json!({
+                        "support": d.source_ref,
+                        "node": node_ids.get(d.source_node_index).cloned().unwrap_or_default(),
+                        "dof": dof_token(d.source_dof),
+                    });
+                }
                 inputs["normal_trial_bits"] = json!(hex(trial_normal));
                 inputs["normal_signed_bits"] = json!(hex(signed_normal));
                 let applied = last.applied_sliding_friction_forces.iter().find(|f| f.support_id == id).map_or(0.0, |f| f.force);
@@ -783,6 +792,11 @@ pub(crate) fn record(
     });
     match outcome {
         HeldOutcome::Withheld(refusal) => {
+            if refusal.code == SOURCE_UNAVAILABLE {
+                // No source was lent: the record states no qualification and no standing.
+                record["source"]["qualification"] = Value::Null;
+                record["source"]["standing"] = Value::Null;
+            }
             record["outcome"] = json!(refusal.code);
             record["held"] = json!([]);
             record["held_solve"] = Value::Null;

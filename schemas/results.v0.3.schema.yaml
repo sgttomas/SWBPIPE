@@ -4931,6 +4931,35 @@
                             "missing"
                           ]
                         },
+                        "normal_source_ref": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "support",
+                            "node",
+                            "dof"
+                          ],
+                          "properties": {
+                            "support": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "node": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "dof": {
+                              "enum": [
+                                "UX",
+                                "UY",
+                                "UZ",
+                                "RX",
+                                "RY",
+                                "RZ"
+                              ]
+                            }
+                          }
+                        },
                         "normal_trial_bits": {
                           "type": "string",
                           "pattern": "^[0-9a-f]{16}$"

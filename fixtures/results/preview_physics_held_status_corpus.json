@@ -26002,6 +26002,11 @@
                     "ground_bits": "0000000000000000",
                     "normal_signed_bits": "40b0000000000000",
                     "normal_source": "derived",
+                    "normal_source_ref": {
+                      "dof": "UZ",
+                      "node": "node:b",
+                      "support": "support:z"
+                    },
                     "normal_trial_bits": "40b0000000000000",
                     "reaction_bits": "c090000000000000",
                     "slip_sense": 1
@@ -35354,6 +35359,11 @@
                     "ground_bits": "0000000000000000",
                     "normal_signed_bits": "c0b0000000000000",
                     "normal_source": "derived",
+                    "normal_source_ref": {
+                      "dof": "UZ",
+                      "node": "node:b",
+                      "support": "support:z"
+                    },
                     "normal_trial_bits": "40b0000000000000",
                     "reaction_bits": "4090000000000000",
                     "slip_sense": 1

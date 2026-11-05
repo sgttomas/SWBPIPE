@@ -1588,7 +1588,9 @@ contracts per support, kept apart:
     "held_state": "sliding", "classified_state": "sliding", "decision": "ordinary",
     "released": "branch",
     "inputs": {"ground_bits": "…", "displacement_bits": "…", "reaction_bits": "…",
-               "coefficient_bits": "…", "normal_source": "derived", "normal_trial_bits": "…",
+               "coefficient_bits": "…", "normal_source": "derived",
+               "normal_source_ref": {"support": "support:Z", "node": "node:C", "dof": "UZ"},
+               "normal_trial_bits": "…",
                "normal_signed_bits": "…", "beta": 1, "branch_admissible": false,
                "slip_sense": 1, "applied_force_bits": "…"}},
    {"support_id": "support:GAP", "node": "node:T", "dof": "UZ", "behavior": "gap",
@@ -1617,6 +1619,11 @@ contracts per support, kept apart:
 - **A withheld record** has an empty `held` list and no `conditions`.
 - **Values** are raw SI binary64 bits. Records grow with the nonlinear supports, bounded by the
   model's limits; no new threshold is added.
+- **A derived normal's source** (`normal_source_ref`, derived entries only): the support, its node
+  and the DOF whose reaction the classifier read, closed and typed.
+- **Provenance.** A record withheld by `HELD_STATUS_SOURCE_UNAVAILABLE` states no qualification and
+  no standing; every other record states both, `inspectable_unqualified_gap` exactly under
+  `HELD_STATUS_SOURCE_UNQUALIFIED` and `qualified` otherwise.
 
 **Readers** (RE `preview_held_status.rs`, called from `preview_combination_gates::check`; Python
 `tests/verifiers/preview_held_status.py`).
@@ -1624,7 +1631,12 @@ contracts per support, kept apart:
   - **Shape.** Closed shape, canonical order and finite bits (`…_HELD_STATUS_EVIDENCE`).
   - **Every record** (`…_HELD_STATUS_BINDING`): the combination is a declared `minuend_final`
     subtraction; source = minuend and target = subtrahend; the source mode is the document's; the
-    outcome is a held code or `admitted`.
+    outcome is a held code or `admitted`. The source's qualification follows the outcome as above,
+    and its standing is `confirmed` exactly when the minuend's integrity diagnostic carries kd5
+    §3.3's confirmed evidence line. The target's `modulus_basis_key` is the one the subtrahend's
+    modulus record in this combination states (null: `material_base_values`). Each derived normal's
+    `normal_source_ref` names the support and DOF of the minuend's derived-normal row; an explicit
+    normal has no such row.
   - **Admitted records only** (coverage, `…_HELD_STATUS_BINDING`): `held` covers exactly the
     minuend's published `nonlinear_support_active_set_state_code` rows, by support, with each
     `held_state` equal to its code and its node and DOF equal to the row's location (a missing,
@@ -1641,6 +1653,9 @@ contracts per support, kept apart:
   - **Strict-gap decisions:** only the decision rule over the published exact signs and prior is
     checked. The reader never reclassifies a strict-gap decision from binary64 bits, and it does not
     verify the exact signs, which are the proof's.
+  - **Convergence** (`…_HELD_STATUS_DERIVATION`): `held_solve.converged` holds exactly when no
+    support is released; a non-converged result carries `NONLINEAR_SUPPORT_NONCONVERGENCE` with a
+    non-empty message, and a converged one no exit diagnostic.
   - **Standing:** `HELD_STATUS_RELEASED` is present exactly when some `released ≠ none`, and names
     exactly those supports. `standing.kind` is `established` only with no release and no gap, and
     `gap_inspection` with a gap. `conditions` is present exactly for `established`, and each
@@ -1650,7 +1665,8 @@ contracts per support, kept apart:
     only on held-operand rows.
 - **With the model.** The model-free checks first. Then:
   - each support's node, DOF, behaviour, sense or closing direction, gap, μ, explicit normal and
-    derived-normal source are checked against the model;
+    derived-normal source (its support, DOF and that support's node) are checked against the model;
+  - the target's modulus key is the subtrahend case's own;
   - the grounds are re-derived from both cases' authored imposed motion, and with them the
     sliding-ground rule and the trial δ's ground term;
   - the gate derivation is re-derived.

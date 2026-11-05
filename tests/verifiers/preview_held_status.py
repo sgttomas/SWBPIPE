@@ -8,14 +8,18 @@ nonlinear support held at the minuend's final status: its held gates, its held-o
 
 - Without the model: every record has a closed shape in gate order, is bound to a declared subtraction's
   ``difference_basis_derivation`` record (source = minuend, target = subtrahend), the document's solver mode, and a
-  gate that is exactly its outcome. Admitted records only: ``held`` covers exactly the minuend's published state-code
+  gate that is exactly its outcome; the source's qualification by the outcome, its standing by the minuend's
+  confirmed evidence line, the target's modulus key by the subtrahend's modulus record and each derived normal's
+  source by the minuend's derived-normal row. Admitted records only: ``held`` covers exactly the minuend's published state-code
   rows, each held state equal to its code and its DOF the row's location, and the held-operand rows exist. Each
   ordinary decision is re-derived from its published inputs in binary64, in the classifier's order; each strict-gap
   decision by the decision rule over its published exact signs and prior (never from binary64 bits; the signs are the
-  proof's and are not verified here). The standing, the conditions and HELD_STATUS_RELEASED follow from the decisions;
+  proof's and are not verified here). The standing, the conditions, HELD_STATUS_RELEASED and the held solve's
+  convergence and exit diagnostic follow from the decisions;
   the held sign is only on the difference rows and the typed basis only on held-operand rows.
 - With the model: the model-free checks first; then each support's node, DOF, behaviour, sense or closing direction,
-  gap, friction coefficient, explicit normal and derived-normal source, and each trial's ground and the sliding-ground
+  gap, friction coefficient, explicit normal and derived-normal source (support, node and DOF), the target's modulus
+  key against the subtrahend case's, and each trial's ground and the sliding-ground
   rule from both cases' authored imposed motion. A case with ``condition_use`` is refused as unverifiable.
 - Claimed: both readings detect a forgery of what they check. Solved values are never recomputed, so a forgery that
   alters solved values coherently with their decisions passes both readings.
@@ -61,6 +65,12 @@ MODEL = "SOURCE_PREVIEW_PHYSICS_HELD_STATUS_MODEL"
 UNVERIFIED = "SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_UNVERIFIED"
 RECORD_KEYS = {"combination_id", "subtrahend_support_state", "source", "target", "outcome", "held", "held_solve", "standing"}
 STATES = ("inactive", "active", "sticking", "sliding")
+DOFS = ("UX", "UY", "UZ", "RX", "RY", "RZ")
+NORMAL_DERIVED = "nonlinear_support_friction_normal_reaction_derived"
+NONCONVERGENCE = "NONLINEAR_SUPPORT_NONCONVERGENCE"
+UNAVAILABLE = "HELD_STATUS_SOURCE_UNAVAILABLE"
+UNQUALIFIED = "HELD_STATUS_SOURCE_UNQUALIFIED"
+BASE_MATERIAL = "material_base_values"
 
 
 def _require(condition: Any, code: str) -> None:
@@ -217,11 +227,20 @@ def _read_entry(entry: Any) -> dict:
         input_keys = {"ground_bits", "displacement_bits", "reaction_bits"}
         if behavior == "friction":
             input_keys |= {"coefficient_bits", "normal_source", "normal_trial_bits", "normal_signed_bits", "applied_force_bits"}
+            derived = inputs.get("normal_source") == "derived"
+            if derived:
+                input_keys.add("normal_source_ref")
             if held == "sliding":
                 input_keys.add("slip_sense")
-                if inputs.get("normal_source") == "derived":
+                if derived:
                     input_keys |= {"beta", "branch_admissible"}
         _require(_keys(entry.get("inputs"), input_keys), EVIDENCE)
+        if "normal_source_ref" in inputs:
+            ref = inputs["normal_source_ref"]
+            _require(_keys(ref, {"support", "node", "dof"}), EVIDENCE)
+            _text(ref["support"], EVIDENCE)
+            _text(ref["node"], EVIDENCE)
+            _require(ref["dof"] in DOFS, EVIDENCE)
         decided, branch, zero_limit, normal_trial = _classify_ordinary(entry, behavior, held)
     elif decision == "strict_gap" and behavior == "gap":
         keys.add("strict_gap")
@@ -286,7 +305,12 @@ def _read_record(record: Any) -> dict:
     held = out["held"]
     _require(held, EVIDENCE)
     any_released = any(e["released"] != "none" for e in held)
-    _require(solve["converged"] is True or any_released, DERIVATION)
+    converged = solve["converged"] is True
+    _require(converged == (not any_released), DERIVATION)
+    if converged:
+        _require(exit_ is None, DERIVATION)
+    else:
+        _require(isinstance(exit_, Mapping) and exit_["code"] == NONCONVERGENCE and exit_["message"].strip() != "", DERIVATION)
     gap = any(e["gap"] for e in held)
     expected_kind = "gap_inspection" if gap else ("not_established" if any_released else kind)
     _require(kind == expected_kind and kind in ("established", "not_established", "gap_inspection"), DERIVATION)
@@ -317,6 +341,54 @@ def _read_record(record: Any) -> dict:
     return out
 
 
+def _provenance_check(raw: Mapping, record: dict, rows: list, diagnostics: list) -> None:
+    """The record's provenance against the document (RE ``provenance_check``)."""
+    from .nonlinear_support_evidence import CONFIRMED
+    src = raw["source"]
+    if record["outcome"] == UNAVAILABLE:
+        _require(src["qualification"] is None and src["standing"] is None, BINDING)
+    else:
+        wanted = "inspectable_unqualified_gap" if record["outcome"] == UNQUALIFIED else "qualified"
+        _require(src["qualification"] == wanted, BINDING)
+        confirmed = any(isinstance(d.get("code"), str) and d["code"].startswith("NUMERICAL_INTEGRITY_")
+                        and _items(d.get("affected_refs")) == [record["minuend"]]
+                        and isinstance(d.get("message"), str) and CONFIRMED in d["message"] for d in diagnostics)
+        _require(src["standing"] == ("confirmed" if confirmed else "not_established"), BINDING)
+    label = next((_metadata(r).get("basis") for r in rows if r.get("kind") == MODULUS_RECORD and _ref(r, "combination") == record["id"]
+                  and r.get("entity_ref") == record["subtrahend"]), None)
+    _require(isinstance(label, str) and _modulus_label_states(raw["target"]["modulus_basis_key"], label), BINDING)
+    for entry in _items(raw["held"]):
+        derived = next((r for r in rows if r.get("kind") == NORMAL_DERIVED and _ref(r, "load_case") == record["minuend"]
+                        and r.get("entity_ref") == entry.get("support_id")), None)
+        inputs = entry.get("inputs") if isinstance(entry.get("inputs"), Mapping) else {}
+        if "normal_source_ref" not in inputs:
+            _require(derived is None, BINDING)
+            continue
+        basis = _metadata(derived).get("basis") if derived is not None else None
+        _require(isinstance(basis, str), BINDING)
+        segments = dict(s.split("=", 1) for s in basis.split("; ") if "=" in s)
+        ref = inputs["normal_source_ref"]
+        _require(segments.get("source_ref") == ref["support"] and str(segments.get("source_dof", "")).upper() == ref["dof"], BINDING)
+
+
+def _modulus_label_states(key: Any, label: str) -> bool:
+    """Whether an operand's modulus record label states this modulus key (RE ``modulus_label_states``)."""
+    if key is None:
+        return label == BASE_MATERIAL
+    if key.startswith("exact:"):
+        reference = key[len("exact:"):]
+        return reference != "" and label.startswith(f"temperature_point:{reference}; selection=exact_user_entered_point;")
+    prefix = "selection=declared_solve_temperature; solve_temperature_kelvin="
+    if not key.startswith("temperature_kelvin_bits:") or not label.startswith(prefix):
+        return False
+    bits = key[len("temperature_kelvin_bits:"):]
+    try:
+        value = float(label[len(prefix):].split(";", 1)[0].strip())
+    except ValueError:
+        return False
+    return len(bits) == 16 and math.isfinite(value) and _hex(value) == bits
+
+
 def read(source: Mapping[str, Any]) -> list:
     """The member, read and bound to the document (both readings)."""
     evidence = source.get("contract_evidence") or {}
@@ -345,6 +417,7 @@ def read(source: Mapping[str, Any]) -> list:
         admitted = record["outcome"] == "admitted"
         _require(gate.get("withheld") is (not admitted) and (gate.get("reason") is None) == admitted
                  and (admitted or gate.get("reason") == record["outcome"]), BINDING)
+        _provenance_check(raw, record, rows, diagnostics)
         notices = [d for d in diagnostics if d.get("code") == RELEASED and _items(d.get("affected_refs"))[:1] == [cid]]
         if admitted:
             _require(_loop_mode(rows, record["minuend"]) == raw["source"]["solver_mode"], BINDING)
@@ -457,6 +530,7 @@ def _ground(case: Mapping, support: str, dof: str) -> float | None:
 
 
 def _model_check(source: Mapping[str, Any], model: Mapping[str, Any], records: list) -> None:
+    from .preview_combination_gates import _modulus_key
     from .preview_difference_basis import kept_combinations, model_gate
     cases = [c for c in _items(model.get("load_cases")) if isinstance(c, Mapping)]
     supports = [s for s in _items(model.get("supports")) if isinstance(s, Mapping)]
@@ -474,6 +548,11 @@ def _model_check(source: Mapping[str, Any], model: Mapping[str, Any], records: l
                  and combination.get("subtrahend_id") == record["subtrahend"], MODEL)
         minuend, subtrahend = case(record["minuend"]), case(record["subtrahend"])
         _require(all(c.get("condition_use") is None for c in (minuend, subtrahend)), UNVERIFIED)
+        try:
+            key = _modulus_key(subtrahend)
+        except Exception as exc:  # the gates reader's own refusal: the model contradicts the key
+            raise ValueError(MODEL) from exc
+        _require(record["raw"]["target"]["modulus_basis_key"] == key, MODEL)
         if record["outcome"] == SLIDING_GROUND_DIFFERS:
             differs = False
             for r in rows:
@@ -510,7 +589,14 @@ def _model_check(source: Mapping[str, Any], model: Mapping[str, Any], records: l
                     n = _quantity(nonlinear["normal_reaction"], "force")
                     _require(inputs["normal_source"] == "explicit" and inputs["normal_signed_bits"] == _hex(n), MODEL)
                 else:
-                    _require(inputs["normal_source"] == "derived" and isinstance(nonlinear.get("normal_reaction_source"), Mapping), MODEL)
+                    # The derived normal's source is the model's own assignment.
+                    assigned = nonlinear.get("normal_reaction_source")
+                    _require(inputs["normal_source"] == "derived" and isinstance(assigned, Mapping), MODEL)
+                    stated = inputs["normal_source_ref"]
+                    source_support = next((s for s in supports if s.get("id") == assigned.get("support_ref")), None)
+                    _require(source_support is not None and stated["support"] == assigned.get("support_ref")
+                             and isinstance(assigned.get("dof"), str) and assigned["dof"].upper() == stated["dof"]
+                             and stated["node"] == source_support.get("node"), MODEL)
             if raw["decision"] == "ordinary":
                 g = _ground(subtrahend, entry["support_id"], dof)
                 _require(raw["inputs"]["ground_bits"] == _hex(g if g is not None else 0.0), MODEL)

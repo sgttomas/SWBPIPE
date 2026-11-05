@@ -114,6 +114,32 @@ FORGERIES = [
     ("E's sentence edited", "h4_kept_explicit", OPERANDS_SHAPE, lambda v: record(v)["standing"].__setitem__("reason", "Established.")),
     ("the release notice removed", "h2_released", held.DERIVATION, lambda v: v.__setitem__("diagnostics", [d for d in v["diagnostics"] if d["code"] != held.RELEASED])),
     ("an unconverged held result claimed kept", "h4_kept_explicit", held.DERIVATION, lambda v: record(v)["held_solve"].__setitem__("converged", False)),
+    # The derived normal's source (review P2-1), against the minuend's derived-normal row.
+    ("a derived normal's source support forged", "h6b_kept_derived", held.BINDING, lambda v: first(v)["inputs"]["normal_source_ref"].__setitem__("support", "support:a")),
+    ("a derived normal's source DOF forged", "h6b_kept_derived", held.BINDING, lambda v: first(v)["inputs"]["normal_source_ref"].__setitem__("dof", "UX")),
+    ("a derived normal's source removed", "h6b_kept_derived", held.EVIDENCE, lambda v: first(v)["inputs"].pop("normal_source_ref")),
+    ("a derived normal's source opened", "h6b_kept_derived", held.EVIDENCE, lambda v: first(v)["inputs"]["normal_source_ref"].__setitem__("note", "x")),
+    ("an explicit normal given a source", "h4_kept_explicit", held.EVIDENCE,
+     lambda v: first(v)["inputs"].__setitem__("normal_source_ref", {"support": "support:z", "node": "node:b", "dof": "UZ"})),
+    # The source's provenance and the target's modulus key (review P2-2).
+    ("an unqualified source admitted", "h4_kept_explicit", held.BINDING, lambda v: record(v)["source"].__setitem__("qualification", "inspectable_unqualified_gap")),
+    ("an admitted source's standing removed", "h4_kept_explicit", held.BINDING, lambda v: record(v)["source"].__setitem__("standing", None)),
+    ("a confirmed source stated not established", "h4_kept_explicit", held.BINDING, lambda v: record(v)["source"].__setitem__("standing", "not_established")),
+    ("an unconfirmed source stated confirmed", "h15c_zero_limit", held.BINDING, lambda v: record(v)["source"].__setitem__("standing", "confirmed")),
+    ("an absent source stated qualified", "source_unavailable", held.BINDING,
+     lambda v: record(v)["source"].update({"qualification": "qualified", "standing": "not_established"})),
+    ("a target modulus key forged", "h4_kept_explicit", held.BINDING, lambda v: record(v)["target"].__setitem__("modulus_basis_key", "bogus")),
+    ("a target modulus key stated exact", "h4_kept_explicit", held.BINDING, lambda v: record(v)["target"].__setitem__("modulus_basis_key", "exact:point-a")),
+    # The held solve's convergence against its decisions (review P2-3).
+    ("a released held result claimed converged", "h2_released", held.DERIVATION,
+     lambda v: record(v)["held_solve"].update({"converged": True, "exit_diagnostic": None})),
+    ("a released held result's convergence alone forged", "h2_released", held.DERIVATION, lambda v: record(v)["held_solve"].__setitem__("converged", True)),
+    ("a non-converged exit diagnostic removed", "h2_released", held.DERIVATION, lambda v: record(v)["held_solve"].__setitem__("exit_diagnostic", None)),
+    ("a non-converged exit diagnostic renamed", "h2_released", held.DERIVATION,
+     lambda v: record(v)["held_solve"]["exit_diagnostic"].__setitem__("code", "NONLINEAR_SUPPORT_STATE_REVIEW")),
+    ("a non-converged exit diagnostic emptied", "h2_released", held.DERIVATION, lambda v: record(v)["held_solve"]["exit_diagnostic"].__setitem__("message", " ")),
+    ("a converged held result given an exit diagnostic", "h4_kept_explicit", held.DERIVATION,
+     lambda v: record(v)["held_solve"].__setitem__("exit_diagnostic", {"code": "NONLINEAR_SUPPORT_NONCONVERGENCE", "message": "x"})),
     ("the held sign on the minuend's case row", "h2_released", held.ROW,
      lambda v: _first_row(v, lambda r: r.get("basis_ref", {}).get("ref_type") == "load_case" and r.get("metadata") is not None)["metadata"].__setitem__("sign_convention", held.SIGN)),
     ("the typed basis on a difference row", "h2_released", OPERANDS_ROWS,
@@ -138,6 +164,7 @@ MODEL_FORGERIES = [
      lambda v: (first(v)["inputs"].__setitem__("normal_signed_bits", hexbits(8192.0)), first(v)["inputs"].__setitem__("normal_trial_bits", hexbits(8192.0)))),
     ("a node forged", "h2_released", lambda v: first(v).__setitem__("node", "node:a")),
     ("the trial's ground forged", "h17c_moved_ground", lambda v: first(v)["inputs"].__setitem__("ground_bits", hexbits(1.0 / 1024.0))),
+    ("a derived normal's source node forged", "h6b_kept_derived", lambda v: first(v)["inputs"]["normal_source_ref"].__setitem__("node", "node:a")),
 ]
 
 
@@ -157,3 +184,31 @@ def test_the_sliding_ground_withholding_and_conditions_with_the_model():
     source, model = entry("h2_released")
     model["load_cases"][0]["condition_use"] = {"condition_set": "x"}
     assert read(source, model) == held.UNVERIFIED
+
+
+def _model_check(source: dict, model: dict) -> str:
+    try:
+        held._model_check(source, model, held.read(source))
+    except ValueError as exc:
+        return str(exc)
+    return "ok"
+
+
+def test_the_model_bound_reading_refuses_a_derived_normal_source_the_model_moves():
+    """Review P2-1: the document unchanged, the model's derived-normal source moved to another support and DOF."""
+    source, model = entry("h6b_kept_derived")
+    support = next(s for s in model["supports"] if s["id"] == "support:t")
+    support["nonlinear"]["normal_reaction_source"] = {"support_ref": "support:a", "dof": "UX"}
+    assert read(source, model) != "ok"
+    assert read(source) == "ok"
+    assert _model_check(source, model) == held.MODEL
+
+
+def test_the_model_bound_reading_refuses_a_target_modulus_key_forged_coherently():
+    """Review P2-2: a key and its modulus record label forged together read without the model, never with it."""
+    source, model = entry("h4_kept_explicit")
+    record(source)["target"]["modulus_basis_key"] = "exact:point-a"
+    label = _first_row(source, lambda r: r["kind"] == held.MODULUS_RECORD and r["entity_ref"] == "case:S" and r["basis_ref"]["ref_type"] == "combination")
+    label["metadata"]["basis"] = "temperature_point:point-a; selection=exact_user_entered_point; interpolation=not_performed; x"
+    held.read(source)
+    assert _model_check(source, model) == held.MODEL

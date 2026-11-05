@@ -116,6 +116,35 @@ fn both_readings_refuse_forged_evidence_by_name() {
         v["diagnostics"].as_array_mut().unwrap().retain(|d| d["code"] != RELEASED);
     });
     tamper("an unconverged held result claimed kept", "h4_kept_explicit", DERIVATION, &|v| record(v)["held_solve"]["converged"] = json!(false));
+    // The derived normal's source (review P2-1), against the minuend's derived-normal row.
+    tamper("a derived normal's source support forged", "h6b_kept_derived", BINDING, &|v| entry(v)["inputs"]["normal_source_ref"]["support"] = json!("support:a"));
+    tamper("a derived normal's source DOF forged", "h6b_kept_derived", BINDING, &|v| entry(v)["inputs"]["normal_source_ref"]["dof"] = json!("UX"));
+    tamper("a derived normal's source removed", "h6b_kept_derived", EVIDENCE, &|v| { entry(v)["inputs"].as_object_mut().unwrap().remove("normal_source_ref"); });
+    tamper("a derived normal's source opened", "h6b_kept_derived", EVIDENCE, &|v| entry(v)["inputs"]["normal_source_ref"]["note"] = json!("x"));
+    tamper("an explicit normal given a source", "h4_kept_explicit", EVIDENCE, &|v| entry(v)["inputs"]["normal_source_ref"] = json!({"support": "support:z", "node": "node:b", "dof": "UZ"}));
+    // The source's provenance and the target's modulus key (review P2-2).
+    tamper("an unqualified source admitted", "h4_kept_explicit", BINDING, &|v| record(v)["source"]["qualification"] = json!("inspectable_unqualified_gap"));
+    tamper("an admitted source's standing removed", "h4_kept_explicit", BINDING, &|v| record(v)["source"]["standing"] = Value::Null);
+    tamper("a confirmed source stated not established", "h4_kept_explicit", BINDING, &|v| record(v)["source"]["standing"] = json!("not_established"));
+    tamper("an unconfirmed source stated confirmed", "h15c_zero_limit", BINDING, &|v| record(v)["source"]["standing"] = json!("confirmed"));
+    tamper("an absent source stated qualified", "source_unavailable", BINDING, &|v| {
+        record(v)["source"]["qualification"] = json!("qualified");
+        record(v)["source"]["standing"] = json!("not_established");
+    });
+    tamper("a target modulus key forged", "h4_kept_explicit", BINDING, &|v| record(v)["target"]["modulus_basis_key"] = json!("bogus"));
+    tamper("a target modulus key stated exact", "h4_kept_explicit", BINDING, &|v| record(v)["target"]["modulus_basis_key"] = json!("exact:point-a"));
+    // The held solve's convergence against its decisions (review P2-3).
+    tamper("a released held result claimed converged", "h2_released", DERIVATION, &|v| {
+        record(v)["held_solve"]["converged"] = json!(true);
+        record(v)["held_solve"]["exit_diagnostic"] = Value::Null;
+    });
+    tamper("a released held result's convergence alone forged", "h2_released", DERIVATION, &|v| record(v)["held_solve"]["converged"] = json!(true));
+    tamper("a non-converged exit diagnostic removed", "h2_released", DERIVATION, &|v| record(v)["held_solve"]["exit_diagnostic"] = Value::Null);
+    tamper("a non-converged exit diagnostic renamed", "h2_released", DERIVATION, &|v| record(v)["held_solve"]["exit_diagnostic"]["code"] = json!("NONLINEAR_SUPPORT_STATE_REVIEW"));
+    tamper("a non-converged exit diagnostic emptied", "h2_released", DERIVATION, &|v| record(v)["held_solve"]["exit_diagnostic"]["message"] = json!(" "));
+    tamper("a converged held result given an exit diagnostic", "h4_kept_explicit", DERIVATION, &|v| {
+        record(v)["held_solve"]["exit_diagnostic"] = json!({"code": "NONLINEAR_SUPPORT_NONCONVERGENCE", "message": "x"});
+    });
     // Rows.
     tamper("the held sign on the minuend's case row", "h2_released", ROW, &|v| {
         let row = v["results"].as_array_mut().unwrap().iter_mut().find(|r| r["basis_ref"]["ref_type"] == "load_case" && !r["metadata"].is_null()).unwrap();
@@ -156,6 +185,7 @@ fn the_model_bound_reading_refuses_inputs_the_model_contradicts() {
     });
     tamper("a node forged", "h2_released", &|v| entry(v)["node"] = json!("node:a"));
     tamper("the trial's ground forged", "h17c_moved_ground", &|v| entry(v)["inputs"]["ground_bits"] = hex(1.0 / 1024.0));
+    tamper("a derived normal's source node forged", "h6b_kept_derived", &|v| entry(v)["inputs"]["normal_source_ref"]["node"] = json!("node:a"));
     let mut failures = Vec::new();
     for (what, base, forged) in cases {
         let (model, _) = document(base);
@@ -172,6 +202,23 @@ fn the_model_bound_reading_refuses_inputs_the_model_contradicts() {
         code["value"] = json!(2.0);
     }
     assert_eq!(read(&forged, Some(&model)), MODEL);
+    // The model's own derived-normal assignment (review P2-1): the document unchanged, the
+    // model's source moved to another support and DOF.
+    let (mut model, document) = super::tests::document("h6b_kept_derived");
+    let support = model["supports"].as_array_mut().unwrap().iter_mut().find(|s| s["id"] == "support:t").unwrap();
+    support["nonlinear"]["normal_reaction_source"] = json!({"support_ref": "support:a", "dof": "UX"});
+    assert_ne!(read(&document, Some(&model)), "ok");
+    assert_eq!(read(&document, None), "ok");
+    assert_eq!(super::model_check(&document, &model, &super::read(&document).unwrap()), Err(MODEL.to_string()));
+    // The target's modulus key against the model (review P2-2): a key and label forged
+    // coherently read without the model, and are refused with it.
+    let (model, mut forged) = super::tests::document("h4_kept_explicit");
+    record(&mut forged)["target"]["modulus_basis_key"] = json!("exact:point-a");
+    let label = forged["results"].as_array_mut().unwrap().iter_mut()
+        .find(|r| r["kind"] == MODULUS_RECORD && r["entity_ref"] == "case:S" && r["basis_ref"]["ref_type"] == "combination").unwrap();
+    label["metadata"]["basis"] = json!("temperature_point:point-a; selection=exact_user_entered_point; interpolation=not_performed; x");
+    assert_eq!(super::read(&forged).map(|_| ()), Ok(()));
+    assert_eq!(super::model_check(&forged, &model, &super::read(&forged).unwrap()), Err(MODEL.to_string()));
     // A case with conditions cannot be read with the model.
     let (mut model, document) = super::tests::document("h2_released");
     model["load_cases"][0]["condition_use"] = json!({"condition_set": "x"});

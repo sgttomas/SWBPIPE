@@ -126,7 +126,7 @@ const INTEGRITY: &str = "NUMERICAL_INTEGRITY_";
 const PASSED: &str = "NUMERICAL_INTEGRITY_CHECKS_PASSED";
 const UNQUALIFIED: &str = "NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED";
 /// kd5 §3.3's evidence line on a confirmed (Passed) nonlinear case.
-const CONFIRMED: &str = "Converged support state: established at 128-bit precision by one formation-checked solve;";
+pub(crate) const CONFIRMED: &str = "Converged support state: established at 128-bit precision by one formation-checked solve;";
 /// kd5's 1e-9 criterion, relative to the case's scale in the family.
 const RELATIVE_TOLERANCE: f64 = 1e-9;
 

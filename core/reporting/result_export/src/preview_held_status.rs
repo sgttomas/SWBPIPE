@@ -9,6 +9,9 @@
 //!   order (`…_HELD_STATUS_EVIDENCE`), bound to a declared subtraction's
 //!   `difference_basis_derivation` record (source = minuend, target = subtrahend), the
 //!   document's solver mode, and a gate that is exactly the record's outcome
+//!   (`…_HELD_STATUS_BINDING`); the source's qualification by the outcome, its standing by the
+//!   minuend's confirmed evidence line, the target's modulus key by the subtrahend's modulus
+//!   record and each derived normal's source by the minuend's derived-normal row
 //!   (`…_HELD_STATUS_BINDING`). Admitted records only: `held` covers exactly the
 //!   minuend's published state-code rows, each held state equal to its code and its DOF
 //!   the row's location, and the held-operand rows exist under the combination
@@ -17,12 +20,14 @@
 //!   in the classifier's order; each strict-gap decision by the decision rule over its
 //!   published exact signs and prior (never from binary64 bits, and the signs are the
 //!   proof's, not verified here) (`…_HELD_STATUS_DERIVATION`). The standing, the
-//!   conditions and `HELD_STATUS_RELEASED` follow from the decisions; the sign text is
+//!   conditions, `HELD_STATUS_RELEASED` and the held solve's convergence and exit diagnostic
+//!   follow from the decisions; the sign text is
 //!   only on the difference rows and the typed basis only on held-operand rows
 //!   (`…_HELD_STATUS_ROW`).
 //! - **With the model.** The model-free checks first; then each support's node, DOF,
 //!   behaviour, sense or closing direction, gap, friction coefficient, explicit normal and
-//!   derived-normal source against the model, and each trial's ground and the sliding
+//!   derived-normal source (support, node and DOF) against the model, the target's modulus key
+//!   against the subtrahend case's, and each trial's ground and the sliding
 //!   ground rule from both cases' authored imposed motion (`…_HELD_STATUS_MODEL`). A case
 //!   with `condition_use` is refused (`SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_UNVERIFIED`).
 //! - **What is claimed.** Both readings detect a forgery of what they check. Solved
@@ -67,6 +72,14 @@ const UNVERIFIED: &str = "SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_UNVERIFIED";
 
 const RECORD_KEYS: [&str; 8] = ["combination_id", "subtrahend_support_state", "source", "target", "outcome", "held", "held_solve", "standing"];
 const STATES: [&str; 4] = ["inactive", "active", "sticking", "sliding"];
+/// The producer's DOF tokens on a held entry (`FrameDof::as_str`, upper case).
+const DOFS: [&str; 6] = ["UX", "UY", "UZ", "RX", "RY", "RZ"];
+const NORMAL_DERIVED: &str = "nonlinear_support_friction_normal_reaction_derived";
+const NONCONVERGENCE: &str = "NONLINEAR_SUPPORT_NONCONVERGENCE";
+const UNAVAILABLE: &str = "HELD_STATUS_SOURCE_UNAVAILABLE";
+const UNQUALIFIED: &str = "HELD_STATUS_SOURCE_UNQUALIFIED";
+/// The base-material label of an operand's modulus record (no selected modulus basis).
+const BASE_MATERIAL: &str = "material_base_values";
 
 fn require(ok: bool, code: &str) -> Check {
     if ok {
@@ -242,14 +255,25 @@ fn read_entry(entry: &Value) -> Result<Entry<'_>, String> {
             let mut input_keys = vec!["ground_bits", "displacement_bits", "reaction_bits"];
             if behavior == "friction" {
                 input_keys.extend(["coefficient_bits", "normal_source", "normal_trial_bits", "normal_signed_bits", "applied_force_bits"]);
+                let derived = entry["inputs"]["normal_source"] == "derived";
+                if derived {
+                    input_keys.push("normal_source_ref");
+                }
                 if held == "sliding" {
                     input_keys.push("slip_sense");
-                    if entry["inputs"]["normal_source"] == "derived" {
+                    if derived {
                         input_keys.extend(["beta", "branch_admissible"]);
                     }
                 }
             }
             require(exact_keys(&entry["inputs"], &input_keys), EVIDENCE)?;
+            if let Some(source) = entry["inputs"].get("normal_source_ref") {
+                // The derived normal's source, closed and typed: a support, its node and a DOF.
+                require(exact_keys(source, &["support", "node", "dof"]), EVIDENCE)?;
+                text(&source["support"], EVIDENCE)?;
+                text(&source["node"], EVIDENCE)?;
+                require(source["dof"].as_str().is_some_and(|d| DOFS.contains(&d)), EVIDENCE)?;
+            }
             classify_ordinary(entry, behavior, held)?
         }
         Some("strict_gap") if behavior == "gap" => {
@@ -334,9 +358,17 @@ fn read_record<'a>(record: &'a Value, source: &'a Value) -> Result<Record<'a>, S
         held.push(read);
     }
     require(!held.is_empty(), EVIDENCE)?;
-    // A held result that did not converge is a release (§7.3: never promoted).
+    // The held iterate converges exactly when no support is released (§7.3: a release is
+    // never promoted); a non-converged one carries the loop's exit diagnostic, a converged
+    // one none.
     let any_released = held.iter().any(|e| e.released != "none");
-    require(solve["converged"] == true || any_released, DERIVATION)?;
+    let converged = solve["converged"] == true;
+    require(converged == !any_released, DERIVATION)?;
+    if converged {
+        require(exit.is_null(), DERIVATION)?;
+    } else {
+        require(exit["code"] == NONCONVERGENCE && exit["message"].as_str().is_some_and(|m| !m.trim().is_empty()), DERIVATION)?;
+    }
     // Standing (§7.3): G with a gap; else R with a release; else E or N.
     let gap = held.iter().any(|e| e.gap);
     let expected_kind = if gap { "gap_inspection" } else if any_released { "not_established" } else { kind };
@@ -401,6 +433,7 @@ pub(crate) fn read(source: &Value) -> Result<Vec<Record<'_>>, String> {
         let gate = &gates[at];
         let admitted = read.outcome == "admitted";
         require(gate["withheld"] == !admitted && (admitted == gate["reason"].is_null()) && (admitted || gate["reason"] == read.outcome), BINDING)?;
+        provenance_check(record, &read, rows, diagnostics)?;
         if admitted {
             // The document's mode is the minuend's loop's.
             require(loop_mode(rows, read.minuend) == record["source"]["solver_mode"].as_str(), BINDING)?;
@@ -430,6 +463,63 @@ pub(crate) fn read(source: &Value) -> Result<Vec<Record<'_>>, String> {
         records.push(read);
     }
     Ok(records)
+}
+
+/// The record's provenance against the document (review P2-2, P2-1): the source's
+/// qualification by the gate order (none when the minuend lent no evidence; past
+/// qualification only when qualified), its standing confirmed exactly when the minuend's
+/// integrity diagnostic carries the confirmed evidence line, the target's modulus key
+/// as the subtrahend's modulus record in this combination states it, and each derived
+/// normal's source as the minuend's derived-normal row names it.
+fn provenance_check(record: &Value, read: &Record<'_>, rows: &[Value], diagnostics: &[Value]) -> Check {
+    let src = &record["source"];
+    let (qualification, standing) = (src["qualification"].as_str(), src["standing"].as_str());
+    if read.outcome == UNAVAILABLE {
+        require(qualification.is_none() && standing.is_none(), BINDING)?;
+    } else {
+        let wanted = if read.outcome == UNQUALIFIED { "inspectable_unqualified_gap" } else { "qualified" };
+        require(qualification == Some(wanted), BINDING)?;
+        let confirmed = diagnostics.iter().any(|d| {
+            d["code"].as_str().is_some_and(|c| c.starts_with("NUMERICAL_INTEGRITY_"))
+                && items(&d["affected_refs"]) == [Value::from(read.minuend)]
+                && d["message"].as_str().is_some_and(|m| m.contains(crate::nonlinear_support_evidence::CONFIRMED))
+        });
+        require(standing == Some(if confirmed { "confirmed" } else { "not_established" }), BINDING)?;
+    }
+    let label = rows
+        .iter()
+        .find(|r| r["kind"] == MODULUS_RECORD && combination_of(r) == Some(read.id) && r["entity_ref"] == read.subtrahend)
+        .and_then(|r| r["metadata"]["basis"].as_str());
+    require(label.is_some_and(|l| modulus_label_states(record["target"]["modulus_basis_key"].as_str(), l)), BINDING)?;
+    for raw in items(&record["held"]) {
+        let derived = rows.iter().find(|r| r["kind"] == NORMAL_DERIVED && case_of(r) == Some(read.minuend) && r["entity_ref"] == raw["support_id"]);
+        let Some(source) = raw["inputs"].get("normal_source_ref") else {
+            require(derived.is_none(), BINDING)?;
+            continue;
+        };
+        let basis = derived.and_then(|r| r["metadata"]["basis"].as_str()).ok_or_else(|| BINDING.to_string())?;
+        let segment = |key: &str| basis.split("; ").find_map(|s| s.strip_prefix(key).and_then(|rest| rest.strip_prefix('=')));
+        require(
+            segment("source_ref") == source["support"].as_str() && segment("source_dof").map(str::to_ascii_uppercase).as_deref() == source["dof"].as_str(),
+            BINDING,
+        )?;
+    }
+    Ok(())
+}
+
+/// Whether an operand's modulus record label states this modulus key (product
+/// `modulus_basis_key` and the record's basis label): none, the base material values;
+/// `exact:<ref>`, the exact user-entered point `<ref>`; `temperature_kelvin_bits:<bits>`,
+/// the declared solve temperature of exactly those bits.
+fn modulus_label_states(key: Option<&str>, label: &str) -> bool {
+    let Some(key) = key else { return label == BASE_MATERIAL };
+    if let Some(reference) = key.strip_prefix("exact:") {
+        return !reference.is_empty() && label.starts_with(&format!("temperature_point:{reference}; selection=exact_user_entered_point;"));
+    }
+    let Some(hex) = key.strip_prefix("temperature_kelvin_bits:") else { return false };
+    let Some(rest) = label.strip_prefix("selection=declared_solve_temperature; solve_temperature_kelvin=") else { return false };
+    let value = rest.split(';').next().and_then(|v| v.trim().parse::<f64>().ok());
+    hex.len() == 16 && value.is_some_and(|v| format!("{:016x}", v.to_bits()) == hex)
 }
 
 /// Whether the document claims a held comparison anywhere.
@@ -535,6 +625,9 @@ fn model_check(source: &Value, model: &Value, records: &[Record<'_>]) -> Check {
             return Err(UNVERIFIED.into());
         }
         let raw = items(&source["contract_evidence"][MEMBER]).iter().find(|r| r["combination_id"] == record.id).ok_or_else(|| MODEL.to_string())?;
+        // The target's modulus key is the subtrahend case's own.
+        let key = crate::preview_combination_gates::modulus_key(subtrahend).map_err(|_| MODEL.to_string())?;
+        require(raw["target"]["modulus_basis_key"].as_str() == key.as_deref(), MODEL)?;
         if record.outcome == SLIDING_GROUND_DIFFERS {
             // Some support the minuend publishes sliding has differing grounds in the two cases.
             let differs = rows.iter().filter(|r| r["kind"] == STATE_CODE && case_of(r) == Some(record.minuend) && r["value"] == 3.0).any(|r| {
@@ -567,7 +660,19 @@ fn model_check(source: &Value, model: &Value, records: &[Record<'_>]) -> Check {
                             let n = quantity_bits(n, open_pipe_stress_units::Dimension::Force)?;
                             require(inputs["normal_source"] == "explicit" && bits(&inputs["normal_signed_bits"])?.to_bits() == n.to_bits(), MODEL)?;
                         }
-                        None => require(inputs["normal_source"] == "derived" && nonlinear["normal_reaction_source"].is_object(), MODEL)?,
+                        None => {
+                            // The derived normal's source is the model's own assignment.
+                            let assigned = &nonlinear["normal_reaction_source"];
+                            let stated = &inputs["normal_source_ref"];
+                            let source_support = supports.iter().find(|s| s["id"] == assigned["support_ref"]).ok_or_else(|| MODEL.to_string())?;
+                            require(
+                                inputs["normal_source"] == "derived"
+                                    && stated["support"] == assigned["support_ref"]
+                                    && assigned["dof"].as_str().map(str::to_ascii_uppercase).as_deref() == stated["dof"].as_str()
+                                    && stated["node"] == source_support["node"],
+                                MODEL,
+                            )?;
+                        }
                     }
                 }
             }
