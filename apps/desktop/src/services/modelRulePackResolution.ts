@@ -21,6 +21,7 @@ import {
   type ExcludedRulePackRef,
   type ExcludedRulePackRefCode
 } from "./rulePackRefDiagnostics";
+import { suppliedDiagnosticMessage } from "../features/results/suppliedDiagnostics";
 
 export { RULE_PACK_REF_CHECKSUM_MISMATCH, RULE_PACK_REF_UNRESOLVED, type ExcludedRulePackRef };
 
@@ -100,9 +101,16 @@ export function recordRulePackExclusions(run: AnalysisRunEnvelope | null | undef
   });
 }
 
+/** The codes of the run record's own rule-pack reference annotations (`rulePackRefDiagnostic`). */
+const RULE_PACK_REF_CODES: ReadonlySet<string> = new Set([RULE_PACK_REF_UNRESOLVED, RULE_PACK_REF_CHECKSUM_MISMATCH]);
+
 /** What a run shows of its rule-pack references: the packs its input manifest records,
  * then the diagnostic message of each excluded reference, read from the run record's
- * diagnostics. Null when the solved model referenced no pack. */
+ * diagnostics. Only the rule-pack resolution's own annotations are read, by their typed
+ * codes and their source together; any other diagnostic of the record (a producer's,
+ * whatever its stated source) is not shown here. A shown message is presented through the
+ * shared policy (`suppliedDiagnosticMessage`), so a held-status code would be quoted as
+ * supplied text. Null when the solved model referenced no pack. */
 export function runRulePackLines(manifest: CurrentSessionInputManifest | null | undefined, run: AnalysisRunEnvelope | null | undefined): { recorded: string[]; diagnostics: string[] } | null {
   if (!manifest || !(manifest.model_basis?.model_payload?.rule_pack_refs?.length)) return null;
   const recorded = (manifest.active_rule_packs ?? []).map((pack) =>
@@ -110,8 +118,9 @@ export function runRulePackLines(manifest: CurrentSessionInputManifest | null | 
   const listed = run?.analysis_run?.diagnostics;
   const diagnostics = (Array.isArray(listed) ? listed : [])
     .map((item) => item?.source_annotation as { code?: unknown; message?: unknown; source?: unknown } | undefined)
-    .flatMap((annotation) => annotation?.source === RULE_PACK_REF_DIAGNOSTIC_SOURCE && typeof annotation.code === "string" && typeof annotation.message === "string"
-      ? [`${annotation.code} (warning): ${annotation.message}`]
+    .flatMap((annotation) => annotation?.source === RULE_PACK_REF_DIAGNOSTIC_SOURCE && typeof annotation.code === "string"
+        && RULE_PACK_REF_CODES.has(annotation.code) && typeof annotation.message === "string"
+      ? [`${annotation.code} (warning): ${suppliedDiagnosticMessage({ code: annotation.code, message: annotation.message }, new Set(), false)}`]
       : []);
   return { recorded, diagnostics };
 }
