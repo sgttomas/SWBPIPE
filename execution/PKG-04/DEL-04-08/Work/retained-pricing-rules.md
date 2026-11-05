@@ -5148,8 +5148,7 @@ the registered state remain required. This records no acceptance.
 - **One product repair.** On the registered build every retained run with a combination fell back at the W1 freeze;
   the freeze now admits the certificate's member (below, "The W1 freeze and the certificate"). No coefficient moves
   with it.
-- **AC-004 pending.** The witness binaries are built and identified below. The witnesses were not run: they wait for
-  Agent 0's clearance (no exclusive grant).
+- **AC-004 passed 7/7** on this registration's binary at `0b78bc342` (below, "AC-004"), in one window Agent 0 cleared.
 - **Review repair.** The independent review of `fade98a74` found that the combination points could not be evaluated at
   in-build atoms (B1), that the owners' Value-tree census did not match the source's topology (S1), and that the
   witness filters were not fully qualified (N1). All three are repaired below ("Review repair: native combination
@@ -5444,9 +5443,10 @@ of `fade98a74` (B1, S1, N1) is repaired in `517dc0df2` (B1's probe), `2738f2d14`
   `tools/hosted-ci-routing.json` takes the product_physics tree digest (`a16c9c90…` → `9b4ccd42…`), with
   `source_read_dependencies` resolving every declaration.
 
-**AC-004 (pending).** The witnessed binary changes in retained-reachable code (the certificate's producer and
-reader, `LoadCaseSolve`'s layout, the W1 freeze), so §8.52's 7/7 does not transfer; the stack witnesses must run on
-this registration's binary under Agent 0's clearance. Not run here (no exclusive grant).
+**AC-004.** The witnessed binary changes in retained-reachable code (the certificate's producer and reader,
+`LoadCaseSolve`'s layout, the W1 freeze), so §8.52's 7/7 does not transfer; the stack witnesses ran on this
+registration's binary under Agent 0's clearance (2026-11-05, one seven-process attempt, with App v4's resource
+concurrence). Result below ("Result").
 - **Binaries** (built under the slot wrapper, `cargo test --offline --no-run --lib --test retained_memory_challenge`,
   test profile, `RUSTFLAGS`, `CARGO_ENCODED_RUSTFLAGS` and `CARGO_BUILD_RUSTFLAGS` unset, at `f1d8fa3d9`, core tree
   `26c3392cd7504ee7cc0a39aae811a5073e505f26`; the later commits of this registration change no file under `core/`):
@@ -5474,16 +5474,41 @@ this registration's binary under Agent 0's clearance. Not run here (no exclusive
   with memguard. Head, core tree, clean state, both binary hashes, profile, lock, compiler and flag state are verified
   before queueing and at admission, and the binary hashes again afterwards. A later build input change requires
   rebuilding and re-identifying the binaries first.
+- **Result: 7/7 at `0b78bc342`** (commit `0b78bc3427ae403bb801979e314c7a2e526495f6`, core tree
+  `26c3392cd7504ee7cc0a39aae811a5073e505f26`, clean). Commits after it change no file under `core/`; they are not
+  witnessed source.
+- **Checks.** Head, core tree, clean state, both binary hashes, profile, lock, rustc 1.97.1 (`8bab26f4f`) and the
+  unset `RUSTFLAGS`, `CARGO_ENCODED_RUSTFLAGS`, `CARGO_BUILD_RUSTFLAGS` and `RUSTDOCFLAGS` were verified read-only
+  before queueing and re-verified by the harness at admission (07:49:12.508Z). One further `--no-run` under the slot
+  wrapper before queueing (ended 07:47:32Z) compiled nothing and left both hashes unchanged. Both hashes were unchanged
+  after the window.
+- **Timing.** Queued 2026-11-05T07:48:52Z; one ordinary slot job (another lane's wasm build) was running and finished
+  rc 0 at 07:49:12Z; nothing was interrupted. Admitted 07:49:12Z (deadline 07:50:12Z including teardown, 55 s
+  internal). Ended and released at 07:49:25Z (`END-EXCLUSIVE rc=0`): 13.2 s in the harness, 13 s from acquisition
+  including teardown.
+- **Discipline.** Each test ran prebuilt in its own process, invoked directly with `--exact --test-threads=1`
+  (`--ignored` for the witnesses), and each reported exactly one executed test (`1 passed; 0 failed`; 1,209 filtered
+  out of the lib binary, 43 of the challenge). Nothing was compiled in the window; no retry, extra test or App/UI
+  operation. Afterwards no harness or test process, lock holder or `exclusive.pending` remained, and memguard logged no
+  event.
+- **Results, sparse and dense:**
+  - `witness_headroom_w1_at_one_mebibyte`: ok (0.72 s), ok (0.69 s);
+  - `witness_w2_deep_milestone_publishes`: ok (1.33 s), ok (1.33 s);
+  - `witness_w_c2_publishes`: ok (2.52 s), ok (2.51 s);
+  - `retained_direct_peak_is_within_the_profiles_bounds`: ok (3.96 s), against the unchanged `W1_PHASE_BYTES` and
+    `MAX_PHASE_BYTES`.
+
+This is test evidence, not an acceptance. Frame sizes were not measured here.
+
+**Review.** The independent review of `fade98a74` (B1, S1, N1) and its re-check of the repair cleared the registration
+before Agent 0's AC-004 clearance of `0b78bc342`.
 
 **Open.**
-- AC-004 (above).
-- Independent source and pricing scrutiny of this registration, the freeze repair and the regeneration rule, and
-  re-review of the review repair (the point-atom probe, the reconciled census and the native point evaluation).
 - P's stated non-identity (+86 B) and the freeze repair are reported to DEL-04-07 and DEL-05-02.
 
 Run evidence (logs, compares, proofs and scripts) is in `/Users/ryan/dev/chirality-t3/scratch/rt-a3/pc-d3/` and, for
-the review repair (the run, atoms, evaluations and identities), `/Users/ryan/dev/chirality-t3/scratch/rt-a3/pc-d3-fix/`.
-It is review input, not a permanent dependency.
+the review repair (the run, atoms, evaluations and identities), `/Users/ryan/dev/chirality-t3/scratch/rt-a3/pc-d3-fix/`;
+the AC-004 harness and its `window.json` are in `/Users/ryan/dev/chirality-t3/scratch/rt-a3/pc-witness/`. It is review input, not a permanent dependency.
 
 ## 9. Memory-profile gates and registration
 
