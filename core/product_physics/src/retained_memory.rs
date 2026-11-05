@@ -1277,7 +1277,7 @@ pub(super) struct RegisteredProfile {
 /// registered by reviewed change, not a test permit; every other build identity is
 /// `Stale` and keeps the ordinary route.
 static REGISTERED_PROFILES: &[RegisteredProfile] = &[RegisteredProfile {
-    // §8.53 D3 at 79da4ffaa (RT-A3 P, the sparse-mode friction coupling on the pattern, and the §4
+    // §8.53 D3 at 51966dcd8 (RT-A3 P, the sparse-mode friction coupling on the pattern, and the §4
     // combination certificate, on I3a's §8.52 head c008fe48e): the regenerated source-derived
     // block. D1.9 admits no combination at the profile's points (z = 0), so the certificate's
     // producer and member read are zero there (RTA3C-Z/RB) and its case-id vector is priced every z
@@ -1560,7 +1560,7 @@ pub(super) fn priced_maximum(estimates: usize, mode: crate::PreviewSolverMode) -
 /// U4 G5 part 2: the cap-priced admission maximum as named in-build expressions. Every term is a
 /// linear form over layout atoms at the D1 caps (l <= 128); every maximum (stages, phases, moving
 /// candidates) is taken here, in the build. Source: the G4 chain with RV84/RV87's corrections,
-/// re-run as RT-A3 P and the §4 combination certificate on I3a's §8.52 head at 79da4ffaa (§8.53):
+/// re-run as RT-A3 P and the §4 combination certificate on I3a's §8.52 head at 51966dcd8 (§8.53):
 /// the maximum over routes L (C_eq <= 3, worst shape c = 3, z = 0) and E (c = 3), under SQ2 rules;
 /// text at l <= 128.
 pub(super) mod profile {
