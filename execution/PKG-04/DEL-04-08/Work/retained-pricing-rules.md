@@ -5150,7 +5150,7 @@ the registered state remain required. This records no acceptance.
   with it.
 - **AC-004 passed 7/7** on this registration's binary at `0b78bc342` (below, "AC-004"), in one window Agent 0 cleared.
   That result is history for its frozen pre-repair identity: the shared-id amendment (below) changes the witnessed
-  binary, and AC-004 is pending on the amended one.
+  binary, and **AC-004 passed 7/7 again on the amended binaries at `895d30f9a`** (below, "Amendment").
 - **Review repair.** The independent review of `fade98a74` found that the combination points could not be evaluated at
   in-build atoms (B1), that the owners' Value-tree census did not match the source's topology (S1), and that the
   witness filters were not fully qualified (N1). All three are repaired below ("Review repair: native combination
@@ -5546,19 +5546,37 @@ binary.
   `7c3cde1799465048d54746528e09d441deb8a8a8d8d58cc6626e31c716b691b4` (both change: each links the RE reader). Profile
   `e085ccf9…a298` and `Cargo.lock` `b7ebb02a…5653` are unchanged. A second `--no-run` compiled nothing and left both
   hashes unchanged. The run conditions are those of "To run" above.
+- *AC-004 result on the amended binaries: 7/7 at `895d30f9a`* (commit `895d30f9a0fd296358b231f828ec38fb135a1dc2`,
+  core tree `f2b3cff2…`, clean; the commit recording it changes no file under `core/`). One window Agent 0 cleared,
+  with App v4's fresh resource concurrence, 2026-11-05.
+  - *Checks.* Head, core tree, clean state, the four hashes, rustc 1.97.1 and the four unset flags were verified
+    read-only before queueing (10:48:39Z) and by the harness at admission (10:48:48.146Z). No Cargo ran for the launch;
+    the second `--no-run` above is the freshness evidence. Both binary hashes were unchanged after the window.
+  - *Timing.* Queued and admitted at 10:48:47Z with no slot holder (deadline 10:49:47Z including teardown; 55 s
+    internal). Ended and released at 10:49:03Z (`END-EXCLUSIVE rc=0`): 15.82 s in the harness, 16 s from acquisition.
+  - *Discipline.* Seven prebuilt processes, each invoked directly with `--exact --test-threads=1` (`--ignored` for the
+    witnesses) and each reporting exactly one executed test (`1 passed; 0 failed`; 1,209 filtered out of the lib
+    binary, 43 of the challenge). No compile, retry, extra test or App/UI operation. Closure verified at 10:49:13Z: no
+    harness or test process, lock holder or `exclusive.pending` remained, and memguard logged no event.
+  - *Results, sparse and dense:* `witness_headroom_w1_at_one_mebibyte` ok (2.27 s), ok (0.67 s);
+    `witness_w2_deep_milestone_publishes` ok (1.36 s), ok (1.34 s); `witness_w_c2_publishes` ok (2.51 s), ok (2.50 s);
+    `retained_direct_peak_is_within_the_profiles_bounds` ok (4.93 s), against the unchanged `W1_PHASE_BYTES` and
+    `MAX_PHASE_BYTES`.
+
+  This is test evidence, not an acceptance. Frame sizes were not measured here.
 - *Review.* One independent review of `51abd3dbe..bef784c2d` (the repair in both readers, the regressions and fixture
   prefixes, the RTA3C-RB premise and re-pin, and the pricing result) was clear, with no blocking finding. The 12
   `test_rt_a4_pf_reader_tampers.py` cases ran against a freshly built `headless_preview_runner` at `bef784c2d` (12
   passed).
 
 **Open.**
-- AC-004 on the amended binaries (above).
 - P's stated non-identity (+86 B) and the freeze repair are reported to DEL-04-07 and DEL-05-02.
 
 Run evidence (logs, compares, proofs and scripts) is in `/Users/ryan/dev/chirality-t3/scratch/rt-a3/pc-d3/` and, for
 the review repair (the run, atoms, evaluations and identities), `/Users/ryan/dev/chirality-t3/scratch/rt-a3/pc-d3-fix/`;
 the AC-004 harness and its `window.json` are in `/Users/ryan/dev/chirality-t3/scratch/rt-a3/pc-witness/`; the
-amendment's run and compares are in `/Users/ryan/dev/chirality-t3/scratch/rt-a3/pc-sid/`. It is review input, not a permanent dependency.
+amendment's run and compares are in `/Users/ryan/dev/chirality-t3/scratch/rt-a3/pc-sid/`, and its AC-004 `window.json` in
+`pc-witness/` (the pre-repair window's in `pc-witness/prerepair/`). It is review input, not a permanent dependency.
 
 ## 9. Memory-profile gates and registration
 
