@@ -86,3 +86,33 @@ def test_the_combinations_fixture_reads_with_its_model():
     row["value"] = row["value"] * (1 + 1e-9)
     with pytest.raises(ValueError):
         preview_combination_gates.check(tampered, model)
+
+
+def _synthetic(d, r, s):
+    """One case's along row and its three component rows, and the model's one skewed stop (`_along_direction`)."""
+    case, entity = "case:skew", "stop_B"
+    md = {"component": "along_direction", "coordinate_system": "support_direction", "location": "node",
+          "basis": "recovered_from_assembled_support_law", "sign_convention": "support_on_pipe_positive_along_authored_direction"}
+    rows = [{"id": f"result:support-along-direction-v1:{len(case)}:{case}{len(entity)}:{entity}", "kind": KIND, "entity_ref": entity,
+             "value": s, "unit": "N", "metadata": md, "basis_ref": {"ref_type": "load_case", "ref_id": case}}]
+    rows += [{"id": f"r:{c}", "kind": "support_reaction_component_v2", "entity_ref": entity, "value": v, "metadata": {"component": c},
+              "basis_ref": {"ref_type": "load_case", "ref_id": case}} for c, v in zip(("Fx", "Fy", "Fz"), r)]
+    model = {"supports": [{"id": entity, "family": "line_stop", "direction": dict(zip("xyz", d))}]}
+    return {"results": rows}, model
+
+
+def test_a_large_finite_reaction_never_makes_the_guard_accept_a_wrong_value():
+    """Astra B2: R = (8e307, 8e307, 0) made norm*sum|R_i| overflow, so the guard accepted s = 0. R and s are now scaled
+    together by an exact power of two: the true value reads, a wrong one is refused."""
+    import math
+    from tests.verifiers.preview_physics_evidence import _along_direction
+    d, r = (1.0, 1.0, 0.0), (8e307, 8e307, 0.0)
+    true = 8e307 * math.sqrt(2.0)
+    _along_direction(*_synthetic(d, r, true))
+    for wrong in (0.0, -true, true * (1 + 1e-9)):
+        with pytest.raises(ValueError, match="ALONG_DIRECTION_INCONSISTENT"):
+            _along_direction(*_synthetic(d, r, wrong))
+    big = (1.7976931348623157e308, -1.7976931348623157e308, 1.7976931348623157e308)
+    _along_direction(*_synthetic((1.0, 1.0, 1.0), big, 1.7976931348623157e308 / math.sqrt(3.0)))
+    with pytest.raises(ValueError, match="ALONG_DIRECTION_INCONSISTENT"):
+        _along_direction(*_synthetic((1.0, 1.0, 1.0), big, 0.0))

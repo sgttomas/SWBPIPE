@@ -67,6 +67,28 @@ fn canonical(mut d: [f64; 3]) -> [f64; 3] {
     d
 }
 
+/// Astra B2: R and s scaled together by one exact power of two so that the largest of
+/// |R_i| and |s| lies in [1/2, 1) (all zero is left as is). s·|d| = dᵀR is invariant under a
+/// common positive scale, and the residual and allowance formed from the scaled values never
+/// overflow, so a large finite R can never make the allowance infinite. Scaling down may
+/// flush a value more than 2^1074 below the largest; that changes the residual by at most
+/// 6·2^-1075, far inside the allowance's 64ε relative floor.
+fn joint_scale(mut r: [f64; 3], mut s: f64) -> ([f64; 3], f64) {
+    let largest = |r: &[f64; 3], s: f64| r.iter().fold(s.abs(), |m, x| m.max(x.abs()));
+    if largest(&r, s) == 0.0 || !largest(&r, s).is_finite() {
+        return (r, s);
+    }
+    while largest(&r, s) >= 1.0 {
+        let step = if largest(&r, s) >= 2f64.powi(512) { 2f64.powi(-511) } else { 0.5 };
+        (r, s) = (r.map(|x| x * step), s * step);
+    }
+    while largest(&r, s) < 0.5 {
+        let step = if largest(&r, s) < 2f64.powi(-511) { 2f64.powi(511) } else { 2.0 };
+        (r, s) = (r.map(|x| x * step), s * step);
+    }
+    (r, s)
+}
+
 /// One case's along-direction rows (`rows`: the case's direct rows; `case_id`; `model`).
 pub(crate) fn check_case(rows: &[&Value], case_id: &str, model: Option<&Value>) -> Check {
     let mut along: HashMap<&str, &Value> = HashMap::new();
@@ -94,13 +116,15 @@ pub(crate) fn check_case(rows: &[&Value], case_id: &str, model: Option<&Value>) 
         require(d.is_some(), "ALONG_DIRECTION_UNEXPECTED")?;
         let (d, r) = (canonical(d.unwrap()), r.unwrap());
         let s = row["value"].as_f64().ok_or("ALONG_DIRECTION_VALUE")?;
+        require(s.is_finite() && r.iter().all(|x| x.is_finite()), "ALONG_DIRECTION_INCONSISTENT")?;
+        let (r, s) = joint_scale([r[0], r[1], r[2]], s);
         let norm = (d[0] * d[0] + d[1] * d[1] + d[2] * d[2]).sqrt();
         let dot: f64 = (0..3).map(|i| d[i] * r[i]).sum();
         let scale: f64 = norm * r.iter().map(|x| x.abs()).sum::<f64>();
-        require(
-            s.is_finite() && (s * norm - dot).abs() <= 64.0 * f64::EPSILON * scale.max(f64::MIN_POSITIVE),
-            "ALONG_DIRECTION_INCONSISTENT",
-        )?;
+        let residual = (s * norm - dot).abs();
+        let allowance = 64.0 * f64::EPSILON * scale.max(f64::MIN_POSITIVE);
+        // A non-finite residual or allowance refuses; it never accepts.
+        require(residual.is_finite() && allowance.is_finite() && residual <= allowance, "ALONG_DIRECTION_INCONSISTENT")?;
     }
     if let Some(model) = model {
         // Every skewed record that publishes its component rows publishes its along row.
@@ -113,4 +137,47 @@ pub(crate) fn check_case(rows: &[&Value], case_id: &str, model: Option<&Value>) 
         }
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    const CASE: &str = "case:skew";
+
+    fn rows(r: [f64; 3], s: f64) -> Vec<Value> {
+        let id = format!("result:support-along-direction-v1:{}", exact_source_identity(&[CASE, "stop_B"]));
+        let mut out = vec![json!({"id": id, "kind": KIND, "entity_ref": "stop_B", "value": s, "unit": "N",
+            "metadata": {"component": COMPONENT, "coordinate_system": COORDINATE_SYSTEM, "location": "node", "basis": BASIS, "sign_convention": SIGN}})];
+        for (c, v) in ["Fx", "Fy", "Fz"].iter().zip(r) {
+            out.push(json!({"id": format!("r:{c}"), "kind": SUPPORT_COMPONENT, "entity_ref": "stop_B", "value": v, "metadata": {"component": c}}));
+        }
+        out
+    }
+    fn model(d: [f64; 3]) -> Value {
+        json!({"supports": [{"id": "stop_B", "family": "line_stop", "direction": {"x": d[0], "y": d[1], "z": d[2]}}]})
+    }
+    fn check(d: [f64; 3], r: [f64; 3], s: f64) -> Check {
+        let rows = rows(r, s);
+        check_case(&rows.iter().collect::<Vec<_>>(), CASE, Some(&model(d)))
+    }
+
+    /// Astra B2: with R = (8e307, 8e307, 0) the unscaled allowance norm·Σ|R_i| overflows and
+    /// accepted any s. The joint power-of-two scale keeps it finite: the true value is
+    /// accepted, a wrong one (0, or off by 1e-9 relative) is refused.
+    #[test]
+    fn a_large_finite_reaction_never_makes_the_guard_accept_a_wrong_value() {
+        let d = [1.0, 1.0, 0.0];
+        let r = [8e307, 8e307, 0.0];
+        let s = 8e307 * std::f64::consts::SQRT_2;
+        assert_eq!(check(d, r, s), Ok(()));
+        assert_eq!(check(d, r, 0.0), Err("ALONG_DIRECTION_INCONSISTENT".into()));
+        assert_eq!(check(d, r, s * (1.0 + 1e-9)), Err("ALONG_DIRECTION_INCONSISTENT".into()));
+        assert_eq!(check(d, r, -s), Err("ALONG_DIRECTION_INCONSISTENT".into()));
+        // The largest finite reactions, and an s near MAX.
+        let r = [f64::MAX, -f64::MAX, f64::MAX];
+        assert_eq!(check([1.0, 1.0, 1.0], r, f64::MAX / 3f64.sqrt()), Ok(()));
+        assert_eq!(check([1.0, 1.0, 1.0], r, 0.0), Err("ALONG_DIRECTION_INCONSISTENT".into()));
+    }
 }
