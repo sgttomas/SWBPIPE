@@ -876,8 +876,11 @@ _NOT_FORM_BOUND = object()
 class retained_base_read:
     """The retained reader's G7 base read (Rust `retained_base_read`), its only caller: an explicit read context, never
     inferred from a document's content, absence or age, and no history selector. Under it the roster's text closure is
-    not applied (a retained successor's notices are governed by its own receipt, G4); the member, the reserved
-    certificate codes and the canonical notices are still checked whole. The prior context is restored on exit."""
+    not applied: G7 checks the projected successor for base consistency only and attests no combination diagnostic
+    prose (G4 binds the retained notices' codes, cardinalities and refs, G5 diagnostic membership, the hashes supplied
+    bytes; none binds message text, which stays supplied, unverified text wherever exposed). The member, the reserved
+    certificate codes and the canonical notices are still checked whole. Every valid public retained read reaches it;
+    it is not a precommit-only path. The prior context is restored on exit."""
     _depth = 0
 
     def __enter__(self) -> "retained_base_read":

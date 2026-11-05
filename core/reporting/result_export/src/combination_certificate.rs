@@ -943,9 +943,13 @@ thread_local! {
 }
 /// Run `read` as the retained reader's G7 base read (`retained_precision::gates_after_g0`), its only caller:
 /// an explicit read context, never inferred from a document's content, absence or age, and no history
-/// selector. Under it the roster's text closure is not applied, because a retained successor's notices are
-/// governed by its own receipt (G4); the member, the reserved certificate codes and the canonical notices are
-/// still checked whole (`member_check`). The prior context is restored when `read` ends, however it ends.
+/// selector. Under it the roster's text closure is not applied: G7 checks the projected successor for base
+/// consistency only and attests no combination diagnostic prose (G4 binds the retained notices' codes,
+/// cardinalities and named combinations, G5 diagnostic membership, the hashes supplied bytes; none binds
+/// message text, which stays supplied, unverified text wherever exposed). The member, the reserved
+/// certificate codes and the canonical notices are still checked whole (`member_check`). Every valid public
+/// retained read and CLI read reaches it; it is not a precommit-only path. The prior context is restored when
+/// `read` ends, however it ends.
 pub(crate) fn retained_base_read<R>(read: impl FnOnce() -> R) -> R {
     struct Restore(bool);
     impl Drop for Restore {

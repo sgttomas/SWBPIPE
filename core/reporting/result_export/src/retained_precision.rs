@@ -1469,7 +1469,8 @@ fn g4(source: &Value) -> VResult {
     // B2-C §10.1 G4: one RETAINED_PRECISION_SELECTED per `retained_selected` and
     // one RETAINED_PRECISION_UNAVAILABLE per `retained_unavailable` combination,
     // none for `ordinary` or `base_withheld`; an unavailable entry's
-    // `diagnostic_ref` is its diagnostic's id.
+    // `diagnostic_ref` is its diagnostic's id. Their message text is not
+    // checked here (RT-A3 §4: Work `combination-certificate.md` §2).
     for e in combos {
         let id = &e["basis_ref"]["ref_id"];
         let named = |code: &str| -> Vec<&Value> {
@@ -6630,7 +6631,9 @@ fn gates_after_g0(source: &Value, actual_invocation: Option<&Value>, route: &Rou
     // (exact: pressure-2's `validate_pressure_evidence`); any text
     // after the code is detail.
     // RT-A3 §4 (DEL-05-02 Work `combination-certificate.md` §2): the base read runs in the retained read
-    // context, so the closed combination-diagnostic roster leaves the successor's notices to G4.
+    // context, without the roster's text closure. G7 is base consistency only: it attests no combination
+    // diagnostic prose, which G4 (codes, cardinalities, named combinations) and G5 (membership) do not bind
+    // either; that prose stays supplied, unverified text wherever exposed.
     crate::combination_certificate::retained_base_read(|| crate::semantic_contract::for_source(&projected)).map_err(base_error)?;
     // T4-U4b (§4.1, §5.1; S4 round 2): on route L the base read above is
     // model-free, so with the invocation the projection's τ rows are

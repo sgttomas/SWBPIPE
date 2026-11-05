@@ -2665,7 +2665,8 @@ def _g3_combinations(snapshot, body, ids, crows):
 def _g4_combinations(combos, diags):
     """CONTRACT §10.1 G4 (DIAGNOSTIC_MISMATCH): one RETAINED_PRECISION_SELECTED per `retained_selected` and one
     RETAINED_PRECISION_UNAVAILABLE per `retained_unavailable` combination, each naming exactly that combination;
-    none for an `ordinary` or `base_withheld` one; an unavailable entry's `diagnostic_ref` is its diagnostic's id."""
+    none for an `ordinary` or `base_withheld` one; an unavailable entry's `diagnostic_ref` is its diagnostic's id. Their
+    message text is not checked (RT-A3 §4: Work `combination-certificate.md` §2)."""
     need = lambda ok: _need(ok, "G4", "DIAGNOSTIC_MISMATCH")
     for entry in combos:
         cid, disposition = entry["basis_ref"]["ref_id"], entry["disposition"]
@@ -3275,8 +3276,9 @@ def _gates_after_g0(snapshot, receipt, schema, invocation, route, raw=True, stat
             # CONTRACT §10.1 G6: recovery_method exactly on a retained_selected combination's rows.
             for row in all_rows[c["basis_ref"]["ref_id"]]:_need(row.get("recovery_method")==METHOD if c["disposition"]=="retained_selected" else "recovery_method" not in row,state["gate"],"ROW_METHOD_MISMATCH")
         state["gate"]="G7";projected=_project(snapshot,route)
-        # RT-A3 §4 (Work `combination-certificate.md` §2): the base read runs in the retained read context, so the closed
-        # combination-diagnostic roster leaves the successor's notices to G4 (Rust `retained_base_read`).
+        # RT-A3 §4 (Work `combination-certificate.md` §2): the base read runs in the retained read context, without the
+        # roster's text closure (Rust `retained_base_read`). G7 is base consistency only: it attests no combination
+        # diagnostic prose, which G4 (codes, cardinalities, refs) and G5 (membership) do not bind either.
         from .combination_certificate import retained_base_read
         try:
             with retained_base_read():_source_contract(projected)

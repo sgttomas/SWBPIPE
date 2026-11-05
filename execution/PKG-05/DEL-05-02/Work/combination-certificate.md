@@ -284,13 +284,28 @@ option A).** Both readers (RE `combination_certificate.rs` `roster`, Python
   member is still validated in full, and the reserved certificate codes and
   canonical notices stay protected, so a certificate notice without a valid
   member is still refused (`PRESENCE`). No reader-attested certificate fact
-  comes from prose. **A retained successor's combination prose is not
-  roster-checked: its retained-precision receipt (G4) governs its notices**,
-  as retained-precision claims stay governed by their own receipt. A future
-  retained successor that carries a certificate must have this revisited in
-  its D3. The shared retained corpus (`retained_precision_cases.json`), whose
-  base documents carry the pre-T4-U4b maximum text, and its pinned native
-  outcomes are unchanged. Retained identities are not admitted report sources
+  comes from prose. **The scope of this read (review cert3 finding 3).** It
+  is no precommit-only exception: every valid read through the public
+  retained reader and CLI reaches it. G7 checks the projected successor for
+  base consistency inside the retained reader. It does not attest
+  combination diagnostic prose. G4 binds the combination
+  selected/unavailable notice codes, their cardinalities and the combination
+  each names (an unavailable notice's id too), not their message text; G5
+  binds diagnostic membership; the receipt and publication hashes bind
+  supplied bytes, not truth or producer origin. A coherently rehashed
+  successor whose selected combination notice is reworded, or which appends
+  a note under a combination ref and lists it in that combination's
+  `diagnostic_refs`, passes the full retained reader in both languages (the
+  review's probes); its text gains no standing. Prose excluded from the
+  ordinary roster remains supplied, unverified text wherever exposed: the
+  Diagnostics panel quotes every message of a retained successor with
+  combinations after the supplemental label (desktop
+  `suppliedDiagnostics.ts`, below), and retained identities are not report
+  sources. Reader-attested §4 facts require the validated member and its
+  canonical notices. A future retained successor that carries a certificate
+  must have this revisited in its D3. The shared retained corpus
+  (`retained_precision_cases.json`), whose base documents carry the
+  pre-T4-U4b maximum text, and its pinned native outcomes are unchanged. Retained identities are not admitted report sources
   (`report_package` `document_form::ADMITTED_SEMANTIC_CONTRACTS`).
 
 **The residual text boundary (Agent 0's item 5).** Diagnostic prose under refs
