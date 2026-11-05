@@ -11,6 +11,9 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import heldCorpus from "../../../../../fixtures/results/preview_physics_held_status_corpus.json";
 import { DiagnosticsPanel } from "../diagnostics/DiagnosticsPanel";
+import { KnowledgePanel, physicsRecords } from "../knowledge/KnowledgePanel";
+import { buildMissingDataBlockingPacket, MissingDataBlockingPanel } from "../missing-data/MissingDataBlockingPanel";
+import demoModel from "../../../../../fixtures/product_preview/invented_demo_model.json";
 import { diagnosticsForSections } from "../report/renderableReportInput";
 import { buildDiagnosticInterpretation } from "./resultInterpretation";
 import { readerValidate } from "./resultReader";
@@ -142,5 +145,59 @@ describe("held gate notices: always quoted as supplied text", () => {
     const unread = held().document;
     (unread as unknown as Record<string, unknown>).retained_precision = {};
     expectQuoted(unread);
+  });
+});
+
+describe("held gate notices in Design Knowledge and the missing-data warnings: quoted as supplied text", () => {
+  const GATES = ["HELD_STATUS_SOURCE_UNAVAILABLE", "HELD_STATUS_SOURCE_UNQUALIFIED", "HELD_STATUS_BINDING", "HELD_STATUS_SLIDING_GROUND_DIFFERS", "HELD_STATUS_SOLVE_FAILED"];
+  /** Each quoted code's notice: the five gates on the corpus' own gate notice (re-coded, its message a
+   * claim-like R), and HELD_STATUS_RELEASED's own corpus notice. The rule reads the typed code only. */
+  function cases(): { code: string; result: MechanicsResult; id: string }[] {
+    const gates = GATES.map((code, index) => {
+      const result = held().document;
+      const gate = notice(result);
+      gate.code = code;
+      gate.message = `Combination withheld: ${CLAIMS[index % CLAIMS.length]}.`;
+      return { code, result, id: GATE };
+    });
+    return [...gates, { code: "HELD_STATUS_RELEASED", result: held("h2_released").document, id: RELEASED }];
+  }
+
+  it("quotes each of the six held-status codes in the knowledge records and panel, and keeps the raw bytes", () => {
+    const seen = new Set<string>();
+    for (const { code, result, id } of cases()) {
+      const before = JSON.stringify(result);
+      const raw = notice(result, id);
+      const record = physicsRecords(result).find((r) => r.id === `knowledge:${id}`)!;
+      expect(record.summary, code).toBe(supplied(raw.message));
+      expect([record.kind, record.provenance, record.status]).toEqual(["computed_mechanics_context", "computed_preview_result", raw.severity]);
+      const view = render(<KnowledgePanel knowledge={null} result={result} />);
+      expect(screen.getByTestId(`knowledge-record-${record.id}`).querySelector("p")!.textContent, code).toBe(supplied(raw.message));
+      view.unmount();
+      // Every computed diagnostic record states the Diagnostics panel's presented message.
+      const presented = new Map(presentedResultDiagnostics(result).map((d) => [d.id, d.message]));
+      for (const r of physicsRecords(result).filter((r) => r.id.startsWith("knowledge:diagnostic:"))) {
+        expect(r.summary).toBe(presented.get(r.id.slice("knowledge:".length)));
+      }
+      expect(JSON.stringify(result)).toBe(before);
+      seen.add(code);
+    }
+    expect([...seen].sort()).toEqual([...HELD_STATUS_QUOTED_CODES].sort());
+  });
+
+  it("states a nonlinear warning's message as the Diagnostics panel presents it, and keeps the raw bytes", () => {
+    const result = held().document;
+    result.diagnostics.push({ id: "diagnostic:nonlinear:invented-review", code: "NONLINEAR_SUPPORT_NONCONVERGENCE", severity: "warning",
+      message: "every row is bounded by 1e-300 within its stated bound", affected_refs: ["case:O"] } as Diagnostic);
+    const before = JSON.stringify(result);
+    const model = demoModel as unknown as PreviewModel;
+    const shown = presentedResultDiagnostics(result).find((d) => d.code === "NONLINEAR_SUPPORT_NONCONVERGENCE")!.message;
+    expect(shown).toBe(supplied("every row is bounded by 1e-300 within its stated bound"));
+    const warning = buildMissingDataBlockingPacket({ model, result }).warnings.find((w) => w.warning_id === "nonlinear:diagnostic:nonlinear:invented-review")!;
+    expect(warning.message).toBe(shown);
+    const view = render(<MissingDataBlockingPanel model={model} result={result} />);
+    expect(screen.getByTestId("missing-data-warning-nonlinear-diagnostic-nonlinear-invented-review").textContent).toContain(shown);
+    view.unmount();
+    expect(JSON.stringify(result)).toBe(before);
   });
 });

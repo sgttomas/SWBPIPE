@@ -1,6 +1,7 @@
 import { Ban, Download } from "lucide-react";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import type { Diagnostic, MechanicsResult, PreviewModel } from "../../types";
+import { presentedResultDiagnostics } from "../results/suppliedDiagnostics";
 
 type GuiWarningClass =
   | "SOLVE_BLOCKING"
@@ -138,7 +139,14 @@ export function countMissingDataBlockers(args: { model: PreviewModel; result: Me
 }
 
 export function buildMissingDataBlockingPacket({ model, result }: { model: PreviewModel; result: MechanicsResult | null }) {
-  const diagnostics = [...model.diagnostics, ...(result?.diagnostics ?? [])];
+  // A result diagnostic's message reaches a nonlinear warning's displayed text only through its
+  // presented form (`presentedResultDiagnostics`: held-status notices and unadmitted combination
+  // text quoted as supplied). Presentation changes messages only; codes, severities and refs, which
+  // the counts and blocking flags read, are the result's own. Presented only when the result has a
+  // nonlinear diagnostic, the only kind whose message a warning copies.
+  const resultDiagnostics = result?.diagnostics ?? [];
+  const presented = resultDiagnostics.some((item) => item.code.startsWith("NONLINEAR_")) ? presentedResultDiagnostics(result) : resultDiagnostics;
+  const diagnostics = [...model.diagnostics, ...presented];
   const statusInputs = {
     mechanics: result?.status.mechanics ?? model.analysis_status.mechanics,
     rule_check: result?.status.rule_check ?? model.analysis_status.rule_check,
