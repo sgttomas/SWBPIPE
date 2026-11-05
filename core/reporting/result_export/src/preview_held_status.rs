@@ -43,8 +43,8 @@ pub(crate) const MEMBER: &str = "held_status_derivation";
 pub(crate) const OPERAND_BASIS: &str = "held_status_operand";
 pub(crate) const HELD_SUPPORT_STATE: &str = "held_at_minuend_final";
 pub(crate) const RELEASED: &str = "HELD_STATUS_RELEASED";
-/// §7.5's held gates, in gate order.
-pub(crate) const GATES: [&str; 5] = [
+/// §7.5's held gates, in gate order (exported as [`crate::HELD_STATUS_GATE_CODES`]).
+pub const GATES: [&str; 5] = [
     "HELD_STATUS_SOURCE_UNAVAILABLE",
     "HELD_STATUS_SOURCE_UNQUALIFIED",
     "HELD_STATUS_BINDING",

@@ -379,7 +379,7 @@ fn no_combination_no_member() {
 /// Premise (Work `combination-certificate.md` §1): the operand bounds are each operand
 /// case's own. A subtrahend held at the minuend's final support status is a different
 /// system from its load case, so the combination is not assessed and binds no B_D,
-/// whatever its gate says (on this base the PF interim gate also withholds it).
+/// whatever its gate says (on this base G-1 also withholds it at the solve).
 fn held_cantilever() -> Value {
     let mut held = subtraction("comb:held", "case:O2", "case:S");
     held["difference_basis"] = json!("operating_minus_sustained");
@@ -394,19 +394,25 @@ fn held_cantilever() -> Value {
 
 #[test]
 fn a_held_subtrahend_is_not_assessed_and_binds_no_bound() {
-    // S1's interim withholds `minuend_final` before the solve: that combination publishes no
-    // row, no record and no bound. Since operating-case slice 1b a declared difference basis
-    // with its own subtrahend (`comb:own`) is no longer withheld there: G-1/G-2 gate it at the
-    // solve, and here G-1 withholds it (its subtrahend's loads are not in the minuend's), so its
-    // record is not assessed, withheld by its gate, with no group and no notice. The producer's
-    // own premise (`combination_certificate::held_reason`, unit-tested there) and the readers'
-    // (a synthetic envelope in the shared forgeries) refuse any held subtrahend in a record.
+    // RT-A5 (DEL-05-02 `operating-case.md` §7.5) removes S1's interim withholding of
+    // `minuend_final`: the held combination reaches the solve, its gates (here G-1: its
+    // subtrahend's loads are not in the minuend's) withhold it, and its record is not
+    // assessed by the held premise, whatever its gate says: no group, no bound, no row. A
+    // declared difference basis with its own subtrahend (`comb:own`) is gated the same way,
+    // so its record is not assessed, withheld by its gate. The producer's own premise
+    // (`combination_certificate::held_reason`, unit-tested there) and the readers' (a
+    // synthetic envelope in the shared forgeries) refuse any held subtrahend assessed.
     let wire = held_cantilever();
     for mode in MODES {
         let v = solve(&wire, mode);
         let ids: Vec<&str> = certificate(&v)["combinations"].as_array().unwrap().iter().map(|r| r["combination_id"].as_str().unwrap()).collect();
-        assert_eq!(ids, ["comb:double", "comb:own"], "{mode:?}: no record for a withheld held subtrahend");
-        assert!(v["results"].as_array().unwrap().iter().all(|r| r["basis_ref"]["ref_id"] != "comb:held"));
+        assert_eq!(ids, ["comb:double", "comb:held", "comb:own"], "{mode:?}: a record for each gated combination");
+        // Withheld at its gate, it publishes only its modulus-basis records, as `comb:own` does.
+        assert!(v["results"].as_array().unwrap().iter().all(|r| r["basis_ref"]["ref_id"] != "comb:held" || r["kind"] == "combination_modulus_basis_record"));
+        let held = record(&v, "comb:held");
+        let reason = "its subtrahend is held at another case's support state (subtrahend_support_state minuend_final), a different system from its load case; the operand bounds are each operand case's own";
+        assert_eq!((&held["subtrahend_support_state"], &held["assessment"], &held["reason"]), (&json!("minuend_final"), &json!("not_assessed"), &json!(reason)), "{mode:?}");
+        assert_eq!((&held["groups"], &held["uncovered_row_count"]), (&json!([]), &json!(0)), "{mode:?}");
         let own = record(&v, "comb:own");
         assert_eq!((&own["subtrahend_support_state"], &own["assessment"], &own["reason"]), (&json!("own"), &json!("not_assessed"), &json!("withheld by its gate")), "{mode:?}");
         assert_eq!(own["groups"], json!([]), "{mode:?}");

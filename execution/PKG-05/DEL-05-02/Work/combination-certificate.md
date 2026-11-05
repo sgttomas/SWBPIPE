@@ -259,11 +259,38 @@ option A).** Both readers (RE `combination_certificate.rs` `roster`, Python
   skips below still come first.
   - Set-bound, each required once: PF's headline scope, its maximum and
     intensified notices per admitted gate, and its gate notice per withheld
-    gate (an operand withholding names its withheld operands). The headline's
+    gate (an operand withholding names its withheld operands). A held gate's
+    notice (RT-A5, `operating-case.md` §7.5: the five `HELD_STATUS_*` gate
+    codes) is exactly "Combination withheld: " + R + ".", where R is the
+    refusal stated by the document's held-status record for that combination
+    (`held_status_derivation`, `standing.reason` of a `withheld` record of that
+    outcome); the canonical entry is built from the record and the notice is
+    compared with it whole. The held-status reader and the gates reader, which
+    precede the roster, bind the record to the combination and its refusal code
+    to the gate's; a held code whose record is absent, repeated, malformed or of
+    another outcome is refused (`ROSTER_CONTRADICTION`). Every other gate code
+    keeps its fixed text.
+  - *The held refusal's boundary (Agent 0, 2026-11-05, option (a), bound).*
+    Binding R to the record establishes correspondence, not truth. R supplies
+    no row bound, eligibility, established or certificate notice and no
+    numerical standing; the held combination's record stays `not_assessed`
+    with no group and no bound. Its language is not policed: the reserved
+    vocabulary's message test does not apply to the one notice that is a
+    withheld held gate's own, recognized by typed identity (its code, its one
+    combination, that gate's id, the gate withheld with that code and exactly
+    one held-status record of that outcome; RE `bound_held_gate`), never by
+    its text, so a claim-like R in a well-bound record is admitted and changes
+    nothing. Every presenting path quotes a notice whose typed code is a held
+    gate code whole as supplied text, whatever the roster or a certificate
+    attests: desktop `suppliedDiagnostics.ts` (`HELD_STATUS_GATE_CODES`, the
+    Diagnostics panel, the result interpretation and the report projection),
+    the run comparison, and Rust `report_package::bindings` (every native
+    report path). Raw diagnostic bytes and evidence are unchanged. The headline's
     refs are the model's kept combinations in authored order; without the
     model, the gates' identities in any order, which the document cannot fix.
     With the model, S1's interim withholdings and their dependants, on both
-    routes.
+    routes; as RT-A5 leaves S1 there are none (a `minuend_final` subtrahend is
+    gated at the solve).
   - Form-bound, each parameter bound to the evidence: PF's fixed-load count,
     source-missing (a row base of the document), row-withheld (each name a row
     base or a support with a producer reason) and vector notices, and the
@@ -500,7 +527,13 @@ The roster's cases (review cert2 finding 1), applied with and without the model:
 | a maximum or gate notice dropped | ROSTER_MISSING |
 | the headline's refs reordered | admitted without the model; ROSTER_CONTRADICTION with it |
 | pf_shared_id's maximum notice for `S` (a load case's id too): reworded, under another code, naming a load case, with an extra field; duplicated; dropped | ROSTER_CONTRADICTION; ROSTER_EXTRA; ROSTER_MISSING |
-| pf_held's interim notice dropped or reworded | admitted without the model (its combination is not the document's); ROSTER_MISSING or ROSTER_CONTRADICTION with it |
+| pf_held: S1's removed interim withholding notice restated | ROSTER_EXTRA |
+| pf_held: the held record stated assessed | RECORD |
+| a held gate notice (RT-A5's held-status corpus): its inner text not the record's refusal; its frame changed; the refusal changed in the record only | ROSTER_CONTRADICTION |
+| a held gate notice duplicated; dropped | ROSTER_EXTRA; ROSTER_MISSING |
+| a held code on a gate with no held record; another code on a held record's gate | the gates reader's GATE_DERIVATION |
+| a claim-like refusal ("established", a tiny bound, any capitalization, Unicode) in a well-bound record | admitted; no row bound, eligibility or certificate standing changes |
+| the same refusal in the notice only, or in the record only | ROSTER_CONTRADICTION |
 
 RE `absence_is_inspection_only_with_no_certificate_claim` and its Python
 counterpart admit the both-dropped case. With and without the model, they

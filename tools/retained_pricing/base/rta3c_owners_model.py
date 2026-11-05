@@ -54,8 +54,10 @@ from g3lib import B, X, Xc, s, pushcap, HashReq, HashMov
 PP = "core/product_physics/src/"
 RE = "core/reporting/result_export/src/"
 # The RE pin follows its unit tests reading the legacy W-CB3 successor (§8.53; one test line, in place).
+# RT-A5 composition repair: then the roster's held gate notices, the reserved vocabulary's typed-identity exemption of
+# a withheld held gate's own notice and S1's interim without a minuend_final reason (member_check's presence call, in place).
 PINS = {PP + "combination_certificate.rs": "5b85e6c57ae9c3b7cf9722e8be424532e12866f8b825597b20334c3e98ab5b1a",
-        RE + "combination_certificate.rs": "6c08cf1703e9cb1cb6ee8a98a32d5347f68cd4502a86299885628b8990e4efd9"}
+        RE + "combination_certificate.rs": "89b11d7af14f24d276bc9fec733456588dbb1628e639ecc63c3e6aae81e15691"}
 # (file, statement): each exactly once in its file.
 STATEMENTS = (
     (PP + "lib.rs", "let case_ids: Vec<&str> = model.load_cases.iter().map(|case| case.id.as_str()).collect();"),

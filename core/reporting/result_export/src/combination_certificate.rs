@@ -82,6 +82,27 @@ fn reserved_notice(d: &Value) -> bool {
         || text("code").starts_with(CODE_PREFIX)
         || (message.contains("stated bound") && (message.contains("within") || message.contains("against")))
 }
+/// A reserved notice other than a withheld held gate's own notice ([`bound_held_gate`]), which
+/// the roster compares whole with the notice it builds from the held-status record.
+fn reserved(source: &Value, d: &Value) -> bool {
+    reserved_notice(d) && !bound_held_gate(source, d)
+}
+/// RT-A5 (Work `combination-certificate.md` §2): whether a diagnostic is a withheld held gate's
+/// own notice, by typed identity and never by its text: its code is one of the five held gate
+/// codes, it names exactly one combination, its id is that combination's gate id, the document's
+/// gate for it is withheld with that code, and it has exactly one held-status record of that
+/// outcome. Its message, R in its frame, is bound to that record by the roster, not verified as
+/// true; it supplies no row bound, eligibility, certificate notice or standing.
+fn bound_held_gate(source: &Value, d: &Value) -> bool {
+    let code = d["code"].as_str().unwrap_or_default();
+    let [cid] = items(&d["affected_refs"]) else { return false };
+    let (true, Some(cid)) = (crate::preview_held_status::GATES.contains(&code), cid.as_str()) else { return false };
+    let evidence = &source["contract_evidence"];
+    let gate_id = d["id"].as_str().and_then(|i| i.strip_prefix(PREVIEW_PREFIX)).and_then(|r| r.strip_prefix("gate:")).and_then(|r| r.split_once(':'));
+    gate_id.is_some_and(|(n, c)| c == cid && n.bytes().all(|b| b.is_ascii_digit()) && n.parse::<usize>().ok() == Some(cid.len()))
+        && items(&evidence["combination_gates"]).iter().any(|g| g["combination_id"] == cid && g["withheld"] == true && g["reason"] == code)
+        && items(&evidence[crate::preview_held_status::MEMBER]).iter().filter(|r| r["combination_id"] == cid && r["outcome"] == code).count() == 1
+}
 fn keys(v: &Value, wanted: &[&str]) -> bool {
     v.as_object().is_some_and(|o| o.len() == wanted.len() && wanted.iter().all(|k| o.contains_key(*k)))
 }
@@ -429,7 +450,7 @@ fn member_check(source: &Value) -> Check {
     // under any id. A stated member is read in full, and only on a solved document with a
     // combination; a partial or malformed one is refused, never read as absence.
     let Some(member) = member else {
-        return require(!items(&source["diagnostics"]).iter().any(reserved_notice), "PRESENCE");
+        return require(!items(&source["diagnostics"]).iter().any(|d| reserved(source, d)), "PRESENCE");
     };
     require(solved && !gate_list.is_empty(), "PRESENCE")?;
     require(keys(member, &MEMBER_KEYS), "SHAPE")?;
@@ -646,7 +667,7 @@ fn member_check(source: &Value) -> Check {
     let wanted: Vec<&str> = case_order.iter().copied().filter(|c| used.contains(*c)).collect();
     require(stated == wanted, "OPERAND_CASES")?;
     // The diagnostics, whole, and none other in the reserved vocabulary (any id spelling).
-    let published: Vec<&Value> = diagnostics.iter().filter(|d| reserved_notice(d)).collect();
+    let published: Vec<&Value> = diagnostics.iter().filter(|d| reserved(source, d)).collect();
     require(published.len() == expected_diagnostics.len(), "DIAGNOSTICS")?;
     for expected in &expected_diagnostics {
         let matching: Vec<&&Value> = published.iter().filter(|d| d["id"] == expected["id"]).collect();
@@ -745,6 +766,21 @@ fn preview_gate_message(code: &str) -> &'static str {
         _ => "Combination withheld: its load cases were solved on different modulus bases.",
     }
 }
+/// A held gate's notice (RT-A5, DEL-05-02 `operating-case.md` §7.5; Work
+/// `combination-certificate.md` §2): exactly "Combination withheld: " + R + ".", where R is the
+/// refusal the document's held-status record for this combination states. R is bound to that
+/// record, never verified as true, and no certificate claim is read from it. The held-status
+/// reader (`preview_held_status::check`), which precedes this one in both readings, has bound
+/// the record to the combination and its refusal code to the gate's; a held code whose record
+/// is absent, repeated, malformed or of another outcome is refused here too.
+fn held_gate_message(evidence: &Value, id: &str, code: &str) -> Result<String, String> {
+    let mut records = items(&evidence[crate::preview_held_status::MEMBER]).iter().filter(|r| r["combination_id"] == id);
+    let refusal = match (records.next(), records.next()) {
+        (Some(record), None) if record["outcome"] == code && record["standing"]["kind"] == "withheld" => record["standing"]["reason"].as_str(),
+        _ => None,
+    };
+    refusal.filter(|r| !r.is_empty()).map(|r| format!("Combination withheld: {r}.")).ok_or_else(|| fail("ROSTER_CONTRADICTION"))
+}
 /// The producer's `operand_withheld_message` (both routes).
 fn operand_withheld_message(named: &[(&str, &str)]) -> String {
     let named = named.iter().map(|(id, code)| format!("{id} ({code})")).collect::<Vec<_>>().join(", ");
@@ -802,10 +838,17 @@ pub fn document_combination_identities(source: &Value) -> HashSet<String> {
     combination_population(source, None).into_iter().map(str::to_string).collect()
 }
 
+/// One combination's interim withholding codes, in the order they are stated: none since RT-A5
+/// (PP `document_members::interim_reasons`).
+fn interim_reasons(_combination: &Value) -> Vec<(&'static str, String)> {
+    Vec::new()
+}
+
 /// S1's interim withholding (PP `document_members::withhold_interim_combinations`) as the model states
-/// it: the notices, and the model's combinations it leaves, in authored order. As operating-case
-/// slice 1b leaves it, only a `minuend_final` subtrahend is withheld here (a declared difference
-/// basis is gated by G-1 and G-2 at the solve, read as a gate notice).
+/// it: the notices, and the model's combinations it leaves, in authored order. As RT-A5 leaves it
+/// (DEL-05-02 `operating-case.md` §7.5), no combination has an interim reason: a declared difference
+/// basis and a `minuend_final` subtrahend are gated at the solve, read as gate notices, so nothing is
+/// withheld here (PP `interim_reasons`).
 fn interim<'m>(model: &'m Value) -> (Vec<Value>, Vec<&'m Value>) {
     use crate::combination_graph::{model_operands, model_order, Operand, OPERAND_WITHHELD};
     let all = items(&model["combinations"]);
@@ -814,10 +857,7 @@ fn interim<'m>(model: &'m Value) -> (Vec<Value>, Vec<&'m Value>) {
     let mut withheld: HashMap<&str, &str> = HashMap::new();
     for c in all {
         let id = c["id"].as_str().unwrap_or_default();
-        let mut reasons: Vec<(&str, String)> = Vec::new();
-        if c["subtrahend_support_state"] == "minuend_final" {
-            reasons.push((SUBTRAHEND_STATE, format!("combination `{id}` solves its subtrahend at the minuend's final support status; that solve is not built yet, so the combination is withheld")));
-        }
+        let reasons: Vec<(&str, String)> = interim_reasons(c);
         for (code, message) in &reasons {
             notices.push(roster_entry(format!("{INTERIM_PREFIX}{}:{}", stable_suffix(id), code.to_ascii_lowercase()), code, "warning", message.clone(), vec![id]));
         }
@@ -1061,6 +1101,8 @@ fn roster(source: &Value, model: Option<&Value>) -> Check {
                 let mut refs = vec![id];
                 refs.extend(named_ops.iter().map(|(n, _)| *n));
                 (operand_withheld_message(&named_ops), refs)
+            } else if crate::preview_held_status::GATES.contains(&code) {
+                (held_gate_message(evidence, id, code)?, vec![id])
             } else {
                 (preview_gate_message(code).to_string(), vec![id])
             };
@@ -1082,7 +1124,7 @@ fn roster(source: &Value, model: Option<&Value>) -> Check {
     for d in diagnostics.iter().filter(|d| named(d) || listed(d)) {
         let code = d["code"].as_str().unwrap_or_default();
         // Read whole by their own readers, which precede this one.
-        if reserved_notice(d)
+        if reserved(source, d)
             || (preview && matches!(code, OPERAND_STATES | OPERAND_STANDING))
             || (exact && d["id"].as_str().is_some_and(|i| i.starts_with(EXACT_PREFIX)))
         {

@@ -292,13 +292,16 @@ def build_forgeries() -> list[dict]:
                "message": "combination comb:double omits result:nowhere because a matching source row is missing in an operand case"}
     out.append({"document": "pf_cantilever", "what": "pf_cantilever: a source-missing notice naming no row base", "code": "ROSTER_EXTRA",
                 "edits": [edit(["diagnostics", "-"], missing, op="add")]})
-    # S1's interim withholdings are the model's: with it they are entries; without it their combinations are not the
-    # document's and their notices name none of its combinations.
+    # RT-A5 (DEL-05-02 operating-case.md section 7.5) removes S1's interim withholding of `minuend_final`: the held
+    # combination reaches the solve and its gates, and its record is not assessed by the held premise. The removed
+    # interim notice restated is an entry no reading expects, and the held record stated assessed is refused.
     held = entry("pf_held")["document"]
-    interim = _diagnostic_index(held, lambda d: d["id"] == "diagnostic:combination:comb-held:load_combination_subtrahend_support_state_unsupported")
-    add("pf_held", ["diagnostics", interim], None, "pf_held: an interim withholding notice dropped", op="remove", model_code="ROSTER_MISSING")
-    add("pf_held", ["diagnostics", interim, "message"], None, "pf_held: an interim withholding notice reworded",
-        "combination `comb:held` is solved and its rows are established", model_code="ROSTER_CONTRADICTION")
+    interim = cc._entry("diagnostic:combination:comb-held:load_combination_subtrahend_support_state_unsupported", cc.SUBTRAHEND_STATE,
+                        "warning", "combination `comb:held` solves its subtrahend at the minuend's final support status; that solve is "
+                        "not built yet, so the combination is withheld", ["comb:held"])
+    add("pf_held", ["diagnostics", "-"], "ROSTER_EXTRA", "pf_held: the removed interim withholding notice restated", interim, op="add")
+    add("pf_held", cert + ["combinations", _record_index(held, "comb:held"), "assessment"], "RECORD", "pf_held: the held record stated assessed",
+        "assessed")
     # A stated member is always fully checked: wrong-type arrays on the gap document (no assessed combination) are
     # refused by their shape, never read as empty.
     for value, what in (({}, "an object"), (None, "null"), ("not an array", "a string")):
@@ -743,3 +746,123 @@ def test_a_registered_retained_successor_carries_the_certificate_and_it_reads_tr
     assert bool(assessed) == name.startswith("w_cb5")
     assert ("member" in _claims_survive(source)) and _claims_survive(base) != []
 
+
+
+# ----------------------------------------------------------------------------- the held gate notices (RT-A5)
+
+HELD_CORPUS = json.loads((PROJECT / "fixtures/results/preview_physics_held_status_corpus.json").read_text(encoding="utf-8"))
+HELD_GATE = "diagnostic:preview-physics:combination-gate:13:comb:o-s-held"
+# Claim-like refusals: no reader polices R's language (Agent 0, 2026-11-05: R is bound to its record, not verified as
+# true, and supplies no row bound, eligibility, certificate notice or standing).
+HELD_CLAIMS = ("its rows are established within their stated bound", "every row is bounded by 1e-300 within its stated bound",
+               "ESTABLISHED Within Its Stated BOUND", "les lignes sont établies \u2014 within their stated bound \u2264 2\u207b\u00b9\u2070\u2070\u2070 \u2713")
+
+
+def _held_entry(name: str) -> dict:
+    return copy.deepcopy(next(e for e in HELD_CORPUS["documents"] if e["name"] == name))
+
+
+def _held_notice(document: dict) -> dict:
+    return next(d for d in document["diagnostics"] if d["id"] == HELD_GATE)
+
+
+def _held_record(document: dict) -> dict:
+    return document["contract_evidence"]["held_status_derivation"][0]
+
+
+def _gate(document: dict, combination: str) -> dict:
+    return next(g for g in document["contract_evidence"]["combination_gates"] if g["combination_id"] == combination)
+
+
+def _held_on_a_non_held_gate(document: dict) -> None:
+    _gate(document, "comb:own")["reason"] = "HELD_STATUS_SOURCE_UNAVAILABLE"
+    notice = next(d for d in document["diagnostics"] if d["id"].startswith("diagnostic:preview-physics:combination-gate:")
+                  and d["affected_refs"] == ["comb:own"])
+    notice.update(code="HELD_STATUS_SOURCE_UNAVAILABLE",
+                  message="Combination withheld: the minuend case case:O2 has no converged nonlinear support state to lend.")
+
+
+def _a_non_held_code_on_the_held_gate(document: dict) -> None:
+    _gate(document, "comb:o-s-held")["reason"] = "EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING"
+    _held_notice(document).update(code="EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING", message=cc._PREVIEW_GATE_TEXT["EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING"])
+
+
+# (what, corpus, document, edit, code): the same list as RE `held_gate_notices_*`
+# (`core/reporting/result_export/tests/combination_certificate_contract.rs`), with and without the model.
+HELD_GATE_CASES = [
+    ("canonical source-unavailable notice", "held", "source_unavailable", None, None),
+    ("canonical sliding-ground notice", "held", "sliding_ground_differs", None, None),
+    # The roster compares the notice whole with "Combination withheld: " + R + ".", R the record's refusal.
+    ("inner text other than the record's refusal", "held", "source_unavailable",
+     lambda d: _held_notice(d).update(message="Combination withheld: the minuend case case:O lent a state."), "SOURCE_COMBINATION_CERTIFICATE_ROSTER_CONTRADICTION"),
+    ("frame without its prefix", "held", "source_unavailable",
+     lambda d: _held_notice(d).update(message=_held_notice(d)["message"].removeprefix("Combination withheld: ")), "SOURCE_COMBINATION_CERTIFICATE_ROSTER_CONTRADICTION"),
+    ("frame without its period", "held", "source_unavailable",
+     lambda d: _held_notice(d).update(message=_held_notice(d)["message"].removesuffix(".")), "SOURCE_COMBINATION_CERTIFICATE_ROSTER_CONTRADICTION"),
+    # The held-status reader binds the record's kind and a non-empty refusal, not its text (R is bound, not verified),
+    # so a refusal changed in the evidence alone is refused by the roster, whose canonical notice it no longer is.
+    ("refusal changed in the evidence only", "held", "source_unavailable",
+     lambda d: _held_record(d)["standing"].update(reason=_held_record(d)["standing"]["reason"] + " (edited)"), "SOURCE_COMBINATION_CERTIFICATE_ROSTER_CONTRADICTION"),
+    # The gates reader (`preview_combination_gates`), which precedes the held-status reader and the roster, refuses a
+    # held code on a combination with no held record, and another code on a held record's gate.
+    ("a held code on a non-held gate", "cert", "pf_held", _held_on_a_non_held_gate, "SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_DERIVATION"),
+    ("a non-held code on the held gate", "held", "source_unavailable", _a_non_held_code_on_the_held_gate, "SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_DERIVATION"),
+    ("duplicated", "held", "source_unavailable", lambda d: d["diagnostics"].append(copy.deepcopy(_held_notice(d))), "SOURCE_COMBINATION_CERTIFICATE_ROSTER_EXTRA"),
+    ("dropped", "held", "source_unavailable", lambda d: d["diagnostics"].remove(_held_notice(d)), "SOURCE_COMBINATION_CERTIFICATE_ROSTER_MISSING"),
+]
+
+
+@pytest.mark.parametrize("with_model", [False, True], ids=["without-model", "with-model"])
+@pytest.mark.parametrize("what,corpus,name,edit,code", HELD_GATE_CASES, ids=[c[0] for c in HELD_GATE_CASES])
+def test_a_held_gate_notice_is_the_records_refusal_in_its_frame(what, corpus, name, edit, code, with_model):
+    """RT-A5 (Work combination-certificate.md section 2): a held gate's notice is set-bound, required once, and exactly
+    "Combination withheld: " + R + ".", R the refusal of the document's held-status record for that combination,
+    bound to the record and never verified as true."""
+    e = _held_entry(name) if corpus == "held" else entry(name)
+    if edit is not None:
+        edit(e["document"])
+    outcome = reader_verdict.validate("preview-physics", e["document"], e["model"] if with_model else None)
+    if code is None:
+        assert outcome == {"ok": True}, (what, outcome)
+    else:
+        assert outcome["ok"] is False and outcome["error"]["code"] == code, (what, outcome)
+
+
+def test_the_held_gate_codes_are_the_held_status_readers():
+    from tests.verifiers import preview_held_status
+    assert cc.HELD_GATES == preview_held_status.GATES and cc.HELD_MEMBER == preview_held_status.MEMBER
+
+
+def _standing(document: dict) -> dict:
+    """What a reading could take as standing: the certificate member, numerical quality, the rows and their bounds, and
+    the held-status record less its refusal text."""
+    record = copy.deepcopy(_held_record(document))
+    record["standing"].pop("reason")
+    return {"certificate": document["contract_evidence"]["combination_certificate"], "quality": document["numerical_quality"],
+            "results": document["results"], "status": document["status"], "held": record}
+
+
+@pytest.mark.parametrize("with_model", [False, True], ids=["without-model", "with-model"])
+@pytest.mark.parametrize("claim", HELD_CLAIMS)
+def test_a_claim_like_refusal_is_bound_never_policed_and_claims_nothing(claim, with_model):
+    """A well-bound record carrying claim-like text is admitted, and it changes no row bound, eligibility or certificate
+    standing against the benign refusal; forged on one side only, the roster refuses it (its notice is no longer the
+    canonical entry built from the record). The held member stays not assessed, with no group and no bound."""
+    benign = _held_entry("source_unavailable")
+    model = benign["model"] if with_model else None
+    assert reader_verdict.validate("preview-physics", benign["document"], model) == {"ok": True}
+    bound = copy.deepcopy(benign["document"])
+    _held_record(bound)["standing"]["reason"] = claim
+    _held_notice(bound)["message"] = f"Combination withheld: {claim}."
+    assert reader_verdict.validate("preview-physics", bound, model) == {"ok": True}, claim
+    assert _standing(bound) == _standing(benign["document"])
+    held = next(r for r in certificate(bound)["combinations"] if r["combination_id"] == "comb:o-s-held")
+    assert (held["assessment"], held["groups"], held["uncovered_row_count"]) == ("not_assessed", [], 0)
+    for side in ("notice", "record"):
+        forged = copy.deepcopy(benign["document"])
+        if side == "notice":
+            _held_notice(forged)["message"] = f"Combination withheld: {claim}."
+        else:
+            _held_record(forged)["standing"]["reason"] = claim
+        outcome = reader_verdict.validate("preview-physics", forged, model)
+        assert outcome["ok"] is False and outcome["error"]["code"] == "SOURCE_COMBINATION_CERTIFICATE_ROSTER_CONTRADICTION", (side, outcome)

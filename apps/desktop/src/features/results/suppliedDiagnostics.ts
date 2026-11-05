@@ -12,6 +12,23 @@ import { retainedPrecisionRegistration } from "./retainedPrecisionStanding";
 /** The label before a diagnostic message passed through as supplied text. */
 export const SUPPLEMENTAL_DIAGNOSTIC_LABEL = "Supplied diagnostic text, unverified (not a combination certificate statement): ";
 
+/** RT-A5 (DEL-05-02 `operating-case.md` §7.5; Work `combination-certificate.md` §2): the five typed held
+ * gate codes (Rust `result_export::HELD_STATUS_GATE_CODES`). Such a notice's refusal text is bound to its
+ * held-status record by the reader, not verified as true, and supplies no row bound, eligibility,
+ * certificate notice or standing, so it is always quoted whole as supplied text, whatever the roster or
+ * a certificate attests. Keyed on the typed code only, never on a message's wording. */
+export const HELD_STATUS_GATE_CODES: ReadonlySet<string> = new Set([
+  "HELD_STATUS_SOURCE_UNAVAILABLE",
+  "HELD_STATUS_SOURCE_UNQUALIFIED",
+  "HELD_STATUS_BINDING",
+  "HELD_STATUS_SLIDING_GROUND_DIFFERS",
+  "HELD_STATUS_SOLVE_FAILED"
+]);
+/** Whether a diagnostic's typed code is one of the held gate codes. */
+export function heldStatusGateNotice(diagnostic: { code?: unknown }): boolean {
+  return typeof diagnostic.code === "string" && HELD_STATUS_GATE_CODES.has(diagnostic.code);
+}
+
 function recordObject(value: unknown): Record<string, unknown> | null {
   return typeof value === "object" && value !== null && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
 }
@@ -48,16 +65,18 @@ export function documentCombinationIdentities(
   return new Set([...ids].filter((id) => id !== "" && !other.has(id)));
 }
 
-/** A diagnostic's presented message. On a result with combinations, a diagnostic is copied only
+/** A diagnostic's presented message. A held gate notice (`heldStatusGateNotice`) is always quoted
+ * after the supplemental label. Otherwise, on a result with combinations, a diagnostic is copied only
  * when it names one of them and `rosterChecked` holds (the closed roster's reader admitted it in
  * its canonical form); every other message is quoted after the supplemental label, as text
  * supplied with the result and verified by nothing, its source text kept whole. A result without
- * combinations is unchanged. */
+ * combinations is otherwise unchanged. */
 export function suppliedDiagnosticMessage(
-  diagnostic: { message: string; affected_refs?: string[] | null },
+  diagnostic: { code?: unknown; message: string; affected_refs?: string[] | null },
   combinations: ReadonlySet<string>,
   rosterChecked: boolean
 ): string {
+  if (heldStatusGateNotice(diagnostic)) return `${SUPPLEMENTAL_DIAGNOSTIC_LABEL}"${diagnostic.message}"`;
   if (combinations.size === 0) return diagnostic.message;
   const refs = Array.isArray(diagnostic.affected_refs) ? diagnostic.affected_refs : [];
   if (rosterChecked && refs.some((ref) => typeof ref === "string" && combinations.has(ref))) return diagnostic.message;
@@ -107,17 +126,17 @@ function certificateAttestedByRetainedReader(result: MechanicsResult): boolean {
  * classified by `suppliedDiagnosticMessage`, with the roster checked only where
  * `rosterCheckedByReader` holds: on any other result with combinations every message is quoted as
  * supplied, except a retained successor's certificate notices where the retained reader attested
- * the member (`certificateAttestedByRetainedReader`). A result without combinations is not read and
- * is returned unchanged. */
+ * the member (`certificateAttestedByRetainedReader`); a held gate notice is quoted always. A result
+ * without combinations and without a held gate notice is not read and is returned unchanged. */
 export function presentedResultDiagnostics(result: MechanicsResult | null): Diagnostic[] {
   const diagnostics = result?.diagnostics ?? [];
   if (!result) return diagnostics;
   const combinations = documentCombinationIdentities(result);
-  if (combinations.size === 0) return diagnostics;
+  if (combinations.size === 0 && !diagnostics.some(heldStatusGateNotice)) return diagnostics;
   const rosterChecked = rosterCheckedByReader(result);
   const certificateChecked = certificateAttestedByRetainedReader(result);
   return diagnostics.map((diagnostic) => {
-    if (certificateChecked && certificateNotice(diagnostic)) return diagnostic;
+    if (certificateChecked && certificateNotice(diagnostic) && !heldStatusGateNotice(diagnostic)) return diagnostic;
     const message = suppliedDiagnosticMessage(diagnostic, combinations, rosterChecked);
     return message === diagnostic.message ? diagnostic : { ...diagnostic, message };
   });

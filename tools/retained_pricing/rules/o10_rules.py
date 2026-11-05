@@ -5449,8 +5449,12 @@ if fnkey("publish", _C3_PP) and fnkey("member_check", _C3_RE):
     # module's retained_base_read_tests read the legacy pre-certificate W-CB3 successor since §8.53 regenerated the live
     # one with the member (one test line, in place; no production line). The RE pin then follows the roster's exact-id
     # read of a set-bound entry outside the population (the §8.53 shared-id amendment; roster's first statement unchanged).
+    # RT-A5 composition repair (DEL-05-02 Work combination-certificate.md §2): the RE pin then follows the roster's held
+    # gate notices (held_gate_message, the canonical "Combination withheld: " + R + "." from the held-status record), the
+    # reserved vocabulary's typed-identity exemption of that one notice (reserved, bound_held_gate; non-allocating) and
+    # S1's interim without a minuend_final reason (interim_reasons); roster's first statement unchanged (RTA3C-RB).
     for _f, _h in {_C3_PP: "5b85e6c57ae9c3b7cf9722e8be424532e12866f8b825597b20334c3e98ab5b1a",
-                   _C3_RE: "6c08cf1703e9cb1cb6ee8a98a32d5347f68cd4502a86299885628b8990e4efd9"}.items():
+                   _C3_RE: "89b11d7af14f24d276bc9fec733456588dbb1628e639ecc63c3e6aae81e15691"}.items():
         if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _f), "rb").read()).hexdigest() != _h:
             raise SystemExit(f"RTA3C-PIN: {_f} changed; re-review §8.53's rules")
     _c3_lib = _re.sub(r"//[^\n]*", "", _text_of(_LIB))
@@ -5477,7 +5481,7 @@ if fnkey("publish", _C3_PP) and fnkey("member_check", _C3_RE):
                                          "        return Ok(());\n    }\n") == 1,
         # member_check: the member-absent return precedes every other use of the member.
         _fn_text("member_check", _C3_RE).count("    let Some(member) = member else {\n"
-                                               "        return require(!items(&source[\"diagnostics\"]).iter().any(reserved_notice), \"PRESENCE\");\n    };\n") == 1,
+                                               "        return require(!items(&source[\"diagnostics\"]).iter().any(|d| reserved(source, d)), \"PRESENCE\");\n    };\n") == 1,
     )
     if not all(_c3_guard):
         raise SystemExit(f"RTA3C: the certificate's D1 premises or their guards changed; re-review §8.53: {_c3_guard}")
