@@ -297,7 +297,8 @@ impl SkewDirection {
 
 // ------------------------------------------------------------------ codes and judge
 
-/// The §2.2 codes this module decides or carries, with their adopted strings.
+/// The §2.2 codes this module decides or carries. Their strings have one source,
+/// PP `document_members` (`skew_code`, M-1); the kernel names no code string.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SkewCode {
     DirectionInvalid,
@@ -324,25 +325,6 @@ pub enum SkewCode {
     ForceScaledUnsupported,
     /// §2.2 item 11 (permanent).
     ReactionRange,
-}
-
-impl SkewCode {
-    pub const fn as_str(self) -> &'static str {
-        match self {
-            Self::DirectionInvalid => "SUPPORT_DIRECTION_INVALID",
-            Self::DirectionZero => "SUPPORT_DIRECTION_ZERO",
-            Self::ExactUnsupported => "SUPPORT_DIRECTION_SKEW_EXACT_UNSUPPORTED",
-            Self::NonlinearModelUnsupported => "SUPPORT_DIRECTION_SKEW_NONLINEAR_MODEL_UNSUPPORTED",
-            Self::RangeUnsupported => "SUPPORT_DIRECTION_RANGE_UNSUPPORTED",
-            Self::ImposedDisplacementSkewSupport => "IMPOSED_DISPLACEMENT_SKEW_SUPPORT_UNSUPPORTED",
-            Self::NodeUnconnected => "SUPPORT_DIRECTION_NODE_UNCONNECTED",
-            Self::StopsPerNode => "SUPPORT_SKEW_STOPS_PER_NODE_UNSUPPORTED",
-            Self::ConstraintRedundant => "SUPPORT_CONSTRAINT_REDUNDANT",
-            Self::NodePrescribedMotion => "SUPPORT_SKEW_NODE_PRESCRIBED_MOTION_UNSUPPORTED",
-            Self::ForceScaledUnsupported => "SUPPORT_DIRECTION_SKEW_FORCE_SCALED_UNSUPPORTED",
-            Self::ReactionRange => "SUPPORT_SKEW_REACTION_RANGE_UNSUPPORTED",
-        }
-    }
 }
 
 /// The facts skew admission reads for one record (§2.2 items 2 to 4).

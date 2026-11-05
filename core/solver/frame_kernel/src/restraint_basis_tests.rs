@@ -13,6 +13,27 @@ use crate::structural::{SparsePattern, SparseStiffness, StiffnessContribution};
 const REFERENCES: &str =
     include_str!("../../../../validation/references/skew_restraints/references.json");
 
+
+/// M-1: the adopted §2.2 strings, test-local; the product's one source is PP
+/// `document_members::skew_code` (the product references test asserts them by name,
+/// against the references).
+fn code_text(code: SkewCode) -> &'static str {
+    match code {
+        SkewCode::DirectionInvalid => "SUPPORT_DIRECTION_INVALID",
+        SkewCode::DirectionZero => "SUPPORT_DIRECTION_ZERO",
+        SkewCode::ExactUnsupported => "SUPPORT_DIRECTION_SKEW_EXACT_UNSUPPORTED",
+        SkewCode::NonlinearModelUnsupported => "SUPPORT_DIRECTION_SKEW_NONLINEAR_MODEL_UNSUPPORTED",
+        SkewCode::RangeUnsupported => "SUPPORT_DIRECTION_RANGE_UNSUPPORTED",
+        SkewCode::ImposedDisplacementSkewSupport => "IMPOSED_DISPLACEMENT_SKEW_SUPPORT_UNSUPPORTED",
+        SkewCode::NodeUnconnected => "SUPPORT_DIRECTION_NODE_UNCONNECTED",
+        SkewCode::StopsPerNode => "SUPPORT_SKEW_STOPS_PER_NODE_UNSUPPORTED",
+        SkewCode::ConstraintRedundant => "SUPPORT_CONSTRAINT_REDUNDANT",
+        SkewCode::NodePrescribedMotion => "SUPPORT_SKEW_NODE_PRESCRIBED_MOTION_UNSUPPORTED",
+        SkewCode::ForceScaledUnsupported => "SUPPORT_DIRECTION_SKEW_FORCE_SCALED_UNSUPPORTED",
+        SkewCode::ReactionRange => "SUPPORT_SKEW_REACTION_RANGE_UNSUPPORTED",
+    }
+}
+
 // ------------------------------------------------------------------ JSON
 
 #[derive(Debug, Clone)]
@@ -567,7 +588,7 @@ fn direction_policy_matches_references_bit_for_bit() {
                 assert_eq!(SkewDirection::new(d), Err(DirectionError::NonFinite));
                 let facts = SkewRecordFacts { authored: d, pressure_contract: false, nonlinear_model: false };
                 assert_eq!(judge(&facts).unwrap_err().code, SkewCode::DirectionInvalid);
-                assert_eq!(SkewCode::DirectionInvalid.as_str(), expect.at("code").text());
+                assert_eq!(code_text(SkewCode::DirectionInvalid), expect.at("code").text());
             }
             continue;
         };
@@ -633,7 +654,7 @@ fn direction_policy_matches_references_bit_for_bit() {
             "refused" => {
                 let code = expect.at("code").text();
                 let refusal = judge(&facts).unwrap_err();
-                assert_eq!(refusal.code.as_str(), code, "{name}");
+                assert_eq!(code_text(refusal.code), code, "{name}");
                 match code {
                     "SUPPORT_DIRECTION_ZERO" => assert_eq!(SkewDirection::new(d), Err(DirectionError::Zero)),
                     "SUPPORT_DIRECTION_RANGE_UNSUPPORTED" => {
@@ -696,7 +717,7 @@ fn judge_gate_order_and_named_codes() {
         SkewCode::ForceScaledUnsupported,
         SkewCode::ReactionRange,
     ] {
-        assert!(codes.contains(&c.as_str()), "{}", c.as_str());
+        assert!(codes.contains(&code_text(c)), "{}", code_text(c));
     }
 }
 
@@ -899,7 +920,7 @@ fn s_k1_refuses_stops_per_node_and_redundant_sets() {
         if !name.starts_with("K2_") {
             continue;
         }
-        assert_eq!(case.at("s_k1_refusal").text(), SkewCode::StopsPerNode.as_str(), "{name}");
+        assert_eq!(case.at("s_k1_refusal").text(), code_text(SkewCode::StopsPerNode), "{name}");
         let (held, stops) = stops_of(name);
         let (tip, load) = tip_and_load(case);
         let findings = run(tip, load, &held, &stops, &[]).err().unwrap_or_else(|| panic!("{name} admitted"));
@@ -917,7 +938,7 @@ fn s_k1_refuses_stops_per_node_and_redundant_sets() {
     assert_eq!(k2, 8);
     // R4_redundant_axes: d̃_F = 0 on F = {z}.
     let case = kernel_case("R4_redundant_axes");
-    assert_eq!(case.at("expect").at("code").text(), SkewCode::ConstraintRedundant.as_str());
+    assert_eq!(case.at("expect").at("code").text(), code_text(SkewCode::ConstraintRedundant));
     let (tip, load) = tip_and_load(&case);
     let findings = run(tip, load, &[0, 1], &[("stop", [3.0, 4.0, 0.0])], &[]).err().unwrap();
     assert_eq!(findings, vec![BasisFinding::Redundant { node: 0, supports: vec!["stop".into()] }]);
@@ -948,7 +969,7 @@ fn s_k1_refuses_stops_per_node_and_redundant_sets() {
 #[test]
 fn s_k3_motion_at_a_stop_node_is_refused_by_name() {
     let case = kernel_case("K3_moving_guide_plus_stop");
-    assert_eq!(case.at("s_k1_refusal").text(), SkewCode::NodePrescribedMotion.as_str());
+    assert_eq!(case.at("s_k1_refusal").text(), code_text(SkewCode::NodePrescribedMotion));
     let d = SkewDirection::new([3.0, 4.0, 5.0]).unwrap();
     let basis = RestraintBasis::build(
         1,
@@ -975,7 +996,7 @@ fn s_k3_motion_at_a_stop_node_is_refused_by_name() {
     for name in ["K3_stop_ground_meaning_A", "K3_A_ground_x_with_ux_held", "K3_B_plane_13"] {
         assert_eq!(
             kernel_case(name).at("s_k1_refusal").text(),
-            SkewCode::ImposedDisplacementSkewSupport.as_str()
+            code_text(SkewCode::ImposedDisplacementSkewSupport)
         );
     }
 }
@@ -1098,7 +1119,7 @@ fn attribution_range_bits() {
                 assert_eq!(bits(got), bits(value.b64()), "{name}: axis {letter}");
             }
         } else {
-            assert_eq!(expect.at("code").text(), SkewCode::ReactionRange.as_str());
+            assert_eq!(expect.at("code").text(), code_text(SkewCode::ReactionRange));
             assert_eq!(b.at("along_direction").text(), "outside binary64");
             let representable = expect.at("published_representable");
             assert!(!representable.at("along_direction").boolean());
