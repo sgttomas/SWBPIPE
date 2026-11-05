@@ -59,20 +59,42 @@ checked before queueing. t3_exclusive acquired at 02:54:08Z with no wait; END-EX
 - *Record Run:* 20.7 s. *Persistence:* save (249,790,118 B run record over a 147,357,703 B result),
   reopen and re-save of the saved run, and the recorded-run read; the historical table was ready
   in 3.7 s and the eleven actions passed again. The recorded-run read has no findings; the
-  restored saved run reports `HISTORICAL_INPUT_MANIFEST_MISSING` on reopen and re-save, recorded
-  here as observed (no gate failed on it).
+  restored saved run reports `HISTORICAL_INPUT_MANIFEST_MISSING` on reopen and re-save (its
+  contract disposition is below).
 - *Release (P3):* the pool returned to 0 jobs, workers, retained and webview-custody results and
   0 reserved bytes at normal pressure; all three handles disposed.
 - *Trace:* 0 errors, refusals and violations; the IPC transport was not lost (no fallback event).
 
 **Observations for the larger path** (single-run observations on this 128 GiB host, not
 measurements of criterion 9, a memory fit or a 500-node prediction):
-- The first project save took 150.1 s; the second 14.9 s. The first-paint path is about 15 s.
-- The App's peak footprint was 6.66 GB; the aligned App + WebContent sampled peak was 7.82 GB,
-  after the reader probe (1.38 GB before it, 1.04 GB during it). The project store was 1.19 GB
-  (`quick_check` ok).
-- Both scale with the result's rows, so the save path and its retained copies are the next C1
-  diagnosis, source first. No run is implied.
+- **The 150.1 s first "save_project" step is a harness detection timeout, not a save duration**
+  (corrected 2026-11-05; first stated here as a 150 s save). On a project not yet stored, Record
+  Run runs Save Local Project first (`useModelStateHistory.ts`, "A recorded run needs its
+  project's stored copy: saving the local project first"), so the run's first fresh save landed
+  inside Record Run's 20.7 s and left the status line at "Saved current project model snapshot
+  without external file copies." The driver's File > Save then made the second fresh save (the
+  trace counts `save_preview_mechanics_job_local_project` twice), whose status message was the
+  same text. `saveProject` waits for a message different from the one before it, so it waited
+  out `save_ms` (150,000 ms) with `message: null`; the later re-save replaced
+  `report.save_project`, so the timeout flag is not in the report. The save gate itself reads
+  the native receipt (`outcome: saved`, 249,790,118 B record over a 147,357,703 B result), which
+  arrived. The second fresh save's own duration is not measured: the App footprint changes from
+  about 51 s to 60 s and is flat from about 136 s until the step's timeout at 201.6 s. The
+  restored re-save took 14.9 s and Record Run with its save 20.7 s. The first-paint path is
+  about 15 s.
+- The App's peak footprint was 6.66 GB, at 253.6 s, after the re-save and the recorded-run read
+  and during the final model open; Record Run with its save reached about 6.5 GB (about 46.7 s).
+  The aligned App + WebContent sampled peak was 7.82 GB (252.0 s), after the reader probe (1.38 GB
+  before it, 1.04 GB during it). The project store was 1.19 GB (`quick_check` ok). Footprint
+  samples are not attribution.
+- The memory held across record, save, reopen and the recorded read scales with the result's
+  rows, so those paths and their retained copies are the next C1 diagnosis, source first. No run
+  is implied.
+- `HISTORICAL_INPUT_MANIFEST_MISSING` on the restored saved run is the contract's scoped finding:
+  a saved project row stores no input manifest (DEL-14-01 `desktop-states-runs-comparison.md` §1,
+  "Model binding" and "Reopened runs"; `HistoricalRunContext` adds it to every saved run), and the
+  C1 custody plan expects it for a saved run. The recorded run, which stores its manifest, has
+  none. It is displayed as the reopened run's finding; nothing was captured and lost.
 
 **Closure** (verified 02:58:37Z): no App, harness or sampler process; no holder on the cargo job
 lock or slots 2–4; no `exclusive.pending`; the throwaway HOME removed. The successful run removed
