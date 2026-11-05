@@ -22,6 +22,7 @@
 #![allow(dead_code)] // No entry consumes this module until I2b; its tests do.
 
 mod context;
+mod document;
 mod eigen;
 mod integrity;
 mod mass;
@@ -34,9 +35,15 @@ mod weight_basis;
 #[cfg(test)]
 mod tests;
 #[cfg(test)]
+mod tests_document;
+#[cfg(test)]
 mod tests_eigen;
 #[cfg(test)]
 mod tests_state;
+#[cfg(test)]
+mod observation_tests;
+#[cfg(test)]
+mod phase_measurand_tests;
 
 /// The request names neither `mode_count` nor `frequency_cutoff` (§1.4).
 pub(crate) const MODAL_EXTRACTION_BOUND_REQUIRED: &str = "MODAL_EXTRACTION_BOUND_REQUIRED";

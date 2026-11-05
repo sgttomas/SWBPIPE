@@ -32,7 +32,7 @@ const LOAD_STATE_REQUEST: &str = include_str!("../../../../fixtures/product_prev
 
 /// A K-D5 reference request on the current document version, with a pipe
 /// density so that it has a mass (no static solve reads it).
-fn kd5(text: &str) -> Value {
+pub(super) fn kd5(text: &str) -> Value {
     let mut request: Value = serde_json::from_str(text).unwrap();
     request["model"]["schema_version"] = json!(crate::MODEL_SCHEMA_VERSION);
     for pipe in request["model"]["pipe_segments"].as_array_mut().unwrap() {

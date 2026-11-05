@@ -1,0 +1,708 @@
+{
+  "canonical_profile": "openpipestress_jcs_ijson_v1",
+  "document_kind": "openpipestress.modal_result",
+  "equilibrated_basis_kinds": [],
+  "id": "openpipestress.result_semantics/modal-1",
+  "kinds": [
+    {
+      "kind": "node_coordinate",
+      "selector": "fixed",
+      "table": "nodes",
+      "units": {
+        "fixed": {
+          "dimension": "length",
+          "symbol": "m",
+          "unit": "unit:meter",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "mass_matrix_entry",
+      "selector": "dof_pair_class",
+      "table": "mass_matrix",
+      "units": {
+        "rotation_rotation": {
+          "dimension": "rotational_generalized_mass",
+          "symbol": "kg*m^2/rad^2",
+          "unit": "unit:kilogram_square_meter_per_square_radian",
+          "unit_status": "catalog"
+        },
+        "translation_rotation": {
+          "dimension": "mass_length_per_rotation",
+          "symbol": "kg*m/rad",
+          "unit": "unit:kilogram_meter_per_radian",
+          "unit_status": "catalog"
+        },
+        "translation_translation": {
+          "dimension": "mass",
+          "symbol": "kg",
+          "unit": "unit:kilogram",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "modal_total_mass",
+      "selector": "fixed",
+      "table": "mass_totals",
+      "units": {
+        "fixed": {
+          "dimension": "mass",
+          "symbol": "kg",
+          "unit": "unit:kilogram",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "modal_free_dof_mass",
+      "selector": "fixed",
+      "table": "mass_totals",
+      "units": {
+        "fixed": {
+          "dimension": "mass",
+          "symbol": "kg",
+          "unit": "unit:kilogram",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "modal_circular_frequency",
+      "selector": "fixed",
+      "table": "modes",
+      "units": {
+        "fixed": {
+          "dimension": "angular_frequency",
+          "symbol": "rad/s",
+          "unit": "unit:radian_per_second",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "modal_frequency",
+      "selector": "fixed",
+      "table": "modes",
+      "units": {
+        "fixed": {
+          "dimension": "frequency",
+          "symbol": "Hz",
+          "unit": "unit:hertz",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "modal_period",
+      "selector": "fixed",
+      "table": "modes",
+      "units": {
+        "fixed": {
+          "dimension": "time",
+          "symbol": "s",
+          "unit": "unit:second",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "modal_generalized_mass",
+      "selector": "normalization_case",
+      "table": "modes",
+      "units": {
+        "unit_max_rotation": {
+          "dimension": "rotational_generalized_mass",
+          "symbol": "kg*m^2/rad^2",
+          "unit": "unit:kilogram_square_meter_per_square_radian",
+          "unit_status": "catalog"
+        },
+        "unit_max_translation": {
+          "dimension": "mass",
+          "symbol": "kg",
+          "unit": "unit:kilogram",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "modal_cluster_error_estimate",
+      "selector": "fixed",
+      "table": "modes",
+      "units": {
+        "fixed": {
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "mode_shape_translation",
+      "selector": "normalization_case",
+      "table": "shapes",
+      "units": {
+        "unit_max_rotation": {
+          "dimension": "length_per_rotation",
+          "symbol": "m/rad",
+          "unit": "unit:meter_per_radian",
+          "unit_status": "catalog"
+        },
+        "unit_max_translation": {
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "mode_shape_rotation",
+      "selector": "normalization_case",
+      "table": "shapes",
+      "units": {
+        "unit_max_rotation": {
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
+        },
+        "unit_max_translation": {
+          "dimension": "rotation_per_length",
+          "symbol": "rad/m",
+          "unit": "unit:radian_per_meter",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "modal_participation_factor",
+      "selector": "normalization_case",
+      "table": "participation",
+      "units": {
+        "unit_max_rotation": {
+          "dimension": "rotation_per_length",
+          "symbol": "rad/m",
+          "unit": "unit:radian_per_meter",
+          "unit_status": "catalog"
+        },
+        "unit_max_translation": {
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "modal_effective_mass",
+      "selector": "fixed",
+      "table": "participation",
+      "units": {
+        "fixed": {
+          "dimension": "mass",
+          "symbol": "kg",
+          "unit": "unit:kilogram",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "modal_effective_mass_fraction",
+      "selector": "fixed",
+      "table": "participation",
+      "units": {
+        "fixed": {
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "modal_cumulative_effective_mass_fraction",
+      "selector": "fixed",
+      "table": "participation",
+      "units": {
+        "fixed": {
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "cluster_error_estimate",
+      "selector": "fixed",
+      "table": "clusters",
+      "units": {
+        "fixed": {
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "computed_circular_frequency",
+      "selector": "fixed",
+      "table": "computed_modes",
+      "units": {
+        "fixed": {
+          "dimension": "angular_frequency",
+          "symbol": "rad/s",
+          "unit": "unit:radian_per_second",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "computed_frequency",
+      "selector": "fixed",
+      "table": "computed_modes",
+      "units": {
+        "fixed": {
+          "dimension": "frequency",
+          "symbol": "Hz",
+          "unit": "unit:hertz",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "residual_backward_error",
+      "selector": "fixed",
+      "table": "computed_modes",
+      "units": {
+        "fixed": {
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "eigenvalue_condition_estimate",
+      "selector": "fixed",
+      "table": "computed_modes",
+      "units": {
+        "fixed": {
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "eigenvalue_error_estimate",
+      "selector": "fixed",
+      "table": "computed_modes",
+      "units": {
+        "fixed": {
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "sturm_shift_circular_frequency",
+      "selector": "fixed",
+      "table": "sturm_candidates",
+      "units": {
+        "fixed": {
+          "dimension": "angular_frequency",
+          "symbol": "rad/s",
+          "unit": "unit:radian_per_second",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "sturm_formation_term",
+      "selector": "fixed",
+      "table": "sturm_candidates",
+      "units": {
+        "fixed": {
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "sturm_formation_separation_ratio",
+      "selector": "fixed",
+      "table": "sturm_candidates",
+      "units": {
+        "fixed": {
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "sturm_factor_term",
+      "selector": "fixed",
+      "table": "sturm_candidates",
+      "units": {
+        "fixed": {
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "sturm_backward_error",
+      "selector": "fixed",
+      "table": "sturm_candidates",
+      "units": {
+        "fixed": {
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "sturm_inverse_norm_estimate",
+      "selector": "fixed",
+      "table": "sturm_candidates",
+      "units": {
+        "fixed": {
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "sturm_conditioning_product",
+      "selector": "fixed",
+      "table": "sturm_candidates",
+      "units": {
+        "fixed": {
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "sturm_separation_ratio",
+      "selector": "fixed",
+      "table": "sturm_candidates",
+      "units": {
+        "fixed": {
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "sturm_growth_factor",
+      "selector": "fixed",
+      "table": "sturm_candidates",
+      "units": {
+        "fixed": {
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "sturm_max_abs_lower_factor",
+      "selector": "fixed",
+      "table": "sturm_candidates",
+      "units": {
+        "fixed": {
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "sturm_max_abs_pivot",
+      "selector": "fixed",
+      "table": "sturm_candidates",
+      "units": {
+        "fixed": {
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "sturm_max_abs_scaled_diagonal",
+      "selector": "fixed",
+      "table": "sturm_candidates",
+      "units": {
+        "fixed": {
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "identity_relative_discrepancy",
+      "selector": "fixed",
+      "table": "identity",
+      "units": {
+        "fixed": {
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "member_length",
+      "selector": "fixed",
+      "table": "discretization",
+      "units": {
+        "fixed": {
+          "dimension": "length",
+          "symbol": "m",
+          "unit": "unit:meter",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "member_fixed_fixed_frequency",
+      "selector": "fixed",
+      "table": "discretization",
+      "units": {
+        "fixed": {
+          "dimension": "frequency",
+          "symbol": "Hz",
+          "unit": "unit:hertz",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "member_frequency_ratio",
+      "selector": "fixed",
+      "table": "discretization",
+      "units": {
+        "fixed": {
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "basis_no_translation_threshold",
+      "selector": "fixed",
+      "table": "header",
+      "units": {
+        "fixed": {
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "basis_bounding_box_diagonal",
+      "selector": "fixed",
+      "table": "header",
+      "units": {
+        "fixed": {
+          "dimension": "length",
+          "symbol": "m",
+          "unit": "unit:meter",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "basis_mass_center",
+      "selector": "fixed",
+      "table": "header",
+      "units": {
+        "fixed": {
+          "dimension": "length",
+          "symbol": "m",
+          "unit": "unit:meter",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "request_frequency_cutoff",
+      "selector": "fixed",
+      "table": "header",
+      "units": {
+        "fixed": {
+          "dimension": "frequency",
+          "symbol": "Hz",
+          "unit": "unit:hertz",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "request_weight_to_mass_acceleration",
+      "selector": "fixed",
+      "table": "header",
+      "units": {
+        "fixed": {
+          "dimension": "acceleration",
+          "symbol": "m/s^2",
+          "unit": "unit:meter_per_second_squared",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "identity_acceleration",
+      "selector": "fixed",
+      "table": "header",
+      "units": {
+        "fixed": {
+          "dimension": "acceleration",
+          "symbol": "m/s^2",
+          "unit": "unit:meter_per_second_squared",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "placement_circular_frequency",
+      "selector": "fixed",
+      "table": "header",
+      "units": {
+        "fixed": {
+          "dimension": "angular_frequency",
+          "symbol": "rad/s",
+          "unit": "unit:radian_per_second",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "sturm_premise_parameter",
+      "selector": "fixed",
+      "table": "header",
+      "units": {
+        "fixed": {
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "orthogonality_max_ratio",
+      "selector": "fixed",
+      "table": "header",
+      "units": {
+        "fixed": {
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "stiffness_formation_difference",
+      "selector": "fixed",
+      "table": "header",
+      "units": {
+        "fixed": {
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "mass_formation_difference",
+      "selector": "fixed",
+      "table": "header",
+      "units": {
+        "fixed": {
+          "dimension": "time_squared",
+          "symbol": "s^2",
+          "unit": "unit:square_second",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "reformed_stiffness_norm",
+      "selector": "fixed",
+      "table": "header",
+      "units": {
+        "fixed": {
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "reformed_mass_norm",
+      "selector": "fixed",
+      "table": "header",
+      "units": {
+        "fixed": {
+          "dimension": "time_squared",
+          "symbol": "s^2",
+          "unit": "unit:square_second",
+          "unit_status": "catalog"
+        }
+      }
+    },
+    {
+      "kind": "section_derivation_difference",
+      "selector": "fixed",
+      "table": "header",
+      "units": {
+        "fixed": {
+          "dimension": "dimensionless",
+          "symbol": "1",
+          "unit": "unit:one",
+          "unit_status": "catalog"
+        }
+      }
+    }
+  ],
+  "schema_version": "0.1.0"
+}

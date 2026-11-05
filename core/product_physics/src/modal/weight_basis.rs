@@ -53,6 +53,10 @@ pub(crate) struct IdentityTolerance {
 pub(crate) struct Discrepancy {
     /// The member, component or `model` compared.
     pub(crate) subject: String,
+    /// What `subject` names: `member` (a pipe id), `component_body` (a
+    /// component id) or `model` (the aggregate), so a member named `model`
+    /// is never taken for the aggregate (I3a).
+    pub(crate) subject_kind: &'static str,
     pub(crate) axis: usize,
     /// `nodal` (straights) or `resultant`.
     pub(crate) kind: &'static str,
@@ -292,7 +296,7 @@ pub(crate) fn check_weight_basis(prepared: &Prepared, mass: &ModalMass, toleranc
                     let formed: Vec<Dd> = symmetric_apply(element, &rigid_translation::<12>(k)).iter().map(|v| v.mul_f64(a)).collect();
                     let length = bounding_diagonal(&[positions[member.node_i], positions[member.node_j]]);
                     let (abs, rel) = largest_difference(&formed, &reference, length);
-                    discrepancies.push(Discrepancy { subject: member.pipe.clone(), axis: k, kind: "nodal", absolute: abs, relative: rel });
+                    discrepancies.push(Discrepancy { subject: member.pipe.clone(), subject_kind: "member", axis: k, kind: "nodal", absolute: abs, relative: rel });
                     if identity_exceeds(&formed, &reference, length, tolerance) {
                         refusals.push(weight_basis_mismatch(&member.pipe, k, format!("a·M·r_k of straight member {} differs from its consistent uniform-load vector along {} by {abs:e} ({rel:e} relative)", member.pipe, AXES[k])));
                     }
@@ -315,7 +319,7 @@ pub(crate) fn check_weight_basis(prepared: &Prepared, mass: &ModalMass, toleranc
                         (member.node_i, symmetric_apply(&lumps[0], &rigid_translation::<6>(k)).map(|v| v.mul_f64(a))),
                         (member.node_j, symmetric_apply(&lumps[1], &rigid_translation::<6>(k)).map(|v| v.mul_f64(a))),
                     ];
-                    compare_resultant(&member.pipe, k, &formed, &arc_reference, &positions, About::Own(&[]), tolerance, &mut discrepancies, &mut refusals);
+                    compare_resultant((&member.pipe, "member"), k, &formed, &arc_reference, &positions, About::Own(&[]), tolerance, &mut discrepancies, &mut refusals);
                     reference_loads.extend(arc_reference);
                 }
             }
@@ -331,14 +335,14 @@ pub(crate) fn check_weight_basis(prepared: &Prepared, mass: &ModalMass, toleranc
             // The body's own size: its node and its centre of gravity.
             let at = positions[body.node];
             let gravity_centre = [at[0] + body.center_of_gravity[0], at[1] + body.center_of_gravity[1], at[2] + body.center_of_gravity[2]];
-            compare_resultant(&body.component_id, k, &formed, &wrench, &positions, About::Own(&[gravity_centre]), tolerance, &mut discrepancies, &mut refusals);
+            compare_resultant((&body.component_id, "component_body"), k, &formed, &wrench, &positions, About::Own(&[gravity_centre]), tolerance, &mut discrepancies, &mut refusals);
             reference_loads.extend(wrench);
         }
         // The whole model, on the resultant.
         let product = mass.rigid_product(k);
         let formed: Vec<(usize, [Dd; 6])> =
             (0..mass.node_count).map(|n| (n, std::array::from_fn(|i| product[6 * n + i].mul_f64(a)))).collect();
-        compare_resultant("model", k, &formed, &reference_loads, &positions, About::Model(point), tolerance, &mut discrepancies, &mut refusals);
+        compare_resultant(("model", "model"), k, &formed, &reference_loads, &positions, About::Model(point), tolerance, &mut discrepancies, &mut refusals);
     }
     if !refusals.is_empty() {
         return Err(refusals);
@@ -362,7 +366,7 @@ enum About<'a> {
 
 #[allow(clippy::too_many_arguments)]
 fn compare_resultant(
-    subject: &str,
+    (subject, subject_kind): (&str, &'static str),
     k: usize,
     formed: &[(usize, [Dd; 6])],
     reference: &[(usize, [Dd; 6])],
@@ -392,7 +396,7 @@ fn compare_resultant(
     let reference_values = to_f64s(&r);
     let length = bounding_diagonal(&extent);
     let (abs, rel) = largest_difference(&f, &reference_values, length);
-    discrepancies.push(Discrepancy { subject: subject.to_string(), axis: k, kind: "resultant", absolute: abs, relative: rel });
+    discrepancies.push(Discrepancy { subject: subject.to_string(), subject_kind, axis: k, kind: "resultant", absolute: abs, relative: rel });
     if identity_exceeds(&f, &reference_values, length, tolerance) {
         refusals.push(weight_basis_mismatch(subject, k, format!(
             "the resultant of a·M·r_k for {subject} along {} differs from the self-weight resultant about {} by {abs:e} ({rel:e} relative)",
