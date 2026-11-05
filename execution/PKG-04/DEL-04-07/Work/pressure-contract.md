@@ -1427,8 +1427,12 @@ every reference envelope validates against it
   the isolated challenge passed 7/7 on the registered binary in one
   Agent-0-cleared exclusive window (DEL-04-08 §8.49). This is test evidence,
   not an acceptance.
-- *Performance harness:* the rack's "RT-A3 increment 4" ledger entries and
-  its interim linear forms (`rack_model.py`, `release_runner.py`).
+- *Performance harness:* done by RT-U4's #125 (merged as `dc6fa167c`). The
+  rack's `nonlinear-ex` now emits its lift-off, friction and gap supports on
+  EX: at 51 and 128 nodes it solves (the gap case
+  `NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED`), and at 2000 nodes it is
+  refused with `NONLINEAR_DENSE_MEMORY_LIMIT_EXCEEDED`. The S7 lift-off
+  friction shoe entry stays.
 - *The reader's equilibrium limit* and the further limits (above).
 - *§2.2's explicit member-bound integration test.* The confirmed cases'
   certified rows match the references, but the wall-bound derivation is not
