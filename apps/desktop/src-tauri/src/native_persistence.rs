@@ -71,11 +71,53 @@
 //!   working and fingerprint leases (as the preview's), the JS-text writer's
 //!   member-list scratch, each output text's lease at its exact length
 //!   (result, record, search text, the small slots), and SQLite's statement
-//!   copies (it copies every bound text) and records, all held together while
-//!   the rows are written; the parse M and the builder's leases end before the
-//!   statements run. The response is leased at its exact length until it is
-//!   handed to Tauri. The store's own reads lease through
-//!   [`NativeLeaseMemory`].
+//!   copies (it copies every bound text) and records; the parse M and the
+//!   builder's leases end before the statements run. The response is leased
+//!   at its exact length until it is handed to Tauri. The store's own reads
+//!   lease through [`NativeLeaseMemory`].
+//! - **Lifetimes (RT-U4).** Each row-scale allocation ends at its last use,
+//!   its lease with it; stored bytes, hashes and the one transaction committed
+//!   after the response are unchanged. Refusals and their order are unchanged
+//!   except as DEL-04-05 `c1-native-custody-plan.md` slice 5 states ("Refusal
+//!   changes"): P2's new not-the-record-written text (only for bytes the full
+//!   readback accepts), P2's staged refusal before every write stage, and,
+//!   under memory pressure, which per-statement reservation is refused and
+//!   where (a save's search-row reservation now after the project upsert,
+//!   rolled back).
+//!   - Record Run writes the record's text while the parse is alive (the
+//!     record is written from it), ends the parse, then writes the result's
+//!     text from the held text. The two texts and SQLite's copies of the row
+//!     end as soon as the run row is inserted
+//!     (`analysis_runs::write_native_run`), before its labels and the
+//!     readback.
+//!   - Every reader's readback of a recorded run (lists, reads, reopen)
+//!     frees the loaded record once it is parsed and hashes the record's
+//!     projection streamed from the parse, with no clone, serialized text or
+//!     checked parse (`analysis_runs::run_record_hash_within`, which keeps the
+//!     checked path, and its refusals, for any record it could refuse or read
+//!     differently).
+//!   - Record Run's own readback is byte fidelity (P2): before anything is
+//!     written, the readback's checks are applied to the staged record text
+//!     with the columns about to be written, from one streamed pass that
+//!     builds no record tree (the prescan, the projection hash, the identity
+//!     columns, the status; their refusals and order the readback's); after
+//!     the INSERT, in the same transaction, the stored record must be exactly
+//!     the staged bytes (text, its length and its SHA-256 streamed through
+//!     SQLite's blob reader) and the row's identity, time, hash and label
+//!     columns are read and checked as before against the staged record's
+//!     members. That digest of the text is not the record's
+//!     `analysis_run_record` hash and is never stored. A staged text the pass
+//!     cannot read as the parse would (another key order, a repeated key, a
+//!     number outside the profile, deep nesting) gets the full readback, and
+//!     stored bytes that are not the staged text get the full readback's
+//!     refusal (it runs to its end first) or, only where it accepts them in
+//!     full, are refused as not the record written; either rolls back every
+//!     row.
+//!   - Save Project (and a restored run's re-save, `stored_save`) writes the
+//!     project row with SQLite's copies of it leased, ends the result's text,
+//!     builds the search text from its slots (byte for byte
+//!     `ProjectTexts::search_text`), ends the record's text, then replaces the
+//!     search row with SQLite's copies of it leased, in the same transaction.
 //! - **Residuals, unpriced** (slice 7's measurement): the builder's and
 //!   readers' own working memory (as the preview's); SQLite's page cache
 //!   and journal, and FTS5's in-memory index of the search text it tokenizes
@@ -495,16 +537,17 @@ fn decode_record(args: &mut command_ingress::Args) -> Result<(ExpectedRecord, Op
 
 /// Record Run's texts and plan, made while the record and the held result's
 /// parse are alive; everything here is owned, so they can end first.
+/// The result's text is not here: it is written from the held text after
+/// the parse ends ([`run_record`]).
 struct StagedRun {
     plan: analysis_runs::NativeRunPlan,
     checked: stored_read::Metered<analysis_runs::NativeChecked>,
     record_json: String,
     record_hash: String,
-    result_json: String,
     received: String,
     run_id: String,
-    /// The texts' leases, held with the texts.
-    leases: Vec<stored_read::ReadReservation>,
+    /// The record's lease, held with the record.
+    record_lease: stored_read::ReadReservation,
     /// What SQLite copies and builds for the row: the bound texts and the row's record.
     statement_bytes: u64,
 }
@@ -571,28 +614,43 @@ pub(crate) fn run_record(
         }
         transaction = stored_read::write_transaction(opened).map_err(refusal)?;
         sqlite = stored_read::admit_sqlite_working_set(&transaction, &memory).map_err(refusal)?;
-        let staged = stage_record(&transaction, &built, checked, manifest, manifest_text, held_text, result_length, &request, hooks, &memory).map_err(refusal)?;
-        drop(text_scratch);
+        let staged = stage_record(&transaction, &built, checked, manifest, manifest_text, result_length, &request, hooks, &memory).map_err(refusal)?;
+        #[cfg(test)]
+        stored_read::phase_probe::mark("record run: record staged, result parse held");
         // The record, the held result's parse and the builder's leases end here.
         drop(built);
         drop(source);
         drop(Building { _working: working, _scratch: scratch, _reading: reading });
-        staged
+        #[cfg(test)]
+        stored_read::phase_probe::mark("record run: result parse released");
+        // The received result's text is written from the held text, after
+        // the parse ended (RT-U4), at its exact length, its lease admitted
+        // first; the writer's scratch, admitted before it was counted, ends
+        // with it.
+        let (result_json, result_lease) =
+            leased_text(&memory, "the received result's text", result_length, |out| result_js_text::write(held_text, NegativeZero::Keep, out)).map_err(refusal)?;
+        drop(text_scratch);
+        #[cfg(test)]
+        stored_read::phase_probe::mark("record run: result text written");
+        (staged, result_json, result_lease)
     };
-    let StagedRun { plan, checked, record_json, record_hash, result_json, received, run_id, leases, statement_bytes } = staged;
+    let (StagedRun { plan, checked, record_json, record_hash, received, run_id, record_lease, statement_bytes }, result_json, result_lease) = staged;
     // SQLite copies each bound text and builds the row's record.
     let statement = memory.reserve("SQLite's copies of the run's row", statement_bytes).map_err(refusal)?;
+    // The texts, their leases and the statement's are handed to the writer,
+    // which ends them as soon as the run row is inserted (RT-U4).
     let texts = NativeRunTexts {
-        record_json: &record_json,
+        record_json,
         record_hash: &record_hash,
-        result_json: &result_json,
+        result_json,
         result_hash: &received,
         manifest_text,
         producer_run_id: &run_id,
+        leases: vec![result_lease, record_lease, statement],
     };
     let finish = |outcome| stored_read::serialize_metered(&memory, RECORD_COMMAND, outcome);
-    let serialized = analysis_runs::write_native_run(&transaction, &request, plan, &texts, hooks, &memory, finish).map_err(refusal)?;
-    drop((statement, result_json, record_json, leases, checked));
+    let serialized = analysis_runs::write_native_run(&transaction, &request, plan, texts, hooks, &memory, finish).map_err(refusal)?;
+    drop(checked);
     transaction.commit().map_err(|error| refusal(stored_read::sql_error(&error)))?;
     drop(sqlite);
     Ok(serialized)
@@ -601,7 +659,8 @@ pub(crate) fn run_record(
 /// Record Run's steps inside its transaction while the record is alive: the
 /// plan, the recorded revision, the exact lengths against the connection's
 /// limit (refused with nothing written and nothing of their size allocated),
-/// then the texts at their exact lengths.
+/// then the record's text at its exact length (the result's is written after
+/// the parse ends, [`run_record`]).
 #[allow(clippy::too_many_arguments)]
 fn stage_record(
     transaction: &Transaction<'_>,
@@ -609,7 +668,6 @@ fn stage_record(
     checked: stored_read::Metered<analysis_runs::NativeChecked>,
     manifest: &Value,
     manifest_text: &str,
-    held_text: &str,
     result_length: u64,
     request: &NativeRunRequest,
     hooks: &RunWriteHooks<'_>,
@@ -660,9 +718,7 @@ fn stage_record(
             over.bytes
         ));
     }
-    // The texts, each at its exact length, its lease admitted first.
-    let (result_json, result_lease) =
-        leased_text(memory, "the received result's text", result_length, |out| result_js_text::write(held_text, NegativeZero::Keep, out))?;
+    // The record's text at its exact length, its lease admitted first.
     let (record_json, record_lease) = revision
         .stored_bytes(built, record_length, |bytes| memory.reserve("the recorded run record", bytes).map_err(CommandError::Command))
         .map_err(command_text)?;
@@ -675,10 +731,9 @@ fn stage_record(
         checked,
         record_json,
         record_hash,
-        result_json,
         received: built.received_sha256.clone(),
         run_id: built.run_id.to_string(),
-        leases: vec![result_lease, record_lease],
+        record_lease,
         statement_bytes: bound.saturating_add(row),
     })
 }
@@ -810,7 +865,10 @@ pub(crate) struct StagedSave {
     stored_model_hash: String,
     result_json: String,
     record_json: String,
-    leases: Vec<stored_read::ReadReservation>,
+    /// The two texts' leases (none for the model-only save's `null`s), each
+    /// ended with its text ([`finish_save`]).
+    result_lease: Option<stored_read::ReadReservation>,
+    record_lease: Option<stored_read::ReadReservation>,
     run_id: String,
     /// What the project summary reads of the result and the record.
     summary_stubs: (Value, Value),
@@ -1213,17 +1271,15 @@ pub(crate) fn stage_save(
     let mut model_hasher = Sha256::new();
     canonical(fields.model, &mut model_hasher);
     let stored_model_hash = format!("sha256:{}", hex(&model_hasher.finalize()));
-    let mut leases = Vec::new();
-    let (result_json, record_json) = if saved {
+    let (result_json, record_json, result_lease, record_lease) = if saved {
         let (result_json, result_lease) = leased_text(memory, "the project's result text", result_length, |out| {
             Writer::new(out, Style::Stored).value(run.result());
             Ok(())
         })?;
         let (record_json, record_lease) = run.record_text(memory, record_length)?;
-        leases.extend([result_lease, record_lease]);
-        (result_json, record_json)
+        (result_json, record_json, Some(result_lease), Some(record_lease))
     } else {
-        ("null".to_string(), "null".to_string())
+        ("null".to_string(), "null".to_string(), None, None)
     };
     let summary_stubs = if saved { run.summary_stubs() } else { (Value::Null, Value::Null) };
     Ok(StagedSave {
@@ -1238,7 +1294,8 @@ pub(crate) fn stage_save(
         stored_model_hash,
         result_json,
         record_json,
-        leases,
+        result_lease,
+        record_lease,
         run_id: run.run_id(),
         summary_stubs,
         result_length,
@@ -1260,12 +1317,6 @@ fn envelope_evidence(model: &Value, value: &str) -> Value {
     })
 }
 
-/// Save Project after the record ended: the small texts and the search text at
-/// their exact lengths, SQLite's copies and records leased, the rows written
-/// (a row SQLite still refuses as too big is refused by name, the
-/// transaction left to roll back), and the reply serialized at its exact
-/// length.
-#[allow(clippy::too_many_arguments)]
 /// A failed write saved nothing; keep that distinct from the successful
 /// model-only save's `PROJECT-SAVE-RESULT-TOO-LARGE` result code.
 fn project_write_error(error: &rusqlite::Error) -> String {
@@ -1277,6 +1328,15 @@ fn project_write_error(error: &rusqlite::Error) -> String {
     }
 }
 
+/// Save Project after the record ended: the small texts at their exact
+/// lengths, then (RT-U4) the project row written with SQLite's copies of it
+/// leased, the result's text ended, the search text built at its exact length
+/// from the slots it is made of, the record's text ended, and the search row
+/// replaced with SQLite's copies of it leased, all in the caller's
+/// transaction (a row SQLite still refuses as too big is refused by name, the
+/// transaction left to roll back); the search text is byte for byte the one
+/// [`crate::ProjectTexts::search_text`] builds. The reply is serialized at its
+/// exact length.
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn finish_save(
     transaction: &Transaction<'_>,
@@ -1289,31 +1349,56 @@ pub(crate) fn finish_save(
     memory: &dyn ReadMemory,
     restored: Option<crate::stored_save::RestoredSave>,
 ) -> Result<Serialized, String> {
-    let StagedSave { saved: _, refused_with, row_with_result, lengths, limit_bytes, now, envelope, envelope_payload: _, stored_model_hash, result_json, record_json, leases, run_id, summary_stubs, result_length, record_length } = staged;
+    let StagedSave { saved: _, refused_with, row_with_result, lengths, limit_bytes, now, envelope, envelope_payload: _, stored_model_hash, result_json, record_json, result_lease, record_lease, run_id, summary_stubs, result_length, record_length } = staged;
+    #[cfg(test)]
+    stored_read::phase_probe::mark("save: result and record texts staged, parse released");
     let (model_json, model_lease) = leased_json(memory, "the project's model text", fields.model)?;
     let (editor_json, editor_lease) = leased_json(memory, "the project's editor intents text", fields.editor_intents)?;
     let (proposal_json, proposal_lease) = leased_json(memory, "the project's proposal text", fields.proposal)?;
     let (selected_json, selected_lease) = leased_json(memory, "the project's review target text", fields.selected_review_target)?;
     let (model_hash_json, model_hash_lease) = leased_json(memory, "the project's model hash text", fields.model_hash)?;
     let (envelope_json, envelope_lease) = leased_json(memory, "the project's envelope hash text", &envelope)?;
-    let texts = crate::ProjectTexts {
-        model_json: &model_json,
-        editor_intents_json: &editor_json,
-        proposal_json: &proposal_json,
-        selected_review_target_json: &selected_json,
-        mechanics_result_json: &result_json,
-        analysis_run_json: &record_json,
-        model_hash_json: &model_hash_json,
-        project_envelope_hash_json: &envelope_json,
-    };
-    let search_lease = memory.reserve("the project's search text", stored_read::exact_text_bytes(texts.search_text_length()))?;
-    let search_text = texts.search_text();
-    // SQLite copies each bound text, builds the rows' records, and reads the
-    // search row it replaces.
-    let bound = lengths.values.iter().filter(|length| !length.what.ends_with(" row") && !length.what.ends_with(" key")).fold(0u64, |sum, length| sum.saturating_add(length.bytes));
-    let records = lengths.values.iter().filter(|length| length.what.ends_with(" row")).fold(0u64, |sum, length| sum.saturating_add(length.bytes));
-    let statement = memory.reserve("SQLite's copies of the project's rows", stored_read::total(&[bound, records, replaced_search_bytes(transaction, fields.project_id)?]))?;
-    crate::write_project_texts(transaction, fields.project_id, fields.project_name, &texts, &search_text, now).map_err(|error| project_write_error(&error))?;
+    let measured = |what: &str| lengths.values.iter().find(|length| length.what == what).map_or(0, |length| length.bytes);
+    // SQLite copies each bound text and builds the row's record; FTS5 reads
+    // the search row it replaces, measured before the project row changes.
+    let bound = lengths
+        .values
+        .iter()
+        .filter(|length| !length.what.ends_with(" row") && !length.what.ends_with(" key") && length.what != "search text")
+        .fold(0u64, |sum, length| sum.saturating_add(length.bytes));
+    let replaced = replaced_search_bytes(transaction, fields.project_id)?;
+    {
+        let texts = crate::ProjectTexts {
+            model_json: &model_json,
+            editor_intents_json: &editor_json,
+            proposal_json: &proposal_json,
+            selected_review_target_json: &selected_json,
+            mechanics_result_json: &result_json,
+            analysis_run_json: &record_json,
+            model_hash_json: &model_hash_json,
+            project_envelope_hash_json: &envelope_json,
+        };
+        let statement = memory.reserve("SQLite's copies of the project's row", stored_read::total(&[bound, measured("project row")]))?;
+        crate::upsert_project_texts(transaction, fields.project_id, fields.project_name, &texts, now).map_err(|error| project_write_error(&error))?;
+        #[cfg(test)]
+        stored_read::phase_probe::mark("save: project row written");
+        drop(statement);
+    }
+    // The result's text is in the project row and in nothing else written here.
+    drop((result_json, result_lease));
+    #[cfg(test)]
+    stored_read::phase_probe::mark("save: result text released");
+    let parts = crate::SearchParts([&model_json, &editor_json, &proposal_json, &selected_json, &record_json]);
+    let search_lease = memory.reserve("the project's search text", stored_read::exact_text_bytes(parts.length()))?;
+    let search_text = parts.text();
+    drop((record_json, record_lease));
+    #[cfg(test)]
+    stored_read::phase_probe::mark("save: search text built, record text released");
+    let search_copies = stored_read::total(&[fields.project_id.len() as u64, fields.project_name.len() as u64, measured("search text"), measured("search row"), replaced]);
+    let statement = memory.reserve("SQLite's copies of the project's search row", search_copies)?;
+    crate::replace_project_search(transaction, fields.project_id, fields.project_name, &search_text).map_err(|error| project_write_error(&error))?;
+    #[cfg(test)]
+    stored_read::phase_probe::mark("save: search row written");
     drop((statement, search_text, search_lease));
     let (stub_result, stub_run) = summary_stubs;
     let saved_message = if create { "Created local SQLite project snapshot without external file copies." } else { "Saved current project model snapshot without external file copies." };
@@ -1363,7 +1448,7 @@ pub(crate) fn finish_save(
     };
     let serialized = stored_read::serialize_metered(memory, SAVE_COMMAND, stored_read::Metered::new(reply))?;
     drop((model_json, model_lease, editor_json, editor_lease, proposal_json, proposal_lease, selected_json, selected_lease));
-    drop((model_hash_json, model_hash_lease, envelope_json, envelope_lease, result_json, record_json, leases));
+    drop((model_hash_json, model_hash_lease, envelope_json, envelope_lease));
     Ok(serialized)
 }
 

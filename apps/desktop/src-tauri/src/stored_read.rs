@@ -160,6 +160,55 @@ pub(crate) mod release_probe {
     }
 }
 
+/// Allocation evidence by phase (tests; RT-U4, DEL-04-05
+/// `c1-native-custody-plan.md` slice 5): at each named point a persistence
+/// command passes, the thread's live requested bytes (`ingress::counting`,
+/// Rust allocations only), their peak since the previous point, and the pool's
+/// reserved total. Inside `counting::measure`, after [`start`]; the log is
+/// allocated before the measure, so a mark allocates nothing.
+#[cfg(test)]
+pub(crate) mod phase_probe {
+    use std::cell::RefCell;
+
+    /// One point: its name, the live bytes there, the phase's peak (since the
+    /// previous point) and the pool's reserved bytes there.
+    #[derive(Debug, Clone, Copy)]
+    pub(crate) struct Mark {
+        pub(crate) at: &'static str,
+        pub(crate) live: i64,
+        pub(crate) peak: i64,
+        pub(crate) reserved: u64,
+    }
+
+    type Reserved = Box<dyn Fn() -> u64>;
+
+    thread_local! {
+        static MARKS: RefCell<Option<(Vec<Mark>, Reserved)>> = RefCell::new(None);
+    }
+
+    pub(crate) fn start(reserved: impl Fn() -> u64 + 'static) {
+        MARKS.with(|marks| *marks.borrow_mut() = Some((Vec::with_capacity(512), Box::new(reserved))));
+    }
+
+    pub(crate) fn mark(at: &'static str) {
+        MARKS.with(|marks| {
+            if let Ok(mut marks) = marks.try_borrow_mut() {
+                if let Some((marks, reserved)) = marks.as_mut() {
+                    let (live, peak) = crate::ingress::counting::phase_mark();
+                    if marks.len() < marks.capacity() {
+                        marks.push(Mark { at, live, peak, reserved: reserved() });
+                    }
+                }
+            }
+        });
+    }
+
+    /// The marks since [`start`]; the probe stops.
+    pub(crate) fn take() -> Vec<Mark> {
+        MARKS.with(|marks| marks.borrow_mut().take().map(|(marks, _)| marks).unwrap_or_default())
+    }
+}
+
 /// Where a read's memory comes from.
 pub(crate) trait ReadMemory {
     /// Reserves `bytes` for `what` (a description of the stored data), or

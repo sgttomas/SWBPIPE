@@ -715,6 +715,71 @@ restored and browser-preview results):
   A row SQLite still refuses (`SQLITE_TOOBIG`) is refused by name and the transaction rolled back,
   a new snapshot included. Save uses `PROJECT-SAVE-TOO-LARGE` for this no-save backstop, distinct
   from a successful model-only save's `PROJECT-SAVE-RESULT-TOO-LARGE` result code.
+- **Lifetimes and Record Run's readback (RT-U4, 2026-11-04; Agent 0's P1/P2 decision).** Stored
+  bytes, canonical hashes, storage and schema versions, historical selection and the one
+  transaction committed after the response are unchanged, and no new value is stored. Refusal texts
+  and their order are unchanged **except** for the stated exceptions below ("Refusal changes"). P1
+  ends each row-scale allocation at its last use:
+  - Record Run writes the recorded revision while the parse M is alive, ends M and the builder's
+    leases, then writes the result text from the held text. The two texts, their leases and the
+    lease of SQLite's statement copies end as soon as the run row is inserted, before its labels
+    and the readback.
+  - Save, Create and the restored re-save upsert the project row, end the result text, build the
+    search text from its slots (byte for byte the previous text), end the record text, then delete
+    and insert the search row, in the same transaction; SQLite's copies are leased per statement,
+    the replaced search row measured before the upsert.
+  - Every readback of a recorded run (`summary_from_row`: Record Run's under P1, lists, reads,
+    reopen) frees the loaded record once it is parsed. The record hash
+    (`run_record_hash_within`) is streamed from the parse with no projection clone, serialized text,
+    checked parse or canonical text. A projection the checked path could refuse or read
+    differently (a number outside `openpipestress_jcs_ijson_v1`, nesting 127 deep, the `RawValue`
+    token key) still takes the checked path itself, so its hash and refusals are that path's;
+    `record_projection`'s omission rule and duplicate-checksum refusal come first, as before.
+  - The recorded-run reopen takes the record text the verification loaded and the result parse
+    the checks read (`NativeRunLoad::record_text`, `result_value`) rather than loading or parsing
+    either again. The release of the current result before a reopen is not part of this change.
+
+  P2 (a separate commit, the native Record Run only): before anything is written, the readback's
+  checks are applied to the staged record text with the columns about to be written. These are the
+  prescan, then one streamed pass that builds no record tree, giving the projection hash and the
+  members the checks read exactly as the parse gives them, then the identity checks and the status,
+  with the readback's refusal texts. After the INSERT, in the same transaction, the stored record
+  must be exactly the staged text: its storage class, its length and its SHA-256, streamed through
+  SQLite's blob reader (rusqlite `blob`, no new package). The identity, time, hash and label
+  columns are then read and checked as before against the staged record's members. The text's
+  digest is ephemeral and is not the record's `analysis_run_record` hash. A staged text the pass
+  cannot stream as the parse reads it gets the full readback: another key order, a repeated key, a
+  number outside the profile, nesting 127 deep, the `RawValue` key, another shape or a parse error.
+  Stored bytes that are not the staged text get the full readback's refusal, or
+  `ANALYSIS-RUN-INTEGRITY` (the stored record is not the record written) where the full readback
+  would accept them. Either way every row rolls back. Every other reader keeps full validation.
+  A staged record failing its checks is now refused before the INSERT with the text the readback
+  gave after it.
+
+  **Refusal changes** (each still rolls back every row and releases every lease; reconciled with
+  Agent 0's decision, which required the byte-fidelity check and named its bounded exceptions):
+  - *New text, P2 only:* stored bytes the full readback would accept in full (its record, column,
+    status and label checks all pass) but that are not the staged bytes, such as added
+    whitespace, are refused `ANALYSIS-RUN-INTEGRITY: … the stored record is not the record
+    written`. The full readback runs to its end first, so any refusal it gives (a malformed label
+    list, a column mismatch) stands with its own text (review of #133, finding 1;
+    `p2_changed_bytes_with_a_malformed_label_list_keep_the_old_label_refusal`).
+  - *Earlier staged refusal, P2 only:* a staged record failing the readback's checks (which only
+    a broken builder produces) is refused before the run is written, so before every later
+    write-stage failure: the state insertion, the between-rows hooks, the label insertion and
+    SQLite's row-size backstop. Its text is the readback's.
+  - *Memory refusals, P1:* each statement's copies are now leased per statement and texts end
+    earlier, so under memory pressure a different reservation may be the one refused, and at a
+    different point. In particular a save's search-row reservation is now admitted after the
+    project row is upserted; its refusal rolls the transaction back, so nothing is written. The
+    refusal is `STORE-READ-MEMORY-UNAVAILABLE` naming that reservation.
+  Evidence: `p1_stored_bytes_hashes_and_replies_are_the_pre_change_implementations` (every stored
+  column and reply of Record Run, Create/Save, the recorded-run read, the reopen and the re-save on
+  every persistence case, against digests generated at `c8865f384`), the `p1_*` and `p2_*` tests in
+  `analysis_runs_tests.rs` and `native_persistence_tests.rs` (hash and stream parity with the
+  checked path and the parse; tampering with each identity column and the record bytes after the
+  INSERT, missing labels, failures between rows and a refused finish, each rolling back every row;
+  allocation by phase from the per-thread counting allocator, `stored_read::phase_probe`).
 - **Evidence** (`native_persistence_tests.rs`, `result_js_text_tests.rs`, the TypeScript oracle
   `persistence_forms.json` from `persistenceFormsCases.ts`): on every preview case with a record
   (preview-physics, pressure, pressure-source and retained routes; aggregates; rule-pack
@@ -1563,18 +1628,25 @@ configured, the owner-adopted 12 GiB default. The cap is checked under the pool 
     result text and transient record (only when the result is saved), the small slots, the
     envelope evidence and the search text;
   - SQLite's statement copies (it copies every bound text) and its records, and for a save the
-    search row it replaces (FTS5 reads it), held while the statements run.
+    search row it replaces (FTS5 reads it), each held while its statement runs.
 
   The parse M, the record built on it and the builder's leases end together before the
-  statements run; the result and record texts stay leased until the commit. The response is
-  leased at its exact length until it is handed to Tauri; Record Run's read-back of the stored
-  record (`find_run_with`) is metered by its own reservations. Unpriced, as for the submitted
-  paths: SQLite's page cache and journal, FTS5's in-memory index of the search text, and Tauri's
-  delivery copies of the small reply.
+  statements run; Record Run's result text is written after them. Each text ends with its last use
+  (RT-U4, Persistence above): Record Run's two texts and the statement copies at the run row's
+  INSERT; a save's result text after the project row and its record text once the search text is
+  built. The response is leased at its exact length until it is handed to Tauri. Record Run's
+  read-back loads no record: the staged checks before the INSERT and the stored bytes' digest after
+  it allocate nothing of the record's size, and the labels, identity columns and status are metered
+  by its own reservations (a stored text that is not the staged one is loaded, under its own
+  reservation, by the full readback). Unpriced, as for the submitted paths: SQLite's page cache and
+  journal, FTS5's in-memory index of the search text, the staged pass's members (the record's
+  non-row-scale identity members, as the header record) and Tauri's delivery copies of the small
+  reply.
 - **The reopen's leases** (slice 6), under the same rules: the args lease as every command's; from
   the measured lengths, before anything of the run is loaded, the held result's and record's leases
   (each its text's envelope, adaptive, capped) and SQLite's copies of both (ended after the load); each
-  parse's materialization M (result, record, manifest) admitted before the parse; the capped header's
+  parse's materialization M (result, record, manifest) admitted before the parse, a recorded run's
+  record loaded once and its result parsed once (the verified read's own, RT-U4); the capped header's
   temporary serialized text and its parse M, both admitted before allocation, with the header parse
   lease held through reply serialization; the reply's exact length. The held leases become result
   leases and live with the bytes in the registry until disposal

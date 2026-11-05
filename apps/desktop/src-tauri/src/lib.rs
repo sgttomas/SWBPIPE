@@ -1140,18 +1140,33 @@ pub(crate) struct ProjectTexts<'t> {
 
 impl ProjectTexts<'_> {
     /// The search row's text: the model, the editor intents, the proposal, the
-    /// selected review target and the analysis-run record, one per line.
-    pub(crate) fn search_text_length(&self) -> u64 {
-        [self.model_json, self.editor_intents_json, self.proposal_json, self.selected_review_target_json, self.analysis_run_json]
-            .iter()
-            .fold(4u64, |sum, text| sum.saturating_add(text.len() as u64))
+    /// selected review target and the analysis-run record, one per line,
+    /// written into a buffer of exactly its length.
+    pub(crate) fn search_text(&self) -> String {
+        self.search_parts().text()
     }
 
-    /// [`ProjectTexts::search_text_length`]'s text, written into a buffer of
-    /// exactly that length.
-    pub(crate) fn search_text(&self) -> String {
-        let mut text = String::with_capacity(usize::try_from(self.search_text_length()).unwrap_or(usize::MAX));
-        for (at, part) in [self.model_json, self.editor_intents_json, self.proposal_json, self.selected_review_target_json, self.analysis_run_json].iter().enumerate() {
+    /// The slots the search row's text is made of.
+    pub(crate) fn search_parts(&self) -> SearchParts<'_> {
+        SearchParts([self.model_json, self.editor_intents_json, self.proposal_json, self.selected_review_target_json, self.analysis_run_json])
+    }
+}
+
+/// The search row's text's slots, in its order: the model, the editor
+/// intents, the proposal, the selected review target and the analysis-run
+/// record. Borrowing only these, the native save builds the text after the
+/// project row is written and its result text has ended (RT-U4).
+pub(crate) struct SearchParts<'t>(pub(crate) [&'t str; 5]);
+
+impl SearchParts<'_> {
+    pub(crate) fn length(&self) -> u64 {
+        self.0.iter().fold(4u64, |sum, text| sum.saturating_add(text.len() as u64))
+    }
+
+    /// The parts one per line, written into a buffer of exactly [`SearchParts::length`].
+    pub(crate) fn text(&self) -> String {
+        let mut text = String::with_capacity(usize::try_from(self.length()).unwrap_or(usize::MAX));
+        for (at, part) in self.0.iter().enumerate() {
             if at > 0 {
                 text.push('\n');
             }
@@ -1170,6 +1185,18 @@ pub(crate) fn write_project_texts(
     project_name: &str,
     texts: &ProjectTexts<'_>,
     search_text: &str,
+    now: i64,
+) -> Result<(), rusqlite::Error> {
+    upsert_project_texts(transaction, project_id, project_name, texts, now)?;
+    replace_project_search(transaction, project_id, project_name, search_text)
+}
+
+/// [`write_project_texts`]'s first statement: the project row's upsert.
+pub(crate) fn upsert_project_texts(
+    transaction: &rusqlite::Transaction<'_>,
+    project_id: &str,
+    project_name: &str,
+    texts: &ProjectTexts<'_>,
     now: i64,
 ) -> Result<(), rusqlite::Error> {
     let ProjectTexts {
@@ -1213,6 +1240,17 @@ pub(crate) fn write_project_texts(
                 now
             ],
         )?;
+    Ok(())
+}
+
+/// [`write_project_texts`]'s last two statements: the project's search row
+/// replaced (deleted, then inserted with `search_text`).
+pub(crate) fn replace_project_search(
+    transaction: &rusqlite::Transaction<'_>,
+    project_id: &str,
+    project_name: &str,
+    search_text: &str,
+) -> Result<(), rusqlite::Error> {
     transaction.execute(
         "DELETE FROM local_project_fts WHERE project_id = ?1",
         params![project_id],

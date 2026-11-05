@@ -578,7 +578,22 @@ the History panel and `useModelStateHistory.ts`.
   it the run is refused `RUN-RECORD-RESULT-TOO-LARGE (result_bytes, record_bytes,
   row_bytes, limit_bytes)` with nothing written, and a row SQLite still refuses
   rolls the transaction back, a new snapshot included. The outcome is
-  `record_analysis_run`'s.
+  `record_analysis_run`'s. Its read-back of the run it wrote is byte fidelity
+  (RT-U4). Before anything is written, the read-back's record checks (the
+  prescan, the record hash, the identity columns, the status, with their
+  refusal texts) run on the staged record text, streamed without a record
+  tree. After the INSERT the stored record must be exactly that text (its
+  type, length and SHA-256, streamed from SQLite), and the run's identity,
+  time, hash and label columns are read and checked as every read-back checks
+  them. A staged text the stream cannot read as the parse does gets the full
+  read-back. Stored bytes that are not the staged text get its refusal (the
+  full read-back runs to its end first), or, only where it accepts them in
+  full, are refused as not the record written, a new text. A staged record
+  failing the checks is refused before anything is written. Either refusal
+  rolls everything back. These and P1's memory-refusal changes are stated in
+  DEL-04-05 `c1-native-custody-plan.md` slice 5, "Refusal changes".
+  That text digest is never stored and is not the record's hash; every other
+  read keeps the full verification.
 - **Checks before the store.**
   - `ANALYSIS-RUN-MANIFEST-MISMATCH`: the manifest is not its own canonical text;
     its hash is not `input_manifest_hashes[0]`; that entry's ref is not
@@ -939,7 +954,9 @@ the History panel and `useModelStateHistory.ts`.
     when the command returns.
   - **Lists.** A list reserves its largest record and the sum of the labels and
     relationship lists it returns. It then verifies records one at a time:
-    - each record's parse and hash texts are reserved after it loads;
+    - each record's parse is reserved after it loads; its loaded text ends
+      once it is parsed, and its hash is streamed from the parse, with the
+      checked path's texts reserved only for a record that takes it (RT-U4);
     - they are released, with the record, once it is verified.
 
     It never loads a result or a manifest.
