@@ -43,7 +43,7 @@ adapter), DEL-04-09 (modal), DEL-02-01 (the applier's authoring of `direction`) 
 | Reactions | Global support-on-pipe components, plus a new row `support_reaction_along_direction_v1` (N, positive along authored +d). Attribution comes from the unique multipliers, never from a split. It is range-safe: the restricted direction is rescaled exactly before its norm is formed. Physical reaction rows include every skewed spring block (§7, §10.5). |
 | Certificate | K-D5's existing machinery on the transformed system QᵀK_intQ, with exact splits for triple products and the existing `SPLIT_EXACT_MIN` premise. The binary64 factorization and correction are unchanged. The member bound is lifted to physical DOFs with one new per-DOF lift radius. No new certificate is introduced (§10). |
 | Pricing | The retained route never admits `direction` (D1 premise), so every skew arm is zero on D1. Pinned identity-path bodies and some layouts change, so a D3 actual-source turn is needed (§12). |
-| Exact obstacles | None that blocks S-K1. Two reserved choices are raised in §14: the meaning of imposed motion on a skewed record (C-1, open for the owner) and the order of later slices (C-2). C-3 is decided: keep the range refusal. |
+| Exact obstacles | None that blocks S-K1. The reserved choices of §14 are decided (Agent 0, 2026-11-04): C-1 = meaning B (ground motion along d/|d|), C-2 = S-K2 → S-K3 → S-K5 → S-K4 after S-K1, C-3 = keep the range refusal. |
 
 ---
 
@@ -120,7 +120,7 @@ penalty spring.
 | 2 | `SUPPORT_DIRECTION_SKEW_EXACT_UNSUPPORTED` (new, blocking) | Skew admission (solve; applier). A skewed record on a document with a `pressure_contract` | S-K5 (EX) |
 | 3 | `SUPPORT_DIRECTION_SKEW_NONLINEAR_MODEL_UNSUPPORTED` (new, blocking) | Skew admission (solve). A skewed record in a model with any nonlinear support. This covers a friction-normal source and modal's state case | S-K4 (NI) |
 | 4 | `SUPPORT_DIRECTION_RANGE_UNSUPPORTED` (adopted name, blocking) | Skew admission (solve; applier). §4.2's range rule | Permanent (intrinsic to the direction) |
-| 5 | `IMPOSED_DISPLACEMENT_SKEW_SUPPORT_UNSUPPORTED` (new, blocking) | `imposed_motion::validate`. An `imposed_displacement` primitive whose target is a skewed record | S-K3, after the meaning choice (§14 C-1) |
+| 5 | `IMPOSED_DISPLACEMENT_SKEW_SUPPORT_UNSUPPORTED` (new, blocking) | `imposed_motion::validate`. An `imposed_displacement` primitive whose target is a skewed record | S-K3 (meaning B, §14 C-1) |
 | 6 | `SUPPORT_DIRECTION_NODE_UNCONNECTED` (new, blocking) | Boundary preparation. A skewed record on a node with no element: the node's 3×3 block is not in the pattern | Permanent |
 | 7 | `SUPPORT_SKEW_STOPS_PER_NODE_UNSUPPORTED` (new, blocking) | Boundary preparation. A node with two or more skewed stops | S-K2 (§5.3) |
 | 8 | `SUPPORT_CONSTRAINT_REDUNDANT` (adopted name, blocking) | Boundary preparation. §5's exact rank is below the node's row count | Permanent (attribution would not be unique) |
@@ -622,7 +622,7 @@ The partition carries them unchanged: their DOFs are axis coordinates.
 - §2.2 item 5: a primitive targeting a skewed record.
 - §2.2 item 9: a nonzero prescribed translation at a stop's node.
 
-### 8.3 S-K3 (designed; the meaning of item 5 is reserved, §14 C-1)
+### 8.3 S-K3 (designed; item 5 takes meaning B, decided in §14 C-1)
 
 **The constraint right-hand side first, then the particular solution (review P2-5).** A
 motion primitive on a skewed record does not supply a particular solution. It supplies the stop
@@ -667,7 +667,7 @@ solved for u₀:
 - **A moving axis restraint alone** is h = 0 with g_A ≠ 0. Example: `K3_moving_guide_plus_stop`:
   UZ at h = 2⁻¹⁰ and stop (3,4,5) give 3u_x + 4u_y = −5h.
 
-**The two candidate meanings of a primitive on a skewed record (§14 C-1, open for the owner).**
+**The two candidate meanings of a primitive on a skewed record (§14 C-1; Agent 0 decided B, 2026-11-04).**
 Each defines h only; the particular solution then follows from the complete system above.
 
 - **Meaning B (the adopted §2.4 reading; the reviewer prefers it).**
@@ -1006,17 +1006,25 @@ two independent routes (KKT and RREF nullspace). Contents:
 
 ## 14. Reserved choices and obstacles
 
-- **C-1 (open for the owner, through Agent 0): the meaning of an imposed-motion primitive on a
-  skewed record.** Each meaning defines only the stop row's right-hand side h. The particular
-  solution then comes from the complete C u₀ = (g_A, h) (§8.3, review P2-5).
+- **C-1: decided (Agent 0, 2026-11-04): meaning B**, the adopted §2.4 reading. A primitive on a
+  skewed record moves its ground along d/|d|. The authored raw finite vector is preserved, and the
+  certified enclosure and particular solution carry every ground term. A (global-axis
+  reinterpretation) is not adopted merely to avoid an irrational representation. The reviewed B
+  centre and range treatment (§8.3) applies; S-K3 ships only once implemented and reviewed. Each
+  meaning defines only the stop row's right-hand side h. The particular solution then comes from
+  the complete C u₀ = (g_A, h) (§8.3, review P2-5).
   - **B** (the adopted §2.4 reading; the reviewer prefers it): g along +d/|d|, h = |d| g, an
     irrational datum carried as a certified ball.
   - **A**: the ground moves by g e_b, h = d_b g, exact in h. It is valid only if the owner
     deliberately chooses global-axis ground motion.
 
-  S-K3 is blocked on this choice; S-K1 is not.
-- **C-2 (Agent 0): the order of S-K2 to S-K5.** EX (S-K5) matters for pressurized imports, but
-  the MBF importer does not map skewed records yet (DEL-17-04).
+  A is kept here only as the rejected alternative.
+- **C-2: decided (Agent 0, 2026-11-04): after S-K1, S-K2 (joint stops) → S-K3 (imposed motion)
+  → S-K5 (EX) → S-K4 (nonlinear).** This closes ordinary linear EX parity before further
+  nonlinear PF expansion. If a reviewed design proves that S-K4 must precede S-K5, the exact
+  dependency goes to Agent 0 with a minimal reorder; S-K1 is not blocked. There is no permanent
+  PF-only release exception, and the MBF importer does not yet map skewed records (DEL-17-04);
+  nothing here claims it does.
 - **C-3: decided** (Agent 0, 2026-11-04): keep the range refusal (§4.4).
 - **No exact obstacle to S-K1 was found.** One design limit is recorded: a skewed record on an
   unconnected node is refused (item 6), not supported.
