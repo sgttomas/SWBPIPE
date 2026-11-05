@@ -21,11 +21,273 @@ pressure-2 bases); its record is kept as history. **No retry, B1000 or further n
 interval is authorized.** Exact selected identities and all raw packets remain preserved.
 
 A sixth, the A-only attempt of 2026-11-04 (`app-c1-main-907e633e2`), has since run once
-and is also consumed; its result, diagnosis and repair are in the next section.
+and is also consumed; its result, diagnosis and repair are in "A-only 500-node attempt" below.
 
-The A+B candidate `app-c1-main-4427c3ec0` is built and bound offline; its one-attempt proposal
-(not run, nothing granted) is "Bounded ONE 500-node attempt proposal (A+B candidate, 4427c3ec0)"
-below.
+A seventh, the A+B attempt of 2026-11-05 (`app-c1-main-4427c3ec0`, proposal "Bounded ONE
+500-node attempt proposal (A+B candidate, 4427c3ec0)" below), has run once and is consumed. Its
+result, diagnosis and harness repair, and the prepared small connected validation (not run,
+nothing granted), are in the next section. **No further 500-node attempt is proposed.**
+
+## A+B 500-node attempt: result, diagnosis and repair (2026-11-05)
+
+Agent 0 released one 500-node attempt of the A+B candidate `app-c1-main-4427c3ec0` (binary
+`82e4b961…19a4`, built from `4427c3ec0`), launched from `fd03ffc23` (runtime equivalence over the
+six approved non-runtime paths, `c1-main-4427c3ec0-delta-addendum-v2.json`). It ran once and is
+**consumed**. **No first paint; the reader path completed.** This is no usable-size, memory-fit,
+base-machine, C1-completion or acceptance claim.
+
+**Run.** Wrapper log `scratch/rt-perf-mgr/c1-ab1-wrapper.log`: queued 2026-11-04T23:59:26Z,
+admission OK 2026-11-05T00:09:59Z, returned **00:15:02Z, `rc=1`** (one-second stamps). Supervisor
+window 1793837399855–1793837702099 epoch ms (302,244 ms), `stop_reason: null`, exit code 1, group
+reaped, owned PIDs gone. Fresh host admission: 71% available, pressure level 1 (normal). The
+runner's elapsed time was 301.6 s (App exit status 0 after `native_smoke_finish`). Packet
+(read-only): `scratch/rt-perf-c1-slice7/evidence/n0500-c1-ab1/`.
+
+| Packet file | SHA-256 |
+| --- | --- |
+| `perf-reader-phases-perf-CqlMke-native-linear-ex-n0500.jsonl` (79 lines) | `e8b02e9c222d3558459d869a2ec4743d8741cfc9eb22771fa4194d0e9c7ce62a` |
+| `perf-run-perf-CqlMke-native-linear-ex-n0500.json` | `63c9882d47d21726a7aa0bf7ce6fe01a191b85d02d17d285ca3d8ec556005f9d` |
+| `perf-samples-perf-CqlMke-native-linear-ex-n0500.jsonl` | `a858bca03fd43ba017a15195500d26fb4f892f8d3c3d2cd9abbaa690a741b3c4` |
+| `perf-report-2026-11-05T0015Z.json` | `2b26ca2706b6a5ab8185ce49b3fba2842f2ca2dad09a1ccc5897077b746e20f7` |
+| `perf-window-1793837399855.json` | `7c8d530f911f2a477a2ae82a1e1567cb5f726606e6c70f9d412e5f5325e2e7d2` |
+| `scratch/rt-perf-mgr/c1-ab1-wrapper.log` | `cce9cacec1d79085b1643abbda1a3caed9eca272c96e5caa235656a847249605` |
+
+**Clock scopes** (as in the A-only record; not interchangeable):
+- **Web marks** and the journal's **web** `mono_ms` are WebContent `performance.now()`, time origin
+  1793837400932 epoch ms; `solve_requested` at web 456 ms (≈ 00:10:01.388Z). Times below are
+  from `solve_requested` unless marked "web".
+- **Native journal `mono_ms`** is the App's monotonic clock from call 1's first boundary.
+- **`received_epoch_ms`** is the host's receipt of each fsynced journal line; **sampler rows** are
+  epoch ms; **wrapper stamps** are UTC at one-second resolution.
+
+**Timeline** (`report.timeline_after.marks`; outcome `completed`, failure null, no dropped marks):
+
+| Mark | Since `solve_requested` |
+| --- | ---: |
+| `job_started` | 0.1 s |
+| `job_done` (918,640,913 result bytes; worker peak footprint 3,462,319,680 B, peak grant 6,375,342,080 B) | 58.4 s |
+| `reader_verdict_start` | 58.4 s |
+| `reader_verdict_end` (registered, no reason code) | 160.5 s |
+| `analysis_run_built`, `result_set` (946,742 rows) | 189.5 s |
+| `result_committed` | **190.6 s** |
+| `first_paint` | **none** by the deadline (web 300,455 ms = `started_at_ms` 455 + `paint_ms` 300,000) |
+
+**Journal** (79 lines, `evidence_complete: true`, nothing incomplete, no overflow; web call spans
+on the web clock, native phases on the native clock):
+
+| Call | Web span | Native phases (s) |
+| --- | ---: | --- |
+| 1 `header` | 58.87–63.91 s (5.0 s) | prescan 1.54, parse 2.18, validate 0.37, drop 0.94 |
+| 2 `registration` | 63.91–101.36 s (37.5 s) | prescan 1.52, parse 1.97, **validate 32.4**, drop 1.24 |
+| 3 `standing` (B's single pass) | 101.38–140.51 s (39.1 s) | prescan 1.65, parse 2.18, **validate 34.6**, drop 0.68 |
+| 4 `summary` | 140.51–160.96 s (20.4 s) | prescan 1.53, **summary_health 5.6**, parse 1.74, **summary_build 10.1**, drop 0.63 |
+| 5 `run_preview` (web only) | 161.29–189.99 s (28.7 s) | none: the native preview has no inner boundaries |
+
+**Physical footprints** (sampled at 200 ms on the shared physical host; labelled as readings, not
+a memory fit): App peak footprint 9,048,890,904 B (peak RSS 9,524,314,112 B); WebContent peak
+footprint 1,604,684,152 B; worker sampled peak footprint 3,427,585,264 B (the product reported
+3,462,319,680 B lifetime and a 6,375,342,080 B peak grant). The aligned sampled peak was
+9,435,194,032 B (App + WebContent, worker zero inferred from the completion mark) at epoch
+1793837494934, during call 2's `validate`. The last pool reading held one retained result
+(935,428,224 B reserved), no running job or worker and normal pressure.
+
+**Report at the end.** `results_refusal`, `error`, `refusal` and `worker_failure` null. The proof
+line read `identity=match; rows=946742; generation=6; job=backend-solve-job-1` with the opened
+model's digest. The Solve summary read `state=not_started; events=1; result_rows=0;
+cancellation_requested=false` (explained below). Findings: `hang` (no first paint within 300,000 ms;
+last stage `result_committed`), the driver's refusal "C1 solve did not paint: timeout", reader
+allocation evidence incomplete (the reader profile runs only after a paint) and the connected C1
+probes not completed.
+
+**Store integrity.** The harness record already holds the store's check: `quick_check: ["ok"]`,
+`openpipestress-projects.sqlite3` 102,400 B, every table empty (0 projects, 0 runs), as expected
+for a run that stopped before persistence. Confirmed on a copy (the database, its 32,768 B `-shm`
+and its empty `-wal`, copied together to a private temporary directory): `sqlite3 -readonly
+'file:…?mode=ro' 'PRAGMA quick_check'` → **`ok`**; journal mode `wal`. The retained originals hash
+identically before and after (`3f2a7bbf…573c`, `fd4c9fda…89eb`, `e3b0c442…b855`); the copy was
+deleted afterwards.
+
+**Retention and the teardown-wording correction.** As the pre-launch note
+(`scratch/rt-perf-c1-slice7/c1-main-4427c3ec0-retention-note.md`, written 2026-11-04T18:23:55Z)
+stated from `perf.mjs` at `4427c3ec0` (header lines 33–35, `finishScratch` at :339 and :967):
+**an ok run's private scratch is removed after its record is committed (without `--keep`); a
+failed run's is retained as failure evidence.** This run failed, so its private directory
+`perf-CqlMke/` (54,004 KiB, about 53 MB: the App copy, HOME and store; the record's `kept` field)
+is retained. The proposals' wording that "only this run's private HOME, store, downloads and
+temporary App copy are removed, after the post-run checks" (A-only and A+B "Preserved") held only
+for a successful run; every attempt so far failed and keeps its `perf-*` directory. No earlier
+evidence byte is changed by this correction.
+
+**Closure.** As verified and reported by the RT-U4 manager: no App, worker, sampler, runner or
+caffeinate process of the run remained, and **no lock holder of the run's** remained. Not "all locks
+free": a foreign ordinary slot-2 job was active. The **A-only closure** stays as recorded by the
+manager's attributed verification at 2026-11-04T12:06:08Z; the kit holds no closure file for it,
+and none is created after the fact.
+
+### Diagnosis (selected source `fd03ffc23`; App runtime `4427c3ec0`)
+
+Traced from `result_committed` to the first page and its frames, without assuming a cause.
+
+1. **Activation was issued and acknowledged.** The driver opened Results once the run had begun
+   (`perf-driver.js` `solve` → `showSection("results")`, the `view.section.results` menu,
+   `workspaceSession.ts:3855–3861`) and waited until the section was laid out
+   (`offsetParent !== null`). A failure there throws "C1 results did not open"; the run's error
+   was the gate's timeout, so Results opened. `canSurfaceRevealNow` (`surfaceReveal.ts:16–28`) is
+   a layout probe (attached, not `[hidden]`/`[inert]`, `checkVisibility`); it does not read page
+   visibility.
+2. **The summary text is a stale dormant render, not another job.** `solve-job-summary` is
+   `SolvePanel.tsx:70–73`, from `buildSolveJobPacket` (`SolvePanel.tsx:257–293`: `solveJob.state`,
+   `solveJob.events.length`, the result's rows). The Solve section is wrapped in `DormantSection`
+   (`App.tsx:1141–1160`), which skips every render while the section is inactive
+   (`dormantSection.tsx:10–27`). `state=not_started; events=1; result_rows=0` is exactly
+   `initialSolveJob()` (`solveJobAudit.ts:87–114`): Analyze > Run shows Solve synchronously
+   (`workspaceSession.ts:3840–3842`), the driver switched to Results at about 0.5 s, before the
+   run's first job state rendered, and Solve was never shown again. It is this session's pre-run
+   state, not a different, next or reset job. The proof is the global status bar's live pill, so
+   `identity=match … job=backend-solve-job-1` is current. The two are consistent, and the stale
+   summary is itself evidence that Solve stayed dormant. The driver now reports `summary_live`.
+3. **Identity: the panel held the current job's handle.** `readNativeFresh` notes the handle it
+   builds (`previewService.ts:680`, `noteSolveHandle`, refused unless it is the running latest
+   solve's job). `result_committed` is marked only for that object
+   (`solveTimeline.ts:272–279`, from `workspaceSession.ts:851`). The same session `result` reaches
+   `ResultsPanel` (`App.tsx:771`) and `NativeResultsPanel` (`ResultsPanel.tsx:79`). One solve ran,
+   so no stale handle existed.
+4. **Arming has no cancel/re-arm loop on a stable page.** The panel's layout effect runs after each
+   commit (`NativeResultsPanel.tsx:298–304`). It arms once its page is ready (rows and their row
+   semantics) and laid out, and cancels otherwise. `markSolveFirstPageCommitted`
+   (`solveTimeline.ts:296–320`) keeps the pending page across later commits, so its frames are not
+   restarted. Each of the two `requestAnimationFrame` callbacks re-checks that page and its layout
+   visibility. This run recorded no arming event, so whether it armed is not observed.
+5. **The first page's native cost is bounded and small next to the remainder.** The first
+   `query_preview_mechanics_job_rows` builds the held result's detail index once
+   (`result_detail.rs:291–311`: prescan, one parse into a `Value` under M, the route's table, then
+   three borrowing passes, `:318–357`). That is O(bytes) on first use. The panel's default filter
+   admits every row (`panelDetailFilter`, `resultDetail.ts:82–91`; the fast path
+   `result_detail.rs:769–778`), so the page itself is O(page). The semantics batch
+   (`run_semantics`, `result_detail.rs:1126–1161`) parses the whole held text once per call. Priced from this run's
+   own phases on the same bytes (prescan 1.5–1.7 s, parse 1.7–2.2 s, the header route 0.37 s, drop
+   0.6–1.2 s), the index is about 6–9 s and the semantics about 3–4 s: roughly 10–15 s, against
+   109.9 s left after the commit. This is an estimate from measured phases, not a timing of these
+   handlers. The run has no detail-command observation (point 7a), so whether the page was read is
+   not observed. No quadratic or whole-result render work is on the first-page path.
+6. **The deciding observation: the page was not shown.** From 0.77 s on, 53 of the 54 driver
+   heartbeats after 6 s land at x.616–x.618 s of the web clock: 1 s-aligned timers. That is WebKit's
+   hidden-page DOM timer alignment, which applies only to a page it does not consider visible. The
+   one exception, 191,058, is the first poll after the commit's long task (WebContent footprint
+   805 → 1,530 MiB at 189.6–190.7 s). The same signature is in every C1 500-node run: the A-only
+   log (52 of 53 at x.516) and the four earlier consoles (41–50 of 51–53). WebKit runs no
+   rendering update, so no animation frame, for a page that is not visible. `first_paint` is two
+   frames after the first page (`solveTimeline.ts:311–319`), so on this page it could not be
+   marked, whatever the first page did. The smoke build's `backgroundThrottling: "disabled"` maps
+   only to WKPreferences `inactiveSchedulingPolicy = none` (wry 0.55.1
+   `src/wkwebview/mod.rs:473–493`), a process-scheduling policy. It does not make an occluded,
+   asleep or locked window's page visible. `caffeinate -di` (`perf.mjs:834` at `fd03ffc23`) prevents idle sleep,
+   but it cannot unlock a screen or uncover a window. **Status:** "the page was hidden" is inferred
+   from the timer signature and WebKit's behaviour. `document.visibilityState` and frame delivery
+   were not recorded. The repaired driver records both and refuses to start a solve without them.
+7. **Two further harness defects, either of which would have failed the run after a paint:**
+   - (a) **The C1 command trace observed nothing in any run.** Tauri 2.11.1 defines
+     `__TAURI_INTERNALS__.invoke` with `Object.defineProperty` (`scripts/core.js:81`), so it is not
+     writable. The driver's `ipc.invoke = wrapped` was silently ignored, and `report.c1.trace.counts`
+     is `{}` in all six C1 500-node records. After a paint, `probePersistence` would have refused
+     ("C1 Record Run did not complete: no native receipt"). So would the final observation check.
+     The driver's tests had used a writable plain object, which hid this.
+   - (b) **Receipt shapes.** The Record, Save, reopen, recorded-read, re-save and CSV-finish
+     commands reply with raw `tauri::ipc::Response` JSON bytes (`lib.rs:2402–2467`, `:5789`). Even a
+     working wrap would have read `undefined` receipt fields. Also, `probeResults`' two-frame wait
+     was unbounded.
+8. **Excluded by source and evidence:** reader validation or registration (all calls `ok`,
+   evidence complete); a refused page (`results_refusal` null); another job or handle (identity
+   match, one solve); a reset solve (the summary is the dormant pre-run render).
+
+### Repair (harness only; App runtime unchanged)
+
+- **`perf-driver.js`:**
+  - **Page check before any solve.** A C1 run requires `document.visibilityState === "visible"`
+    and two animation frames within 2 s, before the model opens and again before Analyze > Run.
+    Otherwise it stops with "C1 host: the App's page is not shown (…)" and starts no solve.
+  - **IPC check.** After the pool preflight, the run requires that its observation saw that call
+    ("C1 command observation saw no IPC").
+  - **Command observation on `window.fetch`.** Every invoke is one `fetch` of
+    `ipc://localhost/<command>`; other requests pass through untouched.
+    - A forbidden command is answered as Tauri answers a refusal (`Tauri-Response: error`), so the
+      App's promise rejects and no transport fallback is taken.
+    - Receipts are decoded from JSON or raw JSON bytes (at most 4 MiB). A CSV page's row header is
+      read from a cancelled clone prefix of at most 64 KiB + 16 bytes. No row page, record or
+      result body is retained.
+  - **Page record during the solve** (`report.solve.page`): visibility at the run and at the end,
+    hidden polls, frame probes and acknowledgements (one per heartbeat), and when the native table's
+    first page was first seen settled with rows, or refused. Heartbeats carry the same fields.
+  - **Journal phases** (web layer; fixed names, scalars only, no job, handle, model or row
+    identity; serialized sends; at most 16 calls per phase):
+    - `results_open`: Results activation issued and acknowledged;
+    - `first_page`: from `result_committed` to the first page seen with rows (rows and semantics
+      read), or `error` if refused;
+    - `paint_frames`: from that page to the `first_paint` mark;
+    - `page_hidden`: the page not shown, entered and left;
+    - `frame_wait`: a frame probe not answered by the next heartbeat.
+
+    Job and handle are not recorded: the journal accepts no identity. The handle's identity is
+    established by source (point 3), and the proof line binds the job.
+  - **`probeResults`' two frames** are bounded by `interaction_ms`.
+- **`perf.mjs`:** the journal accepts the five observed web phases. It matches them and lists a
+  missing exit in `incomplete`, but does not require them. `evidence_complete` keeps its meaning
+  over the reader awaits and native boundaries, and the fixed 256-entry cap is unchanged. C1 plans
+  may bind an 82-node fixture besides 500 and 1,000; size escalation is still refused.
+- **`perf-plan-c1-small.json`:** one native run of the 82-node rack (`a3ca6fbc…cac0`), with the
+  C1 plan's timeouts, budget, diagnostics and probes and the same 300,000 ms paint gate.
+- **Unchanged:**
+  - the meaning of `first_paint`: the Results table's first native page (rows and semantics),
+    committed while visible, then two frames, for the current job's handle;
+  - the 300,000 ms deadline, judged on the mark in both driver and classifier;
+  - the full reader, registration, standing, summary, health and agreement path;
+  - no early or blank-panel paint and no truncation;
+  - every App source file.
+
+**Tests:**
+- `perf.test.mjs`: **63 passed**. Against the old harness (driver and `perf.mjs` at `fd03ffc23`),
+  11 of them fail:
+  - the three trace tests, now on Tauri-faithful IPC (a non-writable `invoke`, one `fetch` per
+    command, raw JSON receipts);
+  - the hidden-page and no-frames refusals before the model opens;
+  - the shown-page pass-through;
+  - the no-IPC refusal;
+  - the two journalled solves (shown and A+B-like);
+  - the journal acceptance;
+  - the small plan's binding.
+- `nativeSolveFirstPaint.session.test.tsx` (the actual App, session, native-result and panel path;
+  the page, its semantics and activation are neither pre-completed nor mocked away): **21 passed**,
+  with two new characterization cases:
+  - a page that is not shown, with no animation frames, marks no paint however long its first page
+    has been committed; the first two frames after it is shown mark it;
+  - a stale handle's first page, answered while a newer solve runs, marks nothing in the newer
+    timeline; the newer solve paints from its own page.
+
+  With the product unchanged, these pass before and after the repair.
+- Other `native-smoke` node tests: 40 passed. `tsc --noEmit`: clean. Deliverables check: exit 0.
+
+### Small connected validation (prepared offline; not run, nothing granted)
+
+Before any further 500-node proposal, the complete connected path on the smallest maintained
+model:
+- **Model.** The 82-node `linear-ex` rack of `perf-plan.json`'s functional subset, regenerated
+  byte for byte by `rack_model.py --profile linear-ex --nodes 82`: 287,470 B, SHA-256
+  `a3ca6fbc7412966304fdde46322fa4af6d93c462cc60341658fac7a188cf4ac0`, checked by the plan test. It
+  is not in `models_sha256.txt`, whose smallest entry is 250 nodes (`7ad2332f…a68d`). Choosing 250
+  instead is Agent 0's decision.
+- **App.** The existing binary `app-c1-main-4427c3ec0` (`82e4b961…19a4`) is reused: this repair
+  changes no App runtime path (harness files under `apps/desktop/native-smoke/`, one test file,
+  this document). The driver is read from its file at launch, so its new identity is bound by the
+  run record's `harness.files_sha256`, not by the binary. The new non-runtime addendum and the
+  harness, plan and model identities are prepared in new kit files, and the earlier kit is
+  untouched.
+- **Host precondition.** The display must be awake, the session unlocked and the App window
+  uncovered for the whole run. Otherwise the driver stops within about 2 s of the shell, with no
+  solve. This is a host decision outside the harness.
+- **What a pass would show:** once, on this host, at 82 nodes, the whole path. That is the first
+  page and paint, `table_ready`, navigation, the streamed CSV, the reader profile, Record Run,
+  Save, reopen, re-save, the recorded check and release, through persistence. It is no 500-node,
+  usable-size or memory-fit claim.
 
 ## A-only 500-node attempt: result, diagnosis and repair (2026-11-04)
 
