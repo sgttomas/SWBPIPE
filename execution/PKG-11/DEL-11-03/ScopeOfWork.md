@@ -124,7 +124,7 @@ This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and
 > - `AGENTS.md` for open mechanics, protected-data, rule-check, professional-responsibility, and centerline-vs-FEA boundaries.
 > - `docs/CONTRACT.md` for invariants `OPS-K-IP-1`, `OPS-K-IP-2`, `OPS-K-IP-3`, `OPS-K-DATA-1`, `OPS-K-DATA-2`, `OPS-K-UNIT-1`, `OPS-K-AUTH-1`, `OPS-K-MECH-1`, `OPS-K-MECH-2`, and `OPS-K-AGENT-1..4`.
 > - `docs/IP_AND_DATA_BOUNDARY.md` for public/permissive source provenance fields, protected-content quarantine expectations, and contribution-review controls.
-> - `docs/PROFESSIONAL_BOUNDARY.md` for product-claim and professional-reliance boundaries.
+> - `docs/PRD.md` §21 for product-claim and professional-reliance boundaries.
 > - `execution/_Decomposition/SOFTWARE_DECOMP.md` accepted current basis rows for `PKG-11`, `DEL-11-03`, `OBJ-001`, `OBJ-003`, and `SOW-033`.
 > - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history), `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history), and `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) rows for `DEL-11-03` and `SOW-033`.
 
@@ -164,7 +164,7 @@ This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and
 > | REQ-11-03-09 | The setup artifacts shall remain inside the assigned deliverable folder and shall not move content to `ISSUED`. | Human sealed brief; `AGENTS.md` dispatch rule |
 > | REQ-11-03-10 | Future citations shall carry at least source title, locator, source section, license or redistribution status, public/permissive disposition, and review notes. | `docs/CONTRACT.md` `OPS-K-IP-2`; `_SEMANTIC_LENSING.md` items `C-001` and `F-001` |
 > | REQ-11-03-11 | The source inventory shall classify each candidate source as accepted, rejected, quarantined, or `TBD`; unclear or unsupported sources shall not support final theory claims. | `_SEMANTIC_LENSING.md` items `B-001`, `F-001`, and `E-001`; `docs/IP_AND_DATA_BOUNDARY.md` section 4 |
-> | REQ-11-03-12 | Final review shall record both coverage review and protected-content/professional-boundary review before the theory note is treated as ready for later lifecycle review. | `_SEMANTIC_LENSING.md` items `A-001`, `D-002`, and `X-001`; `docs/PROFESSIONAL_BOUNDARY.md` section 9 |
+> | REQ-11-03-12 | Final review shall record both coverage review and protected-content/professional-boundary review before the theory note is treated as ready for later lifecycle review. | `_SEMANTIC_LENSING.md` items `A-001`, `D-002`, and `X-001` |
 >
 
 ### CLM-012 — Standards

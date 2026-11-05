@@ -895,7 +895,7 @@ note; it uses no supplier catalogue, supplier selection procedure or standards
 text. The variation limit, travel allowance and selection rule are your inputs,
 and SWBPIPE ships no value for any of them. Engineering judgement on the inputs, the cases, the
 library and the result remains yours, and competent human review is required
-before professional reliance (§1, [`docs/PROFESSIONAL_BOUNDARY.md`](../PROFESSIONAL_BOUNDARY.md)).
+before professional reliance (§1).
 
 ## 8. Running User Rule Checks
 
