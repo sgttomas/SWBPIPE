@@ -1622,7 +1622,13 @@ owners.
 - **Readers (R-1):** RE `along_direction_evidence` and the Python verifier re-check it, with
   the RE and Python combination mirrors. The tables went through the generator (`apply-sk1`),
   with the S-K1 base's tables kept as the `recorded_pre_sk1` variants in the Rust, Python and
-  webview registries.
+  webview registries. Both readers rescale the direction by a power of two to max|d̃_i| ∈ [1, 2)
+  without forming the scale. The rescaling is exact, and the two readers agree component for
+  component, on the admitted domain only (every nonzero d̃_i normal, §4.2). Outside it, for
+  example d = (8, 5·2^−1074, 0), the RE reader's repeated halving and Python's single `ldexp`
+  may round a component that becomes subnormal differently; the product refuses such a
+  direction and publishes no row. The along guard scales R, s and its quantization floor
+  jointly by the same exact power of two (Astra B2, B2′).
 - **Modal (D-1):** the reduced pencil (C1-C9); shapes published on the lifted vector (B1).
   Spring re-formation is on the canonical d̃ (§11.3 note). The modal result document and the
   test-only phase replay refuse a skew model by name (C8 (a), (b)).

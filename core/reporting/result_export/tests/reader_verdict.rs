@@ -696,7 +696,7 @@ fn retired_identities_and_readers_are_refused_by_name() {
 
 /// Astra B3 (DEL-04-03 Work `skew-restraints.md` §4.3 I1; R-1's reader): the committed
 /// S-K1 product documents read with their models, and with every skewed direction scaled by
-/// 2^-1026 (subnormal components; the same canonical direction) they read the same; a
+/// 2^-1026 (subnormal components; the same canonical direction, admitted) they read the same; a
 /// wrong along-direction value is refused under the scaled model as under the original.
 #[test]
 fn a_subnormal_scaled_skew_direction_reads_as_its_twin_through_the_reader_entry() {

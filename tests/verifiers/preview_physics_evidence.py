@@ -396,8 +396,11 @@ def _along_direction(source: Mapping[str, Any], model: Mapping[str, Any] | None)
                 continue
             d = _skewed_direction(supports.get(entity) or {})
             _require(d is not None, "ALONG_DIRECTION_UNEXPECTED")
-            # Astra B3: an exact power-of-two rescale to max|d_i| in [1, 2) by frexp/ldexp, component by component; the
-            # scale itself is never formed (2.0 ** e overflows for a subnormal direction whose scaled components fit).
+            # Astra B3: a power-of-two rescale to max|d_i| in [1, 2) by frexp/ldexp, component by component; the scale
+            # itself is never formed (2.0 ** e overflows for a subnormal direction whose scaled components fit). It is
+            # exact on the admitted domain (every nonzero canonical component normal, section 4.2). Outside it, ldexp
+            # rounds a component that becomes subnormal once, and the Rust reader's stepping may differ (re-check item 3);
+            # the product refuses such a direction and publishes no row.
             shift = 1 - math.frexp(max(abs(c) for c in d))[1]
             d = tuple(math.ldexp(c, shift) for c in d)
             r = [components[(entity, c)] for c in ("Fx", "Fy", "Fz")]

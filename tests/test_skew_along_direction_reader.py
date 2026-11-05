@@ -120,7 +120,7 @@ def test_a_large_finite_reaction_never_makes_the_guard_accept_a_wrong_value():
 
 @pytest.mark.parametrize("fixture", [FIXTURE, COMBINATIONS], ids=["one-case", "combinations"])
 def test_a_subnormal_scaled_direction_reads_as_its_twin_through_the_reader_entry(fixture):
-    """Astra B3: every skewed direction scaled by 2^-1026 (subnormal components, the same canonical direction) reads
+    """Astra B3: every skewed direction scaled by 2^-1026 (subnormal components, the same admitted canonical direction) reads
     through validate_preview_physics_evidence as its unscaled twin; the scale is never formed (2.0 ** 1026 overflowed and
     the validator reported malformed evidence). A wrong along value is refused under the scaled model too."""
     import math

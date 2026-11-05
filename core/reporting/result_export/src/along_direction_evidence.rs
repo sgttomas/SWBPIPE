@@ -52,8 +52,16 @@ fn exact_source_identity(parts: &[&str]) -> String {
     parts.iter().map(|part| format!("{}:{part}", part.len())).collect()
 }
 
-/// d scaled exactly by a power of two to max|d_i| ∈ [1, 2): s·|d| = dᵀR is invariant
-/// under a positive scale, and the scaled norm never under- or overflows.
+/// d scaled by a power of two to max|d_i| ∈ [1, 2): s·|d| = dᵀR is invariant under a
+/// positive scale, and the scaled norm never under- or overflows.
+///
+/// Astra re-check item 3: the scaling is exact on the admitted domain only, every nonzero
+/// component of the canonical direction normal (§4.2). There each step down keeps every
+/// intermediate between the original and the final normal value, and each step up is exact,
+/// so no admitted component is rounded. Outside it, for example d = (8, 5·2^-1074, 0), repeated
+/// halving may round or flush a component that becomes subnormal, and this reader and the
+/// Python verifier (one `ldexp` rounding) may differ component by component. Such a direction
+/// is refused by the product (`SUPPORT_DIRECTION_RANGE_UNSUPPORTED`) and publishes no row.
 fn canonical(mut d: [f64; 3]) -> [f64; 3] {
     let largest = |d: &[f64; 3]| d.iter().fold(0.0_f64, |m, x| m.max(x.abs()));
     while largest(&d) >= 2.0 {
@@ -75,7 +83,7 @@ fn canonical(mut d: [f64; 3]) -> [f64; 3] {
 /// Astra B2′: the allowance's absolute quantization floor belongs to the unscaled
 /// quantities (64ε·2^-1022, the guard's floor before B2), so it is returned scaled by the
 /// same 2^k (`floor`), never re-floored at the scaled magnitude: an honest subnormal reaction
-/// (R = (−m, −m, 0), s = −m) reads exactly as it did unscaled.
+/// (R = (−m, −m, 0), s = −m) reads, as it did before the joint scaling.
 ///
 /// Scaling down may flush a value more than 2^1074 below the largest; that changes the
 /// residual by at most 6·2^-1075 (scaled), inside the allowance. Rust's stepping and Python's
@@ -202,7 +210,8 @@ mod tests {
     }
 
     /// Astra B3 (the Rust half): a direction rescaled by 2^-1026 (a subnormal pair) reads as
-    /// its unscaled twin; `canonical` steps by powers of two and never forms the scale.
+    /// its unscaled twin (an admitted direction: every nonzero canonical component normal);
+    /// `canonical` steps by powers of two and never forms the scale.
     #[test]
     fn a_subnormal_scaled_direction_reads_as_its_twin() {
         let tiny = 2f64.powi(-1000) * 2f64.powi(-26);
