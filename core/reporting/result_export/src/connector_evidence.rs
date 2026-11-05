@@ -1012,8 +1012,9 @@ mod u5b_effective_axial_tests {
         assert_eq!(exact_dot3([below_normal, -TINY, 0.0], [1.0, 0.5, 0.0]), Some(f64::MIN_POSITIVE - 2.0 * TINY));
     }
 
-    /// Where the old TwoProduct formula was exact (every product finite and either zero or at
-    /// least 2^-969), the new dot gives the same bits: normal-case results are unchanged.
+    /// Where the old TwoProduct formula was exact (every product finite and either exactly zero,
+    /// with a zero operand, or at least 2^-969 in magnitude; an underflowed rounded-zero product is
+    /// the repaired defect), the new dot gives the same bits: normal-case results are unchanged.
     #[test]
     fn normal_range_dots_keep_their_bits() {
         let mut state = 0x9e3779b97f4a7c15u64;
