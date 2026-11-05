@@ -232,3 +232,41 @@ fn a_seeded_block_perturbation_is_detected() {
         assert!(solution.formation_check.is_none() && solution.report.quality == SolveQuality::Passed, "{mode:?}");
     }
 }
+
+/// Astra B4 (§6.2, RT-A3's re-check criteria): a transformed load outside binary64 is a
+/// numerical failure, refused on the ordinary `NumericallyUnresolved` path with a
+/// `restraint_basis:` reason, in both modes; it is not the `InvalidInput` backstop. A stop
+/// d = (1.5, 1, 0) at B with the finite force (−1e308, 1e308, 0) gives the free-coordinate
+/// force 1.5·1e308 + 1e308 = 2.5e308 (the ledger's `Sum { NonRepresentable }`). A shape
+/// error (a force of the wrong length) stays on the backstop.
+#[test]
+fn a_transformed_load_outside_binary64_is_numerically_unresolved_in_both_modes() {
+    let mut model = cantilever(&[], &[[1.5, 1.0, 0.0]], &[]);
+    let mut ledger = LoadLedger::new();
+    ledger.push("load:Bx", 6, -1e308);
+    ledger.push("load:By", 7, 1e308);
+    model.force = ledger.finish(12).unwrap();
+    let evidence = |model: &Cantilever| {
+        SparseAssemblyEvidence::new_with_restraint_basis(model.k.pattern(), 2, &model.frames, &[], &[], &[], &model.basis).unwrap()
+    };
+    for mode in [LinearSolveMode::SparseInteractive, LinearSolveMode::DenseScrutiny] {
+        let refused = evidence(&model).solve_skew_with_formation_check(&model.k, &model.force, &model.prescribed, mode, &[]);
+        assert!(
+            matches!(refused, Err(StructuralError::NumericallyUnresolved {
+                reason: "restraint_basis: the transformed load is outside binary64",
+                global_dof: None,
+            })),
+            "{mode:?}: {refused:?}"
+        );
+    }
+    // The ordinary load still solves; a force of the wrong length stays on the backstop.
+    let ordinary = cantilever(&[], &[[1.5, 1.0, 0.0]], &[]);
+    for mode in [LinearSolveMode::SparseInteractive, LinearSolveMode::DenseScrutiny] {
+        assert!(evidence(&ordinary).solve_skew_with_formation_check(&ordinary.k, &ordinary.force, &ordinary.prescribed, mode, &[]).is_ok(), "{mode:?}");
+    }
+    let mut ledger = LoadLedger::new();
+    ledger.push("load:B", 7, -1024.0);
+    let short = ledger.finish(8).unwrap();
+    let refused = evidence(&ordinary).solve_skew_with_formation_check(&ordinary.k, &short, &ordinary.prescribed, LinearSolveMode::SparseInteractive, &[]);
+    assert!(matches!(refused, Err(StructuralError::InvalidInput(_))), "{refused:?}");
+}

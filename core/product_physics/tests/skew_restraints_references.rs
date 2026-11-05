@@ -519,3 +519,25 @@ fn the_combinations_reader_fixture_is_the_product_output() {
     }
     assert_eq!(text, include_str!("../../../fixtures/results/skew_along_direction_combinations_preview.json"), "rewrite with OPENPIPESTRESS_WRITE_SKEW_ALONG_COMBINATIONS_FIXTURE");
 }
+
+/// Astra B4 (§6.2, RT-A3's re-check criteria): a skewed stop d = (1.5, 1, 0) at B under the
+/// finite force (−1e308, 1e308, 0) has a free-coordinate force 2.5e308 outside binary64. The
+/// case is refused on the existing `NumericallyUnresolved` arm with its `restraint_basis:`
+/// reason in both modes, never the `InvalidInput` backstop, and the case publishes no rows.
+#[test]
+fn a_transformed_load_outside_binary64_is_refused_on_the_numerically_unresolved_arm() {
+    let doc = document(&[stop("stop_B", [1.5, 1.0, 0.0])], [-1e308, 1e308, 0.0]);
+    for mode in MODES {
+        // 1e308 is beyond the value entry's checked JSON domain: the typed entry (as CE2).
+        let request: LinearStaticPreviewRequest = serde_json::from_value(doc.clone()).unwrap();
+        let out = serde_json::to_value(run_linear_static_preview_with_mode(request, mode)).unwrap();
+        let blocking: Vec<&Value> = out["diagnostics"].as_array().unwrap().iter().filter(|d| d["severity"] == "blocking").collect();
+        // One blocking finding: the existing arm's code, with the reason named.
+        assert_eq!(blocking.len(), 1, "{mode:?}: {blocking:?}");
+        assert_eq!(blocking[0]["code"], "NUMERICAL_INTEGRITY_UNRESOLVED", "{mode:?}");
+        let message = blocking[0]["message"].as_str().unwrap();
+        assert!(message.contains("NumericallyUnresolved { reason: \"restraint_basis: the transformed load is outside binary64\", global_dof: None }"), "{mode:?}: {message}");
+        assert!(!message.contains("invalid input:") && !message.contains("InvalidInput"), "{mode:?}: {message}");
+        assert!(rows(&out).iter().all(|r| r["basis_ref"]["ref_id"] != CASE), "{mode:?}: no partial rows for the case");
+    }
+}

@@ -3,7 +3,8 @@
 use crate::{CurvedBendStiffnessElement, LinearSolveMode};
 use open_pipe_stress_curved_bend::CurvedBendMacroElement;
 use open_pipe_stress_frame_kernel::connector::{ConnectorDefiniteness, ObjectiveConnector};
-use open_pipe_stress_frame_kernel::load_ledger::{AssembledForce, ForceTerm};
+use open_pipe_stress_frame_kernel::exact_sum::SumError;
+use open_pipe_stress_frame_kernel::load_ledger::{AssembledForce, ForceTerm, LedgerError};
 use open_pipe_stress_frame_kernel::restraint_basis::{BasisError, GroundRow, RestraintBasis, SkewFormation};
 use open_pipe_stress_frame_kernel::rigid_body::{
     assess_constrained_bodies, assess_rigid_body, assess_rigid_body_rows, objective_sub_bodies,
@@ -1250,7 +1251,13 @@ impl SparseAssemblyEvidence {
         // §6.2: a transform product below the split range (P1) or a non-finite
         // rounding is refused on the ordinary failure path with the error named,
         // never rounded; a coordinate is not a physical DOF, so none is named.
-        // A shape or sum error is outside the entry's contract (the backstop).
+        // Astra B4: so is the transformed load's or the reduced coordinate load's
+        // range or non-finite failure, split on the typed variant (the ledger's
+        // `Sum` with `NonRepresentable` or `NonFinite`; the reduction's
+        // `NonFiniteInput`, which there can only be the adjusted force's rounding).
+        // A shape or sum error (a ledger term's source or DOF, the accumulator's
+        // capacity, a reduction length or DOF) is outside the entry's contract (the
+        // backstop).
         let basis_error = |error| match error {
             BasisError::SplitRange { .. } => StructuralError::NumericallyUnresolved {
                 reason: "restraint_basis: split range in the coordinate transform",
@@ -1258,6 +1265,16 @@ impl SparseAssemblyEvidence {
             },
             BasisError::NonFinite { .. } => StructuralError::NumericallyUnresolved {
                 reason: "restraint_basis: non-finite rounding in the coordinate transform",
+                global_dof: None,
+            },
+            BasisError::Ledger(LedgerError::Sum { error: SumError::NonRepresentable | SumError::NonFinite, .. }) => {
+                StructuralError::NumericallyUnresolved {
+                    reason: "restraint_basis: the transformed load is outside binary64",
+                    global_dof: None,
+                }
+            }
+            BasisError::Reduction(FrameKernelError::NonFiniteInput { .. }) => StructuralError::NumericallyUnresolved {
+                reason: "restraint_basis: the reduced coordinate load is outside binary64",
                 global_dof: None,
             },
             _ => StructuralError::InvalidInput("restraint basis transform"),

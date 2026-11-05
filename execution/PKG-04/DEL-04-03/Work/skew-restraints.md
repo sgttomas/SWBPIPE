@@ -502,8 +502,20 @@ rows, as in §5.1.
     case (`PIVOT_SCREEN_REASON`) or the `InvalidInput` backstop.
   - It is a refusal of the case. It is not K-D5's §10.7 demotion to Sensitive, which applies
     to a case that solved.
-  - A shape or sum error stays the backstop, because it is outside the entry's contract.
-  - Regression: a UZ guide and a stop (1, 2⁻⁶⁰⁰, 0), whose k·q·q falls below 2⁻⁹⁶⁹.
+  - **As built (Astra B4, RT-A3's re-check criteria).** The transformed load's and the
+    reduced coordinate load's range or non-finite failures map the same way, split on the
+    typed variant: `BasisError::Ledger(LedgerError::Sum { error: NonRepresentable |
+    NonFinite })` gives `restraint_basis: the transformed load is outside binary64`, and
+    `BasisError::Reduction(FrameKernelError::NonFiniteInput)` (in the skew reduction, only
+    the adjusted force's rounding) gives `restraint_basis: the reduced coordinate load is
+    outside binary64`.
+  - A shape or sum error stays the backstop, because it is outside the entry's contract:
+    the ledger's `EmptySource`, `DofOutOfRange` and `Sum { AccumulatorOverflow }`, and the
+    reduction's length and DOF errors.
+  - Regressions: a UZ guide and a stop (1, 2⁻⁶⁰⁰, 0), whose k·q·q falls below 2⁻⁹⁶⁹; and a stop
+    (1.5, 1, 0) under the finite force (−1e308, 1e308, 0), whose free-coordinate force is
+    2.5e308. Each is tested in both modes, at NI and through PP's arm, with no rows for the
+    case.
 - **When.** Formed per case in the skew branch, from the basis's formed K. This is O(entries in
   constrained rows) work plus one copy of the values. Caching per modulus basis is an
   optimization left to the implementation.
