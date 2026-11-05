@@ -1588,4 +1588,46 @@ Output: a note in the PR description of who agreed what.
 
 ## 16. As built
 
-Not built. This section is filled by the S-K1 implementation.
+S-K1, on `claude/rt-skew-sk1` (with `claude/rt-skew-sk1-r1`). This records what was built and
+where. It claims no integration, acceptance, release or D3 registration, which stay with their
+owners.
+
+**Built (§11.1 seams, §15 steps 1-10):**
+- **Basis (FK, RV-1):** `restraint_basis.rs` (`SkewDirection`, `RestraintBasis`,
+  `congruence_terms`, transform, reduce, lift, attribution) on `connector.rs`'s shared
+  `SPLIT_EXACT_MIN`; tested in `restraint_basis_tests.rs` against `direction_policy`,
+  `invariance`, `kernel` and `mutant`.
+- **Assembly and screens (FK):** `SparseAssemblyOptions.node_blocks`; `rigid_body` ground rows
+  (F-3, n counts every ground row); the formation check's restraint source on the dense and
+  sparse attempts (F-2); K-D5 on the transformed system with `lift_radius` and the certified
+  reaction at skewed nodes (§10.5).
+- **NI and LSUP:** NI's linear skew entry (A-1; the loop never carries a basis). LSUP
+  `prepare_skew_boundary`, with the three codes in DEL-04-06's `InvalidRestraint` mapping and
+  the `InvalidInput` backstop.
+- **Product (PP):** `skew.rs` and `document_members` (§2.2 gates in order, one source of the
+  code strings, M-1); `support_reaction_along_direction_v1`, one row per skewed record and case
+  under the agreed id. A combination forms it in its support's group (§7.1 note, R-1).
+- **Readers (R-1):** RE `along_direction_evidence` and the Python verifier re-check it, with
+  the RE and Python combination mirrors. The tables went through the generator (`apply-sk1`),
+  with the S-K1 base's tables kept as the `recorded_pre_sk1` variants in the Rust, Python and
+  webview registries.
+- **Modal (D-1):** the reduced pencil (C1-C9); shapes published on the lifted vector (B1).
+  Spring re-formation is on the canonical d̃ (§11.3 note). The modal result document and the
+  test-only phase replay refuse a skew model by name (C8 (a), (b)).
+- **Applier (AP-1):** `create_support` authors `direction` under the one item-1 predicate and
+  the skew gates. A present `pressure_contract: null` is refused by the shared validator
+  (Agent 0, 2026-11-05).
+- **Desktop:** the webview's handling of the kind: the support summary's per-case list with
+  each row's own derivation and sign convention, the known kind, notices, CSV, and the
+  `recorded_pre_sk1` registry. The reaction overlay is unchanged.
+
+**Tests:** the product cases in both static modes, the ±axis byte-identity twins, the
+power-of-two twins (static and modal, bit for bit), the refusals by name, the reader tamper
+cases and the two-case combinations fixture.
+
+**Open:**
+- S-K2 to S-K5 (§2.3, in the order C-2 sets), with C-1 = meaning B and C-3 = keep the range
+  refusal.
+- The D3 actual-source turn (§12; RV-4). The retained profile reports Stale while its reviewed
+  inputs, the preview-physics-2, retained-1 and timoshenko-1 tables, carry R-1's row; the
+  MODAL pins (C8 (c)) are on that list.

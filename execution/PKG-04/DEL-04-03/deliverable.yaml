@@ -88,7 +88,10 @@ needs:
   gating: true
 - from: DEL-04-01
   condition: 'DEL-04-03 needs DEL-04-01 as a predecessor: support/restraint models modify frame boundary
-    conditions
+    conditions. R-6/R-7 S-K1 (Work/skew-restraints.md): a skewed record also needs the frame kernel''s
+    restraint basis (`restraint_basis`), its skewed spring node blocks in sparse assembly, the row-based
+    ground screen and the formation check''s restraint source; the support policy and its refusals stay
+    DEL-04-03''s.
 
 
     Notes: Normalized v3.1 enums during TP-DAG-004 refresh. Legacy DependencyType SOLVER_PREDECESSOR Explicitness
@@ -140,6 +143,10 @@ code_paths:
 - core/solver/nonlinear_integration/src/confirmation.rs
 # R-6/R-7 skewed restraints (Design skew-restraints.md): the independent references.
 - validation/references/skew_restraints/**
+# R-6/R-7 S-K1 as built (Design skew-restraints.md §15 step 11, §16): the restraint basis and the
+# product's skew boundary and publication.
+- core/solver/frame_kernel/src/restraint_basis.rs
+- core/product_physics/src/skew.rs
 checks:
 - core/solver/linear_supports/src/lib.rs
 - core/product_physics/tests/w16_imposed_motion.rs
@@ -147,3 +154,10 @@ checks:
 - core/solver/nonlinear_integration/src/confirmation_tests.rs
 - validation/references/w16_nonlinear_motion/generators/w16_nl_reference.py
 - validation/references/skew_restraints/generators/skew_reference.py
+# R-6/R-7 S-K1: the basis, the boundary preparation, the product cases in both static modes,
+# and the readers' re-check of the along-direction row.
+- core/solver/frame_kernel/src/restraint_basis_tests.rs
+- core/solver/linear_supports/src/skew_tests.rs
+- core/product_physics/src/skew_tests.rs
+- core/product_physics/tests/skew_restraints_references.rs
+- tests/test_skew_along_direction_reader.py
