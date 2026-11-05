@@ -542,7 +542,8 @@ fn profile_readers(
             health: crate::result_summary_tables::health_view(&health),
         });
     let (summary, summary_metrics) = profile_phase(|| {
-        crate::result_summary::build(&job, &source, &model, Some(&standing), &health, None, |bytes| {
+        let presentation = crate::diagnostics_presentation::facts(held.text(), &source, held.recorded_table(), Some(held.presentation()));
+        crate::result_summary::build(&job, &source, &model, Some(&standing), &health, None, &presentation, |bytes| {
             registry.acquire_result_parse(bytes)
         })
     });

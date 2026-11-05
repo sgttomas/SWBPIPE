@@ -126,6 +126,10 @@ export class NativeResultRowsGuarded extends Error {
   }
 }
 
+/** A value that is not a native handle: a full-row consumer's input type (with this, a
+ * `NativeResult` does not compile as its argument, whatever members the consumer picks). */
+export type NotNativeResult = { readonly [NATIVE]?: never };
+
 export function isNativeResult(value: unknown): value is NativeResult {
   return !!value && typeof value === "object" && NATIVE in (value as object);
 }
@@ -152,6 +156,59 @@ export function createNativeResult(custody: NativeCustody): NativeResult {
   Object.defineProperty(handle, "toJSON", { enumerable: false, value() { throw new NativeResultRowsGuarded("serializable envelope"); } });
   Object.defineProperty(handle, NATIVE, { enumerable: false, value: custody });
   return Object.freeze(handle) as unknown as NativeResult;
+}
+
+/* -------------------------------------------------------------------------- *
+ * The diagnostics presentation facts (RT-A3 §4 on a native handle)
+ * -------------------------------------------------------------------------- */
+
+/** S's header member carrying the diagnostics presentation facts (Rust `diagnostics_presentation`). */
+export const DIAGNOSTICS_PRESENTATION_MEMBER = "diagnostics_presentation";
+/** What the Diagnostics list and explanation classify a native result's diagnostics with
+ * (`suppliedDiagnostics.ts` `presentedResultDiagnostics`): Rust's source-only facts of the held
+ * bytes, each defined as its whole-value helper on the same bytes (Rust `diagnostics_presentation`
+ * module docs): the population (`documentCombinationIdentities`), the route reader's acceptance of
+ * the source alone (`rosterCheckedByReader`) and the registered retained reader's attestation
+ * (`certificateAttestedByRetainedReader`, false for every native snapshot). */
+export type NativeDiagnosticsPresentation = Readonly<{
+  combinations: ReadonlySet<string>;
+  rosterChecked: boolean;
+  certificateAttested: boolean;
+}>;
+
+const PRESENTATION_KEYS = ["version", "binding", "combination_identities", "roster_checked", "certificate_attested"];
+const PRESENTATION_BINDING_KEYS = ["result_bytes", "source_sha256", "route", "reader_table", "recorded_table"];
+const presentationTable = (value: unknown): ContractBinding | null | undefined => {
+  if (value === null) return null;
+  if (!plain(value) || Object.keys(value).length !== 2 || typeof value.id !== "string" || typeof value.sha256 !== "string" || !/^[a-f0-9]{64}$/.test(value.sha256)) return undefined;
+  return { id: value.id, sha256: value.sha256 };
+};
+/** A decoded table (`undefined`: malformed) equal to the handle's own (null: none). */
+const sameTable = (decoded: ContractBinding | null | undefined, own: ContractBinding | null): boolean =>
+  decoded !== undefined && (decoded === null || own === null ? decoded === own : decoded.id === own.id && decoded.sha256 === own.sha256);
+
+/** The diagnostics presentation facts of a native handle, or null (fail closed: the classifier then
+ * quotes every message) when they are missing, malformed or not this handle's: a disposed custody,
+ * or a binding (the held bytes' length, the route and its table, the recorded table the handle
+ * holds) other than the handle's own native readings. Never read from a request, the envelope's
+ * claims, route metadata or a diagnostic's wording; never from the guarded row members. */
+export function nativeDiagnosticsPresentation(result: NativeResult): NativeDiagnosticsPresentation | null {
+  const custody = result[NATIVE];
+  if (!isNativeJobLive(custody.jobId)) return null;
+  const facts = (custody.summary.header as Record<string, unknown>)[DIAGNOSTICS_PRESENTATION_MEMBER];
+  const exact = (value: Record<string, unknown>, keys: readonly string[]) => Object.keys(value).length === keys.length && keys.every((key) => Object.prototype.hasOwnProperty.call(value, key));
+  if (!plain(facts) || !exact(facts, PRESENTATION_KEYS) || facts.version !== 1) return null;
+  const binding = facts.binding, ids = facts.combination_identities;
+  if (!plain(binding) || !exact(binding, PRESENTATION_BINDING_KEYS)) return null;
+  if (typeof facts.roster_checked !== "boolean" || typeof facts.certificate_attested !== "boolean") return null;
+  if (!Array.isArray(ids) || !ids.every((id, i) => typeof id === "string" && id !== "" && (i === 0 || (ids[i - 1] as string) < id))) return null;
+  // The route reader's acceptance is read only for a population, and never on a retained successor,
+  // whose certificate attestation it excludes.
+  if ((facts.roster_checked && ids.length === 0) || (facts.roster_checked && facts.certificate_attested)) return null;
+  const readerTable = presentationTable(binding.reader_table), recordedTable = presentationTable(binding.recorded_table);
+  if (binding.result_bytes !== custody.resultBytes || typeof binding.source_sha256 !== "string" || !/^[a-f0-9]{64}$/.test(binding.source_sha256)) return null;
+  if (binding.route !== custody.verdict.route || !sameTable(readerTable, custody.verdict.binding ?? null) || !sameTable(recordedTable, custody.recordedTable ?? null)) return null;
+  return Object.freeze({ combinations: new Set(ids as string[]), rosterChecked: facts.roster_checked, certificateAttested: facts.certificate_attested });
 }
 
 /* -------------------------------------------------------------------------- *
