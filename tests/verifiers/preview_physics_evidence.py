@@ -404,8 +404,10 @@ def _along_guard(d: Sequence[float], r: Sequence[float], s: float) -> bool:
     """|s*|d| - d.R| <= 64*eps*max(|d|*sum|R_i|, floor), in the RE reader's operation order (one verdict for both).
     A consistency check within a finite allowance, not an exact-integrity check: an alteration inside the allowance
     reads, including a subnormal one inside its absolute floor (R = (-m, -m, 0) with s = 0 for s = -m, m = 2^-1074)."""
-    d = _canonical_direction(d)
-    r, s, floor = _joint_scale(list(r), s)
+    # Re-check 3: every input is a binary64 value first, as the RE reader's serde_json decode makes it; a JSON
+    # integer (for example 2^512 - 1) kept as an int would steer the scaling differently from Rust's f64.
+    d = _canonical_direction([float(x) for x in d])
+    r, s, floor = _joint_scale([float(x) for x in r], float(s))
     norm = math.sqrt(d[0] * d[0] + d[1] * d[1] + d[2] * d[2])
     dot = d[0] * r[0] + d[1] * r[1] + d[2] * r[2]
     scale = norm * (abs(r[0]) + abs(r[1]) + abs(r[2]))

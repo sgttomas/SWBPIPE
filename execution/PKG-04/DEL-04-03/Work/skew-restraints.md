@@ -1650,8 +1650,10 @@ owners.
   component that becomes subnormal; the product refuses such a direction and publishes no row.
   The along guard scales R, s and its quantization floor jointly by the same exact power of two
   (Astra B2, B2′). The Python verifier repeats the RE reader's steps and sums one for one
-  (re-check 2, §7.1 readers' guard), so the two readers form the same bits and verdict for
-  every input the guard reads.
+  (re-check 2, §7.1 readers' guard) on the binary64 values both readers decode: Python
+  converts every guard input with `float()` first, as the RE reader's serde_json decode makes
+  each JSON number an f64 (re-check 3; a JSON integer such as 2^512 − 1 would otherwise steer
+  the scaling differently). On those values the two readers form the same bits and verdict.
 - **Modal (D-1):** the reduced pencil (C1-C9); shapes published on the lifted vector (B1).
   Spring re-formation is on the canonical d̃ (§11.3 note). The modal result document and the
   test-only phase replay refuse a skew model by name (C8 (a), (b)).

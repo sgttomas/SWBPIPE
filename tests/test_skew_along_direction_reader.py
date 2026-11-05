@@ -187,3 +187,32 @@ def test_a_subnormal_alteration_inside_the_floor_reads_by_design():
     from tests.verifiers.preview_physics_evidence import _along_direction
     m = math.ldexp(1.0, -1074)
     _along_direction(*_synthetic((1.0, 1.0, 0.0), (-m, -m, 0.0), 0.0))
+
+
+def test_json_integers_are_decoded_to_binary64_before_the_guard_scales(monkeypatch):
+    """Re-check 3: the RE reader's serde_json decode makes every JSON number an f64 before its guard scales. A Python
+    int kept as an int steered `_largest` differently: with I = 2^512 - 1, x = 0x1.4cccccccccccdp-562 and m = 2^-1074,
+    d = (I, x, 0) canonicalized to d_y = m here but 2m in Rust, and R = (I, x, 0) joint-scaled to R_y = 0 here but m
+    in Rust. The guard now converts first, so both intermediates are Rust's."""
+    import math
+    import tests.verifiers.preview_physics_evidence as verifier
+    big, x, m = 2 ** 512 - 1, float.fromhex("0x1.4cccccccccccdp-562"), math.ldexp(1.0, -1074)
+    seen: dict[str, list[float]] = {}
+    canonical, joint = verifier._canonical_direction, verifier._joint_scale
+
+    def record_canonical(d):
+        assert all(type(v) is float for v in d)
+        seen["d"] = canonical(d)
+        return seen["d"]
+
+    def record_joint(r, s):
+        assert all(type(v) is float for v in r) and type(s) is float
+        seen["r"] = joint(r, s)[0]
+        return joint(r, s)
+
+    monkeypatch.setattr(verifier, "_canonical_direction", record_canonical)
+    monkeypatch.setattr(verifier, "_joint_scale", record_joint)
+    assert verifier._along_guard((big, x, 0), (1.0, 0.0, 0.0), 1.0)
+    assert seen["d"][1] == 2 * m
+    assert verifier._along_guard((1.0, 1.0, 0.0), (big, x, 0), float.fromhex("0x1.6a09e667f3bccp+511"))
+    assert seen["r"][1] == m
