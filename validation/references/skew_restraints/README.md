@@ -29,7 +29,7 @@ Status: candidate references, revision 3.
   - each single-stop case's Q columns on F from the restricted rescale w;
   - τ's nearest binary64 τ_b and the exact error about it.
 
-  It has not been re-reviewed. No consumer exists yet; the
+  A narrow independent confirmation of revision 3 closed every finding. No consumer exists yet; the
 first-implementation brief (design §15) names the tests that read them.
 
 ## Files

@@ -11,7 +11,8 @@
 >   - the restricted rescale w is used for the pivot and for Q on F (§5.1, §8.3);
 >   - the Cholesky factor of D K′ D is D L D (§4.3).
 >
-> Revision 3 has not been re-reviewed. Design and references only: no product
+> A narrow independent confirmation of revision 3 closed every finding; only the signed-range
+> wording (absolute values) was corrected after it. Design and references only: no product
 > or kernel code is changed by it. It builds on the adopted kernel design (DEL-05-02 Work
 > `operating-case.md` §0 rows R-6, R-7 and "Skew kernel scheduled"; §2.1–§2.6; §6.2) and
 > does not reopen it. It changes numerical meaning when built, so it takes targeted references
@@ -560,7 +561,7 @@ displacement and each row is one exact sum rounded once, as `restrained_reaction
   - **The quotient is range-safe.** Let k = 0 when N_w rounds to a finite binary64, otherwise
     k = 4.
     - N′ = `round_scaled(−k)` of N_w. It is finite in both cases, since |N_w| < 6·2¹⁰²⁴.
-    - μ′ = fl(N′/n_w), and μ = μ′·2^k. With k = 4, N′ ≥ 2¹⁰²⁰ is normal, so μ is exactly what an
+    - μ′ = fl(N′/n_w), and μ = μ′·2^k. With k = 4, |N′| ≥ 2¹⁰²⁰ is normal, so μ is exactly what an
       unbounded-exponent rounding would give.
     - μ is the multiplier per unit w; per unit d̃ it is 2^ŝ·μ. In exact arithmetic
       r_F = μ w_F, so μ is the unique multiplier, not a split.
@@ -633,8 +634,8 @@ solved for u₀:
 - **The particular solution (one stop, axis rows A, pivot m ∈ F).** u₀ = Σ_{a∈A} g_a e_a + τ e_m,
   with τ = (h̃ − Σ_{a∈A} d̃_a g_a)/d̃_m = (2^ŝ h̃ − Σ_{a∈A} w_a g_a)/w_m.
   - It satisfies every row exactly: e_aᵀu₀ = g_a and d̃ᵀu₀ = h̃.
-  - **The range (revision 3).** d̃_m alone lies in [2⁻¹⁰²², 2), not [1, 2) (§5.1), so τ is
-    formed with §5.1's restricted rescale: the divisor w_m ∈ [1, 2).
+  - **The range (revision 3).** |d̃_m| alone lies in [2⁻¹⁰²², 2), not [1, 2) (§5.1), so τ is
+    formed with §5.1's restricted rescale: the divisor satisfies |w_m| ∈ [1, 2).
     - The numerator 2^ŝ h̃ − Σ w_a g_a is formed exactly for A, or as a ball for B, in
       `WideArith` (i64 exponent), so no intermediate leaves its range.
     - τ itself can be large when d̃_F is small, because the constraint plane's offset along e_m
