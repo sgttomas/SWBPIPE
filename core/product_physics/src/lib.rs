@@ -6331,8 +6331,8 @@ fn solve_prepared_load_case(
             };
             require_finite_mechanics(vector)?;
             if let Some(record) = preview_record.as_mut() {
-                record.support_vectors.push((support.id.clone(), vector)); if let Some(attributed) = skew_reactions.as_ref().and_then(|skew| skew.records.get(&support.id)) { record.along_directions.push((support.id.clone(), certified_along.unwrap_or(attributed.along))); }
-                if let Some(rows) = &certified_support {
+                record.support_vectors.push((support.id.clone(), vector));
+                if let Some(attributed) = skew_reactions.as_ref().and_then(|skew| skew.records.get(&support.id)) { record.along_directions.push((support.id.clone(), certified_along.unwrap_or(attributed.along))); } if let Some(rows) = &certified_support {
                     let force_norm = open_pipe_stress_frame_kernel::structural::certified_magnitude(&rows[..3]).map_err(|_| FrameKernelError::NonFiniteInput { name:"certified force norm",value:f64::NAN })?.published;
                     let moment_norm = open_pipe_stress_frame_kernel::structural::certified_magnitude(&rows[3..]).map_err(|_| FrameKernelError::NonFiniteInput { name:"certified moment norm",value:f64::NAN })?.published;
                     record.certified_support_norms.push((support.id.clone(),[force_norm,moment_norm]));
