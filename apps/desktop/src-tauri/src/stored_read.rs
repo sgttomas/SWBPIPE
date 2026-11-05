@@ -1094,3 +1094,9 @@ where
     drop(buffer_reservation);
     Ok(response)
 }
+
+/// RT-U4 C1 residual U1's diagnostic SQLite/FTS5 measurement (tests only,
+/// `#[ignore]`d; DEL-04-05 `Work/c1-u1-sqlite-measurement.md`).
+#[cfg(test)]
+#[path = "stored_read_sqlite_u1.rs"]
+mod sqlite_u1;

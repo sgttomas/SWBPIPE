@@ -2503,6 +2503,7 @@
               "apps/desktop/src-tauri/src/stored_save_tests.rs",
               "apps/desktop/src-tauri/src/stored_model_document_export.rs",
               "apps/desktop/src-tauri/src/stored_read.rs",
+              "apps/desktop/src-tauri/src/stored_read_sqlite_u1.rs",
               "apps/desktop/src-tauri/src/user_release_admission.rs",
               "apps/desktop/src-tauri/src/user_release_admission_tests.rs",
               "apps/desktop/src-tauri/src/user_release_reach_scan.rs",
