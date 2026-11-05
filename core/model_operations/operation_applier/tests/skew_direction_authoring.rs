@@ -110,8 +110,8 @@ fn update_support_keeps_or_refuses_a_kept_direction() {
 /// Manager steer (§2.2 item 2, §9): the applier's EX predicate is
 /// `condition_set_authoring::has_pressure_contract`, present and not null. Any
 /// non-null contract, a retired or invalid one included, refuses a skewed direction;
-/// an absent or null contract admits it; an axis-aligned direction is never refused
-/// for EX.
+/// an absent contract admits it; a present null is the document's own shape refusal;
+/// an axis-aligned direction is never refused for EX.
 #[test]
 fn the_pressure_contract_predicate_is_present_and_not_null() {
     let skewed = stop(json!({"x":3,"y":4,"z":0}));
@@ -120,9 +120,16 @@ fn the_pressure_contract_predicate_is_present_and_not_null() {
     let out = create(&retired, &skewed);
     assert!(out.applied_model.is_none());
     assert!(codes(&out).contains(&"SUPPORT_DIRECTION_SKEW_EXACT_UNSUPPORTED".to_string()), "{:?}", codes(&out));
+    // A present null is not absence (Agent 0, 2026-11-05): the shared validator refuses it by
+    // name (MODEL-SLOT-SHAPE at pressure_contract) and nothing is applied, never the skew code.
     let mut null = model();
     null["pressure_contract"] = Value::Null;
-    assert_eq!(written(&create(&null, &skewed))["direction"], json!({"x":3,"y":4,"z":0}));
+    let out = create(&null, &skewed);
+    assert!(out.applied_model.is_none());
+    assert!(codes(&out).contains(&"MODEL-SLOT-SHAPE".to_string()), "{:?}", codes(&out));
+    assert!(!codes(&out).contains(&"SUPPORT_DIRECTION_SKEW_EXACT_UNSUPPORTED".to_string()), "{:?}", codes(&out));
+    // Absence admits it (the pressure-free route).
+    assert_eq!(written(&create(&model(), &skewed))["direction"], json!({"x":3,"y":4,"z":0}));
     let axis = create(&retired, &stop(json!({"x":0,"y":1,"z":0})));
     assert!(axis.applied_model.is_some(), "{:?}", codes(&axis));
     assert_eq!(written(&axis)["direction"], json!({"x":0,"y":1,"z":0}));

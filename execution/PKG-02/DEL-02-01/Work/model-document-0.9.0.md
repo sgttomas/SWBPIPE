@@ -155,6 +155,18 @@ same code and message for document-level rules (the `shear_model` precedent,
 0.8.0 §1.1). Malformed shapes take the existing closed-record paths
 (`MODEL-SLOT-SHAPE` at the validator; `model_fields` at the solve wire).
 
+**A present `pressure_contract: null` (SWBPIPE Agent 0, 2026-11-05).** Absence
+means the pressure-free route; a present JSON null is not absence. The solve
+refuses it at decode (`deserialize_present_object`), and the one shared document
+validator refuses it by name, `MODEL-SLOT-SHAPE` at path `pressure_contract`,
+so every candidate the applier validates, and native and webview document-open,
+report it. The validator judges only the null here: a present object, current or
+retired, keeps its existing judgement, and this is not full contract validation
+or parity beyond this case. The routing predicate (present and not null) is
+unchanged. An operation whose candidate still holds the null is refused with
+nothing applied; one that replaces it with an object (the pressure profile
+operation, as B7b's activation does) repairs it.
+
 **Document level (validator and solve, blocking):**
 - `OPERATING_CONDITION_KEY_DUPLICATE`: two conditions in one set share a key.
 - `OPERATING_CONDITION_QUANTITY_INVALID`: a value is non-finite, its unit is not
