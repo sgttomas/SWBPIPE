@@ -640,9 +640,9 @@ fn combination_row_id(id: &str, base: &str) -> String {
 /// The document's rows as the producer reads them when it forms a combination: each
 /// load case's rows by base id, and each combination's published rows, by base id
 /// (ordinary rows and displacement magnitudes) and whole (for its support groups).
-struct RowIndex<'a> {
+pub(crate) struct RowIndex<'a> {
     /// Base id → load case → row.
-    cases: BTreeMap<String, HashMap<&'a str, &'a Value>>,
+    pub(crate) cases: BTreeMap<String, HashMap<&'a str, &'a Value>>,
     case_rows: Vec<&'a Value>,
     /// Combination → base id → row.
     published: HashMap<&'a str, HashMap<String, &'a Value>>,
@@ -655,7 +655,7 @@ impl<'a> RowIndex<'a> {
     /// `result:loadcase:<case>:<tail>`; a combination's is `result:combination:<id>:<tail>`
     /// (producer `qualified_*_result_id`). A base id is recovered as the unqualified
     /// id where a case row has it, and as `result:<tail>` otherwise.
-    fn new(rows: &'a [Value]) -> Self {
+    pub(crate) fn new(rows: &'a [Value]) -> Self {
         let mut tails: BTreeMap<String, (String, HashMap<&'a str, &'a Value>)> = BTreeMap::new();
         let mut case_rows = Vec::new();
         let mut published: HashMap<&'a str, HashMap<String, &'a Value>> = HashMap::new();

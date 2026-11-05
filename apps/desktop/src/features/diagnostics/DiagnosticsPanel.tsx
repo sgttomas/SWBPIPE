@@ -9,6 +9,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { DiagnosticFilterRequest } from "./diagnosticFilterRequest";
 import type { DesignKnowledge, Diagnostic, DiagnosticInterpretation, MechanicsResult, PreviewModel } from "../../types";
 import { buildDiagnosticInterpretation } from "../results/resultInterpretation";
+import { presentedResultDiagnostics } from "../results/suppliedDiagnostics";
 import { modelDocumentDiagnostics } from "../model-data/documentDiagnostics";
 import { currentLibraryRefFindings, libraryRefDiagnostics, usePublishedLibraryRefFindings } from "../library/libraryRefFindings";
 
@@ -50,12 +51,15 @@ export function DiagnosticsPanel({
   // W-13 §3.5: the store's library-reference warnings, keyed to the entity.
   const publishedLibraryRefs = usePublishedLibraryRefFindings();
   const libraryRefs = useMemo(() => libraryRefDiagnostics(currentLibraryRefFindings(model, publishedLibraryRefs)), [model, publishedLibraryRefs]);
+  // RT-A3 §4: on a result with combinations, a message outside the reader-checked roster is
+  // listed as supplied, unverified text (`suppliedDiagnostics`), as the report quotes it.
+  const resultDiagnostics = useMemo(() => presentedResultDiagnostics(result), [result]);
   const diagnostics: Diagnostic[] = [
     ...model.diagnostics,
     ...documentDiagnostics,
     ...libraryRefs,
     ...(knowledge?.diagnostics ?? []),
-    ...(result?.diagnostics ?? [])
+    ...resultDiagnostics
   ];
   const filteredDiagnostics = useMemo(
     () => pinnedId !== null && filterText === pinnedId

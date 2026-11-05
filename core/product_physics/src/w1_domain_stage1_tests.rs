@@ -955,7 +955,10 @@ fn work_masked_sha256(source:&Value)->String {
 /// displacement dropped; DEL-04-03 Design `pf-imposed-displacement.md` §4) and the ordinary
 /// publication hash binding it; no number moved. RT-A4 D3 (DEL-04-08 §8.46) likewise restates `LIMITATIONS[6]`
 /// (§10.2's sentence) and its publication hash: each pin below restated to the former sentence and resealed by the
-/// Python 07e rule reproduces its predecessor; no number moved.
+/// Python 07e rule reproduces its predecessor; no number moved. RT-A3 §4 D3 (DEL-04-08 §8.53): the two
+/// `w1_member_combination_*` documents carry the ordinary run's certificate member and its notice (ids also in the
+/// receipt), and their adapter counts rise by the W1 freeze's three-key evidence check; removed, with the counts
+/// restored and resealed by the Python 07e rule, each reproduces its predecessor corpus entry byte for byte.
 const PRE_REPAIR_WORK_MASKED:[(&str,&str);8]=[
     ("w1_member_load_sparse_interactive","46cec869578a7e9bd8e559217bfe7e4197662248124e75d25e0e94e483bf0d6c"),
     ("w1_member_load_dense_scrutiny","643849d5b2da66fefb4e1762f730f54c691ab3e4a1a01999c2159e8c3aad4237"),
@@ -963,8 +966,8 @@ const PRE_REPAIR_WORK_MASKED:[(&str,&str);8]=[
     ("w1_member_values_failure_dense_scrutiny","d9f67eec631d21a77bf5902e407779d0d49fe526b3a286353a9b789a72f5df31"),
     ("w1_member_multi_sparse_interactive","895d7a7f8713cc1417b7a9722541d3f8ae2b77ddfd83f6ae8a626b95a2c2ac7d"),
     ("w1_member_multi_dense_scrutiny","c5e3b3df3a472702bfbd7c63022065dd337305f2502202df4128faacdf92804e"),
-    ("w1_member_combination_sparse_interactive","768998893da012a8751b6b2ad8ed3387d023298dafd6c4a1102a33fb02ea883d"),
-    ("w1_member_combination_dense_scrutiny","7e9062fa831feeafcb37acd9c791d5bd9e8a0af2b0ec29f3675a79bc02625fff"),
+    ("w1_member_combination_sparse_interactive","4f3ea1f8f4ccdac84ccff3c0908a245dcf00ace277899e99f73cf29ce8bd989e"),
+    ("w1_member_combination_dense_scrutiny","5e6426daeeb9050cbd6725a5daf1c94a0b2188ce1884b8bc8c20bf2e516c5f7e"),
 ];
 /// W1 coverage repair §1.4 and §5: the committed loaded members on the D = 0.2 m
 /// interval-hull section that converged before the repair (axial loads, so the bending

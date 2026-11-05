@@ -1,0 +1,3021 @@
+{
+ "description": "RT-A3 \u00a74 combination-certificate forgeries over combination_certificate_corpus.json: JSON-pointer edits each and the code the Rust reader and the Python mirror both give (null: admitted). Written by tests/test_combination_certificate.py (CERT_WRITE_FORGERIES=1).",
+ "forgeries": [
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations/0/groups/0/bound",
+     "value": 1.0307910850526084e-35
+    }
+   ],
+   "code": "RECORD",
+   "what": "forged B_D"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations/0/groups/0/q",
+     "value": 1166.1903789690602
+    }
+   ],
+   "code": "RECORD",
+   "what": "forged q"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations/0/groups/0/floor_scale",
+     "value": 0.0
+    }
+   ],
+   "code": "RECORD",
+   "what": "forged floor scale"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations/1/groups/1/verdict",
+     "value": "established"
+    }
+   ],
+   "code": "RECORD",
+   "what": "forged verdict"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations/0/uncovered_row_count",
+     "value": 47
+    }
+   ],
+   "code": "RECORD",
+   "what": "forged uncovered count"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/0/groups/0/bound",
+     "value": 3.435970283508695e-36
+    }
+   ],
+   "code": "RECORD",
+   "what": "forged operand bound"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/0/groups/0/rows",
+     "value": [
+      [
+       "result:support-action:6:case:S:9:support:a:Mx",
+       "result:support-action:6:case:S:9:support:a:My",
+       "result:support-action:6:case:S:9:support:a:Mz"
+      ]
+     ]
+    }
+   ],
+   "code": "OPERAND_ROWS",
+   "what": "forged operand row binding"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/0/groups/0/q",
+     "value": 1166.1903789690602
+    }
+   ],
+   "code": "OPERAND_ROWS",
+   "what": "forged operand q"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/0/groups/0/moment",
+     "value": true
+    }
+   ],
+   "code": "OPERAND_GROUP_CLASS",
+   "what": "forged group class"
+  },
+  {
+   "document": "op1a_v1",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases",
+     "value": [
+      {
+       "load_case_id": "case:S",
+       "groups": []
+      }
+     ]
+    }
+   ],
+   "code": "OPERAND_ELIGIBILITY",
+   "what": "a gap-bearing operand made eligible"
+  },
+  {
+   "document": "op1a_v1",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations/0/assessment",
+     "value": "assessed"
+    }
+   ],
+   "code": "RECORD",
+   "what": "a gap-operand combination made assessed"
+  },
+  {
+   "document": "op1a_v2",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/0"
+    }
+   ],
+   "code": "OPERAND_CASE_MISSING",
+   "what": "an operand statement dropped"
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/diagnostics/32/message",
+     "value": "combination comb:double: certified"
+    }
+   ],
+   "code": "DIAGNOSTICS",
+   "what": "forged notice"
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/32"
+    }
+   ],
+   "code": "DIAGNOSTICS",
+   "what": "notice dropped"
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    }
+   ],
+   "code": "PRESENCE",
+   "what": "member dropped, its notices kept"
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "member and its notices absent (no certificate claim)",
+   "code": null,
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/37"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/36"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/35"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/34"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/33"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/32"
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "member and its notices absent (no certificate claim)",
+   "code": null,
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/31"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/30"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/29"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/28"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/27"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/26"
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/certified",
+     "value": true
+    }
+   ],
+   "code": "SHAPE",
+   "what": "extra member key"
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations/3/groups/24/equal_pressure",
+     "value": null
+    }
+   ],
+   "code": "RECORD",
+   "what": "D-6 statement dropped"
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations/0/expression",
+     "value": {
+      "minuend_id": "case:S",
+      "subtrahend_id": "case:O2"
+     }
+    }
+   ],
+   "code": "EXPRESSION",
+   "what": "swapped operands",
+   "model_code": "MODEL_BINDING"
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/diagnostics/2/code",
+     "value": "NUMERICAL_INTEGRITY_SENSITIVE"
+    }
+   ],
+   "code": "OPERAND_ELIGIBILITY",
+   "what": "operand standing without a member bound"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations/0/subtrahend_support_state",
+     "value": "minuend_final"
+    }
+   ],
+   "code": "RECORD",
+   "what": "an assessed record named held",
+   "model_code": "MODEL_BINDING"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations/0/subtrahend_support_state",
+     "value": "frozen"
+    }
+   ],
+   "code": "RECORD",
+   "what": "an unrecognized support state fails closed",
+   "model_code": "MODEL_BINDING"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations/0/subtrahend_support_state",
+     "value": 1
+    }
+   ],
+   "code": "RECORD_SHAPE",
+   "what": "a non-text support state",
+   "model_code": "MODEL_BINDING"
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations/0",
+     "value": {
+      "assessment": "not_assessed",
+      "basis": "result_state_subtraction",
+      "combination_id": "comb:double",
+      "expression": {
+       "minuend_id": "case:O2",
+       "subtrahend_id": "case:S"
+      },
+      "groups": [],
+      "reason": "its subtrahend is held at another case's support state (subtrahend_support_state minuend_final), a different system from its load case; the operand bounds are each operand case's own",
+      "subtrahend_support_state": "minuend_final",
+      "uncovered_row_count": 151
+     }
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/32",
+     "value": {
+      "id": "diagnostic:combination-certificate:11:comb:double",
+      "code": "COMBINATION_ROWS_NOT_ASSESSED",
+      "severity": "info",
+      "message": "combination comb:double: its rows are not assessed against a stated bound (its subtrahend is held at another case's support state (subtrahend_support_state minuend_final), a different system from its load case; the operand bounds are each operand case's own); they remain inspection results and do not count toward the document's numerical eligibility.",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:double"
+      ]
+     }
+    },
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/2"
+    }
+   ],
+   "code": null,
+   "what": "ex_cantilever: a held subtraction stated not assessed is admitted",
+   "model_code": "MODEL_BINDING"
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations/0",
+     "value": {
+      "assessment": "not_assessed",
+      "basis": "result_state_subtraction",
+      "combination_id": "comb:double",
+      "expression": {
+       "minuend_id": "case:O2",
+       "subtrahend_id": "case:S"
+      },
+      "groups": [],
+      "reason": "its subtrahend is held at another case's support state (subtrahend_support_state minuend_final), a different system from its load case; the operand bounds are each operand case's own",
+      "subtrahend_support_state": "minuend_final",
+      "uncovered_row_count": 151
+     }
+    },
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/2"
+    }
+   ],
+   "code": "DIAGNOSTICS",
+   "what": "ex_cantilever: a held subtraction keeps its assessed notice",
+   "model_code": "MODEL_BINDING"
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations/0",
+     "value": {
+      "assessment": "not_assessed",
+      "basis": "result_state_subtraction",
+      "combination_id": "comb:double",
+      "expression": {
+       "minuend_id": "case:O2",
+       "subtrahend_id": "case:S"
+      },
+      "groups": [],
+      "reason": "its subtrahend is held at another case's support state (subtrahend_support_state minuend_final), a different system from its load case; the operand bounds are each operand case's own",
+      "subtrahend_support_state": "minuend_final",
+      "uncovered_row_count": 151
+     }
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/32",
+     "value": {
+      "id": "diagnostic:combination-certificate:11:comb:double",
+      "code": "COMBINATION_ROWS_NOT_ASSESSED",
+      "severity": "info",
+      "message": "combination comb:double: its rows are not assessed against a stated bound (its subtrahend is held at another case's support state (subtrahend_support_state minuend_final), a different system from its load case; the operand bounds are each operand case's own); they remain inspection results and do not count toward the document's numerical eligibility.",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:double"
+      ]
+     }
+    }
+   ],
+   "code": "OPERAND_CASES",
+   "what": "ex_cantilever: a held subtraction keeps its subtrahend's operand statement",
+   "model_code": "MODEL_BINDING"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations/0",
+     "value": {
+      "assessment": "not_assessed",
+      "basis": "result_state_subtraction",
+      "combination_id": "comb:double",
+      "expression": {
+       "minuend_id": "case:O2",
+       "subtrahend_id": "case:S"
+      },
+      "groups": [],
+      "reason": "its subtrahend is held at another case's support state (subtrahend_support_state minuend_final), a different system from its load case; the operand bounds are each operand case's own",
+      "subtrahend_support_state": "minuend_final",
+      "uncovered_row_count": 84
+     }
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/26",
+     "value": {
+      "id": "diagnostic:combination-certificate:11:comb:double",
+      "code": "COMBINATION_ROWS_NOT_ASSESSED",
+      "severity": "info",
+      "message": "combination comb:double: its rows are not assessed against a stated bound (its subtrahend is held at another case's support state (subtrahend_support_state minuend_final), a different system from its load case; the operand bounds are each operand case's own); they remain inspection results and do not count toward the document's numerical eligibility.",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:double"
+      ]
+     }
+    },
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/2"
+    }
+   ],
+   "code": null,
+   "what": "pf_cantilever: a held subtraction stated not assessed is admitted",
+   "model_code": "MODEL_BINDING"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations/0",
+     "value": {
+      "assessment": "not_assessed",
+      "basis": "result_state_subtraction",
+      "combination_id": "comb:double",
+      "expression": {
+       "minuend_id": "case:O2",
+       "subtrahend_id": "case:S"
+      },
+      "groups": [],
+      "reason": "its subtrahend is held at another case's support state (subtrahend_support_state minuend_final), a different system from its load case; the operand bounds are each operand case's own",
+      "subtrahend_support_state": "minuend_final",
+      "uncovered_row_count": 84
+     }
+    },
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/2"
+    }
+   ],
+   "code": "DIAGNOSTICS",
+   "what": "pf_cantilever: a held subtraction keeps its assessed notice",
+   "model_code": "MODEL_BINDING"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations/0",
+     "value": {
+      "assessment": "not_assessed",
+      "basis": "result_state_subtraction",
+      "combination_id": "comb:double",
+      "expression": {
+       "minuend_id": "case:O2",
+       "subtrahend_id": "case:S"
+      },
+      "groups": [],
+      "reason": "its subtrahend is held at another case's support state (subtrahend_support_state minuend_final), a different system from its load case; the operand bounds are each operand case's own",
+      "subtrahend_support_state": "minuend_final",
+      "uncovered_row_count": 84
+     }
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/26",
+     "value": {
+      "id": "diagnostic:combination-certificate:11:comb:double",
+      "code": "COMBINATION_ROWS_NOT_ASSESSED",
+      "severity": "info",
+      "message": "combination comb:double: its rows are not assessed against a stated bound (its subtrahend is held at another case's support state (subtrahend_support_state minuend_final), a different system from its load case; the operand bounds are each operand case's own); they remain inspection results and do not count toward the document's numerical eligibility.",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:double"
+      ]
+     }
+    }
+   ],
+   "code": "OPERAND_CASES",
+   "what": "pf_cantilever: a held subtraction keeps its subtrahend's operand statement",
+   "model_code": "MODEL_BINDING"
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: notices dropped, the member kept",
+   "code": "DIAGNOSTICS",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/37"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/36"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/35"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/34"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/33"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/32"
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: member dropped, its notices kept under renamed ids",
+   "code": "PRESENCE",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/32/id",
+     "value": "diagnostic:renamed-certificate:11:comb:double"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/33/id",
+     "value": "diagnostic:renamed-certificate:11:comb:cancel"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/34/id",
+     "value": "diagnostic:renamed-certificate:9:comb:same"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/35/id",
+     "value": "diagnostic:renamed-certificate:10:comb:axial"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/36/id",
+     "value": "diagnostic:renamed-certificate:8:comb:sum"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/37/id",
+     "value": "diagnostic:renamed-certificate:10:comb:range"
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: member and notices dropped, an establishment sentence under the reserved code",
+   "code": "PRESENCE",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/37"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/36"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/35"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/34"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/33"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/32"
+    },
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:bound",
+      "code": "COMBINATION_ROWS_WITHIN_STATED_BOUND",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived row groups are established within their stated bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: member and notices dropped, the canonical sentence under another code and id",
+   "code": "PRESENCE",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/37"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/36"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/35"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/34"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/33"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/32"
+    },
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:note",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: 7 derived row group(s) are established within their stated bound against the operand cases' intended systems; 6 are not established (the bound exceeds the 1e-9 criterion, as where the operands nearly cancel, or the comparison is unavailable); 18 are not assessed (below the floor); 106 of its rows are covered by no group and remain inspection results. This is a numerical statement about the difference of two independently solved states; it does not establish the meaning of \"expansion\" or engineering acceptance, and these rows do not count toward the document's numerical eligibility. Each group's bound and verdict are stated in contract_evidence.combination_certificate."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: member kept, an extra establishment sentence under another id",
+   "code": "DIAGNOSTICS",
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:bound",
+      "code": "COMBINATION_ROWS_WITHIN_STATED_BOUND",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived row groups are established within their stated bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: member kept, its notices under renamed ids",
+   "code": "DIAGNOSTICS",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/diagnostics/32/id",
+     "value": "diagnostic:renamed-certificate:11:comb:double"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/33/id",
+     "value": "diagnostic:renamed-certificate:11:comb:cancel"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/34/id",
+     "value": "diagnostic:renamed-certificate:9:comb:same"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/35/id",
+     "value": "diagnostic:renamed-certificate:10:comb:axial"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/36/id",
+     "value": "diagnostic:renamed-certificate:8:comb:sum"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/37/id",
+     "value": "diagnostic:renamed-certificate:10:comb:range"
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate",
+     "value": null
+    }
+   ],
+   "code": "SHAPE",
+   "what": "ex_cantilever: a null member"
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases"
+    }
+   ],
+   "code": "SHAPE",
+   "what": "ex_cantilever: operand_cases missing"
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases",
+     "value": null
+    }
+   ],
+   "code": "SHAPE",
+   "what": "ex_cantilever: operand_cases null"
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations",
+     "value": {}
+    }
+   ],
+   "code": "SHAPE",
+   "what": "ex_cantilever: combinations an object"
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/0/groups",
+     "value": {}
+    }
+   ],
+   "code": "SHAPE",
+   "what": "ex_cantilever: an operand case's groups an object"
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations/0",
+     "value": null
+    }
+   ],
+   "code": "RECORD_SHAPE",
+   "what": "ex_cantilever: a combination record null"
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/0",
+     "value": null
+    }
+   ],
+   "code": "SHAPE",
+   "what": "ex_cantilever: an operand case null"
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/0/groups/0",
+     "value": null
+    }
+   ],
+   "code": "SHAPE",
+   "what": "ex_cantilever: an operand group null"
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations/0",
+     "value": 7
+    }
+   ],
+   "code": "RECORD_SHAPE",
+   "what": "ex_cantilever: a combination record a scalar"
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/0",
+     "value": 7
+    }
+   ],
+   "code": "SHAPE",
+   "what": "ex_cantilever: an operand case a scalar"
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/0/groups/0",
+     "value": 7
+    }
+   ],
+   "code": "SHAPE",
+   "what": "ex_cantilever: an operand group a scalar"
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations/0",
+     "value": []
+    }
+   ],
+   "code": "RECORD_SHAPE",
+   "what": "ex_cantilever: a combination record an array"
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/0",
+     "value": []
+    }
+   ],
+   "code": "SHAPE",
+   "what": "ex_cantilever: an operand case an array"
+  },
+  {
+   "document": "ex_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/0/groups/0",
+     "value": []
+    }
+   ],
+   "code": "SHAPE",
+   "what": "ex_cantilever: an operand group an array"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    }
+   ],
+   "code": "PRESENCE",
+   "what": "pf_cantilever: member dropped, its notices kept"
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: notices dropped, the member kept",
+   "code": "DIAGNOSTICS",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/31"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/30"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/29"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/28"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/27"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/26"
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: member dropped, its notices kept under renamed ids",
+   "code": "PRESENCE",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/26/id",
+     "value": "diagnostic:renamed-certificate:11:comb:double"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/27/id",
+     "value": "diagnostic:renamed-certificate:11:comb:cancel"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/28/id",
+     "value": "diagnostic:renamed-certificate:9:comb:same"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/29/id",
+     "value": "diagnostic:renamed-certificate:10:comb:axial"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/30/id",
+     "value": "diagnostic:renamed-certificate:8:comb:sum"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/31/id",
+     "value": "diagnostic:renamed-certificate:10:comb:range"
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: member and notices dropped, an establishment sentence under the reserved code",
+   "code": "PRESENCE",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/31"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/30"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/29"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/28"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/27"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/26"
+    },
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:bound",
+      "code": "COMBINATION_ROWS_WITHIN_STATED_BOUND",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived row groups are established within their stated bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: member and notices dropped, the canonical sentence under another code and id",
+   "code": "PRESENCE",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/31"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/30"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/29"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/28"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/27"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/26"
+    },
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:note",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: 7 derived row group(s) are established within their stated bound against the operand cases' intended systems; 6 are not established (the bound exceeds the 1e-9 criterion, as where the operands nearly cancel, or the comparison is unavailable); 11 are not assessed (below the floor); 46 of its rows are covered by no group and remain inspection results. This is a numerical statement about the difference of two independently solved states; it does not establish the meaning of \"expansion\" or engineering acceptance, and these rows do not count toward the document's numerical eligibility. Each group's bound and verdict are stated in contract_evidence.combination_certificate."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: member kept, an extra establishment sentence under another id",
+   "code": "DIAGNOSTICS",
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:bound",
+      "code": "COMBINATION_ROWS_WITHIN_STATED_BOUND",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived row groups are established within their stated bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: member kept, its notices under renamed ids",
+   "code": "DIAGNOSTICS",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/diagnostics/26/id",
+     "value": "diagnostic:renamed-certificate:11:comb:double"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/27/id",
+     "value": "diagnostic:renamed-certificate:11:comb:cancel"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/28/id",
+     "value": "diagnostic:renamed-certificate:9:comb:same"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/29/id",
+     "value": "diagnostic:renamed-certificate:10:comb:axial"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/30/id",
+     "value": "diagnostic:renamed-certificate:8:comb:sum"
+    },
+    {
+     "op": "set",
+     "pointer": "/diagnostics/31/id",
+     "value": "diagnostic:renamed-certificate:10:comb:range"
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate",
+     "value": null
+    }
+   ],
+   "code": "SHAPE",
+   "what": "pf_cantilever: a null member"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases"
+    }
+   ],
+   "code": "SHAPE",
+   "what": "pf_cantilever: operand_cases missing"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases",
+     "value": null
+    }
+   ],
+   "code": "SHAPE",
+   "what": "pf_cantilever: operand_cases null"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations",
+     "value": {}
+    }
+   ],
+   "code": "SHAPE",
+   "what": "pf_cantilever: combinations an object"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/0/groups",
+     "value": {}
+    }
+   ],
+   "code": "SHAPE",
+   "what": "pf_cantilever: an operand case's groups an object"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations/0",
+     "value": null
+    }
+   ],
+   "code": "RECORD_SHAPE",
+   "what": "pf_cantilever: a combination record null"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/0",
+     "value": null
+    }
+   ],
+   "code": "SHAPE",
+   "what": "pf_cantilever: an operand case null"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/0/groups/0",
+     "value": null
+    }
+   ],
+   "code": "SHAPE",
+   "what": "pf_cantilever: an operand group null"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations/0",
+     "value": 7
+    }
+   ],
+   "code": "RECORD_SHAPE",
+   "what": "pf_cantilever: a combination record a scalar"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/0",
+     "value": 7
+    }
+   ],
+   "code": "SHAPE",
+   "what": "pf_cantilever: an operand case a scalar"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/0/groups/0",
+     "value": 7
+    }
+   ],
+   "code": "SHAPE",
+   "what": "pf_cantilever: an operand group a scalar"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations/0",
+     "value": []
+    }
+   ],
+   "code": "RECORD_SHAPE",
+   "what": "pf_cantilever: a combination record an array"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/0",
+     "value": []
+    }
+   ],
+   "code": "SHAPE",
+   "what": "pf_cantilever: an operand case an array"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases/0/groups/0",
+     "value": []
+    }
+   ],
+   "code": "SHAPE",
+   "what": "pf_cantilever: an operand group an array"
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: REVIEW_NOTE under a combination ref, member kept",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived row groups are established."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: REVIEW_NOTE under a combination ref, member absent",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/37"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/36"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/35"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/34"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/33"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/32"
+    },
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived row groups are established."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: REVIEW_NOTE under a load-case ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "case:S"
+      ],
+      "message": "combination comb:cancel: all derived row groups are established."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: REVIEW_NOTE under no ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [],
+      "message": "combination comb:cancel: all derived row groups are established."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: a paraphrase under a combination ref, member kept",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: every derived row group holds within its bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: a paraphrase under a combination ref, member absent",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/37"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/36"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/35"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/34"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/33"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/32"
+    },
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: every derived row group holds within its bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: a paraphrase under a load-case ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "case:S"
+      ],
+      "message": "combination comb:cancel: every derived row group holds within its bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: a paraphrase under no ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [],
+      "message": "combination comb:cancel: every derived row group holds within its bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: bounded by 1e-30 under a combination ref, member kept",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived rows are bounded by 1e-30."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: bounded by 1e-30 under a combination ref, member absent",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/37"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/36"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/35"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/34"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/33"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/32"
+    },
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived rows are bounded by 1e-30."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: bounded by 1e-30 under a load-case ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "case:S"
+      ],
+      "message": "combination comb:cancel: all derived rows are bounded by 1e-30."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: bounded by 1e-30 under no ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [],
+      "message": "combination comb:cancel: all derived rows are bounded by 1e-30."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: uppercase under a combination ref, member kept",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "COMBINATION COMB:CANCEL: ALL DERIVED ROWS ARE ESTABLISHED WITHIN THEIR STATED BOUND."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: uppercase under a combination ref, member absent",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/37"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/36"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/35"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/34"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/33"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/32"
+    },
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "COMBINATION COMB:CANCEL: ALL DERIVED ROWS ARE ESTABLISHED WITHIN THEIR STATED BOUND."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: uppercase under a load-case ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "case:S"
+      ],
+      "message": "COMBINATION COMB:CANCEL: ALL DERIVED ROWS ARE ESTABLISHED WITHIN THEIR STATED BOUND."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: uppercase under no ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [],
+      "message": "COMBINATION COMB:CANCEL: ALL DERIVED ROWS ARE ESTABLISHED WITHIN THEIR STATED BOUND."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: NBSP under a combination ref, member kept",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived rows are established within their stated\u00a0bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: NBSP under a combination ref, member absent",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/37"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/36"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/35"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/34"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/33"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/32"
+    },
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived rows are established within their stated\u00a0bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: NBSP under a load-case ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "case:S"
+      ],
+      "message": "combination comb:cancel: all derived rows are established within their stated\u00a0bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: NBSP under no ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [],
+      "message": "combination comb:cancel: all derived rows are established within their stated\u00a0bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: a model-ref note (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:model",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "model"
+      ],
+      "message": "combination comb:cancel: all derived row groups are established."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: a model material sharing a combination id",
+   "code": null,
+   "edits": [],
+   "model_edits": [
+    {
+     "op": "add",
+     "pointer": "/materials/-",
+     "value": {
+      "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+      "elastic_modulus": {
+       "unit": "Pa",
+       "value": 200000000000.0
+      },
+      "id": "comb:cancel",
+      "poisson_ratio": {
+       "unit": "1",
+       "value": 0.3
+      },
+      "provenance": "rt-a3 combination certificate invented benchmark input; not library, component, material-catalog or code data"
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: bounded by 1e-30 under a combination id a model material shares",
+   "code": "ROSTER_EXTRA",
+   "model_edits": [
+    {
+     "op": "add",
+     "pointer": "/materials/-",
+     "value": {
+      "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+      "elastic_modulus": {
+       "unit": "Pa",
+       "value": 200000000000.0
+      },
+      "id": "comb:cancel",
+      "poisson_ratio": {
+       "unit": "1",
+       "value": 0.3
+      },
+      "provenance": "rt-a3 combination certificate invented benchmark input; not library, component, material-catalog or code data"
+     }
+    }
+   ],
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:collision",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived rows are bounded by 1e-30."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: a maximum notice copied under another id",
+   "code": "ROSTER_RENAMED",
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "affected_refs": [
+       "comb:double"
+      ],
+      "code": "COMBINATION_STRESS_MAXIMUM_UNAVAILABLE",
+      "id": "diagnostic:review:maximum",
+      "message": "stress maxima and section stress extremes are not combined; combine the signed stress component rows instead",
+      "severity": "info",
+      "source": "core/product_physics"
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: REVIEW_NOTE under a combination ref, member kept",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived row groups are established."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: REVIEW_NOTE under a combination ref, member absent",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/31"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/30"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/29"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/28"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/27"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/26"
+    },
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived row groups are established."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: REVIEW_NOTE under a load-case ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "case:S"
+      ],
+      "message": "combination comb:cancel: all derived row groups are established."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: REVIEW_NOTE under no ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [],
+      "message": "combination comb:cancel: all derived row groups are established."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: a paraphrase under a combination ref, member kept",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: every derived row group holds within its bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: a paraphrase under a combination ref, member absent",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/31"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/30"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/29"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/28"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/27"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/26"
+    },
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: every derived row group holds within its bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: a paraphrase under a load-case ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "case:S"
+      ],
+      "message": "combination comb:cancel: every derived row group holds within its bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: a paraphrase under no ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [],
+      "message": "combination comb:cancel: every derived row group holds within its bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: bounded by 1e-30 under a combination ref, member kept",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived rows are bounded by 1e-30."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: bounded by 1e-30 under a combination ref, member absent",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/31"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/30"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/29"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/28"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/27"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/26"
+    },
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived rows are bounded by 1e-30."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: bounded by 1e-30 under a load-case ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "case:S"
+      ],
+      "message": "combination comb:cancel: all derived rows are bounded by 1e-30."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: bounded by 1e-30 under no ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [],
+      "message": "combination comb:cancel: all derived rows are bounded by 1e-30."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: uppercase under a combination ref, member kept",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "COMBINATION COMB:CANCEL: ALL DERIVED ROWS ARE ESTABLISHED WITHIN THEIR STATED BOUND."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: uppercase under a combination ref, member absent",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/31"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/30"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/29"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/28"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/27"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/26"
+    },
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "COMBINATION COMB:CANCEL: ALL DERIVED ROWS ARE ESTABLISHED WITHIN THEIR STATED BOUND."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: uppercase under a load-case ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "case:S"
+      ],
+      "message": "COMBINATION COMB:CANCEL: ALL DERIVED ROWS ARE ESTABLISHED WITHIN THEIR STATED BOUND."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: uppercase under no ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [],
+      "message": "COMBINATION COMB:CANCEL: ALL DERIVED ROWS ARE ESTABLISHED WITHIN THEIR STATED BOUND."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: NBSP under a combination ref, member kept",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived rows are established within their stated\u00a0bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: NBSP under a combination ref, member absent",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/contract_evidence/combination_certificate"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/31"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/30"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/29"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/28"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/27"
+    },
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/26"
+    },
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived rows are established within their stated\u00a0bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: NBSP under a load-case ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "case:S"
+      ],
+      "message": "combination comb:cancel: all derived rows are established within their stated\u00a0bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: NBSP under no ref (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:claim",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [],
+      "message": "combination comb:cancel: all derived rows are established within their stated\u00a0bound."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: a model-ref note (supplemental)",
+   "code": null,
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:model",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "model"
+      ],
+      "message": "combination comb:cancel: all derived row groups are established."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: a model material sharing a combination id",
+   "code": null,
+   "edits": [],
+   "model_edits": [
+    {
+     "op": "add",
+     "pointer": "/materials/-",
+     "value": {
+      "elastic_modulus": {
+       "unit": "Pa",
+       "value": 200000000000.0
+      },
+      "id": "comb:cancel",
+      "provenance": "rt-a3 combination certificate invented benchmark input; not library, component, material-catalog or code data",
+      "shear_modulus": {
+       "unit": "Pa",
+       "value": 76923076923.07692
+      }
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: bounded by 1e-30 under a combination id a model material shares",
+   "code": "ROSTER_EXTRA",
+   "model_edits": [
+    {
+     "op": "add",
+     "pointer": "/materials/-",
+     "value": {
+      "elastic_modulus": {
+       "unit": "Pa",
+       "value": 200000000000.0
+      },
+      "id": "comb:cancel",
+      "provenance": "rt-a3 combination certificate invented benchmark input; not library, component, material-catalog or code data",
+      "shear_modulus": {
+       "unit": "Pa",
+       "value": 76923076923.07692
+      }
+     }
+    }
+   ],
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:collision",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived rows are bounded by 1e-30."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: a maximum notice copied under another id",
+   "code": "ROSTER_RENAMED",
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "affected_refs": [
+       "comb:double"
+      ],
+      "code": "COMBINATION_STRESS_MAXIMUM_UNAVAILABLE",
+      "id": "diagnostic:review:maximum",
+      "message": "stress maxima and section stress extremes are not combined; combine the signed stress component rows instead",
+      "severity": "info",
+      "source": "core/product_physics"
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/19"
+    }
+   ],
+   "code": "ROSTER_MISSING",
+   "what": "pf_cantilever: a combination's maximum notice dropped"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/diagnostics/19/id",
+     "value": "diagnostic:review:maximum"
+    }
+   ],
+   "code": "ROSTER_RENAMED",
+   "what": "pf_cantilever: a maximum notice renamed"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/diagnostics/19/message",
+     "value": "stress maxima are combined and established within their bound"
+    }
+   ],
+   "code": "ROSTER_CONTRADICTION",
+   "what": "pf_cantilever: a maximum notice reworded"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/diagnostics/18/message",
+     "value": "headlines cover the load cases and the established combination rows"
+    }
+   ],
+   "code": "ROSTER_CONTRADICTION",
+   "what": "pf_cantilever: the headline-scope notice reworded"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/diagnostics/18/affected_refs",
+     "value": [
+      "comb:double",
+      "comb:cancel",
+      "comb:same",
+      "comb:axial",
+      "comb:sum"
+     ]
+    }
+   ],
+   "code": "ROSTER_CONTRADICTION",
+   "what": "pf_cantilever: the headline scope missing a combination"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/diagnostics/18/affected_refs",
+     "value": [
+      "comb:range",
+      "comb:sum",
+      "comb:axial",
+      "comb:same",
+      "comb:cancel",
+      "comb:double"
+     ]
+    }
+   ],
+   "code": null,
+   "what": "pf_cantilever: the headline scope's refs reordered",
+   "model_code": "ROSTER_CONTRADICTION"
+  },
+  {
+   "document": "pf_cantilever",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/diagnostics/19/affected_refs",
+     "value": [
+      "comb:double",
+      "comb:cancel"
+     ]
+    }
+   ],
+   "code": "ROSTER_CONTRADICTION",
+   "what": "pf_cantilever: a maximum notice naming two combinations"
+  },
+  {
+   "document": "op1a_v1",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/diagnostics/11/message",
+     "value": "Combination withheld: its rows are nonetheless established by inspection."
+    }
+   ],
+   "code": "ROSTER_CONTRADICTION",
+   "what": "op1a_v1: a gate notice reworded"
+  },
+  {
+   "document": "op1a_v1",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/11"
+    }
+   ],
+   "code": "ROSTER_MISSING",
+   "what": "op1a_v1: a gate notice dropped"
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: a row-withheld notice naming prose",
+   "code": "ROSTER_CONTRADICTION",
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:preview-physics:combination-row-withheld:11:comb:double",
+      "code": "LOAD_COMBINATION_ROW_WITHHELD",
+      "severity": "warning",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:double"
+      ],
+      "message": "combination comb:double withholds 1 combined row(s) that could not be formed: all derived rows are established (verified)"
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: a source-missing notice naming no row base",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:preview-physics:combination-source-missing:11:comb:double14:result:nowhere",
+      "code": "LOAD_COMBINATION_SOURCE_RESULT_MISSING",
+      "severity": "warning",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:double"
+      ],
+      "message": "combination comb:double omits result:nowhere because a matching source row is missing in an operand case"
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_held",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/0"
+    }
+   ],
+   "code": null,
+   "what": "pf_held: an interim withholding notice dropped",
+   "model_code": "ROSTER_MISSING"
+  },
+  {
+   "document": "pf_held",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/diagnostics/0/message",
+     "value": "combination `comb:held` is solved and its rows are established"
+    }
+   ],
+   "code": null,
+   "what": "pf_held: an interim withholding notice reworded",
+   "model_code": "ROSTER_CONTRADICTION"
+  },
+  {
+   "document": "op1a_v1",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases",
+     "value": {}
+    }
+   ],
+   "code": "SHAPE",
+   "what": "op1a_v1: operand_cases an object"
+  },
+  {
+   "document": "op1a_v1",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases",
+     "value": null
+    }
+   ],
+   "code": "SHAPE",
+   "what": "op1a_v1: operand_cases null"
+  },
+  {
+   "document": "op1a_v1",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/operand_cases",
+     "value": "not an array"
+    }
+   ],
+   "code": "SHAPE",
+   "what": "op1a_v1: operand_cases a string"
+  },
+  {
+   "document": "op1a_v1",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations",
+     "value": "not an array"
+    }
+   ],
+   "code": "SHAPE",
+   "what": "op1a_v1: combinations a string"
+  },
+  {
+   "document": "w16_line",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/contract_evidence/combination_certificate/combinations/0/groups/0/factors_bound",
+     "value": 1.161901670485358e-27
+    }
+   ],
+   "code": "RECORD",
+   "what": "forged factor bound"
+  },
+  {
+   "document": "pf_shared_id",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/diagnostics/7/message",
+     "value": "stress maxima are combined and established within their bound"
+    }
+   ],
+   "code": "ROSTER_CONTRADICTION",
+   "what": "pf_shared_id: the shared-id maximum notice reworded"
+  },
+  {
+   "document": "pf_shared_id",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/diagnostics/7/code",
+     "value": "COMBINATION_INTENSIFIED_STRESS_UNAVAILABLE"
+    }
+   ],
+   "code": "ROSTER_CONTRADICTION",
+   "what": "pf_shared_id: the shared-id maximum notice under another code"
+  },
+  {
+   "document": "pf_shared_id",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/diagnostics/7/affected_refs",
+     "value": [
+      "W2"
+     ]
+    }
+   ],
+   "code": "ROSTER_CONTRADICTION",
+   "what": "pf_shared_id: the shared-id maximum notice naming a load case"
+  },
+  {
+   "document": "pf_shared_id",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/diagnostics/7/note",
+     "value": "established"
+    }
+   ],
+   "code": "ROSTER_CONTRADICTION",
+   "what": "pf_shared_id: the shared-id maximum notice with an extra field"
+  },
+  {
+   "document": "pf_shared_id",
+   "what": "pf_shared_id: the shared-id maximum notice duplicated",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "affected_refs": [
+       "S"
+      ],
+      "code": "COMBINATION_STRESS_MAXIMUM_UNAVAILABLE",
+      "id": "diagnostic:preview-physics:combination-maximum:1:S",
+      "message": "stress maxima and section stress extremes are not combined; combine the signed stress component rows instead",
+      "severity": "info",
+      "source": "core/product_physics"
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_shared_id",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/7"
+    }
+   ],
+   "code": "ROSTER_MISSING",
+   "what": "pf_shared_id: the shared-id maximum notice dropped"
+  }
+ ]
+}

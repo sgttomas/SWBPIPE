@@ -66,9 +66,10 @@ const EXACT_RETAINED: &str = crate::retained_precision::EXACT_CONTRACT_ID;
 /// final constant-effort candidate's exact successor table (#101 at 01e05a486), which
 /// main holds once that lands before RT-A4; the sixth is the RT-A4 main line's exact
 /// successor table (main at bbf384dec), whose inherited pressure-2 digest RT-A3
-/// increment 4 moves; the last three are main's at bbf384dec, before operating-case
-/// slice 1b.
-pub static VARIANTS: [RecordedVariant; 9] = [
+/// increment 4 moves; the seventh to ninth are main's at bbf384dec, before operating-case
+/// slice 1b; the tenth is main's exact successor table at 252bef969, whose inherited
+/// pressure-2 digest RT-A3 §4 (the combination certificate) moves.
+pub static VARIANTS: [RecordedVariant; 10] = [
     RecordedVariant {
         id: PREVIEW,
         sha256: "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2",
@@ -145,6 +146,16 @@ pub static VARIANTS: [RecordedVariant; 9] = [
         base: Some(6),
         reads_under_variant: true,
     },
+    // RT-A3 §4 (DEL-05-02 Work `combination-certificate.md`): main's exact successor table at
+    // 252bef969, a recorded binding only.
+    RecordedVariant {
+        id: EXACT_RETAINED,
+        sha256: "85c2678a78e794b44761c11efb73c215645c7e2560d802ac8ad6075e7804c691",
+        profile: crate::retained_precision::EXACT_PROFILE,
+        bytes: include_bytes!("../../../../fixtures/results/recorded_pre_rt_a4/semantic_contract_v0_3_physics_retained_1.85c2678a.json"),
+        base: None,
+        reads_under_variant: false,
+    },
 ];
 
 fn sha256_hex(bytes: &[u8]) -> String {
@@ -172,7 +183,7 @@ impl RecordedVariant {
     }
     /// The variant's table, its bytes checked on first read.
     pub fn table(&'static self) -> &'static Value {
-        static TABLES: [OnceLock<Value>; 9] = [const { OnceLock::new() }; 9];
+        static TABLES: [OnceLock<Value>; 10] = [const { OnceLock::new() }; 10];
         TABLES[self.index()].get_or_init(|| verify(self, self.bytes).expect("a registry table's pinned bytes"))
     }
     /// The base variant a successor's base inherits (preview-physics-2's), if any.
@@ -231,7 +242,11 @@ impl Drop for Restore {
 pub fn entry_scope<R>(read: impl FnOnce() -> R) -> R {
     let _clear = Restore(None);
     SELECTED.with(|s| s.set(None));
-    read()
+    // RT-A3 §4: the retained base-read context is cleared the same way (`combination_certificate`).
+    crate::combination_certificate::clear_read_context();
+    let result = read();
+    crate::combination_certificate::clear_read_context();
+    result
 }
 
 /// Run `read` as the recorded-run read of `source` under its recorded `binding`.
@@ -292,6 +307,7 @@ mod tests {
         assert_eq!(VARIANTS[3].table()["rows"], crate::semantic_contract::physics_retained_contract()["rows"]);
         assert_eq!(VARIANTS[4].table()["rows"], crate::semantic_contract::physics_retained_contract()["rows"]);
         assert_eq!(VARIANTS[5].table()["rows"], crate::semantic_contract::physics_retained_contract()["rows"]);
+        assert_eq!(VARIANTS[9].table()["rows"], crate::semantic_contract::physics_retained_contract()["rows"]);
         assert!(VARIANTS[0].table()["supported_profile_limitations"] != crate::semantic_contract::preview_physics_contract()["supported_profile_limitations"]);
     }
 

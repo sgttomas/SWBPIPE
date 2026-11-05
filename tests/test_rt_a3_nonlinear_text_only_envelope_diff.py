@@ -41,7 +41,13 @@ from their own bases, and the reader outcomes by `check_reader_outcomes` (keys a
 summaries token for token; every input digest rematerialized at both endpoints;
 every refusal digest recomputed from its summary). No retained carrier is pending.
 
-The endpoint is the working tree: the stage's carriers as committed on its branch.
+The endpoint was the working tree: the stage's carriers as committed on its branch.
+RT-A3 §4 (DEL-05-02 Work `combination-certificate.md`) restates the pressure-2
+combinations texts and the EX derived-rows notice, publishes the combination
+certificate and regenerates carriers again. This proof keeps this stage's
+endpoint: 252bef969 (its merge to main, #108).
+test_rt_a3_combination_certificate_envelope_diff compares the §4 stage from P's
+final candidate 78580da7e.
 """
 from functools import cache
 from pathlib import Path
@@ -58,6 +64,8 @@ from tests import test_rt_a3_constant_effort_text_only_envelope_diff as ce
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "aa794eb68cd9af3ce821430138685ab3d0d80508"
+# This stage's endpoint, frozen when RT-A3 §4 published the combination certificate.
+END = "252bef9693a682a2f9330dce7850869591800500"
 
 CE_TAIL = "(SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED)"
 NL_CLAUSE = (
@@ -202,6 +210,11 @@ def _at(rev, name):
 
 
 def current(name):
+    return _at(END, name)
+
+
+def working(name):
+    """A file as the working tree holds it (RT-U4 C1's replay corpus and its carriers, which postdate END)."""
     return (ROOT / name).read_text(encoding="utf-8")
 
 
@@ -356,11 +369,12 @@ def _restore_report_statements(value, patterns, path=()):
 
 def _reader_inputs(rev):
     """The reader inputs this file can rematerialize, keyed as r1_native_reader_outcomes keys them, at `rev` (None: the
-    working tree): the corpus's cases, mutations and must-pass entries (the Python 07e `apply_entry`), the B2 parity
+    frozen endpoint END): the corpus's cases, mutations and must-pass entries (the Python 07e `apply_entry`), the B2 parity
     probes, RV120's shapes and the successor fixtures. The carrier cases and declared differences, whose fixtures are
     pressure-free and unchanged here, are compared token for token instead."""
     from tests.retained_precision_corpus import _STORAGE
     from tests.test_retained_precision_contract import apply_entry
+    rev = END if rev is None else rev  # the frozen endpoint
     read = (lambda name: current(name)) if rev is None else (lambda name: _at(rev, name))  # noqa: E731
     corpus = _STORAGE.expand(json.loads(read("fixtures/results/retained_precision_cases.json")))
     cases = {c["id"]: c for c in corpus["cases"]}
@@ -445,7 +459,7 @@ def check(name, after=None):
     if name == READER_OUTCOMES:
         return check_reader_outcomes(before, after), []
     if name == RV120:
-        check_rv120_output_digests(json.loads(before), json.loads(after), base=BASE)
+        check_rv120_output_digests(json.loads(before), json.loads(after), base=BASE, end=END)
     if name in REPORT_PATHS:
         restored, moved = _restore_report_statements(load(after), REPORT_PATHS[name])
         moved += compare(load(before), restored, moves=moves)
@@ -524,8 +538,12 @@ def test_every_json_file_stating_an_old_text_is_compared_or_named():
             assert name not in at_base and not _states_old(_at(BASE, name)), f"{name}: named hash-only but states a text"
         else:
             assert name in at_base, f"{name}: listed but states no endpoint text and is not named hash-only"
+    assert _stating(END) == set(), sorted(_stating(END))
+    # RT-U4 C1 (merged after RT-A3 §4 froze this stage at END): C1's native replay corpus is added on its branch, in the
+    # working tree, after END. It may state an old text only in its named history (check_replay_history), read from
+    # the working tree, and no other working-tree file states one.
     assert _stating(None) <= {REPLAY_REQUESTS}, sorted(_stating(None) - {REPLAY_REQUESTS})
-    check_replay_history(json.loads(current(REPLAY_REQUESTS)))
+    check_replay_history(json.loads(working(REPLAY_REQUESTS)), read=working)
     assert "RETAINED_PENDING" not in globals(), "a pending exception would leave a carrier outside the comparison"
 
 
@@ -547,7 +565,7 @@ def _record_binding(record):
     return reproducibility.get("semantic_contract") if isinstance(reproducibility, dict) else None
 
 
-def check_replay_history(document, read=current):
+def check_replay_history(document, read=working):
     """The replay corpus states an old text only in its named kept texts: each is the data of its recorded carrier's
     member (a frozen tree outside this comparison), whose record binds exactly the recorded table ({id, sha256} at
     analysis_run.reproducibility.semantic_contract), and every request holding it reads it on a restored handle under
@@ -726,7 +744,7 @@ def test_a_leftover_hash_only_or_retained_carrier_is_refused():
 def test_replay_history_rejects_a_stale_or_unbound_kept_text():
     """The replay corpus's named history admits nothing else: a further kept text stating an old text, an edited
     historical text, a request holding it without its recorded table, or an old text in a request fails."""
-    document = json.loads(current(REPLAY_REQUESTS))
+    document = json.loads(working(REPLAY_REQUESTS))
     check_replay_history(document)
     (sha, (_, _, _, table)), = REPLAY_HISTORY.items()
     stale = json.loads(json.dumps(document))
@@ -747,12 +765,12 @@ def test_replay_history_requires_the_record_to_bind_exactly_the_recorded_table()
     """The kept text's carrier record binds the recorded table at analysis_run.reproducibility.semantic_contract,
     compared whole: a wrong id, a wrong sha256, an added member, the binding moved to another field (its digest still
     in the record) or removed (the result refs still state the digest) fails."""
-    document = json.loads(current(REPLAY_REQUESTS))
+    document = json.loads(working(REPLAY_REQUESTS))
     (_, (carrier, _, _, table)), = REPLAY_HISTORY.items()
     record_path = carrier.removesuffix(".json") + ".analysis_run.json"
-    record = json.loads(current(record_path))
+    record = json.loads(working(record_path))
     assert _record_binding(record) == table
-    check_replay_history(document, read=lambda name: json.dumps(record) if name == record_path else current(name))
+    check_replay_history(document, read=lambda name: json.dumps(record) if name == record_path else working(name))
 
     def variant(edit):
         changed = json.loads(json.dumps(record))
@@ -779,4 +797,4 @@ def test_replay_history_requires_the_record_to_bind_exactly_the_recorded_table()
     for edit in (wrong_id, wrong_sha, extra_member, misplaced, missing):
         changed = variant(edit)
         with pytest.raises(AssertionError):
-            check_replay_history(document, read=lambda name: json.dumps(changed) if name == record_path else current(name))
+            check_replay_history(document, read=lambda name: json.dumps(changed) if name == record_path else working(name))

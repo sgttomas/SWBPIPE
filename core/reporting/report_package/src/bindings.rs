@@ -232,11 +232,28 @@ const INTEGRITY_CODE_PREFIX: &str = open_pipe_stress_report_renderer::INTEGRITY_
 /// The bound fields of a projected entry, in the order the check compares them.
 const DIAGNOSTIC_FIELDS: [&str; 7] = ["code", "class", "severity", "source", "affected_object", "message", "remediation"];
 
+/// The label before a diagnostic message the report passes through as supplied text (desktop
+/// `features/results/suppliedDiagnostics.ts` `SUPPLEMENTAL_DIAGNOSTIC_LABEL`).
+pub const SUPPLEMENTAL_DIAGNOSTIC_LABEL: &str = "Supplied diagnostic text, unverified (not a combination certificate statement): ";
+
+/// A diagnostic's report message: quoted after the supplemental label when the source has
+/// combinations and the diagnostic names none of them, else copied.
+fn supplemental_message(diagnostic: &Value, message: &str, combinations: &std::collections::HashSet<String>) -> String {
+    let names_one = diagnostic["affected_refs"].as_array().is_some_and(|refs| refs.iter().any(|r| r.as_str().is_some_and(|r| combinations.contains(r))));
+    if combinations.is_empty() || names_one {
+        message.to_string()
+    } else {
+        format!("{SUPPLEMENTAL_DIAGNOSTIC_LABEL}\"{message}\"")
+    }
+}
+
 /// The report's projection of the source's diagnostics (DEL-08-01 Design
 /// `exact-route-report-sections.md` §3.6): one entry per source diagnostic, in
 /// source order, mirroring the desktop's `diagnosticsForSections`
 /// (`apps/desktop/src/features/report/renderableReportInput.ts`), which builds
-/// the report; this is the check. Per entry: the code and message copied; a
+/// the report; this is the check. Per entry: the code copied; the message
+/// copied, or, on a source with combinations, quoted after
+/// [`SUPPLEMENTAL_DIAGNOSTIC_LABEL`] when the diagnostic names none of them; a
 /// `blocking` or `error` severity becomes `blocking` with class
 /// `SOLVE_BLOCKING`, any other severity is copied with class
 /// `ASSUMPTION_WARNING`; the source `{diagnostic_source, source}`, or
@@ -249,6 +266,14 @@ const DIAGNOSTIC_FIELDS: [&str; 7] = ["code", "class", "severity", "source", "af
 /// `fixtures/reports/invented/report_diagnostics_parity.json`.
 pub fn expected_report_diagnostics(source: &Value) -> Result<Vec<Value>, String> {
     let diagnostics = source["diagnostics"].as_array().ok_or_else(|| mismatch("report diagnostics: the source has no diagnostics"))?;
+    // RT-A3 §4 (DEL-05-02 Work `combination-certificate.md` §2, the residual text boundary): on a
+    // source with combinations, a diagnostic naming none of them is no entry of the reader's closed
+    // combination-diagnostic roster, and its message is quoted as supplied text (desktop
+    // `suppliedDiagnosticMessage`). The source's population is always within the reader's with
+    // the model (no model record removes a typed source identity), so a copied message is one
+    // every admitting reading checked. Certificate facts come only from the validated member and
+    // the roster's canonical notices, never from a message.
+    let combinations = open_pipe_stress_result_export::document_combination_identities(source);
     diagnostics
         .iter()
         .enumerate()
@@ -282,7 +307,7 @@ pub fn expected_report_diagnostics(source: &Value) -> Result<Vec<Value>, String>
                 "severity": if blocking { "blocking" } else { severity },
                 "source": reference("diagnostic_source", optional("source")?.unwrap_or("core/product_physics")),
                 "affected_object": reference("affected_refs", &affected),
-                "message": message,
+                "message": supplemental_message(diagnostic, message, &combinations),
                 "remediation": RESULT_DIAGNOSTIC_REMEDIATION,
             }))
         })

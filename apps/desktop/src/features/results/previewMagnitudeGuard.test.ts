@@ -50,6 +50,10 @@ function sourceControl(control: typeof controls.controls[number], target: string
   }
   const combination = "invented:e17:combination";
   source.contract_evidence.combination_gates.push({ combination_id: combination, withheld: false, reason: null });
+  // RT-A3 §4's roster (DEL-05-02 Work combination-certificate.md §2): a preview document with a combination carries the
+  // producer's canonical headline-scope notice naming it (§8.53 found these controls without it).
+  source.diagnostics.push({ id: "diagnostic:preview-physics:headline-scope", code: "PREVIEW_HEADLINE_SCOPE_LOAD_CASES", severity: "info",
+    message: "headlines cover the load cases only; combinations are excluded", source: "core/product_physics", affected_refs: [combination] });
   const entity = "invented:e17:combined", basis = { ref_type: "combination", ref_id: combination };
   const metadata = (component: string) => ({ component, coordinate_system: "global", location: "node", basis: "explicit_user_linear_combination",
     sign_convention: "positive value follows explicit user linear combination of matching source result sign conventions" });

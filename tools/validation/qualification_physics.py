@@ -36,7 +36,7 @@ MODULE = 'core/reporting/result_export/src/physics_evidence.rs'
 UNITS = 'core/units/src/lib.rs'
 # T4-U6 (D-5, §2.4): the table's per-basis stress signatures (106 signatures, 59 kinds); T4-U5b's tie-rod force
 # and T4-U4b's (§2.2) per-basis kinds (129 signatures, 66 kinds).
-TABLE_SHA256 = '2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645'
+TABLE_SHA256 = '21b7426ec1c50ba5f74539984261554d06b9b6a26ec26f7d5765b5faa7d6bb90'
 DEPENDENCIES = {
     # T4-U6/U8 re-pins: the D-5 section bases and the Timoshenko beam theory (8bf263d6..., was 38302413...);
     # then §2.5's realized-arc marker (98bdfeee3e: arcs known by `member_kind`, refused on the composite);
@@ -62,8 +62,11 @@ DEPENDENCIES = {
     # connector reader is given the source `results` and `exact_cases` arrays and scans them in array order, so its first
     # refusal is the same in every process (was ea9273d7...); then RT-A3 increment 4 (DEL-04-07 pressure-contract.md,
     # "Nonlinear supports on EX"): the direct pass calls the nonlinear support binding (`nonlinear_support_evidence`),
-    # merged with RT-U4 order (was fe65101b... on RT-U4 order and 2e9b087d... on RT-A3 increment 4).
-    MODULE: '0baf783f42697e520c8ad3ebc284ef6e23a11986c1b32c5d23f72f7596a9f5cc',
+    # merged with RT-U4 order (was fe65101b... on RT-U4 order and 2e9b087d... on RT-A3 increment 4); then RT-A3 §4
+    # (DEL-05-02 Work `combination-certificate.md`): the pass reads the document without the combination certificate,
+    # then the certificate on the whole document, merged with RT-U4 order (was 0baf783f... on RT-U4 order and
+    # fd69f9be... on RT-A3 §4).
+    MODULE: 'e85432423110e72022cb93f8c8324ffb4aa6dc48f1ed32a0cb20a28a986e0d73',
     TABLE: TABLE_SHA256,
     # The units authority: then DEL-04-09 I3a's mass_length_per_rotation family (kg*m/rad, lb*in/rad, lb*ft/rad),
     # an addition only; every existing unit, dimension and conversion is unchanged (was 5a412c57...); then the

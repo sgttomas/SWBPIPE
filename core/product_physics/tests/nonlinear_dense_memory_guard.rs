@@ -152,7 +152,7 @@ fn assert_refused_by_the_guard(envelope: &MechanicsEnvelope, entry: &str) {
     assert_eq!(guard.affected_refs, ["model"], "{entry}");
     assert_eq!(
         guard.message,
-        "nonlinear dense loop memory guard: estimated leading dense storage 11608568928 bytes (88 bytes x 10566^2 global DOFs + 16 bytes x 10560^2 free DOFs) exceeds the provisional limit 11596411699 bytes; the model is refused before any n^2 allocation. The estimate counts the loop's leading dense buffers only and is not a complete memory bound; the limit is provisional until the sparse nonlinear loop (R-4 stage P); it applies in sparse_interactive and dense_scrutiny alike",
+        "nonlinear dense loop memory guard: estimated leading dense storage 11608568928 bytes (88 bytes x 10566^2 global DOFs + 16 bytes x 10560^2 free DOFs) exceeds the provisional limit 11596411699 bytes; the model is refused before any n^2 allocation. The estimate counts the dense loop's leading buffers only and is not a complete memory bound; in sparse mode the same limit is kept as a provisional admission cap pending the owner's decision (R-4 §6.3 O-2); it applies in sparse_interactive and dense_scrutiny alike",
         "{entry}"
     );
 }

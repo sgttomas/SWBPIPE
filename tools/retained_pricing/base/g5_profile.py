@@ -15,11 +15,25 @@ atom is bound here to exactly one of:
                is INCOMPLETE while any Estimate carries weight: cap_priced_maximum fails closed.
 Every maximum is taken in the build, over the evaluated candidates (never chosen here).
 Usage: python3 g5_profile.py <profile_tree.json> <retained_memory.rs>   (rewrites the block in place)
+
+Point atoms (retained-pricing-rules.md §8.53): the separate points L(2,1) and L(1,2) use atoms the merged tree does not,
+so the profile's own listing cannot evaluate them. `--point-atoms` binds exactly those atoms, by the same BIND entries,
+into the GENERATED POINT ATOMS block of PP/src/retained_memory_law_tests.rs, whose `profile_` law test prints them as
+I65_G5_ATOM lines beside the profile's: the points are then evaluated at in-build values, never at ASSUMED strides.
+Usage: python3 g5_profile.py --point-atoms <merged tree> <retained_memory_law_tests.rs> <point tree>...
 """
 import json, re, sys
 
-tree = json.load(open(sys.argv[1]))
-target = sys.argv[2]
+POINT_ATOMS = len(sys.argv) > 1 and sys.argv[1] == "--point-atoms"
+if POINT_ATOMS:
+    tree = json.load(open(sys.argv[2]))
+    target = sys.argv[3]
+    point_trees = [json.load(open(p_)) for p_ in sys.argv[4:]]
+    if not point_trees:
+        raise SystemExit("--point-atoms needs at least one point tree")
+else:
+    tree = json.load(open(sys.argv[1]))
+    target = sys.argv[2]
 
 def sz(t):
     return ("InBuild", f"size_of::<{t}>()", "")
@@ -98,6 +112,29 @@ BIND = {
     "s(GateRecord)": upr("3 * size_of::<&'static str>() + 2 * size_of::<Vec<u8>>()",
                          "RT-A4-RD: preview_combination_gates' private Record (id, basis: &str; operands, terms: Vec; mode: Option<&str>, the size of a &str)"),
     "Node(String,(String,CaseRows))": node("String", "(String, std::collections::HashMap<&'static str, &'static Value>)"),   # RT-A4-RD
+    # RT-A3 §4 D3 (retained-pricing-rules.md §8.53): the certificate's owners (rta3c_owners_model.py). The RE reader's and
+    # the producer's private structs are bounded by their fields' sizes (all 8-aligned; the modules are pinned).
+    "s(C3OperandGroup)": sz("crate::combination_certificate::OperandGroup"),   # RTA3C-OP
+    "s(C3OperandEntry)": sz("(String, crate::combination_certificate::Operand)"),   # RTA3C-OP
+    "s((usize,ActionScales))": sz("(usize, crate::formation_guard::ActionScales)"),   # RTA3C-OP
+    "s(C3CaseKey)": upr("5 * size_of::<&'static str>() + size_of::<Vec<usize>>()",
+                        "RTA3C-PB/RD: a case-row index entry ((case, kind, entity, location, Option<&str> component), Vec<usize>)"),
+    "s(C3SourcesKey)": upr("size_of::<&'static str>() + size_of::<Vec<&'static str>>() + size_of::<Vec<usize>>()",
+                           "RTA3C-PB/RD: a by-sources entry ((combination, Vec<&str> sources), Vec<usize>)"),
+    "s(C3RowsOf)": sz("(&'static str, Vec<usize>)"),   # RTA3C-PB/RD
+    "s(C3Derived)": upr("size_of::<Value>() + size_of::<Vec<usize>>() + 2 * size_of::<f64>() + size_of::<&'static str>()",
+                        "RTA3C-PB: the producer's private Derived (json, rows, bound, floor_scale, verdict)"),
+    "s(C3FormedEntry)": sz("((String, String, String, usize), usize)"),   # RTA3C-PB/RD
+    "s(C3PerOperand)": upr("size_of::<&'static u8>() + size_of::<f64>() + size_of::<Vec<u8>>()",
+                           "RTA3C-PB/RD: one (&group, bound, coverage) per operand"),
+    "s((String,bool))": sz("(String, bool)"),   # RTA3C-PB
+    "s((String,f64))": sz("(String, f64)"),   # RTA3C-PB/RD: a combination's (load case, factor) terms (§8.53 S1)
+    "s(C3ROperandEntry)": sz("(&'static str, Vec<u8>)"),   # RTA3C-RD: (case, Vec<OperandGroup>) (a Vec header)
+    "s(C3ROperandGroup)": upr("3 * size_of::<&'static str>() + 2 * size_of::<f64>() + size_of::<Option<f64>>()",
+                              "RTA3C-RD: the reader's private OperandGroup (entity, location, group; q, floor_scale; bound)"),
+    "s(C3Triple)": sz("(&'static str, &'static str, &'static str)"),   # RTA3C-RD
+    "s(C3RDerived)": upr("size_of::<Value>() + size_of::<Vec<usize>>() + 2 * size_of::<f64>()",
+                         "RTA3C-RD: the reader's private Derived (json, rows, bound, floor_scale)"),
     "Node(String,CaseRows)": node("String", "std::collections::HashMap<&'static str, &'static Value>"),   # RT-A4-RD
     "s(StationResultants)": sz("crate::StationResultants"), "s(MemberRecord)": sz("crate::preview_physics::MemberRecord"),
     "s(RecoveryGroup)": sz("crate::formation_guard::RecoveryGroup"),
@@ -360,6 +397,84 @@ BIND["s(O4KernelStaging)"] = ("SourceUpper", "64 * fkr::WIDE_16",
 BIND.update({   # I104 SQ (RV112 N-5): SP's adapter-reserved owners
     "s(CaseSlot)": sz("crate::retained_product::CaseSlot"), "s([usize;2])": sz("[usize; 2]"),
     "s(PrimitiveSource)": sz("open_pipe_stress_frame_kernel::structural::retained_api::PrimitiveSource")})
+
+
+def tree_atoms(t):
+    """The layout atoms a tree's forms use (text atoms are each tree's own, layout-free)."""
+    return {a for f in t["forms"].values() for a in f if a != "1" and not a.startswith("Text(")}
+
+
+def point_atoms_block(merged, points):
+    """The GENERATED POINT ATOMS block: the points' atoms outside the merged tree's, each bound by BIND as the profile
+    binds its own. An unbound atom or an Estimate stops: a point is never evaluated at a design-record stride."""
+    extra = sorted(set().union(*(tree_atoms(t) for t in points)) - tree_atoms(merged))
+    unbound = [a for a in extra if a not in BIND]
+    if unbound:
+        raise SystemExit("unbound point atoms: " + ", ".join(unbound))
+    estimates = [a for a in extra if BIND[a][0] == "Estimate"]
+    if estimates:
+        raise SystemExit("point atoms bound only as Estimate: " + ", ".join(estimates))
+    assumed_ = {}
+    for t in points:
+        for a in extra:
+            if a in t["assumed"]:
+                assumed_.setdefault(a, int(t["assumed"][a]))
+    P_ = []
+    w_ = P_.append
+    w_("// ---- BEGIN GENERATED POINT ATOMS (tools/retained_pricing/base/g5_profile.py --point-atoms; do not edit by hand) ----")
+    w_("/// retained-pricing-rules.md §8.53: the atoms the separate points L(2,1) and L(1,2) use beyond the merged profile's,")
+    w_("/// bound by g5_profile.py's BIND exactly as the profile binds its own, so that `price.py eval` evaluates every point")
+    w_("/// at in-build values (`profile_point_atoms_in_build` prints them as I65_G5_ATOM lines). Test-only: no product code")
+    w_("/// reads them, and the registered profile, its record and its laws are unchanged by them.")
+    w_("pub(super) mod point_atoms {")
+    w_("    #![allow(clippy::all, dead_code)]")
+    w_("    use crate::retained_memory::profile::{btree_node_upper, Binding};")
+    w_("    use open_pipe_stress_frame_kernel::structural::retained_resource as fkr;")
+    w_("    use serde_json::Value;")
+    w_("    use std::mem::{align_of, size_of};")
+    w_("")
+    w_("    const fn up(x: usize, a: usize) -> usize {")
+    w_("        (x + a - 1) / a * a")
+    w_("    }")
+    w_("    const fn max_usize(a: usize, b: usize) -> usize {")
+    w_("        if a > b { a } else { b }")
+    w_("    }")
+    w_(f"    pub(crate) const ATOMS: usize = {len(extra)};")
+    w_("    pub(crate) const ATOM_NAMES: [&str; ATOMS] = [")
+    for a in extra:
+        w_(f"        {json.dumps(a)},")
+    w_("    ];")
+    w_("    pub(crate) const ATOM_BINDINGS: [Binding; ATOMS] = [")
+    for a in extra:
+        w_(f"        Binding::{BIND[a][0]},")
+    w_("    ];")
+    w_("    pub(crate) const ATOM_VALUES: [u64; ATOMS] = [")
+    for a in extra:
+        kind, expr, why = BIND[a]
+        note = f" ({why})" if why else ""
+        w_(f"        ({expr}) as u64, // {a}{note}")
+    w_("    ];")
+    w_("    /// The points' illustrative strides, for the record only (never an evaluation input).")
+    w_("    pub(crate) const ATOM_ASSUMED: [u64; ATOMS] = [")
+    for a in extra:
+        w_(f"        {assumed_.get(a, 0)},")
+    w_("    ];")
+    w_("}")
+    w_("// ---- END GENERATED POINT ATOMS ----")
+    return "\n".join(P_) + "\n", extra
+
+
+if POINT_ATOMS:
+    block_, extra_ = point_atoms_block(tree, point_trees)
+    src_ = open(target).read()
+    begin_ = src_.find("// ---- BEGIN GENERATED POINT ATOMS")
+    end_ = src_.find("// ---- END GENERATED POINT ATOMS ----")
+    if begin_ < 0 or end_ < 0:
+        raise SystemExit("point-atom markers not found in " + target)
+    end_ = src_.index("\n", end_) + 1
+    open(target, "w").write(src_[:begin_] + block_ + src_[end_:])
+    print(json.dumps({"point_atoms": len(extra_), "lines": block_.count("\n")}))
+    sys.exit(0)
 forms = tree["forms"]; exprs = tree["exprs"]; phases = tree["phases"]
 text = tree["text_atoms"]; assumed = tree["assumed"]
 atoms = sorted({a for f in forms.values() for a in f if a != "1"})

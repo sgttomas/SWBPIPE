@@ -1,0 +1,7516 @@
+{
+ "reference": "RT-A3 \u00a74 combination certificate (DEL-05-02 Work combination-certificate.md \u00a73)",
+ "generator": "generators/certificate_reference.py",
+ "pi": {
+  "digits": 130,
+  "enclosure": "Machin, +-1e-120"
+ },
+ "criterion": {
+  "rd_1e_9_hex": "3e112e0be826d694",
+  "floor": "2^-34",
+  "intended_margin": "2^-100"
+ },
+ "inputs": {
+  "L": "5404319552844595/18014398509481984",
+  "OD": "3602879701896397/18014398509481984",
+  "t": "5764607523034235/576460752303423488",
+  "c_m": "5764607523034235/4611686018427387904",
+  "c_a": "1152921504606847/576460752303423488",
+  "t_r": "3891110078048109/576460752303423488",
+  "p": "2000000",
+  "factor_1_3": "5854679515581645/4503599627370496",
+  "cases": {
+   "case:S": [
+    "1000",
+    "600"
+   ],
+   "case:S2": [
+    "1000",
+    "600"
+   ],
+   "case:O2": [
+    "2000",
+    "1200"
+   ],
+   "case:Oc": [
+    "1000",
+    "39321601/65536"
+   ],
+   "case:Oa": [
+    "1024001/1024",
+    "600"
+   ],
+   "case:Q": [
+    "-400",
+    "200"
+   ]
+  }
+ },
+ "P": {
+  "q0": "0",
+  "q1_pi": "45149941851943256680101975795985140625/2596148429267413814265248164610048",
+  "decimal": "5.46358305376618009e+04"
+ },
+ "cantilever_exact": {
+  "route": "exact_pressure_v3",
+  "combinations": [
+   {
+    "combination_id": "comb:double",
+    "basis": "result_state_subtraction",
+    "minuend": "case:O2",
+    "subtrahend": "case:S",
+    "groups": [
+     {
+      "entity": "pipe:m",
+      "location": "end_i",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "600",
+        "q1_pi": "0",
+        "decimal": "6.00000000000000000e+02"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        1200.0
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       600.0
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_i",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_i",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "405323966463344625/2251799813685248",
+        "q1_pi": "0",
+        "decimal": "1.80000000000000000e+02"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        360.0,
+        0.0
+       ],
+       [
+        180.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       180.0,
+       0.0
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "600",
+        "q1_pi": "0",
+        "decimal": "6.00000000000000000e+02"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        1200.0
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       600.0
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "1215971899390033875/9007199254740992",
+        "q1_pi": "0",
+        "decimal": "1.35000000000000000e+02"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        270.0,
+        0.0
+       ],
+       [
+        135.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       135.0,
+       0.0
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "600",
+        "q1_pi": "0",
+        "decimal": "6.00000000000000000e+02"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        1200.0
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       600.0
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "405323966463344625/4503599627370496",
+        "q1_pi": "0",
+        "decimal": "9.00000000000000000e+01"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        180.0,
+        0.0
+       ],
+       [
+        90.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       90.0,
+       0.0
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "600",
+        "q1_pi": "0",
+        "decimal": "6.00000000000000000e+02"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        1200.0
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       600.0
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "405323966463344625/9007199254740992",
+        "q1_pi": "0",
+        "decimal": "4.50000000000000000e+01"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        90.0,
+        0.0
+       ],
+       [
+        45.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       45.0,
+       0.0
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_j",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "600",
+        "q1_pi": "0",
+        "decimal": "6.00000000000000000e+02"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        1200.0
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       600.0
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_j",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_j",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "cut_i",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "1000",
+        "q1_pi": "0",
+        "decimal": "1.00000000000000000e+03"
+       }
+      ],
+      "operand_published": [
+       [
+        2000.0
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       1000.0
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "wall_cut_i",
+      "group": "pipe_wall",
+      "components": [
+       {
+        "q0": "1000",
+        "q1_pi": "0",
+        "decimal": "1.00000000000000000e+03"
+       }
+      ],
+      "operand_published": [
+       [
+        56635.8305376618
+       ],
+       [
+        55635.8305376618
+       ]
+      ],
+      "derived_published": [
+       1000.0
+      ],
+      "equal_pressure": {
+       "elastic_group": {
+        "entity": "pipe:m",
+        "location": "cut_i",
+        "group": "axial"
+       },
+       "identity": "D(N_w) = D(N_el): both operands carry the same P"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "1000",
+        "q1_pi": "0",
+        "decimal": "1.00000000000000000e+03"
+       }
+      ],
+      "operand_published": [
+       [
+        2000.0
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       1000.0
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "wall_quarter_1",
+      "group": "pipe_wall",
+      "components": [
+       {
+        "q0": "1000",
+        "q1_pi": "0",
+        "decimal": "1.00000000000000000e+03"
+       }
+      ],
+      "operand_published": [
+       [
+        56635.8305376618
+       ],
+       [
+        55635.8305376618
+       ]
+      ],
+      "derived_published": [
+       1000.0
+      ],
+      "equal_pressure": {
+       "elastic_group": {
+        "entity": "pipe:m",
+        "location": "quarter_1",
+        "group": "axial"
+       },
+       "identity": "D(N_w) = D(N_el): both operands carry the same P"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "1000",
+        "q1_pi": "0",
+        "decimal": "1.00000000000000000e+03"
+       }
+      ],
+      "operand_published": [
+       [
+        2000.0
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       1000.0
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "wall_midspan",
+      "group": "pipe_wall",
+      "components": [
+       {
+        "q0": "1000",
+        "q1_pi": "0",
+        "decimal": "1.00000000000000000e+03"
+       }
+      ],
+      "operand_published": [
+       [
+        56635.8305376618
+       ],
+       [
+        55635.8305376618
+       ]
+      ],
+      "derived_published": [
+       1000.0
+      ],
+      "equal_pressure": {
+       "elastic_group": {
+        "entity": "pipe:m",
+        "location": "midspan",
+        "group": "axial"
+       },
+       "identity": "D(N_w) = D(N_el): both operands carry the same P"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "1000",
+        "q1_pi": "0",
+        "decimal": "1.00000000000000000e+03"
+       }
+      ],
+      "operand_published": [
+       [
+        2000.0
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       1000.0
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "wall_quarter_3",
+      "group": "pipe_wall",
+      "components": [
+       {
+        "q0": "1000",
+        "q1_pi": "0",
+        "decimal": "1.00000000000000000e+03"
+       }
+      ],
+      "operand_published": [
+       [
+        56635.8305376618
+       ],
+       [
+        55635.8305376618
+       ]
+      ],
+      "derived_published": [
+       1000.0
+      ],
+      "equal_pressure": {
+       "elastic_group": {
+        "entity": "pipe:m",
+        "location": "quarter_3",
+        "group": "axial"
+       },
+       "identity": "D(N_w) = D(N_el): both operands carry the same P"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "cut_j",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "1000",
+        "q1_pi": "0",
+        "decimal": "1.00000000000000000e+03"
+       }
+      ],
+      "operand_published": [
+       [
+        2000.0
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       1000.0
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "wall_cut_j",
+      "group": "pipe_wall",
+      "components": [
+       {
+        "q0": "1000",
+        "q1_pi": "0",
+        "decimal": "1.00000000000000000e+03"
+       }
+      ],
+      "operand_published": [
+       [
+        56635.8305376618
+       ],
+       [
+        55635.8305376618
+       ]
+      ],
+      "derived_published": [
+       1000.0
+      ],
+      "equal_pressure": {
+       "elastic_group": {
+        "entity": "pipe:m",
+        "location": "cut_j",
+        "group": "axial"
+       },
+       "identity": "D(N_w) = D(N_el): both operands carry the same P"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "wall_end_i",
+      "group": "pipe_wall",
+      "components": [
+       {
+        "q0": "1000",
+        "q1_pi": "0",
+        "decimal": "1.00000000000000000e+03"
+       }
+      ],
+      "operand_published": [
+       [
+        56635.8305376618
+       ],
+       [
+        55635.8305376618
+       ]
+      ],
+      "derived_published": [
+       1000.0
+      ],
+      "equal_pressure": {
+       "elastic_group": null,
+       "identity": "D(N_w) = D(N_el): both operands carry the same P"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "wall_end_j",
+      "group": "pipe_wall",
+      "components": [
+       {
+        "q0": "1000",
+        "q1_pi": "0",
+        "decimal": "1.00000000000000000e+03"
+       }
+      ],
+      "operand_published": [
+       [
+        56635.8305376618
+       ],
+       [
+        55635.8305376618
+       ]
+      ],
+      "derived_published": [
+       1000.0
+      ],
+      "equal_pressure": {
+       "elastic_group": null,
+       "identity": "D(N_w) = D(N_el): both operands carry the same P"
+      }
+     },
+     {
+      "entity": "support:a",
+      "location": "node",
+      "group": "support_force",
+      "components": [
+       {
+        "q0": "1000",
+        "q1_pi": "0",
+        "decimal": "1.00000000000000000e+03"
+       },
+       {
+        "q0": "600",
+        "q1_pi": "0",
+        "decimal": "6.00000000000000000e+02"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        2000.0,
+        1200.0,
+        0.0
+       ],
+       [
+        1000.0,
+        600.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       1000.0,
+       600.0,
+       0.0
+      ]
+     },
+     {
+      "entity": "support:a",
+      "location": "node",
+      "group": "support_moment",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "405323966463344625/2251799813685248",
+        "q1_pi": "0",
+        "decimal": "1.80000000000000000e+02"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        0.0,
+        360.0
+       ],
+       [
+        0.0,
+        0.0,
+        180.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0,
+       180.0
+      ]
+     }
+    ]
+   },
+   {
+    "combination_id": "comb:cancel",
+    "basis": "result_state_subtraction",
+    "minuend": "case:Oc",
+    "subtrahend": "case:S",
+    "groups": [
+     {
+      "entity": "pipe:m",
+      "location": "end_i",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "1/65536",
+        "q1_pi": "0",
+        "decimal": "1.52587890625000000e-05"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        600.0000152587891
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       1.52587890625e-05
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_i",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_i",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "5404319552844595/1180591620717411303424",
+        "q1_pi": "0",
+        "decimal": "4.57763671874999983e-06"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        180.0000045776367,
+        0.0
+       ],
+       [
+        180.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       4.577636701696974e-06,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_established",
+       "reason": "bound_exceeds_criterion",
+       "gap_lower_bound": "1.70530254888355310e-14",
+       "q_d": "4.57763670169697434e-06",
+       "floor_scale_upper": "1.66907491613137208e+04"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "1/65536",
+        "q1_pi": "0",
+        "decimal": "1.52587890625000000e-05"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        600.0000152587891
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       1.52587890625e-05
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "16212958658533785/4722366482869645213696",
+        "q1_pi": "0",
+        "decimal": "3.43322753906249966e-06"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        135.00000343322753,
+        0.0
+       ],
+       [
+        135.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       3.433227533378158e-06,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_established",
+       "reason": "bound_exceeds_criterion",
+       "gap_lower_bound": "5.68434175902564641e-15",
+       "q_d": "3.43322753337815811e-06",
+       "floor_scale_upper": "1.66907491613137208e+04"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "1/65536",
+        "q1_pi": "0",
+        "decimal": "1.52587890625000000e-05"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        600.0000152587891
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       1.52587890625e-05
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "5404319552844595/2361183241434822606848",
+        "q1_pi": "0",
+        "decimal": "2.28881835937499992e-06"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        90.00000228881835,
+        0.0
+       ],
+       [
+        90.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       2.288818350848487e-06,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_established",
+       "reason": "bound_exceeds_criterion",
+       "gap_lower_bound": "8.52651274441776551e-15",
+       "q_d": "2.28881835084848717e-06",
+       "floor_scale_upper": "1.66907491613137208e+04"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "1/65536",
+        "q1_pi": "0",
+        "decimal": "1.52587890625000000e-05"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        600.0000152587891
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       1.52587890625e-05
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "5404319552844595/4722366482869645213696",
+        "q1_pi": "0",
+        "decimal": "1.14440917968749996e-06"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        45.000001144409175,
+        0.0
+       ],
+       [
+        45.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       1.1444091754242436e-06,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_established",
+       "reason": "bound_exceeds_criterion",
+       "gap_lower_bound": "4.26325637220888276e-15",
+       "q_d": "1.14440917542424359e-06",
+       "floor_scale_upper": "1.66907491613137208e+04"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_j",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "1/65536",
+        "q1_pi": "0",
+        "decimal": "1.52587890625000000e-05"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        600.0000152587891
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       1.52587890625e-05
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_j",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_j",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "cut_i",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "wall_cut_i",
+      "group": "pipe_wall",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        55635.8305376618
+       ],
+       [
+        55635.8305376618
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      },
+      "equal_pressure": {
+       "elastic_group": {
+        "entity": "pipe:m",
+        "location": "cut_i",
+        "group": "axial"
+       },
+       "identity": "D(N_w) = D(N_el): both operands carry the same P"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "wall_quarter_1",
+      "group": "pipe_wall",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        55635.8305376618
+       ],
+       [
+        55635.8305376618
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      },
+      "equal_pressure": {
+       "elastic_group": {
+        "entity": "pipe:m",
+        "location": "quarter_1",
+        "group": "axial"
+       },
+       "identity": "D(N_w) = D(N_el): both operands carry the same P"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "wall_midspan",
+      "group": "pipe_wall",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        55635.8305376618
+       ],
+       [
+        55635.8305376618
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      },
+      "equal_pressure": {
+       "elastic_group": {
+        "entity": "pipe:m",
+        "location": "midspan",
+        "group": "axial"
+       },
+       "identity": "D(N_w) = D(N_el): both operands carry the same P"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "wall_quarter_3",
+      "group": "pipe_wall",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        55635.8305376618
+       ],
+       [
+        55635.8305376618
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      },
+      "equal_pressure": {
+       "elastic_group": {
+        "entity": "pipe:m",
+        "location": "quarter_3",
+        "group": "axial"
+       },
+       "identity": "D(N_w) = D(N_el): both operands carry the same P"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "cut_j",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "wall_cut_j",
+      "group": "pipe_wall",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        55635.8305376618
+       ],
+       [
+        55635.8305376618
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      },
+      "equal_pressure": {
+       "elastic_group": {
+        "entity": "pipe:m",
+        "location": "cut_j",
+        "group": "axial"
+       },
+       "identity": "D(N_w) = D(N_el): both operands carry the same P"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "wall_end_i",
+      "group": "pipe_wall",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        55635.8305376618
+       ],
+       [
+        55635.8305376618
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      },
+      "equal_pressure": {
+       "elastic_group": null,
+       "identity": "D(N_w) = D(N_el): both operands carry the same P"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "wall_end_j",
+      "group": "pipe_wall",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        55635.8305376618
+       ],
+       [
+        55635.8305376618
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      },
+      "equal_pressure": {
+       "elastic_group": null,
+       "identity": "D(N_w) = D(N_el): both operands carry the same P"
+      }
+     },
+     {
+      "entity": "support:a",
+      "location": "node",
+      "group": "support_force",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "1/65536",
+        "q1_pi": "0",
+        "decimal": "1.52587890625000000e-05"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0,
+        600.0000152587891,
+        0.0
+       ],
+       [
+        1000.0,
+        600.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       1.52587890625e-05,
+       0.0
+      ]
+     },
+     {
+      "entity": "support:a",
+      "location": "node",
+      "group": "support_moment",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "5404319552844595/1180591620717411303424",
+        "q1_pi": "0",
+        "decimal": "4.57763671874999983e-06"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        0.0,
+        180.0000045776367
+       ],
+       [
+        0.0,
+        0.0,
+        180.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0,
+       4.577636701696974e-06
+      ],
+      "expected": {
+       "verdict": "not_established",
+       "reason": "bound_exceeds_criterion",
+       "gap_lower_bound": "1.70530254888355310e-14",
+       "q_d": "4.57763670169697434e-06",
+       "floor_scale_upper": "1.66907491613137208e+04"
+      }
+     }
+    ]
+   },
+   {
+    "combination_id": "comb:same",
+    "basis": "result_state_subtraction",
+    "minuend": "case:S2",
+    "subtrahend": "case:S",
+    "groups": [
+     {
+      "entity": "pipe:m",
+      "location": "end_i",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        600.0
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_i",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_i",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        180.0,
+        0.0
+       ],
+       [
+        180.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        600.0
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        135.0,
+        0.0
+       ],
+       [
+        135.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        600.0
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        90.0,
+        0.0
+       ],
+       [
+        90.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        600.0
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        45.0,
+        0.0
+       ],
+       [
+        45.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_j",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        600.0
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_j",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_j",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "cut_i",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "wall_cut_i",
+      "group": "pipe_wall",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        55635.8305376618
+       ],
+       [
+        55635.8305376618
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      },
+      "equal_pressure": {
+       "elastic_group": {
+        "entity": "pipe:m",
+        "location": "cut_i",
+        "group": "axial"
+       },
+       "identity": "D(N_w) = D(N_el): both operands carry the same P"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "wall_quarter_1",
+      "group": "pipe_wall",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        55635.8305376618
+       ],
+       [
+        55635.8305376618
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      },
+      "equal_pressure": {
+       "elastic_group": {
+        "entity": "pipe:m",
+        "location": "quarter_1",
+        "group": "axial"
+       },
+       "identity": "D(N_w) = D(N_el): both operands carry the same P"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "wall_midspan",
+      "group": "pipe_wall",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        55635.8305376618
+       ],
+       [
+        55635.8305376618
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      },
+      "equal_pressure": {
+       "elastic_group": {
+        "entity": "pipe:m",
+        "location": "midspan",
+        "group": "axial"
+       },
+       "identity": "D(N_w) = D(N_el): both operands carry the same P"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "wall_quarter_3",
+      "group": "pipe_wall",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        55635.8305376618
+       ],
+       [
+        55635.8305376618
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      },
+      "equal_pressure": {
+       "elastic_group": {
+        "entity": "pipe:m",
+        "location": "quarter_3",
+        "group": "axial"
+       },
+       "identity": "D(N_w) = D(N_el): both operands carry the same P"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "cut_j",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "wall_cut_j",
+      "group": "pipe_wall",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        55635.8305376618
+       ],
+       [
+        55635.8305376618
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      },
+      "equal_pressure": {
+       "elastic_group": {
+        "entity": "pipe:m",
+        "location": "cut_j",
+        "group": "axial"
+       },
+       "identity": "D(N_w) = D(N_el): both operands carry the same P"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "wall_end_i",
+      "group": "pipe_wall",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        55635.8305376618
+       ],
+       [
+        55635.8305376618
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      },
+      "equal_pressure": {
+       "elastic_group": null,
+       "identity": "D(N_w) = D(N_el): both operands carry the same P"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "wall_end_j",
+      "group": "pipe_wall",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        55635.8305376618
+       ],
+       [
+        55635.8305376618
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      },
+      "equal_pressure": {
+       "elastic_group": null,
+       "identity": "D(N_w) = D(N_el): both operands carry the same P"
+      }
+     },
+     {
+      "entity": "support:a",
+      "location": "node",
+      "group": "support_force",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0,
+        600.0,
+        0.0
+       ],
+       [
+        1000.0,
+        600.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "support:a",
+      "location": "node",
+      "group": "support_moment",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        0.0,
+        180.0
+       ],
+       [
+        0.0,
+        0.0,
+        180.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     }
+    ]
+   },
+   {
+    "combination_id": "comb:axial",
+    "basis": "result_state_subtraction",
+    "minuend": "case:Oa",
+    "subtrahend": "case:S",
+    "groups": [
+     {
+      "entity": "pipe:m",
+      "location": "end_i",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        600.0
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_i",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_i",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        180.0,
+        0.0
+       ],
+       [
+        180.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        600.0
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        135.0,
+        0.0
+       ],
+       [
+        135.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        600.0
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        90.0,
+        0.0
+       ],
+       [
+        90.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        600.0
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        45.0,
+        0.0
+       ],
+       [
+        45.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_j",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        600.0
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_j",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_j",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "cut_i",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "1/1024",
+        "q1_pi": "0",
+        "decimal": "9.76562500000000000e-04"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0009765625
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       0.0009765625
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "wall_cut_i",
+      "group": "pipe_wall",
+      "components": [
+       {
+        "q0": "1/1024",
+        "q1_pi": "0",
+        "decimal": "9.76562500000000000e-04"
+       }
+      ],
+      "operand_published": [
+       [
+        55635.8315142243
+       ],
+       [
+        55635.8305376618
+       ]
+      ],
+      "derived_published": [
+       0.0009765625
+      ],
+      "expected": {
+       "verdict": "not_established",
+       "reason": "bound_exceeds_criterion",
+       "gap_lower_bound": "4.81102984469840221e-12",
+       "q_d": "9.76562500000000000e-04",
+       "floor_scale_upper": "5.56358315142748979e+04"
+      },
+      "equal_pressure": {
+       "elastic_group": {
+        "entity": "pipe:m",
+        "location": "cut_i",
+        "group": "axial"
+       },
+       "identity": "D(N_w) = D(N_el): both operands carry the same P"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "1/1024",
+        "q1_pi": "0",
+        "decimal": "9.76562500000000000e-04"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0009765625
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       0.0009765625
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "wall_quarter_1",
+      "group": "pipe_wall",
+      "components": [
+       {
+        "q0": "1/1024",
+        "q1_pi": "0",
+        "decimal": "9.76562500000000000e-04"
+       }
+      ],
+      "operand_published": [
+       [
+        55635.8315142243
+       ],
+       [
+        55635.8305376618
+       ]
+      ],
+      "derived_published": [
+       0.0009765625
+      ],
+      "expected": {
+       "verdict": "not_established",
+       "reason": "bound_exceeds_criterion",
+       "gap_lower_bound": "4.81102984469840221e-12",
+       "q_d": "9.76562500000000000e-04",
+       "floor_scale_upper": "5.56358315142748979e+04"
+      },
+      "equal_pressure": {
+       "elastic_group": {
+        "entity": "pipe:m",
+        "location": "quarter_1",
+        "group": "axial"
+       },
+       "identity": "D(N_w) = D(N_el): both operands carry the same P"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "1/1024",
+        "q1_pi": "0",
+        "decimal": "9.76562500000000000e-04"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0009765625
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       0.0009765625
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "wall_midspan",
+      "group": "pipe_wall",
+      "components": [
+       {
+        "q0": "1/1024",
+        "q1_pi": "0",
+        "decimal": "9.76562500000000000e-04"
+       }
+      ],
+      "operand_published": [
+       [
+        55635.8315142243
+       ],
+       [
+        55635.8305376618
+       ]
+      ],
+      "derived_published": [
+       0.0009765625
+      ],
+      "expected": {
+       "verdict": "not_established",
+       "reason": "bound_exceeds_criterion",
+       "gap_lower_bound": "4.81102984469840221e-12",
+       "q_d": "9.76562500000000000e-04",
+       "floor_scale_upper": "5.56358315142748979e+04"
+      },
+      "equal_pressure": {
+       "elastic_group": {
+        "entity": "pipe:m",
+        "location": "midspan",
+        "group": "axial"
+       },
+       "identity": "D(N_w) = D(N_el): both operands carry the same P"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "1/1024",
+        "q1_pi": "0",
+        "decimal": "9.76562500000000000e-04"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0009765625
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       0.0009765625
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "wall_quarter_3",
+      "group": "pipe_wall",
+      "components": [
+       {
+        "q0": "1/1024",
+        "q1_pi": "0",
+        "decimal": "9.76562500000000000e-04"
+       }
+      ],
+      "operand_published": [
+       [
+        55635.8315142243
+       ],
+       [
+        55635.8305376618
+       ]
+      ],
+      "derived_published": [
+       0.0009765625
+      ],
+      "expected": {
+       "verdict": "not_established",
+       "reason": "bound_exceeds_criterion",
+       "gap_lower_bound": "4.81102984469840221e-12",
+       "q_d": "9.76562500000000000e-04",
+       "floor_scale_upper": "5.56358315142748979e+04"
+      },
+      "equal_pressure": {
+       "elastic_group": {
+        "entity": "pipe:m",
+        "location": "quarter_3",
+        "group": "axial"
+       },
+       "identity": "D(N_w) = D(N_el): both operands carry the same P"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "cut_j",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "1/1024",
+        "q1_pi": "0",
+        "decimal": "9.76562500000000000e-04"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0009765625
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       0.0009765625
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "wall_cut_j",
+      "group": "pipe_wall",
+      "components": [
+       {
+        "q0": "1/1024",
+        "q1_pi": "0",
+        "decimal": "9.76562500000000000e-04"
+       }
+      ],
+      "operand_published": [
+       [
+        55635.8315142243
+       ],
+       [
+        55635.8305376618
+       ]
+      ],
+      "derived_published": [
+       0.0009765625
+      ],
+      "expected": {
+       "verdict": "not_established",
+       "reason": "bound_exceeds_criterion",
+       "gap_lower_bound": "4.81102984469840221e-12",
+       "q_d": "9.76562500000000000e-04",
+       "floor_scale_upper": "5.56358315142748979e+04"
+      },
+      "equal_pressure": {
+       "elastic_group": {
+        "entity": "pipe:m",
+        "location": "cut_j",
+        "group": "axial"
+       },
+       "identity": "D(N_w) = D(N_el): both operands carry the same P"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "wall_end_i",
+      "group": "pipe_wall",
+      "components": [
+       {
+        "q0": "1/1024",
+        "q1_pi": "0",
+        "decimal": "9.76562500000000000e-04"
+       }
+      ],
+      "operand_published": [
+       [
+        55635.8315142243
+       ],
+       [
+        55635.8305376618
+       ]
+      ],
+      "derived_published": [
+       0.0009765625
+      ],
+      "expected": {
+       "verdict": "not_established",
+       "reason": "bound_exceeds_criterion",
+       "gap_lower_bound": "4.81102984469840221e-12",
+       "q_d": "9.76562500000000000e-04",
+       "floor_scale_upper": "5.56358315142748979e+04"
+      },
+      "equal_pressure": {
+       "elastic_group": null,
+       "identity": "D(N_w) = D(N_el): both operands carry the same P"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "wall_end_j",
+      "group": "pipe_wall",
+      "components": [
+       {
+        "q0": "1/1024",
+        "q1_pi": "0",
+        "decimal": "9.76562500000000000e-04"
+       }
+      ],
+      "operand_published": [
+       [
+        55635.8315142243
+       ],
+       [
+        55635.8305376618
+       ]
+      ],
+      "derived_published": [
+       0.0009765625
+      ],
+      "expected": {
+       "verdict": "not_established",
+       "reason": "bound_exceeds_criterion",
+       "gap_lower_bound": "4.81102984469840221e-12",
+       "q_d": "9.76562500000000000e-04",
+       "floor_scale_upper": "5.56358315142748979e+04"
+      },
+      "equal_pressure": {
+       "elastic_group": null,
+       "identity": "D(N_w) = D(N_el): both operands carry the same P"
+      }
+     },
+     {
+      "entity": "support:a",
+      "location": "node",
+      "group": "support_force",
+      "components": [
+       {
+        "q0": "1/1024",
+        "q1_pi": "0",
+        "decimal": "9.76562500000000000e-04"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0009765625,
+        600.0,
+        0.0
+       ],
+       [
+        1000.0,
+        600.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0009765625,
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "entity": "support:a",
+      "location": "node",
+      "group": "support_moment",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        0.0,
+        180.0
+       ],
+       [
+        0.0,
+        0.0,
+        180.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     }
+    ]
+   },
+   {
+    "combination_id": "comb:sum",
+    "basis": "mechanics",
+    "terms": [
+     [
+      "case:S",
+      "1.0"
+     ],
+     [
+      "case:Q",
+      "5854679515581645/4503599627370496"
+     ]
+    ],
+    "groups": [
+     {
+      "entity": "pipe:m",
+      "location": "end_i",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "484136959942328325/562949953421312",
+        "q1_pi": "0",
+        "decimal": "8.60000000000000000e+02"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_i",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_i",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "2616430838871065414883401191653375/10141204801825835211973625643008",
+        "q1_pi": "0",
+        "decimal": "2.58000000000000000e+02"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "484136959942328325/562949953421312",
+        "q1_pi": "0",
+        "decimal": "8.60000000000000000e+02"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "7849292516613196244650203574960125/40564819207303340847894502572032",
+        "q1_pi": "0",
+        "decimal": "1.93500000000000000e+02"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "484136959942328325/562949953421312",
+        "q1_pi": "0",
+        "decimal": "8.60000000000000000e+02"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "2616430838871065414883401191653375/20282409603651670423947251286016",
+        "q1_pi": "0",
+        "decimal": "1.29000000000000000e+02"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "484136959942328325/562949953421312",
+        "q1_pi": "0",
+        "decimal": "8.60000000000000000e+02"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "2616430838871065414883401191653375/40564819207303340847894502572032",
+        "q1_pi": "0",
+        "decimal": "6.45000000000000000e+01"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_j",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "484136959942328325/562949953421312",
+        "q1_pi": "0",
+        "decimal": "8.60000000000000000e+02"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_j",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_j",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "cut_i",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "135107988821114875/281474976710656",
+        "q1_pi": "0",
+        "decimal": "4.80000000000000000e+02"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "wall_cut_i",
+      "group": "pipe_wall",
+      "components": [
+       {
+        "q0": "135107988821114875/281474976710656",
+        "q1_pi": "467675700990485798621903566679190704814239431529828125/11692013098647223345629478661730264157247460343808",
+        "decimal": "1.26142410236622134e+05"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "135107988821114875/281474976710656",
+        "q1_pi": "0",
+        "decimal": "4.80000000000000000e+02"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "wall_quarter_1",
+      "group": "pipe_wall",
+      "components": [
+       {
+        "q0": "135107988821114875/281474976710656",
+        "q1_pi": "467675700990485798621903566679190704814239431529828125/11692013098647223345629478661730264157247460343808",
+        "decimal": "1.26142410236622134e+05"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "135107988821114875/281474976710656",
+        "q1_pi": "0",
+        "decimal": "4.80000000000000000e+02"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "wall_midspan",
+      "group": "pipe_wall",
+      "components": [
+       {
+        "q0": "135107988821114875/281474976710656",
+        "q1_pi": "467675700990485798621903566679190704814239431529828125/11692013098647223345629478661730264157247460343808",
+        "decimal": "1.26142410236622134e+05"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "135107988821114875/281474976710656",
+        "q1_pi": "0",
+        "decimal": "4.80000000000000000e+02"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "wall_quarter_3",
+      "group": "pipe_wall",
+      "components": [
+       {
+        "q0": "135107988821114875/281474976710656",
+        "q1_pi": "467675700990485798621903566679190704814239431529828125/11692013098647223345629478661730264157247460343808",
+        "decimal": "1.26142410236622134e+05"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "cut_j",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "135107988821114875/281474976710656",
+        "q1_pi": "0",
+        "decimal": "4.80000000000000000e+02"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "wall_cut_j",
+      "group": "pipe_wall",
+      "components": [
+       {
+        "q0": "135107988821114875/281474976710656",
+        "q1_pi": "467675700990485798621903566679190704814239431529828125/11692013098647223345629478661730264157247460343808",
+        "decimal": "1.26142410236622134e+05"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "wall_end_i",
+      "group": "pipe_wall",
+      "components": [
+       {
+        "q0": "135107988821114875/281474976710656",
+        "q1_pi": "467675700990485798621903566679190704814239431529828125/11692013098647223345629478661730264157247460343808",
+        "decimal": "1.26142410236622134e+05"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "wall_end_j",
+      "group": "pipe_wall",
+      "components": [
+       {
+        "q0": "135107988821114875/281474976710656",
+        "q1_pi": "467675700990485798621903566679190704814239431529828125/11692013098647223345629478661730264157247460343808",
+        "decimal": "1.26142410236622134e+05"
+       }
+      ]
+     },
+     {
+      "entity": "support:a",
+      "location": "node",
+      "group": "support_force",
+      "components": [
+       {
+        "q0": "135107988821114875/281474976710656",
+        "q1_pi": "0",
+        "decimal": "4.80000000000000000e+02"
+       },
+       {
+        "q0": "484136959942328325/562949953421312",
+        "q1_pi": "0",
+        "decimal": "8.60000000000000000e+02"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ]
+     },
+     {
+      "entity": "support:a",
+      "location": "node",
+      "group": "support_moment",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "2616430838871065414883401191653375/10141204801825835211973625643008",
+        "q1_pi": "0",
+        "decimal": "2.58000000000000000e+02"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "cantilever_preview": {
+  "route": "preview_physics",
+  "combinations": [
+   {
+    "combination_id": "comb:double",
+    "basis": "result_state_subtraction",
+    "minuend": "case:O2",
+    "subtrahend": "case:S",
+    "groups": [
+     {
+      "entity": "pipe:m",
+      "location": "end_i",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "600",
+        "q1_pi": "0",
+        "decimal": "6.00000000000000000e+02"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        1200.0
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       600.0
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_i",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_i",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "405323966463344625/2251799813685248",
+        "q1_pi": "0",
+        "decimal": "1.80000000000000000e+02"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        360.0,
+        0.0
+       ],
+       [
+        180.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       180.0,
+       0.0
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_i",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "1000",
+        "q1_pi": "0",
+        "decimal": "1.00000000000000000e+03"
+       }
+      ],
+      "operand_published": [
+       [
+        2000.0
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       1000.0
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "600",
+        "q1_pi": "0",
+        "decimal": "6.00000000000000000e+02"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        1200.0
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       600.0
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "1215971899390033875/9007199254740992",
+        "q1_pi": "0",
+        "decimal": "1.35000000000000000e+02"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        270.0,
+        0.0
+       ],
+       [
+        135.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       135.0,
+       0.0
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "1000",
+        "q1_pi": "0",
+        "decimal": "1.00000000000000000e+03"
+       }
+      ],
+      "operand_published": [
+       [
+        2000.0
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       1000.0
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "600",
+        "q1_pi": "0",
+        "decimal": "6.00000000000000000e+02"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        1200.0
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       600.0
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "405323966463344625/4503599627370496",
+        "q1_pi": "0",
+        "decimal": "9.00000000000000000e+01"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        180.0,
+        0.0
+       ],
+       [
+        90.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       90.0,
+       0.0
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "1000",
+        "q1_pi": "0",
+        "decimal": "1.00000000000000000e+03"
+       }
+      ],
+      "operand_published": [
+       [
+        2000.0
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       1000.0
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "600",
+        "q1_pi": "0",
+        "decimal": "6.00000000000000000e+02"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        1200.0
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       600.0
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "405323966463344625/9007199254740992",
+        "q1_pi": "0",
+        "decimal": "4.50000000000000000e+01"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        90.0,
+        0.0
+       ],
+       [
+        45.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       45.0,
+       0.0
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "1000",
+        "q1_pi": "0",
+        "decimal": "1.00000000000000000e+03"
+       }
+      ],
+      "operand_published": [
+       [
+        2000.0
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       1000.0
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_j",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "600",
+        "q1_pi": "0",
+        "decimal": "6.00000000000000000e+02"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        1200.0
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       600.0
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_j",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_j",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_j",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "1000",
+        "q1_pi": "0",
+        "decimal": "1.00000000000000000e+03"
+       }
+      ],
+      "operand_published": [
+       [
+        2000.0
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       1000.0
+      ]
+     },
+     {
+      "entity": "support:a",
+      "location": "node",
+      "group": "support_force",
+      "components": [
+       {
+        "q0": "1000",
+        "q1_pi": "0",
+        "decimal": "1.00000000000000000e+03"
+       },
+       {
+        "q0": "600",
+        "q1_pi": "0",
+        "decimal": "6.00000000000000000e+02"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        2000.0,
+        1200.0,
+        0.0
+       ],
+       [
+        1000.0,
+        600.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       1000.0,
+       600.0,
+       0.0
+      ]
+     },
+     {
+      "entity": "support:a",
+      "location": "node",
+      "group": "support_moment",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "405323966463344625/2251799813685248",
+        "q1_pi": "0",
+        "decimal": "1.80000000000000000e+02"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        0.0,
+        360.0
+       ],
+       [
+        0.0,
+        0.0,
+        180.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0,
+       180.0
+      ]
+     }
+    ]
+   },
+   {
+    "combination_id": "comb:cancel",
+    "basis": "result_state_subtraction",
+    "minuend": "case:Oc",
+    "subtrahend": "case:S",
+    "groups": [
+     {
+      "entity": "pipe:m",
+      "location": "end_i",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "1/65536",
+        "q1_pi": "0",
+        "decimal": "1.52587890625000000e-05"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        600.0000152587891
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       1.52587890625e-05
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_i",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_i",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "5404319552844595/1180591620717411303424",
+        "q1_pi": "0",
+        "decimal": "4.57763671874999983e-06"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        180.0000045776367,
+        0.0
+       ],
+       [
+        180.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       4.577636701696974e-06,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_established",
+       "reason": "bound_exceeds_criterion",
+       "gap_lower_bound": "1.70530254888355310e-14",
+       "q_d": "4.57763670169697434e-06",
+       "floor_scale_upper": "3.49857116046211218e+02"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_i",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "1/65536",
+        "q1_pi": "0",
+        "decimal": "1.52587890625000000e-05"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        600.0000152587891
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       1.52587890625e-05
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "16212958658533785/4722366482869645213696",
+        "q1_pi": "0",
+        "decimal": "3.43322753906249966e-06"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        135.00000343322753,
+        0.0
+       ],
+       [
+        135.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       3.433227533378158e-06,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_established",
+       "reason": "bound_exceeds_criterion",
+       "gap_lower_bound": "5.68434175902564641e-15",
+       "q_d": "3.43322753337815811e-06",
+       "floor_scale_upper": "3.49857116046211218e+02"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "1/65536",
+        "q1_pi": "0",
+        "decimal": "1.52587890625000000e-05"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        600.0000152587891
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       1.52587890625e-05
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "5404319552844595/2361183241434822606848",
+        "q1_pi": "0",
+        "decimal": "2.28881835937499992e-06"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        90.00000228881835,
+        0.0
+       ],
+       [
+        90.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       2.288818350848487e-06,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_established",
+       "reason": "bound_exceeds_criterion",
+       "gap_lower_bound": "8.52651274441776551e-15",
+       "q_d": "2.28881835084848717e-06",
+       "floor_scale_upper": "3.49857116046211218e+02"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "1/65536",
+        "q1_pi": "0",
+        "decimal": "1.52587890625000000e-05"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        600.0000152587891
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       1.52587890625e-05
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "5404319552844595/4722366482869645213696",
+        "q1_pi": "0",
+        "decimal": "1.14440917968749996e-06"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        45.000001144409175,
+        0.0
+       ],
+       [
+        45.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       1.1444091754242436e-06,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_established",
+       "reason": "bound_exceeds_criterion",
+       "gap_lower_bound": "4.26325637220888276e-15",
+       "q_d": "1.14440917542424359e-06",
+       "floor_scale_upper": "3.49857116046211218e+02"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_j",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "1/65536",
+        "q1_pi": "0",
+        "decimal": "1.52587890625000000e-05"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        600.0000152587891
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       1.52587890625e-05
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_j",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_j",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_j",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "support:a",
+      "location": "node",
+      "group": "support_force",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "1/65536",
+        "q1_pi": "0",
+        "decimal": "1.52587890625000000e-05"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0,
+        600.0000152587891,
+        0.0
+       ],
+       [
+        1000.0,
+        600.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       1.52587890625e-05,
+       0.0
+      ]
+     },
+     {
+      "entity": "support:a",
+      "location": "node",
+      "group": "support_moment",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "5404319552844595/1180591620717411303424",
+        "q1_pi": "0",
+        "decimal": "4.57763671874999983e-06"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        0.0,
+        180.0000045776367
+       ],
+       [
+        0.0,
+        0.0,
+        180.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0,
+       4.577636701696974e-06
+      ],
+      "expected": {
+       "verdict": "not_established",
+       "reason": "bound_exceeds_criterion",
+       "gap_lower_bound": "1.70530254888355310e-14",
+       "q_d": "4.57763670169697434e-06",
+       "floor_scale_upper": "3.49857116046211218e+02"
+      }
+     }
+    ]
+   },
+   {
+    "combination_id": "comb:same",
+    "basis": "result_state_subtraction",
+    "minuend": "case:S2",
+    "subtrahend": "case:S",
+    "groups": [
+     {
+      "entity": "pipe:m",
+      "location": "end_i",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        600.0
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_i",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_i",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        180.0,
+        0.0
+       ],
+       [
+        180.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_i",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        600.0
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        135.0,
+        0.0
+       ],
+       [
+        135.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        600.0
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        90.0,
+        0.0
+       ],
+       [
+        90.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        600.0
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        45.0,
+        0.0
+       ],
+       [
+        45.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_j",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        600.0
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_j",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_j",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_j",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "support:a",
+      "location": "node",
+      "group": "support_force",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0,
+        600.0,
+        0.0
+       ],
+       [
+        1000.0,
+        600.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "support:a",
+      "location": "node",
+      "group": "support_moment",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        0.0,
+        180.0
+       ],
+       [
+        0.0,
+        0.0,
+        180.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     }
+    ]
+   },
+   {
+    "combination_id": "comb:axial",
+    "basis": "result_state_subtraction",
+    "minuend": "case:Oa",
+    "subtrahend": "case:S",
+    "groups": [
+     {
+      "entity": "pipe:m",
+      "location": "end_i",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        600.0
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_i",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_i",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        180.0,
+        0.0
+       ],
+       [
+        180.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_i",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "1/1024",
+        "q1_pi": "0",
+        "decimal": "9.76562500000000000e-04"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0009765625
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       0.0009765625
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        600.0
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        135.0,
+        0.0
+       ],
+       [
+        135.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "1/1024",
+        "q1_pi": "0",
+        "decimal": "9.76562500000000000e-04"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0009765625
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       0.0009765625
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        600.0
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        90.0,
+        0.0
+       ],
+       [
+        90.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "1/1024",
+        "q1_pi": "0",
+        "decimal": "9.76562500000000000e-04"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0009765625
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       0.0009765625
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        600.0
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        45.0,
+        0.0
+       ],
+       [
+        45.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "1/1024",
+        "q1_pi": "0",
+        "decimal": "9.76562500000000000e-04"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0009765625
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       0.0009765625
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_j",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        600.0
+       ],
+       [
+        0.0,
+        600.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_j",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0
+       ],
+       [
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_j",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_j",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "1/1024",
+        "q1_pi": "0",
+        "decimal": "9.76562500000000000e-04"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0009765625
+       ],
+       [
+        1000.0
+       ]
+      ],
+      "derived_published": [
+       0.0009765625
+      ]
+     },
+     {
+      "entity": "support:a",
+      "location": "node",
+      "group": "support_force",
+      "components": [
+       {
+        "q0": "1/1024",
+        "q1_pi": "0",
+        "decimal": "9.76562500000000000e-04"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        1000.0009765625,
+        600.0,
+        0.0
+       ],
+       [
+        1000.0,
+        600.0,
+        0.0
+       ]
+      ],
+      "derived_published": [
+       0.0009765625,
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "entity": "support:a",
+      "location": "node",
+      "group": "support_moment",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ],
+      "operand_published": [
+       [
+        0.0,
+        0.0,
+        180.0
+       ],
+       [
+        0.0,
+        0.0,
+        180.0
+       ]
+      ],
+      "derived_published": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "expected": {
+       "verdict": "not_assessed",
+       "reason": "below_floor",
+       "condition": "every intended difference is exactly zero; holds when B_D < 2^-34 * S*"
+      }
+     }
+    ]
+   },
+   {
+    "combination_id": "comb:sum",
+    "basis": "mechanics",
+    "terms": [
+     [
+      "case:S",
+      "1.0"
+     ],
+     [
+      "case:Q",
+      "5854679515581645/4503599627370496"
+     ]
+    ],
+    "groups": [
+     {
+      "entity": "pipe:m",
+      "location": "end_i",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "484136959942328325/562949953421312",
+        "q1_pi": "0",
+        "decimal": "8.60000000000000000e+02"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_i",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_i",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "2616430838871065414883401191653375/10141204801825835211973625643008",
+        "q1_pi": "0",
+        "decimal": "2.58000000000000000e+02"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_i",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "135107988821114875/281474976710656",
+        "q1_pi": "0",
+        "decimal": "4.80000000000000000e+02"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "484136959942328325/562949953421312",
+        "q1_pi": "0",
+        "decimal": "8.60000000000000000e+02"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "7849292516613196244650203574960125/40564819207303340847894502572032",
+        "q1_pi": "0",
+        "decimal": "1.93500000000000000e+02"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_1",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "135107988821114875/281474976710656",
+        "q1_pi": "0",
+        "decimal": "4.80000000000000000e+02"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "484136959942328325/562949953421312",
+        "q1_pi": "0",
+        "decimal": "8.60000000000000000e+02"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "2616430838871065414883401191653375/20282409603651670423947251286016",
+        "q1_pi": "0",
+        "decimal": "1.29000000000000000e+02"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "midspan",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "135107988821114875/281474976710656",
+        "q1_pi": "0",
+        "decimal": "4.80000000000000000e+02"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "484136959942328325/562949953421312",
+        "q1_pi": "0",
+        "decimal": "8.60000000000000000e+02"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "2616430838871065414883401191653375/40564819207303340847894502572032",
+        "q1_pi": "0",
+        "decimal": "6.45000000000000000e+01"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "quarter_3",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "135107988821114875/281474976710656",
+        "q1_pi": "0",
+        "decimal": "4.80000000000000000e+02"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_j",
+      "group": "shear",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "484136959942328325/562949953421312",
+        "q1_pi": "0",
+        "decimal": "8.60000000000000000e+02"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_j",
+      "group": "torsion",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_j",
+      "group": "bending",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ]
+     },
+     {
+      "entity": "pipe:m",
+      "location": "end_j",
+      "group": "axial",
+      "components": [
+       {
+        "q0": "135107988821114875/281474976710656",
+        "q1_pi": "0",
+        "decimal": "4.80000000000000000e+02"
+       }
+      ]
+     },
+     {
+      "entity": "support:a",
+      "location": "node",
+      "group": "support_force",
+      "components": [
+       {
+        "q0": "135107988821114875/281474976710656",
+        "q1_pi": "0",
+        "decimal": "4.80000000000000000e+02"
+       },
+       {
+        "q0": "484136959942328325/562949953421312",
+        "q1_pi": "0",
+        "decimal": "8.60000000000000000e+02"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       }
+      ]
+     },
+     {
+      "entity": "support:a",
+      "location": "node",
+      "group": "support_moment",
+      "components": [
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "0",
+        "q1_pi": "0",
+        "decimal": "0.00000000000000000e+00"
+       },
+       {
+        "q0": "2616430838871065414883401191653375/10141204801825835211973625643008",
+        "q1_pi": "0",
+        "decimal": "2.58000000000000000e+02"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "op1a": {
+  "v2": {
+   "combination_id": "comb:lift",
+   "basis": "result_state_subtraction",
+   "minuend": "case:O-LIFT",
+   "subtrahend": "case:S",
+   "groups": [
+    {
+     "entity": "support:PROP",
+     "location": "node",
+     "group": "support_force",
+     "components": [
+      {
+       "q0": "0",
+       "q1_pi": "0",
+       "decimal": "0.00000000000000000e+00"
+      },
+      {
+       "q0": "0",
+       "q1_pi": "0",
+       "decimal": "0.00000000000000000e+00"
+      },
+      {
+       "q0": "555683095876455/2199023255552",
+       "q1_pi": "0",
+       "decimal": "2.52695415782206965e+02"
+      }
+     ]
+    },
+    {
+     "entity": "support:ANCHOR",
+     "location": "node",
+     "group": "support_moment",
+     "components": [
+      {
+       "q0": "0",
+       "q1_pi": "0",
+       "decimal": "0.00000000000000000e+00"
+      },
+      {
+       "q0": "555683095876455/549755813888",
+       "q1_pi": "0",
+       "decimal": "1.01078166312882786e+03"
+      },
+      {
+       "q0": "0",
+       "q1_pi": "0",
+       "decimal": "0.00000000000000000e+00"
+      }
+     ]
+    },
+    {
+     "entity": "support:ANCHOR",
+     "location": "node",
+     "group": "support_force",
+     "components": [
+      {
+       "q0": "0",
+       "q1_pi": "0",
+       "decimal": "0.00000000000000000e+00"
+      },
+      {
+       "q0": "0",
+       "q1_pi": "0",
+       "decimal": "0.00000000000000000e+00"
+      },
+      {
+       "q0": "555683095876455/2199023255552",
+       "q1_pi": "0",
+       "decimal": "2.52695415782206965e+02"
+      }
+     ]
+    }
+   ],
+   "operands": "both confirmed (checks_passed): the combination is assessed"
+  },
+  "v1": {
+   "combination_id": "comb:o-s",
+   "expected": {
+    "assessment": "not_assessed",
+    "reason": "operand case(s) case:O, case:S carry no certified rows",
+    "basis": "both operands are gap-bearing and NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED (R1); no member bound is formed until G2"
+   }
+  }
+ }
+}

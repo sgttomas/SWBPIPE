@@ -182,8 +182,16 @@ model binding.
 
 ## 5. Later items
 
-- A combination certificate for these rows is not designed; until one exists these
-  rows stay inspection evidence.
+- The combination certificate (`combination-certificate.md`, RT-A3 §4) states a bound
+  and verdict for the derived groups of a subtraction whose operands carry certified
+  rows: confirmed, non-gap cases. Gap-bearing operands stay not assessed until G2
+  (R-3). Every other row stays inspection evidence, and no derived row counts towards
+  numerical eligibility (decision (b), 2026-11-04). The
+  `COMBINATION_OPERAND_CHECKS_NOT_PASSED` sentence ("without their own numerical
+  enclosure") is unchanged. Where a non-passing operand is Sensitive only by the
+  recovery guard, its rows are still certified and the certificate does assess the
+  combination; that sentence's qualification is left to the owner of the operand
+  notices (slice 1b).
 - Gap certification (R-3), nonlinear supports on EX (R-4) and slice 1b's
   `difference_basis` with G-1/G-2.
 - The desktop `operating` kind token and "operating − sustained" template are separable

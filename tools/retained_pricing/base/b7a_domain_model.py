@@ -220,7 +220,16 @@ import runpy
 # and semantic_contract.rs change only their table-hash constants (the PF tables' policy restatement, v2 -> v3). D1.4
 # refuses every difference basis, so no declared subtraction reaches these arms on D1 (PF1B-DZ); the new module's
 # owners are §8.51's. No owner this model prices changes.
-SOURCE_FILES = {'core/product_physics/src/lib.rs': 'dcb744fbc76a6d3ee09fe43b4494542497a4b31282de019f4c831e32d32ec145', 'core/product_physics/src/certified_loads.rs': 'da7d3decc3a0170da65b38670ec215aaebdb9d8d799e3c76e41879a80589bc73', 'core/product_physics/src/retained_product.rs': 'cf3a1240ee380d8bb4e6999c101e224fe740ea7eb50f24a54f531ab987b9908c', 'core/product_physics/src/retained_wire.rs': '1e1e60a02279771574f84df2b45628622936774a879a092842faa1e2f5f0f937', 'core/product_physics/src/certified_publication.rs': '89cdb23e172136b55ff980f7d4a4cd3643e43894fb2a9ad40c92fd3cd4adcf87', 'core/solver/frame_kernel/src/load_ledger.rs': '8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f', 'core/solver/frame_kernel/src/structural/formation_check.rs': '8931fb3dad1fd7f17b32c07eebb2e934ee9af53bb4d15fa611201829128c7893', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': '8f69bb9bea7c7696b1f78fc985998faa03a507dfc47be13cc6a2b6aa062980c9', 'core/loads/primitive_loads/src/lib.rs': '2273116392aa15f020000e1fe7815a2127fcc0548095a2f12dd034d0f7e37802', 'core/solver/straight_pipe/src/lib.rs': '9a4cb59ab52b6f4340fbd74bab9c83847b89691835d0e043a4971b261df452f7', 'core/product_physics/src/preview_physics.rs': 'cf2ce2e184557018874f99d730c4d77d38c07b829bd0ad39e771550f31a84365', 'core/reporting/result_export/src/retained_precision.rs': '7db0e51bb75fade20acfa33912da776e583a8c1a996ab8e89405e87caecacda5', 'core/product_physics/src/model_format.rs': 'e97d154f8feccad08214eb7ada9006a332dbd8255fa89040f9250c5538d25791', 'core/product_physics/src/pressure_runtime.rs': '76630dd7ee61ab8c4824768974491341cdad9b54c196c55ab958b83fb58027c1', 'core/product_physics/src/source_receipt.rs': '9ee47bc14c5fd2885010f16a9de396f0085335481de75d1df1af2bc6eba241c5', 'core/product_physics/src/exact_admission.rs': '87c301c15eb973d0483e2e56225b602b5434cfa4b66a38a64b4bad7ce55d6b1a', 'core/product_physics/src/case_state/mod.rs': '633b46de9fb4fdd5d213efbba1405e65afbc291ad8f9848096596fce27b06fab', 'core/solver/nonlinear_integration/src/structural_adapter.rs': '1ca609bda4e56138aab980f5ff4be8f9f664e3300b8bc51f808bc60b45e4d0a3', 'core/solver/frame_kernel/src/lib.rs': '680583b49167418c07ceb06827f3eab834681af78ab3d5981f92aab519c71ecc', 'core/reporting/result_export/src/semantic_contract.rs': '7cd4bebd13d0461afc86e288b07d951bc08f48a5bab80be5eb7caa3bff9e987a', 'core/reporting/result_export/src/physics_source.rs': 'a6d0389c3acda1b6eda0c58c419e5f6f28004a711459bea8f6e7735af0121a9d'}
+# RT-A3 P and §4 certificate D3 (§8.53, on I3a's §8.52 head): lib.rs adds `mod combination_certificate;`, the
+# LoadCaseSolve field certificate_operand (formed only with a combination and a formed member bound, so None on the
+# profile's points), the run's operand map and case-id vector (RTA3C-OWN) and the one publish call (RTA3C-Z: returns at
+# its first statement without a combination); P's guard comment is restated in place. retained_product.rs's preview
+# freeze admits the certificate's optional member in the closed evidence-key list (the same call over a static slice
+# of the same array; two lines rewritten in place, no allocation). structural_adapter.rs is P's (§8.53: the sparse
+# friction coupling on the pattern; NI). retained_precision.rs wraps G7's for_source in the base-read context and
+# moves its table-hash constants; semantic_contract.rs changes only table-hash constants. The owners these add are
+# rta3c_owners_model's; no owner this model prices changes.
+SOURCE_FILES = {'core/product_physics/src/lib.rs': 'e34a3c60cc81acafdba3f8b0913911c658898d773760e3574b1c2fefa4e773d2', 'core/product_physics/src/certified_loads.rs': 'da7d3decc3a0170da65b38670ec215aaebdb9d8d799e3c76e41879a80589bc73', 'core/product_physics/src/retained_product.rs': '7f8ac0d3654432e08e419619fe04a391c2776e7a7dfe01cbca067e52e68c505f', 'core/product_physics/src/retained_wire.rs': '1e1e60a02279771574f84df2b45628622936774a879a092842faa1e2f5f0f937', 'core/product_physics/src/certified_publication.rs': '89cdb23e172136b55ff980f7d4a4cd3643e43894fb2a9ad40c92fd3cd4adcf87', 'core/solver/frame_kernel/src/load_ledger.rs': '8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f', 'core/solver/frame_kernel/src/structural/formation_check.rs': '8931fb3dad1fd7f17b32c07eebb2e934ee9af53bb4d15fa611201829128c7893', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': '8f69bb9bea7c7696b1f78fc985998faa03a507dfc47be13cc6a2b6aa062980c9', 'core/loads/primitive_loads/src/lib.rs': '2273116392aa15f020000e1fe7815a2127fcc0548095a2f12dd034d0f7e37802', 'core/solver/straight_pipe/src/lib.rs': '9a4cb59ab52b6f4340fbd74bab9c83847b89691835d0e043a4971b261df452f7', 'core/product_physics/src/preview_physics.rs': 'cf2ce2e184557018874f99d730c4d77d38c07b829bd0ad39e771550f31a84365', 'core/reporting/result_export/src/retained_precision.rs': '157bb3d3954dab4a80e81c182eeabea22d0d29118462f0283c1f20d5ea56f251', 'core/product_physics/src/model_format.rs': 'e97d154f8feccad08214eb7ada9006a332dbd8255fa89040f9250c5538d25791', 'core/product_physics/src/pressure_runtime.rs': '76630dd7ee61ab8c4824768974491341cdad9b54c196c55ab958b83fb58027c1', 'core/product_physics/src/source_receipt.rs': '9ee47bc14c5fd2885010f16a9de396f0085335481de75d1df1af2bc6eba241c5', 'core/product_physics/src/exact_admission.rs': '87c301c15eb973d0483e2e56225b602b5434cfa4b66a38a64b4bad7ce55d6b1a', 'core/product_physics/src/case_state/mod.rs': '633b46de9fb4fdd5d213efbba1405e65afbc291ad8f9848096596fce27b06fab', 'core/solver/nonlinear_integration/src/structural_adapter.rs': 'a85cab550bc3220448a906c73523d4961a6df0a007f7cc94d666fd729016e50d', 'core/solver/frame_kernel/src/lib.rs': '680583b49167418c07ceb06827f3eab834681af78ab3d5981f92aab519c71ecc', 'core/reporting/result_export/src/semantic_contract.rs': 'c9096fa403abc282017bf27f6d763cf6efd22c54967ef63005d38bcfba8c067a', 'core/reporting/result_export/src/physics_source.rs': 'a6d0389c3acda1b6eda0c58c419e5f6f28004a711459bea8f6e7735af0121a9d'}
 CAPS_PIN = "e6759d84e480f0480f381933d4d36d9891f103158c35874fc7dd4acae7d9e71d"
 # T4-U6/U8 (O4): family_clauses adds one refusal, a nonzero mill tolerance or corrosion allowance on branch E
 # (FamilyFact::SectionAllowance), and namespace_branch refuses the Timoshenko exact contract (FamilyFact::ShearModel).
@@ -539,26 +548,29 @@ def text_decisions(snapshot, resolved):
         # line from the CE head to the RT-A4 head.
         # I2b-2 on RT-U4's candidate (§8.48): both moves, +36 here, +33 for the two generated-id arms and +1/+9/+27/+27
         # for the four later sites, mapped line by line from the merge base 6c3cb46d3 through each side's hunks.
-        (pp + "lib.rs:12287", {"load_case_id": inp}),
-        (pp + "lib.rs:12301", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
-        (pp + "lib.rs:12308", {"load.load_id": inp, "bend.pipe_id": inp}),
-        (pp + "lib.rs:12313", {"load.load_id": inp}),
-        (pp + "lib.rs:12314", {"bend.pipe_id": inp}),
-        (pp + "lib.rs:12315", {"bend.component_id": inp}),
-        (pp + "lib.rs:12316", {"load_case_id": inp}),
-        (pp + "lib.rs:12375", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
-        (pp + "lib.rs:12382", {"load.load_id": inp, "bend.pipe_id": inp}),
-        (pp + "lib.rs:12387", {"load.load_id": inp}),
-        (pp + "lib.rs:12388", {"bend.pipe_id": inp}),
-        (pp + "lib.rs:12389", {"bend.component_id": inp}),
-        (pp + "lib.rs:12390", {"load_case_id": inp}),
-        (pp + "lib.rs:12429", {"stable_suffix(&load.load_id)": inp}),
-        (pp + "lib.rs:12436", {"load.load_id": inp, "load_case_id": inp}),
+        # RT-A3 §4 D3 (§8.53): every lib.rs key below moved with unchanged text (+2 after the certificate's module
+        # lines, +11 after the LoadCaseSolve field, +22 after the early-return fields, +27 after the operand map,
+        # take and publish); retained_precision.rs +1 (G4's comment line), unchanged text.
+        (pp + "lib.rs:12314", {"load_case_id": inp}),
+        (pp + "lib.rs:12328", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
+        (pp + "lib.rs:12335", {"load.load_id": inp, "bend.pipe_id": inp}),
+        (pp + "lib.rs:12340", {"load.load_id": inp}),
+        (pp + "lib.rs:12341", {"bend.pipe_id": inp}),
+        (pp + "lib.rs:12342", {"bend.component_id": inp}),
+        (pp + "lib.rs:12343", {"load_case_id": inp}),
+        (pp + "lib.rs:12402", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
+        (pp + "lib.rs:12409", {"load.load_id": inp, "bend.pipe_id": inp}),
+        (pp + "lib.rs:12414", {"load.load_id": inp}),
+        (pp + "lib.rs:12415", {"bend.pipe_id": inp}),
+        (pp + "lib.rs:12416", {"bend.component_id": inp}),
+        (pp + "lib.rs:12417", {"load_case_id": inp}),
+        (pp + "lib.rs:12456", {"stable_suffix(&load.load_id)": inp}),
+        (pp + "lib.rs:12463", {"load.load_id": inp, "load_case_id": inp}),
         # W-16 slice c (§8.27): certified_loads' two generated-id prefix formats move into lib.rs'
         # is_generated_equivalent_static_load (the kind arm and the any-kind arm) with the same input id; both are
         # reached only from an admitted equivalent-static case (W16C-ES: none on D1).
-        (pp + "lib.rs:10850", {"load_case.id": inp}),
-        (pp + "lib.rs:10851", {"load_case.id": inp}),
+        (pp + "lib.rs:10877", {"load_case.id": inp}),
+        (pp + "lib.rs:10878", {"load_case.id": inp}),
         (pp + 'retained_product.rs:4773', {"stable_suffix(id)": inp}),
         (pp + 'retained_product.rs:4774', {"id": inp}),
         (pp + 'retained_product.rs:4782', {"id": inp, "id.len()": inp, "component": static}),
@@ -568,10 +580,10 @@ def text_decisions(snapshot, resolved):
         (pp + 'retained_product.rs:4808', {"member.id": inp}),
         (pp + 'retained_product.rs:4850', {"ordinary.document_kind": static}),
         (pp + 'retained_product.rs:4851', {"ordinary.model_ref": inp}),
-        (pp + "lib.rs:1422", {"semantic_contract_id": static}),
-        (pp + "lib.rs:3667", {"context.semantic_id()": static}),
-        (pp + "lib.rs:6254", {"support.id": inp}),
-        (pp + "lib.rs:7003", {"pipe.element_id": inp}),
+        (pp + "lib.rs:1424", {"semantic_contract_id": static}),
+        (pp + "lib.rs:3678", {"context.semantic_id()": static}),
+        (pp + "lib.rs:6276", {"support.id": inp}),
+        (pp + "lib.rs:7025", {"pipe.element_id": inp}),
         (pp + "model_format.rs:30", {"version": static}),  # model document 0.8.0 (§8.26): +2 (the module comment), same text
         # ccb19ba0bf: +17 lines (section_allowances), same text.
         # W1 G8 scope: +6 lines before these unchanged requested-mode bodies.
@@ -580,9 +592,9 @@ def text_decisions(snapshot, resolved):
         # +1, unchanged text. O4 S5 (§8.9): every key moved with unchanged text (lib.rs +3/+3/+3/+4, 0 after the case
         # solve; retained_product.rs +167; retained_precision.rs +189).
         # RT-A4 §10.4 (merged for §8.46): retained_precision.rs +5 (G0's recorded-variant table selection), unchanged text.
-        (re_ + 'retained_precision.rs:6078', {"mode": static}),
-        (re_ + 'retained_precision.rs:6160', {"text(cid)": inp}),
-        (re_ + 'retained_precision.rs:6184', {"text(cid)": inp}),
+        (re_ + 'retained_precision.rs:6079', {"mode": static}),
+        (re_ + 'retained_precision.rs:6161', {"text(cid)": inp}),
+        (re_ + 'retained_precision.rs:6185', {"text(cid)": inp}),
     ]
     lex = [('retained_product.rs:4848', {"class": 64, "why": "source-bound mechanics schema literal"}),
            # T4-S6 (Codex correction, §8.8): the formulation content upper is read from the current literals (3,138 B

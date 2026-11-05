@@ -1869,7 +1869,10 @@ differences, each fail-closed:
        `severity`, `source`, `affected_object`, `message` and `remediation`.
        The projection mirrors the desktop's `diagnosticsForSections`
        (`renderableReportInput.ts`), which builds the report: code and
-       message copied; `blocking` or `error` becomes `blocking` with class
+       message copied, except that on a source with combinations a
+       diagnostic naming none of them has its message quoted after the
+       supplemental label (RT-A3 §4's text boundary, DEL-05-02 Work
+       `combination-certificate.md` §2); `blocking` or `error` becomes `blocking` with class
        `SOLVE_BLOCKING`, any other severity is copied with class
        `ASSUMPTION_WARNING`; source `{diagnostic_source, source}`, or
        `core/product_physics` when absent or null; affected object
