@@ -16,7 +16,7 @@ import { preambleValue, readCsv, numericField, textField } from "../../test/csvR
 import { buildReactionOverlay, REACTION_COMPONENT_KIND, type ReactionOverlay } from "../viewport/reactionOverlay";
 import { resultOverlayCases } from "../viewport/resultColourOverlay";
 import { numericalHealthView, parseNumericalHealth, type ResultOverlayStanding } from "./numericalHealth";
-import { knownSemanticNotices, N_ALONG_DIRECTION, PREVIEW_ALONG_DIRECTION_KIND, resultRowLabel } from "./knownSemanticLimitations";
+import { alongDirectionDerivedLabel, knownSemanticNotices, N_ALONG_DIRECTION, PREVIEW_ALONG_DIRECTION_KIND, resultRowLabel } from "./knownSemanticLimitations";
 import { readerValidate } from "./resultReader";
 import { ResultsPanel } from "./ResultsPanel";
 import { SUPPORT_LOAD_COLUMNS, SUPPORT_ALONG_DIRECTION_KIND, SUPPORT_ALONG_MULTIPLE, buildSupportLoadSummaries } from "./supportLoadSummary";
@@ -49,6 +49,14 @@ function standing(states: Record<string, "checks_passed" | "sensitive">, combina
   });
   return { eligible: true, health: numericalHealthView(parsed, { eligible: true, verdictHold: false }) };
 }
+/** Authoring's R-1 should-fix: the signed statement for a load case or a signed combination
+ * (mechanics, subtraction); the derivation, with no sign clause, for an unsigned or selected one. */
+const EXPECTED_LABEL: Record<string, string> = {
+  "case:skew": N_ALONG_DIRECTION, "case:b": N_ALONG_DIRECTION, C_SIGNED: N_ALONG_DIRECTION, C_DIFF: N_ALONG_DIRECTION,
+  C_ABS: "reaction along the support's stored direction (absolute sum, unsigned); the producer's own row, not a global component",
+  C_SRSS: "reaction along the support's stored direction (SRSS, unsigned); the producer's own row, not a global component",
+  C_ENV: "reaction along the support's stored direction (range envelope); the producer's own row, not a global component"
+};
 const PASSING = standing({ "case:skew": "checks_passed" }, { C2: "checks_passed" });
 const COMBINED = ["C_SIGNED", "C_ABS", "C_SRSS", "C_ENV", "C_DIFF"];
 const PASSING_TWO = standing({ "case:skew": "checks_passed", "case:b": "checks_passed" }, Object.fromEntries(COMBINED.map(id => [id, "checks_passed" as const])));
@@ -77,10 +85,10 @@ describe("support_reaction_along_direction_v1 in the webview", () => {
   it("is a known kind: one signed force, with its own row label and notice", () => {
     for (const row of source(combinations).results.filter(item => item.kind === KIND)) {
       expect(declaredSourceResultDimension(row)).toBe("force");
-      expect(resultRowLabel(row, source(combinations))).toBe(N_ALONG_DIRECTION);
+      expect(resultRowLabel(row, source(combinations))).toBe(EXPECTED_LABEL[row.basis_ref!.ref_id]);
     }
     const notices = knownSemanticNotices(source());
-    expect(notices.filter(notice => notice.id === "along-direction-label")).toEqual([{ id: "along-direction-label", text: `Along-direction reaction: ${N_ALONG_DIRECTION}.` }]);
+    expect(notices.filter(notice => notice.id === "along-direction-label")).toEqual([{ id: "along-direction-label", text: `Along-direction reaction, for a load case or signed combination: ${N_ALONG_DIRECTION}.` }]);
     expect(knownSemanticNotices(withoutAlong(source())).some(notice => notice.id === "along-direction-label")).toBe(false);
   });
 
@@ -220,6 +228,27 @@ describe("support_reaction_along_direction_v1 in the webview", () => {
   });
 
   // Agent 0's correction 3: out of the global-component CSV, in the ordinary results-row CSV.
+  it("the ordinary results-row CSV labels each along row by its derivation: signed for C_SIGNED and C_DIFF, unsigned for the absolute sum, SRSS and envelope", async () => {
+    expect(alongDirectionDerivedLabel("SRSS, unsigned")).toBe(EXPECTED_LABEL.C_SRSS);
+    expect(EXPECTED_LABEL.C_ABS).not.toContain("positive when");
+    render(<DisplayUnitsProvider initialPreference="SI"><ResultsPanel result={source(combinations)} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} /></DisplayUnitsProvider>);
+    const buttons = screen.getAllByRole("button", { name: /^Export CSV: .* results$/ });
+    await waitFor(() => expect(document.querySelectorAll('[data-display-status="pending"]').length).toBe(0));
+    for (const button of buttons) fireEvent.click(button);
+    await waitFor(() => expect(saved.length).toBe(buttons.length));
+    const along = new Map(source(combinations).results.filter(row => row.kind === KIND).map(row => [row.id, row] as const));
+    const labels = new Map<string, string>();
+    for (const item of saved) {
+      const csv = readCsv(item.text);
+      for (const line of csv.rows) {
+        const id = textField(csv, line, "Result id");
+        if (along.has(id)) labels.set(id, textField(csv, line, "Row label"));
+      }
+    }
+    expect([...labels.keys()].sort()).toEqual([...along.keys()].sort());
+    for (const [id, label] of labels) expect(label, id).toBe(EXPECTED_LABEL[along.get(id)!.basis_ref!.ref_id]);
+  });
+
   it("stays out of the support-load CSV and is exported by the ordinary results-row CSV with its force dimension", async () => {
     const summary = buildSupportLoadSummaries({ model: model(), result: source(), standing: PASSING }).supports.find(item => item.supportId === "stop_B")!;
     const along = new Set(source().results.filter(row => row.kind === KIND).map(row => row.id));

@@ -6,6 +6,7 @@ import { currentSemanticContract, displayRoute, type ContractBinding } from "./r
 import { classificationSummary, retainedRowClasses } from "./retainedPrecisionStanding";
 import { decodeBinary64, type AccuracyClass } from "./retainedPrecisionTypes";
 import type { MechanicsResult } from "../../types";
+import { derivedRowNote } from "../viewport/resultColourOverlay";
 
 /** Static fresh-identity set: a constant, no route predicate.
  * U6d (D-U6-6; D2 4.7 S-1) adds the F2a preview successor: membership is not
@@ -53,6 +54,11 @@ export const PREVIEW_MAXIMUM_KIND = "pipe_elastic_normal_stress_maximum_v2";
  * so the reaction overlay (`REACTION_COMPONENT_KIND`) never draws it. */
 export const PREVIEW_ALONG_DIRECTION_KIND = "support_reaction_along_direction_v1";
 export const N_ALONG_DIRECTION = "reaction along the support's stored direction, positive when the support acts on the pipe along the authored direction; the producer's own row, not a global component";
+/** Authoring's R-1 should-fix: an unsigned, selected or bounded combination row (its
+ * `derivedRowNote`) states its derivation and carries no sign clause. */
+export function alongDirectionDerivedLabel(note: string): string {
+  return `reaction along the support's stored direction (${note}); the producer's own row, not a global component`;
+}
 
 /** D2 4.9.9 (revision 4, N-5): binding refusals for classified successor rows
  * before S-I. They never demote the envelope's standing. */
@@ -144,7 +150,7 @@ export function knownSemanticNotices(source: MechanicsResult | null | undefined,
     if (source.summary.max_open_formula_stress) notices.push({ id: "headline-label", text: `Stress headline: ${N_HEADLINE}.` });
     else if (solved) notices.push({ id: "headline-withheld", text: N_HEADLINE_WITHHELD });
     if (source.results.some(row => row.kind === PREVIEW_INTENSIFIED_KIND)) notices.push({ id: "intensified-label", text: `Intensified measure: ${N_INTENSIFIED}.` });
-    if (source.results.some(row => row.kind === PREVIEW_ALONG_DIRECTION_KIND)) notices.push({ id: "along-direction-label", text: `Along-direction reaction: ${N_ALONG_DIRECTION}.` });
+    if (source.results.some(row => row.kind === PREVIEW_ALONG_DIRECTION_KIND)) notices.push({ id: "along-direction-label", text: `Along-direction reaction, for a load case or signed combination: ${N_ALONG_DIRECTION}.` });
     for (const gate of previewCombinationGates(source)) {
       if (gate.withheld && gate.reason) notices.push({ id: `combination-gate:${gate.combination_id}`, text: `${gate.combination_id}: ${COMBINATION_GATE_REASONS[gate.reason] ?? gate.reason}` });
     }
@@ -173,10 +179,17 @@ export function previewCombinationGates(source: MechanicsResult): { combination_
     && typeof (g as { withheld?: unknown }).withheld === "boolean");
 }
 
+/** The along-direction row's label: its derivation when the row is unsigned, selected or
+ * bounded (`derivedRowNote`), else the signed statement. */
+function alongDirectionLabel(row: Partial<Pick<MechanicsResult["results"][number], "metadata" | "basis_ref">>): string {
+  const note = derivedRowNote(row);
+  return note === null ? N_ALONG_DIRECTION : alongDirectionDerivedLabel(note);
+}
+
 /** Row-level label for a listed row of a new kind; null for other rows. A
  * successor row also carries its validated class label (D2 4.9.9: never unlabelled).
  * `recordedTableRead` as for `knownSemanticNotices`. */
-export function resultRowLabel(row: Pick<MechanicsResult["results"][number], "kind"> & Partial<Pick<MechanicsResult["results"][number], "id" | "unit">>, source: MechanicsResult | null | undefined, recordedTableRead?: ContractBinding | null): string | null {
+export function resultRowLabel(row: Pick<MechanicsResult["results"][number], "kind"> & Partial<Pick<MechanicsResult["results"][number], "id" | "unit" | "metadata" | "basis_ref">>, source: MechanicsResult | null | undefined, recordedTableRead?: ContractBinding | null): string | null {
   if (!source) return null;
   let route: ReturnType<typeof displayRoute>;
   try { route = displayRoute(source, recordedTableRead); } catch { return null; }
@@ -184,7 +197,7 @@ export function resultRowLabel(row: Pick<MechanicsResult["results"][number], "ki
   // B3b: the exact successor's rows are pressure-2's (B7b D4 (a)), which carry no preview kind label;
   // its rows carry their validated class label only.
   const kindLabel = route === "retained_physics" ? null : row.kind === PREVIEW_INTENSIFIED_KIND ? N_INTENSIFIED : row.kind === PREVIEW_MAXIMUM_KIND ? N_HEADLINE
-    : row.kind === PREVIEW_ALONG_DIRECTION_KIND ? N_ALONG_DIRECTION : null;
+    : row.kind === PREVIEW_ALONG_DIRECTION_KIND ? alongDirectionLabel(row) : null;
   // Only a registered successor has validated classes; any other source has none.
   const classLabel = retainedRowClassLabel(row, source);
   return classLabel && kindLabel ? `${classLabel} ${kindLabel}` : classLabel ?? kindLabel;
