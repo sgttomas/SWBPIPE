@@ -141,4 +141,4 @@ NEEDS_HUMAN_RULING: none for the selected policy, the capped worker or the run r
 
 DEPENDENCY_NOTES: parallel ordinary solves are admitted only within the pool, by capped workers; larger numerical domains need their own qualification, and B8 retained desktop activation remains owner-held.
 
-Historical source: [NUM owner choices, decision 22](https://github.com/sgttomas/chirality/blob/e85d383b64/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md).
+Historical source: NUM owner choices, decision 22 (private `sgttomas/chirality@e85d383b64`, `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md`).
