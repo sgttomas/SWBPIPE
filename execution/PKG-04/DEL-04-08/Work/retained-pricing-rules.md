@@ -5587,9 +5587,8 @@ under the owner's removal of explicit owner approval for coefficient movement; s
 scrutiny and preservation of the registered state remain required. This records no acceptance.
 - **Coefficients.** Against §8.53's tree 6 coefficients rise and none fall, all in STATICS (below). The threshold and M
   are unchanged.
-- **AC-004 is required and has not run.** `LoadCaseSolve` grows 8 B and the witnessed binary changes in
-  retained-reachable code, so §8.53's 7/7 does not transfer. The binaries and command are prepared below ("AC-004");
-  the window is Agent 0's to clear.
+- **AC-004: 7/7 at `57fc00261`.** `LoadCaseSolve` grows 8 B and the witnessed binary changes in retained-reachable
+  code, so §8.53's 7/7 does not transfer; this registration's own window ran once and passed (below, "AC-004").
 
 **Basis and integration chain.**
 - *Basis.* Main `108766899` (#138, RT-A3 P and the certificate with the shared-id amendment), whose registered block is
@@ -5723,7 +5722,7 @@ scrutiny and preservation of the registered state remain required. This records 
   `test_rt_a3_p_declared_moves.py`): 244 passed.
 
 **AC-004.** Required (`LoadCaseSolve` +8 B; the held-status producer and reader and the roster's additions are linked
-into both binaries), not run: no window has been cleared, and `t3_exclusive.sh` was not invoked.
+into both binaries). One Agent-0-cleared attempt, with App's concurrence, passed 7/7.
 - **Binaries** (built under the slot wrapper, `cargo test --offline --locked --no-run --lib --test
   retained_memory_challenge`, test profile, `RUSTFLAGS`, `CARGO_ENCODED_RUSTFLAGS`, `CARGO_BUILD_RUSTFLAGS` and
   `RUSTDOCFLAGS` unset, rustc 1.97.1 `8bab26f4f`, at `57fc00261`, core tree `74b523cf…`; later commits change no file
@@ -5739,10 +5738,23 @@ into both binaries), not run: no window has been cleared, and `t3_exclusive.sh` 
   against `W1_PHASE_BYTES` [6,450,356,608, 6,509,487,952] and `MAX_PHASE_BYTES` [8,744,086,997, 8,803,218,341]. Each
   must report exactly one executed test. Head, core tree, clean state, both hashes, profile, lock, compiler and flags
   are verified before queueing and at admission, and the hashes again afterwards.
+- **Result: 7/7 at `57fc00261`** (commit `57fc0026162237e9995c180b54a9082095e71676`, core tree
+  `74b523cf03ce9cfd14a2f3bed311eceaffd91b55`, clean), executed from verified read-only private copies of the binaries
+  above. The execution head was `c9de676df`; the commits after `57fc00261` change no file under `core/`, so they are
+  not witnessed source.
+- **Window.** Acquired 2026-11-05T19:16:16.757Z; harness END rc=0 at 19:16:29.777Z (13.025 s internal), wrapper
+  returned 19:16:29.787Z, well inside the 55 s internal and 60 s total bounds. Each of the seven processes executed
+  exactly one test, rc 0: the six witnesses 0.65 / 0.63 / 1.24 / 1.24 / 2.37 / 2.35 s (sparse, dense in the order
+  above) and the challenge 3.64 s.
+- **Checks.** Head, core tree, clean state, both binary hashes, profile, lock, rustc 1.97.1 (`8bab26f4f`) and the
+  four unset flag variables were verified read-only before queueing and re-verified by the harness at admission,
+  before any test. Both hashes were unchanged after the window. Freshness is the build's own second `--no-run`; no
+  build ran for the window. Closure was verified at 19:16:36.749Z (no harness or test process, every slot and the
+  exclusive pending marker released, memguard live).
 
 **Open.**
-- AC-004 on the binaries above, in a window Agent 0 clears.
-- Independent scrutiny of the RTA5 rules and this registration.
+- Independent scrutiny of the RTA5 rules and this registration: done (focused integration and registration review,
+  then two narrow re-checks; final PASS at `c9de676df`).
 - For the PR text: a non-string `producer.semantic_contract_id` is refused by the header dispatch
   (`reader_verdict::route` → `semantic_contract::for_source_metadata` → `current_header`'s closed identity list,
   `SOURCE_PRODUCER_CONTRACT_UNSUPPORTED`); the raw named-reader entry `validate("preview-physics")` has no earlier
