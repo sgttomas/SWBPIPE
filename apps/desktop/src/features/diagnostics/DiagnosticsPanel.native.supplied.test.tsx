@@ -182,7 +182,7 @@ describe("a native handle's Diagnostics are the whole value's", () => {
     }
     const last = whole.diagnostics.at(-1)!;
     expect(shown(handle, last)).toEqual(shown(whole, last));
-    // A duplicate and a UTF-16-ordered list are refused (fail closed).
+    // The comparator is strict: equal identities are not less (so the decoder refuses a duplicate).
     expect(codePointLess(ids[0], ids[0])).toBe(false);
   });
 
