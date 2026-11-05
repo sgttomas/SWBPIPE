@@ -5507,7 +5507,8 @@ before Agent 0's AC-004 clearance of `0b78bc342`.
 
 **Amendment: the roster's shared-id read (`ef50eaef1`, pricing `56a9a8125`).** Hosted CI on #138 (head `51abd3dbe`)
 failed PP `rt_a4_combinations::v7_a_shared_id_resolves_to_the_load_case`. A `--no-fail-fast` sweep of all 80 PP test
-binaries found no other failure. The defect was present at `0b78bc342`: the registration's local suites had not run that
+binaries (`cargo test --offline --locked --no-fail-fast --tests` at `51abd3dbe`; log
+`/Users/ryan/dev/chirality-t3/scratch/rt-a3/ci138-phys/pp-tests.log`) found no other failure. The defect was present at `0b78bc342`: the registration's local suites had not run that
 binary.
 - *Defect.* With a combination `S` sharing a load case's id, the roster's population leaves `S` out by design (an
   untyped ref to it is ambiguous). The scan then visited only diagnostics naming the population, so the producer's
@@ -5531,14 +5532,27 @@ binary.
   `point.json` are byte-identical. `point-atoms --check` is equal (154 lines). `generate --check` with the committed
   basis sentence is equal (1,713 lines). No coefficient moves, and the block, `PINNED_RECORD` and the challenge's
   values are unchanged.
-- *AC-004.* The witnessed lib-test binary changes (`roster`'s body is compiled in, and its frame is allocated on its
-  early return in the retained base read), so `0b78bc342`'s 7/7 does not transfer. Agent 0 chose a fresh single
+- *AC-004.* The witnessed lib-test binary changes (`roster`'s body is compiled in and `roster` is entered in the
+  retained base read, so its frame may differ; this was not inspected in the binary), so `0b78bc342`'s 7/7 does not
+  transfer. Agent 0 chose a fresh single
   seven-process window on the amended, rebuilt and re-identified binaries (2026-11-05), to be cleared once the
   amendment's review is clear.
+- *Amended binaries* (built under the slot wrapper, `cargo test --offline --locked --no-run --lib --test
+  retained_memory_challenge`, test profile, `RUSTFLAGS`, `CARGO_ENCODED_RUSTFLAGS`, `CARGO_BUILD_RUSTFLAGS` and
+  `RUSTDOCFLAGS` unset, rustc 1.97.1 `8bab26f4f`, at `bef784c2d`, core tree `f2b3cff235db2bdca70eab5bec4c3de83fc7d813`;
+  later commits of the amendment change no file under `core/`): `open_pipe_stress_product_physics-b933835de062055d`,
+  SHA-256 `4145c5a4be1511706468d1dfba6046697552d439eebd40ace190de5da749faab`, and
+  `retained_memory_challenge-49844514588f9c1f`, SHA-256
+  `7c3cde1799465048d54746528e09d441deb8a8a8d8d58cc6626e31c716b691b4` (both change: each links the RE reader). Profile
+  `e085ccf9…a298` and `Cargo.lock` `b7ebb02a…5653` are unchanged. A second `--no-run` compiled nothing and left both
+  hashes unchanged. The run conditions are those of "To run" above.
+- *Review.* One independent review of `51abd3dbe..bef784c2d` (the repair in both readers, the regressions and fixture
+  prefixes, the RTA3C-RB premise and re-pin, and the pricing result) was clear, with no blocking finding. The 12
+  `test_rt_a4_pf_reader_tampers.py` cases ran against a freshly built `headless_preview_runner` at `bef784c2d` (12
+  passed).
 
 **Open.**
 - AC-004 on the amended binaries (above).
-- The amendment's independent review (the repair, the RTA3C-RB premise and the pricing result).
 - P's stated non-identity (+86 B) and the freeze repair are reported to DEL-04-07 and DEL-05-02.
 
 Run evidence (logs, compares, proofs and scripts) is in `/Users/ryan/dev/chirality-t3/scratch/rt-a3/pc-d3/` and, for
