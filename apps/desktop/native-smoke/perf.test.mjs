@@ -313,6 +313,21 @@ test("the C1 plan binds maintained 500/1000 fixtures and forbids injected or lar
   assert.throws(()=>validatePlan(c1),/require a native solve/);
 });
 
+test("the small C1 plan binds the generator's 82-node rack and the 500-node gate's timeouts", async () => {
+  const small=loadPlan(fileURLToPath(new URL("./perf-plan-c1-small.json",import.meta.url)));
+  const c1=loadPlan(fileURLToPath(new URL("./perf-plan-c1.json",import.meta.url)));
+  assert.deepEqual(small.runs.map(run=>[run.nodes,run.mode,run.paint_ms,run.timeout_s]),[[82,"native",300000,720]]);
+  for(const key of ["c1_probes","c1_reader_diagnostics","c1_profile_readers","timeouts","budget_s","sample_interval_ms"]) assert.deepEqual(small[key],c1[key]);
+  // The rack generator's deterministic bytes are the bound model (perf.mjs checks the file's SHA-256 at launch).
+  const generator=fileURLToPath(new URL("../../../core/solver/performance_harness/rack/rack_model.py",import.meta.url));
+  const bytes=execFileSync("python3",[generator,"--profile","linear-ex","--nodes","82"],{stdio:["ignore","pipe","ignore"],maxBuffer:1<<24});
+  const { createHash }=await import("node:crypto");
+  assert.equal(createHash("sha256").update(bytes).digest("hex"),small.runs[0].model_sha256);
+  assert.deepEqual(selectRuns(small,{subset:"window"}).map(run=>run.id),["native-linear-ex-n0082"]);
+  small.runs[0].nodes=250;
+  assert.throws(()=>validatePlan(small),/no size escalation/);
+});
+
 test("samples sum per kind, keep per-process peaks and a peak since a stage", () => {
   const samples = [
     { t: 1000, p: [[1, "app", 10, 100, 100], [2, "webcontent", 20, 200, 200]] },
@@ -406,14 +421,57 @@ test("the driver loads in a webview-like context and hands its steps to a test",
   await assert.rejects(hooks.waitFor("nothing", () => null, 30, 5), /timed out after 30 ms waiting for nothing/);
 });
 
+// The commands whose Rust handler returns a raw `tauri::ipc::Response` of JSON bytes (lib.rs), so
+// the webview receives `application/octet-stream`, as the App decodes them.
+const RAW_JSON_REPLIES = new Set(["finish_local_csv_stream", "record_preview_mechanics_job_analysis_run", "save_preview_mechanics_job_local_project", "open_local_project_in_native_custody", "read_analysis_run_in_native_custody", "save_restored_result_local_project"]);
+
+/** Tauri 2's webview IPC as the driver meets it (tauri-2.11.1 `scripts/core.js` and
+ * `scripts/ipc-protocol.js`): `__TAURI_INTERNALS__.invoke` is defined with
+ * Object.defineProperty (not writable), and each call is one `fetch` of
+ * `ipc://localhost/<command>` whose reply carries `Tauri-Response` and is read by its content
+ * type. `handler(command, args, options)` answers as the Rust command would. */
+function tauriIpc(window, handler) {
+  window.fetch = async (url, init) => {
+    const command = decodeURIComponent(String(url).slice("ipc://localhost/".length));
+    const body = init.body;
+    const args = typeof body === "string" ? JSON.parse(body) : body;
+    const headers = Object.fromEntries([...new Headers(init.headers)].filter(([name]) => !name.startsWith("tauri-") && name !== "content-type"));
+    try {
+      const value = await handler(command, args, { headers });
+      if (value instanceof ArrayBuffer || ArrayBuffer.isView(value)) return new Response(value, { headers: { "Tauri-Response": "ok", "Content-Type": "application/octet-stream" } });
+      if (RAW_JSON_REPLIES.has(command)) return new Response(new TextEncoder().encode(JSON.stringify(value)), { headers: { "Tauri-Response": "ok", "Content-Type": "application/octet-stream" } });
+      return new Response(JSON.stringify(value ?? null), { headers: { "Tauri-Response": "ok", "Content-Type": "application/json" } });
+    } catch (error) {
+      return new Response(JSON.stringify(String(error?.message ?? error)), { headers: { "Tauri-Response": "error", "Content-Type": "application/json" } });
+    }
+  };
+  const internals = {};
+  Object.defineProperty(internals, "invoke", {
+    value: async (command, payload = {}, options) => {
+      const bytes = payload instanceof ArrayBuffer || ArrayBuffer.isView(payload);
+      const headers = new Headers(options?.headers ?? {});
+      headers.set("Content-Type", bytes ? "application/octet-stream" : "application/json");
+      headers.set("Tauri-Callback", "1");
+      headers.set("Tauri-Error", "2");
+      const response = await window.fetch(`ipc://localhost/${encodeURIComponent(command)}`, { method: "POST", body: bytes ? payload : JSON.stringify(payload), headers });
+      const type = (response.headers.get("content-type") || "").split(",")[0];
+      const data = type === "application/json" ? await response.json() : type === "text/plain" ? await response.text() : await response.arrayBuffer();
+      if (response.headers.get("Tauri-Response") !== "ok") throw data;
+      return data;
+    }
+  });
+  window.__TAURI_INTERNALS__ = internals;
+  return internals;
+}
+
 async function driverDom(t, html, invoke, overrides = {}) {
   const { JSDOM } = await import("jsdom");
   const vm = await import("node:vm");
   const dom = new JSDOM(html);
   t.after(() => dom.window.close());
   const hooks = {};
-  dom.window.__TAURI_INTERNALS__ = { invoke };
-  const context = { window: dom.window, document: dom.window.document, navigator: dom.window.navigator,
+  tauriIpc(dom.window, invoke);
+  const context = { window: dom.window, document: dom.window.document, navigator: dom.window.navigator, Response, Headers,
     // Hex escapes are literal in jsdom as well as WebKit, including encoded IDs.
     CSS: { escape: value => String(value).replace(/[^a-zA-Z0-9_-]/gu, char => `\\${char.codePointAt(0).toString(16)} `) }, performance,
     Event: dom.window.Event, HTMLInputElement: dom.window.HTMLInputElement, HTMLTextAreaElement: dom.window.HTMLTextAreaElement,
@@ -439,7 +497,7 @@ test("C1 command observation retains only headers/receipts and blocks full-copy 
     sent++;
     if(command==="query_preview_mechanics_job_rows") return rowPacket(27);
     if(command==="finish_local_csv_stream") return {file_name:"swbpipe-results-force.csv",byte_count:123};
-    if(command==="save_preview_mechanics_job_local_project") return {result:{outcome:"not_saved",code:"PROJECT-SAVE-RESULT-TOO-LARGE",get rows(){throw new Error("row payload read");}}};
+    if(command==="save_preview_mechanics_job_local_project") return {result:{outcome:"not_saved",code:"PROJECT-SAVE-RESULT-TOO-LARGE",rows:[{id:"row-payload"}]}};
     return null;
   });
   const trace = ui.hooks.beginC1Trace();
@@ -691,6 +749,156 @@ test("F1: without C1, a mark one poll past the gate is a timeout and one just wi
   assert.equal(timely.report.solve.gate.first_paint_at_ms, 299_999);
 });
 
+// RT-U4 A+B diagnosis (`c1-slice7-run-proposal.md`): the attempt's page was not shown (WebKit
+// aligned the driver's timers to 1 s, its hidden-page throttling), and a page that is not shown
+// runs no animation frame, so its first paint could not be observed. The driver now refuses to
+// start a solve on such a page, and journals what the page showed during the solve.
+const HIDDEN_SHELL = `<div data-testid="desktop-preview-shell"></div><p data-testid="local-project-message">Initial</p>`;
+function setVisibility(doc, state) { Object.defineProperty(doc, "visibilityState", { configurable: true, get: () => state }); }
+
+/** The whole driver as the App runs it (no test hooks): a C1 plan, the pool preflight, then
+ * the page checks. Returns the menus sent, the files chosen and the finished report. */
+async function wholeDriver(t, { visibility, frames, observeIpc = true }) {
+  const { JSDOM } = await import("jsdom");
+  const vm = await import("node:vm");
+  const dom = new JSDOM(HIDDEN_SHELL);
+  t.after(() => dom.window.close());
+  setVisibility(dom.window.document, visibility);
+  const pool = { headroom: { pressure: "normal", available_bytes: 30 * 1024 ** 3 }, invocation_budget_bytes: 12 * 1024 ** 3, retained_results: 0, running_workers: 0, queued_jobs: 0, running_jobs: 0, webview_custody_results: 0, reserved_bytes: 0 };
+  const sent = { menus: [], chosen: [], report: null };
+  let finished;
+  const done = new Promise((resolve) => { finished = resolve; });
+  const handler = async (command, args) => {
+    if (command === "native_smoke_plan") return { run_id: "c1-hidden", c1_probes: true, c1_reader_diagnostics: true, model_path: "/invented/rack.json", project_id: "project:invented", model_jcs_sha256: "sha256:invented", timeouts: { start_ms: 1000, open_ms: 1000, paint_ms: 1000, interaction_ms: 1000, csv_ms: 1000, record_ms: 1000, save_ms: 1000 } };
+    if (command === "get_memory_pool_status") return pool;
+    if (command === "native_smoke_menu") { sent.menus.push(args.commandId); return null; }
+    if (command === "native_smoke_choose") { sent.chosen.push(args.path); return null; }
+    if (command === "native_smoke_finish") { sent.report = args.report; finished(); return null; }
+    return null;
+  };
+  const internals = tauriIpc(dom.window, handler);
+  // Before the fix's transport: an invoke that never reaches `fetch` (nothing to observe).
+  if (!observeIpc) { const direct = {}; Object.defineProperty(direct, "invoke", { value: (command, args) => handler(command, args) }); dom.window.__TAURI_INTERNALS__ = direct; }
+  void internals;
+  const context = { window: dom.window, document: dom.window.document, navigator: dom.window.navigator, Response, Headers,
+    CSS: { escape: value => String(value) }, performance, setTimeout, clearTimeout, setInterval, clearInterval,
+    requestAnimationFrame: frames ? callback => setTimeout(() => callback(performance.now()), 5) : () => 0,
+    TextEncoder, TextDecoder, ArrayBuffer, Uint8Array, DataView };
+  context.globalThis = context;
+  vm.runInNewContext(readFileSync(new URL("./perf-driver.js", import.meta.url), "utf8"), context);
+  await Promise.race([done, new Promise((_, reject) => setTimeout(() => reject(new Error("driver did not finish")), 8000))]);
+  return sent;
+}
+
+for (const [visibility, frames, why] of [["hidden", false, "a hidden page"], ["visible", false, "a shown page that delivers no animation frame"]]) {
+  test(`a C1 run on ${why} is refused before the model opens: no solve is started`, async (t) => {
+    const sent = await wholeDriver(t, { visibility, frames });
+    assert.equal(sent.report.ok, false);
+    assert.match(sent.report.error, new RegExp(`^C1 host: the App's page is not shown \\(before opening the model: visibilityState=${visibility}, animation frames ${frames ? 2 : 0}/2 within 2000 ms\\)`));
+    assert.deepEqual(sent.menus, []);
+    assert.deepEqual(sent.chosen, []);
+    assert.equal(sent.report.solve, undefined);
+  });
+}
+
+test("a C1 run on a shown page with frames passes the page check and goes on to open the model", async (t) => {
+  const sent = await wholeDriver(t, { visibility: "visible", frames: true });
+  assert.equal(sent.report.c1.page.at_start.visibility, "visible");
+  assert.equal(sent.report.c1.page.at_start.frames, 2);
+  assert.deepEqual(sent.chosen, ["/invented/rack.json"]);
+  assert.deepEqual(sent.menus, ["file.open-model"]);
+  assert.match(sent.report.error, /timed out after 1000 ms waiting for open rack\.json/);
+});
+
+test("a C1 run whose command observation sees no IPC is refused before any page check or solve", async (t) => {
+  const sent = await wholeDriver(t, { visibility: "visible", frames: true, observeIpc: false });
+  assert.match(sent.report.error, /^C1 command observation saw no IPC/);
+  assert.deepEqual(sent.menus, []);
+  assert.equal(sent.report.c1.page, undefined);
+});
+
+/** The C1 solve step on the simulated clock with the native Results panel, journalling on:
+ * the result is committed at `commitAt`, the panel shows settled rows at `rowsAt` (or never)
+ * and first_paint is marked at `paintAt` (or never). Returns the report and the journal lines. */
+async function observedSolve(t, { visibility, frames, commitAt = 10_000, rowsAt = null, paintAt = null, paintMs = 30_000 }) {
+  const clock = fakeClock();
+  let shown = "solve", timeline = null;
+  const lines = [];
+  const html = `<section data-testid="workspace-section-solve"><button data-testid="solver-mode-sparse" aria-pressed="false"></button><p data-testid="solve-job-summary">state=running</p></section><section data-testid="workspace-section-results"><section data-testid="results-panel" data-result-custody="native"><p data-testid="result-page-reading">Reading the result rows natively…</p></section></section>`;
+  const ui = await driverDom(t, html, async (command, args) => {
+    if (command === "native_smoke_log") { if (String(args.line).startsWith("reader-phase:")) lines.push(JSON.parse(args.line.slice("reader-phase:".length))); return null; }
+    if (command !== "native_smoke_menu") return null;
+    if (args.commandId === "analyze.run") clock.at(20, () => { timeline = { sequence: 1, outcome: "running", marks: [{ stage: "solve_requested", at_ms: clock.now() }] }; });
+    else if (args.commandId === "view.section.results") clock.at(clock.now() + 30, () => { shown = "results"; });
+    return null;
+  }, { ...clock.context, requestAnimationFrame: frames ? callback => clock.context.setTimeout(() => callback(clock.now()), 16) : () => 0 });
+  const doc = ui.dom.window.document;
+  setVisibility(doc, visibility);
+  for (const id of ["solve", "results"]) Object.defineProperty(doc.querySelector(`[data-testid="workspace-section-${id}"]`), "offsetParent", { get: () => shown === id ? doc.body : null });
+  const sparse = doc.querySelector('[data-testid="solver-mode-sparse"]');
+  sparse.onclick = () => sparse.setAttribute("aria-pressed", "true");
+  ui.context.__openPipeStressSolveTimelineV1 = { readCurrent: () => timeline };
+  clock.at(commitAt, () => { timeline = { ...timeline, outcome: "completed", marks: [...timeline.marks, { stage: "result_committed", at_ms: clock.now() }] }; });
+  if (rowsAt !== null) clock.at(rowsAt, () => { doc.querySelector('[data-testid="results-panel"]').innerHTML = '<table><tbody><tr data-testid="result-row-r1"><td>r1</td></tr></tbody></table>'; });
+  if (paintAt !== null) clock.at(paintAt, () => { timeline = { ...timeline, marks: [...timeline.marks, { stage: "first_paint", at_ms: clock.now() }] }; });
+  const report = {};
+  await clock.run(ui.hooks.solve({ c1_probes: true, c1_reader_diagnostics: true, timeouts: { open_ms: 1000, paint_ms: paintMs } }, report));
+  return { report, lines };
+}
+const edges = lines => lines.map(({ phase, call, edge, status }) => `${phase}#${call}:${edge}:${status}`);
+
+test("the C1 solve journals a shown page: Results opened, the first page settled, then its frames to first_paint", async (t) => {
+  const { report, lines } = await observedSolve(t, { visibility: "visible", frames: true, rowsAt: 12_000, paintAt: 12_500 });
+  assert.equal(report.solve.ended, "first_paint");
+  assert.deepEqual(edges(lines), ["results_open#1:enter:pending", "results_open#1:exit:ok", "first_page#1:enter:pending", "first_page#1:exit:ok", "paint_frames#1:enter:pending", "paint_frames#1:exit:ok"]);
+  assert.equal(report.solve.page.hidden_polls, 0);
+  // Every frame probe is answered, except at most the one sent as the wait ends.
+  assert.ok(report.solve.page.frame_acks >= 1 && report.solve.page.frame_acks >= report.solve.page.frame_probes - 1, JSON.stringify(report.solve.page));
+  // Seen at the first 200 ms poll after the rows render, before the mark.
+  assert.ok(report.solve.page.first_page_seen_at_ms >= 12_000 && report.solve.page.first_page_seen_at_ms <= 12_200, String(report.solve.page.first_page_seen_at_ms));
+  for (const line of lines) assert.deepEqual(Object.keys(line).sort(), ["call", "edge", "layer", "mono_ms", "phase", "status"]);
+});
+
+test("the C1 solve journals the A+B state: a hidden page, frames that never come, the first page never seen", async (t) => {
+  const { report, lines } = await observedSolve(t, { visibility: "hidden", frames: false });
+  assert.equal(report.solve.ended, "timeout");
+  assert.deepEqual(edges(lines), ["results_open#1:enter:pending", "results_open#1:exit:ok", "page_hidden#1:enter:pending", "frame_wait#1:enter:pending", "first_page#1:enter:pending"]);
+  assert.ok(report.solve.page.hidden_polls > 0);
+  assert.equal(report.solve.page.frame_acks, 0);
+  assert.ok(report.solve.page.frame_probes >= 2);
+  assert.equal(report.solve.page.first_page_seen_at_ms, null);
+  assert.equal(report.solve.page.visibility_at_end, "hidden");
+});
+
+test("the driver's journal lines are accepted by the fixed phase journal and leave the reader evidence complete", async (t) => {
+  const dir = mkdtempSync(path.join(os.tmpdir(), "perf-observed-"));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const { lines } = await observedSolve(t, { visibility: "hidden", frames: false });
+  const evidence = createReaderPhaseEvidence(path.join(dir, "journal.jsonl"));
+  // The app's own fixed awaits and native boundaries, all complete.
+  for (const [call, phase] of [[1, "header"], [2, "registration"], [3, "standing"], [4, "summary"], [5, "run_preview"]]) {
+    evidence.accept({ layer: "web", call, phase, edge: "enter", status: "pending", mono_ms: call });
+    evidence.accept({ layer: "web", call, phase, edge: "exit", status: "ok", mono_ms: call + 0.5 });
+  }
+  for (const phase of ["args_admit", "source_prescan", "source_admit", "inputs_admit", "source_parse", "inputs_parse", "validate", "serialize", "source_drop", "summary_health", "summary_build"]) {
+    evidence.accept({ layer: "native", call: 1, phase, edge: "enter", status: "pending", mono_ms: 1 });
+    evidence.accept({ layer: "native", call: 1, phase, edge: "exit", status: "ok", mono_ms: 2 });
+  }
+  for (const line of lines) evidence.accept(line);
+  const result = evidence.close();
+  assert.equal(result.evidence_complete, true);
+  assert.deepEqual(result.incomplete.map(({ phase }) => phase).sort(), ["first_page", "frame_wait", "page_hidden"]);
+  // An open observed phase never stands in for a missing reader await.
+  const partial = createReaderPhaseEvidence(path.join(dir, "partial.jsonl"));
+  for (const line of lines) partial.accept(line);
+  assert.equal(partial.close().evidence_complete, false);
+  // Observed phases are fixed names, web only.
+  const strict = createReaderPhaseEvidence(path.join(dir, "strict.jsonl"));
+  assert.throws(() => strict.accept({ layer: "native", call: 1, phase: "first_page", edge: "enter", status: "pending", mono_ms: 1 }), /malformed/);
+  assert.throws(() => strict.accept({ layer: "web", call: 1, phase: "first_page_job", edge: "enter", status: "pending", mono_ms: 1 }), /malformed/);
+  strict.close();
+});
+
 test("C1 persistence probe connects actual Rust reply shapes through record/reopen/re-save/check/release", async (t) => {
   // These committed Rust replies establish DTO shape, not live App behaviour.
   const persistence=JSON.parse(readFileSync(new URL("../src/test-support/native-replay/native_persistence_replies.json",import.meta.url),"utf8"));
@@ -880,7 +1088,7 @@ test("C1 reader probe sends only the bound handle and keeps phase metrics separa
   assert.deepEqual(sent.args,{jobId:"solve-123"});
   assert.equal(sent.options.headers["x-swbpipe-ingress"],"args-json-v1");
   assert.equal(report.reader_allocations.source_parse.allocation.peak_requested,32);
-  metrics.result={get rows(){throw new Error("a result payload must not be retained");}};
+  metrics.result={rows:[{id:"a result payload must not be retained"}]};
   await assert.rejects(ui.hooks.profileReaders({model_jcs_sha256:"sha256:model",timeouts:{profile_ms:1000}},{}),/not bound/);
   delete metrics.result;
   metrics.job_id="wrong";

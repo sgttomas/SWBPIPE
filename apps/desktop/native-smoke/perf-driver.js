@@ -16,6 +16,10 @@
 //      each outcome as shown.
 // Progress lines go to the app's stderr as `[native-smoke] perf:{json}` (a crash
 // of the webview still leaves them); the report goes through `native_smoke_finish`.
+// A C1 run first checks that its command observation sees the App's IPC and that
+// the page is shown and delivers animation frames (before the model opens and again
+// before Analyze > Run); otherwise it stops without starting a solve. During the
+// solve it records and journals what the page showed (`journal`, `observePage`).
 (() => {
   const ipc = window.__TAURI_INTERNALS__;
   const call = (command, args) => ipc.invoke(command, args ?? {});
@@ -83,6 +87,64 @@
   const timeline = () => globalThis.__openPipeStressSolveTimelineV1?.readCurrent?.() ?? null;
   const elapsed = (started) => Math.round(now() - started);
 
+  // RT-U4 (A+B diagnosis, `c1-slice7-run-proposal.md`): WebKit runs no rendering update, so no
+  // animation frame, for a page it does not consider shown (window occluded, display asleep,
+  // screen locked), and aligns that page's nested timers to 1 s. The smoke window's
+  // `backgroundThrottling: "disabled"` only sets WKPreferences.inactiveSchedulingPolicy (wry), not
+  // page visibility. A first paint is two animation frames after the first page, so on a page that
+  // is not shown it cannot be observed at all. `frames` asks for two frames and reports what came.
+  const visibility = () => (typeof document.visibilityState === "string" ? document.visibilityState : null);
+  function frames(timeoutMs) {
+    return new Promise((resolve) => {
+      let seen = 0, done = false, timer = null;
+      const finish = () => {
+        if (done) return;
+        done = true;
+        if (timer !== null) clearTimeout(timer);
+        resolve({ visibility: visibility(), frames: seen, timeout_ms: timeoutMs });
+      };
+      timer = setTimeout(finish, timeoutMs);
+      if (typeof requestAnimationFrame !== "function") return;
+      requestAnimationFrame(() => { seen = 1; requestAnimationFrame(() => { seen = 2; finish(); }); });
+    });
+  }
+  // A C1 run starts its solve only on a shown page that delivers frames: otherwise the run could
+  // only time out at the paint gate. Checked before the model opens and again before Analyze > Run.
+  async function requireShownPage(step, timeoutMs = 2000) {
+    const probe = await frames(timeoutMs);
+    if (probe.visibility !== "visible" || probe.frames < 2) {
+      throw new Error(`C1 host: the App's page is not shown (${step}: visibilityState=${probe.visibility}, animation frames ${probe.frames}/2 within ${timeoutMs} ms); a first paint cannot be observed, so no solve is started`);
+    }
+    return probe;
+  }
+
+  // C1 observation journal (driver side): the fixed web phases `results_open`, `first_page`,
+  // `paint_frames`, `page_hidden` and `frame_wait`, as `reader-phase:` lines like the app's own
+  // awaits (`solveTimeline.ts` `traceNativeReaderAwait`). Scalars only: no job, model, row or
+  // identity. Sent one after another, so the journal never sees an exit before its entry; an
+  // entry without an exit stays missing. At most 16 calls per phase (well inside the journal's
+  // fixed 256 entries beside the app's own); past that nothing more is sent for that phase.
+  let journalOn = false;
+  let journalChain = Promise.resolve();
+  const journalCalls = {};
+  const journalOpen = new Set();
+  function journal(phase, edge, status) {
+    if (!journalOn) return;
+    if (edge === "enter") {
+      if (journalOpen.has(phase)) return;
+      const next = (journalCalls[phase] ?? 0) + 1;
+      if (next > 16) return;
+      journalCalls[phase] = next;
+      journalOpen.add(phase);
+    } else {
+      if (!journalOpen.has(phase)) return;
+      journalOpen.delete(phase);
+    }
+    const event = { layer: "web", call: journalCalls[phase], phase, edge, status, mono_ms: now() };
+    journalChain = journalChain.then(() => call("native_smoke_log", { line: `reader-phase:${JSON.stringify(event)}` })).catch(() => {});
+  }
+  const journalFlushed = () => journalChain;
+
   async function openModel(plan, report) {
     const name = plan.model_path.split("/").pop();
     const started = now();
@@ -105,6 +167,9 @@
   function solveShown() {
     return {
       summary: text("solve-job-summary"),
+      // The Solve section is a DormantSection (App.tsx): while Results is shown its summary is the
+      // last render before it went dormant, not the job's current state (the A+B record).
+      summary_live: sectionShown("solve"),
       error: text("solve-job-error"),
       refusal: text("solve-job-resource-refusal"),
       worker_failure: text("solve-job-worker-failure"),
@@ -143,6 +208,44 @@
       return current && current.sequence > priorSequence ? current.marks.find((mark) => mark.stage === "first_paint") ?? null : null;
     };
     const timely = (mark) => Boolean(mark) && typeof mark.at_ms === "number" && mark.at_ms <= deadline;
+    // What the page showed (C1): whether it was shown, whether animation frames came, and when
+    // the native table's first page was first seen settled with rows (its rows and their row
+    // semantics read: NativeResultsPanel renders rows only from a ready page).
+    const page = { visibility_at_run: visibility(), hidden_polls: 0, frame_probes: 0, frame_acks: 0, first_page_seen_at_ms: null, first_page_refused: false, visibility_at_end: null };
+    let frameProbe = null;
+    const probeFrame = () => {
+      if (typeof requestAnimationFrame !== "function") return;
+      if (frameProbe && !frameProbe.acked) journal("frame_wait", "enter", "pending");
+      const probe = { acked: false };
+      frameProbe = probe;
+      page.frame_probes++;
+      requestAnimationFrame(() => {
+        probe.acked = true;
+        page.frame_acks++;
+        journal("frame_wait", "exit", "ok");
+      });
+    };
+    const observePage = (current) => {
+      if (!plan.c1_probes) return;
+      if (visibility() === "visible") journal("page_hidden", "exit", "ok");
+      else { page.hidden_polls++; journal("page_hidden", "enter", "pending"); }
+      if (page.first_page_seen_at_ms !== null || page.first_page_refused) return;
+      if (!current.marks.some((mark) => mark.stage === "result_committed")) return;
+      journal("first_page", "enter", "pending");
+      const results = byTestId("workspace-section-results");
+      if (text("result-query-refused", results ?? document)) {
+        page.first_page_refused = true;
+        journal("first_page", "exit", "error");
+        return;
+      }
+      const panel = byTestId("results-panel", results ?? document);
+      if (panel && panel.getAttribute("data-result-custody") === "native" && !byTestId("result-page-reading", panel) && rowIds(panel).length > 0) {
+        page.first_page_seen_at_ms = now();
+        journal("first_page", "exit", "ok");
+        journal("paint_frames", "enter", "pending");
+      }
+    };
+    journalOn = Boolean(plan.c1_probes && plan.c1_reader_diagnostics);
     try {
       if (plan.c1_probes) {
         // Analyze > Run shows Solve; the result is seen in Results (the native table's first
@@ -152,8 +255,10 @@
         // Bounded by the gate's remainder as well as `open_ms`: when the remainder is the
         // smaller, running out of it is the gate's timeout, not a failure to open Results.
         const openMs = Math.min(plan.timeouts.open_ms, remaining());
-        try { await showSection("results", openMs); }
+        journal("results_open", "enter", "pending");
+        try { await showSection("results", openMs); journal("results_open", "exit", "ok"); }
         catch (error) {
+          journal("results_open", "exit", "error");
           if (error?.timeout && openMs < plan.timeouts.open_ms) throw error;
           throw new Error(`C1 results did not open: ${error?.message ?? error}`);
         }
@@ -165,10 +270,12 @@
           if (stage !== lastStage || now() - heartbeat > 5000) {
             lastStage = stage;
             heartbeat = now();
-            void progress("solve", { stage, outcome: current.outcome, elapsed_ms: elapsed(started) });
+            if (plan.c1_probes) probeFrame();
+            void progress("solve", { stage, outcome: current.outcome, elapsed_ms: elapsed(started), ...(plan.c1_probes ? { visibility: visibility(), frame_probes: page.frame_probes, frame_acks: page.frame_acks, first_page: page.first_page_seen_at_ms !== null } : {}) });
           }
+          observePage(current);
           const paint = paintMark();
-          if (paint) return timely(paint) ? "first_paint" : "timeout";
+          if (paint) { journal("paint_frames", "exit", "ok"); return timely(paint) ? "first_paint" : "timeout"; }
           if (TERMINAL.has(current.outcome) || current.outcome === "superseded") return current.outcome;
           // A refused first page never paints: it ends the wait rather than run out the gate.
           if (plan.c1_probes && text("result-query-refused", byTestId("workspace-section-results") ?? document)) return "results_refused";
@@ -182,12 +289,15 @@
       if (timely(paintMark())) ended = "first_paint";
     }
     const paint = paintMark();
+    page.visibility_at_end = visibility();
     report.solve = {
       ended, elapsed_ms: elapsed(started),
       // The gate as the driver applied it, on the timeline's clock (`performance.now()`).
       gate: { paint_ms: paintMs, started_at_ms: started, deadline_at_ms: deadline, first_paint_at_ms: paint?.at_ms ?? null, first_paint_timely: paint ? timely(paint) : null },
-      shown: solveShown(), timeline: timeline()
+      shown: solveShown(), timeline: timeline(),
+      ...(plan.c1_probes ? { page } : {})
     };
+    await journalFlushed();
     await progress("solved", { ended, elapsed_ms: report.solve.elapsed_ms });
   }
 
@@ -265,23 +375,82 @@
 
   // C1-only observation: command names, bounded headers and small receipts.
   // Never retain a result body, record, row page or CSV chunk in this trace.
+  // Tauri defines `__TAURI_INTERNALS__.invoke` (and `ipc`, `postMessage`) with
+  // Object.defineProperty, so they are not writable: assigning a wrapper there
+  // changes nothing (A+B diagnosis: every earlier trace observed no command).
+  // Every invoke of this webview is one `fetch` of `ipc://localhost/<command>`
+  // (tauri `ipc-protocol.js`), so the observation wraps `window.fetch` and
+  // passes every other request through untouched. A command's reply is read
+  // from a clone only where a receipt or a row header is needed; a refusal is
+  // answered as Tauri answers one (`Tauri-Response: error`), so the App's
+  // promise rejects and no transport fallback is taken.
   function beginC1Trace() {
-    const original = ipc.invoke;
+    const IPC_PREFIX = "ipc://localhost/";
+    const originalFetch = window.fetch;
     const data = { counts: {}, errors: [], violations: [], refusals: [], refusals_omitted: 0, disposed: {}, csv: null, open: null, recordedRead: null, record: null, save: null, restoredSave: null };
     const forbidden = new Set(["take_preview_mechanics_job_result", "read_preview_mechanics_job_rows_all", "read_restored_result_record_all", "open_local_project", "read_analysis_run", "record_analysis_run", "save_local_project", "create_local_project", "save_local_result_json", "configure_memory_pool"]);
-    function request(args) {
-      if (ArrayBuffer.isView(args)) {
-        if (args.byteLength > 4096) throw new Error("probe request metadata exceeds 4 KiB");
-        return JSON.parse(new TextDecoder().decode(args));
-      }
-      return args;
+    const RECEIPTS = new Set(["finish_local_csv_stream", "record_preview_mechanics_job_analysis_run", "save_preview_mechanics_job_local_project", "open_local_project_in_native_custody", "read_analysis_run_in_native_custody", "save_restored_result_local_project", "dispose_preview_mechanics_result"]);
+    const RECEIPT_LIMIT = 4 << 20;
+    function commandOf(input) {
+      const url = typeof input === "string" ? input : input && typeof input.url === "string" ? input.url : null;
+      if (url === null || !url.startsWith(IPC_PREFIX)) return null;
+      try { return decodeURIComponent(url.slice(IPC_PREFIX.length).split(/[?#]/u)[0]); } catch { return null; }
     }
-    function header(value) {
-      const bytes = ArrayBuffer.isView(value) ? new Uint8Array(value.buffer, value.byteOffset, value.byteLength) : new Uint8Array(value);
+    function request(body) {
+      if (typeof body === "string") {
+        if (body.length > 4096) throw new Error("probe request metadata exceeds 4 KiB");
+        return JSON.parse(body);
+      }
+      if (body instanceof ArrayBuffer || ArrayBuffer.isView(body)) {
+        if (body.byteLength > 4096) throw new Error("probe request metadata exceeds 4 KiB");
+        const bytes = ArrayBuffer.isView(body) ? new Uint8Array(body.buffer, body.byteOffset, body.byteLength) : new Uint8Array(body);
+        return JSON.parse(new TextDecoder().decode(bytes));
+      }
+      return null;
+    }
+    function header(bytes) {
       if (bytes.length < 16 || String.fromCharCode(...bytes.subarray(0, 8)) !== "SWBDETv1") throw new Error("probe rows have no native header");
       const length = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getBigUint64(8, true);
       if (length > 65536n || length > BigInt(bytes.length - 16)) throw new Error("probe native header is not bounded");
       return JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes.subarray(16, 16 + Number(length))));
+    }
+    // At most the header's bytes of a row reply: read from a clone, which is then cancelled.
+    async function headerOf(response) {
+      const limit = 16 + 65536;
+      const reader = response.body.getReader();
+      const chunks = [];
+      let have = 0, need = 16;
+      try {
+        while (have < need && have < limit) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+          have += value.byteLength;
+          if (need === 16 && have >= 16) {
+            const first = concat(chunks, 16);
+            need = Math.min(limit, 16 + Number(new DataView(first.buffer, first.byteOffset, 16).getBigUint64(8, true)));
+          }
+        }
+      } finally { reader.cancel().catch(() => {}); }
+      return header(concat(chunks, Math.min(have, limit)));
+    }
+    function concat(chunks, length) {
+      const out = new Uint8Array(length);
+      let at = 0;
+      for (const chunk of chunks) {
+        if (at >= length) break;
+        const part = chunk.subarray(0, length - at);
+        out.set(part, at);
+        at += part.byteLength;
+      }
+      return out;
+    }
+    // A receipt as the App reads it: a JSON reply, or a raw `tauri::ipc::Response` body of JSON bytes.
+    async function receipt(response) {
+      if ((response.headers.get("content-type") ?? "").split(",")[0] === "application/json") return response.json();
+      const bytes = new Uint8Array(await response.arrayBuffer());
+      if (bytes.byteLength > RECEIPT_LIMIT) throw new Error("probe receipt exceeds its bound");
+      return JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
     }
     function restored(value) {
       return value ? { handle: value.handle, origin: value.origin, state: value.state,
@@ -291,44 +460,57 @@
     }
     const savedResult = value => ({ outcome: value?.outcome, code: value?.code, run_id: value?.run_id,
       result_bytes: value?.result_bytes, record_bytes: value?.record_bytes });
-    const wrapped = async (command, args, options) => {
+    function refusedReply(message) {
+      return new Response(JSON.stringify(message), { status: 200, headers: { "Content-Type": "application/json", "Tauri-Response": "error" } });
+    }
+    async function observe(command, body, response, csv) {
+      if (response.headers.get("Tauri-Response") !== "ok") {
+        const message = (await response.clone().text()).slice(0, 2048);
+        if (data.refusals.length < 16) data.refusals.push({ command, message: message.slice(0, 512), truncated: message.length > 512 });
+        else data.refusals_omitted++;
+        return;
+      }
+      if (csv && command === "query_preview_mechanics_job_rows") {
+        const sent = request(body);
+        if (sent?.filter?.family === csv.family) {
+          const read = await headerOf(response.clone());
+          if (!Number.isSafeInteger(read.total) || read.total < 1) throw new Error("CSV query has no positive total");
+          if (csv.expected_rows !== null && csv.expected_rows !== read.total) throw new Error("CSV query total changed");
+          csv.expected_rows = read.total;
+          csv.pages++;
+        }
+      }
+      if (!RECEIPTS.has(command)) return;
+      const value = await receipt(response.clone());
+      if (command === "finish_local_csv_stream" && csv) csv.receipt = { file_name: value.file_name, byte_count: value.byte_count };
+      if (command === "record_preview_mechanics_job_analysis_run") data.record = { message: typeof value.message === "string" ? value.message.slice(0, 512) : null, state_outcome: value.state_outcome, run: { recording_id: value.run?.recording_id, run_name: value.run?.run_name, producer_run_id: value.run?.producer_run_id, project_id: value.run?.project_id } };
+      if (command === "save_preview_mechanics_job_local_project") data.save = { result: savedResult(value.result), envelope_hash: value.project_envelope_hash?.value };
+      if (command === "open_local_project_in_native_custody") data.open = { ...restored(value.stored_run), envelope_hash: value.project_envelope_hash?.value };
+      if (command === "read_analysis_run_in_native_custody") data.recordedRead = restored(value.restored);
+      if (command === "save_restored_result_local_project") data.restoredSave = { ...restored(value.restored), kept: value.restored?.envelope_basis_kept, result: savedResult(value.result), envelope_hash: value.project_envelope_hash?.value };
+      if (command === "dispose_preview_mechanics_result" && value?.released) data.disposed[value.job_id] = (data.disposed[value.job_id] ?? 0) + 1;
+    }
+    const wrapped = async function (input, init) {
+      const command = commandOf(input);
+      if (command === null) return originalFetch.call(window, input, init);
       data.counts[command] = (data.counts[command] ?? 0) + 1;
       if (forbidden.has(command)) {
         if (data.violations.length < 16) data.violations.push(command);
-        throw new Error(`C1 probe refused unexpected whole-value/budget command: ${command}`);
+        return refusedReply(`C1 probe refused unexpected whole-value/budget command: ${command}`);
       }
       const csv = data.csv; // pin the send phase, including a delayed reply
-      let value;
-      try { value = await original.call(ipc, command, args, options); }
-      catch (error) {
-        const message = String(error?.message ?? error?.code ?? error);
-        if (data.refusals.length < 16) data.refusals.push({ command, message: message.slice(0, 512), truncated: message.length > 512 });
-        else data.refusals_omitted++;
-        throw error;
-      }
-      try {
-        if (csv && command === "query_preview_mechanics_job_rows") {
-          const sent = request(args);
-          if (sent?.filter?.family === csv.family) {
-            const read = header(value);
-            if (!Number.isSafeInteger(read.total) || read.total < 1) throw new Error("CSV query has no positive total");
-            if (csv.expected_rows !== null && csv.expected_rows !== read.total) throw new Error("CSV query total changed");
-            csv.expected_rows = read.total;
-            csv.pages++;
-          }
-        }
-        if (command === "finish_local_csv_stream" && csv) csv.receipt = { file_name: value.file_name, byte_count: value.byte_count };
-        if (command === "record_preview_mechanics_job_analysis_run") data.record = { message: typeof value.message === "string" ? value.message.slice(0, 512) : null, state_outcome: value.state_outcome, run: { recording_id: value.run?.recording_id, run_name: value.run?.run_name, producer_run_id: value.run?.producer_run_id, project_id: value.run?.project_id } };
-        if (command === "save_preview_mechanics_job_local_project") data.save = { result: savedResult(value.result), envelope_hash: value.project_envelope_hash?.value };
-        if (command === "open_local_project_in_native_custody") data.open = { ...restored(value.stored_run), envelope_hash: value.project_envelope_hash?.value };
-        if (command === "read_analysis_run_in_native_custody") data.recordedRead = restored(value.restored);
-        if (command === "save_restored_result_local_project") data.restoredSave = { ...restored(value.restored), kept: value.restored?.envelope_basis_kept, result: savedResult(value.result), envelope_hash: value.project_envelope_hash?.value };
-        if (command === "dispose_preview_mechanics_result" && value?.released) data.disposed[value.job_id] = (data.disposed[value.job_id] ?? 0) + 1;
-      } catch (error) { if (data.errors.length < 16) data.errors.push(String(error.message)); }
-      return value;
+      const response = await originalFetch.call(window, input, init);
+      try { await observe(command, init?.body, response, csv); }
+      catch (error) { if (data.errors.length < 16) data.errors.push(String(error?.message ?? error)); }
+      return response;
     };
-    ipc.invoke = wrapped;
-    return { data, restore: () => { if (ipc.invoke === wrapped) ipc.invoke = original; } };
+    window.fetch = wrapped;
+    return { data, restore: () => { if (window.fetch === wrapped) window.fetch = originalFetch; } };
+  }
+  // The observation must see the App's IPC before a solve can depend on it: the preflight's
+  // pool status read is one fetch of `ipc://localhost/get_memory_pool_status`.
+  function requireObservedIpc(trace) {
+    if (!(trace.data.counts.get_memory_pool_status >= 1)) throw new Error("C1 command observation saw no IPC (the preflight's pool status read was not observed); no solve is started");
   }
 
   const poolCell = (value) => ({ retained_results: value.retained_results, running_workers: value.running_workers,
@@ -416,7 +598,9 @@
       const panel = byTestId("results-panel", byTestId("workspace-section-results"));
       return panel && settled(panel) && rowIds(panel).length ? panel : null;
     }, plan.timeouts.interaction_ms);
-    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    // Two frames, bounded: on a page that is not shown none come (see `frames`).
+    const shownFrames = await frames(plan.timeouts.interaction_ms);
+    if (shownFrames.frames < 2) throw new Error(`C1 results table frames did not arrive (visibilityState=${shownFrames.visibility}, ${shownFrames.frames}/2 within ${plan.timeouts.interaction_ms} ms)`);
     target.table_ready_at_ms = now();
     target.table_ready_elapsed_ms = elapsed(tableStart);
     target.table_ready_method = "settled native rows and two animation frames, observed by the driver after first_paint (Results opened during the solve)";
@@ -545,7 +729,7 @@
   // Under the driver's node test only: hand over the helpers instead of running.
   const testHooks = globalThis.__SWBPIPE_PERF_DRIVER_TEST__;
   if (testHooks) {
-    Object.assign(testHooks, { waitFor, waitUntil, solve, recordRun, saveProject, beginC1Trace, preflight, probeResults, probePersistence, cancelIfRunning, startPoolMonitor, profileReaders });
+    Object.assign(testHooks, { waitFor, waitUntil, solve, recordRun, saveProject, beginC1Trace, requireObservedIpc, requireShownPage, frames, preflight, probeResults, probePersistence, cancelIfRunning, startPoolMonitor, profileReaders });
     return;
   }
 
@@ -567,9 +751,12 @@
         report.c1 = { completed: false };
         trace = beginC1Trace();
         await preflight(report.c1);
+        requireObservedIpc(trace);
+        report.c1.page = { at_start: await requireShownPage("before opening the model") };
         stopMonitor = startPoolMonitor(report.c1);
       }
       await openModel(plan, report);
+      if (plan.c1_probes) report.c1.page.before_run = await requireShownPage("before Analyze > Run");
       await solve(plan, report);
       if (plan.c1_probes) {
         if (report.solve.ended !== "first_paint") throw new Error(`C1 solve did not paint: ${report.solve.shown.error ?? report.solve.shown.refusal ?? report.solve.shown.results_refusal ?? report.solve.ended}`);
@@ -594,6 +781,7 @@
     }
     finally {
       stopMonitor?.();
+      await journalFlushed();
       delete globalThis.__SWBPIPE_NATIVE_SMOKE_READER_PHASE__;
       if (trace) { trace.restore(); report.c1.trace = trace.data; }
     }

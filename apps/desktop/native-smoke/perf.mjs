@@ -409,7 +409,9 @@ export function validatePlan(plan) {
     ids.add(run.id);
     if (!MODES.has(run.mode)) throw new Error(`perf plan: run ${run.id} has mode ${JSON.stringify(run.mode)}`);
     if (plan.c1_probes && run.mode !== "native") throw new Error("perf plan: C1 usability probes require a native solve");
-    if (plan.c1_probes && (![500, 1000].includes(run.nodes) || !/^[a-f0-9]{64}$/.test(run.model_sha256))) throw new Error("perf plan: C1 needs a bound 500/1000-node fixture; no size escalation");
+    // The 82-node rack is the smallest maintained one (perf-plan.json's functional subset): the
+    // small connected C1 validation before any further 500-node attempt (perf-plan-c1-small.json).
+    if (plan.c1_probes && (![82, 500, 1000].includes(run.nodes) || !/^[a-f0-9]{64}$/.test(run.model_sha256))) throw new Error("perf plan: C1 needs a bound 82/500/1000-node fixture; no size escalation");
     planName(run.model, `run ${run.id}'s model`);
     if (run.mode === "injected") planName(run.result, `run ${run.id}'s result`);
     else if (run.result !== undefined) throw new Error(`perf plan: native run ${run.id} names a result`);
@@ -732,6 +734,13 @@ export function createReaderPhaseEvidence(file) {
   // `run_preview`: the fresh solve's awaited native analysis-run preview (web layer only).
   const web = new Set(["header", "registration", "standing", "summary", "run_preview"]);
   const native = new Set(["args_admit", "source_prescan", "source_admit", "inputs_admit", "source_parse", "inputs_parse", "validate", "serialize", "source_drop", "summary_health", "summary_build"]);
+  // The driver's observations of the page (perf-driver.js `journal`): Results opened, the native
+  // table's first page seen settled with rows, its two frames up to the first_paint mark, the page
+  // not shown, and an animation frame not delivered. Recorded and matched like the awaits above,
+  // and listed when an exit is missing, but not required: the reader evidence is complete
+  // without them (a page that is never hidden has no `page_hidden` entry at all).
+  const observed = new Set(["results_open", "first_page", "paint_frames", "page_hidden", "frame_wait"]);
+  const required = event => event.layer === "native" || web.has(event.phase);
   const write = value => {
     const bytes = Buffer.from(`${JSON.stringify(value)}\n`);
     let offset = 0;
@@ -746,7 +755,7 @@ export function createReaderPhaseEvidence(file) {
     const covered = layer => new Set(events.filter(event => event.layer === layer && event.edge === "exit" && event.status === "ok").map(event => event.phase));
     const webCovered = covered("web"), nativeCovered = covered("native");
     return { events: events.slice(), incomplete: [...active.values()], overflow,
-      evidence_complete: !overflow && active.size === 0 && [...web].every(phase => webCovered.has(phase)) && [...native].every(phase => nativeCovered.has(phase)) && !events.some(event => event.edge === "exit" && event.status !== "ok") };
+      evidence_complete: !overflow && ![...active.values()].some(required) && [...web].every(phase => webCovered.has(phase)) && [...native].every(phase => nativeCovered.has(phase)) && !events.some(event => required(event) && event.edge === "exit" && event.status !== "ok") };
   };
   return {
     accept(value) {
@@ -757,7 +766,7 @@ export function createReaderPhaseEvidence(file) {
       }
       const allowed = ["layer", "call", "phase", "edge", "status", "mono_ms", "bytes"];
       const fields = value && Object.keys(value);
-      if (!fields || fields.some(key => !allowed.includes(key)) || !["web", "native"].includes(value.layer) || !(value.layer === "web" ? web : native).has(value.phase) || !Number.isInteger(value.call) || value.call < 1 || value.call > 32 || !Number.isFinite(value.mono_ms) || value.mono_ms < 0 || !["enter", "exit"].includes(value.edge) || !(value.edge === "enter" ? value.status === "pending" : ["ok", "error", "incomplete"].includes(value.status)) || (value.bytes !== undefined && (!Number.isSafeInteger(value.bytes) || value.bytes < 0))) throw new Error("C1 reader phase event is malformed");
+      if (!fields || fields.some(key => !allowed.includes(key)) || !["web", "native"].includes(value.layer) || !(value.layer === "web" ? web.has(value.phase) || observed.has(value.phase) : native.has(value.phase)) || !Number.isInteger(value.call) || value.call < 1 || value.call > 32 || !Number.isFinite(value.mono_ms) || value.mono_ms < 0 || !["enter", "exit"].includes(value.edge) || !(value.edge === "enter" ? value.status === "pending" : ["ok", "error", "incomplete"].includes(value.status)) || (value.bytes !== undefined && (!Number.isSafeInteger(value.bytes) || value.bytes < 0))) throw new Error("C1 reader phase event is malformed");
       if (events.length >= 256) {
         if (!overflow) write({ overflow: true });
         overflow = true; return;
