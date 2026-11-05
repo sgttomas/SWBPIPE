@@ -33,8 +33,11 @@ open_pipe_stress_rule_check_runner = { path = "../../../core/rules/rule_check_ru
 open_pipe_stress_units = { path = "../../../core/units" }
 # `limits` (no new package): the native Record Run and Save Project read the
 # writing connection's `SQLITE_LIMIT_LENGTH` before they build or write a
-# result (DEL-04-05 `c1-native-custody-plan.md` slice 5).
-rusqlite = { version = "0.32", features = ["bundled", "limits"] }
+# result (DEL-04-05 `c1-native-custody-plan.md` slice 5). `blob` (no new
+# package): Record Run's readback streams the stored record's bytes into
+# SHA-256 through SQLite's incremental blob reader instead of loading them
+# (RT-U4, the same slice).
+rusqlite = { version = "0.32", features = ["bundled", "limits", "blob"] }
 sha2 = "0.10"
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1", features = ["float_roundtrip", "raw_value"] }

@@ -4387,3 +4387,95 @@ fn collect_records(value: &Value, into: &mut Vec<Value>) {
         _ => {}
     }
 }
+
+/// RT-U4 P2: the staged record's streamed pass gives exactly what the
+/// readback gets from its parse: the projection hash
+/// (`run_record_hash_within` of `serde_json::from_str` of the text) and, at
+/// every pointer the readback's checks and summary read, the same member; a
+/// text the pass cannot stream as the parse reads it is left to the full
+/// readback (`None`).
+#[test]
+fn p2_the_staged_records_streamed_pass_is_the_readbacks_parse() {
+    let memory = stored_read::UnmeteredReadMemory;
+    const READ: [&str; 11] = [
+        "/schema_version",
+        "/analysis_run/run_id",
+        "/analysis_run/created_at",
+        "/analysis_run/model_state_ref",
+        "/analysis_run/unit_system_ref",
+        "/analysis_run/settings_ref",
+        "/analysis_run/hashes",
+        "/analysis_run/analysis_status",
+        "/analysis_run/reproducibility/input_manifest_refs",
+        "/analysis_run/reproducibility/input_manifest_hashes",
+        "/analysis_run/unit_system_ref/ref",
+    ];
+    let mut records: Vec<(String, Value)> = crate::native_persistence::tests::cases().into_iter().map(|case| (case.id.clone(), case.record)).collect();
+    for (name, text) in [("witness", WITNESS), ("witness rule packs", WITNESS_RULE_PACKS), ("s2 unresolved", S2_UNRESOLVED_RUN)] {
+        let mut found = Vec::new();
+        collect_records(&serde_json::from_str(text).unwrap(), &mut found);
+        records.extend(found.into_iter().map(|record| (name.to_string(), record)));
+    }
+    let streamed = |what: &str, text: &str| -> Option<(Value, String)> {
+        let outcome = stream_staged_record(text);
+        if let Some((skeleton, recomputed)) = &outcome {
+            let parsed: Value = serde_json::from_str(text).unwrap();
+            assert_eq!(recomputed, &run_record_hash_within(&parsed, &memory, "a record").unwrap(), "{what}: the projection hash");
+            for pointer in READ {
+                assert_eq!(skeleton.pointer(pointer), parsed.pointer(pointer), "{what}: {pointer}");
+            }
+            assert_eq!(skeleton.get("analysis_run").map(Value::is_object), parsed.get("analysis_run").map(Value::is_object), "{what}");
+        }
+        outcome
+    };
+    for (what, record) in &records {
+        // The store's text of the record (serde_json's), as Record Run and the
+        // submitted path write it.
+        let text = serde_json::to_string(record).unwrap();
+        assert!(streamed(what, &text).is_some(), "{what}: streamed");
+        // Insignificant whitespace is read as the parse reads it.
+        let spaced = text.replacen("{", "{ \n", 1).replace("\":", "\" :");
+        assert!(streamed(what, &spaced).is_some(), "{what}: spaced");
+        // Escapes the store does not write decode to the same members.
+        let escaped = text.replacen("\"analysis_run\"", "\"analysis\\u005frun\"", 1);
+        assert!(streamed(what, &escaped).is_some(), "{what}: escaped");
+    }
+    let base = serde_json::to_string(&records[0].1).unwrap();
+    let base_value: Value = serde_json::from_str(&base).unwrap();
+    let swapped = {
+        // The record's members in reverse order (not UTF-16 order).
+        let map = base_value.as_object().unwrap();
+        let members: Vec<String> = map.iter().rev().map(|(key, value)| format!("{}:{}", serde_json::to_string(key).unwrap(), serde_json::to_string(value).unwrap())).collect();
+        format!("{{{}}}", members.join(","))
+    };
+    let own = base_value["analysis_run"]["hashes"].as_array().unwrap().iter().find(|hash| is_own_checksum(hash)).unwrap().clone();
+    let with = |change: &dyn Fn(&mut Value)| {
+        let mut value = base_value.clone();
+        change(&mut value);
+        serde_json::to_string(&value).unwrap()
+    };
+    let mut deep = String::from("1");
+    for _ in 0..130 {
+        deep = format!("[{deep}]");
+    }
+    let left: Vec<(&str, String)> = vec![
+        ("members out of order", swapped),
+        ("a repeated key", base.replacen("{", "{\"schema_version\":\"0.3.0\",", 1)),
+        ("a supplementary key before a U+E000 key", with(&|record| record["invented"] = json!({ "\u{e000}": 1, "\u{10000}": 2 }))),
+        ("an unsafe integer", with(&|record| record["invented"] = json!(9_007_199_254_740_993u64))),
+        ("an unsafe integer in a kept member", with(&|record| record["analysis_run"]["settings_ref"]["invented"] = json!(9_007_199_254_740_993u64))),
+        ("nesting 131 deep", base.replacen("{", &format!("{{\"a\":{deep},"), 1)),
+        ("the RawValue token as a key", with(&|record| record["invented"] = json!({ RAW_VALUE_TOKEN: "1" }))),
+        ("analysis_run an array", with(&|record| record["analysis_run"] = json!([]))),
+        ("reproducibility a string", with(&|record| record["analysis_run"]["reproducibility"] = json!("x"))),
+        ("no hashes", with(&|record| { record["analysis_run"].as_object_mut().unwrap().remove("hashes"); })),
+        ("hashes an object", with(&|record| record["analysis_run"]["hashes"] = json!({}))),
+        ("a repeated own checksum", with(&|record| record["analysis_run"]["hashes"].as_array_mut().unwrap().push(own.clone()))),
+        ("the record an array", format!("[{base}]")),
+        ("trailing characters", format!("{base}x")),
+        ("not JSON", base[..base.len() - 1].to_string()),
+    ];
+    for (what, text) in &left {
+        assert!(streamed(what, text).is_none(), "{what}: left to the full readback");
+    }
+}

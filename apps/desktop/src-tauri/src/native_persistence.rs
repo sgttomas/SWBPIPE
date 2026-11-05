@@ -83,11 +83,29 @@
 //!     text from the held text. The two texts and SQLite's copies of the row
 //!     end as soon as the run row is inserted
 //!     (`analysis_runs::write_native_run`), before its labels and the
-//!     readback. The readback frees the loaded record once it is parsed and
-//!     hashes the record's projection streamed from the parse, with no clone,
-//!     serialized text or checked parse (`analysis_runs::run_record_hash_within`,
-//!     which keeps the checked path, and its refusals, for any record it
-//!     could refuse or read differently).
+//!     readback.
+//!   - Every reader's readback of a recorded run (lists, reads, reopen)
+//!     frees the loaded record once it is parsed and hashes the record's
+//!     projection streamed from the parse, with no clone, serialized text or
+//!     checked parse (`analysis_runs::run_record_hash_within`, which keeps the
+//!     checked path, and its refusals, for any record it could refuse or read
+//!     differently).
+//!   - Record Run's own readback is byte fidelity (P2): before anything is
+//!     written, the readback's checks are applied to the staged record text
+//!     with the columns about to be written, from one streamed pass that
+//!     builds no record tree (the prescan, the projection hash, the identity
+//!     columns, the status; their refusals and order the readback's); after
+//!     the INSERT, in the same transaction, the stored record must be exactly
+//!     the staged bytes (text, its length and its SHA-256 streamed through
+//!     SQLite's blob reader) and the row's identity, time, hash and label
+//!     columns are read and checked as before against the staged record's
+//!     members. That digest of the text is not the record's
+//!     `analysis_run_record` hash and is never stored. A staged text the pass
+//!     cannot read as the parse would (another key order, a repeated key, a
+//!     number outside the profile, deep nesting) gets the full readback, and
+//!     stored bytes that are not the staged text get the full readback's
+//!     refusal or are refused as not the record written; either rolls back
+//!     every row.
 //!   - Save Project (and a restored run's re-save, `stored_save`) writes the
 //!     project row with SQLite's copies of it leased, ends the result's text,
 //!     builds the search text from its slots (byte for byte

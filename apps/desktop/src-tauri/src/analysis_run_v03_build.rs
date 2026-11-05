@@ -93,7 +93,11 @@
 //!   bound before it is allocated; a record over the bound is refused by name
 //!   ([`RECORD_TOO_LARGE`]) with nothing allocated, and is never truncated.
 //!   Record Run's recorded revision is sealed and counted in one traversal
-//!   ([`Revision::sealed_and_counted`]), then written. Every pass reads the
+//!   ([`Revision::sealed_and_counted`]), then written; the tree and its
+//!   leases end right after (RT-U4: the received result's text is written
+//!   from the held text once they have), and the store checks the written
+//!   revision's text, not the tree, before and after its INSERT
+//!   (`analysis_runs::write_native_run`). Every pass reads the
 //!   borrowed tree and keeps nothing per row beyond the leased fingerprints;
 //!   no row is skipped and every all-row check still reads every row. The
 //!   preview header exists whatever the record's size.

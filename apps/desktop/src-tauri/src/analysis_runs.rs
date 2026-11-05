@@ -32,6 +32,14 @@
 //! `analysis_run.v0.3` has no assumption slot, so run-level assumptions are
 //! shown with the run and are not in the record.
 //!
+//! Every read of a recorded run verifies its stored record from the record's
+//! parse (`verified_run_record`): the loaded text ends once it is parsed and
+//! the record hash is streamed from the parse (RT-U4). The native Record Run's
+//! readback of the row it just wrote is byte fidelity instead
+//! (`write_native_run`, `find_written_run`): the same checks, applied before
+//! the INSERT to the staged text, and after it the stored bytes checked to be
+//! exactly that text.
+//!
 //! Record Run never touches the project row (its current-run slot), so the
 //! project envelope hash is unchanged. Nothing here approves, accepts,
 //! certifies or issues anything (F-PIP-2, F-PIP-3).
@@ -1234,12 +1242,23 @@ fn verified_run_record(columns: &RunColumns<'_>, record: Value, memory: &dyn Rea
     let recomputed = run_record_hash_within(&record, memory, &format!("recorded run `{}`'s record hash", stored_read::shown(id))).map_err(|error| {
         if error.starts_with(stored_read::STORE_READ_MEMORY_UNAVAILABLE) { error } else { integrity_of(id, error) }
     })?;
+    check_record_columns(columns, &record, &recomputed)?;
+    Ok(record)
+}
+
+/// [`verified_run_record`]'s identity checks of the row's columns against
+/// the record (its members read through the same pointers) and the record's
+/// recomputed hash, in their order: the first difference is
+/// `ANALYSIS-RUN-INTEGRITY`, naming the run and the column. Record Run's
+/// byte-fidelity readback ([`find_written_run`]) applies them to the members
+/// of the record it staged and verified before writing.
+fn check_record_columns(columns: &RunColumns<'_>, record: &Value, recomputed: &str) -> Result<(), String> {
     let null = Value::Null;
     let run = record.get("analysis_run").unwrap_or(&null);
     let text = |pointer: &str| run.pointer(pointer).and_then(Value::as_str);
-    let claim = single_hash(&record, "analysis_run_record");
-    let received = single_hash(&record, "received_result");
-    let manifest_hash = single_manifest_hash(&record)
+    let claim = single_hash(record, "analysis_run_record");
+    let received = single_hash(record, "received_result");
+    let manifest_hash = single_manifest_hash(record)
         .and_then(|hash| hash.get("value"))
         .and_then(Value::as_str)
         .unwrap_or("");
@@ -1248,9 +1267,9 @@ fn verified_run_record(columns: &RunColumns<'_>, record: Value, memory: &dyn Rea
         (
             "record hash",
             recomputed == columns.run_record_hash
-                && claim.and_then(|hash| hash.get("value")).and_then(Value::as_str) == Some(recomputed.as_str()),
+                && claim.and_then(|hash| hash.get("value")).and_then(Value::as_str) == Some(recomputed),
         ),
-        ("recording id", columns.recording_id == recording_id_of(&recomputed)),
+        ("recording id", columns.recording_id == recording_id_of(recomputed)),
         (
             "state id",
             run.get("model_state_ref") == Some(&reference("ModelState", columns.state_id)),
@@ -1275,14 +1294,321 @@ fn verified_run_record(columns: &RunColumns<'_>, record: Value, memory: &dyn Rea
         // project and hash give.
         (
             "checksum inventory",
-            run.get("hashes") == Some(&expected_hashes(run_id, &recomputed, columns.result_hash))
-                && first_difference(&record, &manifest_hash_members(columns.project_id, manifest_hash)).is_none(),
+            run.get("hashes") == Some(&expected_hashes(run_id, recomputed, columns.result_hash))
+                && first_difference(record, &manifest_hash_members(columns.project_id, manifest_hash)).is_none(),
         ),
     ];
     if let Some((name, _)) = checks.iter().find(|(_, holds)| !holds) {
-        return Err(integrity_of(id, format_args!("the row's {name} differs from its verified record")));
+        return Err(integrity_of(columns.recording_id, format_args!("the row's {name} differs from its verified record")));
     }
-    Ok(record)
+    Ok(())
+}
+
+/// Record Run's staged record, established before its INSERT for the
+/// byte-fidelity readback (RT-U4 P2, [`find_written_run`]): the members the
+/// readback's checks read (`skeleton`: the record's `schema_version` and its
+/// `analysis_run`'s `run_id`, `created_at`, `model_state_ref`,
+/// `unit_system_ref`, `settings_ref`, `hashes`, `analysis_status` and
+/// `reproducibility.input_manifest_refs`/`input_manifest_hashes`, each as the
+/// parse of the text gives it), its recomputed `analysis_run_record` hash
+/// (as [`run_record_hash_within`] computes it over that parse), and the
+/// text's own SHA-256 and length, which are no checksum of the record: they
+/// are compared with the stored bytes inside the same transaction and are
+/// never stored.
+pub(crate) struct WrittenRecord {
+    skeleton: Value,
+    recomputed: String,
+    sha256: [u8; 32],
+    length: u64,
+}
+
+/// Record Run's staged record (RT-U4 P2), before its INSERT: the checks the
+/// readback applies to the stored record, applied to the staged text with
+/// the columns about to be written, in the readback's order and with its
+/// refusals (the prescan, the record hash and the identity columns, the
+/// status), from one streamed pass that builds no record tree
+/// ([`stream_staged_record`]). `None` when the pass leaves the text to the
+/// full readback (a text whose parse could differ from the stream's, or that
+/// a check refuses: the readback then refuses it with the text it always
+/// gave, after the INSERT, rolling everything back).
+fn staged_record(columns: &RunColumns<'_>, record_json: &str) -> Result<Option<WrittenRecord>, String> {
+    if stored_read::parse_bytes(record_json).is_err() {
+        return Ok(None);
+    }
+    let Some((skeleton, recomputed)) = stream_staged_record(record_json) else { return Ok(None) };
+    check_record_columns(columns, &skeleton, &recomputed)?;
+    let status = stored_read::bounded_status(skeleton.pointer("/analysis_run/analysis_status")).map_err(|detail| integrity_of(columns.recording_id, detail))?;
+    serde_json::from_value::<Vec<String>>(status)
+        .map_err(|error| integrity_of(columns.recording_id, format_args!("its analysis status is malformed ({error})", error = stored_read::json_error(&error))))?;
+    let sha256 = <[u8; 32]>::from(<sha2::Sha256 as sha2::Digest>::digest(record_json.as_bytes()));
+    Ok(Some(WrittenRecord { skeleton, recomputed, sha256, length: record_json.len() as u64 }))
+}
+
+/// Whether the stored record of the run is exactly `written`'s text: its
+/// storage class is text and its length and SHA-256 (streamed through
+/// SQLite's incremental blob reader, never loaded whole) are the staged
+/// text's. `Err(length)`: it is not; the stored length.
+fn stored_record_is(connection: &Connection, project_id: &str, recording_id: &str, written: &WrittenRecord) -> Result<Result<(), u64>, String> {
+    use std::io::Read;
+    let (rowid, kind, length): (i64, String, i64) = connection
+        .query_row(
+            "SELECT rowid, typeof(run_record_json), octet_length(run_record_json) FROM analysis_runs WHERE project_id = ?1 AND recording_id = ?2",
+            params![project_id, recording_id],
+            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+        )
+        .map_err(sql)?;
+    let length = u64::try_from(length).unwrap_or(0);
+    if kind != "text" || length != written.length {
+        return Ok(Err(length));
+    }
+    let mut blob = connection.blob_open(rusqlite::DatabaseName::Main, "analysis_runs", "run_record_json", rowid, true).map_err(sql)?;
+    let mut hasher = <sha2::Sha256 as sha2::Digest>::new();
+    let mut chunk = [0u8; 16 * 1024];
+    let mut read = 0u64;
+    loop {
+        let count = blob.read(&mut chunk).map_err(|error| format!("STORE-SQL-ERROR: {error}"))?;
+        if count == 0 {
+            break;
+        }
+        sha2::Digest::update(&mut hasher, &chunk[..count]);
+        read += count as u64;
+    }
+    let digest = <[u8; 32]>::from(sha2::Digest::finalize(hasher));
+    Ok(if read == written.length && digest == written.sha256 { Ok(()) } else { Err(length) })
+}
+
+/// One streamed pass over a staged record's text (RT-U4 P2): the record's
+/// `analysis_run_record` projection hash and the members the readback reads
+/// ([`WrittenRecord`]), exactly as the readback gets them from its parse
+/// (`serde_json::from_str` into a `Value`, then [`run_record_hash_within`]),
+/// with no tree of the record built. The pass writes the projection's RFC
+/// 8785 text into SHA-256 as it reads the text, and that is the canonical
+/// text of the parse only when every object's members arrive in UTF-16 key
+/// order without repeats (the order serde_json's maps and the store's writer
+/// give for every key outside U+E000 to U+FFFF against a supplementary
+/// character) and nothing would send the hash to its checked path
+/// ([`projection_takes_checked_path`]). The members read are parsed as the
+/// readback parses them. Anything else (another order, a repeated key, a
+/// number outside the profile, nesting 127 deep, the `RawValue` token as a
+/// key, a member of another shape than the record's, no `hashes` array, a
+/// repeated own checksum, a parse error) leaves the text to the full
+/// readback: `None`.
+fn stream_staged_record(text: &str) -> Option<(Value, String)> {
+    use serde::de::DeserializeSeed;
+    let mut hasher = <sha2::Sha256 as sha2::Digest>::new();
+    let mut root = serde_json::Map::new();
+    {
+        let mut deserializer = serde_json::Deserializer::from_str(text);
+        let mut out = Writer::new(&mut hasher, Style::Canonical);
+        Streamed { out: &mut out, part: Part::Root, level: 1, members: Some(&mut root) }.deserialize(&mut deserializer).ok()?;
+        deserializer.end().ok()?;
+    }
+    let run = root.get("analysis_run")?;
+    let hashes = run.get("hashes")?.as_array()?;
+    if hashes.iter().filter(|hash| is_own_checksum(hash)).count() > 1 {
+        return None;
+    }
+    Some((Value::Object(root), build::hex(&sha2::Digest::finalize(hasher))))
+}
+
+/// Where the streamed pass is: the record, its `analysis_run`, that
+/// object's `reproducibility`, or anywhere else (streamed, nothing kept).
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Part {
+    Root,
+    Run,
+    Reproducibility,
+    Elsewhere,
+}
+
+/// The members of each part the readback's checks read, kept as parsed.
+fn kept_member(part: Part, key: &str) -> bool {
+    match part {
+        Part::Root => key == "schema_version",
+        Part::Run => matches!(key, "run_id" | "created_at" | "model_state_ref" | "unit_system_ref" | "settings_ref" | "hashes" | "analysis_status"),
+        Part::Reproducibility => matches!(key, "input_manifest_refs" | "input_manifest_hashes"),
+        Part::Elsewhere => false,
+    }
+}
+
+fn nested_part(part: Part, key: &str) -> Option<Part> {
+    match (part, key) {
+        (Part::Root, "analysis_run") => Some(Part::Run),
+        (Part::Run, "reproducibility") => Some(Part::Reproducibility),
+        _ => None,
+    }
+}
+
+/// One value of the streamed pass (see [`stream_staged_record`]).
+struct Streamed<'s, 'w> {
+    out: &'s mut Writer<'w, sha2::Sha256>,
+    part: Part,
+    level: usize,
+    members: Option<&'s mut serde_json::Map<String, Value>>,
+}
+
+/// The pass leaves the text to the full readback.
+fn irregular<E: serde::de::Error>() -> E {
+    E::custom("left to the full readback")
+}
+
+struct Key;
+
+impl<'de> serde::de::DeserializeSeed<'de> for Key {
+    type Value = std::borrow::Cow<'de, str>;
+    fn deserialize<D: serde::Deserializer<'de>>(self, deserializer: D) -> Result<Self::Value, D::Error> {
+        deserializer.deserialize_str(Key)
+    }
+}
+
+impl<'de> serde::de::Visitor<'de> for Key {
+    type Value = std::borrow::Cow<'de, str>;
+    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str("an object key")
+    }
+    fn visit_borrowed_str<E>(self, value: &'de str) -> Result<Self::Value, E> {
+        Ok(std::borrow::Cow::Borrowed(value))
+    }
+    fn visit_str<E>(self, value: &str) -> Result<Self::Value, E> {
+        Ok(std::borrow::Cow::Owned(value.to_string()))
+    }
+    fn visit_string<E>(self, value: String) -> Result<Self::Value, E> {
+        Ok(std::borrow::Cow::Owned(value))
+    }
+}
+
+impl<'de> serde::de::DeserializeSeed<'de> for Streamed<'_, '_> {
+    type Value = ();
+    fn deserialize<D: serde::Deserializer<'de>>(self, deserializer: D) -> Result<(), D::Error> {
+        deserializer.deserialize_any(self)
+    }
+}
+
+impl Streamed<'_, '_> {
+    fn scalar<E: serde::de::Error>(self, value: Value) -> Result<(), E> {
+        if self.part != Part::Elsewhere || matches!(&value, Value::Number(number) if outside_checked_v1(number)) {
+            return Err(irregular());
+        }
+        self.out.value(&value);
+        Ok(())
+    }
+}
+
+impl<'de> serde::de::Visitor<'de> for Streamed<'_, '_> {
+    type Value = ();
+    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str("a JSON value")
+    }
+    fn visit_bool<E: serde::de::Error>(self, value: bool) -> Result<(), E> {
+        self.scalar(Value::Bool(value))
+    }
+    fn visit_i64<E: serde::de::Error>(self, value: i64) -> Result<(), E> {
+        self.scalar(Value::Number(value.into()))
+    }
+    fn visit_u64<E: serde::de::Error>(self, value: u64) -> Result<(), E> {
+        self.scalar(Value::Number(value.into()))
+    }
+    fn visit_f64<E: serde::de::Error>(self, value: f64) -> Result<(), E> {
+        let number = serde_json::Number::from_f64(value).ok_or_else(irregular)?;
+        self.scalar(Value::Number(number))
+    }
+    fn visit_str<E: serde::de::Error>(self, value: &str) -> Result<(), E> {
+        if self.part != Part::Elsewhere {
+            return Err(irregular());
+        }
+        self.out.string(value);
+        Ok(())
+    }
+    fn visit_unit<E: serde::de::Error>(self) -> Result<(), E> {
+        self.scalar(Value::Null)
+    }
+    fn visit_seq<A: serde::de::SeqAccess<'de>>(self, mut items: A) -> Result<(), A::Error> {
+        if self.part != Part::Elsewhere || self.level >= STREAMED_DEPTH_LIMIT {
+            return Err(irregular());
+        }
+        self.out.raw("[");
+        let mut first = true;
+        loop {
+            // The separator is written by the item's seed, only once an item is there.
+            let item = Streamed { out: &mut *self.out, part: Part::Elsewhere, level: self.level + 1, members: None };
+            match items.next_element_seed(Separated { item, first })? {
+                Some(()) => first = false,
+                None => break,
+            }
+        }
+        self.out.raw("]");
+        Ok(())
+    }
+    fn visit_map<A: serde::de::MapAccess<'de>>(self, mut map: A) -> Result<(), A::Error> {
+        if self.level >= STREAMED_DEPTH_LIMIT {
+            return Err(irregular());
+        }
+        let Streamed { out, part, level, mut members, .. } = self;
+        out.raw("{");
+        let mut previous: Option<std::borrow::Cow<'de, str>> = None;
+        while let Some(key) = map.next_key_seed(Key)? {
+            if key == RAW_VALUE_TOKEN || previous.as_ref().is_some_and(|previous| previous.encode_utf16().cmp(key.encode_utf16()) != std::cmp::Ordering::Less) {
+                return Err(irregular());
+            }
+            if previous.is_some() {
+                out.raw(",");
+            }
+            out.string(&key);
+            out.raw(":");
+            if kept_member(part, &key) {
+                let value: Value = map.next_value()?;
+                let hashes = part == Part::Run && key == "hashes";
+                let place = if hashes { Projected::Hashes } else { Projected::Elsewhere };
+                if projection_takes_checked_path(&value, level + 1, place) {
+                    return Err(irregular());
+                }
+                match (&value, hashes) {
+                    (Value::Array(items), true) => {
+                        out.raw("[");
+                        for (index, item) in items.iter().filter(|item| !is_own_checksum(item)).enumerate() {
+                            if index > 0 {
+                                out.raw(",");
+                            }
+                            out.value(item);
+                        }
+                        out.raw("]");
+                    }
+                    (_, true) => return Err(irregular()),
+                    (value, false) => out.value(value),
+                }
+                if let Some(members) = members.as_deref_mut() {
+                    members.insert(key.clone().into_owned(), value);
+                }
+            } else if let Some(nested) = nested_part(part, &key) {
+                let mut kept = serde_json::Map::new();
+                map.next_value_seed(Streamed { out: &mut *out, part: nested, level: level + 1, members: Some(&mut kept) })?;
+                if let Some(members) = members.as_deref_mut() {
+                    members.insert(key.clone().into_owned(), Value::Object(kept));
+                }
+            } else {
+                map.next_value_seed(Streamed { out: &mut *out, part: Part::Elsewhere, level: level + 1, members: None })?;
+            }
+            previous = Some(key);
+        }
+        out.raw("}");
+        Ok(())
+    }
+}
+
+/// An array item of the streamed pass, its separator written before it.
+struct Separated<'s, 'w> {
+    item: Streamed<'s, 'w>,
+    first: bool,
+}
+
+impl<'de> serde::de::DeserializeSeed<'de> for Separated<'_, '_> {
+    type Value = ();
+    fn deserialize<D: serde::Deserializer<'de>>(self, deserializer: D) -> Result<(), D::Error> {
+        if !self.first {
+            self.item.out.raw(",");
+        }
+        self.item.deserialize(deserializer)
+    }
 }
 
 /// The stored record's parse; a text that is not JSON is the row's integrity
@@ -1332,15 +1658,55 @@ fn summary_row(row: &rusqlite::Row<'_>) -> rusqlite::Result<SummaryRow> {
 /// with its reservation once it is verified.
 type VerifiedRun = (Metered<AnalysisRunSummary>, Metered<Value>);
 
-/// `keep_text`: the stored record's text is handed back there once it is
-/// parsed (C1 slice 6's native load) instead of being freed before the record
-/// is verified.
-fn summary_from_row(connection: &Connection, row: SummaryRow, memory: &dyn ReadMemory, keep_text: Option<&mut Option<String>>) -> Result<VerifiedRun, String> {
+/// How a run summary's record is established.
+enum RecordSource<'k> {
+    /// Loaded, parsed and verified; with `Some`, the stored text is handed
+    /// back there once it is parsed (C1 slice 6's native load) instead of
+    /// being freed before the record is verified.
+    Stored(Option<&'k mut Option<String>>),
+    /// Record Run's byte-fidelity readback (RT-U4 P2, [`find_written_run`]):
+    /// the stored text must be exactly the record staged and verified before
+    /// the INSERT; its members are that record's.
+    Written(&'k WrittenRecord),
+}
+
+fn summary_from_row(connection: &Connection, row: SummaryRow, memory: &dyn ReadMemory, source: RecordSource<'_>) -> Result<VerifiedRun, String> {
     let (project_id, recording_id, state_id, producer_run_id, created_at, run_record_hash, result_hash, name, tags, notes, assumptions, updated_at) =
         row;
     let (Some(name), Some(tags), Some(notes), Some(assumptions), Some(updated_at)) = (name, tags, notes, assumptions, updated_at)
     else {
         return Err(format!("ANALYSIS-RUN-INTEGRITY: recorded run `{recording_id}` has no labels row.", recording_id = stored_read::shown(&recording_id)));
+    };
+    let columns = RunColumns {
+        project_id: &project_id,
+        recording_id: &recording_id,
+        state_id: &state_id,
+        producer_run_id: &producer_run_id,
+        created_at: &created_at,
+        run_record_hash: &run_record_hash,
+        result_hash: &result_hash,
+    };
+    let (keep_text, written_differs) = match source {
+        RecordSource::Written(written) => {
+            let stored = stored_record_is(connection, &project_id, &recording_id, written)?;
+            if let Err(stored_length) = stored {
+                // Not the staged bytes: the stored record is read as every reader
+                // reads it, so a refusal is the one it gives; a record it accepts
+                // is still not the one written. Its load is reserved first.
+                let load = memory.reserve(&format!("recorded run `{}`'s stored record", stored_read::shown(&recording_id)), stored_read::loaded_text_bytes(stored_length))?;
+                (None, Some(load))
+            } else {
+                // The stored bytes are the staged record's, verified before the
+                // INSERT: the row's columns are checked against its members,
+                // exactly as against the parse of those bytes.
+                check_record_columns(&columns, &written.skeleton, &written.recomputed)?;
+                #[cfg(test)]
+                stored_read::phase_probe::mark("run readback: stored bytes are the staged record's");
+                return summary_tail(&recording_id, columns_owned(project_id, recording_id.clone(), state_id, producer_run_id, created_at, run_record_hash, result_hash), (name, tags, notes, assumptions, updated_at), &written.skeleton, memory)
+                    .map(|summary| (summary, Metered::new(Value::Null)));
+            }
+        }
+        RecordSource::Stored(keep_text) => (keep_text, None),
     };
     let record_json: String = connection
         .query_row(
@@ -1373,31 +1739,48 @@ fn summary_from_row(connection: &Connection, row: SummaryRow, memory: &dyn ReadM
             stored_read::phase_probe::mark("run readback: record parsed, text released");
         }
     }
-    let record = verified_run_record(
-        &RunColumns {
-            project_id: &project_id,
-            recording_id: &recording_id,
-            state_id: &state_id,
-            producer_run_id: &producer_run_id,
-            created_at: &created_at,
-            run_record_hash: &run_record_hash,
-            result_hash: &result_hash,
-        },
-        record,
-        memory,
-    )?;
+    let record = verified_run_record(&columns, record, memory)?;
+    #[cfg(test)]
+    stored_read::phase_probe::mark("run readback: record verified");
+    if written_differs.is_some() {
+        return Err(integrity_of(&recording_id, "the stored record is not the record written"));
+    }
+    let summary = summary_tail(&recording_id.clone(), columns_owned(project_id, recording_id, state_id, producer_run_id, created_at, run_record_hash, result_hash), (name, tags, notes, assumptions, updated_at), &record, memory)?;
+    Ok((summary, Metered::new(record).holding(record_reservation)))
+}
+
+/// A summary's identity and time columns, owned.
+type OwnedColumns = (String, String, String, String, String, String, String);
+
+#[allow(clippy::too_many_arguments)]
+fn columns_owned(project_id: String, recording_id: String, state_id: String, producer_run_id: String, created_at: String, run_record_hash: String, result_hash: String) -> OwnedColumns {
+    (project_id, recording_id, state_id, producer_run_id, created_at, run_record_hash, result_hash)
+}
+
+/// A verified run's summary from its verified record's members (`record`,
+/// read through the same pointers whether it is the stored record's parse or
+/// the staged record's members): its analysis status (bounded and reserved)
+/// and its labels row decoded.
+fn summary_tail(
+    recording_id: &str,
+    columns: OwnedColumns,
+    (name, tags, notes, assumptions, updated_at): (String, String, String, String, String),
+    record: &Value,
+    memory: &dyn ReadMemory,
+) -> Result<Metered<AnalysisRunSummary>, String> {
     // The status list outlives the record: its retained copy is reserved (repair r6).
-    let status = stored_read::bounded_status(record.pointer("/analysis_run/analysis_status")).map_err(|detail| integrity_of(&recording_id, detail))?;
+    let status = stored_read::bounded_status(record.pointer("/analysis_run/analysis_status")).map_err(|detail| integrity_of(recording_id, detail))?;
     let status_reservation = memory.reserve(
-        &format!("recorded run `{}`'s analysis status", stored_read::shown(&recording_id)),
+        &format!("recorded run `{}`'s analysis status", stored_read::shown(recording_id)),
         stored_read::status_bytes(&status),
     )?;
     let analysis_status = serde_json::from_value(status)
-        .map_err(|error| integrity_of(&recording_id, format_args!("its analysis status is malformed ({error})", error = stored_read::json_error(&error))))?;
-    let labels = decode_run_labels(&recording_id, name, &tags, &notes, &assumptions, memory)?;
+        .map_err(|error| integrity_of(recording_id, format_args!("its analysis status is malformed ({error})", error = stored_read::json_error(&error))))?;
+    let labels = decode_run_labels(recording_id, name, &tags, &notes, &assumptions, memory)?;
     drop((tags, notes, assumptions));
-    Ok((
-        labels.map(|labels| AnalysisRunSummary {
+    let (project_id, recording_id, state_id, producer_run_id, created_at, run_record_hash, result_hash) = columns;
+    Ok(labels
+        .map(|labels| AnalysisRunSummary {
             labels,
             analysis_status,
             project_id,
@@ -1409,9 +1792,7 @@ fn summary_from_row(connection: &Connection, row: SummaryRow, memory: &dyn ReadM
             result_hash,
             labels_updated_at: updated_at,
         })
-        .holding(status_reservation),
-        Metered::new(record).holding(record_reservation),
-    ))
+        .holding(status_reservation))
 }
 
 /// The identity and time columns a run summary loads, each with the bytes the
@@ -1502,6 +1883,36 @@ fn find_run_keeping(
     memory: &dyn ReadMemory,
     keep_text: Option<&mut Option<String>>,
 ) -> Result<Option<Metered<(AnalysisRunSummary, Value)>>, String> {
+    find_run_from(connection, project_id, recording_id, memory, RecordSource::Stored(keep_text))
+}
+
+/// Record Run's byte-fidelity readback (RT-U4 P2), in its write transaction:
+/// [`find_run_with`]'s reads and checks of the row, in their order, with the
+/// stored record checked to be exactly `written`'s bytes (its type, length
+/// and streamed SHA-256) instead of being loaded, parsed and hashed; the
+/// row's identity columns are then checked against `written`'s members, the
+/// checks `written` passed before the INSERT. Nothing of the record's size
+/// is loaded or reserved. Stored bytes that are not `written`'s are read as
+/// [`find_run_with`] reads them: its refusal, or, for a record it would
+/// accept, `ANALYSIS-RUN-INTEGRITY` (the stored record is not the record
+/// written).
+fn find_written_run(
+    connection: &Connection,
+    project_id: &str,
+    recording_id: &str,
+    written: &WrittenRecord,
+    memory: &dyn ReadMemory,
+) -> Result<Option<Metered<(AnalysisRunSummary, Value)>>, String> {
+    find_run_from(connection, project_id, recording_id, memory, RecordSource::Written(written))
+}
+
+fn find_run_from(
+    connection: &Connection,
+    project_id: &str,
+    recording_id: &str,
+    memory: &dyn ReadMemory,
+    source: RecordSource<'_>,
+) -> Result<Option<Metered<(AnalysisRunSummary, Value)>>, String> {
     let lengths: Option<(Option<i64>, Option<i64>, Option<i64>)> = connection
         .query_row(
             &format!(
@@ -1517,9 +1928,15 @@ fn find_run_keeping(
     let Some((record, labels, identity)) = lengths else { return Ok(None) };
     refuse_oversized_runs(connection, project_id, Some(recording_id))?;
     let length = |value: Option<i64>| u64::try_from(value.unwrap_or(0)).unwrap_or(0);
+    // The byte-fidelity readback loads no record (its digest is streamed);
+    // when the bytes differ, the record's load is reserved where it is loaded.
+    let loaded_record = match source {
+        RecordSource::Stored(_) => length(record),
+        RecordSource::Written(_) => 0,
+    };
     let load = memory.reserve(
         &format!("recorded run `{}`", stored_read::shown(recording_id)),
-        stored_read::total(&[stored_read::READ_OVERHEAD_BYTES, run_summary_load_bytes(length(record), length(labels), length(identity), 1)]),
+        stored_read::total(&[stored_read::READ_OVERHEAD_BYTES, run_summary_load_bytes(loaded_record, length(labels), length(identity), 1)]),
     )?;
     let row = connection
         .query_row(
@@ -1541,7 +1958,7 @@ fn find_run_keeping(
             }
         })?;
     let Some(row) = row else { return Ok(None) };
-    let (summary, record) = summary_from_row(connection, row, memory, keep_text)?;
+    let (summary, record) = summary_from_row(connection, row, memory, source)?;
     Ok(Some(summary.join(record, |summary, record| (summary, record)).holding(load)))
 }
 
@@ -1615,7 +2032,7 @@ fn checked_run_row(connection: &Connection, row: rusqlite::Result<SummaryRow>, m
     match row {
         Err(error) if stored_read::is_row_value_error(&error) => Ok(Err(RunRowRefusal::Column(sql(error)))),
         Err(error) => Err(sql(error)),
-        Ok(row) => match summary_from_row(connection, row, memory, None) {
+        Ok(row) => match summary_from_row(connection, row, memory, RecordSource::Stored(None)) {
             Ok(verified) => Ok(Ok(verified)),
             Err(error) if error.starts_with("ANALYSIS-RUN-INTEGRITY") => Ok(Err(RunRowRefusal::Integrity(error))),
             Err(error) => Err(error),
@@ -2675,6 +3092,24 @@ pub(crate) fn write_native_run<R>(
         }
     };
     let NativeRunPlan { state_id, state_outcome, new_state, created_at } = plan;
+    let recording_id = recording_id_of(texts.record_hash);
+    // RT-U4 P2: the readback's checks of the record, applied to the staged
+    // text with the columns about to be written, before anything is written;
+    // the readback then checks the stored bytes are exactly these.
+    let staged = staged_record(
+        &RunColumns {
+            project_id,
+            recording_id: &recording_id,
+            state_id: &state_id,
+            producer_run_id: texts.producer_run_id,
+            created_at: &created_at,
+            run_record_hash: texts.record_hash,
+            result_hash: texts.result_hash,
+        },
+        &texts.record_json,
+    )?;
+    #[cfg(test)]
+    stored_read::phase_probe::mark("record run: staged record checked");
     if let Some((snapshot, token, now)) = new_state {
         let labels = &request.new_state.as_ref().expect("a new state was requested").labels;
         let allocate = || Ok((token.clone(), now));
@@ -2695,7 +3130,6 @@ pub(crate) fn write_native_run<R>(
         }
         drop((state, snapshot));
     }
-    let recording_id = recording_id_of(texts.record_hash);
     let NativeRunTexts { record_json, record_hash, result_json, result_hash, manifest_text, producer_run_id, leases } = texts;
     transaction
         .execute(
@@ -2722,9 +3156,13 @@ pub(crate) fn write_native_run<R>(
     stored_read::phase_probe::mark("record run: texts and statement copies released");
     (hooks.between_rows)(transaction, "run")?;
     write_run_labels(transaction, project_id, &recording_id, &request.run_labels, &created_at, true)?;
-    let run = find_run_with(transaction, project_id, &recording_id, memory)?
-        .ok_or_else(|| format!("ANALYSIS-RUN-INTEGRITY: recorded run `{recording_id}` was not written.", recording_id = stored_read::shown(&recording_id)))?
-        .map(|(run, _record)| run);
+    let run = match &staged {
+        Some(written) => find_written_run(transaction, project_id, &recording_id, written, memory)?,
+        None => find_run_with(transaction, project_id, &recording_id, memory)?,
+    }
+    .ok_or_else(|| format!("ANALYSIS-RUN-INTEGRITY: recorded run `{recording_id}` was not written.", recording_id = stored_read::shown(&recording_id)))?
+    .map(|(run, _record)| run);
+    drop(staged);
     #[cfg(test)]
     stored_read::phase_probe::mark("record run: run read back and verified");
     let state = find_summary_with(transaction, project_id, &state_id, memory)?

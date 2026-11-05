@@ -1648,13 +1648,10 @@ fn p1_allocations_end_where_their_last_use_is() {
     assert!(live("record run: result text written") - live("record run: result parse released") >= r, "the result's text is allocated after the parse ended");
     // (c) Both texts end at the INSERT.
     assert!(live("record run: run row inserted") - live("record run: texts and statement copies released") >= r + q, "{marks:?}");
-    // (c) The readback frees the loaded record (Q) once it is parsed, before
-    // hashing: its phase peak (text, parse and SQLite's handover) is at least Q
-    // above what stays; the hash and the checks then allocate nothing of the
-    // record's size (no clone, serialized text, checked parse or canonical text).
-    let parsed = mark(&marks, "run readback: record parsed, text released");
-    assert!(parsed.peak - parsed.live >= q, "{marks:?}");
-    assert!(mark(&marks, "record run: run read back and verified").peak - parsed.live < q / 4, "{marks:?}");
+    // (c) Record Run's readback runs after both texts ended (its record checks
+    // are below, on a reader's readback, and P2's in `p2_*`).
+    let at = |name: &str| marks.iter().position(|mark| mark.at == name).unwrap_or_else(|| panic!("no mark `{name}`: {marks:?}"));
+    assert!(at("record run: texts and statement copies released") < at("record run: run read back and verified"), "{marks:?}");
     let pre = |name: &str| PRE_CHANGE_PEAKS.iter().find(|(key, _)| *key == name).unwrap().1;
     assert!(record_peak + 2 * q as u64 <= pre("record_run"), "Record Run: {record_peak} against {}", pre("record_run"));
 
@@ -1693,6 +1690,19 @@ fn p1_allocations_end_where_their_last_use_is() {
         rusqlite::types::Value::Text(text) => text.clone(),
         other => panic!("{other:?}"),
     }).unwrap();
+    // (c) A reader's readback (the webview's recorded-run read, every list and
+    // read verifies a run so) frees the loaded record (Q) once it is parsed,
+    // before hashing: its phase peak (text, parse and SQLite's handover) is at
+    // least Q above what stays; the hash and the checks then allocate nothing
+    // of the record's size (no clone, serialized text, checked parse or
+    // canonical text).
+    let (marks, legacy_peak) = phases(&registry, || {
+        analysis_runs::read_run_in_store_with(&recorded, case.project_id(), &recording_id, &stored_read::UnmeteredReadMemory).unwrap().into_unreserved().unwrap();
+    });
+    print_phases("A reader's readback: read_analysis_run (preview:pressure)", &marks, legacy_peak);
+    let parsed = mark(&marks, "run readback: record parsed, text released");
+    assert!(parsed.peak - parsed.live >= q, "{marks:?}");
+    assert!(mark(&marks, "run readback: record verified").peak - parsed.live < q / 4, "{marks:?}");
     let (marks, read_peak) = phases(&registry, || reply = crate::stored_custody::tests::native_read(&registry, &recorded, case.project_id(), &recording_id).unwrap());
     print_phases("Recorded-run read (preview:pressure)", &marks, read_peak);
     // (d) One load of the record: the summary's readback is the only one.
@@ -1715,6 +1725,179 @@ fn p1_allocations_end_where_their_last_use_is() {
 
 fn live_drop(marks: &[stored_read::phase_probe::Mark], from: &str, to: &str) -> i64 {
     mark(marks, from).live - mark(marks, to).live
+}
+
+/// The Record Run tamper set for P2: P1's (`TAMPER`, every refusal text
+/// unchanged), the stored record's bytes changed without changing its parse
+/// (which only P2 refuses), and stored as a blob of the same bytes.
+const P2_TAMPER: &[(&str, &str, &str)] = &[
+    ("record bytes (whitespace)", "UPDATE analysis_runs SET run_record_json = ' ' || run_record_json", "the stored record is not the record written"),
+    ("record bytes (a blob)", "UPDATE analysis_runs SET run_record_json = CAST(run_record_json AS BLOB)", "recorded run"),
+];
+
+#[test]
+fn p2_a_run_tampered_after_its_insert_is_refused_and_rolled_back() {
+    // Every P1 tamper: the same refusal texts, every row rolled back.
+    tampered_runs_roll_back("p2-tamper");
+    // Bytes the readback's parse would accept are still not the bytes written.
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let dir = scratch("p2-tamper-bytes");
+    let case = case_named("preview:pressure");
+    let job = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
+    let args = case.record_args(&job, native_request(None));
+    for (at, (column, sql, expected)) in P2_TAMPER.iter().enumerate() {
+        let path = dir.join(format!("tamper-{at}.sqlite"));
+        stored_project(&path, case.project_id(), case.model());
+        let before = store_snapshot(&path);
+        let tamper = |transaction: &Transaction<'_>, stage: &str| -> Result<(), String> {
+            if stage == "run" {
+                transaction.execute_batch(&format!("PRAGMA defer_foreign_keys = ON; DROP TRIGGER analysis_runs_immutable; {sql};")).map_err(|error| error.to_string())?;
+            }
+            Ok(())
+        };
+        let hooks = RunWriteHooks { now: &frozen_now, state_token: &frozen_token, between_rows: &tamper };
+        let text = native_record_with(&registry, &path, &args, &hooks).expect_err(column);
+        assert!(text.starts_with("ANALYSIS-RUN-INTEGRITY: recorded run `") && text.contains(expected), "{column}: {text}");
+        assert_eq!(store_snapshot(&path), before, "{column}: every row rolled back");
+    }
+    assert!(registry.dispose_result(&job).unwrap().released);
+    std::fs::remove_dir_all(&dir).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
+
+/// The texts, request and plan inputs of `case`'s run as a native Record Run
+/// stored them in `reference` (the direct writer tests).
+fn stored_run_texts(reference: &Path) -> std::collections::BTreeMap<String, String> {
+    dump(reference, "analysis_runs", &[])[0]
+        .iter()
+        .filter_map(|(name, value)| match value {
+            rusqlite::types::Value::Text(text) => Some((name.clone(), text.clone())),
+            _ => None,
+        })
+        .collect()
+}
+
+/// `write_native_run` on a fresh store of `case`, with `record_json` and
+/// `record_hash` as given and `finish`'s outcome; the store's tables after
+/// the transaction ended (committed only when the writer succeeded).
+fn direct_write(dir: &Path, name: &str, case: &Case, stored: &std::collections::BTreeMap<String, String>, record_json: String, record_hash: &str, finish: impl FnOnce() -> Result<(), String>) -> (Result<(), String>, (Vec<Rows>, bool), (Vec<Rows>, bool)) {
+    let memory = stored_read::UnmeteredReadMemory;
+    let payload_canonical = open_pipe_stress_canonical_json::canonical_json(&case.manifest["model_basis"]["model_payload"]);
+    let checked = analysis_runs::NativeChecked { payload_hash: format!("sha256:{}", open_pipe_stress_operation_applier::sha256_hex(&payload_canonical)), payload_canonical };
+    let mut request = decode_request(native_request(None));
+    request.project_id = case.project_id().to_string();
+    let path = dir.join(format!("{name}.sqlite"));
+    stored_project(&path, case.project_id(), case.model());
+    let before = store_snapshot(&path);
+    let mut connection = stored_read::open_store(&path).unwrap();
+    let transaction = stored_read::write_transaction(&mut connection).unwrap();
+    let plan = analysis_runs::plan_native_run(&transaction, &request, &checked, &FROZEN, &memory).unwrap();
+    let texts = NativeRunTexts {
+        record_json,
+        record_hash,
+        result_json: stored["result_json"].clone(),
+        result_hash: &stored["result_hash"],
+        manifest_text: &stored["input_manifest_json"],
+        producer_run_id: &stored["producer_run_id"],
+        leases: Vec::new(),
+    };
+    let outcome = analysis_runs::write_native_run(&transaction, &request, plan, texts, &FROZEN, &memory, |_| finish());
+    if outcome.is_ok() {
+        transaction.commit().unwrap();
+    } else {
+        drop(transaction);
+    }
+    drop(connection);
+    (outcome, before, store_snapshot(&path))
+}
+
+/// P2's transaction: a record whose staged checks fail is refused before
+/// anything is written, with the readback's own text; a finish (the reply's
+/// serialization) that refuses after the rows rolls every row back; a
+/// staged text the streamed pass leaves to the full readback (members out of
+/// order) is read back as before and stored as given.
+#[test]
+fn p2_staged_checks_refuse_before_writing_and_every_refusal_rolls_back() {
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let dir = scratch("p2-direct");
+    let case = case_named("preview:pressure");
+    let job = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
+    let reference = dir.join("reference.sqlite");
+    stored_project(&reference, case.project_id(), case.model());
+    let reply = native_record(&registry, &reference, &case.record_args(&job, native_request(None)), None).unwrap();
+    let recording_id = reply["run"]["recording_id"].as_str().unwrap().to_string();
+    let stored = stored_run_texts(&reference);
+    let record = stored["run_record_json"].clone();
+    // As written by the command: the same rows.
+    let (outcome, _, _) = direct_write(&dir, "as-written", &case, &stored, record.clone(), &stored["run_record_hash"], || Ok(()));
+    outcome.unwrap();
+    for table in RUN_TABLES {
+        same_rows(&reference, &dir.join("as-written.sqlite"), table, &[], "as written");
+    }
+    // A staged record whose hash column would differ: refused before writing.
+    let upper = stored["run_record_hash"].to_uppercase();
+    let (outcome, before, after) = direct_write(&dir, "staged-refused", &case, &stored, record.clone(), &upper, || panic!("the reply is never made"));
+    let text = outcome.unwrap_err();
+    let upper_id = analysis_runs::recording_id_of(&upper);
+    assert_eq!(text, format!("ANALYSIS-RUN-INTEGRITY: recorded run `{upper_id}`: the row's record hash differs from its verified record; it is listed as unreadable and is not read."));
+    assert_eq!(before, after, "nothing written");
+    // A finish that refuses after every row: all rolled back.
+    let (outcome, before, after) = direct_write(&dir, "finish-refused", &case, &stored, record.clone(), &stored["run_record_hash"], || Err("INVENTED-FINISH-REFUSAL".to_string()));
+    assert_eq!(outcome.unwrap_err(), "INVENTED-FINISH-REFUSAL");
+    assert_eq!(before, after, "the snapshot, the run and the labels rolled back");
+    // Members out of order: the full readback, as before P2, accepts the same record.
+    let value: Value = serde_json::from_str(&record).unwrap();
+    let reversed = format!("{{{}}}", value.as_object().unwrap().iter().rev().map(|(key, item)| format!("{}:{}", serde_json::to_string(key).unwrap(), serde_json::to_string(item).unwrap())).collect::<Vec<_>>().join(","));
+    assert_ne!(reversed, record);
+    let (outcome, _, _) = direct_write(&dir, "reordered", &case, &stored, reversed.clone(), &stored["run_record_hash"], || Ok(()));
+    outcome.unwrap();
+    assert_eq!(stored_run_texts(&dir.join("reordered.sqlite"))["run_record_json"], reversed, "stored as given");
+    assert_eq!(stored_run_texts(&dir.join("reordered.sqlite"))["recording_id"], recording_id);
+    assert!(registry.dispose_result(&job).unwrap().released);
+    std::fs::remove_dir_all(&dir).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
+
+/// Record Run's peak requested bytes after P1 (`preview:pressure`), against
+/// which P2's readback is measured.
+const P1_RECORD_RUN_PEAK: u64 = 2_962_320;
+
+/// P2's allocation evidence: Record Run's readback loads no record, builds no
+/// parse of it and reserves nothing of its size; the staged pass before the
+/// INSERT builds no record tree. The command's peak is its build stage.
+#[test]
+fn p2_record_runs_readback_loads_and_parses_no_record() {
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let dir = scratch("p2-phases");
+    let case = case_named("preview:pressure");
+    let job = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
+    let path = dir.join("record.sqlite");
+    stored_project(&path, case.project_id(), case.model());
+    let args = case.record_args(&job, native_request(None));
+    let (marks, peak) = phases(&registry, || {
+        native_record(&registry, &path, &args, None).unwrap();
+    });
+    print_phases("Record Run after P2 (preview:pressure)", &marks, peak);
+    let q = stored_run_texts(&path)["run_record_json"].len() as i64;
+    assert!(marks.iter().all(|mark| !mark.at.starts_with("run readback: record parsed")), "the record is never loaded or parsed: {marks:?}");
+    let staged = mark(&marks, "record run: staged record checked");
+    let written = mark(&marks, "record run: result text written");
+    assert!(staged.peak - written.live < q / 4, "the staged pass builds no record tree: {marks:?}");
+    let released = mark(&marks, "record run: texts and statement copies released");
+    let verified = mark(&marks, "record run: run read back and verified");
+    mark(&marks, "run readback: stored bytes are the staged record's");
+    assert!(verified.peak - released.live < q / 4, "the readback allocates nothing of the record's size: {marks:?}");
+    // What the readback reserves is the read's fixed overhead, the labels and
+    // identity columns and the status (P1's readback reserved twice the
+    // record's parse, about 26 times Q here).
+    assert!(verified.reserved - released.reserved < stored_read::READ_OVERHEAD_BYTES + (q as u64) / 4, "nor reserves it: {marks:?}");
+    assert!(peak + q as u64 <= P1_RECORD_RUN_PEAK, "Record Run: {peak} against P1's {P1_RECORD_RUN_PEAK}");
+    assert!(registry.dispose_result(&job).unwrap().released);
+    std::fs::remove_dir_all(&dir).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
 }
 /// Generated at c8865f384 (module section docs).
 const PARITY: &[(&str, &str)] = &[
