@@ -595,6 +595,11 @@ fn option_c_structural_adapter_legacy_variants_reach_only_binary64_entry_points(
     // RT-A3 P step 5 (pin extension): and its pattern sibling, defined once
     // in `impl SparseAssemblyEvidence`, blanked the same way.
     assert_eq!(code.matches(CONFIRMATION_ENTRY).count(), 2);
+    // S-K1 A-1: the skew entry, once, in the pattern impl only, blanked the same way.
+    assert_eq!(code.matches(SKEW_ENTRY).count(), 1);
+    assert_eq!(function_body(&code, ADAPTER_IMPLS[0]).matches(SKEW_ENTRY).count(), 0);
+    let range = body_in_impl(&code, ADAPTER_IMPLS[1], SKEW_ENTRY);
+    code.replace_range(range, "{");
     for header in ADAPTER_IMPLS {
         let range = body_in_impl(&code, header, CONFIRMATION_ENTRY);
         code.replace_range(range, "{");
@@ -1273,6 +1278,11 @@ fn kd5_nonlinear_sources_name_no_formation_check_entry_point() {
                 let range = body_in_impl(&confirmation_blanked, header, CONFIRMATION_ENTRY);
                 confirmation_blanked.replace_range(range, "{");
             }
+            // S-K1 A-1: the skew entry's body holds the transformed system's
+            // formation plumbing; defined once, in the pattern impl, blanked alike.
+            assert_eq!(confirmation_blanked.matches(SKEW_ENTRY).count(), 1, "{name}");
+            let range = body_in_impl(&confirmation_blanked, ADAPTER_IMPLS[1], SKEW_ENTRY);
+            confirmation_blanked.replace_range(range, "{");
             blanked = confirmation_blanked;
             &blanked
         } else {
@@ -1815,6 +1825,13 @@ fn uniform_constructor_and_attach_staging_is_sequential() {
 /// R2 (DEL-04-01 kd5-nonlinear-active-set.md, HELP_HUMAN 2026-10-12): the
 /// nonlinear route's single formation-check entry.
 const CONFIRMATION_ENTRY: &str = "confirm_with_formation_check";
+
+/// R-6/R-7 S-K1 A-1 (DEL-04-03 Work `skew-restraints.md` §11.1): the PF linear skew
+/// entry, the formation-checked exact variant on the transformed system. It is
+/// defined once, in `impl SparseAssemblyEvidence` only; the loop never reaches it
+/// (`structural_adapter::skew_tests::the_loop_never_carries_a_basis`). R2's
+/// confirmation-entry rule is not widened: it is no confirmation entry.
+const SKEW_ENTRY: &str = "fn solve_skew_with_formation_check(";
 
 /// FK's confirmation plumbing, which only the adapter's confirmation entry
 /// reaches (implementation review I1); RT-A3 P step 5 adds the pattern's.

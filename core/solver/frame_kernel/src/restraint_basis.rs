@@ -32,6 +32,7 @@ use crate::exact_sum::{ExactAccumulator, SumError};
 use crate::load_ledger::{round_upward, AssembledForce, ForceTermKind, LedgerError, LoadLedger};
 use crate::structural::{
     reduce_assembled_sparse_system, MemberBoundInputs, SparseReducedSystem, SparseStiffness,
+    StiffnessContribution,
 };
 use crate::{FrameKernelError, DOF_PER_NODE};
 use open_pipe_stress_correct_norm::norm3;
@@ -154,6 +155,41 @@ fn dyadic(x: f64) -> (u64, i64) {
     } else {
         (fraction | (1u64 << 52), biased - 1075)
     }
+}
+
+/// The error-free product x·y = h + l, when its rounded product is finite and
+/// zero or at least `SPLIT_EXACT_MIN` (P1); `None` otherwise.
+fn two_product(x: f64, y: f64) -> Option<(f64, f64)> {
+    if x == 0.0 || y == 0.0 {
+        return Some((0.0, 0.0));
+    }
+    let p = x * y;
+    if !p.is_finite() || p.abs() < SPLIT_EXACT_MIN {
+        return None;
+    }
+    Some((p, x.mul_add(y, -p)))
+}
+
+/// Four binary64 values whose exact sum is a·b·c (zeros where nothing is
+/// left), from one error-free pair split and a TwoProduct of each part with
+/// the third factor, trying (a·b), (b·c), (a·c) in that order (P1, §10.2).
+/// `None` when no order stays in the split range: the caller names it and
+/// nothing is rounded.
+pub fn exact_triple_parts(a: f64, b: f64, c: f64) -> Option<[f64; 4]> {
+    if a == 0.0 || b == 0.0 || c == 0.0 {
+        return Some([0.0; 4]);
+    }
+    if !(a.is_finite() && b.is_finite() && c.is_finite()) {
+        return None;
+    }
+    for (x, y, z) in [(a, b, c), (b, c, a), (a, c, b)] {
+        let Some((h, l)) = two_product(x, y) else { continue };
+        let (Some((h1, l1)), Some((h2, l2))) = (two_product(h, z), two_product(l, z)) else {
+            continue;
+        };
+        return Some([h1, l1, h2, l2]);
+    }
+    None
 }
 
 // ------------------------------------------------------------------ direction
@@ -492,6 +528,71 @@ impl Column {
     }
 }
 
+/// One Q row's nonzero entries (coordinate, weight): at most 3.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct QRow {
+    entries: [(usize, f64); 3],
+    len: usize,
+}
+
+impl QRow {
+    pub fn as_slice(&self) -> &[(usize, f64)] {
+        &self.entries[..self.len]
+    }
+}
+
+/// a + b rounded upward, for finite nonnegative operands: the nearest sum,
+/// moved up one step when TwoSum's exact error is positive.
+fn add_up(a: f64, b: f64) -> f64 {
+    let s = a + b;
+    if !s.is_finite() {
+        return s;
+    }
+    let bb = s - a;
+    let error = (a - (s - bb)) + (b - bb);
+    if error > 0.0 {
+        s.next_up()
+    } else {
+        s
+    }
+}
+
+/// a·b rounded upward (finite nonnegative operands).
+fn mul_up(a: f64, b: f64) -> f64 {
+    crate::load_ledger::product_upward(a, b)
+}
+
+/// ½ulp(x) rounded upward (the binade's half spacing; 2^-1074 at zero).
+fn half_ulp(x: f64) -> f64 {
+    let biased = (x.abs().to_bits() >> 52) as i32;
+    if biased <= 53 {
+        f64::from_bits(1)
+    } else {
+        f64::from_bits(((biased - 53) as u64) << 52)
+    }
+}
+
+/// K-D5's view of a skew case (§10): the basis, and the **physical** ledger
+/// and stiffness contributions the intended source binds, while the gate's
+/// system carries the coordinate ones (K′, f′ and `transform_contributions`).
+/// `FormationSource.restraint` points at it.
+#[derive(Debug)]
+pub struct SkewFormation<'a> {
+    pub basis: &'a RestraintBasis,
+    pub physical_force: &'a AssembledForce,
+    pub physical_contributions: &'a [StiffnessContribution],
+}
+
+impl PartialEq for SkewFormation<'_> {
+    /// The same basis value and the same physical inputs (by identity: an
+    /// `AssembledForce` has no value equality).
+    fn eq(&self, other: &Self) -> bool {
+        self.basis == other.basis
+            && std::ptr::eq(self.physical_force, other.physical_force)
+            && self.physical_contributions == other.physical_contributions
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct StopReaction {
     /// Support-on-pipe global force (N).
@@ -696,6 +797,116 @@ impl RestraintBasis {
             return None;
         }
         self.node_basis(dof / DOF_PER_NODE).map(|n| (n, slot))
+    }
+
+    /// Q's row `dof`: the coordinates c with q_dof,c ≠ 0 and their weights (at
+    /// most 3; the single (dof, 1) away from constrained nodes). A physical
+    /// DOF's value is Σ_c q_dof,c·v_c, and a physical row enters coordinate
+    /// row c with weight q_dof,c.
+    pub fn q_row(&self, dof: usize) -> QRow {
+        let mut row = QRow { entries: [(0, 0.0); 3], len: 0 };
+        match self.translation(dof) {
+            None => {
+                row.entries[0] = (dof, 1.0);
+                row.len = 1;
+            }
+            Some((node, i)) => {
+                for c in 0..3 {
+                    let q = node.q[i][c];
+                    if q != 0.0 {
+                        row.entries[row.len] = (node.node * DOF_PER_NODE + c, q);
+                        row.len += 1;
+                    }
+                }
+            }
+        }
+        row
+    }
+
+    /// Whether `dof` is a translation at a node with a stop (a touched DOF).
+    pub fn is_constrained_translation(&self, dof: usize) -> bool {
+        self.translation(dof).is_some()
+    }
+
+    /// The coordinate contributions of physical `contributions` (both
+    /// triangles, in order) and their element grouping (exclusive ends): a
+    /// contribution away from constrained nodes is kept as it is; one
+    /// touching a constrained node becomes, for each (r, c) of its
+    /// congruence terms in `q_row` order, exactly four binary64 parts whose
+    /// exact sum is q_ir·v·q_jc (`exact_triple_parts`). So the exact sum of the
+    /// coordinate contributions at (r, c) is (Qᵀ(Σ_e contrib_e)Q)_rc, and the
+    /// gate's contribution audits judge K′ against it (§10.3). A product
+    /// outside the split range is `SplitRange` at its coordinate row.
+    pub fn transform_contributions(
+        &self,
+        contributions: &[StiffnessContribution],
+        groups: Option<&[usize]>,
+    ) -> Result<(Vec<StiffnessContribution>, Option<Vec<usize>>), BasisError> {
+        let mut out = Vec::with_capacity(contributions.len());
+        let mut ends = groups.map(|g| Vec::with_capacity(g.len()));
+        let mut next_group = 0;
+        for (index, e) in contributions.iter().enumerate() {
+            if e.row >= self.dimension() || e.col >= self.dimension() {
+                return Err(BasisError::Shape("contribution outside the model"));
+            }
+            if !self.is_constrained_translation(e.row) && !self.is_constrained_translation(e.col) {
+                out.push(*e);
+            } else {
+                for &(r, q_ir) in self.q_row(e.row).as_slice() {
+                    for &(c, q_jc) in self.q_row(e.col).as_slice() {
+                        let parts = exact_triple_parts(q_ir, e.value, q_jc).ok_or(BasisError::SplitRange { dof: r })?;
+                        out.extend(parts.iter().map(|&value| StiffnessContribution { row: r, col: c, value }));
+                    }
+                }
+            }
+            if let (Some(groups), Some(ends)) = (groups, ends.as_mut()) {
+                if groups.get(next_group) == Some(&(index + 1)) {
+                    ends.push(out.len());
+                    next_group += 1;
+                }
+            }
+        }
+        Ok((out, ends))
+    }
+
+    /// §10.3's per-entry allowances on K′'s pattern, from the physical ones
+    /// on K's (same pattern): untouched entries keep theirs; a touched entry
+    /// (r, c) gets Σ|q_ir|·ar_ij·|q_jc| + ½ulp(K′_rc), upward, and the sum of
+    /// its terms' operation counts plus one.
+    pub fn transform_roundoff(
+        &self,
+        k: &SparseStiffness,
+        k_prime: &SparseStiffness,
+        roundoff: &[f64],
+        counts: &[usize],
+    ) -> Result<(Vec<f64>, Vec<usize>), BasisError> {
+        let pattern = k.pattern();
+        if k_prime.pattern() != pattern || roundoff.len() != pattern.entry_count() || counts.len() != roundoff.len() {
+            return Err(BasisError::Shape("roundoff evidence"));
+        }
+        let mut out = roundoff.to_vec();
+        let mut out_counts = counts.to_vec();
+        for node in &self.nodes {
+            for slot in 0..3 {
+                let row = node.node * DOF_PER_NODE + slot;
+                for index in pattern.row_range(row) {
+                    let col = pattern.column(index);
+                    let mut bound = 0.0;
+                    let mut count = 1usize;
+                    for term in self.congruence_terms(row, col).as_slice() {
+                        let Some(at) = pattern.find(term.i, term.j) else { continue };
+                        bound = add_up(bound, mul_up(mul_up(term.left.abs(), roundoff[at]), term.right.abs()));
+                        count = count.saturating_add(counts[at]);
+                    }
+                    bound = add_up(bound, half_ulp(k_prime.values()[index]));
+                    for at in [index, pattern.transpose(index)] {
+                        out[at] = bound;
+                        out_counts[at] = count;
+                    }
+                }
+            }
+        }
+        Ok((out, out_counts))
     }
 
     /// Q's column `coordinate`: its nonzero entries.

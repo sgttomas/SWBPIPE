@@ -19,6 +19,9 @@ use crate::exact_sum::{ExactAccumulator, SumError};
 use crate::{element_dof_map, BeamTheory, FrameElement, DOF_PER_NODE, ELEMENT_DOF};
 use std::borrow::Cow;
 
+// R-6/R-7: K-D5 on the transformed system (skew-restraints.md §10).
+mod skew;
+
 /// Precision of the re-formation (D1 §4.3.1 step 1).
 pub const FORMATION_PRECISION: u32 = 128;
 /// The protected relative criterion.
@@ -364,7 +367,7 @@ pub struct FormationSource<'a> {
     /// R-6/R-7 (DEL-04-03 Work `skew-restraints.md` §10): the case's skewed
     /// restraint basis, when the model holds a skewed record. `None` on
     /// every other path (and always on D1): K-D5 is then today's.
-    pub restraint: Option<&'a crate::restraint_basis::RestraintBasis>,
+    pub restraint: Option<&'a crate::restraint_basis::SkewFormation<'a>>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -503,19 +506,28 @@ where
     if let Some(family) = source.unavailable.first() {
         return (Some(FormationCheck::unavailable(family.clone())), None);
     }
-    match evaluate(
-        system,
-        source,
-        ledger,
-        scale_exponents,
-        u,
-        condition,
-        assembled,
-        projected,
-        solve,
-        judged,
-        epsilon_cache,
-    ) {
+    // R-6/R-7 (DEL-04-03 Work `skew-restraints.md` §10): a skew case's transformed
+    // system; `None` is today's evaluation, unchanged.
+    let evaluated = match source.restraint {
+        Some(skew) => skew::evaluate(
+            system, source, skew, scale_exponents, u, condition, assembled, projected, solve, judged,
+            epsilon_cache,
+        ),
+        None => evaluate(
+            system,
+            source,
+            ledger,
+            scale_exponents,
+            u,
+            condition,
+            assembled,
+            projected,
+            solve,
+            judged,
+            epsilon_cache,
+        ),
+    };
+    match evaluated {
         Ok(result) => result,
         Err(failure) => (Some(FormationCheck::unavailable(failure.detail())), None),
     }
