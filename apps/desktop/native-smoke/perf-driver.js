@@ -462,6 +462,9 @@
         out.set(value.subarray(0, take), have);
         have += take;
         truncated = take < value.byteLength;
+        // At exactly `limit` bytes, one more read tells a complete reply from a longer one (review:
+        // documented lookahead). It retains nothing (the chunk is dropped unread), so the bound on
+        // copied bytes holds; only the observation may wait for that one further chunk or the end.
         if (have === limit && !truncated) truncated = !(await reader.read()).done;
       }
     } finally { reader.cancel().catch(() => {}); note(limit); }
@@ -635,11 +638,14 @@
       observeAppRead(command, response);
       return response;
     };
-    // Tauri 2.11.1 `ipc-protocol.js` warns with this text immediately before it falls back.
+    // Tauri 2.11.1 `ipc-protocol.js` warns with exactly this text immediately before it falls back
+    // (test-fixtures/tauri-2.11.1/scripts/ipc-protocol.js). Only that exact message counts, so an
+    // unrelated warning that merely begins alike cannot invalidate a run (review: exact match).
+    const TAURI_FALLBACK_WARNING = "IPC custom protocol failed, Tauri will now use the postMessage interface instead";
     const pageConsole = window.console;
     const originalWarn = pageConsole?.warn;
     const warn = function (...args) {
-      if (typeof args[0] === "string" && args[0].startsWith("IPC custom protocol failed")) lost("Tauri reported its IPC custom protocol failed and fell back to postMessage");
+      if (args[0] === TAURI_FALLBACK_WARNING) lost("Tauri reported its IPC custom protocol failed and fell back to postMessage");
       return originalWarn.apply(this, args);
     };
     if (typeof originalWarn === "function") pageConsole.warn = warn;

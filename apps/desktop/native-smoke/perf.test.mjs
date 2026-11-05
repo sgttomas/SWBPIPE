@@ -677,6 +677,20 @@ test("F1: a preflight fetch that fails falls back to postMessage and is no obser
   trace.restore();
 });
 
+test("F1: only Tauri's exact fallback warning marks the transport lost; an unrelated warning that begins alike does not", async (t) => {
+  const page = await tauriPage(t, poolNative);
+  const trace = page.hooks.beginC1Trace();
+  page.w.console.warn("IPC custom protocol failed to load a font", new Error("x"));
+  page.w.console.warn("IPC custom protocol failed, Tauri will now use the postMessage interface instead!", new Error("x"));
+  assert.equal(trace.data.transport.lost, false);
+  await page.hooks.preflight({});
+  page.hooks.requireObservedIpc(trace);
+  page.w.console.warn("IPC custom protocol failed, Tauri will now use the postMessage interface instead", new Error("x"));
+  assert.equal(trace.data.transport.lost, true);
+  assert.equal(page.sent.warnings.length, 3);
+  trace.restore();
+});
+
 test("F1: a preflight reply whose body cannot be read falls back to postMessage and is no observed round trip", async (t) => {
   const page = await tauriPage(t, poolNative, { fault: (command) => (command === "get_memory_pool_status" ? "body" : null) });
   const trace = page.hooks.beginC1Trace();
