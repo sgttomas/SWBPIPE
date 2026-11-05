@@ -4268,3 +4268,122 @@ fn a_recorded_run_is_refused_by_whichever_stored_column_exceeds_the_limit() {
     assert!(longer_record < crate::solve_jobs::MAX_DISPLAYABLE_RESULT_BYTES);
     assert!(read_run_in_store(&longer_path, PROJECT, &longer_id).is_ok());
 }
+
+/// How many record hashes took the checked path (`run_record_hash_within`'s
+/// fallback), in this thread.
+pub(crate) mod projection_probe {
+    use std::cell::Cell;
+    thread_local! {
+        static CHECKED: Cell<u64> = const { Cell::new(0) };
+    }
+    pub(crate) fn checked_path() {
+        CHECKED.with(|count| count.set(count.get() + 1));
+    }
+    pub(crate) fn take() -> u64 {
+        CHECKED.with(|count| count.replace(0))
+    }
+}
+
+/// RT-U4 (P1): the record hash streamed from the borrowed record is the
+/// checked path's (`run_record_hash_checked_path`, the implementation before
+/// it: the projection's clone, its serde_json text, the checked parse and the
+/// checked canonical text) for every persistence case's transient record, the
+/// witnesses' records and invented edge records: the same digest or the same
+/// refusal, text for text. The corpus never takes the checked path; the
+/// records the checked path refuses or could read differently always do.
+#[test]
+fn p1_streamed_record_hash_is_the_checked_paths_hash_or_refusal() {
+    let memory = stored_read::UnmeteredReadMemory;
+    let same = |record: &Value, what: &str| -> Result<String, String> {
+        let streamed = run_record_hash_within(record, &memory, "a record");
+        let checked = run_record_hash_checked_path(record, &memory, "a record");
+        assert_eq!(streamed, checked, "{what}");
+        streamed
+    };
+    let mut records: Vec<(String, Value)> = crate::native_persistence::tests::cases().into_iter().map(|case| (case.id.clone(), case.record)).collect();
+    for (name, text) in [("witness", WITNESS), ("witness rule packs", WITNESS_RULE_PACKS), ("s2 unresolved", S2_UNRESOLVED_RUN)] {
+        let value: Value = serde_json::from_str(text).unwrap();
+        let mut found = Vec::new();
+        collect_records(&value, &mut found);
+        assert!(!found.is_empty(), "{name} holds a record");
+        records.extend(found.into_iter().map(|record| (name.to_string(), record)));
+    }
+    projection_probe::take();
+    for (what, record) in &records {
+        let hash = same(record, what).unwrap_or_else(|error| panic!("{what}: {error}"));
+        // A record's own claimed checksum is its projection's hash.
+        if let Some(claimed) = record.pointer("/analysis_run/hashes").and_then(Value::as_array).and_then(|hashes| hashes.iter().find(|hash| is_own_checksum(hash))) {
+            assert_eq!(claimed["value"], json!(hash), "{what}");
+        }
+    }
+    assert_eq!(projection_probe::take(), 0, "the corpus records are hashed streamed");
+
+    let base = records[0].1.clone();
+    let edit = |change: &dyn Fn(&mut Value)| {
+        let mut record = base.clone();
+        change(&mut record);
+        record
+    };
+    let unsafe_integer = json!(9_007_199_254_740_993u64);
+    let mut nested = json!(1);
+    for _ in 0..140 {
+        nested = json!([nested]);
+    }
+    let mut shallow = json!(1);
+    for _ in 0..120 {
+        shallow = json!({ "n": shallow });
+    }
+    let refused_or_checked: Vec<(&str, Value, bool)> = vec![
+        ("no hashes", edit(&|record| { record["analysis_run"].as_object_mut().unwrap().remove("hashes"); }), false),
+        ("hashes not an array", edit(&|record| record["analysis_run"]["hashes"] = json!({})), false),
+        ("analysis_run an array", edit(&|record| record["analysis_run"] = json!([])), false),
+        ("the record an array", json!([base.clone()]), false),
+        ("a repeated own checksum", edit(&|record| {
+            let own = record["analysis_run"]["hashes"].as_array().unwrap().iter().find(|hash| is_own_checksum(hash)).unwrap().clone();
+            record["analysis_run"]["hashes"].as_array_mut().unwrap().push(own);
+        }), false),
+        ("an unsafe integer", edit(&|record| record["analysis_run"]["invented"] = unsafe_integer.clone()), true),
+        ("an unsafe negative integer", edit(&|record| record["invented"] = json!(-9_007_199_254_740_993i64)), true),
+        ("an unsafe integral float", edit(&|record| record["invented"] = json!(1e300)), true),
+        ("a container 141 deep", edit(&|record| record["invented"] = nested.clone()), true),
+        ("the RawValue token as a key", edit(&|record| record["invented"] = json!({ RAW_VALUE_TOKEN: "1" })), true),
+    ];
+    for (what, record, checked) in &refused_or_checked {
+        let outcome = same(record, what);
+        assert_eq!(projection_probe::take() > 0, *checked, "{what}: the checked path");
+        assert!(outcome.is_err(), "{what}: refused: {outcome:?}");
+    }
+    // Streamed, and the checked path's digest: the omitted checksum is never
+    // read (an unsafe integer there is not refused), numbers in every form the
+    // canonical writer renders, keys whose UTF-16 order is not their UTF-8
+    // order, escapes, and nesting just inside the limit.
+    let streamed: Vec<(&str, Value)> = vec![
+        ("an unsafe integer in the omitted checksum", edit(&|record| {
+            let hashes = record["analysis_run"]["hashes"].as_array_mut().unwrap();
+            hashes.iter_mut().find(|hash| is_own_checksum(hash)).unwrap()["invented"] = unsafe_integer.clone();
+        })),
+        ("numbers", edit(&|record| record["invented"] = json!([-0.0, 0.0, 1.0, 200.0, 1.5e-21, 1e-7, 0.1, 9_007_199_254_740_991u64, -9_007_199_254_740_991i64, 9_007_199_254_740_990.0, 4503599627370495.5, 123.456e10, 5e-324, -2.2250738585072014e-308, 1e-20]))),
+        ("keys by UTF-16 units", edit(&|record| record["analysis_run"]["invented"] = json!({ "\u{ff5a}": 1, "\u{1f600}": 2, "b": 3, "a": { "\u{e000}": 1, "\u{10000}": 2 } }))),
+        ("escapes and non-ASCII", edit(&|record| record["invented"] = json!("\u{8}\t\n\u{c}\r\"\\\u{1f}\u{7f}\u{80}é€ – \u{2028}"))),
+        ("nesting 121 deep", edit(&|record| record["invented"] = shallow.clone())),
+        ("no own checksum", edit(&|record| record["analysis_run"]["hashes"].as_array_mut().unwrap().retain(|hash| !is_own_checksum(hash)))),
+    ];
+    for (what, record) in &streamed {
+        same(record, what).unwrap_or_else(|error| panic!("{what}: {error}"));
+        assert_eq!(projection_probe::take(), 0, "{what}: streamed");
+    }
+}
+
+/// Every `analysis_run.v0.3` record (an object with `analysis_run.hashes`) in `value`.
+fn collect_records(value: &Value, into: &mut Vec<Value>) {
+    match value {
+        Value::Object(map) => {
+            if value.pointer("/analysis_run/hashes").is_some_and(Value::is_array) {
+                into.push(value.clone());
+            }
+            map.values().for_each(|item| collect_records(item, into));
+        }
+        Value::Array(items) => items.iter().for_each(|item| collect_records(item, into)),
+        _ => {}
+    }
+}

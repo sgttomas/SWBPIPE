@@ -606,7 +606,7 @@ fn record_sizes_are_sqlites_and_a_refused_row_rolls_everything_back() {
     request.project_id = case.project_id().to_string();
     let (record_json, record_hash, result_json, result_hash, manifest_text, producer) =
         (text("run_record_json"), text("run_record_hash"), text("result_json"), text("result_hash"), text("input_manifest_json"), text("producer_run_id"));
-    let texts = NativeRunTexts { record_json: &record_json, record_hash: &record_hash, result_json: &result_json, result_hash: &result_hash, manifest_text: &manifest_text, producer_run_id: &producer };
+    let texts = || NativeRunTexts { record_json: record_json.clone(), record_hash: &record_hash, result_json: result_json.clone(), result_hash: &result_hash, manifest_text: &manifest_text, producer_run_id: &producer, leases: Vec::new() };
     for (limit, written) in [(row - 1, false), (row, true)] {
         let path = dir.join(format!("direct-{limit}.sqlite"));
         stored_project(&path, case.project_id(), case.model());
@@ -614,7 +614,7 @@ fn record_sizes_are_sqlites_and_a_refused_row_rolls_everything_back() {
         connection.set_limit(Limit::SQLITE_LIMIT_LENGTH, limit as i32);
         let transaction = stored_read::write_transaction(&mut connection).unwrap();
         let plan = analysis_runs::plan_native_run(&transaction, &request, &checked, &FROZEN, &memory).unwrap();
-        let outcome = analysis_runs::write_native_run(&transaction, &request, plan, &texts, &FROZEN, &memory, |outcome| Ok(outcome.into_unreserved().unwrap()));
+        let outcome = analysis_runs::write_native_run(&transaction, &request, plan, texts(), &FROZEN, &memory, |outcome| Ok(outcome.into_unreserved().unwrap()));
         match (written, outcome) {
             (false, Err(text)) => {
                 assert!(text.starts_with(RUN_RECORD_RESULT_TOO_LARGE) && text.contains(stored_read::SQLITE_TOO_BIG), "{text}");
@@ -1502,6 +1502,219 @@ fn print_persistence_command_peaks() {
     }
     std::fs::remove_dir_all(&dir).unwrap();
     std::fs::write(std::env::var("SWBPIPE_PRINT_PERSISTENCE_PEAKS").unwrap(), out).unwrap();
+}
+
+/// Record Run in this thread with `hooks` (the tamper and failure tests).
+fn native_record_with(registry: &SolveJobRegistry, path: &Path, args: &Value, hooks: &RunWriteHooks<'_>) -> Result<Value, String> {
+    let (raw, lease) = reserve(registry, &body(args), &headers(Some(INGRESS_ARGS_JSON_V1)), RECORD_COMMAND).map_err(text_of)?;
+    let path = path.to_path_buf();
+    run_record(registry, move || Ok(path), raw, lease, hooks, None).map(|reply| serde_json::from_str(reply.text()).unwrap()).map_err(text_of)
+}
+
+/// Every table a Record Run can write, and whether the store's run
+/// immutability trigger is in place.
+fn store_snapshot(path: &Path) -> (Vec<Rows>, bool) {
+    let tables = RUN_TABLES.iter().chain(["local_projects"].iter()).map(|table| dump(path, table, &[])).collect();
+    let trigger = Connection::open(path).unwrap().query_row("SELECT count(*) FROM sqlite_master WHERE type = 'trigger' AND name = 'analysis_runs_immutable'", [], |row| row.get::<_, i64>(0)).unwrap() == 1;
+    (tables, trigger)
+}
+
+/// SQL run between the run row and its labels (the `run` hook), with the
+/// run's immutability trigger dropped and foreign keys deferred, as a
+/// corruption between the INSERT and the readback.
+pub(crate) const TAMPER: &[(&str, &str, &str)] = &[
+    ("state_id", "UPDATE analysis_runs SET state_id = replace(state_id, '0', '1')", "the row's state id differs from its verified record"),
+    ("producer_run_id", "UPDATE analysis_runs SET producer_run_id = producer_run_id || 'x'", "the row's producer run id differs from its verified record"),
+    ("created_at", "UPDATE analysis_runs SET created_at = replace(created_at, 'Z', 'z')", "the row's created_at differs from its verified record"),
+    ("run_record_hash", "UPDATE analysis_runs SET run_record_hash = upper(run_record_hash)", "the row's record hash differs from its verified record"),
+    ("result_hash", "UPDATE analysis_runs SET result_hash = upper(result_hash)", "the row's result hash differs from its verified record"),
+    ("recording_id", "UPDATE analysis_runs SET recording_id = recording_id || 'x'", "was not written"),
+    ("project_id", "UPDATE analysis_runs SET project_id = project_id || 'x'", "was not written"),
+    ("record bytes (a member)", "UPDATE analysis_runs SET run_record_json = replace(run_record_json, '\"schema_version\":\"0.3.0\"', '\"schema_version\":\"0.3.1\"')", "the row's record hash differs from its verified record"),
+    ("record bytes (not JSON)", "UPDATE analysis_runs SET run_record_json = run_record_json || 'x'", "the stored record: the stored JSON is invalid (trailing characters at byte"),
+    ("labels row", "CREATE TEMP TRIGGER drop_run_labels AFTER INSERT ON analysis_run_labels BEGIN DELETE FROM analysis_run_labels WHERE recording_id = NEW.recording_id; END", "has no labels row"),
+];
+
+/// Each tamper of TAMPER after the INSERT, and a failure between any two
+/// rows, is refused by the readback with its integrity text, and nothing of
+/// the run, its labels or its snapshot is written (the trigger is back).
+pub(crate) fn tampered_runs_roll_back(name: &str) {
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let dir = scratch(name);
+    let case = case_named("preview:pressure");
+    let job = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
+    let args = case.record_args(&job, native_request(None));
+    let reference = dir.join("reference.sqlite");
+    stored_project(&reference, case.project_id(), case.model());
+    let recording_id = native_record(&registry, &reference, &args, None).unwrap()["run"]["recording_id"].as_str().unwrap().to_string();
+    let held_bytes = registry.pool().reserved_total();
+    for (at, (column, sql, expected)) in TAMPER.iter().enumerate() {
+        let path = dir.join(format!("tamper-{at}.sqlite"));
+        stored_project(&path, case.project_id(), case.model());
+        let before = store_snapshot(&path);
+        let tamper = |transaction: &Transaction<'_>, stage: &str| -> Result<(), String> {
+            if stage == "run" {
+                transaction.execute_batch(&format!("PRAGMA defer_foreign_keys = ON; DROP TRIGGER analysis_runs_immutable; {sql};")).map_err(|error| error.to_string())?;
+            }
+            Ok(())
+        };
+        let hooks = RunWriteHooks { now: &frozen_now, state_token: &frozen_token, between_rows: &tamper };
+        let text = native_record_with(&registry, &path, &args, &hooks).expect_err(column);
+        assert!(text.starts_with(&format!("ANALYSIS-RUN-INTEGRITY: recorded run `{recording_id}`")), "{column}: {text}");
+        assert!(text.contains(expected), "{column}: {text}");
+        assert_eq!(store_snapshot(&path), before, "{column}: every row rolled back, the trigger restored");
+        assert_eq!(registry.pool().reserved_total(), held_bytes, "{column}: every lease of the command ended");
+    }
+    for stage in ["state", "run"] {
+        let path = dir.join(format!("fail-{stage}.sqlite"));
+        stored_project(&path, case.project_id(), case.model());
+        let before = store_snapshot(&path);
+        let fail = |_: &Transaction<'_>, at: &str| -> Result<(), String> { if at == stage { Err(format!("INVENTED-FAILURE: between the {at} rows")) } else { Ok(()) } };
+        let hooks = RunWriteHooks { now: &frozen_now, state_token: &frozen_token, between_rows: &fail };
+        assert_eq!(native_record_with(&registry, &path, &args, &hooks).unwrap_err(), format!("INVENTED-FAILURE: between the {stage} rows"));
+        assert_eq!(store_snapshot(&path), before, "{stage}: nothing written");
+    }
+    assert!(registry.dispose_result(&job).unwrap().released);
+    std::fs::remove_dir_all(&dir).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
+
+#[test]
+fn p1_a_run_tampered_after_its_insert_is_refused_and_rolled_back() {
+    tampered_runs_roll_back("p1-tamper");
+}
+
+/// The allocation evidence of one command by phase: each mark's live bytes,
+/// the phase's peak and the pool's reserved total, and the command's peak.
+pub(crate) fn phases(registry: &SolveJobRegistry, run: impl FnOnce()) -> (Vec<stored_read::phase_probe::Mark>, u64) {
+    let pool = registry.clone();
+    stored_read::phase_probe::start(move || pool.pool().reserved_total());
+    let ((), measured) = crate::ingress::counting::measure(run);
+    (stored_read::phase_probe::take(), measured.peak_requested)
+}
+
+pub(crate) fn mark<'m>(marks: &'m [stored_read::phase_probe::Mark], at: &str) -> &'m stored_read::phase_probe::Mark {
+    marks.iter().find(|mark| mark.at == at).unwrap_or_else(|| panic!("no mark `{at}` in {marks:?}"))
+}
+
+/// Writes the marks as a table (the PR's allocation evidence,
+/// `SWBPIPE_PRINT_PERSISTENCE_PHASES=<file>`).
+pub(crate) fn print_phases(title: &str, marks: &[stored_read::phase_probe::Mark], peak: u64) {
+    if let Some(path) = std::env::var_os("SWBPIPE_PRINT_PERSISTENCE_PHASES") {
+        use std::io::Write;
+        let mut out = std::fs::OpenOptions::new().create(true).append(true).open(path).unwrap();
+        writeln!(out, "{title} (command peak {peak} B)").unwrap();
+        for mark in marks {
+            writeln!(out, "  {:<62} live {:>10}  phase peak {:>10}  pool reserved {:>12}", mark.at, mark.live, mark.peak, mark.reserved).unwrap();
+        }
+    }
+}
+
+/// Each command's peak requested bytes before the change (this thread's Rust
+/// allocations, `command_peaks` at c8865f384): the `preview:pressure` case.
+const PRE_CHANGE_PEAKS: [(&str, u64); 5] =
+    [("record_run", 10_446_522), ("recorded_read", 9_597_909), ("fresh_create", 1_798_668), ("fresh_save_again", 1_797_870), ("restored_resave", 4_214_394)];
+
+/// P1's allocation evidence (`ingress::counting`: allocations, not leases):
+/// the result's parse ends before its text is written; the run's texts end at
+/// the INSERT; the readback frees the loaded record before hashing it and
+/// makes no projection clone, serialized text or checked parse; a save's
+/// result text ends before its search text is built and its record text
+/// before the search row is written; a recorded read loads the record once
+/// and parses the result once. Each command's peak is lower than before.
+#[test]
+fn p1_allocations_end_where_their_last_use_is() {
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let dir = scratch("p1-phases");
+    let case = case_named("preview:pressure");
+    let job = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
+    let recorded = dir.join("record.sqlite");
+    stored_project(&recorded, case.project_id(), case.model());
+    let args = case.record_args(&job, native_request(None));
+    let mut reply = Value::Null;
+    let (marks, record_peak) = phases(&registry, || reply = native_record(&registry, &recorded, &args, None).unwrap());
+    print_phases("Record Run (preview:pressure)", &marks, record_peak);
+    let stored = dump(&recorded, "analysis_runs", &[]);
+    let length = |column: &str| match &stored[0].iter().find(|(name, _)| name == column).unwrap().1 {
+        rusqlite::types::Value::Text(text) => text.len() as i64,
+        other => panic!("{other:?}"),
+    };
+    let (r, q) = (length("result_json"), length("run_record_json"));
+    let live = |at: &str| mark(&marks, at).live;
+    // (b) The parse (larger than its text) ends before the result's text exists.
+    assert!(live("record run: record staged, result parse held") - live("record run: result parse released") > r, "{marks:?}");
+    assert!(live("record run: result text written") - live("record run: result parse released") >= r, "the result's text is allocated after the parse ended");
+    // (c) Both texts end at the INSERT.
+    assert!(live("record run: run row inserted") - live("record run: texts and statement copies released") >= r + q, "{marks:?}");
+    // (c) The readback frees the loaded record (Q) once it is parsed, before
+    // hashing: its phase peak (text, parse and SQLite's handover) is at least Q
+    // above what stays; the hash and the checks then allocate nothing of the
+    // record's size (no clone, serialized text, checked parse or canonical text).
+    let parsed = mark(&marks, "run readback: record parsed, text released");
+    assert!(parsed.peak - parsed.live >= q, "{marks:?}");
+    assert!(mark(&marks, "record run: run read back and verified").peak - parsed.live < q / 4, "{marks:?}");
+    let pre = |name: &str| PRE_CHANGE_PEAKS.iter().find(|(key, _)| *key == name).unwrap().1;
+    assert!(record_peak + 2 * q as u64 <= pre("record_run"), "Record Run: {record_peak} against {}", pre("record_run"));
+
+    let saved = dir.join("save.sqlite");
+    let args = case.save_args(&job, "create", Value::Null, Value::Null);
+    let (marks, create_peak) = phases(&registry, || reply = native_save(&registry, &saved, &args, &unlimited()).unwrap());
+    print_phases("Create Project (preview:pressure)", &marks, create_peak);
+    let stored = dump(&saved, "local_projects", &[]);
+    let column = |name: &str| match &stored[0].iter().find(|(column, _)| column == name).unwrap().1 {
+        rusqlite::types::Value::Text(text) => text.len() as i64,
+        other => panic!("{other:?}"),
+    };
+    let (saved_r, saved_q) = (column("mechanics_result_json"), column("analysis_run_json"));
+    let live = |at: &str| mark(&marks, at).live;
+    // (a) The result's text ends after the project row; the search text is built
+    // from the slots without it; the record's ends before the search row.
+    assert!(live("save: project row written") - live("save: result text released") >= saved_r, "{marks:?}");
+    // The search text (S) is allocated and the record's text (Q) freed: the
+    // live bytes move by S - Q (the small slots), within a small allowance.
+    let search_length = match &dump(&saved, "local_project_fts", &[])[0].iter().find(|(name, _)| name == "model_text").unwrap().1 {
+        rusqlite::types::Value::Text(text) => text.len() as i64,
+        other => panic!("{other:?}"),
+    };
+    let moved = mark(&marks, "save: search text built, record text released").live - live("save: result text released");
+    assert!(moved <= search_length - saved_q + (1 << 20), "S - Q = {}, moved {moved}: {marks:?}", search_length - saved_q);
+    assert!(mark(&marks, "save: search row written").peak < live("save: project row written") + saved_q, "the search row's phase holds neither the result's nor the record's text: {marks:?}");
+    assert!(create_peak <= pre("fresh_create"), "Create Project: {create_peak} against {}", pre("fresh_create"));
+    let base = reply["project_envelope_hash"]["value"].clone();
+    let args = case.save_args(&job, "save", base, Value::Null);
+    let (marks, again_peak) = phases(&registry, || reply = native_save(&registry, &saved, &args, &unlimited()).unwrap());
+    print_phases("Save Project again (preview:pressure)", &marks, again_peak);
+    assert!(again_peak <= pre("fresh_save_again"), "Save Project: {again_peak} against {}", pre("fresh_save_again"));
+
+    registry.dispose_all_results();
+    let recording_id = dump(&recorded, "analysis_runs", &[])[0].iter().find(|(name, _)| name == "recording_id").map(|(_, value)| match value {
+        rusqlite::types::Value::Text(text) => text.clone(),
+        other => panic!("{other:?}"),
+    }).unwrap();
+    let (marks, read_peak) = phases(&registry, || reply = crate::stored_custody::tests::native_read(&registry, &recorded, case.project_id(), &recording_id).unwrap());
+    print_phases("Recorded-run read (preview:pressure)", &marks, read_peak);
+    // (d) One load of the record: the summary's readback is the only one.
+    assert_eq!(marks.iter().filter(|mark| mark.at.starts_with("run readback: record parsed")).count(), 1, "{marks:?}");
+    mark(&marks, "run readback: record parsed, text kept for custody");
+    assert!(read_peak + q as u64 <= pre("recorded_read"), "recorded read: {read_peak} against {}", pre("recorded_read"));
+    registry.dispose_all_results();
+
+    let opened = crate::stored_custody::tests::native_open(&registry, &saved, Some(case.project_id())).unwrap();
+    let base = opened["project_envelope_hash"]["value"].clone();
+    let args = crate::stored_save::tests::resave_args(&opened, &crate::stored_save::tests::opened_fields(&opened), "save", base, Value::Null);
+    let (marks, resave_peak) = phases(&registry, || reply = crate::stored_save::tests::native_resave(&registry, &saved, &args, &unlimited()).unwrap());
+    print_phases("Restored re-save (preview:pressure)", &marks, resave_peak);
+    assert!(live_drop(&marks, "save: project row written", "save: result text released") >= saved_r, "{marks:?}");
+    assert!(resave_peak <= pre("restored_resave"), "re-save: {resave_peak} against {}", pre("restored_resave"));
+    registry.dispose_all_results();
+    std::fs::remove_dir_all(&dir).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
+
+fn live_drop(marks: &[stored_read::phase_probe::Mark], from: &str, to: &str) -> i64 {
+    mark(marks, from).live - mark(marks, to).live
 }
 /// Generated at c8865f384 (module section docs).
 const PARITY: &[(&str, &str)] = &[

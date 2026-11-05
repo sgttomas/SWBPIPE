@@ -752,6 +752,8 @@ pub(crate) mod counting {
         static LIVE_PRICED: Cell<i64> = const { Cell::new(0) };
         static PEAK_PRICED: Cell<i64> = const { Cell::new(0) };
         static ALLOCATIONS: Cell<u64> = const { Cell::new(0) };
+        /// The live requested bytes' peak since the last [`phase_mark`] (tests).
+        static PHASE_PEAK: Cell<i64> = const { Cell::new(0) };
     }
 
     fn price(size: usize) -> i64 {
@@ -779,6 +781,8 @@ pub(crate) mod counting {
         if counts_as_allocation {
             ALLOCATIONS.with(|c| c.set(c.get() + 1));
         }
+        let before = LIVE.with(Cell::get);
+        PHASE_PEAK.with(|peak| peak.set(peak.get().max(before + added as i64)));
         bump(&LIVE, &PEAK, added as i64, removed as i64);
         let priced = |size: usize| if size > 0 { price(size) } else { 0 };
         bump(&LIVE_PRICED, &PEAK_PRICED, priced(added), priced(removed));
@@ -799,6 +803,16 @@ pub(crate) mod counting {
         LIVE_PRICED.with(Cell::get)
     }
 
+    /// The live requested bytes now and their peak since the last mark (or
+    /// since [`measure`] began); the next phase starts from the live bytes
+    /// (tests: `stored_read::phase_probe`).
+    #[cfg(test)]
+    pub fn phase_mark() -> (i64, i64) {
+        let live = LIVE.with(Cell::get);
+        let peak = PHASE_PEAK.with(|peak| peak.replace(live)).max(live);
+        (live, peak)
+    }
+
     #[cfg(test)]
     #[test]
     fn accounting_disarms_during_unwind() {
@@ -815,7 +829,7 @@ pub(crate) mod counting {
         }
         assert!(!ACTIVE.with(Cell::get), "allocation measures cannot nest");
         let reset = Reset;
-        for cell in [&LIVE, &PEAK, &LIVE_PRICED, &PEAK_PRICED] {
+        for cell in [&LIVE, &PEAK, &LIVE_PRICED, &PEAK_PRICED, &PHASE_PEAK] {
             cell.with(|c| c.set(0));
         }
         ALLOCATIONS.with(|c| c.set(0));

@@ -36,6 +36,7 @@
 //! project envelope hash is unchanged. Nothing here approves, accepts,
 //! certifies or issues anything (F-PIP-2, F-PIP-3).
 
+use crate::analysis_run_v03_build::{self as build, Style, Writer};
 use crate::command_ingress::{self, Args, ArgsDecoding, CommandError};
 use crate::model_states::{
     self, find_summary_with, insert_new_state, labels_from_value_in, now_unix_millis, parse_iso_millis,
@@ -159,7 +160,8 @@ pub(crate) fn checked_sha256(value: &Value) -> Result<String, String> {
 }
 
 /// The record without its `analysis_run_record` checksum (v0.3's
-/// `analysis_record_projection`); a duplicated checksum is refused.
+/// `analysis_record_projection`); a duplicated checksum is refused. Built
+/// only on the checked path ([`run_record_hash_within`]).
 fn record_projection(record: &Value) -> Result<Value, String> {
     let mut projected = record.clone();
     let hashes = projected
@@ -183,10 +185,157 @@ pub(crate) fn run_record_hash(record: &Value) -> Result<String, String> {
     run_record_hash_within(record, &UnmeteredReadMemory, "a record")
 }
 
-/// The `analysis_run_record` hash of a v0.3 record, its texts reserved in
-/// `memory` at their exact lengths before they are built (the projection is a
-/// clone of the record, priced by the caller with the record's parse).
+/// The `analysis_run_record` hash of a v0.3 record: SHA-256 of the checked
+/// canonical text (`openpipestress_jcs_ijson_v1`) of its projection
+/// ([`record_projection`]), as `stored_read::checked_sha256` computes it over
+/// the projection's clone, with the same refusals in the same order (RT-U4,
+/// DEL-04-05 `c1-native-custody-plan.md` slice 5).
+///
+/// 1. The projection's own refusals, in [`record_projection`]'s order: no
+///    `/analysis_run/hashes` array, then a repeated `analysis_run_record`
+///    checksum.
+/// 2. A projection the checked path could refuse, or whose checked text
+///    could differ from the borrowed values' RFC 8785 text
+///    ([`projection_takes_checked_path`]), takes the checked path itself:
+///    the projection's clone, its serde_json text, the checked parse and the
+///    checked canonical text, each reserved in `memory` as before (the clone
+///    priced by the caller with the record's parse). Its refusal is then the
+///    checked path's, text for text.
+/// 3. Otherwise the checked path would succeed and its canonical text is
+///    exactly RFC 8785 of the borrowed values (a `Map` serializes each key
+///    once, so the checked parse rebuilds the same values; every number is in
+///    the profile; strings and numbers are written by the same escape table
+///    and `canonical_number`; keys sort by UTF-16 code units): that text,
+///    less the omitted checksums, is streamed into SHA-256 from the borrowed
+///    record. No clone, serialized text, checked parse or canonical text is
+///    made, so nothing is reserved.
 pub(crate) fn run_record_hash_within(record: &Value, memory: &dyn ReadMemory, what: &str) -> Result<String, String> {
+    let hashes = record
+        .pointer("/analysis_run/hashes")
+        .and_then(Value::as_array)
+        .ok_or_else(|| "ANALYSIS-RUN-RECORD-INVALID: the record has no hashes.".to_string())?;
+    if hashes.iter().filter(|hash| is_own_checksum(hash)).count() > 1 {
+        return Err("ANALYSIS-RUN-RECORD-CHECKSUM-DUPLICATE".to_string());
+    }
+    if projection_takes_checked_path(record, 1, Projected::Root) {
+        #[cfg(test)]
+        tests::projection_probe::checked_path();
+        return stored_read::checked_sha256(memory, what, &record_projection(record)?);
+    }
+    let mut hasher = <sha2::Sha256 as sha2::Digest>::new();
+    write_projection(&mut Writer::new(&mut hasher, Style::Canonical), record, Projected::Root);
+    Ok(build::hex(&sha2::Digest::finalize(hasher)))
+}
+
+/// A checksum descriptor the projection omits (the record's own).
+fn is_own_checksum(hash: &Value) -> bool {
+    hash.get("payload_scope").and_then(Value::as_str) == Some("analysis_run_record")
+}
+
+/// Where a value sits relative to the projection's one omission
+/// (`/analysis_run/hashes`): the record, its `analysis_run`, that object's
+/// `hashes`, or anywhere else.
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Projected {
+    Root,
+    Run,
+    Hashes,
+    Elsewhere,
+}
+
+impl Projected {
+    fn member(self, key: &str) -> Projected {
+        match (self, key) {
+            (Projected::Root, "analysis_run") => Projected::Run,
+            (Projected::Run, "hashes") => Projected::Hashes,
+            _ => Projected::Elsewhere,
+        }
+    }
+}
+
+/// serde_json's `Value` visitor reads an object whose key is this token as an
+/// embedded `RawValue`; the store's prescan refuses it.
+const RAW_VALUE_TOKEN: &str = "$serde_json::private::RawValue";
+
+/// The nesting at which the streamed hash leaves a projection to the checked
+/// path: the prescan refuses the 128th nested container and the checked
+/// parse the same; one level lower, conservatively, so the streamed hash
+/// never meets either limit.
+const STREAMED_DEPTH_LIMIT: usize = 127;
+
+/// A number the checked profile refuses (`validate_checked_value`): an
+/// integer beyond `MAX_SAFE_INTEGER`, a non-finite number, or an integral
+/// float beyond it.
+fn outside_checked_v1(number: &serde_json::Number) -> bool {
+    use open_pipe_stress_canonical_json::MAX_SAFE_INTEGER;
+    if let Some(value) = number.as_i64() {
+        return !(-MAX_SAFE_INTEGER..=MAX_SAFE_INTEGER).contains(&value);
+    }
+    if let Some(value) = number.as_u64() {
+        return value > MAX_SAFE_INTEGER as u64;
+    }
+    number.as_f64().map_or(true, |value| !value.is_finite() || (value.fract() == 0.0 && value.abs() > MAX_SAFE_INTEGER as f64))
+}
+
+/// Whether the projection of `value` (at nesting `level`, `place`) holds
+/// anything the checked path could refuse or read differently: a number
+/// outside the profile, a container nested [`STREAMED_DEPTH_LIMIT`] deep, or
+/// the `RawValue` token as a key. The omitted checksums are not read, as the
+/// checked path does not read them. Never descends past the limit.
+fn projection_takes_checked_path(value: &Value, level: usize, place: Projected) -> bool {
+    match value {
+        Value::Number(number) => outside_checked_v1(number),
+        Value::Array(items) => {
+            level >= STREAMED_DEPTH_LIMIT
+                || items
+                    .iter()
+                    .filter(|item| place != Projected::Hashes || !is_own_checksum(item))
+                    .any(|item| projection_takes_checked_path(item, level + 1, Projected::Elsewhere))
+        }
+        Value::Object(map) => {
+            level >= STREAMED_DEPTH_LIMIT
+                || map.iter().any(|(key, item)| key == RAW_VALUE_TOKEN || projection_takes_checked_path(item, level + 1, place.member(key)))
+        }
+        _ => false,
+    }
+}
+
+/// The projection's RFC 8785 text, streamed: the record's and its
+/// `analysis_run`'s members in UTF-16 key order, the record's own checksums
+/// left out of `hashes`, everything else as [`Writer`] writes a value.
+fn write_projection<S: build::Sink>(out: &mut Writer<'_, S>, value: &Value, place: Projected) {
+    match value {
+        Value::Array(items) if place == Projected::Hashes => {
+            out.raw("[");
+            for (index, item) in items.iter().filter(|item| !is_own_checksum(item)).enumerate() {
+                if index > 0 {
+                    out.raw(",");
+                }
+                out.value(item);
+            }
+            out.raw("]");
+        }
+        Value::Object(map) if matches!(place, Projected::Root | Projected::Run) => {
+            let mut keys: Vec<&String> = map.keys().collect();
+            keys.sort_by(|left, right| left.encode_utf16().cmp(right.encode_utf16()));
+            out.raw("{");
+            for (index, key) in keys.into_iter().enumerate() {
+                if index > 0 {
+                    out.raw(",");
+                }
+                out.string(key);
+                out.raw(":");
+                write_projection(out, &map[key.as_str()], place.member(key));
+            }
+            out.raw("}");
+        }
+        other => out.value(other),
+    }
+}
+
+/// The checked path's hash, always (tests: the reference [`run_record_hash_within`] keeps).
+#[cfg(test)]
+pub(crate) fn run_record_hash_checked_path(record: &Value, memory: &dyn ReadMemory, what: &str) -> Result<String, String> {
     stored_read::checked_sha256(memory, what, &record_projection(record)?)
 }
 
@@ -1077,10 +1226,11 @@ struct RunColumns<'a> {
 /// `created_at`, the result hash (`received_result`) and the project (the
 /// record's unit-system ref names the project and the manifest hash). Any
 /// difference is `ANALYSIS-RUN-INTEGRITY`, naming the run.
-fn verified_run_record(columns: &RunColumns<'_>, record_json: &str, memory: &dyn ReadMemory) -> Result<Value, String> {
+///
+/// The stored text is parsed by [`parse_stored_record`] and may be freed
+/// before this (RT-U4): nothing here reads it.
+fn verified_run_record(columns: &RunColumns<'_>, record: Value, memory: &dyn ReadMemory) -> Result<Value, String> {
     let id = columns.recording_id;
-    let record: Value = serde_json::from_str(record_json)
-        .map_err(|error| integrity_of(id, format_args!("the stored record is not JSON ({error})", error = stored_read::json_error(&error))))?;
     let recomputed = run_record_hash_within(&record, memory, &format!("recorded run `{}`'s record hash", stored_read::shown(id))).map_err(|error| {
         if error.starts_with(stored_read::STORE_READ_MEMORY_UNAVAILABLE) { error } else { integrity_of(id, error) }
     })?;
@@ -1135,6 +1285,13 @@ fn verified_run_record(columns: &RunColumns<'_>, record_json: &str, memory: &dyn
     Ok(record)
 }
 
+/// The stored record's parse; a text that is not JSON is the row's integrity
+/// refusal.
+fn parse_stored_record(recording_id: &str, record_json: &str) -> Result<Value, String> {
+    serde_json::from_str(record_json)
+        .map_err(|error| integrity_of(recording_id, format_args!("the stored record is not JSON ({error})", error = stored_read::json_error(&error))))
+}
+
 const SUMMARY_COLUMNS: &str = "r.project_id, r.recording_id, r.state_id, r.producer_run_id, r.created_at, r.run_record_hash, r.result_hash,
     l.run_name, l.tags_json, l.notes_json, l.assumptions_json, l.updated_at";
 
@@ -1175,7 +1332,10 @@ fn summary_row(row: &rusqlite::Row<'_>) -> rusqlite::Result<SummaryRow> {
 /// with its reservation once it is verified.
 type VerifiedRun = (Metered<AnalysisRunSummary>, Metered<Value>);
 
-fn summary_from_row(connection: &Connection, row: SummaryRow, memory: &dyn ReadMemory) -> Result<VerifiedRun, String> {
+/// `keep_text`: the stored record's text is handed back there once it is
+/// parsed (C1 slice 6's native load) instead of being freed before the record
+/// is verified.
+fn summary_from_row(connection: &Connection, row: SummaryRow, memory: &dyn ReadMemory, keep_text: Option<&mut Option<String>>) -> Result<VerifiedRun, String> {
     let (project_id, recording_id, state_id, producer_run_id, created_at, run_record_hash, result_hash, name, tags, notes, assumptions, updated_at) =
         row;
     let (Some(name), Some(tags), Some(notes), Some(assumptions), Some(updated_at)) = (name, tags, notes, assumptions, updated_at)
@@ -1190,13 +1350,29 @@ fn summary_from_row(connection: &Connection, row: SummaryRow, memory: &dyn ReadM
         )
         // A record of the wrong type or not UTF-8 is the row's own failure (W-12).
         .map_err(|error| stored_read::column_fetch_error(error, |detail| integrity_of(&recording_id, detail)))?;
-    // The record's parse and its hash projection (a clone), priced before
-    // parsing and held while the record is; the hash's texts and checked parse
-    // are reserved at their exact lengths when they are made. A record the
+    // The record's parse and its hash projection (a clone, made only on the
+    // checked path, `run_record_hash_within`), priced before parsing and held
+    // while the record is; the checked path's texts and checked parse are
+    // reserved at their exact lengths when they are made. A record the
     // prescan refuses is refused before it is parsed.
     let record_parse = stored_read::parse_bytes(&record_json)
         .map_err(|detail| integrity_of(&recording_id, format_args!("the stored record: {detail}")))?;
     let record_reservation = memory.reserve(&format!("recorded run `{recording_id}`'s record", recording_id = stored_read::shown(&recording_id)), record_parse.saturating_mul(2))?;
+    let record = parse_stored_record(&recording_id, &record_json)?;
+    // The loaded text ends here, before the record is hashed (RT-U4), unless
+    // the caller keeps it.
+    match keep_text {
+        Some(kept) => {
+            *kept = Some(record_json);
+            #[cfg(test)]
+            stored_read::phase_probe::mark("run readback: record parsed, text kept for custody");
+        }
+        None => {
+            drop(record_json);
+            #[cfg(test)]
+            stored_read::phase_probe::mark("run readback: record parsed, text released");
+        }
+    }
     let record = verified_run_record(
         &RunColumns {
             project_id: &project_id,
@@ -1207,10 +1383,9 @@ fn summary_from_row(connection: &Connection, row: SummaryRow, memory: &dyn ReadM
             run_record_hash: &run_record_hash,
             result_hash: &result_hash,
         },
-        &record_json,
+        record,
         memory,
     )?;
-    drop(record_json);
     // The status list outlives the record: its retained copy is reserved (repair r6).
     let status = stored_read::bounded_status(record.pointer("/analysis_run/analysis_status")).map_err(|detail| integrity_of(&recording_id, detail))?;
     let status_reservation = memory.reserve(
@@ -1314,6 +1489,19 @@ pub(crate) fn find_run_with(
     recording_id: &str,
     memory: &dyn ReadMemory,
 ) -> Result<Option<Metered<(AnalysisRunSummary, Value)>>, String> {
+    find_run_keeping(connection, project_id, recording_id, memory, None)
+}
+
+/// [`find_run_with`], the stored record's exact text handed back in
+/// `keep_text` once it is parsed (C1 slice 6's native load reuses it rather
+/// than loading it again; RT-U4).
+fn find_run_keeping(
+    connection: &Connection,
+    project_id: &str,
+    recording_id: &str,
+    memory: &dyn ReadMemory,
+    keep_text: Option<&mut Option<String>>,
+) -> Result<Option<Metered<(AnalysisRunSummary, Value)>>, String> {
     let lengths: Option<(Option<i64>, Option<i64>, Option<i64>)> = connection
         .query_row(
             &format!(
@@ -1353,7 +1541,7 @@ pub(crate) fn find_run_with(
             }
         })?;
     let Some(row) = row else { return Ok(None) };
-    let (summary, record) = summary_from_row(connection, row, memory)?;
+    let (summary, record) = summary_from_row(connection, row, memory, keep_text)?;
     Ok(Some(summary.join(record, |summary, record| (summary, record)).holding(load)))
 }
 
@@ -1427,7 +1615,7 @@ fn checked_run_row(connection: &Connection, row: rusqlite::Result<SummaryRow>, m
     match row {
         Err(error) if stored_read::is_row_value_error(&error) => Ok(Err(RunRowRefusal::Column(sql(error)))),
         Err(error) => Err(sql(error)),
-        Ok(row) => match summary_from_row(connection, row, memory) {
+        Ok(row) => match summary_from_row(connection, row, memory, None) {
             Ok(verified) => Ok(Ok(verified)),
             Err(error) if error.starts_with("ANALYSIS-RUN-INTEGRITY") => Ok(Err(RunRowRefusal::Integrity(error))),
             Err(error) => Err(error),
@@ -1943,12 +2131,16 @@ pub(crate) fn read_run_in_store_within(
 /// C1 slice 6's hook into a recorded run's read for native custody
 /// (`stored_custody`): told the stored result's and record's lengths after
 /// they are measured and before anything of the run is loaded (it admits
-/// the held bytes' leases there, or refuses), and handed the stored record's
-/// exact text, loaded in the same read transaction after the record was
-/// verified.
+/// the held bytes' leases there, or refuses), handed the stored record's
+/// exact text once the record is verified (the text the verification loaded
+/// and parsed, in the same read transaction, not loaded again; RT-U4), and
+/// handed the stored result's parse once every check has read it (the read's
+/// one parse, priced with the manifest's in the read's reservations, which
+/// the caller holds in its guard while it holds the parse).
 pub(crate) trait NativeRunLoad {
     fn admit(&mut self, result_bytes: u64, record_bytes: u64) -> Result<(), String>;
     fn record_text(&mut self, text: String);
+    fn result_value(&mut self, value: Value);
 }
 
 /// [`read_run_in_store_within`], with C1 slice 6's native load when `native`
@@ -1993,15 +2185,13 @@ pub(crate) fn read_run_in_store_core(
         ]),
     )?;
     let mut read = Metered::new(()).holding(load);
-    let found = find_run_with(&transaction, project_id, recording_id, memory)?.ok_or_else(not_found)?;
+    // For native custody, the verified record's exact stored text: the text
+    // the verification loaded (under the summary's load reservation) and the
+    // hook's lease, kept rather than loaded again.
+    let mut kept_text = None;
+    let found = find_run_keeping(&transaction, project_id, recording_id, memory, native.is_some().then_some(&mut kept_text))?.ok_or_else(not_found)?;
     if let Some(native) = native.as_deref_mut() {
-        // The verified record's exact stored text, for native custody: SQLite's
-        // copies are reserved here; the text itself is under the hook's lease.
-        let _sqlite_copies = memory.reserve(&format!("{what}'s stored record"), stored_read::exact_text_bytes(record_length).saturating_mul(2))?;
-        let text: String = transaction
-            .query_row("SELECT run_record_json FROM analysis_runs WHERE project_id = ?1 AND recording_id = ?2", params![project_id, recording_id], |row| row.get(0))
-            .map_err(|error| stored_read::column_fetch_error(error, |detail| integrity_of(recording_id, detail)))?;
-        native.record_text(text);
+        native.record_text(kept_text.take().ok_or_else(|| format!("STORE-READ: {what}'s stored record was not kept"))?);
     }
     let (run, record) = found.get();
     let (result_json, manifest_text): (String, String) = transaction
@@ -2061,7 +2251,15 @@ pub(crate) fn read_run_in_store_core(
     // Refused by name only once every other check (below: the linked state and
     // its model hash) has passed, so corruption keeps its integrity refusal (W-12).
     let rule_packs_not_resolved = difference == Some(DiagnosticsDifference::NotResolved);
-    drop(result);
+    // Native custody keeps the one parse of the result (under `parse`, which
+    // the read holds), handed over once the read has passed; otherwise it
+    // ends here.
+    let result = if native.is_some() {
+        Some(result)
+    } else {
+        drop(result);
+        None
+    };
     let state = model_states::find_summary_with(&transaction, project_id, &run.state_id, memory)?.ok_or_else(|| {
         integrity_of(recording_id, format_args!("its state `{}` is not saved", stored_read::shown(&run.state_id)))
     })?;
@@ -2080,6 +2278,9 @@ pub(crate) fn read_run_in_store_core(
     }
     drop(manifest);
     read.hold(parse);
+    if let (Some(native), Some(result)) = (native, result) {
+        native.result_value(result);
+    }
     Ok(read.join(found, |(), found| found).join(state, |(run, record), state| AnalysisRunRead {
         run,
         state,
@@ -2430,13 +2631,17 @@ pub(crate) fn plan_native_run(
 /// its size checks: the recorded revision's stored bytes and hash, the
 /// received result's text (`jsonTextKeepingNegativeZero` of its parse) and
 /// checked hash, the manifest's canonical text and the producer's run id.
+/// The two row-scale texts are owned, with their leases and the lease of
+/// SQLite's copies of the row: [`write_native_run`] ends them all once the
+/// run row is inserted (RT-U4).
 pub(crate) struct NativeRunTexts<'t> {
-    pub(crate) record_json: &'t str,
+    pub(crate) record_json: String,
     pub(crate) record_hash: &'t str,
-    pub(crate) result_json: &'t str,
+    pub(crate) result_json: String,
     pub(crate) result_hash: &'t str,
     pub(crate) manifest_text: &'t str,
     pub(crate) producer_run_id: &'t str,
+    pub(crate) leases: Vec<stored_read::ReadReservation>,
 }
 
 /// The refusal of a run whose row SQLite refused as too big after every
@@ -2448,12 +2653,15 @@ pub(crate) const RUN_RECORD_RESULT_TOO_LARGE: &str = "RUN-RECORD-RESULT-TOO-LARG
 /// labels row, then the run's and the state's summaries for `finish`, before
 /// the caller commits. A row SQLite refuses as too big
 /// ([`RUN_RECORD_RESULT_TOO_LARGE`]) or any other failure leaves the caller's
-/// transaction to roll back: nothing is half written.
+/// transaction to roll back: nothing is half written. The row-scale texts,
+/// their leases and the statement's end as soon as the run row is inserted
+/// (SQLite finalized the statement, its copies with it), before the labels
+/// and the readback (RT-U4).
 pub(crate) fn write_native_run<R>(
     transaction: &Transaction<'_>,
     request: &NativeRunRequest,
     plan: NativeRunPlan,
-    texts: &NativeRunTexts<'_>,
+    texts: NativeRunTexts<'_>,
     hooks: &RunWriteHooks<'_>,
     memory: &dyn ReadMemory,
     finish: impl FnOnce(Metered<RecordRunOutcome>) -> Result<R, String>,
@@ -2488,6 +2696,7 @@ pub(crate) fn write_native_run<R>(
         drop((state, snapshot));
     }
     let recording_id = recording_id_of(texts.record_hash);
+    let NativeRunTexts { record_json, record_hash, result_json, result_hash, manifest_text, producer_run_id, leases } = texts;
     transaction
         .execute(
             "INSERT INTO analysis_runs (project_id, recording_id, state_id, producer_run_id, created_at, run_record_json, run_record_hash, input_manifest_json, result_json, result_hash)
@@ -2496,21 +2705,28 @@ pub(crate) fn write_native_run<R>(
                 project_id,
                 recording_id,
                 state_id,
-                texts.producer_run_id,
+                producer_run_id,
                 created_at,
-                texts.record_json,
-                texts.record_hash,
-                texts.manifest_text,
-                texts.result_json,
-                texts.result_hash
+                record_json,
+                record_hash,
+                manifest_text,
+                result_json,
+                result_hash
             ],
         )
         .map_err(|error| too_big(sql(error)))?;
+    #[cfg(test)]
+    stored_read::phase_probe::mark("record run: run row inserted");
+    drop((record_json, result_json, leases));
+    #[cfg(test)]
+    stored_read::phase_probe::mark("record run: texts and statement copies released");
     (hooks.between_rows)(transaction, "run")?;
     write_run_labels(transaction, project_id, &recording_id, &request.run_labels, &created_at, true)?;
     let run = find_run_with(transaction, project_id, &recording_id, memory)?
         .ok_or_else(|| format!("ANALYSIS-RUN-INTEGRITY: recorded run `{recording_id}` was not written.", recording_id = stored_read::shown(&recording_id)))?
         .map(|(run, _record)| run);
+    #[cfg(test)]
+    stored_read::phase_probe::mark("record run: run read back and verified");
     let state = find_summary_with(transaction, project_id, &state_id, memory)?
         .ok_or_else(|| format!("MODEL-STATE-INTEGRITY: state `{state_id}` vanished.", state_id = stored_read::shown(&state_id)))?;
     let unused = if state_outcome == "existing" && request.state_id.is_none() && request.new_state.is_some() {

@@ -47,6 +47,11 @@
 //!   - each parse (result, record, manifest) is the prescan's materialization
 //!     M, admitted before the parse; the findings' passes stream the
 //!     canonical texts into SHA-256 and build no copy;
+//!   - a recorded run's record is loaded once and its result parsed once
+//!     (RT-U4): the store's verified read hands over the record text it
+//!     verified and the result parse it checked, under its own reservations
+//!     (`analysis_runs::NativeRunLoad`), rather than loading or parsing either
+//!     again;
 //!   - the complete record header is capped before allocation, then its text
 //!     and parse are leased before allocation; the parse lease lives through
 //!     reply serialization;
@@ -489,6 +494,8 @@ struct RunLoad<'r> {
     registry: &'r SolveJobRegistry,
     leases: Option<(Lease, Lease)>,
     record_text: Option<String>,
+    /// The read's own parse of the stored result (RT-U4: not parsed again).
+    result_value: Option<Value>,
 }
 
 impl NativeRunLoad for RunLoad<'_> {
@@ -502,6 +509,10 @@ impl NativeRunLoad for RunLoad<'_> {
     fn record_text(&mut self, text: String) {
         self.record_text = Some(text);
     }
+
+    fn result_value(&mut self, value: Value) {
+        self.result_value = Some(value);
+    }
 }
 
 /// The blocking part of the recorded run's reopen (module docs): the store's
@@ -509,18 +520,17 @@ impl NativeRunLoad for RunLoad<'_> {
 /// its webview limit), then the findings, then the handle.
 pub(crate) fn read_run_in_store(registry: &SolveJobRegistry, path: PathBuf, project_id: &str, recording_id: &str, epoch: u64) -> Result<NativeRunRead, String> {
     let memory = NativeLeaseMemory::new(registry);
-    let mut load = RunLoad { registry, leases: None, record_text: None };
+    let mut load = RunLoad { registry, leases: None, record_text: None, result_value: None };
     let read = analysis_runs::read_run_in_store_core(&path, project_id, recording_id, &memory, u64::MAX, Some(&mut load))?;
+    // The guard holds the read's reservations, the result's parse included,
+    // until the parse is dropped below.
     let (read, guard) = read.into_custody();
     let analysis_runs::AnalysisRunRead { run, state, record, result_json, input_manifest_canonical } = read;
-    let (Some((result_lease, record_lease)), Some(record_text)) = (load.leases, load.record_text) else {
+    let (Some((result_lease, record_lease)), Some(record_text), Some(result_value)) = (load.leases, load.record_text, load.result_value) else {
         return Err(format!("{REOPEN_FAILED}: the recorded run's texts were not loaded."));
     };
-    let parsed_result = match parse_leased(registry, "the recorded run's result", &result_json) {
-        Ok(parsed) => Some(parsed),
-        Err(Ok(_)) => None,
-        Err(Err(refusal)) => return Err(refusal),
-    };
+    #[cfg(test)]
+    stored_read::phase_probe::mark("recorded read: verified, record text and result parse kept");
     let parsed_manifest = match parse_leased(registry, "the recorded run's input manifest", &input_manifest_canonical) {
         Ok(parsed) => Some(parsed),
         Err(Ok(_)) => None,
@@ -535,10 +545,7 @@ pub(crate) fn read_run_in_store(registry: &SolveJobRegistry, path: PathBuf, proj
         run_record_hash: &run.run_record_hash,
     };
     let manifest = parsed_manifest.as_ref().map(|(manifest, _)| manifest);
-    let (mut result_value, result_parse) = match parsed_result {
-        Some((value, parse)) => (Some(value), Some(parse)),
-        None => (None, None),
-    };
+    let mut result_value = Some(result_value);
     let mut found = validate::recorded_run_findings(&context, result_value.as_mut(), manifest, &record);
     if let Some(result) = result_value.as_mut() {
         validate::recorded_run_validation(&mut found, &context, result, manifest, &record);
@@ -546,7 +553,7 @@ pub(crate) fn read_run_in_store(registry: &SolveJobRegistry, path: PathBuf, proj
     let (record_header, record_header_bytes, header_lease) = record_header(registry, &record)?;
     let recorded_dispatch = result_value.as_ref().and_then(|result| recorded_dispatch_of(&found, result));
     let result_present = result_value.as_ref().is_some_and(|value| !value.is_null()) || result_value.is_none();
-    drop((result_value, result_parse, parsed_manifest, record));
+    drop((result_value, parsed_manifest, record));
     drop(guard);
     let source = RestoredSource {
         kind: "recorded_run",
