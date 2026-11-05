@@ -67,26 +67,34 @@ fn canonical(mut d: [f64; 3]) -> [f64; 3] {
     d
 }
 
-/// Astra B2: R and s scaled together by one exact power of two so that the largest of
+/// Astra B2: R and s scaled together by one exact power of two 2^k so that the largest of
 /// |R_i| and |s| lies in [1/2, 1) (all zero is left as is). s·|d| = dᵀR is invariant under a
 /// common positive scale, and the residual and allowance formed from the scaled values never
-/// overflow, so a large finite R can never make the allowance infinite. Scaling down may
-/// flush a value more than 2^1074 below the largest; that changes the residual by at most
-/// 6·2^-1075, far inside the allowance's 64ε relative floor.
-fn joint_scale(mut r: [f64; 3], mut s: f64) -> ([f64; 3], f64) {
+/// overflow, so a large finite R can never make the allowance infinite.
+///
+/// Astra B2′: the allowance's absolute quantization floor belongs to the unscaled
+/// quantities (64ε·2^-1022, the guard's floor before B2), so it is returned scaled by the
+/// same 2^k (`floor`), never re-floored at the scaled magnitude: an honest subnormal reaction
+/// (R = (−m, −m, 0), s = −m) reads exactly as it did unscaled.
+///
+/// Scaling down may flush a value more than 2^1074 below the largest; that changes the
+/// residual by at most 6·2^-1075 (scaled), inside the allowance. Rust's stepping and Python's
+/// `ldexp` may round such a flushed value differently; the verdict is unaffected beyond that.
+fn joint_scale(mut r: [f64; 3], mut s: f64) -> ([f64; 3], f64, f64) {
     let largest = |r: &[f64; 3], s: f64| r.iter().fold(s.abs(), |m, x| m.max(x.abs()));
+    let mut floor = f64::MIN_POSITIVE;
     if largest(&r, s) == 0.0 || !largest(&r, s).is_finite() {
-        return (r, s);
+        return (r, s, floor);
     }
     while largest(&r, s) >= 1.0 {
         let step = if largest(&r, s) >= 2f64.powi(512) { 2f64.powi(-511) } else { 0.5 };
-        (r, s) = (r.map(|x| x * step), s * step);
+        (r, s, floor) = (r.map(|x| x * step), s * step, floor * step);
     }
     while largest(&r, s) < 0.5 {
         let step = if largest(&r, s) < 2f64.powi(-511) { 2f64.powi(511) } else { 2.0 };
-        (r, s) = (r.map(|x| x * step), s * step);
+        (r, s, floor) = (r.map(|x| x * step), s * step, floor * step);
     }
-    (r, s)
+    (r, s, floor)
 }
 
 /// One case's along-direction rows (`rows`: the case's direct rows; `case_id`; `model`).
@@ -117,12 +125,12 @@ pub(crate) fn check_case(rows: &[&Value], case_id: &str, model: Option<&Value>) 
         let (d, r) = (canonical(d.unwrap()), r.unwrap());
         let s = row["value"].as_f64().ok_or("ALONG_DIRECTION_VALUE")?;
         require(s.is_finite() && r.iter().all(|x| x.is_finite()), "ALONG_DIRECTION_INCONSISTENT")?;
-        let (r, s) = joint_scale([r[0], r[1], r[2]], s);
+        let (r, s, floor) = joint_scale([r[0], r[1], r[2]], s);
         let norm = (d[0] * d[0] + d[1] * d[1] + d[2] * d[2]).sqrt();
         let dot: f64 = (0..3).map(|i| d[i] * r[i]).sum();
         let scale: f64 = norm * r.iter().map(|x| x.abs()).sum::<f64>();
         let residual = (s * norm - dot).abs();
-        let allowance = 64.0 * f64::EPSILON * scale.max(f64::MIN_POSITIVE);
+        let allowance = 64.0 * f64::EPSILON * scale.max(floor);
         // A non-finite residual or allowance refuses; it never accepts.
         require(residual.is_finite() && allowance.is_finite() && residual <= allowance, "ALONG_DIRECTION_INCONSISTENT")?;
     }
@@ -166,6 +174,18 @@ mod tests {
     /// Astra B2: with R = (8e307, 8e307, 0) the unscaled allowance norm·Σ|R_i| overflows and
     /// accepted any s. The joint power-of-two scale keeps it finite: the true value is
     /// accepted, a wrong one (0, or off by 1e-9 relative) is refused.
+    /// Astra B2′: an honest subnormal reaction, the finite-κ spring outputs for k = 2^-1074 and
+    /// u = (1, 1, 0) (R = (−m, −m, 0), s = −m), reads; the floor is the unscaled one carried
+    /// through the scaling. A subnormal tamper beyond the floor is refused.
+    #[test]
+    fn an_honest_subnormal_reaction_reads_and_a_subnormal_tamper_is_refused() {
+        let m = f64::from_bits(1);
+        let d = [1.0, 1.0, 0.0];
+        assert_eq!(check(d, [-m, -m, 0.0], -m), Ok(()));
+        assert_eq!(check(d, [-m, -m, 0.0], -100.0 * m), Err("ALONG_DIRECTION_INCONSISTENT".into()));
+        assert_eq!(check(d, [-1000.0 * m, -1000.0 * m, 0.0], 1000.0 * m), Err("ALONG_DIRECTION_INCONSISTENT".into()));
+    }
+
     #[test]
     fn a_large_finite_reaction_never_makes_the_guard_accept_a_wrong_value() {
         let d = [1.0, 1.0, 0.0];

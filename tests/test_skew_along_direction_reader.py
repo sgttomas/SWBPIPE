@@ -138,3 +138,15 @@ def test_a_subnormal_scaled_direction_reads_as_its_twin_through_the_reader_entry
     for m in (model, scaled):
         with pytest.raises(ValueError, match="ALONG_DIRECTION_INCONSISTENT"):
             validate_preview_physics_evidence(copy.deepcopy(wrong), m)
+
+
+def test_an_honest_subnormal_reaction_reads_and_a_subnormal_tamper_is_refused():
+    """Astra B2': the finite-kappa spring outputs for k = 2^-1074, u = (1, 1, 0) (R = (-m, -m, 0), s = -m) read; the
+    allowance floor is the unscaled one carried through the joint scaling. A subnormal tamper beyond it is refused."""
+    import math
+    from tests.verifiers.preview_physics_evidence import _along_direction
+    m, d = math.ldexp(1.0, -1074), (1.0, 1.0, 0.0)
+    _along_direction(*_synthetic(d, (-m, -m, 0.0), -m))
+    for r, s in (((-m, -m, 0.0), -100 * m), ((-1000 * m, -1000 * m, 0.0), 1000 * m)):
+        with pytest.raises(ValueError, match="ALONG_DIRECTION_INCONSISTENT"):
+            _along_direction(*_synthetic(d, r, s))

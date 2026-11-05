@@ -404,15 +404,18 @@ def _along_direction(source: Mapping[str, Any], model: Mapping[str, Any] | None)
             s = row["value"]
             _require(_number(s) and all(math.isfinite(x) for x in r), "ALONG_DIRECTION_INCONSISTENT")
             # Astra B2: R and s scaled together by one exact power of two (largest magnitude in [1/2, 1)), so the
-            # residual and the allowance never overflow; a non-finite one refuses, never accepts.
+            # residual and the allowance never overflow; a non-finite one refuses, never accepts. Astra B2': the
+            # allowance's absolute floor belongs to the unscaled quantities (64*eps*2^-1022), so it is scaled by the same
+            # power of two rather than re-floored at the scaled magnitude (an honest subnormal reaction reads).
             largest = max([abs(s)] + [abs(x) for x in r])
+            floor = sys.float_info.min
             if largest != 0.0:
                 shift = -math.frexp(largest)[1]
-                r, s = [math.ldexp(x, shift) for x in r], math.ldexp(s, shift)
+                r, s, floor = [math.ldexp(x, shift) for x in r], math.ldexp(s, shift), math.ldexp(floor, shift)
             norm = math.sqrt(sum(c * c for c in d))
             dot = sum(d[i] * r[i] for i in range(3))
             residual = abs(s * norm - dot)
-            bound = 64.0 * sys.float_info.epsilon * max(norm * sum(abs(x) for x in r), sys.float_info.min)
+            bound = 64.0 * sys.float_info.epsilon * max(norm * sum(abs(x) for x in r), floor)
             _require(math.isfinite(residual) and math.isfinite(bound) and residual <= bound, "ALONG_DIRECTION_INCONSISTENT")
         if model is not None:
             published = {entity for entity, _ in components}
