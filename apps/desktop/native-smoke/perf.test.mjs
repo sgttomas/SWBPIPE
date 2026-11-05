@@ -1277,7 +1277,7 @@ test("the driver's journal lines are accepted by the fixed phase journal and lea
   strict.close();
 });
 
-test("C1 persistence probe connects actual Rust reply shapes through record/reopen/re-save/check/release", async (t) => {
+async function persistenceFixture(t, lateSave = false) {
   // These committed Rust replies establish DTO shape, not live App behaviour.
   const persistence=JSON.parse(readFileSync(new URL("../src/test-support/native-replay/native_persistence_replies.json",import.meta.url),"utf8"));
   const reopen=JSON.parse(readFileSync(new URL("../src/test-support/native-reopen/native_reopen_replies.json",import.meta.url),"utf8"));
@@ -1343,6 +1343,8 @@ test("C1 persistence probe connects actual Rust reply shapes through record/reop
       const runs=doc.querySelector('[data-testid="runs"]');
       runs.innerHTML=`<button data-testid="recorded-run-${id}-check-run">Check</button><div data-testid="recorded-run-${id}-check"></div>`;
       runs.querySelector("button").onclick=()=>{void(async()=>{
+        // Review control: a re-save arriving after its step returned (during the recorded check).
+        if(lateSave) await ui.call("save_restored_result_local_project",{});
         await ui.call("read_analysis_run_in_native_custody",{});
         await ui.call("dispose_preview_mechanics_result",{jobId:readHandle});
         runs.querySelector("div").textContent="The record, its stored result and input manifest agree.";
@@ -1351,15 +1353,26 @@ test("C1 persistence probe connects actual Rust reply shapes through record/reop
   };
   const trace=ui.hooks.beginC1Trace();
   const report={c1:{preflight:{...pool}}};
+  if(lateSave){
+    await assert.rejects(ui.hooks.probePersistence(plan,report,trace),/C1 save reconciliation failed: .*differ from the expected/);
+    trace.restore();
+    return;
+  }
   await ui.hooks.probePersistence(plan,report,trace);
   assert.equal(report.c1.resave.kept,true);
   assert.equal(report.c1.reopen.origin,"restored_saved_run");
   assert.equal(report.c1.recorded_check.origin,"restored_recorded_run");
   assert.equal(report.c1.cleanup.retained_results,0);
   assert.equal(trace.data.counts.save_restored_result_local_project,1);
+  // The probe reconciled every save: Record Run's prerequisite, File > Save, then the re-save.
+  assert.equal(JSON.stringify(report.c1.expected_saves),JSON.stringify(["save_preview_mechanics_job_local_project","save_preview_mechanics_job_local_project","save_restored_result_local_project"]));
+  assert.equal(trace.data.saves.length,3);
+  assert.ok(trace.data.saves.every(save=>save.read&&save.refusal===null&&save.error===null&&save.reply.result.outcome==="saved"));
   assert.equal(trace.data.violations.length,0);
   trace.restore();
-});
+}
+test("C1 persistence probe connects actual Rust reply shapes through record/reopen/re-save/check/release", async (t) => persistenceFixture(t));
+test("C1 persistence probe: a re-save arriving after its step returned fails the probe's reconciliation", async (t) => persistenceFixture(t, true));
 
 // RT-U4 (82-node lesson): Record Run's prerequisite save and the File > Save after it show the
 // same status text. A save step ends on its own native save invocation, never on the status
@@ -1444,6 +1457,56 @@ test("C1 save steps: one File > Save that sends two native saves fails the step"
   const trace = ui.hooks.beginC1Trace();
   t.after(() => trace.restore());
   await assert.rejects(ui.hooks.saveProject(savePlan(), {}, trace), /sent 2 native saves/);
+});
+
+// Review of 4e209edf3: a second invocation arriving AFTER its step returned is still judged.
+async function delayedSecondSave(t, second) {
+  let release = () => {};
+  const ui = await saveStepDom(t, async (ui) => {
+    await ui.call("save_preview_mechanics_job_local_project", {});
+    setLocalMessage(ui, SAME_SAVE_TEXT);
+    setTimeout(() => { void ui.call("save_restored_result_local_project", {}).catch(() => {}); }, 400);
+  });
+  ui.reply = async (command) => {
+    if (command === "save_restored_result_local_project") {
+      if (second === "refused") throw new Error("SAVE_FAILED: the late save was refused");
+      if (second === "pending") await new Promise((resolve) => { release = resolve; });
+    }
+    return { result: { outcome: "saved", run_id: "run:x", result_bytes: 1, record_bytes: 2 }, project_envelope_hash: { value: "sha256:e" } };
+  };
+  const trace = ui.hooks.beginC1Trace();
+  t.after(() => { release(); trace.restore(); });
+  const step = await ui.hooks.saveProject(savePlan(), {}, trace);
+  assert.equal(step.receipt.seq, 1);
+  assert.equal(trace.data.saves.length, 1, "the second save arrives only after the step returned");
+  await new Promise((resolve) => setTimeout(resolve, 600));
+  return { ui, trace };
+}
+for (const second of ["saved", "refused", "pending"]) {
+  test(`C1 save reconciliation: a delayed second save (${second}) after its step returned fails the probe`, async (t) => {
+    const { ui, trace } = await delayedSecondSave(t, second);
+    assert.equal(trace.data.saves.length, 2);
+    const expected = ["save_preview_mechanics_job_local_project"];
+    const pattern = second === "saved" ? /differ from the expected/ : second === "refused" ? /save 2 .*refused: .*SAVE_FAILED/ : /save 2 .*unresolved/;
+    assert.throws(() => ui.hooks.reconcileSaves(trace, expected), pattern);
+    // Even when the expected list names it, a refused or pending second save still fails.
+    if (second !== "saved") assert.throws(() => ui.hooks.reconcileSaves(trace, [...expected, "save_restored_result_local_project"]), second === "refused" ? /refused/ : /unresolved/);
+    else assert.doesNotThrow(() => ui.hooks.reconcileSaves(trace, [...expected, "save_restored_result_local_project"]));
+  });
+}
+
+test("C1 save reconciliation: the classifier judges every invocation and the expected sequence, whatever the steps said", () => {
+  const ok = { result: { outcome: "saved" } };
+  const judge = (saves, expected_saves) => { const input = base(); input.report.c1 = { trace: { saves }, expected_saves }; return classify(input); };
+  const fresh = "save_preview_mechanics_job_local_project", restored = "save_restored_result_local_project";
+  assert.equal(judge([{ seq: 1, command: fresh, read: true, refusal: null, error: null, reply: ok }], [fresh]).class, "ok");
+  const refused = judge([{ seq: 1, command: fresh, read: true, refusal: null, error: null, reply: ok }, { seq: 2, command: restored, read: true, refusal: "SAVE_FAILED", error: null, reply: null }], [fresh, restored]);
+  assert.ok(refused.findings.some((finding) => finding.step === "save_invocation#2" && /SAVE_FAILED/.test(finding.message)));
+  const unread = judge([{ seq: 1, command: fresh, read: false, refusal: null, error: null, reply: ok }], [fresh]);
+  assert.ok(unread.findings.some((finding) => finding.step === "save_invocation#1" && /not read/.test(finding.message)));
+  const extra = judge([{ seq: 1, command: fresh, read: true, refusal: null, error: null, reply: ok }, { seq: 2, command: restored, read: true, refusal: null, error: null, reply: ok }], [fresh]);
+  assert.ok(extra.findings.some((finding) => finding.step === "save_reconciliation"));
+  assert.notEqual(extra.class, "ok");
 });
 
 test("C1 save steps: a later successful re-save does not mask an earlier step's timeout or not_saved receipt", () => {

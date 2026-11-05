@@ -724,6 +724,16 @@ export function classify({ report, exit, timedOut, progress, memory, store, run,
     if (run.c1_probes && report.c1?.trace?.transport?.lost) add("refused_with_message", { step: "c1_observation", message: `The command observation lost Tauri's IPC transport: ${report.c1.trace.transport.events?.[0]?.reason ?? "unknown"}.`, needs_review: true });
     if (unobservable) { /* the probes below could not be observed */ }
     else if (run.c1_profile_readers && !report.c1?.reader_allocations) add("refused_with_message", { step: "reader_allocations", message: "Reader allocation evidence is incomplete.", needs_review: true });
+    // Every native save invocation on its own (review of 4e209edf3): a refusal, an observation
+    // error, an unread reply or a missing receipt is a finding whatever any step reported, and the
+    // invocations must be the probe's expected commands.
+    const invocations = Array.isArray(report.c1?.trace?.saves) ? report.c1.trace.saves : [];
+    for (const invocation of invocations) {
+      const problem = invocation?.refusal ?? invocation?.error ?? (invocation?.read !== true ? "its reply was not read" : !invocation?.reply?.result ? "no native receipt" : invocation.reply.result.outcome !== "saved" && invocation.reply.result.outcome !== "not_saved" ? `outcome ${invocation.reply.result.outcome}` : null);
+      if (problem) add("refused_with_message", { step: `save_invocation#${invocation?.seq}`, message: `${invocation?.command}: ${problem}`, needs_review: true });
+    }
+    const expectedSaves = report.c1?.expected_saves;
+    if (Array.isArray(expectedSaves) && (invocations.length !== expectedSaves.length || invocations.some((invocation, index) => invocation?.command !== expectedSaves[index]))) add("refused_with_message", { step: "save_reconciliation", message: `save invocations [${invocations.map((invocation) => invocation?.command).join(", ")}] differ from the expected [${expectedSaves.join(", ")}]`, needs_review: true });
     const saveReceipts = Array.isArray(report.c1?.trace?.saves) ? report.c1.trace.saves.map(invocation => invocation?.reply?.result) : [report.c1?.trace?.save?.result, report.c1?.trace?.restoredSave?.result];
     const omitted = saveReceipts.find(result => result?.outcome === "not_saved");
     if (omitted) add("refused_with_message", { step: "save_result", message: omitted.code ?? "The native save kept only the model.", needs_review: true });

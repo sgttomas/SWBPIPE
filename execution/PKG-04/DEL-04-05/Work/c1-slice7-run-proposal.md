@@ -129,6 +129,20 @@ unchanged and it is not re-judged.
   fail; an earlier timed-out step and an earlier `not_saved` receipt are classified despite a later
   success. Two mutations (correlating from invocation 0; judging only the last step and latest
   receipt) each fail the intended tests.
+- *Reconciliation (review of `4e209edf3`, blocking finding repaired).* A step ends on its first
+  invocation, so a second invocation arriving after the step returned was never judged, and the
+  classifier read only `not_saved`. Now the probe records the expected save sequence
+  (`report.c1.expected_saves`: Record Run's own prerequisite saves, then File > Save's fresh save,
+  then the restored re-save; Record Run may send at most one fresh save) and reconciles every
+  invocation at its end and again at the C1 completion gate: each must be read, unrefused,
+  observed without error and `saved`, and the invocations must be exactly the expected commands
+  in order. A pending, refused, failed, unsaved, extra or missing invocation fails the probe. The
+  classifier also judges each invocation (`save_invocation#n`: refusal, observation error, unread
+  reply, missing receipt or unexpected outcome) and the expected sequence (`save_reconciliation`).
+  Controls: delayed second saves (saved, refused, pending) after their step returned; a re-save
+  arriving during the recorded check, which fails the whole probe; the classifier cases. Three
+  more mutations (ignoring unread replies; removing the probe's reconciliation; the classifier
+  ignoring invocations) each fail the intended tests.
 
 ## A+B 500-node attempt: result, diagnosis and repair (2026-11-05)
 

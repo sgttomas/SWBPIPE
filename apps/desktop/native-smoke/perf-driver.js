@@ -878,8 +878,34 @@
     }
   }
 
+  // Every native save invocation of the probe, reconciled with the steps that own them (review
+  // of 4e209edf3: a step ends on its first invocation, so a delayed second one would otherwise
+  // never be judged). Each invocation must be read, unrefused, observed without error and saved,
+  // and the invocations must be exactly the expected commands in order: Record Run's own
+  // prerequisite saves, then File > Save's fresh save, then the restored re-save. A pending,
+  // refused, failed, unsaved, extra or missing invocation fails the probe.
+  function reconcileSaves(trace, expected) {
+    const saves = trace.data.saves;
+    const problems = [];
+    for (const save of saves) {
+      if (save.refusal !== null) problems.push(`save ${save.seq} (${save.command}) refused: ${save.refusal}`);
+      else if (save.error !== null) problems.push(`save ${save.seq} (${save.command}) observation failed: ${save.error}`);
+      else if (!save.read) problems.push(`save ${save.seq} (${save.command}) unresolved: its reply was not read`);
+      else if (save.reply?.result?.outcome !== "saved") problems.push(`save ${save.seq} (${save.command}) not saved: ${save.reply?.result?.code ?? save.reply?.result?.outcome ?? "no receipt"}`);
+    }
+    const sent = saves.map((save) => save.command);
+    if (sent.length !== expected.length || sent.some((command, index) => command !== expected[index])) problems.push(`save invocations [${sent.join(", ")}] differ from the expected [${expected.join(", ")}]`);
+    if (problems.length) throw new Error(`C1 save reconciliation failed: ${problems.join("; ")}`);
+  }
+
   async function probePersistence(plan, report, trace) {
+    const beforeRecord = trace.data.saves.length;
     await recordRun(plan, report);
+    // Record Run saves an unstored project first: at most one fresh save, its own.
+    const prerequisite = trace.data.saves.slice(beforeRecord).map((save) => save.command);
+    if (prerequisite.length > 1 || prerequisite.some((command) => command !== "save_preview_mechanics_job_local_project")) throw new Error(`C1 Record Run sent unexpected saves: [${prerequisite.join(", ")}]`);
+    const expectedSaves = [...trace.data.saves.slice(0, beforeRecord).map((save) => save.command), ...prerequisite, "save_preview_mechanics_job_local_project", "save_restored_result_local_project"];
+    report.c1.expected_saves = expectedSaves;
     const recorded = trace.data.record;
     if (!recorded?.message?.startsWith("Recorded run") || typeof recorded.run.recording_id !== "string") throw new Error(`C1 Record Run did not complete: ${report.record_run?.message ?? "no native receipt"}`);
     if (recorded.run.run_name !== `perf ${plan.run_id}` || recorded.run.project_id !== plan.project_id) throw new Error("C1 recorded labels/project differ from the UI request");
@@ -934,6 +960,7 @@
       if (now() > end) throw new Error("C1 held jobs did not return to the starting pool counts");
       await sleep(100);
     }
+    reconcileSaves(trace, expectedSaves);
   }
 
   async function profileReaders(plan, report) {
@@ -962,7 +989,7 @@
   // Under the driver's node test only: hand over the helpers instead of running.
   const testHooks = globalThis.__SWBPIPE_PERF_DRIVER_TEST__;
   if (testHooks) {
-    Object.assign(testHooks, { waitFor, waitUntil, solve, recordRun, saveProject, beginC1Trace, requireObservedIpc, requireShownPage, watchHost, frames, preflight, probeResults, probePersistence, cancelIfRunning, startPoolMonitor, profileReaders });
+    Object.assign(testHooks, { waitFor, waitUntil, solve, recordRun, saveProject, reconcileSaves, beginC1Trace, requireObservedIpc, requireShownPage, watchHost, frames, preflight, probeResults, probePersistence, cancelIfRunning, startPoolMonitor, profileReaders });
     return;
   }
 
@@ -1003,6 +1030,7 @@
         if (plan.c1_profile_readers) await profileReaders(plan, report.c1);
         await probePersistence(plan, report, trace);
         stopIfLost();
+        reconcileSaves(trace, report.c1.expected_saves);
         if (trace.data.transport.lost || trace.data.errors.length || trace.data.violations.length || trace.data.counts.start_preview_mechanics_job !== 1 || !trace.data.counts.lookup_preview_mechanics_job_rows || !trace.data.counts.read_preview_mechanics_job_row_semantics) throw new Error("C1 command observation is incomplete or violated its bounded-read path");
         report.c1.completed = true;
       } else {
