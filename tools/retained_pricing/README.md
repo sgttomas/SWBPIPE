@@ -16,6 +16,8 @@ python3 $P/price.py run <rev> --out <new dir outside any checkout> # price a rev
 python3 $P/price.py compare <tree A> <tree B>                    # coefficient-wise comparison
 python3 $P/price.py generate <tree> <retained_memory.rs>         # rewrite the GENERATED PROFILE block
 python3 $P/price.py generate <tree> <retained_memory.rs> --check # compare instead of writing
+python3 $P/price.py point-atoms <run dir> <law tests .rs>       # rewrite the GENERATED POINT ATOMS block
+python3 $P/price.py point-atoms <run dir> <law tests .rs> --check # compare instead of writing
 python3 $P/price.py eval <law-test log> <tree>                   # phases at in-build atom values
 ```
 
@@ -27,6 +29,7 @@ python3 $P/price.py eval <law-test log> <tree>                   # phases at in-
    - `a_le_b` true (every coefficient no higher) means the registered block still bounds the head, so nothing needs re-registering.
    - Otherwise, regenerate the block with `generate` and re-pin the law tests whose values moved. The law tests are `cargo test --lib profile_` in `core/product_physics`. Their `I65_G5_ATOM` lines feed `eval`.
 4. **Check the block.** `generate --check` confirms that a committed block is the generator's output for a tree.
+5. **Bind the points' atoms.** The separate points L(2,1) and L(1,2) use atoms the merged tree does not (the combination owners). `point-atoms <run dir> core/product_physics/src/retained_memory_law_tests.rs` writes them, bound by `g5_profile.py`'s own bindings, into the law tests' GENERATED POINT ATOMS block, and `profile_point_atoms_in_build` prints them as `I65_G5_ATOM` lines beside the profile's. An unbound atom, or one bound only as an Estimate, stops the generator: a point is never evaluated at an ASSUMED stride. `point-atoms --check` confirms the committed block against a run. The block is test-only; regenerating it changes the lib-test binary, not the profile or its record.
 
 ### The basis line
 
@@ -109,7 +112,7 @@ All outputs go to `--out`.
    - An uncarried key stops the run unless the decisions' `KEYMAP_ALLOW` lists it as `("deleted", why)` and the map reported it deleted. A replaced key is never allowed (`lib/rule_ops.py`).
 6. Run the points. Route L runs at (lc, z) = (3,0), (2,1) and (1,2); route E runs at 3. Caps are `l = 128` and `c = 3`. Each point writes its loop log (`lib/mk_looplog.py`).
 7. Run `lib/o10_check.py`. Each appended loop rule may match only its listed `file:fn` functions, and each multiplicity-0 site must stay at 0. If a check fails, the run ends with exit 3 and no tree.
-8. Merge: `lib/merge_trees.py` takes route L at (3,0), SQ2's worst shape, and route E. Route L's other shapes are priced so they can be compared. Their phases at in-build values come from `eval <law-test log> runs/L_21/work/profile_tree.json`, and they should stay below (3,0)'s; the tool does not check this itself.
+8. Merge: `lib/merge_trees.py` takes route L at (3,0), SQ2's worst shape, and route E. Route L's other shapes are priced so they can be compared. Their phases at in-build values come from `eval <law-test log> runs/L_21/work/profile_tree.json` (the log of the `profile_` law tests, whose `I65_G5_ATOM` lines include the point atoms, step 5 above), and they should stay at or below the merged tree's in every phase and mode; the tool does not check this itself.
 
 ## Layout and provenance
 
