@@ -416,6 +416,17 @@ fn a_held_subtrahend_is_not_assessed_and_binds_no_bound() {
     }
 }
 
+/// A combination sharing its id with a load case (PP `rt_a4_combinations.rs` V7-a): `S` = 3·W2 is
+/// both a load case and a combination, and `X` = S − W2 reads the load case. The ambiguous id is
+/// outside the roster's population, and its maximum notice names only `S`.
+fn shared_id_cantilever() -> Value {
+    let mut wire = cantilever(false, &[("S", 1000.0, -1000.0), ("W2", 500.0, -500.0)], json!([
+        {"id": "S", "basis": "mechanics", "terms": [{"load_case": "W2", "factor": 3.0}], "provenance": PROV},
+        subtraction("X", "S", "W2")]));
+    current_model::reauthor_model(&mut wire["model"]);
+    wire
+}
+
 // ------------------------------------------------------------------ the shared reader corpus
 fn corpus_documents() -> Vec<Value> {
     let mut out = Vec::new();
@@ -426,7 +437,7 @@ fn corpus_documents() -> Vec<Value> {
     for (name, reader, wire) in [("ex_cantilever", "pressure", ex), ("pf_cantilever", "preview-physics", pf), ("w16_line", "pressure", w16_line()),
         ("op1a_v2", "preview-physics", corpus_model(OP1A_CORPUS, "documents", "name", "v2_anchor_rise")),
         ("op1a_v1", "preview-physics", corpus_model(OP1A_CORPUS, "documents", "name", "v1_gap_closes")),
-        ("pf_held", "preview-physics", held_cantilever())] {
+        ("pf_held", "preview-physics", held_cantilever()), ("pf_shared_id", "preview-physics", shared_id_cantilever())] {
         let document = solve(&wire, PreviewSolverMode::SparseInteractive);
         out.push(json!({"name": name, "reader": reader, "mode": "sparse_interactive", "model": wire["model"], "document": document}));
     }

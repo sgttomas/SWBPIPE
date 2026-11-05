@@ -252,7 +252,11 @@ option A).** Both readers (RE `combination_certificate.rs` `roster`, Python
   outside the roster in both readings.
 - *Canonical form.* Each combination diagnostic must be an entry of the roster.
   Its id names one entry, and its code, severity, message, source and refs are
-  that entry's, derived from the evidence.
+  that entry's, derived from the evidence. A diagnostic carrying a set-bound
+  entry's exact id is read even when its refs name only an identity left out
+  above (a combination sharing a load case's id, PP V7-a): the id selects the
+  entry it is compared with whole and admits nothing alone, and the delegated
+  skips below still come first.
   - Set-bound, each required once: PF's headline scope, its maximum and
     intensified notices per admitted gate, and its gate notice per withheld
     gate (an operand withholding names its withheld operands). The headline's
@@ -495,6 +499,7 @@ The roster's cases (review cert2 finding 1), applied with and without the model:
 | a source-missing notice naming no row base | ROSTER_EXTRA |
 | a maximum or gate notice dropped | ROSTER_MISSING |
 | the headline's refs reordered | admitted without the model; ROSTER_CONTRADICTION with it |
+| pf_shared_id's maximum notice for `S` (a load case's id too): reworded, under another code, naming a load case, with an extra field; duplicated; dropped | ROSTER_CONTRADICTION; ROSTER_EXTRA; ROSTER_MISSING |
 | pf_held's interim notice dropped or reworded | admitted without the model (its combination is not the document's); ROSTER_MISSING or ROSTER_CONTRADICTION with it |
 
 RE `absence_is_inspection_only_with_no_certificate_claim` and its Python

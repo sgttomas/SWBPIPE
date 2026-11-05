@@ -307,6 +307,21 @@ def build_forgeries() -> list[dict]:
     k1 = _record_index(w16, "comb:K1")
     add("w16_line", cert + ["combinations", k1, "groups", 0, "factors_bound"], "RECORD", "forged factor bound",
         math.nextafter(certificate(w16)["combinations"][k1]["groups"][0]["factors_bound"], math.inf))
+    # A combination sharing its id with a load case (PP V7-a): the id is outside the population, so its maximum notice
+    # names no population identity, and is read by its exact entry id, compared whole; the id admits nothing alone.
+    shared = entry("pf_shared_id")["document"]
+    s = _diagnostic_index(shared, lambda d: d["id"] == "diagnostic:preview-physics:combination-maximum:1:S")
+    add("pf_shared_id", ["diagnostics", s, "message"], "ROSTER_CONTRADICTION", "pf_shared_id: the shared-id maximum notice reworded",
+        "stress maxima are combined and established within their bound")
+    add("pf_shared_id", ["diagnostics", s, "code"], "ROSTER_CONTRADICTION", "pf_shared_id: the shared-id maximum notice under another code",
+        "COMBINATION_INTENSIFIED_STRESS_UNAVAILABLE")
+    add("pf_shared_id", ["diagnostics", s, "affected_refs"], "ROSTER_CONTRADICTION", "pf_shared_id: the shared-id maximum notice naming a load case",
+        ["W2"])
+    add("pf_shared_id", ["diagnostics", s, "note"], "ROSTER_CONTRADICTION", "pf_shared_id: the shared-id maximum notice with an extra field",
+        "established")
+    out.append({"document": "pf_shared_id", "what": "pf_shared_id: the shared-id maximum notice duplicated", "code": "ROSTER_EXTRA",
+                "edits": [edit(["diagnostics", "-"], shared["diagnostics"][s], op="add")]})
+    add("pf_shared_id", ["diagnostics", s], "ROSTER_MISSING", "pf_shared_id: the shared-id maximum notice dropped", op="remove")
     return out
 
 

@@ -2934,6 +2934,88 @@
    ],
    "code": "RECORD",
    "what": "forged factor bound"
+  },
+  {
+   "document": "pf_shared_id",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/diagnostics/7/message",
+     "value": "stress maxima are combined and established within their bound"
+    }
+   ],
+   "code": "ROSTER_CONTRADICTION",
+   "what": "pf_shared_id: the shared-id maximum notice reworded"
+  },
+  {
+   "document": "pf_shared_id",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/diagnostics/7/code",
+     "value": "COMBINATION_INTENSIFIED_STRESS_UNAVAILABLE"
+    }
+   ],
+   "code": "ROSTER_CONTRADICTION",
+   "what": "pf_shared_id: the shared-id maximum notice under another code"
+  },
+  {
+   "document": "pf_shared_id",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/diagnostics/7/affected_refs",
+     "value": [
+      "W2"
+     ]
+    }
+   ],
+   "code": "ROSTER_CONTRADICTION",
+   "what": "pf_shared_id: the shared-id maximum notice naming a load case"
+  },
+  {
+   "document": "pf_shared_id",
+   "edits": [
+    {
+     "op": "set",
+     "pointer": "/diagnostics/7/note",
+     "value": "established"
+    }
+   ],
+   "code": "ROSTER_CONTRADICTION",
+   "what": "pf_shared_id: the shared-id maximum notice with an extra field"
+  },
+  {
+   "document": "pf_shared_id",
+   "what": "pf_shared_id: the shared-id maximum notice duplicated",
+   "code": "ROSTER_EXTRA",
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "affected_refs": [
+       "S"
+      ],
+      "code": "COMBINATION_STRESS_MAXIMUM_UNAVAILABLE",
+      "id": "diagnostic:preview-physics:combination-maximum:1:S",
+      "message": "stress maxima and section stress extremes are not combined; combine the signed stress component rows instead",
+      "severity": "info",
+      "source": "core/product_physics"
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_shared_id",
+   "edits": [
+    {
+     "op": "remove",
+     "pointer": "/diagnostics/7"
+    }
+   ],
+   "code": "ROSTER_MISSING",
+   "what": "pf_shared_id: the shared-id maximum notice dropped"
   }
  ]
 }

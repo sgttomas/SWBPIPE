@@ -899,7 +899,10 @@ def in_retained_base_read() -> bool:
 def roster(source: Mapping[str, Any], model: Mapping[str, Any] | None = None) -> None:
     """The closed roster of a solved document's combination diagnostics (Rust `roster`): ROSTER_EXTRA, ROSTER_RENAMED,
     ROSTER_CONTRADICTION and ROSTER_MISSING. The certificate's own notices (`check`), EX's namespace (`exact_combinations`)
-    and PF's operand notices (`preview_combination_operands`) are read whole by their own readers, which precede it."""
+    and PF's operand notices (`preview_combination_operands`) are read whole by their own readers, which precede it. A
+    set-bound entry's exact id is read even when its refs name only an identity outside the population (a combination
+    sharing a load case's id): it selects that entry, against which the notice is compared whole, and admits nothing
+    alone; the delegated skips still come first."""
     from .combination_graph import model_operands
     from .preview_combination_gates import _RowIndex
     if in_retained_base_read() or _get(source, "status", "mechanics") != "MECHANICS_SOLVED":
@@ -967,7 +970,10 @@ def roster(source: Mapping[str, Any], model: Mapping[str, Any] | None = None) ->
                 if x is not None}
     seen = [False] * len(expected)
     for d in diagnostics:
-        if not any(r in population for r in _refs(d)):
+        # A diagnostic carrying an entry's exact id is read even when no ref is in the population (an id shared with
+        # another entity): the id only selects the entry, compared whole below.
+        listed = isinstance(d, Mapping) and any(e["id"] == d.get("id") for e in expected)
+        if not any(r in population for r in _refs(d)) and not listed:
             continue
         code = d.get("code") if isinstance(d.get("code"), str) else ""
         if (reserved_notice(d) or (preview and code in (OPERAND_STATES, OPERAND_STANDING))

@@ -979,7 +979,10 @@ pub(crate) fn clear_read_context() {
 /// The closed roster of a solved document's combination diagnostics (Work `combination-certificate.md`
 /// §2): `ROSTER_EXTRA`, `ROSTER_RENAMED`, `ROSTER_CONTRADICTION` and `ROSTER_MISSING`. Delegated to the
 /// readers that re-derive them whole: the certificate's own notices (`check`), EX's namespace
-/// (`exact_combination_evidence`) and PF's operand notices (`preview_combination_operands`).
+/// (`exact_combination_evidence`) and PF's operand notices (`preview_combination_operands`). A set-bound
+/// entry's exact id is read even when its refs name only an identity outside the population (a combination
+/// sharing a load case's id): it selects that entry, against which the notice is compared whole, and admits
+/// nothing alone; the delegated skips still come first.
 fn roster(source: &Value, model: Option<&Value>) -> Check {
     if in_retained_base_read() || source["status"]["mechanics"] != "MECHANICS_SOLVED" {
         return Ok(());
@@ -1073,7 +1076,10 @@ fn roster(source: &Value, model: Option<&Value>) -> Check {
         .filter_map(|r| r["entity_ref"].as_str())
         .collect();
     let mut seen = vec![false; expected.len()];
-    for d in diagnostics.iter().filter(|d| named(d)) {
+    // A diagnostic carrying an entry's exact id is read even when no ref is in the population (an id
+    // shared with another entity): the id only selects the entry, compared whole below.
+    let listed = |d: &Value| expected.iter().any(|e| e["id"] == d["id"]);
+    for d in diagnostics.iter().filter(|d| named(d) || listed(d)) {
         let code = d["code"].as_str().unwrap_or_default();
         // Read whole by their own readers, which precede this one.
         if reserved_notice(d)
