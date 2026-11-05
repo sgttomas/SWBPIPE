@@ -141,6 +141,21 @@ taken by this TASK.
   holds none of them. It is kept unchanged in both modes, so admission does not change. Lifting or
   re-pricing it in sparse mode is O-2's decision, after the heavy run (§6).
 - **RT-A5's held solve** calls the step through a public wrapper that this TASK does not add.
+- **P's D3 (DEL-04-08 `retained-pricing-rules.md` §8.53, with the §4 certificate).**
+  - *Not coefficient-identical.* §8.8 found no coefficient move; the §8.9 guard-text repair
+    (`78580da7e`) lengthens NI's guard refusal text by 43 B, charged twice on the TEXT chain:
+    TAV_W, TAV_X and the two TAV text atoms +86 B. It is P's only move and is registered.
+  - *Pins and keys restated.* NI `structural_adapter.rs`, FK `structural.rs` and `sparse.rs`, and the
+    FK owner-choice keys (`structural.rs` +3, `sparse.rs` +100/+291, unchanged text); B7a's adapter
+    is unchanged. The option-(c) and R-2 source pins hold on the merged head.
+  - *The guard-call comment* in PP `lib.rs` (§8.9 "Not changed here") is corrected, six lines kept.
+  - *Evidence.* Increment 4's frozen guard ends at `252bef969` and waives none of P.
+    `tests/test_rt_a3_p_declared_moves.py` makes P's carrier moves a maintained regression (the
+    declared fixture set, no dense change, only loop-evidence and noise-level member values, only the
+    integrity messages, only input digests of the invented capture's reader outcomes, the carrier-case
+    pin at each endpoint). The r_old + r_new enclosure check over the 100-output corpus needed P's
+    pre-change solver and a radius-printing scratch build, so it stays one-time evidence (§8.2).
+  - *Stack witnesses* (AC-004) wait for Agent 0's clearance on the registration's binary.
 
 ## 8. Record
 
