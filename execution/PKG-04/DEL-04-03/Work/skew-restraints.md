@@ -906,6 +906,99 @@ contain their exact values (§13).
   `set_field`) remains an unsupported field path until the authoring lane designs it. Desktop
   entry is the authoring lane's.
 
+### 11.1 Seam agreements for S-K1 (2026-11-04)
+
+Agent 0 released S-K1, stacked on #122's exact reviewed source. Agent 0 authorizes S-K1's
+boundaries; the owners coordinate integration. Each owner below agreed its seam with these
+conditions, and they bind the §15 implementation. Exact hunks go to each owner before the
+write. Nothing in a shared file is written before agreement.
+
+- **RT-A3 (P-1, A-1, and P's part of F-1).**
+  - `pub mod restraint_basis;` in FK `lib.rs` is agreed; a full-file pin restates at D3.
+  - **F-1.** With `node_blocks` empty, every P path stays byte-identical: K6 FK/SD binary64
+    parity, P's `p_*` tests, and the shared-factor bit-identity refusal. Add one test in which
+    a factor is shared across right-hand sides with node blocks present. S-K1 stacks on P's
+    final `sparse.rs`; RT-A3 sends the SHA.
+  - **F-2, technical agreement.**
+    - `FormationSource.restraint` is carried on **both** the dense `ConfirmationAttempt` and
+      P's sparse `SparseConfirmationAttempt` / formation-checked path, with a dense = sparse
+      test on a skewed case.
+    - `MemberBoundInputs.lift_radius` is empty when it means zero. Every existing
+      construction stays bit-identical.
+    - P2's justification: the smallest product of two binary64 values is 2⁻²¹⁴⁸, so the
+      accumulator quantum holds every two-factor product exactly. Triples and quadruples are
+      split by P1 first.
+    - P3: |e_v,j| ≤ 2^exp_j·λ_σ holds for every free j at once, as the componentwise
+      remainder. By the triangle inequality, |Q e_v|_i ≤ Σ_j|q_ij|2^exp_j λ_σ ≤ 2^E_i λ_σ.
+      `i32::MIN` requires exactly-zero lift values.
+    - §10.4 D5C-1 uses the published u_p = fl(Qv), compared upward.
+    - Who signs F-2 as DEL-04-01's decider is with Agent 0.
+  - **F-3.** No new threshold.
+  - **A-1.** The linear entry only.
+    - `with_restraint_basis` is structurally unreachable from the loop: the nonlinear + skew
+      refusal is structural, with a test that the loop path never carries a basis.
+    - The loop, `complete_iteration` and `confirmation.rs` are never touched.
+    - Add S11-K and R2 site-table rows for new adapter functions. R2's confirmation-entry
+      rule is not widened.
+- **RT-U4 (DEL-04-08 pricing; R-1 C1 mirror).**
+  - **D1 memory.** `lift_radius` stays **empty on D1**: an empty `Vec` of capacity 0 when the
+    model holds no skewed record, with a source check or capacity row (the D1.3 empty-owner
+    pattern). KD5O4 then stays B(20N) and KD5O5 is unchanged. A dense field would price as
+    B(28N) everywhere, which is not chosen.
+  - **The struct grows.** `s(MemberBoundInputs)` goes from 80 B to 104 B with a fourth Vec.
+    The pricing switch on `pub struct MemberBoundInputs` (`g3lib.py:245` fallback 80,
+    `ordinary_caps.py:29`, `text_lexicon.py:174`) needs a new-revision switch keyed on the
+    field's presence, so that older registered revisions keep their formula. That is D3 work.
+  - **Debug text.** `MemberBoundInputs` reaches no Debug or format site; the S-K1 pricing
+    notes state this, or the unified text model gains the field.
+  - **Transform workspace.** Every rotation or transform allocation in
+    `solve_prepared_load_case`, K-D5 `evaluate`/`evaluate_row_inner` and the NI adapter sits
+    **inside** the direction branch. Anything that must be allocated up front gets a
+    capacity-0 guard on D1. New owned layouts beyond the four are listed for the layout pins.
+  - **C1 mirror.** C1's frozen candidate dd458d1d3 is not changed before its run.
+    `support_reaction_along_direction_v1`'s exact strings and digests go to RT-U4 once
+    implemented, and RT-U4 adds the mirror after the run. `recorded_tables.rs` re-pins to the
+    merged bytes by whoever merges second.
+- **Dynamics (D-1).** Agreed in principle. The eigenvalues of the restricted pencil do not
+  depend on the basis, so a non-orthonormal division-free Q is sound. Conditions:
+  - **(a) Re-formation.** `reform_modal_pencil` (`modal/outcome.rs`) and `modal_eigen`'s
+    `ReformedPencil::new` / `formation_difference` apply the same `congruence_terms`, as exact
+    three-factor products q_ir·k·q_jc into `ExactSum`, so that K̂′ = QᵀK̂Q and M̂′ = QᵀM̂Q.
+    - Check 1 compares formed and re-formed reduced pencils. Checks 2 and 3 (residuals and
+      orthogonality on M̂′) run on the reduced re-formed pencil. Sturm stays on formed K′, M′.
+    - This touches `modal_eigen/src/reformation/*`, `modal/outcome.rs` and `integrity.rs`,
+      and keeps #110's reset and capacity discipline.
+  - **(b)** The weight-basis identity check (`modal/weight_basis.rs`) stays on the global M.
+    The excitation uses the global M and R_k before Qᵀ.
+  - **(c)** The census and structural masslessness are judged on the reduced M′, and the text
+    says so.
+  - **(d)** `modal_result_document` (modal-1 0.1.0) refuses skew models by name, in its
+    caller and before `modal_doc_solved`, whose text §8.52 pins. Publishing the global M_ff
+    with lifted shapes would be a modal-1 revision.
+  - **(e)** One `build` per model, shared by static and modal.
+  - **(f)** The congruence and re-formation terms stay countable for the later O-4 guard
+    (≤ 9 terms per entry for a 3×3 node block).
+  - The TASK writes the modal hunks; dynamics reviews them. One independent dynamics review
+    of the modal hunks happens before merge.
+  - #113 is open, with no dynamics hunks planned in `modal/stiffness.rs`, `prepare.rs` or
+    `judge`.
+- **Authoring lane (AP-1).** The `create_support` contract of §9 is agreed. Conditions:
+  - **(a) Update paths.** `update_support configuration` replaces only its CONFIG members, so
+    a kept `direction` survives an unrelated edit. A configuration change that makes a kept
+    `direction` inadmissible is **refused by name** by the document rule, never written and
+    never dropped, with a regression for each case:
+    - family → `guide` or another non-`line_stop`/`spring` family;
+    - multi-DOF restraints;
+    - adding `nonlinear`.
+  - **(b) Changing the single translational DOF token** (UX → UY) on a skewed record is
+    well-defined. By §6.4 the token states only that the record is translational, and d̃ alone
+    governs, so the solve is unchanged. A change to a rotational token makes `direction`
+    inadmissible and is refused as in (a).
+  - **(c) Agent authorship.** `direction` is not a user-only modifier. Whether the RT-E1
+    catalog writes it is being confirmed with RT-E1 (2026-11-04).
+  - Editing or removing `direction` stays unsupported until the authoring lane designs it.
+    The desktop Direction field is the authoring lane's, after S-K1.
+
 ---
 
 ## 12. Pricing outlook (no tool run, no profile)
