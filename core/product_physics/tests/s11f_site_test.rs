@@ -191,7 +191,7 @@ const RECOVERY: &[Source] = &[
 /// `.iter().copied()` / `.iter().cloned()` with a `.collect` in the same
 /// statement. (file, function, disposition).
 const ALLOW_VALUES_COPY: &[(&str, &str, &str)] = &[
-    ("PP/lib.rs", "append_nonlinear_support_loop_results", "the loop's `input.force` copy; the typed entry `solve_active_set_frame_with_mode_and_springs_assembled` refuses it unless it equals the ledger's values bit for bit"),
+    ("PP/lib.rs", "nonlinear_frame_input", "the loop's `input.force` copy (RT-A5: extracted from `append_nonlinear_support_loop_results`, shared with the held-status solve); the typed entry `solve_active_set_frame_with_mode_and_springs_assembled` refuses it unless it equals the ledger's values bit for bit"),
 ];
 
 /// Rule 3: a compound assignment or `.iter_mut()` on a binding whose name
@@ -426,8 +426,8 @@ const FORCE_FUNCTIONS: &[(&str, &str, &str)] = &[
     ),
     (
         "nonlinear_integration/lib.rs",
-        "solve_active_set_loop",
-        "the loop (option (c), T5's; RT-A3 P: the entry's body)",
+        "complete_iteration",
+        "the loop (option (c), T5's; RT-A3 P: the entry's body; RT-A5 S2: its tail, moved verbatim from solve_active_set_loop, where the input force is read for the receipt)",
     ),
     (
         "nonlinear_integration/lib.rs",

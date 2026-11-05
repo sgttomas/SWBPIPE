@@ -144,7 +144,7 @@ use std::f64::consts::PI;
 
 mod topology;
 mod validation;
-mod imposed_motion;
+mod imposed_motion; mod held_status; // RT-A5 `minuend_final` (DEL-05-02 `operating-case.md` §7), on this line so that no line moves.
 use validation::validate_model_inputs;
 mod rigid_component;
 #[cfg(test)]
@@ -2670,6 +2670,9 @@ struct LoadCaseSolve {
     /// withheld. Preview-physics retires every summary row, so these apply
     /// only when it does not render (`withhold_certified_summaries`).
     withheld_summaries: Vec<Diagnostic>,
+    /// RT-A5 (DEL-05-02 `operating-case.md` §7.4): what this case lends a `minuend_final`
+    /// combination's held solve, formed only when it is that combination's minuend.
+    held_status_source: Option<Box<held_status::HeldStatusSource>>,
     /// DEL-04-09 I2b-2 (decision B): see `NonlinearStateEvidence`.
     nonlinear_state: Option<Box<NonlinearStateEvidence>>,
     /// RT-A3 §4 (DEL-05-02 Work `combination-certificate.md`): the case's K-D5
@@ -3260,6 +3263,8 @@ fn run_linear_static_preview_observed_inner(
         BasisStiffness,
         Option<String>,
     )> = vec![(None, materials.clone(), built, stiffness, None)];
+    // RT-A5 (operating-case §7.4): this document solve's invocation context.
+    let invocation = held_status::InvocationToken::mint();
     let mut load_case_solves = Vec::new();
     for (case_index, load_case) in model.load_cases.iter().enumerate() {
         if let Some(resolved_cases) = &resolved_cases {
@@ -3311,6 +3316,7 @@ fn run_linear_static_preview_observed_inner(
                 Some(resolved),
                 &mut diagnostics,
                 product.as_deref_mut(),
+                held_status::CaseRole::Own(Some(invocation)),
             ) {
                 Ok(solve) => load_case_solves.push(solve),
                 Err(error) => return solver_blocked(model, diagnostics, error),
@@ -3341,6 +3347,7 @@ fn run_linear_static_preview_observed_inner(
                 None,
                 &mut diagnostics,
                 product.as_deref_mut(),
+                held_status::CaseRole::Own(Some(invocation)),
             ) {
                 Ok(solve) => load_case_solves.push(solve),
                 Err(error) => return solver_blocked(model, diagnostics, error),
@@ -3408,6 +3415,7 @@ fn run_linear_static_preview_observed_inner(
             None,
             &mut diagnostics,
             product.as_deref_mut(),
+            held_status::CaseRole::Own(Some(invocation)),
         ) {
             Ok(solve) => load_case_solves.push(solve),
             Err(error) => return solver_blocked(model, diagnostics, error),
@@ -3417,6 +3425,68 @@ fn run_linear_static_preview_observed_inner(
         }
     }
     let built = &basis_solve_states[0].2;
+    // RT-A5 (operating-case §7.5): each `minuend_final` subtraction's held solve after its G-1
+    // and G-2, at the subtrahend's own basis state, with its own diagnostics (never the
+    // document's); the gates, rows and evidence below read the outcomes.
+    let held_operands = if !pressure_runtime::is_exact(&model) && model.combinations.iter().any(held_status::is_minuend_final) {
+        held_status::solve_held_combinations(
+            &model,
+            invocation,
+            |id| {
+                let solve = load_case_solves.iter().find(|solve| solve.load_case_id == id);
+                (solve.and_then(|s| s.held_status_source.as_deref()), solve.and_then(|s| s.nonlinear_state.as_deref()))
+            },
+            |case| modulus_basis_key(case, &mut Vec::new()),
+            |target, request| {
+                let case_index = model.load_cases.iter().position(|case| case.id == target.id)?;
+                let resolved = resolved_cases.as_ref().map(|cases| &cases[case_index]);
+                let state_index = match (resolved, modulus_basis_key(target, &mut Vec::new())) {
+                    (Some(_), _) if case_index == 0 => 0,
+                    (Some(_), _) => {
+                        let key = format!("load_state:{}", target.id);
+                        basis_solve_states.iter().position(|(k, ..)| k.as_deref() == Some(key.as_str()))?
+                    }
+                    (None, None) => 0,
+                    (None, Some(key)) => basis_solve_states.iter().position(|(k, ..)| k.as_ref() == Some(&key))?,
+                };
+                let (_, basis_materials, basis_built, basis_stiffness, basis_record) = &basis_solve_states[state_index];
+                let mut local = Vec::new();
+                let mut solve = solve_load_case_observed(
+                    &model,
+                    basis_built,
+                    basis_materials,
+                    basis_stiffness,
+                    &boundary.restrained_dofs,
+                    &boundary.springs,
+                    target,
+                    if resolved.is_some() { None } else { basis_record.as_deref() },
+                    solver_mode,
+                    None,
+                    &mut SourceRecoveryBudget::default(),
+                    resolved,
+                    &mut local,
+                    None,
+                    held_status::CaseRole::Held(request),
+                )
+                .ok()
+                .filter(|_| !has_blocking(&local))?;
+                preview_physics::render(&model, built, &boundary.restrained_dofs, std::slice::from_mut(&mut solve), &mut local);
+                (!has_blocking(&local)).then_some(solve)
+            },
+        )
+    } else {
+        HashMap::new()
+    };
+    // Each held record's source standing, read before the case solves are published.
+    let held_sources: HashMap<String, serde_json::Value> = model
+        .combinations
+        .iter()
+        .filter(|c| held_operands.contains_key(&c.id))
+        .map(|c| {
+            let evidence = load_case_solves.iter().find(|s| Some(s.load_case_id.as_str()) == c.minuend_id.as_deref()).and_then(|s| s.nonlinear_state.as_deref());
+            (c.id.clone(), held_status::source_standing(evidence))
+        })
+        .collect();
     let source_selected = load_case_solves.iter().any(|solve| solve.source_selected);
     let source_cases: Vec<_> = load_case_solves.iter_mut().filter_map(|solve| solve.source_case.take()).collect();
     // B4/D1 (b): a preview-route model selects no source blocks, so it always renders.
@@ -3517,14 +3587,14 @@ fn run_linear_static_preview_observed_inner(
     // With `preview` None the model is exact (validate_profile refuses its combinations) or a case is
     // source-selected (source_eligible requires no combinations): there are no combinations to append.
     let preview_gates = if combining {
-        preview_physics::append_combination_results(&model, preview.as_ref().expect("combining requires preview"), &rows_by_base_id, &mut results, &mut diagnostics)
+        preview_physics::append_combination_results(&model, preview.as_ref().expect("combining requires preview"), &rows_by_base_id, &held_operands, &mut results, &mut diagnostics)
     } else {
         Vec::new()
     };
     // Operating-case slice 1a (DEL-05-02 Design `pf-nonlinear-operand-standing.md`):
     // a nonlinear model's admitted combinations state their operands' standing.
     let preview_operands = match &preview {
-        Some(rendered) if combining => preview_physics::append_operand_standing(&model, rendered, &preview_gates),
+        Some(rendered) if combining => preview_physics::append_operand_standing(&model, rendered, &preview_gates, &held_operands),
         _ => Vec::new(),
     };
     // RT-A4 (absolute-sum-srss §10.3): what a reader without the model needs to re-derive
@@ -3533,6 +3603,18 @@ fn run_linear_static_preview_observed_inner(
         Some(rendered) if combining => preview_physics::combination_derivation(&model, rendered, &preview_gates),
         _ => None,
     }; let preview_difference = if combining { difference_basis::derivation(&model, &preview_gates) } else { None }; // Operating-case slice 1b: G-1's derivation evidence; none without a declared subtraction.
+    // RT-A5 (§7.6): one record per `minuend_final` combination that reached the held gates, in gate order.
+    let held_derivation = combining.then(|| {
+        preview_gates
+            .iter()
+            .filter_map(|gate| model.combinations.iter().find(|c| gate["combination_id"] == c.id.as_str()))
+            .filter_map(|combination| {
+                let outcome = held_operands.get(&combination.id)?;
+                let target = model.load_cases.iter().find(|c| Some(c.id.as_str()) == combination.subtrahend_id.as_deref())?;
+                Some(held_status::record(combination, solver_mode, &held_sources[&combination.id], modulus_basis_key(target, &mut Vec::new()), outcome))
+            })
+            .collect::<Vec<_>>()
+    }).filter(|records| !records.is_empty());
     // W-16 slice b (DEL-05-02 Design `exact-combinations.md`): an exact-route
     // document's combinations, formed from its published case rows and evidence
     // (a document with a combination is never source-selected).
@@ -3670,6 +3752,7 @@ fn run_linear_static_preview_observed_inner(
     if let (Some(rendered), Some(basis)) = (&preview, preview_basis) {
         envelope.formulation_basis = basis;
         validation::state_applied_branch_factors(&model.components, &rendered.preview_cases, &mut envelope.diagnostics); envelope.contract_evidence = Some(rendered.evidence(preview_gates, preview_derivation)); if let (Some(member), Some(serde_json::Value::Object(evidence))) = (preview_difference, envelope.contract_evidence.as_mut()) { evidence.insert(difference_basis::DERIVATION_MEMBER.to_string(), member); } // Operating-case slice 1b: each declared subtraction's two content multisets.
+        if let (Some(records), Some(serde_json::Value::Object(evidence))) = (held_derivation, envelope.contract_evidence.as_mut()) { evidence.insert(held_status::DERIVATION_MEMBER.to_string(), serde_json::Value::Array(records)); }
     }
     preview_physics::state_operand_standing(&mut envelope, preview_operands);
     // B4/D1 (b): only an exact-route composite is ever selected (`source_eligible`).
@@ -5241,7 +5324,8 @@ fn solve_load_case(
     diagnostics: &mut Vec<Diagnostic>,
 ) -> Result<LoadCaseSolve, FrameKernelError> {
     solve_load_case_observed(model, built, materials, stiffness, restrained_dofs, spring_entries,
-        load_case, modulus_basis_record, solver_mode, capture, source_budget, load_state, diagnostics, None)
+        load_case, modulus_basis_record, solver_mode, capture, source_budget, load_state, diagnostics, None,
+        held_status::CaseRole::Own(None))
 }
 
 fn solve_load_case_observed(
@@ -5259,6 +5343,7 @@ fn solve_load_case_observed(
     load_state: Option<&case_state::resolve::ResolvedCase>,
     diagnostics: &mut Vec<Diagnostic>,
     product: Option<&mut retained_product::ProductCapture>,
+    role: held_status::CaseRole<'_, '_>,
 ) -> Result<LoadCaseSolve, FrameKernelError> {
     // A resolved case supplies the complete ordinary-source ledger: only its
     // declared, factored primitives are applied, exactly once.
@@ -5272,7 +5357,7 @@ fn solve_load_case_observed(
         diagnostics,
     );
     solve_prepared_load_case(model,built,materials,stiffness,restrained_dofs,spring_entries,load_case,
-        modulus_basis_record,solver_mode,capture,source_budget,load_state,exact_pressure,diagnostics,product)
+        modulus_basis_record,solver_mode,capture,source_budget,load_state,exact_pressure,diagnostics,product,role)
 }
 
 /// Private mechanics composition after the wrapper's unchanged profile
@@ -5295,6 +5380,7 @@ fn solve_prepared_load_case(
     exact_pressure: Option<pressure_runtime::ExactPressureCase>,
     diagnostics: &mut Vec<Diagnostic>,
     mut product: Option<&mut retained_product::ProductCapture>,
+    mut role: held_status::CaseRole<'_, '_>,
 ) -> Result<LoadCaseSolve, FrameKernelError> {
     let loads = build_load_case_primitive_loads(model, load_case, diagnostics);
     let load_application = prepare_loads(built.nodes.len(), built.pipes.len(), &loads);
@@ -5322,6 +5408,7 @@ fn solve_prepared_load_case(
             component_stress_modifier_count: 0,
             preview: None,
             withheld_summaries: Vec::new(),
+            held_status_source: None,
             certificate_operand: None,
             nonlinear_state: None,
         });
@@ -5360,6 +5447,7 @@ fn solve_prepared_load_case(
                 component_stress_modifier_count: 0,
                 preview: None,
                 withheld_summaries: Vec::new(),
+                held_status_source: None,
                 certificate_operand: None,
                 nonlinear_state: None,
             });
@@ -5469,6 +5557,7 @@ fn solve_prepared_load_case(
             component_stress_modifier_count: 0,
             preview: None,
             withheld_summaries: Vec::new(),
+            held_status_source: None,
             certificate_operand: None,
             nonlinear_state: None,
         });
@@ -5511,6 +5600,7 @@ fn solve_prepared_load_case(
                 component_stress_modifier_count: 0,
                 preview: None,
                 withheld_summaries: Vec::new(),
+                held_status_source: None,
                 certificate_operand: None,
                 nonlinear_state: None,
             });
@@ -5779,6 +5869,7 @@ fn solve_prepared_load_case(
                 component_stress_modifier_count: 0,
                 preview: None,
                 withheld_summaries: Vec::new(),
+                held_status_source: None,
                 certificate_operand: None,
                 nonlinear_state: None,
             });
@@ -5813,6 +5904,7 @@ fn solve_prepared_load_case(
                 component_stress_modifier_count: 0,
                 preview: None,
                 withheld_summaries: Vec::new(),
+                held_status_source: None,
                 certificate_operand: None,
                 nonlinear_state: None,
             });
@@ -5867,6 +5959,8 @@ fn solve_prepared_load_case(
             vec![load_case.id.clone()],
         ));
     }
+    // RT-A5 (operating-case §7.3): a held solve takes the held step in place of the loop.
+    let held = role.held();
     let (selected_nonlinear, nonlinear_standing, nonlinear_qualification) =
         match append_nonlinear_support_loop_results(
             &mut results,
@@ -5881,6 +5975,7 @@ fn solve_prepared_load_case(
             solver_mode,
             spring_entries,
             load_row_finding.is_none(),
+            &mut role,
         ) {
             Some((solve, nonlinear, qualification)) => {
                 (Some(solve), Some(nonlinear), qualification)
@@ -5889,7 +5984,9 @@ fn solve_prepared_load_case(
         };
     if !built.nonlinear_supports.is_empty() {
         match &selected_nonlinear {
-            Some(solve) if solve.converged => displacements = solve.displacements.clone(),
+            // A held result is published whether or not it converged: a release keeps the
+            // loop's exit diagnostic and its outcome R, and is never promoted (§7.3).
+            Some(solve) if solve.converged || held => displacements = solve.displacements.clone(),
             _ => {
                 diagnostics.push(diag(
                     "diagnostic:physics:selected-state-unavailable",
@@ -5912,6 +6009,7 @@ fn solve_prepared_load_case(
                     component_stress_modifier_count: 0,
                     preview: None,
                     withheld_summaries: Vec::new(),
+                    held_status_source: None,
                     certificate_operand: None,
                     nonlinear_state: None,
                 });
@@ -6005,6 +6103,23 @@ fn solve_prepared_load_case(
         confirmed.is_some(),
         nonlinear_sentence.as_deref(),
     );
+    // RT-A5 (operating-case §7.4): a `minuend_final` combination's minuend lends its state.
+    let held_status_source = match role {
+        held_status::CaseRole::Own(Some(invocation)) if held_status::wanted(model, &load_case.id) => {
+            nonlinear_frame_input(built, restrained_dofs, pf_motion.as_ref(), &ground_motion, &force).ok().and_then(|input| {
+                held_status::capture_held_status_source(
+                    invocation,
+                    true,
+                    nonlinear_state.as_deref(),
+                    &input,
+                    &loop_springs(spring_entries),
+                    selected_nonlinear.as_ref(),
+                    &held_status::node_ids(model),
+                )
+            })
+        }
+        _ => None,
+    };
     let member_bound = member_bound.or(confirmed.map(|state| &state.member_bound));
     // U4a's test-only demotion exercises pressure-2's ordinary binary64
     // publication, which cannot naturally admit nonlinear supports yet.
@@ -7251,7 +7366,8 @@ fn solve_prepared_load_case(
     }
     // RT-A3 §4 (DEL-05-02 Work `combination-certificate.md`): an operand's groups exist
     // exactly when its member bound was formed.
-    let certificate_operand = (!model.combinations.is_empty() && member_bound.is_some())
+    // RT-A5: never on the held path (`role.held()`).
+    let certificate_operand = (!held && !model.combinations.is_empty() && member_bound.is_some())
         .then(|| combination_certificate::operand(&recovery_records, &formation_bodies));
     require_finite_mechanics(results.iter().map(|row| row.value))?;
     let pressure_assembly_evidence = exact_pressure.as_ref().map(|p| p.assembly_evidence.clone());
@@ -7404,6 +7520,10 @@ fn solve_prepared_load_case(
         component_stress_modifier_count,
         preview: preview_record,
         withheld_summaries,
+        held_status_source,
+        // RT-A5 (manager's condition): a held solve (`role.held()`) carries no
+        // certificate operand; a held solve's rows are the combination's, never a
+        // case certificate's operand.
         certificate_operand,
         nonlinear_state,
     })
@@ -7478,74 +7598,30 @@ fn append_nonlinear_support_loop_results(
     solver_mode: PreviewSolverMode,
     spring_entries: &[SpringEntry],
     confirm: bool,
+    // RT-A5 (operating-case §7.3): a held solve takes the held step in place of the loop.
+    role: &mut held_status::CaseRole<'_, '_>,
 ) -> Option<(NonlinearFrameSolveResult, NonlinearStanding, Option<NonlinearQualification>)> {
     if built.nonlinear_supports.is_empty() {
         return None;
     }
-
-    // The assembled active-set loop consumes the same build-time validated
-    // curved-bend macro-element global stiffness as the linear preview paths
-    // (DEC-070): each realized bend is passed as an explicit-stiffness slot so
-    // every linearized iteration assembles the arc stiffness. No straight-chord
-    // fallback exists on this path.
-    let mut curved_bend_stiffness_elements = Vec::with_capacity(built.curved_bend_elements.len());
-    for element in &built.curved_bend_elements {
-        match CurvedBendStiffnessElement::from_macro_element(
-            element.component_id.clone(),
-            &element.macro_element,
-        ) {
-            Ok(slot) => curved_bend_stiffness_elements.push(slot),
-            Err(error) => {
-                diagnostics.push(nonlinear_loop_blocked_diag(&load_case.id, error));
-                return None;
-            }
-        }
+    if let held_status::CaseRole::Held(request) = role {
+        return held_status::held_solve(request, model, built, restrained_dofs, base_motion, ground_motion, force, solver_mode, spring_entries, confirm);
     }
 
-    let support_classes = product_preview_policy_support_classes(&built.nonlinear_supports);
-    let support_classes_basis = support_classes.join(",");
-    let convergence = match product_preview_convergence_control() {
-        Ok(convergence) => convergence,
+    let input = match nonlinear_frame_input(built, restrained_dofs, base_motion, ground_motion, force) {
+        Ok(input) => input,
         Err(error) => {
             diagnostics.push(nonlinear_loop_blocked_diag(&load_case.id, error));
             return None;
         }
     };
-
-    let input = NonlinearFrameSolveInput {
-        node_count: built.nodes.len(),
-        elements: built.frame_elements.clone(),
-        connectors: built.connectors.clone(),
-        curved_bend_elements: curved_bend_stiffness_elements,
-        // The loop's base force is the ledger's net (S11 section 8.2); the
-        // typed entry below checks this copy against it bit for bit.
-        force: force.values().to_vec(),
-        base_restrained_dofs: restrained_dofs.to_vec(),
-        // W-16 stage 2 (R-a): rigid anchors and restraints carry the case's
-        // motion as base prescribed values; every nonlinear support's ground
-        // stays fixed. The motion is never also a force.
-        base_prescribed: base_motion
-            .map(|motion| motion.iter().map(|(&dof, &value)| (dof, value)).collect())
-            .unwrap_or_default(),
-        // W-16 stage 2 (R-b): each moved nonlinear ground; a support's state
-        // is measured on u_d - g_s.
-        ground_motion: ground_motion.to_vec(),
-        nonlinear_supports: built.nonlinear_supports.clone(),
-        initial_states: built.nonlinear_initial_states.clone(),
-        friction_normal_reactions: built.nonlinear_friction_normal_reactions.clone(),
-        derived_friction_normal_reactions: built
-            .nonlinear_derived_friction_normal_reactions
-            .clone(),
-        convergence,
-    };
+    let support_classes = product_preview_policy_support_classes(&built.nonlinear_supports);
+    let support_classes_basis = support_classes.join(",");
 
     // Slice 1a V-4: the seed each case's loop starts from, observed in tests only.
     #[cfg(test)]
     op1a_seed_tests::observe_seed(&load_case.id, &input.initial_states);
-    let springs = spring_entries
-        .iter()
-        .map(|spring| (spring.node_dof.global_index(), spring.stiffness.value))
-        .collect::<Vec<_>>();
+    let springs = loop_springs(spring_entries);
     match solve_active_set_frame_with_mode_and_springs_assembled(
         &input,
         force,
@@ -7842,6 +7918,65 @@ fn append_nonlinear_support_loop_results(
             None
         }
     }
+}
+
+
+/// The loop input of a case solve: its built model, base restraints and motion, the
+/// nonlinear ground offsets and the ledger net. Shared by the case's own loop and RT-A5's
+/// held-status solve (DEL-05-02 `operating-case.md` §7.4), whose binding compares the two.
+fn nonlinear_frame_input(
+    built: &BuiltModel,
+    restrained_dofs: &[usize],
+    base_motion: Option<&BTreeMap<usize, f64>>,
+    ground_motion: &[(String, f64)],
+    force: &AssembledForce,
+) -> Result<NonlinearFrameSolveInput, NonlinearIntegrationError> {
+    // The assembled active-set loop consumes the same build-time validated
+    // curved-bend macro-element global stiffness as the linear preview paths
+    // (DEC-070): each realized bend is passed as an explicit-stiffness slot so
+    // every linearized iteration assembles the arc stiffness. No straight-chord
+    // fallback exists on this path.
+    let mut curved_bend_stiffness_elements = Vec::with_capacity(built.curved_bend_elements.len());
+    for element in &built.curved_bend_elements {
+        curved_bend_stiffness_elements.push(CurvedBendStiffnessElement::from_macro_element(
+            element.component_id.clone(),
+            &element.macro_element,
+        )?);
+    }
+
+    let convergence = product_preview_convergence_control()?;
+
+    Ok(NonlinearFrameSolveInput {
+        node_count: built.nodes.len(),
+        elements: built.frame_elements.clone(),
+        connectors: built.connectors.clone(),
+        curved_bend_elements: curved_bend_stiffness_elements,
+        // The loop's base force is the ledger's net (S11 section 8.2); the
+        // typed entry below checks this copy against it bit for bit.
+        force: force.values().to_vec(),
+        base_restrained_dofs: restrained_dofs.to_vec(),
+        // W-16 stage 2 (R-a): rigid anchors and restraints carry the case's
+        // motion as base prescribed values; every nonlinear support's ground
+        // stays fixed. The motion is never also a force.
+        base_prescribed: base_motion
+            .map(|motion| motion.iter().map(|(&dof, &value)| (dof, value)).collect())
+            .unwrap_or_default(),
+        // W-16 stage 2 (R-b): each moved nonlinear ground; a support's state
+        // is measured on u_d - g_s.
+        ground_motion: ground_motion.to_vec(),
+        nonlinear_supports: built.nonlinear_supports.clone(),
+        initial_states: built.nonlinear_initial_states.clone(),
+        friction_normal_reactions: built.nonlinear_friction_normal_reactions.clone(),
+        derived_friction_normal_reactions: built
+            .nonlinear_derived_friction_normal_reactions
+            .clone(),
+        convergence,
+    })
+}
+
+/// The springs as the loop reads them (global DOF, stiffness).
+fn loop_springs(spring_entries: &[SpringEntry]) -> Vec<(usize, f64)> {
+    spring_entries.iter().map(|spring| (spring.node_dof.global_index(), spring.stiffness.value)).collect()
 }
 
 fn product_preview_convergence_control() -> Result<ConvergenceControl, NonlinearIntegrationError> {
@@ -15752,6 +15887,7 @@ mod kd5_withheld_summary_tests {
             } else {
                 Vec::new()
             },
+            held_status_source: None,
             certificate_operand: None,
             nonlinear_state: None,
         }

@@ -55,13 +55,13 @@ PRESSURE_CONTRACT_SHA256 = "21b7426ec1c50ba5f74539984261554d06b9b6a26ec26f7d5765
 _PRESSURE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure_2.json"
 PRESSURE_PROFILE = "exact_pressure_v3"
 PREVIEW_PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2"
-PREVIEW_PHYSICS_CONTRACT_SHA256 = "f41b9d3ed0c1b7abaee0b98ca1a28aa1a2d109bce443b98d53a2080c1c504ce9"
+PREVIEW_PHYSICS_CONTRACT_SHA256 = "563db3c7c44279face3adc60a76a512de38520357e89ea4b49ad11d20946db89"
 _PREVIEW_PHYSICS_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_2.json"
 PREVIEW_PHYSICS_PROFILE = "product_preview_mechanics_v1"
 # DEL-05-03 Design pf-timoshenko.md §4: the pressure-free Timoshenko identity, a second complete identity on the
 # preview-physics route (preview-physics-2's table with its identity, profile and limitation 0 replaced).
 PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1"
-PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_SHA256 = "6f6494907e3ead979ea27e5ff85f54617589c9195dc84d40a02752a0b006ef44"
+PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_SHA256 = "f64473f5a60ac2bb34d8006b40bf044800f0c97454c570bbe88d1f1d96b7bdfc"
 _PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_timoshenko_1.json"
 PREVIEW_PHYSICS_TIMOSHENKO_PROFILE = "product_preview_mechanics_timoshenko_v1"
 # The preview-physics route's identities: id -> (sha256, table path, profile).
@@ -74,7 +74,7 @@ PREVIEW_PHYSICS_CONTRACTS = {
 # checked only by the accepted reader (`retained_precision`), and its standing
 # comes only from that reader's verified receipt (D1 5 item 3).
 PREVIEW_PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
-PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 = "b4377e73e8a83edb57b4f0c41dbaef384385e0f6b4810103a106a334c8edbe14"
+PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 = "d0bab3502b4018ce0596757a933bd6306f402dc3741a10af24a094e8c66544e8"
 _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_retained_1.json"
 # B3b (B3-D §2, §6.1): the exact successor, whose base is pressure-2 since B7b D4 (a). As the preview successor, its
 # statements are checked only by the accepted reader, which dispatches on this identity, and its standing comes only

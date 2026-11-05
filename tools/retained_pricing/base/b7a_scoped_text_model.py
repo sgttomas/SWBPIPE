@@ -68,10 +68,10 @@ LN = {
     # RT-A3 §4 D3 (§8.53): all four lib.rs sites +27, unchanged text (the certificate's module lines, LoadCaseSolve
     # field, operand map, take, publish call, seven early-return `certificate_operand: None` lines and the operand's
     # formation precede them).
-    'unit_message': 10574, # lib.rs `message.into()` (9162) [9159]
-    'suffix': 15620,      # lib.rs `id.replace(':', "-")` (13614) [13619]
-    'diag_fn': 15569,     # lib.rs fn diag (13563) [13568]
-    'suffix_fn': 15619,   # lib.rs fn stable_suffix (13613) [13618]
+    'unit_message': 10709, # lib.rs `message.into()` (9162) [9159]
+    'suffix': 15755,      # lib.rs `id.replace(':', "-")` (13614) [13619]
+    'diag_fn': 15704,     # lib.rs fn diag (13563) [13568]
+    'suffix_fn': 15754,   # lib.rs fn stable_suffix (13613) [13618]
     # Model document 0.9.0 D3 (§8.36): physics_source.rs's require moves +23 with unchanged text (model_uses_conditions
     # and the three condition-set, spectrum and set-reference predicates precede it); the new details are at most 24 B
     # (ACTUAL_CONDITION_SET_REF), so the longest stays ACTUAL_MATERIAL_DUPLICATE_TEMPERATURE's 37 B and 40 holds.

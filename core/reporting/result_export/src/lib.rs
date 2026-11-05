@@ -1707,8 +1707,14 @@ mod preview_combination_operands;
 mod combination_certificate;
 /// RT-A3 §4: the combination identities a document states (the report's supplemental-text boundary).
 pub use combination_certificate::{document_combination_identities, in_retained_base_read};
+/// RT-A5 (DEL-05-02 `operating-case.md` §7.5; Work `combination-certificate.md` §2): the five typed held
+/// gate codes, and the held-status codes presenters quote whole as supplied text (the five and
+/// `HELD_STATUS_RELEASED`; `report_package::bindings`; desktop `suppliedDiagnostics.ts`
+/// `HELD_STATUS_QUOTED_CODES`): a held refusal is bound to its record, not verified as true.
+pub use preview_held_status::{GATES as HELD_STATUS_GATE_CODES, QUOTED as HELD_STATUS_QUOTED_CODES};
 // Operating-case slice 1b (DEL-05-02 `operating-case.md` §1.2): the declared difference basis.
 mod preview_difference_basis;
+mod preview_held_status;
 mod nonlinear_support_evidence;
 pub mod physics_source;
 pub mod source_blocks;

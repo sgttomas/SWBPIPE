@@ -23,7 +23,9 @@ WALL_BASIS = BASIS + ";axial_is_pipe_wall_action"
 SIGN = "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
 COMBINATION_BASES = ("explicit_user_linear_combination", "explicit_user_result_state_subtraction", "explicit_user_range_envelope",
                      # RT-A4 (DEL-05-02 absolute-sum-srss section 4).
-                     "explicit_user_absolute_sum", "explicit_user_srss")
+                     "explicit_user_absolute_sum", "explicit_user_srss",
+                     # RT-A5 (DEL-05-02 operating-case section 7.6): a held-operand row, under its combination.
+                     "held_status_operand")
 COMPONENTS = {FORCE: ("N", ("Fx", "Fy", "Fz")), MOMENT: ("N*m", ("Mx", "My", "Mz"))}
 LOCAL_KINDS = ("element_local_axial_force", "element_local_shear_force_y", "element_local_shear_force_z",
                "element_local_torsional_moment", "element_local_bending_moment_y", "element_local_bending_moment_z")

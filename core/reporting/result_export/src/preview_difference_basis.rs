@@ -33,7 +33,7 @@
 //!   the document. It does not establish that the evidence is true to the model, which
 //!   the reader does not have: a coherent forgery (evidence, gate and rows all altered
 //!   together) cannot be authenticated without the model.
-use crate::combination_graph::{self as graph, Operand};
+use crate::combination_graph as graph;
 use open_pipe_stress_units::{canonical_unit, Dimension};
 use serde_json::{json, Value};
 use std::collections::{BTreeMap, HashMap, HashSet};
@@ -230,15 +230,19 @@ fn require_gate(gate: Option<&Value>, derived: Option<&str>) -> Check {
 }
 
 /// The rows' sign conventions: an admitted declared subtraction's rows that state one
-/// state [`SIGN`] (and the subtraction basis); no other combination's row does.
-fn rows_sign(rows: &[Value], declared: &HashSet<&str>) -> Check {
+/// state [`SIGN`] (and the subtraction basis); no other combination's row does. A
+/// `minuend_final` subtraction's rows state the held sign and its held-operand rows their
+/// clause, which `preview_held_status` checks.
+fn rows_sign(rows: &[Value], declared: &HashSet<&str>, held: &HashSet<&str>) -> Check {
     for row in rows {
         let Some(id) = combination_of(row) else { continue };
         if row["kind"] == MODULUS_RECORD {
             continue;
         }
         let sign = row["metadata"]["sign_convention"].as_str();
-        if declared.contains(id) {
+        if held.contains(id) {
+            require(sign != Some(SIGN), ROW)?;
+        } else if declared.contains(id) {
             require(sign.is_none() || (sign == Some(SIGN) && row["metadata"]["basis"] == SUBTRACTION_BASIS), ROW)?;
         } else {
             require(sign != Some(SIGN), ROW)?;
@@ -315,9 +319,20 @@ fn free_check(source: &Value) -> Check {
             }
         }
         let derived = derived_gate(contained(&record.minuend_contents, &record.subtrahend_contents), modulus[0].1 == modulus[1].1);
+        // RT-A5 (§7.5): past G-1 and G-2 a `minuend_final` subtraction may be withheld by the
+        // held gate its record states (`preview_held_status`).
+        let derived = derived.or_else(|| crate::preview_held_status::stated_gate(source, record.id));
         require_gate(gate_of(gates, record.id), derived)?;
     }
-    rows_sign(rows, &declared)
+    rows_sign(rows, &declared, &held_ids(source))
+}
+
+/// The combinations the held-status evidence records (`preview_held_status`).
+fn held_ids(source: &Value) -> HashSet<&str> {
+    items(source["contract_evidence"].get(crate::preview_held_status::MEMBER).unwrap_or(&Value::Null))
+        .iter()
+        .filter_map(|r| r["combination_id"].as_str())
+        .collect()
 }
 
 /// The dimension a load's `dimension` names (the producer's `expected_load_dimension`).
@@ -358,21 +373,12 @@ fn model_multiset(case: &Value) -> Result<Multiset, String> {
     Ok(out)
 }
 
-/// The combinations the solve gates, in evaluation order: S1's interim withholding
-/// removes a `minuend_final` combination and every combination naming one.
+/// The combinations the solve gates, in evaluation order. S1's interim withholding removed
+/// a `minuend_final` combination and every combination naming one until RT-A5
+/// (operating-case §7.5), which gates it at the solve: every combination is kept.
 pub(crate) fn kept_combinations(model: &Value) -> (Vec<Value>, Vec<usize>) {
-    let combinations = items(&model["combinations"]);
     let cases: HashSet<&str> = items(&model["load_cases"]).iter().filter_map(|c| c["id"].as_str()).collect();
-    let mut removed: HashSet<&str> = HashSet::new();
-    for &index in &graph::model_order(combinations, &cases) {
-        let c = &combinations[index];
-        let interim = c["subtrahend_support_state"] == "minuend_final";
-        let names_removed = graph::model_operands(c, &cases).iter().any(|o| matches!(o, Operand::Combination(id) if removed.contains(id)));
-        if interim || names_removed {
-            removed.extend(c["id"].as_str());
-        }
-    }
-    let kept: Vec<Value> = combinations.iter().filter(|c| !c["id"].as_str().is_some_and(|id| removed.contains(id))).cloned().collect();
+    let kept: Vec<Value> = items(&model["combinations"]).to_vec();
     let order = graph::model_order(&kept, &cases);
     (kept, order)
 }
@@ -414,6 +420,7 @@ fn model_check(source: &Value, model: &Value) -> Check {
         }
         let (derived, record) = model_gate(model, combination)?;
         let id = combination["id"].as_str().unwrap_or_default();
+        let derived = derived.or_else(|| crate::preview_held_status::minuend_final(combination).then(|| crate::preview_held_status::stated_gate(source, id)).flatten());
         require_gate(gate_of(gates, id), derived)?;
         expected.push(record);
         if let Some(gate) = gate_of(gates, id) {
@@ -428,7 +435,7 @@ fn model_check(source: &Value, model: &Value) -> Check {
         },
         MODEL,
     )?;
-    rows_sign(items(&source["results"]), &declared_ids)
+    rows_sign(items(&source["results"]), &declared_ids, &held_ids(source))
 }
 
 #[cfg(test)]

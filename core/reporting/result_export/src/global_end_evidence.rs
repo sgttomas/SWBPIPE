@@ -47,13 +47,15 @@ pub(crate) const BASIS: &str = "rotated_from_published_element_local_end_actions
 pub(crate) const WALL_BASIS: &str =
     "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action";
 pub(crate) const SIGN: &str = "global end action on the element at its node (node on element), F = R\u{1d40} f; the element acts on its node with \u{2212}F";
-const COMBINATION_BASES: [&str; 5] = [
+const COMBINATION_BASES: [&str; 6] = [
     "explicit_user_linear_combination",
     "explicit_user_result_state_subtraction",
     "explicit_user_range_envelope",
     // RT-A4 (DEL-05-02 absolute-sum-srss §4).
     "explicit_user_absolute_sum",
     "explicit_user_srss",
+    // RT-A5 (DEL-05-02 operating-case §7.6): a held-operand row, under its combination.
+    "held_status_operand",
 ];
 const FORCE_COMPONENTS: [&str; 3] = ["Fx", "Fy", "Fz"];
 const MOMENT_COMPONENTS: [&str; 3] = ["Mx", "My", "Mz"];

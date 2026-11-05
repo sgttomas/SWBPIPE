@@ -306,10 +306,13 @@ needs:
     change to either re-runs Work/k1_twin_bound.py before the bound's constants are asserted again.
     Its iterate-delta part also rests on this deliverable's loop rules (nonlinear_integration: the
     authored seeds, no friction force on the first iterate, the deferred first iterate, and the slip
-    direction and normal branch taken from the previous iterate) and on the published iteration
-    counts. The script encodes those rules rather than reading them, and equal counts do not detect
-    every rule change, so a change to those rules requires re-checking the source trace and revising
-    the derivation and script before re-running it and the corpus.
+    direction and normal branch taken from the previous iterate; since RT-A5 S2 the seeds, their
+    all-active recovery, the deferral flag and the step stay in solve_active_set_loop, and the
+    classification, the converged predicate and the finish condition sit in its shared tail
+    complete_iteration) and on the published iteration counts. The script encodes those rules
+    rather than reading them, and equal counts do not detect every rule change, so a change to those
+    rules requires re-checking the source trace and revising the derivation and script before
+    re-running it and the corpus.
   gating: true
   when: Asserting the amended K-1 bound on the kd5 twin corpus.
   evidence: core/product_physics/tests/rt_a3_nonlinear_k1_twins.rs

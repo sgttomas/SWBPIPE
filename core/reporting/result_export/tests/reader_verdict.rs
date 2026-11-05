@@ -693,3 +693,24 @@ fn retired_identities_and_readers_are_refused_by_name() {
         assert_eq!(rv::dispatch(&s, None, None)["error"]["code"], code);
     }
 }
+
+/// A source stating the retired preview-physics-1 identity is refused by the full public
+/// reader under the existing route/profile boundary, with and without the model, on a held
+/// document and on a certificate document alike (the review of the RT-A5 composition repair);
+/// dispatch names it retired.
+#[test]
+fn a_stated_retired_preview_physics_1_identity_is_refused_by_the_full_reader() {
+    for (corpus, name) in [("fixtures/results/preview_physics_held_status_corpus.json", "source_unavailable"),
+                           ("fixtures/results/combination_certificate_corpus.json", "pf_cantilever")] {
+        let file = read(corpus);
+        let entry = file["documents"].as_array().unwrap().iter().find(|e| e["name"] == name).unwrap();
+        let mut source = entry["document"].clone();
+        assert_eq!(rv::validate("preview-physics", &source, Some(&entry["model"]), None)["ok"], true, "{name}: the current document");
+        source["producer"]["semantic_contract_id"] = json!(sc::RETIRED_PREVIEW_PHYSICS_1_ID);
+        for model in [None, Some(&entry["model"])] {
+            let verdict = rv::validate("preview-physics", &source, model, None);
+            assert_eq!(verdict["error"]["code"], sc::SOURCE_PREVIEW_PHYSICS_1_RETIRED, "{name} (model {}): {verdict}", model.is_some());
+        }
+        assert_eq!(rv::dispatch(&source, None, None)["error"]["code"], sc::SOURCE_PREVIEW_PHYSICS_1_RETIRED, "{name}: dispatch");
+    }
+}

@@ -39,7 +39,7 @@ def test_the_registry_holds_mains_tables_verbatim():
         assert c.recorded_pre_rt_a4_variant({"id": contract, "sha256": digest})[2] == path
         assert digest != c._TABLES[contract][0], "a variant is never the current table"
     assert (c.PREVIEW_PHYSICS_CONTRACT_ID, DIGEST) in c.RECORDED_PRE_RT_A4_TABLES
-    assert c.PREVIEW_PHYSICS_CONTRACT_SHA256 == "f41b9d3ed0c1b7abaee0b98ca1a28aa1a2d109bce443b98d53a2080c1c504ce9"
+    assert c.PREVIEW_PHYSICS_CONTRACT_SHA256 == "563db3c7c44279face3adc60a76a512de38520357e89ea4b49ad11d20946db89"
 
 
 @pytest.mark.parametrize("path", RECORDS)

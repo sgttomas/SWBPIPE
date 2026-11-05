@@ -4,6 +4,7 @@ import { nativeFailureText } from "../../services/nativeIngress";
 import { QuantityReadout } from "../display-units";
 import { BookOpen } from "lucide-react";
 import type { DesignKnowledge, KnowledgeRecord, MechanicsResult } from "../../types";
+import { presentedResultDiagnostics } from "../results/suppliedDiagnostics";
 
 const RESULT_UNIT_DISPLAY_ORDER = ["MPa", "N", "N*m", "mm", "rad"];
 
@@ -74,10 +75,16 @@ export function KnowledgePanel({ knowledge, result }: { knowledge: DesignKnowled
   );
 }
 
+/** The computed knowledge records of a result. A diagnostic's summary is its presented message
+ * (`presentedResultDiagnostics`, the Diagnostics panel's classification): a held-status notice
+ * (`HELD_STATUS_QUOTED_CODES`) is always quoted whole as supplied text, and on a result with
+ * combinations any other message the reader does not admit is quoted too. Keyed on typed codes and
+ * the reader's verdict, never on wording; the result's raw bytes are never changed. A C1 native
+ * handle is presented by the same classifier with its Rust facts. */
 export function physicsRecords(result: SessionResult | null, axialRow?: Row | null): KnowledgeRecord[] {
   if (!result) return [];
 
-  const records: KnowledgeRecord[] = result.diagnostics
+  const records: KnowledgeRecord[] = presentedResultDiagnostics(result)
     .filter((diagnostic) => diagnostic.severity === "warning" || diagnostic.severity === "blocking")
     .map((diagnostic) => ({
       id: `knowledge:${diagnostic.id ?? diagnostic.code}`,

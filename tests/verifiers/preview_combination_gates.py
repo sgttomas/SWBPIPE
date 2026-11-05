@@ -32,6 +32,7 @@ from collections.abc import Mapping
 from typing import Any
 
 from . import combination_graph as graph
+from .preview_held_status import GATES as HELD_GATES
 from .exact_combinations import norm3
 from .units import to_canonical
 
@@ -228,6 +229,9 @@ def check(source: Mapping[str, Any], model: Mapping[str, Any] | None = None) -> 
     # Operating-case slice 1b: a declared subtraction's G-1, G-2, evidence and sign.
     from . import preview_difference_basis
     preview_difference_basis.check(source, model)
+    # RT-A5 (operating-case section 7.6): a minuend_final subtraction's held gates, rows and evidence.
+    from . import preview_held_status
+    preview_held_status.check(source, model)
     if model is not None:
         _model_check(source, model, gates, rows, by_id)
     else:
@@ -266,7 +270,8 @@ def _free_check(source: Mapping[str, Any], gates: list, rows: list, by_id: dict)
             reason = stated.get(cid)
             # A declared subtraction's G-1 or G-2 is the difference-basis reader's.
             _require(reason == derived if derived is not None else (reason in (None, MODULUS_MIXED) or (
-                basis == "result_state_subtraction" and reason in ("EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING", "EXPANSION_BASIS_MODULUS_MIXED"))),
+                basis == "result_state_subtraction" and (reason in ("EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING", "EXPANSION_BASIS_MODULUS_MIXED")
+                                                         or reason in HELD_GATES))),
                 "GATE_DERIVATION")
             if derived is None and reason is None:
                 if basis in UNSIGNED_BASES:
@@ -356,6 +361,7 @@ def _model_check(source: Mapping[str, Any], model: Mapping[str, Any], gates: lis
         _require(DERIVATION_MEMBER not in evidence, "DERIVATION_EVIDENCE")
         return
     from . import preview_difference_basis as difference
+    from . import preview_held_status as held
     load_cases = [c for c in _items(model.get("load_cases")) if isinstance(c, Mapping)]
     cases = {c["id"] for c in load_cases if isinstance(c.get("id"), str)}
     # S1's interim withholding (as slice 1b leaves it) removes a minuend_final combination and every one naming one.
@@ -385,6 +391,9 @@ def _model_check(source: Mapping[str, Any], model: Mapping[str, Any], gates: lis
         own = combination_graph.add(cid, basis, operands, [f for _, f in terms])
         operand_withheld = any(o[0] == "combination" and o[1] in withheld for o in operands)
         derived = difference.model_gate(model, combination)[0] if difference.declared(combination) else None
+        # RT-A5 (section 7.5): past G-1 and G-2, a minuend_final subtraction's held gate is its record's.
+        if derived is None and held.minuend_final(combination):
+            derived = held.stated_gate(source, cid)
         derived = derived or _gate_before_modulus(basis, operand_withheld, nonlinear, oq1, consuming, own, operand_kappa)
         if derived is None and not operand_withheld and basis in graph.TERM_BASES:
             reached = {keys.get(case) for case in combination_graph.reached.get(cid, []) if case in keys}

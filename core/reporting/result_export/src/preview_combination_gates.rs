@@ -290,6 +290,8 @@ pub(crate) fn check(source: &Value, model: Option<&Value>) -> Check {
     let by_id: HashMap<&str, &Value> = rows.iter().filter_map(|r| r["id"].as_str().map(|id| (id, r))).collect();
     // Operating-case slice 1b: a declared subtraction's G-1, G-2, evidence and sign.
     crate::preview_difference_basis::check(source, model)?;
+    // RT-A5 (operating-case §7.6): a `minuend_final` subtraction's held gates, rows and evidence.
+    crate::preview_held_status::check(source, model)?;
     match model {
         Some(model) => model_check(source, model, gates, rows, &by_id),
         None => free_check(source, gates, rows, &by_id),
@@ -338,7 +340,8 @@ fn free_check(source: &Value, gates: &[Value], rows: &[Value], by_id: &HashMap<&
                     // A declared subtraction's G-1 or G-2 (`preview_difference_basis`).
                     None => stated.is_none() || stated == Some(MODULUS_MIXED)
                         || (record.basis == "result_state_subtraction"
-                            && matches!(stated, Some(crate::preview_difference_basis::SUSTAINED_NOT_IN_OPERATING | crate::preview_difference_basis::MODULUS_MIXED))),
+                            && (matches!(stated, Some(crate::preview_difference_basis::SUSTAINED_NOT_IN_OPERATING | crate::preview_difference_basis::MODULUS_MIXED))
+                                || stated.is_some_and(|s| crate::preview_held_status::GATES.contains(&s)))),
                 },
                 "GATE_DERIVATION",
             )?;
@@ -463,8 +466,7 @@ fn model_check(source: &Value, model: &Value, gates: &[Value], rows: &[Value], b
     }
     let load_cases = items(&model["load_cases"]);
     let cases: HashSet<&str> = load_cases.iter().filter_map(|c| c["id"].as_str()).collect();
-    // S1's interim withholding (as operating-case slice 1b leaves it) removes a
-    // `minuend_final` combination, and every combination naming one, before the gates.
+    // S1's interim withholding, which RT-A5 left empty: every combination is gated.
     let (kept, order) = crate::preview_difference_basis::kept_combinations(model);
     require(gates.len() == order.len(), "GATE_DERIVATION")?;
 
@@ -506,6 +508,10 @@ fn model_check(source: &Value, model: &Value, gates: &[Value], rows: &[Value], b
         let operand_withheld = operands.iter().any(|o| matches!(o, Operand::Combination(c) if withheld.contains(*c)));
         let declared = crate::preview_difference_basis::declared(combination);
         let declared_gate = if declared { crate::preview_difference_basis::model_gate(model, combination)?.0 } else { None };
+        // RT-A5 (§7.5): past G-1 and G-2, a `minuend_final` subtraction's held gate is the one
+        // its record states; the reader cannot solve the held system, and
+        // `preview_held_status` binds the record to the document and the model.
+        let declared_gate = declared_gate.or_else(|| crate::preview_held_status::minuend_final(combination).then(|| crate::preview_held_status::stated_gate(source, id)).flatten());
         let derived: Option<&str> = declared_gate.or_else(|| gate_before_modulus(basis, operand_withheld, nonlinear, oq1, consuming, &own, &operand_kappa)).or_else(|| {
             if operand_withheld || !graph::term_basis(basis) {
                 return None;

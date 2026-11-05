@@ -216,3 +216,58 @@ fn the_check_binds_each_field_the_order_and_the_appended_entries() {
     assert_eq!(check_report_diagnostics(&json!({}), &source), refusal("report diagnostics cover the source diagnostics"));
     assert_eq!(check_report_diagnostics(&json!({}), &json!({"diagnostics": []})), Ok(()));
 }
+
+/// RT-A5 (DEL-05-02 `operating-case.md` §7.5; Work `combination-certificate.md` §2): a held gate
+/// notice's refusal text is bound to its held-status record, not verified as true, so the report
+/// quotes a diagnostic whose typed code is a held gate code whole as supplied text, though the
+/// roster names its combination and admitted it, whatever its text, and the source's bytes are
+/// unchanged (desktop `heldStatusPresentation.test.tsx` alike).
+#[test]
+fn a_held_gate_notice_is_quoted_as_supplied_text_whatever_its_refusal() {
+    const HELD: &str = include_str!("../../../../fixtures/results/preview_physics_held_status_corpus.json");
+    const GATE: &str = "diagnostic:preview-physics:combination-gate:13:comb:o-s-held";
+    let corpus: Value = serde_json::from_str(HELD).unwrap();
+    let base = corpus["documents"].as_array().unwrap().iter().find(|e| e["name"] == "source_unavailable").unwrap()["document"].clone();
+    let claims = ["its rows are established within their stated bound", "ESTABLISHED Within Its Stated BOUND", "les lignes sont établies \u{2014} within their stated bound \u{2713}"];
+    let mut sources = vec![base.clone()];
+    for claim in claims {
+        let mut source = base.clone();
+        source["contract_evidence"]["held_status_derivation"][0]["standing"]["reason"] = json!(claim);
+        let at = source["diagnostics"].as_array().unwrap().iter().position(|d| d["id"] == GATE).unwrap();
+        source["diagnostics"][at]["message"] = json!(format!("Combination withheld: {claim}."));
+        sources.push(source);
+    }
+    let benign = expected_report_diagnostics(&base).unwrap();
+    for source in sources {
+        let before = serde_json::to_vec(&source).unwrap();
+        let entries = expected_report_diagnostics(&source).unwrap();
+        assert_eq!(serde_json::to_vec(&source).unwrap(), before, "raw bytes");
+        for (index, diagnostic) in source["diagnostics"].as_array().unwrap().iter().enumerate() {
+            if diagnostic["id"] == GATE {
+                assert_eq!(entries[index]["message"], json!(format!("{SUPPLEMENTAL_DIAGNOSTIC_LABEL}\"{}\"", diagnostic["message"].as_str().unwrap())));
+            } else {
+                // No other entry changes with the refusal's text.
+                assert_eq!(entries[index], benign[index], "{}", diagnostic["id"]);
+            }
+        }
+        assert!(check_report_diagnostics(&report_with(&entries), &source).is_ok());
+    }
+}
+
+/// RT-A5: `HELD_STATUS_RELEASED` is the sixth quoted held-status code (`HELD_STATUS_QUOTED_CODES`):
+/// the report quotes it whole as supplied text on every released held document, bytes unchanged.
+#[test]
+fn a_held_status_released_notice_is_quoted_as_supplied_text() {
+    const HELD: &str = include_str!("../../../../fixtures/results/preview_physics_held_status_corpus.json");
+    let corpus: Value = serde_json::from_str(HELD).unwrap();
+    for name in ["h2_released", "h5_slip_sense", "h13_branch", "h7g_gap"] {
+        let source = corpus["documents"].as_array().unwrap().iter().find(|e| e["name"] == name).unwrap()["document"].clone();
+        let before = serde_json::to_vec(&source).unwrap();
+        let entries = expected_report_diagnostics(&source).unwrap();
+        assert_eq!(serde_json::to_vec(&source).unwrap(), before, "{name}: raw bytes");
+        let released: Vec<(usize, &Value)> = source["diagnostics"].as_array().unwrap().iter().enumerate().filter(|(_, d)| d["code"] == "HELD_STATUS_RELEASED").collect();
+        assert_eq!(released.len(), 1, "{name}");
+        let (index, diagnostic) = released[0];
+        assert_eq!(entries[index]["message"], json!(format!("{SUPPLEMENTAL_DIAGNOSTIC_LABEL}\"{}\"", diagnostic["message"].as_str().unwrap())), "{name}");
+    }
+}
