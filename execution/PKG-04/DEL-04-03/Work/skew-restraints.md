@@ -515,7 +515,16 @@ rows, as in §5.1.
   - Regressions: a UZ guide and a stop (1, 2⁻⁶⁰⁰, 0), whose k·q·q falls below 2⁻⁹⁶⁹; and a stop
     (1.5, 1, 0) under the finite force (−1e308, 1e308, 0), whose free-coordinate force is
     2.5e308. Each is tested in both modes, at NI and through PP's arm, with no rows for the
-    case.
+    case. The reduction's arm is tested at NI in both modes: the same stop with an ordinary
+    load and A:UY (at the anchor, not a stop's node) prescribed at f64::MAX, so B's adjusted
+    free row f′_r − Σ K′_rc·g_c rounds outside binary64 (RT-A3's note on B4).
+  - The ledger's `Sum { NonFinite }` arm is kept for the typed split but is unreachable from
+    validated input. `transform_force` pushes only exact products (`push`, `push_product`)
+    of finite factors: the input force's terms (finite, since its own `finish` admitted
+    them), Q's finite weights q_ir, and the error-free split p = q_ir·x, which is checked
+    finite before use, with its residual e = fma(q_ir, x, −p), finite because p is. No
+    operand is ever non-finite, so the transformed load can fail only in the final rounding
+    (`NonRepresentable`).
 - **When.** Formed per case in the skew branch, from the basis's formed K. This is O(entries in
   constrained rows) work plus one copy of the values. Caching per modulus basis is an
   optimization left to the implementation.

@@ -270,3 +270,27 @@ fn a_transformed_load_outside_binary64_is_numerically_unresolved_in_both_modes()
     let refused = evidence(&ordinary).solve_skew_with_formation_check(&ordinary.k, &short, &ordinary.prescribed, LinearSolveMode::SparseInteractive, &[]);
     assert!(matches!(refused, Err(StructuralError::InvalidInput(_))), "{refused:?}");
 }
+
+/// RT-A3's note on B4 (§6.2): the reduction's own range arm. The transformed load is
+/// ordinary, but A:UY (DOF 1, at the anchor, not a stop's node) is prescribed at
+/// f64::MAX, so B's free row f′_r − Σ K′_rc·g_c (one exact sum, rounded once) is outside
+/// binary64: the reduction's `NonFiniteInput { name: "adjusted force" }`, refused as
+/// `NumericallyUnresolved` with its own reason in both modes, never the backstop.
+#[test]
+fn a_reduced_coordinate_load_outside_binary64_is_numerically_unresolved_in_both_modes() {
+    let mut model = cantilever(&[], &[[1.5, 1.0, 0.0]], &[]);
+    let at = model.prescribed.iter().position(|&(dof, _)| dof == 1).unwrap();
+    model.prescribed[at].1 = f64::MAX;
+    let evidence =
+        SparseAssemblyEvidence::new_with_restraint_basis(model.k.pattern(), 2, &model.frames, &[], &[], &[], &model.basis).unwrap();
+    for mode in [LinearSolveMode::SparseInteractive, LinearSolveMode::DenseScrutiny] {
+        let refused = evidence.solve_skew_with_formation_check(&model.k, &model.force, &model.prescribed, mode, &[]);
+        assert!(
+            matches!(refused, Err(StructuralError::NumericallyUnresolved {
+                reason: "restraint_basis: the reduced coordinate load is outside binary64",
+                global_dof: None,
+            })),
+            "{mode:?}: {refused:?}"
+        );
+    }
+}

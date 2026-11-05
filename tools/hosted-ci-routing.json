@@ -232,7 +232,7 @@
       "core/solver/diagnostics/Cargo.toml": "33f62709325dd0aee1a7e4996ee1424e2dcbc9fd54418704f87c8f39e64b875c",
       "core/solver/frame_kernel/Cargo.toml": "4e05b6a311bc1cbb9cbfa1ee20a61a302e025fc543236013ee40b4bf2220735c",
       "core/solver/linear_supports/Cargo.toml": "74cab9f6444ce421810b8a9778c1ad0257dcaf34815c4449ea2267fca23909cb",
-      "core/solver/nonlinear_integration/Cargo.toml": "b7880feaec675f3d3a59036742f092dbf1d2b092886c1f206c111f361a613d73",
+      "core/solver/nonlinear_integration/Cargo.toml": "d4e8dbdd6b8443fc9fd5c527f7167fa8c67194d77d1c831c33fa0d87ba71bb21",
       "core/solver/nonlinear_supports/Cargo.toml": "c34c7d2a46294e3c2ab57b4b15028c48664670dfe25278b8b6d22147743a10a6",
       "core/solver/performance_harness/Cargo.toml": "0e86914d4b9d222f2a435cdd41a1a39d6849951ca7e14ff1c602a8277527f883",
       "core/solver/release_timing/Cargo.toml": "3a9145d9c3023bd7f75fc21da33c9b3ee9973b8206278707df04506355185a35",
