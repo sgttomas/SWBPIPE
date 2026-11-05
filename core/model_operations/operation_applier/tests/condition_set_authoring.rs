@@ -507,6 +507,10 @@ fn an_exact_route_comparison_refusal_is_never_carried() {
     }
     let outcome = refused(&exact, &clear_use(&exact, "L"), "LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED");
     assert!(!outcome.diagnostics.iter().any(|d| d.code == "LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED" && d.severity == "info"), "{:?}", records(&outcome));
+    // Operating-case slice 1b: authoring a declared difference on the exact route stays refused by name.
+    let declared = json!({"id": "C-NEW", "label": "New", "basis": "result_state_subtraction", "minuend_id": "L", "subtrahend_id": "SUS",
+        "difference_basis": "operating_minus_sustained", "provenance": PROV});
+    refused(&exact, &op("create", "create_combination", "Combination", "C-NEW", "combinations", "not_present", &declared.to_string()), "LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED");
 }
 
 // ------------------------------------------------------------------ S1 refusals kept
@@ -546,12 +550,30 @@ fn every_s1_authoring_refusal_is_preserved() {
         }
         op("create", "create_combination", "Combination", "C-NEW", "combinations", "not_present", &payload.to_string())
     };
+    // Operating-case slice 1b (0.9.0 §2.2, §3.8): a declared difference is authored on the
+    // pressure-free route, as authored; `own` behaves as absence; `minuend_final` stays
+    // refused; an unknown or misplaced member is the document validator's.
+    for extra in [json!({"difference_basis": "operating_minus_sustained"}), json!({"difference_basis": "operating_minus_sustained", "subtrahend_support_state": "own"})] {
+        let (next, _) = applied(&model, &combination(extra.clone()));
+        let created = next["combinations"].as_array().unwrap().iter().find(|c| c["id"] == "C-NEW").unwrap().clone();
+        for (key, value) in extra.as_object().unwrap() {
+            assert_eq!(&created[key], value, "{key} is written as authored");
+        }
+    }
     for (extra, code) in [
-        (json!({"difference_basis": "operating_minus_sustained"}), "LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED"),
-        (json!({"subtrahend_support_state": "own"}), "LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED"),
+        (json!({"difference_basis": "operating_minus_sustained", "subtrahend_support_state": "minuend_final"}), "LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED"),
+        (json!({"subtrahend_support_state": "minuend_final"}), "LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED"),
+        (json!({"subtrahend_support_state": "own"}), "LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_MISPLACED"),
+        (json!({"difference_basis": null}), "LOAD_COMBINATION_DIFFERENCE_BASIS_UNKNOWN"),
+        (json!({"difference_basis": "sustained"}), "LOAD_COMBINATION_DIFFERENCE_BASIS_UNKNOWN"),
+        (json!({"difference_basis": "operating_minus_sustained", "subtrahend_support_state": "held"}), "LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNKNOWN"),
+        (json!({"difference_basis": "operating_minus_sustained", "minuend_id": "C-SUB"}), "LOAD_COMBINATION_DIFFERENCE_BASIS_OPERAND_NOT_LOAD_CASE"),
     ] {
         refused(&model, &combination(extra), code);
     }
+    let misplaced = json!({"id": "C-NEW", "label": "New", "basis": "range_envelope", "operand_ids": ["WIND", "SUS"], "mode": "max",
+        "difference_basis": "operating_minus_sustained", "provenance": PROV});
+    refused(&model, &op("create", "create_combination", "Combination", "C-NEW", "combinations", "not_present", &misplaced.to_string()), "LOAD_COMBINATION_DIFFERENCE_BASIS_MISPLACED");
     applied(&model, &combination(json!({})));
     // The RT-A4 wiring: the unsigned bases and combination operands are authored.
     for payload in [
@@ -920,4 +942,91 @@ fn an_authored_document_saves_and_reopens_byte_for_byte() {
     let rename = op("modify", "set_field", "Node", "N1", "label", "N1", "Midspan");
     let (renamed, _) = applied(&reopened, &rename);
     assert_eq!(bytes(&members(&renamed)), bytes(&members(&reopened)), "an unrelated edit keeps every member");
+}
+
+// ------------------------------------------------------------------ unchanged by canonical value
+
+/// `OP-DATA-UNCHANGED` judges "the same value" on canonical JSON text (RFC 8785),
+/// as the stale before-value check and the model hash do, so a model that reached
+/// the engine through JavaScript (`JSON.parse` gives integer form) and an `after`
+/// written in float or exponent form are one value (corpus case `s3a_14`). A real
+/// change of value, unit or any other member still applies, stores the authored
+/// `after` as parsed, and is undone (canonically, with the model hash) by the
+/// inverse its own diff row states. Numerically different large values stay
+/// different even where their canonical text coincides.
+#[test]
+fn unchanged_is_judged_on_canonical_value_across_number_forms() {
+    let float_text = set_a().to_string();
+    assert!(float_text.contains(r#""value":20.0"#), "serde writes the float form: {float_text}");
+    let mut integer_form = set_a();
+    integer_form["installation_temperature"]["value"] = json!(20);
+    let integer_model = with_sets(&[integer_form.clone()]);
+    let float_model = with_sets(&[set_a()]);
+    let with_after = |model: &Value, after: String| {
+        let mut intent = update_set(model, &set_a());
+        intent["change"]["after"] = json!(after);
+        intent
+    };
+
+    // Integer-form model (the JS lane), float- and exponent-form after: unchanged.
+    refused(&integer_model, &with_after(&integer_model, float_text.clone()), "OP-DATA-UNCHANGED");
+    let exponent_text = float_text.replace(r#""value":20.0"#, r#""value":2e1"#);
+    assert_ne!(exponent_text, float_text);
+    refused(&integer_model, &with_after(&integer_model, exponent_text), "OP-DATA-UNCHANGED");
+    // Float-form model (the native lane), integer-form after: unchanged.
+    refused(&float_model, &with_after(&float_model, integer_form.to_string()), "OP-DATA-UNCHANGED");
+    refused(&float_model, &update_set(&float_model, &set_a()), "OP-DATA-UNCHANGED");
+    // -0 and 0 have one canonical text and one model hash, so they are one value.
+    let mut negative_zero = set_a();
+    negative_zero["conditions"][0]["temperature"]["value"] = json!(-0.0);
+    let zero_model = with_sets(&[negative_zero]);
+    let mut zero = set_a();
+    zero["conditions"][0]["temperature"]["value"] = json!(0);
+    refused(&zero_model, &with_after(&zero_model, zero.to_string()), "OP-DATA-UNCHANGED");
+
+    // Real changes still apply, with their inverses: a value, a unit, another member.
+    for edit in [
+        json!({"installation_temperature": q(20.5, "degC")}),
+        json!({"installation_temperature": q(20.0, "degF")}),
+        json!({"label": "Line A2"}),
+    ] {
+        let mut next = set_a();
+        for (key, value) in edit.as_object().unwrap() {
+            next[key] = value.clone();
+        }
+        let (changed, outcome) = applied(&integer_model, &update_set(&integer_model, &next));
+        assert_eq!(outcome.diff_preview[0].after, canonical_json(&next));
+        assert_eq!(find(&changed, "condition_sets", "cs:a").unwrap(), &next, "the authored after is stored as parsed");
+        let mut inverse = update_set(&changed, &next);
+        inverse["change"]["after"] = json!(outcome.diff_preview[0].before.clone());
+        let (back, _) = applied(&changed, &inverse);
+        assert_eq!(bytes(&back), bytes(&integer_model), "the diff row's inverse restores the canonical document");
+        assert_eq!(claim(&back), claim(&integer_model), "and its model hash");
+    }
+
+    // Distinct large integers stay distinct: 2^53 + 1 against the float 2^53.
+    let mut large = set_a();
+    large["installation_temperature"]["value"] = json!(9_007_199_254_740_993_u64);
+    let large_model = with_sets(&[large]);
+    let mut rounded = set_a();
+    rounded["installation_temperature"]["value"] = json!(9_007_199_254_740_992.0_f64);
+    let outcome = apply_operation(&large_model, &with_after(&large_model, rounded.to_string()), Some(&claim(&large_model)));
+    assert!(!blocking(&outcome).iter().any(|code| code == "OP-DATA-UNCHANGED"), "{:?}", records(&outcome));
+    // ... and where their canonical text coincides: the integer 10^18 + 100 and the
+    // float 10^18 + 128 both render `1000000000000000100`, but differ by 28.
+    let mut integer_large = set_a();
+    integer_large["installation_temperature"]["value"] = json!(1_000_000_000_000_000_100_u64);
+    let mut float_large = set_a();
+    float_large["installation_temperature"]["value"] = json!(1_000_000_000_000_000_128.0_f64);
+    assert_eq!(canonical_json(&integer_large), canonical_json(&float_large), "the collision this guards");
+    let collision_model = with_sets(&[integer_large]);
+    let outcome = apply_operation(&collision_model, &with_after(&collision_model, float_large.to_string()), Some(&claim(&collision_model)));
+    assert!(!blocking(&outcome).iter().any(|code| code == "OP-DATA-UNCHANGED"), "{:?}", records(&outcome));
+
+    // A case's condition use: the same use is unchanged, a different one applies.
+    let model = with_refs(integer_model.clone(), &[("P1", "cs:a")]);
+    let using = json!({"temperature": "OPE1", "added_weight": true});
+    let (set, _) = applied(&model, &set_use(&model, "SUS", &using));
+    refused(&set, &set_use(&set, "SUS", &json!({"added_weight": true, "temperature": "OPE1"})), "OP-DATA-UNCHANGED");
+    applied(&set, &set_use(&set, "SUS", &json!({"temperature": "OPE1"})));
 }

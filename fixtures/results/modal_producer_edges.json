@@ -1,0 +1,1602 @@
+{
+  "entries": [
+    {
+      "about": "m_eff,x = 2⁻²⁰⁰³ and its fraction flagged; Γ_x = 2⁻¹⁰⁰² normal",
+      "document": "modal_component_body.json",
+      "id": "producer:extended_exponent_effective_mass",
+      "operations": [
+        {
+          "op": "withhold",
+          "table": "mass_matrix"
+        },
+        {
+          "op": "withhold",
+          "table": "shapes"
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/0/total_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_total_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 2.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/1/total_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_total_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 1.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/2/total_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_total_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 1.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/0/generalized_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_generalized_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 2.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/participation_factor",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_participation_factor",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 2.3331590462580472e-302
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/effective_mass",
+          "value": {
+            "below_normal": true,
+            "kind": "modal_effective_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/effective_mass_fraction",
+          "value": {
+            "below_normal": true,
+            "kind": "modal_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/cumulative_effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_cumulative_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/participation_factor",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_participation_factor",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/effective_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/cumulative_effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_cumulative_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/participation_factor",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_participation_factor",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/effective_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/cumulative_effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_cumulative_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/1/generalized_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_generalized_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 2.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/participation_factor",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_participation_factor",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 2.3331590462580472e-302
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/effective_mass",
+          "value": {
+            "below_normal": true,
+            "kind": "modal_effective_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/effective_mass_fraction",
+          "value": {
+            "below_normal": true,
+            "kind": "modal_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/cumulative_effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_cumulative_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/participation_factor",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_participation_factor",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/effective_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/cumulative_effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_cumulative_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/participation_factor",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_participation_factor",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/effective_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/cumulative_effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_cumulative_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/2/generalized_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_generalized_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 2.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/participation_factor",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_participation_factor",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 2.3331590462580472e-302
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/effective_mass",
+          "value": {
+            "below_normal": true,
+            "kind": "modal_effective_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/effective_mass_fraction",
+          "value": {
+            "below_normal": true,
+            "kind": "modal_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/cumulative_effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_cumulative_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/participation_factor",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_participation_factor",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/effective_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/cumulative_effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_cumulative_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/participation_factor",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_participation_factor",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/effective_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/cumulative_effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_cumulative_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        }
+      ],
+      "request": "modal_component_body.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "about": "mode 1's fraction flagged; cumulative over the published fractions",
+      "document": "modal_component_body.json",
+      "id": "producer:flagged_fraction_inside_the_cumulative_sums",
+      "operations": [
+        {
+          "op": "withhold",
+          "table": "mass_matrix"
+        },
+        {
+          "op": "withhold",
+          "table": "shapes"
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/0/total_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_total_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 6.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/1/total_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_total_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 1.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/2/total_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_total_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 1.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/0/generalized_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_generalized_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 1.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/participation_factor",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_participation_factor",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 1e-160
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/effective_mass",
+          "value": {
+            "below_normal": true,
+            "kind": "modal_effective_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/effective_mass_fraction",
+          "value": {
+            "below_normal": true,
+            "kind": "modal_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/cumulative_effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_cumulative_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/participation_factor",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_participation_factor",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/effective_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/cumulative_effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_cumulative_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/participation_factor",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_participation_factor",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/effective_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/cumulative_effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_cumulative_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/1/generalized_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_generalized_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 2.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/participation_factor",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_participation_factor",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.15
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/effective_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 0.045
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0075
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/cumulative_effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_cumulative_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0075
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/participation_factor",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_participation_factor",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/effective_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/cumulative_effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_cumulative_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/participation_factor",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_participation_factor",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/effective_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/cumulative_effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_cumulative_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/2/generalized_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_generalized_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 2.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/participation_factor",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_participation_factor",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.3
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/effective_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 0.18
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.03
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/cumulative_effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_cumulative_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0375
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/participation_factor",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_participation_factor",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/effective_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/cumulative_effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_cumulative_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/participation_factor",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_participation_factor",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/effective_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/cumulative_effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_cumulative_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        }
+      ],
+      "request": "modal_component_body.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "about": "Γ_x 10⁻²⁰⁰, T_x 10⁻³⁰⁰: m_eff,x flagged, its fraction normal",
+      "document": "modal_component_body.json",
+      "id": "producer:normal_fraction_of_a_flagged_effective_mass",
+      "operations": [
+        {
+          "op": "withhold",
+          "table": "mass_matrix"
+        },
+        {
+          "op": "withhold",
+          "table": "shapes"
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/0/total_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_total_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 1e-300
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/1/total_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_total_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 1.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/mass_totals/rows/2/total_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_total_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 1.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/0/generalized_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_generalized_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 33.718650870752306
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/participation_factor",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_participation_factor",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 1e-200
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/effective_mass",
+          "value": {
+            "below_normal": true,
+            "kind": "modal_effective_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 3.3718650870752306e-99
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/0/cumulative_effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_cumulative_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 3.3718650870752306e-99
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/participation_factor",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_participation_factor",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/effective_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/1/cumulative_effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_cumulative_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/participation_factor",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_participation_factor",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/effective_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/2/cumulative_effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_cumulative_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/1/generalized_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_generalized_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 33.718650870752306
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/participation_factor",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_participation_factor",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 1e-200
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/effective_mass",
+          "value": {
+            "below_normal": true,
+            "kind": "modal_effective_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 3.3718650870752306e-99
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/3/cumulative_effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_cumulative_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 6.743730174150461e-99
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/participation_factor",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_participation_factor",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/effective_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/4/cumulative_effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_cumulative_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/participation_factor",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_participation_factor",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/effective_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/5/cumulative_effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_cumulative_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/modes/rows/2/generalized_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_generalized_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 33.718650870752306
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/participation_factor",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_participation_factor",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 1e-200
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/effective_mass",
+          "value": {
+            "below_normal": true,
+            "kind": "modal_effective_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 3.3718650870752306e-99
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/6/cumulative_effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_cumulative_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 1.0115595261225692e-98
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/participation_factor",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_participation_factor",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/effective_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/7/cumulative_effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_cumulative_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/participation_factor",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_participation_factor",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/effective_mass",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass",
+            "undefined_reason": null,
+            "unit": "unit:kilogram",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/tables/participation/rows/8/cumulative_effective_mass_fraction",
+          "value": {
+            "below_normal": false,
+            "kind": "modal_cumulative_effective_mass_fraction",
+            "undefined_reason": null,
+            "unit": "unit:one",
+            "unit_status": "catalog",
+            "value": 0.0
+          }
+        }
+      ],
+      "request": "modal_component_body.request.json",
+      "request_operations": [],
+      "reseal": true
+    }
+  ],
+  "generator": "core/product_physics/src/modal/tests_document.rs modal_edge_entries",
+  "relation_probes": [
+    {
+      "formation": "modal_quantities.rs:294 mass_bilinear, through normalize_mode",
+      "generalized_mass": {
+        "below_normal": true,
+        "value": 0.0
+      },
+      "global_dofs": [
+        11,
+        6
+      ],
+      "id": "generalized_mass_of_an_underflowing_triple_product",
+      "mass_entries": [
+        [
+          6,
+          6,
+          1.0
+        ]
+      ],
+      "shape": [
+        {
+          "below_normal": false,
+          "value": 1.0
+        },
+        {
+          "below_normal": false,
+          "value": 2.409919865102884e-181
+        }
+      ]
+    }
+  ]
+}

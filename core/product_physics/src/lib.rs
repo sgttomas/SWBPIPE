@@ -161,7 +161,7 @@ mod exact_admission;
 mod exact_combinations;
 // RT-A3 (DEL-05-02 Work `combination-certificate.md`): the §4 combination certificate.
 mod combination_certificate;
-mod combination_plan;
+mod combination_plan; mod difference_basis; // Operating-case slice 1b (DEL-05-02 `operating-case.md` §6), on this line so that no line moves.
 mod bend_pressure;
 mod u4b_rows;
 mod joint;
@@ -3532,7 +3532,7 @@ fn run_linear_static_preview_observed_inner(
     let preview_derivation = match &preview {
         Some(rendered) if combining => preview_physics::combination_derivation(&model, rendered, &preview_gates),
         _ => None,
-    };
+    }; let preview_difference = if combining { difference_basis::derivation(&model, &preview_gates) } else { None }; // Operating-case slice 1b: G-1's derivation evidence; none without a declared subtraction.
     // W-16 slice b (DEL-05-02 Design `exact-combinations.md`): an exact-route
     // document's combinations, formed from its published case rows and evidence
     // (a document with a combination is never source-selected).
@@ -3669,7 +3669,7 @@ fn run_linear_static_preview_observed_inner(
     }
     if let (Some(rendered), Some(basis)) = (&preview, preview_basis) {
         envelope.formulation_basis = basis;
-        validation::state_applied_branch_factors(&model.components, &rendered.preview_cases, &mut envelope.diagnostics); envelope.contract_evidence = Some(rendered.evidence(preview_gates, preview_derivation));
+        validation::state_applied_branch_factors(&model.components, &rendered.preview_cases, &mut envelope.diagnostics); envelope.contract_evidence = Some(rendered.evidence(preview_gates, preview_derivation)); if let (Some(member), Some(serde_json::Value::Object(evidence))) = (preview_difference, envelope.contract_evidence.as_mut()) { evidence.insert(difference_basis::DERIVATION_MEMBER.to_string(), member); } // Operating-case slice 1b: each declared subtraction's two content multisets.
     }
     preview_physics::state_operand_standing(&mut envelope, preview_operands);
     // B4/D1 (b): only an exact-route composite is ever selected (`source_eligible`).

@@ -196,6 +196,40 @@ pub(crate) struct ModalOutcome {
     pub(crate) disclosures: Vec<String>,
     /// Non-blocking diagnostics of the preparation and the mass.
     pub(crate) diagnostics: Vec<Diagnostic>,
+    /// The authoritative payload the I3a result document publishes (Design
+    /// §5.3), copied from this run's own formed values: the model's node ids
+    /// and their canonical coordinates (m), in node order.
+    pub(crate) node_ids: Vec<String>,
+    pub(crate) node_coordinates: Vec<[f64; 3]>,
+    /// The free DOFs of the pencil, ascending global indices.
+    pub(crate) free_dofs: Vec<usize>,
+    /// The formed global mass M over all DOFs, each stored nonzero upper
+    /// entry (row ≤ col, global indices) as the binary64 value the pencil,
+    /// T_k and p_k were formed from, in node-block order.
+    pub(crate) mass_upper_entries: Vec<(usize, usize, f64)>,
+    /// ℓ, the bounding-box diagonal of every node (m), and τ_t, as the
+    /// normalization used them.
+    pub(crate) bounding_box_diagonal: f64,
+    pub(crate) no_translation_threshold: f64,
+    /// The request's a (m/s², normalized), when given.
+    pub(crate) weight_to_mass_acceleration: Option<f64>,
+}
+
+/// The stored nonzero upper entries of the formed global mass, in node-block
+/// order (row ≤ col): the values `form_modal_pencil` reads.
+fn modal_mass_upper_entries(mass: &super::mass::ModalMass) -> Vec<(usize, usize, f64)> {
+    let mut entries = Vec::new();
+    for ((i, j), block) in mass.node_blocks() {
+        for (a, line) in block.iter().enumerate() {
+            for (b, &value) in line.iter().enumerate() {
+                let (row, col) = (6 * i + a, 6 * j + b);
+                if row <= col && value != 0.0 {
+                    entries.push((row, col, value));
+                }
+            }
+        }
+    }
+    entries
 }
 
 /// f_e of §2.6: 4.730040744862704 is the first fixed-fixed root βL.
@@ -242,7 +276,8 @@ pub(crate) fn run_modal_dense(req: &ModalPreviewRequest, params: &ModalIntegrity
 
     // Normalization and participation of the reported modes (§1.5).
     let positions: Vec<[f64; 3]> = prepared.built.nodes.iter().map(|n| n.coordinates).collect();
-    let basis = modal_basis(&pencil, bounding_box_diagonal(&positions), params)?;
+    let diagonal = bounding_box_diagonal(&positions);
+    let basis = modal_basis(&pencil, diagonal, params)?;
     let mut normalized = Vec::with_capacity(reported_count);
     for mode in 0..reported_count {
         normalized.push(normalize_modal_shape(&basis, mode, solution.vector(mode))?);
@@ -441,6 +476,13 @@ pub(crate) fn run_modal_dense(req: &ModalPreviewRequest, params: &ModalIntegrity
         discretization,
         disclosures,
         diagnostics,
+        node_ids: prepared.model.nodes.iter().map(|node| node.id.clone()).collect(),
+        node_coordinates: positions,
+        free_dofs: pencil.free_dofs.clone(),
+        mass_upper_entries: modal_mass_upper_entries(&mass),
+        bounding_box_diagonal: diagonal,
+        no_translation_threshold: params.no_translation_threshold,
+        weight_to_mass_acceleration: prepared.inputs.weight_to_mass_acceleration,
     })
 }
 

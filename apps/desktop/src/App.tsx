@@ -507,6 +507,7 @@ function AppSession() {
               selection={selection}
               selectionState={orderedSelection}
               onQueueIntent={handleQueueEditorIntent}
+              queuedIntents={editorIntents}
               operationBusy={operationBusy}
               viewCommandRef={viewportViewCommandRef}
               showAllAvailable={hiddenEntityKeys.size > 0 || isolationActive}

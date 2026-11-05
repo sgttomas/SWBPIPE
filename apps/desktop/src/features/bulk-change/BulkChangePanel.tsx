@@ -31,6 +31,8 @@ type Props = {
 };
 
 const KINDS = Object.keys(BULK_CHANGE_LABELS) as BulkChangeKind[];
+/** The choice that clears each selected pipe's condition set (no id can contain a NUL). */
+const CLEAR_CONDITION_SET = "\u0000clear";
 
 export function BulkChangePanel({ model, scope, onQueueBatch, busy = false, focusRequest = 0, canonicalize = canonicalJsonString }: Props) {
   const panel = useRef<HTMLElement>(null);
@@ -45,6 +47,7 @@ export function BulkChangePanel({ model, scope, onQueueBatch, busy = false, focu
   const [radius, setRadius] = useState("");
   const [radiusUnit, setRadiusUnit] = useState(model.project.units.length ?? "");
   const [tag, setTag] = useState("");
+  const [conditionSetId, setConditionSetId] = useState("");
   const [queuing, setQueuing] = useState(false);
   const [message, setMessage] = useState<{ tone: "status" | "alert"; text: string } | null>(null);
   const sequence = useRef(0);
@@ -63,8 +66,9 @@ export function BulkChangePanel({ model, scope, onQueueBatch, busy = false, focu
       case "support-remove": return { kind, family: removeFamily };
       case "bend-radius": return { kind, value: radius, unit: radiusUnit };
       case "tag": return { kind, tag };
+      case "condition-set": return conditionSetId === CLEAR_CONDITION_SET ? { kind, setId: "", clear: true } : { kind, setId: conditionSetId };
     }
-  }, [kind, sectionId, materialId, fromFamily, toFamily, restraintMode, restraints, removeFamily, radius, radiusUnit, tag]);
+  }, [kind, sectionId, materialId, fromFamily, toFamily, restraintMode, restraints, removeFamily, radius, radiusUnit, tag, conditionSetId]);
   const plan = useMemo(() => planBulkChange(model, scope, request), [model, scope, request]);
   const blocked = scope.length === 0 ? "Select the entities to change first." : busy || queuing ? "Another operation is running." : planBlockedReason(plan);
 
@@ -150,6 +154,15 @@ export function BulkChangePanel({ model, scope, onQueueBatch, busy = false, focu
           <label>Unit<input aria-label="Bend radius unit" data-testid="bulk-change-radius-unit" value={radiusUnit} onChange={(event) => setRadiusUnit(event.target.value)} /></label>
           <p>Applies to bends and elbows that are not realized. A realized bend's radius forms its arc and is changed in the inspector.</p>
         </fieldset>
+      ) : null}
+      {kind === "condition-set" ? (
+        <label>Condition set
+          <select aria-label="Condition set" data-testid="bulk-change-condition-set" value={conditionSetId} onChange={(event) => setConditionSetId(event.target.value)}>
+            <option value="">Choose a condition set</option>
+            {(model.condition_sets ?? []).map((set) => <option key={set.id} value={set.id}>{set.label ? `${set.label} (${set.id})` : set.id}</option>)}
+            <option value={CLEAR_CONDITION_SET}>Clear the condition set</option>
+          </select>
+        </label>
       ) : null}
       {kind === "tag" ? (
         <label>Tag<input aria-label="Tag" data-testid="bulk-change-tag" value={tag} onChange={(event) => setTag(event.target.value)} /></label>

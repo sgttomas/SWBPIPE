@@ -76,8 +76,10 @@ SOURCE_FILES = {
     # RT-A4 D3 (§8.46): RE lib.rs declares combination_graph, preview_combination_gates and recorded_tables; retained_precision.rs
     # selects a recorded table in G0 only inside a recorded read (RT-A4-HS) and moves its table-hash constants. No
     # member-load owner changes.
-    "core/reporting/result_export/src/lib.rs": "d0c6fc386f7f91f43f85d7c072c2d1c5f40fe7a547a0a85d49787e769b716070",
-    "core/reporting/result_export/src/retained_precision.rs": "ba7902d03180e2ee22628d4fdf6e46ab9b634af6e20bcf8c22c397c34e6cf397",
+    # Operating-case slice 1b (§8.51): RE lib.rs declares preview_difference_basis; retained_precision.rs changes only its
+    # TABLE_HASH constant. No member-load owner changes.
+    "core/reporting/result_export/src/lib.rs": "a1699800cb4d7afa278460e9b6c27cc6fc5015e8dee7b33528c5943f0a4df23c",
+    "core/reporting/result_export/src/retained_precision.rs": "7db0e51bb75fade20acfa33912da776e583a8c1a996ab8e89405e87caecacda5",
     "core/reporting/result_export/src/declared_member_load.rs": '93787b8894f752cd4c577c58513449471672956e934d35157e31178e9c53a52c',
     "core/solver/frame_kernel/src/structural/retained_resource.rs": "ca0516b5b88ed0d55abf9780c0782f42acd68f4f80b73543415c920fd3da5b7b",
     "core/solver/frame_kernel/src/structural/retained/source.rs": "053b59579d6d5a2c18026029d6a8c8648617a341a2787f6f248ce0d5c4379053",

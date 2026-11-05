@@ -142,6 +142,15 @@ code_paths:
 - core/product_physics/src/op1a_seed_tests.rs
 - tests/verifiers/preview_combination_operands.py
 - tests/test_preview_combination_operands.py
+- core/product_physics/src/difference_basis.rs
+- core/product_physics/tests/op1b_difference_basis.rs
+- core/reporting/result_export/src/preview_difference_basis.rs
+- core/reporting/result_export/src/preview_difference_basis_tests.rs
+- core/reporting/result_export/tests/recorded_pre_rt_a5_1b.rs
+- tests/verifiers/preview_difference_basis.py
+- tests/test_preview_difference_basis.py
+- tests/test_recorded_pre_rt_a5_1b_pf.py
+- validation/references/op1b_difference_basis/**
 - core/reporting/result_export/tests/physics_*contract.rs
 - core/reporting/result_export/tests/load_reference*_contract.rs
 - core/reporting/result_export/tests/pressure*_contract.rs

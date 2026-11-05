@@ -166,8 +166,18 @@ fn case_of(row: &Value) -> Option<&str> {
 /// Whether the received document carries a combination: its evidence member or
 /// a combination row.
 pub(crate) fn present(source: &Value) -> bool {
+    // RT-U4 (single pass): `validate_pressure_evidence` asks this first, and no
+    // other caller asks it, so the count is that reader's passes (tests only).
+    #[cfg(test)]
+    PRESSURE_PASSES.with(|n| n.set(n.get() + 1));
     source["contract_evidence"].get("exact_combinations").is_some()
         || items(&source["results"]).iter().any(is_combination_row)
+}
+#[cfg(test)]
+thread_local! {
+    /// [`present`]'s calls on this thread, `validate_pressure_evidence`'s passes
+    /// (`reader_verdict_single_pass_tests.rs`).
+    pub(crate) static PRESSURE_PASSES: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
 }
 
 /// The direct-case view: the document without its combination rows and its

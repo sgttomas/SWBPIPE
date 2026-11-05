@@ -79,7 +79,9 @@ WITHHELD_DIAGNOSTIC_PREFIX = {
 GATE_REASONS = ("NONLINEAR_COMBINATION_REQUIRES_SOLVE", "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE", "COMBINATION_MODULUS_BASIS_MIXED",
                 # RT-A4 (DEL-05-02 absolute-sum-srss section 6).
                 "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND", "CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED",
-                "LOAD_COMBINATION_OPERAND_WITHHELD")
+                "LOAD_COMBINATION_OPERAND_WITHHELD",
+                # Operating-case slice 1b: G-1 and G-2.
+                "EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING", "EXPANSION_BASIS_MODULUS_MIXED")
 RANGE_BASIS = "explicit_user_range_envelope"
 PER_SUPPORT_NONLINEAR_KINDS = ("nonlinear_support_final_reaction", "nonlinear_support_final_displacement",
                                "nonlinear_support_final_relative_displacement", "nonlinear_support_active_set_state_code")
@@ -249,7 +251,8 @@ def _header(source: Mapping[str, Any]) -> None:
     # section 10.3: `combination_derivation` beside an unsigned or nested combination (`preview_combination_gates`).
     # RT-A3 §4: `combination_certificate` beside a solved document's combinations (`combination_certificate`).
     _require(isinstance(evidence, Mapping) and {"preview_cases", "combination_gates"} <= set(evidence)
-             <= {"preview_cases", "combination_gates", "combination_operands", "combination_derivation", "combination_certificate"},
+             <= {"preview_cases", "combination_gates", "combination_operands", "combination_derivation", "difference_basis_derivation",
+                 "combination_certificate"},
              "contract evidence namespace")
     _require(isinstance(evidence["preview_cases"], list) and isinstance(evidence["combination_gates"], list), "contract evidence lists")
     _finite_tree(evidence)
@@ -406,7 +409,8 @@ def _validate(source: Mapping[str, Any]) -> None:
         _require(list(cases) == quality_ids, "preview case coverage")
     else:
         # A1 e: a blocked envelope has empty evidence, no rows and null headlines.
-        _require(not evidence["preview_cases"] and not evidence["combination_gates"] and "combination_derivation" not in evidence,
+        _require(not evidence["preview_cases"] and not evidence["combination_gates"] and "combination_derivation" not in evidence
+                 and "difference_basis_derivation" not in evidence,
                  "blocked envelope carries preview evidence")
         _require(not results, "blocked envelope carries result rows")
         _require(summary.get("max_displacement") is None and summary.get("max_open_formula_stress") is None, "blocked envelope carries a headline")
@@ -421,7 +425,9 @@ def _validate(source: Mapping[str, Any]) -> None:
         if basis["ref_type"] == "combination":
             gate = gates.get(basis["ref_id"])
             # 9. Combination rows only for admitted combinations.
-            _require(gate is not None and gate["withheld"] is False, "combination row without an admitting gate")
+            # Operating-case slice 1b: a withheld subtraction keeps its operands' modulus-basis records (DEC-068 item 1).
+            _require(gate is not None and (gate["withheld"] is False or row["kind"] == "combination_modulus_basis_record"),
+                     "combination row without an admitting gate")
             _require(row["kind"] not in {MAXIMUM_KIND, INTENSIFIED_KIND} | u4b.KINDS, "never-combined row for a combination")
             refs = row.get("source_result_refs", [])
             _require(isinstance(refs, list) and all(isinstance(ref, str) and ref in rows for ref in refs), "combination source reference")

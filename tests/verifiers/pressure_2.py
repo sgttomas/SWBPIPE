@@ -729,7 +729,7 @@ def _physics(source: Mapping[str, Any]) -> None:
     global_end.coverage(list(rows.values()))
     _u4b(source, evidence, rows, sections, marked, arc_extrema)
     _twins(rows, sections, owners, region_pressures)
-    _validate_connectors(evidence["connector"], evidence["pressure"], rows, {pid for cid in cases for pid in geometries[cid]}, set(cases), source.get("status", {}).get("mechanics") == "MECHANICS_SOLVED")
+    _validate_connectors(evidence["connector"], evidence["pressure"], rows, {pid for cid in cases for pid in geometries[cid]}, list(cases), source.get("status", {}).get("mechanics") == "MECHANICS_SOLVED")
     for components in support_components.values():
         _require(len(components) == 8 and set(components) == {"Fx", "Fy", "Fz", "Mx", "My", "Mz", "force_magnitude", "moment_magnitude"}, "support component coverage")
     # T4-U6 (D-5, §2.2): no governing basis; one headline per basis.
@@ -904,8 +904,12 @@ def _effective_axial_binding(s: float, g: float, pe: float, rods: list[tuple[flo
     return math.isfinite(tolerance) and abs(s - expected) <= tolerance
 
 
-def _validate_connectors(records: Any, regions: Any, rows: Mapping[str, Any], members: set[str], cases: set[str], solved: bool) -> None:
-    """``contract_evidence.connector`` records and the rows bound to them."""
+def _validate_connectors(records: Any, regions: Any, rows: Mapping[str, Any], members: set[str], cases: list[str], solved: bool) -> None:
+    """``contract_evidence.connector`` records and the rows bound to them.
+
+    RT-U4 (order): as the Rust reader, every scan runs in a source array order: ``rows`` in ``results`` order,
+    ``cases`` in ``exact_cases`` order (a list, never a set: a set's order follows the process's hash seed), cases
+    before records in the coverage loop. So the first refusal is the same in every process for the same source."""
     _require(isinstance(records, list), "unsupported connector")
     spans: dict[str, str] = {}
     for record in records:
@@ -966,10 +970,10 @@ def _validate_connectors(records: Any, regions: Any, rows: Mapping[str, Any], me
         slots.add(slot)
         counts[(case, row["entity_ref"])] = counts.get((case, row["entity_ref"]), 0) + 1
     if solved:
-        for record in records:
-            constant = record["pressure_model"] == "constant_effective_area_reference_v1"
-            rod_ids = [entry["id"] for entry in record.get("tie_rods") or []]
-            for case in cases:
+        for case in cases:
+            for record in records:
+                constant = record["pressure_model"] == "constant_effective_area_reference_v1"
+                rod_ids = [entry["id"] for entry in record.get("tie_rods") or []]
                 # A rod record without its rows is refused by name (§5.1).
                 _require(all((case, record["component_id"], TIE_ROD_KIND, "t_r", "tie_rod", rid) in slots for rid in rod_ids), "connector tie-rod rows missing")
                 expected = CONNECTOR_ROWS_PER_CASE + int(constant) + int(constant or bool(rod_ids)) + len(rod_ids)
@@ -982,7 +986,7 @@ def _joint_projection(value: float, expected: float, first: float, second: float
     return math.isfinite(value) and math.isfinite(expected) and math.isfinite(tolerance) and abs(value - expected) <= tolerance
 
 
-def _joint_pressure_bindings(records: Any, regions: Any, rows: Mapping[str, Any], cases: set[str], solved: bool) -> None:
+def _joint_pressure_bindings(records: Any, regions: Any, rows: Mapping[str, Any], cases: list[str], solved: bool) -> None:
     by_id = {record["component_id"]: record for record in records}
     participation: dict[tuple[str, str], Any] = {}
     for region in regions:

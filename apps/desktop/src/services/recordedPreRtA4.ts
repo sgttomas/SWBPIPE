@@ -18,6 +18,11 @@ import previewRetainedB001 from "../../../../fixtures/results/recorded_pre_rt_a4
 import physicsRetainedCf29 from "../../../../fixtures/results/recorded_pre_rt_a4/semantic_contract_v0_3_physics_retained_1.cf29fd5f.json?raw";
 import physicsRetained045f from "../../../../fixtures/results/recorded_pre_rt_a4/semantic_contract_v0_3_physics_retained_1.045f6f0d.json?raw";
 import physicsRetained040e from "../../../../fixtures/results/recorded_pre_rt_a4/semantic_contract_v0_3_physics_retained_1.040ef9a6.json?raw";
+// Operating-case slice 1b: main's tables at bbf384dec, before 1b restated the preview-physics combination policy.
+import previewPhysicsE7b9 from "../../../../fixtures/results/recorded_pre_rt_a5_1b/semantic_contract_v0_3_preview_physics_2.e7b93f41.json?raw";
+import previewTimoshenkoCe49 from "../../../../fixtures/results/recorded_pre_rt_a5_1b/semantic_contract_v0_3_preview_physics_timoshenko_1.ce49ebe0.json?raw";
+import previewRetained26dc from "../../../../fixtures/results/recorded_pre_rt_a5_1b/semantic_contract_v0_3_preview_physics_retained_1.26dce9c2.json?raw";
+// RT-A3 §4: main's exact successor table at 252bef969, before the combination certificate.
 import physicsRetained85c2 from "../../../../fixtures/results/recorded_pre_rt_a4/semantic_contract_v0_3_physics_retained_1.85c2678a.json?raw";
 
 export type RecordedBinding = Readonly<{ id: string; sha256: string }>;
@@ -31,8 +36,9 @@ const PHYSICS_RETAINED = "openpipestress.result_semantics/0.3.0/physics-retained
 /** The closed registry: main at 6c3cb46d3's four, RT-A3's final constant-effort
  * candidate's exact successor table (#101 at 01e05a486), and the RT-A4 main line's exact
  * successor table (main at bbf384dec), which RT-A3 increment 4's pressure-2 restatement
- * makes history, and main's exact successor table at 252bef969, which RT-A3 §4's pressure-2
- * restatement (the combination certificate) makes history. */
+ * makes history, then main's three preview-physics tables at bbf384dec, before
+ * operating-case slice 1b, and main's exact successor table at 252bef969, which RT-A3 §4's
+ * pressure-2 restatement (the combination certificate) makes history. */
 export const RECORDED_PRE_RT_A4_TABLES: ReadonlyArray<Readonly<Variant>> = Object.freeze([
   { id: PREVIEW, sha256: "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2", text: previewPhysics1ccc },
   { id: TIMOSHENKO, sha256: "a7b83c37a4af9bf70f56513f80883003a2a3860387319311ea2e967dd0cf764b", text: previewTimoshenkoA7b8 },
@@ -40,6 +46,9 @@ export const RECORDED_PRE_RT_A4_TABLES: ReadonlyArray<Readonly<Variant>> = Objec
   { id: PHYSICS_RETAINED, sha256: "cf29fd5fc5d61de0f1133e9668b05f3d62ae8f696944fe04de7470029f5357dd", text: physicsRetainedCf29 },
   { id: PHYSICS_RETAINED, sha256: "045f6f0d8ce350246b21fb712d2dd14bf3a7f7f3690e66e062cbbf77d3696a3b", text: physicsRetained045f },
   { id: PHYSICS_RETAINED, sha256: "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034", text: physicsRetained040e },
+  { id: PREVIEW, sha256: "e7b93f416f700f8efdb31bf1ba26dedde52963d768d6ead5a73dbf1c645a360c", text: previewPhysicsE7b9 },
+  { id: TIMOSHENKO, sha256: "ce49ebe07bc05431ea1f770c1933b5bf58f4b1c8b66fb6f36810f2ef7a58cd43", text: previewTimoshenkoCe49 },
+  { id: PREVIEW_RETAINED, sha256: "26dce9c21261b1ca894af05a3b6f4a94db88904894cb47f7296f892e72ecfb7e", text: previewRetained26dc },
   { id: PHYSICS_RETAINED, sha256: "85c2678a78e794b44761c11efb73c215645c7e2560d802ac8ad6075e7804c691", text: physicsRetained85c2 },
 ].map(variant => Object.freeze(variant)));
 

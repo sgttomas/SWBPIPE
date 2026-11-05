@@ -58,14 +58,20 @@ DEPENDENCIES = {
     # then the arc-tangent direction bound (DEL-04-07 pressure-contract.md, "Direction magnitudes of arc tangents"): an
     # arc term binds its magnitude exactly to its arc's published end tangent, and joint-area groups bind only to their
     # connector axis (was f27242f0...); then RT-U4: the region binding counts the published pipe rows once per case and
-    # member instead of rescanning every row per region, with the same outcomes (was b3cb5f6d...); then RT-A3 increment 4
-    # (DEL-04-07 pressure-contract.md, "Nonlinear supports on EX"): the direct pass calls the nonlinear support binding
-    # (`nonlinear_support_evidence`; was ea9273d7...); then RT-A3 §4 (DEL-05-02 Work `combination-certificate.md`): the
-    # pass reads the document without the combination certificate, then the certificate on the whole document (was
-    # 2e9b087d...; re-pinned in the certificate's review round 3, the pin having been left at 2e9b087d by 5f9f27863).
-    MODULE: 'fd69f9be7a25bbdde762940dddec72863ed41594716f795878976e077619a1d5',
+    # member instead of rescanning every row per region, with the same outcomes (was b3cb5f6d...); then RT-U4 order: the
+    # connector reader is given the source `results` and `exact_cases` arrays and scans them in array order, so its first
+    # refusal is the same in every process (was ea9273d7...); then RT-A3 increment 4 (DEL-04-07 pressure-contract.md,
+    # "Nonlinear supports on EX"): the direct pass calls the nonlinear support binding (`nonlinear_support_evidence`),
+    # merged with RT-U4 order (was fe65101b... on RT-U4 order and 2e9b087d... on RT-A3 increment 4); then RT-A3 §4
+    # (DEL-05-02 Work `combination-certificate.md`): the pass reads the document without the combination certificate,
+    # then the certificate on the whole document, merged with RT-U4 order (was 0baf783f... on RT-U4 order and
+    # fd69f9be... on RT-A3 §4).
+    MODULE: 'e85432423110e72022cb93f8c8324ffb4aa6dc48f1ed32a0cb20a28a986e0d73',
     TABLE: TABLE_SHA256,
-    UNITS: '5a412c57ca3bdc1d150ff580354e709355f442d89971a2f7aff8b575c7e39596',
+    # The units authority: then DEL-04-09 I3a's mass_length_per_rotation family (kg*m/rad, lb*in/rad, lb*ft/rad),
+    # an addition only; every existing unit, dimension and conversion is unchanged (was 5a412c57...); then the
+    # time_squared family (s^2, canonical only), likewise an addition only (was fa24112d...).
+    UNITS: 'e5033f832e86596970191b3e3b49824b98a6ba04ab3eae4586ce906e4c8fc75d',
 }
 # Version 3: the binding names the pressure-2 reader (version 2 named the retired physics-1 Rust reader,
 # version 1 the former Python reader); both older formats are refused.

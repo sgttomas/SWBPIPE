@@ -398,9 +398,17 @@ pub(crate) fn model_checks(source: &Value, model: &Value) -> Check {
             require(bit_equal(&operand["modulus_basis_ref"], &reference) && bit_equal(&operand["modulus_basis_temperature"], &temperature), "MODEL")?;
         }
     }
+    // Operating-case slice 1b: a subtraction a gate withholds (a declared one's G-1 or G-2)
+    // or the interim withholding removed (no gate) is not admitted and has no record.
+    let admitted: HashSet<&str> = items(&source["contract_evidence"]["combination_gates"])
+        .iter()
+        .filter(|g| g["withheld"] == false)
+        .filter_map(|g| g["combination_id"].as_str())
+        .collect();
     for &index in &order {
         let combination = &combinations[index];
         if matches!(combination["basis"].as_str(), Some("result_state_subtraction" | "range_envelope"))
+            && combination["id"].as_str().is_some_and(|id| admitted.contains(id))
             && graph::model_operands(combination, &case_ids).iter().all(|o| matches!(o, Operand::Case(_)) || recorded.contains(o.id()))
         {
             require(combination["id"].as_str().is_some_and(|id| recorded.contains(id)), "MODEL")?;

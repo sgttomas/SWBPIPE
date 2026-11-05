@@ -74,10 +74,10 @@ pub fn error_json(text: &str) -> Value {
     let code = &text[..end];
     json!({"code": code, "detail": if code == text { Value::Null } else { Value::from(text) }})
 }
-fn verdict_refusal(text: &str) -> Value {
+pub(crate) fn verdict_refusal(text: &str) -> Value {
     json!({"ok": false, "error": error_json(text)})
 }
-fn present(value: Option<&Value>) -> Option<&Value> {
+pub(crate) fn present(value: Option<&Value>) -> Option<&Value> {
     value.filter(|v| !v.is_null())
 }
 
@@ -365,23 +365,12 @@ pub fn validate(reader: &str, source: &Value, model: Option<&Value>, invocation:
                     .and_then(|()| crate::combination_certificate::check_with(source, Some(m)))
             })
         })),
-        // Current pressure-2 reader, then G2's model checks,
-        // which read only the cases, members, connectors and support rows.
-        "pressure" => checked(match model {
+        // Current pressure-2 reader, then G2's model checks (`pressure_outcome`).
+        // RT-A3 §4: with the model, the certificate is read after the model checks.
+        "pressure" => pressure_outcome(source, model, match model {
             None => sc::validate_pressure_evidence(source),
-            // RT-A3 §4: with the model, the certificate is read after the model checks.
             Some(_) => crate::physics_evidence::validate_pressure_evidence_without_certificate(source),
-        }.and_then(|()| {
-            // W-16 slice b (§6): the combination records bound to the model's
-            // combinations and its operands' modulus selections.
-            // RT-A3 increment 4 (R-4 §2.4): the nonlinear supports bound to the
-            // model's records and the DEC-067 laws that need their inputs.
-            model.map_or(Ok(()), |m| physics_model_checks(source, m).and_then(|()| crate::u4b_evidence::exact_model_checks(source, m))
-                .and_then(|()| crate::exact_combination_evidence::model_checks(source, m))
-                .and_then(|()| crate::nonlinear_support_evidence::model_checks(source, m))
-                .and_then(|()| crate::combination_certificate::model_checks(source, m))
-                .and_then(|()| crate::combination_certificate::check_with(source, Some(m))))
-        })),
+        }),
         "pressure-source" => {
             let contract = crate::physics_source::SourceContract::PressureV3;
             match source_validate_in(source, invocation, contract) {
@@ -396,10 +385,35 @@ pub fn validate(reader: &str, source: &Value, model: Option<&Value>, invocation:
         other => verdict_refusal(&format!("READER_UNKNOWN: {other}")),
     }
 }
+/// The pressure reader's outcome from pressure-2's evidence verdict
+/// (`validate_pressure_evidence`'s, read by the caller for this source): the
+/// verdict, then G2's model checks, which read only the cases, members,
+/// connectors and support rows. RT-U4 (single pass): `standing` gives it the
+/// evidence pass its token read; `validate` reads its own.
+fn pressure_outcome(source: &Value, model: Option<&Value>, evidence: Result<(), String>) -> Value {
+    // `evidence` is pressure-2's whole evidence verdict without the model, and its
+    // verdict without the certificate with it (RT-A3 §4: the certificate is then read
+    // after the model checks, with the model).
+    let check = evidence.and_then(|()| {
+        // W-16 slice b (§6): the combination records bound to the model's
+        // combinations and its operands' modulus selections.
+        // RT-A3 increment 4 (R-4 §2.4): the nonlinear supports bound to the
+        // model's records and the DEC-067 laws that need their inputs.
+        model.map_or(Ok(()), |m| physics_model_checks(source, m).and_then(|()| crate::u4b_evidence::exact_model_checks(source, m))
+            .and_then(|()| crate::exact_combination_evidence::model_checks(source, m))
+            .and_then(|()| crate::nonlinear_support_evidence::model_checks(source, m))
+            .and_then(|()| crate::combination_certificate::model_checks(source, m))
+            .and_then(|()| crate::combination_certificate::check_with(source, Some(m))))
+    });
+    match check {
+        Ok(()) => json!({"ok": true}),
+        Err(e) => verdict_refusal(&e),
+    }
+}
 /// The current source reader's validation. With an invocation it also takes
 /// G2's model checks against the invocation's model, as the TypeScript validation
 /// ran its physics checks with that model.
-fn source_validate_in(source: &Value, invocation: Option<&Value>, contract: crate::physics_source::SourceContract) -> Result<bool, String> {
+pub(crate) fn source_validate_in(source: &Value, invocation: Option<&Value>, contract: crate::physics_source::SourceContract) -> Result<bool, String> {
     let eligible = crate::physics_source::validate_in(source, invocation, contract)?;
     if let Some(i) = invocation {
         physics_model_checks(source, &i["request"]["model"])?;
@@ -515,6 +529,15 @@ pub fn source_findings(source: &Value, invocation: &Value) -> Vec<&'static str> 
 /// ordinary checks of `numerical_quality` against the model;
 /// then, but for the joined and successor routes, an unsolved envelope.
 /// `eligible` is no findings, and `status` is `integrity_checked` when eligible.
+///
+/// RT-U4 (single pass): on the pressure route, pressure-2's evidence verdict is
+/// read once and given to both of its uses, the token's `for_source` and the
+/// pressure reader's outcome; every other route reads as before. The verdict is a
+/// function of the source alone (its loops run in array or ordered-map order; its
+/// hash maps and sets only count, union, look up or refuse with one code), so the
+/// one verdict is the one each use read before. RT-A3 §4: the one pass is the
+/// evidence without the certificate; each use then reads the certificate as
+/// `validate` does (without the model for the token).
 pub fn standing(source: &Value, model: Option<&Value>, invocation: Option<&Value>) -> Value {
     let (model, invocation) = (present(model), present(invocation));
     let requested_ids: Vec<&Value> = model
@@ -525,9 +548,16 @@ pub fn standing(source: &Value, model: Option<&Value>, invocation: Option<&Value
         .iter()
         .map(|id| json!({"ref_type": "load_case", "ref_id": id}))
         .collect();
-    let token = sc::numerical_use_standing_with_context(source, &requested_refs, invocation);
+    let routed = route(source);
+    // RT-A3 §4: the evidence pass without the certificate is the one pass; the token reads
+    // it with the certificate (`validate_pressure_evidence`'s verdict), and the outcome
+    // reads it so with no model, or with the model-bound certificate after the model checks.
+    let uncertified = matches!(routed, Ok(("pressure", _)))
+        .then(|| crate::physics_evidence::validate_pressure_evidence_without_certificate(source));
+    let pressure = uncertified.clone().map(|verdict| verdict.and_then(|()| crate::combination_certificate::check(source)));
+    let token = sc::numerical_use_standing_given(source, &requested_refs, invocation, pressure.as_ref());
     let mut findings: Vec<String> = Vec::new();
-    let route = match route(source) {
+    let route = match routed {
         Ok((route, _)) => route,
         Err(code) => {
             findings.push(
@@ -570,7 +600,7 @@ pub fn standing(source: &Value, model: Option<&Value>, invocation: Option<&Value
         }
         _ => {
             let checked = match route {
-                "pressure" => Some(validate("pressure", source, model, None)),
+                "pressure" => if model.is_some() { uncertified } else { pressure }.map(|verdict| pressure_outcome(source, model, verdict)),
                 "preview_physics" => Some(validate("preview-physics", source, model, None)),
                 _ => None,
             };
@@ -588,7 +618,7 @@ pub fn standing(source: &Value, model: Option<&Value>, invocation: Option<&Value
 }
 /// The ordinary checks of `numerical_quality` (TS `numericalResultStanding`'s
 /// generic branch), in its order.
-fn ordinary_findings(source: &Value, requested: &[&Value]) -> Vec<String> {
+pub(crate) fn ordinary_findings(source: &Value, requested: &[&Value]) -> Vec<String> {
     const ORDER: [&str; 5] = ["checks_passed", "sensitive", "not_assessed", "unresolved", "failed"];
     let q = &source["numerical_quality"];
     let cases = q["cases"].as_array().map(Vec::as_slice).unwrap_or(&[]);

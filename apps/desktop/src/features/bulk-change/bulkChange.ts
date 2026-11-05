@@ -7,13 +7,16 @@
 // - support kind: `update_support` Support `configuration` (SupportConfigurationForm.tsx);
 // - support removal: `delete_support` (model-tree/removalIntents.ts, reused);
 // - bend radius: `set_field` Component `geometry.bend_radius.value` (the inspector's field);
-// - tag: the family's annotation kind on `tags` (model-data/modelDataIntents.ts, reused).
+// - tag: the family's annotation kind on `tags` (model-data/modelDataIntents.ts, reused);
+// - condition set: `assign_condition_set` Element `condition_set_ref`
+//   (condition-sets/conditionSetIntents.ts, reused; model document 0.9.0 §4.2, §11).
 // Nothing here writes the model, and nothing is inferred: restraints are kept or entered.
 import type { OperationBatch } from "../../services/operationBatchService";
 import type { EditorOperationIntent, EditorOperationSource, EntityRef, PreviewModel } from "../../types";
 import { buildDeleteSupportIntent } from "../model-tree/removalIntents";
 import { ANNOTATED_OBJECT_TYPES, annotatedRecord, annotationIntent, type Canonicalize } from "../model-data/modelDataIntents";
 import { makeRichIntent } from "../rich-authoring/formSupport";
+import { assignConditionSetIntent } from "../condition-sets/conditionSetIntents";
 
 type Support = PreviewModel["supports"][number];
 type Pipe = PreviewModel["pipe_segments"][number];
@@ -41,7 +44,9 @@ export type BulkChangeRequest =
   | { kind: "support-kind"; fromFamily: string; toFamily: string; restraints: "keep" | readonly Dof[] }
   | { kind: "support-remove"; family: string }
   | { kind: "bend-radius"; value: string; unit: string }
-  | { kind: "tag"; tag: string };
+  | { kind: "tag"; tag: string }
+  /** `setId` "" with `clear` removes each pipe's set; otherwise each pipe is assigned `setId`. */
+  | { kind: "condition-set"; setId: string; clear?: boolean };
 export type BulkChangeKind = BulkChangeRequest["kind"];
 
 export const BULK_CHANGE_LABELS: Record<BulkChangeKind, string> = {
@@ -50,7 +55,8 @@ export const BULK_CHANGE_LABELS: Record<BulkChangeKind, string> = {
   "support-kind": "Replace a support kind",
   "support-remove": "Remove a support kind",
   "bend-radius": "Set the bend radius",
-  tag: "Add a tag"
+  tag: "Add a tag",
+  "condition-set": "Assign condition set"
 };
 
 export type PlanEntry = { ref: EntityRef; before: string; after: string };
@@ -303,6 +309,19 @@ export function planBulkChange(model: PreviewModel, scope: readonly EntityRef[],
       }
       return plan;
     }
+    case "condition-set": {
+      if (!request.clear && !(model.condition_sets ?? []).some((set) => set.id === request.setId)) plan.requestError = "Choose a condition set.";
+      plan.refused.push(...refusedTypes(scope, ["pipe"], "A condition set is assigned to pipes only"));
+      for (const ref of scope.filter((item) => item.type === "pipe")) {
+        const pipe = pipeOf(model, ref.id);
+        if (!pipe) { plan.refused.push(missing(ref)); continue; }
+        const current = pipe.condition_set_ref;
+        const next = request.clear ? undefined : request.setId;
+        if (current === next) plan.unchanged.push({ ref, reason: next ? `Already carries ${next}.` : "Carries no condition set." });
+        else plan.affected.push({ ref, before: current ?? "not stated", after: next ?? "not stated (cleared)" });
+      }
+      return plan;
+    }
     case "tag": {
       plan.requestError = tagError(request.tag);
       for (const ref of scope) {
@@ -385,6 +404,10 @@ async function operationFor(model: PreviewModel, entry: PlanEntry, request: Bulk
       const unit = request.unit.trim();
       return setFieldIntent("Component", component.id, "geometry.bend_radius.value", "Bend radius", current ? String(current.value) : "TBD",
         JSON.stringify({ value: Number(request.value.trim()), unit }), unit, "length", "unit metadata required; entered unit captured explicitly", `bend radius ${request.value.trim()} ${unit}`);
+    }
+    case "condition-set": {
+      const pipe = pipeOf(model, ref.id)!;
+      return withBulkSource(await assignConditionSetIntent(canonicalize, pipe, request.clear ? null : request.setId));
     }
     case "tag": {
       const objectType = ANNOTATED_OBJECT_TYPES[ref.type]!;

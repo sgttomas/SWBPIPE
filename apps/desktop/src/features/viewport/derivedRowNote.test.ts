@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { MechanicsResult } from "../../types";
 import { buildDeformationOverlay } from "./deformationOverlay";
-import { ABSOLUTE_SUM_SIGN, SRSS_SIGN, combinationNotes, derivedRowNote, isOneSolvedState } from "./resultColourOverlay";
+import { ABSOLUTE_SUM_SIGN, OPERATING_MINUS_SUSTAINED_SIGN, SRSS_SIGN, combinationNotes, declaredDifferenceNote, derivedRowNote, isOneSolvedState } from "./resultColourOverlay";
+import { navigatorCases } from "../results/resultsNavigator";
 import { overlayModel, overlayResult, row } from "../../test-support/resultOverlayFixtures";
 
 // RT-A4 review r1 P4 (DEL-05-02 absolute-sum-srss-combinations.md section 4): a combination row that is not one
@@ -54,5 +55,20 @@ describe("derived combination rows", () => {
     ];
     const overlay = buildDeformationOverlay(model, overlayResult(rows), { basisKey: "combination:comb:SRSS" });
     expect(overlay.state).not.toBe("available");
+  });
+});
+
+describe("operating-case slice 1b: a declared operating comparison", () => {
+  const declared = { kind: "global_nodal_displacement_x", value: 1, unit: "mm", entity_ref: "node:b", id: "result:combination:d",
+    basis_ref: { ref_type: "combination", ref_id: "comb:o-s" },
+    metadata: { component: "ux", coordinate_system: "global", location: "node", basis: "explicit_user_result_state_subtraction", sign_convention: OPERATING_MINUS_SUSTAINED_SIGN } } as unknown as Row;
+  it("is drawn as a plain subtraction is, and named in the navigator", () => {
+    expect(derivedRowNote(declared)).toBeNull();
+    expect(isOneSolvedState(declared, [declared])).toBe(true);
+    expect(declaredDifferenceNote(declared)).toBe("operating minus sustained difference");
+    expect(navigatorCases([declared]).map((c) => c.label)).toEqual(["Combination comb:o-s (operating minus sustained difference)"]);
+    const plain = { ...declared, metadata: { ...declared.metadata, sign_convention: "positive value follows explicit user result-state subtraction (minuend minus subtrahend) of matching source result sign conventions; a signed difference of solved states, not an equilibrium state" } } as Row;
+    expect(declaredDifferenceNote(plain)).toBeNull();
+    expect(navigatorCases([plain]).map((c) => c.label)).toEqual(["Combination comb:o-s"]);
   });
 });

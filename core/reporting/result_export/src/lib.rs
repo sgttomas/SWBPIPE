@@ -1707,6 +1707,8 @@ mod preview_combination_operands;
 mod combination_certificate;
 /// RT-A3 §4: the combination identities a document states (the report's supplemental-text boundary).
 pub use combination_certificate::{document_combination_identities, in_retained_base_read};
+// Operating-case slice 1b (DEL-05-02 `operating-case.md` §1.2): the declared difference basis.
+mod preview_difference_basis;
 mod nonlinear_support_evidence;
 pub mod physics_source;
 pub mod source_blocks;
