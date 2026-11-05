@@ -180,6 +180,10 @@ needs:
   condition: 'Run-sheet bend SIF cells require the user-entered directional SIF and flexibility slots of the bend component and the existing bend_realization contract consumed from DEL-03-03 bend authoring (both SIFs or neither, one source_reference shared with k, user authors only); the sheet supplies no value.'
   gating: true
   evidence: execution/PKG-03/DEL-03-03/ScopeOfWork.md
+- from: DEL-04-03
+  condition: 'The support Direction (x, y, z) entry requires the S-K1 create_support contract consumed from DEL-04-03 (skew-restraints.md §2.2 gate order and codes, §4.2 range, §6.4 DOF token, and the S-K1 model, applier and authoring contract) and its applier on main; the desktop writes the entered vector and shows the engine''s refusals by name.'
+  gating: true
+  evidence: execution/PKG-04/DEL-04-03/Work/skew-restraints.md
 code_paths:
 - apps/desktop/e2e/ui-foundation.spec.ts
 - apps/desktop/package.json
@@ -199,6 +203,7 @@ code_paths:
 - apps/desktop/src/features/workspace/sessionEvents.ts
 - apps/desktop/src/features/toolkit/BatchReviewPanel.tsx
 - apps/desktop/src/features/condition-sets/**
+- apps/desktop/src/features/support-configuration/supportDirection.ts
 checks:
 - apps/desktop/src/features/model-tree/ModelTree.test.tsx
 - apps/desktop/src/features/model-tree/removalIntents.test.ts
@@ -238,6 +243,8 @@ checks:
 - apps/desktop/src/features/bulk-change/bulkChange.edges.session.test.tsx
 - apps/desktop/src/App.bulkChange.test.tsx
 - apps/desktop/src/features/model-tree/PropertyInspector.supportFamily.test.tsx
+- apps/desktop/src/features/support-configuration/supportDirection.test.tsx
+- apps/desktop/src/features/support-configuration/supportDirectionEngine.test.tsx
 - apps/desktop/src/features/model-tree/PropertyInspector.supportFamilyEngine.test.tsx
 - apps/desktop/src/App.splitAndSlope.test.tsx
 - apps/desktop/src/features/condition-sets/conditionSets.engine.test.tsx

@@ -476,6 +476,9 @@ export type PreviewModel = {
     node: string;
     family?: string;
     restraints: string[];
+    /** R-6/R-7 S-K1: a global direction, stored exactly as authored (never normalized).
+     * Written only by `create_support`; no edit/remove path exists yet. */
+    direction?: { x: number; y: number; z: number };
     stiffness?: {
       dof: string;
       value: QuantityValue;

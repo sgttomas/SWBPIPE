@@ -1,7 +1,9 @@
 import { CompactSelect } from "../workspace/CompactSelect";
-import { useEffect, useMemo, useState } from "react";
-import { clone, parseQuantities, QueueFeedback, QuantityField, record, requireText, setMember, TextField, useRichQueue, type DraftRecord, type RichFormProps } from "../rich-authoring/formSupport";
+import { useEffect, useId, useMemo, useState } from "react";
+import { clone, makeRichIntent, parseQuantities, QueueFeedback, QuantityField, record, requireText, setMember, TextField, useRichQueue, type DraftRecord, type RichFormProps } from "../rich-authoring/formSupport";
 import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
+import { EngineFeedback, useEngineCheckedQueue } from "../condition-sets/engineCheckedQueue";
+import { DIRECTION_AXES, EMPTY_DIRECTION_TEXT, parseDirectionEntry, STORED_DIRECTION_NOTE, storedDirectionText, type DirectionText } from "./supportDirection";
 const DOFS = ["UX", "UY", "UZ", "RX", "RY", "RZ"];
 const FAMILIES = [
   { value: "anchor", label: "Anchor" },
@@ -33,6 +35,9 @@ function FamilyField({ value, onChange }: { value: unknown; onChange: (value: st
     />
   </label>;
 }
+/** The members `update_support configuration` replaces (rich_authoring.rs CONFIG). A stored
+ * `direction` is not among them, so the applier keeps it through every configuration edit
+ * (S-K1 condition (a)); it is never part of this payload. */
 const CONFIG = ["family", "restraints", "stiffness", "hanger", "nonlinear", "provenance"];
 function projection(support: unknown): DraftRecord {
   const s = record(support);
@@ -83,6 +88,22 @@ function StiffnessFields({ label, value, onChange }: {
     <button type="button" onClick={() => onChange(undefined)}>Remove {label.toLowerCase()}</button>
   </fieldset>;
 }
+/** R-6/R-7 S-K1: the optional Direction (x, y, z) of a support being created. Never prefilled;
+ * the operation engine judges admission when the creation is queued (DEL-07-02 Work
+ * `support-direction.md`). */
+function DirectionFields({ value, onChange }: { value: DirectionText; onChange: (value: DirectionText) => void }) {
+  const noteId = useId();
+  return <fieldset aria-describedby={noteId} data-testid="support-direction-fields">
+    <legend>Direction (x, y, z)</legend>
+    <p id={noteId}>Optional. A pure direction in global axes, with no unit, written exactly as entered and never normalized. Leave all three blank for none. The operation engine admits it only on an explicit Line stop or Spring acting on exactly one translational DOF (UX, UY or UZ), with no nonlinear behavior; that DOF then only marks the support as translational. The engine checks it when the creation is queued and shows any refusal here by name.</p>
+    {DIRECTION_AXES.map(axis => <label key={axis}>{axis}<input
+      aria-label={`Direction ${axis}`}
+      inputMode="decimal"
+      value={value[axis]}
+      onChange={e => onChange({ ...value, [axis]: e.target.value })}
+    /></label>)}
+  </fieldset>;
+}
 function SupportEditor(props: RichFormProps & {
   support?: RichFormProps["model"]["supports"][number];
 }) {
@@ -93,10 +114,16 @@ function SupportEditor(props: RichFormProps & {
   const [id, setId] = useState("");
   const [label, setLabel] = useState("");
   const [node, setNode] = useState(props.selection.type === "node" ? props.selection.id : "");
+  const [directionText, setDirectionText] = useState<DirectionText>(EMPTY_DIRECTION_TEXT);
+  const storedDirection = support && !create ? storedDirectionText(support) : null;
   useEffect(() => {
     setDraft(support && !create ? draftProjection(support) : { restraints: [] });
   }, [support, create]);
   const state = useRichQueue(props);
+  // A creation that carries a direction is checked by the operation engine before it is
+  // queued, so the document rules' and the skew admission's codes show here by name.
+  const engine = useEngineCheckedQueue(props);
+  const busy = state.busy || engine.busy;
   const set = (key: string, value: unknown) => setDraft(d => setMember(d, key, value));
   const hanger = record(draft.hanger), nonlinear = record(draft.nonlinear);
   const setH = (key: string, value: unknown) => set("hanger", setMember(hanger, key, value));
@@ -109,6 +136,7 @@ function SupportEditor(props: RichFormProps & {
   const eligibleSupportOptions = useMemo(() => eligible.map((candidate) => ({ value: candidate.id, label: candidate.label || candidate.id, keywords: [candidate.node] })), [eligible]);
   const collisions = [props.model.nodes, props.model.pipe_segments, props.model.supports, props.model.components, props.model.materials ?? [], props.model.sections ?? [], props.model.load_cases, props.model.combinations ?? []].flat().some(e => e.id === id) || Boolean(props.queuedIntents?.some(i => i.target.ref === id && i.operation_kind === "create"));
   async function submit() {
+    engine.reset();
     try {
       const after = record(parseQuantities(draft));
       for (const key of ["stiffness"]) {
@@ -147,20 +175,22 @@ function SupportEditor(props: RichFormProps & {
         requireText(after.provenance, "Support provenance");
         if (collisions)
           throw new Error("Support ID already exists or is queued. Enter a unique ID.");
-        await state.queue(
-          { object_type: "Support", ref: id },
-          "create_support",
-          "supports",
-          undefined,
-          {
-            id,
-            label,
-            node,
-            ...after
-          },
-          "Support creation",
-          true
-        );
+        const direction = parseDirectionEntry(directionText);
+        const payload = { id, label, node, ...after, ...(direction ? { direction } : {}) };
+        if (direction) {
+          state.setError("");
+          await engine.submit(() => makeRichIntent({ object_type: "Support", ref: id }, "create_support", "supports", "not_present", payload, "Support creation"));
+        }
+        else
+          await state.queue(
+            { object_type: "Support", ref: id },
+            "create_support",
+            "supports",
+            undefined,
+            payload,
+            "Support creation",
+            true
+          );
       }
       else if (support)
         await state.queue(
@@ -179,12 +209,12 @@ function SupportEditor(props: RichFormProps & {
   return <section id="rich-support-form" tabIndex={-1} aria-label="Support configuration">
     <h3>Support configuration</h3>
     <p>Choose the support family and enter its physical inputs. Family names do not supply restraints or engineering values. Missing inputs remain missing; validation determines readiness.</p>
-    <fieldset disabled={state.busy}>
+    <fieldset disabled={busy}>
       <legend>{create ? "Create support" : "Edit support"}</legend>{support && <label>
         <input
           type="checkbox"
           checked={create}
-          onChange={e => setCreate(e.target.checked)}
+          onChange={e => { setCreate(e.target.checked); setDirectionText(EMPTY_DIRECTION_TEXT); engine.reset(); }}
         />Create a new support</label>}
       {create ? <>
         <TextField
@@ -200,6 +230,7 @@ function SupportEditor(props: RichFormProps & {
         />
         <VirtualTargetPicker label="Support node" value={node} options={nodeOptions} onChange={setNode} testId="support-node-picker" />
       </> : <p>{support?.label} — {support?.id}, node {support?.node}</p>}
+      {storedDirection !== null && <p data-testid="support-direction-stored">Direction (x, y, z), stored: <output aria-label="Stored direction">{storedDirection}</output> — {STORED_DIRECTION_NOTE}. Configuration edits keep it; the operation engine refuses one that would make it inadmissible.</p>}
       <FamilyField value={draft.family} onChange={value => set("family", value)} />
       <fieldset>
         <legend>Restrained degrees of freedom</legend>{DOFS.map(dof => <label key={dof}>
@@ -320,8 +351,10 @@ function SupportEditor(props: RichFormProps & {
             <p>Choose a linear support’s restrained translational DOF. Clear any entered normal reaction to use this source.</p>
           </>}
       </fieldset>}
+      {create && <DirectionFields value={directionText} onChange={next => { setDirectionText(next); engine.reset(); }} />}
       <button type="button" onClick={() => void submit()}>{create ? "Queue support creation" : "Queue support configuration"}</button>
     </fieldset>
     <QueueFeedback {...state} />
+    <EngineFeedback error={engine.error} notice={engine.notice} diagnostics={engine.diagnostics} testId="support-direction-engine" />
   </section>;
 }
