@@ -28,7 +28,7 @@ Both fields are defined in T3's model format 0.5.0 (H1: "no 0.6.0" for these fie
 
 Carried in the owner's 2026-10-14 resumption steer:
 
-- The references are prepared from the vetted SHEAR reference snapshot at `f2211ece` ([SHEAR_REFERENCE](https://github.com/sgttomas/chirality/tree/f2211ecef6/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SHEAR_REFERENCE)) and the repaired T4-I8 freeze at `5b07d85c` (repair round 01, [T4-I8](https://github.com/sgttomas/chirality/tree/5b07d85cf3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/PRESSURE_STRESS_T4/T4-I8)).
+- The references are prepared from the vetted SHEAR reference snapshot at `f2211ece` (SHEAR_REFERENCE (private `sgttomas/chirality@f2211ecef6`, `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SHEAR_REFERENCE`)) and the repaired T4-I8 freeze at `5b07d85c` (repair round 01, T4-I8 (private `sgttomas/chirality@5b07d85cf3`, `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/PRESSURE_STRESS_T4/T4-I8`)).
 - Older references that folded the mill tolerance into the wall value are re-authored with the true nominal wall plus explicit mill-tolerance and corrosion-allowance fields. Their reduced bore then follows D-5 above.
 
 ## Retained-source and W1-E publication (O4)
@@ -43,4 +43,4 @@ SP-1's twin clause (a straight-only v3 case is bit-equal to its v2 twin) was tra
 
 The technical design that implements these rulings in T4-U6 and T4-U8 is [section-bases-and-timoshenko.md](section-bases-and-timoshenko.md).
 
-Source for the options: [T4 frozen rulings: owner-held later and D-6 presentation](https://github.com/sgttomas/chirality/blob/f2211ecef6/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/PRESSURE_STRESS_T4/T4_RULINGS.md); plan 01 §4.1 (same tag, `PLAN_01/PLAN.md`).
+Source for the options: T4 frozen rulings: owner-held later and D-6 presentation (private `sgttomas/chirality@f2211ecef6`, `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/PRESSURE_STRESS_T4/T4_RULINGS.md`); plan 01 §4.1 (same tag, `PLAN_01/PLAN.md`).

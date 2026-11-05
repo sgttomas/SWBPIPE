@@ -1112,10 +1112,11 @@ changes.
   - **Every other record or term** is named by the canonical JSON (RFC 8785) of the stored
     record or term. This covers a record without `terms` (as an authored subtraction or envelope
     may be), a record with a combination operand, and a term naming a combination. The desktop's
-    existing producer sends the historical display for these. Before this change those deletes
-    were refused (`OP-COMBINATION-PAYLOAD-INVALID` for a record, `OP-COMBINATION-TERM-PAYLOAD-INVALID`
-    for a term). They now stay refused, as stale, until the
-    S3b producer follow-up sends the canonical form. Nothing regresses.
+    delete producer (#117, DEL-07-03) builds each before value from the stored record or term by
+    these two rules. It takes every factor's text from the engine's own `display_number`
+    (`display_number_text`, native and wasm, #118) and trims as Rust's `str::trim` does, so the
+    two never diverge. JavaScript and Rust choose differently between equally short round-trip
+    digit strings.
   - The before value is a stale check, never an inverse.
 - **References.**
   - `OP-COMBINATION-DELETE-REFERENCED` refuses deleting a combination that another combination

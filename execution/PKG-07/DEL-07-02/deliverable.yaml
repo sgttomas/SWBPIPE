@@ -176,6 +176,10 @@ needs:
   condition: 'Run-sheet valve and flange rows require the rigid-component geometry, independent quantity-unit choices, COG convention and existing insertion payload contract consumed from DEL-03-05; engineering values remain explicit.'
   gating: true
   evidence: execution/PKG-03/DEL-03-05/Work/component-quantity-units.md
+- from: DEL-03-03
+  condition: 'Run-sheet bend SIF cells require the user-entered directional SIF and flexibility slots of the bend component and the existing bend_realization contract consumed from DEL-03-03 bend authoring (both SIFs or neither, one source_reference shared with k, user authors only); the sheet supplies no value.'
+  gating: true
+  evidence: execution/PKG-03/DEL-03-03/ScopeOfWork.md
 code_paths:
 - apps/desktop/e2e/ui-foundation.spec.ts
 - apps/desktop/package.json

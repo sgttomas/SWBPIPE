@@ -1,0 +1,18 @@
+[package]
+name = "open_pipe_stress_modal_result"
+version = "0.1.0"
+edition = "2021"
+description = "DEL-04-09 I3a: the Rust reader of the modal result family openpipestress.modal_result"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+# The reader reads a document and nothing else: its JSON, the checked canonical
+# profile every hash uses, SHA-256 and the unit catalog. It shares no code with the
+# producer (product_physics::modal::document) and does not depend on it.
+[dependencies]
+open_pipe_stress_canonical_json = { path = "../../serialization/canonical_json" }
+open_pipe_stress_units = { path = "../../units" }
+serde_json = { version = "1", features = ["float_roundtrip"] }
+sha2 = "0.10"

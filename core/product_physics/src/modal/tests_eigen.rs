@@ -279,7 +279,7 @@ fn class_a_eigen_references_agree_through_the_product_path() {
 /// SEC-A of `continuum.json` (OD 0.2 m, wall 0.008 m, 7850 kg/m³, contents
 /// 1000 kg/m³, E 200 GPa, G 80 GPa, no mill tolerance) as an `n`-element
 /// cantilever of length 6 m along X, anchored at x = 0.
-fn sec_a_cantilever(elements: usize) -> Value {
+pub(super) fn sec_a_cantilever(elements: usize) -> Value {
     let length = 6.0;
     let nodes: Vec<Value> = (0..=elements)
         .map(|i| json!({"id": format!("n{i}"), "position": {"x": length * i as f64 / elements as f64, "y": 0.0, "z": 0.0}, "provenance": PROV}))

@@ -1,0 +1,246 @@
+{
+  "materials": [],
+  "mode_count": 6,
+  "model": {
+    "analysis_status": {
+      "mechanics": "ready_for_preview_diagnostics",
+      "professional_acceptance": "not_provided",
+      "rule_check": "not_performed_user_rule_inputs_missing"
+    },
+    "combinations": [],
+    "components": [
+      {
+        "geometry": {
+          "bend_geometry_source_reference": "invented DEL-04-09 I2a test input",
+          "bend_pipe_ref": "pipe:b-c",
+          "bend_radius": {
+            "unit": "m",
+            "value": 0.25
+          }
+        },
+        "id": "component:bend",
+        "kind": "bend",
+        "mechanics_interface": {
+          "rule_check_consumption": "user_rule_pack_inputs_only",
+          "solver_consumption": "curved_bend_macro_element"
+        },
+        "modifiers": {
+          "flexibility_factor_user_value": {
+            "unit": "none",
+            "value": 2.0
+          },
+          "source_reference": "invented DEL-04-09 I2a test input"
+        },
+        "node": "c",
+        "provenance": "invented DEL-04-09 I2a test input"
+      }
+    ],
+    "document_kind": "openpipestress.product_preview.model",
+    "load_cases": [
+      {
+        "id": "case:z",
+        "primitive_loads": [
+          {
+            "category": "concentrated_force",
+            "dimension": "force",
+            "direction": "global_z",
+            "id": "z",
+            "magnitude": {
+              "unit": "N",
+              "value": 1000.0
+            },
+            "provenance": "invented DEL-04-09 I2a test input",
+            "target": {
+              "node": "b",
+              "type": "node"
+            }
+          }
+        ],
+        "provenance": "invented DEL-04-09 I2a test input"
+      }
+    ],
+    "materials": [
+      {
+        "elastic_modulus": {
+          "unit": "Pa",
+          "value": 200000000000.0
+        },
+        "id": "m",
+        "provenance": "invented DEL-04-09 I2a test input",
+        "shear_modulus": {
+          "unit": "Pa",
+          "value": 76923076923.0
+        }
+      }
+    ],
+    "nodes": [
+      {
+        "id": "a",
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented DEL-04-09 I2a test input"
+      },
+      {
+        "id": "b",
+        "position": {
+          "x": 1.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented DEL-04-09 I2a test input"
+      },
+      {
+        "id": "c",
+        "position": {
+          "x": 1.25,
+          "y": 0.25,
+          "z": 0.0
+        },
+        "provenance": "invented DEL-04-09 I2a test input"
+      },
+      {
+        "id": "d",
+        "position": {
+          "x": 1.25,
+          "y": 1.25,
+          "z": 0.0
+        },
+        "provenance": "invented DEL-04-09 I2a test input"
+      }
+    ],
+    "pipe_segments": [
+      {
+        "from": "a",
+        "id": "pipe:a-b",
+        "material": "m",
+        "provenance": "invented DEL-04-09 I2a test input",
+        "section": {
+          "contents_density": {
+            "unit": "kg/m^3",
+            "value": 1000.0
+          },
+          "material_density": {
+            "unit": "kg/m^3",
+            "value": 7850.0
+          },
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.2
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.01
+          }
+        },
+        "to": "b",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        }
+      },
+      {
+        "from": "b",
+        "id": "pipe:b-c",
+        "material": "m",
+        "provenance": "invented DEL-04-09 I2a test input",
+        "section": {
+          "contents_density": {
+            "unit": "kg/m^3",
+            "value": 1000.0
+          },
+          "material_density": {
+            "unit": "kg/m^3",
+            "value": 7850.0
+          },
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.2
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.01
+          }
+        },
+        "to": "c",
+        "y_reference": {
+          "x": 0.7071067811865476,
+          "y": -0.7071067811865476,
+          "z": 0.0
+        }
+      },
+      {
+        "from": "c",
+        "id": "pipe:c-d",
+        "material": "m",
+        "provenance": "invented DEL-04-09 I2a test input",
+        "section": {
+          "contents_density": {
+            "unit": "kg/m^3",
+            "value": 1000.0
+          },
+          "material_density": {
+            "unit": "kg/m^3",
+            "value": 7850.0
+          },
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.2
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.01
+          }
+        },
+        "to": "d",
+        "y_reference": {
+          "x": 1.0,
+          "y": 0.0,
+          "z": 0.0
+        }
+      }
+    ],
+    "project": {
+      "id": "project:i2a-arc",
+      "units": {
+        "angle": "rad",
+        "force": "N",
+        "length": "m",
+        "pressure": "Pa",
+        "stress": "Pa",
+        "temperature": "degC"
+      }
+    },
+    "schema_version": "0.9.0",
+    "supports": [
+      {
+        "family": "anchor",
+        "id": "support:a",
+        "node": "a",
+        "provenance": "invented DEL-04-09 I2a test input",
+        "restraints": [
+          "UX",
+          "UY",
+          "UZ",
+          "RX",
+          "RY",
+          "RZ"
+        ]
+      },
+      {
+        "family": "anchor",
+        "id": "support:d",
+        "node": "d",
+        "provenance": "invented DEL-04-09 I2a test input",
+        "restraints": [
+          "UX",
+          "UY",
+          "UZ"
+        ]
+      }
+    ]
+  }
+}

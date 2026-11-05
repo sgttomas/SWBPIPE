@@ -17,6 +17,7 @@ import { mapOutcomeToRows } from "./runSheetBatch";
 import { adoptCurrentValues, applySessionEvent, currentEntry, reconcileRunSheet, removeRowFromSheet, type RunSheetState } from "./runSheetLedger";
 import { KIND_CODES, MESSAGES, QUANTITY_COLUMNS, SUPPORT_CODES, reservedOperationIds, type PipeNumberFrom, type QuantityColumn, type RunSheetFinding, type RunSheetNumbering } from "./runSheetModel";
 import { CENTER_OF_GRAVITY_CONVENTION } from "../../component-creation/componentIntent";
+import { SIF_HINT } from "../../bend-authoring/BendAuthoringForms";
 import { componentField } from "./runSheetComponents";
 import type { RunSheetStore } from "./runSheetStore";
 import {
@@ -577,6 +578,9 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
       <p className="run-sheet-note" data-testid="run-sheet-condition-set-note">
         Condition set: an existing set id{(model.condition_sets ?? []).length ? ` (${(model.condition_sets ?? []).map((set) => set.id).join(", ")})` : "; this model has none yet"}. Blank inherits like Material, and - means none; the sheet creates and suggests no set.
       </p>
+      <p className="run-sheet-note" data-testid="run-sheet-sif-note">
+        Bend SIFs (B rows): {SIF_HINT} In the sheet their source is the row&apos;s k source, the one source the bend keeps for k and both SIFs; they never inherit, and Fill down copies them as entered values.
+      </p>
       <div className="run-sheet-scroll" role="region" aria-label="Run sheet rows">
         <table ref={tableRef} aria-label="Run sheet" data-testid="run-sheet-table">
           <thead>
@@ -585,6 +589,7 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
               {columns.map((column) => (
                 <th scope="col" key={column.key}>
                   {column.label}
+                  {column.note ? <span className="run-sheet-column-note"> ({column.note})</span> : null}
                   {column.quantity ? <span className="run-sheet-unit">{unitControl(QUANTITY_COLUMNS[column.quantity].label, QUANTITY_COLUMNS[column.quantity].dimension, columnUnitFor(column.quantity),
                     (unit) => update((current) => ({ ...current, columnUnits: { ...current.columnUnits, [column.quantity!]: unit } })))}</span> : null}
                 </th>
