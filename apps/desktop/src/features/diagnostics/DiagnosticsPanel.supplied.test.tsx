@@ -6,6 +6,8 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import corpus from "../../../../../fixtures/results/combination_certificate_corpus.json";
 import successor from "../../../../../fixtures/results/retained_precision_combination_successor_sparse_interactive.json";
+import legacySuccessor from "../../../../../fixtures/results/retained_precision_combination_successor_sparse_interactive_pre_certificate.json";
+import { registerRetainedPrecision, retainedPrecisionRegistration } from "../results/retainedPrecisionStanding";
 import { DiagnosticsPanel } from "./DiagnosticsPanel";
 import { buildDiagnosticInterpretation } from "../results/resultInterpretation";
 import { readerValidate, ResultReaderError } from "../results/resultReader";
@@ -107,6 +109,39 @@ describe("Diagnostics panel: supplied diagnostic text", () => {
     expect(explanation.startsWith(supplied(prose))).toBe(true);
     // The retained base read does not check the roster's text, so no message of a successor is copied.
     expect(presentedResultDiagnostics(appended).map((d) => d.message)).toEqual(appended.diagnostics.map((d) => supplied(d.message)));
+  });
+
+  it("copies a registered retained successor's certificate notices and nothing else (§8.53 D3 (b))", async () => {
+    // On the registered build the successor carries the ordinary run's certificate member; the retained reader's G7
+    // base read validates it whole on the projection, whose diagnostics are the successor's own, so the notices in
+    // the certificate's typed vocabulary are exactly the ones the validated member re-derives.
+    const CERTIFICATE = "diagnostic:combination-certificate:";
+    const doc = structuredClone(successor) as unknown as { source: MechanicsResult; invocation: unknown };
+    const source = doc.source;
+    const notices = source.diagnostics.filter((d) => d.id?.startsWith(CERTIFICATE));
+    expect(notices.map((d) => d.code)).toEqual(["COMBINATION_ROWS_NOT_ASSESSED"]);
+    expect((source.contract_evidence as Record<string, unknown>).combination_certificate).toBeDefined();
+    // Unregistered: every message of a successor with combinations is supplied text, the notices included.
+    expect(presentedResultDiagnostics(source).map((d) => d.message)).toEqual(source.diagnostics.map((d) => supplied(d.message)));
+    await registerRetainedPrecision(source, doc.invocation);
+    expect(retainedPrecisionRegistration(source)?.validation).toBeTruthy();
+    const presented = presentedResultDiagnostics(source);
+    source.diagnostics.forEach((d, index) => {
+      expect(presented[index].message, d.id).toBe(d.id?.startsWith(CERTIFICATE) ? d.message : supplied(d.message));
+    });
+    expect(shown(source, notices[0]).listed).toEqual([notices[0].message]);
+    // Bytes the registration did not validate (a forged notice in the vocabulary appended) are not attested.
+    const forged = structuredClone(source);
+    forged.diagnostics.push({ ...notices[0], id: `${CERTIFICATE}99:combination:ab`, message: CLAIM });
+    expect(retainedPrecisionRegistration(forged)).toBeNull();
+    expect(presentedResultDiagnostics(forged).map((d) => d.message)).toEqual(forged.diagnostics.map((d) => supplied(d.message)));
+    // The legacy successor (registered before the certificate, no member) makes no certificate claim: registered,
+    // every message stays supplied.
+    const legacy = structuredClone(legacySuccessor) as unknown as { source: MechanicsResult; invocation: unknown };
+    await registerRetainedPrecision(legacy.source, legacy.invocation);
+    expect(retainedPrecisionRegistration(legacy.source)?.validation).toBeTruthy();
+    expect(legacy.source.diagnostics.some((d) => d.id?.startsWith(CERTIFICATE))).toBe(false);
+    expect(presentedResultDiagnostics(legacy.source).map((d) => d.message)).toEqual(legacy.source.diagnostics.map((d) => supplied(d.message)));
   });
 
   it("leaves a result without combinations unchanged", () => {
