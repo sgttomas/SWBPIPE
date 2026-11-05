@@ -189,7 +189,10 @@ fn referencing_pipes(model: &Value, set_id: &str) -> Vec<String> {
         .collect()
 }
 
-fn has_pressure_contract(model: &Value) -> bool {
+/// The one predicate for "the document has a pressure contract": present and not
+/// JSON null (any other value, a retired or invalid version included, counts).
+/// Shared by the condition-set admission and `create_support`'s skew admission.
+pub(crate) fn has_pressure_contract(model: &Value) -> bool {
     model.get("pressure_contract").is_some_and(|contract| !contract.is_null())
 }
 

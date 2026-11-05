@@ -676,6 +676,62 @@ fn decoded<T: serde::de::DeserializeOwned>(value: &Value, path: &str, refs: Vec<
     }
 }
 
+/// The validator's reading of one JSON support record (`json_findings`); a direction
+/// that is not three numbers is a shape finding and no direction.
+fn json_support_view<'a>(support: &'a Value, index: usize, shapes: &mut Vec<JsonFinding>) -> SupportView<'a> {
+    let id_refs = |record: &Value| text(record, "id").map(|id| vec![id.to_string()]).unwrap_or_default();
+    let direction = match support.get("direction") {
+        None => None,
+        Some(value) => match DirectionInput::of_json(value) {
+            Ok(direction) => Some(direction),
+            Err(key) => {
+                let path = format!("supports[{index}].direction.{key}");
+                shapes.push(JsonFinding::Shape { path: path.clone(), message: format!("{path} is not a member of this record."), refs: id_refs(support) });
+                None
+            }
+        },
+    };
+    let stiffness = support.get("stiffness").filter(|value| !value.is_null()).or_else(|| support.pointer("/hanger/stiffness")).and_then(|stiffness| {
+        Some((text(stiffness, "dof")?, stiffness.pointer("/value/value")?.as_f64()?, stiffness.pointer("/value/unit")?.as_str()?))
+    });
+    SupportView {
+        id: text(support, "id").unwrap_or(""),
+        family: text(support, "family"),
+        restraints: support.get("restraints").and_then(Value::as_array).into_iter().flatten().filter_map(Value::as_str).collect(),
+        stiffness,
+        hanger: support.get("hanger").is_some_and(|value| !value.is_null()),
+        nonlinear: support.get("nonlinear").is_some_and(|value| !value.is_null()),
+        direction,
+    }
+}
+
+/// R-6/R-7 S-K1 (DEL-04-03 Work `skew-restraints.md` §2.2, §9, §11.2 should-fix): the
+/// applier's direction admission for one JSON support record. The document
+/// validator's own record rules run first, through its own reading
+/// (`json_support_view`, `supports_findings`): a record they refuse, or whose
+/// direction is malformed, is left to them (`None`; one code per object). For a
+/// record they admit, a skewed vector is refused by name on a document with a
+/// pressure contract (item 2) or outside §4.2's range (item 4), with the solve's own
+/// code and message. The nonlinear-model code, a second stop, redundancy and motion
+/// are solve-time refusals.
+pub fn skew_record_refusal_json(record: &Value, pressure_contract: bool) -> Option<(&'static str, String)> {
+    let mut shapes = Vec::new();
+    let view = json_support_view(record, 0, &mut shapes);
+    let mut found = MemberFindings::default();
+    supports_findings(std::slice::from_ref(&view), &mut found);
+    if !shapes.is_empty() || !found.is_empty() || view.family == Some("snubber") {
+        return None;
+    }
+    let Some(DirectionInput::Vector(authored)) = view.direction else { return None };
+    if !is_skew(&DirectionInput::Vector(authored)) {
+        return None;
+    }
+    let facts = SkewRecordFacts { authored, pressure_contract, nonlinear_model: false };
+    let refusal = restraint_basis::judge(&facts).err()?;
+    let (_, reason) = skew_refusal_reason(&refusal)?;
+    Some((skew_code(refusal.code), format!("support `{}` {reason}", view.id)))
+}
+
 /// The validator's reading of a document's JSON: the same rules as the solve's, and
 /// a shape finding for each malformed new member (the solve refuses those at decode).
 /// Records the rules cannot read (not an object, or an existing member of the wrong
@@ -731,29 +787,7 @@ pub fn json_findings(root: &Map<String, Value>) -> Vec<JsonFinding> {
     let cases: Vec<_> = array(root, "load_cases").iter().zip(&uses).map(|(case, using)| (text(case, "id").unwrap_or(""), using.as_ref())).collect();
     let mut supports = Vec::new();
     for (index, support) in array(root, "supports").iter().enumerate() {
-        let direction = match support.get("direction") {
-            None => None,
-            Some(value) => match DirectionInput::of_json(value) {
-                Ok(direction) => Some(direction),
-                Err(key) => {
-                    let path = format!("supports[{index}].direction.{key}");
-                    shapes.push(JsonFinding::Shape { path: path.clone(), message: format!("{path} is not a member of this record."), refs: id_refs(support) });
-                    None
-                }
-            },
-        };
-        let stiffness = support.get("stiffness").filter(|value| !value.is_null()).or_else(|| support.pointer("/hanger/stiffness")).and_then(|stiffness| {
-            Some((text(stiffness, "dof")?, stiffness.pointer("/value/value")?.as_f64()?, stiffness.pointer("/value/unit")?.as_str()?))
-        });
-        supports.push(SupportView {
-            id: text(support, "id").unwrap_or(""),
-            family: text(support, "family"),
-            restraints: support.get("restraints").and_then(Value::as_array).into_iter().flatten().filter_map(Value::as_str).collect(),
-            stiffness,
-            hanger: support.get("hanger").is_some_and(|value| !value.is_null()),
-            nonlinear: support.get("nonlinear").is_some_and(|value| !value.is_null()),
-            direction,
-        });
+        supports.push(json_support_view(support, index, &mut shapes));
     }
     let mut combinations = Vec::new();
     for combination in array(root, "combinations") {
@@ -817,7 +851,19 @@ fn skew_admission(model: &PreviewModel, support: &crate::PreviewSupport, authore
         nonlinear_model: model.supports.iter().any(|s| s.nonlinear.is_some()),
     };
     let Err(refusal) = restraint_basis::judge(&facts) else { return };
-    let (slug, reason) = match refusal.code {
+    let Some((slug, reason)) = skew_refusal_reason(&refusal) else { return };
+    diagnostics.push(crate::diag(
+        &format!("diagnostic:support:{}:{slug}", crate::stable_suffix(&support.id)),
+        skew_code(refusal.code),
+        "blocking",
+        format!("support `{}` {reason}", support.id),
+        vec![support.id.clone()],
+    ));
+}
+
+/// Items 2-4's slug and reason, shared by the solve and the applier.
+fn skew_refusal_reason(refusal: &restraint_basis::SkewRefusal) -> Option<(&'static str, String)> {
+    Some(match refusal.code {
         SkewCode::ExactUnsupported => ("direction-skew-exact", "is on a document with a pressure contract; skewed restraints are built on the pressure-free route only, so nothing is solved".to_string()),
         SkewCode::NonlinearModelUnsupported => ("direction-skew-nonlinear-model", "is in a model with a nonlinear support; skewed restraints are built for linear models only, so nothing is solved".to_string()),
         SkewCode::RangeUnsupported => {
@@ -831,21 +877,10 @@ fn skew_admission(model: &PreviewModel, support: &crate::PreviewSupport, authore
             ("direction-range", format!("has a direction whose {named}; an axis-aligned direction is the authored form if that axis is meant"))
         }
         // The record rules give the invalid and zero codes first (§2.2 item 1).
-        _ => return,
-    };
-    diagnostics.push(crate::diag(
-        &format!("diagnostic:support:{}:{slug}", crate::stable_suffix(&support.id)),
-        skew_code(refusal.code),
-        "blocking",
-        format!("support `{}` {reason}", support.id),
-        vec![support.id.clone()],
-    ));
+        _ => return None,
+    })
 }
 
-/// The skew refusal's message, at the solve and the applier.
-pub fn skew_message(support: &str) -> String {
-    format!("support `{support}` has a direction with two or more nonzero components; the skewed-restraint kernel is not built yet, so a skewed support is not solved")
-}
 
 /// Whether an authored direction is skewed (two or more nonzero components).
 pub fn is_skew(direction: &DirectionInput) -> bool {

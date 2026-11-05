@@ -5357,21 +5357,6 @@ fn resolve_create_support(
         );
         return None;
     };
-    if let Some(direction) = record.get("direction") {
-        let skew = pp_members::DirectionInput::of_json(direction).is_ok_and(|d| pp_members::is_skew(&d));
-        if skew {
-            refuse_interim_member(checker, target_ref, pp_members::SUPPORT_DIRECTION_SKEW_UNSUPPORTED, pp_members::skew_message(target_ref));
-        } else {
-            checker.push(
-                "OP-CREATE-SUPPORT-PAYLOAD-INVALID",
-                "blocking",
-                "A support's direction is not authored by create_support until the support-direction authoring is built; it is never dropped.".into(),
-                "Create the support without direction.",
-                vec![target_ref.to_string()],
-            );
-        }
-        return None;
-    }
     let id = record
         .get("id")
         .and_then(Value::as_str)
@@ -5532,6 +5517,7 @@ fn resolve_create_support(
         "nonlinear",
         "boundary_association",
         "provenance_record",
+        "direction",
     ] {
         if let Some(value) = record.get(key) {
             support[key] = value.clone();
@@ -5551,6 +5537,7 @@ fn resolve_create_support(
             "nonlinear",
             "boundary_association",
             "provenance_record",
+            "direction",
         ]
         .contains(&key.as_str())
     }) {
@@ -5572,6 +5559,26 @@ fn resolve_create_support(
             vec![target_ref.to_string()],
         );
         return None;
+    }
+    // R-6/R-7 S-K1 (DEL-04-03 Work `skew-restraints.md` §9, §11.1 AP-1, §11.2): `direction`
+    // is written exactly as entered (never normalized). On the record as it will be
+    // written, the document validator's own record rules (§2.2 item 1) decide first;
+    // only for a record they admit does the shared PP gate refuse a skewed vector by name
+    // on a document with a pressure contract (item 2) or outside §4.2's range (item 4).
+    let written = if record.contains_key("boundary_association") { &payload } else { &support };
+    if written.get("direction").is_some() {
+        if let Some((code, message)) =
+            pp_members::skew_record_refusal_json(written, condition_set_authoring::has_pressure_contract(model))
+        {
+            checker.push(
+                code,
+                "blocking",
+                message,
+                "Author the support with an admissible direction, or without one on the exact route.",
+                vec![target_ref.to_string()],
+            );
+            return None;
+        }
     }
     // Associated canonical members retain exact accepted source strings and order;
     // the private token checks the original payload, not a lossy projection.
@@ -16112,10 +16119,6 @@ mod tests {
                 "provenance": "user", "primitive_loads": [], "test_condition": {"kind": "hydrostatic", "held_supports": "none"}})), "LOAD_CASE_TEST_CONDITION_UNSUPPORTED"),
             (create("Load", "load:L-3", "create_load_case", "load_cases", json!({"id": "load:L-3", "label": "Operating", "kind": "operating", "status": "draft",
                 "provenance": "user", "primitive_loads": [], "condition_use": {"contents_density": "OPE1"}})), "LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED"),
-            (create("Support", "support:S-2", "create_support", "supports", json!({"id": "support:S-2", "label": "Skew stop", "node": "node:N-2",
-                "family": "line_stop", "restraints": ["UY"], "direction": {"x": 0.0, "y": 3.0, "z": 4.0}, "provenance": "user"})), "SUPPORT_DIRECTION_SKEW_UNSUPPORTED"),
-            (create("Support", "support:S-2", "create_support", "supports", json!({"id": "support:S-2", "label": "Axis stop", "node": "node:N-2",
-                "family": "line_stop", "restraints": ["UY"], "direction": {"x": 0.0, "y": 1.0, "z": 0.0}, "provenance": "user"})), "OP-CREATE-SUPPORT-PAYLOAD-INVALID"),
         ] {
             assert_eq!(outcome.validation.application_status, "blocked", "{code}");
             assert!(outcome.applied_model.is_none(), "{code}");
@@ -16124,6 +16127,15 @@ mod tests {
         // The same create without the member applies.
         let outcome = combination(json!({}));
         assert!(outcome.applied_model.is_some(), "{:?}", codes(&outcome));
+        // R-6/R-7 S-K1 (DEL-04-03 Work `skew-restraints.md` §11): a skewed and an exactly
+        // axis-aligned direction are authored on the pressure-free route, as entered.
+        for direction in [json!({"x": 0.0, "y": 3.0, "z": 4.0}), json!({"x": 0.0, "y": 1.0, "z": 0.0})] {
+            let outcome = create("Support", "support:S-2", "create_support", "supports", json!({"id": "support:S-2", "label": "Stop", "node": "node:N-2",
+                "family": "line_stop", "restraints": ["UY"], "direction": direction, "provenance": "user"}));
+            let applied = outcome.applied_model.as_ref().unwrap_or_else(|| panic!("{:?}", codes(&outcome)));
+            let written = applied["supports"].as_array().unwrap().iter().find(|s| s["id"] == "support:S-2").unwrap();
+            assert_eq!(written["direction"], direction);
+        }
         // The RT-A4 wiring (absolute-sum-srss §2): the unsigned bases and combination
         // operands are authored.
         for (extra, stored) in [
