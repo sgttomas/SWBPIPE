@@ -574,6 +574,9 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
         {" "}{CENTER_OF_GRAVITY_CONVENTION} Solver consumption is mechanics_geometry_only or not_solver_consumed; blank means undeclared.
         A stiffness scale is optional and requires its source reference.
       </p> : null}
+      <p className="run-sheet-note" data-testid="run-sheet-condition-set-note">
+        Condition set: an existing set id{(model.condition_sets ?? []).length ? ` (${(model.condition_sets ?? []).map((set) => set.id).join(", ")})` : "; this model has none yet"}. Blank inherits like Material, and - means none; the sheet creates and suggests no set.
+      </p>
       <div className="run-sheet-scroll" role="region" aria-label="Run sheet rows">
         <table ref={tableRef} aria-label="Run sheet" data-testid="run-sheet-table">
           <thead>

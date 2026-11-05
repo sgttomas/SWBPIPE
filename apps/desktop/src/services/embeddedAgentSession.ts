@@ -85,7 +85,7 @@ function deleteText(family:Exclude<RecordFamily,'components'>,record:Record<stri
  if(family==='supports')return supportDeletionSummary(record as unknown as PreviewModel['supports'][number]);
  if(family==='pipe_segments')return [record.from,record.to,record.material].some(blankText)?'':pipeDeletionSummary(record as unknown as PreviewModel['pipe_segments'][number]);
  const position=plain(record.position)?record.position:{};
- return (['x','y','z'] as const).every(axis=>typeof position[axis]==='number'&&Number.isFinite(position[axis]))?nodeDeletionSummary(record as unknown as PreviewModel['nodes'][number]):'';
+ return (['x','y','z'] as const).every(axis=>typeof position[axis]==='number'&&Number.isFinite(position[axis]))?(nodeDeletionSummary(record as unknown as PreviewModel['nodes'][number])??''):''; // no text without the engine's number display
 }
 /** Bend markers the person has not realized (no curved macro-element yet). */
 export function unrealizedBends(model:PreviewModel):string[]{
