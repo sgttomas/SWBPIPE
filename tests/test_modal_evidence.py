@@ -231,6 +231,31 @@ def test_a_flagged_value_is_nonzero_and_unbounded_below():
     assert product.as_point() is None and not product.meets(me.Values.point(0.0)) and product.meets(flagged)
 
 
+def test_point_sums_follow_the_rust_readers_left_to_right_order():
+    """Python's float `sum` is compensated (3.12+); the Rust reader (`modal_result`) adds
+    left to right. On a payload at the allowance boundary the readers must agree: m = 1 − tol
+    against the terms (1, u, u) is accepted sequentially (Σ = 1, Σ|·| = 1) and would be
+    refused with the compensated Σ = 1 + 2u."""
+    u = 2.0 ** -53
+    terms = [1.0, u, u]
+    assert me._sequential_sum(terms) == 1.0
+    tolerance = me.ALLOW * float(len(terms) + 4) * me.U * 1.0
+    published = 1.0 - tolerance
+    me._generalized_mass_check([], 1, None, me.Values.point(published), [me.Values.point(x) for x in terms], len(terms))
+    # Just beyond the boundary, both orders refuse.
+    with pytest.raises(me.Failure):
+        me._generalized_mass_check([], 1, None, me.Values.point(published - 2.0 * u), [me.Values.point(x) for x in terms], len(terms))
+
+
+def test_the_reader_has_no_compensated_float_sum():
+    """Every float total in verdict arithmetic uses `_sequential_sum`; a built-in `sum` is
+    allowed only with an explicit start value (the exact `Fraction` total)."""
+    tree = ast.parse((ROOT / "tests/verifiers/modal_evidence.py").read_text(encoding="utf-8"))
+    bare = [node.lineno for node in ast.walk(tree)
+            if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == "sum" and len(node.args) < 2]
+    assert bare == []
+
+
 EDGES = json.loads((RESULTS / "modal_producer_edges.json").read_text(encoding="utf-8"))
 
 
