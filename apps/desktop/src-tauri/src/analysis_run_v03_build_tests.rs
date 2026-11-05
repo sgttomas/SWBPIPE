@@ -117,7 +117,7 @@ fn source_text(source: &Value) -> String {
     }
 }
 
-fn no_lease(_: u64) -> Result<Option<Lease>, CommandError<String>> {
+fn no_lease(_: u64) -> Result<Option<CommandLease>, CommandError<String>> {
     Ok(None)
 }
 
@@ -160,7 +160,7 @@ fn call<T>(registry: &SolveJobRegistry, run: impl FnOnce(SolveJobRegistry, Vec<u
 fn preview_header(registry: &SolveJobRegistry, args: &Value) -> Result<Value, CommandError<String>> {
     call(registry, super::run, args).map(|bytes| serde_json::from_slice(&bytes).expect("the header is JSON"))
 }
-fn preview_bytes(registry: &SolveJobRegistry, args: &Value, max: u64) -> Result<(Vec<u8>, Lease), CommandError<String>> {
+fn preview_bytes(registry: &SolveJobRegistry, args: &Value, max: u64) -> Result<(Vec<u8>, CommandLease), CommandError<String>> {
     call(registry, |r, raw, lease| run_record_bytes_within(r, raw, lease, max), args)
 }
 
@@ -596,7 +596,8 @@ fn the_parse_is_admitted_before_it_allocates() {
     let result_lease = registry.pool().reserved_total();
     let (bound, _) = ingress::prescan_allowances(text.as_bytes()).unwrap();
     host.set(|s| s.headroom_bytes = Some(result_lease + bound.materialization_bytes / 2));
-    let (refused, measured) = ingress::counting::measure(|| parse_source(&registry, &text));
+    let memory = NativeLeaseMemory::unseeded(&registry);
+    let (refused, measured) = ingress::counting::measure(|| parse_source(&memory, &text));
     assert!(matches!(refusal(refused.unwrap_err()), ResourceRefusal::HeadroomInsufficient { .. }));
     assert!(measured.peak_priced < bound.materialization_bytes / 8, "{measured:?}");
     host.set(|s| s.headroom_bytes = Some(64 << 30));

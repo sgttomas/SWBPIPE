@@ -404,7 +404,7 @@ fn reopened(registry: &SolveJobRegistry, gate: &crate::solve_worker::test_suppor
     reopened_case(registry, gate, path, persistence_cases().into_iter().next().unwrap())
 }
 
-fn reopened_case(registry: &SolveJobRegistry, gate: &crate::solve_worker::test_support::Gate, path: &Path, case: Case) -> (Case, Value) {
+pub(crate) fn reopened_case(registry: &SolveJobRegistry, gate: &crate::solve_worker::test_support::Gate, path: &Path, case: Case) -> (Case, Value) {
     let job = held(registry, gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
     native_save(registry, path, &case.save_args(&job, "create", Value::Null, Value::Null), &unlimited()).unwrap();
     registry.dispose_all_results();
@@ -413,7 +413,7 @@ fn reopened_case(registry: &SolveJobRegistry, gate: &crate::solve_worker::test_s
     (case, opened)
 }
 
-fn in_place(opened: &Value) -> Value {
+pub(crate) fn in_place(opened: &Value) -> Value {
     resave_args(opened, &opened_fields(opened), "save", opened["project_envelope_hash"]["value"].clone(), Value::Null)
 }
 

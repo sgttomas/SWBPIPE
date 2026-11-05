@@ -77,6 +77,7 @@
 
 use serde::Serialize;
 use std::collections::BTreeMap;
+use std::sync::atomic::{AtomicU64, Ordering as AtomicOrdering};
 use std::sync::{Arc, Condvar, Mutex, MutexGuard, PoisonError};
 use std::time::{Duration, Instant};
 
@@ -478,17 +479,19 @@ impl MemoryPool {
         purpose: LeasePurpose,
         cancelled: &dyn Fn() -> bool,
     ) -> Result<Lease, ResampleStop> {
-        self.acquire_resampling_checked(bytes, purpose, cancelled, &|_| None)
+        self.acquire_resampling_checked(bytes, purpose, cancelled, &|_| None, None)
     }
 
     /// [`Self::acquire_resampling`] with `check`, a standing refusal tested
-    /// under the lock before each attempt's verdict.
+    /// under the lock before each attempt's verdict. `admitted_budget_bytes`
+    /// is the budget the lease keeps; `None` takes the current one.
     fn acquire_resampling_checked(
         self: &Arc<Self>,
         bytes: u64,
         purpose: LeasePurpose,
         cancelled: &dyn Fn() -> bool,
         check: &dyn Fn(&PoolState) -> Option<ResourceRefusal>,
+        admitted_budget_bytes: Option<u64>,
     ) -> Result<Lease, ResampleStop> {
         debug_assert_ne!(purpose, LeasePurpose::Worker, "worker grants wait in the queue instead");
         let deadline = Instant::now().checked_add(self.resample_window);
@@ -500,7 +503,7 @@ impl MemoryPool {
             }
             let refusal = match self.verdict_locked(&mut state, bytes, purpose) {
                 Ok(()) => {
-                    let budget = state.invocation_budget_bytes;
+                    let budget = admitted_budget_bytes.unwrap_or(state.invocation_budget_bytes);
                     return Ok(self.record_locked(&mut state, bytes, purpose, budget));
                 }
                 Err(refusal) => refusal,
@@ -539,7 +542,19 @@ impl MemoryPool {
             // Before a capacity is known no budget applies; the verdict refuses it.
             (state.capacity_bytes.is_some() && bytes > cap)
                 .then_some(ResourceRefusal::IngressExceedsBudget { required_bytes: bytes, budget_bytes: cap })
-        })
+        }, None)
+    }
+
+    /// [`Self::acquire_result_parse`] under a C1 command's captured cap
+    /// ([`CommandLedger`]): the same adaptive verdict, re-sampling and
+    /// standing refusal, with `cap` (fixed when the command's argument lease
+    /// was admitted) in place of the budget read at each attempt. The lease
+    /// keeps `cap` as the budget its growth is bounded by.
+    fn acquire_result_parse_under(self: &Arc<Self>, bytes: u64, cap: u64, cancelled: &dyn Fn() -> bool) -> Result<Lease, ResampleStop> {
+        self.acquire_resampling_checked(bytes, LeasePurpose::Ingress, cancelled, &|state| {
+            (state.capacity_bytes.is_some() && bytes > cap)
+                .then_some(ResourceRefusal::IngressExceedsBudget { required_bytes: bytes, budget_bytes: cap })
+        }, Some(cap))
     }
 
     fn acquire_locked(self: &Arc<Self>, state: &mut PoolState, bytes: u64, purpose: LeasePurpose) -> Result<Lease, ResourceRefusal> {
@@ -575,6 +590,8 @@ impl MemoryPool {
     /// `admitted_budget_bytes` is the budget the lease's invocation was
     /// admitted under: the current budget, or a queued job's own snapshot.
     fn record_locked(self: &Arc<Self>, state: &mut PoolState, bytes: u64, purpose: LeasePurpose, admitted_budget_bytes: u64) -> Lease {
+        #[cfg(test)]
+        ledger_probe::pool_admitted(bytes);
         state.reserved[purpose as usize] += bytes;
         let worker_id = (purpose == LeasePurpose::Worker).then(|| {
             let id = state.next_worker_id;
@@ -605,6 +622,12 @@ impl MemoryPool {
         self.acquire_interactive_under(bytes, |budget| budget.min(DEFAULT_INVOCATION_BUDGET_BYTES))
     }
 
+    /// [`Self::acquire_interactive_capped`] under a C1 command's captured cap
+    /// ([`CommandLedger`]) in place of the budget read now.
+    fn acquire_interactive_fixed(self: &Arc<Self>, bytes: u64, cap: u64) -> Result<Lease, ResourceRefusal> {
+        self.acquire_interactive_under(bytes, |_| cap)
+    }
+
     /// An interactive lease bounded by `cap(budget)`, which the lease keeps
     /// as the budget it was admitted under.
     fn acquire_interactive_under(self: &Arc<Self>, bytes: u64, cap: impl Fn(u64) -> u64) -> Result<Lease, ResourceRefusal> {
@@ -626,6 +649,8 @@ impl MemoryPool {
             return Err(refusal);
         }
         state.reserved[LeasePurpose::Ingress as usize] += bytes;
+        #[cfg(test)]
+        ledger_probe::pool_admitted(bytes);
         Ok(Lease {
             pool: Arc::clone(self),
             bytes,
@@ -951,6 +976,8 @@ impl Lease {
     }
 
     fn record_growth_locked(&mut self, state: &mut PoolState, new_bytes: u64) {
+        #[cfg(test)]
+        ledger_probe::pool_admitted(new_bytes - self.bytes);
         state.reserved[self.purpose as usize] += new_bytes - self.bytes;
         if let Some(entry) = self.worker_id.and_then(|id| state.workers.get_mut(&id)) {
             entry.bytes = new_bytes;
@@ -1019,6 +1046,304 @@ impl Lease {
 impl Drop for Lease {
     fn drop(&mut self) {
         self.pool.release(self.purpose, self.bytes, self.worker_id.map(|id| (id, None)));
+    }
+}
+
+// ---------------------------------------------------------------------------
+// A C1 native command's ledger (one running total per command)
+// ---------------------------------------------------------------------------
+
+/// One C1 native command's running total against its per-invocation budget
+/// (DEL-14-01 `desktop-states-runs-comparison.md` §3, repair r4: the budget
+/// bounds the command's live leases together, starting from its argument
+/// lease; DEL-04-05 `c1-native-custody-plan.md` slice 5; no new budget or
+/// rule). Record Run, Save or Create Project, a restored run's re-save, the
+/// native reopen of a project or a recorded run and the analysis-run
+/// preview each keep one (`stored_read::NativeLeaseMemory`).
+///
+/// - **Budget identity.** Fixed when the ledger is seeded: min(the budget
+///   the argument lease was atomically admitted under, 12 GiB). A budget
+///   changed while the command runs applies to later commands; every lease
+///   of this command is admitted, and grows, under this cap
+///   ([`MemoryPool::acquire_result_parse_under`],
+///   [`MemoryPool::acquire_interactive_fixed`]), with the unchanged class,
+///   pressure, fresh headroom, aggregate pool, residency credit and
+///   re-sampling, so real headroom and pool changes can still refuse.
+/// - **One total, exactly.** The argument lease is seeded once
+///   ([`Self::seed`]); every later lease and growth reserves its delta here
+///   first, atomically (a compare-and-swap that never lets the total pass
+///   the budget, so racing admissions of one command cannot oversubscribe
+///   it), as a provisional [`Charge`] that counts until the pool admits it
+///   or is undone when the admission fails or unwinds. Growth, shrinking and
+///   release are checked arithmetic: nothing wraps or saturates.
+/// - **Ownership.** A [`CommandLease`] releases its pool bytes and then its
+///   charge when it drops, on whatever thread. Only the leases backing a
+///   restored handle leave the total, and only when the registry
+///   establishes the handle's custody ([`CommandLease::into_custody`]).
+#[derive(Debug)]
+pub(crate) struct CommandLedger {
+    pool: Arc<MemoryPool>,
+    budget_bytes: u64,
+    /// Committed and provisional charges together.
+    total: AtomicU64,
+}
+
+/// An admission refused because the command's total with it would exceed the
+/// ledger's budget. `required_bytes` is that total (`u64::MAX` when it does
+/// not fit in 64 bits, which no budget admits).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) struct OverBudget {
+    pub(crate) required_bytes: u64,
+    pub(crate) budget_bytes: u64,
+}
+
+/// Why a command's lease or growth was not admitted.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) enum CommandRefusal {
+    /// The command's total would exceed its budget; refused before the pool was asked.
+    OverBudget(OverBudget),
+    /// The pool's own refusal (the delta was undone).
+    Pool(ResourceRefusal),
+}
+
+impl CommandRefusal {
+    /// The pool's typed form: over the budget is `ingress_exceeds_budget`
+    /// with the command's total as the bytes required.
+    pub(crate) fn into_resource(self) -> ResourceRefusal {
+        match self {
+            CommandRefusal::OverBudget(OverBudget { required_bytes, budget_bytes }) => ResourceRefusal::IngressExceedsBudget { required_bytes, budget_bytes },
+            CommandRefusal::Pool(refusal) => refusal,
+        }
+    }
+}
+
+/// Bytes counted in a ledger, removed exactly once when dropped. Provisional
+/// from [`CommandLedger::charge`] until its pool admission commits it.
+#[derive(Debug)]
+struct Charge {
+    ledger: Arc<CommandLedger>,
+    bytes: u64,
+}
+
+impl Charge {
+    /// Takes over `other`'s bytes (a committed growth); nothing is counted twice.
+    fn absorb(&mut self, mut other: Charge) {
+        assert!(Arc::ptr_eq(&self.ledger, &other.ledger), "a charge absorbs only a charge of its own ledger");
+        self.bytes = self.bytes.checked_add(other.bytes).expect("a charge stays within its ledger's total");
+        other.bytes = 0;
+    }
+
+    /// Removes `bytes` of this charge from the ledger.
+    fn release(&mut self, bytes: u64) {
+        self.bytes = self.bytes.checked_sub(bytes).expect("a charge releases only what it holds");
+        self.ledger.remove(bytes);
+    }
+}
+
+impl Drop for Charge {
+    fn drop(&mut self) {
+        self.ledger.remove(self.bytes);
+    }
+}
+
+impl CommandLedger {
+    /// The ledger of a command admitted with `argument_lease` (an interactive
+    /// ingress lease of `pool`): its budget is min(the budget that lease was
+    /// admitted under, 12 GiB) and its total starts at the lease's bytes. The
+    /// lease is wrapped, so its drop removes the charge; it is seeded once.
+    pub(crate) fn seed(argument_lease: Lease) -> CommandLease {
+        debug_assert!(argument_lease.purpose == LeasePurpose::Ingress, "a command's ledger starts from its argument lease");
+        let ledger = Arc::new(Self {
+            pool: Arc::clone(&argument_lease.pool),
+            budget_bytes: argument_lease.admitted_budget_bytes.min(DEFAULT_INVOCATION_BUDGET_BYTES),
+            total: AtomicU64::new(argument_lease.bytes),
+        });
+        let charge = Charge { ledger, bytes: argument_lease.bytes };
+        CommandLease { lease: argument_lease, charge }
+    }
+
+    /// A ledger with nothing seeded, its budget min(the current budget, 12
+    /// GiB) (tests that call a command's inner part directly).
+    #[cfg(test)]
+    pub(crate) fn unseeded(pool: &Arc<MemoryPool>) -> Arc<Self> {
+        Arc::new(Self { pool: Arc::clone(pool), budget_bytes: pool.settings().1.min(DEFAULT_INVOCATION_BUDGET_BYTES), total: AtomicU64::new(0) })
+    }
+
+    /// The command's captured budget.
+    #[cfg_attr(not(test), allow(dead_code))]
+    pub(crate) fn budget_bytes(&self) -> u64 {
+        self.budget_bytes
+    }
+
+    /// The command's total now: its live leases and pending admissions.
+    #[cfg_attr(not(test), allow(dead_code))]
+    pub(crate) fn total_bytes(&self) -> u64 {
+        self.total.load(AtomicOrdering::Acquire)
+    }
+
+    /// Reserves `bytes` more in one atomic step, or refuses with the total
+    /// they would make. The returned charge is provisional: dropping it undoes it.
+    fn charge(self: &Arc<Self>, bytes: u64) -> Result<Charge, OverBudget> {
+        let budget = self.budget_bytes;
+        match self.total.fetch_update(AtomicOrdering::AcqRel, AtomicOrdering::Acquire, |total| total.checked_add(bytes).filter(|sum| *sum <= budget)) {
+            Ok(_) => Ok(Charge { ledger: Arc::clone(self), bytes }),
+            Err(total) => Err(OverBudget { required_bytes: total.checked_add(bytes).unwrap_or(u64::MAX), budget_bytes: budget }),
+        }
+    }
+
+    /// Removes `bytes` this ledger counted. An underflow is a defect in the
+    /// accounting: it panics (unless already unwinding), never saturates.
+    fn remove(&self, bytes: u64) {
+        if bytes == 0 {
+            return;
+        }
+        let removed = self.total.fetch_update(AtomicOrdering::AcqRel, AtomicOrdering::Acquire, |total| total.checked_sub(bytes));
+        if removed.is_err() && !std::thread::panicking() {
+            panic!("a command ledger removes only bytes it counted");
+        }
+    }
+
+    /// A lease of `bytes` for this command: the delta is reserved here first
+    /// (refused over the budget before the pool is asked), then the pool
+    /// admits it in `class` under the captured cap. A pool refusal undoes
+    /// only the delta; the command's other leases are untouched.
+    pub(crate) fn acquire(self: &Arc<Self>, bytes: u64, class: AdmissionClass) -> Result<CommandLease, CommandRefusal> {
+        let charge = self.charge(bytes).map_err(CommandRefusal::OverBudget)?;
+        #[cfg(test)]
+        ledger_probe::pending(self, bytes);
+        let lease = match class {
+            AdmissionClass::Adaptive => self.pool.acquire_result_parse_under(bytes, self.budget_bytes, &|| false).map_err(|stop| match stop {
+                ResampleStop::Refused(refusal) => refusal,
+                ResampleStop::Cancelled => unreachable!("a command's lease is never cancelled"),
+            }),
+            AdmissionClass::Interactive => self.pool.acquire_interactive_fixed(bytes, self.budget_bytes),
+        }
+        .map_err(CommandRefusal::Pool)?;
+        Ok(CommandLease { lease, charge })
+    }
+}
+
+/// A C1 command's pool lease counted in its [`CommandLedger`]. Dropping it
+/// releases the pool bytes, then the charge. Not `Clone`.
+#[derive(Debug)]
+pub(crate) struct CommandLease {
+    // Field order: the pool is released before the ledger, so the ledger
+    // never counts less than the command holds.
+    lease: Lease,
+    charge: Charge,
+}
+
+/// The ledger charge of a lease handed to native custody
+/// ([`CommandLease::into_custody`]): it stays counted until the registry
+/// drops it, when the handle the lease backs is established, or until the
+/// bytes and their lease are dropped unregistered.
+#[derive(Debug)]
+pub(crate) struct CustodyCharge(#[allow(dead_code)] Charge);
+
+impl CommandLease {
+    pub(crate) fn bytes(&self) -> u64 {
+        self.lease.bytes
+    }
+
+    /// The ledger this lease is counted in.
+    #[cfg_attr(not(test), allow(dead_code))]
+    pub(crate) fn ledger(&self) -> &Arc<CommandLedger> {
+        &self.charge.ledger
+    }
+
+    /// Grows to `new_bytes` (or shrinks): the delta is reserved in the ledger
+    /// first, then the pool admits it under the lease's own budget verdict.
+    /// A refusal leaves this lease and the total as they were.
+    pub(crate) fn grow_to(&mut self, new_bytes: u64) -> Result<(), CommandRefusal> {
+        if new_bytes <= self.lease.bytes {
+            self.shrink_to(new_bytes);
+            return Ok(());
+        }
+        let pending = self.charge.ledger.charge(new_bytes - self.lease.bytes).map_err(CommandRefusal::OverBudget)?;
+        #[cfg(test)]
+        ledger_probe::pending(&self.charge.ledger, new_bytes - self.lease.bytes);
+        self.lease.grow_to(new_bytes).map_err(CommandRefusal::Pool)?;
+        self.charge.absorb(pending);
+        Ok(())
+    }
+
+    /// Releases down to `new_bytes`, from the pool and the ledger.
+    pub(crate) fn shrink_to(&mut self, new_bytes: u64) {
+        if new_bytes >= self.lease.bytes {
+            return;
+        }
+        let delta = self.lease.bytes - new_bytes;
+        self.lease.shrink_to(new_bytes);
+        self.charge.release(delta);
+    }
+
+    /// The ownership handoff of a lease that backs bytes a restored handle
+    /// will hold: the pool lease, live throughout, and its charge, which the
+    /// registry drops when it establishes the handle's custody. Nothing is
+    /// released or admitted again here.
+    pub(crate) fn into_custody(self) -> (Lease, CustodyCharge) {
+        let CommandLease { lease, charge } = self;
+        (lease, CustodyCharge(charge))
+    }
+}
+
+/// What a command's ledger holds while an admission is pending (tests): a
+/// hook called after the delta is reserved and before the pool is asked.
+#[cfg(test)]
+pub(crate) mod ledger_probe {
+    use super::CommandLedger;
+    use std::cell::RefCell;
+
+    /// Called with the ledger and the pending delta (already counted).
+    type Hook = Box<dyn FnMut(&std::sync::Arc<CommandLedger>, u64)>;
+
+    thread_local! {
+        static HOOK: RefCell<Option<Hook>> = RefCell::new(None);
+    }
+
+    pub(crate) fn set(hook: impl FnMut(&std::sync::Arc<CommandLedger>, u64) + 'static) {
+        HOOK.with(|slot| *slot.borrow_mut() = Some(Box::new(hook)));
+    }
+
+    pub(crate) fn clear() {
+        HOOK.with(|slot| *slot.borrow_mut() = None);
+        POOL.with(|slot| *slot.borrow_mut() = None);
+    }
+
+    type PoolHook = Box<dyn FnMut(u64)>;
+
+    thread_local! {
+        static POOL: RefCell<Option<PoolHook>> = RefCell::new(None);
+    }
+
+    /// Every pool admission and growth made on this thread, by its bytes
+    /// (called under the pool lock: the hook takes no pool lock).
+    pub(crate) fn set_pool(hook: impl FnMut(u64) + 'static) {
+        POOL.with(|slot| *slot.borrow_mut() = Some(Box::new(hook)));
+    }
+
+    pub(crate) fn pool_admitted(bytes: u64) {
+        POOL.with(|slot| {
+            if let Ok(mut slot) = slot.try_borrow_mut() {
+                if let Some(hook) = slot.as_mut() {
+                    hook(bytes);
+                }
+            }
+        });
+    }
+
+    pub(crate) fn pending(ledger: &std::sync::Arc<CommandLedger>, bytes: u64) {
+        // Taken out while it runs, so a hook may admit again without recursing.
+        let hook = HOOK.with(|slot| slot.borrow_mut().take());
+        if let Some(mut hook) = hook {
+            hook(ledger, bytes);
+            HOOK.with(|slot| {
+                let mut slot = slot.borrow_mut();
+                if slot.is_none() {
+                    *slot = Some(hook);
+                }
+            });
+        }
     }
 }
 
@@ -2367,5 +2692,280 @@ mod tests {
             drop(lease);
         }
         assert_eq!(pool.reserved_total(), 0);
+    }
+}
+
+/// The C1 command ledger ([`CommandLedger`]): budget identity, one exact
+/// total, provisional deltas, refusals that leave old leases intact, racing
+/// admissions of one ledger, drops on other threads, the custody handoff and
+/// unwinding.
+#[cfg(test)]
+mod ledger_tests {
+    use super::test_host::{ScriptedHost, GIB};
+    use super::*;
+    use std::sync::Barrier;
+
+    const MIB: u64 = 1 << 20;
+
+    fn pool(host: &Arc<ScriptedHost>) -> Arc<MemoryPool> {
+        MemoryPool::with_wait_tick(host.clone(), Duration::from_millis(1))
+    }
+
+    /// A command admitted with an argument lease of `bytes` under the current budget.
+    fn command(pool: &Arc<MemoryPool>, bytes: u64) -> CommandLease {
+        CommandLedger::seed(pool.acquire_interactive_capped(bytes).unwrap())
+    }
+
+    #[test]
+    fn the_argument_lease_is_seeded_once_and_its_drop_removes_its_charge() {
+        let host = ScriptedHost::normal();
+        let pool = pool(&host);
+        let seed = command(&pool, 3 * MIB);
+        let ledger = Arc::clone(seed.ledger());
+        assert_eq!(ledger.total_bytes(), 3 * MIB, "the argument lease starts the total");
+        let parse = ledger.acquire(5 * MIB, AdmissionClass::Adaptive).unwrap();
+        assert_eq!((ledger.total_bytes(), pool.reserved_total()), (8 * MIB, 8 * MIB));
+        drop(seed);
+        assert_eq!((ledger.total_bytes(), pool.reserved_total()), (5 * MIB, 5 * MIB), "the argument lease's drop removes exactly its charge");
+        drop(parse);
+        assert_eq!((ledger.total_bytes(), pool.reserved_total()), (0, 0));
+    }
+
+    /// The budget is the argument lease's admitted one, capped at 12 GiB, and
+    /// a later budget change applies to later commands only.
+    #[test]
+    fn the_budget_is_captured_from_the_argument_leases_admission() {
+        let host = ScriptedHost::with(Some(64 * GIB), Some(1 << 50), PressureLevel::Normal);
+        let pool = pool(&host);
+        pool.configure(48 * GIB, 20 * GIB, false).unwrap();
+        assert_eq!(command(&pool, MIB).ledger().budget_bytes(), DEFAULT_INVOCATION_BUDGET_BYTES, "never above 12 GiB");
+        pool.configure(48 * GIB, 64 * MIB, false).unwrap();
+        let seed = command(&pool, MIB);
+        let ledger = Arc::clone(seed.ledger());
+        assert_eq!(ledger.budget_bytes(), 64 * MIB);
+        // Lowered mid-command: this command keeps its 64 MiB.
+        pool.configure(48 * GIB, 8 * MIB, false).unwrap();
+        let mut parse = ledger.acquire(32 * MIB, AdmissionClass::Adaptive).expect("the captured budget, not the lowered one");
+        parse.grow_to(40 * MIB).expect("growth bounded by the captured budget");
+        let interactive = ledger.acquire(16 * MIB, AdmissionClass::Interactive).expect("interactive under the captured cap");
+        assert_eq!(ledger.total_bytes(), 57 * MIB);
+        drop(interactive);
+        // Raised mid-command: this command is not extended.
+        pool.configure(48 * GIB, 40 * GIB, false).unwrap();
+        assert_eq!(
+            ledger.acquire(24 * MIB, AdmissionClass::Adaptive).unwrap_err(),
+            CommandRefusal::OverBudget(OverBudget { required_bytes: 65 * MIB, budget_bytes: 64 * MIB })
+        );
+        assert_eq!(command(&pool, MIB).ledger().budget_bytes(), DEFAULT_INVOCATION_BUDGET_BYTES, "a later command takes the new budget, capped");
+        drop((parse, seed));
+        assert_eq!((ledger.total_bytes(), pool.reserved_total()), (0, 0));
+    }
+
+    /// The crossing admission is refused by its total before the pool is
+    /// asked; the boundary itself is admitted.
+    #[test]
+    fn the_total_is_refused_above_the_budget_before_the_pool_is_asked() {
+        let host = ScriptedHost::normal();
+        let pool = pool(&host);
+        pool.configure(12 * GIB, 10 * MIB, false).unwrap();
+        let seed = command(&pool, 2 * MIB);
+        let ledger = Arc::clone(seed.ledger());
+        let a = ledger.acquire(5 * MIB, AdmissionClass::Adaptive).unwrap();
+        pool.record_refusal(&ResourceRefusal::CapacityUnknown);
+        let reserved = pool.reserved_total();
+        assert_eq!(
+            ledger.acquire(3 * MIB + 1, AdmissionClass::Adaptive).unwrap_err(),
+            CommandRefusal::OverBudget(OverBudget { required_bytes: 10 * MIB + 1, budget_bytes: 10 * MIB })
+        );
+        assert_eq!(pool.reserved_total(), reserved, "the pool was not asked");
+        assert_eq!(pool.status(JobCounts::default()).last_refusal, Some(ResourceRefusal::CapacityUnknown), "the pool recorded nothing");
+        assert_eq!(ledger.total_bytes(), 7 * MIB, "the refused delta is not counted");
+        let b = ledger.acquire(3 * MIB, AdmissionClass::Adaptive).expect("exactly at the budget");
+        assert_eq!(ledger.total_bytes(), 10 * MIB);
+        // u64 overflow is a refusal, never a wrap.
+        assert_eq!(
+            ledger.acquire(u64::MAX, AdmissionClass::Adaptive).unwrap_err(),
+            CommandRefusal::OverBudget(OverBudget { required_bytes: u64::MAX, budget_bytes: 10 * MIB })
+        );
+        assert_eq!(
+            CommandRefusal::OverBudget(OverBudget { required_bytes: 11, budget_bytes: 10 }).into_resource(),
+            ResourceRefusal::IngressExceedsBudget { required_bytes: 11, budget_bytes: 10 }
+        );
+        drop((a, b, seed));
+        assert_eq!((ledger.total_bytes(), pool.reserved_total()), (0, 0));
+    }
+
+    /// A pool refusal of an admission or a growth undoes only its delta: the
+    /// old leases and the total are as they were, nothing leaks.
+    #[test]
+    fn a_refused_pool_admission_or_growth_undoes_only_its_delta() {
+        let host = ScriptedHost::normal();
+        let pool = pool(&host);
+        let seed = command(&pool, MIB);
+        let ledger = Arc::clone(seed.ledger());
+        let mut parse = ledger.acquire(4 * MIB, AdmissionClass::Adaptive).unwrap();
+        host.set(|s| s.pressure = PressureLevel::Warning);
+        assert_eq!(
+            ledger.acquire(2 * MIB, AdmissionClass::Adaptive).unwrap_err(),
+            CommandRefusal::Pool(ResourceRefusal::PressureElevated { level: PressureLevel::Warning })
+        );
+        assert_eq!(
+            parse.grow_to(6 * MIB).unwrap_err(),
+            CommandRefusal::Pool(ResourceRefusal::PressureElevated { level: PressureLevel::Warning })
+        );
+        assert_eq!((parse.bytes(), ledger.total_bytes(), pool.reserved_total()), (4 * MIB, 5 * MIB, 5 * MIB), "old leases intact");
+        host.set(|s| s.pressure = PressureLevel::Normal);
+        host.set(|s| s.headroom_bytes = Some(5 * MIB));
+        assert!(matches!(ledger.acquire(2 * MIB, AdmissionClass::Interactive), Err(CommandRefusal::Pool(ResourceRefusal::HeadroomInsufficient { .. }))));
+        let mut args = seed;
+        assert!(matches!(args.grow_to(3 * MIB), Err(CommandRefusal::Pool(ResourceRefusal::HeadroomInsufficient { .. }))));
+        assert_eq!((args.bytes(), parse.bytes(), ledger.total_bytes(), pool.reserved_total()), (MIB, 4 * MIB, 5 * MIB, 5 * MIB));
+        host.set(|s| s.headroom_bytes = Some(64 * GIB));
+        parse.grow_to(6 * MIB).unwrap();
+        parse.shrink_to(MIB);
+        parse.grow_to(MIB).unwrap();
+        assert_eq!((ledger.total_bytes(), pool.reserved_total()), (2 * MIB, 2 * MIB), "growth and shrinking are exact");
+        drop((args, parse));
+        assert_eq!((ledger.total_bytes(), pool.reserved_total()), (0, 0));
+    }
+
+    /// A pending admission counts until it is committed or undone: while the
+    /// pool is asked, the ledger already holds it.
+    #[test]
+    fn a_pending_admission_counts_until_committed_or_undone() {
+        let host = ScriptedHost::normal();
+        let pool = pool(&host);
+        pool.configure(12 * GIB, 10 * MIB, false).unwrap();
+        let seed = command(&pool, 2 * MIB);
+        let ledger = Arc::clone(seed.ledger());
+        let seen = Arc::new(Mutex::new(Vec::new()));
+        {
+            let (seen, host) = (seen.clone(), host.clone());
+            ledger_probe::set(move |ledger, bytes| {
+                // Inside the pending admission of 6 MiB: 2 MiB more fit, 3 MiB do not.
+                let inner = ledger.acquire(3 * MIB, AdmissionClass::Adaptive).map(drop);
+                let fits = ledger.acquire(2 * MIB, AdmissionClass::Adaptive).map(drop);
+                seen.lock().unwrap().push((ledger.total_bytes(), bytes, inner, fits.is_ok()));
+                host.set(|s| s.pressure = PressureLevel::Critical);
+            });
+        }
+        let refused = ledger.acquire(6 * MIB, AdmissionClass::Adaptive);
+        ledger_probe::clear();
+        let seen = seen.lock().unwrap().clone();
+        assert_eq!(seen.len(), 1);
+        let (total, bytes, inner, fits) = seen[0].clone();
+        assert_eq!((total, bytes), (8 * MIB, 6 * MIB), "the pending 6 MiB is counted while the pool is asked");
+        assert_eq!(inner, Err(CommandRefusal::OverBudget(OverBudget { required_bytes: 11 * MIB, budget_bytes: 10 * MIB })));
+        assert!(fits);
+        assert!(matches!(refused, Err(CommandRefusal::Pool(ResourceRefusal::PressureElevated { .. }))));
+        assert_eq!((ledger.total_bytes(), pool.reserved_total()), (2 * MIB, 2 * MIB), "the refused pending delta is undone");
+        drop(seed);
+        assert_eq!((ledger.total_bytes(), pool.reserved_total()), (0, 0));
+    }
+
+    /// Racing admissions and growths of ONE ledger never take it above its
+    /// budget, and every admitted byte is in the pool and the total.
+    #[test]
+    fn racing_admissions_within_one_ledger_never_oversubscribe_it() {
+        let host = ScriptedHost::with(Some(64 * GIB), Some(1 << 50), PressureLevel::Normal);
+        let pool = pool(&host);
+        pool.configure(48 * GIB, 100 * MIB, false).unwrap();
+        for round in 0..20 {
+            let seed = command(&pool, 4 * MIB);
+            let ledger = Arc::clone(seed.ledger());
+            let threads = 24;
+            let barrier = Arc::new(Barrier::new(threads));
+            let handles: Vec<_> = (0..threads)
+                .map(|index| {
+                    let (ledger, barrier) = (ledger.clone(), barrier.clone());
+                    std::thread::spawn(move || {
+                        barrier.wait();
+                        let mut lease = ledger.acquire(7 * MIB, if index % 2 == 0 { AdmissionClass::Adaptive } else { AdmissionClass::Interactive }).ok()?;
+                        assert!(ledger.total_bytes() <= ledger.budget_bytes());
+                        if index % 3 == 0 {
+                            let _ = lease.grow_to(9 * MIB);
+                        }
+                        assert!(ledger.total_bytes() <= ledger.budget_bytes());
+                        Some(lease)
+                    })
+                })
+                .collect();
+            let leases: Vec<CommandLease> = handles.into_iter().filter_map(|handle| handle.join().unwrap()).collect();
+            let held: u64 = leases.iter().map(CommandLease::bytes).sum::<u64>() + seed.bytes();
+            assert!(held <= 100 * MIB, "round {round}: {held} admitted above the budget");
+            // A refusal means the total was above 93 MiB: at least eleven 7 MiB
+            // leases (with at most eight 2 MiB growths) were admitted.
+            assert!(leases.len() >= 11, "round {round}: {} admitted", leases.len());
+            assert_eq!((ledger.total_bytes(), pool.reserved_total()), (held, held), "round {round}");
+            drop((leases, seed));
+            assert_eq!((ledger.total_bytes(), pool.reserved_total()), (0, 0));
+        }
+    }
+
+    /// A lease dropped on another thread (Tauri's delivery) releases its pool
+    /// bytes and its charge there, exactly once.
+    #[test]
+    fn a_lease_dropped_on_another_thread_releases_its_charge() {
+        let host = ScriptedHost::normal();
+        let pool = pool(&host);
+        let seed = command(&pool, MIB);
+        let ledger = Arc::clone(seed.ledger());
+        let reply = ledger.acquire(3 * MIB, AdmissionClass::Adaptive).unwrap();
+        std::thread::spawn(move || drop(reply)).join().unwrap();
+        assert_eq!((ledger.total_bytes(), pool.reserved_total()), (MIB, MIB));
+        std::thread::spawn(move || drop(seed)).join().unwrap();
+        assert_eq!((ledger.total_bytes(), pool.reserved_total()), (0, 0));
+    }
+
+    /// The custody handoff: the pool lease stays live and unchanged; the
+    /// charge leaves the total only when it is dropped (the registry drops it
+    /// when it establishes the handle).
+    #[test]
+    fn the_custody_handoff_keeps_the_pool_bytes_and_moves_the_charge_once() {
+        let host = ScriptedHost::normal();
+        let pool = pool(&host);
+        let seed = command(&pool, MIB);
+        let ledger = Arc::clone(seed.ledger());
+        let held = ledger.acquire(6 * MIB, AdmissionClass::Adaptive).unwrap();
+        let (mut lease, charge) = held.into_custody();
+        assert_eq!((ledger.total_bytes(), pool.reserved_total()), (7 * MIB, 7 * MIB), "handed over, not yet established");
+        lease.set_purpose(LeasePurpose::Result);
+        drop(charge);
+        assert_eq!((ledger.total_bytes(), pool.reserved_total()), (MIB, 7 * MIB), "established: out of the total, still in the pool");
+        assert_eq!(pool.reserved(LeasePurpose::Result), 6 * MIB);
+        drop(seed);
+        assert_eq!((ledger.total_bytes(), pool.reserved_total()), (0, 6 * MIB), "the command's total reaches zero; custody bytes remain");
+        drop(lease);
+        assert_eq!(pool.reserved_total(), 0);
+    }
+
+    /// Unwinding releases every lease and charge, pending ones included.
+    #[test]
+    fn unwinding_releases_every_lease_and_charge() {
+        let host = ScriptedHost::normal();
+        let pool = pool(&host);
+        let seed = command(&pool, MIB);
+        let ledger = Arc::clone(seed.ledger());
+        let unwound = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            let _a = ledger.acquire(2 * MIB, AdmissionClass::Adaptive).unwrap();
+            let (_b, _custody) = ledger.acquire(3 * MIB, AdmissionClass::Adaptive).unwrap().into_custody();
+            ledger_probe::set(|_, _| panic!("unwinding inside a pending admission"));
+            let _c = ledger.acquire(4 * MIB, AdmissionClass::Adaptive);
+        }));
+        ledger_probe::clear();
+        assert!(unwound.is_err());
+        assert_eq!((ledger.total_bytes(), pool.reserved_total()), (MIB, MIB));
+        drop(seed);
+        assert_eq!((ledger.total_bytes(), pool.reserved_total()), (0, 0));
+    }
+
+    /// An underflow is a defect: it panics, never saturates.
+    #[test]
+    #[should_panic(expected = "a command ledger removes only bytes it counted")]
+    fn an_underflow_panics_rather_than_saturating() {
+        let host = ScriptedHost::normal();
+        let pool = pool(&host);
+        let seed = command(&pool, MIB);
+        seed.ledger().remove(MIB + 1);
     }
 }

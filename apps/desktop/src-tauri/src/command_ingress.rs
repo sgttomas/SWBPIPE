@@ -189,14 +189,15 @@ pub(crate) fn admit_body(
 /// [`admit_body`] on a raw args body already taken from its request: the
 /// prescan, then the lease of [`lease_bytes`] from `reserve`, before any
 /// deserialization, then the parse. A caller that holds the body's own
-/// reservation grows it here (`native_verdict`).
-pub(crate) fn admit_raw(
+/// reservation grows it here (`native_verdict`); a C1 command grows its
+/// ledger-counted lease (`memory_pool::CommandLease`).
+pub(crate) fn admit_raw<L>(
     registry: &SolveJobRegistry,
     raw: &[u8],
     command: &'static str,
     decoding: ArgsDecoding,
-    reserve: impl FnOnce(u64) -> Result<Lease, SolveJobError>,
-) -> Result<(Args, Lease), SolveJobError> {
+    reserve: impl FnOnce(u64) -> Result<L, SolveJobError>,
+) -> Result<(Args, L), SolveJobError> {
     let bound = ingress::prescan(raw).map_err(|invalid| {
         registry.refuse(ResourceRefusal::IngressInvalid { reason: format!("{} at byte {}", invalid.reason, invalid.offset) })
     })?;

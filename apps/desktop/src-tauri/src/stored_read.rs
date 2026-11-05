@@ -41,7 +41,7 @@
 
 use crate::command_ingress::CommandError;
 use crate::ingress::{allocation_envelope, prescan};
-use crate::memory_pool::Lease;
+use crate::memory_pool::{AdmissionClass, CommandLease, CommandLedger, CommandRefusal, Lease, OverBudget};
 use crate::solve_jobs::{SolveJobError, SolveJobRegistry};
 use open_pipe_stress_canonical_json::{canonical_json, canonical_json_checked_v1_text, canonical_number};
 use open_pipe_stress_operation_applier::sha256_hex;
@@ -51,6 +51,7 @@ use sha2::{Digest, Sha256};
 use serde_json::Value;
 use std::cell::Cell;
 use std::rc::Rc;
+use std::sync::Arc;
 use tauri::ipc::Response;
 
 /// The refusal of a read the memory pool does not admit.
@@ -65,6 +66,8 @@ pub(crate) const READ_OVERHEAD_BYTES: u64 = 512 * 1024;
 pub(crate) struct ReadReservation {
     /// Held for their release on drop.
     _leases: Vec<Lease>,
+    /// A C1 command's lease, counted in its ledger ([`NativeLeaseMemory`]).
+    _charged: Option<CommandLease>,
     bytes: u64,
     /// The read's running total of held bytes (per-invocation budget), when metered.
     held: Option<Rc<Cell<u64>>>,
@@ -269,7 +272,7 @@ impl ReadMemory for PoolReadMemory<'_> {
                 release_probe::sqlite_event(self.held.get());
                 self.held.set(required);
                 self.peak.set(self.peak.get().max(required));
-                Ok(ReadReservation { _leases: vec![lease], bytes, held: Some(Rc::clone(&self.held)) })
+                Ok(ReadReservation { _leases: vec![lease], _charged: None, bytes, held: Some(Rc::clone(&self.held)) })
             }
             Err(SolveJobError::ResourceUnavailable { refusal, .. }) => Err(format!(
                 "{STORE_READ_MEMORY_UNAVAILABLE}: reading {what} needs {bytes} bytes of the memory pool, which refused them ({}); nothing more was read.",
@@ -280,39 +283,98 @@ impl ReadMemory for PoolReadMemory<'_> {
     }
 }
 
-/// The memory of a C1 native persistence command (DEL-04-05
-/// `c1-native-custody-plan.md` slice 5): each reservation is its own adaptive
-/// lease of the pool (`acquire_result_parse`: re-sampled only while refused
-/// for headroom, and refused above the per-invocation budget or the 12 GiB
-/// default, whichever is lower), as every C1 reader's lease is. The command's
-/// other leases (its arguments, the held result's parse and output) are pool
-/// leases too, so the pool's admission counts them all together.
+/// The memory of a C1 native command (DEL-04-05 `c1-native-custody-plan.md`
+/// slice 5; DEL-14-01 Design §3, repair r4): Record Run, Save or Create
+/// Project, a restored run's re-save, the native reopens and the
+/// analysis-run preview. One [`CommandLedger`] per command, started from its
+/// argument lease ([`Self::seeded`]), keeps the command's live leases
+/// together within its per-invocation budget (min(the budget the argument
+/// lease was admitted under, 12 GiB)): every lease and growth of the command
+/// reserves its delta in the ledger before the pool admits it, and is
+/// refused by name above the budget before what it covers is allocated
+/// ([`STORE_READ_MEMORY_UNAVAILABLE`] for a named reservation, the pool's
+/// typed `ingress_exceeds_budget` with the command's total for a typed one).
+/// The pool's admission is otherwise unchanged: a store reservation and a
+/// parse or working lease are adaptive leases (re-sampled only while refused
+/// for headroom), the intake's parse interactive, as before. A lease the
+/// command did not admit (the held result H of a solve, a restored handle's
+/// texts) is not counted here; it stays counted in the pool.
 pub(crate) struct NativeLeaseMemory<'a> {
     registry: &'a SolveJobRegistry,
+    ledger: Arc<CommandLedger>,
 }
 
 impl<'a> NativeLeaseMemory<'a> {
-    pub(crate) fn new(registry: &'a SolveJobRegistry) -> Self {
-        Self { registry }
+    /// The memory of a command admitted with `argument_lease`, which is
+    /// seeded into the command's ledger once and returned counted in it.
+    pub(crate) fn seeded(registry: &'a SolveJobRegistry, argument_lease: Lease) -> (Self, CommandLease) {
+        let lease = CommandLedger::seed(argument_lease);
+        (Self { registry, ledger: Arc::clone(lease.ledger()) }, lease)
+    }
+
+    /// A command's memory with no argument lease (tests calling a command's
+    /// inner part directly).
+    #[cfg(test)]
+    pub(crate) fn unseeded(registry: &'a SolveJobRegistry) -> Self {
+        Self { registry, ledger: CommandLedger::unseeded(registry.pool()) }
+    }
+
+    pub(crate) fn registry(&self) -> &'a SolveJobRegistry {
+        self.registry
+    }
+
+    /// The pool's typed refusal of a command's lease (recorded as the pool's
+    /// last refusal): over the budget, `ingress_exceeds_budget` with the
+    /// command's total.
+    pub(crate) fn typed(&self, refusal: CommandRefusal) -> SolveJobError {
+        self.registry.refuse(refusal.into_resource())
+    }
+
+    /// An adaptive lease of `bytes` (a parse, working, scratch or reply
+    /// lease), refused typed.
+    pub(crate) fn lease(&self, bytes: u64) -> Result<CommandLease, SolveJobError> {
+        self.ledger.acquire(bytes, AdmissionClass::Adaptive).map_err(|refusal| self.typed(refusal))
+    }
+
+    /// An interactive lease of `bytes` (an argument's parse), refused typed.
+    pub(crate) fn interactive_lease(&self, bytes: u64) -> Result<CommandLease, SolveJobError> {
+        self.ledger.acquire(bytes, AdmissionClass::Interactive).map_err(|refusal| self.typed(refusal))
+    }
+
+    /// Grows `lease` (one of this command's) to `new_bytes`, refused typed.
+    pub(crate) fn grow(&self, lease: &mut CommandLease, new_bytes: u64) -> Result<(), SolveJobError> {
+        lease.grow_to(new_bytes).map_err(|refusal| self.typed(refusal))
+    }
+
+    /// An adaptive lease of `bytes` for `what`, refused by name; `after` ends
+    /// the refusal (what the command has not done).
+    pub(crate) fn named_lease(&self, what: &str, bytes: u64, after: &str) -> Result<CommandLease, String> {
+        #[cfg(test)]
+        native_lease_log::push(what, bytes);
+        self.ledger.acquire(bytes, AdmissionClass::Adaptive).map_err(|refusal| {
+            let refused = refusal.clone().into_resource();
+            self.registry.refuse(refused.clone());
+            match refusal {
+                CommandRefusal::OverBudget(OverBudget { required_bytes, budget_bytes }) => format!(
+                    "{STORE_READ_MEMORY_UNAVAILABLE}: {what} needs {required_bytes} bytes in all, above the per-invocation budget of {budget_bytes} bytes; {after}"
+                ),
+                CommandRefusal::Pool(_) => format!(
+                    "{STORE_READ_MEMORY_UNAVAILABLE}: {what} needs {bytes} bytes of the memory pool, which refused them ({}); {after}",
+                    serde_json::to_string(&refused).unwrap_or_else(|_| "refused".to_string())
+                ),
+            }
+        })
     }
 }
 
 impl ReadMemory for NativeLeaseMemory<'_> {
     fn reserve(&self, what: &str, bytes: u64) -> Result<ReadReservation, String> {
-        #[cfg(test)]
-        native_lease_log::push(what, bytes);
-        match self.registry.acquire_result_parse(bytes) {
-            Ok(lease) => Ok(ReadReservation { _leases: vec![lease], bytes, held: None }),
-            Err(SolveJobError::ResourceUnavailable { refusal, .. }) => Err(format!(
-                "{STORE_READ_MEMORY_UNAVAILABLE}: {what} needs {bytes} bytes of the memory pool, which refused them ({}); nothing more was read or written.",
-                serde_json::to_string(&refusal).unwrap_or_else(|_| "refused".to_string())
-            )),
-            Err(SolveJobError::InvalidRequest { message }) => Err(format!("{STORE_READ_MEMORY_UNAVAILABLE}: {what}: {message}")),
-        }
+        let lease = self.named_lease(what, bytes, "nothing more was read or written.")?;
+        Ok(ReadReservation { _leases: Vec::new(), _charged: Some(lease), bytes, held: None })
     }
 }
 
-/// What each [`NativeLeaseMemory`] reservation was for, in this thread (tests).
+/// What each named [`NativeLeaseMemory`] reservation was for, in this thread (tests).
 #[cfg(test)]
 pub(crate) mod native_lease_log {
     use std::cell::RefCell;
@@ -326,6 +388,13 @@ pub(crate) mod native_lease_log {
     pub(crate) fn take() -> Vec<(String, u64)> {
         LOG.with(|log| std::mem::take(&mut *log.borrow_mut()))
     }
+    /// How many reservations are logged, and the last one.
+    pub(crate) fn last() -> (usize, Option<(String, u64)>) {
+        LOG.with(|log| {
+            let log = log.borrow();
+            (log.len(), log.last().cloned())
+        })
+    }
 }
 
 /// No pool: for a store path whose memory a caller has already priced (a write
@@ -334,7 +403,7 @@ pub(crate) struct UnmeteredReadMemory;
 
 impl ReadMemory for UnmeteredReadMemory {
     fn reserve(&self, _what: &str, bytes: u64) -> Result<ReadReservation, String> {
-        Ok(ReadReservation { _leases: Vec::new(), bytes, held: None })
+        Ok(ReadReservation { _leases: Vec::new(), _charged: None, bytes, held: None })
     }
 }
 
@@ -803,9 +872,13 @@ impl<T> Metered<T> {
     }
 
     /// C1 slice 6 (`stored_custody`): the value moved out for native custody,
-    /// its reservations kept in the returned guard. The caller has leased what
+    /// its reservations kept in the returned guard, still counted in the
+    /// command's total (`NativeLeaseMemory`) until the guard drops: no
+    /// reservation is released or exempted here. The caller has leased what
     /// it keeps beyond the guard (the held bytes, admitted before they were
-    /// loaded) and drops the guard only when the rest of the read is done.
+    /// loaded, whose leases leave the command's total only when the registry
+    /// establishes the handle) and drops the guard only when the rest of the
+    /// read is done.
     pub(crate) fn into_custody(self) -> (T, Metered<()>) {
         (self.value, Metered { value: (), held: self.held })
     }
@@ -813,7 +886,7 @@ impl<T> Metered<T> {
     /// The value of an unmetered read ([`UnmeteredReadMemory`]); a value that
     /// holds a lease is refused rather than outliving it.
     pub(crate) fn into_unreserved(self) -> Result<T, String> {
-        if self.held.iter().any(|reservation| !reservation._leases.is_empty()) {
+        if self.held.iter().any(|reservation| !reservation._leases.is_empty() || reservation._charged.is_some()) {
             return Err("STORE-READ-RESERVATION-HELD: a metered value leaves its reservations only when it is serialized.".to_string());
         }
         Ok(self.value)

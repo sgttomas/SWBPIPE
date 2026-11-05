@@ -56,7 +56,7 @@ pub(crate) fn build<'a>(
     source: &'a Value,
     route: Route,
     inputs: &BuildInputs<'a>,
-    reserve: &mut dyn FnMut(u64) -> Result<Option<Lease>, CommandError<String>>,
+    reserve: &mut dyn FnMut(u64) -> Result<Option<CommandLease>, CommandError<String>>,
 ) -> Result<Built<'a>, CommandError<String>> {
     let refuse = |text: String| CommandError::Command(text);
     let manifest = inputs.manifest;
@@ -198,7 +198,7 @@ pub(crate) fn build<'a>(
 /// built: the checks such a record can fail, in its order (the appended
 /// diagnostics' codes and identities, the mechanics status, the producer,
 /// duplicate row ids); the rest hold by construction.
-fn validate_built(built: &Built<'_>, source: &Value, inputs: &BuildInputs<'_>, reserve: &mut dyn FnMut(u64) -> Result<Option<Lease>, CommandError<String>>) -> Result<(), CommandError<String>> {
+fn validate_built(built: &Built<'_>, source: &Value, inputs: &BuildInputs<'_>, reserve: &mut dyn FnMut(u64) -> Result<Option<CommandLease>, CommandError<String>>) -> Result<(), CommandError<String>> {
     let refuse = |text: &str| CommandError::Command(text.to_string());
     let mut seen = std::collections::HashSet::new();
     for exclusion in inputs.rule_pack_exclusions {
@@ -561,7 +561,7 @@ pub(crate) fn preview_parsed<'a>(
     aggregate: Option<&'a Value>,
     exclusions: &'a [Exclusion],
     load_basis: &'a mut Value,
-    reserve: &mut dyn FnMut(u64) -> Result<Option<Lease>, CommandError<String>>,
+    reserve: &mut dyn FnMut(u64) -> Result<Option<CommandLease>, CommandError<String>>,
 ) -> Result<Built<'a>, CommandError<String>> {
     let refuse = CommandError::Command;
     let status = get(Some(&*source), "status", "result").map_err(refuse)?;

@@ -449,6 +449,12 @@ pub(crate) struct HeldResult {
     detail: Mutex<Option<Arc<crate::result_detail::DetailIndex>>>,
     recorded_table: Option<crate::analysis_run_v03_validate::RecordedTable>,
     evidence: Option<ReaderEvidence>,
+    /// Restored bytes loaded under a C1 command's lease
+    /// ([`Self::restored_in_custody`]): the lease's charge in that command's
+    /// ledger, dropped when [`SolveJobRegistry::restore_with_basis`]
+    /// establishes the handle (after `lease`, so the pool is released first
+    /// if the bytes are dropped unregistered). `None` once held.
+    command_charge: Option<crate::memory_pool::CustodyCharge>,
 }
 
 /// RT-U4: what a held solve publication's own native readers established
@@ -490,13 +496,32 @@ impl HeldResult {
     /// bytes by the last holder.
     pub(crate) fn restored(text: String, mut lease: Lease) -> Self {
         lease.set_purpose(LeasePurpose::Result);
-        Self { text, lease, detail: Mutex::new(None), recorded_table: None, evidence: None }
+        Self { text, lease, detail: Mutex::new(None), recorded_table: None, evidence: None, command_charge: None }
+    }
+
+    /// [`Self::restored`] for bytes loaded under a C1 command's lease
+    /// (`stored_custody`): the lease is handed over whole, live throughout
+    /// (never released and admitted again), and its charge in the command's
+    /// ledger stays until the registry establishes the handle's custody
+    /// ([`SolveJobRegistry::restore_with_basis`]) or the bytes are dropped
+    /// unregistered.
+    pub(crate) fn restored_in_custody(text: String, lease: crate::memory_pool::CommandLease) -> Self {
+        let (lease, charge) = lease.into_custody();
+        let mut held = Self::restored(text, lease);
+        held.command_charge = Some(charge);
+        held
+    }
+
+    /// The handoff's end: the bytes are held under the handle, so they leave
+    /// the command's total (their pool lease is unchanged).
+    fn establish_custody(&mut self) {
+        self.command_charge = None;
     }
 
     /// A solve's published bytes under their result lease, with an empty
     /// evidence slot ([`ReaderEvidence`]).
     fn published(text: String, lease: Lease) -> Self {
-        Self { text, lease, detail: Mutex::new(None), recorded_table: None, evidence: Some(ReaderEvidence::default()) }
+        Self { text, lease, detail: Mutex::new(None), recorded_table: None, evidence: Some(ReaderEvidence::default()), command_charge: None }
     }
 
     /// RT-U4: notes `reader`'s outcome `outcome` on these bytes (the native
@@ -1640,6 +1665,14 @@ impl SolveJobRegistry {
         let number = table.next_job_number;
         let job_id = format!("{RESTORED_HANDLE_PREFIX}{number}");
         let result_bytes = result.text.len() as u64;
+        // C1: the handle's custody is established here, under the registry
+        // lock that inserts it: the leases backing its bytes leave the
+        // command's total (their pool leases stay as they are).
+        let (mut result, mut record) = (result, record);
+        result.establish_custody();
+        if let Some(record) = record.as_mut() {
+            record.establish_custody();
+        }
         table.records.insert(
             job_id.clone(),
             SolveJobRecord {

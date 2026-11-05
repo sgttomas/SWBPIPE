@@ -1534,7 +1534,7 @@ fn native_record_with(registry: &SolveJobRegistry, path: &Path, args: &Value, ho
 
 /// Every table a Record Run can write, and whether the store's run
 /// immutability trigger is in place.
-fn store_snapshot(path: &Path) -> (Vec<Rows>, bool) {
+pub(crate) fn store_snapshot(path: &Path) -> (Vec<Rows>, bool) {
     let tables = RUN_TABLES.iter().chain(["local_projects"].iter()).map(|table| dump(path, table, &[])).collect();
     let trigger = Connection::open(path).unwrap().query_row("SELECT count(*) FROM sqlite_master WHERE type = 'trigger' AND name = 'analysis_runs_immutable'", [], |row| row.get::<_, i64>(0)).unwrap() == 1;
     (tables, trigger)

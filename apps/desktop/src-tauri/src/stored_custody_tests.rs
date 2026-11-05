@@ -931,7 +931,7 @@ fn matching_diagnostics_are_capped_before_the_header_is_allocated() {
     let (registry, _gate) = gated(&host);
     let diagnostic = json!({"source_annotation":{"source":RULE_PACK_REF_DIAGNOSTIC_SOURCE}, "message":"x".repeat(1024)});
     let record = json!({"analysis_run":{"diagnostics":vec![diagnostic; 5000]}});
-    let ((header, omitted, held), measured) = crate::ingress::counting::measure(|| record_header(&registry, &record).unwrap());
+    let ((header, omitted, held), measured) = crate::ingress::counting::measure(|| record_header(&crate::stored_read::NativeLeaseMemory::unseeded(&registry), &record).unwrap());
     assert!(header.is_null());
     assert!(omitted.unwrap() > RECORD_HEADER_LIMIT_BYTES);
     assert!(held.is_none());
@@ -944,18 +944,18 @@ fn the_header_cap_includes_wrapper_and_escaped_key_bytes() {
     let host = ScriptedHost::normal();
     let (registry, _gate) = gated(&host);
     let mut record = json!({"\"\\\n": ""});
-    let (header, omitted, held) = record_header(&registry, &record).unwrap();
+    let (header, omitted, held) = record_header(&crate::stored_read::NativeLeaseMemory::unseeded(&registry), &record).unwrap();
     assert!(omitted.is_none());
     let overhead = serde_json::to_vec(&header).unwrap().len();
     drop((header, held));
     record["\"\\\n"] = json!("x".repeat(RECORD_HEADER_LIMIT_BYTES as usize - overhead));
-    let (header, omitted, held) = record_header(&registry, &record).unwrap();
+    let (header, omitted, held) = record_header(&crate::stored_read::NativeLeaseMemory::unseeded(&registry), &record).unwrap();
     assert!(omitted.is_none());
     assert_eq!(serde_json::to_vec(&header).unwrap().len() as u64, RECORD_HEADER_LIMIT_BYTES);
     drop((header, held));
     let text = format!("{}x", record["\"\\\n"].as_str().unwrap());
     record["\"\\\n"] = json!(text);
-    let (header, omitted, held) = record_header(&registry, &record).unwrap();
+    let (header, omitted, held) = record_header(&crate::stored_read::NativeLeaseMemory::unseeded(&registry), &record).unwrap();
     assert!(header.is_null() && held.is_none());
     assert_eq!(omitted, Some(RECORD_HEADER_LIMIT_BYTES + 1));
     assert_eq!(registry.pool().reserved_total(), 0);
@@ -1008,7 +1008,7 @@ fn column_text(path: &Path, sql: &str) -> String {
     Connection::open(path).unwrap().query_row(sql, [], |row| row.get(0)).unwrap()
 }
 
-fn file_digest(path: &Path) -> String {
+pub(crate) fn file_digest(path: &Path) -> String {
     hex(&sha256_in_place(&std::fs::read(path).unwrap()))
 }
 
@@ -1180,7 +1180,7 @@ fn a_native_record_run_reopens_into_native_custody_after_a_reset() {
 }
 
 /// The first persistence case with at least one row, saved and recorded natively on one store.
-fn stored_case(registry: &SolveJobRegistry, gate: &crate::solve_worker::test_support::Gate, path: &Path) -> (Case, String) {
+pub(crate) fn stored_case(registry: &SolveJobRegistry, gate: &crate::solve_worker::test_support::Gate, path: &Path) -> (Case, String) {
     let case = persistence_cases().into_iter().next().unwrap();
     let job = held(registry, gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
     let saved = native_save(registry, path, &case.save_args(&job, "create", Value::Null, Value::Null), &unlimited()).unwrap();
@@ -1201,18 +1201,18 @@ fn both_reopen_headers_hold_their_leases_until_reply_serialization_ends() {
     let (case, recording_id) = stored_case(&registry, &gate, &path);
     let project_id = case.project_id();
     let epoch = registry.reset_epoch();
-    let opened = open_project_in_store(&registry, path.clone(), Some(project_id), epoch).unwrap().unwrap();
+    let opened = open_project_in_store(&crate::stored_read::NativeLeaseMemory::unseeded(&registry), path.clone(), Some(project_id), epoch).unwrap().unwrap();
     registry.dispose_all_results();
     assert!(registry.pool().reserved_total() > 0, "project header outlived its lease");
-    let (text, response_lease) = reply(&registry, &opened).unwrap();
+    let (text, response_lease) = reply(&crate::stored_read::NativeLeaseMemory::unseeded(&registry), &opened).unwrap();
     drop((text, response_lease));
     assert!(registry.pool().reserved_total() > 0);
     drop(opened);
     assert_eq!(registry.pool().reserved_total(), 0);
-    let read = read_run_in_store(&registry, path.clone(), project_id, &recording_id, registry.reset_epoch()).unwrap();
+    let read = read_run_in_store(&crate::stored_read::NativeLeaseMemory::unseeded(&registry), path.clone(), project_id, &recording_id, registry.reset_epoch()).unwrap();
     registry.dispose_all_results();
     assert!(registry.pool().reserved_total() > 0, "recorded header outlived its lease");
-    let (text, response_lease) = reply(&registry, &read).unwrap();
+    let (text, response_lease) = reply(&crate::stored_read::NativeLeaseMemory::unseeded(&registry), &read).unwrap();
     drop((text, response_lease));
     assert!(registry.pool().reserved_total() > 0);
     drop(read);
@@ -1295,7 +1295,7 @@ fn resets_retention_and_corruption_are_refused_with_nothing_held() {
     // A reset after the command began.
     let epoch = registry.reset_epoch();
     registry.dispose_all_results();
-    let opened = open_project_in_store(&registry, path.clone(), Some(&project_id), epoch).unwrap().unwrap();
+    let opened = open_project_in_store(&crate::stored_read::NativeLeaseMemory::unseeded(&registry), path.clone(), Some(&project_id), epoch).unwrap().unwrap();
     let opened = serde_json::to_value(&opened).unwrap();
     assert_eq!(opened["stored_run"]["state"], "refused");
     assert!(opened["stored_run"]["message"].as_str().unwrap().contains("RESTORED-RESULT-SESSION-RESET"), "{}", opened["stored_run"]);

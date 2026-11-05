@@ -39,8 +39,12 @@
 //!   with the model opened for editing and the stored run untouched. A
 //!   recorded run keeps every integrity refusal of `read_analysis_run`.
 //! - **Memory** (plan §8; no new budget or rule). Every lease is admitted
-//!   before what it covers is allocated, each capped at min(per-invocation
-//!   budget, 12 GiB) (`acquire_result_parse`):
+//!   before what it covers is allocated, in one running total per command
+//!   (`stored_read::NativeLeaseMemory`) started from the argument lease and
+//!   kept within min(the per-invocation budget that lease was admitted
+//!   under, 12 GiB); each delta is reserved there before the pool admits it
+//!   (adaptive, as `acquire_result_parse`), and a reservation above it is
+//!   refused by name before its allocation:
 //!   - the stored lengths are measured (`octet_length`, no value loaded)
 //!     first; the held result's and record's leases (their texts' envelopes)
 //!     and SQLite's copies of both are admitted before either is loaded;
@@ -59,8 +63,14 @@
 //!
 //!   The held leases become result leases and live with the bytes in the
 //!   registry until disposal or session reset (exactly once, or when the
-//!   last native reader drops its share). A restoration begun before a
-//!   session reset is refused at registration and drops what it loaded.
+//!   last native reader drops its share). They are handed over whole, never
+//!   released and admitted again, and leave the command's total only when
+//!   the registry establishes the handle (`HeldResult::restored_in_custody`);
+//!   every other lease of the command stays counted until it drops. A handle
+//!   registered and then not carried by the reply (its lease or
+//!   serialization refused, a panic) is disposed ([`Unpublished`]). A
+//!   restoration begun before a session reset is refused at registration and
+//!   drops what it loaded.
 //!   Unpriced, for slice 7: SQLite's page cache, journal and FTS state, the
 //!   project's small columns (loaded as `open_local_project` loads them), the
 //!   validator's working memory (one row's values at a time, the duplicate-id
@@ -70,7 +80,7 @@ use crate::analysis_run_v03_validate::{self as validate, HistoricalFindings, Rec
 use crate::analysis_runs::{self, NativeRunLoad};
 use crate::command_ingress::{self, ArgsDecoding, CommandError};
 use crate::ingress;
-use crate::memory_pool::Lease;
+use crate::memory_pool::{CommandLease, Lease};
 use crate::solve_jobs::{sha256_in_place, EnvelopeBasis, HeldResult, RestoredBasis, RestoredSource, SolveJobError, SolveJobRegistry};
 use crate::stored_read::{self, NativeLeaseMemory};
 use rusqlite::{params, OptionalExtension};
@@ -106,34 +116,25 @@ fn envelope(bytes: u64) -> u64 {
     ingress::allocation_envelope(bytes).unwrap_or(u64::MAX)
 }
 
-/// The pool's refusal of a lease for `what`, as the native reads name it.
-fn pool_refusal(what: &str, bytes: u64, error: SolveJobError) -> String {
-    match error {
-        SolveJobError::ResourceUnavailable { refusal, .. } => format!(
-            "{}: {what} needs {bytes} bytes of the memory pool, which refused them ({}); nothing more was read.",
-            stored_read::STORE_READ_MEMORY_UNAVAILABLE,
-            serde_json::to_string(&refusal).unwrap_or_else(|_| "refused".to_string())
-        ),
-        SolveJobError::InvalidRequest { message } => format!("{}: {what}: {message}", stored_read::STORE_READ_MEMORY_UNAVAILABLE),
-    }
-}
-
-/// A lease of `bytes` for `what`, admitted before what it covers is allocated.
-fn lease(registry: &SolveJobRegistry, what: &str, bytes: u64) -> Result<Lease, String> {
-    registry.acquire_result_parse(bytes).map_err(|error| pool_refusal(what, bytes, error))
+/// A lease of `bytes` for `what` in the command's ledger, admitted before
+/// what it covers is allocated; refused by name (above the command's budget,
+/// or by the pool) with nothing more read.
+fn lease(memory: &NativeLeaseMemory<'_>, what: &str, bytes: u64) -> Result<CommandLease, String> {
+    memory.named_lease(what, bytes, "nothing more was read.")
 }
 
 /// A stored text parsed under its materialization's lease, admitted first.
 /// `Err(Ok(message))`: the text is not JSON (serde_json's message, as the
-/// stores report it); `Err(Err(refusal))`: the pool refused the parse.
-pub(crate) fn parse_leased(registry: &SolveJobRegistry, what: &str, text: &str) -> Result<(Value, Lease), Result<String, String>> {
+/// stores report it); `Err(Err(refusal))`: the pool or the command's budget
+/// refused the parse.
+pub(crate) fn parse_leased(memory: &NativeLeaseMemory<'_>, what: &str, text: &str) -> Result<(Value, CommandLease), Result<String, String>> {
     let bound = match ingress::prescan(text.as_bytes()) {
         Ok(bound) => bound,
         // The prescan refuses without allocating; serde_json's message comes
         // from a parse that builds no tree.
         Err(_) => return Err(Ok(serde_json::from_str::<serde::de::IgnoredAny>(text).err().map_or_else(|| "invalid JSON".to_string(), |error| error.to_string()))),
     };
-    let reading = lease(registry, &format!("parsing {what}"), bound.materialization_bytes).map_err(Err)?;
+    let reading = lease(memory, &format!("parsing {what}"), bound.materialization_bytes).map_err(Err)?;
     match serde_json::from_str::<Value>(text) {
         Ok(value) => Ok((value, reading)),
         Err(error) => Err(Ok(error.to_string())),
@@ -184,7 +185,7 @@ struct Header<'a> {
 /// The entire projected header is measured before allocation. Above the cap,
 /// omit it; otherwise lease both its temporary text and its parsed Value before
 /// allocating either. The Value's lease travels with the reply until serialized.
-fn record_header(registry: &SolveJobRegistry, record: &Value) -> Result<(Value, Option<u64>, Option<Lease>), String> {
+fn record_header(memory: &NativeLeaseMemory<'_>, record: &Value) -> Result<(Value, Option<u64>, Option<CommandLease>), String> {
     let run = record.get("analysis_run").and_then(Value::as_object);
     let items = |key: &str| run.and_then(|run| run.get(key)).and_then(Value::as_array);
     let header = Header {
@@ -208,8 +209,8 @@ fn record_header(registry: &SolveJobRegistry, record: &Value) -> Result<(Value, 
     if counter.0 > RECORD_HEADER_LIMIT_BYTES {
         return Ok((Value::Null, Some(counter.0), None));
     }
-    let (text, _text_lease) = reply(registry, &header)?;
-    let (value, held) = parse_leased(registry, "the restored record header", &text)
+    let (text, _text_lease) = reply(memory, &header)?;
+    let (value, held) = parse_leased(memory, "the restored record header", &text)
         .map_err(|error| match error { Ok(message) | Err(message) => message })?;
     Ok((value, None, Some(held)))
 }
@@ -239,7 +240,56 @@ pub(crate) struct RestoredRun {
     pub(crate) record_header: Value,
     pub(crate) record_header_bytes: Option<u64>,
     #[serde(skip)]
-    _header_lease: Option<Lease>,
+    _header_lease: Option<CommandLease>,
+    /// The handle until the reply naming it is serialized ([`Unpublished`]).
+    #[serde(skip)]
+    unpublished: Unpublished,
+}
+
+/// A restored handle this command registered and its reply has not yet
+/// carried: dropped unpublished (the reply's lease or serialization refused,
+/// a panic or unwinding after registration), it disposes the handle, so no
+/// handle is left that no webview knows. A reset in between already
+/// disposed it; the disposal is then a no-op.
+pub(crate) struct Unpublished {
+    registry: SolveJobRegistry,
+    handle: Option<String>,
+}
+
+impl Unpublished {
+    fn new(registry: &SolveJobRegistry, handle: &str) -> Self {
+        Self { registry: registry.clone(), handle: Some(handle.to_string()) }
+    }
+}
+
+impl std::fmt::Debug for Unpublished {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Unpublished").field("handle", &self.handle).finish()
+    }
+}
+
+impl Drop for Unpublished {
+    fn drop(&mut self) {
+        if let Some(handle) = self.handle.take() {
+            // Unknown (a reset pruned it) or already released: nothing to do.
+            let _ = self.registry.dispose_result(&handle);
+        }
+    }
+}
+
+impl RestoredRun {
+    /// The reply carrying the handle exists: the handle stays held.
+    pub(crate) fn published(&mut self) {
+        self.unpublished.handle = None;
+    }
+}
+
+impl NativeProjectEnvelope {
+    pub(crate) fn published(&mut self) {
+        if let StoredRun::Restored(run) = &mut self.stored_run {
+            run.published();
+        }
+    }
 }
 
 /// The project's stored run, as the open found it.
@@ -300,13 +350,14 @@ fn project_row(row: &rusqlite::Row<'_>) -> rusqlite::Result<ProjectRow> {
 struct Loaded {
     result: String,
     record: String,
-    result_lease: Lease,
-    record_lease: Lease,
+    result_lease: CommandLease,
+    record_lease: CommandLease,
 }
 
 /// The blocking part of the project open (module docs). `epoch` is the
 /// session's reset epoch when the command began.
-pub(crate) fn open_project_in_store(registry: &SolveJobRegistry, path: PathBuf, project_id: Option<&str>, epoch: u64) -> Result<Option<NativeProjectEnvelope>, String> {
+pub(crate) fn open_project_in_store(memory: &NativeLeaseMemory<'_>, path: PathBuf, project_id: Option<&str>, epoch: u64) -> Result<Option<NativeProjectEnvelope>, String> {
+    let registry = memory.registry();
     let (mut connection, migration) = crate::open_project_store(&path)?;
     let transaction = stored_read::read_transaction(&mut connection)?;
     let row = match project_id {
@@ -330,9 +381,9 @@ pub(crate) fn open_project_in_store(registry: &SolveJobRegistry, path: PathBuf, 
     let loaded: Result<Option<Loaded>, String> = if run_stored {
         (|| {
             let what = format!("project `{}`'s stored run", stored_read::shown(&id));
-            let result_lease = lease(registry, &format!("{what}'s result ({} bytes)", lengths.0), envelope(lengths.0))?;
-            let record_lease = lease(registry, &format!("{what}'s record ({} bytes)", lengths.1), envelope(lengths.1))?;
-            let sqlite = lease(registry, &format!("SQLite's copies of {what}"), envelope(lengths.0).saturating_add(envelope(lengths.1)).saturating_mul(2))?;
+            let result_lease = lease(memory, &format!("{what}'s result ({} bytes)", lengths.0), envelope(lengths.0))?;
+            let record_lease = lease(memory, &format!("{what}'s record ({} bytes)", lengths.1), envelope(lengths.1))?;
+            let sqlite = lease(memory, &format!("SQLite's copies of {what}"), envelope(lengths.0).saturating_add(envelope(lengths.1)).saturating_mul(2))?;
             let (result, record): (String, String) = transaction
                 .query_row("SELECT mechanics_result_json, analysis_run_json FROM local_projects WHERE project_id = ?1", params![id], |row| Ok((row.get(0)?, row.get(1)?)))
                 .map_err(|error| error.to_string())?;
@@ -348,16 +399,16 @@ pub(crate) fn open_project_in_store(registry: &SolveJobRegistry, path: PathBuf, 
         Err(message) => (None, Some(message)),
     };
     // Each stored run text that is not JSON fails the open, as `open_local_project` fails it.
-    let mut parsed: Option<(Value, Lease, Value, Lease)> = None;
+    let mut parsed: Option<(Value, CommandLease, Value, CommandLease)> = None;
     let mut header = None;
     if let Some(run) = &loaded {
-        match parse_leased(registry, "the stored result", &run.result) {
+        match parse_leased(memory, "the stored result", &run.result) {
             Err(Ok(message)) => return Err(message),
             Err(Err(pool)) => refusal = Some(pool),
-            Ok((result, result_parse)) => match parse_leased(registry, "the stored record", &run.record) {
+            Ok((result, result_parse)) => match parse_leased(memory, "the stored record", &run.record) {
                 Err(Ok(message)) => return Err(message),
                 Err(Err(pool)) => refusal = Some(pool),
-                Ok((record, record_parse)) => match record_header(registry, &record) {
+                Ok((record, record_parse)) => match record_header(memory, &record) {
                     Ok(projected) => {
                         header = Some(projected);
                         parsed = Some((result, result_parse, record, record_parse));
@@ -423,8 +474,17 @@ pub(crate) fn open_project_in_store(registry: &SolveJobRegistry, path: PathBuf, 
             // The re-save basis (`stored_save`): the stored model hash evidence and the stored
             // envelope evidence with the payload hash recomputed over the stored values.
             let basis = RestoredBasis { model_hash: model_hash.clone(), envelopes: vec![EnvelopeBasis { payload_sha256: found.envelope_payload_hash.clone(), evidence: project_envelope_hash.clone() }] };
-            match registry.restore_with_basis(epoch, source.clone(), HeldResult::restored(run.result, run.result_lease).read_under(found.recorded), Some(HeldResult::restored(run.record, run.record_lease)), Some(basis)) {
+            // The handoff: the leases backing the held texts leave the
+            // command's total when the registry establishes the handle.
+            match registry.restore_with_basis(
+                epoch,
+                source.clone(),
+                HeldResult::restored_in_custody(run.result, run.result_lease).read_under(found.recorded),
+                Some(HeldResult::restored_in_custody(run.record, run.record_lease)),
+                Some(basis),
+            ) {
                 Ok(handle) => {
+                    let unpublished = Unpublished::new(registry, &handle);
                     (
                         summary,
                         StoredRun::Restored(RestoredRun {
@@ -440,6 +500,7 @@ pub(crate) fn open_project_in_store(registry: &SolveJobRegistry, path: PathBuf, 
                             record_header,
                             record_header_bytes,
                             _header_lease: header_lease,
+                            unpublished,
                         }),
                     )
                 }
@@ -490,18 +551,18 @@ fn refused(project_id: &str, (result_bytes, analysis_run_bytes): (u64, u64), why
 }
 
 /// The recorded run's load into native custody (`NativeRunLoad`).
-struct RunLoad<'r> {
-    registry: &'r SolveJobRegistry,
-    leases: Option<(Lease, Lease)>,
+struct RunLoad<'r, 'm> {
+    memory: &'r NativeLeaseMemory<'m>,
+    leases: Option<(CommandLease, CommandLease)>,
     record_text: Option<String>,
     /// The read's own parse of the stored result (RT-U4: not parsed again).
     result_value: Option<Value>,
 }
 
-impl NativeRunLoad for RunLoad<'_> {
+impl NativeRunLoad for RunLoad<'_, '_> {
     fn admit(&mut self, result_bytes: u64, record_bytes: u64) -> Result<(), String> {
-        let result = lease(self.registry, &format!("the recorded run's result ({result_bytes} bytes)"), envelope(result_bytes))?;
-        let record = lease(self.registry, &format!("the recorded run's record ({record_bytes} bytes)"), envelope(record_bytes))?;
+        let result = lease(self.memory, &format!("the recorded run's result ({result_bytes} bytes)"), envelope(result_bytes))?;
+        let record = lease(self.memory, &format!("the recorded run's record ({record_bytes} bytes)"), envelope(record_bytes))?;
         self.leases = Some((result, record));
         Ok(())
     }
@@ -518,10 +579,10 @@ impl NativeRunLoad for RunLoad<'_> {
 /// The blocking part of the recorded run's reopen (module docs): the store's
 /// verified read (every integrity refusal of `read_analysis_run`, without
 /// its webview limit), then the findings, then the handle.
-pub(crate) fn read_run_in_store(registry: &SolveJobRegistry, path: PathBuf, project_id: &str, recording_id: &str, epoch: u64) -> Result<NativeRunRead, String> {
-    let memory = NativeLeaseMemory::new(registry);
-    let mut load = RunLoad { registry, leases: None, record_text: None, result_value: None };
-    let read = analysis_runs::read_run_in_store_core(&path, project_id, recording_id, &memory, u64::MAX, Some(&mut load))?;
+pub(crate) fn read_run_in_store(memory: &NativeLeaseMemory<'_>, path: PathBuf, project_id: &str, recording_id: &str, epoch: u64) -> Result<NativeRunRead, String> {
+    let registry = memory.registry();
+    let mut load = RunLoad { memory, leases: None, record_text: None, result_value: None };
+    let read = analysis_runs::read_run_in_store_core(&path, project_id, recording_id, memory, u64::MAX, Some(&mut load))?;
     // The guard holds the read's reservations, the result's parse included,
     // until the parse is dropped below.
     let (read, guard) = read.into_custody();
@@ -531,7 +592,7 @@ pub(crate) fn read_run_in_store(registry: &SolveJobRegistry, path: PathBuf, proj
     };
     #[cfg(test)]
     stored_read::phase_probe::mark("recorded read: verified, record text and result parse kept");
-    let parsed_manifest = match parse_leased(registry, "the recorded run's input manifest", &input_manifest_canonical) {
+    let parsed_manifest = match parse_leased(memory, "the recorded run's input manifest", &input_manifest_canonical) {
         Ok(parsed) => Some(parsed),
         Err(Ok(_)) => None,
         Err(Err(refusal)) => return Err(refusal),
@@ -550,7 +611,7 @@ pub(crate) fn read_run_in_store(registry: &SolveJobRegistry, path: PathBuf, proj
     if let Some(result) = result_value.as_mut() {
         validate::recorded_run_validation(&mut found, &context, result, manifest, &record);
     }
-    let (record_header, record_header_bytes, header_lease) = record_header(registry, &record)?;
+    let (record_header, record_header_bytes, header_lease) = record_header(memory, &record)?;
     let recorded_dispatch = result_value.as_ref().and_then(|result| recorded_dispatch_of(&found, result));
     let result_present = result_value.as_ref().is_some_and(|value| !value.is_null()) || result_value.is_none();
     drop((result_value, parsed_manifest, record));
@@ -563,9 +624,12 @@ pub(crate) fn read_run_in_store(registry: &SolveJobRegistry, path: PathBuf, proj
         record_sha256: Some(hex(&sha256_in_place(record_text.as_bytes()))),
     };
     let (result_bytes, record_bytes) = (result_json.len() as u64, record_text.len() as u64);
+    // The handoff: the leases backing the held texts leave the command's
+    // total when the registry establishes the handle.
     let handle = registry
-        .restore(epoch, source.clone(), HeldResult::restored(result_json, result_lease).read_under(found.recorded), Some(HeldResult::restored(record_text, record_lease)))
+        .restore(epoch, source.clone(), HeldResult::restored_in_custody(result_json, result_lease).read_under(found.recorded), Some(HeldResult::restored_in_custody(record_text, record_lease)))
         .map_err(|error| format!("{RESTORE_REFUSED}: recorded run `{}` was not opened: {}", stored_read::shown(recording_id), restore_refusal(error)))?;
+    let unpublished = Unpublished::new(registry, &handle);
     Ok(NativeRunRead {
         run,
         state,
@@ -583,12 +647,13 @@ pub(crate) fn read_run_in_store(registry: &SolveJobRegistry, path: PathBuf, proj
             record_header,
             record_header_bytes,
             _header_lease: header_lease,
+            unpublished,
         },
     })
 }
 
 /// The reply as a JSON body, its exact length leased before it is built.
-fn reply<T: Serialize>(registry: &SolveJobRegistry, value: &T) -> Result<(String, Lease), String> {
+fn reply<T: Serialize>(memory: &NativeLeaseMemory<'_>, value: &T) -> Result<(String, CommandLease), String> {
     struct Counter(u64);
     impl std::io::Write for Counter {
         fn write(&mut self, bytes: &[u8]) -> std::io::Result<usize> {
@@ -601,7 +666,7 @@ fn reply<T: Serialize>(registry: &SolveJobRegistry, value: &T) -> Result<(String
     }
     let mut counter = Counter(0);
     serde_json::to_writer(&mut counter, value).map_err(|error| error.to_string())?;
-    let held = lease(registry, "the reply", envelope(counter.0))?;
+    let held = lease(memory, "the reply", envelope(counter.0))?;
     let mut text = Vec::with_capacity(usize::try_from(counter.0).unwrap_or(usize::MAX));
     serde_json::to_writer(&mut text, value).map_err(|error| error.to_string())?;
     Ok((String::from_utf8(text).expect("serde_json writes UTF-8"), held))
@@ -618,11 +683,11 @@ fn reserve(registry: &SolveJobRegistry, body: &InvokeBody, headers: &HeaderMap, 
     Ok((raw.to_vec(), lease))
 }
 
-fn admit(registry: &SolveJobRegistry, raw: &[u8], copy: Lease, command: &'static str) -> Result<(command_ingress::Args, Lease), CommandError<String>> {
+fn admit(memory: &NativeLeaseMemory<'_>, raw: &[u8], copy: CommandLease, command: &'static str) -> Result<(command_ingress::Args, CommandLease), CommandError<String>> {
     let copy_bytes = copy.bytes();
-    let (args, lease) = command_ingress::admit_raw(registry, raw, command, ArgsDecoding::Moved, |bytes| {
+    let (args, lease) = command_ingress::admit_raw(memory.registry(), raw, command, ArgsDecoding::Moved, |bytes| {
         let mut lease = copy;
-        lease.grow_to(copy_bytes.saturating_add(bytes)).map_err(|refusal| registry.refuse(refusal))?;
+        memory.grow(&mut lease, copy_bytes.saturating_add(bytes))?;
         Ok(lease)
     })?;
     Ok((args, lease))
@@ -632,15 +697,20 @@ fn admit(registry: &SolveJobRegistry, raw: &[u8], copy: Lease, command: &'static
 pub(crate) fn run_open(registry: &SolveJobRegistry, store: impl FnOnce() -> Result<PathBuf, String>, raw: Vec<u8>, copy: Lease, epoch: u64) -> Result<tauri::ipc::Response, CommandError<String>> {
     #[cfg(test)]
     tests::command_gate::pass(tests::command_gate::key(registry, OPEN_COMMAND));
-    let (mut args, args_lease) = admit(registry, &raw, copy, OPEN_COMMAND)?;
+    let (memory, copy) = NativeLeaseMemory::seeded(registry, copy);
+    let (mut args, args_lease) = admit(&memory, &raw, copy, OPEN_COMMAND)?;
     drop(raw);
     let project_id: Option<String> = args.decode("projectId")?;
     drop(args);
     let path = store().map_err(CommandError::Command)?;
-    let opened = open_project_in_store(registry, path, project_id.as_deref(), epoch).map_err(|error| CommandError::Command(stored_read::capped(error)))?;
-    let (text, held) = reply(registry, &opened).map_err(CommandError::Command)?;
+    let mut opened = open_project_in_store(&memory, path, project_id.as_deref(), epoch).map_err(|error| CommandError::Command(stored_read::capped(error)))?;
+    // A refused reply drops `opened`, disposing a handle it registered.
+    let (text, held) = reply(&memory, &opened).map_err(CommandError::Command)?;
+    if let Some(opened) = opened.as_mut() {
+        opened.published();
+    }
     let response = tauri::ipc::Response::new(text);
-    drop((held, args_lease));
+    drop((held, args_lease, opened));
     Ok(response)
 }
 
@@ -648,16 +718,19 @@ pub(crate) fn run_open(registry: &SolveJobRegistry, store: impl FnOnce() -> Resu
 pub(crate) fn run_read(registry: &SolveJobRegistry, store: impl FnOnce() -> Result<PathBuf, String>, raw: Vec<u8>, copy: Lease, epoch: u64) -> Result<tauri::ipc::Response, CommandError<String>> {
     #[cfg(test)]
     tests::command_gate::pass(tests::command_gate::key(registry, RUN_COMMAND));
-    let (mut args, args_lease) = admit(registry, &raw, copy, RUN_COMMAND)?;
+    let (memory, copy) = NativeLeaseMemory::seeded(registry, copy);
+    let (mut args, args_lease) = admit(&memory, &raw, copy, RUN_COMMAND)?;
     drop(raw);
     let project_id: String = args.decode("projectId")?;
     let recording_id: String = args.decode("recordingId")?;
     drop(args);
     let path = store().map_err(CommandError::Command)?;
-    let read = read_run_in_store(registry, path, &project_id, &recording_id, epoch).map_err(|error| CommandError::Command(stored_read::capped(error)))?;
-    let (text, held) = reply(registry, &read).map_err(CommandError::Command)?;
+    let mut read = read_run_in_store(&memory, path, &project_id, &recording_id, epoch).map_err(|error| CommandError::Command(stored_read::capped(error)))?;
+    // A refused reply drops `read`, disposing the handle it registered.
+    let (text, held) = reply(&memory, &read).map_err(CommandError::Command)?;
+    read.restored.published();
     let response = tauri::ipc::Response::new(text);
-    drop((held, args_lease));
+    drop((held, args_lease, read));
     Ok(response)
 }
 
