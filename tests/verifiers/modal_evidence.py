@@ -933,13 +933,14 @@ def _close(published, derived, tolerance):
     return abs(published - derived) <= tolerance
 
 
-def _sequential_sum(values):
-    """Left-to-right binary64 addition from 0.0: the Rust reader's order (`fold` and
-    `Iterator::sum` in `modal_result`). Python's built-in `sum` of floats is compensated
-    (3.12+), so on a payload at an allowance boundary the two readers could reach
-    different verdicts. Rust's `sum` starts from -0.0; only the sign of a zero total can
-    differ, which no comparison here reads."""
-    total = 0.0
+def _sequential_sum(values, start=0.0):
+    """Left-to-right binary64 addition from `start`: the Rust reader's evaluation of a
+    point sum (`modal_result`). Python's built-in `sum` of floats is compensated (3.12+),
+    so on a payload at an allowance boundary the two readers could reach different
+    verdicts. The start mirrors the paired Rust site: `fold((0.0, 0.0), ..)` starts from
+    +0.0 (the default); `Iterator::sum::<f64>` starts from -0.0 (`[]` sums to -0.0,
+    `[0.0]` to +0.0, `[-0.0]` to -0.0), which the cumulative fraction passes."""
+    total = start
     for value in values:
         total += value
     return total
@@ -1493,7 +1494,8 @@ def _participation(p):
                 _fail(f"mode {label}: the cumulative fraction along {direction} is negative")
             allowance = ALLOW * float(m + 2) * U
             if all(f.as_point() is not None for f in running) and cumulative.as_point() is not None:
-                total = _sequential_sum(f.as_point() for f in running)
+                # modal_result sums these with `Iterator::sum`, from -0.0.
+                total = _sequential_sum((f.as_point() for f in running), start=-0.0)
                 if not _close(cumulative.as_point(), total, allowance * total):
                     _fail(f"mode {label}: cumulative fraction is not the running sum")
                 continue

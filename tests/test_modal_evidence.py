@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import ast
 import json
+import math
 from pathlib import Path
 
 import pytest
@@ -22,6 +23,8 @@ from tests.verifiers import modal_evidence as me
 ROOT = Path(__file__).resolve().parents[1]
 RESULTS = ROOT / "fixtures/results"
 CORPUS = json.loads((RESULTS / "modal_corpus.json").read_text(encoding="utf-8"))["entries"]
+# Point-sum evaluation-order boundaries (Design §5.3.4), in the corpus entry format.
+SUM_ORDER = json.loads((RESULTS / "modal_sum_order_boundaries.json").read_text(encoding="utf-8"))["entries"]
 
 
 def load(name):
@@ -124,8 +127,8 @@ def run(entry):
     return statuses(verdict), verdict
 
 
-@pytest.mark.parametrize("entry", CORPUS, ids=[entry["id"] for entry in CORPUS])
-def test_the_python_reader_returns_every_corpus_verdict(entry):
+def check_entry(entry):
+    """The entry's targeted standing, its stated reason and its `expected` verdict."""
     got, verdict = run(entry)
     intent = entry["intent"]
     if intent == "none":
@@ -147,6 +150,48 @@ def test_the_python_reader_returns_every_corpus_verdict(entry):
         standing = verdict[intent] if intent in ("closure", "binding") else verdict["relations"][intent]
         assert needle.lower() in (standing["difference"] or "").lower(), verdict
     assert got == entry["expected"], verdict
+
+
+@pytest.mark.parametrize("entry", CORPUS, ids=[entry["id"] for entry in CORPUS])
+def test_the_python_reader_returns_every_corpus_verdict(entry):
+    check_entry(entry)
+
+
+@pytest.mark.parametrize("entry", SUM_ORDER, ids=[entry["id"] for entry in SUM_ORDER])
+def test_the_python_reader_returns_every_sum_order_boundary_verdict(entry):
+    """The Rust reader writes these verdicts (`corpus.rs`); this reader is held to them."""
+    check_entry(entry)
+
+
+def _compensated_sum(values, start=0.0):
+    """A correctly rounded sum (`math.fsum`), whatever the host interpreter's `sum` does."""
+    return math.fsum([start, *values])
+
+
+def test_the_sum_order_boundaries_refute_a_compensated_sum(monkeypatch):
+    """Mutation control: with `_sequential_sum` replaced by a correctly rounded sum, the
+    entries marked `compensated_verdict_differs` take another verdict, and every one of the
+    four relations has at least one such entry, so these fixtures catch the old order."""
+    relations = {entry["sum_relation"] for entry in SUM_ORDER}
+    assert relations == {"generalized_mass", "total_mass", "cumulative_fraction", "effective_mass_excitation"}
+    monkeypatch.setattr(me, "_sequential_sum", _compensated_sum)
+    caught = set()
+    for entry in SUM_ORDER:
+        got, verdict = run(entry)
+        assert (got != entry["expected"]) == entry["compensated_verdict_differs"], (entry["id"], verdict)
+        if got != entry["expected"]:
+            caught.add(entry["sum_relation"])
+    assert caught == relations
+
+
+def test_the_sequential_sum_starts_where_its_rust_site_starts():
+    """`fold((0.0, 0.0), ..)` starts from +0.0; `Iterator::sum::<f64>` (the cumulative
+    fraction) from -0.0: [] → -0.0, [0.0] → +0.0, [-0.0] → -0.0."""
+    sign = lambda x: math.copysign(1.0, x)
+    assert sign(me._sequential_sum([])) == 1.0 and sign(me._sequential_sum([-0.0])) == 1.0
+    assert sign(me._sequential_sum([], start=-0.0)) == -1.0
+    assert sign(me._sequential_sum([0.0], start=-0.0)) == 1.0
+    assert sign(me._sequential_sum([-0.0], start=-0.0)) == -1.0
 
 
 def test_the_corpus_targets_every_relation():
