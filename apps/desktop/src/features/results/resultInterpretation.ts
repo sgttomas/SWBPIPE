@@ -1,5 +1,6 @@
 import { semanticLabels, type RowLabels } from "./resultSemantics";
 import type { ContractBinding } from "./resultReader";
+import { presentedResultDiagnostics } from "./suppliedDiagnostics";
 import type {
   AnalysisRunEnvelope,
   DesignKnowledge,
@@ -245,7 +246,9 @@ function allDiagnostics(
   knowledge: DesignKnowledge | null,
   result: MechanicsResult | null
 ): Diagnostic[] {
-  return [...model.diagnostics, ...(knowledge?.diagnostics ?? []), ...(result?.diagnostics ?? [])];
+  // RT-A3 §4: a result message outside the reader-checked roster is explained as supplied,
+  // unverified text, as the Diagnostics list shows it (`suppliedDiagnostics`).
+  return [...model.diagnostics, ...(knowledge?.diagnostics ?? []), ...presentedResultDiagnostics(result)];
 }
 
 function endpointPairFor(

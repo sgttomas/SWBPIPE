@@ -42,7 +42,10 @@ def test_the_entry_edges_are_zero(monkeypatch, route):
     zero = lambda label: {(short(a), short(b)) for a, b, why in d["O10_EDGE_ZERO"] if label + ":" in why}
     assert zero("W16B-CB") == {("run_linear_static_preview_observed_inner", "append"),
                                ("run_linear_static_preview_observed_inner", "state_operand_standing")}
-    assert zero("W16B-RD") == {("validate_pressure_evidence", "direct_view"), ("validate_pressure_evidence", "validate")}
+    # RT-A3 §4 (§8.53, RTA3C-WC): the combination dispatch is the uncertified pass, which the certificate's wrapper
+    # reaches through one of two exclusive arms.
+    assert zero("W16B-RD") == {("validate_pressure_evidence_uncertified", "direct_view"),
+                               ("validate_pressure_evidence_uncertified", "validate")}
     assert zero("W16C-ES") == {
         ("append_equivalent_static_generated_loads", callee) for callee in (
             "is_exact", "replaced_span_ids", "selects_timoshenko", "curved_bend_realized_pipe_ids",
@@ -58,7 +61,9 @@ def test_the_entry_edges_are_zero(monkeypatch, route):
     by_name = {(short(b), short(a)) for a, b, why in d["O10_EDGE_ZERO"] if "W16BC-BN" in why}
     assert {callee for callee, _ in by_name} == {"evidence", "with", "stiffness", "text", "add", "signum"}
     per_call = [(short(a), short(b), per) for a, b, per, why in d["EDGE_PER_CALL"] if "W16B-RD" in why]
-    assert per_call == [("validate_pressure_evidence", "validate_direct_pressure_evidence", "1")]
+    assert per_call == [("validate_pressure_evidence_uncertified", "validate_direct_pressure_evidence", "1")]
+    wrapper = [(short(a), short(b), per) for a, b, per, why in d["EDGE_PER_CALL"] if "RTA3C-WC" in why]
+    assert wrapper == [("validate_pressure_evidence_without_certificate", "validate_pressure_evidence_uncertified", "1")]
     audits = {str(key).split("/src/")[-1]: value for key, value in d["O10_ID_AUDIT"]
               if str(key).split("/src/")[-1].startswith(("exact_combinations.rs:", "exact_combination_evidence.rs:"))}
     # Three IN128 operand case ids joined by ", "; the longest envelope mode literal (min_abs, max_abs).

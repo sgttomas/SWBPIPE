@@ -147,7 +147,7 @@ universal minimum, Windows bound or claim that every possible response has that
 size. It explains why reducing loaded coordinates did not establish a fitting
 response; no further solve input/native attempt is selected.
 
-Related source-qualified input: [solver PR #1742](https://github.com/sgttomas/chirality/pull/1742),
+Related source-qualified input: solver PR `sgttomas/chirality#1742` (private repository),
 **Open / RT-U4 finding F-1**, read at PR head
 `0be06842da58968b5be55b3535dd5eb7ebac3f0a`. It reports a separate release-CLI
 measurement on main `6ff1e9e88d` with explicit intent, per-output-field audit

@@ -5,7 +5,7 @@
 //! certificate (§2). It is never called from the loop, whose iterations keep
 //! `solve_binary64` (S11-K, ROOT option (c)); R2 supersedes ROOT's selection
 //! ruling for this single attempt only.
-use crate::structural_adapter::{AssemblyEvidence, ConfirmationContext};
+use crate::structural_adapter::{AssemblyEvidence, ConfirmationContext, SparseAssemblyEvidence};
 use crate::{
     AppliedSlidingFrictionForce, LinearSolveMode, NonlinearFrameSolveInput,
     NonlinearFrameSolveResult, NonlinearIntegrationError,
@@ -15,6 +15,7 @@ use open_pipe_stress_frame_kernel::load_ledger::{AssembledForce, Formation, Load
 use open_pipe_stress_frame_kernel::structural::{
     certify_load_primitive, CertifiedRow, CertifiedValue, FormationCheck, FormationCheckReason,
     LoadFormula, LoadPrimitive, LoadSummandIdentity, MemberBoundInputs, SolveQuality,
+    StructuralSolution,
 };
 use open_pipe_stress_frame_kernel::{node_dof_index, FrameDof};
 use open_pipe_stress_nonlinear_supports::{
@@ -287,77 +288,113 @@ pub(crate) fn confirm_with_applied(
         detail: format!("confirmation force: {error}"),
     })?;
 
-    let evidence = AssemblyEvidence::new(
-        input.node_count,
-        &input.elements,
-        &input.connectors,
-        &input.curved_bend_elements,
-        springs,
-    )?
-    .with_frame_members(frame_members);
-    let attempt = evidence.confirm_with_formation_check(
-        &receipt.original_stiffness,
-        &gate_force,
-        &free,
-        &prescribed,
-        mode,
-        curved_sources,
-        |gate, context| {
-            if gate.report.quality != SolveQuality::Passed || gate.load_fidelity.is_some() {
-                return Confirmation::NotEstablished {
-                    reason: format!(
-                        "confirmation attempt: gate Sensitive (reciprocal condition estimate {:?})",
-                        gate.report.reciprocal_condition_estimate
-                    ),
+    let evaluate = |gate: &StructuralSolution, context: &ConfirmationContext<'_>| {
+        if gate.report.quality != SolveQuality::Passed || gate.load_fidelity.is_some() {
+            return Confirmation::NotEstablished {
+                reason: format!(
+                    "confirmation attempt: gate Sensitive (reciprocal condition estimate {:?})",
+                    gate.report.reciprocal_condition_estimate
+                ),
+            };
+        }
+        let (coupled_ball, stage_b) = match (&coupled, phi0) {
+            (Some(term), Some(Some(phi0))) => {
+                let ball = match stage_a(context, &gate_force, term, phi0, u, n) {
+                    Ok(ball) => ball,
+                    Err(reason) => return Confirmation::NotEstablished { reason },
                 };
+                (
+                    Some(ball),
+                    force.with_appended(appended_ledger(&sliding, applied, None, Some(ball))),
+                )
             }
-            let (coupled_ball, stage_b) = match (&coupled, phi0) {
-                (Some(term), Some(Some(phi0))) => {
-                    let ball = match stage_a(context, &gate_force, term, phi0, u, n) {
-                        Ok(ball) => ball,
-                        Err(reason) => return Confirmation::NotEstablished { reason },
-                    };
-                    (
-                        Some(ball),
-                        force.with_appended(appended_ledger(&sliding, applied, None, Some(ball))),
-                    )
-                }
-                _ => (None, force.with_appended(appended_ledger(&sliding, applied, None, None))),
+            _ => (None, force.with_appended(appended_ledger(&sliding, applied, None, None))),
+        };
+        let Ok(stage_b) = stage_b else {
+            return Confirmation::NotEstablished {
+                reason: "friction coupling not established".into(),
             };
-            let Ok(stage_b) = stage_b else {
+        };
+        let bound = match context.evaluate_at(&stage_b, u, true) {
+            Ok((None, Some(bound))) => bound,
+            Ok((check, _)) => {
                 return Confirmation::NotEstablished {
-                    reason: "friction coupling not established".into(),
-                };
-            };
-            let bound = match context.evaluate_at(&stage_b, u, true) {
-                Ok((None, Some(bound))) => bound,
-                Ok((check, _)) => {
-                    return Confirmation::NotEstablished {
-                        reason: format!("formation check: stage B: {}", render_check(check.as_ref())),
-                    }
+                    reason: format!("formation check: stage B: {}", render_check(check.as_ref())),
                 }
-                Err(error) => {
-                    return Confirmation::NotEstablished {
-                        reason: format!("formation check: stage B: {error}"),
-                    }
+            }
+            Err(error) => {
+                return Confirmation::NotEstablished {
+                    reason: format!("formation check: stage B: {error}"),
                 }
-            };
-            certify_state(
-                input,
-                context,
-                &supports,
-                &states,
-                &explicit,
-                &derived,
-                &sliding,
-                applied,
-                coupled_ball,
-                stage_b,
-                bound,
-                u,
+            }
+        };
+        certify_state(
+            input,
+            context,
+            &supports,
+            &states,
+            &explicit,
+            &derived,
+            &sliding,
+            applied,
+            coupled_ball,
+            stage_b,
+            bound,
+            u,
+        )
+    };
+    // RT-A3 P step 5: the sparse loop's completion confirms on the pattern; a
+    // dense loop's (and a pattern completion confirmed in dense scrutiny,
+    // through its dense view) on the dense evidence, as before.
+    let attempt = match (&receipt.original_stiffness, mode) {
+        (crate::LoopStiffness::Pattern(k), LinearSolveMode::SparseInteractive) => {
+            let pattern_evidence = SparseAssemblyEvidence::new(
+                k.pattern(),
+                input.node_count,
+                &input.elements,
+                &input.connectors,
+                &input.curved_bend_elements,
+                springs,
+            )?
+            .with_frame_members(frame_members);
+            pattern_evidence.confirm_with_formation_check(
+                k,
+                &gate_force,
+                &free,
+                &prescribed,
+                mode,
+                curved_sources,
+                evaluate,
             )
-        },
-    );
+        }
+        (stiffness, _) => {
+            let dense_view;
+            let original_stiffness: &[Vec<f64>] = match stiffness {
+                crate::LoopStiffness::Dense(k) => k,
+                crate::LoopStiffness::Pattern(k) => {
+                    dense_view = k.to_dense();
+                    &dense_view
+                }
+            };
+            let evidence = AssemblyEvidence::new(
+                input.node_count,
+                &input.elements,
+                &input.connectors,
+                &input.curved_bend_elements,
+                springs,
+            )?
+            .with_frame_members(frame_members);
+            evidence.confirm_with_formation_check(
+                original_stiffness,
+                &gate_force,
+                &free,
+                &prescribed,
+                mode,
+                curved_sources,
+                evaluate,
+            )
+        }
+    };
     match attempt {
         Ok(confirmation) => Ok(confirmation),
         Err(error) => not_established(format!("confirmation attempt: {error}")),

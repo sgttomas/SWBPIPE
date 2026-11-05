@@ -19,7 +19,8 @@ use open_pipe_stress_frame_kernel::{
     element_dof_map, force_scaled_matrix, force_scaled_value, ForceScale, ForceScaleCensus,
     FrameElement, FrameKernelError, Matrix12,
 };
-use open_pipe_stress_sparse_direct::structural::solve_sparse_prepared;
+use open_pipe_stress_frame_kernel::structural::SharedSparseFactor;
+use open_pipe_stress_sparse_direct::structural::{factor_sparse_structural_ldlt, solve_sparse_prepared};
 
 #[derive(Debug, Clone)]
 pub struct AssemblyEvidence {
@@ -839,6 +840,214 @@ impl SparseAssemblyEvidence {
         }
         (roundoff, counts)
     }
+    /// As `AssemblyEvidence::contribution_groups`.
+    pub fn contribution_groups(&self) -> &[usize] {
+        &self.contribution_groups
+    }
+
+    /// RT-A3 P: the pattern sibling of `AssemblyEvidence::solve_binary64`, the
+    /// nonlinear loop's named, unchanged binary64 solve (ROOT option (c)). In
+    /// `SparseInteractive` it prepares on the pattern with the binary64 binding
+    /// (`prepare_sparse_structural_binary64`) and orders, factors and finishes
+    /// on the pattern; the prepared system is the dense one entry for entry, so
+    /// the solution is the dense-derived sparse solve's bit for bit. In
+    /// `DenseScrutiny` it materializes the dense view of the same values and
+    /// allowances and runs `prepare_structural_binary64` and the dense
+    /// Cholesky: `AssemblyEvidence::solve_binary64`, bit for bit.
+    pub fn solve_binary64(
+        &self,
+        k: &SparseStiffness,
+        f: &[f64],
+        free: &[usize],
+        prescribed: &[(usize, f64)],
+        mode: LinearSolveMode,
+    ) -> Result<StructuralSolution, StructuralError> {
+        unscaled_evidence(self.force_scale)?;
+        self.check_pattern(k)?;
+        self.geometry(prescribed)?;
+        let symmetry_basis = symmetry_basis(&self.edges);
+        match mode {
+            LinearSolveMode::DenseScrutiny => {
+                let dense = k.to_dense();
+                let (roundoff, counts) = self.dense_symmetry_view();
+                let system = StructuralSystem {
+                    stiffness: &dense,
+                    force: f,
+                    free_dofs: free,
+                    prescribed,
+                    contributions: Some(&self.contributions),
+                    contribution_groups: Some(&self.contribution_groups),
+                    symmetry: Some(SymmetryEvidence {
+                        absolute_roundoff: &roundoff,
+                        operation_counts: &counts,
+                        basis: &symmetry_basis,
+                    }),
+                };
+                solve_prepared(structural::prepare_structural_binary64(&system)?, mode)
+            }
+            LinearSolveMode::SparseInteractive => {
+                let system = SparseStructuralSystem::new(
+                    k,
+                    f,
+                    free,
+                    prescribed,
+                    Some(&self.contributions),
+                    Some(self.sparse_symmetry(&symmetry_basis)),
+                )
+                .with_contribution_groups(&self.contribution_groups);
+                solve_sparse_prepared(structural::prepare_sparse_structural_binary64(&system)?)
+            }
+        }
+    }
+
+    /// RT-A3 P step 3: `solve_binary64` in `SparseInteractive` on the iterate's
+    /// one factor. The first call of an iterate factors (with the witness on a
+    /// refused factor) and keeps the factor in `shared`; every later call
+    /// prepares its own right-hand side and completes on that factor
+    /// (`finish_sparse_structural_on`, which refuses a prepared matrix that is
+    /// not the factor's bit for bit). Each result is the separate
+    /// `solve_binary64`'s, bit for bit.
+    pub fn solve_binary64_shared(
+        &self,
+        k: &SparseStiffness,
+        f: &[f64],
+        free: &[usize],
+        prescribed: &[(usize, f64)],
+        shared: &mut Option<SharedSparseFactor>,
+    ) -> Result<StructuralSolution, StructuralError> {
+        unscaled_evidence(self.force_scale)?;
+        self.check_pattern(k)?;
+        self.geometry(prescribed)?;
+        let symmetry_basis = symmetry_basis(&self.edges);
+        let system = SparseStructuralSystem::new(
+            k,
+            f,
+            free,
+            prescribed,
+            Some(&self.contributions),
+            Some(self.sparse_symmetry(&symmetry_basis)),
+        )
+        .with_contribution_groups(&self.contribution_groups);
+        let prepared = structural::prepare_sparse_structural_binary64(&system)?;
+        if let Some(factor) = shared.as_ref() {
+            #[cfg(test)]
+            SHARED_FACTOR_COUNTS.with(|c| c.set((c.get().0, c.get().1 + 1)));
+            return structural::finish_sparse_structural_on(factor, &prepared);
+        }
+        #[cfg(test)]
+        SHARED_FACTOR_COUNTS.with(|c| c.set((c.get().0 + 1, c.get().1)));
+        // `solve_sparse_prepared`'s sequence, keeping the factor.
+        let factor = match factor_sparse_structural_ldlt(&prepared) {
+            Ok(factor) => factor,
+            Err(error) => {
+                return Err(structural::sparse_negative_pair_witness(&prepared)?.unwrap_or(error))
+            }
+        };
+        let solution = structural::finish_sparse_structural(&factor);
+        *shared = Some(factor.share());
+        solution
+    }
+
+    /// RT-A3 P step 5: the pattern sibling of
+    /// `AssemblyEvidence::confirm_with_formation_check` (DEL-04-01
+    /// kd5-nonlinear-active-set.md §1.5), the sparse loop's single
+    /// confirmation entry after convergence. The converged state's system is
+    /// prepared on the pattern with `gate_force` as the typed linear solve
+    /// prepares it (`prepare_assembled_sparse_structural`), factored once by the
+    /// pattern's skyline LDL and completed by `finish_sparse_confirmation`;
+    /// every K-D5 evaluation, reaction ball and displacement ball of the
+    /// context reuses that factor, its scale exponents, Hager estimate and
+    /// epsilon_E, reading K and the prepared matrix through the pattern. The
+    /// prepared system is the dense one entry for entry (K1), so the attempt
+    /// is the dense-derived sparse attempt's. Only `SparseInteractive`: dense
+    /// scrutiny confirms on `AssemblyEvidence`.
+    #[allow(clippy::too_many_arguments)]
+    pub fn confirm_with_formation_check(
+        &self,
+        k: &SparseStiffness,
+        gate_force: &AssembledForce,
+        free: &[usize],
+        prescribed: &[(usize, f64)],
+        mode: LinearSolveMode,
+        curved_sources: &[CurvedBendMacroElement],
+        evaluate: impl FnOnce(&StructuralSolution, &ConfirmationContext<'_>) -> crate::confirmation::Confirmation,
+    ) -> Result<crate::confirmation::Confirmation, StructuralError> {
+        if mode != LinearSolveMode::SparseInteractive {
+            return Err(StructuralError::InvalidInput(
+                "pattern confirmation is sparse interactive only",
+            ));
+        }
+        unscaled_evidence(self.force_scale)?;
+        self.check_pattern(k)?;
+        self.constrained_geometry(prescribed, curved_sources)?;
+        let symmetry_basis = symmetry_basis(&self.edges);
+        let gate = SparseStructuralSystem::assembled(
+            k,
+            gate_force,
+            free,
+            prescribed,
+            Some(&self.contributions),
+            Some(self.sparse_symmetry(&symmetry_basis)),
+        )
+        .with_contribution_groups(&self.contribution_groups);
+        let prepared = structural::prepare_assembled_sparse_structural(&gate)?;
+        let factor = match factor_sparse_structural_ldlt(&prepared) {
+            Ok(factor) => factor,
+            Err(error) => {
+                return Err(structural::sparse_negative_pair_witness(&prepared)?.unwrap_or(error))
+            }
+        };
+        let (solution, attempt) = structural::finish_sparse_confirmation(&factor)?;
+        let evaluate_at = |force: &AssembledForce, u: &[f64], judged: bool| {
+            let mut source = formation_source(&self.formation, curved_sources);
+            source.loads = force.load_primitives().into();
+            let system = SparseStructuralSystem::assembled(
+                k,
+                force,
+                free,
+                prescribed,
+                Some(&self.contributions),
+                Some(self.sparse_symmetry(&symmetry_basis)),
+            )
+            .with_contribution_groups(&self.contribution_groups)
+            .with_formation_source(&source);
+            attempt.evaluate_at(&system, u, judged)
+        };
+        let reaction = |force: &AssembledForce, dof: usize, u: &[f64], bound: &structural::MemberBoundInputs| {
+            let mut source = formation_source(&self.formation, curved_sources);
+            source.loads = force.load_primitives().into();
+            structural::certify_support_reaction(&source, force, dof, u, bound)
+        };
+        let context = ConfirmationContext {
+            evaluate_at: &evaluate_at,
+            reaction: &reaction,
+        };
+        Ok(evaluate(&solution, &context))
+    }
+
+    /// RT-A3 P: the loop's product-equilibrium measurement (binary64 binding)
+    /// on the pattern, over the same contributions and per-entry allowances
+    /// as the dense loop's `product_equilibrium::evaluate`.
+    pub(crate) fn product_equilibrium_binary64(
+        &self,
+        k: &SparseStiffness,
+        f: &[f64],
+        free: &[usize],
+        prescribed: &[(usize, f64)],
+        u: &[f64],
+    ) -> Result<crate::product_equilibrium::ProductEquilibriumReport, StructuralError> {
+        let system = SparseStructuralSystem::new(
+            k,
+            f,
+            free,
+            prescribed,
+            Some(&self.contributions),
+            Some(self.sparse_symmetry("same retained structural assembly evidence")),
+        )
+        .with_contribution_groups(&self.contribution_groups);
+        crate::product_equilibrium::evaluate_sparse(&system, u)
+    }
+
     fn check_pattern(&self, k: &SparseStiffness) -> Result<(), StructuralError> {
         if k.pattern() != &self.pattern {
             return Err(StructuralError::InvalidInput(
@@ -1153,7 +1362,7 @@ impl SparseAssemblyEvidence {
         force_scaled_outcome(solved, self.force_scale, f)
     }
 
-    fn sparse_symmetry<'e>(&'e self, basis: &'e str) -> SparseSymmetryEvidence<'e> {
+    pub(crate) fn sparse_symmetry<'e>(&'e self, basis: &'e str) -> SparseSymmetryEvidence<'e> {
         SparseSymmetryEvidence {
             absolute_roundoff: &self.absolute_roundoff,
             operation_counts: &self.operation_counts,
@@ -2816,10 +3025,87 @@ fn state_retention_charge(
 }
 /// No extra contact-state solve occurs here. Exact ratios correct/project the
 /// response of this iteration's ORIGINAL partition, then ordinary counting runs.
+/// RT-A3 P: what the strict-gap proof reads of the loop's assembled system.
+/// The dense loop lends its K and `AssemblyEvidence`. The pattern loop lends
+/// the dense view of its K and allowances when the system has at most
+/// `EXACT_GAP_MAX_DOFS` DOFs, and empty views otherwise: the exact context refuses
+/// such a system (`Budget`) before it reads K, so the evidence is the dense
+/// loop's either way (`p_gap_scrutiny_on_the_pattern_equals_the_dense_loop`).
+pub(crate) struct GapSource<'a> {
+    pub(crate) qualified_passive_family: bool,
+    pub(crate) stiffness: &'a [Vec<f64>],
+    pub(crate) contributions: &'a [StiffnessContribution],
+    pub(crate) contribution_groups: &'a [usize],
+    pub(crate) absolute_roundoff: &'a [Vec<f64>],
+    pub(crate) operation_counts: &'a [Vec<usize>],
+}
+
+impl<'a> GapSource<'a> {
+    pub(crate) fn dense(assembly: &'a AssemblyEvidence, stiffness: &'a [Vec<f64>]) -> Self {
+        Self {
+            qualified_passive_family: assembly.qualified_passive_family(),
+            stiffness,
+            contributions: &assembly.contributions,
+            contribution_groups: &assembly.contribution_groups,
+            absolute_roundoff: &assembly.absolute_roundoff,
+            operation_counts: &assembly.operation_counts,
+        }
+    }
+}
+
+#[cfg(test)]
+thread_local! {
+    /// Tests only (RT-A3 P step 3): (factorizations, completions on a kept
+    /// factor) made by `solve_binary64_shared` on this thread.
+    pub(crate) static SHARED_FACTOR_COUNTS: std::cell::Cell<(usize, usize)> =
+        const { std::cell::Cell::new((0, 0)) };
+}
+
+/// The exact boundary context's dimension limit (`exact_boundary`'s
+/// `Context::new` refuses n > 256 with `Budget` before reading K).
+pub(crate) const EXACT_GAP_MAX_DOFS: usize = 256;
+
+/// RT-A3 P: the dense views the pattern loop lends the strict-gap proof (see
+/// `GapSource`): K and the allowances when the dimension is at most the exact
+/// context's limit, empty otherwise.
+pub(crate) struct GapViews {
+    stiffness: Vec<Vec<f64>>,
+    absolute_roundoff: Vec<Vec<f64>>,
+    operation_counts: Vec<Vec<usize>>,
+}
+
+impl GapViews {
+    pub(crate) fn new(assembly: &SparseAssemblyEvidence, stiffness: &SparseStiffness) -> Self {
+        if stiffness.dimension() <= EXACT_GAP_MAX_DOFS {
+            let (absolute_roundoff, operation_counts) = assembly.dense_symmetry_view();
+            Self {
+                stiffness: stiffness.to_dense(),
+                absolute_roundoff,
+                operation_counts,
+            }
+        } else {
+            Self {
+                stiffness: Vec::new(),
+                absolute_roundoff: Vec::new(),
+                operation_counts: Vec::new(),
+            }
+        }
+    }
+    pub(crate) fn source<'a>(&'a self, assembly: &'a SparseAssemblyEvidence) -> GapSource<'a> {
+        GapSource {
+            qualified_passive_family: assembly.qualified_passive_family(),
+            stiffness: &self.stiffness,
+            contributions: &assembly.contributions,
+            contribution_groups: &assembly.contribution_groups,
+            absolute_roundoff: &self.absolute_roundoff,
+            operation_counts: &self.operation_counts,
+        }
+    }
+}
+
 pub(crate) fn scrutinize_gaps(
     input: &crate::NonlinearFrameSolveInput,
-    assembly: &AssemblyEvidence,
-    stiffness: &[Vec<f64>],
+    assembly: &GapSource<'_>,
     boundary: &crate::BoundaryState,
     prior: &[open_pipe_stress_nonlinear_supports::SupportStateRecord],
     iteration: usize,
@@ -2846,7 +3132,7 @@ pub(crate) fn scrutinize_gaps(
         .all(|s| matches!(s.behavior, NonlinearSupportBehavior::Gap { .. }))
         || !input.connectors.is_empty()
         || !input.curved_bend_elements.is_empty()
-        || !assembly.qualified_passive_family()
+        || !assembly.qualified_passive_family
         || !input.friction_normal_reactions.is_empty()
         || !input.derived_friction_normal_reactions.is_empty()
         || !solve.applied_forces.is_empty()
@@ -2898,15 +3184,15 @@ pub(crate) fn scrutinize_gaps(
             });
         }
         let system = StructuralSystem {
-            stiffness,
+            stiffness: assembly.stiffness,
             force: &force,
             free_dofs: &free,
             prescribed: &prescribed,
-            contributions: Some(&assembly.contributions),
-            contribution_groups: Some(&assembly.contribution_groups),
+            contributions: Some(assembly.contributions),
+            contribution_groups: Some(assembly.contribution_groups),
             symmetry: Some(SymmetryEvidence {
-                absolute_roundoff: &assembly.absolute_roundoff,
-                operation_counts: &assembly.operation_counts,
+                absolute_roundoff: assembly.absolute_roundoff,
+                operation_counts: assembly.operation_counts,
                 basis: "original represented assembly, no symmetry projection in exact proof",
             }),
         };

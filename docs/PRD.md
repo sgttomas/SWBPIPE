@@ -42,7 +42,7 @@ the analytical scope unless expressly added as product requirements.
 The project license is MIT. The sole human maintainer retains release authority;
 external contribution intake remains closed until an owner activation and the
 required contributor/legal arrangements. See [CONTRACT](CONTRACT.md),
-[IP and data boundary](IP_AND_DATA_BOUNDARY.md), [professional boundary](PROFESSIONAL_BOUNDARY.md)
+[IP and data boundary](IP_AND_DATA_BOUNDARY.md)
 and [maintainer policy](../governance/MAINTAINERS.md).
 
 ## 1. Executive Summary

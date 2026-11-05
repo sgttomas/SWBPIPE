@@ -1,7 +1,8 @@
 # Operation Contract Corpus (TP-SEAM-CORPUS-001)
 
 Cross-engine contract corpus for the structured editor-operation seam,
-created under `plans/PLAN_2026-06-11_operation_seam_unification.md` §3 T1.
+created under `plans/PLAN_2026-06-11_operation_seam_unification.md` §3 T1
+(retired plan, in Git history at `3330e7108`).
 Every case file in this directory is executed by **both** operation engines
 inside their normal test suites and must produce identical semantic outcomes
 and one identical canonical hash of the applied model document:

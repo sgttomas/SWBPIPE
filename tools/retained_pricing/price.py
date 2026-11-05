@@ -5,6 +5,8 @@
                              template inventory -> SQ2 + O-10 rules per route (L, E) -> TEXT + cap-priced points
                              (L at (lc, z) = (3,0), (2,1), (1,2); E at 3) -> o10 checks -> the merged profile tree
   generate <tree> <rs>       write the GENERATED PROFILE block of retained_memory.rs from a profile tree
+  point-atoms <run dir> <rs> write the GENERATED POINT ATOMS block of retained_memory_law_tests.rs: the in-build bindings
+                             of the atoms the separate points use beyond the merged tree's (so `eval` needs no stride)
   compare <tree A> <tree B>  compare two profile trees coefficient by coefficient
   eval <atoms log|-> <tree>  evaluate a tree's phases at in-build atom values (a law-test log's I65_G5_ATOM lines)
 
@@ -368,6 +370,34 @@ def cmd_generate(a):
     print(r.stdout.strip())
 
 
+def point_block(src):
+    i = src.index("// ---- BEGIN GENERATED POINT ATOMS")
+    j = src.index("// ---- END GENERATED POINT ATOMS ----", i)
+    return src[i:src.index("\n", j) + 1]
+
+
+def cmd_point_atoms(a):
+    trees = [os.path.join(a.run_dir, "tree_merged.json")] + [
+        os.path.join(a.run_dir, "runs", f"{route}_{lc}{z}", "work", "profile_tree.json") for route, lc, z in POINTS]
+    for t in trees:
+        if not os.path.exists(t):
+            stop(6, "a run's tree is missing", tree=t)
+    with tempfile.TemporaryDirectory() as td:
+        rp = os.path.join(td, "retained_memory_law_tests.rs")
+        shutil.copy(a.rs, rp)
+        r = py([os.path.join(BASE, "g5_profile.py"), "--point-atoms", trees[0], rp, *trees[1:]])
+        if r.returncode:
+            stop(6, "the generator failed", stderr=r.stderr[-2000:])
+        new, old = open(rp).read(), open(a.rs).read()
+    if a.check:
+        bn, bo = point_block(new), point_block(old)
+        diff = list(difflib.unified_diff(bo.split("\n"), bn.split("\n"), "committed", "generated", lineterm="", n=0))
+        print(json.dumps({"equal": bn == bo, "block_lines": bn.count("\n"), "diff": diff[:40]}, indent=1))
+        sys.exit(0 if bn == bo else 6)
+    open(a.rs, "w").write(new)
+    print(r.stdout.strip())
+
+
 # ---- compare / eval ----------------------------------------------------------------------------------------------
 def cmd_compare(a):
     A, B = json.load(open(a.a)), json.load(open(a.b))
@@ -411,6 +441,10 @@ def main():
     p.add_argument("--basis", help="replace the tree's basis text; a text starting with ',' is wrapped after 'corrections,'")
     p.add_argument("--check", action="store_true", help="compare with the committed block instead of writing (exit 6 on a difference)")
     p.set_defaults(f=cmd_generate)
+    p = sp.add_parser("point-atoms", help="write the GENERATED POINT ATOMS block from a run's trees")
+    p.add_argument("run_dir"); p.add_argument("rs")
+    p.add_argument("--check", action="store_true", help="compare with the committed block instead of writing (exit 6 on a difference)")
+    p.set_defaults(f=cmd_point_atoms)
     p = sp.add_parser("compare", help="compare two trees coefficient by coefficient")
     p.add_argument("a"); p.add_argument("b"); p.add_argument("--limit", type=int, default=40); p.set_defaults(f=cmd_compare)
     p = sp.add_parser("eval", help="evaluate a tree at in-build atom values")

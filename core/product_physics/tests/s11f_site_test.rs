@@ -203,6 +203,7 @@ const ALLOW_FORCE_MUTATION: &[(&str, &str, &str, &str)] = &[
     ("PP/lib.rs", "recover_curved_bend_local_forces", "global_forces", "E8/E9: the row loop writes each row's one exact sum"),
     ("PP/lib.rs", "recover_curved_bend_local_forces", "local_forces", "the end tangent rotation of the recovered global end forces (one formed transform, section 2.2)"),
     ("FK/lib.rs", "reduced_right_hand_side", "adjusted_force", "KS2: the legacy row expression, kept only for the option (c) binary64 variant and legacy rows with no nonzero prescribed product (b - (+-0) is exact); ledger rows are always exact"),
+    ("FK/structural/sparse.rs", "reduce_sparse_system_with_prescribed_displacements_binary64", "adjusted", "RT-A3 P: the pattern sibling of the option (c) binary64 reduction, reduced_right_hand_side's Binary64 arm term for term (the DEC-050/053 observation's reduced force)"),
     ("FK/lib.rs", "solve_dense", "rhs", "generic linear-algebra kernel (limit 1)"),
     ("FK/lib.rs", "solve_dense", "sum", "generic linear-algebra kernel (limit 1): back substitution"),
     ("FK/structural.rs", "finish_checked_factor", "y", "refinement update of the solution, bound from the prepared right-hand side (not a load sum)"),
@@ -425,8 +426,8 @@ const FORCE_FUNCTIONS: &[(&str, &str, &str)] = &[
     ),
     (
         "nonlinear_integration/lib.rs",
-        "solve_active_set_frame_with_mode_and_springs",
-        "the loop (option (c), T5's)",
+        "solve_active_set_loop",
+        "the loop (option (c), T5's; RT-A3 P: the entry's body)",
     ),
     (
         "nonlinear_integration/lib.rs",
@@ -447,6 +448,11 @@ const FORCE_FUNCTIONS: &[(&str, &str, &str)] = &[
         "nonlinear_integration/lib.rs",
         "solve_linearized_system_evidence",
         "the loop's binary64 solves (option (c) pins)",
+    ),
+    (
+        "nonlinear_integration/lib.rs",
+        "solve_linearized_pattern_evidence",
+        "RT-A3 P: the loop's binary64 solves on the pattern (option (c) pins)",
     ),
     // K-D5's closure (DEL-04-01 kd5-member-relative-bound.md §1): `check` and
     // the sparse `formation_check` now pass the whole ledger (`AssembledForce`)
@@ -662,6 +668,11 @@ const FORCE_FUNCTIONS: &[(&str, &str, &str)] = &[
         "FK/structural.rs",
         "evaluate_at",
         "nonlinear K-D5 §1.5: hands the evaluated system's ledger to the closed check (formation_check::check_at); read-only",
+    ),
+    (
+        "FK/structural/sparse.rs",
+        "evaluate_at",
+        "RT-A3 P: the pattern sibling (SparseConfirmationAttempt::evaluate_at); hands the evaluated system's ledger to the same closed check; read-only",
     ),
     ("nonlinear_integration/confirmation.rs", "friction_primitive", "nonlinear K-D5 §1.6: one sliding-friction summand's identity and row; forms no value"),
     ("nonlinear_integration/confirmation.rs", "explicit_formula", "nonlinear K-D5 §1.6: the explicit-normal friction formula's operands; forms no value"),

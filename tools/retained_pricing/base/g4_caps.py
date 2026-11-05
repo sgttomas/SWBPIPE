@@ -126,6 +126,12 @@ import rta4_owners_model as _rta4_env
 if _rta4_env.inspect(SNAP) and which == "caps":
     _a4_dv = _rta4_env.derivation_value(CAPS.get("z", 0))
     ENV_S = ENV_S + VF(arr=_a4_dv[0], obj=_a4_dv[1], ent=_a4_dv[2], strb=_a4_dv[3], keyb=_a4_dv[4], nums=3 * CAPS.get("z", 0), depth=6)
+# RT-A3 §4 D3 (§8.53, RTA3C-MV): the combination certificate member in the envelope evidence at z >= 1 (carried into the
+# successor).
+import rta3c_owners_model as _rta3c_env
+if _rta3c_env.inspect(SNAP) and which == "caps":
+    _c3_mv = _rta3c_env.member_value(_actual_cases, CAPS.get("z", 0), m, g, 64)
+    ENV_S = ENV_S + VF(arr=_c3_mv[0], obj=_c3_mv[1], ent=_c3_mv[2], strb=_c3_mv[3], keyb=_c3_mv[4], nums=_c3_mv[5], depth=6)
 # O4 S5 D3 (retained-pricing-rules.md §8.9; o4_owners_model binds every owner): O4-EV, a Timoshenko member's evidence
 # beam_theory carries two number entries beyond the census entry, in every case's evidence.
 import o4_owners_model as _o4_model
@@ -439,6 +445,14 @@ if _rta4 and _RTA4_ROUTE_L:
     _a4_z = CAPS.get("z", 0) if which == "caps" else 0
     _RTA4_RD = _rta4_model.reader(_actual_cases, _a4_z, P, g, PA, DENV,
                                   VF(arr=5, obj=3, ent=15, strb=ROW, keyb=15 * 24, nums=1).tree())
+# RT-A3 §4 D3 (§8.53, RTA3C-RD): the G7 base read's certificate member check at z >= 1 (route L; route E has no member).
+import rta3c_owners_model as _rta3c_model
+_RTA3C_RD = X()
+if _rta3c_model.inspect(SNAP) and _RTA4_ROUTE_L:
+    ASSUMED.update({k_: v_ for k_, v_ in _rta3c_model.ASSUMED.items() if k_ not in ASSUMED})
+    _c3_z = CAPS.get("z", 0) if which == "caps" else 0
+    _RTA3C_RD = _rta3c_model.reader(_actual_cases, _c3_z, m, g, P, PA,
+                                    lambda a_, o_, e_, sb_, kb_: VF(arr=a_, obj=o_, ent=e_, strb=sb_, keyb=kb_).tree())
 if _W7_RD:
     ASSUMED.update({k_: v_ for k_, v_ in _w7_model.ASSUMED_NODES.items() if k_ not in ASSUMED}); evv.update(ASSUMED)
 # S6-HS (T4-S6, §8.8): where result_export's domain_hash streams (u6_owners_model.reader_hash_streams), every T17 hash
@@ -457,7 +471,7 @@ st17 = {
     "V2 G1 public clone + hash(publication)": max(_T17_V2_CLONE, _T17_V2_HASH, key=lambda x: x.ev(dict(ASSUMED))),
     "V3 G1 source and preparation hashes": SOURCE.tree() + h17(SOURCE, ID) + PREP_PAYLOAD.tree() + h17(PREP_PAYLOAD, 64),
     "V4 G3-G6 working sets": SETS + G5C + OBJ_WALK + F5_EXACT,
-    "V5 G7 project + preview evidence": SUCC.tree() + SETS + OBJ_WALK + _RTU4_RC + _U4B_RD + _W7_RD + _W15_RB + _RTA4_RD,
+    "V5 G7 project + preview evidence": SUCC.tree() + SETS + OBJ_WALK + _RTU4_RC + _U4B_RD + _W7_RD + _W15_RB + _RTA4_RD + _RTA3C_RD,
     "V6 G8 projected + invocation hash + model rebuild": ENVP.tree() + h17(INVOC_VF, ID) + G8_VALUES + G8_BYTES + SETS + OBJ_WALK,
 }
 T17_name, T17v = max(st17.items(), key=lambda kv: ev(kv[1]))

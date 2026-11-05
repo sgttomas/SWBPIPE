@@ -352,5 +352,4 @@ needs:
 code_paths:
 - docs/user_guide/index.md
 - tools/validation/validate_dependencies_schema.py
-checks:
-- tests/test_user_guide_status_wording.py
+checks: []

@@ -66,6 +66,26 @@ const MAX_B: &str = "result:elastic-maximum:10:load:L-200:10:pipe:P-100";
 const CE: &str = "support:CE-120";
 const COMB: &str = "combination:C-OPER-ALT";
 
+/// RT-A3 §4 (the closed combination-diagnostic roster): the notices the producer states for an
+/// admitted combination on this document, whose maximum and intensified rows no combination
+/// combines (`preview_physics.rs` `append_combination_results`), and its place in the headline scope.
+fn admit_notices(raw: &mut Value, id: &str) {
+    let own = format!("{}:{id}", id.len());
+    let diagnostics = raw["diagnostics"].as_array_mut().unwrap();
+    for (kind, code, message) in [
+        ("maximum", "COMBINATION_STRESS_MAXIMUM_UNAVAILABLE", "stress maxima and section stress extremes are not combined; combine the signed stress component rows instead"),
+        ("intensified", "COMBINATION_INTENSIFIED_STRESS_UNAVAILABLE", "intensified measures are never combined (their ranges and combinations follow the owner's rule in T6)"),
+    ] {
+        diagnostics.push(json!({"id": format!("diagnostic:preview-physics:combination-{kind}:{own}"), "code": code, "severity": "info",
+            "message": message, "source": "core/product_physics", "affected_refs": [id]}));
+    }
+    let headline = diagnostics.iter_mut().find(|d| d["id"] == "diagnostic:preview-physics:headline-scope").unwrap();
+    let refs = headline["affected_refs"].as_array_mut().unwrap();
+    if !refs.iter().any(|r| r == id) {
+        refs.push(json!(id));
+    }
+}
+
 /// Admits the gated combination and adds a consistent mechanics state for it:
 /// the reader checks structure and representation only, not the sums.
 fn with_admitted_combination() -> Value {
@@ -75,12 +95,16 @@ fn with_admitted_combination() -> Value {
     // model withholds every mechanics combination. The invented document's nonlinear
     // state rows, which mark it nonlinear, are removed from this synthetic copy.
     rows(&mut raw).retain(|r| r["kind"] != "nonlinear_support_active_set_state_code");
+    // RT-A3 §4: this synthetic copy states no combination certificate (its absence is no certificate claim).
+    raw["contract_evidence"].as_object_mut().unwrap().remove("combination_certificate");
+    raw["diagnostics"].as_array_mut().unwrap().retain(|d| !d["id"].as_str().unwrap().starts_with("diagnostic:combination-certificate:"));
     raw["contract_evidence"]["combination_gates"] =
         json!([{"combination_id":COMB,"withheld":false,"reason":null}]);
     raw["diagnostics"]
         .as_array_mut()
         .unwrap()
         .retain(|d| d["code"] != "NONLINEAR_COMBINATION_REQUIRES_SOLVE");
+    admit_notices(&mut raw, COMB);
     let basis = json!({"ref_type":"combination","ref_id":COMB});
     let md = |component: &str, coordinate: &str| json!({"component":component,"coordinate_system":coordinate,"location":"node","basis":"explicit_user_linear_combination","sign_convention":"positive value follows explicit user linear combination of matching source result sign conventions"});
     let (ux, uy, uz) = (1.25_f64, 0.0_f64, -5.75_f64);
@@ -909,6 +933,7 @@ fn repair03_combination_faults_are_read_in_row_order() {
             .as_array_mut()
             .unwrap()
             .push(json!({"combination_id":SECOND,"withheld":false,"reason":null}));
+        admit_notices(&mut raw, SECOND);
         raw
     };
     s::for_source(&base()).unwrap();

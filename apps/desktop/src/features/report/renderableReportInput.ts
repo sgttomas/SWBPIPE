@@ -1,4 +1,5 @@
 import { analysisResultHashScope } from "../results/analysisResultHashScope";
+import { documentCombinationIdentities, SUPPLEMENTAL_DIAGNOSTIC_LABEL, suppliedDiagnosticMessage } from "../results/suppliedDiagnostics";
 import type {
   AnalysisRunEnvelope,
   LocalProjectSummary,
@@ -174,7 +175,11 @@ function mapObjectRef(ref: { object_type: string; ref: string } | undefined, fal
  * route the native render and the package's item 9 check them against the delivered result
  * with the Rust mirror `report_package::bindings::expected_report_diagnostics`; parity vectors
  * `fixtures/reports/invented/report_diagnostics_parity.json`. */
-export function diagnosticsForSections(result: Pick<MechanicsResult, "diagnostics">, provenance: ReturnType<typeof sessionProvenance>) {
+export function diagnosticsForSections(
+  result: Pick<MechanicsResult, "diagnostics"> & Partial<Pick<MechanicsResult, "results" | "contract_evidence" | "numerical_quality">>,
+  provenance: ReturnType<typeof sessionProvenance>
+) {
+  const combinations = documentCombinationIdentities(result);
   return result.diagnostics.map((diagnostic, index) => ({
     code: diagnostic.code,
     class:
@@ -190,12 +195,19 @@ export function diagnosticsForSections(result: Pick<MechanicsResult, "diagnostic
       ref_type: "affected_refs",
       ref_id: diagnostic.affected_refs?.join(", ") || diagnostic.id || `diagnostic-${index}`
     },
-    message: diagnostic.message,
+    message: suppliedDiagnosticMessage(diagnostic, combinations, true),
     remediation:
       "Human review required: evaluate this diagnostic against its referenced results before any reliance.",
     provenance
   }));
 }
+
+/** RT-A3 §4 (DEL-05-02 Work `combination-certificate.md` §2, the residual text boundary): the
+ * report quotes a diagnostic message by the Diagnostics panel's classification
+ * (`../results/suppliedDiagnostics`), taking the roster as checked, because the exact and PF
+ * report routes are admitted by the reader before assembly (`checkExactReportAdmission`).
+ * Rust `report_package::bindings::expected_report_diagnostics` mirrors it. */
+export { documentCombinationIdentities, SUPPLEMENTAL_DIAGNOSTIC_LABEL };
 
 function componentSourceLocation(component: PreviewComponent): string {
   const refs: string[] = [];

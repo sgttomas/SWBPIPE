@@ -129,7 +129,7 @@ fn the_loop_entry_refuses_in_both_modes_below_the_estimate() {
         assert_eq!(refusal.ceiling_bytes, estimate - 1);
         assert_eq!(
             error.to_string(),
-            format!("nonlinear dense loop memory guard: estimated leading dense storage {estimate} bytes (88 bytes x 18^2 global DOFs + 16 bytes x 12^2 free DOFs) exceeds the provisional limit {} bytes; the model is refused before any n^2 allocation. The estimate counts the loop's leading dense buffers only and is not a complete memory bound; the limit is provisional until the sparse nonlinear loop (R-4 stage P)", estimate - 1)
+            format!("nonlinear dense loop memory guard: estimated leading dense storage {estimate} bytes (88 bytes x 18^2 global DOFs + 16 bytes x 12^2 free DOFs) exceeds the provisional limit {} bytes; the model is refused before any n^2 allocation. The estimate counts the dense loop's leading buffers only and is not a complete memory bound; in sparse mode the same limit is kept as a provisional admission cap pending the owner's decision (R-4 §6.3 O-2)", estimate - 1)
         );
         // At the estimate itself the model is under the limit and solves.
         let solved = with_ceiling(Some(estimate), || {
@@ -146,4 +146,34 @@ fn a_model_under_the_product_limit_solves() {
         let solved = solve_active_set_frame_with_mode_and_springs(&cantilever(), mode, &[]).unwrap();
         assert!(solved.converged, "{mode:?}");
     }
+}
+
+/// RT-A3 P step 1 (R-4 §3.6, "refuse when 104·(6N)² exceeds the ceiling"):
+/// the guard's estimate is 88·n² + 16·n_f² ≤ 104·n², equal when no DOF is
+/// restrained. So it refuses exactly when its own estimate exceeds the limit,
+/// every model with 104·(6N)² within the limit is admitted, and a fully free
+/// model is refused exactly when 104·(6N)² exceeds it. Checked around the
+/// product limit for restraint counts 0 to 12.
+#[test]
+fn the_guard_refuses_exactly_above_its_estimate_and_never_below_104_n_squared() {
+    let limit = DENSE_LOOP_MEMORY_CEILING_BYTES;
+    for nodes in 1_740..=1_780usize {
+        let global = 6 * nodes as u128;
+        for restrained in 0..=12usize {
+            let dofs = (0..restrained).collect::<Vec<_>>();
+            let free = global - restrained as u128;
+            let estimate = 88 * global * global + 16 * free * free;
+            assert_eq!(dense_loop_memory_estimate(nodes, &dofs).2, Some(estimate));
+            let refused = dense_loop_memory_guard(nodes, &dofs, limit).is_err();
+            assert_eq!(refused, estimate > limit, "{nodes} nodes, {restrained} restrained");
+            if 104 * global * global <= limit {
+                assert!(!refused, "{nodes} nodes, {restrained} restrained");
+            }
+            if restrained == 0 {
+                assert_eq!(refused, 104 * global * global > limit, "{nodes} nodes");
+            }
+        }
+    }
+    // The fully free threshold: 1,759 nodes admitted, 1,760 refused.
+    assert!(104 * (6 * 1_759u128).pow(2) <= limit && 104 * (6 * 1_760u128).pow(2) > limit);
 }

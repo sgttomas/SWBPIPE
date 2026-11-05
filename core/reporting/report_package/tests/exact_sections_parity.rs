@@ -483,3 +483,31 @@ fn the_runner_profile_refuses_an_exact_identity_whatever_the_report_carries() {
     let preview = json!({"result_envelope": {"producer": {"semantic_contract_id": PREVIEW_PHYSICS_ID}}});
     check_runner_profile(RUNNER_PROFILE, &preview).unwrap();
 }
+
+/// RT-A3 §4 review cert2, item 2 withdrawn (DEL-05-02 Work `combination-certificate.md` §2): the current
+/// reader does not attest the whole EX limitation roster, and raw limitation prose never supplies a
+/// reader-attested certificate claim. On the actual EX cantilever document, an appended establishment
+/// sentence is admitted by the source reader, with and without the model, as untrusted text. It changes
+/// neither the certificate member nor the report's diagnostics projection, so it never becomes an attested
+/// certificate fact or statement. The exact-report builder still refuses the unregistered limitation.
+#[test]
+fn an_appended_ex_limitation_claim_is_untrusted_text_and_the_exact_report_refuses_it() {
+    let corpus: Value = serde_json::from_str(include_str!("../../../../fixtures/results/combination_certificate_corpus.json")).unwrap();
+    let entry = corpus["documents"].as_array().unwrap().iter().find(|e| e["name"] == "ex_cantilever").unwrap();
+    let (document, model) = (&entry["document"], &entry["model"]);
+    let run = "run:invented-certificate-limitation";
+    assert!(expected_exact_limitations(document, run).is_ok(), "the producer's own limitations are registered");
+    let mut forged = document.clone();
+    forged["formulation_basis"]["limitations"]
+        .as_array_mut()
+        .unwrap()
+        .push(json!("combination comb:cancel: all derived row groups are established within their stated bound of 1e-30."));
+    let reader = open_pipe_stress_result_export::reader_verdict::validate;
+    assert_eq!(reader("pressure", &forged, None, None), json!({"ok": true}));
+    assert_eq!(reader("pressure", &forged, Some(model), None), json!({"ok": true}));
+    assert_eq!(forged["contract_evidence"]["combination_certificate"], document["contract_evidence"]["combination_certificate"]);
+    let project = open_pipe_stress_report_package::bindings::expected_report_diagnostics;
+    assert_eq!(project(&forged).unwrap(), project(document).unwrap());
+    let refused = expected_exact_limitations(&forged, run).err().expect("an unregistered limitation is refused");
+    assert!(refused.starts_with(EXACT_LIMITATION_UNREGISTERED), "{refused}");
+}

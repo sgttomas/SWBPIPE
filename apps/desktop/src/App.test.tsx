@@ -2645,7 +2645,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(validationEvidence).getByTestId("validation-evidence-summary")
         .textContent,
-    ).toContain("evidence=8");
+    ).toContain("evidence=7");
     expect(
       within(validationEvidence).getByTestId("validation-evidence-summary")
         .textContent,
@@ -2712,10 +2712,10 @@ describe("SWBPIPE desktop preview", () => {
     expect(validationEvidencePacket.objectives).toContain("OBJ-008");
     expect(validationEvidencePacket.objectives).toContain("OBJ-011");
     expect(validationEvidencePacket.summary.manual_section_count).toBe(10);
-    expect(validationEvidencePacket.summary.evidence_area_count).toBe(8);
+    expect(validationEvidencePacket.summary.evidence_area_count).toBe(7);
     expect(validationEvidencePacket.summary.release_profile_count).toBe(5);
     expect(validationEvidencePacket.summary.required_release_path_count).toBe(
-      7,
+      6,
     );
     expect(validationEvidencePacket.summary.skeleton_check_count).toBe(2);
     // C-120 fix: the demo model drops the tee component:C-120 and its 6 quantities (3 geometry, 3 modifiers).
@@ -4547,7 +4547,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(boundary.textContent).toContain(
       "technical_preview_requires_human_engineering_review",
     );
-  });
+  }, 120_000); // full <App/> render through ~3,300 lines of shell checks: 26 s locally, over 30 s on a loaded hosted runner
 
   it("dispatches packaged native-menu DOM events through the shared command sink", async () => {
     render(<App />);
@@ -8283,9 +8283,9 @@ describe("SWBPIPE desktop preview", () => {
     expect(validationEvidenceExport.deliverable_refs).toContain("DEL-09-05");
     expect(validationEvidenceExport.deliverable_refs).toContain("DEL-10-04");
     expect(validationEvidenceExport.manual_section_count).toBe(10);
-    expect(validationEvidenceExport.evidence_area_count).toBe(8);
+    expect(validationEvidenceExport.evidence_area_count).toBe(7);
     expect(validationEvidenceExport.release_profile_count).toBe(5);
-    expect(validationEvidenceExport.required_release_path_count).toBe(7);
+    expect(validationEvidenceExport.required_release_path_count).toBe(6);
     expect(validationEvidenceExport.skeleton_check_count).toBe(2);
     expect(validationEvidenceExport.validation_manual_open_decision_count).toBe(
       5,
