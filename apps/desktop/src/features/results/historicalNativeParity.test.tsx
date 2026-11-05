@@ -96,6 +96,8 @@ const CASES: Case[] = [
   { name: "preview-physics-retained-1 recorded before RT-A4", table: "b001070e5fedeeb101522b22ce0d61bb7cf85f82e86b8d851713f8d9fc8c4c46", stored: retained("preview_physics_retained_1", "retained_precision_milestone_successor_sparse_interactive"), quality: "as recorded" },
   { name: "physics-retained-1 (main) recorded before RT-A4", table: "cf29fd5fc5d61de0f1133e9668b05f3d62ae8f696944fe04de7470029f5357dd", stored: retained("physics_retained_1/main", "retained_precision_exact_successor_sparse_interactive"), quality: "as recorded" },
   { name: "physics-retained-1 (#101) recorded before RT-A4", table: "045f6f0d8ce350246b21fb712d2dd14bf3a7f7f3690e66e062cbbf77d3696a3b", stored: retained("physics_retained_1/pr101", "retained_precision_exact_successor_sparse_interactive"), quality: "as recorded" },
+  // RT-A3 §4: the registry's tenth variant, main's exact successor at 252bef969 (85c2678a…).
+  { name: "physics-retained-1 (main 252bef969) recorded before RT-A3 §4", table: "85c2678a78e794b44761c11efb73c215645c7e2560d802ac8ad6075e7804c691", stored: retained("physics_retained_1/main_252bef969", "retained_precision_exact_successor_sparse_interactive"), quality: "as recorded" },
 ];
 
 let envelope: Json = null;
