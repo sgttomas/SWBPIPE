@@ -994,8 +994,17 @@ write. Nothing in a shared file is written before agreement.
     well-defined. By §6.4 the token states only that the record is translational, and d̃ alone
     governs, so the solve is unchanged. A change to a rotational token makes `direction`
     inadmissible and is refused as in (a).
-  - **(c) Agent authorship.** `direction` is not a user-only modifier. Whether the RT-E1
-    catalog writes it is being confirmed with RT-E1 (2026-11-04).
+  - **(c) Agent authorship.** `direction` is not a user-only modifier. RT-E1 recommends that the
+    catalog may write it (2026-11-04), with Agent 0 confirming:
+    - LIM-001 (O5) reserves to the person only k, SIFs, stiffness scaling and their source;
+    - a restraint direction is a stated geometric input, like node positions and restraint
+      DOFs;
+    - the catalog's `create_support` row does not inspect record members, so the applier's
+      refusals govern an agent proposal exactly as they govern the person.
+
+    The catalog's `create_support` guidance names `direction`, its admission scope and its
+    refusals in the next catalog revision (through Agent 0 and App v4). If Agent 0 rules it
+    user-only, that is the catalog's restriction, not the applier's.
   - Editing or removing `direction` stays unsupported until the authoring lane designs it.
     The desktop Direction field is the authoring lane's, after S-K1.
 
