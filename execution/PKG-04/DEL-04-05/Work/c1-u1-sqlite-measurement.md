@@ -201,7 +201,8 @@ Findings:
    This is consistent with the source (§5). The distinct-token counts were not measured, so the
    slot-array sizes are inferred.
 5. **Page cache.** 2 103 040 bytes were in use after every COMMIT (G5b), which is cache_size −2000
-   plus page headers. History merges (H1, H2: all segments merged into one at COMMIT) showed no
+   plus page headers. This is observed after-COMMIT occupancy, not a cap; `cache_size` is a
+   suggested maximum (§5). History merges (H1, H2: all segments merged into one at COMMIT) showed no
    added peak.
 6. **Upsert phase (outside U1's metric, recorded for U1/U3).** The upsert's rise over its start
    exceeds 2·|S| by about 2.5 MB in most cases. In six equal-size replacements (json 4→4 and
@@ -251,7 +252,11 @@ References are to functions in the bundled `sqlite3.c`.
   if they exceed 1 MiB of pending data; otherwise they coexist with hash(S).
 - **COMMIT** (`fts5FlushOneHash`). The hash is sorted in place through `pScanNext` and written leaf
   by leaf through `Fts5Buffer`s of page size 4 050. Automerge (4) and crisismerge (16) merge page
-  by page. The pager then keeps at most cache_size pages, spilling to the WAL (`cache_spill`).
+  by page. `cache_size` is SQLite's suggested maximum for the page cache, not a hard cap:
+  `pcache1FetchStage2` can allocate beyond it when the pages it needs cannot be recycled, and
+  `cache_spill` writes dirty pages to the WAL without capping the cache (review of #137, finding 2).
+  The ≈2 MiB in §3 is the occupancy observed after COMMIT under these settings, not an
+  in-statement maximum; transient cache growth within a statement is unresolved.
 - **Copies of S.**
   - The rusqlite bind copies S (`SQLITE_TRANSIENT`), and the ledger prices it as the search text.
   - FTS5's `sqlite3Fts5StorageContentInsert` binds S again with `sqlite3_bind_value` into its cached
@@ -293,13 +298,18 @@ the close.
 
 (f) The COMMIT flush's buffers, at most about 0.2 MB measured, plus the WAL autocheckpoint.
 
-(g) The page cache at cache_size (about 2 MiB). The general page cache belongs to U3, and the
-upsert excursion in §3 item 6 is unexplained.
+(g) The page cache: about 2 MiB observed after every COMMIT under these settings. That is
+occupancy, not a cap (`cache_size` is a suggested maximum), and growth within a statement is
+unresolved. The general page cache belongs to U3, and the upsert excursion in §3 item 6 is
+unexplained.
 
-**A source-level ceiling per byte**, without counting arguments: each distinct token takes at
-least 2 bytes of text (1 token byte + 1 separator). (b) + (c) are therefore at most
-(128 + 48) / 2 = **88 bytes per byte of S** (likewise of S′ for markers), plus 8 KiB, plus (a), (d)
-and the |S|-sized copies. Counting how many short distinct tokens exist lowers the achievable
+**A sizing estimate per byte (incomplete; not a ceiling).** Each distinct token takes at least 2
+bytes of text (1 token byte + 1 separator), so pricing only **minimum-sized** distinct-token
+entries and their slots gives (128 + 48) / 2 = **88 bytes per byte of S** (likewise of S′ for
+markers), plus 8 KiB, plus (a), (d) and the |S|-sized copies. This does **not** establish an upper
+bound (review of #137, finding 1). It does not cover the larger allocations of longer tokens, the
+growth of a repeated token's position list, allocator size rounding, or a final token without a
+separator; no allocation-size inequality covering those terms is derived here. Counting how many short distinct tokens exist lowers the achievable
 figure: there are only 36 one-character ASCII tokens, and every 4-character token takes 5 bytes. A
 rough, unverified estimate for MiB-scale texts is 35–44×, against 26.5–32× measured for the
 `short` family. That counting depends on unicode61's token-character classes (2-byte UTF-8 letters
@@ -307,7 +317,12 @@ as one- and two-character tokens) and diacritic folding, and it is **not proven 
 
 **What remains unproven or open:**
 - a counting bound for hash(S) under unicode61's character classes;
-- the realloc and slot-resize transients the counter cannot see;
+- allocator-internal `realloc` copying, which the counter cannot see. (Slot-array resizes are
+  different: `fts5HashResize` allocates the new array with `sqlite3_malloc64` while the old one
+  is still live, then frees it, so that overlap **is** in the high-water.)
+- an allocation-size bound for hash(S) covering longer tokens, position-list growth, rounding and
+  the final token (§5's 88 is an incomplete estimate);
+- transient page-cache growth within a statement (only after-COMMIT occupancy was observed);
 - which statement holds the extra |S| at the insert peak;
 - the upsert's page-cache-sized excursion;
 - other SQLite versions, compile options, platforms (Windows) and connection lifetimes. A
@@ -323,8 +338,9 @@ as one- and two-character tokens) and diacritic folding, and it is **not proven 
 - The charge cannot be a function of |S| alone. It needs a term for S′ (shrinks) and one for the
   largest other stored search row. The last needs that row's length from the store before the
   write: the full scan comes from the plan, not from the data.
-- A per-byte coefficient is either empirical (§4: 36 with the stated non-proof) or a source ceiling
-  (§5: up to 88 for the hash and slots alone). The choice, and whether to change the plan instead
+- A per-byte coefficient is either empirical (§4: 36 with the stated non-proof) or would need a
+  source-derived bound, which this note does not establish (§5's 88 is an incomplete estimate for
+  minimum-sized tokens only, not a ceiling). The choice, and whether to change the plan instead
   (for example an indexed `project_id` mapping, or a contentless/external-content table), are
   reserved for the proposal's review. Nothing here changes product behaviour.
 - U3 (working memory, the page cache in general, the upsert excursion) and U4 (no App-wide cap)
