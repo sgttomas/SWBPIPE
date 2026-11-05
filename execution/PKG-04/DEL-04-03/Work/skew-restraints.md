@@ -1022,6 +1022,60 @@ write. Nothing in a shared file is written before agreement.
   - Editing or removing `direction` stays unsupported until the authoring lane designs it.
     The desktop Direction field is the authoring lane's, after S-K1.
 
+### 11.2 Phase-A hunk review: conditions for phase B (2026-11-04)
+
+Phase A (head `83c154ae6`) wrote only FK `restraint_basis.rs`, its tests and the one agreed
+`pub mod` line. The owners reviewed the hunk batch (`/tmp/sk1a-hunks-202611042132/`) and set
+these conditions on phase B.
+
+- **RT-A3, owner review (not an independent review).**
+  - **Hunks 01–05 OK.** These cover F-1 node blocks, F-2 plumbing, the A-1/P-2 literal sites
+    and F-3 rows.
+  - **`FrameKernelError::InvalidInput(&'static str)` OK.**
+    - The DEL-04-06 diagnostics mapping classifies it as a **named input refusal**: never
+      numerical range, never range-deferred, never a solver failure that demotes a case.
+    - It is a guard in depth: §2.2's earlier gates (item 6, item 10) refuse first in PP. A PP
+      regression proves the named §2.2 code wins.
+  - **F-3.** The `64·γ(n)·max` screen's n counts **ground rows, direction rows included**. A
+    one-stop test pins n.
+  - **P's `sparse.rs`** is final at `78580da7e`, which is already in this base.
+  - **Spec 06** (the F-2 numerical bodies, A-1, P-2) is accepted as phase B's basis. The actual
+    code hunks go to RT-A3 before merge, and F-2's to the Astra numerical proof. RT-A3's cert
+    lines (−3466, −3684, −7229/+7252) are untouched.
+  - **DEL-04-06 and DEL-03-06 are not RT-A3's.** Their signer is asked of Agent 0. Any shared
+    `SPLIT_EXACT_MIN` is bit-identical to today's, leaves existing connector uses unchanged,
+    and has a test pinning 2⁻⁹⁶⁹.
+- **Authoring lane: AP-1 approved, with one should-fix.**
+  - The `create_support` admission check must use the document validator's own item-1
+    predicate, through one shared function, or run the skew gates only after item 1 passes.
+    It must not re-implement that predicate. Today the re-implementation upper-cases and trims
+    the DOF token, and treats `nonlinear: null` as absent.
+  - Regressions, on an exact document: a skewed `line_stop` with `restraints: ["uy"]`, and one
+    with `nonlinear: null`, each get the validator's item-1 code, not the skew code.
+  - Optionally add `anchor` and `vertical_support` to (a)'s family regression.
+  - One source for the code strings (M-1: PP `document_members` constants) replaces FK's
+    `SkewCode` strings.
+- **RT-U4, pricing at S-K1's D3.**
+  - **B(20N) stands only with a registered premise.**
+    - An `O10_EDGE_ZERO` or `O10_SITE_SIZE` 0 row for `RestraintBasis` methods, with its
+      source check (D1 declines `direction`, `retained_memory.rs:1040`).
+    - The D1 capacity-0 fact for `lift_radius`: `Vec::new()` at the one product
+      construction.
+  - **The 80 → 104 B switch** is keyed on `pub lift_radius: Vec<f64>` in `g3lib.py:244-245`,
+    `ordinary_caps.py:29` and `text_lexicon.py:174`. Older revisions keep 80.
+  - **Debug** is settled by the pricing's own format-site and call-graph inventory, not by
+    grep. If `StructuralSolution`'s Debug is reached only from `#[cfg(test)]` sites, that is a
+    stated premise.
+  - **`assess_rows`' iterator chain collects nothing.**
+  - **Layouts.** `SparseAssemblyOptions` (32 → 56 B) and `FormationSource` (+8 B) on a priced
+    stack frame mean the AC-004 stack witnesses re-run at S-K1's D3, in an Agent-0-cleared
+    exclusive window. That window is planned into the D3 order. New owned types are listed as
+    zero on D1.
+  - **B7a.** The PP `lib.rs` B7a restatement is #122's (minuend_final) D3 debt, not S-K1's.
+    S-K1's D3 starts from the frozen predecessor after #122's re-pin. If the two are ever
+    combined, both basis changes are named.
+  - **C1 mirror.** It follows once phase B implements the row and its digests exist.
+
 ---
 
 ## 12. Pricing outlook (no tool run, no profile)
