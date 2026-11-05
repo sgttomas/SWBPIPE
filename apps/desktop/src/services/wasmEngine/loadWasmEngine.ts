@@ -72,6 +72,10 @@ export type WasmOperationEngine = {
   // (`operating_conditions::preview_operating_conditions`). Model JSON text in; the
   // preview JSON out, or the input-error envelope when the text is not JSON.
   previewOperatingConditionsJson: (modelJson: string) => string;
+  // The engine's own number display (`display_number`, #118): the text every delete
+  // before value and diff row uses. Called, never mirrored: JavaScript and Rust break
+  // ties between equally short digit strings differently.
+  displayNumberText: (value: number) => string;
 };
 
 type GeneratedGlueModule = {
@@ -85,6 +89,7 @@ type GeneratedGlueModule = {
   model_checks_json: WasmOperationEngine["modelChecksJson"];
   derived_shear_modulus_json: WasmOperationEngine["derivedShearModulusJson"];
   preview_operating_conditions_json: WasmOperationEngine["previewOperatingConditionsJson"];
+  display_number_text: WasmOperationEngine["displayNumberText"];
   canonical_json_string: (valueJson: string) => string;
   canonical_sha256_hex: (valueJson: string) => string;
   canonical_json_checked_v1: (valueJson: string) => string;
@@ -204,7 +209,7 @@ async function instantiate(): Promise<WasmOperationEngine> {
     }
   }
 
-  for (const name of ["validate_operation_json", "apply_operation_json", "validate_operation_batch_json", "apply_operation_batch_json", "convert_display_quantities_json", "validate_model_document_json", "model_checks_json", "canonical_json_string", "canonical_sha256_hex", "canonical_json_checked_v1", "canonical_sha256_hex_checked_v1", "validate_retained_precision_json", "validate_retained_precision_transport_json", "retained_precision_semantics_json", "reader_dispatch_json", "reader_validate_json", "reader_transport_json", "reader_row_semantics_json", "reader_row_semantics_each_json", "numerical_health_json", "preview_operating_conditions_json"] as const) {
+  for (const name of ["validate_operation_json", "apply_operation_json", "validate_operation_batch_json", "apply_operation_batch_json", "convert_display_quantities_json", "validate_model_document_json", "model_checks_json", "canonical_json_string", "canonical_sha256_hex", "canonical_json_checked_v1", "canonical_sha256_hex_checked_v1", "validate_retained_precision_json", "validate_retained_precision_transport_json", "retained_precision_semantics_json", "reader_dispatch_json", "reader_validate_json", "reader_transport_json", "reader_row_semantics_json", "reader_row_semantics_each_json", "numerical_health_json", "preview_operating_conditions_json", "display_number_text"] as const) {
     if (typeof glue[name] !== "function") throw absenceError("required export missing", name);
   }
   return {
@@ -217,6 +222,7 @@ async function instantiate(): Promise<WasmOperationEngine> {
     modelChecksJson: glue.model_checks_json,
     derivedShearModulusJson: glue.derived_shear_modulus_json,
     previewOperatingConditionsJson: glue.preview_operating_conditions_json,
+    displayNumberText: glue.display_number_text,
     canonicalJsonString: glue.canonical_json_string,
     canonicalSha256Hex: glue.canonical_sha256_hex,
     canonicalJsonCheckedV1: glue.canonical_json_checked_v1,
