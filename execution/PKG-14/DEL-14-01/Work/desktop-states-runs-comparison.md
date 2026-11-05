@@ -502,8 +502,12 @@ the History panel and `useModelStateHistory.ts`.
   `read_analysis_run_in_native_custody {projectId, recordingId}`: the same
   verified store read (every integrity refusal above, in one read transaction),
   without the 64 MiB webview limit, with the stored result's and record's texts
-  admitted as pool leases (capped at the per-invocation budget and 12 GiB) from
-  their measured lengths before either is loaded, held natively as a restored
+  admitted as pool leases from their measured lengths before either is loaded,
+  within the command's running total (the r4 accounting below: its live leases
+  together, from its argument lease, within min(the budget that lease was
+  admitted under, 12 GiB); the held texts leave that total when the handle is
+  established; DEL-04-05 `c1-native-custody-plan.md` §8, "One running total per
+  command"), held natively as a restored
   handle of stored origin (`recorded_run`, the SHA-256 of the texts held). The
   reply (a JSON body) carries the verified summaries, the stored manifest's
   canonical text, the record's header without its row-scale members, and
@@ -591,7 +595,13 @@ the History panel and `useModelStateHistory.ts`.
   full, are refused as not the record written, a new text. A staged record
   failing the checks is refused before anything is written. Either refusal
   rolls everything back. These and P1's memory-refusal changes are stated in
-  DEL-04-05 `c1-native-custody-plan.md` slice 5, "Refusal changes".
+  DEL-04-05 `c1-native-custody-plan.md` slice 5, "Refusal changes". Its memory,
+  and Save/Create Project's from the job handle, is the r4 accounting below:
+  one running total over the command's live leases, from its argument lease,
+  within min(the budget that lease was admitted under, 12 GiB), each lease
+  reserved in it before the pool admits it and refused by name above it (the
+  held result is not counted in it; DEL-04-05 §8, "One running total per
+  command").
   That text digest is never stored and is not the record's hash; every other
   read keeps the full verification.
 - **Checks before the store.**

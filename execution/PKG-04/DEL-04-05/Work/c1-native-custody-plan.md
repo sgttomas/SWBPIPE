@@ -681,8 +681,8 @@ restored and browser-preview results):
   its intake; the registry still keeps only the digest. Refused `NATIVE-PERSISTENCE-CUSTODY`, in
   order and before anything is written: the text absent or null; its exact bytes' SHA-256 not the
   intake digest recorded at admission (hashed in place, nothing allocated); its parse, priced as
-  an argument's (`text_parse_bytes`) and admitted first as an interactive lease capped at
-  min(configured budget, 12 GiB) (a refusal is the pool's typed one), not JSON; the parsed model
+  an argument's (`text_parse_bytes`) and admitted first as an interactive lease in the command's
+  running total (§8, "One running total per command"; a refusal is the pool's typed one), not JSON; the parsed model
   not the manifest's `model_basis.model_payload` as JSON data with JavaScript's numbers
   (`same_js_data`: binary64 values, `-0` equal to `0`, members in any order; exactly equality of
   the two RFC 8785 texts). A manifest whose model differs under the same project id, sealed and
@@ -773,6 +773,15 @@ restored and browser-preview results):
     different point. In particular a save's search-row reservation is now admitted after the
     project row is upserted; its refusal rolls the transaction back, so nothing is written. The
     refusal is `STORE-READ-MEMORY-UNAVAILABLE` naming that reservation.
+  - *Memory refusals, one running total (RT-U4, 2026-11-05; §8, "One running total per command"):*
+    each C1 command's live leases are now counted together against its budget, so a command can be
+    refused where each lease alone fit. A named reservation over the budget is refused
+    `STORE-READ-MEMORY-UNAVAILABLE: <what> needs <total> bytes in all, above the per-invocation
+    budget of <budget> bytes; nothing more was read or written.` (the reopen's own reservations end
+    `nothing more was read.`), where it was the pool's per-lease `ingress_exceeds_budget` inside the
+    `which refused them (…)` form; a typed lease's refusal stays the pool's `ingress_exceeds_budget`,
+    its `required_bytes` now the command's total. A pool refusal keeps its text. Inside a
+    transaction every such refusal still rolls back every row.
   Evidence: `p1_stored_bytes_hashes_and_replies_are_the_pre_change_implementations` (every stored
   column and reply of Record Run, Create/Save, the recorded-run read, the reopen and the re-save on
   every persistence case, against digests generated at `c8865f384`), the `p1_*` and `p2_*` tests in
@@ -1597,7 +1606,8 @@ configured, the owner-adopted 12 GiB default. The cap is checked under the pool 
     which the 1,000-row and 1,000-key bounds limit;
   - a response lease of the response's exact length before it is allocated, ending when the
     command returns.
-- **The analysis-run builder's leases** (slice 5), under the same rules. Nothing is cached; each
+- **The analysis-run builder's leases** (slice 5), under the same rules and within the command's
+  running total (below; the persistence commands share them). Nothing is cached; each
   call reads the held bytes with its arguments, so no result crosses a job, manifest, rule status
   or exclusion change. The leases:
   - the args lease, grown by the manifest text's priced parse;
@@ -1611,9 +1621,45 @@ configured, the owner-adopted 12 GiB default. The cap is checked under the pool 
   Unpriced: the readers' working memory, the writers' per-number and per-escape scratch, the load
   basis, statuses and rule-pack diagnostics (scaling with the model and arguments, not enforced within the fixed 4 MiB allowance), and
   the delivery copies. Slice 7 must include these model-sized lists when evaluating residuals.
+- **One running total per command** (DEL-14-01 Design §3, repair r4: the budget bounds the
+  command's live leases together, starting from its argument lease; RT-U4, 2026-11-05; no new
+  budget or rule). The analysis-run preview, Record Run, Save or Create Project, the restored
+  re-save, the project reopen and the recorded-run reopen each keep one ledger
+  (`memory_pool::CommandLedger`, through `stored_read::NativeLeaseMemory`):
+  - **Budget.** min(the budget the argument lease was atomically admitted under, 12 GiB), fixed for
+    the command. Every later lease and growth of the command is admitted by the pool under that
+    cap, with its class, pressure, fresh headroom, aggregate pool, residency credit and re-sampling
+    unchanged; a budget changed while it runs applies to later commands, and real headroom or pool
+    changes still refuse.
+  - **Accounting.** The argument lease is seeded once and its drop removes its charge; its growth
+    by the arguments' bound and each argument's priced parse is a delta. Each lease's delta is
+    reserved atomically in the ledger before the pool admission it precedes, as a provisional
+    charge that counts until admitted and is undone on a pool refusal or unwinding; growth,
+    shrinking and release are exact (nothing wraps or saturates), concurrent admissions of one
+    command cannot oversubscribe it, and a lease may drop on any thread.
+  - **Refusal.** Over the budget, by name before the allocation it guards (slice 5, "Refusal
+    changes"); every lease ends on every path, unwinding included.
+  - **Not counted.** The leases the command did not admit: the held fresh result H and an existing
+    restored handle's texts (counted in the pool and its headroom as before), shared through
+    `Arc`, never charged twice.
+  - **The reopen's handoff.** The leases backing a reopened run's held texts are handed over whole
+    (never released and admitted again) and leave the command's total only when the registry
+    establishes the handle (`HeldResult::restored_in_custody`, `restore_with_basis`); every other
+    lease stays counted until it drops. A handle whose reply is then refused, fails to serialize or
+    unwinds is disposed, so none is left that no webview knows; a reset in between already
+    disposed it. P1(e), releasing H before a reopen, is not part of this.
+  - **Evidence.** `native_ledger_tests.rs` (each command traced at every admission: every pool
+    admission of the command's thread is a ledger delta; the actual crossing step refused one byte
+    lower, by name, nothing written; budget identity; the handoff; rollback after the writes;
+    unwinding; no stranded handle) and `memory_pool.rs` `ledger_tests` (seed, exact growth and
+    shrink, refused deltas undone, pending admissions counted, racing admissions of one ledger,
+    cross-thread drops, the handoff, underflow).
+  - **Not claimed.** This bounds the leases the commands take; it is no fit claim and no App-wide
+    cap. U1 (FTS5's tokenizer hash and the second old-content copy, unpriced), U3 (builder,
+    reader and validator working memory; SQLite's page cache) and U4 (no App-wide cap) remain.
 - **The persistence commands' leases** (slice 5's persistence), under the same rules; every lease
-  is admitted before what it covers is allocated and capped at the per-invocation budget and the
-  12 GiB default (the store's own reads lease through `NativeLeaseMemory`, one adaptive lease per
+  is admitted before what it covers is allocated, within the command's running total above (the
+  store's own reads lease through the same `NativeLeaseMemory`, one adaptive lease per
   reservation). Held together:
   - the raw body's copy and the args lease (the decoded arguments, the model, the re-sent intake
     text and the manifest's priced parse);
@@ -1642,7 +1688,8 @@ configured, the owner-adopted 12 GiB default. The cap is checked under the pool 
   journal, FTS5's in-memory index of the search text, the staged pass's members (the record's
   non-row-scale identity members, as the header record) and Tauri's delivery copies of the small
   reply.
-- **The reopen's leases** (slice 6), under the same rules: the args lease as every command's; from
+- **The reopen's leases** (slice 6), under the same rules and within the command's running total
+  (above; the held leases leave it when the handle is established): the args lease as every command's; from
   the measured lengths, before anything of the run is loaded, the held result's and record's leases
   (each its text's envelope, adaptive, capped) and SQLite's copies of both (ended after the load); each
   parse's materialization M (result, record, manifest) admitted before the parse, a recorded run's
@@ -1653,7 +1700,8 @@ configured, the owner-adopted 12 GiB default. The cap is checked under the pool 
   or reset (or the last reader's share). A restored result counts toward retention
   (`MAX_RETAINED_RESULTS`), and a restoration begun before a session reset is refused at registration.
   Unpriced: as listed in slice 6's limits.
-- **The re-save's leases** (slice 6's save continuity), under the same rules: the raw body's copy and
+- **The re-save's leases** (slice 6's save continuity), under the same rules and within the
+  command's running total (above): the raw body's copy and
   the arguments' lease as the fresh save's; each held text's parse M (result, record) admitted before
   the parse; the working lease (the fixed allowance and the canonical writer's scratch); each output
   text at its exact length; SQLite's statement copies; the reply's exact length. The held texts are
