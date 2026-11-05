@@ -282,9 +282,13 @@ def test_one_derived_group_is_its_literal():
 
 
 def _members():
-    sys.path.insert(0, str(SOURCE / "tests"))
-    import retained_precision_corpus as corpus
-    for case in corpus.load_corpus()["cases"]:
+    # The registered successors: the lossless corpus storage, expanded by its own reader.
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("rp_corpus_storage", SOURCE / "tools/fixtures/retained_precision_corpus.py")
+    storage = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(storage)
+    cases = storage.expand(json.loads((SOURCE / "fixtures/results/retained_precision_cases.json").read_bytes()))["cases"]
+    for case in cases:
         member = case["source"].get("contract_evidence", {}).get("combination_certificate")
         if member:
             yield case["id"], member

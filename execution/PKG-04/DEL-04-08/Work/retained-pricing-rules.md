@@ -5150,6 +5150,11 @@ the registered state remain required. This records no acceptance.
   with it.
 - **AC-004 pending.** The witness binaries are built and identified below. The witnesses were not run: they wait for
   Agent 0's clearance (no exclusive grant).
+- **Review repair.** The independent review of `fade98a74` found that the combination points could not be evaluated at
+  in-build atoms (B1), that the owners' Value-tree census did not match the source's topology (S1), and that the
+  witness filters were not fully qualified (N1). All three are repaired below ("Review repair: native combination
+  points, the owners' census and the witness filters"). The merged tree, the generated block, `PINNED_RECORD` and the
+  challenge's values are unchanged by the repair.
 
 **Basis and integration chain.**
 - *Basis.* I3a's §8.52 head `c008fe48e`, whose priced core equals `ad5ad60e4`; §8.52's registration (`e98ad5add`) is
@@ -5231,14 +5236,15 @@ combination_certificate.rs)` and `fnkey("member_check", RE …)`:
   reason, 14 B components).
 - *RTA3C-OWN.* The owners model prices the case-id vector at every z (`s(&str)` per case) and, at z ≥ 1 only, the
   operands, `publish`'s transient, the resident member Value and the reader's working set. Its in-build atoms are
-  bound in `g5_profile.py`; at the profile's points (z = 0) only the case-id vector is priced.
+  bound in `g5_profile.py`; at the profile's points (z = 0) only the case-id vector is priced. Its census was
+  reconciled with the source's topology in the review repair (below).
 
 **Run and comparison.** `price.py run 51966dcd8`:
 - *Completeness.* Exit 0 on all four points, no unmapped header or unclassified argument, `text_complete` and
   `D_converged` everywhere, both O-10 checks 0.
 - *D and TAV.* D is L(3,0) 43,783, L(2,1) 39,373, L(1,2) 35,239 and E 76,356; TAV is L(3,0) 4,714,365,996 and E
-  7,229,420,858 (+194 B at both against the basis). The z ≥ 1 points stay below the merged tree (E_mov + R at
-  L(2,1) and L(1,2) 7.61e9 and 7.02e9 against L(3,0)'s 8.02e9, chain strides).
+  7,229,420,858 (+194 B at both against the basis). The z ≥ 1 points are evaluated at in-build atoms in the review
+  repair (below); no comparison here rests on the chain's illustrative strides.
 - *Against the basis* (`c008fe48e`): structure equal, **1,590 equal, 12 higher, 0 lower**; the check moves from sparse
   8,593,875,919 / dense 8,653,007,263 to 8,593,876,722 / 8,653,008,066.
 
@@ -5259,7 +5265,8 @@ combination_certificate.rs)` and `fnkey("member_check", RE …)`:
   (1,713 lines).
 
 **Native atoms and records.**
-- *The build.* The PP lib-test build (rustc 1.97.1, debug, opt-level 0) reports 328 in-build atoms. One moves:
+- *The build.* The PP lib-test build (rustc 1.97.1, debug, opt-level 0) reports 328 in-build atoms of the profile (and,
+  since the review repair, the 31 point atoms below). One moves:
   `s(PreparedCaseResult)` (= `Result<LoadCaseSolve, FrameKernelError>`) 1,888 → 1,912 B, `LoadCaseSolve`'s
   `certificate_operand: Option<Operand>` (+24 B), charged twice per case at three cases (+144 B).
 - *Maintained eval.* `price.py eval` at those atoms: W1–W5 +947 B and X1–X3 +839 B in both modes (803 B / 695 B of
@@ -5354,33 +5361,129 @@ forged notice (the registration does not hold) and the registered legacy success
   `source_read_dependencies` resolves every declaration.
 - *Records.* `python3 -m tools.deliverables --project . check` report no error (110 deliverables); `tools/release/generate_provenance_scope.py --check` matches (82 files).
 
+**Review repair: native combination points, the owners' census and the witness filters.** The independent review
+of `fade98a74` (B1, S1, N1) is repaired in `517dc0df2` (B1's probe), `2738f2d14` (S1's census, the priced source),
+`f1d8fa3d9` (the point atoms regenerated from that run) and this record.
+- *B1: the points' atoms in the build.* The merged z = 0 profile lists only its own 328 atoms, so `price.py eval` of
+  the L(2,1) and L(1,2) trees stopped with `MISSING ATOMS` (the certificate's `s(C3OperandGroup)`, `s(C3Derived)`,
+  `s(C3CaseKey)`, `s((usize,ActionScales))` and RT-A4's and S1's earlier combination owners). The earlier comparison
+  here used the chain's illustrative strides and is withdrawn. Now `g5_profile.py --point-atoms` (driven by
+  `price.py point-atoms <run dir> <rs> [--check]`) binds exactly the atoms the four points use beyond the merged
+  tree's, by the same `BIND` entries as the profile's own, into the test-only GENERATED POINT ATOMS block of
+  `retained_memory_law_tests.rs`; `profile_point_atoms_in_build` prints them as `I65_G5_ATOM` lines under the
+  maintained `profile_` filter. An unbound atom or an Estimate stops the generator: no point is evaluated at an
+  ASSUMED stride. The block holds 31 atoms (24 InBuild, 7 SourceUpper), generated from the `2738f2d14` run
+  (`--check` equal). In the registered build they are, e.g., `Node(String,BTreeMap)` 648, `Node(String,CaseRows)` 912,
+  `Node(String,(String,CaseRows))` 1,176, `s(CombinationView)` 120, `s(C3OperandGroup)` 112, `s(C3CaseKey)` 104,
+  `s(C3Derived)` 88, `s((usize,ActionScales))` 24 and `s((String,f64))` 32 B; §8.46's same-build supplement values
+  are reproduced, now from a maintained test.
+- *S1: the census (`rta3c_owners_model`, z ≥ 1 only).* The member Value now counts each derived group's `rows` slots
+  (≤ 3), `equal_pressure` as the outer one-entry `{elastic_group}` object plus the inner four-entry object (its
+  `row_set` key and `"axial"` value; on route L always null, D1.5, priced at its largest form), each operand group's
+  row-id slots (≤ 2 × 3) and the expression's inner keys (`terms`, the longer `combination_id`). `json!` interpolates
+  by serialization, so `publish` holds, beyond the resident member: the derived Values and their collected clone at
+  the record push, one case's group Values and one group's rows Values during the operand build, and a whole member
+  copy at `json!({"operand_cases": .., "combinations": records})` while both source vectors live; each is charged
+  with the row-id bytes the TEXT row-id clones (RTA3C-RS) do not hold, and the case order's `to_value` tree and its
+  array clone are two trees. Both modules now charge each `Derived`'s `rows` backing (≤ 3 `usize`), the `covered`
+  `HashSet<usize>` (≤ min(6G, P + 8g + 1)), the terms (≤ 3 `(String, f64)`, a new atom bound InBuild) and the missing
+  list; the reader its two spec vectors of cloned `(kind, location)` Values, one group's expected rows (array slots,
+  not entries) beside their `json!` copy, three derived trees (the originals, their collected clone and the expected
+  record's copy), the used ids' bytes and the stated/wanted lists. `pressure` clones nothing on route L (D1.5).
+  Maintained tests (`test_853_rt_a3_certificate.py`) check that the census equals the producer's maximal topology
+  (array slots +2 and entries +2z, fixed slacks for the expression's alternatives; the former census fails this),
+  that one derived group equals its literal, that every registered member is bounded component by component (all
+  19 retained-corpus successors with a member, W-CB5's 40 derived groups and 70 row-id slots among them, and the
+  six certificate-corpus documents, two with equal-pressure objects), and that each copy is charged as counted.
+- *The re-price* (`price.py run 2738f2d14`, exit 0, O-10 0/0). The merged tree is coefficient-identical to
+  `51966dcd8`'s (1,602 equal; it differs only in its basis and one added ASSUMED stride), so the generated block,
+  `generate --check` (1,713 lines), `PINNED_RECORD` and the challenge are unchanged; L(3,0) (1,600) and E(3) (1,572)
+  are equal. L(2,1) and L(1,2) each move 40 coefficients and their `success__` copies, none lower:
+
+| Form (both modes) | L(2,1) | L(1,2) | Owner |
+|---|---|---|---|
+| `O_base` | [1] +63,798,035; `Node(String,Value)` +112,935; `s(Value)` +284,950; `s(usize)` +14,848; `s((&str,&str))` +6; `s(&str)` +4; `s((String,f64))` +3 | [1] +65,795,392; `Node(String,Value)` +158,460; `s(Value)` +283,161; the same small atoms | `publish`'s copies and owners (RTA3C-PB) and the member's counts in the preview evidence (RTA3C-MV) |
+| `SUCC`, `T16_P1`–`P4`, `T17_V6` | [1] +43,019; `Node(String,Value)` +4,300/+4,301; `s(Value)` +32,256 | [1] +86,038; `Node(String,Value)` +8,602; `s(Value)` +32,256 | the resident member (RTA3C-MV): slots +32,256, objects +3,584 (+7,168), key and string bytes |
+| `T16_P2`, `T17_V2_hash` | `s(&str)` +3,584 | `s(&str)` +7,168 | one per member object |
+| `T17_V5` | [1] +14,117,922; `Node(String,Value)` +37,272; `s(Value)` +68,121; `s(usize)` +14,848; `s(&str)` +12; `s((String,f64))` +3 | [1] +14,160,813; `Node(String,Value)` +41,574; the same small atoms | the reader (RTA3C-RD) |
+
+- *Native evaluation of every point* (the registered build's `profile_` run, 9 passed, 359 atoms: 328 + 31). Maintained
+  `price.py eval` evaluates the merged tree and all four point trees with no missing atom; the merged tree reproduces
+  the in-build record (W3 dense 8,870,294,197 B). For each point, mode and phase: E + R ≤ the merged tree's, and E + R
+  plus the upward-rounded 5 % TEXT reserve (⌈TAV/20⌉, TAV_W for W and TAV_X for X, the larger of the point's and the
+  merged tree's) ≤ ⌊0.9M⌋ = 11,596,411,699 B at M = 12,884,901,888 B and R = 64 MiB. All 64 point-phase-mode
+  values hold both. Dense (sparse is lower by the same 59,131,344 B in every phase):
+
+| Tree (dense; E + R, B) | W1 | W2 | W3 | W4 | W5 | X1 | X2 | X3 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Merged (registered) | 6,576,563,808 | 6,918,558,369 | 8,870,294,197 | 8,664,010,469 | 7,737,706,267 | 8,652,543,912 | 7,385,161,302 | 7,058,451,178 |
+| L(3,0) | 6,141,978,260 | 6,475,069,781 | 8,301,814,561 | 8,113,915,535 | 7,245,028,309 | 5,931,861,399 | 4,926,175,801 | 4,627,095,652 |
+| E(3) | 6,500,035,914 | 6,842,030,475 | 8,784,343,396 | 8,583,199,665 | 7,661,178,373 | 8,572,126,388 | 7,308,633,408 | 6,981,923,284 |
+| L(2,1) | 6,060,348,395 | 6,393,439,916 | 8,052,511,861 | 8,010,020,498 | 7,093,982,864 | 5,500,898,785 | 4,550,872,290 | 4,264,979,187 |
+| L(1,2) | 5,668,634,937 | 6,001,726,458 | 7,479,553,784 | 7,548,116,422 | 6,619,345,262 | 4,673,919,120 | 3,779,540,836 | 3,506,863,123 |
+| L(2,1) before S1 | 5,904,192,664 | 6,237,284,185 | 7,892,115,383 | 7,805,774,226 | 6,933,586,386 | 5,344,743,054 | 4,394,716,559 | 4,108,823,456 |
+| L(1,2) before S1 | 5,477,032,697 | 5,810,124,218 | 7,280,502,242 | 7,302,008,131 | 6,420,294,456 | 4,482,316,880 | 3,587,938,596 | 3,315,260,883 |
+
+  The tightest margins to the merged tree and to ⌊0.9M⌋ with R and the reserve (sparse and dense alike for the first):
+
+| Point | Phase closest to merged | Below merged (B) | Phase closest to ⌊0.9M⌋ | Headroom (B) |
+|---|---|---:|---|---:|
+| L(3,0) | dense W1 | 434,585,548 | dense W3 | 3,046,829,319 |
+| E(3) | dense W1 | 76,527,894 | dense W3 | 2,564,300,484 |
+| L(2,1) | dense W1 | 516,215,413 | dense W3 | 3,296,132,019 |
+| L(1,2) | dense W1 | 907,928,871 | dense W4 | 3,800,527,458 |
+
+  S1 raises L(2,1) by 156,155,731 B (W1, W2, X) to 204,246,272 B (W4) and L(1,2) by 191,602,240 to 246,108,291 B. Even
+  before S1, the native L(2,1) dense W3 was 7,892,115,383 B, not the 7.61e9 the illustrative strides gave.
+- *N1.* The witness procedure below names the fully qualified filters and requires one executed test per process.
+- *Tests* (at `f1d8fa3d9`, prebuilt runner, `OPENPIPESTRESS_NO_CARGO_BUILD=1`): the pricing tool's suite and
+  `tests/test_retained_pricing_tool.py` 1,088 passed (12 new in `test_853_rt_a3_certificate.py`); PP `profile_` 9 and
+  `--lib retained` 308 passed (0 failed, 71 ignored); `test_rt_a3_certificate_d3_retained_diff.py`, the CI routing
+  suites (`test_ci_numerical.py`, `test_ci_python.py`, `test_hosted_ci.py`, `test_hosted_ci_workflows.py`,
+  `test_wasm_cache.py`) and `test_semantic_contract_tables.py`/`test_preview_identity_inventory.py` passed;
+  `tools/hosted-ci-routing.json` takes the product_physics tree digest (`a16c9c90…` → `9b4ccd42…`), with
+  `source_read_dependencies` resolving every declaration.
+
 **AC-004 (pending).** The witnessed binary changes in retained-reachable code (the certificate's producer and
 reader, `LoadCaseSolve`'s layout, the W1 freeze), so §8.52's 7/7 does not transfer; the stack witnesses must run on
 this registration's binary under Agent 0's clearance. Not run here (no exclusive grant).
 - **Binaries** (built under the slot wrapper, `cargo test --offline --no-run --lib --test retained_memory_challenge`,
-  test profile, `RUSTFLAGS`, `CARGO_ENCODED_RUSTFLAGS` and `CARGO_BUILD_RUSTFLAGS` unset, at `6680dec90`, core tree
-  `28176c91…`): `open_pipe_stress_product_physics-b933835de062055d`, SHA-256
-  `e4a257f8dc930e2784848015ec7b2210a8ff86cf6345571fbb392f099ad3986d`, and `retained_memory_challenge-49844514588f9c1f`,
-  SHA-256 `7726e3885d7b16ccdf75134d96b7b82af1307af6b21f300f5a37e006cc959600`.
-- **Registered inputs.** Profile `retained_memory.rs` `e085ccf9718bda9148c2217c629b2deb34763f5aa2132d3c13ff0952d45fa298`;
-  product_physics `Cargo.lock` `b7ebb02aafa8cfe214c18bc64941381b33ab3f9295e0fc774ee0819e1e4f5653`; rustc 1.97.1
-  (commit-hash `8bab26f4f68e0e26f0bb7960be334d5b520ea452`, aarch64-apple-darwin); the 13 reviewed inputs as registered.
-- **To run.** Seven processes: `witness_headroom_w1_at_one_mebibyte`, `witness_w2_deep_milestone_publishes` and
-  `witness_w_c2_publishes` (lib binary, `--ignored`), each sparse and dense, and
-  `retained_direct_peak_is_within_the_profiles_bounds` (challenge binary) against `W1_PHASE_BYTES` [6,450,323,600,
-  6,509,454,944] and `MAX_PHASE_BYTES` [8,744,053,989, 8,803,185,333]. Each runs prebuilt in its own process with
-  `--exact --test-threads=1`, nothing compiled in the window, in one Agent-0-cleared `t3_exclusive.sh` window with
-  memguard; head, core tree, clean state, both binary hashes, profile, lock, compiler and flag state are verified
+  test profile, `RUSTFLAGS`, `CARGO_ENCODED_RUSTFLAGS` and `CARGO_BUILD_RUSTFLAGS` unset, at `f1d8fa3d9`, core tree
+  `26c3392cd7504ee7cc0a39aae811a5073e505f26`; the later commits of this registration change no file under `core/`):
+  `open_pipe_stress_product_physics-b933835de062055d`, SHA-256
+  `9a28cf50eeb762c1fde09088beb1d7257c7aed73ec87f65d065f7458ccaaa915`, and `retained_memory_challenge-49844514588f9c1f`,
+  SHA-256 `7726e3885d7b16ccdf75134d96b7b82af1307af6b21f300f5a37e006cc959600`. The lib-test binary replaces the one
+  built at `6680dec90` (`e4a257f8…`), because the review repair's point-atom probe is in its law tests; the challenge
+  binary is byte-identical to that build's (its inputs did not change). A second `--no-run` compiled nothing and left
+  both hashes unchanged.
+- **Registered inputs.** Profile `retained_memory.rs` `e085ccf9718bda9148c2217c629b2deb34763f5aa2132d3c13ff0952d45fa298`
+  (unchanged by the repair); product_physics `Cargo.lock` `b7ebb02aafa8cfe214c18bc64941381b33ab3f9295e0fc774ee0819e1e4f5653`;
+  rustc 1.97.1 (commit-hash `8bab26f4f68e0e26f0bb7960be334d5b520ea452`, aarch64-apple-darwin, LLVM 22.1.6); the 13
+  reviewed inputs as registered.
+- **To run.** Seven processes, each one test, with `--exact --test-threads=1`:
+  - the lib binary with `--ignored --exact` and one fully qualified filter per process:
+    `retained_memory::witness_tests::witness_headroom_w1_at_one_mebibyte::sparse` and `::dense`,
+    `retained_memory::witness_tests::witness_w2_deep_milestone_publishes::sparse` and `::dense`, and
+    `retained_memory::witness_tests::witness_w_c2_publishes::sparse` and `::dense` (a bare family name with `--exact`
+    selects nothing; `--list --ignored` on the binary lists exactly these six);
+  - the challenge binary with `--exact retained_direct_peak_is_within_the_profiles_bounds`, against `W1_PHASE_BYTES`
+    [6,450,323,600, 6,509,454,944] and `MAX_PHASE_BYTES` [8,744,053,989, 8,803,185,333].
+
+  Each process must report exactly one executed test (`1 passed`; zero or more than one is a failed admission). Each
+  runs prebuilt in its own process, nothing compiled in the window, in one Agent-0-cleared `t3_exclusive.sh` window
+  with memguard. Head, core tree, clean state, both binary hashes, profile, lock, compiler and flag state are verified
   before queueing and at admission, and the binary hashes again afterwards. A later build input change requires
   rebuilding and re-identifying the binaries first.
 
 **Open.**
 - AC-004 (above).
-- Independent source and pricing scrutiny of this registration, the freeze repair and the regeneration rule.
+- Independent source and pricing scrutiny of this registration, the freeze repair and the regeneration rule, and
+  re-review of the review repair (the point-atom probe, the reconciled census and the native point evaluation).
 - P's stated non-identity (+86 B) and the freeze repair are reported to DEL-04-07 and DEL-05-02.
 
-Run evidence (logs, compares, proofs and scripts) is in `/Users/ryan/dev/chirality-t3/scratch/rt-a3/pc-d3/`. It is
-review input, not a permanent dependency.
+Run evidence (logs, compares, proofs and scripts) is in `/Users/ryan/dev/chirality-t3/scratch/rt-a3/pc-d3/` and, for
+the review repair (the run, atoms, evaluations and identities), `/Users/ryan/dev/chirality-t3/scratch/rt-a3/pc-d3-fix/`.
+It is review input, not a permanent dependency.
 
 ## 9. Memory-profile gates and registration
 
