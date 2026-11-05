@@ -122,7 +122,7 @@ def expected_counts(profile: str, nodes: int) -> dict:
     rests = 4 * bays + (tail - 1) // 4  # s4, s12, s16 and the loop top per bay; every fourth tail node
     linear = {"anchor": 2 + bays, "line_stop": bays, "guide": rests // 3,
               "vertical_support": rests - rests // 3 + bays + 2 * bays}
-    if profile == "nonlinear-pf":
+    if rm.PROFILES[profile]["nonlinear"]:
         lift_off, gap = (rests + 2) // 3, rests // 6
         friction = sum(1 for i in range(1, rests + 1) if i % 12 in (2, 5, 8))
         supports = {"anchor": 2 + bays, "line_stop": bays, "guide": rests // 3 - gap, "gap": gap,
@@ -240,6 +240,45 @@ def test_realized_bends_carry_a_user_flexibility_factor_and_its_source():
         assert "invented" in bend["modifiers"]["source_reference"]
 
 
+# -- nonlinear supports on EX (RT-A3 increment 4) -------------------------------------------------------------------
+@pytest.mark.parametrize("nodes", SIZES)
+def test_nonlinear_ex_carries_nonlinear_pfs_supports_and_linear_ex_none(nodes):
+    """RT-A3 increment 4 admits nonlinear supports on plain v3 documents: nonlinear-ex emits lift-off, friction and
+    gap records in nonlinear-pf's forms (the same support list), and linear-ex keeps only linear supports."""
+    ex, pf = rm.build("nonlinear-ex", nodes)[0], rm.build("nonlinear-pf", nodes)[0]
+    assert ex["supports"] == pf["supports"]
+    assert {s["nonlinear"]["behavior"] for s in ex["supports"] if s["family"] == "nonlinear"} == {
+        "lift_off", "friction", "gap"}
+    assert all(s["family"] != "nonlinear" and "nonlinear" not in s for s in rm.build("linear-ex", nodes)[0]["supports"])
+
+
+@pytest.mark.parametrize("nodes", SIZES)
+def test_nonlinear_ex_avoids_every_refusal_increment_4_keeps(nodes):
+    """pressure-contract.md "Nonlinear supports on EX", Still refused: no load/reference-state group key
+    (case_state::carries_fields), no objective connector, no nonlinear friction normal source, no rotational gap or
+    friction, no linear restraint on a nonlinear DOF, no difference_basis."""
+    document, _ = rm.build("nonlinear-ex", nodes)
+    assert document["pressure_contract"] == {"version": "3.0.0", "mode": "exact_pressure_v3",
+                                             "shear_model": "euler_bernoulli"}
+    keys = {key for _, key, _ in walk(document)}
+    assert not keys & {"reference_configurations", "material_expansion_laws", "request_material_expansion_laws",
+                       "analysis_state", "objective_connector", "difference_basis"}
+    by_id = {s["id"]: s for s in document["supports"]}
+    linear = {(s["node"], dof) for s in document["supports"] if s["family"] != "nonlinear" for dof in s["restraints"]}
+    seen = set()
+    for s in document["supports"]:
+        if s["family"] != "nonlinear":
+            continue
+        rule = s["nonlinear"]
+        assert rule["dof"] in ("UX", "UY", "UZ") and (s["node"], rule["dof"]) not in linear, s["id"]
+        assert (s["node"], rule["dof"]) not in seen, s["id"]
+        seen.add((s["node"], rule["dof"]))
+        if rule["behavior"] == "friction":
+            source = by_id[rule["normal_reaction_source"]["support_ref"]]
+            assert source["family"] == "vertical_support" and source["node"] == s["node"], s["id"]
+            assert rule["normal_reaction_source"]["dof"] in source["restraints"]
+
+
 # -- ledger ---------------------------------------------------------------------------------------------------------
 def test_the_ledger_is_well_formed_and_printed_by_the_cli():
     keys = {"family", "target_form", "interim_form", "refusal_code", "waits_for", "profiles"}
@@ -256,9 +295,11 @@ def test_the_ledger_is_well_formed_and_printed_by_the_cli():
         assert rm.build(profile, 2000)[1]["pending_families_omitted"] == [e["family"] for e in rm.ledger_for(profile, 2000)]
 
 
-def test_the_nonlinear_size_entry_matches_the_products_dense_loop_guard():
+@pytest.mark.parametrize("profile", ["nonlinear-ex", "nonlinear-pf"])
+def test_the_nonlinear_size_entry_matches_the_products_dense_loop_guard(profile):
     """The ledger's size bound is where the product's dense-loop memory estimate (its constants read from
-    nonlinear_integration) first exceeds its limit for nonlinear-pf."""
+    nonlinear_integration) first exceeds its limit, for both nonlinear profiles."""
+    assert profile in next(e for e in rm.LEDGER if e.get("min_nodes") == rm.NONLINEAR_DENSE_GUARD_NODES)["profiles"]
     source = NONLINEAR_INTEGRATION.read_text(encoding="utf-8")
     constant = lambda name: re.search(rf"pub const {name}: u128 = ([^;]+);", source).group(1)  # noqa: E731
     per_global, per_free = int(constant("DENSE_LOOP_BYTES_PER_GLOBAL_ENTRY")), int(constant("DENSE_LOOP_BYTES_PER_FREE_ENTRY"))
@@ -266,7 +307,7 @@ def test_the_nonlinear_size_entry_matches_the_products_dense_loop_guard():
     ceiling = 12 * (1 << 30) * 9 // 10
 
     def refused(nodes):
-        document, _ = rm.build("nonlinear-pf", nodes)
+        document, _ = rm.build(profile, nodes)
         restrained = {(s["node"], dof) for s in document["supports"] if s["family"] != "nonlinear"
                       for dof in s["restraints"]}
         total = 6 * nodes
@@ -297,7 +338,10 @@ EXPECTED_WARNINGS = {
     # The realized bends carry the complete directional SIF pair, so the product raises no
     # BEND_USER_MODIFIER_INPUT_MISSING for them.
     "linear-ex": {"HIGH_DISPLACEMENT_REVIEW", "RULE_CHECK_INPUTS_MISSING"},
-    "nonlinear-ex": {"HIGH_DISPLACEMENT_REVIEW", "RULE_CHECK_INPUTS_MISSING"},
+    # The nonlinear OPE case has gap supports: R1's unqualified branch, no confirmation until R-3 (pressure-contract.md
+    # "Nonlinear supports on EX", Standings; the same on the pressure-free route).
+    "nonlinear-ex": {"HIGH_DISPLACEMENT_REVIEW", "RULE_CHECK_INPUTS_MISSING",
+                     "NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED"},
     "nonlinear-pf": {"HIGH_DISPLACEMENT_REVIEW", "RULE_CHECK_INPUTS_MISSING",
                      "NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED"},
 }
@@ -348,15 +392,16 @@ def test_the_product_solves_each_profile_at_a_small_size(profile):
     assert envelope["status"]["mechanics"] == "MECHANICS_SOLVED" and not blocking, blocking[:5]
     assert {d["code"] for d in diagnostics if d["severity"] == "warning"} == EXPECTED_WARNINGS[profile]
     infos = {d["code"] for d in diagnostics if d["severity"] == "info"}
-    if profile == "nonlinear-pf":
+    if rm.PROFILES[profile]["nonlinear"]:
         assert "NONLINEAR_SUPPORT_LOOP_CONVERGED" in infos
     else:
         assert not any(code.startswith("NONLINEAR_") for code in infos)
 
 
-def test_the_2000_node_nonlinear_twin_is_refused_by_the_dense_loop_guard():
+@pytest.mark.parametrize("profile", ["nonlinear-ex", "nonlinear-pf"])
+def test_the_2000_node_nonlinear_racks_are_refused_by_the_dense_loop_guard(profile):
     """The ledger's size entry, observed: refused before any case, so the run is short."""
-    document, stats = rm.build("nonlinear-pf", 2000)
+    document, stats = rm.build(profile, 2000)
     assert "nonlinear operating solve above about 1,760 nodes" in stats["pending_families_omitted"]
     envelope = solve(document)
     assert [d["code"] for d in envelope["diagnostics"] if d["severity"] == "blocking"] == [

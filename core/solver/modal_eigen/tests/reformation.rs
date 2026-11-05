@@ -48,6 +48,9 @@ use open_pipe_stress_modal_eigen::reformation::{
 use open_pipe_stress_modal_eigen::SymmetricMatrix;
 use open_pipe_stress_sparse_direct::SymmetricMatrixEntry;
 
+mod screen_outcomes;
+use screen_outcomes::{aggregate, ScreenOutcome};
+
 const NORMWISE: f64 = 1e-29;
 
 /// An empirical threshold for this fixture, not a derived bound and not the
@@ -1452,4 +1455,135 @@ fn band_allotment_on_the_rigid_scale_witness() {
         general.hard_rejected_pair_count
     );
     assert_eq!(solve("E-POINTMASS-GENERAL", &band(0)), Ok(general));
+}
+
+// ---- A3 K2: test-only screen outcome counts (design §5.3.7) ----
+
+/// The screen outcome counts of every eigen case under the test-local
+/// options, with the kernel's identity asserted by `aggregate`. Exact
+/// tripwires: the general point mass's one artifact is hard-cut, the
+/// rigid-scale witness's six band pairs are retained, and nothing else is
+/// screened.
+#[test]
+fn screen_outcome_counts_of_the_eigen_cases() {
+    use ScreenOutcome::*;
+    for case in eigen_cases() {
+        let id = format!("{} {}", case.id, case.basis);
+        let n = case.free.len();
+        let (k, m) = (dense(n, &entries(&case.k)), dense(n, &entries(&case.m)));
+        let solution = solve_dense_pencil(&k, &m, &dense_options()).unwrap();
+        let counts = aggregate(&solution, &dense_options());
+        let expected: &[(ScreenOutcome, u64)] = match case.id.as_str() {
+            "E-POINTMASS-GENERAL" => &[(HardCut, 1)],
+            "E-RIGID-SCALE-1e6" => &[(Retained, 6)],
+            _ => &[],
+        };
+        assert_eq!(counts.nonzero(), expected, "{id}");
+    }
+}
+
+fn eigen_case_pencil(id: &str) -> (SymmetricMatrix, SymmetricMatrix) {
+    let case = eigen_cases().into_iter().find(|c| c.id == id).unwrap();
+    let n = case.free.len();
+    (dense(n, &entries(&case.k)), dense(n, &entries(&case.m)))
+}
+
+/// The rigid-scale witness's six band pairs under screen options that
+/// change only the verdict (each recovery is unchanged): τ_f below two
+/// pairs' η̃, τ_e below three pairs' e_λ, both (the two pairs failing both
+/// count by their first failure, η̃ > τ_f), and a hard threshold between
+/// the lowest pair's recovered and QL μ.
+#[test]
+fn rigid_scale_band_reaches_each_recovered_outcome() {
+    use ScreenOutcome::*;
+    let (k, m) = eigen_case_pencil("E-RIGID-SCALE-1e6");
+    let baseline = solve_dense_pencil(&k, &m, &dense_options()).unwrap();
+    assert_eq!(
+        aggregate(&baseline, &dense_options()).nonzero(),
+        [(Retained, 6)]
+    );
+    let recoveries = |s: &DenseEigenSolution| {
+        s.screened
+            .iter()
+            .map(|x| x.recovery.clone())
+            .collect::<Vec<_>>()
+    };
+    // τ_f = c_f·n·u = 7e-17: below η̃ ≈ 1.06e-16 and 1.11e-16 of two pairs
+    // and above the others (at most 2.9e-17). τ_e = 1e-9: below e_λ of
+    // three pairs (2.6e-9, 1.3e-8, 3.0e-8; the two above with the large η̃)
+    // and above the others (at most 2.5e-10).
+    let n_u = baseline.dimension as f64 * (f64::EPSILON / 2.0);
+    let tight_f = DenseOptions {
+        formed_backward_error_multiple: 7e-17 / n_u,
+        ..dense_options()
+    };
+    let tight_e = DenseOptions {
+        screen_error_estimate_threshold: 1e-9,
+        ..dense_options()
+    };
+    let tight_both = DenseOptions {
+        screen_error_estimate_threshold: 1e-9,
+        ..tight_f
+    };
+    for (o, expected) in [
+        (&tight_f, vec![(BackwardErrorAboveTauF, 2), (Retained, 4)]),
+        (&tight_e, vec![(ErrorEstimateAboveTauE, 3), (Retained, 3)]),
+        (
+            &tight_both,
+            vec![
+                (BackwardErrorAboveTauF, 2),
+                (ErrorEstimateAboveTauE, 1),
+                (Retained, 3),
+            ],
+        ),
+    ] {
+        let s = solve_dense_pencil(&k, &m, o).unwrap();
+        assert_eq!(recoveries(&s), recoveries(&baseline), "{o:?}");
+        assert_eq!(aggregate(&s, o).nonzero(), expected, "{o:?}");
+    }
+
+    // The lowest band pair's recovered μ is below its QL μ (by 6087
+    // ulps). A relative hard threshold τ_μ placing h between them rejects
+    // it by r.mu ≤ h; the five above are retained.
+    let lowest = baseline.screened.last().unwrap();
+    let recovered = lowest.recovery.as_ref().unwrap().mu;
+    assert!(recovered < lowest.mu);
+    let between = DenseOptions {
+        infinite_mu_relative_threshold: (recovered + (lowest.mu - recovered) / 2.0)
+            / baseline.mu_max,
+        ..dense_options()
+    };
+    let s = solve_dense_pencil(&k, &m, &between).unwrap();
+    let h = s.hard_classification_threshold;
+    assert!(recovered <= h && h < lowest.mu, "h {h:e}");
+    assert_eq!(recoveries(&s), recoveries(&baseline));
+    assert_eq!(
+        aggregate(&s, &between).nonzero(),
+        [(RecoveredMuNotAboveHardCut, 1), (Retained, 5)]
+    );
+    assert_eq!(s.mode_count(), baseline.mode_count() - 1);
+}
+
+/// The general point mass's QL artifact (negative exact generalized mass,
+/// see `general_pointmass_negative_generalized_mass_cannot_resolve_the_census`)
+/// placed in the band: τ_μ = 0 and κ_μ = 10⁻⁴ put h = κ_μ·δ_q below it and
+/// the broad cut κ_μ·δ_μ above it. Its recovery is unavailable (a
+/// non-positive exact mass); every other μ is direct.
+#[test]
+fn pointmass_artifact_in_the_band_has_no_recovery() {
+    use ScreenOutcome::*;
+    let (k, m) = eigen_case_pencil("E-POINTMASS-GENERAL");
+    let o = DenseOptions {
+        infinite_mu_relative_threshold: 0.0,
+        resolution_floor_multiple: 1e-4,
+        ..dense_options()
+    };
+    let s = solve_dense_pencil(&k, &m, &o).unwrap();
+    let [artifact] = s.screened.as_slice() else {
+        panic!("{:?}", s.screened)
+    };
+    assert!(s.hard_classification_threshold < artifact.mu);
+    assert!(artifact.mu <= s.classification_threshold);
+    assert_eq!(aggregate(&s, &o).nonzero(), [(RecoveryUnavailable, 1)]);
+    assert!(s.finite_count_unresolved);
 }

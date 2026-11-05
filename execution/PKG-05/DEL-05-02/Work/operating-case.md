@@ -351,6 +351,11 @@ In the sustained case R = 5P/16 and M_A = 3PL/16.
 
 ## 2. Item 2: the kernel side of skewed restraints
 
+> **Build design:** DEL-04-03 Work [`skew-restraints.md`](../../../PKG-04/DEL-04-03/Work/skew-restraints.md)
+> (candidate). It holds the first build slice and its refusals, the shared static and modal interface,
+> the exactness and rank policy, the certificate and the first-implementation brief. Its references
+> are in `validation/references/skew_restraints/`. This section stays the adopted design it builds on.
+
 ### 2.1 How restraints and springs are assembled today
 
 **Records.**
