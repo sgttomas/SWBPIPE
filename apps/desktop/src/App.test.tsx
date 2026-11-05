@@ -6839,6 +6839,8 @@ describe("SWBPIPE desktop preview", () => {
     );
 
     const applyPanel = operationApplyPanel();
+    // The delete is checked by the operation engine before it is queued.
+    await waitFor(() => expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-1")).toBeInTheDocument());
     expect(
       within(applyPanel).getByTestId("operation-apply-row-editor-intent-1")
         .textContent,
@@ -6919,6 +6921,8 @@ describe("SWBPIPE desktop preview", () => {
     );
 
     const applyPanel = operationApplyPanel();
+    // The delete is checked by the operation engine before it is queued.
+    await waitFor(() => expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-1")).toBeInTheDocument());
     expect(
       within(applyPanel).getByTestId("operation-apply-row-editor-intent-1")
         .textContent,

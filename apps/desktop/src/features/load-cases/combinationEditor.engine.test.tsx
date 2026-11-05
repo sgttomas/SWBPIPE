@@ -257,12 +257,12 @@ describe("cycles and refused operands", () => {
     expect(unknown.validation.application_status).toBe("blocked");
     expect(codes(unknown)).toContain("OP-COMBINATION-OPERAND-LOAD-NOT-FOUND");
 
-    // The applier deletes load-case terms only; the editor says so in place rather than queueing a refusal.
+    // Since #115 a combination term deletes too; B is still named by A, so its delete names the referencing path first
+    // (combinationDelete.engine.test.tsx covers the deletes and the refusal).
     fireEvent.click(byId("load-manager-combination-term-combination:B-1"));
-    expect(byId("queue-delete-combination-term-intent")).toBeDisabled();
-    expect(byId("load-manager-combination-delete-refused")).toHaveTextContent("OP-COMBINATION-TERM-PAYLOAD-INVALID");
-    expect(byId("queue-delete-combination-intent")).toBeDisabled();
-    expect(byId("load-manager-combination-entity-delete-refused")).toHaveTextContent("OP-COMBINATION-PAYLOAD-INVALID");
+    // Its before value is the stored term's canonical JSON, computed by the engine.
+    await waitFor(() => expect(byId("queue-delete-combination-term-intent")).toBeEnabled());
+    expect(byId("load-manager-combination-entity-delete-references")).toHaveTextContent("Named by combination:A.terms.1.");
   });
 });
 

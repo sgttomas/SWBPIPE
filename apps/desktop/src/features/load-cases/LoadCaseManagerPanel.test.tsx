@@ -513,9 +513,11 @@ describe("LoadCaseManagerPanel combination editing", () => {
     });
   });
 
-  it("queues a whole-combination delete with the engine before-display", () => {
+  it("queues a whole-combination delete with the engine before-display", async () => {
     const { queue } = mount(inventedModel(), { type: "combination", id: "combo:legacy" });
+    // The delete is checked by the operation engine before it is queued.
     fireEvent.click(byId("queue-delete-combination-intent"));
+    await waitFor(() => expect(queue).toHaveBeenCalledOnce());
     expect(lastIntent(queue).change).toMatchObject({ change_kind: "delete_combination", field_label: "Legacy combination", before: "combo:legacy; Legacy; basis=custom_basis; terms=none", after: "not_present" });
     cleanup();
     const second = mount(inventedModel(), { type: "combination", id: "combo:ops" });
@@ -524,10 +526,11 @@ describe("LoadCaseManagerPanel combination editing", () => {
     expect(byId("load-manager-combination-entity-delete-preview")).toHaveTextContent("select a combination and provide rationale to queue deletion");
     type("load-manager-combination-entity-delete-rationale", "invented");
     fireEvent.click(byId("queue-delete-combination-intent"));
+    await waitFor(() => expect(second.queue).toHaveBeenCalledOnce());
     expect(lastIntent(second.queue).change.before).toBe("combo:ops; Operating; basis=mechanics; terms=load:dead x 1");
   });
 
-  it("edits and deletes an indexed combination term", () => {
+  it("edits and deletes an indexed combination term", async () => {
     const { queue } = mount();
     expect(byId("load-manager-selected-combination-term")).toHaveTextContent("combo:ops");
     expect(byId("load-manager-selected-combination-term")).toHaveTextContent("term=load:dead; path=terms.0.factor");
@@ -542,6 +545,7 @@ describe("LoadCaseManagerPanel combination editing", () => {
       change: { field_label: "load:dead combination factor", field_path: "terms.0.factor", before: "1", after: "1.5", unit: "none", dimension: "dimensionless" }
     });
     fireEvent.click(byId("queue-delete-combination-term-intent"));
+    await waitFor(() => expect(queue).toHaveBeenCalledTimes(2));
     expect(lastIntent(queue)).toMatchObject({
       operation_id: "op:load-manager-combo:ops-term-0-delete",
       operation_kind: "delete",
