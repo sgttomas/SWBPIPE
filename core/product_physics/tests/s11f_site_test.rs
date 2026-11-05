@@ -666,8 +666,8 @@ const FORCE_FUNCTIONS: &[(&str, &str, &str)] = &[
     ),
     (
         "FK/structural/certified_recovery.rs",
-        "certify_support_reaction",
-        "K-D5 §3.2: restrained reaction K_int,r (u + w + w2) - f_int,r; a formed term enters as its re-formed primitives, an input term as its exact binary64 value (term.accumulate), each its own exact addend",
+        "certify_support_reaction_with_basis",
+        "K-D5 §3.2: restrained reaction K_int,r (u + w + w2) - f_int,r; a formed term enters as its re-formed primitives, an input term as its exact binary64 value (term.accumulate), each its own exact addend (S-K1 §10.5: the body of `certify_support_reaction`, which delegates with source.restraint's basis; a basis adds its skewed spring blocks, no force term)",
     ),
     (
         "SA/structural_adapter.rs",

@@ -2231,6 +2231,9 @@ const F1B_PRODUCT_SITES: &[(&str, &str, &str, usize)] = &[
     // B7a's failed-ordinary ruling (5): CX-F's closed wire translation of K2b's named
     // refusal reads `ForceScaleReason` only; it reaches no force-scaled entry.
     ("retained_wire.rs", "fn force_refusal", "ForceScale", 4),
+    // S-K1 §2.2 item 10 (DEL-04-03 skew-restraints.md): the skew refusal names
+    // `SkewCode::ForceScaledUnsupported` only; it reaches no force-scaled entry.
+    ("skew.rs", "fn force_scaled_refusal", "ForceScale", 1),
     ("source_recovery.rs", "fn solve_ordinary", "ForceScale", 1),
     (
         "source_recovery.rs",
@@ -2238,6 +2241,8 @@ const F1B_PRODUCT_SITES: &[(&str, &str, &str, usize)] = &[
         "ForceScale",
         1,
     ),
+    // S-K1 M-1: the §2.2 code strings' one source (`SkewCode::ForceScaledUnsupported`).
+    ("document_members.rs", "fn skew_code", "ForceScale", 1),
 ];
 
 /// F1b: `top_level_item` names the enclosing item across the shapes the

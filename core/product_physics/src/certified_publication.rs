@@ -230,16 +230,23 @@ pub(super) fn support_record(
     support: &str,
     body: Option<usize>,
     rows: &[CertifiedRow; 6],
+    along: Option<&CertifiedRow>,
 ) -> Result<formation_guard::RecoveryRecord, RecoveryFailure> {
+    let mut groups = vec![
+        group("node", "support_force", false, &rows[..3], true)?,
+        group("node", "support_moment", true, &rows[3..], true)?,
+        magnitude_group("node", "support_force_magnitude", false, &rows[..3])?,
+        magnitude_group("node", "support_moment_magnitude", true, &rows[3..])?,
+    ];
+    // R-6/R-7 (DEL-04-03 skew-restraints.md §10.5): a skewed record's one
+    // along-direction row.
+    if let Some(row) = along {
+        groups.push(group("node", "along_direction", false, std::slice::from_ref(row), false)?);
+    }
     Ok(formation_guard::RecoveryRecord {
         member: support.into(),
         body,
-        groups: vec![
-            group("node", "support_force", false, &rows[..3], true)?,
-            group("node", "support_moment", true, &rows[3..], true)?,
-            magnitude_group("node", "support_force_magnitude", false, &rows[..3])?,
-            magnitude_group("node", "support_moment_magnitude", true, &rows[3..])?,
-        ],
+        groups,
     })
 }
 pub(super) fn unavailable_record(
@@ -321,11 +328,27 @@ pub(super) fn support(
     u: &[f64],
     bound: &MemberBoundInputs,
     nonlinear: Option<&HashMap<String, open_pipe_stress_nonlinear_integration::confirmation::ConfirmedRow>>,
-) -> Result<[CertifiedRow; 6], RecoveryFailure> {
+) -> Result<([CertifiedRow; 6], Option<CertifiedRow>), RecoveryFailure> {
     use open_pipe_stress_frame_kernel::structural::{
-        certify_spring_reaction, certify_support_reaction,
+        certify_node_attribution, certify_skew_spring_reaction, certify_spring_reaction,
+        certify_support_reaction_with_basis,
     };
     let mut rows = [CertifiedRow::ZERO; 6];
+    // R-6/R-7 (DEL-04-03 skew-restraints.md §10.5): a skewed record publishes its
+    // node attribution's stop rows (or its spring's κ rows) and its along row.
+    let basis = built.skew.as_ref();
+    if let Some(basis) = basis {
+        if let Some(stop) = basis.stops().iter().find(|stop| stop.support_id == support.id) {
+            let attribution = certify_node_attribution(source, force, basis, stop.node, u, bound)?;
+            rows[..3].copy_from_slice(&attribution.stop);
+            return Ok((rows, Some(attribution.along)));
+        }
+        if let Some(spring) = basis.springs().iter().find(|spring| spring.support_id == support.id) {
+            let reaction = certify_skew_spring_reaction(spring, u, bound)?;
+            rows[..3].copy_from_slice(&reaction.global);
+            return Ok((rows, Some(reaction.along)));
+        }
+    }
     // DEL-04-01 kd5-nonlinear-active-set.md §3.1: a nonlinear support's slot
     // is its confirmed row; the other five components stay exact +0.
     if let Some(nonlinear_support) = built
@@ -355,17 +378,28 @@ pub(super) fn support(
             rows[dof_index(application.dof)] =
                 CertifiedRow::ZERO.add_value(CertifiedValue::exact(application.force_newtons)?)?;
         }
-        return Ok(rows);
+        return Ok((rows, None));
     }
     if let Some(linear) = built
         .supports
         .iter()
         .find(|item| item.support_id == support.id)
     {
+        // At a stop's node the axis rows are the attribution's r_a − μ·w_a;
+        // every other row includes the node's skewed spring blocks (§10.5).
+        let attribution = match basis {
+            Some(basis) if basis.node_basis(linear.node_index).is_some() => {
+                Some(certify_node_attribution(source, force, basis, linear.node_index, u, bound)?)
+            }
+            _ => None,
+        };
         for dof in &linear.restrained_dofs {
             let slot = dof_index(*dof);
-            rows[slot] =
-                certify_support_reaction(source, force, 6 * linear.node_index + slot, u, bound)?;
+            let global = 6 * linear.node_index + slot;
+            rows[slot] = match attribution.as_ref().and_then(|a| a.axis.iter().find(|(d, _)| *d == global)) {
+                Some((_, row)) => *row,
+                None => certify_support_reaction_with_basis(source, force, basis, global, u, bound)?,
+            };
         }
     }
     // W-16 R-c: -k·(u + w + w₂ - g) for a moved base, the exact +k·g in the
@@ -378,7 +412,7 @@ pub(super) fn support(
         let dof = spring.node_dof.global_index();
         rows[dof % 6] = certify_spring_reaction(dof, spring.stiffness.value, ground, u, bound)?;
     }
-    Ok(rows)
+    Ok((rows, None))
 }
 
 pub(super) fn connector_record(

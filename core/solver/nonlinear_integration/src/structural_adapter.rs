@@ -4,7 +4,7 @@ use crate::{CurvedBendStiffnessElement, LinearSolveMode};
 use open_pipe_stress_curved_bend::CurvedBendMacroElement;
 use open_pipe_stress_frame_kernel::connector::{ConnectorDefiniteness, ObjectiveConnector};
 use open_pipe_stress_frame_kernel::load_ledger::{AssembledForce, ForceTerm};
-use open_pipe_stress_frame_kernel::restraint_basis::{GroundRow, RestraintBasis, SkewFormation};
+use open_pipe_stress_frame_kernel::restraint_basis::{BasisError, GroundRow, RestraintBasis, SkewFormation};
 use open_pipe_stress_frame_kernel::rigid_body::{
     assess_constrained_bodies, assess_rigid_body, assess_rigid_body_rows, objective_sub_bodies,
     ConstrainedAssessment, ConstrainedGround, ObjectiveFamily, RigidBodyStatus,
@@ -1247,7 +1247,21 @@ impl SparseAssemblyEvidence {
         {
             return Err(StructuralError::InvalidInput("skew prescribed map"));
         }
-        let basis_error = |_| StructuralError::InvalidInput("restraint basis transform");
+        // §6.2: a transform product below the split range (P1) or a non-finite
+        // rounding is refused on the ordinary failure path with the error named,
+        // never rounded; a coordinate is not a physical DOF, so none is named.
+        // A shape or sum error is outside the entry's contract (the backstop).
+        let basis_error = |error| match error {
+            BasisError::SplitRange { .. } => StructuralError::NumericallyUnresolved {
+                reason: "restraint_basis: split range in the coordinate transform",
+                global_dof: None,
+            },
+            BasisError::NonFinite { .. } => StructuralError::NumericallyUnresolved {
+                reason: "restraint_basis: non-finite rounding in the coordinate transform",
+                global_dof: None,
+            },
+            _ => StructuralError::InvalidInput("restraint basis transform"),
+        };
         let direction_rows: Vec<GroundRow> = basis
             .ground_rows()
             .into_iter()

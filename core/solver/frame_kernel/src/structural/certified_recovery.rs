@@ -1463,6 +1463,22 @@ pub fn certify_support_reaction(
     u: &[f64],
     bound: &MemberBoundInputs,
 ) -> Result<CertifiedRow, RecoveryFailure> {
+    certify_support_reaction_with_basis(source, force, source.restraint.map(|skew| skew.basis), dof, u, bound)
+}
+/// R-6/R-7 (DEL-04-03 Work `skew-restraints.md` §10.5, review P1-2): the
+/// physical row with every skewed spring block touching `dof`, after the axis
+/// springs. The block's intended entries are the p-formed k·d_i·d_j/(dᵀd) of
+/// §6.1 (the same `skew_spring_matrix` K-D5 forms), applied to u + w + w₂ with
+/// the lifted bound. With no basis (or a basis without springs) the row is
+/// `certify_support_reaction`'s, unchanged.
+pub fn certify_support_reaction_with_basis(
+    source: &FormationSource<'_>,
+    force: &AssembledForce,
+    basis: Option<&crate::restraint_basis::RestraintBasis>,
+    dof: usize,
+    u: &[f64],
+    bound: &MemberBoundInputs,
+) -> Result<CertifiedRow, RecoveryFailure> {
     if dof >= u.len() {
         return Err(shape("support reaction DOF"));
     }
@@ -1529,6 +1545,18 @@ pub fn certify_support_reaction(
             remainder = add_up(remainder, row.remainder);
         }
     }
+    for spring in basis.map(|basis| basis.springs()).unwrap_or_default() {
+        let base = spring.node * crate::DOF_PER_NODE;
+        if !(base..base + 3).contains(&dof) {
+            continue;
+        }
+        let block = super::formation_check::skew_spring_matrix(&mut a, spring.direction.authored(), spring.stiffness)?;
+        let op = block[dof - base].map(Ball::exact);
+        let row = evaluate_row(&op, &[base, base + 1, base + 2], Ball::ZERO, 0.0, u, bound)?;
+        add_ball(&mut sum, &mut radius, row.value, false)?;
+        scale = add_up(scale, row.absolute_scale);
+        remainder = add_up(remainder, row.remainder);
+    }
     let mut frame_cursor = super::formation_check::FrameCursor::default();
     for (index, term) in force
         .terms()
@@ -1567,6 +1595,147 @@ pub fn certify_support_reaction(
         }
     }
     CertifiedRow::finish(sum_ball(&sum, radius)?, remainder, scale)
+}
+/// §10.5: one constrained node's certified attribution.
+#[derive(Debug, Clone)]
+pub struct CertifiedNodeAttribution {
+    /// The stop's support-on-pipe global force, μ·w_i (N).
+    pub stop: [CertifiedRow; 3],
+    /// The stop's force positive along the authored +d, μ·2^ŝ·|d̃| (N).
+    pub along: CertifiedRow,
+    /// Each axis restraint a ∉ F at the node: (global DOF, r_a − μ·w_a).
+    pub axis: Vec<(usize, CertifiedRow)>,
+}
+/// §10.5: one skewed spring's certified reaction; both outputs branch from κ.
+#[derive(Debug, Clone)]
+pub struct CertifiedSkewSpringReaction {
+    /// κ·d̃_i/n, n = d̃ᵀd̃ (N).
+    pub global: [CertifiedRow; 3],
+    /// κ/|d̃| (N).
+    pub along: CertifiedRow,
+}
+
+/// A ball times an exact binary64 factor, with its remainder and scale.
+fn ball_times(b: &mut Balls, value: Ball, remainder: f64, scale: f64, factor: f64) -> Result<(Ball, f64, f64), RecoveryFailure> {
+    let product = b.mul(value, b.lift(factor)?)?;
+    Ok((product, mul_up(remainder, factor.abs()), mul_up(scale, factor.abs())))
+}
+
+/// §10.5 `certify_node_attribution`: r_i is `certify_support_reaction_with_basis`
+/// at each of the node's three translations (the lifted bound carries §10.4's
+/// pivot exponent). The multiplier is range-safe: n_w = Σ_{i∈F} w_i², the
+/// numerator Σ_{i∈F} w_i·r_i, μ and every output are balls with a wide
+/// exponent, each published once from its midpoint. The remainders bound
+/// through n_w ≥ 1 (max_{i∈F}|w_i| ∈ [1, 2)). Consistency: each
+/// |r_i − μ·w_i|, i ∈ F, lies within the balls' radii and remainders, or the
+/// record is unavailable ("restraint_basis: reaction not along the
+/// constraint").
+pub fn certify_node_attribution(
+    source: &FormationSource<'_>,
+    force: &AssembledForce,
+    basis: &crate::restraint_basis::RestraintBasis,
+    node: usize,
+    u: &[f64],
+    bound: &MemberBoundInputs,
+) -> Result<CertifiedNodeAttribution, RecoveryFailure> {
+    let nb = *basis.node_basis(node).ok_or_else(|| shape("restraint_basis: no stop at node"))?;
+    let stop = basis.stops().get(nb.stop).ok_or_else(|| shape("restraint_basis: stop index"))?;
+    let base = node * crate::DOF_PER_NODE;
+    let mut r = [CertifiedRow::ZERO; 3];
+    for (i, row) in r.iter_mut().enumerate() {
+        *row = certify_support_reaction_with_basis(source, force, Some(basis), base + i, u, bound)?;
+    }
+    let free = |i: usize| nb.free_axes[i];
+    let mut b = Balls::new()?;
+    let mut n_w = Ball::ZERO;
+    let mut numerator = Ball::ZERO;
+    let (mut mu_remainder, mut mu_scale) = (0.0, 0.0);
+    for i in (0..3).filter(|&i| free(i)) {
+        let w = b.lift(nb.w[i])?;
+        let square = b.mul(w, w)?;
+        n_w = b.add(n_w, square)?;
+        let (part, remainder, scale) = ball_times(&mut b, r[i].value, r[i].remainder, r[i].absolute_scale, nb.w[i])?;
+        numerator = b.add(numerator, part)?;
+        mu_remainder = add_up(mu_remainder, remainder);
+        mu_scale = add_up(mu_scale, scale);
+    }
+    let mu = b.div(numerator, n_w, "restraint_basis: n_w")?;
+    let mut stop_rows = [CertifiedRow::ZERO; 3];
+    for i in 0..3 {
+        let (value, remainder, scale) = ball_times(&mut b, mu, mu_remainder, mu_scale, nb.w[i])?;
+        if free(i) {
+            // r_i − μ·w_i must enclose zero.
+            let difference = b.sub(r[i].value, value)?;
+            let allowance = add_up(add_up(difference.r, r[i].remainder), remainder);
+            if abs_up(&difference.m)? > allowance {
+                return Err(shape("restraint_basis: reaction not along the constraint"));
+            }
+        }
+        stop_rows[i] = CertifiedRow::finish(value, remainder, scale)?;
+    }
+    // |d̃| by a certified square root of d̃ᵀd̃, then the exact 2^ŝ.
+    let d = stop.direction.scaled();
+    let mut n_d = Ball::ZERO;
+    for x in d {
+        let x = b.lift(x)?;
+        let square = b.mul(x, x)?;
+        n_d = b.add(n_d, square)?;
+    }
+    let norm = b.sqrt(n_d, "restraint_basis: |d|")?;
+    let norm_up = add_up(abs_up(&norm.m)?, norm.r);
+    let s_hat = nb.restricted_scale_exponent;
+    let along = b.mul(mu, norm)?;
+    let along = b.pow2(along, i64::from(s_hat))?;
+    let along = CertifiedRow::finish(
+        along,
+        scale_up(mul_up(mu_remainder, norm_up), s_hat),
+        scale_up(mul_up(mu_scale, norm_up), s_hat),
+    )?;
+    let mut axis = Vec::new();
+    for a in (0..3).filter(|&a| !free(a)) {
+        let (value, remainder, scale) = ball_times(&mut b, mu, mu_remainder, mu_scale, nb.w[a])?;
+        let row = b.sub(r[a].value, value)?;
+        axis.push((
+            base + a,
+            CertifiedRow::finish(row, add_up(r[a].remainder, remainder), add_up(r[a].absolute_scale, scale))?,
+        ));
+    }
+    Ok(CertifiedNodeAttribution { stop: stop_rows, along, axis })
+}
+
+/// §10.5 `certify_skew_spring_reaction` (review P1-3), mirroring
+/// `certify_spring_reaction`: t = d̃ᵀ(u + w + w₂) by exact products per term
+/// with the lift radius and remainder, κ = −k·t a ball; the components
+/// κ·d̃_i/n and the along-direction κ/|d̃| both branch from κ (no output
+/// divides by n and then by |d̃|).
+pub fn certify_skew_spring_reaction(
+    spring: &crate::restraint_basis::SkewSpring,
+    u: &[f64],
+    bound: &MemberBoundInputs,
+) -> Result<CertifiedSkewSpringReaction, RecoveryFailure> {
+    let d = spring.direction.scaled();
+    let base = spring.node * crate::DOF_PER_NODE;
+    let mut b = Balls::new()?;
+    let op = [b.lift(d[0])?, b.lift(d[1])?, b.lift(d[2])?];
+    let t = evaluate_row(&op, &[base, base + 1, base + 2], Ball::ZERO, 0.0, u, bound)?;
+    let (kappa, remainder, scale) = ball_times(&mut b, t.value, t.remainder, t.absolute_scale, -spring.stiffness)?;
+    let mut n = Ball::ZERO;
+    for &x in &op {
+        let square = b.mul(x, x)?;
+        n = b.add(n, square)?;
+    }
+    // n ≥ 1 and |d̃_i| < 2 (canonical d̃), so |d̃_i|/n < 2 bounds the remainders.
+    let mut global = [CertifiedRow::ZERO; 3];
+    for i in 0..3 {
+        let numerator = b.mul(kappa, op[i])?;
+        let value = b.div(numerator, n, "restraint_basis: n")?;
+        global[i] = CertifiedRow::finish(value, mul_up(remainder, 2.0), mul_up(scale, 2.0))?;
+    }
+    let norm = b.sqrt(n, "restraint_basis: |d|")?;
+    let along = b.div(kappa, norm, "restraint_basis: |d|")?;
+    // |d̃| ≥ 1: the remainder and scale do not grow.
+    let along = CertifiedRow::finish(along, remainder, scale)?;
+    Ok(CertifiedSkewSpringReaction { global, along })
 }
 /// Nonlinear K-D5 (DEL-04-01 kd5-nonlinear-active-set.md §2.1): the ball of
 /// the displacement or rotation at `dof`, m = u + w + w2 as one exact sum and

@@ -340,6 +340,16 @@ fn named_codes_win_over_the_invalid_input_backstop() {
     // A tip load whose ordinary attempt leaves the binary64 normal range: the W2
     // force-scaled route, which S-K1 does not carry.
     let tiny = document(&[stop("stop_B", [3.0, 4.0, 0.0])], [0.0, -1.0e-307, 0.0]);
+    // §6.2: a coordinate transform product below the split range (P1: a guide UZ
+    // and a stop (1, 2^-600, 0) give q = 2^-600 on two free axes, so k·q·q < 2^-969)
+    // is refused on the ordinary failure path with the error named.
+    let split = document(&[axis("guide_uz_B", "UZ"), stop("stop_B", [1.0, p(-600), 0.0])], [0.0, -1024.0, 0.0]);
+    for mode in MODES {
+        let out = run(&split, mode);
+        assert!(blocking(&out).iter().any(|m| m.contains("restraint_basis: split range in the coordinate transform")), "{mode:?}: {:?}", blocking(&out));
+        assert!(!backstop(&out) && !blocking(&out).iter().any(|m| m.contains("InvalidInput")), "{mode:?}: named, not the backstop: {:?}", blocking(&out));
+        assert!(row(&out, ALONG, "stop_B", None).is_none());
+    }
     for (doc, code) in [(&lone, "SUPPORT_DIRECTION_NODE_UNCONNECTED"), (&tiny, "SUPPORT_DIRECTION_SKEW_FORCE_SCALED_UNSUPPORTED")] {
         for mode in MODES {
             let out = run(doc, mode);

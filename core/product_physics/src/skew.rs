@@ -328,16 +328,6 @@ pub(crate) fn blocked_case(case_id: &str) -> LoadCaseSolve {
     }
 }
 
-/// The certified-record detail of a record whose K-D5 support rows need the
-/// basis's certified attribution (§10.5).
-pub(crate) const CERTIFIED_PENDING: &str = "restraint_basis: certified attribution at a skewed node";
-
-/// Whether a support's certified rows need §10.5's attribution: a skewed record, or
-/// any record at a node with a stop or a skewed spring.
-pub(crate) fn certified_pending(basis: Option<&RestraintBasis>, support: &PreviewSupport, node: usize) -> bool {
-    basis.is_some_and(|basis| {
-        is_skewed_record(support)
-            || basis.node_basis(node).is_some()
-            || basis.springs().iter().any(|spring| spring.node == node)
-    })
-}
+#[cfg(test)]
+#[path = "skew_tests.rs"]
+mod tests;

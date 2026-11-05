@@ -1457,3 +1457,171 @@ fn ground_rows_and_identity_capacity() {
         vec![BasisFinding::InvalidInput("axis restrained DOFs")]
     );
 }
+
+// ------------------------------------------------------------------ §10.5 certified attribution
+
+/// The kernel node as K-D5's certified source: the tip's axis springs (the
+/// translations' diag(tip)); the skewed spring blocks come from the basis.
+fn certified_inputs(tip: [f64; 3], load: [f64; 3]) -> (crate::structural::FormationSource<'static>, AssembledForce) {
+    let source = crate::structural::FormationSource {
+        node_count: 1,
+        springs: (0..3).filter(|&i| tip[i] != 0.0).map(|i| (i, tip[i])).collect(),
+        ..Default::default()
+    };
+    let mut ledger = LoadLedger::new();
+    for (dof, &f) in load.iter().enumerate() {
+        if f != 0.0 {
+            ledger.push("load", dof, f);
+        }
+    }
+    (source, ledger.finish(6).unwrap())
+}
+
+/// The certified displacement as K-D5 hands it over: the coordinate solution v
+/// with an empty correction and a valid remainder, lifted by §10.4
+/// (`lift_member_bound`: u_p = fl(Qv) and the lift radius enclosing the exact
+/// lift). The kernel nodes are well conditioned (K = diag(tip) + blocks, tip
+/// entries 1 or 4), so |v* − v| ≤ 2^-40 per free coordinate is a generous valid
+/// remainder (λσ = 1); the attribution's consistency holds only within a valid
+/// enclosure of the intended solution, never for the rounded v alone.
+fn lifted(run: &Run) -> (Vec<f64>, crate::structural::MemberBoundInputs) {
+    let held = run.basis.restrained_coordinates();
+    let coordinate = crate::structural::MemberBoundInputs {
+        w: vec![0.0; 6],
+        w2: vec![0.0; 6],
+        exponents: (0..6).map(|c| if held.contains(&c) { i32::MIN } else { -40 }).collect(),
+        lambda_sigma: 1.0,
+        lift_radius: Vec::new(),
+    };
+    let lifted = run.basis.lift_member_bound(&run.v, &coordinate).unwrap();
+    assert_eq!(lifted.u, run.u, "u_p = fl(Qv)");
+    (lifted.u, lifted.bound)
+}
+
+/// §10.5 on every S-K1 kernel case: the certified stop, axis and spring rows
+/// match the references (within §13's 1e-12 proxy) and enclose the binary64
+/// attribution's value at the same u within one rounding.
+#[test]
+fn certified_attribution_matches_the_kernel_cases() {
+    use crate::structural::{certify_node_attribution, certify_skew_spring_reaction};
+    let mut checked = 0;
+    for input in s_k1_inputs() {
+        let name = input.name;
+        let case = kernel_case(name);
+        let expect = case.at("expect");
+        let (tip, load) = tip_and_load(&case);
+        let held: Vec<usize> = input.held.iter().map(|&(_, a)| a).collect();
+        let run = run(tip, load, &held, &input.stops, &input.springs).unwrap();
+        let scale = case_scale(expect);
+        let (source, force) = certified_inputs(tip, load);
+        let (_, bound) = lifted(&run);
+        let attribution = run.basis.node_basis(0).map(|_| {
+            certify_node_attribution(&source, &force, &run.basis, 0, &run.u, &bound).unwrap_or_else(|e| panic!("{name}: {e:?}"))
+        });
+        let binary64 = run.basis.node_basis(0).map(|_| run.basis.attribute(0, run.r).unwrap());
+        let within = |certified: &crate::structural::CertifiedRow, b64: f64, what: &str| {
+            let gap = (certified.published - b64).abs();
+            assert!(gap <= certified.bound() + 4.0 * ulp(b64.abs().max(scale)), "{name}: {what}: {} against {b64}", certified.published);
+        };
+        for (record, value) in expect.at("records").entries() {
+            match value.at("kind").text() {
+                "skew_stop" => {
+                    let (a, b) = (attribution.as_ref().unwrap(), binary64.as_ref().unwrap());
+                    let g = triple_of(value.at("global_force"));
+                    for i in 0..3 {
+                        close(a.stop[i].published, g[i], scale, &format!("{name}: {record} R[{i}]"));
+                        within(&a.stop[i], b.stop.global[i], &format!("{record} R[{i}]"));
+                    }
+                    close(a.along.published, value.at("along_direction").b64(), scale, &format!("{name}: {record} along"));
+                    within(&a.along, b.stop.along, "along");
+                }
+                "rigid_axis_rows" => {
+                    let a = attribution.as_ref().unwrap();
+                    let slot = input.held.iter().find(|&&(id, _)| id == record.as_str()).unwrap().1;
+                    let row = &a.axis.iter().find(|(dof, _)| *dof == slot).unwrap().1;
+                    close(row.published, expected(&value.at("components").items()[0]), scale, &format!("{name}: {record}"));
+                }
+                "skew_spring" => {
+                    let s = input.springs.iter().position(|&(id, _, _)| id == record.as_str()).unwrap();
+                    let certified = certify_skew_spring_reaction(&run.basis.springs()[s], &run.u, &bound).unwrap();
+                    let b = run.basis.spring_reaction(s, &run.u).unwrap();
+                    let g = triple_of(value.at("global_force"));
+                    for i in 0..3 {
+                        close(certified.global[i].published, g[i], scale, &format!("{name}: {record} R[{i}]"));
+                        within(&certified.global[i], b.global[i], &format!("{record} R[{i}]"));
+                    }
+                    close(certified.along.published, value.at("along_direction").b64(), scale, &format!("{name}: {record} along"));
+                    within(&certified.along, b.along, "spring along");
+                }
+                other => panic!("{name}: kind {other}"),
+            }
+        }
+        checked += 1;
+    }
+    assert_eq!(checked, 12);
+}
+
+/// Review P1-2 (`regressions.reaction_rows_include_skew_springs`): the physical rows
+/// at RS_stop_and_spring's node include the skewed spring block. Omitting it
+/// leaves r_z = 54/553 P against a stop with no z component, and the attribution's
+/// consistency check refuses the record by name.
+#[test]
+fn certified_rows_include_skew_spring_blocks() {
+    use crate::structural::{certify_node_attribution, certify_support_reaction, certify_support_reaction_with_basis};
+    let case = kernel_case("RS_stop_and_spring");
+    let (tip, load) = tip_and_load(&case);
+    let input = s_k1_inputs().into_iter().find(|i| i.name == "RS_stop_and_spring").unwrap();
+    let run = run(tip, load, &[], &input.stops, &input.springs).unwrap();
+    let regression = references().at("regressions").at("reaction_rows_include_skew_springs").clone();
+    assert_eq!(regression.at("case").text(), "RS_stop_and_spring");
+    let (source, force) = certified_inputs(tip, load);
+    let (_, bound) = lifted(&run);
+    let with = triple_of(regression.at("rows_with_block"));
+    let omitted = triple_of(regression.at("rows_block_omitted"));
+    for i in 0..3 {
+        let row = certify_support_reaction_with_basis(&source, &force, Some(&run.basis), i, &run.u, &bound).unwrap();
+        close(row.published, with[i], 1.0, &format!("with the block r[{i}]"));
+        // With no basis the row is today's (no skewed spring block).
+        let plain = certify_support_reaction(&source, &force, i, &run.u, &bound).unwrap();
+        close(plain.published, omitted[i], 1.0, &format!("block omitted r[{i}]"));
+        assert_eq!(
+            plain.published.to_bits(),
+            certify_support_reaction_with_basis(&source, &force, None, i, &run.u, &bound).unwrap().published.to_bits()
+        );
+    }
+    // The block-omission mutant: the same u, a basis without the spring.
+    let stop_only = RestraintBasis::build(
+        1,
+        &[3, 4, 5],
+        vec![SkewStop { support_id: "stop".into(), node: 0, direction: SkewDirection::new([3.0, 4.0, 0.0]).unwrap() }],
+        vec![],
+    )
+    .unwrap();
+    let refused = certify_node_attribution(&source, &force, &stop_only, 0, &run.u, &bound).unwrap_err();
+    assert!(format!("{refused:?}").contains("restraint_basis: reaction not along the constraint"), "{refused:?}");
+    assert!(certify_node_attribution(&source, &force, &run.basis, 0, &run.u, &bound).is_ok());
+}
+
+/// Review P1-3 (`regressions.spring_along_direction`): both outputs branch from κ;
+/// S1_spring_isotropic's along-direction is +2/5 P, not the chained 32/125 P.
+#[test]
+fn certified_skew_spring_branches_from_kappa() {
+    use crate::structural::certify_skew_spring_reaction;
+    for record in references().at("regressions").at("spring_along_direction").items() {
+        let name = record.at("case").text();
+        let input = s_k1_inputs().into_iter().find(|i| i.name == name).unwrap();
+        let (tip, load) = tip_and_load(&kernel_case(name));
+        let run = run(tip, load, &[], &input.stops, &input.springs).unwrap();
+        let (_, bound) = lifted(&run);
+        let s = input.springs.iter().position(|&(id, _, _)| id == record.at("spring").text()).unwrap();
+        let certified = certify_skew_spring_reaction(&run.basis.springs()[s], &run.u, &bound).unwrap();
+        let along = record.at("along_minus_kt_over_norm").b64();
+        close(certified.along.published, along, 1.0, &format!("{name}: along"));
+        let rejected = record.at("rejected_chain_minus_kt_over_n_over_norm").b64();
+        assert!((certified.along.published - rejected).abs() > 1e-3, "{name}: not the chained division");
+        let components = triple_of(record.at("components_minus_kt_d_over_n"));
+        for i in 0..3 {
+            close(certified.global[i].published, components[i], 1.0, &format!("{name}: R[{i}]"));
+        }
+    }
+}

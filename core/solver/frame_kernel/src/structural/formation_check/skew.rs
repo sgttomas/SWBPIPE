@@ -33,7 +33,7 @@ fn split_range(dof: usize) -> Failure {
 /// The intended skew spring block at p (§6.1): k·d_i d_j/(dᵀd) from the
 /// **authored** components (scale-free), each entry formed once for i ≤ j and
 /// mirrored.
-pub(super) fn skew_spring_matrix(a: &mut WideArith, d: [f64; 3], k: f64) -> Result<[[Wide2; 3]; 3], WideError> {
+pub(in crate::structural) fn skew_spring_matrix(a: &mut WideArith, d: [f64; 3], k: f64) -> Result<[[Wide2; 3]; 3], WideError> {
     let d = lift3(d)?;
     let mut n = Wide2::ZERO;
     for x in &d {

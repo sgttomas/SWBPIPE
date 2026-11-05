@@ -294,7 +294,7 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("FK/load_ledger.rs", "finish", 0, "ledger: one exact sum per DOF"),
     ("FK/load_ledger.rs", "with_appended", 1, "integer: an appended load primitive's term index offset by the base ledger's term count (nonlinear K-D5, kd5-nonlinear-active-set.md section 1.6); the forces themselves are summed once by finish"),
     // ---- SA
-    ("SA/structural_adapter.rs", "new", 4, "exempt: symmetry-roundoff provenance and integer counts"),
+    ("SA/structural_adapter.rs", "new", 6, "exempt: symmetry-roundoff provenance and integer counts (S-K1 A-1: plus each skew spring node block's directed allowance gamma(4)*|v| and its count, DEL-04-03 skew-restraints.md §6.1)"),
     ("SA/structural_adapter.rs", "element", 2, "exempt: symmetry-roundoff provenance and integer counts"),
     ("SA/structural_adapter.rs", "geometry", 1, "integer: queue index"),
     ("SA/structural_adapter.rs", "gap_attempt", 1, "integer: B7a D6's checked WorkTotal of refused reservations; an overflow joins its status and nothing saturates"),

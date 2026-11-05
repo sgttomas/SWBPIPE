@@ -6293,11 +6293,11 @@ fn solve_prepared_load_case(
                     });
                 }
             }
-            let certified_support = match (member_bound, certified_source.as_ref()) {
-                (Some(_),Some(_)) if skew::certified_pending(built.skew.as_ref(), support, index) => { recovery_records.push(certified_publication::unavailable_record(&support.id,formation_bodies.body_of_node(index),skew::CERTIFIED_PENDING.to_string())); None } (Some(bound),Some(source)) => match certified_publication::support(model,support,built,spring_entries,&spring_ground,source,certified_force,&displacements,bound,certified_nonlinear) {
-                    Ok(rows) => {
+            let mut certified_along = None; let certified_support = match (member_bound, certified_source.as_ref()) {
+                (Some(bound),Some(source)) => match certified_publication::support(model,support,built,spring_entries,&spring_ground,source,certified_force,&displacements,bound,certified_nonlinear) {
+                    Ok((rows, along)) => { certified_along = along.as_ref().map(|row| row.published);
                         vector = rows.map(|row| row.published);
-                        match certified_publication::support_record(&support.id,formation_bodies.body_of_node(index),&rows) {
+                        match certified_publication::support_record(&support.id,formation_bodies.body_of_node(index),&rows,along.as_ref()) {
                             Ok(record) => recovery_records.push(record),
                             Err(error) => recovery_records.push(certified_publication::unavailable_record(&support.id,formation_bodies.body_of_node(index),format!("{error:?}"))),
                         }
@@ -6309,7 +6309,7 @@ fn solve_prepared_load_case(
             };
             require_finite_mechanics(vector)?;
             if let Some(record) = preview_record.as_mut() {
-                record.support_vectors.push((support.id.clone(), vector)); if let Some(attributed) = skew_reactions.as_ref().and_then(|skew| skew.records.get(&support.id)) { record.along_directions.push((support.id.clone(), attributed.along)); }
+                record.support_vectors.push((support.id.clone(), vector)); if let Some(attributed) = skew_reactions.as_ref().and_then(|skew| skew.records.get(&support.id)) { record.along_directions.push((support.id.clone(), certified_along.unwrap_or(attributed.along))); }
                 if let Some(rows) = &certified_support {
                     let force_norm = open_pipe_stress_frame_kernel::structural::certified_magnitude(&rows[..3]).map_err(|_| FrameKernelError::NonFiniteInput { name:"certified force norm",value:f64::NAN })?.published;
                     let moment_norm = open_pipe_stress_frame_kernel::structural::certified_magnitude(&rows[3..]).map_err(|_| FrameKernelError::NonFiniteInput { name:"certified moment norm",value:f64::NAN })?.published;
@@ -16178,7 +16178,7 @@ mod tests {
         assert_eq!(unit_summary.published.to_bits(),0x3e9421f5f40d8377);
         assert_ne!(unit_summary.published.to_bits(),(0.3/1e6_f64).to_bits());
         let mut support=[CertifiedRow::ZERO;6];support[0]=row(1.0);support[1]=row(1.0);
-        let record=certified_publication::support_record("support",Some(0),&support).unwrap();assert_eq!(record.groups.len(),4);
+        let record=certified_publication::support_record("support",Some(0),&support,None).unwrap();assert_eq!(record.groups.len(),4);
         let vector=record.groups.iter().find(|group|group.kind=="support_force").unwrap();let scalar=record.groups.iter().find(|group|group.kind=="support_force_magnitude").unwrap();
         assert!(*vector.bound.as_ref().unwrap()<1e-30);assert!(*scalar.bound.as_ref().unwrap()>1024.0*vector.bound.as_ref().unwrap(),"separate scalar norm rounding is covered beyond the component radii");
     }

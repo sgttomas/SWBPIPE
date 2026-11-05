@@ -21,6 +21,7 @@ use std::borrow::Cow;
 
 // R-6/R-7: K-D5 on the transformed system (skew-restraints.md §10).
 mod skew;
+pub(super) use skew::skew_spring_matrix;
 
 /// Precision of the re-formation (D1 §4.3.1 step 1).
 pub const FORMATION_PRECISION: u32 = 128;
