@@ -64,12 +64,16 @@ enum Family {
     /// diacritics, Greek, Cyrillic, CJK) in a 8 / 300 / 5 000 / 40 000
     /// character cycle; the longest exceed FTS5's 32 768-byte token cap.
     Unicode,
+    /// One token the whole text long: the Unicode family's letters with no
+    /// separator (unicode61 folds the whole token into its buffer before
+    /// FTS5 caps it at 32 768 bytes).
+    Single,
     /// JSON resembling a stored record: an array of node objects with
     /// pseudo-random decimal coordinates.
     Json,
 }
 
-const FAMILIES: [Family; 5] = [Family::Repeated, Family::Distinct, Family::Short, Family::Unicode, Family::Json];
+const FAMILIES: [Family; 6] = [Family::Repeated, Family::Distinct, Family::Short, Family::Unicode, Family::Single, Family::Json];
 
 impl Family {
     fn name(self) -> &'static str {
@@ -78,6 +82,7 @@ impl Family {
             Family::Distinct => "distinct",
             Family::Short => "short",
             Family::Unicode => "unicode",
+            Family::Single => "single",
             Family::Json => "json",
         }
     }
@@ -184,6 +189,19 @@ fn fixture(fx: Fx) -> String {
                 }
                 text.push(' ');
                 token += 1;
+            }
+        }
+        Family::Single => {
+            let mut rng = Rng::new(0x5100 + u64::from(fx.variant));
+            loop {
+                let c = UNICODE_ALPHABET[rng.below(UNICODE_ALPHABET.len() as u64) as usize];
+                if text.len() + c.len_utf8() > bytes {
+                    break;
+                }
+                text.push(c);
+            }
+            while text.len() < bytes {
+                text.push('a');
             }
         }
         Family::Json => {
