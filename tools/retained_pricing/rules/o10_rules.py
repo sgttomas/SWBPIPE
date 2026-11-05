@@ -5447,9 +5447,10 @@ _C3_RE = RE_ + "combination_certificate.rs"
 if fnkey("publish", _C3_PP) and fnkey("member_check", _C3_RE):
     # RTA3C-PIN: the two modules' complete bytes, read before these rules were written; a change stops the run. The RE
     # module's retained_base_read_tests read the legacy pre-certificate W-CB3 successor since §8.53 regenerated the live
-    # one with the member (one test line, in place; no production line).
+    # one with the member (one test line, in place; no production line). The RE pin then follows the roster's exact-id
+    # read of a set-bound entry outside the population (the §8.53 shared-id amendment; roster's first statement unchanged).
     for _f, _h in {_C3_PP: "5b85e6c57ae9c3b7cf9722e8be424532e12866f8b825597b20334c3e98ab5b1a",
-                   _C3_RE: "71439493d6c2b5b35d9e58893a69731d6f4cdbf7b36ddcf00f7682dd22948ae0"}.items():
+                   _C3_RE: "6c08cf1703e9cb1cb6ee8a98a32d5347f68cd4502a86299885628b8990e4efd9"}.items():
         if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _f), "rb").read()).hexdigest() != _h:
             raise SystemExit(f"RTA3C-PIN: {_f} changed; re-review §8.53's rules")
     _c3_lib = _re.sub(r"//[^\n]*", "", _text_of(_LIB))
@@ -5562,7 +5563,9 @@ if fnkey("publish", _C3_PP) and fnkey("member_check", _C3_RE):
         ("for expected in &expected_diagnostics", "z", O10 + "RTA3C-L: <= one notice per combination", _c3("member_check")),
         # The roster's loops: its edge is zero on the retained graph (RTA3C-RB); bounds stated for completeness.
         ("for &(id, gated, code) in &gates", "z", O10 + "RTA3C-L: the gates (unreached: RTA3C-RB)", _c3("roster")),
-        ("for d in diagnostics.iter().filter(|d| named(d))", "D", O10 + "RTA3C-L: the diagnostics (unreached: RTA3C-RB)", _c3("roster")),
+        # The scan visits a diagnostic that names the population or carries a set-bound entry's exact id (`listed`, a
+        # non-allocating `any` over the expected entries, as the loop's `position`; the §8.53 shared-id amendment).
+        ("for d in diagnostics.iter().filter(|d| named(d) || listed(d))", "D", O10 + "RTA3C-L: the diagnostics (unreached: RTA3C-RB)", _c3("roster")),
         ("for c in all", "z", O10 + "RTA3C-L: the model's combinations (unreached: RTA3C-RB; model only)", _c3("interim")),
         ("for index in model_order(all, &cases)", "z", O10 + "RTA3C-L: the model's combinations (unreached: RTA3C-RB; model only)", _c3("interim")),
     ]
