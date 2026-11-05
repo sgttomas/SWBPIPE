@@ -228,6 +228,10 @@ pub(crate) fn solve(
     let (u, member_bound) = match &checked.member_bound {
         Some(bound) => {
             let lifted = basis.lift_member_bound(&checked.displacements, bound).map_err(lift_error)?;
+            #[cfg(test)]
+            LIFT_PROBE.with(|probe| if let Some(records) = probe.borrow_mut().as_mut() {
+                records.push((lifted.u.clone(), lifted.bound.clone()));
+            });
             (lifted.u, Some(lifted.bound))
         }
         None => (basis.lift(&checked.displacements).map_err(lift_error)?, None),
@@ -320,6 +324,14 @@ pub(crate) fn along_direction_row(case_id: &str, support_id: &str, value: f64, b
             sign_convention: "support_on_pipe_positive_along_authored_direction".into(),
         }),
     }
+}
+
+/// Astra N5 (test only): each skew solve's lifted displacement and its lifted member bound,
+/// the inputs of the published `certify_displacement` rows.
+#[cfg(test)]
+thread_local! {
+    pub(crate) static LIFT_PROBE: std::cell::RefCell<Option<Vec<(Vec<f64>, open_pipe_stress_frame_kernel::structural::MemberBoundInputs)>>> =
+        const { std::cell::RefCell::new(None) };
 }
 
 /// §7.1's row kind.
