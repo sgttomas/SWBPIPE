@@ -697,7 +697,10 @@ def _get(value: Any, *path: str) -> Any:
 
 
 def _combination_population(source: Mapping[str, Any], model: Mapping[str, Any] | None) -> set[str]:
-    """The combination identities the document states (and the model's), less those shared with another entity."""
+    """The combination identities the document states (and the model's), less those the document shares with another
+    entity. The model only adds: a model combination the document does not state joins unless another document or
+    model entity shares its id; no model record removes an identity the document types as a combination's (Rust
+    `combination_population`; review cert3 finding 2)."""
     evidence = _get(source, "contract_evidence")
 
     def typed(basis: Any) -> str | None:
@@ -715,12 +718,13 @@ def _combination_population(source: Mapping[str, Any], model: Mapping[str, Any] 
     for member in ("preview_cases", "exact_cases"):
         other.update(x for x in (_text(_get(c, "load_case_id")) for c in _items(_get(evidence, member))) if x is not None)
     other.update(x for x in (_text(_get(r, "entity_ref")) for r in _items(source.get("results"))) if x is not None)
+    ids = {i for i in ids if i and i not in other}
     if isinstance(model, Mapping):
-        ids.update(x for x in (_text(_get(c, "id")) for c in _items(model.get("combinations"))) if x is not None)
         for key, value in model.items():
             if key != "combinations":
                 other.update(x for x in (_text(_get(e, "id")) for e in _items(value)) if x is not None)
-    return {i for i in ids if i and i not in other}
+        ids.update(x for x in (_text(_get(c, "id")) for c in _items(model.get("combinations"))) if x and x not in other)
+    return ids
 
 
 def _interim(model: Mapping[str, Any]) -> tuple[list[dict[str, Any]], list[Mapping[str, Any]]]:

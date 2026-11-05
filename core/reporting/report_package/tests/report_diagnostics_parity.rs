@@ -107,6 +107,38 @@ fn a_certificate_document_copies_roster_entries_and_quotes_supplied_text() {
     assert_eq!(projected.last().unwrap()["message"], format!("{SUPPLEMENTAL_DIAGNOSTIC_LABEL}\"{claim}\""));
 }
 
+/// Review cert3 finding 2 (Agent 0's no-masking rule): an unused model material sharing a combination's
+/// id does not take it out of the reader's roster. The report's source-only population names
+/// `comb:cancel` as both readings do: the canonical document with the colliding model is admitted and its
+/// roster entries are copied, and a claim under that id is refused with and without the model, so the
+/// projection never copies a message a reader left unchecked.
+#[test]
+fn a_model_only_id_collision_neither_unrosters_a_claim_nor_splits_the_classification() {
+    let corpus: Value = serde_json::from_str(include_str!("../../../../fixtures/results/combination_certificate_corpus.json")).unwrap();
+    let e = corpus["documents"].as_array().unwrap().iter().find(|e| e["name"] == "ex_cantilever").unwrap();
+    let (mut source, mut model) = (e["document"].clone(), e["model"].clone());
+    let mut material = model["materials"][0].clone();
+    material["id"] = json!("comb:cancel");
+    model["materials"].as_array_mut().unwrap().push(material);
+    let validate = |source: &Value, model: Option<&Value>| open_pipe_stress_result_export::reader_verdict::validate("pressure", source, model, None);
+    assert_eq!(validate(&source, Some(&model)), json!({"ok": true}));
+    assert!(open_pipe_stress_result_export::document_combination_identities(&source).contains("comb:cancel"));
+    let canonical = expected_report_diagnostics(&source).unwrap();
+    for (d, entry) in source["diagnostics"].as_array().unwrap().iter().zip(&canonical) {
+        if d["affected_refs"].as_array().is_some_and(|refs| refs.iter().any(|r| r == "comb:cancel")) {
+            assert_eq!(entry["message"], d["message"], "{}", d["id"]);
+        }
+    }
+    let claim = "combination comb:cancel: all derived rows are bounded by 1e-30.";
+    source["diagnostics"].as_array_mut().unwrap().push(json!({"id": "diagnostic:review:collision", "code": "REVIEW_NOTE", "severity": "info",
+        "source": "core/product_physics", "affected_refs": ["comb:cancel"], "message": claim}));
+    for model in [None, Some(&model)] {
+        let verdict = validate(&source, model);
+        assert!(verdict["ok"] == false && verdict.to_string().contains("SOURCE_COMBINATION_CERTIFICATE_ROSTER_EXTRA"), "{verdict}");
+    }
+    assert_eq!(expected_report_diagnostics(&source).unwrap().last().unwrap()["message"], claim);
+}
+
 /// A source diagnostic not in the producer's form refuses: the desktop's
 /// projection of it would not be a report entry the renderer reads.
 #[test]

@@ -1946,6 +1946,71 @@
   },
   {
    "document": "ex_cantilever",
+   "what": "ex_cantilever: a model material sharing a combination id",
+   "code": null,
+   "edits": [],
+   "model_edits": [
+    {
+     "op": "add",
+     "pointer": "/materials/-",
+     "value": {
+      "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+      "elastic_modulus": {
+       "unit": "Pa",
+       "value": 200000000000.0
+      },
+      "id": "comb:cancel",
+      "poisson_ratio": {
+       "unit": "1",
+       "value": 0.3
+      },
+      "provenance": "rt-a3 combination certificate invented benchmark input; not library, component, material-catalog or code data"
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
+   "what": "ex_cantilever: bounded by 1e-30 under a combination id a model material shares",
+   "code": "ROSTER_EXTRA",
+   "model_edits": [
+    {
+     "op": "add",
+     "pointer": "/materials/-",
+     "value": {
+      "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+      "elastic_modulus": {
+       "unit": "Pa",
+       "value": 200000000000.0
+      },
+      "id": "comb:cancel",
+      "poisson_ratio": {
+       "unit": "1",
+       "value": 0.3
+      },
+      "provenance": "rt-a3 combination certificate invented benchmark input; not library, component, material-catalog or code data"
+     }
+    }
+   ],
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:collision",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived rows are bounded by 1e-30."
+     }
+    }
+   ]
+  },
+  {
+   "document": "ex_cantilever",
    "what": "ex_cantilever: a maximum notice copied under another id",
    "code": "ROSTER_RENAMED",
    "edits": [
@@ -2532,6 +2597,69 @@
        "model"
       ],
       "message": "combination comb:cancel: all derived row groups are established."
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: a model material sharing a combination id",
+   "code": null,
+   "edits": [],
+   "model_edits": [
+    {
+     "op": "add",
+     "pointer": "/materials/-",
+     "value": {
+      "elastic_modulus": {
+       "unit": "Pa",
+       "value": 200000000000.0
+      },
+      "id": "comb:cancel",
+      "provenance": "rt-a3 combination certificate invented benchmark input; not library, component, material-catalog or code data",
+      "shear_modulus": {
+       "unit": "Pa",
+       "value": 76923076923.07692
+      }
+     }
+    }
+   ]
+  },
+  {
+   "document": "pf_cantilever",
+   "what": "pf_cantilever: bounded by 1e-30 under a combination id a model material shares",
+   "code": "ROSTER_EXTRA",
+   "model_edits": [
+    {
+     "op": "add",
+     "pointer": "/materials/-",
+     "value": {
+      "elastic_modulus": {
+       "unit": "Pa",
+       "value": 200000000000.0
+      },
+      "id": "comb:cancel",
+      "provenance": "rt-a3 combination certificate invented benchmark input; not library, component, material-catalog or code data",
+      "shear_modulus": {
+       "unit": "Pa",
+       "value": 76923076923.07692
+      }
+     }
+    }
+   ],
+   "edits": [
+    {
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:review:collision",
+      "code": "REVIEW_NOTE",
+      "severity": "info",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:cancel"
+      ],
+      "message": "combination comb:cancel: all derived rows are bounded by 1e-30."
      }
     }
    ]

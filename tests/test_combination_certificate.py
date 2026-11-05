@@ -246,6 +246,17 @@ def build_forgeries() -> list[dict]:
                       "affected_refs": ["model"], "message": claims["REVIEW_NOTE"]}
         out.append({"document": name, "what": f"{name}: a model-ref note (supplemental)", "code": None,
                     "edits": [edit(["diagnostics", "-"], model_note, op="add")]})
+        # Review cert3 finding 2 (Agent 0's no-masking rule): an unused model material sharing a combination's id
+        # removes no identity the document types as a combination's. The canonical document stays admitted, and a
+        # claim under that id is refused with the model as without it.
+        collision = [edit(["materials", "-"], dict(entry(name)["model"]["materials"][0], id="comb:cancel"), op="add")]
+        out.append({"document": name, "what": f"{name}: a model material sharing a combination id", "code": None,
+                    "edits": [], "model_edits": collision})
+        out.append({"document": name, "what": f"{name}: bounded by 1e-30 under a combination id a model material shares",
+                    "code": "ROSTER_EXTRA", "model_edits": collision,
+                    "edits": [edit(["diagnostics", "-"], {"id": "diagnostic:review:collision", "code": "REVIEW_NOTE", "severity": "info",
+                                                          "source": cc.SOURCE, "affected_refs": ["comb:cancel"],
+                                                          "message": claims["bounded by 1e-30"]}, op="add")]})
         # A known roster code copied under an id outside every roster family: renamed.
         maximum = _diagnostic_index(doc, lambda d: d["code"] == "COMBINATION_STRESS_MAXIMUM_UNAVAILABLE")
         out.append({"document": name, "what": f"{name}: a maximum notice copied under another id", "code": "ROSTER_RENAMED",
@@ -315,6 +326,13 @@ def _apply(document: dict, forgery: dict) -> dict:
     return document
 
 
+def _apply_model(model: dict, forgery: dict) -> dict:
+    """The model the forgery's with-model reading uses: its `model_edits` applied, if any (review cert3 finding 2)."""
+    for edit in forgery.get("model_edits", []):
+        _apply_one(model, edit)
+    return model
+
+
 def _apply_one(document: dict, forgery: dict) -> dict:
     parts = [p.replace("~1", "/").replace("~0", "~") for p in forgery["pointer"].split("/")[1:]]
     target = document
@@ -349,7 +367,7 @@ def test_every_forgery_is_refused_with_the_rust_code(forgery, with_model):
     e = entry(forgery["document"])
     forged = _apply(e["document"], forgery)
     code = forgery.get("model_code", forgery["code"]) if with_model else forgery["code"]
-    outcome = reader_verdict.validate(e["reader"], forged, e["model"] if with_model else None)
+    outcome = reader_verdict.validate(e["reader"], forged, _apply_model(e["model"], forgery) if with_model else None)
     if code is None:
         assert outcome == {"ok": True}, (forgery["what"], outcome)
     else:

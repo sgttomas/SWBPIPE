@@ -753,8 +753,13 @@ fn refs_of(d: &Value) -> Vec<&str> {
 
 /// The combination identities the document states (and, with it, the model's): its gates, its EX
 /// records, its certificate and operand records, and the owners of its combination-typed rows and
-/// numerical cases. An identity that is also another entity's (a load case, a row's entity, another
-/// model record) is not recognizable as a combination's in an untyped ref, and is left out.
+/// numerical cases. An identity the document also gives another entity (a load case, a row's entity)
+/// is not recognizable as a combination's in an untyped ref, and is left out. The model only adds: a
+/// model combination the document does not state joins unless another document or model entity shares
+/// its id, and no model record removes an identity the document types as a combination's, so the
+/// document's own population ([`document_combination_identities`], the report's) is always within the
+/// population the roster checks, with or without the model (review cert3 finding 2: an unused model
+/// material named after a combination cannot unroster a claim under it).
 fn combination_population<'s>(source: &'s Value, model: Option<&'s Value>) -> HashSet<&'s str> {
     let evidence = &source["contract_evidence"];
     let typed = |b: &'s Value| if b["ref_type"] == "combination" { b["ref_id"].as_str() } else { None };
@@ -771,21 +776,22 @@ fn combination_population<'s>(source: &'s Value, model: Option<&'s Value>) -> Ha
         other.extend(items(&evidence[member]).iter().filter_map(|c| c["load_case_id"].as_str()));
     }
     other.extend(items(&source["results"]).iter().filter_map(|r| r["entity_ref"].as_str()));
+    ids.retain(|id| !id.is_empty() && !other.contains(id));
     if let Some(model) = model {
-        ids.extend(items(&model["combinations"]).iter().filter_map(|c| c["id"].as_str()));
         for (key, list) in model.as_object().into_iter().flatten() {
             if key != "combinations" {
                 other.extend(items(list).iter().filter_map(|e| e["id"].as_str()));
             }
         }
+        ids.extend(items(&model["combinations"]).iter().filter_map(|c| c["id"].as_str()).filter(|id| !id.is_empty() && !other.contains(id)));
     }
-    ids.retain(|id| !id.is_empty() && !other.contains(id));
     ids
 }
 
-/// The combination identities a document states, without the model (the roster's population): the
-/// report's projection quotes a diagnostic naming none of them as supplied text on a document that has
-/// any (`report_package::bindings::expected_report_diagnostics`; desktop `documentCombinationIdentities`).
+/// The combination identities a document states, without the model (the roster's population, and a
+/// subset of it with the model): the report's projection quotes a diagnostic naming none of them as
+/// supplied text on a document that has any (`report_package::bindings::expected_report_diagnostics`;
+/// desktop `documentCombinationIdentities`).
 pub fn document_combination_identities(source: &Value) -> HashSet<String> {
     combination_population(source, None).into_iter().map(str::to_string).collect()
 }

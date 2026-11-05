@@ -39,7 +39,8 @@ fn every_forgery_is_refused_with_the_shared_code() {
     for forgery in list {
         let e = documents.iter().find(|e| e["name"] == forgery["document"]).unwrap();
         let document = forged(&e["document"], forgery);
-        for model in [None, Some(&e["model"])] {
+        let model = forged_model(&e["model"], forgery);
+        for model in [None, Some(&model)] {
             let verdict = reader_verdict::validate(e["reader"].as_str().unwrap(), &document, model, None);
             let code = match model {
                 Some(_) if forgery.get("model_code").is_some() => &forgery["model_code"],
@@ -63,6 +64,16 @@ fn forged(document: &Value, forgery: &Value) -> Value {
         apply(&mut document, edit);
     }
     document
+}
+
+/// The model the forgery's with-model reading uses: its `model_edits` applied, if any (review
+/// cert3 finding 2's model-only id collision).
+fn forged_model(model: &Value, forgery: &Value) -> Value {
+    let mut model = model.clone();
+    for edit in forgery.get("model_edits").and_then(Value::as_array).into_iter().flatten() {
+        apply(&mut model, edit);
+    }
+    model
 }
 
 /// Any §4 certificate claim a document still makes: the member, or a diagnostic in the

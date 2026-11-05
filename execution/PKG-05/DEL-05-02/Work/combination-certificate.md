@@ -229,11 +229,24 @@ option A).** Both readers (RE `combination_certificate.rs` `roster`, Python
   affected ref names a combination identity of the document, whatever its id
   or code. The identities are taken from the gates, the EX records, the
   certificate and operand records, and the owners of combination-typed rows
-  and numerical cases. With the model, every model combination is added. A
-  literal prefix plays no part: the unicode and W-CB3 documents' identities
-  carry none. An identity shared with another entity (a load case, a row's
-  entity, another model record) is left out, because an untyped ref naming it
-  cannot be told apart.
+  and numerical cases. A literal prefix plays no part: the unicode and W-CB3
+  documents' identities carry none. An identity the document also gives
+  another entity (a load case, a row's entity) is left out, because an untyped
+  ref naming it cannot be told apart.
+- *The model only adds (review cert3 finding 2, Agent 0's no-masking rule).*
+  With the model, a model combination the document does not state is added,
+  unless another document or model entity shares its id. No model record
+  removes an identity the document types as a combination's: an unused model
+  material named `comb:cancel` does not take `comb:cancel` out of the roster,
+  so a claim under it is still refused (`ROSTER_EXTRA`). The document's own
+  population (`document_combination_identities`, the report's) is therefore
+  always within the population the roster checks, with or without the model,
+  and the report never copies as roster-checked a message the model-bound
+  reader left unchecked. A model-only combination's notices are checked with
+  the model and quoted as supplied text by the source-only report, which
+  understates, never promotes. The ambiguous untyped ref is still not
+  interpreted: a ref the document itself shares with another entity stays
+  outside the roster in both readings.
 - *Canonical form.* Each combination diagnostic must be an entry of the roster.
   Its id names one entry, and its code, severity, message, source and refs are
   that entry's, derived from the evidence.
