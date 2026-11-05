@@ -550,10 +550,15 @@ fn every_s1_authoring_refusal_is_preserved() {
         }
         op("create", "create_combination", "Combination", "C-NEW", "combinations", "not_present", &payload.to_string())
     };
-    // Operating-case slice 1b (0.9.0 §2.2, §3.8): a declared difference is authored on the
-    // pressure-free route, as authored; `own` behaves as absence; `minuend_final` stays
-    // refused; an unknown or misplaced member is the document validator's.
-    for extra in [json!({"difference_basis": "operating_minus_sustained"}), json!({"difference_basis": "operating_minus_sustained", "subtrahend_support_state": "own"})] {
+    // Operating-case slice 1b and RT-A5 (0.9.0 §2.2, §3.8): a declared difference is
+    // authored on the pressure-free route, as authored, with `own` (which behaves as absence)
+    // or `minuend_final` (operating-case §7); an unknown or misplaced member is the document
+    // validator's.
+    for extra in [
+        json!({"difference_basis": "operating_minus_sustained"}),
+        json!({"difference_basis": "operating_minus_sustained", "subtrahend_support_state": "own"}),
+        json!({"difference_basis": "operating_minus_sustained", "subtrahend_support_state": "minuend_final"}),
+    ] {
         let (next, _) = applied(&model, &combination(extra.clone()));
         let created = next["combinations"].as_array().unwrap().iter().find(|c| c["id"] == "C-NEW").unwrap().clone();
         for (key, value) in extra.as_object().unwrap() {
@@ -561,8 +566,7 @@ fn every_s1_authoring_refusal_is_preserved() {
         }
     }
     for (extra, code) in [
-        (json!({"difference_basis": "operating_minus_sustained", "subtrahend_support_state": "minuend_final"}), "LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED"),
-        (json!({"subtrahend_support_state": "minuend_final"}), "LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED"),
+        (json!({"subtrahend_support_state": "minuend_final"}), "LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_MISPLACED"),
         (json!({"subtrahend_support_state": "own"}), "LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_MISPLACED"),
         (json!({"difference_basis": null}), "LOAD_COMBINATION_DIFFERENCE_BASIS_UNKNOWN"),
         (json!({"difference_basis": "sustained"}), "LOAD_COMBINATION_DIFFERENCE_BASIS_UNKNOWN"),

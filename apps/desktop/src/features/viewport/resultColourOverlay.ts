@@ -144,9 +144,28 @@ export const SRSS_SIGN =
 export const OPERATING_MINUS_SUSTAINED_SIGN =
   "positive value follows explicit user result-state subtraction (minuend minus subtrahend) of matching source result sign conventions; operating minus sustained difference: a signed difference of two independently solved states, each using its own reported support state and carrying its own numerical standing under the static, history-free friction model; derived from case results; not an equilibrium state";
 
+/** RT-A5 `minuend_final` (DEL-05-02 `operating-case.md` §7.6): a subtraction whose subtrahend is
+ * held at the minuend's final support status states this sign convention on its difference rows,
+ * which are drawn as a plain subtraction's; the navigator names them. */
+export const HELD_STATUS_SIGN =
+  "positive value follows explicit user result-state subtraction (minuend minus subtrahend) of matching source result sign conventions; operating minus sustained difference at the operating support status: the minuend case's own solved state minus the subtrahend case's loads solved with each nonlinear support held at the minuend's final status, a held-constraint comparison that can need a reaction a unilateral support cannot supply and is not an admissible sustained state, under the static, history-free friction model; derived from case results; not an equilibrium state";
+/** The typed basis of a held-operand row: the held system's row the subtraction subtracts,
+ * published under the combination; not a load case's result and not an admissible state. */
+export const HELD_STATUS_OPERAND_BASIS = "held_status_operand";
+
+export type DeclaredDifferenceNote = "operating minus sustained difference" | "operating minus sustained difference at the operating support status";
+
 /** The navigator's name for a declared operating comparison's rows, or null. */
-export function declaredDifferenceNote(row: Pick<ResultRow, "metadata" | "basis_ref">): "operating minus sustained difference" | null {
-  return row.basis_ref?.ref_type === "combination" && row.metadata?.sign_convention === OPERATING_MINUS_SUSTAINED_SIGN ? "operating minus sustained difference" : null;
+export function declaredDifferenceNote(row: Pick<ResultRow, "metadata" | "basis_ref">): DeclaredDifferenceNote | null {
+  if (row.basis_ref?.ref_type !== "combination") return null;
+  if (row.metadata?.sign_convention === OPERATING_MINUS_SUSTAINED_SIGN) return "operating minus sustained difference";
+  if (row.metadata?.sign_convention === HELD_STATUS_SIGN) return "operating minus sustained difference at the operating support status";
+  return null;
+}
+
+/** Whether a row is a held-operand row (§7.6): never one solved state of a case, so never drawn. */
+export function isHeldOperandRow(row: Pick<ResultRow, "metadata" | "basis_ref">): boolean {
+  return row.basis_ref?.ref_type === "combination" && row.metadata?.basis === HELD_STATUS_OPERAND_BASIS;
 }
 /** The range-envelope sign convention's fixed part, after its mode token. */
 const RANGE_ENVELOPE_SIGN_SUFFIX =
@@ -191,7 +210,7 @@ export function combinationNotes(rows: readonly ResultRow[]): ReadonlyMap<string
 /** Whether a row may be drawn as one solved state (see `derivedRowNote`); with the result's
  * `rows`, a row also takes its combination's note (`combinationNotes`). */
 export function isOneSolvedState(row: Pick<ResultRow, "metadata" | "basis_ref">, rows?: readonly ResultRow[]): boolean {
-  if (derivedRowNote(row) !== null) return false;
+  if (derivedRowNote(row) !== null || isHeldOperandRow(row)) return false;
   if (!rows || row.basis_ref?.ref_type !== "combination") return true;
   return !combinationNotes(rows).has(basisKey(row.basis_ref)!);
 }

@@ -3918,7 +3918,7 @@ if fnkey("append_operand_standing", _OP1A_PP):
     # gates, model-bound: reader_verdict only, outside the retained roots); preview_physics_evidence.rs admits
     # difference_basis_derivation as an optional member (a static array element), lists G-1/G-2 in GATE_CODES (static)
     # and admits a withheld subtraction's modulus-basis records (an existing set's lookup). The OP1A premises stand.
-    _op1a_pins = {'core/product_physics/src/preview_physics.rs': 'cf2ce2e184557018874f99d730c4d77d38c07b829bd0ad39e771550f31a84365', 'core/reporting/result_export/src/preview_combination_operands.rs': '51df5bf357ae42731e612e8dc9c111e1311484fe07ffefebcf76246b315e7413', 'core/reporting/result_export/src/preview_physics_evidence.rs': '4c14f274418de1832926a3e826b0c22c9dc7487c39bcac1d32393c763979f62f', 'core/reporting/result_export/src/reader_verdict.rs': '6c856f4b5073102e67f4d5cb13e2467bc3f014afa14f0c06d5c523175038411b'}
+    _op1a_pins = {'core/product_physics/src/preview_physics.rs': '35dd73c00eaa321a5811e1b1f64cd0cabc78c91bfca50510ab146cccf4ad63cd', 'core/reporting/result_export/src/preview_combination_operands.rs': 'b075900f31f83709543fa0aff7998ae19ca89d50ca7983803f773076db6d8b22', 'core/reporting/result_export/src/preview_physics_evidence.rs': 'f15622365ffe9a4a94de15c5388088989e4856f2ac54f15ec1750f8ce1255d7a', 'core/reporting/result_export/src/reader_verdict.rs': '7d3fdcd1a4a318ee49439e1a75db61420db2a9c9e2c9d1f7977be5b1cef41df3'}
     for _f, _digest in _op1a_pins.items():
         if __import__("hashlib").sha256(_text_of(_f).encode()).hexdigest() != _digest:
             raise SystemExit("OP1A-PF/RD: reviewed source changed: " + _f)
@@ -3938,9 +3938,10 @@ if fnkey("append_operand_standing", _OP1A_PP):
         ("for row in rows.iter().filter(|r| combination_of(r) == Some(id))", "Pall"),
         # RT-A4 D3 (§8.46): the two operand loops' bindings are renamed (`case` -> `target`, `case` -> `operand`): an
         # operand is a load case or a combination (combination_graph::Operand); bounds and premise unchanged.
-        ("for (operand, target) in operands.iter().zip(&order)", "3"),
+        # RT-A5 (§8.54): both loops now also `.enumerate()` their position (the held operand's); same items, bound unchanged.
+        ("for (position, (operand, target)) in operands.iter().zip(&order).enumerate()", "3"),
         ("for (reference, (component_kind, component)) in refs.iter().zip(components)", "6"),
-        ("for (reference, operand) in refs.iter().zip(&order)", "3"))]
+        ("for (position, (reference, operand)) in refs.iter().zip(&order).enumerate()", "3"))]
     # The name-only scanner mistakes patterns/local bindings for calls to these
     # private helpers. Rust visibility rules exclude all four edges.
     for _n, _f, _callee in (("publish", _LIB, "notice"), ("identity_match", _W16_RM, "text"),
@@ -3986,7 +3987,7 @@ if fnkey("selects", _TIM):
     # RT-U4 repair B: reader_verdict.rs re-read as for OP1A above; the Timoshenko premises stand.
     # RT-U4 order and repair B on RT-A3 increment 4 (§8.50): reader_verdict.rs re-read as for OP1A above.
     # Operating-case slice 1b D3 (§8.51): preview_physics_evidence.rs re-read as for OP1A above; the Timoshenko premises stand.
-    _TIM_PINS = {'core/product_physics/src/pf_timoshenko.rs': '0546472cfba9ca61bff68838cb5add237c70485411c124f5fc14f9aa90217f45', 'core/product_physics/src/model_settings.rs': 'd2f9d52db54bd97b19708c5a8580d484282f97649f08df408f6e0b206a999d8b', 'core/reporting/result_export/src/reader_verdict.rs': '6c856f4b5073102e67f4d5cb13e2467bc3f014afa14f0c06d5c523175038411b', 'core/reporting/result_export/src/preview_physics_evidence.rs': '4c14f274418de1832926a3e826b0c22c9dc7487c39bcac1d32393c763979f62f', 'core/product_physics/src/case_state/temperature.rs': 'eed9dc272dd37c669cc090d3f4c9c30293a0793e0d0b770ddd25fdd5d08ed9b2', 'core/product_physics/src/case_state/temperature/canonical_decimal.rs': '431ac3204d98ed3420ead918cc2733f77ac3a8258d28625b210a8bc69962b1e2'}
+    _TIM_PINS = {'core/product_physics/src/pf_timoshenko.rs': '0546472cfba9ca61bff68838cb5add237c70485411c124f5fc14f9aa90217f45', 'core/product_physics/src/model_settings.rs': 'd2f9d52db54bd97b19708c5a8580d484282f97649f08df408f6e0b206a999d8b', 'core/reporting/result_export/src/reader_verdict.rs': '7d3fdcd1a4a318ee49439e1a75db61420db2a9c9e2c9d1f7977be5b1cef41df3', 'core/reporting/result_export/src/preview_physics_evidence.rs': 'f15622365ffe9a4a94de15c5388088989e4856f2ac54f15ec1750f8ce1255d7a', 'core/product_physics/src/case_state/temperature.rs': 'eed9dc272dd37c669cc090d3f4c9c30293a0793e0d0b770ddd25fdd5d08ed9b2', 'core/product_physics/src/case_state/temperature/canonical_decimal.rs': '431ac3204d98ed3420ead918cc2733f77ac3a8258d28625b210a8bc69962b1e2'}
     _TIM_PINS[FK_ + "shear.rs"] = "12b854db0252398a8d61a643eba4fe7162f81e228a1c6239860433fd3188d2c3"
     for _file, _pin in _TIM_PINS.items():
         if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _file), "rb").read()).hexdigest() != _pin:
@@ -4134,7 +4135,11 @@ if fnkey("withhold_interim_combinations", _S1_DM):
     # Operating-case slice 1b D3 (§8.51): document_members.rs re-read: interim_reasons' difference-basis push is deleted
     # (1b gates a declared subtraction at the solve, G-1 and G-2); its two S1-ZS entries are dropped below, as §8.46
     # dropped the unsigned and nested pushes'. The minuend_final push and the withholding are unchanged.
-    _S1_PINS = {_S1_DM: "7992d86d976aac0cdc2e101f791f01fceeb57a96af3d3d155d7ad77a9b5df50a",
+    # RT-A5 minuend_final D3 (§8.54): document_members.rs re-read: interim_reasons' last push, minuend_final's, is
+    # deleted (the solve forms the held comparison and gates it at G-1, G-2 and the held-status gates); interim_reasons
+    # returns `Vec::new()`, and its S1-ZS and S1-ID entries are dropped below (§8.46's and §8.51's precedent). The
+    # withholding's body is unchanged; only its doc comment and interim_reasons' are restated.
+    _S1_PINS = {_S1_DM: "6fb0a8769657353a00bfc1e3c0d244e493334994951743a04ae363d180aabeab",
                 _S1_OC: "e3ddf5bdf79698f3cbd555c9bd3ed125227030e60737760479c6c9fd7cadfa38",
                 _S1_SP: "b1ed575817c3d9ffd4edd16fcfefc1f8e9029c13c2985c9219e868d3e3f69060"}
     for _f, _h in _S1_PINS.items():
@@ -4245,11 +4250,8 @@ if fnkey("withhold_interim_combinations", _S1_DM):
         + [(_s1_at("combinations_findings", _S1_DM, "vec![view.id.to_string(), id.to_string()]", 2), _S1_D14 + " (the declared comparison's refs)")]
         + [(_s1_at("operand_refs", _S1_DM, 'refs.push((format!("{at}.terms[{j}].combination"), id, operands.combination(id)));'), _S1_ZR + "a term's combination operand (D1.4)")]
         # RT-A4 D3 (§8.46): interim_reasons' unsigned-basis and nested-operand pushes are deleted (the wiring evaluates
-        # both); the two remaining pushes keep their zeros.
-        + [(_s1_at("interim_reasons", _S1_DM, t), _S1_ZR + "a difference basis or a minuend_final subtrahend (D1.4)") for t in (
-            # Operating-case slice 1b (§8.51): the difference-basis push is deleted, so its entry is dropped (§8.46's
-            # precedent for the unsigned and nested pushes); the minuend_final push keeps its entry.
-            "solves its subtrahend at the minuend's final support status",)]
+        # both). Operating-case slice 1b (§8.51) deleted the difference-basis push and RT-A5 (§8.54) the minuend_final
+        # push, so interim_reasons has no push left and no zero entry.
         + [(_s1_at("findings", _S1_OC, t), _S1_D13) for t in (
             'let path = format!("pipe_segments[{index}].condition_set_ref");', "of pipe `{pipe}` names no condition set.",
             "vec![pipe.to_string(), reference.to_string()]")]
@@ -4333,8 +4335,8 @@ if fnkey("withhold_interim_combinations", _S1_DM):
         ("snubber_findings", _S1_DM, 'format!("`{token}` is rotational;', ("token",)),
         ("snubber_findings", _S1_DM, 'format!("{at}.stiffness")', ("at",)),
         ("combinations_findings", _S1_DM, "members.iter().map(|&member| views[member].id.to_string()).collect()", ("views[member].id",)),
-        # Operating-case slice 1b (§8.51): the difference-basis push's audit entry is dropped with the push (§8.46's precedent).
-        ("interim_reasons", _S1_DM, "solves its subtrahend at the minuend's final support status", ("id",)),
+        # Operating-case slice 1b (§8.51) and RT-A5 (§8.54): the difference-basis and minuend_final pushes' audit
+        # entries are dropped with the pushes (§8.46's precedent).
         ("withhold_interim_combinations", _S1_DM, '&format!("diagnostic:combination:{}:{}", crate::stable_suffix(&combination.id), code.to_ascii_lowercase()),',
          ("crate::stable_suffix(&combination.id)", "code.to_ascii_lowercase()")),
         ("withhold_interim_combinations", _S1_DM, "vec![combination.id.clone()],", ("combination.id",)),
@@ -4841,7 +4843,7 @@ if fnkey("solved_state_plus_increments", _A4_PLAN):
     # preview_difference_basis::check (PF1B-FZ on D1), free_check gains an allocation-free stated-reason arm, model_check
     # (RT-A4-RM) reads the new module's kept combinations and declared gate. Every RT-A4 guard is re-checked on the new bytes.
     _A4_PINS = {_A4_PLAN: "86e8d1c0686b92579aeee96087e0b6e390ee6729d10a56568228f099e64b6cbb",
-                _A4_GATES: "9ba79f6adbb4e372ae55586e19009e3d8be79ba80cdd0dc1f2d97f949f43aa50",
+                _A4_GATES: "c6bcf2272793cf59df89c4d4c2e0f062939933ccf4d0cbec25f7bc1552d01225",
                 _A4_GRAPH: "f3a3ca6b332896afd19412ee96e18750c271ae323ca34c46876e382c710eaef8",
                 _A4_FLC: "c234ca4cb3fb6a1360edd8d3f55bd9d6e9d9ecf6a8310d68379096167abb38bf",
                 _A4_UNS: "7bde94c46aa9aa15d19560d21b58fd9cddfae3f0d8073706214620c34179ad42"}
@@ -4870,11 +4872,12 @@ if fnkey("solved_state_plus_increments", _A4_PLAN):
                     for _pf in __import__("os").listdir(_os.path.join(_SNAP, PP_)) if _pf.endswith(".rs")),
         _A4_EV.count("Self::AbsoluteSum { terms } => evaluate_absolute_sum(&by_id, &term_list(terms)),") == 1
         and _A4_EV.count("Self::Srss { terms } => evaluate_srss(&by_id, &term_list(terms)),") == 1,
-        # interim_reasons pushes only for a minuend_final subtrahend (operating-case slice 1b, §8.51: the difference-basis
-        # push is deleted; §8.46 restated this guard the same way when the unsigned and nested pushes went). Fewer pushes
-        # only narrow RT-A4-WZ's premise: the remaining reason is still D1.4-refused.
-        _A4_IR.count("reasons.push((") == 1 and _A4_IR.count("if combination.difference_basis.is_some() {") == 0
-        and _A4_IR.count("combination.subtrahend_support_state") == 1,
+        # interim_reasons has no reason (RT-A5, §8.54: the minuend_final push is deleted, as operating-case slice 1b
+        # deleted the difference-basis push and §8.46 the unsigned and nested ones): its body is `Vec::new()`, so
+        # RT-A4-WZ's premise (`withheld` stays empty) now holds on every model, not only through D1.4.
+        _A4_IR.count("reasons.push(") == 0 and _A4_IR.count("combination.") == 0
+        and _A4_IR.startswith("fn interim_reasons(_combination: &crate::PreviewCombination) -> Vec<(&'static str, String)> {\n"
+                              "    Vec::new()\n}\n"),
         _A4_WIC.count("    if withheld.is_empty() {\n        return;\n    }\n") == 1
         and _A4_WIC.count("withheld.insert(index, code);") == 1 and _A4_WIC.count("withheld.insert(") == 2
         and _A4_WIC.index("    if withheld.is_empty() {\n        return;\n    }\n") < _A4_WIC.index("let plan = crate::combination_plan::Plan::new(model);"),
@@ -5126,7 +5129,7 @@ _A4_RT = RE_ + "recorded_tables.rs"
 # reaches; no SELECTED write, read_recorded caller or selection path changes, and every guard below is re-checked.
 if fnkey("read_recorded", _A4_RT):
     if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _A4_RT), "rb").read()).hexdigest() != \
-            "d768c82e4e81f91367b4102392b61215fc593aedaed4f8d0b636285eec2f25a0":
+            "f9dd9a5c8a3f69e1da3057e6cb194851dd9edebe1d8a4ad8dad3c8a583505e35":
         raise SystemExit("RT-A4-HS: recorded_tables.rs changed; re-review §8.46's rules")
     _a4_rt = _production(_A4_RT)
     # One production item's text, from its opening line to its closing brace at the same indent (tests excluded).
@@ -5288,7 +5291,7 @@ _B1_RD = RE_ + "preview_difference_basis.rs"
 if fnkey("derivation", _B1_DB):
     # PF1B-PIN: the two modules' complete bytes, read before these rules were written; a change stops the run.
     _B1_PINS = {_B1_DB: "b727d800d771ed3de0c9a1e88adc43bb39e9b8505acd7645c275d708c206ea3a",
-                _B1_RD: "32a96aba30e6e62636d3ad6252ea9a62316121edc2713540d9ea3a41b61d7db2"}
+                _B1_RD: "d5a04069144bb3a708ca639e7f3ccc40232b2da87c571cfc8c86d0f10ed71c73"}
     for _f, _h in _B1_PINS.items():
         if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _f), "rb").read()).hexdigest() != _h:
             raise SystemExit(f"PF1B-PIN: {_f} changed; re-review §8.51's rules")
@@ -5318,7 +5321,15 @@ if fnkey("derivation", _B1_DB):
         and _b1_pp["lib.rs"].count("let preview_difference = if combining { difference_basis::derivation(&model, &preview_gates) } else { None };") == 1
         and _b1_pp["lib.rs"].count("if let (Some(member), Some(serde_json::Value::Object(evidence))) = (preview_difference, "
                                    "envelope.contract_evidence.as_mut()) { evidence.insert(difference_basis::DERIVATION_MEMBER.to_string(), member); }") == 1
-        and sum(len(_re.findall(r"difference_basis::", _t)) for _t in _b1_pp.values()) == 10,
+        # RT-A5 minuend_final (§8.54): held_status.rs adds two uses, both behind declared(): is_minuend_final is
+        # `declared(combination)` and a minuend_final subtrahend, so it is false wherever declared() is (DZ, the premise of
+        # RTA5's zeros), and solve_held_combinations' G-1/G-2 `gate` call runs only inside its is_minuend_final filter.
+        and _b1_pp["held_status.rs"].count("crate::difference_basis::declared(combination)\n        && combination.subtrahend_support_state == Some(SubtrahendSupportStateSetting::MinuendFinal)") == 1
+        and _fn_text("solve_held_combinations", PP_ + "held_status.rs").count(
+            "    for combination in model.combinations.iter().filter(|c| is_minuend_final(c)) {\n"
+            "        if crate::difference_basis::gate(model, combination, &mut modulus_key).is_some() {\n") == 1
+        and len(_re.findall(r"difference_basis::", _b1_pp["held_status.rs"])) == 2
+        and sum(len(_re.findall(r"difference_basis::", _t)) for _t in _b1_pp.values()) == 12,
         # DZ: derivation keeps only declared combinations and returns None for none.
         _fn_text("derivation", _B1_DB).count(".filter(|c| declared(c))") == 1
         and _fn_text("derivation", _B1_DB).count("(!records.is_empty()).then(|| serde_json::Value::Array(records))") == 1,
@@ -5449,8 +5460,12 @@ if fnkey("publish", _C3_PP) and fnkey("member_check", _C3_RE):
     # module's retained_base_read_tests read the legacy pre-certificate W-CB3 successor since §8.53 regenerated the live
     # one with the member (one test line, in place; no production line). The RE pin then follows the roster's exact-id
     # read of a set-bound entry outside the population (the §8.53 shared-id amendment; roster's first statement unchanged).
+    # RT-A5 composition repair (DEL-05-02 Work combination-certificate.md §2): the RE pin then follows the roster's held
+    # gate notices (held_gate_message, the canonical "Combination withheld: " + R + "." from the held-status record), the
+    # reserved vocabulary's typed-identity exemption of that one notice (reserved, bound_held_gate; non-allocating) and
+    # S1's interim without a minuend_final reason (interim_reasons); roster's first statement unchanged (RTA3C-RB).
     for _f, _h in {_C3_PP: "5b85e6c57ae9c3b7cf9722e8be424532e12866f8b825597b20334c3e98ab5b1a",
-                   _C3_RE: "6c08cf1703e9cb1cb6ee8a98a32d5347f68cd4502a86299885628b8990e4efd9"}.items():
+                   _C3_RE: "b4421e368e1add640bf97db1a28c7ba259109cb97068559b1640055f0b17b21e"}.items():
         if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _f), "rb").read()).hexdigest() != _h:
             raise SystemExit(f"RTA3C-PIN: {_f} changed; re-review §8.53's rules")
     _c3_lib = _re.sub(r"//[^\n]*", "", _text_of(_LIB))
@@ -5458,7 +5473,10 @@ if fnkey("publish", _C3_PP) and fnkey("member_check", _C3_RE):
     _c3_guard = (
         # The producer's three lib.rs statements, each once: the operand formed only with a combination and a formed
         # member bound; taken into the run's map; the one publish call after the envelope is assembled.
-        _c3_lib.count("let certificate_operand = (!model.combinations.is_empty() && member_bound.is_some())\n"
+        # RT-A5 minuend_final (§8.54): the operand is also never formed on the held path (`!held &&`, `role.held()`);
+        # a held solve exists only inside held_status::solve_held_combinations, which D1 never calls (PF1B-DZ, RTA5),
+        # so on D1 `held` is false and the operand's condition is §8.53's.
+        _c3_lib.count("let certificate_operand = (!held && !model.combinations.is_empty() && member_bound.is_some())\n"
                       "        .then(|| combination_certificate::operand(&recovery_records, &formation_bodies));") == 1,
         _c3_lib.count("if let Some(operand) = solve.certificate_operand.take() {\n"
                       "            certificate_operands.insert(load_case_id.clone(), operand);\n        }") == 1,
@@ -5477,7 +5495,7 @@ if fnkey("publish", _C3_PP) and fnkey("member_check", _C3_RE):
                                          "        return Ok(());\n    }\n") == 1,
         # member_check: the member-absent return precedes every other use of the member.
         _fn_text("member_check", _C3_RE).count("    let Some(member) = member else {\n"
-                                               "        return require(!items(&source[\"diagnostics\"]).iter().any(reserved_notice), \"PRESENCE\");\n    };\n") == 1,
+                                               "        return require(!items(&source[\"diagnostics\"]).iter().any(|d| reserved(source, d)), \"PRESENCE\");\n    };\n") == 1,
     )
     if not all(_c3_guard):
         raise SystemExit(f"RTA3C: the certificate's D1 premises or their guards changed; re-review §8.53: {_c3_guard}")
@@ -5693,3 +5711,273 @@ if fnkey("publish", _C3_PP) and fnkey("member_check", _C3_RE):
     if max(len(_c) for _c in _c3_codes) > 23 or max(len(_r) for _r in _re.findall(r'"([^"]*)"', _re.search(
             r"const WITHHELD_REASONS: \[&str; 3\] = \[([^\]]*)\]", _text_of(_C3_RE)).group(1))) > 46:
         raise SystemExit("RTA3C-ID: a static code or reason grew; re-review its class")
+
+# ---- §8.54: RT-A5 minuend_final (DEL-05-02 operating-case.md §7): the held-status solve. The producer
+# (PP held_status.rs) solves a declared `minuend_final` subtraction's subtrahend with each nonlinear support held at the
+# minuend's final status, after its G-1 and G-2; the reader (RE preview_held_status.rs) checks the held-status record,
+# rows and notices. D1.4 refuses every difference basis (PF1B-DZ's guard), so `difference_basis::declared` is false and
+# `held_status::is_minuend_final` is false for every combination D1 solves: the run's held operands are an empty map, no
+# case is a held minuend (`wanted`), no case solve is held, and the producer's successor has no held-status record, gate,
+# row or notice, so the reader returns at `!claimed`.
+_H_PP = PP_ + "held_status.rs"
+_H_RE = RE_ + "preview_held_status.rs"
+if fnkey("solve_held_combinations", _H_PP) and fnkey("check", _H_RE):
+    import hashlib as _h_hashlib
+    # RTA5-PIN: both modules' complete bytes, read before these rules were written; a change stops the run.
+    for _f, _h in {_H_PP: "4e28fd1c40df1f9ce50add83c15f64b403c708a54c0a752f72e9e7beadf779bb",
+                   _H_RE: "486718ea649ddc185518ae1f205e5f4a0a7d35cdc461d84f2eac39674ec5fec9"}.items():
+        if _h_hashlib.sha256(open(_os.path.join(_SNAP, _f), "rb").read()).hexdigest() != _h:
+            raise SystemExit(f"RTA5-PIN: {_f} changed; re-review §8.54's rules")
+    _h_nc = lambda text: _re.sub(r"//[^\n]*", "", text)
+    _h_lib, _h_pp, _h_hs = _h_nc(_text_of(_LIB)), _h_nc(_text_of(_A4_PP)), _h_nc(_text_of(_H_PP))
+    _h_guard = (
+        # DZ: is_minuend_final is declared() and a minuend_final subtrahend (PF1B-DZ's census reads it); wanted is any
+        # combination's is_minuend_final with that minuend.
+        _fn_text("is_minuend_final", _H_PP).count("crate::difference_basis::declared(combination)\n        && ") == 1,
+        _fn_text("wanted", _H_PP).count("model.combinations.iter().any(|c| is_minuend_final(c) && c.minuend_id.as_deref() == Some(case_id))") == 1,
+        # DZ: the run's held operands: solve_held_combinations is called only when some combination is minuend_final,
+        # else the map is empty; the held sources and the held derivation read only that map.
+        _h_lib.count("let held_operands = if !pressure_runtime::is_exact(&model) && model.combinations.iter().any(held_status::is_minuend_final) {\n"
+                     "        held_status::solve_held_combinations(") == 1
+        and _h_lib.count("held_status::solve_held_combinations(") == 1
+        and _h_lib.count("    } else {\n        HashMap::new()\n    };\n") >= 1
+        and _h_lib.count(".filter(|c| held_operands.contains_key(&c.id))") == 1
+        and _h_lib.count("held_status::source_standing(") == 1
+        and _h_lib.count("let outcome = held_operands.get(&combination.id)?;") == 1
+        and _h_lib.count("held_status::record(") == 1,
+        # DZ: a case lends its state only when wanted; a held case solve (CaseRole::Held) is constructed only in the
+        # held solve's closure, inside solve_held_combinations' call.
+        _h_lib.count("held_status::CaseRole::Own(Some(invocation)) if held_status::wanted(model, &load_case.id) => {") == 1
+        and _h_lib.count("held_status::capture_held_status_source(") == 1
+        # DZ: solve_prepared_load_case calls nonlinear_frame_input only inside that `wanted` arm (the arm's first call).
+        and _fn_text("solve_prepared_load_case", _LIB).count("nonlinear_frame_input(") == 1
+        and _fn_text("solve_prepared_load_case", _LIB).count(
+            "held_status::CaseRole::Own(Some(invocation)) if held_status::wanted(model, &load_case.id) => {\n"
+            "            nonlinear_frame_input(built, restrained_dofs, pf_motion.as_ref(), &ground_motion, &force).ok().and_then(|input| {") == 1
+        and _h_lib.count("held_status::CaseRole::Held(request),") == 1
+        and _h_lib.index("held_status::CaseRole::Held(request),") > _h_lib.index("held_status::solve_held_combinations(")
+        and len(_re.findall(r"CaseRole::Held\(", _h_lib)) == 2 and _h_lib.count("if let held_status::CaseRole::Held(request) = role {") == 1
+        and not any("CaseRole::Held(" in _h_nc(_text_of(PP_ + _pf)) for _pf in __import__("os").listdir(_os.path.join(_SNAP, PP_))
+                    if _pf.endswith(".rs") and _pf not in ("lib.rs", "held_status.rs")),
+        # DZ: the preview producer reads the held map only through `held.get(&combination.id)` (empty on D1).
+        _fn_text("append_combination_results", _A4_PP).count("let held_operand = match held.get(&combination.id) {") == 1
+        and _fn_text("append_combination_results", _A4_PP).count("if let Some(operand) = held_operand {") == 2
+        and _fn_text("append_operand_standing", _A4_PP).count("if let Some(held_status::HeldOutcome::Admitted(operand)) = held.get(&combination.id) {") == 1
+        and _fn_text("gate_reason", _A4_PP).count("return match held.get(&combination.id) {") == 1,
+        # FZ: the reader returns at `!claimed` before every other statement on a successor without held content.
+        _fn_text("check", _H_RE).count("    if !claimed(source) {\n        return Ok(());\n    }\n    let records = read(source)?;\n") == 1,
+        # BN: the reader module's private helpers (Rust privacy: no caller outside the file).
+        all(_re.search(r"(?m)^fn " + _n + r"\b", _text_of(_H_RE)) for _n in ("items", "text", "bits", "require", "state")),
+        # BN: the reader's `read` is pub(crate) but named nowhere else: no other RE or PP file qualifies or imports it, so
+        # an unqualified `read(` elsewhere resolves in its own module's scope (or is a closure parameter).
+        _re.search(r"(?m)^pub\(crate\) fn read\(", _text_of(_H_RE)) is not None
+        and not any(_re.search(r"preview_held_status::(read\b|\{[^}]*\bread\b)", _h_nc(_text_of(_d + _pf)))
+                    for _d in (RE_, PP_) for _pf in __import__("os").listdir(_os.path.join(_SNAP, _d))
+                    if _pf.endswith(".rs") and _d + _pf != _H_RE),
+    )
+    if not all(_h_guard):
+        raise SystemExit(f"RTA5-DZ/FZ/BN: the held-status solve's D1 premise or its guards changed; re-review §8.54: {_h_guard}")
+    _H_DZ = O10 + ("RTA5-DZ: D1.4 refuses every difference basis, so held_status::is_minuend_final is false for every "
+                   "combination D1 solves: the run's held operands are an empty map, no case is a held minuend and no held "
+                   "case solve exists")
+    _H_FZ = O10 + ("RTA5-FZ: the producer's successor on D1 has no held-status record, held gate, held row or "
+                   "HELD_STATUS_RELEASED notice (RTA5-DZ), so preview_held_status::check returns at `!claimed`")
+    _hp = lambda name: fnkey(name, _H_PP)
+    _hr = lambda name: fnkey(name, _H_RE)
+    O10_EDGE_ZERO += [(fnkey("run_linear_static_preview_observed_inner", _LIB), _hp(_n), _H_DZ)
+                      for _n in ("solve_held_combinations", "source_standing", "record")]
+    O10_EDGE_ZERO += [(fnkey("solve_prepared_load_case", _LIB), _hp(_n), _H_DZ + " (`wanted` is false)")
+                      for _n in ("capture_held_status_source", "node_ids")]
+    # The `wanted` arm's own frame input (its convergence control validates finite inputs, NI lib.rs).
+    O10_EDGE_ZERO += [(fnkey("solve_prepared_load_case", _LIB), fnkey("nonlinear_frame_input", _LIB), _H_DZ + " (`wanted` is false)")]
+    O10_EDGE_ZERO += [(fnkey("append_combination_results", _A4_PP), _hp(_n), _H_DZ + " (`held.get` is None)")
+                      for _n in ("lookup_rows", "cited_rows", "released_message")]
+    O10_EDGE_ZERO += [(fnkey("append_operand_standing", _A4_PP), _hp("kind"), _H_DZ + " (`held.get` is None)")]
+    O10_EDGE_ZERO += [(_hr("check"), _hr(_n), _H_FZ) for _n in ("read", "rows_check", "model_check", "require")]
+    O10_EDGE_ZERO += [(fnkey("free_check", _B1_RD), _hr("stated_gate"), _B1_FZ)]
+    # RTA5-BN (S1-BN's and PF1B-BN's EDGE_ZERO; sq2_decisions_common's FV): the by-name call graph adds false edges into
+    # the new modules. In PP each caller's token is a binding, a field or another type's method: `record` (a tuple
+    # binding or field), `derive` (ExactSectionBases::derive), `wanted` (a loop binding); in solve_held_combinations
+    # `run` is the pattern binding `Some(Ok(run))`, read as a function value (FV), which closed a false cycle through
+    # run_linear_static_preview_observed_inner (an edge_zero edge closes no cycle). In RE the reader's `items`, `text`
+    # and `bits` are private to its module, and its pub(crate) `read` is named by no other file (the guard above).
+    _H_BN = O10 + "RTA5-BN: a binding, field, another type's method, or a private fn of another module (Rust privacy); not a call"
+    _h_bn = [("case_ground_motion", PP_ + "imposed_motion.rs", "record", _H_PP), ("add_tie_rod_reference_loads", _LIB, "record", _H_PP),
+             ("build_model_for_basis", _LIB, "derive", _H_PP), ("build_model_for_basis", _LIB, "record", _H_PP),
+             ("bind_state_case", PP_ + "modal/context.rs", "wanted", _H_PP), ("successful_basis_record", PP_ + "retained_product.rs", "record", _H_PP),
+             ("json_findings", PP_ + "document_members.rs", "items", _H_RE), ("identity_match", PP_ + "retained_memory.rs", "text", _H_RE),
+             ("successful_basis_record", PP_ + "retained_product.rs", "bits", _H_RE), ("custody_for", PP_ + "retained_product.rs", "bits", _H_RE),
+             ("pending_error_bytes", PP_ + "retained_product.rs", "text", _H_RE), ("selection", PP_ + "retained_product.rs", "bits", _H_RE),
+             ("matrix12", PP_ + "source_receipt/source.rs", "bits", _H_RE), ("products", PP_ + "source_receipt/source.rs", "bits", _H_RE),
+             ("commitment", PP_ + "source_receipt/source.rs", "bits", _H_RE), ("matrix", PP_ + "source_receipt/source.rs", "bits", _H_RE),
+             ("region", RE_ + "arc_evidence.rs", "bits", _H_RE), ("applied", RE_ + "arc_evidence.rs", "bits", _H_RE),
+             ("retained_base_read", RE_ + "combination_certificate.rs", "read", _H_RE), ("validate", RE_ + "exact_combination_evidence.rs", "read", _H_RE),
+             ("entry_scope", RE_ + "recorded_tables.rs", "read", _H_RE), ("read_recorded", RE_ + "recorded_tables.rs", "read", _H_RE),
+             ("evaluation_order", RE_ + "preview_combination_operands.rs", "text", _H_RE), ("free_check", _B1_RD, "items", _H_RE),
+             ("g5b_exact_evidence", RE_ + "retained_precision.rs", "bits", _H_RE), ("expression_matches", RE_ + "retained_precision.rs", "text", _H_RE),
+             ("verify_new_operational", RE_ + "retained_precision.rs", "bits", _H_RE)]
+    for _caller, _file, _name, _tfile in _h_bn:
+        if not (fnkey(_caller, _file) and fnkey(_name, _tfile)):
+            raise SystemExit(f"RTA5-BN: {_file}:{_caller} or {_tfile}:{_name} no longer resolves; re-review §8.54")
+        O10_EDGE_ZERO += [(fnkey(_caller, _file), fnkey(_name, _tfile), _H_BN)]
+    if "Some(Ok(run))" not in _fn_text("solve_held_combinations", _H_PP) or _re.search(r"\brun\s*\(", _h_nc(_fn_text("solve_held_combinations", _H_PP))):
+        raise SystemExit("RTA5-BN: solve_held_combinations' `run` is no longer only a pattern binding; re-review §8.54")
+    O10_EDGE_ZERO += [(_hp("solve_held_combinations"), fnkey("run", _f), _H_BN + ": `Some(Ok(run))` is a pattern binding (FV)")
+                      for _f in (PP_ + "source_recovery/j7_rf_census.rs", FK_ + "structural/retained/product_certificate/bridge.rs",
+                                 FK_ + "structural/retained/product_certificate/source_residual.rs")]
+    # RTA5-PC: run_linear_static_preview_observed_inner's fourth solve_load_case_observed call is the held solve's
+    # closure, an argument of solve_held_combinations' call (RTA5-DZ: never called on D1). The call graph attributes the
+    # closure to its enclosing fn, outside the case loop, which would add one case solve per run; the per-call count
+    # restates the three case-loop calls §8.53 priced (each once per case, `cases`), so it changes no earlier charge.
+    _h_oi = _h_nc(_fn_text("run_linear_static_preview_observed_inner", _LIB))
+    _h_call = _h_oi.index("held_status::solve_held_combinations(")
+    _h_sites = [_m.start() for _m in _re.finditer(r"\bsolve_load_case_observed\(", _h_oi)]
+    _h_loop = _h_oi.index("for (case_index, load_case) in model.load_cases.iter().enumerate() {")
+    if (len(_h_sites) != 4 or not all(_h_loop < _s < _h_call for _s in _h_sites[:3]) or not _h_call < _h_sites[3]
+            or _h_oi.index("let held_sources: HashMap<String, serde_json::Value> = model") < _h_sites[3]):
+        raise SystemExit("RTA5-PC: observed_inner's case solves or the held closure changed; re-review §8.54")
+    EDGE_PER_CALL = list(EDGE_PER_CALL) + [(fnkey("run_linear_static_preview_observed_inner", _LIB), fnkey("solve_load_case_observed", _LIB),
+        "3*cases", O10 + "RTA5-PC: the case loop's three calls, once per case each (§8.53's sites); the held closure's call "
+        "runs only inside solve_held_combinations (RTA5-DZ)")]
+    # The held closures also render the held solve (one `preview_physics::render`) and read two basis keys
+    # (`modulus_basis_key`); the held derivation's key follows `held_operands.get(&combination.id)?` (None on D1). The
+    # per-call counts restate §8.53's: the publication's one render, and the case loop's one key per case.
+    _h_end = _h_oi.index("let held_sources: HashMap<String, serde_json::Value> = model")
+    _h_render = [_m.start() for _m in _re.finditer(r"\bpreview_physics::render\(", _h_oi)]
+    _h_keys = [_m.start() for _m in _re.finditer(r"\bmodulus_basis_key\(", _h_oi)]
+    _h_get = _h_oi.index("let outcome = held_operands.get(&combination.id)?;")
+    if (len(_h_render) != 2 or not _h_call < _h_render[0] < _h_end < _h_render[1]
+            or len(_h_keys) != 4 or not (_h_loop < _h_keys[0] < _h_call)
+            or not all(_h_call < _k < _h_end for _k in _h_keys[1:3]) or not _h_get < _h_keys[3]
+            or _h_oi[_h_get:_h_keys[3]].count("\n") != 2):
+        raise SystemExit("RTA5-PC: observed_inner's render or basis-key calls changed; re-review §8.54")
+    EDGE_PER_CALL = list(EDGE_PER_CALL) + [
+        (fnkey("run_linear_static_preview_observed_inner", _LIB), fnkey("render", _A4_PP), "1",
+         O10 + "RTA5-PC: the publication's one render (§8.53's site); the held closure's render runs only inside "
+         "solve_held_combinations (RTA5-DZ)"),
+        (fnkey("run_linear_static_preview_observed_inner", _LIB), fnkey("modulus_basis_key", _LIB), "cases",
+         O10 + "RTA5-PC: the case loop's one key per case (§8.53's site); the held closures' keys run only inside "
+         "solve_held_combinations and the held derivation's only after `held_operands.get(..)?` (RTA5-DZ)")]
+    # RTA5-SZ: the held branches' TEXT sites, each run only with a held operand or a held record (RTA5-DZ). The held
+    # closure's load-state key (its basis state's index); the held rows' keys and the held sign (`held_operand` is None:
+    # `held.get` is None); the released notice (inside `if let Some(operand) = held_operand`); the derivation member's
+    # key (held_derivation is None: its records are empty and `.filter(|records| !records.is_empty())` drops them).
+    O10_SITE_ZERO += [
+        (site("run_linear_static_preview_observed_inner", _LIB, 'let key = format!("load_state:{}", target.id);'), _H_DZ + " (the held closure)"),
+        (site("run_linear_static_preview_observed_inner", _LIB, "evidence.insert(held_status::DERIVATION_MEMBER.to_string(), serde_json::Value::Array(records));"),
+         _H_DZ + " (held_derivation is None)"),
+        (site("append_combination_results", _A4_PP, "published_by_base.entry(base.clone()).or_default().insert(held_key.clone(), row.clone());"),
+         _H_DZ + " (`held_operand` is None)"),
+        (site("append_combination_results", _A4_PP, "published_rows.insert(held_key.clone(), keyed.into_iter().map(|(_, row)| row).collect());"),
+         _H_DZ + " (`held_operand` is None)"),
+        (site("append_combination_results", _A4_PP, "if held_operand.is_some() => held_status::SIGN.to_string(),"), _H_DZ + " (`held_operand` is None)"),
+        (site("append_combination_results", _A4_PP, '&format!("diagnostic:preview-physics:held-status-released:{}", identity(&[&combination.id])),'),
+         _H_DZ + " (`held_operand` is None)"),
+        (site("append_combination_results", _A4_PP, "held_status::RELEASED,", row="diagnostics.push(diag("), _H_DZ + " (`held_operand` is None)"),
+        (site("append_combination_results", _A4_PP, "std::iter::once(combination.id.clone()).chain(operand.run.evidence.released.iter()"),
+         _H_DZ + " (`held_operand` is None: the released notice's refs)"),
+    ]
+    # RTA5-PC (preview): the released notice's diag and identity calls are a seventh call site of each in
+    # append_combination_results, inside `if let Some(operand) = held_operand` (None on D1); the per-call counts
+    # restate §8.53's six (five once per combination in plan order, `z`; one per combination and row base, `z*P`).
+    _h_pa_nc = _h_nc(_fn_text("append_combination_results", _A4_PP))
+    _h_ids = _re.findall(r'diagnostics\.push\(diag\(\n\s*&format!\("diagnostic:preview-physics:([a-z-]+):\{\}", identity\(&\[([^\]]*)\]\)\)', _h_pa_nc)
+    if (_h_ids != [("combination-fixed-load-count", "&combination.id"), ("combination-gate", "&combination.id"),
+                   ("combination-source-missing", "&combination.id, base_id"), ("combination-row-withheld", "&combination.id"),
+                   ("combination-maximum", "&combination.id"), ("combination-intensified", "&combination.id"),
+                   ("held-status-released", "&combination.id")]
+            or len(_re.findall(r"\bdiag\(", _h_pa_nc)) != 7 or len(_re.findall(r"\bidentity\(", _h_pa_nc)) != 7
+            or _h_pa_nc.index("diagnostic:preview-physics:held-status-released:") < _h_pa_nc.rindex("if let Some(operand) = held_operand {")):
+        raise SystemExit("RTA5-PC: append_combination_results' notices changed; re-review §8.54")
+    EDGE_PER_CALL = list(EDGE_PER_CALL) + [
+        (fnkey("append_combination_results", _A4_PP), _k, "5*z+z*P",
+         O10 + "RTA5-PC: §8.53's six notice sites (five per combination, one per combination and row base); the released "
+         "notice runs only with a held operand (RTA5-DZ)")
+        for _k in (fnkey("diag", _LIB), fnkey("identity", _A4_PP))]
+    # RTA5-BN (preview): gate_reason's `refusal` is the pattern binding `HeldOutcome::Withheld(refusal)` (its `.code`
+    # and `.message` fields), read as a function value (FV); it names no retained_wire fn. Its held gate notice runs
+    # only on a declared subtraction (`if difference_basis::declared(combination)`, false on D1: PF1B-DZ).
+    if (_fn_text("gate_reason", _A4_PP).count("Some(held_status::HeldOutcome::Withheld(refusal)) => Some((refusal.code, format!(\"Combination withheld: {}.\", refusal.message))),") != 1
+            or _re.search(r"\brefusal\s*\(", _h_nc(_fn_text("gate_reason", _A4_PP)))
+            or _fn_text("gate_reason", _A4_PP).index("if difference_basis::declared(combination) {") > _fn_text("gate_reason", _A4_PP).index("HeldOutcome::Withheld(refusal)")):
+        raise SystemExit("RTA5-BN: gate_reason's held refusal binding or its guard changed; re-review §8.54")
+    O10_EDGE_ZERO += [(fnkey("gate_reason", _A4_PP), fnkey("refusal", PP_ + "retained_wire.rs"), _H_BN + ": `Withheld(refusal)` is a pattern binding (FV)")]
+    O10_SITE_ZERO += [(site("gate_reason", _A4_PP, 'format!("Combination withheld: {}.", refusal.message)'), _B1_DZ + " (the held gate notice: no declared subtraction)")]
+    _h_pa = _fn_text("append_combination_results", _A4_PP)
+    if (_h_pa.count("if let Some(operand) = held_operand {") != 2 or _h_pa.count("held_key.clone()") != 2
+            or _h_pa.index("if let Some(operand) = held_operand {") > _h_pa.index("held_key.clone()")
+            or _h_pa.index("held_status::released_message(") < _h_pa.rindex("if let Some(operand) = held_operand {")
+            or _h_lib.count(".filter(|records| !records.is_empty());") != 1):
+        raise SystemExit("RTA5-SZ: a held branch's guard changed; re-review §8.54")
+    # RTA5-L: the new loops. The held sources map only the combinations with a held operand (`0`, RTA5-DZ); the held
+    # derivation scans the gates (<= z, D1.9) and returns at `held_operands.get(..)?` before any TEXT site on D1. A held
+    # operand's keyed rows run only with a held operand (`0`, RTA5-DZ).
+    O10_LOOPS_LAST += [
+        ("iter:model .combinations .iter() .filter(|c| held_operands.contains_key(&c.id)).map", "0",
+         _H_DZ + " (the map runs once per combination with a held operand; held_operands is empty)", ["lib.rs:run_linear_static_preview_observed_inner"]),
+        ('iter:preview_gates .iter() .filter_map(|gate| model.combinations.iter().find(|c| gate[" "] == c.id.as_str())).filter_map', "z",
+         O10 + "RTA5-L: the gates, one per combination the solve gates (<= z); none has a held outcome on D1 (RTA5-DZ)",
+         ["lib.rs:run_linear_static_preview_observed_inner"]),
+        ("for (base, row) in &keyed", "0", _H_DZ + " (`held_operand` is None)", ["preview_physics.rs:append_combination_results"]),
+    ]
+    # RTA5-ID: the new TEXT sites' arguments (the chain classifies every row before its multiplicity; all but the held
+    # key are unreached on D1 or at multiplicity 0). The held key is formed for every combination the preview loop
+    # forms (its one positive-multiplicity site): an IN128 combination id. A recorded sign is a Sign's lowercase Debug
+    # token (negative, zero, positive), a state an ActiveSetState token (active, inactive, sticking, sliding), a bit
+    # token `hex`'s 16 digits, a release reason `branch` or `changed_state` (13 B with its space), the deciding quantity
+    # the longest of released_quantity's four forms, a released list at most s (D1 cap 32) items joined by "; ". A
+    # sign convention is a row's metadata string (RES), an exact-point reference an IN128 id, a refusal R a held
+    # refusal's text (error_display). Each literal length is read from the pinned module.
+    _h_sign = max(len(_x) for _x in ("negative", "zero", "positive"))
+    _h_state = max(len(_x) for _x in ("active", "inactive", "sticking", "sliding"))
+    _h_reason = max(len(_x.replace("_", " ")) for _x in ("branch", "changed_state"))
+    if (_re.search(r"pub enum Sign \{\n    Negative,\n    Zero,\n    Positive,\n\}", _text_of(FK_ + "structural/exact_boundary.rs")) is None
+            or _h_hs.count('let reason = if !branch_admissible {\n            Some("branch")\n        } else if classified != held_state {\n'
+                           '            Some("changed_state")\n        } else {\n            None\n') != 1
+            or _fn_text("hex", _H_PP).count('format!("{:016x}", value.to_bits())') != 1):
+        raise SystemExit("RTA5-ID: a recorded token's source changed; re-review §8.54")
+    _h_lits = lambda f, pat: [len(_re.sub(r"\{[^}]*\}", "", _x).encode()) for _x in _re.findall(pat, _text_of(f))]
+    _h_q = max([_h_lits(_H_PP, r'format!\("(gap_sign \{\}, reaction_sign \{\}[^"]*)"')[0] + 2 * _h_sign + 2 * _h_state]
+               + [_l + 16 for _l in _h_lits(_H_PP, r'format!\("((?:derived normal normal_signed_bits|reaction_bits|displacement_bits) \{\}[^"]*)"')])
+    _h_item = _h_lits(_H_PP, r'format!\("(\{\} held \{\}, classified \{\} \(\{\}: \{\}\))"')[0] + 128 + 2 * _h_state + _h_reason + _h_q
+    _h_items = 32 * _h_item + 31 * len("; ")
+    _h_clause = _h_lits(_H_PP, r'format!\("(held-status operand of \{combination_id\}[^"]*)"')[0] + 128
+    _hb = lambda n, why: {"bytes": n, "source": O10 + "RTA5-ID: " + why}
+    _h_tok = {"sign": _hb(_h_sign, "a Sign token"), "state": _hb(_h_state, "an ActiveSetState token"), "bits": _hb(16, "a 16-digit bit token")}
+    _CC = RE_ + "combination_certificate.rs"
+    O10_ID_AUDIT += [
+        (site("append_combination_results", _A4_PP, 'let held_key = format!("{}\\u{0}held", combination.id);', full=True),
+         {"combination.id": _hb(128, "the combination id (IN128); formed for every combination the preview loop forms")}),
+        (site("released_quantity", _H_PP, 'format!("gap_sign {}, reaction_sign {}', full=True),
+         {'text(&s["gap_sign"])': _h_tok["sign"], 'text(&s["reaction_sign"])': _h_tok["sign"], 'text(&s["prior"])': _h_tok["state"], 'text(&s["state"])': _h_tok["state"]}),
+        (site("released_quantity", _H_PP, 'format!("derived normal normal_signed_bits {}"', full=True), {'text(&entry["inputs"]["normal_signed_bits"])': _h_tok["bits"]}),
+        (site("released_quantity", _H_PP, 'format!("reaction_bits {}"', full=True), {'text(&entry["inputs"]["reaction_bits"])': _h_tok["bits"]}),
+        (site("released_quantity", _H_PP, 'format!("displacement_bits {} from its ground"', full=True), {'text(&entry["inputs"]["displacement_bits"])': _h_tok["bits"]}),
+        (site("released_message", _H_PP, '.map(|r| format!("{} held {}, classified {} ({}: {})"', full=True),
+         {"r.support_id": IN, "r.held.as_str()": _h_tok["state"], "r.classified.as_str()": _h_tok["state"],
+          "r.reason.replace('_',\"\")": _hb(_h_reason, "a release reason with its space"), "r.quantity": _hb(_h_q, "the longest deciding quantity")}),
+        (site("released_message", _H_PP, 'format!("Combination {combination_id} holds', full=True),
+         {"combination_id": IN, "items": _hb(_h_items, "at most s (32) released items joined by '; '")}),
+        (site("publish_row", _H_PP, 'metadata.sign_convention = format!("{}; {clause}", metadata.sign_convention);', full=True),
+         {"metadata.sign_convention": RS_, "clause": _hb(_h_clause, "operand_clause: its literal and the IN128 id")}),
+        (site("held_gate_message", _CC, 'format!("Combination withheld: {r}.")', full=True),
+         {"r": _hb(8192, "a held refusal's text (error_display; unreached: RTA3C-RB)")}),
+        (site("held_released_entry", _CC, 'let message = format!("Combination {cid} holds', full=True),
+         {"cid": IN, "listed": _hb(_h_items, "at most s (32) released items joined by '; ' (unreached: RTA3C-RB)")}),
+        (site("released_item", _CC, 'format!("gap_sign {}, reaction_sign {}', full=True),
+         {'text(&s["gap_sign"])': _h_tok["sign"], 'text(&s["reaction_sign"])': _h_tok["sign"], 'text(&s["prior"])': _h_tok["state"], 'text(&s["state"])': _h_tok["state"]}),
+        (site("released_item", _CC, 'format!("derived normal normal_signed_bits {}"', full=True), {'text(&e["inputs"]["normal_signed_bits"])': _h_tok["bits"]}),
+        (site("released_item", _CC, 'format!("reaction_bits {}"', full=True), {'text(&e["inputs"]["reaction_bits"])': _h_tok["bits"]}),
+        (site("released_item", _CC, 'format!("displacement_bits {} from its ground"', full=True), {'text(&e["inputs"]["displacement_bits"])': _h_tok["bits"]}),
+        (site("released_item", _CC, 'format!("{} held {held}, classified {} ({}: {quantity})"', full=True),
+         {'text(&e["support_id"])': IN, "held": _h_tok["state"], 'text(&e["classified_state"])': _h_tok["state"],
+          "reason.replace('_',\"\")": _hb(_h_reason, "a release reason with its space"), "quantity": _hb(_h_q, "the longest deciding quantity")}),
+        (site("modulus_label_states", _H_RE, 'format!("temperature_point:{reference}; selection=exact_user_entered_point;")', full=True),
+         {"reference": IN}),
+        (site("rows_check", _H_RE, "s.ends_with(&format!(\"; {clause}\"))", full=True),
+         {"clause": _hb(_h_clause, "operand_clause: its literal and the IN128 id")}),
+        (site("run_linear_static_preview_observed_inner", _LIB, "evidence.insert(held_status::DERIVATION_MEMBER.to_string(), serde_json::Value::Array(records));", full=True),
+         {"held_status::DERIVATION_MEMBER": _hb(len("held_status_derivation"), "the member key, a static literal")}),
+    ]
+    if _h_hs.count('pub(crate) const DERIVATION_MEMBER: &str = "held_status_derivation";') != 1:
+        raise SystemExit("RTA5-ID: the held derivation member key changed; re-review §8.54")

@@ -126,7 +126,7 @@ pub const RETIRED_PREVIEW_PHYSICS_1_ID: &str = "openpipestress.result_semantics/
 pub const SOURCE_PREVIEW_PHYSICS_1_RETIRED: &str = "SOURCE_PREVIEW_PHYSICS_1_RETIRED";
 pub const PREVIEW_PHYSICS_ID: &str = "openpipestress.result_semantics/0.3.0/preview-physics-2";
 pub const PREVIEW_PHYSICS_SHA256: &str =
-    "f41b9d3ed0c1b7abaee0b98ca1a28aa1a2d109bce443b98d53a2080c1c504ce9";
+    "563db3c7c44279face3adc60a76a512de38520357e89ea4b49ad11d20946db89";
 pub const PREVIEW_PHYSICS_PROFILE: &str = "product_preview_mechanics_v1";
 /// DEL-05-03 Design `pf-timoshenko.md` §4: the pressure-free Timoshenko identity, a
 /// second complete identity on the preview-physics route. Its table is preview-physics-2's
@@ -136,7 +136,7 @@ pub const PREVIEW_PHYSICS_TIMOSHENKO_ID: &str =
     "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1";
 pub const PREVIEW_PHYSICS_TIMOSHENKO_PROFILE: &str = "product_preview_mechanics_timoshenko_v1";
 pub const PREVIEW_PHYSICS_TIMOSHENKO_SHA256: &str =
-    "6f6494907e3ead979ea27e5ff85f54617589c9195dc84d40a02752a0b006ef44";
+    "f64473f5a60ac2bb34d8006b40bf044800f0c97454c570bbe88d1f1d96b7bdfc";
 /// The preview-physics route's admitted identities, `(id, profile)`, in one place: every
 /// identity-aware site keys by the envelope's `semantic_contract_id` through this list.
 pub const PREVIEW_PHYSICS_IDENTITIES: [(&str, &str); 2] = [
@@ -166,6 +166,11 @@ pub fn preview_physics_identity(id: &str) -> Option<(&'static Value, &'static st
 }
 /// A preview-physics source's identity, by its producer's `semantic_contract_id`: the
 /// Timoshenko identity when named, else preview-physics-2 (the readers' unchanged default).
+/// Precondition: the caller has kept the stated identity within the route's
+/// (`PREVIEW_PHYSICS_IDENTITIES`, or none): the full public reader
+/// (`reader_verdict::validate`'s `preview_route_identity`) and the header dispatch
+/// (`for_source_metadata`) refuse any other, the retired preview-physics-1 by name; this
+/// helper does not, and reads it as preview-physics-2's.
 pub fn preview_physics_identity_of(source: &Value) -> (&'static Value, &'static str) {
     preview_physics_identity(source["producer"]["semantic_contract_id"].as_str().unwrap_or_default())
         .unwrap_or_else(|| (preview_physics_contract(), PREVIEW_PHYSICS_PROFILE))
@@ -177,7 +182,7 @@ pub fn preview_physics_identity_of(source: &Value) -> (&'static Value, &'static 
 pub const PREVIEW_PHYSICS_RETAINED_ID: &str = crate::retained_precision::CONTRACT_ID;
 pub const PREVIEW_PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::PROFILE;
 pub const PREVIEW_PHYSICS_RETAINED_SHA256: &str =
-    "b4377e73e8a83edb57b4f0c41dbaef384385e0f6b4810103a106a334c8edbe14";
+    "d0bab3502b4018ce0596757a933bd6306f402dc3741a10af24a094e8c66544e8";
 /// B3b (B3-D §6.1): the exact successor `<physics-retained>`, whose base is
 /// pressure-2 since B7b D4 (a). Like the preview successor, its raw and transport statements are
 /// checked only by the accepted reader (`crate::retained_precision`, its exact

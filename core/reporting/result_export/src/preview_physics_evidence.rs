@@ -64,6 +64,12 @@ const GATE_CODES: &[&str] = &[
     // Operating-case slice 1b (DEL-05-02 operating-case §1.2): G-1 and G-2.
     "EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING",
     "EXPANSION_BASIS_MODULUS_MIXED",
+    // RT-A5 (DEL-05-02 operating-case §7.5): a `minuend_final` subtraction's held gates.
+    "HELD_STATUS_SOURCE_UNAVAILABLE",
+    "HELD_STATUS_SOURCE_UNQUALIFIED",
+    "HELD_STATUS_BINDING",
+    "HELD_STATUS_SLIDING_GROUND_DIFFERS",
+    "HELD_STATUS_SOLVE_FAILED",
 ];
 const SUPPORT_COMPONENTS: [&str; 8] = [
     "Fx",
@@ -262,7 +268,10 @@ fn preview_arcs(rows: &[Value]) -> HashSet<&str> {
         .collect()
 }
 
-/// Every S1 section 9 check. A failure makes the source unsupported.
+/// Every S1 section 9 check. A failure makes the source unsupported. Precondition: the
+/// stated identity is within the preview-physics route's or none
+/// (`semantic_contract::preview_physics_identity_of`); the full public reader
+/// (`reader_verdict::validate`) and the header dispatch refuse any other, this check does not.
 pub fn validate_preview_physics_evidence(source: &Value) -> Check {
     validate_with(source, None)
 }
@@ -306,9 +315,10 @@ fn validate_uncertified_with(source: &Value, model: Option<&Value>) -> Check {
     // `combination_derivation` beside an unsigned or nested combination
     // (`preview_combination_gates`). Operating-case slice 1b:
     // `difference_basis_derivation` beside a declared subtraction (`preview_difference_basis`).
+    // RT-A5 (operating-case §7.6): `held_status_derivation` beside a `minuend_final` subtraction.
     // RT-A3 §4: `combination_certificate` beside a solved document's combinations
     // (`combination_certificate`, checked below).
-    let optional = [crate::preview_combination_operands::MEMBER, crate::preview_combination_gates::DERIVATION_MEMBER, crate::preview_difference_basis::MEMBER, crate::combination_certificate::MEMBER];
+    let optional = [crate::preview_combination_operands::MEMBER, crate::preview_combination_gates::DERIVATION_MEMBER, crate::preview_difference_basis::MEMBER, crate::preview_held_status::MEMBER, crate::combination_certificate::MEMBER];
     require(
         evidence.as_object().is_some_and(|o| {
             o.contains_key("preview_cases")
@@ -401,6 +411,7 @@ fn validate_uncertified_with(source: &Value, model: Option<&Value>) -> Check {
                 && gates.is_empty()
                 && evidence.get(crate::preview_combination_gates::DERIVATION_MEMBER).is_none()
                 && evidence.get(crate::preview_difference_basis::MEMBER).is_none()
+                && evidence.get(crate::preview_held_status::MEMBER).is_none()
                 && rows_list.is_empty()
                 && summary["max_open_formula_stress"].is_null()
                 && summary["max_displacement"].is_null(),
@@ -801,10 +812,12 @@ fn validate_uncertified_with(source: &Value, model: Option<&Value>) -> Check {
             None => return Err("SOURCE_PREVIEW_PHYSICS_GATE_SHAPE".into()),
         }
     }
-    let mut combined: HashMap<&str, Vec<&Value>> = HashMap::new();
+    // RT-A5 (§7.6): a held-operand row is its own system's, grouped apart from the
+    // combination's difference rows.
+    let mut combined: HashMap<(&str, bool), Vec<&Value>> = HashMap::new();
     // I101 repair 03: the combinations are checked in the order they first appear in the
     // rows, as TS's and PY's grouping is, never in a hash map's per-process order.
-    let mut combination_order: Vec<&str> = Vec::new();
+    let mut combination_order: Vec<(&str, bool)> = Vec::new();
     for row in rows_list {
         let Some(combination) = combination_of(row) else {
             continue;
@@ -840,9 +853,10 @@ fn validate_uncertified_with(source: &Value, model: Option<&Value>) -> Check {
                 "COMBINATION_UNSIGNED_ROW",
             )?;
         }
-        let members = combined.entry(combination).or_default();
+        let group = (combination, crate::preview_held_status::is_held_row(row));
+        let members = combined.entry(group).or_default();
         if members.is_empty() {
-            combination_order.push(combination);
+            combination_order.push(group);
         }
         members.push(row);
     }

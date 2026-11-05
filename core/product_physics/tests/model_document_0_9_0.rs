@@ -441,45 +441,44 @@ fn every_combination_document_code_refuses_at_the_solve() {
         "LOAD_COMBINATION_SHAPE_INVALID", "explicit terms only");
 }
 
-/// The interim warnings withhold the combination, and each combination that names it
-/// is withheld by `LOAD_COMBINATION_OPERAND_WITHHELD` (absolute-sum-srss §4), naming
-/// the operand and its code; the cases and the other combinations publish exactly as
-/// without them. The RT-A4 wiring removed the unsigned-basis and nested interim codes.
+/// No interim code remains (RT-A5, DEL-05-02 `operating-case.md` §7.5: the last,
+/// `LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED`, is removed). A `minuend_final`
+/// combination reaches the solve's gates (G-1, G-2, then the held-status gates), and each
+/// combination that names a withheld one is withheld by `LOAD_COMBINATION_OPERAND_WITHHELD`
+/// (absolute-sum-srss §4), naming the operand and its code; the cases publish exactly as
+/// without them.
 #[test]
-fn the_interim_combination_members_withhold_only_their_combinations() {
-    // Operating-case slice 1b removed LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED (0.9.0
-    // §2.2, §3.8): a declared difference is gated by G-1 and G-2 at the solve
-    // (`op1b_difference_basis.rs`), and a `minuend_final` one is withheld by its own code alone.
-    let withheld = [
-        (json!({"id": "C-DB", "basis": "result_state_subtraction", "minuend_id": "L1", "subtrahend_id": "L2", "difference_basis": "operating_minus_sustained",
-                "subtrahend_support_state": "minuend_final", "provenance": PROV}),
-         vec!["LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED"]),
-    ];
-    for (combination, expected) in withheld {
-        let mut document = with_combination(combination.clone());
-        // A dependant, and its own dependant: each names a withheld combination.
-        document["combinations"].as_array_mut().unwrap().extend([
-            json!({"id": "C-DEP", "basis": "result_state_subtraction", "minuend_id": "C-DB", "subtrahend_id": "L2", "provenance": PROV}),
-            json!({"id": "C-DEP2", "basis": "srss", "terms": [{"combination": "C-DEP", "factor": 1.0}], "provenance": PROV}),
+fn a_minuend_final_combination_reaches_the_solve_gates_and_withholds_only_its_dependants() {
+    let combination = json!({"id": "C-DB", "basis": "result_state_subtraction", "minuend_id": "L1", "subtrahend_id": "L2", "difference_basis": "operating_minus_sustained",
+        "subtrahend_support_state": "minuend_final", "provenance": PROV});
+    let mut document = with_combination(combination.clone());
+    // A dependant, and its own dependant: each names a withheld combination.
+    document["combinations"].as_array_mut().unwrap().extend([
+        json!({"id": "C-DEP", "basis": "result_state_subtraction", "minuend_id": "C-DB", "subtrahend_id": "L2", "provenance": PROV}),
+        json!({"id": "C-DEP2", "basis": "srss", "terms": [{"combination": "C-DEP", "factor": 1.0}], "provenance": PROV}),
+    ]);
+    let gates = ["EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING", "EXPANSION_BASIS_MODULUS_MIXED", "HELD_STATUS_SOURCE_UNAVAILABLE",
+        "HELD_STATUS_SOURCE_UNQUALIFIED", "HELD_STATUS_BINDING", "HELD_STATUS_SLIDING_GROUND_DIFFERS", "HELD_STATUS_SOLVE_FAILED"];
+    for mode in MODES {
+        let solved = solve(&document, mode);
+        let reference = solve(&model(), mode);
+        assert_eq!(solved["status"]["mechanics"], "MECHANICS_SOLVED", "{combination} {mode:?}: {:?}", diagnostics(&solved));
+        assert!(!diagnostics(&solved).iter().any(|(code, _, _)| code == "LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED"), "{mode:?}");
+        let gate = |id: &str| solved["contract_evidence"]["combination_gates"].as_array().unwrap().iter().find(|g| g["combination_id"] == id).unwrap().clone();
+        let code = gate("C-DB")["reason"].as_str().unwrap().to_string();
+        assert!(gates.contains(&code.as_str()), "{mode:?}: {code}");
+        assert_eq!(gate("C-DEP")["reason"], "LOAD_COMBINATION_OPERAND_WITHHELD");
+        assert_eq!(gate("C-DEP2")["reason"], "LOAD_COMBINATION_OPERAND_WITHHELD");
+        let withheld: Vec<String> = diagnostics(&solved).into_iter().filter(|(c, _, _)| c == "LOAD_COMBINATION_OPERAND_WITHHELD").map(|(_, _, m)| m).collect();
+        assert_eq!(withheld, [
+            format!("Combination withheld: its operand combination(s) C-DB ({code}) are withheld, so it is withheld whole."),
+            "Combination withheld: its operand combination(s) C-DEP (LOAD_COMBINATION_OPERAND_WITHHELD) are withheld, so it is withheld whole.".to_string(),
         ]);
-        for mode in MODES {
-            let solved = solve(&document, mode);
-            let reference = solve(&model(), mode);
-            assert_eq!(solved["status"]["mechanics"], "MECHANICS_SOLVED", "{combination} {mode:?}: {:?}", diagnostics(&solved));
-            let warnings: Vec<_> = diagnostics(&solved).into_iter().filter(|(_, severity, _)| severity == "warning")
-                .filter(|(code, _, _)| code.starts_with("LOAD_COMBINATION_")).collect();
-            let mut want: Vec<String> = expected.iter().map(|code| code.to_string()).collect();
-            want.extend(["LOAD_COMBINATION_OPERAND_WITHHELD".to_string(), "LOAD_COMBINATION_OPERAND_WITHHELD".to_string()]);
-            assert_eq!(warnings.iter().map(|(code, _, _)| code.clone()).collect::<Vec<_>>(), want, "{combination} {mode:?}");
-            assert_eq!(warnings[warnings.len() - 2].2, "Combination withheld: its operand combination(s) C-DB (LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED) are withheld, so it is withheld whole.");
-            assert_eq!(warnings[warnings.len() - 1].2, "Combination withheld: its operand combination(s) C-DEP (LOAD_COMBINATION_OPERAND_WITHHELD) are withheld, so it is withheld whole.");
-            for id in ["C-DB", "C-DEP", "C-DEP2"] {
-                assert!(combination_rows(&solved, id).is_empty(), "{mode:?}: {id} withheld");
-            }
-            let mut published = solved.clone();
-            published["diagnostics"] = reference["diagnostics"].clone();
-            assert_eq!(text(&published), text(&reference), "{combination} {mode:?}: the rest publishes byte for byte");
+        for id in ["C-DB", "C-DEP", "C-DEP2"] {
+            assert!(combination_rows(&solved, id).iter().all(|r| r["kind"] == "combination_modulus_basis_record"), "{mode:?}: {id} withheld");
         }
+        let case_rows = |v: &Value| v["results"].as_array().unwrap().iter().filter(|r| r["basis_ref"]["ref_type"] == "load_case").cloned().collect::<Vec<_>>();
+        assert_eq!(case_rows(&solved), case_rows(&reference), "{combination} {mode:?}: the cases publish byte for byte");
     }
 }
 

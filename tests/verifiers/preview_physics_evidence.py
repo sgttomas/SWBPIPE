@@ -81,7 +81,10 @@ GATE_REASONS = ("NONLINEAR_COMBINATION_REQUIRES_SOLVE", "CONSTANT_EFFORT_COMBINA
                 "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND", "CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED",
                 "LOAD_COMBINATION_OPERAND_WITHHELD",
                 # Operating-case slice 1b: G-1 and G-2.
-                "EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING", "EXPANSION_BASIS_MODULUS_MIXED")
+                "EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING", "EXPANSION_BASIS_MODULUS_MIXED",
+                # RT-A5 (DEL-05-02 operating-case section 7.5): a minuend_final subtraction's held gates.
+                "HELD_STATUS_SOURCE_UNAVAILABLE", "HELD_STATUS_SOURCE_UNQUALIFIED", "HELD_STATUS_BINDING",
+                "HELD_STATUS_SLIDING_GROUND_DIFFERS", "HELD_STATUS_SOLVE_FAILED")
 RANGE_BASIS = "explicit_user_range_envelope"
 PER_SUPPORT_NONLINEAR_KINDS = ("nonlinear_support_final_reaction", "nonlinear_support_final_displacement",
                                "nonlinear_support_final_relative_displacement", "nonlinear_support_active_set_state_code")
@@ -252,7 +255,7 @@ def _header(source: Mapping[str, Any]) -> None:
     # RT-A3 §4: `combination_certificate` beside a solved document's combinations (`combination_certificate`).
     _require(isinstance(evidence, Mapping) and {"preview_cases", "combination_gates"} <= set(evidence)
              <= {"preview_cases", "combination_gates", "combination_operands", "combination_derivation", "difference_basis_derivation",
-                 "combination_certificate"},
+                    "held_status_derivation", "combination_certificate"},
              "contract evidence namespace")
     _require(isinstance(evidence["preview_cases"], list) and isinstance(evidence["combination_gates"], list), "contract evidence lists")
     _finite_tree(evidence)
@@ -410,7 +413,8 @@ def _validate(source: Mapping[str, Any]) -> None:
     else:
         # A1 e: a blocked envelope has empty evidence, no rows and null headlines.
         _require(not evidence["preview_cases"] and not evidence["combination_gates"] and "combination_derivation" not in evidence
-                 and "difference_basis_derivation" not in evidence,
+                 and "difference_basis_derivation" not in evidence
+                 and "held_status_derivation" not in evidence,
                  "blocked envelope carries preview evidence")
         _require(not results, "blocked envelope carries result rows")
         _require(summary.get("max_displacement") is None and summary.get("max_open_formula_stress") is None, "blocked envelope carries a headline")
@@ -560,11 +564,13 @@ def _validate(source: Mapping[str, Any]) -> None:
     _require(measured == {row["id"] for row in intensified_rows}, "intensified row without exactly one measure")
 
     # 9. Admitted mechanics/subtraction magnitudes follow their components.
-    combination_rows: dict[str, list[Mapping[str, Any]]] = {}
+    # RT-A5 (section 7.6): a held-operand row is its own system's, grouped apart from the difference rows.
+    from .preview_held_status import is_held_row
+    combination_rows: dict[tuple[str, bool], list[Mapping[str, Any]]] = {}
     for row in results:
         basis = row.get("basis_ref")
         if basis is not None and basis["ref_type"] == "combination":
-            combination_rows.setdefault(basis["ref_id"], []).append(row)
+            combination_rows.setdefault((basis["ref_id"], is_held_row(row)), []).append(row)
     for combination, members in combination_rows.items():
         bases = {(row.get("metadata") or {}).get("basis") for row in members} - {None}
         # A1 c: range envelopes are exempt; mechanics and subtraction are checked.

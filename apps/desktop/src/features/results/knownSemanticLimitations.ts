@@ -34,6 +34,18 @@ export const COMBINATION_GATE_REASONS: Readonly<Record<string, string>> = Object
   COMBINATION_MODULUS_BASIS_MIXED: "Combination withheld: its load cases were solved on different modulus bases.",
 });
 
+/** RT-A5 (§7.6): each admitted `minuend_final` combination's held standing, as its evidence states it. */
+export function heldStatusStandings(source: MechanicsResult): { combination_id: string; kind: string; reason: string }[] {
+  const records = (source.contract_evidence as { held_status_derivation?: unknown } | undefined)?.held_status_derivation;
+  if (!Array.isArray(records)) return [];
+  return records.flatMap((r) => {
+    const record = r as { combination_id?: unknown; outcome?: unknown; standing?: { kind?: unknown; reason?: unknown } };
+    return typeof record?.combination_id === "string" && record.outcome === "admitted"
+      && typeof record.standing?.kind === "string" && typeof record.standing?.reason === "string"
+      ? [{ combination_id: record.combination_id, kind: record.standing.kind, reason: record.standing.reason }] : [];
+  });
+}
+
 export const PREVIEW_INTENSIFIED_KIND = "component_equal_factor_intensified_bending_stress_v1";
 export const PREVIEW_MAXIMUM_KIND = "pipe_elastic_normal_stress_maximum_v2";
 
@@ -129,6 +141,10 @@ export function knownSemanticNotices(source: MechanicsResult | null | undefined,
     if (source.results.some(row => row.kind === PREVIEW_INTENSIFIED_KIND)) notices.push({ id: "intensified-label", text: `Intensified measure: ${N_INTENSIFIED}.` });
     for (const gate of previewCombinationGates(source)) {
       if (gate.withheld && gate.reason) notices.push({ id: `combination-gate:${gate.combination_id}`, text: `${gate.combination_id}: ${COMBINATION_GATE_REASONS[gate.reason] ?? gate.reason}` });
+    }
+    // RT-A5: the held standing of each admitted held-constraint comparison (never the subtrahend case's own).
+    for (const held of heldStatusStandings(source)) {
+      notices.push({ id: `held-status:${held.combination_id}`, text: `${held.combination_id}: subtrahend held at the minuend's final support status. ${held.reason}` });
     }
   }
   // D2 4.9.9 UI summary: per-case counts over the registered validated classes (either

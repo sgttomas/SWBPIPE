@@ -254,6 +254,36 @@ actually verifies, not on the far smaller errors it typically achieves.
   none of which P changes; the script's text names the solve path and its numbers are unchanged. The script and
   the K-1 corpus were re-run in both modes on P's head (the record in `rt-a3-p-scale-repair.md`).
 
+**Re-check for RT-A5 S2, the loop tail's extraction** (DEL-05-02 `operating-case.md` §7.3; NI `lib.rs`
+`complete_iteration`). The source trace was re-read against the moved sites, not only re-run. The extraction moves the
+loop's post-step block (everything from gap scrutiny to the receipt) into one crate-private function that the loop calls
+once per iterate. The loop rules the derivation and script encode now sit as follows:
+- *The authored seeds* (`normalized_initial_states`) are still formed in `solve_active_set_loop`, and now initialize
+  `LoopState.current_states`.
+- *No friction force on the first iterate* (`sliding_friction_candidates`) is unchanged inside the step. The loop
+  still calls the step with `previous = loop_state.iterations.last()`, which is `None` on the first iterate because
+  `LoopState.iterations` starts empty.
+- *The deferred first iterate.* `sliding_force_deferred` is still computed in the loop, before the step and from the
+  same predicate. `complete_iteration` receives it and uses it, as before, in `resolve_sliding_friction_states`, the
+  converged predicate and the non-converged exit diagnostic.
+- *The slip direction and the normal branch* (`sliding_direction`, the derived-normal branch) are taken from the
+  previous iterate inside the step, unchanged. That iterate is the record `complete_iteration` pushed on the previous
+  pass, as the loop body pushed it.
+- *The classification* (`resolve_sliding_friction_states`, `evaluate_active_set_iteration_with_resolved_friction_states`
+  or `exact_gap_iteration`) and the converged predicate moved into `complete_iteration` verbatim, with the same
+  arguments, order and early returns.
+- *The seed recovery* stays in the loop. Its flag enters `complete_iteration` as `recovered_path`, which the converged
+  predicate reads as before.
+- *The published iteration count.* The finish condition `converged || blocked || iteration_index == max_iterations`
+  moved inside unchanged. The loop passes `IterationExit::AtConvergenceOrCap`. `IterationExit::Now` only adds `|| true`,
+  and it has no caller until the held-status wrapper.
+
+The derivation names no moved line, and the script names functions only (`resolve_sliding_friction_states`), none of
+which moved. Neither needs revision. The script reads no product code, so re-running it cannot detect a rule change;
+that is why the trace was re-read. Behaviourally, the loop's complete output (every iteration record, result and
+completion receipt, in both modes) is byte-identical before and after the extraction over the NI and PP test suites'
+loop calls (`operating-case.md` §7.3, S2's conditions). The K-1 corpus test (`rt_a3_nonlinear_k1_twins.rs`) passes on the extraction's head `d02ec8789` (6 passed, 1 ignored), and the script, re-run there, prints the constants above unchanged.
+
 **Why basis (ii) and not (i).** Basis (i) would inject EX's section leaves into PF's prepared element inputs and
 show the loop rows move as EX's do. PF has no input that carries section leaves. Injecting them needs a product-side
 test hook in PF's section formation, which is outside this lane's write scope. Basis (ii) obtains the quantity (i)

@@ -65,7 +65,8 @@ use b1_sq_inputs as inputs;
 // §8.50 (RT-U4 order and repair B on RT-A3 increment 4): +373,760 B (W7-L1's ordered member loop, TAV_W).
 // §8.51 (operating-case slice 1b): +17,484 B (the three preview tables' combination policy v3 in STATICS).
 // §8.53 (RT-A3 P and the §4 certificate): +947 B (STATICS, TAV_W, the case-id vector, LoadCaseSolve's operand).
-const W1_PHASE_BYTES: [u64; 2] = [6_450_323_600, 6_509_454_944];
+// §8.54 (RT-A5 minuend_final): +33,008 B (STATICS, the retained table's held-status gates; LoadCaseSolve's held source).
+const W1_PHASE_BYTES: [u64; 2] = [6_450_356_608, 6_509_487_952];
 /// The profile's in-build maximum over every phase (E_mov,max, without R; W3 in both modes),
 /// the bound once a run has done W1 work (a registered build, G6). W-8 topology warnings D3 at
 /// 34e96d6b17 (retained-pricing-rules.md §8.16): +219,136 B in both modes from the pre-0.4
@@ -97,7 +98,8 @@ const W1_PHASE_BYTES: [u64; 2] = [6_450_323_600, 6_509_454_944];
 // §8.50 (RT-U4 order and repair B on RT-A3 increment 4): +373,760 B (W3 stays the maximum; W4 +367,378 B).
 // §8.51 (operating-case slice 1b): +17,484 B (W3 stays the maximum; every phase +17,484 B).
 // §8.53 (RT-A3 P and the §4 certificate): +947 B (W3 stays the maximum; W1-W5 +947 B, X1-X3 +839 B).
-const MAX_PHASE_BYTES: [u64; 2] = [8_744_053_989, 8_803_185_333];
+// §8.54 (RT-A5 minuend_final): +33,008 B (W3 stays the maximum; every phase +33,008 B).
+const MAX_PHASE_BYTES: [u64; 2] = [8_744_086_997, 8_803_218_341];
 /// The abort cap: above E_mov,max + R at M and within T3's host allowance (PLAN_v2 §3.5).
 const CAP_BYTES: usize = 16 << 30;
 /// The N1 notice's fixed text (lib.rs `RETAINED_UNAVAILABLE_NOTICE`), as the base publication shows it.

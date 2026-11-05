@@ -488,8 +488,9 @@ never means the model solves.
 
 Nothing is defaulted at any step: no set is created or suggested, no pipe is
 given a set it was not assigned, and no temperature, weight, exposure or wind
-input is filled in. A hydrostatic `test_condition`, a support `direction` and
-a `subtrahend_support_state` of `minuend_final` stay refused at authoring; a
+input is filled in. A hydrostatic `test_condition` and a support `direction`
+stay refused at authoring (a `subtrahend_support_state` of `minuend_final` is
+authored without a pressure contract); a
 declared operating comparison (`difference_basis`) is authored on a model
 without a pressure contract and refused by name on one with it; absolute sums,
 SRSS and combination operands are authored (§6.2).
@@ -534,8 +535,10 @@ warning, when the sustained case has a primitive load the operating case lacks
 (compared by category, target, direction, dimension, value and unit; ids are
 ignored; each counts once: `EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING`), or when
 the two cases use different modulus bases (`EXPANSION_BASIS_MODULUS_MIXED`).
-`subtrahend_support_state: minuend_final` is still withheld, and the exact route
-refuses the member. A result reader given the document without its model checks
+With `subtrahend_support_state: minuend_final` the subtrahend is solved with the
+operating case's support status held (a held-constraint comparison, disclosed when a
+held support would need a reaction it cannot supply), and the exact route refuses
+the member. A result reader given the document without its model checks
 the verdict against the two load multisets the document states, which shows the
 document is consistent with itself but cannot show it is true to its model; give
 the reader the model to check that.

@@ -363,6 +363,7 @@ fn reader_control_for(mode: PreviewSolverMode, anchored: bool) -> Value {
         Some(case.exact),
         &mut diagnostics,
         None,
+        crate::held_status::CaseRole::Own(None),
     )
     .unwrap();
     assert!(!has_blocking(&diagnostics), "{diagnostics:?}");

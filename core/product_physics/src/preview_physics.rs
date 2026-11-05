@@ -852,6 +852,7 @@ fn gate_reason(
     index: usize,
     targets: &[combination_plan::Target<'_>],
     withheld: &HashMap<String, &'static str>,
+    held: &HashMap<String, held_status::HeldOutcome>,
 ) -> Option<(&'static str, String)> {
     let combination = &model.combinations[index];
     let operands = withheld_operands(targets, withheld);
@@ -862,7 +863,14 @@ fn gate_reason(
     // Operating-case slice 1b: a declared operating comparison's G-1, then G-2.
     if difference_basis::declared(combination) {
         let mut scratch = Vec::new();
-        return difference_basis::gate(model, combination, |case| modulus_basis_key(case, &mut scratch)).and_then(gated);
+        if let Some(code) = difference_basis::gate(model, combination, |case| modulus_basis_key(case, &mut scratch)) {
+            return gated(code);
+        }
+        // RT-A5 (operating-case §7.5): a `minuend_final` subtraction's held gates, after G-2.
+        return match held.get(&combination.id) {
+            Some(held_status::HeldOutcome::Withheld(refusal)) => Some((refusal.code, format!("Combination withheld: {}.", refusal.message))),
+            _ => None,
+        };
     }
     let basis = combination.basis.as_str();
     if !matches!(basis, "mechanics" | "absolute_sum" | "srss") {
@@ -974,6 +982,7 @@ pub(crate) fn append_combination_results(
     model: &PreviewModel,
     rendered: &Rendered,
     rows_by_base_id: &HashMap<String, HashMap<String, ResultItem>>,
+    held: &HashMap<String, held_status::HeldOutcome>,
     results: &mut Vec<ResultItem>,
     diagnostics: &mut Vec<Diagnostic>,
 ) -> Vec<serde_json::Value> {
@@ -1001,6 +1010,9 @@ pub(crate) fn append_combination_results(
             gates.push(serde_json::json!({"combination_id": combination.id, "withheld": false, "reason": null}));
             continue;
         };
+        // RT-A5 (§7.6): an admitted held operand is read as the subtrahend under this key,
+        // never published and removed after this combination.
+        let held_key = format!("{}\u{0}held", combination.id);
         let targets = expression.targets(&plan.resolver);
         if plan.kappa[index].is_unrepresentable() {
             diagnostics.push(diag(
@@ -1011,7 +1023,7 @@ pub(crate) fn append_combination_results(
                 vec![combination.id.clone()],
             ));
         }
-        if let Some((code, message)) = gate_reason(rendered, model, &plan, index, &targets, &withheld_combinations) {
+        if let Some((code, message)) = gate_reason(rendered, model, &plan, index, &targets, &withheld_combinations, held) {
             let mut refs = vec![combination.id.clone()];
             if code == OPERAND_WITHHELD {
                 refs.extend(withheld_operands(&targets, &withheld_combinations).iter().map(|(id, _)| id.to_string()));
@@ -1033,7 +1045,21 @@ pub(crate) fn append_combination_results(
         // §4: a magnitude row of an unsigned or nested combination states its
         // derivation in its metadata; a flat combination's keeps none (V-8).
         let derived = nested || expression.is_unsigned();
+        let held_operand = match held.get(&combination.id) {
+            Some(held_status::HeldOutcome::Admitted(operand)) if held_status::is_minuend_final(combination) => Some(operand),
+            _ => None,
+        };
+        let mut targets = targets;
+        if let Some(operand) = held_operand {
+            let keyed = held_status::lookup_rows(&combination.id, operand);
+            for (base, row) in &keyed {
+                published_by_base.entry(base.clone()).or_default().insert(held_key.clone(), row.clone());
+            }
+            published_rows.insert(held_key.clone(), keyed.into_iter().map(|(_, row)| row).collect());
+            targets[1] = Target::Combination(&held_key);
+        }
         let sign = match expression {
+            CombinationExpression::ResultStateSubtraction { .. } if held_operand.is_some() => held_status::SIGN.to_string(),
             CombinationExpression::ResultStateSubtraction { .. } if difference_basis::declared(combination) => difference_basis::SIGN.to_string(),
             CombinationExpression::ResultStateSubtraction { .. } => SUBTRACTION_SIGN.to_string(),
             _ => expression.result_sign_convention(rendered.nonlinear && plan.solved_state_plus_increments(combination)),
@@ -1241,6 +1267,22 @@ pub(crate) fn append_combination_results(
                 vec![combination.id.clone()],
             ));
         }
+        if let Some(operand) = held_operand {
+            let held_rows = published_rows.remove(&held_key).unwrap_or_default();
+            for rows in published_by_base.values_mut() {
+                rows.remove(&held_key);
+            }
+            results.extend(held_status::cited_rows(&combination.id, &held_rows, &out));
+            if !operand.run.evidence.released.is_empty() {
+                diagnostics.push(diag(
+                    &format!("diagnostic:preview-physics:held-status-released:{}", identity(&[&combination.id])),
+                    held_status::RELEASED,
+                    "warning",
+                    held_status::released_message(&combination.id, &operand.run.evidence.released),
+                    std::iter::once(combination.id.clone()).chain(operand.run.evidence.released.iter().map(|r| r.support_id.clone())).collect(),
+                ));
+            }
+        }
         if plan.named[index] {
             for (row, base) in out.iter().zip(&out_bases) {
                 if let Some(base) = base {
@@ -1356,7 +1398,7 @@ pub(crate) fn same_state(states: &[&str]) -> bool {
 /// withheld there. The operands' numerical quality and both notices are stated on
 /// the published envelope (`state_operand_standing`), so a blocked envelope
 /// carries neither. Returns no record for any other model.
-pub(crate) fn append_operand_standing(model: &PreviewModel, rendered: &Rendered, gates: &[serde_json::Value]) -> Vec<serde_json::Value> {
+pub(crate) fn append_operand_standing(model: &PreviewModel, rendered: &Rendered, gates: &[serde_json::Value], held: &HashMap<String, held_status::HeldOutcome>) -> Vec<serde_json::Value> {
     if !rendered.nonlinear {
         return Vec::new();
     }
@@ -1367,11 +1409,20 @@ pub(crate) fn append_operand_standing(model: &PreviewModel, rendered: &Rendered,
         .filter_map(|g| model.combinations.iter().find(|c| g["combination_id"] == c.id.as_str()))
         .filter_map(|combination| {
             let expression = CombinationExpression::resolve(combination)?;
+            let mut operands = expression.targets(&resolver).iter().map(|target| exact_combinations::operand_evidence(model, target)).collect::<Vec<_>>();
+            // RT-A5 (§7.6): a held subtrahend states the held status and its standing; its
+            // numerical quality is the held solve's, stated there, not the case's.
+            if let Some(held_status::HeldOutcome::Admitted(operand)) = held.get(&combination.id) {
+                if let Some(subtrahend) = operands.get_mut(1) {
+                    subtrahend["support_state"] = serde_json::json!(held_status::HELD_SUPPORT_STATE);
+                    subtrahend["held_standing"] = serde_json::json!({"kind": operand.run.evidence.outcome.kind(), "reason": operand.run.evidence.standing});
+                }
+            }
             Some(serde_json::json!({
                 "combination_id": combination.id,
                 "basis": combination.basis,
                 "expression": exact_combinations::expression_evidence(combination),
-                "operands": expression.targets(&resolver).iter().map(|target| exact_combinations::operand_evidence(model, target)).collect::<Vec<_>>(),
+                "operands": operands,
                 "standing": exact_combinations::STANDING,
             }))
         })
@@ -1436,7 +1487,8 @@ pub(crate) fn state_operand_standing(envelope: &mut MechanicsEnvelope, mut recor
     for record in &records {
         let id = record["combination_id"].as_str().unwrap_or_default();
         // A combination operand states its own standing in its own record (§4).
-        let operands: Vec<&serde_json::Value> = record["operands"].as_array().into_iter().flatten().filter(|o| o.get("load_case_id").is_some()).collect();
+        // A held operand's comparison is HELD_STATUS_RELEASED's, and its standing is its own.
+        let operands: Vec<&serde_json::Value> = record["operands"].as_array().into_iter().flatten().filter(|o| o.get("load_case_id").is_some() && o.get("support_state").is_none()).collect();
         let cases: Vec<&str> = operands.iter().map(|o| o["load_case_id"].as_str().unwrap_or_default()).collect();
         if let Some(notice) = operand_states_diagnostic(id, &cases, &envelope.results) {
             envelope.diagnostics.push(notice);
@@ -1569,7 +1621,7 @@ mod tests {
             let plan = combination_plan::Plan::new(&model);
             let expression = CombinationExpression::resolve(&model.combinations[0]).unwrap();
             let targets = expression.targets(&plan.resolver);
-            gate_reason(rendered, &model, &plan, 0, &targets, &HashMap::new()).map(|(code, _)| code)
+            gate_reason(rendered, &model, &plan, 0, &targets, &HashMap::new(), &HashMap::new()).map(|(code, _)| code)
         };
         for factors in [[f64::NAN, 1.0], [f64::INFINITY, -f64::INFINITY], [0.5, f64::NEG_INFINITY]] {
             assert_eq!(gate_reason(&rendered(true), &model, &combination(factors)), ce, "{factors:?}");

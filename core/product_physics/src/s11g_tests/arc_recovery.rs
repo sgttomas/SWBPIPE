@@ -615,7 +615,7 @@ fn p7_source_pin_ties_the_call_site_to_the_tested_predicate() {
     assert!(wrapper.find(preparation).unwrap() < wrapper.find(delegation).unwrap());
     let wrapper_compact = wrapper.split_whitespace().collect::<String>();
     assert!(wrapper_compact.contains("letexact_pressure=pressure_runtime::build_pressure_case_with_members(model,built,materials,load_case,load_state.map(|state|&state.pairs),diagnostics,);"));
-    assert!(wrapper_compact.contains("solve_prepared_load_case(model,built,materials,stiffness,restrained_dofs,spring_entries,load_case,modulus_basis_record,solver_mode,capture,source_budget,load_state,exact_pressure,diagnostics,product)"));
+    assert!(wrapper_compact.contains("solve_prepared_load_case(model,built,materials,stiffness,restrained_dofs,spring_entries,load_case,modulus_basis_record,solver_mode,capture,source_budget,load_state,exact_pressure,diagnostics,product,role)"));
     let solve = body(&lib, "solve_prepared_load_case");
     // T4-U8 (DEL-05-03 Design §4 item 2): the member's recovery frame binds
     // to its formation source, passed at the call.

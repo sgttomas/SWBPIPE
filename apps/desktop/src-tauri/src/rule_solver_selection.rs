@@ -20,7 +20,10 @@
 //!   from the row id. No row:
 //!   `RULE_SOLVER_RESULT_ROW_MISSING`; more than one:
 //!   `RULE_SOLVER_RESULT_ROW_AMBIGUOUS`. Neither binds; neither is a pass.
-//!   Rows without `basis_ref` are never selected.
+//!   Rows without `basis_ref` are never selected, nor is a held-operand row
+//!   (`metadata.basis` `held_status_operand`; DEL-05-02 `operating-case.md`
+//!   §7.6): it is the held system's operand under the combination, never the
+//!   combination's result, which is its difference row.
 //! - **Eligibility gates (§2.5, unchanged).** The run's mechanics
 //!   qualification (`qualify_rule_mechanics_with_context`) is run once per run
 //!   by the command before this resolution, exactly as before; it covers every
@@ -194,6 +197,14 @@ pub(crate) fn row_matches(
     }
 }
 
+/// RE `preview_held_status::OPERAND_BASIS`: a held-operand row's typed basis.
+const HELD_STATUS_OPERAND_BASIS: &str = "held_status_operand";
+
+/// A held-operand row (§7.6): never selected.
+pub(crate) fn is_held_operand_row(row: &Value) -> bool {
+    row.pointer("/metadata/basis").and_then(Value::as_str) == Some(HELD_STATUS_OPERAND_BASIS)
+}
+
 /// The envelope's basis-bearing rows indexed once by (basis, kind, entity),
 /// each tie-rod row with the rod its connector record binds it to.
 pub(crate) struct RowIndex<'a> {
@@ -216,6 +227,9 @@ impl<'a> RowIndex<'a> {
             let Some(basis) = row.get("basis_ref").and_then(BasisRef::from_value) else {
                 continue;
             };
+            if is_held_operand_row(row) {
+                continue;
+            }
             solved.insert(basis.clone());
             let kind = row.get("kind").and_then(Value::as_str).unwrap_or_default();
             let entity = row

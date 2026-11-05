@@ -634,10 +634,10 @@ owner's to decide.
   blocking). `minuend_final` solves the subtrahend at the minuend's final
   support status, a held-constraint comparison that is not an admissible
   sustained state, and publishes under the combination, never as the sustained
-  case's rows (DEL-05-02 `operating-case.md` §5 option 2). Interim until its
-  slice: `own` behaves as absence; the solve withholds a `minuend_final`
-  combination with the warning `LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED`,
-  and the applier refuses authoring it.
+  case's rows (DEL-05-02 `operating-case.md` §5 option 2). `own` behaves as
+  absence. On the pressure-free route the solve forms a `minuend_final`
+  combination by DEL-05-02 `operating-case.md` §7 and the applier authors it; EX
+  refuses the declared basis by name first.
 
 ### 2.3 `load_cases[].kind` token `operating`
 
@@ -959,7 +959,7 @@ document opens, validates and saves throughout.
 | `LOAD_CASE_TEST_CONDITION_UNSUPPORTED` (a case's `test_condition`) | solve; applier | RT-A6 hydrotest slice |
 | `SUPPORT_DIRECTION_SKEW_UNSUPPORTED` (a non-axis `direction`); an axis-aligned one lowers to the record on its axis | solve; applier | the solver lane's skew kernel (DEL-04-03) |
 | `LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED` (withheld, warning); `…_EXACT_UNSUPPORTED` stays on EX | solve; applier | the solver lane's 1b (G-1/G-2); removed by it on PF (DEL-05-02 `operating-case.md` §6, candidate): the solve gates a declared subtraction by G-1/G-2 and the applier authors it, while EX keeps `…_EXACT_UNSUPPORTED` at the solve and the applier |
-| `LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED` (`minuend_final`, withheld, warning; `own` behaves as absence) | solve; applier | RT-A5's `minuend_final` slice (DEL-05-02 `operating-case.md` §5) |
+| `LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED` (`minuend_final`, withheld, warning; `own` behaves as absence) | solve; applier | RT-A5's `minuend_final` slice (DEL-05-02 `operating-case.md` §7); removed by it on PF |
 | `LOAD_COMBINATION_UNSIGNED_BASIS_UNSUPPORTED` (`absolute_sum`, `srss`, withheld, warning) | solve; applier | the RT-A4 wiring slice (DEL-05-02 `absolute-sum-srss-combinations.md`); removed by it (§10 there) |
 | `LOAD_COMBINATION_NESTED_UNSUPPORTED` (a combination operand, and each combination naming a withheld one, withheld, warning) | solve; applier | the RT-A4 wiring slice; removed by it (a dependant of a withheld combination is now `LOAD_COMBINATION_OPERAND_WITHHELD`) |
 | Retained admission declines `direction`, `test_condition` and the combination members (`FamilyFact::SupportDirection`, `TestCondition`, `CombinationMember`) | retained admission | each member's slice above, with its D3 |

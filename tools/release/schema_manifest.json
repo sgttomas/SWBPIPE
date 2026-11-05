@@ -8,7 +8,7 @@
     },
     {
       "path": "schemas/analysis_run.v0.3.schema.json",
-      "sha256": "19b1d79288da56c1f6136e1e0a61318e1523131e7401c91dce88b3685c690fce"
+      "sha256": "9458af82ec637b640f14a50fbbdb0521ca5b1b5505e1f580ab3c245079b8cbe4"
     },
     {
       "path": "schemas/caepipe_external_run.schema.json",
@@ -100,7 +100,7 @@
     },
     {
       "path": "schemas/stress_neutral_export.v0.3.schema.json",
-      "sha256": "ad833f4867e35a6d02b097397386136125feff50c11717b115d282bf85587cf3"
+      "sha256": "ed9a2012ed6ddba8bdf8c45a9d9e222daef76faad5d5ceb137a3e4c893730a14"
     },
     {
       "path": "schemas/target_mapping.schema.json",

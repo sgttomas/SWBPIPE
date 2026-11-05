@@ -372,6 +372,7 @@ The committed demo models are natural positives (Passed in both modes).
 - `structural_adapter.rs`: `AssemblyEvidence::confirm_with_formation_check`, the route's single formation-check entry, which prepares, factors, finishes and hands an evaluation context to its caller.
 - `confirmation.rs`: `confirm_converged_state(input, springs, solve, force, curved_sources, mode) -> Confirmation`, with the preconditions, the manifest, Stage A, the influence evaluation, Stage B, and the pure predicate `support_reason` with `certificate_reason`, unit-testable on synthetic balls. The loop, the classifier and `product_selected_state_is_qualified` are unchanged.
 - The S11-K pin is re-scoped (R2): the loop's functions contain no formation entry; `confirm_converged_state` contains exactly one call to the confirmation entry; the product calls `confirm_converged_state` once, inside the nonlinear helper, and names neither the adapter entry nor FK's confirmation plumbing (`finish_confirmation`, `ConfirmationAttempt`), which no non-adapter NI module names either (implementation review I1).
+- R2 as amended for RT-A5 `minuend_final` (option A, approved by RT-A3; DEL-05-02 `operating-case.md` §7.3; RT-A3 reviews this line with the PR): NI's held-status wrapper `solve_held_status_iteration` names `confirm_converged_state` exactly once, strictly after its tail `complete_iteration` has finished its one held iterate, and never for a gap state ("confirmation attempt: not run", R1). The loop and `complete_iteration` name no confirmation entry.
 
 **PP (DEL-04-07).**
 
