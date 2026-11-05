@@ -606,14 +606,33 @@ fn no_non_test_modal_source_calls_the_selected_instance() {
             assert_eq!(uses, 0, "{name} names the selected instance");
         }
     }
-    // The module tree is complete: each `mod` item of modal.rs is listed or is
-    // a #[cfg(test)] module.
+    // The module tree is complete for the current sources: each non-test
+    // file-module declaration of modal.rs (any visibility) is listed, and no
+    // listed source declares a nested non-test file module of its own. A
+    // future nested module fails here and must be added to the scan.
     let listed: Vec<&str> = sources.iter().map(|(n, _)| n.trim_end_matches(".rs")).collect();
-    let lines: Vec<&str> = sources[0].1.lines().collect();
-    for (i, line) in lines.iter().enumerate() {
-        if let Some(module) = line.trim().strip_prefix("mod ").and_then(|m| m.strip_suffix(';')) {
+    let declared = |line: &str| -> Option<String> {
+        let mut item = line.trim();
+        if let Some(rest) = item.strip_prefix("pub") {
+            item = match rest.strip_prefix('(') {
+                Some(scoped) => scoped.split_once(')').map_or(rest, |(_, after)| after),
+                None => rest,
+            }
+            .trim_start();
+        }
+        item.strip_prefix("mod ").map(|m| m.trim().to_string())
+    };
+    for (index, (name, text)) in sources.iter().enumerate() {
+        let lines: Vec<&str> = text.lines().collect();
+        for (i, line) in lines.iter().enumerate() {
+            let Some(module) = declared(line) else { continue };
             let test_only = i > 0 && lines[i - 1].trim() == "#[cfg(test)]";
-            assert!(test_only || listed.contains(&module), "modal.rs declares `{module}`, which this scan does not read");
+            if test_only {
+                continue;
+            }
+            let module = module.strip_suffix(';').unwrap_or_else(|| panic!("{name} declares an inline module `{module}`, which this scan does not cover"));
+            assert!(index == 0, "{name} declares a nested file module `{module}`, which this scan does not read");
+            assert!(listed.contains(&module), "modal.rs declares `{module}`, which this scan does not read");
         }
     }
 }
@@ -678,8 +697,12 @@ fn the_derived_hard_floor_is_unchanged_and_tau_mu_is_never_the_active_floor() {
     // Deep in the subnormals, (1,920·u)·μ_max rounds to zero or one ulp before
     // the ×10 while 10⁻¹²·μ_max rounds up to the first subnormals, so the
     // test-local h is larger by at most two subnormal ulps. Those μ_max lie
-    // below 2⁻¹⁰³², far below anything an admitted pencil can produce (entries
-    // in [2⁻³⁰⁰, 2³⁰⁰] give μ_max ≥ m_jj/k_jj ≥ 2⁻⁶⁰⁰ in exact arithmetic).
+    // below 2⁻¹⁰³². An exact-spectrum scale argument, not a certified
+    // exclusion for every computed result: for SPD K and a nonzero PSD M with
+    // a positive diagonal entry m_jj, both with magnitudes in the admitted
+    // [2⁻³⁰⁰, 2³⁰⁰], the exact μ_max ≥ m_jj/k_jj ≥ 2⁻⁶⁰⁰ (Rayleigh). The
+    // admission check (`modal_eigen::admission`) bounds magnitudes only; it
+    // does not itself establish those premises or bound the computed μ_max.
     for &(mu, a, b) in &differing {
         assert!(mu < f64::MIN_POSITIVE / 1024.0, "μ_max = {mu:e} (not below 2⁻¹⁰³²): {a:e} against {b:e}");
         assert!(a > b && a - b <= 2.0 * f64::from_bits(1), "μ_max = {mu:e}: {a:e} against {b:e}");
@@ -714,8 +737,15 @@ fn the_derived_hard_floor_is_unchanged_and_tau_mu_is_never_the_active_floor() {
             check(n, mu);
         }
     }
-    // At n = 1,920 the test-local set's τ_μ term is inert above the subnormals.
-    assert!(normal.iter().all(|&&mu| kernel_hard_cut(&local, 1920, mu).0 <= kernel_hard_cut(&local, 1920, mu).1));
+    // At n = 1,920 the test-local set's τ_μ term is not above its derived term
+    // on normal μ_max, so its h is that derived term there.
+    let local_options = modal_dense_options(&local);
+    for &&mu in &normal {
+        let (tau_term, h) = kernel_hard_cut(&local, 1920, mu);
+        let derived = local_options.resolution_floor_multiple * (local_options.resolution_floor_constant * 1920.0 * (f64::EPSILON / 2.0) * mu);
+        assert!(tau_term <= derived, "μ_max = {mu:e}: {tau_term:e} > {derived:e}");
+        assert_eq!(h.to_bits(), derived.to_bits(), "μ_max = {mu:e}");
+    }
 }
 
 /// K = Q·Λ·Qᵀ on four free DOFs of one node, with Q = H₄/2 (Sylvester's
@@ -946,9 +976,13 @@ fn verdict(outcome: Result<ModalOutcome, Vec<crate::Diagnostic>>) -> Verdict {
 /// The modal correctness population (the 35 models above, plus EX n05 at a
 /// bound of 4, the test-local set's `MODAL_STURM_SHIFT_UNSEPARATED` witness)
 /// run through `run_modal_dense` under the instance and under the test-local
-/// set. Every verdict, census, reported-count, cluster, standing and band
-/// difference is printed, and the observed differences are asserted as found
-/// (an observation, not a pin). The existing tests stay on the test-local set.
+/// set, compared on a verdict projection: refusal codes, the census kind (an
+/// established count, or unresolved without its details), the reported
+/// counts, the computed count and clusters, the overall and per-mode standing
+/// (Sensitive by its reason count only) and the band retentions. Every
+/// difference in that projection is printed, and the observed differences are
+/// asserted as found (an observation, not a pin). Differences outside the
+/// projection are not compared. The existing tests stay on the test-local set.
 #[test]
 fn the_selected_instance_against_the_test_local_set_on_the_population() {
     let selected = instance();
