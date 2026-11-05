@@ -801,6 +801,11 @@ fn evaluate_row_inner<const N: usize>(
         }
         radius = add_up(radius, mul_up(coefficient.r, xu));
         let ku = add_up(abs_up(&coefficient.m)?, coefficient.r);
+        // R-6 (§10.4): the lifted displacement's rounding, |k|·lift_radius
+        // (no term when the radius is empty, i.e. without a skewed stop).
+        if let Some(&lift) = bound.lift_radius.get(i) {
+            radius = add_up(radius, mul_up(ku, lift));
+        }
         scale = add_up(scale, mul_up(ku, xu));
         if include_remainder && bound.exponents[i] != i32::MIN {
             norm = add_up(norm, scale_up(ku, bound.exponents[i]));

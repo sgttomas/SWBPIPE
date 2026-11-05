@@ -32,16 +32,12 @@ use crate::exact_sum::{ExactAccumulator, SumError};
 use crate::load_ledger::{round_upward, AssembledForce, ForceTermKind, LedgerError, LoadLedger};
 use crate::structural::{
     reduce_assembled_sparse_system, MemberBoundInputs, SparseReducedSystem, SparseStiffness,
-    StiffnessContribution,
 };
 use crate::{FrameKernelError, DOF_PER_NODE};
 use open_pipe_stress_correct_norm::norm3;
 
-/// Smallest |a·b| whose error-free split `a·b − fl(a·b)` is exact (DN-2): the
-/// rule of `connector.rs` and `tie_rod.rs`, whose constants are private to
-/// those modules. S-K1's seam hunk to DEL-03-06/DEL-04-01 shares one
-/// definition; until then this is the same value, 2^-969.
-const SPLIT_EXACT_MIN: f64 = f64::from_bits(54 << 52); // 2^-969
+/// P1's split rule (DN-2): `connector.rs`'s one definition, 2^-969.
+use crate::connector::SPLIT_EXACT_MIN;
 
 const AXES: [&str; 3] = ["x", "y", "z"];
 
@@ -529,14 +525,12 @@ pub enum GroundRow {
 }
 
 /// §10.4: K-D5's coordinate bound inputs lifted to physical DOFs. `bound`'s
-/// vectors are physical; `lift_radius` encloses the lift's rounding (phase B
-/// moves it into `MemberBoundInputs.lift_radius`).
+/// vectors are physical, and `bound.lift_radius` encloses the lift's rounding.
 #[derive(Debug, Clone, PartialEq)]
 pub struct LiftedMemberBound {
     /// u_p = fl(Q v).
     pub u: Vec<f64>,
     pub bound: MemberBoundInputs,
-    pub lift_radius: Vec<f64>,
 }
 
 /// The coordinate system of one case: f′ = Qᵀf as a coordinate ledger and the
@@ -812,15 +806,7 @@ impl RestraintBasis {
                 }
             }
         }
-        let contributions: Vec<StiffnessContribution> = (0..self.dimension())
-            .flat_map(|row| pattern.row_range(row).map(move |index| (row, index)))
-            .map(|(row, index)| StiffnessContribution {
-                row,
-                col: pattern.column(index),
-                value: values[index],
-            })
-            .collect();
-        SparseStiffness::from_pattern_and_contributions(pattern.clone(), &contributions)
+        SparseStiffness::from_pattern_values(pattern.clone(), values)
             .map_err(|_| BasisError::Shape("transformed stiffness pattern"))
     }
 
@@ -1098,8 +1084,8 @@ impl RestraintBasis {
                 w2,
                 exponents,
                 lambda_sigma: bound.lambda_sigma,
+                lift_radius,
             },
-            lift_radius,
         })
     }
 

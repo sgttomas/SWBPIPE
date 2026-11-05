@@ -830,7 +830,7 @@ fn check_attribution_block(name: &str, run: &Run, node: &NodeBasis, block: &Json
         .basis
         .lift_member_bound(
             &run.v,
-            &MemberBoundInputs { w: vec![0.0; n], w2: vec![0.0; n], exponents, lambda_sigma: 1.0 },
+            &MemberBoundInputs { w: vec![0.0; n], w2: vec![0.0; n], exponents, lambda_sigma: 1.0, lift_radius: Vec::new() },
         )
         .unwrap();
     for (axis, coords) in block.at("lifted_remainder_exponent").entries() {
@@ -840,7 +840,7 @@ fn check_attribution_block(name: &str, run: &Run, node: &NodeBasis, block: &Json
             Json::Str(s) => {
                 assert_eq!(s, "i32::MIN");
                 assert_eq!(e, i32::MIN, "{name}: E_{axis}");
-                assert_eq!(lifted.lift_radius[i], 0.0);
+                assert_eq!(lifted.bound.lift_radius[i], 0.0);
                 assert_eq!(lifted.u[i], 0.0, "{name}: u_{axis} exactly prescribed");
             }
             _ => {
@@ -1318,7 +1318,7 @@ fn lift_and_lifted_member_bound_enclose_the_exact_lift() {
     let w2: Vec<f64> = (0..12).map(|i| if restrained(i) { 0.0 } else { -3e-34 * (i as f64 + 2.0) }).collect();
     let exponents: Vec<i32> = (0..12).map(|c| if restrained(c) { i32::MIN } else { -3 }).collect();
     let lifted = basis
-        .lift_member_bound(&v, &MemberBoundInputs { w: w.clone(), w2: w2.clone(), exponents: exponents.clone(), lambda_sigma: 0.25 })
+        .lift_member_bound(&v, &MemberBoundInputs { w: w.clone(), w2: w2.clone(), exponents: exponents.clone(), lambda_sigma: 0.25, lift_radius: Vec::new() })
         .unwrap();
     // i32::MIN requires exactly-zero lift values: a correction on a held
     // coordinate at a stop's node is refused, never given a MIN exponent.
@@ -1326,13 +1326,13 @@ fn lift_and_lifted_member_bound_enclose_the_exact_lift() {
     held_w[8] = 1e-17;
     assert_eq!(
         basis
-            .lift_member_bound(&v, &MemberBoundInputs { w: held_w, w2: w2.clone(), exponents, lambda_sigma: 0.25 })
+            .lift_member_bound(&v, &MemberBoundInputs { w: held_w, w2: w2.clone(), exponents, lambda_sigma: 0.25, lift_radius: Vec::new() })
             .unwrap_err(),
         BasisError::Shape("prescribed DOF with a nonzero lift")
     );
     assert_eq!(lifted.u, u);
     assert_eq!(lifted.bound.lambda_sigma, 0.25);
-    assert_eq!(lifted.lift_radius.len(), 12);
+    assert_eq!(lifted.bound.lift_radius.len(), 12);
     for dof in 0..12 {
         // u_p is the lift rounded once.
         let mut exact = ExactAccumulator::new();
@@ -1342,18 +1342,18 @@ fn lift_and_lifted_member_bound_enclose_the_exact_lift() {
         let residual = lift_residual(&q, [&v[..], &w[..], &w2[..]], &lifted, dof, 1.0);
         let sigma = if residual.signum() < 0 { -1.0 } else { 1.0 };
         let mut margin = lift_residual(&q, [&v[..], &w[..], &w2[..]], &lifted, dof, -sigma);
-        margin.add(lifted.lift_radius[dof]).unwrap();
+        margin.add(lifted.bound.lift_radius[dof]).unwrap();
         assert!(margin.signum() >= 0, "lift radius at {dof}");
-        assert!(lifted.lift_radius[dof] >= 0.0);
+        assert!(lifted.bound.lift_radius[dof] >= 0.0);
         if basis.translation(dof).is_none() {
-            assert_eq!((lifted.bound.w[dof], lifted.bound.w2[dof], lifted.lift_radius[dof]), (w[dof], w2[dof], 0.0));
+            assert_eq!((lifted.bound.w[dof], lifted.bound.w2[dof], lifted.bound.lift_radius[dof]), (w[dof], w2[dof], 0.0));
             assert_eq!(lifted.bound.exponents[dof], if basis.restrained_coordinates().contains(&dof) { i32::MIN } else { -3 });
         }
     }
     // Node 1's physical x gets coordinate y only (|q| = 1): E = −3; its UZ: MIN.
     assert_eq!(lifted.bound.exponents[6], -3);
     assert_eq!(lifted.bound.exponents[8], i32::MIN, "UZ held");
-    assert_eq!((lifted.u[8], lifted.bound.w[8], lifted.lift_radius[8]), (0.0, 0.0, 0.0));
+    assert_eq!((lifted.u[8], lifted.bound.w[8], lifted.bound.lift_radius[8]), (0.0, 0.0, 0.0));
     // Node 0's physical z gets x and y (|q| = 0.75 and 1): 1.75·2^-3 → E = −2.
     assert_eq!(lifted.bound.exponents[2], -2);
     // A nonzero restrained coordinate at a stop's node is refused.

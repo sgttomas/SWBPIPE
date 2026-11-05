@@ -16420,7 +16420,7 @@ mod tests {
         // T4-U8: the recovery is bound to the member's frame in the case's certified source.
         let source=certified_publication::source(&built,&force,&[]);
         let loads=open_pipe_stress_frame_kernel::structural::CertifiedMemberLoads::from_member_primitives(0,1,force.load_primitives(),&source_prefix).unwrap().with_member_source(&source,&source_prefix);
-        let bound=MemberBoundInputs { w:vec![0.0;12],w2:vec![0.0;12],exponents:vec![i32::MIN;12],lambda_sigma:0.0 };
+        let bound=MemberBoundInputs { w:vec![0.0;12],w2:vec![0.0;12],exponents:vec![i32::MIN;12],lambda_sigma:0.0, lift_radius: Vec::new() };
         let recovered=open_pipe_stress_frame_kernel::structural::certify_straight_recovery(&frame,&loads,&[0.0;12],&bound).unwrap();
         let expected=frame.section.elastic_modulus*frame.section.area*2f64.powi(-55);
         assert!(recovered.ends[0].published>0.0);

@@ -2033,6 +2033,7 @@ fn formation_source<'a>(
         curved: Vec::new(),
         springs: primitives.springs.clone(),
         unavailable: Vec::new(),
+        restraint: None,
     };
     for slot in &primitives.curved {
         if slot.explicit {
@@ -2173,6 +2174,7 @@ fn force_scaled_formation_source<'a>(
         curved: Vec::new(),
         springs: primitives.springs.clone(),
         unavailable: Vec::new(),
+        restraint: None,
     };
     for slot in &primitives.curved {
         if slot.explicit {

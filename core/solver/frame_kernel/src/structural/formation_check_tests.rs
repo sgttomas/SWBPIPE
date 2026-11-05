@@ -906,7 +906,7 @@ fn formation_source_borrow_is_byte_identical() {
     let former_loads = force.load_primitives().to_vec();
     let former = FormationSource { loads: Cow::Owned(former_loads.clone()), ..source.clone() };
     let former_debug = format!(
-        "FormationSource {{ node_count: {:?}, loads: {:?}, frames: {:?}, frame_members: {:?}, connectors: {:?}, curved: {:?}, springs: {:?}, unavailable: {:?} }}",
+        "FormationSource {{ node_count: {:?}, loads: {:?}, frames: {:?}, frame_members: {:?}, connectors: {:?}, curved: {:?}, springs: {:?}, unavailable: {:?}, restraint: None }}",
         source.node_count, former_loads, source.frames, source.frame_members, source.connectors, source.curved, source.springs, source.unavailable);
     assert_eq!(format!("{source:?}").as_bytes(), former_debug.as_bytes());
     assert_eq!(format!("{source:?}"), format!("{former:?}"));

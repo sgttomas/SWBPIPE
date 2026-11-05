@@ -276,6 +276,15 @@ impl SparseStiffness {
         Ok(Self { pattern, values })
     }
 
+    /// R-6 (DEL-04-03 Work `skew-restraints.md` §6.2): `pattern` with these
+    /// values as given (K′ = QᵀKQ keeps K's bits, −0.0 included, where untouched).
+    pub(crate) fn from_pattern_values(pattern: SparsePattern, values: Vec<f64>) -> Result<Self, StructuralError> {
+        if values.len() != pattern.entry_count() {
+            return Err(StructuralError::InvalidInput("values outside pattern"));
+        }
+        Ok(Self { pattern, values })
+    }
+
     pub fn pattern(&self) -> &SparsePattern {
         &self.pattern
     }
@@ -483,6 +492,11 @@ pub struct SparseAssemblyOptions {
     /// times 2^b, in order, then the connectors' tie rods' (T4-U5b), used in
     /// place of forming them.
     formed_connectors: Option<Vec<(usize, usize, Matrix12)>>,
+    /// R-7 (DEL-04-03 Work `skew-restraints.md` §6.1): each skewed spring's
+    /// binary64 3×3 translation block at its node, added after every spring,
+    /// in this order, row-major. Empty (capacity 0) without a skewed spring:
+    /// the assembly is then today's, bit for bit.
+    node_blocks: Vec<(usize, [[f64; 3]; 3])>,
 }
 
 impl SparseAssemblyOptions {
@@ -491,7 +505,19 @@ impl SparseAssemblyOptions {
         Self {
             force_scale: ForceScale::UNSCALED,
             formed_connectors: None,
+            node_blocks: Vec::new(),
         }
+    }
+
+    /// R-7: the skewed spring blocks (`RestraintBasis::spring_block`, in
+    /// `RestraintBasis::springs` order).
+    pub fn with_node_blocks(mut self, node_blocks: Vec<(usize, [[f64; 3]; 3])>) -> Self {
+        self.node_blocks = node_blocks;
+        self
+    }
+
+    pub fn node_blocks(&self) -> &[(usize, [[f64; 3]; 3])] {
+        &self.node_blocks
     }
 
     /// K2b: form every frame (E and G), connector, block and spring at
@@ -607,8 +633,13 @@ pub fn assemble_sparse_stiffness(
     let SparseAssemblyOptions {
         force_scale,
         formed_connectors,
+        node_blocks,
     } = options;
     if !force_scale.is_unscaled() {
+        // R-7, S-K1: skew at a force scale is S-K2's (§10.6); refused, never formed.
+        if !node_blocks.is_empty() {
+            return Err(FrameKernelError::InvalidInput("skew node block at force scale"));
+        }
         // K2b: the same assembly, of the inputs formed at 2^b: the frames',
         // blocks' and springs' scaled operands are checked first, then each
         // connector's Ke formed at b = 0 times 2^b.
@@ -641,6 +672,7 @@ pub fn assemble_sparse_stiffness(
             &SparseAssemblyOptions {
                 force_scale: ForceScale::UNSCALED,
                 formed_connectors: Some(formed),
+                node_blocks: Vec::new(),
             },
         );
     }
@@ -690,6 +722,9 @@ pub fn assemble_sparse_stiffness(
     }
     for &(dof, _) in springs {
         check_node(dof / DOF_PER_NODE, node_count)?;
+    }
+    for &(node, _) in node_blocks {
+        check_node(node, node_count)?;
     }
     let connectivity: Vec<(usize, usize)> = formed
         .iter()
@@ -743,6 +778,24 @@ pub fn assemble_sparse_stiffness(
     for &(dof, stiffness) in springs {
         let index = pattern.find(dof, dof).expect("spring diagonal in pattern");
         values[index] += stiffness;
+    }
+    // R-7: each skewed spring block after every spring, row-major, on the
+    // node's diagonal block (present for a connected node; §2.2 item 6 refuses
+    // an unconnected one before assembly, and this check before any addition).
+    for &(node, _) in node_blocks {
+        let base = node * DOF_PER_NODE;
+        if (0..3).any(|r| (0..3).any(|c| pattern.find(base + r, base + c).is_none())) {
+            return Err(FrameKernelError::InvalidInput("skew node block outside the stiffness pattern"));
+        }
+    }
+    for (node, block) in node_blocks {
+        let base = node * DOF_PER_NODE;
+        for (r, row) in block.iter().enumerate() {
+            for (c, &value) in row.iter().enumerate() {
+                let index = pattern.find(base + r, base + c).expect("node block in pattern");
+                values[index] += value;
+            }
+        }
     }
     Ok(SparseStiffness { pattern, values })
 }

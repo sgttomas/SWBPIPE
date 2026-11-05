@@ -599,6 +599,7 @@ fn kd5_straight_frames_are_bound_to_the_formation_source() {
         w2: vec![0.0; 12],
         exponents: vec![i32::MIN; 12],
         lambda_sigma: 0.0,
+        lift_radius: Vec::new(),
     };
     let u = [0.0; 12];
     let k_source = source(primitives.clone(), vec![t, other, t], &["member:1:A:", "member:1:B:", "member:1:C:"]);

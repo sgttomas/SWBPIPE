@@ -326,6 +326,11 @@ pub struct MemberBoundInputs {
     /// Global-DOF equilibration exponents; i32::MIN means prescribed (no remainder).
     pub exponents: Vec<i32>,
     pub lambda_sigma: f64,
+    /// R-6 (DEL-04-03 Work `skew-restraints.md` §10.4): per physical DOF, an
+    /// upward bound of the lift's rounding |exact(Q(v + w + w₂)) − u − w − w₂|
+    /// (same units as u). Empty, with capacity 0, means zero everywhere: every
+    /// construction without a skewed stop, so the identity path is unchanged.
+    pub lift_radius: Vec<f64>,
 }
 
 /// The primitives of every stiffness contribution of a structural system,
@@ -356,6 +361,10 @@ pub struct FormationSource<'a> {
     /// Contributions the check cannot re-form, named (D5C-2). Any entry
     /// demotes the case with `FormationCheckUnavailable`.
     pub unavailable: Vec<String>,
+    /// R-6/R-7 (DEL-04-03 Work `skew-restraints.md` §10): the case's skewed
+    /// restraint basis, when the model holds a skewed record. `None` on
+    /// every other path (and always on D1): K-D5 is then today's.
+    pub restraint: Option<&'a crate::restraint_basis::RestraintBasis>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -1087,6 +1096,7 @@ where
             w2,
             exponents,
             lambda_sigma,
+            lift_radius: Vec::new(),
         }),
     ))
 }
