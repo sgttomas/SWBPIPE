@@ -59,9 +59,10 @@ fn exact_source_identity(parts: &[&str]) -> String {
 /// component of the canonical direction normal (§4.2). There each step down keeps every
 /// intermediate between the original and the final normal value, and each step up is exact,
 /// so no admitted component is rounded. Outside it, for example d = (8, 5·2^-1074, 0), repeated
-/// halving may round or flush a component that becomes subnormal, and this reader and the
-/// Python verifier (one `ldexp` rounding) may differ component by component. Such a direction
-/// is refused by the product (`SUPPORT_DIRECTION_RANGE_UNSUPPORTED`) and publishes no row.
+/// halving may round or flush a component that becomes subnormal; the product refuses such a
+/// direction (`SUPPORT_DIRECTION_RANGE_UNSUPPORTED`) and publishes no row. The Python
+/// verifier repeats these steps one for one (re-check 2), so both readers form the same bits
+/// for every input.
 fn canonical(mut d: [f64; 3]) -> [f64; 3] {
     let largest = |d: &[f64; 3]| d.iter().fold(0.0_f64, |m, x| m.max(x.abs()));
     while largest(&d) >= 2.0 {
@@ -86,8 +87,8 @@ fn canonical(mut d: [f64; 3]) -> [f64; 3] {
 /// (R = (−m, −m, 0), s = −m) reads, as it did before the joint scaling.
 ///
 /// Scaling down may flush a value more than 2^1074 below the largest; that changes the
-/// residual by at most 6·2^-1075 (scaled), inside the allowance. Rust's stepping and Python's
-/// `ldexp` may round such a flushed value differently; the verdict is unaffected beyond that.
+/// residual by at most 6·2^-1075 (scaled), inside the allowance. The Python verifier repeats
+/// these steps one for one (re-check 2), so a flushed value rounds the same in both readers.
 fn joint_scale(mut r: [f64; 3], mut s: f64) -> ([f64; 3], f64, f64) {
     let largest = |r: &[f64; 3], s: f64| r.iter().fold(s.abs(), |m, x| m.max(x.abs()));
     let mut floor = f64::MIN_POSITIVE;
@@ -103,6 +104,29 @@ fn joint_scale(mut r: [f64; 3], mut s: f64) -> ([f64; 3], f64, f64) {
         (r, s, floor) = (r.map(|x| x * step), s * step, floor * step);
     }
     (r, s, floor)
+}
+
+/// The along guard: |s·|d| − dᵀR| ≤ 64ε·max(|d|·Σ|R_i|, floor) on the canonical d and the
+/// jointly scaled R, s and floor. A non-finite residual or allowance refuses; it never accepts.
+///
+/// Re-check 2 (verdict parity): every sum is left to right, with no compensation and no fused
+/// multiply-add, and the Python verifier (`_along_guard`) repeats each operation in this order,
+/// so the two readers give one verdict on every input, at the allowance boundary too
+/// (`fixtures/results/skew_along_direction_guard_parity.json`).
+///
+/// This is a consistency check within a finite allowance, not an exact-integrity check: an
+/// alteration of s inside the allowance reads. That includes a subnormal alteration inside the
+/// absolute floor 64·2^-1074 (unscaled): R = (−m, −m, 0) with s changed from −m to 0 reads
+/// (m = 2^-1074, d = (1, 1, 0)).
+fn guard(d: [f64; 3], r: [f64; 3], s: f64) -> bool {
+    let d = canonical(d);
+    let (r, s, floor) = joint_scale(r, s);
+    let norm = (d[0] * d[0] + d[1] * d[1] + d[2] * d[2]).sqrt();
+    let dot = d[0] * r[0] + d[1] * r[1] + d[2] * r[2];
+    let scale = norm * (r[0].abs() + r[1].abs() + r[2].abs());
+    let residual = (s * norm - dot).abs();
+    let allowance = 64.0 * f64::EPSILON * scale.max(floor);
+    residual.is_finite() && allowance.is_finite() && residual <= allowance
 }
 
 /// One case's along-direction rows (`rows`: the case's direct rows; `case_id`; `model`).
@@ -130,17 +154,10 @@ pub(crate) fn check_case(rows: &[&Value], case_id: &str, model: Option<&Value>) 
         let support = model["supports"].as_array().into_iter().flatten().find(|s| s["id"] == *entity);
         let d = support.and_then(skewed_direction);
         require(d.is_some(), "ALONG_DIRECTION_UNEXPECTED")?;
-        let (d, r) = (canonical(d.unwrap()), r.unwrap());
+        let (d, r) = (d.unwrap(), r.unwrap());
         let s = row["value"].as_f64().ok_or("ALONG_DIRECTION_VALUE")?;
         require(s.is_finite() && r.iter().all(|x| x.is_finite()), "ALONG_DIRECTION_INCONSISTENT")?;
-        let (r, s, floor) = joint_scale([r[0], r[1], r[2]], s);
-        let norm = (d[0] * d[0] + d[1] * d[1] + d[2] * d[2]).sqrt();
-        let dot: f64 = (0..3).map(|i| d[i] * r[i]).sum();
-        let scale: f64 = norm * r.iter().map(|x| x.abs()).sum::<f64>();
-        let residual = (s * norm - dot).abs();
-        let allowance = 64.0 * f64::EPSILON * scale.max(floor);
-        // A non-finite residual or allowance refuses; it never accepts.
-        require(residual.is_finite() && allowance.is_finite() && residual <= allowance, "ALONG_DIRECTION_INCONSISTENT")?;
+        require(guard(d, [r[0], r[1], r[2]], s), "ALONG_DIRECTION_INCONSISTENT")?;
     }
     if let Some(model) = model {
         // Every skewed record that publishes its component rows publishes its along row.
@@ -220,5 +237,47 @@ mod tests {
         assert_eq!(check([3.0, 4.0, 0.0], r, s), Ok(()));
         assert_eq!(check([3.0 * tiny, 4.0 * tiny, 0.0], r, s), Ok(()));
         assert_eq!(check([3.0 * tiny, 4.0 * tiny, 0.0], r, -s), Err("ALONG_DIRECTION_INCONSISTENT".into()));
+    }
+
+    /// Re-check 2: d = R = (1.0, 0.1, 0.6), s = 0x1.2ba3ebdc9a779p+0. Exactly,
+    /// |s − dᵀR/|d|| exceeds 64ε·Σ|R_i| by about 6.55e-17, so the guard refuses; the Python
+    /// verifier's compensated `sum` accepted it.
+    #[test]
+    fn the_boundary_counterexample_is_refused() {
+        let d = [1.0, 0.1, 0.6];
+        let s = f64::from_bits(0x3ff2_ba3e_bdc9_a779);
+        assert_eq!(check(d, d, s), Err("ALONG_DIRECTION_INCONSISTENT".into()));
+    }
+
+    /// Re-check 2: the shared parity sweep. Both readers reach each committed verdict
+    /// (the Python half: `tests/test_skew_along_direction_reader.py`).
+    #[test]
+    fn the_shared_parity_sweep_reads_with_its_committed_verdicts() {
+        let sweep: Value =
+            serde_json::from_str(include_str!("../../../../fixtures/results/skew_along_direction_guard_parity.json")).unwrap();
+        let bits = |v: &Value| f64::from_bits(u64::from_str_radix(v.as_str().unwrap(), 16).unwrap());
+        let three = |v: &Value| [bits(&v[0]), bits(&v[1]), bits(&v[2])];
+        let cases = sweep["cases"].as_array().unwrap();
+        assert_eq!(cases.len(), 385);
+        let (mut accepted, mut refused) = (0, 0);
+        for (n, case) in cases.iter().enumerate() {
+            let verdict = check(three(&case["d"]), three(&case["r"]), bits(&case["s"]));
+            if case["accept"].as_bool().unwrap() {
+                assert_eq!(verdict, Ok(()), "case {n}");
+                accepted += 1;
+            } else {
+                assert_eq!(verdict, Err("ALONG_DIRECTION_INCONSISTENT".into()), "case {n}");
+                refused += 1;
+            }
+        }
+        assert_eq!((accepted, refused), (192, 193));
+    }
+
+    /// Re-check 2 (non-blocking, by design): the guard is a consistency check within a
+    /// finite allowance. A subnormal alteration inside the absolute floor reads.
+    #[test]
+    fn a_subnormal_alteration_inside_the_floor_reads_by_design() {
+        let m = f64::from_bits(1);
+        assert_eq!(check([1.0, 1.0, 0.0], [-m, -m, 0.0], 0.0), Ok(()));
     }
 }

@@ -590,6 +590,19 @@ under `has_constraint_transform()`. With `None`, PP, FK, NI and modal execute to
   over two or more cases published one; the single-case fixture hid it. Pinned by
   `fixtures/results/skew_along_direction_combinations_preview.json` (two cases; signed,
   absolute-sum, SRSS, envelope and subtraction combinations).
+- **Readers' guard.** Given the model, both readers (RE `along_direction_evidence`, the Python
+  verifier's `_along_direction`) check |s·|d̃| − d̃ᵀR| ≤ 64ε·max(|d̃|·Σ|R_i|, floor) on the
+  canonical d̃ and on R, s and the floor 2^−1022 scaled jointly by one power of two. This is a
+  consistency check within a finite allowance, not an exact-integrity check: an alteration of s
+  inside the allowance reads. That includes a subnormal alteration inside the absolute floor
+  64·2^−1074 (unscaled); for example, with m = 2^−1074, d = (1, 1, 0) and R = (−m, −m, 0), s
+  changed from −m to 0 reads.
+  *As implemented (re-check 2, verdict parity):* the two readers perform the same operations in
+  the same order: the same power-of-two steps, then left-to-right sums with no compensation (never
+  Python's built-in `sum`, compensated from 3.12, nor `math.fsum`) and no fused multiply-add. So
+  they give one verdict on every input, at the allowance boundary too. Pinned by
+  `fixtures/results/skew_along_direction_guard_parity.json` (385 boundary cases, both readers;
+  the first is the counterexample d = R = (1.0, 0.1, 0.6), s = 0x1.2ba3ebdc9a779p+0, refused).
 
 ### 7.2 Attribution (binary64 path; K-D5's certified twin in §10.5)
 
@@ -1632,12 +1645,13 @@ owners.
   the RE and Python combination mirrors. The tables went through the generator (`apply-sk1`),
   with the S-K1 base's tables kept as the `recorded_pre_sk1` variants in the Rust, Python and
   webview registries. Both readers rescale the direction by a power of two to max|d̃_i| ∈ [1, 2)
-  without forming the scale. The rescaling is exact, and the two readers agree component for
-  component, on the admitted domain only (every nonzero d̃_i normal, §4.2). Outside it, for
-  example d = (8, 5·2^−1074, 0), the RE reader's repeated halving and Python's single `ldexp`
-  may round a component that becomes subnormal differently; the product refuses such a
-  direction and publishes no row. The along guard scales R, s and its quantization floor
-  jointly by the same exact power of two (Astra B2, B2′).
+  without forming the scale. The rescaling is exact on the admitted domain only (every nonzero
+  d̃_i normal, §4.2). Outside it, for example d = (8, 5·2^−1074, 0), the stepping may round a
+  component that becomes subnormal; the product refuses such a direction and publishes no row.
+  The along guard scales R, s and its quantization floor jointly by the same exact power of two
+  (Astra B2, B2′). The Python verifier repeats the RE reader's steps and sums one for one
+  (re-check 2, §7.1 readers' guard), so the two readers form the same bits and verdict for
+  every input the guard reads.
 - **Modal (D-1):** the reduced pencil (C1-C9); shapes published on the lifted vector (B1).
   Spring re-formation is on the canonical d̃ (§11.3 note). The modal result document and the
   test-only phase replay refuse a skew model by name (C8 (a), (b)).

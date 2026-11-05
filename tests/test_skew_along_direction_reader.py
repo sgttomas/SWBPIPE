@@ -150,3 +150,40 @@ def test_an_honest_subnormal_reaction_reads_and_a_subnormal_tamper_is_refused():
     for r, s in (((-m, -m, 0.0), -100 * m), ((-1000 * m, -1000 * m, 0.0), 1000 * m)):
         with pytest.raises(ValueError, match="ALONG_DIRECTION_INCONSISTENT"):
             _along_direction(*_synthetic(d, r, s))
+
+
+def test_the_boundary_counterexample_is_refused():
+    """Re-check 2: d = R = (1.0, 0.1, 0.6), s = 0x1.2ba3ebdc9a779p+0. Exactly, |s - d.R/|d|| exceeds 64*eps*sum|R_i| by
+    about 6.55e-17; the RE reader refuses it, and the built-in (compensated from Python 3.12) `sum` accepted it here."""
+    from tests.verifiers.preview_physics_evidence import _along_direction
+    d = (1.0, 0.1, 0.6)
+    with pytest.raises(ValueError, match="ALONG_DIRECTION_INCONSISTENT"):
+        _along_direction(*_synthetic(d, d, float.fromhex("0x1.2ba3ebdc9a779p+0")))
+
+
+def test_the_shared_parity_sweep_reads_with_its_committed_verdicts():
+    """Re-check 2: the boundary sweep the RE reader also reads (`along_direction_evidence`
+    `the_shared_parity_sweep_reads_with_its_committed_verdicts`): each committed verdict, here."""
+    import struct
+    from tests.verifiers.preview_physics_evidence import _along_direction
+    sweep = json.loads((ROOT / "fixtures/results/skew_along_direction_guard_parity.json").read_text(encoding="utf-8"))
+    value = lambda h: struct.unpack(">d", bytes.fromhex(h))[0]  # noqa: E731
+    verdicts = []
+    for n, case in enumerate(sweep["cases"]):
+        d, r, s = [value(x) for x in case["d"]], [value(x) for x in case["r"]], value(case["s"])
+        if case["accept"]:
+            _along_direction(*_synthetic(d, r, s))
+        else:
+            with pytest.raises(ValueError, match="ALONG_DIRECTION_INCONSISTENT"):
+                _along_direction(*_synthetic(d, r, s))
+        verdicts.append(case["accept"])
+    assert (len(verdicts), sum(verdicts)) == (385, 192)
+
+
+def test_a_subnormal_alteration_inside_the_floor_reads_by_design():
+    """Re-check 2 (by design): a consistency check within a finite allowance, not an exact-integrity check. With
+    m = 2^-1074, R = (-m, -m, 0) and s changed from -m to 0 lies inside the absolute floor and reads."""
+    import math
+    from tests.verifiers.preview_physics_evidence import _along_direction
+    m = math.ldexp(1.0, -1074)
+    _along_direction(*_synthetic((1.0, 1.0, 0.0), (-m, -m, 0.0), 0.0))

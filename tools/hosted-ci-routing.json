@@ -220,7 +220,7 @@
       "core/reporting/report_package/Cargo.toml": "8810941626d46d92607f938e9391bcb4e80aab08c2132c56b04d632aa6e90113",
       "core/reporting/report_renderer/Cargo.toml": "08008d76e93e1d92e580f2e4cb158b2c787bd337581ab9e112935c27faef0074",
       "core/reporting/report_sections/Cargo.toml": "44acb66312edbc9bfd77aa2980a898511ac34de67fba0fc773b70007a3aad0f1",
-      "core/reporting/result_export/Cargo.toml": "d1bad4af34dbdfa0e8c922c4a2814912295cddd468daaa317ceb1fcb4e3e5870",
+      "core/reporting/result_export/Cargo.toml": "52c83f1d74fd2b2e49ea57aac2979926e8abb251a6288b67f05f5d0933b8d133",
       "core/rules/completeness_checker/Cargo.toml": "95cf7430d70fffc65a984a6841980f2c65f12000e28004da89efc092f1152737",
       "core/rules/expression_evaluator/Cargo.toml": "7018210dadfb7c2b855298730f5f8cddedbe09f7f03b05421b81c3694f873b18",
       "core/rules/rule_check_runner/Cargo.toml": "88971098b7a02b7cd79ee97788e76d31425865b98a0e51dbdd7d6e8711fb9dc1",
@@ -1592,6 +1592,7 @@
               "fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
               "fixtures/results/semantic_contract_v0_3_preview_physics_timoshenko_1.json",
               "fixtures/results/skew_along_direction_combinations_preview.json",
+              "fixtures/results/skew_along_direction_guard_parity.json",
               "fixtures/results/skew_along_direction_preview.json"
             ],
             "audit": "The algebra corpus test reads the four marked tables from fixtures/results and recursively reads every .json file under fixtures/results and fixtures/product_preview, keeping the result envelopes."
@@ -5393,6 +5394,7 @@
               "fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
               "fixtures/results/semantic_contract_v0_3_preview_physics_timoshenko_1.json",
               "fixtures/results/skew_along_direction_combinations_preview.json",
+              "fixtures/results/skew_along_direction_guard_parity.json",
               "fixtures/results/skew_along_direction_preview.json",
               "fixtures/review_geometry/invented/review_geometry_export_package.json",
               "fixtures/review_geometry/invented/source_centerline_payload.json",

@@ -11,7 +11,7 @@ caller's authentic source, model, input and build binding.
 """
 from __future__ import annotations
 
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Mapping, Sequence
 from fractions import Fraction
 import json
 import math
@@ -360,6 +360,61 @@ def _skewed_direction(support: Mapping[str, Any]) -> tuple[float, float, float] 
     return v  # type: ignore[return-value]
 
 
+# Re-check 2 (verdict parity): the along guard below repeats the RE reader's (`along_direction_evidence`) operations
+# one for one, so both readers reach the same verdict on every input, at the allowance boundary too. Every scaling is
+# the same sequence of power-of-two steps; every sum is left to right with no compensation (never the built-in
+# `sum`, which is compensated from Python 3.12, nor `math.fsum`) and no fused multiply-add, as Rust evaluates it.
+_STEP_UP, _STEP_DOWN, _STEP_LIMIT = 2.0 ** 511, 2.0 ** -511, 2.0 ** 512
+
+
+def _largest(values: Sequence[float], start: float = 0.0) -> float:
+    out = start
+    for x in values:
+        out = max(out, abs(x))
+    return out
+
+
+def _canonical_direction(d: Sequence[float]) -> list[float]:
+    """RE `canonical`: d stepped by powers of two to max|d_i| in [1, 2); the scale itself is never formed."""
+    d = list(d)
+    while _largest(d) >= 2.0:
+        step = _STEP_DOWN if _largest(d) >= _STEP_LIMIT else 0.5
+        d = [x * step for x in d]
+    while _largest(d) < 1.0:
+        step = _STEP_UP if _largest(d) < _STEP_DOWN else 2.0
+        d = [x * step for x in d]
+    return d
+
+
+def _joint_scale(r: list[float], s: float) -> tuple[list[float], float, float]:
+    """RE `joint_scale`: R, s and the allowance floor stepped together to a largest magnitude in [1/2, 1)."""
+    floor = sys.float_info.min
+    if _largest(r, abs(s)) == 0.0 or not math.isfinite(_largest(r, abs(s))):
+        return r, s, floor
+    while _largest(r, abs(s)) >= 1.0:
+        step = _STEP_DOWN if _largest(r, abs(s)) >= _STEP_LIMIT else 0.5
+        r, s, floor = [x * step for x in r], s * step, floor * step
+    while _largest(r, abs(s)) < 0.5:
+        step = _STEP_UP if _largest(r, abs(s)) < _STEP_DOWN else 2.0
+        r, s, floor = [x * step for x in r], s * step, floor * step
+    return r, s, floor
+
+
+def _along_guard(d: Sequence[float], r: Sequence[float], s: float) -> bool:
+    """|s*|d| - d.R| <= 64*eps*max(|d|*sum|R_i|, floor), in the RE reader's operation order (one verdict for both).
+    A consistency check within a finite allowance, not an exact-integrity check: an alteration inside the allowance
+    reads, including a subnormal one inside its absolute floor (R = (-m, -m, 0) with s = 0 for s = -m, m = 2^-1074)."""
+    d = _canonical_direction(d)
+    r, s, floor = _joint_scale(list(r), s)
+    norm = math.sqrt(d[0] * d[0] + d[1] * d[1] + d[2] * d[2])
+    dot = d[0] * r[0] + d[1] * r[1] + d[2] * r[2]
+    scale = norm * (abs(r[0]) + abs(r[1]) + abs(r[2]))
+    residual = abs(s * norm - dot)
+    allowance = 64.0 * sys.float_info.epsilon * max(scale, floor)
+    # A non-finite residual or allowance refuses; it never accepts.
+    return math.isfinite(residual) and math.isfinite(allowance) and residual <= allowance
+
+
 def _along_direction(source: Mapping[str, Any], model: Mapping[str, Any] | None) -> None:
     """R-6/R-7 S-K1 (DEL-04-03 skew-restraints.md sections 7.1 and 10.5, R-1): each case's
     `support_reaction_along_direction_v1` rows: the exact strings, one per record and case beside its Fx/Fy/Fz rows,
@@ -396,30 +451,11 @@ def _along_direction(source: Mapping[str, Any], model: Mapping[str, Any] | None)
                 continue
             d = _skewed_direction(supports.get(entity) or {})
             _require(d is not None, "ALONG_DIRECTION_UNEXPECTED")
-            # Astra B3: a power-of-two rescale to max|d_i| in [1, 2) by frexp/ldexp, component by component; the scale
-            # itself is never formed (2.0 ** e overflows for a subnormal direction whose scaled components fit). It is
-            # exact on the admitted domain (every nonzero canonical component normal, section 4.2). Outside it, ldexp
-            # rounds a component that becomes subnormal once, and the Rust reader's stepping may differ (re-check item 3);
-            # the product refuses such a direction and publishes no row.
-            shift = 1 - math.frexp(max(abs(c) for c in d))[1]
-            d = tuple(math.ldexp(c, shift) for c in d)
             r = [components[(entity, c)] for c in ("Fx", "Fy", "Fz")]
             s = row["value"]
             _require(_number(s) and all(math.isfinite(x) for x in r), "ALONG_DIRECTION_INCONSISTENT")
-            # Astra B2: R and s scaled together by one exact power of two (largest magnitude in [1/2, 1)), so the
-            # residual and the allowance never overflow; a non-finite one refuses, never accepts. Astra B2': the
-            # allowance's absolute floor belongs to the unscaled quantities (64*eps*2^-1022), so it is scaled by the same
-            # power of two rather than re-floored at the scaled magnitude (an honest subnormal reaction reads).
-            largest = max([abs(s)] + [abs(x) for x in r])
-            floor = sys.float_info.min
-            if largest != 0.0:
-                shift = -math.frexp(largest)[1]
-                r, s, floor = [math.ldexp(x, shift) for x in r], math.ldexp(s, shift), math.ldexp(floor, shift)
-            norm = math.sqrt(sum(c * c for c in d))
-            dot = sum(d[i] * r[i] for i in range(3))
-            residual = abs(s * norm - dot)
-            bound = 64.0 * sys.float_info.epsilon * max(norm * sum(abs(x) for x in r), floor)
-            _require(math.isfinite(residual) and math.isfinite(bound) and residual <= bound, "ALONG_DIRECTION_INCONSISTENT")
+            # Astra B2, B2', B3 and re-check 2: the guard in the RE reader's operation order (`_along_guard`).
+            _require(_along_guard(d, r, s), "ALONG_DIRECTION_INCONSISTENT")
         if model is not None:
             published = {entity for entity, _ in components}
             for sid, support in supports.items():
