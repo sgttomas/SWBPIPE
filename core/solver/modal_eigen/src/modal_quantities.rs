@@ -460,7 +460,51 @@ pub fn lifted_normalization(
     Ok(LiftedNormalization { case, reference_dof, pivot: lifted[reference_dof], max_translation: t, max_rotation: theta })
 }
 
-/// `normalize_mode` of a reduced vector with its lifted choice (C6).
+/// R-6/R-7 D-1 (C6, dynamics' B1): the published shape of a reduced mode, on the
+/// raw lifted vector `lifted_normalization` chose on: shape_d = fl(lifted_d/pivot),
+/// with `normalize_mode`'s below-normal rule applied per global DOF
+/// (|lifted_d| < |pivot|·2⁻¹⁰²², decided in WideDd before rounding: 0, flagged).
+/// The reference entry is exactly 1 and every entry has magnitude ≤ 1.
+#[derive(Debug, Clone, PartialEq)]
+pub struct LiftedShape {
+    /// Over the global DOFs.
+    pub shape: Vec<f64>,
+    /// Global DOFs published as 0 (nonzero, below the normal range).
+    pub below_normal_range: Vec<usize>,
+}
+
+/// The published lifted shape (see [`LiftedShape`]).
+pub fn publish_lifted(mode: usize, lifted: &[f64], chosen: &LiftedNormalization) -> Result<LiftedShape, ModalQuantityError> {
+    let pivot = chosen.pivot;
+    if pivot == 0.0 || !pivot.is_finite() {
+        return Err(ModalQuantityError::ZeroShape { mode });
+    }
+    let threshold = WideDd::from_f64(pivot.abs()).mul_f64(f64::MIN_POSITIVE);
+    let mut shape = Vec::with_capacity(lifted.len());
+    let mut below_normal_range = Vec::new();
+    for (index, &v) in lifted.iter().enumerate() {
+        if !v.is_finite() {
+            return Err(ModalQuantityError::NonFinite { name: "lifted phi", index });
+        }
+        let s = v / pivot;
+        if !s.is_finite() {
+            return Err(ModalQuantityError::ShapeOutOfRange { mode, index });
+        }
+        if v != 0.0 && !WideDd::from_f64(v.abs()).sub(threshold).is_non_negative() {
+            below_normal_range.push(index);
+            shape.push(0.0);
+        } else {
+            shape.push(s);
+        }
+    }
+    Ok(LiftedShape { shape, below_normal_range })
+}
+
+/// `normalize_mode` of a reduced vector with its lifted choice (C6). The returned
+/// shape, flags and reference are the reduced coordinates' (φ′/pivot), which checks 2
+/// and 3 read; the generalized mass, excitation products, participation and effective
+/// masses are the reduced-coordinate quantities on M′ and Q̃ᵀ(M r_k), consistent with
+/// the lifted shape (`publish_lifted`) to rounding. Publication uses `publish_lifted`.
 pub fn normalize_mode_lifted(
     mode: usize,
     phi: &[f64],
@@ -631,6 +675,28 @@ pub fn frequency_from_eigenvalue(lambda: f64) -> (f64, f64, f64) {
 
 #[cfg(test)]
 mod tests {
+
+    /// D-1 B1: the lifted publication. The reference entry is exactly 1, every entry
+    /// is at most 1 in magnitude, and the flags are exactly the zeroed below-normal
+    /// lifted entries (a constructed below-normal lift).
+    #[test]
+    fn lifted_publication_is_normalized_and_flags_below_normal_entries() {
+        let tiny = f64::MIN_POSITIVE * 0.25; // below |pivot|·2⁻¹⁰²² for pivot 1.5
+        let lifted = [0.75, -1.5, 0.0, tiny, -tiny, 1e-3, 0.0, 1.5 * f64::MIN_POSITIVE];
+        let chosen = lifted_normalization(0, &lifted, 1.0, 1e-6).unwrap();
+        assert_eq!((chosen.reference_dof, chosen.pivot), (1, -1.5));
+        let published = publish_lifted(0, &lifted, &chosen).unwrap();
+        assert_eq!(published.shape[chosen.reference_dof].to_bits(), 1.0f64.to_bits());
+        assert!(published.shape.iter().all(|v| v.abs() <= 1.0));
+        assert_eq!(published.below_normal_range, vec![3, 4]);
+        for &d in &published.below_normal_range {
+            assert_eq!(published.shape[d], 0.0);
+            assert_ne!(lifted[d], 0.0);
+        }
+        // |v| = 1.5·2⁻¹⁰²² = |pivot|·2⁻¹⁰²² is at the threshold: published, not flagged.
+        assert_eq!(published.shape[7], -f64::MIN_POSITIVE);
+    }
+
     use super::*;
 
     const U: f64 = f64::EPSILON / 2.0;

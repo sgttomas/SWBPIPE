@@ -48,7 +48,7 @@ use crate::{Diagnostic, PreviewSolverMode};
 use open_pipe_stress_modal_eigen::clusters::{cluster_ids, ExtractionBound, ReportedSet};
 use open_pipe_stress_modal_eigen::dense::ScreenedMode;
 use open_pipe_stress_modal_eigen::modal_quantities::{
-    cumulative_effective_mass_fractions, frequency_from_eigenvalue, lifted_normalization, normalize_mode_lifted, BelowNormalRange,
+    cumulative_effective_mass_fractions, frequency_from_eigenvalue, lifted_normalization, normalize_mode_lifted, publish_lifted, BelowNormalRange,
     ModalQuantityError, NormalizationCase,
 };
 use open_pipe_stress_modal_eigen::orthogonality::MOrthogonality;
@@ -246,8 +246,12 @@ pub(crate) fn run_modal_dense(req: &ModalPreviewRequest, params: &ModalIntegrity
     let diagonal = bounding_box_diagonal(&positions);
     let basis = modal_basis(&pencil, diagonal, params)?;
     let mut normalized = Vec::with_capacity(reported_count);
+    // D-1 B1: with a basis, each mode's published shape and flags on the lifted vector.
+    let mut lifted_shapes = Vec::with_capacity(if pencil.skew.is_some() { reported_count } else { 0 });
     for mode in 0..reported_count {
         normalized.push(match &pencil.skew {
+            // N2: `ModalBasis`'s FreeDof slots are physical DOFs only here; a reduced
+            // pencil (mixed coordinates) never reaches `normalize_modal_shape`.
             None => normalize_modal_shape(&basis, mode, solution.vector(mode))?,
             // R-6/R-7 D-1 (C6): the case, τ_t and the pivot on the lifted φ = Q̃φ′.
             Some(skew) => {
@@ -257,6 +261,7 @@ pub(crate) fn run_modal_dense(req: &ModalPreviewRequest, params: &ModalIntegrity
                 })?;
                 let chosen = lifted_normalization(mode, &lifted, diagonal, params.no_translation_threshold)
                     .map_err(|error| super::eigen::quantity_refusal(Some(mode), error))?;
+                lifted_shapes.push(publish_lifted(mode, &lifted, &chosen).map_err(|error| super::eigen::quantity_refusal(Some(mode), error))?);
                 normalize_mode_lifted(mode, vector, &basis, chosen).map_err(|error| super::eigen::quantity_refusal(Some(mode), error))?
             }
         });
@@ -335,15 +340,16 @@ pub(crate) fn run_modal_dense(req: &ModalPreviewRequest, params: &ModalIntegrity
         for (free, &dof) in pencil.free_dofs.iter().enumerate() {
             shape[dof] = mode.shape[free];
         }
-        // R-6/R-7 D-1 (C6): a reduced shape is published lifted, in binary64;
-        // its below-normal flags name the coordinates published as 0.
-        if let Some(skew) = &pencil.skew {
-            shape = skew.lift(&pencil.free_dofs, &mode.shape).ok_or_else(|| {
-                super::eigen::quantity_refusal(Some(i), ModalQuantityError::InvalidParameter { name: "lifted shape" })
-            })?;
-        }
         let mut below = mode.below_normal_range.clone();
         below.shape = below.shape.iter().map(|&free| pencil.free_dofs[free]).collect();
+        // R-6/R-7 D-1 (C6, B1): a reduced mode publishes fl(lifted/pivot) over the
+        // global DOFs, flagged per global DOF; the reference entry is exactly 1. Its
+        // generalized mass, participation and effective masses are the reduced-
+        // coordinate quantities (M′, Q̃ᵀ(M r_k)), consistent with it to rounding.
+        if let Some(lifted) = lifted_shapes.get(i) {
+            shape = lifted.shape.clone();
+            below.shape = lifted.below_normal_range.clone();
+        }
         modes.push(ModalMode {
             index: i + 1,
             cluster: ids[i],

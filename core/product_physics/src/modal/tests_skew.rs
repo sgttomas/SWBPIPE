@@ -82,7 +82,13 @@ fn compare_with_twin(name: &str, skew: &ModalOutcome, twin: &ModalOutcome, d: [f
         // The lifted, published shape is a full global vector, normalized on itself.
         let largest = a.shape.iter().enumerate().filter(|(i, _)| i % 6 < 3).fold(0.0_f64, |m, (_, v)| m.max(v.abs()));
         let rotations = a.shape.iter().enumerate().filter(|(i, _)| i % 6 >= 3).fold(0.0_f64, |m, (_, v)| m.max(v.abs()));
-        assert!(largest == 1.0 || rotations == 1.0 || (largest - 1.0).abs() <= 4.0 * f64::EPSILON, "{name}: lifted normalization {largest} {rotations}");
+        // B1: the reference entry is exactly 1 and its class is at most 1; the flags
+        // name global DOFs published as 0.
+        assert_eq!(a.shape[a.reference_dof].to_bits(), 1.0f64.to_bits(), "{name}: mode {} reference", a.index);
+        // The normalizing class (translations in case (a), rotations in (b)) is ≤ 1.
+        let class = if a.reference_dof % 6 < 3 { largest } else { rotations };
+        assert!(class <= 1.0, "{name}: lifted normalization {largest} {rotations}");
+        assert!(a.below_normal_range.shape.iter().all(|&d| d < 18 && a.shape[d] == 0.0), "{name}: flags");
         assert_eq!(a.shape.len(), 18);
         if name.contains("stop") {
             // dᵀφ_B = 0 on the published binary64 lift, within its rounding.

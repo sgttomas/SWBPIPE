@@ -530,6 +530,19 @@ impl ReformedPencil {
         Self::new_on_coordinates(dimension, dof_map, Some(coordinates), basis, elements, None)
     }
 
+    /// [`ReformedPencil::new_with_coordinates`] under an optional limb allotment
+    /// (design §5.3.8), as [`ReformedPencil::new_within_limb_allotment`] (D-1 N1).
+    pub fn new_with_coordinates_within_limb_allotment(
+        dimension: usize,
+        dof_map: &[Option<usize>],
+        coordinates: &[Option<Coordinates>],
+        basis: MassBasis,
+        elements: &[ElementOperand],
+        limb_allotment: Option<usize>,
+    ) -> Result<Self, ReformationError> {
+        Self::new_on_coordinates(dimension, dof_map, Some(coordinates), basis, elements, limb_allotment)
+    }
+
     fn new_on_coordinates(
         dimension: usize,
         dof_map: &[Option<usize>],

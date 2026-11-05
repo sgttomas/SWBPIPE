@@ -1158,6 +1158,16 @@ merge, followed by one independent dynamics review.
     once from Dd, member and node reporting, and the dᵀφ = 0 test.
   - Published shapes are lifted in binary64. Check 3's M̂′-orthogonality is the governing
     measure and is not re-measured on global M.
+  - **As implemented, with dynamics' review B1.** The normalization case, τ_t and the pivot
+    are chosen on the raw lifted vector φ = Q̃φ′. The published shape is
+    fl(φ_d / pivot) over the global DOFs. Today's below-normal rule applies per global DOF:
+    |φ_d| < |pivot|·2⁻¹⁰²², compared in WideDd, publishes 0 and flags d. So the reference
+    entry is exactly 1, and every entry of its class has magnitude ≤ 1. The generalized
+    mass, participation and effective masses are the reduced-coordinate quantities, on
+    φ′/pivot with M′ and Q̃ᵀ(M r_k). They are consistent with the published lifted shape to
+    rounding. Checks 2 and 3 read the reduced φ′/pivot. The coordinate re-formation has a
+    limb-allotment variant (`new_with_coordinates_within_limb_allotment`, review N1) for
+    O-4's staged guard.
 - **C7. Resources.** `dense_scrutiny_guard` stays on the global 6N, before any allocation.
   - The kernel and its allotments see the reduced n′.
   - Congruence formation and re-formation are countable as terms per entry (≤ 9, ≤ 4 in S-K1)

@@ -144,7 +144,13 @@ pub(crate) fn kept_subspace_mass(basis: &RestraintBasis, free_dofs: &[usize], lo
         let a: Vec<f64> = free_dofs
             .iter()
             .map(|&coordinate| {
-                basis.q_column(coordinate).as_slice().iter().filter(|&&(dof, _)| dof % DOF_PER_NODE == k).map(|&(_, q)| q).sum()
+                // N3: Q is node-local, so a column has at most one entry per axis k; the
+                // binary64 sum is that one entry (or 0), exact.
+                let column = basis.q_column(coordinate);
+                let mut on_axis = column.as_slice().iter().filter(|&&(dof, _)| dof % DOF_PER_NODE == k).map(|&(_, q)| q);
+                let q = on_axis.next().unwrap_or(0.0);
+                debug_assert!(on_axis.next().is_none(), "a node-local column has one entry per axis");
+                q
             })
             .collect();
         let mut sum = Dd::ZERO;
