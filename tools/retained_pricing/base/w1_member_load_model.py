@@ -81,8 +81,8 @@ SOURCE_FILES = {
     # member-load owner changes.
     # Operating-case slice 1b (§8.51): RE lib.rs declares preview_difference_basis; retained_precision.rs changes only its
     # TABLE_HASH constant. No member-load owner changes.
-    "core/reporting/result_export/src/lib.rs": "4cc4ce8f620e5936cbec0327513d7a0e8265acbc3111758515206fcdbdb5811d",
-    "core/reporting/result_export/src/retained_precision.rs": "157bb3d3954dab4a80e81c182eeabea22d0d29118462f0283c1f20d5ea56f251",
+    "core/reporting/result_export/src/lib.rs": "29f0e274ae1968a1d92ba604e14e42a7f6a43c84abd62c8dab085db692f7cff6",
+    "core/reporting/result_export/src/retained_precision.rs": "4ddfd3768e16cfffe95faa2238ef16ac07d7c5768ef41a9acfd82b0e85c5072e",
     "core/reporting/result_export/src/declared_member_load.rs": '93787b8894f752cd4c577c58513449471672956e934d35157e31178e9c53a52c',
     "core/solver/frame_kernel/src/structural/retained_resource.rs": "ca0516b5b88ed0d55abf9780c0782f42acd68f4f80b73543415c920fd3da5b7b",
     "core/solver/frame_kernel/src/structural/retained/source.rs": "053b59579d6d5a2c18026029d6a8c8648617a341a2787f6f248ce0d5c4379053",
