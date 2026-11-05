@@ -322,7 +322,12 @@ and the Diagnostics panel's list and explanation (review cert3 finding 1:
   statement): ".
 - A diagnostic naming a combination is a roster entry the reader admitted in
   its canonical form, and is copied. The report takes the roster as checked
-  because its exact and PF routes are admitted by the reader before assembly.
+  because its exact and PF routes are admitted by the reader before assembly. That
+  admission is a precondition the helper relies on, not a check it performs:
+  `diagnosticsForSections` is not a standalone validator. A route or caller
+  that cannot establish reader admission before assembly must use the
+  unchecked presentation or perform admission first. Only the exact and PF
+  report routes were qualified (review cert4 note 2).
   The panel copies it only when the current Rust reader admits the result
   itself, whole, on an ordinary route (the header dispatch's route and that
   route's full reader, `readerValidate`, without the model, whose population
