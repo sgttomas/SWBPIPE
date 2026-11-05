@@ -32,12 +32,6 @@ export const COMBINATION_GATE_REASONS: Readonly<Record<string, string>> = Object
   NONLINEAR_COMBINATION_REQUIRES_SOLVE: "Combination withheld: the model has nonlinear supports, so superposing case states is not a solved state.",
   CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE: "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once.",
   COMBINATION_MODULUS_BASIS_MIXED: "Combination withheld: its load cases were solved on different modulus bases.",
-  // RT-A5 `minuend_final` (DEL-05-02 `operating-case.md` §7.5): the held-status gates.
-  HELD_STATUS_SOURCE_UNAVAILABLE: "Combination withheld: the minuend case has no converged nonlinear support state to lend.",
-  HELD_STATUS_SOURCE_UNQUALIFIED: "Combination withheld: the minuend's converged state is not qualified (an inspectable unqualified gap state).",
-  HELD_STATUS_BINDING: "Combination withheld: the minuend's state does not bind to this solve, its own solved state, or the subtrahend's model context.",
-  HELD_STATUS_SLIDING_GROUND_DIFFERS: "Combination withheld: a support held sliding has a different ground offset in the two cases.",
-  HELD_STATUS_SOLVE_FAILED: "Combination withheld: the held solve was refused, blocked or singular.",
 });
 
 /** RT-A5 (§7.6): each admitted `minuend_final` combination's held standing, as its evidence states it. */
