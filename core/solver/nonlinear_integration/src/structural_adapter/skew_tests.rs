@@ -194,3 +194,41 @@ fn the_loop_never_carries_a_basis() {
         }
     }
 }
+
+/// F-2: the transformed system's gates detect a seeded formation defect. The
+/// assembled skewed spring block carries k·(1 + 2^-20) while the basis (the
+/// intended system the M03 contributions and K-D5 both read) records k. The
+/// entry builds both from one basis, so the first gate to see the defect is M03's
+/// contribution audit; either a refusal or a non-passing standing is detection,
+/// and a pass is not.
+#[test]
+fn a_seeded_block_perturbation_is_detected() {
+    let s = 1_048_576.0;
+    let mut model = cantilever(&[], &[[3.0, 4.0, 0.0]], &[([0.0, 3.0, 4.0], s)]);
+    let perturbed = SkewSpring {
+        support_id: "seeded".into(),
+        node: 1,
+        direction: SkewDirection::new([0.0, 3.0, 4.0]).unwrap(),
+        stiffness: s * (1.0 + 2.0_f64.powi(-20)),
+    };
+    let seeded = RestraintBasis::build(2, model.basis.axis_restrained(), model.basis.stops().to_vec(), vec![perturbed]).unwrap();
+    let blocks = vec![(1, seeded.spring_block(0))];
+    model.k = assemble_sparse_stiffness(2, &model.frames, &[], &[], &[], &SparseAssemblyOptions::new().with_node_blocks(blocks)).unwrap();
+    for mode in [LinearSolveMode::DenseScrutiny, LinearSolveMode::SparseInteractive] {
+        let evidence = SparseAssemblyEvidence::new_with_restraint_basis(model.k.pattern(), 2, &model.frames, &[], &[], &[], &model.basis).unwrap();
+        match evidence.solve_skew_with_formation_check(&model.k, &model.force, &model.prescribed, mode, &[]) {
+            Err(error) => assert!(matches!(error, StructuralError::NumericallyUnresolved { .. }), "{mode:?}: {error:?}"),
+            Ok(solution) => assert!(
+                solution.formation_check.is_some() || solution.report.quality != SolveQuality::Passed,
+                "{mode:?}: the seeded block passed: {:?}",
+                solution.report
+            ),
+        }
+    }
+    // The unperturbed model passes (the same stop and spring).
+    let clean = cantilever(&[], &[[3.0, 4.0, 0.0]], &[([0.0, 3.0, 4.0], s)]);
+    for mode in [LinearSolveMode::DenseScrutiny, LinearSolveMode::SparseInteractive] {
+        let solution = solve(&clean, mode);
+        assert!(solution.formation_check.is_none() && solution.report.quality == SolveQuality::Passed, "{mode:?}");
+    }
+}
