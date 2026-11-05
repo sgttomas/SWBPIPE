@@ -5,7 +5,8 @@ of `result-volume-design.md` (§2, §3.1, §3.2, §4, §4.1; on `claude/rt-perf-
 approved by SWBPIPE Agent 0 on 2026-10-31 on three conditions:
 
 - C1 changes no published byte and no engine code.
-- The app-process peak and the usable size are measured before the PR leaves draft.
+- The app-process peak and the usable size are measured before the PR leaves draft. *(Superseded
+  for integration by Agent 0 on 2026-11-05; see slice 7, "Integration decision".)*
 - C1 keeps today's v0.3 persistence, with exact-length refusals by name.
 
 **Basis:** main at `e1a483b6c`. This is a working plan. Each slice lands as a commit on
@@ -1229,6 +1230,24 @@ blocking findings at `55fd8f4fc`; the exact-head hosted run remains required, th
 separately authorized measurement. Review and checks establish no memory fit or acceptance.
 
 ### Slice 7: measurement and the PR
+
+**Integration decision (Agent 0, 2026-11-05).** This supersedes the earlier blanket hold of #59
+for complete usability and memory-fit evidence: the draft-until-measured condition above, and
+this slice's "leaves draft only after that window". #59 may integrate on its implementation,
+reviews and checks, with residuals U1, U3 and U4 explicit.
+- *Residuals.* U1 is SQLite/FTS5 search-row memory, with bounded evidence in #137; a separate
+  proposal stops maintaining the unconsumed sidecar. U3 is working memory and the page cache.
+  U4 is that there is no App-wide cap. DEL-04-07 `memory-budget-decision.md` records the
+  owner's 2026-10-24 acceptance of the SQLite and command-working-memory residuals.
+- *What the decision does not waive.* Implementation defects, connected-path evidence,
+  independent persistence and permission scrutiny, required exact-head checks, source and
+  binding identity, and the existing per-surface C2 limits all still apply.
+- *What it does not establish.* It is not a resource-safety, large-model, usable-size,
+  16 GiB or release qualification. The 500- and 2,000-node and publication performance
+  criteria stay unestablished, and the projections below stay out of user-facing text.
+- *Connected evidence.* One 82-node native pass at the `4427c3ec0` runtime
+  (`c1-slice7-run-proposal.md`). P1–P3 are covered by their tests, not by a connected run.
+- *History kept.* The paragraphs below keep their dated history as recorded.
 
 **Integrated-main executable prepared; no run authorized (2026-11-03).** After the
 route-header run, main `3983f51cf` was merged (`9df2d8abb`; reconciliation `4d0bb1858`,
