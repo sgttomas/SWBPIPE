@@ -652,7 +652,7 @@ FIXED_LOAD_COUNT_UNREPRESENTABLE = "COMBINATION_FIXED_LOAD_COUNT_UNREPRESENTABLE
 ROSTER_CODES = frozenset({
     HEADLINE, MAXIMUM, INTENSIFIED, "NONLINEAR_COMBINATION_REQUIRES_SOLVE", "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE",
     "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND", "CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED", "COMBINATION_MODULUS_BASIS_MIXED",
-    "COMBINATION_RESOLVED_STIFFNESS_MIXED", "COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE", "INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND",
+    "EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING", "EXPANSION_BASIS_MODULUS_MIXED", "COMBINATION_RESOLVED_STIFFNESS_MIXED", "COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE", "INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND",
     OPERAND_WITHHELD, FIXED_LOAD_COUNT_UNREPRESENTABLE, SOURCE_MISSING, ROW_WITHHELD, VECTOR_MISSING, VECTOR_INVALID, DIFFERENCE_BASIS,
     SUBTRAHEND_STATE, OPERAND_STATES, OPERAND_STANDING, RETAINED_SELECTED, RETAINED_UNAVAILABLE,
     "EXACT_COMBINATION_DERIVED_FROM_CASE_RESULTS", "EXACT_COMBINATION_SOURCE_RECOVERY_EXCLUDED"})
@@ -661,6 +661,9 @@ _PREVIEW_GATE_TEXT = {
     "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE": "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once.",
     "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND": "Combination withheld: a constant-effort support's force acts in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it once per term with its sign discarded.",
     "CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED": "Combination withheld: an operand's fixed-load count is undefined, so the number of times this combination counts a constant-effort support's force cannot be decided.",
+    # Operating-case slice 1b (PP `difference_basis`): G-1 and G-2.
+    "EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING": "Combination withheld: it declares an operating minus sustained difference, and the subtrahend case's primitive loads, as a multiset by content (category, target, direction, dimension, value and unit after normalization; ids ignored), are not contained in the minuend case's.",
+    "EXPANSION_BASIS_MODULUS_MIXED": "Combination withheld: it declares an operating minus sustained difference, and its two load cases were solved on different modulus bases.",
 }
 _MODULUS_GATE_TEXT = "Combination withheld: its load cases were solved on different modulus bases."
 
@@ -728,7 +731,8 @@ def _combination_population(source: Mapping[str, Any], model: Mapping[str, Any] 
 
 
 def _interim(model: Mapping[str, Any]) -> tuple[list[dict[str, Any]], list[Mapping[str, Any]]]:
-    """S1's interim withholding (PP `withhold_interim_combinations`) as the model states it (Rust `interim`)."""
+    """S1's interim withholding (PP `withhold_interim_combinations`) as the model states it (Rust `interim`); after
+    operating-case slice 1b only a `minuend_final` subtrahend is withheld here (G-1 and G-2 are gate notices)."""
     from .combination_graph import model_operands, model_order
     combinations = [c if isinstance(c, Mapping) else {} for c in _items(model.get("combinations"))]
     cases = {x for x in (_text(_get(c, "id")) for c in _items(model.get("load_cases"))) if x is not None}
@@ -737,9 +741,6 @@ def _interim(model: Mapping[str, Any]) -> tuple[list[dict[str, Any]], list[Mappi
     for c in combinations:
         cid = _text(c.get("id")) or ""
         reasons = []
-        if c.get("difference_basis") is not None:
-            reasons.append((DIFFERENCE_BASIS, f"combination `{cid}` declares a difference basis (operating minus sustained); its gates are not "
-                                              f"built yet, so the combination is withheld"))
         if c.get("subtrahend_support_state") == "minuend_final":
             reasons.append((SUBTRAHEND_STATE, f"combination `{cid}` solves its subtrahend at the minuend's final support status; that solve is "
                                               f"not built yet, so the combination is withheld"))

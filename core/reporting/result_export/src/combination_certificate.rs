@@ -698,7 +698,7 @@ const RETAINED_UNAVAILABLE_TEXT: &str = "Retained-precision recovery is unavaila
 const WITHHELD_REASONS: [&str; 3] = ["no algebra dimension", "load-case algebra refused", "source support row missing in an operand case"];
 /// Every code a roster entry carries (the certificate's own are `check`'s): a diagnostic with one of
 /// these under a combination ref and an id that names no entry is a renamed notice.
-const ROSTER_CODES: [&str; 25] = [
+const ROSTER_CODES: [&str; 27] = [
     HEADLINE,
     MAXIMUM,
     INTENSIFIED,
@@ -707,6 +707,9 @@ const ROSTER_CODES: [&str; 25] = [
     "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND",
     "CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED",
     "COMBINATION_MODULUS_BASIS_MIXED",
+    // Operating-case slice 1b: G-1 and G-2 of a declared difference basis.
+    crate::preview_difference_basis::SUSTAINED_NOT_IN_OPERATING,
+    crate::preview_difference_basis::MODULUS_MIXED,
     "COMBINATION_RESOLVED_STIFFNESS_MIXED",
     "COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE",
     "INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND",
@@ -736,6 +739,9 @@ fn preview_gate_message(code: &str) -> &'static str {
         "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE" => "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once.",
         "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND" => "Combination withheld: a constant-effort support's force acts in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it once per term with its sign discarded.",
         "CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED" => "Combination withheld: an operand's fixed-load count is undefined, so the number of times this combination counts a constant-effort support's force cannot be decided.",
+        // Operating-case slice 1b (PP `difference_basis`): G-1 and G-2.
+        crate::preview_difference_basis::SUSTAINED_NOT_IN_OPERATING => "Combination withheld: it declares an operating minus sustained difference, and the subtrahend case's primitive loads, as a multiset by content (category, target, direction, dimension, value and unit after normalization; ids ignored), are not contained in the minuend case's.",
+        crate::preview_difference_basis::MODULUS_MIXED => "Combination withheld: it declares an operating minus sustained difference, and its two load cases were solved on different modulus bases.",
         _ => "Combination withheld: its load cases were solved on different modulus bases.",
     }
 }
@@ -797,7 +803,9 @@ pub fn document_combination_identities(source: &Value) -> HashSet<String> {
 }
 
 /// S1's interim withholding (PP `document_members::withhold_interim_combinations`) as the model states
-/// it: the notices, and the model's combinations it leaves, in authored order.
+/// it: the notices, and the model's combinations it leaves, in authored order. As operating-case
+/// slice 1b leaves it, only a `minuend_final` subtrahend is withheld here (a declared difference
+/// basis is gated by G-1 and G-2 at the solve, read as a gate notice).
 fn interim<'m>(model: &'m Value) -> (Vec<Value>, Vec<&'m Value>) {
     use crate::combination_graph::{model_operands, model_order, Operand, OPERAND_WITHHELD};
     let all = items(&model["combinations"]);
@@ -807,9 +815,6 @@ fn interim<'m>(model: &'m Value) -> (Vec<Value>, Vec<&'m Value>) {
     for c in all {
         let id = c["id"].as_str().unwrap_or_default();
         let mut reasons: Vec<(&str, String)> = Vec::new();
-        if c.get("difference_basis").is_some_and(|b| !b.is_null()) {
-            reasons.push((DIFFERENCE_BASIS, format!("combination `{id}` declares a difference basis (operating minus sustained); its gates are not built yet, so the combination is withheld")));
-        }
         if c["subtrahend_support_state"] == "minuend_final" {
             reasons.push((SUBTRAHEND_STATE, format!("combination `{id}` solves its subtrahend at the minuend's final support status; that solve is not built yet, so the combination is withheld")));
         }
