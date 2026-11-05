@@ -3027,10 +3027,10 @@ impl ProductCapture {
         self.adapter.require()?;
         self.adapter.enter(AdapterEvent::LibraryBoundary, 1); // Closed evidence inspection; serde/number internals remain unqualified.
         let evidence = e.contract_evidence.as_ref().ok_or("preview evidence")?;
-        // Existing preview-physics reader's closed namespace; this private scope has no combinations.
+        // Existing preview-physics reader's closed namespace, with the §4 certificate's optional member (RT-A3 §4 D3, §8.53).
         self.adapter.closed_keys(
             evidence,
-            &["preview_cases", "combination_gates"],
+            &["preview_cases", "combination_gates", "combination_certificate"][..if evidence.get("combination_certificate").is_some() { 3 } else { 2 }],
             "evidence shape",
         )?;
         self.adapter.enter(AdapterEvent::ValidationEntry, 1);
