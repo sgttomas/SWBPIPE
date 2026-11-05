@@ -58,8 +58,10 @@ fn sources() -> Vec<(String, String)> {
         ids.sort();
         if let Some(id) = ids.first() {
             let mut claimed = document.clone();
+            // A claim under the document's own diagnostic source.
+            let source = document["diagnostics"][0]["source"].clone();
             claimed["diagnostics"].as_array_mut().unwrap().push(json!({"id": "diagnostic:review:claim", "code": "REVIEW_NOTE", "severity": "info",
-                "source": "core/product_physics", "affected_refs": [id], "message": format!("combination {id}: all derived rows are bounded by 1e-30.")}));
+                "source": source, "affected_refs": [id], "message": format!("combination {id}: all derived rows are bounded by 1e-30.")}));
             out.push((format!("{name}+claim"), serde_json::to_string(&claimed).unwrap()));
         }
     }
