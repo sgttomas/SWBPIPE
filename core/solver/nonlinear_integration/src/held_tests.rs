@@ -74,9 +74,12 @@ fn state(id: &str, s: ActiveSetState) -> SupportStateRecord {
     SupportStateRecord::new(id, s)
 }
 
-/// The corpus: one-way (engaging, releasing), explicit friction (sticking,
-/// sliding, from both seeds), derived-normal friction (k = 1 coupled, sliding
-/// both senses and sticking), and a strict-gap two-gap chain (qualified).
+/// The corpus: one-way of both senses and lift-off (engaging, releasing),
+/// explicit friction (sticking, sliding, from both seeds), derived-normal
+/// friction (k = 1 coupled, sliding both senses and sticking), one gap (closed,
+/// open), a strict-gap two-gap chain (qualified), and the committed mixed-gap
+/// inspection case (`lib.rs` `mixed_product_inspection_input`: converged, its
+/// qualification false, which H-10 compares as a value).
 fn corpus() -> Vec<(&'static str, NonlinearFrameSolveInput, Option<AssembledForce>)> {
     let mut out = Vec::new();
     for (name, load, seed) in [
@@ -92,6 +95,19 @@ fn corpus() -> Vec<(&'static str, NonlinearFrameSolveInput, Option<AssembledForc
             &[(7, load)],
         );
         out.push((name, input, Some(force)));
+    }
+    for (name, support, load, seed) in [
+        ("one-way negative pressed", NonlinearSupport::one_way("OW", 1, FrameDof::Uy, ActivationSense::NegativeReaction), 100.0, ActiveSetState::Inactive),
+        ("one-way negative lifted", NonlinearSupport::one_way("OW", 1, FrameDof::Uy, ActivationSense::NegativeReaction), -100.0, ActiveSetState::Active),
+        ("lift-off pressed", NonlinearSupport::lift_off("OW", 1, FrameDof::Uy, ActivationSense::PositiveReaction), -100.0, ActiveSetState::Inactive),
+        ("lift-off lifted", NonlinearSupport::lift_off("OW", 1, FrameDof::Uy, ActivationSense::PositiveReaction), 100.0, ActiveSetState::Active),
+        ("gap closed", NonlinearSupport::gap("OW", 1, FrameDof::Uy, 1.0e-5, GapDirection::NegativeDisplacement).unwrap(), -100.0, ActiveSetState::Inactive),
+        ("gap open", NonlinearSupport::gap("OW", 1, FrameDof::Uy, 1.0e-3, GapDirection::NegativeDisplacement).unwrap(), -100.0, ActiveSetState::Active),
+    ] {
+        let gap = matches!(support.behavior, NonlinearSupportBehavior::Gap { .. });
+        let (input, force) = cantilever(vec![support], vec![state("OW", seed)], Vec::new(), Vec::new(), &[], &[(7, load)]);
+        // A gap is never confirmed by the held path (§7.3 R1), so its confirmation is not compared.
+        out.push((name, input, (!gap).then_some(force)));
     }
     for (name, px, seed) in [
         ("explicit sliding from sticking", 40.0, ActiveSetState::Sticking),
@@ -125,7 +141,49 @@ fn corpus() -> Vec<(&'static str, NonlinearFrameSolveInput, Option<AssembledForc
     }
     // Two gaps in series, qualified by the exact gap proof (the strict-gap regression's values).
     out.push(("strict gap chain", gap_chain(), None));
+    out.push(("mixed unqualified gap inspection", mixed_gap_inspection(), None));
     out
+}
+
+/// `lib.rs` `mixed_product_inspection_input(4)`, restated: a 1 m pipe (OD 0.168 m, wall
+/// 0.007 m, E 200 GPa, G 77 GPa), root fixed; at the tip one-way UX, gap UY (0.05 mm) and
+/// explicit friction UZ (mu = 0.3, N = 10). It converges as an inspectable unqualified gap
+/// state: `product_selected_state_is_qualified` is false.
+fn mixed_gap_inspection() -> NonlinearFrameSolveInput {
+    let outer = 0.168_f64;
+    let inner = outer - 2.0 * 0.007;
+    let area = std::f64::consts::PI / 4.0 * (outer.powi(2) - inner.powi(2));
+    let inertia = std::f64::consts::PI / 64.0 * (outer.powi(4) - inner.powi(4));
+    let section = FrameSection::new(200e9, 77e9, area, inertia, inertia, 2.0 * inertia).unwrap();
+    let element = FrameElement::new(FrameNode::new(0, [0.0, 0.0, 0.0]).unwrap(), FrameNode::new(1, [1.0, 0.0, 0.0]).unwrap(), section, [0.0, 1.0, 0.0])
+        .unwrap();
+    let mut force = vec![0.0; 12];
+    force[6] = 100.0;
+    force[7] = 100000.0;
+    force[8] = 100.0;
+    NonlinearFrameSolveInput {
+        base_prescribed: Vec::new(),
+        ground_motion: Vec::new(),
+        node_count: 2,
+        elements: vec![element],
+        connectors: Vec::new(),
+        curved_bend_elements: Vec::new(),
+        force,
+        base_restrained_dofs: (0..6).collect(),
+        nonlinear_supports: vec![
+            NonlinearSupport::one_way("one-way", 1, FrameDof::Ux, ActivationSense::PositiveReaction),
+            NonlinearSupport::gap("gap", 1, FrameDof::Uy, 0.05 / 1000.0, GapDirection::PositiveDisplacement).unwrap(),
+            NonlinearSupport::friction("friction", 1, FrameDof::Uz, 0.3).unwrap(),
+        ],
+        initial_states: vec![
+            state("one-way", ActiveSetState::Active),
+            state("gap", ActiveSetState::Inactive),
+            state("friction", ActiveSetState::Sticking),
+        ],
+        friction_normal_reactions: vec![FrictionNormalReaction::new("friction", 10.0).unwrap()],
+        derived_friction_normal_reactions: Vec::new(),
+        convergence: ConvergenceControl::new("DEC-046-fixture-active-set-count-tightening", ConvergencePolicyStatus::Accepted, 0.0, 0.0, 4).unwrap(),
+    }
 }
 
 /// Two members along x, gaps at nodes 1 and 2 on UX closing in +, and a tip load
@@ -232,7 +290,7 @@ fn confirmation_outcome(confirmation: &Confirmation) -> String {
 
 #[test]
 fn h10_held_at_its_own_final_status_reproduces_the_loops_final_iterate() {
-    let mut compared = 0;
+    let (mut compared, mut unqualified) = (0, 0);
     for (name, input, force) in corpus() {
         for mode in MODES {
             let looped = solve_active_set_frame_with_mode_and_springs(&input, mode, &[]).unwrap();
@@ -240,6 +298,11 @@ fn h10_held_at_its_own_final_status_reproduces_the_loops_final_iterate() {
             let n = looped.iterations.len();
             let loop_last = looped.iterations.last().unwrap();
             let loop_qualified = product_selected_state_is_qualified(&input, &[], &looped).unwrap();
+            if name == "mixed unqualified gap inspection" {
+                assert!(!loop_qualified, "{name} {mode:?}: converged with qualification false");
+                assert!(product_unsupported_gap_state_is_inspectable(&input, &[], &looped).unwrap(), "{name} {mode:?}");
+                unqualified += 1;
+            }
             let loop_confirmation = force.as_ref().map(|force| {
                 confirmation::confirm_converged_state(&input, &[], &looped, force, &[], &[], mode).unwrap()
             });
@@ -296,6 +359,7 @@ fn h10_held_at_its_own_final_status_reproduces_the_loops_final_iterate() {
         }
     }
     assert_eq!(compared, corpus().len() * MODES.len() * 2);
+    assert!(unqualified > 0, "the mixed-gap inspection witness compares a false verdict");
 }
 
 #[test]
