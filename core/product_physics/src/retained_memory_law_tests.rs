@@ -1885,7 +1885,7 @@ pub(super) mod point_atoms {
     const fn max_usize(a: usize, b: usize) -> usize {
         if a > b { a } else { b }
     }
-    pub(crate) const ATOMS: usize = 30;
+    pub(crate) const ATOMS: usize = 31;
     pub(crate) const ATOM_NAMES: [&str; ATOMS] = [
         "Node(String,(String,CaseRows))",
         "Node(String,BTreeMap)",
@@ -1897,6 +1897,7 @@ pub(super) mod point_atoms {
         "s((String,&Value))",
         "s((String,&str,Operand))",
         "s((String,bool))",
+        "s((String,f64))",
         "s((usize,ActionScales))",
         "s(C3CaseKey)",
         "s(C3Derived)",
@@ -1919,6 +1920,7 @@ pub(super) mod point_atoms {
         "s(TermView)",
     ];
     pub(crate) const ATOM_BINDINGS: [Binding; ATOMS] = [
+        Binding::InBuild,
         Binding::InBuild,
         Binding::InBuild,
         Binding::InBuild,
@@ -1961,6 +1963,7 @@ pub(super) mod point_atoms {
         (size_of::<(String, &'static Value)>()) as u64, // s((String,&Value))
         (size_of::<(String, &'static str, crate::document_members::Operand)>()) as u64, // s((String,&str,Operand))
         (size_of::<(String, bool)>()) as u64, // s((String,bool))
+        (size_of::<(String, f64)>()) as u64, // s((String,f64))
         (size_of::<(usize, crate::formation_guard::ActionScales)>()) as u64, // s((usize,ActionScales))
         (5 * size_of::<&'static str>() + size_of::<Vec<usize>>()) as u64, // s(C3CaseKey) (RTA3C-PB/RD: a case-row index entry ((case, kind, entity, location, Option<&str> component), Vec<usize>))
         (size_of::<Value>() + size_of::<Vec<usize>>() + 2 * size_of::<f64>() + size_of::<&'static str>()) as u64, // s(C3Derived) (RTA3C-PB: the producer's private Derived (json, rows, bound, floor_scale, verdict))
@@ -1993,6 +1996,7 @@ pub(super) mod point_atoms {
         40,
         32,
         56,
+        32,
         32,
         24,
         104,
