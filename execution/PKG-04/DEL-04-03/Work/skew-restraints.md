@@ -932,7 +932,18 @@ write. Nothing in a shared file is written before agreement.
       remainder. By the triangle inequality, |Q e_v|_i ≤ Σ_j|q_ij|2^exp_j λ_σ ≤ 2^E_i λ_σ.
       `i32::MIN` requires exactly-zero lift values.
     - §10.4 D5C-1 uses the published u_p = fl(Qv), compared upward.
-    - Who signs F-2 as DEL-04-01's decider is with Agent 0.
+    - **F-2's decider is SWBPIPE Agent 0, as DEL-04-01's decision holder** (2026-11-04; an Agent
+      0 development decision, not the owner's personal acceptance).
+      - **Authorized boundary:** `formation_check.rs`, `certified_recovery.rs`, `rigid_body.rs`
+        and the new pinned `MemberBoundInputs.lift_radius`, as this reviewed design states.
+      - **Before merge:**
+        - RT-A3's technical review of the hunks;
+        - an independent Astra MEDIUM numerical proof;
+        - the actual D3 premises for frame, heap and source.
+      - **Not assumed valid:** no field value. The radius's units, provenance, range and
+        outward bound, and the old axis identity, are reviewed and tested.
+      - **Preserved:** the FK, K-D5 and mathematical claims, with no hidden new normalization or
+        parameter.
   - **F-3.** No new threshold.
   - **A-1.** The linear entry only.
     - `with_restraint_basis` is structurally unreachable from the loop: the nonlinear + skew
@@ -994,17 +1005,20 @@ write. Nothing in a shared file is written before agreement.
     well-defined. By §6.4 the token states only that the record is translational, and d̃ alone
     governs, so the solve is unchanged. A change to a rotational token makes `direction`
     inadmissible and is refused as in (a).
-  - **(c) Agent authorship.** `direction` is not a user-only modifier. RT-E1 recommends that the
-    catalog may write it (2026-11-04), with Agent 0 confirming:
-    - LIM-001 (O5) reserves to the person only k, SIFs, stiffness scaling and their source;
-    - a restraint direction is a stated geometric input, like node positions and restraint
-      DOFs;
-    - the catalog's `create_support` row does not inspect record members, so the applier's
-      refusals govern an agent proposal exactly as they govern the person.
-
-    The catalog's `create_support` guidance names `direction`, its admission scope and its
-    refusals in the next catalog revision (through Agent 0 and App v4). If Agent 0 rules it
-    user-only, that is the catalog's restriction, not the applier's.
+  - **(c) Agent authorship: Agent 0 decided (a), 2026-11-04.**
+    - A restraint direction is geometry, taken from the person's explicit input or authorized
+      geometric intent. The agent's catalog does not make it user-only.
+    - The applier is authoritative for S-K1's admission scope and refusals. Authored non-zero
+      vectors are preserved as given, with no silently inferred restraints, no normalization
+      and no default orientation.
+    - LIM-001 / O5 is unchanged: k, SIFs, stiffness, stiffness scaling and their source remain
+      the person's to enter.
+    - Catalog v4's free-JSON `after` does not admit every model member; the applier's checks
+      remain the authority.
+    - The next catalog revision Agent 0 assigns may add S-K1's implemented admission scope and
+      its named refusals to `create_support`'s guidance. That is a catalog-byte change, re-pinned
+      with Agent 0 and App v4. Until then the catalog is unchanged, and the admission above takes
+      effect only when S-K1 is implemented.
   - Editing or removing `direction` stays unsupported until the authoring lane designs it.
     The desktop Direction field is the authoring lane's, after S-K1.
 
