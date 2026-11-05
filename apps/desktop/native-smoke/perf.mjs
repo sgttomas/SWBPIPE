@@ -43,8 +43,10 @@
 // never distributed.
 //
 // Classes (a run can show several; `class` is the most severe): crash (which process),
-// half_written_save, misleading_message, hang (timeout), refused_with_message (quoted),
-// ok. A message is quoted verbatim; `needs_review` marks one a person should judge.
+// half_written_save, misleading_message, host_unobservable (C1: the host condition, a shown
+// page delivering frames, was not established or was lost; nothing was observable, so it is
+// no hang and no product finding, and it is not retried), hang (timeout),
+// refused_with_message (quoted), ok. A message is quoted verbatim; `needs_review` marks one a person should judge.
 import { execFile, fork, spawn, spawnSync } from "node:child_process";
 import { rm, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
@@ -66,7 +68,7 @@ const BINDING = "perf-binding.json";
 const INJECT_ENV = "SWBPIPE_NATIVE_SMOKE_INJECT_RESULT";
 // The directory the injected file must lie in (the hook refuses anything else).
 const INJECT_ROOT_ENV = "SWBPIPE_NATIVE_SMOKE_INJECT_ROOT";
-const SEVERITY = ["crash", "half_written_save", "misleading_message", "hang", "refused_with_message", "ok"];
+const SEVERITY = ["crash", "half_written_save", "misleading_message", "host_unobservable", "hang", "refused_with_message", "ok"];
 const GIB = 1024 ** 3;
 
 function killOwnRunnerGroup() {
@@ -426,10 +428,39 @@ export function validatePlan(plan) {
   return plan;
 }
 
+// A C1 run's model is a recorded reference rack: its (SHA-256, profile, nodes) is a line of the
+// generator's recorded hashes, `models_sha256.txt` (the scaling series) or `models_sha256_small.txt`
+// (the small connected validation's 82-node rack), each checked against `rack_model.py` by
+// `tests/test_performance_rack_model.py`. The launch then checks the file's bytes against it.
+const RACK_MANIFESTS = ["models_sha256.txt", "models_sha256_small.txt"].map((name) => path.join(project, "core", "solver", "performance_harness", "observations", "rack", name));
+export function rackManifestEntries(files = RACK_MANIFESTS) {
+  const entries = new Set();
+  for (const file of files) {
+    for (const line of readFileSync(file, "utf8").split("\n")) {
+      if (!line || line.startsWith("#")) continue;
+      const match = /^([a-f0-9]{64}) {2}([a-z-]+) {2}([1-9][0-9]*)$/u.exec(line);
+      if (!match) throw new Error(`${path.basename(file)}: malformed line ${JSON.stringify(line.slice(0, 120))}`);
+      entries.add(`${match[1]} ${match[2]} ${match[3]}`);
+    }
+  }
+  return entries;
+}
+export function requireRackBinding(plan, entries = null) {
+  if (!plan.c1_probes) return plan;
+  entries ??= rackManifestEntries();
+  for (const run of plan.runs) {
+    const name = /^([a-z-]+)-n([0-9]{4})\.json$/u.exec(run.model);
+    if (!name || Number(name[2]) !== run.nodes || !entries.has(`${run.model_sha256} ${name[1]} ${run.nodes}`)) {
+      throw new Error(`perf plan: C1 run ${run.id}'s model is not a recorded reference rack (observations/rack/models_sha256.txt or models_sha256_small.txt)`);
+    }
+  }
+  return plan;
+}
+
 export function loadPlan(file) {
   const plan = JSON.parse(readFileSync(file, "utf8"));
   if (plan.schema !== "swbpipe.desktop-perf-plan/v1") throw new Error(`${file}: not a desktop perf plan`);
-  return validatePlan(plan);
+  return requireRackBinding(validatePlan(plan));
 }
 
 export function selectRuns(plan, { subset, runs }) {
@@ -658,7 +689,13 @@ export function classify({ report, exit, timedOut, progress, memory, store, run,
     else add("crash", { process: "app", detail: `the app exited (${exit.status ?? exit.signal}) without a report; last progress: ${JSON.stringify(progress.at(-1) ?? null)}` });
   } else {
     const solve = report.solve;
-    if (!solve) add(report.error ? "refused_with_message" : "hang", { step: "open", message: report.error ?? null, needs_review: true });
+    // C1's host condition not established (or lost): the run is unobservable. Its solve, driver
+    // and probe outcomes are consequences, not findings; the store is still checked below.
+    const host = report.c1?.host;
+    const unobservable = run.c1_probes && host?.established === false;
+    if (unobservable) add("host_unobservable", { step: host.step ?? null, detail: `${host.detail ?? "host condition lost"}; solve started: ${host.solve_started === true}. The display must be awake, the session unlocked and the App window uncovered and visible, delivering frames, for the whole observation: unobservable, not evidence of a product hang; not retried.` });
+    if (unobservable) { /* no solve finding */ }
+    else if (!solve) add(report.error ? "refused_with_message" : "hang", { step: "open", message: report.error ?? null, needs_review: true });
     else if (solve.ended === "first_paint") {
       // Painted only within the gate (RT-U4 F1): the run's own first_paint mark, on the
       // timeline's clock, at most `paint_ms` after the driver sent Analyze > Run. A mark
@@ -677,11 +714,13 @@ export function classify({ report, exit, timedOut, progress, memory, store, run,
     const save = report.save_project;
     if (save?.timed_out) add("hang", { step: "save_project", detail: `last message: ${save.last_message}` });
     else if (save && save.message && !/^(Saved|Created)|SQLite project snapshot/.test(save.message)) add("refused_with_message", { step: "save_project", message: save.message, needs_review: true });
-    if (report.error && solve) add("refused_with_message", { step: "driver", message: report.error.split("\n")[0], needs_review: true });
-    if (run.c1_profile_readers && !report.c1?.reader_allocations) add("refused_with_message", { step: "reader_allocations", message: "Reader allocation evidence is incomplete.", needs_review: true });
+    if (report.error && solve && !unobservable) add("refused_with_message", { step: "driver", message: report.error.split("\n")[0], needs_review: true });
+    if (run.c1_probes && report.c1?.trace?.transport?.lost) add("refused_with_message", { step: "c1_observation", message: `The command observation lost Tauri's IPC transport: ${report.c1.trace.transport.events?.[0]?.reason ?? "unknown"}.`, needs_review: true });
+    if (unobservable) { /* the probes below could not be observed */ }
+    else if (run.c1_profile_readers && !report.c1?.reader_allocations) add("refused_with_message", { step: "reader_allocations", message: "Reader allocation evidence is incomplete.", needs_review: true });
     const omitted = [report.c1?.trace?.save?.result, report.c1?.trace?.restoredSave?.result].find(result => result?.outcome === "not_saved");
     if (omitted) add("refused_with_message", { step: "save_result", message: omitted.code ?? "The native save kept only the model.", needs_review: true });
-    if (run.c1_probes && report.c1?.completed !== true) add("refused_with_message", { step: "c1_probes", message: "The connected C1 usability probes did not complete.", needs_review: true });
+    if (run.c1_probes && !unobservable && report.c1?.completed !== true) add("refused_with_message", { step: "c1_probes", message: "The connected C1 usability probes did not complete.", needs_review: true });
     if (run.c1_probes && report.c1?.completed && report.c1.csv_file?.verified !== true) {
       if (report.c1.csv_file?.error) add("refused_with_message", { step: "csv_inspection", message: report.c1.csv_file.error, needs_review: true });
       else add("misleading_message", { step: "csv", detail: "CSV rows do not match the native query total." });
@@ -811,7 +850,7 @@ async function runOne(run, ctx) {
   record.model_sha256 = sha256File(modelPath);
   record.model_jcs_sha256 = `sha256:${createHash("sha256").update(canonical(document), "utf8").digest("hex")}`;
   if (run.c1_probes && (record.model_sha256 !== run.model_sha256 || !Array.isArray(document.nodes) || document.nodes.length !== run.nodes)) {
-    return { ...record, class: "refused_with_message", findings: [{ class: "refused_with_message", step: "fixture", message: "C1 fixture bytes/node count differ from the selected 500/1000-node binding; no App was launched.", needs_review: true }], kept: root };
+    return { ...record, class: "refused_with_message", findings: [{ class: "refused_with_message", step: "fixture", message: "C1 fixture bytes/node count differ from the selected 82/500/1000-node binding; no App was launched.", needs_review: true }], kept: root };
   }
   if (resultFile) record.injected_result = { file: path.basename(resultFile), bytes: statSync(resultFile).size };
   const timeoutMs = Math.min(run.timeout_s * 1000, ctx.remainingMs());
@@ -1061,6 +1100,7 @@ async function runPlan(options) {
     const record = await runOne(run, ctx);
     await commitRun(record, ctx);
     records.push(record);
+    // A run that is not ok (host_unobservable included) ends the window: nothing is retried.
     if (records.at(-1).class !== "ok") break;
   }
   const report = {

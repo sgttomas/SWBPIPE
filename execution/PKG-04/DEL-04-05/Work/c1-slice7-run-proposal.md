@@ -167,25 +167,51 @@ Traced from `result_committed` to the first page and its frames, without assumin
    (`run_semantics`, `result_detail.rs:1126–1161`) parses the whole held text once per call. Priced from this run's
    own phases on the same bytes (prescan 1.5–1.7 s, parse 1.7–2.2 s, the header route 0.37 s, drop
    0.6–1.2 s), the index is about 6–9 s and the semantics about 3–4 s: roughly 10–15 s, against
-   109.9 s left after the commit. This is an estimate from measured phases, not a timing of these
-   handlers. The run has no detail-command observation (point 7a), so whether the page was read is
-   not observed. No quadratic or whole-result render work is on the first-page path.
-6. **The deciding observation: the page was not shown.** From 0.77 s on, 53 of the 54 driver
-   heartbeats after 6 s land at x.616–x.618 s of the web clock: 1 s-aligned timers. That is WebKit's
-   hidden-page DOM timer alignment, which applies only to a page it does not consider visible. The
-   one exception, 191,058, is the first poll after the commit's long task (WebContent footprint
-   805 → 1,530 MiB at 189.6–190.7 s). The same signature is in every C1 500-node run: the A-only
-   log (52 of 53 at x.516) and the four earlier consoles (41–50 of 51–53). WebKit runs no
-   rendering update, so no animation frame, for a page that is not visible. `first_paint` is two
-   frames after the first page (`solveTimeline.ts:311–319`), so on this page it could not be
-   marked, whatever the first page did. The smoke build's `backgroundThrottling: "disabled"` maps
-   only to WKPreferences `inactiveSchedulingPolicy = none` (wry 0.55.1
-   `src/wkwebview/mod.rs:473–493`), a process-scheduling policy. It does not make an occluded,
-   asleep or locked window's page visible. `caffeinate -di` (`perf.mjs:834` at `fd03ffc23`) prevents idle sleep,
-   but it cannot unlock a screen or uncover a window. **Status:** "the page was hidden" is inferred
-   from the timer signature and WebKit's behaviour. `document.visibilityState` and frame delivery
-   were not recorded. The repaired driver records both and refuses to start a solve without them.
-7. **Two further harness defects, either of which would have failed the run after a paint:**
+   109.9 s left after the commit. **This cost is not observed:** it is an estimate from other
+   calls' measured phases, not a timing of these handlers. The run has no detail-command
+   observation (point 7a), so whether the first page was read, or completed, is not observed
+   either. No quadratic or whole-result render work is on the first-page path.
+6. **The suspected cause: a hidden or non-rendering page.** The driver's solve wait polls every
+   200 ms on nested timers and logs a heartbeat at each stage change or after 5 s. In the A+B packet
+   (its `progress`, identical to the wrapper log's `perf:` lines) there are **53** solve heartbeats
+   after 6 s of the web clock: **49** at x.616–x.618 s, or **52** at x.615–x.618 s. The remaining
+   one, 191,058 ms, is the first poll after the commit's long task (WebContent footprint
+   805 → 1,530 MiB at 189.6–190.7 s). That is the pattern of 1 s-aligned timers, which WebKit
+   applies to the DOM timers of a page it does not consider visible. The other five C1 500-node
+   packets, counted the same way (each packet's `progress`, identical to its console or wrapper
+   log; the band is the run's most common millisecond ±1 ms, then ±2 ms):
+
+   | Packet | After 6 s | ±1 ms | ±2 ms | Outside ±2 ms (ms) |
+   | --- | ---: | ---: | ---: | --- |
+   | A+B `n0500-c1-ab1` | 53 | 49 (x.616–x.618) | 52 (x.615–x.619) | 191,058 |
+   | A-only `n0500-c1-aonly1` | 52 | 48 (x.515–x.517) | 51 (x.514–x.518) | 239,775 |
+   | integrated main `n0500-c1-main1` | 50 | 45 (x.962–x.964) | 49 (x.961–x.965) | 67,015 |
+   | route header `n0500-route-header1` | 51 | 42 (x.273–x.275) | 43 (x.272–x.276) | 12,271; 97,050; 102,280; 149,338; 155,700; 160,719; 166,655; 172,279 |
+   | reader phases `n0500-reader-phases1` | 52 | 44 (x.334–x.336) | 45 (x.333–x.337) | 6,017; 11,117; 136,338; 200,490; 206,510; 211,958; 217,512 |
+   | repaired A500 `n0500-refresh1` | 52 | 39 (x.343–x.345) | 40 (x.342–x.346) | 6,085 to 46,890 (nine, about 5.1 s apart); 97,449; 102,549; 107,650 |
+
+   (This replaces the earlier counts here, "53 of the 54 … at x.616–x.618", "52 of 53 at x.516"
+   and "41–50 of 51–53", which were wrong.) In two packets the alignment starts late: the repaired
+   A500's first nine heartbeats after 6 s are not aligned, and the reader-phase run's first two.
+
+   **The coalescing is suggestive, not a direct measurement.** No run recorded
+   `document.visibilityState` or frame delivery, and timer alignment is an inference about WebKit's
+   scheduling, not an observation of the page. A window that was never shown, or was covered,
+   remains possible, as do a display asleep and a locked session. Lack of focus alone is no
+   proof of any of them. WebKit runs no rendering
+   update, so no animation frame, for a page that is not visible. `first_paint` is two frames
+   after the first page (`solveTimeline.ts:311–319`), so on such a page it could not be marked,
+   whatever the first page did. The smoke build's `backgroundThrottling: "disabled"` maps only to
+   WKPreferences `inactiveSchedulingPolicy = none` (wry 0.55.1 `src/wkwebview/mod.rs:473–493`), a
+   process-scheduling policy. It does not make an occluded, asleep or locked window's page visible.
+   `caffeinate -di` (`perf.mjs:834` at `fd03ffc23`) prevents idle sleep, but it cannot unlock a
+   screen or uncover a window. **Status:** a hidden or non-rendering page is a **suspicion**, not
+   an established cause. It stays one until an actual run journals the job, the page, frame
+   delivery and visibility, and the first-page handlers. The repaired driver records the page
+   state and frames and the five web phases, and it refuses to start or continue without the host
+   condition (below).
+7. **Two further harness defects, confirmed, and independent of the suspected visibility cause.
+   Either would have failed the run after a paint:**
    - (a) **The C1 command trace observed nothing in any run.** Tauri 2.11.1 defines
      `__TAURI_INTERNALS__.invoke` with `Object.defineProperty` (`scripts/core.js:81`), so it is not
      writable. The driver's `ipc.invoke = wrapped` was silently ignored, and `report.c1.trace.counts`
@@ -199,22 +225,28 @@ Traced from `result_committed` to the first page and its frames, without assumin
 8. **Excluded by source and evidence:** reader validation or registration (all calls `ok`,
    evidence complete); a refused page (`results_refusal` null); another job or handle (identity
    match, one solve); a reset solve (the summary is the dormant pre-run render).
+9. **No retroactive result.** Every earlier attempt stays failed or unproven as recorded. Nothing
+   in this diagnosis or its repair passes any of them, and none establishes a product defect; no
+   product repair is made.
 
 ### Repair (harness only; App runtime unchanged)
 
 - **`perf-driver.js`:**
   - **Page check before any solve.** A C1 run requires `document.visibilityState === "visible"`
-    and two animation frames within 2 s, before the model opens and again before Analyze > Run.
-    Otherwise it stops with "C1 host: the App's page is not shown (…)" and starts no solve.
+    and two animation frames within a 2,000 ms timer, before the model opens and again before
+    Analyze > Run. Otherwise it starts no solve. (The review repair below makes this the host
+    condition, held for the whole observation.)
   - **IPC check.** After the pool preflight, the run requires that its observation saw that call
-    ("C1 command observation saw no IPC").
+    ("C1 command observation saw no IPC"). (At 581d031a1 a counted request satisfied it; the review
+    repair requires a completed round trip.)
   - **Command observation on `window.fetch`.** Every invoke is one `fetch` of
     `ipc://localhost/<command>`; other requests pass through untouched.
     - A forbidden command is answered as Tauri answers a refusal (`Tauri-Response: error`), so the
       App's promise rejects and no transport fallback is taken.
     - Receipts are decoded from JSON or raw JSON bytes (at most 4 MiB). A CSV page's row header is
       read from a cancelled clone prefix of at most 64 KiB + 16 bytes. No row page, record or
-      result body is retained.
+      result body is retained. (At 581d031a1 these bounds were not enforced as stated; see the
+      review repair.)
   - **Page record during the solve** (`report.solve.page`): visibility at the run and at the end,
     hidden polls, frame probes and acknowledgements (one per heartbeat), and when the native table's
     first page was first seen settled with rows, or refused. Heartbeats carry the same fields.
@@ -266,6 +298,103 @@ Traced from `result_committed` to the first page and its frames, without assumin
   With the product unchanged, these pass before and after the repair.
 - Other `native-smoke` node tests: 40 passed. `tsc --noEmit`: clean. Deliverables check: exit 0.
 
+### Review repair: the IPC fallback, bounded reads and the host condition (harness, tests, documents)
+
+A focused independent review of `581d031a1` blocked it on two findings; the third is a correction
+of this record (point 6 above). Agent 0's decisions of 2026-11-05 apply: the 82-node small plan is
+chosen (not 250), the host condition is required, and no product repair is made until a product
+defect is established. App source and every build-read file are unchanged.
+
+1. **The IPC fallback escaped observation (blocking).** Tauri 2.11.1's `ipc-protocol.js` switches
+   for good to wry's `window.ipc.postMessage` after any failure of the `ipc://` fetch or of reading
+   its reply. The wrapper counted a request before it succeeded and did not see a rejection, so a
+   pool status read that fell back passed `requireObservedIpc()`, and a later forbidden command
+   reached postMessage unrecorded. wry defines `window.ipc` frozen and non-writable, so the
+   fallback cannot be wrapped there. Now (`perf-driver.js`, `beginC1Trace`):
+   - every sign of the switch is recorded as `transport.lost` (scalars, at most 16 events): the
+     fetch rejected, the App's read of the reply failed (the reply's `json`/`text`/`arrayBuffer`,
+     observed without changing what they return), Tauri's own warning before it falls back, and a
+     command sent over postMessage;
+   - the loss is final for the page. The run stops at its next wait ("C1 command observation lost
+     Tauri's IPC: …"), the final evidence check fails, and the classifier lists `c1_observation`;
+   - where WebKit's message-handler `postMessage` (a prototype operation) can be wrapped
+     (`transport.fallback_observer`), fallback commands are counted, and a forbidden one is
+     refused through Tauri's error callback (`runCallback(error, …)`, as Rust replies) instead of
+     being sent. Where it cannot be wrapped (`unavailable`), the switch still stops the run;
+   - `requireObservedIpc()` requires the preflight's pool status to be a **completed** round trip:
+     fetched through the wrapper and read back by the App, with the transport not lost.
+
+   Whether the real WebKit handler's `postMessage` is replaceable is not observed (no App run):
+   the evidence does not depend on it.
+2. **Receipt reads did not enforce the bound (blocking).** Now every read is a bounded stream that
+   is cancelled at its bound. Each chunk is checked before any of it is kept: a JSON or raw receipt
+   (4 MiB), an error reply (a 2,048 B prefix, the first 512 characters kept) and a row header (16 B
+   and at most 64 KiB, copied into a buffer of exactly that size, never a whole chunk).
+   `reply_bytes_max` reports the largest copy held.
+3. **The host condition** (Agent 0): the display awake, the session unlocked, and the App window
+   uncovered and visible, delivering frames, for the whole observation. The driver only checks it.
+   It unlocks nothing, asks for no credential or permission, changes no TCC or System Settings
+   state, does not raise any window and never ends the owner's App. A failed two-frame check, or a
+   later loss of visibility (a `visibilitychange` event, or a hidden page at any solve poll), stops
+   the run at its next wait as **`host_unobservable`**. The message says the condition was not
+   established, that the run is unobservable, and that this is no evidence of a product hang. A
+   running solve is cancelled, and nothing is retried (the runner ends the window at its first
+   non-ok run). `report.c1.host` records the step, the detail and whether a solve had started. The
+   classifier ranks `host_unobservable` above `hang` and suppresses the solve, driver and probe
+   findings that follow from it. Store integrity is still judged.
+   - **The check's time bound.** Each page check waits for two frames on a 2,000 ms `setTimeout`.
+     That is a scheduled JS timer: it fires no earlier than 2,000 ms, but WebKit may defer it (it
+     aligns a hidden page's timers to 1 s, and a busy or suspended WebContent runs none), so it is
+     no wall-clock guarantee. The probe records what the wait took (`elapsed_ms`). The hard bound
+     is outside the webview: the runner kills the App at the run's `timeout_s` (720 s for the
+     small plan), within the window's 840 s budget.
+4. **The small plan's model binding.** `models_sha256.txt` is unchanged. A separate manifest,
+   `observations/rack/models_sha256_small.txt`, in the same format, records the 82-node rack.
+   `tests/test_performance_rack_model.py` checks it against the generator, the same way as the
+   existing manifest, and regenerates the bytes with the command it names. `perf.mjs` `loadPlan`
+   now refuses any C1 plan whose model (SHA-256, profile, nodes) is in neither manifest.
+5. **Unchanged:** `first_paint`'s meaning, the 300,000 ms deadline, every compulsory gate, the
+   journal's five scalar phases (at most 16 calls each) and its fixed 256-entry cap, and every App
+   source and build-read file.
+
+**Tests** (`perf.test.mjs`, **78 passed**; against the harness of `581d031a1` (its `perf-driver.js` and `perf.mjs`), 19 fail):
+- **Tauri's actual IPC.** `native-smoke/test-fixtures/tauri-2.11.1/` holds tauri 2.11.1's own
+  `scripts/` (`core.js`, `ipc.js`, `ipc-protocol.js`, `pattern.js`, `process-ipc-message-fn.js`).
+  They are copied from the crate that `Cargo.lock` resolves (checksum
+  `b93bd86d…1405`; `ipc-protocol.js` SHA-256 `68ae6906…7072`). A test checks the hashes and the
+  lockfile, and checks against the cargo registry's source where present. The page runs them in
+  Tauri's order with wry 0.55.1's frozen `window.ipc`. The tests cover:
+  - a healthy round trip;
+  - a fallback during the preflight: the fetch rejected, and the reply body unreadable (the
+    command then runs twice, as Tauri re-sends it);
+  - the whole driver stopping on a preflight fallback;
+  - a fallback later in the run (the next wait stops and the C1 evidence fails);
+  - a forbidden command over the fallback (refused, never sent);
+  - an unobservable fallback.
+
+  On `581d031a1`, the fallback cases pass `requireObservedIpc()`, and the forbidden command
+  reaches the native side.
+- **Bounded reads:**
+  - an oversized JSON receipt: accepted on `581d031a1`;
+  - an oversized raw receipt and an oversized error reply: `581d031a1` reads all 32 MiB of each,
+    the repair stops within its bound plus a few 64 KiB chunks;
+  - one oversized chunk: a JSON receipt accepted on `581d031a1`; the row header now copies 16 B
+    plus the header.
+- **Host condition:**
+  - the two refusals before the model opens, now classified `host_unobservable`;
+  - a page hidden after the checks: stopped by the next poll;
+  - the A+B state: it now stops at the first solve poll, not at the gate;
+  - a page hidden mid-solve: stopped within two 200 ms polls;
+  - the classifier: unobservable, not a hang, the store still judged.
+- **The small plan's manifest binding**, and its refusal of an unrecorded model.
+- **The other checks:**
+  - `nativeSolveFirstPaint.session.test.tsx`: 21 passed, with no App source change. With the
+    solve-timeline and `rackModelOpen` tests, 57 passed in 6 files.
+  - All `native-smoke` node tests: 118 passed.
+  - `tests/test_performance_rack_model.py`: 38 passed. The 5 tests that need the product runner
+    were not run.
+  - `tsc --noEmit`: clean. Deliverables check: exit 0, no errors.
+
 ### Small connected validation (prepared offline; not run, nothing granted)
 
 Before any further 500-node proposal, the complete connected path on the smallest maintained
@@ -273,17 +402,25 @@ model:
 - **Model.** The 82-node `linear-ex` rack of `perf-plan.json`'s functional subset, regenerated
   byte for byte by `rack_model.py --profile linear-ex --nodes 82`: 287,470 B, SHA-256
   `a3ca6fbc7412966304fdde46322fa4af6d93c462cc60341658fac7a188cf4ac0`, checked by the plan test. It
-  is not in `models_sha256.txt`, whose smallest entry is 250 nodes (`7ad2332f…a68d`). Choosing 250
-  instead is Agent 0's decision.
+  is not in `models_sha256.txt`, whose smallest entry is 250 nodes (`7ad2332f…a68d`). Agent 0 chose
+  82, not 250 (2026-11-05). It is recorded in the separate `models_sha256_small.txt`, which
+  `perf.mjs` requires (review repair, point 4).
 - **App.** The existing binary `app-c1-main-4427c3ec0` (`82e4b961…19a4`) is reused: this repair
   changes no App runtime path (harness files under `apps/desktop/native-smoke/`, one test file,
-  this document). The driver is read from its file at launch, so its new identity is bound by the
+  this document). The review repair adds only harness, test, fixture and document paths. None of
+  them is in the build's read list (`c1-main-4427c3ec0-preparation.json`
+  `runtime_equivalence.build_read_files_sha256`), and every tracked file on that list hashes as
+  recorded at the new head. Reuse rests on that check. The driver is read from its file at launch, so its new identity is bound by the
   run record's `harness.files_sha256`, not by the binary. The new non-runtime addendum and the
   harness, plan and model identities are prepared in new kit files, and the earlier kit is
   untouched.
-- **Host precondition.** The display must be awake, the session unlocked and the App window
-  uncovered for the whole run. Otherwise the driver stops within about 2 s of the shell, with no
-  solve. This is a host decision outside the harness.
+- **Host condition (required, Agent 0).** The display must be awake, the session unlocked and the
+  App window uncovered and visible, delivering frames, for the whole observation. The harness
+  checks it and changes nothing to obtain it. If it is not established, the driver stops after
+  its first two-frame check: a 2,000 ms scheduled timer, not a wall-clock bound; the runner's
+  720 s App deadline is. No solve is started, and the run is `host_unobservable`. A later loss
+  stops the run at its next wait, with the same class: unobservable, not a product hang, not
+  retried.
 - **What a pass would show:** once, on this host, at 82 nodes, the whole path. That is the first
   page and paint, `table_ready`, navigation, the streamed CSV, the reader profile, Record Run,
   Save, reopen, re-save, the recorded check and release, through persistence. It is no 500-node,

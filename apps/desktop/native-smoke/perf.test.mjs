@@ -324,6 +324,17 @@ test("the small C1 plan binds the generator's 82-node rack and the 500-node gate
   const { createHash }=await import("node:crypto");
   assert.equal(createHash("sha256").update(bytes).digest("hex"),small.runs[0].model_sha256);
   assert.deepEqual(selectRuns(small,{subset:"window"}).map(run=>run.id),["native-linear-ex-n0082"]);
+  // Bound to the small rack manifest (checked against the generator by tests/test_performance_rack_model.py),
+  // which perf.mjs requires of every C1 plan's model, as models_sha256.txt for the 500/1000-node plan.
+  const smallLedger=readFileSync(new URL("../../../core/solver/performance_harness/observations/rack/models_sha256_small.txt",import.meta.url),"utf8");
+  assert.match(smallLedger,new RegExp(`^${small.runs[0].model_sha256}  linear-ex  82$`,"m"));
+  const { requireRackBinding } = await import("./perf.mjs");
+  for (const bad of [{ model_sha256: "0".repeat(64) }, { model: "linear-ex-n0250.json" }, { model: "nonlinear-ex-n0082.json" }]) {
+    const unbound = JSON.parse(JSON.stringify(small));
+    Object.assign(unbound.runs[0], bad);
+    assert.throws(() => requireRackBinding(unbound), /not a recorded reference rack/, JSON.stringify(bad));
+  }
+  requireRackBinding(c1);
   small.runs[0].nodes=250;
   assert.throws(()=>validatePlan(small),/no size escalation/);
 });
@@ -404,6 +415,25 @@ test("a reported save the store does not hold is misleading; a short or unchecke
   assert.equal(classify(base({ store: { quick_check: ["ok"], files: [{ name: "x.sqlite3-journal", bytes: 512 }], projects: [{ project_id: "p", result_type: "text", result_chars: 1000 }] } })).class, "half_written_save");
 });
 
+test("a C1 run whose page was hidden during the solve is host_unobservable, not a hang, and its store is still checked", () => {
+  const run = { c1_probes: true, c1_profile_readers: true, paint_ms: 300000, timeout_s: 720, project_id: "project:invented" };
+  const report = { error: "C1 host condition not established (during the solve: the page was visibilityState=hidden at a poll). …",
+    solve: { ended: "host_unobservable", timeline: { marks: [{ stage: "result_committed", at_ms: 190000 }] }, gate: { started_at_ms: 455 }, shown: {} },
+    c1: { completed: false, host: { established: false, step: "during the solve", detail: "the page was visibilityState=hidden at a poll", solve_started: true } } };
+  const base = { report, exit: { status: 0, signal: null, ended_ms: null }, timedOut: false, progress: [], memory: { pids: {} }, run };
+  const verdict = classify({ ...base, store: null });
+  assert.equal(verdict.class, "host_unobservable");
+  assert.deepEqual(verdict.findings.map((finding) => finding.class), ["host_unobservable"]);
+  assert.match(verdict.findings[0].detail, /^the page was visibilityState=hidden at a poll; solve started: true\. .*unobservable, not evidence of a product hang; not retried\.$/);
+  // A product defect the store shows still outranks it.
+  const torn = classify({ ...base, store: { quick_check: ["page 3 is never used"], files: [], projects: [] } });
+  assert.equal(torn.class, "half_written_save");
+  assert.ok(torn.findings.some((finding) => finding.class === "host_unobservable"));
+  // Without the host record, the same timeout is the gate's hang (the classifier's meaning is unchanged).
+  const hung = classify({ ...base, store: null, report: { ...report, solve: { ...report.solve, ended: "timeout" }, c1: { completed: false } } });
+  assert.equal(hung.class, "hang");
+});
+
 test("a refused Record Run or Save Project is quoted", () => {
   const result = classify(base({ report: { solve: painted(), record_run: { attempted: true, message: "Not recorded: RESOURCE_UNAVAILABLE" }, save_project: { message: "Save failed: string or blob too big" } } }));
   assert.equal(result.class, "refused_with_message");
@@ -469,6 +499,8 @@ async function driverDom(t, html, invoke, overrides = {}) {
   const vm = await import("node:vm");
   const dom = new JSDOM(html);
   t.after(() => dom.window.close());
+  // A shown page (jsdom's own default is "prerender"); a test of another state sets its own.
+  setVisibility(dom.window.document, "visible");
   const hooks = {};
   tauriIpc(dom.window, invoke);
   const context = { window: dom.window, document: dom.window.document, navigator: dom.window.navigator, Response, Headers,
@@ -513,6 +545,306 @@ test("C1 command observation retains only headers/receipts and blocks full-copy 
   await assert.rejects(ui.call("read_preview_mechanics_job_rows_all",{}),/unexpected whole-value/);
   assert.equal(sent,3);
   assert.equal(trace.data.violations[0],"read_preview_mechanics_job_rows_all");
+  trace.restore();
+});
+
+// ------------------------------------------------- F1: Tauri 2.11.1's actual IPC and its fallback
+// The fixture is tauri 2.11.1's own `scripts/` (test-fixtures/tauri-2.11.1/README.md).
+const TAURI_FIXTURE = new URL("./test-fixtures/tauri-2.11.1/", import.meta.url);
+const TAURI_SCRIPTS = {
+  "core.js": "71056442a732cca1f03572ccae96d68e16104c3a591c64de9618cd304e063070",
+  "ipc-protocol.js": "68ae690606006f733bde75dd8bb6748464954a22c7e83914a93b1abc221d7072",
+  "ipc.js": "3e3766fc90efa68003096cbf0a07c6a00cb31c5756d55b5a68ebbfd2930c4865",
+  "pattern.js": "149570459687f1636c02e41ede8b40efe52378965eeddb6dbfebc0c525a3551b",
+  "process-ipc-message-fn.js": "d51917f89e4d3d318d63f1f4f5a7ac7ea1399a5b85c81a840c4d606597f29132"
+};
+// Values from the page's realm, compared by value.
+const plain = (value) => JSON.parse(JSON.stringify(value));
+const tauriScript = (name) => readFileSync(new URL(`scripts/${name}`, TAURI_FIXTURE), "utf8");
+// wry 0.55.1 `src/wkwebview/mod.rs:638–640`, verbatim: the fallback transport, defined frozen.
+const WRY_IPC = `Object.defineProperty(window, 'ipc', {
+  value: Object.freeze({postMessage: function(s) {window.webkit.messageHandlers.ipc.postMessage(s);}})
+});`;
+const POOL = () => ({ headroom: { pressure: "normal", available_bytes: 30 * 1024 ** 3 }, invocation_budget_bytes: 12 * 1024 ** 3, retained_results: 0, running_workers: 0, queued_jobs: 0, running_jobs: 0, webview_custody_results: 0, reserved_bytes: 0 });
+
+test("the Tauri IPC fixture is tauri 2.11.1's own scripts, the version the App's lockfile resolves", async () => {
+  const { createHash } = await import("node:crypto");
+  const { readdirSync } = await import("node:fs");
+  const lock = readFileSync(new URL("../src-tauri/Cargo.lock", import.meta.url), "utf8");
+  assert.match(lock, /\nname = "tauri"\nversion = "2\.11\.1"\nsource = "registry\+https:\/\/github\.com\/rust-lang\/crates\.io-index"\nchecksum = "b93bd86d231f0a8138f11a02a584769fe4b703dc36ae133d783228dbc4801405"\n/);
+  assert.match(lock, /\nname = "wry"\nversion = "0\.55\.1"\n/);
+  for (const [name, digest] of Object.entries(TAURI_SCRIPTS)) assert.equal(createHash("sha256").update(readFileSync(new URL(`scripts/${name}`, TAURI_FIXTURE))).digest("hex"), digest, name);
+  // Where the cargo registry holds the crates' source (a host that built the App), the copies are its bytes.
+  const registry = path.join(process.env.CARGO_HOME ?? path.join(os.homedir(), ".cargo"), "registry", "src");
+  for (const index of existsSync(registry) ? readdirSync(registry) : []) {
+    const scripts = path.join(registry, index, "tauri-2.11.1", "scripts");
+    if (existsSync(scripts)) for (const name of Object.keys(TAURI_SCRIPTS)) assert.equal(readFileSync(path.join(scripts, name), "utf8"), tauriScript(name), name);
+    const wry = path.join(registry, index, "wry-0.55.1", "src", "wkwebview", "mod.rs");
+    if (existsSync(wry)) assert.ok(readFileSync(wry, "utf8").includes(WRY_IPC), "wry 0.55.1 defines window.ipc as quoted");
+  }
+});
+
+/** The App's page as tauri 2.11.1 and wry 0.55.1 set it up on macOS, with the fixture's actual
+ * scripts in their order (tauri `src/manager/webview.rs:166–182`, `scripts/init.js`): wry's frozen
+ * `window.ipc`, the internals object, `ipc-protocol.js`, `pattern.js` (brownfield), `ipc.js`,
+ * `core.js`. `native(command, args)` answers as the Rust command would over both transports: the
+ * `ipc://` custom protocol (`fetch`), and WebKit's message handler (postMessage), answered as Rust
+ * answers it (`runCallback(id, value)`, `src/ipc/format_callback.rs:103`). `fault(command)` makes a
+ * command's fetch fail: "reject" (the request fails) or "body" (its reply body errors when read).
+ * The WebKit handler's `postMessage` is a prototype method (a WebIDL operation), replaceable unless
+ * `handlerReplaceable` is false. Without `run`, the driver hands its steps to the test. */
+async function tauriPage(t, native, { fault = () => null, handlerReplaceable = true, run = false, html = "" } = {}) {
+  const { JSDOM } = await import("jsdom");
+  const dom = new JSDOM(`<!doctype html><body>${html}</body>`, { runScripts: "outside-only" });
+  t.after(() => dom.window.close());
+  const w = dom.window;
+  setVisibility(w.document, "visible");
+  Object.assign(w, { Headers, Response, ReadableStream, TextEncoder, TextDecoder, CSS: { escape: (value) => String(value) } });
+  const sent = { fetch: [], post: [], native: [], warnings: [] };
+  w.console.warn = (...args) => { sent.warnings.push(String(args[0])); };
+  const answer = async (command, args) => { sent.native.push(command); return native(command, args); };
+  w.fetch = async (url, init) => {
+    const command = decodeURIComponent(String(url).slice("ipc://localhost/".length));
+    const kind = fault(command);
+    if (kind === "reject") throw new TypeError("Load failed");
+    sent.fetch.push(command);
+    let value;
+    try { value = await answer(command, typeof init.body === "string" ? JSON.parse(init.body) : init.body); }
+    catch (error) { return new Response(JSON.stringify(String(error?.message ?? error)), { headers: { "Tauri-Response": "error", "Content-Type": "application/json" } }); }
+    if (kind === "body") return new Response(new ReadableStream({ pull(controller) { controller.error(new TypeError("the reply body failed")); } }), { headers: { "Tauri-Response": "ok", "Content-Type": "application/json" } });
+    return new Response(JSON.stringify(value ?? null), { headers: { "Tauri-Response": "ok", "Content-Type": "application/json" } });
+  };
+  class UserMessageHandler {
+    postMessage(message) {
+      const request = JSON.parse(message);
+      sent.post.push(request.cmd);
+      setTimeout(async () => {
+        try { w.__TAURI_INTERNALS__.runCallback(request.callback, await answer(request.cmd, request.payload)); }
+        catch (error) { w.__TAURI_INTERNALS__.runCallback(request.error, String(error?.message ?? error)); }
+      }, 0);
+    }
+  }
+  if (!handlerReplaceable) Object.defineProperty(UserMessageHandler.prototype, "postMessage", { writable: false, configurable: false });
+  w.webkit = { messageHandlers: { ipc: new UserMessageHandler() } };
+  const template = (source, values) => source.replace(/__(TEMPLATE|RAW)_([a-z_]+)__/gu, (_, kind, name) => {
+    assert.ok(name in values, name);
+    return kind === "RAW" ? values[name] : JSON.stringify(values[name]);
+  });
+  w.eval(WRY_IPC);
+  w.eval(`Object.defineProperty(window, 'isTauri', { value: true });
+    if (!window.__TAURI_INTERNALS__) { Object.defineProperty(window, '__TAURI_INTERNALS__', { value: { plugins: {} } }) }`);
+  w.eval(template(tauriScript("ipc-protocol.js"), { invoke_key: "invented-invoke-key", process_ipc_message_fn: tauriScript("process-ipc-message-fn.js"), os_name: "macos", fetch_channel_data_command: "plugin:__TAURI_CHANNEL__|fetch" }));
+  w.eval(template(tauriScript("pattern.js"), { pattern: { pattern: "brownfield" } }));
+  w.eval(template(tauriScript("ipc.js"), { isolation_origin: "" }));
+  w.eval(template(tauriScript("core.js"), { os_name: "macos", protocol_scheme: "https" }));
+  assert.equal(Object.getOwnPropertyDescriptor(w.__TAURI_INTERNALS__, "invoke").writable, false);
+  const hooks = {};
+  if (!run) w.__SWBPIPE_PERF_DRIVER_TEST__ = hooks;
+  w.eval(readFileSync(new URL("./perf-driver.js", import.meta.url), "utf8"));
+  return { w, hooks, sent, invoke: (command, args) => w.__TAURI_INTERNALS__.invoke(command, args) };
+}
+const poolNative = async (command) => (command === "get_memory_pool_status" ? POOL() : command === "lookup_preview_mechanics_job_rows" ? { rows: [] } : command === "take_preview_mechanics_job_result" ? { whole: "result" } : null);
+const LOST = "C1 command observation lost Tauri's IPC";
+// An error thrown in the page's realm, matched on its message.
+const messageMatches = (pattern) => (error) => { assert.match(String(error?.message), pattern); return true; };
+
+test("F1: on Tauri's actual IPC the preflight's pool status is one observed fetch round trip", async (t) => {
+  const page = await tauriPage(t, poolNative);
+  const trace = page.hooks.beginC1Trace();
+  await page.hooks.preflight({});
+  page.hooks.requireObservedIpc(trace);
+  assert.deepEqual(plain(trace.data.completed), { get_memory_pool_status: 1 });
+  assert.deepEqual(page.sent.post, []);
+  assert.equal(trace.data.transport.lost, false);
+  assert.equal(trace.data.transport.fallback_observer, "webkit.messageHandlers.ipc");
+  trace.restore();
+});
+
+test("F1: a preflight fetch that fails falls back to postMessage and is no observed round trip", async (t) => {
+  const page = await tauriPage(t, poolNative, { fault: (command) => (command === "get_memory_pool_status" ? "reject" : null) });
+  const trace = page.hooks.beginC1Trace();
+  const report = {};
+  await page.hooks.preflight(report); // Tauri's fallback answers it
+  assert.equal(report.preflight.retained_results, 0);
+  assert.throws(() => page.hooks.requireObservedIpc(trace), messageMatches(new RegExp(`^${LOST}: an IPC fetch was rejected \\(get_memory_pool_status\\)\\. Tauri now sends every command over postMessage`)));
+  assert.deepEqual(page.sent.post, ["get_memory_pool_status"]);
+  assert.match(page.sent.warnings[0], /^IPC custom protocol failed, Tauri will now use the postMessage interface instead/);
+  assert.deepEqual(plain(trace.data.transport.events.map(({ reason, command }) => [reason, command])), [
+    ["an IPC fetch was rejected", "get_memory_pool_status"],
+    ["Tauri reported its IPC custom protocol failed and fell back to postMessage", null],
+    ["an IPC command was sent over postMessage", "get_memory_pool_status"]]);
+  assert.equal(trace.data.completed.get_memory_pool_status, undefined);
+  trace.restore();
+});
+
+test("F1: a preflight reply whose body cannot be read falls back to postMessage and is no observed round trip", async (t) => {
+  const page = await tauriPage(t, poolNative, { fault: (command) => (command === "get_memory_pool_status" ? "body" : null) });
+  const trace = page.hooks.beginC1Trace();
+  await page.hooks.preflight({});
+  assert.throws(() => page.hooks.requireObservedIpc(trace), messageMatches(new RegExp(`^${LOST}: the App's read of an IPC reply failed \\(get_memory_pool_status\\)`)));
+  // Tauri sends the command again over postMessage: the native side ran it twice.
+  assert.deepEqual(page.sent.native, ["get_memory_pool_status", "get_memory_pool_status"]);
+  assert.deepEqual(page.sent.post, ["get_memory_pool_status"]);
+  assert.equal(trace.data.completed.get_memory_pool_status, undefined);
+  trace.restore();
+});
+
+test("F1: the whole driver on a preflight fallback stops before any page check or solve", async (t) => {
+  let finished;
+  const done = new Promise((resolve) => { finished = resolve; });
+  const sentMenus = [];
+  let report = null;
+  const page = await tauriPage(t, async (command, args) => {
+    if (command === "native_smoke_plan") return { run_id: "c1-fallback", c1_probes: true, c1_reader_diagnostics: true, model_path: "/invented/rack.json", project_id: "project:invented", model_jcs_sha256: "sha256:invented", timeouts: { start_ms: 1000, open_ms: 1000, paint_ms: 1000, interaction_ms: 1000, csv_ms: 1000, record_ms: 1000, save_ms: 1000 } };
+    if (command === "native_smoke_menu") sentMenus.push(args.commandId);
+    if (command === "native_smoke_finish") { report = args.report; finished(); }
+    return poolNative(command);
+  }, { run: true, html: HIDDEN_SHELL, fault: (command) => (command === "get_memory_pool_status" ? "reject" : null) });
+  await Promise.race([done, new Promise((_, reject) => setTimeout(() => reject(new Error("driver did not finish")), 5000))]);
+  assert.match(report.error, new RegExp(`^${LOST}: an IPC fetch was rejected \\(get_memory_pool_status\\)`));
+  assert.deepEqual(sentMenus, []);
+  assert.equal(report.c1.page, undefined);
+  assert.equal(report.c1.trace.transport.lost, true);
+  // The report itself still arrives, over the fallback.
+  assert.ok(page.sent.post.includes("native_smoke_finish"));
+});
+
+test("F1: a fallback later in the run is recorded, stops the next wait and fails the C1 evidence", async (t) => {
+  let failLookup = false;
+  const page = await tauriPage(t, poolNative, { fault: (command) => (failLookup && command === "lookup_preview_mechanics_job_rows" ? "reject" : null) });
+  const trace = page.hooks.beginC1Trace();
+  await page.hooks.preflight({});
+  page.hooks.requireObservedIpc(trace);
+  failLookup = true;
+  assert.deepEqual(plain(await page.invoke("lookup_preview_mechanics_job_rows", {})), { rows: [] }); // answered over postMessage
+  const started = Date.now();
+  await assert.rejects(page.hooks.waitFor("the next step", () => null, 1000, 10), messageMatches(new RegExp(`^${LOST}: an IPC fetch was rejected \\(lookup_preview_mechanics_job_rows\\)`)));
+  assert.ok(Date.now() - started < 500);
+  // Everything after it goes over postMessage, seen only by the fallback observer.
+  const fetched = page.sent.fetch.length;
+  await page.invoke("get_memory_pool_status", {});
+  assert.equal(page.sent.fetch.length, fetched);
+  assert.deepEqual(plain(trace.data.transport.fallback_counts), { lookup_preview_mechanics_job_rows: 1, get_memory_pool_status: 1 });
+  const verdict = classify({ report: { solve: { ended: "first_paint", timeline: { marks: [{ stage: "first_paint", at_ms: 10 }] }, gate: { started_at_ms: 0 } }, c1: { completed: false, trace: trace.data, host: { established: true } } }, exit: { status: 0, signal: null, ended_ms: null }, timedOut: false, progress: [], memory: { pids: {} }, store: null, run: { c1_probes: true, paint_ms: 1000, timeout_s: 10, project_id: "project:invented" } });
+  assert.ok(verdict.findings.some((finding) => finding.step === "c1_observation" && /lost Tauri's IPC transport: an IPC fetch was rejected/.test(finding.message)), JSON.stringify(verdict.findings));
+  trace.restore();
+});
+
+test("F1: a forbidden command sent over the fallback is recorded and refused through Tauri's error callback", async (t) => {
+  let failLookup = false;
+  const page = await tauriPage(t, poolNative, { fault: (command) => (failLookup && command === "lookup_preview_mechanics_job_rows" ? "reject" : null) });
+  const trace = page.hooks.beginC1Trace();
+  await page.hooks.preflight({});
+  failLookup = true;
+  await page.invoke("lookup_preview_mechanics_job_rows", {});
+  await assert.rejects(page.invoke("take_preview_mechanics_job_result", { jobId: "invented" }), /C1 probe refused unexpected whole-value\/budget command: take_preview_mechanics_job_result/);
+  assert.deepEqual(plain(trace.data.violations), ["take_preview_mechanics_job_result"]);
+  assert.equal(page.sent.native.includes("take_preview_mechanics_job_result"), false);
+  assert.equal(page.sent.post.includes("take_preview_mechanics_job_result"), false);
+  assert.equal(trace.data.transport.fallback_counts.take_preview_mechanics_job_result, 1);
+  trace.restore();
+});
+
+test("F1: where the fallback cannot be observed, a switch to it still stops the run and fails the evidence", async (t) => {
+  let failLookup = false;
+  const page = await tauriPage(t, poolNative, { handlerReplaceable: false, fault: (command) => (failLookup && command === "lookup_preview_mechanics_job_rows" ? "reject" : null) });
+  const trace = page.hooks.beginC1Trace();
+  assert.equal(trace.data.transport.fallback_observer, "unavailable");
+  await page.hooks.preflight({});
+  page.hooks.requireObservedIpc(trace);
+  failLookup = true;
+  await page.invoke("lookup_preview_mechanics_job_rows", {});
+  // Unobservable after the switch: the forbidden command reaches the native side, unrefused.
+  assert.deepEqual(plain(await page.invoke("take_preview_mechanics_job_result", {})), { whole: "result" });
+  assert.equal(trace.data.transport.lost, true);
+  await assert.rejects(page.hooks.waitFor("the next step", () => null, 1000, 10), messageMatches(new RegExp(`^${LOST}: an IPC fetch was rejected`)));
+  trace.restore();
+});
+
+// --------------------------------------------- F2: bounded reads of receipts, refusals and headers
+/** A reply whose body is `total` bytes in `chunk`-byte chunks, made on demand: `head`, spaces, then
+ * `tail`. `state.pulled` counts the bytes the stream has been asked for. */
+function countedReply({ total, chunk, head = "", tail = "", type, ok = true }) {
+  const state = { pulled: 0 };
+  const headBytes = new TextEncoder().encode(head), tailBytes = new TextEncoder().encode(tail);
+  const stream = new ReadableStream({ pull(controller) {
+    if (state.pulled >= total) { controller.close(); return; }
+    const n = Math.min(chunk, total - state.pulled);
+    const bytes = new Uint8Array(n).fill(0x20);
+    for (let i = 0; i < n; i++) {
+      const at = state.pulled + i;
+      if (at < headBytes.length) bytes[i] = headBytes[at];
+      else if (at >= total - tailBytes.length) bytes[i] = tailBytes[at - (total - tailBytes.length)];
+    }
+    state.pulled += n;
+    controller.enqueue(bytes);
+  } }, { highWaterMark: 0 });
+  return { state, response: new Response(stream, { headers: { "Tauri-Response": ok ? "ok" : "error", "Content-Type": type } }) };
+}
+/** The trace over one reply, fetched as the App's Tauri fetches it (the App's own read is not made). */
+async function observeOne(t, command, reply, body = "{}") {
+  const ui = await driverDom(t, "", async () => null);
+  ui.dom.window.fetch = async () => reply.response;
+  const trace = ui.hooks.beginC1Trace();
+  const response = await ui.dom.window.fetch(`ipc://localhost/${command}`, { method: "POST", body });
+  assert.equal(response, reply.response, "the App receives Tauri's reply itself");
+  trace.restore();
+  return trace.data;
+}
+const RECEIPT_BOUND = 4 << 20;
+
+test("F2: a JSON receipt over 4 MiB is refused by the observation, and the App still reads its reply", async (t) => {
+  const ui = await driverDom(t, "", async (command) => (command === "dispose_preview_mechanics_result" ? { released: true, job_id: "job-1", pad: " ".repeat(RECEIPT_BOUND) } : null));
+  const trace = ui.hooks.beginC1Trace();
+  const value = await ui.call("dispose_preview_mechanics_result", {});
+  assert.equal(value.released, true);
+  assert.deepEqual(plain(trace.data.disposed), {});
+  assert.match(trace.data.errors[0], /^probe reply exceeds its 4194304-byte bound$/);
+  trace.restore();
+});
+
+test("F2: a raw receipt over 4 MiB is cancelled at the bound, not read to its end", async (t) => {
+  const chunk = 64 << 10;
+  const reply = countedReply({ total: 32 << 20, chunk, head: '{"message":"Recorded run","run":{"recording_id":"r"}', tail: "}", type: "application/octet-stream" });
+  const data = await observeOne(t, "record_preview_mechanics_job_analysis_run", reply);
+  assert.ok(reply.state.pulled <= RECEIPT_BOUND + 4 * chunk, `pulled ${reply.state.pulled} bytes`);
+  assert.equal(data.record, null);
+  assert.match(data.errors[0], /exceeds its 4194304-byte bound/);
+  assert.ok(data.reply_bytes_max <= RECEIPT_BOUND);
+});
+
+test("F2: an oversized error reply is read only to its 2 KiB prefix", async (t) => {
+  const chunk = 64 << 10;
+  const reply = countedReply({ total: 32 << 20, chunk, head: '"refused: ', tail: '"', type: "application/json", ok: false });
+  const data = await observeOne(t, "query_preview_mechanics_job_rows", reply);
+  assert.ok(reply.state.pulled <= 2048 + 4 * chunk, `pulled ${reply.state.pulled} bytes`);
+  assert.equal(data.refusals.length, 1);
+  assert.equal(data.refusals[0].truncated, true);
+  assert.ok(data.refusals[0].message.startsWith('"refused: ') && data.refusals[0].message.length === 512);
+  assert.equal(data.reply_bytes_max, 2048);
+});
+
+test("F2: one oversized chunk: a receipt keeps nothing, a row header copies only the header", async (t) => {
+  // A JSON receipt delivered as one chunk over the bound: refused before any of it is copied.
+  const single = countedReply({ total: RECEIPT_BOUND + 1, chunk: RECEIPT_BOUND + 1, head: '{"released":true,"job_id":"job-1"', tail: "}", type: "application/json" });
+  const data = await observeOne(t, "dispose_preview_mechanics_result", single);
+  assert.deepEqual(plain(data.disposed), {});
+  assert.match(data.errors[0], /exceeds its 4194304-byte bound/);
+  assert.equal(data.reply_bytes_max, 0);
+  // A row reply whose header and 8 MiB of rows arrive as one chunk: only the header's bytes are copied.
+  const header = new TextEncoder().encode(JSON.stringify({ document_kind: "swbpipe.desktop.result_detail_rows", version: 1, total: 27, offset: 0, returned: 0, ordinals: [], lengths: [], truncated: false }));
+  const rows = new Uint8Array(16 + header.length + (8 << 20));
+  rows.set(new TextEncoder().encode("SWBDETv1"));
+  new DataView(rows.buffer).setBigUint64(8, BigInt(header.length), true);
+  rows.set(header, 16);
+  const ui = await driverDom(t, "", async () => null);
+  ui.dom.window.fetch = async () => new Response(new ReadableStream({ start(controller) { controller.enqueue(rows); controller.close(); } }), { headers: { "Tauri-Response": "ok", "Content-Type": "application/octet-stream" } });
+  const trace = ui.hooks.beginC1Trace();
+  trace.data.csv = { family: "force", pages: 0, expected_rows: null, receipt: null };
+  await ui.dom.window.fetch("ipc://localhost/query_preview_mechanics_job_rows", { method: "POST", body: JSON.stringify({ filter: { family: "force" } }) });
+  assert.equal(trace.data.csv.expected_rows, 27);
+  assert.deepEqual(plain(trace.data.errors), []);
+  assert.equal(trace.data.reply_bytes_max, 16 + header.length);
   trace.restore();
 });
 
@@ -758,12 +1090,15 @@ function setVisibility(doc, state) { Object.defineProperty(doc, "visibilityState
 
 /** The whole driver as the App runs it (no test hooks): a C1 plan, the pool preflight, then
  * the page checks. Returns the menus sent, the files chosen and the finished report. */
-async function wholeDriver(t, { visibility, frames, observeIpc = true }) {
+async function wholeDriver(t, { visibility, frames, observeIpc = true, hideOnOpen = false }) {
   const { JSDOM } = await import("jsdom");
   const vm = await import("node:vm");
   const dom = new JSDOM(HIDDEN_SHELL);
   t.after(() => dom.window.close());
-  setVisibility(dom.window.document, visibility);
+  let state = visibility;
+  Object.defineProperty(dom.window.document, "visibilityState", { configurable: true, get: () => state });
+  // The window covered (or the display asleep) once the model is being opened.
+  const hide = () => setTimeout(() => { state = "hidden"; dom.window.document.dispatchEvent(new dom.window.Event("visibilitychange")); }, 50);
   const pool = { headroom: { pressure: "normal", available_bytes: 30 * 1024 ** 3 }, invocation_budget_bytes: 12 * 1024 ** 3, retained_results: 0, running_workers: 0, queued_jobs: 0, running_jobs: 0, webview_custody_results: 0, reserved_bytes: 0 };
   const sent = { menus: [], chosen: [], report: null };
   let finished;
@@ -771,7 +1106,7 @@ async function wholeDriver(t, { visibility, frames, observeIpc = true }) {
   const handler = async (command, args) => {
     if (command === "native_smoke_plan") return { run_id: "c1-hidden", c1_probes: true, c1_reader_diagnostics: true, model_path: "/invented/rack.json", project_id: "project:invented", model_jcs_sha256: "sha256:invented", timeouts: { start_ms: 1000, open_ms: 1000, paint_ms: 1000, interaction_ms: 1000, csv_ms: 1000, record_ms: 1000, save_ms: 1000 } };
     if (command === "get_memory_pool_status") return pool;
-    if (command === "native_smoke_menu") { sent.menus.push(args.commandId); return null; }
+    if (command === "native_smoke_menu") { sent.menus.push(args.commandId); if (hideOnOpen && args.commandId === "file.open-model") hide(); return null; }
     if (command === "native_smoke_choose") { sent.chosen.push(args.path); return null; }
     if (command === "native_smoke_finish") { sent.report = args.report; finished(); return null; }
     return null;
@@ -794,7 +1129,13 @@ for (const [visibility, frames, why] of [["hidden", false, "a hidden page"], ["v
   test(`a C1 run on ${why} is refused before the model opens: no solve is started`, async (t) => {
     const sent = await wholeDriver(t, { visibility, frames });
     assert.equal(sent.report.ok, false);
-    assert.match(sent.report.error, new RegExp(`^C1 host: the App's page is not shown \\(before opening the model: visibilityState=${visibility}, animation frames ${frames ? 2 : 0}/2 within 2000 ms\\)`));
+    assert.match(sent.report.error, new RegExp(`^C1 host condition not established \\(before opening the model: visibilityState=${visibility}, animation frames 0/2 within a 2000 ms timer that fired after \\d+ ms\\)\\. The display must be awake, the session unlocked and the App window uncovered and visible, delivering frames, for the whole observation\\. The run is unobservable: this is not evidence of a product hang, no solve was started, and the run is not retried\\.`));
+    assert.deepEqual({ ...sent.report.c1.host, at_ms: typeof sent.report.c1.host.at_ms, detail: typeof sent.report.c1.host.detail }, { established: false, step: "before opening the model", detail: "string", at_ms: "number", solve_started: false });
+    // Classified as unobservable: not a hang, not a product refusal.
+    const verdict = classify({ report: sent.report, exit: { status: 0, signal: null, ended_ms: null }, timedOut: false, progress: [], memory: { pids: {} }, store: null, run: { c1_probes: true, c1_profile_readers: true, paint_ms: 1000, timeout_s: 10, project_id: "project:invented" } });
+    assert.equal(verdict.class, "host_unobservable");
+    assert.deepEqual(verdict.findings.map((finding) => finding.class), ["host_unobservable"]);
+    assert.match(verdict.findings[0].detail, /not evidence of a product hang; not retried/);
     assert.deepEqual(sent.menus, []);
     assert.deepEqual(sent.chosen, []);
     assert.equal(sent.report.solve, undefined);
@@ -805,9 +1146,21 @@ test("a C1 run on a shown page with frames passes the page check and goes on to 
   const sent = await wholeDriver(t, { visibility: "visible", frames: true });
   assert.equal(sent.report.c1.page.at_start.visibility, "visible");
   assert.equal(sent.report.c1.page.at_start.frames, 2);
+  assert.equal(sent.report.c1.host.established, true);
   assert.deepEqual(sent.chosen, ["/invented/rack.json"]);
   assert.deepEqual(sent.menus, ["file.open-model"]);
   assert.match(sent.report.error, /timed out after 1000 ms waiting for open rack\.json/);
+});
+
+test("a C1 page hidden after the checks stops the run at once as unobservable, before any solve", async (t) => {
+  const sent = await wholeDriver(t, { visibility: "visible", frames: true, hideOnOpen: true });
+  assert.match(sent.report.error, /^C1 host condition not established \(during the observation: the page became visibilityState=hidden\)\. .* no solve was started, and the run is not retried\./);
+  assert.equal(sent.report.c1.host.established, false);
+  assert.equal(sent.report.c1.host.solve_started, false);
+  assert.deepEqual(sent.menus, ["file.open-model"]);
+  assert.equal(sent.report.solve, undefined);
+  // Stopped by the next 100 ms poll of the open wait, not by its 1,000 ms timeout.
+  assert.doesNotMatch(sent.report.error, /timed out/);
 });
 
 test("a C1 run whose command observation sees no IPC is refused before any page check or solve", async (t) => {
@@ -820,7 +1173,7 @@ test("a C1 run whose command observation sees no IPC is refused before any page 
 /** The C1 solve step on the simulated clock with the native Results panel, journalling on:
  * the result is committed at `commitAt`, the panel shows settled rows at `rowsAt` (or never)
  * and first_paint is marked at `paintAt` (or never). Returns the report and the journal lines. */
-async function observedSolve(t, { visibility, frames, commitAt = 10_000, rowsAt = null, paintAt = null, paintMs = 30_000 }) {
+async function observedSolve(t, { visibility, frames, commitAt = 10_000, rowsAt = null, paintAt = null, paintMs = 30_000, hideAt = null }) {
   const clock = fakeClock();
   let shown = "solve", timeline = null;
   const lines = [];
@@ -833,7 +1186,10 @@ async function observedSolve(t, { visibility, frames, commitAt = 10_000, rowsAt 
     return null;
   }, { ...clock.context, requestAnimationFrame: frames ? callback => clock.context.setTimeout(() => callback(clock.now()), 16) : () => 0 });
   const doc = ui.dom.window.document;
-  setVisibility(doc, visibility);
+  let state = visibility;
+  setVisibility(doc, null);
+  Object.defineProperty(doc, "visibilityState", { configurable: true, get: () => state });
+  if (hideAt !== null) clock.at(hideAt, () => { state = "hidden"; doc.dispatchEvent(new ui.dom.window.Event("visibilitychange")); });
   for (const id of ["solve", "results"]) Object.defineProperty(doc.querySelector(`[data-testid="workspace-section-${id}"]`), "offsetParent", { get: () => shown === id ? doc.body : null });
   const sparse = doc.querySelector('[data-testid="solver-mode-sparse"]');
   sparse.onclick = () => sparse.setAttribute("aria-pressed", "true");
@@ -859,21 +1215,29 @@ test("the C1 solve journals a shown page: Results opened, the first page settled
   for (const line of lines) assert.deepEqual(Object.keys(line).sort(), ["call", "edge", "layer", "mono_ms", "phase", "status"]);
 });
 
-test("the C1 solve journals the A+B state: a hidden page, frames that never come, the first page never seen", async (t) => {
+test("the C1 solve on the A+B state (a page not shown) stops at its first poll as unobservable, not at the gate", async (t) => {
   const { report, lines } = await observedSolve(t, { visibility: "hidden", frames: false });
-  assert.equal(report.solve.ended, "timeout");
-  assert.deepEqual(edges(lines), ["results_open#1:enter:pending", "results_open#1:exit:ok", "page_hidden#1:enter:pending", "frame_wait#1:enter:pending", "first_page#1:enter:pending"]);
-  assert.ok(report.solve.page.hidden_polls > 0);
-  assert.equal(report.solve.page.frame_acks, 0);
-  assert.ok(report.solve.page.frame_probes >= 2);
-  assert.equal(report.solve.page.first_page_seen_at_ms, null);
+  assert.equal(report.solve.ended, "host_unobservable");
+  assert.ok(report.solve.elapsed_ms < 1000, String(report.solve.elapsed_ms));
+  assert.deepEqual(edges(lines), ["results_open#1:enter:pending", "results_open#1:exit:ok", "page_hidden#1:enter:pending"]);
+  assert.equal(report.solve.page.hidden_polls, 1);
   assert.equal(report.solve.page.visibility_at_end, "hidden");
+});
+
+test("a C1 page hidden during the solve stops it as unobservable by the next 200 ms poll: no timeout, no hang", async (t) => {
+  const { report, lines } = await observedSolve(t, { visibility: "visible", frames: false, hideAt: 20_000 });
+  assert.equal(report.solve.ended, "host_unobservable");
+  // Seen at the first poll after it, stopped at the one after that, long before the 30 s gate.
+  const endedAt = report.solve.gate.started_at_ms + report.solve.elapsed_ms;
+  assert.ok(endedAt > 20_000 && endedAt <= 20_000 + 2 * 200 + 1, String(endedAt));
+  assert.deepEqual(edges(lines), ["results_open#1:enter:pending", "results_open#1:exit:ok", "frame_wait#1:enter:pending", "first_page#1:enter:pending", "page_hidden#1:enter:pending"]);
+  assert.equal(report.solve.page.first_page_seen_at_ms, null);
 });
 
 test("the driver's journal lines are accepted by the fixed phase journal and leave the reader evidence complete", async (t) => {
   const dir = mkdtempSync(path.join(os.tmpdir(), "perf-observed-"));
   t.after(() => rmSync(dir, { recursive: true, force: true }));
-  const { lines } = await observedSolve(t, { visibility: "hidden", frames: false });
+  const { lines } = await observedSolve(t, { visibility: "visible", frames: false, hideAt: 20_000 });
   const evidence = createReaderPhaseEvidence(path.join(dir, "journal.jsonl"));
   // The app's own fixed awaits and native boundaries, all complete.
   for (const [call, phase] of [[1, "header"], [2, "registration"], [3, "standing"], [4, "summary"], [5, "run_preview"]]) {

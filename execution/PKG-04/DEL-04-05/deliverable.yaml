@@ -167,12 +167,18 @@ needs:
     journal; smoke-only wrapper expansion preserves the existing Value-reader contract,
     while the private health entry remains explicitly combined. Changed diagnostic
     boundaries, delivery or wrappers require those checkpoints and parity tests re-aligned.
+    C1's command observation follows the webview IPC of the locked `tauri` (2.11.1: one
+    `ipc://` fetch per command and its permanent postMessage fallback) and wry's
+    `window.ipc`; its tests run that version's own scripts
+    (`native-smoke/test-fixtures/tauri-2.11.1/`), and a `tauri` change needs them replaced
+    and the observation re-checked.
   gating: false
   evidence: apps/desktop/native-smoke/perf.mjs
 code_paths:
 - core/solver/performance_harness/**
 - validation/benchmarks/sparse_*.json
 - apps/desktop/native-smoke/perf*
+- apps/desktop/native-smoke/test-fixtures/tauri-2.11.1/**
 - apps/desktop/src-tauri/src/native_smoke.rs
 checks:
 - core/solver/performance_harness/src/lib.rs

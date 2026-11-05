@@ -325,7 +325,10 @@ are in `apps/desktop`:
     workers and the WebKit processes started for it every 200 ms (`perf-sampler.py`,
     `proc_pid_rusage`). It then inspects the SQLite store, classifies the run and writes
     `perf-report-<UTC>.json`. The classes are `ok`, `refused_with_message`, `crash` (with the
-    process), `hang`, `misleading_message` and `half_written_save`.
+    process), `hang`, `misleading_message`, `half_written_save` and, for a C1 run,
+    `host_unobservable`: the host condition (display awake, session unlocked, App window uncovered
+    and visible, delivering frames) was not established or was lost, so nothing was observable. It
+    is no hang and no product finding, and the run is not retried.
 - **Racks the desktop opens.** The generator writes the desktop's model-file shape (§2):
   `data_boundary`, `diagnostics`, labels, load-case `kind` and `status`, and subtraction
   `terms`.

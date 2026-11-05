@@ -16,10 +16,12 @@
 //      each outcome as shown.
 // Progress lines go to the app's stderr as `[native-smoke] perf:{json}` (a crash
 // of the webview still leaves them); the report goes through `native_smoke_finish`.
-// A C1 run first checks that its command observation sees the App's IPC and that
+// A C1 run first checks that its command observation completed an IPC round trip and that
 // the page is shown and delivers animation frames (before the model opens and again
 // before Analyze > Run); otherwise it stops without starting a solve. During the
-// solve it records and journals what the page showed (`journal`, `observePage`).
+// solve it records and journals what the page showed (`journal`, `observePage`). A
+// later loss of the page's visibility (the host condition) or of the observed IPC
+// transport stops the run at its next wait.
 (() => {
   const ipc = window.__TAURI_INTERNALS__;
   const call = (command, args) => ipc.invoke(command, args ?? {});
@@ -32,13 +34,22 @@
   const now = () => performance.now();
   let runId = null;
   let resourceFailure = null;
+  // C1 only. `hostFailure`: the host condition (below) was lost; `observationFailure`: the command
+  // observation lost Tauri's IPC (`beginC1Trace`). Either stops every wait at its next poll.
+  let hostFailure = null;
+  let observationFailure = null;
   const progress = (step, detail = {}) => log(`perf:${JSON.stringify({ run_id: runId, step, at_ms: now(), ...detail })}`);
+  function stopIfLost() {
+    if (hostFailure) throw hostFailure;
+    if (observationFailure) throw observationFailure;
+    if (resourceFailure) throw new Error(resourceFailure);
+  }
 
   // As `driver.js`: a probe that throws ends the wait with its own error.
   async function waitFor(label, probe, timeoutMs, intervalMs = 100) {
     const started = Date.now();
     for (;;) {
-      if (resourceFailure) throw new Error(resourceFailure);
+      stopIfLost();
       const value = probe();
       if (value) return value;
       if (Date.now() - started > timeoutMs) throw Object.assign(new Error(`timed out after ${timeoutMs} ms waiting for ${label}`), { timeout: true });
@@ -51,7 +62,7 @@
   // already happened; whether a first paint was in time is its mark's own timestamp (`solve`).
   async function waitUntil(label, probe, deadline, budgetMs, intervalMs) {
     for (;;) {
-      if (resourceFailure) throw new Error(resourceFailure);
+      stopIfLost();
       const value = probe();
       if (value) return value;
       const left = deadline - now();
@@ -93,27 +104,56 @@
   // `backgroundThrottling: "disabled"` only sets WKPreferences.inactiveSchedulingPolicy (wry), not
   // page visibility. A first paint is two animation frames after the first page, so on a page that
   // is not shown it cannot be observed at all. `frames` asks for two frames and reports what came.
+  // Its timeout is a scheduled JS timer: it fires no earlier than `timeoutMs`, but WebKit may
+  // defer it (1 s alignment on a hidden page, or a busy or suspended WebContent), so it is no
+  // wall-clock bound. `elapsed_ms` is what the wait took; the hard bound on a run is the runner's
+  // own App deadline (`perf.mjs`, the run's `timeout_s`), outside the webview.
   const visibility = () => (typeof document.visibilityState === "string" ? document.visibilityState : null);
   function frames(timeoutMs) {
+    const started = now();
     return new Promise((resolve) => {
       let seen = 0, done = false, timer = null;
       const finish = () => {
         if (done) return;
         done = true;
         if (timer !== null) clearTimeout(timer);
-        resolve({ visibility: visibility(), frames: seen, timeout_ms: timeoutMs });
+        resolve({ visibility: visibility(), frames: seen, timeout_ms: timeoutMs, elapsed_ms: elapsed(started) });
       };
       timer = setTimeout(finish, timeoutMs);
       if (typeof requestAnimationFrame !== "function") return;
       requestAnimationFrame(() => { seen = 1; requestAnimationFrame(() => { seen = 2; finish(); }); });
     });
   }
+
+  // The C1 host condition (Agent 0, 2026-11-05): the display awake, the session unlocked and the
+  // App's window uncovered and visible, delivering animation frames, for the whole observation.
+  // The driver only checks it: it unlocks nothing, asks for no credential or permission, changes
+  // no setting and never ends another App. Without it nothing can be observed, so a failed check
+  // or a later loss of visibility stops the run at once, as unobservable: that is no evidence of a
+  // product hang, and the run is not retried. `report.c1.host` records the outcome (scalars only).
+  let hostRecord = null;
+  let stopHostWatch = null;
+  function hostError(step, detail, solveStarted) {
+    if (hostRecord && hostRecord.established !== false) Object.assign(hostRecord, { established: false, step, detail, at_ms: now(), solve_started: solveStarted });
+    return Object.assign(new Error(`C1 host condition not established (${step}: ${detail}). The display must be awake, the session unlocked and the App window uncovered and visible, delivering frames, for the whole observation. The run is unobservable: this is not evidence of a product hang, ${solveStarted ? "the solve is cancelled" : "no solve was started"}, and the run is not retried.`), { host: true });
+  }
+  let solveStarted = false;
+  function watchHost(record) {
+    hostRecord = record;
+    const check = () => {
+      if (!hostFailure && visibility() !== "visible") hostFailure = hostError("during the observation", `the page became visibilityState=${visibility()}`, solveStarted);
+    };
+    document.addEventListener("visibilitychange", check);
+    stopHostWatch = () => document.removeEventListener("visibilitychange", check);
+    return check;
+  }
   // A C1 run starts its solve only on a shown page that delivers frames: otherwise the run could
   // only time out at the paint gate. Checked before the model opens and again before Analyze > Run.
   async function requireShownPage(step, timeoutMs = 2000) {
     const probe = await frames(timeoutMs);
+    stopIfLost();
     if (probe.visibility !== "visible" || probe.frames < 2) {
-      throw new Error(`C1 host: the App's page is not shown (${step}: visibilityState=${probe.visibility}, animation frames ${probe.frames}/2 within ${timeoutMs} ms); a first paint cannot be observed, so no solve is started`);
+      throw hostError(step, `visibilityState=${probe.visibility}, animation frames ${probe.frames}/2 within a ${timeoutMs} ms timer that fired after ${probe.elapsed_ms} ms`, solveStarted);
     }
     return probe;
   }
@@ -196,6 +236,7 @@
     const paintMs = plan.timeouts.paint_ms;
     const started = now();
     const deadline = started + paintMs;
+    solveStarted = true;
     await menu("analyze.run");
     let lastStage = null;
     let heartbeat = 0;
@@ -228,7 +269,12 @@
     const observePage = (current) => {
       if (!plan.c1_probes) return;
       if (visibility() === "visible") journal("page_hidden", "exit", "ok");
-      else { page.hidden_polls++; journal("page_hidden", "enter", "pending"); }
+      else {
+        page.hidden_polls++;
+        journal("page_hidden", "enter", "pending");
+        // A page that is not shown ends the observation (the host condition), at this poll.
+        hostFailure ??= hostError("during the solve", `the page was visibilityState=${visibility()} at a poll`, true);
+      }
       if (page.first_page_seen_at_ms !== null || page.first_page_refused) return;
       if (!current.marks.some((mark) => mark.stage === "result_committed")) return;
       journal("first_page", "enter", "pending");
@@ -259,7 +305,7 @@
         try { await showSection("results", openMs); journal("results_open", "exit", "ok"); }
         catch (error) {
           journal("results_open", "exit", "error");
-          if (error?.timeout && openMs < plan.timeouts.open_ms) throw error;
+          if (error?.host || error?.observation || (error?.timeout && openMs < plan.timeouts.open_ms)) throw error;
           throw new Error(`C1 results did not open: ${error?.message ?? error}`);
         }
       }
@@ -284,9 +330,11 @@
         return null;
       }, deadline, paintMs, 200);
     } catch (error) {
-      if (!error?.timeout) throw error;
+      // The host condition lost: the solve is unobservable, whatever its marks (no paint, no hang).
+      if (error?.host) ended = "host_unobservable";
+      else if (!error?.timeout) throw error;
       // Whichever wait ran out, a mark already within the gate is still the run's first paint.
-      if (timely(paintMark())) ended = "first_paint";
+      else if (timely(paintMark())) ended = "first_paint";
     }
     const paint = paintMark();
     page.visibility_at_end = visibility();
@@ -373,24 +421,133 @@
     await progress("save_project", { message: outcome.message, elapsed_ms: outcome.elapsed_ms });
   }
 
+  // Bounded reads of a reply body (C1 observation). Each chunk is checked before any of it is kept,
+  // only the bytes needed are copied (never a whole chunk), and the stream is cancelled as soon as
+  // the bound is reached. `note(bytes)` is told the size of each copy the observation holds.
+  const boundError = (what, limit) => Object.assign(new Error(`probe ${what} exceeds its ${limit}-byte bound`), { bound: true });
+  function joined(parts, length) {
+    const out = new Uint8Array(length);
+    let at = 0;
+    for (const part of parts) { out.set(part, at); at += part.byteLength; }
+    return out;
+  }
+  // The whole body, refused (and cancelled) once it would pass `limit` bytes.
+  async function cappedBody(response, limit, note = () => {}) {
+    if (!response.body) return new Uint8Array(0);
+    const reader = response.body.getReader();
+    const parts = [];
+    let have = 0;
+    try {
+      for (;;) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        if (value.byteLength > limit - have) throw boundError("reply", limit);
+        parts.push(value.slice());
+        have += value.byteLength;
+      }
+    } finally { reader.cancel().catch(() => {}); note(have); }
+    return joined(parts, have);
+  }
+  // At most the first `limit` bytes, and whether the body had more; the rest is never read.
+  async function bodyPrefix(response, limit, note = () => {}) {
+    if (!response.body) return { bytes: new Uint8Array(0), truncated: false };
+    const reader = response.body.getReader();
+    const out = new Uint8Array(limit);
+    let have = 0, truncated = false;
+    try {
+      while (!truncated) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        const take = Math.min(value.byteLength, limit - have);
+        out.set(value.subarray(0, take), have);
+        have += take;
+        truncated = take < value.byteLength;
+        if (have === limit && !truncated) truncated = !(await reader.read()).done;
+      }
+    } finally { reader.cancel().catch(() => {}); note(limit); }
+    return { bytes: out.subarray(0, have), truncated };
+  }
+  // A native row reply's header (`SWBDETv1`, a u64 length, at most 64 KiB of JSON): only its bytes
+  // are copied; the row page behind it is never read.
+  const HEADER_LIMIT = 65536;
+  async function rowHeader(response, note = () => {}) {
+    if (!response.body) throw new Error("probe rows have no native header");
+    const reader = response.body.getReader();
+    let buffer = new Uint8Array(16), have = 0, need = 16;
+    try {
+      while (have < need) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        let offset = 0;
+        while (offset < value.byteLength && have < need) {
+          const take = Math.min(value.byteLength - offset, need - have);
+          buffer.set(value.subarray(offset, offset + take), have);
+          have += take;
+          offset += take;
+          if (need === 16 && have === 16) {
+            if (String.fromCharCode(...buffer.subarray(0, 8)) !== "SWBDETv1") throw new Error("probe rows have no native header");
+            const length = new DataView(buffer.buffer, 0, 16).getBigUint64(8, true);
+            if (length > BigInt(HEADER_LIMIT)) throw new Error("probe native header is not bounded");
+            need = 16 + Number(length);
+            const grown = new Uint8Array(need);
+            grown.set(buffer);
+            buffer = grown;
+          }
+        }
+      }
+    } finally { reader.cancel().catch(() => {}); note(buffer.byteLength); }
+    if (have < 16) throw new Error("probe rows have no native header");
+    if (have < need) throw new Error("probe native header is not bounded");
+    return JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(buffer.subarray(16, need)));
+  }
+  const RECEIPT_LIMIT = 4 << 20;
+  const REFUSAL_LIMIT = 2048;
+  // A receipt as the App reads it: a JSON reply or a raw `tauri::ipc::Response` body, both JSON
+  // bytes, of at most 4 MiB.
+  async function receiptOf(response, note) {
+    const bytes = await cappedBody(response, RECEIPT_LIMIT, note);
+    return JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
+  }
+
   // C1-only observation: command names, bounded headers and small receipts.
   // Never retain a result body, record, row page or CSV chunk in this trace.
   // Tauri defines `__TAURI_INTERNALS__.invoke` (and `ipc`, `postMessage`) with
   // Object.defineProperty, so they are not writable: assigning a wrapper there
   // changes nothing (A+B diagnosis: every earlier trace observed no command).
-  // Every invoke of this webview is one `fetch` of `ipc://localhost/<command>`
-  // (tauri `ipc-protocol.js`), so the observation wraps `window.fetch` and
+  // Tauri 2.11.1's `ipc-protocol.js` sends every invoke as one `fetch` of
+  // `ipc://localhost/<command>`, so the observation wraps `window.fetch` and
   // passes every other request through untouched. A command's reply is read
   // from a clone only where a receipt or a row header is needed; a refusal is
   // answered as Tauri answers one (`Tauri-Response: error`), so the App's
   // promise rejects and no transport fallback is taken.
+  //
+  // The fallback: after any failure of that fetch, or of reading its reply, the same script
+  // switches for good to `window.ipc.postMessage` (wry; defined frozen, so not replaceable), which
+  // the fetch wrapper cannot see. The observation therefore records every sign of that switch (the
+  // fetch rejected, the App's read of the reply failed, Tauri's own warning before it falls back,
+  // a command sent over postMessage) as `transport.lost`. That is final for the page: the run stops
+  // at its next wait and its command evidence fails. Where the WebKit message handler's
+  // `postMessage` can be wrapped (`transport.fallback_observer`), commands sent over the fallback
+  // are also counted, and a forbidden one is refused through Tauri's error callback instead of
+  // being sent. A round trip counts as observed (`completed`) only when the App's read of the reply
+  // through the observed fetch succeeded.
   function beginC1Trace() {
     const IPC_PREFIX = "ipc://localhost/";
     const originalFetch = window.fetch;
-    const data = { counts: {}, errors: [], violations: [], refusals: [], refusals_omitted: 0, disposed: {}, csv: null, open: null, recordedRead: null, record: null, save: null, restoredSave: null };
+    const data = { counts: {}, completed: {}, errors: [], violations: [], refusals: [], refusals_omitted: 0, disposed: {}, csv: null, open: null, recordedRead: null, record: null, save: null, restoredSave: null,
+      transport: { lost: false, events: [], events_omitted: 0, fallback_observer: null, fallback_counts: {} }, reply_bytes_max: 0 };
     const forbidden = new Set(["take_preview_mechanics_job_result", "read_preview_mechanics_job_rows_all", "read_restored_result_record_all", "open_local_project", "read_analysis_run", "record_analysis_run", "save_local_project", "create_local_project", "save_local_result_json", "configure_memory_pool"]);
     const RECEIPTS = new Set(["finish_local_csv_stream", "record_preview_mechanics_job_analysis_run", "save_preview_mechanics_job_local_project", "open_local_project_in_native_custody", "read_analysis_run_in_native_custody", "save_restored_result_local_project", "dispose_preview_mechanics_result"]);
-    const RECEIPT_LIMIT = 4 << 20;
+    const note = (bytes) => { if (bytes > data.reply_bytes_max) data.reply_bytes_max = bytes; };
+    const bump = (counts, command) => { counts[command] = (counts[command] ?? 0) + 1; };
+    function lost(reason, command = null) {
+      const transport = data.transport;
+      if (transport.events.length < 16) transport.events.push({ reason, command, at_ms: now() });
+      else transport.events_omitted++;
+      if (transport.lost) return;
+      transport.lost = true;
+      observationFailure ??= Object.assign(new Error(`C1 command observation lost Tauri's IPC: ${reason}${command ? ` (${command})` : ""}. Tauri now sends every command over postMessage for the rest of this page, so the run's command evidence is incomplete and the run is stopped.`), { observation: true });
+    }
     function commandOf(input) {
       const url = typeof input === "string" ? input : input && typeof input.url === "string" ? input.url : null;
       if (url === null || !url.startsWith(IPC_PREFIX)) return null;
@@ -408,50 +565,6 @@
       }
       return null;
     }
-    function header(bytes) {
-      if (bytes.length < 16 || String.fromCharCode(...bytes.subarray(0, 8)) !== "SWBDETv1") throw new Error("probe rows have no native header");
-      const length = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getBigUint64(8, true);
-      if (length > 65536n || length > BigInt(bytes.length - 16)) throw new Error("probe native header is not bounded");
-      return JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes.subarray(16, 16 + Number(length))));
-    }
-    // At most the header's bytes of a row reply: read from a clone, which is then cancelled.
-    async function headerOf(response) {
-      const limit = 16 + 65536;
-      const reader = response.body.getReader();
-      const chunks = [];
-      let have = 0, need = 16;
-      try {
-        while (have < need && have < limit) {
-          const { value, done } = await reader.read();
-          if (done) break;
-          chunks.push(value);
-          have += value.byteLength;
-          if (need === 16 && have >= 16) {
-            const first = concat(chunks, 16);
-            need = Math.min(limit, 16 + Number(new DataView(first.buffer, first.byteOffset, 16).getBigUint64(8, true)));
-          }
-        }
-      } finally { reader.cancel().catch(() => {}); }
-      return header(concat(chunks, Math.min(have, limit)));
-    }
-    function concat(chunks, length) {
-      const out = new Uint8Array(length);
-      let at = 0;
-      for (const chunk of chunks) {
-        if (at >= length) break;
-        const part = chunk.subarray(0, length - at);
-        out.set(part, at);
-        at += part.byteLength;
-      }
-      return out;
-    }
-    // A receipt as the App reads it: a JSON reply, or a raw `tauri::ipc::Response` body of JSON bytes.
-    async function receipt(response) {
-      if ((response.headers.get("content-type") ?? "").split(",")[0] === "application/json") return response.json();
-      const bytes = new Uint8Array(await response.arrayBuffer());
-      if (bytes.byteLength > RECEIPT_LIMIT) throw new Error("probe receipt exceeds its bound");
-      return JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
-    }
     function restored(value) {
       return value ? { handle: value.handle, origin: value.origin, state: value.state,
         run_id: value.findings?.run_id, findings: value.findings?.findings?.slice(0, 64), findings_truncated: value.findings?.findings?.length > 64,
@@ -460,20 +573,22 @@
     }
     const savedResult = value => ({ outcome: value?.outcome, code: value?.code, run_id: value?.run_id,
       result_bytes: value?.result_bytes, record_bytes: value?.record_bytes });
+    const refusalText = (command) => `C1 probe refused unexpected whole-value/budget command: ${command}`;
     function refusedReply(message) {
       return new Response(JSON.stringify(message), { status: 200, headers: { "Content-Type": "application/json", "Tauri-Response": "error" } });
     }
     async function observe(command, body, response, csv) {
       if (response.headers.get("Tauri-Response") !== "ok") {
-        const message = (await response.clone().text()).slice(0, 2048);
-        if (data.refusals.length < 16) data.refusals.push({ command, message: message.slice(0, 512), truncated: message.length > 512 });
+        const { bytes, truncated } = await bodyPrefix(response.clone(), REFUSAL_LIMIT, note);
+        const message = new TextDecoder().decode(bytes);
+        if (data.refusals.length < 16) data.refusals.push({ command, message: message.slice(0, 512), truncated: truncated || message.length > 512 });
         else data.refusals_omitted++;
         return;
       }
       if (csv && command === "query_preview_mechanics_job_rows") {
         const sent = request(body);
         if (sent?.filter?.family === csv.family) {
-          const read = await headerOf(response.clone());
+          const read = await rowHeader(response.clone(), note);
           if (!Number.isSafeInteger(read.total) || read.total < 1) throw new Error("CSV query has no positive total");
           if (csv.expected_rows !== null && csv.expected_rows !== read.total) throw new Error("CSV query total changed");
           csv.expected_rows = read.total;
@@ -481,7 +596,7 @@
         }
       }
       if (!RECEIPTS.has(command)) return;
-      const value = await receipt(response.clone());
+      const value = await receiptOf(response.clone(), note);
       if (command === "finish_local_csv_stream" && csv) csv.receipt = { file_name: value.file_name, byte_count: value.byte_count };
       if (command === "record_preview_mechanics_job_analysis_run") data.record = { message: typeof value.message === "string" ? value.message.slice(0, 512) : null, state_outcome: value.state_outcome, run: { recording_id: value.run?.recording_id, run_name: value.run?.run_name, producer_run_id: value.run?.producer_run_id, project_id: value.run?.project_id } };
       if (command === "save_preview_mechanics_job_local_project") data.save = { result: savedResult(value.result), envelope_hash: value.project_envelope_hash?.value };
@@ -490,27 +605,98 @@
       if (command === "save_restored_result_local_project") data.restoredSave = { ...restored(value.restored), kept: value.restored?.envelope_basis_kept, result: savedResult(value.result), envelope_hash: value.project_envelope_hash?.value };
       if (command === "dispose_preview_mechanics_result" && value?.released) data.disposed[value.job_id] = (data.disposed[value.job_id] ?? 0) + 1;
     }
+    // The App's own read of the reply (Tauri reads it with `json`, `text` or `arrayBuffer` by its
+    // content type): unchanged, except that success completes the round trip and failure, which
+    // makes Tauri fall back, is recorded.
+    function observeAppRead(command, response) {
+      for (const method of ["json", "text", "arrayBuffer"]) {
+        const read = response[method];
+        if (typeof read !== "function") continue;
+        Object.defineProperty(response, method, { configurable: true, writable: true, value: function (...args) {
+          return read.apply(this, args).then((value) => { bump(data.completed, command); return value; },
+            (error) => { lost("the App's read of an IPC reply failed", command); throw error; });
+        } });
+      }
+    }
     const wrapped = async function (input, init) {
       const command = commandOf(input);
       if (command === null) return originalFetch.call(window, input, init);
-      data.counts[command] = (data.counts[command] ?? 0) + 1;
+      bump(data.counts, command);
       if (forbidden.has(command)) {
         if (data.violations.length < 16) data.violations.push(command);
-        return refusedReply(`C1 probe refused unexpected whole-value/budget command: ${command}`);
+        return refusedReply(refusalText(command));
       }
       const csv = data.csv; // pin the send phase, including a delayed reply
-      const response = await originalFetch.call(window, input, init);
+      let response;
+      try { response = await originalFetch.call(window, input, init); }
+      catch (error) { lost("an IPC fetch was rejected", command); throw error; }
       try { await observe(command, init?.body, response, csv); }
       catch (error) { if (data.errors.length < 16) data.errors.push(String(error?.message ?? error)); }
+      observeAppRead(command, response);
       return response;
     };
+    // Tauri 2.11.1 `ipc-protocol.js` warns with this text immediately before it falls back.
+    const pageConsole = window.console;
+    const originalWarn = pageConsole?.warn;
+    const warn = function (...args) {
+      if (typeof args[0] === "string" && args[0].startsWith("IPC custom protocol failed")) lost("Tauri reported its IPC custom protocol failed and fell back to postMessage");
+      return originalWarn.apply(this, args);
+    };
+    if (typeof originalWarn === "function") pageConsole.warn = warn;
+    // The fallback transport: `ipc-protocol.js` serializes {cmd, callback, error, options, payload,
+    // key} in that order (`process-ipc-message-fn.js`), so its head names the command and the error
+    // callback without parsing the payload.
+    function messageHead(message) {
+      if (typeof message !== "string") return null;
+      const match = /^\{"cmd":("(?:[^"\\]|\\.){1,256}"),"callback":(\d+),"error":(\d+),/u.exec(message.slice(0, 1024));
+      if (!match) return null;
+      try { return { cmd: JSON.parse(match[1]), error: Number(match[3]) }; } catch { return null; }
+    }
+    function fallbackPost(originalPost) {
+      return function (message) {
+        const head = messageHead(message);
+        if (head) {
+          lost("an IPC command was sent over postMessage", head.cmd);
+          bump(data.transport.fallback_counts, head.cmd);
+          const runCallback = window.__TAURI_INTERNALS__?.runCallback;
+          if (forbidden.has(head.cmd)) {
+            if (data.violations.length < 16) data.violations.push(head.cmd);
+            // Tauri's own error reply (Rust evaluates `runCallback(error, message)`).
+            if (typeof runCallback === "function") { setTimeout(() => runCallback(head.error, refusalText(head.cmd)), 0); return; }
+          }
+        }
+        return originalPost.call(this, message);
+      };
+    }
+    let restoreFallback = () => {};
+    const replaceable = (owner) => {
+      const descriptor = owner ? Object.getOwnPropertyDescriptor(owner, "postMessage") : null;
+      return descriptor && typeof descriptor.value === "function" && (descriptor.writable || descriptor.configurable) && Object.isExtensible(owner) ? descriptor : null;
+    };
+    for (const [name, owner] of [["window.ipc", window.ipc], ["webkit.messageHandlers.ipc", (() => { try { const handler = window.webkit?.messageHandlers?.ipc; return handler ? Object.getPrototypeOf(handler) : null; } catch { return null; } })()]]) {
+      const descriptor = replaceable(owner);
+      if (!descriptor) continue;
+      try {
+        Object.defineProperty(owner, "postMessage", { ...descriptor, value: fallbackPost(descriptor.value) });
+        restoreFallback = () => Object.defineProperty(owner, "postMessage", descriptor);
+        data.transport.fallback_observer = name;
+        break;
+      } catch { /* not replaceable after all */ }
+    }
+    data.transport.fallback_observer ??= "unavailable";
     window.fetch = wrapped;
-    return { data, restore: () => { if (window.fetch === wrapped) window.fetch = originalFetch; } };
+    return { data, restore: () => {
+      if (window.fetch === wrapped) window.fetch = originalFetch;
+      if (pageConsole?.warn === warn) pageConsole.warn = originalWarn;
+      try { restoreFallback(); } catch { /* left wrapped; it only passes through */ }
+    } };
   }
-  // The observation must see the App's IPC before a solve can depend on it: the preflight's
-  // pool status read is one fetch of `ipc://localhost/get_memory_pool_status`.
+  // The observation must see the App's IPC before a solve can depend on it: the preflight's pool
+  // status read must have completed as one observed round trip (`ipc://localhost/get_memory_pool_status`
+  // fetched and its reply read by the App), with Tauri's IPC still on the observed transport.
   function requireObservedIpc(trace) {
-    if (!(trace.data.counts.get_memory_pool_status >= 1)) throw new Error("C1 command observation saw no IPC (the preflight's pool status read was not observed); no solve is started");
+    if (trace.data.transport.lost) throw observationFailure ?? new Error("C1 command observation lost Tauri's IPC; no solve is started");
+    if (!(trace.data.completed.get_memory_pool_status >= 1)) throw new Error("C1 command observation saw no IPC round trip (the preflight's pool status read was not observed through fetch and read back); no solve is started");
   }
 
   const poolCell = (value) => ({ retained_results: value.retained_results, running_workers: value.running_workers,
@@ -600,6 +786,8 @@
     }, plan.timeouts.interaction_ms);
     // Two frames, bounded: on a page that is not shown none come (see `frames`).
     const shownFrames = await frames(plan.timeouts.interaction_ms);
+    stopIfLost();
+    if (shownFrames.visibility !== "visible") throw hostError("the results table", `visibilityState=${shownFrames.visibility}, animation frames ${shownFrames.frames}/2`, true);
     if (shownFrames.frames < 2) throw new Error(`C1 results table frames did not arrive (visibilityState=${shownFrames.visibility}, ${shownFrames.frames}/2 within ${plan.timeouts.interaction_ms} ms)`);
     target.table_ready_at_ms = now();
     target.table_ready_elapsed_ms = elapsed(tableStart);
@@ -729,7 +917,7 @@
   // Under the driver's node test only: hand over the helpers instead of running.
   const testHooks = globalThis.__SWBPIPE_PERF_DRIVER_TEST__;
   if (testHooks) {
-    Object.assign(testHooks, { waitFor, waitUntil, solve, recordRun, saveProject, beginC1Trace, requireObservedIpc, requireShownPage, frames, preflight, probeResults, probePersistence, cancelIfRunning, startPoolMonitor, profileReaders });
+    Object.assign(testHooks, { waitFor, waitUntil, solve, recordRun, saveProject, beginC1Trace, requireObservedIpc, requireShownPage, watchHost, frames, preflight, probeResults, probePersistence, cancelIfRunning, startPoolMonitor, profileReaders });
     return;
   }
 
@@ -748,24 +936,29 @@
         if (plan.c1_reader_diagnostics) globalThis.__SWBPIPE_NATIVE_SMOKE_READER_PHASE__ = async event => {
           await call("native_smoke_log", { line: `reader-phase:${JSON.stringify(event)}` });
         };
-        report.c1 = { completed: false };
+        report.c1 = { completed: false, host: { established: null } };
         trace = beginC1Trace();
         await preflight(report.c1);
         requireObservedIpc(trace);
+        watchHost(report.c1.host);
         report.c1.page = { at_start: await requireShownPage("before opening the model") };
+        // Established; a later loss sets it false (`hostError`).
+        report.c1.host.established = true;
         stopMonitor = startPoolMonitor(report.c1);
       }
       await openModel(plan, report);
       if (plan.c1_probes) report.c1.page.before_run = await requireShownPage("before Analyze > Run");
       await solve(plan, report);
       if (plan.c1_probes) {
+        if (report.solve.ended === "host_unobservable") throw hostFailure;
         if (report.solve.ended !== "first_paint") throw new Error(`C1 solve did not paint: ${report.solve.shown.error ?? report.solve.shown.refusal ?? report.solve.shown.results_refusal ?? report.solve.ended}`);
         if (!report.solve.shown.proof?.includes("identity=match") || !report.solve.shown.proof.includes(`model_sha256=${plan.model_jcs_sha256}`)) throw new Error("C1 solve proof is not bound to the opened model");
         report.c1.fresh = {};
         await probeResults(plan, report.c1.fresh, trace, { csv: true });
         if (plan.c1_profile_readers) await profileReaders(plan, report.c1);
         await probePersistence(plan, report, trace);
-        if (trace.data.errors.length || trace.data.violations.length || trace.data.counts.start_preview_mechanics_job !== 1 || !trace.data.counts.lookup_preview_mechanics_job_rows || !trace.data.counts.read_preview_mechanics_job_row_semantics) throw new Error("C1 command observation is incomplete or violated its bounded-read path");
+        stopIfLost();
+        if (trace.data.transport.lost || trace.data.errors.length || trace.data.violations.length || trace.data.counts.start_preview_mechanics_job !== 1 || !trace.data.counts.lookup_preview_mechanics_job_rows || !trace.data.counts.read_preview_mechanics_job_row_semantics) throw new Error("C1 command observation is incomplete or violated its bounded-read path");
         report.c1.completed = true;
       } else {
         if (plan.record_run) await recordRun(plan, report);
@@ -781,6 +974,7 @@
     }
     finally {
       stopMonitor?.();
+      stopHostWatch?.();
       await journalFlushed();
       delete globalThis.__SWBPIPE_NATIVE_SMOKE_READER_PHASE__;
       if (trace) { trace.restore(); report.c1.trace = trace.data; }
