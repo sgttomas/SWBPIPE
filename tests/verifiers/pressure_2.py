@@ -891,18 +891,24 @@ def _tie_rods(record: Mapping[str, Any]) -> list[tuple[str, float]]:
                  and _number(rod["stiffness_n_per_m"]) and rod["stiffness_n_per_m"] > 0 and _number(rod["reference_extension_m"])
                  and _number(rod["length_m"]) and rod["length_m"] > 0 and _vector(rod["direction_global"], 3) and _text(rod["source_reference"]),
                  "connector tie-rod record")
-        n = rod["direction_global"]
+        # Rust reads each component as binary64 (`as_f64`) before any arithmetic; a JSON integer is converted first.
+        n = [float(v) for v in rod["direction_global"]]
         _require(abs(_rust_f64_sum(v * v for v in n) - 1.0) <= 16 * math.ulp(1.0), "connector tie-rod direction")
         axis = [record["connector_axes_global"][k][0] for k in range(3)]
         share = rod["axial_share"]
-        _require(_number(share) and float(sum(Fraction(n[k]) * Fraction(axis[k]) for k in range(3))) == share, "connector tie-rod axial share")
+        _require(_number(share), "connector tie-rod axial share")
+        axis, share = [float(a) for a in axis], float(share)
+        _require(float(sum(Fraction(n[k]) * Fraction(axis[k]) for k in range(3))) == share, "connector tie-rod axial share")
         out.append((rod["id"], share))
     return out
 
 
 def _effective_axial_binding(s: float, g: float, pe: float, rods: list[tuple[float, float]]) -> bool:
     """§5.1: |s_x - Sigma| <= (64 + n_r)eps(|g_x| + |Pe| + sum|t_r*share|) + (n_r + 2)*2^-1074, with
-    Sigma = g_x - Pe + sum_r RN(t_r*share_r) summed as exact rationals and rounded once."""
+    Sigma = g_x - Pe + sum_r RN(t_r*share_r) summed as exact rationals and rounded once. Every operand is binary64, as
+    the Rust reader's (`as_f64`): a JSON integer is converted before it is multiplied or summed."""
+    s, g, pe = float(s), float(g), float(pe)
+    rods = [(float(t), float(share)) for t, share in rods]
     products = [t * share for t, share in rods]
     if not all(math.isfinite(v) for v in [s, g, pe, *products]):
         return False

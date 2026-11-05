@@ -746,7 +746,7 @@ mod u5b_effective_axial_tests {
     /// (`tests/test_pressure_connector_readers.py`) asserts the same verdicts.
     #[test]
     fn sequential_f64_sums_decide_the_direction_and_tolerance_boundaries() {
-        use serde_json::json;
+        use serde_json::{json, Value};
         let f = f64::from_bits;
         assert!(std::iter::empty::<f64>().sum::<f64>().is_sign_negative());
         let direction = |n: [f64; 3]| {
@@ -769,6 +769,14 @@ mod u5b_effective_axial_tests {
         let rods = [(f(0x4046456ed0af15bb), f(0xbfda1558c3f83d18)), (f(0x41193b1800000000), f(0xbfe607d49c6fc934)),
             (f(0x40e50d2276276276), f(0x3fa2457a67fbe500))];
         assert!(effective_axial_binding(f(0x3e4227bf314ad803), f(0x40d8f69555555555), f(0xc10f6f444ec1d244), &rods));
+        // A JSON integer operand is read as binary64 (`as_f64`) before it is multiplied: 2^53 + 1 is 2^53, so
+        // Sigma = 0 and s = 261 exceeds the tolerance 260: refused. An exact integer product would give Sigma = 1.
+        let t = json!(9007199254740993u64).as_f64().unwrap();
+        assert!(!effective_axial_binding(261.0, 0.0, 9007199254740992.0, &[(t, 1.0)]));
+        // Integer operands that binary64 holds exactly, and an integer direction: admitted.
+        let int = |v: Value| v.as_f64().unwrap();
+        assert!(effective_axial_binding(int(json!(0)), int(json!(553)), int(json!(800)), &[(int(json!(247)), int(json!(1)))]));
+        assert_eq!(direction([int(json!(1)), int(json!(0)), int(json!(0))]), Ok(1));
     }
 }
 
