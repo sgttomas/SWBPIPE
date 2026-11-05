@@ -907,12 +907,35 @@ def test_in_the_retained_base_read_a_held_notice_other_than_its_refusal_is_unrea
 @pytest.mark.parametrize("with_model", [False, True], ids=["without-model", "with-model"])
 @pytest.mark.parametrize("corpus,name", [("held", "source_unavailable"), ("cert", "pf_cantilever")])
 def test_a_stated_retired_preview_physics_1_identity_is_refused_by_the_full_reader(corpus, name, with_model):
-    """The full public reader refuses a source stating the retired preview-physics-1 identity (Rust
-    `a_stated_retired_preview_physics_1_identity_is_refused_by_the_full_reader`; this mirror's header check)."""
+    """The full public reader refuses a source stating the retired preview-physics-1 identity by the header's own
+    verdict, at the route boundary (Rust `reader_verdict::preview_route_identity` and
+    `a_stated_retired_preview_physics_1_identity_is_refused_by_the_full_reader`; this mirror's
+    `_preview_route_identity`), with the Rust reader's code."""
+    from core.analysis_runs import rust_reader
     e = _held_entry(name) if corpus == "held" else entry(name)
+    model = e["model"] if with_model else None
+    assert reader_verdict.validate("preview-physics", e["document"], model) == {"ok": True}
     e["document"]["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/preview-physics-1"
-    outcome = reader_verdict.validate("preview-physics", e["document"], e["model"] if with_model else None)
-    assert outcome["ok"] is False and outcome["error"]["code"] == "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID", outcome
+    outcome = reader_verdict.validate("preview-physics", e["document"], model)
+    assert outcome["ok"] is False and outcome["error"]["code"] == "SOURCE_PREVIEW_PHYSICS_1_RETIRED", outcome
+    with pytest.raises(rust_reader.ReaderRefusal) as refused:
+        rust_reader.validate("preview-physics", e["document"], model=model)
+    assert refused.value.code == outcome["error"]["code"]
+
+
+def test_another_routes_identity_is_not_the_preview_physics_readers():
+    """A source of another route, whose header admits it, is not the preview-physics reader's: both readers refuse
+    it SOURCE_PRODUCER_CONTRACT_UNSUPPORTED at the route boundary (Rust `preview_route_identity`)."""
+    from core.analysis_runs import rust_reader
+    corpus = json.loads((PROJECT / "fixtures/results/pressure_v3_straight_reader_corpus.json").read_text())
+    for case in corpus["cases"]:
+        source = case["envelope"]
+        assert reader_verdict.route(source) == "pressure", case["label"]
+        outcome = reader_verdict.validate("preview-physics", source)
+        assert outcome == {"ok": False, "error": reader_verdict.error_json("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")}, case["label"]
+        with pytest.raises(rust_reader.ReaderRefusal) as refused:
+            rust_reader.validate("preview-physics", source)
+        assert refused.value.code == "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED", case["label"]
 
 
 # ----------------------------------------------------------------------------- HELD_STATUS_RELEASED (RT-A5, P1)
