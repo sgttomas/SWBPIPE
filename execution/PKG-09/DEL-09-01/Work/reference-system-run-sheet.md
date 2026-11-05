@@ -132,7 +132,7 @@ section**, Apply. `section:RS-S270` (name RS-S270) 270 × 9.0; `section:RS-S220`
 `section:RS-S170` 170 × 7.0. These are shared pipe sections (OD and wall only), as the run
 sheet requires (`runSheetModel.ts:410-421`).
 
-### 3.4 Run-sheet rows, including valve and flanges (16 min)
+### 3.4 Run-sheet rows, including valve and flanges (16.5 min)
 
 26 rows in two chains, from RS-010 and from the tee, queued as one batch (**Queue rows**,
 `RunSheet.tsx:637-639`), then Validate batch and Apply entire batch: the batch holds bends, so
@@ -266,13 +266,19 @@ the fixture's 1.3. Every other node lands exactly. After the batch applies, sele
 **Start task from current selection**, **Property to edit** = X position, value 1.3,
 **Add**, Apply (`PropertyInspector.tsx:474-560, 1700-1709`). (0.75 min)
 
-### 3.5 Bend SIFs (0.75 min)
+### 3.5 Bend SIFs (in §3.4's rows)
 
-The person's entries (spec §11.3), which the sheet has no cell for: select the bend
-component. Inspector, "Bend realization" (`features/bend-authoring/BendAuthoringForms.tsx:58-93`),
-k and its source prefilled: **In-plane SIF i_ip** and **Out-of-plane SIF i_op** = 2.1 / 1.8
-(RS-B1, RS-B2) and 2.3 / 1.9 (RS-B3); **Queue bend realization update**, Apply. The fixture's
-`modifiers.source_reference` is ⟨S5⟩ for k and SIFs alike.
+The person's entries (spec §11.3) are cells of §3.4's `B` rows: **In-plane SIF i_ip** and
+**Out-of-plane SIF i_op**, beside k source (`model-tree/runSheet/runSheetView.ts`; DEL-07-02
+`Work/run-sheet-entry.md` §1.2). Rows 8 and 10 (RS-B1, RS-B2) take 2.1 / 1.8, and row 25
+(RS-B3) 2.3 / 1.9. Their source is the row's k source ⟨S5⟩: the fixture's
+`modifiers.source_reference` is ⟨S5⟩ for k and SIFs alike, and the sheet has no second source
+cell. The sheet's batch realizes each pair with one `bend_realization` right after that bend's
+insertion (`runSheetBatch.ts`), so the SIFs apply with §3.4's batch after its validation, as
+one Undo: no component selection, form or separate cycle. The inspector's "Bend realization"
+(`features/bend-authoring/BendAuthoringForms.tsx`) remains an alternative with the same values
+and checks. `runSheet/referenceBendSifs.test.tsx` enters these rows through the grid and
+compares the bend records with the fixture; it is not a timing measurement.
 
 ### 3.6 Remaining component forms (9.75 min)
 
@@ -495,9 +501,9 @@ RS-VS1 (§3.7) at the form rate.
 | 3.1 Pressure profile | 2 | 1 | 1 |
 | 3.2 Material | 63 | 3 | 6 |
 | 3.3 Sections | 21 | 3 | 3 |
-| 3.4 Run sheet: 26 rows (183 cells, including 60 component entries) and header (14) | 197 | 1 | 16 |
+| 3.4 Run sheet: 26 rows (189 cells, including 60 component entries and six bend SIFs) and header (14) | 203 | 1 | 16.5 |
 | 3.4 RS-050 correction | 3 | 1 | 0.75 |
-| 3.5 Bend SIFs | 9 | 3 | 0.75 |
+| 3.5 Bend SIFs (now six cells in §3.4) | 0 | 0 | 0 |
 | 3.6 Expansion joint | 53 | 1 | 6 |
 | 3.6 Tee RS-T1 (15 form entries), the person's two SIFs and source | 24 | 4 | 3.75 |
 | 3.7 Variable spring RS-VS1 | 20 | 1 | 1.75 |
@@ -507,7 +513,7 @@ RS-VS1 (§3.7) at the form rate.
 | 3.11 Analysis states | 68 | 3 | 5 |
 | 3.12 Combinations | 14 | 2 | 1.5 |
 | 3.13 Solve and results | 1 | — | 2 |
-| **Total** | **668** | **30** | **about 60 (60.25)** |
+| **Total** | **665** | **27** | **about 60 (60)** |
 
 Historical #41 counts (before the component rows below):
 
@@ -561,6 +567,13 @@ property selection and entered source) and one cycle, at the existing 0.75-minut
 field-edit rate. Totals become 668 entries, 30 per-intent cycles and 60.25 minutes.
 This closes an input capability gap; it is not a speed improvement or timed result.
 
+The bend SIF cells move §3.5 into the sheet. Its nine entries (three component selections and
+six SIFs) and three cycles become six SIF cells in the three `B` rows, with no selection and no
+cycle. §3.4 becomes 203 entries: 203 × 8/98 = 16.57 minutes, rounded to 16.5 under the
+quarter-minute convention, and §3.5's 0.75 minutes go. Totals: 668 − 9 + 6 = 665 entries,
+30 − 3 = 27 per-intent cycles and 60.25 − 0.75 + 0.5 = 60 minutes. This moves an input into
+the sheet; it is not a timed result.
+
 The estimate is about 60 minutes, about twice the provisional 30. It was about 77 before #41
 (the tee, #45, adds 3), and about 130 before #38's fills and case copies (gaps G7, G8),
 which brought the per-member load/reference state and pressure regions (§3.8, §3.10, §3.11)
@@ -572,7 +585,7 @@ entries. The 40 typed ids became 9, and the support and bend cells add 67. The a
 round-trip test (#41) reports the 9 ids, the ten supports' ids and labels, and the twelve bend
 ids with three geometry sources; the other cells are counted here from the code. The
 remaining component forms (§3.6) take about 9.75 minutes; the run sheet itself,
-now including the valve and flanges, takes about 16 minutes and is the largest step.
+now including the valve, flanges and bend SIFs, takes about 16.5 minutes and is the largest step.
 
 ## 6. Gaps found
 

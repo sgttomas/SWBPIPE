@@ -8,7 +8,7 @@
 import type { PreviewComponent, PreviewModel } from "../../../types";
 import { buildRunSheetBatch, type RunSheetBuild } from "./runSheetBatch";
 import {
-  BEND_ID_CELLS, INHERITING_CELLS, MESSAGES, QUANTITY_COLUMNS, assignRowNumber, idsForNumber, modelIds, resolveRunSheet,
+  BEND_ID_CELLS, BEND_SIF_COLUMN, INHERITING_CELLS, MESSAGES, QUANTITY_COLUMNS, assignRowNumber, idsForNumber, modelIds, resolveRunSheet,
   conversionKey, isPipeRowKind,
   type CellOrigin, type QuantityColumn, type ResolvedRunSheet, type ResolvedRunSheetRow, type RunSheetConversions, type RunSheetFinding, type RunSheetRowInput, type Vec3,
 } from "./runSheetModel";
@@ -23,7 +23,7 @@ import { COMPONENT_FIELDS, componentColumn, componentField, componentCellsFromRe
 export type SheetColumnKey = ComponentColumnKey
   | "dx" | "dy" | "dz" | "kind" | "support" | "restraints" | "node" | "section" | "od" | "wall" | "material" | "conditionSet" | "orientation"
   | "insulationThickness" | "insulationDensity" | "contentsDensity" | "materialDensity" | "millTolerance" | "corrosionAllowance"
-  | "bendRadius" | "k" | "kSource" | "label" | "nodeId" | "pipeId"
+  | "bendRadius" | "k" | "kSource" | "sifInPlane" | "sifOutOfPlane" | "label" | "nodeId" | "pipeId"
   | "supportId" | "supportLabel" | "bendStartId" | "bendEndId" | "bendArcId" | "bendComponentId" | "bendSource"
   | "position" | "length";
 /** The collapsible column groups (§1.2), each shown and hidden by its own header toggle. */
@@ -36,7 +36,11 @@ export type SheetColumn = Readonly<{
   code?: "kind" | "support";
   quantity?: QuantityColumn;
   group?: SheetColumnGroup;
+  /** A short visible note in the column header (not part of the cell's accessible name). */
+  note?: string;
 }>;
+/** The SIF cells' source: the engine keeps one `source_reference` for k and the SIFs. */
+export const SIF_SOURCE_NOTE = "source: this row's k source";
 export const SHEET_COLUMNS: readonly SheetColumn[] = [
   { key: "dx", label: "dX", editable: true },
   { key: "dy", label: "dY", editable: true },
@@ -60,6 +64,8 @@ export const SHEET_COLUMNS: readonly SheetColumn[] = [
   { key: "bendRadius", label: "Bend R", editable: true, quantity: "bendRadius" },
   { key: "k", label: "k", editable: true },
   { key: "kSource", label: "k source", editable: true },
+  { key: "sifInPlane", label: "In-plane SIF i_ip", editable: true, note: "shares k source" },
+  { key: "sifOutOfPlane", label: "Out-of-plane SIF i_op", editable: true, note: "shares k source" },
   { key: "label", label: "Label", editable: true },
   { key: "nodeId", label: "Node id", editable: true },
   { key: "pipeId", label: "Pipe id", editable: true },
@@ -107,6 +113,12 @@ export function rowInput(state: RunSheetState, row: SheetRow, status: RowStatus,
   if (component) {
     const source = (lookup?.(component) as { geometry?: { bend_geometry_source_reference?: unknown } } | undefined)?.geometry?.bend_geometry_source_reference;
     input.storedBendSource = typeof source === "string" ? source : "";
+    // Its directional SIFs read back from the same stored component (blank where it holds none).
+    const record = lookup?.(component) as PreviewComponent | undefined;
+    const sif = (value: { value?: unknown } | undefined) => value?.value === undefined || value.value === null ? "" : String(value.value);
+    input.storedSifs = record
+      ? { inPlane: sif(record.modifiers?.sif_in_plane_user_value), outOfPlane: sif(record.modifiers?.sif_out_of_plane_user_value) }
+      : { inPlane: "", outOfPlane: "", missing: component.id };
   }
   if (kind === "V" || kind === "L") {
     const own = entry?.ownedIds.find((ref) => ref.type === "component");
@@ -424,6 +436,7 @@ export function originText(origin: CellOrigin | undefined, absent?: boolean): st
 const FINDING_COLUMNS: Readonly<Record<string, readonly SheetColumnKey[]>> = {
   "dX, dY, dZ": ["dx", "dy", "dz"], Kind: ["kind"], Support: ["support"], Restraints: ["restraints"], Node: ["node"], Section: ["section"],
   Material: ["material"], "Condition set": ["conditionSet"], Orientation: ["orientation"], Ids: ["nodeId", "pipeId"], k: ["k", "kSource"],
+  [BEND_SIF_COLUMN]: ["sifInPlane", "sifOutOfPlane"],
   ...Object.fromEntries(COMPONENT_FIELDS.map((field) => [field.label, [componentColumn(field.key)]])),
   "Support id": ["supportId"], "Support label": ["supportLabel"], "Bend geometry source": ["bendSource"],
   ...Object.fromEntries(BEND_COLUMNS.map(([key, cell]) => [cell.label, [key]])),
@@ -475,6 +488,18 @@ export function cellView(view: SheetView, row: ViewRow, column: SheetColumn, col
     case "restraints": case "node": case "k": case "kSource": {
       const text = entered(column.key);
       return { ...base, text, origin: text.trim() ? "entered" : "blank" };
+    }
+    case "sifInPlane": case "sifOutOfPlane": {
+      // An applied or detached bend row shows what its component holds; a draft row, the typed
+      // text, kept visible when it is refused. Nothing is inferred or defaulted.
+      const stored = (row.status === "applied" || row.status === "detached") ? resolvedRow.storedSifs : undefined;
+      if (stored) {
+        const value = column.key === "sifInPlane" ? stored.inPlane : stored.outOfPlane;
+        const origin = stored.missing ? `missing: component ${stored.missing} no longer exists` : value ? "stored component value" : "blank: the component holds none";
+        return { ...base, text: value, origin: `${origin}; ${SIF_SOURCE_NOTE}` };
+      }
+      const text = entered(column.key);
+      return { ...base, text, origin: `${text.trim() ? "entered" : "blank: none"}; ${SIF_SOURCE_NOTE}` };
     }
     case "label": {
       const label = resolvedRow.label;
