@@ -410,6 +410,106 @@ fn normalize_mode_in(
     };
     let reference = reference.ok_or(ModalQuantityError::ZeroShape { mode })?;
     let pivot = phi[reference];
+    finish_normalization(mode, phi, basis, sum, limbs, below, Chosen { case, reference, pivot, t, theta })
+}
+
+/// R-6/R-7 (DEL-04-03 skew-restraints.md §11.3 C6): the normalization of a
+/// reduced (skew-coordinate) mode chosen on its lifted shape φ = Q̃φ′. The case
+/// (τ_t, M1b), the pivot and the reported magnitudes are read from `lifted`
+/// (global DOFs, node-major ux uy uz rx ry rz; ties to the lowest global
+/// index), exactly as `normalize_mode` reads a free vector. The lift is linear,
+/// so φ′/pivot lifts to φ/pivot: the generalized mass on M′, the excitation
+/// products on Q̃ᵀ(M r_k) and the below-normal flags are formed on `phi` (the
+/// reduced vector) with that pivot. `reference_dof` is the lifted global DOF.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct LiftedNormalization {
+    pub case: NormalizationCase,
+    pub reference_dof: usize,
+    pub pivot: f64,
+    pub max_translation: f64,
+    pub max_rotation: f64,
+}
+
+/// The lifted choice of C6 (see [`LiftedNormalization`]).
+pub fn lifted_normalization(
+    mode: usize,
+    lifted: &[f64],
+    bounding_box_diagonal: f64,
+    tau_t: f64,
+) -> Result<LiftedNormalization, ModalQuantityError> {
+    if let Some(index) = lifted.iter().position(|v| !v.is_finite()) {
+        return Err(ModalQuantityError::NonFinite { name: "lifted phi", index });
+    }
+    let largest = |translation: bool| {
+        let mut best = (0.0_f64, None::<usize>);
+        for (index, &v) in lifted.iter().enumerate() {
+            if (index % 6 < 3) == translation && v.abs() > best.0 {
+                best = (v.abs(), Some(index));
+            }
+        }
+        best
+    };
+    let (t, translation_ref) = largest(true);
+    let (theta, rotation_ref) = largest(false);
+    let (case, reference) = if t <= tau_t * bounding_box_diagonal * theta {
+        (NormalizationCase::UnitMaxRotation, rotation_ref)
+    } else {
+        (NormalizationCase::UnitMaxTranslation, translation_ref)
+    };
+    let reference_dof = reference.ok_or(ModalQuantityError::ZeroShape { mode })?;
+    Ok(LiftedNormalization { case, reference_dof, pivot: lifted[reference_dof], max_translation: t, max_rotation: theta })
+}
+
+/// `normalize_mode` of a reduced vector with its lifted choice (C6).
+pub fn normalize_mode_lifted(
+    mode: usize,
+    phi: &[f64],
+    basis: &ModalBasis<'_>,
+    chosen: LiftedNormalization,
+) -> Result<NormalizedMode, ModalQuantityError> {
+    basis.workspace.with(|workspace| {
+        let SumWorkspace { sum, limbs, below } = workspace;
+        let n = basis.dimension();
+        if phi.len() != n {
+            return Err(ModalQuantityError::DimensionMismatch { name: "phi", expected: n, actual: phi.len() });
+        }
+        if let Some(index) = phi.iter().position(|v| !v.is_finite()) {
+            return Err(ModalQuantityError::NonFinite { name: "phi", index });
+        }
+        if chosen.pivot == 0.0 || !chosen.pivot.is_finite() {
+            return Err(ModalQuantityError::ZeroShape { mode });
+        }
+        let chosen_at = Chosen {
+            case: chosen.case,
+            reference: chosen.reference_dof,
+            pivot: chosen.pivot,
+            t: chosen.max_translation,
+            theta: chosen.max_rotation,
+        };
+        finish_normalization(mode, phi, basis, sum, limbs, below, chosen_at)
+    })
+}
+
+/// The normalization chosen for one mode.
+struct Chosen {
+    case: NormalizationCase,
+    reference: usize,
+    pivot: f64,
+    t: f64,
+    theta: f64,
+}
+
+fn finish_normalization(
+    mode: usize,
+    phi: &[f64],
+    basis: &ModalBasis<'_>,
+    sum: &mut crate::exact::ExactSum,
+    limbs: &mut Vec<i64>,
+    below: &mut Vec<usize>,
+    chosen: Chosen,
+) -> Result<NormalizedMode, ModalQuantityError> {
+    let n = basis.dimension();
+    let Chosen { case, reference, pivot, t, theta } = chosen;
     // Every shape component is published: an overflow refuses, and a
     // nonzero component whose exact quotient is below the normal range is
     // published as 0, flagged. The class is decided exactly, before

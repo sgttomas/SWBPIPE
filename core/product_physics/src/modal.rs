@@ -29,14 +29,14 @@ mod outcome;
 mod prepare;
 mod request;
 mod state;
-mod stiffness;
+mod stiffness; mod skew_pencil;
 mod weight_basis;
 #[cfg(test)]
 mod tests;
 #[cfg(test)]
 mod tests_eigen;
 #[cfg(test)]
-mod tests_state;
+mod tests_state; #[cfg(test)] mod tests_skew;
 
 /// The request names neither `mode_count` nor `frequency_cutoff` (§1.4).
 pub(crate) const MODAL_EXTRACTION_BOUND_REQUIRED: &str = "MODAL_EXTRACTION_BOUND_REQUIRED";

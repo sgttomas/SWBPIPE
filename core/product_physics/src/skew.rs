@@ -168,6 +168,35 @@ pub(crate) fn force_scaled_refusal(case_id: &str, detail: &str) -> Diagnostic {
     )
 }
 
+/// The static path's coordinate solve (§6.2, §6.3): NI's linear skew entry with its
+/// assembly and symmetry evidence on K′ and `restrained_coordinates`. The case solve
+/// (`solve`) and modal's singularity evidence (D-1 C1, on a zero force in
+/// `DenseScrutiny`) both run it.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn solve_coordinates(
+    mode: LinearSolveMode,
+    stiffness: &SparseStiffness,
+    built: &BuiltModel,
+    curved: &[CurvedBendStiffnessElement],
+    springs: &[(usize, f64)],
+    global_force: &AssembledForce,
+    prescribed: &[(usize, f64)],
+    basis: &RestraintBasis,
+) -> Result<open_pipe_stress_frame_kernel::structural::StructuralSolution, StructuralError> {
+    let assembly = SparseAssemblyEvidence::new_with_restraint_basis(
+        stiffness.pattern(),
+        built.nodes.len(),
+        &built.frame_elements,
+        &built.connectors,
+        curved,
+        springs,
+        basis,
+    )?
+    .with_frame_members(&frame_member_identities(built));
+    let curved_sources = built.curved_bend_elements.iter().map(|e| e.macro_element).collect::<Vec<_>>();
+    assembly.solve_skew_with_formation_check(stiffness, global_force, prescribed, mode, &curved_sources)
+}
+
 /// The case solve on coordinates (§6.2, §6.3), through NI's linear skew entry, lifted
 /// (§10.4): the physical free values (`physical_free` order) and the physical member bound.
 #[allow(clippy::too_many_arguments)]
@@ -190,22 +219,11 @@ pub(crate) fn solve(
         .iter()
         .map(|e| (e.node_dof.global_index(), e.stiffness.value))
         .collect::<Vec<_>>();
-    let assembly = SparseAssemblyEvidence::new_with_restraint_basis(
-        stiffness.pattern(),
-        built.nodes.len(),
-        &built.frame_elements,
-        &built.connectors,
-        &curved,
-        &springs,
-        basis,
-    )?
-    .with_frame_members(&frame_member_identities(built));
     let mode = match solver_mode {
         PreviewSolverMode::DenseScrutiny => LinearSolveMode::DenseScrutiny,
         PreviewSolverMode::SparseInteractive => LinearSolveMode::SparseInteractive,
     };
-    let curved_sources = built.curved_bend_elements.iter().map(|e| e.macro_element).collect::<Vec<_>>();
-    let checked = assembly.solve_skew_with_formation_check(stiffness, global_force, prescribed, mode, &curved_sources)?;
+    let checked = solve_coordinates(mode, stiffness, built, &curved, &springs, global_force, prescribed, basis)?;
     let lift_error = |_| StructuralError::InvalidInput("restraint basis lift");
     let (u, member_bound) = match &checked.member_bound {
         Some(bound) => {

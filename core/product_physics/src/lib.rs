@@ -3149,7 +3149,7 @@ fn run_linear_static_preview_observed_inner(
     );
     if boundary.restrained_dofs.is_empty()
         && boundary.springs.is_empty()
-        && potential_contact_dofs.is_none()
+        && potential_contact_dofs.is_none() && built.skew.is_none()
     {
         diagnostics.push(diag(
             "diagnostic:physics:no-restraints",

@@ -400,13 +400,65 @@ pub fn reform_element_mass(
     }
 }
 
+/// R-6/R-7 (DEL-04-03 skew-restraints.md §11.3 D-1 (a)): one global DOF's
+/// reduced coordinates under a restraint basis: the free coordinate indices c
+/// with q_g,c ≠ 0 and their weights (at most 3; restrained coordinates are
+/// omitted). Q is node-local and division-free; the same `congruence_terms`
+/// enumeration forms the product's K′ and M′.
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
+pub struct Coordinates {
+    entries: [(usize, f64); 3],
+    len: usize,
+}
+
+impl Coordinates {
+    /// `None` for more than three entries or a non-finite or zero weight.
+    pub fn new(entries: &[(usize, f64)]) -> Option<Self> {
+        if entries.len() > 3 || entries.iter().any(|&(_, q)| !q.is_finite() || q == 0.0) {
+            return None;
+        }
+        let mut out = Self::default();
+        out.entries[..entries.len()].copy_from_slice(entries);
+        out.len = entries.len();
+        Some(out)
+    }
+    pub fn as_slice(&self) -> &[(usize, f64)] {
+        &self.entries[..self.len]
+    }
+}
+
 /// An element matrix with its DOFs mapped to the free numbering (`None`
-/// for a restrained DOF).
+/// for a restrained DOF). `mixed`, only for an element touching a DOF whose
+/// coordinates are mixed by a restraint basis, maps every element DOF to its
+/// weighted coordinates instead (`rows` then unused); identity elements carry
+/// none, so the identity path allocates nothing new.
 #[derive(Debug, Clone, PartialEq)]
 struct Mapped {
     element: usize,
     rows: Vec<Option<usize>>,
     matrix: ElementMatrix,
+    mixed: Option<Vec<Coordinates>>,
+}
+
+/// The exact product a·b as two scaled parts ((value, exponent) each, the
+/// second possibly zero): significands in [1, 2), so the TwoProduct is exact
+/// and never underflows.
+fn two_prod_scaled(a: f64, b: f64) -> ((f64, i32), (f64, i32)) {
+    let (ea, eb) = (crate::dd::binary_exponent(a), crate::dd::binary_exponent(b));
+    let (hi, lo) = crate::dd::two_prod(crate::dd::scale_by_pow2(a, -ea), crate::dd::scale_by_pow2(b, -eb));
+    ((hi, ea + eb), (lo, ea + eb))
+}
+
+impl Mapped {
+    fn touches(&self, row: usize, col: usize) -> bool {
+        match &self.mixed {
+            None => self.rows.contains(&Some(row)) && self.rows.contains(&Some(col)),
+            Some(mixed) => {
+                let has = |r: usize| mixed.iter().any(|c| c.as_slice().iter().any(|&(i, _)| i == r));
+                has(row) && has(col)
+            }
+        }
+    }
 }
 
 /// The re-formed pencil K̂, M̂ on the free DOFs, kept element by element.
@@ -460,6 +512,32 @@ impl ReformedPencil {
         elements: &[ElementOperand],
         limb_allotment: Option<usize>,
     ) -> Result<Self, ReformationError> {
+        Self::new_on_coordinates(dimension, dof_map, None, basis, elements, limb_allotment)
+    }
+
+    /// R-6/R-7 (D-1 (a)): the re-formed reduced pencil K̂′ = Q̃ᵀK̂Q̃, M̂′ = Q̃ᵀM̂Q̃.
+    /// `coordinates[g]` is `Some` exactly for a global DOF whose coordinates a
+    /// restraint basis mixes (its free coordinates and weights); every other
+    /// DOF maps through `dof_map` as in [`ReformedPencil::new`]. Each term
+    /// q_ir·k·q_jc (·x) enters the exact sums as one exact product.
+    pub fn new_with_coordinates(
+        dimension: usize,
+        dof_map: &[Option<usize>],
+        coordinates: &[Option<Coordinates>],
+        basis: MassBasis,
+        elements: &[ElementOperand],
+    ) -> Result<Self, ReformationError> {
+        Self::new_on_coordinates(dimension, dof_map, Some(coordinates), basis, elements, None)
+    }
+
+    fn new_on_coordinates(
+        dimension: usize,
+        dof_map: &[Option<usize>],
+        coordinates: Option<&[Option<Coordinates>]>,
+        basis: MassBasis,
+        elements: &[ElementOperand],
+        limb_allotment: Option<usize>,
+    ) -> Result<Self, ReformationError> {
         let map = |element: usize, matrix: ElementMatrix| -> Result<Mapped, ReformationError> {
             let mut rows = Vec::with_capacity(matrix.size());
             for &dof in &matrix.dofs {
@@ -474,10 +552,32 @@ impl ReformedPencil {
                 }
                 rows.push(entry);
             }
+            let mixed = match coordinates {
+                Some(coordinates) if matrix.dofs.iter().any(|&dof| coordinates.get(dof).is_some_and(Option::is_some)) => {
+                    let mut mixed = Vec::with_capacity(matrix.size());
+                    for (&dof, entry) in matrix.dofs.iter().zip(&rows) {
+                        let fail = |failure| ReformationError { element, failure };
+                        let weighted = match coordinates.get(dof).copied().flatten() {
+                            Some(weighted) => weighted,
+                            None => entry.map_or(Coordinates::default(), |index| Coordinates {
+                                entries: [(index, 1.0), (0, 0.0), (0, 0.0)],
+                                len: 1,
+                            }),
+                        };
+                        if let Some(&(index, _)) = weighted.as_slice().iter().find(|&&(index, _)| index >= dimension) {
+                            return Err(fail(ReformationFailure::FreeIndexOutOfRange { dof, index }));
+                        }
+                        mixed.push(weighted);
+                    }
+                    Some(mixed)
+                }
+                _ => None,
+            };
             Ok(Mapped {
                 element,
                 rows,
                 matrix,
+                mixed,
             })
         };
         let mut pencil = Self {
@@ -530,7 +630,7 @@ impl ReformedPencil {
                 if let Err(range) = check_entry(matrix, row, col, value.to_f64()) {
                     let element = list
                         .iter()
-                        .find(|e| e.rows.contains(&Some(row)) && e.rows.contains(&Some(col)))
+                        .find(|e| e.touches(row, col))
                         .map_or(0, |e| e.element);
                     return Err(ReformationError {
                         element,
@@ -571,6 +671,41 @@ impl ReformedPencil {
     /// Σ_b factor·e_ab·x_b into each row's exact sum, element by element.
     fn product_into(list: &[Mapped], x: &[f64], factor: Option<f64>, rows: &mut [ExactSum]) {
         for e in list {
+            if let Some(mixed) = &e.mixed {
+                // (Q̃ᵀ E Q̃ x)_r: every ordered element pair (a, b) and every
+                // coordinate pair, q_a,r·e_ab·q_b,c·x_c (·factor) exactly.
+                for (a, ca) in mixed.iter().enumerate() {
+                    for (b, cb) in mixed.iter().enumerate() {
+                        let entry = e.matrix.get(a, b);
+                        for &(ra, qa) in ca.as_slice() {
+                            for &(rb, qb) in cb.as_slice() {
+                                if x[rb] == 0.0 {
+                                    continue;
+                                }
+                                for word in [entry.hi, entry.lo] {
+                                    if word == 0.0 {
+                                        continue;
+                                    }
+                                    // With a factor (five terms), the two weights are first
+                                    // folded into one exact scaled pair.
+                                    let _ = match factor {
+                                        None => rows[ra].add_product4_within(&[qa, word, qb, x[rb]], 0, None),
+                                        Some(f) => {
+                                            let (hi, lo) = two_prod_scaled(qa, qb);
+                                            let _ = rows[ra].add_product4_within(&[hi.0, word, f, x[rb]], hi.1, None);
+                                            if lo.0 != 0.0 {
+                                                let _ = rows[ra].add_product4_within(&[lo.0, word, f, x[rb]], lo.1, None);
+                                            }
+                                            Ok(())
+                                        }
+                                    };
+                                }
+                            }
+                        }
+                    }
+                }
+                continue;
+            }
             for (a, ra) in e.rows.iter().enumerate() {
                 let Some(ra) = *ra else { continue };
                 for (b, rb) in e.rows.iter().enumerate() {
@@ -632,6 +767,28 @@ impl ReformedPencil {
     ) -> Result<BTreeMap<(usize, usize), ExactSum>, (usize, LimbAllotmentExceeded)> {
         let mut out: BTreeMap<(usize, usize), ExactSum> = BTreeMap::new();
         for e in list {
+            if let Some(mixed) = &e.mixed {
+                // The lower triangle (r ≥ c) of Q̃ᵀ E Q̃: every ordered element
+                // pair and every coordinate pair, each term exact (D-1 (a)).
+                for (a, ca) in mixed.iter().enumerate() {
+                    for (b, cb) in mixed.iter().enumerate() {
+                        let entry = e.matrix.get(a, b);
+                        for &(ra, qa) in ca.as_slice() {
+                            for &(rb, qb) in cb.as_slice() {
+                                if ra < rb {
+                                    continue;
+                                }
+                                let slot = out.entry((ra, rb)).or_default();
+                                for word in [entry.hi, entry.lo] {
+                                    slot.add_product4_within(&[qa, word, qb], 0, limb_allotment)
+                                        .map_err(|exceeded| (e.element, exceeded))?;
+                                }
+                            }
+                        }
+                    }
+                }
+                continue;
+            }
             for (a, ra) in e.rows.iter().enumerate() {
                 let Some(ra) = *ra else { continue };
                 for (b, rb) in e.rows.iter().enumerate().take(a + 1) {
@@ -1181,6 +1338,54 @@ mod tests {
             &elements,
             limb_allotment,
         )
+    }
+
+    /// R-6/R-7 D-1 (a): the coordinate re-formation. No mixed DOF is today's pencil
+    /// bit for bit; an explicit identity weight takes the mixed path and gives the
+    /// same assembled entries; a weight of 2 on DOF 0 scales its row and column
+    /// exactly (K′₀₀ = 4K₀₀, K′₀c = 2K₀c).
+    #[test]
+    fn coordinate_reformation_is_the_congruence() {
+        let identity = small_pencil(None).unwrap();
+        let elements = small_elements();
+        let map: Vec<Option<usize>> = (0..6).map(Some).collect();
+        let none = vec![None; 6];
+        let unmixed = ReformedPencil::new_with_coordinates(6, &map, &none, MassBasis::EffectiveWall, &elements).unwrap();
+        assert_eq!(unmixed, identity);
+        let unit: Vec<Option<Coordinates>> = (0..6).map(|i| Coordinates::new(&[(i, 1.0)])).collect();
+        let mixed = ReformedPencil::new_with_coordinates(6, &map, &unit, MassBasis::EffectiveWall, &elements).unwrap();
+        assert_eq!(mixed.assembled_stiffness(), identity.assembled_stiffness());
+        assert_eq!(mixed.assembled_mass(), identity.assembled_mass());
+        let mut doubled = unit.clone();
+        doubled[0] = Coordinates::new(&[(0, 2.0)]);
+        let scaled = ReformedPencil::new_with_coordinates(6, &map, &doubled, MassBasis::EffectiveWall, &elements).unwrap();
+        // The exact sums scale by 2 per weighted index; each is rounded once to
+        // double-double, whose last bit is not scale-equivariant, so the
+        // comparison is within that one rounding (2^-104 relative).
+        let within = |a: Dd, b: Dd, what: &str| {
+            assert!(a.sub(b).to_f64().abs() <= b.hi.abs() * 2f64.powi(-104), "{what}: {a:?} against {b:?}");
+        };
+        for ((key, value), (_, base)) in scaled.assembled_stiffness().into_iter().zip(identity.assembled_stiffness()) {
+            let factor = [key.0, key.1].iter().filter(|&&i| i == 0).count() as i32;
+            within(value, base.mul_pow2(factor), &format!("{key:?}"));
+        }
+        // The products agree with the assembled congruence: (Q̃ᵀK̂Q̃)x.
+        let x = [1.0, -0.5, 0.25, 2.0, -1.0, 0.125];
+        let product = scaled.stiffness_product(&x);
+        let mut base_x = x;
+        base_x[0] *= 2.0;
+        let base = identity.stiffness_product(&base_x);
+        within(product[1].to_dd(), base[1].to_dd(), "row 1");
+        within(product[0].to_dd(), base[0].to_dd().mul_pow2(1), "row 0");
+    }
+
+    fn small_elements() -> Vec<ElementOperand> {
+        let mut elements: Vec<ElementOperand> = (0..6)
+            .map(|dof| ElementOperand::Spring(SpringOperand::Axis { dof, stiffness: 1e3 * (dof + 1) as f64 / 7.0 }))
+            .collect();
+        elements.push(ElementOperand::Spring(SpringOperand::RankOne { node: 0, rotational: false, direction: [1.0, 2.0, 3.0], stiffness: 5e2 }));
+        elements.push(ElementOperand::ComponentBody(ComponentBody { node: 0, weight: 1000.0, acceleration: 9.80665, center_of_gravity: [0.3, 0.7, 1.1] }));
+        elements
     }
 
     fn formed(list: Vec<((usize, usize), Dd)>) -> Vec<SymmetricMatrixEntry> {

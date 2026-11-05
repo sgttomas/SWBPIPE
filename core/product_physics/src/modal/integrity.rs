@@ -390,6 +390,19 @@ pub(crate) fn modal_reformation_operands(prepared: &Prepared, mass: &ModalMass) 
             operand: ElementOperand::Spring(SpringOperand::Axis { dof: spring.node_dof.global_index(), stiffness: spring.stiffness.value }),
         });
     }
+    // R-6/R-7 D-1 (a): each skewed spring re-formed as k·n̂n̂ᵀ on its node's
+    // translations from the authored direction (the block K-D5 intends).
+    for spring in built.skew.iter().flat_map(|basis| basis.springs()).filter(|spring| spring.stiffness != 0.0) {
+        operands.push(NamedOperand {
+            subject: spring.support_id.clone(),
+            operand: ElementOperand::Spring(SpringOperand::RankOne {
+                node: spring.node,
+                rotational: false,
+                direction: spring.direction.authored(),
+                stiffness: spring.stiffness,
+            }),
+        });
+    }
     if !refusals.is_empty() {
         return Err(refusals);
     }
@@ -403,12 +416,18 @@ pub(crate) fn reform_modal_pencil(
     exact: bool,
     dimension: usize,
     dof_map: &[Option<usize>],
+    coordinates: Option<&[Option<open_pipe_stress_modal_eigen::reformation::Coordinates>]>,
     stiffness_entries: &[SymmetricMatrixEntry],
     mass_entries: &[SymmetricMatrixEntry],
 ) -> Result<(ReformedPencil, FormationDifference), Vec<Diagnostic>> {
     let basis = if exact { MassBasis::NominalWallPressureBore } else { MassBasis::EffectiveWall };
     let elements: Vec<ElementOperand> = operands.iter().map(|o| o.operand.clone()).collect();
-    let pencil = ReformedPencil::new(dimension, dof_map, basis, &elements).map_err(|ReformationError { element, failure }| {
+    // R-6/R-7 D-1 (a): with a restraint basis, the re-formed reduced pencil Q̃ᵀK̂Q̃, Q̃ᵀM̂Q̃.
+    let reformed = match coordinates {
+        Some(coordinates) => ReformedPencil::new_with_coordinates(dimension, dof_map, coordinates, basis, &elements),
+        None => ReformedPencil::new(dimension, dof_map, basis, &elements),
+    };
+    let pencil = reformed.map_err(|ReformationError { element, failure }| {
         let subject = operands.get(element).map_or("model", |o| o.subject.as_str());
         let code = modal_refusal_code(&failure);
         vec![diag(

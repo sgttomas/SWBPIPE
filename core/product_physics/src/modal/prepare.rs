@@ -319,14 +319,8 @@ pub(crate) fn prepare_modal(req: &ModalPreviewRequest) -> Result<Prepared<'_>, V
     append_constant_effort_consumption_diagnostics(&model, &mut diagnostics);
     topology::append_topology_diagnostics(&model, &built, &mut diagnostics);
 
-    // The restraint pre-checks, as the static entry states them.
-    // R-6/R-7 S-K1: interim, until D-1 consumes the basis in the pencil (the next
-    // change): a skew model's modal solve is refused by name, never solved without its stop.
-    if built.skew.is_some() {
-        diagnostics.push(diag("diagnostic:modal:skew-restraint", "MODAL_SKEW_RESTRAINT_INTERIM_UNSUPPORTED", "blocking",
-            "modal analysis of a model with a skewed restraint is not built yet; nothing is solved", vec!["supports".to_string()]));
-        return Err(diagnostics);
-    }
+    // The restraint pre-checks, as the static entry states them (R-6/R-7: the same
+    // basis, `built.skew`, one build per model, D-1 (e)).
     let boundary = prepare_boundary(built.nodes.len(), &built.supports);
     let potential_contact_dofs = eligible_contact_dofs(
         built.nodes.len(),
@@ -334,7 +328,7 @@ pub(crate) fn prepare_modal(req: &ModalPreviewRequest) -> Result<Prepared<'_>, V
         &built.nonlinear_supports,
         &built.nonlinear_initial_states,
     );
-    if boundary.restrained_dofs.is_empty() && boundary.springs.is_empty() && potential_contact_dofs.is_none() {
+    if boundary.restrained_dofs.is_empty() && boundary.springs.is_empty() && potential_contact_dofs.is_none() && built.skew.is_none() {
         diagnostics.push(diag(
             "diagnostic:physics:no-restraints",
             "SUPPORT_INPUT_MISSING",
@@ -356,7 +350,9 @@ pub(crate) fn prepare_modal(req: &ModalPreviewRequest) -> Result<Prepared<'_>, V
         )
         .chain(potential_contact_dofs.iter().flatten().copied())
         .collect::<HashSet<_>>();
-    if !ground_dofs.is_empty() && ground_dofs.len() < DOF_PER_NODE {
+    // §9: one ground row per stop and per positive skewed spring, as the static entry counts.
+    let skewed_rows = crate::skew::ground_rows(built.skew.as_ref());
+    if !(ground_dofs.is_empty() && skewed_rows == 0) && ground_dofs.len() + skewed_rows < DOF_PER_NODE {
         let (restrained, missing) = support_restraint_summary(&boundary.restrained_dofs);
         diagnostics.push(diag("diagnostic:physics:under-restrained", "SOLVER_SYSTEM_BLOCKED", "blocking",
             format!("fewer than six independent ground constraints including positive springs: the six rigid-body modes of a connected structure cannot all be removed; directly restrained global DOF classes: {restrained}; global DOF classes with no direct restraint: {missing} (not a rigid-body mode analysis; separated restraints can resist rotations); support contributions: {}", support_contribution_summary(&model)),

@@ -101,6 +101,9 @@ pub(crate) struct ModalPencil {
     /// R_k,fᵀ M_ff R_k,f, kg: a summary row, not the fractions' denominator.
     pub(crate) free_dof_mass: [f64; 3],
     pub(crate) guard: DenseGuardRecord,
+    /// R-6/R-7 D-1: the restraint basis of a reduced (skew-coordinate) pencil;
+    /// `free_dofs` are then free coordinates and shapes are lifted (`skew_pencil`).
+    pub(crate) skew: Option<super::skew_pencil::SkewPencil>,
 }
 
 const DOFS: [Dof; 6] = [Dof::Ux, Dof::Uy, Dof::Uz, Dof::Rx, Dof::Ry, Dof::Rz];
@@ -155,7 +158,24 @@ pub(crate) fn form_modal_pencil(
     let zero = LoadLedger::new()
         .finish(global_dimension)
         .map_err(|error| blocked("diagnostic:physics:solver", "SOLVER_SYSTEM_BLOCKED", format!("{error:?}")))?;
-    let reduced = reduce_assembled_sparse_system(&formed, &zero, restrained, None)
+    // R-6/R-7 D-1 (C1): with a skewed restraint, the static path's K′ on its
+    // restrained coordinates; every allocation of the transform is in this branch.
+    let basis = built.skew.as_ref();
+    let k_prime = match basis {
+        Some(basis) => {
+            if restrained != basis.axis_restrained() {
+                return Err(blocked("diagnostic:physics:solver", "SOLVER_SYSTEM_BLOCKED",
+                    "the modal partition is not the restraint basis's axis set".into()));
+            }
+            Some(basis.transform_stiffness(&formed).map_err(|error| {
+                blocked("diagnostic:physics:solver", "SOLVER_SYSTEM_BLOCKED", format!("restraint_basis: the coordinate transform is refused ({error:?})"))
+            })?)
+        }
+        None => None,
+    };
+    let partitioned = k_prime.as_ref().unwrap_or(&formed);
+    let partition_restrained = basis.map_or(restrained, |basis| basis.restrained_coordinates());
+    let reduced = reduce_assembled_sparse_system(partitioned, &zero, partition_restrained, None)
         .map_err(|error| blocked("diagnostic:physics:solver", "SOLVER_SYSTEM_BLOCKED", error.to_string()))?;
     let free_dofs = reduced.free_dofs.clone();
     let n = free_dofs.len();
@@ -180,13 +200,21 @@ pub(crate) fn form_modal_pencil(
         let springs: Vec<(usize, f64)> =
             prepared.boundary.springs.iter().map(|e| (e.node_dof.global_index(), e.stiffness.value)).collect();
         let prescribed: Vec<(usize, f64)> = restrained.iter().map(|&dof| (dof, 0.0)).collect();
+        if let Some(basis) = basis {
+            crate::skew::solve_coordinates(LinearSolveMode::DenseScrutiny, &formed, built, &curved, &springs, &zero, &prescribed, basis)
+                .map_err(super::skew_pencil::evidence_diagnostics)?;
+        } else {
         SparseAssemblyEvidence::new(formed.pattern(), built.nodes.len(), &built.frame_elements, &built.connectors, &curved, &springs)
             .map(|assembly| assembly.with_frame_members(&frame_member_identities(built)))
             .and_then(|assembly| assembly.solve_assembled(&formed, &zero, &free_dofs, &prescribed, LinearSolveMode::DenseScrutiny))
             .map_err(|error| singular_refusal(prepared, &error))?;
+        }
     }
 
-    let labels: Vec<String> = free_dofs.iter().map(|&dof| integrity_dof_label(&prepared.model, dof)).collect();
+    let labels: Vec<String> = match basis {
+        Some(basis) => free_dofs.iter().map(|&c| super::skew_pencil::label(&prepared.model, basis, c)).collect(),
+        None => free_dofs.iter().map(|&dof| integrity_dof_label(&prepared.model, dof)).collect(),
+    };
     let free_labels: Vec<FreeDof> =
         free_dofs.iter().map(|&dof| FreeDof { node: dof / DOF_PER_NODE, dof: DOFS[dof % DOF_PER_NODE] }).collect();
     let range = |matrix: PencilMatrix, r: usize, c: usize, value: f64| {
@@ -204,13 +232,13 @@ pub(crate) fn form_modal_pencil(
     let mut stiffness_entries = Vec::new();
     let mut stiffness_asymmetric_entries = 0;
     for (r, &dof) in free_dofs.iter().enumerate() {
-        for (col, value) in formed.row(dof) {
+        for (col, value) in partitioned.row(dof) {
             let Some(c) = dof_map[col] else { continue };
             if c > r {
                 continue;
             }
             range(PencilMatrix::Stiffness, r, c, value)?;
-            if c != r && formed.get(col, dof).to_bits() != value.to_bits() {
+            if basis.is_none() && c != r && formed.get(col, dof).to_bits() != value.to_bits() {
                 stiffness_asymmetric_entries += 1;
             }
             k[r * n + c] = value;
@@ -219,10 +247,21 @@ pub(crate) fn form_modal_pencil(
         }
     }
 
+    if let Some(basis) = basis {
+        stiffness_asymmetric_entries = super::skew_pencil::global_asymmetric_entries(&formed, basis);
+    }
     // M_ff through the same partition, from I2a's upper node blocks.
     let mut m = vec![0.0; n * n];
     let mut mass_entries = Vec::new();
-    for ((i, j), block) in mass.node_blocks() {
+    // R-6/R-7 D-1 (C2): M′ by the congruence, lower entries formed and mirrored.
+    let skew_mass = basis.map(|basis| super::skew_pencil::mass_entries(basis, mass, &dof_map));
+    for (r, c, value) in skew_mass.iter().flatten().copied() {
+        range(PencilMatrix::Mass, r, c, value)?;
+        m[r * n + c] = value;
+        m[c * n + r] = value;
+        mass_entries.push(SymmetricMatrixEntry { row: r, col: c, value });
+    }
+    for ((i, j), block) in mass.node_blocks().filter(|_| basis.is_none()) {
         for (a, line) in block.iter().enumerate() {
             for (b, &value) in line.iter().enumerate() {
                 let (row, col) = (DOF_PER_NODE * i + a, DOF_PER_NODE * j + b);
@@ -254,7 +293,11 @@ pub(crate) fn form_modal_pencil(
 
     let mut excitation: [Vec<f64>; 3] = Default::default();
     let mut free_dof_mass = [0.0; 3];
-    for (axis, p) in excitation.iter_mut().enumerate() {
+    if let (Some(basis), Some(lower)) = (basis, skew_mass.as_ref()) {
+        excitation = super::skew_pencil::excitation(basis, mass, &free_dofs);
+        free_dof_mass = super::skew_pencil::kept_subspace_mass(basis, &free_dofs, lower);
+    }
+    for (axis, p) in excitation.iter_mut().enumerate().filter(|_| basis.is_none()) {
         let product = mass.rigid_product(axis);
         *p = free_dofs.iter().map(|&dof| product[dof].to_f64()).collect();
         let mut sum = Dd::ZERO;
@@ -276,7 +319,17 @@ pub(crate) fn form_modal_pencil(
         eigen_core_bytes: dense_path_peak_bytes(n as u64),
         operation_estimate: dense_path_flop_estimate(n as u64, max_candidates as u64),
     };
+    let skew = match basis {
+        Some(basis) => Some(super::skew_pencil::SkewPencil {
+            basis: basis.clone(),
+            coordinates: super::skew_pencil::coordinates(basis, &dof_map).ok_or_else(|| {
+                blocked("diagnostic:physics:solver", "SOLVER_SYSTEM_BLOCKED", "restraint_basis: a coordinate weight is not finite".into())
+            })?,
+        }),
+        None => None,
+    };
     Ok(ModalPencil {
+        skew,
         global_dimension,
         free_dofs,
         dof_map,

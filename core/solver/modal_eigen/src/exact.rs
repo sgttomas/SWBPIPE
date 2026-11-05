@@ -288,6 +288,59 @@ impl ExactSum {
         }
     }
 
+    /// R-6/R-7 (DEL-04-03 skew-restraints.md §11.3 D-1 (a)): the exact product of
+    /// at most four finite factors times 2^exponent, under an optional limb
+    /// allotment: q_ir·k·q_jc·x of a congruence term. Each factor is split into
+    /// its exponent and a significand in [1, 2), so every TwoProduct is exact
+    /// and no part underflows (no split-range premise is needed here). A
+    /// separate entry, so the three-factor path is unchanged.
+    pub(crate) fn add_product4_within(
+        &mut self,
+        factors: &[f64],
+        exponent: i32,
+        allotment: Option<usize>,
+    ) -> Result<(), LimbAllotmentExceeded> {
+        debug_assert!(!factors.is_empty() && factors.len() <= 4);
+        if factors.contains(&0.0) && factors.iter().all(|f| f.is_finite()) {
+            return Ok(());
+        }
+        if factors.iter().any(|f| !f.is_finite()) {
+            let product = factors.iter().product::<f64>();
+            self.non_finite = Some(self.non_finite.map_or(product, |v| v + product));
+            return Ok(());
+        }
+        let mut scale = exponent;
+        let mut parts: [f64; 8] = [0.0; 8];
+        let mut count = 0;
+        for (i, &factor) in factors.iter().enumerate() {
+            let e = binary_exponent(factor);
+            scale += e;
+            let significand = scale_by_pow2(factor, -e);
+            if i == 0 {
+                parts[0] = significand;
+                count = 1;
+                continue;
+            }
+            let mut next = [0.0; 8];
+            let mut next_count = 0;
+            for &part in &parts[..count] {
+                let (hi, lo) = two_prod(part, significand);
+                next[next_count] = hi;
+                next_count += 1;
+                if lo != 0.0 {
+                    next[next_count] = lo;
+                    next_count += 1;
+                }
+            }
+            parts = next;
+            count = next_count;
+        }
+        for &part in &parts[..count] {
+            self.add_scaled_within(part, scale, allotment)?;
+        }
+        Ok(())
+    }
+
     /// Adds the exact product of the factors (at most three).
     pub fn add_product(&mut self, factors: &[f64]) {
         self.add_product_scaled(factors, 0);

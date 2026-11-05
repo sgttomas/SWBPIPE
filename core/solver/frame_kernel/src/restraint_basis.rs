@@ -823,6 +823,14 @@ impl RestraintBasis {
         row
     }
 
+    /// Q's column `coordinate`: the physical DOFs i with q_i,coordinate ≠ 0 and
+    /// their weights (at most 3; the single (coordinate, 1) away from
+    /// constrained nodes). The coordinate entry of Qᵀx is Σ_i q_i,c·x_i.
+    pub fn q_column(&self, coordinate: usize) -> QRow {
+        let column = self.column(coordinate);
+        QRow { entries: column.entries, len: column.len }
+    }
+
     /// Whether `dof` is a translation at a node with a stop (a touched DOF).
     pub fn is_constrained_translation(&self, dof: usize) -> bool {
         self.translation(dof).is_some()

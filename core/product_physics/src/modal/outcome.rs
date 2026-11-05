@@ -48,7 +48,8 @@ use crate::{Diagnostic, PreviewSolverMode};
 use open_pipe_stress_modal_eigen::clusters::{cluster_ids, ExtractionBound, ReportedSet};
 use open_pipe_stress_modal_eigen::dense::ScreenedMode;
 use open_pipe_stress_modal_eigen::modal_quantities::{
-    cumulative_effective_mass_fractions, frequency_from_eigenvalue, BelowNormalRange, NormalizationCase,
+    cumulative_effective_mass_fractions, frequency_from_eigenvalue, lifted_normalization, normalize_mode_lifted, BelowNormalRange,
+    ModalQuantityError, NormalizationCase,
 };
 use open_pipe_stress_modal_eigen::orthogonality::MOrthogonality;
 use open_pipe_stress_modal_eigen::reformation::{cluster_error_estimates, FormationDifference, ResidualEstimate};
@@ -242,10 +243,23 @@ pub(crate) fn run_modal_dense(req: &ModalPreviewRequest, params: &ModalIntegrity
 
     // Normalization and participation of the reported modes (§1.5).
     let positions: Vec<[f64; 3]> = prepared.built.nodes.iter().map(|n| n.coordinates).collect();
-    let basis = modal_basis(&pencil, bounding_box_diagonal(&positions), params)?;
+    let diagonal = bounding_box_diagonal(&positions);
+    let basis = modal_basis(&pencil, diagonal, params)?;
     let mut normalized = Vec::with_capacity(reported_count);
     for mode in 0..reported_count {
-        normalized.push(normalize_modal_shape(&basis, mode, solution.vector(mode))?);
+        normalized.push(match &pencil.skew {
+            None => normalize_modal_shape(&basis, mode, solution.vector(mode))?,
+            // R-6/R-7 D-1 (C6): the case, τ_t and the pivot on the lifted φ = Q̃φ′.
+            Some(skew) => {
+                let vector = solution.vector(mode);
+                let lifted = skew.lift(&pencil.free_dofs, vector).ok_or_else(|| {
+                    super::eigen::quantity_refusal(Some(mode), ModalQuantityError::InvalidParameter { name: "lifted shape" })
+                })?;
+                let chosen = lifted_normalization(mode, &lifted, diagonal, params.no_translation_threshold)
+                    .map_err(|error| super::eigen::quantity_refusal(Some(mode), error))?;
+                normalize_mode_lifted(mode, vector, &basis, chosen).map_err(|error| super::eigen::quantity_refusal(Some(mode), error))?
+            }
+        });
     }
 
     // Check 1, then check 2 for every computed mode.
@@ -255,6 +269,7 @@ pub(crate) fn run_modal_dense(req: &ModalPreviewRequest, params: &ModalIntegrity
         prepared.exact,
         pencil.free_dofs.len(),
         &pencil.dof_map,
+        pencil.skew.as_ref().map(|skew| skew.coordinates.as_slice()),
         &pencil.stiffness_entries,
         &pencil.mass_entries,
     )?;
@@ -320,6 +335,13 @@ pub(crate) fn run_modal_dense(req: &ModalPreviewRequest, params: &ModalIntegrity
         for (free, &dof) in pencil.free_dofs.iter().enumerate() {
             shape[dof] = mode.shape[free];
         }
+        // R-6/R-7 D-1 (C6): a reduced shape is published lifted, in binary64;
+        // its below-normal flags name the coordinates published as 0.
+        if let Some(skew) = &pencil.skew {
+            shape = skew.lift(&pencil.free_dofs, &mode.shape).ok_or_else(|| {
+                super::eigen::quantity_refusal(Some(i), ModalQuantityError::InvalidParameter { name: "lifted shape" })
+            })?;
+        }
         let mut below = mode.below_normal_range.clone();
         below.shape = below.shape.iter().map(|&free| pencil.free_dofs[free]).collect();
         modes.push(ModalMode {
@@ -330,7 +352,7 @@ pub(crate) fn run_modal_dense(req: &ModalPreviewRequest, params: &ModalIntegrity
             frequency,
             period,
             normalization: mode.case,
-            reference_dof: pencil.free_dofs[mode.reference_dof],
+            reference_dof: if pencil.skew.is_some() { mode.reference_dof } else { pencil.free_dofs[mode.reference_dof] },
             shape,
             max_translation: mode.max_translation,
             max_rotation: mode.max_rotation,
@@ -475,7 +497,11 @@ fn modal_disclosures(
     }
     let shortfall: Vec<String> = (0..3)
         .filter(|&k| pencil.free_dof_mass[k] != pencil.total_mass[k])
-        .map(|k| format!("{}: total {:e} kg, free-DOF {:e} kg", ["X", "Y", "Z"][k], pencil.total_mass[k], pencil.free_dof_mass[k]))
+        .map(|k| {
+            // C4: with a restraint basis the summary is the kept-subspace mass.
+            let label = if pencil.skew.is_some() { "kept-subspace mass" } else { "free-DOF" };
+            format!("{}: total {:e} kg, {label} {:e} kg", ["X", "Y", "Z"][k], pencil.total_mass[k], pencil.free_dof_mass[k])
+        })
         .collect();
     if !shortfall.is_empty() {
         out.push(format!("mass at or coupled to restrained DOFs moves with the supports; fractions are relative to the total mass T_k ({})", shortfall.join("; ")));
