@@ -1662,6 +1662,48 @@ They're updated in the slice that changes the flow, never deleted without a repl
      is included; all other adopted memory policy is preserved. §8 states how C1 leases fit it,
      and the separate proposed factual note remains in the PR body for owner adoption;
    - DEL-14-0x (the run record, slice 5).
+7. **The session reset under IPC redelivery** (RT-U4 owner source assessment, 2026-11-05, on
+   main's C1 source; source reading only: no App, native or timing run).
+   - **Background.** In Tauri 2.11.1, any failure of a command's `ipc://` fetch, or of reading
+     its reply, switches the page to wry's `window.ipc.postMessage` for good and re-sends the
+     same message (`scripts/ipc-protocol.js`). Nothing deduplicates the two deliveries. On
+     that path a byte payload reaches Rust as a JSON body (`scripts/process-ipc-message-fn.js`,
+     `src/ipc/protocol.rs`).
+   - **The command.** `dispose_all_preview_mechanics_results` (`dispose_all_results`) carries
+     no page identity. The page sends it once (`beginSessionResultCustodyReset`), and every
+     solve start awaits it. `reset_epoch` refuses only a restoration that spans a reset
+     (RESTORED-RESULT-SESSION-RESET), not work registered before a reset that arrives late.
+   - **(1) Same page, the original delivery executes first** (e.g. it ran, but reading its
+     reply failed). The repeat executes before the page's reset resolves, so before any start.
+     It finds nothing of this page and is safe. At most, a restoration already in flight is
+     refused by name, and it can be retried.
+   - **(2) Same page, the fallback copy executes first and the original later.** After the
+     fallback the page's byte payloads arrive as JSON. Every command that creates C1 work or
+     custody therefore refuses by name before admission: the solve start
+     (PREVIEW-SOLVE-RAW-BODY-REQUIRED), and model checks, Record Run, Save and the
+     reopen-into-custody reads (INGRESS-RAW-BODY-REQUIRED). The late original finds no work of
+     this page. The page needs a reload before C1 works again. This is the raw-transport
+     availability limit DEL-04-07 already records (`memory-budget-decision.md`: a postMessage
+     fallback would materialize a `Value` first, and `start_preview_mechanics_job` refuses a
+     JSON body).
+   - **(3) A reset delivered late across a navigation.** This case is **conditional and not
+     reproduced**. A reset sent by a page that is gone could execute after a later page's own
+     reset and its start or reopen. It requires that page's request to reach Rust after the
+     later page's requests, and it has not been shown on WKWebView. It does not depend on
+     duplication: one late delivery, repeated or not, has the same effect.
+     - **Result integrity: fail-closed.** The current page's queued or running jobs are
+       abandoned (the worker is killed, and the job ends cancelled without publishing). Its
+       native-custody handles then refuse by name. Its CSV stream ends with its partial file
+       removed. A restoration in flight is refused by epoch. No stale or substituted value is
+       presented.
+     - **Accounting: a possible under-count.** If the current page already holds webview
+       copies (a delivered result, or a C2 full copy of at most 64 MiB), their native custody
+       leases are released while the webview still holds the bytes. The pool then counts less
+       than is resident until the page releases them.
+   - **Status.** No behaviour change follows from this assessment. It is not a demonstrated
+     defect, not an accepted risk, and not covered by any qualification. It does not extend
+     the owner's 2026-10-24 acceptance in DEL-04-07 (`memory-budget-decision.md`). A keyed or
+     ordered reset would need reachability evidence or a design need first.
 
 ## 8. C1's leases under the adopted pool policy
 
