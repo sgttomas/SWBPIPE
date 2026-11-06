@@ -5127,9 +5127,18 @@ _A4_RT = RE_ + "recorded_tables.rs"
 # reads_under_variant true; the retained table's base index is 1b's preview-physics-2 entry, 6); TABLES takes nine
 # OnceLock slots (const-initialized statics, no heap). Selection stays inside read_recorded, which no retained root
 # reaches; no SELECTED write, read_recorded caller or selection path changes, and every guard below is re-checked.
+# RT-U4 C1 integration (agreed with RT-A4): re-pinned on the merged bytes, 1b's content plus C1's module-documentation
+# line 29 (native custody makes each recorded read inside entry_scope on its worker thread); comment only, no code.
+# RT-U4 C1 second integration after RT-A3 §4 (§8.53, main 108766899, which pinned d768c82e…): re-pinned on the merged
+# bytes, main's §4 content (the tenth, binding-only exact successor variant 85c2678a; TABLES ten slots; read_recorded
+# clears combination_certificate's read context before and after `read`) plus C1's comment-only line 29 above. C1
+# changes no code here; §8.53's re-check of the guards below applies to the code unchanged.
+# RT-U4 C1 third integration after #122 (minuend_final, §8.54, main 9e5c69797, which pinned f9dd9a5c…): re-pinned on
+# the merged bytes, main's thirteen-variant content (#122's three b32a17761 variants at 9–11, 252bef969 at 12) plus
+# C1's comment-only line 29. C1 changes no code here; §8.54's re-check of the guards below applies unchanged.
 if fnkey("read_recorded", _A4_RT):
     if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _A4_RT), "rb").read()).hexdigest() != \
-            "f9dd9a5c8a3f69e1da3057e6cb194851dd9edebe1d8a4ad8dad3c8a583505e35":
+            "b61ae52478c7d96d7c7bc310f84a77369db8254a3f0c3f6af40e2a1147848f6c":
         raise SystemExit("RT-A4-HS: recorded_tables.rs changed; re-review §8.46's rules")
     _a4_rt = _production(_A4_RT)
     # One production item's text, from its opening line to its closing brace at the same indent (tests excluded).

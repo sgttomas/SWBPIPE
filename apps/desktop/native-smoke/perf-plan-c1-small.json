@@ -1,0 +1,37 @@
+{
+ "schema": "swbpipe.desktop-perf-plan/v1",
+ "budget_s": 840,
+ "sample_interval_ms": 200,
+ "c1_probes": true,
+ "c1_reader_diagnostics": true,
+ "c1_profile_readers": true,
+ "timeouts": {
+  "start_ms": 30000,
+  "open_ms": 60000,
+  "record_ms": 150000,
+  "save_ms": 150000,
+  "interaction_ms": 15000,
+  "csv_ms": 120000,
+  "profile_ms": 90000
+ },
+ "runs": [
+  {
+   "id": "native-linear-ex-n0082",
+   "mode": "native",
+   "model": "linear-ex-n0082.json",
+   "nodes": 82,
+   "model_sha256": "a3ca6fbc7412966304fdde46322fa4af6d93c462cc60341658fac7a188cf4ac0",
+   "estimate_s": 720,
+   "timeout_s": 720,
+   "paint_ms": 300000
+  }
+ ],
+ "subsets": {
+  "window": [
+   "native-linear-ex-n0082"
+  ],
+  "c1-82": [
+   "native-linear-ex-n0082"
+  ]
+ }
+}

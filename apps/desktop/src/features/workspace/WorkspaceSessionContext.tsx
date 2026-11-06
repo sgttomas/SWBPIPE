@@ -37,6 +37,11 @@ export function useSessionResults(): WorkspaceSession["results"] {
   return useWorkspaceSessionContext().results;
 }
 
+/** The results slice, or null outside a session (a panel rendered on its own). */
+export function useOptionalSessionResults(): WorkspaceSession["results"] | null {
+  return useContext(WorkspaceSessionContext)?.results ?? null;
+}
+
 export function useSessionOperations(): WorkspaceSession["operations"] {
   return useWorkspaceSessionContext().operations;
 }

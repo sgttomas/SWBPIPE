@@ -126,6 +126,20 @@ NOT_COMPARED = dict.fromkeys(ce.NOT_COMPARED)
 # variants they bind (kept verbatim; their texts are history).
 OUTSIDE = (":!validation/", ":!execution/", ":!fixtures/persistence/recorded_model_*",
            ":!fixtures/persistence/recorded_pre_rt_a4_pf/", ":!fixtures/results/recorded_pre_rt_a4/")
+# C1 native custody (DEL-04-05): the webview replay corpus keeps, by digest, each held text that is no committed
+# fixture file. One kept text states the endpoint's texts as history: the result of main's physics-retained-1 run
+# recorded before RT-A4 (#101), which the historical panel reads on a restored handle under that run's recorded
+# table. Named exactly (digest, carrier and member, recorded table), not by file: any other text in the corpus
+# stating an old text fails (check_replay_history).
+REPLAY_REQUESTS = "apps/desktop/src/test-support/native-replay/native_replay_requests.json"
+REPLAY_HISTORY = {
+    "a315821203adfe6b48f83b072683ee4d35d8ed5de269a7254ce3f05f968c478f": (
+        "fixtures/persistence/recorded_pre_rt_a4_pf/physics_retained_1/pr101/"
+        "retained_precision_exact_successor_sparse_interactive.json", "source",
+        "fixtures/results/recorded_pre_rt_a4/semantic_contract_v0_3_physics_retained_1.045f6f0d.json",
+        {"id": "openpipestress.result_semantics/0.3.0/physics-retained-1",
+         "sha256": "045f6f0d8ce350246b21fb712d2dd14bf3a7f7f3690e66e062cbbf77d3696a3b"}),
+}
 
 _W11 = ce._W11
 UNMATERIALIZED = {
@@ -197,6 +211,11 @@ def _at(rev, name):
 
 def current(name):
     return _at(END, name)
+
+
+def working(name):
+    """A file as the working tree holds it (RT-U4 C1's replay corpus and its carriers, which postdate END)."""
+    return (ROOT / name).read_text(encoding="utf-8")
 
 
 def _states_old(text):
@@ -520,7 +539,55 @@ def test_every_json_file_stating_an_old_text_is_compared_or_named():
         else:
             assert name in at_base, f"{name}: listed but states no endpoint text and is not named hash-only"
     assert _stating(END) == set(), sorted(_stating(END))
+    # RT-U4 C1 (merged after RT-A3 §4 froze this stage at END): C1's native replay corpus is added on its branch, in the
+    # working tree, after END. It may state an old text only in its named history (check_replay_history), read from
+    # the working tree, and no other working-tree file states one.
+    assert _stating(None) <= {REPLAY_REQUESTS}, sorted(_stating(None) - {REPLAY_REQUESTS})
+    check_replay_history(json.loads(working(REPLAY_REQUESTS)), read=working)
     assert "RETAINED_PENDING" not in globals(), "a pending exception would leave a carrier outside the comparison"
+
+
+def _strings(value):
+    if isinstance(value, str):
+        yield value
+    elif isinstance(value, list):
+        for item in value:
+            yield from _strings(item)
+    elif isinstance(value, dict):
+        for item in value.values():
+            yield from _strings(item)
+
+
+def _record_binding(record):
+    """The semantic contract an AnalysisRun record binds: analysis_run.reproducibility.semantic_contract, else None."""
+    run = record.get("analysis_run") if isinstance(record, dict) else None
+    reproducibility = run.get("reproducibility") if isinstance(run, dict) else None
+    return reproducibility.get("semantic_contract") if isinstance(reproducibility, dict) else None
+
+
+def check_replay_history(document, read=working):
+    """The replay corpus states an old text only in its named kept texts: each is the data of its recorded carrier's
+    member (a frozen tree outside this comparison), whose record binds exactly the recorded table ({id, sha256} at
+    analysis_run.reproducibility.semantic_contract), and every request holding it reads it on a restored handle under
+    exactly that table, never as a current result."""
+    sources = document["sources"]
+    stating = {sha for sha, text in sources.items() if _states_old(text)}
+    assert stating == set(REPLAY_HISTORY), sorted(stating ^ set(REPLAY_HISTORY))
+    for sha, (carrier, member, table_path, table) in REPLAY_HISTORY.items():
+        text = sources[sha]
+        assert ce._sha(text) == sha, sha
+        assert any(carrier.startswith(outside[2:].rstrip("*")) for outside in OUTSIDE), carrier
+        assert json.loads(text) == json.loads(read(carrier))[member], f"{sha}: not the data of {carrier} /{member}"
+        assert sorted(table) == ["id", "sha256"], sha
+        record = carrier.removesuffix(".json") + ".analysis_run.json"
+        binding = _record_binding(json.loads(read(record)))
+        assert binding == table, f"{record}: binds {binding}, not {table}"
+        assert ce._sha(read(table_path)) == table["sha256"], table_path
+        holding = [request for request in document["requests"] if request.get("source_sha256") == sha]
+        assert holding and all(request.get("recorded_table") == table and "source_path" not in request
+                               for request in holding), sha
+    rest = {**document, "sources": {sha: text for sha, text in sources.items() if sha not in REPLAY_HISTORY}}
+    assert not any(_states_old(text) for text in _strings(rest)), "the replay corpus states an old text outside its history"
 
 
 # ---------------------------------------------------------------- negative controls
@@ -672,3 +739,62 @@ def test_a_leftover_hash_only_or_retained_carrier_is_refused():
     assert _refusal_digest(refusal[2]["unbound"][1]) == refusal[2]["unbound"][0]
     with pytest.raises(AssertionError):
         check_reader_outcomes(_at(BASE, READER_OUTCOMES), text.replace(refusal[2]["unbound"][0], "8" * 64))
+
+
+def test_replay_history_rejects_a_stale_or_unbound_kept_text():
+    """The replay corpus's named history admits nothing else: a further kept text stating an old text, an edited
+    historical text, a request holding it without its recorded table, or an old text in a request fails."""
+    document = json.loads(working(REPLAY_REQUESTS))
+    check_replay_history(document)
+    (sha, (_, _, _, table)), = REPLAY_HISTORY.items()
+    stale = json.loads(json.dumps(document))
+    stale["sources"]["0" * 64] = json.dumps({"formulation_basis": {"limitations": [OLD_S7]}})
+    edited = json.loads(json.dumps(document))
+    edited["sources"][sha] = edited["sources"][sha].replace('"run_id":', '"run_id": ', 1)
+    unbound = json.loads(json.dumps(document))
+    next(request for request in unbound["requests"] if request.get("source_sha256") == sha).pop("recorded_table")
+    other = json.loads(json.dumps(document))
+    other["requests"][0]["args"]["note"] = OLD_ID
+    for variant in (stale, edited, unbound, other):
+        with pytest.raises(AssertionError):
+            check_replay_history(variant)
+    assert table["id"].endswith("/physics-retained-1")
+
+
+def test_replay_history_requires_the_record_to_bind_exactly_the_recorded_table():
+    """The kept text's carrier record binds the recorded table at analysis_run.reproducibility.semantic_contract,
+    compared whole: a wrong id, a wrong sha256, an added member, the binding moved to another field (its digest still
+    in the record) or removed (the result refs still state the digest) fails."""
+    document = json.loads(working(REPLAY_REQUESTS))
+    (_, (carrier, _, _, table)), = REPLAY_HISTORY.items()
+    record_path = carrier.removesuffix(".json") + ".analysis_run.json"
+    record = json.loads(working(record_path))
+    assert _record_binding(record) == table
+    check_replay_history(document, read=lambda name: json.dumps(record) if name == record_path else working(name))
+
+    def variant(edit):
+        changed = json.loads(json.dumps(record))
+        edit(changed["analysis_run"])
+        assert table["sha256"] in json.dumps(changed)   # a substring check would still pass
+        return changed
+
+    def wrong_id(run):
+        run["reproducibility"]["semantic_contract"]["id"] = "openpipestress.result_semantics/0.3.0/preview-physics-2"
+
+    def wrong_sha(run):
+        run["reproducibility"]["semantic_contract"]["sha256"] = "0" * 64
+        run["reproducibility"]["note"] = table["sha256"]
+
+    def extra_member(run):
+        run["reproducibility"]["semantic_contract"]["signature_id"] = "supported-source-000"
+
+    def misplaced(run):
+        run["semantic_contract"] = run["reproducibility"].pop("semantic_contract")
+
+    def missing(run):
+        del run["reproducibility"]["semantic_contract"]
+
+    for edit in (wrong_id, wrong_sha, extra_member, misplaced, missing):
+        changed = variant(edit)
+        with pytest.raises(AssertionError):
+            check_replay_history(document, read=lambda name: json.dumps(changed) if name == record_path else working(name))

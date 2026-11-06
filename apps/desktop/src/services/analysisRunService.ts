@@ -9,6 +9,8 @@
 import { invokeWithIngress } from "./nativeIngress";
 import { partitionListed, type UnreadableRow } from "./historyListEntries";
 import { jsonTextKeepingNegativeZero } from "./jsonText";
+import { isNativeResult, type SessionAnalysisRun, type SessionResult } from "./nativeResult";
+import { recordNativeAnalysisRun, type NativePersistenceRequest } from "./nativePersistence";
 import type { CurrentSessionInputManifestEvidence } from "./inputManifestService";
 import { MODEL_STATE_STORE_UNAVAILABLE, type ModelStateSummary, type StateAssumption, type StateLabels } from "./modelStateService";
 import type { AnalysisRunEnvelope, MechanicsResult } from "../types";
@@ -67,14 +69,19 @@ export const RUN_RECORD_NO_RUN = "RUN-RECORD-NO-RUN: solve the model to record a
 
 /** The session's current-run slot, as Record Run reads it. */
 export type CurrentRunSlot = {
-  result: MechanicsResult | null;
-  analysisRun: AnalysisRunEnvelope | null;
+  result: SessionResult | null;
+  analysisRun: SessionAnalysisRun | null;
   inputManifest: CurrentSessionInputManifestEvidence | null;
   /** The slot holds a run restored from the project row (a historical saved run). */
   restored: boolean;
+  /** C2 consumers only (a comparison with the current run): a native result's bounded full copy and record. */
+  loadFull?: (result: SessionResult) => Promise<{ result: MechanicsResult; analysisRun: AnalysisRunEnvelope | null }>;
+  /** C1: the native persistence request of the slot's native result and record (its job, the
+   * record's inputs and the previewed record), or null when the slot holds none. */
+  nativeRequest?: (result: SessionResult, analysisRun: SessionAnalysisRun) => NativePersistenceRequest | null;
 };
 
-export type RecordableRun = { result: MechanicsResult; analysisRun: AnalysisRunEnvelope; inputManifest: CurrentSessionInputManifestEvidence };
+export type RecordableRun = { result: SessionResult; analysisRun: SessionAnalysisRun; inputManifest: CurrentSessionInputManifestEvidence };
 
 /** Whether the slot holds a solve this session can record: its result, its transient
  * record and the input manifest the record names, all of one project. */
@@ -104,6 +111,10 @@ export type RecordRunInput = {
   /** The stored envelope hash value the session last opened or saved (its base). */
   expectedBase: string;
   run: RecordableRun;
+  /** C1: a native result is recorded from its job handle (`nativePersistence.ts`): the native host
+   * rebuilds the record from the held bytes, refuses one that is not this previewed record, and
+   * stores today's forms. No full copy, record or result text is made or sent. */
+  native?: NativePersistenceRequest | null;
   /** The saved state the session expects (the one with the solved model's hash), when it listed one. */
   stateId: string | null;
   /** The post-solve snapshot to write when no state holds the solved model. */
@@ -114,16 +125,23 @@ export type RecordRunInput = {
 /** Records the slot's run against its state. The session's slot is not changed. */
 export async function recordAnalysisRun(input: RecordRunInput): Promise<RecordRunOutcome> {
   requireNativeStore();
+  const newState = input.newState ? { labels: input.newState.labels, parent_state_id: input.newState.parentStateId } : null;
+  if (isNativeResult(input.run.result)) {
+    if (!input.native) throw new Error("RUN-RECORD-NATIVE-INPUTS-UNAVAILABLE: the native result's record inputs are not held; nothing was recorded.");
+    return recordNativeAnalysisRun<RecordRunOutcome>(input.native, { expected_base: input.expectedBase, state_id: input.stateId, new_state: newState, run_labels: input.labels });
+  }
+  const result = input.run.result;
+  const record = input.run.analysisRun as AnalysisRunEnvelope;
   return invokeWithIngress<RecordRunOutcome>("record_analysis_run", {
     request: {
-      project_id: input.run.result.model_ref,
+      project_id: result.model_ref,
       expected_base: input.expectedBase,
-      run_record: input.run.analysisRun,
+      run_record: record,
       // The received result's text as the solve handed it over (negative zeros kept).
-      result_json: jsonTextKeepingNegativeZero(input.run.result),
+      result_json: jsonTextKeepingNegativeZero(result),
       input_manifest_canonical: input.run.inputManifest.canonical_bytes,
       state_id: input.stateId,
-      new_state: input.newState ? { labels: input.newState.labels, parent_state_id: input.newState.parentStateId } : null,
+      new_state: newState,
       run_labels: input.labels
     }
   });

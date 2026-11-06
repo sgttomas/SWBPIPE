@@ -8,6 +8,7 @@
  * or absent pack is reported as incomplete or absent. Each action names existing view state (a
  * viewport quantity id and case key, a support id, a results-table filter) and nothing else. */
 
+import type { SessionResult } from "../../services/nativeResult";
 import type { MechanicsResult, PreviewModel } from "../../types";
 import type { SessionRuleCheckRun } from "../report/renderableReportInput";
 import { deriveRuleCheckBindingPlan } from "../../services/ruleCheckService";
@@ -145,7 +146,7 @@ const EMPTY_RATIO: KeyRatioSection = Object.freeze({
   state: "absent", note: KEY_RATIO_ABSENT, aggregate: null, incompleteNote: null, categories: Object.freeze([]), declaredWithoutOutcomes: Object.freeze([])
 });
 
-function standingText(standing: ResultOverlayStanding | null | undefined): string | null {
+export function standingText(standing: ResultOverlayStanding | null | undefined): string | null {
   if (!standing) return null;
   if (standing.health) return [standing.health.headline, standing.health.outputSentence].filter(Boolean).join(". ");
   return standing.eligible ? null : SUPPORT_LOAD_WITHHELD_NOT_ELIGIBLE;
@@ -274,7 +275,7 @@ export function buildKeyResults(input: {
 
 /** What the auto-open rule remembers across results: the last result it saw, and whether it has
  * already opened the panel by itself in this app session. */
-export type KeyResultsAutoOpenMemory = Readonly<{ lastResult: MechanicsResult | null; openedOnce: boolean }>;
+export type KeyResultsAutoOpenMemory = Readonly<{ lastResult: SessionResult | null; openedOnce: boolean }>;
 export const KEY_RESULTS_AUTO_OPEN_START: KeyResultsAutoOpenMemory = Object.freeze({ lastResult: null, openedOnce: false });
 
 /**
@@ -284,7 +285,7 @@ export const KEY_RESULTS_AUTO_OPEN_START: KeyResultsAutoOpenMemory = Object.free
  */
 export function keyResultsAutoOpen(
   memory: KeyResultsAutoOpenMemory,
-  input: Readonly<{ result: MechanicsResult | null; historical: boolean; everySolve: boolean }>
+  input: Readonly<{ result: SessionResult | null; historical: boolean; everySolve: boolean }>
 ): Readonly<{ open: boolean; memory: KeyResultsAutoOpenMemory }> {
   if (input.result === memory.lastResult) return { open: false, memory };
   const fresh = input.result !== null && !input.historical && input.result.status.mechanics === "MECHANICS_SOLVED";

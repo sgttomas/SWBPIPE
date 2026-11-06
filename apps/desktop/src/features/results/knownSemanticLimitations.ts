@@ -5,6 +5,7 @@ import { PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, PREV
 import { currentSemanticContract, displayRoute, type ContractBinding } from "./resultReader";
 import { classificationSummary, retainedRowClasses } from "./retainedPrecisionStanding";
 import { decodeBinary64, type AccuracyClass } from "./retainedPrecisionTypes";
+import { isNativeResult, type NativeResult } from "../../services/nativeResult";
 import type { MechanicsResult } from "../../types";
 import { derivedRowNote } from "../viewport/resultColourOverlay";
 
@@ -35,8 +36,10 @@ export const COMBINATION_GATE_REASONS: Readonly<Record<string, string>> = Object
   COMBINATION_MODULUS_BASIS_MIXED: "Combination withheld: its load cases were solved on different modulus bases.",
 });
 
-/** RT-A5 (§7.6): each admitted `minuend_final` combination's held standing, as its evidence states it. */
-export function heldStatusStandings(source: MechanicsResult): { combination_id: string; kind: string; reason: string }[] {
+/** RT-A5 (§7.6): each admitted `minuend_final` combination's held standing, as its evidence states it.
+ * Reads `contract_evidence` only, which a C1 native handle carries in S's header (as
+ * `previewCombinationGates`), so a native handle gives the whole value's standings. */
+export function heldStatusStandings(source: MechanicsResult | NativeResult): { combination_id: string; kind: string; reason: string }[] {
   const records = (source.contract_evidence as { held_status_derivation?: unknown } | undefined)?.held_status_derivation;
   if (!Array.isArray(records)) return [];
   return records.flatMap((r) => {
@@ -106,7 +109,7 @@ export function retainedRowClassLabel(row: { id?: string; unit?: string }, sourc
 }
 
 /** Readable identity, by dispatch, that belongs to the static fresh set. */
-export function isFreshSemanticResult(source: MechanicsResult | null | undefined): boolean {
+export function isFreshSemanticResult(source: MechanicsResult | NativeResult | null | undefined): boolean {
   const binding = currentSemanticContract(source);
   return !!binding && FRESH_SEMANTIC_CONTRACT_IDS.includes(binding.id);
 }
@@ -138,8 +141,11 @@ export type KnownSemanticNotice = { id: string; text: string };
 /** Text-only notices a surface shows for a received result. The caller decides
  * placement; no notice changes standing, rows or exported bytes. RT-A4 §10.4: a reopened run
  * recorded before RT-A4 passes its recorded table and is classified under it (`displayRoute`);
- * current callers omit it. */
-export function knownSemanticNotices(source: MechanicsResult | null | undefined, recordedTableRead?: ContractBinding | null): KnownSemanticNotice[] {
+ * current callers omit it.
+ * `options.hasIntensified` / `options.hasAlongDirection`: for a native result, whether a row of the
+ * intensified / along-direction kind exists (a bounded native lookup by the caller); a full result's
+ * rows are read directly. */
+export function knownSemanticNotices(source: MechanicsResult | NativeResult | null | undefined, recordedTableRead?: ContractBinding | null, options: { hasIntensified?: boolean; hasAlongDirection?: boolean } = {}): KnownSemanticNotice[] {
   if (!source) return [];
   let route: ReturnType<typeof displayRoute>;
   try { route = displayRoute(source, recordedTableRead); } catch { return []; }
@@ -149,8 +155,8 @@ export function knownSemanticNotices(source: MechanicsResult | null | undefined,
     const solved = source.status.mechanics === "MECHANICS_SOLVED";
     if (source.summary.max_open_formula_stress) notices.push({ id: "headline-label", text: `Stress headline: ${N_HEADLINE}.` });
     else if (solved) notices.push({ id: "headline-withheld", text: N_HEADLINE_WITHHELD });
-    if (source.results.some(row => row.kind === PREVIEW_INTENSIFIED_KIND)) notices.push({ id: "intensified-label", text: `Intensified measure: ${N_INTENSIFIED}.` });
-    if (source.results.some(row => row.kind === PREVIEW_ALONG_DIRECTION_KIND)) notices.push({ id: "along-direction-label", text: `Along-direction reaction, for a load case or signed combination: ${N_ALONG_DIRECTION}.` });
+    if (options.hasIntensified ?? (!isNativeResult(source) && source.results.some(row => row.kind === PREVIEW_INTENSIFIED_KIND))) notices.push({ id: "intensified-label", text: `Intensified measure: ${N_INTENSIFIED}.` });
+    if (options.hasAlongDirection ?? (!isNativeResult(source) && source.results.some(row => row.kind === PREVIEW_ALONG_DIRECTION_KIND))) notices.push({ id: "along-direction-label", text: `Along-direction reaction, for a load case or signed combination: ${N_ALONG_DIRECTION}.` });
     for (const gate of previewCombinationGates(source)) {
       if (gate.withheld && gate.reason) notices.push({ id: `combination-gate:${gate.combination_id}`, text: `${gate.combination_id}: ${COMBINATION_GATE_REASONS[gate.reason] ?? gate.reason}` });
     }
@@ -161,9 +167,12 @@ export function knownSemanticNotices(source: MechanicsResult | null | undefined,
   }
   // D2 4.9.9 UI summary: per-case counts over the registered validated classes (either
   // successor; B3b's exact successor reads pressure-2's rows since B7b D4 (a), so no preview notice above).
+  // A native handle is never registered: a desktop solve never publishes a successor, and a reopened
+  // one (a restored handle) never registers its receipt, so it reads as unvalidated here.
   if (isRetainedRoute(route)) {
-    if (!retainedRowClasses(source)) notices.push({ id: "retained-precision-unvalidated", text: N_RP_UNVALIDATED });
-    for (const c of classificationSummary(source)) {
+    const registered = source as MechanicsResult;
+    if (!retainedRowClasses(registered)) notices.push({ id: "retained-precision-unvalidated", text: N_RP_UNVALIDATED });
+    for (const c of classificationSummary(registered)) {
       if (c.absolute_verified > 0) notices.push({ id: `retained-precision-absolute:${String(c.case_id)}`, text: `${String(c.case_id)}: ${c.absolute_verified} quantities verified only to an absolute bound, below the relative accuracy floor. Each is labelled and shown for inspection; rule checks cannot bind to them.` });
       if (c.not_covered > 0) notices.push({ id: `retained-precision-not-covered:${String(c.case_id)}`, text: `${String(c.case_id)}: ${c.not_covered} quantities uncovered: no verified accuracy for their quantity kind. Each is labelled and shown for inspection; rule checks cannot bind to them.` });
     }
@@ -171,7 +180,7 @@ export function knownSemanticNotices(source: MechanicsResult | null | undefined,
   return notices;
 }
 
-export function previewCombinationGates(source: MechanicsResult): { combination_id: string; withheld: boolean; reason: string | null }[] {
+export function previewCombinationGates(source: MechanicsResult | NativeResult): { combination_id: string; withheld: boolean; reason: string | null }[] {
   const gates = (source.contract_evidence as { combination_gates?: unknown } | undefined)?.combination_gates;
   if (!Array.isArray(gates)) return [];
   return gates.filter((g): g is { combination_id: string; withheld: boolean; reason: string | null } =>

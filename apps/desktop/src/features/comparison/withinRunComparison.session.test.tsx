@@ -5,6 +5,10 @@
 // packaged comparison is the fixed-pair comparison exactly as before. The run is the
 // producer's range-envelope output replayed through the native solve-job transport
 // (unit transport replay; NOT a native UI qualification witness). Invented data only.
+// C1 (DEL-04-05 `c1-native-custody-plan.md` slice 4): the session holds a fresh result natively,
+// and comparisons (a C2 consumer) read its full copy only once it is requested (the comparisons
+// panel's "Load"); until then there is nothing to compare. Each solve's copy is requested here as
+// the person does, through the session's `loadC2Full`.
 import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
@@ -17,7 +21,10 @@ import { getLocalStorageCapability } from "../../services/projectService";
 import { buildPreviewComparison, loadDesignKnowledge } from "../../services/previewService";
 import { canonicalJsonString } from "../../services/hashService";
 import { createSolveJobTransport } from "../../test/nativeMechanicsReplay";
+import { createNativePersistenceFake, isNativePersistenceCommand } from "../../test/nativePersistenceFake";
+import { createLocalProject } from "../../services/projectService";
 import { useWorkspaceSession } from "../workspace/workspaceSession";
+import { isNativeResult } from "../../services/nativeResult";
 import { setNodeProximityToleranceIntent } from "../model-settings/modelSettingsIntents";
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -41,7 +48,23 @@ async function currentSession(answer: (bytes: string) => string | Promise<string
     if (!isDeepStrictEqual(sent.model, MODEL)) throw new Error("REPLAY_REQUEST_MISMATCH");
     return answer(BYTES);
   });
+  // C1 slice 5: Create Project of the native result goes from its job handle; the unit fake keeps the
+  // forms today's submitted path writes in the browser adapter, for the reopen.
+  const fake = createNativePersistenceFake({
+    heldBytes: transport.heldBytes,
+    heldIntake: transport.heldIntake,
+    save: async ({ request }) => {
+      const tauri = (window as Json).__TAURI_INTERNALS__;
+      delete (window as Json).__TAURI_INTERNALS__;
+      try {
+        return await createLocalProject(request.model, request.editorIntents, request.proposal, request.selectedReviewTarget, request.mechanicsResult, request.analysisRun, request.modelHash, request.projectEnvelopeHash, request.confirmedRevision);
+      } finally {
+        (window as Json).__TAURI_INTERNALS__ = tauri;
+      }
+    }
+  });
   invokeMock.mockImplementation(async (command: string, args: Json, options?: unknown) => {
+    if (isNativePersistenceCommand(command)) return fake.invoke(command, args);
     if (command === "get_local_storage_capability") return storage;
     if (command === "load_design_knowledge") return knowledge;
     if (command === "sync_native_shell_state") return null;
@@ -62,7 +85,14 @@ async function solve(hook: { result: { current: ReturnType<typeof useWorkspaceSe
   const before = hook.result.current.results.currentSolvedResult;
   await act(async () => { await hook.result.current.results.handleRun(); });
   await waitFor(() => expect(hook.result.current.results.currentSolvedResult).not.toBeNull());
-  expect(hook.result.current.results.currentSolvedResult).not.toBe(before);
+  // Identity only: a deep comparison would read the native handles' guarded members.
+  expect(hook.result.current.results.currentSolvedResult !== before).toBe(true);
+  const solved = hook.result.current.results.currentSolvedResult!;
+  expect(isNativeResult(solved)).toBe(true);
+  // Nothing is compared until the comparison's full copy is requested.
+  expect(hook.result.current.results.withinRun).toEqual({ status: "no_result" });
+  await act(async () => { await hook.result.current.results.loadC2Full(solved); });
+  expect(hook.result.current.results.fullResult).not.toBeNull();
 }
 
 const pairOf = (results: ReturnType<typeof useWorkspaceSession>["results"]) =>
@@ -74,7 +104,7 @@ it("carries the choice across solves that offer its bases, and packages follow i
   // The default: the fixed pair is not offered (C-OPER-ALT has no rows), so the first offered.
   expect(pairOf(results())).toEqual({ left: "load:L-100", right: RANGE, source: "default" });
   // Without a choice, the packaged comparison is the fixed-pair comparison exactly as before.
-  const today = buildPreviewComparison({ result: results().currentSolvedResult!, analysisRun: results().analysisRun! });
+  const today = buildPreviewComparison({ result: results().fullResult!, analysisRun: results().analysisRun! });
   expect(JSON.stringify(results().comparison)).toBe(JSON.stringify(today));
   expect(results().comparisonUnavailable).toBeNull();
 
@@ -110,8 +140,8 @@ it("a project replacement retires the run; the choice is revalidated against the
   const results = () => hook.result.current.results;
   act(() => results().handleSelectWithinRunBases({ left: "load:L-200", right: RANGE }));
   expect(pairOf(results())).toEqual({ left: "load:L-200", right: RANGE, source: "selected" });
-  delete (window as Json).__TAURI_INTERNALS__;
   await act(async () => { await hook.result.current.project.handleCreateProject(); });
+  delete (window as Json).__TAURI_INTERNALS__;
   await act(async () => { await hook.result.current.project.handleOpenProject(); });
   expect(results().currentSolvedResult).toBeNull();
   expect(results().withinRun).toEqual({ status: "no_result" });
@@ -136,5 +166,7 @@ it("refuses a choice while a solve runs, and states the reason", async () => {
   await act(async () => { await running; });
   await waitFor(() => expect(results().currentSolvedResult).not.toBeNull());
   expect(results().withinRunDisabledReason).toBeNull();
+  // The new run's comparison copy, requested: no refused choice was held for it.
+  await act(async () => { await results().loadC2Full(results().currentSolvedResult!); });
   expect(pairOf(results())).toEqual({ left: "load:L-100", right: RANGE, source: "default" });
 });

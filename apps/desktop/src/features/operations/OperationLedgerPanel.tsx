@@ -1,3 +1,4 @@
+import type { SessionAnalysisRun, SessionResult } from "../../services/nativeResult";
 import { ClipboardCheck, Download, Trash2 } from "lucide-react";
 import type {
   AgentProposal,
@@ -16,7 +17,7 @@ export function OperationLedgerPanel({
   onClearReviewQueue
 }: {
   model: PreviewModel;
-  analysisRun: AnalysisRunEnvelope | null;
+  analysisRun: SessionAnalysisRun | null;
   editorIntents: EditorOperationIntent[];
   proposal: AgentProposal | null;
   selectedReviewTarget: SelectedReviewTarget | null;
@@ -132,7 +133,7 @@ export function buildOperationReviewLedger({
   selectedReviewTarget
 }: {
   model: PreviewModel;
-  analysisRun: AnalysisRunEnvelope | null;
+  analysisRun: SessionAnalysisRun | null;
   editorIntents: EditorOperationIntent[];
   proposal: AgentProposal | null;
   selectedReviewTarget: SelectedReviewTarget | null;
@@ -193,7 +194,7 @@ function editorIntentRecord({
 }: {
   intent: EditorOperationIntent;
   index: number;
-  analysisRun: AnalysisRunEnvelope | null;
+  analysisRun: SessionAnalysisRun | null;
   selectedReviewTarget: SelectedReviewTarget | null;
 }) {
   const targetRef = { object_type: intent.target.object_type, ref: intent.target.ref };
@@ -252,7 +253,7 @@ function proposalRecord({
   index
 }: {
   proposal: AgentProposal;
-  analysisRun: AnalysisRunEnvelope | null;
+  analysisRun: SessionAnalysisRun | null;
   selectedReviewTarget: SelectedReviewTarget | null;
   index: number;
 }) {

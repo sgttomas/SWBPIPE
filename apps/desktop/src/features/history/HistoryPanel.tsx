@@ -1,3 +1,4 @@
+import { restoredRecordDiagnostics } from "../../services/nativeReopen";
 import { useState } from "react";
 import { History } from "lucide-react";
 import {
@@ -260,7 +261,7 @@ function RunRow({ run, selection }: { run: AnalysisRunSummary; selection: RunSel
                 : "The record, its stored result and input manifest, and its state's model hash agree."} This is a record check only; it establishes no current result.</p>
               {check.context?.findings.length ? <ul>{check.context.findings.map((finding) => <li key={finding}>{finding}</li>)}</ul> : null}
               {check.context ? <HistoricalReaderFindings context={check.context} testId={`${testId}-recorded-reader`} /> : null}
-              <RulePackRunReferences manifest={check.manifest} record={check.context?.analysisRun} testId={`${testId}-rule-pack-refs`} />
+              <RulePackRunReferences manifest={check.manifest} record={check.context?.restored ? restoredRecordDiagnostics(check.context.restored) : check.context?.analysisRun} testId={`${testId}-rule-pack-refs`} />
             </>
           )}
         </div>

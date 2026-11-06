@@ -35,6 +35,10 @@ export const NATIVE_INGRESS_COMMANDS = [
   "save_local_library",
   "save_report_package",
   "save_local_result_json",
+  "begin_local_csv_stream",
+  "append_local_csv_stream",
+  "finish_local_csv_stream",
+  "abort_local_csv_stream",
   "save_model_state",
   "list_model_states",
   "read_model_state",
@@ -56,7 +60,24 @@ export const NATIVE_INGRESS_COMMANDS = [
   "read_project_autosave",
   "discard_project_autosave",
   "get_autosave_settings",
-  "set_autosave_settings"
+  "set_autosave_settings",
+  // C1 native custody (DEL-04-05 `c1-native-custody-plan.md`): the held result's readers.
+  "read_preview_mechanics_job_verdict",
+  "read_preview_mechanics_job_summary",
+  "query_preview_mechanics_job_rows",
+  "lookup_preview_mechanics_job_rows",
+  "read_preview_mechanics_job_row_semantics",
+  "query_preview_mechanics_job_source_recovery",
+  "query_preview_mechanics_job_navigator",
+  "read_preview_mechanics_job_analysis_run_preview",
+  // C1 slice 5's persistence: Record Run and Save/Create Project from the job handle.
+  "record_preview_mechanics_job_analysis_run",
+  // C1 slice 6: saved and recorded runs reopened into native custody.
+  "open_local_project_in_native_custody",
+  "read_analysis_run_in_native_custody",
+  // C1 slice 6's save continuity: Save/Create Project of a reopened saved run from its handle.
+  "save_restored_result_local_project",
+  "save_preview_mechanics_job_local_project"
 ] as const;
 export type NativeIngressCommand = (typeof NATIVE_INGRESS_COMMANDS)[number];
 

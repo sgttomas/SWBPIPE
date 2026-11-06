@@ -5,7 +5,12 @@
  * recorded revision's `rule_pack_refs` and keeps the diagnostics. The solve is the native job
  * transport replay of committed producer bytes (unit transport replay; NOT a native UI
  * qualification witness); the store's own derivation is `analysis_runs_tests.rs`. All
- * rule-pack data are invented. */
+ * rule-pack data are invented. C1 (DEL-04-05 `c1-native-custody-plan.md` slice 4): the session
+ * holds the result natively and the record's header; the full record, whose bytes these tests
+ * compare, is the C2 full record the session builds on the result's full copy (`loadC2Full`),
+ * checked against the native record's checksums. C1 slice 5: Save Project and Record Run of the
+ * native result go from its job handle; the fake store here answers them through the unit fake
+ * (`nativePersistenceFake.ts`), which hands it the request today's submitted path sends. */
 import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -14,10 +19,12 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 import { createSolveJobTransport, nativeMechanicsReplayPair } from "../../test/nativeMechanicsReplay";
+import { createNativePersistenceFake, isNativePersistenceCommand } from "../../test/nativePersistenceFake";
 import { hex, inventedEnvelope, inventedReference } from "../../test/inventedRulePacks";
 import { getLocalStorageCapability } from "../../services/projectService";
 import { loadDesignKnowledge, resetSessionResultCustodyForTests } from "../../services/previewService";
 import { canonicalJsonString, canonicalSha256HexCheckedV1, computeModelHash } from "../../services/hashService";
+import { restoredRecordDiagnostics } from "../../services/nativeReopen";
 import { analysisRecordProjection, ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH, recordedAnalysisRunRevision } from "../../services/analysisRunCompatibility";
 import type { AnalysisRunRead, AnalysisRunSummary, RunLabels } from "../../services/analysisRunService";
 import type { CurrentSessionInputManifest } from "../../services/inputManifestService";
@@ -27,6 +34,9 @@ import type { LocalRulePackEnvelope } from "../../services/rulePackService";
 import { buildRecordedRunContext, recordedRunBindingFindings } from "../results/HistoricalRunContext";
 import { SolvePanel } from "../solve/SolvePanel";
 import { useWorkspaceSession, type WorkspaceSession } from "./workspaceSession";
+import { isNativeAnalysisRun, isNativeResult, nativeRunPreview } from "../../services/nativeResult";
+import type { C2FullResult } from "../results/C2ResultGate";
+import type { AnalysisRunEnvelope } from "../../types";
 import type { LocalProjectEnvelope, PreviewModel, RulePackReference } from "../../types";
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -56,7 +66,40 @@ async function session(references: RulePackReference[] | null, packs: LocalRuleP
     return pair.bytes;
   }, { jobIdPrefix: `unit-solve-rule-packs:${++sequence}` });
   const store = { base: null as string | null, states: [] as ModelStateSummary[], runs: [] as AnalysisRunSummary[], records: [] as Json[], reads: new Map<string, AnalysisRunRead>() };
+  const saveProject = (request: Json) => {
+    store.base = `sha256:${request.model.project.id}#saved`;
+    return {
+      summary: { project_id: request.model.project.id, project_name: request.model.project.name, message: "Saved." },
+      model: request.model, editor_intents: [], proposal: null, selected_review_target: null, mechanics_result: request.mechanics_result ?? null,
+      analysis_run: request.analysis_run ?? null, model_hash: request.model_hash, project_envelope_hash: { value: store.base }, model_document_version: null
+    } as unknown as LocalProjectEnvelope;
+  };
+  const recordRun = async (request: Json) => {
+    // The native store's derivation of the recorded revision, mirrored by the TypeScript
+    // builder (its parity with Rust is `recordedRunParity.test.ts` against the witness).
+    store.records.push(request);
+    const created = "2026-10-24T10:00:01.000Z";
+    const manifest = JSON.parse(request.input_manifest_canonical) as CurrentSessionInputManifest;
+    const state = {
+      ...request.new_state.labels, project_id: request.project_id, state_id: `state:${"1".padStart(32, "0")}`, state_kind: "post_solve_snapshot",
+      created_at: created, parent_state_id: null, model_hash: (await computeModelHash(manifest.model_basis.model_payload))!.value, record_hash: "r",
+      labels_updated_at: created, child_state_ids: [], recorded_run_count: 0, analysis_status: ["HUMAN_REVIEW_REQUIRED"]
+    } as ModelStateSummary;
+    store.states.push(state);
+    const recorded = await recordedAnalysisRunRevision(request.run_record, { stateId: state.state_id, createdAt: created, inputManifest: manifest });
+    const run: AnalysisRunSummary = {
+      ...request.run_labels, project_id: request.project_id, recording_id: `runrec:${"1".padStart(32, "0")}`, state_id: state.state_id,
+      producer_run_id: request.run_record.analysis_run.run_id, created_at: created,
+      run_record_hash: recorded.analysis_run.hashes.find((hash) => hash.payload_scope === "analysis_run_record")!.value,
+      result_hash: "r", labels_updated_at: created, analysis_status: request.run_record.analysis_run.analysis_status
+    };
+    store.runs.push(run);
+    store.reads.set(run.recording_id, { run, state, record: recorded, result_json: request.result_json, input_manifest_canonical: request.input_manifest_canonical });
+    return { run, state, state_outcome: "created", message: `Recorded run "${run.run_name}".` };
+  };
+  const fake = createNativePersistenceFake({ heldBytes: transport.heldBytes, heldIntake: transport.heldIntake, save: ({ request }) => saveProject(request), record: recordRun });
   invokeMock.mockImplementation(async (command: string, args: Json, invokeOptions?: unknown) => {
+    if (isNativePersistenceCommand(command)) return fake.invoke(command, args);
     switch (command) {
       case "get_local_storage_capability": return storage;
       case "load_design_knowledge": return knowledge;
@@ -65,41 +108,10 @@ async function session(references: RulePackReference[] | null, packs: LocalRuleP
       case "load_preview_model": if (args === undefined) return structuredClone(model); break;
       case "open_local_rule_pack": return structuredClone(packs.find((pack) => pack.project_id === args.projectId && pack.rule_pack_id === args.rulePackId) ?? null);
       case "find_local_project": return store.base ? { project_id: args.projectId, project_name: "Stored", storage_mode: "local_sqlite", created_at_unix: 1, updated_at_unix: 2, revision: `rev:${store.base}`, saved_state_count: store.states.length, recorded_run_count: store.runs.length } : null;
-      case "save_local_project": {
-        const request = args.request as Json;
-        store.base = `sha256:${request.model.project.id}#saved`;
-        return {
-          summary: { project_id: request.model.project.id, project_name: request.model.project.name, message: "Saved." },
-          model: request.model, editor_intents: [], proposal: null, selected_review_target: null, mechanics_result: request.mechanics_result ?? null,
-          analysis_run: request.analysis_run ?? null, model_hash: request.model_hash, project_envelope_hash: { value: store.base }, model_document_version: null
-        } as unknown as LocalProjectEnvelope;
-      }
+      case "save_local_project": return saveProject(args.request as Json);
       case "list_model_states": return store.states.filter((state) => state.project_id === args.projectId);
       case "list_analysis_runs": return store.runs.filter((run) => run.project_id === args.projectId);
-      case "record_analysis_run": {
-        // The native store's derivation of the recorded revision, mirrored by the TypeScript
-        // builder (its parity with Rust is `recordedRunParity.test.ts` against the witness).
-        const request = args.request as Json;
-        store.records.push(request);
-        const created = "2026-10-24T10:00:01.000Z";
-        const manifest = JSON.parse(request.input_manifest_canonical) as CurrentSessionInputManifest;
-        const state = {
-          ...request.new_state.labels, project_id: request.project_id, state_id: `state:${"1".padStart(32, "0")}`, state_kind: "post_solve_snapshot",
-          created_at: created, parent_state_id: null, model_hash: (await computeModelHash(manifest.model_basis.model_payload))!.value, record_hash: "r",
-          labels_updated_at: created, child_state_ids: [], recorded_run_count: 0, analysis_status: ["HUMAN_REVIEW_REQUIRED"]
-        } as ModelStateSummary;
-        store.states.push(state);
-        const recorded = await recordedAnalysisRunRevision(request.run_record, { stateId: state.state_id, createdAt: created, inputManifest: manifest });
-        const run: AnalysisRunSummary = {
-          ...request.run_labels, project_id: request.project_id, recording_id: `runrec:${"1".padStart(32, "0")}`, state_id: state.state_id,
-          producer_run_id: request.run_record.analysis_run.run_id, created_at: created,
-          run_record_hash: recorded.analysis_run.hashes.find((hash) => hash.payload_scope === "analysis_run_record")!.value,
-          result_hash: "r", labels_updated_at: created, analysis_status: request.run_record.analysis_run.analysis_status
-        };
-        store.runs.push(run);
-        store.reads.set(run.recording_id, { run, state, record: recorded, result_json: request.result_json, input_manifest_canonical: request.input_manifest_canonical });
-        return { run, state, state_outcome: "created", message: `Recorded run "${run.run_name}".` };
-      }
+      case "record_analysis_run": return recordRun(args.request as Json);
       case "read_analysis_run": return structuredClone(store.reads.get(args.recordingId));
     }
     return transport.invoke(command, args, invokeOptions);
@@ -127,6 +139,14 @@ async function solve(state: () => WorkspaceSession) {
   return state().results.inputManifest!;
 }
 
+/** The session result's C2 full copy and the full record of its current record. */
+async function c2Full(state: () => WorkspaceSession): Promise<C2FullResult & { analysisRun: AnalysisRunEnvelope }> {
+  let full: C2FullResult | null = null;
+  await act(async () => { full = await state().results.loadC2Full(state().results.result!); });
+  expect(full!.analysisRun).not.toBeNull();
+  return full! as C2FullResult & { analysisRun: AnalysisRunEnvelope };
+}
+
 const calls = (command: string) => invokeMock.mock.calls.filter(([name]) => name === command).map(([, args]) => args as Json);
 
 describe("the solve records the model's rule packs in the input manifest (FR-CMP-002)", () => {
@@ -145,8 +165,12 @@ describe("the solve records the model's rule packs in the input manifest (FR-CMP
     expect(evidence.manifest_sha256).toBe("ec2b590838e26dbff151fe097131cd7a9ace800cb409041dbdf68a25a3e2c81e");
     expect(evidence.manifest.active_rule_packs).toEqual([]);
     expect(Object.keys(evidence.manifest).sort()).toEqual(["active_rule_packs", "document_kind", "external_assets", "identity_policy", "load_basis", "model_basis", "replay_boundary", "schema_version", "solver_basis", "unit_basis"]);
-    // The transient record is the committed one, byte for byte (its own hash included).
-    expect(await canonicalJsonString(state().results.analysisRun)).toBe(await canonicalJsonString(committed.run_record));
+    // The transient record is the committed one, byte for byte (its own hash included): the
+    // session's native record header carries its checksum, and the full record is the same bytes.
+    const header = state().results.analysisRun!;
+    expect(isNativeAnalysisRun(header)).toBe(true);
+    expect(header.analysis_run.hashes).toStrictEqual(committed.run_record.analysis_run.hashes);
+    expect(await canonicalJsonString((await c2Full(state)).analysisRun)).toBe(await canonicalJsonString(committed.run_record));
     expect(calls("open_local_rule_pack")).toHaveLength(0);
     expect(screen.queryByTestId("solve-rule-pack-refs")).toBeNull();
   });
@@ -173,10 +197,14 @@ describe("the solve records the model's rule packs in the input manifest (FR-CMP
       { rule_pack_id: "invented-pack-zeta", version: "1.0.0", checksum_sha256: hex("e"), source_notice: "Invented notice for invented-pack-zeta; not an engineering basis." },
       { rule_pack_id: "invented-pack-alpha", version: "3.1.0", checksum_sha256: hex("a"), source_notice: "Invented notice for invented-pack-alpha; not an engineering basis." }
     ]);
-    // The excluded references are diagnostics of the transient record, after the producer's.
+    // The excluded references are diagnostics of the transient record, after the producer's (the
+    // native record header carries them whole; the full record holds them after the producer's).
     const transient = state().results.analysisRun!;
+    expect(isNativeAnalysisRun(transient) && nativeRunPreview(transient).rule_pack_ref_diagnostics.map((item) => (item.source_annotation as { code: string }).code))
+      .toEqual([RULE_PACK_REF_UNRESOLVED, RULE_PACK_REF_CHECKSUM_MISMATCH]);
+    const fullRecord = (await c2Full(state)).analysisRun;
     const producerCount = state().results.result!.diagnostics.length;
-    expect(transient.analysis_run.diagnostics!.slice(producerCount).map((item) => (item.source_annotation as { code: string; affected_refs: string[] })))
+    expect(fullRecord.analysis_run.diagnostics!.slice(producerCount).map((item) => (item.source_annotation as { code: string; affected_refs: string[] })))
       .toEqual([
         expect.objectContaining({ code: RULE_PACK_REF_UNRESOLVED, affected_refs: ["invented-pack-missing@1.0.0"] }),
         expect.objectContaining({ code: RULE_PACK_REF_CHECKSUM_MISMATCH, affected_refs: ["invented-pack-changed@1.0.0"] })
@@ -198,10 +226,10 @@ describe("the solve records the model's rule packs in the input manifest (FR-CMP
     expect(recorded).toBe(true);
     const request = store.records[0];
     expect(request.input_manifest_canonical).toBe(evidence.canonical_bytes);
-    expect(request.run_record).toEqual(transient);
+    expect(request.run_record).toEqual(fullRecord);
     const read = store.reads.get(store.runs[0].recording_id)!;
     // The recorded revision keeps the diagnostics unchanged, under its new hash.
-    expect(read.record.analysis_run.diagnostics).toEqual(transient.analysis_run.diagnostics);
+    expect(read.record.analysis_run.diagnostics).toEqual(fullRecord.analysis_run.diagnostics);
     expect(read.record.analysis_run.rule_pack_refs).toEqual([
       { object_type: "RulePack", ref: "invented-pack-zeta@1.0.0" },
       { object_type: "RulePack", ref: "invented-pack-alpha@3.1.0" }
@@ -214,7 +242,13 @@ describe("the solve records the model's rule packs in the input manifest (FR-CMP
     expect(check.failure).toBeNull();
     expect(check.context && recordedRunBindingFindings(check.context)).toEqual([]);
     expect(check.manifest?.active_rule_packs.map((pack) => pack.rule_pack_id)).toEqual(["invented-pack-zeta", "invented-pack-alpha"]);
-    expect(check.context?.analysisRun?.analysis_run.diagnostics).toEqual(transient.analysis_run.diagnostics);
+    // C1 slice 6: the check reopens the run natively; the whole record stays native, and the check
+    // carries the stored record's header with its rule-pack reference diagnostics (the excluded references).
+    expect(check.context?.analysisRun).toBeNull();
+    expect(check.context?.restored?.origin).toBe("restored_recorded_run");
+    const ruleDiagnostics = fullRecord.analysis_run.diagnostics!.filter((item) => (item.source_annotation as { source?: string } | undefined)?.source === "desktop/solve-rule-pack-resolution");
+    expect(ruleDiagnostics.length).toBeGreaterThan(0);
+    expect(restoredRecordDiagnostics(check.context!.restored!).analysis_run.diagnostics).toEqual(ruleDiagnostics);
   });
 
   it("a recorded run whose rule-pack diagnostics do not name exactly the references its manifest leaves out is flagged", async () => {
@@ -246,7 +280,7 @@ describe("the solve records the model's rule packs in the input manifest (FR-CMP
     const references = [inventedReference("invented-pack@branch", hex("2")), inventedReference("invented-pack", hex("3"), "branch@1.0.0")];
     const { state, store } = await session(references, []);
     await solve(state);
-    const transient = state().results.analysisRun!;
+    const transient = (await c2Full(state)).analysisRun;
     const producerCount = state().results.result!.diagnostics.length;
     expect(transient.analysis_run.diagnostics!.slice(producerCount).map((item) => (item.source_annotation as { affected_refs: string[] }).affected_refs[0]))
       .toEqual(["invented-pack%40branch@1.0.0", "invented-pack@branch%401.0.0"]);
@@ -263,11 +297,14 @@ describe("the solve records the model's rule packs in the input manifest (FR-CMP
     const { state } = await session([inventedReference("invented-pack-alpha", hex("a")), inventedReference("invented-pack-missing", hex("2"))], [inventedEnvelope(project, "invented-pack-alpha", hex("a"))]);
     await solve(state);
     const result = state().results.result!;
-    const resultBytes = await canonicalJsonString(result);
-    const solveTime = state().results.analysisRun!;
+    expect(isNativeResult(result)).toBe(true);
+    // The result's bytes, read through its one C2 copy; the full records are built on that copy.
+    const solveFull = await c2Full(state);
+    const resultBytes = await canonicalJsonString(solveFull.result);
+    const solveTime = solveFull.analysisRun;
     const exclusions = solveTime.analysis_run.diagnostics!.slice(result.diagnostics.length);
     expect(exclusions).toHaveLength(1);
-    const received = (run: typeof solveTime) => run.analysis_run.hashes.filter((hash) => hash.payload_scope === "received_result");
+    const received = (run: { analysis_run: { hashes: AnalysisRunEnvelope["analysis_run"]["hashes"] } }) => run.analysis_run.hashes.filter((hash) => hash.payload_scope === "received_result");
     for (const aggregate of ["USER_RULE_CHECKED", "USER_RULE_FAILED", null] as const) {
       const before = state().results.analysisRun;
       const current = state();
@@ -279,16 +316,20 @@ describe("the solve records the model's rule packs in the input manifest (FR-CMP
           inputManifest: current.results.inputManifest
         });
       });
-      await waitFor(() => expect(state().results.analysisRun).not.toBe(before));
-      const revised = state().results.analysisRun!;
+      // Identity only: a deep comparison would read the native record header's guarded members.
+      await waitFor(() => expect(state().results.analysisRun !== before).toBe(true));
+      expect(received(state().results.analysisRun!)).toEqual(received(solveTime));
+      const revisedFull = await c2Full(state);
+      const revised = revisedFull.analysisRun;
       expect(revised.analysis_run.analysis_status).toContain(aggregate ?? solveTime.analysis_run.analysis_status.find((status) => status.startsWith("RULE_"))!);
       expect(revised.analysis_run.diagnostics!.slice(result.diagnostics.length)).toEqual(exclusions);
       expect(received(revised)).toEqual(received(solveTime));
       expect(state().results.result).toBe(result);
-      expect(await canonicalJsonString(state().results.result)).toBe(resultBytes);
+      expect(revisedFull.result).toBe(solveFull.result);
+      expect(await canonicalJsonString(revisedFull.result)).toBe(resultBytes);
     }
     // Cleared: the record is the solve-time record again, byte for byte.
-    expect(await canonicalJsonString(state().results.analysisRun)).toBe(await canonicalJsonString(solveTime));
+    expect(await canonicalJsonString((await c2Full(state)).analysisRun)).toBe(await canonicalJsonString(solveTime));
   });
 
   it("the browser preview refuses the solve before any manifest, so no rule-pack resolution runs", async () => {

@@ -15,6 +15,7 @@ import { readerDispatch, readerSourceText, recordedReaderDispatch, readerValidat
 import { retainedPrecisionStanding } from "./retainedPrecisionStanding";
 import { isRetainedRoute, RETAINED_STANDING_STATUS, type SourceContract } from "./numericalResultQuality";
 import type { MechanicsResult, PreviewModel } from "../../types";
+import { isNativeResult, nativeCustody, type NativeResult } from "../../services/nativeResult";
 
 /** No registered validation with the captured invocation holds for these bytes and model. */
 export const SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED = "SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED";
@@ -103,9 +104,6 @@ export function sourceRecoveryModeMatches(source: MechanicsResult, model: Previe
 function presented(standing: ReaderStanding): NumericalStanding {
   return { contract: standing.route, status: standing.status, eligible: standing.eligible, findings: [...standing.findings] };
 }
-/** The numerical standing of a statement for the current model: Rust's, with the
- * registered invocation for a source route (G4). A successor's standing is R1's
- * registered reader validation with the live native capture. */
 /** RT-A4 §10.4: the standing a run recorded before RT-A4 read with, for its display as a recorded
  * (historical) run: under the record's registry variant `binding` the ordinary routes take Rust's
  * recorded dispatch (the statement as it read when recorded); a successor's standing is its
@@ -120,7 +118,17 @@ export function recordedResultStanding(source: MechanicsResult, binding: Readonl
   if (route === "pressure_source") return numericalResultStanding(source, model);
   return presented(recordedReaderDispatch(source, binding, model).standing);
 }
-export function numericalResultStanding(source: MechanicsResult, model?: (Pick<PreviewModel, "load_cases"> & Partial<Pick<PreviewModel, "pipe_segments" | "supports">>) | null): NumericalStanding {
+/** The numerical standing of a statement for the current model: Rust's, with the
+ * registered invocation for a source route (G4). A successor's standing is R1's
+ * registered reader validation with the live native capture. */
+export function numericalResultStanding(source: MechanicsResult | NativeResult, model?: (Pick<PreviewModel, "load_cases"> & Partial<Pick<PreviewModel, "pipe_segments" | "supports">>) | null): NumericalStanding {
+  // C1: a native result's standing is the one read natively with its bound model text; another
+  // model has none here (fail closed, `NATIVE_VERDICT_NOT_BOUND`).
+  if (isNativeResult(source)) {
+    const { verdict, binding } = nativeCustody(source);
+    const bound = model != null && textOf(model) === binding.standingModelText;
+    return presented(bound ? verdict.standing : { ...verdict.standing, token: "needs_recompute", status: "needs_recompute", eligible: false, findings: ["NATIVE_VERDICT_NOT_BOUND"] });
+  }
   const route = readerDispatch(source).route;
   if (route === "pressure_source") {
     return presented(readerDispatch(source, model, registeredInvocation(source, model, route) ?? undefined).standing);
