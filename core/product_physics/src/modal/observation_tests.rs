@@ -578,7 +578,7 @@ fn the_selected_instance_carries_the_decided_values_and_passes_validation() {
 #[test]
 fn no_non_test_modal_source_calls_the_selected_instance() {
     const NAME: &str = "selected_a1_a2_a3_criteria";
-    let sources: [(&str, &str); 12] = [
+    let sources: [(&str, &str); 13] = [
         ("modal.rs", include_str!("../modal.rs")),
         ("context.rs", include_str!("context.rs")),
         ("document.rs", include_str!("document.rs")),
@@ -590,6 +590,7 @@ fn no_non_test_modal_source_calls_the_selected_instance() {
         ("request.rs", include_str!("request.rs")),
         ("state.rs", include_str!("state.rs")),
         ("stiffness.rs", include_str!("stiffness.rs")),
+        ("skew_pencil.rs", include_str!("skew_pencil.rs")),
         ("weight_basis.rs", include_str!("weight_basis.rs")),
     ];
     let lib = include_str!("../lib.rs");
@@ -607,34 +608,47 @@ fn no_non_test_modal_source_calls_the_selected_instance() {
         }
     }
     // The module tree is complete for the current sources: each non-test
-    // file-module declaration of modal.rs (any visibility) is listed, and no
-    // listed source declares a nested non-test file module of its own. A
-    // future nested module fails here and must be added to the scan.
+    // file-module declaration of modal.rs (any visibility, one or several per
+    // line) is listed, and no listed source declares a nested non-test file
+    // module of its own. A future module fails here and must be added to the
+    // scan. Items are read between semicolons, comments removed; an item is
+    // test-only when its own attributes include `#[cfg(test)]`.
     let listed: Vec<&str> = sources.iter().map(|(n, _)| n.trim_end_matches(".rs")).collect();
-    let declared = |line: &str| -> Option<String> {
-        let mut item = line.trim();
-        if let Some(rest) = item.strip_prefix("pub") {
-            item = match rest.strip_prefix('(') {
-                Some(scoped) => scoped.split_once(')').map_or(rest, |(_, after)| after),
-                None => rest,
+    let declared = |item: &str| -> Option<(bool, String)> {
+        let mut rest = item.trim();
+        let mut test_only = false;
+        while let Some(attribute) = rest.strip_prefix("#[") {
+            let (inner, after) = attribute.split_once(']')?;
+            test_only |= inner.trim() == "cfg(test)";
+            rest = after.trim_start();
+        }
+        if let Some(after) = rest.strip_prefix("pub") {
+            rest = match after.strip_prefix('(') {
+                Some(scoped) => scoped.split_once(')').map_or(after, |(_, tail)| tail),
+                None => after,
             }
             .trim_start();
         }
-        item.strip_prefix("mod ").map(|m| m.trim().to_string())
+        rest.strip_prefix("mod ").map(|m| (test_only, m.trim().to_string()))
     };
     for (index, (name, text)) in sources.iter().enumerate() {
-        let lines: Vec<&str> = text.lines().collect();
-        for (i, line) in lines.iter().enumerate() {
-            let Some(module) = declared(line) else { continue };
-            let test_only = i > 0 && lines[i - 1].trim() == "#[cfg(test)]";
+        let code: String = text.lines().map(|l| l.split("//").next().unwrap()).collect::<Vec<_>>().join("\n");
+        for item in code.split(';') {
+            let Some((test_only, module)) = declared(item) else { continue };
+            assert!(!module.contains('{'), "{name} declares an inline module `{module}`, which this scan does not cover");
             if test_only {
                 continue;
             }
-            let module = module.strip_suffix(';').unwrap_or_else(|| panic!("{name} declares an inline module `{module}`, which this scan does not cover"));
             assert!(index == 0, "{name} declares a nested file module `{module}`, which this scan does not read");
-            assert!(listed.contains(&module), "modal.rs declares `{module}`, which this scan does not read");
+            assert!(listed.contains(&module.as_str()), "modal.rs declares `{module}`, which this scan does not read");
         }
     }
+    // The scan itself: S-K1's one-line pair `mod stiffness; mod skew_pencil;`
+    // yields both modules, and an attributed test module on the same line is
+    // test-only.
+    assert_eq!(declared(" mod skew_pencil"), Some((false, "skew_pencil".to_string())));
+    assert_eq!(declared("\n#[cfg(test)] mod tests_skew"), Some((true, "tests_skew".to_string())));
+    assert_eq!(declared("pub(crate) mod x"), Some((false, "x".to_string())));
 }
 
 /// The kernel's hard cut h = max(τ_μ·μ_max, κ_μ·δ_q), δ_q = c_μ·n·u·μ_max,
@@ -784,6 +798,8 @@ fn hadamard_pencil(lambda: [f64; 4]) -> ModalPencil {
         total_mass: [1.0; 3],
         free_dof_mass: [0.0; 3],
         guard: DenseGuardRecord { global_dimension: 6, free_dimension: 4, static_estimate_bytes: 0, ceiling_bytes: 0, eigen_core_bytes: 0, operation_estimate: 0 },
+        // An axis-coordinate pencil (S-K1's restraint basis absent).
+        skew: None,
     }
 }
 
