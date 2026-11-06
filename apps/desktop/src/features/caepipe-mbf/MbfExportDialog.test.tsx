@@ -30,6 +30,7 @@ import {
   MBF_EXPORT_RETIREMENT_UNCONFIRMED,
   MBF_EXPORT_REVIEW_STALE,
   MBF_EXPORT_ROUTE_ID,
+  MBF_EXPORT_UNAVAILABLE,
   MBF_LOSS_DESCRIPTIONS,
   MBF_PROFILE_LABEL,
   MBF_REVIEW_NATIVE_ONLY,
@@ -46,6 +47,7 @@ import {
   type MbfReviewOutcome,
   type MbfReviewPayload
 } from "./mbfExport";
+import { mbfExportUnavailable, resetMbfExportUnavailableForTests } from "./mbfExportCancel";
 
 // The wasm engine stays a test resource only: these spies count any use of it while the dialog runs.
 const engineCalls = vi.hoisted(() => ({ load: 0, render: 0 }));
@@ -655,4 +657,119 @@ describe("MbfExportDialog, mounted (slice 4b.2b)", () => {
     walk(root);
     expect(offenders).toEqual([]);
   });
+});
+
+// A save whose outcome is unknown leaves this page unable to send an export (`mbfExportCancel.ts`, "Export unavailable
+// in this page"): the dialog offers no further Save and starts no further review, whatever the user changes, until a
+// reload or a restart. The test setup gives each case a fresh page.
+describe("MbfExportDialog after a save whose outcome is unknown", () => {
+  const FALLBACK = "INVALID_REQUEST: INGRESS-RAW-BODY-REQUIRED: send `save_mbf_export`'s arguments as raw UTF-8 JSON bytes.";
+  const UNKNOWN_OUTCOME: MbfExportSaveOutcome = { outcome: "refused", diagnostics: [{ code: INGRESS_RAW_BODY_REQUIRED, path: "", message: FALLBACK }] };
+  const forms: Array<[string, MbfExportDialogRequest["saveMbfExport"]]> = [
+    ["refused with the code", async () => ({ outcome: UNKNOWN_OUTCOME, current: () => true })],
+    ["rejected", async () => { throw new Error(FALLBACK); }]
+  ];
+
+  function request(reviewMbfExport: MbfExportDialogRequest["reviewMbfExport"], saveMbfExport: MbfExportDialogRequest["saveMbfExport"], document: PreviewModel, modelHash: MbfExportDialogRequest["modelHash"]): MbfExportDialogRequest {
+    return { model: document, modelHash, projectName: "Invented MBF export", opener: null, close: vi.fn(), retire: vi.fn(), saveMbfExport, reviewMbfExport };
+  }
+
+  it.each(forms)("a save %s: Save is disabled and stays so through settings, a new review and a close and reopen; nothing more starts", async (_form, unknownSave) => {
+    const review = vi.fn(reviewed());
+    const save = vi.fn(unknownSave);
+    const opened = await openOn(review, save);
+    const { dialog } = opened;
+    await waitFor(() => expect(within(dialog).queryByTestId("mbf-export-profile")).not.toBeNull());
+    fireEvent.click(within(dialog).getByTestId("mbf-export-intent"));
+    expect(saveButton(dialog).disabled).toBe(false);
+    fireEvent.click(saveButton(dialog));
+    const refusal = await within(dialog).findByTestId("mbf-export-refusal");
+    // The existing guidance: the outcome is unknown, where to look, and what to do.
+    expect(refusal).toHaveTextContent(`${INGRESS_RAW_BODY_REQUIRED}: ${MBF_SAVE_OUTCOME_UNKNOWN_TEXT}`);
+    expect(refusal.textContent).not.toMatch(/Nothing was written|Saved/);
+    expect(within(dialog).getByTestId("mbf-export-status").textContent).toBe("");
+    await waitFor(() => expect(saveButton(dialog).disabled).toBe(true));
+    expect(saveButton(dialog)).toHaveTextContent("Choose file and save…");
+    expect(mbfExportUnavailable()).toBe(true);
+    fireEvent.click(saveButton(dialog));
+    // A setting changes: no review starts; the dialog says why, and the earlier guidance stays.
+    fireEvent.change(within(dialog).getByTestId("mbf-export-reference-temperature"), { target: { value: "21.5" } });
+    const declined = await within(dialog).findByTestId("mbf-export-review-declined");
+    expect(declined).toHaveTextContent(`${MBF_EXPORT_UNAVAILABLE}: ${MBF_EXPORT_REFUSAL_TEXT[MBF_EXPORT_UNAVAILABLE]}`);
+    expect(within(dialog).getByTestId("mbf-export-refusal")).toHaveTextContent(MBF_SAVE_OUTCOME_UNKNOWN_TEXT);
+    expect(saveButton(dialog).disabled).toBe(true);
+    // Closed (the dialog's retirement is still called) and reopened on a new request: still no review and no Save.
+    opened.view.rerender(<MbfExportDialog request={null} />);
+    expect(opened.retire).toHaveBeenCalledTimes(1);
+    const again = request(review, save, opened.request.model, opened.request.modelHash);
+    opened.view.rerender(<MbfExportDialog request={again} />);
+    const reopened = screen.getByTestId("mbf-export-dialog");
+    expect(await within(reopened).findByTestId("mbf-export-review-declined")).toHaveTextContent(MBF_EXPORT_REFUSAL_TEXT[MBF_EXPORT_UNAVAILABLE]);
+    fireEvent.click(within(reopened).getByTestId("mbf-export-intent"));
+    expect(saveButton(reopened).disabled).toBe(true);
+    fireEvent.click(saveButton(reopened));
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 20)); });
+    expect(review).toHaveBeenCalledTimes(1);
+    expect(save).toHaveBeenCalledTimes(1);
+    opened.view.rerender(<MbfExportDialog request={null} />);
+    expect(again.retire).toHaveBeenCalledTimes(1);
+  });
+
+  it("states what to do in the product's words: the earlier export's files may be there, and a reload or a restart exports again", () => {
+    const text = MBF_EXPORT_REFUSAL_TEXT[MBF_EXPORT_UNAVAILABLE];
+    expect(text).toContain("could not confirm whether an earlier export wrote its files");
+    expect(text).toContain("check that folder for the model batch file and its identity file");
+    expect(text).toContain("Reload the window or restart SWBPIPE");
+    expect(text).not.toMatch(/Nothing was written|was not written|were written/);
+  });
+
+  it("a fresh page exports again", async () => {
+    const save = vi.fn(async () => ({ outcome: UNKNOWN_OUTCOME, current: () => true }));
+    const first = await openOn(reviewed(), save);
+    await waitFor(() => expect(within(first.dialog).queryByTestId("mbf-export-profile")).not.toBeNull());
+    fireEvent.click(within(first.dialog).getByTestId("mbf-export-intent"));
+    fireEvent.click(saveButton(first.dialog));
+    await waitFor(() => expect(saveButton(first.dialog).disabled).toBe(true));
+    cleanup();
+    resetMbfExportUnavailableForTests();
+    const review = vi.fn(reviewed());
+    const fresh = await openOn(review, async () => ({ outcome: SAVED, current: () => true }));
+    await waitFor(() => expect(within(fresh.dialog).queryByTestId("mbf-export-profile")).not.toBeNull());
+    fireEvent.click(within(fresh.dialog).getByTestId("mbf-export-intent"));
+    fireEvent.click(saveButton(fresh.dialog));
+    await waitFor(() => expect(within(fresh.dialog).getByTestId("mbf-export-status")).toHaveTextContent("Saved swbpipe-model.mbf"));
+    expect(review).toHaveBeenCalledTimes(1);
+  });
+
+  it("a save of a dialog already closed whose outcome is unknown leaves the page unavailable too", async () => {
+    let answer!: (value: { outcome: MbfExportSaveOutcome; current: () => boolean }) => void;
+    const save = vi.fn(() => new Promise<{ outcome: MbfExportSaveOutcome; current: () => boolean }>((resolve) => { answer = resolve; }));
+    const opened = await openOn(reviewed(), save);
+    await waitFor(() => expect(within(opened.dialog).queryByTestId("mbf-export-profile")).not.toBeNull());
+    fireEvent.click(within(opened.dialog).getByTestId("mbf-export-intent"));
+    fireEvent.click(saveButton(opened.dialog));
+    await waitFor(() => expect(save).toHaveBeenCalledTimes(1));
+    opened.view.rerender(<MbfExportDialog request={null} />);
+    await act(async () => { answer({ outcome: UNKNOWN_OUTCOME, current: () => false }); });
+    expect(mbfExportUnavailable()).toBe(true);
+  });
+
+  it.each([MBF_EXPORT_CANCELLED, MBF_EXPORT_REVIEW_STALE, MBF_EXPORT_EPOCH_INVALID, MBF_EXPORT_RETIREMENT_UNCONFIRMED, "MBF-EXPORT-SAVE-RENAME-FAILED"])(
+    "a save refused %s can be tried again",
+    async (code) => {
+      const save = vi.fn(async () => ({
+        outcome: { outcome: "refused", diagnostics: [{ code, path: "", message: code }] } as MbfExportSaveOutcome,
+        current: () => true
+      }));
+      const { dialog } = await openOn(reviewed(), save);
+      await waitFor(() => expect(within(dialog).queryByTestId("mbf-export-profile")).not.toBeNull());
+      fireEvent.click(within(dialog).getByTestId("mbf-export-intent"));
+      fireEvent.click(saveButton(dialog));
+      await within(dialog).findByTestId("mbf-export-refusal");
+      await waitFor(() => expect(saveButton(dialog).disabled).toBe(false));
+      expect(mbfExportUnavailable()).toBe(false);
+      fireEvent.click(saveButton(dialog));
+      await waitFor(() => expect(save).toHaveBeenCalledTimes(2));
+    }
+  );
 });

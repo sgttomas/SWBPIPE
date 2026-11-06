@@ -352,7 +352,15 @@ writer and importer. These are the CAEPIPE lane's work, not desktop work (Q-3):
   closed, says "SWBPIPE could not confirm whether this export wrote its files, because this
   window can no longer send exports. If you chose a folder for it, check that folder for the
   model batch file and its identity file. Reload the window or restart SWBPIPE to export again."
-  (`MBF_SAVE_REFUSAL_TEXT`, `mbfSaveRefusalText` in `mbfExport.ts`). A close that reaches a save past its commit does not stop it, and the save
+  (`MBF_SAVE_REFUSAL_TEXT`, `mbfSaveRefusalText` in `mbfExport.ts`). After such a save, open or
+  closed, the page sends no further review or save until the window is reloaded or SWBPIPE
+  restarts: Save stays disabled, and a review or save the dialog would start (after a settings
+  change, a new review, or a close and reopen) is refused before anything is sent with
+  `MBF-EXPORT-UNAVAILABLE`, "Export isn't available in this window: SWBPIPE could not confirm
+  whether an earlier export wrote its files. This export did not start. If you chose a folder for
+  the earlier export, check that folder for the model batch file and its identity file. Reload the
+  window or restart SWBPIPE to export again." The page's retirements are still sent (§6, "Export
+  unavailable after an unknown save"). A close that reaches a save past its commit does not stop it, and the save
   may still finish, or fail and undo itself: the status line first says only that the export
   "was already writing its files when it was closed; it is finishing", then the save's own
   outcome (`closedSaveStatusLine`): both files named when it saved, or its codes with their text
@@ -715,7 +723,9 @@ only the staleness check of step 6.
     fallback was triggered by a failed read of a save's reply, the original raw save may
     already have committed, written or undone itself, and its resend is the one refused. The
     page cannot see the flip, so a save refused `INGRESS-RAW-BODY-REQUIRED` has an unknown
-    outcome and is reported so (§3.3); a review refused so wrote nothing.
+    outcome and is reported so (§3.3); a review refused so wrote nothing. Such a save shows the
+    page that its transport has fallen back, so from then on the page sends no review or save
+    at all (`MBF-EXPORT-UNAVAILABLE`, §3.3) and keeps sending its retirements.
     Duplicate deliveries of an id the host has applied remain no-ops whatever their route or
     form. Its frontend result is discarded by its generation, and the save's pre-commit checks
     are unchanged. *Across a navigation* the order is not established:
@@ -1808,6 +1818,49 @@ the result-output gate changes; criterion 6 is not claimed.
   The Playwright smoke had no gate assertion. A result held back by its numerical verdict or by an RT-A5 held-status
   gate could not be delivered into an App session here (the replay records no reply for the session's delivery of
   those bytes); the export reads no result at all, so its route, standing or hold cannot reach the request.
+
+**Export unavailable after an unknown save (follow-up to 4b.2, 2026-11-06).** Agent 0's inspection: an unknown save
+outcome left Save enabled. The dialog's `canSave` did not read the unknown diagnostic, and its `finally` cleared
+`saving`, so the user could start another save the transport could not carry. Only the frontend changes. No native
+command, IPC form, protocol or backend changes.
+
+- **Old behaviour.** A save refused `INGRESS-RAW-BODY-REQUIRED`, as an outcome or as a rejection, showed the
+  unknown-outcome text (§3.3), and then Save was offered again with the same review and choice. A settings change, a
+  new review or a reopened dialog sent `review_mbf_export` again, and the ingress refused it.
+- **New behaviour.** The page state lives in `mbfExportCancel.ts`, beside the page token, as "Export unavailable in
+  this page". The barrier's `saveMbfExport` judges every save it sends, whether its dialog is open, closed or
+  replaced and whether or not the result is current. A save whose outcome is unknown (`mbfSaveOutcomeUnknown`, either
+  form) marks the page before its outcome is returned. The dialog marks it too on the same rule, so its Save holds
+  whatever service it is given.
+  - From then on every review and save start is refused before any send, with `MBF-EXPORT-UNAVAILABLE`. That covers a
+    start that was waiting on a retirement when the page was marked, and a headroom re-send, which resolves
+    cancelled. Save is disabled (`useSyncExternalStore` on the page state), and the dialog starts no review: it
+    declines with the code and its text (§3.3).
+  - Settings edits, a new review, a close and reopen and a new project session leave the state as it is. Only a new
+    page clears it: a reload, or a restart. Tests reset it through `resetMbfExportUnavailableForTests`, from
+    `src/test/setup.ts`, as a fresh page.
+  - Retirements are not held. `cancel_mbf_export` is sent in the JSON form, which still reaches the host after the
+    fallback (§3.7), so an admitted save that has not committed can still be stopped.
+  - The unknown save's own outcome is shown as before: unknown, never saved, failed or nothing written. Nothing is
+    inferred from the transport, a retirement, a too-late receipt or a lost reply. `MBF-EXPORT-UNAVAILABLE` is one of
+    the closed-save codes that establish nothing was written, because such a start is never sent.
+  - Every other refusal keeps its retry behaviour: cancelled, stale review, the retirement and epoch codes, a write
+    failure, and a review refused `INGRESS-RAW-BODY-REQUIRED`. That review wrote nothing, and its own text already
+    says to reload or restart. The rule follows the unknown save only.
+  - §3.7's "the barrier cannot refuse a start for a known fallback" still holds for the first start after the flip,
+    since the flag stays private to Tauri. The page refuses only after a save's unknown outcome has shown it.
+- **Tests.** `mbfExportCancel.test.ts` covers the following. Either form marks the page. A save its caller retired
+  while it ran marks it too. No further start is sent and each is refused by name. A retirement is still sent and
+  acknowledged. A subscriber is told once. A start that was waiting on a retirement is not sent. A headroom re-send
+  stops. Other refusals and failures leave the page available. A fresh module (a reload) exports again.
+  `MbfExportDialog.test.tsx` covers the following, for both forms. Save is disabled. Settings, a new review and a
+  close and reopen start nothing and show the text, and the dialog's retirement is still called. A closed dialog's
+  unknown save marks the page. A fresh page saves. Five other refusals can be tried again. `App.mbfExportDialog.test.tsx`
+  runs the real App and barrier for both forms. The guidance is shown and Save is disabled. A settings change, a close
+  (one `cancel_mbf_export`) and a reopen send no further `review_mbf_export` or `save_mbf_export`. After a fresh page
+  the review is sent again. A closed dialog's committed save whose reply was lost leaves the reopened dialog
+  declining with no review sent. With `markMbfExportUnavailable` made a no-op, twelve of the new tests fail. The
+  retry, text and fresh-page tests pass, as they should.
 
 ## 7. Boundaries
 

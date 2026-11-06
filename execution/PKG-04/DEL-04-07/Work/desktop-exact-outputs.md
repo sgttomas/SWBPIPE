@@ -53,10 +53,10 @@ The owner's rulings are in §8: result export, stress-neutral and rule check ope
 
 ### 2.2 The policy
 
-- **Entries.** `OUTPUT_POLICY` names 21 surfaces (`outputPolicy.ts:62-67`). `pressure` and `pressure_source` refuse on every one, with `PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE` and their own texts (`:36-44, :85, :91`).
+- **Entries.** `OUTPUT_POLICY` names 21 surfaces (`outputPolicy.ts:62-67`). That was epoch 8's count; since #153 it is 20, without the MBF export (§4.5, "The MBF export since #153"). `pressure` and `pressure_source` refuse on every one, with `PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE` and their own texts (`:36-44, :85, :91`).
 - **The two read paths.**
   - The result-export and stress-neutral panels read the per-surface decision (`surfaceOutputRefusal`, `:158-167`).
-  - The eighteen other surfaces read the route's shared reason through `LoadReferenceOutputGate` → `routeOutputRefusal` (`loadReferenceOutputAvailability.ts:36-38`; `outputPolicy.ts:131-136`), which ignores the per-surface table.
+  - The eighteen other surfaces (epoch 8's count; seventeen since #153 (§4.5, "The MBF export since #153")) read the route's shared reason through `LoadReferenceOutputGate` → `routeOutputRefusal` (`loadReferenceOutputAvailability.ts:36-38`; `outputPolicy.ts:131-136`), which ignores the per-surface table.
 - **The admitted decision is retained-specific.** `admitted_when_eligible` returns a retained-precision text when standing is not eligible (`N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE`, `:55`, `:163-166`). It is the wrong text for the exact routes.
 
 ### 2.3 The reader the desktop already has
@@ -209,6 +209,13 @@ Two panels make up this surface. Both receive the Current result. The run also h
 - **Report package** (`report-package`) saves a Current preview-physics-2 result or an eligible pressure-2 or pressure-source-1 result. Its TypeScript and Rust identity checks admit those three identities; its exact sections are checked against the source as DEL-08-01 Design `exact-route-report-sections.md` specifies.
 - **The other fifteen surfaces** keep refusing: PCF, CAEPIPE MBF and external, export-adapter SDK, adapter framework, external prover, missing-data, design workspace, report lint, solve job, headless runner, local FEA, native package, handoff and export review. Each is an interop or handoff format with its own owner and its own design. This is the same scope the retained routes keep.
 
+**The MBF export since #153 (supersession note, 2026-11-06).** The list above is epoch 8's, and it is kept as written. Its CAEPIPE MBF entry (`caepipe-mbf`) no longer describes the current code:
+- **A-6 retired the result-carrying template.** That was the TypeScript builder whose package and MBF text this surface gated. It took the session's result and its run reference. DEL-17-04's decision A-6 (Agent 0, 2026-10-28) retired it in slice 4b.2b.
+- **#153 removed the model-only export from `OUTPUT_SURFACES` and from every route's table.** It is the export that replaced the template: the native `review_mbf_export` and `save_mbf_export`, which write the session's canonical model as an MBF file and its identity file. It carries no result data, so no result the session holds refuses it, whatever that result's route, standing or hold. `OUTPUT_SURFACES` now has 20 entries (DEL-17-04 Design `desktop-mbf-export-import.md` §3.1 and §6, "Output gate removed").
+- **It is not an admitted cell, and it is not a new retained-result export.** It has no `"admitted"` cell in the sense of §5.1, because no route's table names it. It is not a result export of any identity, exact or retained, because it reads no result.
+- **Its own guards remain.** These are the native local-private route `DOTH-MBF-012`, the model's admission, the explicit intent, the loss review, the completeness check, the reviewed digests, the output and memory budgets, and the file transaction.
+- **Nothing else changes.** The other fourteen surfaces in the list keep refusing the exact identities as stated, and every other cell is unchanged. The owner's rulings recorded here (§8) are unchanged. The counts in §2.2, §5.2, §6.4 and §8 are epoch 8's: they are annotated, not rewritten.
+
 ## 5. Policy and text changes
 
 ### 5.1 A decision that adds no refusal
@@ -240,7 +247,7 @@ A non-eligible exact result is never Current, so the Current-receiving panels sh
 
   `routeOutputRefusal` and `loadReferenceOutputRefusal` stay for their remaining direct callers (`RenderedReportPanel.tsx:70`, `outputPolicy.test.ts:149`). They return the route's shared reason, which for the exact routes is the reworded text (§5.3). Their only remaining product caller was the rendered report; since W-11 it reads its own `rendered-report` cell, so they have no product caller.
 - **The change.** `LoadReferenceOutputGate` takes the surface id its panel already passes as `testIdPrefix`; the surfaces are named by these prefixes (`outputPolicy.ts:60-61`). It calls `surfaceRouteRefusal(result, surface)` in place of `routeOutputRefusal`.
-- **What stays the same.** For every route and every gated surface the decision is unchanged, except the exact routes on an admitted gated surface; at epoch 8 that was `rule-check` only, and W-11 adds `rendered-report`. The reason: the retained entries refuse on all eighteen gated surfaces, and the ungated routes add no refusal.
+- **What stays the same.** For every route and every gated surface the decision is unchanged, except the exact routes on an admitted gated surface; at epoch 8 that was `rule-check` only, and W-11 adds `rendered-report`. The reason: the retained entries refuse on all eighteen gated surfaces, and the ungated routes add no refusal. Since #153 there are seventeen: the MBF export is no gated surface and no route's table names it (§4.5, "The MBF export since #153").
 - **The check.** A maintained test enumerates every route and every gated surface. It asserts that the refuse or admit decision is equal, except in the opened cells. It compares decisions, not texts, because the exact routes' refusal texts are reworded (§5.3). It runs on a plain and a load/reference-state source of each exact identity, and asserts that the two decide alike on every surface.
 
 ### 5.3 Texts
@@ -430,7 +437,7 @@ These are not reused by an invariance argument.
 - **No new browser spec.** None is added to the required lane. The jsdom session tests (§6.1) are the end-to-end path for exact results.
 - **Also run:** GEN-13 (`harness-self-check`) for the texts.
 - **Independent review is required.** It is warranted by the Root `AGENTS.md` classes for persistence and permissions, and by the numerical-use question in §4.4. A separate agent reviews the implementation against this design. It checks:
-  1. **Inventory.** Nothing beyond the chosen surfaces opens. That covers all 21 surfaces and the Current-receiving panels of §4.1.
+  1. **Inventory.** Nothing beyond the chosen surfaces opens. That covers all 21 surfaces and the Current-receiving panels of §4.1. (Epoch 8's count: since #153 the policy names 20, without the model-only MBF export (§4.5, "The MBF export since #153").)
   2. **Fail-closed gates.** Every gate fails closed.
   3. **Contract parity.** Parity with Rust's derivative and Python's package (§6.2), including the read through the source.
   4. **Rule binding.** The binding exposure of the exact rows, the per-basis maxima included.
@@ -481,7 +488,7 @@ The owner ruled on 2026-10-21, accepting HELP_HUMAN's recommended set: "A accept
 
 **1. Which surfaces open (ruling 10A; this design's choice 1 (A)).** Result export, stress-neutral and rule check open (§4.2–4.4).
 - These are the surfaces DEL-04-07 named as refused ("export, stress-neutral, rule check, Current"), and each already has its exact-route format and verdict in Rust or Python (§2.4).
-- Reports, the report package and the other fifteen surfaces keep refusing (§4.5).
+- Reports, the report package and the other fifteen surfaces keep refusing (§4.5). As recorded for the ruling; since #153 the model-only MBF export is outside the policy, and fourteen remain (§4.5, "The MBF export since #153").
 - Reports of exact results remain unavailable until DEL-08-01 designs their limitations sections. The report package is unchanged, closed for every identity.
 
 **2. Load/reference-state results under the exact identities follow the reader (ruling 11B; this design's choice 2 (A)).** The ruling ends T1's deferral (`loadReferenceOutputAvailability.ts:3-5`) for the exact identities. This design discharges what the ruling left open (§5.4):
