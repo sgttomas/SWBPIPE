@@ -87,7 +87,7 @@ fn as_if_bounded(counts: [Option<u128>; MODAL_RESOURCE_TERM_COUNT], value: u128)
 /// T3's kernel steps as one collected polynomial (the per-body audit in
 /// `resource::modal_resource_kernel_steps`, summed by power of n):
 /// 5·n(n+1)/2 + 2·Σ_i Σ_{j≤i} j + 37·n(n−1)/2 + 3n·n(n−1)/2 + 3·Σ_{t<n} t²
-/// + 21n² + 142n + 18 + R(2n + 3).
+/// + 21n² + 148n + 23 + R(2n + 5).
 fn kernel_steps(n: u128, r: u128) -> u128 {
     if n == 0 {
         return 0;
@@ -95,7 +95,7 @@ fn kernel_steps(n: u128, r: u128) -> u128 {
     let (t, pr) = (n * (n - 1) / 2, n * (n + 1) / 2);
     let c6 = (n - 1) * n * (n + 1) / 6;
     let s2 = (n - 1) * n * (2 * n - 1) / 6;
-    5 * pr + 2 * c6 + 37 * t + 3 * n * t + 3 * s2 + 21 * n * n + 142 * n + 18 + r * (2 * n + 3)
+    5 * pr + 2 * c6 + 37 * t + 3 * n * t + 3 * s2 + 21 * n * n + 148 * n + 23 + r * (2 * n + 5)
 }
 
 /// §5.3.8's terms as `resource` derives them, written out again in plain
@@ -188,11 +188,13 @@ fn the_counts_are_the_formulas_on_small_models() {
         assert_eq!(counts[t as usize], None, "{term} is unbounded");
     }
     // T3 at small n, from the itemized parts against the collected polynomial,
-    // and at n = 1 by hand: 5 + 0 + 0 + 0 + 0 + 21 + 142 + 18 + 5R.
+    // and at n = 1 by hand: 5 + 0 + 0 + 0 + 0 + 21 + 148 + 23 + 7R.
     for (n, r) in [(1, 0), (1, 4), (2, 3), (6, 1000), (37, 12)] {
         assert_eq!(modal_resource_kernel_steps(n, r).unwrap(), kernel_steps(n, r), "n = {n}, R = {r}");
     }
-    assert_eq!(modal_resource_kernel_steps(1, 4).unwrap(), 5 + 21 + 142 + 18 + 4 * 5);
+    assert_eq!(modal_resource_kernel_steps(1, 4).unwrap(), 5 + 21 + 148 + 23 + 4 * 7);
+    // n = 2, R = 3 by hand: 5·3 + 2·1 + 37·1 + 3·2 + 3·1 + 21·4 + 148·2 + 23 + 3·9 = 493.
+    assert_eq!(modal_resource_kernel_steps(2, 3).unwrap(), 493);
     assert_eq!(modal_resource_kernel_steps(0, 9).unwrap(), 0);
 
     // The arc and the state case: dimensions read from the prepared model,

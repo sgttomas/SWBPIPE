@@ -1707,7 +1707,7 @@ Built on `claude/rt-dynamics-p0` from main `17aa9a1f9`, under Agent 0's approval
 
 - **Entry.** `run_modal_dense(req, params)` delegates to the internal `run_modal_dense_with_budget(req, params, None)`. The budget is a separate, borrowed `Option<&ModalResourceBudget>`. It is not a field of `ModalIntegrityParameters` and is never defaulted. With `None`, no P0 runs and the kernel takes `DenseAllotments::default()`.
 - **Placement** (premise checked). `prepare_modal` forms no stiffness and no mass, and allocates only the model, the build and O(N + E) records (`prepare.rs:138`–`:388`). The first n²-scale work is the state solve's `form_basis_stiffness` (`state.rs:348`), or with no state case `form_modal_pencil`'s guard (`stiffness.rs:142`). P0 runs before both.
-- **Arithmetic.** Checked u128 counts for 33 terms. W = Σ w_t·c̄_t, with `checked_mul`/`checked_add`. The stage allotments A_s are formed for P0, S1, the confirmation counter, S2 and S2b, and Σ_s A_s ≤ W_budget is inclusive. An overflow refuses as `MODAL_RESOURCE_ARITHMETIC_OVERFLOW`. Each weight is an `Option<u64>` in picoseconds per counted unit. An unbounded term, or a nonzero count with a `None` weight, refuses as `MODAL_RESOURCE_PREFLIGHT_EXCEEDED`, naming every such term with its reason. An exceeded W_budget names the dominant term.
+- **Arithmetic.** Checked u128 counts for 34 terms. W = Σ w_t·c̄_t, with `checked_mul`/`checked_add`. The stage allotments A_s are formed for P0, S1, the confirmation counter, S2 and S2b, and Σ_s A_s ≤ W_budget is inclusive. An overflow refuses as `MODAL_RESOURCE_ARITHMETIC_OVERFLOW`. Each weight is an `Option<u64>` in picoseconds per counted unit. An unbounded term, or a nonzero count with a `None` weight, refuses as `MODAL_RESOURCE_PREFLIGHT_EXCEEDED`, naming every such term with its reason. An exceeded W_budget names the dominant term.
 - **Dimensions** (each an upper bound from source):
   - **n̄_f** = n_g − |distinct linear restrained DOFs|; with a restraint basis, n_g.
   - **n̄_c** = n̄_f, and **n̄_r** = n̄_f. R_max is recorded and not used, because S2, which would enforce it, is not built.
@@ -1726,25 +1726,33 @@ Built on `claude/rt-dynamics-p0` from main `17aa9a1f9`, under Agent 0's approval
 - **Bounded terms** (unit; derivation; stage):
   - **T1** (with nonlinear supports; P0). S̄ = (I_as + 1)(2 + d̄) + 1 solves, each through frame_kernel's `cholesky`. `T1.factor` = S̄ × T2.factor, `T1.entries` = S̄ × T2.entries, and `T1.coupling` = (I_as + 1)(⌈2d̄³/3⌉ + 2d̄² + d̄·n_g).
   - **T2** (P0). `T2.factor` = (n − 1)n(n + 1)/6 Cholesky inner iterations, exactly the k-loop of `structural.rs:2089`–`:2095`. Each iteration is one checked product, one checked subtraction and one checked absolute addition; at n_f = 6 that is 35 iterations, as the review counted. `T2.entries` = 3n² entry steps: the n(n + 1)/2 factor entries (each a division, or a square root with its pivot screen), the finiteness scan, the symmetry scan and the factor allocation.
-  - **T3** (S1). `T3.kernel` counts kernel steps of `solve_dense_pencil_with_allotments` (`dense.rs:358`) and its helpers, item by item. The count is 5·n(n+1)/2 + 2·Σ_i Σ_{j≤i} j + 37·n(n−1)/2 + 3n·n(n−1)/2 + 3·Σ_{t<n} t² + 21n² + 142n + 18 + R̄(2n + 3).
-    - **The unit** (revised after the round-2 re-check: the earlier "at most 24 operations" was false). A kernel step is at most 64 operations. An operation is one of:
-      - one binary64 arithmetic operation (+, −, ×, ÷, √, negation, absolute value);
-      - one comparison in a condition, select, max or min;
-      - one load, store or move of a named value.
+  - **T3** (S1). `T3.kernel` counts kernel steps of `solve_dense_pencil_with_allotments` (`dense.rs:358`) and its helpers, item by item. The count is 5·n(n+1)/2 + 2·Σ_i Σ_{j≤i} j + 37·n(n−1)/2 + 3n·n(n−1)/2 + 3·Σ_{t<n} t² + 21n² + 148n + 23 + R̄(2n + 5).
+    - **The unit** (revised in round 3: round 2's audit omitted reads and assignments under its own convention). A kernel step is at most 64 operations, counted literally:
+      - every read of a named value;
+      - every arithmetic operation, absolute value, negation and `!`;
+      - every comparison or predicate (including `&&`, `||`, match and `?` tests);
+      - every binding or assignment (including parameter bindings, returns, constructed fields and pushes).
 
-      Loop control, index arithmetic, bounds checks and `debug_assert`s are not counted. `f64::sqrt` is one operation (IEEE 754's correctly rounded square root). `hypot` is repository source (`dense.rs:1143`–`:1151`), 12 operations, inlined into its callers' counts.
-    - **Premises, not repository source:** a core slice or `Vec` element primitive (`copy_within`, `fill`, `swap_with_slice`, `resize`, iterator adapters, `push` with amortized growth) is one step per element. Allocator calls are not charged in any term.
-    - **Per-body line audit** (operations; the full list is in `modal_resource_kernel_steps`'s docs):
-      - the QL iteration body (`:1305`–`:1321`, `:1325`–`:1333`, `:1357`–`:1360`, with `hypot` and `charge_ql_rotations` inlined) is **73, charged as 2 steps**;
-      - the rotation's scalar body (`:1335`–`:1350`, `hypot` inlined) is 43, and its row update (`:1352`–`:1354`) 12;
-      - the screen body (`:557`–`:581`, recovery excluded) is 40;
-      - Householder's per-row scalar block is 22;
-      - the ordered Cholesky's entry body is 15;
-      - the thresholds (`:478`–`:507`, `:537`–`:543`) are 52, charged as 4 steps;
-      - the other straight-line code is ≤ 512, charged as 8 steps;
-      - every other body is ≤ 12.
+      Only loop control, index arithmetic, bounds checks and `debug_assert`s are excluded. An unclear count is rounded up, and a body of k operations is charged ⌈k/64⌉ steps.
+    - **Premises, not repository source:** a core slice or `Vec` element primitive is one step per element, and allocator calls are charged in no term. `f64::sqrt` is one operation.
+    - **The ledger** is in `resource.rs`'s module docs: one row per body, with its lines, per-line counts, total and steps. The bodies near or over 64 operations:
 
-      R̄ enters as R̄(2n + 3): the iterations are at most the rotations, each iteration 2 steps plus its shift loop ≤ n, and each rotation 1 + n.
+      | Body | Lines | Operations | Steps |
+      |---|---|---|---|
+      | `hypot`, inlined | `:1143`–`:1150` | 29 | — |
+      | QL iteration | `:1305`–`:1333`, `:1357`–`:1360`; `charge_ql_rotations` 28 inlined | 149 | 3 |
+      | QL rotation scalar | `:1335`–`:1350`; 81 before `row_pair`, `row_pair` 19 | 100 | 2 |
+      | QL row update | `:1352`–`:1354` | 18 | 1 |
+      | screen body | `:557`–`:581` | 106 | 2 |
+      | thresholds | | 129 | 3 |
+      | ordered Cholesky entry | | 52 | 1 |
+      | census entry | | 39 | 1 |
+      | Householder per-row block | | 37 | 1 |
+      | other straight-line code | | ≈ 412 | 12 (768) |
+      | Hager's scalar control | | ≈ 380 | 8 (512) |
+
+      Every other body is at most 36 operations. The audit also added per-row and per-call overheads the earlier count missed: the Cholesky row closures, the forward-solve calls and the back-transform calls.
+    - R̄ enters as R̄(2n + 5): the iterations are at most the rotations, each iteration is 3 steps plus its shift loop (≤ n), and each rotation 2 steps plus its row update (n).
     §5.3.8's 19n³/3 + 6n·R and n³/3 are leading-order calibration units (w_b64, w_screen), not upper bounds. They are not used as counts.
   - **T4** (S1). `T4.scaling` = 2n² + n; `T4.visits` = `T4.insertions` = 4p̄n²; `T4.rows` = p̄(n + 2); and `T4.limbs` for the limb work.
   - **T5** (S2). `T5.census` = 16n̄_c linear-pass steps, and `T5.outcome` = n̄_c·p̄ + 2n̄_c² + n̄_c for the outcome's band flags and cluster ranges.

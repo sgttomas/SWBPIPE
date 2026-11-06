@@ -148,24 +148,80 @@
 //!     not derived in this slice.
 //! - `T3.kernel`: kernel steps of `solve_dense_pencil_with_allotments`
 //!   (modal_eigen `dense.rs:358`), item by item in
-//!   [`modal_resource_kernel_steps`], whose docs carry the per-body line
-//!   audit (S1). **The unit:** a kernel step is at most 64 operations, an
-//!   operation being one binary64 arithmetic operation (+, −, ×, ÷, √,
-//!   negation, absolute value), one comparison (floating or integer) in a
-//!   condition, select, max or min, or one load, store or move of a value
-//!   the source line names. Loop control, index arithmetic, bounds checks
-//!   and `debug_assert`s are not counted. `f64::sqrt` is one operation
-//!   (IEEE 754's correctly rounded square root). `hypot` is repository
-//!   source (`dense.rs:1143`–`:1151`), 12 operations, inlined into its
-//!   callers' counts. **Premises (not repository source):** a core slice or
-//!   `Vec` element primitive (`copy_within`, `fill`, `swap_with_slice`,
-//!   `resize`, iterator adapters, `push` with its amortized growth) is one
-//!   step per element; allocator calls are not charged in any term. Every
-//!   counted body is at most 64 operations except the QL iteration body
-//!   (73), charged as 2 steps. R enters as R̄(2n + 3): the iterations are at
-//!   most the rotations (each sweep has at least one), each iteration 2
-//!   steps and its shift loop ≤ n, each rotation a 43-operation scalar body
-//!   and a row update of n. Band recovery is T4.
+//!   [`modal_resource_kernel_steps`] (S1). Band recovery is T4; the
+//!   binary-search filters are `T3.filters`.
+//!   - **The unit.** A kernel step is at most 64 operations. Operations are
+//!     counted literally: every read of a named value (a variable,
+//!     parameter, field or element), every arithmetic operation (+, −, ×, ÷,
+//!     √), absolute value, negation and logical `!`, every comparison or
+//!     predicate (`is_finite`, `is_nan`, `is_normal`, `&&`, `||`, a match or
+//!     `?` test; `max`/`min` count a comparison and a select), and every
+//!     binding or assignment (`let`, `=`, compound assignment, each pattern
+//!     element, each parameter bound at a call, each returned value, each
+//!     constructed field or `push`). Excluded, and only these: loop
+//!     control, index arithmetic (an index variable read only to subscript
+//!     or slice), bounds checks and `debug_assert`s. Where a count was
+//!     unclear it is rounded up. A body of k operations is charged ⌈k/64⌉
+//!     steps.
+//!   - **Premises (not repository source).** A core slice or `Vec` element
+//!     primitive (`copy_within`, `fill`, `swap`/`swap_with_slice`,
+//!     `resize`, iterator adapters, `push` with amortized growth) is one
+//!     step per element, at the per-element counts below. Allocator calls
+//!     are charged in no term. `f64::sqrt` is one operation (IEEE 754's
+//!     correctly rounded square root).
+//!   - **The ledger** (`dense.rs` unless stated; operations per line, total,
+//!     steps). `get` (`matrix.rs:96`–`:98`): 3 parameters, :97 2 reads,
+//!     `>=`, 2 reads, 2 binds, :98 a read and the return = 12.
+//!     `max_propagating_nan` (`dd.rs:565`–`:570`): 2 parameters, :566 2
+//!     reads, 2 predicates, `||`, :569 2 reads, `max` 2, return = 12.
+//!
+//!     | Body | Lines | Per line | Total | Steps |
+//!     |---|---|---|---|---|
+//!     | `hypot` (inlined) | :1143–:1150 | :1143 params 2; :1144 2 reads, 2 abs, 2 binds = 6; :1145 2 reads, `>=`, 2 reads, 2 binds = 7; :1146 read, `==` = 2; :1149 2 reads, ÷, bind = 4; :1150 3 reads, ×, +, √, ×, return = 8 | 29 | — |
+//!     | QL iteration | :1305–:1333, :1357–:1360 | :1305 3; :1308 35 (4 reads, `m − l`, `charge_ql_rotations` 28, `?`, assign); :1309 3; :1310 3; :1312 2; :1313 3 reads, −, ×, ÷, bind = 7; :1314 read, `hypot` 29, bind = 31; :1315 2; :1316 3; :1318 6; :1319 6; :1320 2; :1321 4; :1325 4; :1327 2; :1328 1; :1329 2; :1330 2; :1331 2; :1332 1; :1333 1; :1357 6 reads, negation, 4 ×, ÷, assign = 13; :1358 4; :1359 4; :1360 3 reads, abs, ×, `<=` = 6 | 149 | 3 |
+//!     | `charge_ql_rotations` (inlined) | :715–:732 | params 3; :720 2; :723 read, `try_from` 2, `map_err` 1, `?`, bind = 6; :724 2 reads, +, check, `ok_or` 2, `?`, bind = 8; :725–:731 read, match, bind, 2 reads, `>`, read, `Ok`, return = 9 | 28 | — |
+//!     | QL shift element | :1323 | 2 reads, −, assign | 4 | 1 |
+//!     | QL rotation scalar | :1335–:1350 | :1335 2; :1336 2; :1337 2; :1338 2 reads, ×, bind = 4; :1339 4; :1340 2 reads, `hypot` 29, assign = 32; :1341 4; :1342 4; :1343 4; :1344 4 reads, ×, ×, −, assign = 8; :1345 6 reads, 5 operations, store = 12; :1348 (debug) 3; :1350 3 reads, +, `row_pair` (:1136–:1140: params 4, read, split, 2 binds, 2 reads, 2 fields, return = 13), 2 binds = 19 | 100 | 2 |
+//!     | QL row update | :1352–:1354 | :1352 2; :1353 4 reads, ×, ×, +, store = 8; :1354 8 | 18 | 1 |
+//!     | QL per-l body | :1297–:1298, :1302–:1303, :1365–:1366 | :1297 3 reads, 2 abs, +, `max` 2, assign = 9; :1298 2; :1302 3; :1303 1; :1365 4; :1366 1 | 20 | 1 |
+//!     | QL scan | :1299–:1300 | :1299 2 reads, −, `<`, 3 reads, abs, ×, `>`, `&&` = 11; :1300 3 | 14 | 1 |
+//!     | QL e shift | :1284 | read, assign | 2 | 1 |
+//!     | Householder d init / final | :1165; :1252–:1253 | 2; 2 + 1 | ≤ 3 | 1 |
+//!     | Householder per-row block | :1168–:1169, :1173, :1185–:1192, :1207, :1212, :1226 | 1, 1, 2, 2, 3, 2, 3, 4, 6, 4, 1, 6, 2 | 37 | 1 |
+//!     | Householder scale / zero / normalize | :1171; :1176–:1178; :1182–:1183 | 5; 2 + 1 + 1; 4 + 6 | ≤ 10 | 1 |
+//!     | Householder e zero / w outer / w inner | :1194; :1198–:1200, :1205; :1202–:1203 | 1; 2 + 2 + 6 + 2; 6 + 6 | ≤ 12 | 1 |
+//!     | Householder f / hh / update outer / inner | :1209–:1210; :1214; :1217–:1223; :1220 | 4 + 6; 6; 2 + 2 + 2 + 1; 5 reads, 2 ×, +, −, store = 10 | ≤ 10 | 1 |
+//!     | Householder accumulation | :1230–:1233; :1235; :1238; :1240; :1243; :1248 | 2 + 1 + 2 + 2; 4; 1; 6; 6; 1 | ≤ 7 | 1 |
+//!     | `cholesky_ordered` entry | :1011–:1043 | `k_ij(j)` (bind, read, 2 reads of `order`, `get` 12, return) and bind = 18; `i == j` 3; `!(s > 0)` 3; ratio: read, `k_ij(i)` 17, ÷, bind = 20; `<` 3; assign 2; √ store 3 (off-diagonal: 18 + 3 + 4) | 52 | 1 |
+//!     | `cholesky_ordered` inner / row closure | `s -= r·r`; `k_ij` capture | 3 reads, ×, −, assign = 6; 2 | ≤ 6 | 1 |
+//!     | census entry | :959–:1009 | `equilibrated(a, b)` (2 params, `==` with 2 reads, read, 2 reads of `kept`, `get` 12, 2 reads, 2 ÷, return) and bind = 26; `a == b` 3; pivot test 3 reads, 2 comparisons, `&&`, `!` = 7; √ store 3 | 39 | 1 |
+//!     | census inner / root | `s -= r·r`; read, `get` 12, bind, `!(d > 0)` 3, √ push 3 | 6; 20 | ≤ 20 | 1 |
+//!     | `forward_solve_row` / `back_solve_block` / `back_transform` row | :1045–:1086 | slice 2, read and bind 2, read, read, ÷, store 4 | 8 | 1 |
+//!     | the same, inner | | 3 reads, ×, −, assign | 6 | 1 |
+//!     | `check_dense` entry | `admission.rs:91`, :61–:72 | 4 reads, `?`, `get` 12, `check_entry` (4 params, read, `admitted`: param, 3 reads, `==`, 2 abs, `>=`, `<=`, `&&`, `||`, return = 12, test, `Ok`) = 19 | 36 | 1 |
+//!     | massless entry / row | :943 | param, read, `get` 12, `==`, return = 16; param, test, push = 3 | ≤ 16 | 1 |
+//!     | `check_finite` / validate elements | :915; :925, :929 | param, read, predicate, `!`, return = 5; 8; 5 | ≤ 8 | 1 |
+//!     | reduce fill element / row | :1092–:1094 | param, read, `get` 12, return, push = 16; bind, extend = 2 | ≤ 16 | 1 |
+//!     | forward-solve call | :1099, :1103 | 4 params, chunk bind | 5 | 1 |
+//!     | transpose / symmetrize | :1121; :1113 | read, `swap` 4 = 5; 2 | ≤ 5 | 1 |
+//!     | `swap_rows` call / element | :1126–:1134 | 4 params, 3, 2 reads, `<`, 4, read, split, 2 binds, call = 20; 4 | ≤ 20 | 1 |
+//!     | sort outer / comparison | :1377–:1387; :1379–:1383 | 2 + 2 + 3 + 5 + `swap_rows` 20 = 32; 2 binds, 3, 2, 2 = 9 | ≤ 32 | 1 |
+//!     | root / y map / map out | :462; :465; :468 | param, read, `get` 12, √, return, push = 17; 2 binds, 2 reads, ×, return, push = 7; 7 | ≤ 17 | 1 |
+//!     | estimator elements | `norm_estimate.rs` | wrapper predicate 4; `norm1` 7; signs 6; argmax 9; `e` 1; `==` 3; alternative 11; `x` 1 | ≤ 11 | 1 |
+//!     | mass-norm element / row | :474; :470–:476 | 2 binds, read, `get` 12, abs, 2 reads, 2 ÷, return, + and bind 2 = 23; 3 binds, bind, `max_propagating_nan` 12, return = 17 | ≤ 23 | 1 |
+//!     | reorder elements | :508–:522 | count 6; reverse 4; swap 4; resize 1; `copy_within` call 5, element 2; allocation 1 | ≤ 6 | 1 |
+//!     | back-transform row / scatter | :523–:530 | chunk bind, `fill` 2, `copy_from_slice` 2, 3 params = 8; 2 binds, read, store = 4; fill / copy elements ≤ 2 | ≤ 8 | 1 |
+//!     | screen count element | :679–:685 | bind, 3 reads, `classify_mu` 10 (:656–:663: 3 params, 2 reads, `<=`, 2 reads, `<=`, return), match, 2 binds, 2 reads, `checked_count_add` 10, `?`, assign | 31 | 1 |
+//!     | screen body (band path) | :557–:581 | :557 2; :558 3 reads, `classify_mu` 10, `==` = 14; :562 2; :563 15; :566 10; bind 1; :568–:570 35 (`screen_passes` :882–:889 23 inlined); :571 2; :572 2; :573 5; :575–:581 18 | 106 | 2 |
+//!     | below-threshold filter / retained / sort | :588; :590–:595; :601–:611 | 5; 2 binds, 3, 2 = 7, copy element 2; outer 2 + 3 + 5 + 20 = 30, comparison 5, swap element 4 | ≤ 30 | 1 |
+//!     | output elements | :618; :923–:934 | param, read, ÷, return, push = 5; ≤ 8 | ≤ 8 | 1 |
+//!     | thresholds | :478–:507, :537–:538 | :478–:482 11; :486 6; :487–:488 9; :489–:492 19; :493–:496 17; :497–:507 50 (10 fields, 10 binds, 5 × 6 tests); :537 7; :538 10 | 129 | 3 |
+//!     | other straight-line code | :364–:454, :460–:470, :508–:522, :532–:555, :588–:598, :601, :615–:650, and the helpers' prologues | per block ≈ 12, 16, 20, 40, 2, 6, 7, 1, 3, 13, 8, 20, 8, 6, 2, 40, 8, 2, 20, 9, 40, 3, 1, 8, 2, 30, 8, 1, 25, 51 | ≈ 412 | 12 (768) |
+//!     | Hager scalar control and per-solve calls | `norm_estimate.rs:18`–`:93`, :464–:469 | start ≈ 12; ≤ 4 iterations × ≈ 40; close ≈ 21; 11 solves × (call ≈ 12, `solves += 1` 3, filter 2) ≈ 187 | ≈ 380 | 8 (512) |
+//!
+//!   - R enters as R̄(2n + 5). The iterations are at most the rotations (each
+//!     sweep has at least one rotation). Each iteration is 3 steps plus its
+//!     shift loop (≤ n), and each rotation 2 steps plus its row update (n).
 //! - `T3.filters`: **unbounded.** The kernel's and the census's massive-DOF
 //!   filters call std `slice::binary_search` (`dense.rs:423`, `:976`). Its
 //!   comparison count is a property of std's algorithm, and no toolchain is
@@ -557,58 +613,13 @@ fn modal_resource_ceil_log2(x: u128) -> u128 {
     }
 }
 
-/// T3's kernel steps at order n with R rotations (module docs): every loop
-/// and straight-line block of `solve_dense_pencil_with_allotments` (modal_eigen
-/// `dense.rs:358`) and its helpers, with n_m, n_0, the positive and the kept
-/// rows each ≤ n, each item monotone in n. The massive-DOF filters
-/// (`dense.rs:423`, `:976`) are `T3.filters`, unbounded, and not here.
-///
-/// **Per-body audit** (operations per body, module docs' unit; ≤ 64 each
-/// unless stated; `get` is one comparison and one load, `matrix.rs:96`):
-/// - `check_dense` entry, `admission.rs:89`–`:93`, `:61`–`:72`: 10.
-/// - massless scan entry, `dense.rs:942`–`:945`: 3; its row body: 2.
-/// - order element, `:425`: 2.
-/// - `cholesky_ordered`, `:1011`–`:1043`: inner `s -= r·r`: 4; entry body
-///   (the `k_ij` read, the pivot test, ratio, minimum, √ or ÷, store): 15;
-///   allocation element: 1.
-/// - `check_finite` element, `:914`–`:919`: 2.
-/// - `reduce_mass`, `:1088`–`:1116`: fill element 3; `forward_solve_row`
-///   (`:1045`–`:1057`) inner 4, row body 5; transpose swap (`:1118`) 4;
-///   symmetrize 2.
-/// - `householder_tridiagonalize`, `:1163`–`:1257`: d init 2; scale 4
-///   (`:1171`); zero branch 4 (`:1176`–`:1178`); normalize 8 (`:1182`–`:1183`);
-///   the per-row scalar block (`:1168`–`:1169`, `:1173`, `:1185`–`:1192`,
-///   `:1207`, `:1212`, `:1226`) 22; e zero 1; w outer 9 (`:1198`–`:1205`),
-///   inner 10 (`:1202`–`:1203`); f loop 8 (`:1209`–`:1210`); hh loop 5
-///   (`:1214`); update outer 7 (`:1217`–`:1223`), inner 8 (`:1220`);
-///   accumulation body 6 (`:1230`–`:1233`), its loops 3, 1, 5, 5, 1
-///   (`:1235`, `:1238`, `:1240`, `:1243`, `:1248`); final 4 (`:1252`–`:1253`).
-/// - `implicit_ql`, `:1283`–`:1366`: e shift 2; per-l body 14 (`:1297`–`:1298`,
-///   `:1302`–`:1303`, `:1365`–`:1366`); scan 6 (`:1299`–`:1300`);
-///   **iteration body 73** (`:1305`–`:1321`, `:1325`–`:1333`, `:1357`–`:1360`,
-///   `hypot` 12 and `charge_ql_rotations` 6 inlined), **charged as 2 steps**;
-///   shift element 3 (`:1323`); **rotation scalar body 43** (`:1335`–`:1350`,
-///   `hypot` 12 inlined); row update 12 (`:1352`–`:1354`).
-/// - `sort_ascending`, `:1375`–`:1390`: comparison 4; outer body 8; row swap
-///   element 4.
-/// - roots 4 (`:462`); Hager (`norm_estimate.rs`): per solve the y map 4,
-///   forward rows 5 and inner 4, back rows 4 and inner 5 (`:1059`–`:1071`),
-///   map out 4, finiteness 2, the estimator's vectors ≤ 4 each; its scalar
-///   control ≤ 6 steps in all; the mass-norm element 8 and row 4
-///   (`:470`–`:477`).
-/// - thresholds (`:478`–`:507`, `:537`–`:543`): 52 in all, charged 4 steps;
-///   the option checks and other straight-line code (`:364`–`:415`, `:420`–
-///   `:421`, `:547`–`:555`, `:596`–`:598`, `:616`–`:617`): ≤ 512, charged 8.
-/// - reordering (`:508`–`:522`): count 3, reverse 4, swap 4, resize 1, copy
-///   2, allocation 1; back-transform row (`:523`–`:531`): fill 1, copy 2,
-///   `back_transform` (`:1073`–`:1086`) row 4 and inner 5, scatter 3.
-/// - screen (`:547`–`:612`, recovery excluded: T4): count 4 (`:676`–`:693`);
-///   screen body 40 (`:557`–`:581`); the two filters 2 (`:583`–`:588`);
-///   retained body 4 and copy 2 (`:590`–`:595`); descending sort comparison
-///   4, outer 8, swap 4 (`:601`–`:612`).
-/// - census (`:959`–`:1009`): root 5; Cholesky inner 4, entry 12;
-///   allocation 1.
-/// - outputs (`:618`–`:619`, `:923`–`:938`): 3 each.
+/// T3's kernel steps at order n with R rotations: each body of the module
+/// docs' ledger, times its iterations (n_m, n_0, the positive and the kept
+/// rows each ≤ n), times its steps. Every item is monotone in n. The
+/// massive-DOF filters (`dense.rs:423`, `:976`) are `T3.filters` and are
+/// not counted here. The total is
+/// 5·n(n+1)/2 + 2·Σ_i Σ_{j≤i} j + 37·n(n−1)/2 + 3n·n(n−1)/2
+/// + 3·Σ_{t<n} t² + 21n² + 148n + 23 + R(2n + 5).
 pub(crate) fn modal_resource_kernel_steps(n: u128, rotations: u128) -> Result<u128, ModalResourceOverflow> {
     if n == 0 {
         return Ok(0);
@@ -623,21 +634,24 @@ pub(crate) fn modal_resource_kernel_steps(n: u128, rotations: u128) -> Result<u1
     let row_tri = p(&[n, tri])?;
     modal_resource_total(
         &[
-            // check_dense on K and M.
+            // check_dense on K and M: entries.
             p(&[2, pairs])?,
-            // the massless scans (kernel, census): entries and row bodies.
+            // the massless scans (kernel, census): entries and rows.
             p(&[2, n2])?,
             p(&[2, n])?,
             // the order.
             n,
-            // cholesky_ordered: allocation, inner loop, entry bodies; check_finite(r).
+            // cholesky_ordered: allocation, row closures, inner, entries; check_finite(r).
             n2,
+            n,
             cube6,
             pairs,
             n2,
-            // reduce_mass: fill, two forward passes (row bodies and inner), transpose,
-            // symmetrize, check_finite(work).
+            // reduce_mass: fill elements and rows; two forward passes: calls, row
+            // bodies, inner; transpose; symmetrize; check_finite(work).
             n2,
+            n,
+            p(&[2, n])?,
             p(&[2, n2])?,
             p(&[2, row_tri])?,
             tri,
@@ -645,51 +659,53 @@ pub(crate) fn modal_resource_kernel_steps(n: u128, rotations: u128) -> Result<u1
             n2,
             // d, e allocation.
             p(&[2, n])?,
-            // householder_tridiagonalize: d init and final 2n; Σ_{i<n} (i² + 7i + 1) and
-            // Σ_{t<n} (2t² + 3t + 1) = 3·Σt² + 10·Σt + 2(n − 1); the two closing stores.
+            // householder_tridiagonalize: d init and final, Σ_{i<n} (i² + 7i + 1) and
+            // Σ_{t<n} (2t² + 3t + 1) = 3·Σt² + 10·Σt + 2(n − 1); the closing stores.
             p(&[4, n])?,
             p(&[3, squares])?,
             p(&[10, tri])?,
             // the transpose.
             tri,
-            // implicit_ql: e shift, per-l bodies, scans, check_finite(d), and R(2n + 3).
+            // implicit_ql: e shift, per-l bodies, check_finite(d); scans; per iteration
+            // (≤ R) 3 steps and a shift loop ≤ n; per rotation 2 steps and a row of n.
             p(&[3, n])?,
             pairs,
-            p(&[rotations, 2 * n + 3])?,
-            // sort_ascending: outer bodies, comparisons, row swaps.
+            p(&[rotations, 2 * n + 5])?,
+            // sort_ascending: outer bodies, comparisons, row-swap elements.
             n,
             tri,
             n2,
-            // roots, ≤ 11 Hager solves of 2·tri + 10n, the once-only x and alternative
-            // vectors, the estimator's control, the mass norm's elements and rows.
+            // roots; ≤ 11 Hager solves of 2·tri + 10n element and body steps; the
+            // once-only x and alternative vectors; the mass norm's elements and rows.
             n,
             p(&[11, p(&[2, tri])? + 10 * n])?,
             p(&[2, n])?,
-            6,
             n2,
             n,
-            // thresholds and other straight-line code.
-            12,
-            // reordering: count, reverse, swap bodies, swap elements, resize, copy
-            // bodies, copies, allocation.
+            // Hager's scalar control (8), the thresholds (3), the straight-line code (12).
+            23,
+            // reorder: count, reverse, swap calls, copy calls, allocation; swap, resize
+            // and copy elements.
             p(&[5, n])?,
             p(&[3, n2])?,
-            // back-transform rows: fill and copy, row bodies, scatter (3n per row),
-            // inner (tri per row); check_finite(work).
+            // back-transform: per row its call, fill and copy (n), row bodies (n),
+            // scatter (n), inner (tri); check_finite(work).
+            n,
             p(&[3, n2])?,
             row_tri,
             n2,
-            // screen: counts, bodies, two filters, retained bodies, sort outer bodies;
-            // retained copies, sort swaps; sort comparisons.
-            p(&[6, n])?,
+            // screen: counts (n), bodies at 2 steps (2n), two filters (2n), retained
+            // bodies (n), sort outer bodies (n); retained copies and sort swaps; sort
+            // comparisons.
+            p(&[7, n])?,
             p(&[2, n2])?,
             tri,
-            // census: roots, allocation, Cholesky inner and entries.
+            // census: roots, allocation, inner, entries.
             n,
             n2,
             cube6,
             pairs,
-            // outputs: eigenvalues, validation of μ, λ and the vectors.
+            // outputs: eigenvalues and the μ and λ checks; the vectors' check.
             p(&[3, n])?,
             n2,
         ],
