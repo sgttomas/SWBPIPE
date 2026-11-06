@@ -607,48 +607,110 @@ fn no_non_test_modal_source_calls_the_selected_instance() {
             assert_eq!(uses, 0, "{name} names the selected instance");
         }
     }
-    // The module tree is complete for the current sources: each non-test
-    // file-module declaration of modal.rs (any visibility, one or several per
-    // line) is listed, and no listed source declares a nested non-test file
-    // module of its own. A future module fails here and must be added to the
-    // scan. Items are read between semicolons, comments removed; an item is
-    // test-only when its own attributes include `#[cfg(test)]`.
-    let listed: Vec<&str> = sources.iter().map(|(n, _)| n.trim_end_matches(".rs")).collect();
-    let declared = |item: &str| -> Option<(bool, String)> {
-        let mut rest = item.trim();
-        let mut test_only = false;
-        while let Some(attribute) = rest.strip_prefix("#[") {
-            let (inner, after) = attribute.split_once(']')?;
-            test_only |= inner.trim() == "cfg(test)";
-            rest = after.trim_start();
-        }
-        if let Some(after) = rest.strip_prefix("pub") {
-            rest = match after.strip_prefix('(') {
-                Some(scoped) => scoped.split_once(')').map_or(after, |(_, tail)| tail),
-                None => after,
-            }
-            .trim_start();
-        }
-        rest.strip_prefix("mod ").map(|m| (test_only, m.trim().to_string()))
-    };
+    // The module tree is complete for the current sources. Every `mod NAME`
+    // item anywhere in a listed source (after braced items, after inner
+    // attributes, one or several per line, any visibility) is found by
+    // keyword, with comments removed; it is test-only when one of its own
+    // outer attributes is `#[cfg(test)]` (an inner `#![…]` is not the item's).
+    // modal.rs's non-test file modules must be exactly the listed sources, and
+    // no listed source may declare another non-test module, so a future
+    // module fails here and must be added to the scan.
+    let mut non_test: Vec<String> = Vec::new();
     for (index, (name, text)) in sources.iter().enumerate() {
-        let code: String = text.lines().map(|l| l.split("//").next().unwrap()).collect::<Vec<_>>().join("\n");
-        for item in code.split(';') {
-            let Some((test_only, module)) = declared(item) else { continue };
-            assert!(!module.contains('{'), "{name} declares an inline module `{module}`, which this scan does not cover");
+        for (test_only, module, inline) in module_items(text) {
             if test_only {
                 continue;
             }
-            assert!(index == 0, "{name} declares a nested file module `{module}`, which this scan does not read");
-            assert!(listed.contains(&module.as_str()), "modal.rs declares `{module}`, which this scan does not read");
+            assert!(!inline, "{name} declares a non-test inline module `{module}`, which this scan does not cover");
+            assert!(index == 0, "{name} declares a nested non-test module `{module}`, which this scan does not read");
+            non_test.push(module);
         }
     }
-    // The scan itself: S-K1's one-line pair `mod stiffness; mod skew_pencil;`
-    // yields both modules, and an attributed test module on the same line is
-    // test-only.
-    assert_eq!(declared(" mod skew_pencil"), Some((false, "skew_pencil".to_string())));
-    assert_eq!(declared("\n#[cfg(test)] mod tests_skew"), Some((true, "tests_skew".to_string())));
-    assert_eq!(declared("pub(crate) mod x"), Some((false, "x".to_string())));
+    let mut listed: Vec<String> = sources[1..].iter().map(|(n, _)| n.trim_end_matches(".rs").to_string()).collect();
+    listed.sort();
+    non_test.sort();
+    assert_eq!(non_test, listed, "modal.rs's non-test modules are exactly the scanned sources");
+    // The scan itself, on whole sources: the escapes the review found (a
+    // module after a braced item, a module after an inner attribute), S-K1's
+    // one-line pair, an attributed test module on the same line, visibility,
+    // and an inline test module.
+    let found = |text: &str| module_items(text).into_iter().map(|(t, m, i)| (t, m, i)).collect::<Vec<_>>();
+    assert_eq!(found("fn f() { let x = 1; }\nmod escaped;"), vec![(false, "escaped".to_string(), false)]);
+    assert_eq!(found("#![allow(dead_code)] // note\n\nmod context;"), vec![(false, "context".to_string(), false)]);
+    assert_eq!(found("mod stiffness; mod skew_pencil;"), vec![(false, "stiffness".to_string(), false), (false, "skew_pencil".to_string(), false)]);
+    assert_eq!(found("mod a; #[cfg(test)] mod tests_skew;"), vec![(false, "a".to_string(), false), (true, "tests_skew".to_string(), false)]);
+    assert_eq!(found("pub(crate) mod x;\npub mod y;"), vec![(false, "x".to_string(), false), (false, "y".to_string(), false)]);
+    assert_eq!(found("#[cfg(test)]\n#[allow(unused)]\nmod t { fn g() {} }"), vec![(true, "t".to_string(), true)]);
+    assert_eq!(found("/* mod hidden; */ let modal = 1; // mod gone;"), vec![]);
+}
+
+/// Every `mod NAME` item of a Rust source, in order: (test-only, NAME,
+/// inline). Comments are removed first; `mod` is found as a keyword (not
+/// inside an identifier such as `modal`); the item's own outer attributes are
+/// read backwards over whitespace and an optional visibility.
+fn module_items(text: &str) -> Vec<(bool, String, bool)> {
+    let bytes = text.as_bytes();
+    let mut code = String::with_capacity(text.len());
+    let mut i = 0;
+    while i < bytes.len() {
+        if text[i..].starts_with("//") {
+            while i < bytes.len() && bytes[i] != b'\n' {
+                i += 1;
+            }
+        } else if text[i..].starts_with("/*") {
+            let end = text[i + 2..].find("*/").map_or(bytes.len(), |e| i + 2 + e + 2);
+            code.push(' ');
+            i = end;
+        } else {
+            let c = text[i..].chars().next().unwrap();
+            code.push(c);
+            i += c.len_utf8();
+        }
+    }
+    let ident = |c: char| c.is_alphanumeric() || c == '_';
+    let mut out = Vec::new();
+    let mut from = 0;
+    while let Some(at) = code[from..].find("mod").map(|p| from + p) {
+        from = at + 3;
+        let before_ok = code[..at].chars().next_back().is_none_or(|c| !ident(c));
+        let after = &code[at + 3..];
+        if !before_ok || !after.starts_with(char::is_whitespace) {
+            continue;
+        }
+        let rest = after.trim_start();
+        let name: String = rest.chars().take_while(|&c| ident(c)).collect();
+        if name.is_empty() {
+            continue;
+        }
+        let tail = rest[name.len()..].trim_start();
+        let inline = match tail.chars().next() {
+            Some(';') => false,
+            Some('{') => true,
+            _ => continue,
+        };
+        // Backwards: optional visibility, then the item's outer attributes.
+        let mut head = code[..at].trim_end();
+        if let Some(stripped) = head.strip_suffix("pub") {
+            head = stripped.trim_end();
+        } else if head.ends_with(')') {
+            if let Some(open) = head.rfind("pub(") {
+                head = head[..open].trim_end();
+            }
+        }
+        let mut test_only = false;
+        while head.ends_with(']') {
+            let Some(open) = head.rfind('[') else { break };
+            let attribute = &head[open + 1..head.len() - 1];
+            let prefix = head[..open].trim_end();
+            if prefix.ends_with("#!") || !prefix.ends_with('#') {
+                break;
+            }
+            test_only |= attribute.trim() == "cfg(test)";
+            head = prefix[..prefix.len() - 1].trim_end();
+        }
+        out.push((test_only, name, inline));
+    }
+    out
 }
 
 /// The kernel's hard cut h = max(τ_μ·μ_max, κ_μ·δ_q), δ_q = c_μ·n·u·μ_max,
