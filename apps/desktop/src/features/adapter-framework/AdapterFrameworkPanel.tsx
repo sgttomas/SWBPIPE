@@ -1,3 +1,4 @@
+import type { SessionAnalysisRun, SessionResult } from "../../services/nativeResult";
 import { Download, FileJson } from "lucide-react";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
@@ -9,8 +10,8 @@ export function AdapterFrameworkPanel({
   analysisRun
 }: {
   model: PreviewModel;
-  result: MechanicsResult | null;
-  analysisRun: AnalysisRunEnvelope | null;
+  result: SessionResult | null;
+  analysisRun: SessionAnalysisRun | null;
 }) {
   const packet = buildAdapterFrameworkPacket({ model, result, analysisRun });
 
@@ -97,8 +98,8 @@ function buildAdapterFrameworkPacket({
   analysisRun
 }: {
   model: PreviewModel;
-  result: MechanicsResult | null;
-  analysisRun: AnalysisRunEnvelope | null;
+  result: SessionResult | null;
+  analysisRun: SessionAnalysisRun | null;
 }) {
   const run = analysisRun?.analysis_run;
   const diagnostics = [...model.diagnostics, ...(result?.diagnostics ?? [])].map(adapterDiagnostic);

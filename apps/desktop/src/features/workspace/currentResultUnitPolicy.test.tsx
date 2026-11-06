@@ -1,5 +1,5 @@
 import { act, render, renderHook, waitFor, within } from "@testing-library/react";
-import { REPLAY_RESOURCE_GRANT, resultArrayBuffer, solveBytes, startRequestModel } from "../../test/nativeMechanicsReplay";
+import { createSolveJobTransport, solveBytes } from "../../test/nativeMechanicsReplay";
 import { isDeepStrictEqual } from "node:util";
 import { afterEach, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
@@ -11,6 +11,7 @@ import { hasNativeMechanicsInvocation, loadDesignKnowledge } from "../../service
 import { DesignWorkspacePanel } from "../design-workspace/DesignWorkspacePanel";
 import { SolvePanel } from "../solve/SolvePanel";
 import { useWorkspaceSession, type WorkspaceSession } from "./workspaceSession";
+import { isNativeResult, resultRowCount, resultUnits } from "../../services/nativeResult";
 
 // Unit transport replay of recorded producer bytes through mocked IPC: the
 // preview-physics-2 sparse fixture is actual producer output (T0R S2a) for the
@@ -18,6 +19,9 @@ import { useWorkspaceSession, type WorkspaceSession } from "./workspaceSession";
 // T0R: the Current witness is a preview-physics-2 result.
 // This is NOT a native UI qualification witness. Current standing comes only
 // from the session's own solve path and qualification gate (handleRun).
+// C1 (DEL-04-05 `c1-native-custody-plan.md` slice 4): the job holds the result natively; the
+// native commands answer with the actual Rust commands' recorded replies, and the session's
+// counts and units are S's. The received bytes are read through the session's C2 copy.
 const modelUnits = "model=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC";
 // A1: the derived model omits joint component:C-150 (refused on this route), so no
 // N*m/rad row remains in this Current witness.
@@ -34,25 +38,17 @@ async function recordedProducerSession() {
   // Capture the real browser bootstrap records before installing the replay.
   const storage = await getLocalStorageCapability();
   const knowledge = await loadDesignKnowledge();
-  const jobId = "unit-transport-replay:invented-preview-physics-1-sparse";
-  const scope = "unit_transport_replay_not_native_ui_qualification";
+  // Replay only the exact recorded input and mode; anything else fails.
+  const transport = createSolveJobTransport((sent) => {
+    if (!isDeepStrictEqual({ model: sent.model, mode: sent.mode }, { model: modelFixture, mode: "sparse_interactive" })) throw new Error("REPLAY_REQUEST_MISMATCH");
+    return solveBytes(sourceFixture);
+  }, { jobIdPrefix: "unit-transport-replay:invented-preview-physics-1-sparse" });
   invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
     if (command === "get_local_storage_capability") return storage;
     if (command === "load_design_knowledge") return knowledge;
     if (command === "sync_native_shell_state") return null;
     if (command === "load_preview_model" && args === undefined) return structuredClone(modelFixture);
-    if (command === "start_preview_mechanics_job") {
-      // Replay only the exact recorded input and mode; anything else fails.
-      const sent = startRequestModel(args, options);
-      if (!isDeepStrictEqual({ model: sent.model, mode: sent.mode }, { model: modelFixture, mode: "sparse_interactive" })) throw new Error("REPLAY_REQUEST_MISMATCH");
-      return { job_id: jobId, backend_cancellation_token: `${jobId}:token`, state: "queued", cancellation_scope: scope, resource: { ...REPLAY_RESOURCE_GRANT, ingress_reserved_bytes: 4096 } };
-    }
-    if (command === "poll_preview_mechanics_job" && isDeepStrictEqual(args, { jobId })) {
-      return { job_id: jobId, state: "completed", queue_reason: null, cancellation_requested: false, cancellation_status: "not_requested",
-        cancellation_scope: scope, result_available: true, result_bytes: solveBytes(sourceFixture).length, error_message: null, resource_refusal: null, resource: { ...REPLAY_RESOURCE_GRANT, ingress_reserved_bytes: 4096 } };
-    }
-    if (command === "take_preview_mechanics_job_result" && isDeepStrictEqual(args, { jobId })) return resultArrayBuffer(solveBytes(sourceFixture));
-    if (command === "dispose_preview_mechanics_result") return null;
+    if (transport.handles(command)) return transport.invoke(command, args, options);
     throw new Error(`REPLAY_COMMAND_UNSUPPORTED: ${command}`);
   });
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
@@ -93,9 +89,13 @@ it("reports a qualified Current result's recorded units, including Pa, N*m and N
   const model = result.current.model.model, currentSolvedResult = result.current.results.currentSolvedResult;
   expect(result.current.results.result).toBe(currentSolvedResult);
   expect(hasNativeMechanicsInvocation(currentSolvedResult, model, "sparse_interactive")).toBe(true);
-  expect(currentSolvedResult!.results).toHaveLength(841);
-  expect([...new Set(currentSolvedResult!.results.map((row) => row.unit))].sort().join(",")).toBe(recordedUnits);
-  expect(currentSolvedResult).toEqual(sourceFixture); // received producer bytes, unchanged
+  expect(isNativeResult(currentSolvedResult)).toBe(true);
+  expect(resultRowCount(currentSolvedResult!)).toBe(841);
+  expect(resultUnits(currentSolvedResult!).sort().join(",")).toBe(recordedUnits);
+  // The received producer bytes, unchanged (read through the session's C2 copy).
+  let copy: unknown = null;
+  await act(async () => { copy = (await result.current.results.loadC2Full(currentSolvedResult!)).result; });
+  expect(copy).toEqual(sourceFixture);
 
   const { solve, design, line } = renderPanels(result.current);
   expect(line(solve, "solve-job-unit-policy")).toBe(`${modelUnits}; results=${recordedUnits}; rows=841; conversion=false`);
@@ -106,5 +106,6 @@ it("reports a qualified Current result's recorded units, including Pa, N*m and N
   expect(line(design, "design-workspace-units"))
     .toBe(`${modelUnits}; results=${recordedUnits}; comparison=none; conversion=false`);
   expect(within(design.container).getByTestId("design-workspace-current")).toHaveTextContent("result_rows=841");
-  expect(currentSolvedResult).toEqual(sourceFixture);
+  expect(result.current.results.currentSolvedResult).toBe(currentSolvedResult);
+  expect(copy).toEqual(sourceFixture);
 });

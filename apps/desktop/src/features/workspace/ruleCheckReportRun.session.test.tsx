@@ -3,7 +3,9 @@
  * that aggregate is current. A re-solve retires it; a failed aggregate recording rolls
  * it back with the aggregate. Unit transport replay of committed producer bytes through
  * mocked IPC; the rule-check run is an invented unit fixture, NOT rule-evaluation
- * evidence. All data are invented. */
+ * evidence. All data are invented. C1 (DEL-04-05 `c1-native-custody-plan.md` slice 4): the
+ * result is held natively, so a revised record is the native analysis-run preview (the actual
+ * Rust command's recorded reply); a failed recording is that command failing. */
 import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import { isDeepStrictEqual } from "node:util";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -11,8 +13,8 @@ const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 import { createSolveJobTransport, nativeMechanicsReplayPair } from "../../test/nativeMechanicsReplay";
 import { getLocalStorageCapability } from "../../services/projectService";
-import * as previewService from "../../services/previewService";
 import { loadDesignKnowledge, resetSessionResultCustodyForTests } from "../../services/previewService";
+import { ANALYSIS_RUN_PREVIEW_COMMAND } from "../../services/analysisRunPreview";
 import type { RuleCheckStatus } from "../../services/ruleCheckService";
 import type { SessionRuleCheckRun } from "../report/renderableReportInput";
 import { useWorkspaceSession, type WorkspaceSession } from "./workspaceSession";
@@ -27,7 +29,10 @@ afterEach(() => {
 });
 
 let sequence = 0;
+/** When set, the native analysis-run preview (the revised record's builder) fails. */
+let previewOutage = false;
 async function solvedSession() {
+  previewOutage = false;
   const { model, bytes } = nativeMechanicsReplayPair("sparse_interactive", { profile: "pressure" });
   const storage = await getLocalStorageCapability(), knowledge = await loadDesignKnowledge();
   const transport = createSolveJobTransport((request) => {
@@ -39,6 +44,7 @@ async function solvedSession() {
     if (command === "load_design_knowledge") return knowledge;
     if (command === "sync_native_shell_state") return null;
     if (command === "load_preview_model" && args === undefined) return structuredClone(model);
+    if (command === ANALYSIS_RUN_PREVIEW_COMMAND && previewOutage) throw new Error("invented hashing outage");
     return transport.invoke(command, args, options);
   });
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
@@ -99,9 +105,10 @@ describe("the session rule-check run held for the rendered report (W-3)", () => 
     await waitFor(() => expect(hook.current.results.analysisRun?.analysis_run.analysis_status).toContain("USER_RULE_CHECKED"));
     expect(hook.current.results.ruleCheckReportRun).toBe(first);
 
-    const failing = vi.spyOn(previewService, "buildAnalysisRunPreview").mockRejectedValue(new Error("invented hashing outage"));
+    previewOutage = true;
+    const before = invokeMock.mock.calls.filter(([command]) => command === ANALYSIS_RUN_PREVIEW_COMMAND).length;
     await record(() => hook.current, "USER_RULE_FAILED", invented("USER_RULE_FAILED"));
-    expect(failing).toHaveBeenCalled();
+    expect(invokeMock.mock.calls.filter(([command]) => command === ANALYSIS_RUN_PREVIEW_COMMAND).length).toBeGreaterThan(before);
     await waitFor(() => expect(hook.current.results.ruleCheckAggregate).toBe("USER_RULE_CHECKED"));
     expect(hook.current.results.ruleCheckReportRun).toBe(first);
   });

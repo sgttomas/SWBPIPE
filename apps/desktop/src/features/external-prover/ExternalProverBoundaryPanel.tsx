@@ -1,3 +1,4 @@
+import type { SessionAnalysisRun, SessionResult } from "../../services/nativeResult";
 import { Download, FileSearch } from "lucide-react";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
@@ -9,8 +10,8 @@ export function ExternalProverBoundaryPanel({
   analysisRun
 }: {
   model: PreviewModel;
-  result: MechanicsResult | null;
-  analysisRun: AnalysisRunEnvelope | null;
+  result: SessionResult | null;
+  analysisRun: SessionAnalysisRun | null;
 }) {
   const packet = buildExternalProverBoundaryPacket({ model, result, analysisRun });
 
@@ -102,8 +103,8 @@ function buildExternalProverBoundaryPacket({
   analysisRun
 }: {
   model: PreviewModel;
-  result: MechanicsResult | null;
-  analysisRun: AnalysisRunEnvelope | null;
+  result: SessionResult | null;
+  analysisRun: SessionAnalysisRun | null;
 }) {
   const run = analysisRun?.analysis_run;
   const metadataRecordId = `external-prover-metadata:${safeFileToken(result?.run_id ?? model.project.id)}`;

@@ -1,3 +1,4 @@
+import type { SessionAnalysisRun, SessionResult } from "../../services/nativeResult";
 import { Ban, Download } from "lucide-react";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import type { Diagnostic, MechanicsResult, PreviewModel } from "../../types";
@@ -30,7 +31,7 @@ type MissingDataWarning = {
   assistive_text_available: boolean;
 };
 
-export function MissingDataBlockingPanel({ model, result }: { model: PreviewModel; result: MechanicsResult | null }) {
+export function MissingDataBlockingPanel({ model, result }: { model: PreviewModel; result: SessionResult | null }) {
   const packet = buildMissingDataBlockingPacket({ model, result });
 
   return (
@@ -134,16 +135,17 @@ function MissingDataLine({ label, value, testId }: { label: string; value: strin
 // Count of solve/rule-check blocking warnings, for the global Issues badge so it
 // reflects the missing-input blockers the Issues home shows (TP-MAC-189 step 12),
 // not just the raw diagnostics arrays.
-export function countMissingDataBlockers(args: { model: PreviewModel; result: MechanicsResult | null }): number {
+export function countMissingDataBlockers(args: { model: PreviewModel; result: SessionResult | null }): number {
   return buildMissingDataBlockingPacket(args).summary.blocking_warning_count;
 }
 
-export function buildMissingDataBlockingPacket({ model, result }: { model: PreviewModel; result: MechanicsResult | null }) {
+export function buildMissingDataBlockingPacket({ model, result }: { model: PreviewModel; result: SessionResult | null }) {
   // A result diagnostic's message reaches a nonlinear warning's displayed text only through its
   // presented form (`presentedResultDiagnostics`: held-status notices and unadmitted combination
-  // text quoted as supplied). Presentation changes messages only; codes, severities and refs, which
-  // the counts and blocking flags read, are the result's own. Presented only when the result has a
-  // nonlinear diagnostic, the only kind whose message a warning copies.
+  // text quoted as supplied; a C1 native handle by the same classifier with its Rust facts).
+  // Presentation changes messages only; codes, severities and refs, which the counts and blocking
+  // flags read, are the result's own. Presented only when the result has a nonlinear diagnostic, the
+  // only kind whose message a warning copies.
   const resultDiagnostics = result?.diagnostics ?? [];
   const presented = resultDiagnostics.some((item) => item.code.startsWith("NONLINEAR_")) ? presentedResultDiagnostics(result) : resultDiagnostics;
   const diagnostics = [...model.diagnostics, ...presented];
@@ -260,7 +262,7 @@ function buildWarnings({
   statusInputs
 }: {
   model: PreviewModel;
-  result: MechanicsResult | null;
+  result: SessionResult | null;
   diagnostics: Diagnostic[];
   statusInputs: {
     mechanics: string;

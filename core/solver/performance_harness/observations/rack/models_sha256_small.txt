@@ -1,0 +1,3 @@
+# sha256 of the RT-U4 small C1 validation rack's canonical bytes (rack/rack_model.py), model document 0.9.0
+# regenerate: python3 core/solver/performance_harness/rack/rack_model.py --profile linear-ex --nodes 82 | shasum -a 256
+a3ca6fbc7412966304fdde46322fa4af6d93c462cc60341658fac7a188cf4ac0  linear-ex  82

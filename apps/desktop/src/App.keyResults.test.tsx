@@ -13,7 +13,7 @@ vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("./test/nat
 import { App } from "./App";
 import { getLocalStorageCapability } from "./services/projectService";
 import { loadDesignKnowledge } from "./services/previewService";
-import { createNativeMechanicsReplay } from "./test/nativeMechanicsReplay";
+import { createNativeMechanicsReplay, REPLAY_COMMANDS } from "./test/nativeMechanicsReplay";
 
 afterEach(() => {
   cleanup();
@@ -30,7 +30,7 @@ async function installPreviewReplay() {
     if (command === "get_local_storage_capability") return Promise.resolve(storage);
     if (command === "load_design_knowledge") return Promise.resolve(knowledge);
     if (command === "sync_native_shell_state") return Promise.resolve(null);
-    if (["load_preview_model", "start_preview_mechanics_job", "poll_preview_mechanics_job", "take_preview_mechanics_job_result", "dispose_preview_mechanics_result", "cancel_preview_mechanics_job"].includes(command)) return mechanics.invoke(command, args, options);
+    if (REPLAY_COMMANDS.includes(command)) return mechanics.invoke(command, args, options);
     return Promise.reject(new Error(`NATIVE_APP_REPLAY_COMMAND_UNSUPPORTED: ${command}`));
   });
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};

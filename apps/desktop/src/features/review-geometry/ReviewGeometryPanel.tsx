@@ -1,3 +1,4 @@
+import type { SessionAnalysisRun, SessionResult } from "../../services/nativeResult";
 import { Boxes, Download } from "lucide-react";
 import type { AnalysisRunEnvelope, MechanicsResult, ObjectRef, PreviewModel, Vec3 } from "../../types";
 
@@ -55,8 +56,8 @@ export function ReviewGeometryPanel({
   analysisRun
 }: {
   model: PreviewModel;
-  result: MechanicsResult | null;
-  analysisRun: AnalysisRunEnvelope | null;
+  result: SessionResult | null;
+  analysisRun: SessionAnalysisRun | null;
 }) {
   const packet = buildReviewGeometryPacket({ model, result, analysisRun });
 
@@ -137,8 +138,8 @@ export function buildReviewGeometryPacket({
   analysisRun
 }: {
   model: PreviewModel;
-  result: MechanicsResult | null;
-  analysisRun: AnalysisRunEnvelope | null;
+  result: SessionResult | null;
+  analysisRun: SessionAnalysisRun | null;
 }) {
   const run = analysisRun?.analysis_run;
   const stableIdMap = stableIdEntries(model);

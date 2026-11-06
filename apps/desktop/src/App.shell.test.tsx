@@ -9,7 +9,7 @@ import * as previewService from "./services/previewService";
 import { buildCurrentSessionInputManifest } from "./services/inputManifestService";
 import { loadBundledMechanicsReference, loadPreviewModel } from "./services/previewService";
 import { buildAnalysisRunV03, modelLoadBasisRefs } from "./services/analysisRunCompatibility";
-import { createNativeMechanicsReplay, nativeMechanicsReplayPair } from "./test/nativeMechanicsReplay";
+import { createNativeMechanicsReplay, nativeMechanicsReplayPair, REPLAY_COMMANDS } from "./test/nativeMechanicsReplay";
 import type { LocalProjectEnvelope, PreviewModel } from "./types";
 import { confirmProjectUnits } from "./test-support/workspaceTestControls";
 
@@ -260,7 +260,10 @@ describe("the status chip policy through the product (§5.4)", () => {
   it("rules 3 and 4 with a rule pack: two chips off Review, three on it", async () => {
     await renderCurrentReplayShell();
     await solve();
-    invokeMock.mockImplementation((command: string) => {
+    // The replay keeps answering the held result's custody and native reads (C1).
+    const replay = invokeMock.getMockImplementation()!;
+    invokeMock.mockImplementation((command: string, args?: unknown, options?: unknown) => {
+      if (REPLAY_COMMANDS.includes(command)) return replay(command, args, options);
       if (command === "get_unit_catalog") return Promise.reject(new Error("Invented catalog unavailable"));
       if (command === "run_rule_checks") {
         return Promise.resolve({
@@ -286,7 +289,9 @@ describe("the status chip policy through the product (§5.4)", () => {
     setTauriRuntime(true);
     act(() => nativeMenuCommand("analyze.rule-checks"));
     const solvePage = screen.getByTestId("workspace-section-solve");
-    fireEvent.click(within(solvePage).getByTestId("rule-check-load-demo"));
+    // Rule checks read full rows (C2): their copy loads on request, never at the solve's first paint.
+    fireEvent.click(within(solvePage).getByTestId("c2-result-load"));
+    fireEvent.click(await within(solvePage).findByTestId("rule-check-load-demo"));
     await within(solvePage).findByTestId("rule-check-binding-plan");
     fireEvent.click(within(solvePage).getByTestId("rule-check-run"));
     await waitFor(() => expect(chipFaces()).toEqual(["Solver · Mechanics solved", "Rule pack · User-rule failed"]));

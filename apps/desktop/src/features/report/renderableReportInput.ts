@@ -1,5 +1,6 @@
 import { analysisResultHashScope } from "../results/analysisResultHashScope";
 import { documentCombinationIdentities, SUPPLEMENTAL_DIAGNOSTIC_LABEL, suppliedDiagnosticMessage } from "../results/suppliedDiagnostics";
+import type { NotNativeResult } from "../../services/nativeResult";
 import type {
   AnalysisRunEnvelope,
   LocalProjectSummary,
@@ -174,9 +175,11 @@ function mapObjectRef(ref: { object_type: string; ref: string } | undefined, fal
  * `exact-route-report-sections.md` §3.6): the report's first Diagnostics entries. On an exact
  * route the native render and the package's item 9 check them against the delivered result
  * with the Rust mirror `report_package::bindings::expected_report_diagnostics`; parity vectors
- * `fixtures/reports/invented/report_diagnostics_parity.json`. */
+ * `fixtures/reports/invented/report_diagnostics_parity.json`. A whole value only (C1): the report
+ * reads a native result's C2 full copy (`C2ResultGate`, `loadC2Full`), never the native handle,
+ * whose type is refused here (`NotNativeResult`) and whose guarded rows throw. */
 export function diagnosticsForSections(
-  result: Pick<MechanicsResult, "diagnostics"> & Partial<Pick<MechanicsResult, "results" | "contract_evidence" | "numerical_quality">>,
+  result: Pick<MechanicsResult, "diagnostics"> & Partial<Pick<MechanicsResult, "results" | "contract_evidence" | "numerical_quality">> & NotNativeResult,
   provenance: ReturnType<typeof sessionProvenance>
 ) {
   const combinations = documentCombinationIdentities(result);
