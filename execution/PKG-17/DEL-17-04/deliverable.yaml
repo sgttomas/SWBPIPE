@@ -135,13 +135,13 @@ checks:
 - apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx
 - apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx
 - apps/desktop/src/App.test.tsx
-- apps/desktop/src/features/exportProjectUnitRefusal.test.tsx
 - apps/desktop/e2e/r2-smoke.spec.ts
 - core/handoff/caepipe_mbf_wasm/tests/export.rs
 - apps/desktop/src/services/mbfEngine.test.ts
 - apps/desktop/src-tauri/src/mbf_export.rs
 - apps/desktop/src-tauri/src/mbf_worker_tests.rs
 - apps/desktop/src/App.mbfExportSession.test.tsx
+- apps/desktop/src/App.mbfExportDialog.test.tsx
 - apps/desktop/src/features/caepipe-mbf/mbfExportCancel.test.ts
 - tests/security/test_local_first_storage_policy.py
 - tests/security/test_redaction_export_controls.py

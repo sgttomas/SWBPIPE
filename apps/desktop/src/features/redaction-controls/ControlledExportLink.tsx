@@ -36,8 +36,6 @@ const TEST_ID_BINDINGS: Record<string, RouteBinding> = {
   "secret-private-library-export-link": { routeId: "DOTH-PRIVATE-004", context: "local_private" },
   "pcf-export-link": { routeId: "DOTH-FORMAT-003", context: "downstream_tool" },
   "pcf-text-link": { routeId: "DOTH-FORMAT-003", context: "downstream_tool", lossless: true },
-  "caepipe-mbf-export-link": { routeId: "DOTH-FORMAT-003", context: "downstream_tool" },
-  "caepipe-mbf-text-link": { routeId: "DOTH-FORMAT-003", context: "downstream_tool", lossless: true },
   "stress-neutral-export-link": {
     routeId: "DOTH-FORMAT-003",
     context: "local_private",

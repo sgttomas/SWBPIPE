@@ -17,11 +17,19 @@ import { computeModelHash } from "../../services/hashService";
 import type { PreviewModel } from "../../types";
 import { MbfExportDialog, type MbfExportDialogRequest } from "./MbfExportDialog";
 import {
+  INGRESS_RAW_BODY_REQUIRED,
   MBF_ASSUMPTIONS_SENTENCE,
   MBF_BLOCKING_CODES,
   MBF_BLOCKING_SENTENCE,
+  MBF_EXPORT_CANCELLED,
+  MBF_EXPORT_EPOCH_EXHAUSTED,
+  MBF_EXPORT_EPOCH_INVALID,
   MBF_EXPORT_OUTPUT_TOO_LARGE,
+  MBF_EXPORT_REFUSAL_TEXT,
+  MBF_EXPORT_RETIREMENT_ID_INVALID,
+  MBF_EXPORT_RETIREMENT_UNCONFIRMED,
   MBF_EXPORT_REVIEW_STALE,
+  MBF_EXPORT_TOO_LATE_SENTENCE,
   MBF_EXPORT_ROUTE_ID,
   MBF_LOSS_DESCRIPTIONS,
   MBF_PROFILE_LABEL,
@@ -106,19 +114,22 @@ async function open(
   ready = "mbf-export-profile"
 ) {
   const close = vi.fn();
+  const retire = vi.fn();
   const request: MbfExportDialogRequest = {
     model: document,
     modelHash: await computeModelHash(document),
     projectName: "Invented MBF export",
     opener: null,
     close,
-    saveMbfExport,
-    reviewMbfExport
+    retire,
+    // The barrier's services, as these mocks answer them: every result still current.
+    saveMbfExport: async (args) => ({ outcome: await saveMbfExport(args), current: () => true }),
+    reviewMbfExport: reviewMbfExport === null ? null : async (args) => ({ outcome: await reviewMbfExport(args), current: () => true })
   };
-  render(<MbfExportDialog request={request} />);
+  const view = render(<MbfExportDialog request={request} />);
   const dialog = screen.getByTestId("mbf-export-dialog");
   await waitFor(() => expect(within(dialog).queryByTestId(ready)).not.toBeNull(), { timeout: 20000 });
-  return { dialog, review: reviewMbfExport, close, saveMbfExport };
+  return { dialog, review: reviewMbfExport, close, retire, saveMbfExport, view, request };
 }
 
 function saveButton(dialog: HTMLElement): HTMLButtonElement {
@@ -177,7 +188,7 @@ describe("MbfExportDialog", () => {
     await waitFor(() => expect(saveMbfExport).toHaveBeenCalledTimes(1));
     expect(engineCalls).toEqual(before);
     const here = path.dirname(fileURLToPath(import.meta.url));
-    for (const file of ["MbfExportDialog.tsx", "mbfExport.ts"]) {
+    for (const file of ["MbfExportDialog.tsx", "mbfExport.ts", "mbfExportCancel.ts", "CaepipeMbfExportPanel.tsx"]) {
       const source = readFileSync(path.join(here, file), "utf8");
       expect(source, file).not.toMatch(/renderMbfJson|renderMbfExport|loadMbfEngine|services\/mbfEngine/);
     }
@@ -459,5 +470,158 @@ describe("MbfExportDialog", () => {
       if (MBF_BLOCKING_CODES.has(code)) expect(description.endsWith(MBF_BLOCKING_SENTENCE), code).toBe(true);
       else expect(description, code).not.toContain("does not write the file");
     }
+  });
+});
+
+/** Opens the dialog on services the test answers itself (each result with its own `current`). */
+async function openOn(
+  reviewMbfExport: MbfExportDialogRequest["reviewMbfExport"],
+  saveMbfExport: MbfExportDialogRequest["saveMbfExport"] = async () => ({ outcome: SAVED, current: () => true })
+) {
+  const document = model();
+  const retire = vi.fn();
+  const request: MbfExportDialogRequest = {
+    model: document,
+    modelHash: await computeModelHash(document),
+    projectName: "Invented MBF export",
+    opener: null,
+    close: vi.fn(),
+    retire,
+    saveMbfExport,
+    reviewMbfExport
+  };
+  const view = render(<MbfExportDialog request={request} />);
+  return { dialog: screen.getByTestId("mbf-export-dialog"), retire, view, request };
+}
+
+const reviewed = (current = true) => async () => ({ outcome: { outcome: "reviewed", review: payload("degc-default") } as MbfReviewOutcome, current: () => current });
+const declinedWith = (code: string) => async () => ({
+  outcome: { outcome: "refused", diagnostics: [{ code, path: "", message: `developer wording for ${code}: epoch 7, page token` }] } as MbfReviewOutcome,
+  current: () => true
+});
+
+// DEL-17-04 slice 4b.2b: the mounted dialog's close, its stale results and the product text of the export's own
+// refusals.
+describe("MbfExportDialog, mounted (slice 4b.2b)", () => {
+  it("retires the export when it closes and when it unmounts", async () => {
+    const closed = await openOn(reviewed());
+    await waitFor(() => expect(within(closed.dialog).queryByTestId("mbf-export-profile")).not.toBeNull());
+    expect(closed.retire).not.toHaveBeenCalled();
+    // The session closes it (its request becomes null): one retirement.
+    closed.view.rerender(<MbfExportDialog request={null} />);
+    expect(closed.retire).toHaveBeenCalledTimes(1);
+    expect(screen.queryByTestId("mbf-export-dialog")).toBeNull();
+    cleanup();
+    const unmounted = await openOn(reviewed());
+    unmounted.view.unmount();
+    expect(unmounted.retire).toHaveBeenCalledTimes(1);
+  });
+
+  it("discards a review whose start is no longer current", async () => {
+    const review = vi.fn(reviewed(false));
+    const { dialog } = await openOn(review);
+    await waitFor(() => expect(review).toHaveBeenCalledTimes(1));
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 20)); });
+    expect(within(dialog).getByTestId("mbf-export-review-running")).toBeInTheDocument();
+    expect(within(dialog).queryByTestId("mbf-export-profile")).toBeNull();
+    expect(saveButton(dialog).disabled).toBe(true);
+  });
+
+  it("passes its own check to the barrier: a closed dialog's review is not wanted", async () => {
+    let wanted: (() => boolean) | null = null;
+    const review = vi.fn(async (_args: MbfReviewArgs, stillCurrent: () => boolean) => {
+      wanted = stillCurrent;
+      return new Promise<never>(() => {});
+    });
+    const { view } = await openOn(review);
+    await waitFor(() => expect(wanted).not.toBeNull());
+    expect(wanted!()).toBe(true);
+    view.rerender(<MbfExportDialog request={null} />);
+    expect(wanted!()).toBe(false);
+  });
+
+  it("discards a save whose start is no longer current: no status line, no refusal", async () => {
+    const save = vi.fn(async () => ({ outcome: SAVED, current: () => false }));
+    const { dialog } = await openOn(reviewed(), save);
+    await waitFor(() => expect(within(dialog).queryByTestId("mbf-export-profile")).not.toBeNull());
+    fireEvent.click(within(dialog).getByTestId("mbf-export-intent"));
+    fireEvent.click(saveButton(dialog));
+    await waitFor(() => expect(save).toHaveBeenCalledTimes(1));
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 20)); });
+    expect(within(dialog).getByTestId("mbf-export-status").textContent).toBe("");
+    expect(within(dialog).queryByTestId("mbf-export-refusal")).toBeNull();
+  });
+
+  it.each([
+    MBF_EXPORT_CANCELLED,
+    MBF_EXPORT_RETIREMENT_UNCONFIRMED,
+    MBF_EXPORT_EPOCH_INVALID,
+    MBF_EXPORT_EPOCH_EXHAUSTED,
+    MBF_EXPORT_RETIREMENT_ID_INVALID
+  ])("shows %s by its product text, not the native wording", async (code) => {
+    const { dialog } = await openOn(declinedWith(code));
+    const declined = await within(dialog).findByTestId("mbf-export-review-declined");
+    expect(declined).toHaveTextContent(`${code}: ${MBF_EXPORT_REFUSAL_TEXT[code]}`);
+    expect(declined.textContent).not.toContain("developer wording");
+    expect(saveButton(dialog).disabled).toBe(true);
+  });
+
+  it("shows a save refused as cancelled by its product text", async () => {
+    const save = vi.fn(async () => ({
+      outcome: { outcome: "refused", diagnostics: [{ code: MBF_EXPORT_CANCELLED, path: "", message: "The export was cancelled. Nothing was written." }] } as MbfExportSaveOutcome,
+      current: () => true
+    }));
+    const { dialog } = await openOn(reviewed(), save);
+    await waitFor(() => expect(within(dialog).queryByTestId("mbf-export-profile")).not.toBeNull());
+    fireEvent.click(within(dialog).getByTestId("mbf-export-intent"));
+    fireEvent.click(saveButton(dialog));
+    expect(await within(dialog).findByTestId("mbf-export-refusal")).toHaveTextContent(`${MBF_EXPORT_CANCELLED}: ${MBF_EXPORT_REFUSAL_TEXT[MBF_EXPORT_CANCELLED]}`);
+  });
+
+  it("says export isn't available in this window once a start is refused at ingress, for the review and the save", async () => {
+    const ingress = new Error("INVALID_REQUEST: INGRESS-RAW-BODY-REQUIRED: send `review_mbf_export`'s arguments as raw UTF-8 JSON bytes.");
+    const { dialog } = await openOn(async () => { throw ingress; });
+    const declined = await within(dialog).findByTestId("mbf-export-review-declined");
+    expect(declined).toHaveTextContent(`${INGRESS_RAW_BODY_REQUIRED}: ${MBF_EXPORT_REFUSAL_TEXT[INGRESS_RAW_BODY_REQUIRED]}`);
+    expect(declined.textContent).toContain("Export isn't available in this window");
+    expect(declined.textContent).not.toContain("raw UTF-8");
+    cleanup();
+    const opened = await openOn(reviewed(), async () => { throw ingress; });
+    await waitFor(() => expect(within(opened.dialog).queryByTestId("mbf-export-profile")).not.toBeNull());
+    fireEvent.click(within(opened.dialog).getByTestId("mbf-export-intent"));
+    fireEvent.click(saveButton(opened.dialog));
+    expect(await within(opened.dialog).findByTestId("mbf-export-refusal")).toHaveTextContent(MBF_EXPORT_REFUSAL_TEXT[INGRESS_RAW_BODY_REQUIRED]);
+  });
+
+  it("states what the user can do, names no mechanism and never suggests that anything grants a save", () => {
+    const texts = [...Object.values(MBF_EXPORT_REFUSAL_TEXT), MBF_EXPORT_TOO_LATE_SENTENCE];
+    for (const text of texts) {
+      expect(text).not.toMatch(/epoch|token|ticket|sequence|retire|barrier|ingress|fallback|raw|authori[sz]|permi(t|ssion)|grant/i);
+      expect(text).not.toMatch(/CAEPIPE|target program/i);
+    }
+    expect(MBF_EXPORT_REFUSAL_TEXT[MBF_EXPORT_EPOCH_EXHAUSTED]).toContain("Restart SWBPIPE");
+    expect(MBF_EXPORT_REFUSAL_TEXT[INGRESS_RAW_BODY_REQUIRED]).toContain("Reload the window or restart SWBPIPE");
+    for (const code of [MBF_EXPORT_RETIREMENT_UNCONFIRMED, MBF_EXPORT_EPOCH_INVALID, MBF_EXPORT_RETIREMENT_ID_INVALID]) {
+      expect(MBF_EXPORT_REFUSAL_TEXT[code]).toContain("Try again");
+    }
+    // A save that completed although it was cancelled says that the files were written.
+    expect(MBF_EXPORT_TOO_LATE_SENTENCE).toContain("were written");
+  });
+
+  it("retires the TypeScript builder (A-6): no source names it or the wasm engine outside its own test resource", () => {
+    const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+    const offenders: string[] = [];
+    const walk = (directory: string) => {
+      for (const entry of readdirSync(directory, { withFileTypes: true })) {
+        const full = path.join(directory, entry.name);
+        if (entry.isDirectory()) walk(full);
+        else if (/\.tsx?$/.test(entry.name) && !/\.test\.tsx?$/.test(entry.name) && !full.endsWith(path.join("services", "mbfEngine.ts"))) {
+          const text = readFileSync(full, "utf8");
+          if (/buildCaePipeMbfExportPacket|services\/mbfEngine|openpipestress-preview-\$\{[^}]*\}\.mbf|caepipe-mbf-(export|text)-link/.test(text)) offenders.push(path.relative(root, full));
+        }
+      }
+    };
+    walk(root);
+    expect(offenders).toEqual([]);
   });
 });

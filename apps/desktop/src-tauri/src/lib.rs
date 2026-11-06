@@ -5093,6 +5093,7 @@ fn native_menu_mutations(state: &NativeShellState) -> Vec<NativeMenuMutation> {
         ("file.save-local", !state.project_busy),
         ("file.save-model-document", !state.project_busy),
         ("file.save-handoff", !state.project_busy),
+        ("file.export-mbf", !state.project_busy),
         ("file.list-local", !state.project_busy),
         ("view.view.table", true),
         ("view.view.model", state.stage != "review"),
@@ -5307,6 +5308,7 @@ const NATIVE_FILE_MENU: &[Option<(&str, &str, Option<&str>)>] = &[
     Some(("file.new-local", "Save as New Local Project", None)),
     Some(("file.save-model-document", "Save Model Document…", None)),
     Some(("file.save-handoff", "Save Handoff…", None)),
+    Some(("file.export-mbf", "Export MBF…", None)),
     Some(("file.save-report-package", "Save Report Package…", None)),
 ];
 
@@ -6774,6 +6776,21 @@ mod tests {
         assert_eq!(accelerated, vec![("file.save-local", "CmdOrCtrl+S")]);
     }
 
+    /// DEL-17-04 slice 4b.2b (Design `desktop-mbf-export-import.md` §3.1): File > Export MBF… follows Save Handoff…
+    /// and dispatches its id to the webview like every other File item.
+    #[test]
+    fn native_file_menu_offers_export_mbf_after_save_handoff() {
+        let items: Vec<(&str, &str)> = NATIVE_FILE_MENU
+            .iter()
+            .flatten()
+            .map(|(id, label, _)| (*id, *label))
+            .collect();
+        let handoff = items.iter().position(|(id, _)| *id == "file.save-handoff").unwrap();
+        assert_eq!(items[handoff + 1], ("file.export-mbf", "Export MBF…"));
+        assert_eq!(items.iter().filter(|(id, _)| *id == "file.export-mbf").count(), 1);
+        assert!(native_menu_dispatch_script("file.export-mbf").contains("detail: \"file.export-mbf\""));
+    }
+
     #[test]
     fn native_menu_dispatch_script_targets_the_main_dom_command_event() {
         assert_eq!(
@@ -6863,7 +6880,7 @@ mod tests {
             let mut state = sample_native_shell_state();
             state.project_busy = busy;
             let mutations = native_menu_mutations(&state);
-            for id in ["file.new-local", "file.new-blank", "file.open-model", "file.open-local", "file.save-local", "file.save-model-document", "file.save-handoff", "file.list-local"] {
+            for id in ["file.new-local", "file.new-blank", "file.open-model", "file.open-local", "file.save-local", "file.save-model-document", "file.save-handoff", "file.export-mbf", "file.list-local"] {
                 assert!(mutations.contains(&NativeMenuMutation::Enabled(id, !busy)));
             }
             assert!(mutations.contains(&NativeMenuMutation::Enabled("analyze.run", true)));

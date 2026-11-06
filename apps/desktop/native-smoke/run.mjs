@@ -463,7 +463,7 @@ const namesMissingInputs = (rules) => Boolean(rules?.aggregate?.includes("RULE_I
       && exactRender?.redaction?.includes("context=local_private") && exactRender.redaction.includes("blocked=false"), exactRender?.redaction ?? exactRender?.error ?? exact?.render_refusal);
   check("exact route: rendered report's canonical HTML SHA-256 shown and export gates passed",
     /^Canonical HTML SHA-256: [0-9a-f]{64}$/.test(exactRender?.hash ?? "") && exactRender.gate === "export gates passed" && exactRender.preview_local_private_notice, exactRender && { hash: exactRender.hash, gate: exactRender.gate, error: exactRender.error });
-  check("exact route: MBF refused by its own gate (PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE), no package or MBF text download",
+  check("exact route: MBF refused by its own gate (PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE), no Export MBF… action or download",
     exact?.mbf_panel && !exact.mbf_download_controls && exact.mbf_refusal?.startsWith("PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE"), exact?.mbf_refusal);
   check("exact route: result JSON export offered", exact?.result_export_link === true);
   const exactPackage = exact?.report_package;

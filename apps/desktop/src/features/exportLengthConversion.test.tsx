@@ -1,13 +1,14 @@
 // Export length conversion (DEL-02-02 Design `project-unit-selection.md` §7, C2): the
-// .mbf and PCF exports convert each length by its own stored unit with the exact
-// factors (1 in = 25.4 mm, 1 ft = 304.8 mm), and refuse by name a unit with no routine
-// exact conversion. Expected millimetres are hand-computed from the invented inputs.
+// PCF export converts each length by its own stored unit with the exact factors
+// (1 in = 25.4 mm, 1 ft = 304.8 mm), and refuses by name a unit with no routine exact
+// conversion. Expected millimetres are hand-computed from the invented inputs. The .mbf
+// export's TypeScript builder is retired (DEL-17-04 A-6, slice 4b.2b): the native writer
+// owns the MBF's unit arithmetic (Design `desktop-mbf-export-import.md` §3.4).
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import demoModelFixture from "../../../../fixtures/product_preview/invented_demo_model.json";
 import type { PreviewModel } from "../types";
 import { lengthToMillimeters } from "./exportLengthConversion";
-import { buildCaePipeMbfExportPacket, CaepipeMbfExportPanel, MBF_LENGTH_UNIT_UNSUPPORTED } from "./caepipe-mbf/CaepipeMbfExportPanel";
 import { buildPcfExportPacket, PcfExportPanel, PCF_LENGTH_UNIT_UNSUPPORTED } from "./pcf-export/PcfExportPanel";
 
 type Position = { x: number; y: number; z: number };
@@ -73,10 +74,6 @@ function pcf(input: PreviewModel) {
   return buildPcfExportPacket({ model: input, result: null, analysisRun: null });
 }
 
-function mbf(input: PreviewModel) {
-  return buildCaePipeMbfExportPacket({ model: input, result: null, analysisRun: null });
-}
-
 function witness(packet: { conversion_witnesses: Array<{ witness_id: string }> }, id: string) {
   const found = packet.conversion_witnesses.find((item) => item.witness_id === id);
   if (!found) throw new Error(`missing witness ${id}`);
@@ -123,22 +120,6 @@ describe.each([
 ])("node coordinates in $unit", ({ unit, positions, expected, factor }) => {
   const input = () => model({ length: unit, positions });
 
-  it(".mbf converts to hand-computed millimetres with true witnesses", () => {
-    const packet = mbf(input());
-    for (const node of packet.model_payload.nodes) {
-      expect({ x: node.x, y: node.y, z: node.z }).toEqual(expected[node.node_id]);
-    }
-    const n4 = expected["node:N-130"];
-    expect(packet.mbf_text).toContain(`NODE,N002,3048,0,0\n`);
-    expect(packet.mbf_text).toContain(`NODE,N004,${n4.x},${n4.y},${n4.z}\n`);
-    const x = witness(packet, "caepipe-mbf-conversion:node-n-130:position:x");
-    expect(x.target_quantity.value).toBe(n4.x);
-    expect(x.conversion_factor_to_target).toBe(factor);
-    expect(x.conversion_status).toBe("converted_to_target_unit");
-    expect(packet.diagnostics.map((item) => item.code)).not.toContain(MBF_LENGTH_UNIT_UNSUPPORTED);
-    expect(packet.validation_report.validation_status).toBe("boundary_checked");
-  });
-
   it("PCF converts to hand-computed millimetres with true witnesses", () => {
     const packet = pcf(input());
     for (const node of packet.pcf_payload.nodes) {
@@ -154,17 +135,10 @@ describe.each([
     expect(packet.diagnostics.map((item) => item.code)).not.toContain(PCF_LENGTH_UNIT_UNSUPPORTED);
   });
 
-  it("the downloadable packages carry the true factor through the real export controls", () => {
-    render(
-      <>
-        <PcfExportPanel model={input()} result={null} analysisRun={null} />
-        <CaepipeMbfExportPanel model={input()} result={null} analysisRun={null} />
-      </>
-    );
+  it("the downloadable package carries the true factor through the real export control", () => {
+    render(<PcfExportPanel model={input()} result={null} analysisRun={null} />);
     const pcfPackage = downloadedPackage(screen.getByTestId("pcf-export-panel"), "pcf-export-link");
-    const mbfPackage = downloadedPackage(screen.getByTestId("caepipe-mbf-panel"), "caepipe-mbf-export-link");
     expect(witness(pcfPackage, "pcf-conversion:node-n-110:position:x").conversion_factor_to_target).toBe(factor);
-    expect(witness(mbfPackage, "caepipe-mbf-conversion:node-n-110:position:x").conversion_factor_to_target).toBe(factor);
   });
 });
 
@@ -259,29 +233,15 @@ describe("a length with no routine exact conversion is refused by name", () => {
     );
   });
 
-  // A missing length key ("" or absent) is MBF-/PCF-PROJECT-UNIT-MISSING, which takes
+  // A missing length key ("" or absent) is PCF-PROJECT-UNIT-MISSING, which takes
   // precedence (DEL-02-02 Design §7.4, §7.5): exportProjectUnitRefusal.test.tsx.
   it.each([
     { length: "cm", named: '"cm"' }
-  ])("PCF and .mbf: coordinates in $named", ({ length, named }) => {
+  ])("PCF: coordinates in $named", ({ length, named }) => {
     const input = model({ length });
     const packet = expectPcfRefused(input, [`project length unit ${named}`]);
     expect(packet.pcf_payload.nodes[1].x).toBeNull();
     expect(witness(packet, "pcf-conversion:node-n-110:position:x").conversion_factor_to_target).toBeNull();
-
-    const mbfPacket = mbf(input);
-    const refusals = mbfPacket.diagnostics.filter((item) => item.code === MBF_LENGTH_UNIT_UNSUPPORTED);
-    expect(refusals).toHaveLength(1);
-    expect(refusals[0].message).toContain(`project length unit ${named}`);
-    expect(mbfPacket.model_payload.nodes[1].x).toBeNull();
-    const x = witness(mbfPacket, "caepipe-mbf-conversion:node-n-110:position:x");
-    expect(x.conversion_factor_to_target).toBeNull();
-    expect(x.conversion_status).toBe("refused_no_routine_exact_conversion");
-    render(<CaepipeMbfExportPanel model={input} result={null} analysisRun={null} />);
-    const panel = screen.getByTestId("caepipe-mbf-panel");
-    expect(within(panel).queryByTestId("caepipe-mbf-export-link")).toBeNull();
-    expect(within(panel).queryByTestId("caepipe-mbf-text-link")).toBeNull();
-    expect(within(panel).getByTestId("caepipe-mbf-length-unit-refused")).toHaveTextContent(named);
   });
 });
 
@@ -304,7 +264,7 @@ describe("a length that is not finite, or not finite once converted, is refused 
     expect(large.status === "converted" && Number.isFinite(large.value)).toBe(true);
   });
 
-  it.each(SOURCES)("node coordinate $label: both exports refuse by name with links withheld", ({ value, named }) => {
+  it.each(SOURCES)("node coordinate $label: the PCF export refuses by name with links withheld", ({ value, named }) => {
     const positions = structuredClone(INCH_POSITIONS);
     positions["node:N-110"].x = value;
     const input = model({ length: "in", positions });
@@ -323,33 +283,11 @@ describe("a length that is not finite, or not finite once converted, is refused 
     expect(pcfWitness.conversion_factor_to_target).toBeNull();
     expect(pcfWitness.conversion_status).toBe("refused_out_of_range");
 
-    const mbfPacket = mbf(input);
-    const mbfRefusals = mbfPacket.diagnostics.filter((item) => item.code === "MBF-LENGTH-OUT-OF-RANGE");
-    expect(mbfRefusals).toHaveLength(1);
-    expect(mbfRefusals[0].message).toContain(`Node node:N-110 position x (${named} "in")`);
-    expect(mbfPacket.validation_report.validation_status).toBe("blocked");
-    expect(mbfPacket.model_payload.nodes[1].x).toBeNull();
-    expect(mbfPacket.mbf_text).toContain("NODE,N002,TBD_LENGTH_REFUSED,0,0\n");
-    const mbfWitness = witness(mbfPacket, "caepipe-mbf-conversion:node-n-110:position:x");
-    expect(mbfWitness.target_quantity.value).toBeNull();
-    expect(mbfWitness.conversion_factor_to_target).toBeNull();
-    expect(mbfWitness.conversion_status).toBe("refused_out_of_range");
-
-    render(
-      <>
-        <PcfExportPanel model={input} result={null} analysisRun={null} />
-        <CaepipeMbfExportPanel model={input} result={null} analysisRun={null} />
-      </>
-    );
+    render(<PcfExportPanel model={input} result={null} analysisRun={null} />);
     const pcfPanel = screen.getByTestId("pcf-export-panel");
     expect(within(pcfPanel).queryByTestId("pcf-export-link")).toBeNull();
     expect(within(pcfPanel).queryByTestId("pcf-text-link")).toBeNull();
     expect(within(pcfPanel).getByTestId("pcf-export-length-unit-refused")).toHaveTextContent(`PCF-LENGTH-OUT-OF-RANGE: Node node:N-110 position x (${named} "in")`);
-    const mbfPanel = screen.getByTestId("caepipe-mbf-panel");
-    expect(within(mbfPanel).queryByTestId("caepipe-mbf-export-link")).toBeNull();
-    expect(within(mbfPanel).queryByTestId("caepipe-mbf-text-link")).toBeNull();
-    expect(within(mbfPanel).getByTestId("caepipe-mbf-length-unit-refused")).toHaveTextContent(`MBF-LENGTH-OUT-OF-RANGE: Node node:N-110 position x (${named} "in")`);
-    expect(within(mbfPanel).getByTestId("caepipe-mbf-summary")).toHaveTextContent(/^refused;/);
   });
 
   it.each([

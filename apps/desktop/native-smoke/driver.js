@@ -818,7 +818,8 @@
     const mbfPanel = byTestId("caepipe-mbf-panel");
     gates.mbf_panel = Boolean(mbfPanel);
     gates.mbf_refusal = mbfPanel?.querySelector('[data-testid="caepipe-mbf-load-reference-output-unavailable"]')?.textContent?.trim() ?? null;
-    gates.mbf_download_controls = Boolean(mbfPanel?.querySelector('[data-testid="caepipe-mbf-export-link"], [data-testid="caepipe-mbf-text-link"]'));
+    // DEL-17-04 slice 4b.2b: the panel's controls are its Export MBF… action (the download links are retired, A-6).
+    gates.mbf_download_controls = Boolean(mbfPanel?.querySelector('[data-testid="caepipe-mbf-export"], a[download]'));
     gates.export_codes = codesIn(byTestId("workspace-section-exports"));
     gates.rule_checks = await runRuleChecks("exact/rule-checks");
     await log(`exact gates: ${JSON.stringify({ ...gates, solve: undefined, rule_checks: undefined, report_render: undefined, report_package: undefined })}`);

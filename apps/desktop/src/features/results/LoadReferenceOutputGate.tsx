@@ -4,7 +4,8 @@ import { OUTPUT_ROUTE_NOT_REGISTERED_REFUSAL, routeSurfaceDecision } from "./out
 import { sourceContract } from "./resultReader";
 import type { MechanicsResult } from "../../types";
 
-function gateRefusal(result: SessionResult | null | undefined, surface: string): string | null {
+/** The refusal the output gate shows for `surface` (its test-id prefix) on `result`, or null when it adds none. */
+export function outputGateRefusal(result: SessionResult | null | undefined, surface: string): string | null {
   if (!result) return null;
   let route: string;
   try { route = sourceContract(result); } catch { return null; }
@@ -21,7 +22,7 @@ function gateRefusal(result: SessionResult | null | undefined, surface: string):
  * `admitted_when_eligible`: this gate reads no standing, so it opens only where the policy
  * adds no refusal at all. Display stays. */
 export function LoadReferenceOutputGate({ result, testIdPrefix, children }: { result: SessionResult | null | undefined; testIdPrefix: string; children: ReactNode }) {
-  const refusal = gateRefusal(result, testIdPrefix);
+  const refusal = outputGateRefusal(result, testIdPrefix);
   if (refusal) return <p className="muted" role="status" data-testid={`${testIdPrefix}-load-reference-output-unavailable`}>{refusal}</p>;
   return <>{children}</>;
 }

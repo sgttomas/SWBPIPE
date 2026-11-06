@@ -8,10 +8,12 @@ import {
   type ModelFileDiagnostic
 } from "../model-file/modelDocumentSave";
 import {
+  INGRESS_RAW_BODY_REQUIRED,
   MBF_ASSUMPTIONS_SENTENCE,
   MBF_BOUNDARY_SENTENCE,
   MBF_EXPORT_INTENT_LABEL,
   MBF_EXPORT_OUTPUT_TOO_LARGE,
+  MBF_EXPORT_REFUSAL_TEXT,
   MBF_EXPORT_REVIEW_STALE,
   MBF_EXPORT_ROUTE,
   MBF_OUTPUT_TOO_LARGE_SENTENCE,
@@ -30,6 +32,7 @@ import {
   familyLabel,
   lossDescription,
   mbfExportSettings,
+  mbfFailureDiagnostic,
   mbfReview,
   mbfSettingsJson,
   reviewAdmitsSave,
@@ -44,9 +47,10 @@ import {
   type SaveMbfExport
 } from "./mbfExport";
 
-/** The open Export MBF… dialog (DEL-17-04 Design `desktop-mbf-export-import.md` §3.1–§3.3, §3.9.5). Slice 4b.2 mounts
- * it from File > Export MBF… and the Exports section, and supplies `reviewMbfExport` and `saveMbfExport` (the native
- * `review_mbf_export` and `save_mbf_export`). */
+/** The open Export MBF… dialog (DEL-17-04 Design `desktop-mbf-export-import.md` §3.1–§3.3, §3.9.5). The workspace
+ * session (slice 4b.2b) opens it from File > Export MBF… and the Exports section's Model batch file panel, and supplies
+ * the barrier's `reviewMbfExport` and `saveMbfExport` (`mbfExportCancel.ts`: the native `review_mbf_export` and
+ * `save_mbf_export`) and its `retire`. */
 export type MbfExportDialogRequest = {
   model: PreviewModel;
   modelHash: ModelHashEvidence | null;
@@ -54,6 +58,9 @@ export type MbfExportDialogRequest = {
   /** Focus returns here when the dialog closes. */
   opener: HTMLElement | null;
   close: () => void;
+  /** Sends one keyed retirement through the barrier (`retireMbfExportSession`). The dialog calls it when it closes or
+   * unmounts, so whatever review or save it started is cancelled natively before it writes. */
+  retire: () => void;
   saveMbfExport: SaveMbfExport;
   /** The native review (§3.9.5), or null in the browser-only route, which has no native review and no save: the
    * dialog then declines the review with `MBF-REVIEW-NATIVE-ONLY` and runs no writer. */
@@ -86,6 +93,8 @@ export function MbfExportDialog({ request }: { request: MbfExportDialogRequest |
   const [saving, setSaving] = useState(false);
   const [refusal, setRefusal] = useState<ModelFileDiagnostic[]>([]);
   const [status, setStatus] = useState("");
+  // The request this dialog is showing, or null once it has closed: a save's outcome is shown only while it is.
+  const liveRequest = useRef<MbfExportDialogRequest | null>(null);
 
   const temperatureUnit = defaultReferenceTemperature(request?.model.project?.units?.temperature).unit;
   // A new request (another model or project) starts from its defaults.
@@ -97,6 +106,7 @@ export function MbfExportDialog({ request }: { request: MbfExportDialogRequest |
     setIntent(false);
     setRefusal([]);
     setStatus("");
+    liveRequest.current = request;
     const opener = request.opener;
     titleInput.current?.focus();
     const hold = (event: KeyboardEvent) => {
@@ -123,6 +133,10 @@ export function MbfExportDialog({ request }: { request: MbfExportDialogRequest |
     };
     window.addEventListener("keydown", hold, true);
     return () => {
+      // Closing the dialog (or unmounting it) retires the export: a start not yet sent is never sent, and a review or
+      // save in progress is cancelled natively before it writes; a save already writing finishes.
+      liveRequest.current = null;
+      request.retire();
       window.removeEventListener("keydown", hold, true);
       if (opener?.isConnected) requestAnimationFrame(() => opener.focus());
     };
@@ -157,12 +171,18 @@ export function MbfExportDialog({ request }: { request: MbfExportDialogRequest |
     void (async () => {
       try {
         const canonicalText = await canonicalJsonString(request.model);
-        const outcome = await review({ canonicalText, claimedModelHash, settingsJson });
-        if (!current) return;
+        const started = await review({ canonicalText, claimedModelHash, settingsJson }, () => current);
+        // A result of a review that a newer review, the dialog's close or a session change retired is discarded.
+        if (!current || !started.current()) return;
+        const outcome = started.outcome;
         if (outcome.outcome === "reviewed") setState({ key: reviewKey, phase: "ready", review: mbfReview(outcome.review) });
         else setState({ key: reviewKey, phase: "declined", diagnostics: outcome.diagnostics });
       } catch (error) {
-        if (current) setState({ key: reviewKey, phase: "failed", message: String(error instanceof Error ? error.message : error) });
+        if (!current) return;
+        const failure = mbfFailureDiagnostic(error);
+        // A start the window can no longer send is declined with what to do about it; anything else failed.
+        if (failure.code === INGRESS_RAW_BODY_REQUIRED) setState({ key: reviewKey, phase: "declined", diagnostics: [failure] });
+        else setState({ key: reviewKey, phase: "failed", message: failure.message });
       }
     })();
     return () => {
@@ -186,6 +206,9 @@ export function MbfExportDialog({ request }: { request: MbfExportDialogRequest |
     setSaving(true);
     setRefusal([]);
     setStatus("");
+    // The save belongs to this open dialog: once it has closed, the barrier does not send it, and its outcome is not
+    // shown (a save that was already writing reports itself through the close's retirement).
+    const live = () => liveRequest.current === request;
     try {
       const prepared = await prepareModelDocumentSave({
         model: request.model,
@@ -198,12 +221,15 @@ export function MbfExportDialog({ request }: { request: MbfExportDialogRequest |
         setRefusal(prepared.diagnostics);
         return;
       }
-      const outcome = await request.saveMbfExport({
+      if (!live()) return;
+      const started = await request.saveMbfExport({
         ...prepared.args,
         settingsJson,
         suggestedName,
         reviewed: { mbfSha256: review.mbfSha256, sidecarSha256: review.sidecarSha256 }
-      });
+      }, live);
+      if (!live() || !started.current()) return;
+      const outcome = started.outcome;
       if (outcome.outcome === "saved") {
         setStatus(savedStatusLine(outcome, review.lists.omitted.total));
       } else if (outcome.outcome === "refused") {
@@ -214,9 +240,9 @@ export function MbfExportDialog({ request }: { request: MbfExportDialogRequest |
         if (outcome.diagnostics.some((item) => item.code === MBF_EXPORT_REVIEW_STALE)) setNonce((value) => value + 1);
       }
     } catch (error) {
-      setRefusal([{ code: "MBF-EXPORT-FAILED", path: "", message: String(error instanceof Error ? error.message : error) }]);
+      if (live()) setRefusal([mbfFailureDiagnostic(error)]);
     } finally {
-      setSaving(false);
+      if (live()) setSaving(false);
     }
   };
 
@@ -315,12 +341,14 @@ function isWriterCode(code: string): boolean {
   return code.startsWith("MBF-SI-") || Object.hasOwn(MBF_LOSS_DESCRIPTIONS, code);
 }
 
-/** A refusal's text: a writer code by its product-side description, a review condition by its sentence, else the
- * native message (the save's and the review's own text, never the engine's). */
+/** A refusal's text: a writer code by its product-side description, a review condition by its sentence, the export's
+ * own refusals by their product text (what happened and what the user can do), else the native message (the save's
+ * and the review's own text, never the engine's). */
 function describeRefusal(item: ModelFileDiagnostic): string {
   if (isWriterCode(item.code)) return lossDescription(item.code, true);
   if (item.code === MBF_REVIEW_TRUNCATED) return MBF_REVIEW_TRUNCATED_SENTENCE;
   if (item.code === MBF_EXPORT_OUTPUT_TOO_LARGE) return MBF_OUTPUT_TOO_LARGE_SENTENCE;
+  if (Object.hasOwn(MBF_EXPORT_REFUSAL_TEXT, item.code)) return MBF_EXPORT_REFUSAL_TEXT[item.code];
   return item.message;
 }
 

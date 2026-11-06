@@ -106,6 +106,7 @@ import { AUTOSAVE_DESKTOP_ONLY, AutosaveRecoveryPrompt } from "./features/autosa
 import { ProjectUnitsDialog } from "./features/project-units/ProjectUnitsDialog";
 import { ModelDocumentSaveDialog } from "./features/model-file/ModelDocumentSaveDialog";
 import { HandoffSaveDialog } from "./features/handoff/HandoffSaveDialog";
+import { MbfExportDialog } from "./features/caepipe-mbf/MbfExportDialog";
 import { ProjectValidationPanel } from "./features/project-validation/ProjectValidationPanel";
 import { ToolkitPalette, type PaletteShellCommand } from "./features/toolkit/ToolkitPalette";
 import { toolkitCapabilities } from "./features/toolkit/capabilityCatalog";
@@ -309,7 +310,9 @@ function AppSession() {
     handleListProjects,
     replaceProjectPrompt,
     modelDocumentSaveRequest,
-    handoffSaveRequest
+    handoffSaveRequest,
+    requestExportMbf,
+    mbfExportRequest
   } = session.project;
   const { unsavedChangesPrompt, quitWhileBusyPrompt, autosave } = session.project;
   const {
@@ -418,7 +421,7 @@ function AppSession() {
       data-theme-preference={uiPreferences.theme}
       data-testid="desktop-preview-shell"
       // The replace prompt, the unsaved-changes prompt, the units dialog and the model-document save dialog are modal: the workspace takes no focus or input meanwhile.
-      inert={replaceProjectPrompt !== null || blankProjectUnitsRequest !== null || unsavedChangesPrompt !== null || quitWhileBusyPrompt !== null || modelDocumentSaveRequest !== null || handoffSaveRequest !== null || autosave.recoveryPrompt !== null}
+      inert={replaceProjectPrompt !== null || blankProjectUnitsRequest !== null || unsavedChangesPrompt !== null || quitWhileBusyPrompt !== null || modelDocumentSaveRequest !== null || handoffSaveRequest !== null || mbfExportRequest !== null || autosave.recoveryPrompt !== null}
       ref={workspaceShellRef}
       onFocusCapture={rememberShellFocus}
       onPointerDownCapture={rememberShellFocus}
@@ -1241,7 +1244,7 @@ function AppSession() {
                 )}
               </C2ResultGate>
               <PcfExportPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
-              <CaepipeMbfExportPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
+              <CaepipeMbfExportPanel model={model} result={currentSolvedResult} onExportMbf={() => { void requestExportMbf(); }} />
               <CaepipeExternalHarnessPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
               <ExportAdapterSdkPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
               <AdapterFrameworkPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
@@ -1363,6 +1366,7 @@ function AppSession() {
       <ProjectUnitsDialog request={blankProjectUnitsRequest} />
       <ModelDocumentSaveDialog request={modelDocumentSaveRequest} />
       <HandoffSaveDialog request={handoffSaveRequest} />
+      <MbfExportDialog request={mbfExportRequest} />
     </main>
     </CompactSelectScope>
     </WorkspaceSessionProvider>
@@ -1478,6 +1482,7 @@ function MenuBar({
         { kind: "command", id: "file.new-local", label: "Save as New Local Project", disabled: projectBusy },
         { kind: "command", id: "file.save-model-document", label: "Save Model Document…", disabled: !modelDocumentSaveReady },
         { kind: "command", id: "file.save-handoff", label: "Save Handoff…", disabled: !modelDocumentSaveReady },
+        { kind: "command", id: "file.export-mbf", label: "Export MBF…", disabled: !modelDocumentSaveReady },
         { kind: "command", id: "file.save-report-package", label: "Save Report Package…", disabled: !reportPackageReady }
       ]
     },

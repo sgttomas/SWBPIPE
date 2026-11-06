@@ -806,11 +806,10 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await expect(pcfExport.getByTestId("pcf-export-conversion-witnesses")).toContainText(
     "target_length=MM"
   );
+  // DEL-17-04 slice 4b.2b: the panel's preview builder and its conversion witnesses are retired (A-6); its one
+  // action opens Export MBF…, whose native writer owns the MBF's unit conversions.
   const caepipeMbfExport = page.getByLabel("Model batch file (.mbf) export");
-  await expect(caepipeMbfExport.getByTestId("caepipe-mbf-conversion-witnesses")).toContainText("count=15");
-  await expect(caepipeMbfExport.getByTestId("caepipe-mbf-conversion-witnesses")).toContainText(
-    "target_length=mm"
-  );
+  await expect(caepipeMbfExport.getByTestId("caepipe-mbf-export")).toHaveText("Export MBF…");
   const caepipeExternalHarness = page.getByLabel("External prover run");
   await expect(caepipeExternalHarness.getByTestId("caepipe-external-units")).toContainText(
     "unit-system:dec-018-si-dual-display"

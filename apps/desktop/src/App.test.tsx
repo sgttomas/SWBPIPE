@@ -1990,185 +1990,26 @@ describe("SWBPIPE desktop preview", () => {
     expect(pcfPacket.solver_validation_claim).toBe("[REDACTED]");
     expect(pcfPacket.code_compliance_claim).toBe("[REDACTED]");
     expect(pcfPacket.professional_reliance_claim).toBe("[REDACTED]");
+    // DEL-17-04 slice 4b.2b: the Model batch file panel's one action opens the mounted Export MBF… dialog. The
+    // TypeScript preview builder, its package and MBF text links and its summary are retired (A-6). In the browser
+    // preview the review declines with MBF-REVIEW-NATIVE-ONLY before anything reaches the native export, and Save
+    // stays disabled; closing the dialog returns to the workspace.
     const caepipeMbfExport = await screen.findByLabelText("Model batch file (.mbf) export");
     expect(within(caepipeMbfExport).getByText("Model batch file (.mbf)")).toBeInTheDocument();
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-summary").textContent,
-    ).toContain("available");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-summary").textContent,
-    ).toContain("nodes=5");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-summary").textContent,
-    ).toContain("pipes=4");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-summary").textContent,
-    ).toContain("supports=7");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-summary").textContent,
-    ).toContain("validation=boundary_checked");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-profile").textContent,
-    ).toContain("target_version=TBD-17-01-001");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-profile").textContent,
-    ).toContain("subset=TBD-17-01-002");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-state-binding")
-        .textContent,
-    ).toContain("not generated");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-state-binding")
-        .textContent,
-    ).toContain("state:TBD");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-coverage").textContent,
-    ).toContain("nodes");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-coverage").textContent,
-    ).toContain("direct_stable_id");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-units").textContent,
-    ).toContain("source=angle=rad");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-units").textContent,
-    ).toContain("length=m");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-units").textContent,
-    ).toContain("target=force=N");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-units").textContent,
-    ).toContain("length=mm");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-units").textContent,
-    ).toContain("conversion=true");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-conversion-witnesses")
-        .textContent,
-    ).toContain("count=15");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-conversion-witnesses")
-        .textContent,
-    ).toContain("target_length=mm");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-package").textContent,
-    ).toContain("members=8");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-package").textContent,
-    ).toContain("stable_ids=18");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-package").textContent,
-    ).toContain("diagnostics=0");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-boundary").textContent,
-    ).not.toContain("compatibility");
     // DEC-103 item 9: the vendor's product name is rendered nowhere in the panel.
     expect(renderedVendorNameMentions(caepipeMbfExport)).toEqual([]);
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-boundary").textContent,
-    ).toContain("external_tool_invoked=false");
-    await waitFor(() =>
-      expect(
-        within(caepipeMbfExport).getByTestId("caepipe-mbf-package").textContent,
-      ).toContain("package_hash=computed_local_preview_sha256"),
-    );
-    const caepipeMbfHref =
-      within(caepipeMbfExport)
-        .getByTestId("caepipe-mbf-export-link")
-        .getAttribute("href") ?? "";
-    const caepipeMbfPacket = JSON.parse(
-      decodeURIComponent(caepipeMbfHref.split(",", 2)[1]),
-    );
-    expect(caepipeMbfPacket.document_kind).toBe("[REDACTED]");
-    expect(caepipeMbfPacket.manifest.canonical_package_hash_status).toBe("[REDACTED]");
-    expect(caepipeMbfPacket.manifest.canonical_package_hash.value).toBe("[REDACTED]");
-    expect(caepipeMbfPacket.validation_report.hash_validation_status).toBe("[REDACTED]");
-    expect(caepipeMbfPacket.deliverable_id).toBe("[REDACTED]");
-    expect(caepipeMbfPacket.package_id).toBe("[REDACTED]");
-    expect(caepipeMbfPacket.scope_items).toContain("SOW-030");
-    expect(caepipeMbfPacket.scope_items).toContain("SOW-074");
-    expect(caepipeMbfPacket.scope_items).toContain("SOW-075");
-    expect(caepipeMbfPacket.export_profile.target_family).toBe("caepipe_mbf");
-    expect(caepipeMbfPacket.export_profile.target_version_basis).toBe(
-      "TBD-17-01-001",
-    );
-    expect(caepipeMbfPacket.export_profile.record_subset_basis).toBe(
-      "TBD-17-01-002",
-    );
-    expect(caepipeMbfPacket.export_profile.stable_id_policy).toBe(
-      "sidecar_mapping_until_direct_mbf_carrier_confirmed",
-    );
-    expect(caepipeMbfPacket.export_profile.carried_tbd_refs).toEqual([
-      "[REDACTED]",
-      "[REDACTED]",
-      "[REDACTED]",
-    ]);
-    expect(caepipeMbfPacket.unit_system_disclosure.unit_system_ref.ref).toBe("[REDACTED]");
-    expect(caepipeMbfPacket.unit_system_disclosure.model_units.length).toBe(
-      "[REDACTED]",
-    );
-    expect(
-      caepipeMbfPacket.unit_system_disclosure.target_export_units.length,
-    ).toBe("[REDACTED]");
-    expect(
-      caepipeMbfPacket.unit_system_disclosure.target_export_units.force,
-    ).toBe("[REDACTED]");
-    expect(caepipeMbfPacket.unit_system_disclosure.conversion_performed).toBe(
-      "[REDACTED]",
-    );
-    expect(caepipeMbfPacket.unit_system_disclosure.conversion_scope).toContain(
-      "[REDACTED]",
-    );
-    expect(
-      caepipeMbfPacket.unit_system_disclosure.protected_content_included,
-    ).toBe("[REDACTED]");
-    expect(caepipeMbfPacket.conversion_witnesses).toHaveLength(15);
-    expect(
-      caepipeMbfPacket.manifest.package_members.map(
-        (item: { member_role: string }) => item.member_role,
-      ),
-    ).toContain("[REDACTED]");
-    const serializedCaepipeMbfPacket = JSON.stringify(caepipeMbfPacket);
-    expect(serializedCaepipeMbfPacket).toContain("[REDACTED]");
-    const caepipeNodeWitness = caepipeMbfPacket.conversion_witnesses.find(
-      (item: { witness_id: string }) =>
-        item.witness_id === "caepipe-mbf-conversion:node-n-120:position:x",
-    );
-    expect(caepipeNodeWitness.source_quantity.value).toBe("[REDACTED]");
-    expect(caepipeNodeWitness.target_quantity.value).toBe("[REDACTED]");
-    expect(caepipeMbfPacket.model_payload.nodes).toHaveLength(5);
-    expect(caepipeMbfPacket.model_payload.elements).toHaveLength(4);
-    expect(caepipeMbfPacket.model_payload.supports).toHaveLength(7);
-    expect(caepipeMbfPacket.stable_id_map).toHaveLength(18);
-    expect(caepipeMbfPacket.loss_report).toHaveLength(6);
-    expect(
-      caepipeMbfPacket.loss_report.map(
-        (entry: { category: string }) => entry.category,
-      ),
-    ).toContain("[REDACTED]");
-    expect(caepipeMbfPacket.validation_report.validation_status).toBe(
-      "[REDACTED]",
-    );
-    expect(caepipeMbfPacket.validation_report.schema_validation_status).toBe(
-      "[REDACTED]",
-    );
-    expect(
-      caepipeMbfPacket.validation_report.checks.map(
-        (item: { check_id: string }) => item.check_id,
-      ),
-    ).toContain("[REDACTED]");
-    expect(caepipeMbfPacket.diagnostics).toHaveLength(0);
-    expect(caepipeMbfPacket.private_payload_included).toBe("[REDACTED]");
-    expect(caepipeMbfPacket.protected_content_included).toBe("[REDACTED]");
-    expect(caepipeMbfPacket.caepipe_compatibility_claim).toBe("[REDACTED]");
-    expect(caepipeMbfPacket.solver_validation_claim).toBe("[REDACTED]");
-    expect(caepipeMbfPacket.code_compliance_claim).toBe("[REDACTED]");
-    expect(caepipeMbfPacket.professional_reliance_claim).toBe("[REDACTED]");
-    const caepipeMbfTextHref =
-      within(caepipeMbfExport)
-        .getByTestId("caepipe-mbf-text-link")
-        .getAttribute("href");
-    expect(caepipeMbfTextHref).toBeNull();
+    expect(caepipeMbfExport.querySelectorAll("a[download], a[href]")).toHaveLength(0);
+    expect(within(caepipeMbfExport).queryByTestId("caepipe-mbf-export-link")).toBeNull();
+    expect(within(caepipeMbfExport).queryByTestId("caepipe-mbf-text-link")).toBeNull();
+    const mbfCallsBefore = invokeMock.mock.calls.length;
+    fireEvent.click(within(caepipeMbfExport).getByTestId("caepipe-mbf-export"));
+    const mbfDialog = await screen.findByTestId("mbf-export-dialog");
+    expect(await within(mbfDialog).findByTestId("mbf-export-review-declined")).toHaveTextContent("MBF-REVIEW-NATIVE-ONLY");
+    expect((within(mbfDialog).getByTestId("mbf-export-save") as HTMLButtonElement).disabled).toBe(true);
+    expect(renderedVendorNameMentions(mbfDialog)).toEqual([]);
+    expect(invokeMock.mock.calls.slice(mbfCallsBefore).map(([command]) => command)).not.toContain("review_mbf_export");
+    fireEvent.click(within(mbfDialog).getByTestId("mbf-export-cancel"));
+    await waitFor(() => expect(screen.queryByTestId("mbf-export-dialog")).toBeNull());
     const caepipeExternal = await screen.findByLabelText(
       "External prover run",
     );
