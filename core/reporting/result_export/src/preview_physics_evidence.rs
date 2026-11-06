@@ -877,12 +877,12 @@ fn validate_uncertified_with(source: &Value, model: Option<&Value>) -> Check {
     // RT-A4 (review r1 P2): the gates and the absolute sums and SRSS, re-derived from the
     // document alone; with the model, `reader_verdict` re-derives them after the other
     // model checks (`preview_combination_gates::check`).
-    // R-6/R-7 S-K1 (§7.1, R-1): each case's along-direction rows; grouped only when a
-    // row or the model's skewed record gives `check_case` something to read.
-    let rows_all = array(&source["results"])?;
-    if crate::along_direction_evidence::applies(rows_all, model) {
+    // R-6/R-7 S-K1 (§7.1, R-1): each case's along-direction rows (the document's
+    // `rows_list`); grouped only when a row or the model's skewed record gives
+    // `check_case` something to read.
+    if crate::along_direction_evidence::applies(rows_list, model) {
         let mut by_case: Vec<(&str, Vec<&Value>)> = Vec::new();
-        for row in rows_all.iter() {
+        for row in rows_list.iter() {
             let Some(case) = case_of(row) else { continue };
             match by_case.iter_mut().find(|(c, _)| *c == case) {
                 Some((_, rows)) => rows.push(row),

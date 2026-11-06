@@ -16,7 +16,9 @@ const SIGN: &str = "support_on_pipe_positive_along_authored_direction";
 const BASIS: &str = "recovered_from_assembled_support_law";
 const SUPPORT_COMPONENT: &str = "support_reaction_component_v2";
 
-fn require(ok: bool, code: &str) -> Check {
+/// This module's refusal by code. Named for the module (not `require`): the retained
+/// pricing's call graph resolves calls by name, and every reader has a private `require`.
+fn along_require(ok: bool, code: &str) -> Check {
     if ok {
         Ok(())
     } else {
@@ -28,12 +30,12 @@ fn require(ok: bool, code: &str) -> Check {
 /// component, coordinate system, location and unit.
 pub(crate) fn row_semantics(row: &Value, direct: bool) -> Check {
     let md = &row["metadata"];
-    require(
+    along_require(
         row["unit"] == "N" && md["component"] == COMPONENT && md["coordinate_system"] == COORDINATE_SYSTEM && md["location"] == "node",
         "ROW_SEMANTICS",
     )?;
     if direct {
-        require(md["basis"] == BASIS && md["sign_convention"] == SIGN, "ROW_SEMANTICS")?;
+        along_require(md["basis"] == BASIS && md["sign_convention"] == SIGN, "ROW_SEMANTICS")?;
     }
     Ok(())
 }
@@ -144,11 +146,11 @@ pub(crate) fn check_case(rows: &[&Value], case_id: &str, model: Option<&Value>) 
     for row in rows {
         let entity = row["entity_ref"].as_str().unwrap_or("");
         if row["kind"] == KIND {
-            require(
+            along_require(
                 row["id"].as_str() == Some(&format!("result:support-along-direction-v1:{}", exact_source_identity(&[case_id, entity]))),
                 "ALONG_DIRECTION_ROW_ID",
             )?;
-            require(along.insert(entity, row).is_none(), "ALONG_DIRECTION_DUPLICATE")?;
+            along_require(along.insert(entity, row).is_none(), "ALONG_DIRECTION_DUPLICATE")?;
         } else if row["kind"] == SUPPORT_COMPONENT {
             if let (Some(c), Some(v)) = (row["metadata"]["component"].as_str(), row["value"].as_f64()) {
                 components.insert((entity, c), v);
@@ -157,15 +159,15 @@ pub(crate) fn check_case(rows: &[&Value], case_id: &str, model: Option<&Value>) 
     }
     for (entity, row) in &along {
         let r: Option<Vec<f64>> = ["Fx", "Fy", "Fz"].iter().map(|c| components.get(&(*entity, *c)).copied()).collect();
-        require(r.is_some(), "ALONG_DIRECTION_COMPONENTS_MISSING")?;
+        along_require(r.is_some(), "ALONG_DIRECTION_COMPONENTS_MISSING")?;
         let Some(model) = model else { continue };
         let support = model["supports"].as_array().into_iter().flatten().find(|s| s["id"] == *entity);
         let d = support.and_then(skewed_direction);
-        require(d.is_some(), "ALONG_DIRECTION_UNEXPECTED")?;
+        along_require(d.is_some(), "ALONG_DIRECTION_UNEXPECTED")?;
         let (d, r) = (d.unwrap(), r.unwrap());
         let s = row["value"].as_f64().ok_or("ALONG_DIRECTION_VALUE")?;
-        require(s.is_finite() && r.iter().all(|x| x.is_finite()), "ALONG_DIRECTION_INCONSISTENT")?;
-        require(guard(d, [r[0], r[1], r[2]], s), "ALONG_DIRECTION_INCONSISTENT")?;
+        along_require(s.is_finite() && r.iter().all(|x| x.is_finite()), "ALONG_DIRECTION_INCONSISTENT")?;
+        along_require(guard(d, [r[0], r[1], r[2]], s), "ALONG_DIRECTION_INCONSISTENT")?;
     }
     if let Some(model) = model {
         // Every skewed record that publishes its component rows publishes its along row.
@@ -173,7 +175,7 @@ pub(crate) fn check_case(rows: &[&Value], case_id: &str, model: Option<&Value>) 
         for support in model["supports"].as_array().into_iter().flatten() {
             let id = support["id"].as_str().unwrap_or("");
             if skewed_direction(support).is_some() && published.contains(id) {
-                require(along.contains_key(id), "ALONG_DIRECTION_MISSING")?;
+                along_require(along.contains_key(id), "ALONG_DIRECTION_MISSING")?;
             }
         }
     }
