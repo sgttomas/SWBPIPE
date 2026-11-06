@@ -6215,9 +6215,9 @@ registered state remain required. This records no acceptance and admits nothing:
 R_max or cap is adopted, the budget is built only by tests, and P0, S1 and their refusals are #155's, unchanged here.
 - **Coefficients.** None move: against main's tree, 1,602 equal, none higher or lower. The threshold, M, the
   generated block, `REGISTERED_PROFILES` and the profile (`c4df869d…996c`) are unchanged.
-- **AC-004: required, frozen, not run.** The witnessed binaries change and stack neutrality is not established from
-  source (below, "Stack"), so §8.57's 7/7 does not transfer. The binaries, the runner and the command are fixed below;
-  the window needs Agent 0's clearance.
+- **AC-004: 7/7 at `ef009fa0b`.** The witnessed binaries change and stack neutrality is not established from source
+  (below, "Stack"), so §8.57's 7/7 does not transfer; this registration's own window ran once and passed (below,
+  "AC-004").
 
 **Basis and integration chain.**
 - *Basis.* Main `a7ba75f73` (#154 merged; #131 merged as `17aa9a1f9`, registered as §8.57). Its core tree,
@@ -6340,7 +6340,7 @@ DEL-04-09's ScopeOfWork also requires the witnesses on the head of each change t
   all 45 recorded tree digests match `rust_tree_digest`. This record changes no routed source, so no digest moves.
 - *Deliverables.* `python3 -m tools.deliverables --project . check` exits 0 with no error.
 
-**AC-004** (prepared; not run).
+**AC-004.**
 - **Binaries** (built under the slot wrapper, `cargo test --offline --locked --no-run --lib --test
   retained_memory_challenge` in `core/product_physics`, test profile, `RUSTFLAGS`, `CARGO_ENCODED_RUSTFLAGS`,
   `CARGO_BUILD_RUSTFLAGS` and `RUSTDOCFLAGS` unset, rustc 1.97.1 `8bab26f4f`, aarch64-apple-darwin, core tree
@@ -6357,10 +6357,27 @@ DEL-04-09's ScopeOfWork also requires the witnesses on the head of each change t
   re-identifying first.
 - **Runner.** §8.57's `harness.py`, with only its identities substituted: this checkout, the copies, the two binaries
   and their hashes, the head and the core tree. Admission, the 55 s internal deadline, fail-fast, the flag and
-  `W1_MEMBER_CAP_OUT` handling and `CHECK_ONLY` are unchanged. It is read-only and pins the head that carries this
-  text, so its SHA-256 is recorded with the result. One `CHECK_ONLY=1` admission, outside any window, verified it.
+  `W1_MEMBER_CAP_OUT` handling and `CHECK_ONLY` are unchanged. Read-only, SHA-256
+  `bb4e316ef7d5a03c9a103d66e6662a60e2db93e438a4a0998c022736eda78184`. It was first frozen on `c0f07d5bb`
+  (`bfb88eea…`) and re-frozen on `ef009fa0b` after the review's documentation corrections (no core change; only its
+  pinned head differs). One `CHECK_ONLY=1` admission at `ef009fa0b`, outside any window, verified it.
+- **Result: 7/7 at `ef009fa0b`** (commit `ef009fa0bec76dcd1b8502f37ab2cc186db98af5`, core tree
+  `26d6c072c194c5059be36d3e2469d8df5b053a62`, whole worktree clean; the commit recording it changes no file under
+  `core/`). Admission verified the head, the core tree, the clean state, the four hashes (the two binaries, the profile
+  `c4df869d…996c`, `Cargo.lock` `b7ebb02a…5653`), rustc 1.97.1 `8bab26f4f`, the four flags absent, memguard live, the
+  copies read-only, `W1_MEMBER_CAP_OUT` not inherited and `CHECK_ONLY` unset.
+- **Window.** One attempt under Agent 0's technical clearance and App's fresh resource concurrence, with App's brief
+  deferral active (2026-11-06T17:25:59Z), run by Dynamics with the copies and runner above. Acquired at 17:28:22Z
+  (`START-EXCLUSIVE` immediately after `WAIT-EXCLUSIVE`); runner entry 17:28:22.317Z, admission verified 17:28:22.706Z
+  (0.389 s); END rc 0 at 17:28:37Z, 15.621 s internal from entry and about 15 s from acquisition including teardown,
+  against the 55 s and 60 s limits. Each of the seven processes executed exactly one test with rc 0 (1,242 filtered
+  out of the lib binary, 43 of the challenge): sparse and dense `witness_headroom_w1_at_one_mebibyte` 2.38 s and 0.63 s,
+  `witness_w2_deep_milestone_publishes` 1.25 s and 1.31 s, `witness_w_c2_publishes` 2.40 s and 2.36 s;
+  `retained_direct_peak_is_within_the_profiles_bounds` 4.79 s. The post-run hashes were unchanged and `window.err` was
+  empty. Closure was verified at 17:28:49Z: no runner, test or wrapper process remained, the four slot locks had no
+  holder and no pending marker remained, and memguard (live) logged no event.
 
-Run evidence (the runs, compares, block checks, builds, test logs) and the AC-004 copies and runner are in
+Run evidence (the runs, compares, block checks, builds, test logs), the AC-004 copies and runner, and the window record are in
 `/Users/ryan/dev/chirality-t3/scratch/rt-dynamics-p0-d3/`; they are review input, not a permanent dependency.
 
 ## 9. Memory-profile gates and registration
