@@ -1281,6 +1281,9 @@ merge, followed by one independent dynamics review.
   `retained-pricing-rules.md`, AC-004's rules) before S-K1 merges. Expected movement: struct-size
   deltas and the one predicate loop; the registration decides. AC-004 stack witnesses run with no
   concurrent builds.
+- **D3 (actual source, 2026-11-05).** Priced and registered at DEL-04-08 `retained-pricing-rules.md` §8.55 (12
+  coefficients higher, none lower; +17,872 B in every phase and mode). The AC-004 witnesses are prepared and await
+  Agent 0's window.
 - **Minimizing rule for the implementation.**
   - New work lives in new functions called only under `Some(basis)` or
     `has_constraint_transform()`.
