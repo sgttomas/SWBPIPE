@@ -3,6 +3,7 @@ import type { SessionAnalysisRun, SessionResult } from "./services/nativeResult"
 import { reportPackageUnavailableReason } from "./features/report/reportPackageRequest";
 import { CompactSelectScope } from "./features/workspace/CompactSelect";
 import { HangerSelectionPanel } from "./features/hanger-selection";
+import { HangerSizingForm } from "./features/hanger-sizing";
 import { SelfWeightPlanPanel } from "./features/self-weight-authoring";
 import { OfflineProposalIntakePanel } from "./features/offline-proposal-intake";
 import operationSchema from "../../../schemas/model_operation.schema.json";
@@ -591,6 +592,7 @@ function AppSession() {
                 busy={operationBusy}
                 requestEpoch={requestEpoch}
               />
+              <HangerSizingForm key={`hanger-sizing:${projectSessionGeneration}`} model={model} busy={operationBusy} />
               </div>
               <div className="operation-tool-page" hidden={operationTab !== "weight"}>
               <SelfWeightPlanPanel
