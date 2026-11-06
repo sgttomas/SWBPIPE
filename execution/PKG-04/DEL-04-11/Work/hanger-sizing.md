@@ -439,6 +439,12 @@ cold position.
   stated in §8.3.
 - **CSV.** The hanger table exports to CSV under DEL-08-04's serializer and coverage
   guard (RT-R6), with the desktop work after PR #59 (increment 3).
+- **[built, 3c] In the desktop.** The table is shown by the 3b panel, mounted with the
+  request form beside the hanger selection. It shows one reply of the native sizing:
+  the document, the reader evidence bound to the document's checked hash, and the library
+  document the request named, so record details pass 3a's library-hash gate. A refused
+  document shows its refusals, and a request that formed no document shows its named
+  failure. The result is not recorded or saved.
 
 ### 8.3 Publication contract, slice 1d-α (Agent 0, P1–P7, 2026-11-02)
 
@@ -1062,9 +1068,46 @@ outcome.
 
          The reply is written so that every number round-trips, and its byte size is
          `reply_len()`. Its tests are `tests/desktop.rs`, on the committed corpus inputs.
-       - **Part 2:** runs that entry in the desktop's capped worker process as worker task
-         4, returns its reply to the webview, and mounts the panel with the reader
-         standings bound to the document.
+       - **Part 2, built:** runs that entry in the desktop's capped worker process as
+         worker task 4, returns its reply to the webview, and mounts the panel with the
+         reader standings bound to the document. Hanger sizing is then usable in the
+         desktop, on PF, and is not recorded (Agent 0's rulings for 3c part 2):
+         - **The path** (`apps/desktop/src-tauri/src/hanger_sizing_job.rs`): the model
+           checks' capped-worker form. `size_hangers` takes `{runId, inputText}` as a raw
+           body, where `inputText` is the headless input's JSON text, and replies the
+           entry's reply text. There is no job record, held-result registry, custody,
+           persistence or analysis-run record.
+         - **Task 4** (`solve_worker.rs`): appended after the MBF render's 3; codes 0 to 3
+           are unchanged and unknown codes are refused. It attests nothing (`ATST` status
+           0), and a `SizeAndReadError` is the worker's `FAIL` with its code and message.
+         - **The reply limit:** 64 MiB (`MAX_DISPLAYABLE_RESULT_BYTES`) on the complete
+           reply, checked on the announced length before the result lease is admitted or
+           any byte is read. A longer reply ends `HANGER-SIZING-REPLY-TOO-LARGE`, with the
+           worker reaped. A larger result would need a custody proposal of its own.
+         - **Accounting:** the argument, worker and result leases count in one command
+           ledger under the captured invocation budget, as the MBF export's task 3 does:
+           raw admission before any model-sized decoding, one ledger bound for the request
+           copy, the grant's maximum and the largest result lease, a start wait of the
+           model checks' 2 s, the grant held until the worker is reaped, and the result
+           lease held while the response is built.
+         - **Cancellation:** one current sizing, in a slot of its own. A newer request
+           supersedes the one in progress, queued or running. `cancel_hanger_sizing`
+           cancels a page's requests through a sequence; it is keyed by `{page, sequence}`,
+           so a repeated or late delivery of a cancel or a request cannot reach a newer
+           request. The session reset cancels the sizing beside the model check, and the
+           webview cancels it when the project session changes. The webview's generation
+           guard (`services/hangerSizingService.ts`) never shows a reply that a newer
+           request or a retirement has passed. Per-solve progress (§10) is not built.
+         - **The form** (`features/hanger-sizing/`) has no pre-set choice in a new project
+           and pre-fills nothing (no value is kept between sessions yet). It sends the
+           session model with `materials: []`, as the desktop solve does, and the stored
+           library document chosen through `openLocalLibrary`.
+         - **Tests:** Rust (`hanger_sizing_job_tests.rs`): the committed two-span input
+           through the command and a real worker, whose reply is pinned as
+           `fixtures/results/hanger_sizing_reply_two_span.json`; the reply limit's
+           boundary; admission and ledger refusals; supersession, the keyed cancel and the
+           reset. Vitest: the service, the form and the App mount, with that reply shown
+           by the panel with its standings bound.
   4. EX derived solves (the ledger entry of §4.1) and the reference system, R-7. This
      needs RT-A3 increments 3 and 4 for the reference system's non-candidate families.
   5. The user guide and theory notes (RT-V4), and any standing refusal entered in
