@@ -48,6 +48,7 @@ A suggested name has the form `swbpipe-<kind>[-<qualifier>].<ext>`.
 | `support-loads` / `support-loads-all` | `.csv` | support or filter | reports (RT-R6) |
 | `weight` / `weight-cog` | `.csv` | filter | reports (RT-R6) |
 | `run-comparison` / `state-comparison` | `.csv` | the two runs or states | reports (RT-R6) |
+| `hanger-sizing` (hanger-sizing candidates; qualifier `solves` for the derived solves) | `.csv` | none, or `solves` | DEL-04-11, through RT-R6 |
 | `results` (result JSON) | `.json` | `run-<n>` | reports (DEL-08-04) |
 | `results-stress-neutral` (stress-neutral result JSON) | `.json` | `run-<n>` | reports (DEL-08-04) |
 | `handoff` (handoff package folder) | `.swbhandoff` | saved state label, or the date `yyyy-mm-dd` | W-17 (DEL-02-05 / handoff) |
