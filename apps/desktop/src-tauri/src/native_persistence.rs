@@ -43,13 +43,12 @@
 //!   traversal (`Revision::sealed_and_counted`).
 //! - **SQLite's limit, exactly, before allocation and before writes.** Inside
 //!   the write transaction the writing connection's `SQLITE_LIMIT_LENGTH` is
-//!   read (rusqlite `limits`), and result/record values and their table,
-//!   explicit index and search records are measured from exact counted lengths (each stored
+//!   read (rusqlite `limits`), and result/record values and their table and
+//!   explicit index records are measured from exact counted lengths (each stored
 //!   form is first written to a counter): the table row's record (SQLite's
-//!   record format: header varints and data), each measured index key's record
-//!   (bounded with an eight-byte rowid), and for a project the search row's
-//!   value and its content record. A result and a record that each fit can
-//!   still make a row that does not.
+//!   record format: header varints and data) and each measured index key's
+//!   record (bounded with an eight-byte rowid). A result and a record that
+//!   each fit can still make a row that does not.
 //!   The run hash autoindex is smaller than its measured table row; label and
 //!   snapshot writes retain the existing whole-transaction rollback backstop.
 //!   - Record Run above the limit: [`RUN_RECORD_RESULT_TOO_LARGE`] with the
@@ -75,7 +74,7 @@
 //!   before the held result is parsed), the held result's parse M and the builder's
 //!   working and fingerprint leases (as the preview's), the JS-text writer's
 //!   member-list scratch, each output text's lease at its exact length
-//!   (result, record, search text, the small slots), and SQLite's statement
+//!   (result, record, the small slots), and SQLite's statement
 //!   copies (it copies every bound text) and records; the parse M and the
 //!   builder's leases end before the statements run. The response is leased
 //!   at its exact length until it is handed to Tauri. The store's own reads
@@ -92,8 +91,8 @@
 //!   changes"): P2's new not-the-record-written text (only for bytes the full
 //!   readback accepts), P2's staged refusal before every write stage, and,
 //!   under memory pressure, which per-statement reservation is refused and
-//!   where (a save's search-row reservation now after the project upsert,
-//!   rolled back).
+//!   where; since store schema v14 a save has no search text or search-row
+//!   reservation, and no search-text or search-row length check.
 //!   - Record Run writes the record's text while the parse is alive (the
 //!     record is written from it), ends the parse, then writes the result's
 //!     text from the held text. The two texts and SQLite's copies of the row
@@ -124,14 +123,13 @@
 //!     full, are refused as not the record written; either rolls back every
 //!     row.
 //!   - Save Project (and a restored run's re-save, `stored_save`) writes the
-//!     project row with SQLite's copies of it leased, ends the result's text,
-//!     builds the search text from its slots (byte for byte
-//!     `ProjectTexts::search_text`), ends the record's text, then replaces the
-//!     search row with SQLite's copies of it leased, in the same transaction.
+//!     project row with SQLite's copies of it leased, then ends the result's
+//!     and the record's texts. Since store schema v14 it writes no search row
+//!     (the FTS sidecar is retired).
 //! - **Residuals, unpriced** (slice 7's measurement): the builder's and
 //!   readers' own working memory (as the preview's); SQLite's page cache
-//!   and journal, and FTS5's in-memory index of the search text it tokenizes
-//!   (as the submitted save's); Tauri's delivery copies of the small reply.
+//!   and journal and its working memory for the project row's upsert (as the
+//!   submitted save's); Tauri's delivery copies of the small reply.
 use crate::analysis_run_v03_build::{
     self as build, header_record, record_bytes, write_canonical_record, Built, Count, Revision, Sink, Style, Writer,
 };
@@ -1138,7 +1136,6 @@ fn project_lengths(
 ) -> Result<ProjectLengths, String> {
     let (project_id, project_name) = (fields.project_id, fields.project_name);
     let length = |name: &str| fields.small.iter().find(|(key, _)| *key == name).map_or(0, |(_, bytes)| *bytes);
-    let search = 4 + length("model_json") + length("editor_intents_json") + length("proposal_json") + length("selected_review_target_json") + record_length;
     let text = Cell::Text;
     let row = row_record(
         transaction,
@@ -1159,8 +1156,6 @@ fn project_lengths(
         ],
         exists.then_some(("project_id", project_id)),
     )?;
-    // The search row's content record: its rowid alias (stored null), the id, the name and the text.
-    let content = record_size(&[Cell::Null, text(project_id.len() as u64), text(project_name.len() as u64), text(search)]);
     let values = vec![
         measured("project id", project_id.len() as u64),
         measured("project name", project_name.len() as u64),
@@ -1172,27 +1167,10 @@ fn project_lengths(
         measured("analysis-run record", record_length),
         measured("model hash", length("model_hash_json")),
         measured("project envelope hash", envelope_length),
-        measured("search text", search),
         measured("project row", row),
         measured("project index key", index_record(&[text(project_id.len() as u64)])),
-        measured("search row", content),
     ];
     Ok(ProjectLengths { values, row })
-}
-
-/// The bytes the search row being replaced holds (FTS5 reads it to remove its
-/// terms): the stored slots it was made of, from their record headers.
-pub(crate) fn replaced_search_bytes(transaction: &Transaction<'_>, project_id: &str) -> Result<u64, String> {
-    let stored: Option<i64> = transaction
-        .query_row(
-            "SELECT 4 + COALESCE(octet_length(model_json), 0) + COALESCE(octet_length(editor_intents_json), 0) + COALESCE(octet_length(proposal_json), 0)
-                 + COALESCE(octet_length(selected_review_target_json), 0) + COALESCE(octet_length(analysis_run_json), 0) FROM local_projects WHERE project_id = ?1",
-            params![project_id],
-            |row| row.get(0),
-        )
-        .optional()
-        .map_err(|error| stored_read::sql_error(&error))?;
-    Ok(u64::try_from(stored.unwrap_or(0)).unwrap_or(0))
 }
 
 /// Save Project's steps inside its transaction while the record is alive:
@@ -1340,13 +1318,10 @@ fn project_write_error(error: &rusqlite::Error) -> String {
 
 /// Save Project after the record ended: the small texts at their exact
 /// lengths, then (RT-U4) the project row written with SQLite's copies of it
-/// leased, the result's text ended, the search text built at its exact length
-/// from the slots it is made of, the record's text ended, and the search row
-/// replaced with SQLite's copies of it leased, all in the caller's
+/// leased and the result's and record's texts ended, in the caller's
 /// transaction (a row SQLite still refuses as too big is refused by name, the
-/// transaction left to roll back); the search text is byte for byte the one
-/// [`crate::ProjectTexts::search_text`] builds. The reply is serialized at its
-/// exact length.
+/// transaction left to roll back). The reply is serialized at its exact
+/// length.
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn finish_save(
     transaction: &Transaction<'_>,
@@ -1369,14 +1344,12 @@ pub(crate) fn finish_save(
     let (model_hash_json, model_hash_lease) = leased_json(memory, "the project's model hash text", fields.model_hash)?;
     let (envelope_json, envelope_lease) = leased_json(memory, "the project's envelope hash text", &envelope)?;
     let measured = |what: &str| lengths.values.iter().find(|length| length.what == what).map_or(0, |length| length.bytes);
-    // SQLite copies each bound text and builds the row's record; FTS5 reads
-    // the search row it replaces, measured before the project row changes.
+    // SQLite copies each bound text and builds the row's record.
     let bound = lengths
         .values
         .iter()
-        .filter(|length| !length.what.ends_with(" row") && !length.what.ends_with(" key") && length.what != "search text")
+        .filter(|length| !length.what.ends_with(" row") && !length.what.ends_with(" key"))
         .fold(0u64, |sum, length| sum.saturating_add(length.bytes));
-    let replaced = replaced_search_bytes(transaction, fields.project_id)?;
     {
         let texts = crate::ProjectTexts {
             model_json: &model_json,
@@ -1394,22 +1367,11 @@ pub(crate) fn finish_save(
         stored_read::phase_probe::mark("save: project row written");
         drop(statement);
     }
-    // The result's text is in the project row and in nothing else written here.
-    drop((result_json, result_lease));
+    // The result's and record's texts are in the project row and in nothing
+    // else written here.
+    drop((result_json, result_lease, record_json, record_lease));
     #[cfg(test)]
-    stored_read::phase_probe::mark("save: result text released");
-    let parts = crate::SearchParts([&model_json, &editor_json, &proposal_json, &selected_json, &record_json]);
-    let search_lease = memory.reserve("the project's search text", stored_read::exact_text_bytes(parts.length()))?;
-    let search_text = parts.text();
-    drop((record_json, record_lease));
-    #[cfg(test)]
-    stored_read::phase_probe::mark("save: search text built, record text released");
-    let search_copies = stored_read::total(&[fields.project_id.len() as u64, fields.project_name.len() as u64, measured("search text"), measured("search row"), replaced]);
-    let statement = memory.reserve("SQLite's copies of the project's search row", search_copies)?;
-    crate::replace_project_search(transaction, fields.project_id, fields.project_name, &search_text).map_err(|error| project_write_error(&error))?;
-    #[cfg(test)]
-    stored_read::phase_probe::mark("save: search row written");
-    drop((statement, search_text, search_lease));
+    stored_read::phase_probe::mark("save: result and record texts released");
     let (stub_result, stub_run) = summary_stubs;
     let saved_message = if create { "Created local SQLite project snapshot without external file copies." } else { "Saved current project model snapshot without external file copies." };
     let result = match refused_with {

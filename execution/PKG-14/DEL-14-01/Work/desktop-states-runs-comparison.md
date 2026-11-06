@@ -146,7 +146,7 @@ Python agree.
 
 **As built (S1, states).** `apps/desktop/src-tauri/src/model_states.rs`,
 `apps/desktop/src/services/modelStateService.ts` and `apps/desktop/src/features/history/`.
-- **Versions.** S1 made `STORE_SCHEMA_TARGET_VERSION` 12 (S2 made it 13). A store whose
+- **Versions.** S1 made `STORE_SCHEMA_TARGET_VERSION` 12 (S2 made it 13; RT-U4 made it 14). A store whose
   `user_version` is above the target was written by a newer build. It is
   refused (`STORE-SCHEMA-NEWER`) before any pragma or migration writes;
   before S1 it was opened as current.
@@ -479,10 +479,17 @@ CREATE TRIGGER IF NOT EXISTS analysis_runs_immutable BEFORE UPDATE ON analysis_r
 **As built (S2, recorded runs).** `apps/desktop/src-tauri/src/analysis_runs.rs`
 (tests in `analysis_runs_tests.rs`), `apps/desktop/src/services/analysisRunService.ts`,
 the History panel and `useModelStateHistory.ts`.
-- **Versions.** `STORE_SCHEMA_TARGET_VERSION` is 13 (`store-v13-analysis-runs-tables`).
+- **Versions.** S2 made `STORE_SCHEMA_TARGET_VERSION` 13 (`store-v13-analysis-runs-tables`).
   The tables, index and trigger are the SQL above, plus `analysis_runs_no_replace`
-  (`BEFORE INSERT`, on `recording_id` or `run_record_hash`, as S1's trigger). A v14
-  store is refused (`STORE-SCHEMA-NEWER`).
+  (`BEFORE INSERT`, on `recording_id` or `run_record_hash`, as S1's trigger). A v13 build
+  refuses a v14 store (`STORE-SCHEMA-NEWER`) before writing.
+  - RT-U4 made it 14 (`store-v14-retire-project-fts-sidecar`): the unused FTS sidecar
+    `local_project_fts` is dropped and saves no longer write it.
+  - The state and run tables, their rows and their reads are unchanged by v14
+    (`analysis_runs_tests.rs`, `v14_retires_the_fts_sidecar_of_a_v13_store_and_keeps_every_canonical_byte`).
+  - Each step and its `user_version` commit in one transaction. A failed v14 step leaves the
+    store at v13, reported pending, and the next open retries it (DEL-04-05
+    `c1-native-custody-plan.md`, Refusal changes).
 - **Commands.** `record_analysis_run` is admitted as `save_local_project` is (the
   per-invocation budget through its lease). `list_analysis_runs`,
   `read_analysis_run`, `delete_analysis_run` and `edit_analysis_run_labels`

@@ -129,12 +129,12 @@ const TOKEN = "[a-z0-9]+";
 /** The CSV kinds of DEL-07-01 `export-file-names.md`. `results-<group>` takes one or more
  * group tokens. */
 const CSV_KIND_SOURCE =
-  `results(?:-${TOKEN})+|displacement-extremes|stress-ratio|support-loads-all|support-loads|weight-cog|weight|run-comparison|state-comparison`;
+  `results(?:-${TOKEN})+|displacement-extremes|stress-ratio|support-loads-all|support-loads|weight-cog|weight|run-comparison|state-comparison|hanger-sizing`;
 const CSV_KIND = new RegExp(`^(?:${CSV_KIND_SOURCE})$`);
 /** `swbpipe-<csv kind>[-<qualifier>].csv` under the token rule. Kinds whose longer form adds
  * tokens (`support-loads-all`, `weight-cog`) are matched by the shorter kind plus tokens. */
 export const CSV_EXPORT_FILE_NAME =
-  /^swbpipe-(?:results(?:-[a-z0-9]+)+|displacement-extremes|stress-ratio|support-loads|weight|run-comparison|state-comparison)(?:-[a-z0-9]+)*\.csv$/;
+  /^swbpipe-(?:results(?:-[a-z0-9]+)+|displacement-extremes|stress-ratio|support-loads|weight|run-comparison|state-comparison|hanger-sizing)(?:-[a-z0-9]+)*\.csv$/;
 
 export function isCsvKind(kind: string): boolean {
   return CSV_KIND.test(kind);

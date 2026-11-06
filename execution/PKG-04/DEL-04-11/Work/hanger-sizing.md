@@ -1027,8 +1027,20 @@ outcome.
        `record_sha256`; otherwise a named not-shown state. The readers' standings are shown
        only from evidence that carries the document's checked hash; otherwise every standing
        is `not_checked`. It is not a usable desktop feature.
-     - **3b:** the table component and its CSV through DEL-08-04 (after PR #59).
-     - **3c:** the native sizing job and its command.
+     - **3b, built:** the table component and its CSV through DEL-08-04
+       (`features/results/HangerSizingPanel.tsx`, `hangerSizingCsv.ts`), tested on the same
+       fixtures. The panel renders 3a's display model read-only: the basis block, one row
+       per candidate with the exact F_cold and F_C labels, each candidate's details
+       (`<details>`), the solves, the verification standing (a conditional one stated with
+       what it means), the disclosures and the reader standings, or a refused document's
+       refusals and no table. Values are 3a's published SI texts, with nothing rounded,
+       converted or computed. The CSV is kind `hanger-sizing`, with two files:
+       `swbpipe-hanger-sizing.csv` has one row per candidate and operating case, and
+       `swbpipe-hanger-sizing-solves.csv` has one row per solve and nonlinear support. Its
+       numbers are written unrounded under fixed SI header units. Each absent value is a status
+       cell carrying the panel's reason. `result_hash` is the document's checked canonical hash.
+       The panel is not mounted; 3c mounts it.
+     - **3c:** the native sizing job and its command, and mounting the 3b panel.
   4. EX derived solves (the ledger entry of §4.1) and the reference system, R-7. This
      needs RT-A3 increments 3 and 4 for the reference system's non-candidate families.
   5. The user guide and theory notes (RT-V4), and any standing refusal entered in
