@@ -6301,14 +6301,13 @@ names `run_modal_dense_with_budget` or `resource`, and only tests construct a `M
   `#[cfg(test)] mod tests_resource;` exactly once in `modal.rs`.
 - *Classed by existing rules, at or above their bound.* `eigen.rs`'s new `{error}` takes the by-name error-display class
   (8,192 B; its true bound is the longest resource Display, 167 B: `MODAL_RESOURCE_QL_ALLOTMENT_EXCEEDED: {u64} QL
-  rotations performed and a sweep of {u64} next exceed the allotment of {u64}`). `resource.rs:950`'s `id` takes
-  128 B by name.
+  rotations performed and a sweep of {u64} next exceed the allotment of {u64}`).
 - *Pins that hold.* §8.43's MODAL-FB bodies hold: `modal_sturm_count` in `eigen.rs` and `bounding_box_diagonal` in
   `outcome.rs` are byte-unchanged. MODAL-ID's I2b-1 audits hold: `integrity.rs`'s additions mention neither
   `parameter_refusal` nor `reformation_refusal` (six and five whole-file mentions), and they have no format site. §8.52's
   `modal_doc_solved` pin (`f4907717…7ed`) is unchanged, since `document.rs` is byte-equal to main's, and the run passes
   it. No full-file pin, reviewed input or snapshot key moves. The tool still reproduces main: `price.py run a7ba75f73` on
-  this branch's tool is identical to the committed tool's run, and every per-point artifact is byte-identical.
+  this branch's tool is identical to the committed tool's run, and every per-point artifact is byte-identical apart from the run-directory strings embedded in each point's `work/g4_caps.caps.eps2.out.json` (`b7a_success_context.work`); the four `point.json` are byte-identical.
 - *Regressions* (`tests/test_858_p0_modal_resource.py`, 9 tests): the audits and site sizes on both routes, the
   re-keyed sites, the MODAL-FB subtraction, and stops on an edit to `resource.rs`, to the bound-dimensions body, to the
   delegation, and on a non-test `tests_resource` declaration.
