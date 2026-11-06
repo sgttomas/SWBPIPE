@@ -1780,9 +1780,9 @@ the result-output gate changes; criterion 6 is not claimed.
 - **New policy.** `caepipe-mbf` is not an output surface: `OUTPUT_SURFACES` has 20 entries (seventeen in T1's group
   a), and no route's table names it. The panel takes no result and renders its action whenever the session can open
   the export; `requestExportMbf` reads no result. Both entry points stay as enabled as before for the model: the
-  native item while no project operation is busy (`lib.rs`, unchanged), the in-window item while the model and its
-  hash are ready (`modelDocumentSaveReady`, unchanged), and the request still refuses by name while the hash is
-  pending. Every other surface's decision, for every route, is unchanged; nothing else is admitted.
+  native item while no project operation is busy (`lib.rs`, unchanged), the in-window item while a model is present
+  and no project operation is busy (`modelDocumentSaveReady = model !== null && !projectBusy`, `App.tsx`,
+  unchanged), and either invocation still refuses by name while the model's hash is pending (`requestExportMbf`). Every other surface's decision, for every route, is unchanged; nothing else is admitted.
 - **Kept.** The model's admission and screening, the local-private explicit-intent route `DOTH-MBF-012`, the reviewed
   digests, the loss, completeness, size and budget checks, cancellation (the barrier, its ticket and its retirements)
   and the file-transaction guards. No native command, worker, format, identity file or reach-scan pin changes: the
