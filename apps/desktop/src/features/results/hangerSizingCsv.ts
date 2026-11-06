@@ -41,8 +41,17 @@ export const HANGER_SIZING_CSV_KIND = "hanger-sizing";
 export const HANGER_SIZING_SOLVES_QUALIFIER = "solves";
 export const HANGER_SIZING_CANDIDATES_FILTER = "all candidates";
 export const HANGER_SIZING_SOLVES_FILTER = "all solves";
-/** The document's own basis: SI, converted by nothing, rounded by nothing. */
-export const HANGER_SIZING_CSV_UNIT_BASIS = "SI as published (forces N, lengths m, rates N/m, ratios and counts 1); unconverted, unrounded";
+/** The units of the file: the document's published results in SI, and the bound library's record
+ * quantities in the units the record states, each with its own unit column. Nothing is converted
+ * or rounded. */
+export const HANGER_SIZING_CSV_UNIT_BASIS = "published results in SI (forces N, lengths m, rates N/m, ratios and counts 1); library record quantities in the record's stated units (unit columns); unconverted, unrounded";
+
+/** The published verification standing, stated in words (Design §8.3.5). Shared with the panel. */
+export const HANGER_SIZING_CONDITIONAL_TEXT =
+  "Verification standing: conditional. At least one candidate has no fitting record (no_record_fits). The verification solves kept each such candidate as a force equal to its W, so every verified position, load and test outcome below is conditional on that assumption. Applying the selected records alone does not reproduce the verification, because an unresolved candidate stays as it is in the model.";
+export const HANGER_SIZING_UNCONDITIONAL_TEXT =
+  "Verification standing: unconditional. Every candidate has a selected record, and the verification solves used each selection as its verification assumption states.";
+export const HANGER_SIZING_NO_DISCLOSURES = "none";
 
 // The reasons shown in place of an absent value, shared by the panel and the CSV.
 /** A `no_record_fits` candidate: nothing is put in place of a selection or its verification. */
@@ -86,6 +95,27 @@ export async function hangerSizingCsvProvenance(input: { document: HangerSizingS
 // Cells
 
 const quantity = (value: SiQuantity): CsvCell => csvNumber(value.value);
+
+/** The document-level qualifications every row of both files carries: the published standing,
+ * its meaning (naming the no-fit candidates when conditional), and the disclosures. */
+type Qualifications = Readonly<{ standing: string; meaning: string; disclosures: string }>;
+function qualifications(view: HangerSizingSizedView): Qualifications {
+  const conditional = view.verificationStanding === "conditional";
+  const noFit = view.rows.filter((row) => row.outcome === "no_record_fits").map((row) => row.support);
+  const meaning = conditional
+    ? `${HANGER_SIZING_CONDITIONAL_TEXT}${noFit.length > 0 ? ` Candidates with no fit: ${noFit.join(", ")}.` : ""}`
+    : HANGER_SIZING_UNCONDITIONAL_TEXT;
+  const disclosures = view.disclosures.length === 0
+    ? HANGER_SIZING_NO_DISCLOSURES
+    : view.disclosures.map((finding) => `${finding.code}${finding.names.length > 0 ? ` (${finding.names.join(", ")})` : ""}: ${finding.message}`).join(" | ");
+  return { standing: view.verificationStanding, meaning, disclosures };
+}
+const QUALIFICATION_COLUMNS: readonly CsvColumn[] = [
+  { kind: "text", label: "Verification standing" },
+  { kind: "text", label: "Verification standing meaning" },
+  { kind: "text", label: "Disclosures" }
+];
+const qualificationCells = (q: Qualifications): CsvCell[] => [csvText(q.standing), csvText(q.meaning), csvText(q.disclosures)];
 const variationCell = (value: VariationView): CsvCell => (value.state === "ratio" ? csvNumber(value.ratio.value) : csvStatus(value.text));
 const countCell = (counts: FailureCountsView, key: string): CsvCell => {
   if (counts.state === "not_tested") return csvStatus(HANGER_SIZING_NOT_TESTED);
@@ -95,9 +125,12 @@ const countCell = (counts: FailureCountsView, key: string): CsvCell => {
 
 /** One candidate row for one operating case (`caseId` null only if a candidate lists no case). */
 type Line = Readonly<{ row: CandidateRowView; caseId: string | null }>;
+type Shown = Extract<NonNullable<CandidateRowView["record"]>, { state: "shown" }>;
 
 type Spec = Readonly<{ column: CsvColumn; cell: (line: Line) => CsvCell }>;
 const text = (label: string, cell: Spec["cell"]): Spec => ({ column: { kind: "text", label }, cell });
+const unitColumn = (label: string, cell: Spec["cell"]): Spec => ({ column: { kind: "unit", label }, cell });
+const statedNumber = (label: string, unitLabel: string, cell: Spec["cell"]): Spec => ({ column: { kind: "number", label, unitColumn: unitLabel }, cell });
 const number = (label: string, unit: string, cell: Spec["cell"]): Spec => ({ column: { kind: "number", label, unit }, cell });
 
 /** A value of the selection: by family, with the absent reason of the other family and of no fit. */
@@ -130,10 +163,28 @@ function forCase<T extends { case: string }>(entries: readonly T[], line: Line):
   return line.caseId === null ? undefined : entries.find((entry) => entry.case === line.caseId);
 }
 
-function recordCell(line: Line, pick: (record: Extract<NonNullable<CandidateRowView["record"]>, { state: "shown" }>) => string): CsvCell {
+function recordCell(line: Line, pick: (record: Shown) => string): CsvCell {
   const record = line.row.record;
   if (record === null) return csvStatus(HANGER_SIZING_NO_FIT);
   return record.state === "shown" ? csvText(pick(record)) : csvStatus(hangerSizingNotShown(record.reason));
+}
+
+/** A record quantity in the record's own stated unit: its magnitude, or its unit text, unchanged.
+ * Absent (no fit, not shown, or not stated for the family) is the same status in both cells. */
+function recordStated(line: Line, pick: (record: Shown) => { magnitude: number; unit: string } | null, part: "magnitude" | "unit", absent: string): CsvCell {
+  const record = line.row.record;
+  if (record === null) return csvStatus(HANGER_SIZING_NO_FIT);
+  if (record.state !== "shown") return csvStatus(hangerSizingNotShown(record.reason));
+  const stated = pick(record);
+  if (stated === null) return csvStatus(absent);
+  return part === "magnitude" ? csvNumber(stated.magnitude) : csvText(stated.unit);
+}
+function recordQuantitySpecs(label: string, pick: (record: Shown) => { magnitude: number; unit: string } | null, absent = HANGER_SIZING_NOT_PUBLISHED): Spec[] {
+  const unitLabel = `${label} unit`;
+  return [
+    statedNumber(label, unitLabel, (line) => recordStated(line, pick, "magnitude", absent)),
+    unitColumn(unitLabel, (line) => recordStated(line, pick, "unit", absent))
+  ];
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -151,6 +202,10 @@ const CANDIDATE_SPECS: readonly Spec[] = [
   text("Record sha256", (line) => bySelection(line, (s) => csvText(s.recordSha256), (s) => csvText(s.recordSha256))),
   text("Record name", (line) => recordCell(line, (record) => record.name)),
   text("Record type", (line) => recordCell(line, (record) => record.hangerType)),
+  ...recordQuantitySpecs("Record working load min", (record) => record.workingLoadRange.minimum),
+  ...recordQuantitySpecs("Record working load max", (record) => record.workingLoadRange.maximum),
+  ...recordQuantitySpecs("Record travel range", (record) => record.travelRange),
+  ...recordQuantitySpecs("Record stiffness", (record) => record.stiffness, HANGER_SIZING_NOT_APPLICABLE_CONSTANT),
   number("W", "N", (line) => quantity(line.row.w)),
   number(`F_cold: ${F_COLD_LABEL}`, "N", (line) => bySelection(line, (s) => quantity(s.fCold.quantity), naConstant)),
   number(`F_C: ${F_COLD_CONDITION_LABEL}`, "N", (line) => bySelection(line, (s) => quantity(s.fColdCondition.quantity), naConstant)),
@@ -232,6 +287,7 @@ function candidateLines(view: HangerSizingSizedView): Line[] {
 /** The candidates table: one row per candidate and operating case. */
 export function hangerSizingCandidatesCsv(input: Context): CsvExport {
   const lines = candidateLines(input.view);
+  const q = qualifications(input.view);
   return {
     table: {
       preamble: {
@@ -241,8 +297,8 @@ export function hangerSizingCandidatesCsv(input: Context): CsvExport {
         caseOrFilter: HANGER_SIZING_CANDIDATES_FILTER,
         unitBasis: HANGER_SIZING_CSV_UNIT_BASIS
       },
-      columns: CANDIDATE_SPECS.map((spec) => spec.column),
-      rows: lines.map((line) => CANDIDATE_SPECS.map((spec) => spec.cell(line)))
+      columns: [...CANDIDATE_SPECS.map((spec) => spec.column), ...QUALIFICATION_COLUMNS],
+      rows: lines.map((line) => [...CANDIDATE_SPECS.map((spec) => spec.cell(line)), ...qualificationCells(q)])
     },
     fileName: csvExportFileName(HANGER_SIZING_CSV_KIND)
   };
@@ -267,6 +323,7 @@ export function hangerSizingSolvesCsv(input: Context): CsvExport {
   const lines: SolveLine[] = input.view.solves.flatMap<SolveLine>((solve) => (solve.states.length > 0
     ? solve.states.map((state) => ({ solve, state }))
     : [{ solve, state: null }]));
+  const q = qualifications(input.view);
   return {
     table: {
       preamble: {
@@ -276,13 +333,14 @@ export function hangerSizingSolvesCsv(input: Context): CsvExport {
         caseOrFilter: HANGER_SIZING_SOLVES_FILTER,
         unitBasis: HANGER_SIZING_CSV_UNIT_BASIS
       },
-      columns: SOLVE_COLUMNS,
+      columns: [...SOLVE_COLUMNS, ...QUALIFICATION_COLUMNS],
       rows: lines.map(({ solve, state }) => [
         csvText(solve.label),
         csvText(solve.case),
         csvText(solve.derivedDocumentSha256),
         state === null ? csvStatus(HANGER_SIZING_NO_NONLINEAR_SUPPORT) : csvText(state.support),
-        state === null ? csvStatus(HANGER_SIZING_NO_NONLINEAR_SUPPORT) : csvText(state.state)
+        state === null ? csvStatus(HANGER_SIZING_NO_NONLINEAR_SUPPORT) : csvText(state.state),
+        ...qualificationCells(q)
       ])
     },
     fileName: csvExportFileName(HANGER_SIZING_CSV_KIND, HANGER_SIZING_SOLVES_QUALIFIER)

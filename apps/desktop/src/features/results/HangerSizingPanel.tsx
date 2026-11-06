@@ -13,7 +13,9 @@ import { CsvExportControl } from "../result-export/CsvExportControl";
 import { CSV_SOFTWARE_VERSION } from "../result-export/csvProvenance";
 import type { HangerSizingDocument, HangerSizingSizedDocument } from "./hangerSizingResult";
 import {
+  HANGER_SIZING_CONDITIONAL_TEXT,
   HANGER_SIZING_CONSTANT_COUNT_KEYS,
+  HANGER_SIZING_UNCONDITIONAL_TEXT,
   HANGER_SIZING_CSV_KIND,
   HANGER_SIZING_NO_FAILED_TESTS,
   HANGER_SIZING_NO_FIT,
@@ -54,10 +56,7 @@ export const HANGER_SIZING_NOT_PUBLISHED_INPUT = "not published";
 export const HANGER_SIZING_SIZED_TEXT =
   "Status: sized. The sizing algorithm completed. This does not mean that every candidate fits, and it is no engineering acceptance.";
 export const HANGER_SIZING_REFUSED_TEXT = "Status: refused. No table was formed; every refusal is listed below, in the engine's order.";
-export const HANGER_SIZING_CONDITIONAL_TEXT =
-  "Verification standing: conditional. At least one candidate has no fitting record (no_record_fits). The verification solves kept each such candidate as a force equal to its W, so every verified position, load and test outcome below is conditional on that assumption. Applying the selected records alone does not reproduce the verification, because an unresolved candidate stays as it is in the model.";
-export const HANGER_SIZING_UNCONDITIONAL_TEXT =
-  "Verification standing: unconditional. Every candidate has a selected record, and the verification solves used each selection as its verification assumption states.";
+export { HANGER_SIZING_CONDITIONAL_TEXT, HANGER_SIZING_UNCONDITIONAL_TEXT };
 export const HANGER_SIZING_STANDINGS_TEXT =
   "Each standing states only what that reader checked. No standing states that the mechanics are verified, and none is an acceptance of a selection.";
 
