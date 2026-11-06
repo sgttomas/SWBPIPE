@@ -342,12 +342,20 @@ writer and importer. These are the CAEPIPE lane's work, not desktop work (Q-3):
   reload the window or restart), `MBF-EXPORT-RETIREMENT-ID-INVALID` (try again, then restart),
   `MBF-EXPORT-EPOCH-EXHAUSTED` (export is unavailable until SWBPIPE restarts, which recovers it),
   and `INGRESS-RAW-BODY-REQUIRED`, which a start meets once the window's transport has fallen
-  back ("Export isn't available in this window. … Reload the window or restart SWBPIPE to
-  export again."). A close that reaches a save past its commit does not stop it, and the save
+  back. Its text depends on the start: a review writes nothing ("Export isn't available in this
+  window. Nothing was written. Reload the window or restart SWBPIPE to export again."), but a
+  save's outcome is unknown, because the transport's resend can be refused after the original
+  save committed and wrote (§3.7, "Source basis and limits"), and the page cannot tell that case
+  from a save first sent after the fallback. A save refused so, in the open dialog or after it
+  closed, says "SWBPIPE could not confirm whether this export wrote its files, because this
+  window can no longer send exports. If you chose a folder for it, check that folder for the
+  model batch file and its identity file. Reload the window or restart SWBPIPE to export again."
+  (`MBF_SAVE_REFUSAL_TEXT`, `mbfSaveRefusalText` in `mbfExport.ts`). A close that reaches a save past its commit does not stop it, and the save
   may still finish, or fail and undo itself: the status line first says only that the export
   "was already writing its files when it was closed; it is finishing", then the save's own
   outcome (`closedSaveStatusLine`): both files named when it saved, or its codes with their text
-  when it failed or was undone; a closed save's outcome is shown so whatever the close's receipt said, unless the
+  when it failed or was undone, or that it "has no confirmed result" with the save's unknown-outcome text when it was
+  refused after the fallback; a closed save's outcome is shown so whatever the close's receipt said, unless the
   outcome itself shows that nothing was written (§6, slice 4b.2b). Each line names the export's project, and "from an earlier
   project session" once the session has changed. No text names the mechanism (epochs, ids or tickets), and none suggests that anything grants a
   save.
@@ -701,6 +709,11 @@ only the staleness check of step 6.
     start, sent raw, is refused at ingress and fails closed. So the schedule "fallback
     acknowledged, fresh run admitted, delayed original cancels it" is not a demonstrated
     same-page product path, and the tests that pin it are injected-fault tests of the rule.
+    The ingress refusal proves only that the delivery it answers wrote nothing: when the
+    fallback was triggered by a failed read of a save's reply, the original raw save may
+    already have committed, written or undone itself, and its resend is the one refused. The
+    page cannot see the flip, so a save refused `INGRESS-RAW-BODY-REQUIRED` has an unknown
+    outcome and is reported so (§3.3); a review refused so wrote nothing.
     Duplicate deliveries of an id the host has applied remain no-ops whatever their route or
     form. Its frontend result is discarded by its generation, and the save's pre-commit checks
     are unchanged. *Across a navigation* the order is not established:
@@ -1679,14 +1692,21 @@ identity file changes; `app_invoke_handler` is unchanged, so the reach-scan pin 
   itself establishes that nothing was written is not reported: `MBF-EXPORT-CANCELLED` (refused before the commit),
   a dismissed chooser, a refusal before the chooser that carries the review, and the stale or not-sent refusals
   (`MBF-EXPORT-REVIEW-STALE`, `MBF-EXPORT-RETIREMENT-UNCONFIRMED`, `MBF-EXPORT-EPOCH-INVALID`,
-  `MBF-EXPORT-EPOCH-EXHAUSTED`, `INGRESS-RAW-BODY-REQUIRED`), each only when every code of the refusal is one of
-  them. The outcome's line says the export was closed before its result came back. The report keeps the request's project
+  `MBF-EXPORT-EPOCH-EXHAUSTED`), each only when every code of the refusal is one of them.
+  `INGRESS-RAW-BODY-REQUIRED` is not among them (repair round 3): Tauri 2.11.1 resends an invoke through its fallback
+  when its `fetch` fails or when reading its reply fails, so the original save may have committed, written or undone
+  itself before the resend was refused, and the refusal proves only that the resend wrote nothing. A closed save
+  refused with it, alone or with other codes, is reported as unknown (`kind: "unknown"`, "has no confirmed result",
+  status operation `export_mbf_outcome_unknown_after_close`). The outcome's line says the export was closed before its result came back. The report keeps the request's project
   and session: after a new project session it is named as an earlier session's export, never as the current project's.
   A new project session closes the dialog. The barrier, its ticket, its ids and its guards are mounted as they are;
   nothing re-implements them.
 - **Product text** (§3.3, "The export's own refusals"). `MBF_EXPORT_REFUSAL_TEXT`, `mbfRefusalText`,
   `closedSaveStatusLine` and `mbfFailureDiagnostic` in `mbfExport.ts`: the dialog shows each code with its product text in place of the native wording, and a start
-  refused `INGRESS-RAW-BODY-REQUIRED` declines the review with "Export isn't available in this window".
+  refused `INGRESS-RAW-BODY-REQUIRED` declines the review with "Export isn't available in this window", while a save
+  refused so, open or closed, shows `mbfSaveRefusalText`'s unknown-outcome text (§3.3), never "Nothing was written".
+  The barrier cannot refuse a start for a known fallback before sending it (the flag is private to Tauri's transport
+  script), so every save refused with this code is treated as unknown.
 - **A-6.** `CaepipeMbfExportPanel.tsx` no longer builds a package or MBF text: `buildCaePipeMbfExportPacket`, its
   package and MBF text links (with their `ControlledExportLink` route entries), its project-id file names, its
   length conversion and witnesses and its `MBF-LENGTH-*` and `MBF-PROJECT-UNIT-MISSING` codes are removed, with the
@@ -1720,7 +1740,12 @@ identity file changes; `app_invoke_handler` is unchanged, so the reach-scan pin 
   a too-late one; the no-write outcomes silent under each); `App.mbfExportDialog.test.tsx` holds a save closed after its commit that then saves, fails to write, or is
   undone, one that completes after a new project session (named as the earlier session's), one that had completed
   natively before the close (a `too_late` of 0) and was undone, reopening during a pending
-  save before and after it settles, and exact retirement counts for Close, Escape and an App unmount. A session
+  save before and after it settles, and exact retirement counts for Close, Escape and an App unmount. Repair round 3
+  (P1, the fallback's resend): a save whose original committed and whose resend was refused
+  `INGRESS-RAW-BODY-REQUIRED` is reported as unknown under each receipt (`mbfExportSession.test.ts`, with a mixed
+  refusal), shows the unknown-outcome text in the open dialog (`MbfExportDialog.test.tsx`,
+  `App.mbfExportDialog.test.tsx`) and in the status line once the dialog has closed (`App.mbfExportDialog.test.tsx`);
+  a review refused with the same code still says nothing was written; the other no-write codes stay silent. A session
   replacement with the dialog open cannot be reached through the App (every session-replacing command is held while
   it is open), so its count is held at the owner.
 - **Open.** Criterion 6 is not claimed: the reference system still needs the coverage tranches and the round-trip

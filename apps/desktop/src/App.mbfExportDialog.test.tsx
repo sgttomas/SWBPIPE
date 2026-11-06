@@ -14,6 +14,7 @@ import {
   MBF_EXPORT_REFUSAL_TEXT,
   MBF_EXPORT_ROUTE_ID,
   MBF_REVIEW_NATIVE_ONLY,
+  MBF_SAVE_OUTCOME_UNKNOWN_TEXT,
   closedSaveStatusLine,
   type MbfExportSaveOutcome,
   type MbfReviewPayload
@@ -303,6 +304,38 @@ describe("File > Export MBF… (the mounted dialog)", () => {
     expect(projectMessage().textContent).not.toMatch(/were written|finished:/);
   }, 60000);
 
+  // Tauri 2.11.1's transport resends an invoke through its fallback when its `fetch` fails or when reading its reply
+  // fails: the original raw save may commit and write (or undo itself) before its reply is lost, and the resend is then
+  // refused at the ingress. That refusal proves only that the resend wrote nothing.
+  const FALLBACK_REFUSAL = { code: "INVALID_REQUEST", message: "INGRESS-RAW-BODY-REQUIRED: send `save_mbf_export`'s arguments as raw UTF-8 JSON bytes." };
+
+  it("a save that had committed when the dialog closed, whose reply was lost and whose resend was refused after the fallback: reported as unknown, not as nothing written", async () => {
+    const { save, attribution } = await closeDuringCommittedSave();
+    // The original committed (the receipt said too late); its reply is lost and the transport's resend is refused.
+    await act(async () => { save.reject(FALLBACK_REFUSAL); });
+    const diagnostics = [{ code: INGRESS_RAW_BODY_REQUIRED, path: "", message: `${FALLBACK_REFUSAL.code}: ${FALLBACK_REFUSAL.message}` }];
+    await waitFor(() => expect(projectMessage()).toHaveTextContent(closedSaveStatusLine({ kind: "unknown", diagnostics }, attribution)));
+    expect(projectMessage()).toHaveTextContent(`has no confirmed result. ${INGRESS_RAW_BODY_REQUIRED}: ${MBF_SAVE_OUTCOME_UNKNOWN_TEXT}`);
+    expect(projectMessage().textContent).not.toMatch(/Nothing was written|isn't available|did not finish|raw UTF-8/);
+  }, 60000);
+
+  it("a save in the open dialog whose original committed, whose reply was lost and whose resend was refused after the fallback: the dialog says the outcome is unknown", async () => {
+    let written = 0;
+    // The host commits and writes the original save; the page sees only the resend's refusal.
+    nativeHost({ save: () => { written += 1; return Promise.reject(FALLBACK_REFUSAL); } });
+    await renderApp();
+    setTauriRuntime();
+    const opened = await openFromMenu();
+    await within(opened).findByTestId("mbf-export-profile", {}, { timeout: 20000 });
+    fireEvent.click(within(opened).getByTestId("mbf-export-intent"));
+    fireEvent.click(within(opened).getByTestId("mbf-export-save"));
+    const refusal = await within(opened).findByTestId("mbf-export-refusal");
+    expect(written).toBe(1);
+    expect(refusal).toHaveTextContent(`${INGRESS_RAW_BODY_REQUIRED}: ${MBF_SAVE_OUTCOME_UNKNOWN_TEXT}`);
+    expect(refusal.textContent).not.toMatch(/Nothing was written|isn't available|raw UTF-8/);
+    expect(within(opened).getByTestId("mbf-export-status").textContent).toBe("");
+  }, 60000);
+
   it("a save that had already completed natively when the dialog closed (the receipt counts it in neither total) still reports its failure", async () => {
     const host = nativeHost({ hold: new Set(["save_mbf_export"]), tooLate: () => 0 });
     await renderApp();
@@ -392,7 +425,8 @@ describe("File > Export MBF… (the mounted dialog)", () => {
     await waitFor(() => expect(screen.queryByTestId("mbf-export-dialog")).toBeNull());
     opened = await openFromMenu();
     const fellBack = await within(opened).findByTestId("mbf-export-review-declined", {}, { timeout: 20000 });
-    expect(fellBack).toHaveTextContent(`${INGRESS_RAW_BODY_REQUIRED}: Export isn't available in this window.`);
+    // A review writes nothing, so its refusal after the fallback says so.
+    expect(fellBack).toHaveTextContent(`${INGRESS_RAW_BODY_REQUIRED}: Export isn't available in this window. Nothing was written.`);
     expect(fellBack.textContent).toContain("Reload the window or restart SWBPIPE");
     expect(fellBack.textContent).not.toContain("raw UTF-8");
   }, 60000);

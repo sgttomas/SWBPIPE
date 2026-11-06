@@ -403,7 +403,8 @@ export const MBF_EXPORT_EPOCH_INVALID = "MBF-EXPORT-EPOCH-INVALID";
 export const MBF_EXPORT_EPOCH_EXHAUSTED = "MBF-EXPORT-EPOCH-EXHAUSTED";
 export const MBF_EXPORT_RETIREMENT_ID_INVALID = "MBF-EXPORT-RETIREMENT-ID-INVALID";
 /** A start refused at the native ingress once this window's connection to the app has switched to its fallback, which
- * cannot carry the export's request (§3.7, "Source basis and limits"). */
+ * cannot carry the export's request (§3.7, "Source basis and limits"). For a review this means nothing was written; for
+ * a save the outcome is unknown (`MBF_SAVE_REFUSAL_TEXT`). */
 export const INGRESS_RAW_BODY_REQUIRED = "INGRESS-RAW-BODY-REQUIRED";
 /** A failure of the review or the save that has no code of its own. */
 export const MBF_EXPORT_FAILED = "MBF-EXPORT-FAILED";
@@ -422,6 +423,23 @@ export const MBF_EXPORT_REFUSAL_TEXT: Readonly<Record<string, string>> = {
     "Export isn't available in this window. Nothing was written. Reload the window or restart SWBPIPE to export again."
 };
 
+/** The save's own text for the codes whose meaning differs for a save (§3.3, §3.7 "Source basis and limits"). A review
+ * writes nothing, so `MBF_EXPORT_REFUSAL_TEXT` holds for it. A save refused `INGRESS-RAW-BODY-REQUIRED` has an unknown
+ * outcome: Tauri 2.11.1's transport resends an invoke through its fallback when its `fetch` fails or when reading the
+ * reply fails, so the original save may have committed, written or undone itself before its reply was lost, and the
+ * refusal proves only that the resend wrote nothing. The page cannot see the fallback, so it cannot tell such a save
+ * from one first sent after the fallback: every save refused so is reported as unknown. */
+export const MBF_SAVE_OUTCOME_UNKNOWN_TEXT =
+  "SWBPIPE could not confirm whether this export wrote its files, because this window can no longer send exports. If you chose a folder for it, check that folder for the model batch file and its identity file. Reload the window or restart SWBPIPE to export again.";
+export const MBF_SAVE_REFUSAL_TEXT: Readonly<Record<string, string>> = {
+  [INGRESS_RAW_BODY_REQUIRED]: MBF_SAVE_OUTCOME_UNKNOWN_TEXT
+};
+
+/** Whether a save's diagnostics leave its outcome unknown (`MBF_SAVE_REFUSAL_TEXT`): it may have written its files. */
+export function mbfSaveOutcomeUnknown(diagnostics: readonly ModelFileDiagnostic[]): boolean {
+  return diagnostics.some((item) => item.code === INGRESS_RAW_BODY_REQUIRED);
+}
+
 /** Whose closed export a status line is about: the export of the named project, from this project session or an
  * earlier one, so that an old save's outcome is never read as the current project's export. */
 export type ClosedExportAttribution = { projectName: string; earlierSession: boolean };
@@ -433,13 +451,15 @@ function closedExportSubject({ projectName, earlierSession }: ClosedExportAttrib
 /** The status line for a closed dialog's save (`mbfExportSession.ts`). A close after the save's commit does not
  * stop it: it may still finish, or fail and undo itself, so the line first says only that it is finishing. The save's
  * own outcome then follows, whatever the close's receipt said: saved, naming both files, or refused, with its codes and
- * their product text (`mbfRefusalText`), a write failure or an undone save included. The outcome's line says only that
- * the export was closed before its result came back, since a save may have completed before the close reached it. */
+ * their product text (`mbfSaveRefusalText`), a write failure or an undone save included, or unknown, when its result
+ * cannot show whether it wrote its files (`mbfSaveOutcomeUnknown`). The outcome's line says only that the export was
+ * closed before its result came back, since a save may have completed before the close reached it. */
 export function closedSaveStatusLine(
   report:
     | { kind: "finishing" }
     | { kind: "saved"; outcome: Extract<MbfExportSaveOutcome, { outcome: "saved" }> }
-    | { kind: "failed"; diagnostics: ModelFileDiagnostic[] },
+    | { kind: "failed"; diagnostics: ModelFileDiagnostic[] }
+    | { kind: "unknown"; diagnostics: ModelFileDiagnostic[] },
   attribution: ClosedExportAttribution
 ): string {
   const subject = closedExportSubject(attribution);
@@ -448,7 +468,8 @@ export function closedSaveStatusLine(
     const durability = report.outcome.durability === "durable" ? "" : " The folder's update may not be durable yet.";
     return `${subject}, closed before its result came back, finished: both files were written, ${report.outcome.mbf.file_name} and its identity file ${report.outcome.identity_file.file_name}.${durability}`;
   }
-  const items = report.diagnostics.map((item) => `${item.code}${item.path ? ` (${item.path})` : ""}: ${mbfRefusalText(item)}`);
+  const items = report.diagnostics.map((item) => `${item.code}${item.path ? ` (${item.path})` : ""}: ${mbfSaveRefusalText(item)}`);
+  if (report.kind === "unknown") return `${subject}, closed before its result came back, has no confirmed result. ${items.join(" ")}`;
   return `${subject}, closed before its result came back, did not finish. ${items.join(" ")}`;
 }
 
@@ -466,6 +487,13 @@ export function mbfRefusalText(item: ModelFileDiagnostic): string {
   if (item.code === MBF_EXPORT_OUTPUT_TOO_LARGE) return MBF_OUTPUT_TOO_LARGE_SENTENCE;
   if (Object.hasOwn(MBF_EXPORT_REFUSAL_TEXT, item.code)) return MBF_EXPORT_REFUSAL_TEXT[item.code];
   return item.message;
+}
+
+/** A save's refusal text: `mbfRefusalText`, except for the codes whose meaning differs for a save
+ * (`MBF_SAVE_REFUSAL_TEXT`). */
+export function mbfSaveRefusalText(item: ModelFileDiagnostic): string {
+  if (Object.hasOwn(MBF_SAVE_REFUSAL_TEXT, item.code)) return MBF_SAVE_REFUSAL_TEXT[item.code];
+  return mbfRefusalText(item);
 }
 
 /** A failed review or save as a diagnostic: a start refused at the native ingress after the window's fallback by its

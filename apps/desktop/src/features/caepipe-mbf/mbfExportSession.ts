@@ -16,17 +16,20 @@
 // receipt does not prove that the save was cancelled before it wrote, since a save that has already completed natively
 // (a write failure or an undone save included) is no longer counted in it. A saved outcome names both files; a refusal
 // or a failure states its codes, a rollback's backups included. Only an outcome that itself establishes that nothing was
-// written is not reported (`nothingWritten`). Each report carries the request it belongs to, so the session can
-// attribute it.
+// written is not reported (`nothingWritten`). A save refused `INGRESS-RAW-BODY-REQUIRED` is reported as unknown, never
+// as nothing written: Tauri's transport resends an invoke through its fallback when its `fetch` or the read of its reply
+// fails, so the original save may have committed, written or undone itself before the resend was refused, and the page
+// cannot see that it has fallen back (`mbfSaveOutcomeUnknown`). Each report carries the request it belongs to, so the
+// session can attribute it.
 import type { MbfCancelReceipt, MbfStarted } from "./mbfExportCancel";
 import {
-  INGRESS_RAW_BODY_REQUIRED,
   MBF_EXPORT_CANCELLED,
   MBF_EXPORT_EPOCH_EXHAUSTED,
   MBF_EXPORT_EPOCH_INVALID,
   MBF_EXPORT_RETIREMENT_UNCONFIRMED,
   MBF_EXPORT_REVIEW_STALE,
   mbfFailureDiagnostic,
+  mbfSaveOutcomeUnknown,
   type MbfExportSaveOutcome
 } from "./mbfExport";
 import type { ModelFileDiagnostic } from "../model-file/modelDocumentSave";
@@ -35,7 +38,8 @@ import type { ModelFileDiagnostic } from "../model-file/modelDocumentSave";
 export type ClosedMbfSaveReport =
   | { kind: "finishing" }
   | { kind: "saved"; outcome: Extract<MbfExportSaveOutcome, { outcome: "saved" }> }
-  | { kind: "failed"; diagnostics: ModelFileDiagnostic[] };
+  | { kind: "failed"; diagnostics: ModelFileDiagnostic[] }
+  | { kind: "unknown"; diagnostics: ModelFileDiagnostic[] };
 
 /** One open dialog request's part of the ownership. */
 export type MbfExportRequestRetirement = {
@@ -59,14 +63,13 @@ export type MbfExportRetirementOwner = {
 
 /** The refusals that themselves establish that nothing was written: a run cancelled before its commit (or a start
  * never sent), a start not sent because an earlier retirement was unconfirmed, a start refused at the native entry by
- * its ticket or at the ingress after the window's fallback, and a save whose review was stale (refused before the
- * chooser). */
+ * its ticket, and a save whose review was stale (refused before the chooser). `INGRESS-RAW-BODY-REQUIRED` is not one:
+ * for a save it may answer only the transport's resend of a save that wrote (`mbfSaveOutcomeUnknown`). */
 const NOTHING_WRITTEN_CODES: ReadonlySet<string> = new Set([
   MBF_EXPORT_CANCELLED,
   MBF_EXPORT_RETIREMENT_UNCONFIRMED,
   MBF_EXPORT_EPOCH_INVALID,
   MBF_EXPORT_EPOCH_EXHAUSTED,
-  INGRESS_RAW_BODY_REQUIRED,
   MBF_EXPORT_REVIEW_STALE
 ]);
 
@@ -84,11 +87,13 @@ function nothingWritten(outcome: MbfExportSaveOutcome): boolean {
 /** The report of a closed save's settled outcome, or `null` when it establishes that nothing was written. */
 function closedSaveReport(settled: { outcome: MbfExportSaveOutcome } | { error: unknown }): ClosedMbfSaveReport | null {
   if ("error" in settled) {
-    const diagnostic = mbfFailureDiagnostic(settled.error);
-    return NOTHING_WRITTEN_CODES.has(diagnostic.code) ? null : { kind: "failed", diagnostics: [diagnostic] };
+    const diagnostics = [mbfFailureDiagnostic(settled.error)];
+    if (mbfSaveOutcomeUnknown(diagnostics)) return { kind: "unknown", diagnostics };
+    return NOTHING_WRITTEN_CODES.has(diagnostics[0].code) ? null : { kind: "failed", diagnostics };
   }
   const { outcome } = settled;
   if (outcome.outcome === "saved") return { kind: "saved", outcome };
+  if (outcome.outcome === "refused" && mbfSaveOutcomeUnknown(outcome.diagnostics)) return { kind: "unknown", diagnostics: outcome.diagnostics };
   if (nothingWritten(outcome)) return null;
   return { kind: "failed", diagnostics: outcome.outcome === "refused" ? outcome.diagnostics : [] };
 }

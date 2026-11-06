@@ -3137,7 +3137,10 @@ export function useWorkspaceSession() {
     const projectName = exportModel.project.name;
     const retirement = mbfExportRetirement.openRequest((closed) => {
       const earlierSession = generation !== projectSessionGenerationRef.current;
-      const operation = closed.kind === "finishing" ? "export_mbf_finishing" : closed.kind === "saved" ? "export_mbf_saved_after_close" : "export_mbf_failed_after_close";
+      const operation = closed.kind === "finishing" ? "export_mbf_finishing"
+        : closed.kind === "saved" ? "export_mbf_saved_after_close"
+        : closed.kind === "unknown" ? "export_mbf_outcome_unknown_after_close"
+        : "export_mbf_failed_after_close";
       report(closedSaveStatusLine(closed, { projectName, earlierSession }), operation);
     });
     const close = () => { retirement.release(); mbfExportDialogOpenRef.current = false; setMbfExportRequest(null); };

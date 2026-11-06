@@ -34,6 +34,7 @@ import {
   MBF_PROFILE_LABEL,
   MBF_REVIEW_NATIVE_ONLY,
   MBF_REVIEW_TRUNCATED,
+  MBF_SAVE_OUTCOME_UNKNOWN_TEXT,
   closedSaveStatusLine,
   fileNameSlug,
   mbfReview,
@@ -578,19 +579,33 @@ describe("MbfExportDialog, mounted (slice 4b.2b)", () => {
     expect(await within(dialog).findByTestId("mbf-export-refusal")).toHaveTextContent(`${MBF_EXPORT_CANCELLED}: ${MBF_EXPORT_REFUSAL_TEXT[MBF_EXPORT_CANCELLED]}`);
   });
 
-  it("says export isn't available in this window once a start is refused at ingress, for the review and the save", async () => {
+  it("a review refused at ingress after the window's fallback wrote nothing: export isn't available in this window", async () => {
     const ingress = new Error("INVALID_REQUEST: INGRESS-RAW-BODY-REQUIRED: send `review_mbf_export`'s arguments as raw UTF-8 JSON bytes.");
     const { dialog } = await openOn(async () => { throw ingress; });
     const declined = await within(dialog).findByTestId("mbf-export-review-declined");
     expect(declined).toHaveTextContent(`${INGRESS_RAW_BODY_REQUIRED}: ${MBF_EXPORT_REFUSAL_TEXT[INGRESS_RAW_BODY_REQUIRED]}`);
-    expect(declined.textContent).toContain("Export isn't available in this window");
+    expect(declined.textContent).toContain("Export isn't available in this window. Nothing was written.");
     expect(declined.textContent).not.toContain("raw UTF-8");
-    cleanup();
-    const opened = await openOn(reviewed(), async () => { throw ingress; });
-    await waitFor(() => expect(within(opened.dialog).queryByTestId("mbf-export-profile")).not.toBeNull());
+  });
+
+  it("a save refused at ingress after the window's fallback has an unknown outcome: the original may have written before its reply was lost", async () => {
+    // Tauri 2.11.1 resends an invoke through its fallback when its `fetch` or the read of its reply fails: the original
+    // save commits and writes, its reply is lost, and the resend is refused at the ingress.
+    let written = 0;
+    const save = vi.fn(async (): Promise<MbfExportSaveOutcome> => {
+      written += 1;
+      throw new Error("INVALID_REQUEST: INGRESS-RAW-BODY-REQUIRED: send `save_mbf_export`'s arguments as raw UTF-8 JSON bytes.");
+    });
+    const opened = await open(model(), save);
     fireEvent.click(within(opened.dialog).getByTestId("mbf-export-intent"));
     fireEvent.click(saveButton(opened.dialog));
-    expect(await within(opened.dialog).findByTestId("mbf-export-refusal")).toHaveTextContent(MBF_EXPORT_REFUSAL_TEXT[INGRESS_RAW_BODY_REQUIRED]);
+    const refusal = await within(opened.dialog).findByTestId("mbf-export-refusal");
+    expect(written).toBe(1);
+    expect(refusal).toHaveTextContent(`${INGRESS_RAW_BODY_REQUIRED}: ${MBF_SAVE_OUTCOME_UNKNOWN_TEXT}`);
+    expect(refusal.textContent).toContain("could not confirm whether this export wrote its files");
+    expect(refusal.textContent).toContain("check that folder for the model batch file and its identity file");
+    expect(refusal.textContent).not.toMatch(/Nothing was written|isn't available|raw UTF-8/);
+    expect(within(opened.dialog).getByTestId("mbf-export-status").textContent).toBe("");
   });
 
   it("states what the user can do, names no mechanism and never suggests that anything grants a save", () => {
@@ -599,7 +614,9 @@ describe("MbfExportDialog, mounted (slice 4b.2b)", () => {
     const finishing = closedSaveStatusLine({ kind: "finishing" }, attribution);
     const savedLine = closedSaveStatusLine({ kind: "saved", outcome: saved }, attribution);
     const failedLine = closedSaveStatusLine({ kind: "failed", diagnostics: [{ code: "MBF-EXPORT-SAVE-RENAME-FAILED", path: "", message: "Invented write failure." }] }, attribution);
-    const texts = [...Object.values(MBF_EXPORT_REFUSAL_TEXT), finishing, savedLine, failedLine];
+    const unknownLine = closedSaveStatusLine({ kind: "unknown", diagnostics: [{ code: INGRESS_RAW_BODY_REQUIRED, path: "", message: "INGRESS-RAW-BODY-REQUIRED: raw UTF-8" }] }, attribution);
+    // The line's own words (the code itself is shown by name, as every refusal's is).
+    const texts = [...Object.values(MBF_EXPORT_REFUSAL_TEXT), MBF_SAVE_OUTCOME_UNKNOWN_TEXT, finishing, savedLine, failedLine, unknownLine.replace(INGRESS_RAW_BODY_REQUIRED, "")];
     for (const text of texts) {
       expect(text).not.toMatch(/epoch|token|ticket|sequence|retire|barrier|ingress|fallback|raw|authori[sz]|permi(t|ssion)|grant/i);
       expect(text).not.toMatch(/CAEPIPE|target program/i);
@@ -615,6 +632,10 @@ describe("MbfExportDialog, mounted (slice 4b.2b)", () => {
     expect(savedLine).toContain("both files were written, swbpipe-model.mbf and its identity file swbpipe-model.swbpipe-ids.json");
     expect(failedLine).toContain("did not finish. MBF-EXPORT-SAVE-RENAME-FAILED: Invented write failure.");
     expect(failedLine).not.toContain("written");
+    // A save after the window's fallback is neither finished nor failed: its result is unknown, and says where to look.
+    expect(unknownLine).toBe(`The export of "Invented project", closed before its result came back, has no confirmed result. ${INGRESS_RAW_BODY_REQUIRED}: ${MBF_SAVE_OUTCOME_UNKNOWN_TEXT}`);
+    expect(unknownLine).not.toMatch(/Nothing was written|did not finish|finished:/);
+    expect(MBF_SAVE_OUTCOME_UNKNOWN_TEXT).toContain("Reload the window or restart SWBPIPE");
     expect(closedSaveStatusLine({ kind: "finishing" }, { ...attribution, earlierSession: true })).toContain('The export of "Invented project" from an earlier project session');
   });
 

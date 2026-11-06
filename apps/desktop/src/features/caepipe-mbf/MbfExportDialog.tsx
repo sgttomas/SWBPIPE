@@ -32,6 +32,7 @@ import {
   mbfFailureDiagnostic,
   mbfRefusalText,
   mbfReview,
+  mbfSaveRefusalText,
   mbfSettingsJson,
   reviewAdmitsSave,
   reviewBlockingCodes,
@@ -244,6 +245,7 @@ export function MbfExportDialog({ request }: { request: MbfExportDialogRequest |
         if (outcome.diagnostics.some((item) => item.code === MBF_EXPORT_REVIEW_STALE)) setNonce((value) => value + 1);
       }
     } catch (error) {
+      // A save refused after the window's fallback may still have written (`mbfSaveOutcomeUnknown`): its text says so.
       if (live()) setRefusal([mbfFailureDiagnostic(error)]);
     } finally {
       if (live()) setSaving(false);
@@ -319,8 +321,9 @@ export function MbfExportDialog({ request }: { request: MbfExportDialogRequest |
             {refusal.map((item, index) => (
               <li key={`${item.code}-${index}`}>
                 {/* A writer refusal is named by its code and the product-side description, not the engine's text; every
-                    diagnostic of the native writer's refusal is an error. */}
-                {item.code}{item.path ? ` (${item.path})` : ""}: {mbfRefusalText(item)}
+                    diagnostic of the native writer's refusal is an error. A save's own text where its meaning differs
+                    from a review's: a save refused after the window's fallback has an unknown outcome. */}
+                {item.code}{item.path ? ` (${item.path})` : ""}: {mbfSaveRefusalText(item)}
               </li>
             ))}
           </ul>

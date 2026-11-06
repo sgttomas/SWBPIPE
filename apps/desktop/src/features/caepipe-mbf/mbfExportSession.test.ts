@@ -137,14 +137,30 @@ describe("a closed dialog's save", () => {
         { outcome: "cancelled" },
         { outcome: "refused", diagnostics: [{ code: "MBF-EXPORT-REVIEW-STALE", path: "", message: "stale" }] },
         { outcome: "refused", diagnostics: [{ code: "MBF-EXPORT-RETIREMENT-UNCONFIRMED", path: "", message: "not sent" }] },
-        { outcome: "refused", diagnostics: [{ code: "MBF-EXPORT-EPOCH-INVALID", path: "", message: "refused at entry" }] }
+        { outcome: "refused", diagnostics: [{ code: "MBF-EXPORT-EPOCH-INVALID", path: "", message: "refused at entry" }] },
+        { outcome: "refused", diagnostics: [{ code: "MBF-EXPORT-EPOCH-EXHAUSTED", path: "", message: "exhausted" }] }
       ];
       for (const outcome of silent) {
         const { reports } = await closeDuring(receipt, (save) => save.resolve(started(outcome)));
         expect(reports).toEqual(finishingFor(receipt));
       }
     });
+
+    // Tauri 2.11.1's transport resends an invoke through its fallback when its `fetch` fails or when reading the reply
+    // fails: the original save may have committed and written (or undone itself) before its reply was lost, and the
+    // resend is then refused at the ingress. The refusal proves only that the resend wrote nothing.
+    it(`a receipt ${receipt}: a save whose resend was refused after the window's fallback is reported as unknown, not as nothing written`, async () => {
+      const message = "INVALID_REQUEST: INGRESS-RAW-BODY-REQUIRED: send `save_mbf_export`'s arguments as raw UTF-8 JSON bytes.";
+      const { reports } = await closeDuring(receipt, (save) => save.reject(new Error(message)));
+      expect(reports).toEqual([...finishingFor(receipt), { kind: "unknown", diagnostics: [{ code: "INGRESS-RAW-BODY-REQUIRED", path: "", message }] }]);
+    });
   }
+
+  it("a refusal carrying the fallback's code among others is reported as unknown", async () => {
+    const mixed = [{ code: "MBF-EXPORT-CANCELLED", path: "", message: "cancelled" }, { code: "INGRESS-RAW-BODY-REQUIRED", path: "", message: "fallback" }];
+    const { reports } = await closeDuring("zero", (save) => save.resolve(started({ outcome: "refused", diagnostics: mixed })));
+    expect(reports).toEqual([{ kind: "unknown", diagnostics: mixed }]);
+  });
 
   it("a refusal that mixes a cancellation with any other code is reported", async () => {
     const mixed = [{ code: "MBF-EXPORT-CANCELLED", path: "", message: "cancelled" }, ...WRITE_FAILED];
