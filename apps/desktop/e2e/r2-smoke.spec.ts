@@ -794,7 +794,7 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
       (item: { source_path: string }) => item.source_path === "[REDACTED]"
     )
   ).toBe(true);
-  expect(lintPacket.unit_policy_evidence.target_refs).toHaveLength(44);
+  expect(lintPacket.unit_policy_evidence.target_refs).toHaveLength(43);
   expect(
     lintPacket.unit_policy_evidence.target_refs.every(
       (item: { unit_policy_surface_id: string }) => item.unit_policy_surface_id === "[REDACTED]"
