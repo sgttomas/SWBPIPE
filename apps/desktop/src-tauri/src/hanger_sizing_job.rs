@@ -57,12 +57,14 @@
 //! command's arguments inside the task it spawns, so a request sent before a retirement may begin after it). The host
 //! checks the ticket twice ([`HangerSizingRuns::enter`] on the admitted arguments, before the input is read or any
 //! worker starts, and [`HangerSizingRuns::register`] under the same lock as every retirement): a missing, malformed
-//! or future ticket is refused `HANGER-SIZING-TICKET-INVALID`; a ticket a retirement has passed, or one a run has
-//! already registered under, is refused `HANGER-SIZING-REQUEST-STALE`. A refused start starts no worker, replaces and
-//! cancels nothing, and writes nothing. One ticket admits one run, and only a retirement makes a new one, so a start
-//! that is delayed anywhere between its send and its registration (in the transport, in Tauri's task, in admission)
-//! can never become current after a later retirement, nor replace or cancel the run that later retirement made room
-//! for.
+//! or future ticket is refused `HANGER-SIZING-TICKET-INVALID`; a ticket a retirement has passed is refused
+//! `HANGER-SIZING-REQUEST-STALE`, as is a second delivery under the ticket of the run in progress (a registration never
+//! replaces the current run: only a retirement removes it). A refused start starts no worker, replaces and cancels
+//! nothing, and writes nothing. Only a retirement makes a new ticket current, so a start that is delayed anywhere
+//! between its send and its registration (in the transport, in Tauri's task, in admission) can never become current
+//! after a later retirement, nor replace or cancel the run that later retirement made room for. Once the run under a
+//! ticket has ended, a later delivery under it registers: the webview re-sends the same start after a
+//! `headroom_insufficient` refusal (`invokeWithIngress`), and a run refused for headroom in its queue wait has ended.
 //!
 //! **Idempotent retirement.** Each logical retirement carries its id ([`RetirementId`], `{page, sequence}`: a random
 //! token made once per page load and a counter that only rises in that page; a re-delivery reuses it). The host keeps,
@@ -234,8 +236,6 @@ impl RunControl {
 struct RunsState {
     /// Moved on by one by every applied retirement (checked; never past [`EPOCH_MAX`]).
     epoch: u64,
-    /// A run has registered under the ticket `epoch`: a second start with it is stale.
-    ticket_used: bool,
     /// Terminal: every start is refused `HANGER-SIZING-EXHAUSTED` (module docs, "Exhaustion").
     exhausted: bool,
     /// Every page token a keyed retirement was applied from, with the last sequence applied from it. Never shortened;
@@ -291,8 +291,8 @@ impl HangerSizingRuns {
 
     /// A start's entry, from its request's ticket (the [`EXPECTED_EPOCH`] member of its admitted arguments, read
     /// before its input). Refused when the sizing is exhausted; when the ticket is missing, not a non-negative integer,
-    /// or above the current epoch (`HANGER-SIZING-TICKET-INVALID`); and when it is below the current epoch or a run has
-    /// already registered under it (`HANGER-SIZING-REQUEST-STALE`).
+    /// or above the current epoch (`HANGER-SIZING-TICKET-INVALID`); and when it is below the current epoch or a run
+    /// under it is in progress (`HANGER-SIZING-REQUEST-STALE`).
     pub(crate) fn enter(&self, ticket: Option<Value>) -> Result<SizingEntry, SizingFailure> {
         let expected = match ticket {
             None => return Err(SizingFailure::TicketInvalid("carries no ticket")),
@@ -305,7 +305,7 @@ impl HangerSizingRuns {
         if expected > state.epoch {
             return Err(SizingFailure::TicketInvalid("names a retirement epoch the host has not reached"));
         }
-        if expected < state.epoch || state.ticket_used {
+        if expected < state.epoch || state.current.is_some() {
             return Err(SizingFailure::Stale);
         }
         Ok(SizingEntry { epoch: expected })
@@ -313,8 +313,10 @@ impl HangerSizingRuns {
 
     /// Makes the run of `entry` the current one, under the same lock as every retirement: refused, with nothing
     /// replaced or cancelled, when the sizing is exhausted, a retirement has passed its ticket since its entry, or a run
-    /// has registered under the ticket already.
-    pub(crate) fn register(&self, entry: SizingEntry, pool: &MemoryPool) -> Result<Registration, SizingFailure> {
+    /// is current. Every retirement takes the current run, so a current run is always one under this same ticket: a
+    /// second delivery of the start in progress, which is refused rather than allowed to replace it. Once that run has
+    /// ended, a later delivery under the same ticket registers (the webview's headroom re-send of the same start).
+    pub(crate) fn register(&self, entry: SizingEntry) -> Result<Registration, SizingFailure> {
         #[cfg(test)]
         if let Some(hook) = BEFORE_REGISTRATION.with(|hook| hook.borrow_mut().take()) {
             hook();
@@ -323,18 +325,11 @@ impl HangerSizingRuns {
         if state.exhausted {
             return Err(SizingFailure::Exhausted);
         }
-        if entry.epoch != state.epoch || state.ticket_used {
+        if entry.epoch != state.epoch || state.current.is_some() {
             return Err(SizingFailure::Stale);
         }
-        state.ticket_used = true;
         let control = Arc::new(RunControl::default());
-        // Every retirement takes the current run, and one ticket admits one run: there is none to replace. Should one
-        // ever be left, it is cancelled rather than left running beside the new one.
-        let previous = state.current.replace((entry.epoch, Arc::clone(&control)));
-        drop(state);
-        if previous.is_some_and(|(_, previous)| previous.cancel()) {
-            pool.wake_waiters();
-        }
+        state.current = Some((entry.epoch, Arc::clone(&control)));
         Ok(Registration { runs: self.clone(), control })
     }
 
@@ -369,10 +364,7 @@ impl HangerSizingRuns {
     fn retire_locked(mut state: MutexGuard<'_, RunsState>, pool: &MemoryPool) -> (bool, u64, bool) {
         if !state.exhausted {
             match state.epoch.checked_add(1).filter(|next| *next <= EPOCH_MAX) {
-                Some(next) => {
-                    state.epoch = next;
-                    state.ticket_used = false;
-                }
+                Some(next) => state.epoch = next,
                 None => state.exhausted = true,
             }
         }
@@ -440,7 +432,8 @@ pub(crate) enum SizingFailure {
     /// A retirement stopped it (a newer request's, the person's cancel, the form's project session ending, the session
     /// reset).
     Cancelled,
-    /// Its ticket has been passed by a retirement, or used by a run already: nothing was started, replaced or cancelled.
+    /// Its ticket has been passed by a retirement, or a run under it is in progress: nothing was started, replaced or
+    /// cancelled.
     Stale,
     /// Its ticket is missing, malformed or ahead of the host (what it is): nothing was started.
     TicketInvalid(&'static str),
@@ -465,7 +458,7 @@ impl SizingFailure {
                 "{CANCELLED}: the sizing was retired before it replied (a newer request, a cancel, a project-session change or a session reset); its worker was stopped and nothing was published."
             ),
             SizingFailure::Stale => format!(
-                "{REQUEST_STALE}: a retirement has passed this request's ticket, or a run has used it already; this delivery started, replaced and cancelled nothing."
+                "{REQUEST_STALE}: a retirement has passed this request's ticket, or a run under it is in progress; this delivery started, replaced and cancelled nothing."
             ),
             SizingFailure::TicketInvalid(what) => format!("{TICKET_INVALID}: the request {what}. Nothing was started."),
             SizingFailure::Exhausted => format!(
@@ -676,7 +669,7 @@ pub(crate) fn size_command<R>(
         }
     };
     drop(args);
-    let registration = runs.register(entry, registry.pool()).map_err(SizingFailure::into_command_error)?;
+    let registration = runs.register(entry).map_err(SizingFailure::into_command_error)?;
     let outcome = run(registry, lease.ledger(), &registration, input, start_wait);
     drop(registration);
     match outcome {

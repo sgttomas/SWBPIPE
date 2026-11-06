@@ -54,7 +54,7 @@ fn retire(registry: &SolveJobRegistry, page_n: usize, sequence: u64) -> u64 {
 /// A run registered directly at the current epoch (tests of `run` itself).
 fn register_now(registry: &SolveJobRegistry) -> Registration {
     let runs = registry.hanger_sizing_runs();
-    runs.register(runs.entry_now(), registry.pool()).unwrap()
+    runs.register(runs.entry_now()).unwrap()
 }
 
 fn raw_body(body: &Value) -> InvokeBody {
@@ -313,7 +313,8 @@ fn a_queued_run_is_retired_by_a_newer_request_or_a_cancel_or_refused_at_its_dead
         let second = body(retire(&registry, 1, 2), "{}");
         assert_eq!(code_of(&older.join().unwrap().unwrap_err()), CANCELLED);
         assert!(began.elapsed() < START_WAIT, "the older wait ended at the retirement");
-        let newer = scope.spawn(|| size_via_command(&registry, &second));
+        let registry = &registry;
+        let newer = scope.spawn(move || size_via_command(registry, &second));
         while registry.hanger_sizing_runs().current_ticket().is_none() {
             std::thread::sleep(Duration::from_millis(2));
         }
@@ -345,7 +346,8 @@ fn a_newer_request_kills_the_running_worker_and_completes() {
         let second = body(retire(&registry, 1, 2), "{}");
         assert_eq!(code_of(&older.join().unwrap().unwrap_err()), CANCELLED);
         assert!(!worker_alive(worker), "the retired worker was killed and reaped");
-        let newer = scope.spawn(|| size_via_command(&registry, &second));
+        let registry = &registry;
+        let newer = scope.spawn(move || size_via_command(registry, &second));
         gate.wait_started(2);
         gate.release(r#"{"newer":true}"#);
         assert_eq!(newer.join().unwrap().unwrap(), r#"{"newer":true}"#);
@@ -382,7 +384,8 @@ fn a_start_delayed_before_registration_never_supersedes_a_run_started_after_a_la
         let ticket_b = retire(&registry, 2, 1);
         assert_eq!(ticket_b, ticket_a + 2, "both retirements moved the epoch on");
         let start_b = body(ticket_b, "{}");
-        let b = scope.spawn(|| size_via_command(&registry, &start_b));
+        let registry = &registry;
+        let b = scope.spawn(move || size_via_command(registry, &start_b));
         gate.wait_started(1);
         let worker_b = gate.pids()[0];
         assert_eq!(registry.hanger_sizing_runs().current_ticket(), Some(ticket_b));
@@ -399,10 +402,11 @@ fn a_start_delayed_before_registration_never_supersedes_a_run_started_after_a_la
     assert_released(&registry);
 }
 
-/// The ticket at entry: missing, malformed, future and stale tickets, and a second start under a ticket a run has
-/// used, are each refused by name before any worker starts, and none of them touches the current run.
+/// The ticket at entry: missing, malformed, future and stale tickets, and a second delivery under the ticket of the
+/// run in progress, are each refused by name before any worker starts, and none of them replaces or cancels that run.
+/// Once it has ended, a delivery under the same ticket runs (the webview's headroom re-send of the same start).
 #[test]
-fn missing_malformed_future_stale_and_used_tickets_are_refused_before_any_worker() {
+fn missing_malformed_future_and_stale_tickets_are_refused_before_any_worker() {
     let gate = Gate::new("sizing-tickets");
     let registry = registry_with(gate.launcher());
     retire(&registry, 1, 1);
@@ -422,7 +426,7 @@ fn missing_malformed_future_stale_and_used_tickets_are_refused_before_any_worker
         assert_eq!(code_of(&refused), *code, "{request}: {refused}");
     }
     assert_eq!(gate.started_count(), 0, "no refused ticket started a worker");
-    // A start under the current ticket runs; a second delivery of it (or any start under the same ticket) is stale.
+    // A start under the current ticket runs; a second delivery under it while that run is in progress is stale.
     let current = body(ticket, "{}");
     std::thread::scope(|scope| {
         let _guard = CancelOnUnwind(&registry);
@@ -437,8 +441,15 @@ fn missing_malformed_future_stale_and_used_tickets_are_refused_before_any_worker
         gate.release("{}");
         assert_eq!(running.join().unwrap().unwrap(), "{}");
     });
-    assert_eq!(code_of(&size_via_command(&registry, &current).unwrap_err()), REQUEST_STALE, "a used ticket stays used");
-    assert_eq!(gate.started_count(), 1);
+    // The run has ended: a re-send under the same ticket registers and runs.
+    std::thread::scope(|scope| {
+        let _guard = CancelOnUnwind(&registry);
+        let again = scope.spawn(|| size_via_command(&registry, &current));
+        gate.wait_started(2);
+        gate.release("{}");
+        assert_eq!(again.join().unwrap().unwrap(), "{}");
+    });
+    assert_eq!(gate.started_count(), 2);
     assert_released(&registry);
 }
 
@@ -529,7 +540,7 @@ fn a_retirement_at_the_largest_epoch_exhausts_the_sizing() {
         assert_eq!(exhausting, HangerSizingRetirement { cancelled: true, epoch: EPOCH_MAX, retirement_id: id(1, 2), duplicate: false, exhausted: true });
         assert_eq!(code_of(&running.join().unwrap().unwrap_err()), CANCELLED);
     });
-    assert!(matches!(runs.register(entered, registry.pool()), Err(SizingFailure::Exhausted)), "an entered start is refused at registration");
+    assert!(matches!(runs.register(entered), Err(SizingFailure::Exhausted)), "an entered start is refused at registration");
     for ticket in [EPOCH_MAX, 0] {
         assert_eq!(code_of(&size_via_command(&registry, &body(ticket, "{}")).unwrap_err()), EXHAUSTED);
     }
