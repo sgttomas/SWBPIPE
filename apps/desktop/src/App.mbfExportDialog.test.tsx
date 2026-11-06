@@ -7,12 +7,20 @@ const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("./test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 
 import { App } from "./App";
-import { RETIREMENT_ID, retireMbfExportSession, type MbfCancelReceipt, type MbfRetirementId } from "./features/caepipe-mbf/mbfExportCancel";
+import {
+  RETIREMENT_ID,
+  mbfExportUnavailable,
+  resetMbfExportUnavailableForTests,
+  retireMbfExportSession,
+  type MbfCancelReceipt,
+  type MbfRetirementId
+} from "./features/caepipe-mbf/mbfExportCancel";
 import {
   INGRESS_RAW_BODY_REQUIRED,
   MBF_EXPORT_EPOCH_EXHAUSTED,
   MBF_EXPORT_REFUSAL_TEXT,
   MBF_EXPORT_ROUTE_ID,
+  MBF_EXPORT_UNAVAILABLE,
   MBF_REVIEW_NATIVE_ONLY,
   MBF_SAVE_OUTCOME_UNKNOWN_TEXT,
   closedSaveStatusLine,
@@ -334,6 +342,69 @@ describe("File > Export MBF… (the mounted dialog)", () => {
     expect(refusal).toHaveTextContent(`${INGRESS_RAW_BODY_REQUIRED}: ${MBF_SAVE_OUTCOME_UNKNOWN_TEXT}`);
     expect(refusal.textContent).not.toMatch(/Nothing was written|isn't available|raw UTF-8/);
     expect(within(opened).getByTestId("mbf-export-status").textContent).toBe("");
+  }, 60000);
+
+  // After a save whose outcome is unknown this page sends no review and no save until it is reloaded or SWBPIPE
+  // restarts; the keyed retirement, sent in the JSON form that still reaches the host, is not held.
+  const unknownSaves: Array<[string, () => unknown]> = [
+    ["rejected", () => Promise.reject(FALLBACK_REFUSAL)],
+    ["refused with the code", () => ({ outcome: "refused", diagnostics: [{ code: INGRESS_RAW_BODY_REQUIRED, path: "", message: FALLBACK_REFUSAL.message }] })]
+  ];
+
+  it.each(unknownSaves)("a save %s after the fallback: no further native start in this page, through settings, close and reopen; the retirement still sends", async (_form, answer) => {
+    const host = nativeHost({ save: answer });
+    await renderApp();
+    setTauriRuntime();
+    const opened = await openFromMenu();
+    await within(opened).findByTestId("mbf-export-profile", {}, { timeout: 20000 });
+    fireEvent.click(within(opened).getByTestId("mbf-export-intent"));
+    const save = within(opened).getByTestId("mbf-export-save") as HTMLButtonElement;
+    fireEvent.click(save);
+    const refusal = await within(opened).findByTestId("mbf-export-refusal");
+    expect(refusal).toHaveTextContent(`${INGRESS_RAW_BODY_REQUIRED}: ${MBF_SAVE_OUTCOME_UNKNOWN_TEXT}`);
+    await waitFor(() => expect(save.disabled).toBe(true));
+    expect(mbfExportUnavailable()).toBe(true);
+    const starts = () => host.count("review_mbf_export") + host.count("save_mbf_export");
+    expect(starts()).toBe(2);
+    fireEvent.click(save);
+    // A setting changes: the review is not sent, and the dialog says why.
+    fireEvent.change(within(opened).getByTestId("mbf-export-title"), { target: { value: "Another title" } });
+    expect(await within(opened).findByTestId("mbf-export-review-declined")).toHaveTextContent(`${MBF_EXPORT_UNAVAILABLE}: ${MBF_EXPORT_REFUSAL_TEXT[MBF_EXPORT_UNAVAILABLE]}`);
+    expect(save.disabled).toBe(true);
+    // Close: the keyed retirement is still sent.
+    const cancels = host.count("cancel_mbf_export");
+    fireEvent.click(within(opened).getByTestId("mbf-export-cancel"));
+    await waitFor(() => expect(screen.queryByTestId("mbf-export-dialog")).toBeNull());
+    await waitFor(() => expect(host.count("cancel_mbf_export")).toBe(cancels + 1));
+    // Reopened: still no review and no Save.
+    const reopened = await openFromMenu();
+    expect(await within(reopened).findByTestId("mbf-export-review-declined", {}, { timeout: 20000 })).toHaveTextContent(MBF_EXPORT_REFUSAL_TEXT[MBF_EXPORT_UNAVAILABLE]);
+    fireEvent.click(within(reopened).getByTestId("mbf-export-intent"));
+    expect((within(reopened).getByTestId("mbf-export-save") as HTMLButtonElement).disabled).toBe(true);
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 50)); });
+    expect(starts()).toBe(2);
+    fireEvent.keyDown(window, { key: "Escape" });
+    await waitFor(() => expect(host.count("cancel_mbf_export")).toBe(cancels + 2));
+    // A fresh page (the tests' reset) reviews and saves again.
+    resetMbfExportUnavailableForTests();
+    host.commands.length = 0;
+    const fresh = await openFromMenu();
+    await within(fresh).findByTestId("mbf-export-profile", {}, { timeout: 20000 });
+    expect(host.count("review_mbf_export")).toBe(1);
+  }, 60000);
+
+  it("a closed dialog's save whose outcome is unknown leaves the page unable to export too; the reopened dialog says why and starts nothing", async () => {
+    const { host, save, attribution } = await closeDuringCommittedSave();
+    await act(async () => { save.reject(FALLBACK_REFUSAL); });
+    const diagnostics = [{ code: INGRESS_RAW_BODY_REQUIRED, path: "", message: `${FALLBACK_REFUSAL.code}: ${FALLBACK_REFUSAL.message}` }];
+    await waitFor(() => expect(projectMessage()).toHaveTextContent(closedSaveStatusLine({ kind: "unknown", diagnostics }, attribution)));
+    expect(mbfExportUnavailable()).toBe(true);
+    const reviews = host.count("review_mbf_export");
+    const reopened = await openFromMenu();
+    expect(await within(reopened).findByTestId("mbf-export-review-declined", {}, { timeout: 20000 })).toHaveTextContent(MBF_EXPORT_REFUSAL_TEXT[MBF_EXPORT_UNAVAILABLE]);
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 50)); });
+    expect(host.count("review_mbf_export")).toBe(reviews);
+    expect(host.count("save_mbf_export")).toBe(1);
   }, 60000);
 
   it("a save that had already completed natively when the dialog closed (the receipt counts it in neither total) still reports its failure", async () => {

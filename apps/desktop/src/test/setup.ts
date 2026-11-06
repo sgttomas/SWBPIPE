@@ -9,6 +9,9 @@ afterEach(async () => (await import("../services/projectService")).clearBrowserP
 // Likewise each case starts as a fresh webview session for native result
 // custody: its startup release has not run and no job has been released yet.
 afterEach(async () => (await import("../services/previewService")).resetSessionResultCustodyForTests?.());
+// Likewise the MBF export is available again, as in a fresh page: a save
+// whose outcome was unknown leaves only its own page unable to export.
+afterEach(async () => (await import("../features/caepipe-mbf/mbfExportCancel")).resetMbfExportUnavailableForTests());
 
 // Pre-warm the wasm operation engine (DEC-020 / ADR-0001) so jsdom suites
 // that exercise the edit loop start with the engine ready. An absent

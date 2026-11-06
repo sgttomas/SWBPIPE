@@ -566,3 +566,143 @@ describe("the MBF export's keyed retirement after the transport falls back (find
     expect(() => nativeCancelId(tauriTransport(command, raw, headers, true))).toThrow("INGRESS-RAW-BODY-REQUIRED");
   });
 });
+
+// A save whose outcome is unknown (refused `INGRESS-RAW-BODY-REQUIRED`) shows that this page's transport has fallen
+// back for the rest of the page: the barrier then sends no review and no save in this page, while its keyed
+// retirement, sent in the JSON form, still reaches the host.
+describe("the MBF export after a save whose outcome is unknown", () => {
+  const FALLBACK_REFUSAL = { code: "INVALID_REQUEST", message: "INGRESS-RAW-BODY-REQUIRED: send `save_mbf_export`'s arguments as raw UTF-8 JSON bytes." };
+  const UNKNOWN_OUTCOME = { outcome: "refused", diagnostics: [{ code: "INGRESS-RAW-BODY-REQUIRED", path: "", message: "INGRESS-RAW-BODY-REQUIRED" }] };
+  const starts = (host: ReturnType<typeof epochHost>) => host.commands().filter((command) => command !== "cancel_mbf_export");
+
+  /** Sends no further start in this page, refuses each by name, and still delivers a retirement. */
+  async function expectUnavailable(host: ReturnType<typeof epochHost>) {
+    expect(barrier.mbfExportUnavailable()).toBe(true);
+    const sent = starts(host).length;
+    const review = await barrier.reviewMbfExport(REVIEW_ARGS);
+    const save = await barrier.saveMbfExport(SAVE_ARGS);
+    for (const started of [review, save]) {
+      expect(codes(started.outcome as never)).toEqual(["MBF-EXPORT-UNAVAILABLE"]);
+      expect(started.current()).toBe(true);
+    }
+    expect(starts(host)).toHaveLength(sent);
+    // The keyed retirement is not held: it is sent and acknowledged.
+    const cancels = host.commands().filter((command) => command === "cancel_mbf_export").length;
+    const receipt = await barrier.retireMbfExportSession();
+    expect(receipt?.epoch).toBe(host.epoch);
+    expect(host.commands().filter((command) => command === "cancel_mbf_export")).toHaveLength(cancels + 1);
+    expect(starts(host)).toHaveLength(sent);
+  }
+
+  it("a save refused INGRESS-RAW-BODY-REQUIRED as its outcome marks the page: no further start is sent, a retirement still is", async () => {
+    const host = epochHost((command) => Promise.resolve(command === "save_mbf_export" ? UNKNOWN_OUTCOME : { outcome: "reviewed", review: {} }));
+    expect(barrier.mbfExportUnavailable()).toBe(false);
+    const saved = await barrier.saveMbfExport(SAVE_ARGS);
+    // The outcome itself is returned as it was: unknown, never cancelled or saved.
+    expect(saved.outcome).toEqual(UNKNOWN_OUTCOME);
+    await expectUnavailable(host);
+  });
+
+  it("a save rejected INGRESS-RAW-BODY-REQUIRED marks the page: the rejection still reaches the caller", async () => {
+    const host = epochHost((command) => command === "save_mbf_export" ? Promise.reject(FALLBACK_REFUSAL) : Promise.resolve({ outcome: "reviewed", review: {} }));
+    await expect(barrier.saveMbfExport(SAVE_ARGS)).rejects.toThrow("INGRESS-RAW-BODY-REQUIRED");
+    await expectUnavailable(host);
+  });
+
+  it("a save whose caller retired it while it ran marks the page too: the transport is the page's", async () => {
+    const reply = deferred<unknown>();
+    const host = epochHost((command) => command === "save_mbf_export" ? reply.promise : Promise.resolve({ outcome: "reviewed", review: {} }));
+    const saving = barrier.saveMbfExport(SAVE_ARGS);
+    await vi.waitFor(() => expect(starts(host)).toEqual(["save_mbf_export"]));
+    await barrier.retireMbfExportSession();
+    reply.resolve(UNKNOWN_OUTCOME);
+    const saved = await saving;
+    expect(saved.current()).toBe(false);
+    expect(saved.outcome).toEqual(UNKNOWN_OUTCOME);
+    await expectUnavailable(host);
+  });
+
+  it("tells a subscriber once, and a start waiting on a retirement when the page is marked is not sent", async () => {
+    const reply = deferred<unknown>();
+    const host = epochHost((command) => command === "save_mbf_export" ? reply.promise : Promise.resolve({ outcome: "reviewed", review: {} }));
+    const told = vi.fn();
+    const stop = barrier.subscribeMbfExportUnavailable(told);
+    const saving = barrier.saveMbfExport(SAVE_ARGS);
+    await vi.waitFor(() => expect(starts(host)).toEqual(["save_mbf_export"]));
+    // A retirement is on its way when a review starts; the save's unknown outcome arrives before the review is sent.
+    const cancel = deferred<unknown>();
+    const answer = invokeMock.getMockImplementation()!;
+    invokeMock.mockImplementationOnce((command: string, args?: Record<string, unknown>) => cancel.promise.then(() => answer(command, args)));
+    const retired = barrier.retireMbfExportSession();
+    const review = barrier.reviewMbfExport(REVIEW_ARGS);
+    reply.resolve(UNKNOWN_OUTCOME);
+    await saving;
+    cancel.resolve(null);
+    await retired;
+    expect(codes((await review).outcome as never)).toEqual(["MBF-EXPORT-UNAVAILABLE"]);
+    expect(starts(host)).toEqual(["save_mbf_export"]);
+    barrier.markMbfExportUnavailable();
+    expect(told).toHaveBeenCalledTimes(1);
+    stop();
+  });
+
+  it("a headroom re-send is not sent once the page has been marked; it resolves cancelled", async () => {
+    let sends = 0;
+    epochHost(() => {
+      sends += 1;
+      return Promise.reject({ code: "RESOURCE_UNAVAILABLE", refusal: { kind: "headroom_insufficient", required_bytes: 2, available_bytes: 1 }, pool: null });
+    });
+    const started = barrier.reviewMbfExport(REVIEW_ARGS);
+    await vi.waitFor(() => expect(sends).toBe(1));
+    barrier.markMbfExportUnavailable();
+    expect(codes((await started).outcome)).toEqual([barrier.MBF_EXPORT_CANCELLED]);
+    await flush();
+    expect(sends).toBe(1);
+  });
+
+  it.each([
+    ["MBF-EXPORT-CANCELLED"],
+    ["MBF-EXPORT-REVIEW-STALE"],
+    ["MBF-EXPORT-EPOCH-INVALID"],
+    ["MBF-EXPORT-EPOCH-EXHAUSTED"],
+    ["MBF-EXPORT-SAVE-RENAME-FAILED"]
+  ])("a save refused %s leaves the page available: the next start is sent", async (code) => {
+    const host = epochHost((command) => Promise.resolve(command === "save_mbf_export"
+      ? { outcome: "refused", diagnostics: [{ code, path: "", message: code }] }
+      : { outcome: "reviewed", review: {} }));
+    await barrier.saveMbfExport(SAVE_ARGS);
+    expect(barrier.mbfExportUnavailable()).toBe(false);
+    await barrier.reviewMbfExport(REVIEW_ARGS);
+    await barrier.saveMbfExport(SAVE_ARGS);
+    expect(starts(host)).toEqual(["save_mbf_export", "review_mbf_export", "save_mbf_export"]);
+  });
+
+  it("a save that fails otherwise, or a review refused INGRESS-RAW-BODY-REQUIRED (which wrote nothing), leaves the page available", async () => {
+    let failSave = true;
+    const host = epochHost((command) => command === "review_mbf_export"
+      ? Promise.reject({ code: "INVALID_REQUEST", message: "INGRESS-RAW-BODY-REQUIRED: send `review_mbf_export`'s arguments as raw UTF-8 JSON bytes." })
+      : failSave ? Promise.reject(new Error("the save failed")) : Promise.resolve({ outcome: "cancelled" }));
+    await expect(barrier.saveMbfExport(SAVE_ARGS)).rejects.toThrow("the save failed");
+    await expect(barrier.reviewMbfExport(REVIEW_ARGS)).rejects.toThrow("INGRESS-RAW-BODY-REQUIRED");
+    expect(barrier.mbfExportUnavailable()).toBe(false);
+    failSave = false;
+    await barrier.saveMbfExport(SAVE_ARGS);
+    expect(starts(host)).toEqual(["save_mbf_export", "review_mbf_export", "save_mbf_export"]);
+  });
+
+  it("a fresh page (a reload) can export again", async () => {
+    epochHost((command) => Promise.resolve(command === "save_mbf_export" ? UNKNOWN_OUTCOME : { outcome: "reviewed", review: {} }));
+    await barrier.saveMbfExport(SAVE_ARGS);
+    expect(barrier.mbfExportUnavailable()).toBe(true);
+    vi.resetModules();
+    barrier = await import("./mbfExportCancel");
+    expect(barrier.mbfExportUnavailable()).toBe(false);
+    const host = epochHost();
+    expect((await barrier.reviewMbfExport(REVIEW_ARGS)).outcome).toEqual({ outcome: "reviewed", review: {} });
+    expect(starts(host)).toEqual(["review_mbf_export"]);
+    // The tests' reset gives the same.
+    barrier.markMbfExportUnavailable();
+    barrier.resetMbfExportUnavailableForTests();
+    expect(barrier.mbfExportUnavailable()).toBe(false);
+  });
+});

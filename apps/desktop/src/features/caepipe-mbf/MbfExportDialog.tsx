@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { canonicalJsonString } from "../../services/hashService";
 import type { ModelHashEvidence, PreviewModel } from "../../types";
@@ -15,6 +15,7 @@ import {
   MBF_EXPORT_OUTPUT_TOO_LARGE,
   MBF_EXPORT_REVIEW_STALE,
   MBF_EXPORT_ROUTE,
+  MBF_EXPORT_UNAVAILABLE,
   MBF_OUTPUT_TOO_LARGE_SENTENCE,
   MBF_REVIEW_NATIVE_ONLY,
   MBF_REVIEW_NATIVE_ONLY_SENTENCE,
@@ -32,6 +33,7 @@ import {
   mbfFailureDiagnostic,
   mbfRefusalText,
   mbfReview,
+  mbfSaveOutcomeUnknown,
   mbfSaveRefusalText,
   mbfSettingsJson,
   reviewAdmitsSave,
@@ -45,6 +47,7 @@ import {
   type ReviewMbfExport,
   type SaveMbfExport
 } from "./mbfExport";
+import { markMbfExportUnavailable, mbfExportUnavailable, subscribeMbfExportUnavailable } from "./mbfExportCancel";
 
 /** The open Export MBF… dialog (DEL-17-04 Design `desktop-mbf-export-import.md` §3.1–§3.3, §3.9.5). The workspace
  * session (slice 4b.2b) opens it from File > Export MBF… and the Exports section's Model batch file panel, and supplies
@@ -78,10 +81,14 @@ type ReviewState =
 
 const CLAIMED_HASH = /^sha256:[0-9a-f]{64}$/;
 
+/** The refusal of a start this page no longer sends (`mbfExportCancel.ts`, "Export unavailable in this page"). */
+const UNAVAILABLE: ModelFileDiagnostic = { code: MBF_EXPORT_UNAVAILABLE, path: "", message: "" };
+
 /** File > Export MBF…: the review of what the writer writes and leaves out, then the save of the model batch file
  * and its identity file through the native chooser. Modal like Save Model Document: Tab stays on its controls, window
  * shortcuts are held back, Escape closes, and focus returns to the opener. The review runs again whenever the model
- * or a setting changes; Save is available only for a current review of a written file, with the explicit choice. */
+ * or a setting changes; Save is available only for a current review of a written file, with the explicit choice, in a
+ * page that can still send an export (none after a save whose outcome was unknown, until a reload or a restart). */
 export function MbfExportDialog({ request }: { request: MbfExportDialogRequest | null }) {
   const dialog = useRef<HTMLElement>(null);
   const titleInput = useRef<HTMLInputElement>(null);
@@ -94,6 +101,9 @@ export function MbfExportDialog({ request }: { request: MbfExportDialogRequest |
   const [saving, setSaving] = useState(false);
   const [refusal, setRefusal] = useState<ModelFileDiagnostic[]>([]);
   const [status, setStatus] = useState("");
+  // This page can no longer send an export: an earlier save's outcome was unknown. Only a reload or a restart clears
+  // it, so neither a new request nor a new review does.
+  const unavailable = useSyncExternalStore(subscribeMbfExportUnavailable, mbfExportUnavailable, mbfExportUnavailable);
   // The request this dialog is showing, or null once it has closed: a save's outcome is shown only while it is.
   const liveRequest = useRef<MbfExportDialogRequest | null>(null);
 
@@ -166,6 +176,11 @@ export function MbfExportDialog({ request }: { request: MbfExportDialogRequest |
       setState({ key: reviewKey, phase: "declined", diagnostics: [{ code: MBF_REVIEW_NATIVE_ONLY, path: "", message: MBF_REVIEW_NATIVE_ONLY_SENTENCE }] });
       return;
     }
+    // A page that can no longer send an export starts no review: it says why and what to do.
+    if (mbfExportUnavailable()) {
+      setState({ key: reviewKey, phase: "declined", diagnostics: [UNAVAILABLE] });
+      return;
+    }
     const claimedModelHash = request.modelHash?.value ?? "";
     if (!CLAIMED_HASH.test(claimedModelHash)) {
       setState({ key: reviewKey, phase: "running" });
@@ -200,8 +215,8 @@ export function MbfExportDialog({ request }: { request: MbfExportDialogRequest |
   const stale = state !== null && state.key !== reviewKey;
   const native = request.reviewMbfExport !== null;
   // Every current condition but the save in progress: a complete, eligible review of this model and these settings,
-  // the explicit choice, and the native route.
-  const permitted = reviewAdmitsSave(review) && intent && settingsJson !== null && native;
+  // the explicit choice, the native route, and a page that can still send an export.
+  const permitted = reviewAdmitsSave(review) && intent && settingsJson !== null && native && !unavailable;
   const canSave = permitted && !saving;
   const suggestedName = suggestedMbfName(label);
   const identityName = suggestedName.replace(/\.mbf$/, MBF_IDENTITY_FILE_SUFFIX);
@@ -233,6 +248,9 @@ export function MbfExportDialog({ request }: { request: MbfExportDialogRequest |
         suggestedName,
         reviewed: { mbfSha256: review.mbfSha256, sidecarSha256: review.sidecarSha256 }
       }, live);
+      // A save whose outcome is unknown leaves this page unable to send an export, whether or not it is still wanted
+      // (the barrier marks it too): Save and every further start stay unavailable until a reload or a restart.
+      if (started.outcome.outcome === "refused" && mbfSaveOutcomeUnknown(started.outcome.diagnostics)) markMbfExportUnavailable();
       if (!live() || !started.current()) return;
       const outcome = started.outcome;
       if (outcome.outcome === "saved") {
@@ -245,8 +263,11 @@ export function MbfExportDialog({ request }: { request: MbfExportDialogRequest |
         if (outcome.diagnostics.some((item) => item.code === MBF_EXPORT_REVIEW_STALE)) setNonce((value) => value + 1);
       }
     } catch (error) {
-      // A save refused after the window's fallback may still have written (`mbfSaveOutcomeUnknown`): its text says so.
-      if (live()) setRefusal([mbfFailureDiagnostic(error)]);
+      // A save refused after the window's fallback may still have written (`mbfSaveOutcomeUnknown`): its text says so,
+      // and the page sends no further export.
+      const failure = mbfFailureDiagnostic(error);
+      if (mbfSaveOutcomeUnknown([failure])) markMbfExportUnavailable();
+      if (live()) setRefusal([failure]);
     } finally {
       if (live()) setSaving(false);
     }

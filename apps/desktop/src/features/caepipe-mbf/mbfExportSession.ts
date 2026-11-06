@@ -28,6 +28,7 @@ import {
   MBF_EXPORT_EPOCH_INVALID,
   MBF_EXPORT_RETIREMENT_UNCONFIRMED,
   MBF_EXPORT_REVIEW_STALE,
+  MBF_EXPORT_UNAVAILABLE,
   mbfFailureDiagnostic,
   mbfSaveOutcomeUnknown,
   type MbfExportSaveOutcome
@@ -62,15 +63,17 @@ export type MbfExportRetirementOwner = {
 };
 
 /** The refusals that themselves establish that nothing was written: a run cancelled before its commit (or a start
- * never sent), a start not sent because an earlier retirement was unconfirmed, a start refused at the native entry by
- * its ticket, and a save whose review was stale (refused before the chooser). `INGRESS-RAW-BODY-REQUIRED` is not one:
+ * never sent), a start not sent because an earlier retirement was unconfirmed or because this page can no longer send
+ * an export, a start refused at the native entry by its ticket, and a save whose review was stale (refused before the
+ * chooser). `INGRESS-RAW-BODY-REQUIRED` is not one:
  * for a save it may answer only the transport's resend of a save that wrote (`mbfSaveOutcomeUnknown`). */
 const NOTHING_WRITTEN_CODES: ReadonlySet<string> = new Set([
   MBF_EXPORT_CANCELLED,
   MBF_EXPORT_RETIREMENT_UNCONFIRMED,
   MBF_EXPORT_EPOCH_INVALID,
   MBF_EXPORT_EPOCH_EXHAUSTED,
-  MBF_EXPORT_REVIEW_STALE
+  MBF_EXPORT_REVIEW_STALE,
+  MBF_EXPORT_UNAVAILABLE
 ]);
 
 /** Whether a closed save's own outcome establishes that it wrote nothing: a chooser dismissed without a choice, a
