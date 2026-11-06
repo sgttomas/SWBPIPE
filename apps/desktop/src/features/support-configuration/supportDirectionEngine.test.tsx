@@ -6,10 +6,11 @@
  * - Every existing support edit path on a record with a stored `direction`. Today's engine
  *   already keeps the member through `update_support` and refuses an inadmissible edit by
  *   the document rules' names, so these run now.
- * - The creation path. Main's engine still refuses every `direction` at `create_support`
- *   (`SUPPORT_DIRECTION_SKEW_UNSUPPORTED`; `OP-CREATE-SUPPORT-PAYLOAD-INVALID` for an axis
- *   vector), so these are skipped, pending the S-K1 applier on main (load-cases lane).
- *   Flip `SK1_CREATE_SUPPORT_DIRECTION_ON_MAIN` when that applier lands. */
+ * - The creation path, through S-K1's `create_support` applier (#140, main b2b10c7c6): the
+ *   form's entry is written exactly, and each refusal is the engine's, shown in place. The
+ *   exact-route predicate is a present, non-null `pressure_contract`, current or retired. The
+ *   EX and record-rule cases use shape-valid contract objects; a present null is its own case,
+ *   the document's MODEL-SLOT-SHAPE refusal shown in place. */
 import { changeFormControl } from "../../test-support/workspaceTestControls";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -25,10 +26,9 @@ import { loadPreviewModel } from "../../services/previewService";
 import fixture from "../../../../../fixtures/hanger/invented_hanger_library_valid.json";
 import type { EditorOperationIntent, PreviewModel } from "../../types";
 
-/** Pending the S-K1 applier on main (load-cases lane): set to true when it lands. */
-const SK1_CREATE_SUPPORT_DIRECTION_ON_MAIN = false;
-const PENDING_SK1 = "pending the S-K1 applier on main (load-cases lane)";
-const itPendingSk1 = SK1_CREATE_SUPPORT_DIRECTION_ON_MAIN ? it : it.skip;
+/** Shape-valid contract objects: the current exact route's, and a retired one (still EX). */
+const CURRENT_CONTRACT = { version: "3.0.0", mode: "exact_pressure_v3" };
+const RETIRED_CONTRACT = { version: "2.0.0", mode: "retired_pressure_v2" };
 
 afterEach(cleanup);
 const enter = (label: string, value: string) => changeFormControl(screen.getByLabelText(label), { target: { value } });
@@ -136,7 +136,7 @@ describe("a stored direction through every existing support edit path (real engi
   });
 });
 
-describe(`support creation with a direction (real engine), ${PENDING_SK1}`, () => {
+describe("support creation with a direction (real engine, S-K1)", () => {
   async function createThroughForm(model: PreviewModel, family: string, dof: string, direction: [string, string, string], extra?: () => void) {
     const queue = vi.fn();
     render(<SupportConfigurationForm model={model} selection={{ type: "node", id: model.nodes[0].id }} onQueueIntent={queue} />);
@@ -149,7 +149,7 @@ describe(`support creation with a direction (real engine), ${PENDING_SK1}`, () =
     return queue;
   }
 
-  itPendingSk1("creates a skewed line stop through the form; the stored bits equal the input", async () => {
+  it("creates a skewed line stop through the form; the stored bits equal the input", async () => {
     const model = await loadPreviewModel(), original = JSON.stringify(model);
     const queue = await createThroughForm(model, "line_stop", "UY", ["0.1", "-0.2", "5e-300"]);
     await waitFor(() => expect(queue).toHaveBeenCalledOnce());
@@ -158,7 +158,7 @@ describe(`support creation with a direction (real engine), ${PENDING_SK1}`, () =
     expect(JSON.stringify(model)).toBe(original);
   });
 
-  itPendingSk1("creates a skewed spring through the form; the stored bits equal the input", async () => {
+  it("creates a skewed spring through the form; the stored bits equal the input", async () => {
     const model = await loadPreviewModel();
     const queue = await createThroughForm(model, "spring", "UY", ["1", "1", "0"], () => {
       fireEvent.click(screen.getByText("Add support stiffness"));
@@ -169,16 +169,19 @@ describe(`support creation with a direction (real engine), ${PENDING_SK1}`, () =
     expect(bitsOf(stored.direction!)).toEqual(bitsOf({ x: 1, y: 1, z: 0 }));
   });
 
-  itPendingSk1.each([
-    ["the exact route", "line_stop", "UY", ["3", "4", "0"], "SUPPORT_DIRECTION_SKEW_EXACT_UNSUPPORTED", true],
-    ["the range rule", "line_stop", "UY", ["1", "1.1125369292536007e-308", "0"], "SUPPORT_DIRECTION_RANGE_UNSUPPORTED", false],
-    ["the record rule (family)", "guide", "UY", ["3", "4", "0"], "SUPPORT_DIRECTION_RECORD_UNSUPPORTED", true],
-    ["the rotational rule", "line_stop", "RX", ["3", "4", "0"], "SUPPORT_DIRECTION_ROTATIONAL_UNSUPPORTED", false],
-    ["the zero rule", "line_stop", "UY", ["0", "0", "0"], "SUPPORT_DIRECTION_ZERO", false]
-  ] as const)("shows the engine's refusal by %s in place, and queues nothing", async (_rule, family, dof, direction, code, exact) => {
+  it.each([
+    ["the exact route", "line_stop", "UY", ["3", "4", "0"], "SUPPORT_DIRECTION_SKEW_EXACT_UNSUPPORTED", CURRENT_CONTRACT],
+    ["the exact route (a retired contract)", "line_stop", "UY", ["3", "4", "0"], "SUPPORT_DIRECTION_SKEW_EXACT_UNSUPPORTED", RETIRED_CONTRACT],
+    ["the range rule", "line_stop", "UY", ["1", "1.1125369292536007e-308", "0"], "SUPPORT_DIRECTION_RANGE_UNSUPPORTED", null],
+    ["the record rule (family)", "guide", "UY", ["3", "4", "0"], "SUPPORT_DIRECTION_RECORD_UNSUPPORTED", CURRENT_CONTRACT],
+    ["the record rule (family, a retired contract)", "guide", "UY", ["3", "4", "0"], "SUPPORT_DIRECTION_RECORD_UNSUPPORTED", RETIRED_CONTRACT],
+    ["the rotational rule", "line_stop", "RX", ["3", "4", "0"], "SUPPORT_DIRECTION_ROTATIONAL_UNSUPPORTED", null],
+    ["the zero rule", "line_stop", "UY", ["0", "0", "0"], "SUPPORT_DIRECTION_ZERO", null]
+  ] as const)("shows the engine's refusal by %s in place, and queues nothing", async (_rule, family, dof, direction, code, contract) => {
     const model = await loadPreviewModel();
+    expect(model).not.toHaveProperty("pressure_contract");
     // Document rules come first: a guide on the exact route is the record rule's refusal.
-    if (exact) Object.assign(model, { pressure_contract: { version: "3.0.0", mode: "exact_pressure_v3" } });
+    if (contract) Object.assign(model, { pressure_contract: { ...contract } });
     const queue = await createThroughForm(model, family, dof, [...direction]);
     const finding = await screen.findByTestId(`support-direction-engine-diagnostic-${code}`);
     expect(finding).toHaveTextContent(code);
@@ -186,7 +189,25 @@ describe(`support creation with a direction (real engine), ${PENDING_SK1}`, () =
     expect(queue).not.toHaveBeenCalled();
   });
 
-  itPendingSk1("(a) and (b) through update_support on an engine-created skewed stop", async () => {
+  it("a present pressure_contract: null is the document's shape refusal (MODEL-SLOT-SHAPE), never the EX code; nothing queues", async () => {
+    const model = await loadPreviewModel();
+    Object.assign(model, { pressure_contract: null });
+    const queue = await createThroughForm(model, "line_stop", "UY", ["3", "4", "0"]);
+    expect(await screen.findByTestId("support-direction-engine-diagnostic-MODEL-SLOT-SHAPE")).toHaveTextContent("MODEL-SLOT-SHAPE");
+    expect(screen.queryByTestId("support-direction-engine-diagnostic-SUPPORT_DIRECTION_SKEW_EXACT_UNSUPPORTED")).toBeNull();
+    expect(queue).not.toHaveBeenCalled();
+  });
+
+  it("an axis-aligned direction on a retired contract is not a skewed record: created, stored as entered", async () => {
+    const model = await loadPreviewModel();
+    Object.assign(model, { pressure_contract: { ...RETIRED_CONTRACT } });
+    const queue = await createThroughForm(model, "line_stop", "UY", ["0", "1", "0"]);
+    await waitFor(() => expect(queue).toHaveBeenCalledOnce());
+    const stored = storedAfter(await applyModelOperation(model, queue.mock.calls[0][0], null), "support:skew-new");
+    expect(bitsOf(stored.direction!)).toEqual(bitsOf({ x: 0, y: 1, z: 0 }));
+  });
+
+  it("(a) and (b) through update_support on an engine-created skewed stop", async () => {
     const model = await loadPreviewModel();
     const queue = await createThroughForm(model, "line_stop", "UY", ["0.1", "-0.2", "5e-300"]);
     await waitFor(() => expect(queue).toHaveBeenCalledOnce());

@@ -5,12 +5,13 @@
 // judges admission: the operation engine (the document rules, then the S-K1 skew
 // admission) refuses by name, and the form shows its finding in place.
 import { parseNumber } from "../model-tree/runSheet/runSheetModel";
+import type { SupportDirection } from "../../types";
 
 export const DIRECTION_AXES = ["x", "y", "z"] as const;
 export type DirectionAxis = (typeof DIRECTION_AXES)[number];
 /** The three inputs' text, kept exactly as typed. */
 export type DirectionText = Record<DirectionAxis, string>;
-export type SupportDirection = Record<DirectionAxis, number>;
+export type { SupportDirection };
 
 export const EMPTY_DIRECTION_TEXT: DirectionText = Object.freeze({ x: "", y: "", z: "" });
 

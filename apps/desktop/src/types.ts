@@ -373,6 +373,10 @@ export type LoadStateContractEvidence = {
   load_reference_states: LoadReferenceStateRecord[];
 };
 
+/** R-6/R-7 S-K1: a support's global direction (x, y, z), stored exactly as authored. The one
+ * type for the record member, the creation form's entry and the support load summary. */
+export type SupportDirection = { x: number; y: number; z: number };
+
 export type PreviewModel = {
   pressure_contract?: { version: string; mode: string; shear_model?: "euler_bernoulli" | "timoshenko_annulus_energy_v1" };
   schema_version: string;
@@ -478,7 +482,7 @@ export type PreviewModel = {
     restraints: string[];
     /** R-6/R-7 S-K1: a global direction, stored exactly as authored (never normalized).
      * Written only by `create_support`; no edit/remove path exists yet. */
-    direction?: { x: number; y: number; z: number };
+    direction?: SupportDirection;
     stiffness?: {
       dof: string;
       value: QuantityValue;

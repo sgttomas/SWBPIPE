@@ -6,11 +6,8 @@ and codes), §4.2 (range), §6.4 (the DOF token) and "The model, applier and aut
 for S-K1". The applier is the authoring lane's (AP-1). This note describes the code; it records
 no backcheck or acceptance.
 
-**Merge gate.** This entry merges only after the S-K1 applier (`create_support` writing
-`direction`) lands on main with its real-engine proof. Until then it is prepared source. Main's
-engine refuses every `direction` at `create_support` (`SUPPORT_DIRECTION_SKEW_UNSUPPORTED`, or
-`OP-CREATE-SUPPORT-PAYLOAD-INVALID` for an axis vector), and the form shows that refusal in
-place.
+**Engine.** The S-K1 applier (`create_support` writing `direction`) is on main (#140, merge
+b2b10c7c6). The creation tests below run against Wasm built from that source.
 
 ## 1. The contract the UI serves
 
@@ -21,7 +18,11 @@ place.
 - The engine refuses at authoring, by name. The document rules come first:
   `SUPPORT_DIRECTION_INVALID`, `…_ZERO`, `…_RECORD_UNSUPPORTED` and `…_ROTATIONAL_UNSUPPORTED`.
   Then, for a record they admit, it refuses `SUPPORT_DIRECTION_SKEW_EXACT_UNSUPPORTED` on a
-  document with a `pressure_contract`, and `SUPPORT_DIRECTION_RANGE_UNSUPPORTED`.
+  document with a present, non-null `pressure_contract` (current or retired), and
+  `SUPPORT_DIRECTION_RANGE_UNSUPPORTED`. An axis-aligned direction is not a skewed record and
+  is never refused for EX. A present `pressure_contract: null` is malformed: the shared
+  validator refuses it as `MODEL-SLOT-SHAPE` at `pressure_contract` (Agent 0, 2026-11-05),
+  whatever the direction. The desktop adds no rule of its own for any of these.
 - The nonlinear-model code, a second stop at a node, redundancy and the node's motion are
   refused at the solve, not at authoring.
 - (a) `update_support configuration` replaces only CONFIG (`family`, `restraints`,
@@ -92,21 +93,30 @@ The inspector's scalar support fields send the same field-path operations as the
   button); and each edit path's payload.
 - `supportDirectionEngine.test.tsx` (real Wasm):
   - Five preservation and refusal tests over the four paths, which run on main today.
-  - Eight creation tests, skipped "pending the S-K1 applier on main (load-cases lane)" behind
-    `SK1_CREATE_SUPPORT_DIRECTION_ON_MAIN`. They cover:
+  - Twelve creation tests against the S-K1 applier. They cover:
     - a skewed line stop and a skewed spring created through the form and applied, with the
       stored bits equal to the input;
-    - the EX, range, record, rotational and zero refusals shown in place;
+    - the EX refusal on a current and on a retired contract object, and the range,
+      rotational and zero refusals, each shown in place with nothing queued;
+    - the record rule before EX: a guide on a current or a retired contract shows
+      `…_RECORD_UNSUPPORTED`, never the EX code;
+    - an axis-aligned direction on a retired contract, created and stored as entered;
+    - a present `pressure_contract: null`: the form shows `MODEL-SLOT-SHAPE` in place, never
+      the EX code, and queues nothing;
     - (a) and (b) through `update_support` on an engine-created skewed stop.
 
-  With the constant flipped, all eight fail against main's engine (it shows
-  `SUPPORT_DIRECTION_SKEW_UNSUPPORTED`), so they are not vacuous. Flip it when the applier
-  lands.
+  The EX and record-rule cases use shape-valid contract objects; the null case is separate
+  (also pinned in `operation_applier/tests/skew_direction_authoring.rs`). Before S-K1 the
+  creation tests were skipped, and against the earlier engine they failed (it showed
+  `SUPPORT_DIRECTION_SKEW_UNSUPPORTED`), so they are not vacuous.
+
+  The support direction type is one type, `SupportDirection` in `types.ts`, used by the record
+  member, this entry and the support load summary (`results/supportLoadSummary.ts`).
 
 ## 4. Open
 
-- Engine-checked creation runs only when a direction is entered. With S-K1, a direction-free
-  creation could use the same check, but this slice keeps the existing queue.
+- Engine-checked creation runs only when a direction is entered. A direction-free creation
+  could use the same check, but this slice keeps the existing queue.
 - The other `create_support` producers do not offer a direction: the inspector's New support
   form, the run sheet, boundary authoring and hanger selection's new support. They never
   write one, so nothing is dropped.

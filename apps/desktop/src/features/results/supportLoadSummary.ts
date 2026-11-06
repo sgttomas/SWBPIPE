@@ -27,7 +27,7 @@
  * producer emits at most one per support and state; if more than one is indexed, none is listed
  * (never the first) and `alongDetail` states why. */
 
-import type { MechanicsResult, PreviewModel, ResultBasisRef } from "../../types";
+import type { MechanicsResult, PreviewModel, ResultBasisRef, SupportDirection as StoredSupportDirection } from "../../types";
 import {
   REACTION_COMPONENT_KIND,
   REACTION_DRAWN_FRAME,
@@ -46,7 +46,7 @@ type Support = PreviewModel["supports"][number];
 export const SUPPORT_ALONG_DIRECTION_KIND = "support_reaction_along_direction_v1";
 /** Why no along value is listed for a case that has more than one along row. */
 export const SUPPORT_ALONG_MULTIPLE = "more than one along-direction row was emitted for this case; none is listed";
-export type SupportDirection = Readonly<{ x: number; y: number; z: number }>;
+export type SupportDirection = Readonly<StoredSupportDirection>;
 /** S-K1: an emitted along-direction value, with the row's own sign convention and derivation. */
 export type SupportAlongValue = Readonly<SupportLoadValue & {
   /** The row's `metadata.sign_convention`, as emitted; null when it states none. */
@@ -58,7 +58,7 @@ export type SupportAlongValue = Readonly<SupportLoadValue & {
 
 /** The support's stored `direction`, as authored; null when it has none. */
 function storedDirection(support: Support): SupportDirection | null {
-  const direction = (support as { direction?: unknown }).direction;
+  const direction: unknown = support.direction;
   if (!direction || typeof direction !== "object") return null;
   const { x, y, z } = direction as Record<string, unknown>;
   return typeof x === "number" && typeof y === "number" && typeof z === "number" ? Object.freeze({ x, y, z }) : null;
