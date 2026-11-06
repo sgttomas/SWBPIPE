@@ -1,4 +1,4 @@
-# C1 residual U1: SQLite/FTS5 memory on the native save's write path
+# C1 residual U1: SQLite/FTS5 memory on the native save's write path (store schema v13)
 
 **Serves:** RT-U4 (exit criterion 9), DEL-04-05 phase C1, residual U1. **Standing:** bounded
 diagnostic evidence (Agent 0: "GO as BOUNDED DIAGNOSTIC EVIDENCE, not qualification of a universal
@@ -6,6 +6,17 @@ coefficient"). This note is a **proposal input only**. U1 stays **open** until a
 and adopted. U3 (builder/reader/validator working memory, the page cache in general) and U4 (no
 App-wide cap) are separate and stay open. Nothing here adds a charge, coefficient, budget,
 ceiling, margin, pressure rule, App-wide cap or SQLite setting to the App.
+
+**Store schema v13 history (2026-11-05).** Everything below was measured at store schema v13,
+where every save replaced the project's FTS5 search row. Store schema v14 (RT-U4, Agent 0's
+decision (A)) retires that sidecar: migration v14 drops `local_project_fts`, and no save builds a
+search text or writes a search row. The figures, fits and envelopes here are kept unedited as v13
+history. They do not describe the v14 save path, and they are not to be re-derived or applied to it.
+U1 is now narrowed to SQLite's own memory for the canonical upserts and COMMIT (DEL-04-05
+`c1-native-custody-plan.md`, "Residuals"). It stays open and unmeasured at v14. At v14,
+`stored_read_sqlite_u1.rs` measures that remaining path: `open_store`, `write_transaction`, the
+project row's upsert, COMMIT. It has not been run. The harness that produced §7 is the file at the
+measured head below. U3 and U4 are unchanged.
 
 **Measured code:** `apps/desktop/src-tauri/src/stored_read_sqlite_u1.rs` at
 `197126003657899e9b370b877690dbb98ae9be9d` (branch `claude/rt-perf-c1-sqlite-u1`, from

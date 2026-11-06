@@ -24,7 +24,7 @@ pub(super) const UTF8_BOM: &[u8] = b"\xEF\xBB\xBF";
 /// are a shorter kind followed by qualifier tokens.
 const CSV_KINDS: &[&[&str]] = &[
     &["displacement", "extremes"], &["stress", "ratio"], &["support", "loads"], &["weight"],
-    &["run", "comparison"], &["state", "comparison"],
+    &["run", "comparison"], &["state", "comparison"], &["hanger", "sizing"],
 ];
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -401,12 +401,13 @@ mod tests {
     fn csv_file_names_follow_the_export_file_name_convention() {
         for name in ["swbpipe-stress-ratio.csv", CSV_NAME, "swbpipe-results-displacements.csv", "swbpipe-results-restraint-loads-sus-1.csv",
             "swbpipe-displacement-extremes-all.csv", "swbpipe-support-loads.csv", "swbpipe-support-loads-all.csv", "swbpipe-support-loads-n20.csv",
-            "swbpipe-weight.csv", "swbpipe-weight-cog.csv", "swbpipe-run-comparison-run-3-run-4.csv", "swbpipe-state-comparison.csv"] {
+            "swbpipe-weight.csv", "swbpipe-weight-cog.csv", "swbpipe-run-comparison-run-3-run-4.csv", "swbpipe-state-comparison.csv",
+            "swbpipe-hanger-sizing.csv", "swbpipe-hanger-sizing-solves.csv"] {
             assert!(valid_csv_name(name), "{name}");
             assert!(!valid_name(name, RESULT_FILE_PREFIX) && !valid_name(name, STRESS_FILE_PREFIX), "{name}");
         }
         for name in ["swbpipe-results.csv", "swbpipe-stress.csv", "swbpipe-ratio.csv", "swbpipe-model.csv", "swbpipe-handoff.csv", "swbpipe-report.csv",
-            "swbpipe-comparison.csv", "swbpipe-stress-ratio.json", "swbpipe-stress-ratio.CSV", "swbpipe-Stress-ratio.csv", "swbpipe-stress--ratio.csv",
+            "swbpipe-comparison.csv", "swbpipe-hanger.csv", "swbpipe-sizing.csv", "swbpipe-hanger-sizing-.csv", "swbpipe-stress-ratio.json", "swbpipe-stress-ratio.CSV", "swbpipe-Stress-ratio.csv", "swbpipe-stress--ratio.csv",
             "swbpipe-stress-ratio-.csv", "swbpipe--stress-ratio.csv", "swbpipe-stress-ratio (1).csv", "swbpipe-stress-ratio-ré.csv", "swbpipe-stress_ratio.csv",
             "swbpipe-.csv", "swbpipe.csv", "../swbpipe-stress-ratio.csv", "/swbpipe-stress-ratio.csv", "dir/swbpipe-stress-ratio.csv",
             "openpipestress-preview-results-run-1.csv", "swbpipe-stress-ratio.csv.json", ""] {

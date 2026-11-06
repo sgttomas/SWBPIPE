@@ -10,7 +10,8 @@
 //!   (the TypeScript record, `jsonTextKeepingNegativeZero`'s result text, the
 //!   result as serde_json reads `JSON.stringify`'s text): every column of the
 //!   run, its labels, the post-solve snapshot and its labels, the project row
-//!   (but its two save times) and its search row; the same outcome; and the
+//!   (but its two save times), and no search row (store schema v14 retired the
+//!   FTS sidecar); the same outcome; and the
 //!   session's envelope hash (`persistence_forms.json`, written by the
 //!   TypeScript paths). The texts the legacy requests carry are the native
 //!   writer's, each first matched to the TypeScript text's digest.
@@ -231,6 +232,13 @@ pub(crate) fn dump(path: &Path, table: &str, skip: &[&str]) -> Rows {
 }
 
 /// The two stores' rows are equal; a difference names its table, row and column.
+/// The store has no FTS sidecar table (store schema v14 retired it; a save
+/// creates none).
+pub(crate) fn no_fts_sidecar(path: &Path, id: &str) {
+    let objects = crate::tests::fts_sidecar_objects(&Connection::open(path).unwrap());
+    assert!(objects.is_empty(), "{id}: no FTS sidecar, found {objects:?}");
+}
+
 pub(crate) fn same_rows(a: &Path, b: &Path, table: &str, skip: &[&str], id: &str) {
     let (left, right) = (dump(a, table, skip), dump(b, table, skip));
     assert_eq!(left.len(), right.len(), "{id}: {table} has {} rows natively, {} by the submitted path", right.len(), left.len());
@@ -316,7 +324,7 @@ fn record_run_stores_the_submitted_paths_rows_byte_for_byte() {
 }
 
 /// Every preview case with a record: the native Save and Create Project write
-/// the submitted path's project and search rows (but its save times) for the
+/// the submitted path's project row (but its save times) and no search row for the
 /// request the webview sends today, store the session's envelope hash, and
 /// reply with the stored project's small fields only.
 #[test]
@@ -369,7 +377,8 @@ fn save_and_create_store_the_submitted_paths_rows_and_the_sessions_envelope_hash
             .unwrap_or_else(|e| panic!("{}: {e}", case.id));
             let reply = native_save(&registry, &native, &case.save_args(&job, mode, Value::Null, Value::Null), &unlimited()).unwrap_or_else(|e| panic!("{} {mode}: {e}", case.id));
             same_rows(&submitted, &native, "local_projects", &["created_at_unix", "updated_at_unix"], &case.id);
-            same_rows(&submitted, &native, "local_project_fts", &[], &case.id);
+            no_fts_sidecar(&submitted, &case.id);
+            no_fts_sidecar(&native, &case.id);
             assert_eq!(reply["project_envelope_hash"], save["envelope_hash"], "{}: the session's envelope hash", case.id);
             assert_eq!(reply["stored_model_hash"], save["model_hash"]["value"], "{}", case.id);
             let stored = dump(&native, "local_projects", &[]);
@@ -535,7 +544,8 @@ fn save_falls_back_to_the_model_only_save_at_the_rows_limit() {
     let (path, refused) = at(row_without - 1);
     let text = refused.unwrap_err();
     assert!(text.starts_with(PROJECT_SAVE_TOO_LARGE) && text.contains("even without the result"), "{text}");
-    assert!(dump(&path, "local_projects", &[]).is_empty() && dump(&path, "local_project_fts", &[]).is_empty(), "nothing was saved");
+    assert!(dump(&path, "local_projects", &[]).is_empty(), "nothing was saved");
+    no_fts_sidecar(&path, "refused");
     assert!(registry.dispose_result(&job).unwrap().released);
     std::fs::remove_dir_all(&dir).unwrap();
     assert_eq!(registry.pool().reserved_total(), 0);
@@ -663,7 +673,7 @@ fn record_sizes_are_sqlites_and_a_refused_row_rolls_everything_back() {
         let (mut connection, _) = crate::open_project_store(&path).unwrap();
         connection.set_limit(Limit::SQLITE_LIMIT_LENGTH, limit as i32);
         let transaction = crate::immediate_transaction(&mut connection).unwrap();
-        let outcome = crate::write_project_texts(&transaction, &id, &name, &texts, &texts.search_text(), created);
+        let outcome = crate::upsert_project_texts(&transaction, &id, &name, &texts, created);
         assert_eq!(outcome.is_ok(), written, "at {limit}: {outcome:?}");
         if written {
             transaction.commit().unwrap();
@@ -675,7 +685,8 @@ fn record_sizes_are_sqlites_and_a_refused_row_rolls_everything_back() {
             assert!(code.starts_with(PROJECT_SAVE_TOO_LARGE) && code.contains("nothing was saved"), "{code}");
             assert!(!code.starts_with(PROJECT_SAVE_RESULT_TOO_LARGE), "rollback is not a successful model-only save: {code}");
             drop(transaction);
-            assert!(dump(&path, "local_projects", &[]).is_empty() && dump(&path, "local_project_fts", &[]).is_empty());
+            assert!(dump(&path, "local_projects", &[]).is_empty());
+            no_fts_sidecar(&path, "rolled back");
         }
     }
     assert!(registry.dispose_result(&job).unwrap().released);
@@ -826,7 +837,7 @@ fn persistence_binds_the_solves_intake_to_the_manifests_model() {
         let job = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
         let path = dir.join(format!("{}.sqlite", id.replace(':', "-")));
         stored_project(&path, case.project_id(), case.model());
-        let unchanged = || -> Vec<Rows> { RUN_TABLES.iter().chain(["local_projects", "local_project_fts"].iter()).map(|table| dump(&path, table, &[])).collect() };
+        let unchanged = || -> Vec<Rows> { RUN_TABLES.iter().chain(["local_projects"].iter()).map(|table| dump(&path, table, &[])).collect() };
         let before = unchanged();
         // Another job holding the same result, started on the same model's text in another layout.
         let pretty = serde_json::to_string_pretty(&serde_json::from_str::<Value>(&case.intake).unwrap()).unwrap();
@@ -1251,7 +1262,7 @@ fn overlapping_record_runs_on_one_store_commit_whole_or_are_refused_busy() {
 /// (the session's `pressure` validation passed on its held bytes) is recorded
 /// and saved without reading the route's reader again, and stores exactly
 /// what an unregistered job of the same bytes stores (every run, label and
-/// snapshot column; the project and search rows; the replies), which
+/// snapshot column; the project row; the replies), which
 /// `record_run_stores_the_submitted_paths_rows_byte_for_byte` and
 /// `save_and_create_store_the_submitted_paths_rows_and_the_sessions_envelope_hash`
 /// bind to the submitted path. With the evidence held, the binding refusals
@@ -1311,9 +1322,8 @@ fn a_registered_solve_is_recorded_and_saved_without_its_reader_and_stores_the_sa
     for table in RUN_TABLES {
         same_rows(&unregistered.0, &registered.0, table, &[], &case.id);
     }
-    for table in ["local_projects", "local_project_fts"] {
-        same_rows(&unregistered.1, &registered.1, table, &[], &case.id);
-    }
+    same_rows(&unregistered.1, &registered.1, "local_projects", &[], &case.id);
+    no_fts_sidecar(&registered.1, &case.id);
     assert_eq!((&unregistered.2, &unregistered.3), (&registered.2, &registered.3), "the same replies");
     // Only the reader's run is saved.
     assert_eq!(passes::Counts { reader_validations: 1, ..registered.4 }, unregistered.4);
@@ -1373,8 +1383,9 @@ fn parity_reply(reply: &Value, into: &mut std::collections::BTreeMap<String, Str
 /// then the existing state), each recorded run read back and reopened;
 /// Create then Save (repeated saves); the saved project reopened and
 /// re-saved from its restored handle. Every stored column (record, result,
-/// manifest, hashes, project row, search row, labels, states) and every reply
-/// is the pre-change implementation's, byte for byte.
+/// manifest, hashes, project row, labels, states) and every reply is the
+/// pre-change implementation's, byte for byte, but the keys store schema v14
+/// removed or re-derived ([`REDERIVED_AT_V14`]).
 #[test]
 fn p1_stored_bytes_hashes_and_replies_are_the_pre_change_implementations() {
     use crate::stored_custody::tests::{native_open, native_read};
@@ -1405,9 +1416,8 @@ fn p1_stored_bytes_hashes_and_replies_are_the_pre_change_implementations() {
         let base = created["project_envelope_hash"]["value"].clone();
         let again = native_save(&registry, &saved, &case.save_args(&job, "save", base, Value::Null), &unlimited()).unwrap_or_else(|e| panic!("{}: {e}", case.id));
         parity_reply(&again, &mut found, format!("{} save reply", case.id));
-        for table in ["local_projects", "local_project_fts"] {
-            parity_rows(&saved, table, &mut found, &format!("{} save", case.id));
-        }
+        parity_rows(&saved, "local_projects", &mut found, &format!("{} save", case.id));
+        no_fts_sidecar(&saved, &case.id);
         registry.dispose_all_results();
         for (at, recording_id) in recordings.iter().enumerate() {
             let read = native_read(&registry, &recorded, case.project_id(), recording_id).unwrap_or_else(|e| panic!("{}: {e}", case.id));
@@ -1421,9 +1431,8 @@ fn p1_stored_bytes_hashes_and_replies_are_the_pre_change_implementations() {
         let base = opened["project_envelope_hash"]["value"].clone();
         let resaved = native_resave(&registry, &saved, &resave_args(&opened, &opened_fields(&opened), "save", base, Value::Null), &unlimited()).unwrap_or_else(|e| panic!("{}: {e}", case.id));
         parity_reply(&resaved, &mut found, format!("{} resave reply", case.id));
-        for table in ["local_projects", "local_project_fts"] {
-            parity_rows(&saved, table, &mut found, &format!("{} resave", case.id));
-        }
+        parity_rows(&saved, "local_projects", &mut found, &format!("{} resave", case.id));
+        no_fts_sidecar(&saved, &case.id);
         registry.dispose_all_results();
     }
     std::fs::remove_dir_all(&dir).unwrap();
@@ -1444,10 +1453,18 @@ fn p1_stored_bytes_hashes_and_replies_are_the_pre_change_implementations() {
     // 40567c5b7 after #138's input drift, and the same 24 keys of each of the five preview-physics
     // cases on the #122 composition (main 9e5c69797) after its input drift: a regression pin for
     // the composed code, not pre-change parity.
-    assert_eq!(expected.len(), 644, "the keys generated at c8865f384");
+    // Store schema v14 removed the 42 search-row keys (seven cases, a save
+    // and a re-save, three columns) and re-derived [`REDERIVED_AT_V14`].
+    let retired = |key: &str| key.contains(" local_project_fts[");
+    assert_eq!(expected.len(), 644 - 42, "the keys generated at c8865f384 but the retired search-row keys");
+    assert!(!expected.keys().any(|key| retired(key)), "no search-row key is pinned");
     assert_eq!(REDERIVED.len(), 24 + 5 * 24, "the keys re-derived at 40567c5b7 and on the #122 composition");
     assert_eq!(REDERIVED.iter().collect::<std::collections::BTreeSet<_>>().len(), REDERIVED.len(), "each key re-derived once");
-    assert!(REDERIVED.iter().all(|key| expected.contains_key(*key)), "only pinned keys were re-derived");
+    assert!(REDERIVED.iter().all(|key| expected.contains_key(*key) || retired(key)), "only pinned keys were re-derived");
+    assert_eq!(REDERIVED.iter().filter(|key| retired(key)).count(), 12, "six cases' save and re-save search texts, now retired");
+    assert_eq!(REDERIVED_AT_V14.len(), 7 * 4, "each case's create, save, reopen and re-save reply");
+    assert_eq!(REDERIVED_AT_V14.iter().collect::<std::collections::BTreeSet<_>>().len(), REDERIVED_AT_V14.len(), "each key re-derived once");
+    assert!(REDERIVED_AT_V14.iter().all(|key| expected.contains_key(*key) && [" create reply", " save reply", " reopen reply", " resave reply"].iter().any(|end| key.ends_with(end))), "only the project replies were re-derived at v14");
     assert!(REDERIVED[..24].iter().all(|key| key.starts_with("preview:pressure ")), "only preview:pressure keys were re-derived at 40567c5b7");
     let suffixes = |prefix: &str| -> std::collections::BTreeSet<&str> { REDERIVED[..24].iter().map(|key| key.strip_prefix(prefix).unwrap()).collect() };
     let pressure = suffixes("preview:pressure ");
@@ -1658,8 +1675,8 @@ const PRE_CHANGE_PEAKS: [(&str, u64); 5] =
 /// the result's parse ends before its text is written; the run's texts end at
 /// the INSERT; the readback frees the loaded record before hashing it and
 /// makes no projection clone, serialized text or checked parse; a save's
-/// result text ends before its search text is built and its record text
-/// before the search row is written; a recorded read loads the record once
+/// result and record texts end once the project row is written (it builds no
+/// search text since store schema v14); a recorded read loads the record once
 /// and parses the result once. Each command's peak is lower than before.
 #[test]
 fn p1_allocations_end_where_their_last_use_is() {
@@ -1705,18 +1722,10 @@ fn p1_allocations_end_where_their_last_use_is() {
     };
     let (saved_r, saved_q) = (column("mechanics_result_json"), column("analysis_run_json"));
     let live = |at: &str| mark(&marks, at).live;
-    // (a) The result's text ends after the project row; the search text is built
-    // from the slots without it; the record's ends before the search row.
-    assert!(live("save: project row written") - live("save: result text released") >= saved_r, "{marks:?}");
-    // The search text (S) is allocated and the record's text (Q) freed: the
-    // live bytes move by S - Q (the small slots), within a small allowance.
-    let search_length = match &dump(&saved, "local_project_fts", &[])[0].iter().find(|(name, _)| name == "model_text").unwrap().1 {
-        rusqlite::types::Value::Text(text) => text.len() as i64,
-        other => panic!("{other:?}"),
-    };
-    let moved = mark(&marks, "save: search text built, record text released").live - live("save: result text released");
-    assert!(moved <= search_length - saved_q + (1 << 20), "S - Q = {}, moved {moved}: {marks:?}", search_length - saved_q);
-    assert!(mark(&marks, "save: search row written").peak < live("save: project row written") + saved_q, "the search row's phase holds neither the result's nor the record's text: {marks:?}");
+    // (a) The result's and the record's texts end once the project row is
+    // written, and no search text is built from them.
+    assert!(live("save: project row written") - live("save: result and record texts released") >= saved_r + saved_q, "{marks:?}");
+    no_fts_sidecar(&saved, "create");
     assert!(create_peak <= pre("fresh_create"), "Create Project: {create_peak} against {}", pre("fresh_create"));
     let base = reply["project_envelope_hash"]["value"].clone();
     let args = case.save_args(&job, "save", base, Value::Null);
@@ -1755,7 +1764,7 @@ fn p1_allocations_end_where_their_last_use_is() {
     let args = crate::stored_save::tests::resave_args(&opened, &crate::stored_save::tests::opened_fields(&opened), "save", base, Value::Null);
     let (marks, resave_peak) = phases(&registry, || reply = crate::stored_save::tests::native_resave(&registry, &saved, &args, &unlimited()).unwrap());
     print_phases("Restored re-save (preview:pressure)", &marks, resave_peak);
-    assert!(live_drop(&marks, "save: project row written", "save: result text released") >= saved_r, "{marks:?}");
+    assert!(live_drop(&marks, "save: project row written", "save: result and record texts released") >= saved_r, "{marks:?}");
     assert!(resave_peak <= pre("restored_resave"), "re-save: {resave_peak} against {}", pre("restored_resave"));
     registry.dispose_all_results();
     std::fs::remove_dir_all(&dir).unwrap();
@@ -2146,9 +2155,51 @@ const REDERIVED: &[&str] = &[
     "preview:rule-pack-excluded save local_projects[0].project_envelope_hash_json",
     "preview:rule-pack-excluded save reply",
 ];
-/// Generated at c8865f384 (module section docs), except the [`REDERIVED`] keys.
+/// The keys store schema v14 (RT-U4, the FTS sidecar retired) re-derived:
+/// each persistence case's create, save, reopen and re-save reply, whose
+/// project summary now reports store schema v14 (`store_schema_version`,
+/// `store_schema_target_version`, `migration_status`,
+/// `migrations_applied_on_open`) and `fts_indexed: false`. Each was checked to
+/// be its pinned reply but for those members before it was re-derived. No
+/// stored column's key moved. The 42 search-row keys (`<case> save|resave
+/// local_project_fts[0].project_id|project_name|model_text`, twelve of them in
+/// [`REDERIVED`]) were removed: v14 writes no search row.
+const REDERIVED_AT_V14: &[&str] = &[
+    "preview:aggregate-failed create reply",
+    "preview:aggregate-failed reopen reply",
+    "preview:aggregate-failed resave reply",
+    "preview:aggregate-failed save reply",
+    "preview:aggregate-unrecognized create reply",
+    "preview:aggregate-unrecognized reopen reply",
+    "preview:aggregate-unrecognized resave reply",
+    "preview:aggregate-unrecognized save reply",
+    "preview:connected create reply",
+    "preview:connected reopen reply",
+    "preview:connected resave reply",
+    "preview:connected save reply",
+    "preview:pressure create reply",
+    "preview:pressure reopen reply",
+    "preview:pressure resave reply",
+    "preview:pressure save reply",
+    "preview:pressure-source create reply",
+    "preview:pressure-source reopen reply",
+    "preview:pressure-source resave reply",
+    "preview:pressure-source save reply",
+    "preview:retained create reply",
+    "preview:retained reopen reply",
+    "preview:retained resave reply",
+    "preview:retained save reply",
+    "preview:rule-pack-excluded create reply",
+    "preview:rule-pack-excluded reopen reply",
+    "preview:rule-pack-excluded resave reply",
+    "preview:rule-pack-excluded save reply",
+];
+
+/// Generated at c8865f384 (module section docs), except the [`REDERIVED`] keys. The 42
+/// search-row keys are removed and the [`REDERIVED_AT_V14`] keys re-derived
+/// (store schema v14).
 const PARITY: &[(&str, &str)] = &[
-    ("preview:aggregate-failed create reply", "f3ea72477bbde8170d741e0a15e4dafaa88e449a1b44b02c26e5d7e5bb62e208:3866"),
+    ("preview:aggregate-failed create reply", "ccadaadc77f74021d10fccb6e5edd6caeb2d5711e0b9ef639419f46b4353febd:3906"),
     ("preview:aggregate-failed record analysis_run_labels[0].assumptions_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
     ("preview:aggregate-failed record analysis_run_labels[0].notes_json", "5df6d4f94dea81443474cd8fd8b70333654763c9dfbea861d2428c19e7d00a73:18"),
     ("preview:aggregate-failed record analysis_run_labels[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
@@ -2205,10 +2256,7 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:aggregate-failed recorded read#0 reply", "d1ae8acedda64fdcbeda2cf59f111e884239236fa5cb30c4820f08c9372de029:13071"),
     ("preview:aggregate-failed recorded read#1 legacy record", "f5b6b1453d7e0fbae40a0dc84fccb6ebfd37c0dbe5ccdd7489e0d28dbdf58fa9:143577"),
     ("preview:aggregate-failed recorded read#1 reply", "0407747211865fa9b2ccae843b82faa4084dd70dee4ab3d0910a00a11ba33d3f:13071"),
-    ("preview:aggregate-failed reopen reply", "6c9ede5ba295d3b28e41e270164e1610b48d91ddec29eb2e0b8e3235d3406272:11448"),
-    ("preview:aggregate-failed resave local_project_fts[0].model_text", "89a7ef6ee0123195b9c4edd72b16ea91da67641fd391f99009dbf66d1395e7db:147455"),
-    ("preview:aggregate-failed resave local_project_fts[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
-    ("preview:aggregate-failed resave local_project_fts[0].project_name", "65a4ab50988845fb64d0c0005c5b1af7eadee7b8c9b6935eb905722cc8a07773:45"),
+    ("preview:aggregate-failed reopen reply", "a78419045a5fdc833f2117c74c43d1a3376234b4f4caf9c69034b31fc2c5a4db:11449"),
     ("preview:aggregate-failed resave local_projects[0].analysis_run_json", "32e2b2bfc48e67ccb8327dfe652893f25f03ed0dd4c2e5e54dc80b9e5f0eb382:143591"),
     ("preview:aggregate-failed resave local_projects[0].created_at_unix", "Integer(1793000000)"),
     ("preview:aggregate-failed resave local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
@@ -2222,10 +2270,7 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:aggregate-failed resave local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
     ("preview:aggregate-failed resave local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
     ("preview:aggregate-failed resave local_projects[0].updated_at_unix", "Integer(1793000000)"),
-    ("preview:aggregate-failed resave reply", "53509f42a12f43bee646eae01ac349ef44b668f2891b01ea2e70c9c4d47dd3e9:4239"),
-    ("preview:aggregate-failed save local_project_fts[0].model_text", "89a7ef6ee0123195b9c4edd72b16ea91da67641fd391f99009dbf66d1395e7db:147455"),
-    ("preview:aggregate-failed save local_project_fts[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
-    ("preview:aggregate-failed save local_project_fts[0].project_name", "65a4ab50988845fb64d0c0005c5b1af7eadee7b8c9b6935eb905722cc8a07773:45"),
+    ("preview:aggregate-failed resave reply", "eecffc337acb4c4b068073652e7872a76896e4859f7a312e9cb1d94444d5b27f:4240"),
     ("preview:aggregate-failed save local_projects[0].analysis_run_json", "32e2b2bfc48e67ccb8327dfe652893f25f03ed0dd4c2e5e54dc80b9e5f0eb382:143591"),
     ("preview:aggregate-failed save local_projects[0].created_at_unix", "Integer(1793000000)"),
     ("preview:aggregate-failed save local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
@@ -2239,8 +2284,8 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:aggregate-failed save local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
     ("preview:aggregate-failed save local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
     ("preview:aggregate-failed save local_projects[0].updated_at_unix", "Integer(1793000000)"),
-    ("preview:aggregate-failed save reply", "5ceab14c435a35b441b520446d100fb9b74ef4b25957d0a4d078ea89164588af:3414"),
-    ("preview:aggregate-unrecognized create reply", "29c9a0e1de6a19c1a9710cfa43cdbfaacb34687dc64f98fe8c51b541953ead52:3866"),
+    ("preview:aggregate-failed save reply", "d39f9d3ebf70d935d08cccc5bccf8049903824ecb64029508985db8f5b6caa75:3415"),
+    ("preview:aggregate-unrecognized create reply", "a821871eeb9186190f409939c071644bc1b81d5965cf72c1be63e9ef15865c07:3906"),
     ("preview:aggregate-unrecognized record analysis_run_labels[0].assumptions_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
     ("preview:aggregate-unrecognized record analysis_run_labels[0].notes_json", "5df6d4f94dea81443474cd8fd8b70333654763c9dfbea861d2428c19e7d00a73:18"),
     ("preview:aggregate-unrecognized record analysis_run_labels[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
@@ -2297,10 +2342,7 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:aggregate-unrecognized recorded read#0 reply", "121d8b2d310ad403d4cfeafce0612d3d120b0668038f1554575e56e73baa9991:13083"),
     ("preview:aggregate-unrecognized recorded read#1 legacy record", "af03870dd8da95fac96d2e7058eb2dde0a3b188a1973f497283007b84a739a1f:143583"),
     ("preview:aggregate-unrecognized recorded read#1 reply", "d290717b751ef48656c93ba1331c4b0bb5a3dad81b0eb05a8eacf56d40a1bc9d:13083"),
-    ("preview:aggregate-unrecognized reopen reply", "e690747e7d211019a4f0e9442048347f1a9cd25fa73d67839cc64de3d4123fe1:11454"),
-    ("preview:aggregate-unrecognized resave local_project_fts[0].model_text", "80a58f77dfd41acaec8938c31ba557486b97f8168cb4c3874775908921f69419:147461"),
-    ("preview:aggregate-unrecognized resave local_project_fts[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
-    ("preview:aggregate-unrecognized resave local_project_fts[0].project_name", "65a4ab50988845fb64d0c0005c5b1af7eadee7b8c9b6935eb905722cc8a07773:45"),
+    ("preview:aggregate-unrecognized reopen reply", "eb3f8ca44068617cf5882bc353c38b76ddd4966beadac8a4ddfd8003791c156c:11455"),
     ("preview:aggregate-unrecognized resave local_projects[0].analysis_run_json", "3f5e5168f7bbbb61ae4b3d70a4e40643e353086f0e8d8cadd609e9ece329d6df:143597"),
     ("preview:aggregate-unrecognized resave local_projects[0].created_at_unix", "Integer(1793000000)"),
     ("preview:aggregate-unrecognized resave local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
@@ -2314,10 +2356,7 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:aggregate-unrecognized resave local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
     ("preview:aggregate-unrecognized resave local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
     ("preview:aggregate-unrecognized resave local_projects[0].updated_at_unix", "Integer(1793000000)"),
-    ("preview:aggregate-unrecognized resave reply", "8e360b4280a2a61c8b21f4c5836622d27a69cdfb50144ff52ed05c3461e82e7c:4239"),
-    ("preview:aggregate-unrecognized save local_project_fts[0].model_text", "80a58f77dfd41acaec8938c31ba557486b97f8168cb4c3874775908921f69419:147461"),
-    ("preview:aggregate-unrecognized save local_project_fts[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
-    ("preview:aggregate-unrecognized save local_project_fts[0].project_name", "65a4ab50988845fb64d0c0005c5b1af7eadee7b8c9b6935eb905722cc8a07773:45"),
+    ("preview:aggregate-unrecognized resave reply", "bd6a0aecf8428f886f97a5d82e7c29c40ce803bfc011b08f34fdf4406434b54e:4240"),
     ("preview:aggregate-unrecognized save local_projects[0].analysis_run_json", "3f5e5168f7bbbb61ae4b3d70a4e40643e353086f0e8d8cadd609e9ece329d6df:143597"),
     ("preview:aggregate-unrecognized save local_projects[0].created_at_unix", "Integer(1793000000)"),
     ("preview:aggregate-unrecognized save local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
@@ -2331,8 +2370,8 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:aggregate-unrecognized save local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
     ("preview:aggregate-unrecognized save local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
     ("preview:aggregate-unrecognized save local_projects[0].updated_at_unix", "Integer(1793000000)"),
-    ("preview:aggregate-unrecognized save reply", "8d9426984ff62fd4e4ab408f1d06b816310a8d846ac31d3e98a261639adc1b29:3414"),
-    ("preview:connected create reply", "29c9a0e1de6a19c1a9710cfa43cdbfaacb34687dc64f98fe8c51b541953ead52:3866"),
+    ("preview:aggregate-unrecognized save reply", "a239d6394168d465b2cf61541deaa706f94d18463506df50810deb5b9e4861bf:3415"),
+    ("preview:connected create reply", "a821871eeb9186190f409939c071644bc1b81d5965cf72c1be63e9ef15865c07:3906"),
     ("preview:connected record analysis_run_labels[0].assumptions_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
     ("preview:connected record analysis_run_labels[0].notes_json", "5df6d4f94dea81443474cd8fd8b70333654763c9dfbea861d2428c19e7d00a73:18"),
     ("preview:connected record analysis_run_labels[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
@@ -2389,10 +2428,7 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:connected recorded read#0 reply", "121d8b2d310ad403d4cfeafce0612d3d120b0668038f1554575e56e73baa9991:13083"),
     ("preview:connected recorded read#1 legacy record", "af03870dd8da95fac96d2e7058eb2dde0a3b188a1973f497283007b84a739a1f:143583"),
     ("preview:connected recorded read#1 reply", "d290717b751ef48656c93ba1331c4b0bb5a3dad81b0eb05a8eacf56d40a1bc9d:13083"),
-    ("preview:connected reopen reply", "e690747e7d211019a4f0e9442048347f1a9cd25fa73d67839cc64de3d4123fe1:11454"),
-    ("preview:connected resave local_project_fts[0].model_text", "80a58f77dfd41acaec8938c31ba557486b97f8168cb4c3874775908921f69419:147461"),
-    ("preview:connected resave local_project_fts[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
-    ("preview:connected resave local_project_fts[0].project_name", "65a4ab50988845fb64d0c0005c5b1af7eadee7b8c9b6935eb905722cc8a07773:45"),
+    ("preview:connected reopen reply", "eb3f8ca44068617cf5882bc353c38b76ddd4966beadac8a4ddfd8003791c156c:11455"),
     ("preview:connected resave local_projects[0].analysis_run_json", "3f5e5168f7bbbb61ae4b3d70a4e40643e353086f0e8d8cadd609e9ece329d6df:143597"),
     ("preview:connected resave local_projects[0].created_at_unix", "Integer(1793000000)"),
     ("preview:connected resave local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
@@ -2406,10 +2442,7 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:connected resave local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
     ("preview:connected resave local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
     ("preview:connected resave local_projects[0].updated_at_unix", "Integer(1793000000)"),
-    ("preview:connected resave reply", "8e360b4280a2a61c8b21f4c5836622d27a69cdfb50144ff52ed05c3461e82e7c:4239"),
-    ("preview:connected save local_project_fts[0].model_text", "80a58f77dfd41acaec8938c31ba557486b97f8168cb4c3874775908921f69419:147461"),
-    ("preview:connected save local_project_fts[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
-    ("preview:connected save local_project_fts[0].project_name", "65a4ab50988845fb64d0c0005c5b1af7eadee7b8c9b6935eb905722cc8a07773:45"),
+    ("preview:connected resave reply", "bd6a0aecf8428f886f97a5d82e7c29c40ce803bfc011b08f34fdf4406434b54e:4240"),
     ("preview:connected save local_projects[0].analysis_run_json", "3f5e5168f7bbbb61ae4b3d70a4e40643e353086f0e8d8cadd609e9ece329d6df:143597"),
     ("preview:connected save local_projects[0].created_at_unix", "Integer(1793000000)"),
     ("preview:connected save local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
@@ -2423,8 +2456,8 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:connected save local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
     ("preview:connected save local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
     ("preview:connected save local_projects[0].updated_at_unix", "Integer(1793000000)"),
-    ("preview:connected save reply", "8d9426984ff62fd4e4ab408f1d06b816310a8d846ac31d3e98a261639adc1b29:3414"),
-    ("preview:pressure create reply", "ed49ef2fe3d5dd2e87dc790eb6ff4f88a6762c498eb86a09b2268abf669a1342:4026"),
+    ("preview:connected save reply", "a239d6394168d465b2cf61541deaa706f94d18463506df50810deb5b9e4861bf:3415"),
+    ("preview:pressure create reply", "97b5b5adb0718c336ee25cd19a5720586614181b22f37cb05a2c0cdce14c6c27:4066"),
     ("preview:pressure record analysis_run_labels[0].assumptions_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
     ("preview:pressure record analysis_run_labels[0].notes_json", "5df6d4f94dea81443474cd8fd8b70333654763c9dfbea861d2428c19e7d00a73:18"),
     ("preview:pressure record analysis_run_labels[0].project_id", "a6246e580c56c6f2e381d6c56e6dc78b5e615a7c342071f9c92fe17c44f0ff84:40"),
@@ -2481,10 +2514,7 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:pressure recorded read#0 reply", "837c5d613f3128ec347716c993140858fdd1e79884d29826a15c98b011b2e3e9:14957"),
     ("preview:pressure recorded read#1 legacy record", "d15653c88348a56a1a44b05816ae76099e544995e96a23db72a2288d6ff61f35:520513"),
     ("preview:pressure recorded read#1 reply", "776d32ad58bba9d86bb50a93c28d224ed0790ae1c4e4bb3c3518727a08bc9725:14957"),
-    ("preview:pressure reopen reply", "39e571749823ff18f851789e11c297b05fc340177c8a99bc3f002d09ee8e2a92:12554"),
-    ("preview:pressure resave local_project_fts[0].model_text", "fcb19b9481a22d432aac499b5daffb788bcdf1122eb97082665482ff46f9f7a1:525256"),
-    ("preview:pressure resave local_project_fts[0].project_id", "a6246e580c56c6f2e381d6c56e6dc78b5e615a7c342071f9c92fe17c44f0ff84:40"),
-    ("preview:pressure resave local_project_fts[0].project_name", "a3be13fbc758ede01e3aed6c502f013fd0465bc37324e55e04b68b3be9588a79:42"),
+    ("preview:pressure reopen reply", "8246825f609bfdd55cc0872fa3f131eab24c7c0c4fb5e86ebf9977685c728684:12555"),
     ("preview:pressure resave local_projects[0].analysis_run_json", "ffd9feb37ebd1f4ac2a2a3a51ab7e0da0c467d0f856f8373073c16e5a4e6119f:520532"),
     ("preview:pressure resave local_projects[0].created_at_unix", "Integer(1793000000)"),
     ("preview:pressure resave local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
@@ -2498,10 +2528,7 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:pressure resave local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
     ("preview:pressure resave local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
     ("preview:pressure resave local_projects[0].updated_at_unix", "Integer(1793000000)"),
-    ("preview:pressure resave reply", "31edf40a231f62901f96d9c9a54f4aaa5d455e0db5d61f11c60288def79cff28:4404"),
-    ("preview:pressure save local_project_fts[0].model_text", "fcb19b9481a22d432aac499b5daffb788bcdf1122eb97082665482ff46f9f7a1:525256"),
-    ("preview:pressure save local_project_fts[0].project_id", "a6246e580c56c6f2e381d6c56e6dc78b5e615a7c342071f9c92fe17c44f0ff84:40"),
-    ("preview:pressure save local_project_fts[0].project_name", "a3be13fbc758ede01e3aed6c502f013fd0465bc37324e55e04b68b3be9588a79:42"),
+    ("preview:pressure resave reply", "30ccd0fae461199a64daa39584ec368d3c402c553248a79190aa5702b0051b78:4405"),
     ("preview:pressure save local_projects[0].analysis_run_json", "ffd9feb37ebd1f4ac2a2a3a51ab7e0da0c467d0f856f8373073c16e5a4e6119f:520532"),
     ("preview:pressure save local_projects[0].created_at_unix", "Integer(1793000000)"),
     ("preview:pressure save local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
@@ -2515,8 +2542,8 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:pressure save local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
     ("preview:pressure save local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
     ("preview:pressure save local_projects[0].updated_at_unix", "Integer(1793000000)"),
-    ("preview:pressure save reply", "b3e9a3fe9d5767d011d4ef6dd96316641835d36fbcafa36de602f89f67350202:3574"),
-    ("preview:pressure-source create reply", "c961c4fab92c3cb08581e2184652877b452e089deeac7decf81f8be18f038e7c:3421"),
+    ("preview:pressure save reply", "69050016fb5bed45f9b6b5f1d56c39ea206b6f04bc1f0e4bac40679b2f14d70c:3575"),
+    ("preview:pressure-source create reply", "1ec9412fe1d3250b70cc9b5ab3de7b3b1706e400d076939d2d3f66b7068bdd7d:3461"),
     ("preview:pressure-source record analysis_run_labels[0].assumptions_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
     ("preview:pressure-source record analysis_run_labels[0].notes_json", "5df6d4f94dea81443474cd8fd8b70333654763c9dfbea861d2428c19e7d00a73:18"),
     ("preview:pressure-source record analysis_run_labels[0].project_id", "0693e489f130b54637dcd80cc4ded978a783ee61ac6c8c39c32e94620c0ad4ef:28"),
@@ -2573,10 +2600,7 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:pressure-source recorded read#0 reply", "13c7610cb203fd2724afd99a18137a2ade194f9d01f9842f71436266f82dcb30:11119"),
     ("preview:pressure-source recorded read#1 legacy record", "115ddcfe8010b558a3a4e0f691f30ee664d3ce579f213f6b8140138233027eff:304292"),
     ("preview:pressure-source recorded read#1 reply", "db97c1a183563dd82ff262fd0852c20fe10d61f9aebf07a8e26457c8b52bf4ac:11119"),
-    ("preview:pressure-source reopen reply", "e30e43bd1924a0f11b0f01cfe762fd72f861e0076b5ba71b6a7288376ee69fc7:10616"),
-    ("preview:pressure-source resave local_project_fts[0].model_text", "3a93d45890902c5502a0912fb6003bffec65ba134acfa9d0acfc3b1205ce0b5c:307732"),
-    ("preview:pressure-source resave local_project_fts[0].project_id", "0693e489f130b54637dcd80cc4ded978a783ee61ac6c8c39c32e94620c0ad4ef:28"),
-    ("preview:pressure-source resave local_project_fts[0].project_name", "ed4d498abca0d8e212e2fb959bc79a253ecd89531261e18d45740b2d40ec76a8:43"),
+    ("preview:pressure-source reopen reply", "95cd7bdd43a4f2e760e213e61b5b3200a4f82d48d8bf74a77940aa8635e7245b:10617"),
     ("preview:pressure-source resave local_projects[0].analysis_run_json", "98d89c4f6a5d6dc0bd0e05d0710df277a5805e2ca7551ddb754a10849806861c:304299"),
     ("preview:pressure-source resave local_projects[0].created_at_unix", "Integer(1793000000)"),
     ("preview:pressure-source resave local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
@@ -2590,10 +2614,7 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:pressure-source resave local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
     ("preview:pressure-source resave local_projects[0].selected_review_target_json", "ba3aa40eae8d2c0209a00ad34f486243ccf8eefdcb1fedd76203c20e1b607773:60"),
     ("preview:pressure-source resave local_projects[0].updated_at_unix", "Integer(1793000000)"),
-    ("preview:pressure-source resave reply", "bc7bb6615f8840ab5baa217fdfe22101f5873d1b2d60078b05278a8b550e347e:3833"),
-    ("preview:pressure-source save local_project_fts[0].model_text", "3a93d45890902c5502a0912fb6003bffec65ba134acfa9d0acfc3b1205ce0b5c:307732"),
-    ("preview:pressure-source save local_project_fts[0].project_id", "0693e489f130b54637dcd80cc4ded978a783ee61ac6c8c39c32e94620c0ad4ef:28"),
-    ("preview:pressure-source save local_project_fts[0].project_name", "ed4d498abca0d8e212e2fb959bc79a253ecd89531261e18d45740b2d40ec76a8:43"),
+    ("preview:pressure-source resave reply", "cd95b3ce4c88cee2337a93550f991bfb2af7ea93752e8db39d5b8538356b4899:3834"),
     ("preview:pressure-source save local_projects[0].analysis_run_json", "98d89c4f6a5d6dc0bd0e05d0710df277a5805e2ca7551ddb754a10849806861c:304299"),
     ("preview:pressure-source save local_projects[0].created_at_unix", "Integer(1793000000)"),
     ("preview:pressure-source save local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
@@ -2607,8 +2628,8 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:pressure-source save local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
     ("preview:pressure-source save local_projects[0].selected_review_target_json", "ba3aa40eae8d2c0209a00ad34f486243ccf8eefdcb1fedd76203c20e1b607773:60"),
     ("preview:pressure-source save local_projects[0].updated_at_unix", "Integer(1793000000)"),
-    ("preview:pressure-source save reply", "44b2d3beed3adbb7a07de06773a8bf9759c993f118528de32fbb24623e0492db:2969"),
-    ("preview:retained create reply", "6c0157aa90b04a0ae553ff30abeb072d3ccbe185f105131b54702e488770339a:3438"),
+    ("preview:pressure-source save reply", "e904e9b34311c200b8cd09a4d4cbfea7fa8c780203e00a2a6e4d2080f1eae755:2970"),
+    ("preview:retained create reply", "7842c8099d976a74746f29080c131ef2cf8156b578e1b2f5f333e3d2a49e225d:3478"),
     ("preview:retained record analysis_run_labels[0].assumptions_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
     ("preview:retained record analysis_run_labels[0].notes_json", "5df6d4f94dea81443474cd8fd8b70333654763c9dfbea861d2428c19e7d00a73:18"),
     ("preview:retained record analysis_run_labels[0].project_id", "d8225a4b1710080c08117f701329684ab30b1d6fb3889f5aeb9f6fea6ad90c35:44"),
@@ -2665,10 +2686,7 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:retained recorded read#0 reply", "3ffd171125bf7d03084a2c68dbf895237574e4c3b3400f33a389ced16c23d622:11323"),
     ("preview:retained recorded read#1 legacy record", "99c03ca05e6eb01064b90dc43b0d6a2855334e09a954e897c5f2079b49dc46ed:233161"),
     ("preview:retained recorded read#1 reply", "ab8fcaa9d346d3dc62efdbe2ce69ca874d80dd1eeb64a2f7ff2c3b5750cb2112:11323"),
-    ("preview:retained reopen reply", "d4c47d4ad8ed21837fa45cda07cd97901d03d0ecbf49f40ffcad2bb75b2108c8:10280"),
-    ("preview:retained resave local_project_fts[0].model_text", "8741715ffe4d9ca5ffb8c622eb96cffafec32b44e2af28935790a108bc3e7d86:236196"),
-    ("preview:retained resave local_project_fts[0].project_id", "d8225a4b1710080c08117f701329684ab30b1d6fb3889f5aeb9f6fea6ad90c35:44"),
-    ("preview:retained resave local_project_fts[0].project_name", "e0cc4a728074e1d2d4743cc8006c9dd07c1736850a300b956f7fe6ebc6ab9c63:24"),
+    ("preview:retained reopen reply", "dacf850f792ad6ed85ff30618db3b6337ce4812a443894a596aa570055c29c02:10281"),
     ("preview:retained resave local_projects[0].analysis_run_json", "dff36bf9fca7520cbbeadda57514ccf40c2c9839e7b15a31548397ea809b3699:233184"),
     ("preview:retained resave local_projects[0].created_at_unix", "Integer(1793000000)"),
     ("preview:retained resave local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
@@ -2682,10 +2700,7 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:retained resave local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
     ("preview:retained resave local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
     ("preview:retained resave local_projects[0].updated_at_unix", "Integer(1793000000)"),
-    ("preview:retained resave reply", "8ff1099776ee9fc181b511870bf09b1cd6cca8fe2c8a157731e257e940b9953a:3861"),
-    ("preview:retained save local_project_fts[0].model_text", "8741715ffe4d9ca5ffb8c622eb96cffafec32b44e2af28935790a108bc3e7d86:236196"),
-    ("preview:retained save local_project_fts[0].project_id", "d8225a4b1710080c08117f701329684ab30b1d6fb3889f5aeb9f6fea6ad90c35:44"),
-    ("preview:retained save local_project_fts[0].project_name", "e0cc4a728074e1d2d4743cc8006c9dd07c1736850a300b956f7fe6ebc6ab9c63:24"),
+    ("preview:retained resave reply", "14b866bb7d7c95434135422620690ff0c425b8a8afad7bbae3e4e0957f1e1fe9:3862"),
     ("preview:retained save local_projects[0].analysis_run_json", "dff36bf9fca7520cbbeadda57514ccf40c2c9839e7b15a31548397ea809b3699:233184"),
     ("preview:retained save local_projects[0].created_at_unix", "Integer(1793000000)"),
     ("preview:retained save local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
@@ -2699,8 +2714,8 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:retained save local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
     ("preview:retained save local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
     ("preview:retained save local_projects[0].updated_at_unix", "Integer(1793000000)"),
-    ("preview:retained save reply", "6b8a5dce7e8636930e59d98fd3d15231944ca449a101788d0c8a1358ab2bd2ce:2986"),
-    ("preview:rule-pack-excluded create reply", "4bf851c382df3ca65212e91be6512a0a82b84e9a947ca5bfe939c65f147b1303:3866"),
+    ("preview:retained save reply", "98afb7c2c4396c70f7ed45321264ad2882b1c93c0671cd6eadbfd6fe8f5d8387:2987"),
+    ("preview:rule-pack-excluded create reply", "316f9df17ded61421548f88b95cc69e8cbf49e3beae06127f620e3bfd5e21e5d:3906"),
     ("preview:rule-pack-excluded record analysis_run_labels[0].assumptions_json", "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945:2"),
     ("preview:rule-pack-excluded record analysis_run_labels[0].notes_json", "5df6d4f94dea81443474cd8fd8b70333654763c9dfbea861d2428c19e7d00a73:18"),
     ("preview:rule-pack-excluded record analysis_run_labels[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
@@ -2757,10 +2772,7 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:rule-pack-excluded recorded read#0 reply", "b6cd000af01871adb9374fc595ed52307bb0916a9a701c1cab2145b5121647be:14539"),
     ("preview:rule-pack-excluded recorded read#1 legacy record", "9effbba7f65a1f3387111a6c4bdb8e761fb021f1d810c1d95277f94a511bc3ad:144051"),
     ("preview:rule-pack-excluded recorded read#1 reply", "e7fac858d23272ec5d756471c29e86c0cf4b1d7aa8d96cc554659d5bd7744af5:14539"),
-    ("preview:rule-pack-excluded reopen reply", "f3cd3be5c3577b42416d703ad5c9a08ef3a6d75a3689aadf6ee93fc5f6de97bb:12594"),
-    ("preview:rule-pack-excluded resave local_project_fts[0].model_text", "452da0716fe48fb7f71a7e5e208275e4e2dc7ae4c85e0097a8b1c2556f6f5628:148602"),
-    ("preview:rule-pack-excluded resave local_project_fts[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
-    ("preview:rule-pack-excluded resave local_project_fts[0].project_name", "65a4ab50988845fb64d0c0005c5b1af7eadee7b8c9b6935eb905722cc8a07773:45"),
+    ("preview:rule-pack-excluded reopen reply", "3eea09e1a284a0c6f5b883a3e9cee26935f41badfc384f60bdaaf220f279f0e4:12595"),
     ("preview:rule-pack-excluded resave local_projects[0].analysis_run_json", "e75617b45057c7f84c36fe933f1683f14174d7f1f07926a450a84d9b6c9f9d39:144011"),
     ("preview:rule-pack-excluded resave local_projects[0].created_at_unix", "Integer(1793000000)"),
     ("preview:rule-pack-excluded resave local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
@@ -2774,10 +2786,7 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:rule-pack-excluded resave local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
     ("preview:rule-pack-excluded resave local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
     ("preview:rule-pack-excluded resave local_projects[0].updated_at_unix", "Integer(1793000000)"),
-    ("preview:rule-pack-excluded resave reply", "72a76a441dae415e324b2e1591b7b90ed28f99b36129da63651dc50e7b1ee00c:4239"),
-    ("preview:rule-pack-excluded save local_project_fts[0].model_text", "452da0716fe48fb7f71a7e5e208275e4e2dc7ae4c85e0097a8b1c2556f6f5628:148602"),
-    ("preview:rule-pack-excluded save local_project_fts[0].project_id", "d1e9c929ebcea16d7d74493a6093d073ecc2601f8f16e7f1daf9b10a1828862e:35"),
-    ("preview:rule-pack-excluded save local_project_fts[0].project_name", "65a4ab50988845fb64d0c0005c5b1af7eadee7b8c9b6935eb905722cc8a07773:45"),
+    ("preview:rule-pack-excluded resave reply", "38240fe1aedf2be1bfe622a2d4b41145e49410f0b3b029c66389e00bcb783136:4240"),
     ("preview:rule-pack-excluded save local_projects[0].analysis_run_json", "e75617b45057c7f84c36fe933f1683f14174d7f1f07926a450a84d9b6c9f9d39:144011"),
     ("preview:rule-pack-excluded save local_projects[0].created_at_unix", "Integer(1793000000)"),
     ("preview:rule-pack-excluded save local_projects[0].editor_intents_json", "f21abe4b59cfb3b91e8df7df4f65f7f324e44423901aaf53e2fbfa1a7160642f:125"),
@@ -2791,6 +2800,6 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:rule-pack-excluded save local_projects[0].proposal_json", "0516c8de6da19a643e9e9bf7b789bc81dc099beab278ed3c82cffba1900ced6d:82"),
     ("preview:rule-pack-excluded save local_projects[0].selected_review_target_json", "b0b571f28e5724d9095fea8cdc00559629f998bc458f1f7f0225e302ef2e23c8:69"),
     ("preview:rule-pack-excluded save local_projects[0].updated_at_unix", "Integer(1793000000)"),
-    ("preview:rule-pack-excluded save reply", "69a4d701750fbe42d1d814d93fbbbc0f951896a33349bf4306bc9ad022b376db:3414"),
+    ("preview:rule-pack-excluded save reply", "cf271da881fe376196906dd7b649fd993232738314b9a15de016ad7d061a6a31:3415"),
 ];
 

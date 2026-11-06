@@ -68,7 +68,8 @@ use tauri::AppHandle;
 
 /// Store v13: the run and run-label tables, the per-state index and the
 /// immutability triggers, as design §3 gives them. Every statement is
-/// `IF NOT EXISTS` (the store's migrations are not transactional).
+/// `IF NOT EXISTS`, so the step is safe to re-run. Since store v14 each step
+/// runs in one transaction with its `user_version` update (`apply_store_migrations`).
 /// `analysis_runs_immutable` refuses any `UPDATE`; `analysis_runs_no_replace`
 /// refuses an `INSERT` that meets an existing run of the project on either key
 /// (`recording_id` or `run_record_hash`), before conflict resolution, so

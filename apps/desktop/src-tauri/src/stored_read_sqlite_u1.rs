@@ -1,4 +1,4 @@
-//! RT-U4 C1 residual U1: a bounded diagnostic measurement of the SQLite/FTS5
+//! RT-U4 C1 residual U1: a bounded diagnostic measurement of the SQLite
 //! memory on the native Save Project's write path that the per-command
 //! ledger does not price (DEL-04-05 `Work/c1-u1-sqlite-measurement.md`).
 //!
@@ -6,20 +6,25 @@
 //! heap limit, no `sqlite3_config`, no change to the App. Both tests are
 //! `#[ignore]`d, so no ordinary or CI run executes them.
 //!
+//! Since store schema v14 a save writes no search row (the FTS sidecar is
+//! retired), so U1 is SQLite's memory for the project row's upsert and the
+//! COMMIT. The #137 figures in the measurement record were taken at store
+//! schema v13 with the FTS5 search-row replacement; that harness is in Git
+//! at its measured head. This one has not been run at v14.
+//!
 //! `u1_drive_all` (needs `SWBPIPE_U1_OUT`) runs every case in its own fresh
 //! child process of this test binary, one at a time: `sqlite3_status64` is
 //! process-global, so each child does only its own case's SQLite work. A
 //! child (`u1_measure_case`, case named by `SWBPIPE_U1_CASE`) builds its store
-//! and earlier saves with the production opener and write functions, then
+//! and earlier saves with the production opener and write function, then
 //! measures one Save Project write: `stored_read::open_store`,
-//! `stored_read::write_transaction` (BEGIN IMMEDIATE), the production
-//! `replaced_search_bytes` query, `crate::upsert_project_texts`,
-//! `crate::replace_project_search` and the transaction's COMMIT, in
+//! `stored_read::write_transaction` (BEGIN IMMEDIATE),
+//! `crate::upsert_project_texts` and the transaction's COMMIT, in
 //! `finish_save`'s order. The high-water marks are read and reset at each of
 //! those calls' boundaries, and inside them at each top-level statement's
 //! start and end (SQLite's `SQLITE_TRACE_STMT` and `SQLITE_TRACE_PROFILE`
-//! events for the statement the caller stepped; FTS5's nested statements do
-//! not move a boundary).
+//! events for the statement the caller stepped; nested statements do not
+//! move a boundary).
 
 use std::ffi::{c_char, c_int, c_uint, c_void, CStr};
 use std::fmt::Write as _;
@@ -32,7 +37,6 @@ use serde::Serialize;
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 
-use crate::native_persistence::{record_size, replaced_search_bytes, Cell};
 use crate::stored_read;
 
 const MIB: usize = 1 << 20;
@@ -327,8 +331,7 @@ impl Project {
     }
 
     /// The row's texts as a native save writes them: the fixture is the
-    /// analysis-run record; the result slot is `null` (the result text is the
-    /// project row's, priced there, and not part of the search text).
+    /// analysis-run record; the result slot is `null`.
     fn texts(&self) -> crate::ProjectTexts<'_> {
         crate::ProjectTexts {
             model_json: &self.model,
@@ -348,9 +351,7 @@ impl Project {
 fn prior_save(path: &Path, project: &Project) -> Result<(), String> {
     let mut connection = stored_read::open_store(path)?;
     let transaction = stored_read::write_transaction(&mut connection)?;
-    let texts = project.texts();
-    let search = texts.search_text();
-    crate::write_project_texts(&transaction, &project.id, &project.name, &texts, &search, NOW).map_err(|error| error.to_string())?;
+    crate::upsert_project_texts(&transaction, &project.id, &project.name, &project.texts(), NOW).map_err(|error| error.to_string())?;
     transaction.commit().map_err(|error| error.to_string())
 }
 
@@ -476,6 +477,26 @@ fn fixture_row(role: &str, project: usize, fx: Fx, text: &str) -> Value {
     })
 }
 
+/// The row's text bytes: the id, the name and the eight slots.
+fn row_text_bytes(project: &Project) -> u64 {
+    let texts = project.texts();
+    [
+        project.id.as_str(),
+        project.name.as_str(),
+        texts.model_json,
+        texts.editor_intents_json,
+        texts.proposal_json,
+        texts.selected_review_target_json,
+        texts.mechanics_result_json,
+        texts.analysis_run_json,
+        texts.model_hash_json,
+        texts.project_envelope_hash_json,
+    ]
+    .iter()
+    .map(|text| text.len() as u64)
+    .sum()
+}
+
 fn measure(case: &Case) -> Value {
     let dir = scratch();
     let path = dir.join("store.sqlite3");
@@ -483,19 +504,19 @@ fn measure(case: &Case) -> Value {
     // the production opener, then each earlier save.
     drop(stored_read::open_store(&path).expect("the store opens"));
     let mut fixtures = Vec::new();
-    let mut prior_a_search = 0u64;
-    // Each other project's stored search text: its last save's.
+    let mut prior_a_row = 0u64;
+    // Each other project's stored row texts: its last save's.
     let mut last: Vec<(usize, u64)> = Vec::new();
     for (index, fx) in &case.prior {
         let record = fixture(*fx);
         fixtures.push(fixture_row("prior", *index, *fx, &record));
         let project = Project::new(*index, record);
-        let search_length = project.texts().search_parts().length();
+        let row_length = row_text_bytes(&project);
         if *index == 0 {
-            prior_a_search = search_length;
+            prior_a_row = row_length;
         } else {
             last.retain(|(other, _)| other != index);
-            last.push((*index, search_length));
+            last.push((*index, row_length));
         }
         prior_save(&path, &project).expect("an earlier save");
     }
@@ -504,8 +525,7 @@ fn measure(case: &Case) -> Value {
     fixtures.push(fixture_row("new", 0, case.new, &record));
     let project = Project::new(0, record);
     let texts = project.texts();
-    let search = texts.search_text();
-    assert_eq!(search.len() as u64, texts.search_parts().length());
+    let row_bytes = row_text_bytes(&project);
 
     // The measured window.
     MARKS.lock().unwrap_or_else(|poisoned| poisoned.into_inner()).clear();
@@ -517,12 +537,8 @@ fn measure(case: &Case) -> Value {
     set_trace(handle, true);
     let transaction = stored_read::write_transaction(&mut connection).expect("BEGIN IMMEDIATE");
     mark("write_transaction");
-    let replaced = replaced_search_bytes(&transaction, &project.id).expect("the replaced search row's bytes");
-    mark("replaced_search_bytes");
     crate::upsert_project_texts(&transaction, &project.id, &project.name, &texts, NOW).expect("the project row");
     mark("upsert_project_texts");
-    crate::replace_project_search(&transaction, &project.id, &project.name, &search).expect("the search row");
-    mark("replace_project_search");
     transaction.commit().expect("COMMIT");
     mark("commit");
     set_trace(handle, false);
@@ -537,75 +553,48 @@ fn measure(case: &Case) -> Value {
         (state.nested_statements, state.nested_sql_max)
     };
 
-    // After the window: the index's shape, read by a separate connection.
+    // After the window, read by a separate connection: no FTS sidecar table.
     let after = {
         let connection = stored_read::open_store(&path).expect("the store opens");
-        let data: (i64, i64) = connection.query_row("SELECT count(*), coalesce(sum(length(block)), 0) FROM local_project_fts_data", [], |row| Ok((row.get(0)?, row.get(1)?))).expect("fts data");
-        let segments: i64 = connection.query_row("SELECT count(DISTINCT segid) FROM local_project_fts_idx", [], |row| row.get(0)).expect("fts idx");
-        let content: i64 = connection.query_row("SELECT count(*) FROM local_project_fts_content", [], |row| row.get(0)).expect("fts content");
-        json!({ "fts_data_rows": data.0, "fts_data_bytes": data.1, "fts_segments": segments, "fts_content_rows": content })
+        let fts_tables: i64 = connection.query_row("SELECT count(*) FROM sqlite_master WHERE name LIKE 'local_project_fts%'", [], |row| row.get(0)).expect("the schema");
+        let version = crate::store_user_version(&connection).expect("user_version");
+        json!({ "fts_tables": fts_tables, "user_version": version })
     };
     let _ = std::fs::remove_dir_all(&dir);
 
     let at = |label: &str| marks.iter().position(|mark| mark.label == label).unwrap_or_else(|| panic!("boundary {label}"));
-    let (baseline, open, begin, replaced_at, upsert, replace, commit, close) = (
-        at("baseline"),
-        at("open_store"),
-        at("write_transaction"),
-        at("replaced_search_bytes"),
-        at("upsert_project_texts"),
-        at("replace_project_search"),
-        at("commit"),
-        at("close"),
-    );
+    let (baseline, open, begin, upsert, commit, close) = (at("baseline"), at("open_store"), at("write_transaction"), at("upsert_project_texts"), at("commit"), at("close"));
     let peak = |from: usize, to: usize| marks[from + 1..=to].iter().map(|mark| mark.peak).max().unwrap_or(i64::MIN);
-    // The FTS delete phase runs from the upsert's return to the DELETE's end
-    // (it includes the statements FTS5 itself runs while the DELETE is
-    // prepared); the insert phase from there to `replace_project_search`'s return.
-    let delete_end = upsert + 1 + marks[upsert + 1..=replace].iter().position(|mark| mark.label.starts_with("exec: DELETE FROM local_project_fts")).expect("the DELETE's end");
-    let upsert_peak = peak(replaced_at, upsert);
-    let delete_peak = peak(upsert, delete_end);
-    let insert_peak = peak(delete_end, replace);
-    let commit_peak = peak(replace, commit);
-    let replace_start = marks[upsert].current;
-    let id_name = (project.id.len() + project.name.len()) as u64;
-    let search_row = record_size(&[Cell::Null, Cell::Text(project.id.len() as u64), Cell::Text(project.name.len() as u64), Cell::Text(search.len() as u64)]);
-    let ledger_search = id_name + search.len() as u64 + search_row + replaced;
-    let delta_replace = delete_peak.max(insert_peak) - replace_start;
-    let delta_commit = commit_peak - replace_start;
-    let excess_replace = delta_replace - ledger_search as i64;
+    let upsert_start = marks[begin].current;
+    let upsert_peak = peak(begin, upsert);
+    let commit_peak = peak(upsert, commit);
+    let delta_upsert = upsert_peak - upsert_start;
+    let delta_commit = commit_peak - upsert_start;
     let memstatus = marks[open].current > 0 && marks[open].allocations > 0;
     json!({
         "case": case.name,
         "kind": case.kind,
         "memstatus_enabled": memstatus,
         "fixtures": fixtures,
-        "search_bytes": search.len(),
-        "replaced_search_bytes": replaced,
-        "prior_a_search_bytes": prior_a_search,
-        "other_rows_search_bytes": other_rows,
+        "row_text_bytes": row_bytes,
+        "prior_a_row_text_bytes": prior_a_row,
+        "other_rows_text_bytes": other_rows,
         "summary": if memstatus { json!({
             "baseline_current": marks[baseline].current,
             "open_peak": marks[open].peak,
             "open_end": marks[open].current,
             "begin_peak": peak(open, begin),
-            "replaced_query_peak": peak(begin, replaced_at),
-            "upsert_start": marks[replaced_at].current,
+            "upsert_start": upsert_start,
             "upsert_peak": upsert_peak,
-            "replace_start": replace_start,
-            "delete_peak": delete_peak,
-            "insert_peak": insert_peak,
-            "replace_end": marks[replace].current,
+            "upsert_end": marks[upsert].current,
             "commit_peak": commit_peak,
             "commit_end": marks[commit].current,
             "close_end": marks[close].current,
             "window_peak": marks[baseline + 1..=commit].iter().map(|mark| mark.peak).max(),
             "largest_allocation": marks[baseline + 1..=commit].iter().map(|mark| mark.largest_allocation).max(),
-            "ledger_search_copies": ledger_search,
-            "delta_replace": delta_replace,
-            "excess_replace": excess_replace,
+            "delta_upsert": delta_upsert,
             "delta_commit": delta_commit,
-            "u1": excess_replace.max(delta_commit),
+            "u1": delta_upsert.max(delta_commit),
             "page_cache_used_after_commit": cache_used,
         }) } else { json!("unavailable evidence: SQLITE_STATUS_MEMORY_USED read zero") },
         "trace": { "nested_statements": nested_statements, "nested_sql_max_bytes": nested_sql_max },
@@ -641,9 +630,6 @@ fn probe() -> Value {
         let value = connection.query_row(&format!("PRAGMA {name}"), [], |row| row.get::<_, rusqlite::types::Value>(0)).map(sqlite_value).unwrap_or_else(|error| json!(format!("error: {error}")));
         pragmas.insert(name.to_string(), value);
     }
-    let mut statement = connection.prepare("SELECT k, v FROM local_project_fts_config ORDER BY k").expect("fts config");
-    let fts_config: Vec<Value> = statement.query_map([], |row| Ok(json!([sqlite_value(row.get(0)?), sqlite_value(row.get(1)?)]))).expect("fts config rows").collect::<Result<_, _>>().expect("fts config rows");
-    drop(statement);
     let compile_options = crate::sqlite_compile_options(&connection).expect("compile options");
     let fts5 = crate::fts5_available(&connection);
     drop(connection);
@@ -659,7 +645,6 @@ fn probe() -> Value {
         "memstatus_enabled": current > 0 && allocations > 0,
         "fts5_available": fts5,
         "production_connection_pragmas": pragmas,
-        "local_project_fts_config_rows": fts_config,
         "compile_options": compile_options,
     })
 }
@@ -732,7 +717,6 @@ fn render(raw: &[String], head: &str) -> String {
         writeln!(w, "- `{key}`: `{}`", probe[key]).unwrap();
     }
     writeln!(w, "- production connection pragmas (after `stored_read::open_store`): `{}`", probe["production_connection_pragmas"]).unwrap();
-    writeln!(w, "- `local_project_fts_config` rows (FTS5 options set by the store; none means every FTS5 default): `{}`", probe["local_project_fts_config_rows"]).unwrap();
     writeln!(w, "- `PRAGMA compile_options` (via `crate::sqlite_compile_options`):").unwrap();
     writeln!(w).unwrap();
     writeln!(w, "```text").unwrap();
@@ -759,30 +743,28 @@ fn render(raw: &[String], head: &str) -> String {
 
     writeln!(w, "#### G3. Per case: `SQLITE_STATUS_MEMORY_USED` (bytes)").unwrap();
     writeln!(w).unwrap();
-    writeln!(w, "|S| is the new search text, |S'| the replaced search row's slots (`replaced_search_bytes`), T the other projects' stored search texts. Phase high-waters are absolute (process-global current plus the phase's rise); `live end` is the current after COMMIT returned and after the connection closed.").unwrap();
+    writeln!(w, "|R| is the new row's text bytes (id, name and the eight slots), T the other projects' stored row texts. Phase high-waters are absolute (process-global current plus the phase's rise); `live end` is the current after COMMIT returned and after the connection closed.").unwrap();
     writeln!(w).unwrap();
-    writeln!(w, "| case | \\|S\\| | \\|S'\\| | T | baseline | open end | upsert hw | FTS delete hw | FTS insert hw | live after replace | COMMIT hw | live after COMMIT | live after close |").unwrap();
-    writeln!(w, "|---|---:|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|").unwrap();
+    writeln!(w, "| case | \\|R\\| | T | baseline | open end | upsert start | upsert hw | live after upsert | COMMIT hw | live after COMMIT | live after close |").unwrap();
+    writeln!(w, "|---|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|").unwrap();
     for value in &values[1..] {
         let s = &value["summary"];
         if !s.is_object() {
-            writeln!(w, "| {} | {} | {} | | {} | | | | | | | | |", value["case"].as_str().unwrap_or_default(), value["search_bytes"], value["replaced_search_bytes"], s).unwrap();
+            writeln!(w, "| {} | {} | | {} | | | | | | | |", value["case"].as_str().unwrap_or_default(), value["row_text_bytes"], s).unwrap();
             continue;
         }
-        let others = value["other_rows_search_bytes"].as_array().map(|rows| rows.iter().map(|row| row.to_string()).collect::<Vec<_>>().join(" + ")).unwrap_or_default();
+        let others = value["other_rows_text_bytes"].as_array().map(|rows| rows.iter().map(|row| row.to_string()).collect::<Vec<_>>().join(" + ")).unwrap_or_default();
         writeln!(
             w,
-            "| {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} |",
+            "| {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} |",
             value["case"].as_str().unwrap_or_default(),
-            value["search_bytes"],
-            value["replaced_search_bytes"],
+            value["row_text_bytes"],
             if others.is_empty() { "0".to_string() } else { others },
             s["baseline_current"],
             s["open_end"],
+            s["upsert_start"],
             s["upsert_peak"],
-            s["delete_peak"],
-            s["insert_peak"],
-            s["replace_end"],
+            s["upsert_end"],
             s["commit_peak"],
             s["commit_end"],
             s["close_end"]
@@ -791,125 +773,45 @@ fn render(raw: &[String], head: &str) -> String {
     }
     writeln!(w).unwrap();
 
-    writeln!(w, "#### G4. Per case: rise over the replace's start and the ledger's search charge (bytes)").unwrap();
+    writeln!(w, "#### G4. Per case: rises over the upsert's start (bytes)").unwrap();
     writeln!(w).unwrap();
-    writeln!(w, "R0 = current when `replace_project_search` began. Δrep = max(FTS delete hw, FTS insert hw) − R0. Ledger = `finish_save`'s \"SQLite's copies of the project's search row\" reservation (id + name + |S| + search-row record + |S'|), held only while `replace_project_search` runs. Excess = Δrep − ledger. Δcommit = COMMIT hw − R0 (the ledger holds no SQLite reservation for COMMIT). U1 = max(excess, Δcommit). Largest = the largest single SQLite allocation request in the window.").unwrap();
+    writeln!(w, "U0 = current when the upsert began. Δupsert = upsert hw − U0; Δcommit = COMMIT hw − U0; U1 = max(Δupsert, Δcommit). The ledger's \"SQLite's copies of the project's row\" reservation is not subtracted here. Largest = the largest single SQLite allocation request in the window.").unwrap();
     writeln!(w).unwrap();
-    writeln!(w, "| case | R0 | Δrep | ledger | excess | live after replace − R0 | Δcommit | U1 | U1/\\|S\\| | largest | page cache after COMMIT | FTS segments after |").unwrap();
-    writeln!(w, "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|").unwrap();
-    for value in &values[1..] {
+    writeln!(w, "| case | U0 | Δupsert | Δcommit | U1 | U1/\\|R\\| | largest | page cache after COMMIT | FTS tables after | user_version after |").unwrap();
+    writeln!(w, "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|").unwrap();
+    let measured: Vec<&Value> = values[1..].iter().filter(|value| value["summary"].is_object()).collect();
+    for value in &measured {
         let s = &value["summary"];
-        if !s.is_object() {
-            continue;
-        }
-        let search = number(&value["search_bytes"]).max(1) as f64;
         writeln!(
             w,
-            "| {} | {} | {} | {} | {} | {} | {} | {} | {:.3} | {} | {} | {} |",
+            "| {} | {} | {} | {} | {} | {:.3} | {} | {} | {} | {} |",
             value["case"].as_str().unwrap_or_default(),
-            s["replace_start"],
-            s["delta_replace"],
-            s["ledger_search_copies"],
-            s["excess_replace"],
-            number(&s["replace_end"]) - number(&s["replace_start"]),
+            s["upsert_start"],
+            s["delta_upsert"],
             s["delta_commit"],
             s["u1"],
-            number(&s["u1"]) as f64 / search,
+            number(&s["u1"]) as f64 / number(&value["row_text_bytes"]).max(1) as f64,
             s["largest_allocation"],
             s["page_cache_used_after_commit"],
-            value["after"]["fts_segments"]
+            value["after"]["fts_tables"],
+            value["after"]["user_version"]
         )
         .unwrap();
     }
     writeln!(w).unwrap();
 
-    writeln!(w, "#### G5. Empirical fits over the measured cases only").unwrap();
+    writeln!(w, "#### G5. Derived checks over the measured cases").unwrap();
     writeln!(w).unwrap();
-    writeln!(w, "For each base X and constant k, the least c with U1 ≤ c·X + k for every measured case (no margin added; not a bound for any unmeasured text). S' = replaced search row, Tmax = largest other stored search text.").unwrap();
-    writeln!(w).unwrap();
-    writeln!(w, "| base X | k = 0 | k = 1 MiB | k = 4 MiB | k = 8 MiB |").unwrap();
-    writeln!(w, "|---|---:|---:|---:|---:|").unwrap();
-    type Base = fn(&Value) -> i64;
-    let bases: [(&str, Base); 4] = [
-        ("\\|S\\|", |v| number(&v["search_bytes"])),
-        ("\\|S\\| + \\|S'\\|", |v| number(&v["search_bytes"]) + number(&v["replaced_search_bytes"])),
-        ("max(\\|S\\|, \\|S'\\|)", |v| number(&v["search_bytes"]).max(number(&v["replaced_search_bytes"]))),
-        ("\\|S\\| + \\|S'\\| + Tmax", |v| {
-            number(&v["search_bytes"]) + number(&v["replaced_search_bytes"]) + v["other_rows_search_bytes"].as_array().into_iter().flatten().map(number).max().unwrap_or(0)
-        }),
-    ];
-    let measured: Vec<&Value> = values[1..].iter().filter(|value| value["summary"].is_object()).collect();
-    for (name, base) in bases {
-        let mut row = format!("| {name} |");
-        for k in [0i64, MIB as i64, 4 * MIB as i64, 8 * MIB as i64] {
-            let c = measured.iter().map(|value| (number(&value["summary"]["u1"]) - k) as f64 / base(value).max(1) as f64).fold(f64::MIN, f64::max);
-            write!(row, " {c:.3} |").unwrap();
-        }
-        writeln!(w, "{row}").unwrap();
-    }
-    writeln!(w).unwrap();
-    writeln!(w, "Per family (base \\|S\\| + \\|S'\\| + Tmax, k = 4 MiB): least c over that family's cases (a cross case counts for its new text's family).").unwrap();
-    writeln!(w).unwrap();
-    writeln!(w, "| family | cases | least c |").unwrap();
-    writeln!(w, "|---|---:|---:|").unwrap();
-    for family in FAMILIES {
-        let members: Vec<&&Value> = measured.iter().filter(|value| value["fixtures"].as_array().and_then(|rows| rows.last()).map_or(false, |row| row["family"] == family.name())).collect();
-        let c = members
-            .iter()
-            .map(|value| {
-                let base = number(&value["search_bytes"]) + number(&value["replaced_search_bytes"]) + value["other_rows_search_bytes"].as_array().into_iter().flatten().map(number).max().unwrap_or(0);
-                (number(&value["summary"]["u1"]) - 4 * MIB as i64) as f64 / base.max(1) as f64
-            })
-            .fold(f64::MIN, f64::max);
-        if members.is_empty() {
-            writeln!(w, "| {} | 0 | — |", family.name()).unwrap();
-        } else {
-            writeln!(w, "| {} | {} | {c:.3} |", family.name(), members.len()).unwrap();
-        }
-    }
-    writeln!(w).unwrap();
-
-    writeln!(w, "#### G5b. Derived checks over the measured cases").unwrap();
-    writeln!(w).unwrap();
-    let tmax = |value: &Value| value["other_rows_search_bytes"].as_array().into_iter().flatten().map(number).max().unwrap_or(0);
-    let larger = |value: &Value| number(&value["search_bytes"]).max(number(&value["replaced_search_bytes"]));
     let s = |value: &Value, key: &str| number(&value["summary"][key]);
     let all_zero = |key: &str| measured.iter().all(|value| s(value, key) == 0);
     writeln!(w, "- cases measured: {}; memory statistics enabled in every process: {}", measured.len(), values[1..].iter().all(|value| value["memstatus_enabled"] == true)).unwrap();
     writeln!(w, "- baseline current 0 in every process: {}; live after close 0 in every process: {}", all_zero("baseline_current"), all_zero("close_end")).unwrap();
+    writeln!(w, "- no FTS sidecar table in any case's store: {}", values[1..].iter().all(|value| number(&value["after"]["fts_tables"]) == 0)).unwrap();
     let caches: std::collections::BTreeSet<i64> = measured.iter().map(|value| s(value, "page_cache_used_after_commit")).collect();
     writeln!(w, "- page cache in use after COMMIT (`SQLITE_DBSTATUS_CACHE_USED`), distinct values: {caches:?}").unwrap();
-    writeln!(w, "- longest nested-statement SQL text seen by the trace callback (bounds the trace's own `-- <sql>` allocation): {} bytes", values[1..].iter().map(|value| number(&value["trace"]["nested_sql_max_bytes"])).max().unwrap_or(0)).unwrap();
-    let commit_own = measured.iter().map(|value| (s(value, "commit_peak") - s(value, "replace_end"), value["case"].as_str().unwrap_or_default())).max().unwrap_or((0, ""));
-    writeln!(w, "- COMMIT's own rise over the live bytes it began with, largest: {} bytes ({})", commit_own.0, commit_own.1).unwrap();
-    let by_commit = measured.iter().filter(|value| s(value, "delta_commit") > s(value, "excess_replace")).count();
-    writeln!(w, "- U1 set by Δcommit in {by_commit} cases, by the replace's excess in {}", measured.len() - by_commit).unwrap();
-    let retained = measured.iter().map(|value| ((s(value, "commit_end") - s(value, "replace_start")) as f64 / larger(value).max(1) as f64, value["case"].as_str().unwrap_or_default())).fold((f64::MIN, ""), |a, b| if b.0 > a.0 { b } else { a });
-    writeln!(w, "- live after COMMIT − R0 (held until the connection closes), largest per byte of max(\\|S\\|, \\|S'\\|): {:.3} ({})", retained.0, retained.1).unwrap();
-    let upsert = measured.iter().map(|value| ((s(value, "upsert_peak") - s(value, "upsert_start")) - 2 * number(&value["search_bytes"]), value["case"].as_str().unwrap_or_default())).max().unwrap_or((0, ""));
-    writeln!(w, "- upsert rise over its start minus 2·\\|S\\| (the row's texts and its record, approximately what its ledger reservation covers), largest: {} bytes ({})", upsert.0, upsert.1).unwrap();
-    writeln!(w).unwrap();
-    writeln!(w, "Multi-project cases: the FTS delete phase's rise over R0 against the largest other stored search text.").unwrap();
-    writeln!(w).unwrap();
-    writeln!(w, "| case | FTS delete hw − R0 | Tmax | sum of other rows | ratio to Tmax |").unwrap();
-    writeln!(w, "|---|---:|---:|---:|---:|").unwrap();
-    for value in measured.iter().filter(|value| value["kind"] == "multi") {
-        let rise = s(value, "delete_peak") - s(value, "replace_start");
-        let sum: i64 = value["other_rows_search_bytes"].as_array().into_iter().flatten().map(number).sum();
-        writeln!(w, "| {} | {rise} | {} | {sum} | {:.3} |", value["case"].as_str().unwrap_or_default(), tmax(value), rise as f64 / tmax(value).max(1) as f64).unwrap();
-    }
-    writeln!(w).unwrap();
-    writeln!(w, "Candidate envelopes E (proposal inputs, chosen after the data): the least E/U1 over every measured case.").unwrap();
-    writeln!(w).unwrap();
-    writeln!(w, "| E | least E/U1 | at case |").unwrap();
-    writeln!(w, "|---|---:|---|").unwrap();
-    for (a, b, k) in [(32.0, 1.25, 4i64), (36.0, 1.25, 4), (40.0, 1.5, 8)] {
-        let worst = measured
-            .iter()
-            .map(|value| ((a * larger(value) as f64 + b * tmax(value) as f64 + (k * MIB as i64) as f64) / s(value, "u1").max(1) as f64, value["case"].as_str().unwrap_or_default()))
-            .fold((f64::MAX, ""), |a, b| if b.0 < a.0 { b } else { a });
-        writeln!(w, "| {a}·max(\\|S\\|, \\|S'\\|) + {b}·Tmax + {k} MiB | {:.3} | {} |", worst.0, worst.1).unwrap();
-    }
+    writeln!(w, "- longest nested-statement SQL text seen by the trace callback: {} bytes", values[1..].iter().map(|value| number(&value["trace"]["nested_sql_max_bytes"])).max().unwrap_or(0)).unwrap();
+    let by_commit = measured.iter().filter(|value| s(value, "delta_commit") > s(value, "delta_upsert")).count();
+    writeln!(w, "- U1 set by Δcommit in {by_commit} cases, by Δupsert in {}", measured.len() - by_commit).unwrap();
     writeln!(w).unwrap();
 
     writeln!(w, "#### G6. Raw child output (verbatim result lines, one per process)").unwrap();
