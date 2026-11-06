@@ -907,6 +907,7 @@ fn support_summary<'a>(
         let along_rows = along.get(&js_key(support.get("id"))).and_then(|by| by.get(&case.key)).unwrap_or(&empty);
         let along_value = match along_rows.as_slice() {
             [row] => object([
+                // Encoded as the reaction columns' values (`emitted_value`: the finite f64 `index_rows` admitted).
                 ("value", Some(json!(finite(row.get("value")).expect("indexed rows are finite")))),
                 ("unit", copied(row.get("unit"))),
                 ("resultId", copied(row.get("id"))),

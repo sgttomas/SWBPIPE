@@ -580,7 +580,8 @@ fn the_recorded_pre_rt_a4_registry_is_the_typescript_and_python_registry() {
         }
         other => panic!("Python: unrecognized entry {other:?}"),
     }).collect();
-    // S-K1 (R-6/R-7): main's three tables at 9e5c69797 join as the last three variants.
+    // S-K1 (R-6/R-7): S-K1's own `_RECORDED_SK1_DIR` variants, the three pre-S-K1 preview-physics
+    // tables (S-K1's merge base; unchanged on main from 9e5c69797 through 6cb1c3dc3), are the last three.
     assert_eq!(native.len(), 16, "{native:?}");
     assert_eq!(typescript.iter().map(|[id, sha, _]| [id.clone(), sha.clone()]).collect::<Vec<_>>(), native, "the TypeScript registry");
     assert_eq!(python.iter().map(|[id, sha, _]| [id.clone(), sha.clone()]).collect::<Vec<_>>(), native, "the Python registry");
