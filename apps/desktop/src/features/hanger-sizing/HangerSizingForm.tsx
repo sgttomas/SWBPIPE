@@ -4,8 +4,10 @@
  *
  * Every input is the person's own (REQ-001, AC-012): the form starts with no library, no candidate, no case and no
  * method choice, and nothing is pre-filled. `weight_support_state` is `own_solve`, the only admitted value, shown as a
- * fixed fact. The sizing never writes the model; a result is not recorded or saved. A newer request supersedes the
- * one in progress, and only the latest request's reply is shown, and only while this project session is current. */
+ * fixed fact. The sizing never writes the model; a result is not recorded or saved. A newer request retires the one
+ * in progress before it is sent, and only the latest request's reply is shown, and only while this project session
+ * (this mount, with this project) is current. A request whose retirement the native host did not confirm is not
+ * sent, and its refusal is shown. */
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { PreviewModel } from "../../types";
@@ -60,8 +62,17 @@ export function HangerSizingForm({ model, busy = false }: Props) {
   const [running, setRunning] = useState(false);
   const [shown, setShown] = useState<Shown | null>(null);
   const projectId = model.project.id;
-  // A request in progress belongs to this mount (one project session): unmounting retires it.
-  useEffect(() => () => { void retireHangerSizing(); }, []);
+  // The project session a request belongs to: this mount, with this project. Ending it (an unmount, another project)
+  // retires the request in progress, and a start of the ended session re-checks this before it is sent.
+  const session = useRef({ live: false, projectId });
+  const requests = useRef(0);
+  useEffect(() => {
+    session.current = { live: true, projectId };
+    return () => {
+      session.current = { live: false, projectId };
+      void retireHangerSizing();
+    };
+  }, [projectId]);
 
   const supportOptions = useMemo(() => model.supports.map((support) => ({ value: support.id, label: support.label || support.id, keywords: [support.node] })), [model.supports]);
   const caseOptions = useMemo(() => model.load_cases.map((loadCase) => [loadCase.id, loadCase.label ? `${loadCase.label} (${loadCase.id})` : loadCase.id] as [string, string]), [model.load_cases]);
@@ -103,10 +114,16 @@ export function HangerSizingForm({ model, busy = false }: Props) {
     const assembled = assembleHangerSizingInput(form, model, selected);
     if (!assembled.ok) { setMissing(assembled.missing); return; }
     const requestLibrary = assembled.input.library;
+    const request = ++requests.current;
     setRunning(true);
-    const completion = await sizeHangers(assembled.input);
-    // A stale completion (a newer request, a retirement) never replaces the shown result.
-    if (!completion.current()) return;
+    const stillCurrent = () => session.current.live && session.current.projectId === projectId;
+    const completion = await sizeHangers(assembled.input, stillCurrent);
+    // A stale completion (a newer request, a retirement) never replaces the shown result. The form's latest request,
+    // retired while the form stays mounted (another project), ends its running state; a newer request keeps its own.
+    if (!completion.current()) {
+      if (request === requests.current && session.current.live) setRunning(false);
+      return;
+    }
     setRunning(false);
     setShown({ completion, library: requestLibrary });
   }

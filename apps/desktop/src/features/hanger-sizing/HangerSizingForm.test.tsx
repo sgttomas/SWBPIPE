@@ -2,7 +2,9 @@
 // has no pre-set choice; an incomplete request names what is missing and sends nothing; a complete one is the exact
 // headless input (`fixtures/results/hanger_sizing_input_two_span.json`); and the capped worker's reply to that input
 // (`hanger_sizing_reply_two_span.json`, pinned by the Rust command test) is shown by 3b's panel with its standings
-// bound and the library's record details. A stale reply never replaces the shown result.
+// bound and the library's record details. A stale reply never replaces the shown result, a late library open never
+// replaces the selected one, and a request whose retirement is unconfirmed is refused with nothing sent. `invoke` is
+// mocked: these tests show what the form sends, not what Tauri's transport delivers.
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import twoSpanInput from "../../../../../fixtures/results/hanger_sizing_input_two_span.json";
@@ -37,9 +39,13 @@ function deferred<T>() {
   return { promise, resolve };
 }
 
-/** A native host with one stored hanger library; `size` answers `size_hangers`. */
-function host(size: () => Promise<unknown> = () => Promise.resolve(structuredClone(twoSpanReply))) {
-  invokeMock.mockImplementation((command: string) => {
+/** `cancel_hanger_sizing`'s acknowledgement of its own retirement id. */
+const acknowledge = (args: unknown) => Promise.resolve({ cancelled: false, epoch: 1, retirement_id: (args as { retirementId: unknown }).retirementId });
+
+/** A native host with one stored hanger library; `size` answers `size_hangers` and `retire` answers
+ * `cancel_hanger_sizing`. */
+function host(size: () => Promise<unknown> = () => Promise.resolve(structuredClone(twoSpanReply)), retire: (args: unknown) => Promise<unknown> = acknowledge) {
+  invokeMock.mockImplementation((command: string, args?: unknown) => {
     if (command === "list_local_libraries") {
       return Promise.resolve([{ project_id: model().project.id, library_kind: "hanger", library_id: LIBRARY_ID, library_name: "Invented sizing hangers", privacy_class: "private", storage_mode: "local", created_at_unix: 0, updated_at_unix: 0 }]);
     }
@@ -47,7 +53,7 @@ function host(size: () => Promise<unknown> = () => Promise.resolve(structuredClo
       return Promise.resolve({ project_id: model().project.id, library_kind: "hanger", library_id: LIBRARY_ID, storage_mode: "local", created_at_unix: 0, updated_at_unix: 0, document: library(), validation: { accepted: true, has_blocking_findings: false, findings: [] }, message: "" });
     }
     if (command === "size_hangers") return size();
-    if (command === "cancel_hanger_sizing") return Promise.resolve({ cancelled: true, duplicate: false });
+    if (command === "cancel_hanger_sizing") return retire(args);
     return Promise.reject(new Error(`unexpected ${command}`));
   });
 }
@@ -160,7 +166,7 @@ describe("the request form", () => {
         return opens.get(id)!.promise;
       }
       if (command === "size_hangers") return Promise.resolve(structuredClone(twoSpanReply));
-      if (command === "cancel_hanger_sizing") return Promise.resolve({ cancelled: true, duplicate: false });
+      if (command === "cancel_hanger_sizing") return acknowledge(args);
       return Promise.reject(new Error(`unexpected ${command}`));
     });
     render(<HangerSizingForm model={model()} />);
@@ -218,6 +224,59 @@ describe("the request form", () => {
     expect(invokeMock.mock.calls.some(([command]) => command === "size_hangers")).toBe(false);
   });
 
+  it("keeps the selected library's document and status when an obsolete open fails after it completed, and sends it", async () => {
+    const OTHER_ID = "invented.hangers.other";
+    const other = () => {
+      const document = library() as { hanger_library: { library_id: string; name: string } };
+      document.hanger_library = { ...document.hanger_library, library_id: OTHER_ID, name: "Invented other hangers" };
+      return document as unknown as Record<string, unknown>;
+    };
+    const opens = new Map<string, ReturnType<typeof deferred<unknown>>>([[LIBRARY_ID, deferred()], [OTHER_ID, deferred()]]);
+    const envelope = (libraryId: string, document: Record<string, unknown> | null) => ({
+      project_id: model().project.id, library_kind: "hanger", library_id: libraryId, storage_mode: "local", created_at_unix: 0, updated_at_unix: 0,
+      document, validation: { accepted: true, has_blocking_findings: false, findings: [] }, message: ""
+    });
+    invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
+      if (command === "list_local_libraries") {
+        return Promise.resolve([LIBRARY_ID, OTHER_ID].map((library_id) => ({ project_id: model().project.id, library_kind: "hanger", library_id, library_name: library_id, privacy_class: "private", storage_mode: "local", created_at_unix: 0, updated_at_unix: 0 })));
+      }
+      if (command === "open_local_library") return opens.get(JSON.stringify(args ?? {}).includes(OTHER_ID) ? OTHER_ID : LIBRARY_ID)!.promise;
+      if (command === "size_hangers") return Promise.resolve(structuredClone(twoSpanReply));
+      if (command === "cancel_hanger_sizing") return acknowledge(args);
+      return Promise.reject(new Error(`unexpected ${command}`));
+    });
+    render(<HangerSizingForm model={model()} />);
+    fireEvent.click(screen.getByRole("button", { name: "Refresh hanger libraries" }));
+    await screen.findByRole("option", { name: OTHER_ID });
+    // Choose A, then B; B's open completes first, then A's late open fails (the library no longer exists).
+    select("hanger-sizing-library", LIBRARY_ID);
+    select("hanger-sizing-library", OTHER_ID);
+    await waitFor(() => expect(invokeMock.mock.calls.filter(([command]) => command === "open_local_library")).toHaveLength(2));
+    await act(async () => { opens.get(OTHER_ID)!.resolve(envelope(OTHER_ID, other())); });
+    await act(async () => { opens.get(LIBRARY_ID)!.resolve(envelope(LIBRARY_ID, null)); });
+    // B's status stands: no notice, and B is still selected.
+    expect(screen.queryByTestId("hanger-sizing-notice")).toBeNull();
+    expect((screen.getByTestId("hanger-sizing-library") as HTMLSelectElement).value).toBe(OTHER_ID);
+    const picker = screen.getByTestId("hanger-sizing-candidates");
+    fireEvent.click(within(picker).getByRole("option", { name: /support:B/ }));
+    select("hanger-sizing-policy-0", "variable");
+    select("hanger-sizing-weight-case", "load:W");
+    select("hanger-sizing-design-case", "load:O1");
+    fireEvent.click(screen.getByRole("checkbox", { name: /load:O2/ }));
+    select("hanger-sizing-load-design", "hot");
+    select("hanger-sizing-variation-reference", "operating_load");
+    fireEvent.change(screen.getByTestId("hanger-sizing-variation-limit"), { target: { value: "0.25" } });
+    fireEvent.change(screen.getByTestId("hanger-sizing-travel-allowance"), { target: { value: "0.002" } });
+    select("hanger-sizing-selection-rule", "smallest_capacity");
+    select("hanger-sizing-solver-mode", "dense_scrutiny");
+    fireEvent.click(screen.getByTestId("hanger-sizing-run"));
+    // B's document stands: the request is complete and sends B.
+    await waitFor(() => expect(invokeMock.mock.calls.some(([command]) => command === "size_hangers")).toBe(true));
+    expect(screen.queryByTestId("hanger-sizing-missing")).toBeNull();
+    const sent = invokeMock.mock.calls.find(([command]) => command === "size_hangers")![1] as { inputText: string };
+    expect(JSON.parse(sent.inputText).library).toEqual(other());
+  });
+
   it("shows a refused request's failure truthfully, by its code, and no table", async () => {
     host(() => Promise.reject("HANGER-SIZING-REPLY-TOO-LARGE: the sizing reply of 67108865 bytes is above the desktop's 67108864-byte limit for one reply; it was not read and its worker was stopped."));
     render(<HangerSizingForm model={model()} />);
@@ -236,7 +295,8 @@ describe("the request form", () => {
     fireEvent.click(screen.getByTestId("hanger-sizing-run"));
     await screen.findByTestId("hanger-sizing-running");
     fireEvent.click(screen.getByTestId("hanger-sizing-cancel"));
-    await waitFor(() => expect(invokeMock.mock.calls.filter(([command]) => command === "cancel_hanger_sizing")).toHaveLength(1));
+    // The start's own retirement, then the person's cancel.
+    await waitFor(() => expect(invokeMock.mock.calls.filter(([command]) => command === "cancel_hanger_sizing")).toHaveLength(2));
     pending.resolve(structuredClone(twoSpanReply));
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(screen.queryByTestId("hanger-sizing-panel")).toBeNull();
@@ -245,9 +305,25 @@ describe("the request form", () => {
     host(() => second.promise);
     fireEvent.click(screen.getByTestId("hanger-sizing-run"));
     await waitFor(() => expect(invokeMock.mock.calls.filter(([command]) => command === "size_hangers")).toHaveLength(2));
-    const [, sent] = invokeMock.mock.calls.filter(([command]) => command === "size_hangers")[1] as [string, { runId: unknown }];
+    type Retirement = [string, { retirementId: { page: string; sequence: number } }];
+    const own = invokeMock.mock.calls.filter(([command]) => command === "cancel_hanger_sizing").at(-1) as Retirement;
     view.unmount();
-    await waitFor(() => expect(invokeMock.mock.calls.filter(([command]) => command === "cancel_hanger_sizing").at(-1)).toEqual(["cancel_hanger_sizing", { runId: sent.runId }]));
+    // The unmount retires it with the next retirement id of this page.
+    await waitFor(() => expect(invokeMock.mock.calls.filter(([command]) => command === "cancel_hanger_sizing").at(-1)).toEqual(
+      ["cancel_hanger_sizing", { retirementId: { page: own[1].retirementId.page, sequence: own[1].retirementId.sequence + 1 } }]
+    ));
     second.resolve(structuredClone(twoSpanReply));
+  });
+
+  it("refuses a request whose retirement the native host did not confirm: nothing is sent, and the refusal is shown", async () => {
+    host(undefined, () => Promise.reject(new Error("transport")));
+    render(<HangerSizingForm model={model()} />);
+    await fillTwoSpan();
+    fireEvent.click(screen.getByTestId("hanger-sizing-run"));
+    const failure = await screen.findByTestId("hanger-sizing-failure");
+    expect(failure).toHaveTextContent("HANGER-SIZING-RETIREMENT-UNCONFIRMED: the native host did not confirm that the previous sizing was retired");
+    expect(invokeMock.mock.calls.some(([command]) => command === "size_hangers")).toBe(false);
+    expect(screen.queryByTestId("hanger-sizing-running")).toBeNull();
+    expect(screen.queryByTestId("hanger-sizing-panel")).toBeNull();
   });
 });
