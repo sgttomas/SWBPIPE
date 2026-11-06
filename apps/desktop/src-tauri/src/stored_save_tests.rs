@@ -27,7 +27,7 @@ pub(crate) use crate::native_verdict::tests::gate as command_gate;
 use crate::command_ingress::test_support::headers;
 use crate::command_ingress::INGRESS_ARGS_JSON_V1;
 use crate::memory_pool::test_host::ScriptedHost;
-use crate::native_persistence::tests::{body, cases as persistence_cases, dump, frozen_seconds, held, native_save, same_rows, scratch, stored_row_record, text_of, unlimited, Case};
+use crate::native_persistence::tests::{body, cases as persistence_cases, dump, frozen_seconds, held, native_save, no_fts_sidecar, same_rows, scratch, stored_row_record, text_of, unlimited, Case};
 use crate::native_verdict::tests::gated;
 use crate::result_js_text::{self, NegativeZero};
 use crate::solve_jobs::ResultCustody;
@@ -152,7 +152,7 @@ fn revision(path: &Path, project_id: &str) -> String {
 }
 
 /// Re-saves `args` natively on `path` and through the legacy oracle on a copy
-/// of it made first; the two stores' project and search rows must be equal
+/// of it made first; the two stores' project rows must be equal
 /// (but the save times), the reply must report what was stored, and its
 /// findings must be what the native reopen of the stored project gives.
 pub(crate) fn resave_matches_legacy(registry: &SolveJobRegistry, path: &Path, opened: &Value, args: &Value, id: &str) -> Value {
@@ -174,7 +174,8 @@ pub(crate) fn resave_matches_legacy(registry: &SolveJobRegistry, path: &Path, op
         (legacy, native) => panic!("{id}: legacy {:?}, native {:?}", legacy.map(|_| "saved"), native),
     };
     same_rows(&legacy_path, path, "local_projects", &SKIP_TIMES, id);
-    same_rows(&legacy_path, path, "local_project_fts", &[], id);
+    no_fts_sidecar(&legacy_path, id);
+    no_fts_sidecar(path, id);
     let legacy_json = serde_json::to_value(&legacy).unwrap();
     assert_eq!(reply["project_envelope_hash"], legacy_json["project_envelope_hash"], "{id}: the envelope hash stored");
     assert_eq!(reply["model_hash"], legacy_json["model_hash"], "{id}: the historical model hash evidence");
@@ -555,7 +556,7 @@ fn the_resave_keeps_the_saves_limits_and_guards() {
     let (target, refused) = at(row_without - 1, display, &in_place(&opened));
     let text = refused.unwrap_err();
     assert!(text.starts_with(crate::native_persistence::PROJECT_SAVE_TOO_LARGE) && text.contains("even without the result"), "{text}");
-    assert_eq!(file_digest(&target), file_digest(&path), "nothing was saved: no row, no search row");
+    assert_eq!(file_digest(&target), file_digest(&path), "nothing was saved");
     // The withheld-run guard: the stored run above a lowered withholding size is kept unless confirmed.
     let (target, refused) = at(row_with - 1, 100, &in_place(&opened));
     assert!(refused.unwrap_err().starts_with("STORED-RESULT-TOO-LARGE: Not saved."));

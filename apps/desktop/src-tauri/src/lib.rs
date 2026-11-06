@@ -405,6 +405,8 @@ pub(crate) struct LocalProjectSummary {
     store_schema_version: i64,
     store_schema_target_version: i64,
     migrations_applied_on_open: Vec<String>,
+    /// False: no project is search-indexed since store schema v14 retired the
+    /// FTS sidecar. The field keeps the reply's shape.
     fts_indexed: bool,
     copied_external_files: bool,
     editor_intent_count: usize,
@@ -655,12 +657,17 @@ fn carry_forward_legacy_project_store(new_dir: &Path) -> Result<bool, String> {
     Ok(true)
 }
 
-const STORE_SCHEMA_TARGET_VERSION: i64 = 13;
+const STORE_SCHEMA_TARGET_VERSION: i64 = 14;
 const STORE_MIGRATION_FRAMEWORK: &str = "versioned_sqlite_user_version_migration_ledger";
 
 struct StoreMigration {
     version: i64,
     migration_id: &'static str,
+    /// This build reads and writes the store correctly without the step. If
+    /// the step fails it is rolled back and the open goes on at the version
+    /// before it, with the step reported pending. The next open retries it.
+    /// Any other step's failure refuses the open.
+    deferrable: bool,
     apply: fn(&Connection) -> Result<(), String>,
 }
 
@@ -680,11 +687,13 @@ fn store_migrations() -> Vec<StoreMigration> {
         StoreMigration {
             version: 1,
             migration_id: "store-v1-base-project-and-fts-tables",
+            deferrable: false,
             apply: migrate_v1_base_tables,
         },
         StoreMigration {
             version: 2,
             migration_id: "store-v2-editor-intents-column",
+            deferrable: false,
             apply: |connection| {
                 ensure_column(
                     connection,
@@ -696,6 +705,7 @@ fn store_migrations() -> Vec<StoreMigration> {
         StoreMigration {
             version: 3,
             migration_id: "store-v3-proposal-column",
+            deferrable: false,
             apply: |connection| {
                 ensure_column(
                     connection,
@@ -707,6 +717,7 @@ fn store_migrations() -> Vec<StoreMigration> {
         StoreMigration {
             version: 4,
             migration_id: "store-v4-selected-review-target-column",
+            deferrable: false,
             apply: |connection| {
                 ensure_column(
                     connection,
@@ -718,6 +729,7 @@ fn store_migrations() -> Vec<StoreMigration> {
         StoreMigration {
             version: 5,
             migration_id: "store-v5-mechanics-result-column",
+            deferrable: false,
             apply: |connection| {
                 ensure_column(
                     connection,
@@ -729,6 +741,7 @@ fn store_migrations() -> Vec<StoreMigration> {
         StoreMigration {
             version: 6,
             migration_id: "store-v6-analysis-run-column",
+            deferrable: false,
             apply: |connection| {
                 ensure_column(
                     connection,
@@ -740,6 +753,7 @@ fn store_migrations() -> Vec<StoreMigration> {
         StoreMigration {
             version: 7,
             migration_id: "store-v7-model-hash-column",
+            deferrable: false,
             apply: |connection| {
                 ensure_column(
                     connection,
@@ -751,6 +765,7 @@ fn store_migrations() -> Vec<StoreMigration> {
         StoreMigration {
             version: 8,
             migration_id: "store-v8-project-envelope-hash-column",
+            deferrable: false,
             apply: |connection| {
                 ensure_column(
                     connection,
@@ -764,6 +779,7 @@ fn store_migrations() -> Vec<StoreMigration> {
         StoreMigration {
             version: 9,
             migration_id: "store-v9-model-document-migration-ledger-column",
+            deferrable: false,
             apply: |connection| {
                 ensure_column(
                     connection,
@@ -778,6 +794,7 @@ fn store_migrations() -> Vec<StoreMigration> {
         StoreMigration {
             version: 10,
             migration_id: "store-v10-local-rule-packs-table",
+            deferrable: false,
             apply: |connection| {
                 connection
                     .execute_batch(
@@ -803,6 +820,7 @@ fn store_migrations() -> Vec<StoreMigration> {
         StoreMigration {
             version: 11,
             migration_id: "store-v11-local-libraries-table",
+            deferrable: false,
             apply: |connection| {
                 connection
                     .execute_batch(
@@ -826,6 +844,7 @@ fn store_migrations() -> Vec<StoreMigration> {
         StoreMigration {
             version: 12,
             migration_id: "store-v12-model-states-tables",
+            deferrable: false,
             apply: model_states::migrate_v12_model_states,
         },
         // Analysis runs recorded against model states, and their labels (W-12
@@ -833,9 +852,29 @@ fn store_migrations() -> Vec<StoreMigration> {
         StoreMigration {
             version: 13,
             migration_id: "store-v13-analysis-runs-tables",
+            deferrable: false,
             apply: analysis_runs::migrate_v13_analysis_runs,
         },
+        // The FTS sidecar v1 created is retired (RT-U4). No product reader
+        // queried it, and saves no longer write it. Deferrable: this build
+        // never touches the table, so a store left at v13 with it is read and
+        // written correctly.
+        StoreMigration {
+            version: 14,
+            migration_id: "store-v14-retire-project-fts-sidecar",
+            deferrable: true,
+            apply: migrate_v14_retire_project_fts,
+        },
     ]
+}
+
+/// Drops `local_project_fts` and with it FTS5's shadow tables (`_data`,
+/// `_idx`, `_content`, `_docsize`, `_config`). Their pages go to SQLite's
+/// freelist; nothing is vacuumed. No canonical table or column is touched.
+fn migrate_v14_retire_project_fts(connection: &Connection) -> Result<(), String> {
+    connection
+        .execute_batch("DROP TABLE IF EXISTS local_project_fts;")
+        .map_err(|error| error.to_string())
 }
 
 fn migrate_v1_base_tables(connection: &Connection) -> Result<(), String> {
@@ -880,9 +919,14 @@ fn open_project_store(path: &Path) -> Result<(Connection, StoreMigrationEvidence
 /// target was written by a newer build. It is refused by name before anything
 /// is written (no pragma that writes, no migration), never opened as current.
 fn refuse_newer_store(version: i64) -> Result<(), String> {
-    if version > STORE_SCHEMA_TARGET_VERSION {
+    refuse_store_newer_than(version, STORE_SCHEMA_TARGET_VERSION)
+}
+
+/// [`refuse_newer_store`] for a build whose target is `target`.
+fn refuse_store_newer_than(version: i64, target: i64) -> Result<(), String> {
+    if version > target {
         return Err(format!(
-            "STORE-SCHEMA-NEWER: the local project store is at store schema v{version}, newer than this build's v{STORE_SCHEMA_TARGET_VERSION}; it was written by a newer SWBPIPE build. Nothing was read or written; open it with that build."
+            "STORE-SCHEMA-NEWER: the local project store is at store schema v{version}, newer than this build's v{target}; it was written by a newer SWBPIPE build. Nothing was read or written; open it with that build."
         ));
     }
     Ok(())
@@ -892,7 +936,18 @@ fn refuse_newer_store(version: i64) -> Result<(), String> {
 // stores written before the user_version ledger existed reconcile cleanly from
 // version 0 without data loss.
 fn apply_store_migrations(connection: &Connection) -> Result<StoreMigrationEvidence, String> {
-    refuse_newer_store(store_user_version(connection)?)?;
+    apply_store_migrations_to(connection, STORE_SCHEMA_TARGET_VERSION, &store_migrations())
+}
+
+/// [`apply_store_migrations`] for a build whose target is `target` and whose
+/// steps are `migrations` (tests open a store as an older build would, or with
+/// a step that fails).
+fn apply_store_migrations_to(
+    connection: &Connection,
+    target: i64,
+    migrations: &[StoreMigration],
+) -> Result<StoreMigrationEvidence, String> {
+    refuse_store_newer_than(store_user_version(connection)?, target)?;
     connection
         .execute_batch(
             "
@@ -903,30 +958,51 @@ fn apply_store_migrations(connection: &Connection) -> Result<StoreMigrationEvide
         .map_err(|error| error.to_string())?;
     let version_before = store_user_version(connection)?;
     let mut migrations_applied = Vec::new();
-    for migration in store_migrations() {
+    let mut deferred = None;
+    for migration in migrations {
         if migration.version > version_before {
-            (migration.apply)(connection)?;
-            connection
-                .execute_batch(&format!("PRAGMA user_version = {}", migration.version))
-                .map_err(|error| error.to_string())?;
-            migrations_applied.push(migration.migration_id.to_string());
+            match apply_store_migration(connection, migration) {
+                Ok(()) => migrations_applied.push(migration.migration_id.to_string()),
+                Err(error) if migration.deferrable => {
+                    deferred = Some((migration.migration_id, error));
+                    break;
+                }
+                Err(error) => return Err(error),
+            }
         }
     }
     let version_after = store_user_version(connection)?;
-    let migration_status = if migrations_applied.is_empty() {
-        format!("current_store_schema_v{version_after}_no_pending_migrations")
-    } else {
-        format!("migrated_on_open_store_schema_v{version_before}_to_v{version_after}")
+    let migration_status = match deferred {
+        Some((migration_id, error)) => format!(
+            "migration_pending_store_schema_v{version_after}_of_v{target}: {migration_id} failed and was rolled back ({error}); the store stays at v{version_after} and the next open retries it"
+        ),
+        None if migrations_applied.is_empty() => {
+            format!("current_store_schema_v{version_after}_no_pending_migrations")
+        }
+        None => format!("migrated_on_open_store_schema_v{version_before}_to_v{version_after}"),
     };
     Ok(StoreMigrationEvidence {
         migration_framework: STORE_MIGRATION_FRAMEWORK,
         store_schema_version_before_open: version_before,
         store_schema_version: version_after,
-        store_schema_target_version: STORE_SCHEMA_TARGET_VERSION,
+        store_schema_target_version: target,
         migrations_applied_on_open: migrations_applied,
-        pending_migration_count: STORE_SCHEMA_TARGET_VERSION - version_after,
+        pending_migration_count: target - version_after,
         migration_status,
     })
+}
+
+/// One step and its `user_version` in one write transaction (BEGIN
+/// IMMEDIATE ... COMMIT): both commit or, on any failure (the step's, the
+/// pragma's or the commit's), neither does.
+fn apply_store_migration(connection: &Connection, migration: &StoreMigration) -> Result<(), String> {
+    let transaction = rusqlite::Transaction::new_unchecked(connection, rusqlite::TransactionBehavior::Immediate)
+        .map_err(|error| error.to_string())?;
+    (migration.apply)(&transaction)?;
+    transaction
+        .pragma_update(None, "user_version", migration.version)
+        .map_err(|error| error.to_string())?;
+    transaction.commit().map_err(|error| error.to_string())
 }
 
 fn ensure_column(
@@ -1002,7 +1078,7 @@ fn project_id_from_model(model: &Value) -> String {
         .to_string()
 }
 
-/// Write one project row and its search row (unguarded). Used by tests, the
+/// Write one project row (unguarded). Used by tests, the
 /// packaged self-test and the smoke harness; the app's commands write through
 /// `guarded_write_project_rows` on their own `BEGIN IMMEDIATE` transaction.
 fn upsert_project(
@@ -1123,8 +1199,7 @@ fn write_project_rows(
         model_hash_json: &model_hash_json,
         project_envelope_hash_json: &project_envelope_hash_json,
     };
-    let search_text = texts.search_text();
-    write_project_texts(transaction, project_id, project_name, &texts, &search_text, now_unix_seconds()?).map_err(|error| error.to_string())
+    upsert_project_texts(transaction, project_id, project_name, &texts, now_unix_seconds()?).map_err(|error| error.to_string())
 }
 
 /// A project row's stored texts: each slot's `serde_json::to_string`, as
@@ -1142,60 +1217,9 @@ pub(crate) struct ProjectTexts<'t> {
     pub(crate) project_envelope_hash_json: &'t str,
 }
 
-impl ProjectTexts<'_> {
-    /// The search row's text: the model, the editor intents, the proposal, the
-    /// selected review target and the analysis-run record, one per line,
-    /// written into a buffer of exactly its length.
-    pub(crate) fn search_text(&self) -> String {
-        self.search_parts().text()
-    }
-
-    /// The slots the search row's text is made of.
-    pub(crate) fn search_parts(&self) -> SearchParts<'_> {
-        SearchParts([self.model_json, self.editor_intents_json, self.proposal_json, self.selected_review_target_json, self.analysis_run_json])
-    }
-}
-
-/// The search row's text's slots, in its order: the model, the editor
-/// intents, the proposal, the selected review target and the analysis-run
-/// record. Borrowing only these, the native save builds the text after the
-/// project row is written and its result text has ended (RT-U4).
-pub(crate) struct SearchParts<'t>(pub(crate) [&'t str; 5]);
-
-impl SearchParts<'_> {
-    pub(crate) fn length(&self) -> u64 {
-        self.0.iter().fold(4u64, |sum, text| sum.saturating_add(text.len() as u64))
-    }
-
-    /// The parts one per line, written into a buffer of exactly [`SearchParts::length`].
-    pub(crate) fn text(&self) -> String {
-        let mut text = String::with_capacity(usize::try_from(self.length()).unwrap_or(usize::MAX));
-        for (at, part) in self.0.iter().enumerate() {
-            if at > 0 {
-                text.push('\n');
-            }
-            text.push_str(part);
-        }
-        text
-    }
-}
-
-/// The project row and its search row, from their texts, at `now` (unix
-/// seconds): the upsert, then the search row replaced. SQLite's own errors are
-/// returned as they are, so a caller can name a row SQLite refused as too big.
-pub(crate) fn write_project_texts(
-    transaction: &rusqlite::Transaction<'_>,
-    project_id: &str,
-    project_name: &str,
-    texts: &ProjectTexts<'_>,
-    search_text: &str,
-    now: i64,
-) -> Result<(), rusqlite::Error> {
-    upsert_project_texts(transaction, project_id, project_name, texts, now)?;
-    replace_project_search(transaction, project_id, project_name, search_text)
-}
-
-/// [`write_project_texts`]'s first statement: the project row's upsert.
+/// The project row, from its texts, at `now` (unix seconds): its upsert.
+/// SQLite's own errors are returned as they are, so a caller can name a row
+/// SQLite refused as too big.
 pub(crate) fn upsert_project_texts(
     transaction: &rusqlite::Transaction<'_>,
     project_id: &str,
@@ -1244,28 +1268,6 @@ pub(crate) fn upsert_project_texts(
                 now
             ],
         )?;
-    Ok(())
-}
-
-/// [`write_project_texts`]'s last two statements: the project's search row
-/// replaced (deleted, then inserted with `search_text`).
-pub(crate) fn replace_project_search(
-    transaction: &rusqlite::Transaction<'_>,
-    project_id: &str,
-    project_name: &str,
-    search_text: &str,
-) -> Result<(), rusqlite::Error> {
-    transaction.execute(
-        "DELETE FROM local_project_fts WHERE project_id = ?1",
-        params![project_id],
-    )?;
-    transaction.execute(
-        "
-            INSERT INTO local_project_fts (project_id, project_name, model_text)
-            VALUES (?1, ?2, ?3)
-            ",
-        params![project_id, project_name, search_text],
-    )?;
     Ok(())
 }
 
@@ -1844,7 +1846,7 @@ fn project_summary(
         store_schema_version: migration.store_schema_version,
         store_schema_target_version: migration.store_schema_target_version,
         migrations_applied_on_open: migration.migrations_applied_on_open.clone(),
-        fts_indexed: true,
+        fts_indexed: false,
         copied_external_files: false,
         editor_intent_count: editor_intent_count(editor_intents),
         proposal_count: proposal_count(proposal),
@@ -7654,7 +7656,7 @@ mod tests {
     }
 
     #[test]
-    fn local_project_store_uses_sqlite_fts5_and_round_trips_model_snapshot() {
+    fn local_project_store_round_trips_model_snapshot_without_a_search_index() {
         let mut connection = Connection::open_in_memory().expect("in-memory sqlite opens");
         let migration =
             apply_store_migrations(&connection).expect("project store migrations apply");
@@ -7920,30 +7922,125 @@ mod tests {
             summary.unit_round_trip_signature
         );
 
-        let indexed_count: i64 = connection
-            .query_row(
-                "SELECT count(*) FROM local_project_fts WHERE local_project_fts MATCH ?1",
-                params!["editor"],
-                |row| row.get(0),
+        // Store schema v14 retired the FTS sidecar: the save wrote no search
+        // row and created no table, and the summary claims no index.
+        assert!(!summary.fts_indexed);
+        assert!(fts_sidecar_objects(&connection).is_empty());
+    }
+
+    /// The store's `local_project_fts` table and its FTS5 shadow tables, by name.
+    pub(crate) fn fts_sidecar_objects(connection: &Connection) -> Vec<String> {
+        let mut statement = connection
+            .prepare("SELECT name FROM sqlite_master WHERE name = 'local_project_fts' OR name LIKE 'local\\_project\\_fts\\_%' ESCAPE '\\' ORDER BY name")
+            .unwrap();
+        let names = statement.query_map([], |row| row.get(0)).unwrap().collect::<Result<Vec<String>, _>>().unwrap();
+        names
+    }
+
+    /// The six objects FTS5 made for v1's `local_project_fts`.
+    pub(crate) const FTS_SIDECAR_OBJECTS: [&str; 6] = [
+        "local_project_fts",
+        "local_project_fts_config",
+        "local_project_fts_content",
+        "local_project_fts_data",
+        "local_project_fts_docsize",
+        "local_project_fts_idx",
+    ];
+
+    /// A store this build opened, made as a v13 build left it: v1's FTS
+    /// sidecar recreated and each project's search row written as that
+    /// build's save wrote it (the model, editor intents, proposal, selected
+    /// review target and analysis-run record texts, one per line), at
+    /// `user_version` 13.
+    pub(crate) fn as_v13_store_with_fts_rows(path: &Path) {
+        let connection = Connection::open(path).unwrap();
+        migrate_v1_base_tables(&connection).unwrap();
+        connection
+            .execute_batch(
+                "INSERT INTO local_project_fts (project_id, project_name, model_text)
+                   SELECT project_id, project_name, model_json || char(10) || editor_intents_json || char(10) || proposal_json
+                     || char(10) || selected_review_target_json || char(10) || analysis_run_json FROM local_projects;
+                 PRAGMA user_version = 13;",
             )
-            .expect("fts5 query succeeds");
-        assert_eq!(indexed_count, 1);
-        let proposal_indexed_count: i64 = connection
-            .query_row(
-                "SELECT count(*) FROM local_project_fts WHERE local_project_fts MATCH ?1",
-                params!["review"],
-                |row| row.get(0),
-            )
-            .expect("fts5 proposal query succeeds");
-        assert_eq!(proposal_indexed_count, 1);
-        let target_indexed_count: i64 = connection
-            .query_row(
-                "SELECT count(*) FROM local_project_fts WHERE local_project_fts MATCH ?1",
-                params!["torsional"],
-                |row| row.get(0),
-            )
-            .expect("fts5 selected target query succeeds");
-        assert_eq!(target_indexed_count, 1);
+            .unwrap();
+    }
+
+    /// Every table but SQLite's own and the FTS sidecar's: its schema text and
+    /// every row's every column, in rowid order (or key order, for a table
+    /// without rowid).
+    pub(crate) fn canonical_store_dump(path: &Path) -> Vec<(String, String, Vec<Vec<rusqlite::types::Value>>)> {
+        let connection = Connection::open_with_flags(path, rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY).unwrap();
+        let mut tables = connection
+            .prepare("SELECT name, sql FROM sqlite_master WHERE type IN ('table', 'index', 'trigger') AND name NOT LIKE 'sqlite\\_%' ESCAPE '\\' AND name NOT LIKE 'local\\_project\\_fts%' ESCAPE '\\' ORDER BY type, name")
+            .unwrap();
+        let objects = tables
+            .query_map([], |row| Ok((row.get::<_, String>(0)?, row.get::<_, Option<String>>(1)?.unwrap_or_default())))
+            .unwrap()
+            .collect::<Result<Vec<_>, _>>()
+            .unwrap();
+        objects
+            .into_iter()
+            .map(|(name, sql)| {
+                let rows = if sql.starts_with("CREATE TABLE") {
+                    let columns = connection.prepare(&format!("SELECT * FROM \"{name}\"")).unwrap().column_count();
+                    let order = (1..=columns).map(|index| index.to_string()).collect::<Vec<_>>().join(", ");
+                    let mut statement = connection.prepare(&format!("SELECT * FROM \"{name}\" ORDER BY {order}")).unwrap();
+                    let rows = statement
+                        .query_map([], |row| (0..columns).map(|index| row.get::<_, rusqlite::types::Value>(index)).collect())
+                        .unwrap()
+                        .collect::<Result<Vec<Vec<_>>, _>>()
+                        .unwrap();
+                    rows
+                } else {
+                    Vec::new()
+                };
+                (name, sql, rows)
+            })
+            .collect()
+    }
+
+    /// A fresh store migrates to v14 with no FTS sidecar, and a save on it
+    /// writes no search row and creates no table.
+    #[test]
+    fn a_fresh_store_is_at_v14_with_no_fts_sidecar_and_a_save_creates_none() {
+        let mut connection = Connection::open_in_memory().unwrap();
+        let migration = apply_store_migrations(&connection).unwrap();
+        assert_eq!(migration.store_schema_version, 14);
+        assert_eq!(migration.migrations_applied_on_open.last().map(String::as_str), Some("store-v14-retire-project-fts-sidecar"));
+        assert!(fts_sidecar_objects(&connection).is_empty());
+        let model = json!({ "project": { "id": "project:fresh-v14", "name": "Fresh" } });
+        upsert_project(&mut connection, "project:fresh-v14", "Fresh", &model, &json!(["editor"]), &json!({ "review": 1 }), &Value::Null, &Value::Null, &json!({ "run": 1 }), &Value::Null, &Value::Null).unwrap();
+        assert!(fts_sidecar_objects(&connection).is_empty(), "the save created no table");
+        assert!(load_project(&connection, Some("project:fresh-v14")).unwrap().is_some());
+    }
+
+    /// A failing step that this build cannot run without (v13 here) still
+    /// refuses the open, and its own writes roll back with it: the store stays
+    /// at v12 with none of v13's objects.
+    #[test]
+    fn a_failing_required_step_refuses_the_open_and_rolls_back_its_writes() {
+        fn failing_v13(connection: &Connection) -> Result<(), String> {
+            analysis_runs::migrate_v13_analysis_runs(connection)?;
+            Err("injected v13 failure".to_string())
+        }
+        let connection = Connection::open_in_memory().unwrap();
+        let v12: Vec<StoreMigration> = store_migrations().into_iter().filter(|migration| migration.version <= 12).collect();
+        apply_store_migrations_to(&connection, 12, &v12).unwrap();
+        let schema = |connection: &Connection| -> Vec<String> {
+            let mut statement = connection.prepare("SELECT name FROM sqlite_master ORDER BY name").unwrap();
+            let names = statement.query_map([], |row| row.get(0)).unwrap().collect::<Result<Vec<String>, _>>().unwrap();
+            names
+        };
+        let before = schema(&connection);
+        let migrations: Vec<StoreMigration> = store_migrations()
+            .into_iter()
+            .map(|migration| if migration.version == 13 { StoreMigration { apply: failing_v13, ..migration } } else { migration })
+            .collect();
+        let error = apply_store_migrations_to(&connection, STORE_SCHEMA_TARGET_VERSION, &migrations).unwrap_err();
+        assert_eq!(error, "injected v13 failure");
+        assert!(connection.is_autocommit(), "no transaction is left open");
+        assert_eq!(store_user_version(&connection).unwrap(), 12);
+        assert_eq!(schema(&connection), before, "none of v13's objects remain");
     }
 
     #[test]
@@ -7974,12 +8071,14 @@ mod tests {
                 "store-v11-local-libraries-table",
                 "store-v12-model-states-tables",
                 "store-v13-analysis-runs-tables",
+                "store-v14-retire-project-fts-sidecar",
             ]
         );
         assert_eq!(
             first_open.migration_status,
-            "migrated_on_open_store_schema_v0_to_v13"
+            "migrated_on_open_store_schema_v0_to_v14"
         );
+        assert!(fts_sidecar_objects(&connection).is_empty(), "v1 creates the sidecar and v14 drops it");
 
         let second_open =
             apply_store_migrations(&connection).expect("current store reopen succeeds");
@@ -7995,7 +8094,7 @@ mod tests {
         assert_eq!(second_open.pending_migration_count, 0);
         assert_eq!(
             second_open.migration_status,
-            "current_store_schema_v13_no_pending_migrations"
+            "current_store_schema_v14_no_pending_migrations"
         );
     }
 
@@ -8032,10 +8131,10 @@ mod tests {
         let migration = apply_store_migrations(&connection).expect("legacy store migrations apply");
         assert_eq!(migration.store_schema_version_before_open, 0);
         assert_eq!(migration.store_schema_version, STORE_SCHEMA_TARGET_VERSION);
-        assert_eq!(migration.migrations_applied_on_open.len(), 13);
+        assert_eq!(migration.migrations_applied_on_open.len(), 14);
         assert_eq!(
             migration.migration_status,
-            "migrated_on_open_store_schema_v0_to_v13"
+            "migrated_on_open_store_schema_v0_to_v14"
         );
 
         let loaded = load_project(&connection, Some("project:legacy-local"))
@@ -8105,13 +8204,15 @@ mod tests {
                 "store-v10-local-rule-packs-table",
                 "store-v11-local-libraries-table",
                 "store-v12-model-states-tables",
-                "store-v13-analysis-runs-tables"
+                "store-v13-analysis-runs-tables",
+                "store-v14-retire-project-fts-sidecar"
             ]
         );
         assert_eq!(
             migration.migration_status,
-            "migrated_on_open_store_schema_v7_to_v13"
+            "migrated_on_open_store_schema_v7_to_v14"
         );
+        assert!(fts_sidecar_objects(&connection).is_empty(), "the v7 store's sidecar is dropped");
 
         let loaded = load_project(&connection, Some("project:v7-local"))
             .expect("v7 project loads after staged migration")

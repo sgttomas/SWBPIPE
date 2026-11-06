@@ -509,8 +509,17 @@ fn record_run_and_save_refused_after_their_writes_roll_back() {
     assert_eq!(store_snapshot(&c), untouched_c, "record run: rolled back");
     let save = case.save_args(&job, "create", Value::Null, Value::Null);
     let [a, b, c] = ["a", "b", "c"].map(|name| dir.join(format!("save-{name}.sqlite")));
-    refused_after_the_writes(&registry, "save", "SQLite's copies of the project's row", "SQLite's copies of the project's search row", || outcome(native_save(&registry, &a, &save, &unlimited())), || outcome(native_save(&registry, &b, &save, &unlimited())));
-    assert!(crate::open_project_in_store(b.clone(), None).unwrap().is_none(), "save: rolled back");
+    // Since store schema v14 the save writes no search row, so its only
+    // reservation after the project row is the response's, admitted once the
+    // write's leases ended: the running total never rises after the write,
+    // and no budget refusal can follow it (the pool's refusal of the
+    // response still can, below).
+    let saved = traced(&registry, |_, _| {}, || outcome(native_save(&registry, &a, &save, &unlimited())));
+    let written = saved.steps.iter().position(|step| step.named.as_deref() == Some("SQLite's copies of the project's row")).unwrap();
+    assert!(saved.steps[written + 1..].iter().all(|step| step.total < saved.steps[written].total), "save: {:?}", saved.steps);
+    assert!(saved.steps.last().and_then(|step| step.named.as_deref()).is_some_and(|what| what.starts_with("the response to")), "save: {:?}", saved.steps);
+    assert!(crate::open_project_in_store(a.clone(), None).unwrap().is_some(), "save: written");
+    assert!(crate::open_project_in_store(b.clone(), None).unwrap().is_none(), "save: nothing written to the unused store");
     response_refused_by_the_pool(&registry, &host, "save", || outcome(native_save(&registry, &c, &save, &unlimited())));
     assert!(crate::open_project_in_store(c.clone(), None).unwrap().is_none(), "save: rolled back");
     assert!(registry.held_result(&job).is_ok());
