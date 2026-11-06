@@ -447,10 +447,11 @@ maxLayoutRows: null}`: the text the review ran with. In order:
      or undo themselves, and report their own outcome. A save is never half-aborted. A
      committed save stays tracked until it completes, superseded or not, so every cancel
      during its write reports it too late.
-   - **Retirement from the command's entry.** A save whose command entered before a
-     retirement (`cancel_mbf_export`, the session's reset) and had not yet registered its run
-     is cancelled when it registers: `MBF-EXPORT-CANCELLED`, no worker, no chooser, no write
-     (§3.7, "Cancellation").
+   - **Retirement by the dispatch ticket.** A save whose request carries a retirement epoch
+     (`expectedEpoch`) that a retirement (`cancel_mbf_export`, the session's reset) has since
+     passed is cancelled, whenever its task runs: at its entry, before the model is decoded, or
+     when it registers its run. It replies `MBF-EXPORT-CANCELLED`, with no worker, no chooser
+     and no write (§3.7, "Dispatch ticket").
 8. **Writes.** No failure loses a file the user already had. The output ceiling is decided at
    step 5, before any write, so it never truncates valid file bytes and never leaves a partial
    pair.
@@ -557,14 +558,33 @@ only the staleness check of step 6.
   monotone retirement epoch on. Every registered run stays tracked until its command ends,
   committed saves included; a cancel reports each run it stopped (`cancelled`) and each
   committed save it reached (`too_late`), and a run an earlier cancel stopped in neither.
-- **Retirement epoch.** Each command captures the epoch at its entry (`MbfRuns::enter`, the
-  first statement of the `lib.rs` command, before its reservation, the blocking executor and
-  its admission) and carries it to its run's registration. A command whose entry precedes a
-  retirement registers cancelled from the start (`MBF-EXPORT-CANCELLED`, no worker, no
-  chooser, no write); a command that enters after a retirement is not affected by it. Tauri 2
-  runs an async command's body, argument extraction included, in a task it spawns, so "entry"
-  is that body's first statement; the frontend barrier below keeps any start from being sent
-  while a retirement is unacknowledged.
+- **Dispatch ticket** (`expectedEpoch`). A run belongs to the retirement epoch its request
+  carries, not to when its task happens to run. Tauri 2 extracts an async command's arguments
+  inside the task it spawns, so a request sent before a retirement may begin after it.
+  - **The reply.** `cancel_mbf_export` takes no arguments. It replies
+    `{cancelled, too_late, epoch}`, where `epoch` is the retirement epoch after its bump
+    (`MbfRuns::retire`).
+  - **The request.** Every `review_mbf_export` and `save_mbf_export` request carries the
+    frontend barrier's latest acknowledged epoch as `expectedEpoch`, a member of its admitted
+    `args-json-v1` arguments.
+  - **Native check.** The command reads the ticket from the admitted argument map
+    (`MbfRuns::enter`). This happens after admission and before the model or any other member
+    is decoded.
+    - A ticket below the current epoch was issued before a retirement since. It refuses
+      `MBF-EXPORT-CANCELLED`.
+    - A missing, `null` or malformed ticket (anything but a non-negative integer), or one above
+      the current epoch, is a protocol error: `MBF-EXPORT-EPOCH-INVALID`. It goes through the
+      normal ingress and argument-lease route.
+    - Either refusal registers no run, starts no worker, opens no chooser and writes nothing.
+  - **Later checkpoints.** An accepted ticket is compared again when the run registers, so a
+    retirement in between cancels the run from the start. After that, the registered run's own
+    cancellation applies: the wait, the worker, the pre-chooser check and the commit, §3.6
+    step 7.
+  - **Page-load reset.** The reset moves the epoch on too. A page that has not acknowledged a
+    retirement since cannot start anything.
+  - **Authority.** The ticket only binds a request to a retirement. It authorizes nothing: the
+    route evidence, the reviewed digests, the review's truncation and the commit are checked
+    as before.
 - **The frontend barrier** (`features/caepipe-mbf/mbfExportCancel.ts`). Every MBF start
   (`reviewMbfExport`, `saveMbfExport`, raw-body ingress commands) and every retirement
   (`retireMbfExportSession`) goes through it. The workspace retires the export whenever it
@@ -574,7 +594,13 @@ only the staleness check of step 6.
   retirement generation as it is called, waits for any retirement in progress, and checks
   immediately before every send (a headroom re-send included) that no retirement has been
   requested since and that the caller's own session check (`stillCurrent`) holds; a stale
-  start is never sent and resolves `MBF-EXPORT-CANCELLED`. Each result carries its generation
+  start is never sent and resolves `MBF-EXPORT-CANCELLED`. **Ticket:** the barrier records the
+  latest epoch a `cancel_mbf_export` reply acknowledged; a reply without an epoch is not an
+  acknowledgement. A start takes that epoch once, when its wait is over and it is still
+  current, and sends it as `expectedEpoch`, the same bytes in every re-send. A stale start
+  never refreshes its ticket; only a new, current start takes a newer acknowledgement. Until a
+  retirement has been acknowledged in the page, the first start delivers one as its handshake,
+  and concurrent first starts share it. Each result carries its generation
   and `current()`, so the caller discards a completion that arrives after its session was
   retired. **Semantics:** a retirement cancels every MBF run that started before it completed;
   a start issued during a retirement reaches native only after it is acknowledged and is not
@@ -1388,6 +1414,30 @@ the frontend. The production entry points run task 3 in the capped worker; `MBF-
     cancel, a committed predecessor dropped at supersession, unnormalized scan paths, no frontend await, no
     generation re-check before the send, a failed retirement treated as acknowledged and no session retirement
     each fail a test, none by hanging.
+- **Repair: the dispatch ticket** (2026-11-05, the last repair's open matter 1). Native "entry" was the first
+  statement of the command body, which Tauri 2 runs in a spawned task. A start sent before a retirement whose
+  task first ran after it took the new epoch and escaped the retirement. Agent 0 confirmed the ticket design with
+  refinements, so the epoch now travels in the request (§3.7, "Dispatch ticket"): it is captured once per logical
+  start, kept through every re-send, validated before any model decode, and authorizes nothing. `lib.rs` no longer
+  captures an epoch. `cancel_mbf_export` replies the epoch. The MBF output bytes are unchanged.
+  - *Tests added:* Rust:
+    - a review and a save built with the old ticket, retired by `cancel_mbf_export` and by the page-load reset, and
+      only then run: `MBF-EXPORT-CANCELLED`, no worker launched, no chooser, no write, nothing tracked;
+    - a missing, `null`, string, negative, fractional, oversized or future ticket refuses
+      `MBF-EXPORT-EPOCH-INVALID` for both commands, before a model member of the wrong type is reached;
+    - the earlier tests now run with current tickets: a fresh start after each retirement reviews and saves the
+      recorded files, and a stale review or wrong route evidence with a current ticket is still refused.
+
+    Vitest:
+    - the first start in a page waits for one shared handshake and carries its epoch;
+    - a start issued while a retirement is on its way carries that retirement's epoch;
+    - an old start in a headroom re-send loop across a retirement keeps its old ticket, is never re-sent, and
+      resolves cancelled, while a new start carries the new epoch;
+    - a reply without an epoch is unacknowledged;
+    - the session tests check each start's ticket.
+  - *Mutations checked,* each failing a test, none by hanging: native code that ignores the ticket; a frontend
+    ticket captured when the start is called; one epoch behind; no handshake; no ticket sent; no re-check before a
+    re-send.
 - **4b.2b** (next, not here): the menu item, the Exports panel action, and mounting the dialog on the barrier's
   `reviewMbfExport` and `saveMbfExport` (already ingress commands, slice 4b.2a's repair), the dialog's close
   calling `retireMbfExportSession`, discarding a result whose `current()` is false, and retiring the TypeScript

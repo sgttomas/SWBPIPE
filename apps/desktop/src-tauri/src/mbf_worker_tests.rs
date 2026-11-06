@@ -128,23 +128,35 @@ fn raw_body(body: &Value) -> InvokeBody {
     InvokeBody::Raw(serde_json::to_vec(body).unwrap())
 }
 
-/// `review_mbf_export` as `lib.rs` runs it: the copy's reservation, then the blocking part.
+/// `body` with the dispatch ticket a current frontend start sends: the epoch now, unless `body` already names one
+/// (or names `expectedEpoch: "absent"`, which removes it).
+fn ticketed(runs: &MbfRuns, body: &Value) -> Value {
+    let mut body = body.clone();
+    match body.get(EXPECTED_EPOCH) {
+        None => body[EXPECTED_EPOCH] = json!(runs.epoch()),
+        Some(value) if value.as_str() == Some("absent") => drop(body.as_object_mut().unwrap().remove(EXPECTED_EPOCH)),
+        Some(_) => {}
+    }
+    body
+}
+
+/// `review_mbf_export` as `lib.rs` runs it: the copy's reservation, then the blocking part, for `body` with its
+/// ticket ([`ticketed`]).
 fn review_via_command(registry: &SolveJobRegistry, runs: &MbfRuns, body: &Value) -> (MbfReviewOutcome, String) {
-    let entry = runs.enter();
-    let (raw, copy) = reserve(registry, &raw_body(body), &headers(Some(INGRESS_ARGS_JSON_V1)), REVIEW_COMMAND).unwrap();
-    let (outcome, text) = review_command(registry, runs, entry, raw, copy, |outcome, text| (outcome.clone(), text)).unwrap();
+    let body = ticketed(runs, body);
+    let (raw, copy) = reserve(registry, &raw_body(&body), &headers(Some(INGRESS_ARGS_JSON_V1)), REVIEW_COMMAND).unwrap();
+    let (outcome, text) = review_command(registry, runs, raw, copy, |outcome, text| (outcome.clone(), text)).unwrap();
     assert_eq!(serde_json::to_string(&outcome).unwrap(), text);
     (outcome, text)
 }
 
 /// `save_mbf_export` as `lib.rs` runs it, with no library store; `chosen` is the chooser's answer.
 fn save_via_command(registry: &SolveJobRegistry, runs: &MbfRuns, body: &Value, chosen: Option<PathBuf>, opened: &Opened) -> MbfExportOutcome {
-    let entry = runs.enter();
-    let (raw, copy) = reserve(registry, &raw_body(body), &headers(Some(INGRESS_ARGS_JSON_V1)), COMMAND).unwrap();
+    let body = ticketed(runs, body);
+    let (raw, copy) = reserve(registry, &raw_body(&body), &headers(Some(INGRESS_ARGS_JSON_V1)), COMMAND).unwrap();
     let (outcome, text) = save_command(
         registry,
         runs,
-        entry,
         raw,
         copy,
         || Err("the test has no library store".to_string()),
@@ -162,9 +174,9 @@ fn save_via_command(registry: &SolveJobRegistry, runs: &MbfRuns, body: &Value, c
 
 /// `save_via_command` with the chooser `choose` (a test that holds the chooser open).
 fn save_choosing(registry: &SolveJobRegistry, runs: &MbfRuns, body: &Value, choose: impl FnOnce(&str) -> Result<Option<PathBuf>, String>) -> MbfExportOutcome {
-    let entry = runs.enter();
-    let (raw, copy) = reserve(registry, &raw_body(body), &headers(Some(INGRESS_ARGS_JSON_V1)), COMMAND).unwrap();
-    let (outcome, text) = save_command(registry, runs, entry, raw, copy, || Err("the test has no library store".to_string()), choose, |outcome, text| (outcome.clone(), text)).unwrap();
+    let body = ticketed(runs, body);
+    let (raw, copy) = reserve(registry, &raw_body(&body), &headers(Some(INGRESS_ARGS_JSON_V1)), COMMAND).unwrap();
+    let (outcome, text) = save_command(registry, runs, raw, copy, || Err("the test has no library store".to_string()), choose, |outcome, text| (outcome.clone(), text)).unwrap();
     assert_eq!(serde_json::to_string(&outcome).unwrap(), text);
     outcome
 }
@@ -309,10 +321,10 @@ fn the_review_command_runs_task_3_in_the_capped_worker_and_replies_the_recorded_
         let text = model_for(case["model_edit"].as_str().unwrap());
         assert_eq!(case["model_sha256"], sha256_hex(text.as_bytes()), "{name}");
         let settings = case["settings_json"].as_str().unwrap();
-        let body = review_body(&text, settings);
+        let body = ticketed(&runs, &review_body(&text, settings));
         let (raw, copy) = reserve(&registry, &raw_body(&body), &headers(Some(INGRESS_ARGS_JSON_V1)), REVIEW_COMMAND).unwrap();
         let held_at_response = Cell::new(0);
-        let (outcome, response) = review_command(&registry, &runs, runs.enter(), raw, copy, |outcome, text| {
+        let (outcome, response) = review_command(&registry, &runs, raw, copy, |outcome, text| {
             // Result custody holds through the response's construction.
             held_at_response.set(registry.pool().reserved(LeasePurpose::Result));
             (outcome.clone(), text)
@@ -386,7 +398,7 @@ fn the_commands_refuse_a_body_without_the_ingress_header() {
         // A body that is not one object is refused after the copy's lease, which is released.
         let (raw, copy) = reserve(&registry, &InvokeBody::Raw(b"[1]".to_vec()), &headers(Some(INGRESS_ARGS_JSON_V1)), command).unwrap();
         let runs = MbfRuns::default();
-        let refused = review_command(&registry, &runs, runs.enter(), raw, copy, |_, text| text).unwrap_err();
+        let refused = review_command(&registry, &runs, raw, copy, |_, text| text).unwrap_err();
         assert!(matches!(&refused, SolveJobError::InvalidRequest { message } if message.starts_with("INGRESS-ARGS-NOT-OBJECT")), "{refused:?}");
     }
     assert_eq!(gate.started_count(), 0);
@@ -419,7 +431,7 @@ fn the_grant_request_and_result_are_counted_in_the_commands_ledger() {
     let reply = envelope(MbfMode::Review);
     std::thread::scope(|scope| {
         let _guard = CancelOnUnwind(&runs, &registry);
-        let running = scope.spawn(|| CappedWorkerRun::review(&registry, &ledger, &runs, runs.enter()).run(&request));
+        let running = scope.spawn(|| CappedWorkerRun::review(&registry, &ledger, &runs, runs.entry_now()).run(&request));
         gate.wait_started(1);
         assert_eq!(ledger.total_bytes(), ledger.budget_bytes(), "the bound takes the rest of the captured budget");
         assert!(registry.pool_status().reserved_bytes <= ledger.total_bytes(), "the pool holds no more than the ledger counts");
@@ -458,7 +470,7 @@ fn a_run_one_byte_above_the_budget_is_refused_before_any_worker_and_one_at_it_st
         let started = gate.started_count();
         std::thread::scope(|scope| {
             let _guard = CancelOnUnwind(&runs, &registry);
-            let running = scope.spawn(|| CappedWorkerRun::review(&registry, &ledger, &runs, runs.enter()).run(&request));
+            let running = scope.spawn(|| CappedWorkerRun::review(&registry, &ledger, &runs, runs.entry_now()).run(&request));
             if admitted {
                 gate.wait_started(started + 1);
                 assert_eq!(ledger.total_bytes(), budget);
@@ -492,7 +504,7 @@ fn a_budget_raised_while_a_review_waits_does_not_extend_it() {
     let request = WorkerRequest { mode: MbfMode::Review, settings_json: &settings, model_text: &text };
     std::thread::scope(|scope| {
         let _guard = CancelOnUnwind(&runs, &registry);
-        let running = scope.spawn(|| CappedWorkerRun::review(&registry, &ledger, &runs, runs.enter()).run(&request));
+        let running = scope.spawn(|| CappedWorkerRun::review(&registry, &ledger, &runs, runs.entry_now()).run(&request));
         await_queued(&registry, |refusal| matches!(refusal, ResourceRefusal::WorkerLimitReached { .. }));
         assert_eq!((ledger.budget_bytes(), ledger.total_bytes()), (GIB, GIB), "the bound is the captured budget's rest");
         assert_eq!(runs.cancel_all(registry.pool()), STOPPED_ONE);
@@ -531,7 +543,7 @@ fn a_review_waiting_for_its_grant_is_cancelled_or_refused_at_its_deadline() {
     let (_memory, args) = seeded(&registry, 3 * MIB);
     let (text, settings) = review_request(&canonical_model(), &settings());
     let request = WorkerRequest { mode: MbfMode::Review, settings_json: &settings, model_text: &text };
-    let refused = CappedWorkerRun::review(&registry, args.ledger(), &runs, runs.enter()).with_start_wait(Duration::from_millis(30)).run(&request);
+    let refused = CappedWorkerRun::review(&registry, args.ledger(), &runs, runs.entry_now()).with_start_wait(Duration::from_millis(30)).run(&request);
     let Err(WriterRunFailure::Memory(message)) = refused else { panic!("not refused") };
     assert!(message.contains("worker_limit_reached"), "{message}");
     assert_eq!(args.ledger().total_bytes(), args.bytes());
@@ -730,10 +742,10 @@ fn retire_from_hook(how: Retire, registry: &SolveJobRegistry, runs: &MbfRuns) ->
     })
 }
 
-/// Finding P2 at 6ccc68aff (1): a command owns its cancellation from its entry. The review and the save capture the
-/// epoch before their reservation (as `lib.rs` does), and the session is retired while each is paused before its
-/// admission, or after its admission and before its run registers (the tests' hooks), by `cancel_mbf_export` or by
-/// the page-load reset. Resumed, each replies `MBF-EXPORT-CANCELLED`: the review's run is not registered, the save
+/// Finding P2 at 6ccc68aff (1), the later checkpoints: the review and the save carry the ticket current when their
+/// request was built, and the session is retired while each is paused before its admission (so its ticket is stale
+/// when it is read), or after the ticket was accepted and before its run registers (the tests' hooks), by
+/// `cancel_mbf_export` or by the page-load reset. Resumed, each replies `MBF-EXPORT-CANCELLED`: the review's run is not registered, the save
 /// opens no chooser and writes nothing, and everything is released. With the real worker, a command that ignored
 /// its entry would complete (and the save open its chooser): the test fails instead of waiting.
 #[test]
@@ -764,18 +776,19 @@ fn a_command_retired_before_its_admission_or_registration_is_cancelled_and_write
     }
 }
 
-/// Finding P2 at 6ccc68aff (2), native side: a retirement does not reach a command that enters after it. After
-/// `cancel_mbf_export` (and after the page-load reset) a review completes and a save writes the recorded files; an
-/// entry captured before the retirement is still refused.
+/// Finding P2 at 6ccc68aff (2), native side; the ticket's fresh start: a retirement does not reach a request whose
+/// ticket is the epoch after it. After `cancel_mbf_export` (and after the page-load reset) a review carrying the
+/// current epoch completes and a save writes the recorded files; an entry from before the retirement is still refused
+/// when it registers.
 #[test]
 fn a_command_that_enters_after_a_retirement_is_not_affected_by_it() {
     let _lock = atomic_save_test_lock();
     let registry = real_worker();
     let runs = MbfRuns::default();
-    let before = runs.enter();
+    let before = runs.entry_now();
     for how in [Retire::Cancel, Retire::PageLoadReset] {
         retire_from_hook(how, &registry, &runs)();
-        assert_ne!(runs.enter(), before, "{how:?}: the epoch moved on");
+        assert_ne!(runs.entry_now(), before, "{how:?}: the epoch moved on");
         let (reviewed, _) = review_via_command(&registry, &runs, &review_body(&canonical_model(), &settings()));
         assert!(matches!(reviewed, MbfReviewOutcome::Reviewed { .. }), "{how:?}: {reviewed:?}");
         let sandbox = Sandbox::new("after-retirement");
@@ -790,6 +803,106 @@ fn a_command_that_enters_after_a_retirement_is_not_affected_by_it() {
     assert_eq!(runs.cancel_all(registry.pool()), MbfCancelReceipt::default(), "a stale entry is not tracked");
     drop(stale);
     assert_released(&registry);
+}
+
+/// A launcher that counts the workers it starts.
+struct CountingLauncher(Arc<dyn WorkerLauncher>, std::sync::atomic::AtomicUsize);
+
+impl WorkerLauncher for CountingLauncher {
+    fn command(&self) -> std::io::Result<std::process::Command> {
+        self.1.fetch_add(1, Ordering::SeqCst);
+        self.0.command()
+    }
+}
+
+fn counted_real_worker() -> (SolveJobRegistry, Arc<CountingLauncher>) {
+    let launcher = Arc::new(CountingLauncher(TestLauncher::solve(), std::sync::atomic::AtomicUsize::new(0)));
+    (registry_with(Arc::clone(&launcher) as Arc<dyn WorkerLauncher>), launcher)
+}
+
+/// The escaped start (4b.2a repair, the last repair's open matter 1). A request is built with the ticket a start
+/// would have sent then; the session is retired, by `cancel_mbf_export` (whose reply names the new epoch) or by the
+/// page-load reset; only then does the command's task start. Both the review and the save reply
+/// `MBF-EXPORT-CANCELLED`: no worker starts, no chooser opens, nothing is written or tracked, and everything is
+/// released. A command that took the epoch as its task began (the previous design) would complete instead: with the
+/// real worker the review would reply its review and the save open its chooser.
+#[test]
+fn a_request_sent_before_a_retirement_is_cancelled_whenever_its_task_starts() {
+    let _lock = atomic_save_test_lock();
+    let (registry, launcher) = counted_real_worker();
+    let runs = MbfRuns::default();
+    for how in [Retire::Cancel, Retire::PageLoadReset] {
+        let sent = runs.epoch();
+        let review = ticketed(&runs, &review_body(&canonical_model(), &settings()));
+        let save = ticketed(&runs, &save_body(&canonical_model(), recorded_default()));
+        assert_eq!((review[EXPECTED_EPOCH].as_u64(), save[EXPECTED_EPOCH].as_u64()), (Some(sent), Some(sent)));
+        match how {
+            Retire::Cancel => {
+                let reply = runs.retire(registry.pool());
+                assert_eq!(reply.epoch, sent + 1, "the reply names the epoch after the bump");
+                assert_eq!(
+                    serde_json::to_value(reply).unwrap(),
+                    json!({"cancelled": 0, "too_late": 0, "epoch": sent + 1}),
+                    "cancel_mbf_export's reply"
+                );
+            }
+            Retire::PageLoadReset => retire_from_hook(how, &registry, &runs)(),
+        }
+        assert_eq!(runs.epoch(), sent + 1, "{how:?}: the epoch moved on");
+        let (reviewed, _) = review_via_command(&registry, &runs, &review);
+        assert_eq!(review_codes(&reviewed), vec![CANCELLED.to_string()], "{how:?}: {reviewed:?}");
+        let sandbox = Sandbox::new("escaped-start");
+        let opened = Opened::new(false);
+        let saved = save_via_command(&registry, &runs, &save, Some(sandbox.0.join("swbpipe-model.mbf")), &opened);
+        assert_eq!(save_codes(&saved), vec![CANCELLED.to_string()], "{how:?}: {saved:?}");
+        assert!(!opened.load(Ordering::SeqCst), "{how:?}: no chooser");
+        assert!(sandbox.is_empty(), "{how:?}: nothing written");
+        assert_eq!(launcher.1.load(Ordering::SeqCst), 0, "{how:?}: no worker started");
+        assert_eq!(runs.cancel_all(registry.pool()), MbfCancelReceipt::default(), "{how:?}: nothing was tracked");
+        assert_released(&registry);
+    }
+}
+
+/// The ticket's protocol: a request with no `expectedEpoch` (or `null`), a malformed one (a string, a negative, a
+/// fraction, above u64) or one above the current epoch is refused `MBF-EXPORT-EPOCH-INVALID`, the review and the
+/// save alike, before the model is decoded (a model member of the wrong type is not reached), through the normal
+/// ingress: no worker, no chooser, nothing tracked, everything released.
+#[test]
+fn a_request_without_a_valid_current_ticket_is_a_protocol_refusal() {
+    let (registry, launcher) = counted_real_worker();
+    let runs = MbfRuns::default();
+    runs.cancel_all(registry.pool());
+    let current = runs.epoch();
+    let tickets = [json!("absent"), Value::Null, json!(current.to_string()), json!(-1), json!(0.5), json!(u64::MAX as f64 * 2.0), json!(current + 1)];
+    for ticket in tickets {
+        for undecodable in [false, true] {
+            let mut review = review_body(&canonical_model(), &settings());
+            let mut save = save_body(&canonical_model(), recorded_default());
+            review[EXPECTED_EPOCH] = ticket.clone();
+            save[EXPECTED_EPOCH] = ticket.clone();
+            if undecodable {
+                review["canonicalText"] = json!(17);
+                save["canonicalText"] = json!(17);
+            }
+            let (reviewed, _) = review_via_command(&registry, &runs, &review);
+            assert_eq!(review_codes(&reviewed), vec![crate::mbf_export::EPOCH_INVALID.to_string()], "{ticket} {undecodable}: {reviewed:?}");
+            let opened = Opened::new(false);
+            let saved = save_via_command(&registry, &runs, &save, Some(std::env::temp_dir().join("never-written.mbf")), &opened);
+            assert_eq!(save_codes(&saved), vec![crate::mbf_export::EPOCH_INVALID.to_string()], "{ticket} {undecodable}: {saved:?}");
+            assert!(!opened.load(Ordering::SeqCst), "{ticket}: no chooser");
+        }
+    }
+    assert_eq!(launcher.1.load(Ordering::SeqCst), 0, "no worker started");
+    assert_eq!(runs.epoch(), current, "a refused ticket moves nothing on");
+    assert_eq!(runs.cancel_all(registry.pool()), MbfCancelReceipt::default(), "nothing was tracked");
+    assert_released(&registry);
+    // `enter` itself, by value: the current epoch is the only one accepted.
+    let current = runs.epoch();
+    assert_eq!(runs.enter(Some(json!(current))), Ok(runs.entry_now()));
+    assert_eq!(runs.enter(Some(json!(current - 1))).unwrap_err().code, CANCELLED);
+    for refused in [None, Some(json!(current + 1)), Some(json!("1")), Some(json!(1.0))] {
+        assert_eq!(runs.enter(refused.clone()).unwrap_err().code, crate::mbf_export::EPOCH_INVALID, "{refused:?}");
+    }
 }
 
 /// Finding P3 at 6ccc68aff (3): a committed save stays tracked until its write completes. Paused just after its
@@ -810,7 +923,7 @@ fn a_committed_save_stays_tracked_through_repeated_cancels_and_supersession() {
             let mut receipts = hook_receipts.lock().unwrap();
             receipts.push(hook_runs.cancel_all(&hook_pool));
             receipts.push(hook_runs.cancel_all(&hook_pool));
-            let newer = hook_runs.register(RunKind::Save, hook_runs.enter(), &hook_pool);
+            let newer = hook_runs.register(RunKind::Save, hook_runs.entry_now(), &hook_pool);
             receipts.push(hook_runs.cancel_all(&hook_pool));
             drop(newer);
             receipts.push(hook_runs.cancel_all(&hook_pool));
@@ -985,6 +1098,9 @@ fn the_saves_own_worker_run_refuses_before_any_chooser() {
     assert_eq!(save_codes(&outcome), vec![WRITER_REFUSED.to_string()]);
     let MbfExportOutcome::Refused { review: Some(review), .. } = &outcome else { panic!("{outcome:?}") };
     assert_eq!(serde_json::from_str::<Value>(review.get()).unwrap()["blocking"], true);
+    // The ticket binds a request to a retirement and authorizes nothing: a stale review and wrong route evidence
+    // carrying the current epoch are still refused.
+    assert_eq!(ticketed(&runs, &save_body(&text, recorded_default()))[EXPECTED_EPOCH], json!(runs.epoch()), "the requests carry a current ticket");
     let stale = save_via_command(&registry, &runs, &save_body(&text, ("0".repeat(64), "0".repeat(64))), None, &opened);
     assert_eq!(save_codes(&stale), vec![REVIEW_STALE.to_string()]);
     assert!(!opened.load(Ordering::SeqCst));

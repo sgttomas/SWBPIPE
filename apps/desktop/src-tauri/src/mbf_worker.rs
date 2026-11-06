@@ -39,14 +39,19 @@
 //! frontend calls it when the project session is retired, and 4b.2b's dialog when it closes) and from the session
 //! reset (`dispose_all_preview_mechanics_results`, on page load).
 //!
-//! **Ownership from the command's entry.** Each command captures the epoch as it begins ([`MbfRuns::enter`], in
-//! `lib.rs` before its reservation, its blocking part and its admission) and carries it to its run's registration. A
-//! command whose entry precedes a retirement is cancelled when it registers: it replies `MBF-EXPORT-CANCELLED` with no
-//! worker, no chooser and no write. A command that enters after a retirement is not affected by it. Every
-//! registered run stays tracked until its command ends, so a later retirement reaches it wherever it is.
-//! (Tauri 2 runs an async command's body, its argument extraction included, in a task it spawns: "entry" is the
-//! first statement of that body, before any `.await`. The frontend sends no start before its retirement is
-//! acknowledged, `mbfExportCancel.ts`.)
+//! **The dispatch ticket.** A run belongs to the retirement epoch its request carries, not to the moment its task
+//! happens to run (Tauri 2 extracts an async command's arguments inside the task it spawns, so a request sent before
+//! a retirement may begin after it). `cancel_mbf_export` replies the epoch after its bump ([`MbfRetirement`]); the
+//! frontend's barrier (`mbfExportCancel.ts`) records the latest acknowledged one and every review and save request
+//! carries it as `expectedEpoch` ([`EXPECTED_EPOCH`]), captured once per logical start and kept through every
+//! re-send. The command reads that ticket from its admitted arguments before it decodes the model
+//! ([`MbfRuns::enter`]): a ticket below the current epoch was issued before a retirement and refuses
+//! `MBF-EXPORT-CANCELLED`; a missing, malformed or future ticket refuses `MBF-EXPORT-EPOCH-INVALID`. The ticket is
+//! compared again when the run registers (a retirement in between cancels it from the start), and every registered
+//! run stays tracked until its command ends, so a later retirement reaches it wherever it is. A refused ticket starts
+//! no worker, opens no chooser and writes nothing. The page-load reset bumps the epoch too, so a page that has not
+//! acknowledged a retirement since cannot start anything. The ticket only binds a request to a retirement: it
+//! authorizes nothing, and every other check of the review and the save applies unchanged.
 //!
 //! **The cancel/commit boundary** (a save only). The save checks its cancellation again before it opens the chooser,
 //! and once the chooser returns a path it commits ([`MbfWriterRun::commit`]) under the run's lock before the first
@@ -154,7 +159,7 @@ impl RunControl {
     }
 }
 
-/// What `cancel_mbf_export` (and the session's retirement) did: the runs it stopped before they wrote anything, and
+/// What a retirement (`cancel_mbf_export`, the session reset) did: the runs it stopped before they wrote anything, and
 /// the saves it reached after they had committed their write, which complete (or undo themselves) and report their
 /// own outcome. A run an earlier cancel already stopped is in neither. Both zero: nothing it could stop was in
 /// progress.
@@ -166,6 +171,25 @@ pub(crate) struct MbfCancelReceipt {
     pub(crate) too_late: u32,
 }
 
+/// `cancel_mbf_export`'s reply: what the retirement did, and the retirement epoch after it, which every later start's
+/// request carries as its ticket ([`EXPECTED_EPOCH`]).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
+pub(crate) struct MbfRetirement {
+    #[serde(flatten)]
+    pub(crate) receipt: MbfCancelReceipt,
+    pub(crate) epoch: u64,
+}
+
+/// The request member that carries the dispatch ticket: the retirement epoch the frontend last saw acknowledged.
+pub(crate) const EXPECTED_EPOCH: &str = "expectedEpoch";
+
+/// A request refused at its entry by its ticket: no run registers, no worker starts, nothing is chosen or written.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) struct EntryRefusal {
+    pub(crate) code: &'static str,
+    pub(crate) message: String,
+}
+
 /// The two kinds of run: a newer one of either kind supersedes the older ones of its kind.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum RunKind {
@@ -173,9 +197,9 @@ enum RunKind {
     Save,
 }
 
-/// A command's entry into the MBF export: the retirement epoch it captured as the command began (`lib.rs`, before
-/// its reservation, its blocking part and its admission). A run whose entry is older than the current epoch was
-/// retired before it registered, and is cancelled from the start: no worker, no chooser, no write.
+/// A command's entry into the MBF export: the retirement epoch its request's ticket names, accepted as current when
+/// the command read it ([`MbfRuns::enter`]). A run whose entry is older than the current epoch when it registers was
+/// retired in between, and is cancelled from the start: no worker, no chooser, no write.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) struct MbfEntry {
     epoch: u64,
@@ -209,9 +233,39 @@ impl MbfRuns {
         self.tracked.lock().unwrap_or_else(PoisonError::into_inner)
     }
 
-    /// The command's entry: the current retirement epoch, captured as the command begins.
-    pub(crate) fn enter(&self) -> MbfEntry {
-        MbfEntry { epoch: self.lock().epoch }
+    /// The command's entry, from its request's ticket (the [`EXPECTED_EPOCH`] member of its admitted arguments, read
+    /// before the model is decoded). The ticket must be a non-negative integer no greater than the current epoch: a
+    /// missing, malformed or future one is a protocol error (`MBF-EXPORT-EPOCH-INVALID`), and one below it was issued
+    /// before a retirement since, and refuses `MBF-EXPORT-CANCELLED`.
+    pub(crate) fn enter(&self, ticket: Option<serde_json::Value>) -> Result<MbfEntry, EntryRefusal> {
+        let protocol = |what: &str| EntryRefusal {
+            code: mbf_export::EPOCH_INVALID,
+            message: format!("The export did not start: its request {what}. Nothing was written."),
+        };
+        let expected = match ticket {
+            None => return Err(protocol("carries no retirement epoch")),
+            Some(value) => value.as_u64().ok_or_else(|| protocol("carries a malformed retirement epoch"))?,
+        };
+        let current = self.lock().epoch;
+        if expected > current {
+            return Err(protocol("names a retirement epoch the host has not reached"));
+        }
+        if expected < current {
+            return Err(EntryRefusal { code: mbf_export::CANCELLED, message: mbf_export::CANCELLED_MESSAGE.to_string() });
+        }
+        Ok(MbfEntry { epoch: expected })
+    }
+
+    /// The current retirement epoch (tests; production learns it from `cancel_mbf_export`'s reply).
+    #[cfg(test)]
+    pub(crate) fn epoch(&self) -> u64 {
+        self.lock().epoch
+    }
+
+    /// An entry at the current epoch (tests that register a run directly).
+    #[cfg(test)]
+    pub(crate) fn entry_now(&self) -> MbfEntry {
+        MbfEntry { epoch: self.epoch() }
     }
 
     /// Registers a new run of `kind`, cancelling the older ones of its kind and waking the pool's waiters so a
@@ -239,10 +293,16 @@ impl MbfRuns {
     /// Retires every run in progress and every command that has entered but not yet registered (the epoch moves on):
     /// a waiting run stops waiting, a running worker is killed and its grant released after the reap, a save before
     /// its commit refuses with nothing written. A save past its commit is counted too late, stays tracked and
-    /// completes. A command that enters afterwards is not affected. `cancel_mbf_export` and the session reset call it.
+    /// completes. A request whose ticket is the epoch after it is not affected. The session reset calls it.
     pub(crate) fn cancel_all(&self, pool: &MemoryPool) -> MbfCancelReceipt {
+        self.retire(pool).receipt
+    }
+
+    /// [`Self::cancel_all`], with the epoch it moved on to (`cancel_mbf_export`'s reply), read under the same lock.
+    pub(crate) fn retire(&self, pool: &MemoryPool) -> MbfRetirement {
         let mut tracked = self.lock();
         tracked.epoch += 1;
+        let epoch = tracked.epoch;
         let mut receipt = MbfCancelReceipt::default();
         for (_, run) in &tracked.runs {
             match run.cancel() {
@@ -255,7 +315,7 @@ impl MbfRuns {
         if receipt.cancelled > 0 {
             pool.wake_waiters();
         }
-        receipt
+        MbfRetirement { receipt, epoch }
     }
 }
 
@@ -506,17 +566,26 @@ fn admit<'r>(registry: &'r SolveJobRegistry, raw: Vec<u8>, copy: Lease, command:
     Ok((memory, args, lease))
 }
 
-/// `review_mbf_export` after [`reserve`], for the command that entered at `entry`: admission, the review in the capped worker, and `respond` with the outcome
-/// and its text while the command's leases and the worker's result lease are held.
+/// `review_mbf_export` after [`reserve`]: admission, the request's ticket ([`MbfRuns::enter`], before the model is
+/// decoded), the review in the capped worker, and `respond` with the outcome and its text while the command's leases
+/// and the worker's result lease are held.
 pub(crate) fn review_command<R>(
     registry: &SolveJobRegistry,
     runs: &MbfRuns,
-    entry: MbfEntry,
     raw: Vec<u8>,
     copy: Lease,
     respond: impl FnOnce(&MbfReviewOutcome, String) -> R,
 ) -> Result<R, SolveJobError> {
     let (memory, mut args, lease) = admit(registry, raw, copy, mbf_export::REVIEW_COMMAND)?;
+    let entry = match runs.enter(args.opt_value(EXPECTED_EPOCH)) {
+        Ok(entry) => entry,
+        Err(refusal) => {
+            drop(args);
+            let response = mbf_export::review_mbf_export_refused(&memory, refusal.code, &refusal.message, respond);
+            drop(lease);
+            return Ok(response);
+        }
+    };
     let request = mbf_export::review_mbf_export_args(&mut args)?;
     drop(args);
     let response = mbf_export::review_mbf_export_admitted(request, &memory, &lease, runs, entry, respond);
@@ -524,12 +593,11 @@ pub(crate) fn review_command<R>(
     Ok(response)
 }
 
-/// `save_mbf_export` after [`reserve`], for the command that entered at `entry`: admission, the save (§3.6) with task 3 in the capped worker, the chooser
-/// `choose` and the store `open_store`, and `respond` as for the review.
+/// `save_mbf_export` after [`reserve`]: admission, the request's ticket as the review's, the save (§3.6) with task 3
+/// in the capped worker, the chooser `choose` and the store `open_store`, and `respond` as for the review.
 pub(crate) fn save_command<R>(
     registry: &SolveJobRegistry,
     runs: &MbfRuns,
-    entry: MbfEntry,
     raw: Vec<u8>,
     copy: Lease,
     open_store: impl FnMut() -> Result<rusqlite::Connection, String>,
@@ -537,6 +605,15 @@ pub(crate) fn save_command<R>(
     respond: impl FnOnce(&MbfExportOutcome, String) -> R,
 ) -> Result<R, SolveJobError> {
     let (memory, mut args, lease) = admit(registry, raw, copy, mbf_export::COMMAND)?;
+    let entry = match runs.enter(args.opt_value(EXPECTED_EPOCH)) {
+        Ok(entry) => entry,
+        Err(refusal) => {
+            drop(args);
+            let response = mbf_export::save_mbf_export_refused(&memory, refusal.code, &refusal.message, respond);
+            drop(lease);
+            return Ok(response);
+        }
+    };
     let request = mbf_export::save_mbf_export_args(&mut args)?;
     drop(args);
     let response = mbf_export::save_mbf_export_admitted(request, open_store, &memory, &lease, runs, entry, choose, respond);

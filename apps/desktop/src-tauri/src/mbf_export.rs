@@ -389,6 +389,11 @@ pub const WORKER_REQUEST_INVALID: &str = "MBF-WORKER-REQUEST-INVALID";
 pub const WORKER_PROTOCOL: &str = "MBF-EXPORT-WORKER-PROTOCOL";
 /// The worker run was cancelled (4b.2: a newer review, the dialog closed, the session changed).
 pub const CANCELLED: &str = "MBF-EXPORT-CANCELLED";
+/// The cancellation's message (a cancelled run, and a request whose dispatch ticket a retirement has passed).
+pub const CANCELLED_MESSAGE: &str = "The export was cancelled. Nothing was written.";
+/// A request whose dispatch ticket (`expectedEpoch`, `mbf_worker::MbfRuns::enter`) is missing, malformed or names a
+/// retirement epoch the host has not reached: a protocol error, refused before the model is decoded.
+pub const EPOCH_INVALID: &str = "MBF-EXPORT-EPOCH-INVALID";
 /// The writer refused the model: the reply carries the bounded review, which lists what is not written.
 pub const WRITER_REFUSED: &str = "MBF-EXPORT-WRITER-REFUSED";
 /// Any truncated review blocks the save (§3.3).
@@ -849,7 +854,7 @@ fn run_failure(failure: WriterRunFailure, memory_code: &str, too_large_code: &st
             format!("The export result is larger than the {} bytes an export may hold. Nothing was written.", mbf::MBF_EXPORT_OUTPUT_MAX_BYTES),
         ),
         WriterRunFailure::Protocol(detail) => protocol(stored_read::capped(detail)),
-        WriterRunFailure::Cancelled => diagnostic(CANCELLED, "", "The export was cancelled. Nothing was written."),
+        WriterRunFailure::Cancelled => diagnostic(CANCELLED, "", CANCELLED_MESSAGE),
     }
 }
 
@@ -1522,6 +1527,16 @@ pub(crate) fn save_mbf_export_admitted<R>(
     save_mbf_export_with(&mut run, request, memory, open_store, choose, &mut SystemMbfExportIo, respond)
 }
 
+/// A save refused at its entry by its dispatch ticket (`mbf_worker::save_command`'s check): the refusal's response
+/// within `memory`, before the model is decoded, with no run, worker, chooser or write.
+pub(crate) fn save_mbf_export_refused<R>(memory: &dyn ReadMemory, code: &str, message: &str, respond: impl FnOnce(&MbfExportOutcome, String) -> R) -> R {
+    let (sent, text, buffer) = serialize_outcome(memory, "Export MBF", "save", MbfExportOutcome::refused_one(code, message), None);
+    let response = respond(&sent, text);
+    drop(sent);
+    drop(buffer);
+    response
+}
+
 // -- review_mbf_export (§3.9.5; slice 4b.1 built it, 4b.2a registers it) ------------------------------------------
 
 /// The native review command's name.
@@ -1661,6 +1676,15 @@ pub(crate) fn review_mbf_export_admitted<R>(
 ) -> R {
     let mut run = CappedWorkerRun::review(memory.registry(), args.ledger(), runs, entry);
     review_mbf_export_with(&mut run, request, memory, respond)
+}
+
+/// A review refused at its entry by its dispatch ticket, as [`save_mbf_export_refused`].
+pub(crate) fn review_mbf_export_refused<R>(memory: &dyn ReadMemory, code: &str, message: &str, respond: impl FnOnce(&MbfReviewOutcome, String) -> R) -> R {
+    let (sent, text, buffer) = serialize_outcome(memory, "Review MBF export", "review", MbfReviewOutcome::refused_one(code, message), None);
+    let response = respond(&sent, text);
+    drop(sent);
+    drop(buffer);
+    response
 }
 
 #[cfg(test)]

@@ -18,6 +18,15 @@
 // result carries its generation and `current()`, so a caller discards a completion that arrives after its session
 // was retired.
 //
+// The dispatch ticket: `cancel_mbf_export` replies the native retirement epoch after its bump, and the barrier records
+// the latest one acknowledged. A start takes that epoch once, when its wait is over and it is still current, and
+// sends it as `expectedEpoch` in its request, the same value in every re-send. Natively a request whose ticket a
+// retirement has passed is cancelled whenever its task runs (Tauri extracts an async command's arguments inside the
+// task it spawns), so a start sent just before a retirement cannot escape it; a request without a valid current
+// ticket is refused `MBF-EXPORT-EPOCH-INVALID`. A stale start never refreshes its ticket: only a new, current start
+// takes a newer acknowledgement. Until a retirement has been acknowledged in this page (the page-load reset moves the
+// native epoch on too), the first start delivers one as its handshake. The ticket authorizes nothing.
+//
 // Fail-safe rule for an unacknowledged retirement: a start never treats a retirement whose `cancel_mbf_export` was
 // not acknowledged (the invoke rejected or threw) as done. It re-delivers that retirement first (one re-delivery,
 // shared by the starts waiting on it); if that is not acknowledged either, the start is not sent and refuses
@@ -27,8 +36,12 @@ import { IngressRequestRetiredError, invokeWithIngress } from "../../services/na
 import { invoke } from "@tauri-apps/api/core";
 import type { MbfExportArgs, MbfExportSaveOutcome, MbfReviewArgs, MbfReviewOutcome } from "./mbfExport";
 
-/** What the cancel did: the runs it stopped (nothing written) and the saves past their commit (not interrupted). */
-export type MbfCancelReceipt = { cancelled: number; too_late: number };
+/** What the cancel did: the runs it stopped (nothing written), the saves past their commit (not interrupted), and the
+ * native retirement epoch after it (the next starts' ticket). */
+export type MbfCancelReceipt = { cancelled: number; too_late: number; epoch: number };
+
+/** The request member that carries the dispatch ticket. */
+export const EXPECTED_EPOCH = "expectedEpoch";
 
 /** A run retired before it wrote anything (the native code, used here too for a start that was never sent). */
 export const MBF_EXPORT_CANCELLED = "MBF-EXPORT-CANCELLED";
@@ -40,27 +53,33 @@ const UNCONFIRMED_MESSAGE =
   "The export did not start: the previous project session's export could not be confirmed stopped. Nothing was written.";
 
 /** Cancels the MBF export's runs in progress (one delivery of `cancel_mbf_export`). Never throws: `null` when the
- * native host did not answer (the browser preview has none, and the page-load reset cancels natively too). */
+ * native host did not acknowledge it with a retirement epoch (the browser preview has none, and the page-load reset
+ * cancels natively too). */
 export async function cancelMbfExport(): Promise<MbfCancelReceipt | null> {
   try {
-    return await invoke<MbfCancelReceipt>("cancel_mbf_export");
+    const answer = await invoke<MbfCancelReceipt>("cancel_mbf_export");
+    return answer !== null && typeof answer === "object" && Number.isSafeInteger(answer.epoch) && answer.epoch >= 0 ? answer : null;
   } catch {
     return null;
   }
 }
 
 // The barrier's state: the retirement generation (moved on synchronously by each retirement), the latest delivery
-// of `cancel_mbf_export` and whether it was acknowledged.
+// of `cancel_mbf_export`, whether it was acknowledged, and the latest native retirement epoch acknowledged (none yet
+// in this page: the first start delivers a handshake).
 let generation = 0;
 let latest: Promise<void> = Promise.resolve();
 let delivering = false;
-let acknowledged = true;
+let acknowledged = false;
+let acknowledgedEpoch: number | null = null;
 
 function deliver(): Promise<MbfCancelReceipt | null> {
   delivering = true;
   acknowledged = false;
   const receipt = cancelMbfExport();
   const delivery: Promise<void> = receipt.then((answer) => {
+    // Native epochs only move on: the largest acknowledged is the one every current start must carry.
+    if (answer !== null) acknowledgedEpoch = Math.max(acknowledgedEpoch ?? 0, answer.epoch);
     if (latest !== delivery) return;
     delivering = false;
     acknowledged = answer !== null;
@@ -76,7 +95,8 @@ export function retireMbfExportSession(): Promise<MbfCancelReceipt | null> {
   return deliver();
 }
 
-/** Waits until the latest retirement has settled; re-delivers an unacknowledged one once. Whether it is acknowledged. */
+/** Waits until the latest retirement has settled; re-delivers an unacknowledged one (or, before any in this page,
+ * delivers the handshake) once. Whether it is acknowledged. */
 async function retirementSettled(): Promise<boolean> {
   for (let redelivered = false; ; redelivered = true) {
     let seen: Promise<void>;
@@ -109,9 +129,12 @@ async function start<T>(
   const result = (outcome: T): MbfStarted<T> => ({ outcome, generation: started, current });
   const confirmed = await retirementSettled();
   if (!current()) return result(refused(MBF_EXPORT_CANCELLED, CANCELLED_MESSAGE));
-  if (!confirmed) return result(refused(MBF_EXPORT_RETIREMENT_UNCONFIRMED, UNCONFIRMED_MESSAGE));
+  const ticket = acknowledgedEpoch;
+  if (!confirmed || ticket === null) return result(refused(MBF_EXPORT_RETIREMENT_UNCONFIRMED, UNCONFIRMED_MESSAGE));
+  // The ticket is taken once, here, and every send of this start (a headroom re-send included) carries it.
+  const request = { ...args, [EXPECTED_EPOCH]: ticket };
   try {
-    return result(await invokeWithIngress<T>(command, args, { stillCurrent: current }));
+    return result(await invokeWithIngress<T>(command, request, { stillCurrent: current }));
   } catch (error) {
     if (error instanceof IngressRequestRetiredError) return result(refused(MBF_EXPORT_CANCELLED, CANCELLED_MESSAGE));
     throw error;
