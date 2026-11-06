@@ -6084,9 +6084,9 @@ preservation of the registered state remain required. This records no acceptance
 not admitted for public or native use, and its values and semantics are #131's, unchanged here.
 - **Coefficients.** None move: against main's tree, 1,602 equal, none higher or lower. The threshold, M, the
   generated block, `REGISTERED_PROFILES` and the profile (`c4df869d…996c`) are unchanged.
-- **AC-004: required, prepared and not run.** The witnessed binaries change and stack neutrality is not established
-  from source (below, "Stack"), so §8.56's 7/7 does not transfer. The binaries, the runner and the command are frozen
-  below, "AC-004"; the window needs Agent 0's clearance.
+- **AC-004: 7/7 at `089a5698f`.** The witnessed binaries change and stack neutrality is not established from source
+  (below, "Stack"), so §8.56's 7/7 does not transfer; this registration's own window ran once and passed (below,
+  "AC-004").
 
 **Basis and integration chain.**
 - *Basis.* Main `b65bc0867` (#150, R1 registered as §8.56). `price.py run b65bc0867` exits 0, O-10 0/0, all four
@@ -6163,7 +6163,7 @@ after a braced item, and skipped `mod context;` after `#![allow]`. `11e9a1429` f
 verified the rest clean: the coefficients and artifacts, the 45 digests, MODAL-ID, the `modal_doc_solved` pin, the
 pure insertion, the AC-004 reasoning and the runner.
 
-**AC-004 (prepared; not run).**
+**AC-004.**
 - **Binaries** (built under the slot wrapper, `cargo test --offline --locked --no-run --lib --test
   retained_memory_challenge` in `core/product_physics`, test profile, `RUSTFLAGS`, `CARGO_ENCODED_RUSTFLAGS`,
   `CARGO_BUILD_RUSTFLAGS` and `RUSTDOCFLAGS` unset, rustc 1.97.1 `8bab26f4f`, at `11e9a1429`, core tree `a50472d0…`):
@@ -6182,10 +6182,27 @@ pure insertion, the AC-004 reasoning and the runner.
   re-identifying first.
 - **Runner.** §8.56's `harness.py`, with only its identities substituted: this checkout, the copies, the two binaries
   and their hashes, the head and the core tree. Admission, the 55 s internal deadline, fail-fast, the flag and
-  `W1_MEMBER_CAP_OUT` handling and `CHECK_ONLY` are unchanged. It pins the head that carries this text, so its SHA-256
-  is recorded with the result.
+  `W1_MEMBER_CAP_OUT` handling and `CHECK_ONLY` are unchanged. Read-only, SHA-256
+  `d47df640729fecca6f5b802891ae222853b53764c9b29db4e090f8ccbb2db693` (it pins the head that carried this text before
+  the result, so the hash is recorded here).
+- **Result: 7/7 at `089a5698f`** (commit `089a5698ff6f7a0e4586f0cd50a5cc4196424f94`, core tree
+  `a50472d043eb9e8392380cb7ec5151e28a3d037c`, whole worktree clean; the commit recording it changes no file under
+  `core/`). Admission verified the head, the core tree, the clean state, the four hashes (the two binaries, the profile
+  `c4df869d…996c`, `Cargo.lock` `b7ebb02a…5653`), rustc 1.97.1 `8bab26f4f`, the four flags absent, memguard live, the
+  copies read-only, `W1_MEMBER_CAP_OUT` not inherited and `CHECK_ONLY` unset.
+- **Window.** One attempt under Agent 0's technical clearance and App's fresh resource concurrence (snapshot
+  12:53:36Z, 2026-11-06), with App's brief deferral active, run by Dynamics with the copies and runner above. An earlier
+  App-deferred clearance started nothing (never queued). Acquired at 12:57:34Z (`START-EXCLUSIVE` immediately after
+  `WAIT-EXCLUSIVE`); runner entry 12:57:34.167Z, admission verified 12:57:34.503Z (0.336 s); END rc 0 at 12:57:49Z,
+  15.738 s internal from entry and about 15 s from acquisition including teardown, against the 55 s and 60 s limits.
+  Each of the seven processes executed exactly one test with rc 0 (1,229 filtered out of the lib binary, 43 of the
+  challenge): sparse and dense `witness_headroom_w1_at_one_mebibyte` 2.28 s and 0.64 s,
+  `witness_w2_deep_milestone_publishes` 1.31 s and 1.31 s, `witness_w_c2_publishes` 2.47 s and 2.47 s;
+  `retained_direct_peak_is_within_the_profiles_bounds` 4.81 s. The post-run hashes were unchanged. Closure was
+  verified at 12:57:57Z: no runner, test or wrapper process remained, the four slot locks had no holder and no pending
+  marker remained, and memguard (live) logged no event.
 
-Run evidence (the two runs, compares, block checks, builds, test logs) and the AC-004 copies and runner are in
+Run evidence (the two runs, compares, block checks, builds, test logs), the AC-004 copies and runner, and the window record are in
 `/Users/ryan/dev/chirality-t3/scratch/rt-dynamics-131-d3/`; they are review input, not a permanent dependency.
 
 ## 9. Memory-profile gates and registration
