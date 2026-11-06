@@ -284,7 +284,7 @@ A body whose every certified row is exactly zero (S* = 0) stays Passed, for exam
   - A significant finite published row with infinite absolute-scale metadata suppresses the notice. The boundary vector [1, 2^-27, 0] with B=1 also suppresses it: its correctly rounded norm is 1, but its exact squared norm is 1+2^-54 > B². Nonfinite, negative-bound or unavailable comparison arithmetic suppresses the notice.
   - A zero-load case (u = 0) stays Passed with no notice.
 
-**Combination rows (RV33 note 10).** Combination rows are binary64 linear combinations of the certified case rows (`preview_physics::append_combination_results` in `PP/src/preview_physics.rs`). The 1e-9 criterion governs case rows. A combination row is not judged against its own q, which under cancellation can be much smaller than its terms. This unit does not change that; it is disclosed and listed under open items.
+**Combination rows (RV33 note 10).** Combination rows are binary64 linear combinations of the certified case rows (`preview_physics::append_combination_results` in `PP/src/preview_physics.rs`). The 1e-9 criterion governs case rows. A combination row is not judged against its own q, which under cancellation can be much smaller than its terms. This unit does not change that; it is disclosed and listed under open items. RT-A3 §4 (DEL-05-02 Work `combination-certificate.md`) now judges a subtraction's and a mechanics combination's derived groups by this predicate. It uses q_D of the derived rows, B_D = RU(Σ|fᵢ|·B_g,i + the exact rounding error), the groups and bounds of §3.2 published per operand, and the larger operand coupled scale as the floor scale. The case predicate and every case row are unchanged.
 
 ### 3.4 The published values change (property)
 
@@ -647,7 +647,7 @@ The run is `run <head>`, then `compare` against the registered tree, then `gener
 
 ## Open items
 
-- **Combination rows** are not judged against their own q (§3.3).
+- **Combination rows** are not judged against their own q (§3.3). RT-A3 §4's certificate now judges the derived groups of subtractions and mechanics combinations; see DEL-05-02 Work `combination-certificate.md`.
 - **The load-row guard** no longer guards any certified row (§4.2). Retiring it changes W1's routing into retained-source recovery and needs T3's agreement. Its availability cost is 6 RV30 case-modes and 0 realistic.
 - **Runtime** (§6, measured): per-member reuse of re-formed loads is a numerically identical refinement, not yet made. The adjacency-first reaction loop is made.
 - **A displacement-noise floor for D5C-1** (§4.2) would be a criterion change. It is noted to the owner as a possible later choice; the 2026-10-12 ruling adds none.

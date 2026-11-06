@@ -1,3 +1,4 @@
+import { disposeRestoredRun, openLocalProjectNative, type NativeProjectEnvelope } from "./nativeReopen";
 import { invoke } from "@tauri-apps/api/core";
 import { invokeWithIngress } from "./nativeIngress";
 import { MODEL_SCHEMA_VERSION, RETIRED_MODEL_SCHEMA_VERSIONS, RETIRED_PROJECT_RUNS_NOTE } from "./modelSchemaVersion";
@@ -609,6 +610,29 @@ export async function openLocalProject(projectId: string | null = null): Promise
   const opened = await invoke<LocalProjectEnvelope | null>("open_local_project", { projectId });
   if (opened) refuseMissingProjectUnits(opened.model, opened.summary?.project_id ?? projectId ?? "");
   return opened;
+}
+
+/** C1 slice 6: a stored project as the session opens it. On the desktop the project is opened with
+ * its saved run reopened into native custody (`open_local_project_in_native_custody`): `envelope` is
+ * the stored project's members with no run (its result and record stay native), and `native` carries
+ * the restored handle and its findings, or the run's named refusal. The browser preview keeps its
+ * whole-value store (`native` null). */
+export type OpenedStoredProject = Readonly<{ envelope: LocalProjectEnvelope; native: NativeProjectEnvelope | null }>;
+export async function openStoredProject(projectId: string | null = null, options: { stillCurrent?: () => boolean } = {}): Promise<OpenedStoredProject | null> {
+  if (!hasTauriRuntime()) {
+    const envelope = await openLocalProject(projectId);
+    return envelope ? { envelope, native: null } : null;
+  }
+  const native = await openLocalProjectNative(projectId, options);
+  if (!native) return null;
+  try {
+    refuseMissingProjectUnits(native.model, native.summary?.project_id ?? projectId ?? "");
+  } catch (error) {
+    if (native.stored_run.state === "restored") void disposeRestoredRun(native.stored_run);
+    throw error;
+  }
+  const { stored_run: _run, ...members } = native;
+  return { envelope: { ...members, mechanics_result: null, analysis_run: null } as LocalProjectEnvelope, native };
 }
 
 /** W-17: the refusal of a stored project whose document lacks the

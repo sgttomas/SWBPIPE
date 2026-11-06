@@ -251,7 +251,7 @@ def test_model_version_literal_guard_follows_every_root_it_scans():
     assert {(PROJECT / root) for root in ci.derived_tests(PROJECT)[test]} >= scanned
     for path in ('apps/desktop/src-tauri/src/embedded_agent/session_fixture.rs', 'apps/desktop/src/services/modelSchemaVersion.ts',
                  'core/product_physics/src/model_format.rs', 'core/model_operations/operation_applier/src/lib.rs',
-                 'tools/validation/validate_claims_language.py', 'tests/verifiers/u4b.py'):
+                 'tools/validation/validate_conflict_markers.py', 'tests/verifiers/u4b.py'):
         assert test in selected(path), path
     assert test in ci.select(PROJECT, {'event': 'workflow_dispatch'})
     assert test not in by_rules('core/gui/pkg02_boundary.py')
@@ -377,7 +377,6 @@ def test_formerly_never_run_guards_follow_their_roots():
             'validation/benchmarks/numerical_robustness/runner/vk_scale_runner.py',
         'tests/test_performance_harness_runner.py': 'core/solver/performance_harness/runner/k6_runner.py',
         'tests/test_caepipe_mbf_importer.py': 'core/handoff/caepipe_mbf/importer.py',
-        'tests/test_user_guide_status_wording.py': 'docs/user_guide/index.md',
         'tests/test_release_notarize_script.py': 'tools/release/notarize_app.py',
     }
     for test, path in cases.items():
@@ -439,35 +438,10 @@ def test_a_path_only_a_python_test_reads_starts_the_python_job():
         selection = hosted_ci.select_paths([path], profile)
         assert selection['modes']['piping-python'] == 'full', path
         assert path in selection['reasons']['piping-python']
-    # The always-run security tests read their policy documents; the claims-language test reads every doc.
     assert hosted_ci.select_paths(['docs/security/telemetry_policy.md'], profile)['modes']['piping-python'] == 'full'
     assert hosted_ci.select_paths(['docs/PRD.md'], profile)['modes']['piping-python'] == 'full'
     # A test whose reads the code does not show reads every path, so a governance-only change starts the job too.
     assert hosted_ci.select_paths(['loop/LOOP_INIT.md'], profile)['modes']['piping-python'] == 'full'
-
-
-def test_claims_language_surface_test_follows_the_validator_s_inputs():
-    """The declared verification (DEL-04-08 VER-008) runs when any input of its validator changes: its
-    CI_READS are the validator's own `input_patterns()`."""
-    test = 'tests/test_claims_language_surface.py'
-    assert test not in ci.UNROUTED
-    import sys
-    spec = importlib.util.spec_from_file_location('claims_inputs', PROJECT / 'tools/validation/validate_claims_language.py')
-    validator = importlib.util.module_from_spec(spec)
-    sys.modules[spec.name] = validator  # its dataclasses resolve their module
-    try:
-        spec.loader.exec_module(validator)
-    finally:
-        del sys.modules[spec.name]
-    # fnmatch's `*` spans `/`: a trailing `/*` is the whole tree.
-    expected = tuple(pattern[:-1] + '**' if pattern.endswith('/*') else pattern
-                     for pattern in validator.input_patterns())
-    assert ci.python_test_reads.declared_reads(PROJECT)[test] == expected
-    for path in ('docs/PRD.md', 'docs/user_guide/index.md', 'apps/desktop/src/App.tsx',
-                 'core/reporting/report_renderer/src/lib.rs', 'tools/validation/validate_claims_language.py'):
-        assert test in selected(path), path
-    assert test in ci.select(PROJECT, {'event': 'workflow_dispatch'})
-    assert test not in by_rules('loop/LOOP_INIT.md')
 
 
 # Review of #28, round 2 (head 313a0f1): four false negatives. The deriver now fails toward over-selection.

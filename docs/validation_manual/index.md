@@ -193,7 +193,7 @@ runnable procedure; what one needs is listed at the end of that procedure.
 
 | Section | Evidence class | Current source slots | Required content |
 |---|---|---|---|
-| Product scope and limitations | Professional reliance context | `docs/PROFESSIONAL_BOUNDARY.md`, `docs/IP_AND_DATA_BOUNDARY.md` | Intended support role, exclusions, private-data boundary, reliance warning, known unsupported cases |
+| Product scope and limitations | Professional reliance context | `docs/IP_AND_DATA_BOUNDARY.md` | Intended support role, exclusions, private-data boundary, reliance warning, known unsupported cases |
 | Solver theory summary | Verification context | `docs/theory/centerline_analysis.md`, solver docs | Stated mechanics assumptions, element families, load handling, nonlinear support limits, result-envelope policy |
 | Unit and schema verification | Mechanics verification | schema tests, `core/units/`, `docs/TYPES.md` | Unit dimensions, schema validation, invalid-input behavior, serialization boundaries |
 | Element verification | Mechanics verification | [section 3.1 cases](#31-mechanics-benchmark-cases-del-09-01) | Frame, straight-pipe, support, thermal, imposed displacement, curved-bend, and transform benchmarks |
@@ -216,7 +216,6 @@ runnable procedure; what one needs is listed at the end of that procedure.
 | Report protected-content lint | `core/reporting/protected_content_linter/` | Draft review evidence for report/public-artifact checks; development review evidence, not legal clearance. |
 | Release quality evidence | `docs/RELEASE_QUALITY_GATES.md` (`DEL-09-05` release quality gate checklist) | `TBD`; this manual may organize evidence inputs but does not settle release labels or release readiness. |
 | Validation evidence bundles | Future evidence package location/format | `TBD`; long-term storage, retention, and release attachment policy are unsettled. |
-| Professional boundary | `docs/PROFESSIONAL_BOUNDARY.md` | Draft policy surface for reliance wording and release-claim limits. |
 
 This inventory is the starting index for future evidence review and
 release-quality decisions. Validation occurs in the user's accepted

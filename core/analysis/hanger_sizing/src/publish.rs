@@ -8,7 +8,7 @@
 //! text. The hashes identify the inputs; they authenticate no origin and claim
 //! no input manifest (P4).
 
-use crate::admission::{admit, in_profile, push_key};
+use crate::admission::{admit, in_profile, push_key, AdmissionFinding};
 use crate::derived::{self, derived_document, RequestCandidate, Role, SizingRequest, SizingRun, WeightSupportState};
 use crate::{
     library, Dof, FamilyPolicy, LoadDesign, Method, Outcome, Refusal, Selected, SelectionRule, Test,
@@ -737,23 +737,33 @@ pub fn sized_document(
 /// The headless pipeline (§8.3.1, §8.3.2) on an input text the caller has read
 /// and found within [`MAX_INPUT_BYTES`]: always a document, sized or refused.
 pub fn size_hangers(text: &str) -> Published {
-    let input = match admit(text) {
-        Ok(input) => input,
-        Err(finding) => {
-            return Published::Refused(refused_document(
-                &RefusedInputs::default(),
-                &[refusal(INPUT_NOT_ADMITTED, vec![finding.kind.as_str().to_string(), finding.path],
-                    "the input is outside the openpipestress_jcs_ijson_v1 profile; the finding names its kind and path")],
-            ))
-        }
-    };
+    match admit(text) {
+        Ok(input) => size_admitted(&input),
+        Err(finding) => not_admitted(finding),
+    }
+}
+
+/// The refused document of an input the admission layer refused (§8.3.1).
+pub(crate) fn not_admitted(finding: AdmissionFinding) -> Published {
+    Published::Refused(refused_document(
+        &RefusedInputs::default(),
+        &[refusal(INPUT_NOT_ADMITTED, vec![finding.kind.as_str().to_string(), finding.path],
+            "the input is outside the openpipestress_jcs_ijson_v1 profile; the finding names its kind and path")],
+    ))
+}
+
+/// The pipeline after admission: shape, library import boundary, request, the
+/// engine's run, then publication. [`size_hangers`] and the desktop entry
+/// (`crate::desktop`) share it, so that an input is admitted once and published
+/// the same way by both.
+pub(crate) fn size_admitted(input: &Value) -> Published {
     let mut inputs = RefusedInputs {
         sizing_request: None,
         solve_request_sha256: input.get("request").and_then(checked_sha256),
         library_id: input.get("library").and_then(|l| l["hanger_library"]["library_id"].as_str()).map(str::to_string),
         library_sha256: input.get("library").and_then(checked_sha256),
     };
-    let shape = shape_findings(&input);
+    let shape = shape_findings(input);
     if !shape.is_empty() {
         return Published::Refused(refused_document(&inputs, &[refusal(INPUT_SHAPE_INVALID, shape,
             "the input must be exactly {\"request\": {\"model\", \"materials\"}, \"sizing\", \"library\"}")]));

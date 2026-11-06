@@ -64,7 +64,7 @@ fn rendered() -> Rendered {
 fn combine(fixture: &Fixture) -> (Vec<ResultItem>, Vec<Diagnostic>) {
     let mut results = fixture.case_rows.clone();
     let mut diagnostics = Vec::new();
-    append_combination_results(&fixture.model, &rendered(), &fixture.rows_by_base_id, &mut results, &mut diagnostics);
+    append_combination_results(&fixture.model, &rendered(), &fixture.rows_by_base_id, &HashMap::new(), &mut results, &mut diagnostics);
     (results.split_off(fixture.case_rows.len()), diagnostics)
 }
 

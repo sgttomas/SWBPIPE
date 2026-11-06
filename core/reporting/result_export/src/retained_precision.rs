@@ -587,14 +587,14 @@ const TABLE_BYTES: &[u8] = include_bytes!(
 );
 const INHERITED_TABLE_BYTES: &[u8] =
     include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_preview_physics_2.json");
-const TABLE_HASH: &str = "b4377e73e8a83edb57b4f0c41dbaef384385e0f6b4810103a106a334c8edbe14";
+const TABLE_HASH: &str = "ef59ef338d4e2cafca7017e13b7a450d1094ede8068c47cf5e44416c1adc177a";
 /// The exact successor's table (XTABLE) and its inherited pressure-2 table.
 const EXACT_TABLE_BYTES: &[u8] = include_bytes!(
     "../../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json"
 );
 const PRESSURE_TABLE_BYTES: &[u8] =
     include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_pressure_2.json");
-const EXACT_TABLE_HASH: &str = "85c2678a78e794b44761c11efb73c215645c7e2560d802ac8ad6075e7804c691";
+const EXACT_TABLE_HASH: &str = "320dc3f1f75944af8b66da1287e6f8ee5e1fcd5fe005752f2c90bf8c89a9c894";
 /// RV78-N1's policies (B3D-8): the receipt values XTABLE's `receipt_bindings`
 /// binds from version 1, keyed by the receipt body's own paths.
 fn receipt_bindings() -> Value {
@@ -1469,7 +1469,8 @@ fn g4(source: &Value) -> VResult {
     // B2-C §10.1 G4: one RETAINED_PRECISION_SELECTED per `retained_selected` and
     // one RETAINED_PRECISION_UNAVAILABLE per `retained_unavailable` combination,
     // none for `ordinary` or `base_withheld`; an unavailable entry's
-    // `diagnostic_ref` is its diagnostic's id.
+    // `diagnostic_ref` is its diagnostic's id. Their message text is not
+    // checked here (RT-A3 §4: Work `combination-certificate.md` §2).
     for e in combos {
         let id = &e["basis_ref"]["ref_id"];
         let named = |code: &str| -> Vec<&Value> {
@@ -6629,7 +6630,11 @@ fn gates_after_g0(source: &Value, actual_invocation: Option<&Value>, route: &Rou
     // SOURCE_PREVIEW_PHYSICS_<CODE> (preview) or SOURCE_PHYSICS_<CODE>
     // (exact: pressure-2's `validate_pressure_evidence`); any text
     // after the code is detail.
-    crate::semantic_contract::for_source(&projected).map_err(base_error)?;
+    // RT-A3 §4 (DEL-05-02 Work `combination-certificate.md` §2): the base read runs in the retained read
+    // context, without the roster's text closure. G7 is base consistency only: it attests no combination
+    // diagnostic prose, which G4 (codes, cardinalities, named combinations) and G5 (membership) do not bind
+    // either; that prose stays supplied, unverified text wherever exposed.
+    crate::combination_certificate::retained_base_read(|| crate::semantic_contract::for_source(&projected)).map_err(base_error)?;
     // T4-U4b (§4.1, §5.1; S4 round 2): on route L the base read above is
     // model-free, so with the invocation the projection's τ rows are
     // recomputed bit for bit with c_b from the captured model (the
@@ -6708,8 +6713,16 @@ fn preview_physics_transport_metadata(p: &Value) -> Result<(), String> {
         "formulation profile or limitations",
     )?;
     let evidence = &p["contract_evidence"];
+    // RT-A3 §4: a document with a combination may carry the combination certificate
+    // (DEL-05-02 Work `combination-certificate.md`). Transport has no rows, so only its
+    // closed shape is read here; the source reading checks it against the rows.
+    let certificate = evidence.get("combination_certificate").is_some();
     demand(
-        shape(evidence, &["preview_cases", "combination_gates"]),
+        if certificate {
+            shape(evidence, &["preview_cases", "combination_gates", "combination_certificate"])
+        } else {
+            shape(evidence, &["preview_cases", "combination_gates"])
+        },
         "transport evidence shape",
     )?;
     demand(
@@ -7002,6 +7015,15 @@ fn preview_physics_transport_metadata(p: &Value) -> Result<(), String> {
                 None => false,
             },
             "combination gate reason",
+        )?;
+    }
+    if certificate {
+        let member = &evidence["combination_certificate"];
+        demand(
+            shape(member, &["combinations", "operand_cases"])
+                && member["combinations"].is_array()
+                && member["operand_cases"].is_array(),
+            "transport combination certificate shape",
         )?;
     }
     Ok(())

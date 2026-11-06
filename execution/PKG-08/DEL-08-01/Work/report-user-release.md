@@ -1955,6 +1955,13 @@ code made only from its own tokens and its own crate's internals:
   input, the scan would not see it. None of today's does, and changing one
   of those dependencies is reviewed as a change to this boundary.
 
+C1 slice-7 preparation adds one file-specific standard macro form:
+`std::thread_local!` in `src-tauri/src/ingress.rs`, for the feature-gated
+allocation counter. Its body must parse as only static items; their types,
+attributes and initializers are visited by the existing scan. Bare spellings,
+other files, opaque bodies, hidden calls and source includes remain refused.
+This adds no handler, issuance path or exception to the call rules.
+
 The module traversal and the name, scope and call rules below therefore rely
 on every production `mod` and every production call being visible to `syn`,
 apart from what the listed macros emit.

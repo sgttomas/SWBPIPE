@@ -2,13 +2,17 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   SOLVE_TIMELINE_GLOBAL,
   SOLVE_TIMELINE_SCHEMA,
+  awaitsSolveFirstPage,
   beginSolveTimeline,
+  cancelSolveFirstPage,
   codeOrNull,
   errorCode,
   isSolveJob,
   isSolveResult,
   markSolveCommittedAndPaint,
+  markSolveFirstPageCommitted,
   markSolveStage,
+  noteSolveHandle,
   noteSolveResult,
   readSolveTimeline,
   recordSolvePass,
@@ -154,6 +158,178 @@ describe("the latest solve's timeline (RT-U4)", () => {
     expect(frames).toHaveLength(0);
   });
 
+  it("notes a native handle only for the running solve's job, keeping the pass floor", () => {
+    const run = beginSolveTimeline();
+    const handle = {};
+    noteSolveHandle("job-1", handle); // before the job started: not this solve's job
+    expect(isSolveResult(handle)).toBe(false);
+    run.jobStarted("job-1");
+    noteSolveHandle("job-other", handle); // a foreign job (a rule check's own solve)
+    expect(isSolveResult(handle)).toBe(false);
+    noteSolveHandle("job-1", handle);
+    expect(isSolveResult(handle)).toBe(true);
+    // No text length is noted for a handle: the 1 MiB floor still classifies full passes.
+    recordSolvePass("checked_json_text", performance.now(), 2 << 20);
+    expect(readSolveTimeline()!.passes[0]).toMatchObject({ count: 1, full_count: 1 });
+    // A completed solve notes no later handle.
+    run.end("completed");
+    const later = {};
+    noteSolveHandle("job-1", later);
+    expect(isSolveResult(later)).toBe(false);
+  });
+
+  it("refuses a stale handle: a superseded, failed or cancelled solve's job notes none, and its handle is not the new solve's", () => {
+    const frames: FrameRequestCallback[] = [];
+    vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => { frames.push(callback); return frames.length; });
+    const first = beginSolveTimeline();
+    first.jobStarted("job-1");
+    const old = {};
+    noteSolveHandle("job-1", old);
+    const second = beginSolveTimeline(); // the old solve is superseded
+    second.jobStarted("job-2");
+    noteSolveHandle("job-1", {});
+    expect(isSolveResult(old)).toBe(false);
+    markSolveCommittedAndPaint(old);
+    markSolveFirstPageCommitted(old, {}, () => true);
+    expect(frames).toHaveLength(0);
+    expect(readSolveTimeline()!.marks.map((mark) => mark.stage)).toEqual(["solve_requested", "job_started"]);
+    for (const outcome of ["failed", "cancelled"] as const) {
+      const run = beginSolveTimeline();
+      run.jobStarted("job-3");
+      run.end(outcome);
+      const handle = {};
+      noteSolveHandle("job-3", handle);
+      expect(isSolveResult(handle)).toBe(false);
+    }
+  });
+
+  it("paints a native handle two frames after its Results table's first page, never at the commit alone", () => {
+    const frames: FrameRequestCallback[] = [];
+    vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => { frames.push(callback); return frames.length; });
+    const run = beginSolveTimeline();
+    run.jobStarted("job-1");
+    const handle = {};
+    noteSolveHandle("job-1", handle);
+    // A first page before the handle's commit marks nothing.
+    expect(awaitsSolveFirstPage(handle)).toBe(false);
+    markSolveFirstPageCommitted(handle, {}, () => true);
+    markSolveCommittedAndPaint(handle);
+    markSolveCommittedAndPaint(handle);
+    expect(frames).toHaveLength(0);
+    expect(readSolveTimeline()!.marks.map((mark) => mark.stage)).toEqual(["solve_requested", "job_started", "result_committed"]);
+    // Another handle's page (a reopened run's, say) is not this solve's.
+    expect(awaitsSolveFirstPage({})).toBe(false);
+    markSolveFirstPageCommitted({}, {}, () => true);
+    expect(frames).toHaveLength(0);
+    run.end("completed");
+    expect(awaitsSolveFirstPage(handle)).toBe(true);
+    // The same page again does not restart its frames; the handle awaits its paint until marked.
+    const page = {};
+    markSolveFirstPageCommitted(handle, page, () => true);
+    markSolveFirstPageCommitted(handle, page, () => true);
+    expect(awaitsSolveFirstPage(handle)).toBe(true);
+    expect(frames).toHaveLength(1);
+    frames.shift()!(0);
+    expect(readSolveTimeline()!.marks.map((mark) => mark.stage)).toEqual(["solve_requested", "job_started", "result_committed"]);
+    frames.shift()!(0);
+    expect(readSolveTimeline()!.marks.map((mark) => mark.stage)).toEqual(["solve_requested", "job_started", "result_committed", "first_paint"]);
+    expect(frames).toHaveLength(0);
+    // Painted once: later pages mark nothing.
+    expect(awaitsSolveFirstPage(handle)).toBe(false);
+    markSolveFirstPageCommitted(handle, {}, () => true);
+    expect(frames).toHaveLength(0);
+  });
+
+  // RT-U4 F2: whether the page is still the table's and still visible is checked across the paint
+  // boundary (before each frame's mark), not only when the frames are scheduled.
+  function committedHandle() {
+    const frames: FrameRequestCallback[] = [];
+    vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => { frames.push(callback); return frames.length; });
+    const run = beginSolveTimeline();
+    run.jobStarted("job-1");
+    const handle = {};
+    noteSolveHandle("job-1", handle);
+    markSolveCommittedAndPaint(handle);
+    run.end("completed");
+    const step = () => frames.shift()!(0);
+    const painted = () => readSolveTimeline()!.marks.some((mark) => mark.stage === "first_paint");
+    return { frames, handle, step, painted };
+  }
+
+  for (const hiddenAt of [1, 2]) {
+    it(`marks nothing for a page hidden before frame ${hiddenAt}, and re-arms for the page shown again`, () => {
+      const { frames, handle, step, painted } = committedHandle();
+      let shown = true;
+      const page = {};
+      markSolveFirstPageCommitted(handle, page, () => shown);
+      if (hiddenAt === 2) step();
+      shown = false;
+      step();
+      expect(frames).toHaveLength(0);
+      expect(painted()).toBe(false);
+      expect(awaitsSolveFirstPage(handle)).toBe(true);
+      shown = true;
+      markSolveFirstPageCommitted(handle, page, () => shown);
+      step();
+      expect(painted()).toBe(false);
+      step();
+      expect(painted()).toBe(true);
+      expect(readSolveTimeline()!.marks.filter((mark) => mark.stage === "first_paint")).toHaveLength(1);
+    });
+  }
+
+  it("marks nothing for a page replaced before its frames; the replacing page paints once", () => {
+    const { frames, handle, step, painted } = committedHandle();
+    markSolveFirstPageCommitted(handle, {}, () => true);
+    const replacing = {};
+    markSolveFirstPageCommitted(handle, replacing, () => true);
+    expect(frames).toHaveLength(2);
+    step(); // the replaced page's first frame: dropped
+    step(); // the replacing page's first frame
+    expect(frames).toHaveLength(1);
+    expect(painted()).toBe(false);
+    step();
+    expect(painted()).toBe(true);
+    expect(frames).toHaveLength(0);
+  });
+
+  it("marks nothing after the panel cancels its page (hidden, pending or refused), until it arms again", () => {
+    const { frames, handle, step, painted } = committedHandle();
+    const page = {};
+    markSolveFirstPageCommitted(handle, page, () => true);
+    step();
+    cancelSolveFirstPage(handle);
+    step();
+    expect(painted()).toBe(false);
+    expect(frames).toHaveLength(0);
+    cancelSolveFirstPage({}); // another handle's cancel changes nothing
+    markSolveFirstPageCommitted(handle, page, () => true);
+    cancelSolveFirstPage({});
+    step();
+    step();
+    expect(painted()).toBe(true);
+  });
+
+  it("treats a throwing visibility check as not shown", () => {
+    const { handle, step, painted } = committedHandle();
+    markSolveFirstPageCommitted(handle, {}, () => { throw new Error("detached"); });
+    step();
+    expect(painted()).toBe(false);
+    expect(awaitsSolveFirstPage(handle)).toBe(true);
+  });
+
+  it("paints a result read from taken bytes at its commit: no first-page wait applies to it", () => {
+    const frames: FrameRequestCallback[] = [];
+    vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => { frames.push(callback); return frames.length; });
+    beginSolveTimeline();
+    const result = {};
+    noteSolveResult(result, 2);
+    markSolveCommittedAndPaint(result);
+    expect(awaitsSolveFirstPage(result)).toBe(false);
+    markSolveFirstPageCommitted(result, {}, () => true);
+    expect(frames).toHaveLength(1);
+  });
+
   it("is bounded, and its global reads a recursively frozen copy", () => {
     const run = beginSolveTimeline();
     for (let index = 0; index < 100; index += 1) run.mark("job_done");
@@ -231,5 +407,36 @@ describe("the solve timeline's own global, beside the unchanged diagnostics glob
     const during = api.readCurrent();
     expect(Object.keys(during).sort()).toEqual(["capturedAt", "model", "schema", "snapshotSequence", "tree", "viewport"]);
     expect("solveTimeline" in during).toBe(false);
+  });
+});
+
+// C1 fixed native-await checkpoints are observed only when a smoke reporter is
+// installed; ordinary calls preserve their result/error without extra events.
+describe("C1 native reader boundary observations", () => {
+  it("keeps an entry without inventing an exit while disposed/cancelled work remains pending", async () => {
+    const { traceNativeReaderAwait, resetSolveTimelineForTests } = await import("./solveTimeline");
+    resetSolveTimelineForTests();
+    const events: {edge:string; status:string}[]=[];
+    globalThis.__SWBPIPE_NATIVE_SMOKE_READER_PHASE__=async event=>{events.push(event);};
+    let reject!: (error: Error)=>void;
+    const pending=traceNativeReaderAwait("registration",()=>new Promise((_resolve,no)=>{reject=no;}));
+    await Promise.resolve();await Promise.resolve();
+    expect(events).toHaveLength(1);
+    expect(events[0]).toMatchObject({edge:"enter",status:"pending"});
+    const error=new Error("fixture disposed job");
+    reject(error);
+    await expect(pending).rejects.toBe(error);
+    expect(events.at(-1)).toMatchObject({edge:"exit",status:"error"});
+    resetSolveTimelineForTests();
+  });
+  it("limits observed awaits without truncating into a successful observation", async () => {
+    const { traceNativeReaderAwait, resetSolveTimelineForTests } = await import("./solveTimeline");
+    resetSolveTimelineForTests();
+    const events: unknown[]=[];
+    globalThis.__SWBPIPE_NATIVE_SMOKE_READER_PHASE__=async event=>{events.push(event);};
+    for(let i=0;i<32;i++) await traceNativeReaderAwait("header",async()=>null);
+    await expect(traceNativeReaderAwait("header",async()=>null)).rejects.toThrow("C1-READER-DIAGNOSTIC-LIMIT");
+    expect(events).toHaveLength(64);
+    resetSolveTimelineForTests();
   });
 });

@@ -4,7 +4,7 @@
 //! The desktop's projection (`diagnosticsForSections`) is checked against the
 //! same file by `apps/desktop/src/features/report/reportDiagnostics.parity.test.ts`.
 
-use open_pipe_stress_report_package::bindings::{check_report_diagnostics, expected_report_diagnostics, BINDING_MISMATCH};
+use open_pipe_stress_report_package::bindings::{check_report_diagnostics, expected_report_diagnostics, BINDING_MISMATCH, SUPPLEMENTAL_DIAGNOSTIC_LABEL};
 use serde_json::{json, Value};
 
 const VECTORS: &str = include_str!("../../../../fixtures/reports/invented/report_diagnostics_parity.json");
@@ -34,7 +34,13 @@ fn rust_projection_matches_the_shared_parity_vectors() {
     for vector in &vectors {
         let reason = vector["reason"].as_str().unwrap();
         assert!(!reason.is_empty(), "every vector states its reason");
-        let source = json!({"diagnostics": vector["diagnostics"]});
+        // RT-A3 §4: a vector may state the result's combination evidence, rows and numerical cases.
+        let mut source = json!({"diagnostics": vector["diagnostics"]});
+        for member in ["contract_evidence", "results", "numerical_quality"] {
+            if let Some(value) = vector.get(member) {
+                source[member] = value.clone();
+            }
+        }
         let projected = expected_report_diagnostics(&source).unwrap_or_else(|error| panic!("{reason}: {error}"));
         assert_eq!(Value::Array(projected), vector["expected"], "{reason}");
         // A report carrying the projection, with session provenance, passes the check.
@@ -66,6 +72,71 @@ fn the_vectors_cover_the_stated_edge_cases() {
     assert!(has(&|s, e| s["severity"] == "warning" && e["severity"] == "warning" && e["class"] == "ASSUMPTION_WARNING"), "warning");
     assert!(has(&|s, e| s["severity"] == "info" && e["severity"] == "info" && e["class"] == "ASSUMPTION_WARNING"), "info");
     assert!(has(&|s, e| s["affected_refs"].as_array().is_some_and(|refs| refs.len() == 2) && affected(e).contains(", ")), "joined refs");
+    // RT-A3 §4: supplied text quoted on a result with combinations, a roster entry copied, and prose copied on a
+    // result without one.
+    let quoted = |s: &Value, e: &Value| e["message"] == format!("{SUPPLEMENTAL_DIAGNOSTIC_LABEL}\"{}\"", s["message"].as_str().unwrap());
+    assert!(has(&|s, e| s["code"] == "REVIEW_NOTE" && quoted(s, e)), "supplied text quoted");
+    assert!(has(&|s, e| s["code"] == "COMBINATION_STRESS_MAXIMUM_UNAVAILABLE" && e["message"] == s["message"]), "roster entry copied");
+    assert!(has(&|s, e| s["code"] == "REVIEW_NOTE" && e["message"] == s["message"]), "no combination: copied");
+}
+
+/// RT-A3 §4 (DEL-05-02 Work `combination-certificate.md` §2, the residual text boundary) on an actual
+/// certificate document, whose combination identities carry no `comb:` prefix: each diagnostic naming a
+/// combination (an entry of the reader's closed roster, the certificate's notice among them) is copied, and
+/// every other message, the certificate review's claim under a load-case ref among them, is quoted after the
+/// supplemental label. The reader admits the added note as supplemental text.
+#[test]
+fn a_certificate_document_copies_roster_entries_and_quotes_supplied_text() {
+    let mut source: Value = serde_json::from_str(include_str!("../../../../fixtures/results/preview_physics_range_envelope_sparse.json")).unwrap();
+    let claim = "combination combination:U4B-RANGE-MAX: all derived row groups are established within their stated\u{a0}bound.";
+    source["diagnostics"].as_array_mut().unwrap().push(json!({"id": "diagnostic:review:claim", "code": "REVIEW_NOTE", "severity": "info",
+        "source": "core/product_physics", "affected_refs": ["load:L-100"], "message": claim}));
+    assert_eq!(open_pipe_stress_result_export::reader_verdict::validate("preview-physics", &source, None, None), json!({"ok": true}));
+    let combinations = ["combination:C-OPER-ALT", "combination:U4B-RANGE-MAX"];
+    let projected = expected_report_diagnostics(&source).unwrap();
+    let diagnostics = source["diagnostics"].as_array().unwrap();
+    assert_eq!(projected.len(), diagnostics.len());
+    for (d, entry) in diagnostics.iter().zip(&projected) {
+        let names = d["affected_refs"].as_array().is_some_and(|refs| refs.iter().any(|r| combinations.iter().any(|c| r == c)));
+        let message = d["message"].as_str().unwrap();
+        let expected = if names { message.to_string() } else { format!("{SUPPLEMENTAL_DIAGNOSTIC_LABEL}\"{message}\"") };
+        assert_eq!(entry["message"], expected.as_str(), "{}", d["id"]);
+    }
+    let notice = projected.iter().find(|e| e["code"] == "COMBINATION_ROWS_NOT_ASSESSED").unwrap();
+    assert!(!notice["message"].as_str().unwrap().starts_with(SUPPLEMENTAL_DIAGNOSTIC_LABEL));
+    assert_eq!(projected.last().unwrap()["message"], format!("{SUPPLEMENTAL_DIAGNOSTIC_LABEL}\"{claim}\""));
+}
+
+/// Review cert3 finding 2 (Agent 0's no-masking rule): an unused model material sharing a combination's
+/// id does not take it out of the reader's roster. The report's source-only population names
+/// `comb:cancel` as both readings do: the canonical document with the colliding model is admitted and its
+/// roster entries are copied, and a claim under that id is refused with and without the model, so the
+/// projection never copies a message a reader left unchecked.
+#[test]
+fn a_model_only_id_collision_neither_unrosters_a_claim_nor_splits_the_classification() {
+    let corpus: Value = serde_json::from_str(include_str!("../../../../fixtures/results/combination_certificate_corpus.json")).unwrap();
+    let e = corpus["documents"].as_array().unwrap().iter().find(|e| e["name"] == "ex_cantilever").unwrap();
+    let (mut source, mut model) = (e["document"].clone(), e["model"].clone());
+    let mut material = model["materials"][0].clone();
+    material["id"] = json!("comb:cancel");
+    model["materials"].as_array_mut().unwrap().push(material);
+    let validate = |source: &Value, model: Option<&Value>| open_pipe_stress_result_export::reader_verdict::validate("pressure", source, model, None);
+    assert_eq!(validate(&source, Some(&model)), json!({"ok": true}));
+    assert!(open_pipe_stress_result_export::document_combination_identities(&source).contains("comb:cancel"));
+    let canonical = expected_report_diagnostics(&source).unwrap();
+    for (d, entry) in source["diagnostics"].as_array().unwrap().iter().zip(&canonical) {
+        if d["affected_refs"].as_array().is_some_and(|refs| refs.iter().any(|r| r == "comb:cancel")) {
+            assert_eq!(entry["message"], d["message"], "{}", d["id"]);
+        }
+    }
+    let claim = "combination comb:cancel: all derived rows are bounded by 1e-30.";
+    source["diagnostics"].as_array_mut().unwrap().push(json!({"id": "diagnostic:review:collision", "code": "REVIEW_NOTE", "severity": "info",
+        "source": "core/product_physics", "affected_refs": ["comb:cancel"], "message": claim}));
+    for model in [None, Some(&model)] {
+        let verdict = validate(&source, model);
+        assert!(verdict["ok"] == false && verdict.to_string().contains("SOURCE_COMBINATION_CERTIFICATE_ROSTER_EXTRA"), "{verdict}");
+    }
+    assert_eq!(expected_report_diagnostics(&source).unwrap().last().unwrap()["message"], claim);
 }
 
 /// A source diagnostic not in the producer's form refuses: the desktop's
@@ -144,4 +215,59 @@ fn the_check_binds_each_field_the_order_and_the_appended_entries() {
     // A report without Diagnostics refuses a source that has some, and passes one that has none.
     assert_eq!(check_report_diagnostics(&json!({}), &source), refusal("report diagnostics cover the source diagnostics"));
     assert_eq!(check_report_diagnostics(&json!({}), &json!({"diagnostics": []})), Ok(()));
+}
+
+/// RT-A5 (DEL-05-02 `operating-case.md` §7.5; Work `combination-certificate.md` §2): a held gate
+/// notice's refusal text is bound to its held-status record, not verified as true, so the report
+/// quotes a diagnostic whose typed code is a held gate code whole as supplied text, though the
+/// roster names its combination and admitted it, whatever its text, and the source's bytes are
+/// unchanged (desktop `heldStatusPresentation.test.tsx` alike).
+#[test]
+fn a_held_gate_notice_is_quoted_as_supplied_text_whatever_its_refusal() {
+    const HELD: &str = include_str!("../../../../fixtures/results/preview_physics_held_status_corpus.json");
+    const GATE: &str = "diagnostic:preview-physics:combination-gate:13:comb:o-s-held";
+    let corpus: Value = serde_json::from_str(HELD).unwrap();
+    let base = corpus["documents"].as_array().unwrap().iter().find(|e| e["name"] == "source_unavailable").unwrap()["document"].clone();
+    let claims = ["its rows are established within their stated bound", "ESTABLISHED Within Its Stated BOUND", "les lignes sont établies \u{2014} within their stated bound \u{2713}"];
+    let mut sources = vec![base.clone()];
+    for claim in claims {
+        let mut source = base.clone();
+        source["contract_evidence"]["held_status_derivation"][0]["standing"]["reason"] = json!(claim);
+        let at = source["diagnostics"].as_array().unwrap().iter().position(|d| d["id"] == GATE).unwrap();
+        source["diagnostics"][at]["message"] = json!(format!("Combination withheld: {claim}."));
+        sources.push(source);
+    }
+    let benign = expected_report_diagnostics(&base).unwrap();
+    for source in sources {
+        let before = serde_json::to_vec(&source).unwrap();
+        let entries = expected_report_diagnostics(&source).unwrap();
+        assert_eq!(serde_json::to_vec(&source).unwrap(), before, "raw bytes");
+        for (index, diagnostic) in source["diagnostics"].as_array().unwrap().iter().enumerate() {
+            if diagnostic["id"] == GATE {
+                assert_eq!(entries[index]["message"], json!(format!("{SUPPLEMENTAL_DIAGNOSTIC_LABEL}\"{}\"", diagnostic["message"].as_str().unwrap())));
+            } else {
+                // No other entry changes with the refusal's text.
+                assert_eq!(entries[index], benign[index], "{}", diagnostic["id"]);
+            }
+        }
+        assert!(check_report_diagnostics(&report_with(&entries), &source).is_ok());
+    }
+}
+
+/// RT-A5: `HELD_STATUS_RELEASED` is the sixth quoted held-status code (`HELD_STATUS_QUOTED_CODES`):
+/// the report quotes it whole as supplied text on every released held document, bytes unchanged.
+#[test]
+fn a_held_status_released_notice_is_quoted_as_supplied_text() {
+    const HELD: &str = include_str!("../../../../fixtures/results/preview_physics_held_status_corpus.json");
+    let corpus: Value = serde_json::from_str(HELD).unwrap();
+    for name in ["h2_released", "h5_slip_sense", "h13_branch", "h7g_gap"] {
+        let source = corpus["documents"].as_array().unwrap().iter().find(|e| e["name"] == name).unwrap()["document"].clone();
+        let before = serde_json::to_vec(&source).unwrap();
+        let entries = expected_report_diagnostics(&source).unwrap();
+        assert_eq!(serde_json::to_vec(&source).unwrap(), before, "{name}: raw bytes");
+        let released: Vec<(usize, &Value)> = source["diagnostics"].as_array().unwrap().iter().enumerate().filter(|(_, d)| d["code"] == "HELD_STATUS_RELEASED").collect();
+        assert_eq!(released.len(), 1, "{name}");
+        let (index, diagnostic) = released[0];
+        assert_eq!(entries[index]["message"], json!(format!("{SUPPLEMENTAL_DIAGNOSTIC_LABEL}\"{}\"", diagnostic["message"].as_str().unwrap())), "{name}");
+    }
 }

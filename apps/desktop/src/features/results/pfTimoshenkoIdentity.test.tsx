@@ -87,8 +87,8 @@ describe("the pressure-free Timoshenko identity on the desktop", () => {
     expect(FRESH_SEMANTIC_CONTRACT_IDS).toContain(PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID);
     expect(REPORT_PACKAGE_ADMITTED_CONTRACT_IDS).toContain(PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID);
     expect(timoshenkoTable.semantic_contract_id).toBe(PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID);
-    expect(PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_SHA256).toBe("6f6494907e3ead979ea27e5ff85f54617589c9195dc84d40a02752a0b006ef44");
-    expect(PREVIEW_PHYSICS_CONTRACT_SHA256).toBe("f41b9d3ed0c1b7abaee0b98ca1a28aa1a2d109bce443b98d53a2080c1c504ce9");
+    expect(PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_SHA256).toBe("8a0abaeac93729b5d6ee6c922f2a60f0caf9332948622bb8b5896747ce41442d");
+    expect(PREVIEW_PHYSICS_CONTRACT_SHA256).toBe("16eeb49cb298c6d3634594bbd9ebf6bf86be8f114e2e524dbd624e401e31a729");
   });
 
   it("the Rust reader binds each identity's own table, and mixed arrays read unsupported", () => {

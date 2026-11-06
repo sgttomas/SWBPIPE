@@ -1,3 +1,4 @@
+import type { SessionAnalysisRun, SessionResult } from "../../services/nativeResult";
 import { Download, FileText } from "lucide-react";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import { usePackageHash, withCanonicalPackageHash } from "../../services/usePackageHash";
@@ -68,8 +69,8 @@ export function CaepipeMbfExportPanel({
   analysisRun
 }: {
   model: PreviewModel;
-  result: MechanicsResult | null;
-  analysisRun: AnalysisRunEnvelope | null;
+  result: SessionResult | null;
+  analysisRun: SessionAnalysisRun | null;
 }) {
   const basePacket = buildCaePipeMbfExportPacket({ model, result, analysisRun });
   const packageHash = usePackageHash(
@@ -191,8 +192,8 @@ export function buildCaePipeMbfExportPacket({
   analysisRun
 }: {
   model: PreviewModel;
-  result: MechanicsResult | null;
-  analysisRun: AnalysisRunEnvelope | null;
+  result: SessionResult | null;
+  analysisRun: SessionAnalysisRun | null;
 }) {
   const run = analysisRun?.analysis_run;
   const sourceModelRef = reference("Model", model.project.id);
@@ -531,7 +532,7 @@ function caepipeMbfLossReport({
   analysisRunRef
 }: {
   model: PreviewModel;
-  result: MechanicsResult | null;
+  result: SessionResult | null;
   analysisRunRef: ObjectRef;
 }) {
   const targetArtifactRef = reference("CaePipeMbfMember", `caepipe-mbf:${safeFileToken(model.project.id)}:mbf_text`);

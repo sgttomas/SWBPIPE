@@ -304,6 +304,79 @@ def test_s_x_binding_sums_rods_exactly_with_its_coefficient_and_reserve():
     assert not _effective_axial_binding(exact + 2 * tolerance, 1.0, 0.0, rods)
 
 
+def test_the_axial_share_is_compared_by_bits_so_a_negative_zero_share_is_refused():
+    """The Rust reader's verdicts (`u5b_effective_axial_tests::the_axial_share_is_compared_by_bits_so_a_negative_zero_
+    share_is_refused`): the exact dot's binary64 rounding is compared with the share by bits, and an exactly zero dot
+    rounds to +0.0, so a -0.0 share is refused. Python's `==` would admit it (the negative control)."""
+    import struct
+    from fractions import Fraction
+    from tests.verifiers.pressure_2 import _tie_rods
+
+    def rod(axis0, n, share):
+        return _tie_rods({"connector_axes_global": [[axis0[0], 0.0, 0.0], [axis0[1], 1.0, 0.0], [axis0[2], 0.0, 1.0]],
+                          "tie_rods": [{"id": "rod:a", "law": "bilateral_linear", "offset_global_m": [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
+                                        "stiffness_n_per_m": 1.0e6, "reference_extension_m": 0.0, "length_m": 1.0, "direction_global": n,
+                                        "axial_share": share, "source_reference": "invented signed-zero case"}]})
+
+    def refused(axis0, n, share):
+        with pytest.raises(ValueError, match="connector tie-rod axial share$"):
+            rod(axis0, n, share)
+
+    minus_one_ulp = struct.unpack("<d", struct.pack("<q", struct.unpack("<q", struct.pack("<d", 1.0))[0] - 1))[0]
+    # A dot that is zero term by term: +0.0 admitted, -0.0 refused.
+    assert len(rod([1.0, 0.0, 0.0], [0.0, 1.0, 0.0], 0.0)) == 1
+    refused([1.0, 0.0, 0.0], [0.0, 1.0, 0.0], -0.0)
+    # Cancellation: 0.6*0.8 - 0.8*0.6 is exactly zero, rounded to +0.0.
+    assert len(rod([0.8, -0.6, 0.0], [0.6, 0.8, 0.0], 0.0)) == 1
+    refused([0.8, -0.6, 0.0], [0.6, 0.8, 0.0], -0.0)
+    # Nonzero controls.
+    assert len(rod([1.0, 0.0, 0.0], [1.0, 0.0, 0.0], 1.0)) == 1
+    refused([1.0, 0.0, 0.0], [1.0, 0.0, 0.0], minus_one_ulp)
+    assert len(rod([1.0, 0.0, 0.0], [-1.0, 0.0, 0.0], -1.0)) == 1
+    refused([1.0, 0.0, 0.0], [-1.0, 0.0, 0.0], 1.0)
+    # Negative control: the previous `==` comparison loses the distinction the reader now keeps.
+    dot = float(sum(Fraction(a) * Fraction(b) for a, b in zip([0.6, 0.8, 0.0], [0.8, -0.6, 0.0])))
+    assert dot == -0.0 and struct.pack("<d", dot) != struct.pack("<d", -0.0)
+
+
+def test_sequential_f64_sums_decide_the_direction_and_tolerance_boundaries():
+    """The Rust reader's verdicts (`u5b_effective_axial_tests::sequential_f64_sums_decide_the_direction_and_tolerance_
+    boundaries`, the same binary64 bits): |n|^2 and the s_x tolerance's rod terms are summed as Rust's
+    `Iterator::sum::<f64>()`, sequentially from -0.0. A compensated sum (Python >= 3.12's `sum()`) decides each the
+    other way."""
+    import struct
+    from tests.verifiers.pressure_2 import _effective_axial_binding, _tie_rods
+
+    def f(bits):
+        return struct.unpack(">d", bits.to_bytes(8, "big"))[0]
+
+    def direction(n):
+        return _tie_rods({"connector_axes_global": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+                          "tie_rods": [{"id": "rod:a", "law": "bilateral_linear", "offset_global_m": [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
+                                        "stiffness_n_per_m": 1.0e6, "reference_extension_m": 0.0, "length_m": 1.0, "direction_global": n,
+                                        "axial_share": n[0], "source_reference": "invented boundary case"}]})
+
+    # |n|^2 sequentially is 1 + 17eps, compensated 1 + 16eps: refused.
+    with pytest.raises(ValueError, match="connector tie-rod direction$"):
+        direction([f(0xbfee1566e2522cf2), f(0x3fcc6bcd304d6a58), f(0x3fd08d4e90b4b2ab)])
+    # The other way: admitted.
+    assert len(direction([f(0xbfeb5c74874966c6), f(0xbfc10ad15e97fa48), f(0x3fe009b5284e420d)])) == 1
+    # Three rods: the sequential tolerance is one ulp below the compensated one, and s_x lies between: refused.
+    rods = [(f(0x40829836406c80d9), f(0x3fcac156b94353c8)), (f(0x40e6dbb249249249), f(0xbfe51ce637c961ac)),
+            (f(0x40d8322276276276), f(0x3fe97da8c79e5f96))]
+    assert not _effective_axial_binding(f(0x3e15a9fe831de478), f(0xc0c6910000000000), f(0xc0d60cdcf3c47754), rods)
+    # One ulp above: admitted.
+    rods = [(f(0x4046456ed0af15bb), f(0xbfda1558c3f83d18)), (f(0x41193b1800000000), f(0xbfe607d49c6fc934)),
+            (f(0x40e50d2276276276), f(0x3fa2457a67fbe500))]
+    assert _effective_axial_binding(f(0x3e4227bf314ad803), f(0x40d8f69555555555), f(0xc10f6f444ec1d244), rods)
+    # A JSON integer operand is binary64 before it is multiplied, as Rust's `as_f64`: 2^53 + 1 is 2^53, so Sigma = 0 and
+    # s = 261 exceeds the tolerance 260: refused (an exact integer product would give Sigma = 1 and admit it).
+    assert not _effective_axial_binding(261.0, 0.0, 9007199254740992.0, [(9007199254740993, 1)])
+    # Integer operands that binary64 holds exactly, and an integer direction: admitted.
+    assert _effective_axial_binding(0, 553, 800, [(247, 1)])
+    assert len(direction([1, 0, 0])) == 1
+
+
 @pytest.mark.parametrize("family,path,code", [
     # The ordinary family's closed physical shape (`connector: const []`) refuses the record before the evidence
     # check; the load/reference-state pre-pass names it first. Both readers agree (the Rust verdict below).

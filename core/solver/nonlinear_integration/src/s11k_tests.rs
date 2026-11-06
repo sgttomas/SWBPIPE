@@ -523,6 +523,22 @@ fn option_c_nonlinear_loop_is_pinned_to_the_binary64_kernel_path() {
             "missing legacy call target {required}"
         );
     }
+    // RT-A3 P (pin extension): the loop's pattern sibling reaches the same
+    // binary64 kernel path on the pattern: the binary64 reduction, the
+    // adapter's pattern `solve_binary64` and its binary64 product equilibrium
+    // (both pinned in the adapter scan below).
+    let pattern = function_body(&code, "fn solve_linearized_pattern_evidence(");
+    for required in [
+        "reduce_sparse_system_with_prescribed_displacements_binary64(",
+        "assembly.solve_binary64(",
+        "assembly.solve_binary64_shared(",
+        "assembly.product_equilibrium_binary64(",
+    ] {
+        assert!(
+            pattern.contains(required),
+            "missing pattern binary64 call target {required}"
+        );
+    }
     for forbidden in EXACT_ENTRY_POINTS {
         assert!(
             !code.contains(forbidden),
@@ -576,9 +592,53 @@ fn option_c_structural_adapter_legacy_variants_reach_only_binary64_entry_points(
     // route's single confirmation entry prepares the converged state's system
     // exactly as `solve_assembled` does; it is an exact variant, defined once,
     // in `impl AssemblyEvidence` only, and its body is blanked the same way.
-    assert_eq!(code.matches(CONFIRMATION_ENTRY).count(), 1);
-    let range = body_in_impl(&code, ADAPTER_IMPLS[0], CONFIRMATION_ENTRY);
+    // RT-A3 P step 5 (pin extension): and its pattern sibling, defined once
+    // in `impl SparseAssemblyEvidence`, blanked the same way.
+    assert_eq!(code.matches(CONFIRMATION_ENTRY).count(), 2);
+    // S-K1 A-1: the skew entry, once, in the pattern impl only, blanked the same way.
+    assert_eq!(code.matches(SKEW_ENTRY).count(), 1);
+    assert_eq!(function_body(&code, ADAPTER_IMPLS[0]).matches(SKEW_ENTRY).count(), 0);
+    let range = body_in_impl(&code, ADAPTER_IMPLS[1], SKEW_ENTRY);
     code.replace_range(range, "{");
+    for header in ADAPTER_IMPLS {
+        let range = body_in_impl(&code, header, CONFIRMATION_ENTRY);
+        code.replace_range(range, "{");
+    }
+    // RT-A3 P (pin extension): `impl SparseAssemblyEvidence`'s pattern
+    // siblings of the binary64 variant build the legacy-vector pattern system
+    // (`SparseStructuralSystem::new(`) and reach only the binary64 kernel
+    // path: `solve_binary64` the pattern's binary64 preparation (and, in dense
+    // scrutiny, the dense one) completed by `solve_sparse_prepared(`/
+    // `solve_prepared(`, `product_equilibrium_binary64` the binary64 residual
+    // (`evaluate_sparse(`). No other exact entry point is in either body,
+    // which is then blanked.
+    for (defining, required) in [
+        (
+            "fn solve_binary64(",
+            &["prepare_sparse_structural_binary64(", "prepare_structural_binary64("][..],
+        ),
+        ("fn product_equilibrium_binary64(", &["evaluate_sparse("][..]),
+        (
+            "fn solve_binary64_shared(",
+            &["prepare_sparse_structural_binary64(", "finish_sparse_structural_on("][..],
+        ),
+    ] {
+        let range = body_in_impl(&code, ADAPTER_IMPLS[1], defining);
+        let body = code[range.clone()].to_string();
+        for token in required {
+            assert!(body.contains(token), "{defining} misses {token}");
+        }
+        for forbidden in EXACT_ENTRY_POINTS
+            .iter()
+            .filter(|p| !matches!(**p, "SparseStructuralSystem::new(" | "solve_sparse_prepared("))
+        {
+            assert!(
+                token_indices(&body, forbidden).is_empty(),
+                "exact kernel entry point {forbidden} in the pattern sibling {defining}"
+            );
+        }
+        code.replace_range(range, "{");
+    }
     for required in ["fn solve_binary64(", "fn solve_structural_sparse_binary64("] {
         assert!(code.contains(required), "missing legacy variant {required}");
     }
@@ -956,6 +1016,9 @@ fn option_c_active_set_loop_first_closed_gap_iteration_is_binary64() {
 fn option_c_product_equilibrium_uses_the_binary64_residual() {
     let src = include_str!("product_equilibrium.rs");
     assert!(src.contains("structural::evaluate_original_residual(system, u)"));
+    // RT-A3 P: the pattern sibling uses FK's binary64 pattern entry, pinned
+    // with the dense one in FK's option-(c) residual test.
+    assert!(src.contains("structural::evaluate_sparse_original_residual(system, u)"));
     assert!(!src.contains("evaluate_assembled_original_residual"));
     let adapter = include_str!("structural_adapter.rs");
     assert!(adapter.contains("crate::product_equilibrium::evaluate(&system, &u)"));
@@ -1210,7 +1273,15 @@ fn kd5_nonlinear_sources_name_no_formation_check_entry_point() {
             // R2: the confirmation entry's body holds the nonlinear route's
             // formation plumbing; it is blanked like the K2b sibling.
             let mut confirmation_blanked = k2b_blank_formation_siblings(code);
-            let range = body_in_impl(&confirmation_blanked, ADAPTER_IMPLS[0], CONFIRMATION_ENTRY);
+            // RT-A3 P step 5: and its pattern sibling's.
+            for header in ADAPTER_IMPLS {
+                let range = body_in_impl(&confirmation_blanked, header, CONFIRMATION_ENTRY);
+                confirmation_blanked.replace_range(range, "{");
+            }
+            // S-K1 A-1: the skew entry's body holds the transformed system's
+            // formation plumbing; defined once, in the pattern impl, blanked alike.
+            assert_eq!(confirmation_blanked.matches(SKEW_ENTRY).count(), 1, "{name}");
+            let range = body_in_impl(&confirmation_blanked, ADAPTER_IMPLS[1], SKEW_ENTRY);
             confirmation_blanked.replace_range(range, "{");
             blanked = confirmation_blanked;
             &blanked
@@ -1282,7 +1353,7 @@ fn kd5_nonlinear_sources_name_no_formation_check_entry_point() {
     let wrapper_compact=wrapper.split_whitespace().collect::<String>();
     let selection="letload_case=load_state.map_or(load_case,|state|&state.effective_case);";
     let preparation="letexact_pressure=pressure_runtime::build_pressure_case_with_members(model,built,materials,load_case,load_state.map(|state|&state.pairs),diagnostics,);";
-    let delegation="solve_prepared_load_case(model,built,materials,stiffness,restrained_dofs,spring_entries,load_case,modulus_basis_record,solver_mode,capture,source_budget,load_state,exact_pressure,diagnostics,product)";
+    let delegation="solve_prepared_load_case(model,built,materials,stiffness,restrained_dofs,spring_entries,load_case,modulus_basis_record,solver_mode,capture,source_budget,load_state,exact_pressure,diagnostics,product,role)";
     assert_eq!(wrapper_compact.matches(selection).count(),1);
     assert_eq!(wrapper_compact.matches(preparation).count(),1);
     assert_eq!(wrapper_compact.matches(delegation).count(),1);
@@ -1541,13 +1612,15 @@ fn kd5_nonlinear_loop_unit_force_solves_reach_no_formation_check() {
                 assert!(!boundary.dofs.contains(&TANGENT), "{ctx}: friction sliding");
                 let mut unit_force = input.force.clone();
                 unit_force[TANGENT] += 1.0;
+                // RT-A3 P step 4: the coupling solves run in the loop's mode
+                // (they were DenseScrutiny in both modes before P).
                 let legacy = |force: &Vec<f64>| {
                     crate::solve_linearized_system_evidence(
                         Some(&assembly),
                         &k,
                         force,
                         &boundary,
-                        LinearSolveMode::DenseScrutiny,
+                        mode,
                     )
                     .unwrap()
                 };
@@ -1753,17 +1826,32 @@ fn uniform_constructor_and_attach_staging_is_sequential() {
 /// nonlinear route's single formation-check entry.
 const CONFIRMATION_ENTRY: &str = "confirm_with_formation_check";
 
+/// R-6/R-7 S-K1 A-1 (DEL-04-03 Work `skew-restraints.md` §11.1): the PF linear skew
+/// entry, the formation-checked exact variant on the transformed system. It is
+/// defined once, in `impl SparseAssemblyEvidence` only; the loop never reaches it
+/// (`structural_adapter::skew_tests::the_loop_never_carries_a_basis`). R2's
+/// confirmation-entry rule is not widened: it is no confirmation entry.
+const SKEW_ENTRY: &str = "fn solve_skew_with_formation_check(";
+
 /// FK's confirmation plumbing, which only the adapter's confirmation entry
-/// reaches (implementation review I1).
-const CONFIRMATION_PLUMBING: [&str; 2] = ["finish_confirmation", "ConfirmationAttempt"];
+/// reaches (implementation review I1); RT-A3 P step 5 adds the pattern's.
+const CONFIRMATION_PLUMBING: [&str; 4] = [
+    "finish_confirmation",
+    "ConfirmationAttempt",
+    "finish_sparse_confirmation",
+    "SparseConfirmationAttempt",
+];
 
 /// R2's re-scope of `kd5_nonlinear_sources_name_no_formation_check_entry_point`:
 /// no formation-check entry inside the nonlinear iteration, and exactly one
 /// source-qualified confirmation entry after convergence.
-/// - The adapter defines `confirm_with_formation_check` once, in
-///   `impl AssemblyEvidence`, and never calls it.
-/// - `confirmation.rs` calls it exactly once, in `fn confirm_with_applied(`,
-///   which is called once, from `fn confirm_converged_state(`.
+/// - The adapter defines `confirm_with_formation_check` once in each adapter
+///   impl (`impl AssemblyEvidence`, and since RT-A3 P step 5 its pattern
+///   sibling in `impl SparseAssemblyEvidence`), and never calls it.
+/// - `confirmation.rs` calls it exactly twice, both in
+///   `fn confirm_with_applied(` (one per representation, in exclusive match
+///   arms, so one attempt runs), which is called once, from
+///   `fn confirm_converged_state(`.
 /// - No other non-test module of this crate (the loop's `lib.rs` included)
 ///   names the entry, `confirm_with_applied` or `confirm_converged_state`.
 /// - No non-adapter module of this crate, and no product module, names FK's
@@ -1771,6 +1859,11 @@ const CONFIRMATION_PLUMBING: [&str; 2] = ["finish_confirmation", "ConfirmationAt
 /// - product_physics names neither the adapter entry nor
 ///   `confirm_with_applied`, and calls `confirm_converged_state` exactly once,
 ///   inside `fn append_nonlinear_support_loop_results(`, after the loop's call.
+/// - RT-A5 `minuend_final` (R2 amended, option A, approved by RT-A3): this
+///   crate's `lib.rs` names `confirm_converged_state` exactly once, as the
+///   held-status wrapper's own attempt strictly after its tail
+///   (`complete_iteration`) has finished the one held iterate, and never for a
+///   gap state; nowhere else, and never in the loop or its tail.
 fn r2_confirmation_entry_violations(
     modules: &[(String, String)],
     product: &[(String, String)],
@@ -1787,20 +1880,24 @@ fn r2_confirmation_entry_violations(
         }
         match name.as_str() {
             "structural_adapter.rs" => {
-                if count(code, CONFIRMATION_ENTRY) != 1
-                    || code.matches("fn confirm_with_formation_check(").count() != 1
-                    || !function_body(code, ADAPTER_IMPLS[0])
-                        .contains("fn confirm_with_formation_check(")
+                if count(code, CONFIRMATION_ENTRY) != 2
+                    || code.matches("fn confirm_with_formation_check(").count() != 2
+                    || ADAPTER_IMPLS.iter().any(|header| {
+                        function_body(code, header)
+                            .matches("fn confirm_with_formation_check(")
+                            .count()
+                            != 1
+                    })
                 {
-                    out.push(format!("{name}: the confirmation entry is defined once, in impl AssemblyEvidence, and never called"));
+                    out.push(format!("{name}: the confirmation entry is defined once in each adapter impl, and never called"));
                 }
             }
             "confirmation.rs" => {
                 let body = function_body(code, "fn confirm_with_applied(");
-                if count(code, CONFIRMATION_ENTRY) != 1
-                    || body.matches(".confirm_with_formation_check(").count() != 1
+                if count(code, CONFIRMATION_ENTRY) != 2
+                    || body.matches(".confirm_with_formation_check(").count() != 2
                 {
-                    out.push(format!("{name}: exactly one confirmation entry, in confirm_with_applied"));
+                    out.push(format!("{name}: one confirmation entry per representation, in confirm_with_applied"));
                 }
                 let outer = function_body(code, "fn confirm_converged_state(");
                 if count(code, "confirm_with_applied") != 2
@@ -1813,10 +1910,29 @@ fn r2_confirmation_entry_violations(
                 }
             }
             _ => {
-                for token in [CONFIRMATION_ENTRY, "confirm_with_applied", "confirm_converged_state"] {
+                for token in [CONFIRMATION_ENTRY, "confirm_with_applied"] {
                     if count(code, token) != 0 {
                         out.push(format!("{name} names {token}: a formation-check entry inside the nonlinear iteration"));
                     }
+                }
+                // RT-A5 `minuend_final` (DEL-05-02 Work `operating-case.md` §7.3; R2 amended,
+                // option A, approved by RT-A3): the held-status wrapper's one confirmation
+                // attempt, strictly after the loop's own tail has finished its one held
+                // iterate. lib.rs names the entry exactly once, inside that wrapper; nothing
+                // else in the crate names it: never the loop, never `complete_iteration`.
+                let named = count(code, "confirm_converged_state");
+                let wrapper = name == "lib.rs" && code.contains("fn solve_held_status_iteration(");
+                let held_rule_holds = wrapper && named == 1 && {
+                    let body = function_body(code, "fn solve_held_status_iteration(");
+                    let tail = body.find("complete_iteration(");
+                    let entry = body.find("confirm_converged_state(");
+                    body.matches("confirm_converged_state(").count() == 1
+                        && matches!((tail, entry), (Some(a), Some(b)) if a < b)
+                };
+                if (wrapper || named != 0) && !held_rule_holds {
+                    out.push(format!(
+                        "{name} names confirm_converged_state: only the held-status wrapper's one attempt, after its tail, is admitted"
+                    ));
                 }
             }
         }
@@ -1871,8 +1987,8 @@ fn r2_confirmation_entry_pin_kills_a_second_or_in_loop_entry() {
     // A second entry in the confirmation module.
     let second = mutate(
         "confirmation.rs",
-        "let attempt = evidence.confirm_with_formation_check(",
-        "let _ = evidence.confirm_with_formation_check(); let attempt = evidence.confirm_with_formation_check(",
+        "let evidence = AssemblyEvidence::new(",
+        "let _ = evidence.confirm_with_formation_check(); let evidence = AssemblyEvidence::new(",
     );
     assert!(!r2_confirmation_entry_violations(&second, &product).is_empty());
     // An entry inside the loop's iteration.
@@ -1882,6 +1998,37 @@ fn r2_confirmation_entry_pin_kills_a_second_or_in_loop_entry() {
         "let _ = confirmation::confirm_converged_state(); let trial_states = build_trial_states(",
     );
     assert!(!r2_confirmation_entry_violations(&in_loop, &product).is_empty());
+    // RT-A5 (R2 amended, option A): the held wrapper's attempt is admitted exactly once and
+    // only after its tail; a second attempt, one before the tail, the one attempt moved before
+    // the tail, or one in the tail is killed.
+    if modules.iter().any(|(n, code)| n == "lib.rs" && code.contains("fn solve_held_status_iteration(")) {
+        let twice = mutate(
+            "lib.rs",
+            "    let passed = result\n",
+            "    let _ = confirmation::confirm_converged_state();\n    let passed = result\n",
+        );
+        assert!(!r2_confirmation_entry_violations(&twice, &product).is_empty());
+        let before_tail = mutate(
+            "lib.rs",
+            "    let context = IterationContext {\n        input: &held_input,",
+            "    let _ = confirmation::confirm_converged_state();\n    let context = IterationContext {\n        input: &held_input,",
+        );
+        assert!(!r2_confirmation_entry_violations(&before_tail, &product).is_empty());
+        // The one attempt moved before the tail (the count alone stays 1).
+        let mut moved = before_tail.clone();
+        let (_, code) = moved.iter_mut().find(|(n, _)| n == "lib.rs").unwrap();
+        let real = "Some(confirm) if passed && !gap => confirmation::confirm_converged_state(";
+        assert!(code.contains(real));
+        *code = code.replacen(real, "Some(confirm) if passed && !gap => confirmation::confirm_elsewhere(", 1);
+        assert_eq!(token_indices(code, "confirm_converged_state").len(), 1);
+        assert!(!r2_confirmation_entry_violations(&moved, &product).is_empty());
+        let in_tail = mutate(
+            "lib.rs",
+            "    let blocked = active_set.is_blocked();\n",
+            "    let _ = confirmation::confirm_converged_state();\n    let blocked = active_set.is_blocked();\n",
+        );
+        assert!(!r2_confirmation_entry_violations(&in_tail, &product).is_empty());
+    }
     // A direct adapter call from the loop.
     let direct = mutate(
         "lib.rs",
@@ -1915,8 +2062,15 @@ fn r2_confirmation_entry_pin_kills_a_second_or_in_loop_entry() {
     // I1: a non-adapter module of this crate names FK's confirmation plumbing.
     let plumbing = mutate(
         "confirmation.rs",
-        "let attempt = evidence.confirm_with_formation_check(",
-        "let _ = finish_confirmation(); let attempt = evidence.confirm_with_formation_check(",
+        "let evidence = AssemblyEvidence::new(",
+        "let _ = finish_confirmation(); let evidence = AssemblyEvidence::new(",
+    );
+    assert!(!r2_confirmation_entry_violations(&plumbing, &product).is_empty());
+    // RT-A3 P step 5: the pattern's plumbing likewise.
+    let plumbing = mutate(
+        "confirmation.rs",
+        "let evidence = AssemblyEvidence::new(",
+        "let _ = finish_sparse_confirmation(); let evidence = AssemblyEvidence::new(",
     );
     assert!(!r2_confirmation_entry_violations(&plumbing, &product).is_empty());
 }
@@ -2077,6 +2231,9 @@ const F1B_PRODUCT_SITES: &[(&str, &str, &str, usize)] = &[
     // B7a's failed-ordinary ruling (5): CX-F's closed wire translation of K2b's named
     // refusal reads `ForceScaleReason` only; it reaches no force-scaled entry.
     ("retained_wire.rs", "fn force_refusal", "ForceScale", 4),
+    // S-K1 §2.2 item 10 (DEL-04-03 skew-restraints.md): the skew refusal names
+    // `SkewCode::ForceScaledUnsupported` only; it reaches no force-scaled entry.
+    ("skew.rs", "fn force_scaled_refusal", "ForceScale", 1),
     ("source_recovery.rs", "fn solve_ordinary", "ForceScale", 1),
     (
         "source_recovery.rs",
@@ -2084,6 +2241,8 @@ const F1B_PRODUCT_SITES: &[(&str, &str, &str, usize)] = &[
         "ForceScale",
         1,
     ),
+    // S-K1 M-1: the §2.2 code strings' one source (`SkewCode::ForceScaledUnsupported`).
+    ("document_members.rs", "fn skew_code", "ForceScale", 1),
 ];
 
 /// F1b: `top_level_item` names the enclosing item across the shapes the

@@ -15,7 +15,9 @@ Per published value x it bounds |x_EX - x_PF| <= |x*_EX - x*_PF| + E_EX(x) + E_P
   perturbation"), computed exactly, not estimated;
 - E_route(x): a forward-error enclosure of the route's binary64 value about its own exact x*. Every structural solve
   returns only when each free row's original-equation residual meets 64*gamma(n) of its row denominator
-  (`frame_kernel::structural::finish_structural` over `evaluate_original_residual`), for every iterate. By Oettli and
+  (`frame_kernel::structural::finish_structural` over `evaluate_original_residual`; since RT-A3 P, in sparse mode,
+  `finish_sparse_structural`/`finish_sparse_structural_on` on the pattern, through the same completion and the same
+  binary64 residual), for every iterate and every right-hand side (base, unit-load coupling and final). By Oettli and
   Prager the computed u then solves (K + dK) u = f + df with |dK| <= w|K|, |df| <= w|f|, w = 64*gamma(n_max), and
   w_tot = w + e_form also absorbs each route's binary64 formation of K about the exact-leaves K (e_form = gamma(16)).
   The free-DOF error obeys e <= w_tot*|A^-1|*(|K|_abs*(|u*|+e) + |f| + |K_fc|*|p|) (Skeel), closed by a weighted
@@ -27,7 +29,7 @@ Per published value x it bounds |x_EX - x_PF| <= |x*_EX - x*_PF| + E_EX(x) + E_P
   - each free row's residual (an inactive support's reaction);
   - the spring actions;
   - and, for a sliding derived-normal friction support, the loop's coupled force phi = -c*R_b/(1 + c*g) from its base
-    and unit solves. Its error is (|c|*E_Rb + |c|*E_g*|phi*|)/(|1 + c*g| - |c|*E_g), with E_g the cancellation of
+    and unit solves (in the requested mode since RT-A3 P; the enclosure uses only each solve's certificate). Its error is (|c|*E_Rb + |c|*E_g*|phi*|)/(|1 + c*g| - |c|*E_g), with E_g the cancellation of
     g = R_u - R_b, plus gamma(4)*|phi|; it enters the final solve as an applied force's own error;
 - P(x): publication rounding, the mm conversion and the norm.
 

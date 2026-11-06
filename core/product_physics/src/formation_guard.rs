@@ -55,10 +55,10 @@ pub(crate) const CRITERION: f64 = f64::from_bits(1e-9_f64.to_bits() - 1);
 /// 2^-10: the self-equilibrated floor factor (SF-4).
 const FLOOR_FACTOR: f64 = 1.0 / 1024.0;
 /// 2^-34: the DESIGN V1-S8/S8-R floor R.
-const DESIGN_FLOOR: f64 = f64::from_bits(0x3DD0_0000_0000_0000);
+pub(crate) const DESIGN_FLOOR: f64 = f64::from_bits(0x3DD0_0000_0000_0000);
 /// S* below 2^-988 makes the floor product inexact (DESIGN N-2): every row of
 /// that body is below the floor.
-const DESIGN_FLOOR_MIN_SCALE: f64 = f64::from_bits((1023 - 988) << 52);
+pub(crate) const DESIGN_FLOOR_MIN_SCALE: f64 = f64::from_bits((1023 - 988) << 52);
 const PASSED: &str = "NUMERICAL_INTEGRITY_CHECKS_PASSED";
 const SENSITIVE: &str = "NUMERICAL_INTEGRITY_SENSITIVE";
 /// At most this many fired rows or ends are named in a sentence.

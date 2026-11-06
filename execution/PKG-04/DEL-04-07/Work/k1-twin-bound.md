@@ -112,7 +112,11 @@ published value x it bounds
 - **The solve.** Every structural solve, on every iterate, returns only when each free row's original-equation
   residual meets 64·γ(n) of its row denominator Σ|K_ij·u_j| + |f_i|, its evaluation allowance included
   (`frame_kernel::structural::finish_structural` over `evaluate_original_residual`, after at most three refinements;
-  otherwise it refuses). By Oettli and Prager, the computed u then solves (K + δK)·u = f + δf with
+  otherwise it refuses). Since RT-A3 P the sparse-mode loop solves on the stiffness pattern, and the base, unit-load
+  and final right-hand sides of an iterate share one factor (`finish_sparse_structural` and
+  `finish_sparse_structural_on`). Each right-hand side still runs the same completion (`finish_checked_factor`)
+  over the same binary64 residual (`evaluate_original_residual_bound`, which skips zero coefficients in both
+  representations, so n is unchanged). The certificate below therefore holds per solve as before, in both modes. By Oettli and Prager, the computed u then solves (K + δK)·u = f + δf with
   |δK| ≤ ω·|K|_abs and |δf| ≤ ω·|f|, where ω = 64·γ(n_max) + γ(16) + 64·γ(n_max)·γ(16). The γ(16) term absorbs
   each route's binary64 formation of K about the exact-leaves K, and |K|_abs = Σ_e|K_e| + Σk. Here n = 2·(nonzeros
   in the row) + 2. That gives n_max = 10 and ω = 7.28e-14 for the one-member F-1 models, and n_max = 16 and
@@ -135,7 +139,10 @@ published value x it bounds
   row's computed residual (an inactive support's reaction, and the residual records) is bounded by
   (ω + γ(n_i + 1))·(…)_i. A spring action is bounded by k·e + u·k·|u|.
 - **The coupled friction force.** A sliding derived-normal support's force is formed as φ = −c·R_b/(1 + c·g), from
-  the loop's base and unit dense solves (`nonlinear_integration`, the derived-candidate block). Here c = dir·μ·β and
+  the loop's base and unit solves (`nonlinear_integration`, the derived-candidate block). Until RT-A3 P these were
+  dense in both modes. Since P they run in the requested mode, on the iterate's factor in sparse mode. The
+  enclosure below uses only each solve's own residual certificate and the recovery bound, never the
+  factorization, so it holds for either. Here c = dir·μ·β and
   g = R_u − R_b is the cancellation-prone influence. Its error is
   E_φ = (|c|·E_Rb + |c|·E_g·|φ*|)/(|1 + c·g| − |c|·E_g) + γ(4)·|φ|, with E_Rb and E_g = E_Rb + E_Ru + u·|g| from the
   recovery bound above (formation term included). It enters the final solve as an applied force's own error.
@@ -231,6 +238,51 @@ differences use at most:
 
 The bound is valid and deliberately conservative. Its solve term rests on the 64·γ(n) residual certificate the product
 actually verifies, not on the far smaller errors it typically achieves.
+
+**Re-check for RT-A3 P (DEL-04-07 `rt-a3-p-scale-repair.md`).** The source trace was re-checked against P's loop.
+- *Unchanged loop rules.* The authored seeds (`normalized_initial_states`), no friction force on the first iterate
+  (`sliding_friction_candidates`), the deferred first iterate (`sliding_force_deferred`), the slip direction
+  (`sliding_direction`), the normal branch, the classification (`resolve_sliding_friction_states`,
+  `evaluate_active_set_iteration_with_resolved_friction_states`) and the seed recovery are byte-identical in P's
+  diff. P changes only how each linearized solve is formed: the representation, the coupling solves' mode, and in
+  sparse mode one factor per iterate.
+- *Solve.* Every right-hand side keeps its own M03 gate (above), so ω and the Skeel closure hold per solve, and
+  the coupled-force enclosure E_φ holds for φ⁰ from either factorization.
+- *Corpus.* The twins are solved by the same loop on both routes in each mode, so P moves both routes alike. Its
+  φ⁰ move (sparse mode) changes bits only on derived-normal sliding cases.
+- *Derivation and script.* They model the intended exact system, the per-solve certificate and the loop rules,
+  none of which P changes; the script's text names the solve path and its numbers are unchanged. The script and
+  the K-1 corpus were re-run in both modes on P's head (the record in `rt-a3-p-scale-repair.md`).
+
+**Re-check for RT-A5 S2, the loop tail's extraction** (DEL-05-02 `operating-case.md` §7.3; NI `lib.rs`
+`complete_iteration`). The source trace was re-read against the moved sites, not only re-run. The extraction moves the
+loop's post-step block (everything from gap scrutiny to the receipt) into one crate-private function that the loop calls
+once per iterate. The loop rules the derivation and script encode now sit as follows:
+- *The authored seeds* (`normalized_initial_states`) are still formed in `solve_active_set_loop`, and now initialize
+  `LoopState.current_states`.
+- *No friction force on the first iterate* (`sliding_friction_candidates`) is unchanged inside the step. The loop
+  still calls the step with `previous = loop_state.iterations.last()`, which is `None` on the first iterate because
+  `LoopState.iterations` starts empty.
+- *The deferred first iterate.* `sliding_force_deferred` is still computed in the loop, before the step and from the
+  same predicate. `complete_iteration` receives it and uses it, as before, in `resolve_sliding_friction_states`, the
+  converged predicate and the non-converged exit diagnostic.
+- *The slip direction and the normal branch* (`sliding_direction`, the derived-normal branch) are taken from the
+  previous iterate inside the step, unchanged. That iterate is the record `complete_iteration` pushed on the previous
+  pass, as the loop body pushed it.
+- *The classification* (`resolve_sliding_friction_states`, `evaluate_active_set_iteration_with_resolved_friction_states`
+  or `exact_gap_iteration`) and the converged predicate moved into `complete_iteration` verbatim, with the same
+  arguments, order and early returns.
+- *The seed recovery* stays in the loop. Its flag enters `complete_iteration` as `recovered_path`, which the converged
+  predicate reads as before.
+- *The published iteration count.* The finish condition `converged || blocked || iteration_index == max_iterations`
+  moved inside unchanged. The loop passes `IterationExit::AtConvergenceOrCap`. `IterationExit::Now` only adds `|| true`,
+  and it has no caller until the held-status wrapper.
+
+The derivation names no moved line, and the script names functions only (`resolve_sliding_friction_states`), none of
+which moved. Neither needs revision. The script reads no product code, so re-running it cannot detect a rule change;
+that is why the trace was re-read. Behaviourally, the loop's complete output (every iteration record, result and
+completion receipt, in both modes) is byte-identical before and after the extraction over the NI and PP test suites'
+loop calls (`operating-case.md` §7.3, S2's conditions). The K-1 corpus test (`rt_a3_nonlinear_k1_twins.rs`) passes on the extraction's head `d02ec8789` (6 passed, 1 ignored), and the script, re-run there, prints the constants above unchanged.
 
 **Why basis (ii) and not (i).** Basis (i) would inject EX's section leaves into PF's prepared element inputs and
 show the loop rows move as EX's do. PF has no input that carries section leaves. Injecting them needs a product-side

@@ -13,7 +13,19 @@
  * Extremes are arithmetic over the listed values, not a qualification or a limit. A row the
  * numerical standing withholds (the viewport overlays' rule, `overlayMayShowRow`) carries no
  * values and says why; it and every row that is not one solved state stay out of the extremes,
- * and the summary counts them. Stored values and units are kept unchanged for an export (D2). */
+ * and the summary counts them. Stored values and units are kept unchanged for an export (D2).
+ *
+ * R-6/R-7 S-K1 (DEL-04-03 Work `skew-restraints.md` §7.1): a skewed support also emits one
+ * `support_reaction_along_direction_v1` row per solved state, its reaction along its stored
+ * `direction` (component `along_direction`, coordinate system `support_direction`). That row is
+ * not a global component: it is never a column, never in the extremes and never in the CSV
+ * (whose columns are `SUPPORT_LOAD_COLUMNS`), and the global columns keep the support's emitted
+ * global components. It is listed beside them, per case, as `along`: the emitted value and unit
+ * only, never formed here from the components, with that row's own sign convention and its
+ * derivation note (`derivedRowNote`, the table's rule), so an absolute sum, SRSS or selected
+ * envelope value is never described as a signed physical action. A withheld case lists none. The
+ * producer emits at most one per support and state; if more than one is indexed, none is listed
+ * (never the first) and `alongDetail` states why. */
 
 import type { MechanicsResult, PreviewModel, ResultBasisRef } from "../../types";
 import {
@@ -23,12 +35,34 @@ import {
   REACTION_MOMENT_MAGNITUDE_KIND,
   withheldSupportAttributions
 } from "../viewport/reactionOverlay";
-import { basisKey, derivedRowNote } from "../viewport/resultColourOverlay";
+import { basisKey, derivedRowNote, type DerivedRowNote } from "../viewport/resultColourOverlay";
 import { overlayMayShowRow, rowHealthState, type ResultOverlayStanding } from "./numericalHealth";
 import { NUMERICAL_HEALTH_STATE_TEXT } from "./numericalHealthText";
 
 type ResultRow = MechanicsResult["results"][number];
 type Support = PreviewModel["supports"][number];
+
+/** S-K1's along-direction reaction kind (the exact string the semantic tables carry). */
+export const SUPPORT_ALONG_DIRECTION_KIND = "support_reaction_along_direction_v1";
+/** Why no along value is listed for a case that has more than one along row. */
+export const SUPPORT_ALONG_MULTIPLE = "more than one along-direction row was emitted for this case; none is listed";
+export type SupportDirection = Readonly<{ x: number; y: number; z: number }>;
+/** S-K1: an emitted along-direction value, with the row's own sign convention and derivation. */
+export type SupportAlongValue = Readonly<SupportLoadValue & {
+  /** The row's `metadata.sign_convention`, as emitted; null when it states none. */
+  signConvention: string | null;
+  /** The row's derivation note (`derivedRowNote`): unsigned, selected or bounded; null for a
+   * load case or a signed linear combination. */
+  derivation: DerivedRowNote | null;
+}>;
+
+/** The support's stored `direction`, as authored; null when it has none. */
+function storedDirection(support: Support): SupportDirection | null {
+  const direction = (support as { direction?: unknown }).direction;
+  if (!direction || typeof direction !== "object") return null;
+  const { x, y, z } = direction as Record<string, unknown>;
+  return typeof x === "number" && typeof y === "number" && typeof z === "number" ? Object.freeze({ x, y, z }) : null;
+}
 
 export type SupportLoadColumnId =
   | "Fx" | "Fy" | "Fz" | "F" | "Mx" | "My" | "Mz" | "M"
@@ -110,6 +144,11 @@ export type SupportLoadRow = Readonly<{
   /** The producer's reason code (`attribution_withheld`) or the stated frame (`frame_not_global`). */
   reactionAbsenceDetail: string | null;
   values: Readonly<Partial<Record<SupportLoadColumnId, SupportLoadValue>>>;
+  /** S-K1: the emitted along-direction reaction of a skewed support for the case; null when none
+   * is emitted or the case is withheld. Never a column and never in the extremes. */
+  along: SupportAlongValue | null;
+  /** Why `along` is null although along rows were emitted (`SUPPORT_ALONG_MULTIPLE`); else null. */
+  alongDetail: string | null;
   /** Whether the row is one solved state that the extremes are taken over. */
   inExtremes: boolean;
 }>;
@@ -136,6 +175,9 @@ export type SupportLoadSummary = Readonly<{
   equipmentInterfaces: readonly string[];
   /** The sign convention the listed reaction rows state (first listed row), or null. */
   signConvention: string | null;
+  /** S-K1: the support's stored direction (each listed along value carries its own sign
+   * convention; there is no summary-level one). */
+  direction: SupportDirection | null;
   rows: readonly SupportLoadRow[];
   extremes: readonly SupportLoadExtreme[];
   /** Rows in the extremes. */
@@ -234,6 +276,8 @@ type RowIndex = Readonly<{
   /** Finite reaction rows by support id, and finite node-movement rows by node id, each by case key. */
   reactions: ReadonlyMap<string, ReadonlyMap<string, readonly ResultRow[]>>;
   movements: ReadonlyMap<string, ReadonlyMap<string, readonly ResultRow[]>>;
+  /** S-K1: finite along-direction rows by support id, each by case key. */
+  along: ReadonlyMap<string, ReadonlyMap<string, readonly ResultRow[]>>;
   /** The producer's withheld attributions, by case key then support id. */
   attributions: ReadonlyMap<string, ReadonlyMap<string, string>>;
 }>;
@@ -241,6 +285,7 @@ type RowIndex = Readonly<{
 function rowIndex(result: MechanicsResult, cases: readonly SupportLoadCase[]): RowIndex {
   const reactions = new Map<string, Map<string, ResultRow[]>>();
   const movements = new Map<string, Map<string, ResultRow[]>>();
+  const along = new Map<string, Map<string, ResultRow[]>>();
   const add = (index: Map<string, Map<string, ResultRow[]>>, entity: string, key: string, row: ResultRow) => {
     let byCase = index.get(entity);
     if (!byCase) index.set(entity, byCase = new Map<string, ResultRow[]>());
@@ -251,6 +296,10 @@ function rowIndex(result: MechanicsResult, cases: readonly SupportLoadCase[]): R
   for (const row of result.results) {
     const key = basisKey(row.basis_ref);
     if (key === null || !Number.isFinite(row.value)) continue;
+    if (row.kind === SUPPORT_ALONG_DIRECTION_KIND) {
+      add(along, row.entity_ref, key, row);
+      continue;
+    }
     const target = columnOf(row);
     if (target?.of === "support" || row.kind === REACTION_COMPONENT_KIND) add(reactions, row.entity_ref, key, row);
     else if (target?.of === "node") add(movements, row.entity_ref, key, row);
@@ -259,7 +308,7 @@ function rowIndex(result: MechanicsResult, cases: readonly SupportLoadCase[]): R
     item.key,
     new Map(withheldSupportAttributions(result, item).map((entry) => [entry.supportId, entry.reason] as const))
   ] as const));
-  return { reactions, movements, attributions };
+  return { reactions, movements, along, attributions };
 }
 
 function summaryOf(
@@ -278,7 +327,7 @@ function summaryOf(
     if (!overlayMayShowRow(standing, { basis_ref: item.basis })) {
       return Object.freeze({
         case: item, standing: "withheld", withheldReason: caseWithheldReason(standing, item.basis),
-        reactionAbsence: null, reactionAbsenceDetail: null, values: Object.freeze({}), inExtremes: false
+        reactionAbsence: null, reactionAbsenceDetail: null, values: Object.freeze({}), along: null, alongDetail: null, inExtremes: false
       });
     }
     const values: Partial<Record<SupportLoadColumnId, SupportLoadValue>> = {};
@@ -303,9 +352,19 @@ function summaryOf(
       ? withheldAttribution!.reason
       : reactionAbsence === "frame_not_global" ? otherFrame!.metadata?.coordinate_system ?? "none stated" : null;
     const frozen = Object.freeze(values);
+    // The producer emits one along row per skewed support and state. More than one is not
+    // resolved by choosing: none is listed, and the reason is stated.
+    const alongRows = index.along.get(support.id)?.get(item.key) ?? [];
+    const alongRow = alongRows.length === 1 ? alongRows[0] : null;
     return Object.freeze({
       case: item, standing: "admitted", withheldReason: null, reactionAbsence, reactionAbsenceDetail,
-      values: frozen, inExtremes: !item.envelope && Object.keys(frozen).length > 0
+      values: frozen,
+      along: alongRow ? Object.freeze({
+        value: alongRow.value, unit: alongRow.unit, resultId: alongRow.id,
+        signConvention: alongRow.metadata?.sign_convention ?? null, derivation: derivedRowNote(alongRow)
+      }) : null,
+      alongDetail: alongRows.length > 1 ? SUPPORT_ALONG_MULTIPLE : null,
+      inExtremes: !item.envelope && Object.keys(frozen).length > 0
     });
   });
   const boundary = support.boundary_association;
@@ -323,6 +382,7 @@ function summaryOf(
       : null,
     equipmentInterfaces: Object.freeze((model.equipment_interfaces ?? []).filter((item) => item.node_ref === support.node).map((item) => item.label || item.id)),
     signConvention,
+    direction: storedDirection(support),
     rows: Object.freeze(rows),
     extremes: Object.freeze(extremesOf(rows)),
     extremeRowCount: rows.filter((row) => row.inExtremes).length,

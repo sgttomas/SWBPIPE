@@ -18,4 +18,4 @@ G10 remains an owner-held check requiring the owner's Mac, as specified in the o
 
 The smoke test is evidence, not the owner's witness (F-PIP-3). The check is the owner's act and is recorded only by the owner.
 
-Source for the product replacement: [NUM frozen rulings: M07 option A, G10/D-3 and U3 demo lane](https://github.com/sgttomas/chirality/blob/e85d383b64/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md).
+Source for the product replacement: NUM frozen rulings: M07 option A, G10/D-3 and U3 demo lane (private `sgttomas/chirality@e85d383b64`, `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md`).

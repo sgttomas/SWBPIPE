@@ -52,8 +52,13 @@ describe("R2 equivalence gate, item 1: the wasm readers are the native Rust read
       return;
     }
     const { sourceJson, modelJson, invocationJson } = input;
-    const dispatch = JSON.parse(engine.readerDispatchJson(sourceJson, modelJson, invocationJson));
-    expect(sortKeys(dispatch), "dispatch").toEqual(sortKeys(native.dispatch));
+    // C1 slice 1 (DEL-04-05 `c1-native-custody-plan.md` §4): the dispatch text, byte for byte,
+    // is serde_json's compact text of the native outcome (keys in order; JSON.stringify escapes
+    // a Rust string as serde_json does), the text the native custody command returns for the
+    // same input (`native_verdict_tests.rs`).
+    const dispatchText = engine.readerDispatchJson(sourceJson, modelJson, invocationJson);
+    expect(dispatchText, "dispatch text").toBe(JSON.stringify(sortKeys(native.dispatch)));
+    const dispatch = JSON.parse(dispatchText);
     const source = received(sourceJson), model = received(modelJson), invocation = received(invocationJson);
     expect(sortKeys(readerDispatch(source, model, invocation)), "dispatch, through the module").toEqual(sortKeys(dispatch));
     expect(Object.keys(native.validate ?? {}).sort()).toEqual([...input.readers].sort());
@@ -80,4 +85,38 @@ describe("R2 equivalence gate, item 1: the wasm readers are the native Rust read
       });
     }
   }, 120_000);
+});
+
+/** C1 slice 1, review F2 and F3 (DEL-04-05 `c1-native-custody-plan.md` §4): the wasm engine's
+ * refusal of a text that is not JSON, byte for byte, as the native custody command returns it
+ * (`native_verdict_tests.rs` `NOT_JSON_CASES`, the same literals); and the one exception, a
+ * `RawValue` token key, which the wasm engine reads and the native command refuses
+ * (`a_raw_value_token_key_is_the_one_refused_exception`). */
+describe("C1 native custody: the wasm engine's parse refusals and the RawValue exception", () => {
+  const good = readFileSync(resolve(__dirname, "../../../../../fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json"), "utf8");
+  const deep = "[".repeat(128) + "]".repeat(128);
+  const cases: [string, string, string | undefined, string | undefined, string][] = [
+    ["model {", good, "{", undefined, "WASM-ENGINE-INPUT-JSON-INVALID: model is not valid JSON: EOF while parsing an object at line 1 column 1"],
+    ["invocation [1,", good, undefined, "[1,", "WASM-ENGINE-INPUT-JSON-INVALID: invocation is not valid JSON: EOF while parsing a value at line 1 column 3"],
+    ["model lone surrogate", good, "\"\\ud800\"", undefined, "WASM-ENGINE-INPUT-JSON-INVALID: model is not valid JSON: unexpected end of hex escape at line 1 column 8"],
+    ["model 1e999", good, "[1e999]", undefined, "WASM-ENGINE-INPUT-JSON-INVALID: model is not valid JSON: number out of range at line 1 column 6"],
+    ["invocation trailing", good, undefined, "{\"a\":1} x", "WASM-ENGINE-INPUT-JSON-INVALID: invocation is not valid JSON: trailing characters at line 1 column 9"],
+    ["source NaN", "{\"a\": NaN}", "{", undefined, "WASM-ENGINE-INPUT-JSON-INVALID: source is not valid JSON: expected value at line 1 column 7"],
+    ["source 1e999", "{\"a\": 1e999}", "{", undefined, "WASM-ENGINE-INPUT-JSON-INVALID: source is not valid JSON: number out of range at line 1 column 11"],
+    ["source too deep", deep, undefined, undefined, "WASM-ENGINE-INPUT-JSON-INVALID: source is not valid JSON: recursion limit exceeded at line 1 column 128"],
+    ["model 1e999 before a bad invocation", good, "[1e999]", "[1,", "WASM-ENGINE-INPUT-JSON-INVALID: model is not valid JSON: number out of range at line 1 column 6"],
+  ];
+  it.each(cases)("%s", async (_name, source, model, invocation, refusal) => {
+    const engine = await loadWasmEngine();
+    let message: string | null = null;
+    try { engine.readerDispatchJson(source, model, invocation); } catch (error) { message = (error as Error).message; }
+    expect(message).toBe(refusal);
+  });
+  it("reads a RawValue token key as an ordinary key, which the native command refuses", async () => {
+    const engine = await loadWasmEngine();
+    const raw = "{\"$serde_json::private::RawValue\":1}";
+    expect(JSON.parse(engine.readerDispatchJson(raw)).route).toBe("unsupported");
+    expect(JSON.parse(engine.readerDispatchJson(good, raw)).ok).toBe(true);
+    expect(JSON.parse(engine.readerDispatchJson(good, undefined, raw)).ok).toBe(true);
+  });
 });

@@ -5,7 +5,8 @@
 // `difference_basis` through the existing `create_combination` route. It composes nothing
 // (no implicit W+P+T), carries no code or range meaning and is never called "expansion": that
 // naming belongs to the user's rule pack. `subtrahend_support_state` is never written
-// (`own` behaves as absence; `minuend_final` is refused and not offered); a stored value is
+// (`own` behaves as absence; `minuend_final` is not offered here, although the engine authors it
+// on the pressure-free route since RT-A5); a stored value is
 // shown as retained. The solve's gates (G-1, G-2) are the solve's: nothing is checked here.
 import type { PreviewModel } from "../../types";
 

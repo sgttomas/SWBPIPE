@@ -4,6 +4,7 @@
 // backend job. No React.
 
 import { awaitPreviewMechanicsJob, describeResultTooLarge, ResultTooLargeError, resultTooLargeCode } from "../../services/previewService";
+import { resultRowCount, type SessionAnalysisRun, type SessionResult } from "../../services/nativeResult";
 import type {
   BackendSolveJobCancellationReceipt,
   BackendSolveJobStatus,
@@ -292,7 +293,7 @@ export function describeSolveRefusalRetry(refusal: ResourceRefusal, point: Solve
     result_handoff: `Refused at the result hand-off after the solve finished; the finished result was dropped.${resampled}`,
     publication: "Refused at publication after the solve finished; the finished result was dropped.",
     take: `Refused when the finished result was handed to the app; the session does not retry a refused take, so it released the result.${resampled}`,
-    session_step: "Refused at a native command of this solve's session steps; the session does not retry it."
+    session_step: `Refused at a native read or other native command of this solve's session steps; the session does not retry it and releases any held result.${resampled}`
   }[point];
   return `${where} ${solveRetryPath(refusal)}`;
 }
@@ -537,9 +538,11 @@ export function recordBackendCancellationFailure(current: SolveJobAuditState, er
 
 export function completeSolveJob(
   current: SolveJobAuditState,
-  result: MechanicsResult,
-  analysisRun: AnalysisRunEnvelope
+  result: SessionResult,
+  analysisRun: SessionAnalysisRun
 ): SolveJobAuditState {
+  // A native result's row count is S's (C1: its rows stay native).
+  const rowCount = resultRowCount(result);
   const cancellationStatus = current.cancellation_requested
     ? "request_recorded_run_completed_before_cancellation_took_effect"
     : "not_requested";
@@ -553,10 +556,10 @@ export function completeSolveJob(
       {
         event_id: "solve-preview-completed",
         state: "completed",
-        message: `Preview mechanics completed with ${result.results.length} result rows bound to ${analysisRun.analysis_run.run_id}.`,
+        message: `Preview mechanics completed with ${rowCount} result rows bound to ${analysisRun.analysis_run.run_id}.`,
         result_available: true,
         diagnostic_count: result.diagnostics.length,
-        result_row_count: result.results.length,
+        result_row_count: rowCount,
         analysis_status: analysisRun.analysis_run.analysis_status
       }
     ],

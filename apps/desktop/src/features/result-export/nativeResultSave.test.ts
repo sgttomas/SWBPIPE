@@ -91,7 +91,7 @@ describe("private native result service", () => {
     vi.mocked(invoke).mockRejectedValue({ code: "RESOURCE_UNAVAILABLE", refusal: { kind: "ingress_exceeds_budget", required_bytes: 2 * 1024 ** 3, budget_bytes: 1024 ** 3 }, pool: null });
     await expect(saveNativeResultJson(request)).rejects.toEqual({
       code: "RESOURCE_UNAVAILABLE", stage: "request", cleanup: "not_needed", partial_file_name: null,
-      message: "Refused by the native memory pool: Receiving the request needs 2 GiB, more than the per-invocation budget of 1 GiB."
+      message: "Refused by the native memory pool: This invocation needs 2 GiB in all, more than the per-invocation budget of 1 GiB."
     });
   });
 });

@@ -45,19 +45,25 @@ its model's sha256.
   pressure regions per case.
 - **`linear-ex`.** Exact pressure route. Cases SUS, OPE, HYD (interim), WIN, EQX, EQY and EQZ,
   with the subtractions EXP, dWIN, dEQX, dEQY and dEQZ.
-- **`nonlinear-ex`.** OPE, with lift-off, friction-shoe and gap supports.
-- **`nonlinear-pf`.** `nonlinear-ex`'s interim twin on the pressure-free route, kept until EX
-  admits nonlinear supports.
+- **`nonlinear-ex`.** OPE, with lift-off, friction-shoe and gap supports. EX admits them
+  since RT-A3 increment 4 (DEL-04-07 `Work/pressure-contract.md`, "Nonlinear supports on
+  EX"), so the rack carries them and OPE runs the nonlinear active-set loop. The case has gap
+  supports, so it is published `NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED`, with no
+  confirmation until R-3.
+- **`nonlinear-pf`.** `nonlinear-ex`'s twin on the pressure-free route, with the same supports
+  and no pressure.
 - **Interim forms.** The generator emits only what main admits. Each target family or case
   form that main refuses is in the generator's `LEDGER` with its interim form, the refusal
   observed and what it waits for:
-  - the tee, the reducer and the EX nonlinear supports wait for RT-A3 increments 1, 2 and 4;
+  - the tee and the reducer wait for RT-A3 increments 1 and 2;
   - the lift-off friction shoe waits for S7;
   - SAM waits for #1678;
   - HYD's test condition and the SRSS and absolute-sum combinations wait for 0.9.0 S1;
   - nonlinear solves above about 1,760 nodes wait for RT-A3 stage P.
 
-  Until increment 4, `nonlinear-ex` solves OPE linearly and is not a nonlinear measurement.
+  The last applies to both nonlinear racks. The dense-memory guard therefore refuses
+  `nonlinear-ex` at criterion 9's 2,000 nodes before any case, as it refuses `nonlinear-pf`.
+  Below the guard, `nonlinear-ex` takes the dense loop's cost (§5.3).
 - **Field shapes.** These mirror the reference system (DEL-09-01 `Work/reference-system.md`):
   the same material values and section sizes, the `RK-` id prefix and no reference-system
   id. No rack value is a reference for an expected result.
@@ -277,7 +283,18 @@ are in `apps/desktop`:
   - `take_start`, `take_end` (bytes), `decode_end`, `parse_end`;
   - `reader_verdict_start` and `reader_verdict_end` (registered or not, with the reason code);
   - `analysis_run_built`, `result_set`, `result_committed` (the layout effect), and
-    `first_paint` (two animation frames later).
+    `first_paint`, the frame showing the solve's result:
+    - a result read from taken bytes (the whole-value path, unchanged): two animation frames
+      after `result_committed`, since its Results table renders from the value in that commit;
+    - a C1 native handle (applies from the next candidate binding; earlier records keep their
+      reading): `result_committed`, then the Results table's first page committed while the
+      table can be seen, its rows (one bounded native page) and their row semantics read, then
+      two animation frames, across which the page must still be the table's and still visible.
+      A pending or refused page, or one hidden or replaced before the browser paints it, never
+      marks it (`c1-slice7-run-proposal.md`, "Review repair" and "Second review repair").
+
+    The 300,000 ms paint gate is judged on that mark's own time against one deadline from
+    Analyze → Run (`native-smoke/perf-driver.js`, `perf.mjs` `classify`).
 
   Every pass of `checked_json_text`, `native_fingerprint`, `reader_written_text` and each wasm
   reader call is counted and timed per stage. A pass counts as full-envelope when it reads at
@@ -314,7 +331,10 @@ are in `apps/desktop`:
     workers and the WebKit processes started for it every 200 ms (`perf-sampler.py`,
     `proc_pid_rusage`). It then inspects the SQLite store, classifies the run and writes
     `perf-report-<UTC>.json`. The classes are `ok`, `refused_with_message`, `crash` (with the
-    process), `hang`, `misleading_message` and `half_written_save`.
+    process), `hang`, `misleading_message`, `half_written_save` and, for a C1 run,
+    `host_unobservable`: the host condition (display awake, session unlocked, App window uncovered
+    and visible, delivering frames) was not established or was lost, so nothing was observable. It
+    is no hang and no product finding, and the run is not retried.
 - **Racks the desktop opens.** The generator writes the desktop's model-file shape (§2):
   `data_boundary`, `diagnostics`, labels, load-case `kind` and `status`, and subtraction
   `terms`.

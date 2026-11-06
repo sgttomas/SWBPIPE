@@ -10,8 +10,7 @@ matched in plain, split, escaped and character-class forms (`Ex""ample`,
 case-insensitively.
 
 Terms (one per line; blank lines and `#` comments ignored) come from any of:
-- the `PRIVATE_TERMS` environment variable (CI: the `PRIVATE_TERMS`
-  repository secret; keep it to the terms only, since GitHub masks each line);
+- the `PRIVATE_TERMS` environment variable;
 - `--terms-file PATH` (a local file kept outside the repository);
 - `--from-host` (this machine's own names, read at run time: `hostname`, and
   on macOS `scutil --get LocalHostName` and `ComputerName`).
@@ -34,10 +33,10 @@ Rules:
   term masked as `<host>`.
 - BLOCK (exit 1): a junit `<testsuite>`/`<testsuites>` `hostname` attribute
   with a real value, anywhere. Remove it before committing; empty, `<host>`
-  and `&lt;host&gt;` pass. It needs no terms, so it runs without the secret.
-- NOTE (exit 0): no terms configured (a pull request from a fork receives no
-  secrets); only the junit rule ran. With `--require-terms` (CI on pushes and
-  same-repository pull requests) a missing secret is an error instead.
+  and `&lt;host&gt;` pass. It needs no terms.
+- NOTE (exit 0): no terms configured; only the junit rule ran. With
+  `--require-terms` (the owner's full-list release scan) missing terms are an
+  error instead.
 
 Exit 2 on operational errors: refs unresolvable, an unreadable terms file,
 or required terms missing. Errors never print terms, paths or file content.

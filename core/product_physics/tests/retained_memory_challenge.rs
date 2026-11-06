@@ -64,7 +64,11 @@ use b1_sq_inputs as inputs;
 // §8.49 (RT-A3 increment 4): +6,616 B (restated pressure-2 table, S1's nonlinear clause and S7).
 // §8.50 (RT-U4 order and repair B on RT-A3 increment 4): +373,760 B (W7-L1's ordered member loop, TAV_W).
 // §8.51 (operating-case slice 1b): +17,484 B (the three preview tables' combination policy v3 in STATICS).
-const W1_PHASE_BYTES: [u64; 2] = [6_450_322_653, 6_509_453_997];
+// §8.53 (RT-A3 P and the §4 certificate): +947 B (STATICS, TAV_W, the case-id vector, LoadCaseSolve's operand).
+// §8.54 (RT-A5 minuend_final): +33,008 B (STATICS, the retained table's held-status gates; LoadCaseSolve's held source).
+// §8.55 (S-K1 skewed restraint directions): +17,872 B (STATICS and the InvalidInput arm +16,856 B; BuiltModel.skew,
+// MemberBoundInputs.lift_radius and CaseRecord.along_directions in the in-build atoms +1,016 B).
+const W1_PHASE_BYTES: [u64; 2] = [6_450_374_480, 6_509_505_824];
 /// The profile's in-build maximum over every phase (E_mov,max, without R; W3 in both modes),
 /// the bound once a run has done W1 work (a registered build, G6). W-8 topology warnings D3 at
 /// 34e96d6b17 (retained-pricing-rules.md §8.16): +219,136 B in both modes from the pre-0.4
@@ -95,7 +99,10 @@ const W1_PHASE_BYTES: [u64; 2] = [6_450_322_653, 6_509_453_997];
 // §8.49 (RT-A3 increment 4): +6,616 B (W3 stays the maximum; every phase +6,616 B).
 // §8.50 (RT-U4 order and repair B on RT-A3 increment 4): +373,760 B (W3 stays the maximum; W4 +367,378 B).
 // §8.51 (operating-case slice 1b): +17,484 B (W3 stays the maximum; every phase +17,484 B).
-const MAX_PHASE_BYTES: [u64; 2] = [8_744_053_042, 8_803_184_386];
+// §8.53 (RT-A3 P and the §4 certificate): +947 B (W3 stays the maximum; W1-W5 +947 B, X1-X3 +839 B).
+// §8.54 (RT-A5 minuend_final): +33,008 B (W3 stays the maximum; every phase +33,008 B).
+// §8.55 (S-K1 skewed restraint directions): +17,872 B (W3 stays the maximum; every phase +17,872 B).
+const MAX_PHASE_BYTES: [u64; 2] = [8_744_104_869, 8_803_236_213];
 /// The abort cap: above E_mov,max + R at M and within T3's host allowance (PLAN_v2 §3.5).
 const CAP_BYTES: usize = 16 << 30;
 /// The N1 notice's fixed text (lib.rs `RETAINED_UNAVAILABLE_NOTICE`), as the base publication shows it.

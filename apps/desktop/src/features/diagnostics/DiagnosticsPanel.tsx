@@ -1,3 +1,7 @@
+import { isNativeResult, nativeCustody, nativeQueryInvoke, type SessionResult } from "../../services/nativeResult";
+import { resultRowPages } from "../../services/resultDetail";
+import { nativeFailureText } from "../../services/nativeIngress";
+import { useKnowledgeAxialRow } from "../knowledge/KnowledgePanel";
 import type { ReactNode } from "react";
 import { ResultQuantity } from "../toolkit/ResultQuantity";
 import { AlertTriangle, Search, X } from "lucide-react";
@@ -5,6 +9,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { DiagnosticFilterRequest } from "./diagnosticFilterRequest";
 import type { DesignKnowledge, Diagnostic, DiagnosticInterpretation, MechanicsResult, PreviewModel } from "../../types";
 import { buildDiagnosticInterpretation } from "../results/resultInterpretation";
+import { presentedResultDiagnostics } from "../results/suppliedDiagnostics";
 import { modelDocumentDiagnostics } from "../model-data/documentDiagnostics";
 import { currentLibraryRefFindings, libraryRefDiagnostics, usePublishedLibraryRefFindings } from "../library/libraryRefFindings";
 
@@ -18,7 +23,7 @@ export function DiagnosticsPanel({
 }: {
   model: PreviewModel;
   knowledge: DesignKnowledge | null;
-  result: MechanicsResult | null;
+  result: SessionResult | null;
   selectedDiagnosticId: string | null;
   /** A request to show exactly this diagnostic (each new sequence applies once; a
    * cleared request clears the filter it set). */
@@ -46,12 +51,15 @@ export function DiagnosticsPanel({
   // W-13 §3.5: the store's library-reference warnings, keyed to the entity.
   const publishedLibraryRefs = usePublishedLibraryRefFindings();
   const libraryRefs = useMemo(() => libraryRefDiagnostics(currentLibraryRefFindings(model, publishedLibraryRefs)), [model, publishedLibraryRefs]);
+  // RT-A3 §4: on a result with combinations, a message outside the reader-checked roster is
+  // listed as supplied, unverified text (`suppliedDiagnostics`), as the report quotes it.
+  const resultDiagnostics = useMemo(() => presentedResultDiagnostics(result), [result]);
   const diagnostics: Diagnostic[] = [
     ...model.diagnostics,
     ...documentDiagnostics,
     ...libraryRefs,
     ...(knowledge?.diagnostics ?? []),
-    ...(result?.diagnostics ?? [])
+    ...resultDiagnostics
   ];
   const filteredDiagnostics = useMemo(
     () => pinnedId !== null && filterText === pinnedId
@@ -59,7 +67,9 @@ export function DiagnosticsPanel({
       : filterDiagnostics(diagnostics, filterText),
     [diagnostics, filterText, pinnedId]
   );
-  const interpretation = buildDiagnosticInterpretation({ model, knowledge, result, diagnosticId: selectedDiagnosticId });
+  const nativeLinked = useNativeLinkedResults(model, knowledge, result, selectedDiagnosticId);
+  const axial = useKnowledgeAxialRow(result);
+  const interpretation = buildDiagnosticInterpretation({ model, knowledge, result, diagnosticId: selectedDiagnosticId, nativeLinkedResults: nativeLinked.rows, knowledgeAxialRow: axial.row });
   return (
     <section className="panel diagnostics-panel" aria-label="Diagnostics" data-testid="diagnostics-panel">
       <div className="panel-title">
@@ -72,6 +82,7 @@ export function DiagnosticsPanel({
         totalCount={diagnostics.length}
         onFilterChange={setFilterText}
       />
+      {nativeLinked.error ? <p role="status" data-testid="diagnostic-linked-results-refused">{nativeLinked.error}</p> : null}
       <DiagnosticDetail interpretation={interpretation} result={result} />
       <div className="diagnostic-list">
         {filteredDiagnostics.length > 0 ? (
@@ -153,7 +164,37 @@ function SeverityCount({ label, value, testId }: { label: string; value: number;
   );
 }
 
-function DiagnosticDetail({ interpretation, result }: { interpretation: DiagnosticInterpretation | null; result: MechanicsResult | null }) {
+/** A native result's rows a diagnostic names (`affected_refs` as row ids or entity refs), in
+ * publication order as `results.filter` lists them: two bounded native queries, paged, unioned by
+ * ordinal. Null while they read (and for a full result). */
+function useNativeLinkedResults(model: PreviewModel, knowledge: DesignKnowledge | null, result: SessionResult | null, diagnosticId: string | null): { rows: DiagnosticInterpretation["linked_results"] | null; error: string | null } {
+  const refs = useMemo(() => {
+    if (!result || !isNativeResult(result) || !diagnosticId) return null;
+    const diagnostic = [...model.diagnostics, ...(knowledge?.diagnostics ?? []), ...result.diagnostics].find((candidate) => (candidate.id ?? candidate.code) === diagnosticId);
+    return (diagnostic?.affected_refs ?? []).slice(0, 1000);
+  }, [model, knowledge, result, diagnosticId]);
+  const [read, setRead] = useState<{ of: unknown; key: string; rows: DiagnosticInterpretation["linked_results"]; error?: string } | null>(null);
+  const key = refs ? JSON.stringify(refs) : "";
+  useEffect(() => {
+    if (!result || !isNativeResult(result) || !refs) return;
+    let live = true;
+    (async () => {
+      const found = new Map<number, MechanicsResult["results"][number]>();
+      if (refs.length) {
+        for (const filter of [{ ids: refs }, { entities: refs }]) {
+          for await (const page of resultRowPages(nativeQueryInvoke(result), nativeCustody(result).jobId, filter)) page.rows.forEach((entry) => found.set(entry.ordinal, entry.row));
+        }
+      }
+      const rows = [...found.entries()].sort((a, b) => a[0] - b[0]).map(([, item]) => ({ id: item.id, kind: item.kind, entity_ref: item.entity_ref, value_label: `${item.value} ${item.unit}`, unit: item.unit, unit_source: "result_envelope" as const }));
+      if (live) setRead({ of: result, key, rows });
+    })().catch((error) => { if (live) setRead({ of: result, key, rows: [], error: `The linked result query could not be read: ${nativeFailureText(error)}` }); });
+    return () => { live = false; };
+  }, [result, refs, key]);
+  const current = result && isNativeResult(result) && read?.of === result && read.key === key ? read : null;
+  return { rows: current?.rows ?? null, error: current?.error ?? null };
+}
+
+function DiagnosticDetail({ interpretation, result }: { interpretation: DiagnosticInterpretation | null; result: SessionResult | null }) {
   if (!interpretation) {
     return (
       <section className="diagnostic-detail-panel" aria-label="Diagnostic detail" data-testid="diagnostic-detail-panel">

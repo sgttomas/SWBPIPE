@@ -29,8 +29,14 @@ mod model_document_shape;
 mod model_document_version;
 mod model_states;
 mod analysis_runs;
+mod analysis_run_v03_build;
+mod analysis_run_v03_validate;
+mod native_persistence;
+mod result_js_text;
 #[allow(unsafe_code)]
 mod stored_read;
+mod stored_custody;
+mod stored_save;
 #[allow(unsafe_code)]
 mod stored_model_document_export;
 #[cfg(feature = "native-smoke")]
@@ -39,7 +45,20 @@ mod native_smoke;
 mod native_smoke_inject;
 #[cfg(test)]
 mod native_smoke_reach_scan_tests;
+mod native_csv_stream;
 mod native_result_download;
+mod native_verdict;
+mod diagnostics_presentation;
+mod result_planes;
+mod result_detail;
+mod result_summary;
+mod result_summary_tables;
+#[cfg(test)]
+#[path = "native_replay_tests.rs"]
+mod native_replay_tests;
+#[cfg(test)]
+#[path = "native_ledger_tests.rs"]
+mod native_ledger_tests;
 mod report_package_bridge;
 mod report_package_save;
 mod report_render_exact;
@@ -376,7 +395,7 @@ struct StorageCapability {
 }
 
 #[derive(Debug, Serialize)]
-struct LocalProjectSummary {
+pub(crate) struct LocalProjectSummary {
     project_id: String,
     project_name: String,
     database_path: String,
@@ -386,6 +405,8 @@ struct LocalProjectSummary {
     store_schema_version: i64,
     store_schema_target_version: i64,
     migrations_applied_on_open: Vec<String>,
+    /// False: no project is search-indexed since store schema v14 retired the
+    /// FTS sidecar. The field keeps the reply's shape.
     fts_indexed: bool,
     copied_external_files: bool,
     editor_intent_count: usize,
@@ -636,12 +657,17 @@ fn carry_forward_legacy_project_store(new_dir: &Path) -> Result<bool, String> {
     Ok(true)
 }
 
-const STORE_SCHEMA_TARGET_VERSION: i64 = 13;
+const STORE_SCHEMA_TARGET_VERSION: i64 = 14;
 const STORE_MIGRATION_FRAMEWORK: &str = "versioned_sqlite_user_version_migration_ledger";
 
 struct StoreMigration {
     version: i64,
     migration_id: &'static str,
+    /// This build reads and writes the store correctly without the step. If
+    /// the step fails it is rolled back and the open goes on at the version
+    /// before it, with the step reported pending. The next open retries it.
+    /// Any other step's failure refuses the open.
+    deferrable: bool,
     apply: fn(&Connection) -> Result<(), String>,
 }
 
@@ -661,11 +687,13 @@ fn store_migrations() -> Vec<StoreMigration> {
         StoreMigration {
             version: 1,
             migration_id: "store-v1-base-project-and-fts-tables",
+            deferrable: false,
             apply: migrate_v1_base_tables,
         },
         StoreMigration {
             version: 2,
             migration_id: "store-v2-editor-intents-column",
+            deferrable: false,
             apply: |connection| {
                 ensure_column(
                     connection,
@@ -677,6 +705,7 @@ fn store_migrations() -> Vec<StoreMigration> {
         StoreMigration {
             version: 3,
             migration_id: "store-v3-proposal-column",
+            deferrable: false,
             apply: |connection| {
                 ensure_column(
                     connection,
@@ -688,6 +717,7 @@ fn store_migrations() -> Vec<StoreMigration> {
         StoreMigration {
             version: 4,
             migration_id: "store-v4-selected-review-target-column",
+            deferrable: false,
             apply: |connection| {
                 ensure_column(
                     connection,
@@ -699,6 +729,7 @@ fn store_migrations() -> Vec<StoreMigration> {
         StoreMigration {
             version: 5,
             migration_id: "store-v5-mechanics-result-column",
+            deferrable: false,
             apply: |connection| {
                 ensure_column(
                     connection,
@@ -710,6 +741,7 @@ fn store_migrations() -> Vec<StoreMigration> {
         StoreMigration {
             version: 6,
             migration_id: "store-v6-analysis-run-column",
+            deferrable: false,
             apply: |connection| {
                 ensure_column(
                     connection,
@@ -721,6 +753,7 @@ fn store_migrations() -> Vec<StoreMigration> {
         StoreMigration {
             version: 7,
             migration_id: "store-v7-model-hash-column",
+            deferrable: false,
             apply: |connection| {
                 ensure_column(
                     connection,
@@ -732,6 +765,7 @@ fn store_migrations() -> Vec<StoreMigration> {
         StoreMigration {
             version: 8,
             migration_id: "store-v8-project-envelope-hash-column",
+            deferrable: false,
             apply: |connection| {
                 ensure_column(
                     connection,
@@ -745,6 +779,7 @@ fn store_migrations() -> Vec<StoreMigration> {
         StoreMigration {
             version: 9,
             migration_id: "store-v9-model-document-migration-ledger-column",
+            deferrable: false,
             apply: |connection| {
                 ensure_column(
                     connection,
@@ -759,6 +794,7 @@ fn store_migrations() -> Vec<StoreMigration> {
         StoreMigration {
             version: 10,
             migration_id: "store-v10-local-rule-packs-table",
+            deferrable: false,
             apply: |connection| {
                 connection
                     .execute_batch(
@@ -784,6 +820,7 @@ fn store_migrations() -> Vec<StoreMigration> {
         StoreMigration {
             version: 11,
             migration_id: "store-v11-local-libraries-table",
+            deferrable: false,
             apply: |connection| {
                 connection
                     .execute_batch(
@@ -807,6 +844,7 @@ fn store_migrations() -> Vec<StoreMigration> {
         StoreMigration {
             version: 12,
             migration_id: "store-v12-model-states-tables",
+            deferrable: false,
             apply: model_states::migrate_v12_model_states,
         },
         // Analysis runs recorded against model states, and their labels (W-12
@@ -814,9 +852,29 @@ fn store_migrations() -> Vec<StoreMigration> {
         StoreMigration {
             version: 13,
             migration_id: "store-v13-analysis-runs-tables",
+            deferrable: false,
             apply: analysis_runs::migrate_v13_analysis_runs,
         },
+        // The FTS sidecar v1 created is retired (RT-U4). No product reader
+        // queried it, and saves no longer write it. Deferrable: this build
+        // never touches the table, so a store left at v13 with it is read and
+        // written correctly.
+        StoreMigration {
+            version: 14,
+            migration_id: "store-v14-retire-project-fts-sidecar",
+            deferrable: true,
+            apply: migrate_v14_retire_project_fts,
+        },
     ]
+}
+
+/// Drops `local_project_fts` and with it FTS5's shadow tables (`_data`,
+/// `_idx`, `_content`, `_docsize`, `_config`). Their pages go to SQLite's
+/// freelist; nothing is vacuumed. No canonical table or column is touched.
+fn migrate_v14_retire_project_fts(connection: &Connection) -> Result<(), String> {
+    connection
+        .execute_batch("DROP TABLE IF EXISTS local_project_fts;")
+        .map_err(|error| error.to_string())
 }
 
 fn migrate_v1_base_tables(connection: &Connection) -> Result<(), String> {
@@ -861,9 +919,14 @@ fn open_project_store(path: &Path) -> Result<(Connection, StoreMigrationEvidence
 /// target was written by a newer build. It is refused by name before anything
 /// is written (no pragma that writes, no migration), never opened as current.
 fn refuse_newer_store(version: i64) -> Result<(), String> {
-    if version > STORE_SCHEMA_TARGET_VERSION {
+    refuse_store_newer_than(version, STORE_SCHEMA_TARGET_VERSION)
+}
+
+/// [`refuse_newer_store`] for a build whose target is `target`.
+fn refuse_store_newer_than(version: i64, target: i64) -> Result<(), String> {
+    if version > target {
         return Err(format!(
-            "STORE-SCHEMA-NEWER: the local project store is at store schema v{version}, newer than this build's v{STORE_SCHEMA_TARGET_VERSION}; it was written by a newer SWBPIPE build. Nothing was read or written; open it with that build."
+            "STORE-SCHEMA-NEWER: the local project store is at store schema v{version}, newer than this build's v{target}; it was written by a newer SWBPIPE build. Nothing was read or written; open it with that build."
         ));
     }
     Ok(())
@@ -873,7 +936,18 @@ fn refuse_newer_store(version: i64) -> Result<(), String> {
 // stores written before the user_version ledger existed reconcile cleanly from
 // version 0 without data loss.
 fn apply_store_migrations(connection: &Connection) -> Result<StoreMigrationEvidence, String> {
-    refuse_newer_store(store_user_version(connection)?)?;
+    apply_store_migrations_to(connection, STORE_SCHEMA_TARGET_VERSION, &store_migrations())
+}
+
+/// [`apply_store_migrations`] for a build whose target is `target` and whose
+/// steps are `migrations` (tests open a store as an older build would, or with
+/// a step that fails).
+fn apply_store_migrations_to(
+    connection: &Connection,
+    target: i64,
+    migrations: &[StoreMigration],
+) -> Result<StoreMigrationEvidence, String> {
+    refuse_store_newer_than(store_user_version(connection)?, target)?;
     connection
         .execute_batch(
             "
@@ -884,30 +958,51 @@ fn apply_store_migrations(connection: &Connection) -> Result<StoreMigrationEvide
         .map_err(|error| error.to_string())?;
     let version_before = store_user_version(connection)?;
     let mut migrations_applied = Vec::new();
-    for migration in store_migrations() {
+    let mut deferred = None;
+    for migration in migrations {
         if migration.version > version_before {
-            (migration.apply)(connection)?;
-            connection
-                .execute_batch(&format!("PRAGMA user_version = {}", migration.version))
-                .map_err(|error| error.to_string())?;
-            migrations_applied.push(migration.migration_id.to_string());
+            match apply_store_migration(connection, migration) {
+                Ok(()) => migrations_applied.push(migration.migration_id.to_string()),
+                Err(error) if migration.deferrable => {
+                    deferred = Some((migration.migration_id, error));
+                    break;
+                }
+                Err(error) => return Err(error),
+            }
         }
     }
     let version_after = store_user_version(connection)?;
-    let migration_status = if migrations_applied.is_empty() {
-        format!("current_store_schema_v{version_after}_no_pending_migrations")
-    } else {
-        format!("migrated_on_open_store_schema_v{version_before}_to_v{version_after}")
+    let migration_status = match deferred {
+        Some((migration_id, error)) => format!(
+            "migration_pending_store_schema_v{version_after}_of_v{target}: {migration_id} failed and was rolled back ({error}); the store stays at v{version_after} and the next open retries it"
+        ),
+        None if migrations_applied.is_empty() => {
+            format!("current_store_schema_v{version_after}_no_pending_migrations")
+        }
+        None => format!("migrated_on_open_store_schema_v{version_before}_to_v{version_after}"),
     };
     Ok(StoreMigrationEvidence {
         migration_framework: STORE_MIGRATION_FRAMEWORK,
         store_schema_version_before_open: version_before,
         store_schema_version: version_after,
-        store_schema_target_version: STORE_SCHEMA_TARGET_VERSION,
+        store_schema_target_version: target,
         migrations_applied_on_open: migrations_applied,
-        pending_migration_count: STORE_SCHEMA_TARGET_VERSION - version_after,
+        pending_migration_count: target - version_after,
         migration_status,
     })
+}
+
+/// One step and its `user_version` in one write transaction (BEGIN
+/// IMMEDIATE ... COMMIT): both commit or, on any failure (the step's, the
+/// pragma's or the commit's), neither does.
+fn apply_store_migration(connection: &Connection, migration: &StoreMigration) -> Result<(), String> {
+    let transaction = rusqlite::Transaction::new_unchecked(connection, rusqlite::TransactionBehavior::Immediate)
+        .map_err(|error| error.to_string())?;
+    (migration.apply)(&transaction)?;
+    transaction
+        .pragma_update(None, "user_version", migration.version)
+        .map_err(|error| error.to_string())?;
+    transaction.commit().map_err(|error| error.to_string())
 }
 
 fn ensure_column(
@@ -983,7 +1078,7 @@ fn project_id_from_model(model: &Value) -> String {
         .to_string()
 }
 
-/// Write one project row and its search row (unguarded). Used by tests, the
+/// Write one project row (unguarded). Used by tests, the
 /// packaged self-test and the smoke harness; the app's commands write through
 /// `guarded_write_project_rows` on their own `BEGIN IMMEDIATE` transaction.
 fn upsert_project(
@@ -1094,10 +1189,54 @@ fn write_project_rows(
     let model_hash_json = serde_json::to_string(model_hash).map_err(|error| error.to_string())?;
     let project_envelope_hash_json =
         serde_json::to_string(project_envelope_hash).map_err(|error| error.to_string())?;
-    let search_text = format!(
-        "{model_json}\n{editor_intents_json}\n{proposal_json}\n{selected_review_target_json}\n{analysis_run_json}"
-    );
-    let now = now_unix_seconds()?;
+    let texts = ProjectTexts {
+        model_json: &model_json,
+        editor_intents_json: &editor_intents_json,
+        proposal_json: &proposal_json,
+        selected_review_target_json: &selected_review_target_json,
+        mechanics_result_json: &mechanics_result_json,
+        analysis_run_json: &analysis_run_json,
+        model_hash_json: &model_hash_json,
+        project_envelope_hash_json: &project_envelope_hash_json,
+    };
+    upsert_project_texts(transaction, project_id, project_name, &texts, now_unix_seconds()?).map_err(|error| error.to_string())
+}
+
+/// A project row's stored texts: each slot's `serde_json::to_string`, as
+/// [`write_project_rows`] writes them (the native Save Project,
+/// `native_persistence`, writes the result and record slots from the held
+/// result in the same forms).
+pub(crate) struct ProjectTexts<'t> {
+    pub(crate) model_json: &'t str,
+    pub(crate) editor_intents_json: &'t str,
+    pub(crate) proposal_json: &'t str,
+    pub(crate) selected_review_target_json: &'t str,
+    pub(crate) mechanics_result_json: &'t str,
+    pub(crate) analysis_run_json: &'t str,
+    pub(crate) model_hash_json: &'t str,
+    pub(crate) project_envelope_hash_json: &'t str,
+}
+
+/// The project row, from its texts, at `now` (unix seconds): its upsert.
+/// SQLite's own errors are returned as they are, so a caller can name a row
+/// SQLite refused as too big.
+pub(crate) fn upsert_project_texts(
+    transaction: &rusqlite::Transaction<'_>,
+    project_id: &str,
+    project_name: &str,
+    texts: &ProjectTexts<'_>,
+    now: i64,
+) -> Result<(), rusqlite::Error> {
+    let ProjectTexts {
+        model_json,
+        editor_intents_json,
+        proposal_json,
+        selected_review_target_json,
+        mechanics_result_json,
+        analysis_run_json,
+        model_hash_json,
+        project_envelope_hash_json,
+    } = *texts;
     transaction
         .execute(
             "
@@ -1128,23 +1267,7 @@ fn write_project_rows(
                 project_envelope_hash_json,
                 now
             ],
-        )
-        .map_err(|error| error.to_string())?;
-    transaction
-        .execute(
-            "DELETE FROM local_project_fts WHERE project_id = ?1",
-            params![project_id],
-        )
-        .map_err(|error| error.to_string())?;
-    transaction
-        .execute(
-            "
-            INSERT INTO local_project_fts (project_id, project_name, model_text)
-            VALUES (?1, ?2, ?3)
-            ",
-            params![project_id, project_name, search_text],
-        )
-        .map_err(|error| error.to_string())?;
+        )?;
     Ok(())
 }
 
@@ -1723,7 +1846,7 @@ fn project_summary(
         store_schema_version: migration.store_schema_version,
         store_schema_target_version: migration.store_schema_target_version,
         migrations_applied_on_open: migration.migrations_applied_on_open.clone(),
-        fts_indexed: true,
+        fts_indexed: false,
         copied_external_files: false,
         editor_intent_count: editor_intent_count(editor_intents),
         proposal_count: proposal_count(proposal),
@@ -2168,7 +2291,14 @@ async fn start_preview_mechanics_job(
             message: "unsupported preview solver mode header".into(),
         })?),
     };
-    state.start(body, mode)
+    // C1: `native` keeps the result in native custody (never taken whole).
+    let custody = request
+        .headers()
+        .get(solve_jobs::RESULT_CUSTODY_HEADER)
+        .map(|value| value.to_str().ok())
+        .map_or(Some(solve_jobs::ResultCustody::Webview), |value| value.and_then(|v| solve_jobs::ResultCustody::from_wire(Some(v))))
+        .ok_or_else(|| SolveJobError::InvalidRequest { message: "unsupported result custody header".into() })?;
+    state.start_with_custody(body, mode, custody)
 }
 
 #[tauri::command]
@@ -2191,22 +2321,275 @@ async fn take_preview_mechanics_job_result(
     state.take_result(&job_id).map(tauri::ipc::Response::new)
 }
 
+/// C1 native custody (slice 1): the base readers' dispatch verdict on a
+/// retained result, read natively from the held bytes (`native_verdict`).
+/// Raw args body `{jobId, modelJson?, invocationJson?}`; the response is the
+/// reader's outcome JSON, as the wasm engine's `reader_dispatch_json` returns
+/// it. Only the header check, copy reservation and body copy run here;
+/// argument admission, diagnostics, parse admission and the reader run in
+/// a blocking task.
+#[tauri::command]
+async fn read_preview_mechanics_job_verdict(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    native_verdict::verdict(&registry, invoke.body(), invoke.headers()).await.map(tauri::ipc::Response::new)
+}
+
+/// C1 native custody (slice 2): S, the summary of a retained result, built
+/// natively from the held bytes (`result_summary`). Raw args body
+/// `{jobId, modelJson, standing}`; the response is binary: S's JSON header
+/// and its little-endian f64 planes (`result_planes`). Only the header
+/// check, copy reservation and body copy run here; admission, parses and
+/// projection run in a blocking task.
+#[tauri::command]
+async fn read_preview_mechanics_job_summary(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    result_summary::summary(&registry, invoke.body(), invoke.headers()).await.map(tauri::ipc::Response::new)
+}
+
+/// C1 native custody (slice 3): a page of a retained result's rows, the
+/// exact published bytes, read natively (`result_detail`). Raw args body
+/// `{jobId, filter, offset, limit}`; the response is binary: a JSON header
+/// (total, ordinals, lengths) and the rows' texts. Only the header check,
+/// copy reservation and body copy run here; admission, indexing, filtering
+/// and the response run in a blocking task.
+#[tauri::command]
+async fn query_preview_mechanics_job_rows(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    result_detail::query_rows(&registry, invoke.body(), invoke.headers()).await.map(tauri::ipc::Response::new)
+}
+
+/// C1 native custody (slice 4's results navigator): the entity axis of a
+/// retained result's rows under the panel's filters (`result_detail`). Raw
+/// args body `{jobId, filter, probe}`; binary response as
+/// `query_preview_mechanics_job_rows`'. Admission and the scan run in a
+/// blocking task.
+#[tauri::command]
+async fn query_preview_mechanics_job_navigator(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    result_detail::query_navigator(&registry, invoke.body(), invoke.headers()).await.map(tauri::ipc::Response::new)
+}
+
+/// C1 native custody (slice 3): rows of a retained result by exact ordinal,
+/// or the first or last row with an id or kind (`result_detail`). Raw args
+/// body `{jobId, ordinals?, ids?, kinds?, match}`; binary response as
+/// `query_preview_mechanics_job_rows`'. Admission and the lookup run in a
+/// blocking task.
+#[tauri::command]
+async fn lookup_preview_mechanics_job_rows(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    result_detail::lookup_rows(&registry, invoke.body(), invoke.headers()).await.map(tauri::ipc::Response::new)
+}
+
+/// C1 native custody (slice 3): the reader's row semantics of a batch of a
+/// retained result's rows, `reader_verdict::row_semantics_each` with the held
+/// source (`result_detail`). Raw args body `{jobId, ordinals}`; the response
+/// is the outcome array's JSON as raw bytes, so Tauri delivers an ArrayBuffer.
+/// Admission and the read run in a blocking task.
+#[tauri::command]
+async fn read_preview_mechanics_job_row_semantics(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    result_detail::row_semantics(&registry, invoke.body(), invoke.headers()).await.map(result_detail::semantics_response)
+}
+
+/// C1 native custody (slice 3): the recorded source-block recovery facts of
+/// a retained result and a page of its recorded cases (`result_detail`). Raw
+/// args body `{jobId, offset, limit, raw?}`; binary response as
+/// `query_preview_mechanics_job_rows`'. Admission and the read run in a
+/// blocking task.
+#[tauri::command]
+async fn query_preview_mechanics_job_source_recovery(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    result_detail::query_source_recovery(&registry, invoke.body(), invoke.headers()).await.map(tauri::ipc::Response::new)
+}
+
+/// C1 native custody (slice 5's builder): the current (0.3.0) analysis-run
+/// record of a retained result, built natively from the held bytes
+/// (`analysis_run_v03_build`), returned as its preview header only. Raw args
+/// body `{jobId, inputManifest: {manifest_ref, manifest_sha256,
+/// canonical_bytes}, ruleCheckAggregate, rulePackExclusions}`; the response
+/// is the header's JSON as raw bytes, so Tauri delivers an ArrayBuffer. Only
+/// the header check, copy reservation and body copy run here; admission, the
+/// parse and the passes run in a blocking task.
+#[tauri::command]
+async fn read_preview_mechanics_job_analysis_run_preview(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    analysis_run_v03_build::analysis_run_preview(&registry, invoke.body(), invoke.headers()).await.map(analysis_run_v03_build::response)
+}
+
+/// C1 native custody (slice 5's persistence): Record Run of a native-custody
+/// solve from its job handle (`native_persistence`). Raw args body `{jobId,
+/// inputManifest, ruleCheckAggregate, rulePackExclusions, expectedRecord:
+/// {run_id, record_sha256, received_sha256}, request: {expected_base,
+/// state_id, new_state, run_labels}}`; no result, record or manifest object
+/// is sent. The record is rebuilt from the held bytes and must be the one the
+/// session previewed; the run is stored in today's forms after the store's
+/// checks and the connection's exact length limit. The reply is the store's
+/// outcome (as `record_analysis_run`'s) as a JSON body. Only the header
+/// check, copy reservation and body copy run here.
+#[tauri::command]
+async fn record_preview_mechanics_job_analysis_run(
+    app: AppHandle,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    native_persistence::record_run(&registry, move || app_store_path(&app), invoke.body(), invoke.headers()).await
+}
+
+/// C1 native custody (slice 5's persistence): Save or Create Project with a
+/// native-custody solve from its job handle (`native_persistence`). Raw args
+/// body `{jobId, inputManifest, ruleCheckAggregate, rulePackExclusions,
+/// expectedRecord, mode: "create"|"save", projectId?, projectName?, model,
+/// editorIntents, proposal, selectedReviewTarget, modelHash,
+/// confirmedRevision, expectedBase}`; no result, record or envelope hash is
+/// sent. The reply is the stored project's small fields, hashes and what
+/// happened to the result, as a JSON body; never the model, result or record.
+#[tauri::command]
+async fn save_preview_mechanics_job_local_project(
+    app: AppHandle,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    native_persistence::save_project(&registry, move || app_store_path(&app), invoke.body(), invoke.headers()).await
+}
+
+/// C1 slice 6: open a stored project with its saved run reopened into
+/// native custody (`stored_custody`). Raw args body `{projectId?}`; the reply
+/// (a JSON body) is `open_local_project`'s envelope without the result and
+/// the record, plus the run: a restored handle with its historical findings
+/// and record header, or a named refusal with the model open for editing.
+#[tauri::command]
+async fn open_local_project_in_native_custody(
+    app: AppHandle,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    stored_custody::open_project(&registry, move || app_store_path(&app), invoke.body(), invoke.headers()).await
+}
+
+/// C1 slice 6's save continuity: Save or Create Project of a project whose
+/// saved run was reopened into native custody, from the restored handle
+/// (`stored_save`). Raw args body `{jobId, expectedSource, envelopeBasis,
+/// mode: "create"|"save", projectId?, projectName?, model, editorIntents,
+/// proposal, selectedReviewTarget, confirmedRevision, expectedBase}`; no
+/// result, record, model hash or envelope hash is sent. The stored run is
+/// written as the legacy session wrote it back; the reply is the native
+/// save's small reply with the restored run's findings, as a JSON body.
+#[tauri::command]
+async fn save_restored_result_local_project(
+    app: AppHandle,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    stored_save::save_project(&registry, move || app_store_path(&app), invoke.body(), invoke.headers()).await
+}
+
+/// C1 slice 6: a recorded run reopened into native custody after the store's
+/// verified read (`stored_custody`). Raw args body `{projectId, recordingId}`;
+/// the reply (a JSON body) is the run and state summaries, the stored
+/// manifest's canonical text and the restored handle with its findings.
+#[tauri::command]
+async fn read_analysis_run_in_native_custody(
+    app: AppHandle,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    stored_custody::read_run(&registry, move || app_store_path(&app), invoke.body(), invoke.headers()).await
+}
+
+/// C1 interim for a restored result's C2 consumers (slice 6): its stored
+/// record's exact bytes, copied whole only at or under 64 MiB
+/// (`solve_jobs::MAX_DISPLAYABLE_RESULT_BYTES`), above it refused by name
+/// (`RESULT-DETAIL-WEBVIEW-LIMIT`). The copy runs in a blocking task under a
+/// lease of its size; the response is raw bytes (an ArrayBuffer).
+#[tauri::command]
+async fn read_restored_result_record_all(
+    state: tauri::State<'_, SolveJobRegistry>,
+    job_id: String,
+) -> Result<tauri::ipc::Response, SolveJobError> {
+    let registry = (*state).clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        registry.copy_restored_record_within(&job_id, solve_jobs::MAX_DISPLAYABLE_RESULT_BYTES).map(|(copy, lease)| {
+            let response = tauri::ipc::Response::new(copy);
+            drop(lease);
+            response
+        })
+    })
+    .await
+    .unwrap_or_else(|_| Err(SolveJobError::InvalidRequest { message: "RESULT-DETAIL-FULL-COPY-FAILED: the copy ended without an outcome".into() }))
+}
+
+/// C1 interim (slice 4): a native-custody result's exact bytes, copied
+/// whole for a C2 consumer (reports, comparisons, rule checks, derivative
+/// exports, handoffs) only at or under 64 MiB
+/// (`solve_jobs::MAX_DISPLAYABLE_RESULT_BYTES`); above it refused by name
+/// (`RESULT-DETAIL-WEBVIEW-LIMIT`). The copy's lease is held as custody
+/// until `release_preview_mechanics_job_full_copy` or disposal. The copy runs
+/// in a blocking task; the response is raw bytes (an ArrayBuffer).
+#[tauri::command]
+async fn read_preview_mechanics_job_rows_all(
+    state: tauri::State<'_, SolveJobRegistry>,
+    job_id: String,
+) -> Result<tauri::ipc::Response, SolveJobError> {
+    let registry = (*state).clone();
+    tauri::async_runtime::spawn_blocking(move || registry.copy_result_within(&job_id, solve_jobs::MAX_DISPLAYABLE_RESULT_BYTES))
+        .await
+        .unwrap_or_else(|_| Err(SolveJobError::InvalidRequest { message: "RESULT-DETAIL-FULL-COPY-FAILED: the copy ended without an outcome".into() }))
+        .map(tauri::ipc::Response::new)
+}
+
+/// The webview dropped its C2 full copy of a native-custody result: its
+/// custody lease is released; the held result stays.
+#[tauri::command]
+fn release_preview_mechanics_job_full_copy(
+    state: tauri::State<'_, SolveJobRegistry>,
+    job_id: String,
+) -> Result<bool, SolveJobError> {
+    state.release_full_copy(&job_id)
+}
+
 #[tauri::command]
 fn dispose_preview_mechanics_result(
     state: tauri::State<'_, SolveJobRegistry>,
+    streams: tauri::State<'_, Arc<native_csv_stream::CsvStreams>>,
     job_id: String,
 ) -> Result<SolveResultDisposal, SolveJobError> {
+    // A CSV stream begun on this result ends with it (its partial file removed).
+    streams.abort_job(Some(&job_id));
     state.dispose_result(&job_id)
 }
 
 /// Session reset: releases every retained-but-untaken result and every webview
 /// custody lease, and abandons every queued or running job (a running job's
 /// worker process is killed; it never publishes a result, and its supervisor
-/// releases its owners after reaping the worker). The frontend calls it on page load, when a fresh webview provably
-/// holds no result copy and no handle on the previous page's jobs. Returns
+/// releases its owners after reaping the worker). The frontend calls it once on page load
+/// (`beginSessionResultCustodyReset`), when the calling page holds no result copy and no handle
+/// on an earlier page's jobs. The command carries no page identity, so it disposes whatever the
+/// registry holds when it executes: a reset delivered late, after a later page has loaded,
+/// would also retire that page's work (DEL-04-05 plan §7 item 7). Returns
 /// `{released_results, released_bytes, abandoned_jobs}`.
 #[tauri::command]
-fn dispose_all_preview_mechanics_results(state: tauri::State<'_, SolveJobRegistry>) -> SolveResultsDisposal {
+fn dispose_all_preview_mechanics_results(
+    state: tauri::State<'_, SolveJobRegistry>,
+    streams: tauri::State<'_, Arc<native_csv_stream::CsvStreams>>,
+) -> SolveResultsDisposal {
+    // The session reset ends every CSV stream (a fresh webview holds none).
+    streams.abort_job(None);
     state.dispose_all_results()
 }
 
@@ -5394,6 +5777,105 @@ fn save_local_result_json_args(args: &mut Args) -> Result<native_result_download
     args.decode("request")
 }
 
+/// C1 native custody (DEL-04-05 `c1-native-custody-plan.md` §5): the CSV table route written
+/// in bounded chunks (`native_csv_stream`). Each command is bound to the calling
+/// webview's label and, through the stream, to the held job it began on; the raw args body is
+/// admitted under the ingress lease up to one JSON-escaped chunk, and the file work runs in a
+/// blocking task. `{jobId, request: {file_name, text, screening, local_first}}`.
+#[tauri::command]
+async fn begin_local_csv_stream(
+    app: AppHandle,
+    webview: tauri::Webview,
+    streams: tauri::State<'_, Arc<native_csv_stream::CsvStreams>>,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<native_result_download::SaveError>> {
+    use native_csv_stream::MAX_STREAM_BODY_BYTES;
+    let (mut args, lease) = command_ingress::admit_within(&registry, &invoke, "begin_local_csv_stream", ArgsDecoding::Moved, MAX_STREAM_BODY_BYTES)?;
+    let job_id: String = args.decode("jobId")?;
+    let request: native_csv_stream::BeginRequest = args.decode("request")?;
+    drop(args);
+    let job_held = registry.held_result(&job_id).is_ok();
+    let (streams, label) = (Arc::clone(&streams), webview.label().to_owned());
+    let outcome = tauri::async_runtime::spawn_blocking(move || {
+        let _lease = lease;
+        streams.begin(&label, &job_id, job_held, request, || app.path().download_dir())
+    })
+    .await
+    .unwrap_or_else(|_| Err(native_result_download::SaveError::worker()));
+    respond(outcome.map_err(CommandError::Command))
+}
+
+/// `{streamId, sequence, chunk: {text, screening, local_first}}` (`begin_local_csv_stream`).
+#[tauri::command]
+async fn append_local_csv_stream(
+    webview: tauri::Webview,
+    streams: tauri::State<'_, Arc<native_csv_stream::CsvStreams>>,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<native_result_download::SaveError>> {
+    use native_csv_stream::MAX_STREAM_BODY_BYTES;
+    let (mut args, lease) = command_ingress::admit_within(&registry, &invoke, "append_local_csv_stream", ArgsDecoding::Moved, MAX_STREAM_BODY_BYTES)?;
+    let stream_id: String = args.decode("streamId")?;
+    let sequence: u64 = args.decode("sequence")?;
+    let chunk: native_csv_stream::ChunkRequest = args.decode("chunk")?;
+    drop(args);
+    let job_held = streams.job_of(&stream_id).is_some_and(|job| registry.held_result(&job).is_ok());
+    let (streams, label) = (Arc::clone(&streams), webview.label().to_owned());
+    let outcome = tauri::async_runtime::spawn_blocking(move || {
+        let _lease = lease;
+        streams.append(&label, &stream_id, job_held, sequence, chunk)
+    })
+    .await
+    .unwrap_or_else(|_| Err(native_result_download::SaveError::worker()));
+    respond(outcome.map_err(CommandError::Command))
+}
+
+/// `{streamId, sequence, byteCount}`: the receipt of `save_local_result_json`'s CSV profile.
+#[tauri::command]
+async fn finish_local_csv_stream(
+    webview: tauri::Webview,
+    streams: tauri::State<'_, Arc<native_csv_stream::CsvStreams>>,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<native_result_download::SaveError>> {
+    let (mut args, lease) = command_ingress::admit_within(&registry, &invoke, "finish_local_csv_stream", ArgsDecoding::Moved, 64 << 10)?;
+    let stream_id: String = args.decode("streamId")?;
+    let sequence: u64 = args.decode("sequence")?;
+    let byte_count: u64 = args.decode("byteCount")?;
+    drop(args);
+    let job_held = streams.job_of(&stream_id).is_some_and(|job| registry.held_result(&job).is_ok());
+    let (streams, label) = (Arc::clone(&streams), webview.label().to_owned());
+    let outcome = tauri::async_runtime::spawn_blocking(move || {
+        let _lease = lease;
+        streams.finish(&label, &stream_id, job_held, sequence, byte_count)
+    })
+    .await
+    .unwrap_or_else(|_| Err(native_result_download::SaveError::worker()));
+    respond(outcome.map_err(CommandError::Command))
+}
+
+/// `{streamId}`: ends the webview's stream and removes its partial file.
+#[tauri::command]
+async fn abort_local_csv_stream(
+    webview: tauri::Webview,
+    streams: tauri::State<'_, Arc<native_csv_stream::CsvStreams>>,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<native_result_download::SaveError>> {
+    let (mut args, lease) = command_ingress::admit_within(&registry, &invoke, "abort_local_csv_stream", ArgsDecoding::Moved, 64 << 10)?;
+    let stream_id: String = args.decode("streamId")?;
+    drop(args);
+    let (streams, label) = (Arc::clone(&streams), webview.label().to_owned());
+    let outcome = tauri::async_runtime::spawn_blocking(move || {
+        let _lease = lease;
+        streams.abort(&label, &stream_id)
+    })
+    .await
+    .unwrap_or_else(|_| Err(native_result_download::SaveError::worker()));
+    respond(outcome.map_err(CommandError::Command))
+}
+
 /// Raw, bounded native session surface. No caller-supplied path or webview
 /// identity is accepted. The actual Wry window and loaded app origin bind it.
 #[tauri::command]
@@ -5473,6 +5955,22 @@ macro_rules! app_invoke_handler {
             start_preview_mechanics_job,
             poll_preview_mechanics_job,
             take_preview_mechanics_job_result,
+            read_preview_mechanics_job_verdict,
+            read_preview_mechanics_job_summary,
+            query_preview_mechanics_job_rows,
+            lookup_preview_mechanics_job_rows,
+            read_preview_mechanics_job_row_semantics,
+            query_preview_mechanics_job_source_recovery,
+            query_preview_mechanics_job_navigator,
+            read_preview_mechanics_job_analysis_run_preview,
+            record_preview_mechanics_job_analysis_run,
+            save_preview_mechanics_job_local_project,
+            read_preview_mechanics_job_rows_all,
+            release_preview_mechanics_job_full_copy,
+            open_local_project_in_native_custody,
+            read_analysis_run_in_native_custody,
+            read_restored_result_record_all,
+            save_restored_result_local_project,
             dispose_preview_mechanics_result,
             dispose_all_preview_mechanics_results,
             cancel_preview_mechanics_job,
@@ -5531,7 +6029,11 @@ macro_rules! app_invoke_handler {
             delete_local_library,
             render_calculation_report,
             save_report_package,
-            save_local_result_json $(, $extra)*
+            save_local_result_json,
+            begin_local_csv_stream,
+            append_local_csv_stream,
+            finish_local_csv_stream,
+            abort_local_csv_stream $(, $extra)*
         ]
     };
 }
@@ -5542,6 +6044,7 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .manage(registry.clone())
         .manage(native_result_download::SaveAdmission::default())
+        .manage(Arc::new(native_csv_stream::CsvStreams::default()))
         .manage(close_guard::CloseGuard::default())
         .menu(|handle| build_app_menu(handle))
         .on_menu_event(|app, event| {
@@ -5571,6 +6074,7 @@ pub fn run() {
         native_smoke::native_smoke_clear_choices,
         native_smoke::native_smoke_menu,
         native_smoke::native_smoke_plan,
+        native_smoke::native_smoke_profile_readers,
         native_smoke::native_smoke_log,
         native_smoke::native_smoke_external_save,
         native_smoke::native_smoke_verify_handoff_package,
@@ -7155,7 +7659,7 @@ mod tests {
     }
 
     #[test]
-    fn local_project_store_uses_sqlite_fts5_and_round_trips_model_snapshot() {
+    fn local_project_store_round_trips_model_snapshot_without_a_search_index() {
         let mut connection = Connection::open_in_memory().expect("in-memory sqlite opens");
         let migration =
             apply_store_migrations(&connection).expect("project store migrations apply");
@@ -7421,30 +7925,125 @@ mod tests {
             summary.unit_round_trip_signature
         );
 
-        let indexed_count: i64 = connection
-            .query_row(
-                "SELECT count(*) FROM local_project_fts WHERE local_project_fts MATCH ?1",
-                params!["editor"],
-                |row| row.get(0),
+        // Store schema v14 retired the FTS sidecar: the save wrote no search
+        // row and created no table, and the summary claims no index.
+        assert!(!summary.fts_indexed);
+        assert!(fts_sidecar_objects(&connection).is_empty());
+    }
+
+    /// The store's `local_project_fts` table and its FTS5 shadow tables, by name.
+    pub(crate) fn fts_sidecar_objects(connection: &Connection) -> Vec<String> {
+        let mut statement = connection
+            .prepare("SELECT name FROM sqlite_master WHERE name = 'local_project_fts' OR name LIKE 'local\\_project\\_fts\\_%' ESCAPE '\\' ORDER BY name")
+            .unwrap();
+        let names = statement.query_map([], |row| row.get(0)).unwrap().collect::<Result<Vec<String>, _>>().unwrap();
+        names
+    }
+
+    /// The six objects FTS5 made for v1's `local_project_fts`.
+    pub(crate) const FTS_SIDECAR_OBJECTS: [&str; 6] = [
+        "local_project_fts",
+        "local_project_fts_config",
+        "local_project_fts_content",
+        "local_project_fts_data",
+        "local_project_fts_docsize",
+        "local_project_fts_idx",
+    ];
+
+    /// A store this build opened, made as a v13 build left it: v1's FTS
+    /// sidecar recreated and each project's search row written as that
+    /// build's save wrote it (the model, editor intents, proposal, selected
+    /// review target and analysis-run record texts, one per line), at
+    /// `user_version` 13.
+    pub(crate) fn as_v13_store_with_fts_rows(path: &Path) {
+        let connection = Connection::open(path).unwrap();
+        migrate_v1_base_tables(&connection).unwrap();
+        connection
+            .execute_batch(
+                "INSERT INTO local_project_fts (project_id, project_name, model_text)
+                   SELECT project_id, project_name, model_json || char(10) || editor_intents_json || char(10) || proposal_json
+                     || char(10) || selected_review_target_json || char(10) || analysis_run_json FROM local_projects;
+                 PRAGMA user_version = 13;",
             )
-            .expect("fts5 query succeeds");
-        assert_eq!(indexed_count, 1);
-        let proposal_indexed_count: i64 = connection
-            .query_row(
-                "SELECT count(*) FROM local_project_fts WHERE local_project_fts MATCH ?1",
-                params!["review"],
-                |row| row.get(0),
-            )
-            .expect("fts5 proposal query succeeds");
-        assert_eq!(proposal_indexed_count, 1);
-        let target_indexed_count: i64 = connection
-            .query_row(
-                "SELECT count(*) FROM local_project_fts WHERE local_project_fts MATCH ?1",
-                params!["torsional"],
-                |row| row.get(0),
-            )
-            .expect("fts5 selected target query succeeds");
-        assert_eq!(target_indexed_count, 1);
+            .unwrap();
+    }
+
+    /// Every table but SQLite's own and the FTS sidecar's: its schema text and
+    /// every row's every column, in rowid order (or key order, for a table
+    /// without rowid).
+    pub(crate) fn canonical_store_dump(path: &Path) -> Vec<(String, String, Vec<Vec<rusqlite::types::Value>>)> {
+        let connection = Connection::open_with_flags(path, rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY).unwrap();
+        let mut tables = connection
+            .prepare("SELECT name, sql FROM sqlite_master WHERE type IN ('table', 'index', 'trigger') AND name NOT LIKE 'sqlite\\_%' ESCAPE '\\' AND name NOT LIKE 'local\\_project\\_fts%' ESCAPE '\\' ORDER BY type, name")
+            .unwrap();
+        let objects = tables
+            .query_map([], |row| Ok((row.get::<_, String>(0)?, row.get::<_, Option<String>>(1)?.unwrap_or_default())))
+            .unwrap()
+            .collect::<Result<Vec<_>, _>>()
+            .unwrap();
+        objects
+            .into_iter()
+            .map(|(name, sql)| {
+                let rows = if sql.starts_with("CREATE TABLE") {
+                    let columns = connection.prepare(&format!("SELECT * FROM \"{name}\"")).unwrap().column_count();
+                    let order = (1..=columns).map(|index| index.to_string()).collect::<Vec<_>>().join(", ");
+                    let mut statement = connection.prepare(&format!("SELECT * FROM \"{name}\" ORDER BY {order}")).unwrap();
+                    let rows = statement
+                        .query_map([], |row| (0..columns).map(|index| row.get::<_, rusqlite::types::Value>(index)).collect())
+                        .unwrap()
+                        .collect::<Result<Vec<Vec<_>>, _>>()
+                        .unwrap();
+                    rows
+                } else {
+                    Vec::new()
+                };
+                (name, sql, rows)
+            })
+            .collect()
+    }
+
+    /// A fresh store migrates to v14 with no FTS sidecar, and a save on it
+    /// writes no search row and creates no table.
+    #[test]
+    fn a_fresh_store_is_at_v14_with_no_fts_sidecar_and_a_save_creates_none() {
+        let mut connection = Connection::open_in_memory().unwrap();
+        let migration = apply_store_migrations(&connection).unwrap();
+        assert_eq!(migration.store_schema_version, 14);
+        assert_eq!(migration.migrations_applied_on_open.last().map(String::as_str), Some("store-v14-retire-project-fts-sidecar"));
+        assert!(fts_sidecar_objects(&connection).is_empty());
+        let model = json!({ "project": { "id": "project:fresh-v14", "name": "Fresh" } });
+        upsert_project(&mut connection, "project:fresh-v14", "Fresh", &model, &json!(["editor"]), &json!({ "review": 1 }), &Value::Null, &Value::Null, &json!({ "run": 1 }), &Value::Null, &Value::Null).unwrap();
+        assert!(fts_sidecar_objects(&connection).is_empty(), "the save created no table");
+        assert!(load_project(&connection, Some("project:fresh-v14")).unwrap().is_some());
+    }
+
+    /// A failing step that this build cannot run without (v13 here) still
+    /// refuses the open, and its own writes roll back with it: the store stays
+    /// at v12 with none of v13's objects.
+    #[test]
+    fn a_failing_required_step_refuses_the_open_and_rolls_back_its_writes() {
+        fn failing_v13(connection: &Connection) -> Result<(), String> {
+            analysis_runs::migrate_v13_analysis_runs(connection)?;
+            Err("injected v13 failure".to_string())
+        }
+        let connection = Connection::open_in_memory().unwrap();
+        let v12: Vec<StoreMigration> = store_migrations().into_iter().filter(|migration| migration.version <= 12).collect();
+        apply_store_migrations_to(&connection, 12, &v12).unwrap();
+        let schema = |connection: &Connection| -> Vec<String> {
+            let mut statement = connection.prepare("SELECT name FROM sqlite_master ORDER BY name").unwrap();
+            let names = statement.query_map([], |row| row.get(0)).unwrap().collect::<Result<Vec<String>, _>>().unwrap();
+            names
+        };
+        let before = schema(&connection);
+        let migrations: Vec<StoreMigration> = store_migrations()
+            .into_iter()
+            .map(|migration| if migration.version == 13 { StoreMigration { apply: failing_v13, ..migration } } else { migration })
+            .collect();
+        let error = apply_store_migrations_to(&connection, STORE_SCHEMA_TARGET_VERSION, &migrations).unwrap_err();
+        assert_eq!(error, "injected v13 failure");
+        assert!(connection.is_autocommit(), "no transaction is left open");
+        assert_eq!(store_user_version(&connection).unwrap(), 12);
+        assert_eq!(schema(&connection), before, "none of v13's objects remain");
     }
 
     #[test]
@@ -7475,12 +8074,14 @@ mod tests {
                 "store-v11-local-libraries-table",
                 "store-v12-model-states-tables",
                 "store-v13-analysis-runs-tables",
+                "store-v14-retire-project-fts-sidecar",
             ]
         );
         assert_eq!(
             first_open.migration_status,
-            "migrated_on_open_store_schema_v0_to_v13"
+            "migrated_on_open_store_schema_v0_to_v14"
         );
+        assert!(fts_sidecar_objects(&connection).is_empty(), "v1 creates the sidecar and v14 drops it");
 
         let second_open =
             apply_store_migrations(&connection).expect("current store reopen succeeds");
@@ -7496,7 +8097,7 @@ mod tests {
         assert_eq!(second_open.pending_migration_count, 0);
         assert_eq!(
             second_open.migration_status,
-            "current_store_schema_v13_no_pending_migrations"
+            "current_store_schema_v14_no_pending_migrations"
         );
     }
 
@@ -7533,10 +8134,10 @@ mod tests {
         let migration = apply_store_migrations(&connection).expect("legacy store migrations apply");
         assert_eq!(migration.store_schema_version_before_open, 0);
         assert_eq!(migration.store_schema_version, STORE_SCHEMA_TARGET_VERSION);
-        assert_eq!(migration.migrations_applied_on_open.len(), 13);
+        assert_eq!(migration.migrations_applied_on_open.len(), 14);
         assert_eq!(
             migration.migration_status,
-            "migrated_on_open_store_schema_v0_to_v13"
+            "migrated_on_open_store_schema_v0_to_v14"
         );
 
         let loaded = load_project(&connection, Some("project:legacy-local"))
@@ -7606,13 +8207,15 @@ mod tests {
                 "store-v10-local-rule-packs-table",
                 "store-v11-local-libraries-table",
                 "store-v12-model-states-tables",
-                "store-v13-analysis-runs-tables"
+                "store-v13-analysis-runs-tables",
+                "store-v14-retire-project-fts-sidecar"
             ]
         );
         assert_eq!(
             migration.migration_status,
-            "migrated_on_open_store_schema_v7_to_v13"
+            "migrated_on_open_store_schema_v7_to_v14"
         );
+        assert!(fts_sidecar_objects(&connection).is_empty(), "the v7 store's sidecar is dropped");
 
         let loaded = load_project(&connection, Some("project:v7-local"))
             .expect("v7 project loads after staged migration")

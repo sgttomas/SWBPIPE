@@ -246,8 +246,16 @@ fn e6_every_case_level_code_refuses_by_name() {
     // Other members keep their refusals beside a resolvable use.
     assert_refused_by(&mutated(|d| d["load_cases"][0]["test_condition"] = json!({"kind": "hydrostatic", "held_supports": "none"})),
         "LOAD_CASE_TEST_CONDITION_UNSUPPORTED", &["load case `OPE`"]);
-    assert_refused_by(&mutated(|d| d["supports"][2]["direction"] = json!({"x": 0.0, "y": 3.0, "z": 4.0})),
-        "SUPPORT_DIRECTION_SKEW_UNSUPPORTED", &["two or more nonzero components"]);
+    // S-K1 (DEL-04-03 skew-restraints.md §2.2): a skewed spring beside a resolvable
+    // condition use is admitted and solved; it keeps no interim code.
+    let skewed = mutated(|d| d["supports"][2]["direction"] = json!({"x": 0.0, "y": 3.0, "z": 4.0}));
+    for mode in MODES {
+        let solved = solve(&skewed, mode);
+        assert_eq!(solved["status"]["mechanics"], "MECHANICS_SOLVED", "{mode:?}: {:?}", diagnostics(&solved));
+        assert!(!diagnostics(&solved).iter().any(|(c, _, _)| c == "SUPPORT_DIRECTION_SKEW_UNSUPPORTED"), "{mode:?}");
+        assert!(solved["results"].as_array().unwrap().iter()
+            .any(|r| r["kind"] == "support_reaction_along_direction_v1" && r["entity_ref"] == "spring"), "{mode:?}: the along-direction row");
+    }
     // Document-level codes keep their names whether or not a case uses the set.
     assert_refused_by(&mutated(|d| set_mut(d, "cs:warm")["conditions"][0]["temperature"] = json!({"value": 1.5e-24, "unit": "K"})),
         "OPERATING_CONDITION_TEMPERATURE_RANGE_UNSUPPORTED", &["condition_sets[2].conditions[0].temperature is outside"]);

@@ -299,6 +299,7 @@ pub fn frames_formation_source<'a>(
         curved: Vec::new(),
         springs: Vec::new(),
         unavailable: Vec::new(),
+        restraint: None,
     }
 }
 

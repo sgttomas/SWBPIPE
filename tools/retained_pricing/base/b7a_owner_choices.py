@@ -22,9 +22,17 @@ FK = "core/solver/frame_kernel/src/"
 # RF: metering adds 41 lines before these unchanged source-copy sites.
 # W1: one retained_api export shifts the structural sites by one; member-only
 # capture shifts metadata sites by59 without changing these recipes/owners.
-SOURCE_LINE = 1302
+# RT-A3 P D3 (§8.53): structural.rs's export list gains P's three pattern-sibling re-exports above every FK key
+# here, so load_fidelity, audit_load_fidelity, row_sources (and its clone site), unaudited_row and audit_load_row
+# carry +3, and sparse.rs's load_fidelity +100 and audit_sparse_load_fidelity +291 (P's binary64 preparation and
+# pattern siblings precede them), unchanged text and callers. lib.rs's helpers carry +27 (RT-A3 §4's LoadCaseSolve
+# field, operand map and publish lines precede them), unchanged text.
+# R-6/R-7 S-K1 D3 (§8.55): sparse.rs gains SparseStiffness::from_pattern_values and SparseAssemblyOptions' node_blocks
+# member, constructor and accessors above both keys, so load_fidelity and audit_sparse_load_fidelity carry +53
+# (1318 -> 1371, 2182 -> 2235), unchanged text and callers; structural.rs's export list changes in place (no line moves).
+SOURCE_LINE = 1305
 SOURCE_SITE = FK + "structural.rs:%d" % SOURCE_LINE
-SOURCE_OWNER = FK + 'structural.rs:1301:row_sources'
+SOURCE_OWNER = FK + 'structural.rs:1304:row_sources'
 SOURCE_RULE = "structural.rs:%d" % SOURCE_LINE
 # PP (20c6126a16): retained_product.rs moves +3 from line 1995 on (StraightMember::from_frame), +6 after the
 # retained member overlay; lib.rs's helpers move +92, and +36 more at the epoch addbdc030e (the realized-arc
@@ -65,14 +73,15 @@ ROWS_ERROR_LINE = 2803          # the one error site owned by bind_rows_subject 
 # the wiring's lib.rs additions precede them).
 # I2b-2 on RT-U4's candidate (§8.48): both moves, 15014/15015 -> 15119/15120 and 15487/15488 -> 15592/15593, mapped
 # line by line from the merge base 6c3cb46d3 through each side's hunks; unchanged text.
-HELPER_FNS = (PP + "lib.rs:15119:qualified_load_case_result_id", PP + "lib.rs:15592:stable_suffix")
+# RT-A3 §4 D3 (§8.53): the helpers move +27 with unchanged text (15119/15120 -> 15146/15147, 15592/15593 -> 15619/15620).
+HELPER_FNS = (PP + "lib.rs:15281:qualified_load_case_result_id", PP + "lib.rs:15754:stable_suffix")
 ERROR_OWNER = PP+'retained_product.rs:2553:bind_rows_subject'
 ERROR_WHY = "B7a metadata first error: immediate propagation out of whole bind_rows_subject; full owner M/content/capacity and independent errors/detail copies retained"
 SOURCE_WHY = ("B7a row-source ownership: audited success or terminal Range fallback "
               "are exclusive per DOF; partitioned force terms are cloned at most q "
               "per full audit; both caller counts/String128/capacity2 remain")
-PREIMAGES = {'source_from': {'from': ['structural.rs:1240:audit_load_fidelity',
-                          'structural/sparse.rs:1891:audit_sparse_load_fidelity'],
+PREIMAGES = {'source_from': {'from': ['structural.rs:1243:audit_load_fidelity',
+                          'structural/sparse.rs:2235:audit_sparse_load_fidelity'],
                  'per': '24*l',
                  'why': 'B7a: both audited callers retain their complete2*q source-copy upper before '
                         'row-local dedup; String128/capacity2 remain. Was: G4 (R-1, newly reached): '
@@ -271,44 +280,44 @@ PREIMAGES = {'source_from': {'from': ['structural.rs:1240:audit_load_fidelity',
  'lex_preimages': {'retained_product.rs:3389': {'class': 46,
                                                 'why': 'B7a scoped TEXT: exact current producer and admitted '
                                                        'source/type closure; requested mode literal'}},
- 'parents': {'core/solver/frame_kernel/src/structural.rs:1301:row_sources': ['core/solver/frame_kernel/src/structural.rs:1309:unaudited_row',
-                                                                             'core/solver/frame_kernel/src/structural.rs:1338:audit_load_row'],
-             'core/solver/frame_kernel/src/structural.rs:1309:unaudited_row': ['core/solver/frame_kernel/src/structural.rs:1240:audit_load_fidelity',
-                                                                               'core/solver/frame_kernel/src/structural/sparse.rs:1891:audit_sparse_load_fidelity'],
-             'core/solver/frame_kernel/src/structural.rs:1338:audit_load_row': ['core/solver/frame_kernel/src/structural.rs:1240:audit_load_fidelity',
-                                                                                'core/solver/frame_kernel/src/structural/sparse.rs:1891:audit_sparse_load_fidelity'],
+ 'parents': {'core/solver/frame_kernel/src/structural.rs:1304:row_sources': ['core/solver/frame_kernel/src/structural.rs:1312:unaudited_row',
+                                                                             'core/solver/frame_kernel/src/structural.rs:1341:audit_load_row'],
+             'core/solver/frame_kernel/src/structural.rs:1312:unaudited_row': ['core/solver/frame_kernel/src/structural.rs:1243:audit_load_fidelity',
+                                                                               'core/solver/frame_kernel/src/structural/sparse.rs:2235:audit_sparse_load_fidelity'],
+             'core/solver/frame_kernel/src/structural.rs:1341:audit_load_row': ['core/solver/frame_kernel/src/structural.rs:1243:audit_load_fidelity',
+                                                                                'core/solver/frame_kernel/src/structural/sparse.rs:2235:audit_sparse_load_fidelity'],
              'core/product_physics/src/retained_product.rs:3319:validate_final_metadata': ['core/product_physics/src/retained_product.rs:2553:bind_rows_subject'],
-             'core/solver/frame_kernel/src/structural.rs:1240:audit_load_fidelity': ['core/solver/frame_kernel/src/structural.rs:562:load_fidelity'],
-             'core/solver/frame_kernel/src/structural/sparse.rs:1891:audit_sparse_load_fidelity': ['core/solver/frame_kernel/src/structural/sparse.rs:1218:load_fidelity'],
+             'core/solver/frame_kernel/src/structural.rs:1243:audit_load_fidelity': ['core/solver/frame_kernel/src/structural.rs:565:load_fidelity'],
+             'core/solver/frame_kernel/src/structural/sparse.rs:2235:audit_sparse_load_fidelity': ['core/solver/frame_kernel/src/structural/sparse.rs:1371:load_fidelity'],
              'core/product_physics/src/retained_product.rs:2553:bind_rows_subject': ['core/product_physics/src/retained_product.rs:2537:bind_combination_rows_scoped',
                                                                                      'core/product_physics/src/retained_product.rs:2546:bind_rows_view',
                                                                                      'core/product_physics/src/retained_product.rs:7394:freeze_combination']},
  'site_stacks': [['core/product_physics/src/retained_product.rs:2553:bind_rows_subject',
                   'core/product_physics/src/retained_product.rs:3319:validate_final_metadata',
                   [['for observed in view.rows()']]],
-                 ['core/solver/frame_kernel/src/structural.rs:1240:audit_load_fidelity',
-                  'core/solver/frame_kernel/src/structural.rs:1338:audit_load_row',
+                 ['core/solver/frame_kernel/src/structural.rs:1243:audit_load_fidelity',
+                  'core/solver/frame_kernel/src/structural.rs:1341:audit_load_row',
                   [['for i in 0..n']]],
-                 ['core/solver/frame_kernel/src/structural.rs:1240:audit_load_fidelity',
-                  'core/solver/frame_kernel/src/structural.rs:1309:unaudited_row',
+                 ['core/solver/frame_kernel/src/structural.rs:1243:audit_load_fidelity',
+                  'core/solver/frame_kernel/src/structural.rs:1312:unaudited_row',
                   [['for i in 0..n']]],
-                 ['core/solver/frame_kernel/src/structural.rs:1309:unaudited_row',
-                  'core/solver/frame_kernel/src/structural.rs:1301:row_sources',
+                 ['core/solver/frame_kernel/src/structural.rs:1312:unaudited_row',
+                  'core/solver/frame_kernel/src/structural.rs:1304:row_sources',
                   [[]]],
-                 ['core/solver/frame_kernel/src/structural.rs:1338:audit_load_row',
-                  'core/solver/frame_kernel/src/structural.rs:1301:row_sources',
+                 ['core/solver/frame_kernel/src/structural.rs:1341:audit_load_row',
+                  'core/solver/frame_kernel/src/structural.rs:1304:row_sources',
                   [[]]],
-                 ['core/solver/frame_kernel/src/structural/sparse.rs:1891:audit_sparse_load_fidelity',
-                  'core/solver/frame_kernel/src/structural.rs:1338:audit_load_row',
+                 ['core/solver/frame_kernel/src/structural/sparse.rs:2235:audit_sparse_load_fidelity',
+                  'core/solver/frame_kernel/src/structural.rs:1341:audit_load_row',
                   [['for i in 0..n']]],
-                 ['core/solver/frame_kernel/src/structural/sparse.rs:1891:audit_sparse_load_fidelity',
-                  'core/solver/frame_kernel/src/structural.rs:1309:unaudited_row',
+                 ['core/solver/frame_kernel/src/structural/sparse.rs:2235:audit_sparse_load_fidelity',
+                  'core/solver/frame_kernel/src/structural.rs:1312:unaudited_row',
                   [['for i in 0..n']]],
-                 ['core/solver/frame_kernel/src/structural.rs:562:load_fidelity',
-                  'core/solver/frame_kernel/src/structural.rs:1240:audit_load_fidelity',
+                 ['core/solver/frame_kernel/src/structural.rs:565:load_fidelity',
+                  'core/solver/frame_kernel/src/structural.rs:1243:audit_load_fidelity',
                   [[]]],
-                 ['core/solver/frame_kernel/src/structural/sparse.rs:1218:load_fidelity',
-                  'core/solver/frame_kernel/src/structural/sparse.rs:1891:audit_sparse_load_fidelity',
+                 ['core/solver/frame_kernel/src/structural/sparse.rs:1371:load_fidelity',
+                  'core/solver/frame_kernel/src/structural/sparse.rs:2235:audit_sparse_load_fidelity',
                   [[]]],
                  ['core/product_physics/src/retained_product.rs:2537:bind_combination_rows_scoped',
                   'core/product_physics/src/retained_product.rs:2553:bind_rows_subject',
@@ -356,17 +365,17 @@ PREIMAGES = {'source_from': {'from': ['structural.rs:1240:audit_load_fidelity',
 # diagnostics and the case solve's branch rows precede them), unchanged text.
  # B7b snapshot lib.rs lines (B7a: 13239/13238 and 13614/13613; unchanged text).
  'helper_rows': [{'file': 'core/product_physics/src/lib.rs',
-                  'line': 15120,
+                  'line': 15282,
                   'kind': 'format',
                   'template': 'result:loadcase:{}:{}',
                   'literal_bytes': 17,
                   'placeholders': [{'spec': '', 'arg': 'stable_suffix(load_case_id)'},
                                    {'spec': '', 'arg': 'result_tail(base_id)'}],
-                  'fn': 'core/product_physics/src/lib.rs:15119:qualified_load_case_result_id'},
+                  'fn': 'core/product_physics/src/lib.rs:15281:qualified_load_case_result_id'},
                  {'file': 'core/product_physics/src/lib.rs',
-                  'line': 15593,
+                  'line': 15755,
                   'kind': 'replace',
-                  'fn': 'core/product_physics/src/lib.rs:15592:stable_suffix',
+                  'fn': 'core/product_physics/src/lib.rs:15754:stable_suffix',
                   'receiver': 'id',
                   'literal_bytes': None,
                   'arg': '\' \', " "'}],
@@ -378,11 +387,11 @@ PREIMAGES = {'source_from': {'from': ['structural.rs:1240:audit_load_fidelity',
                                                                       'super::result_tail(&expected)': {'bytes': 1024,
                                                                                                         'source': 'RES'}},
                 'core/product_physics/src/retained_product.rs:3546': None,
-                'core/product_physics/src/lib.rs:15120': {'result_tail(base_id)': {'bytes': 600,
+                'core/product_physics/src/lib.rs:15282': {'result_tail(base_id)': {'bytes': 600,
                                                                                    'source': 'COMP'},
                                                           'stable_suffix(load_case_id)': {'bytes': 128,
                                                                                           'source': 'IN128'}},
-                'core/product_physics/src/lib.rs:15593': {'id': {'bytes': 128, 'source': 'IN128'}},
+                'core/product_physics/src/lib.rs:15755': {'id': {'bytes': 128, 'source': 'IN128'}},
                 'core/product_physics/src/retained_product.rs:2803': {'r.kind': {'bytes': 128,
                                                                                  'source': 'STATIC'}},
                 'core/product_physics/src/retained_product.rs:3366': {'row.id': {'bytes': 1024,

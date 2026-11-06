@@ -17,6 +17,8 @@ const PF_RETAINED: &str = include_str!("../../../../fixtures/persistence/recorde
 const EXACT_MAIN: &str = include_str!("../../../../fixtures/persistence/recorded_pre_rt_a4_pf/physics_retained_1/main/retained_precision_exact_successor_sparse_interactive.json");
 const EXACT_101: &str = include_str!("../../../../fixtures/persistence/recorded_pre_rt_a4_pf/physics_retained_1/pr101/retained_precision_exact_successor_sparse_interactive.json");
 const EXACT_RT_A4: &str = include_str!("../../../../fixtures/persistence/recorded_pre_rt_a4_pf/physics_retained_1/main_bbf384dec/retained_precision_exact_successor_sparse_interactive.json");
+// RT-A3 §4 (the combination certificate) restates pressure-2, so main's exact successor table at 252bef969 is history.
+const EXACT_CERT: &str = include_str!("../../../../fixtures/persistence/recorded_pre_rt_a4_pf/physics_retained_1/main_252bef969/retained_precision_exact_successor_sparse_interactive.json");
 const CURRENT_PF2: &str = include_str!("../../../../fixtures/results/preview_physics_connected_sparse.json");
 
 fn statement(text: &str) -> Value {
@@ -32,6 +34,7 @@ const PF_RETAINED_SHA: &str = "b001070e5fedeeb101522b22ce0d61bb7cf85f82e86b8d851
 const EXACT_MAIN_SHA: &str = "cf29fd5fc5d61de0f1133e9668b05f3d62ae8f696944fe04de7470029f5357dd";
 const EXACT_101_SHA: &str = "045f6f0d8ce350246b21fb712d2dd14bf3a7f7f3690e66e062cbbf77d3696a3b";
 const EXACT_RT_A4_SHA: &str = "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034";
+const EXACT_CERT_SHA: &str = "85c2678a78e794b44761c11efb73c215645c7e2560d802ac8ad6075e7804c691";
 
 fn code(outcome: &Value) -> &str {
     outcome["error"]["code"].as_str().unwrap_or_default()
@@ -113,7 +116,7 @@ fn successors_recorded_before_rt_a4_read_under_their_variant_only() {
     assert_eq!(rp::outcome_json(&rp::validate(&source, None))["ok"], false);
 
     // The exact successor: its statements read under the current reader (a binding-only variant).
-    for (text, sha) in [(EXACT_MAIN, EXACT_MAIN_SHA), (EXACT_101, EXACT_101_SHA), (EXACT_RT_A4, EXACT_RT_A4_SHA)] {
+    for (text, sha) in [(EXACT_MAIN, EXACT_MAIN_SHA), (EXACT_101, EXACT_101_SHA), (EXACT_RT_A4, EXACT_RT_A4_SHA), (EXACT_CERT, EXACT_CERT_SHA)] {
         let source = statement(text);
         let recorded = binding(sc::PHYSICS_RETAINED_ID, sha);
         assert_eq!(rp::outcome_json(&rp::validate(&source, None))["ok"], true);
@@ -132,7 +135,17 @@ fn the_registry_is_closed_and_each_variant_is_its_pinned_bytes() {
         // Operating-case slice 1b: main's tables at bbf384dec (`recorded_pre_rt_a5_1b.rs`).
         "e7b93f416f700f8efdb31bf1ba26dedde52963d768d6ead5a73dbf1c645a360c",
         "ce49ebe07bc05431ea1f770c1933b5bf58f4b1c8b66fb6f36810f2ef7a58cd43",
-        "26dce9c21261b1ca894af05a3b6f4a94db88904894cb47f7296f892e72ecfb7e"]);
+        "26dce9c21261b1ca894af05a3b6f4a94db88904894cb47f7296f892e72ecfb7e",
+        // RT-A5 minuend_final: main's tables at b32a17761 (`recorded_pre_rt_a5_mf.rs`).
+        "f41b9d3ed0c1b7abaee0b98ca1a28aa1a2d109bce443b98d53a2080c1c504ce9",
+        "6f6494907e3ead979ea27e5ff85f54617589c9195dc84d40a02752a0b006ef44",
+        "b4377e73e8a83edb57b4f0c41dbaef384385e0f6b4810103a106a334c8edbe14",
+        // RT-A3 §4: main's exact successor table at 252bef969.
+        EXACT_CERT_SHA,
+        // R-6/R-7 S-K1: main's tables at 9e5c69797, before S-K1 (`recorded_pre_sk1/`).
+        "563db3c7c44279face3adc60a76a512de38520357e89ea4b49ad11d20946db89",
+        "f64473f5a60ac2bb34d8006b40bf044800f0c97454c570bbe88d1f1d96b7bdfc",
+        "d0bab3502b4018ce0596757a933bd6306f402dc3741a10af24a094e8c66544e8"]);
     for variant in &recorded_tables::VARIANTS {
         assert_eq!(variant.table()["semantic_contract_id"], variant.id);
         assert!(recorded_tables::variant_of(&binding(variant.id, variant.sha256)).is_some());

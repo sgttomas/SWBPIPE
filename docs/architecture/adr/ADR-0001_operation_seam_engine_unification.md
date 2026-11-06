@@ -4,7 +4,7 @@
 |---|---|
 | Status | accepted |
 | Date | 2026-06-11 |
-| Human authority | Human project authority ruling, 2026-06-11, accepting `plans/PLAN_2026-06-11_operation_seam_unification.md` §2 as proposed (ruling record transcribed verbatim in that section; D-13 in `execution/_Coordination/_DECISIONS/_REGISTER.md`, state RULED) |
+| Human authority | Human project authority ruling, 2026-06-11, accepting `plans/PLAN_2026-06-11_operation_seam_unification.md` §2 (retired plan, in Git history at `3330e7108`) as proposed (ruling record transcribed verbatim in that section; D-13 in `execution/_Coordination/_DECISIONS/_REGISTER.md`, state RULED) |
 | Decision log cross-reference | `DEC-020` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 |
 
 ## Context
@@ -113,7 +113,7 @@ Per plan §6 risks and stop rules:
 
 ## Source References
 
-- `plans/PLAN_2026-06-11_operation_seam_unification.md` §1 (problem and
+- `plans/PLAN_2026-06-11_operation_seam_unification.md` (retired plan, in Git history at `3330e7108`) §1 (problem and
   alternatives), §2 (ruling record and transcription obligations), §3
   (tranche scopes), §6 (risks and stop rules).
 - `execution/_Decomposition/SOFTWARE_DECOMP.md` §12, row `DEC-020`

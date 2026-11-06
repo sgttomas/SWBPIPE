@@ -162,7 +162,7 @@ def _states_notice(cid: str, operands: list[str], rows: list) -> dict[str, Any] 
 def _standing_notice(cid: str, operands: list) -> dict[str, Any] | None:
     failing = []
     for operand in operands:
-        if not isinstance(operand, Mapping) or "load_case_id" not in operand:
+        if not isinstance(operand, Mapping) or "load_case_id" not in operand or "support_state" in operand:
             continue
         quality = operand.get("numerical_quality") if isinstance(operand.get("numerical_quality"), Mapping) else {}
         solve = quality.get("solve_quality") if isinstance(quality.get("solve_quality"), str) else "not_assessed"
@@ -216,7 +216,20 @@ def check(source: Mapping[str, Any], solved: bool) -> None:
                 _require(recorded.solved_state_plus_increments(list(zip(order, factors))), "MECHANICS_ADMITTED")
             operands = record["operands"]
             _require(isinstance(operands, list) and len(operands) == len(order), "SHAPE")
-            for operand, (kind, case) in zip(operands, order):
+            # RT-A5 (operating-case section 7.6): a minuend_final subtraction's subtrahend is held; its standing is the
+            # held solve's (held_standing, bound by preview_held_status), never the case's numerical quality.
+            from .preview_held_status import HELD_SUPPORT_STATE, is_held_row, held_standing_of
+            held_position = None
+            for position, (operand, (kind, case)) in enumerate(zip(operands, order)):
+                if isinstance(operand, Mapping) and "support_state" in operand:
+                    standing = operand.get("held_standing")
+                    _require(kind == "case" and basis == "result_state_subtraction" and position == 1
+                             and _keys(operand, OPERAND_KEYS | {"support_state", "held_standing"}) and operand["load_case_id"] == case
+                             and operand["support_state"] == HELD_SUPPORT_STATE and operand["numerical_quality"] is None
+                             and _keys(standing, {"kind", "reason"}) and _text(standing["kind"]) and _text(standing["reason"])
+                             and held_standing_of(source, cid) == standing, "SHAPE")
+                    held_position = position
+                    continue
                 if kind == "combination":
                     _require(bit_equal(operand, {"combination_id": case}) and recorded.knows(case), "SHAPE")
                     continue
@@ -233,6 +246,8 @@ def check(source: Mapping[str, Any], solved: bool) -> None:
             for row in rows:
                 if not isinstance(row, Mapping) or _basis(row, "combination") != cid or row.get("kind") == MODULUS_RECORD:
                     continue
+                if held_position is not None and is_held_row(row):
+                    continue  # the held system's row (preview_held_status)
                 metadata = row.get("metadata")
                 _require(metadata is None or (isinstance(metadata, Mapping) and metadata.get("basis") == row_basis), "ROWS")
                 _require(metadata is None or sign is None or metadata.get("sign_convention") == sign, "ROWS")
@@ -255,13 +270,16 @@ def check(source: Mapping[str, Any], solved: bool) -> None:
                 else:
                     # Direct rows name one matching operand row per operand, in evaluation order.
                     _require(len(refs) == len(order), "ROWS")
-                    for ref, operand in zip(refs, order):
+                    for position, (ref, operand) in enumerate(zip(refs, order)):
                         source = by_id.get(ref) if isinstance(ref, str) else None
-                        _require(source is not None and graph.owns(operand, source) and source.get("kind") == kind
+                        owned = source is not None and ((_basis(source, "combination") == cid and is_held_row(source))
+                                                        if held_position == position else graph.owns(operand, source))
+                        _require(owned and source.get("kind") == kind
                                  and source.get("entity_ref") == row.get("entity_ref") and source.get("unit") == row.get("unit")
                                  and (source.get("metadata") or {}).get("component") == (metadata or {}).get("component")
                                  and (source.get("metadata") or {}).get("location") == (metadata or {}).get("location"), "ROWS")
-            order_cases = [case for kind, case in order if kind == "case"]
+            # A held operand's comparison is HELD_STATUS_RELEASED's, not this notice's.
+            order_cases = [case for position, (kind, case) in enumerate(order) if kind == "case" and position != held_position]
             for notice in (_states_notice(cid, order_cases, rows), _standing_notice(cid, operands)):
                 if notice is not None:
                     expected.append(notice)

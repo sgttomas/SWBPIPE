@@ -4,6 +4,9 @@
 //! boundary. It does not implement nonlinear support behavior, code checks,
 //! protected standards content, or professional approval.
 
+use open_pipe_stress_frame_kernel::restraint_basis::{
+    axis_name, BasisFinding, DirectionError, RestraintBasis, SkewDirection, SkewSpring, SkewStop,
+};
 use open_pipe_stress_frame_kernel::{
     node_dof_index, reduce_system_with_prescribed_displacements, DenseMatrix, DenseVector,
     FrameKernelError, ReducedSystem, DOF_PER_NODE,
@@ -236,6 +239,16 @@ pub enum FindingCode {
     InvalidSupportDimension,
     RepeatedRestrainedDof,
     NodeOutOfRange,
+    /// R-7 (DEL-04-03 Work `skew-restraints.md` §4.2): a skewed direction
+    /// whose canonical scaling has a subnormal component
+    /// (`SUPPORT_DIRECTION_RANGE_UNSUPPORTED`).
+    SkewDirectionRange,
+    /// §2.2 item 7: two or more skewed stops at one node
+    /// (`SUPPORT_SKEW_STOPS_PER_NODE_UNSUPPORTED`; S-K2 removes it).
+    SkewStopsPerNode,
+    /// §2.2 item 8: the node's exact constraint rank is below its row count
+    /// (`SUPPORT_CONSTRAINT_REDUNDANT`).
+    ConstraintRedundant,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -426,6 +439,149 @@ pub fn prepare_boundary(node_count: usize, supports: &[LinearSupport]) -> Bounda
         imposed_displacements,
         findings,
     }
+}
+
+/// R-6/R-7: a skewed record (DEL-04-03 Work `skew-restraints.md` §3.2). It
+/// never enters `LinearSupport`: its single DOF token states only that it is
+/// translational (§6.4), and `direction` alone governs.
+#[derive(Debug, Clone, PartialEq)]
+pub struct SkewSupport {
+    pub support_id: String,
+    pub family: SkewFamily,
+    pub node_index: usize,
+    /// The authored global vector, as stored (never normalized).
+    pub direction: [f64; 3],
+    /// A spring's explicit translational stiffness; `None` for a stop.
+    pub stiffness: Option<SupportQuantity>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SkewFamily {
+    LineStop,
+    Spring,
+}
+
+/// The skewed records' constraint basis beside `prepare_boundary` (which is
+/// unchanged): the axis rows are `prepared.restrained_dofs`. Record-level
+/// findings come first, in record order (node range, direction, stiffness);
+/// if there are none, the per-node findings of `RestraintBasis::build`
+/// (§2.2 items 7 and 8, ascending nodes, every node reported). Called only
+/// when the lowered model holds a skewed record.
+pub fn prepare_skew_boundary(
+    node_count: usize,
+    prepared: &BoundaryPreparation,
+    skew: &[SkewSupport],
+) -> Result<RestraintBasis, Vec<SupportFinding>> {
+    let mut findings = Vec::new();
+    let mut stops = Vec::new();
+    let mut springs = Vec::new();
+    for support in skew {
+        let id = &support.support_id;
+        if support.node_index >= node_count {
+            findings.push(SupportFinding::new(
+                FindingCode::NodeOutOfRange,
+                id,
+                format!("node index {} is outside node count {}", support.node_index, node_count),
+            ));
+            continue;
+        }
+        let direction = match SkewDirection::new(support.direction) {
+            Ok(direction) => direction,
+            Err(DirectionError::RangeUnsupported { components, scale_exponent }) => {
+                let named: Vec<&str> = (0..3).filter(|&i| components[i]).map(axis_name).collect();
+                findings.push(SupportFinding::new(
+                    FindingCode::SkewDirectionRange,
+                    id,
+                    format!(
+                        "direction component(s) {} are subnormal after the exact canonical scaling 2^{scale_exponent}; \
+                         an axis-aligned direction is the authored form if that axis is meant",
+                        named.join(", ")
+                    ),
+                ));
+                continue;
+            }
+            Err(error) => {
+                findings.push(SupportFinding::new(
+                    FindingCode::InvalidSupportDof,
+                    id,
+                    format!("a skewed record needs two or more nonzero finite direction components ({error:?})"),
+                ));
+                continue;
+            }
+        };
+        match support.family {
+            SkewFamily::LineStop => {
+                if support.stiffness.is_some() {
+                    findings.push(SupportFinding::new(
+                        FindingCode::InvalidSupportDimension,
+                        id,
+                        "a skewed line stop is rigid and takes no stiffness",
+                    ));
+                    continue;
+                }
+                stops.push(SkewStop { support_id: id.clone(), node: support.node_index, direction });
+            }
+            SkewFamily::Spring => {
+                let Some(stiffness) = &support.stiffness else {
+                    findings.push(SupportFinding::new(
+                        FindingCode::MissingSupportStiffness,
+                        id,
+                        "spring support requires explicit stiffness",
+                    ));
+                    continue;
+                };
+                if !stiffness.value.is_finite() || stiffness.value < 0.0 {
+                    findings.push(SupportFinding::new(
+                        FindingCode::MissingSupportStiffness,
+                        id,
+                        "spring support requires finite nonnegative stiffness",
+                    ));
+                    continue;
+                }
+                if stiffness.dimension != QuantityDimension::TranslationalStiffness {
+                    findings.push(SupportFinding::new(
+                        FindingCode::InvalidSupportDimension,
+                        id,
+                        "a skewed spring's stiffness must be translational",
+                    ));
+                    continue;
+                }
+                springs.push(SkewSpring {
+                    support_id: id.clone(),
+                    node: support.node_index,
+                    direction,
+                    stiffness: stiffness.value,
+                });
+            }
+        }
+    }
+    if !findings.is_empty() {
+        return Err(findings);
+    }
+    RestraintBasis::build(node_count, &prepared.restrained_dofs, stops, springs).map_err(|found| {
+        found
+            .into_iter()
+            .map(|finding| match finding {
+                BasisFinding::StopsPerNode { node, supports } => SupportFinding::new(
+                    FindingCode::SkewStopsPerNode,
+                    &supports[0],
+                    format!("node {node} carries {} skewed stops ({})", supports.len(), supports.join(", ")),
+                ),
+                BasisFinding::Redundant { node, supports } => SupportFinding::new(
+                    FindingCode::ConstraintRedundant,
+                    &supports[0],
+                    format!(
+                        "skewed stop {} restrains nothing beyond node {node}'s axis restraints: \
+                         its direction has no component on the free translations",
+                        supports.join(", ")
+                    ),
+                ),
+                BasisFinding::InvalidInput(detail) => {
+                    SupportFinding::new(FindingCode::InvalidSupportDof, "", format!("skew boundary input: {detail}"))
+                }
+            })
+            .collect()
+    })
 }
 
 pub fn apply_linear_supports(
@@ -687,6 +843,9 @@ fn validate_positive_finite(name: &'static str, value: f64) -> Result<(), Linear
     }
     Ok(())
 }
+
+#[cfg(test)]
+mod skew_tests;
 
 #[cfg(test)]
 mod tests {

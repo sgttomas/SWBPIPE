@@ -100,7 +100,7 @@ pub const PRESSURE_SOURCE_ID: &str = crate::physics_source::PRESSURE_CONTRACT_ID
 /// T4-U6 (D-5, §2.4): both tables carry one stress signature per (recovery
 /// token × section basis), each with its `source_basis`.
 pub const PRESSURE_SOURCE_TABLE_SHA256: &str = "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9";
-pub const PRESSURE_TABLE_SHA256: &str = "2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645";
+pub const PRESSURE_TABLE_SHA256: &str = "21b7426ec1c50ba5f74539984261554d06b9b6a26ec26f7d5765b5faa7d6bb90";
 /// The pinned counts, re-derived from the tables (T4-U6: pressure-2 106
 /// signatures over 59 kinds, T4-U5b: plus the tie-rod force, 107 over 60, T4-U4b:
 /// plus 22 section stress, toroidal and directional signatures, 129 over 66,
@@ -126,7 +126,7 @@ pub const RETIRED_PREVIEW_PHYSICS_1_ID: &str = "openpipestress.result_semantics/
 pub const SOURCE_PREVIEW_PHYSICS_1_RETIRED: &str = "SOURCE_PREVIEW_PHYSICS_1_RETIRED";
 pub const PREVIEW_PHYSICS_ID: &str = "openpipestress.result_semantics/0.3.0/preview-physics-2";
 pub const PREVIEW_PHYSICS_SHA256: &str =
-    "f41b9d3ed0c1b7abaee0b98ca1a28aa1a2d109bce443b98d53a2080c1c504ce9";
+    "16eeb49cb298c6d3634594bbd9ebf6bf86be8f114e2e524dbd624e401e31a729";
 pub const PREVIEW_PHYSICS_PROFILE: &str = "product_preview_mechanics_v1";
 /// DEL-05-03 Design `pf-timoshenko.md` §4: the pressure-free Timoshenko identity, a
 /// second complete identity on the preview-physics route. Its table is preview-physics-2's
@@ -136,7 +136,7 @@ pub const PREVIEW_PHYSICS_TIMOSHENKO_ID: &str =
     "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1";
 pub const PREVIEW_PHYSICS_TIMOSHENKO_PROFILE: &str = "product_preview_mechanics_timoshenko_v1";
 pub const PREVIEW_PHYSICS_TIMOSHENKO_SHA256: &str =
-    "6f6494907e3ead979ea27e5ff85f54617589c9195dc84d40a02752a0b006ef44";
+    "8a0abaeac93729b5d6ee6c922f2a60f0caf9332948622bb8b5896747ce41442d";
 /// The preview-physics route's admitted identities, `(id, profile)`, in one place: every
 /// identity-aware site keys by the envelope's `semantic_contract_id` through this list.
 pub const PREVIEW_PHYSICS_IDENTITIES: [(&str, &str); 2] = [
@@ -166,6 +166,11 @@ pub fn preview_physics_identity(id: &str) -> Option<(&'static Value, &'static st
 }
 /// A preview-physics source's identity, by its producer's `semantic_contract_id`: the
 /// Timoshenko identity when named, else preview-physics-2 (the readers' unchanged default).
+/// Precondition: the caller has kept the stated identity within the route's
+/// (`PREVIEW_PHYSICS_IDENTITIES`, or none): the full public reader
+/// (`reader_verdict::validate`'s `preview_route_identity`) and the header dispatch
+/// (`for_source_metadata`) refuse any other, the retired preview-physics-1 by name; this
+/// helper does not, and reads it as preview-physics-2's.
 pub fn preview_physics_identity_of(source: &Value) -> (&'static Value, &'static str) {
     preview_physics_identity(source["producer"]["semantic_contract_id"].as_str().unwrap_or_default())
         .unwrap_or_else(|| (preview_physics_contract(), PREVIEW_PHYSICS_PROFILE))
@@ -177,7 +182,7 @@ pub fn preview_physics_identity_of(source: &Value) -> (&'static Value, &'static 
 pub const PREVIEW_PHYSICS_RETAINED_ID: &str = crate::retained_precision::CONTRACT_ID;
 pub const PREVIEW_PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::PROFILE;
 pub const PREVIEW_PHYSICS_RETAINED_SHA256: &str =
-    "b4377e73e8a83edb57b4f0c41dbaef384385e0f6b4810103a106a334c8edbe14";
+    "ef59ef338d4e2cafca7017e13b7a450d1094ede8068c47cf5e44416c1adc177a";
 /// B3b (B3-D §6.1): the exact successor `<physics-retained>`, whose base is
 /// pressure-2 since B7b D4 (a). Like the preview successor, its raw and transport statements are
 /// checked only by the accepted reader (`crate::retained_precision`, its exact
@@ -186,7 +191,7 @@ pub const PHYSICS_RETAINED_ID: &str = crate::retained_precision::EXACT_CONTRACT_
 pub const PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::EXACT_PROFILE;
 /// T4-U6: its rows, vocabulary and counts follow the inherited pressure-2 table.
 pub const PHYSICS_RETAINED_SHA256: &str =
-    "85c2678a78e794b44761c11efb73c215645c7e2560d802ac8ad6075e7804c691";
+    "320dc3f1f75944af8b66da1287e6f8ee5e1fcd5fe005752f2c90bf8c89a9c894";
 /// A receipt member or a W1 method-token row offered under any other identity
 /// (I66 F-5: the base readers' closed lists do not name `retained_precision`).
 pub const RETAINED_PRECISION_DOWNGRADE_FORBIDDEN: &str = "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN";

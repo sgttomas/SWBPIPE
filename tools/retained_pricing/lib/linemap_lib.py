@@ -15,7 +15,10 @@ full (`core/.../src/x.rs`). It maps from OLD to NEW in this order:
    - a site key by text: the OLD line's text (stripped) found exactly once in the hunk's NEW range, else exactly once in
      the NEW file; none is "deleted" when the hunk removed the line with nothing in its place, else "replaced". A
      "replaced" site whose enclosing OLD function NEW no longer defines in that file is "deleted" only when
-     `resolutions` names it with that function ({"as": "deleted", "fn": name, "why": ...}; B7b).
+     `resolutions` names it with that function ({"as": "deleted", "fn": name, "why": ...}; B7b). A "replaced" site whose
+     line was rewritten in place is re-keyed only by a reviewed resolution naming its new text and the NEW function that
+     encloses it ({"as": "text", "text": t, "fn": name, "why": ...}; §8.53): the OLD text must occur nowhere at NEW, and
+     t exactly once, enclosed by `fn`; a premise pin so carried is still read against its own reviewed text.
 A key never maps silently: every key that is not left as written is reported with how it was mapped.
 """
 import gzip, json, os, re, subprocess
@@ -43,12 +46,18 @@ def load_rows(paths):
 
 
 def load_resolutions(path):
-    """The reviewed resolutions: {key: {"as": "deleted" | n, "why": ...}} for "fewer_definitions" fn keys, and
-    {key: {"as": "deleted", "fn": name, "why": ...}} for a site key inside a function deleted from its file (B7b)."""
+    """The reviewed resolutions: {key: {"as": "deleted" | n, "why": ...}} for "fewer_definitions" fn keys,
+    {key: {"as": "deleted", "fn": name, "why": ...}} for a site key inside a function deleted from its file (B7b), and
+    {key: {"as": "text", "text": t, "fn": name, "why": ...}} for a site line rewritten in place (§8.53)."""
     if not path:
         return {}
     keys = json.load(open(path)).get("keys", {})
     for k, v in keys.items():
+        if v.get("as") == "text":
+            if not (isinstance(v.get("text"), str) and v["text"].strip() == v["text"] and v["text"]
+                    and isinstance(v.get("fn"), str) and v["fn"] and v.get("why")):
+                raise SystemExit(f"resolution for {k}: a text resolution names the stripped new 'text', its enclosing 'fn' and a 'why'")
+            continue
         if not (v.get("as") == "deleted" or (isinstance(v.get("as"), int) and v["as"] >= 1)) or not v.get("why"):
             raise SystemExit(f"resolution for {k}: 'as' must be \"deleted\" or a definition number >= 1, with a 'why'")
         if "fn" in v and (v.get("as") != "deleted" or not isinstance(v["fn"], str) or not v["fn"]):
@@ -198,6 +207,13 @@ class Mapper:
                         if owner == res["fn"] and not self.defs(new, owner):
                             kind = "deleted"
                             self.resolutions_used.append([ctx, whole, res])
+                    if res is not None and res.get("as") == "text" and not inf:
+                        at = [i + 1 for i, l in enumerate(new) if l.strip() == res["text"]]
+                        if len(at) == 1 and self.enclosing(new, at[0]) == res["fn"]:
+                            self.resolutions_used.append([ctx, whole, res])
+                            out = whole.replace(f":{ln}", f":{at[0]}", 1)
+                            self.report.append([ctx, whole, out, f"resolved: rewritten line, text in fn {res['fn']} ({res['why']})"])
+                            return out
                     self.unmapped.append([ctx, whole, f"line {ln} of {f}: text {'not found' if not inf else 'not unique'} at NEW", kind])
                     return whole
         out = whole.replace(f":{ln}", f":{nl}", 1)

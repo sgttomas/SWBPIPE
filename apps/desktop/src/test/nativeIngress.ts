@@ -3,6 +3,7 @@
 // helper: each listed command is invoked with the UTF-8 JSON bytes of its
 // argument object and the ingress header, never with a JSON argument object.
 import { expect } from "vitest";
+import { emulateNativeReopen } from "./nativeReopenEmulation";
 
 export const INGRESS_HEADER = "x-swbpipe-ingress";
 export const INGRESS_FORMAT = "args-json-v1";
@@ -27,6 +28,10 @@ export const INGRESS_COMMANDS: ReadonlySet<string> = new Set([
   "save_local_library",
   "save_report_package",
   "save_local_result_json",
+  "begin_local_csv_stream",
+  "append_local_csv_stream",
+  "finish_local_csv_stream",
+  "abort_local_csv_stream",
   "save_model_state",
   "list_model_states",
   "read_model_state",
@@ -48,7 +53,23 @@ export const INGRESS_COMMANDS: ReadonlySet<string> = new Set([
   "read_project_autosave",
   "discard_project_autosave",
   "get_autosave_settings",
-  "set_autosave_settings"
+  "set_autosave_settings",
+  "read_preview_mechanics_job_verdict",
+  "read_preview_mechanics_job_summary",
+  "query_preview_mechanics_job_rows",
+  "lookup_preview_mechanics_job_rows",
+  "read_preview_mechanics_job_row_semantics",
+  "query_preview_mechanics_job_source_recovery",
+  "query_preview_mechanics_job_navigator",
+  "read_preview_mechanics_job_analysis_run_preview",
+  // C1 slice 5's persistence: Record Run and Save/Create Project from the job handle.
+  "record_preview_mechanics_job_analysis_run",
+  "save_preview_mechanics_job_local_project",
+  // C1 slice 6: saved and recorded runs reopened into native custody.
+  "open_local_project_in_native_custody",
+  "read_analysis_run_in_native_custody",
+  // C1 slice 6's save continuity: Save/Create Project of a reopened saved run from its handle.
+  "save_restored_result_local_project"
 ]);
 
 type InvokeOptions = { headers?: Record<string, string> } | undefined;
@@ -85,13 +106,20 @@ type AnyInvoke = (command: string, args?: unknown, options?: unknown) => unknown
  * `(command, decodedArgs)` exactly as before the commands took raw bodies; a
  * JSON-argument call to an ingress command fails. Every other command passes
  * through unchanged. */
-export function ingressDecodingInvoke(mock: AnyInvoke): (...call: unknown[]) => unknown {
+export function ingressDecodingInvoke(mock: AnyInvoke, options: { nativeReopen?: "emulate-from-legacy" | "actual" } = {}): (...call: unknown[]) => unknown {
+  // C1 slice 6: unless a test answers the native reopen itself (`actual`), the native reopen commands
+  // are bridged to the test's legacy whole-value mocks (`nativeReopenEmulation.ts`, unit emulation).
+  const bridge = (options.nativeReopen ?? "emulate-from-legacy") === "emulate-from-legacy";
   return (...call: unknown[]) => {
-    const [command, body, options] = call as [string, unknown, unknown];
-    if (!INGRESS_COMMANDS.has(command)) return (mock as (...args: unknown[]) => unknown)(...call);
+    const [command, body, invokeOptions] = call as [string, unknown, unknown];
+    if (!INGRESS_COMMANDS.has(command)) {
+      const emulated = bridge ? emulateNativeReopen(mock, command, body) : undefined;
+      return emulated ?? (mock as (...args: unknown[]) => unknown)(...call);
+    }
     let args: Record<string, unknown>;
-    try { args = decodeIngressBody(command, body, options as InvokeOptions); }
+    try { args = decodeIngressBody(command, body, invokeOptions as InvokeOptions); }
     catch (error) { return Promise.reject(error); }
-    return mock(command, args);
+    const emulated = bridge ? emulateNativeReopen(mock, command, args) : undefined;
+    return emulated ?? mock(command, args);
   };
 }

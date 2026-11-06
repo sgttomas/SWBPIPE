@@ -203,8 +203,10 @@ def test_the_verifier_is_independent_and_test_only():
     # RT-A3 increment 4 (R-4 §2.4): the nonlinear support checks live in the sibling
     # tests/verifiers/nonlinear_support_evidence.py, which reuses PF's test-only magnitude rule
     # (tests/verifiers/preview_physics_evidence.py) and the verifier's own unit catalog; its whole sibling closure is
-    # test-only verifiers over the standard library.
-    assert _imports(VERIFIER) <= stdlib | {".component_body", ".exact_combinations", ".global_end", ".nonlinear_support_evidence", ".section_basis", ".u4b"}
+    # test-only verifiers over the standard library. RT-A3 §4: the combination certificate's checks live in the sibling
+    # tests/verifiers/combination_certificate.py.
+    assert _imports(VERIFIER) <= stdlib | {".combination_certificate", ".component_body", ".exact_combinations", ".global_end", ".nonlinear_support_evidence",
+                                         ".section_basis", ".u4b"}
     assert _imports(VERIFIER.with_name("nonlinear_support_evidence.py")) <= stdlib | {".preview_physics_evidence", ".units"}
     closure, pending, external = set(), ["nonlinear_support_evidence"], set()
     while pending:

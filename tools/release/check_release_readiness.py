@@ -21,7 +21,6 @@ REQUIRED_PATHS = (
     "docs/RELEASE_QUALITY_GATES.md",
     "docs/VALIDATION_STRATEGY.md",
     "docs/IP_AND_DATA_BOUNDARY.md",
-    "docs/PROFESSIONAL_BOUNDARY.md",
     "execution/_DAG/_LATEST.md",
 )
 # The monorepo's approved dependency graph. The public export

@@ -3,10 +3,12 @@
 use crate::{CurvedBendStiffnessElement, LinearSolveMode};
 use open_pipe_stress_curved_bend::CurvedBendMacroElement;
 use open_pipe_stress_frame_kernel::connector::{ConnectorDefiniteness, ObjectiveConnector};
-use open_pipe_stress_frame_kernel::load_ledger::{AssembledForce, ForceTerm};
+use open_pipe_stress_frame_kernel::exact_sum::SumError;
+use open_pipe_stress_frame_kernel::load_ledger::{AssembledForce, ForceTerm, LedgerError};
+use open_pipe_stress_frame_kernel::restraint_basis::{BasisError, GroundRow, RestraintBasis, SkewFormation};
 use open_pipe_stress_frame_kernel::rigid_body::{
-    assess_constrained_bodies, assess_rigid_body, objective_sub_bodies, ConstrainedAssessment,
-    ConstrainedGround, ObjectiveFamily, RigidBodyStatus,
+    assess_constrained_bodies, assess_rigid_body, assess_rigid_body_rows, objective_sub_bodies,
+    ConstrainedAssessment, ConstrainedGround, ObjectiveFamily, RigidBodyStatus,
 };
 use open_pipe_stress_frame_kernel::structural::{
     self, assemble_sparse_stiffness, CurvedFormation, ForceScaleReason,
@@ -19,7 +21,8 @@ use open_pipe_stress_frame_kernel::{
     element_dof_map, force_scaled_matrix, force_scaled_value, ForceScale, ForceScaleCensus,
     FrameElement, FrameKernelError, Matrix12,
 };
-use open_pipe_stress_sparse_direct::structural::solve_sparse_prepared;
+use open_pipe_stress_frame_kernel::structural::SharedSparseFactor;
+use open_pipe_stress_sparse_direct::structural::{factor_sparse_structural_ldlt, solve_sparse_prepared};
 
 #[derive(Debug, Clone)]
 pub struct AssemblyEvidence {
@@ -106,6 +109,7 @@ impl AssemblyEvidence {
             connectors,
             curved,
             springs,
+            &[],
             force_scale,
             DenseEvidenceStore {
                 absolute_roundoff: vec![vec![0.0; n]; n],
@@ -177,6 +181,7 @@ impl AssemblyEvidence {
             coordinates: &self.coordinates,
             edges: &self.edges,
             spring_ground: &self.spring_ground,
+            direction_rows: &[],
             w4: None,
         }
         .geometry(prescribed)
@@ -194,6 +199,7 @@ impl AssemblyEvidence {
             coordinates: &self.coordinates,
             edges: &self.edges,
             spring_ground: &self.spring_ground,
+            direction_rows: &[],
             w4: Some(W4Context {
                 formation: &self.formation,
                 curved_sources,
@@ -662,6 +668,10 @@ pub struct SparseAssemblyEvidence {
     formation: FormationPrimitives,
     /// K2b: as `AssemblyEvidence`'s.
     force_scale: ForceScale,
+    /// R-6/R-7 (A-1): the case's skew basis; `None` on every other path. Set
+    /// only by `new_with_restraint_basis`, whose one solve entry is the linear
+    /// `solve_skew_with_formation_check`; no loop entry reads it.
+    skew: Option<RestraintBasis>,
 }
 
 impl SparseAssemblyEvidence {
@@ -682,6 +692,7 @@ impl SparseAssemblyEvidence {
             connectors,
             curved,
             springs,
+            &[],
             ForceScale::UNSCALED,
         )
     }
@@ -694,6 +705,7 @@ impl SparseAssemblyEvidence {
         connectors: &[ObjectiveConnector],
         curved: &[CurvedBendStiffnessElement],
         springs: &[(usize, f64)],
+        node_blocks: &[(usize, [[f64; 3]; 3])],
         force_scale: ForceScale,
     ) -> Result<Self, StructuralError> {
         if Some(pattern.dimension()) != node_count.checked_mul(6) {
@@ -706,6 +718,7 @@ impl SparseAssemblyEvidence {
             connectors,
             curved,
             springs,
+            node_blocks,
             force_scale,
             SparseEvidenceStore {
                 pattern: pattern.clone(),
@@ -727,6 +740,7 @@ impl SparseAssemblyEvidence {
             force_terms: None,
             formation: parts.formation,
             force_scale,
+            skew: None,
         })
     }
     /// K2b: `AssemblyEvidence::new_force_scaled` on the pattern of the
@@ -753,6 +767,7 @@ impl SparseAssemblyEvidence {
             connectors,
             &curved,
             &springs,
+            &[],
             force_scale,
         )
     }
@@ -778,6 +793,7 @@ impl SparseAssemblyEvidence {
             coordinates: &self.coordinates,
             edges: &self.edges,
             spring_ground: &self.spring_ground,
+            direction_rows: &[],
             w4: None,
         }
         .geometry(prescribed)
@@ -793,6 +809,7 @@ impl SparseAssemblyEvidence {
             coordinates: &self.coordinates,
             edges: &self.edges,
             spring_ground: &self.spring_ground,
+            direction_rows: &[],
             w4: Some(W4Context {
                 formation: &self.formation,
                 curved_sources,
@@ -839,6 +856,214 @@ impl SparseAssemblyEvidence {
         }
         (roundoff, counts)
     }
+    /// As `AssemblyEvidence::contribution_groups`.
+    pub fn contribution_groups(&self) -> &[usize] {
+        &self.contribution_groups
+    }
+
+    /// RT-A3 P: the pattern sibling of `AssemblyEvidence::solve_binary64`, the
+    /// nonlinear loop's named, unchanged binary64 solve (ROOT option (c)). In
+    /// `SparseInteractive` it prepares on the pattern with the binary64 binding
+    /// (`prepare_sparse_structural_binary64`) and orders, factors and finishes
+    /// on the pattern; the prepared system is the dense one entry for entry, so
+    /// the solution is the dense-derived sparse solve's bit for bit. In
+    /// `DenseScrutiny` it materializes the dense view of the same values and
+    /// allowances and runs `prepare_structural_binary64` and the dense
+    /// Cholesky: `AssemblyEvidence::solve_binary64`, bit for bit.
+    pub fn solve_binary64(
+        &self,
+        k: &SparseStiffness,
+        f: &[f64],
+        free: &[usize],
+        prescribed: &[(usize, f64)],
+        mode: LinearSolveMode,
+    ) -> Result<StructuralSolution, StructuralError> {
+        unscaled_evidence(self.force_scale)?;
+        self.check_pattern(k)?;
+        self.geometry(prescribed)?;
+        let symmetry_basis = symmetry_basis(&self.edges);
+        match mode {
+            LinearSolveMode::DenseScrutiny => {
+                let dense = k.to_dense();
+                let (roundoff, counts) = self.dense_symmetry_view();
+                let system = StructuralSystem {
+                    stiffness: &dense,
+                    force: f,
+                    free_dofs: free,
+                    prescribed,
+                    contributions: Some(&self.contributions),
+                    contribution_groups: Some(&self.contribution_groups),
+                    symmetry: Some(SymmetryEvidence {
+                        absolute_roundoff: &roundoff,
+                        operation_counts: &counts,
+                        basis: &symmetry_basis,
+                    }),
+                };
+                solve_prepared(structural::prepare_structural_binary64(&system)?, mode)
+            }
+            LinearSolveMode::SparseInteractive => {
+                let system = SparseStructuralSystem::new(
+                    k,
+                    f,
+                    free,
+                    prescribed,
+                    Some(&self.contributions),
+                    Some(self.sparse_symmetry(&symmetry_basis)),
+                )
+                .with_contribution_groups(&self.contribution_groups);
+                solve_sparse_prepared(structural::prepare_sparse_structural_binary64(&system)?)
+            }
+        }
+    }
+
+    /// RT-A3 P step 3: `solve_binary64` in `SparseInteractive` on the iterate's
+    /// one factor. The first call of an iterate factors (with the witness on a
+    /// refused factor) and keeps the factor in `shared`; every later call
+    /// prepares its own right-hand side and completes on that factor
+    /// (`finish_sparse_structural_on`, which refuses a prepared matrix that is
+    /// not the factor's bit for bit). Each result is the separate
+    /// `solve_binary64`'s, bit for bit.
+    pub fn solve_binary64_shared(
+        &self,
+        k: &SparseStiffness,
+        f: &[f64],
+        free: &[usize],
+        prescribed: &[(usize, f64)],
+        shared: &mut Option<SharedSparseFactor>,
+    ) -> Result<StructuralSolution, StructuralError> {
+        unscaled_evidence(self.force_scale)?;
+        self.check_pattern(k)?;
+        self.geometry(prescribed)?;
+        let symmetry_basis = symmetry_basis(&self.edges);
+        let system = SparseStructuralSystem::new(
+            k,
+            f,
+            free,
+            prescribed,
+            Some(&self.contributions),
+            Some(self.sparse_symmetry(&symmetry_basis)),
+        )
+        .with_contribution_groups(&self.contribution_groups);
+        let prepared = structural::prepare_sparse_structural_binary64(&system)?;
+        if let Some(factor) = shared.as_ref() {
+            #[cfg(test)]
+            SHARED_FACTOR_COUNTS.with(|c| c.set((c.get().0, c.get().1 + 1)));
+            return structural::finish_sparse_structural_on(factor, &prepared);
+        }
+        #[cfg(test)]
+        SHARED_FACTOR_COUNTS.with(|c| c.set((c.get().0 + 1, c.get().1)));
+        // `solve_sparse_prepared`'s sequence, keeping the factor.
+        let factor = match factor_sparse_structural_ldlt(&prepared) {
+            Ok(factor) => factor,
+            Err(error) => {
+                return Err(structural::sparse_negative_pair_witness(&prepared)?.unwrap_or(error))
+            }
+        };
+        let solution = structural::finish_sparse_structural(&factor);
+        *shared = Some(factor.share());
+        solution
+    }
+
+    /// RT-A3 P step 5: the pattern sibling of
+    /// `AssemblyEvidence::confirm_with_formation_check` (DEL-04-01
+    /// kd5-nonlinear-active-set.md §1.5), the sparse loop's single
+    /// confirmation entry after convergence. The converged state's system is
+    /// prepared on the pattern with `gate_force` as the typed linear solve
+    /// prepares it (`prepare_assembled_sparse_structural`), factored once by the
+    /// pattern's skyline LDL and completed by `finish_sparse_confirmation`;
+    /// every K-D5 evaluation, reaction ball and displacement ball of the
+    /// context reuses that factor, its scale exponents, Hager estimate and
+    /// epsilon_E, reading K and the prepared matrix through the pattern. The
+    /// prepared system is the dense one entry for entry (K1), so the attempt
+    /// is the dense-derived sparse attempt's. Only `SparseInteractive`: dense
+    /// scrutiny confirms on `AssemblyEvidence`.
+    #[allow(clippy::too_many_arguments)]
+    pub fn confirm_with_formation_check(
+        &self,
+        k: &SparseStiffness,
+        gate_force: &AssembledForce,
+        free: &[usize],
+        prescribed: &[(usize, f64)],
+        mode: LinearSolveMode,
+        curved_sources: &[CurvedBendMacroElement],
+        evaluate: impl FnOnce(&StructuralSolution, &ConfirmationContext<'_>) -> crate::confirmation::Confirmation,
+    ) -> Result<crate::confirmation::Confirmation, StructuralError> {
+        if mode != LinearSolveMode::SparseInteractive {
+            return Err(StructuralError::InvalidInput(
+                "pattern confirmation is sparse interactive only",
+            ));
+        }
+        unscaled_evidence(self.force_scale)?;
+        self.check_pattern(k)?;
+        self.constrained_geometry(prescribed, curved_sources)?;
+        let symmetry_basis = symmetry_basis(&self.edges);
+        let gate = SparseStructuralSystem::assembled(
+            k,
+            gate_force,
+            free,
+            prescribed,
+            Some(&self.contributions),
+            Some(self.sparse_symmetry(&symmetry_basis)),
+        )
+        .with_contribution_groups(&self.contribution_groups);
+        let prepared = structural::prepare_assembled_sparse_structural(&gate)?;
+        let factor = match factor_sparse_structural_ldlt(&prepared) {
+            Ok(factor) => factor,
+            Err(error) => {
+                return Err(structural::sparse_negative_pair_witness(&prepared)?.unwrap_or(error))
+            }
+        };
+        let (solution, attempt) = structural::finish_sparse_confirmation(&factor)?;
+        let evaluate_at = |force: &AssembledForce, u: &[f64], judged: bool| {
+            let mut source = formation_source(&self.formation, curved_sources);
+            source.loads = force.load_primitives().into();
+            let system = SparseStructuralSystem::assembled(
+                k,
+                force,
+                free,
+                prescribed,
+                Some(&self.contributions),
+                Some(self.sparse_symmetry(&symmetry_basis)),
+            )
+            .with_contribution_groups(&self.contribution_groups)
+            .with_formation_source(&source);
+            attempt.evaluate_at(&system, u, judged)
+        };
+        let reaction = |force: &AssembledForce, dof: usize, u: &[f64], bound: &structural::MemberBoundInputs| {
+            let mut source = formation_source(&self.formation, curved_sources);
+            source.loads = force.load_primitives().into();
+            structural::certify_support_reaction(&source, force, dof, u, bound)
+        };
+        let context = ConfirmationContext {
+            evaluate_at: &evaluate_at,
+            reaction: &reaction,
+        };
+        Ok(evaluate(&solution, &context))
+    }
+
+    /// RT-A3 P: the loop's product-equilibrium measurement (binary64 binding)
+    /// on the pattern, over the same contributions and per-entry allowances
+    /// as the dense loop's `product_equilibrium::evaluate`.
+    pub(crate) fn product_equilibrium_binary64(
+        &self,
+        k: &SparseStiffness,
+        f: &[f64],
+        free: &[usize],
+        prescribed: &[(usize, f64)],
+        u: &[f64],
+    ) -> Result<crate::product_equilibrium::ProductEquilibriumReport, StructuralError> {
+        let system = SparseStructuralSystem::new(
+            k,
+            f,
+            free,
+            prescribed,
+            Some(&self.contributions),
+            Some(self.sparse_symmetry("same retained structural assembly evidence")),
+        )
+        .with_contribution_groups(&self.contribution_groups);
+        crate::product_equilibrium::evaluate_sparse(&system, u)
+    }
+
     fn check_pattern(&self, k: &SparseStiffness) -> Result<(), StructuralError> {
         if k.pattern() != &self.pattern {
             return Err(StructuralError::InvalidInput(
@@ -951,6 +1176,192 @@ impl SparseAssemblyEvidence {
                 solve_sparse_prepared(structural::prepare_formation_checked_sparse_structural(
                     &system,
                 )?)
+            }
+        }
+    }
+
+    /// R-6/R-7 A-1 (DEL-04-03 Work `skew-restraints.md` §11, §15 step 6): `new`
+    /// on the pattern of an assembly that holds the basis's skew spring blocks
+    /// (`SparseAssemblyOptions::with_node_blocks`), whose nine contributions
+    /// each follow the springs. The evidence keeps the basis for its one entry,
+    /// the linear `solve_skew_with_formation_check`. The nonlinear loop never
+    /// builds this evidence: skew with any nonlinear support is refused by name
+    /// before any solve (§2.2 item 3), so a loop path carries no basis.
+    #[allow(clippy::too_many_arguments)]
+    pub fn new_with_restraint_basis(
+        pattern: &SparsePattern,
+        node_count: usize,
+        frames: &[FrameElement],
+        connectors: &[ObjectiveConnector],
+        curved: &[CurvedBendStiffnessElement],
+        springs: &[(usize, f64)],
+        basis: &RestraintBasis,
+    ) -> Result<Self, StructuralError> {
+        if basis.node_count() != node_count {
+            return Err(StructuralError::InvalidInput("restraint basis node count"));
+        }
+        let blocks: Vec<(usize, [[f64; 3]; 3])> = (0..basis.springs().len())
+            .map(|s| (basis.springs()[s].node, basis.spring_block(s)))
+            .collect();
+        let mut evidence = Self::build(
+            pattern,
+            node_count,
+            frames,
+            connectors,
+            curved,
+            springs,
+            &blocks,
+            ForceScale::UNSCALED,
+        )?;
+        evidence.skew = Some(basis.clone());
+        Ok(evidence)
+    }
+
+    /// Whether this evidence carries a skew basis (only `new_with_restraint_basis`'s).
+    pub fn has_restraint_basis(&self) -> bool {
+        self.skew.is_some()
+    }
+
+    /// R-6/R-7 A-1: the PF linear entry on the transformed system (§6, §10).
+    /// `k` is the physical assembly (with the skew blocks), `f` the physical
+    /// ledger and `prescribed` the physical axis restraints with their values,
+    /// in `axis_restrained` order (zero at a stop's node; §2.2 item 9 is judged
+    /// before). It forms K′ = QᵀKQ, f′ = Qᵀf and the coordinate partition, the
+    /// coordinate contributions and §10.3's allowances, screens the geometry with
+    /// the basis's direction rows (§9), and solves on coordinates through the
+    /// M03 gate with K-D5 bound to the physical source (`SkewFormation`). The
+    /// solution is in coordinates (v, and the coordinate member bound); the
+    /// caller lifts it (`RestraintBasis::lift`, `lift_member_bound`).
+    pub fn solve_skew_with_formation_check(
+        &self,
+        k: &SparseStiffness,
+        f: &AssembledForce,
+        prescribed: &[(usize, f64)],
+        mode: LinearSolveMode,
+        curved_sources: &[CurvedBendMacroElement],
+    ) -> Result<StructuralSolution, StructuralError> {
+        let basis = self.skew.as_ref().ok_or(StructuralError::InvalidInput("no restraint basis"))?;
+        unscaled_evidence(self.force_scale)?;
+        self.check_pattern(k)?;
+        if prescribed.len() != basis.axis_restrained().len()
+            || prescribed.iter().zip(basis.axis_restrained()).any(|(&(dof, _), &axis)| dof != axis)
+        {
+            return Err(StructuralError::InvalidInput("skew prescribed map"));
+        }
+        // §6.2: a transform product below the split range (P1) or a non-finite
+        // rounding is refused on the ordinary failure path with the error named,
+        // never rounded; a coordinate is not a physical DOF, so none is named.
+        // Astra B4: so is the transformed load's or the reduced coordinate load's
+        // range or non-finite failure, split on the typed variant (the ledger's
+        // `Sum` with `NonRepresentable` or `NonFinite`; the reduction's
+        // `NonFiniteInput`, which there can only be the adjusted force's rounding).
+        // A shape or sum error (a ledger term's source or DOF, the accumulator's
+        // capacity, a reduction length or DOF) is outside the entry's contract (the
+        // backstop).
+        let basis_error = |error| match error {
+            BasisError::SplitRange { .. } => StructuralError::NumericallyUnresolved {
+                reason: "restraint_basis: split range in the coordinate transform",
+                global_dof: None,
+            },
+            BasisError::NonFinite { .. } => StructuralError::NumericallyUnresolved {
+                reason: "restraint_basis: non-finite rounding in the coordinate transform",
+                global_dof: None,
+            },
+            BasisError::Ledger(LedgerError::Sum { error: SumError::NonRepresentable | SumError::NonFinite, .. }) => {
+                StructuralError::NumericallyUnresolved {
+                    reason: "restraint_basis: the transformed load is outside binary64",
+                    global_dof: None,
+                }
+            }
+            BasisError::Reduction(FrameKernelError::NonFiniteInput { .. }) => StructuralError::NumericallyUnresolved {
+                reason: "restraint_basis: the reduced coordinate load is outside binary64",
+                global_dof: None,
+            },
+            _ => StructuralError::InvalidInput("restraint basis transform"),
+        };
+        let direction_rows: Vec<GroundRow> = basis
+            .ground_rows()
+            .into_iter()
+            .filter(|row| matches!(row, GroundRow::Direction { .. }))
+            .collect();
+        BodyEvidence {
+            coordinates: &self.coordinates,
+            edges: &self.edges,
+            spring_ground: &self.spring_ground,
+            direction_rows: &direction_rows,
+            w4: Some(W4Context {
+                formation: &self.formation,
+                curved_sources,
+                force_scale: self.force_scale,
+            }),
+        }
+        .geometry(prescribed)?;
+        let k_prime = basis.transform_stiffness(k).map_err(basis_error)?;
+        let values: Vec<f64> = prescribed.iter().map(|&(_, g)| g).collect();
+        let coordinates = basis.reduce(&k_prime, f, Some(&values)).map_err(basis_error)?;
+        let (contributions, groups) = basis
+            .transform_contributions(&self.contributions, Some(&self.contribution_groups))
+            .map_err(basis_error)?;
+        let groups = groups.unwrap_or_default();
+        let (roundoff, counts) = basis
+            .transform_roundoff(k, &k_prime, &self.absolute_roundoff, &self.operation_counts)
+            .map_err(basis_error)?;
+        let skew = SkewFormation {
+            basis,
+            physical_force: f,
+            physical_contributions: &self.contributions,
+        };
+        let mut source = formation_source(&self.formation, curved_sources);
+        source.loads = f.load_primitives().into();
+        source.restraint = Some(&skew);
+        let symmetry_basis = symmetry_basis(&self.edges);
+        let free = &coordinates.reduced.free_dofs;
+        let coordinate_prescribed = &coordinates.reduced.prescribed;
+        match mode {
+            LinearSolveMode::DenseScrutiny => {
+                let dense = k_prime.to_dense();
+                let n = k_prime.dimension();
+                let mut dense_roundoff = vec![vec![0.0; n]; n];
+                let mut dense_counts = vec![vec![0; n]; n];
+                for row in 0..n {
+                    for index in k_prime.pattern().row_range(row) {
+                        let col = k_prime.pattern().column(index);
+                        dense_roundoff[row][col] = roundoff[index];
+                        dense_counts[row][col] = counts[index];
+                    }
+                }
+                let system = StructuralSystem::assembled(
+                    &dense,
+                    &coordinates.force,
+                    free,
+                    coordinate_prescribed,
+                    Some(&contributions),
+                    Some(SymmetryEvidence {
+                        absolute_roundoff: &dense_roundoff,
+                        operation_counts: &dense_counts,
+                        basis: &symmetry_basis,
+                    }),
+                )
+                .with_contribution_groups(&groups)
+                .with_formation_source(&source);
+                solve_prepared(structural::prepare_formation_checked_structural(&system)?, mode)
+            }
+            LinearSolveMode::SparseInteractive => {
+                let system = SparseStructuralSystem::assembled(
+                    &k_prime,
+                    &coordinates.force,
+                    free,
+                    coordinate_prescribed,
+                    Some(&contributions),
+                    Some(SparseSymmetryEvidence {
+                        absolute_roundoff: &roundoff,
+                        operation_counts: &counts,
+                        basis: &symmetry_basis,
+                    }),
+                )
+                .with_contribution_groups(&groups)
+                .with_formation_source(&source);
+                solve_sparse_prepared(structural::prepare_formation_checked_sparse_structural(&system)?)
             }
         }
     }
@@ -1153,7 +1564,7 @@ impl SparseAssemblyEvidence {
         force_scaled_outcome(solved, self.force_scale, f)
     }
 
-    fn sparse_symmetry<'e>(&'e self, basis: &'e str) -> SparseSymmetryEvidence<'e> {
+    pub(crate) fn sparse_symmetry<'e>(&'e self, basis: &'e str) -> SparseSymmetryEvidence<'e> {
         SparseSymmetryEvidence {
             absolute_roundoff: &self.absolute_roundoff,
             operation_counts: &self.operation_counts,
@@ -1304,6 +1715,7 @@ impl<S: EvidenceStore> EvidenceParts<S> {
         connectors: &[ObjectiveConnector],
         curved: &[CurvedBendStiffnessElement],
         springs: &[(usize, f64)],
+        node_blocks: &[(usize, [[f64; 3]; 3])],
         force_scale: ForceScale,
         store: S,
     ) -> Result<Self, StructuralError> {
@@ -1430,6 +1842,28 @@ impl<S: EvidenceStore> EvidenceParts<S> {
                 result.spring_ground.push(dof);
             }
         }
+        // R-7 (DEL-04-03 Work `skew-restraints.md` §6.1, §10.3): each skew spring
+        // block after every spring, nine contributions row-major, one absorption
+        // group each; its formation allowance is gamma(4)|value| (n rounded once,
+        // then three roundings), upward.
+        for &(node, block) in node_blocks {
+            if node >= node_count {
+                return Err(StructuralError::InvalidInput("skew spring node"));
+            }
+            for (i, row) in block.iter().enumerate() {
+                for (j, &value) in row.iter().enumerate() {
+                    if !value.is_finite() {
+                        return Err(StructuralError::InvalidInput("skew spring block"));
+                    }
+                    let (dof_i, dof_j) = (node * 6 + i, node * 6 + j);
+                    result.contributions.push(StiffnessContribution { row: dof_i, col: dof_j, value });
+                    let (bound, count) = result.store.slot(dof_i, dof_j)?;
+                    *bound += (structural::gamma(4) * value.abs()).next_up();
+                    *count += 4 + 1;
+                }
+            }
+            result.groups.push(result.contributions.len());
+        }
         // Sequential scatter adds are independent of transformation formation.
         for c in &result.contributions {
             let (magnitude, count) = result.store.scatter_slot(c.row, c.col)?;
@@ -1496,6 +1930,9 @@ struct BodyEvidence<'e> {
     coordinates: &'e [Option<[f64; 3]>],
     edges: &'e [(usize, usize, bool)],
     spring_ground: &'e [usize],
+    /// R-6/R-7: the skew basis's direction rows (stops and positive skewed
+    /// springs, §9); empty on every other path, which is today's screen.
+    direction_rows: &'e [GroundRow],
     /// K5 (W4): `Some` only in the four selected branches.
     w4: Option<W4Context<'e>>,
 }
@@ -1559,11 +1996,27 @@ impl BodyEvidence<'_> {
                 .chain(self.spring_ground.iter().copied())
                 .filter_map(|d| body.iter().position(|&i| i == d / 6).map(|i| 6 * i + d % 6))
                 .collect::<Vec<_>>();
-            let assessment = assess_rigid_body(
-                &coordinates,
-                &ground,
-                ObjectiveFamily::WeldedUnreleasedElasticFrames,
-            )?;
+            let assessment = if self.direction_rows.is_empty() {
+                assess_rigid_body(
+                    &coordinates,
+                    &ground,
+                    ObjectiveFamily::WeldedUnreleasedElasticFrames,
+                )?
+            } else {
+                // §9: the body's axis rows as today, then its direction rows.
+                let rows: Vec<GroundRow> = ground
+                    .iter()
+                    .map(|&d| GroundRow::Axis(d))
+                    .chain(self.direction_rows.iter().filter_map(|row| match *row {
+                        GroundRow::Direction { node, d } => body
+                            .iter()
+                            .position(|&i| i == node)
+                            .map(|local| GroundRow::Direction { node: local, d }),
+                        GroundRow::Axis(_) => None,
+                    }))
+                    .collect();
+                assess_rigid_body_rows(&coordinates, &rows, ObjectiveFamily::WeldedUnreleasedElasticFrames)?
+            };
             match assessment.status {
                 RigidBodyStatus::Restrained => {}
                 RigidBodyStatus::MechanismWitnessed => {
@@ -1824,6 +2277,7 @@ fn formation_source<'a>(
         curved: Vec::new(),
         springs: primitives.springs.clone(),
         unavailable: Vec::new(),
+        restraint: None,
     };
     for slot in &primitives.curved {
         if slot.explicit {
@@ -1964,6 +2418,7 @@ fn force_scaled_formation_source<'a>(
         curved: Vec::new(),
         springs: primitives.springs.clone(),
         unavailable: Vec::new(),
+        restraint: None,
     };
     for slot in &primitives.curved {
         if slot.explicit {
@@ -2816,10 +3271,87 @@ fn state_retention_charge(
 }
 /// No extra contact-state solve occurs here. Exact ratios correct/project the
 /// response of this iteration's ORIGINAL partition, then ordinary counting runs.
+/// RT-A3 P: what the strict-gap proof reads of the loop's assembled system.
+/// The dense loop lends its K and `AssemblyEvidence`. The pattern loop lends
+/// the dense view of its K and allowances when the system has at most
+/// `EXACT_GAP_MAX_DOFS` DOFs, and empty views otherwise: the exact context refuses
+/// such a system (`Budget`) before it reads K, so the evidence is the dense
+/// loop's either way (`p_gap_scrutiny_on_the_pattern_equals_the_dense_loop`).
+pub(crate) struct GapSource<'a> {
+    pub(crate) qualified_passive_family: bool,
+    pub(crate) stiffness: &'a [Vec<f64>],
+    pub(crate) contributions: &'a [StiffnessContribution],
+    pub(crate) contribution_groups: &'a [usize],
+    pub(crate) absolute_roundoff: &'a [Vec<f64>],
+    pub(crate) operation_counts: &'a [Vec<usize>],
+}
+
+impl<'a> GapSource<'a> {
+    pub(crate) fn dense(assembly: &'a AssemblyEvidence, stiffness: &'a [Vec<f64>]) -> Self {
+        Self {
+            qualified_passive_family: assembly.qualified_passive_family(),
+            stiffness,
+            contributions: &assembly.contributions,
+            contribution_groups: &assembly.contribution_groups,
+            absolute_roundoff: &assembly.absolute_roundoff,
+            operation_counts: &assembly.operation_counts,
+        }
+    }
+}
+
+#[cfg(test)]
+thread_local! {
+    /// Tests only (RT-A3 P step 3): (factorizations, completions on a kept
+    /// factor) made by `solve_binary64_shared` on this thread.
+    pub(crate) static SHARED_FACTOR_COUNTS: std::cell::Cell<(usize, usize)> =
+        const { std::cell::Cell::new((0, 0)) };
+}
+
+/// The exact boundary context's dimension limit (`exact_boundary`'s
+/// `Context::new` refuses n > 256 with `Budget` before reading K).
+pub(crate) const EXACT_GAP_MAX_DOFS: usize = 256;
+
+/// RT-A3 P: the dense views the pattern loop lends the strict-gap proof (see
+/// `GapSource`): K and the allowances when the dimension is at most the exact
+/// context's limit, empty otherwise.
+pub(crate) struct GapViews {
+    stiffness: Vec<Vec<f64>>,
+    absolute_roundoff: Vec<Vec<f64>>,
+    operation_counts: Vec<Vec<usize>>,
+}
+
+impl GapViews {
+    pub(crate) fn new(assembly: &SparseAssemblyEvidence, stiffness: &SparseStiffness) -> Self {
+        if stiffness.dimension() <= EXACT_GAP_MAX_DOFS {
+            let (absolute_roundoff, operation_counts) = assembly.dense_symmetry_view();
+            Self {
+                stiffness: stiffness.to_dense(),
+                absolute_roundoff,
+                operation_counts,
+            }
+        } else {
+            Self {
+                stiffness: Vec::new(),
+                absolute_roundoff: Vec::new(),
+                operation_counts: Vec::new(),
+            }
+        }
+    }
+    pub(crate) fn source<'a>(&'a self, assembly: &'a SparseAssemblyEvidence) -> GapSource<'a> {
+        GapSource {
+            qualified_passive_family: assembly.qualified_passive_family(),
+            stiffness: &self.stiffness,
+            contributions: &assembly.contributions,
+            contribution_groups: &assembly.contribution_groups,
+            absolute_roundoff: &self.absolute_roundoff,
+            operation_counts: &self.operation_counts,
+        }
+    }
+}
+
 pub(crate) fn scrutinize_gaps(
     input: &crate::NonlinearFrameSolveInput,
-    assembly: &AssemblyEvidence,
-    stiffness: &[Vec<f64>],
+    assembly: &GapSource<'_>,
     boundary: &crate::BoundaryState,
     prior: &[open_pipe_stress_nonlinear_supports::SupportStateRecord],
     iteration: usize,
@@ -2846,7 +3378,7 @@ pub(crate) fn scrutinize_gaps(
         .all(|s| matches!(s.behavior, NonlinearSupportBehavior::Gap { .. }))
         || !input.connectors.is_empty()
         || !input.curved_bend_elements.is_empty()
-        || !assembly.qualified_passive_family()
+        || !assembly.qualified_passive_family
         || !input.friction_normal_reactions.is_empty()
         || !input.derived_friction_normal_reactions.is_empty()
         || !solve.applied_forces.is_empty()
@@ -2898,15 +3430,15 @@ pub(crate) fn scrutinize_gaps(
             });
         }
         let system = StructuralSystem {
-            stiffness,
+            stiffness: assembly.stiffness,
             force: &force,
             free_dofs: &free,
             prescribed: &prescribed,
-            contributions: Some(&assembly.contributions),
-            contribution_groups: Some(&assembly.contribution_groups),
+            contributions: Some(assembly.contributions),
+            contribution_groups: Some(assembly.contribution_groups),
             symmetry: Some(SymmetryEvidence {
-                absolute_roundoff: &assembly.absolute_roundoff,
-                operation_counts: &assembly.operation_counts,
+                absolute_roundoff: assembly.absolute_roundoff,
+                operation_counts: assembly.operation_counts,
                 basis: "original represented assembly, no symmetry projection in exact proof",
             }),
         };
@@ -3230,6 +3762,10 @@ mod k2b_tests;
 #[cfg(test)]
 #[path = "structural_adapter/k5_tests.rs"]
 mod k5_tests;
+
+#[cfg(test)]
+#[path = "structural_adapter/skew_tests.rs"]
+mod skew_tests;
 
 #[cfg(test)]
 mod retention_tests {

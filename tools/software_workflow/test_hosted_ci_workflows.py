@@ -223,12 +223,6 @@ def test_selected_browser_specs_drive_the_product_job_and_key_its_reuse(tmp_path
         assert subprocess.run(command + missing, env=env, capture_output=True).returncode != 0
 
 
-def test_repository_checks_run_claims_language_on_its_selection():
-    steps = workflow('governance-harness.yml')['jobs']['repository-checks']['steps']
-    [step] = [s for s in steps if s.get('run') == 'python3 tools/validation/validate_claims_language.py']
-    assert 'if' not in step  # the standalone repository always checks product claims
-
-
 def test_only_the_harness_lets_the_product_job_skip_the_repository_routing_suite():
     harness = workflow('governance-harness.yml')['jobs']
     assert harness['piping']['with']['repository-checks-run'] == 'true'

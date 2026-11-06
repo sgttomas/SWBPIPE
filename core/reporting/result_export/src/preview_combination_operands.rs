@@ -199,7 +199,7 @@ fn states_notice(id: &str, operands: &[&str], rows: &[Value]) -> Result<Option<V
 fn standing_notice(id: &str, operands: &[Value]) -> Option<Value> {
     let failing: Vec<(&str, &str)> = operands
         .iter()
-        .filter(|o| o.get("load_case_id").is_some())
+        .filter(|o| o.get("load_case_id").is_some() && o.get("support_state").is_none())
         .map(|o| (o["load_case_id"].as_str().unwrap_or_default(), o["numerical_quality"]["solve_quality"].as_str().unwrap_or("not_assessed")))
         .filter(|(_, quality)| *quality != "checks_passed")
         .collect();
@@ -218,6 +218,14 @@ fn standing_notice(id: &str, operands: &[Value]) -> Option<Value> {
 
 /// §3: presence, shape, standing, row binding and both notices. A blocked envelope
 /// carries neither the member nor a notice.
+/// The held standing the held-status record of `id` states (`{kind, reason}`).
+fn held_standing_of<'a>(source: &'a Value, id: &str) -> Option<&'a Value> {
+    items(source["contract_evidence"].get(crate::preview_held_status::MEMBER).unwrap_or(&Value::Null))
+        .iter()
+        .find(|r| r["combination_id"] == id && r["outcome"] == "admitted")
+        .map(|r| &r["standing"])
+}
+
 pub(crate) fn check(source: &Value, solved: bool) -> Check {
     let member = source["contract_evidence"].get(MEMBER);
     let rows = items(&source["results"]);
@@ -264,7 +272,28 @@ pub(crate) fn check(source: &Value, solved: bool) -> Check {
             }
             let operands = items(&record["operands"]);
             require(record["operands"].is_array() && operands.len() == order.len(), "SHAPE")?;
-            for (operand, target) in operands.iter().zip(&order) {
+            // RT-A5 (operating-case §7.6): a `minuend_final` subtraction's subtrahend is held;
+            // its standing is the held solve's (`held_standing`, bound by
+            // `preview_held_status`), never the case's numerical quality.
+            let mut held_position: Option<usize> = None;
+            for (position, (operand, target)) in operands.iter().zip(&order).enumerate() {
+                if operand.get("support_state").is_some() {
+                    let Operand::Case(case) = target else { return require(false, "SHAPE") };
+                    let mut held_keys = OPERAND_KEYS.to_vec();
+                    held_keys.extend(["support_state", "held_standing"]);
+                    let standing = &operand["held_standing"];
+                    require(
+                        basis == "result_state_subtraction" && position == 1
+                            && keys(operand, &held_keys) && operand["load_case_id"] == *case
+                            && operand["support_state"] == crate::preview_held_status::HELD_SUPPORT_STATE
+                            && operand["numerical_quality"].is_null()
+                            && keys(standing, &["kind", "reason"]) && text(&standing["kind"]).is_some() && text(&standing["reason"]).is_some()
+                            && held_standing_of(source, id) == Some(standing),
+                        "SHAPE",
+                    )?;
+                    held_position = Some(position);
+                    continue;
+                }
                 let case = match target {
                     // A combination operand states its standing in its own, earlier record.
                     Operand::Combination(c) => {
@@ -286,7 +315,8 @@ pub(crate) fn check(source: &Value, solved: bool) -> Check {
             let by_id = |reference: &Value| rows.iter().find(|r| r["id"] == *reference);
             for row in rows.iter().filter(|r| combination_of(r) == Some(id)) {
                 let kind = row["kind"].as_str().unwrap_or_default();
-                if kind == MODULUS_RECORD {
+                // A held-operand row is the held system's (`preview_held_status`).
+                if kind == MODULUS_RECORD || (held_position.is_some() && crate::preview_held_status::is_held_row(row)) {
                     continue;
                 }
                 require(row["metadata"].is_null() || row["metadata"]["basis"] == row_basis, "ROWS")?;
@@ -318,10 +348,15 @@ pub(crate) fn check(source: &Value, solved: bool) -> Check {
                     // Direct rows name one matching operand row per operand, in evaluation order.
                     None => {
                         require(refs.len() == order.len(), "ROWS")?;
-                        for (reference, operand) in refs.iter().zip(&order) {
+                        for (position, (reference, operand)) in refs.iter().zip(&order).enumerate() {
                             let source = by_id(reference).ok_or_else(|| "SOURCE_PREVIEW_PHYSICS_COMBINATION_OPERANDS_ROWS".to_string())?;
-                            require(
+                            let owned = if held_position == Some(position) {
+                                combination_of(source) == Some(id) && crate::preview_held_status::is_held_row(source)
+                            } else {
                                 operand.owns(source)
+                            };
+                            require(
+                                owned
                                     && source["kind"] == row["kind"]
                                     && source["entity_ref"] == row["entity_ref"]
                                     && source["unit"] == row["unit"]
@@ -333,7 +368,8 @@ pub(crate) fn check(source: &Value, solved: bool) -> Check {
                     }
                 }
             }
-            let order_cases: Vec<&str> = order.iter().filter_map(|o| match o {
+            // A held operand's comparison is HELD_STATUS_RELEASED's, not this notice's.
+            let order_cases: Vec<&str> = order.iter().enumerate().filter(|(p, _)| held_position != Some(*p)).filter_map(|(_, o)| match o {
                 Operand::Case(case) => Some(*case),
                 Operand::Combination(_) => None,
             }).collect();

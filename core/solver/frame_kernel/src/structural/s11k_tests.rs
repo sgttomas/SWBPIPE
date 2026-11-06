@@ -667,6 +667,14 @@ fn option_c_public_original_residual_stays_binary64_on_coupled_rows() {
             "precondition g={g}"
         );
         assert_eq!(row.normalized_residual.to_bits(), r.to_bits());
+        // RT-A3 P: the pattern entry is the same binary64 evaluation, row for row.
+        let sparse_k = SparseStiffness::from_dense(&p.k).unwrap();
+        let sparse = SparseStructuralSystem::new(&sparse_k, &p.force, &p.free, &p.prescribed, None, None);
+        assert_eq!(
+            format!("{rows:?}"),
+            format!("{:?}", evaluate_sparse_original_residual(&sparse, &u).unwrap()),
+            "pattern residual g={g}"
+        );
         // The typed (exact KS3) evaluation of the same row is the exact sum.
         let mut ledger = LoadLedger::new();
         ledger.push("nodal:m", 11, M);

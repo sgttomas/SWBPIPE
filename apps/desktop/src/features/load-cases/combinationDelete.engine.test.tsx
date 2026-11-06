@@ -293,11 +293,25 @@ describe("undo and the restore forms", () => {
     expect(await canonicalJsonString(termRestored)).toBe(await canonicalJsonString(start));
   });
 
-  it("where create refuses the restore (a termless mechanics record, minuend_final), the refusal is named and session Undo still restores exactly", async () => {
-    const termless = { id: "combination:T0", label: "termless mechanics", basis: "mechanics", provenance: "test" };
+  it("a minuend_final subtraction, which the pressure-free route now authors (RT-A5), deletes and its restore reproduces the document exactly", async () => {
     const final = { id: "combination:MF", label: "minuend final", basis: "result_state_subtraction", minuend_id: "load:EQ-X", subtrahend_id: "load:L-100",
       difference_basis: "operating_minus_sustained", subtrahend_support_state: "minuend_final", provenance: "test" };
-    for (const [record, code] of [[termless, "OP-CREATE-COMBINATION-PAYLOAD-INVALID"], [final, "LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED"]] as const) {
+    const start = modelWith(final);
+    const index = ids(start).indexOf(final.id);
+    const panel = mountPanel(start);
+    const intent = await queueEntityDelete(panel, final.id);
+    expect(intent.change.before).toBe(await canonicalJsonString(stored(start, final.id)));
+    cleanup();
+    const deleted = await apply(start, intent);
+    expect(ids(deleted)).not.toContain(final.id);
+    const restored = await apply(deleted, restoreRecordIntent(deleted, clone(final), index));
+    expect(ids(restored)).toEqual(ids(start));
+    expect(await canonicalJsonString(restored)).toBe(await canonicalJsonString(start));
+  });
+
+  it("where create refuses the restore (a termless mechanics record), the refusal is named and session Undo still restores exactly", async () => {
+    const termless = { id: "combination:T0", label: "termless mechanics", basis: "mechanics", provenance: "test" };
+    for (const [record, code] of [[termless, "OP-CREATE-COMBINATION-PAYLOAD-INVALID"]] as const) {
       const start = modelWith(record);
       const index = ids(start).indexOf(record.id);
       const panel = mountPanel(start);

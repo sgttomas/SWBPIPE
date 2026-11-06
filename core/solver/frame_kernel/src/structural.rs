@@ -92,17 +92,20 @@ pub use formation_check::{
     FORMATION_FACTOR, FORMATION_PRECISION,
 };
 pub use arc_certificate::{certify_curved_uniform_load, ArcCertificateFailure, CertifiedLoadTerm, CertifiedLoadVector};
-pub use certified_recovery::{CertifiedStressControlSizes, certified_stress_control_sizes, CertifiedCoefficientBounds, CertifiedStraightStressSpan, certify_straight_section, certify_straight_stress_spans, CertifiedValue, CertifiedRow, CertifiedGroup, CertifiedUniformLoad, CertifiedMemberLoads, CertifiedMemberRecovery, CertifiedConnectorRecovery, CertifiedTieRodRecovery, certified_pressure_area_product, RecoveryFailure, CERTIFIED_SECTION_FRACTIONS, certified_magnitude, certified_group, certify_straight_recovery, certify_arc_recovery, certify_connector_recovery, certify_tie_rod_recovery, certify_support_reaction, certify_spring_reaction, certify_displacement, certify_load_primitive};
+pub use certified_recovery::{CertifiedStressControlSizes, certified_stress_control_sizes, CertifiedCoefficientBounds, CertifiedStraightStressSpan, certify_straight_section, certify_straight_stress_spans, CertifiedValue, CertifiedRow, CertifiedGroup, CertifiedUniformLoad, CertifiedMemberLoads, CertifiedMemberRecovery, CertifiedConnectorRecovery, CertifiedTieRodRecovery, certified_pressure_area_product, RecoveryFailure, CERTIFIED_SECTION_FRACTIONS, certified_magnitude, certified_group, certify_straight_recovery, certify_arc_recovery, certify_connector_recovery, certify_tie_rod_recovery, certify_support_reaction, certify_support_reaction_with_basis, certify_node_attribution, certify_skew_spring_reaction, CertifiedNodeAttribution, CertifiedSkewSpringReaction, certify_spring_reaction, certify_displacement, certify_load_primitive};
 // O-13: the prerequisite arc recovery certificate, adapted by the K-D5 unit.
 pub use arc_certificate::{certify_curved_recovery, ArcEndBounds, ArcGroupBound, ArcRowGroup, CertifiedArcRecovery};
 pub use sparse::{
-    assemble_sparse_stiffness, audit_sparse_load_fidelity, factor_sparse_structural_profile,
-    finish_sparse_structural, prepare_assembled_sparse_structural,
-    prepare_formation_checked_sparse_structural, prepare_sparse_structural,
+    assemble_sparse_stiffness, audit_sparse_load_fidelity, evaluate_sparse_original_residual,
+    factor_sparse_structural_profile, finish_sparse_confirmation, finish_sparse_structural,
+    finish_sparse_structural_on, SparseConfirmationAttempt,
+    prepare_assembled_sparse_structural, prepare_formation_checked_sparse_structural,
+    prepare_sparse_structural, prepare_sparse_structural_binary64,
     prepare_sparse_structural_with_force_terms, reduce_assembled_sparse_system,
+    reduce_sparse_system_with_prescribed_displacements_binary64, SparseBinary64Reduction,
     sparse_negative_pair_witness, verify_sparse_negative_direction,
     AssembledSparseStructuralSystem, FormationCheckedSparseSystem, SparseAssemblyOptions,
-    SparsePattern, SparsePositiveFactor, SparsePreparedSystem, SparseReducedSystem,
+    SharedSparseFactor, SparsePattern, SparsePositiveFactor, SparsePreparedSystem, SparseReducedSystem,
     SparseStiffness, SparseStorageCounts, SparseStructuralSystem, SparseSymmetryEvidence,
     StiffnessBlock,
 };

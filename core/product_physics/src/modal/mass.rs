@@ -138,6 +138,13 @@ impl ModalMass {
         self.blocks.get(&(r / 6, c / 6)).map_or(0.0, |block| block[r % 6][c % 6].to_f64())
     }
 
+    /// M[row][col] in double-double, through the full symmetric matrix: the
+    /// stored upper block M_ij, or M_jiᵀ below it (R-6/R-7 D-1, C2).
+    pub(crate) fn mass_entry_dd(&self, row: usize, col: usize) -> Dd {
+        let (r, c) = if row / 6 < col / 6 || (row / 6 == col / 6 && row <= col) { (row, col) } else { (col, row) };
+        self.blocks.get(&(r / 6, c / 6)).map_or(Dd::ZERO, |block| block[r % 6][c % 6])
+    }
+
     /// The stored upper node blocks, rounded to binary64, (i, j) with i ≤ j.
     pub(crate) fn node_blocks(&self) -> impl Iterator<Item = ((usize, usize), [[f64; 6]; 6])> + '_ {
         self.blocks.iter().map(|(&key, block)| (key, block.map(|line| line.map(Dd::to_f64))))

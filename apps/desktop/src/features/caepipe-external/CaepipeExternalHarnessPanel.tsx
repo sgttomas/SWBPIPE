@@ -1,3 +1,4 @@
+import type { SessionAnalysisRun, SessionResult } from "../../services/nativeResult";
 import { Download, FileOutput } from "lucide-react";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
@@ -33,8 +34,8 @@ export function CaepipeExternalHarnessPanel({
   analysisRun
 }: {
   model: PreviewModel;
-  result: MechanicsResult | null;
-  analysisRun: AnalysisRunEnvelope | null;
+  result: SessionResult | null;
+  analysisRun: SessionAnalysisRun | null;
 }) {
   const packet = buildCaePipeExternalHarnessPacket({ model, result, analysisRun });
 
@@ -145,8 +146,8 @@ function buildCaePipeExternalHarnessPacket({
   analysisRun
 }: {
   model: PreviewModel;
-  result: MechanicsResult | null;
-  analysisRun: AnalysisRunEnvelope | null;
+  result: SessionResult | null;
+  analysisRun: SessionAnalysisRun | null;
 }) {
   const run = analysisRun?.analysis_run;
   const modelStateRef = run?.model_state_ref ?? reference("ModelState", "state:TBD");

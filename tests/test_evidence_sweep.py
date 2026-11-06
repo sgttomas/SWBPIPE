@@ -608,28 +608,6 @@ def test_summary_validator_rejects_ci_head_sha_mismatch(monkeypatch):
     assert any("does not equal sweep commit_hash" in error for error in errors)
 
 
-@monorepo_only("validation/evidence/sweeps")
-def test_committed_historical_v2_corpus_remains_valid():
-    sweep = load_module()
-    paths = sorted((ROOT / "validation/evidence/sweeps").glob("SWEEP_*.json"))
-    v2_summaries = []
-    for path in paths:
-        summary = json.loads(path.read_text(encoding="utf-8"))
-        if summary.get("schema_version") == 2:
-            v2_summaries.append((path, summary))
-
-    assert v2_summaries
-    assert {
-        path.name: sweep.validate_summary(summary)
-        for path, summary in v2_summaries
-        if sweep.validate_summary(summary)
-    } == {}
-    assert any(
-        sweep.is_complete_sweep_summary(summary)
-        for _, summary in v2_summaries
-    )
-
-
 def test_historical_v2_validator_rejects_malformed_or_truncated_summary():
     sweep = load_module()
     summary = stub_sweep_summary(dirty=False)

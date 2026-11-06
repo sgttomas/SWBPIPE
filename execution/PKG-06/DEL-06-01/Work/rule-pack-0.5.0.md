@@ -129,10 +129,16 @@ labelled as such (FR-RULE-007; DEL-06-01 REQ-06-01-007, REQ-06-01-011).
      retained rows classified `AbsoluteVerified` or `NotCovered`). A refusal is
      recorded for that input on that basis, with its reason, and that basis is
      incomplete.
-   - Rows without `basis_ref` are never selected.
+   - Rows without `basis_ref` are never selected. Nor is a held-operand row
+     (`metadata.basis` `held_status_operand`, DEL-05-02 `operating-case.md`
+     §7.6): it sits under its `minuend_final` combination as the held
+     system's operand, never as the combination's result, and shares the
+     difference row's kind, entity, location and component. A selector on
+     that combination binds the difference row.
    - A regression test asserts that, in every committed result and witness
      envelope (`fixtures/results/`, `validation/witness/`), every row that has
-     a `basis_ref` is selected by exactly one selector within its basis,
+     a `basis_ref` (a held-operand row aside, which no selector selects) is
+     selected by exactly one selector within its basis,
      including the connector reader corpus. The review of this design found
      one collision group in 22,630 basis-bearing rows (the tie rods above) and
      none once `tie_rod` is a member.

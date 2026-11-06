@@ -30,7 +30,7 @@ mod outcome;
 mod prepare;
 mod request;
 mod state;
-mod stiffness;
+mod stiffness; mod skew_pencil;
 mod weight_basis;
 #[cfg(test)]
 mod tests;
@@ -39,7 +39,7 @@ mod tests_document;
 #[cfg(test)]
 mod tests_eigen;
 #[cfg(test)]
-mod tests_state;
+mod tests_state; #[cfg(test)] mod tests_skew;
 #[cfg(test)]
 mod observation_tests;
 #[cfg(test)]

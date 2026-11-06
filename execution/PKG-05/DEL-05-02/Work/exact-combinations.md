@@ -271,6 +271,16 @@ A combination has no numerical check of its own:
 A derived enclosure, rounded up from Σ|fᵢ|·rᵢ plus δ_publication, would be
 needed for numerical eligibility. It is not part of this slice.
 
+Since RT-A3 §4 (`combination-certificate.md`), a subtraction's or mechanics
+combination's derived groups over load cases with certified rows state their own
+bound and verdict in `contract_evidence.combination_certificate`. The evidence is
+"established within its stated bound", not established, or not assessed. Under
+Agent 0's decision (b) of 2026-11-04 they still never count towards the document's
+numerical eligibility. The `EXACT_COMBINATION_DERIVED_FROM_CASE_RESULTS` text
+says so: "they never count towards numerical eligibility, and only the derived row
+groups that contract_evidence.combination_certificate establishes carry a stated
+bound".
+
 A subtraction keeps `SUBTRACTION_SIGN`, meaning it is not an equilibrium state.
 A range envelope keeps its row-envelope meaning. On PF, a subtraction or range
 envelope of a model with nonlinear supports states its operands' standing in the

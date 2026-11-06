@@ -32,6 +32,7 @@ from collections.abc import Mapping
 from typing import Any
 
 from . import combination_graph as graph
+from .preview_held_status import GATES as HELD_GATES
 from .exact_combinations import norm3
 from .units import to_canonical
 
@@ -228,6 +229,9 @@ def check(source: Mapping[str, Any], model: Mapping[str, Any] | None = None) -> 
     # Operating-case slice 1b: a declared subtraction's G-1, G-2, evidence and sign.
     from . import preview_difference_basis
     preview_difference_basis.check(source, model)
+    # RT-A5 (operating-case section 7.6): a minuend_final subtraction's held gates, rows and evidence.
+    from . import preview_held_status
+    preview_held_status.check(source, model)
     if model is not None:
         _model_check(source, model, gates, rows, by_id)
     else:
@@ -266,7 +270,8 @@ def _free_check(source: Mapping[str, Any], gates: list, rows: list, by_id: dict)
             reason = stated.get(cid)
             # A declared subtraction's G-1 or G-2 is the difference-basis reader's.
             _require(reason == derived if derived is not None else (reason in (None, MODULUS_MIXED) or (
-                basis == "result_state_subtraction" and reason in ("EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING", "EXPANSION_BASIS_MODULUS_MIXED"))),
+                basis == "result_state_subtraction" and (reason in ("EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING", "EXPANSION_BASIS_MODULUS_MIXED")
+                                                         or reason in HELD_GATES))),
                 "GATE_DERIVATION")
             if derived is None and reason is None:
                 if basis in UNSIGNED_BASES:
@@ -356,6 +361,7 @@ def _model_check(source: Mapping[str, Any], model: Mapping[str, Any], gates: lis
         _require(DERIVATION_MEMBER not in evidence, "DERIVATION_EVIDENCE")
         return
     from . import preview_difference_basis as difference
+    from . import preview_held_status as held
     load_cases = [c for c in _items(model.get("load_cases")) if isinstance(c, Mapping)]
     cases = {c["id"] for c in load_cases if isinstance(c.get("id"), str)}
     # S1's interim withholding (as slice 1b leaves it) removes a minuend_final combination and every one naming one.
@@ -385,6 +391,9 @@ def _model_check(source: Mapping[str, Any], model: Mapping[str, Any], gates: lis
         own = combination_graph.add(cid, basis, operands, [f for _, f in terms])
         operand_withheld = any(o[0] == "combination" and o[1] in withheld for o in operands)
         derived = difference.model_gate(model, combination)[0] if difference.declared(combination) else None
+        # RT-A5 (section 7.5): past G-1 and G-2, a minuend_final subtraction's held gate is its record's.
+        if derived is None and held.minuend_final(combination):
+            derived = held.stated_gate(source, cid)
         derived = derived or _gate_before_modulus(basis, operand_withheld, nonlinear, oq1, consuming, own, operand_kappa)
         if derived is None and not operand_withheld and basis in graph.TERM_BASES:
             reached = {keys.get(case) for case in combination_graph.reached.get(cid, []) if case in keys}
@@ -423,7 +432,9 @@ LINEAR_STATE_KINDS = frozenset({
     "element_local_bending_moment_y", "element_local_bending_moment_z", "element_local_axial_normal_stress",
     "element_local_bending_normal_stress_y", "element_local_bending_normal_stress_z", "element_local_torsional_shear_stress",
     "pipe_section_pressure_hoop_stress", "pipe_section_pressure_longitudinal_stress", "support_reaction_component_v2",
-    "constant_effort_support_applied_load", "element_global_end_force_v1", "element_global_end_moment_v1"})
+    "constant_effort_support_applied_load", "element_global_end_force_v1", "element_global_end_moment_v1",
+    # R-6/R-7 S-K1 (DEL-04-03 skew-restraints.md section 7.1): a skewed record's along-direction value.
+    "support_reaction_along_direction_v1"})
 DIMENSIONS = {"mm": "displacement", "m": "displacement", "rad": "rotation", "N": "force", "N*m": "moment", "MPa": "pressure", "Pa": "pressure"}
 SECTION = "; section_basis="
 
@@ -445,8 +456,14 @@ def _kind(row: Any) -> str:
     return kind if isinstance(kind, str) else ""
 
 
+def _case_named_id(kind: str) -> bool:
+    """The producer's skew::case_named_id: the _v2 kinds and the along-direction kind (section 7.1) name their case
+    in their id, so they are combined in their support's group, never by base id."""
+    return kind.endswith("_v2") or kind == "support_reaction_along_direction_v1"
+
+
 def _combined_kind(kind: str) -> bool:
-    return not kind.endswith("_v2") and (kind in LINEAR_STATE_KINDS or kind == "displacement_magnitude")
+    return not _case_named_id(kind) and (kind in LINEAR_STATE_KINDS or kind == "displacement_magnitude")
 
 
 def _field(metadata: Any, key: str) -> Any:
@@ -654,6 +671,15 @@ def _support_group(index: _RowIndex, cid: str, expression: graph.Expression, tar
             return None
         combined.append(value)
         rows.append(_combination_row(sources[0], cid, _row_id(cid, base(component)), value, ids(sources), basis, sign))
+    # R-6/R-7 S-K1 (section 7.1): the along-direction value in its support's group (the producer's).
+    along = [index.support_row(t, support, "along_direction") for t in targets]
+    if any(r is not None for r in along):
+        if any(r is None or _value(r) is None for r in along):
+            return None
+        value = expression.value([_value(r) for r in along])
+        if value is None:
+            return None
+        rows.append(_combination_row(along[0], cid, _row_id(cid, base("along_direction")), value, ids(along), basis, sign))
     range_ = expression.is_range()
     for component, norm in (("force_magnitude", norm3(*combined[:3])), ("moment_magnitude", norm3(*combined[3:]))):
         if not range_ and expression.is_unsigned() and not math.isfinite(norm):

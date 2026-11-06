@@ -22,6 +22,17 @@ import physicsRetained040e from "../../../../fixtures/results/recorded_pre_rt_a4
 import previewPhysicsE7b9 from "../../../../fixtures/results/recorded_pre_rt_a5_1b/semantic_contract_v0_3_preview_physics_2.e7b93f41.json?raw";
 import previewTimoshenkoCe49 from "../../../../fixtures/results/recorded_pre_rt_a5_1b/semantic_contract_v0_3_preview_physics_timoshenko_1.ce49ebe0.json?raw";
 import previewRetained26dc from "../../../../fixtures/results/recorded_pre_rt_a5_1b/semantic_contract_v0_3_preview_physics_retained_1.26dce9c2.json?raw";
+// RT-A5 minuend_final: main's tables at b32a17761, before the combination policy's v4 restatement.
+import previewPhysicsF41b from "../../../../fixtures/results/recorded_pre_rt_a5_mf/semantic_contract_v0_3_preview_physics_2.f41b9d3e.json?raw";
+import previewTimoshenko6f64 from "../../../../fixtures/results/recorded_pre_rt_a5_mf/semantic_contract_v0_3_preview_physics_timoshenko_1.6f649490.json?raw";
+import previewRetainedB437 from "../../../../fixtures/results/recorded_pre_rt_a5_mf/semantic_contract_v0_3_preview_physics_retained_1.b4377e73.json?raw";
+// RT-A3 §4: main's exact successor table at 252bef969, before the combination certificate.
+import physicsRetained85c2 from "../../../../fixtures/results/recorded_pre_rt_a4/semantic_contract_v0_3_physics_retained_1.85c2678a.json?raw";
+// R-6/R-7 S-K1: main's tables at 9e5c69797, before the along-direction kind
+// (support_reaction_along_direction_v1) joined them.
+import previewPhysics563d from "../../../../fixtures/results/recorded_pre_sk1/semantic_contract_v0_3_preview_physics_2.563db3c7.json?raw";
+import previewTimoshenkoF644 from "../../../../fixtures/results/recorded_pre_sk1/semantic_contract_v0_3_preview_physics_timoshenko_1.f64473f5.json?raw";
+import previewRetainedD0ba from "../../../../fixtures/results/recorded_pre_sk1/semantic_contract_v0_3_preview_physics_retained_1.d0bab350.json?raw";
 
 export type RecordedBinding = Readonly<{ id: string; sha256: string }>;
 type Variant = RecordedBinding & { text: string };
@@ -35,7 +46,9 @@ const PHYSICS_RETAINED = "openpipestress.result_semantics/0.3.0/physics-retained
  * candidate's exact successor table (#101 at 01e05a486), and the RT-A4 main line's exact
  * successor table (main at bbf384dec), which RT-A3 increment 4's pressure-2 restatement
  * makes history, then main's three preview-physics tables at bbf384dec, before
- * operating-case slice 1b. */
+ * operating-case slice 1b, main's three at b32a17761, before RT-A5 `minuend_final`, main's
+ * exact successor table at 252bef969, which RT-A3 §4's pressure-2 restatement (the combination
+ * certificate) makes history, and main's three at 9e5c69797, before the along-direction kind. */
 export const RECORDED_PRE_RT_A4_TABLES: ReadonlyArray<Readonly<Variant>> = Object.freeze([
   { id: PREVIEW, sha256: "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2", text: previewPhysics1ccc },
   { id: TIMOSHENKO, sha256: "a7b83c37a4af9bf70f56513f80883003a2a3860387319311ea2e967dd0cf764b", text: previewTimoshenkoA7b8 },
@@ -46,6 +59,13 @@ export const RECORDED_PRE_RT_A4_TABLES: ReadonlyArray<Readonly<Variant>> = Objec
   { id: PREVIEW, sha256: "e7b93f416f700f8efdb31bf1ba26dedde52963d768d6ead5a73dbf1c645a360c", text: previewPhysicsE7b9 },
   { id: TIMOSHENKO, sha256: "ce49ebe07bc05431ea1f770c1933b5bf58f4b1c8b66fb6f36810f2ef7a58cd43", text: previewTimoshenkoCe49 },
   { id: PREVIEW_RETAINED, sha256: "26dce9c21261b1ca894af05a3b6f4a94db88904894cb47f7296f892e72ecfb7e", text: previewRetained26dc },
+  { id: PREVIEW, sha256: "f41b9d3ed0c1b7abaee0b98ca1a28aa1a2d109bce443b98d53a2080c1c504ce9", text: previewPhysicsF41b },
+  { id: TIMOSHENKO, sha256: "6f6494907e3ead979ea27e5ff85f54617589c9195dc84d40a02752a0b006ef44", text: previewTimoshenko6f64 },
+  { id: PREVIEW_RETAINED, sha256: "b4377e73e8a83edb57b4f0c41dbaef384385e0f6b4810103a106a334c8edbe14", text: previewRetainedB437 },
+  { id: PHYSICS_RETAINED, sha256: "85c2678a78e794b44761c11efb73c215645c7e2560d802ac8ad6075e7804c691", text: physicsRetained85c2 },
+  { id: PREVIEW, sha256: "563db3c7c44279face3adc60a76a512de38520357e89ea4b49ad11d20946db89", text: previewPhysics563d },
+  { id: TIMOSHENKO, sha256: "f64473f5a60ac2bb34d8006b40bf044800f0c97454c570bbe88d1f1d96b7bdfc", text: previewTimoshenkoF644 },
+  { id: PREVIEW_RETAINED, sha256: "d0bab3502b4018ce0596757a933bd6306f402dc3741a10af24a094e8c66544e8", text: previewRetainedD0ba },
 ].map(variant => Object.freeze(variant)));
 
 /** The variant a record's binding names: an object of exactly `id` and `sha256` equal to a

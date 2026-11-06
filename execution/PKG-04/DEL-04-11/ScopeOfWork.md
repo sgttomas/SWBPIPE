@@ -126,9 +126,18 @@ These deliverables keep their scope.
   Increment 3a adds the desktop's result types and a pure display adapter
   (`apps/desktop/src/features/results/hangerSizingResult.ts`, `hangerSizingView.ts`),
   tested on the committed family fixtures. It gates record details on the bound library
-  hash and reader standings on evidence bound to the document's hash. It is not a usable
-  desktop feature: 3b adds the table component and its CSV (after PR #59), and 3c the
-  native sizing job. The theory note (`docs/theory/hanger_sizing.md`, RT-V4,
+  hash and reader standings on evidence bound to the document's hash. Increment 3b adds
+  the read-only table component (`HangerSizingPanel.tsx`: the basis block, the candidate
+  table, each candidate's details, the solves table, the standing, the disclosures and the
+  reader standings, or a refused document's refusals) and its CSV through DEL-08-04's
+  serializer (`hangerSizingCsv.ts`: kind `hanger-sizing`, the candidates table and the
+  `solves` table), tested on the same fixtures. It shows 3a's published SI values and
+  computes nothing. It is not mounted, so it is not yet a usable desktop feature: 3c adds
+  the native sizing job and mounts it. 3c part 1 is built: the crate's native
+  size-and-read entry (`core/analysis/hanger_sizing/src/desktop.rs`, Design §13). It
+  publishes the headless document for the same input and replies with the document, its
+  checked canonical hash and the reader's verdict, with reproduction `not_checked`.
+  3c part 2 integrates the entry as the desktop worker's task 4 and mounts the panel. The theory note (`docs/theory/hanger_sizing.md`, RT-V4,
   owned by DEL-11-03) explains the built method. The user guide's non-UI section for
   the implemented PF sizing and the headless verb exists (`docs/user_guide/index.md`
   §7.1, owned by DEL-11-01); its desktop sections follow increment 3. Before this
