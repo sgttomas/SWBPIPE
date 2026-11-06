@@ -400,9 +400,10 @@ action and the mounted dialog) is slice 4b.2b's, so no product control calls the
 **The library store.** Steps 2 to 4 read the libraries a document references from the local
 store, which is opened lazily, only if the document references one, with the desktop's normal
 open (`open_project_store`, as Save Model Document and the report package save open it). That
-open may create the store or apply pending store migrations (for example v14's retirement of
-the unused FTS sidecar, once it lands); the export writes no project, library or run rows, and
-a read or open error refuses. The read-only open (`open_store_read_only`) is not used: it
+open may create the store, and it applies store schema v14 (the retirement of the unused FTS
+sidecar, #146) atomically, or, if that step fails, rolls it back, opens at v13 with the step
+reported pending, and retries it on a later open. The export writes no project, library or run
+rows, and a read or open error refuses. The read-only open (`open_store_read_only`) is not used: it
 refuses a store below the target version, including one whose deferred migration step is
 pending, which the normal open keeps openable, so the export would refuse where Save Model
 Document succeeds (RT-U4, 2026-11-05).

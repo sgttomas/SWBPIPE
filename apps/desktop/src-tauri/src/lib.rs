@@ -2096,9 +2096,10 @@ async fn save_mbf_export(
         let directory = model_document_save::default_save_directory(app.path().document_dir().ok(), app.path().home_dir().ok());
         // The local library store, opened only if the document references a
         // library, with the desktop's normal open (as Save Model Document's):
-        // it may create the store or apply pending store migrations; the
-        // export writes no project, library or run rows; a read or open error
-        // refuses.
+        // it may create the store, and it applies store schema v14 (the FTS
+        // sidecar's retirement) atomically, or rolls that step back and opens
+        // at v13 with it pending, retried on a later open. The export writes
+        // no project, library or run rows; a read or open error refuses.
         let open_store = || open_project_store(&app_store_path(&app)?).map(|(connection, _)| connection);
         mbf_worker::save_command(
             &registry,
