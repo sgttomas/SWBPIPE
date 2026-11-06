@@ -245,16 +245,17 @@ fn v13_migrates_a_v12_store_with_states_and_is_safe_to_run_twice() {
         .unwrap();
     let (connection, evidence) = crate::open_project_store(&path).unwrap();
     assert_eq!(evidence.store_schema_version_before_open, 12);
-    assert_eq!(evidence.store_schema_version, 13);
-    assert_eq!(evidence.migrations_applied_on_open, vec!["store-v13-analysis-runs-tables"]);
+    assert_eq!(evidence.store_schema_version, crate::STORE_SCHEMA_TARGET_VERSION);
+    assert_eq!(evidence.migrations_applied_on_open, vec!["store-v13-analysis-runs-tables", "store-v14-retire-project-fts-sidecar"]);
     let listed = model_states::list_states(&connection, PROJECT).unwrap();
     assert_eq!(listed, vec![ModelStateSummary { recorded_run_count: 0, ..state.clone() }]);
     drop(connection);
     let outcome = record(&path, request(&model("Invented project"), "Run 1"), T0).unwrap();
-    // A re-run (as an interrupted, non-transactional migration would) changes nothing.
+    // A re-run of applied steps (as before steps were transactional, an
+    // interrupted migration could leave) changes nothing.
     Connection::open(&path).unwrap().execute_batch("PRAGMA user_version = 12;").unwrap();
     let (connection, evidence) = crate::open_project_store(&path).unwrap();
-    assert_eq!(evidence.migrations_applied_on_open, vec!["store-v13-analysis-runs-tables"]);
+    assert_eq!(evidence.migrations_applied_on_open, vec!["store-v13-analysis-runs-tables", "store-v14-retire-project-fts-sidecar"]);
     migrate_v13_analysis_runs(&connection).unwrap();
     assert_eq!(list_runs(&connection, PROJECT).unwrap(), vec![outcome.run.clone()]);
     assert_eq!(model_states::list_states(&connection, PROJECT).unwrap()[0].recorded_run_count, 1);
@@ -262,9 +263,150 @@ fn v13_migrates_a_v12_store_with_states_and_is_safe_to_run_twice() {
     assert!(error.contains("ANALYSIS-RUN-IMMUTABLE"), "the trigger survives the re-run: {error}");
     drop(connection);
     // A store from a newer build is refused by name.
-    Connection::open(&path).unwrap().execute_batch("PRAGMA user_version = 14;").unwrap();
+    let newer = crate::STORE_SCHEMA_TARGET_VERSION + 1;
+    Connection::open(&path).unwrap().execute_batch(&format!("PRAGMA user_version = {newer};")).unwrap();
     let error = crate::open_project_store(&path).map(|_| ()).unwrap_err();
-    assert!(error.starts_with("STORE-SCHEMA-NEWER: the local project store is at store schema v14, newer than this build's v13"), "{error}");
+    let expected = format!("STORE-SCHEMA-NEWER: the local project store is at store schema v{newer}, newer than this build's v{}", crate::STORE_SCHEMA_TARGET_VERSION);
+    assert!(error.starts_with(&expected), "{error}");
+}
+
+/// A store this build wrote (two projects, a model state, a recorded run),
+/// with what a later read returns of it: the envelope reopened, the state
+/// read and the run read.
+fn store_with_history(label: &str) -> (PathBuf, ModelStateSummary, RecordRunOutcome, Value) {
+    let path = store_with_project(label);
+    let state = save_state(&path, &model("Invented project"), "Basis", "000000000000000000000000000000c1", 1_000);
+    let outcome = record(&path, request(&model("Invented project"), "Run 1"), T0).unwrap();
+    let (mut connection, _) = crate::open_project_store(&path).unwrap();
+    write_project(&mut connection, "project:w12-invented-other", &model("Other project"), BASE);
+    drop(connection);
+    let reads = history_reads(&path, &state, &outcome);
+    (path, state, outcome, reads)
+}
+
+fn history_reads(path: &Path, state: &ModelStateSummary, outcome: &RecordRunOutcome) -> Value {
+    let reopened = crate::open_project_in_store(path.to_path_buf(), Some(PROJECT)).unwrap().expect("the project");
+    let state_read = model_states::read_state_in_store(path, PROJECT, &state.state_id).unwrap();
+    let run_read = read_run_in_store(path, PROJECT, &outcome.run.recording_id).unwrap();
+    let (connection, _) = crate::open_project_store(path).unwrap();
+    json!({
+        "reopened": serde_json::to_value(&reopened).unwrap(),
+        "states": serde_json::to_value(model_states::list_states(&connection, PROJECT).unwrap()).unwrap(),
+        "state": serde_json::to_value(&state_read).unwrap(),
+        "runs": serde_json::to_value(list_runs(&connection, PROJECT).unwrap()).unwrap(),
+        "run": serde_json::to_value(&run_read).unwrap(),
+    })
+}
+
+fn sidecar_rows(path: &Path) -> Vec<(String, String, String)> {
+    let connection = Connection::open(path).unwrap();
+    let mut statement = connection.prepare("SELECT project_id, project_name, model_text FROM local_project_fts ORDER BY project_id").unwrap();
+    let rows = statement.query_map([], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?))).unwrap().collect::<Result<Vec<_>, _>>().unwrap();
+    rows
+}
+
+fn sidecar_objects(path: &Path) -> Vec<String> {
+    crate::tests::fts_sidecar_objects(&Connection::open(path).unwrap())
+}
+
+/// Store schema v14 (RT-U4): a v13 store with saved projects, a state, a
+/// recorded run and FTS rows loses the FTS sidecar and nothing else. Every
+/// canonical table's schema and every column's bytes are unchanged, and the
+/// reopen, the state's and the run's reads are as before.
+#[test]
+fn v14_retires_the_fts_sidecar_of_a_v13_store_and_keeps_every_canonical_byte() {
+    let (path, state, outcome, reads) = store_with_history("v14");
+    crate::tests::as_v13_store_with_fts_rows(&path);
+    assert_eq!(sidecar_objects(&path), crate::tests::FTS_SIDECAR_OBJECTS);
+    assert_eq!(sidecar_rows(&path).len(), 2, "one search row per saved project");
+    let canonical = crate::tests::canonical_store_dump(&path);
+    assert!(canonical.iter().any(|(name, _, rows)| name == "analysis_runs" && rows.len() == 1));
+    let (connection, evidence) = crate::open_project_store(&path).unwrap();
+    assert_eq!(
+        (evidence.store_schema_version_before_open, evidence.store_schema_version, evidence.pending_migration_count),
+        (13, 14, 0)
+    );
+    assert_eq!(evidence.migrations_applied_on_open, vec!["store-v14-retire-project-fts-sidecar"]);
+    assert_eq!(evidence.migration_status, "migrated_on_open_store_schema_v13_to_v14");
+    drop(connection);
+    assert!(sidecar_objects(&path).is_empty(), "the table and its shadow tables are gone");
+    assert_eq!(crate::tests::canonical_store_dump(&path), canonical, "every canonical byte is unchanged");
+    let (_, evidence) = crate::open_project_store(&path).unwrap();
+    assert_eq!(evidence.migration_status, "current_store_schema_v14_no_pending_migrations");
+    assert_eq!(history_reads(&path, &state, &outcome), reads, "reopen, state and run reads are unchanged");
+    // A save after v14 writes no search row and creates no table.
+    let (mut connection, _) = crate::open_project_store(&path).unwrap();
+    write_project(&mut connection, PROJECT, &model("Invented project, re-saved"), BASE);
+    drop(connection);
+    assert!(sidecar_objects(&path).is_empty(), "the save created no table");
+}
+
+/// A failure inside the v14 step (after its DROP, in the same transaction)
+/// rolls back the DROP and the version together: the store stays at v13
+/// with the sidecar and its rows intact, the open goes on with the step
+/// reported pending, and the next open retries it and succeeds.
+#[test]
+fn a_failed_v14_step_rolls_back_whole_is_reported_pending_and_retried_on_the_next_open() {
+    fn failing_v14(connection: &Connection) -> Result<(), String> {
+        crate::migrate_v14_retire_project_fts(connection)?;
+        assert!(crate::tests::fts_sidecar_objects(connection).is_empty(), "the DROP ran inside the transaction");
+        connection.execute_batch("INSERT INTO invented_missing_table VALUES (1);").map_err(|error| error.to_string())
+    }
+    let (path, state, outcome, reads) = store_with_history("v14-fail");
+    crate::tests::as_v13_store_with_fts_rows(&path);
+    let (rows, canonical) = (sidecar_rows(&path), crate::tests::canonical_store_dump(&path));
+    let migrations: Vec<crate::StoreMigration> = crate::store_migrations()
+        .into_iter()
+        .map(|migration| if migration.version == 14 { crate::StoreMigration { apply: failing_v14, ..migration } } else { migration })
+        .collect();
+    let mut connection = Connection::open(&path).unwrap();
+    let evidence = crate::apply_store_migrations_to(&connection, crate::STORE_SCHEMA_TARGET_VERSION, &migrations).unwrap();
+    assert!(connection.is_autocommit(), "no transaction is left open");
+    assert_eq!((evidence.store_schema_version_before_open, evidence.store_schema_version, evidence.store_schema_target_version), (13, 13, 14));
+    assert_eq!(evidence.pending_migration_count, 1);
+    assert!(evidence.migrations_applied_on_open.is_empty());
+    assert_eq!(
+        evidence.migration_status,
+        "migration_pending_store_schema_v13_of_v14: store-v14-retire-project-fts-sidecar failed and was rolled back (no such table: invented_missing_table); the store stays at v13 and the next open retries it"
+    );
+    assert_eq!(crate::store_user_version(&connection).unwrap(), 13);
+    // A save meanwhile writes the project row only: the sidecar's rows are untouched.
+    write_project(&mut connection, "project:w12-invented-third", &model("Third project"), BASE);
+    drop(connection);
+    assert_eq!(sidecar_objects(&path), crate::tests::FTS_SIDECAR_OBJECTS, "the table and its shadow tables are intact");
+    assert_eq!(sidecar_rows(&path), rows, "its rows are intact");
+    let after_save = crate::tests::canonical_store_dump(&path);
+    assert_ne!(after_save, canonical, "the save wrote its project row");
+    // The next open retries the real step and succeeds.
+    let (connection, evidence) = crate::open_project_store(&path).unwrap();
+    assert_eq!((evidence.store_schema_version_before_open, evidence.store_schema_version, evidence.pending_migration_count), (13, 14, 0));
+    assert_eq!(evidence.migrations_applied_on_open, vec!["store-v14-retire-project-fts-sidecar"]);
+    drop(connection);
+    assert!(sidecar_objects(&path).is_empty());
+    assert_eq!(crate::tests::canonical_store_dump(&path), after_save, "every canonical byte is unchanged by the retry");
+    assert_eq!(history_reads(&path, &state, &outcome), reads, "reopen, state and run reads are unchanged");
+}
+
+/// A v13 build (its target 13 and its steps) opening a store this build
+/// migrated to v14 refuses it by name before writing anything: not a byte
+/// of the store file changes and its version and schema stay v14's.
+#[test]
+fn a_v13_build_refuses_a_v14_store_by_name_and_writes_nothing() {
+    let (path, ..) = store_with_history("v13-build");
+    let before = std::fs::read(&path).unwrap();
+    let canonical = crate::tests::canonical_store_dump(&path);
+    let v13: Vec<crate::StoreMigration> = crate::store_migrations().into_iter().filter(|migration| migration.version <= 13).collect();
+    let connection = Connection::open(&path).unwrap();
+    let error = crate::apply_store_migrations_to(&connection, 13, &v13).map(|_| ()).unwrap_err();
+    assert!(
+        error.starts_with("STORE-SCHEMA-NEWER: the local project store is at store schema v14, newer than this build's v13; it was written by a newer SWBPIPE build. Nothing was read or written"),
+        "{error}"
+    );
+    assert_eq!(crate::store_user_version(&connection).unwrap(), 14);
+    drop(connection);
+    assert_eq!(std::fs::read(&path).unwrap(), before, "not a byte written");
+    assert_eq!(crate::tests::canonical_store_dump(&path), canonical);
+    assert!(sidecar_objects(&path).is_empty(), "no sidecar is recreated");
 }
 
 #[test]

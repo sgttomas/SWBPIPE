@@ -753,9 +753,10 @@ restored and browser-preview results):
   `computeProjectEnvelopeHash`'s over the stored values, streamed.
 - **Exact lengths, before allocation and before writes.** Inside the write transaction the writing
   connection's `SQLITE_LIMIT_LENGTH` is read (rusqlite `limits`, no new package; the lock file is
-  unchanged). Result/record values and their table, explicit index and search records are measured
-  from the texts' counted lengths: the table row's record (SQLite's record format, `record_size`), each measured index key's record
-  (bounded with an eight-byte rowid) and, for a project, the search text and its content record.
+  unchanged). Result/record values and their table and explicit index records are measured
+  from the texts' counted lengths: the table row's record (SQLite's record format, `record_size`) and each measured index key's record
+  (bounded with an eight-byte rowid). Until store schema v14 a project's search text and its search
+  row's content record were measured too (Refusal changes, store schema v14).
   The run-hash autoindex is bounded by the measured run row; label/snapshot rows retain the
   existing whole-transaction rollback backstop. A result and a record that each fit can make a row
   that does not. Above the limit Record Run
@@ -777,10 +778,11 @@ restored and browser-preview results):
     leases, then writes the result text from the held text. The two texts, their leases and the
     lease of SQLite's statement copies end as soon as the run row is inserted, before its labels
     and the readback.
-  - Save, Create and the restored re-save upsert the project row, end the result text, build the
-    search text from its slots (byte for byte the previous text), end the record text, then delete
-    and insert the search row, in the same transaction; SQLite's copies are leased per statement,
-    the replaced search row measured before the upsert.
+  - Save, Create and the restored re-save upsert the project row with SQLite's copies leased for
+    the statement, then end the result and record texts, in the same transaction. Until store
+    schema v14 they then built the search text from its slots, ended the record text, and deleted
+    and inserted the search row under its own statement lease, the replaced search row measured
+    before the upsert.
   - Every readback of a recorded run (`summary_from_row`: Record Run's under P1, lists, reads,
     reopen) frees the loaded record once it is parsed. The record hash
     (`run_record_hash_within`) is streamed from the parse with no projection clone, serialized text,
@@ -825,7 +827,8 @@ restored and browser-preview results):
     earlier, so under memory pressure a different reservation may be the one refused, and at a
     different point. In particular a save's search-row reservation is now admitted after the
     project row is upserted; its refusal rolls the transaction back, so nothing is written. The
-    refusal is `STORE-READ-MEMORY-UNAVAILABLE` naming that reservation.
+    refusal is `STORE-READ-MEMORY-UNAVAILABLE` naming that reservation. (Store schema v14 removed
+    that reservation; below.)
   - *Memory refusals, one running total (RT-U4, 2026-11-05; §8, "One running total per command"):*
     each C1 command's live leases are now counted together against its budget, so a command can be
     refused where each lease alone fit. A named reservation over the budget is refused
@@ -835,6 +838,47 @@ restored and browser-preview results):
     `which refused them (…)` form; a typed lease's refusal stays the pool's `ingress_exceeds_budget`,
     its `required_bytes` now the command's total. A pool refusal keeps its text. Inside a
     transaction every such refusal still rolls back every row.
+  - *Store schema v14 (RT-U4, 2026-11-05; Agent 0's decision (A), the unused FTS sidecar
+    retired):* `local_project_fts` had no product reader. Migration v14 drops it with its FTS5
+    shadow tables (`DROP TABLE IF EXISTS`; no row-by-row delete, no VACUUM), and no save writes
+    a search row. Canonical columns, hashes, other storage versions and historical selection are
+    unchanged. The changes:
+    - Save, Create and the restored re-save no longer reserve "the project's search text" or
+      "SQLite's copies of the project's search row", so neither `STORE-READ-MEMORY-UNAVAILABLE`
+      refusal naming them occurs. After the project row's statement the save's only reservation
+      is its response's, admitted once the write's leases have ended, so the command's running
+      total no longer rises after its writes. A budget refusal after the writes cannot occur;
+      the pool's refusal of the response still can, and it rolls back as before
+      (`record_run_and_save_refused_after_their_writes_roll_back`).
+    - The save's length check no longer measures "search text" or "search row" against
+      `SQLITE_LIMIT_LENGTH`. The project row's record is always longer than either, because it
+      holds every slot the search text holds, plus the result slot, both hashes, the id, the
+      name and a longer header. So the same saves fall back to the model-only save or are
+      refused `PROJECT-SAVE-TOO-LARGE`. A save whose search text was the first measured length
+      over the limit, with every slot alone within it, now names `project row` and its bytes
+      (`PROJECT-SAVE-RESULT-TOO-LARGE`'s `refused`, or `PROJECT-SAVE-TOO-LARGE`'s
+      `project_row_bytes=` and text) where it named `search text`.
+    - Opening the store: each migration step and its `user_version` now commit in one write
+      transaction (BEGIN IMMEDIATE … COMMIT). A failing v1–v13 step still refuses the open, and
+      now its partial writes roll back with it. A failing v14 step no longer refuses the open:
+      it is rolled back whole, and the store stays at v13 with the sidecar intact. The open goes
+      on with `pending_migration_count` 1 and `migration_status`
+      `migration_pending_store_schema_v13_of_v14: store-v14-retire-project-fts-sidecar failed and
+      was rolled back (<error>); …`, and the next open retries the step. Meanwhile saves do not
+      touch the sidecar. The read-only stored-document export (`open_store_read_only`) refuses
+      such a store `STORE-NOT-CURRENT` until a later open migrates it, as it refuses any store
+      older than the build's target. A v13 build refuses a v14 store `STORE-SCHEMA-NEWER` before
+      writing (`a_v13_build_refuses_a_v14_store_by_name_and_writes_nothing`).
+    - The project summary in every create, save, open and re-save reply reports
+      `store_schema_version` and `store_schema_target_version` 14, the v14 migration status, and
+      `fts_indexed: false`.
+    Evidence: `analysis_runs_tests.rs`
+    (`v14_retires_the_fts_sidecar_of_a_v13_store_and_keeps_every_canonical_byte`,
+    `a_failed_v14_step_rolls_back_whole_is_reported_pending_and_retried_on_the_next_open`, the
+    v13-build refusal), the `lib.rs` migration tests (fresh store, required-step rollback), and
+    the parity corpus. That corpus removes the 42 search-row keys and re-derives the 28 project
+    replies (`REDERIVED_AT_V14`), each first checked to differ from its pinned digest only in the
+    v14 summary members. No stored column's digest moved.
   Evidence: `p1_stored_bytes_hashes_and_replies_are_the_pre_change_implementations` (every stored
   column and reply of Record Run, Create/Save, the recorded-run read, the reopen and the re-save on
   every persistence case, against digests generated at `c8865f384`), the `p1_*` and `p2_*` tests in
@@ -845,7 +889,8 @@ restored and browser-preview results):
 - **Evidence** (`native_persistence_tests.rs`, `result_js_text_tests.rs`, the TypeScript oracle
   `persistence_forms.json` from `persistenceFormsCases.ts`): on every preview case with a record
   (preview-physics, pressure, pressure-source and retained routes; aggregates; rule-pack
-  exclusions) the native run, labels, snapshot, project and search rows equal the submitted
+  exclusions) the native run, labels, snapshot and project rows (and, before store schema v14, the
+  search row) equal the submitted
   path's byte for byte (but the project's two save times), with the same outcome, and the
   envelope hashes the TypeScript's; the edge texts (array-index and repeated keys, negative
   zeros, integral floats, number boundaries, escapes, non-ASCII and supplementary-plane keys,
@@ -1220,7 +1265,7 @@ restored and browser-preview results):
     `computed_project_envelope_hash`'s independent RFC 8785 writer). Every persistence case saved
     natively, reset, reopened and re-saved (unchanged with the stored evidence kept, edited with a
     computed envelope hash and `HISTORICAL_MODEL_HASH_MISMATCH`, Create with the confirmed revision,
-    again from the reply's basis with identical rows) stores the submitted path's project and search rows
+    again from the reply's basis with identical rows) stores the submitted path's project row (and, before store schema v14, search row)
     byte for byte (but the save times), the same summary, model hash and envelope hash, and the reply's
     findings are the native reopen's of the stored project; stored texts in JavaScript's form (as Record
     Run writes a result: member order, negative zeros) and in a raw form (integral floats, `-0.0`,
@@ -1247,7 +1292,8 @@ restored and browser-preview results):
 
 **Limits and residuals (for slice 7 and review).**
 - The open still loads the project's small columns (model, intents, proposal, target, hashes) as
-  `open_local_project` does, unmetered; SQLite's page cache, journal and FTS state; the validator's
+  `open_local_project` does, unmetered; SQLite's page cache and journal (and its FTS state before
+  store schema v14); the validator's
   working memory (one row's values, the duplicate-id fingerprints within the fixed allowance); and
   Tauri's delivery copies of the replies after return are unpriced. The held leases cover the texts'
   envelopes; SQLite's copies during the load are a separate lease ended after the load.
@@ -1287,8 +1333,12 @@ separately authorized measurement. Review and checks establish no memory fit or 
 for complete usability and memory-fit evidence: the draft-until-measured condition above, and
 this slice's "leaves draft only after that window". #59 may integrate on its implementation,
 reviews and checks, with residuals U1, U3 and U4 explicit.
-- *Residuals.* U1 is SQLite/FTS5 search-row memory, with bounded evidence in #137; a separate
-  proposal stops maintaining the unconsumed sidecar. U3 is working memory and the page cache.
+- *Residuals.* U1 was SQLite/FTS5 search-row memory, with bounded evidence in #137 (store schema
+  v13). Store schema v14 retires the unconsumed sidecar (Refusal changes above). That removes
+  the search row and its FTS5 memory, so U1 is narrowed to SQLite's own memory for the
+  canonical writes (the project row's upsert, the run and state inserts) and COMMIT. That memory
+  is unpriced beyond the per-statement copies the ledger leases, and unmeasured at v14. U3 is
+  working memory and the page cache.
   U4 is that there is no App-wide cap. DEL-04-07 `memory-budget-decision.md` records the
   owner's 2026-10-24 acceptance of the SQLite and command-working-memory residuals.
 - *What the decision does not waive.* Implementation defects, connected-path evidence,
@@ -1727,7 +1777,8 @@ configured, the owner-adopted 12 GiB default. The cap is checked under the pool 
     shrink, refused deltas undone, pending admissions counted, racing admissions of one ledger,
     cross-thread drops, the handoff, underflow).
   - **Not claimed.** This bounds the leases the commands take; it is no fit claim and no App-wide
-    cap. U1 (FTS5's tokenizer hash and the second old-content copy, unpriced), U3 (builder,
+    cap. U1 (SQLite's memory for the canonical upserts and COMMIT, unpriced; before store schema
+    v14 also FTS5's tokenizer hash and the second old-content copy), U3 (builder,
     reader and validator working memory; SQLite's page cache) and U4 (no App-wide cap) remain.
 - **The persistence commands' leases** (slice 5's persistence), under the same rules; every lease
   is admitted before what it covers is allocated, within the command's running total above (the
@@ -1743,21 +1794,22 @@ configured, the owner-adopted 12 GiB default. The cap is checked under the pool 
     path, with growth, and the largest decoded string), admitted before counting and held through
     writing; a refused output still admits this counting scratch, but not the output texts;
   - each output text at its exact length: Record Run's result text and recorded revision; Save's
-    result text and transient record (only when the result is saved), the small slots, the
-    envelope evidence and the search text;
-  - SQLite's statement copies (it copies every bound text) and its records, and for a save the
-    search row it replaces (FTS5 reads it), each held while its statement runs.
+    result text and transient record (only when the result is saved), the small slots and the
+    envelope evidence (and, before store schema v14, the search text);
+  - SQLite's statement copies (it copies every bound text) and its records, each held while its
+    statement runs (before store schema v14, also the search row a save replaced, which FTS5
+    read).
 
   The parse M, the record built on it and the builder's leases end together before the
   statements run; Record Run's result text is written after them. Each text ends with its last use
   (RT-U4, Persistence above): Record Run's two texts and the statement copies at the run row's
-  INSERT; a save's result text after the project row and its record text once the search text is
-  built. The response is leased at its exact length until it is handed to Tauri. Record Run's
+  INSERT; a save's result and record texts after the project row (before store schema v14, its
+  record text once the search text was built). The response is leased at its exact length until it is handed to Tauri. Record Run's
   read-back loads no record: the staged checks before the INSERT and the stored bytes' digest after
   it allocate nothing of the record's size, and the labels, identity columns and status are metered
   by its own reservations (a stored text that is not the staged one is loaded, under its own
   reservation, by the full readback). Unpriced, as for the submitted paths: SQLite's page cache and
-  journal, FTS5's in-memory index of the search text, the staged pass's members (the record's
+  journal (and, before store schema v14, FTS5's in-memory index of the search text), the staged pass's members (the record's
   non-row-scale identity members, as the header record) and Tauri's delivery copies of the small
   reply.
 - **The reopen's leases** (slice 6), under the same rules and within the command's running total
