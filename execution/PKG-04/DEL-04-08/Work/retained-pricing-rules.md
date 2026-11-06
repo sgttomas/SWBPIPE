@@ -6074,6 +6074,109 @@ Run evidence (the two runs, compares, builds and logs) is in `/Users/ryan/dev/ch
 the AC-004 harness, its admission-only checks, `window.json` and the withdrawn attempt's empty outputs are in
 `/Users/ryan/dev/chirality-t3/scratch/rt-a3/r1-ac004/`; they are review input, not a permanent dependency.
 
+### 8.57 DEL-04-09: the selected A1, A2 and A3 modal parameter instance on main's §8.56 tree (actual-source D3)
+
+**Status.** Proposed registration of PR #131 (DEL-04-09 Work `modal-analysis.md` §5.3.7, "The production instance";
+§5.3.9 items 1 and 6): `ModalIntegrityParameters::selected_a1_a2_a3_criteria()`, the parameter instance of Agent 0's
+A1, A2 and A3 selections, called only by tests. Agent 0 released this D3 turn (2026-11-06). It is made under the
+owner's removal of explicit owner approval for coefficient movement; source-derived pricing, independent scrutiny and
+preservation of the registered state remain required. This records no acceptance and admits nothing: the instance is
+not admitted for public or native use, and its values and semantics are #131's, unchanged here.
+- **Coefficients.** None move: against main's tree, 1,602 equal, none higher or lower. The threshold, M, the
+  generated block, `REGISTERED_PROFILES` and the profile (`c4df869d…996c`) are unchanged.
+- **AC-004: required, prepared and not run.** The witnessed binaries change and stack neutrality is not established
+  from source (below, "Stack"), so §8.56's 7/7 does not transfer. The binaries, the runner and the command are frozen
+  below, "AC-004"; the window needs Agent 0's clearance.
+
+**Basis and integration chain.**
+- *Basis.* Main `b65bc0867` (#150, R1 registered as §8.56). `price.py run b65bc0867` exits 0, O-10 0/0, all four
+  points complete, and reproduces the committed block (`generate --check` with the §8.55 basis line, 1,713 lines;
+  `point-atoms --check`, 154 lines), so the comparison tree is §8.56's registered tree. It is also identical but for
+  the basis to §8.56's own run of its priced source `af80c8b33` (1,602 equal).
+- *Branch.* `claude/rt-dynamics-instance`: the instance `0c5c9cc47`, review notes `38d0feb79` and the Design record
+  `04ec22be2`, with merges of main (`7def30caa`, `5d69c4586`, and `2cd1d24ac` for main `b65bc0867`). `f87c14cef`
+  reconciles the instance tests with S-K1: the direct test pencil sets `skew: None`, and the containment scan reads
+  `skew_pencil.rs` and parses declarations between semicolons; the product_physics tree digest is re-derived.
+- *Priced source.* `f87c14cef` (core tree `4dcc0795f6556fd1c58b1d429f54258d8e8f69a2`; main's is
+  `d3731435b0e712b544152ded41e1cf4af6c585e7`). The commits after it change only this record and DEL-04-09's documents.
+
+**What reaches the priced directories**, against main: PP `modal/integrity.rs` only, its module doc and one
+`pub(crate) fn selected_a1_a2_a3_criteria() -> Self` in the existing `impl ModalIntegrityParameters`. The rest is test
+code (`modal/observation_tests.rs`, a `*_tests.rs` file that every scanner skips, §8.52), the DEL-04-09 Design and the
+routing digest.
+- *The function.* Its body is one struct literal of the eighteen fields, each a constant: two `vec!` lists (six and
+  three `f64`) and one `IdentityTolerance` literal. It has no loop, format string or call edge in the priced graph, and
+  no `Default`. Its only heap allocations are the two lists (48 B and 24 B), at multiplicity 0.
+- *Call graph (L(3,0)).* 5,844 → 5,845 functions (the constructor) and 28,007 edges, unchanged: the new node has no
+  callee and no caller. `reachable_fns` stays 4,779, and the text inventory keeps its 5,034 rows.
+- *Reach.* No priced function calls it. Its only callers are in `modal::observation_tests` (`#[cfg(test)]`); no
+  product, native, headless, desktop or document path calls it, which
+  `no_non_test_modal_source_calls_the_selected_instance` checks over the modal module's non-test sources. The modal
+  module is unreached from the retained roots (§8.43).
+- *Rules, pins and keys.* None names the new text, and none changes. MODAL-ID's I2b-1 audits read `integrity.rs`
+  (`modal_parameter_refusals`' table and five calls, the six whole-file `parameter_refusal` mentions and the five
+  `reformation_refusal` mentions). The constructor mentions neither function and has no format site, so the audits
+  hold and no class is added. No MODAL-FB body pin names an `integrity.rs` function, and no full-file pin covers the
+  file. §8.52's `modal_doc_solved` pin (`f4907717…7ed`) is unchanged: `document.rs` is byte-equal to main's, and the
+  run passes the pin.
+- *Line shifts.* Every other difference in the run is a line key in `integrity.rs`: +4 lines after the module doc and
+  +60 after the constructor. With those keys normalized, the edges, site loops, audit and text rows equal main's at
+  every point.
+
+**Pricing.** `price.py run f87c14cef`: exit 0, O-10 0/0, all four points complete with no unmapped header and no
+unclassified argument. The line map equals the basis's (888 remapped, none unmapped, 36 prunes, eight resolutions),
+and the premise pins are equal. D is L(3,0) 43,783, L(2,1) 39,373, L(1,2) 35,239 and E 76,356, and TAV is
+4,714,366,116, 4,103,398,826, 3,578,737,078 and 7,229,420,978, each equal to the basis's. Against main's tree:
+identical but for the basis (structure equal, 1,602 coefficients equal, 0 higher, 0 lower; the check is sparse
+8,593,926,538 and dense 8,653,057,882 on both); all four `point.json` byte-identical; `generate --check` with the §8.55
+basis line is equal (1,713 lines) and `point-atoms --check` is equal (154 lines). The block keeps §8.55's basis line,
+since no coefficient moves; nothing is regenerated.
+
+**Stack.** Coefficient identity does not establish stack depth (§8.39). The constructor is reached from no witness
+path and changes no witness-path body, but both witnessed binaries change:
+- the lib-test binary compiles the constructor and `observation_tests`' new tests;
+- the challenge binary also differs from §8.56's (`92cf8e5f…` against `57de4ccd…`). `integrity.rs`'s shifted source
+  locations and the build checkout's path both enter it; the difference was not attributed further.
+
+Frame sizes were not measured, and no static comparison of the witness paths (§8.43's #96 route) was made. So §8.56's
+7/7 at `09c2e9489` does not transfer, and AC-004 is required. DEL-04-09's ScopeOfWork also requires the witnesses on
+the head of each change that touches priced sources.
+
+**Tests** (on `f87c14cef`; Cargo under the slot wrapper with the four flag variables unset, pytest with
+`OPENPIPESTRESS_NO_CARGO_BUILD=1`):
+- *Lib.* PP `modal::` 88 passed (3 ignored); PP `retained_memory` 85 passed (71 ignored: the exclusive witnesses among
+  them, not run).
+- *Pricing tool.* `test_852_i3a_modal_document.py`, `test_dynamics_i2a_d3.py` and `test_dynamics_d3.py`: 28 passed.
+  The full suite was not re-run: the tool is byte-equal to the cohort §8.56 ran it on (1,101 passed).
+- *Routing.* `tests/test_ci_numerical.py` and `tools/software_workflow/test_hosted_ci.py`: 77 passed (120 subtests);
+  all 45 recorded tree digests match `rust_tree_digest`.
+- *Deliverables.* `python3 -m tools.deliverables --project . check` exits 0.
+
+**Review.** #131's source and tests were reviewed before this turn. The merge onto §8.56 and this registration need
+their own targeted independent scrutiny, which has not yet been done.
+
+**AC-004 (prepared; not run).**
+- **Binaries** (built under the slot wrapper, `cargo test --offline --locked --no-run --lib --test
+  retained_memory_challenge` in `core/product_physics`, test profile, `RUSTFLAGS`, `CARGO_ENCODED_RUSTFLAGS`,
+  `CARGO_BUILD_RUSTFLAGS` and `RUSTDOCFLAGS` unset, rustc 1.97.1 `8bab26f4f`, at `f87c14cef`, core tree `4dcc0795…`):
+  `open_pipe_stress_product_physics-748489604f52aaea`, SHA-256
+  `df30c3bd424d619ccf53726c0cc08fd9beebe3daf01845a0e3ada41b540e0090`, and
+  `retained_memory_challenge-91c7b348014f1fb7`, SHA-256
+  `92cf8e5f07f06b34e6fae63a8263cbdfa536d8671b179e66010618878385e72b`. A second `--no-run` compiled nothing, and both
+  hashes were unchanged after it and after the lib tests above. Profile `c4df869d…996c`, `Cargo.lock` `b7ebb02a…5653`.
+  Read-only copies with the same hashes are in the scratch directory below.
+- **To run.** §8.56's seven processes, each one test with `--exact --test-threads=1` (`--ignored` for the six
+  witnesses), in one Agent-0-cleared `t3_exclusive.sh` window with memguard, each reporting exactly one executed test;
+  identities verified at admission and the hashes again afterwards. A later build-input change requires rebuilding and
+  re-identifying first.
+- **Runner.** §8.56's `harness.py`, with only its identities substituted: this checkout, the copies, the two binaries
+  and their hashes, the head and the core tree. Admission, the 55 s internal deadline, fail-fast, the flag and
+  `W1_MEMBER_CAP_OUT` handling and `CHECK_ONLY` are unchanged. It pins the head that carries this text, so its SHA-256
+  is recorded with the result.
+
+Run evidence (the two runs, compares, block checks, builds, test logs) and the AC-004 copies and runner are in
+`/Users/ryan/dev/chirality-t3/scratch/rt-dynamics-131-d3/`; they are review input, not a permanent dependency.
+
 ## 9. Memory-profile gates and registration
 
 ### Gate bounds (registration)
@@ -6195,3 +6298,4 @@ Code, tools and other designs cite this text by these earlier section names and 
 | "S-K1: skewed restraint directions", "§8.55" (SKW-D1, SKW-DZ, SKW-BN, SKW-SZ, SKW-ID, SKW-PC, SKW-IM, SKW-JN, SKW-MF, SKW-CG) | §8.55 |
 | "RT-A3 R1: the RE reader's exact tie-rod axial-share dot", "§8.56" | §8.56 |
 | "RT-A5 minuend_final: the held-status solve", "§8.54" (RTA5-PIN, RTA5-DZ, RTA5-FZ, RTA5-BN, RTA5-PC, RTA5-SZ, RTA5-L, RTA5-ID) | §8.54 |
+| "DEL-04-09: the selected A1, A2 and A3 modal parameter instance", "§8.57" | §8.57 |
