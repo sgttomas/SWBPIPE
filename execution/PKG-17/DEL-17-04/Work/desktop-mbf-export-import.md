@@ -443,7 +443,13 @@ maxLayoutRows: null}`: the text the review ran with. In order:
      path, the save commits under its run's lock before the first write. A cancel that takes
      the lock first refuses the save `MBF-EXPORT-CANCELLED`, with nothing written. A cancel
      after the commit is too late: its receipt says so (`too_late`), and steps 8 to 10 complete,
-     or undo themselves, and report their own outcome. A save is never half-aborted.
+     or undo themselves, and report their own outcome. A save is never half-aborted. A
+     committed save stays tracked until it completes, superseded or not, so every cancel
+     during its write reports it too late.
+   - **Retirement from the command's entry.** A save whose command entered before a
+     retirement (`cancel_mbf_export`, the session's reset) and had not yet registered its run
+     is cancelled when it registers: `MBF-EXPORT-CANCELLED`, no worker, no chooser, no write
+     (§3.7, "Cancellation").
 8. **Writes.** No failure loses a file the user already had. The output ceiling is decided at
    step 5, before any write, so it never truncates valid file bytes and never leaves a partial
    pair.
@@ -542,14 +548,40 @@ only the staleness check of step 6.
   including when the run fails, is cancelled or unwinds, returns the ledger exactly to its total
   before the bound; a bound above the budget is refused with the ledger and the pool's
   reservations unchanged.
-- **Cancellation** (`mbf_worker::MbfRuns`). At most one review and one save are in progress; a
-  newer one of either kind cancels the older. `cancel_mbf_export` and the native session reset
-  (`dispose_all_preview_mechanics_results`, on page load) cancel both: a waiting run stops
-  waiting, a running worker is killed and reaped before its grant is released, and a save
-  before its commit writes nothing (§3.6 step 7). The frontend calls `cancel_mbf_export`
-  whenever it retires a project session (each new session generation, a project replaced by
-  one with the same id included) and when the workspace unmounts, independently of any model
-  check; slice 4b.2b's dialog calls it when it closes.
+- **Cancellation** (`mbf_worker::MbfRuns`). A newer review or save cancels the older ones of
+  its kind. `cancel_mbf_export` and the native session reset
+  (`dispose_all_preview_mechanics_results`, on page load) are *retirements*: each cancels every
+  run in progress (a waiting run stops waiting, a running worker is killed and reaped before its
+  grant is released, and a save before its commit writes nothing, §3.6 step 7) and moves a
+  monotone retirement epoch on. Every registered run stays tracked until its command ends,
+  committed saves included; a cancel reports each run it stopped (`cancelled`) and each
+  committed save it reached (`too_late`), and a run an earlier cancel stopped in neither.
+- **Retirement epoch.** Each command captures the epoch at its entry (`MbfRuns::enter`, the
+  first statement of the `lib.rs` command, before its reservation, the blocking executor and
+  its admission) and carries it to its run's registration. A command whose entry precedes a
+  retirement registers cancelled from the start (`MBF-EXPORT-CANCELLED`, no worker, no
+  chooser, no write); a command that enters after a retirement is not affected by it. Tauri 2
+  runs an async command's body, argument extraction included, in a task it spawns, so "entry"
+  is that body's first statement; the frontend barrier below keeps any start from being sent
+  while a retirement is unacknowledged.
+- **The frontend barrier** (`features/caepipe-mbf/mbfExportCancel.ts`). Every MBF start
+  (`reviewMbfExport`, `saveMbfExport`, raw-body ingress commands) and every retirement
+  (`retireMbfExportSession`) goes through it. The workspace retires the export whenever it
+  retires a project session (each new session generation, a project replaced by one with the
+  same id included, React Strict Mode's re-run) and when it unmounts, independently of any
+  model check; slice 4b.2b's dialog retires it when it closes. A start captures the
+  retirement generation as it is called, waits for any retirement in progress, and checks
+  immediately before every send (a headroom re-send included) that no retirement has been
+  requested since and that the caller's own session check (`stillCurrent`) holds; a stale
+  start is never sent and resolves `MBF-EXPORT-CANCELLED`. Each result carries its generation
+  and `current()`, so the caller discards a completion that arrives after its session was
+  retired. **Semantics:** a retirement cancels every MBF run that started before it completed;
+  a start issued during a retirement reaches native only after it is acknowledged and is not
+  cancelled by it. **Fail-safe rule:** a start never treats an unacknowledged retirement (the
+  `cancel_mbf_export` invoke rejected or threw) as done. It re-delivers that retirement once
+  (shared by the starts waiting on it); if that is unacknowledged too, the start is not sent
+  and refuses `MBF-EXPORT-RETIREMENT-UNCONFIRMED`, and the next start tries again. No start has
+  been sent since the retirement was requested, so a re-delivery cancels only retired runs.
 - **Host-side reservations.** The command's ledger (`NativeLeaseMemory`) is seeded with the
   lease. Each of these is reserved before it is made:
   - the settings' parse (1 MiB, for a settings text of at most 25 KiB);
@@ -1329,10 +1361,36 @@ the frontend. The production entry points run task 3 in the capped worker; `MBF-
     unmount, no model check). Mutations checked: no commit check, no pre-chooser check, no reset cancel, a cancel
     that ignores the commit, a commit that ignores a cancel, the scan's old exclusion and no frontend retirement each
     fail a test, none by hanging.
-- **4b.2b** (next, not here): the menu item, the Exports panel action, mounting the dialog on `review_mbf_export`
-  and `save_mbf_export` (sent as `args-json-v1` raw bodies: both join `NATIVE_INGRESS_COMMANDS` in
-  `services/nativeIngress.ts` and its test twin), the dialog's close calling `cancel_mbf_export`, and retiring the
-  TypeScript builder (A-6).
+- **Repair after the re-check at 6ccc68aff** (2026-11-05):
+  - *Retirement missed commands not yet registered* (P2). `MbfRuns` keeps a monotone retirement epoch; each
+    command captures it at entry (`lib.rs`, before its reservation, scheduling and admission) and a command
+    retired since registers cancelled from the start (§3.7, "Retirement epoch"). The page-load reset is a
+    retirement too.
+  - *An old session's cleanup could cancel a new session's run* (P2), with Agent 0's added boundary (an obsolete
+    start waiting on the retirement must not be sent after it). The frontend barrier (§3.7) serializes starts
+    behind retirements, re-checks the caller's generation immediately before every send, tags each result with
+    its generation, and states its fail-safe rule for an unacknowledged retirement. `review_mbf_export` and
+    `save_mbf_export` join `NATIVE_INGRESS_COMMANDS` and its test twin, sent only through the barrier.
+    `cancel_mbf_export` keeps no arguments.
+  - *A too-late cancel stopped tracking a committed save* (P3). Every run stays tracked until its command ends;
+    committed saves, superseded ones included, are reported too late by every cancel during their write.
+  - *Scan path spellings* (P3). The scan normalizes resolved module paths lexically (`.` dropped, `..` taken back)
+    before comparing declarations, with aliasing negative controls.
+  - *Tests added:* Rust, a review and a save retired before admission and before registration, by
+    `cancel_mbf_export` and by the page-load reset (no chooser, no write); a command entering after a retirement
+    is unaffected; a committed save stays too late through repeated cancels and supersession. Vitest: a start
+    issued during a delayed retirement is sent only after it, and is not cancelled; old starts waiting on a
+    retirement are never sent after a same-id replacement, a failed caller check, unmount, or Strict Mode's double
+    effect; a delayed old completion is tagged not current; an unacknowledged retirement (rejected, or thrown)
+    refuses `MBF-EXPORT-RETIREMENT-UNCONFIRMED` until a re-delivery is acknowledged; a start retired during a
+    headroom re-send is not sent again. Mutations checked: no entry-epoch check, committed runs dropped at a
+    cancel, a committed predecessor dropped at supersession, unnormalized scan paths, no frontend await, no
+    generation re-check before the send, a failed retirement treated as acknowledged and no session retirement
+    each fail a test, none by hanging.
+- **4b.2b** (next, not here): the menu item, the Exports panel action, and mounting the dialog on the barrier's
+  `reviewMbfExport` and `saveMbfExport` (already ingress commands, slice 4b.2a's repair), the dialog's close
+  calling `retireMbfExportSession`, discarding a result whose `current()` is false, and retiring the TypeScript
+  builder (A-6).
 
 ## 7. Boundaries
 

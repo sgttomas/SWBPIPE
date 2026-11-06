@@ -33,17 +33,27 @@
 //! keeps its code; any other worker failure (an exit, a panic, a protocol violation, an attested result) is
 //! `MBF-EXPORT-WORKER-PROTOCOL`; cancellation is `MBF-EXPORT-CANCELLED`.
 //!
-//! **Cancellation** ([`MbfRuns`]). At most one review and one save are in progress: a newer one of either kind cancels
-//! the older, whose wait ends or whose worker is killed and reaped before its grant is released.
-//! [`MbfRuns::cancel_all`] does the same for both; production calls it from `cancel_mbf_export` (the frontend calls it
-//! when the project session is retired, and 4b.2b's dialog when it closes) and from the session reset
-//! (`dispose_all_preview_mechanics_results`, on page load).
+//! **Cancellation** ([`MbfRuns`]). A newer review or save cancels the older ones of its kind, whose wait ends or whose
+//! worker is killed and reaped before its grant is released. [`MbfRuns::cancel_all`] is a *retirement*: it cancels
+//! every run in progress and moves the retirement epoch on. Production calls it from `cancel_mbf_export` (the
+//! frontend calls it when the project session is retired, and 4b.2b's dialog when it closes) and from the session
+//! reset (`dispose_all_preview_mechanics_results`, on page load).
+//!
+//! **Ownership from the command's entry.** Each command captures the epoch as it begins ([`MbfRuns::enter`], in
+//! `lib.rs` before its reservation, its blocking part and its admission) and carries it to its run's registration. A
+//! command whose entry precedes a retirement is cancelled when it registers: it replies `MBF-EXPORT-CANCELLED` with no
+//! worker, no chooser and no write. A command that enters after a retirement is not affected by it. Every
+//! registered run stays tracked until its command ends, so a later retirement reaches it wherever it is.
+//! (Tauri 2 runs an async command's body, its argument extraction included, in a task it spawns: "entry" is the
+//! first statement of that body, before any `.await`. The frontend sends no start before its retirement is
+//! acknowledged, `mbfExportCancel.ts`.)
 //!
 //! **The cancel/commit boundary** (a save only). The save checks its cancellation again before it opens the chooser,
 //! and once the chooser returns a path it commits ([`MbfWriterRun::commit`]) under the run's lock before the first
 //! write. A cancel that wins the lock first refuses the save `MBF-EXPORT-CANCELLED` with nothing written; a cancel
 //! after the commit is too late (its receipt says so), and the save's transactional write (4a: every destination
-//! checked and backed up first, undone on failure) completes or undoes itself and reports its own outcome.
+//! checked and backed up first, undone on failure) completes or undoes itself and reports its own outcome. A
+//! committed save stays tracked until it completes, superseded or not: every cancel meanwhile is reported too late.
 
 use crate::command_ingress::{self, Args, ArgsDecoding, CommandError, NoCommandError};
 use crate::ingress::allocation_envelope;
@@ -92,7 +102,23 @@ struct RunState {
     worker: Option<Arc<WorkerControl>>,
 }
 
+/// What one cancel did to one run.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum CancelEffect {
+    /// This cancel stopped it: it replies `MBF-EXPORT-CANCELLED` and writes nothing.
+    Stopped,
+    /// An earlier cancel had stopped it already; it is still ending.
+    AlreadyStopped,
+    /// A save past its commit: its write is not interrupted.
+    TooLate,
+}
+
 impl RunControl {
+    /// A run whose command entered before a retirement it registers after: cancelled from the start.
+    fn retired() -> Self {
+        RunControl { state: Mutex::new(RunState { cancelled: true, ..RunState::default() }) }
+    }
+
     fn lock(&self) -> MutexGuard<'_, RunState> {
         self.state.lock().unwrap_or_else(PoisonError::into_inner)
     }
@@ -102,17 +128,20 @@ impl RunControl {
     }
 
     /// Requests cancellation and kills the worker if one is attached; its supervisor reaps it, then the run releases
-    /// the grant. Returns false, changing nothing, if the save has already committed its write (too late).
-    fn cancel(&self) -> bool {
+    /// the grant. A save that has already committed its write is too late, and nothing changes.
+    fn cancel(&self) -> CancelEffect {
         let mut state = self.lock();
         if state.committed {
-            return false;
+            return CancelEffect::TooLate;
+        }
+        if state.cancelled {
+            return CancelEffect::AlreadyStopped;
         }
         state.cancelled = true;
         if let Some(worker) = &state.worker {
             worker.kill();
         }
-        true
+        CancelEffect::Stopped
     }
 
     /// The cancel/commit boundary: commits unless a cancel came first (under the same lock as [`Self::cancel`]).
@@ -127,7 +156,8 @@ impl RunControl {
 
 /// What `cancel_mbf_export` (and the session's retirement) did: the runs it stopped before they wrote anything, and
 /// the saves it reached after they had committed their write, which complete (or undo themselves) and report their
-/// own outcome. Both zero: nothing was in progress.
+/// own outcome. A run an earlier cancel already stopped is in neither. Both zero: nothing it could stop was in
+/// progress.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize)]
 pub(crate) struct MbfCancelReceipt {
     /// Stopped: each replies `MBF-EXPORT-CANCELLED`, and nothing was written.
@@ -136,65 +166,108 @@ pub(crate) struct MbfCancelReceipt {
     pub(crate) too_late: u32,
 }
 
-type Slot = Arc<Mutex<Option<Arc<RunControl>>>>;
-
-fn lock_slot(slot: &Slot) -> MutexGuard<'_, Option<Arc<RunControl>>> {
-    slot.lock().unwrap_or_else(PoisonError::into_inner)
+/// The two kinds of run: a newer one of either kind supersedes the older ones of its kind.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum RunKind {
+    Review,
+    Save,
 }
 
-/// The MBF export's runs in progress (managed app state): at most one review and one save. A newer one of either
-/// kind cancels the older.
+/// A command's entry into the MBF export: the retirement epoch it captured as the command began (`lib.rs`, before
+/// its reservation, its blocking part and its admission). A run whose entry is older than the current epoch was
+/// retired before it registered, and is cancelled from the start: no worker, no chooser, no write.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) struct MbfEntry {
+    epoch: u64,
+}
+
+#[derive(Debug, Default)]
+struct Tracked {
+    /// Bumped by every retirement ([`MbfRuns::cancel_all`]).
+    epoch: u64,
+    /// Every registered run until it ends (its [`Registration`] drops): cancelled and committed ones included, so a
+    /// committed save stays tracked, and is reported too late, until its write completes.
+    runs: Vec<(RunKind, Arc<RunControl>)>,
+}
+
+/// The MBF export's runs in progress (managed app state) and its retirement epoch. A newer review or save cancels the
+/// older ones of its kind (a committed save is too late and completes); a retirement cancels all of them and every
+/// command that entered before it.
 #[derive(Clone, Debug, Default)]
 pub(crate) struct MbfRuns {
-    review: Slot,
-    save: Slot,
+    tracked: Arc<Mutex<Tracked>>,
+}
+
+// A test's hook, run on the command's thread just before its run registers (the retirement-before-registration test).
+#[cfg(test)]
+thread_local! {
+    pub(crate) static BEFORE_REGISTRATION: std::cell::RefCell<Option<Box<dyn FnOnce()>>> = std::cell::RefCell::new(None);
 }
 
 impl MbfRuns {
-    /// Makes a new run the current one of `slot`, cancelling the one it supersedes and waking the pool's waiters so a
-    /// waiting run sees it at once.
-    fn register(slot: &Slot, pool: &MemoryPool) -> Registration {
-        let control = Arc::new(RunControl::default());
-        let previous = lock_slot(slot).replace(Arc::clone(&control));
-        if let Some(previous) = previous {
-            previous.cancel();
-            pool.wake_waiters();
-        }
-        Registration { slot: Arc::clone(slot), control }
+    fn lock(&self) -> MutexGuard<'_, Tracked> {
+        self.tracked.lock().unwrap_or_else(PoisonError::into_inner)
     }
 
-    /// Cancels the review and the save in progress, if any: a waiting run stops waiting, a running worker is killed
-    /// and its grant released after the reap, a save before its commit refuses with nothing written. A save past its
-    /// commit is counted too late and completes. `cancel_mbf_export` and the session reset call it.
+    /// The command's entry: the current retirement epoch, captured as the command begins.
+    pub(crate) fn enter(&self) -> MbfEntry {
+        MbfEntry { epoch: self.lock().epoch }
+    }
+
+    /// Registers a new run of `kind`, cancelling the older ones of its kind and waking the pool's waiters so a
+    /// waiting run sees it at once. A run whose command entered before the latest retirement is not registered: it
+    /// is cancelled from the start, and supersedes nothing.
+    fn register(&self, kind: RunKind, entry: MbfEntry, pool: &MemoryPool) -> Registration {
+        #[cfg(test)]
+        if let Some(hook) = BEFORE_REGISTRATION.with(|hook| hook.borrow_mut().take()) {
+            hook();
+        }
+        let mut tracked = self.lock();
+        if entry.epoch < tracked.epoch {
+            return Registration { runs: self.clone(), control: Arc::new(RunControl::retired()) };
+        }
+        let control = Arc::new(RunControl::default());
+        let stopped = tracked.runs.iter().filter(|(of, _)| *of == kind).filter(|(_, run)| run.cancel() == CancelEffect::Stopped).count();
+        tracked.runs.push((kind, Arc::clone(&control)));
+        drop(tracked);
+        if stopped > 0 {
+            pool.wake_waiters();
+        }
+        Registration { runs: self.clone(), control }
+    }
+
+    /// Retires every run in progress and every command that has entered but not yet registered (the epoch moves on):
+    /// a waiting run stops waiting, a running worker is killed and its grant released after the reap, a save before
+    /// its commit refuses with nothing written. A save past its commit is counted too late, stays tracked and
+    /// completes. A command that enters afterwards is not affected. `cancel_mbf_export` and the session reset call it.
     pub(crate) fn cancel_all(&self, pool: &MemoryPool) -> MbfCancelReceipt {
-        let current: Vec<_> = [&self.review, &self.save].into_iter().filter_map(|slot| lock_slot(slot).take()).collect();
+        let mut tracked = self.lock();
+        tracked.epoch += 1;
         let mut receipt = MbfCancelReceipt::default();
-        for control in &current {
-            if control.cancel() {
-                receipt.cancelled += 1;
-            } else {
-                receipt.too_late += 1;
+        for (_, run) in &tracked.runs {
+            match run.cancel() {
+                CancelEffect::Stopped => receipt.cancelled += 1,
+                CancelEffect::TooLate => receipt.too_late += 1,
+                CancelEffect::AlreadyStopped => {}
             }
         }
-        if !current.is_empty() {
+        drop(tracked);
+        if receipt.cancelled > 0 {
             pool.wake_waiters();
         }
         receipt
     }
 }
 
-/// A run's place in its slot: dropping it clears the slot if the run is still the current one.
+/// A run's place among the tracked runs: dropping it (as the run's command ends) stops tracking it.
 struct Registration {
-    slot: Slot,
+    runs: MbfRuns,
     control: Arc<RunControl>,
 }
 
 impl Drop for Registration {
     fn drop(&mut self) {
-        let mut slot = lock_slot(&self.slot);
-        if slot.as_ref().is_some_and(|current| Arc::ptr_eq(current, &self.control)) {
-            *slot = None;
-        }
+        self.runs.lock().runs.retain(|(_, run)| !Arc::ptr_eq(run, &self.control));
     }
 }
 
@@ -250,14 +323,15 @@ pub(crate) struct CappedWorkerRun<'r> {
 }
 
 impl<'r> CappedWorkerRun<'r> {
-    /// The review's run: it becomes `runs`' review in progress, superseding an older one.
-    pub(crate) fn review(registry: &'r SolveJobRegistry, ledger: &Arc<CommandLedger>, runs: &MbfRuns) -> Self {
-        Self::new(registry, ledger, MbfRuns::register(&runs.review, registry.pool()))
+    /// The review's run, for a command that entered at `entry`: it becomes `runs`' review in progress, superseding
+    /// older ones, unless a retirement came after `entry`.
+    pub(crate) fn review(registry: &'r SolveJobRegistry, ledger: &Arc<CommandLedger>, runs: &MbfRuns, entry: MbfEntry) -> Self {
+        Self::new(registry, ledger, runs.register(RunKind::Review, entry, registry.pool()))
     }
 
-    /// The save's run: it becomes `runs`' save in progress.
-    pub(crate) fn save(registry: &'r SolveJobRegistry, ledger: &Arc<CommandLedger>, runs: &MbfRuns) -> Self {
-        Self::new(registry, ledger, MbfRuns::register(&runs.save, registry.pool()))
+    /// The save's run, for a command that entered at `entry`: it becomes `runs`' save in progress, as the review's.
+    pub(crate) fn save(registry: &'r SolveJobRegistry, ledger: &Arc<CommandLedger>, runs: &MbfRuns, entry: MbfEntry) -> Self {
+        Self::new(registry, ledger, runs.register(RunKind::Save, entry, registry.pool()))
     }
 
     fn new(registry: &'r SolveJobRegistry, ledger: &Arc<CommandLedger>, registration: Registration) -> Self {
@@ -408,9 +482,19 @@ pub(crate) fn reserve(registry: &SolveJobRegistry, body: &InvokeBody, headers: &
     Ok((raw.to_vec(), lease))
 }
 
+// A test's hook, run on the command's thread just before its admission (the retirement-before-admission test).
+#[cfg(test)]
+thread_local! {
+    pub(crate) static BEFORE_ADMISSION: std::cell::RefCell<Option<Box<dyn FnOnce()>>> = std::cell::RefCell::new(None);
+}
+
 /// The command's memory and arguments: `copy` seeds its ledger, and the arguments' bound grows it before they are
 /// parsed (`command_ingress::admit_raw`); the raw copy ends here.
 fn admit<'r>(registry: &'r SolveJobRegistry, raw: Vec<u8>, copy: Lease, command: &'static str) -> Result<(NativeLeaseMemory<'r>, Args, CommandLease), SolveJobError> {
+    #[cfg(test)]
+    if let Some(hook) = BEFORE_ADMISSION.with(|hook| hook.borrow_mut().take()) {
+        hook();
+    }
     let (memory, copy) = NativeLeaseMemory::seeded(registry, copy);
     let copy_bytes = copy.bytes();
     let (args, lease) = command_ingress::admit_raw(registry, &raw, command, ArgsDecoding::Moved, |bytes| {
@@ -422,11 +506,12 @@ fn admit<'r>(registry: &'r SolveJobRegistry, raw: Vec<u8>, copy: Lease, command:
     Ok((memory, args, lease))
 }
 
-/// `review_mbf_export` after [`reserve`]: admission, the review in the capped worker, and `respond` with the outcome
+/// `review_mbf_export` after [`reserve`], for the command that entered at `entry`: admission, the review in the capped worker, and `respond` with the outcome
 /// and its text while the command's leases and the worker's result lease are held.
 pub(crate) fn review_command<R>(
     registry: &SolveJobRegistry,
     runs: &MbfRuns,
+    entry: MbfEntry,
     raw: Vec<u8>,
     copy: Lease,
     respond: impl FnOnce(&MbfReviewOutcome, String) -> R,
@@ -434,16 +519,17 @@ pub(crate) fn review_command<R>(
     let (memory, mut args, lease) = admit(registry, raw, copy, mbf_export::REVIEW_COMMAND)?;
     let request = mbf_export::review_mbf_export_args(&mut args)?;
     drop(args);
-    let response = mbf_export::review_mbf_export_admitted(request, &memory, &lease, runs, respond);
+    let response = mbf_export::review_mbf_export_admitted(request, &memory, &lease, runs, entry, respond);
     drop(lease);
     Ok(response)
 }
 
-/// `save_mbf_export` after [`reserve`]: admission, the save (§3.6) with task 3 in the capped worker, the chooser
+/// `save_mbf_export` after [`reserve`], for the command that entered at `entry`: admission, the save (§3.6) with task 3 in the capped worker, the chooser
 /// `choose` and the store `open_store`, and `respond` as for the review.
 pub(crate) fn save_command<R>(
     registry: &SolveJobRegistry,
     runs: &MbfRuns,
+    entry: MbfEntry,
     raw: Vec<u8>,
     copy: Lease,
     open_store: impl FnMut() -> Result<rusqlite::Connection, String>,
@@ -453,7 +539,7 @@ pub(crate) fn save_command<R>(
     let (memory, mut args, lease) = admit(registry, raw, copy, mbf_export::COMMAND)?;
     let request = mbf_export::save_mbf_export_args(&mut args)?;
     drop(args);
-    let response = mbf_export::save_mbf_export_admitted(request, open_store, &memory, &lease, runs, choose, respond);
+    let response = mbf_export::save_mbf_export_admitted(request, open_store, &memory, &lease, runs, entry, choose, respond);
     drop(lease);
     Ok(response)
 }

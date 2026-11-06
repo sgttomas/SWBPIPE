@@ -91,7 +91,7 @@ import { MODEL_DOCUMENT_FILE_SOURCE, modelFileRefusalMessage, modelFileWarningSu
 import { checkModelLibraryRefs, modelLibraryRefs } from "../../services/libraryImportService";
 import { currentLibraryRefFindings, libraryRefDiagnostics, publishLibraryRefFindings } from "../library/libraryRefFindings";
 import { cancelNativeModelChecks, runModelChecks, type ModelCheckRun } from "../diagnostics/modelChecks";
-import { cancelMbfExport } from "../caepipe-mbf/mbfExportCancel";
+import { retireMbfExportSession } from "../caepipe-mbf/mbfExportCancel";
 import { modelDocumentSlotValidation } from "../model-file/modelDocumentShape";
 import {
   keptStoredProjectMessage,
@@ -3751,9 +3751,10 @@ export function useWorkspaceSession() {
   }, [projectSessionGeneration]);
   // File > Export MBF… (DEL-17-04 §3.9.5): a review or save in progress belongs to the project session that started
   // it. Retiring that session (each new generation, a project replaced by one with the same id included) or
-  // unmounting the workspace cancels it natively, independently of any model check; the page-load reset cancels it
-  // natively too.
-  useEffect(() => () => { void cancelMbfExport(); }, [projectSessionGeneration]);
+  // unmounting the workspace retires the export (`retireMbfExportSession`): a start not yet sent is never sent, every
+  // run started so far is cancelled natively, and the next start waits for that cancel to be acknowledged. It does not
+  // depend on any model check; the page-load reset cancels natively too.
+  useEffect(() => () => { void retireMbfExportSession(); }, [projectSessionGeneration]);
   async function handleRunModelChecks() {
     if (!model) return;
     const request = ++modelCheckRequest.current;

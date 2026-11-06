@@ -69,7 +69,10 @@ export const INGRESS_COMMANDS: ReadonlySet<string> = new Set([
   "open_local_project_in_native_custody",
   "read_analysis_run_in_native_custody",
   // C1 slice 6's save continuity: Save/Create Project of a reopened saved run from its handle.
-  "save_restored_result_local_project"
+  "save_restored_result_local_project",
+  // DEL-17-04 slice 4b.2a: File > Export MBF…'s review and save.
+  "review_mbf_export",
+  "save_mbf_export"
 ]);
 
 type InvokeOptions = { headers?: Record<string, string> } | undefined;

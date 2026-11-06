@@ -130,18 +130,21 @@ fn raw_body(body: &Value) -> InvokeBody {
 
 /// `review_mbf_export` as `lib.rs` runs it: the copy's reservation, then the blocking part.
 fn review_via_command(registry: &SolveJobRegistry, runs: &MbfRuns, body: &Value) -> (MbfReviewOutcome, String) {
+    let entry = runs.enter();
     let (raw, copy) = reserve(registry, &raw_body(body), &headers(Some(INGRESS_ARGS_JSON_V1)), REVIEW_COMMAND).unwrap();
-    let (outcome, text) = review_command(registry, runs, raw, copy, |outcome, text| (outcome.clone(), text)).unwrap();
+    let (outcome, text) = review_command(registry, runs, entry, raw, copy, |outcome, text| (outcome.clone(), text)).unwrap();
     assert_eq!(serde_json::to_string(&outcome).unwrap(), text);
     (outcome, text)
 }
 
 /// `save_mbf_export` as `lib.rs` runs it, with no library store; `chosen` is the chooser's answer.
 fn save_via_command(registry: &SolveJobRegistry, runs: &MbfRuns, body: &Value, chosen: Option<PathBuf>, opened: &Opened) -> MbfExportOutcome {
+    let entry = runs.enter();
     let (raw, copy) = reserve(registry, &raw_body(body), &headers(Some(INGRESS_ARGS_JSON_V1)), COMMAND).unwrap();
     let (outcome, text) = save_command(
         registry,
         runs,
+        entry,
         raw,
         copy,
         || Err("the test has no library store".to_string()),
@@ -159,8 +162,9 @@ fn save_via_command(registry: &SolveJobRegistry, runs: &MbfRuns, body: &Value, c
 
 /// `save_via_command` with the chooser `choose` (a test that holds the chooser open).
 fn save_choosing(registry: &SolveJobRegistry, runs: &MbfRuns, body: &Value, choose: impl FnOnce(&str) -> Result<Option<PathBuf>, String>) -> MbfExportOutcome {
+    let entry = runs.enter();
     let (raw, copy) = reserve(registry, &raw_body(body), &headers(Some(INGRESS_ARGS_JSON_V1)), COMMAND).unwrap();
-    let (outcome, text) = save_command(registry, runs, raw, copy, || Err("the test has no library store".to_string()), choose, |outcome, text| (outcome.clone(), text)).unwrap();
+    let (outcome, text) = save_command(registry, runs, entry, raw, copy, || Err("the test has no library store".to_string()), choose, |outcome, text| (outcome.clone(), text)).unwrap();
     assert_eq!(serde_json::to_string(&outcome).unwrap(), text);
     outcome
 }
@@ -308,7 +312,7 @@ fn the_review_command_runs_task_3_in_the_capped_worker_and_replies_the_recorded_
         let body = review_body(&text, settings);
         let (raw, copy) = reserve(&registry, &raw_body(&body), &headers(Some(INGRESS_ARGS_JSON_V1)), REVIEW_COMMAND).unwrap();
         let held_at_response = Cell::new(0);
-        let (outcome, response) = review_command(&registry, &runs, raw, copy, |outcome, text| {
+        let (outcome, response) = review_command(&registry, &runs, runs.enter(), raw, copy, |outcome, text| {
             // Result custody holds through the response's construction.
             held_at_response.set(registry.pool().reserved(LeasePurpose::Result));
             (outcome.clone(), text)
@@ -381,7 +385,8 @@ fn the_commands_refuse_a_body_without_the_ingress_header() {
         assert!(matches!(&json, SolveJobError::InvalidRequest { message } if message.starts_with("INGRESS-RAW-BODY-REQUIRED")), "{json:?}");
         // A body that is not one object is refused after the copy's lease, which is released.
         let (raw, copy) = reserve(&registry, &InvokeBody::Raw(b"[1]".to_vec()), &headers(Some(INGRESS_ARGS_JSON_V1)), command).unwrap();
-        let refused = review_command(&registry, &MbfRuns::default(), raw, copy, |_, text| text).unwrap_err();
+        let runs = MbfRuns::default();
+        let refused = review_command(&registry, &runs, runs.enter(), raw, copy, |_, text| text).unwrap_err();
         assert!(matches!(&refused, SolveJobError::InvalidRequest { message } if message.starts_with("INGRESS-ARGS-NOT-OBJECT")), "{refused:?}");
     }
     assert_eq!(gate.started_count(), 0);
@@ -414,7 +419,7 @@ fn the_grant_request_and_result_are_counted_in_the_commands_ledger() {
     let reply = envelope(MbfMode::Review);
     std::thread::scope(|scope| {
         let _guard = CancelOnUnwind(&runs, &registry);
-        let running = scope.spawn(|| CappedWorkerRun::review(&registry, &ledger, &runs).run(&request));
+        let running = scope.spawn(|| CappedWorkerRun::review(&registry, &ledger, &runs, runs.enter()).run(&request));
         gate.wait_started(1);
         assert_eq!(ledger.total_bytes(), ledger.budget_bytes(), "the bound takes the rest of the captured budget");
         assert!(registry.pool_status().reserved_bytes <= ledger.total_bytes(), "the pool holds no more than the ledger counts");
@@ -453,7 +458,7 @@ fn a_run_one_byte_above_the_budget_is_refused_before_any_worker_and_one_at_it_st
         let started = gate.started_count();
         std::thread::scope(|scope| {
             let _guard = CancelOnUnwind(&runs, &registry);
-            let running = scope.spawn(|| CappedWorkerRun::review(&registry, &ledger, &runs).run(&request));
+            let running = scope.spawn(|| CappedWorkerRun::review(&registry, &ledger, &runs, runs.enter()).run(&request));
             if admitted {
                 gate.wait_started(started + 1);
                 assert_eq!(ledger.total_bytes(), budget);
@@ -487,7 +492,7 @@ fn a_budget_raised_while_a_review_waits_does_not_extend_it() {
     let request = WorkerRequest { mode: MbfMode::Review, settings_json: &settings, model_text: &text };
     std::thread::scope(|scope| {
         let _guard = CancelOnUnwind(&runs, &registry);
-        let running = scope.spawn(|| CappedWorkerRun::review(&registry, &ledger, &runs).run(&request));
+        let running = scope.spawn(|| CappedWorkerRun::review(&registry, &ledger, &runs, runs.enter()).run(&request));
         await_queued(&registry, |refusal| matches!(refusal, ResourceRefusal::WorkerLimitReached { .. }));
         assert_eq!((ledger.budget_bytes(), ledger.total_bytes()), (GIB, GIB), "the bound is the captured budget's rest");
         assert_eq!(runs.cancel_all(registry.pool()), STOPPED_ONE);
@@ -526,7 +531,7 @@ fn a_review_waiting_for_its_grant_is_cancelled_or_refused_at_its_deadline() {
     let (_memory, args) = seeded(&registry, 3 * MIB);
     let (text, settings) = review_request(&canonical_model(), &settings());
     let request = WorkerRequest { mode: MbfMode::Review, settings_json: &settings, model_text: &text };
-    let refused = CappedWorkerRun::review(&registry, args.ledger(), &runs).with_start_wait(Duration::from_millis(30)).run(&request);
+    let refused = CappedWorkerRun::review(&registry, args.ledger(), &runs, runs.enter()).with_start_wait(Duration::from_millis(30)).run(&request);
     let Err(WriterRunFailure::Memory(message)) = refused else { panic!("not refused") };
     assert!(message.contains("worker_limit_reached"), "{message}");
     assert_eq!(args.ledger().total_bytes(), args.bytes());
@@ -706,6 +711,121 @@ fn cancel_mbf_export_stops_the_current_run_and_is_a_no_op_with_nothing_running()
     });
     assert_eq!(runs.cancel_all(registry.pool()), MbfCancelReceipt::default());
     assert_eq!(serde_json::to_value(STOPPED_ONE).unwrap(), json!({"cancelled": 1, "too_late": 0}), "the command's reply");
+    assert_released(&registry);
+}
+
+/// How a test retires the session from inside a command (on its own thread, at a hook): `cancel_mbf_export`'s body,
+/// or the page-load reset (`lib.rs` `reset_native_session`).
+#[derive(Clone, Copy, Debug)]
+enum Retire {
+    Cancel,
+    PageLoadReset,
+}
+
+fn retire_from_hook(how: Retire, registry: &SolveJobRegistry, runs: &MbfRuns) -> Box<dyn FnOnce()> {
+    let (registry, runs) = (registry.clone(), runs.clone());
+    Box::new(move || match how {
+        Retire::Cancel => drop(runs.cancel_all(registry.pool())),
+        Retire::PageLoadReset => drop(crate::reset_native_session(&registry, &runs)),
+    })
+}
+
+/// Finding P2 at 6ccc68aff (1): a command owns its cancellation from its entry. The review and the save capture the
+/// epoch before their reservation (as `lib.rs` does), and the session is retired while each is paused before its
+/// admission, or after its admission and before its run registers (the tests' hooks), by `cancel_mbf_export` or by
+/// the page-load reset. Resumed, each replies `MBF-EXPORT-CANCELLED`: the review's run is not registered, the save
+/// opens no chooser and writes nothing, and everything is released. With the real worker, a command that ignored
+/// its entry would complete (and the save open its chooser): the test fails instead of waiting.
+#[test]
+fn a_command_retired_before_its_admission_or_registration_is_cancelled_and_writes_nothing() {
+    let _lock = atomic_save_test_lock();
+    let registry = real_worker();
+    type Hook = &'static std::thread::LocalKey<std::cell::RefCell<Option<Box<dyn FnOnce()>>>>;
+    let points: [(&str, Hook); 2] = [("before admission", &BEFORE_ADMISSION), ("before registration", &BEFORE_REGISTRATION)];
+    for how in [Retire::Cancel, Retire::PageLoadReset] {
+        for (point, hook) in points {
+            let runs = MbfRuns::default();
+            hook.with(|slot| *slot.borrow_mut() = Some(retire_from_hook(how, &registry, &runs)));
+            let (reviewed, _) = review_via_command(&registry, &runs, &review_body(&canonical_model(), &settings()));
+            assert!(hook.with(|slot| slot.borrow().is_none()), "{how:?} {point}: the hook ran");
+            assert_eq!(review_codes(&reviewed), vec![CANCELLED.to_string()], "{how:?} {point}: {reviewed:?}");
+
+            let sandbox = Sandbox::new("retired-entry");
+            let opened = Opened::new(false);
+            hook.with(|slot| *slot.borrow_mut() = Some(retire_from_hook(how, &registry, &runs)));
+            let saved = save_via_command(&registry, &runs, &save_body(&canonical_model(), recorded_default()), Some(sandbox.0.join("swbpipe-model.mbf")), &opened);
+            assert!(hook.with(|slot| slot.borrow().is_none()), "{how:?} {point}: the hook ran");
+            assert_eq!(save_codes(&saved), vec![CANCELLED.to_string()], "{how:?} {point}: {saved:?}");
+            assert!(!opened.load(Ordering::SeqCst), "{how:?} {point}: no chooser");
+            assert!(sandbox.is_empty(), "{how:?} {point}: nothing written");
+            assert_eq!(runs.cancel_all(registry.pool()), MbfCancelReceipt::default(), "{how:?} {point}: nothing was tracked");
+            assert_released(&registry);
+        }
+    }
+}
+
+/// Finding P2 at 6ccc68aff (2), native side: a retirement does not reach a command that enters after it. After
+/// `cancel_mbf_export` (and after the page-load reset) a review completes and a save writes the recorded files; an
+/// entry captured before the retirement is still refused.
+#[test]
+fn a_command_that_enters_after_a_retirement_is_not_affected_by_it() {
+    let _lock = atomic_save_test_lock();
+    let registry = real_worker();
+    let runs = MbfRuns::default();
+    let before = runs.enter();
+    for how in [Retire::Cancel, Retire::PageLoadReset] {
+        retire_from_hook(how, &registry, &runs)();
+        assert_ne!(runs.enter(), before, "{how:?}: the epoch moved on");
+        let (reviewed, _) = review_via_command(&registry, &runs, &review_body(&canonical_model(), &settings()));
+        assert!(matches!(reviewed, MbfReviewOutcome::Reviewed { .. }), "{how:?}: {reviewed:?}");
+        let sandbox = Sandbox::new("after-retirement");
+        let opened = Opened::new(false);
+        let saved = save_via_command(&registry, &runs, &save_body(&canonical_model(), recorded_default()), Some(sandbox.0.join("swbpipe-model.mbf")), &opened);
+        let MbfExportOutcome::Saved { mbf, identity_file, .. } = &saved else { panic!("{how:?}: {saved:?}") };
+        assert_eq!((mbf.sha256.clone(), identity_file.sha256.clone()), recorded_default(), "{how:?}");
+    }
+    // The entry captured before both retirements registers cancelled from the start.
+    let stale = runs.register(RunKind::Review, before, registry.pool());
+    assert!(stale.control.cancelled());
+    assert_eq!(runs.cancel_all(registry.pool()), MbfCancelReceipt::default(), "a stale entry is not tracked");
+    drop(stale);
+    assert_released(&registry);
+}
+
+/// Finding P3 at 6ccc68aff (3): a committed save stays tracked until its write completes. Paused just after its
+/// commit (the `AFTER_COMMIT` hook), repeated cancels each report it too late; a newer save superseding it leaves
+/// it tracked (the next cancel stops the newer one and reports the committed one too late); once the newer one
+/// ends, the committed save is still reported too late. The write completes with the recorded digests, and after it
+/// nothing is tracked.
+#[test]
+fn a_committed_save_stays_tracked_through_repeated_cancels_and_supersession() {
+    let _lock = atomic_save_test_lock();
+    let sandbox = Sandbox::new("committed-tracked");
+    let registry = real_worker();
+    let runs = MbfRuns::default();
+    let receipts = Arc::new(Mutex::new(Vec::new()));
+    let (hook_runs, hook_pool, hook_receipts) = (runs.clone(), Arc::clone(registry.pool()), Arc::clone(&receipts));
+    AFTER_COMMIT.with(|hook| {
+        *hook.borrow_mut() = Some(Box::new(move || {
+            let mut receipts = hook_receipts.lock().unwrap();
+            receipts.push(hook_runs.cancel_all(&hook_pool));
+            receipts.push(hook_runs.cancel_all(&hook_pool));
+            let newer = hook_runs.register(RunKind::Save, hook_runs.enter(), &hook_pool);
+            receipts.push(hook_runs.cancel_all(&hook_pool));
+            drop(newer);
+            receipts.push(hook_runs.cancel_all(&hook_pool));
+        }))
+    });
+    let opened = Opened::new(false);
+    let chosen = sandbox.0.join("swbpipe-model.mbf");
+    let outcome = save_via_command(&registry, &runs, &save_body(&canonical_model(), recorded_default()), Some(chosen.clone()), &opened);
+    AFTER_COMMIT.with(|hook| hook.borrow_mut().take());
+    let too_late = MbfCancelReceipt { cancelled: 0, too_late: 1 };
+    assert_eq!(*receipts.lock().unwrap(), vec![too_late, too_late, MbfCancelReceipt { cancelled: 1, too_late: 1 }, too_late]);
+    let MbfExportOutcome::Saved { mbf, identity_file, .. } = &outcome else { panic!("{outcome:?}") };
+    assert_eq!((mbf.sha256.clone(), identity_file.sha256.clone()), recorded_default());
+    assert_eq!(sha256_hex(&std::fs::read(&chosen).unwrap()), recorded_default().0);
+    assert_eq!(runs.cancel_all(registry.pool()), MbfCancelReceipt::default(), "the completed save is no longer tracked");
     assert_released(&registry);
 }
 
@@ -1002,9 +1122,25 @@ fn module_files(file: &str, parsed: &syn::File) -> Vec<(String, bool)> {
                 dir.join(Path::new(file).file_stem().unwrap()).join(name)
             }
         });
-        files.push((path.to_string_lossy().replace('\\', "/"), test_only(&module.attrs)));
+        files.push((normalized(&path), test_only(&module.attrs)));
     }
     files
+}
+
+/// A resolved module path, lexically normalized (`.` dropped, `..` taken back), so two spellings of one file are one
+/// key: `#[path = "./helper.rs"]` and `#[path = "helper.rs"]` in the same file name the same module file.
+fn normalized(path: &Path) -> String {
+    let mut parts: Vec<String> = Vec::new();
+    for component in path.components() {
+        match component {
+            std::path::Component::CurDir => {}
+            std::path::Component::ParentDir if parts.last().is_some_and(|last| last != "..") => {
+                parts.pop();
+            }
+            other => parts.push(other.as_os_str().to_string_lossy().into_owned()),
+        }
+    }
+    parts.join("/")
 }
 
 /// The non-test references in `files` ((name, text) pairs). A file is skipped only when every declaration of it is a
@@ -1123,6 +1259,11 @@ fn the_writer_route_scan_finds_each_other_route() {
         // from production and is scanned.
         ("#[cfg(test)]\n#[path = \"helper.rs\"]\nmod for_tests;\n#[path = \"helper.rs\"]\nmod shipped;", false),
         ("#[path = \"helper.rs\"]\nmod shipped;\n#[cfg(test)]\nmod helper;", false),
+        // Finding P3 at 6ccc68aff: two spellings of one file are one module file, so a production declaration by
+        // another spelling still makes it reachable and scanned.
+        ("#[cfg(test)]\n#[path = \"helper.rs\"]\nmod for_tests;\n#[path = \"./helper.rs\"]\nmod shipped;", false),
+        ("#[cfg(test)]\n#[path = \"./helper.rs\"]\nmod for_tests;\n#[path = \"sub/../helper.rs\"]\nmod shipped;", false),
+        ("#[cfg(test)]\n#[path = \"./sub/../helper.rs\"]\nmod helper;", true),
     ] {
         let files = [("lib.rs".to_string(), declaration.to_string()), ("helper.rs".to_string(), call.clone())];
         assert_eq!(references(&files).is_empty(), skipped, "{declaration}");

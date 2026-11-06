@@ -2055,10 +2055,14 @@ async fn review_mbf_export(
     registry: tauri::State<'_, SolveJobRegistry>,
     runs: tauri::State<'_, mbf_worker::MbfRuns>,
 ) -> Result<tauri::ipc::Response, mbf_worker::MbfCommandError> {
+    // The command's entry, before its reservation, scheduling and admission: a
+    // retirement from here on cancels it (`mbf_worker`, "Ownership from the
+    // command's entry").
+    let entry = runs.enter();
     let (raw, copy) = mbf_worker::reserve(&registry, invoke.body(), invoke.headers(), mbf_export::REVIEW_COMMAND)?;
     let (registry, runs) = (registry.inner().clone(), runs.inner().clone());
     tauri::async_runtime::spawn_blocking(move || {
-        mbf_worker::review_command(&registry, &runs, raw, copy, |_, text| tauri::ipc::Response::new(text)).map_err(CommandError::Ingress)
+        mbf_worker::review_command(&registry, &runs, entry, raw, copy, |_, text| tauri::ipc::Response::new(text)).map_err(CommandError::Ingress)
     })
     .await
     .unwrap_or_else(|_| Ok(mbf_worker::worker_failed(false)))
@@ -2082,6 +2086,8 @@ async fn save_mbf_export(
     registry: tauri::State<'_, SolveJobRegistry>,
     runs: tauri::State<'_, mbf_worker::MbfRuns>,
 ) -> Result<tauri::ipc::Response, mbf_worker::MbfCommandError> {
+    // The command's entry, as the review's.
+    let entry = runs.enter();
     let (raw, copy) = mbf_worker::reserve(&registry, invoke.body(), invoke.headers(), mbf_export::COMMAND)?;
     let (registry, runs) = (registry.inner().clone(), runs.inner().clone());
     tauri::async_runtime::spawn_blocking(move || {
@@ -2095,6 +2101,7 @@ async fn save_mbf_export(
         mbf_worker::save_command(
             &registry,
             &runs,
+            entry,
             raw,
             copy,
             open_store,
@@ -2107,13 +2114,15 @@ async fn save_mbf_export(
     .unwrap_or_else(|_| Ok(mbf_worker::worker_failed(true)))
 }
 
-/// Cancels File > Export MBF…'s review and save in progress (DEL-17-04
+/// Retires File > Export MBF…'s review and save in progress (DEL-17-04
 /// Design `desktop-mbf-export-import.md` §3.9.5): the frontend calls it when
 /// the project session is retired, and slice 4b.2b's dialog when it closes. A
 /// waiting run stops waiting, a running worker is killed and its grant
 /// released after the reap, and a save before its commit writes nothing; a
-/// save past its commit completes and is reported too late. No arguments;
-/// with nothing in progress it does nothing.
+/// save past its commit completes and is reported too late. A command that
+/// entered before this one but has not yet registered its run is cancelled
+/// when it does; one that enters after it is not affected. No arguments;
+/// with nothing in progress it cancels nothing.
 #[tauri::command]
 fn cancel_mbf_export(registry: tauri::State<'_, SolveJobRegistry>, runs: tauri::State<'_, mbf_worker::MbfRuns>) -> mbf_worker::MbfCancelReceipt {
     runs.cancel_all(registry.pool())
@@ -2684,8 +2693,9 @@ fn dispose_all_preview_mechanics_results(
 }
 
 /// The session reset's registry part: the page that is gone owned every MBF
-/// export run in progress, which is cancelled first, then every job, result
-/// and model check is retired (`dispose_all_results`).
+/// export run in progress and every MBF command that has entered, which are
+/// retired first (`MbfRuns::cancel_all`), then every job, result and model
+/// check is retired (`dispose_all_results`).
 fn reset_native_session(state: &SolveJobRegistry, runs: &mbf_worker::MbfRuns) -> SolveResultsDisposal {
     runs.cancel_all(state.pool());
     state.dispose_all_results()

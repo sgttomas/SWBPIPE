@@ -84,7 +84,7 @@ use crate::model_document_save::{
     admit_model_document_text_screened, validate_local_private_route_evidence, writer_diagnostic,
     ModelDocumentSaveDiagnostic as Diagnostic, ModelDocumentSaveLocalFirst, ModelDocumentSaveScreening,
 };
-use crate::mbf_worker::{CappedWorkerRun, MbfRuns, WorkerResultHold};
+use crate::mbf_worker::{CappedWorkerRun, MbfEntry, MbfRuns, WorkerResultHold};
 use crate::memory_pool::CommandLease;
 use crate::solve_jobs::SolveJobError;
 use crate::stored_model_document_export::{bounded_diagnostics, serialize_outcome, shortened_refusal, SentOutcome, StoreLibraryReads};
@@ -1505,18 +1505,20 @@ fn save_mbf_export_with<R>(
 
 /// The production entry point, everything after the arguments are decoded (`save_mbf_export`, `mbf_worker.rs`):
 /// within `memory`, the command's ledger seeded with its argument lease and held by the caller (`args`), §3.6 steps 1
-/// to 10 with step 5's task 3 in `save` mode run in the capped worker ([`CappedWorkerRun`]), registered in `runs`. A
-/// review is no authorization: this run re-forms the review and refuses a truncated one itself.
+/// to 10 with step 5's task 3 in `save` mode run in the capped worker ([`CappedWorkerRun`]), registered in `runs` for
+/// the command that entered at `entry` (cancelled from the start if a retirement came since). A review is no
+/// authorization: this run re-forms the review and refuses a truncated one itself.
 pub(crate) fn save_mbf_export_admitted<R>(
     request: MbfExportRequest,
     open_store: impl FnMut() -> Result<rusqlite::Connection, String>,
     memory: &NativeLeaseMemory<'_>,
     args: &CommandLease,
     runs: &MbfRuns,
+    entry: MbfEntry,
     choose: impl FnOnce(&str) -> Result<Option<PathBuf>, String>,
     respond: impl FnOnce(&MbfExportOutcome, String) -> R,
 ) -> R {
-    let mut run = CappedWorkerRun::save(memory.registry(), args.ledger(), runs);
+    let mut run = CappedWorkerRun::save(memory.registry(), args.ledger(), runs, entry);
     save_mbf_export_with(&mut run, request, memory, open_store, choose, &mut SystemMbfExportIo, respond)
 }
 
@@ -1647,15 +1649,17 @@ fn review_mbf_export_with<R>(
 /// The review's production entry point, everything after the arguments are decoded (`review_mbf_export`,
 /// `mbf_worker.rs`): within `memory` (the command's ledger, seeded with its argument lease `args`), with task 3 in
 /// `review` mode run in the capped worker ([`CappedWorkerRun`]). It becomes `runs`' review in progress, superseding
-/// (cancelling) an older one. It opens no store, file or chooser and writes nothing.
+/// (cancelling) older ones, unless a retirement came since `entry` (then it is cancelled from the start). It opens no
+/// store, file or chooser and writes nothing.
 pub(crate) fn review_mbf_export_admitted<R>(
     request: MbfReviewRequest,
     memory: &NativeLeaseMemory<'_>,
     args: &CommandLease,
     runs: &MbfRuns,
+    entry: MbfEntry,
     respond: impl FnOnce(&MbfReviewOutcome, String) -> R,
 ) -> R {
-    let mut run = CappedWorkerRun::review(memory.registry(), args.ledger(), runs);
+    let mut run = CappedWorkerRun::review(memory.registry(), args.ledger(), runs, entry);
     review_mbf_export_with(&mut run, request, memory, respond)
 }
 
