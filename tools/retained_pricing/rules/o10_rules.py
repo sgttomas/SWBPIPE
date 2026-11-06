@@ -4526,6 +4526,20 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
             CG_RULES += [{"caller": Resolved(_MODAL + _f + ":" + fnkey(_fn, _MODAL + _f).split(":", 1)[1]), "name": _m,
                           "exclude_targets": [Resolved(_CP + ":" + _target.split(":", 1)[1])], "added": "MODAL-FB",
                           "evidence": "modal receivers are Dd (add, mul) and f64 or usize (max, min); private FallbackError is not nameable here (KD5C5); body pinned (§8.43)"}]
+    # MODAL-FB, P0 (§8.58, DEL-04-09 O-4): modal_resource_bound_dimensions' one `.min(` is `free.min(u128::from(
+    # budget.band_pair_allotment))`, p̄ = min(n̄_f, A_band), whose receiver `free` is a u128 binding of the same body.
+    # Only that candidate is subtracted; the body is pinned, so an edit stops the run.
+    if _os.path.exists(_os.path.join(_SNAP, _MODAL + "resource.rs")):
+        _rb = _fn_text("modal_resource_bound_dimensions", _MODAL + "resource.rs")
+        if (_modal_hashlib.sha256(_rb.encode()).hexdigest() != "d7e206833ae73a70a4bd1f765396597e92b57de2ccfecc5a38e9b7ed062ed845"
+                or "FallbackError" in _rb):
+            raise SystemExit("MODAL-FB: resource.rs:modal_resource_bound_dimensions changed; re-review its receivers and re-pin (§8.58)")
+        _target = fnkey("min", _CP)
+        if not _target:
+            raise SystemExit("MODAL-FB: certified_publication's min is not unique; re-review (§8.58)")
+        CG_RULES += [{"caller": Resolved(_MODAL + "resource.rs:" + fnkey("modal_resource_bound_dimensions", _MODAL + "resource.rs").split(":", 1)[1]),
+                      "name": "min", "exclude_targets": [Resolved(_CP + ":" + _target.split(":", 1)[1])], "added": "MODAL-FB",
+                      "evidence": "the receiver is the u128 `free` (p̄ = min(n̄_f, A_band)); private FallbackError is not nameable here (KD5C5); body pinned (§8.58)"}]
     # MODAL-ID (ID_AUDIT, site-specific; the TIM-ID/S2-ID pattern): arguments of modal format sites that no existing
     # class covers. Each site is at multiplicity zero (no retained root reaches modal; the chain classifies every format
     # row before its multiplicity applies). Bounds are read from the pinned source or the D1 domain.
@@ -4661,6 +4675,18 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
                               "a static domain of modal_parameter_refusals, or the dyadic-fraction text (54 B and a u32 decimal, 64 B)",
                               (r'parameter_refusal\(', "fn", 5))
         _m_domain["bytes"] = max(_m_domain["bytes"], 54 + 10)
+        # §8.58 (DEL-04-09 O-4, P0 and S1): the dense entry's body moved, its text unchanged, into
+        # run_modal_dense_with_budget, and run_modal_dense became its one-line delegation (budget None). Its three sites
+        # are keyed on the function that holds the body; any other shape of run_modal_dense stops the run.
+        _RMD = "run_modal_dense"
+        if fnkey("run_modal_dense_with_budget", _MODAL + "outcome.rs"):
+            _RMD = "run_modal_dense_with_budget"
+            if [_l for _l in _fn_text("run_modal_dense", _MODAL + "outcome.rs").split("\n")
+                    if _l.strip() and not _l.strip().startswith("//")] != [
+                    "pub(crate) fn run_modal_dense(req: &ModalPreviewRequest, params: &ModalIntegrityParameters) "
+                    "-> Result<ModalOutcome, Vec<Diagnostic>> {",
+                    "    run_modal_dense_with_budget(req, params, None)", "}"]:
+                raise SystemExit("MODAL-ID: outcome.rs's run_modal_dense is not run_modal_dense_with_budget's delegation; re-review (§8.58)")
         O10_ID_AUDIT += [
             (site("complete_reported_set", _MODAL + "eigen.rs", "{why}, so the set would end", full=True),
              {"why": _m_why_census, "census|?": _M_CENSUS}),
@@ -4695,11 +4721,11 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
              {"range": _md(170, "PencilRangeUnsupported Display: MODAL_PENCIL_RANGE_UNSUPPORTED, `: stiffness entry (r, c) = "
                                 "v is outside the admitted magnitudes [2^-300, 2^300]` (106 B), two usize and one f64 exponent form"),
               "at(range.row)": _M_LABEL, "at(range.col)": _M_LABEL}),
-            (site("run_modal_dense", _MODAL + "outcome.rs", '"mode {}: residual backward error η = {:e} exceeds τ_r = {:e}",', full=True, row="format!("),
+            (site(_RMD, _MODAL + "outcome.rs", '"mode {}: residual backward error η = {:e} exceeds τ_r = {:e}",', full=True, row="format!("),
              {"i+1": _M_INT}),
-            (site("run_modal_dense", _MODAL + "outcome.rs", "orthogonality.pair.map(|(a, b)| (a + 1, b + 1)),", full=True, row="format!("),
+            (site(_RMD, _MODAL + "outcome.rs", "orthogonality.pair.map(|(a, b)| (a + 1, b + 1)),", full=True, row="format!("),
              {"orthogonality.pair.map(|(a,b)|(a+1,b+1))|?": _M_PAIR}),
-            (site("run_modal_dense", _MODAL + "outcome.rs", "has a first-order eigenvalue error estimate", full=True, row="format!("),
+            (site(_RMD, _MODAL + "outcome.rs", "has a first-order eigenvalue error estimate", full=True, row="format!("),
              {"i+1": _M_INT}),
             (site("modal_disclosures", _MODAL + "outcome.rs", '["X", "Y", "Z"][k]', full=True),
              {'["X","Y","Z"][k]': _md(1, "one of three static one-byte axis names")}),
@@ -4852,6 +4878,71 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
             (site("modal_edge_entries", _TDOC, 'format!("/tables/participation/rows/{}/{field}", 3 * m + k)', full=True),
              {"3*m+k": _M_INT}),
         ]
+    if fnkey("modal_resource_preflight", _MODAL + "resource.rs"):
+        # MODAL-ID, P0 (§8.58, DEL-04-09 O-4): the resource preflight's refusals (resource.rs) and its #[cfg(test)]
+        # module tests_resource.rs. resource.rs is pinned whole (SHA-256), so every bound below, read from that source,
+        # holds until an edit stops the run for re-review and a re-pin. All sites are at multiplicity 0 (no retained
+        # root reaches modal). Counts and charges are u128 (39 B), weights and allotments u64 (20 B).
+        _RS, _TRS = _MODAL + "resource.rs", _MODAL + "tests_resource.rs"
+        _rs_digest = _modal_hashlib.sha256(_text_of(_RS).encode()).hexdigest()
+        if _rs_digest != "9c5edf4015b022969a134c4e67c5d332755fa6456c46d075ebb4e2c714db0fee":
+            raise SystemExit(f"MODAL-ID: modal/resource.rs changed ({_rs_digest}); re-review its refusal texts and re-pin (§8.58)")
+        if _text_of(_MODAL[:-1] + ".rs").count("#[cfg(test)] mod tests_resource;") != 1:
+            raise SystemExit("MODAL-ID: tests_resource is no longer a test-only module; re-review (§8.58)")
+        _M_U128 = _md(39, "a u128 decimal (count, charge, W or W_budget)")
+        _M_U64 = _md(20, "a u64 decimal")
+        # The pinned source's static texts: modal_resource_id's 34 literal arms (longest `T8.generalized_mass`, 19 B);
+        # modal_resource_unbounded_reason's five literal reasons (longest 143 B) or the `no bound at P0` fallback.
+        _rs_ids = _re.findall(r'T::\w+ => "([^"]*)"', _fn_text("modal_resource_id", _RS))
+        _rs_why = _re.findall(r'Some\("([^"]*)"\)', _fn_text("modal_resource_unbounded_reason", _RS))
+        if len(_rs_ids) != 34 or len(_rs_why) != 5:
+            raise SystemExit("MODAL-ID: resource.rs's term ids or unbounded reasons changed; re-review (§8.58)")
+        _rs_id = max(len(_x.encode()) for _x in _rs_ids)
+        _rs_reason = max([len(_x.encode()) for _x in _rs_why] + [len(b"no bound at P0")])
+        # One inadmissible term's reason: `unbounded: ` and a reason, or `count {u128}, weight undetermined`.
+        _rs_term_why = max(len(b"unbounded: ") + _rs_reason, len(b"count , weight undetermined") + 39)
+        # `{id} ({why})`, at most once per term: the loop over the 34-entry MODAL_RESOURCE_TERMS pushes in one arm.
+        _rs_entry = _rs_id + len(b" ()") + _rs_term_why
+        O10_ID_AUDIT += [
+            # ModalResourceOverflow's &'static str: every construction passes on modal_resource_mul/add's `quantity`,
+            # and every caller in the pinned file gives a string literal, `q` ("T3.kernel") or a term id; the longest
+            # is `T8.generalized_mass` (19 B). modal_resource_overflow_refusal is private, so no other value reaches it.
+            (site("modal_resource_overflow_refusal", _RS, "checked arithmetic overflowed at `{}`", full=True, row="format!("),
+             {"overflow.0": _md(_rs_id, "a ModalResourceOverflow quantity: a static literal of resource.rs or a term id")}),
+            (site("modal_resource_judge", _RS, 'format!("unbounded: {}"', full=True),
+             {'term.modal_resource_unbounded_reason().unwrap_or("noboundatP0")':
+              _md(_rs_reason, "one of modal_resource_unbounded_reason's five static reasons, or `no bound at P0`")}),
+            # By name `count` would be a usize (20 B); it is a u128 term count.
+            (site("modal_resource_judge", _RS, 'format!("count {count}, weight undetermined")', full=True), {"count": _M_U128}),
+            (site("modal_resource_judge", _RS, 'format!("{id} ({why})")', full=True),
+             {"id": _md(_rs_id, "a term id, one of modal_resource_id's 34 static arms"),
+              "why": _md(_rs_term_why, "`unbounded: ` and a static reason, or `count {u128}, weight undetermined`")}),
+            (site("modal_resource_judge", _RS, "cannot admit {} by arithmetic", full=True, row="format!("),
+             {'ifinadmissible.len()==1{"aterm"}else{"theseterms"}': _md(11, "`a term` or `these terms`"),
+              'stated.join(";")': _md(34 * _rs_entry + 33 * 2, "at most 34 `{id} ({why})` entries (one per term of the "
+                                       "34-entry MODAL_RESOURCE_TERMS) and 33 `; ` separators")}),
+            # By name `counts[..]` would be 20 B; it is a u128.
+            (site("modal_resource_judge", _RS, "weighted work W = {total} ps exceeds", full=True, row="format!("),
+             {"total": _M_U128, "budget.work_budget": _M_U128,
+              "id": _md(_rs_id, "the dominant term's id, one of modal_resource_id's 34 static arms"),
+              "counts[dominantasusize]": _M_U128, "budget.weights[dominantasusize].unwrap_or_default()": _M_U64,
+              "charges[dominantasusize]": _M_U128}),
+            # tests_resource.rs (#[cfg(test)]): W, a u128; DenseEigenSolution::ql_rotations, a u64; ScreenedMode's bools.
+            (site("the_budget_boundary_is_inclusive_and_names_the_dominant_term", _TRS, 'format!("W = {total} ps")', full=True),
+             {"total": _M_U128}),
+            (site("solution_bits", _TRS, '"counts:{dimension} {condensed_dimension}', full=True, row="format!("),
+             {"ql_rotations": _M_U64}),
+            (site("solution_bits", _TRS, 'format!("screened {index}: hard_rejected {hard_rejected}, retained {retained}")', full=True),
+             {"hard_rejected": _md(5, "a bool's Display"), "retained": _md(5, "a bool's Display")}),
+        ]
+        # J3's test-code treatment (no source bound exists): the bit fingerprint's Debug of a Vec<u64>, and the
+        # wrapper test's Debug of two whole ModalOutcomes, are sized 0 with no site_zero, so o10_check.py fails the run
+        # if either site's multiplicity is ever positive or the site is gone.
+        _RS_T = (O10 + "MODAL-ID (§8.58; J3's test-code pattern, multiplicity 0): tests_resource is `#[cfg(test)] mod "
+                 "tests_resource;`; size 0 with no site_zero, so o10_check.py fails the run if the site's multiplicity is ever positive")
+        O10_SITE_SIZE = list(globals().get("O10_SITE_SIZE", [])) + [(_k, 0, _RS_T) for _k in (
+            site("solution_bits", _TRS, 'let bits = |name: &str, values: &[f64]| format!("{name}:{:x?}"'),
+            site("run_modal_dense_and_its_none_budget_wrapper_agree", _TRS, 'assert_eq!(format!("{none:?}"), format!("{plain:?}")'))]
 
 # ---- RT-A4 (DEL-05-02 Work absolute-sum-srss-combinations.md §10; retained-pricing-rules.md §8.46): absolute sums, SRSS
 # and nested combinations on both routes. D1.4 (retained_memory.rs family_clauses) refuses on both routes every absolute_sum

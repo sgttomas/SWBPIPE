@@ -87,6 +87,17 @@ pub(crate) const MODAL_DOCUMENT_SKEW_RESTRAINT_UNSUPPORTED: &str = "MODAL_DOCUME
 /// R-6/R-7 S-K1 (§11.3 C8, dynamics' B2 (b)): the test-only phase replay mirrors only the
 /// axis path, so a model with a restraint basis is refused by name, never replayed through it.
 pub(crate) const MODAL_PHASE_REPLAY_SKEW_RESTRAINT_UNSUPPORTED: &str = "MODAL_PHASE_REPLAY_SKEW_RESTRAINT_UNSUPPORTED";
+/// Design §5.3.8 P0 (`resource`): the weighted work exceeds W_budget (naming
+/// the dominant term), or a term is inadmissible by arithmetic (no weight
+/// with a nonzero count, or no bound). A resource-budget refusal, distinct
+/// from the numerical ones.
+pub(crate) const MODAL_RESOURCE_PREFLIGHT_EXCEEDED: &str = "MODAL_RESOURCE_PREFLIGHT_EXCEEDED";
+/// Design §5.3.8: the kernel's S1 refusals (QL rotations, band pairs) and a
+/// resource count's overflow, in P0 or the kernel; the kernel's own names.
+pub(crate) use open_pipe_stress_modal_eigen::dense::{
+    RESOURCE_ARITHMETIC_OVERFLOW as MODAL_RESOURCE_ARITHMETIC_OVERFLOW, RESOURCE_BAND_ALLOTMENT_EXCEEDED as MODAL_RESOURCE_BAND_ALLOTMENT_EXCEEDED,
+    RESOURCE_QL_ALLOTMENT_EXCEEDED as MODAL_RESOURCE_QL_ALLOTMENT_EXCEEDED,
+};
 
 /// Every threshold and algorithm parameter of the dense modal solve and its
 /// integrity checks (module docs). No field has a default.

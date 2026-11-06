@@ -34,13 +34,14 @@
 use super::integrity::{
     modal_range_refusal, pencil_range_text, ModalIntegrityParameters, MODAL_EIGENSOLVE_UNAVAILABLE,
     MODAL_FINITE_COUNT_UNRESOLVED, MODAL_NO_FINITE_MODES, MODAL_STURM_COUNT_MISMATCH, MODAL_STURM_GROWTH_LIMIT,
-    MODAL_STURM_SHIFT_ILL_CONDITIONED, MODAL_STURM_SHIFT_UNSEPARATED,
+    MODAL_STURM_SHIFT_ILL_CONDITIONED, MODAL_STURM_SHIFT_UNSEPARATED, MODAL_RESOURCE_ARITHMETIC_OVERFLOW,
+    MODAL_RESOURCE_BAND_ALLOTMENT_EXCEEDED, MODAL_RESOURCE_QL_ALLOTMENT_EXCEEDED,
 };
 use super::request::RequestInputs;
 use super::stiffness::ModalPencil;
 use crate::{diag, Diagnostic};
 use open_pipe_stress_modal_eigen::clusters::{reported_set, ExtractionBound, ReportedSet, StoppingBound};
-use open_pipe_stress_modal_eigen::dense::{solve_dense_pencil, DenseEigenSolution, DenseError, DenseOptions};
+use open_pipe_stress_modal_eigen::dense::{solve_dense_pencil_with_allotments, DenseAllotments, DenseEigenSolution, DenseError, DenseOptions};
 use open_pipe_stress_modal_eigen::modal_quantities::{normalize_mode, ModalBasis, ModalQuantityError, NormalizedMode};
 use open_pipe_stress_modal_eigen::sturm::{
     count_above_spectrum, count_in_gap, Gap, GapLower, Neighbour, ShiftPencil, SturmEvidence, SturmOutcome, SturmRefusal,
@@ -65,7 +66,33 @@ fn eigensolve_refusal(what: String) -> Vec<Diagnostic> {
 
 /// The dense eigensolve, its refusals mapped by name.
 pub(crate) fn solve_modal_pencil(pencil: &ModalPencil, params: &ModalIntegrityParameters) -> Result<DenseEigenSolution, Vec<Diagnostic>> {
-    solve_dense_pencil(&pencil.stiffness, &pencil.mass, &modal_dense_options(params)).map_err(|error| match error {
+    solve_modal_pencil_within(pencil, params, &DenseAllotments::default())
+}
+
+/// [`solve_modal_pencil`] under the kernel's S1 allotments (design §5.3.8):
+/// with `DenseAllotments::default()` the kernel runs as `solve_dense_pencil`
+/// does. An exceeded allotment or a resource overflow refuses by the
+/// kernel's own `MODAL_RESOURCE_*` name, distinct from the numerical ones.
+pub(crate) fn solve_modal_pencil_within(
+    pencil: &ModalPencil,
+    params: &ModalIntegrityParameters,
+    allotments: &DenseAllotments,
+) -> Result<DenseEigenSolution, Vec<Diagnostic>> {
+    solve_dense_pencil_with_allotments(&pencil.stiffness, &pencil.mass, &modal_dense_options(params), allotments).map_err(|error| match error {
+        DenseError::QlRotationAllotmentExceeded { .. } | DenseError::BandPairAllotmentExceeded { .. } | DenseError::ResourceArithmeticOverflow { .. } => {
+            let code = match error {
+                DenseError::QlRotationAllotmentExceeded { .. } => MODAL_RESOURCE_QL_ALLOTMENT_EXCEEDED,
+                DenseError::BandPairAllotmentExceeded { .. } => MODAL_RESOURCE_BAND_ALLOTMENT_EXCEEDED,
+                _ => MODAL_RESOURCE_ARITHMETIC_OVERFLOW,
+            };
+            vec![diag(
+                "diagnostic:modal:resource:kernel",
+                code,
+                "blocking",
+                format!("{error}; the dense eigensolve is refused before that work, with no partial result (a resource-budget refusal, not a numerical one)"),
+                vec!["model".into()],
+            )]
+        }
         DenseError::PencilRangeUnsupported(range) => vec![modal_range_refusal(
             "pencil-range",
             pencil_range_text(&range, &pencil.labels),

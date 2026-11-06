@@ -6205,6 +6205,181 @@ pure insertion, the AC-004 reasoning and the runner.
 Run evidence (the two runs, compares, block checks, builds, test logs), the AC-004 copies and runner, and the window record are in
 `/Users/ryan/dev/chirality-t3/scratch/rt-dynamics-131-d3/`; they are review input, not a permanent dependency.
 
+### 8.58 DEL-04-09 O-4: the modal resource preflight P0 and the S1 wiring on main's §8.57 tree (actual-source D3)
+
+**Status.** Proposed registration of PR #155 (DEL-04-09 Work `modal-analysis.md` §5.3.8, "P0 and S1 in the product, as
+built"): `modal/resource.rs`'s combined preflight P0, `run_modal_dense`'s delegation to `run_modal_dense_with_budget`
+and the kernel's S1 allotments through `solve_modal_pencil_within`. It is made under the owner's removal of explicit
+owner approval for coefficient movement; source-derived pricing, independent scrutiny and preservation of the
+registered state remain required. This records no acceptance and admits nothing: no weight, W_budget, allotment, L_A,
+R_max or cap is adopted, the budget is built only by tests, and P0, S1 and their refusals are #155's, unchanged here.
+- **Coefficients.** None move: against main's tree, 1,602 equal, none higher or lower. The threshold, M, the
+  generated block, `REGISTERED_PROFILES` and the profile (`c4df869d…996c`) are unchanged.
+- **AC-004: 7/7 at `ef009fa0b`.** The witnessed binaries change and stack neutrality is not established from source
+  (below, "Stack"), so §8.57's 7/7 does not transfer; this registration's own window ran once and passed (below,
+  "AC-004").
+
+**Basis and integration chain.**
+- *Basis.* Main `a7ba75f73` (#154 merged; #131 merged as `17aa9a1f9`, registered as §8.57). Its core tree,
+  `a50472d043eb9e8392380cb7ec5151e28a3d037c`, is §8.57's priced source's (`11e9a1429`), and the pricing tool is
+  byte-equal to it: #154 changed no Rust. `price.py run a7ba75f73` exits 0, O-10 0/0, all four points complete, and
+  reproduces the committed block (`generate --check` with the §8.55 basis line, 1,713 lines; `point-atoms --check`,
+  154 lines); all four `point.json` are byte-identical to §8.57's run of `11e9a1429`.
+- *Branch.* `claude/rt-dynamics-p0`: P0 and S1 `4952e5c61`, three review rounds (`879fc4aba`, `4f1e21d76`,
+  `2c7c144e5`) and the merge `e7c21d0bb` of main `a7ba75f73`. The commits after it change only the pricing rules, a
+  pricing-tool test, this record and the DEL-04-09 Design.
+- *Priced source.* `e7c21d0bb` (core tree `26d6c072c194c5059be36d3e2469d8df5b053a62`).
+
+**What reaches the priced directories**, against main: PP `modal/` only.
+- `resource.rs` (new, 961 lines): the term and stage enums, their static names and reasons, the limb-span derivation,
+  `ModalResourceBudget` (no `Default`, no valued constructor), the dimension bounds, the counts, the judge and two
+  refusal helpers. It reads `Prepared`, `ModalIntegrityParameters` and the budget, and calls only its own functions,
+  `crate::diag` and std. Its loops are each over a fixed or input-sized collection: `for term in MODAL_RESOURCE_TERMS`
+  (34) in `modal_resource_term_counts` and twice in `modal_resource_judge`; the judge's two `inadmissible.iter().map`
+  collections (≤ 34), `MODAL_RESOURCE_STAGES.iter().position` (5) and `MODAL_RESOURCE_TERMS.iter().copied().fold` (34);
+  `try_fold` over each literal factor or part slice; and, in `modal_resource_bound_dimensions`, the restrained DOFs into a
+  `BTreeSet`, a `try_fold` over the connectors and a `filter().count()` over the nonlinear supports. Its heap allocations
+  are that `BTreeSet<usize>`, the inadmissible list (≤ 34 `(&str, String)`), the two `Vec<String>` built from it, the
+  format strings and the two diagnostics' vectors; the count, charge and allotment arrays are inline.
+- `outcome.rs`: `run_modal_dense` is now one line, `run_modal_dense_with_budget(req, params, None)`, and that function
+  holds the former body, unchanged but for P0's call after `prepare_modal` (under `if let Some(budget)`) and the
+  allotments passed to `solve_modal_pencil_within` (`DenseAllotments::default()` without a budget).
+- `eigen.rs`: `solve_modal_pencil` delegates to `solve_modal_pencil_within` with `DenseAllotments::default()`, which holds
+  the former `map_err` with one new arm: the kernel's three resource errors map to their `MODAL_RESOURCE_*` names in one
+  diagnostic, `format!("{error}; the dense eigensolve is refused …")`.
+- `integrity.rs`: `MODAL_RESOURCE_PREFLIGHT_EXCEEDED` and a `pub(crate) use` of the kernel's three resource names. The
+  parameter instance, the validator and every refusal function are unchanged.
+- `modal.rs`: `mod resource;` and `#[cfg(test)] mod tests_resource;`, each placed on an existing line.
+- Test code, not priced: `tests_resource.rs` (new, `#[cfg(test)]`) and `observation_tests.rs` (a `*_tests.rs` file
+  every scanner skips, §8.52; three items become `pub(super)` and the containment scan lists `resource.rs`).
+- Unchanged: PP `lib.rs`, `self_weight.rs`, `retained_memory.rs`, every `Cargo.lock` and all thirteen reviewed inputs;
+  `modal/document.rs` and `modal/state.rs` are byte-equal to main's. `modal_eigen` is outside the priced crates.
+
+**Reach.** Unlike §8.57's constructor, the new code is called from production modal code: `run_modal_dense` →
+`run_modal_dense_with_budget` → `modal_resource_preflight` (only with a budget) and `solve_modal_pencil_within`. The
+modal module is still reached from no retained root (§8.43). No PP `lib.rs`, native, headless, desktop or document path
+names `run_modal_dense_with_budget` or `resource`, and only tests construct a `ModalResourceBudget`. On the run's graph:
+- *Functions* 5,845 → 5,864: the 19 new nodes are `run_modal_dense_with_budget`, `solve_modal_pencil_within` and 17
+  in `resource.rs`.
+- *Edges* 28,007 → 28,052. `run_modal_dense` and `solve_modal_pencil` lose their former callees to the two new
+  functions, and every added edge leaves a modal node; no edge from a non-modal function is added, so no new node or
+  edge is reachable.
+- *Reach* `reachable_fns` stays 4,779 at every point, and every function multiplicity and
+  `sites_with_positive_multiplicity` is equal. Every new text row is at multiplicity 0.
+
+**Rules and pins** (`rules/o10_rules.py`; every changed span was read first).
+- *MODAL-ID re-key.* The I2b-1 audits keyed three `outcome.rs` sites on `run_modal_dense` (the residual, orthogonality
+  and error-estimate texts). The body, with those texts unchanged, now sits in `run_modal_dense_with_budget`, so
+  `site()` found none and the run stopped (exit 4). The three sites are keyed on `run_modal_dense_with_budget` when it
+  exists (else `run_modal_dense`, so main still reproduces), and the run stops unless `run_modal_dense`'s code lines are
+  exactly the one-line delegation. Their bounds are unchanged.
+- *MODAL-FB, P0.* The name-based graph linked `modal_resource_bound_dimensions`' `free.min(u128::from(
+  budget.band_pair_allotment))` (p̄ = min(n̄_f, A_band)) to certified_publication's private `FallbackError::min`,
+  entering KD5C6's cutset (the run stopped, "KD5C6: private helper entry cutset changed"). Its receiver `free` is a u128
+  of the same body. Only that candidate is subtracted, and the body is pinned: SHA-256
+  `d7e206833ae73a70a4bd1f765396597e92b57de2ccfecc5a38e9b7ed062ed845` (new).
+- *MODAL-ID, P0* (guarded by `modal_resource_preflight`; new). `resource.rs` is pinned whole, SHA-256
+  `9c5edf4015b022969a134c4e67c5d332755fa6456c46d075ebb4e2c714db0fee`, so the bounds read from it hold until an edit
+  stops the run. The run had stopped incomplete at 13 argument keys with no class; it also lifts two by-name classes
+  below their bound (`count`, `counts[dominant as usize]`: 20 B for u128 values). Lines are at `e7c21d0bb`:
+
+  | Site | Argument | Was | Class and reason |
+  |---|---|---|---|
+  | `resource.rs:877` overflow refusal | `overflow.0` | none | 19 B: a `ModalResourceOverflow` quantity. It is only constructed from `modal_resource_mul`/`_add`'s `quantity`, whose every caller passes a string literal, `q` (`"T3.kernel"`) or a term id; the longest is `T8.generalized_mass`. The helper is private |
+  | `:914` `"unbounded: {}"` | the unbounded reason | none | 143 B: the longest of `modal_resource_unbounded_reason`'s five literal reasons (or `no bound at P0`, 14 B) |
+  | `:915` `"count {count}, …"` | `count` | 20 B | 39 B: a u128 decimal |
+  | `:921` `"{id} ({why})"` | `id` / `why` | 128 B / none | 19 B, a term id (34 literal arms) / 154 B: `unbounded: ` and a reason, or 66 B for a count |
+  | `:923` the inadmissible refusal | `if … { "a term" } else { "these terms" }` / `stated.join("; ")` | 20 B / none | 11 B / 6,050 B: at most 34 entries of 176 B (one per term: one push per iteration over the 34-entry `MODAL_RESOURCE_TERMS`) and 33 separators |
+  | `:950` the budget refusal | `total`, `budget.work_budget`, `counts[…]`, `charges[…]` / weight / `id` | none or 20 B / none / 128 B | 39 B each (u128) / 20 B (u64) / 19 B |
+  | `tests_resource.rs:421` | `total` | none | 39 B (u128) |
+  | `tests_resource.rs:516` | `ql_rotations` | none | 20 B (`DenseEigenSolution::ql_rotations`, u64) |
+  | `tests_resource.rs:539` | `hard_rejected`, `retained` | none | 5 B each (`ScreenedMode`'s bools) |
+
+  `tests_resource.rs:514` (a `Vec<u64>` hex Debug, which the hex class had put at 16 B) and `:609` (the Debug of two whole
+  `ModalOutcome`s) have no source bound. They take J3's test-code treatment, sized 0 with no `site_zero`, so
+  `o10_check.py` fails the run if either site's multiplicity is ever positive or the site disappears. A guard requires
+  `#[cfg(test)] mod tests_resource;` exactly once in `modal.rs`.
+- *Classed by existing rules, at or above their bound.* `eigen.rs`'s new `{error}` takes the by-name error-display class
+  (8,192 B; its true bound is the longest resource Display, 167 B: `MODAL_RESOURCE_QL_ALLOTMENT_EXCEEDED: {u64} QL
+  rotations performed and a sweep of {u64} next exceed the allotment of {u64}`).
+- *Pins that hold.* §8.43's MODAL-FB bodies hold: `modal_sturm_count` in `eigen.rs` and `bounding_box_diagonal` in
+  `outcome.rs` are byte-unchanged. MODAL-ID's I2b-1 audits hold: `integrity.rs`'s additions mention neither
+  `parameter_refusal` nor `reformation_refusal` (six and five whole-file mentions), and they have no format site. §8.52's
+  `modal_doc_solved` pin (`f4907717…7ed`) is unchanged, since `document.rs` is byte-equal to main's, and the run passes
+  it. No full-file pin, reviewed input or snapshot key moves. The tool still reproduces main: `price.py run a7ba75f73` on
+  this branch's tool is identical to the committed tool's run, and every per-point artifact is byte-identical apart from the run-directory strings embedded in each point's `work/g4_caps.caps.eps2.out.json` (`b7a_success_context.work`); the four `point.json` are byte-identical.
+- *Regressions* (`tests/test_858_p0_modal_resource.py`, 9 tests): the audits and site sizes on both routes, the
+  re-keyed sites, the MODAL-FB subtraction, and stops on an edit to `resource.rs`, to the bound-dimensions body, to the
+  delegation, and on a non-test `tests_resource` declaration.
+
+**Pricing.** `price.py run e7c21d0bb`: exit 0, O-10 0/0, all four points complete with no unmapped header and no
+unclassified argument. The line map equals the basis's (888 remapped, none unmapped, 36 prunes, eight resolutions),
+and the premise pins are equal. D is L(3,0) 43,783, L(2,1) 39,373, L(1,2) 35,239 and E 76,356, and TAV is
+4,714,366,116, 4,103,398,826, 3,578,737,078 and 7,229,420,978, each equal to the basis's. The text inventory gains 19
+rows (8 in `resource.rs`, 9 in `tests_resource.rs`, 2 in `eigen.rs`), all at multiplicity 0; the moved
+`run_modal_dense` and `solve_modal_pencil` rows keep their bytes. Against main's tree: identical but for the basis
+(structure equal, 1,602 coefficients equal, 0 higher, 0 lower; the check is sparse 8,593,926,538 and dense
+8,653,057,882 on both); all four `point.json` byte-identical; `generate --check` with the §8.55 basis line is equal
+(1,713 lines) and `point-atoms --check` is equal (154 lines). The block keeps §8.55's basis line, since no coefficient
+moves; nothing is regenerated.
+
+**Stack.** Coefficient identity does not establish stack depth (§8.39). No witness path reaches the new code, and no
+witness-path body changes, but both witnessed binaries change: the lib-test binary compiles `resource.rs`, the
+changed modal entries and `tests_resource.rs`, and the challenge binary links the non-test library with the new
+code (`2effd747…` against §8.57's `92cf8e5f…`). Frame sizes were not measured, and no static comparison of the
+witness paths (§8.43's #96 route) was made. So §8.57's 7/7 at `089a5698f` does not transfer, and AC-004 is required.
+DEL-04-09's ScopeOfWork also requires the witnesses on the head of each change that touches priced sources.
+
+**Tests** (on `e7c21d0bb`'s core tree; Cargo under the slot wrapper with the four flag variables unset, pytest with
+`OPENPIPESTRESS_NO_CARGO_BUILD=1`):
+- *Lib.* PP `modal::` 101 passed (3 ignored); PP `retained_memory` 85 passed (71 ignored: the exclusive witnesses among
+  them, not run), including `profile_in_build_record` at the unchanged `PINNED_RECORD`.
+- *Pricing tool.* `test_852_i3a_modal_document.py`, `test_dynamics_i2a_d3.py`, `test_dynamics_d3.py` and the new
+  `test_858_p0_modal_resource.py`: 37 passed.
+- *Routing.* `tests/test_ci_numerical.py` and `tools/software_workflow/test_hosted_ci.py`: 77 passed (120 subtests);
+  all 45 recorded tree digests match `rust_tree_digest`. This record changes no routed source, so no digest moves.
+- *Deliverables.* `python3 -m tools.deliverables --project . check` exits 0 with no error.
+
+**AC-004.**
+- **Binaries** (built under the slot wrapper, `cargo test --offline --locked --no-run --lib --test
+  retained_memory_challenge` in `core/product_physics`, test profile, `RUSTFLAGS`, `CARGO_ENCODED_RUSTFLAGS`,
+  `CARGO_BUILD_RUSTFLAGS` and `RUSTDOCFLAGS` unset, rustc 1.97.1 `8bab26f4f`, aarch64-apple-darwin, core tree
+  `26d6c072…`): `open_pipe_stress_product_physics-8d4e96ebfb7da75a`, SHA-256
+  `d60d0a4c013dc9eca61c1563470e5b1ba8e8679c1097435f9ed9574261698e9a`, and
+  `retained_memory_challenge-d3197b562d1b9fc7`, SHA-256
+  `2effd74758e5f6ce23a1e85f5db8423570832049a3976241b10b08e5fc5fa850`. Cargo found the lib-test binary fresh and linked
+  the challenge binary; a second `--no-run` compiled nothing, and both hashes were unchanged after it and after the lib
+  tests above. Profile `c4df869d…996c`, `Cargo.lock` `b7ebb02a…5653`. Read-only copies with the same hashes are in the
+  scratch directory below.
+- **To run.** §8.57's seven processes, each one test with `--exact --test-threads=1` (`--ignored` for the six
+  witnesses), in one Agent-0-cleared `t3_exclusive.sh` window with memguard, each reporting exactly one executed test;
+  identities verified at admission and the hashes again afterwards. A later build-input change requires rebuilding and
+  re-identifying first.
+- **Runner.** §8.57's `harness.py`, with only its identities substituted: this checkout, the copies, the two binaries
+  and their hashes, the head and the core tree. Admission, the 55 s internal deadline, fail-fast, the flag and
+  `W1_MEMBER_CAP_OUT` handling and `CHECK_ONLY` are unchanged. Read-only, SHA-256
+  `bb4e316ef7d5a03c9a103d66e6662a60e2db93e438a4a0998c022736eda78184`. It was first frozen on `c0f07d5bb`
+  (`bfb88eea…`) and re-frozen on `ef009fa0b` after the review's documentation corrections (no core change; only its
+  pinned head differs). One `CHECK_ONLY=1` admission at `ef009fa0b`, outside any window, verified it.
+- **Result: 7/7 at `ef009fa0b`** (commit `ef009fa0bec76dcd1b8502f37ab2cc186db98af5`, core tree
+  `26d6c072c194c5059be36d3e2469d8df5b053a62`, whole worktree clean; the commit recording it changes no file under
+  `core/`). Admission verified the head, the core tree, the clean state, the four hashes (the two binaries, the profile
+  `c4df869d…996c`, `Cargo.lock` `b7ebb02a…5653`), rustc 1.97.1 `8bab26f4f`, the four flags absent, memguard live, the
+  copies read-only, `W1_MEMBER_CAP_OUT` not inherited and `CHECK_ONLY` unset.
+- **Window.** One attempt under Agent 0's technical clearance and App's fresh resource concurrence, with App's brief
+  deferral active (2026-11-06T17:25:59Z), run by Dynamics with the copies and runner above. Acquired at 17:28:22Z
+  (`START-EXCLUSIVE` immediately after `WAIT-EXCLUSIVE`); runner entry 17:28:22.317Z, admission verified 17:28:22.706Z
+  (0.389 s); END rc 0 at 17:28:37Z, 15.621 s internal from entry and about 15 s from acquisition including teardown,
+  against the 55 s and 60 s limits. Each of the seven processes executed exactly one test with rc 0 (1,242 filtered
+  out of the lib binary, 43 of the challenge): sparse and dense `witness_headroom_w1_at_one_mebibyte` 2.38 s and 0.63 s,
+  `witness_w2_deep_milestone_publishes` 1.25 s and 1.31 s, `witness_w_c2_publishes` 2.40 s and 2.36 s;
+  `retained_direct_peak_is_within_the_profiles_bounds` 4.79 s. The post-run hashes were unchanged and `window.err` was
+  empty. Closure was verified at 17:28:49Z: no runner, test or wrapper process remained, the four slot locks had no
+  holder and no pending marker remained, and memguard (live) logged no event.
+
+Run evidence (the runs, compares, block checks, builds, test logs), the AC-004 copies and runner, and the window record are in
+`/Users/ryan/dev/chirality-t3/scratch/rt-dynamics-p0-d3/`; they are review input, not a permanent dependency.
+
 ## 9. Memory-profile gates and registration
 
 ### Gate bounds (registration)
@@ -6327,3 +6502,4 @@ Code, tools and other designs cite this text by these earlier section names and 
 | "RT-A3 R1: the RE reader's exact tie-rod axial-share dot", "§8.56" | §8.56 |
 | "RT-A5 minuend_final: the held-status solve", "§8.54" (RTA5-PIN, RTA5-DZ, RTA5-FZ, RTA5-BN, RTA5-PC, RTA5-SZ, RTA5-L, RTA5-ID) | §8.54 |
 | "DEL-04-09: the selected A1, A2 and A3 modal parameter instance", "§8.57" | §8.57 |
+| "DEL-04-09 O-4: the modal resource preflight P0 and the S1 wiring", "§8.58" (MODAL-FB and MODAL-ID's P0 rules) | §8.58 |
