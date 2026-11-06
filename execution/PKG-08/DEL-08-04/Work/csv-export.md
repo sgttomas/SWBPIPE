@@ -47,11 +47,13 @@ adapter reads:
 | Support load summary (`SupportLoadSummaryPanel.tsx`) | `supportLoadSummary.ts`; adapter `supportLoadSummaryCsv.ts` | the shown support with its maximum and minimum rows (`support-loads`), and every support in one file, one row per support and case (`support-loads-all`) |
 | Weight summary and centre of gravity (`WeightSummaryPanel.tsx`, two `<table>` elements) | `weightSummary.ts`; adapter `weightSummaryCsv.ts` | the weight table (`weight`) and the centre-of-gravity table (`weight-cog`) |
 | Run and state comparisons (`features/comparison/RunComparisonView.tsx`, `StateComparisonView.tsx`) | `runComparison.ts` and `stateComparison.ts`; adapters `runComparisonCsv.ts` (which also holds the view's row list and filter) and `stateComparisonCsv.ts` | every page of the rows the filters match (`run-comparison`, `state-comparison`) |
+| Hanger sizing, candidates and derived solves (`features/results/HangerSizingPanel.tsx`, two `<table>` elements; DEL-04-11 increment 3b, mounted by 3c) | `hangerSizingView.ts`; adapter `hangerSizingCsv.ts` | every candidate, one row per candidate and operating case (`hanger-sizing`), and every solve, one row per solve and nonlinear support (`hanger-sizing`, qualifier `solves`); values are the document's published SI values, written as stored |
 
 Each exporting `<table>` carries `data-csv-export` naming its kinds, and its
 panel renders an "Export CSV" control (`CsvExportControl.tsx`). The guard
 (`csvTableCoverage.test.ts`) fails when a `<table>` under `features/results` or
-`features/comparison` lacks the marker. All nine are exported.
+`features/comparison` lacks the marker. All nine are exported, and so are the two
+hanger-sizing tables added by DEL-04-11 increment 3b.
 
 **The `ResultsPanel` tables.** The two `ResultsPanel` tables show values
 through the session's display-unit converter (`useDisplayQuantity`,
@@ -96,8 +98,8 @@ engine (`core/units` `convert`) applies factors such as 0.0254,
 - **The other seven tables** keep the exact step of §3.
 
 Later results tables join when they are built, through the same serializer.
-Examples are the RT-A11 hanger table and the RT-R2 frequency and participation
-tables. Model and input tables are not results tables: bulk change, the model
+The RT-A11 hanger tables have joined (the last row above); the RT-R2 frequency and
+participation tables are another example. Model and input tables are not results tables: bulk change, the model
 tree, the library, units and split into parts.
 
 ## 3. File form
