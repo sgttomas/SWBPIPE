@@ -558,7 +558,7 @@ const SUPPORT_COMPONENTS: [&str; 6] = ["Fx", "Fy", "Fz", "Mx", "My", "Mz"];
 const DISPLACEMENT_AXES: [(&str, &str); 3] = [("ux", "global_nodal_displacement_x"), ("uy", "global_nodal_displacement_y"), ("uz", "global_nodal_displacement_z")];
 /// The producer's `LINEAR_STATE_KINDS` (`preview_physics.rs`): with
 /// `displacement_magnitude`, the kinds a combination combines, except `_v2` kinds.
-const LINEAR_STATE_KINDS: [&str; 22] = [
+const LINEAR_STATE_KINDS: [&str; 23] = [
     "global_nodal_displacement_x",
     "global_nodal_displacement_y",
     "global_nodal_displacement_z",
@@ -581,6 +581,7 @@ const LINEAR_STATE_KINDS: [&str; 22] = [
     "constant_effort_support_applied_load",
     "element_global_end_force_v1",
     "element_global_end_moment_v1",
+    "support_reaction_along_direction_v1",
 ];
 
 fn stable_suffix(id: &str) -> String {
@@ -595,8 +596,14 @@ fn identity(parts: &[&str]) -> String {
 fn kind(row: &Value) -> &str {
     row["kind"].as_str().unwrap_or_default()
 }
+/// The producer's `skew::case_named_id`: the `_v2` kinds and §7.1's along-direction kind
+/// name their case in their id, so they are combined in their support's group, never by
+/// base id.
+fn case_named_id(kind: &str) -> bool {
+    kind.ends_with("_v2") || kind == "support_reaction_along_direction_v1"
+}
 fn combined_kind(kind: &str) -> bool {
-    !kind.ends_with("_v2") && (LINEAR_STATE_KINDS.contains(&kind) || kind == "displacement_magnitude")
+    !case_named_id(kind) && (LINEAR_STATE_KINDS.contains(&kind) || kind == "displacement_magnitude")
 }
 /// The producer's `algebra_dimension`.
 fn dimension(row: &Value) -> Option<LoadDimension> {
@@ -754,6 +761,16 @@ fn combination_row(reference: &Value, id: &str, row_id: String, value: f64, refs
 /// `append_combination_results`): rows pair by the nested rules with a combination
 /// operand and by the flat rules otherwise; a magnitude states its derivation (the
 /// producer's `derived`, true for every combination read here).
+/// R-6/R-7 (§7.1): a support's along-direction combination row (producer), formed
+/// only when an operand has the row (none on D1; §12).
+fn along_combination_row(index: &RowIndex<'_>, id: &str, expression: &Expression<'_>, targets: &[Operand<'_>], support: &str, row_id: String, basis: &str, sign: &str) -> Option<Value> {
+    let sources: Vec<&Value> = targets.iter().map(|t| index.support_row(*t, support, "along_direction")).collect::<Option<_>>()?;
+    let values: Vec<f64> = sources.iter().map(|s| s["value"].as_f64()).collect::<Option<_>>()?;
+    let value = expression.value(&values, LoadDimension::Force)?;
+    let refs = sources.iter().map(|s| s["id"].as_str().unwrap_or_default().to_string()).collect();
+    Some(combination_row(sources[0], id, row_id, value, refs, basis, sign))
+}
+
 fn form(index: &RowIndex<'_>, id: &str, expression: &Expression<'_>, targets: &[Operand<'_>], sign: &str) -> Formed {
     let nested = targets.iter().any(|t| matches!(t, Operand::Combination(_)));
     let pairs = |reference: &Value, source: &Value| if nested { nested_identity(reference, source) } else { flat_identity(reference, source) };
@@ -870,6 +887,11 @@ fn form(index: &RowIndex<'_>, id: &str, expression: &Expression<'_>, targets: &[
                 combined[slot] = value;
                 let refs = sources.iter().map(|s| s["id"].as_str().unwrap_or_default().to_string()).collect();
                 rows.push(combination_row(sources[0], id, row_id(&base(component)), value, refs, basis, sign));
+            }
+            // R-6/R-7 (§7.1): the along-direction value in its support's group (producer).
+            // Nothing is formed unless an operand has the row (§12: none on D1).
+            if targets.iter().any(|t| index.support_row(*t, support, "along_direction").is_some()) {
+                rows.push(along_combination_row(index, id, expression, targets, support, row_id(&base("along_direction")), basis, sign)?);
             }
             for (component, norm, dimension) in [
                 ("force_magnitude", norm3(combined[0], combined[1], combined[2]), LoadDimension::Force),

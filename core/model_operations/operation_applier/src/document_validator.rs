@@ -332,6 +332,13 @@ impl Validator {
             self.scan_forbidden(group, "reference_configurations");
         }
         if let Some(contract) = root.get("pressure_contract") {
+            // Agent 0 (2026-11-05, S-K1 applier slice): a present JSON null is not
+            // absence. The solve refuses it at decode (`deserialize_present_object`), so
+            // the one shared validator refuses it by name too; absence keeps meaning the
+            // pressure-free route. Only null is judged here (no contract validation).
+            if contract.is_null() {
+                self.block(SLOT_SHAPE, "pressure_contract", "pressure_contract is null; an authored object is required, and absence means the pressure-free route.".into(), Vec::new());
+            }
             self.scan_forbidden(contract, "pressure_contract");
         }
         for (index, material) in array(root, "materials").iter().enumerate() {

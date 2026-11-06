@@ -86,7 +86,13 @@ def inspect(snapshot):
         raise SystemExit(f"SD owners: the guard's owning statements changed; re-review the owners they price: {present}")
     # The support group pushes its rows only into its own `rows` (two pushes: components and magnitudes).
     group = _body(texts[PREVIEW], "append_combination_results").split("let group = || -> Result<Vec<ResultItem>, &'static str> {", 1)
-    if len(group) != 2 or group[1].split("Ok(rows)", 1)[0].count("rows.push(") != 2:
+    # R-6/R-7 S-K1 D3 (§8.55, SKW-SZ): a third push, the along-direction row, runs only for a skewed record
+    # (`if crate::document_members::is_skewed_record(support)`, false on D1: SKW-D1), so the group's D1 rows are unchanged.
+    body = group[1].split("Ok(rows)", 1)[0] if len(group) == 2 else ""
+    skew = body.count("if crate::document_members::is_skewed_record(support)") == 1 and body.count(
+        'rows.push(along_combination_row(combination, &expression, &sign, &targets, &find, base("along_direction"))?);') == 1 \
+        and body.index("if crate::document_members::is_skewed_record(support)") < body.index('base("along_direction")')
+    if len(group) != 2 or body.count("rows.push(") != (3 if skew else 2):
         raise SystemExit("SD owners: the support group's rows changed; re-review SD-WH")
     return True
 

@@ -909,15 +909,15 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "ae45b97742fd463866d8f231004f2053834d5bd413a1430e766f24516d3569ac",
         "73bebc5fb562b7f519c7d59be8e7830f98b21ce29fa0b7c017e43426f50cfcaa",
         "a056c395e27f964c842a1347db689eb24377d0b5a79a3b954435105a2c422d08",
-        "d0bab3502b4018ce0596757a933bd6306f402dc3741a10af24a094e8c66544e8",
-        "563db3c7c44279face3adc60a76a512de38520357e89ea4b49ad11d20946db89",
+        "ef59ef338d4e2cafca7017e13b7a450d1094ede8068c47cf5e44416c1adc177a",
+        "16eeb49cb298c6d3634594bbd9ebf6bf86be8f114e2e524dbd624e401e31a729",
         "fe371e07cd727154235f3725eeeef393ad0a433f0e8c98656f98468940d9aea2",
         "8d48e3d97bc4f69bf9b0da58db7538b0661cf52d05f771dc126be2c3cca8c163",
         "320dc3f1f75944af8b66da1287e6f8ee5e1fcd5fe005752f2c90bf8c89a9c894",
         "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9",
         "612bb8167b89bc582f14dc1c29e56b6fab15197234b55a69d6e5fb416259f341",
         "21b7426ec1c50ba5f74539984261554d06b9b6a26ec26f7d5765b5faa7d6bb90",
-        "f64473f5a60ac2bb34d8006b40bf044800f0c97454c570bbe88d1f1d96b7bdfc",
+        "8a0abaeac93729b5d6ee6c922f2a60f0caf9332948622bb8b5896747ce41442d",
     ];
     // The same files, read here at compile time (test-only), by the sha2 dependency.
     let files: [&[u8]; build_identity::REVIEWED_INPUT_COUNT] = [
@@ -2233,8 +2233,8 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 // s(PreparedCaseResult) 1,912 -> 1,920 B, LoadCaseSolve's held_status_source, two per case at three cases,
 // +48 B): +33,008 B in every phase and mode, from maintained eval at the same 328 in-build atoms, without R.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_450_356_608, 6_792_351_169, 8_744_086_997, 8_537_803_269, 7_611_499_067, 8_526_336_712, 7_258_954_102, 6_932_243_978],
-    [6_509_487_952, 6_851_482_513, 8_803_218_341, 8_596_934_613, 7_670_630_411, 8_585_468_056, 7_318_085_446, 6_991_375_322],
+    [6_450_374_480, 6_792_369_041, 8_744_104_869, 8_537_821_141, 7_611_516_939, 8_526_354_584, 7_258_971_974, 6_932_261_850],
+    [6_509_505_824, 6_851_500_385, 8_803_236_213, 8_596_952_485, 7_670_648_283, 8_585_485_928, 7_318_103_318, 6_991_393_194],
 ];
 
 #[test]

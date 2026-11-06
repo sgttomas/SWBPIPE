@@ -956,6 +956,8 @@ export function declaredSourceResultDimension(
     // W-7 (DEL-04-01 Design global-end-actions.md): member end actions in global coordinates.
     element_global_end_force_v1: "force",
     element_global_end_moment_v1: "moment",
+    // R-6/R-7 S-K1: a skewed support's reaction along its stored direction (one signed force).
+    support_reaction_along_direction_v1: "force",
     element_local_axial_force: "force",
     element_local_axial_normal_stress: "stress",
     element_local_bending_moment_y: "moment",

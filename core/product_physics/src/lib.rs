@@ -144,7 +144,7 @@ use std::f64::consts::PI;
 
 mod topology;
 mod validation;
-mod imposed_motion; mod held_status; // RT-A5 `minuend_final` (DEL-05-02 `operating-case.md` §7), on this line so that no line moves.
+mod imposed_motion; mod held_status; mod skew; // RT-A5 `minuend_final` (DEL-05-02 `operating-case.md` §7) and R-6/R-7 S-K1 (DEL-04-03 `skew-restraints.md`), on this line so that no line moves.
 use validation::validate_model_inputs;
 mod rigid_component;
 #[cfg(test)]
@@ -2614,7 +2614,7 @@ struct BuiltModel {
     /// T4-U3: each connector's component and replaced span, in the same order.
     connector_records: Vec<joint::ConnectorRecord>,
     curved_bend_elements: Vec<CurvedBendMacroBuild>,
-    supports: Vec<LinearSupport>,
+    supports: Vec<LinearSupport>, /* R-6/R-7 S-K1: the model's skew basis, `None` without a skewed record */ skew: Option<open_pipe_stress_frame_kernel::restraint_basis::RestraintBasis>,
     nonlinear_supports: Vec<NonlinearSupport>,
     nonlinear_initial_states: Vec<SupportStateRecord>,
     nonlinear_friction_normal_reactions: Vec<FrictionNormalReaction>,
@@ -3155,7 +3155,7 @@ fn run_linear_static_preview_observed_inner(
     );
     if boundary.restrained_dofs.is_empty()
         && boundary.springs.is_empty()
-        && potential_contact_dofs.is_none()
+        && potential_contact_dofs.is_none() && built.skew.is_none()
     {
         diagnostics.push(diag(
             "diagnostic:physics:no-restraints",
@@ -3182,10 +3182,10 @@ fn run_linear_static_preview_observed_inner(
         )
         .chain(potential_contact_dofs.iter().flatten().copied())
         .collect::<HashSet<_>>();
-    if !ground_dofs.is_empty() && ground_dofs.len() < DOF_PER_NODE {
-        let (restrained, missing) = support_restraint_summary(&boundary.restrained_dofs);
+    let skewed_rows = skew::ground_rows(built.skew.as_ref()); if !(ground_dofs.is_empty() && skewed_rows == 0) && ground_dofs.len() + skewed_rows < DOF_PER_NODE {
+        let (restrained, missing) = support_restraint_summary(&boundary.restrained_dofs); let skewed = if built.skew.is_some() { format!("; skewed constraints: {skewed_rows}") } else { String::new() };
         diagnostics.push(diag("diagnostic:physics:under-restrained", "SOLVER_SYSTEM_BLOCKED", "blocking",
-            format!("fewer than six independent ground constraints including positive springs: the six rigid-body modes of a connected structure cannot all be removed; directly restrained global DOF classes: {restrained}; global DOF classes with no direct restraint: {missing} (not a rigid-body mode analysis; separated restraints can resist rotations); support contributions: {}", support_contribution_summary(&model)),
+            format!("fewer than six independent ground constraints including positive springs: the six rigid-body modes of a connected structure cannot all be removed; directly restrained global DOF classes: {restrained}; global DOF classes with no direct restraint: {missing} (not a rigid-body mode analysis; separated restraints can resist rotations); support contributions: {}{skewed}", support_contribution_summary(&model)),
             vec!["supports".to_string()]));
     }
     for finding in &boundary.findings {
@@ -3551,7 +3551,7 @@ fn run_linear_static_preview_observed_inner(
             .map(|row| {
                 (
                     row.id.clone(),
-                    if is_default || ((pressure_runtime::is_exact(&model) || preview.is_some()) && row.kind.ends_with("_v2")) {
+                    if is_default || ((pressure_runtime::is_exact(&model) || preview.is_some()) && skew::case_named_id(&row.kind)) {
                         row.id.clone()
                     } else {
                         qualified_load_case_result_id(&load_case_id, &row.id)
@@ -3565,7 +3565,7 @@ fn run_linear_static_preview_observed_inner(
                 ref_type: "load_case".to_string(),
                 ref_id: load_case_id.clone(),
             });
-            if !is_default && !((pressure_runtime::is_exact(&model) || preview.is_some()) && result.kind.ends_with("_v2")) {
+            if !is_default && !((pressure_runtime::is_exact(&model) || preview.is_some()) && skew::case_named_id(&result.kind)) {
                 result.id = qualified_load_case_result_id(&load_case_id, &base_id);
             }
             for source_ref in &mut result.source_result_refs {
@@ -4579,7 +4579,7 @@ fn assemble_basis_stiffness(
         &built.connectors,
         &blocks,
         &springs,
-        &SparseAssemblyOptions::new(),
+        &SparseAssemblyOptions::new().with_node_blocks(skew::node_blocks(built.skew.as_ref())),
     )
 }
 
@@ -5606,7 +5606,7 @@ fn solve_prepared_load_case(
             });
         }
     }
-    let prescribed_values = prescribed
+    if let Some(refusal) = built.skew.as_ref().and_then(|basis| skew::prescribed_motion_refusal(basis, &prescribed, &load_case.id)) { diagnostics.push(refusal); return Ok(skew::blocked_case(&load_case.id)); } let prescribed_values = prescribed
         .iter()
         .map(|&(_, value)| value)
         .collect::<Vec<_>>();
@@ -5615,7 +5615,7 @@ fn solve_prepared_load_case(
     // reduced right-hand side, bit-identical to `reduce_assembled_system*`'s,
     // with their errors in their order (K1); no reduced matrix is formed.
     let reduced = formed
-        .map(|formed| {
+        .filter(|_| built.skew.is_none()).map(|formed| {
             reduce_assembled_sparse_system(
                 formed,
                 &force,
@@ -5639,7 +5639,7 @@ fn solve_prepared_load_case(
         }
     };
     let attempted_linear = match stiffness {
-        BasisStiffness::Formed(formed) => solve_preview_reduced_system(
+        BasisStiffness::Formed(formed) if built.skew.is_some() => skew::solve(solver_mode, formed, built, spring_entries, &force, &prescribed, built.skew.as_ref().expect("skew basis")).map_err(OrdinaryFailure::Structural), BasisStiffness::Formed(formed) => solve_preview_reduced_system(
             solver_mode,
             formed,
             reduced
@@ -5672,7 +5672,7 @@ fn solve_prepared_load_case(
     // closed join: the recovery input carries the resolved case, and source
     // closure refuses any eigen load, pair or motion it does not own.
     let source_eligible = source_eligible(
-        capture.is_some(),
+        capture.is_some() && built.skew.is_none(),
         pressure_runtime::is_exact(model),
         !built.nonlinear_supports.is_empty(),
         !model.combinations.is_empty(),
@@ -5819,7 +5819,7 @@ fn solve_prepared_load_case(
             // evaluated through K2b's orchestrator, then published or refused
             // per case. Every other failure is main's.
             let trigger = ordinary_range_trigger(&failure)
-                .filter(|_| built.nonlinear_supports.is_empty());
+                .filter(|_| built.nonlinear_supports.is_empty()); if trigger.is_some() && built.skew.is_some() { diagnostics.push(skew::force_scaled_refusal(&load_case.id, "ordinary range trigger")); return Ok(skew::blocked_case(&load_case.id)); }
             match (trigger, failure) {
                 (Some(trigger), _) => match force_scaling_attempt(
                     model,
@@ -6229,7 +6229,7 @@ fn solve_prepared_load_case(
         }
     }
 
-    let reactions = selected_source
+    let mut reactions = selected_source
         .as_ref()
         .map(|recovery| recovery.reactions().to_vec())
         .or_else(|| {
@@ -6246,7 +6246,7 @@ fn solve_prepared_load_case(
             // otherwise), so this is unreachable; NaN is refused below.
             (None, None) => vec![f64::NAN; displacements.len()],
         });
-    require_finite_mechanics(reactions.iter().copied())?;
+    require_finite_mechanics(reactions.iter().copied())?; let skew_reactions = match built.skew.as_ref() { Some(basis) => match skew::attribute(basis, &displacements, &mut reactions, &load_case.id) { Ok(attributed) => Some(attributed), Err(refusal) => { diagnostics.push(refusal); return Ok(skew::blocked_case(&load_case.id)); } }, None => None };
     // preview-physics-2 side record; rendered only when no case is source-selected.
     let mut preview_record = (!pressure_runtime::is_exact(model) && selected_source.is_none())
         .then(preview_physics::CaseRecord::default);
@@ -6298,7 +6298,7 @@ fn solve_prepared_load_case(
                     vector[slot] = reactions[index * DOF_PER_NODE + slot];
                 }
             }
-            }
+            } if let Some(attributed) = skew_reactions.as_ref().and_then(|skew| skew.records.get(&support.id)) { vector = [attributed.global[0], attributed.global[1], attributed.global[2], 0.0, 0.0, 0.0]; }
             if let Some(action) = source_action.filter(|_| !pressure_runtime::is_exact(model)) {
                 for (component, name) in ["Fx", "Fy", "Fz", "Mx", "My", "Mz"].iter().enumerate() {
                     results.push(ResultItem { component_body: None,
@@ -6315,11 +6315,11 @@ fn solve_prepared_load_case(
                     });
                 }
             }
-            let certified_support = match (member_bound, certified_source.as_ref()) {
+            let mut certified_along = None; let certified_support = match (member_bound, certified_source.as_ref()) {
                 (Some(bound),Some(source)) => match certified_publication::support(model,support,built,spring_entries,&spring_ground,source,certified_force,&displacements,bound,certified_nonlinear) {
-                    Ok(rows) => {
+                    Ok((rows, along)) => { certified_along = along.as_ref().map(|row| row.published);
                         vector = rows.map(|row| row.published);
-                        match certified_publication::support_record(&support.id,formation_bodies.body_of_node(index),&rows) {
+                        match certified_publication::support_record(&support.id,formation_bodies.body_of_node(index),&rows,along.as_ref()) {
                             Ok(record) => recovery_records.push(record),
                             Err(error) => recovery_records.push(certified_publication::unavailable_record(&support.id,formation_bodies.body_of_node(index),format!("{error:?}"))),
                         }
@@ -6332,7 +6332,7 @@ fn solve_prepared_load_case(
             require_finite_mechanics(vector)?;
             if let Some(record) = preview_record.as_mut() {
                 record.support_vectors.push((support.id.clone(), vector));
-                if let Some(rows) = &certified_support {
+                if let Some(attributed) = skew_reactions.as_ref().and_then(|skew| skew.records.get(&support.id)) { record.along_directions.push((support.id.clone(), certified_along.unwrap_or(attributed.along))); } if let Some(rows) = &certified_support {
                     let force_norm = open_pipe_stress_frame_kernel::structural::certified_magnitude(&rows[..3]).map_err(|_| FrameKernelError::NonFiniteInput { name:"certified force norm",value:f64::NAN })?.published;
                     let moment_norm = open_pipe_stress_frame_kernel::structural::certified_magnitude(&rows[3..]).map_err(|_| FrameKernelError::NonFiniteInput { name:"certified moment norm",value:f64::NAN })?.published;
                     record.certified_support_norms.push((support.id.clone(),[force_norm,moment_norm]));
@@ -9092,7 +9092,7 @@ fn build_model_for_basis(
                     vec![support.id.clone(), support.node.clone()],
                 ));
                 return None;
-            };
+            }; if document_members::is_skewed_record(support) { return None; } // R-6/R-7 §6.4: a skewed record is never a LinearSupport.
             let dofs = support
                 .restraints
                 .iter()
@@ -9134,7 +9134,7 @@ fn build_model_for_basis(
         })
         .collect::<Vec<_>>();
 
-    Some(BuiltModel {
+    let skew = skew::build_basis(model, nodes.len(), &supports, &frame_elements, &connectors, &curved_bend_elements, diagnostics); Some(BuiltModel {
         exact_sections,
         nodes,
         pipes,
@@ -9142,7 +9142,7 @@ fn build_model_for_basis(
         connectors,
         connector_records,
         curved_bend_elements,
-        supports,
+        supports, skew,
         nonlinear_supports: nonlinear.supports,
         nonlinear_initial_states: nonlinear.initial_states,
         nonlinear_friction_normal_reactions: nonlinear.friction_normal_reactions,
@@ -16207,7 +16207,7 @@ mod tests {
         assert_eq!(unit_summary.published.to_bits(),0x3e9421f5f40d8377);
         assert_ne!(unit_summary.published.to_bits(),(0.3/1e6_f64).to_bits());
         let mut support=[CertifiedRow::ZERO;6];support[0]=row(1.0);support[1]=row(1.0);
-        let record=certified_publication::support_record("support",Some(0),&support).unwrap();assert_eq!(record.groups.len(),4);
+        let record=certified_publication::support_record("support",Some(0),&support,None).unwrap();assert_eq!(record.groups.len(),4);
         let vector=record.groups.iter().find(|group|group.kind=="support_force").unwrap();let scalar=record.groups.iter().find(|group|group.kind=="support_force_magnitude").unwrap();
         assert!(*vector.bound.as_ref().unwrap()<1e-30);assert!(*scalar.bound.as_ref().unwrap()>1024.0*vector.bound.as_ref().unwrap(),"separate scalar norm rounding is covered beyond the component radii");
     }
@@ -16449,7 +16449,7 @@ mod tests {
         // T4-U8: the recovery is bound to the member's frame in the case's certified source.
         let source=certified_publication::source(&built,&force,&[]);
         let loads=open_pipe_stress_frame_kernel::structural::CertifiedMemberLoads::from_member_primitives(0,1,force.load_primitives(),&source_prefix).unwrap().with_member_source(&source,&source_prefix);
-        let bound=MemberBoundInputs { w:vec![0.0;12],w2:vec![0.0;12],exponents:vec![i32::MIN;12],lambda_sigma:0.0 };
+        let bound=MemberBoundInputs { w:vec![0.0;12],w2:vec![0.0;12],exponents:vec![i32::MIN;12],lambda_sigma:0.0, lift_radius: Vec::new() };
         let recovered=open_pipe_stress_frame_kernel::structural::certify_straight_recovery(&frame,&loads,&[0.0;12],&bound).unwrap();
         let expected=frame.section.elastic_modulus*frame.section.area*2f64.powi(-55);
         assert!(recovered.ends[0].published>0.0);

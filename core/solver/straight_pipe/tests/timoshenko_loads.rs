@@ -259,6 +259,7 @@ fn timoshenko_recovered_end_actions_use_the_timoshenko_matrix() {
             w2: vec![0.0; 18],
             exponents: vec![i32::MIN; 18],
             lambda_sigma: 0.0,
+            lift_radius: Vec::new(),
         };
         // T4-U8 (Design §4 item 2): bound to the member's formation-source frame.
         let source = open_pipe_stress_frame_kernel::structural::FormationSource {

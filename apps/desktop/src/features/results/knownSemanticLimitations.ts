@@ -7,6 +7,7 @@ import { classificationSummary, retainedRowClasses } from "./retainedPrecisionSt
 import { decodeBinary64, type AccuracyClass } from "./retainedPrecisionTypes";
 import { isNativeResult, type NativeResult } from "../../services/nativeResult";
 import type { MechanicsResult } from "../../types";
+import { derivedRowNote } from "../viewport/resultColourOverlay";
 
 /** Static fresh-identity set: a constant, no route predicate.
  * U6d (D-U6-6; D2 4.7 S-1) adds the F2a preview successor: membership is not
@@ -51,6 +52,16 @@ export function heldStatusStandings(source: MechanicsResult | NativeResult): { c
 
 export const PREVIEW_INTENSIFIED_KIND = "component_equal_factor_intensified_bending_stress_v1";
 export const PREVIEW_MAXIMUM_KIND = "pipe_elastic_normal_stress_maximum_v2";
+/** R-6/R-7 S-K1 (DEL-04-03 Work `skew-restraints.md` §7.1): a skewed support's reaction along its
+ * stored direction. A known kind with its own row label and notice; it is not a global component,
+ * so the reaction overlay (`REACTION_COMPONENT_KIND`) never draws it. */
+export const PREVIEW_ALONG_DIRECTION_KIND = "support_reaction_along_direction_v1";
+export const N_ALONG_DIRECTION = "reaction along the support's stored direction, positive when the support acts on the pipe along the authored direction; the producer's own row, not a global component";
+/** Authoring's R-1 should-fix: an unsigned, selected or bounded combination row (its
+ * `derivedRowNote`) states its derivation and carries no sign clause. */
+export function alongDirectionDerivedLabel(note: string): string {
+  return `reaction along the support's stored direction (${note}); the producer's own row, not a global component`;
+}
 
 /** D2 4.9.9 (revision 4, N-5): binding refusals for classified successor rows
  * before S-I. They never demote the envelope's standing. */
@@ -131,9 +142,10 @@ export type KnownSemanticNotice = { id: string; text: string };
  * placement; no notice changes standing, rows or exported bytes. RT-A4 §10.4: a reopened run
  * recorded before RT-A4 passes its recorded table and is classified under it (`displayRoute`);
  * current callers omit it.
- * `options.hasIntensified`: for a native result, whether a row of the intensified kind exists
- * (a bounded native lookup by the caller); a full result's rows are read directly. */
-export function knownSemanticNotices(source: MechanicsResult | NativeResult | null | undefined, recordedTableRead?: ContractBinding | null, options: { hasIntensified?: boolean } = {}): KnownSemanticNotice[] {
+ * `options.hasIntensified` / `options.hasAlongDirection`: for a native result, whether a row of the
+ * intensified / along-direction kind exists (a bounded native lookup by the caller); a full result's
+ * rows are read directly. */
+export function knownSemanticNotices(source: MechanicsResult | NativeResult | null | undefined, recordedTableRead?: ContractBinding | null, options: { hasIntensified?: boolean; hasAlongDirection?: boolean } = {}): KnownSemanticNotice[] {
   if (!source) return [];
   let route: ReturnType<typeof displayRoute>;
   try { route = displayRoute(source, recordedTableRead); } catch { return []; }
@@ -144,6 +156,7 @@ export function knownSemanticNotices(source: MechanicsResult | NativeResult | nu
     if (source.summary.max_open_formula_stress) notices.push({ id: "headline-label", text: `Stress headline: ${N_HEADLINE}.` });
     else if (solved) notices.push({ id: "headline-withheld", text: N_HEADLINE_WITHHELD });
     if (options.hasIntensified ?? (!isNativeResult(source) && source.results.some(row => row.kind === PREVIEW_INTENSIFIED_KIND))) notices.push({ id: "intensified-label", text: `Intensified measure: ${N_INTENSIFIED}.` });
+    if (options.hasAlongDirection ?? (!isNativeResult(source) && source.results.some(row => row.kind === PREVIEW_ALONG_DIRECTION_KIND))) notices.push({ id: "along-direction-label", text: `Along-direction reaction, for a load case or signed combination: ${N_ALONG_DIRECTION}.` });
     for (const gate of previewCombinationGates(source)) {
       if (gate.withheld && gate.reason) notices.push({ id: `combination-gate:${gate.combination_id}`, text: `${gate.combination_id}: ${COMBINATION_GATE_REASONS[gate.reason] ?? gate.reason}` });
     }
@@ -175,17 +188,25 @@ export function previewCombinationGates(source: MechanicsResult | NativeResult):
     && typeof (g as { withheld?: unknown }).withheld === "boolean");
 }
 
+/** The along-direction row's label: its derivation when the row is unsigned, selected or
+ * bounded (`derivedRowNote`), else the signed statement. */
+function alongDirectionLabel(row: Partial<Pick<MechanicsResult["results"][number], "metadata" | "basis_ref">>): string {
+  const note = derivedRowNote(row);
+  return note === null ? N_ALONG_DIRECTION : alongDirectionDerivedLabel(note);
+}
+
 /** Row-level label for a listed row of a new kind; null for other rows. A
  * successor row also carries its validated class label (D2 4.9.9: never unlabelled).
  * `recordedTableRead` as for `knownSemanticNotices`. */
-export function resultRowLabel(row: Pick<MechanicsResult["results"][number], "kind"> & Partial<Pick<MechanicsResult["results"][number], "id" | "unit">>, source: MechanicsResult | null | undefined, recordedTableRead?: ContractBinding | null): string | null {
+export function resultRowLabel(row: Pick<MechanicsResult["results"][number], "kind"> & Partial<Pick<MechanicsResult["results"][number], "id" | "unit" | "metadata" | "basis_ref">>, source: MechanicsResult | null | undefined, recordedTableRead?: ContractBinding | null): string | null {
   if (!source) return null;
   let route: ReturnType<typeof displayRoute>;
   try { route = displayRoute(source, recordedTableRead); } catch { return null; }
   if (route !== "preview_physics" && !isRetainedRoute(route)) return null;
   // B3b: the exact successor's rows are pressure-2's (B7b D4 (a)), which carry no preview kind label;
   // its rows carry their validated class label only.
-  const kindLabel = route === "retained_physics" ? null : row.kind === PREVIEW_INTENSIFIED_KIND ? N_INTENSIFIED : row.kind === PREVIEW_MAXIMUM_KIND ? N_HEADLINE : null;
+  const kindLabel = route === "retained_physics" ? null : row.kind === PREVIEW_INTENSIFIED_KIND ? N_INTENSIFIED : row.kind === PREVIEW_MAXIMUM_KIND ? N_HEADLINE
+    : row.kind === PREVIEW_ALONG_DIRECTION_KIND ? alongDirectionLabel(row) : null;
   // Only a registered successor has validated classes; any other source has none.
   const classLabel = retainedRowClassLabel(row, source);
   return classLabel && kindLabel ? `${classLabel} ${kindLabel}` : classLabel ?? kindLabel;

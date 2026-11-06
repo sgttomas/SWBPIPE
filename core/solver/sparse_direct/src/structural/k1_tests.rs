@@ -213,6 +213,7 @@ impl Model {
             curved: Vec::new(),
             springs: self.springs.clone(),
             unavailable: Vec::new(),
+            restraint: None,
         }
     }
 }

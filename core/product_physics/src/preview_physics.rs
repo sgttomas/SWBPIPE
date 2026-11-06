@@ -22,7 +22,7 @@ const SUPPORT_COMPONENTS: [&str; 6] = ["Fx", "Fy", "Fz", "Mx", "My", "Mz"];
 
 /// The linear state kinds admitted to combination algebra (table
 /// `combination_policy.linear_state_kinds`).
-const LINEAR_STATE_KINDS: [&str; 22] = [
+const LINEAR_STATE_KINDS: [&str; 23] = [
     "global_nodal_displacement_x",
     "global_nodal_displacement_y",
     "global_nodal_displacement_z",
@@ -46,6 +46,9 @@ const LINEAR_STATE_KINDS: [&str; 22] = [
     // W-7 (DEL-04-01 Design `global-end-actions.md`): the global end actions.
     "element_global_end_force_v1",
     "element_global_end_moment_v1",
+    // R-6/R-7 S-K1 (DEL-04-03 skew-restraints.md §7.1): a skewed record's along-direction
+    // value, a signed linear state combined as any scalar of its kind.
+    "support_reaction_along_direction_v1",
 ];
 const ARC_STRESS_KINDS: [&str; 6] = [
     "element_local_axial_normal_stress",
@@ -123,6 +126,8 @@ pub(crate) enum Slot {
 pub(crate) struct CaseRecord {
     /// Per model support with a node: the device-law six-vector from the case loop.
     pub support_vectors: Vec<(String, [f64; 6])>,
+    /// R-6/R-7 S-K1 (§7.1): each skewed record's along-direction value.
+    pub along_directions: Vec<(String, f64)>,
     pub certified_support_norms: Vec<(String,[f64;2])>,
     pub members: Vec<MemberRecord>,
     /// (position among the case's rows, slot), in the case loop's order.
@@ -173,7 +178,7 @@ pub(crate) fn identity(parts: &[&str]) -> String {
 }
 
 fn final_id(case_index: usize, case_id: &str, row: &ResultItem) -> String {
-    if case_index == 0 || row.kind.ends_with("_v2") {
+    if case_index == 0 || crate::skew::case_named_id(&row.kind) {
         row.id.clone()
     } else {
         qualified_load_case_result_id(case_id, &row.id)
@@ -594,6 +599,10 @@ pub(crate) fn render(
                     if let Some((_,norms)) = record.certified_support_norms.iter().find(|(id,_)| id == support_id) {
                         rows[6].value = norms[0]; rows[7].value = norms[1];
                     }
+                    if let Some((_, along)) = record.along_directions.iter().find(|(id, _)| id == support_id) {
+                        let basis = rows[0].metadata.as_ref().map_or(String::new(), |m| m.basis.clone());
+                        rows.push(crate::skew::along_direction_row(&case_id, support_id, *along, &basis));
+                    }
                     support_rows.insert(support_id.clone(), rows);
                     attributed.push(serde_json::json!(support_id));
                 }
@@ -945,12 +954,29 @@ fn combination_row(
     combined
 }
 
+/// R-6/R-7 (§7.1): a skewed record's along-direction combination row, from its
+/// operand cases' rows, with its group's expression and sign. Reached only for a
+/// skewed record (none on D1, which refuses `direction`; §12).
+fn along_combination_row<'r>(
+    combination: &PreviewCombination,
+    expression: &CombinationExpression<'_>,
+    sign: &str,
+    targets: &[combination_plan::Target<'_>],
+    find: &dyn Fn(combination_plan::Target<'_>, &str) -> Option<&'r ResultItem>,
+    base_id: String,
+) -> Result<ResultItem, &'static str> {
+    let sources: Vec<&ResultItem> = targets.iter().map(|target| find(*target, "along_direction")).collect::<Option<_>>().ok_or("source support row missing in an operand case")?;
+    let values: Vec<f64> = sources.iter().map(|s| s.value).collect();
+    let value = expression.evaluate_values(&values, LoadDimension::Force).ok_or("load-case algebra refused")?;
+    Ok(combination_row(combination, expression, sign, sources[0], qualified_combination_result_id(&combination.id, &base_id), value, sources.iter().map(|s| s.id.clone()).collect()))
+}
+
 /// Kinds a combination combines (as the reference row's kind); every other
 /// kind is never combined and publishes no combination row.
 /// (`displacement_magnitude` combines on both paths: as the norm of combined
 /// signed components, or range-selected directly.)
 fn combined_kind(kind: &str) -> bool {
-    !kind.ends_with("_v2") && (LINEAR_STATE_KINDS.contains(&kind) || kind == "displacement_magnitude")
+    !crate::skew::case_named_id(kind) && (LINEAR_STATE_KINDS.contains(&kind) || kind == "displacement_magnitude")
 }
 
 /// §4 (r1 F4): with a combination operand, rows pair by kind, unit, entity and
@@ -1181,6 +1207,16 @@ pub(crate) fn append_combination_results(
                     let value = expression.evaluate_values(&values, dimension).ok_or("load-case algebra refused")?;
                     combined[slot] = value;
                     rows.push(combination_row(combination, &expression, &sign, sources[0], qualified_combination_result_id(&combination.id, &base(component)), value, sources.iter().map(|s| s.id.clone()).collect()));
+                }
+                // R-6/R-7 (§7.1): a skewed record's along-direction value is the combination
+                // of its case values, in its support's group (its case-named id pairs by
+                // support, never by base id), with the group's expression and sign. Only a
+                // skewed record publishes the row, so any other support (every support on
+                // D1, which refuses `direction`) forms and scans nothing here (§12).
+                if crate::document_members::is_skewed_record(support)
+                    && targets.iter().any(|target| find(*target, "along_direction").is_some())
+                {
+                    rows.push(along_combination_row(combination, &expression, &sign, &targets, &find, base("along_direction"))?);
                 }
                 for (component, value) in [
                     ("force_magnitude", norm3(combined[0], combined[1], combined[2])),

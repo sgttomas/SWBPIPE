@@ -28,7 +28,7 @@ import { resultGroupCsvStream } from "./resultGroupCsvStream";
 import { canSurfaceRevealNow } from "../workspace/surfaceReveal";
 import { useDisplayQuantityResolver, type DisplaySourceQuantity } from "../display-units";
 import { hangerPreloadStanding } from "./hangerPreload";
-import { knownSemanticNotices, resultRowLabel } from "./knownSemanticLimitations";
+import { knownSemanticNotices, PREVIEW_ALONG_DIRECTION_KIND, resultRowLabel } from "./knownSemanticLimitations";
 import { NUMERICAL_HEALTH_STATE_TEXT } from "./numericalHealthText";
 import { numericalHealthView, parseNumericalHealth, rowHealthState, type NumericalHealthLocation, type NumericalHealthView } from "./numericalHealth";
 import { ALL_CASES, isNavigatorExcludedTarget, navigatorKeyStep, stepIndex, type NavigatorAxis, type NavigatorCase } from "./resultsNavigator";
@@ -239,7 +239,9 @@ export function NativeResultsPanel({
   // The row labels apply to preview-physics-2 and its successors (a reopened successor included).
   const labelSource = ["preview_physics", "retained_preview_physics", "retained_physics"].includes(route) ? result : null;
   const intensified = useNativeKindPresence(result, PREVIEW_INTENSIFIED_KIND);
-  const notices = useMemo(() => knownSemanticNotices(result, recordedTableRead, { hasIntensified: intensified }), [result, recordedTableRead, intensified]);
+  // S-K1 R-6/R-7 (§7.1): the along-direction notice, by the same bounded native lookup.
+  const alongDirection = useNativeKindPresence(result, PREVIEW_ALONG_DIRECTION_KIND);
+  const notices = useMemo(() => knownSemanticNotices(result, recordedTableRead, { hasIntensified: intensified, hasAlongDirection: alongDirection }), [result, recordedTableRead, intensified, alongDirection]);
   const recovery = custody.recovery;
   const standingLine = (recordedTableRead ? `${recordedTableLabel(recordedTableRead)}. ` : "") + (route === "unsupported"
     ? "Unsupported numerical contract; historical values only. Needs recompute."

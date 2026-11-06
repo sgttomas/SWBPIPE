@@ -11,7 +11,7 @@ caller's authentic source, model, input and build binding.
 """
 from __future__ import annotations
 
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Mapping, Sequence
 from fractions import Fraction
 import json
 import math
@@ -338,6 +338,7 @@ def validate_preview_physics_evidence(source: Mapping[str, Any], model: Mapping[
     of being refused where the document alone cannot verify them (RT-A4 review r1 P2, ``preview_combination_gates``)."""
     try:
         _validate(source)
+        _along_direction(source, model)
         if model is None:
             # With the model, reader_verdict re-derives them after the other model checks.
             from . import preview_combination_gates
@@ -356,6 +357,125 @@ def certificate_check(source: Mapping[str, Any], model: Mapping[str, Any] | None
         combination_certificate.check(source, model)
     except (TypeError, KeyError, AttributeError, OverflowError, IndexError) as error:
         raise ValueError("SOURCE_COMBINATION_CERTIFICATE_MALFORMED") from error
+
+
+ALONG_DIRECTION_KIND = "support_reaction_along_direction_v1"
+
+
+def _skewed_direction(support: Mapping[str, Any]) -> tuple[float, float, float] | None:
+    """A skewed record's authored direction: two or more nonzero components (not a snubber)."""
+    d = support.get("direction")
+    if not isinstance(d, Mapping) or support.get("family") == "snubber":
+        return None
+    v = tuple(d.get(axis) for axis in ("x", "y", "z"))
+    if not all(_number(c) for c in v) or sum(1 for c in v if c != 0) < 2:
+        return None
+    return v  # type: ignore[return-value]
+
+
+# Re-check 2 (verdict parity): the along guard below repeats the RE reader's (`along_direction_evidence`) operations
+# one for one, so both readers reach the same verdict on every input, at the allowance boundary too. Every scaling is
+# the same sequence of power-of-two steps; every sum is left to right with no compensation (never the built-in
+# `sum`, which is compensated from Python 3.12, nor `math.fsum`) and no fused multiply-add, as Rust evaluates it.
+_STEP_UP, _STEP_DOWN, _STEP_LIMIT = 2.0 ** 511, 2.0 ** -511, 2.0 ** 512
+
+
+def _largest(values: Sequence[float], start: float = 0.0) -> float:
+    out = start
+    for x in values:
+        out = max(out, abs(x))
+    return out
+
+
+def _canonical_direction(d: Sequence[float]) -> list[float]:
+    """RE `canonical`: d stepped by powers of two to max|d_i| in [1, 2); the scale itself is never formed."""
+    d = list(d)
+    while _largest(d) >= 2.0:
+        step = _STEP_DOWN if _largest(d) >= _STEP_LIMIT else 0.5
+        d = [x * step for x in d]
+    while _largest(d) < 1.0:
+        step = _STEP_UP if _largest(d) < _STEP_DOWN else 2.0
+        d = [x * step for x in d]
+    return d
+
+
+def _joint_scale(r: list[float], s: float) -> tuple[list[float], float, float]:
+    """RE `joint_scale`: R, s and the allowance floor stepped together to a largest magnitude in [1/2, 1)."""
+    floor = sys.float_info.min
+    if _largest(r, abs(s)) == 0.0 or not math.isfinite(_largest(r, abs(s))):
+        return r, s, floor
+    while _largest(r, abs(s)) >= 1.0:
+        step = _STEP_DOWN if _largest(r, abs(s)) >= _STEP_LIMIT else 0.5
+        r, s, floor = [x * step for x in r], s * step, floor * step
+    while _largest(r, abs(s)) < 0.5:
+        step = _STEP_UP if _largest(r, abs(s)) < _STEP_DOWN else 2.0
+        r, s, floor = [x * step for x in r], s * step, floor * step
+    return r, s, floor
+
+
+def _along_guard(d: Sequence[float], r: Sequence[float], s: float) -> bool:
+    """|s*|d| - d.R| <= 64*eps*max(|d|*sum|R_i|, floor), in the RE reader's operation order (one verdict for both).
+    A consistency check within a finite allowance, not an exact-integrity check: an alteration inside the allowance
+    reads, including a subnormal one inside its absolute floor (R = (-m, -m, 0) with s = 0 for s = -m, m = 2^-1074)."""
+    # Re-check 3: every input is a binary64 value first, as the RE reader's serde_json decode makes it; a JSON
+    # integer (for example 2^512 - 1) kept as an int would steer the scaling differently from Rust's f64.
+    d = _canonical_direction([float(x) for x in d])
+    r, s, floor = _joint_scale([float(x) for x in r], float(s))
+    norm = math.sqrt(d[0] * d[0] + d[1] * d[1] + d[2] * d[2])
+    dot = d[0] * r[0] + d[1] * r[1] + d[2] * r[2]
+    scale = norm * (abs(r[0]) + abs(r[1]) + abs(r[2]))
+    residual = abs(s * norm - dot)
+    allowance = 64.0 * sys.float_info.epsilon * max(scale, floor)
+    # A non-finite residual or allowance refuses; it never accepts.
+    return math.isfinite(residual) and math.isfinite(allowance) and residual <= allowance
+
+
+def _along_direction(source: Mapping[str, Any], model: Mapping[str, Any] | None) -> None:
+    """R-6/R-7 S-K1 (DEL-04-03 skew-restraints.md sections 7.1 and 10.5, R-1): each case's
+    `support_reaction_along_direction_v1` rows: the exact strings, one per record and case beside its Fx/Fy/Fz rows,
+    and with the model s*|d| = d.R within a representation guard (d exactly rescaled to max|d_i| in [1, 2))."""
+    by_case: dict[str, list[Mapping[str, Any]]] = {}
+    for row in source["results"]:
+        basis = row.get("basis_ref") or {}
+        if row["kind"] == ALONG_DIRECTION_KIND:
+            metadata = row.get("metadata") or {}
+            _require(row.get("unit") == "N" and metadata.get("component") == "along_direction"
+                     and metadata.get("coordinate_system") == "support_direction" and metadata.get("location") == "node",
+                     "along-direction row semantics")
+            if basis.get("ref_type") == "load_case":
+                _require(metadata.get("basis") == "recovered_from_assembled_support_law"
+                         and metadata.get("sign_convention") == "support_on_pipe_positive_along_authored_direction",
+                         "along-direction row semantics")
+        if basis.get("ref_type") == "load_case":
+            by_case.setdefault(basis["ref_id"], []).append(row)
+    supports = {s.get("id"): s for s in (model or {}).get("supports", [])}
+    for case, rows in by_case.items():
+        along: dict[str, Mapping[str, Any]] = {}
+        components: dict[tuple[str, str], float] = {}
+        for row in rows:
+            entity = row["entity_ref"]
+            if row["kind"] == ALONG_DIRECTION_KIND:
+                _require(row["id"] == "result:support-along-direction-v1:" + _length_prefixed(case, entity), "ALONG_DIRECTION_ROW_ID")
+                _require(entity not in along, "ALONG_DIRECTION_DUPLICATE")
+                along[entity] = row
+            elif row["kind"] == SUPPORT_COMPONENT_KIND:
+                components[(entity, (row.get("metadata") or {}).get("component"))] = row["value"]
+        for entity, row in along.items():
+            _require(all((entity, c) in components for c in ("Fx", "Fy", "Fz")), "ALONG_DIRECTION_COMPONENTS_MISSING")
+            if model is None:
+                continue
+            d = _skewed_direction(supports.get(entity) or {})
+            _require(d is not None, "ALONG_DIRECTION_UNEXPECTED")
+            r = [components[(entity, c)] for c in ("Fx", "Fy", "Fz")]
+            s = row["value"]
+            _require(_number(s) and all(math.isfinite(x) for x in r), "ALONG_DIRECTION_INCONSISTENT")
+            # Astra B2, B2', B3 and re-check 2: the guard in the RE reader's operation order (`_along_guard`).
+            _require(_along_guard(d, r, s), "ALONG_DIRECTION_INCONSISTENT")
+        if model is not None:
+            published = {entity for entity, _ in components}
+            for sid, support in supports.items():
+                if _skewed_direction(support) is not None and sid in published:
+                    _require(sid in along, "ALONG_DIRECTION_MISSING")
 
 
 def _validate(source: Mapping[str, Any]) -> None:

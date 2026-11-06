@@ -157,8 +157,29 @@ describe("a run recorded before RT-A4 (historical read)", () => {
       expect(table.semantic_contract_id).toBe(variant.id);
     }
     expect(recordedPreRtA4Binding({ id: "openpipestress.result_semantics/0.3.0/preview-physics-2", sha256: VARIANTS[0].sha256, extra: 1 })).toBeNull();
-    expect(recordedPreRtA4Binding({ id: "openpipestress.result_semantics/0.3.0/preview-physics-2", sha256: "563db3c7c44279face3adc60a76a512de38520357e89ea4b49ad11d20946db89" })).toBeNull();
+    expect(recordedPreRtA4Binding({ id: "openpipestress.result_semantics/0.3.0/preview-physics-2", sha256: "16eeb49cb298c6d3634594bbd9ebf6bf86be8f114e2e524dbd624e401e31a729" })).toBeNull();
     await expect(recordedPreRtA4Table({ id: "openpipestress.result_semantics/0.3.0/preview-physics-2", sha256: "0".repeat(64) })).rejects.toThrow("SOURCE_RECORDED_BINDING_UNKNOWN");
+  });
+});
+
+// R-6/R-7 S-K1: main's three tables at 9e5c69797, before S-K1 (fixtures/results/recorded_pre_sk1), the
+// Rust (`recorded_tables::VARIANTS`) and Python (`RECORDED_PRE_RT_A4_TABLES`) registries' twins.
+describe("the S-K1 base's tables (before the along-direction kind)", () => {
+  const SK1 = [
+    { id: "openpipestress.result_semantics/0.3.0/preview-physics-2", sha256: "563db3c7c44279face3adc60a76a512de38520357e89ea4b49ad11d20946db89", current: "preview_physics_2" },
+    { id: "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1", sha256: "f64473f5a60ac2bb34d8006b40bf044800f0c97454c570bbe88d1f1d96b7bdfc", current: "preview_physics_timoshenko_1" },
+    { id: "openpipestress.result_semantics/0.3.0/preview-physics-retained-1", sha256: "d0bab3502b4018ce0596757a933bd6306f402dc3741a10af24a094e8c66544e8", current: "preview_physics_retained_1" },
+  ];
+  it.each(SK1)("$current: registered by exact binding, its rows the current table's without the one along-direction row", async entry => {
+    const binding = { id: entry.id, sha256: entry.sha256 };
+    expect(recordedPreRtA4Binding(binding)).toEqual(binding);
+    const table = await recordedPreRtA4Table(binding) as { rows: { kind: string; signature_id: string; component: string; unit: string }[] };
+    const bytes = readFileSync(resolve(root, `fixtures/results/semantic_contract_v0_3_${entry.current}.json`));
+    expect(createHash("sha256").update(bytes).digest("hex")).not.toBe(entry.sha256);
+    const rows = (JSON.parse(bytes.toString("utf8")) as { rows: { kind: string; signature_id: string; component: string; unit: string }[] }).rows;
+    const added = rows.filter(row => row.kind === "support_reaction_along_direction_v1");
+    expect(added.map(row => [row.signature_id, row.component, row.unit])).toEqual([["supported-source-082", "along_direction", "N"]]);
+    expect(table.rows).toEqual(rows.filter(row => row.kind !== "support_reaction_along_direction_v1"));
   });
 });
 

@@ -587,8 +587,8 @@ if fnkey("member_group_fires", _FG):
         _invocation_pins = {
             "detail": "ae006b02fed244b2e77686378bdb17b87c442a1d4873add6f4b2129d3be1bc0f",
             "check": "d22bba23d1f09025f3ec267d9ea30b8aaa748e6294b5b34d0e4ea7f1f2616ef7",
-            "check_at": "29c96900380beb699a6040a67ec13d7b665944cf47fb02d26b1b64d8de4251e4",
-            "evaluate": "a422166f88cfa91bb6d5596111fc42f7d5df1757ad76890e40b30d4765d678d1",
+            "check_at": "2d966633a32a8764c38630fda96aa386aa8ee568fe484129d6939dbdaba523db",
+            "evaluate": "d121c572da9a4c2767018da6888536db453d127dfcd64ec5d1e7e4b25c641079",
             "load_closure": "0b662c23c565d94cf0964b6efcbb575afa41958d21a00f4acf8e453527543867",
         }
         # T4-S5 (U5B-TR): load_closure adds the TieRodReference binding arm (tie rods exist only on connectors, none on
@@ -803,8 +803,11 @@ if not _c7_audit_borrowed:
 # `crate::correct_norm::normN(` resolved before the move; every other candidate keeps its by-name resolution.
 _CN = "core/numerics/correct_norm/src/lib.rs"
 if _os.path.exists(_os.path.join(_SNAP, _CN)):
+    # SKW-RB (§8.55, R-6/R-7 S-K1): assess_rigid_body's body moved, unchanged but for the ground rows, into the
+    # generic `assess_rows`; assess_rigid_body now delegates with its DOFs as axis rows (an iterator, no allocation).
+    _JN1_RB = "assess_rows" if fnkey("assess_rows", FK_ + "rigid_body.rs") else "assess_rigid_body"
     _JN1 = {
-        (FK_ + "rigid_body.rs", "assess_rigid_body"): {
+        (FK_ + "rigid_body.rs", _JN1_RB): {
             "open_pipe_stress_correct_norm::norm3(r[0], r[1], r[2])": "norm3",
             "open_pipe_stress_correct_norm::norm2(zeta, 1.0)": "norm2"},
         (FK_ + "structural/certified_recovery.rs", "norm_up"): {
@@ -828,6 +831,20 @@ if _os.path.exists(_os.path.join(_SNAP, _CN)):
                     and _os.path.relpath(_os.path.join(_d, _f), _SNAP) not in _jn1_off:
                 _p = _os.path.join(_d, _f)
                 _jn1_found += [(_os.path.relpath(_p, _SNAP), _l.strip()) for _l in open(_p, encoding="utf-8") if "open_pipe_stress_correct_norm::" in _l]
+    # SKW-JN (§8.55, R-6/R-7 S-K1): restraint_basis.rs imports the crate's norm3 (`use`, an import, not a call) and
+    # calls it unqualified once, in SkewDirection::scaled_norm. The import is not an inventory site; the call is bound
+    # to the crate's pub fn, as JN1's callers are (by name it would also reach formation_check.rs's private norm3).
+    # scaled_norm runs only under Some(basis), which D1 never builds (SKW-D1).
+    _SKW_RB = FK_ + "restraint_basis.rs"
+    _skw_use = (_SKW_RB, "use open_pipe_stress_correct_norm::norm3;")
+    if _skw_use in _jn1_found:
+        if _jn1_found.count(_skw_use) != 1 or [_l for _f, _l in _jn1_found if _f == _SKW_RB] != [_skw_use[1]]:
+            raise SystemExit("SKW-JN: restraint_basis.rs's correct_norm import or qualified calls changed; re-review §8.55")
+        _jn1_found.remove(_skw_use)
+        site("scaled_norm", _SKW_RB, "norm3(self.scaled[0], self.scaled[1], self.scaled[2])")
+        CG_RULES += [{"caller": _fn_n("scaled_norm", _SKW_RB, 1, 1), "name": "norm3", "targets": [_fn_n("norm3", _CN, 1, 1)],
+            "added": "SKW-JN", "evidence": "restraint_basis.rs imports open_pipe_stress_correct_norm::norm3 and calls it "
+            "unqualified; the call names the crate's pub fn, not formation_check.rs's private norm3"}]
     if len(_jn1_found) != sum(len(_v) for _v in _JN1.values()):
         raise SystemExit(f"JN1: frame_kernel's crate-qualified correct_norm call inventory changed; re-review: {_jn1_found}")
     for (_file, _caller), _calls in _JN1.items():
@@ -1436,6 +1453,10 @@ if _D5:
             or sorted(set(_attach_owners) - {"test"}) != ["push_exact_pressure_operands"] or _attach_owners.count("push_exact_pressure_operands") != 1 \
             or "certified_loads::attach(ledger, ledger.term_count() - 1, expected_sources);" not in _fn_text("push_exact_pressure_operands", _LIB):
         raise SystemExit("U6-L6: the formed-term primitive attach changed; re-review")
+    # SKW-CR (§8.55, R-6/R-7 S-K1): certify_support_reaction's body moved, unchanged but for the basis's (empty on D1)
+    # spring loop, into certify_support_reaction_with_basis; certify_support_reaction delegates with the source's basis.
+    _U6_CSR = ("certify_support_reaction_with_basis" if fnkey("certify_support_reaction_with_basis", FK_ + "structural/certified_recovery.rs")
+               else "certify_support_reaction")
     O10_LOOPS_LAST += [
         ("for &(location, _, _, stress, reduced) in &stress_sites", "5", O10 + "U6-L1: the two ends plus <= 3 stations", ["lib.rs:" + _CASE_FN]),
         ("for &(location, index, endpoint, stress, reduced) in &stress_sites", "5", O10 + "U6-L1: the two ends plus <= 3 stations", ["lib.rs:" + _CASE_FN]),
@@ -1470,10 +1491,10 @@ if _D5:
         ("iter:source .loads .iter().find", "12*l", O10 + "U6-L6: the formation source's load primitives, <= q = 12*l (B7a)",
          ["structural/formation_check.rs:unbound_straight_primitive"]),
         ("for (index, term) in force .terms() .iter() .enumerate() .filter(|(_, term)| term.dof == dof)", "12*l",
-         O10 + "U6-L6: the formed force's terms, <= q = 12*l (B7a)", ["structural/certified_recovery.rs:certify_support_reaction"]),
+         O10 + "U6-L6: the formed force's terms, <= q = 12*l (B7a)", ["structural/certified_recovery.rs:" + _U6_CSR]),
         ("for primitive in source.loads.iter().filter(|p| p.term_index == index)", "1",
          O10 + "U6-L6: the one supplied primitive of a formed term (B7a body1); the scan's predicate allocates nothing",
-         ["structural/certified_recovery.rs:certify_support_reaction"]),
+         ["structural/certified_recovery.rs:" + _U6_CSR]),
     ]
     # U6-LF (placed first): three D-5 headers name pressure_exact::SectionBasis::BOTH, so D1.5's region zero rule
     # (`pressure|region|aggregates`, which matches `pressure`) would capture them; they are not region loops. BOTH is
@@ -3339,7 +3360,13 @@ if fnkey("case_prescribed", _W16_IM):
         _text_of(_LIB).count("imposed_motion::case_spring_ground(") == 1 and _text_of(_LIB).count("imposed_motion::case_ground_motion(") == 1,
         _text_of(_LIB).count("imposed_motion::case_prescribed(") == 1,
         _text_of(_LIB).count("imposed_motion::validate(&model, &mut diagnostics)") == 1,
-        _re.sub(r"//[^\n]*", "", _production(_W16_IM)).count("refuse(") == 20,
+        # SKW-IM (§8.55, R-6/R-7 S-K1): validate_pressure_free refuses a displacement imposed on a skewed record
+        # (IMPOSED_DISPLACEMENT_SKEW_SUPPORT_UNSUPPORTED), one refusal after its support-target let-else, so behind
+        # D1.7 as the others: the count is 20 without it and 21 with it.
+        _re.sub(r"//[^\n]*", "", _production(_W16_IM)).count("refuse(") == 20 + _W16_PF.count(
+            "refuse(diagnostics, case, load, crate::document_members::IMPOSED_DISPLACEMENT_SKEW_SUPPORT_UNSUPPORTED,"),
+        _W16_PF.count("IMPOSED_DISPLACEMENT_SKEW_SUPPORT_UNSUPPORTED") == 0
+        or _W16_PF.index("IMPOSED_DISPLACEMENT_SKEW_SUPPORT_UNSUPPORTED") > _W16_PF.index(_w16_pf_else),
     )
     if not all(_w16_ns):
         raise SystemExit(f"W16-NS: the support-target premise or its D1.7 refusal changed; re-review its zeros: {_w16_ns}")
@@ -3918,7 +3945,7 @@ if fnkey("append_operand_standing", _OP1A_PP):
     # gates, model-bound: reader_verdict only, outside the retained roots); preview_physics_evidence.rs admits
     # difference_basis_derivation as an optional member (a static array element), lists G-1/G-2 in GATE_CODES (static)
     # and admits a withheld subtraction's modulus-basis records (an existing set's lookup). The OP1A premises stand.
-    _op1a_pins = {'core/product_physics/src/preview_physics.rs': '35dd73c00eaa321a5811e1b1f64cd0cabc78c91bfca50510ab146cccf4ad63cd', 'core/reporting/result_export/src/preview_combination_operands.rs': 'b075900f31f83709543fa0aff7998ae19ca89d50ca7983803f773076db6d8b22', 'core/reporting/result_export/src/preview_physics_evidence.rs': 'f15622365ffe9a4a94de15c5388088989e4856f2ac54f15ec1750f8ce1255d7a', 'core/reporting/result_export/src/reader_verdict.rs': '7d3fdcd1a4a318ee49439e1a75db61420db2a9c9e2c9d1f7977be5b1cef41df3'}
+    _op1a_pins = {'core/product_physics/src/preview_physics.rs': '19a3134e33454831a961efbf822428650fc23df84ed4d9da07c548c3c607c4c4', 'core/reporting/result_export/src/preview_combination_operands.rs': 'b075900f31f83709543fa0aff7998ae19ca89d50ca7983803f773076db6d8b22', 'core/reporting/result_export/src/preview_physics_evidence.rs': '68baed3f933137fc92ec8112e098f557931102282814f4a47d687e489c89ab0a', 'core/reporting/result_export/src/reader_verdict.rs': '7d3fdcd1a4a318ee49439e1a75db61420db2a9c9e2c9d1f7977be5b1cef41df3'}
     for _f, _digest in _op1a_pins.items():
         if __import__("hashlib").sha256(_text_of(_f).encode()).hexdigest() != _digest:
             raise SystemExit("OP1A-PF/RD: reviewed source changed: " + _f)
@@ -3987,7 +4014,7 @@ if fnkey("selects", _TIM):
     # RT-U4 repair B: reader_verdict.rs re-read as for OP1A above; the Timoshenko premises stand.
     # RT-U4 order and repair B on RT-A3 increment 4 (§8.50): reader_verdict.rs re-read as for OP1A above.
     # Operating-case slice 1b D3 (§8.51): preview_physics_evidence.rs re-read as for OP1A above; the Timoshenko premises stand.
-    _TIM_PINS = {'core/product_physics/src/pf_timoshenko.rs': '0546472cfba9ca61bff68838cb5add237c70485411c124f5fc14f9aa90217f45', 'core/product_physics/src/model_settings.rs': 'd2f9d52db54bd97b19708c5a8580d484282f97649f08df408f6e0b206a999d8b', 'core/reporting/result_export/src/reader_verdict.rs': '7d3fdcd1a4a318ee49439e1a75db61420db2a9c9e2c9d1f7977be5b1cef41df3', 'core/reporting/result_export/src/preview_physics_evidence.rs': 'f15622365ffe9a4a94de15c5388088989e4856f2ac54f15ec1750f8ce1255d7a', 'core/product_physics/src/case_state/temperature.rs': 'eed9dc272dd37c669cc090d3f4c9c30293a0793e0d0b770ddd25fdd5d08ed9b2', 'core/product_physics/src/case_state/temperature/canonical_decimal.rs': '431ac3204d98ed3420ead918cc2733f77ac3a8258d28625b210a8bc69962b1e2'}
+    _TIM_PINS = {'core/product_physics/src/pf_timoshenko.rs': '0546472cfba9ca61bff68838cb5add237c70485411c124f5fc14f9aa90217f45', 'core/product_physics/src/model_settings.rs': 'd2f9d52db54bd97b19708c5a8580d484282f97649f08df408f6e0b206a999d8b', 'core/reporting/result_export/src/reader_verdict.rs': '7d3fdcd1a4a318ee49439e1a75db61420db2a9c9e2c9d1f7977be5b1cef41df3', 'core/reporting/result_export/src/preview_physics_evidence.rs': '68baed3f933137fc92ec8112e098f557931102282814f4a47d687e489c89ab0a', 'core/product_physics/src/case_state/temperature.rs': 'eed9dc272dd37c669cc090d3f4c9c30293a0793e0d0b770ddd25fdd5d08ed9b2', 'core/product_physics/src/case_state/temperature/canonical_decimal.rs': '431ac3204d98ed3420ead918cc2733f77ac3a8258d28625b210a8bc69962b1e2'}
     _TIM_PINS[FK_ + "shear.rs"] = "12b854db0252398a8d61a643eba4fe7162f81e228a1c6239860433fd3188d2c3"
     for _file, _pin in _TIM_PINS.items():
         if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _file), "rb").read()).hexdigest() != _pin:
@@ -4139,7 +4166,7 @@ if fnkey("withhold_interim_combinations", _S1_DM):
     # deleted (the solve forms the held comparison and gates it at G-1, G-2 and the held-status gates); interim_reasons
     # returns `Vec::new()`, and its S1-ZS and S1-ID entries are dropped below (§8.46's and §8.51's precedent). The
     # withholding's body is unchanged; only its doc comment and interim_reasons' are restated.
-    _S1_PINS = {_S1_DM: "6fb0a8769657353a00bfc1e3c0d244e493334994951743a04ae363d180aabeab",
+    _S1_PINS = {_S1_DM: "b5f77f9fc24d7d09a7fd3699e6b95d61581d94a7987db09f4fe43334999a7acc",
                 _S1_OC: "e3ddf5bdf79698f3cbd555c9bd3ed125227030e60737760479c6c9fd7cadfa38",
                 _S1_SP: "b1ed575817c3d9ffd4edd16fcfefc1f8e9029c13c2985c9219e868d3e3f69060"}
     for _f, _h in _S1_PINS.items():
@@ -4484,6 +4511,10 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
         ("modal_sturm_count", "eigen.rs", ("max",), "cbb35dc0019efe629a21e73f05f844cf61bc365e98f3eebe4b542ccba9175233"),
         ("bounding_box_diagonal", "outcome.rs", ("min", "max"), "1ae2c9375f2aadf0106a9c79ba7681ddb61f48ff6b2fd806bc00b80a258038ec"),
     ]
+    # SKW-MF (§8.55, R-6/R-7 S-K1): the reduced pencil's mass entries order each lower pair by `p.max(q)`, `p.min(q)`
+    # on usize reduced indices (dof_map entries); its sum is an ExactSum (`add_product`, not add/mul).
+    if _os.path.exists(_os.path.join(_SNAP, _MODAL + "skew_pencil.rs")):
+        _MODAL_FB.append(("mass_entries", "skew_pencil.rs", ("min", "max"), "64320bcc582e1012b188a3ccd42beb2515aa61dae05c27f8cb867b692dee8b1f"))
     for _fn, _f, _methods, _digest in _MODAL_FB:
         _body = _fn_text(_fn, _MODAL + _f)
         if _modal_hashlib.sha256(_body.encode()).hexdigest() != _digest or "FallbackError" in _body:
@@ -4843,7 +4874,7 @@ if fnkey("solved_state_plus_increments", _A4_PLAN):
     # preview_difference_basis::check (PF1B-FZ on D1), free_check gains an allocation-free stated-reason arm, model_check
     # (RT-A4-RM) reads the new module's kept combinations and declared gate. Every RT-A4 guard is re-checked on the new bytes.
     _A4_PINS = {_A4_PLAN: "86e8d1c0686b92579aeee96087e0b6e390ee6729d10a56568228f099e64b6cbb",
-                _A4_GATES: "c6bcf2272793cf59df89c4d4c2e0f062939933ccf4d0cbec25f7bc1552d01225",
+                _A4_GATES: "f532727d5549a4649d383ed07a0b2c607954c6ca069ea51d26113e1c0bae2f00",
                 _A4_GRAPH: "f3a3ca6b332896afd19412ee96e18750c271ae323ca34c46876e382c710eaef8",
                 _A4_FLC: "c234ca4cb3fb6a1360edd8d3f55bd9d6e9d9ecf6a8310d68379096167abb38bf",
                 _A4_UNS: "7bde94c46aa9aa15d19560d21b58fd9cddfae3f0d8073706214620c34179ad42"}
@@ -5093,11 +5124,15 @@ if fnkey("solved_state_plus_increments", _A4_PLAN):
         (site("derived_rows", _A4_GATES, 'format!("diagnostic:preview-physics:combination-row-withheld:{}", identity(&[id]))', full=True),
          {"identity(&[id])": CP}),
     ]
+    # (§8.55, R-6/R-7 S-K1): the along-direction block's own `let refs = …` line is in along_combination_row, unreached on
+    # D1 (SKW-DZ below); form keeps the support group's one line.
+    _a4_refs = 'let refs = sources.iter().map(|s| s["id"].as_str().unwrap_or_default().to_string()).collect();'
+    _a4_refs_site = site("form", _A4_GATES, _a4_refs)
     LEX_SITE_SIZE = list(globals().get("LEX_SITE_SIZE", [])) + [
-        (site("form", _A4_GATES, _t), {"class": 1024, "why": O10 + "RT-A4-ID: a source row's id (RES)"}) for _t in (
-            'refs.push(source["id"].as_str().unwrap_or_default().to_string());',
-            'let refs = sources.iter().map(|s| s["id"].as_str().unwrap_or_default().to_string()).collect();',
-            '(expression.value(&values, dimension)?, sources.iter().map(|s| s["id"].as_str().unwrap_or_default().to_string()).collect())')] + [
+        (_s, {"class": 1024, "why": O10 + "RT-A4-ID: a source row's id (RES)"}) for _s in (
+            site("form", _A4_GATES, 'refs.push(source["id"].as_str().unwrap_or_default().to_string());'),
+            _a4_refs_site,
+            site("form", _A4_GATES, '(expression.value(&values, dimension)?, sources.iter().map(|s| s["id"].as_str().unwrap_or_default().to_string()).collect())'))] + [
         (site("value", _A4_GRAPH, "Self::Subtraction { minuend, subtrahend } => vec![minuend.to_string(), subtrahend.to_string()],"),
          {"class": 128, "why": O10 + "RT-A4-ID: a subtraction's operand id (IN128)"})]
     _A4_ID2 = {"bytes": 1200, "source": O10 + "RT-A4-ID: identity of a combination id and a base id (128 + 1024 and two length prefixes)"}
@@ -5136,9 +5171,12 @@ _A4_RT = RE_ + "recorded_tables.rs"
 # RT-U4 C1 third integration after #122 (minuend_final, §8.54, main 9e5c69797, which pinned f9dd9a5c…): re-pinned on
 # the merged bytes, main's thirteen-variant content (#122's three b32a17761 variants at 9–11, 252bef969 at 12) plus
 # C1's comment-only line 29. C1 changes no code here; §8.54's re-check of the guards below applies unchanged.
+# S-K1 D3 (§8.55, on main 9c7db61bf): re-pinned on the merged bytes, main's content (C1's comment-only line 29) plus
+# S-K1's three recorded_pre_sk1 variants (VARIANTS and TABLES sixteen slots; data and tests only). No SELECTED write,
+# read_recorded caller or selection path changes; the guards below re-check them.
 if fnkey("read_recorded", _A4_RT):
     if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _A4_RT), "rb").read()).hexdigest() != \
-            "b61ae52478c7d96d7c7bc310f84a77369db8254a3f0c3f6af40e2a1147848f6c":
+            "78a275c872ec472578fb335056786d370a72608b039fcda8809cb4b6dd5a7acf":
         raise SystemExit("RT-A4-HS: recorded_tables.rs changed; re-review §8.46's rules")
     _a4_rt = _production(_A4_RT)
     # One production item's text, from its opening line to its closing brace at the same indent (tests excluded).
@@ -5990,3 +6028,206 @@ if fnkey("solve_held_combinations", _H_PP) and fnkey("check", _H_RE):
     ]
     if _h_hs.count('pub(crate) const DERIVATION_MEMBER: &str = "held_status_derivation";') != 1:
         raise SystemExit("RTA5-ID: the held derivation member key changed; re-review §8.54")
+
+
+# ---- R-6/R-7 S-K1: skewed restraints (§8.55; DEL-04-03 Work `skew-restraints.md` §11.2, §12). Each rule applies only
+# where S-K1's code exists, so earlier revisions price as before.
+_SKW_PP = PP_ + "skew.rs"
+if _os.path.exists(_os.path.join(_SNAP, _SKW_PP)):
+    _SKW_RBF = FK_ + "restraint_basis.rs"
+    _SKW_FCS = FK_ + "structural/formation_check/skew.rs"
+    _SKW_CR = FK_ + "structural/certified_recovery.rs"
+    _SKW_CP = PP_ + "certified_publication.rs"
+    _SKW_PV = PP_ + "preview_physics.rs"
+    _SKW_DM = PP_ + "document_members.rs"
+    _SKW_AD = RE_ + "along_direction_evidence.rs"
+    _SKW_PE = RE_ + "preview_physics_evidence.rs"
+    _SKW_NI = "core/solver/nonlinear_integration/src/structural_adapter.rs"
+    _SKW_FC = FK_ + "structural/formation_check.rs"
+    # SKW-D1 (guard): D1.6 refuses `direction` on every support (family_clauses, F::SupportDirection), so an admitted
+    # request has no skewed record: is_skewed_record is false for every support, skew::build_basis returns None at its
+    # first test (skew_supports collects an empty filter: no allocation, no TEXT), BuiltModel.skew is None, every
+    # FormationSource the retained path builds has `restraint: None` (the one Some is the NI skew entry's), the product's
+    # node blocks are `Vec::new()` and the evidence's direction rows `&[]`, and no along-direction row or record exists.
+    # BodyEvidence::geometry, the third of the adapter's three `fn geometry` (AssemblyEvidence's and
+    # SparseAssemblyEvidence's delegate to it), spanned as fn_lines spans a function.
+    _skw_geo = _fn_n("geometry", _SKW_NI, 3, 3)
+    def _skw_body_geometry():
+        _l = open(_os.path.join(_SNAP, _SKW_NI), encoding="utf-8").read().split("\n")
+        _s = int(_skw_geo.split(":")[-2]); _i = len(_l[_s - 1]) - len(_l[_s - 1].lstrip())
+        _e = next((i + 1 for i in range(_s, len(_l)) if _re.match(r"\s*(pub(\([a-z]+\))?\s+)?(const\s+)?fn\s", _l[i])
+                   and len(_l[i]) - len(_l[i].lstrip()) <= _i), len(_l) + 1)
+        return "\n".join(_l[_s - 1:_e - 1])
+    _skw_geo_key = Resolved(_SKW_NI.split("/src/")[-1] + ":" + _skw_geo.split(":", 1)[1])
+    _skw_lib = _text_of(_LIB)
+    _skw_spl = _fn_text("solve_prepared_load_case", _LIB)
+    _skw_ni = _text_of(_SKW_NI)
+    _skw_d1 = (
+        _fn_text("family_clauses", PP_ + "retained_memory.rs").count(
+            "if support.direction.is_some() {\n            return refuse(C::Supports, F::SupportDirection);") == 1,
+        _fn_text("is_skewed_record", _SKW_DM).count("support.direction.as_ref().is_some_and(is_skew)") == 1,
+        _fn_text("skew_supports", _SKW_PP).count(".filter(|support| is_skewed_record(support))") == 1,
+        _fn_text("build_basis", _SKW_PP).count("let skew = skew_supports(model);\n    if skew.is_empty() {\n        return None;\n    }") == 1,
+        _skw_lib.count("skew::build_basis(") == 1 and _skw_lib.count("skew: Option<open_pipe_stress_frame_kernel::restraint_basis::RestraintBasis>") == 1,
+        _skw_spl.count("if let Some(refusal) = built.skew.as_ref().and_then(|basis| skew::prescribed_motion_refusal(basis, &prescribed, &load_case.id)) { diagnostics.push(refusal); return Ok(skew::blocked_case(&load_case.id)); }") == 1,
+        _skw_spl.count("BasisStiffness::Formed(formed) if built.skew.is_some() => skew::solve(") == 1,
+        _skw_spl.count('if trigger.is_some() && built.skew.is_some() { diagnostics.push(skew::force_scaled_refusal(&load_case.id, "ordinary range trigger")); return Ok(skew::blocked_case(&load_case.id)); }') == 1,
+        _skw_spl.count("let skew_reactions = match built.skew.as_ref() { Some(basis) => match skew::attribute(") == 1,
+        _skw_spl.count("record.along_directions.push(") == 1
+        and _skw_spl.count("if let Some(attributed) = skew_reactions.as_ref().and_then(|skew| skew.records.get(&support.id)) { record.along_directions.push(") == 1,
+        _fn_text("render", _SKW_PV).count("if let Some((_, along)) = record.along_directions.iter().find(|(id, _)| id == support_id) {") == 1,
+        _fn_text("support", _SKW_CP).count("let basis = built.skew.as_ref();\n    if let Some(basis) = basis {") == 1
+        and _fn_text("support", _SKW_CP).count("Some(basis) if basis.node_basis(linear.node_index).is_some() => {") == 1,
+        _fn_text("certify_support_reaction_with_basis", _SKW_CR).count("for spring in basis.map(|basis| basis.springs()).unwrap_or_default() {") == 1
+        and _fn_text("certify_support_reaction", _SKW_CR).count("certify_support_reaction_with_basis(source, force, source.restraint.map(|skew| skew.basis), dof, u, bound)") == 1,
+        _fn_text("check_at", _SKW_FC).count("let evaluated = match source.restraint {\n        Some(skew) => skew::evaluate(") == 1,
+        _text_of(_SKW_CP).count("restraint: None,") == 1 and _skw_ni.count("restraint: None,") == 2
+        and _skw_ni.count("source.restraint = Some(&skew);") == 1
+        and _fn_text("solve_skew_with_formation_check", _SKW_NI).count("source.restraint = Some(&skew);") == 1,
+        _fn_text("interim_support_refusals", _SKW_DM).count(
+            "} else if let (true, Some(DirectionInput::Vector(authored))) = (is_skewed_record(support), support.direction) {\n            skew_admission(") == 1,
+        _fn_text("validate_uncertified_with", _SKW_PE).count("if crate::along_direction_evidence::applies(rows_list, model) {") == 1,
+        _fn_text("row_semantics", _SKW_PE).count("crate::along_direction_evidence::row_semantics(") == 1
+        and _fn_text("row_semantics", _SKW_PE).count("crate::along_direction_evidence::KIND => {\n            crate::along_direction_evidence::row_semantics(row, direct)?;") == 1,
+        _fn_text("append_combination_results", _SKW_PV).count("along_combination_row(") == 1
+        and _fn_text("append_combination_results", _SKW_PV).count(
+            "if crate::document_members::is_skewed_record(support)\n                    && targets.iter().any(|target| find(*target, \"along_direction\").is_some())\n                {\n                    rows.push(along_combination_row(") == 1
+        and _text_of(_SKW_PV).count("along_combination_row") == 2,
+        _text_of(RE_ + "preview_combination_gates.rs").count("along_combination_row(") == 2
+        and _fn_text("form", RE_ + "preview_combination_gates.rs").count(
+            'if targets.iter().any(|t| index.support_row(*t, support, "along_direction").is_some()) {\n                rows.push(along_combination_row(') == 1,
+        _skw_ni.count("direction_rows: &[],") == 4 and _skw_ni.count("direction_rows: &direction_rows,") == 1
+        and _skw_body_geometry().count("let assessment = if self.direction_rows.is_empty() {") == 1,
+    )
+    if not all(_skw_d1):
+        raise SystemExit(f"SKW-D1: a skew guard or D1.6's direction refusal changed; re-review §8.55: {_skw_d1}")
+    _SKW_DZ = O10 + "SKW-D1: D1.6 refuses `direction` (family_clauses, F::SupportDirection), so no skewed record is admitted"
+    # SKW-DZ: each edge into skew code runs only with a skewed record, the basis it builds, or a row it publishes.
+    O10_EDGE_ZERO += [
+        (fnkey("build_model_for_basis", _LIB), fnkey("build_basis", _SKW_PP),
+         _SKW_DZ + " (build_basis returns None at `skew.is_empty()`; skew_supports collects an empty filter)"),
+        (fnkey("solve_prepared_load_case", _LIB), fnkey("prescribed_motion_refusal", _SKW_PP), _SKW_DZ + " (built.skew is None)"),
+        (fnkey("solve_prepared_load_case", _LIB), fnkey("blocked_case", _SKW_PP), _SKW_DZ + " (both returns follow a built.skew test)"),
+        (fnkey("solve_prepared_load_case", _LIB), fnkey("solve", _SKW_PP), _SKW_DZ + " (the arm's guard is built.skew.is_some())"),
+        (fnkey("solve_prepared_load_case", _LIB), fnkey("force_scaled_refusal", _SKW_PP), _SKW_DZ + " (built.skew is None)"),
+        (fnkey("solve_prepared_load_case", _LIB), fnkey("attribute", _SKW_PP), _SKW_DZ + " (built.skew is None)"),
+        (fnkey("render", _SKW_PV), fnkey("along_direction_row", _SKW_PP), _SKW_DZ + " (CaseRecord.along_directions is empty)"),
+        (fnkey("support", _SKW_CP), fnkey("certify_node_attribution", _SKW_CR), _SKW_DZ + " (built.skew is None)"),
+        (fnkey("support", _SKW_CP), fnkey("certify_skew_spring_reaction", _SKW_CR), _SKW_DZ + " (built.skew is None)"),
+        (fnkey("certify_support_reaction_with_basis", _SKW_CR), fnkey("skew_spring_matrix", _SKW_FCS),
+         _SKW_DZ + " (the basis is None: the spring loop iterates an empty slice)"),
+        (fnkey("check_at", _SKW_FC), fnkey("evaluate", _SKW_FCS), _SKW_DZ + " (FormationSource.restraint is None)"),
+        (fnkey("interim_support_refusals", _SKW_DM), fnkey("skew_admission", _SKW_DM), _SKW_DZ + " (is_skewed_record is false)"),
+        (fnkey("validate_uncertified_with", _SKW_PE), fnkey("check_case", _SKW_AD),
+         _SKW_DZ + " (applies is false: no along-direction row and no skewed record in the model)"),
+        (_skw_geo_key, fnkey("assess_rigid_body_rows", FK_ + "rigid_body.rs"), _SKW_DZ + " (direction_rows is empty)"),
+        (fnkey("append_combination_results", _SKW_PV), fnkey("along_combination_row", _SKW_PV), _SKW_DZ + " (is_skewed_record is false)"),
+        (fnkey("form", _A4_GATES), fnkey("along_combination_row", _A4_GATES), _SKW_DZ + " (no operand along-direction row)"),
+        (fnkey("row_semantics", _SKW_PE), fnkey("row_semantics", _SKW_AD), _SKW_DZ + " (the arm matches a row of the along-direction kind; none is published)"),
+    ]
+    # SKW-BN (CG_RULES, an exact target subtraction): solve_prepared_load_case's `summary_values.into_iter().reduce(f64::max)`
+    # is Iterator::reduce; by name it would also reach RestraintBasis::reduce.
+    if _skw_spl.count(".reduce(") != 1 or _skw_spl.count("summary_values.into_iter().reduce(f64::max)") != 1:
+        raise SystemExit("SKW-BN: solve_prepared_load_case's reduce call changed; re-review §8.55")
+    CG_RULES += [{"caller": Resolved(_LIB + ":" + fnkey("solve_prepared_load_case", _LIB).split(":", 1)[1]), "name": "reduce",
+                  "exclude_targets": [Resolved(_SKW_RBF + ":" + fnkey("reduce", _SKW_RBF).split(":", 1)[1])], "added": "SKW-BN",
+                  "evidence": "summary_values.into_iter().reduce(f64::max) is Iterator::reduce, not RestraintBasis::reduce"}]
+    # SKW-BN (FV, sq2_decisions_common's combination_call precedent): combination_call's
+    # `Some(k::ExecutionOutcome::Selected(solve)) => k::RecordedOperand::Selected(solve)` is a pattern binding read as a
+    # function value; by name it also reaches skew::solve, which only solve_prepared_load_case's skew arm calls.
+    _skw_cc = _fn_text("combination_call", PP_ + "retained_product.rs")
+    if _skw_cc.count("Some(k::ExecutionOutcome::Selected(solve)) => k::RecordedOperand::Selected(solve)") != 1 \
+            or _re.search(r"\bskew::|\bsolve\s*\(", _skw_cc):
+        raise SystemExit("SKW-BN: combination_call's `solve` binding changed; re-review §8.55")
+    O10_EDGE_ZERO += [(fnkey("combination_call", PP_ + "retained_product.rs"), fnkey("solve", _SKW_PP),
+                       O10 + "SKW-BN: `Selected(solve)` is a pattern binding (FV), not skew::solve")]
+    # SKW-SZ: the TEXT sites S-K1 adds inside functions D1 reaches, each run only with a skewed record (SKW-D1): the
+    # under-restrained notice's skewed-count clause (`if built.skew.is_some()`), the imposed-motion refusal of a
+    # skewed record (after the support-target let-else: W16-NS, and is_skewed_record), the case loop's along push
+    # (under `skew_reactions`, None with built.skew None), render's along row basis (under a found along value), and
+    # the combination along blocks (producer: is_skewed_record; reader: an operand along row, none on D1).
+    _skw_ur = 'let skewed = if built.skew.is_some() { format!("; skewed constraints: {skewed_rows}") } else { String::new() };'
+    _skw_rd = "if let Some((_, along)) = record.along_directions.iter().find(|(id, _)| id == support_id) {"
+    _skw_pv = _fn_text("append_combination_results", _SKW_PV)
+    _skw_gf = _fn_text("form", _A4_GATES)
+    if (_text_of(_LIB).count(_skw_ur) != 1 or _fn_text("render", _SKW_PV).count(_skw_rd) != 1
+            or _skw_pv.count("if crate::document_members::is_skewed_record(support)\n                    && targets.iter().any(|target| find(*target, \"along_direction\").is_some())") != 1
+            or _skw_gf.count('if targets.iter().any(|t| index.support_row(*t, support, "along_direction").is_some()) {') != 1
+            or _fn_text("validate_pressure_free", _W16_IM).count("if crate::document_members::is_skewed_record(support) {") != 1):
+        raise SystemExit("SKW-SZ: a skew TEXT site's guard changed; re-review §8.55")
+    O10_SITE_ZERO += [
+        (site("run_linear_static_preview_observed_inner", _LIB, 'format!("; skewed constraints: {skewed_rows}")'), _SKW_DZ + " (built.skew is None)"),
+        (site("validate_pressure_free", _W16_IM, "which has a skewed direction; motion of a skewed restraint is not built yet"),
+         _SKW_DZ + " (is_skewed_record is false; after the support-target let-else, §8.23)"),
+        (site("solve_prepared_load_case", _LIB, "record.along_directions.push((support.id.clone(),"), _SKW_DZ + " (skew_reactions is None)"),
+        (site("render", _SKW_PV, "let basis = rows[0].metadata.as_ref().map_or(String::new(), |m| m.basis.clone());"),
+         _SKW_DZ + " (CaseRecord.along_directions is empty)"),
+        (site("along_combination_row", _SKW_PV, "qualified_combination_result_id(&combination.id, &base_id)"),
+         _SKW_DZ + " (is_skewed_record is false)"),
+        (site("along_combination_row", _A4_GATES, _a4_refs), _SKW_DZ + " (no operand along-direction row)"),
+    ]
+    # SKW-ID: the new TEXT sites' arguments (the chain classifies every row before its multiplicity; each is unreached
+    # on D1 (SKW-DZ) or at multiplicity 0 (SKW-SZ)). Ids are IN128; a code or slug its static literal's bytes, read from
+    # the source; a row id or row metadata string RES.
+    _sb = lambda n, why: {"bytes": n, "source": O10 + "SKW-ID: " + why}
+    _skw_dm = _text_of(_SKW_DM)
+    _skw_slugs = _re.findall(r'SkewCode::\w+ => \("([a-z-]+)", ', _fn_text("skew_refusal_reason", _SKW_DM)) + ["direction-range"]
+    _skw_codes = _re.findall(r'pub const [A-Z_]+: &str = "([A-Z_]+)";', _skw_dm)
+    _skw_along_codes = _re.findall(r'"(ALONG_DIRECTION_[A-Z_]+)"', _text_of(_SKW_AD))
+    if (len(_skw_slugs) != 3 or not _skw_codes or not _skw_along_codes
+            or _text_of(_SKW_RBF).count('const AXES: [&str; 3] = ["x", "y", "z"];') != 1
+            or _fn_text("along_require", _SKW_AD).count("Err(code.to_string())") != 1):
+        raise SystemExit("SKW-ID: a static token's source changed; re-review §8.55")
+    O10_ID_AUDIT += [
+        (site("run_linear_static_preview_observed_inner", _LIB, "support contributions: {}{skewed}", full=True),
+         {"skewed": _sb(0, "String::new() on D1 (built.skew is None: SKW-D1)")}),
+        (site("run_linear_static_preview_observed_inner", _LIB, 'format!("; skewed constraints: {skewed_rows}")', full=True),
+         {"skewed_rows": _sb(20, "a usize decimal")}),
+        (site("validate_pressure_free", _W16_IM, "which has a skewed direction; motion of a skewed restraint is not built yet", full=True, row="format!("),
+         {"load.id": IN, "case.id": IN, "support_id": IN}),
+        (site("solve_prepared_load_case", _LIB, "record.along_directions.push((support.id.clone(),", full=True), {"support.id": IN}),
+        (site("skew_admission", _SKW_DM, '&format!("diagnostic:support:{}:{slug}"', full=True),
+         {"slug": _sb(max(len(_x) for _x in _skw_slugs), "one of skew_refusal_reason's static slugs")}),
+        (site("skew_refusal_reason", _SKW_DM, 'format!("component(s) {} are subnormal', full=True),
+         {'axes.join(",")': _sb(len("x, y, z"), "at most AXES' three one-byte names joined by ', '")}),
+        (site("build_basis", _SKW_PP, '&format!("diagnostic:support:{}:{}", stable_suffix(&finding.support_id), code.to_ascii_lowercase()', full=True),
+         {"code.to_ascii_lowercase().replace('_',\"-\")": _sb(max(len(_x) for _x in _skw_codes + ["SUPPORT_INPUT_INVALID"]), "a static support code, lowercased")}),
+        (site("label", _MODAL + "skew_pencil.rs", 'format!("{id}:skew coordinate {} of {stop}"', full=True),
+         {"coordinate%DOF_PER_NODE": _sb(20, "a usize decimal"), "stop": IN}),
+        (site("along_combination_row", _SKW_PV, "qualified_combination_result_id(&combination.id, &base_id)", full=True),
+         {"s.id": RS_}),
+        (site("along_require", _SKW_AD, "Err(code.to_string())", full=True),
+         {"code": _sb(max(len(_x) for _x in _skw_along_codes), "a static ALONG_DIRECTION code")}),
+    ]
+    # SKW-ID (modal, MODAL-ID's test rows): tests_skew.rs is `#[cfg(test)] mod tests_skew;` (never in the registered
+    # build) and no retained root reaches modal, so its fingerprint row is at multiplicity 0. Each ModalOutcome member's
+    # Debug is classed generously (1 MiB): the class never multiplies.
+    if _text_of(_MODAL[:-1] + ".rs").count("#[cfg(test)] mod tests_skew;") != 1:
+        raise SystemExit("SKW-ID: tests_skew is no longer a test-only module; re-review §8.55")
+    _skw_dbg = _sb(1 << 20, "a ModalOutcome member's Debug in a #[cfg(test)] fingerprint (multiplicity 0)")
+    O10_ID_AUDIT += [
+        (site("a_power_of_two_rescaled_direction_gives_its_twin_modal_result_bit_for_bit", _MODAL + "tests_skew.rs",
+              'format!("{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}", o.modes,', full=True),
+         {"o." + _m + "|?": _skw_dbg for _m in ("modes", "clusters", "integrity", "standing", "mass_summary", "free_dof_mass", "reported", "disclosures")}),
+    ]
+    # SKW-ID (FK): FrameKernelError's Display gains the InvalidInput arm. Its only constructions are sparse.rs's two
+    # node-block refusals, under `!node_blocks.is_empty()` and the pattern check over node_blocks, both empty on D1
+    # (the product's skew::node_blocks(None) is Vec::new(); every other assembly passes SparseAssemblyOptions::new()).
+    _skw_sp = _text_of(FK_ + "structural/sparse.rs")
+    if (_fn_text("assemble_sparse_stiffness", FK_ + "structural/sparse.rs").count('return Err(FrameKernelError::InvalidInput("skew node block at force scale"));') != 1
+            or _fn_text("assemble_sparse_stiffness", FK_ + "structural/sparse.rs").count('return Err(FrameKernelError::InvalidInput("skew node block outside the stiffness pattern"));') != 1
+            or _re.sub(r"//[^\n]*", "", _production(FK_ + "structural/sparse.rs")).count("FrameKernelError::InvalidInput(") != 2
+            or _text_of(FK_ + "lib.rs").count('Self::InvalidInput(detail) => write!(f, "invalid input: {detail}"),') != 1):
+        raise SystemExit("SKW-ID: FrameKernelError::InvalidInput's constructions or Display changed; re-review §8.55")
+    # (No site zero: text_budget keys zero sites as `lib.rs:<line>`, shared by every crate's lib.rs; the arm is priced at
+    # its exact class instead, the reason's static bytes.)
+    O10_ID_AUDIT += [(site("fmt", FK_ + "lib.rs", 'Self::InvalidInput(detail) => write!(f, "invalid input: {detail}"),', full=True),
+                      {"detail": _sb(max(len(_x) for _x in _re.findall(r'FrameKernelError::InvalidInput\("([^"]+)"\)', _skw_sp)), "one of sparse.rs's two static node-block reasons")})]
+    # SKW-PC: support_record's group calls restate the case's two (support_force, support_moment): the third, the
+    # along-direction group, runs only `if let Some(row) = along`, None from certified_publication::support on D1.
+    _skw_sr = _fn_text("support_record", _SKW_CP)
+    if (len(_re.findall(r'(?<![\w])group\("node", ', _skw_sr)) != 3 or _skw_sr.count("if let Some(row) = along {\n        groups.push(group(\"node\", \"along_direction\",") != 1
+            or _fn_text("support", _SKW_CP).count("return Ok((rows, Some(") != 2):
+        raise SystemExit("SKW-PC: support_record's groups or support's along rows changed; re-review §8.55")
+    EDGE_PER_CALL = list(EDGE_PER_CALL) + [(fnkey("support_record", _SKW_CP), fnkey("group", _SKW_CP), "2",
+        O10 + "SKW-PC: the support force and moment groups; the along-direction group only with an along row (SKW-D1)")]

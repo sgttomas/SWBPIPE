@@ -262,7 +262,7 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("FK/structural/sparse.rs", "reduce_sparse_system_with_prescribed_displacements_binary64", 1, "RT-A3 P: the named option (c) binary64 reduction `adjusted -= K*g`, reduced_right_hand_side's Binary64 arm term for term; its value feeds only the DEC-050/053 observation"),
     ("FK/structural/sparse.rs", "from_pattern_and_contributions", 1, "exempt: stiffness assembly, one coalesced value per pattern entry summed in contribution order (audited exactly by M03 contribution expansions)"),
     ("FK/structural/sparse.rs", "scatter_block", 1, "exempt: stiffness assembly, one addition per element entry (the dense assemble_element_contribution; audited exactly by M03 contribution expansions)"),
-    ("FK/structural/sparse.rs", "assemble_sparse_stiffness", 1, "exempt: stiffness assembly (spring diagonal, as the product adds it)"),
+    ("FK/structural/sparse.rs", "assemble_sparse_stiffness", 2, "exempt: stiffness assembly (spring diagonal, as the product adds it; R-7 skew spring node blocks after every spring, one addition per block entry, charged in K-D5's epsilon_e as formation)"),
     ("FK/structural/sparse.rs", "lower_entry_count", 1, "integer: storage count"),
     ("FK/structural/sparse.rs", "multiply", 1, "exempt: formed elastic action K*u (bit-identical to the product's multiply_matrix_vector, E12's formed term)"),
     ("FK/structural/sparse.rs", "sparse_audit_contributions", 7, "exempt, as audit_contributions: two descriptive ContributionRounding low-part sums of stiffness expansions and one delta-norm of stiffness differences; the column magnitude/delta norms and the |rhs| magnitude norms (self-assignment) of the perturbation estimate, not load sums"),
@@ -294,7 +294,7 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("FK/load_ledger.rs", "finish", 0, "ledger: one exact sum per DOF"),
     ("FK/load_ledger.rs", "with_appended", 1, "integer: an appended load primitive's term index offset by the base ledger's term count (nonlinear K-D5, kd5-nonlinear-active-set.md section 1.6); the forces themselves are summed once by finish"),
     // ---- SA
-    ("SA/structural_adapter.rs", "new", 4, "exempt: symmetry-roundoff provenance and integer counts"),
+    ("SA/structural_adapter.rs", "new", 6, "exempt: symmetry-roundoff provenance and integer counts (S-K1 A-1: plus each skew spring node block's directed allowance gamma(4)*|v| and its count, DEL-04-03 skew-restraints.md §6.1)"),
     ("SA/structural_adapter.rs", "element", 2, "exempt: symmetry-roundoff provenance and integer counts"),
     ("SA/structural_adapter.rs", "geometry", 1, "integer: queue index"),
     ("SA/structural_adapter.rs", "gap_attempt", 1, "integer: B7a D6's checked WorkTotal of refused reservations; an overflow joins its status and nothing saturates"),

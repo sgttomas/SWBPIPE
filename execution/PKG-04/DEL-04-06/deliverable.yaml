@@ -111,6 +111,23 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
+- from: DEL-04-03
+  condition: 'DEL-04-06 depends on the linear support and boundary-condition library because the diagnostics
+    crate maps its findings and application errors into solver diagnostics: core/solver/diagnostics
+    consumes open_pipe_stress_linear_supports'' LinearSupportError, SupportFinding and SupportApplicationError
+    (diagnostic_from_linear_support_error, diagnostic_from_support_finding, diagnostics_from_support_application_error)
+    and its FindingCode vocabulary, including the R-6/R-7 skewed-restraint findings SkewDirectionRange,
+    SkewStopsPerNode and ConstraintRedundant (DEL-04-03 Work skew-restraints.md section 2.2 items 4, 7 and
+    8), all mapped to InvalidRestraint.
+
+
+    Notes: Reconciliation of a pre-existing omission (the crate dependency predates S-K1; S-K1 widened the
+    consumed vocabulary). Declares the consumer condition only; DEL-04-03 declares no need on DEL-04-06,
+    so the edge adds no cycle.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
 code_paths:
 - core/solver/diagnostics/**
 - core/product_physics/src/topology.rs

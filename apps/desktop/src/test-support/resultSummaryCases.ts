@@ -68,6 +68,9 @@ const FILE_CASES: readonly [string, CaseText, CaseText, Standings][] = [
     file("fixtures/results/pressure_v3_combination_reader_corpus.json", `/cases/${i}/model`),
     ["eligible"]
   ]),
+  // S-K1 R-6/R-7 (§7.1): the along-direction reader fixtures (product output with their models).
+  ["results/skew_along_direction_preview", file("fixtures/results/skew_along_direction_preview.json", "/envelope"), file("fixtures/results/skew_along_direction_preview.json", "/request/model"), ["eligible", "none"]],
+  ["results/skew_along_direction_combinations_preview", file("fixtures/results/skew_along_direction_combinations_preview.json", "/envelope"), file("fixtures/results/skew_along_direction_combinations_preview.json", "/request/model"), ["eligible"]],
   ["pressure_source/n05-sparse_interactive", file("fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json"), file("fixtures/product_preview/pressure_source/physics_source/n05.request.json", "/model"), ["eligible"]]
 ];
 
@@ -212,6 +215,35 @@ function stressRows(): Row[] {
   ];
 }
 
+/** S-K1: the supports model with stored directions: numeric (S-A, S-D), non-numeric (S-C), an
+ * array (S-E) and none (the others). */
+function alongModel(): PreviewModel {
+  const model = supportModel() as PreviewModel & Record<string, unknown>;
+  const directions: Record<string, unknown> = {
+    "support:S-A": { x: 1, y: 1, z: -0 }, "support:S-C": { x: "1", y: 0, z: 0 }, "support:S-D": { x: 0.6, y: 0, z: 0.8 }, "support:S-E": [1, 1, 0]
+  };
+  model.supports = (model.supports as unknown as Json[]).map((support) => support.id in directions ? { ...support, direction: directions[support.id] } : support) as unknown as PreviewModel["supports"];
+  return model;
+}
+
+/** S-K1: the supports' rows plus along-direction rows: one per case (S-A L1, with its sign
+ * convention), two for one case (S-A L2), a combination's with a derivation (S-A ABS), one without
+ * metadata (S-D L2), and rows that are not indexed (a value that is not a number, no basis). */
+function alongRows(): Row[] {
+  const along = (id: string, support: string, value: number | null, basis: Json, metadata: Json = { component: "along_direction", coordinate_system: "support_direction", sign_convention: "positive along the support's stored direction" }): Row =>
+    row(id, "support_reaction_along_direction_v1", support, value as number, "N", { basis_ref: basis, metadata });
+  return [
+    ...supportRows(),
+    along("a:S-A:L1", "support:S-A", 12.5, L1),
+    along("a:S-A:L2:1", "support:S-A", -3, L2),
+    along("a:S-A:L2:2", "support:S-A", 4, L2),
+    along("a:S-A:ABS", "support:S-A", 9, ABS, { component: "along_direction", ...ABS_META, coordinate_system: "support_direction" }),
+    row("a:S-D:L2", "support_reaction_along_direction_v1", "support:S-D", 0, "N", { basis_ref: L2, metadata: undefined }),
+    along("a:S-D:L1:nan", "support:S-D", null, L1),
+    along("a:S-C:none", "support:S-C", 1, undefined)
+  ];
+}
+
 function stressModel(): PreviewModel {
   const model = overlayModel() as PreviewModel & Record<string, unknown>;
   model.combinations = [{ id: "comb:C1", label: "Combined" }, { id: "comb:R", label: "Range" }] as unknown as PreviewModel["combinations"];
@@ -222,6 +254,7 @@ function invented(): SummaryCase[] {
   const overlay = overlayResult(standardRows());
   const supports = overlayResult(supportRows(), ATTRIBUTION);
   const stresses = overlayResult(stressRows());
+  const alongResult = overlayResult(alongRows(), ATTRIBUTION);
   const notSolved = { ...overlayResult(standardRows()), status: { mechanics: "MECHANICS_BLOCKED", rule_check: "not_run", professional_acceptance: "not_claimed" } };
   const combinations = {
     ...overlayResult(standardRows(), {
@@ -247,6 +280,8 @@ function invented(): SummaryCase[] {
     c("supports_l2_failed", supports, supportModel(), { eligible: true, health: health({ "load:L-1": "checks_passed", "load:L-2": "solve_failed" }, { combinations: { "comb:C1": "sensitive", "comb:R": null }, withheld: ["comb:R"] }) }),
     c("supports_not_eligible", supports, supportModel(), { eligible: false, health: health(PASSED) }),
     c("supports_no_standing", supports, supportModel(), null),
+    c("supports_along", alongResult, alongModel(), { eligible: true, health: health(PASSED, { combinations: { "comb:C1": "checks_passed", "comb:R": "checks_passed" } }) }),
+    c("supports_along_l2_failed", alongResult, alongModel(), { eligible: true, health: health({ "load:L-1": "checks_passed", "load:L-2": "solve_failed" }, { combinations: { "comb:C1": "sensitive", "comb:R": null }, withheld: ["comb:R"] }) }),
     c("stresses", stresses, stressModel(), { eligible: true, health: health(PASSED, { combinations: { "comb:C1": "checks_passed", "comb:R": "checks_passed" } }) }),
     c("stresses_l2_sensitive", stresses, stressModel(), { eligible: true, health: health({ "load:L-1": "checks_passed", "load:L-2": "sensitive" }) }),
     c("not_solved", notSolved, overlayModel(), { eligible: true, health: health(PASSED) }),

@@ -7,6 +7,7 @@ fn bound(n: usize) -> MemberBoundInputs {
         w2: vec![0.0; n],
         exponents: vec![0; n],
         lambda_sigma: 0.0,
+        lift_radius: Vec::new(),
     }
 }
 // Historical chord control is test-only; the product has one current frame.
@@ -1290,6 +1291,7 @@ fn displacement_ball_carries_both_corrections_and_the_remainder() {
         w2: vec![0.0, 2.0_f64.powi(-100)],
         exponents: vec![i32::MIN, 3],
         lambda_sigma: 2.0_f64.powi(-80),
+        lift_radius: Vec::new(),
     };
     let u = [0.0, 1.0];
     let fixed = certify_displacement(0, &u, &bound).unwrap();
@@ -1338,6 +1340,7 @@ fn displacement_publication_rounds_the_exact_sum_once() {
         w2: vec![2.0_f64.powi(-130)],
         exponents: vec![0],
         lambda_sigma: 0.0,
+        lift_radius: Vec::new(),
     };
     let row = certify_displacement(0, &[1.0], &bound).unwrap();
     assert_eq!(row.published.to_bits(), (1.0 + 2.0_f64.powi(-52)).to_bits());
@@ -1349,7 +1352,7 @@ fn displacement_publication_rounds_the_exact_sum_once() {
     // Decisions are the ball's, unchanged by the publication.
     assert!(row.lower_exceeds(1.0) && row.upper_below(1.0 + 2.0_f64.powi(-52)));
     // The mirrored negative sum rounds once to -(1 + 2^-52).
-    let negative = MemberBoundInputs { w: vec![-(2.0_f64.powi(-53))], w2: vec![-(2.0_f64.powi(-130))], exponents: vec![0], lambda_sigma: 0.0 };
+    let negative = MemberBoundInputs { w: vec![-(2.0_f64.powi(-53))], w2: vec![-(2.0_f64.powi(-130))], exponents: vec![0], lambda_sigma: 0.0, lift_radius: Vec::new() };
     let row = certify_displacement(0, &[-1.0], &negative).unwrap();
     assert_eq!(row.published.to_bits(), (-(1.0 + 2.0_f64.powi(-52))).to_bits());
 }

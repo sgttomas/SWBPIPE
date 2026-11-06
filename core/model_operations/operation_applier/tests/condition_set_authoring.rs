@@ -29,6 +29,10 @@ const STAGED: [&str; 8] = [
     "EQUIVALENT_STATIC_INPUT_MISSING",
 ];
 
+/// S-K1 (§2.2 item 4): (1, 2^-1023, 0), a skewed direction with a subnormal canonical
+/// component: admitted by the document rules, refused by name at the solve.
+static RANGE_DIRECTION: std::sync::LazyLock<Value> = std::sync::LazyLock::new(|| json!({"x": 1.0, "y": f64::from_bits(1u64 << 51), "z": 0.0}));
+
 fn q(value: f64, unit: &str) -> Value {
     json!({"value": value, "unit": unit})
 }
@@ -540,8 +544,15 @@ fn every_s1_authoring_refusal_is_preserved() {
     // direction on supports.
     let support = |direction: Value| op("create", "create_support", "Support", "S-2", "supports", "not_present",
         &json!({"id": "S-2", "label": "Stop", "node": "N2", "family": "line_stop", "restraints": ["UY"], "direction": direction, "provenance": PROV}).to_string());
-    refused(&model, &support(json!({"x": 0.0, "y": 3.0, "z": 4.0})), "SUPPORT_DIRECTION_SKEW_UNSUPPORTED");
-    refused(&model, &support(json!({"x": 0.0, "y": 1.0, "z": 0.0})), "OP-CREATE-SUPPORT-PAYLOAD-INVALID");
+    // R-6/R-7 S-K1 (DEL-04-03 Work `skew-restraints.md` §11): a skewed direction is
+    // authored on the pressure-free route, written as entered.
+    let authored = apply_operation(&model, &support(json!({"x": 0.0, "y": 3.0, "z": 4.0})), Some(&claim(&model)));
+    let written = authored.applied_model.as_ref().unwrap_or_else(|| panic!("{:?}", records(&authored)));
+    assert!(written["supports"].as_array().unwrap().iter().any(|s| s["id"] == "S-2" && s["direction"] == json!({"x": 0.0, "y": 3.0, "z": 4.0})));
+    // An exactly axis-aligned direction is written too (`OP-CREATE-SUPPORT-PAYLOAD-INVALID`
+    // for it is removed); it lowers to today's record at the solve.
+    let axis = apply_operation(&model, &support(json!({"x": 0.0, "y": 1.0, "z": 0.0})), Some(&claim(&model)));
+    assert!(axis.applied_model.is_some(), "{:?}", records(&axis));
     // The combination members.
     let combination = |extra: Value| {
         let mut payload = json!({"id": "C-NEW", "label": "New", "basis": "result_state_subtraction", "minuend_id": "WIND", "subtrahend_id": "SUS", "provenance": PROV});
@@ -678,8 +689,10 @@ fn an_unrelated_carried_refusal_is_reported_and_does_not_block() {
     snubbed["supports"][1] = json!({"id": "snub", "node": "N1", "family": "snubber", "restraints": ["UY"],
         "stiffness": {"dof": "UY", "value": q(1.0e7, "N/m")}, "provenance": PROV});
     let mut skewed = with_sets(&[set_a()]);
-    skewed["supports"][2]["direction"] = json!({"x": 3.0, "y": 4.0, "z": 0.0});
-    for (model, code, support) in [(snubbed, "SNUBBER_DYNAMIC_ONLY_UNSUPPORTED", "snub"), (skewed, "SUPPORT_DIRECTION_SKEW_UNSUPPORTED", "spring")] {
+    // S-K1: a skewed spring now solves; a skewed direction outside §4.2's range is
+    // still a solve-time refusal the document validator does not make.
+    skewed["supports"][2]["direction"] = RANGE_DIRECTION.clone();
+    for (model, code, support) in [(snubbed, "SNUBBER_DYNAMIC_ONLY_UNSUPPORTED", "snub"), (skewed, "SUPPORT_DIRECTION_RANGE_UNSUPPORTED", "spring")] {
         assert!(!validate_model_document(&model).iter().any(|d| d.is_blocking()), "the document opens and validates");
         assert!(solve(&model).to_string().contains(code), "the solve refuses the carried member");
         for intent in [
@@ -748,14 +761,14 @@ fn an_edit_of_a_set_feeding_the_hydrostatic_case_blocks() {
 #[test]
 fn a_refusal_new_to_the_judgement_blocks() {
     let mut model = with_refs(with_sets(&[set_a()]), &[("P1", "cs:z")]);
-    model["supports"][2]["direction"] = json!({"x": 3.0, "y": 4.0, "z": 0.0});
+    model["supports"][2]["direction"] = RANGE_DIRECTION.clone();
     assert!(validate_model_document(&model).iter().any(|d| d.is_blocking()), "the before-document does not validate");
-    refused(&model, &create_set(&json!({"id": "cs:z", "provenance": PROV})), "SUPPORT_DIRECTION_SKEW_UNSUPPORTED");
+    refused(&model, &create_set(&json!({"id": "cs:z", "provenance": PROV})), "SUPPORT_DIRECTION_RANGE_UNSUPPORTED");
     // The same create on the valid document meets the skew as carried.
     let mut skew = with_sets(&[set_a()]);
-    skew["supports"][2]["direction"] = json!({"x": 3.0, "y": 4.0, "z": 0.0});
+    skew["supports"][2]["direction"] = RANGE_DIRECTION.clone();
     let (next, outcome) = applied(&skew, &create_set(&json!({"id": "cs:z", "provenance": PROV})));
-    carried_info(&outcome, "SUPPORT_DIRECTION_SKEW_UNSUPPORTED", &solve(&next));
+    carried_info(&outcome, "SUPPORT_DIRECTION_RANGE_UNSUPPORTED", &solve(&next));
     // Operations outside this slice are not judged: the same document still edits.
     let rename = op("modify", "set_field", "Node", "N1", "label", "N1", "Midspan");
     let outcome = apply_operation(&skew, &rename, Some(&claim(&skew)));

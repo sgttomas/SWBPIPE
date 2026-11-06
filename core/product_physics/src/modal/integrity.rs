@@ -75,6 +75,14 @@ pub(crate) const MODAL_STURM_COUNT_MISMATCH: &str = "MODAL_STURM_COUNT_MISMATCH"
 /// name (a non-SPD K_ff after the static screen, the QL iteration limit).
 /// (New in I2b-1; the design names no code for it.)
 pub(crate) const MODAL_EIGENSOLVE_UNAVAILABLE: &str = "MODAL_EIGENSOLVE_UNAVAILABLE";
+/// R-6/R-7 S-K1 (DEL-04-03 skew-restraints.md §11.3 C8): the modal-1 document (0.1.0)
+/// publishes the global M_ff with global shapes, which a reduced (skew-coordinate) pencil
+/// does not have; a model with a restraint basis is refused by name before the solved
+/// projection. Publishing lifted shapes would be a modal-1 revision.
+pub(crate) const MODAL_DOCUMENT_SKEW_RESTRAINT_UNSUPPORTED: &str = "MODAL_DOCUMENT_SKEW_RESTRAINT_UNSUPPORTED";
+/// R-6/R-7 S-K1 (§11.3 C8, dynamics' B2 (b)): the test-only phase replay mirrors only the
+/// axis path, so a model with a restraint basis is refused by name, never replayed through it.
+pub(crate) const MODAL_PHASE_REPLAY_SKEW_RESTRAINT_UNSUPPORTED: &str = "MODAL_PHASE_REPLAY_SKEW_RESTRAINT_UNSUPPORTED";
 
 /// Every threshold and algorithm parameter of the dense modal solve and its
 /// integrity checks (module docs). No field has a default.
@@ -390,6 +398,24 @@ pub(crate) fn modal_reformation_operands(prepared: &Prepared, mass: &ModalMass) 
             operand: ElementOperand::Spring(SpringOperand::Axis { dof: spring.node_dof.global_index(), stiffness: spring.stiffness.value }),
         });
     }
+    // R-6/R-7 D-1 (a): each skewed spring re-formed as k·n̂n̂ᵀ on its node's
+    // translations (the block K-D5 intends), from the direction's canonical
+    // power-of-two scaling d̃ = 2^s·d (§4.3 I1, §5: `SkewDirection::scaled`, the
+    // vector the formed K's spring block uses). k·d̃d̃ᵀ/(d̃ᵀd̃) is the authored
+    // k·ddᵀ/(dᵀd) exactly, and d̃ is the same for every power-of-two rescaling of d,
+    // so a direction authored at 2^±600, or as a subnormal pair, re-forms bit for bit
+    // as its canonical twin. The authored vector would square out of range there.
+    for spring in built.skew.iter().flat_map(|basis| basis.springs()).filter(|spring| spring.stiffness != 0.0) {
+        operands.push(NamedOperand {
+            subject: spring.support_id.clone(),
+            operand: ElementOperand::Spring(SpringOperand::RankOne {
+                node: spring.node,
+                rotational: false,
+                direction: spring.direction.scaled(),
+                stiffness: spring.stiffness,
+            }),
+        });
+    }
     if !refusals.is_empty() {
         return Err(refusals);
     }
@@ -403,12 +429,18 @@ pub(crate) fn reform_modal_pencil(
     exact: bool,
     dimension: usize,
     dof_map: &[Option<usize>],
+    coordinates: Option<&[Option<open_pipe_stress_modal_eigen::reformation::Coordinates>]>,
     stiffness_entries: &[SymmetricMatrixEntry],
     mass_entries: &[SymmetricMatrixEntry],
 ) -> Result<(ReformedPencil, FormationDifference), Vec<Diagnostic>> {
     let basis = if exact { MassBasis::NominalWallPressureBore } else { MassBasis::EffectiveWall };
     let elements: Vec<ElementOperand> = operands.iter().map(|o| o.operand.clone()).collect();
-    let pencil = ReformedPencil::new(dimension, dof_map, basis, &elements).map_err(|ReformationError { element, failure }| {
+    // R-6/R-7 D-1 (a): with a restraint basis, the re-formed reduced pencil Q̃ᵀK̂Q̃, Q̃ᵀM̂Q̃.
+    let reformed = match coordinates {
+        Some(coordinates) => ReformedPencil::new_with_coordinates(dimension, dof_map, coordinates, basis, &elements),
+        None => ReformedPencil::new(dimension, dof_map, basis, &elements),
+    };
+    let pencil = reformed.map_err(|ReformationError { element, failure }| {
         let subject = operands.get(element).map_or("model", |o| o.subject.as_str());
         let code = modal_refusal_code(&failure);
         vec![diag(

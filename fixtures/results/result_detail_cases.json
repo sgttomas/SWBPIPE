@@ -14748,6 +14748,1311 @@
    ]
   },
   {
+   "name": "results/skew_along_direction_preview",
+   "result": {
+    "path": "fixtures/results/skew_along_direction_preview.json",
+    "pointer": "/envelope"
+   },
+   "queries": [
+    {
+     "filter": {},
+     "offset": 0,
+     "limit": 1
+    },
+    {
+     "filter": {},
+     "offset": 0,
+     "limit": 7
+    },
+    {
+     "filter": {},
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {},
+     "offset": 236,
+     "limit": 50
+    },
+    {
+     "filter": {},
+     "offset": 237,
+     "limit": 5
+    },
+    {
+     "filter": {},
+     "offset": 247,
+     "limit": 5
+    },
+    {
+     "filter": {},
+     "offset": 1000000000000000,
+     "limit": 1
+    },
+    {
+     "filter": {},
+     "offset": 0,
+     "limit": 0
+    },
+    {
+     "filter": {},
+     "offset": 0,
+     "limit": 1001
+    },
+    {
+     "filter": {
+      "family": "all"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "displacement"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "rotation"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "reaction"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "force"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "moment"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "stress"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "ratio"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "other"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "stress"
+     },
+     "offset": 3,
+     "limit": 2
+    },
+    {
+     "filter": {
+      "frame": "all"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "reduced_system"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "unstated"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "global"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "support_direction"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "element_local"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "pipe_section"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "no-such-frame"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "case": "all"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "case": "load_case:case:skew"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "case": "combination:C2"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": ""
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "   "
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "undefined"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "null"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "e+"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "[object"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "result:solver-mode:linear-solve-basis"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "SULT:SOLVER-"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "mode_code"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "1"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "linear_s"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "solver:linear_static_preview"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "case:skew"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "result:stress:pipe-AB:quarter-1:sigma-plus"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "SULT:STRESS:"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "MPa"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "0.12055649524944116"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "element_"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "pipe:AB"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "quarter_1"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "result:combination:C2:support-action:8:spring_B:moment_magnitude"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "SULT:COMBINA"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "N*m"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "0"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "support_"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "spring_B"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "node"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "C2"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "kinds": [
+       "linear_solver_mode_basis"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "kinds": [
+       "linear_solver_mode_basis",
+       "element_local_normal_stress_extreme",
+       "support_reaction_moment_magnitude_v2"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "kinds": []
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "kinds": [
+       "no-such-kind"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "entities": [
+       "solver:linear_static_preview"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "entities": [
+       "solver:linear_static_preview",
+       "pipe:AB",
+       "spring_B"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "ids": [
+       "result:solver-mode:linear-solve-basis"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "ids": []
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "ids": [
+       "no-such-id"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "ids": [
+       "result:solver-mode:linear-solve-basis",
+       "result:disp:A",
+       "result:disp:B"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "set": "case:skew"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "station": "case:skew"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "set": "no-such-set",
+      "station": "no-such-station"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "mode_code",
+      "family": "all",
+      "frame": "reduced_system",
+      "case": "load_case:case:skew",
+      "kinds": [
+       "linear_solver_mode_basis"
+      ],
+      "entities": [
+       "solver:linear_static_preview"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "pipe",
+      "family": "stress",
+      "frame": "all",
+      "case": "load_case:case:skew"
+     },
+     "offset": 0,
+     "limit": 50
+    },
+    {
+     "filter": {
+      "text": "pipe",
+      "family": "stress",
+      "frame": "all",
+      "case": "load_case:case:skew"
+     },
+     "offset": 50,
+     "limit": 50
+    },
+    {
+     "filter": {
+      "text": "mode_code",
+      "family": "displacement",
+      "frame": "reduced_system",
+      "case": "all"
+     },
+     "offset": 2,
+     "limit": 3
+    },
+    {
+     "filter": {
+      "kinds": [
+       "linear_solver_mode_basis",
+       "element_local_normal_stress_extreme",
+       "support_reaction_moment_magnitude_v2"
+      ],
+      "entities": [
+       "solver:linear_static_preview",
+       "pipe:AB",
+       "spring_B"
+      ]
+     },
+     "offset": 1,
+     "limit": 2
+    },
+    {
+     "filter": {
+      "kinds": [
+       "linear_solver_mode_basis"
+      ],
+      "entities": []
+     },
+     "offset": 0,
+     "limit": 50
+    }
+   ],
+   "lookups": [
+    {
+     "ordinals": [
+      0,
+      118,
+      236,
+      237,
+      1000000000000000
+     ],
+     "match": "first"
+    },
+    {
+     "ids": [
+      "result:solver-mode:linear-solve-basis",
+      "result:combination:C2:support-action:8:spring_B:moment_magnitude",
+      "no-such-id",
+      "result:solver-mode:linear-solve-basis"
+     ],
+     "kinds": [
+      "linear_solver_mode_basis",
+      "element_local_transverse_shear_stress_maximum",
+      "no-such-kind"
+     ],
+     "match": "first"
+    },
+    {
+     "ids": [
+      "result:solver-mode:linear-solve-basis",
+      "result:combination:C2:support-action:8:spring_B:moment_magnitude",
+      "no-such-id"
+     ],
+     "kinds": [
+      "linear_solver_mode_basis",
+      "element_local_transverse_shear_stress_maximum",
+      "no-such-kind"
+     ],
+     "match": "last"
+    },
+    {
+     "ordinals": [
+      0
+     ],
+     "ids": [
+      "no-such-id"
+     ],
+     "match": "last"
+    },
+    {
+     "ordinals": [],
+     "match": "first"
+    }
+   ],
+   "recoveries": [
+    {
+     "offset": 0,
+     "limit": 1000,
+     "raw": true
+    }
+   ]
+  },
+  {
+   "name": "results/skew_along_direction_combinations_preview",
+   "result": {
+    "path": "fixtures/results/skew_along_direction_combinations_preview.json",
+    "pointer": "/envelope"
+   },
+   "queries": [
+    {
+     "filter": {},
+     "offset": 0,
+     "limit": 1
+    },
+    {
+     "filter": {},
+     "offset": 0,
+     "limit": 7
+    },
+    {
+     "filter": {},
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {},
+     "offset": 807,
+     "limit": 50
+    },
+    {
+     "filter": {},
+     "offset": 808,
+     "limit": 5
+    },
+    {
+     "filter": {},
+     "offset": 818,
+     "limit": 5
+    },
+    {
+     "filter": {},
+     "offset": 1000000000000000,
+     "limit": 1
+    },
+    {
+     "filter": {},
+     "offset": 0,
+     "limit": 0
+    },
+    {
+     "filter": {},
+     "offset": 0,
+     "limit": 1001
+    },
+    {
+     "filter": {
+      "family": "all"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "displacement"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "rotation"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "reaction"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "force"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "moment"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "stress"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "ratio"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "other"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "stress"
+     },
+     "offset": 3,
+     "limit": 2
+    },
+    {
+     "filter": {
+      "frame": "all"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "reduced_system"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "unstated"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "global"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "support_direction"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "element_local"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "pipe_section"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "not_applicable"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "no-such-frame"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "case": "all"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "case": "load_case:case:skew"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "case": "load_case:case:b"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "case": "combination:C_SIGNED"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "case": "combination:C_ABS"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "case": "combination:C_SRSS"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "case": "combination:C_ENV"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": ""
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "   "
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "undefined"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "null"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "e+"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "[object"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "result:solver-mode:linear-solve-basis"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "SULT:SOLVER-"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "mode_code"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "1"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "linear_s"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "solver:linear_static_preview"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "case:skew"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "result:combination:C_ABS:force:pipe-AB:shear-z:end-j"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "SULT:COMBINA"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "N"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "3.424726540704798"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "element_"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "pipe:AB"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "end_j"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "C_ABS"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "result:combination:C_DIFF:modulus-basis:case-b"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "record"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "combinat"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "case:b"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "C_DIFF"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "kinds": [
+       "linear_solver_mode_basis"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "kinds": [
+       "linear_solver_mode_basis",
+       "element_local_shear_force_z",
+       "combination_modulus_basis_record"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "kinds": []
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "kinds": [
+       "no-such-kind"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "entities": [
+       "solver:linear_static_preview"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "entities": [
+       "solver:linear_static_preview",
+       "pipe:AB",
+       "case:b"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "ids": [
+       "result:solver-mode:linear-solve-basis"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "ids": []
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "ids": [
+       "no-such-id"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "ids": [
+       "result:solver-mode:linear-solve-basis",
+       "result:disp:A",
+       "result:disp:B"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "set": "case:skew"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "station": "case:skew"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "set": "no-such-set",
+      "station": "no-such-station"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "mode_code",
+      "family": "all",
+      "frame": "reduced_system",
+      "case": "load_case:case:skew",
+      "kinds": [
+       "linear_solver_mode_basis"
+      ],
+      "entities": [
+       "solver:linear_static_preview"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "pipe",
+      "family": "stress",
+      "frame": "all",
+      "case": "load_case:case:skew"
+     },
+     "offset": 0,
+     "limit": 50
+    },
+    {
+     "filter": {
+      "text": "pipe",
+      "family": "stress",
+      "frame": "all",
+      "case": "load_case:case:skew"
+     },
+     "offset": 50,
+     "limit": 50
+    },
+    {
+     "filter": {
+      "text": "mode_code",
+      "family": "displacement",
+      "frame": "reduced_system",
+      "case": "all"
+     },
+     "offset": 2,
+     "limit": 3
+    },
+    {
+     "filter": {
+      "kinds": [
+       "linear_solver_mode_basis",
+       "element_local_shear_force_z",
+       "combination_modulus_basis_record"
+      ],
+      "entities": [
+       "solver:linear_static_preview",
+       "pipe:AB",
+       "case:b"
+      ]
+     },
+     "offset": 1,
+     "limit": 2
+    },
+    {
+     "filter": {
+      "kinds": [
+       "linear_solver_mode_basis"
+      ],
+      "entities": []
+     },
+     "offset": 0,
+     "limit": 50
+    }
+   ],
+   "lookups": [
+    {
+     "ordinals": [
+      0,
+      404,
+      807,
+      808,
+      1000000000000000
+     ],
+     "match": "first"
+    },
+    {
+     "ids": [
+      "result:solver-mode:linear-solve-basis",
+      "result:combination:C_DIFF:modulus-basis:case-b",
+      "no-such-id",
+      "result:solver-mode:linear-solve-basis"
+     ],
+     "kinds": [
+      "linear_solver_mode_basis",
+      "combination_modulus_basis_record",
+      "no-such-kind"
+     ],
+     "match": "first"
+    },
+    {
+     "ids": [
+      "result:solver-mode:linear-solve-basis",
+      "result:combination:C_DIFF:modulus-basis:case-b",
+      "no-such-id"
+     ],
+     "kinds": [
+      "linear_solver_mode_basis",
+      "combination_modulus_basis_record",
+      "no-such-kind"
+     ],
+     "match": "last"
+    },
+    {
+     "ordinals": [
+      0
+     ],
+     "ids": [
+      "no-such-id"
+     ],
+     "match": "last"
+    },
+    {
+     "ordinals": [],
+     "match": "first"
+    }
+   ],
+   "recoveries": [
+    {
+     "offset": 0,
+     "limit": 1000,
+     "raw": true
+    }
+   ]
+  },
+  {
    "name": "pressure_source/n05-sparse_interactive",
    "result": {
     "path": "fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json",
@@ -17149,6 +18454,640 @@
      "kinds": [
       "support_reaction_component_v2",
       "nonlinear_support_active_set_state_code",
+      "no-such-kind"
+     ],
+     "match": "last"
+    },
+    {
+     "ordinals": [
+      0
+     ],
+     "ids": [
+      "no-such-id"
+     ],
+     "match": "last"
+    },
+    {
+     "ordinals": [],
+     "match": "first"
+    }
+   ],
+   "recoveries": [
+    {
+     "offset": 0,
+     "limit": 1000,
+     "raw": true
+    }
+   ]
+  },
+  {
+   "name": "invented/supports_along",
+   "result": {
+    "text": "{\"schema_version\":\"0.2.0\",\"document_kind\":\"mechanics_result\",\"run_id\":\"run:invented\",\"model_ref\":\"model:invented\",\"status\":{\"mechanics\":\"MECHANICS_SOLVED\",\"rule_check\":\"not_run\",\"professional_acceptance\":\"not_claimed\"},\"summary\":{},\"results\":[{\"id\":\"r:support:S-A:Fx\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":100,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:support:S-A:Fy\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":-200,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"Fy\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:support:S-A:Fz\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":300,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"Fz\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:support:S-A:Mx\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":-400,\"unit\":\"N*m\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"Mx\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:support:S-A:My\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":500,\"unit\":\"N*m\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"My\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:support:S-A:Mz\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":-600,\"unit\":\"N*m\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"Mz\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:S-A:F\",\"kind\":\"support_reaction_force_magnitude_v2\",\"entity_ref\":\"support:S-A\",\"value\":374.17,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"r:S-A:Fx:L2\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":600,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:S-A:Fx:L2:dup\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":600,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:S-A:Fy:L2\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":-0,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"Fy\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:S-A:Fx:C1\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":0.6,\"unit\":\"kN\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:C1\"},\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:S-A:Fx:R\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":999,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:R\"},\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"global\",\"basis\":\"explicit_user_range_envelope\"}},{\"id\":\"r:S-A:Fx:ABS\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":700,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:ABS\"},\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"global\",\"basis\":\"explicit_user_absolute_sum\"}},{\"id\":\"r:S-A:Fy:SRSS\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":70,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:SRSS\"},\"metadata\":{\"component\":\"Fy\",\"coordinate_system\":\"global\",\"basis\":\"explicit_user_linear_combination\",\"sign_convention\":\"unsigned value: the square root of the sum of squares of factor × source result over explicit user terms; not an equilibrium state\"}},{\"id\":\"r:S-A:Fz:B\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":-7,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:B\"},\"metadata\":{\"component\":\"Fz\",\"coordinate_system\":\"global\",\"sign_convention\":\"positive value follows explicit user linear combination of matching source result sign conventions; a solved state plus derived differences or bounds; not an equilibrium state\"}},{\"id\":\"r:support:S-C:Fx\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-C\",\"value\":5,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"element_local\"}},{\"id\":\"r:S-C:Fy:L2\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-C\",\"value\":6,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"Fy\"}},{\"id\":\"r:S-D:Fz:L2\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-D\",\"value\":7,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"Fz\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:S-D:Qx:L2\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-D\",\"value\":8,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"Qx\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:S-G:nobasis\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-G\",\"value\":1,\"unit\":\"N\",\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"m:node:A:global_nodal_displacement_x:load:L-1:1.5\",\"kind\":\"global_nodal_displacement_x\",\"entity_ref\":\"node:A\",\"value\":1.5,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:A:global_nodal_displacement_x:load:L-2:1.5\",\"kind\":\"global_nodal_displacement_x\",\"entity_ref\":\"node:A\",\"value\":1.5,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:A:global_nodal_displacement_x:comb:C1:-1.5\",\"kind\":\"global_nodal_displacement_x\",\"entity_ref\":\"node:A\",\"value\":-1.5,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:C1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:A:global_nodal_displacement_y:load:L-1:0\",\"kind\":\"global_nodal_displacement_y\",\"entity_ref\":\"node:A\",\"value\":0,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:A:global_nodal_displacement_y:load:L-2:0\",\"kind\":\"global_nodal_displacement_y\",\"entity_ref\":\"node:A\",\"value\":-0,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:A:global_nodal_rotation_z:load:L-1:0.001\",\"kind\":\"global_nodal_rotation_z\",\"entity_ref\":\"node:A\",\"value\":0.001,\"unit\":\"rad\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:A:global_nodal_rotation_z:load:L-1:0.002\",\"kind\":\"global_nodal_rotation_z\",\"entity_ref\":\"node:A\",\"value\":0.002,\"unit\":\"rad\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:C:global_nodal_displacement_z:load:L-1:2\",\"kind\":\"global_nodal_displacement_z\",\"entity_ref\":\"node:C\",\"value\":2,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"element_local\"}},{\"id\":\"m:node:C:global_nodal_displacement_z:load:L-2:3\",\"kind\":\"global_nodal_displacement_z\",\"entity_ref\":\"node:C\",\"value\":3,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"}},{\"id\":\"m:node:C:global_nodal_displacement_z:load:L-1:4\",\"kind\":\"global_nodal_displacement_z\",\"entity_ref\":\"node:C\",\"value\":4,\"unit\":\"in\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:D:global_nodal_displacement_x:comb:R:9\",\"kind\":\"global_nodal_displacement_x\",\"entity_ref\":\"node:D\",\"value\":9,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:R\"},\"metadata\":{\"coordinate_system\":\"global\",\"basis\":\"explicit_user_range_envelope\"}},{\"id\":\"m:node:A:global_nodal_displacement_x:comb:ABS:2.5\",\"kind\":\"global_nodal_displacement_x\",\"entity_ref\":\"node:A\",\"value\":2.5,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:ABS\"},\"metadata\":{\"coordinate_system\":\"global\",\"basis\":\"explicit_user_absolute_sum\"}},{\"id\":\"m:node:A:global_nodal_displacement_y:comb:SRSS:0.5\",\"kind\":\"global_nodal_displacement_y\",\"entity_ref\":\"node:A\",\"value\":0.5,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:SRSS\"},\"metadata\":{\"coordinate_system\":\"global\",\"basis\":\"explicit_user_linear_combination\",\"sign_convention\":\"unsigned value: the square root of the sum of squares of factor × source result over explicit user terms; not an equilibrium state\"}},{\"id\":\"m:node:A:global_nodal_displacement_z:comb:B:-0.5\",\"kind\":\"global_nodal_displacement_z\",\"entity_ref\":\"node:A\",\"value\":-0.5,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:B\"},\"metadata\":{\"coordinate_system\":\"global\",\"sign_convention\":\"positive value follows explicit user linear combination of matching source result sign conventions; a solved state plus derived differences or bounds; not an equilibrium state\"}},{\"id\":\"m:node:E:global_nodal_displacement_x:comb:F:4.5\",\"kind\":\"global_nodal_displacement_x\",\"entity_ref\":\"node:E\",\"value\":4.5,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:F\"},\"metadata\":{\"coordinate_system\":\"global\",\"basis\":\"explicit_user_linear_combination\",\"sign_convention\":\"value is the maximum mode-selected source result across explicit user range-envelope operands and keeps that source result sign convention\"}},{\"id\":\"d:E:F\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:E\",\"value\":4.5,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:F\"}},{\"id\":\"m:node:D:global_nodal_displacement_x:load:L-1:null\",\"kind\":\"global_nodal_displacement_x\",\"entity_ref\":\"node:D\",\"value\":null,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:Z:global_nodal_displacement_x:load:L-1:3\",\"kind\":\"global_nodal_displacement_x\",\"entity_ref\":\"node:Z\",\"value\":3,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:E:global_nodal_rotation_x:load:L-2:0.5\",\"kind\":\"global_nodal_rotation_x\",\"entity_ref\":\"node:E\",\"value\":0.5,\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:E:global_nodal_rotation_y:load:L-1:-0.25\",\"kind\":\"global_nodal_rotation_y\",\"entity_ref\":\"node:E\",\"value\":-0.25,\"unit\":\"rad\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":null}},{\"id\":\"d:A:L1\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:A\",\"value\":1.5,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"d:E:L2\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:E\",\"value\":0.5,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"}},{\"id\":\"state:S-E:L1\",\"kind\":\"nonlinear_support_active_set_state_code\",\"entity_ref\":\"support:S-E\",\"value\":1,\"unit\":\"state_code\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"solver_iteration\"}},{\"id\":\"state:S-E:C1\",\"kind\":\"nonlinear_support_active_set_state_code\",\"entity_ref\":\"support:S-E\",\"value\":0,\"unit\":\"state_code\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:C1\"}},{\"id\":\"state:S-E:none\",\"kind\":\"nonlinear_support_active_set_state_code\",\"entity_ref\":\"support:S-E\",\"value\":2,\"unit\":\"state_code\"},{\"id\":\"a:S-A:L1\",\"kind\":\"support_reaction_along_direction_v1\",\"entity_ref\":\"support:S-A\",\"value\":12.5,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"along_direction\",\"coordinate_system\":\"support_direction\",\"sign_convention\":\"positive along the support's stored direction\"}},{\"id\":\"a:S-A:L2:1\",\"kind\":\"support_reaction_along_direction_v1\",\"entity_ref\":\"support:S-A\",\"value\":-3,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"along_direction\",\"coordinate_system\":\"support_direction\",\"sign_convention\":\"positive along the support's stored direction\"}},{\"id\":\"a:S-A:L2:2\",\"kind\":\"support_reaction_along_direction_v1\",\"entity_ref\":\"support:S-A\",\"value\":4,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"along_direction\",\"coordinate_system\":\"support_direction\",\"sign_convention\":\"positive along the support's stored direction\"}},{\"id\":\"a:S-A:ABS\",\"kind\":\"support_reaction_along_direction_v1\",\"entity_ref\":\"support:S-A\",\"value\":9,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:ABS\"},\"metadata\":{\"component\":\"along_direction\",\"coordinate_system\":\"support_direction\",\"basis\":\"explicit_user_absolute_sum\"}},{\"id\":\"a:S-D:L2\",\"kind\":\"support_reaction_along_direction_v1\",\"entity_ref\":\"support:S-D\",\"value\":0,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"}},{\"id\":\"a:S-D:L1:nan\",\"kind\":\"support_reaction_along_direction_v1\",\"entity_ref\":\"support:S-D\",\"value\":null,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"along_direction\",\"coordinate_system\":\"support_direction\",\"sign_convention\":\"positive along the support's stored direction\"}},{\"id\":\"a:S-C:none\",\"kind\":\"support_reaction_along_direction_v1\",\"entity_ref\":\"support:S-C\",\"value\":1,\"unit\":\"N\",\"metadata\":{\"component\":\"along_direction\",\"coordinate_system\":\"support_direction\",\"sign_convention\":\"positive along the support's stored direction\"}}],\"diagnostics\":[],\"contract_evidence\":{\"preview_cases\":[{\"load_case_id\":\"load:L-1\",\"support_attribution\":{\"withheld\":[{\"support_id\":\"support:S-D\",\"reason\":\"ambiguous_attribution\"},{\"support_id\":7},{\"support_id\":\"support:S-G\"}]}},null,\"x\"]}}"
+   },
+   "queries": [
+    {
+     "filter": {},
+     "offset": 0,
+     "limit": 1
+    },
+    {
+     "filter": {},
+     "offset": 0,
+     "limit": 7
+    },
+    {
+     "filter": {},
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {},
+     "offset": 51,
+     "limit": 50
+    },
+    {
+     "filter": {},
+     "offset": 52,
+     "limit": 5
+    },
+    {
+     "filter": {},
+     "offset": 62,
+     "limit": 5
+    },
+    {
+     "filter": {},
+     "offset": 1000000000000000,
+     "limit": 1
+    },
+    {
+     "filter": {},
+     "offset": 0,
+     "limit": 0
+    },
+    {
+     "filter": {},
+     "offset": 0,
+     "limit": 1001
+    },
+    {
+     "filter": {
+      "family": "all"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "displacement"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "rotation"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "reaction"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "force"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "moment"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "stress"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "ratio"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "other"
+     },
+     "offset": 0,
+     "limit": 1000
+    },
+    {
+     "filter": {
+      "family": "stress"
+     },
+     "offset": 3,
+     "limit": 2
+    },
+    {
+     "filter": {
+      "frame": "all"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "global"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "element_local"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "unstated"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "solver_iteration"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "support_direction"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "frame": "no-such-frame"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "case": "all"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "case": "load_case:load:L-1"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "case": "load_case:load:L-2"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "case": "combination:comb:C1"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "case": "combination:comb:R"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "case": "combination:comb:ABS"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "case": "combination:comb:SRSS"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": ""
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "   "
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "undefined"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "null"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "e+"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "[object"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "r:support:S-A:Fx"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "SUPPORT:S-A:"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "N"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "100"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "support_"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "support:S-A"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "node"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "load:L-1"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "m:node:A:global_nodal_rotation_z:load:L-1:0.002"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "NODE:A:GLOBA"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "rad"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "0.002"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "global_n"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "node:A"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "a:S-C:none"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "S-C:NONE"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "1"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "support:S-C"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "kinds": [
+       "support_reaction_component_v2"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "kinds": [
+       "support_reaction_component_v2",
+       "global_nodal_rotation_z",
+       "support_reaction_along_direction_v1"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "kinds": []
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "kinds": [
+       "no-such-kind"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "entities": [
+       "support:S-A"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "entities": [
+       "support:S-A",
+       "node:A",
+       "support:S-C"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "ids": [
+       "r:support:S-A:Fx"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "ids": []
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "ids": [
+       "no-such-id"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "ids": [
+       "r:support:S-A:Fx",
+       "r:support:S-A:Fy",
+       "r:support:S-A:Fz"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "set": "load:L-1"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "station": "node"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "set": "no-such-set",
+      "station": "no-such-station"
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "N",
+      "family": "all",
+      "frame": "global",
+      "case": "load_case:load:L-1",
+      "kinds": [
+       "support_reaction_component_v2"
+      ],
+      "entities": [
+       "support:S-A"
+      ]
+     },
+     "offset": 0,
+     "limit": 200
+    },
+    {
+     "filter": {
+      "text": "pipe",
+      "family": "stress",
+      "frame": "all",
+      "case": "load_case:load:L-1"
+     },
+     "offset": 0,
+     "limit": 50
+    },
+    {
+     "filter": {
+      "text": "pipe",
+      "family": "stress",
+      "frame": "all",
+      "case": "load_case:load:L-1"
+     },
+     "offset": 50,
+     "limit": 50
+    },
+    {
+     "filter": {
+      "text": "N",
+      "family": "displacement",
+      "frame": "global",
+      "case": "all"
+     },
+     "offset": 2,
+     "limit": 3
+    },
+    {
+     "filter": {
+      "kinds": [
+       "support_reaction_component_v2",
+       "global_nodal_rotation_z",
+       "support_reaction_along_direction_v1"
+      ],
+      "entities": [
+       "support:S-A",
+       "node:A",
+       "support:S-C"
+      ]
+     },
+     "offset": 1,
+     "limit": 2
+    },
+    {
+     "filter": {
+      "kinds": [
+       "support_reaction_component_v2"
+      ],
+      "entities": []
+     },
+     "offset": 0,
+     "limit": 50
+    }
+   ],
+   "lookups": [
+    {
+     "ordinals": [
+      0,
+      26,
+      51,
+      52,
+      1000000000000000
+     ],
+     "match": "first"
+    },
+    {
+     "ids": [
+      "r:support:S-A:Fx",
+      "a:S-C:none",
+      "no-such-id",
+      "r:support:S-A:Fx"
+     ],
+     "kinds": [
+      "support_reaction_component_v2",
+      "support_reaction_along_direction_v1",
+      "no-such-kind"
+     ],
+     "match": "first"
+    },
+    {
+     "ids": [
+      "r:support:S-A:Fx",
+      "a:S-C:none",
+      "no-such-id"
+     ],
+     "kinds": [
+      "support_reaction_component_v2",
+      "support_reaction_along_direction_v1",
       "no-such-kind"
      ],
      "match": "last"

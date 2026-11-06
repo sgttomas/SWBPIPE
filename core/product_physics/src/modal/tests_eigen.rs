@@ -613,6 +613,7 @@ fn a_residual_or_orthogonality_breach_demotes_to_sensitive_and_still_publishes()
 fn two_dof_pencil(total_mass: [f64; 3], excitation: [Vec<f64>; 3]) -> ModalPencil {
     let identity = SymmetricMatrix::from_diagonal(&[1.0, 1.0]).unwrap();
     ModalPencil {
+        skew: None,
         global_dimension: 6,
         free_dofs: vec![0, 1],
         dof_map: vec![Some(0), Some(1), None, None, None, None],

@@ -44,8 +44,7 @@ pub const TIE_ROD_REFERENCE_FAMILY: &str = "tie_rod_reference";
 /// l ≤ 2^-48·(‖x_j − x_i‖∞ + ‖o_i‖∞ + ‖o_j‖∞).
 pub const LENGTH_GUARD: f64 = 1.0 / 281_474_976_710_656.0; // 2^-48
 
-/// Smallest |a·b| whose error-free split `a·b − fl(a·b)` is exact (DN-2).
-const SPLIT_EXACT_MIN: f64 = f64::from_bits(54 << 52); // 2^-969
+use crate::connector::SPLIT_EXACT_MIN;
 
 /// One rod's authored mechanical inputs. Offsets are in the connector axes Q
 /// (the columns of `ObjectiveConnector::axes`), from the connector's end

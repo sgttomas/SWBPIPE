@@ -141,7 +141,11 @@ fn the_registry_is_closed_and_each_variant_is_its_pinned_bytes() {
         "6f6494907e3ead979ea27e5ff85f54617589c9195dc84d40a02752a0b006ef44",
         "b4377e73e8a83edb57b4f0c41dbaef384385e0f6b4810103a106a334c8edbe14",
         // RT-A3 §4: main's exact successor table at 252bef969.
-        EXACT_CERT_SHA]);
+        EXACT_CERT_SHA,
+        // R-6/R-7 S-K1: main's tables at 9e5c69797, before S-K1 (`recorded_pre_sk1/`).
+        "563db3c7c44279face3adc60a76a512de38520357e89ea4b49ad11d20946db89",
+        "f64473f5a60ac2bb34d8006b40bf044800f0c97454c570bbe88d1f1d96b7bdfc",
+        "d0bab3502b4018ce0596757a933bd6306f402dc3741a10af24a094e8c66544e8"]);
     for variant in &recorded_tables::VARIANTS {
         assert_eq!(variant.table()["semantic_contract_id"], variant.id);
         assert!(recorded_tables::variant_of(&binding(variant.id, variant.sha256)).is_some());

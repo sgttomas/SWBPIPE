@@ -567,19 +567,22 @@ fn the_recorded_pre_rt_a4_registry_is_the_typescript_and_python_registry() {
         assigned[0].trim_matches('"').to_string()
     };
     // A table directory: `NAME = _RESULTS_DIR / "dir"`, once at module level (`_RECORDED_DIR`, and
-    // operating-case slice 1b's `_RECORDED_1B_DIR`, and RT-A5 `minuend_final`'s `_RECORDED_MF_DIR`).
+    // operating-case slice 1b's `_RECORDED_1B_DIR`, RT-A5 `minuend_final`'s `_RECORDED_MF_DIR`, and
+    // S-K1's `_RECORDED_SK1_DIR`).
     let py_dir = |name: &str| -> String {
         let assigned: Vec<&str> = py.lines().filter_map(|line| line.strip_prefix(&format!("{name} = _RESULTS_DIR / \""))).collect();
         assert_eq!(assigned.len(), 1, "Python: {name} is not one table directory");
         format!("fixtures/results/{}", assigned[0].strip_suffix('"').unwrap_or_else(|| panic!("Python: {name}")))
     };
     let python: Vec<[String; 3]> = entries(&tokens, '{', '}', "Python").iter().map(|entry| match entry.as_slice() {
-        [Token::Punct('('), Token::Name(id), Token::Punct(','), Token::Str(sha), Token::Punct(')'), Token::Punct(':'), Token::Name(dir), Token::Punct('/'), Token::Str(file)] if ["_RECORDED_DIR", "_RECORDED_1B_DIR", "_RECORDED_MF_DIR"].contains(&dir.as_str()) => {
+        [Token::Punct('('), Token::Name(id), Token::Punct(','), Token::Str(sha), Token::Punct(')'), Token::Punct(':'), Token::Name(dir), Token::Punct('/'), Token::Str(file)] if ["_RECORDED_DIR", "_RECORDED_1B_DIR", "_RECORDED_MF_DIR", "_RECORDED_SK1_DIR"].contains(&dir.as_str()) => {
             [py_constant(id), sha.clone(), format!("{}/{file}", py_dir(dir))]
         }
         other => panic!("Python: unrecognized entry {other:?}"),
     }).collect();
-    assert_eq!(native.len(), 13, "{native:?}");
+    // S-K1 (R-6/R-7): S-K1's own `_RECORDED_SK1_DIR` variants, the three pre-S-K1 preview-physics
+    // tables (S-K1's merge base; unchanged on main from 9e5c69797 through 6cb1c3dc3), are the last three.
+    assert_eq!(native.len(), 16, "{native:?}");
     assert_eq!(typescript.iter().map(|[id, sha, _]| [id.clone(), sha.clone()]).collect::<Vec<_>>(), native, "the TypeScript registry");
     assert_eq!(python.iter().map(|[id, sha, _]| [id.clone(), sha.clone()]).collect::<Vec<_>>(), native, "the Python registry");
     for ([_, sha, ts_file], [_, _, py_file]) in typescript.iter().zip(&python) {

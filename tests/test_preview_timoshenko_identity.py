@@ -31,8 +31,8 @@ PROJECT = Path(__file__).resolve().parents[1]
 RESULTS = PROJECT / "fixtures/results"
 TIMOSHENKO_ID = "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1"
 TIMOSHENKO_PROFILE = "product_preview_mechanics_timoshenko_v1"
-TIMOSHENKO_SHA256 = "f64473f5a60ac2bb34d8006b40bf044800f0c97454c570bbe88d1f1d96b7bdfc"
-PREVIEW_SHA256 = "563db3c7c44279face3adc60a76a512de38520357e89ea4b49ad11d20946db89"
+TIMOSHENKO_SHA256 = "8a0abaeac93729b5d6ee6c922f2a60f0caf9332948622bb8b5896747ce41442d"
+PREVIEW_SHA256 = "16eeb49cb298c6d3634594bbd9ebf6bf86be8f114e2e524dbd624e401e31a729"
 SOURCES = {
     "connected_sparse": "fixtures/model_operations/precision_connected_ui_model.json",
     "connected_dense": "fixtures/model_operations/precision_connected_ui_model.json",

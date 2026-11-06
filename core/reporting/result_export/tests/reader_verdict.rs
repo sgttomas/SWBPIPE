@@ -694,6 +694,38 @@ fn retired_identities_and_readers_are_refused_by_name() {
     }
 }
 
+/// Astra B3 (DEL-04-03 Work `skew-restraints.md` §4.3 I1; R-1's reader): the committed
+/// S-K1 product documents read with their models, and with every skewed direction scaled by
+/// 2^-1026 (subnormal components; the same canonical direction, admitted) they read the same; a
+/// wrong along-direction value is refused under the scaled model as under the original.
+#[test]
+fn a_subnormal_scaled_skew_direction_reads_as_its_twin_through_the_reader_entry() {
+    let tiny = 2f64.powi(-1000) * 2f64.powi(-26);
+    for path in ["fixtures/results/skew_along_direction_preview.json", "fixtures/results/skew_along_direction_combinations_preview.json"] {
+        let fixture = read(path);
+        let (source, model) = (&fixture["envelope"], &fixture["request"]["model"]);
+        let mut scaled = model.clone();
+        for support in scaled["supports"].as_array_mut().unwrap() {
+            if let Some(d) = support.get_mut("direction") {
+                for axis in ["x", "y", "z"] {
+                    d[axis] = json!(d[axis].as_f64().unwrap() * tiny);
+                }
+            }
+        }
+        assert_ne!(&scaled, model);
+        assert_eq!(rv::validate("preview-physics", source, Some(model), None), json!({"ok": true}), "{path}");
+        assert_eq!(rv::validate("preview-physics", source, Some(&scaled), None), json!({"ok": true}), "{path}: scaled");
+        let mut wrong = source.clone();
+        let row = wrong["results"].as_array_mut().unwrap().iter_mut()
+            .find(|r| r["kind"] == "support_reaction_along_direction_v1" && r["basis_ref"]["ref_type"] == "load_case").unwrap();
+        row["value"] = json!(-row["value"].as_f64().unwrap());
+        for m in [model, &scaled] {
+            let found = rv::validate("preview-physics", &wrong, Some(m), None);
+            assert!(found.to_string().contains("ALONG_DIRECTION_INCONSISTENT"), "{path}: {found}");
+        }
+    }
+}
+
 /// A source stating the retired preview-physics-1 identity is refused by the full public
 /// reader under the existing route/profile boundary, with and without the model, on a held
 /// document and on a certificate document alike (the review of the RT-A5 composition repair);
