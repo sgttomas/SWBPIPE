@@ -487,26 +487,42 @@ only the staleness check of step 6.
     4570 bytes per model byte, before the writer refused the model.
 
   The k·M reservation, its constant and its counting-allocator pin are removed.
-- **Governance.** Native writer memory is to be governed by running the writer in the capped
+- **Governance.** Native writer memory is governed by running the writer in the capped
   worker process (owner decision 2026-10-12, "(c) Capped worker process"; Agent 0's ruling,
-  2026-11-01), in slice 4b. The host keeps its own reservations for the text, the outputs,
-  the read-back and the reply, below. Native writer memory governance and the live export are
-  unfinished until 4b's worker path is verified.
-- **4a is not connected.** 4a's production entry point (`save_mbf_export_admitted`) refuses
-  every request with `MBF-EXPORT-NOT-CONNECTED` before any parse, writer run, store opening,
-  chooser or file access. The in-process pipeline of §3.6 runs only through a test seam
-  (`InProcessWriterTestSeam`), whose constructor is compiled only for tests; no command,
-  menu or other entry point reaches it.
-- **Admission** (the design 4b connects). The command follows the DEL-04-07 ingress rules for model-sized interactive
-  commands: `command_ingress::admit(…, ArgsDecoding::Moved)` admits envelope + M + 4 KiB,
-  held until the command returns.
-- **Host-side reservations** (the design 4b connects). `PoolReadMemory` is seeded with the lease. Each of these is
-  reserved before it is made:
+  2026-11-01) as worker task 3 (slice 4b.2a, `mbf_worker.rs`). The host keeps its own
+  reservations for the text, the outputs, the read-back and the reply, below. The live export
+  (the menu item and the mounted dialog) is slice 4b.2b's.
+- **Connected (4b.2a).** The production entry points (`save_mbf_export_admitted`,
+  `review_mbf_export_admitted`) run task 3 through `mbf_worker::CappedWorkerRun`, the only
+  production writer run; `MBF-EXPORT-NOT-CONNECTED` is retired. The in-process run
+  (`InProcessWriterRun`) and its seam are compiled only for tests, and a source scan holds that
+  in production code task 3's workload arm is the only caller of `worker_render` and
+  `CappedWorkerRun` the only run.
+- **Admission.** Both commands take C1's form (DEL-04-05 `c1-native-custody-plan.md` §8,
+  "One running total per command"): the raw `args-json-v1` body is copied under a capped
+  interactive lease, which seeds the command's `memory_pool::CommandLedger` (through
+  `stored_read::NativeLeaseMemory`); the arguments' bound (envelope + M + 4 KiB,
+  `ArgsDecoding::Moved`) grows it before they are parsed (`command_ingress::admit_raw`). The
+  budget is captured then: min(the budget the copy's lease was admitted under, 12 GiB). Every
+  later lease of the command is reserved in that ledger before the pool admits it, and the
+  leases are held until the command's response is built (DEL-14-01 r4).
+- **The worker's leases** (4b.2a). Before the worker starts, one ledger bound
+  (`memory_pool::LedgerBound`) reserves the parent's copy of the request, the worker's grant up
+  to its maximum and the largest result lease (the resident envelope of the 64 MiB output
+  ceiling); the maximum grant is what the captured budget leaves after the command's other live
+  leases and those two, and a starting grant above it is refused `ingress_exceeds_budget` before
+  any worker starts. The grant is admitted under that maximum by the solve's queue wait
+  (`wait_acquire`, at most 2 s; cancellation or a newer review ends it), grows on demand up to it,
+  and is released only after the worker is reaped. The request copy is a capped interactive
+  lease. Once the worker is reaped the bound shrinks to the result lease, which is held until the
+  response is built.
+- **Host-side reservations.** The command's ledger (`NativeLeaseMemory`) is seeded with the
+  lease. Each of these is reserved before it is made:
   - the settings' parse (1 MiB, for a settings text of at most 25 KiB);
   - the parse and the canonical copy;
-  - the worker's save result, at most the output ceiling below, and each host copy of it: the
-    result frame's buffer, any decoded copy, any buffer the atomic writer takes, and the receipt
-    or refusal reply are each leased;
+  - the worker's save result, at most the output ceiling below (the worker's result lease, held
+    through the response), and each host copy of it: any decoded copy, any buffer the atomic
+    writer takes, and the receipt or refusal reply are each leased;
   - a 64 KiB read-back block;
   - the response, bounded for a receipt, for the largest refusal after a write, and for a
     refusal before the chooser, which carries at most R of review (§3.9.5).
@@ -552,7 +568,8 @@ only the staleness check of step 6.
 
 ### 3.9 Webview preview admission (adopted design)
 
-**Status: adopted design (Agent 0, 2026-11-02), not implemented.** Agent 0 chose (iii) with the
+**Status: adopted design (Agent 0, 2026-11-02); its native part is implemented (slices 4b.1 and
+4b.2a, §6), and mounting the dialog on `review_mbf_export` is slice 4b.2b's.** Agent 0 chose (iii) with the
 bounded review, the task-specific worker modes and the output ceiling recorded in §3.9.5,
 §3.9.7 and §3.7. This answers Agent 0's ruling of 2026-11-01. The ruling
 asks for every size dimension that makes the preview's allocations super-linear, set against
@@ -799,6 +816,13 @@ existing per-invocation budget. R and the output ceiling are new MBF product-rou
 payload size; they set no webview allowance and do not change the per-invocation budget. (i) is not chosen, so no webview allowance is set.
 
 #### 3.9.6 Planned tests (not run)
+
+Slice 4b.2a runs the Rust worker tests below that need the capped worker, in a real worker
+process (`mbf_worker_tests.rs`, §6): review mode against the recorded reviews and digests, the
+truncated review blocking the save, the output ceiling refused before any result lease, a newer
+review killing the running worker, and a budget raised while a review waits. The dimension-table
+tests (Q1–Q5 in a worker), the at-limit save of a 64 MiB result and the Vitest cases remain
+planned.
 
 - **Confirming the dimension table.** These run in the engine crate, natively, with the counting
   allocator. Each doubles one factor with the others held, and expects the excess over the base
@@ -1193,6 +1217,62 @@ registered and no worker task is added.
   arm); `result_limit` at the 64 MiB ceiling; a `MbfWriterRun` over the capped worker; command registration and
   ingress for both commands; the `app_invoke_handler` re-pin; the menu item, the Exports panel and mounting the dialog;
   retiring the TypeScript builder (A-6); and the cancel, newer-review and budget tests of §3.9.6.
+
+**Slice 4b.2a, as implemented (2026-11-05).** 4b.2 is split again: 4b.2a connects the native path, 4b.2b
+the frontend. The production entry points run task 3 in the capped worker; `MBF-EXPORT-NOT-CONNECTED` is retired.
+
+- **Worker task 3** (`solve_worker.rs`, a shared file, minimal hunks; Agent 0: MBF owns code 3, hanger sizing
+  takes 4). `WorkerTask::MbfRender` is request code 3 in `task_code` and in the request's decode (codes 0 to 2
+  unchanged; 4 and above refused). Its `workload` arm returns `(mbf_export::worker_render(&raw)?, None)`: an `ATST`
+  status-0 frame, then `RSLT`, or the named failure. The pre-arm check stays `resident_envelope(raw_len) +
+  reserve` and the raw read; parsing happens after arm. `supervise` is unchanged.
+- **Registry getters** (`solve_jobs.rs`, shared; Agent 0's form): `pool()` loses its `cfg(test)`;
+  `worker_launcher()` borrows the registry's own launcher and `process_reserve()` returns its reserve. Nothing
+  else there changes; `run_model_checks` is untouched.
+- **Ledger bound** (`memory_pool.rs`, shared): `CommandLedger::bound` reserves a `LedgerBound` for leases the pool
+  admits for the command outside the ledger (the worker's grant, the request copy, the result lease), as one
+  delta before the first of them; `LedgerBound::shrink_to` releases it down exactly.
+- **The run** (`mbf_worker.rs`, MBF-owned). `CappedWorkerRun` (§3.7, "The worker's leases"): the bound, the
+  bounded queue wait (`MBF_START_WAIT`, 2 s, the model checks' window), the request copy, `supervise` with hooks
+  whose `result_limit` is the 64 MiB ceiling, and result custody (`WorkerResultHold`, held in the pipeline's
+  `Held` until the response is built). `WorkerOutcome` maps to the named codes: refused grant, growth, footprint,
+  request copy or wait (`MBF-EXPORT-MEMORY-UNAVAILABLE`, the review's `MBF-REVIEW-MEMORY-UNAVAILABLE`),
+  `ResultTooLarge` (`MBF-EXPORT-OUTPUT-TOO-LARGE`; the review's memory refusal), task 3's own named failure by its
+  code, any other failure, an attested result or a stopped worker (`MBF-EXPORT-WORKER-PROTOCOL`), and
+  cancellation (`MBF-EXPORT-CANCELLED`). `MbfRuns` (managed app state) holds at most one review and one save in
+  progress: a newer review cancels the older (its wait ends, or its worker is killed and reaped before its grant is
+  released). `MbfRuns::cancel` cancels both; 4b.2b connects it to the dialog's close and the project session's
+  change.
+- **Commands** (`lib.rs`): `review_mbf_export` and `save_mbf_export` are registered in `app_invoke_handler!` and
+  take C1's form (§3.7, "Admission"); the save's chooser offers `.mbf` and its library store opens only when the
+  document references a library. The save keeps §3.6's order: the `DOTH-MBF-012` route evidence, the settings,
+  the admission and screen, task 3 in `save` mode (a review is no authorization: the save's own run refuses a
+  truncated review `MBF-REVIEW-TRUNCATED`), the staleness check, then the chooser and 4a's transactional writes,
+  backups and refusals, unchanged. The `app_invoke_handler` pin is re-pinned (§3.8; the previous digest
+  reproduced first; the macro's only change is the two entries). The pipelines take the command's memory as
+  `ReadMemory`; the in-process run and its seam are compiled only for tests.
+- **DEL-14-01 r4.** A command's live leases (its argument lease and its growth, every named reservation, the
+  ledger bound covering the worker's grant, the request copy and the result lease) are counted in its one ledger
+  before the pool admits them, within the budget captured with the argument lease; a budget changed meanwhile
+  applies to later commands.
+- **Tests** (`mbf_worker_tests.rs`, with the real worker this test binary runs). Connected path: the review
+  command replies each production-limit review of `review_cases.json` byte for byte, with the recorded digests, its
+  result lease held at the response; the save command writes files whose SHA-256 are `export_digests.json`'s and
+  whose bytes are the engine's. These replace the NOT-CONNECTED tests. Then: the ingress refusals; the ledger
+  holding the whole budget while the worker runs and the result lease alone after it; the exact boundary (one byte
+  above the budget refused by name before any worker, at it the worker starts); a budget raised while a review
+  waits; cancellation in the queue wait and the wait's deadline; a newer review killing the running worker, and a
+  save's worker cancelled before any chooser; a worker above its grant; a result announced above the ceiling
+  refused before any result lease; tampered output (not an envelope, the other mode's envelope, an attested result,
+  the supervisor's protocol violations, an exit, a panic, a foreign failure name); and the save's own refusals
+  (truncated, over the ceiling, writer refusal, stale review, other route evidence). A `syn` scan holds the
+  production references to `worker_render`, task 3 and the run seam, with negative controls; `solve_worker.rs` adds
+  the task-code round trip. Mutations checked: no `result_limit`, no ledger bound and the result lease released
+  before the response each fail a test.
+- **4b.2b** (next, not here): the menu item, the Exports panel action, mounting the dialog on `review_mbf_export`
+  and `save_mbf_export` (sent as `args-json-v1` raw bodies: both join `NATIVE_INGRESS_COMMANDS` in
+  `services/nativeIngress.ts` and its test twin), the dialog's cancel route on close and on a project session's
+  change (`MbfRuns::cancel`), and retiring the TypeScript builder (A-6).
 
 ## 7. Boundaries
 

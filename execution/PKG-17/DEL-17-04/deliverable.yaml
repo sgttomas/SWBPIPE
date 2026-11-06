@@ -115,6 +115,7 @@ code_paths:
 - core/handoff/caepipe_mbf_wasm/
 - apps/desktop/src/services/mbfEngine.ts
 - apps/desktop/src-tauri/src/mbf_export.rs
+- apps/desktop/src-tauri/src/mbf_worker.rs
 - fixtures/caepipe_mbf/invented/desktop_export/
 checks:
 - tests/test_caepipe_mbf_export_package.py
@@ -138,6 +139,7 @@ checks:
 - core/handoff/caepipe_mbf_wasm/tests/export.rs
 - apps/desktop/src/services/mbfEngine.test.ts
 - apps/desktop/src-tauri/src/mbf_export.rs
+- apps/desktop/src-tauri/src/mbf_worker_tests.rs
 - tests/security/test_local_first_storage_policy.py
 - tests/security/test_redaction_export_controls.py
 - apps/desktop/src/features/redaction-controls/redactionExportControls.test.ts

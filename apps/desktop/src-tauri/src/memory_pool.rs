@@ -1287,6 +1287,36 @@ impl CommandLease {
     }
 }
 
+/// A bound reserved in a command's ledger for leases the pool admits for the
+/// command outside it, each no larger than what the bound holds for it: a
+/// capped worker's grant (its growth bounded by the maximum grant it was
+/// admitted under), the parent's copy of the worker's request and the result
+/// lease its supervisor admits (bounded by the job's result limit). Reserved
+/// as one delta before the first of those admissions, so the command's live
+/// leases stay within its budget; refused above the budget before the pool is
+/// asked. Shrinking it, once a covered lease has ended, and dropping it
+/// remove its bytes exactly (MBF export task 3, `mbf_worker.rs`).
+#[derive(Debug)]
+pub(crate) struct LedgerBound(Charge);
+
+impl CommandLedger {
+    /// Reserves a [`LedgerBound`] of `bytes`, or refuses with the total it
+    /// would make.
+    pub(crate) fn bound(self: &Arc<Self>, bytes: u64) -> Result<LedgerBound, OverBudget> {
+        self.charge(bytes).map(LedgerBound)
+    }
+}
+
+impl LedgerBound {
+    /// Releases down to `bytes` (never grows).
+    pub(crate) fn shrink_to(&mut self, bytes: u64) {
+        if bytes < self.0.bytes {
+            let delta = self.0.bytes - bytes;
+            self.0.release(delta);
+        }
+    }
+}
+
 /// What a command's ledger holds while an admission is pending (tests): a
 /// hook called after the delta is reserved and before the pool is asked.
 #[cfg(test)]

@@ -2470,6 +2470,8 @@
               "apps/desktop/src-tauri/src/lib.rs",
               "apps/desktop/src-tauri/src/main.rs",
               "apps/desktop/src-tauri/src/mbf_export.rs",
+              "apps/desktop/src-tauri/src/mbf_worker.rs",
+              "apps/desktop/src-tauri/src/mbf_worker_tests.rs",
               "apps/desktop/src-tauri/src/memory_pool.rs",
               "apps/desktop/src-tauri/src/model_document_file.rs",
               "apps/desktop/src-tauri/src/model_document_save.rs",

@@ -48,6 +48,8 @@ This Scope of Work defines `DEL-17-04` in service of project scope [SOW-030, SOW
 >
 > Current implementation (at `62c1efd75b`): a desktop export action exists outside this module. The Exports section renders `apps/desktop/src/features/caepipe-mbf/CaepipeMbfExportPanel.tsx`, which builds its own preview package JSON and `.mbf` text in TypeScript (`buildCaePipeMbfExportPacket`, `document_kind: openpipestress.technical_preview.caepipe_mbf_export_package`). It does not call `core/handoff/caepipe_mbf/` and is not validated against `schemas/caepipe_mbf_export.schema.json`.
 >
+> Native commands (slice 4b.2a, Design `desktop-mbf-export-import.md` §3.7 and §6): `review_mbf_export` and `save_mbf_export` are registered native commands. Each is admitted within one command ledger seeded with its argument lease (DEL-14-01 r4), and runs the engine's writer as worker task 3 in the capped worker process, its result bounded by the 64 MiB output ceiling before the host allocates it (`apps/desktop/src-tauri/src/mbf_export.rs`, `mbf_worker.rs`). The menu item, the mounted dialog and the TypeScript builder's retirement are slice 4b.2b's; until then the Exports section still renders the TypeScript preview above.
+>
 
 ### CLM-004 — Source and Evidence Slots
 
@@ -155,6 +157,7 @@ This Scope of Work defines `DEL-17-04` in service of project scope [SOW-030, SOW
 > | Import round-trip trace | Invented models in the defined reversible subset pass canonical equality within the derived tolerances, identity restoration with a bound sidecar and reporting of unrecoverable identities, byte reproduction of the listed byte-reproducible models under a bound sidecar and identical writer settings with formatting collisions reported, determinism, and solve equality of global displacements and reactions against a provisional threshold. |
 > | Import unit trace | English and SI imports of the same invented model agree. Their unit handling is checked against an evaluation independent of the importer, and the numerical-meaning changes have independent review. |
 > | Import boundary trace | The data-boundary guard fails on any tracked MBF or import report that lacks an invented-provenance sidecar, and the private regression check reads only the configured exchange folder. |
+> | Desktop export memory trace | The native MBF review and save run the writer only in the capped worker, within the command's ledger and the 64 MiB output ceiling, and a source scan holds that no other production path runs it (Design `desktop-mbf-export-import.md` §3.7, §6 slice 4b.2a). |
 > | Dependency trace | `Dependencies.csv` validates as v3.1. |
 >
 
