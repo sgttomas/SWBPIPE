@@ -7,7 +7,7 @@
  * fixed fact. The sizing never writes the model; a result is not recorded or saved. A newer request supersedes the
  * one in progress, and only the latest request's reply is shown, and only while this project session is current. */
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { PreviewModel } from "../../types";
 import { listLocalLibraries, openLocalLibrary, type LocalLibraryIndexEntry } from "../../services/libraryImportService";
 import { retireHangerSizing, sizeHangers, type HangerSizingCompletion } from "../../services/hangerSizingService";
@@ -33,6 +33,9 @@ type Props = Readonly<{
 }>;
 
 type Shown = Readonly<{ completion: HangerSizingCompletion; library: Record<string, unknown> }>;
+/** An opened library document, with the id it was opened for: a request sends it only while that id is the one
+ * selected, so a late completion of an earlier selection can never stand in for the current one. */
+type OpenedLibrary = Readonly<{ libraryId: string; document: Record<string, unknown> }>;
 
 function Choice<T extends string>({ label, value, options, onChange, testId }: { label: string; value: T | ""; options: readonly [T, string][]; onChange: (value: T | "") => void; testId: string }) {
   return (
@@ -49,7 +52,9 @@ function Choice<T extends string>({ label, value, options, onChange, testId }: {
 export function HangerSizingForm({ model, busy = false }: Props) {
   const [form, setForm] = useState<HangerSizingFormState>(EMPTY_HANGER_SIZING_FORM);
   const [libraries, setLibraries] = useState<LocalLibraryIndexEntry[]>([]);
-  const [library, setLibrary] = useState<Record<string, unknown> | null>(null);
+  const [library, setLibrary] = useState<OpenedLibrary | null>(null);
+  // Each selection's open carries its generation; only the latest selection's completion is applied.
+  const librarySelection = useRef(0);
   const [notice, setNotice] = useState<string | null>(null);
   const [missing, setMissing] = useState<readonly string[]>([]);
   const [running, setRunning] = useState(false);
@@ -70,18 +75,21 @@ export function HangerSizingForm({ model, busy = false }: Props) {
   }
 
   async function chooseLibrary(libraryId: string) {
+    const generation = ++librarySelection.current;
     update({ libraryId });
     setLibrary(null);
     setNotice(null);
     if (!libraryId) return;
     const result = await openLocalLibrary(projectId, "hanger", libraryId);
+    // A newer selection was made while this one opened: its result, success or failure, is dropped.
+    if (generation !== librarySelection.current) return;
     if (result.route !== "tauri_backend") { setNotice(result.diagnostic); return; }
     if (!result.envelope) { setNotice("This library no longer exists."); return; }
     if (!result.envelope.validation.accepted || result.envelope.validation.has_blocking_findings) {
       setNotice("The stored hanger library has blocking import findings.");
       return;
     }
-    setLibrary(result.envelope.document);
+    setLibrary({ libraryId, document: result.envelope.document });
   }
 
   function chooseCandidates(supports: readonly string[]) {
@@ -90,7 +98,9 @@ export function HangerSizingForm({ model, busy = false }: Props) {
   }
 
   async function size() {
-    const assembled = assembleHangerSizingInput(form, model, library);
+    // Only the document opened for the selected id is sent; any other is no library at all.
+    const selected = library !== null && library.libraryId === form.libraryId ? library.document : null;
+    const assembled = assembleHangerSizingInput(form, model, selected);
     if (!assembled.ok) { setMissing(assembled.missing); return; }
     const requestLibrary = assembled.input.library;
     setRunning(true);
