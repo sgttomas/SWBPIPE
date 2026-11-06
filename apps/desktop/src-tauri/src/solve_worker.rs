@@ -11,7 +11,8 @@
 //! - Parent -> child, once: the request header `SWRQ`, then u64 task
 //!   (0 sparse_interactive solve, 1 dense_scrutiny solve, 2 the on-demand
 //!   model checks of `check_preview_model`, 3 the MBF export's render of
-//!   `review_mbf_export`/`save_mbf_export`), u64 initial grant, u64 maximum
+//!   `review_mbf_export`/`save_mbf_export`, 4 the hanger sizing of
+//!   `size_hangers`), u64 initial grant, u64 maximum
 //!   grant (the per-invocation budget), u64 process reserve, u64 raw length L,
 //!   then L raw model bytes (UTF-8 JSON). The child closes every inherited fd
 //!   but stdio and its control pair, and reads all of the request before its
@@ -161,12 +162,16 @@ pub(crate) fn initial_grant(reserve: u64, ingress_bound: u64) -> Option<u64> {
 /// model checks (DEL-04-06 Design `on-demand-model-checks.md`), which run the
 /// solve's own checks before stiffness formation under the same capped grant,
 /// or the MBF export's render (DEL-17-04 Design `desktop-mbf-export-import.md`
-/// §3.9.5, task 3: [`crate::mbf_export::worker_render`]), which attests nothing.
+/// §3.9.5, task 3: [`crate::mbf_export::worker_render`]), which attests nothing,
+/// or the hanger sizing (DEL-04-11 Design `hanger-sizing.md` §13, increment 3c
+/// part 2, task 4: `open_pipe_stress_hanger_sizing::desktop::size_and_read`),
+/// which attests nothing either.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum WorkerTask {
     Solve(PreviewSolverMode),
     ModelChecks,
     MbfRender,
+    HangerSizing,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -184,6 +189,7 @@ fn task_code(task: WorkerTask) -> u64 {
         WorkerTask::Solve(PreviewSolverMode::DenseScrutiny) => 1,
         WorkerTask::ModelChecks => 2,
         WorkerTask::MbfRender => 3,
+        WorkerTask::HangerSizing => 4,
     }
 }
 
@@ -207,6 +213,7 @@ fn decode_request(bytes: &[u8; REQUEST_BYTES]) -> Option<Request> {
         1 => WorkerTask::Solve(PreviewSolverMode::DenseScrutiny),
         2 => WorkerTask::ModelChecks,
         3 => WorkerTask::MbfRender,
+        4 => WorkerTask::HangerSizing,
         _ => return None,
     };
     let request = Request { task, initial_grant: field(1), max_grant: field(2), reserve: field(3), raw_len: field(4) };
@@ -515,7 +522,7 @@ fn workload(raw: Vec<u8>, task: WorkerTask) -> Result<(String, Option<SolveAttes
     if let Some(workload) = tests::scripted_workload() {
         let mode = match task {
             WorkerTask::Solve(mode) => mode,
-            WorkerTask::ModelChecks | WorkerTask::MbfRender => PreviewSolverMode::SparseInteractive,
+            WorkerTask::ModelChecks | WorkerTask::MbfRender | WorkerTask::HangerSizing => PreviewSolverMode::SparseInteractive,
         };
         return tests::run_scripted_attested(&workload, raw, mode);
     }
@@ -526,7 +533,19 @@ fn workload(raw: Vec<u8>, task: WorkerTask) -> Result<(String, Option<SolveAttes
         // The MBF render attests nothing either; its failure is already a
         // named, bounded `<code>: <message>` with no engine text.
         WorkerTask::MbfRender => crate::mbf_export::worker_render(&raw).map(|envelope| (envelope, None)),
+        // The sizing attests nothing (`ATST` status 0); its refusal of the
+        // input bytes is the worker's `FAIL` with its code and message.
+        WorkerTask::HangerSizing => hanger_sizing(&raw).map(|reply| (reply, None)),
     }
+}
+
+/// Task 4: the crate's size-and-read entry on the raw headless input, its one
+/// JSON reply text `{document, evidence}` (DEL-04-11 Design §13, 3c part 1),
+/// or `<code>: <message>` of its typed refusal.
+fn hanger_sizing(raw: &[u8]) -> Result<String, String> {
+    open_pipe_stress_hanger_sizing::desktop::size_and_read(raw)
+        .map(open_pipe_stress_hanger_sizing::desktop::SizeAndRead::into_reply)
+        .map_err(|error| format!("{}: {}", error.code(), error.message()))
 }
 
 /// The on-demand model checks: the raw `{model}` args body, materialized here
@@ -2729,10 +2748,10 @@ pub(crate) mod tests {
         assert!(max <= grant, "the footprint stayed within the grant");
     }
 
-    /// Every task code round-trips (0-2 unchanged, 3 the MBF render), an
-    /// unassigned code is refused, and task 3's workload is exactly
-    /// `mbf_export::worker_render` on the raw request: its envelope with no
-    /// attestation (`ATST` status 0), or its named failure.
+    /// Every task code round-trips (0-2 unchanged, 3 the MBF render, 4 the
+    /// hanger sizing), an unassigned code is refused, and task 3's workload is
+    /// exactly `mbf_export::worker_render` on the raw request: its envelope
+    /// with no attestation (`ATST` status 0), or its named failure.
     #[test]
     fn every_task_code_round_trips_and_task_3_is_the_mbf_render() {
         let tasks = [
@@ -2740,6 +2759,7 @@ pub(crate) mod tests {
             (WorkerTask::Solve(PreviewSolverMode::DenseScrutiny), 1),
             (WorkerTask::ModelChecks, 2),
             (WorkerTask::MbfRender, 3),
+            (WorkerTask::HangerSizing, 4),
         ];
         let request = Request { task: WorkerTask::MbfRender, initial_grant: 2 * MIB, max_grant: 4 * MIB, reserve: MIB, raw_len: 7 };
         for (task, code) in tasks {
@@ -2749,7 +2769,7 @@ pub(crate) mod tests {
             assert_eq!(u64::from_le_bytes(bytes[4..12].try_into().unwrap()), code);
             assert_eq!(decode_request(&bytes), Some(request));
         }
-        for unassigned in [4u64, 5, u64::MAX] {
+        for unassigned in [5u64, 6, u64::MAX] {
             let mut bytes = encode_request(&request);
             bytes[4..12].copy_from_slice(&unassigned.to_le_bytes());
             assert_eq!(decode_request(&bytes), None, "task {unassigned}");
@@ -2765,6 +2785,20 @@ pub(crate) mod tests {
             let expected = crate::mbf_export::worker_render(&raw).map(|envelope| (envelope, None));
             assert_eq!(workload(raw, WorkerTask::MbfRender), expected);
         }
+    }
+
+    /// Task 4's workload is exactly `size_and_read` on the raw headless input:
+    /// its reply with no attestation (`ATST` status 0), or its typed refusal
+    /// as `<code>: <message>` (the worker's `FAIL`).
+    #[test]
+    fn task_4_is_the_hanger_size_and_read() {
+        use open_pipe_stress_hanger_sizing::desktop::{size_and_read, SizeAndReadError};
+        let input = include_str!("../../../../fixtures/results/hanger_sizing_input_two_span.json").as_bytes();
+        let expected = size_and_read(input).unwrap().into_reply();
+        assert_eq!(workload(input.to_vec(), WorkerTask::HangerSizing), Ok((expected, None)));
+        let not_utf8 = vec![b'{', 0xff, b'}'];
+        let error = SizeAndReadError::NotUtf8 { valid_up_to: 1 };
+        assert_eq!(workload(not_utf8, WorkerTask::HangerSizing), Err(format!("{}: {}", error.code(), error.message())));
     }
 
     /// Larger per-invocation budgets (owner policy: any budget up to the

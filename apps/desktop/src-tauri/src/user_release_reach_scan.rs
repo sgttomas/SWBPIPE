@@ -583,14 +583,19 @@ const ENTRY_RULES: [(&str, &str, Entry); 6] = [
 /// and after the 4b.2a repair (review at 9c5785a6d) added one ordinary handler
 /// entry, `cancel_mbf_export` (the previous digest `5f61b13b…1671cf6`
 /// reproduced first; the macro's only change is that line; reviewed likewise:
-/// no `mod`, no `$parameter ::`, no scanned name).
+/// no `mod`, no `$parameter ::`, no scanned name), and after DEL-04-11
+/// increment 3c part 2 (`hanger-sizing.md` §13) added two ordinary handler
+/// entries, `size_hangers` and `cancel_hanger_sizing`, after
+/// `cancel_mbf_export` (the previous digest `99d282f6…6eba6` reproduced
+/// first; the macro's only change is those two lines; reviewed likewise: no
+/// `mod`, no `$parameter ::`, no scanned name).
 /// RT-A4 §10.4 (#98) re-pinned both headless macros: each `read` closure
 /// now chooses between the current reader and its `reader_verdict::*_recorded`
 /// twin by the input's `recorded_binding` member (were e4ca5430…/b000ef8e…;
 /// reviewed: no `mod`, no `$parameter ::`, no scanned name; `rv::` was
 /// already named; still one `Reader` literal each).
 const MACRO_DEFINITIONS: [(&str, &str, &str); 3] = [
-    ("src-tauri/src/lib.rs", "app_invoke_handler", "99d282f6da1c86cb6ca0764162b4f4b2e25d27fdb451460896cb70dc4e36eba6"),
+    ("src-tauri/src/lib.rs", "app_invoke_handler", "3eb2fe1ce93e49e4813e90d06b840645e0e62e23fb228d9aa5bfb30c117ce069"),
     ("headless/src/reader_binding.rs", "base", "d80e766036e0f651522ebfe11ebc6ba1fc32ec2b9c2b3702e0b978eb86558cb2"),
     ("headless/src/reader_binding.rs", "transport", "057aa56311a7531f094632a3fe9f2d781b9364ab4865add6c7d257403732169a"),
 ];
@@ -660,7 +665,7 @@ pub(crate) const BUILD_SCRIPTS: [(&str, usize, &str); 1] =
 /// dependencies they would let a build that sets `cfg(test)` compile the
 /// scan's test modules, so moving one, like any other change here, is a
 /// finding until reviewed.
-pub(crate) const SHELL_DEPENDENCIES: [&str; 38] = [
+pub(crate) const SHELL_DEPENDENCIES: [&str; 39] = [
     "dev proc-macro2",
     "dev syn",
     "normal bytes (cfg(target_os = \"macos\"))",
@@ -675,6 +680,7 @@ pub(crate) const SHELL_DEPENDENCIES: [&str; 38] = [
     "normal open_pipe_stress_audit_manifest",
     "normal open_pipe_stress_caepipe_mbf",
     "normal open_pipe_stress_canonical_json",
+    "normal open_pipe_stress_hanger_sizing",
     "normal open_pipe_stress_library_import_document",
     "normal open_pipe_stress_operation_applier",
     "normal open_pipe_stress_product_physics",

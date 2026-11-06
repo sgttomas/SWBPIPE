@@ -31,6 +31,11 @@ open_pipe_stress_result_export = { path = "../../../core/reporting/result_export
 open_pipe_stress_rule_pack_document = { path = "../../../core/rules/rule_pack_document" }
 open_pipe_stress_rule_check_runner = { path = "../../../core/rules/rule_check_runner" }
 open_pipe_stress_units = { path = "../../../core/units" }
+# Hanger sizing (DEL-04-11 increment 3c part 2): the capped worker's task 4
+# runs the crate's native size-and-read entry (`hanger_sizing_job.rs`). Its
+# dependencies are already in this closure, so Cargo.lock adds only the path
+# package and no registry version changes.
+open_pipe_stress_hanger_sizing = { path = "../../../core/analysis/hanger_sizing" }
 # `limits` (no new package): the native Record Run and Save Project read the
 # writing connection's `SQLITE_LIMIT_LENGTH` before they build or write a
 # result (DEL-04-05 `c1-native-custody-plan.md` slice 5). `blob` (no new

@@ -843,6 +843,9 @@ pub(crate) struct SolveJobRegistry {
     reserve: u64,
     /// The on-demand model check in progress, if any.
     checks: Arc<Mutex<Option<Arc<CheckControl>>>>,
+    /// The hanger sizing in progress, if any (`hanger_sizing_job`): its own
+    /// one-current slot, apart from the model check's and the MBF export's.
+    hanger_sizing: crate::hanger_sizing_job::HangerSizingRuns,
     /// The largest result a solve job may publish:
     /// [`MAX_DISPLAYABLE_RESULT_BYTES`], lowered only by tests.
     result_limit: u64,
@@ -934,6 +937,7 @@ impl SolveJobRegistry {
             spawn,
             reserve: PROCESS_RESERVE_BYTES,
             checks: Arc::default(),
+            hanger_sizing: crate::hanger_sizing_job::HangerSizingRuns::default(),
             result_limit: MAX_DISPLAYABLE_RESULT_BYTES,
         }
     }
@@ -960,6 +964,11 @@ impl SolveJobRegistry {
     /// The worker's process reserve the registry starts its workers with.
     pub(crate) fn process_reserve(&self) -> u64 {
         self.reserve
+    }
+
+    /// The hanger sizing's runs (`size_hangers`, `cancel_hanger_sizing`).
+    pub(crate) fn hanger_sizing_runs(&self) -> &crate::hanger_sizing_job::HangerSizingRuns {
+        &self.hanger_sizing
     }
 
     fn table(&self) -> MutexGuard<'_, SolveJobTable> {
@@ -2001,6 +2010,8 @@ impl SolveJobRegistry {
         // An on-demand model check in progress belongs to the page that is gone.
         drop(table);
         self.cancel_model_checks();
+        // So does a hanger sizing in progress (its own slot, `hanger_sizing_job`).
+        self.hanger_sizing.cancel_current(&self.pool);
         receipt
     }
 
