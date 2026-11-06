@@ -107,6 +107,10 @@ pub(crate) const REACTION_COMPONENT_KIND: &str = "support_reaction_component_v2"
 pub(crate) const REACTION_FORCE_MAGNITUDE_KIND: &str = "support_reaction_force_magnitude_v2";
 pub(crate) const REACTION_MOMENT_MAGNITUDE_KIND: &str = "support_reaction_moment_magnitude_v2";
 pub(crate) const SUPPORT_STATE_ROW_KIND: &str = "nonlinear_support_active_set_state_code";
+/// `supportLoadSummary.ts` `SUPPORT_ALONG_DIRECTION_KIND`: S-K1's along-direction reaction (R-6/R-7).
+pub(crate) const SUPPORT_ALONG_DIRECTION_KIND: &str = "support_reaction_along_direction_v1";
+/// `supportLoadSummary.ts` `SUPPORT_ALONG_MULTIPLE`.
+const SUPPORT_ALONG_MULTIPLE: &str = "more than one along-direction row was emitted for this case; none is listed";
 const SUPPORT_LOAD_FRAME: &str = "global";
 const MECHANICS_SOLVED: &str = "MECHANICS_SOLVED";
 
@@ -827,6 +831,7 @@ fn support_summary<'a>(
     model: &'a Value,
     reactions: &ByEntity<'a>,
     movements: &ByEntity<'a>,
+    along: &ByEntity<'a>,
     attributions: &[HashMap<&'a str, String>],
     cases: &[Case<'a>],
     standing: Option<&Standing>,
@@ -844,7 +849,7 @@ fn support_summary<'a>(
             exclusions.0 += 1;
             rows_out.push(json!({
                 "case": case.to_json(), "standing": "withheld", "withheldReason": case_withheld_reason(standing, Some(&case.basis)),
-                "reactionAbsence": null, "reactionAbsenceDetail": null, "values": {}, "inExtremes": false
+                "reactionAbsence": null, "reactionAbsenceDetail": null, "values": {}, "along": null, "alongDetail": null, "inExtremes": false
             }));
             continue;
         }
@@ -897,9 +902,24 @@ fn support_summary<'a>(
                 map.insert(COLUMNS[column].0.into(), value.clone());
             }
         }
+        // S-K1 (`supportLoadSummary.ts`): one along row for the support and case is listed; more
+        // than one is not resolved by choosing (none is listed, and the reason is stated).
+        let along_rows = along.get(&js_key(support.get("id"))).and_then(|by| by.get(&case.key)).unwrap_or(&empty);
+        let along_value = match along_rows.as_slice() {
+            [row] => object([
+                ("value", Some(json!(finite(row.get("value")).expect("indexed rows are finite")))),
+                ("unit", copied(row.get("unit"))),
+                ("resultId", copied(row.get("id"))),
+                ("signConvention", Some(meta(row, "sign_convention").filter(|v| !v.is_null()).cloned().unwrap_or(Value::Null))),
+                ("derivation", Some(derived_row_note(row).map_or(Value::Null, |note| json!(note)))),
+            ]),
+            _ => Value::Null,
+        };
+        let along_detail = if along_rows.len() > 1 { json!(SUPPORT_ALONG_MULTIPLE) } else { Value::Null };
         rows_out.push(json!({
             "case": case.to_json(), "standing": "admitted", "withheldReason": null,
-            "reactionAbsence": absence, "reactionAbsenceDetail": detail, "values": Value::Object(map), "inExtremes": extremes_row
+            "reactionAbsence": absence, "reactionAbsenceDetail": detail, "values": Value::Object(map),
+            "along": along_value, "alongDetail": along_detail, "inExtremes": extremes_row
         }));
         if extremes_row {
             in_extremes.push((case_index, values));
@@ -934,6 +954,7 @@ fn support_summary<'a>(
         ("equipment", Some(equipment.unwrap_or(Value::Null))),
         ("equipmentInterfaces", Some(json!(interfaces))),
         ("signConvention", Some(sign_convention.unwrap_or(Value::Null))),
+        ("direction", Some(stored_direction(support))),
         ("rows", Some(json!(rows_out))),
         ("extremes", Some(json!(extremes))),
         ("extremeRowCount", Some(json!(in_extremes.len()))),
@@ -988,12 +1009,31 @@ fn extreme(id: &str, listed: &[(usize, &Value)], cases: &[Case], key: &str, note
     Value::Object(out)
 }
 
-fn index_rows<'a>(source: &'a Value) -> (ByEntity<'a>, ByEntity<'a>) {
+/// `storedDirection(support)`: the model support's stored `direction` member, as authored, when
+/// it is an object whose `x`, `y` and `z` are all numbers; else null.
+fn stored_direction(support: &Value) -> Value {
+    match support.get("direction") {
+        Some(Value::Object(direction)) => match (direction.get("x"), direction.get("y"), direction.get("z")) {
+            (Some(x @ Value::Number(_)), Some(y @ Value::Number(_)), Some(z @ Value::Number(_))) => json!({"x": x, "y": y, "z": z}),
+            _ => Value::Null,
+        },
+        _ => Value::Null,
+    }
+}
+
+/// The reaction, node-movement and (S-K1) along-direction indexes, in one pass over the rows: an
+/// along row goes to its own index only, never a reaction column, extreme or CSV row.
+fn index_rows<'a>(source: &'a Value) -> (ByEntity<'a>, ByEntity<'a>, ByEntity<'a>) {
     let mut reactions: ByEntity = HashMap::new();
     let mut movements: ByEntity = HashMap::new();
+    let mut along: ByEntity = HashMap::new();
     for row in rows(source) {
         let Some(key) = basis_key(row.get("basis_ref")) else { continue };
         if finite(row.get("value")).is_none() {
+            continue;
+        }
+        if is_str(row.get("kind"), SUPPORT_ALONG_DIRECTION_KIND) {
+            along.entry(js_key(row.get("entity_ref"))).or_default().entry(key).or_default().push(row);
             continue;
         }
         let target = column_of(row).map(|c| COLUMNS[c].3);
@@ -1006,7 +1046,7 @@ fn index_rows<'a>(source: &'a Value) -> (ByEntity<'a>, ByEntity<'a>) {
         };
         index.entry(js_key(row.get("entity_ref"))).or_default().entry(key).or_default().push(row);
     }
-    (reactions, movements)
+    (reactions, movements, along)
 }
 
 fn unavailable_support_summaries(reason: &str) -> Value {
@@ -1025,12 +1065,12 @@ pub(crate) fn support_load_summaries<'a>(model: &'a Value, source: &'a Value, ca
     if cases.is_empty() {
         return unavailable_support_summaries("No load case or combination with result rows");
     }
-    let (reactions, movements) = index_rows(source);
+    let (reactions, movements, along) = index_rows(source);
     let attributions: Vec<HashMap<&str, String>> = cases.iter().map(|case| withheld_attributions(source, case).into_iter().collect()).collect();
     json!({
         "state": "available", "reason": null, "frame": SUPPORT_LOAD_FRAME,
         "cases": cases.iter().map(Case::to_json).collect::<Vec<_>>(),
-        "supports": supports.iter().map(|s| support_summary(s, model, &reactions, &movements, &attributions, cases, standing)).collect::<Vec<_>>()
+        "supports": supports.iter().map(|s| support_summary(s, model, &reactions, &movements, &along, &attributions, cases, standing)).collect::<Vec<_>>()
     })
 }
 

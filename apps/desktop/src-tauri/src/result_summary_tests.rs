@@ -815,3 +815,58 @@ fn a_declared_operating_comparison_is_drawn_as_a_plain_subtraction_and_named_in_
     case_row["basis_ref"] = json!({"ref_type": "load_case", "ref_id": "load:L-1"});
     assert_eq!(declared_difference_note(&case_row), None);
 }
+
+/// S-K1 R-6/R-7 (`supportLoadSummary.ts`): a support's along-direction rows are listed per case
+/// as `along` (exactly one row: its value, unit, id, sign convention and derivation) or, with
+/// more than one, none with `alongDetail` stating why; `direction` is the model support's stored
+/// `direction` member when its x, y and z are numbers. Along rows are never a column or an extreme.
+#[test]
+fn along_direction_rows_are_listed_per_case_and_never_a_column() {
+    use crate::result_summary_tables::{support_load_cases, support_load_summaries, SUPPORT_ALONG_DIRECTION_KIND};
+    let l = |case: &str| json!({"ref_type": "load_case", "ref_id": case});
+    let fx = |support: &str, case: &str, value: f64| json!({"id": format!("r:{support}:{case}"), "kind": "support_reaction_component_v2", "entity_ref": support,
+        "value": value, "unit": "N", "basis_ref": l(case), "metadata": {"component": "Fx", "coordinate_system": "global", "sign_convention": "global +x"}});
+    let along = |id: &str, support: &str, case: &str, value: Value, metadata: Value| json!({"id": id, "kind": SUPPORT_ALONG_DIRECTION_KIND, "entity_ref": support,
+        "value": value, "unit": "N", "basis_ref": l(case), "metadata": metadata});
+    let md = json!({"component": "along_direction", "coordinate_system": "support_direction", "sign_convention": "along +d"});
+    let model = json!({"supports": [
+        {"id": "S1", "node": "n1", "family": "line_stop", "direction": {"x": 1, "y": 1, "z": -0.0}},
+        {"id": "S2", "node": "n2", "family": "line_stop", "direction": {"x": "1", "y": 0, "z": 0}},
+        {"id": "S3", "node": "n3", "family": "anchor"}
+    ], "load_cases": [{"id": "L1"}, {"id": "L2"}]});
+    let source = json!({"status": {"mechanics": "MECHANICS_SOLVED"}, "results": [
+        fx("S1", "L1", 1.0), fx("S1", "L2", -2.0), fx("S2", "L1", 3.0), fx("S3", "L1", 4.0),
+        along("a1", "S1", "L1", json!(5.5), md.clone()),
+        along("a2", "S1", "L2", json!(1.0), md.clone()), along("a3", "S1", "L2", json!(2.0), md.clone()),
+        along("a4", "S2", "L1", json!(0.0), Value::Null),
+        along("a5", "S3", "L1", Value::Null, md.clone())
+    ]});
+    let cases = support_load_cases(&model, &source);
+    // Without a numerical standing every case is withheld: no along value is listed.
+    let withheld = support_load_summaries(&model, &source, &cases, None);
+    assert!(withheld["supports"].as_array().unwrap().iter().flat_map(|s| s["rows"].as_array().unwrap())
+        .all(|r| r["standing"] == "withheld" && r["along"].is_null() && r["alongDetail"].is_null()));
+    let health_cases: Vec<Value> = ["L1", "L2"].iter().map(|id| json!({"case_id": id, "state": "checks_passed",
+        "code": null, "integrity_diagnostic_id": null, "rcond": null, "digits": null, "conditioning_sensitive": false, "causes": []})).collect();
+    let health = json!({"route": "generic", "verdict_only": false, "combinations": [], "cases": health_cases});
+    let standing = Standing { eligible: true, health: tables::health_view(&health) };
+    let summaries = support_load_summaries(&model, &source, &cases, Some(&standing));
+    let supports = summaries["supports"].as_array().unwrap();
+    let row = |s: usize, case: &str| supports[s]["rows"].as_array().unwrap().iter().find(|r| r["case"]["basis"]["ref_id"] == case).unwrap().clone();
+    assert_eq!(row(0, "L1")["along"], json!({"value": 5.5, "unit": "N", "resultId": "a1", "signConvention": "along +d", "derivation": null}));
+    assert_eq!(row(0, "L1")["alongDetail"], Value::Null);
+    assert_eq!(row(0, "L2")["along"], Value::Null);
+    assert_eq!(row(0, "L2")["alongDetail"], json!("more than one along-direction row was emitted for this case; none is listed"));
+    assert_eq!(row(1, "L1")["along"], json!({"value": 0.0, "unit": "N", "resultId": "a4", "signConvention": null, "derivation": null}));
+    // A value that is not a number is not indexed (as the webview's `Number.isFinite`).
+    assert_eq!((row(2, "L1")["along"].clone(), row(2, "L1")["alongDetail"].clone()), (Value::Null, Value::Null));
+    assert_eq!(supports[0]["direction"], json!({"x": 1, "y": 1, "z": -0.0}));
+    assert_eq!(supports[1]["direction"], Value::Null, "a direction member that is not three numbers");
+    assert_eq!(supports[2]["direction"], Value::Null, "no direction member");
+    for support in supports {
+        for r in support["rows"].as_array().unwrap() {
+            assert!(r["values"].as_object().unwrap().keys().all(|k| k == "Fx"), "an along row is never a column: {r}");
+        }
+        assert!(support["extremes"].as_array().unwrap().iter().all(|e| e["column"] != "along_direction"));
+    }
+}

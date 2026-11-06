@@ -1593,6 +1593,21 @@
         "body": "raw",
         "ok": true
       }
+    },
+    {
+      "args": {
+        "jobId": "$HANDLE",
+        "kinds": [
+          "support_reaction_along_direction_v1"
+        ],
+        "match": "first"
+      },
+      "command": "lookup_preview_mechanics_job_rows",
+      "reply": {
+        "base64": "U1dCREVUdjHwAAAAAAAAAHsiZG9jdW1lbnRfa2luZCI6InN3YnBpcGUuZGVza3RvcC5yZXN1bHRfZGV0YWlsX2xvb2t1cCIsImlkcyI6W10sImpvYl9pZCI6InJlc3RvcmVkLXN0b3JlZC1yZXN1bHQtMiIsImtpbmRzIjpbeyJraW5kIjoic3VwcG9ydF9yZWFjdGlvbl9hbG9uZ19kaXJlY3Rpb25fdjEiLCJyb3ciOm51bGx9XSwibGVuZ3RocyI6W10sIm1hdGNoIjoiZmlyc3QiLCJvcmRpbmFscyI6W10sInJvd19jb3VudCI6MzIxLCJ2ZXJzaW9uIjoxfQ==",
+        "body": "raw",
+        "ok": true
+      }
     }
   ],
   "source_path": "fixtures/results/pressure_connected_ui_mechanics_sparse.json"
