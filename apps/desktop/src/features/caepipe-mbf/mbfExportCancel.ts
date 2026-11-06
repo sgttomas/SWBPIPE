@@ -62,9 +62,29 @@
 // failure never holds a start: the chain moves on once a delivery settles. Re-delivering is safe: no start has been
 // sent since the retirement was requested, so only runs of retired sessions are cancelled; and as it reuses the
 // retirement's id, a re-delivery of a retirement the host did apply (only its reply was lost) is a no-op there.
+//
+// Export unavailable in this page. A save whose outcome is unknown (`mbfSaveOutcomeUnknown`: refused
+// `INGRESS-RAW-BODY-REQUIRED`, as an outcome or as a rejection) shows that this page's transport has switched to its
+// fallback, which lasts for the rest of the page and cannot carry a start. From then on this page sends no review
+// and no save: each start is refused here, before any send, `MBF-EXPORT-UNAVAILABLE`, whose text repeats what to do
+// (check the folder for both files, reload the window or restart SWBPIPE). The state is the page's, beside the page
+// token: a dialog's settings, a new review, a close and reopen and a new project session leave it as it is, and only a
+// new page (a reload, or a restart) starts without it. Every save the barrier sends is judged, whether its dialog is
+// open, closed or replaced, since the transport is the page's. It infers nothing about what the save wrote, and the
+// save's own outcome is still reported as unknown. Retirements are not held by it: `cancel_mbf_export` is sent in the
+// JSON form, which still reaches the host after the fallback, so an admitted save before its commit can still be
+// stopped.
 import { invoke } from "@tauri-apps/api/core";
 import { IngressRequestRetiredError, invokeWithIngress } from "../../services/nativeIngress";
-import type { MbfExportArgs, MbfExportSaveOutcome, MbfReviewArgs, MbfReviewOutcome } from "./mbfExport";
+import {
+  MBF_EXPORT_UNAVAILABLE,
+  mbfFailureDiagnostic,
+  mbfSaveOutcomeUnknown,
+  type MbfExportArgs,
+  type MbfExportSaveOutcome,
+  type MbfReviewArgs,
+  type MbfReviewOutcome
+} from "./mbfExport";
 
 /** One logical retirement's id: this page's token and the retirement's sequence in this page. */
 export type MbfRetirementId = { page: string; sequence: number };
@@ -194,6 +214,36 @@ export type MbfStarted<T> = { outcome: T; generation: number; current: () => boo
  * unmount and React Strict Mode's re-run all make it false). */
 export type MbfStillCurrent = () => boolean;
 
+// Whether this page can no longer send an export (see "Export unavailable in this page" above), and who is told when
+// it becomes so.
+let unavailable = false;
+const unavailableListeners = new Set<() => void>();
+
+/** Whether this page sends no further review or save: a save's outcome was unknown (`mbfSaveOutcomeUnknown`). */
+export function mbfExportUnavailable(): boolean {
+  return unavailable;
+}
+
+/** Marks this page as one that sends no further review or save, until the page is reloaded or SWBPIPE restarts. */
+export function markMbfExportUnavailable(): void {
+  if (unavailable) return;
+  unavailable = true;
+  for (const listener of [...unavailableListeners]) listener();
+}
+
+/** Calls `listener` when this page becomes unavailable for export; the returned function stops it. */
+export function subscribeMbfExportUnavailable(listener: () => void): () => void {
+  unavailableListeners.add(listener);
+  return () => { unavailableListeners.delete(listener); };
+}
+
+/** Tests only: a fresh page's export state, as a reload gives. */
+export function resetMbfExportUnavailableForTests(): void {
+  unavailable = false;
+}
+
+const UNAVAILABLE_MESSAGE = "The export did not start: this window can no longer send exports. Nothing was sent.";
+
 async function start<T>(
   command: "review_mbf_export" | "save_mbf_export",
   args: Record<string, unknown>,
@@ -203,14 +253,18 @@ async function start<T>(
   const started = generation;
   const current = () => started === generation && (stillCurrent?.() ?? true);
   const result = (outcome: T): MbfStarted<T> => ({ outcome, generation: started, current });
+  if (unavailable) return result(refused(MBF_EXPORT_UNAVAILABLE, UNAVAILABLE_MESSAGE));
   const confirmed = await retirementSettled();
   if (!current()) return result(refused(MBF_EXPORT_CANCELLED, CANCELLED_MESSAGE));
+  if (unavailable) return result(refused(MBF_EXPORT_UNAVAILABLE, UNAVAILABLE_MESSAGE));
   const ticket = acknowledgedEpoch;
   if (!confirmed || ticket === null) return result(refused(MBF_EXPORT_RETIREMENT_UNCONFIRMED, UNCONFIRMED_MESSAGE));
-  // The ticket is taken once, here, and every send of this start (a headroom re-send included) carries it.
+  // The ticket is taken once, here, and every send of this start (a headroom re-send included) carries it. A headroom
+  // re-send is not sent once the page has become unavailable; it resolves cancelled, as the first send was refused
+  // before anything ran.
   const request = { ...args, [EXPECTED_EPOCH]: ticket };
   try {
-    return result(await invokeWithIngress<T>(command, request, { stillCurrent: current }));
+    return result(await invokeWithIngress<T>(command, request, { stillCurrent: () => current() && !unavailable }));
   } catch (error) {
     if (error instanceof IngressRequestRetiredError) return result(refused(MBF_EXPORT_CANCELLED, CANCELLED_MESSAGE));
     throw error;
@@ -225,10 +279,19 @@ export function reviewMbfExport(args: MbfReviewArgs, stillCurrent?: MbfStillCurr
   }));
 }
 
-/** The native `save_mbf_export` through the barrier. */
-export function saveMbfExport(args: MbfExportArgs, stillCurrent?: MbfStillCurrent): Promise<MbfStarted<MbfExportSaveOutcome>> {
-  return start<MbfExportSaveOutcome>("save_mbf_export", args as unknown as Record<string, unknown>, stillCurrent, (code, message) => ({
-    outcome: "refused",
-    diagnostics: [{ code, path: "", message }]
-  }));
+/** The native `save_mbf_export` through the barrier. A save whose outcome is unknown, refused or rejected, marks this
+ * page unavailable for export before its outcome is returned, whether or not its caller still wants it. */
+export async function saveMbfExport(args: MbfExportArgs, stillCurrent?: MbfStillCurrent): Promise<MbfStarted<MbfExportSaveOutcome>> {
+  let started: MbfStarted<MbfExportSaveOutcome>;
+  try {
+    started = await start<MbfExportSaveOutcome>("save_mbf_export", args as unknown as Record<string, unknown>, stillCurrent, (code, message) => ({
+      outcome: "refused",
+      diagnostics: [{ code, path: "", message }]
+    }));
+  } catch (error) {
+    if (mbfSaveOutcomeUnknown([mbfFailureDiagnostic(error)])) markMbfExportUnavailable();
+    throw error;
+  }
+  if (started.outcome.outcome === "refused" && mbfSaveOutcomeUnknown(started.outcome.diagnostics)) markMbfExportUnavailable();
+  return started;
 }

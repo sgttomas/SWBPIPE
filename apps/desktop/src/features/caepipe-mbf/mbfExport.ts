@@ -406,6 +406,11 @@ export const MBF_EXPORT_RETIREMENT_ID_INVALID = "MBF-EXPORT-RETIREMENT-ID-INVALI
  * cannot carry the export's request (§3.7, "Source basis and limits"). For a review this means nothing was written; for
  * a save the outcome is unknown (`MBF_SAVE_REFUSAL_TEXT`). */
 export const INGRESS_RAW_BODY_REQUIRED = "INGRESS-RAW-BODY-REQUIRED";
+/** A start this page did not send because an earlier save's outcome was unknown (`mbfSaveOutcomeUnknown`): the page's
+ * connection to the app can no longer carry an export, until the window is reloaded or SWBPIPE restarts
+ * (`mbfExportCancel.ts`, "Export unavailable in this page"). Nothing was sent for this start; what the earlier save
+ * wrote stays unknown, so its text repeats where to look. */
+export const MBF_EXPORT_UNAVAILABLE = "MBF-EXPORT-UNAVAILABLE";
 /** A failure of the review or the save that has no code of its own. */
 export const MBF_EXPORT_FAILED = "MBF-EXPORT-FAILED";
 
@@ -420,7 +425,9 @@ export const MBF_EXPORT_REFUSAL_TEXT: Readonly<Record<string, string>> = {
   [MBF_EXPORT_RETIREMENT_ID_INVALID]:
     "SWBPIPE could not stop an earlier export because it could not accept the request to stop it. Try again; if it keeps happening, restart SWBPIPE.",
   [INGRESS_RAW_BODY_REQUIRED]:
-    "Export isn't available in this window. Nothing was written. Reload the window or restart SWBPIPE to export again."
+    "Export isn't available in this window. Nothing was written. Reload the window or restart SWBPIPE to export again.",
+  [MBF_EXPORT_UNAVAILABLE]:
+    "Export isn't available in this window: SWBPIPE could not confirm whether an earlier export wrote its files. This export did not start. If you chose a folder for the earlier export, check that folder for the model batch file and its identity file. Reload the window or restart SWBPIPE to export again."
 };
 
 /** The save's own text for the codes whose meaning differs for a save (§3.3, §3.7 "Source basis and limits"). A review
