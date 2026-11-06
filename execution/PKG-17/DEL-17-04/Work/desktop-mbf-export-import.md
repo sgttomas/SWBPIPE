@@ -451,7 +451,9 @@ maxLayoutRows: null}`: the text the review ran with. In order:
      (`expectedEpoch`) that a retirement (`cancel_mbf_export`, the session's reset) has since
      passed is cancelled, whenever its task runs: at its entry, before the model is decoded, or
      when it registers its run. It replies `MBF-EXPORT-CANCELLED`, with no worker, no chooser
-     and no write (§3.7, "Dispatch ticket").
+     and no write (§3.7, "Dispatch ticket"). Once the epoch is exhausted (§3.7) every save is
+     refused `MBF-EXPORT-EPOCH-EXHAUSTED` at its entry, or cancelled when it registers, the same
+     way.
 8. **Writes.** No failure loses a file the user already had. The output ceiling is decided at
    step 5, before any write, so it never truncates valid file bytes and never leaves a partial
    pair.
@@ -555,7 +557,7 @@ only the staleness check of step 6.
   (`dispose_all_preview_mechanics_results`, on page load) are *retirements*: each cancels every
   run in progress (a waiting run stops waiting, a running worker is killed and reaped before its
   grant is released, and a save before its commit writes nothing, §3.6 step 7) and moves a
-  monotone retirement epoch on. Every registered run stays tracked until its command ends,
+  monotone retirement epoch on, by a checked advance that never wraps. Every registered run stays tracked until its command ends,
   committed saves included; a cancel reports each run it stopped (`cancelled`) and each
   committed save it reached (`too_late`), and a run an earlier cancel stopped in neither.
 - **Dispatch ticket** (`expectedEpoch`). A run belongs to the retirement epoch its request
@@ -585,18 +587,35 @@ only the staleness check of step 6.
   - **Authority.** The ticket only binds a request to a retirement. It authorizes nothing: the
     route evidence, the reviewed digests, the review's truncation and the commit are checked
     as before.
+  - **Exhaustion.** A retirement that finds the epoch at `u64::MAX` cannot move it on, and the
+    export enters a terminal, fail-closed *exhausted* state rather than wrapping or saturating
+    (saturating would leave the tickets at `u64::MAX` current). That retirement cancels every
+    run in progress as any other does, and its reply adds `exhausted: true` with the epoch left
+    at `u64::MAX` (the member is absent otherwise). From then on every request is refused
+    `MBF-EXPORT-EPOCH-EXHAUSTED` at its entry, whatever its ticket, a command that entered
+    before is cancelled when it registers, and later retirements stay exhausted. The frontend
+    treats an exhausted reply as unacknowledged, so its starts refuse
+    `MBF-EXPORT-RETIREMENT-UNCONFIRMED`. Reaching it takes 2^64 retirements in one process; it
+    exists so the epoch's meaning cannot fail silently.
 - **The frontend barrier** (`features/caepipe-mbf/mbfExportCancel.ts`). Every MBF start
   (`reviewMbfExport`, `saveMbfExport`, raw-body ingress commands) and every retirement
   (`retireMbfExportSession`) goes through it. The workspace retires the export whenever it
   retires a project session (each new session generation, a project replaced by one with the
   same id included, React Strict Mode's re-run) and when it unmounts, independently of any
-  model check; slice 4b.2b's dialog retires it when it closes. A start captures the
-  retirement generation as it is called, waits for any retirement in progress, and checks
+  model check; slice 4b.2b's dialog retires it when it closes. **Serialized retirements:**
+  each `cancel_mbf_export` delivery is sent only after the one before it has settled
+  (acknowledged or not), and the page's first delivery only after the page-load reset
+  (`beginSessionResultCustodyReset`, which moves the native epoch on too) has settled. Tauri
+  sends each invoke as an independent request, so send order is no barrier: without the chain,
+  an earlier retirement could be applied natively after a later one was acknowledged and a
+  fresh start sent, and cancel that start. A start captures the
+  retirement generation as it is called, waits for the latest delivery (by the chain, every
+  delivery sent before it, the reset included, has then settled), and checks
   immediately before every send (a headroom re-send included) that no retirement has been
   requested since and that the caller's own session check (`stillCurrent`) holds; a stale
   start is never sent and resolves `MBF-EXPORT-CANCELLED`. **Ticket:** the barrier records the
-  latest epoch a `cancel_mbf_export` reply acknowledged; a reply without an epoch is not an
-  acknowledgement. A start takes that epoch once, when its wait is over and it is still
+  largest epoch any settled `cancel_mbf_export` delivery acknowledged; a reply without an
+  epoch, or an exhausted one, is not an acknowledgement. A start takes that epoch once, when its wait is over and it is still
   current, and sends it as `expectedEpoch`, the same bytes in every re-send. A stale start
   never refreshes its ticket; only a new, current start takes a newer acknowledgement. Until a
   retirement has been acknowledged in the page, the first start delivers one as its handshake,
@@ -605,10 +624,14 @@ only the staleness check of step 6.
   retired. **Semantics:** a retirement cancels every MBF run that started before it completed;
   a start issued during a retirement reaches native only after it is acknowledged and is not
   cancelled by it. **Fail-safe rule:** a start never treats an unacknowledged retirement (the
-  `cancel_mbf_export` invoke rejected or threw) as done. It re-delivers that retirement once
-  (shared by the starts waiting on it); if that is unacknowledged too, the start is not sent
-  and refuses `MBF-EXPORT-RETIREMENT-UNCONFIRMED`, and the next start tries again. No start has
-  been sent since the retirement was requested, so a re-delivery cancels only retired runs.
+  `cancel_mbf_export` invoke rejected or threw) as done. When the latest delivery is
+  unacknowledged it re-delivers it once (shared by the starts waiting on it); if that is
+  unacknowledged too, the start is not sent and refuses `MBF-EXPORT-RETIREMENT-UNCONFIRMED`,
+  and the next start tries again. An earlier unacknowledged delivery followed by an
+  acknowledged one needs no re-delivery: the later one cancels every run started before it,
+  and the earlier one adds no epoch. The chain moves on once a delivery settles, so a failed
+  one never holds a start. No start has been sent since the retirement was requested, so a
+  re-delivery cancels only retired runs.
 - **Host-side reservations.** The command's ledger (`NativeLeaseMemory`) is seeded with the
   lease. Each of these is reserved before it is made:
   - the settings' parse (1 MiB, for a settings text of at most 25 KiB);
@@ -1438,10 +1461,29 @@ the frontend. The production entry points run task 3 in the capped worker; `MBF-
   - *Mutations checked,* each failing a test, none by hanging: native code that ignores the ticket; a frontend
     ticket captured when the start is called; one epoch behind; no handshake; no ticket sent; no re-check before a
     re-send.
+- **Repair: serialized retirements and a non-wrapping epoch** (2026-11-05, the independent re-check at
+  f77172935).
+  - *Overlapping retirements could cancel a fresh run* (P2). Each delivery replaced the barrier's latest, and a
+    start waited only for that one; Tauri's invokes are independent requests, so retirement A sent before B could
+    be applied natively after B was acknowledged and a fresh start sent. Retirement deliveries are now a chain
+    (§3.7, "Serialized retirements"), headed by the page-load reset.
+  - *The epoch could wrap* (P3). `MbfRuns::retire` advances it with `checked_add`; on overflow the export is
+    exhausted (§3.7, "Exhaustion"), with the new code `MBF-EXPORT-EPOCH-EXHAUSTED`.
+  - *Tests added:* Rust: the epoch seeded at `u64::MAX - 1` and retired twice, with a review running at
+    `u64::MAX`: no wrap, the review cancelled and its worker reaped, the reply `exhausted`, every ticket refused
+    `MBF-EXPORT-EPOCH-EXHAUSTED` for both commands with no worker and no chooser, an earlier entry cancelled at
+    registration, later retirements still exhausted. Vitest: retirements A then B and a fresh start, answered
+    newest first by a host that cancels runs below each applied epoch: B is sent only after A settles, the start
+    after B, and it is not cancelled; a failed A then an acknowledged B: the start is sent with B's epoch, without
+    a re-delivery or a hang; no retirement, and so no start, is sent before the page-load reset settles; an
+    exhausted reply is unacknowledged. Mutations checked: no chain (the newest-first test fails), and an
+    unchecked advance (the boundary test fails).
 - **4b.2b** (next, not here): the menu item, the Exports panel action, and mounting the dialog on the barrier's
   `reviewMbfExport` and `saveMbfExport` (already ingress commands, slice 4b.2a's repair), the dialog's close
-  calling `retireMbfExportSession`, discarding a result whose `current()` is false, and retiring the TypeScript
-  builder (A-6).
+  calling `retireMbfExportSession`, discarding a result whose `current()` is false, retiring the TypeScript
+  builder (A-6), and the user-facing product text for the barrier's and the ticket's refusals
+  (`MBF-EXPORT-RETIREMENT-UNCONFIRMED`, `MBF-EXPORT-EPOCH-INVALID` and `MBF-EXPORT-EPOCH-EXHAUSTED`), whose
+  current messages are developer wording.
 
 ## 7. Boundaries
 

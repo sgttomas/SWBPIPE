@@ -905,6 +905,62 @@ fn a_request_without_a_valid_current_ticket_is_a_protocol_refusal() {
     }
 }
 
+/// Finding P3 at f77172935 (2): the retirement epoch never wraps. Seeded at `u64::MAX - 1`, a first retirement moves
+/// it to `u64::MAX` as usual; with a review running at that epoch, a second retirement cannot move it on, so the export
+/// becomes exhausted: the epoch stays at `u64::MAX` (no wrap to 0, no overflow panic), the running review is cancelled
+/// and its worker reaped, and the reply says `exhausted`. From then on every start is refused
+/// `MBF-EXPORT-EPOCH-EXHAUSTED` whatever its ticket (the review and the save alike, no worker, no chooser), a command
+/// that entered before the exhaustion is cancelled when it registers, and later retirements stay exhausted.
+#[test]
+fn an_exhausted_retirement_epoch_does_not_wrap_and_refuses_every_start() {
+    use crate::mbf_export::EPOCH_EXHAUSTED;
+    let gate = Gate::new("mbf-epoch-exhausted");
+    let registry = registry_with(gate.launcher());
+    let runs = MbfRuns::default();
+    runs.seed_epoch_for_tests(u64::MAX - 1);
+    let first = runs.retire(registry.pool());
+    assert_eq!((first.epoch, first.exhausted), (u64::MAX, false), "the last ordinary retirement");
+    assert_eq!(serde_json::to_value(first).unwrap(), json!({"cancelled": 0, "too_late": 0, "epoch": u64::MAX}), "no exhausted member while false");
+    let entered = runs.enter(Some(json!(u64::MAX))).expect("u64::MAX is still a current ticket");
+    let body = review_body(&canonical_model(), &settings());
+    std::thread::scope(|scope| {
+        let _guard = CancelOnUnwind(&runs, &registry);
+        let reviewing = scope.spawn(|| review_via_command(&registry, &runs, &body));
+        gate.wait_started(1);
+        let pid = gate.pids()[0];
+        let second = runs.retire(registry.pool());
+        assert_eq!(second, MbfRetirement { receipt: STOPPED_ONE, epoch: u64::MAX, exhausted: true }, "no wrap; the running review is cancelled");
+        assert_eq!(serde_json::to_value(second).unwrap(), json!({"cancelled": 1, "too_late": 0, "epoch": u64::MAX, "exhausted": true}), "the reply");
+        let (outcome, _) = join_within(&registry, &runs, reviewing, "the review");
+        assert_eq!(review_codes(&outcome), vec![CANCELLED.to_string()]);
+        assert!(!worker_alive(pid));
+    });
+    assert_eq!(runs.epoch(), u64::MAX, "the epoch did not wrap");
+    // Every ticket is refused by name now, u64::MAX included.
+    for ticket in [json!(u64::MAX), json!(0), json!(u64::MAX - 1)] {
+        assert_eq!(runs.enter(Some(ticket.clone())).unwrap_err().code, EPOCH_EXHAUSTED, "{ticket}");
+        let mut review = body.clone();
+        review[EXPECTED_EPOCH] = ticket.clone();
+        let (reviewed, _) = review_via_command(&registry, &runs, &review);
+        assert_eq!(review_codes(&reviewed), vec![EPOCH_EXHAUSTED.to_string()], "{ticket}: {reviewed:?}");
+        let mut save = save_body(&canonical_model(), recorded_default());
+        save[EXPECTED_EPOCH] = ticket.clone();
+        let opened = Opened::new(false);
+        let saved = save_via_command(&registry, &runs, &save, Some(std::env::temp_dir().join("never-written.mbf")), &opened);
+        assert_eq!(save_codes(&saved), vec![EPOCH_EXHAUSTED.to_string()], "{ticket}: {saved:?}");
+        assert!(!opened.load(Ordering::SeqCst), "{ticket}: no chooser");
+    }
+    assert_eq!(gate.pids().len(), 1, "no worker started after the exhaustion");
+    // A command that entered at u64::MAX before the exhaustion is cancelled when it registers.
+    let late = runs.register(RunKind::Review, entered, registry.pool());
+    assert!(late.control.cancelled());
+    drop(late);
+    // Terminal: a later retirement stays exhausted at u64::MAX and finds nothing tracked.
+    assert_eq!(runs.retire(registry.pool()), MbfRetirement { receipt: MbfCancelReceipt::default(), epoch: u64::MAX, exhausted: true });
+    assert_eq!(runs.enter(Some(json!(u64::MAX))).unwrap_err().code, EPOCH_EXHAUSTED);
+    assert_released(&registry);
+}
+
 /// Finding P3 at 6ccc68aff (3): a committed save stays tracked until its write completes. Paused just after its
 /// commit (the `AFTER_COMMIT` hook), repeated cancels each report it too late; a newer save superseding it leaves
 /// it tracked (the next cancel stops the newer one and reports the committed one too late); once the newer one

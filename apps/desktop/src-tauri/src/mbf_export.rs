@@ -394,6 +394,9 @@ pub const CANCELLED_MESSAGE: &str = "The export was cancelled. Nothing was writt
 /// A request whose dispatch ticket (`expectedEpoch`, `mbf_worker::MbfRuns::enter`) is missing, malformed or names a
 /// retirement epoch the host has not reached: a protocol error, refused before the model is decoded.
 pub const EPOCH_INVALID: &str = "MBF-EXPORT-EPOCH-INVALID";
+/// A request refused because the retirement epoch can move on no further (`mbf_worker::MbfRuns::retire` at `u64::MAX`):
+/// the export is closed for good in this process, every run in progress was cancelled, and no new start is admitted.
+pub const EPOCH_EXHAUSTED: &str = "MBF-EXPORT-EPOCH-EXHAUSTED";
 /// The writer refused the model: the reply carries the bounded review, which lists what is not written.
 pub const WRITER_REFUSED: &str = "MBF-EXPORT-WRITER-REFUSED";
 /// Any truncated review blocks the save (§3.3).

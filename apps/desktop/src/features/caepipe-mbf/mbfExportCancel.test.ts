@@ -119,9 +119,11 @@ describe("the MBF export's session barrier", () => {
       }
       return Promise.resolve({ outcome: "reviewed", review: {} });
     });
+    // Deliveries are serialized: each is sent once the one before it is answered, so answer in rounds.
     const answerAll = async () => {
-      for (const answer of answers.splice(0)) answer.resolve({ cancelled: 0, too_late: 0, epoch: ++epoch });
-      await flush();
+      for (await flush(); answers.length > 0; await flush()) {
+        for (const answer of answers.splice(0)) answer.resolve({ cancelled: 0, too_late: 0, epoch: ++epoch });
+      }
     };
     void barrier.retireMbfExportSession();
     const old = barrier.reviewMbfExport(REVIEW_ARGS);
@@ -185,5 +187,112 @@ describe("the MBF export's session barrier", () => {
     expect(codes(outcome.outcome)).toEqual([barrier.MBF_EXPORT_CANCELLED]);
     await flush();
     expect(sends).toBe(1);
+  });
+
+  it("serializes retirements: a later one is sent only once the earlier one has settled, so an earlier one applied late cannot cancel a fresh start", async () => {
+    // A native host that applies each cancel when it is answered: the epoch moves on and every run in progress whose
+    // ticket is below it is cancelled. The test answers the newest pending cancel first (Tauri's requests are
+    // independent, so a later cancel may be applied before an earlier one).
+    const pending: Array<ReturnType<typeof deferred<unknown>>> = [];
+    const runs: Array<{ ticket: unknown; reply: ReturnType<typeof deferred<unknown>> }> = [];
+    const commands: string[] = [];
+    let epoch = 0;
+    invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
+      commands.push(command);
+      const answer = deferred<unknown>();
+      if (command === "cancel_mbf_export") pending.push(answer);
+      else runs.push({ ticket: args?.[barrier.EXPECTED_EPOCH], reply: answer });
+      return answer.promise;
+    });
+    const applyNewestCancel = async () => {
+      const answer = pending.pop();
+      if (!answer) return false;
+      epoch += 1;
+      for (const run of runs.splice(0)) {
+        if ((run.ticket as number) < epoch) run.reply.resolve({ outcome: "refused", diagnostics: [{ code: barrier.MBF_EXPORT_CANCELLED, path: "", message: "" }] });
+        else runs.push(run);
+      }
+      answer.resolve({ cancelled: 0, too_late: 0, epoch });
+      await flush();
+      return true;
+    };
+    // The page's first start, with its handshake, so the barrier has acknowledged an epoch.
+    const first = barrier.reviewMbfExport(REVIEW_ARGS);
+    await flush();
+    await applyNewestCancel();
+    runs.splice(0).forEach((run) => run.reply.resolve({ outcome: "reviewed", review: {} }));
+    await first;
+    commands.length = 0;
+    void barrier.retireMbfExportSession(); // A
+    void barrier.retireMbfExportSession(); // B
+    const fresh = barrier.reviewMbfExport(REVIEW_ARGS);
+    await flush();
+    // Only A is on its way: B waits for it to settle, and the fresh start for B.
+    expect(commands).toEqual(["cancel_mbf_export"]);
+    while (await applyNewestCancel()) { /* A, then B once it is sent */ }
+    expect(commands).toEqual(["cancel_mbf_export", "cancel_mbf_export", "review_mbf_export"]);
+    // No cancel was applied after the fresh start was sent: it carries the latest epoch and is not cancelled.
+    expect(runs.map(({ ticket }) => ticket)).toEqual([epoch]);
+    runs.splice(0).forEach((run) => run.reply.resolve({ outcome: "reviewed", review: {} }));
+    const started = await fresh;
+    expect(started.outcome).toEqual({ outcome: "reviewed", review: {} });
+    expect(started.current()).toBe(true);
+  });
+
+  it("a failed earlier retirement neither holds a start nor counts as acknowledged: the later acknowledged one's epoch is the ticket", async () => {
+    const answers: Array<ReturnType<typeof deferred<unknown>>> = [];
+    const calls: Array<{ command: string; args?: Record<string, unknown> }> = [];
+    invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
+      calls.push({ command, args });
+      if (command !== "cancel_mbf_export") return Promise.resolve({ outcome: "reviewed", review: {} });
+      const answer = deferred<unknown>();
+      answers.push(answer);
+      return answer.promise;
+    });
+    const a = barrier.retireMbfExportSession();
+    const b = barrier.retireMbfExportSession();
+    await flush();
+    expect(answers).toHaveLength(1);
+    // A fails (no answer the host acknowledges); B is then sent and acknowledged with epoch 5.
+    answers.shift()!.resolve(Promise.reject(new Error("no answer")));
+    await expect(a).resolves.toBeNull();
+    await flush();
+    expect(answers).toHaveLength(1);
+    answers.shift()!.resolve({ cancelled: 0, too_late: 0, epoch: 5 });
+    await expect(b).resolves.toEqual({ cancelled: 0, too_late: 0, epoch: 5 });
+    const started = await barrier.reviewMbfExport(REVIEW_ARGS);
+    expect(started.outcome).toEqual({ outcome: "reviewed", review: {} });
+    // No re-delivery (B covers A), and the start carries B's epoch.
+    expect(calls.map(({ command }) => command)).toEqual(["cancel_mbf_export", "cancel_mbf_export", "review_mbf_export"]);
+    expect(calls[2].args?.[barrier.EXPECTED_EPOCH]).toBe(5);
+  });
+
+  it("sends no retirement, and so no start, before the page-load reset has settled", async () => {
+    // The page-load reset (`dispose_all_preview_mechanics_results`) moves the native epoch on too.
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    try {
+      vi.resetModules();
+      barrier = await import("./mbfExportCancel");
+      const reset = deferred<unknown>();
+      const host = epochHost();
+      const answer = invokeMock.getMockImplementation()!;
+      invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
+        if (command !== "dispose_all_preview_mechanics_results") return answer(command, args);
+        host.calls.push({ command });
+        return reset.promise.then(() => { host.epoch += 1; return { released_results: 0, released_bytes: 0, abandoned_jobs: 0 }; });
+      });
+      void barrier.retireMbfExportSession();
+      const first = barrier.reviewMbfExport(REVIEW_ARGS);
+      await flush();
+      expect(host.commands()).toEqual(["dispose_all_preview_mechanics_results"]);
+      reset.resolve(undefined);
+      const started = await first;
+      expect(started.outcome).toEqual({ outcome: "reviewed", review: {} });
+      // The reset (epoch 1), then the retirement (epoch 2), then the start with its epoch: no reset after a start.
+      expect(host.commands()).toEqual(["dispose_all_preview_mechanics_results", "cancel_mbf_export", "review_mbf_export"]);
+      expect(host.calls.filter(({ command }) => command === "review_mbf_export").map(({ args }) => args?.[barrier.EXPECTED_EPOCH])).toEqual([2]);
+    } finally {
+      delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
+    }
   });
 });

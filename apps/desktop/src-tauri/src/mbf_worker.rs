@@ -53,6 +53,12 @@
 //! acknowledged a retirement since cannot start anything. The ticket only binds a request to a retirement: it
 //! authorizes nothing, and every other check of the review and the save applies unchanged.
 //!
+//! **Exhaustion.** The epoch never wraps. A retirement at `u64::MAX` cannot move it on, so it enters a terminal,
+//! fail-closed state instead: it cancels every run in progress as any retirement does, its reply says so
+//! (`exhausted: true`, the epoch left at `u64::MAX`), and from then on every request is refused
+//! `MBF-EXPORT-EPOCH-EXHAUSTED` at its entry and a command that had already entered is cancelled when it registers.
+//! Saturating alone would leave the tickets at `u64::MAX` current.
+//!
 //! **The cancel/commit boundary** (a save only). The save checks its cancellation again before it opens the chooser,
 //! and once the chooser returns a path it commits ([`MbfWriterRun::commit`]) under the run's lock before the first
 //! write. A cancel that wins the lock first refuses the save `MBF-EXPORT-CANCELLED` with nothing written; a cancel
@@ -178,6 +184,10 @@ pub(crate) struct MbfRetirement {
     #[serde(flatten)]
     pub(crate) receipt: MbfCancelReceipt,
     pub(crate) epoch: u64,
+    /// The epoch could move on no further: the export is closed for good (`MBF-EXPORT-EPOCH-EXHAUSTED`). Only
+    /// present in the reply when true.
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
+    pub(crate) exhausted: bool,
 }
 
 /// The request member that carries the dispatch ticket: the retirement epoch the frontend last saw acknowledged.
@@ -207,8 +217,10 @@ pub(crate) struct MbfEntry {
 
 #[derive(Debug, Default)]
 struct Tracked {
-    /// Bumped by every retirement ([`MbfRuns::cancel_all`]).
+    /// Bumped by every retirement ([`MbfRuns::cancel_all`]), never past `u64::MAX`.
     epoch: u64,
+    /// A retirement found the epoch at `u64::MAX`: terminal, every start is refused (`MBF-EXPORT-EPOCH-EXHAUSTED`).
+    exhausted: bool,
     /// Every registered run until it ends (its [`Registration`] drops): cancelled and committed ones included, so a
     /// committed save stays tracked, and is reported too late, until its write completes.
     runs: Vec<(RunKind, Arc<RunControl>)>,
@@ -236,7 +248,8 @@ impl MbfRuns {
     /// The command's entry, from its request's ticket (the [`EXPECTED_EPOCH`] member of its admitted arguments, read
     /// before the model is decoded). The ticket must be a non-negative integer no greater than the current epoch: a
     /// missing, malformed or future one is a protocol error (`MBF-EXPORT-EPOCH-INVALID`), and one below it was issued
-    /// before a retirement since, and refuses `MBF-EXPORT-CANCELLED`.
+    /// before a retirement since, and refuses `MBF-EXPORT-CANCELLED`. Once the epoch is exhausted every request is
+    /// refused `MBF-EXPORT-EPOCH-EXHAUSTED`, whatever its ticket.
     pub(crate) fn enter(&self, ticket: Option<serde_json::Value>) -> Result<MbfEntry, EntryRefusal> {
         let protocol = |what: &str| EntryRefusal {
             code: mbf_export::EPOCH_INVALID,
@@ -246,7 +259,16 @@ impl MbfRuns {
             None => return Err(protocol("carries no retirement epoch")),
             Some(value) => value.as_u64().ok_or_else(|| protocol("carries a malformed retirement epoch"))?,
         };
-        let current = self.lock().epoch;
+        let (current, exhausted) = {
+            let tracked = self.lock();
+            (tracked.epoch, tracked.exhausted)
+        };
+        if exhausted {
+            return Err(EntryRefusal {
+                code: mbf_export::EPOCH_EXHAUSTED,
+                message: "The export did not start: the export cannot be retired any further in this session. Nothing was written.".to_string(),
+            });
+        }
         if expected > current {
             return Err(protocol("names a retirement epoch the host has not reached"));
         }
@@ -262,6 +284,12 @@ impl MbfRuns {
         self.lock().epoch
     }
 
+    /// Moves the epoch to `epoch` (the exhaustion boundary's test).
+    #[cfg(test)]
+    pub(crate) fn seed_epoch_for_tests(&self, epoch: u64) {
+        self.lock().epoch = epoch;
+    }
+
     /// An entry at the current epoch (tests that register a run directly).
     #[cfg(test)]
     pub(crate) fn entry_now(&self) -> MbfEntry {
@@ -269,15 +297,15 @@ impl MbfRuns {
     }
 
     /// Registers a new run of `kind`, cancelling the older ones of its kind and waking the pool's waiters so a
-    /// waiting run sees it at once. A run whose command entered before the latest retirement is not registered: it
-    /// is cancelled from the start, and supersedes nothing.
+    /// waiting run sees it at once. A run whose command entered before the latest retirement, or that registers once
+    /// the epoch is exhausted, is not registered: it is cancelled from the start, and supersedes nothing.
     fn register(&self, kind: RunKind, entry: MbfEntry, pool: &MemoryPool) -> Registration {
         #[cfg(test)]
         if let Some(hook) = BEFORE_REGISTRATION.with(|hook| hook.borrow_mut().take()) {
             hook();
         }
         let mut tracked = self.lock();
-        if entry.epoch < tracked.epoch {
+        if entry.epoch < tracked.epoch || tracked.exhausted {
             return Registration { runs: self.clone(), control: Arc::new(RunControl::retired()) };
         }
         let control = Arc::new(RunControl::default());
@@ -299,10 +327,14 @@ impl MbfRuns {
     }
 
     /// [`Self::cancel_all`], with the epoch it moved on to (`cancel_mbf_export`'s reply), read under the same lock.
+    /// At `u64::MAX` the epoch does not wrap: the export becomes exhausted (terminal), and the reply says so.
     pub(crate) fn retire(&self, pool: &MemoryPool) -> MbfRetirement {
         let mut tracked = self.lock();
-        tracked.epoch += 1;
-        let epoch = tracked.epoch;
+        match tracked.epoch.checked_add(1) {
+            Some(next) => tracked.epoch = next,
+            None => tracked.exhausted = true,
+        }
+        let (epoch, exhausted) = (tracked.epoch, tracked.exhausted);
         let mut receipt = MbfCancelReceipt::default();
         for (_, run) in &tracked.runs {
             match run.cancel() {
@@ -315,7 +347,7 @@ impl MbfRuns {
         if receipt.cancelled > 0 {
             pool.wake_waiters();
         }
-        MbfRetirement { receipt, epoch }
+        MbfRetirement { receipt, epoch, exhausted }
     }
 }
 

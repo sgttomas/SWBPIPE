@@ -52,7 +52,9 @@ function deferred<T>() {
   return { promise, resolve, reject };
 }
 
-/** A native host whose `cancel_mbf_export` deliveries wait until the test answers them, in order. */
+/** A native host whose `cancel_mbf_export` deliveries wait until the test answers them, in order. The barrier sends
+ * each delivery only once the one before it has settled, so `cancels` holds at most one, and answering it lets the
+ * next one out. */
 function nativeHost() {
   const commands: string[] = [];
   const cancels: Array<ReturnType<typeof deferred<MbfCancelReceipt>>> = [];
@@ -73,8 +75,10 @@ function nativeHost() {
   });
   const sent = () => commands.filter((command) => command === "review_mbf_export" || command === "save_mbf_export");
   const answerCancels = async () => {
-    for (const answer of cancels.splice(0)) answer.resolve(nothing());
-    await act(async () => {});
+    do {
+      for (const answer of cancels.splice(0)) answer.resolve(nothing());
+      await act(async () => { await new Promise((resolve) => setTimeout(resolve, 0)); });
+    } while (cancels.length > 0);
   };
   return { commands, cancels, starts, sent, answerCancels };
 }
@@ -87,12 +91,13 @@ async function renderedWithProject(strict = false) {
   return view;
 }
 
-/** Replaces the session with the same project (the browser preview's local store holds it). */
+/** Replaces the session with the same project (the browser preview's local store holds it). Its retirement is sent at
+ * once when no delivery is on its way, and otherwise queued behind the one that is. */
 async function replaceWithSameId(host: ReturnType<typeof nativeHost>) {
   const before = host.cancels.length;
   act(() => nativeMenuCommand("file.open-local"));
   await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent("Opened local browser-preview project snapshot."));
-  await waitFor(() => expect(host.cancels.length).toBe(before + 1));
+  if (before === 0) await waitFor(() => expect(host.cancels.length).toBe(1));
 }
 
 function cancelledCode(outcome: { outcome: string; diagnostics?: Array<{ code: string }> }) {
@@ -133,6 +138,9 @@ describe("MBF export session retirement", () => {
     expect(invokeMock).toHaveBeenLastCalledWith("cancel_mbf_export");
     // A reply without a retirement epoch is not an acknowledgement.
     invokeMock.mockResolvedValueOnce({ cancelled: 1, too_late: 0 });
+    await expect(cancelMbfExport()).resolves.toBeNull();
+    // Nor is one that says the native epoch is exhausted.
+    invokeMock.mockResolvedValueOnce({ cancelled: 1, too_late: 0, epoch: 7, exhausted: true });
     await expect(cancelMbfExport()).resolves.toBeNull();
     invokeMock.mockRejectedValueOnce(new Error("no native host"));
     await expect(cancelMbfExport()).resolves.toBeNull();
@@ -203,10 +211,11 @@ describe("MBF export session retirement", () => {
     await replaceWithSameId(host);
     const review = reviewMbfExport(REVIEW_ARGS);
     const save = saveMbfExport(SAVE_ARGS);
-    const before = host.cancels.length;
+    // The unmount's retirement is queued behind the delivery on its way, and sent once that is answered.
+    const delivered = host.commands.length;
     unmount();
-    await waitFor(() => expect(host.cancels.length).toBe(before + 1));
     await host.answerCancels();
+    expect(host.commands.slice(delivered)).toEqual(["cancel_mbf_export"]);
     expect(host.sent()).toEqual([]);
     expect(cancelledCode((await review).outcome)).toEqual([MBF_EXPORT_CANCELLED]);
     expect(cancelledCode((await save).outcome)).toEqual([MBF_EXPORT_CANCELLED]);
@@ -220,8 +229,9 @@ describe("MBF export session retirement", () => {
     const oldSave = saveMbfExport(SAVE_ARGS);
     render(<StrictMode><App /></StrictMode>);
     await screen.findByTestId("desktop-preview-shell");
-    // Strict Mode ran the workspace's effect, its cleanup (a retirement) and the effect again.
-    expect(host.cancels.length).toBeGreaterThanOrEqual(2);
+    // Strict Mode ran the workspace's effect, its cleanup (a retirement) and the effect again; that retirement is
+    // queued behind the earlier one, which is on its way.
+    expect(host.cancels.length).toBe(1);
     const fresh = reviewMbfExport(REVIEW_ARGS);
     await act(async () => {});
     expect(host.sent()).toEqual([]);
