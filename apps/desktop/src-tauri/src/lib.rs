@@ -23,6 +23,7 @@ mod host_memory;
 mod ingress;
 mod mbf_export;
 mod mbf_worker;
+mod hanger_sizing_job;
 mod memory_pool;
 mod model_document_file;
 mod model_document_save;
@@ -2142,6 +2143,43 @@ fn cancel_mbf_export(
     runs: tauri::State<'_, mbf_worker::MbfRuns>,
 ) -> Result<tauri::ipc::Response, CommandError<String>> {
     respond(mbf_worker::cancel_command(&registry, &runs, invoke.body(), invoke.headers()))
+}
+
+/// Hanger sizing (DEL-04-11 Design `hanger-sizing.md` §13, increment 3c part
+/// 2): `{runId, inputText}` as an `args-json-v1` raw body, its copy reserved
+/// and its arguments admitted within one command ledger, then worker task 4
+/// (`size_and_read` on the headless input text) in the capped worker process
+/// under the captured invocation budget (`hanger_sizing_job`). The reply is
+/// the entry's JSON text `{document, evidence}`, at most 64 MiB, sent while
+/// its result lease is held; nothing is recorded, persisted or held after it,
+/// and the model is not written. A newer request supersedes the one in
+/// progress; `cancel_hanger_sizing` and the session reset cancel it.
+#[tauri::command]
+async fn size_hangers(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    let (raw, copy) = hanger_sizing_job::reserve(&registry, invoke.body(), invoke.headers())?;
+    let registry = registry.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        hanger_sizing_job::size_command(&registry, raw, copy, hanger_sizing_job::START_WAIT, |text| tauri::ipc::Response::new(text))
+    })
+    .await
+    .unwrap_or_else(|_| Err(hanger_sizing_job::supervisor_failed()))
+}
+
+/// Cancels the hanger sizing of `runId`'s page through its sequence
+/// (`hanger_sizing_job`): the run in progress, if it is that page's and not
+/// newer, stops waiting or has its worker killed and its grant released after
+/// the reap; a start of that page not yet registered is refused when it
+/// arrives. A repeated or older cancel is a no-op whose reply says
+/// `duplicate`. Sent as Tauri's JSON arguments.
+#[tauri::command]
+fn cancel_hanger_sizing(
+    registry: tauri::State<'_, SolveJobRegistry>,
+    run_id: Option<Value>,
+) -> Result<hanger_sizing_job::HangerSizingCancelReceipt, String> {
+    hanger_sizing_job::cancel_command(&registry, run_id)
 }
 
 fn choose_mbf_save_path(app: &AppHandle, suggested_file_name: &str, directory: Option<PathBuf>) -> Result<Option<PathBuf>, String> {
@@ -6072,6 +6110,8 @@ macro_rules! app_invoke_handler {
             review_mbf_export,
             save_mbf_export,
             cancel_mbf_export,
+            size_hangers,
+            cancel_hanger_sizing,
             start_preview_mechanics_job,
             poll_preview_mechanics_job,
             take_preview_mechanics_job_result,
