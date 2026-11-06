@@ -2151,8 +2151,10 @@ fn cancel_mbf_export(
 /// task 4 (`size_and_read` on the headless input text) in the capped worker
 /// process under the captured invocation budget (`hanger_sizing_job`). The
 /// ticket `expectedEpoch` is the retirement epoch the start's own
-/// `cancel_hanger_sizing` acknowledged; one a retirement has passed, or a run
-/// has used, is refused before any worker and replaces nothing. The reply is
+/// `cancel_hanger_sizing` acknowledged; one a retirement has passed, or one a
+/// run is currently using, is refused before any worker and replaces nothing.
+/// After that run ends, a re-send under the same ticket may run while the epoch
+/// is still current (`invokeWithIngress`'s headroom re-send). The reply is
 /// the entry's JSON text `{document, evidence}`, at most 64 MiB, sent while
 /// its result lease is held; nothing is recorded, persisted or held after it,
 /// and the model is not written.

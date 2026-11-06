@@ -81,7 +81,7 @@ async function fillTwoSpan() {
 }
 
 describe("the request form", () => {
-  it("starts with no pre-set choice in a new project and sends nothing on mount", () => {
+  it("starts with no pre-set choice in a new project, and its mount sends only a keyed retirement, never a sizing", async () => {
     host();
     render(<HangerSizingForm model={model()} />);
     for (const testId of ["hanger-sizing-library", "hanger-sizing-weight-case", "hanger-sizing-design-case", "hanger-sizing-load-design",
@@ -93,7 +93,8 @@ describe("the request form", () => {
     expect(screen.getAllByRole("checkbox").every((box) => !(box as HTMLInputElement).checked)).toBe(true);
     expect(within(screen.getByTestId("hanger-sizing-candidates")).getByText("0 selected")).toBeInTheDocument();
     expect(screen.getByTestId("hanger-sizing-weight-support-state")).toHaveTextContent("own_solve");
-    expect(invokeMock).not.toHaveBeenCalled();
+    await waitFor(() => expect(invokeMock.mock.calls.map(([command]) => command)).toEqual(["cancel_hanger_sizing"]));
+    expect(Object.keys(invokeMock.mock.calls[0][1] as object)).toEqual(["retirementId"]);
   });
 
   it("refuses an incomplete request by naming every missing input, and sends nothing", () => {

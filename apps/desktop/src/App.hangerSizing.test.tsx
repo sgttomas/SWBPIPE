@@ -7,14 +7,15 @@ vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("./test/nat
 import { App } from "./App";
 
 // DEL-04-11 increment 3c part 2: the hanger-sizing form and its table are mounted beside the imported-hanger
-// selection, on the Supports tool page. The mounted form makes no choice and sends nothing until the person asks.
+// selection, on the Supports tool page. The mounted form makes no choice and sizes nothing until the person asks; its
+// mount sends at most a keyed retirement (`cancel_hanger_sizing`), never a sizing request.
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
   invokeMock.mockReset();
 });
 
-it("mounts the hanger-sizing form beside the hanger selection, with no pre-set choice and nothing sent", async () => {
+it("mounts the hanger-sizing form beside the hanger selection, with no pre-set choice and no sizing sent", async () => {
   render(<App />);
   await screen.findByTestId("workspace-toolbar");
   fireEvent.click(screen.getByTestId("toolkit-entry"));
@@ -28,6 +29,8 @@ it("mounts the hanger-sizing form beside the hanger selection, with no pre-set c
     expect((within(form).getByTestId(testId) as HTMLSelectElement).value, testId).toBe("");
   }
   expect(within(form).queryByTestId("hanger-sizing-panel")).toBeNull();
-  const sizingCalls = invokeMock.mock.calls.filter(([command]) => command === "size_hangers" || command === "cancel_hanger_sizing");
-  expect(sizingCalls).toEqual([]);
+  expect(invokeMock.mock.calls.filter(([command]) => command === "size_hangers")).toEqual([]);
+  for (const [, args] of invokeMock.mock.calls.filter(([command]) => command === "cancel_hanger_sizing")) {
+    expect(Object.keys(args as Record<string, unknown>)).toEqual(["retirementId"]);
+  }
 });

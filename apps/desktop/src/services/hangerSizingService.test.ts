@@ -56,6 +56,43 @@ function deferred<T>() {
   return { promise, resolve, reject };
 }
 
+describe("retireHangerSizingOnMount", () => {
+  it("retires on mount even when this page never sized, moving the epoch past every ticket issued before it", async () => {
+    let epoch = 0;
+    const firstStartSent = deferred<void>();
+    const release = deferred<void>();
+    invokeMock.mockImplementation((command: string, args: unknown) => {
+      if (command === "cancel_hanger_sizing") {
+        epoch += 1;
+        return Promise.resolve({ cancelled: false, epoch, retirement_id: (args as RetirementArgs).retirementId });
+      }
+      if (command === "size_hangers") {
+        // A host that refuses a ticket below its current epoch, as `register` does.
+        const ticket = (args as StartArgs).expectedEpoch;
+        firstStartSent.resolve();
+        return release.promise.then(() => (ticket < epoch
+          ? Promise.reject({ code: "HANGER-SIZING-REQUEST-STALE", message: "a retirement has passed this ticket" })
+          : structuredClone(twoSpanReply)));
+      }
+      return Promise.reject(new Error(`unexpected ${command}`));
+    });
+    // A mount on a page that has never sized sends exactly one keyed retirement and nothing else.
+    await service.retireHangerSizingOnMount();
+    expect(invokeMock.mock.calls.map(([command]) => command)).toEqual(["cancel_hanger_sizing"]);
+    expect(Object.keys(calls("cancel_hanger_sizing")[0][1] as object)).toEqual(["retirementId"]);
+    // A start takes ticket 2 and is held at the host; a new mount retires (epoch 3) before it registers.
+    const completion = service.sizeHangers(input());
+    await firstStartSent.promise;
+    expect((calls("size_hangers")[0][1] as StartArgs).expectedEpoch).toBe(2);
+    await service.retireHangerSizingOnMount();
+    expect(epoch).toBe(3);
+    release.resolve();
+    const done = await completion;
+    expect(done.kind).toBe("failed");
+    expect(done.current()).toBe(false);
+  });
+});
+
 describe("sizeHangers", () => {
   it("retires first, then sends the headless input's JSON text as a raw body with the acknowledged epoch as its ticket, and reads the reply", async () => {
     host();

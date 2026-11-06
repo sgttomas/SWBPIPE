@@ -12,7 +12,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { PreviewModel } from "../../types";
 import { listLocalLibraries, openLocalLibrary, type LocalLibraryIndexEntry } from "../../services/libraryImportService";
-import { retireHangerSizing, sizeHangers, type HangerSizingCompletion } from "../../services/hangerSizingService";
+import { retireHangerSizing, retireHangerSizingOnMount, sizeHangers, type HangerSizingCompletion } from "../../services/hangerSizingService";
 import { HangerSizingPanel } from "../results/HangerSizingPanel";
 import type { HangerSizingFamilyPolicy } from "../results/hangerSizingResult";
 import { VirtualMultiTargetPicker } from "../workspace/VirtualTargetPicker";
@@ -68,6 +68,8 @@ export function HangerSizingForm({ model, busy = false }: Props) {
   const requests = useRef(0);
   useEffect(() => {
     session.current = { live: true, projectId };
+    // Mounting retires: a ticket issued before this session (a pending start of an earlier one) cannot register.
+    void retireHangerSizingOnMount();
     return () => {
       session.current = { live: false, projectId };
       void retireHangerSizing();

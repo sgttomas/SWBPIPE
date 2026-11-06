@@ -217,6 +217,16 @@ export async function retireHangerSizing(): Promise<void> {
   await deliverRetirement();
 }
 
+/** The retirement a newly mounted form sends, whether or not this page has sized before: it moves the sizing
+ * epoch on, so a ticket issued before the mount (a start of an earlier session or page, still pending) can no longer
+ * register. Nothing is sized. A failed retirement authorizes nothing: every start retires again before it is sent. */
+export async function retireHangerSizingOnMount(): Promise<void> {
+  generation += 1;
+  if (!isTauri()) return;
+  startedSinceRetirement = false;
+  await deliverRetirement();
+}
+
 /** Test support: a fresh page. */
 export function resetHangerSizingPageForTests(): void {
   pageToken = null;

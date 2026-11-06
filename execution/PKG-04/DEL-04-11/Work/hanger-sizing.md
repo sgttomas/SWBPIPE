@@ -1100,8 +1100,11 @@ outcome.
            bump, and the session reset (`dispose_all_results`), which also cancels the model
            check. The webview sends a retirement before every start (so a newer request
            retires the one in progress), when the person cancels, and when the form's
-           project session ends (its unmount or a project change). It does not send one
-           when the form mounts: the first start's own retirement comes first.
+           project session ends (its unmount or a project change). It also sends one when
+           the form mounts, whether or not the page has sized before, so a ticket issued
+           before the mount (a pending start of an earlier session or page) can no longer
+           register; nothing is sized at mount. As for the MBF export's mount retirement,
+           each page load's first retirement uses one of the 64 page tokens (below).
            - *The ticket.* Every start carries `expectedEpoch`: the epoch its own
              retirement's reply acknowledged, taken before the start is sent, never an
              epoch read when the command's task happens to run. The webview awaits that
