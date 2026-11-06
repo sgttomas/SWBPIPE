@@ -5772,9 +5772,9 @@ source-derived pricing, independent scrutiny and preservation of the registered 
 records no acceptance.
 - **Coefficients.** Against main's tree 12 coefficients rise and none fall (below). The threshold and M are
   unchanged.
-- **AC-004: prepared, not run.** Three in-build layouts grow and the witnessed binaries change in
-  retained-reachable code, so §8.54's 7/7 does not transfer. The binaries and the exact command are prepared
-  (below, "AC-004"); the window awaits Agent 0's clearance.
+- **AC-004: 7/7 at `98fda31a9`.** Three in-build layouts grow and the witnessed binaries change in
+  retained-reachable code, so §8.54's 7/7 does not transfer; this registration's own window ran once and passed
+  (below, "AC-004").
 
 **Basis and integration chain.**
 - *Basis.* Main `6cb1c3dc3` (#146 store schema v14, #145 hangers 3b). Neither changes `core/` or the tool after
@@ -5910,7 +5910,8 @@ skewed record is admitted.
 - Desktop: vitest 420 files, 7,836 passed; `src-tauri` lib 1,200 passed, 15 ignored.
 
 **AC-004.** Required: `SparseAssemblyOptions` (+24 B), `FormationSource` (+8 B) and the three in-build atoms
-above grow, and S-K1's producer, kernel and reader code is linked into both binaries. Prepared, not run.
+above grow, and S-K1's producer, kernel and reader code is linked into both binaries. One Agent-0-cleared
+attempt, with App's concurrence, passed 7/7.
 - **Binaries** (built under the slot wrapper, `cargo test --offline --locked --no-run --lib --test
   retained_memory_challenge`, test profile, `RUSTFLAGS`, `CARGO_ENCODED_RUSTFLAGS`, `CARGO_BUILD_RUSTFLAGS` and
   `RUSTDOCFLAGS` unset, rustc 1.97.1 `8bab26f4f`, at `98fda31a9`, core tree `d145d0c4…`):
@@ -5927,10 +5928,27 @@ above grow, and S-K1's producer, kernel and reader code is linked into both bina
   and the challenge binary with `--exact retained_direct_peak_is_within_the_profiles_bounds` against the bounds
   above. Each must report exactly one executed test. Core tree, clean state, both hashes, the copies' read-only
   state, profile, lock, compiler and flags are verified at admission, and the hashes again afterwards.
+- **Runner.** Read-only `run_ac004.sh`, SHA-256 `17721d3253ae5bb7f42d76c78971d1e316debd08f375a60e09d3afdb4fafe7d3`
+  (after the independent review's fail-fast finding, two narrow re-checks and Agent 0's corrections): one
+  `CLOCK_MONOTONIC` 55 s internal deadline from runner entry, covering admission, the seven processes and the
+  post-run hashes; fractional per-process alarms re-checked after arming; fail-fast at the first non-passing,
+  missing, multiple or timed-out outcome; a final deadline rejection. Admission also asserts the exact execution
+  HEAD `c48009701`, a whole-worktree clean state and memguard live, and `W1_MEMBER_CAP_OUT` is unset.
+- **Result: 7/7 at `98fda31a9`** (commit `98fda31a9288d58436807b3857cdcedde8c325b5`, core tree
+  `d145d0c4958270809b5d14414ce659452bebe8da`, clean), executed from the verified read-only private copies above at
+  execution HEAD `c48009701` (same core tree; the commits after `98fda31a9` change only Work documents, so they are
+  not witnessed source).
+- **Window.** Acquired 2026-11-06T05:38:36Z (runner entry 05:38:36.221Z); END rc 0 at 05:38:51.620Z, 15.414 s
+  internal from entry; the wrapper returned at 05:38:51.638Z, inside the 55 s internal and 60 s total bounds. Each
+  of the seven processes executed exactly one test with rc 0: the six witnesses 2 / 1 / 1 / 1 / 3 / 2 s (sparse,
+  dense in the order above) and the challenge 5 s.
+- **Checks.** All admission checks passed in the window before any test; both hashes were unchanged afterwards.
+  Freshness is the build's own second `--no-run`; no build ran for the window. Closure was verified at
+  05:38:59.567Z (no runner or test process, every slot and the exclusive pending marker released, memguard live).
 
 **Open.**
-- Independent scrutiny of the SKW rules and this registration.
-- The AC-004 window (Agent 0's clearance).
+- Independent scrutiny of the SKW rules and this registration: done (focused integration and registration
+  review: no numerical, persistence or pricing defect; its AC-004 runner finding resolved as above).
 
 Run evidence (logs, compares and atoms) is in `/tmp/sk1d-p855/`; it is review input, not a permanent dependency.
 

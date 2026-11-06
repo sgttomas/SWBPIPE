@@ -1282,8 +1282,7 @@ merge, followed by one independent dynamics review.
   deltas and the one predicate loop; the registration decides. AC-004 stack witnesses run with no
   concurrent builds.
 - **D3 (actual source, 2026-11-05).** Priced and registered at DEL-04-08 `retained-pricing-rules.md` §8.55 (12
-  coefficients higher, none lower; +17,872 B in every phase and mode). The AC-004 witnesses are prepared and await
-  Agent 0's window.
+  coefficients higher, none lower; +17,872 B in every phase and mode); AC-004 passed 7/7 at `98fda31a9`.
 - **Minimizing rule for the implementation.**
   - New work lives in new functions called only under `Some(basis)` or
     `has_constraint_transform()`.
@@ -1681,4 +1680,4 @@ cases and the two-case combinations fixture.
   §8.55: the retained profile is re-registered on the tables that carry R-1's row (it no
   longer reports Stale), and the MODAL pins (C8 (c)) verify, `modal_doc_solved` included.
   Its independent integration and registration review found no numerical, persistence or
-  pricing defect. Still open under §8.55: its AC-004 window, which needs Agent 0's clearance.
+  pricing defect. Its AC-004 window passed 7/7 at `98fda31a9` (§8.55).
