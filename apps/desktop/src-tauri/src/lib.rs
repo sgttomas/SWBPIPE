@@ -22,6 +22,7 @@ mod host_memory;
 #[allow(unsafe_code)]
 mod ingress;
 mod mbf_export;
+mod mbf_worker;
 mod memory_pool;
 mod model_document_file;
 mod model_document_save;
@@ -2040,6 +2041,122 @@ async fn save_model_document_decoded(
     })
     .await
     .unwrap_or_else(|_| short(Outcome::refused_one(WORKER_FAILED, "The save's worker did not complete; the destination may be unchanged.")))
+}
+
+/// Review for File > Export MBF… (DEL-17-04 Design `desktop-mbf-export-import.md`
+/// §3.9.5, slice 4b.2a): `{canonicalText, claimedModelHash, settingsJson}` as
+/// an `args-json-v1` raw body, its copy reserved and its arguments admitted
+/// within one command ledger (`mbf_worker`, C1's form), then the settings,
+/// §3.6 steps 2 and 3 and task 3 in `review` mode in the capped worker
+/// process. The reply is the outcome's JSON body: at most 1 MiB of review,
+/// or a refusal. A newer review cancels the one in progress. It opens no
+/// store, file, destination or chooser and writes nothing.
+#[tauri::command]
+async fn review_mbf_export(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+    runs: tauri::State<'_, mbf_worker::MbfRuns>,
+) -> Result<tauri::ipc::Response, mbf_worker::MbfCommandError> {
+    // The run belongs to the retirement epoch its request carries (its
+    // `expectedEpoch` ticket, read from the admitted arguments), not to when
+    // this task runs (`mbf_worker`, "The dispatch ticket").
+    let (raw, copy) = mbf_worker::reserve(&registry, invoke.body(), invoke.headers(), mbf_export::REVIEW_COMMAND)?;
+    let (registry, runs) = (registry.inner().clone(), runs.inner().clone());
+    tauri::async_runtime::spawn_blocking(move || {
+        mbf_worker::review_command(&registry, &runs, raw, copy, |_, text| tauri::ipc::Response::new(text)).map_err(CommandError::Ingress)
+    })
+    .await
+    .unwrap_or_else(|_| Ok(mbf_worker::worker_failed(false)))
+}
+
+/// File > Export MBF… (DEL-17-04 Design `desktop-mbf-export-import.md` §3.6,
+/// slice 4b.2a): `{canonicalText, claimedModelHash, settingsJson,
+/// suggestedName, reviewed, screening, localFirstEvidence}` as an
+/// `args-json-v1` raw body, admitted as the review is. The save checks the
+/// route evidence of `DOTH-MBF-012` (local-private, explicit intent),
+/// re-admits and screens the model, re-runs task 3 in `save` mode in the
+/// capped worker (a review is no authorization: a truncated review refuses
+/// `MBF-REVIEW-TRUNCATED` there), checks the reviewed digests, then shows the
+/// chooser and writes the identity file and the MBF atomically with their
+/// read-back. The chooser blocks this worker, not the main thread. The reply
+/// is the outcome's JSON body.
+#[tauri::command]
+async fn save_mbf_export(
+    app: AppHandle,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+    runs: tauri::State<'_, mbf_worker::MbfRuns>,
+) -> Result<tauri::ipc::Response, mbf_worker::MbfCommandError> {
+    // The dispatch ticket, as the review's.
+    let (raw, copy) = mbf_worker::reserve(&registry, invoke.body(), invoke.headers(), mbf_export::COMMAND)?;
+    let (registry, runs) = (registry.inner().clone(), runs.inner().clone());
+    tauri::async_runtime::spawn_blocking(move || {
+        let directory = model_document_save::default_save_directory(app.path().document_dir().ok(), app.path().home_dir().ok());
+        // The local library store, opened only if the document references a
+        // library, with the desktop's normal open (as Save Model Document's):
+        // it may create the store, and it applies store schema v14 (the FTS
+        // sidecar's retirement) atomically, or rolls that step back and opens
+        // at v13 with it pending, retried on a later open. The export writes
+        // no project, library or run rows; a read or open error refuses.
+        let open_store = || open_project_store(&app_store_path(&app)?).map(|(connection, _)| connection);
+        mbf_worker::save_command(
+            &registry,
+            &runs,
+            raw,
+            copy,
+            open_store,
+            |suggested| choose_mbf_save_path(&app, suggested, directory),
+            |_, text| tauri::ipc::Response::new(text),
+        )
+        .map_err(CommandError::Ingress)
+    })
+    .await
+    .unwrap_or_else(|_| Ok(mbf_worker::worker_failed(true)))
+}
+
+/// Retires File > Export MBF…'s review and save in progress (DEL-17-04
+/// Design `desktop-mbf-export-import.md` §3.9.5): the frontend calls it when
+/// the project session is retired, and slice 4b.2b's dialog when it closes. A
+/// waiting run stops waiting, a running worker is killed and its grant
+/// released after the reap, and a save before its commit writes nothing; a
+/// save past its commit completes and is reported too late. The reply
+/// `{cancelled, too_late, epoch, retirement_id}` names the retirement epoch
+/// after it: every later review or save request carries it as its dispatch
+/// ticket (`expectedEpoch`), and a request carrying an earlier one (sent
+/// before this retirement, whenever its task runs) is cancelled. With nothing
+/// in progress it cancels nothing but still moves the epoch on (the frontend's
+/// workspace mount and first start use it as their handshake).
+/// `{retirementId: {page, sequence}}` as Tauri's JSON arguments (what the
+/// frontend sends: the one form that survives Tauri's `postMessage`
+/// fallback) or as an `args-json-v1` raw body, decoded by
+/// `mbf_worker::cancel_command` into one keyed path: each
+/// logical retirement is applied once (`mbf_worker::MbfRuns::retire_keyed`),
+/// so a duplicate delivery of the same invoke (Tauri's IPC may resend one
+/// through `postMessage` without cancelling the first) or an older one is a
+/// no-op whose reply says `duplicate`; a missing or malformed id is refused
+/// `MBF-EXPORT-RETIREMENT-ID-INVALID`.
+#[tauri::command]
+fn cancel_mbf_export(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+    runs: tauri::State<'_, mbf_worker::MbfRuns>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    respond(mbf_worker::cancel_command(&registry, &runs, invoke.body(), invoke.headers()))
+}
+
+fn choose_mbf_save_path(app: &AppHandle, suggested_file_name: &str, directory: Option<PathBuf>) -> Result<Option<PathBuf>, String> {
+    #[cfg(feature = "native-smoke")]
+    if let Some(path) = native_smoke::take_chosen_path(app) {
+        return Ok(Some(path));
+    }
+    let mut chooser = app.dialog().file().set_file_name(suggested_file_name).add_filter("Model batch file", &["mbf"]);
+    if let Some(directory) = directory {
+        chooser = chooser.set_directory(directory);
+    }
+    let Some(selected) = chooser.blocking_save_file() else {
+        return Ok(None);
+    };
+    selected.into_path().map(Some).map_err(|error| error.to_string())
 }
 
 /// Recovery export (W-17, DEL-02-02 Design §3): a stored project's document
@@ -5952,6 +6069,9 @@ macro_rules! app_invoke_handler {
             save_model_document_file,
             save_stored_model_document_file,
             save_handoff_package,
+            review_mbf_export,
+            save_mbf_export,
+            cancel_mbf_export,
             start_preview_mechanics_job,
             poll_preview_mechanics_job,
             take_preview_mechanics_job_result,
@@ -6046,6 +6166,7 @@ pub fn run() {
         .manage(native_result_download::SaveAdmission::default())
         .manage(Arc::new(native_csv_stream::CsvStreams::default()))
         .manage(close_guard::CloseGuard::default())
+        .manage(mbf_worker::MbfRuns::default())
         .menu(|handle| build_app_menu(handle))
         .on_menu_event(|app, event| {
             if event.id().0 == QUIT_MENU_ID {

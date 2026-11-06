@@ -10,7 +10,8 @@
 //! Protocol (all integers little-endian):
 //! - Parent -> child, once: the request header `SWRQ`, then u64 task
 //!   (0 sparse_interactive solve, 1 dense_scrutiny solve, 2 the on-demand
-//!   model checks of `check_preview_model`), u64 initial grant, u64 maximum
+//!   model checks of `check_preview_model`, 3 the MBF export's render of
+//!   `review_mbf_export`/`save_mbf_export`), u64 initial grant, u64 maximum
 //!   grant (the per-invocation budget), u64 process reserve, u64 raw length L,
 //!   then L raw model bytes (UTF-8 JSON). The child closes every inherited fd
 //!   but stdio and its control pair, and reads all of the request before its
@@ -158,11 +159,14 @@ pub(crate) fn initial_grant(reserve: u64, ingress_bound: u64) -> Option<u64> {
 
 /// What a worker runs: an ordinary solve in a solver mode, or the on-demand
 /// model checks (DEL-04-06 Design `on-demand-model-checks.md`), which run the
-/// solve's own checks before stiffness formation under the same capped grant.
+/// solve's own checks before stiffness formation under the same capped grant,
+/// or the MBF export's render (DEL-17-04 Design `desktop-mbf-export-import.md`
+/// §3.9.5, task 3: [`crate::mbf_export::worker_render`]), which attests nothing.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum WorkerTask {
     Solve(PreviewSolverMode),
     ModelChecks,
+    MbfRender,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -179,6 +183,7 @@ fn task_code(task: WorkerTask) -> u64 {
         WorkerTask::Solve(PreviewSolverMode::SparseInteractive) => 0,
         WorkerTask::Solve(PreviewSolverMode::DenseScrutiny) => 1,
         WorkerTask::ModelChecks => 2,
+        WorkerTask::MbfRender => 3,
     }
 }
 
@@ -201,6 +206,7 @@ fn decode_request(bytes: &[u8; REQUEST_BYTES]) -> Option<Request> {
         0 => WorkerTask::Solve(PreviewSolverMode::SparseInteractive),
         1 => WorkerTask::Solve(PreviewSolverMode::DenseScrutiny),
         2 => WorkerTask::ModelChecks,
+        3 => WorkerTask::MbfRender,
         _ => return None,
     };
     let request = Request { task, initial_grant: field(1), max_grant: field(2), reserve: field(3), raw_len: field(4) };
@@ -509,7 +515,7 @@ fn workload(raw: Vec<u8>, task: WorkerTask) -> Result<(String, Option<SolveAttes
     if let Some(workload) = tests::scripted_workload() {
         let mode = match task {
             WorkerTask::Solve(mode) => mode,
-            WorkerTask::ModelChecks => PreviewSolverMode::SparseInteractive,
+            WorkerTask::ModelChecks | WorkerTask::MbfRender => PreviewSolverMode::SparseInteractive,
         };
         return tests::run_scripted_attested(&workload, raw, mode);
     }
@@ -517,6 +523,9 @@ fn workload(raw: Vec<u8>, task: WorkerTask) -> Result<(String, Option<SolveAttes
         WorkerTask::Solve(mode) => ordinary_solve(raw, mode),
         // The checks attest nothing: their `ATST` frame has status 0.
         WorkerTask::ModelChecks => model_checks(raw).map(|report| (report, None)),
+        // The MBF render attests nothing either; its failure is already a
+        // named, bounded `<code>: <message>` with no engine text.
+        WorkerTask::MbfRender => crate::mbf_export::worker_render(&raw).map(|envelope| (envelope, None)),
     }
 }
 
@@ -2718,6 +2727,44 @@ pub(crate) mod tests {
         assert!(idle * 2 <= PROCESS_RESERVE_BYTES, "idle footprint {idle}");
         assert!(max.saturating_sub(peak) * 2 <= PROCESS_RESERVE_BYTES, "lifetime max {max} vs counted peak {peak}");
         assert!(max <= grant, "the footprint stayed within the grant");
+    }
+
+    /// Every task code round-trips (0-2 unchanged, 3 the MBF render), an
+    /// unassigned code is refused, and task 3's workload is exactly
+    /// `mbf_export::worker_render` on the raw request: its envelope with no
+    /// attestation (`ATST` status 0), or its named failure.
+    #[test]
+    fn every_task_code_round_trips_and_task_3_is_the_mbf_render() {
+        let tasks = [
+            (WorkerTask::Solve(PreviewSolverMode::SparseInteractive), 0),
+            (WorkerTask::Solve(PreviewSolverMode::DenseScrutiny), 1),
+            (WorkerTask::ModelChecks, 2),
+            (WorkerTask::MbfRender, 3),
+        ];
+        let request = Request { task: WorkerTask::MbfRender, initial_grant: 2 * MIB, max_grant: 4 * MIB, reserve: MIB, raw_len: 7 };
+        for (task, code) in tasks {
+            assert_eq!(task_code(task), code);
+            let request = Request { task, ..request };
+            let bytes = encode_request(&request);
+            assert_eq!(u64::from_le_bytes(bytes[4..12].try_into().unwrap()), code);
+            assert_eq!(decode_request(&bytes), Some(request));
+        }
+        for unassigned in [4u64, 5, u64::MAX] {
+            let mut bytes = encode_request(&request);
+            bytes[4..12].copy_from_slice(&unassigned.to_le_bytes());
+            assert_eq!(decode_request(&bytes), None, "task {unassigned}");
+        }
+        use crate::mbf_export::{MbfMode, WorkerRequest};
+        let settings = r#"{"title":"t","referenceTemperature":{"value":20,"unit":"degC"},"maxLayoutRows":null}"#;
+        for raw in [
+            WorkerRequest { mode: MbfMode::Review, settings_json: settings, model_text: "{}" }.encode(),
+            WorkerRequest { mode: MbfMode::Save, settings_json: settings, model_text: "{}" }.encode(),
+            WorkerRequest { mode: MbfMode::Review, settings_json: settings, model_text: "not json" }.encode(),
+            vec![9, 0, 0, 0, 1, 0, 0, 0, b'{'],
+        ] {
+            let expected = crate::mbf_export::worker_render(&raw).map(|envelope| (envelope, None));
+            assert_eq!(workload(raw, WorkerTask::MbfRender), expected);
+        }
     }
 
     /// Larger per-invocation budgets (owner policy: any budget up to the

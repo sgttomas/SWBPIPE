@@ -947,9 +947,19 @@ impl SolveJobRegistry {
     }
 
 
-    #[cfg(test)]
     pub(crate) fn pool(&self) -> &Arc<MemoryPool> {
         &self.pool
+    }
+
+    /// The registry's own worker launcher, borrowed (MBF export task 3 runs
+    /// in the same capped worker as a solve; `mbf_worker.rs`).
+    pub(crate) fn worker_launcher(&self) -> &dyn WorkerLauncher {
+        &*self.launcher
+    }
+
+    /// The worker's process reserve the registry starts its workers with.
+    pub(crate) fn process_reserve(&self) -> u64 {
+        self.reserve
     }
 
     fn table(&self) -> MutexGuard<'_, SolveJobTable> {

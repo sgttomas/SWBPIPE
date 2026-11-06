@@ -392,9 +392,21 @@ criterion-6 test (§5), not in the dialog.
 
 ### 3.6 Native command, atomic write and read-back
 
-Native writer memory governance and the live export are unfinished until slice 4b's worker
-path is verified (§3.7). Until then the production entry point refuses every request with
-`MBF-EXPORT-NOT-CONNECTED` before step 1, and the steps below run only through a test seam.
+The native command is connected (slice 4b.2a, §3.7, §6): `save_mbf_export` runs the steps below
+in production, with step 5's writer in the capped worker process. `MBF-EXPORT-NOT-CONNECTED`,
+which slices 4a and 4b.1 returned, is retired. The frontend (the menu item, the Exports panel
+action and the mounted dialog) is slice 4b.2b's, so no product control calls the command yet.
+
+**The library store.** Steps 2 to 4 read the libraries a document references from the local
+store, which is opened lazily, only if the document references one, with the desktop's normal
+open (`open_project_store`, as Save Model Document and the report package save open it). That
+open may create the store, and it applies store schema v14 (the retirement of the unused FTS
+sidecar, #146) atomically, or, if that step fails, rolls it back, opens at v13 with the step
+reported pending, and retries it on a later open. The export writes no project, library or run
+rows, and a read or open error refuses. The read-only open (`open_store_read_only`) is not used: it
+refuses a store below the target version, including one whose deferred migration step is
+pending, which the normal open keeps openable, so the export would refuse where Save Model
+Document succeeds (RT-U4, 2026-11-05).
 
 `save_mbf_export` takes these arguments: `{canonicalText, claimedModelHash, settingsJson,
 suggestedName, reviewed: {mbfSha256, sidecarSha256}, screening, localFirstEvidence}`.
@@ -427,6 +439,21 @@ maxLayoutRows: null}`: the text the review ran with. In order:
    `reviewed`, refuse with `MBF-EXPORT-REVIEW-STALE`.
 7. **Chooser.** Open the native save chooser (`.mbf`, the documents folder). The suggested
    name is checked against `swbpipe-model[-…].mbf`. The path comes only from the chooser.
+   - **Cancel and commit.** A save retired after its worker ended (a newer save, or
+     `cancel_mbf_export`) opens no chooser. Once the chooser returns a
+     path, the save commits under its run's lock before the first write. A cancel that takes
+     the lock first refuses the save `MBF-EXPORT-CANCELLED`, with nothing written. A cancel
+     after the commit is too late: its receipt says so (`too_late`), and steps 8 to 10 complete,
+     or undo themselves, and report their own outcome. A save is never half-aborted. A
+     committed save stays tracked until it completes, superseded or not, so every cancel
+     during its write reports it too late.
+   - **Retirement by the dispatch ticket.** A save whose request carries a retirement epoch
+     (`expectedEpoch`) that a retirement (`cancel_mbf_export`) has since
+     passed is cancelled, whenever its task runs: at its entry, before the model is decoded, or
+     when it registers its run. It replies `MBF-EXPORT-CANCELLED`, with no worker, no chooser
+     and no write (§3.7, "Dispatch ticket"). Once the epoch is exhausted (§3.7) every save is
+     refused `MBF-EXPORT-EPOCH-EXHAUSTED` at its entry, or cancelled when it registers, the same
+     way.
 8. **Writes.** No failure loses a file the user already had. The output ceiling is decided at
    step 5, before any write, so it never truncates valid file bytes and never leaves a partial
    pair.
@@ -487,26 +514,227 @@ only the staleness check of step 6.
     4570 bytes per model byte, before the writer refused the model.
 
   The k·M reservation, its constant and its counting-allocator pin are removed.
-- **Governance.** Native writer memory is to be governed by running the writer in the capped
+- **Governance.** Native writer memory is governed by running the writer in the capped
   worker process (owner decision 2026-10-12, "(c) Capped worker process"; Agent 0's ruling,
-  2026-11-01), in slice 4b. The host keeps its own reservations for the text, the outputs,
-  the read-back and the reply, below. Native writer memory governance and the live export are
-  unfinished until 4b's worker path is verified.
-- **4a is not connected.** 4a's production entry point (`save_mbf_export_admitted`) refuses
-  every request with `MBF-EXPORT-NOT-CONNECTED` before any parse, writer run, store opening,
-  chooser or file access. The in-process pipeline of §3.6 runs only through a test seam
-  (`InProcessWriterTestSeam`), whose constructor is compiled only for tests; no command,
-  menu or other entry point reaches it.
-- **Admission** (the design 4b connects). The command follows the DEL-04-07 ingress rules for model-sized interactive
-  commands: `command_ingress::admit(…, ArgsDecoding::Moved)` admits envelope + M + 4 KiB,
-  held until the command returns.
-- **Host-side reservations** (the design 4b connects). `PoolReadMemory` is seeded with the lease. Each of these is
-  reserved before it is made:
+  2026-11-01) as worker task 3 (slice 4b.2a, `mbf_worker.rs`). The host keeps its own
+  reservations for the text, the outputs, the read-back and the reply, below. The live export
+  (the menu item and the mounted dialog) is slice 4b.2b's.
+- **Connected (4b.2a).** The production entry points (`save_mbf_export_admitted`,
+  `review_mbf_export_admitted`) run task 3 through `mbf_worker::CappedWorkerRun`, the only
+  production writer run; `MBF-EXPORT-NOT-CONNECTED` is retired. The in-process run
+  (`InProcessWriterRun`) and its seam are compiled only for tests, and a source scan holds that
+  in production code task 3's workload arm is the only caller of `worker_render` and
+  `CappedWorkerRun` the only run.
+- **Admission.** Both commands take C1's form (DEL-04-05 `c1-native-custody-plan.md` §8,
+  "One running total per command"): the raw `args-json-v1` body is copied under a capped
+  interactive lease, which seeds the command's `memory_pool::CommandLedger` (through
+  `stored_read::NativeLeaseMemory`); the arguments' bound (envelope + M + 4 KiB,
+  `ArgsDecoding::Moved`) grows it before they are parsed (`command_ingress::admit_raw`). The
+  budget is captured then: min(the budget the copy's lease was admitted under, 12 GiB). Every
+  later lease of the command is reserved in that ledger before the pool admits it, and the
+  leases are held until the command's response is built (DEL-14-01 r4).
+- **The worker's leases** (4b.2a). Before the worker starts, one ledger bound
+  (`memory_pool::LedgerBound`) reserves the parent's copy of the request, the worker's grant up
+  to its maximum and the largest result lease (the resident envelope of the 64 MiB output
+  ceiling); the maximum grant is what the captured budget leaves after the command's other live
+  leases and those two, and a starting grant above it is refused `ingress_exceeds_budget` before
+  any worker starts. The grant is admitted under that maximum by the solve's queue wait
+  (`wait_acquire`, at most 2 s; cancellation or a newer review ends it), grows on demand up to it,
+  and is released only after the worker is reaped. The request copy is a capped interactive
+  lease. Once the worker is reaped the bound shrinks to the result lease, which is held until the
+  response is built. A result lease larger than the bound's share for it (the resident envelope
+  of the 64 MiB ceiling, which bounds every admitted length's) is refused
+  `MBF-EXPORT-WORKER-PROTOCOL` in every build, so the ledger never under-counts it.
+- **The bound takes the command's whole remaining budget.** While the worker runs, the bound
+  holds everything the captured budget leaves after the command's other live leases. A later
+  stage inside the same command (a reservation after the run) gets those bytes back only after
+  the bound shrinks to the result lease (`LedgerBound::shrink_to`) or drops. Dropping it,
+  including when the run fails, is cancelled or unwinds, returns the ledger exactly to its total
+  before the bound; a bound above the budget is refused with the ledger and the pool's
+  reservations unchanged.
+- **Cancellation** (`mbf_worker::MbfRuns`). A newer review or save cancels the older ones of
+  its kind. `cancel_mbf_export` is the only *retirement* (the performance session reset,
+  `dispose_all_preview_mechanics_results`, does not touch the MBF export; its contract is
+  performance's, unchanged by this slice). A retirement cancels every
+  run in progress (a waiting run stops waiting, a running worker is killed and reaped before its
+  grant is released, and a save before its commit writes nothing, §3.6 step 7) and moves a
+  monotone retirement epoch on, by a checked advance that never wraps. Every registered run stays tracked until its command ends,
+  committed saves included; a cancel reports each run it stopped (`cancelled`) and each
+  committed save it reached (`too_late`), and a run an earlier cancel stopped in neither.
+- **Dispatch ticket** (`expectedEpoch`). A run belongs to the retirement epoch its request
+  carries, not to when its task happens to run. Tauri 2 extracts an async command's arguments
+  inside the task it spawns, so a request sent before a retirement may begin after it.
+  - **The reply.** `cancel_mbf_export` takes `{retirementId}` (below, "Idempotent retirement")
+    as Tauri's JSON arguments, the form the frontend sends, or as an `args-json-v1` raw body
+    (below, "Wire form and bounds"). It replies
+    `{cancelled, too_late, epoch, retirement_id}`, where `epoch` is the retirement epoch after its
+    bump (`MbfRuns::retire_keyed`) and `retirement_id` echoes the id it answers.
+  - **The request.** Every `review_mbf_export` and `save_mbf_export` request carries the
+    frontend barrier's latest acknowledged epoch as `expectedEpoch`, a member of its admitted
+    `args-json-v1` arguments.
+  - **Native check.** The command reads the ticket from the admitted argument map
+    (`MbfRuns::enter`). This happens after admission and before the model or any other member
+    is decoded.
+    - A ticket below the current epoch was issued before a retirement since. It refuses
+      `MBF-EXPORT-CANCELLED`.
+    - A missing, `null` or malformed ticket (anything but a non-negative integer), or one above
+      the current epoch, is a protocol error: `MBF-EXPORT-EPOCH-INVALID`. It goes through the
+      normal ingress and argument-lease route.
+    - Either refusal registers no run, starts no worker, opens no chooser and writes nothing.
+  - **Later checkpoints.** An accepted ticket is compared again when the run registers, so a
+    retirement in between cancels the run from the start. After that, the registered run's own
+    cancellation applies: the wait, the worker, the pre-chooser check and the commit, §3.6
+    step 7.
+  - **Page mount.** The workspace sends a keyed retirement when it mounts (page load included),
+    whether or not a model check is running or the export was ever opened, so whatever an old
+    page left queued or running is retired then, not at a later first use. Every start waits for
+    an acknowledged retirement of its own page (the mount's, or else its own handshake).
+  - **Authority.** The ticket only binds a request to a retirement. It authorizes nothing: the
+    route evidence, the reviewed digests, the review's truncation and the commit are checked
+    as before.
+  - **Exhaustion.** The export enters a terminal, fail-closed *exhausted* state in either of
+    two cases. Only a restart of the app's process leaves it.
+    - *Epoch overflow.* A retirement finds the epoch at `u64::MAX` and cannot move it on. The
+      export becomes exhausted rather than wrapping or saturating (saturating would leave the
+      tickets at `u64::MAX` current), and the epoch stays at `u64::MAX`. Each applied
+      retirement moves the epoch by one, so this takes 2^64 of them in one process; it exists
+      so the epoch's meaning cannot fail silently.
+    - *Token capacity.* A retirement comes from a new page token once the host keeps
+      `RETIREMENT_PAGES_MAX` = 64 tokens (below, "No applied token is forgotten"). The token is
+      not recorded and the epoch is not moved on: it stays at its current value, far below
+      `u64::MAX`. Each page load makes one token, so in practice **the 65th distinct page load
+      in one process** (a webview reload counts) exhausts the MBF export until the app
+      restarts. This is an availability limit, chosen over evicting a token whose delayed
+      duplicate would then be applied again.
+    - In both, the retirement that exhausts the export cancels every run in progress as any
+      other does, and its reply adds `exhausted: true` with the epoch as it is (the member is
+      absent otherwise). From then on every request is refused `MBF-EXPORT-EPOCH-EXHAUSTED` at
+      its entry, whatever its ticket, a command that entered before is cancelled when it
+      registers, and later retirements stay exhausted; the epoch moves no more. The frontend
+      treats an exhausted reply as unacknowledged, so its starts refuse
+      `MBF-EXPORT-RETIREMENT-UNCONFIRMED`. The product text for this state (that a restart
+      recovers it) comes with 4b.2b's dialog; today's messages are developer wording.
+- **Idempotent retirement** (`retirementId`, `mbf_worker::RetirementId`). Each logical
+  retirement carries `{page, sequence}`: a random token of 32 lowercase hex digits made once per
+  page load (`crypto.getRandomValues`), and a sequence from 1 that rises by one per logical
+  retirement in that page. A re-delivery of the same logical retirement (the barrier's, or the
+  transport's) reuses it.
+  - **Native rule** (`MbfRuns::retire_keyed`). For every page token it has applied, the host
+    keeps the last sequence applied, and applies a retirement only when its sequence is above
+    it. A duplicate or older delivery is a no-op: it cancels nothing and moves nothing on, and
+    its reply says so truthfully (`duplicate: true`, `cancelled: 0`, `too_late: 0`, the
+    current epoch, the id echoed). A missing, `null` or malformed id (not an object of exactly
+    `page` and an integer `sequence` from 1 to 2^53 - 1) is refused
+    `MBF-EXPORT-RETIREMENT-ID-INVALID` and retires nothing.
+  - **No applied token is forgotten.** The host keeps at most 64 page tokens (one per page load
+    in the process) and never evicts one, since a forgotten token's delayed retry would be
+    applied again. A retirement from a new token beyond them is not recorded: it makes the
+    export exhausted (fail closed), cancelling every run in progress, with the epoch unmoved
+    (above, "Exhaustion": token capacity, recovered by a restart).
+  - **Ids are not authenticated.** A page token is random but not a secret, and the host does
+    not check who sends a retirement. Code running in the webview can send `cancel_mbf_export`
+    with any id: it could cancel MBF runs, or use up the 64 tokens and exhaust the export until
+    restart (a denial of service). It gains no save authority: a retirement only cancels and
+    refuses, and neither a token nor a ticket authorizes anything. This is not a security
+    boundary; the webview's code is trusted as for every other command.
+  - **Wire form and bounds** (`mbf_worker::cancel_command`; repair 6). The frontend sends the
+    retirement as Tauri's JSON arguments, `{"retirementId": {page, sequence}}` with no ingress
+    header, always, not only after a detected fallback: the page cannot see the fallback (the
+    flag is private to Tauri's transport script, and the invoke whose `fetch` failed is itself
+    resent through `postMessage`), and the JSON arguments arrive unchanged on both transports
+    (the custom protocol posts them as `application/json`; the fallback `JSON.stringify`s them
+    inside its message). The host admits this form for `cancel_mbf_export` only, beside the raw
+    form (an `args-json-v1` raw body with the ingress header, admitted as before); a JSON body
+    under the ingress header is still refused `INGRESS-RAW-BODY-REQUIRED`. Both forms read the
+    id from the same member by the same rule and retire by the one keyed path, so validation,
+    once-only application (a delivery in one form and a re-delivery in the other are one
+    logical retirement), receipts and exhaustion are identical. The starts
+    (`review_mbf_export`, `save_mbf_export`) stay raw-body only.
+    - *What the 4 KiB bound limits.* For the raw form, the raw bytes before the prescan and
+      before any lease (`INGRESS-ARGS-TOO-LARGE`), as for every bounded C1 command. For the JSON
+      form, Tauri parses the body into a `serde_json::Value` before the command runs, unpriced,
+      and neither transport limits a request's size first: the custom protocol reads the whole
+      body and parses it as JSON, and the fallback parses the whole message string. No check
+      of ours bounds Tauri's parse or its allocations, exactly as for every JSON-argument
+      command (`cancel_preview_mechanics_job`). The command's check bounds what follows: the
+      decoded arguments' canonical serialization is measured without allocating a serialized buffer (a
+      rejection allocates only serde_json's small boxed I/O error), and refused
+      `INGRESS-ARGS-TOO-LARGE` above 4 KiB before anything is read from them; anything but an
+      object is refused `INGRESS-ARGS-NOT-OBJECT`; the id is then copied out of at most that
+      many bytes. Like the JSON-argument commands, the form takes no ingress lease: the value a
+      lease would price already exists.
+  - **Frontend.** A receipt acknowledges a delivery only when it echoes that delivery's id; a
+    `duplicate` receipt for its own id acknowledges the current epoch. A page that cannot make
+    an id sends nothing, and the delivery is unacknowledged.
+  - **Source basis and limits** (Tauri 2.11.1 `scripts/ipc-protocol.js`; RT-U4's assessment).
+    A rejected `fetch`, or a failed read of its reply, makes the transport resend the command
+    through `postMessage` without cancelling or deduplicating the original delivery, which may
+    still reach the host. A settled invoke is therefore not every delivery of it. The same
+    failure also sets the page's `customProtocolIpcFailed` for good, and the fallback sends
+    through `JSON.stringify`, which turns a raw `Uint8Array` body into a JSON number array: the
+    raw-body ingress then refuses `review_mbf_export` and `save_mbf_export`
+    (`INGRESS-RAW-BODY-REQUIRED`). The keyed `cancel_mbf_export` is sent as JSON arguments
+    (above, "Wire form and bounds"), so after the flip the page's retirements are still
+    admitted and applied: a run admitted before the flip, a save waiting at its chooser
+    included, is stopped by the page's next retirement (a session retirement, or 4b.2b's dialog
+    close) before its commit, and writes nothing. The page can no longer start a run: each
+    start, sent raw, is refused at ingress and fails closed. So the schedule "fallback
+    acknowledged, fresh run admitted, delayed original cancels it" is not a demonstrated
+    same-page product path, and the tests that pin it are injected-fault tests of the rule.
+    Duplicate deliveries of an id the host has applied remain no-ops whatever their route or
+    form. Its frontend result is discarded by its generation, and the save's pre-commit checks
+    are unchanged. *Across a navigation* the order is not established:
+    a delayed first delivery from an old page (an id the host never applied) that arrives after
+    the new page's start is applied as a new retirement and cancels that start. Distinct page
+    tokens with their sequences do not order such a delivery in time, so this design does not
+    claim to prevent it. It is conditional, not established on WKWebView. Its effect is
+    fail-safe (the new start is cancelled, nothing is written, a committed save completes), and
+    RT-U4 documents C1's conditional accounting for it separately.
+- **The frontend barrier** (`features/caepipe-mbf/mbfExportCancel.ts`). Every MBF start
+  (`reviewMbfExport`, `saveMbfExport`, raw-body ingress commands) and every retirement
+  (`retireMbfExportSession`) goes through it. The workspace retires the export whenever it
+  retires a project session (each new session generation, a project replaced by one with the
+  same id included, React Strict Mode's re-run) and when it unmounts, independently of any
+  model check, and sends a keyed retirement when it mounts (§3.7, "Page mount"); slice 4b.2b's
+  dialog retires it when it closes. **Serialized retirements:**
+  each `cancel_mbf_export` delivery is sent only after the one before it has settled
+  (acknowledged or not); the barrier neither waits for nor sends the performance reset. Tauri
+  sends each invoke as an independent request, so send order is no barrier: without the chain,
+  an earlier retirement could be applied natively after a later one was acknowledged and a
+  fresh start sent, and cancel that start. The chain orders deliveries as the barrier sends
+  them; it cannot order a second delivery the transport makes of the same invoke, which the
+  native rule ("Idempotent retirement") makes a no-op. A start captures the
+  retirement generation as it is called, waits for the latest delivery (by the chain, every
+  delivery the barrier sent before it has then settled), and checks
+  immediately before every send (a headroom re-send included) that no retirement has been
+  requested since and that the caller's own session check (`stillCurrent`) holds; a stale
+  start is never sent and resolves `MBF-EXPORT-CANCELLED`. **Ticket:** the barrier records the
+  largest epoch any settled `cancel_mbf_export` delivery acknowledged; a reply without an
+  epoch, or an exhausted one, is not an acknowledgement. A start takes that epoch once, when its wait is over and it is still
+  current, and sends it as `expectedEpoch`, the same bytes in every re-send. A stale start
+  never refreshes its ticket; only a new, current start takes a newer acknowledgement. Until a
+  retirement has been acknowledged in the page, the first start delivers one as its handshake,
+  and concurrent first starts share it. Each result carries its generation
+  and `current()`, so the caller discards a completion that arrives after its session was
+  retired. **Semantics:** a retirement cancels every MBF run that started before it completed;
+  a start issued during a retirement reaches native only after it is acknowledged and is not
+  cancelled by it. **Fail-safe rule:** a start never treats an unacknowledged retirement (the
+  `cancel_mbf_export` invoke rejected or threw) as done. When the latest delivery is
+  unacknowledged it re-delivers it once, with the same id (shared by the starts waiting on it),
+  so a retirement the host applied whose reply was lost is a no-op there; if that is
+  unacknowledged too, the start is not sent and refuses `MBF-EXPORT-RETIREMENT-UNCONFIRMED`,
+  and the next start tries again. An earlier unacknowledged delivery followed by an
+  acknowledged one needs no re-delivery: the later one cancels every run started before it,
+  and the earlier one adds no epoch. The chain moves on once a delivery settles, so a failed
+  one never holds a start. No start has been sent since the retirement was requested, so a
+  re-delivery cancels only retired runs.
+- **Host-side reservations.** The command's ledger (`NativeLeaseMemory`) is seeded with the
+  lease. Each of these is reserved before it is made:
   - the settings' parse (1 MiB, for a settings text of at most 25 KiB);
   - the parse and the canonical copy;
-  - the worker's save result, at most the output ceiling below, and each host copy of it: the
-    result frame's buffer, any decoded copy, any buffer the atomic writer takes, and the receipt
-    or refusal reply are each leased;
+  - the worker's save result, at most the output ceiling below (the worker's result lease, held
+    through the response), and each host copy of it: any decoded copy, any buffer the atomic
+    writer takes, and the receipt or refusal reply are each leased;
   - a 64 KiB read-back block;
   - the response, bounded for a receipt, for the largest refusal after a write, and for a
     refusal before the chooser, which carries at most R of review (§3.9.5).
@@ -531,16 +759,16 @@ only the staleness check of step 6.
 - **Refusal.** A reservation the pool refuses refuses the save with
   `MBF-EXPORT-MEMORY-UNAVAILABLE`, including a refusal raised inside the admission's screen.
 - **Webview preview.** As built in 4a, the dialog's review runs the wasm writer in webview
-  memory, ungoverned; the dialog is not mounted. §3.9 (adopted design, Agent 0, 2026-11-02, not
-  implemented) finds five super-linear terms, none bounded by an existing limit. The shipped
+  memory, ungoverned; the dialog is not mounted. §3.9 (adopted design, Agent 0, 2026-11-02; its
+  native part implemented in 4b.1 and 4b.2a, the dialog's mounting 4b.2b's) finds five super-linear terms, none bounded by an existing limit. The shipped
   dialog therefore never runs the wasm writer: `review_mbf_export` runs the 4b worker in
   `review` mode and returns at most 1 MiB of review. The wasm writer remains only as an
   unconnected or test resource, never a fallback.
 
 ### 3.8 Reach-scan re-pin
 
-- **The pin.** Adding `save_mbf_export` and `review_mbf_export` (and `open_mbf_file`, §4.7)
-  changes the text of `app_invoke_handler`.
+- **The pin.** Adding `save_mbf_export`, `review_mbf_export` and `cancel_mbf_export` (and
+  `open_mbf_file`, §4.7) changes the text of `app_invoke_handler`.
   - The PR that adds each command re-pins its SHA-256 in `user_release_reach_scan.rs`
     `MACRO_DEFINITIONS`.
   - It extends the doc comment with the entries, each reviewed: no `mod`, no
@@ -552,7 +780,8 @@ only the staleness check of step 6.
 
 ### 3.9 Webview preview admission (adopted design)
 
-**Status: adopted design (Agent 0, 2026-11-02), not implemented.** Agent 0 chose (iii) with the
+**Status: adopted design (Agent 0, 2026-11-02); its native part is implemented (slices 4b.1 and
+4b.2a, §6), and mounting the dialog on `review_mbf_export` is slice 4b.2b's.** Agent 0 chose (iii) with the
 bounded review, the task-specific worker modes and the output ceiling recorded in §3.9.5,
 §3.9.7 and §3.7. This answers Agent 0's ruling of 2026-11-01. The ruling
 asks for every size dimension that makes the preview's allocations super-linear, set against
@@ -799,6 +1028,13 @@ existing per-invocation budget. R and the output ceiling are new MBF product-rou
 payload size; they set no webview allowance and do not change the per-invocation budget. (i) is not chosen, so no webview allowance is set.
 
 #### 3.9.6 Planned tests (not run)
+
+Slice 4b.2a runs the Rust worker tests below that need the capped worker, in a real worker
+process (`mbf_worker_tests.rs`, §6): review mode against the recorded reviews and digests, the
+truncated review blocking the save, the output ceiling refused before any result lease, a newer
+review killing the running worker, and a budget raised while a review waits. The dimension-table
+tests (Q1–Q5 in a worker), the at-limit save of a 64 MiB result and the Vitest cases remain
+planned.
 
 - **Confirming the dimension table.** These run in the engine crate, natively, with the counting
   allocator. Each doubles one factor with the others held, and expects the excess over the base
@@ -1193,6 +1429,207 @@ registered and no worker task is added.
   arm); `result_limit` at the 64 MiB ceiling; a `MbfWriterRun` over the capped worker; command registration and
   ingress for both commands; the `app_invoke_handler` re-pin; the menu item, the Exports panel and mounting the dialog;
   retiring the TypeScript builder (A-6); and the cancel, newer-review and budget tests of §3.9.6.
+
+**Slice 4b.2a, as implemented (2026-11-05).** 4b.2 is split again: 4b.2a connects the native path, 4b.2b
+the frontend. The production entry points run task 3 in the capped worker; `MBF-EXPORT-NOT-CONNECTED` is retired.
+
+- **Worker task 3** (`solve_worker.rs`, a shared file, minimal hunks; Agent 0: MBF owns code 3, hanger sizing
+  takes 4). `WorkerTask::MbfRender` is request code 3 in `task_code` and in the request's decode (codes 0 to 2
+  unchanged; 4 and above refused). Its `workload` arm returns `(mbf_export::worker_render(&raw)?, None)`: an `ATST`
+  status-0 frame, then `RSLT`, or the named failure. The pre-arm check stays `resident_envelope(raw_len) +
+  reserve` and the raw read; parsing happens after arm. `supervise` is unchanged.
+- **Registry getters** (`solve_jobs.rs`, shared; Agent 0's form): `pool()` loses its `cfg(test)`;
+  `worker_launcher()` borrows the registry's own launcher and `process_reserve()` returns its reserve. Nothing
+  else there changes; `run_model_checks` is untouched.
+- **Ledger bound** (`memory_pool.rs`, shared): `CommandLedger::bound` reserves a `LedgerBound` for leases the pool
+  admits for the command outside the ledger (the worker's grant, the request copy, the result lease), as one
+  delta before the first of them; `LedgerBound::shrink_to` releases it down exactly.
+- **The run** (`mbf_worker.rs`, MBF-owned). `CappedWorkerRun` (§3.7, "The worker's leases"): the bound, the
+  bounded queue wait (`MBF_START_WAIT`, 2 s, the model checks' window), the request copy, `supervise` with hooks
+  whose `result_limit` is the 64 MiB ceiling, and result custody (`WorkerResultHold`, held in the pipeline's
+  `Held` until the response is built). `WorkerOutcome` maps to the named codes: refused grant, growth, footprint,
+  request copy or wait (`MBF-EXPORT-MEMORY-UNAVAILABLE`, the review's `MBF-REVIEW-MEMORY-UNAVAILABLE`),
+  `ResultTooLarge` (`MBF-EXPORT-OUTPUT-TOO-LARGE`; the review's memory refusal), task 3's own named failure by its
+  code, any other failure, an attested result or a stopped worker (`MBF-EXPORT-WORKER-PROTOCOL`), and
+  cancellation (`MBF-EXPORT-CANCELLED`). `MbfRuns` (managed app state) holds at most one review and one save in
+  progress: a newer review cancels the older (its wait ends, or its worker is killed and reaped before its grant is
+  released). `MbfRuns::cancel_all` cancels both (as repaired below).
+- **Commands** (`lib.rs`): `review_mbf_export` and `save_mbf_export` are registered in `app_invoke_handler!` and
+  take C1's form (§3.7, "Admission"); the save's chooser offers `.mbf` and its library store opens only when the
+  document references a library. The save keeps §3.6's order: the `DOTH-MBF-012` route evidence, the settings,
+  the admission and screen, task 3 in `save` mode (a review is no authorization: the save's own run refuses a
+  truncated review `MBF-REVIEW-TRUNCATED`), the staleness check, then the chooser and 4a's transactional writes,
+  backups and refusals, unchanged. The `app_invoke_handler` pin is re-pinned (§3.8; the previous digest
+  reproduced first; the macro's only change is the two entries). The pipelines take the command's memory as
+  `ReadMemory`; the in-process run and its seam are compiled only for tests.
+- **DEL-14-01 r4.** A command's live leases (its argument lease and its growth, every named reservation, the
+  ledger bound covering the worker's grant, the request copy and the result lease) are counted in its one ledger
+  before the pool admits them, within the budget captured with the argument lease; a budget changed meanwhile
+  applies to later commands.
+- **Tests** (`mbf_worker_tests.rs`, with the real worker this test binary runs). Connected path: the review
+  command replies each production-limit review of `review_cases.json` byte for byte, with the recorded digests, its
+  result lease held at the response; the save command writes files whose SHA-256 are `export_digests.json`'s and
+  whose bytes are the engine's. These replace the NOT-CONNECTED tests. Then: the ingress refusals; the ledger
+  holding the whole budget while the worker runs and the result lease alone after it; the exact boundary (one byte
+  above the budget refused by name before any worker, at it the worker starts); a budget raised while a review
+  waits; cancellation in the queue wait and the wait's deadline; a newer review killing the running worker, and a
+  save's worker cancelled before any chooser; a worker above its grant; a result announced above the ceiling
+  refused before any result lease; tampered output (not an envelope, the other mode's envelope, an attested result,
+  the supervisor's protocol violations, an exit, a panic, a foreign failure name); and the save's own refusals
+  (truncated, over the ceiling, writer refusal, stale review, other route evidence). A `syn` scan holds the
+  production references to `worker_render`, task 3 and the run seam, with negative controls; `solve_worker.rs` adds
+  the task-code round trip. Mutations checked: no `result_limit`, no ledger bound and the result lease released
+  before the response each fail a test.
+- **Repair after the review at 9c5785a6d** (2026-11-05):
+  - *A superseded save could still write* (P2). The save checks its cancellation before the chooser and commits
+    under its run's lock after it (§3.6 step 7): a save superseded while its chooser was open refuses
+    `MBF-EXPORT-CANCELLED` and writes nothing, and a cancel after the commit is reported too late while the save
+    completes. 4a's transactional save, backups and refusal order are unchanged.
+  - *No production cancellation route* (P2). `cancel_mbf_export` (`lib.rs`, a no-argument command like
+    `cancel_model_checks`; reply `{cancelled, too_late}`) is registered in `app_invoke_handler!` and re-pinned
+    (§3.8). The native session reset (`dispose_all_preview_mechanics_results`, through `reset_native_session`)
+    cancels every MBF run before `dispose_all_results`. The frontend's project-session retirement calls it on its
+    own (`features/caepipe-mbf/mbfExportCancel.ts`, from `workspaceSession.ts`): the model-check effect cancels
+    natively only while a check is in flight, so it would not reach an MBF-only session. `solve_jobs.rs` keeps
+    its three getters only. Four Vitest files that list the exact native commands of another flow
+    (`App.test.tsx`, `modelStateHistory.session.test.tsx`, `modelDocumentSave.test.tsx`,
+    `storedDocumentExport.test.tsx`) now leave `cancel_mbf_export` out of those lists: it writes nothing.
+  - *Source scan* (P3). A file declared both as a test-only module and by a production `mod` is scanned:
+    production reachability is resolved over every declaration first, with dual-declaration negative controls.
+  - *Result lease* (RT-U4). The lease-size check is a hard refusal in every build (§3.7), and a test pins
+    `resident_envelope(length) <= RESULT_LEASE_BYTES` for every admissible length, with the envelope's monotonicity
+    checked piece by piece.
+  - *Tests added:* a save superseded while its chooser is held open writes nothing, and the later save completes;
+    a cancel after the commit is too late and the files are written; the session reset cancels a running review and
+    a queued save with no model check and releases everything; `cancel_mbf_export` stops the current run and is a
+    no-op with nothing running; the pipeline's two boundary checks with an in-process run; `LedgerBound`'s exact
+    shrink, drop and unwind and its over-budget refusal; and a Vitest of the session retirement (same-id replacement,
+    unmount, no model check). Mutations checked: no commit check, no pre-chooser check, no reset cancel, a cancel
+    that ignores the commit, a commit that ignores a cancel, the scan's old exclusion and no frontend retirement each
+    fail a test, none by hanging.
+- **Repair after the re-check at 6ccc68aff** (2026-11-05):
+  - *Retirement missed commands not yet registered* (P2). `MbfRuns` keeps a monotone retirement epoch; each
+    command captures it at entry (`lib.rs`, before its reservation, scheduling and admission) and a command
+    retired since registers cancelled from the start (§3.7, "Retirement epoch"). The page-load reset is a
+    retirement too.
+  - *An old session's cleanup could cancel a new session's run* (P2), with Agent 0's added boundary (an obsolete
+    start waiting on the retirement must not be sent after it). The frontend barrier (§3.7) serializes starts
+    behind retirements, re-checks the caller's generation immediately before every send, tags each result with
+    its generation, and states its fail-safe rule for an unacknowledged retirement. `review_mbf_export` and
+    `save_mbf_export` join `NATIVE_INGRESS_COMMANDS` and its test twin, sent only through the barrier.
+    `cancel_mbf_export` keeps no arguments.
+  - *A too-late cancel stopped tracking a committed save* (P3). Every run stays tracked until its command ends;
+    committed saves, superseded ones included, are reported too late by every cancel during their write.
+  - *Scan path spellings* (P3). The scan normalizes resolved module paths lexically (`.` dropped, `..` taken back)
+    before comparing declarations, with aliasing negative controls.
+  - *Tests added:* Rust, a review and a save retired before admission and before registration, by
+    `cancel_mbf_export` and by the page-load reset (no chooser, no write); a command entering after a retirement
+    is unaffected; a committed save stays too late through repeated cancels and supersession. Vitest: a start
+    issued during a delayed retirement is sent only after it, and is not cancelled; old starts waiting on a
+    retirement are never sent after a same-id replacement, a failed caller check, unmount, or Strict Mode's double
+    effect; a delayed old completion is tagged not current; an unacknowledged retirement (rejected, or thrown)
+    refuses `MBF-EXPORT-RETIREMENT-UNCONFIRMED` until a re-delivery is acknowledged; a start retired during a
+    headroom re-send is not sent again. Mutations checked: no entry-epoch check, committed runs dropped at a
+    cancel, a committed predecessor dropped at supersession, unnormalized scan paths, no frontend await, no
+    generation re-check before the send, a failed retirement treated as acknowledged and no session retirement
+    each fail a test, none by hanging.
+- **Repair: the dispatch ticket** (2026-11-05, the last repair's open matter 1). Native "entry" was the first
+  statement of the command body, which Tauri 2 runs in a spawned task. A start sent before a retirement whose
+  task first ran after it took the new epoch and escaped the retirement. Agent 0 confirmed the ticket design with
+  refinements, so the epoch now travels in the request (§3.7, "Dispatch ticket"): it is captured once per logical
+  start, kept through every re-send, validated before any model decode, and authorizes nothing. `lib.rs` no longer
+  captures an epoch. `cancel_mbf_export` replies the epoch. The MBF output bytes are unchanged.
+  - *Tests added:* Rust:
+    - a review and a save built with the old ticket, retired by `cancel_mbf_export` and by the page-load reset, and
+      only then run: `MBF-EXPORT-CANCELLED`, no worker launched, no chooser, no write, nothing tracked;
+    - a missing, `null`, string, negative, fractional, oversized or future ticket refuses
+      `MBF-EXPORT-EPOCH-INVALID` for both commands, before a model member of the wrong type is reached;
+    - the earlier tests now run with current tickets: a fresh start after each retirement reviews and saves the
+      recorded files, and a stale review or wrong route evidence with a current ticket is still refused.
+
+    Vitest:
+    - the first start in a page waits for one shared handshake and carries its epoch;
+    - a start issued while a retirement is on its way carries that retirement's epoch;
+    - an old start in a headroom re-send loop across a retirement keeps its old ticket, is never re-sent, and
+      resolves cancelled, while a new start carries the new epoch;
+    - a reply without an epoch is unacknowledged;
+    - the session tests check each start's ticket.
+  - *Mutations checked,* each failing a test, none by hanging: native code that ignores the ticket; a frontend
+    ticket captured when the start is called; one epoch behind; no handshake; no ticket sent; no re-check before a
+    re-send.
+- **Repair: serialized retirements and a non-wrapping epoch** (2026-11-05, the independent re-check at
+  f77172935).
+  - *Overlapping retirements could cancel a fresh run* (P2). Each delivery replaced the barrier's latest, and a
+    start waited only for that one; Tauri's invokes are independent requests, so retirement A sent before B could
+    be applied natively after B was acknowledged and a fresh start sent. Retirement deliveries are now a chain
+    (§3.7, "Serialized retirements"), headed by the page-load reset.
+  - *The epoch could wrap* (P3). `MbfRuns::retire` advances it with `checked_add`; on overflow the export is
+    exhausted (§3.7, "Exhaustion"), with the new code `MBF-EXPORT-EPOCH-EXHAUSTED`.
+  - *Tests added:* Rust: the epoch seeded at `u64::MAX - 1` and retired twice, with a review running at
+    `u64::MAX`: no wrap, the review cancelled and its worker reaped, the reply `exhausted`, every ticket refused
+    `MBF-EXPORT-EPOCH-EXHAUSTED` for both commands with no worker and no chooser, an earlier entry cancelled at
+    registration, later retirements still exhausted. Vitest: retirements A then B and a fresh start, answered
+    newest first by a host that cancels runs below each applied epoch: B is sent only after A settles, the start
+    after B, and it is not cancelled; a failed A then an acknowledged B: the start is sent with B's epoch, without
+    a re-delivery or a hang; no retirement, and so no start, is sent before the page-load reset settles; an
+    exhausted reply is unacknowledged. Mutations checked: no chain (the newest-first test fails), and an
+    unchecked advance (the boundary test fails).
+- **Repair 5: idempotent retirement** (2026-11-05, the independent re-check at 8cecfc1ce; Agent 0's
+  disposition).
+  - *A settled invoke is not every delivery* (P2). Tauri's transport may deliver one invoke twice (§3.7,
+    "Idempotent retirement", with its source basis and limits). `cancel_mbf_export` now takes `{retirementId}`
+    through the raw-body ingress and applies each id once; a duplicate or older id is a truthful no-op; applied
+    page tokens are never forgotten, and a new token beyond 64 exhausts the export. The barrier gives each
+    logical retirement its id, reuses it on re-delivery, and accepts a receipt only for its own id.
+  - *The reset* (option (a)). The performance reset's unkeyed MBF retirement is removed:
+    `dispose_all_preview_mechanics_results` is again exactly its pre-4b.2a body, and `reset_native_session` is
+    gone. The workspace sends a keyed retirement at mount (page load included), and the barrier no longer waits
+    for the reset. The ticket, the generation guards and the pre-commit rules are unchanged.
+  - *Tests added:* Rust: the reset leaves a running review and the epoch alone, and the new page's keyed mount
+    retirement stops it; an injected-fault schedule (the resend applied, a fresh review running, the delayed
+    original and an older id of the same page each a no-op with a truthful receipt, a new page token stopping
+    the review); 64 tokens applied, a fresh review running, a delayed duplicate of the oldest a no-op, then a new
+    token exhausting the export (the review stopped, the epoch unmoved, no token evicted, starts refused); a
+    missing, `null` or malformed id refused `MBF-EXPORT-RETIREMENT-ID-INVALID` with nothing cancelled or
+    recorded, and a request without the ingress header or above the argument bound refused at ingress; the
+    earlier retirement tests run with the keyed page-mount retirement in place of the reset. Vitest: ids (one
+    page token, rising sequences, a new token per page); the injected-fault schedule against a host mock that
+    applies the keyed rule, with an in-test control showing a host that ignores the sequence cancels the fresh
+    start; a re-delivery reuses the id and the duplicate receipt acknowledges; a headroom re-send reuses the
+    body; a receipt for another id is no acknowledgement; the workspace mount sends a keyed retirement with no
+    model check or export open, and the first start waits for it; the barrier neither waits for nor sends the
+    reset.
+- **Repair 6: retirement after the transport's fallback** (2026-11-05, the independent re-check at
+  d4517a4e5; Agent 0's option (ii)).
+  - *P2.* After Tauri's `postMessage` fallback a raw-body cancel arrived as a JSON number array and was refused,
+    so an admitted save could pass its pre-chooser check and its commit and write despite the retirement. The
+    frontend now always sends `cancel_mbf_export` as Tauri's JSON arguments, and the host admits that one form
+    for this command beside the raw form, through the one keyed path (§3.7, "Wire form and bounds", with what
+    the 4 KiB bound does and does not limit). The starts stay raw-body only; no other command changes, and the
+    handler list is unchanged. `cancel_mbf_export` leaves the frontend's ingress command lists.
+  - *P3.* The code and this Design no longer say the page-load reset bumps the epoch (the keyed mount retirement
+    does), and distinguish the two exhaustion states, their recovery by restart, the 65th-page-load limit and
+    the ids' lack of authentication (§3.7).
+  - *Tests added:* Rust, with the bodies Tauri 2.11.1's transports deliver (the custom protocol's JSON body; the
+    fallback's message parsed as Tauri does, its `payload` the body and its `options.headers` the headers): an
+    admitted save waiting at its chooser, then the raw form after the fallback refused `INGRESS-RAW-BODY-REQUIRED`
+    with nothing stopped, then the JSON form applied, the save replying `MBF-EXPORT-CANCELLED` with nothing
+    written and its ledger and grant released; one id delivered raw and as JSON (each order) applied once, the
+    second a `duplicate` no-op; every malformed id refused `MBF-EXPORT-RETIREMENT-ID-INVALID` in the JSON form
+    too, a JSON body that is not an object or is over 4 KiB refused at ingress. Vitest: an emulation of the
+    transport (the IPC replacer, the fallback's message) and of the host's accepted forms; an admitted save,
+    then the fallback, then a retirement whose reply is lost: the save is cancelled, and the next start
+    re-delivers the same id in the JSON form (a duplicate, acknowledged) and is itself refused raw; the cancel
+    is sent as JSON with no ingress header, and the raw body does not survive the fallback. The headroom re-send
+    test of the cancel is removed: the JSON form takes no lease. Mutations checked: a host that refuses the JSON
+    form fails the regression, the duplicate test and the malformed test; a frontend that sends the cancel raw
+    fails both fallback tests.
+- **4b.2b** (next, not here): the menu item, the Exports panel action, and mounting the dialog on the barrier's
+  `reviewMbfExport` and `saveMbfExport` (already ingress commands, slice 4b.2a's repair), the dialog's close
+  calling `retireMbfExportSession`, discarding a result whose `current()` is false, retiring the TypeScript
+  builder (A-6), and the user-facing product text for the barrier's and the ticket's refusals
+  (`MBF-EXPORT-RETIREMENT-UNCONFIRMED`, `MBF-EXPORT-EPOCH-INVALID` and `MBF-EXPORT-EPOCH-EXHAUSTED`), whose
+  current messages are developer wording.
 
 ## 7. Boundaries
 
