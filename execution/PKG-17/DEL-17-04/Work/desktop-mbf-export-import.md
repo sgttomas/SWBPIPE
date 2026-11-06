@@ -343,9 +343,12 @@ writer and importer. These are the CAEPIPE lane's work, not desktop work (Q-3):
   `MBF-EXPORT-EPOCH-EXHAUSTED` (export is unavailable until SWBPIPE restarts, which recovers it),
   and `INGRESS-RAW-BODY-REQUIRED`, which a start meets once the window's transport has fallen
   back ("Export isn't available in this window. … Reload the window or restart SWBPIPE to
-  export again."). A save that was already writing when the dialog closed finishes; the
-  close's retirement reports it too late, and the status line says that the files were written.
-  No text names the mechanism (epochs, ids or tickets), and none suggests that anything grants a
+  export again."). A close that reaches a save past its commit does not stop it, and the save
+  may still finish, or fail and undo itself: the status line first says only that the export
+  "was already writing its files when it was closed; it is finishing", then the save's own
+  outcome (`closedSaveStatusLine`): both files named when it saved, or its codes with their text
+  when it failed or was undone. Each line names the export's project, and "from an earlier
+  project session" once the session has changed. No text names the mechanism (epochs, ids or tickets), and none suggests that anything grants a
   save.
 
 | Condition | Effect |
@@ -1657,17 +1660,24 @@ identity file changes; `app_invoke_handler` is unchanged, so the reach-scan pin 
   Save Model Document does), resolves the model's library references, and opens the dialog unless the session moved
   on meanwhile. It supplies the barrier's `reviewMbfExport` (or null off the native runtime, so the browser-only route
   declines with `MBF-REVIEW-NATIVE-ONLY` before anything reaches the barrier), its `saveMbfExport`, and `retire`
-  (`retireMbfExportSession`). The dialog is modal like Save Model Document: the workspace is inert and menu commands,
+  (the session's one retirement for this request, `mbfExportSession.ts`). The dialog is modal like Save Model Document: the workspace is inert and menu commands,
   accelerators, close requests and project commands are held while it is open (`mbfExportDialogOpenRef`).
-- **Close and stale results.** Closing or unmounting the dialog sends one keyed retirement through the barrier. The
-  dialog's services take its own `stillCurrent` (a review its newer review or close superseded; a save whose dialog
-  closed), which the barrier checks before every send, and the dialog discards any result whose `current()` is false
-  or whose dialog has closed. A save already writing when the dialog closes completes natively; when the close's
-  receipt counts it `too_late`, the status line says the files were written (`MBF_EXPORT_TOO_LATE_SENTENCE`). A new
-  project session closes the dialog; the session's own retirement is 4b.2a's, unchanged. The barrier, its ticket,
-  its ids and its guards are mounted as they are; nothing re-implements them.
-- **Product text** (§3.3, "The export's own refusals"). `MBF_EXPORT_REFUSAL_TEXT` and `mbfFailureDiagnostic` in
-  `mbfExport.ts`: the dialog shows each code with its product text in place of the native wording, and a start
+- **Close and stale results.** Close, Escape, an App unmount and a session replacement each send one logical
+  retirement through the barrier (`mbfExportSession.ts`): an open dialog request is the session's retirement until the
+  user closes it and its retirement has been sent, so the dialog's cleanup and the session's end call one retire, and
+  only the first call sends; with no request held, the session's end retires on its own (4b.2a's). The dialog's
+  services take its own `stillCurrent` (a review its newer review or close superseded; a save whose dialog closed),
+  which the barrier checks before every send, and the dialog discards any result whose `current()` is false or whose
+  dialog has closed. Each new request starts with Save available (`saving` and the rest of its state are reset), so a
+  save of a closed dialog never holds the next one. A native `too_late` means only that the close crossed the save's
+  commit: `write_pair` still runs and can fail or undo itself. So a save that had not settled when its request was
+  retired is the session's to report: a `too_late` receipt reports it as finishing, and its own eventual outcome is
+  reported, saved or refused (a cancelled save, which wrote nothing, is not). The report keeps the request's project
+  and session: after a new project session it is named as an earlier session's export, never as the current project's.
+  A new project session closes the dialog. The barrier, its ticket, its ids and its guards are mounted as they are;
+  nothing re-implements them.
+- **Product text** (§3.3, "The export's own refusals"). `MBF_EXPORT_REFUSAL_TEXT`, `mbfRefusalText`,
+  `closedSaveStatusLine` and `mbfFailureDiagnostic` in `mbfExport.ts`: the dialog shows each code with its product text in place of the native wording, and a start
   refused `INGRESS-RAW-BODY-REQUIRED` declines the review with "Export isn't available in this window".
 - **A-6.** `CaepipeMbfExportPanel.tsx` no longer builds a package or MBF text: `buildCaePipeMbfExportPacket`, its
   package and MBF text links (with their `ControlledExportLink` route entries), its project-id file names, its
@@ -1675,7 +1685,16 @@ identity file changes; `app_invoke_handler` is unchanged, so the reach-scan pin 
   tests of them (`exportLengthConversion.test.tsx`, `exportProjectUnitRefusal.test.tsx` keep their PCF and local FEA
   cases). `services/mbfEngine.ts` stays as the test resource 4b.1 left it; no product source imports it.
   `apps/desktop/native-smoke/expected.json` is unchanged; the smoke driver's MBF control probe and the Playwright
-  smoke's panel assertion follow the new action (neither was run).
+  smoke's panel assertion follow the new action (neither was run). The live records that described the preview
+  package are reconciled with the native export: `ExportReviewPanel.tsx`'s `caepipe_mbf_export` record and
+  `ExportAdapterSdkPanel.tsx`'s target now state the native writer, the local-private route `DOTH-MBF-012` with its
+  explicit choice, a model-only payload with no result data, the identity file, and (in the review record) that the
+  files hold private project data (`private_payload_included: true`, so the manifest's private-payload count is 1).
+  Their `export_id`/`target_id`, `document_kind` and `target_family` keep their historical spelling. The preview's
+  public report template and its unit and conversion-witness surface in `ReportLintPanel.tsx` are retired, not moved
+  onto the local-private model files (unit-policy targets 44 to 43, conversion-witness targets 2 to 1, lint targets 46
+  to 45; the export review's lint record and the Playwright smoke follow, unrun). `redactionExportControls.ts` keeps
+  its handlers for the preview package's document kind, for historical payloads.
 - **Tests.** Vitest: `App.mbfExportDialog.test.tsx` runs the real App against a mocked native host: the native menu's
   event and the in-window File menu item open the dialog, the Exports panel's action opens it and focus returns
   there, review then save through the native commands (the canonical text and its hash, the reviewed digests, the
@@ -1687,13 +1706,18 @@ identity file changes; `app_invoke_handler` is unchanged, so the reach-scan pin 
   mechanism and grant nothing; and a source scan that no product source keeps the builder, its links or the wasm
   engine. `App.test.tsx`'s MBF block now opens the mounted dialog from the panel (browser route) and closes it, in
   place of the retired summary and profile. Rust: `native_file_menu_offers_export_mbf_after_save_handoff` and the
-  busy-state test's list.
+  busy-state test's list. Repair round: `mbfExportSession.test.ts` holds the retirement counts in every order
+  (close, unmount, session replacement with the dialog open, no dialog, a request never mounted) and the closed-save
+  reports; `App.mbfExportDialog.test.tsx` holds a save closed after its commit that then saves, fails to write, or is
+  undone, one that completes after a new project session (named as the earlier session's), reopening during a pending
+  save before and after it settles, and exact retirement counts for Close, Escape and an App unmount. A session
+  replacement with the dialog open cannot be reached through the App (every session-replacing command is held while
+  it is open), so its count is held at the owner.
 - **Open.** Criterion 6 is not claimed: the reference system still needs the coverage tranches and the round-trip
   check (slices 5 and 6). The panel and menu keep the `caepipe-mbf` output gate although the export now carries no
-  result data; whether that surface should leave `OUTPUT_SURFACES` is Agent 0's. The descriptive records that still
-  describe the retired preview template (`ExportReviewPanel.tsx`'s `caepipe_mbf_export` record,
-  `ExportAdapterSdkPanel.tsx`'s target, `ReportLintPanel.tsx`'s unit-policy surface and template target, and
-  `redactionExportControls.ts`'s document kind) are left for their owners. No App launch, Playwright, native smoke or
+  result data; its removal is a separate follow-up. The external-run evidence record and panel (DEL-17-05) still
+  name the retired preview package by its reference (`caepipe-mbf:desktop-preview-del-17-04`), which DEL-17-05's
+  parser-only contract requires; that is DEL-17-05's. No App launch, Playwright, native smoke or
   model run was made.
 
 ## 7. Boundaries

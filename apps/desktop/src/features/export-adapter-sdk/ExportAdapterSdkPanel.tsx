@@ -1,3 +1,4 @@
+import { MBF_PROFILE_OPEN_ITEMS } from "../caepipe-mbf/mbfExport";
 import type { SessionAnalysisRun, SessionResult } from "../../services/nativeResult";
 import { Download, Puzzle } from "lucide-react";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
@@ -369,17 +370,20 @@ function exportAdapterTargets(): ExportAdapterTarget[] {
       validation_status: "blocked_missing_explicit_pcf_target_fields",
       unresolved_tbd_refs: ["target_profile_version_basis", "nominal_size_source_basis"]
     }),
+    // DEL-17-04 slice 4b.2b: the native, local-private model export (route DOTH-MBF-012): the native writer's
+    // review, then the .mbf and its identity file in a folder the user chooses; model only, no result data. The
+    // TypeScript preview package is retired (A-6); `target_id`, `document_kind` and `target_family` are identifiers.
     target({
       target_id: "caepipe_mbf_export",
       label: "Model batch file (.mbf) export",
       document_kind: "openpipestress.technical_preview.caepipe_mbf_export_package",
       deliverable_refs: ["DEL-17-04", "DEL-17-02", "DEL-17-01"],
       target_family: "caepipe_mbf",
-      registry_state: "candidate_target_smoke_subset_preview_surface",
+      registry_state: "native_local_private_model_export",
       source_basis_state: "source_basis_tbd_or_partial",
-      stable_id_policy: "sidecar_stable_id_map_until_direct_carrier_confirmed",
-      validation_status: "boundary_checked",
-      unresolved_tbd_refs: ["TBD-17-01-001", "TBD-17-01-002", "TBD-17-01-003"]
+      stable_id_policy: "identity_file_stable_id_map_beside_mbf",
+      validation_status: "native_review_before_save",
+      unresolved_tbd_refs: [...MBF_PROFILE_OPEN_ITEMS]
     })
   ];
 }

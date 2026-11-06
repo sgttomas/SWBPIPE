@@ -13,8 +13,8 @@ import {
   MBF_EXPORT_EPOCH_EXHAUSTED,
   MBF_EXPORT_REFUSAL_TEXT,
   MBF_EXPORT_ROUTE_ID,
-  MBF_EXPORT_TOO_LATE_SENTENCE,
   MBF_REVIEW_NATIVE_ONLY,
+  closedSaveStatusLine,
   type MbfExportSaveOutcome,
   type MbfReviewPayload
 } from "./features/caepipe-mbf/mbfExport";
@@ -67,6 +67,7 @@ function nativeHost(options: {
   review?: (args: Args) => unknown;
   save?: (args: Args) => unknown;
   tooLate?: () => number;
+  other?: (command: string, args: Args) => unknown;
 } = {}) {
   const commands: Array<{ command: string; args: Args }> = [];
   const held: Held[] = [];
@@ -86,7 +87,7 @@ function nativeHost(options: {
       case "save_mbf_export":
         return Promise.resolve(options.save ? options.save(args) : SAVED);
       default:
-        return Promise.reject(new Error(`Unexpected command ${command}`));
+        return options.other ? Promise.resolve(options.other(command, args)) : Promise.reject(new Error(`Unexpected command ${command}`));
     }
   });
   const named = (command: string) => commands.filter((item) => item.command === command);
@@ -167,6 +168,8 @@ describe("File > Export MBF… (the mounted dialog)", () => {
     fireEvent.click(within(opened).getByTestId("mbf-export-cancel"));
     await waitFor(() => expect(screen.queryByTestId("mbf-export-dialog")).toBeNull());
     await waitFor(() => expect(host.count("cancel_mbf_export")).toBe(cancels + 1));
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 50)); });
+    expect(host.count("cancel_mbf_export")).toBe(cancels + 1);
     expect(screen.getByTestId("desktop-preview-shell")).not.toHaveAttribute("inert");
     // It opens again, and Escape closes it.
     const reopened = await openFromMenu();
@@ -174,6 +177,8 @@ describe("File > Export MBF… (the mounted dialog)", () => {
     fireEvent.keyDown(window, { key: "Escape" });
     await waitFor(() => expect(screen.queryByTestId("mbf-export-dialog")).toBeNull());
     await waitFor(() => expect(host.count("cancel_mbf_export")).toBe(cancels + 2));
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 50)); });
+    expect(host.count("cancel_mbf_export")).toBe(cancels + 2);
   }, 60000);
 
   it("opens the same dialog from the Exports section's Model batch file panel", async () => {
@@ -243,24 +248,113 @@ describe("File > Export MBF… (the mounted dialog)", () => {
     expect(host.held[1].args.expectedEpoch as number).toBeGreaterThan(host.held[0].args.expectedEpoch as number);
   }, 60000);
 
-  it("reports a save that was already writing when the dialog closed: the files were written", async () => {
+  /** Opens the dialog, starts a save the host holds, and closes the dialog once the save has committed natively (the
+   * close's retirement reaches it too late). The project's name and the held save. */
+  async function closeDuringCommittedSave(options: Parameters<typeof nativeHost>[0] = {}) {
     let tooLate = 0;
-    const host = nativeHost({ hold: new Set(["save_mbf_export"]), tooLate: () => tooLate });
+    const host = nativeHost({ ...options, hold: new Set(["save_mbf_export"]), tooLate: () => tooLate });
     await renderApp();
     setTauriRuntime();
     const opened = await openFromMenu();
     await within(opened).findByTestId("mbf-export-profile", {}, { timeout: 20000 });
+    const projectName = (JSON.parse(host.named("review_mbf_export")[0].args.canonicalText as string) as { project: { name: string } }).project.name;
     fireEvent.click(within(opened).getByTestId("mbf-export-intent"));
     fireEvent.click(within(opened).getByTestId("mbf-export-save"));
     await waitFor(() => expect(host.held).toHaveLength(1));
-    // The save has committed natively: the close's retirement reaches it too late.
     tooLate = 1;
+    const cancels = host.count("cancel_mbf_export");
     fireEvent.click(within(opened).getByTestId("mbf-export-cancel"));
-    await waitFor(() => expect(projectMessage()).toHaveTextContent(MBF_EXPORT_TOO_LATE_SENTENCE));
-    // Its own outcome arrives after the close and is not shown anywhere.
-    await act(async () => { host.held[0].resolve(SAVED); });
+    await waitFor(() => expect(screen.queryByTestId("mbf-export-dialog")).toBeNull());
+    // A committed save may still finish or fail: the status line says only that it is finishing.
+    const attribution = { projectName, earlierSession: false };
+    await waitFor(() => expect(projectMessage()).toHaveTextContent(closedSaveStatusLine({ kind: "finishing" }, attribution)));
+    expect(projectMessage().textContent).not.toMatch(/written|saved/i);
+    expect(host.count("cancel_mbf_export")).toBe(cancels + 1);
+    return { host, save: host.held[0], projectName, attribution };
+  }
+
+  it("a save that had committed when the dialog closed: finishing, then both files written once it has saved", async () => {
+    const { save, attribution } = await closeDuringCommittedSave();
+    await act(async () => { save.resolve(SAVED); });
+    await waitFor(() => expect(projectMessage()).toHaveTextContent(closedSaveStatusLine({ kind: "saved", outcome: SAVED as Extract<MbfExportSaveOutcome, { outcome: "saved" }> }, attribution)));
+    expect(projectMessage()).toHaveTextContent("both files were written, swbpipe-model.mbf and its identity file swbpipe-model.swbpipe-ids.json");
     expect(screen.queryByTestId("mbf-export-dialog")).toBeNull();
-    expect(projectMessage()).toHaveTextContent(MBF_EXPORT_TOO_LATE_SENTENCE);
+  }, 60000);
+
+  it("a save that had committed when the dialog closed and then failed to write: the failure, not success", async () => {
+    const { save, attribution } = await closeDuringCommittedSave();
+    const diagnostics = [{ code: "MBF-EXPORT-SAVE-RENAME-FAILED", path: "", message: "Invented: the model batch file could not be moved into place. Nothing was kept." }];
+    await act(async () => { save.resolve({ outcome: "refused", diagnostics }); });
+    await waitFor(() => expect(projectMessage()).toHaveTextContent(closedSaveStatusLine({ kind: "failed", diagnostics }, attribution)));
+    expect(projectMessage()).toHaveTextContent("did not finish. MBF-EXPORT-SAVE-RENAME-FAILED: Invented: the model batch file could not be moved into place.");
+    expect(projectMessage().textContent).not.toMatch(/were written|finished:/);
+  }, 60000);
+
+  it("a save that had committed when the dialog closed and then undid itself: the rollback's own codes", async () => {
+    const { save, attribution } = await closeDuringCommittedSave();
+    const diagnostics = [
+      { code: "MBF-EXPORT-READBACK-MISMATCH", path: "", message: "Invented: the file read back differs from what was written. The save was undone." },
+      { code: "MBF-EXPORT-ROLLBACK-INCOMPLETE", path: "", message: "Invented: kept as .swbpipe-mbf-0.bak; rename it back by hand." }
+    ];
+    await act(async () => { save.resolve({ outcome: "refused", diagnostics }); });
+    await waitFor(() => expect(projectMessage()).toHaveTextContent(closedSaveStatusLine({ kind: "failed", diagnostics }, attribution)));
+    expect(projectMessage()).toHaveTextContent("MBF-EXPORT-READBACK-MISMATCH");
+    expect(projectMessage()).toHaveTextContent("MBF-EXPORT-ROLLBACK-INCOMPLETE: Invented: kept as .swbpipe-mbf-0.bak");
+    expect(projectMessage().textContent).not.toMatch(/were written|finished:/);
+  }, 60000);
+
+  it("a committed save that completes after a new project session reports as the earlier session's export, never the new project's", async () => {
+    let second: Record<string, unknown> | null = null;
+    const { host, save, projectName } = await closeDuringCommittedSave({
+      other: (command) => command === "open_model_document_file"
+        ? { outcome: "opened", file_name: "invented-second.json", byte_count: 1, schema_status: "current", document: second }
+        : Promise.reject(new Error(`Unexpected command ${command}`))
+    });
+    const document = JSON.parse(host.named("review_mbf_export")[0].args.canonicalText as string) as { project: { name: string } };
+    document.project.name = "Second invented project";
+    second = document as unknown as Record<string, unknown>;
+    act(() => nativeMenuCommand("file.open-model"));
+    await waitFor(() => expect(host.count("open_model_document_file")).toBe(1));
+    await waitFor(() => expect(screen.getAllByText(/Second invented project/).length).toBeGreaterThan(0), { timeout: 20000 });
+    await act(async () => { save.resolve(SAVED); });
+    const attributed = closedSaveStatusLine({ kind: "saved", outcome: SAVED as Extract<MbfExportSaveOutcome, { outcome: "saved" }> }, { projectName, earlierSession: true });
+    await waitFor(() => expect(projectMessage()).toHaveTextContent(attributed));
+    expect(projectMessage()).toHaveTextContent(`The export of "${projectName}" from an earlier project session`);
+    expect(projectMessage().textContent).not.toContain("Second invented project");
+  }, 60000);
+
+  it("closing during a save leaves the next dialog usable, before and after the old save settles", async () => {
+    const host = nativeHost({ hold: new Set(["save_mbf_export"]) });
+    await renderApp();
+    setTauriRuntime();
+    const first = await openFromMenu();
+    await within(first).findByTestId("mbf-export-profile", {}, { timeout: 20000 });
+    fireEvent.click(within(first).getByTestId("mbf-export-intent"));
+    fireEvent.click(within(first).getByTestId("mbf-export-save"));
+    await waitFor(() => expect(host.held).toHaveLength(1));
+    expect(within(first).getByTestId("mbf-export-save")).toHaveTextContent("Saving…");
+    fireEvent.click(within(first).getByTestId("mbf-export-cancel"));
+    await waitFor(() => expect(screen.queryByTestId("mbf-export-dialog")).toBeNull());
+    // Reopened while the old save is still unsettled: Save is offered again.
+    const reopened = await openFromMenu();
+    await within(reopened).findByTestId("mbf-export-profile", {}, { timeout: 20000 });
+    const save = within(reopened).getByTestId("mbf-export-save") as HTMLButtonElement;
+    expect(save).toHaveTextContent("Choose file and save…");
+    fireEvent.click(within(reopened).getByTestId("mbf-export-intent"));
+    expect(save.disabled).toBe(false);
+    // The old save settles (cancelled by the close): the new dialog is unchanged.
+    await act(async () => { host.held[0].resolve({ outcome: "refused", diagnostics: [{ code: "MBF-EXPORT-CANCELLED", path: "", message: "cancelled" }] }); });
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 20)); });
+    expect(save).toHaveTextContent("Choose file and save…");
+    expect(save.disabled).toBe(false);
+    expect(within(reopened).queryByTestId("mbf-export-refusal")).toBeNull();
+    // And it saves.
+    fireEvent.click(save);
+    await waitFor(() => expect(host.held).toHaveLength(2));
+    expect(save).toHaveTextContent("Saving…");
+    await act(async () => { host.held[1].resolve(SAVED); });
+    await waitFor(() => expect(within(reopened).getByTestId("mbf-export-status")).toHaveTextContent("Saved swbpipe-model.mbf"));
+    expect(save).toHaveTextContent("Choose file and save…");
   }, 60000);
 
   it("says what to do when the export is exhausted (restart) or the window can no longer send it (reload or restart)", async () => {
@@ -293,7 +387,10 @@ describe("File > Export MBF… (the mounted dialog)", () => {
     await waitFor(() => expect(host.held).toHaveLength(1));
     const cancels = host.count("cancel_mbf_export");
     view.unmount();
-    await waitFor(() => expect(host.count("cancel_mbf_export")).toBeGreaterThan(cancels));
+    // One logical retirement: the dialog's and the workspace's cleanup share it.
+    await waitFor(() => expect(host.count("cancel_mbf_export")).toBe(cancels + 1));
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 50)); });
+    expect(host.count("cancel_mbf_export")).toBe(cancels + 1);
     // The late review answers into nothing.
     await act(async () => { host.held[0].resolve({ outcome: "reviewed", review: payload("degc-default") }); });
     expect(screen.queryByTestId("mbf-export-dialog")).toBeNull();

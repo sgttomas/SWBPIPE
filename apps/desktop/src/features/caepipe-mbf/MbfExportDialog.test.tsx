@@ -29,12 +29,12 @@ import {
   MBF_EXPORT_RETIREMENT_ID_INVALID,
   MBF_EXPORT_RETIREMENT_UNCONFIRMED,
   MBF_EXPORT_REVIEW_STALE,
-  MBF_EXPORT_TOO_LATE_SENTENCE,
   MBF_EXPORT_ROUTE_ID,
   MBF_LOSS_DESCRIPTIONS,
   MBF_PROFILE_LABEL,
   MBF_REVIEW_NATIVE_ONLY,
   MBF_REVIEW_TRUNCATED,
+  closedSaveStatusLine,
   fileNameSlug,
   mbfReview,
   mbfSettingsJson,
@@ -594,7 +594,12 @@ describe("MbfExportDialog, mounted (slice 4b.2b)", () => {
   });
 
   it("states what the user can do, names no mechanism and never suggests that anything grants a save", () => {
-    const texts = [...Object.values(MBF_EXPORT_REFUSAL_TEXT), MBF_EXPORT_TOO_LATE_SENTENCE];
+    const attribution = { projectName: "Invented project", earlierSession: false };
+    const saved = SAVED as Extract<MbfExportSaveOutcome, { outcome: "saved" }>;
+    const finishing = closedSaveStatusLine({ kind: "finishing" }, attribution);
+    const savedLine = closedSaveStatusLine({ kind: "saved", outcome: saved }, attribution);
+    const failedLine = closedSaveStatusLine({ kind: "failed", diagnostics: [{ code: "MBF-EXPORT-SAVE-RENAME-FAILED", path: "", message: "Invented write failure." }] }, attribution);
+    const texts = [...Object.values(MBF_EXPORT_REFUSAL_TEXT), finishing, savedLine, failedLine];
     for (const text of texts) {
       expect(text).not.toMatch(/epoch|token|ticket|sequence|retire|barrier|ingress|fallback|raw|authori[sz]|permi(t|ssion)|grant/i);
       expect(text).not.toMatch(/CAEPIPE|target program/i);
@@ -604,8 +609,13 @@ describe("MbfExportDialog, mounted (slice 4b.2b)", () => {
     for (const code of [MBF_EXPORT_RETIREMENT_UNCONFIRMED, MBF_EXPORT_EPOCH_INVALID, MBF_EXPORT_RETIREMENT_ID_INVALID]) {
       expect(MBF_EXPORT_REFUSAL_TEXT[code]).toContain("Try again");
     }
-    // A save that completed although it was cancelled says that the files were written.
-    expect(MBF_EXPORT_TOO_LATE_SENTENCE).toContain("were written");
+    // A save closed after its commit is only finishing; its own outcome then says what happened.
+    expect(finishing).toBe('The export of "Invented project" was already writing its files when it was closed; it is finishing.');
+    expect(finishing).not.toMatch(/written|saved/i);
+    expect(savedLine).toContain("both files were written, swbpipe-model.mbf and its identity file swbpipe-model.swbpipe-ids.json");
+    expect(failedLine).toContain("did not finish. MBF-EXPORT-SAVE-RENAME-FAILED: Invented write failure.");
+    expect(failedLine).not.toContain("written");
+    expect(closedSaveStatusLine({ kind: "finishing" }, { ...attribution, earlierSession: true })).toContain('The export of "Invented project" from an earlier project session');
   });
 
   it("retires the TypeScript builder (A-6): no source names it or the wasm engine outside its own test resource", () => {

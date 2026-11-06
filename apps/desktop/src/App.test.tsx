@@ -3205,7 +3205,7 @@ describe("SWBPIPE desktop preview", () => {
     );
     expect(
       within(reportLint).getByTestId("report-lint-summary").textContent,
-    ).toContain("targets=46");
+    ).toContain("targets=45");
     expect(
       within(reportLint).getByTestId("report-lint-summary").textContent,
     ).toContain("findings=0");
@@ -3223,10 +3223,10 @@ describe("SWBPIPE desktop preview", () => {
     ).toContain("clearance=false");
     expect(
       within(reportLint).getByTestId("report-lint-unit-policy").textContent,
-    ).toContain("unit_targets=44");
+    ).toContain("unit_targets=43");
     expect(
       within(reportLint).getByTestId("report-lint-unit-policy").textContent,
-    ).toContain("conversion_witness_targets=2");
+    ).toContain("conversion_witness_targets=1");
     expect(
       within(reportLint).getByTestId("report-lint-unit-policy").textContent,
     ).toContain("lint_conversion=false");
@@ -3406,16 +3406,17 @@ describe("SWBPIPE desktop preview", () => {
           conversion_witness_surface_id: "pcf-export-conversion-witnesses",
         }),
         expect.objectContaining({
-          source_path:
-            "apps/desktop/src/features/caepipe-mbf/CaepipeMbfExportPanel.tsx",
-          conversion_witness_surface_id: "caepipe-mbf-conversion-witnesses",
-        }),
-        expect.objectContaining({
           source_path: "fixtures/product_preview",
           unit_policy_surface_id: "product-preview-fixture-unit-policy",
         }),
       ]),
     );
+    // The model batch file export's public template and conversion-witness surface are retired (DEL-17-04 4b.2b).
+    expect(
+      lintPacket.unit_policy_evidence.target_refs.some(
+        (target: { source_path: string }) => target.source_path.includes("caepipe-mbf/"),
+      ),
+    ).toBe(false);
     }
     expect(lintPacket.lint_run.configuration.private_surface_default).toBe(
       "[REDACTED]",
@@ -8319,24 +8320,32 @@ describe("SWBPIPE desktop preview", () => {
     const caepipeMbfExportRecord = reviewManifest.exports.find(
       (item: { export_id: string }) => item.export_id === "caepipe_mbf_export",
     );
+    // The native, local-private model export (DEL-17-04 4b.2b); the identifiers keep their historical spelling.
     expect(caepipeMbfExportRecord.document_kind).toBe(
       "openpipestress.technical_preview.caepipe_mbf_export_package",
     );
     expect(caepipeMbfExportRecord.deliverable_refs).toContain("DEL-17-04");
     expect(caepipeMbfExportRecord.target_family).toBe("caepipe_mbf");
-    expect(caepipeMbfExportRecord.profile_id).toBe("ops.caepipe_mbf.smoke_tbd");
-    expect(caepipeMbfExportRecord.target_version_basis).toBe("TBD-17-01-001");
-    expect(caepipeMbfExportRecord.record_subset_basis).toBe("TBD-17-01-002");
-    expect(caepipeMbfExportRecord.pipe_element_count).toBe(4);
-    expect(caepipeMbfExportRecord.node_count).toBe(5);
-    expect(caepipeMbfExportRecord.support_count).toBe(7);
-    expect(caepipeMbfExportRecord.load_case_count).toBe(2);
-    expect(caepipeMbfExportRecord.stable_id_count).toBe(18);
-    expect(caepipeMbfExportRecord.loss_category_count).toBe(6);
-    expect(caepipeMbfExportRecord.validation_status).toBe("boundary_checked");
-    expect(caepipeMbfExportRecord.external_execution_policy).toBe(
-      "not_invoked_by_this_package",
-    );
+    expect(caepipeMbfExportRecord.package_status).toBe("native_local_private_model_export");
+    expect(caepipeMbfExportRecord.writer).toBe("native_mbf_writer");
+    expect(caepipeMbfExportRecord.native_runtime_required).toBe(true);
+    expect(caepipeMbfExportRecord.route_id).toBe("DOTH-MBF-012");
+    expect(caepipeMbfExportRecord.export_context).toBe("local_private");
+    expect(caepipeMbfExportRecord.explicit_local_private_intent_required).toBe(true);
+    expect(caepipeMbfExportRecord.payload_kind).toBe("model_only_no_result_data");
+    expect(caepipeMbfExportRecord.result_data_included).toBe(false);
+    expect(caepipeMbfExportRecord.source_refs).toEqual([reviewManifest.project_ref]);
+    expect(caepipeMbfExportRecord.files_written).toEqual(["model_batch_file_mbf", "identity_file_swbpipe_ids_json"]);
+    expect(caepipeMbfExportRecord.open_profile_items).toEqual(["TBD-17-01-001", "TBD-17-01-002", "TBD-17-01-003"]);
+    expect(caepipeMbfExportRecord.private_payload_included).toBe(true);
+    expect(caepipeMbfExportRecord.protected_content_included).toBe(false);
+    expect(caepipeMbfExportRecord.release_or_professional_claim).toBe(false);
+    // The preview package's fields are gone with it.
+    for (const retired of ["profile_id", "canonical_package_hash_status", "schema_validation_status", "validation_status", "loss_category_count", "stable_id_count", "stable_id_policy"]) {
+      expect(caepipeMbfExportRecord).not.toHaveProperty(retired);
+    }
+    expect(caepipeMbfExportRecord.review_note).not.toMatch(/smoke-subset|sidecar|preview package/i);
+    expect(caepipeMbfExportRecord.external_execution_policy).toBe("not_invoked");
     expect(caepipeMbfExportRecord.caepipe_compatibility_claim).toBe(false);
     expect(caepipeMbfExportRecord.solver_validation_claim).toBe(false);
     expect(caepipeMbfExportRecord.code_compliance_claim).toBe(false);
@@ -8419,8 +8428,8 @@ describe("SWBPIPE desktop preview", () => {
     expect(lintExport.unit_policy).toBe(
       "lint_targets_include_public_unit_policy_and_conversion_witness_surfaces",
     );
-    expect(lintExport.unit_policy_target_count).toBe(44);
-    expect(lintExport.conversion_witness_target_count).toBe(2);
+    expect(lintExport.unit_policy_target_count).toBe(43);
+    expect(lintExport.conversion_witness_target_count).toBe(1);
     expect(lintExport.lint_performs_conversion).toBe(false);
     expect(lintExport.lint_asserts_target_format_compatibility).toBe(false);
     expect(lintExport.default_units_inferred).toBe(false);
@@ -8431,18 +8440,23 @@ describe("SWBPIPE desktop preview", () => {
           item.export_id === "report_protected_content_lint",
       ).unit_evidence_status,
     ).toBe("covered_by_target_panel_or_export_packet");
+    // Every record but the native, local-private model export carries no private payload; that one writes the
+    // session's private project data to the user's folder and says so (DEL-17-04 4b.2b).
     expect(
       reviewManifest.exports.every(
         (item: {
+          export_id: string;
           private_payload_included: boolean;
           protected_content_included: boolean;
           release_or_professional_claim: boolean;
         }) =>
-          item.private_payload_included === false &&
+          item.private_payload_included === (item.export_id === "caepipe_mbf_export") &&
           item.protected_content_included === false &&
           item.release_or_professional_claim === false,
       ),
     ).toBe(true);
+    expect(reviewManifest.summary.private_payload_count).toBe(1);
+    expect(reviewManifest.private_payload_included).toBe(false);
     expect(reviewManifest.redaction_policy.local_private_export_allowed).toBe(
       true,
     );

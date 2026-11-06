@@ -777,9 +777,9 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await expect(page.getByTestId("report-package-redaction-summary")).toHaveCount(0);
   // Private intent changes redaction permission, never missing Current evidence.
   const reportLint = page.getByLabel("Report content lint");
-  await expect(reportLint.getByTestId("report-lint-unit-policy")).toContainText("unit_targets=44");
+  await expect(reportLint.getByTestId("report-lint-unit-policy")).toContainText("unit_targets=43");
   await expect(reportLint.getByTestId("report-lint-unit-policy")).toContainText(
-    "conversion_witness_targets=2"
+    "conversion_witness_targets=1"
   );
   await expect(reportLint.getByTestId("report-lint-unit-policy")).toContainText("lint_conversion=false");
   const lintHref = await reportLint.getByTestId("report-lint-export-link").getAttribute("href");

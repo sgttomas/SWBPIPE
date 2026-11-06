@@ -422,9 +422,50 @@ export const MBF_EXPORT_REFUSAL_TEXT: Readonly<Record<string, string>> = {
     "Export isn't available in this window. Nothing was written. Reload the window or restart SWBPIPE to export again."
 };
 
-/** The status line when a closed export's save was already writing: it finished, and the files were written. */
-export const MBF_EXPORT_TOO_LATE_SENTENCE =
-  "The export was already writing its files when it was closed, so it finished: the model batch file and its identity file were written.";
+/** Whose closed export a status line is about: the export of the named project, from this project session or an
+ * earlier one, so that an old save's outcome is never read as the current project's export. */
+export type ClosedExportAttribution = { projectName: string; earlierSession: boolean };
+
+function closedExportSubject({ projectName, earlierSession }: ClosedExportAttribution): string {
+  return `The export of "${projectName}"${earlierSession ? " from an earlier project session" : ""}`;
+}
+
+/** The status line for a closed dialog's save (`mbfExportSession.ts`). A close after the save's commit does not
+ * stop it: it may still finish, or fail and undo itself, so the line first says only that it is finishing. The save's
+ * own outcome then follows: saved, naming both files, or refused, with its codes and their product text
+ * (`mbfRefusalText`), a write failure or an undone save included. */
+export function closedSaveStatusLine(
+  report:
+    | { kind: "finishing" }
+    | { kind: "saved"; outcome: Extract<MbfExportSaveOutcome, { outcome: "saved" }> }
+    | { kind: "failed"; diagnostics: ModelFileDiagnostic[] },
+  attribution: ClosedExportAttribution
+): string {
+  const subject = closedExportSubject(attribution);
+  if (report.kind === "finishing") return `${subject} was already writing its files when it was closed; it is finishing.`;
+  if (report.kind === "saved") {
+    const durability = report.outcome.durability === "durable" ? "" : " The folder's update may not be durable yet.";
+    return `${subject}, closed while it was writing, finished: both files were written, ${report.outcome.mbf.file_name} and its identity file ${report.outcome.identity_file.file_name}.${durability}`;
+  }
+  const items = report.diagnostics.map((item) => `${item.code}${item.path ? ` (${item.path})` : ""}: ${mbfRefusalText(item)}`);
+  return `${subject}, closed while it was writing, did not finish. ${items.join(" ")}`;
+}
+
+/** A code the writer emits (named by the product-side description), as opposed to the save's own codes. */
+function isWriterCode(code: string): boolean {
+  return code.startsWith("MBF-SI-") || Object.hasOwn(MBF_LOSS_DESCRIPTIONS, code);
+}
+
+/** A refusal's text: a writer code by its product-side description, a review condition by its sentence, the export's
+ * own refusals by their product text (what happened and what the user can do), else the native message (the save's
+ * and the review's own text, never the engine's): a write failure or an undone save by the save's own words. */
+export function mbfRefusalText(item: ModelFileDiagnostic): string {
+  if (isWriterCode(item.code)) return lossDescription(item.code, true);
+  if (item.code === MBF_REVIEW_TRUNCATED) return MBF_REVIEW_TRUNCATED_SENTENCE;
+  if (item.code === MBF_EXPORT_OUTPUT_TOO_LARGE) return MBF_OUTPUT_TOO_LARGE_SENTENCE;
+  if (Object.hasOwn(MBF_EXPORT_REFUSAL_TEXT, item.code)) return MBF_EXPORT_REFUSAL_TEXT[item.code];
+  return item.message;
+}
 
 /** A failed review or save as a diagnostic: a start refused at the native ingress after the window's fallback by its
  * code (its product text says what to do), anything else as the export's own failure with the native text. */

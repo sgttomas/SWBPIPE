@@ -93,7 +93,8 @@ import { currentLibraryRefFindings, libraryRefDiagnostics, publishLibraryRefFind
 import { cancelNativeModelChecks, runModelChecks, type ModelCheckRun } from "../diagnostics/modelChecks";
 import { retireMbfExportSession, reviewMbfExport, saveMbfExport } from "../caepipe-mbf/mbfExportCancel";
 import type { MbfExportDialogRequest } from "../caepipe-mbf/MbfExportDialog";
-import { MBF_EXPORT_TOO_LATE_SENTENCE } from "../caepipe-mbf/mbfExport";
+import { closedSaveStatusLine } from "../caepipe-mbf/mbfExport";
+import { mbfExportRetirementOwner } from "../caepipe-mbf/mbfExportSession";
 import { outputGateRefusal } from "../results/LoadReferenceOutputGate";
 import { modelDocumentSlotValidation } from "../model-file/modelDocumentShape";
 import {
@@ -406,6 +407,9 @@ export function useWorkspaceSession() {
   // The open Export MBF… dialog (DEL-17-04 slice 4b.2b), modal in the same way.
   const [mbfExportRequest, setMbfExportRequest] = useState<MbfExportDialogRequest | null>(null);
   const mbfExportDialogOpenRef = useRef(false);
+  // The session's ownership of the export's retirements and of a closed dialog's save (`mbfExportSession.ts`): one
+  // logical retirement per close, unmount or session end.
+  const [mbfExportRetirement] = useState(() => mbfExportRetirementOwner(retireMbfExportSession));
   // The stored project this session is, at the revision it last opened or wrote:
   // its id and stored envelope hash. Set wherever an open or a write lands for
   // this project session, whether or not a later edit superseded the request,
@@ -3127,25 +3131,30 @@ export function useWorkspaceSession() {
       return report(`Export MBF… could not read the model's library references: ${String(error instanceof Error ? error.message : error)}`, "export_mbf_failed");
     }
     if (sessionMovedOn()) return;
-    const close = () => { mbfExportDialogOpenRef.current = false; setMbfExportRequest(null); };
+    // A save that was already writing when the request was retired is reported here, by its own outcome, and
+    // attributed to this request's project and session: after a new project session it is named as an earlier
+    // session's export, never as the current project's.
+    const projectName = exportModel.project.name;
+    const retirement = mbfExportRetirement.openRequest((closed) => {
+      const earlierSession = generation !== projectSessionGenerationRef.current;
+      const operation = closed.kind === "finishing" ? "export_mbf_finishing" : closed.kind === "saved" ? "export_mbf_saved_after_close" : "export_mbf_failed_after_close";
+      report(closedSaveStatusLine(closed, { projectName, earlierSession }), operation);
+    });
+    const close = () => { retirement.release(); mbfExportDialogOpenRef.current = false; setMbfExportRequest(null); };
     mbfExportDialogOpenRef.current = true;
     setMbfExportRequest({
       model: exportModel,
       modelHash: exportHash,
-      projectName: exportModel.project.name,
+      projectName,
       opener,
       close,
-      // The dialog retires the export when it closes or unmounts. A save already writing then finishes; the
-      // retirement's receipt says so, and the status line reports that the files were written.
-      retire: () => {
-        void retireMbfExportSession().then((receipt) => {
-          if (receipt !== null && receipt.too_late > 0 && generation === projectSessionGenerationRef.current) {
-            report(MBF_EXPORT_TOO_LATE_SENTENCE, "export_mbf_too_late");
-          }
-        });
-      },
+      retire: retirement.retire,
       reviewMbfExport: isTauriRuntime() ? reviewMbfExport : null,
-      saveMbfExport,
+      saveMbfExport: (args, stillCurrent) => {
+        const started = saveMbfExport(args, stillCurrent);
+        retirement.trackSave(started);
+        return started;
+      },
       libraries
     });
   }
@@ -3818,8 +3827,11 @@ export function useWorkspaceSession() {
   // unmounting the workspace retires the export (`retireMbfExportSession`): a start not yet sent is never sent, every
   // run started so far is cancelled natively, and the next start waits for that cancel to be acknowledged. It does not
   // depend on any model check; the mount's retirement (above) covers a page load.
-  useEffect(() => () => { void retireMbfExportSession(); }, [projectSessionGeneration]);
-  // An open Export MBF… dialog belongs to its project session too: a new session closes it (its close retires again).
+  // With an Export MBF… dialog request held, that request's retirement is this one (whichever of this and the dialog's
+  // cleanup runs first sends it): one logical retirement either way (`mbfExportSession.ts`).
+  useEffect(() => () => { mbfExportRetirement.sessionEnded(); }, [projectSessionGeneration]);
+  // An open Export MBF… dialog belongs to its project session too: a new session closes it (its request has been
+  // retired just above).
   useEffect(() => () => { mbfExportDialogOpenRef.current = false; setMbfExportRequest(null); }, [projectSessionGeneration]);
   async function handleRunModelChecks() {
     if (!model) return;
