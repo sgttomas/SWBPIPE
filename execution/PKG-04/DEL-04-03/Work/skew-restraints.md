@@ -1677,6 +1677,8 @@ cases and the two-case combinations fixture.
 **Open:**
 - S-K2 to S-K5 (§2.3, in the order C-2 sets), with C-1 = meaning B and C-3 = keep the range
   refusal.
-- The D3 actual-source turn (§12; RV-4). The retained profile reports Stale while its reviewed
-  inputs, the preview-physics-2, retained-1 and timoshenko-1 tables, carry R-1's row; the
-  MODAL pins (C8 (c)) are on that list.
+- The D3 actual-source turn (§12; RV-4) is registered as DEL-04-08 `retained-pricing-rules.md`
+  §8.55: the retained profile is re-registered on the tables that carry R-1's row (it no
+  longer reports Stale), and the MODAL pins (C8 (c)) verify, `modal_doc_solved` included.
+  Its independent integration and registration review found no numerical, persistence or
+  pricing defect. Still open under §8.55: its AC-004 window, which needs Agent 0's clearance.
