@@ -16,6 +16,7 @@ import type {
   SelectedReviewTarget
 } from "../../types";
 import { modelDocumentVersionCheckStatus } from "../../services/projectService";
+import { MBF_EXPORT_ROUTE_ID, MBF_PROFILE_LABEL, MBF_PROFILE_OPEN_ITEMS } from "../caepipe-mbf/mbfExport";
 
 const HEADLESS_FINAL_CLI =
   "openpipestress-runner <solve|validate-input|export-results|run-benchmark|run-regression> [--input <request.json>|-] [--output <result.json>] [--explicit-local-private-intent]";
@@ -936,39 +937,41 @@ function buildExportReviewManifest({
         "Local conservative PCF review package with sidecar stable IDs, mandatory loss report, and blocking TBDs for target profile and nominal size."
     },
     {
+      // DEL-17-04 slice 4b.2b: the native, local-private model export (File > Export MBF… and this section's Model
+      // batch file panel). The TypeScript preview package this record once described is retired (A-6); `export_id`,
+      // `document_kind` and `target_family` keep their historical spelling as identifiers only.
       export_id: "caepipe_mbf_export",
       label: "Model batch file (.mbf) export",
       document_kind: "openpipestress.technical_preview.caepipe_mbf_export_package",
       readiness: caepipeMbfExportReady ? "available" : "pending_caepipe_mbf_profile_review",
       deliverable_refs: ["DEL-17-04", "DEL-17-01", "DEL-17-02"],
-      source_refs: result && run ? [result.run_id, run.model_state_ref.ref, model.project.id] : [model.project.id],
+      source_refs: [model.project.id],
       target_family: "caepipe_mbf",
-      profile_id: "ops.caepipe_mbf.smoke_tbd",
-      target_version_basis: "TBD-17-01-001",
-      record_subset_basis: "TBD-17-01-002",
-      package_status: "caepipe_mbf_export_foundation",
-      payload_kind: "caepipe_mbf_smoke_subset_payload",
-      node_count: model.nodes.length,
-      pipe_element_count: model.pipe_segments.length,
-      support_count: model.supports.length,
-      load_case_count: model.load_cases.length,
-      stable_id_count: model.nodes.length + model.pipe_segments.length + model.supports.length + model.load_cases.length,
-      loss_category_count: 6,
-      validation_status: "boundary_checked",
-      schema_validation_status: "desktop_preview_shape_aligned_not_runtime_json_schema_validated",
-      canonical_package_hash_status: "computed_local_preview_sha256_by_target_panel",
-      stable_id_policy: "sidecar_mapping_until_direct_mbf_carrier_confirmed",
-      external_execution_policy: "not_invoked_by_this_package",
+      profile_label: MBF_PROFILE_LABEL,
+      open_profile_items: [...MBF_PROFILE_OPEN_ITEMS],
+      package_status: "native_local_private_model_export",
+      writer: "native_mbf_writer",
+      native_runtime_required: true,
+      route_id: MBF_EXPORT_ROUTE_ID,
+      export_context: "local_private",
+      explicit_local_private_intent_required: true,
+      payload_kind: "model_only_no_result_data",
+      result_data_included: false,
+      files_written: ["model_batch_file_mbf", "identity_file_swbpipe_ids_json"],
+      review_before_save: "native_bounded_review_of_loss_report_and_unit_conversions",
+      save_digest_policy: "written_files_must_match_reviewed_digests",
+      destination_policy: "user_chosen_folder_through_native_chooser",
+      external_execution_policy: "not_invoked",
       caepipe_compatibility_claim: false,
       solver_validation_claim: false,
       code_compliance_claim: false,
       professional_reliance_claim: false,
-      redaction_action: "classify_and_warn_no_private_payload",
-      private_payload_included: false,
+      redaction_action: "not_redacted_local_private_route_screening_blocks_instead",
+      private_payload_included: true,
       protected_content_included: false,
       release_or_professional_claim: false,
       review_note:
-        "Local .mbf model batch file smoke-subset review package with sidecar stable IDs, mandatory loss report, and carried TBDs for target version, record subset, and direct stable-ID carrier."
+        "Native model batch file (.mbf) export, desktop app only: the native writer's review of the session's model, then, with the explicit local-private choice (route DOTH-MBF-012), the .mbf and its identity file written to a folder the user chooses. Model only, no result data. Both files hold private project data; nothing is redacted or sent anywhere. No target-compatibility claim."
     },
     {
       export_id: "caepipe_external_run_evidence",
@@ -981,6 +984,8 @@ function buildExportReviewManifest({
         : ["caepipe-mbf:desktop-preview-del-17-04", model.project.id],
       package_status: "parser_only_evidence",
       mbf_package_ref: "caepipe-mbf:desktop-preview-del-17-04",
+      // The retired DEL-17-04 preview package, named historically: it is no longer produced (slice 4b.2b).
+      mbf_package_availability: "historical_retired_preview_package_not_available",
       executable_path_state: "absent",
       invocation_profile: "TBD-17-05-invocation-profile",
       external_tool_invoked: false,
@@ -999,7 +1004,7 @@ function buildExportReviewManifest({
       protected_content_included: false,
       release_or_professional_claim: false,
       review_note:
-        "Local external-run evidence preview; executable path is absent, external execution is not attempted, parser-only CSV rows are invented, and live invocation remains user-owned/TBD."
+        "Local external-run evidence preview; executable path is absent, external execution is not attempted, parser-only CSV rows are invented, and live invocation remains user-owned/TBD. The MBF package it names is the retired preview package, named historically; that input is not available."
     },
     {
       export_id: "export_adapter_sdk_registry",
@@ -1100,8 +1105,8 @@ function buildExportReviewManifest({
       unit_evidence_required: true,
       unit_policy_ref: "unit-policy-evidence:report-lint-public-surfaces",
       unit_policy: "lint_targets_include_public_unit_policy_and_conversion_witness_surfaces",
-      unit_policy_target_count: 44,
-      conversion_witness_target_count: 2,
+      unit_policy_target_count: 43,
+      conversion_witness_target_count: 1,
       lint_performs_conversion: false,
       lint_asserts_target_format_compatibility: false,
       default_units_inferred: false,
@@ -1177,7 +1182,7 @@ function buildExportReviewManifest({
     summary: {
       export_count: exports.length,
       available_count: availableCount,
-      private_payload_count: 0,
+      private_payload_count: exports.filter((item) => item.private_payload_included).length,
       protected_payload_count: 0,
       release_or_professional_claim_count: 0,
       diagnostics_reviewed: diagnostics.length,

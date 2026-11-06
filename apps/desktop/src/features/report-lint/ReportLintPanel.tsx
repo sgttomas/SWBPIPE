@@ -416,12 +416,9 @@ const UNIT_POLICY_SURFACE_MARKERS = [
     "pcf-export-conversion-witnesses",
     "PCF target-format conversion witness visibility"
   ),
-  unitPolicySurface(
-    "apps/desktop/src/features/caepipe-mbf/CaepipeMbfExportPanel.tsx",
-    "caepipe-mbf-units",
-    "caepipe-mbf-conversion-witnesses",
-    "model batch file (.mbf) target-format conversion witness visibility"
-  ),
+  // The model batch file (.mbf) export's public template and conversion-witness surface are retired with its
+  // TypeScript preview package (DEL-17-04 slice 4b.2b, A-6): the native export writes local-private model files, which
+  // are not a public report surface.
   unitPolicySurface(
     "apps/desktop/src/features/caepipe-external/CaepipeExternalHarnessPanel.tsx",
     "caepipe-external-units",
@@ -796,13 +793,6 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "Conservative PCF export template records ASCII PCF preview text, stable ID sidecar, mandatory loss report, private payload false, protected payload false, target profile TBD, no target-compatibility claim; handoff evidence for external validation, not a validation outcome."
-    ),
-    target(
-      "target:desktop-caepipe-mbf-export-template",
-      "apps/desktop/src/features/caepipe-mbf/CaepipeMbfExportPanel.tsx",
-      "public_report_template",
-      "public_metadata",
-      "Model batch file (.mbf) export template records invented ASCII MBF preview text, sidecar stable IDs, mandatory loss report, carried target-version and record-subset TBDs, private payload false, protected payload false, external invocation false, no target-compatibility claim; handoff evidence for external validation, not a validation outcome."
     ),
     target(
       "target:desktop-caepipe-external-template",

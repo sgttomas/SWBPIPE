@@ -5,8 +5,9 @@
 // canonical model text, then calls the injected `saveMbfExport` (the native `save_mbf_export`), which repeats every
 // check in its own `save`-mode run, refuses a truncated review or a result above the output ceiling, writes the native
 // writer's bytes and refuses a save whose digests differ from the reviewed ones. The engine classifies the writer's
-// result (`export_review` in `core/handoff/caepipe_mbf_engine`); this module adds the product descriptions. Slice 4b.2
-// connects the commands, the menu item and the Exports panel.
+// result (`export_review` in `core/handoff/caepipe_mbf_engine`); this module adds the product descriptions. Slice 4b.2a
+// connected the commands; slice 4b.2b mounts the dialog from File > Export MBF… and the Exports panel, on the barrier's
+// services (`mbfExportCancel.ts`).
 //
 // Product text names only the format ("Model batch file (.mbf)") and states nothing about any other program
 // (§3.3, §3.5): the review shows a neutral profile label, each entry by its code, its entity and a product-side
@@ -185,8 +186,15 @@ export type MbfExportSaveOutcome =
   /** A refusal before the chooser from the save's own worker run carries the bounded review. */
   | { outcome: "refused"; diagnostics: ModelFileDiagnostic[]; review?: MbfReviewPayload };
 
-/** The function slice 4b.2 supplies: the native `save_mbf_export` through ingress. */
-export type SaveMbfExport = (args: MbfExportArgs) => Promise<MbfExportSaveOutcome>;
+/** A start's outcome as the barrier tags it (`mbfExportCancel.ts` `MbfStarted`): whether it is still current (no
+ * retirement since, and the caller's own check still holds). The dialog discards an outcome that is not current. */
+export type MbfStartedOutcome<T> = { outcome: T; current: () => boolean };
+
+/** Whether the caller still wants the start (checked by the barrier immediately before every send). */
+export type MbfStillCurrent = () => boolean;
+
+/** The save the dialog is given: the barrier's `saveMbfExport` (the native `save_mbf_export` through ingress). */
+export type SaveMbfExport = (args: MbfExportArgs, stillCurrent: MbfStillCurrent) => Promise<MbfStartedOutcome<MbfExportSaveOutcome>>;
 
 /** A string of the bounded review: itself, or beyond the per-field bound its prefix (cut on a character boundary), its
  * full length in bytes and its SHA-256. */
@@ -233,8 +241,8 @@ export type MbfReviewOutcome =
   | { outcome: "reviewed"; review: MbfReviewPayload }
   | { outcome: "refused"; diagnostics: ModelFileDiagnostic[] };
 
-/** The function slice 4b.2 supplies: the native `review_mbf_export` through ingress. */
-export type ReviewMbfExport = (args: MbfReviewArgs) => Promise<MbfReviewOutcome>;
+/** The review the dialog is given: the barrier's `reviewMbfExport` (the native `review_mbf_export` through ingress). */
+export type ReviewMbfExport = (args: MbfReviewArgs, stillCurrent: MbfStillCurrent) => Promise<MbfStartedOutcome<MbfReviewOutcome>>;
 
 /** The default reference temperature (§3.1): 20 °C, or 68 °F in a degF project (passed as
  * `reference_temperature_f`, exact). */
@@ -384,4 +392,114 @@ export function reviewAdmitsSave(review: MbfReview | null): boolean {
 export function savedStatusLine(outcome: Extract<MbfExportSaveOutcome, { outcome: "saved" }>, omittedCount: number): string {
   const durability = outcome.durability === "durable" ? "" : " The folder's update may not be durable yet.";
   return `Saved ${outcome.mbf.file_name} and its identity file ${outcome.identity_file.file_name}; ${omittedCount} omitted ${omittedCount === 1 ? "entry" : "entries"}.${durability}`;
+}
+
+/** The export's own refusals that are not about the model (§3.3's product-text rule, §3.7): what happened and what the
+ * user can do (try again, reload the window, restart SWBPIPE), in the product's words. None of them names the
+ * mechanism that keeps one export from overlapping another, and none suggests that anything here grants a save. */
+export const MBF_EXPORT_CANCELLED = "MBF-EXPORT-CANCELLED";
+export const MBF_EXPORT_RETIREMENT_UNCONFIRMED = "MBF-EXPORT-RETIREMENT-UNCONFIRMED";
+export const MBF_EXPORT_EPOCH_INVALID = "MBF-EXPORT-EPOCH-INVALID";
+export const MBF_EXPORT_EPOCH_EXHAUSTED = "MBF-EXPORT-EPOCH-EXHAUSTED";
+export const MBF_EXPORT_RETIREMENT_ID_INVALID = "MBF-EXPORT-RETIREMENT-ID-INVALID";
+/** A start refused at the native ingress once this window's connection to the app has switched to its fallback, which
+ * cannot carry the export's request (§3.7, "Source basis and limits"). For a review this means nothing was written; for
+ * a save the outcome is unknown (`MBF_SAVE_REFUSAL_TEXT`). */
+export const INGRESS_RAW_BODY_REQUIRED = "INGRESS-RAW-BODY-REQUIRED";
+/** A failure of the review or the save that has no code of its own. */
+export const MBF_EXPORT_FAILED = "MBF-EXPORT-FAILED";
+
+export const MBF_EXPORT_REFUSAL_TEXT: Readonly<Record<string, string>> = {
+  [MBF_EXPORT_CANCELLED]: "The export was cancelled before anything was written. You can start it again.",
+  [MBF_EXPORT_RETIREMENT_UNCONFIRMED]:
+    "The export did not start because SWBPIPE could not confirm that an earlier export had stopped. Nothing was written. Try again; if it keeps happening, reload the window or restart SWBPIPE.",
+  [MBF_EXPORT_EPOCH_INVALID]:
+    "The export did not start because SWBPIPE could not accept its request. Nothing was written. Try again; if it keeps happening, restart SWBPIPE.",
+  [MBF_EXPORT_EPOCH_EXHAUSTED]:
+    "Export is no longer available until SWBPIPE restarts. Nothing was written. Restart SWBPIPE to export again.",
+  [MBF_EXPORT_RETIREMENT_ID_INVALID]:
+    "SWBPIPE could not stop an earlier export because it could not accept the request to stop it. Try again; if it keeps happening, restart SWBPIPE.",
+  [INGRESS_RAW_BODY_REQUIRED]:
+    "Export isn't available in this window. Nothing was written. Reload the window or restart SWBPIPE to export again."
+};
+
+/** The save's own text for the codes whose meaning differs for a save (§3.3, §3.7 "Source basis and limits"). A review
+ * writes nothing, so `MBF_EXPORT_REFUSAL_TEXT` holds for it. A save refused `INGRESS-RAW-BODY-REQUIRED` has an unknown
+ * outcome: Tauri 2.11.1's transport resends an invoke through its fallback when its `fetch` fails or when reading the
+ * reply fails, so the original save may have committed, written or undone itself before its reply was lost, and the
+ * refusal proves only that the resend wrote nothing. The page cannot see the fallback, so it cannot tell such a save
+ * from one first sent after the fallback: every save refused so is reported as unknown. */
+export const MBF_SAVE_OUTCOME_UNKNOWN_TEXT =
+  "SWBPIPE could not confirm whether this export wrote its files, because this window can no longer send exports. If you chose a folder for it, check that folder for the model batch file and its identity file. Reload the window or restart SWBPIPE to export again.";
+export const MBF_SAVE_REFUSAL_TEXT: Readonly<Record<string, string>> = {
+  [INGRESS_RAW_BODY_REQUIRED]: MBF_SAVE_OUTCOME_UNKNOWN_TEXT
+};
+
+/** Whether a save's diagnostics leave its outcome unknown (`MBF_SAVE_REFUSAL_TEXT`): it may have written its files. */
+export function mbfSaveOutcomeUnknown(diagnostics: readonly ModelFileDiagnostic[]): boolean {
+  return diagnostics.some((item) => item.code === INGRESS_RAW_BODY_REQUIRED);
+}
+
+/** Whose closed export a status line is about: the export of the named project, from this project session or an
+ * earlier one, so that an old save's outcome is never read as the current project's export. */
+export type ClosedExportAttribution = { projectName: string; earlierSession: boolean };
+
+function closedExportSubject({ projectName, earlierSession }: ClosedExportAttribution): string {
+  return `The export of "${projectName}"${earlierSession ? " from an earlier project session" : ""}`;
+}
+
+/** The status line for a closed dialog's save (`mbfExportSession.ts`). A close after the save's commit does not
+ * stop it: it may still finish, or fail and undo itself, so the line first says only that it is finishing. The save's
+ * own outcome then follows, whatever the close's receipt said: saved, naming both files, or refused, with its codes and
+ * their product text (`mbfSaveRefusalText`), a write failure or an undone save included, or unknown, when its result
+ * cannot show whether it wrote its files (`mbfSaveOutcomeUnknown`). The outcome's line says only that the export was
+ * closed before its result came back, since a save may have completed before the close reached it. */
+export function closedSaveStatusLine(
+  report:
+    | { kind: "finishing" }
+    | { kind: "saved"; outcome: Extract<MbfExportSaveOutcome, { outcome: "saved" }> }
+    | { kind: "failed"; diagnostics: ModelFileDiagnostic[] }
+    | { kind: "unknown"; diagnostics: ModelFileDiagnostic[] },
+  attribution: ClosedExportAttribution
+): string {
+  const subject = closedExportSubject(attribution);
+  if (report.kind === "finishing") return `${subject} was already writing its files when it was closed; it is finishing.`;
+  if (report.kind === "saved") {
+    const durability = report.outcome.durability === "durable" ? "" : " The folder's update may not be durable yet.";
+    return `${subject}, closed before its result came back, finished: both files were written, ${report.outcome.mbf.file_name} and its identity file ${report.outcome.identity_file.file_name}.${durability}`;
+  }
+  const items = report.diagnostics.map((item) => `${item.code}${item.path ? ` (${item.path})` : ""}: ${mbfSaveRefusalText(item)}`);
+  if (report.kind === "unknown") return `${subject}, closed before its result came back, has no confirmed result. ${items.join(" ")}`;
+  return `${subject}, closed before its result came back, did not finish. ${items.join(" ")}`;
+}
+
+/** A code the writer emits (named by the product-side description), as opposed to the save's own codes. */
+function isWriterCode(code: string): boolean {
+  return code.startsWith("MBF-SI-") || Object.hasOwn(MBF_LOSS_DESCRIPTIONS, code);
+}
+
+/** A refusal's text: a writer code by its product-side description, a review condition by its sentence, the export's
+ * own refusals by their product text (what happened and what the user can do), else the native message (the save's
+ * and the review's own text, never the engine's): a write failure or an undone save by the save's own words. */
+export function mbfRefusalText(item: ModelFileDiagnostic): string {
+  if (isWriterCode(item.code)) return lossDescription(item.code, true);
+  if (item.code === MBF_REVIEW_TRUNCATED) return MBF_REVIEW_TRUNCATED_SENTENCE;
+  if (item.code === MBF_EXPORT_OUTPUT_TOO_LARGE) return MBF_OUTPUT_TOO_LARGE_SENTENCE;
+  if (Object.hasOwn(MBF_EXPORT_REFUSAL_TEXT, item.code)) return MBF_EXPORT_REFUSAL_TEXT[item.code];
+  return item.message;
+}
+
+/** A save's refusal text: `mbfRefusalText`, except for the codes whose meaning differs for a save
+ * (`MBF_SAVE_REFUSAL_TEXT`). */
+export function mbfSaveRefusalText(item: ModelFileDiagnostic): string {
+  if (Object.hasOwn(MBF_SAVE_REFUSAL_TEXT, item.code)) return MBF_SAVE_REFUSAL_TEXT[item.code];
+  return mbfRefusalText(item);
+}
+
+/** A failed review or save as a diagnostic: a start refused at the native ingress after the window's fallback by its
+ * code (its product text says what to do), anything else as the export's own failure with the native text. */
+export function mbfFailureDiagnostic(error: unknown): ModelFileDiagnostic {
+  const message = String(error instanceof Error ? error.message : error);
+  if (message.includes(INGRESS_RAW_BODY_REQUIRED)) return { code: INGRESS_RAW_BODY_REQUIRED, path: "", message };
+  return { code: MBF_EXPORT_FAILED, path: "", message };
 }

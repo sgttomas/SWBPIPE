@@ -91,7 +91,11 @@ import { MODEL_DOCUMENT_FILE_SOURCE, modelFileRefusalMessage, modelFileWarningSu
 import { checkModelLibraryRefs, modelLibraryRefs } from "../../services/libraryImportService";
 import { currentLibraryRefFindings, libraryRefDiagnostics, publishLibraryRefFindings } from "../library/libraryRefFindings";
 import { cancelNativeModelChecks, runModelChecks, type ModelCheckRun } from "../diagnostics/modelChecks";
-import { retireMbfExportSession } from "../caepipe-mbf/mbfExportCancel";
+import { retireMbfExportSession, reviewMbfExport, saveMbfExport } from "../caepipe-mbf/mbfExportCancel";
+import type { MbfExportDialogRequest } from "../caepipe-mbf/MbfExportDialog";
+import { closedSaveStatusLine } from "../caepipe-mbf/mbfExport";
+import { mbfExportRetirementOwner } from "../caepipe-mbf/mbfExportSession";
+import { outputGateRefusal } from "../results/LoadReferenceOutputGate";
 import { modelDocumentSlotValidation } from "../model-file/modelDocumentShape";
 import {
   keptStoredProjectMessage,
@@ -400,6 +404,12 @@ export function useWorkspaceSession() {
   // The open Save Handoff… dialog (DEL-15-01 W-6b), modal in the same way.
   const [handoffSaveRequest, setHandoffSaveRequest] = useState<HandoffSaveDialogRequest | null>(null);
   const handoffSaveDialogOpenRef = useRef(false);
+  // The open Export MBF… dialog (DEL-17-04 slice 4b.2b), modal in the same way.
+  const [mbfExportRequest, setMbfExportRequest] = useState<MbfExportDialogRequest | null>(null);
+  const mbfExportDialogOpenRef = useRef(false);
+  // The session's ownership of the export's retirements and of a closed dialog's save (`mbfExportSession.ts`): one
+  // logical retirement per close, unmount or session end.
+  const [mbfExportRetirement] = useState(() => mbfExportRetirementOwner(retireMbfExportSession));
   // The stored project this session is, at the revision it last opened or wrote:
   // its id and stored envelope hash. Set wherever an open or a write lands for
   // this project session, whether or not a later edit superseded the request,
@@ -3074,7 +3084,7 @@ export function useWorkspaceSession() {
   function requestSaveModelDocument() {
     const saveModel = modelDocumentSaveBasisRef.current.model;
     if (!saveModel) return;
-    if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current || projectOperationOwner.current !== null) return;
+    if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current || mbfExportDialogOpenRef.current || projectOperationOwner.current !== null) return;
     // Captured before the workspace turns inert, which drops its focus.
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const close = () => { modelDocumentSaveDialogOpenRef.current = false; setModelDocumentSaveRequest(null); };
@@ -3087,6 +3097,68 @@ export function useWorkspaceSession() {
         close();
         void handleSaveModelDocument(explicitLocalPrivateIntent);
       }
+    });
+  }
+
+  /** File > Export MBF… and the Exports section's Model batch file panel (DEL-17-04 Design
+   * `desktop-mbf-export-import.md` §3.1, slice 4b.2b): opens the export dialog on the session's model and its hash,
+   * with the barrier's native review and save (`mbfExportCancel.ts`), or, in the browser-only route, no review (the
+   * dialog declines it with `MBF-REVIEW-NATIVE-ONLY` before anything reaches the barrier). It needs no solve. The
+   * panel's output gate (`caepipe-mbf`) applies to the menu item too. Nothing happens while another project
+   * operation or modal is open. */
+  async function requestExportMbf() {
+    const { model: exportModel, modelHash: exportHash } = modelDocumentSaveBasisRef.current;
+    if (!exportModel || projectSessionBusy()) return;
+    const request = ++projectRequest.current;
+    const report = (message: string, operation: string) => {
+      setProjectMessage(message);
+      setProjectOperation(operation);
+    };
+    const gated = outputGateRefusal(currentSolvedResultRef.current, "caepipe-mbf");
+    if (gated) return report(`Export MBF… is not available: ${gated}`, "export_mbf_refused");
+    if (!exportHash) return report(`${MODEL_DOC_SAVE_HASH_PENDING}: The session's model hash is not computed yet; try Export MBF… again once it is shown.`, "export_mbf_refused");
+    // Captured before the workspace turns inert, which drops its focus.
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const generation = projectSessionGenerationRef.current;
+    const sessionMovedOn = () => projectRequest.current !== request || generation !== projectSessionGenerationRef.current
+      || modelDocumentSaveBasisRef.current.model !== exportModel
+      || modelDocumentSaveBasisRef.current.modelHash?.value !== exportHash.value || projectSessionBusy();
+    let libraries: Awaited<ReturnType<typeof resolveLibraryDispositions>>;
+    try {
+      libraries = await resolveLibraryDispositions(exportModel);
+    } catch (error) {
+      if (sessionMovedOn()) return;
+      return report(`Export MBF… could not read the model's library references: ${String(error instanceof Error ? error.message : error)}`, "export_mbf_failed");
+    }
+    if (sessionMovedOn()) return;
+    // A save that was already writing when the request was retired is reported here, by its own outcome, and
+    // attributed to this request's project and session: after a new project session it is named as an earlier
+    // session's export, never as the current project's.
+    const projectName = exportModel.project.name;
+    const retirement = mbfExportRetirement.openRequest((closed) => {
+      const earlierSession = generation !== projectSessionGenerationRef.current;
+      const operation = closed.kind === "finishing" ? "export_mbf_finishing"
+        : closed.kind === "saved" ? "export_mbf_saved_after_close"
+        : closed.kind === "unknown" ? "export_mbf_outcome_unknown_after_close"
+        : "export_mbf_failed_after_close";
+      report(closedSaveStatusLine(closed, { projectName, earlierSession }), operation);
+    });
+    const close = () => { retirement.release(); mbfExportDialogOpenRef.current = false; setMbfExportRequest(null); };
+    mbfExportDialogOpenRef.current = true;
+    setMbfExportRequest({
+      model: exportModel,
+      modelHash: exportHash,
+      projectName,
+      opener,
+      close,
+      retire: retirement.retire,
+      reviewMbfExport: isTauriRuntime() ? reviewMbfExport : null,
+      saveMbfExport: (args, stillCurrent) => {
+        const started = saveMbfExport(args, stillCurrent);
+        retirement.trackSave(started);
+        return started;
+      },
+      libraries
     });
   }
 
@@ -3758,7 +3830,12 @@ export function useWorkspaceSession() {
   // unmounting the workspace retires the export (`retireMbfExportSession`): a start not yet sent is never sent, every
   // run started so far is cancelled natively, and the next start waits for that cancel to be acknowledged. It does not
   // depend on any model check; the mount's retirement (above) covers a page load.
-  useEffect(() => () => { void retireMbfExportSession(); }, [projectSessionGeneration]);
+  // With an Export MBF… dialog request held, that request's retirement is this one (whichever of this and the dialog's
+  // cleanup runs first sends it): one logical retirement either way (`mbfExportSession.ts`).
+  useEffect(() => () => { mbfExportRetirement.sessionEnded(); }, [projectSessionGeneration]);
+  // An open Export MBF… dialog belongs to its project session too: a new session closes it (its request has been
+  // retired just above).
+  useEffect(() => () => { mbfExportDialogOpenRef.current = false; setMbfExportRequest(null); }, [projectSessionGeneration]);
   async function handleRunModelChecks() {
     if (!model) return;
     const request = ++modelCheckRequest.current;
@@ -3779,7 +3856,7 @@ export function useWorkspaceSession() {
   // viewport | inspector) is always present, so Insert commands arm the same
   // creation tools exposed in the command bar instead of acting as navigation.
   function runMenuCommand(command: MenuCommandId) {
-    if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current) return;
+    if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current || mbfExportDialogOpenRef.current) return;
     setOpenMenu(null);
     switch (command) {
       case "file.new-local":
@@ -3805,6 +3882,9 @@ export function useWorkspaceSession() {
         break;
       case "file.save-handoff":
         void requestSaveHandoff();
+        break;
+      case "file.export-mbf":
+        void requestExportMbf();
         break;
       case "file.save-report-package":
         setActiveSection("report");
@@ -3967,7 +4047,7 @@ export function useWorkspaceSession() {
     // Any dialog or prompt holding the window, read after the busy prompt has
     // released its own hold: a dialog that opened behind it (a replace prompt
     // after a refused save) must be decided first (Codex r2 P2).
-    const dialogOpen = () => replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current;
+    const dialogOpen = () => replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current || mbfExportDialogOpenRef.current;
     const keptForDialog = () => {
       setProjectMessage(`${refused}: a dialog is open. Finish or cancel it first; nothing was closed.`);
       setProjectOperation(kind === "quit" ? "quit_dialog_open" : "close_dialog_open");
@@ -4244,7 +4324,7 @@ export function useWorkspaceSession() {
   shellKeyHandlersRef.current = shellKeyHandlers;
   useEffect(() => {
     function handleShellAccelerator(event: KeyboardEvent) {
-      if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current) return;
+      if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current || mbfExportDialogOpenRef.current) return;
       if ((!event.metaKey && !event.ctrlKey) || event.altKey || event.defaultPrevented) return;
       const key = event.key.toLowerCase();
       // ⇧⌘M runs the model checks (Analyze → Check Model). AppKit owns it in the
@@ -4359,7 +4439,7 @@ export function useWorkspaceSession() {
    * model-replacing commands, Open State and Save Model State start nothing then. */
   function projectSessionBusy(): boolean {
     return projectOperationOwner.current !== null || replacePromptOpenRef.current || projectUnitsDialogOpenRef.current
-      || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current;
+      || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current || mbfExportDialogOpenRef.current;
   }
 
   async function saveLocalProjectFirst(): Promise<LandedProjectSave | null> {
@@ -4563,7 +4643,9 @@ export function useWorkspaceSession() {
       requestSaveModelDocument,
       modelDocumentSaveRequest,
       requestSaveHandoff,
-      handoffSaveRequest
+      handoffSaveRequest,
+      requestExportMbf,
+      mbfExportRequest
     },
     chrome: {
       uiPreferences, setUiPreferences,

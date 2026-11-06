@@ -243,7 +243,9 @@ writer and importer. These are the CAEPIPE lane's work, not desktop work (Q-3):
 
 1. **Entry points.** File > Export MBF… (`file.export-mbf`), placed after Save Handoff…. The
    Model batch file panel in the Exports section opens the same dialog. Both are reachable by
-   keyboard.
+   keyboard. Both apply the panel's output gate (`caepipe-mbf` in `OUTPUT_SURFACES`, unchanged),
+   and an Export MBF… chosen before the session's model hash is shown is refused by name
+   (`MODEL_DOC_SAVE_HASH_PENDING`) and can be chosen again (slice 4b.2b).
 2. **The dialog.** It captures the session's canonical model text and hash. It never runs the
    wasm writer: it asks the native `review_mbf_export` (§3.9.5) for a review with these
    settings:
@@ -333,6 +335,30 @@ writer and importer. These are the CAEPIPE lane's work, not desktop work (Q-3):
   file."; the test derives the blocking set from the engine source and holds the descriptions
   to it. A writer refusal the native save returns is shown the same way. The engine's and the Python's texts are
   unchanged, so the parity bytes are preserved.
+- **The export's own refusals** (slice 4b.2b). The refusals that are not about the model are shown
+  by code with a product text (`MBF_EXPORT_REFUSAL_TEXT` in `mbfExport.ts`) that says what
+  happened and what the user can do, never the native wording: `MBF-EXPORT-CANCELLED` (start
+  again), `MBF-EXPORT-RETIREMENT-UNCONFIRMED` and `MBF-EXPORT-EPOCH-INVALID` (try again, then
+  reload the window or restart), `MBF-EXPORT-RETIREMENT-ID-INVALID` (try again, then restart),
+  `MBF-EXPORT-EPOCH-EXHAUSTED` (export is unavailable until SWBPIPE restarts, which recovers it),
+  and `INGRESS-RAW-BODY-REQUIRED`, which a start meets once the window's transport has fallen
+  back. Its text depends on the start: a review writes nothing ("Export isn't available in this
+  window. Nothing was written. Reload the window or restart SWBPIPE to export again."), but a
+  save's outcome is unknown, because the transport's resend can be refused after the original
+  save committed and wrote (§3.7, "Source basis and limits"), and the page cannot tell that case
+  from a save first sent after the fallback. A save refused so, in the open dialog or after it
+  closed, says "SWBPIPE could not confirm whether this export wrote its files, because this
+  window can no longer send exports. If you chose a folder for it, check that folder for the
+  model batch file and its identity file. Reload the window or restart SWBPIPE to export again."
+  (`MBF_SAVE_REFUSAL_TEXT`, `mbfSaveRefusalText` in `mbfExport.ts`). A close that reaches a save past its commit does not stop it, and the save
+  may still finish, or fail and undo itself: the status line first says only that the export
+  "was already writing its files when it was closed; it is finishing", then the save's own
+  outcome (`closedSaveStatusLine`): both files named when it saved, or its codes with their text
+  when it failed or was undone, or that it "has no confirmed result" with the save's unknown-outcome text when it was
+  refused after the fallback; a closed save's outcome is shown so whatever the close's receipt said, unless the
+  outcome itself shows that nothing was written (§6, slice 4b.2b). Each line names the export's project, and "from an earlier
+  project session" once the session has changed. No text names the mechanism (epochs, ids or tickets), and none suggests that anything grants a
+  save.
 
 | Condition | Effect |
 |---|---|
@@ -357,8 +383,9 @@ criterion-6 test (§5), not in the dialog.
     `MBF-SI-UNIT-UNSUPPORTED`).
   - There is no English writer mode (import Design O-2).
 - **Who owns the arithmetic.** Only the engine does unit arithmetic. The panel's own length
-  conversion and its conversion witnesses (`exportLengthConversion`, MBF-LENGTH-*) are retired
-  with the TypeScript builder (A-6). The dialog only displays the writer's list.
+  conversion and its conversion witnesses (its use of `exportLengthConversion`, MBF-LENGTH-*,
+  MBF-PROJECT-UNIT-MISSING) are retired with the TypeScript builder (A-6, slice 4b.2b);
+  `exportLengthConversion` stays for the PCF export. The dialog only displays the writer's list.
 - **Reference temperature.** It is not a model member, so the dialog asks for it. An import
   reads OPTEMP, and the session offers the imported value as the next export's default (Q-5).
 - **English imports.** An imported English model re-exports through the documented
@@ -394,8 +421,9 @@ criterion-6 test (§5), not in the dialog.
 
 The native command is connected (slice 4b.2a, §3.7, §6): `save_mbf_export` runs the steps below
 in production, with step 5's writer in the capped worker process. `MBF-EXPORT-NOT-CONNECTED`,
-which slices 4a and 4b.1 returned, is retired. The frontend (the menu item, the Exports panel
-action and the mounted dialog) is slice 4b.2b's, so no product control calls the command yet.
+which slices 4a and 4b.1 returned, is retired. Slice 4b.2b connects the frontend: the menu item
+and the Exports panel action open the mounted dialog, which calls the command through the
+barrier (§3.7).
 
 **The library store.** Steps 2 to 4 read the libraries a document references from the local
 store, which is opened lazily, only if the document references one, with the desktop's normal
@@ -517,8 +545,8 @@ only the staleness check of step 6.
 - **Governance.** Native writer memory is governed by running the writer in the capped
   worker process (owner decision 2026-10-12, "(c) Capped worker process"; Agent 0's ruling,
   2026-11-01) as worker task 3 (slice 4b.2a, `mbf_worker.rs`). The host keeps its own
-  reservations for the text, the outputs, the read-back and the reply, below. The live export
-  (the menu item and the mounted dialog) is slice 4b.2b's.
+  reservations for the text, the outputs, the read-back and the reply, below. Slice 4b.2b
+  connects the live export (the menu item, the Exports panel and the mounted dialog).
 - **Connected (4b.2a).** The production entry points (`save_mbf_export_admitted`,
   `review_mbf_export_admitted`) run task 3 through `mbf_worker::CappedWorkerRun`, the only
   production writer run; `MBF-EXPORT-NOT-CONNECTED` is retired. The in-process run
@@ -612,8 +640,8 @@ only the staleness check of step 6.
       its entry, whatever its ticket, a command that entered before is cancelled when it
       registers, and later retirements stay exhausted; the epoch moves no more. The frontend
       treats an exhausted reply as unacknowledged, so its starts refuse
-      `MBF-EXPORT-RETIREMENT-UNCONFIRMED`. The product text for this state (that a restart
-      recovers it) comes with 4b.2b's dialog; today's messages are developer wording.
+      `MBF-EXPORT-RETIREMENT-UNCONFIRMED`. The dialog shows each in product text (§3.3, "The
+      export's own refusals"): an exhausted export is unavailable until SWBPIPE restarts.
 - **Idempotent retirement** (`retirementId`, `mbf_worker::RetirementId`). Each logical
   retirement carries `{page, sequence}`: a random token of 32 lowercase hex digits made once per
   page load (`crypto.getRandomValues`), and a sequence from 1 that rises by one per logical
@@ -676,11 +704,16 @@ only the staleness check of step 6.
     (`INGRESS-RAW-BODY-REQUIRED`). The keyed `cancel_mbf_export` is sent as JSON arguments
     (above, "Wire form and bounds"), so after the flip the page's retirements are still
     admitted and applied: a run admitted before the flip, a save waiting at its chooser
-    included, is stopped by the page's next retirement (a session retirement, or 4b.2b's dialog
+    included, is stopped by the page's next retirement (a session retirement, or the dialog's
     close) before its commit, and writes nothing. The page can no longer start a run: each
     start, sent raw, is refused at ingress and fails closed. So the schedule "fallback
     acknowledged, fresh run admitted, delayed original cancels it" is not a demonstrated
     same-page product path, and the tests that pin it are injected-fault tests of the rule.
+    The ingress refusal proves only that the delivery it answers wrote nothing: when the
+    fallback was triggered by a failed read of a save's reply, the original raw save may
+    already have committed, written or undone itself, and its resend is the one refused. The
+    page cannot see the flip, so a save refused `INGRESS-RAW-BODY-REQUIRED` has an unknown
+    outcome and is reported so (§3.3); a review refused so wrote nothing.
     Duplicate deliveries of an id the host has applied remain no-ops whatever their route or
     form. Its frontend result is discarded by its generation, and the save's pre-commit checks
     are unchanged. *Across a navigation* the order is not established:
@@ -695,8 +728,9 @@ only the staleness check of step 6.
   (`retireMbfExportSession`) goes through it. The workspace retires the export whenever it
   retires a project session (each new session generation, a project replaced by one with the
   same id included, React Strict Mode's re-run) and when it unmounts, independently of any
-  model check, and sends a keyed retirement when it mounts (§3.7, "Page mount"); slice 4b.2b's
-  dialog retires it when it closes. **Serialized retirements:**
+  model check, and sends a keyed retirement when it mounts (§3.7, "Page mount"); the dialog
+  (slice 4b.2b) retires it when it closes or unmounts, and a new project session closes the
+  dialog. **Serialized retirements:**
   each `cancel_mbf_export` delivery is sent only after the one before it has settled
   (acknowledged or not); the barrier neither waits for nor sends the performance reset. Tauri
   sends each invoke as an independent request, so send order is no barrier: without the chain,
@@ -758,9 +792,9 @@ only the staleness check of step 6.
     release limitation.
 - **Refusal.** A reservation the pool refuses refuses the save with
   `MBF-EXPORT-MEMORY-UNAVAILABLE`, including a refusal raised inside the admission's screen.
-- **Webview preview.** As built in 4a, the dialog's review runs the wasm writer in webview
-  memory, ungoverned; the dialog is not mounted. §3.9 (adopted design, Agent 0, 2026-11-02; its
-  native part implemented in 4b.1 and 4b.2a, the dialog's mounting 4b.2b's) finds five super-linear terms, none bounded by an existing limit. The shipped
+- **Webview preview.** As built in 4a, the dialog's review ran the wasm writer in webview
+  memory, ungoverned, and the dialog was not mounted. §3.9 (adopted design, Agent 0, 2026-11-02; its
+  native part implemented in 4b.1 and 4b.2a, the dialog mounted in 4b.2b) finds five super-linear terms, none bounded by an existing limit. The shipped
   dialog therefore never runs the wasm writer: `review_mbf_export` runs the 4b worker in
   `review` mode and returns at most 1 MiB of review. The wasm writer remains only as an
   unconnected or test resource, never a fallback.
@@ -781,7 +815,7 @@ only the staleness check of step 6.
 ### 3.9 Webview preview admission (adopted design)
 
 **Status: adopted design (Agent 0, 2026-11-02); its native part is implemented (slices 4b.1 and
-4b.2a, §6), and mounting the dialog on `review_mbf_export` is slice 4b.2b's.** Agent 0 chose (iii) with the
+4b.2a, §6), and slice 4b.2b mounts the dialog on `review_mbf_export`.** Agent 0 chose (iii) with the
 bounded review, the task-specific worker modes and the output ceiling recorded in §3.9.5,
 §3.9.7 and §3.7. This answers Agent 0's ruling of 2026-11-01. The ruling
 asks for every size dimension that makes the preview's allocations super-linear, set against
@@ -1032,9 +1066,9 @@ payload size; they set no webview allowance and do not change the per-invocation
 Slice 4b.2a runs the Rust worker tests below that need the capped worker, in a real worker
 process (`mbf_worker_tests.rs`, §6): review mode against the recorded reviews and digests, the
 truncated review blocking the save, the output ceiling refused before any result lease, a newer
-review killing the running worker, and a budget raised while a review waits. The dimension-table
-tests (Q1–Q5 in a worker), the at-limit save of a 64 MiB result and the Vitest cases remain
-planned.
+review killing the running worker, and a budget raised while a review waits. The Vitest cases
+below run (slices 4b.1 and 4b.2b). The dimension-table tests (Q1–Q5 in a worker) and the at-limit
+save of a 64 MiB result remain planned.
 
 - **Confirming the dimension table.** These run in the engine crate, natively, with the counting
   allocator. Each doubles one factor with the others held, and expects the excess over the base
@@ -1624,12 +1658,112 @@ the frontend. The production entry points run task 3 in the capped worker; `MBF-
     test of the cancel is removed: the JSON form takes no lease. Mutations checked: a host that refuses the JSON
     form fails the regression, the duplicate test and the malformed test; a frontend that sends the cancel raw
     fails both fallback tests.
-- **4b.2b** (next, not here): the menu item, the Exports panel action, and mounting the dialog on the barrier's
-  `reviewMbfExport` and `saveMbfExport` (already ingress commands, slice 4b.2a's repair), the dialog's close
-  calling `retireMbfExportSession`, discarding a result whose `current()` is false, retiring the TypeScript
-  builder (A-6), and the user-facing product text for the barrier's and the ticket's refusals
-  (`MBF-EXPORT-RETIREMENT-UNCONFIRMED`, `MBF-EXPORT-EPOCH-INVALID` and `MBF-EXPORT-EPOCH-EXHAUSTED`), whose
-  current messages are developer wording.
+
+**Slice 4b.2b, as implemented (2026-11-06).** The frontend: the menu item, the Exports panel action and the mounted
+dialog on 4b.2a's native path, and the TypeScript builder's retirement (A-6). No native command, worker, format or
+identity file changes; `app_invoke_handler` is unchanged, so the reach-scan pin is too.
+
+- **Entry points** (§3.1). `file.export-mbf` ("Export MBF…") follows Save Handoff… in the native File menu
+  (`lib.rs` `NATIVE_FILE_MENU`, disabled while a project operation is busy like its neighbours) and in the in-window
+  File menu (`App.tsx`), and dispatches through the one command sink (`workspaceSession.ts` `runMenuCommand`). The
+  Model batch file panel's one action (`CaepipeMbfExportPanel.tsx`, "Export MBF…") calls the same
+  `requestExportMbf`. Both apply the panel's output gate (`outputGateRefusal`, exported from
+  `LoadReferenceOutputGate.tsx`; `OUTPUT_POLICY` is unchanged), and both refuse by name while the session's model hash
+  is not yet shown.
+- **The request.** `requestExportMbf` takes the session's model and its owned hash (`modelDocumentSaveBasisRef`, as
+  Save Model Document does), resolves the model's library references, and opens the dialog unless the session moved
+  on meanwhile. It supplies the barrier's `reviewMbfExport` (or null off the native runtime, so the browser-only route
+  declines with `MBF-REVIEW-NATIVE-ONLY` before anything reaches the barrier), its `saveMbfExport`, and `retire`
+  (the session's one retirement for this request, `mbfExportSession.ts`). The dialog is modal like Save Model Document: the workspace is inert and menu commands,
+  accelerators, close requests and project commands are held while it is open (`mbfExportDialogOpenRef`).
+- **Close and stale results.** Close, Escape, an App unmount and a session replacement each send one logical
+  retirement through the barrier (`mbfExportSession.ts`): an open dialog request is the session's retirement until the
+  user closes it and its retirement has been sent, so the dialog's cleanup and the session's end call one retire, and
+  only the first call sends; with no request held, the session's end retires on its own (4b.2a's). The dialog's
+  services take its own `stillCurrent` (a review its newer review or close superseded; a save whose dialog closed),
+  which the barrier checks before every send, and the dialog discards any result whose `current()` is false or whose
+  dialog has closed. Each new request starts with Save available (`saving` and the rest of its state are reset), so a
+  save of a closed dialog never holds the next one. A native `too_late` means only that the close crossed the save's
+  commit: `write_pair` still runs and can fail or undo itself. So a save that had not settled when its request was
+  retired is the session's to report: a `too_late` receipt reports it as finishing, and its own eventual outcome is
+  reported, saved or refused, whatever the receipt said. The receipt is no proof that a save wrote nothing: a save
+  that completed natively before the cancel arrived (a write failure or an undone save included) is no longer
+  registered, so it is counted in neither total, and an unacknowledged receipt says nothing. Only an outcome that
+  itself establishes that nothing was written is not reported: `MBF-EXPORT-CANCELLED` (refused before the commit),
+  a dismissed chooser, a refusal before the chooser that carries the review, and the stale or not-sent refusals
+  (`MBF-EXPORT-REVIEW-STALE`, `MBF-EXPORT-RETIREMENT-UNCONFIRMED`, `MBF-EXPORT-EPOCH-INVALID`,
+  `MBF-EXPORT-EPOCH-EXHAUSTED`), each only when every code of the refusal is one of them.
+  `INGRESS-RAW-BODY-REQUIRED` is not among them (repair round 3): Tauri 2.11.1 resends an invoke through its fallback
+  when its `fetch` fails or when reading its reply fails, so the original save may have committed, written or undone
+  itself before the resend was refused, and the refusal proves only that the resend wrote nothing. A closed save
+  refused with it, alone or with other codes, is reported as unknown (`kind: "unknown"`, "has no confirmed result",
+  status operation `export_mbf_outcome_unknown_after_close`). The outcome's line says the export was closed before its result came back. The report keeps the request's project
+  and session: after a new project session it is named as an earlier session's export, never as the current project's.
+  A new project session closes the dialog. The barrier, its ticket, its ids and its guards are mounted as they are;
+  nothing re-implements them.
+- **Product text** (§3.3, "The export's own refusals"). `MBF_EXPORT_REFUSAL_TEXT`, `mbfRefusalText`,
+  `closedSaveStatusLine` and `mbfFailureDiagnostic` in `mbfExport.ts`: the dialog shows each code with its product text in place of the native wording, and a start
+  refused `INGRESS-RAW-BODY-REQUIRED` declines the review with "Export isn't available in this window", while a save
+  refused so, open or closed, shows `mbfSaveRefusalText`'s unknown-outcome text (§3.3), never "Nothing was written".
+  The barrier cannot refuse a start for a known fallback before sending it (the flag is private to Tauri's transport
+  script), so every save refused with this code is treated as unknown.
+- **A-6.** `CaepipeMbfExportPanel.tsx` no longer builds a package or MBF text: `buildCaePipeMbfExportPacket`, its
+  package and MBF text links (with their `ControlledExportLink` route entries), its project-id file names, its
+  length conversion and witnesses and its `MBF-LENGTH-*` and `MBF-PROJECT-UNIT-MISSING` codes are removed, with the
+  tests of them (`exportLengthConversion.test.tsx`, `exportProjectUnitRefusal.test.tsx` keep their PCF and local FEA
+  cases). `services/mbfEngine.ts` stays as the test resource 4b.1 left it; no product source imports it.
+  `apps/desktop/native-smoke/expected.json` is unchanged; the smoke driver's MBF control probe and the Playwright
+  smoke's panel assertion follow the new action (neither was run). The live records that described the preview
+  package are reconciled with the native export: `ExportReviewPanel.tsx`'s `caepipe_mbf_export` record and
+  `ExportAdapterSdkPanel.tsx`'s target now state the native writer, the local-private route `DOTH-MBF-012` with its
+  explicit choice, a model-only payload with no result data, the identity file, and (in the review record) that the
+  files hold private project data (`private_payload_included: true`, so the manifest's private-payload count is 1).
+  Their `export_id`/`target_id`, `document_kind` and `target_family` keep their historical spelling. The preview's
+  public report template and its unit and conversion-witness surface in `ReportLintPanel.tsx` are retired, not moved
+  onto the local-private model files (unit-policy targets 44 to 43, conversion-witness targets 2 to 1, lint targets 46
+  to 45; the export review's lint record and the Playwright smoke follow, unrun). `redactionExportControls.ts` keeps
+  its handlers for the preview package's document kind, for historical payloads.
+- **Tests.** Vitest: `App.mbfExportDialog.test.tsx` runs the real App against a mocked native host: the native menu's
+  event and the in-window File menu item open the dialog, the Exports panel's action opens it and focus returns
+  there, review then save through the native commands (the canonical text and its hash, the reviewed digests, the
+  route evidence, the same ticket for both), Cancel and Escape each send one retirement, the browser preview declines
+  before any review is sent, a review answering after its dialog closed is discarded, a save writing at the close is
+  reported written, the exhausted and fallen-back states' product text, and unmounting the App with the dialog open
+  retires the export. `MbfExportDialog.test.tsx` adds: close and unmount call `retire`; non-current review and save
+  results are discarded; the dialog's own check reaches the barrier; each code's product text; the texts name no
+  mechanism and grant nothing; and a source scan that no product source keeps the builder, its links or the wasm
+  engine. `App.test.tsx`'s MBF block now opens the mounted dialog from the panel (browser route) and closes it, in
+  place of the retired summary and profile. Rust: `native_file_menu_offers_export_mbf_after_save_handoff` and the
+  busy-state test's list. Repair round: `mbfExportSession.test.ts` holds the retirement counts in every order
+  (close, unmount, session replacement with the dialog open, no dialog, a request never mounted) and the closed-save
+  reports (each of a saved, write-failed, undone and thrown outcome under a receipt of zero, an unacknowledged one and
+  a too-late one; the no-write outcomes silent under each); `App.mbfExportDialog.test.tsx` holds a save closed after its commit that then saves, fails to write, or is
+  undone, one that completes after a new project session (named as the earlier session's), one that had completed
+  natively before the close (a `too_late` of 0) and was undone, reopening during a pending
+  save before and after it settles, and exact retirement counts for Close, Escape and an App unmount. Repair round 3
+  (P1, the fallback's resend): a save whose original committed and whose resend was refused
+  `INGRESS-RAW-BODY-REQUIRED` is reported as unknown under each receipt (`mbfExportSession.test.ts`, with a mixed
+  refusal), shows the unknown-outcome text in the open dialog (`MbfExportDialog.test.tsx`,
+  `App.mbfExportDialog.test.tsx`) and in the status line once the dialog has closed (`App.mbfExportDialog.test.tsx`);
+  a review refused with the same code still says nothing was written; the other no-write codes stay silent. A session
+  replacement with the dialog open cannot be reached through the App (every session-replacing command is held while
+  it is open), so its count is held at the owner.
+- **Open.** Criterion 6 is not claimed: the reference system still needs the coverage tranches and the round-trip
+  check (slices 5 and 6). The panel and menu keep the `caepipe-mbf` output gate although the export now carries no
+  result data; its removal is a separate follow-up. No App launch, Playwright, native smoke or
+  model run was made.
+- **DEL-17-05's external-run panel** (repair round 2, by Agent 0's ruling that no misleading live consumer is left for a
+  later owner). DEL-17-05-REQ-016 requires external-run evidence to bind to *a* DEL-17-04 MBF export package
+  reference, and its schema requires only a non-empty `mbf_package_ref` and `input_mbf_path`; neither requires the
+  retired preview's identifier. The panel (`CaepipeExternalHarnessPanel.tsx`) and the export review's
+  `caepipe_external_run_evidence` record keep that reference (`caepipe-mbf:desktop-preview-del-17-04`) and the
+  preview's input name (`download:openpipestress-preview-mbf-package.json`) as historical identifiers, and state that
+  the input is not available: `mbf_package_status`/`mbf_package_availability` say
+  `historical_retired_preview_package_not_available`, `run_directory.input_mbf_path` is `not_available`, the
+  `mbf_package_bound_to_del_17_04` check reports `historical_reference_not_available` (never `pass`), and a warning
+  diagnostic (`CAEPIPE-EXTERNAL-MBF-INPUT-NOT-AVAILABLE`) names it. The panel's state-binding line marks the reference
+  "(historical; not available)". The Python run package (`core/handoff/caepipe_external/run.py`), its fixtures and the
+  schema are unchanged.
 
 ## 7. Boundaries
 
