@@ -303,6 +303,24 @@ describe("File > Export MBF… (the mounted dialog)", () => {
     expect(projectMessage().textContent).not.toMatch(/were written|finished:/);
   }, 60000);
 
+  it("a save that had already completed natively when the dialog closed (the receipt counts it in neither total) still reports its failure", async () => {
+    const host = nativeHost({ hold: new Set(["save_mbf_export"]), tooLate: () => 0 });
+    await renderApp();
+    setTauriRuntime();
+    const opened = await openFromMenu();
+    await within(opened).findByTestId("mbf-export-profile", {}, { timeout: 20000 });
+    const projectName = (JSON.parse(host.named("review_mbf_export")[0].args.canonicalText as string) as { project: { name: string } }).project.name;
+    fireEvent.click(within(opened).getByTestId("mbf-export-intent"));
+    fireEvent.click(within(opened).getByTestId("mbf-export-save"));
+    await waitFor(() => expect(host.held).toHaveLength(1));
+    fireEvent.click(within(opened).getByTestId("mbf-export-cancel"));
+    await waitFor(() => expect(screen.queryByTestId("mbf-export-dialog")).toBeNull());
+    const diagnostics = [{ code: "MBF-EXPORT-ROLLBACK-INCOMPLETE", path: "", message: "Invented: kept as .swbpipe-mbf-0.bak; rename it back by hand." }];
+    await act(async () => { host.held[0].resolve({ outcome: "refused", diagnostics }); });
+    await waitFor(() => expect(projectMessage()).toHaveTextContent(closedSaveStatusLine({ kind: "failed", diagnostics }, { projectName, earlierSession: false })));
+    expect(projectMessage()).toHaveTextContent("MBF-EXPORT-ROLLBACK-INCOMPLETE: Invented: kept as .swbpipe-mbf-0.bak");
+  }, 60000);
+
   it("a committed save that completes after a new project session reports as the earlier session's export, never the new project's", async () => {
     let second: Record<string, unknown> | null = null;
     const { host, save, projectName } = await closeDuringCommittedSave({

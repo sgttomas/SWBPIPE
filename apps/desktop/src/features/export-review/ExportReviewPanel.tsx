@@ -984,6 +984,8 @@ function buildExportReviewManifest({
         : ["caepipe-mbf:desktop-preview-del-17-04", model.project.id],
       package_status: "parser_only_evidence",
       mbf_package_ref: "caepipe-mbf:desktop-preview-del-17-04",
+      // The retired DEL-17-04 preview package, named historically: it is no longer produced (slice 4b.2b).
+      mbf_package_availability: "historical_retired_preview_package_not_available",
       executable_path_state: "absent",
       invocation_profile: "TBD-17-05-invocation-profile",
       external_tool_invoked: false,
@@ -1002,7 +1004,7 @@ function buildExportReviewManifest({
       protected_content_included: false,
       release_or_professional_claim: false,
       review_note:
-        "Local external-run evidence preview; executable path is absent, external execution is not attempted, parser-only CSV rows are invented, and live invocation remains user-owned/TBD."
+        "Local external-run evidence preview; executable path is absent, external execution is not attempted, parser-only CSV rows are invented, and live invocation remains user-owned/TBD. The MBF package it names is the retired preview package, named historically; that input is not available."
     },
     {
       export_id: "export_adapter_sdk_registry",

@@ -432,8 +432,9 @@ function closedExportSubject({ projectName, earlierSession }: ClosedExportAttrib
 
 /** The status line for a closed dialog's save (`mbfExportSession.ts`). A close after the save's commit does not
  * stop it: it may still finish, or fail and undo itself, so the line first says only that it is finishing. The save's
- * own outcome then follows: saved, naming both files, or refused, with its codes and their product text
- * (`mbfRefusalText`), a write failure or an undone save included. */
+ * own outcome then follows, whatever the close's receipt said: saved, naming both files, or refused, with its codes and
+ * their product text (`mbfRefusalText`), a write failure or an undone save included. The outcome's line says only that
+ * the export was closed before its result came back, since a save may have completed before the close reached it. */
 export function closedSaveStatusLine(
   report:
     | { kind: "finishing" }
@@ -445,10 +446,10 @@ export function closedSaveStatusLine(
   if (report.kind === "finishing") return `${subject} was already writing its files when it was closed; it is finishing.`;
   if (report.kind === "saved") {
     const durability = report.outcome.durability === "durable" ? "" : " The folder's update may not be durable yet.";
-    return `${subject}, closed while it was writing, finished: both files were written, ${report.outcome.mbf.file_name} and its identity file ${report.outcome.identity_file.file_name}.${durability}`;
+    return `${subject}, closed before its result came back, finished: both files were written, ${report.outcome.mbf.file_name} and its identity file ${report.outcome.identity_file.file_name}.${durability}`;
   }
   const items = report.diagnostics.map((item) => `${item.code}${item.path ? ` (${item.path})` : ""}: ${mbfRefusalText(item)}`);
-  return `${subject}, closed while it was writing, did not finish. ${items.join(" ")}`;
+  return `${subject}, closed before its result came back, did not finish. ${items.join(" ")}`;
 }
 
 /** A code the writer emits (named by the product-side description), as opposed to the save's own codes. */

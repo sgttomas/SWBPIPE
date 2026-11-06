@@ -2172,7 +2172,32 @@ describe("SWBPIPE desktop preview", () => {
         (item: { check_id: string }) => item.check_id,
       ),
     ).toContain("unit_preservation_witness_per_parser_row");
-    expect(caepipeExternalPacket.diagnostics).toHaveLength(0);
+    // The MBF package it names is DEL-17-04's retired preview package: a historical DEL-17-04 reference
+    // (DEL-17-05-REQ-016), never a passing binding to an input that is available.
+    expect(caepipeExternalPacket.mbf_package_status.availability).toBe(
+      "historical_retired_preview_package_not_available",
+    );
+    expect(caepipeExternalPacket.mbf_package_status.historical_input_mbf_path).toBe(
+      "download:openpipestress-preview-mbf-package.json",
+    );
+    expect(caepipeExternalPacket.run_directory.input_mbf_path).toBe("not_available");
+    const mbfBinding = caepipeExternalPacket.validation_report.checks.find(
+      (item: { check_id: string }) =>
+        item.check_id === "mbf_package_bound_to_del_17_04",
+    );
+    expect(mbfBinding.status).toBe("historical_reference_not_available");
+    expect(mbfBinding.status).not.toBe("pass");
+    expect(
+      caepipeExternalPacket.diagnostics.map((item: { code: string; severity: string }) => [item.code, item.severity]),
+    ).toEqual([["CAEPIPE-EXTERNAL-MBF-INPUT-NOT-AVAILABLE", "warning"]]);
+    expect(
+      within(caepipeExternal).getByTestId("caepipe-external-state-binding")
+        .textContent,
+    ).toContain("(historical; not available)");
+    expect(
+      within(caepipeExternal).getByTestId("caepipe-external-run-directory")
+        .textContent,
+    ).toContain("input_mbf=not_available");
     expect(caepipeExternalPacket.private_payload_included).toBe(false);
     expect(caepipeExternalPacket.protected_content_included).toBe(false);
     expect(caepipeExternalPacket.caepipe_compatibility_claim).toBe(false);
@@ -8361,6 +8386,9 @@ describe("SWBPIPE desktop preview", () => {
     expect(caepipeExternalRecord.deliverable_refs).toContain("DEL-17-04");
     expect(caepipeExternalRecord.package_status).toBe("parser_only_evidence");
     expect(caepipeExternalRecord.mbf_package_ref).toContain("del-17-04");
+    expect(caepipeExternalRecord.mbf_package_availability).toBe(
+      "historical_retired_preview_package_not_available",
+    );
     expect(caepipeExternalRecord.executable_path_state).toBe("absent");
     expect(caepipeExternalRecord.invocation_profile).toBe(
       "TBD-17-05-invocation-profile",

@@ -347,7 +347,8 @@ writer and importer. These are the CAEPIPE lane's work, not desktop work (Q-3):
   may still finish, or fail and undo itself: the status line first says only that the export
   "was already writing its files when it was closed; it is finishing", then the save's own
   outcome (`closedSaveStatusLine`): both files named when it saved, or its codes with their text
-  when it failed or was undone. Each line names the export's project, and "from an earlier
+  when it failed or was undone; a closed save's outcome is shown so whatever the close's receipt said, unless the
+  outcome itself shows that nothing was written (§6, slice 4b.2b). Each line names the export's project, and "from an earlier
   project session" once the session has changed. No text names the mechanism (epochs, ids or tickets), and none suggests that anything grants a
   save.
 
@@ -1672,7 +1673,14 @@ identity file changes; `app_invoke_handler` is unchanged, so the reach-scan pin 
   save of a closed dialog never holds the next one. A native `too_late` means only that the close crossed the save's
   commit: `write_pair` still runs and can fail or undo itself. So a save that had not settled when its request was
   retired is the session's to report: a `too_late` receipt reports it as finishing, and its own eventual outcome is
-  reported, saved or refused (a cancelled save, which wrote nothing, is not). The report keeps the request's project
+  reported, saved or refused, whatever the receipt said. The receipt is no proof that a save wrote nothing: a save
+  that completed natively before the cancel arrived (a write failure or an undone save included) is no longer
+  registered, so it is counted in neither total, and an unacknowledged receipt says nothing. Only an outcome that
+  itself establishes that nothing was written is not reported: `MBF-EXPORT-CANCELLED` (refused before the commit),
+  a dismissed chooser, a refusal before the chooser that carries the review, and the stale or not-sent refusals
+  (`MBF-EXPORT-REVIEW-STALE`, `MBF-EXPORT-RETIREMENT-UNCONFIRMED`, `MBF-EXPORT-EPOCH-INVALID`,
+  `MBF-EXPORT-EPOCH-EXHAUSTED`, `INGRESS-RAW-BODY-REQUIRED`), each only when every code of the refusal is one of
+  them. The outcome's line says the export was closed before its result came back. The report keeps the request's project
   and session: after a new project session it is named as an earlier session's export, never as the current project's.
   A new project session closes the dialog. The barrier, its ticket, its ids and its guards are mounted as they are;
   nothing re-implements them.
@@ -1708,17 +1716,29 @@ identity file changes; `app_invoke_handler` is unchanged, so the reach-scan pin 
   place of the retired summary and profile. Rust: `native_file_menu_offers_export_mbf_after_save_handoff` and the
   busy-state test's list. Repair round: `mbfExportSession.test.ts` holds the retirement counts in every order
   (close, unmount, session replacement with the dialog open, no dialog, a request never mounted) and the closed-save
-  reports; `App.mbfExportDialog.test.tsx` holds a save closed after its commit that then saves, fails to write, or is
-  undone, one that completes after a new project session (named as the earlier session's), reopening during a pending
+  reports (each of a saved, write-failed, undone and thrown outcome under a receipt of zero, an unacknowledged one and
+  a too-late one; the no-write outcomes silent under each); `App.mbfExportDialog.test.tsx` holds a save closed after its commit that then saves, fails to write, or is
+  undone, one that completes after a new project session (named as the earlier session's), one that had completed
+  natively before the close (a `too_late` of 0) and was undone, reopening during a pending
   save before and after it settles, and exact retirement counts for Close, Escape and an App unmount. A session
   replacement with the dialog open cannot be reached through the App (every session-replacing command is held while
   it is open), so its count is held at the owner.
 - **Open.** Criterion 6 is not claimed: the reference system still needs the coverage tranches and the round-trip
   check (slices 5 and 6). The panel and menu keep the `caepipe-mbf` output gate although the export now carries no
-  result data; its removal is a separate follow-up. The external-run evidence record and panel (DEL-17-05) still
-  name the retired preview package by its reference (`caepipe-mbf:desktop-preview-del-17-04`), which DEL-17-05's
-  parser-only contract requires; that is DEL-17-05's. No App launch, Playwright, native smoke or
+  result data; its removal is a separate follow-up. No App launch, Playwright, native smoke or
   model run was made.
+- **DEL-17-05's external-run panel** (repair round 2, by Agent 0's ruling that no misleading live consumer is left for a
+  later owner). DEL-17-05-REQ-016 requires external-run evidence to bind to *a* DEL-17-04 MBF export package
+  reference, and its schema requires only a non-empty `mbf_package_ref` and `input_mbf_path`; neither requires the
+  retired preview's identifier. The panel (`CaepipeExternalHarnessPanel.tsx`) and the export review's
+  `caepipe_external_run_evidence` record keep that reference (`caepipe-mbf:desktop-preview-del-17-04`) and the
+  preview's input name (`download:openpipestress-preview-mbf-package.json`) as historical identifiers, and state that
+  the input is not available: `mbf_package_status`/`mbf_package_availability` say
+  `historical_retired_preview_package_not_available`, `run_directory.input_mbf_path` is `not_available`, the
+  `mbf_package_bound_to_del_17_04` check reports `historical_reference_not_available` (never `pass`), and a warning
+  diagnostic (`CAEPIPE-EXTERNAL-MBF-INPUT-NOT-AVAILABLE`) names it. The panel's state-binding line marks the reference
+  "(historical; not available)". The Python run package (`core/handoff/caepipe_external/run.py`), its fixtures and the
+  schema are unchanged.
 
 ## 7. Boundaries
 

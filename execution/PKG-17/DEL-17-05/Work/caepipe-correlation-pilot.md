@@ -546,8 +546,9 @@ classification. It never prints external-prover values outside the local run.
 - Writer breadth: springs, guides, hangers, nonlinear supports, pressure, rigid and
   valve components, temperature-dependent materials, imperial-unit projects
   (conversion), multiple thermal cases.
-- The desktop `.mbf` export (`CaepipeMbfExportPanel.tsx`) still writes the placeholder
-  smoke text; it should use the SI writer's record subset.
+- The desktop `.mbf` export now runs the native SI writer (DEL-17-04 slice 4b.2b, File >
+  Export MBF…); the placeholder smoke text and its preview package are retired. The external-run
+  panel names that package only historically, as not available.
 - A wider correlation corpus (larger models, more load types) under the full licence.
 - The pilot's own bend case uses k = 1. Non-unit factors are exercised only by the benchmark's G2 set (§11.1).
 - CAEPIPE's pipe shear shape factor and default gravitational acceleration

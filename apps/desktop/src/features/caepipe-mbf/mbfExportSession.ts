@@ -11,12 +11,24 @@
 //
 // A closed dialog's save. A save the dialog started and that had not settled when its request was retired is the
 // session's to report, since the dialog no longer shows anything. When the retirement's receipt says it reached a save
-// past its commit (`too_late`), the save may still be writing, or may fail and undo itself: the session reports only
-// that it is finishing. Whatever the save then does, its own outcome is reported: a saved receipt names both files, a
-// refusal states its codes. A save the retirement cancelled before its commit wrote nothing and is not reported, unless
-// its outcome says it saved. Each report carries the request it belongs to, so the session can attribute it.
+// past its commit (`too_late`) that has not settled yet, the session first reports only that it is finishing. The
+// save's own outcome is then reported by itself, whatever the receipt said (too late, none, or no receipt at all): the
+// receipt does not prove that the save was cancelled before it wrote, since a save that has already completed natively
+// (a write failure or an undone save included) is no longer counted in it. A saved outcome names both files; a refusal
+// or a failure states its codes, a rollback's backups included. Only an outcome that itself establishes that nothing was
+// written is not reported (`nothingWritten`). Each report carries the request it belongs to, so the session can
+// attribute it.
 import type { MbfCancelReceipt, MbfStarted } from "./mbfExportCancel";
-import { mbfFailureDiagnostic, type MbfExportSaveOutcome } from "./mbfExport";
+import {
+  INGRESS_RAW_BODY_REQUIRED,
+  MBF_EXPORT_CANCELLED,
+  MBF_EXPORT_EPOCH_EXHAUSTED,
+  MBF_EXPORT_EPOCH_INVALID,
+  MBF_EXPORT_RETIREMENT_UNCONFIRMED,
+  MBF_EXPORT_REVIEW_STALE,
+  mbfFailureDiagnostic,
+  type MbfExportSaveOutcome
+} from "./mbfExport";
 import type { ModelFileDiagnostic } from "../model-file/modelDocumentSave";
 
 /** What the session is told about a closed dialog's save. */
@@ -45,7 +57,41 @@ export type MbfExportRetirementOwner = {
   sessionEnded: () => void;
 };
 
-type Settled = { kind: "outcome"; outcome: MbfExportSaveOutcome } | { kind: "error"; error: unknown };
+/** The refusals that themselves establish that nothing was written: a run cancelled before its commit (or a start
+ * never sent), a start not sent because an earlier retirement was unconfirmed, a start refused at the native entry by
+ * its ticket or at the ingress after the window's fallback, and a save whose review was stale (refused before the
+ * chooser). */
+const NOTHING_WRITTEN_CODES: ReadonlySet<string> = new Set([
+  MBF_EXPORT_CANCELLED,
+  MBF_EXPORT_RETIREMENT_UNCONFIRMED,
+  MBF_EXPORT_EPOCH_INVALID,
+  MBF_EXPORT_EPOCH_EXHAUSTED,
+  INGRESS_RAW_BODY_REQUIRED,
+  MBF_EXPORT_REVIEW_STALE
+]);
+
+/** Whether a closed save's own outcome establishes that it wrote nothing: a chooser dismissed without a choice, a
+ * refusal before the chooser from the save's worker run (it carries the review), or a refusal whose every code is one
+ * of `NOTHING_WRITTEN_CODES`. Anything else (a write failure, an undone save, any other refusal or failure) may follow
+ * a write and is reported. */
+function nothingWritten(outcome: MbfExportSaveOutcome): boolean {
+  if (outcome.outcome === "cancelled") return true;
+  if (outcome.outcome !== "refused") return false;
+  if (outcome.review !== undefined) return true;
+  return outcome.diagnostics.length > 0 && outcome.diagnostics.every((item) => NOTHING_WRITTEN_CODES.has(item.code));
+}
+
+/** The report of a closed save's settled outcome, or `null` when it establishes that nothing was written. */
+function closedSaveReport(settled: { outcome: MbfExportSaveOutcome } | { error: unknown }): ClosedMbfSaveReport | null {
+  if ("error" in settled) {
+    const diagnostic = mbfFailureDiagnostic(settled.error);
+    return NOTHING_WRITTEN_CODES.has(diagnostic.code) ? null : { kind: "failed", diagnostics: [diagnostic] };
+  }
+  const { outcome } = settled;
+  if (outcome.outcome === "saved") return { kind: "saved", outcome };
+  if (nothingWritten(outcome)) return null;
+  return { kind: "failed", diagnostics: outcome.outcome === "refused" ? outcome.diagnostics : [] };
+}
 
 /** The session's owner, over the barrier's `retireMbfExportSession`. */
 export function mbfExportRetirementOwner(retireSession: () => Promise<MbfCancelReceipt | null>): MbfExportRetirementOwner {
@@ -63,27 +109,20 @@ export function mbfExportRetirementOwner(retireSession: () => Promise<MbfCancelR
         const receipt = retireSession();
         if (!save) return;
         let settled = false;
-        const outcome: Promise<Settled> = save.then(
-          (started) => { settled = true; return { kind: "outcome", outcome: started.outcome }; },
-          (error: unknown) => { settled = true; return { kind: "error", error }; }
+        // The save's own outcome, reported as soon as it settles, independently of the receipt.
+        const report = (closed: ClosedMbfSaveReport | null) => {
+          settled = true;
+          if (closed) onClosedSave(closed);
+        };
+        void save.then(
+          (started) => report(closedSaveReport({ outcome: started.outcome })),
+          (error: unknown) => report(closedSaveReport({ error }))
         );
-        void receipt.then((answer) => {
-          if (answer !== null && answer.too_late > 0 && !settled) onClosedSave({ kind: "finishing" });
-        });
-        void Promise.all([receipt, outcome]).then(([answer, result]) => {
-          if (result.kind === "outcome" && result.outcome.outcome === "saved") {
-            onClosedSave({ kind: "saved", outcome: result.outcome });
-            return;
-          }
-          // Not past its commit: cancelled before anything was written, which the close itself asked for. A chooser
-          // dismissed without a choice wrote nothing either.
-          if (answer === null || answer.too_late === 0) return;
-          if (result.kind === "error") {
-            onClosedSave({ kind: "failed", diagnostics: [mbfFailureDiagnostic(result.error)] });
-          } else if (result.outcome.outcome === "refused") {
-            onClosedSave({ kind: "failed", diagnostics: result.outcome.diagnostics });
-          }
-        });
+        // Only a save still unsettled when the receipt says it was past its commit is finishing.
+        void receipt.then(
+          (answer) => { if (answer !== null && answer.too_late > 0 && !settled) onClosedSave({ kind: "finishing" }); },
+          () => {}
+        );
       };
       open = retire;
       return {
