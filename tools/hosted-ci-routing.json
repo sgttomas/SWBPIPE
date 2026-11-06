@@ -200,7 +200,7 @@
   ],
   "piping_runtime_reads": {
     "source_trees": {
-      "core/analysis/hanger_sizing/Cargo.toml": "a5e1fae2161e3b9c78ac98097b1b2e59a35e60c95a6150d652f8a900e1f621bc",
+      "core/analysis/hanger_sizing/Cargo.toml": "cc233e138b7f2b92e3cfc7ab05430e2416a5feb6f0c9fc44e3b6e343940293fb",
       "core/gui/viewport_editor/Cargo.toml": "32de48e1e1afd2bc77f84655a69561bdc96074a31fe17f705e7b3a0d8aa6eddf",
       "core/handoff/caepipe_mbf_engine/Cargo.toml": "e6eabce9c82e4987e065b41f62ab110b0f54a1fd6d2044ed374511d08bda6e01",
       "core/handoff/caepipe_mbf_wasm/Cargo.toml": "0a7ff532a9caff6ec74bf06d79fd022e03416f544bb040dfca10aa32345cf427",
@@ -2513,11 +2513,11 @@
               "apps/desktop/src-tauri/src/solve_worker.rs",
               "apps/desktop/src-tauri/src/stored_custody.rs",
               "apps/desktop/src-tauri/src/stored_custody_tests.rs",
-              "apps/desktop/src-tauri/src/stored_save.rs",
-              "apps/desktop/src-tauri/src/stored_save_tests.rs",
               "apps/desktop/src-tauri/src/stored_model_document_export.rs",
               "apps/desktop/src-tauri/src/stored_read.rs",
               "apps/desktop/src-tauri/src/stored_read_sqlite_u1.rs",
+              "apps/desktop/src-tauri/src/stored_save.rs",
+              "apps/desktop/src-tauri/src/stored_save_tests.rs",
               "apps/desktop/src-tauri/src/user_release_admission.rs",
               "apps/desktop/src-tauri/src/user_release_admission_tests.rs",
               "apps/desktop/src-tauri/src/user_release_reach_scan.rs",
@@ -2526,6 +2526,7 @@
               "apps/desktop/src-tauri/src/worker_alloc.rs",
               "core/analysis/hanger_sizing/src/admission.rs",
               "core/analysis/hanger_sizing/src/derived.rs",
+              "core/analysis/hanger_sizing/src/desktop.rs",
               "core/analysis/hanger_sizing/src/lib.rs",
               "core/analysis/hanger_sizing/src/library.rs",
               "core/analysis/hanger_sizing/src/publish.rs",
@@ -6088,6 +6089,28 @@
               "fixtures/results/hanger_sizing_input_four_span.json",
               "fixtures/results/hanger_sizing_input_refused.json",
               "fixtures/results/hanger_sizing_input_two_span.json"
+            ]
+          }
+        ]
+      },
+      "core/analysis/hanger_sizing/tests/desktop.rs": {
+        "sha256": "228318344aa9d976930ce78c4c585a21c204e3a507395f613d5e607475901229",
+        "source_trees": [
+          "core/analysis/hanger_sizing/Cargo.toml"
+        ],
+        "inputs": [
+          {
+            "anchor": "../../../fixtures/results",
+            "base": "manifest",
+            "files": [
+              "fixtures/results/hanger_sizing_corpus.json",
+              "fixtures/results/hanger_sizing_input_four_span.json",
+              "fixtures/results/hanger_sizing_input_refused.json",
+              "fixtures/results/hanger_sizing_input_two_span.json",
+              "fixtures/results/hanger_sizing_result_forgery.json",
+              "fixtures/results/hanger_sizing_result_four_span.json",
+              "fixtures/results/hanger_sizing_result_refused.json",
+              "fixtures/results/hanger_sizing_result_two_span.json"
             ]
           }
         ]

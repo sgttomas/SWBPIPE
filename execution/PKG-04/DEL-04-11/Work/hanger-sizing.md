@@ -1041,6 +1041,30 @@ outcome.
        cell carrying the panel's reason. `result_hash` is the document's checked canonical hash.
        The panel is not mounted; 3c mounts it.
      - **3c:** the native sizing job and its command, and mounting the 3b panel.
+       - **Part 1, built:** the crate's native size-and-read entry,
+         `desktop::size_and_read(raw: &[u8])` (`core/analysis/hanger_sizing/src/desktop.rs`).
+         Its input is the raw bytes of exactly the headless input (§8.3.2):
+         - over `MAX_INPUT_BYTES` it is refused before anything else
+           (`HANGER_SIZING_INPUT_TOO_LARGE`);
+         - non-UTF-8 bytes are refused (`HANGER_SIZING_INPUT_NOT_UTF8`).
+
+         Either refusal is a typed error with a code and a message, and forms no
+         document. Otherwise the text is admitted once and goes through the headless
+         pipeline itself, so the document is what `size_hangers` publishes for the same
+         text. The reply is one JSON text:
+         `{"document", "evidence": {"document_sha256", "verdict"}}`.
+         - `document_sha256` is the document's checked canonical hash.
+         - `verdict` is `Verdict::to_json()` of the Rust reader. The reader runs with the
+           same input's `request` and `library` supplied.
+         - Reproduction is skipped explicitly (`ReadOptions::WITHOUT_REPRODUCTION`) and is
+           `not_checked`; `read` and `read_document` still run every standing.
+         - A refused document gets closure and binding only (§8.3.7).
+
+         The reply is written so that every number round-trips, and its byte size is
+         `reply_len()`. Its tests are `tests/desktop.rs`, on the committed corpus inputs.
+       - **Part 2:** runs that entry in the desktop's capped worker process as worker task
+         4, returns its reply to the webview, and mounts the panel with the reader
+         standings bound to the document.
   4. EX derived solves (the ledger entry of §4.1) and the reference system, R-7. This
      needs RT-A3 increments 3 and 4 for the reference system's non-candidate families.
   5. The user guide and theory notes (RT-V4), and any standing refusal entered in

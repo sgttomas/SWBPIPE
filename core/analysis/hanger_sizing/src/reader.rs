@@ -18,7 +18,8 @@
 //!   ties positions and states to the bound model.
 //!
 //! No standing states that mechanics are verified. When `closure` fails, nothing
-//! else is checked.
+//! else is checked. [`read_document_with`] can skip `reproduction` explicitly
+//! ([`ReadOptions`]); [`read`] and [`read_document`] run every standing.
 
 use crate::admission::admit;
 use crate::derived::{self, derived_document, Role, SizingRequest};
@@ -126,8 +127,31 @@ pub fn read(text: &str, supplied: Supplied<'_>) -> Verdict {
     }
 }
 
-/// Reads an admitted document.
+/// Which of the optional standings a read runs. A standing a read does not run
+/// is reported as `not_checked`, never as passed. There is no default: a caller
+/// names its choice.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ReadOptions {
+    /// Whether `reproduction` re-runs the sizing (all 2n + 3 solves) from the
+    /// bound inputs. When false it is `not_checked`.
+    pub reproduction: bool,
+}
+
+impl ReadOptions {
+    /// Every standing the supplied inputs allow: what [`read`] and
+    /// [`read_document`] run.
+    pub const FULL: ReadOptions = ReadOptions { reproduction: true };
+    /// Every standing but `reproduction`, which is `not_checked`.
+    pub const WITHOUT_REPRODUCTION: ReadOptions = ReadOptions { reproduction: false };
+}
+
+/// Reads an admitted document with every standing ([`ReadOptions::FULL`]).
 pub fn read_document(doc: &Value, supplied: Supplied<'_>) -> Verdict {
+    read_document_with(doc, supplied, ReadOptions::FULL)
+}
+
+/// Reads an admitted document, running the optional standings `options` names.
+pub fn read_document_with(doc: &Value, supplied: Supplied<'_>, options: ReadOptions) -> Verdict {
     if let Err(difference) = closure(doc) {
         return Verdict::closure_failed(difference);
     }
@@ -145,7 +169,7 @@ pub fn read_document(doc: &Value, supplied: Supplied<'_>) -> Verdict {
                 None => Standing::not_checked(),
             },
             match (supplied.solve_request.filter(|_| solve_bound), supplied.library.filter(|_| library_bound)) {
-                (Some(solve), Some(library)) => Standing::of(reproduction(doc, &request, solve, library)),
+                (Some(solve), Some(library)) if options.reproduction => Standing::of(reproduction(doc, &request, solve, library)),
                 _ => Standing::not_checked(),
             },
         ),
