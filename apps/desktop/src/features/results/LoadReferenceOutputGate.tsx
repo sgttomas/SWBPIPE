@@ -5,7 +5,7 @@ import { sourceContract } from "./resultReader";
 import type { MechanicsResult } from "../../types";
 
 /** The refusal the output gate shows for `surface` (its test-id prefix) on `result`, or null when it adds none. */
-export function outputGateRefusal(result: SessionResult | null | undefined, surface: string): string | null {
+function outputGateRefusal(result: SessionResult | null | undefined, surface: string): string | null {
   if (!result) return null;
   let route: string;
   try { route = sourceContract(result); } catch { return null; }

@@ -1246,7 +1246,7 @@ function AppSession() {
                 )}
               </C2ResultGate>
               <PcfExportPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
-              <CaepipeMbfExportPanel model={model} result={currentSolvedResult} onExportMbf={() => { void requestExportMbf(); }} />
+              <CaepipeMbfExportPanel model={model} onExportMbf={() => { void requestExportMbf(); }} />
               <CaepipeExternalHarnessPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
               <ExportAdapterSdkPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
               <AdapterFrameworkPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />

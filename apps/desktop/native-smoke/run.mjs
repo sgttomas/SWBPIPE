@@ -463,8 +463,10 @@ const namesMissingInputs = (rules) => Boolean(rules?.aggregate?.includes("RULE_I
       && exactRender?.redaction?.includes("context=local_private") && exactRender.redaction.includes("blocked=false"), exactRender?.redaction ?? exactRender?.error ?? exact?.render_refusal);
   check("exact route: rendered report's canonical HTML SHA-256 shown and export gates passed",
     /^Canonical HTML SHA-256: [0-9a-f]{64}$/.test(exactRender?.hash ?? "") && exactRender.gate === "export gates passed" && exactRender.preview_local_private_notice, exactRender && { hash: exactRender.hash, gate: exactRender.gate, error: exactRender.error });
-  check("exact route: MBF refused by its own gate (PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE), no Export MBF… action or download",
-    exact?.mbf_panel && !exact.mbf_download_controls && exact.mbf_refusal?.startsWith("PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE"), exact?.mbf_refusal);
+  // DEL-17-04 (4b.2b's follow-up): the model batch file export carries no result data and has no result-output gate.
+  check("exact route: MBF not gated by the result (no refusal), its Export MBF… action offered, no download link",
+    exact?.mbf_panel && exact.mbf_refusal === null && exact.mbf_export_action === true && exact.mbf_download_links === 0,
+    exact && { refusal: exact.mbf_refusal, action: exact.mbf_export_action, links: exact.mbf_download_links });
   check("exact route: result JSON export offered", exact?.result_export_link === true);
   const exactPackage = exact?.report_package;
   const exactRead = exactPackage?.read;

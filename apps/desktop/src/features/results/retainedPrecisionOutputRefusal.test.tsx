@@ -8,7 +8,7 @@
  * T6S-3 (RR decisions 2 and 12): the Result Export and Stress-Neutral Export
  * panels now read their own entries in the output policy (`outputPolicy.ts`),
  * which admit a successor only at numerically eligible standing with the live
- * native capture; the eighteen other surfaces and the report package keep the
+ * native capture; the seventeen other surfaces and the report package keep the
  * shared refusal, whose text is reworded. The successors here are unregistered
  * file bytes, so the two panels refuse them with the standing's own reason
  * (their admission is tested in retainedPrecisionStressNeutral.test.tsx and
@@ -102,7 +102,6 @@ const preview = () => scenario(JSON.parse(readFileSync(resolve(root, "fixtures/r
 /** Surfaces whose downloads or handoffs carry result data (T1's group a). */
 const GATED: [string, ComponentType<Json>, string][] = [
   ["PCF export", PcfExportPanel, "pcf-export"],
-  ["CAEPIPE .mbf export", CaepipeMbfExportPanel, "caepipe-mbf"],
   ["CAEPIPE external harness", CaepipeExternalHarnessPanel, "caepipe-external"],
   ["Export adapter SDK", ExportAdapterSdkPanel, "export-adapter-sdk"],
   ["Adapter framework", AdapterFrameworkPanel, "adapter-framework"],
@@ -161,6 +160,21 @@ describe.each(GATED)("%s", (_label, Panel, prefix) => {
     const { props } = await preview();
     render(<Panel {...props} />);
     expect(screen.queryByTestId(`${prefix}-load-reference-output-unavailable`)).toBeNull();
+  });
+});
+
+/** DEL-17-04 (4b.2b's follow-up): the model batch file export carries no result data, so a retained successor
+ * refuses it no longer; the panel takes no result. */
+describe("CAEPIPE .mbf export (no result-output gate)", () => {
+  it.each(MODES)("offers Export MBF… beside a %s successor, as beside a preview-physics-2 result", async (mode) => {
+    for (const make of [() => successor(mode), preview]) {
+      const { props } = await make();
+      render(<CaepipeMbfExportPanel {...props} onExportMbf={() => {}} />);
+      expect(screen.queryByTestId("caepipe-mbf-load-reference-output-unavailable")).toBeNull();
+      expect(screen.getByTestId("caepipe-mbf-export")).toHaveTextContent("Export MBF…");
+      expect(screen.queryByText(RETAINED_PRECISION_OUTPUT_REFUSAL)).toBeNull();
+      cleanup();
+    }
   });
 });
 
