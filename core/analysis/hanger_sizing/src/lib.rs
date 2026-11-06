@@ -17,6 +17,7 @@ use std::collections::{BTreeMap, HashSet};
 
 pub mod admission;
 pub mod derived;
+pub mod desktop;
 pub mod library;
 pub mod publish;
 pub mod reader;
