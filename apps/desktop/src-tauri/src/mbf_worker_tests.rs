@@ -783,6 +783,35 @@ fn the_session_reset_leaves_the_mbf_export_alone_and_the_keyed_mount_retirement_
     assert_released(&registry);
 }
 
+/// The MBF export and the hanger sizing (DEL-04-11 increment 3c part 2) keep independent retirement slots: the MBF
+/// export's in `MbfRuns`, the hanger sizing's in `SolveJobRegistry::hanger_sizing_runs`. `cancel_mbf_export` neither
+/// moves the hanger sizing's epoch nor takes its current run, and `cancel_hanger_sizing` neither moves `MbfRuns`'s epoch
+/// nor cancels a tracked MBF run; each retirement still retires its own.
+#[test]
+fn the_mbf_and_hanger_sizing_retirements_each_retire_only_their_own_runs() {
+    let registry = real_worker();
+    let runs = MbfRuns::default();
+    let hanger = registry.hanger_sizing_runs();
+    let (mbf_epoch, hanger_epoch) = (runs.epoch(), hanger.epoch());
+    let mbf_run = runs.register(RunKind::Review, runs.entry_now(), registry.pool());
+    let hanger_run = hanger.register(hanger.entry_now()).unwrap();
+
+    let mbf = cancel_via_command(&registry, &runs, &cancel_body(&retirement(1, 1))).unwrap();
+    assert_eq!((mbf.receipt, mbf.epoch), (STOPPED_ONE, mbf_epoch + 1), "cancel_mbf_export retires the MBF run");
+    assert_eq!((hanger.epoch(), hanger.current_ticket()), (hanger_epoch, Some(hanger_epoch)), "cancel_mbf_export leaves the hanger sizing alone");
+    drop(mbf_run);
+
+    let fresh = runs.register(RunKind::Review, runs.entry_now(), registry.pool());
+    let sizing = crate::hanger_sizing_job::cancel_command(&registry, Some(json!({"page": page(1), "sequence": 1}))).unwrap();
+    assert_eq!((sizing.cancelled, sizing.epoch, sizing.duplicate), (true, hanger_epoch + 1, false), "cancel_hanger_sizing retires the hanger run");
+    assert_eq!(hanger.current_ticket(), None);
+    assert_eq!(runs.epoch(), mbf_epoch + 1, "cancel_hanger_sizing moved no MBF epoch");
+    assert!(!any_tracked_cancelled(&runs), "cancel_hanger_sizing cancelled no MBF run");
+    drop((fresh, hanger_run));
+    assert_eq!(runs.cancel_all(registry.pool()), MbfCancelReceipt::default(), "nothing is tracked");
+    assert_released(&registry);
+}
+
 /// Finding P2-2 (b): `cancel_mbf_export`'s body (`MbfRuns::cancel_all`) with nothing in progress does nothing; with a
 /// running review it stops it (`{cancelled: 1, too_late: 0}`), the worker is killed and reaped, nothing is written and
 /// everything is released; a second cancel finds nothing.
