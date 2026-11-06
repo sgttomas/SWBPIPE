@@ -34,9 +34,9 @@
 //! - `MODAL_RESOURCE_ARITHMETIC_OVERFLOW`: a count, a product or a sum
 //!   overflows u128. Nothing wraps or saturates.
 //!
-//! **The capability boundary today.** T2's integrity work is unbounded and
-//! occurs in every request, so **P0 refuses every budgeted request**, naming
-//! the unbounded terms. That is the approved weight-or-refuse boundary,
+//! **The capability boundary today.** T2's integrity work and T3's
+//! binary-search filters are unbounded and occur in every request, so
+//! **P0 refuses every budgeted request**, naming the unbounded terms. That is the approved weight-or-refuse boundary,
 //! stated plainly: P0 admits nothing until those terms are bounded. A
 //! request without a budget is unaffected.
 //!
@@ -146,13 +146,31 @@
 //!     parts are nonoverlapping, zero-free binary64), the triangular solves,
 //!     residual records, condition estimate and finish. Its pass counts are
 //!     not derived in this slice.
-//! - `T3.kernel`: kernel steps of `solve_dense_pencil_with_allotments`,
-//!   counted loop by loop (see [`modal_resource_kernel_steps`]). A step is
-//!   one execution of an innermost loop body or one element of a fill,
-//!   copy, swap or scan, at most 24 floating-point operations, comparisons
-//!   or moves. R enters as 2R̄(n + 1): each QL iteration has at least one
-//!   rotation, and each rotation is a scalar body plus a row update of n.
-//!   Band recovery is T4 (S1).
+//! - `T3.kernel`: kernel steps of `solve_dense_pencil_with_allotments`
+//!   (modal_eigen `dense.rs:358`), item by item in
+//!   [`modal_resource_kernel_steps`], whose docs carry the per-body line
+//!   audit (S1). **The unit:** a kernel step is at most 64 operations, an
+//!   operation being one binary64 arithmetic operation (+, −, ×, ÷, √,
+//!   negation, absolute value), one comparison (floating or integer) in a
+//!   condition, select, max or min, or one load, store or move of a value
+//!   the source line names. Loop control, index arithmetic, bounds checks
+//!   and `debug_assert`s are not counted. `f64::sqrt` is one operation
+//!   (IEEE 754's correctly rounded square root). `hypot` is repository
+//!   source (`dense.rs:1143`–`:1151`), 12 operations, inlined into its
+//!   callers' counts. **Premises (not repository source):** a core slice or
+//!   `Vec` element primitive (`copy_within`, `fill`, `swap_with_slice`,
+//!   `resize`, iterator adapters, `push` with its amortized growth) is one
+//!   step per element; allocator calls are not charged in any term. Every
+//!   counted body is at most 64 operations except the QL iteration body
+//!   (73), charged as 2 steps. R enters as R̄(2n + 3): the iterations are at
+//!   most the rotations (each sweep has at least one), each iteration 2
+//!   steps and its shift loop ≤ n, each rotation a 43-operation scalar body
+//!   and a row update of n. Band recovery is T4.
+//! - `T3.filters`: **unbounded.** The kernel's and the census's massive-DOF
+//!   filters call std `slice::binary_search` (`dense.rs:423`, `:976`). Its
+//!   comparison count is a property of std's algorithm, and no toolchain is
+//!   pinned in the repository nor its source installed (rustc 1.97.1 stable,
+//!   no `rust-src`), so no source path and version can be cited (S1).
 //! - T4, band recovery (`dense.rs:759`–`:880`; S1): `T4.scaling` = 2n² + n
 //!   WideDd entry steps when p̄ > 0; `T4.visits` = 4p̄n² exact-product calls
 //!   (2n² in `recover_band_mode`, 2n² in `formed_pair_errors`);
@@ -182,9 +200,11 @@
 //!   `T9.construction`: **unbounded** (`ShiftPencil::from_entries` sorts up
 //!   to 2P merged records, `sturm.rs:571`, and `reverse_cuthill_mckee` sorts
 //!   every adjacency list twice, `sparse_direct/src/lib.rs:549`, `:555`: std
-//!   sorts, documented only as O(m log m). The pseudo-peripheral search
-//!   alone is bounded: it repeats BFS only while the eccentricity strictly
-//!   grows, so at most n + 1 traversals); `T9.factorization` =
+//!   sorts, documented only as O(m log m). The traversals alone are
+//!   bounded: per component of m vertices, `bfs_reachable`, the first
+//!   `bfs_eccentricity`, at most m − 1 accepted further ones (the
+//!   eccentricity strictly grows and is at most m − 1) and one unsuccessful
+//!   one, so m + 2 traversals, n + 2C ≤ 3n over C components); `T9.factorization` =
 //!   s·(n(n − 1)(n − 2)/6 + n²) LDLᵀ steps (`factorize_ldlt`,
 //!   `sparse_direct/src/lib.rs:408`: per row of width w ≤ i,
 //!   w(w − 1)/2 + 2w + 1); `T9.passes` = s·(29P + 98n + 70) steps (the
@@ -247,6 +267,7 @@ pub(crate) enum ModalResourceTerm {
     T2Entries,
     T2Integrity,
     T3Kernel,
+    T3Filters,
     T4Scaling,
     T4Visits,
     T4Insertions,
@@ -274,7 +295,7 @@ pub(crate) enum ModalResourceTerm {
 }
 
 /// The number of P0 terms.
-pub(crate) const MODAL_RESOURCE_TERM_COUNT: usize = 33;
+pub(crate) const MODAL_RESOURCE_TERM_COUNT: usize = 34;
 
 /// Every term, in index order.
 pub(crate) const MODAL_RESOURCE_TERMS: [ModalResourceTerm; MODAL_RESOURCE_TERM_COUNT] = {
@@ -289,6 +310,7 @@ pub(crate) const MODAL_RESOURCE_TERMS: [ModalResourceTerm; MODAL_RESOURCE_TERM_C
         T::T2Entries,
         T::T2Integrity,
         T::T3Kernel,
+        T::T3Filters,
         T::T4Scaling,
         T::T4Visits,
         T::T4Insertions,
@@ -330,6 +352,7 @@ impl ModalResourceTerm {
             T::T2Entries => "T2.entries",
             T::T2Integrity => "T2.integrity",
             T::T3Kernel => "T3.kernel",
+            T::T3Filters => "T3.filters",
             T::T4Scaling => "T4.scaling",
             T::T4Visits => "T4.visits",
             T::T4Insertions => "T4.insertions",
@@ -366,6 +389,7 @@ impl ModalResourceTerm {
                 Some("the static dense path's M03 integrity work (preparation, audits, residual records, condition estimate) is not bounded from source in this slice")
             }
             T::T1Confirmation => Some("the confirmation evaluations have no source bound, and their A_conf counter is a held NI seam"),
+            T::T3Filters => Some("the massive-DOF filters use std slice::binary_search, whose comparison count has no pinned toolchain source in the repository"),
             T::T7Assembly => Some("the formation maps are std BTreeMaps and the formation difference binary-searches; their step constants are not repository source"),
             T::T9Construction => Some("the Sturm pencil and the RCM order use std sorts, documented only as O(m log m), with no constant from repository source"),
             _ => None,
@@ -380,7 +404,7 @@ impl ModalResourceTerm {
                 ModalResourceStage::Preflight
             }
             T::T1Confirmation => ModalResourceStage::Confirmation,
-            T::T3Kernel | T::T4Scaling | T::T4Visits | T::T4Insertions | T::T4Rows | T::T4Limbs => ModalResourceStage::Kernel,
+            T::T3Kernel | T::T3Filters | T::T4Scaling | T::T4Visits | T::T4Insertions | T::T4Rows | T::T4Limbs => ModalResourceStage::Kernel,
             T::T5Census
             | T::T5Outcome
             | T::T6Visits
@@ -534,8 +558,57 @@ fn modal_resource_ceil_log2(x: u128) -> u128 {
 }
 
 /// T3's kernel steps at order n with R rotations (module docs): every loop
-/// of `solve_dense_pencil_with_allotments` (modal_eigen `dense.rs:358`),
-/// with n_m ≤ n and n_0 ≤ n, each part monotone in n.
+/// and straight-line block of `solve_dense_pencil_with_allotments` (modal_eigen
+/// `dense.rs:358`) and its helpers, with n_m, n_0, the positive and the kept
+/// rows each ≤ n, each item monotone in n. The massive-DOF filters
+/// (`dense.rs:423`, `:976`) are `T3.filters`, unbounded, and not here.
+///
+/// **Per-body audit** (operations per body, module docs' unit; ≤ 64 each
+/// unless stated; `get` is one comparison and one load, `matrix.rs:96`):
+/// - `check_dense` entry, `admission.rs:89`–`:93`, `:61`–`:72`: 10.
+/// - massless scan entry, `dense.rs:942`–`:945`: 3; its row body: 2.
+/// - order element, `:425`: 2.
+/// - `cholesky_ordered`, `:1011`–`:1043`: inner `s -= r·r`: 4; entry body
+///   (the `k_ij` read, the pivot test, ratio, minimum, √ or ÷, store): 15;
+///   allocation element: 1.
+/// - `check_finite` element, `:914`–`:919`: 2.
+/// - `reduce_mass`, `:1088`–`:1116`: fill element 3; `forward_solve_row`
+///   (`:1045`–`:1057`) inner 4, row body 5; transpose swap (`:1118`) 4;
+///   symmetrize 2.
+/// - `householder_tridiagonalize`, `:1163`–`:1257`: d init 2; scale 4
+///   (`:1171`); zero branch 4 (`:1176`–`:1178`); normalize 8 (`:1182`–`:1183`);
+///   the per-row scalar block (`:1168`–`:1169`, `:1173`, `:1185`–`:1192`,
+///   `:1207`, `:1212`, `:1226`) 22; e zero 1; w outer 9 (`:1198`–`:1205`),
+///   inner 10 (`:1202`–`:1203`); f loop 8 (`:1209`–`:1210`); hh loop 5
+///   (`:1214`); update outer 7 (`:1217`–`:1223`), inner 8 (`:1220`);
+///   accumulation body 6 (`:1230`–`:1233`), its loops 3, 1, 5, 5, 1
+///   (`:1235`, `:1238`, `:1240`, `:1243`, `:1248`); final 4 (`:1252`–`:1253`).
+/// - `implicit_ql`, `:1283`–`:1366`: e shift 2; per-l body 14 (`:1297`–`:1298`,
+///   `:1302`–`:1303`, `:1365`–`:1366`); scan 6 (`:1299`–`:1300`);
+///   **iteration body 73** (`:1305`–`:1321`, `:1325`–`:1333`, `:1357`–`:1360`,
+///   `hypot` 12 and `charge_ql_rotations` 6 inlined), **charged as 2 steps**;
+///   shift element 3 (`:1323`); **rotation scalar body 43** (`:1335`–`:1350`,
+///   `hypot` 12 inlined); row update 12 (`:1352`–`:1354`).
+/// - `sort_ascending`, `:1375`–`:1390`: comparison 4; outer body 8; row swap
+///   element 4.
+/// - roots 4 (`:462`); Hager (`norm_estimate.rs`): per solve the y map 4,
+///   forward rows 5 and inner 4, back rows 4 and inner 5 (`:1059`–`:1071`),
+///   map out 4, finiteness 2, the estimator's vectors ≤ 4 each; its scalar
+///   control ≤ 6 steps in all; the mass-norm element 8 and row 4
+///   (`:470`–`:477`).
+/// - thresholds (`:478`–`:507`, `:537`–`:543`): 52 in all, charged 4 steps;
+///   the option checks and other straight-line code (`:364`–`:415`, `:420`–
+///   `:421`, `:547`–`:555`, `:596`–`:598`, `:616`–`:617`): ≤ 512, charged 8.
+/// - reordering (`:508`–`:522`): count 3, reverse 4, swap 4, resize 1, copy
+///   2, allocation 1; back-transform row (`:523`–`:531`): fill 1, copy 2,
+///   `back_transform` (`:1073`–`:1086`) row 4 and inner 5, scatter 3.
+/// - screen (`:547`–`:612`, recovery excluded: T4): count 4 (`:676`–`:693`);
+///   screen body 40 (`:557`–`:581`); the two filters 2 (`:583`–`:588`);
+///   retained body 4 and copy 2 (`:590`–`:595`); descending sort comparison
+///   4, outer 8, swap 4 (`:601`–`:612`).
+/// - census (`:959`–`:1009`): root 5; Cholesky inner 4, entry 12;
+///   allocation 1.
+/// - outputs (`:618`–`:619`, `:923`–`:938`): 3 each.
 pub(crate) fn modal_resource_kernel_steps(n: u128, rotations: u128) -> Result<u128, ModalResourceOverflow> {
     if n == 0 {
         return Ok(0);
@@ -547,68 +620,77 @@ pub(crate) fn modal_resource_kernel_steps(n: u128, rotations: u128) -> Result<u1
     let pairs = p(&[n, n + 1])? / 2; // n(n + 1)/2
     let cube6 = p(&[n - 1, n, n + 1])? / 6; // Σ_i Σ_{j≤i} j
     let squares = p(&[n - 1, n, 2 * n - 1])? / 6; // Σ_{t<n} t²
-    let search = modal_resource_ceil_log2(n + 1) + 1; // a binary search's comparisons
+    let row_tri = p(&[n, tri])?;
     modal_resource_total(
         &[
-            // check_dense on K and M (admission.rs:84).
+            // check_dense on K and M.
             p(&[2, pairs])?,
-            // structurally_massless_dofs, in the kernel and the census.
+            // the massless scans (kernel, census): entries and row bodies.
             p(&[2, n2])?,
-            // the massive filters (binary searches) and the order.
-            p(&[2, n, search])?,
+            p(&[2, n])?,
+            // the order.
             n,
-            // cholesky_ordered: inner p-loop, entry bodies, allocation, finite check.
+            // cholesky_ordered: allocation, inner loop, entry bodies; check_finite(r).
+            n2,
             cube6,
             pairs,
+            n2,
+            // reduce_mass: fill, two forward passes (row bodies and inner), transpose,
+            // symmetrize, check_finite(work).
+            n2,
             p(&[2, n2])?,
-            // reduce_mass: fill, two forward-solve passes over n rows, transpose, symmetrize, finite check.
+            p(&[2, row_tri])?,
+            tri,
+            tri,
             n2,
-            p(&[2, n, tri + n])?,
-            p(&[2, tri])?,
-            n2,
-            // householder_tridiagonalize: Σ_{i<n} (i² + 7i + 1) reduction plus
-            // Σ_{t<n} (2t² + 3t + 1) accumulation, the two n-loops; transpose; d, e.
+            // d, e allocation.
+            p(&[2, n])?,
+            // householder_tridiagonalize: d init and final 2n; Σ_{i<n} (i² + 7i + 1) and
+            // Σ_{t<n} (2t² + 3t + 1) = 3·Σt² + 10·Σt + 2(n − 1); the two closing stores.
+            p(&[4, n])?,
             p(&[3, squares])?,
             p(&[10, tri])?,
-            p(&[2, n])?,
-            p(&[2, n])?,
+            // the transpose.
             tri,
-            p(&[2, n])?,
-            // implicit_ql: the e shift, the block scans, the per-l bodies, and
-            // per iteration (≤ R) its body and shift loop, per rotation its
-            // scalar body and row update.
-            n,
+            // implicit_ql: e shift, per-l bodies, scans, check_finite(d), and R(2n + 3).
+            p(&[3, n])?,
             pairs,
+            p(&[rotations, 2 * n + 3])?,
+            // sort_ascending: outer bodies, comparisons, row swaps.
             n,
-            p(&[2, rotations, n + 1])?,
-            // sort_ascending: comparisons, bodies, row swaps.
             tri,
+            n2,
+            // roots, ≤ 11 Hager solves of 2·tri + 10n, the once-only x and alternative
+            // vectors, the estimator's control, the mass norm's elements and rows.
             n,
-            n2,
-            // the resolution floor: roots, ≤ 11 Hager solves of n(n − 1) + 10n
-            // steps (norm_estimate.rs), the mass norm.
-            n,
-            p(&[11, p(&[n, n - 1])? + 10 * n])?,
-            n2,
-            // reordering: counts, reverse, row swaps, truncation, row moves.
-            p(&[3, n2])?,
-            p(&[4, n])?,
-            8,
-            // back-transform of every row and the finite check.
-            p(&[n, tri + 3 * n])?,
-            n2,
-            // classification, screen bodies, retained rows, the descending sort.
+            p(&[11, p(&[2, tri])? + 10 * n])?,
             p(&[2, n])?,
+            6,
             n2,
-            tri,
-            n2,
-            // established_finite_mode_count: roots, Cholesky, entry bodies, allocation.
             n,
+            // thresholds and other straight-line code.
+            12,
+            // reordering: count, reverse, swap bodies, swap elements, resize, copy
+            // bodies, copies, allocation.
+            p(&[5, n])?,
+            p(&[3, n2])?,
+            // back-transform rows: fill and copy, row bodies, scatter (3n per row),
+            // inner (tri per row); check_finite(work).
+            p(&[3, n2])?,
+            row_tri,
+            n2,
+            // screen: counts, bodies, two filters, retained bodies, sort outer bodies;
+            // retained copies, sort swaps; sort comparisons.
+            p(&[6, n])?,
+            p(&[2, n2])?,
+            tri,
+            // census: roots, allocation, Cholesky inner and entries.
+            n,
+            n2,
             cube6,
             pairs,
-            n2,
-            // outputs and their validation, and counts.
-            p(&[7, n])?,
+            // outputs: eigenvalues, validation of μ, λ and the vectors.
+            p(&[3, n])?,
             n2,
         ],
         q,

@@ -32,7 +32,7 @@ use super::tests_eigen::{sec_a_cantilever, test_local_parameters};
 use super::tests_state::kd5;
 use super::MODAL_STATE_CASE_UNAVAILABLE;
 use crate::Diagnostic;
-use open_pipe_stress_modal_eigen::dense::{solve_dense_pencil, DenseEigenSolution};
+use open_pipe_stress_modal_eigen::dense::{solve_dense_pencil, BandRecovery, DenseEigenSolution, ScreenedMode};
 use open_pipe_stress_modal_eigen::exact::ExactSum;
 use open_pipe_stress_modal_eigen::reformation::section::MassBasis;
 use open_pipe_stress_modal_eigen::reformation::{reform_element_mass, reform_element_stiffness};
@@ -41,9 +41,9 @@ use serde_json::{json, Value};
 const U1: &str = include_str!("../../../../validation/references/kd5_nonlinear/u1_request.json");
 
 /// The terms with no bound at P0 in a request without a state solve.
-const UNBOUNDED: [&str; 3] = ["T2.integrity", "T7.assembly", "T9.construction"];
+const UNBOUNDED: [&str; 4] = ["T2.integrity", "T3.filters", "T7.assembly", "T9.construction"];
 /// And with one.
-const UNBOUNDED_WITH_STATE: [&str; 5] = ["T1.integrity", "T1.confirmation", "T2.integrity", "T7.assembly", "T9.construction"];
+const UNBOUNDED_WITH_STATE: [&str; 6] = ["T1.integrity", "T1.confirmation", "T2.integrity", "T3.filters", "T7.assembly", "T9.construction"];
 
 /// TEST-LOCAL: every weight 0, the enforced allotments and W_budget at their
 /// largest, and L_A and R_max recorded at values P0 must not use.
@@ -84,8 +84,10 @@ fn as_if_bounded(counts: [Option<u128>; MODAL_RESOURCE_TERM_COUNT], value: u128)
 // Counts against their formulas, evaluated independently
 // ---------------------------------------------------------------------------
 
-/// T3's kernel steps, the same loops summed in another grouping (module docs
-/// of `resource`, `dense.rs:358`).
+/// T3's kernel steps as one collected polynomial (the per-body audit in
+/// `resource::modal_resource_kernel_steps`, summed by power of n):
+/// 5·n(n+1)/2 + 2·Σ_i Σ_{j≤i} j + 37·n(n−1)/2 + 3n·n(n−1)/2 + 3·Σ_{t<n} t²
+/// + 21n² + 142n + 18 + R(2n + 3).
 fn kernel_steps(n: u128, r: u128) -> u128 {
     if n == 0 {
         return 0;
@@ -93,13 +95,7 @@ fn kernel_steps(n: u128, r: u128) -> u128 {
     let (t, pr) = (n * (n - 1) / 2, n * (n + 1) / 2);
     let c6 = (n - 1) * n * (n + 1) / 6;
     let s2 = (n - 1) * n * (2 * n - 1) / 6;
-    let g = (n as f64 + 1.0).log2().ceil() as u128 + 1;
-    let squares = 2 * n * n + 2 * n * n + n * n + n * n + n * n + n * n + 3 * n * n + n * n + n * n + n * n + n * n + n * n;
-    let linear = n + 2 * n + 2 * n + 2 * n + n + n + n + n + 4 * n + 2 * n + n + 7 * n + 110 * n;
-    2 * pr + pr + pr + pr + 2 * n * g + 2 * c6 + 2 * n * (t + n) + 2 * t + 10 * t + t + t + t + 3 * s2 + 11 * n * (n - 1) + n * (t + 3 * n) + 2 * r * (n + 1)
-        + squares
-        + linear
-        + 8
+    5 * pr + 2 * c6 + 37 * t + 3 * n * t + 3 * s2 + 21 * n * n + 142 * n + 18 + r * (2 * n + 3)
 }
 
 /// §5.3.8's terms as `resource` derives them, written out again in plain
@@ -126,6 +122,7 @@ fn formulas(d: &ModalResourceDimensions) -> [Option<u128>; MODAL_RESOURCE_TERM_C
     x[T::T2Entries as usize] = Some(3 * n * n);
     x[T::T2Integrity as usize] = None;
     x[T::T3Kernel as usize] = Some(kernel_steps(n, d.ql_rotations));
+    x[T::T3Filters as usize] = None;
     x[T::T4Scaling as usize] = Some(if b > 0 { 2 * n * n + n } else { 0 });
     x[T::T4Visits as usize] = Some(4 * b * n * n);
     x[T::T4Insertions as usize] = Some(4 * b * n * n);
@@ -186,13 +183,16 @@ fn the_counts_are_the_formulas_on_small_models() {
     assert_eq!((at(T::T2Factor), at(T::T2Entries)), (35, 108));
     assert_eq!(at(T::T9Factorization), s_max * (20 + 36));
     assert_eq!(at(T::T6Visits), 6 * 54);
-    for term in ["T2.integrity", "T7.assembly", "T9.construction"] {
+    for term in UNBOUNDED {
         let t = MODAL_RESOURCE_TERMS.into_iter().find(|t| t.modal_resource_id() == term).unwrap();
         assert_eq!(counts[t as usize], None, "{term} is unbounded");
     }
-    // T3 at n = 1 and 2, R = 0, from the parts.
-    assert_eq!(modal_resource_kernel_steps(1, 0).unwrap(), kernel_steps(1, 0));
-    assert_eq!(modal_resource_kernel_steps(2, 3).unwrap(), kernel_steps(2, 3));
+    // T3 at small n, from the itemized parts against the collected polynomial,
+    // and at n = 1 by hand: 5 + 0 + 0 + 0 + 0 + 21 + 142 + 18 + 5R.
+    for (n, r) in [(1, 0), (1, 4), (2, 3), (6, 1000), (37, 12)] {
+        assert_eq!(modal_resource_kernel_steps(n, r).unwrap(), kernel_steps(n, r), "n = {n}, R = {r}");
+    }
+    assert_eq!(modal_resource_kernel_steps(1, 4).unwrap(), 5 + 21 + 142 + 18 + 4 * 5);
     assert_eq!(modal_resource_kernel_steps(0, 9).unwrap(), 0);
 
     // The arc and the state case: dimensions read from the prepared model,
@@ -478,30 +478,72 @@ fn p0_refuses_before_the_state_solve_and_before_the_pencil_guard() {
 // S1 through the product's solve
 // ---------------------------------------------------------------------------
 
-/// Every float of a solution as bits, with its counts: a bit-for-bit key.
-fn solution_bits(s: &DenseEigenSolution) -> (Vec<u64>, Vec<u64>, Vec<u64>, Vec<u64>, String) {
-    let bits = |v: &[f64]| v.iter().map(|x| x.to_bits()).collect::<Vec<_>>();
-    let scalars = [
-        s.mu_max,
-        s.condensed_inverse_norm_estimate,
-        s.condensed_mass_norm,
-        s.resolution_floor,
-        s.classification_threshold,
-        s.ql_resolution_floor,
-        s.hard_classification_threshold,
-        s.formed_backward_error_threshold,
-        s.min_cholesky_pivot_ratio,
+/// Every field of a solution and of each screened mode, `Option` presence
+/// kept, every float as its bits: a bit-for-bit key. The destructuring has
+/// no `..`, so a new field fails to compile here until it is keyed.
+fn solution_bits(solution: &DenseEigenSolution) -> Vec<String> {
+    let DenseEigenSolution {
+        dimension,
+        condensed_dimension,
+        eigenvalues,
+        mu,
+        vectors,
+        mu_max,
+        condensed_inverse_norm_estimate,
+        condensed_mass_norm,
+        resolution_floor,
+        classification_threshold,
+        ql_resolution_floor,
+        hard_classification_threshold,
+        formed_backward_error_threshold,
+        screened,
+        nonpositive_mu_count,
+        below_threshold_mu_count,
+        ql_iterations,
+        ql_rotations,
+        screened_pair_count,
+        hard_rejected_pair_count,
+        attempted_band_pair_count,
+        min_cholesky_pivot_ratio,
+        structurally_massless_count,
+        established_finite_mode_count,
+        finite_count_unresolved,
+    } = solution;
+    let bits = |name: &str, values: &[f64]| format!("{name}:{:x?}", values.iter().map(|x| x.to_bits()).collect::<Vec<_>>());
+    let mut key = vec![
+        format!(
+            "counts:{dimension} {condensed_dimension} {nonpositive_mu_count} {below_threshold_mu_count} {ql_iterations} {ql_rotations} {screened_pair_count} {hard_rejected_pair_count} {attempted_band_pair_count} {structurally_massless_count} {established_finite_mode_count:?} {finite_count_unresolved}"
+        ),
+        bits("eigenvalues", eigenvalues),
+        bits("mu", mu),
+        bits("vectors", vectors),
+        bits(
+            "scalars",
+            &[
+                *mu_max,
+                *condensed_inverse_norm_estimate,
+                *condensed_mass_norm,
+                *resolution_floor,
+                *classification_threshold,
+                *ql_resolution_floor,
+                *hard_classification_threshold,
+                *formed_backward_error_threshold,
+                *min_cholesky_pivot_ratio,
+            ],
+        ),
     ];
-    let screened: Vec<f64> = s.screened.iter().flat_map(|m| {
-        let r = m.recovery.as_ref();
-        [m.mu, m.eigenvalue, r.map_or(0.0, |r| r.mu), r.map_or(0.0, |r| r.backward_error), r.map_or(0.0, |r| r.error_estimate)]
-    }).collect();
-    let counts = format!(
-        "{} {} {} {} {} {} {} {} {} {:?} {}",
-        s.dimension, s.condensed_dimension, s.nonpositive_mu_count, s.below_threshold_mu_count, s.ql_iterations, s.ql_rotations,
-        s.screened_pair_count, s.attempted_band_pair_count, s.structurally_massless_count, s.established_finite_mode_count, s.finite_count_unresolved
-    );
-    (bits(&s.eigenvalues), bits(&s.mu), bits(&s.vectors), bits(&[&scalars[..], &screened[..]].concat()), counts)
+    for (index, mode) in screened.iter().enumerate() {
+        let ScreenedMode { mu, eigenvalue, hard_rejected, recovery, retained } = mode;
+        key.push(format!("screened {index}: hard_rejected {hard_rejected}, retained {retained}"));
+        key.push(bits(&format!("screened {index}"), &[*mu, *eigenvalue]));
+        key.push(match recovery {
+            None => format!("screened {index} recovery: none"),
+            Some(BandRecovery { mu, eigenvalue, backward_error, error_estimate }) => {
+                bits(&format!("screened {index} recovery: some"), &[*mu, *eigenvalue, *backward_error, *error_estimate])
+            }
+        });
+    }
+    key
 }
 
 #[test]
