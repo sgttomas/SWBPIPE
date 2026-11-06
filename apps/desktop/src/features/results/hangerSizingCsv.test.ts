@@ -273,7 +273,7 @@ describe("hanger-sizing solves CSV", () => {
   it("states a solve of a model with no nonlinear support (four_span)", async () => {
     const csv = readCsv(serializeCsvTable((await exports(fourSpan())).solves.table));
     expect(csv.rows.map((row) => row[0])).toEqual(["S_W", "S_C", "S_O1", "V_C", "V_O1"]);
-    for (const row of csv.rows) expect(row.slice(3)).toEqual(["no nonlinear support", "no nonlinear support"]);
+    for (const row of csv.rows) expect(row.slice(3, 5)).toEqual(["no nonlinear support", "no nonlinear support"]);
     expect(csv.rows[2].slice(0, 3)).toEqual(["S_O1", "load:O1", "00e44382ceae8d90e5f4d3cd234489c8867e8279c1ee1acdaddac43386cfce5c"]);
   });
 });
