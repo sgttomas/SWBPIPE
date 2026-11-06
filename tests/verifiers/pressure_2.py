@@ -898,9 +898,20 @@ def _tie_rods(record: Mapping[str, Any]) -> list[tuple[str, float]]:
         share = rod["axial_share"]
         _require(_number(share), "connector tie-rod axial share")
         axis, share = [float(a) for a in axis], float(share)
-        # Rust compares the exact dot's binary64 rounding with the share by bits (`to_bits`), so -0.0 is not +0.0; an
-        # exactly zero dot rounds to +0.0 in both readers (Rust `ExactSum::round`, `float(Fraction(0))`).
-        dot = float(sum(Fraction(n[k]) * Fraction(axis[k]) for k in range(3)))
+        # The exact rational dot of the binary64 operands, rounded once (`float(Fraction)` rounds to nearest, ties to
+        # even). The producer's publication rounding (frame_kernel `ExactAccumulator::round`) gives +0.0 for every
+        # result that rounds to zero, an exact zero or a nonzero underflow of either sign, so the rounded output (never
+        # an input) is normalized to +0.0. A total outside binary64 is refused here as the share, as the Rust reader's
+        # `exact_dot3` refuses it, rather than left as an OverflowError for a caller's malformed-evidence handling.
+        # Rust compares the share by bits (`to_bits`), so -0.0 is not +0.0.
+        exact = sum(Fraction(n[k]) * Fraction(axis[k]) for k in range(3))
+        try:
+            dot = float(exact)
+        except OverflowError:
+            dot = None
+        _require(dot is not None, "connector tie-rod axial share")
+        if dot == 0.0:
+            dot = 0.0
         _require(struct.pack("<d", dot) == struct.pack("<d", share), "connector tie-rod axial share")
         out.append((rod["id"], share))
     return out

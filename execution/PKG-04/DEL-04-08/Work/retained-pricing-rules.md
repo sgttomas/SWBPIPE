@@ -5952,6 +5952,128 @@ attempt, with App's concurrence, passed 7/7.
 
 Run evidence (logs, compares and atoms) is in `/tmp/sk1d-p855/`; it is review input, not a permanent dependency.
 
+### 8.56 RT-A3 R1: the RE reader's exact tie-rod axial-share dot on main's §8.55 tree (actual-source D3)
+
+**Status.** Proposed registration of RT-A3 R1 (DEL-04-07 Work `u4b-u5b-implementation.md`, the
+`connector_tie_rod_force_v1` row): the RE reader forms a tie rod's `axial_share` check from the exact dot of its
+binary64 operands, exact products rounded once, as the producer publishes it. Agent 0 assigned it (2026-11-05) as an
+accuracy repair before publication qualification, sequenced after §8.55. It is made under the owner's removal of
+explicit owner approval for coefficient movement; source-derived pricing, independent scrutiny and preservation of
+the registered state remain required. This records no acceptance.
+- **Coefficients.** None move: against main's tree, 1,602 equal, none higher or lower. The threshold, M, the
+  generated block, `REGISTERED_PROFILES` and the profile (`c4df869d…996c`) are unchanged.
+- **AC-004: 7/7 at `09c2e9489`.** The witnessed binaries change (RE's new exact dot is linked into both), and stack
+  neutrality is not established from source (below), so §8.55's 7/7 does not transfer; this registration's own window
+  ran once and passed (below, "AC-004").
+
+**The defect and the repair.** RE `connector_evidence.rs` `exact_dot3` formed p = fl(a·b), refused a non-finite p or a
+nonzero |p| < 2^-969, and summed p and fma(a, b, −p). With both operands nonzero and p rounding to ±0, the fma residual
+is ±0 too, so the exact product was lost: with axis column 0 [1, 1, 2^-500] and n [1, 2^-53, 2^-600] (a handcrafted
+full-reader record) the exact dot 1 + 2^-53 + 2^-1100 rounds to 1 + ε, which the producer (frame_kernel
+`ExactAccumulator`) publishes, while the reader formed 1.0 (a tie to even): it refused the correct share and admitted a
+one-ulp-wrong one. The repair (`e0879ca59`; review note `859089c14`):
+- *RE.* `exact_dot3` adds the three exact products to a private `ExactDot` (two's complement fixed point at 2^-2148
+  over 68 limbs; each 106-bit significand product as a u128; capacity 2^155 products) and rounds once, ties to even,
+  at the result binade's quantum (2^-1074 for subnormals), with +0.0 for any result that rounds to zero (the
+  producer's stated convention, frame_kernel `exact_sum.rs`). It refuses a non-finite operand or an unrepresentable
+  total through the existing `TIE_ROD_AXIAL_SHARE`, and no intermediate product (a cancelling total near MAX is
+  admitted). The bit comparison, tolerances, validation order and messages are unchanged. It is local to RE: RE
+  reaches frame_kernel only through `load_case_algebra`, and reusing the producer's accumulator would have the reader
+  re-form the share with the producer's code. No dependency or `Cargo.lock` change; producer and frame_kernel
+  production are unchanged.
+- *Python.* `tests/verifiers/pressure_2.py` `_tie_rods` stays the independent `Fraction` oracle: it applies +0.0 to the
+  output only and maps an unrepresentable final conversion to the axial-share refusal. It mirrors no lossy branch.
+- *Regressions.* 17 handcrafted shared fixtures (W2 and its halfway neighbours; positive and negative underflow under
+  the +0.0 convention; subnormal ties; a cancelling product overflow; an unrepresentable total; normal, cancellation
+  and signed-zero controls), exact rationals shown in the Python test, bits cross-checked against frame_kernel's
+  `ExactAccumulator` composition (`exact_sum/tests.rs`); old-formula negative controls in both languages; 20,000
+  seeded normal-range dots keep their bits.
+
+**Basis and integration chain.**
+- *Basis.* Main `b2b10c7c6` (#140, S-K1 registered as §8.55). `price.py run b2b10c7c6` exits 0, O-10 0/0, and
+  reproduces the committed block (`generate --check` with the §8.55 basis line, 1,713 lines; `point-atoms --check`,
+  154 lines), so the comparison tree is §8.55's registered tree.
+- *Merge.* `af80c8b33` (main `b2b10c7c6`), a merge only. Main changed none of R1's files; the one conflict was the
+  generated tree digests in `tools/hosted-ci-routing.json`, each recomputed with `rust_tree_digest` (all 45 match).
+- *Priced source.* `af80c8b33` (core tree `d3731435b0e712b544152ded41e1cf4af6c585e7`). The commits after it change
+  only this record.
+
+**What reaches the priced directories**, against main: RE `connector_evidence.rs` only (`exact_dot3` and the private
+`ExactDot`: `decompose`, `add_product`, `round`). The rest is test code (RE's `#[cfg(test)]` modules, frame_kernel
+`exact_sum/tests.rs`), the Python oracle and its tests, the DEL-04-07 row and the routing digests.
+- *Loops.* `add_product`'s carry loop (at most 68 − limb iterations), `round`'s 68-limb negation, `rev().find` and
+  `iter().any`; `exact_dot3`'s unchanged `for k in 0..3` and a six-item `any`. No heap allocation; on the stack two
+  `[u64; 68]` and one `[u64; 3]` (about 1.1 KB).
+- *Reach.* `exact_dot3`'s only caller is `tie_rods`, inside its `for rod in entries`, which U5B-L prices at count 0
+  (a `tie_rods` array is read only from a connector record; E1: records are empty on route E). No rule, pin or key
+  names the changed text; no rule changes.
+- *Call graph (L(3,0)).* 5,840 → 5,844 functions and 28,004 → 28,007 edges (the `ExactDot` functions); D (43,783)
+  and TAV unchanged.
+
+**Pricing.** `price.py run af80c8b33`: exit 0, O-10 0/0, all four points complete. Against main's tree: identical
+but for the basis (1,602 coefficients equal, 0 higher, 0 lower); all four `point.json` byte-identical;
+`generate --check` with the §8.55 basis line is equal (1,713 lines) and `point-atoms --check` is equal (154 lines).
+The block keeps §8.55's basis line, since no coefficient moves.
+
+**Stack.** Coefficient identity does not establish stack depth (§8.39). The reviewer of `e0879ca59` found no
+`inline(never)` boundary, so `ExactDot`'s arrays could enlarge an enclosing retained-path frame although the rod loop
+runs zero times. Frame sizes were not measured.
+
+**Tests** (on `af80c8b33`, pytest with `OPENPIPESTRESS_NO_CARGO_BUILD=1`): RE lib 163 passed; frame_kernel
+`exact_sum` 14 passed; the 30 `tests/*.py` naming `pressure_2`, with a release `openpipestress-runner` built under the
+slot wrapper, 3,471 passed and 156 skipped (they need unbuilt `CHECKED_JSON` or `PREVIEW_RUNNER` binaries;
+unavailable evidence, not coverage); `test_hosted_ci.py` and `test_ci_numerical.py` 77 passed (120 subtests);
+`deliverables check` exit 0.
+
+**Review.** One focused independent numerical, source and pricing review of `e0879ca59` was clear (its 30,000-case
+comparison agreed with `Fraction` and frame_kernel throughout); its comment note is `859089c14`. The merge onto
+§8.55 changes none of R1's files, so that review carries to the unchanged arithmetic; the merge and this
+registration have their own targeted scrutiny.
+
+**AC-004.**
+- **Binaries** (built under the slot wrapper, `cargo test --offline --locked --no-run --lib --test
+  retained_memory_challenge`, test profile, `RUSTFLAGS`, `CARGO_ENCODED_RUSTFLAGS`, `CARGO_BUILD_RUSTFLAGS` and
+  `RUSTDOCFLAGS` unset, rustc 1.97.1 `8bab26f4f`, at `af80c8b33`, core tree `d3731435…`):
+  `open_pipe_stress_product_physics-62bb367da3f84fc6`, SHA-256
+  `0cd4613664ce0572f03253f31ca73c510fe9b70cddcf290991d0cd1010f3511d`, and
+  `retained_memory_challenge-62496bdb5ea90b50`, SHA-256
+  `57de4ccda4e84d983752b6ed5f266f424042d527b37be836356371879415c71b`. A second `--no-run` compiled nothing and left
+  both hashes unchanged. Profile `c4df869d…996c`, `Cargo.lock` `b7ebb02a…5653`.
+- **To run.** §8.55's seven processes, each one test with `--exact --test-threads=1`, in one Agent-0-cleared
+  `t3_exclusive.sh` window with memguard, each reporting exactly one executed test; identities verified at admission
+  and the hashes again afterwards. A later build input change requires rebuilding and re-identifying first.
+- **Runner.** `harness.py` (read-only, SHA-256 `7bc0c9d4518336e400ab121097e9417fe6c8c687c59bbfe179ec43d78dbf5400`, after
+  Agent 0's two admission corrections: flags refused when present even if empty, and failed git or rustc queries
+  refuse admission): one 55 s internal deadline on the monotonic clock from runner entry, covering admission, the seven
+  processes and the post-run hashes; fail-fast at the first non-passing, missing, multiple or timed-out outcome.
+  Admission asserts the exact HEAD, a whole-worktree clean state, the four hashes, rustc, the four flags absent,
+  memguard live and the copies read-only; `W1_MEMBER_CAP_OUT` is removed from the tests' environment and `CHECK_ONLY`
+  is unset. The tests ran from Agent 0's verified read-only private copies of the two binaries (same hashes).
+- **Result: 7/7 at `09c2e9489`** (commit `09c2e94893a8da83a30cc6df8282825064022e10`, core tree
+  `d3731435b0e712b544152ded41e1cf4af6c585e7`, clean; the commit recording it changes no file under `core/`).
+- **Window.** One Agent-0-cleared attempt with App's fresh resource concurrence (2026-11-06). An earlier queued
+  attempt (WAIT 09:40:18Z) was withdrawn before acquisition while an ordinary job held a slot; it started no test and
+  is not this result. Acquired 09:54:25Z (runner entry 09:54:25.430Z; admission verified 09:54:25.761Z); END rc 0 at
+  09:54:41Z, 15.896 s internal from entry and 16 s from acquisition including teardown. Each of the seven processes
+  executed exactly one test with rc 0 (1,222 filtered out of the lib binary, 43 of the challenge): sparse and dense
+  `witness_headroom_w1_at_one_mebibyte` 2.39 s and 0.64 s, `witness_w2_deep_milestone_publishes` 1.30 s and 1.35 s,
+  `witness_w_c2_publishes` 2.52 s and 2.47 s; `retained_direct_peak_is_within_the_profiles_bounds` 4.80 s.
+- **Checks.** No build ran for the window; freshness is the build's own second `--no-run`. Both hashes were unchanged
+  afterwards. Closure verified at 09:54:52Z: no runner or test process, every slot and the pending marker released,
+  memguard live with no event.
+
+This is test evidence, not an acceptance. Frame sizes were not measured.
+
+**Review.** The targeted scrutiny of the merge and this registration was clear (no blocking finding): R1's diff is
+unchanged by the merge apart from the routing digests, S-K1 keeps `tie_rods`, its callers and the |n|² check, and the
+pricing claims, identities and record re-check independently.
+
+**Open.** None for this registration.
+
+Run evidence (the two runs, compares, builds and logs) is in `/Users/ryan/dev/chirality-t3/scratch/rt-a3/r1-d3/`, and
+the AC-004 harness, its admission-only checks, `window.json` and the withdrawn attempt's empty outputs are in
+`/Users/ryan/dev/chirality-t3/scratch/rt-a3/r1-ac004/`; they are review input, not a permanent dependency.
+
 ## 9. Memory-profile gates and registration
 
 ### Gate bounds (registration)
@@ -6071,4 +6193,5 @@ Code, tools and other designs cite this text by these earlier section names and 
 | "DEL-04-09 I3a: the modal result document", "§8.52" (MODAL-ID's I3a sites; the I3a `UNITS_SHA`) | §8.52 |
 | "RT-A3 P and the §4 combination certificate", "§8.53" (RTA3C-L, RTA3C-MV, RTA3C-NC, RTA3C-OWN, RTA3C-PB, RTA3C-PIN, RTA3C-RD, RTA3C-RS, RTA3C-WC, RTA3C-Z) | §8.53 |
 | "S-K1: skewed restraint directions", "§8.55" (SKW-D1, SKW-DZ, SKW-BN, SKW-SZ, SKW-ID, SKW-PC, SKW-IM, SKW-JN, SKW-MF, SKW-CG) | §8.55 |
+| "RT-A3 R1: the RE reader's exact tie-rod axial-share dot", "§8.56" | §8.56 |
 | "RT-A5 minuend_final: the held-status solve", "§8.54" (RTA5-PIN, RTA5-DZ, RTA5-FZ, RTA5-BN, RTA5-PC, RTA5-SZ, RTA5-L, RTA5-ID) | §8.54 |
