@@ -89,12 +89,14 @@
 //! custom-protocol request fails after the host has received it, the page sees the fallback's ingress refusal while
 //! the first delivery's worker keeps running; the next retirement (the next start's, the person's cancel, the form's
 //! unmount or the session reset) retires it, since the keyed cancel is JSON and survives the fallback. Nothing here
-//! claims the fallback is otherwise safe: a start sent after the transport has fallen back is refused, never run.
+//! claims the fallback is otherwise safe: Tauri keeps the fallback for the rest of the page once one `fetch` fails, so
+//! every later start of that page is refused, never run, until the page is reloaded.
 //!
 //! **Residual.** Page tokens are not ordered against each other. A retirement from another page that has not been
 //! applied before (its first delivery: an old page's unmount cancel or start retirement delivered late, after a
-//! reload) or a late session reset still applies, and so cancels the current page's run (which replies
-//! `HANGER-SIZING-CANCELLED`; the person sizes again). It cannot start anything: a retirement only retires, and the
+//! reload) or a late session reset (the webview sends it once, at its session's start) still applies, and so cancels
+//! the current page's run (which replies `HANGER-SIZING-CANCELLED`) or refuses its start in flight
+//! (`HANGER-SIZING-REQUEST-STALE`); the person sizes again. It cannot start anything: a retirement only retires, and the
 //! epoch it makes is acknowledged only to the page that sent it. Ids and tickets are not authenticated and authorize
 //! nothing: any code in the webview could cancel sizings, or exhaust the sizing until restart, but gains nothing else.
 

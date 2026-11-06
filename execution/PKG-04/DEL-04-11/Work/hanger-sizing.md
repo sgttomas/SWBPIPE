@@ -1144,13 +1144,15 @@ outcome.
              start's, the person's cancel, the form's unmount or the session reset) stops
              it. `cancel_hanger_sizing` is sent as Tauri's JSON arguments, which reach the
              host on both transports, so the keyed retirement still stops that worker. No
-             fallback safety is claimed beyond this: a start sent through the fallback is
-             refused, never run.
+             fallback safety is claimed beyond this: Tauri keeps the fallback for the rest of
+             the page once one `fetch` fails, so every later start of that page is refused,
+             never run, until the page is reloaded.
            - *Residual.* Page tokens are not ordered against each other. The first delivery
              of another page's retirement (an old page's cancel or start retirement
-             delivered late, after a reload), or a late session reset, still applies, and so
-             cancels the current page's run, which replies `HANGER-SIZING-CANCELLED`; the
-             person sizes again. It cannot start anything, since the epoch it makes is
+             delivered late, after a reload), or a late session reset (sent once, when the
+             webview's session starts), still applies, and so cancels the current page's run
+             (`HANGER-SIZING-CANCELLED`) or refuses its start in flight
+             (`HANGER-SIZING-REQUEST-STALE`); the person sizes again. It cannot start anything, since the epoch it makes is
              acknowledged only to the page that sent it. General cross-page ordering is not
              solved. Ids and tickets are not authenticated and authorize nothing.
 
