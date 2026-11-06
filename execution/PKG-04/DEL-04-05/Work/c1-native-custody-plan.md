@@ -869,9 +869,10 @@ restored and browser-preview results):
       such a store `STORE-NOT-CURRENT` until a later open migrates it, as it refuses any store
       older than the build's target. A v13 build refuses a v14 store `STORE-SCHEMA-NEWER` before
       writing (`a_v13_build_refuses_a_v14_store_by_name_and_writes_nothing`).
-    - The project summary in every create, save, open and re-save reply reports
-      `store_schema_version` and `store_schema_target_version` 14, the v14 migration status, and
-      `fts_indexed: false`.
+    - After a successful v14 migration, the project summary in every create, save, open and
+      re-save reply reports `store_schema_version` and `store_schema_target_version` 14, the v14
+      migration status, and `fts_indexed: false`. While v14 is deferred, it reports version 13,
+      target 14 and the pending status (above).
     Evidence: `analysis_runs_tests.rs`
     (`v14_retires_the_fts_sidecar_of_a_v13_store_and_keeps_every_canonical_byte`,
     `a_failed_v14_step_rolls_back_whole_is_reported_pending_and_retried_on_the_next_open`, the

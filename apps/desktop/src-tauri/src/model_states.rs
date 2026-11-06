@@ -49,7 +49,8 @@ use tauri::AppHandle;
 
 /// Store v12: the state and label tables and the immutability triggers, as
 /// design §2 gives them. Every statement is `IF NOT EXISTS`, so the step is safe
-/// to re-run (the store's migrations are not transactional).
+/// to re-run. Since store v14 each step runs in one transaction with its
+/// `user_version` update (`apply_store_migrations`).
 /// `model_states_immutable` refuses any `UPDATE`. `model_states_no_replace`
 /// refuses an `INSERT` that meets an existing row of the project on either key
 /// (`state_id` or `model_hash`): a BEFORE INSERT trigger fires before conflict
