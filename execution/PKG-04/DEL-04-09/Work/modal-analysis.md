@@ -1655,7 +1655,7 @@ The weights rise with n (w_b64 from 0.0925 to 0.1579 over 240–960), so **no we
 | B_doc | proposed | 1,691 fixture rows and 10 headers within the bound | an independent check of its four items; then Agent 0's adoption | that check |
 | The full reader's scope (§5.3.9 item 4) | open | §5.3.4 | acceptance and wiring into the verdict path; Agent 0 | I3b |
 | Recording policy, O-8 (§5.3.9 item 5) | open | none | task record, store and version; Agent 0 with DEL-00-06 | the decision |
-| D3 (§5.3.9 item 6) | **registered:** DEL-04-08 §8.52 merged with I3a (PR #113, `08bfdfdaf`; coefficient-equal, AC-004 recorded in that PR) | §8.52 | none for I3a. The production instance's own D3 is §8.57 (coefficient-equal; AC-004 7/7 at `089a5698f`), registered when PR #131 merges; later priced changes (the O-4 guard stages) take their own D3 | — |
+| D3 (§5.3.9 item 6) | **registered:** DEL-04-08 §8.52 merged with I3a (PR #113, `08bfdfdaf`; coefficient-equal, AC-004 recorded in that PR) | §8.52 | none for I3a. The production instance's own D3 is §8.57 (coefficient-equal; AC-004 7/7 at `089a5698f`), registered when PR #131 merges; later priced changes (the O-4 guard stages) take their own D3: P0 and S1's is §8.58 (proposed, coefficient-equal; AC-004 required, frozen, not run) | — |
 | Independent numerical review of I3a (§5.3.9 item 6) | open; a separate obligation from D3 | the reviews of the slices so far (PR #33 and the I3a rounds) | an independent numerical review of the I3a result family and readers; Agent 0 to commission | its scheduling |
 | Subject census (§5.3.2, §5.3.10) | not implemented; required before admission | §5.3.2's design | `binding.subject_census`, the stated subject rule in both readers, regenerated fixtures, corpus cases for a missing arc, body, straight member and support; a separate small slice, Agent 0 | the slice |
 | Bessel (§5.3.9 item 7) | temporary capability limit | §5.3.4 | option B, or other common-M evidence; Agent 0 | that evidence |
@@ -1789,7 +1789,7 @@ Built on `claude/rt-dynamics-p0` from main `17aa9a1f9`, under Agent 0's approval
   3. S2, S2b and the confirmation counter are not built.
   4. L̄ = 492 needs independent numerical scrutiny.
   5. The weights stay undetermined.
-- **Pricing.** `resource.rs` is a new priced source in product_physics. Its D3 and AC-004 are the manager's.
+- **Pricing.** `resource.rs` is a new priced source in product_physics. Its D3 is DEL-04-08 §8.58 (proposed): coefficient-equal to main's §8.57 tree (1,602 equal), with a MODAL-FB subtraction for `modal_resource_bound_dimensions`' u128 `min`, MODAL-ID classes for the refusal texts (`resource.rs` pinned whole) and the three `run_modal_dense` sites re-keyed to `run_modal_dense_with_budget`. AC-004 is required: both witnessed binaries change. The binaries and the runner are frozen, and the window awaits Agent 0's clearance.
 
 #### 5.3.9 Admission: what stays disabled, and why
 
