@@ -95,7 +95,15 @@ BODY_PINS = {
     # arms and trailing commas); O4-ID/O4-SR's blocks and maxima are unchanged.
     # RT-A3 §4 D3 (§8.53): LoadCaseSolve.certificate_operand (None at every early return; the operand's groups on a model
     # with a combination and a formed member bound); O4-ID/O4-SR's Timoshenko blocks and maxima are unchanged.
-    (LIB, "solve_prepared_load_case"): "d75658cf928ba02f976a3accc4673cce3a76078bbe2a630837590fc56baeb010",
+    # RT-A5 minuend_final D3 (§8.54): the case's role (`held = role.held()`, false for the case's own loop),
+    # LoadCaseSolve.held_status_source (None at every early return; captured only when `wanted`, never on D1, RTA5-DZ),
+    # a held result's unconverged displacements (`|| held`, never on D1) and `!held` on the certificate operand;
+    # O4-ID/O4-SR's Timoshenko blocks and maxima are unchanged.
+    # R-6/R-7 S-K1 D3 (§8.55): the skew branches, each guarded on built.skew (None on D1: SKW-D1): the prescribed-motion
+    # and force-scaled refusals' early returns, the skew solve arm, the reduction's `filter(|_| built.skew.is_none())`,
+    # source eligibility's `&& built.skew.is_none()`, the attribution (`skew_reactions`) and its along pushes, and the
+    # certified support's along row; O4-ID/O4-SR's Timoshenko blocks and maxima are unchanged.
+    (LIB, "solve_prepared_load_case"): "7baaf610260b88504e39cbbbf018ab10dfbe07b1def840435eabd8f872d7b2ff",
     (SRC, "distinct_reduced_section"): "179e447476ae2a7cf8b01d1e5da22bddd66b9057403453ffc79f9e57747fd100",
     (SRC, "stress_operands"): "de7a26eb0574635be8c808bc42070cdb132f8f8b67fee83542bd79f667cb6050",
     (SRC, "commitment"): "279ce112036664d7802e2952d87a67abe6dd7fe04879a4d498fd2544fe86753d",

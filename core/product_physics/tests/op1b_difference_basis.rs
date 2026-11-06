@@ -430,7 +430,7 @@ fn v5_g2_withholds_mixed_modulus_bases_after_g1() {
 }
 
 #[test]
-fn v5_the_member_is_refused_off_a_pf_subtraction_and_minuend_final_stays_withheld() {
+fn v5_the_member_is_refused_off_a_pf_subtraction_and_minuend_final_reaches_the_gates() {
     for (combination, code) in [
         (json!({"id":"comb:x","basis":"mechanics","terms":[{"load_case":"case:O","factor":1.0}],"difference_basis":"operating_minus_sustained","provenance":PROV}), "LOAD_COMBINATION_DIFFERENCE_BASIS_MISPLACED"),
         (json!({"id":"comb:x","basis":"range_envelope","operand_ids":["case:O","case:S"],"mode":"max","difference_basis":"operating_minus_sustained","provenance":PROV}), "LOAD_COMBINATION_DIFFERENCE_BASIS_MISPLACED"),
@@ -444,16 +444,18 @@ fn v5_the_member_is_refused_off_a_pf_subtraction_and_minuend_final_stays_withhel
             assert!(v["diagnostics"].as_array().unwrap().iter().any(|d| d["code"] == code && d["severity"] == "blocking"), "{code}");
         }
     }
-    // minuend_final: withheld by its own code alone (0.9.0 §2.2, §3.8).
+    // minuend_final: since RT-A5 (operating-case §7.5) no interim code withholds it; it takes
+    // G-1, G-2 and then the held-status gates at the solve (`op_mf_held_status.rs`), with its
+    // G-1 evidence and its held-status record, and both readings admit the document.
     let mut wire = v1(2f64.powi(-9), 1536.0);
     wire["model"]["combinations"][0]["subtrahend_support_state"] = json!("minuend_final");
     for mode in MODES {
         let v = solve(&wire, mode);
-        let warnings: Vec<String> = codes(&v).into_iter().filter(|c| c.starts_with("LOAD_COMBINATION_") || c.starts_with("EXPANSION_")).collect();
-        assert_eq!(warnings, ["LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED"]);
-        assert!(v["contract_evidence"]["combination_gates"].as_array().unwrap().iter().all(|g| g["combination_id"] != "comb:o-s"));
-        assert!(v["contract_evidence"].get(MEMBER).is_none());
-        assert_eq!(verdict(&v, Some(&wire["model"]))["ok"], true);
+        assert!(!codes(&v).iter().any(|c| c == "LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED"));
+        assert!(v["contract_evidence"]["combination_gates"].as_array().unwrap().iter().any(|g| g["combination_id"] == "comb:o-s"));
+        assert!(v["contract_evidence"].get(MEMBER).is_some());
+        assert!(v["contract_evidence"].get("held_status_derivation").is_some());
+        assert_reads(&v, &wire, "minuend_final");
     }
     // `own` behaves as absence.
     wire["model"]["combinations"][0]["subtrahend_support_state"] = json!("own");

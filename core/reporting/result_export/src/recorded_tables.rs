@@ -26,7 +26,7 @@
 //! binding nested in a recorded read clears it for its read; a recorded read nested in
 //! another restores the outer one. No caller holds it across an async yield: every caller
 //! runs the read to completion on its own thread (the wasm engine's exports, the runner's
-//! `read` command; the desktop's native custody makes no recorded read).
+//! `read` command, and the desktop's native custody commands, which make each recorded read synchronously inside `entry_scope` on their worker thread).
 //!
 //! Under `panic = abort` a panic does not unwind, so the guard does not run. Natively that
 //! ends the process, and the selection with it. The wasm32 target aborts by default, and a
@@ -67,9 +67,12 @@ const EXACT_RETAINED: &str = crate::retained_precision::EXACT_CONTRACT_ID;
 /// main holds once that lands before RT-A4; the sixth is the RT-A4 main line's exact
 /// successor table (main at bbf384dec), whose inherited pressure-2 digest RT-A3
 /// increment 4 moves; the seventh to ninth are main's at bbf384dec, before operating-case
-/// slice 1b; the tenth is main's exact successor table at 252bef969, whose inherited
-/// pressure-2 digest RT-A3 §4 (the combination certificate) moves.
-pub static VARIANTS: [RecordedVariant; 10] = [
+/// slice 1b; the tenth to twelfth are main's at b32a17761, before RT-A5 `minuend_final`;
+/// the thirteenth is main's exact successor table at 252bef969, whose inherited
+/// pressure-2 digest RT-A3 §4 (the combination certificate) moves; the last three are
+/// main's at 9e5c69797 (unchanged since the S-K1 base, `claude/rt-skew-sk1` at
+/// 6ebd92ce9), before R-6/R-7 S-K1.
+pub static VARIANTS: [RecordedVariant; 16] = [
     RecordedVariant {
         id: PREVIEW,
         sha256: "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2",
@@ -146,6 +149,35 @@ pub static VARIANTS: [RecordedVariant; 10] = [
         base: Some(6),
         reads_under_variant: true,
     },
+    // RT-A5 `minuend_final` (DEL-05-02 `operating-case.md` §7.6, table registry): main at
+    // b32a17761 (#107; unchanged through 400a409d7) held these. `minuend_final` restated the
+    // preview-physics combination policy (v3 -> v4) and added the `held_status_operand`
+    // basis; rows and limitations are the current tables', so a statement recorded under
+    // them reads under the variant exactly as it read then.
+    RecordedVariant {
+        id: PREVIEW,
+        sha256: "f41b9d3ed0c1b7abaee0b98ca1a28aa1a2d109bce443b98d53a2080c1c504ce9",
+        profile: crate::semantic_contract::PREVIEW_PHYSICS_PROFILE,
+        bytes: include_bytes!("../../../../fixtures/results/recorded_pre_rt_a5_mf/semantic_contract_v0_3_preview_physics_2.f41b9d3e.json"),
+        base: None,
+        reads_under_variant: true,
+    },
+    RecordedVariant {
+        id: TIMOSHENKO,
+        sha256: "6f6494907e3ead979ea27e5ff85f54617589c9195dc84d40a02752a0b006ef44",
+        profile: crate::semantic_contract::PREVIEW_PHYSICS_TIMOSHENKO_PROFILE,
+        bytes: include_bytes!("../../../../fixtures/results/recorded_pre_rt_a5_mf/semantic_contract_v0_3_preview_physics_timoshenko_1.6f649490.json"),
+        base: None,
+        reads_under_variant: true,
+    },
+    RecordedVariant {
+        id: RETAINED,
+        sha256: "b4377e73e8a83edb57b4f0c41dbaef384385e0f6b4810103a106a334c8edbe14",
+        profile: crate::retained_precision::PROFILE,
+        bytes: include_bytes!("../../../../fixtures/results/recorded_pre_rt_a5_mf/semantic_contract_v0_3_preview_physics_retained_1.b4377e73.json"),
+        base: Some(9),
+        reads_under_variant: true,
+    },
     // RT-A3 §4 (DEL-05-02 Work `combination-certificate.md`): main's exact successor table at
     // 252bef969, a recorded binding only.
     RecordedVariant {
@@ -155,6 +187,35 @@ pub static VARIANTS: [RecordedVariant; 10] = [
         bytes: include_bytes!("../../../../fixtures/results/recorded_pre_rt_a4/semantic_contract_v0_3_physics_retained_1.85c2678a.json"),
         base: None,
         reads_under_variant: false,
+    },
+    // R-6/R-7 S-K1 (DEL-04-03 `skew-restraints.md` §7.1, R-1): main at 9e5c69797 held these.
+    // S-K1 added one kind (`support_reaction_along_direction_v1`: one row, the component
+    // `along_direction`, the coordinate system `support_direction` and a linear state
+    // kind); no older statement changes, so a statement recorded under them reads under
+    // the variant exactly as it read then.
+    RecordedVariant {
+        id: PREVIEW,
+        sha256: "563db3c7c44279face3adc60a76a512de38520357e89ea4b49ad11d20946db89",
+        profile: crate::semantic_contract::PREVIEW_PHYSICS_PROFILE,
+        bytes: include_bytes!("../../../../fixtures/results/recorded_pre_sk1/semantic_contract_v0_3_preview_physics_2.563db3c7.json"),
+        base: None,
+        reads_under_variant: true,
+    },
+    RecordedVariant {
+        id: TIMOSHENKO,
+        sha256: "f64473f5a60ac2bb34d8006b40bf044800f0c97454c570bbe88d1f1d96b7bdfc",
+        profile: crate::semantic_contract::PREVIEW_PHYSICS_TIMOSHENKO_PROFILE,
+        bytes: include_bytes!("../../../../fixtures/results/recorded_pre_sk1/semantic_contract_v0_3_preview_physics_timoshenko_1.f64473f5.json"),
+        base: None,
+        reads_under_variant: true,
+    },
+    RecordedVariant {
+        id: RETAINED,
+        sha256: "d0bab3502b4018ce0596757a933bd6306f402dc3741a10af24a094e8c66544e8",
+        profile: crate::retained_precision::PROFILE,
+        bytes: include_bytes!("../../../../fixtures/results/recorded_pre_sk1/semantic_contract_v0_3_preview_physics_retained_1.d0bab350.json"),
+        base: Some(13),
+        reads_under_variant: true,
     },
 ];
 
@@ -183,7 +244,7 @@ impl RecordedVariant {
     }
     /// The variant's table, its bytes checked on first read.
     pub fn table(&'static self) -> &'static Value {
-        static TABLES: [OnceLock<Value>; 10] = [const { OnceLock::new() }; 10];
+        static TABLES: [OnceLock<Value>; 16] = [const { OnceLock::new() }; 16];
         TABLES[self.index()].get_or_init(|| verify(self, self.bytes).expect("a registry table's pinned bytes"))
     }
     /// The base variant a successor's base inherits (preview-physics-2's), if any.
@@ -300,14 +361,24 @@ mod tests {
             assert_ne!(current, variant.sha256, "{}: a variant is never the current table", variant.id);
         }
         // Rows are unchanged from each current table: only limitations, policy text,
-        // vocabulary and inherited digests moved.
-        assert_eq!(VARIANTS[0].table()["rows"], crate::semantic_contract::preview_physics_contract()["rows"]);
-        assert_eq!(VARIANTS[1].table()["rows"], crate::semantic_contract::preview_physics_timoshenko_contract()["rows"]);
-        assert_eq!(VARIANTS[2].table()["rows"], crate::semantic_contract::preview_physics_retained_contract()["rows"]);
+        // vocabulary and inherited digests moved, and R-6/R-7 S-K1 added exactly one
+        // preview signature (`support_reaction_along_direction_v1`) without moving any other
+        // row. Every older row is compared exactly; the one added row is pinned.
+        let without_sk1 = |current: &Value| -> Value {
+            let rows = current["rows"].as_array().unwrap();
+            let added: Vec<&Value> = rows.iter().filter(|r| r["kind"] == "support_reaction_along_direction_v1").collect();
+            assert_eq!(added.len(), 1, "S-K1 adds one row");
+            assert_eq!((added[0]["signature_id"].as_str(), added[0]["component"].as_str(), added[0]["unit"].as_str(), added[0]["combination_algebra"].as_str()),
+                (Some("supported-source-082"), Some("along_direction"), Some("N"), Some("signed_linear")));
+            Value::Array(rows.iter().filter(|r| r["kind"] != "support_reaction_along_direction_v1").cloned().collect())
+        };
+        assert_eq!(VARIANTS[0].table()["rows"], without_sk1(crate::semantic_contract::preview_physics_contract()));
+        assert_eq!(VARIANTS[1].table()["rows"], without_sk1(crate::semantic_contract::preview_physics_timoshenko_contract()));
+        assert_eq!(VARIANTS[2].table()["rows"], without_sk1(crate::semantic_contract::preview_physics_retained_contract()));
         assert_eq!(VARIANTS[3].table()["rows"], crate::semantic_contract::physics_retained_contract()["rows"]);
         assert_eq!(VARIANTS[4].table()["rows"], crate::semantic_contract::physics_retained_contract()["rows"]);
         assert_eq!(VARIANTS[5].table()["rows"], crate::semantic_contract::physics_retained_contract()["rows"]);
-        assert_eq!(VARIANTS[9].table()["rows"], crate::semantic_contract::physics_retained_contract()["rows"]);
+        assert_eq!(VARIANTS[12].table()["rows"], crate::semantic_contract::physics_retained_contract()["rows"]);
         assert!(VARIANTS[0].table()["supported_profile_limitations"] != crate::semantic_contract::preview_physics_contract()["supported_profile_limitations"]);
     }
 

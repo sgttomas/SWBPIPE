@@ -288,3 +288,209 @@ fn the_retained_base_read_context_is_not_reachable_from_ordinary_reads() {
     assert!(rp::validate(&w["source"], Some(&w["invocation"])).is_ok());
     assert!(!open_pipe_stress_result_export::in_retained_base_read());
 }
+
+// ------------------------------------------------------------------ the held gate notices (RT-A5)
+
+const HELD_CORPUS: &str = include_str!("../../../../fixtures/results/preview_physics_held_status_corpus.json");
+const HELD_GATE: &str = "diagnostic:preview-physics:combination-gate:13:comb:o-s-held";
+/// Claim-like refusals: no reader polices R's language (Agent 0, 2026-11-05: R is bound to its
+/// record, not verified as true, and supplies no row bound, eligibility, certificate notice or
+/// standing). The Python mirror's `HELD_CLAIMS`.
+const HELD_CLAIMS: [&str; 4] = [
+    "its rows are established within their stated bound",
+    "every row is bounded by 1e-300 within its stated bound",
+    "ESTABLISHED Within Its Stated BOUND",
+    "les lignes sont établies \u{2014} within their stated bound \u{2264} 2\u{207b}\u{b9}\u{2070}\u{2070}\u{2070} \u{2713}",
+];
+const G1: &str = "EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING";
+const G1_TEXT: &str = "Combination withheld: it declares an operating minus sustained difference, and the subtrahend case's primitive loads, as a multiset by content (category, target, direction, dimension, value and unit after normalization; ids ignored), are not contained in the minuend case's.";
+
+fn held_entry(name: &str) -> Value {
+    let corpus: Value = serde_json::from_str(HELD_CORPUS).unwrap();
+    corpus["documents"].as_array().unwrap().iter().find(|e| e["name"] == name).unwrap().clone()
+}
+fn held_notice(d: &mut Value) -> &mut Value {
+    d["diagnostics"].as_array_mut().unwrap().iter_mut().find(|n| n["id"] == HELD_GATE).unwrap()
+}
+fn held_refusal(d: &mut Value) -> &mut Value {
+    &mut d["contract_evidence"]["held_status_derivation"][0]["standing"]["reason"]
+}
+fn gate<'a>(d: &'a mut Value, id: &str) -> &'a mut Value {
+    d["contract_evidence"]["combination_gates"].as_array_mut().unwrap().iter_mut().find(|g| g["combination_id"] == id).unwrap()
+}
+
+/// RT-A5 (Work `combination-certificate.md` §2): a held gate's notice is set-bound, required
+/// once, and exactly "Combination withheld: " + R + ".", R the refusal of the document's
+/// held-status record for that combination, bound to the record and never verified as true.
+/// The same list as the Python mirror's `HELD_GATE_CASES` (`tests/test_combination_certificate.py`),
+/// with and without the model.
+#[test]
+fn held_gate_notices_are_the_records_refusal_in_their_frame() {
+    type Edit = fn(&mut Value);
+    let cases: [(&str, bool, &str, Option<Edit>, Option<&str>); 10] = [
+        ("canonical source-unavailable notice", true, "source_unavailable", None, None),
+        ("canonical sliding-ground notice", true, "sliding_ground_differs", None, None),
+        // The roster compares the notice whole with "Combination withheld: " + R + ".".
+        ("inner text other than the record's refusal", true, "source_unavailable",
+         Some(|d| held_notice(d)["message"] = "Combination withheld: the minuend case case:O lent a state.".into()), Some("SOURCE_COMBINATION_CERTIFICATE_ROSTER_CONTRADICTION")),
+        ("frame without its prefix", true, "source_unavailable",
+         Some(|d| { let m = held_notice(d)["message"].as_str().unwrap().trim_start_matches("Combination withheld: ").to_string(); held_notice(d)["message"] = m.into(); }), Some("SOURCE_COMBINATION_CERTIFICATE_ROSTER_CONTRADICTION")),
+        ("frame without its period", true, "source_unavailable",
+         Some(|d| { let m = held_notice(d)["message"].as_str().unwrap().trim_end_matches('.').to_string(); held_notice(d)["message"] = m.into(); }), Some("SOURCE_COMBINATION_CERTIFICATE_ROSTER_CONTRADICTION")),
+        // The held-status reader binds the record's kind and a non-empty refusal, not its text (R is
+        // bound, not verified), so a refusal changed in the evidence alone is refused first by the
+        // roster, at this full public reader.
+        ("refusal changed in the evidence only", true, "source_unavailable",
+         Some(|d| { let r = format!("{} (edited)", held_refusal(d).as_str().unwrap()); *held_refusal(d) = r.into(); }), Some("SOURCE_COMBINATION_CERTIFICATE_ROSTER_CONTRADICTION")),
+        // The gates reader (`preview_combination_gates`), which precedes the held-status reader and
+        // the roster, refuses a held code on a combination with no held record, and another code on
+        // a held record's gate.
+        ("a held code on a non-held gate", false, "pf_held",
+         Some(|d| {
+             gate(d, "comb:own")["reason"] = "HELD_STATUS_SOURCE_UNAVAILABLE".into();
+             let n = d["diagnostics"].as_array_mut().unwrap().iter_mut()
+                 .find(|n| n["id"].as_str().unwrap().starts_with("diagnostic:preview-physics:combination-gate:") && n["affected_refs"] == serde_json::json!(["comb:own"])).unwrap();
+             n["code"] = "HELD_STATUS_SOURCE_UNAVAILABLE".into();
+             n["message"] = "Combination withheld: the minuend case case:O2 has no converged nonlinear support state to lend.".into();
+         }), Some("SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_DERIVATION")),
+        ("a non-held code on the held gate", true, "source_unavailable",
+         Some(|d| { gate(d, "comb:o-s-held")["reason"] = G1.into(); held_notice(d)["code"] = G1.into(); held_notice(d)["message"] = G1_TEXT.into(); }),
+         Some("SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_DERIVATION")),
+        ("duplicated", true, "source_unavailable", Some(|d| { let n = held_notice(d).clone(); d["diagnostics"].as_array_mut().unwrap().push(n); }), Some("SOURCE_COMBINATION_CERTIFICATE_ROSTER_EXTRA")),
+        ("dropped", true, "source_unavailable", Some(|d| d["diagnostics"].as_array_mut().unwrap().retain(|n| n["id"] != HELD_GATE)), Some("SOURCE_COMBINATION_CERTIFICATE_ROSTER_MISSING")),
+    ];
+    for (what, held, name, edit, code) in cases {
+        let mut e = if held { held_entry(name) } else { documents().into_iter().find(|e| e["name"] == name).unwrap() };
+        if let Some(edit) = edit {
+            edit(&mut e["document"]);
+        }
+        for model in [None, Some(&e["model"])] {
+            let verdict = reader_verdict::validate("preview-physics", &e["document"], model, None);
+            let label = if model.is_some() { "with model" } else { "without model" };
+            match code {
+                None => assert_eq!(verdict["ok"], true, "{what} ({label}): {verdict}"),
+                Some(code) => assert_eq!((&verdict["ok"], verdict["error"]["code"].as_str()), (&Value::Bool(false), Some(code)), "{what} ({label}): {verdict}"),
+            }
+        }
+    }
+}
+
+/// What a reading could take as standing: the certificate member, numerical quality, the rows and
+/// their bounds, and the held-status record less its refusal text.
+fn standing(d: &Value) -> Value {
+    let mut record = d["contract_evidence"]["held_status_derivation"][0].clone();
+    record["standing"].as_object_mut().unwrap().remove("reason");
+    serde_json::json!({"certificate": d["contract_evidence"]["combination_certificate"], "quality": d["numerical_quality"],
+                       "results": d["results"], "status": d["status"], "held": record})
+}
+
+/// A well-bound record carrying claim-like text is admitted, and it changes no row bound,
+/// eligibility or certificate standing against the benign refusal; forged on one side only, the
+/// roster refuses it (its notice is no longer the canonical entry built from the record). The held
+/// member stays not assessed, with no group and no bound.
+#[test]
+fn held_gate_claim_like_refusals_are_bound_never_policed_and_claim_nothing() {
+    let benign = held_entry("source_unavailable");
+    for claim in HELD_CLAIMS {
+        for model in [None, Some(&benign["model"])] {
+            assert_eq!(reader_verdict::validate("preview-physics", &benign["document"], model, None)["ok"], true);
+            let mut bound = benign["document"].clone();
+            *held_refusal(&mut bound) = claim.into();
+            held_notice(&mut bound)["message"] = format!("Combination withheld: {claim}.").into();
+            let verdict = reader_verdict::validate("preview-physics", &bound, model, None);
+            assert_eq!(verdict["ok"], true, "{claim}: {verdict}");
+            assert_eq!(standing(&bound), standing(&benign["document"]), "{claim}");
+            let held = bound["contract_evidence"]["combination_certificate"]["combinations"].as_array().unwrap().iter()
+                .find(|r| r["combination_id"] == "comb:o-s-held").unwrap();
+            assert_eq!((&held["assessment"], &held["groups"], &held["uncovered_row_count"]), (&Value::from("not_assessed"), &serde_json::json!([]), &Value::from(0)));
+            // Forged on one side only, refused at the full public reader. In the notice only, it is no
+            // longer the bound entry (its whole message is not the record's canonical one), so the
+            // certificate's own notice reader (`check`'s DIAGNOSTICS, before the roster) owns a notice in
+            // its reserved wording (read case-sensitively: the mixed-case claim is the roster's), and the
+            // roster any other; in the record only, the roster refuses first.
+            let notice_owner = if claim == HELD_CLAIMS[2] { "SOURCE_COMBINATION_CERTIFICATE_ROSTER_CONTRADICTION" } else { "SOURCE_COMBINATION_CERTIFICATE_DIAGNOSTICS" };
+            for (notice_side, code) in [(true, notice_owner), (false, "SOURCE_COMBINATION_CERTIFICATE_ROSTER_CONTRADICTION")] {
+                let mut forged = benign["document"].clone();
+                if notice_side {
+                    held_notice(&mut forged)["message"] = format!("Combination withheld: {claim}.").into();
+                } else {
+                    *held_refusal(&mut forged) = claim.into();
+                }
+                let verdict = reader_verdict::validate("preview-physics", &forged, model, None);
+                assert_eq!(verdict["error"]["code"], code, "{claim} (notice side {notice_side}): {verdict}");
+            }
+            // A well-bound claim-like refusal lifts only the vocabulary test: a forged binding or state
+            // is still refused by the mandatory readers before the certificate (gates, then held status).
+            let forgeries: [(&str, fn(&mut Value), &str); 4] = [
+                ("its record's outcome", |d| d["contract_evidence"]["held_status_derivation"][0]["outcome"] = "HELD_STATUS_BINDING".into(), "SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_DERIVATION"),
+                ("its record's source case", |d| d["contract_evidence"]["held_status_derivation"][0]["source"]["load_case_id"] = "case:S".into(), "SOURCE_PREVIEW_PHYSICS_HELD_STATUS_BINDING"),
+                ("its record's state", |d| d["contract_evidence"]["held_status_derivation"][0]["standing"]["kind"] = "established".into(), "SOURCE_PREVIEW_PHYSICS_HELD_STATUS_EVIDENCE"),
+                ("its gate", |d| gate(d, "comb:o-s-held")["withheld"] = false.into(), "SOURCE_PREVIEW_PHYSICS_GATE_REASON"),
+            ];
+            for (what, forge, code) in forgeries {
+                let mut forged = bound.clone();
+                forge(&mut forged);
+                let verdict = reader_verdict::validate("preview-physics", &forged, model, None);
+                assert_eq!((&verdict["ok"], verdict["error"]["code"].as_str()), (&Value::Bool(false), Some(code)), "{claim}: {what}: {verdict}");
+            }
+        }
+    }
+}
+
+// ------------------------------------------------------------------ HELD_STATUS_RELEASED (RT-A5, P1)
+
+const HELD_RELEASED: &str = "diagnostic:preview-physics:held-status-released:13:comb:o-s-held";
+fn released_notice(d: &mut Value) -> &mut Value {
+    d["diagnostics"].as_array_mut().unwrap().iter_mut().find(|n| n["id"] == HELD_RELEASED).unwrap()
+}
+fn replace_in_released(d: &mut Value, old: &str, new: &str) {
+    let notice = released_notice(d);
+    let message = notice["message"].as_str().unwrap().to_string();
+    assert!(message.contains(old), "{old}: {message}");
+    notice["message"] = message.replace(old, new).into();
+}
+
+/// RT-A5 (Work `combination-certificate.md` §2): one set-bound HELD_STATUS_RELEASED entry per held
+/// combination whose record releases a support, its message rebuilt from the record's recorded fields
+/// only, at the full reader, with and without the model; the Python mirror's `HELD_RELEASED_CASES`.
+/// h2 is an ordinary release with a negative bit token, h7g a strict-gap one, h5 a displacement and h13
+/// a branch.
+#[test]
+fn held_status_released_notices_are_rebuilt_from_the_record() {
+    type Edit = fn(&mut Value);
+    const CONTRADICTION: &str = "SOURCE_COMBINATION_CERTIFICATE_ROSTER_CONTRADICTION";
+    const DERIVATION: &str = "SOURCE_PREVIEW_PHYSICS_HELD_STATUS_DERIVATION";
+    let cases: [(&str, &str, Option<Edit>, Option<&str>); 12] = [
+        ("canonical ordinary (negative bit token)", "h2_released", None, None),
+        ("canonical strict gap", "h7g_gap", None, None),
+        ("canonical displacement", "h5_slip_sense", None, None),
+        ("canonical branch", "h13_branch", None, None),
+        // The roster rebuilds the whole message from the validated record and compares it bit for bit.
+        ("a changed bit token", "h2_released", Some(|d| replace_in_released(d, "c080000000000000", "c080000000000001")), Some(CONTRADICTION)),
+        ("a changed sign", "h7g_gap", Some(|d| replace_in_released(d, "reaction_sign positive", "reaction_sign negative")), Some(CONTRADICTION)),
+        ("a changed state", "h2_released", Some(|d| replace_in_released(d, "classified inactive", "classified active")), Some(CONTRADICTION)),
+        ("a changed reason", "h2_released", Some(|d| replace_in_released(d, "(changed state:", "(branch:")), Some(CONTRADICTION)),
+        // The held-status reader, which precedes the roster, refuses first what it binds: the notice's
+        // named supports in record order, exactly one notice for a released record, and none for a
+        // record that releases nothing (the roster's MISSING and EXTRA stand behind it).
+        ("its supports out of order", "h2_released", Some(|d| { let n = released_notice(d); let mut refs = n["affected_refs"].as_array().unwrap().clone(); refs.reverse(); n["affected_refs"] = refs.into(); }), Some(DERIVATION)),
+        ("duplicated", "h2_released", Some(|d| { let n = released_notice(d).clone(); d["diagnostics"].as_array_mut().unwrap().push(n); }), Some(DERIVATION)),
+        ("dropped", "h2_released", Some(|d| d["diagnostics"].as_array_mut().unwrap().retain(|n| n["id"] != HELD_RELEASED)), Some(DERIVATION)),
+        ("on a combination that releases nothing", "h4_kept_explicit",
+         Some(|d| { let n = released_notice(&mut held_entry("h2_released")["document"]).clone(); d["diagnostics"].as_array_mut().unwrap().push(n); }), Some(DERIVATION)),
+    ];
+    for (what, name, edit, code) in cases {
+        let mut e = held_entry(name);
+        if let Some(edit) = edit {
+            edit(&mut e["document"]);
+        }
+        for model in [None, Some(&e["model"])] {
+            let verdict = reader_verdict::validate("preview-physics", &e["document"], model, None);
+            let label = if model.is_some() { "with model" } else { "without model" };
+            match code {
+                None => assert_eq!(verdict["ok"], true, "{what} ({label}): {verdict}"),
+                Some(code) => assert_eq!((&verdict["ok"], verdict["error"]["code"].as_str()), (&Value::Bool(false), Some(code)), "{what} ({label}): {verdict}"),
+            }
+        }
+    }
+}

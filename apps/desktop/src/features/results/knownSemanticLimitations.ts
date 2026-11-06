@@ -5,7 +5,9 @@ import { PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, PREV
 import { currentSemanticContract, displayRoute, type ContractBinding } from "./resultReader";
 import { classificationSummary, retainedRowClasses } from "./retainedPrecisionStanding";
 import { decodeBinary64, type AccuracyClass } from "./retainedPrecisionTypes";
+import { isNativeResult, type NativeResult } from "../../services/nativeResult";
 import type { MechanicsResult } from "../../types";
+import { derivedRowNote } from "../viewport/resultColourOverlay";
 
 /** Static fresh-identity set: a constant, no route predicate.
  * U6d (D-U6-6; D2 4.7 S-1) adds the F2a preview successor: membership is not
@@ -34,8 +36,32 @@ export const COMBINATION_GATE_REASONS: Readonly<Record<string, string>> = Object
   COMBINATION_MODULUS_BASIS_MIXED: "Combination withheld: its load cases were solved on different modulus bases.",
 });
 
+/** RT-A5 (§7.6): each admitted `minuend_final` combination's held standing, as its evidence states it.
+ * Reads `contract_evidence` only, which a C1 native handle carries in S's header (as
+ * `previewCombinationGates`), so a native handle gives the whole value's standings. */
+export function heldStatusStandings(source: MechanicsResult | NativeResult): { combination_id: string; kind: string; reason: string }[] {
+  const records = (source.contract_evidence as { held_status_derivation?: unknown } | undefined)?.held_status_derivation;
+  if (!Array.isArray(records)) return [];
+  return records.flatMap((r) => {
+    const record = r as { combination_id?: unknown; outcome?: unknown; standing?: { kind?: unknown; reason?: unknown } };
+    return typeof record?.combination_id === "string" && record.outcome === "admitted"
+      && typeof record.standing?.kind === "string" && typeof record.standing?.reason === "string"
+      ? [{ combination_id: record.combination_id, kind: record.standing.kind, reason: record.standing.reason }] : [];
+  });
+}
+
 export const PREVIEW_INTENSIFIED_KIND = "component_equal_factor_intensified_bending_stress_v1";
 export const PREVIEW_MAXIMUM_KIND = "pipe_elastic_normal_stress_maximum_v2";
+/** R-6/R-7 S-K1 (DEL-04-03 Work `skew-restraints.md` §7.1): a skewed support's reaction along its
+ * stored direction. A known kind with its own row label and notice; it is not a global component,
+ * so the reaction overlay (`REACTION_COMPONENT_KIND`) never draws it. */
+export const PREVIEW_ALONG_DIRECTION_KIND = "support_reaction_along_direction_v1";
+export const N_ALONG_DIRECTION = "reaction along the support's stored direction, positive when the support acts on the pipe along the authored direction; the producer's own row, not a global component";
+/** Authoring's R-1 should-fix: an unsigned, selected or bounded combination row (its
+ * `derivedRowNote`) states its derivation and carries no sign clause. */
+export function alongDirectionDerivedLabel(note: string): string {
+  return `reaction along the support's stored direction (${note}); the producer's own row, not a global component`;
+}
 
 /** D2 4.9.9 (revision 4, N-5): binding refusals for classified successor rows
  * before S-I. They never demote the envelope's standing. */
@@ -83,7 +109,7 @@ export function retainedRowClassLabel(row: { id?: string; unit?: string }, sourc
 }
 
 /** Readable identity, by dispatch, that belongs to the static fresh set. */
-export function isFreshSemanticResult(source: MechanicsResult | null | undefined): boolean {
+export function isFreshSemanticResult(source: MechanicsResult | NativeResult | null | undefined): boolean {
   const binding = currentSemanticContract(source);
   return !!binding && FRESH_SEMANTIC_CONTRACT_IDS.includes(binding.id);
 }
@@ -115,8 +141,11 @@ export type KnownSemanticNotice = { id: string; text: string };
 /** Text-only notices a surface shows for a received result. The caller decides
  * placement; no notice changes standing, rows or exported bytes. RT-A4 §10.4: a reopened run
  * recorded before RT-A4 passes its recorded table and is classified under it (`displayRoute`);
- * current callers omit it. */
-export function knownSemanticNotices(source: MechanicsResult | null | undefined, recordedTableRead?: ContractBinding | null): KnownSemanticNotice[] {
+ * current callers omit it.
+ * `options.hasIntensified` / `options.hasAlongDirection`: for a native result, whether a row of the
+ * intensified / along-direction kind exists (a bounded native lookup by the caller); a full result's
+ * rows are read directly. */
+export function knownSemanticNotices(source: MechanicsResult | NativeResult | null | undefined, recordedTableRead?: ContractBinding | null, options: { hasIntensified?: boolean; hasAlongDirection?: boolean } = {}): KnownSemanticNotice[] {
   if (!source) return [];
   let route: ReturnType<typeof displayRoute>;
   try { route = displayRoute(source, recordedTableRead); } catch { return []; }
@@ -126,16 +155,24 @@ export function knownSemanticNotices(source: MechanicsResult | null | undefined,
     const solved = source.status.mechanics === "MECHANICS_SOLVED";
     if (source.summary.max_open_formula_stress) notices.push({ id: "headline-label", text: `Stress headline: ${N_HEADLINE}.` });
     else if (solved) notices.push({ id: "headline-withheld", text: N_HEADLINE_WITHHELD });
-    if (source.results.some(row => row.kind === PREVIEW_INTENSIFIED_KIND)) notices.push({ id: "intensified-label", text: `Intensified measure: ${N_INTENSIFIED}.` });
+    if (options.hasIntensified ?? (!isNativeResult(source) && source.results.some(row => row.kind === PREVIEW_INTENSIFIED_KIND))) notices.push({ id: "intensified-label", text: `Intensified measure: ${N_INTENSIFIED}.` });
+    if (options.hasAlongDirection ?? (!isNativeResult(source) && source.results.some(row => row.kind === PREVIEW_ALONG_DIRECTION_KIND))) notices.push({ id: "along-direction-label", text: `Along-direction reaction, for a load case or signed combination: ${N_ALONG_DIRECTION}.` });
     for (const gate of previewCombinationGates(source)) {
       if (gate.withheld && gate.reason) notices.push({ id: `combination-gate:${gate.combination_id}`, text: `${gate.combination_id}: ${COMBINATION_GATE_REASONS[gate.reason] ?? gate.reason}` });
+    }
+    // RT-A5: the held standing of each admitted held-constraint comparison (never the subtrahend case's own).
+    for (const held of heldStatusStandings(source)) {
+      notices.push({ id: `held-status:${held.combination_id}`, text: `${held.combination_id}: subtrahend held at the minuend's final support status. ${held.reason}` });
     }
   }
   // D2 4.9.9 UI summary: per-case counts over the registered validated classes (either
   // successor; B3b's exact successor reads pressure-2's rows since B7b D4 (a), so no preview notice above).
+  // A native handle is never registered: a desktop solve never publishes a successor, and a reopened
+  // one (a restored handle) never registers its receipt, so it reads as unvalidated here.
   if (isRetainedRoute(route)) {
-    if (!retainedRowClasses(source)) notices.push({ id: "retained-precision-unvalidated", text: N_RP_UNVALIDATED });
-    for (const c of classificationSummary(source)) {
+    const registered = source as MechanicsResult;
+    if (!retainedRowClasses(registered)) notices.push({ id: "retained-precision-unvalidated", text: N_RP_UNVALIDATED });
+    for (const c of classificationSummary(registered)) {
       if (c.absolute_verified > 0) notices.push({ id: `retained-precision-absolute:${String(c.case_id)}`, text: `${String(c.case_id)}: ${c.absolute_verified} quantities verified only to an absolute bound, below the relative accuracy floor. Each is labelled and shown for inspection; rule checks cannot bind to them.` });
       if (c.not_covered > 0) notices.push({ id: `retained-precision-not-covered:${String(c.case_id)}`, text: `${String(c.case_id)}: ${c.not_covered} quantities uncovered: no verified accuracy for their quantity kind. Each is labelled and shown for inspection; rule checks cannot bind to them.` });
     }
@@ -143,7 +180,7 @@ export function knownSemanticNotices(source: MechanicsResult | null | undefined,
   return notices;
 }
 
-export function previewCombinationGates(source: MechanicsResult): { combination_id: string; withheld: boolean; reason: string | null }[] {
+export function previewCombinationGates(source: MechanicsResult | NativeResult): { combination_id: string; withheld: boolean; reason: string | null }[] {
   const gates = (source.contract_evidence as { combination_gates?: unknown } | undefined)?.combination_gates;
   if (!Array.isArray(gates)) return [];
   return gates.filter((g): g is { combination_id: string; withheld: boolean; reason: string | null } =>
@@ -151,17 +188,25 @@ export function previewCombinationGates(source: MechanicsResult): { combination_
     && typeof (g as { withheld?: unknown }).withheld === "boolean");
 }
 
+/** The along-direction row's label: its derivation when the row is unsigned, selected or
+ * bounded (`derivedRowNote`), else the signed statement. */
+function alongDirectionLabel(row: Partial<Pick<MechanicsResult["results"][number], "metadata" | "basis_ref">>): string {
+  const note = derivedRowNote(row);
+  return note === null ? N_ALONG_DIRECTION : alongDirectionDerivedLabel(note);
+}
+
 /** Row-level label for a listed row of a new kind; null for other rows. A
  * successor row also carries its validated class label (D2 4.9.9: never unlabelled).
  * `recordedTableRead` as for `knownSemanticNotices`. */
-export function resultRowLabel(row: Pick<MechanicsResult["results"][number], "kind"> & Partial<Pick<MechanicsResult["results"][number], "id" | "unit">>, source: MechanicsResult | null | undefined, recordedTableRead?: ContractBinding | null): string | null {
+export function resultRowLabel(row: Pick<MechanicsResult["results"][number], "kind"> & Partial<Pick<MechanicsResult["results"][number], "id" | "unit" | "metadata" | "basis_ref">>, source: MechanicsResult | null | undefined, recordedTableRead?: ContractBinding | null): string | null {
   if (!source) return null;
   let route: ReturnType<typeof displayRoute>;
   try { route = displayRoute(source, recordedTableRead); } catch { return null; }
   if (route !== "preview_physics" && !isRetainedRoute(route)) return null;
   // B3b: the exact successor's rows are pressure-2's (B7b D4 (a)), which carry no preview kind label;
   // its rows carry their validated class label only.
-  const kindLabel = route === "retained_physics" ? null : row.kind === PREVIEW_INTENSIFIED_KIND ? N_INTENSIFIED : row.kind === PREVIEW_MAXIMUM_KIND ? N_HEADLINE : null;
+  const kindLabel = route === "retained_physics" ? null : row.kind === PREVIEW_INTENSIFIED_KIND ? N_INTENSIFIED : row.kind === PREVIEW_MAXIMUM_KIND ? N_HEADLINE
+    : row.kind === PREVIEW_ALONG_DIRECTION_KIND ? alongDirectionLabel(row) : null;
   // Only a registered successor has validated classes; any other source has none.
   const classLabel = retainedRowClassLabel(row, source);
   return classLabel && kindLabel ? `${classLabel} ${kindLabel}` : classLabel ?? kindLabel;

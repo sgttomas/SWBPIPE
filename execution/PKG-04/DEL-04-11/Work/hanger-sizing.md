@@ -439,6 +439,12 @@ cold position.
   stated in §8.3.
 - **CSV.** The hanger table exports to CSV under DEL-08-04's serializer and coverage
   guard (RT-R6), with the desktop work after PR #59 (increment 3).
+- **[built, 3c] In the desktop.** The table is shown by the 3b panel, mounted with the
+  request form beside the hanger selection. It shows one reply of the native sizing:
+  the document, the reader evidence bound to the document's checked hash, and the library
+  document the request named, so record details pass 3a's library-hash gate. A refused
+  document shows its refusals, and a request that formed no document shows its named
+  failure. The result is not recorded or saved.
 
 ### 8.3 Publication contract, slice 1d-α (Agent 0, P1–P7, 2026-11-02)
 
@@ -1027,8 +1033,160 @@ outcome.
        `record_sha256`; otherwise a named not-shown state. The readers' standings are shown
        only from evidence that carries the document's checked hash; otherwise every standing
        is `not_checked`. It is not a usable desktop feature.
-     - **3b:** the table component and its CSV through DEL-08-04 (after PR #59).
-     - **3c:** the native sizing job and its command.
+     - **3b, built:** the table component and its CSV through DEL-08-04
+       (`features/results/HangerSizingPanel.tsx`, `hangerSizingCsv.ts`), tested on the same
+       fixtures. The panel renders 3a's display model read-only: the basis block, one row
+       per candidate with the exact F_cold and F_C labels, each candidate's details
+       (`<details>`), the solves, the verification standing (a conditional one stated with
+       what it means), the disclosures and the reader standings, or a refused document's
+       refusals and no table. Values are 3a's published SI texts, with nothing rounded,
+       converted or computed. The CSV is kind `hanger-sizing`, with two files:
+       `swbpipe-hanger-sizing.csv` has one row per candidate and operating case, and
+       `swbpipe-hanger-sizing-solves.csv` has one row per solve and nonlinear support. Its
+       numbers are written unrounded under fixed SI header units. Each absent value is a status
+       cell carrying the panel's reason. `result_hash` is the document's checked canonical hash.
+       The panel is not mounted; 3c mounts it.
+     - **3c:** the native sizing job and its command, and mounting the 3b panel.
+       - **Part 1, built:** the crate's native size-and-read entry,
+         `desktop::size_and_read(raw: &[u8])` (`core/analysis/hanger_sizing/src/desktop.rs`).
+         Its input is the raw bytes of exactly the headless input (§8.3.2):
+         - over `MAX_INPUT_BYTES` it is refused before anything else
+           (`HANGER_SIZING_INPUT_TOO_LARGE`);
+         - non-UTF-8 bytes are refused (`HANGER_SIZING_INPUT_NOT_UTF8`).
+
+         Either refusal is a typed error with a code and a message, and forms no
+         document. Otherwise the text is admitted once and goes through the headless
+         pipeline itself, so the document is what `size_hangers` publishes for the same
+         text. The reply is one JSON text:
+         `{"document", "evidence": {"document_sha256", "verdict"}}`.
+         - `document_sha256` is the document's checked canonical hash.
+         - `verdict` is `Verdict::to_json()` of the Rust reader. The reader runs with the
+           same input's `request` and `library` supplied.
+         - Reproduction is skipped explicitly (`ReadOptions::WITHOUT_REPRODUCTION`) and is
+           `not_checked`; `read` and `read_document` still run every standing.
+         - A refused document gets closure and binding only (§8.3.7).
+
+         The reply is written so that every number round-trips, and its byte size is
+         `reply_len()`. Its tests are `tests/desktop.rs`, on the committed corpus inputs.
+       - **Part 2, built:** runs that entry in the desktop's capped worker process as
+         worker task 4, returns its reply to the webview, and mounts the panel with the
+         reader standings bound to the document. Hanger sizing is then usable in the
+         desktop, on PF, and is not recorded (Agent 0's rulings for 3c part 2):
+         - **The path** (`apps/desktop/src-tauri/src/hanger_sizing_job.rs`): the model
+           checks' capped-worker form. `size_hangers` takes `{expectedEpoch, inputText}`
+           as a raw body, where `expectedEpoch` is the request's dispatch ticket (below) and
+           `inputText` is the headless input's JSON text, and replies the entry's reply
+           text. There is no job record, held-result registry, custody,
+           persistence or analysis-run record.
+         - **Task 4** (`solve_worker.rs`): appended after the MBF render's 3; codes 0 to 3
+           are unchanged and unknown codes are refused. It attests nothing (`ATST` status
+           0), and a `SizeAndReadError` is the worker's `FAIL` with its code and message.
+         - **The reply limit:** 64 MiB (`MAX_DISPLAYABLE_RESULT_BYTES`) on the complete
+           reply, checked on the announced length before the result lease is admitted or
+           any byte is read. A longer reply ends `HANGER-SIZING-REPLY-TOO-LARGE`, with the
+           worker reaped. A larger result would need a custody proposal of its own.
+         - **Accounting:** the argument, worker and result leases count in one command
+           ledger under the captured invocation budget, as the MBF export's task 3 does:
+           raw admission before any model-sized decoding, one ledger bound for the request
+           copy, the grant's maximum and the largest result lease, a start wait of the
+           model checks' 2 s, the grant held until the worker is reaped, and the result
+           lease held while the response is built.
+         - **Retirement and the dispatch ticket** (MBF's reviewed design, applied to the
+           sizing's own slot; repair of the 3c part 2 review). The host keeps a retirement
+           epoch. A retirement moves it on by one (checked arithmetic) and retires the
+           current run, queued or running (its worker is killed and reaped, and it replies
+           `HANGER-SIZING-CANCELLED`), and every start not yet registered. The retirements
+           are `cancel_hanger_sizing {retirementId}`, which replies the epoch after its
+           bump, and the session reset (`dispose_all_results`), which also cancels the model
+           check. The webview sends a retirement before every start (so a newer request
+           retires the one in progress), when the person cancels, and when the form's
+           project session ends (its unmount or a project change). It also sends one when
+           the form mounts, whether or not the page has sized before, so a ticket issued
+           before the mount (a pending start of an earlier session or page) can no longer
+           register; nothing is sized at mount. As for the MBF export's mount retirement,
+           each page load's first retirement uses one of the 64 page tokens (below).
+           - *The ticket.* Every start carries `expectedEpoch`: the epoch its own
+             retirement's reply acknowledged, taken before the start is sent, never an
+             epoch read when the command's task happens to run. The webview awaits that
+             reply, then re-checks its request generation and the form's session after the
+             await and immediately before every send; a start that is no longer current
+             sends nothing. A retirement that is not acknowledged (the invoke failed, or the
+             reply names another id or carries no usable epoch) authorizes nothing: the
+             start is not sent and the form shows `HANGER-SIZING-RETIREMENT-UNCONFIRMED`
+             (or `HANGER-SIZING-EXHAUSTED`).
+           - *Two checks.* The host checks the ticket on the admitted arguments before the
+             input is read or any worker starts, and again when the run registers, under the
+             lock every retirement takes. A missing, malformed or future ticket is refused
+             `HANGER-SIZING-TICKET-INVALID`. A ticket a retirement has passed is refused
+             `HANGER-SIZING-REQUEST-STALE`, as is a second delivery under the ticket of the
+             run in progress; a registration never replaces the current run. A refused
+             start starts no worker, replaces and cancels nothing, and writes nothing. So a
+             start delayed anywhere between its send and its registration cannot become
+             current after a later retirement, nor replace or cancel the run that the later
+             retirement made room for. Once the run under a ticket has ended, a later
+             delivery under it registers: the webview re-sends the same start after a
+             `headroom_insufficient` refusal.
+           - *Idempotent retirement.* Each logical retirement carries `{page, sequence}`,
+             a random token per page load and a sequence that rises in that page. The host
+             applies an id once; a repeated or older delivery is a no-op that replies
+             `duplicate` with the current epoch. Applied page tokens are never evicted: at
+             most 64 are kept, and a retirement from a 65th token cancels the current run
+             and makes the sizing exhausted instead of evicting one, whose late replay
+             would otherwise be applied again.
+           - *Exhaustion* (until the application restarts): a retirement at the epoch
+             2^53 - 1 (every ticket stays a safe JavaScript integer) or from a 65th page
+             token. The epoch moves on no more, and every start is refused
+             `HANGER-SIZING-EXHAUSTED`.
+           - *The transports.* `size_hangers` takes only a raw body. Tauri 2.11.1's IPC
+             script resends an invoke through `postMessage` when its custom-protocol
+             `fetch` fails, without cancelling the first delivery, and that fallback
+             serializes a raw `Uint8Array` as a JSON array of numbers, which `size_hangers`
+             refuses (`INGRESS-RAW-BODY-REQUIRED`). So a custom-protocol failure after the
+             host received the start shows the page the fallback's ingress refusal while the
+             first delivery's worker keeps running, until the next retirement (the next
+             start's, the person's cancel, the form's unmount or the session reset) stops
+             it. `cancel_hanger_sizing` is sent as Tauri's JSON arguments, which reach the
+             host on both transports, so the keyed retirement still stops that worker. No
+             fallback safety is claimed beyond this: Tauri keeps the fallback for the rest of
+             the page once one `fetch` fails, so every later start of that page is refused,
+             never run, until the page is reloaded.
+           - *Residual.* Page tokens are not ordered against each other. The first delivery
+             of another page's retirement (an old page's cancel or start retirement
+             delivered late, after a reload), or a late session reset (sent once, when the
+             webview's session starts), still applies, and so cancels the current page's run
+             (`HANGER-SIZING-CANCELLED`) or refuses its start in flight
+             (`HANGER-SIZING-REQUEST-STALE`); the person sizes again. It cannot start anything, since the epoch it makes is
+             acknowledged only to the page that sent it. General cross-page ordering is not
+             solved. Ids and tickets are not authenticated and authorize nothing.
+
+           The webview's generation guard (`services/hangerSizingService.ts`) never shows a
+           reply that a newer request or a retirement has passed. Per-solve progress (§10)
+           is not built.
+         - **The form** (`features/hanger-sizing/`) has no pre-set choice in a new project
+           and pre-fills nothing (no value is kept between sessions yet). It sends the
+           session model with `materials: []`, as the desktop solve does, and the stored
+           library document chosen through `openLocalLibrary`.
+         - **Tests:** Rust (`hanger_sizing_job_tests.rs`): the committed two-span input
+           through the command and a real worker, whose reply is pinned as
+           `fixtures/results/hanger_sizing_reply_two_span.json`; the reply limit's
+           boundary; admission and ledger refusals, a JSON body included (what the
+           fallback makes of a raw one); a newer request's retirement of a queued or
+           running run, which then replies `HANGER-SIZING-CANCELLED` while the newer one
+           completes with its own reply (the tests do not show that two deliveries of one
+           start reply the same bytes); the delayed-registration race (a start paused
+           after its entry, then the reset and another page's retirement, then that page's
+           start running: the paused start is refused stale, starts no worker, and the
+           other run completes); missing, malformed, future and stale tickets and a second
+           delivery under a running ticket, each refused before any worker; duplicate and
+           older retirements; exhaustion by the epoch and by page tokens, with no token
+           evicted or re-admitted; and the reset. Vitest (`invoke` mocked, so they show what
+           the page sends and when, not what Tauri's transport delivers): each start awaits
+           its retirement and carries the acknowledged epoch; a session end, a newer
+           request or a retirement during that await sends nothing; an unconfirmed
+           retirement sends nothing and the form shows its refusal; the form, the library
+           race (a late open of an earlier selection, success or failure, before or after
+           the selected one completes, never replaces it) and the App mount, with that
+           reply shown by the panel with its standings bound.
   4. EX derived solves (the ledger entry of §4.1) and the reference system, R-7. This
      needs RT-A3 increments 3 and 4 for the reference system's non-candidate families.
   5. The user guide and theory notes (RT-V4), and any standing refusal entered in

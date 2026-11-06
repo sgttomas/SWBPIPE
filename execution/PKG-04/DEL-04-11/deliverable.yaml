@@ -95,7 +95,9 @@ needs:
 - from: DEL-07-07
   condition: >-
     A sizing run reports progress per derived solve and is cancellable between solves under the solve
-    execution job contract; a cancelled run publishes nothing.
+    execution job contract; a cancelled run publishes nothing. Increment 3c part 2 runs a desktop sizing
+    as one capped-worker request (worker task 4) with no job record: it is cancelled at any point by
+    stopping its worker and publishes nothing, and it reports no per-solve progress yet.
   gating: false
 - from: DEL-08-01
   condition: >-
@@ -123,6 +125,12 @@ code_paths:
 - validation/references/hanger_sizing/**
 - apps/desktop/src/features/results/HangerSizing*
 - apps/desktop/src/features/results/hangerSizing*
+# Increment 3c part 2: the native sizing job and command, the request form and the mount's test.
+- apps/desktop/src-tauri/src/hanger_sizing_job.rs
+- apps/desktop/src-tauri/src/hanger_sizing_job_tests.rs
+- apps/desktop/src/services/hangerSizingService*
+- apps/desktop/src/features/hanger-sizing/**
+- apps/desktop/src/App.hangerSizing.test.tsx
 # Checks: the crate's cargo tests run in hosted piping-numerical, which discovers the crate; no local
 # registration is needed for slice 1a. Later increments register checks where a local selector needs them.
 checks: []

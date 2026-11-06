@@ -1,3 +1,4 @@
+import { resultRowCount, resultUnits, runResultHashCount, type SessionAnalysisRun, type SessionResult } from "../../services/nativeResult";
 import { Download, FileWarning } from "lucide-react";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
@@ -10,8 +11,8 @@ export function ReportLintPanel({
   analysisRun
 }: {
   model: PreviewModel;
-  result: MechanicsResult | null;
-  analysisRun: AnalysisRunEnvelope | null;
+  result: SessionResult | null;
+  analysisRun: SessionAnalysisRun | null;
 }) {
   const packet = buildReportLintPacket({ model, result, analysisRun });
 
@@ -93,8 +94,8 @@ function buildReportLintPacket({
   analysisRun
 }: {
   model: PreviewModel;
-  result: MechanicsResult | null;
-  analysisRun: AnalysisRunEnvelope | null;
+  result: SessionResult | null;
+  analysisRun: SessionAnalysisRun | null;
 }) {
   const targets = lintTargets({ model, result, analysisRun });
   const findings = lintFindings(targets);
@@ -415,12 +416,9 @@ const UNIT_POLICY_SURFACE_MARKERS = [
     "pcf-export-conversion-witnesses",
     "PCF target-format conversion witness visibility"
   ),
-  unitPolicySurface(
-    "apps/desktop/src/features/caepipe-mbf/CaepipeMbfExportPanel.tsx",
-    "caepipe-mbf-units",
-    "caepipe-mbf-conversion-witnesses",
-    "model batch file (.mbf) target-format conversion witness visibility"
-  ),
+  // The model batch file (.mbf) export's public template and conversion-witness surface are retired with its
+  // TypeScript preview package (DEL-17-04 slice 4b.2b, A-6): the native export writes local-private model files, which
+  // are not a public report surface.
   unitPolicySurface(
     "apps/desktop/src/features/caepipe-external/CaepipeExternalHarnessPanel.tsx",
     "caepipe-external-units",
@@ -512,8 +510,8 @@ function lintTargets({
   analysisRun
 }: {
   model: PreviewModel;
-  result: MechanicsResult | null;
-  analysisRun: AnalysisRunEnvelope | null;
+  result: SessionResult | null;
+  analysisRun: SessionAnalysisRun | null;
 }): LintTargetDraft[] {
   const targets = [
     target(
@@ -797,13 +795,6 @@ function lintTargets({
       "Conservative PCF export template records ASCII PCF preview text, stable ID sidecar, mandatory loss report, private payload false, protected payload false, target profile TBD, no target-compatibility claim; handoff evidence for external validation, not a validation outcome."
     ),
     target(
-      "target:desktop-caepipe-mbf-export-template",
-      "apps/desktop/src/features/caepipe-mbf/CaepipeMbfExportPanel.tsx",
-      "public_report_template",
-      "public_metadata",
-      "Model batch file (.mbf) export template records invented ASCII MBF preview text, sidecar stable IDs, mandatory loss report, carried target-version and record-subset TBDs, private payload false, protected payload false, external invocation false, no target-compatibility claim; handoff evidence for external validation, not a validation outcome."
-    ),
-    target(
       "target:desktop-caepipe-external-template",
       "apps/desktop/src/features/caepipe-external/CaepipeExternalHarnessPanel.tsx",
       "public_report_template",
@@ -847,7 +838,7 @@ function lintTargets({
         `openpipestress-preview-report-${safeFileToken(result.run_id)}.json`,
         "public_report_example",
         "public_metadata",
-        `${result.model_ref}; ${analysisRun.analysis_run.run_id}; ${result.results.length} result refs; private rule payloads redacted`
+        `${result.model_ref}; ${analysisRun.analysis_run.run_id}; ${resultRowCount(result)} result refs; private rule payloads redacted`
       )
     );
   }

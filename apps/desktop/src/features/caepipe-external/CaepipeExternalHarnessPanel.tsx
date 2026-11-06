@@ -1,3 +1,4 @@
+import type { SessionAnalysisRun, SessionResult } from "../../services/nativeResult";
 import { Download, FileOutput } from "lucide-react";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
@@ -26,6 +27,13 @@ const HASH_STATUS_TBD = "TBD_browser_preview_does_not_emit_canonical_package_has
 const SCHEMA_VALIDATION_STATUS = "desktop_preview_shape_aligned_not_runtime_json_schema_validated";
 const INVOCATION_PROFILE_TBD = "TBD-17-05-invocation-profile";
 const CONFIGURATION_SURFACE_TBD = "TBD-17-05-PH-001";
+// The MBF package this record names is DEL-17-04's retired browser preview package (slice 4b.2b removed its builder
+// and its download; the native File > Export MBF… writes no package). The reference and the preview's input name keep
+// their historical spelling, so the record still binds to a DEL-17-04 package reference (DEL-17-05-REQ-016), but the
+// input is not available: the binding check does not pass, and the input path says so.
+const MBF_PACKAGE_AVAILABILITY = "historical_retired_preview_package_not_available";
+const MBF_INPUT_NOT_AVAILABLE = "not_available";
+const HISTORICAL_INPUT_MBF_PATH = "download:openpipestress-preview-mbf-package.json";
 
 export function CaepipeExternalHarnessPanel({
   model,
@@ -33,8 +41,8 @@ export function CaepipeExternalHarnessPanel({
   analysisRun
 }: {
   model: PreviewModel;
-  result: MechanicsResult | null;
-  analysisRun: AnalysisRunEnvelope | null;
+  result: SessionResult | null;
+  analysisRun: SessionAnalysisRun | null;
 }) {
   const packet = buildCaePipeExternalHarnessPacket({ model, result, analysisRun });
 
@@ -83,7 +91,7 @@ export function CaepipeExternalHarnessPanel({
         />
         <CaePipeExternalLine
           label="State binding"
-          value={`${mbfPackageDisplayRef(packet.mbf_package_ref.ref)}; ${packet.model_state_ref.ref}; ${packet.analysis_run_ref.ref}`}
+          value={`${mbfPackageDisplayRef(packet.mbf_package_ref.ref)} (historical; not available); ${packet.model_state_ref.ref}; ${packet.analysis_run_ref.ref}`}
           testId="caepipe-external-state-binding"
         />
         <CaePipeExternalLine
@@ -107,7 +115,7 @@ export function CaepipeExternalHarnessPanel({
         />
         <CaePipeExternalLine
           label="Run directory"
-          value={`working=${packet.run_directory.working_directory}; expected_csv=${packet.run_directory.expected_csv_path}; discovery=${packet.run_directory.output_discovery_status}`}
+          value={`working=${packet.run_directory.working_directory}; input_mbf=${packet.run_directory.input_mbf_path}; expected_csv=${packet.run_directory.expected_csv_path}; discovery=${packet.run_directory.output_discovery_status}`}
           testId="caepipe-external-run-directory"
         />
         <CaePipeExternalLine
@@ -145,8 +153,8 @@ function buildCaePipeExternalHarnessPacket({
   analysisRun
 }: {
   model: PreviewModel;
-  result: MechanicsResult | null;
-  analysisRun: AnalysisRunEnvelope | null;
+  result: SessionResult | null;
+  analysisRun: SessionAnalysisRun | null;
 }) {
   const run = analysisRun?.analysis_run;
   const modelStateRef = run?.model_state_ref ?? reference("ModelState", "state:TBD");
@@ -168,7 +176,7 @@ function buildCaePipeExternalHarnessPacket({
     sourceLocation: "apps/desktop/src/features/caepipe-external/CaepipeExternalHarnessPanel.tsx"
   });
   const unitPreservationWitnesses = caepipeExternalUnitPreservationWitnesses(parsedCsv.rows);
-  const diagnostics = caepipeExternalDiagnostics({ parsedCsv });
+  const diagnostics = caepipeExternalDiagnostics({ parsedCsv, mbfPackageRef });
 
   return {
     schema_version: CAEPIPE_EXTERNAL_VERSION,
@@ -181,6 +189,11 @@ function buildCaePipeExternalHarnessPacket({
     run_id: runId,
     package_status: "parser_only_evidence",
     mbf_package_ref: mbfPackageRef,
+    mbf_package_status: {
+      availability: MBF_PACKAGE_AVAILABILITY,
+      historical_input_mbf_path: HISTORICAL_INPUT_MBF_PATH,
+      note: "The referenced DEL-17-04 MBF package is the retired browser preview package; it is no longer produced, so this record names it only historically."
+    },
     source_model_ref: reference("Model", model.project.id),
     model_state_ref: modelStateRef,
     analysis_run_ref: analysisRunRef,
@@ -201,7 +214,7 @@ function buildCaePipeExternalHarnessPacket({
     run_directory: {
       run_directory_ref: `fixture:desktop-caepipe-external:${safeFileToken(model.project.id)}`,
       working_directory: "apps/desktop/browser-preview",
-      input_mbf_path: "download:openpipestress-preview-mbf-package.json",
+      input_mbf_path: MBF_INPUT_NOT_AVAILABLE,
       expected_csv_path: "openpipestress-preview-external-run-results.csv",
       observed_csv_path: "openpipestress-preview-external-run-results.csv",
       output_discovery_status: "fixture_generated_browser_preview"
@@ -229,7 +242,8 @@ function buildCaePipeExternalHarnessPacket({
       checks: [
         check("external_execution_not_attempted", true),
         check("executable_configuration_absent", true),
-        check("mbf_package_bound_to_del_17_04", mbfPackageRef.ref.includes("del-17-04")),
+        // A DEL-17-04 reference, but to a package no longer produced: not a passing binding.
+        historicalCheck("mbf_package_bound_to_del_17_04", mbfPackageRef.ref.includes("del-17-04")),
         check("parser_rows_present", parsedCsv.row_count > 0),
         check("parser_rows_canonical_id_mapped", parsedCsv.rows.every((row) => row.correlation_status === "canonical_id_map")),
         check("unit_preservation_witness_per_parser_row", unitPreservationWitnesses.length === parsedCsv.rows.length),
@@ -370,9 +384,18 @@ function parserCoverage() {
   ];
 }
 
-function caepipeExternalDiagnostics({ parsedCsv }: { parsedCsv: ReturnType<typeof parsedCsvPackage> }) {
+function caepipeExternalDiagnostics({ parsedCsv, mbfPackageRef }: { parsedCsv: ReturnType<typeof parsedCsvPackage>; mbfPackageRef: CaePipeExternalReference }) {
+  const mbfInputRetired = {
+    code: "CAEPIPE-EXTERNAL-MBF-INPUT-NOT-AVAILABLE",
+    severity: "warning",
+    class: "MBF_INPUT_NOT_AVAILABLE",
+    message: "The MBF package this record names is the retired DEL-17-04 browser preview package, which is no longer produced; the input is named only historically.",
+    remediation: "Bind external-run evidence to an MBF the desktop's native export writes before using it as run input.",
+    affected_refs: [mbfPackageRef],
+    provenance: previewProvenance()
+  };
   if (parsedCsv.row_count === 0) {
-    return [
+    return [mbfInputRetired,
       {
         code: "CAEPIPE-EXTERNAL-PARSER-NO-ROWS",
         severity: "blocking",
@@ -384,7 +407,7 @@ function caepipeExternalDiagnostics({ parsedCsv }: { parsedCsv: ReturnType<typeo
       }
     ];
   }
-  return [];
+  return [mbfInputRetired];
 }
 
 function caepipeExternalUnitPreservationWitnesses(rows: CaePipeExternalCsvRow[]) {
@@ -444,6 +467,16 @@ function check(checkId: string, passed: boolean) {
   return {
     check_id: checkId,
     status: passed ? "pass" : "fail",
+    provenance: previewProvenance()
+  };
+}
+
+/** A check over a historical reference: `historical_reference_not_available` when the reference is a DEL-17-04 one
+ * (the input it names is not available), else `fail`. Never `pass`. */
+function historicalCheck(checkId: string, referenced: boolean) {
+  return {
+    check_id: checkId,
+    status: referenced ? "historical_reference_not_available" : "fail",
     provenance: previewProvenance()
   };
 }

@@ -230,6 +230,35 @@ code_paths:
 - apps/desktop/src-tauri/src/solve_jobs.rs
 - apps/desktop/src-tauri/src/solve_worker.rs
 - apps/desktop/src-tauri/src/result_text_digest.rs
+- apps/desktop/src-tauri/src/native_verdict.rs
+# C1 slice 2 (DEL-04-05 c1-native-custody-plan.md): S, the native summary of a held result, and its reader (no panel reads it before slice 4).
+- apps/desktop/src-tauri/src/result_summary.rs
+- apps/desktop/src-tauri/src/result_summary_tables.rs
+- apps/desktop/src-tauri/src/result_planes.rs
+- apps/desktop/src/services/resultSummary.ts
+- apps/desktop/src/test-support/resultSummaryCases.ts
+# C1 slice 3: the paged detail of a held result (rows, lookups, batched semantics, recorded recovery facts) and its webview reader (nothing calls it before slice 4).
+- apps/desktop/src-tauri/src/result_detail.rs
+- apps/desktop/src/services/resultDetail.ts
+- apps/desktop/src/test-support/resultDetailCases.ts
+- apps/desktop/src/test-support/resultDetailEmulation.ts
+# C1 slice 5's builder: the native v0.3 analysis-run record and preview header of a held result; the
+# persistence commands below write its stored forms (its recorded revision included).
+- apps/desktop/src-tauri/src/analysis_run_v03_build.rs
+- apps/desktop/src/services/analysisRunPreview.ts
+- apps/desktop/src/test-support/analysisRunV03Cases.ts
+- apps/desktop/src/test-support/analysis-run-v03/analysis_run_v03_cases.json
+# C1 slice 4 (connected increment): a fresh solve's result held natively (custody mode), the guarded
+# native handle and its access layer, the C2 interim gate, the native results panel, and the native
+# replay whose replies come from the actual commands.
+- apps/desktop/src/services/nativeResult.ts
+- apps/desktop/src/features/results/C2ResultGate.tsx
+- apps/desktop/src/features/results/NativeResultsPanel.tsx
+- apps/desktop/src/features/results/useNativeRowKey.ts
+- apps/desktop/src/test/nativeReplayStore.ts
+- apps/desktop/scripts/native-replay-merge.mjs
+- apps/desktop/src/test-support/native-replay/native_replay_requests.json
+- apps/desktop/src/test-support/native-replay/native_replay_outcomes.json
 - apps/desktop/src/services/previewService.ts
 - apps/desktop/src/services/memoryPool.ts
 - apps/desktop/src/features/workspace/solveJobAudit.ts
@@ -239,6 +268,33 @@ code_paths:
 - apps/desktop/src/services/solveTimeline.ts
 - apps/desktop/src/services/solveTimelineCodes.ts
 - apps/desktop/scripts/solveTimelineCodes.mjs
+# C1 slice 4's navigator and streamed group CSV: the navigator's entity axis is a detail command
+# (result_detail.rs, above); the CSV stream commands are bound to the held job they began on and end
+# with its disposal or the session reset.
+- apps/desktop/src-tauri/src/native_csv_stream.rs
+# C1 slice 5's persistence: Record Run and Save/Create Project of a native-custody solve from its job
+# handle (record_preview_mechanics_job_analysis_run, save_preview_mechanics_job_local_project), the
+# writing connection's exact SQLite length limit, and the session tests' actual replies and unit fake.
+- apps/desktop/src-tauri/src/native_persistence.rs
+- apps/desktop/src/services/nativePersistence.ts
+- apps/desktop/src/test/nativePersistenceFake.ts
+- apps/desktop/src/test/nativePersistenceReplay.ts
+- apps/desktop/src/test-support/native-replay/native_persistence_replies.json
+# C1 slice 6: saved and recorded runs reopen into native custody (open_local_project_in_native_custody,
+# read_analysis_run_in_native_custody, read_restored_result_record_all): a restored handle of stored
+# origin, its historical findings computed natively, the session's and history's native reopen, and
+# the actual commands' replies and the oracle corpus.
+- apps/desktop/src-tauri/src/stored_custody.rs
+- apps/desktop/src-tauri/src/analysis_run_v03_validate.rs
+# C1 slice 6's save continuity: Save/Create Project of a reopened saved run from its restored handle
+# (save_restored_result_local_project), stored as the legacy session stored it, never a solve's authority.
+- apps/desktop/src-tauri/src/stored_save.rs
+- apps/desktop/src/services/nativeReopen.ts
+- apps/desktop/src/test/nativeReopenEmulation.ts
+- apps/desktop/src/test-support/historicalReopenCases.ts
+- apps/desktop/src/test-support/native-reopen/historical_reopen_cases.json
+- apps/desktop/src/test-support/native-reopen/native_reopen_requests.json
+- apps/desktop/src/test-support/native-reopen/native_reopen_replies.json
 checks:
 - apps/desktop/src/features/solve/SolvePanel.test.tsx
 - apps/desktop/src/features/solve/SolveProgressPanel.test.tsx
@@ -252,6 +308,27 @@ checks:
 - apps/desktop/src-tauri/src/solve_jobs.rs
 - apps/desktop/src-tauri/src/solve_worker.rs
 - apps/desktop/src-tauri/src/result_text_digest.rs
+- apps/desktop/src-tauri/src/native_verdict_tests.rs
+- apps/desktop/src-tauri/src/result_summary_tests.rs
+- apps/desktop/src/features/results/resultSummaryParity.test.ts
+- apps/desktop/src-tauri/src/result_detail_tests.rs
+- apps/desktop/src/features/results/resultDetailParity.test.ts
+- apps/desktop/src-tauri/src/analysis_run_v03_build_tests.rs
+- apps/desktop/src/services/analysisRunV03Parity.test.ts
+- apps/desktop/src-tauri/src/native_replay_tests.rs
+- apps/desktop/src/services/nativeResult.connect.test.ts
+- apps/desktop/src/App.nativeCustody.test.tsx
+- apps/desktop/src/features/knowledge/KnowledgePanel.native.test.tsx
+- apps/desktop/src/features/results/NativeResultsPanel.native.test.tsx
+- apps/desktop/src/features/results/C2ResultGate.test.tsx
+- apps/desktop/src-tauri/src/native_csv_stream_tests.rs
+- apps/desktop/src-tauri/src/native_persistence_tests.rs
+- apps/desktop/src/services/nativePersistence.test.ts
+- apps/desktop/src/features/history/recordRun.session.test.tsx
+- apps/desktop/src-tauri/src/stored_custody_tests.rs
+- apps/desktop/src-tauri/src/stored_save_tests.rs
+- apps/desktop/src/services/historicalReopenParity.test.ts
+- apps/desktop/src/features/workspace/nativeReopen.session.test.tsx
 - tests/test_solve_execution_ux.py
 - apps/desktop/src-tauri/src/native_smoke_inject.rs
 - apps/desktop/src-tauri/src/native_smoke_reach_scan_tests.rs

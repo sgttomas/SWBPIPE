@@ -1,5 +1,6 @@
 import type { EntityRef, PreviewComponent, PreviewModel } from "../../types";
 import { combinationTermsText } from "../load-cases/combinationOperands";
+import { STORED_DIRECTION_NOTE, storedDirectionText } from "../support-configuration/supportDirection";
 
 export function defaultSelection(model: PreviewModel): EntityRef {
   return { type: "project", id: model.project.id };
@@ -113,6 +114,9 @@ function selectedPropertyValues(model: PreviewModel, selection: EntityRef): Arra
       ["Family", support.family ?? "TBD"],
       ["Restraints", support.restraints.join(", ")]
     ];
+    // R-6/R-7 S-K1: a stored direction, exactly as stored and read-only.
+    const direction = storedDirectionText(support);
+    if (direction !== null) rows.push([`Direction (x, y, z) — ${STORED_DIRECTION_NOTE}`, direction]);
     // Keep the selected record's DOF with its quantity; the unit alone does
     // not establish whether the entered stiffness is linear or rotational.
     const stiffness = support.stiffness?.value ? support.stiffness : support.hanger?.stiffness;

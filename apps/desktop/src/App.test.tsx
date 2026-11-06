@@ -6,7 +6,8 @@ import refusedPreviewModel from "../../../fixtures/product_preview/invented_prev
 import refusedPreviewSparse from "../../../fixtures/product_preview/invented_mechanics_result_preview_physics_1_sparse.json";
 import { PREVIEW_PHYSICS_CONTRACT_ID } from "./features/results/numericalResultQuality";
 import { PREVIEW_PHYSICS_CONTRACT_SHA256 } from "./test-support/contractBindings";
-import { createNativeMechanicsReplay, nativeMechanicsReplayPair, REPLAY_RESOURCE_GRANT, resultArrayBuffer, solveBytes } from "./test/nativeMechanicsReplay";
+import { createNativeMechanicsReplay, createSolveJobTransport, nativeMechanicsReplayPair, REPLAY_COMMANDS, REPLAY_RESOURCE_GRANT, resultArrayBuffer, solveBytes } from "./test/nativeMechanicsReplay";
+import { createNativePersistenceFake, isNativePersistenceCommand } from "./test/nativePersistenceFake";
 import { DisplayUnitsProvider, DisplayUnitSelector } from "./features/display-units";
 import { ComparisonPanel } from "./features/comparison/ComparisonPanel";
 import { analysisRowSemantics, buildAnalysisRunV03, modelLoadBasisRefs } from "./services/analysisRunCompatibility";
@@ -236,10 +237,10 @@ async function installPreviewReplay() {
     if (command === "get_local_storage_capability") return Promise.resolve(storage);
     if (command === "load_design_knowledge") return Promise.resolve(knowledge);
     if (command === "sync_native_shell_state") return Promise.resolve(null);
-    if (["load_preview_model", "start_preview_mechanics_job", "poll_preview_mechanics_job", "take_preview_mechanics_job_result", "dispose_preview_mechanics_result", "cancel_preview_mechanics_job"].includes(command)) return mechanics.invoke(command, args, options);
+    if (REPLAY_COMMANDS.includes(command)) return mechanics.invoke(command, args, options);
     return Promise.reject(new Error(`NATIVE_APP_REPLAY_COMMAND_UNSUPPORTED: ${command}`));
   };
-  const replay = { invoke, notice: mechanics.notice };
+  const replay = { invoke, notice: mechanics.notice, heldBytes: mechanics.heldBytes, heldIntake: mechanics.heldIntake };
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
   invokeMock.mockImplementation(replay.invoke);
   return { ...pair, replay };
@@ -306,6 +307,11 @@ function comparisonWorkspace() {
 
 function renderedReportButton() {
   return within(openWorkspaceSection("report")).getByTestId("rendered-report-render");
+}
+/** The rendered report's button once the report section has read a native result's C2 full copy
+ * (C1: the report reads full rows, loaded when its section opens). */
+function renderedReportButtonReady() {
+  return within(openWorkspaceSection("report")).findByTestId("rendered-report-render");
 }
 
 function treeRow(type: string, id: string) {
@@ -635,7 +641,8 @@ describe("SWBPIPE desktop preview", () => {
     const packet = JSON.parse(decodeURIComponent(href.split(",", 2)[1]));
     expect(packet.summary.persisted_mechanics_result_count).toBe(0);
     expect(packet.summary.persisted_analysis_run_count).toBe(0);
-    expect(invokeMock).not.toHaveBeenCalled();
+    // Nothing reached the native host but the session retirement's MBF export cancel (DEL-17-04 §3.7).
+    expect(invokeMock.mock.calls.filter(([command]) => command !== "cancel_mbf_export")).toEqual([]);
   });
 
   it("rejects overlap and invalidates an active generation before model commit", () => {
@@ -693,7 +700,7 @@ describe("SWBPIPE desktop preview", () => {
       expect(invokeMock).toHaveBeenCalledWith(
         "start_preview_mechanics_job",
         expect.any(Object),
-        { headers: { "x-swbpipe-solver-mode": "sparse_interactive" } },
+        { headers: { "x-swbpipe-solver-mode": "sparse_interactive", "x-swbpipe-result-custody": "native" } },
       ),
     );
     await act(async () => {
@@ -764,7 +771,7 @@ describe("SWBPIPE desktop preview", () => {
         expect(invokeMock).toHaveBeenCalledWith(
           "start_preview_mechanics_job",
           expect.any(Object),
-          { headers: { "x-swbpipe-solver-mode": "sparse_interactive" } },
+          { headers: { "x-swbpipe-solver-mode": "sparse_interactive", "x-swbpipe-result-custody": "native" } },
         ),
       );
       await act(async () => {
@@ -844,7 +851,7 @@ describe("SWBPIPE desktop preview", () => {
       expect(invokeMock).toHaveBeenCalledWith(
         "start_preview_mechanics_job",
         expect.any(Object),
-        { headers: { "x-swbpipe-solver-mode": "sparse_interactive" } },
+        { headers: { "x-swbpipe-solver-mode": "sparse_interactive", "x-swbpipe-result-custody": "native" } },
       ),
     );
     act(() => nativeMenuCommand("analyze.cancel"));
@@ -912,7 +919,7 @@ describe("SWBPIPE desktop preview", () => {
       expect(invokeMock).toHaveBeenCalledWith(
         "start_preview_mechanics_job",
         expect.any(Object),
-        { headers: { "x-swbpipe-solver-mode": "sparse_interactive" } },
+        { headers: { "x-swbpipe-solver-mode": "sparse_interactive", "x-swbpipe-result-custody": "native" } },
       ),
     );
     act(() => nativeMenuCommand("analyze.cancel"));
@@ -1983,185 +1990,26 @@ describe("SWBPIPE desktop preview", () => {
     expect(pcfPacket.solver_validation_claim).toBe("[REDACTED]");
     expect(pcfPacket.code_compliance_claim).toBe("[REDACTED]");
     expect(pcfPacket.professional_reliance_claim).toBe("[REDACTED]");
+    // DEL-17-04 slice 4b.2b: the Model batch file panel's one action opens the mounted Export MBF… dialog. The
+    // TypeScript preview builder, its package and MBF text links and its summary are retired (A-6). In the browser
+    // preview the review declines with MBF-REVIEW-NATIVE-ONLY before anything reaches the native export, and Save
+    // stays disabled; closing the dialog returns to the workspace.
     const caepipeMbfExport = await screen.findByLabelText("Model batch file (.mbf) export");
     expect(within(caepipeMbfExport).getByText("Model batch file (.mbf)")).toBeInTheDocument();
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-summary").textContent,
-    ).toContain("available");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-summary").textContent,
-    ).toContain("nodes=5");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-summary").textContent,
-    ).toContain("pipes=4");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-summary").textContent,
-    ).toContain("supports=7");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-summary").textContent,
-    ).toContain("validation=boundary_checked");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-profile").textContent,
-    ).toContain("target_version=TBD-17-01-001");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-profile").textContent,
-    ).toContain("subset=TBD-17-01-002");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-state-binding")
-        .textContent,
-    ).toContain("not generated");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-state-binding")
-        .textContent,
-    ).toContain("state:TBD");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-coverage").textContent,
-    ).toContain("nodes");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-coverage").textContent,
-    ).toContain("direct_stable_id");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-units").textContent,
-    ).toContain("source=angle=rad");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-units").textContent,
-    ).toContain("length=m");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-units").textContent,
-    ).toContain("target=force=N");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-units").textContent,
-    ).toContain("length=mm");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-units").textContent,
-    ).toContain("conversion=true");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-conversion-witnesses")
-        .textContent,
-    ).toContain("count=15");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-conversion-witnesses")
-        .textContent,
-    ).toContain("target_length=mm");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-package").textContent,
-    ).toContain("members=8");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-package").textContent,
-    ).toContain("stable_ids=18");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-package").textContent,
-    ).toContain("diagnostics=0");
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-boundary").textContent,
-    ).not.toContain("compatibility");
     // DEC-103 item 9: the vendor's product name is rendered nowhere in the panel.
     expect(renderedVendorNameMentions(caepipeMbfExport)).toEqual([]);
-    expect(
-      within(caepipeMbfExport).getByTestId("caepipe-mbf-boundary").textContent,
-    ).toContain("external_tool_invoked=false");
-    await waitFor(() =>
-      expect(
-        within(caepipeMbfExport).getByTestId("caepipe-mbf-package").textContent,
-      ).toContain("package_hash=computed_local_preview_sha256"),
-    );
-    const caepipeMbfHref =
-      within(caepipeMbfExport)
-        .getByTestId("caepipe-mbf-export-link")
-        .getAttribute("href") ?? "";
-    const caepipeMbfPacket = JSON.parse(
-      decodeURIComponent(caepipeMbfHref.split(",", 2)[1]),
-    );
-    expect(caepipeMbfPacket.document_kind).toBe("[REDACTED]");
-    expect(caepipeMbfPacket.manifest.canonical_package_hash_status).toBe("[REDACTED]");
-    expect(caepipeMbfPacket.manifest.canonical_package_hash.value).toBe("[REDACTED]");
-    expect(caepipeMbfPacket.validation_report.hash_validation_status).toBe("[REDACTED]");
-    expect(caepipeMbfPacket.deliverable_id).toBe("[REDACTED]");
-    expect(caepipeMbfPacket.package_id).toBe("[REDACTED]");
-    expect(caepipeMbfPacket.scope_items).toContain("SOW-030");
-    expect(caepipeMbfPacket.scope_items).toContain("SOW-074");
-    expect(caepipeMbfPacket.scope_items).toContain("SOW-075");
-    expect(caepipeMbfPacket.export_profile.target_family).toBe("caepipe_mbf");
-    expect(caepipeMbfPacket.export_profile.target_version_basis).toBe(
-      "TBD-17-01-001",
-    );
-    expect(caepipeMbfPacket.export_profile.record_subset_basis).toBe(
-      "TBD-17-01-002",
-    );
-    expect(caepipeMbfPacket.export_profile.stable_id_policy).toBe(
-      "sidecar_mapping_until_direct_mbf_carrier_confirmed",
-    );
-    expect(caepipeMbfPacket.export_profile.carried_tbd_refs).toEqual([
-      "[REDACTED]",
-      "[REDACTED]",
-      "[REDACTED]",
-    ]);
-    expect(caepipeMbfPacket.unit_system_disclosure.unit_system_ref.ref).toBe("[REDACTED]");
-    expect(caepipeMbfPacket.unit_system_disclosure.model_units.length).toBe(
-      "[REDACTED]",
-    );
-    expect(
-      caepipeMbfPacket.unit_system_disclosure.target_export_units.length,
-    ).toBe("[REDACTED]");
-    expect(
-      caepipeMbfPacket.unit_system_disclosure.target_export_units.force,
-    ).toBe("[REDACTED]");
-    expect(caepipeMbfPacket.unit_system_disclosure.conversion_performed).toBe(
-      "[REDACTED]",
-    );
-    expect(caepipeMbfPacket.unit_system_disclosure.conversion_scope).toContain(
-      "[REDACTED]",
-    );
-    expect(
-      caepipeMbfPacket.unit_system_disclosure.protected_content_included,
-    ).toBe("[REDACTED]");
-    expect(caepipeMbfPacket.conversion_witnesses).toHaveLength(15);
-    expect(
-      caepipeMbfPacket.manifest.package_members.map(
-        (item: { member_role: string }) => item.member_role,
-      ),
-    ).toContain("[REDACTED]");
-    const serializedCaepipeMbfPacket = JSON.stringify(caepipeMbfPacket);
-    expect(serializedCaepipeMbfPacket).toContain("[REDACTED]");
-    const caepipeNodeWitness = caepipeMbfPacket.conversion_witnesses.find(
-      (item: { witness_id: string }) =>
-        item.witness_id === "caepipe-mbf-conversion:node-n-120:position:x",
-    );
-    expect(caepipeNodeWitness.source_quantity.value).toBe("[REDACTED]");
-    expect(caepipeNodeWitness.target_quantity.value).toBe("[REDACTED]");
-    expect(caepipeMbfPacket.model_payload.nodes).toHaveLength(5);
-    expect(caepipeMbfPacket.model_payload.elements).toHaveLength(4);
-    expect(caepipeMbfPacket.model_payload.supports).toHaveLength(7);
-    expect(caepipeMbfPacket.stable_id_map).toHaveLength(18);
-    expect(caepipeMbfPacket.loss_report).toHaveLength(6);
-    expect(
-      caepipeMbfPacket.loss_report.map(
-        (entry: { category: string }) => entry.category,
-      ),
-    ).toContain("[REDACTED]");
-    expect(caepipeMbfPacket.validation_report.validation_status).toBe(
-      "[REDACTED]",
-    );
-    expect(caepipeMbfPacket.validation_report.schema_validation_status).toBe(
-      "[REDACTED]",
-    );
-    expect(
-      caepipeMbfPacket.validation_report.checks.map(
-        (item: { check_id: string }) => item.check_id,
-      ),
-    ).toContain("[REDACTED]");
-    expect(caepipeMbfPacket.diagnostics).toHaveLength(0);
-    expect(caepipeMbfPacket.private_payload_included).toBe("[REDACTED]");
-    expect(caepipeMbfPacket.protected_content_included).toBe("[REDACTED]");
-    expect(caepipeMbfPacket.caepipe_compatibility_claim).toBe("[REDACTED]");
-    expect(caepipeMbfPacket.solver_validation_claim).toBe("[REDACTED]");
-    expect(caepipeMbfPacket.code_compliance_claim).toBe("[REDACTED]");
-    expect(caepipeMbfPacket.professional_reliance_claim).toBe("[REDACTED]");
-    const caepipeMbfTextHref =
-      within(caepipeMbfExport)
-        .getByTestId("caepipe-mbf-text-link")
-        .getAttribute("href");
-    expect(caepipeMbfTextHref).toBeNull();
+    expect(caepipeMbfExport.querySelectorAll("a[download], a[href]")).toHaveLength(0);
+    expect(within(caepipeMbfExport).queryByTestId("caepipe-mbf-export-link")).toBeNull();
+    expect(within(caepipeMbfExport).queryByTestId("caepipe-mbf-text-link")).toBeNull();
+    const mbfCallsBefore = invokeMock.mock.calls.length;
+    fireEvent.click(within(caepipeMbfExport).getByTestId("caepipe-mbf-export"));
+    const mbfDialog = await screen.findByTestId("mbf-export-dialog");
+    expect(await within(mbfDialog).findByTestId("mbf-export-review-declined")).toHaveTextContent("MBF-REVIEW-NATIVE-ONLY");
+    expect((within(mbfDialog).getByTestId("mbf-export-save") as HTMLButtonElement).disabled).toBe(true);
+    expect(renderedVendorNameMentions(mbfDialog)).toEqual([]);
+    expect(invokeMock.mock.calls.slice(mbfCallsBefore).map(([command]) => command)).not.toContain("review_mbf_export");
+    fireEvent.click(within(mbfDialog).getByTestId("mbf-export-cancel"));
+    await waitFor(() => expect(screen.queryByTestId("mbf-export-dialog")).toBeNull());
     const caepipeExternal = await screen.findByLabelText(
       "External prover run",
     );
@@ -2324,7 +2172,32 @@ describe("SWBPIPE desktop preview", () => {
         (item: { check_id: string }) => item.check_id,
       ),
     ).toContain("unit_preservation_witness_per_parser_row");
-    expect(caepipeExternalPacket.diagnostics).toHaveLength(0);
+    // The MBF package it names is DEL-17-04's retired preview package: a historical DEL-17-04 reference
+    // (DEL-17-05-REQ-016), never a passing binding to an input that is available.
+    expect(caepipeExternalPacket.mbf_package_status.availability).toBe(
+      "historical_retired_preview_package_not_available",
+    );
+    expect(caepipeExternalPacket.mbf_package_status.historical_input_mbf_path).toBe(
+      "download:openpipestress-preview-mbf-package.json",
+    );
+    expect(caepipeExternalPacket.run_directory.input_mbf_path).toBe("not_available");
+    const mbfBinding = caepipeExternalPacket.validation_report.checks.find(
+      (item: { check_id: string }) =>
+        item.check_id === "mbf_package_bound_to_del_17_04",
+    );
+    expect(mbfBinding.status).toBe("historical_reference_not_available");
+    expect(mbfBinding.status).not.toBe("pass");
+    expect(
+      caepipeExternalPacket.diagnostics.map((item: { code: string; severity: string }) => [item.code, item.severity]),
+    ).toEqual([["CAEPIPE-EXTERNAL-MBF-INPUT-NOT-AVAILABLE", "warning"]]);
+    expect(
+      within(caepipeExternal).getByTestId("caepipe-external-state-binding")
+        .textContent,
+    ).toContain("(historical; not available)");
+    expect(
+      within(caepipeExternal).getByTestId("caepipe-external-run-directory")
+        .textContent,
+    ).toContain("input_mbf=not_available");
     expect(caepipeExternalPacket.private_payload_included).toBe(false);
     expect(caepipeExternalPacket.protected_content_included).toBe(false);
     expect(caepipeExternalPacket.caepipe_compatibility_claim).toBe(false);
@@ -3357,7 +3230,7 @@ describe("SWBPIPE desktop preview", () => {
     );
     expect(
       within(reportLint).getByTestId("report-lint-summary").textContent,
-    ).toContain("targets=46");
+    ).toContain("targets=45");
     expect(
       within(reportLint).getByTestId("report-lint-summary").textContent,
     ).toContain("findings=0");
@@ -3375,10 +3248,10 @@ describe("SWBPIPE desktop preview", () => {
     ).toContain("clearance=false");
     expect(
       within(reportLint).getByTestId("report-lint-unit-policy").textContent,
-    ).toContain("unit_targets=44");
+    ).toContain("unit_targets=43");
     expect(
       within(reportLint).getByTestId("report-lint-unit-policy").textContent,
-    ).toContain("conversion_witness_targets=2");
+    ).toContain("conversion_witness_targets=1");
     expect(
       within(reportLint).getByTestId("report-lint-unit-policy").textContent,
     ).toContain("lint_conversion=false");
@@ -3558,16 +3431,17 @@ describe("SWBPIPE desktop preview", () => {
           conversion_witness_surface_id: "pcf-export-conversion-witnesses",
         }),
         expect.objectContaining({
-          source_path:
-            "apps/desktop/src/features/caepipe-mbf/CaepipeMbfExportPanel.tsx",
-          conversion_witness_surface_id: "caepipe-mbf-conversion-witnesses",
-        }),
-        expect.objectContaining({
           source_path: "fixtures/product_preview",
           unit_policy_surface_id: "product-preview-fixture-unit-policy",
         }),
       ]),
     );
+    // The model batch file export's public template and conversion-witness surface are retired (DEL-17-04 4b.2b).
+    expect(
+      lintPacket.unit_policy_evidence.target_refs.some(
+        (target: { source_path: string }) => target.source_path.includes("caepipe-mbf/"),
+      ),
+    ).toBe(false);
     }
     expect(lintPacket.lint_run.configuration.private_surface_default).toBe(
       "[REDACTED]",
@@ -8471,24 +8345,32 @@ describe("SWBPIPE desktop preview", () => {
     const caepipeMbfExportRecord = reviewManifest.exports.find(
       (item: { export_id: string }) => item.export_id === "caepipe_mbf_export",
     );
+    // The native, local-private model export (DEL-17-04 4b.2b); the identifiers keep their historical spelling.
     expect(caepipeMbfExportRecord.document_kind).toBe(
       "openpipestress.technical_preview.caepipe_mbf_export_package",
     );
     expect(caepipeMbfExportRecord.deliverable_refs).toContain("DEL-17-04");
     expect(caepipeMbfExportRecord.target_family).toBe("caepipe_mbf");
-    expect(caepipeMbfExportRecord.profile_id).toBe("ops.caepipe_mbf.smoke_tbd");
-    expect(caepipeMbfExportRecord.target_version_basis).toBe("TBD-17-01-001");
-    expect(caepipeMbfExportRecord.record_subset_basis).toBe("TBD-17-01-002");
-    expect(caepipeMbfExportRecord.pipe_element_count).toBe(4);
-    expect(caepipeMbfExportRecord.node_count).toBe(5);
-    expect(caepipeMbfExportRecord.support_count).toBe(7);
-    expect(caepipeMbfExportRecord.load_case_count).toBe(2);
-    expect(caepipeMbfExportRecord.stable_id_count).toBe(18);
-    expect(caepipeMbfExportRecord.loss_category_count).toBe(6);
-    expect(caepipeMbfExportRecord.validation_status).toBe("boundary_checked");
-    expect(caepipeMbfExportRecord.external_execution_policy).toBe(
-      "not_invoked_by_this_package",
-    );
+    expect(caepipeMbfExportRecord.package_status).toBe("native_local_private_model_export");
+    expect(caepipeMbfExportRecord.writer).toBe("native_mbf_writer");
+    expect(caepipeMbfExportRecord.native_runtime_required).toBe(true);
+    expect(caepipeMbfExportRecord.route_id).toBe("DOTH-MBF-012");
+    expect(caepipeMbfExportRecord.export_context).toBe("local_private");
+    expect(caepipeMbfExportRecord.explicit_local_private_intent_required).toBe(true);
+    expect(caepipeMbfExportRecord.payload_kind).toBe("model_only_no_result_data");
+    expect(caepipeMbfExportRecord.result_data_included).toBe(false);
+    expect(caepipeMbfExportRecord.source_refs).toEqual([reviewManifest.project_ref]);
+    expect(caepipeMbfExportRecord.files_written).toEqual(["model_batch_file_mbf", "identity_file_swbpipe_ids_json"]);
+    expect(caepipeMbfExportRecord.open_profile_items).toEqual(["TBD-17-01-001", "TBD-17-01-002", "TBD-17-01-003"]);
+    expect(caepipeMbfExportRecord.private_payload_included).toBe(true);
+    expect(caepipeMbfExportRecord.protected_content_included).toBe(false);
+    expect(caepipeMbfExportRecord.release_or_professional_claim).toBe(false);
+    // The preview package's fields are gone with it.
+    for (const retired of ["profile_id", "canonical_package_hash_status", "schema_validation_status", "validation_status", "loss_category_count", "stable_id_count", "stable_id_policy"]) {
+      expect(caepipeMbfExportRecord).not.toHaveProperty(retired);
+    }
+    expect(caepipeMbfExportRecord.review_note).not.toMatch(/smoke-subset|sidecar|preview package/i);
+    expect(caepipeMbfExportRecord.external_execution_policy).toBe("not_invoked");
     expect(caepipeMbfExportRecord.caepipe_compatibility_claim).toBe(false);
     expect(caepipeMbfExportRecord.solver_validation_claim).toBe(false);
     expect(caepipeMbfExportRecord.code_compliance_claim).toBe(false);
@@ -8504,6 +8386,9 @@ describe("SWBPIPE desktop preview", () => {
     expect(caepipeExternalRecord.deliverable_refs).toContain("DEL-17-04");
     expect(caepipeExternalRecord.package_status).toBe("parser_only_evidence");
     expect(caepipeExternalRecord.mbf_package_ref).toContain("del-17-04");
+    expect(caepipeExternalRecord.mbf_package_availability).toBe(
+      "historical_retired_preview_package_not_available",
+    );
     expect(caepipeExternalRecord.executable_path_state).toBe("absent");
     expect(caepipeExternalRecord.invocation_profile).toBe(
       "TBD-17-05-invocation-profile",
@@ -8571,8 +8456,8 @@ describe("SWBPIPE desktop preview", () => {
     expect(lintExport.unit_policy).toBe(
       "lint_targets_include_public_unit_policy_and_conversion_witness_surfaces",
     );
-    expect(lintExport.unit_policy_target_count).toBe(44);
-    expect(lintExport.conversion_witness_target_count).toBe(2);
+    expect(lintExport.unit_policy_target_count).toBe(43);
+    expect(lintExport.conversion_witness_target_count).toBe(1);
     expect(lintExport.lint_performs_conversion).toBe(false);
     expect(lintExport.lint_asserts_target_format_compatibility).toBe(false);
     expect(lintExport.default_units_inferred).toBe(false);
@@ -8583,18 +8468,23 @@ describe("SWBPIPE desktop preview", () => {
           item.export_id === "report_protected_content_lint",
       ).unit_evidence_status,
     ).toBe("covered_by_target_panel_or_export_packet");
+    // Every record but the native, local-private model export carries no private payload; that one writes the
+    // session's private project data to the user's folder and says so (DEL-17-04 4b.2b).
     expect(
       reviewManifest.exports.every(
         (item: {
+          export_id: string;
           private_payload_included: boolean;
           protected_content_included: boolean;
           release_or_professional_claim: boolean;
         }) =>
-          item.private_payload_included === false &&
+          item.private_payload_included === (item.export_id === "caepipe_mbf_export") &&
           item.protected_content_included === false &&
           item.release_or_professional_claim === false,
       ),
     ).toBe(true);
+    expect(reviewManifest.summary.private_payload_count).toBe(1);
+    expect(reviewManifest.private_payload_included).toBe(false);
     expect(reviewManifest.redaction_policy.local_private_export_allowed).toBe(
       true,
     );
@@ -9398,20 +9288,24 @@ describe("SWBPIPE desktop preview", () => {
     // The review target/proposal are preserved saved context, not generated by
     // selecting reference rows or by a fabricated browser solve.
     const resultsSection = openWorkspaceSection("results");
+    // C1 slice 6: the reopened run is read natively, one page per view (as a fresh native result is):
+    // its first page's groups, not every group of the whole result.
     expect(
-      await within(resultsSection).findByTestId(
-        "result-group-displacement",
+      (await within(resultsSection).findAllByTestId(
+        /^result-group-[a-z]+$/,
         {},
         { timeout: 10000 },
-      ),
-    ).toBeInTheDocument();
+      )).length,
+    ).toBeGreaterThan(0);
     let results = await screen.findByLabelText("Results");
     fireEvent.change(within(results).getByTestId("result-filter-input"), {
       target: { value: "torsional-shear" },
     });
     fireEvent.click(
-      within(results).getByTestId(
+      await within(results).findByTestId(
         "result-row-result:stress:pipe-P-120:end-j:torsional-shear",
+        {},
+        { timeout: 10000 },
       ),
     );
 
@@ -10955,8 +10849,9 @@ describe("SWBPIPE desktop preview", () => {
     await waitFor(() => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"));
     expect(screen.getByTestId("status-pill-solve-proof")).toHaveTextContent("seam=tauri_backend_job");
     expect(screen.getByTestId("status-pill-solve-proof")).toHaveTextContent(`project=${pair.model.project.id}`);
-    expect(renderedReportButton()).toBeEnabled();
-    const exportPanel = resultExportAudit();
+    expect(await renderedReportButtonReady()).toBeEnabled();
+    // The export panel reads the native result's C2 full copy when its section opens.
+    const exportPanel = await within(openWorkspaceSection("exports")).findByLabelText("Result export audit");
     await within(exportPanel).findByTestId("result-export-summary");
     expect(within(exportPanel).getByTestId("result-export-link")).not.toHaveAttribute("href");
     // Native runtime renders a save button. Inspect the real screened request
@@ -14545,7 +14440,9 @@ describe("workflow current and historical result boundaries", () => {
     });
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     const solve = openWorkspaceSection("solve");
-    fireEvent.click(within(solve).getByTestId("rule-check-load-demo"));
+    // Rule checks read full rows (C2): their copy loads on request, never at the solve's first paint.
+    fireEvent.click(within(solve).getByTestId("c2-result-load"));
+    fireEvent.click(await within(solve).findByTestId("rule-check-load-demo"));
     await within(solve).findByTestId("rule-check-binding-plan");
     fireEvent.click(within(solve).getByTestId("rule-check-run"));
     await waitFor(() =>
@@ -14561,7 +14458,7 @@ describe("workflow current and historical result boundaries", () => {
     // Stay on the explicit native replay for the fresh replacement solve.
     fireEvent.click(await runMechanicsButton());
     await waitFor(() => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"));
-    expect(renderedReportButton()).toBeEnabled();
+    expect(await renderedReportButtonReady()).toBeEnabled();
 
     await act(async () => {
       delayedRuleRun.resolve({
@@ -14620,6 +14517,11 @@ describe("workflow current and historical result boundaries", () => {
       fireEvent.click(await runMechanicsButton());
       await waitFor(() => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"));
       expectReportPackageRouteOpen();
+      // C1: the report reads the native result's C2 full copy (and builds its full record) when its
+      // section opens; that happens before the delayed hash below, which holds the package build.
+      openWorkspaceSection("solve");
+      const report = openWorkspaceSection("report");
+      await waitFor(() => expect(within(report).getByTestId("report-package-private-intent")).toBeInTheDocument());
       const reportPackageModule = await import("./features/report/reportPackageRequest");
       const realBuild = reportPackageModule.buildReportPackageRequest;
       buildSpy = vi.spyOn(reportPackageModule, "buildReportPackageRequest").mockImplementation((input) => {
@@ -14639,9 +14541,6 @@ describe("workflow current and historical result boundaries", () => {
         delayedModelHashCalls += 1;
         return buildGate.promise.then(() => canonicalSha256Hex(valueJson)) as unknown as string;
       });
-      openWorkspaceSection("solve");
-      const report = openWorkspaceSection("report");
-      await waitFor(() => expect(within(report).getByTestId("report-package-private-intent")).toBeInTheDocument());
       fireEvent.click(within(report).getByTestId("report-package-private-intent"));
       invokeMock.mockImplementation((command: string, args?: Record<string, unknown>, options?: unknown) => {
         if (command === "open_local_project") return Promise.resolve(replacement);
@@ -14662,9 +14561,11 @@ describe("workflow current and historical result boundaries", () => {
       );
       const staleOuterReportBuild = outerReportBuild;
       expect(staleOuterReportBuild).not.toBeNull();
+      // C1: the replacement disposed the native result, which ends its copy's registration, so the
+      // resumed stale build refuses (stricter than a taken result, whose registration outlived it).
       await act(async () => {
         buildGate.resolve();
-        await staleOuterReportBuild;
+        await expect(staleOuterReportBuild).rejects.toThrow("CURRENT_BINDING_CHANGED_DURING_EXPORT");
       });
       await waitFor(() =>
         expect(invokeMock.mock.calls.filter(([command]) => command === "save_report_package")).toHaveLength(0),
@@ -14726,7 +14627,8 @@ describe("workflow current and historical result boundaries", () => {
       fireEvent.click(await runMechanicsButton());
       await waitFor(() => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"));
       report = openWorkspaceSection("report");
-      const privateIntent = within(report).getByTestId("report-package-private-intent") as HTMLInputElement;
+      // The new result's report reads its own C2 full copy when the section opens.
+      const privateIntent = await within(report).findByTestId("report-package-private-intent") as HTMLInputElement;
       if (!privateIntent.checked) fireEvent.click(privateIntent);
       (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
       act(() => nativeMenuCommand("file.save-report-package"));
@@ -14781,7 +14683,9 @@ describe("workflow current and historical result boundaries", () => {
       selectedDiagnosticId={null} onSelectDiagnostic={vi.fn()} />);
     expect(screen.getByTestId("diagnostic-RECORDED_DISPLAY_DIAGNOSTIC")).toHaveTextContent("Recorded display-only outcome retained");
     expect(recorded.status.mechanics).toBe(mechanics);
-    expect(invokeMock).not.toHaveBeenCalled();
+    // An earlier test's workspace mount or unmount may still be delivering its keyed MBF export retirement
+    // (DEL-17-04 §3.7); nothing else reaches the native host.
+    expect(invokeMock.mock.calls.filter(([command]) => command !== "cancel_mbf_export")).toEqual([]);
   });
 
   it("keeps registered MODEL_INCOMPLETE diagnostics while barring fresh solved-only consumers", async () => {
@@ -14803,15 +14707,15 @@ describe("workflow current and historical result boundaries", () => {
     expect(overlay.state).toBe("blocked");
     expect(overlay.summary).toBe(failedSummary);
     expect(overlay.nodePositions.size).toBe(0);
-    invokeMock.mockImplementation((command: string) => {
+    // C1: the job holds the producer's bytes natively; its native reads are the actual Rust
+    // commands' recorded replies.
+    const transport = createSolveJobTransport(() => solveBytes(output), { jobIdPrefix: "workflow-outcome" });
+    invokeMock.mockImplementation((command: string, args?: unknown, options?: unknown) => {
       if (command === "get_local_storage_capability") return Promise.resolve(storage);
       if (command === "load_design_knowledge") return Promise.resolve(knowledge);
       if (command === "sync_native_shell_state") return Promise.resolve(null);
       if (command === "load_preview_model") return Promise.resolve(structuredClone(model));
-      if (command === "start_preview_mechanics_job") return Promise.resolve({ job_id: "workflow-outcome", backend_cancellation_token: "workflow-outcome-token", state: "queued", cancellation_scope: "synthetic", resource: { ...REPLAY_RESOURCE_GRANT, ingress_reserved_bytes: 4096 } });
-      if (command === "poll_preview_mechanics_job") return Promise.resolve({ job_id: "workflow-outcome", state: "completed", queue_reason: null, cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: "synthetic", result_available: true, result_bytes: solveBytes(output).length, error_message: null, resource_refusal: null, resource: { ...REPLAY_RESOURCE_GRANT, ingress_reserved_bytes: 4096 } });
-      if (command === "take_preview_mechanics_job_result") return Promise.resolve(resultArrayBuffer(solveBytes(output)));
-      if (command === "dispose_preview_mechanics_result") return Promise.resolve(null);
+      if (transport.handles(command)) return transport.invoke(command, args, options);
       return Promise.reject(new Error(`Unexpected command ${command}`));
     });
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
@@ -15028,7 +14932,8 @@ describe("historical lifecycle history transitions", () => {
         if (command === "render_calculation_report") return Promise.resolve({});
         return replay.invoke(command, args, options);
       });
-      fireEvent.click(within(reportSection).getByTestId("rendered-report-local-private-intent"));
+      // The report reads the native result's C2 full copy when its section opens.
+      fireEvent.click(await within(reportSection).findByTestId("rendered-report-local-private-intent"));
       fireEvent.click(within(reportSection).getByTestId("rendered-report-render"));
       await waitFor(() => expect(preparations).toBe(1));
 
@@ -15135,7 +15040,8 @@ describe("historical lifecycle history transitions", () => {
       });
 
       const reportSection = openWorkspaceSection("report");
-      fireEvent.click(within(reportSection).getByTestId("rendered-report-local-private-intent"));
+      // The report reads the native result's C2 full copy when its section opens.
+      fireEvent.click(await within(reportSection).findByTestId("rendered-report-local-private-intent"));
       (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
       invokeMock.mockImplementation((command: string, args?: Record<string, unknown>, options?: unknown) => {
         if (command === "open_local_project") return Promise.resolve(replacement);
@@ -15374,15 +15280,22 @@ describe("historical lifecycle history transitions", () => {
     openWorkspaceSection("solve");
     fireEvent.click(await runMechanicsButton());
     await waitFor(() => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"), { timeout: 10000 });
-    invokeMock.mockImplementation((command: string, args: { request: Record<string, unknown> }, options?: unknown) => {
-      if (command === "save_local_project") {
-        const model = args.request.model as PreviewModel;
-        return Promise.resolve({
+    // C1 slice 5: the native result is saved from its job handle; the unit fake hands this test's
+    // store the request today's submitted path sends.
+    const fake = createNativePersistenceFake({
+      heldBytes: replay.heldBytes,
+      heldIntake: replay.heldIntake,
+      save: ({ request }) => {
+        const model = request.model as PreviewModel;
+        return {
           ...inventedOpenEnvelope(model),
-          ...args.request,
+          ...request,
           summary: { ...inventedOpenEnvelope(model).summary, project_id: model.project.id, project_name: model.project.name, message: "Saved unchanged Current model." },
-        });
-      }
+        } as never;
+      },
+    });
+    invokeMock.mockImplementation((command: string, args: { request: Record<string, unknown> }, options?: unknown) => {
+      if (isNativePersistenceCommand(command)) return fake.invoke(command, args);
       return replay.invoke(command, args, options);
     });
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};

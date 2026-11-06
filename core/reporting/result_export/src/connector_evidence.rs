@@ -536,21 +536,139 @@ pub(crate) fn effective_axial_binding(s: f64, g: f64, pe: f64, rods: &[(f64, f64
     s.is_finite() && tolerance.is_finite() && (s - expected).abs() <= tolerance
 }
 
-/// RN(a·b + c·d + e·f) for binary64 operands, from the exact products
-/// (TwoProduct: p = fl(a·b) and its error fma(a, b, −p), exact while no
-/// product underflows; a product below 2^-969 is refused), summed exactly
-/// and rounded once. `None` outside that range.
+/// RN(a·b + c·d + e·f) for finite binary64 operands: the three exact
+/// products, each the integer product of the operands' significands at the
+/// sum of their exponents ([`ExactDot`]), summed exactly and rounded once to
+/// nearest, ties to even. This is the producer's publication rounding of
+/// `axial_share` (frame_kernel `tie_rod.rs` `exact_dot3`, `ExactAccumulator`):
+/// any result that rounds to zero, an exact zero or a nonzero underflow of
+/// either sign, is +0.0. No intermediate binary64 product is formed, so a
+/// product beyond binary64 inside a representable total is not refused, and
+/// a product below the subnormal range is not lost. `None` for a non-finite
+/// operand or a total that rounds outside binary64.
 fn exact_dot3(a: [f64; 3], b: [f64; 3]) -> Option<f64> {
-    let mut sum = ExactSum::default();
-    for k in 0..3 {
-        let p = a[k] * b[k];
-        if !p.is_finite() || (p != 0.0 && p.abs() < f64::from_bits(54 << 52)) {
-            return None;
-        }
-        sum.add(p);
-        sum.add(a[k].mul_add(b[k], -p));
+    if a.iter().chain(&b).any(|v| !v.is_finite()) {
+        return None;
     }
-    sum.round()
+    let mut dot = ExactDot::default();
+    for k in 0..3 {
+        dot.add_product(a[k], b[k]);
+    }
+    dot.round()
+}
+
+/// An exact sum of exact binary64 products in fixed point at 2^-2148, the
+/// quantum of a product of two finite binary64 values, two's complement over
+/// 68 limbs (bits 0..4352). Kept apart from [`ExactSum`] (quantum 2^-1074),
+/// which `effective_axial_binding` uses unchanged.
+///
+/// Size bound: a finite binary64 is m·2^(s − 1074) with m < 2^53 and
+/// s ≤ 2045, so a product is m_a·m_b < 2^106 at bit position s_a + s_b ≤ 4090:
+/// its leading bit is at most bit 4195, and a sum of up to 2^155 products stays
+/// below the sign bit 4351. `exact_dot3` adds three.
+#[derive(Clone)]
+struct ExactDot {
+    limbs: [u64; 68],
+}
+impl Default for ExactDot {
+    fn default() -> Self {
+        Self { limbs: [0; 68] }
+    }
+}
+impl ExactDot {
+    /// Integer significand m and position s of a finite binary64: |value| = m·2^(s − 1074).
+    fn decompose(value: f64) -> (u64, usize) {
+        let bits = value.to_bits();
+        let exponent = ((bits >> 52) & 0x7ff) as usize;
+        let fraction = bits & ((1u64 << 52) - 1);
+        if exponent == 0 { (fraction, 0) } else { (fraction | (1u64 << 52), exponent - 1) }
+    }
+
+    /// Adds the exact product a·b of finite binary64 operands: (m_a·m_b)·2^(s_a + s_b − 2148).
+    fn add_product(&mut self, a: f64, b: f64) {
+        debug_assert!(a.is_finite() && b.is_finite());
+        let ((ma, sa), (mb, sb)) = (Self::decompose(a), Self::decompose(b));
+        if ma == 0 || mb == 0 {
+            return;
+        }
+        let product = u128::from(ma) * u128::from(mb); // < 2^106
+        let position = sa + sb;
+        let (limb, offset) = (position / 64, (position % 64) as u32);
+        let (low, high) = (product as u64, (product >> 64) as u64);
+        // The product shifted by `offset` spans three limbs (106 + 63 bits); limb + 2 ≤ 65.
+        // (`checked_shr(64)` is `None`: an aligned product carries nothing across.)
+        let addend = [
+            low << offset,
+            high << offset | low.checked_shr(64 - offset).unwrap_or(0),
+            high.checked_shr(64 - offset).unwrap_or(0),
+        ];
+        let negative = a.is_sign_negative() != b.is_sign_negative();
+        // Add (or, for a negative product, subtract) at `limb`, carrying (or
+        // borrowing) upward; a borrow past the top limb is the two's complement wrap.
+        let mut carry = false;
+        for (i, slot) in self.limbs[limb..].iter_mut().enumerate() {
+            let operand = if i < 3 { addend[i] } else if carry { 0 } else { break };
+            let (v, c1) = if negative { slot.overflowing_sub(operand) } else { slot.overflowing_add(operand) };
+            let (v, c2) = if negative { v.overflowing_sub(u64::from(carry)) } else { v.overflowing_add(u64::from(carry)) };
+            *slot = v;
+            carry = c1 || c2;
+        }
+    }
+
+    /// The sum rounded once to nearest, ties to even, at the binary64 quantum
+    /// of the result's binade (2^-1074 in the subnormal range). Every result
+    /// that rounds to zero is +0.0, never −0.0. `None` when the rounded value
+    /// is outside binary64.
+    fn round(&self) -> Option<f64> {
+        let negative = self.limbs[67] >> 63 == 1;
+        let mut magnitude = self.limbs;
+        if negative {
+            let mut carry = 1u64;
+            for slot in magnitude.iter_mut() {
+                let (v, c) = (!*slot).overflowing_add(carry);
+                *slot = v;
+                carry = u64::from(c);
+            }
+        }
+        let Some(top) = (0..68).rev().find(|&i| magnitude[i] != 0) else { return Some(0.0) };
+        let high = 64 * top + 63 - magnitude[top].leading_zeros() as usize; // index of the leading bit
+        // The value lies in [2^e, 2^(e+1)), e = high − 2148; its binary64 quantum is 2^q,
+        // q = max(e − 52, −1074), at accumulator bit p = q + 2148 ≥ 1074.
+        let e = high as i64 - 2148;
+        let mut q = (e - 52).max(-1074);
+        let p = (q + 2148) as usize;
+        let word = |i: usize| magnitude.get(i).copied().unwrap_or(0);
+        let window = |at: usize| {
+            let (limb, offset) = (at / 64, (at % 64) as u32);
+            word(limb) >> offset | word(limb + 1).checked_shl(64 - offset).unwrap_or(0)
+        };
+        let mut mantissa = window(p); // bits p..=high: at most 53
+        let r = p - 1; // the rounding bit
+        let half = (word(r / 64) >> (r % 64)) & 1 == 1;
+        let sticky = magnitude[..r / 64].iter().any(|&w| w != 0) || word(r / 64) & ((1u64 << (r % 64)) - 1) != 0;
+        if half && (sticky || mantissa & 1 == 1) {
+            mantissa += 1;
+        }
+        if mantissa == 1u64 << 53 {
+            mantissa >>= 1;
+            q += 1;
+        }
+        if mantissa == 0 {
+            // A nonzero value below half the least subnormal (or exactly half, to even): +0.0.
+            return Some(0.0);
+        }
+        let bits = if mantissa >= 1u64 << 52 {
+            let biased = q + 52 + 1023;
+            if biased >= 0x7ff {
+                return None;
+            }
+            (biased as u64) << 52 | (mantissa - (1u64 << 52))
+        } else {
+            debug_assert_eq!(q, -1074);
+            mantissa
+        };
+        Some(f64::from_bits(u64::from(negative) << 63 | bits))
+    }
 }
 
 /// An exact sum of binary64 values in fixed point at 2^-1074 (every finite
@@ -737,6 +855,230 @@ mod u5b_effective_axial_tests {
         let tolerance = (64.0 + 1024.0) * f64::EPSILON * (1.0 + 1024.0 * 2f64.powi(-54)) + 1026.0 * TINY;
         assert!(effective_axial_binding(sum + 0.5 * tolerance, 1.0, 0.0, &rods));
         assert!(!effective_axial_binding(sum + 2.0 * tolerance, 1.0, 0.0, &rods));
+    }
+
+    /// The axial share is the exact dot RN(n·Q_x) compared by bits (`to_bits`): an exactly
+    /// zero dot rounds to +0.0, so a -0.0 share is refused. The pressure-2 verifier
+    /// (`tests/test_pressure_connector_readers.py`) asserts the same verdicts.
+    #[test]
+    fn the_axial_share_is_compared_by_bits_so_a_negative_zero_share_is_refused() {
+        use serde_json::json;
+        let rod = |axis0: [f64; 3], n: [f64; 3], share: f64| {
+            let record = json!({"connector_axes_global": [[axis0[0], 0.0, 0.0], [axis0[1], 1.0, 0.0], [axis0[2], 0.0, 1.0]],
+                "tie_rods": [{"id": "rod:a", "law": "bilateral_linear", "offset_global_m": [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
+                    "stiffness_n_per_m": 1.0e6, "reference_extension_m": 0.0, "length_m": 1.0, "direction_global": n,
+                    "axial_share": share, "source_reference": "invented signed-zero case"}]});
+            super::tie_rods(&record).map(|rods| rods.len())
+        };
+        let refused = Err("SOURCE_PHYSICS_CONNECTOR_TIE_ROD_AXIAL_SHARE".into());
+        // A dot that is zero term by term: +0.0 is the exact dot's rounding; -0.0 is refused.
+        assert_eq!(rod([1.0, 0.0, 0.0], [0.0, 1.0, 0.0], 0.0), Ok(1));
+        assert_eq!(rod([1.0, 0.0, 0.0], [0.0, 1.0, 0.0], -0.0), refused);
+        // Cancellation: 0.6·0.8 − 0.8·0.6 is exactly zero, rounded to +0.0: +0.0 admitted, -0.0 refused.
+        assert_eq!(rod([0.8, -0.6, 0.0], [0.6, 0.8, 0.0], 0.0), Ok(1));
+        assert_eq!(rod([0.8, -0.6, 0.0], [0.6, 0.8, 0.0], -0.0), refused);
+        // Nonzero controls: the exact dot's rounding admitted, its neighbours refused.
+        assert_eq!(rod([1.0, 0.0, 0.0], [1.0, 0.0, 0.0], 1.0), Ok(1));
+        assert_eq!(rod([1.0, 0.0, 0.0], [1.0, 0.0, 0.0], f64::from_bits(1.0f64.to_bits() - 1)), refused);
+        assert_eq!(rod([1.0, 0.0, 0.0], [-1.0, 0.0, 0.0], -1.0), Ok(1));
+        assert_eq!(rod([1.0, 0.0, 0.0], [-1.0, 0.0, 0.0], 1.0), refused);
+    }
+
+    /// Handcrafted full-reader fixtures (not producer output) for the axial share RN(n·Q_x):
+    /// (label, Q_x = `connector_axes_global` column 0, n = `direction_global`, the exact dot's
+    /// rounding under the producer's publication contract (`None`: outside binary64), the old
+    /// reader's TwoProduct formula (`None`: refused)). Every n passes the |n|² check. The bits
+    /// are the exact `Fraction` dot rounded once with +0.0 for a result that rounds to zero,
+    /// shown in `tests/test_pressure_connector_readers.py`
+    /// (`test_the_axial_share_is_the_exact_dot_rounded_once`), which asserts the same verdicts;
+    /// frame_kernel's `exact_sum` tests assert the producer's `exact_rounded_dot` gives the same bits.
+    #[allow(clippy::type_complexity)]
+    const AXIAL_SHARE_FIXTURES: [(&str, [u64; 3], [u64; 3], Option<u64>, Option<u64>); 17] = {
+        const ONE: u64 = 0x3ff0000000000000;
+        const MAX: u64 = 0x7fefffffffffffff;
+        const NEG: u64 = 1 << 63;
+        const P750: u64 = 0x1110000000000000; // 2^-750
+        const P600: u64 = 0x1a70000000000000; // 2^-600
+        const P575: u64 = 0x1c00000000000000; // 2^-575
+        const P500: u64 = 0x20b0000000000000; // 2^-500
+        const FIVE575: u64 = 0x1c24000000000000; // 5·2^-575
+        [
+            // W2: 1 + 2^-53 + 2^-1100 is above the tie: 1 + ε. The old formula drops 2^-1100: 1.0.
+            ("W2 above half an ulp", [ONE, ONE, P500], [ONE, 0x3ca0000000000000, P600], Some(0x3ff0000000000001), Some(ONE)),
+            ("exactly half an ulp, to even", [ONE, ONE, P500], [ONE, 0x3ca0000000000000, 0], Some(ONE), Some(ONE)),
+            ("below half an ulp", [ONE, ONE, P500], [ONE, 0x3ca0000000000000, NEG | P600], Some(ONE), Some(ONE)),
+            // W1: −2^-1100 rounds to zero; the producer publishes +0.0 (not a mismatch).
+            ("negative underflow (W1)", [ONE, 0, NEG | P500], [0, ONE, P600], Some(0), Some(0)),
+            ("positive underflow", [ONE, 0, P500], [0, ONE, P600], Some(0), Some(0)),
+            ("negative half the least subnormal, to even", [ONE, 0, P500], [0, ONE, NEG | P575], Some(0), Some(0)),
+            ("negative, just beyond half the least subnormal", [NEG | P750, 0, P500], [P750, ONE, NEG | P575], Some(NEG | 1), Some(0)),
+            ("subnormal, exact", [ONE, 0, P500], [0, ONE, 0x1c28000000000000], Some(3), None),
+            ("subnormal tie 2.5·2^-1074, to even", [P750, 0, P500], [0, ONE, FIVE575], Some(2), None),
+            ("subnormal just above the tie", [P750, 0, P500], [P750, ONE, FIVE575], Some(3), None),
+            ("subnormal just below the tie", [P750, 0, P500], [NEG | P750, ONE, FIVE575], Some(2), None),
+            ("negative subnormal tie, to even", [P750, 0, P500], [0, ONE, NEG | FIVE575], Some(NEG | 2), None),
+            // MAX·(1 + ε) is beyond binary64; the total MAX·(1 + 2^-52 − 2^-26) is not.
+            ("cancelling product overflow", [MAX, NEG | MAX, 0], [0x3ff0000000000001, 0x3e50000000000000, 0], Some(0x7feffffff8000001), None),
+            ("unrepresentable total", [MAX, 0, 0], [0x3ff0000000000001, 0, 0], None, None),
+            ("normal control", [0x3febb67ae8584cab, 0x3fe0000000000000, 0], [0x3fe3333333333333, 0x3fe999999999999a, 0], Some(0x3fed6d7cf1ce9467), Some(0x3fed6d7cf1ce9467)),
+            ("exact cancellation", [0x3fe999999999999a, NEG | 0x3fe3333333333333, 0], [0x3fe3333333333333, 0x3fe999999999999a, 0], Some(0), Some(0)),
+            ("zero term by term", [ONE, 0, 0], [0, ONE, 0], Some(0), Some(0)),
+        ]
+    };
+
+    /// The reader's previous `exact_dot3`, kept here only as the negative control.
+    fn old_exact_dot3(a: [f64; 3], b: [f64; 3]) -> Option<f64> {
+        let mut sum = ExactSum::default();
+        for k in 0..3 {
+            let p = a[k] * b[k];
+            if !p.is_finite() || (p != 0.0 && p.abs() < f64::from_bits(54 << 52)) {
+                return None;
+            }
+            sum.add(p);
+            sum.add(a[k].mul_add(b[k], -p));
+        }
+        sum.round()
+    }
+
+    fn fixture(axis: [u64; 3], n: [u64; 3]) -> ([f64; 3], [f64; 3]) {
+        (axis.map(f64::from_bits), n.map(f64::from_bits))
+    }
+
+    #[test]
+    fn the_axial_share_is_the_exact_dot_rounded_once() {
+        let share_of = |axis0: [f64; 3], n: [f64; 3], share: f64| {
+            let record = serde_json::json!({"connector_axes_global": [[axis0[0], 0.0, 0.0], [axis0[1], 1.0, 0.0], [axis0[2], 0.0, 1.0]],
+                "tie_rods": [{"id": "rod:a", "law": "bilateral_linear", "offset_global_m": [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
+                    "stiffness_n_per_m": 1.0e6, "reference_extension_m": 0.0, "length_m": 1.0, "direction_global": n,
+                    "axial_share": share, "source_reference": "handcrafted exact-dot case"}]});
+            super::tie_rods(&record).map(|rods| rods.len())
+        };
+        let refused: Result<usize, String> = Err("SOURCE_PHYSICS_CONNECTOR_TIE_ROD_AXIAL_SHARE".into());
+        for (label, axis, n, expected, old) in AXIAL_SHARE_FIXTURES {
+            let (axis, n) = fixture(axis, n);
+            assert_eq!(exact_dot3(n, axis).map(f64::to_bits), expected, "{label}: new");
+            assert_eq!(old_exact_dot3(n, axis).map(f64::to_bits), old, "{label}: old");
+            match expected {
+                Some(bits) => {
+                    assert_eq!(share_of(axis, n, f64::from_bits(bits)), Ok(1), "{label}: admitted");
+                    // Its binary64 neighbours (and, for +0.0, −0.0 and ±2^-1074) are refused.
+                    let neighbours: Vec<u64> = if bits == 0 { vec![NEG_ZERO, 1, NEG_ZERO | 1] } else { vec![bits - 1, bits + 1] };
+                    for other in neighbours {
+                        assert_eq!(share_of(axis, n, f64::from_bits(other)), refused, "{label}: {other:#x}");
+                    }
+                    // The old formula's share, where it differs, is now refused.
+                    if let Some(old) = old.filter(|&o| o != bits) {
+                        assert_eq!(share_of(axis, n, f64::from_bits(old)), refused, "{label}: old share");
+                    }
+                }
+                None => {
+                    for share in [f64::MAX, -f64::MAX, 0.0] {
+                        assert_eq!(share_of(axis, n, share), refused, "{label}: {share}");
+                    }
+                }
+            }
+        }
+        // W2 in words: the correct 1 + ε is admitted, the old formula's 1.0 refused.
+        let (axis, n) = ([1.0, 1.0, 2f64.powi(-500)], [1.0, 2f64.powi(-53), 2f64.powi(-600)]);
+        assert_eq!(old_exact_dot3(n, axis), Some(1.0));
+        assert_eq!(share_of(axis, n, 1.0 + f64::EPSILON), Ok(1));
+        assert_eq!(share_of(axis, n, 1.0), refused);
+    }
+
+    const NEG_ZERO: u64 = 1 << 63;
+
+    /// Below the full reader (its `numbers`/`matrix3` checks admit finite operands only):
+    /// `exact_dot3` itself refuses a non-finite operand and a total outside binary64, and
+    /// rounds at the top of the range once.
+    #[test]
+    fn exact_dot3_refuses_non_finite_operands_and_unrepresentable_totals() {
+        for bad in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
+            assert_eq!(exact_dot3([bad, 0.0, 0.0], [0.0, 0.0, 0.0]), None);
+            assert_eq!(exact_dot3([0.0, 0.0, 0.0], [0.0, 0.0, bad]), None);
+        }
+        assert_eq!(exact_dot3([f64::MAX, 0.0, 0.0], [1.0, 0.0, 0.0]), Some(f64::MAX));
+        assert_eq!(exact_dot3([-f64::MAX, 0.0, 0.0], [1.0, 0.0, 0.0]), Some(-f64::MAX));
+        // MAX + half its ulp is a tie away from the odd MAX: it rounds out of range.
+        assert_eq!(exact_dot3([f64::MAX, 2f64.powi(970), 0.0], [1.0, 1.0, 0.0]), None);
+        assert_eq!(exact_dot3([f64::MAX, 2f64.powi(970), -TINY], [1.0, 1.0, 1.0]), Some(f64::MAX));
+        // Products far beyond binary64 that cancel exactly, beside a least subnormal.
+        assert_eq!(exact_dot3([f64::MAX, -f64::MAX, TINY], [f64::MAX, f64::MAX, 1.0]), Some(TINY));
+        // The least subnormal squared and a subnormal-to-normal carry.
+        assert_eq!(exact_dot3([TINY, 0.0, 0.0], [TINY, 0.0, 0.0]), Some(0.0));
+        assert_eq!(exact_dot3([-TINY, 0.0, 0.0], [TINY, 0.0, 0.0]).map(f64::to_bits), Some(0));
+        // (2^52 − 1 ± ½)·2^-1074 are ties: to the even 2^52 (the least normal) and 2^52 − 2.
+        let below_normal = f64::MIN_POSITIVE - TINY;
+        assert_eq!(exact_dot3([below_normal, TINY, 0.0], [1.0, 0.5, 0.0]), Some(f64::MIN_POSITIVE));
+        assert_eq!(exact_dot3([below_normal, -TINY, 0.0], [1.0, 0.5, 0.0]), Some(f64::MIN_POSITIVE - 2.0 * TINY));
+    }
+
+    /// Where the old TwoProduct formula was exact (every product finite and either exactly zero,
+    /// with a zero operand, or at least 2^-969 in magnitude; an underflowed rounded-zero product is
+    /// the repaired defect), the new dot gives the same bits: normal-case results are unchanged.
+    #[test]
+    fn normal_range_dots_keep_their_bits() {
+        let mut state = 0x9e3779b97f4a7c15u64;
+        let mut next = || {
+            state ^= state << 13;
+            state ^= state >> 7;
+            state ^= state << 17;
+            state
+        };
+        let mut compared = 0;
+        for _ in 0..20_000 {
+            // Random signs, significands and exponents in [−480, 480]: products from 2^-960.
+            let mut operand = || {
+                let r = next();
+                let exponent = (r % 961) as i64 - 480;
+                let bits = ((exponent + 1023) as u64) << 52 | (next() & ((1u64 << 52) - 1)) | (r & (1 << 63));
+                if r % 7 == 0 { 0.0 } else { f64::from_bits(bits) }
+            };
+            let (a, b) = ([operand(), operand(), operand()], [operand(), operand(), operand()]);
+            let old = old_exact_dot3(a, b).expect("in the old formula's exact range");
+            assert_eq!(exact_dot3(a, b).map(f64::to_bits), Some(old.to_bits()), "{a:?} · {b:?}");
+            compared += 1;
+        }
+        assert_eq!(compared, 20_000);
+    }
+
+    /// The direction check's |n|² and the s_x tolerance's rod terms are
+    /// `Iterator::sum::<f64>()`: from −0.0, in source order, one rounding per
+    /// addition. These cases sit where a compensated sum (Python ≥ 3.12's
+    /// `sum()`) decides the other way; the pressure-2 verifier
+    /// (`tests/test_pressure_connector_readers.py`) asserts the same verdicts.
+    #[test]
+    fn sequential_f64_sums_decide_the_direction_and_tolerance_boundaries() {
+        use serde_json::{json, Value};
+        let f = f64::from_bits;
+        assert!(std::iter::empty::<f64>().sum::<f64>().is_sign_negative());
+        let direction = |n: [f64; 3]| {
+            let record = json!({"connector_axes_global": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+                "tie_rods": [{"id": "rod:a", "law": "bilateral_linear", "offset_global_m": [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
+                    "stiffness_n_per_m": 1.0e6, "reference_extension_m": 0.0, "length_m": 1.0, "direction_global": n,
+                    "axial_share": n[0], "source_reference": "invented boundary case"}]});
+            super::tie_rods(&record).map(|rods| rods.len())
+        };
+        // |n|² sequentially is 1 + 17ε, compensated 1 + 16ε: refused.
+        assert_eq!(direction([f(0xbfee1566e2522cf2), f(0x3fcc6bcd304d6a58), f(0x3fd08d4e90b4b2ab)]),
+            Err("SOURCE_PHYSICS_CONNECTOR_TIE_ROD_DIRECTION".into()));
+        // The other way: admitted.
+        assert_eq!(direction([f(0xbfeb5c74874966c6), f(0xbfc10ad15e97fa48), f(0x3fe009b5284e420d)]), Ok(1));
+        // Three rods: the sequential tolerance is one ulp below the compensated one, and s_x lies between: refused.
+        let rods = [(f(0x40829836406c80d9), f(0x3fcac156b94353c8)), (f(0x40e6dbb249249249), f(0xbfe51ce637c961ac)),
+            (f(0x40d8322276276276), f(0x3fe97da8c79e5f96))];
+        assert!(!effective_axial_binding(f(0x3e15a9fe831de478), f(0xc0c6910000000000), f(0xc0d60cdcf3c47754), &rods));
+        // One ulp above: admitted.
+        let rods = [(f(0x4046456ed0af15bb), f(0xbfda1558c3f83d18)), (f(0x41193b1800000000), f(0xbfe607d49c6fc934)),
+            (f(0x40e50d2276276276), f(0x3fa2457a67fbe500))];
+        assert!(effective_axial_binding(f(0x3e4227bf314ad803), f(0x40d8f69555555555), f(0xc10f6f444ec1d244), &rods));
+        // A JSON integer operand is read as binary64 (`as_f64`) before it is multiplied: 2^53 + 1 is 2^53, so
+        // Sigma = 0 and s = 261 exceeds the tolerance 260: refused. An exact integer product would give Sigma = 1.
+        let t = json!(9007199254740993u64).as_f64().unwrap();
+        assert!(!effective_axial_binding(261.0, 0.0, 9007199254740992.0, &[(t, 1.0)]));
+        // Integer operands that binary64 holds exactly, and an integer direction: admitted.
+        let int = |v: Value| v.as_f64().unwrap();
+        assert!(effective_axial_binding(int(json!(0)), int(json!(553)), int(json!(800)), &[(int(json!(247)), int(json!(1)))]));
+        assert_eq!(direction([int(json!(1)), int(json!(0)), int(json!(0))]), Ok(1));
     }
 }
 

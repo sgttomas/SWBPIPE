@@ -693,3 +693,56 @@ fn retired_identities_and_readers_are_refused_by_name() {
         assert_eq!(rv::dispatch(&s, None, None)["error"]["code"], code);
     }
 }
+
+/// Astra B3 (DEL-04-03 Work `skew-restraints.md` §4.3 I1; R-1's reader): the committed
+/// S-K1 product documents read with their models, and with every skewed direction scaled by
+/// 2^-1026 (subnormal components; the same canonical direction, admitted) they read the same; a
+/// wrong along-direction value is refused under the scaled model as under the original.
+#[test]
+fn a_subnormal_scaled_skew_direction_reads_as_its_twin_through_the_reader_entry() {
+    let tiny = 2f64.powi(-1000) * 2f64.powi(-26);
+    for path in ["fixtures/results/skew_along_direction_preview.json", "fixtures/results/skew_along_direction_combinations_preview.json"] {
+        let fixture = read(path);
+        let (source, model) = (&fixture["envelope"], &fixture["request"]["model"]);
+        let mut scaled = model.clone();
+        for support in scaled["supports"].as_array_mut().unwrap() {
+            if let Some(d) = support.get_mut("direction") {
+                for axis in ["x", "y", "z"] {
+                    d[axis] = json!(d[axis].as_f64().unwrap() * tiny);
+                }
+            }
+        }
+        assert_ne!(&scaled, model);
+        assert_eq!(rv::validate("preview-physics", source, Some(model), None), json!({"ok": true}), "{path}");
+        assert_eq!(rv::validate("preview-physics", source, Some(&scaled), None), json!({"ok": true}), "{path}: scaled");
+        let mut wrong = source.clone();
+        let row = wrong["results"].as_array_mut().unwrap().iter_mut()
+            .find(|r| r["kind"] == "support_reaction_along_direction_v1" && r["basis_ref"]["ref_type"] == "load_case").unwrap();
+        row["value"] = json!(-row["value"].as_f64().unwrap());
+        for m in [model, &scaled] {
+            let found = rv::validate("preview-physics", &wrong, Some(m), None);
+            assert!(found.to_string().contains("ALONG_DIRECTION_INCONSISTENT"), "{path}: {found}");
+        }
+    }
+}
+
+/// A source stating the retired preview-physics-1 identity is refused by the full public
+/// reader under the existing route/profile boundary, with and without the model, on a held
+/// document and on a certificate document alike (the review of the RT-A5 composition repair);
+/// dispatch names it retired.
+#[test]
+fn a_stated_retired_preview_physics_1_identity_is_refused_by_the_full_reader() {
+    for (corpus, name) in [("fixtures/results/preview_physics_held_status_corpus.json", "source_unavailable"),
+                           ("fixtures/results/combination_certificate_corpus.json", "pf_cantilever")] {
+        let file = read(corpus);
+        let entry = file["documents"].as_array().unwrap().iter().find(|e| e["name"] == name).unwrap();
+        let mut source = entry["document"].clone();
+        assert_eq!(rv::validate("preview-physics", &source, Some(&entry["model"]), None)["ok"], true, "{name}: the current document");
+        source["producer"]["semantic_contract_id"] = json!(sc::RETIRED_PREVIEW_PHYSICS_1_ID);
+        for model in [None, Some(&entry["model"])] {
+            let verdict = rv::validate("preview-physics", &source, model, None);
+            assert_eq!(verdict["error"]["code"], sc::SOURCE_PREVIEW_PHYSICS_1_RETIRED, "{name} (model {}): {verdict}", model.is_some());
+        }
+        assert_eq!(rv::dispatch(&source, None, None)["error"]["code"], sc::SOURCE_PREVIEW_PHYSICS_1_RETIRED, "{name}: dispatch");
+    }
+}

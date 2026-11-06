@@ -777,9 +777,9 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await expect(page.getByTestId("report-package-redaction-summary")).toHaveCount(0);
   // Private intent changes redaction permission, never missing Current evidence.
   const reportLint = page.getByLabel("Report content lint");
-  await expect(reportLint.getByTestId("report-lint-unit-policy")).toContainText("unit_targets=44");
+  await expect(reportLint.getByTestId("report-lint-unit-policy")).toContainText("unit_targets=43");
   await expect(reportLint.getByTestId("report-lint-unit-policy")).toContainText(
-    "conversion_witness_targets=2"
+    "conversion_witness_targets=1"
   );
   await expect(reportLint.getByTestId("report-lint-unit-policy")).toContainText("lint_conversion=false");
   const lintHref = await reportLint.getByTestId("report-lint-export-link").getAttribute("href");
@@ -794,7 +794,7 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
       (item: { source_path: string }) => item.source_path === "[REDACTED]"
     )
   ).toBe(true);
-  expect(lintPacket.unit_policy_evidence.target_refs).toHaveLength(44);
+  expect(lintPacket.unit_policy_evidence.target_refs).toHaveLength(43);
   expect(
     lintPacket.unit_policy_evidence.target_refs.every(
       (item: { unit_policy_surface_id: string }) => item.unit_policy_surface_id === "[REDACTED]"
@@ -806,11 +806,10 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await expect(pcfExport.getByTestId("pcf-export-conversion-witnesses")).toContainText(
     "target_length=MM"
   );
+  // DEL-17-04 slice 4b.2b: the panel's preview builder and its conversion witnesses are retired (A-6); its one
+  // action opens Export MBF…, whose native writer owns the MBF's unit conversions.
   const caepipeMbfExport = page.getByLabel("Model batch file (.mbf) export");
-  await expect(caepipeMbfExport.getByTestId("caepipe-mbf-conversion-witnesses")).toContainText("count=15");
-  await expect(caepipeMbfExport.getByTestId("caepipe-mbf-conversion-witnesses")).toContainText(
-    "target_length=mm"
-  );
+  await expect(caepipeMbfExport.getByTestId("caepipe-mbf-export")).toHaveText("Export MBF…");
   const caepipeExternalHarness = page.getByLabel("External prover run");
   await expect(caepipeExternalHarness.getByTestId("caepipe-external-units")).toContainText(
     "unit-system:dec-018-si-dual-display"

@@ -375,6 +375,14 @@ pub fn diagnostic_from_frame_error(error: &FrameKernelError) -> SolverDiagnostic
             DiagnosticSource::ModelValidation,
             format!("range: stiffness formation outside the binary64 normal range at {name}"),
         ),
+        // R-7 (DEL-04-03 Work `skew-restraints.md` §15 step 2): a skew node
+        // block outside its contract (at a force scale, or outside the pattern).
+        FrameKernelError::InvalidInput(detail) => SolverDiagnostic::new(
+            SolverDiagnosticCode::InvalidModelTopology,
+            DiagnosticSeverity::Blocking,
+            DiagnosticSource::ModelValidation,
+            format!("invalid input: {detail}"),
+        ),
     }
 }
 
@@ -726,7 +734,11 @@ fn support_finding_diagnostic_code(code: SupportFindingCode) -> SolverDiagnostic
         | SupportFindingCode::InvalidSupportDof
         | SupportFindingCode::InvalidSupportDimension
         | SupportFindingCode::RepeatedRestrainedDof
-        | SupportFindingCode::NodeOutOfRange => SolverDiagnosticCode::InvalidRestraint,
+        | SupportFindingCode::NodeOutOfRange
+        // R-6/R-7 (DEL-04-03 Work `skew-restraints.md` §2.2 items 4, 7, 8).
+        | SupportFindingCode::SkewDirectionRange
+        | SupportFindingCode::SkewStopsPerNode
+        | SupportFindingCode::ConstraintRedundant => SolverDiagnosticCode::InvalidRestraint,
     }
 }
 
@@ -776,6 +788,50 @@ mod tests {
     use open_pipe_stress_linear_supports::{
         FindingCode as SupportFindingCode, SupportApplicationError, SupportFinding,
     };
+
+    /// R-6/R-7 S-K1 (DEL-04-03 Work `skew-restraints.md` §11.3, Agent 0's DEL-04-06
+    /// decision): the three skew support codes join `InvalidRestraint`; the kernel's
+    /// `InvalidInput` backstop is a blocking ModelValidation input refusal, never a
+    /// numerical range or solver failure. Existing mappings are unchanged.
+    #[test]
+    fn skew_codes_and_the_invalid_input_backstop_map_as_decided() {
+        for code in [
+            SupportFindingCode::SkewDirectionRange,
+            SupportFindingCode::SkewStopsPerNode,
+            SupportFindingCode::ConstraintRedundant,
+        ] {
+            let finding = SupportFinding {
+                code,
+                support_id: "support:skew".into(),
+                message: "skew detail".into(),
+            };
+            let d = diagnostic_from_support_finding(&finding);
+            assert_eq!(d.code, SolverDiagnosticCode::InvalidRestraint, "{code:?}");
+            assert_eq!(d.severity, DiagnosticSeverity::Blocking);
+            assert_eq!(d.source, DiagnosticSource::ModelValidation);
+            assert_eq!(d.class, SolverDiagnosticClass::SolveBlocking);
+            assert_eq!(d.message, "skew detail");
+            assert_eq!(d.affected_ref.as_deref(), Some("support:skew"));
+        }
+        for detail in ["skew node block at force scale", "skew node block outside the stiffness pattern"] {
+            let d = diagnostic_from_frame_error(&FrameKernelError::InvalidInput(detail));
+            assert_eq!(d.code, SolverDiagnosticCode::InvalidModelTopology);
+            assert_eq!(d.severity, DiagnosticSeverity::Blocking);
+            assert_eq!(d.source, DiagnosticSource::ModelValidation);
+            assert_eq!(d.class, SolverDiagnosticClass::SolveBlocking);
+            assert_eq!(d.message, format!("invalid input: {detail}"));
+            assert_ne!(d.code, SolverDiagnosticCode::InvalidNumericInput, "never the range mapping");
+        }
+        // Preserved: the range and the existing restraint mappings.
+        let range = diagnostic_from_frame_error(&FrameKernelError::NumericalRange { name: "k" });
+        assert_eq!((range.code, range.severity), (SolverDiagnosticCode::InvalidNumericInput, DiagnosticSeverity::Blocking));
+        let repeated = diagnostic_from_support_finding(&SupportFinding {
+            code: SupportFindingCode::RepeatedRestrainedDof,
+            support_id: "s".into(),
+            message: "m".into(),
+        });
+        assert_eq!(repeated.code, SolverDiagnosticCode::InvalidRestraint);
+    }
     use open_pipe_stress_primitive_loads::{FindingCode as LoadFindingCode, LoadFinding};
     use open_pipe_stress_sparse_direct::PivotLocation;
 

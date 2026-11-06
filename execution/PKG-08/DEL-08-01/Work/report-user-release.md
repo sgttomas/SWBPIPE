@@ -1955,6 +1955,13 @@ code made only from its own tokens and its own crate's internals:
   input, the scan would not see it. None of today's does, and changing one
   of those dependencies is reviewed as a change to this boundary.
 
+C1 slice-7 preparation adds one file-specific standard macro form:
+`std::thread_local!` in `src-tauri/src/ingress.rs`, for the feature-gated
+allocation counter. Its body must parse as only static items; their types,
+attributes and initializers are visited by the existing scan. Bare spellings,
+other files, opaque bodies, hidden calls and source includes remain refused.
+This adds no handler, issuance path or exception to the call rules.
+
 The module traversal and the name, scope and call rules below therefore rely
 on every production `mod` and every production call being visible to `syn`,
 apart from what the listed macros emit.
@@ -2505,9 +2512,16 @@ build configuration as well as the sources:
     dependencies was not caught before. `src-tauri`'s normal and
     development dependencies are now pinned exactly, from the same
     per-crate `cargo metadata`, as `<kind> <package>`, with any rename and
-    platform (`SHELL_DEPENDENCIES`, 37 entries). The parser crates are
+    platform (`SHELL_DEPENDENCIES`, 39 entries). The parser crates are
     development dependencies only. Any move, addition, removal or rename is
-    a finding. The headless runner's are pinned the same way since code
+    a finding. `normal open_pipe_stress_hanger_sizing` was added by DEL-04-11
+    increment 3c part 2 for the capped worker's task 4 (`size_hangers`). Its
+    normal direct path dependencies, `product_physics`, `canonical_json`,
+    `units` and `library_import_document`, are already `src-tauri`
+    dependencies, and its one development dependency, `result_export`, is not
+    built into the app; the lock gains only the path package itself, and no
+    path package it brings builds a proc-macro. The exact-set rule is
+    unchanged: this is not a wildcard for later dependencies. The headless runner's are pinned the same way since code
     review r9 (`RUNNER_DEPENDENCIES`, *Allowed dependents* below). The RT-E1
     HTTP relay adds exactly twelve Cargo-reported normal dependencies, all
     `cfg(target_os = "macos")`: `bytes`, `http`, `http-body-util`, `httparse`,
@@ -2800,6 +2814,9 @@ removing all `unsafe` from the shell recorded as the follow-up.
   later group cleanup cannot clear them or remove the runtime marker.
   The exact `app_invoke_handler` macro pin is refreshed for the bounded
   `embedded_agent_host` command; report-release reach remains unchanged.
+  DEL-04-11 increment 3c part 2 re-pinned it again for two ordinary entries,
+  `size_hangers` and `cancel_hanger_sizing` (the previous digest reproduced
+  first, by the scan's own text span).
   These are the shell's modules with real
   `unsafe` code; the shell builds and its tests compile under the layer,
   which confirms the list. `ingress.rs` is unchanged (#1676's envelope); its

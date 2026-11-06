@@ -49,7 +49,8 @@ use tauri::AppHandle;
 
 /// Store v12: the state and label tables and the immutability triggers, as
 /// design §2 gives them. Every statement is `IF NOT EXISTS`, so the step is safe
-/// to re-run (the store's migrations are not transactional).
+/// to re-run. Since store v14 each step runs in one transaction with its
+/// `user_version` update (`apply_store_migrations`).
 /// `model_states_immutable` refuses any `UPDATE`. `model_states_no_replace`
 /// refuses an `INSERT` that meets an existing row of the project on either key
 /// (`state_id` or `model_hash`): a BEFORE INSERT trigger fires before conflict
@@ -3360,7 +3361,7 @@ mod tests {
         assert_eq!(evidence.store_schema_version, crate::STORE_SCHEMA_TARGET_VERSION);
         assert_eq!(
             evidence.migrations_applied_on_open,
-            vec!["store-v12-model-states-tables", "store-v13-analysis-runs-tables"]
+            vec!["store-v12-model-states-tables", "store-v13-analysis-runs-tables", "store-v14-retire-project-fts-sidecar"]
         );
         assert!(
             crate::load_project(&connection, Some(PROJECT))
@@ -3376,7 +3377,8 @@ mod tests {
             1_000,
         )
         .unwrap();
-        // A re-run (as an interrupted, non-transactional migration would) changes nothing.
+        // A re-run of applied steps (as before steps were transactional, an
+        // interrupted migration could leave) changes nothing.
         let connection = Connection::open(&path).unwrap();
         connection
             .execute_batch("PRAGMA foreign_keys = ON; PRAGMA user_version = 11;")
@@ -3385,7 +3387,7 @@ mod tests {
         let (connection, evidence) = crate::open_project_store(&path).unwrap();
         assert_eq!(
             evidence.migrations_applied_on_open,
-            vec!["store-v12-model-states-tables", "store-v13-analysis-runs-tables"]
+            vec!["store-v12-model-states-tables", "store-v13-analysis-runs-tables", "store-v14-retire-project-fts-sidecar"]
         );
         migrate_v12_model_states(&connection).unwrap();
         assert_eq!(list_states(&connection, PROJECT).unwrap().len(), 1);
@@ -3408,19 +3410,24 @@ mod tests {
         {
             let connection = Connection::open(&path).unwrap();
             connection
-                .execute_batch("CREATE TABLE marker(x); PRAGMA user_version = 14;")
+                .execute_batch(&format!("CREATE TABLE marker(x); PRAGMA user_version = {};", crate::STORE_SCHEMA_TARGET_VERSION + 1))
                 .unwrap();
         }
         let before = std::fs::read(&path).unwrap();
         let error = crate::open_project_store(&path).map(|_| ()).unwrap_err();
-        assert!(error.starts_with("STORE-SCHEMA-NEWER: the local project store is at store schema v14, newer than this build's v13"), "{error}");
+        let expected = format!(
+            "STORE-SCHEMA-NEWER: the local project store is at store schema v{}, newer than this build's v{}",
+            crate::STORE_SCHEMA_TARGET_VERSION + 1,
+            crate::STORE_SCHEMA_TARGET_VERSION
+        );
+        assert!(error.starts_with(&expected), "{error}");
         assert_eq!(std::fs::read(&path).unwrap(), before, "not a byte written");
         let connection = Connection::open(&path).unwrap();
         let mode: String = connection
             .query_row("PRAGMA journal_mode", [], |row| row.get(0))
             .unwrap();
         assert_eq!(mode, "delete", "the journal mode is not switched to WAL");
-        assert_eq!(crate::store_user_version(&connection).unwrap(), 14);
+        assert_eq!(crate::store_user_version(&connection).unwrap(), crate::STORE_SCHEMA_TARGET_VERSION + 1);
         assert!(
             !store_has_table(&connection, "local_projects")
                 && !store_has_table(&connection, "model_states")

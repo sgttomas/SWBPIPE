@@ -24,8 +24,10 @@ SHADOW = ("    #[cfg(test)]\n"
 INSERT = ("            if combining {\n                rows_by_base_id\n"
           "                    .entry(base_id)\n                    .or_default()\n"
           "                    .insert(load_case_id.clone(), result.clone());\n            }\n")
+# RT-A5 minuend_final (§8.54): the guarded call also passes the run's held operands, an empty map on D1 (D1.4 refuses
+# every difference basis, so no combination is `minuend_final` and `solve_held_combinations` is never called).
 CALL = ("    let preview_gates = if combining {\n"
-        "        preview_physics::append_combination_results(&model, preview.as_ref().expect(\"combining requires preview\"), &rows_by_base_id, &mut results, &mut diagnostics)\n"
+        "        preview_physics::append_combination_results(&model, preview.as_ref().expect(\"combining requires preview\"), &rows_by_base_id, &held_operands, &mut results, &mut diagnostics)\n"
         "    } else {\n        Vec::new()\n    };\n")
 RF_PINS = {
     "core/product_physics/src/lib.rs": "6c48546bbea452c7f26a3490892d4b441aff25ed7c1c1a9e2b10ac8eb4d91bb4",
@@ -99,15 +101,15 @@ REDUCED_PINS = {
     # or lifetime changes, and the L5 texts are unchanged.
     # Operating-case slice 1b (§8.51, merge of 41142f4a3): lib.rs's three 1b items are folded onto existing lines and
     # preview_physics.rs adds the declared arms; no reduction's owner or lifetime changes, the L5 texts are unchanged.
-    "core/product_physics/src/lib.rs": "e34a3c60cc81acafdba3f8b0913911c658898d773760e3574b1c2fefa4e773d2",
+    "core/product_physics/src/lib.rs": "fc58bd265cf557a333d37e89a27e6e196ffdfdd2883446c92830be00b0a5586b",
     "core/product_physics/src/retained_wire.rs": "1e1e60a02279771574f84df2b45628622936774a879a092842faa1e2f5f0f937",
-    "core/product_physics/src/certified_publication.rs": "89cdb23e172136b55ff980f7d4a4cd3643e43894fb2a9ad40c92fd3cd4adcf87",
+    "core/product_physics/src/certified_publication.rs": "54ae0639313c3e5785c9e65f1a9574b535bc3dbe94b49a5788b7f976f935c57a",
     "core/product_physics/src/certified_loads.rs": "da7d3decc3a0170da65b38670ec215aaebdb9d8d799e3c76e41879a80589bc73",
-    "core/product_physics/src/preview_physics.rs": "cf2ce2e184557018874f99d730c4d77d38c07b829bd0ad39e771550f31a84365",
-    "core/solver/frame_kernel/src/structural/formation_check.rs": "8931fb3dad1fd7f17b32c07eebb2e934ee9af53bb4d15fa611201829128c7893",
-    "core/solver/frame_kernel/src/structural/certified_recovery.rs": "8f69bb9bea7c7696b1f78fc985998faa03a507dfc47be13cc6a2b6aa062980c9",
+    "core/product_physics/src/preview_physics.rs": "19a3134e33454831a961efbf822428650fc23df84ed4d9da07c548c3c607c4c4",
+    "core/solver/frame_kernel/src/structural/formation_check.rs": "96b35424bd76fd7733b781241dd328aca91556372876df2a053cbdf2c7377e10",
+    "core/solver/frame_kernel/src/structural/certified_recovery.rs": "ef58e6c2ec74bad85b991c344a2127a78145af2a22d8656bbeb699ad097c1e49",
     "core/solver/frame_kernel/src/load_ledger.rs": "8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f",
-    "core/solver/nonlinear_integration/src/structural_adapter.rs": "a85cab550bc3220448a906c73523d4961a6df0a007f7cc94d666fd729016e50d",
+    "core/solver/nonlinear_integration/src/structural_adapter.rs": "72c93deecae3a0a377a02b08d91ab99d18a44d80d9ddb662b1cf1becd782b093",
     "core/solver/straight_pipe/src/lib.rs": "9a4cb59ab52b6f4340fbd74bab9c83847b89691835d0e043a4971b261df452f7"
 }
 

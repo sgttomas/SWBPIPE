@@ -661,6 +661,7 @@ fn certified_tie_rod_recovery_contains_the_exact_reference() {
             w2: w2.clone(),
             exponents: vec![0; 12],
             lambda_sigma,
+            lift_radius: Vec::new(),
         };
         let certified = certify_tie_rod_recovery(&c, 0, &u, &bound).unwrap();
         // 7·T = k(N·(u + w + w2)) − 7 k e_ref, exactly; likewise 7·e.
@@ -721,6 +722,7 @@ fn certified_tie_rod_recovery_contains_the_exact_reference() {
         w2,
         exponents: vec![0; 12],
         lambda_sigma: 0.0,
+        lift_radius: Vec::new(),
     };
     assert!(
         certify_tie_rod_recovery(&c, 1, &u, &bound).is_err(),
@@ -740,6 +742,7 @@ fn support_reactions_include_the_rods_and_connector_member_loads_exclude_their_r
         w2: vec![0.0; 12],
         exponents: vec![i32::MIN; 12],
         lambda_sigma: 0.0,
+        lift_radius: Vec::new(),
     };
     let source = FormationSource {
         node_count: 2,
@@ -777,6 +780,7 @@ fn support_reactions_include_the_rods_and_connector_member_loads_exclude_their_r
         w2: vec![0.0; 12],
         exponents: vec![0; 12],
         lambda_sigma: 0.0,
+        lift_radius: Vec::new(),
     };
     let with = super::super::certify_connector_recovery(&c, &loads, &u, &bound).unwrap();
     let plain =
@@ -803,6 +807,7 @@ fn certified_rows_combine_into_s_joint_with_their_remainders() {
         w2: vec![0.0; 12],
         exponents: vec![0; 12],
         lambda_sigma: 2f64.powi(-40),
+        lift_radius: Vec::new(),
     };
     let rod = certify_tie_rod_recovery(&c, 0, &u, &bound).unwrap();
     let loads = CertifiedMemberLoads::default();
@@ -905,6 +910,7 @@ fn certified_skew_non_dyadic_rod_contains_the_independent_100_digit_reference() 
         w2: (0..12).map(|i| 1e-30 * (3.0 - i as f64)).collect(),
         exponents: vec![0; 12],
         lambda_sigma: 0.0,
+        lift_radius: Vec::new(),
     };
     let certified = certify_tie_rod_recovery(&c, 0, &u, &bound).unwrap();
     // |published − reference| ≤ bound + slack, decided exactly; the slack

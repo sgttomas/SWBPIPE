@@ -48,7 +48,7 @@ numerical accuracy or model freshness):
 """
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from copy import deepcopy
 from fractions import Fraction
 import hashlib
@@ -862,6 +862,17 @@ def _is_tie_rod_row_id(row_id: Any, case: str, tail: str) -> bool:
     return isinstance(row_id, str) and row_id in (f"result:{tail}", f"result:loadcase:{_stable_suffix(case)}:{tail}")
 
 
+def _rust_f64_sum(values: Iterable[float]) -> float:
+    """The Rust reader's ``Iterator::sum::<f64>()`` (connector_evidence.rs: the tie-rod direction's |n|^2 and the s_x
+    tolerance's rod terms): start from -0.0, as current Rust std does, and add each term in source order, one binary64
+    rounding per addition. Python 3.12+'s built-in ``sum()`` of floats is compensated, so it can decide a boundary the
+    other way."""
+    total = -0.0
+    for value in values:
+        total += value
+    return total
+
+
 def _tie_rods(record: Mapping[str, Any]) -> list[tuple[str, float]]:
     """T4-U5b (§3.3, §5.1): a record's closed ``tie_rods`` entries, as (id, axial share). The axial share is
     RN(n.Q_x), recomputed here from the published direction and the record's Q as an exact rational."""
@@ -880,18 +891,38 @@ def _tie_rods(record: Mapping[str, Any]) -> list[tuple[str, float]]:
                  and _number(rod["stiffness_n_per_m"]) and rod["stiffness_n_per_m"] > 0 and _number(rod["reference_extension_m"])
                  and _number(rod["length_m"]) and rod["length_m"] > 0 and _vector(rod["direction_global"], 3) and _text(rod["source_reference"]),
                  "connector tie-rod record")
-        n = rod["direction_global"]
-        _require(abs(sum(v * v for v in n) - 1.0) <= 16 * math.ulp(1.0), "connector tie-rod direction")
+        # Rust reads each component as binary64 (`as_f64`) before any arithmetic; a JSON integer is converted first.
+        n = [float(v) for v in rod["direction_global"]]
+        _require(abs(_rust_f64_sum(v * v for v in n) - 1.0) <= 16 * math.ulp(1.0), "connector tie-rod direction")
         axis = [record["connector_axes_global"][k][0] for k in range(3)]
         share = rod["axial_share"]
-        _require(_number(share) and float(sum(Fraction(n[k]) * Fraction(axis[k]) for k in range(3))) == share, "connector tie-rod axial share")
+        _require(_number(share), "connector tie-rod axial share")
+        axis, share = [float(a) for a in axis], float(share)
+        # The exact rational dot of the binary64 operands, rounded once (`float(Fraction)` rounds to nearest, ties to
+        # even). The producer's publication rounding (frame_kernel `ExactAccumulator::round`) gives +0.0 for every
+        # result that rounds to zero, an exact zero or a nonzero underflow of either sign, so the rounded output (never
+        # an input) is normalized to +0.0. A total outside binary64 is refused here as the share, as the Rust reader's
+        # `exact_dot3` refuses it, rather than left as an OverflowError for a caller's malformed-evidence handling.
+        # Rust compares the share by bits (`to_bits`), so -0.0 is not +0.0.
+        exact = sum(Fraction(n[k]) * Fraction(axis[k]) for k in range(3))
+        try:
+            dot = float(exact)
+        except OverflowError:
+            dot = None
+        _require(dot is not None, "connector tie-rod axial share")
+        if dot == 0.0:
+            dot = 0.0
+        _require(struct.pack("<d", dot) == struct.pack("<d", share), "connector tie-rod axial share")
         out.append((rod["id"], share))
     return out
 
 
 def _effective_axial_binding(s: float, g: float, pe: float, rods: list[tuple[float, float]]) -> bool:
     """§5.1: |s_x - Sigma| <= (64 + n_r)eps(|g_x| + |Pe| + sum|t_r*share|) + (n_r + 2)*2^-1074, with
-    Sigma = g_x - Pe + sum_r RN(t_r*share_r) summed as exact rationals and rounded once."""
+    Sigma = g_x - Pe + sum_r RN(t_r*share_r) summed as exact rationals and rounded once. Every operand is binary64, as
+    the Rust reader's (`as_f64`): a JSON integer is converted before it is multiplied or summed."""
+    s, g, pe = float(s), float(g), float(pe)
+    rods = [(float(t), float(share)) for t, share in rods]
     products = [t * share for t, share in rods]
     if not all(math.isfinite(v) for v in [s, g, pe, *products]):
         return False
@@ -900,7 +931,7 @@ def _effective_axial_binding(s: float, g: float, pe: float, rods: list[tuple[flo
     except OverflowError:
         return False
     coefficient = (64 + len(rods)) * math.ulp(1.0)
-    tolerance = coefficient * abs(g) + coefficient * abs(pe) + sum(coefficient * abs(p) for p in products) + (len(rods) + 2) * math.ulp(0.0)
+    tolerance = coefficient * abs(g) + coefficient * abs(pe) + _rust_f64_sum(coefficient * abs(p) for p in products) + (len(rods) + 2) * math.ulp(0.0)
     return math.isfinite(tolerance) and abs(s - expected) <= tolerance
 
 

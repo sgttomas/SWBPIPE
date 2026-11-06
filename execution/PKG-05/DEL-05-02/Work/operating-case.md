@@ -1,6 +1,6 @@
 # Operating case with nonlinear supports, and the kernel side of skewed restraints
 
-> **Status: adopted plan; truthfulness fixes (#1695), stage 2 (#1671) and slice 1a (#1752) built; slice 1b built on branch `claude/rt-a5-slice1b` (§6, candidate, not yet integrated; reviewed in r1 and its focused confirmation; its model-free G-1 reading, option A, enabled after that review); R-6 unbuilt and scheduled for v1.0 after 1b (2026-10-31, below); `minuend_final` unbuilt (§6.9 seam); §4 built as `combination-certificate.md` (eligibility (b), 2026-11-04); superseded by any later Design text.**
+> **Status: adopted plan; truthfulness fixes (#1695), stage 2 (#1671) and slice 1a (#1752) built; slice 1b integrated (#107, §6); R-6 unbuilt and scheduled for v1.0 after 1b (2026-10-31, below); `minuend_final` designed (§7) and built as a candidate on `claude/rt-a5-minuend-final` (§7.3 status); §4 built as `combination-certificate.md` (eligibility (b), 2026-11-04); superseded by any later Design text.**
 > Committed from the solver lane's working note so that the adopted decisions are
 > discoverable on main. The text is unchanged except that local absolute paths are
 > shortened to `scratch/…`. Working-file references (`scratch/…` and
@@ -63,7 +63,7 @@ sustained (§1.5, V-1 and V-2).
 |---|---|---|
 | Shape | Adopted as recommended. No new case kind. Slice 1a needs no model-document change. Slice 1b is the 0.9.0 member `combinations[].difference_basis = "operating_minus_sustained"` with gates G-1 and G-2. EX refuses the member by name. | PF already solves an operating case with its own converged support state, and already forms the subtraction (§1.1). What is missing is declared meaning, operand standing and consistency gates, not a new solve. |
 | Truthfulness fixes | Done early: the K-D5 text that says nonlinear combinations are withheld, and CLM-012's seed-independence claim, which gains its friction non-uniqueness qualification (`truthfulness_fixes.md`). | Both texts currently state something the code does not do, or a claim that friction does not support. |
-| R-1 | The sustained case keeps its own support status. Frozen operating status (`subtrahend_support_state`) remains a later item, flagged to the owner (§5). | Own status changes nothing that exists. Frozen status is a different comparison, and choosing it is a code-interpretation matter. |
+| R-1 | The sustained case keeps its own support status. Frozen operating status (`subtrahend_support_state`) remains a later item, flagged to the owner (§5). | Own status changes nothing that exists. Frozen status is a different comparison, and choosing it is a code-interpretation matter. Status (2026-11-04): the owner-accepted release target (2026-10-28) carries frozen operating status as RT-A5 Should. It is designed in §7 as the declared held-constraint comparison `subtrahend_support_state: minuend_final`; own status stays the default and is never inferred. |
 | R-2 | Static, history-free friction (DEC-067) is kept, and V-3's consequence is disclosed in DEL-04-04. A load-history model is a later item. | A history model is DEL-04-04:2's ruling. Friction may admit several states. |
 | R-3 | Gap certification (G2) is adopted as work, designed after 1a. | Without it, every limit-stop operand stays unqualified (R1). |
 | R-4 | Nonlinear supports on EX are adopted as the main parity item. The design is staged after 1a and 1b, and includes friction with a one-way normal source and two-sided stops on one DOF. | Pressurized imports go to EX. |
@@ -75,7 +75,7 @@ sustained (§1.5, V-1 and V-2).
 | Skew kernel scheduled (SWBPIPE Agent 0, 2026-10-31, under the owner's 2026-10-27 scope delegation) | The skew kernel (R-6 and R-7, §2) is in v1.0, carried by the load-cases lane after 1b. It is built on the division-free nullspace basis T of §2.2, which the dynamics lane (DEL-04-09) has adopted for modal, so static and modal restrain the same subspace; modal's skew refusal lifts with the static one. It changes numerical meaning, so it takes targeted references and independent review. Until it lands, 0.9.0's `SUPPORT_DIRECTION_SKEW_UNSUPPORTED` is an interim refusal with this scheduled remover, not a release limitation. | Skewed restraints are ordinary in real systems and a CAEPIPE-class tool has them; the reference system does not need one, so it is not on criterion 1's path, but omitting it would leave a common modelling gap. |
 | §4 A, derived O−S rows | Option (i) is adopted, without (ii): a per-group combination certificate, B_D = RU(B_O + B_S + exact subtraction rounding). Cancellation stays honestly unestablished, range envelopes are deferred, and readers recompute B_D from the published operand bounds. The wording is "established within its stated bound", never "certified". Design after 1a, build before R-3, independent of R-4. It also bounds W-16b's linear EX combinations. | Each operand bound is against its own intended system, so operand-state agreement is not needed numerically (Codex r2). Without a certificate, O−S rows in nonlinear models stay inspection evidence even after G2. |
 | §4 A, eligibility (decided (b), Agent 0, 2026-11-04) | (b). An established derived group carries its own evidence, "established within its stated bound", and does not count toward the document's numerical eligibility. The document-scope and primitive-case eligibility rule is unchanged. Groups not established by cancellation, groups below the floor and uncovered rows stay explicitly inspection-only or not assessed, and no favourable operand or document standing hides them. No policy switch is built. | The row certificate is useful on its own without document promotion, and counting derived rows would change the claims rule that combination rows never count. The build and its witness, a document with one cancellation-unestablished group, are in `combination-certificate.md`. |
-| §5 B, the meaning of "expansion" | Option (3), computed as (1), is adopted. The product reports an "operating minus sustained difference" under the member's own name, with each case at its own state. The "expansion" label and its code-range meaning stay with the user's rule pack. The held-constraint option (2) remains R-1's remaining item for the owner, and can be added later as a second declared basis without renaming. | It makes the least product claim. The 0.9.0 member is already named `operating_minus_sustained`, and the engineering meaning is a design-basis choice the user's rule pack makes. |
+| §5 B, the meaning of "expansion" | Option (3), computed as (1), is adopted. The product reports an "operating minus sustained difference" under the member's own name, with each case at its own state. The "expansion" label and its code-range meaning stay with the user's rule pack. The held-constraint option (2) is the declared `minuend_final` comparison of §7, added without renaming; the engineering meaning of either difference stays with the user's rule pack. | It makes the least product claim. The 0.9.0 member is already named `operating_minus_sustained`, and the engineering meaning is a design-basis choice the user's rule pack makes. |
 
 ---
 
@@ -275,7 +275,7 @@ refuses `difference_basis` by name.
 |---|---|---|---|
 | `combinations[].difference_basis` | string enum `["operating_minus_sustained"]` | absent (a plain subtraction) | Only with `basis: result_state_subtraction` (otherwise `LOAD_COMBINATION_DIFFERENCE_BASIS_MISPLACED`). Null and unknown tokens are refused (`…_UNKNOWN`). The minuend is operating and the subtrahend sustained. Refused by name on EX. G-1/G-2 apply at solve. Written only when the user sets it. |
 | `load_cases[].kind` token `operating` | free string | — | Desktop vocabulary only; the solver keeps ignoring `kind`. |
-| `combinations[].subtrahend_support_state` (later, only if the owner chooses §5 option 2) | enum `["own", "minuend_final"]` | absent = `own` | Only with `difference_basis`. Results are published under the combination, never as the sustained case's rows. |
+| `combinations[].subtrahend_support_state` (RT-A5 Should; §7) | enum `["own", "minuend_final"]` | absent = `own` | Only with `difference_basis`. Results are published under the combination, never as the sustained case's rows. |
 
 **Provisional size of 1b:** S–M.
 
@@ -797,7 +797,7 @@ represents.
 ## 6. As built (1b)
 
 Slice 1b on branch `claude/rt-a5-slice1b` (from main `bbf384dec`, merged with main
-`800fae7e5`). Candidate: not integrated, not independently reviewed. Risk class: numerical
+`800fae7e5`). Integrated by #107 (`b32a17761`) after review r1 and its focused confirmation. Risk class: numerical
 meaning, persistence and contract. Nothing here records acceptance, issuance or release.
 
 ### 6.1 What ships
@@ -1097,44 +1097,25 @@ becomes current. Regressions: Rust `result_export/tests/recorded_pre_rt_a5_1b.rs
   fails: the reader then refuses by `…_DIFFERENCE_BASIS_MODEL` instead, still closed but not
   by its name). Each other reader guard is exercised by its own named tamper.
 
-### 6.9 Follow-on seam: `minuend_final` (not built here)
+### 6.9 Follow-on seam: `minuend_final` (designed in §7)
 
-What the frozen-status solve needs (§0 "`minuend_final` as a callable mechanism"; §5 option 2;
-DEL-04-11 `hanger-sizing.md` O-1). No solve semantics are added by 1b.
-- **Product function.** One PP function, e.g.
-  `solve_case_at_held_status(model: &PreviewModel, built: &BuiltModel, case: &PreviewLoadCase,
-  held: &NonlinearStateEvidence, solver_mode, …) -> Result<LoadCaseSolve, FrameKernelError>`:
-  the named case solved linearly with each nonlinear support held at the named other case's
-  final status (active one-way, lift-off and sticking supports prescribed at their ground,
-  an active gap at σ(c + σg_s), inactive and sliding supports free), reusing
-  `solve_prepared_load_case`'s assembly with the held states in place of
-  `built.nonlinear_initial_states` and no iteration. It may require tensile unilateral
-  reactions and is never an admissible sustained state.
-- **Input seam.** The held status comes from the minuend's completed solve through the
-  dynamics lane's typed seam (#97, DEL-04-09 I2b-2 decision B):
-  `LoadCaseSolve.nonlinear_state: Option<Box<NonlinearStateEvidence>>` (case id, solver mode,
-  converged, qualification, standing, final states), formed once on the completed
-  construction, never by parsing rows. A non-converged or unqualified minuend has no held
-  status to lend: the combination is withheld by name.
-- **Consumers.** The declared subtraction with `subtrahend_support_state: minuend_final`
-  (publishing the held solve under the combination, never as the sustained case's rows,
-  0.9.0 §2.2), and DEL-04-11's single derived solve `weight_support_state:
-  design_operating_final`. Neither keeps its own copy.
-- **Certificate.** The held solve is a linear solve at a fixed active set, so its K-D5
-  member bound is the linear certificate against the held system; it states that system and
-  never the admissible nonlinear one. Its standing and the held-constraint caveat are
-  published per consumer.
-- **Readers.** RE and Python: with the model, re-derive the held states from the minuend's
-  published state rows and check the held solve's evidence binding (case, source case,
-  states); model-free, refuse or verify by a published record as §6.4 does. G-1 and G-2 apply
-  unchanged to the comparison.
-- **Removes:** `LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED` at the solve and the
-  applier, with its own table texts and pricing.
+1b adds no held-status solve semantics. The held-status solve is designed in §7 (phase 1, not
+built). §7 replaces the seam sketch that stood here and corrects two of its statements:
+- **The held solve's K-D5 standing.** The sketch said that the held solve's member bound "is the
+  linear certificate against the held system". `confirm_converged_state` cannot supply that in
+  general. It can establish a held solve only when the target case's own classifier keeps every
+  held state and every contact branch is admissible, and otherwise returns `NotEstablished`
+  without a bound (§7.3).
+- **The input seam.** The dynamics lane's #97 `NonlinearStateEvidence` binds the case, mode,
+  qualification, standing and final states. It lacks the orienting iterate, the support assignment
+  (node, DOF, behaviour), the normal maps, an authentication of the solution vectors and an
+  invocation binding. §7.4 adds them as a separate record and leaves the #97 lines untouched.
 
 ### 6.10 Pricing and registration
 
 Registered at DEL-04-08 `retained-pricing-rules.md` §8.51, on main `573051799` (RT-U4's registered §8.50 candidate
-`41142f4a3`), priced source `a82460ad7`. AC-004 is pending.
+`41142f4a3`), priced source `a82460ad7`. AC-004 is recorded (six witnesses and the isolated challenge, 7/7 on the
+registered binary at `d44e5c538`; `61c6214a2`).
 - **Rules.** The 18 full-file pins whose basis value was a file 1b changes are restated on the merged bytes, each with
   its re-audited premise; S1-ZS drops the deleted push's two entries and RT-A4-D14 pins one push (§8.46's precedents).
   The new PF1B rules (DZ, FZ, RM, BN, L, ID) rest on D1.4's refusal of every difference basis: the declared arms, the
@@ -1147,3 +1128,1030 @@ Registered at DEL-04-08 `retained-pricing-rules.md` §8.51, on main `573051799` 
 - **Records.** Reviewed inputs #4, #5 and #12 (the three preview tables) take the restated bytes, which clears
   `reviewed_inputs_bind_the_lock_and_the_reader_statics` and the identity inventory by registration. `PINNED_RECORD`
   and the challenge constants are re-pinned. No retained successor or carrier needed regeneration.
+
+---
+
+## 7. Held-status solve (`minuend_final`)
+
+**Status: design, phase 1, revision 1; not built.**
+- **Revision 1.** It applies the independent review of `9cfbc21cd` ("revise before implementation";
+  no P0 findings; every H-1, H-1b and H-2 to H-7 closed form independently confirmed). It also folds
+  in Agent 0's decisions and RT-A3's S2 boundary, both recorded where they apply below.
+- **Base.** `claude/rt-a5-minuend-final` at `b8f3837e8`: RT-A3 P's reviewed candidate `78580da7e`
+  merged with main `b32a17761`, which carries 1b (#107). Line numbers refer to this base.
+- **Risk class.** Numerical meaning, persistence and contract.
+- **Reserved.** Nothing here records acceptance, issuance or release. These stay reserved:
+  eligibility policy (b), unchanged; the §4 certificate's premises; the #97 seam; and P's frozen
+  candidate.
+
+**Terms.**
+- The **source** case is the minuend, or for hanger sizing the design operating case.
+- The **target** case is the subtrahend, or for hanger sizing the weight case.
+- The **held status** is the source's `final_states`.
+- The **held system** is the target's own loads, materials, conditions and imposed motion, with each
+  nonlinear support's boundary formed from its held state instead of being iterated.
+- A **held solve** is one solve of the held system.
+
+### 7.1 The function and its consumers
+
+This is the one product function of §0 ("`minuend_final` as a callable mechanism"), in two layers.
+Neither copies the loop.
+- **NI** `solve_held_status_iteration` is a new `pub` function placed beside the step
+  (`lib.rs:1559–1780`). It:
+  1. assembles the target's system through `LoopSystem::assemble` (`:2334`);
+  2. forms the held boundary (`active_boundary`, `:2108`);
+  3. calls `solve_iteration_with_sliding_friction_evidence` once;
+  4. passes the solved iterate to the loop's own tail, `complete_iteration`, with `IterationExit::Now`
+     (§7.3, S2, decided);
+  5. then calls `confirm_converged_state` separately and unchanged.
+
+  There is no iteration, no all-active recovery and no second step. `LoopSystem`, `BoundaryState`,
+  the step, `confirmation.rs` and `structural_adapter.rs` are unchanged. The loop body changes only
+  by S2's pure extraction of its tail.
+- **PP** `held_status::solve_case_at_held_status` is the one product entry. It enforces the source
+  binding (§7.4) and solves the target through `solve_prepared_load_case`'s own assembly and
+  publication, with the NI call replaced by the held wrapper (§7.11). It returns a typed held solve.
+- **Consumers.**
+  - The declared subtraction with `subtrahend_support_state: minuend_final` (§7.5–§7.6).
+  - Later, DEL-04-11's `weight_support_state: design_operating_final`, through §7.7's contract.
+    Hanger integration is excluded from this work (Agent 0).
+
+### 7.2 (a) Frozen-constraint semantics, per behaviour
+
+The held status fixes each support's **state**, never its displacement or force. Prescribed values
+and loads are always the target's own.
+- This is the static, history-free model of R-2. Sticking is measured from the target's ground, as
+  in every case solve.
+- A history model that holds the source's displaced position is DEL-04-04:2's, and it is not added.
+  H-17 and H-17c kill that mutant (§7.9).
+
+| Support, held state | DOF | Prescribed value or applied force | Classifier test at the held solve (exact binary64, the loop's own rules) |
+|---|---|---|---|
+| One-way or lift-off, Active | prescribed | u_d = g_s^T (0 unless the target moves it) | kept iff the reaction has the support's sense, strictly (`state_from_sense`); otherwise a **tensile held reaction** |
+| One-way or lift-off, Inactive (lifted off) | free | none | kept iff no penetration, i.e. δ = u_d − g_s^T is not on the contact side (`state_from_penetration`; δ = 0 is kept, which is weak contact, H-18) |
+| Gap, Active (closed) | prescribed | u_d = σ(c + σ·g_s^T), required exact by TwoSum (`exact_gap_closing_position`); an inexact position is refused | kept iff the stop bears (closing in +: r ≤ 0; closing in −: r ≥ 0); under strict-gap qualification the decision uses the exact reaction sign (§7.6) |
+| Gap, Inactive (open) | free | none | kept iff the gap does not close; under strict-gap qualification, by the exact gap sign |
+| Friction, any state, normal N^T ≤ 0 | — | — | **classified Inactive first**, whatever μ and the held state: a zero or negative normal is Inactive before any stick or slip rule. The trial normal is the explicit input N, or \|R_n\| for a derived normal (`friction_normal_for_support`, `lib.rs:3115–3145`) |
+| Friction, Inactive | free | none | kept iff N^T ≤ 0. Otherwise the trial's tangential reaction is 0, below μ·N^T, so it is classified Sticking (H-16b) |
+| Friction, Sticking | prescribed | u_t = g_t^T | kept iff \|r_t\| ≤ μ·N^T |
+| Friction, Sliding, explicit normal, nonzero limit fl(μ·N^T) > 0 | free | φ = −dir^S·μ·\|N\|, with N the model's explicit input (the same in both cases) | kept iff φ·δ_t < 0 and r_t·δ_t < 0 (`resolve_sliding_friction_states`); otherwise classified Sticking |
+| Friction, Sliding, derived normal, μ > 0 | free | φ = −dir^S·μ·β^S·R_n(u^T), solved simultaneously by the step's coupling (`:1607–1700`), with R_n the target's own signed reaction at the normal-source DOF | **branch:** admissible iff β^S·R_n^T ≥ 0 (or R_n^T = 0 when β^S = 0) (`derived_normal_branch_admissible`, `:1976–1988`). An inadmissible branch keeps the classification **Sliding** and skips the tangential test (`:1835–1844`). Otherwise, as for the explicit normal, including the zero-limit row below |
+| Friction, Sliding, zero limit fl(μ·N^T) = 0 (μ = 0, or a positive μ whose binary64 product with N^T underflows to zero) | free | none (the step forms no force when −dir·μ·\|N\| is zero) | after the zero-normal rule and, for a derived normal, the branch rule: kept iff δ_t ≠ 0 and no force is applied (the classifier's `limit == 0.0` branch, `lib.rs:1846–1855`). The branch is selected by the product, never by μ alone. The held sense carries nothing (no force), so a reversed slip is kept (H-15a, and H-15c for the underflow) |
+| Friction, Active (not a friction state) | — | refused at binding (§7.4) | — |
+
+**Not held: springs, constant-effort supports and linear supports.** These have no state.
+- Ground springs keep their stiffness, and their bases move only with the target's motion (R-c).
+- A constant-effort force is part of the target's ledger (DEC-049).
+- Rigid restraints are prescribed at the target's g_b (R-a, R-d).
+
+**The friction direction (the tangent and slip-direction caveat).** dir^S is the slip sense of the
+source's final iterate (`sliding_direction`), and β^S is the sign of the source's final normal.
+- **Why the final iterate.** At a qualified Sliding state the final iterate's slip has the sign of
+  the force direction that iterate used, since tangential admissibility requires φ·δ_t < 0 with
+  μN > 0. Its normal has the sign of the assumed branch, since admissibility requires β·R_n ≥ 0 and
+  a zero normal is Inactive. So the source's final iterate orients the held step as the loop's own
+  last iterate did. H-10 checks this.
+- **Which ground.** The step measures slip on that iterate against the target's g_t (`:1883–1946`).
+  A held sliding support is therefore admitted only when g_t^S and g_t^T are bit-equal (§7.5); a
+  differing ground is refused, never corrected.
+- **The tangent.** Friction acts on its one translational DOF, so the tangent is that axis. There is
+  no in-plane slip direction to hold.
+- **Motion opposing the held sense.** If the target's motion opposes the held sense, the classifier
+  releases the support (H-5, H-14r).
+
+**The derived normal: which case's normal applies, and why.** The **target's**, solved in the same
+step.
+- Coulomb's law at a held Sliding status bounds the tangential force by μ times the normal the held
+  system carries. Holding the status holds "sliding, in sense dir^S, on branch β^S", not a force
+  magnitude.
+- Freezing the source's normal would add an operating-derived load to the target. That would break
+  the target's actual loads (requirement 2) and G-1's content premise.
+- A target normal of the other sign is an **inadmissible branch**, which §7.3 counts as released
+  (H-13).
+- Sticking and Inactive derived-normal supports use \|R_n\|, exactly as the loop does, so a sign
+  reversal there is not a release. Their signed R_n^T and β^S are still published (§7.6).
+- H-6b and H-14r kill the frozen-source-normal mutant. H-14 and H-14r kill an uncoupled-normal
+  mutant.
+
+### 7.3 (b) The held step, the confirmation, and what each outcome publishes
+
+**S2, the shared tail (decided).** Agent 0 approved S2 for the extraction only, and RT-A3, the loop
+owner, fixed its boundary. The loop's post-step composition (NI `lib.rs:878–1018` on this base) is
+replaced by one crate-private function, which the loop and the held wrapper both call:
+
+```rust
+/// Everything the loop does with one solved iterate: gap scrutiny, trial states,
+/// friction resolution, the active-set step, the converged predicate, residual
+/// observation, the iteration record, and (on exit) diagnostics, result and
+/// ProductCompletion receipt. Pure extraction of the loop tail (RT-A5 S2).
+fn complete_iteration(
+    ctx: &IterationContext<'_>,          // input, springs, &LoopSystem, gap views, &BoundaryState,
+                                         // friction_normals, derived_friction_normals, linear_solve_mode
+    iteration_index: usize,
+    sliding_solve: SlidingIterationSolve, // moved in, as today
+    recovered_path: bool,
+    sliding_force_deferred: bool,
+    state: &mut LoopState,               // iterations, current_states, final_diagnostics,
+                                         // exact_gap_remaining_work
+    exit: IterationExit,                 // AtConvergenceOrCap (loop) | Now (held wrapper)
+) -> Result<Option<NonlinearFrameSolveResult>, NonlinearIntegrationError>
+```
+
+- **The loop** calls it with `AtConvergenceOrCap`, then `if let Some(result) = …? { return Ok(result) }`.
+  The finish condition `converged || blocked || iteration_index == max_iterations` moves inside
+  unchanged, and `Now` only adds `|| true`. These stay in the loop: the step call, the all-active
+  seed recovery and `sliding_force_deferred`'s computation (everything before `:878`).
+- **The held wrapper** does the following.
+  1. It forms `held_input`: the caller's input with `initial_states` replaced by the held records,
+     which are the states the step ran from.
+  2. It builds `LoopState` with:
+     - no seed iterations, so residual deltas are `None` and the source's iterate is never a delta
+       reference;
+     - `current_states` = the held records;
+     - `final_diagnostics` = `policy_diagnostics(&input.convergence)`;
+     - the same gap allotment the loop starts with (`GAP_RUN_WORK_LIMIT`).
+  3. It calls the step once, with the source's final iterate as `previous`.
+  4. It calls `complete_iteration(…, 1, solve, false, false, &mut state, Now)`, which always returns
+     `Some(result)`.
+  5. It calls `confirm_converged_state` separately and unchanged. The call runs only when no
+     load-row finding exists and the iteration's structural report is Passed, PP's own rule;
+     otherwise the outcome is `NotEstablished { "confirmation attempt: not run" }`.
+- **`IterationContext` and `LoopState`** are crate-private bundles of what the loop already holds.
+  They add no meaning, and nothing is `pub`.
+- **Preserved exactly:**
+  - the evaluation order, including `current_states = active_set.states.clone()` before
+    `residual_observation`, which reads `iterations.last()` before the push;
+  - every `?` early return;
+  - the moves of `sliding_solve`'s fields;
+  - the recovery-path predicate;
+  - the non-converged exit diagnostic, so a released held result carries it in its own
+    `diagnostics`. PP never republishes held solver diagnostics as case diagnostics (§7.5);
+  - `ProductCompletion`, built from `system.stiffness()` and the last iterate.
+
+  Nothing new is introduced: no duplicated composition, no new active-set or confirmation logic,
+  and no changed rounding, mutation or receipt provenance.
+- **Why this boundary (RT-A3).**
+  - R-3's G2 will work inside `scrutinize_gaps` and the `StrictGapEvidence` match, both in this
+    function, so S2 lands before R-3 and G2 edits one copy.
+  - Dynamics has no hunk in or around `:878–1018`. I3a does not touch NI. Its future modal guard
+    counters sit in `LoopSystem::solve_iterate` and `ConfirmationContext`, and a per-iterate count
+    would hook `complete_iteration`'s entry.
+  - The certificate branch and R-3 add nothing in `:878–1018`, and P's D3 does not change those
+    lines.
+- **S1, rejected.** S1 would compose the same post-step calls a second time in the wrapper. That
+  duplicates the active-set bookkeeping, which only a regression would catch drifting, and G2
+  would then need parallel edits in two copies.
+
+**S2's conditions** (requirements on the extraction commit):
+1. Dense and sparse byte identity of every committed nonlinear output.
+2. H-10 as a projection test (§7.9), applied both to the loop before and after the extraction and to
+   the held wrapper.
+3. A K-1 **trace re-read** against the moved sites, recorded in the re-check paragraph of DEL-04-07
+   `k1-twin-bound.md` and in DEL-04-07's K-1 need. The loop rules that the K-1 script encodes, read
+   at their new sites, are: the authored seeds, no friction force on the first iterate, the deferred
+   first iterate, and the slip direction and normal branch taken from the previous iterate.
+   Re-running the script is not enough.
+4. The S11-K source-site assertions for the moved sites in NI `s11k_tests.rs`, updated with their
+   owners: DEL-04-07/RT-A3 for the loop, DEL-04-01 for K-D5's S11-K ruling.
+5. A measured cost with the pins restated in our own D3 slot. Coefficient identity is a target to
+   prove, not an assumption.
+6. Frame, stack and lifetime impact assessed independently. The struct borrows and the moved
+   `SlidingIterationSolve` must not lengthen lifetimes on the retained path. The loop is D1-refused,
+   and the assessment shows it.
+7. No witness exemption for being a pure extraction.
+
+**S2's ownership and order.**
+- RT-A3 owns the boundary review, and reviews the extraction commit before the work widens.
+- P's frozen candidate is never modified.
+- The extraction is its own first commit on this stack, after P's final reviewed basis, in its own D3
+  slot after P and the current I3a queue.
+- The final merge comes after P.
+
+**Status: S2 built (phase 2 step 1, `d02ec8789`; for RT-A3's boundary review).** Nothing for
+`minuend_final` itself is built. The commit holds only the extraction and the S11-F row that moves
+with it (PP `tests/s11f_site_test.rs` rule 6: `complete_iteration` now reads the input force for the
+receipt).
+- **Conditions 1 and 2, byte identity and H-10 in its extraction form.** A scratch, uncommitted hook
+  recorded each loop call's full `Debug` (mode, springs, input, result, receipt included) before and
+  after the extraction, over every loop call of the NI suite (1,264 calls) and the PP suite (1,139
+  calls), in both modes. Excluding nothing, the before and after multisets are identical, and so are
+  the stored record texts.
+- **Suites.** The suites pass on `d02ec8789`: NI 181, FK `s11_site_table` 3, and PP 1,725 passed, 0
+  failed, 133 ignored, as before the extraction.
+- **Condition 3, the K-1 trace re-read,** is recorded in DEL-04-07 `k1-twin-bound.md` and its K-1
+  need.
+- **Condition 4.** No S11-K row moves: the moved block has no compound assignment or fold, and FK's
+  table passes unchanged.
+- **Conditions 5 and 6, pricing and frame/stack/lifetime.** These are in the step's return.
+  Retained pricing is coefficient-identical to the parent `30b6b34e7` (1,602 equal, 0 higher, 0
+  lower), measured read-only because P's D3 pins are still pending. Nothing is registered.
+
+**Status: candidate built (phase 2 step 2, branch `claude/rt-a5-minuend-final`; not integrated, not
+independently reviewed).** The NI wrapper, the PP held path, the applier, the RE and Python readers,
+the TS display, policy v4 and the schemas are built as this section and §7.4 to §7.8 describe, with
+these approvals and deviations:
+- **R2, option A (RT-A3, 2026-11-04).** NI `lib.rs` names `confirm_converged_state` exactly once
+  outside the loop's own attempt: inside `fn solve_held_status_iteration(` only, strictly after its
+  `complete_iteration(` (S11-K's R2 rule, four mutants; kd5 `kd5-nonlinear-active-set.md` notes the
+  amendment). **The gap rule** sits beside the attempt: a held input with a gap support is never
+  confirmed ("confirmation attempt: not run"), so G is never promoted.
+- **Residual deltas (a deviation from "None" above; RT-A3's requirement).** The wrapper seeds the
+  loop state's iterations with the orienting iterate (the source's final one), so the held iterate's
+  displacement and reaction deltas are measured from it, and `result.iterations` is [the source's
+  final iterate, the held iterate]. H-10's projection excludes the deltas for that reason.
+- **No `metadata.held_status_ref` (a deviation from §7.6).** The closed `ResultMetadata` classes of
+  PP, RE and both result schemas are not widened. A held-operand row's identity is its id
+  (`result:combination:<combination>:held:<base id>`), its `basis_ref` (the combination), its typed
+  basis and its clause; the record binds the combination to its source and target cases.
+- **The held-operand rows published** are the held rows the difference rows cite, closed under their
+  own `source_result_refs` (so every reference resolves), in the held solve's order, before the
+  difference rows.
+- **The record's `held_solve` member** (`converged`, and the loop's exit diagnostic when it did not
+  converge) is added: a release publishes as not converged with its exit diagnostic and is never
+  promoted (the manager's condition at `solve.converged || held`).
+- **The held operand's standing.** Its `combination_operands` operand states `support_state:
+  "held_at_minuend_final"` and `held_standing`; its `numerical_quality` is null (the held system's
+  is not an envelope case's), and it is excluded from `COMBINATION_OPERAND_CHECKS_NOT_PASSED` as
+  from `…_OPERAND_STATES_DIFFER`.
+- **Readers' first refusal.** The operand reader binds `held_standing` to the record and the held rows
+  to the difference rows, and runs before the gate reader, so a forged standing or a dropped held row
+  is refused as `…_COMBINATION_OPERANDS_SHAPE` or `…_ROWS` rather than by a held code.
+- **The hanger callable (§7.7)** is the path the subtraction uses (`held_status::held_solve` through
+  `CaseRole::Held`); `solve_case_at_held_status` itself is not added, since hanger integration is
+  excluded.
+
+**Why the held result is honest.**
+- Every field of the result and the receipt is what the step and the shared tail computed for
+  `held_input`.
+- `converged = true` means exactly this: the target's own classifier, applied to this held solve,
+  changes no held state, and every contact branch is admissible.
+- `product_selected_state_is_qualified` and `confirm_converged_state` then judge the result on their
+  unchanged conditions. Nothing is bypassed, and no qualification is fabricated.
+
+**Outcomes and their standing.**
+- **Classification.** A held solve is **released** (outcome R) when the shared tail reports either of
+  these:
+  1. **a changed state:** `active_set.changed_supports` is non-empty, which includes every
+     tangential inadmissibility, since the resolver then classifies Sticking;
+  2. **an inadmissible derived-normal branch:** `contact_branches_admissible == false`. The support's
+     actual classification stays Sliding and is published as Sliding.
+
+  This is the case when the result is not `converged` and not blocked. A blocked result is
+  `HELD_STATUS_SOLVE_FAILED`.
+- **Wording.** No outcome publishes `NonlinearStateStanding::Confirmed`,
+  `NONLINEAR_CONFIRMED_EVIDENCE_LINE` or the word "confirmed". None qualifies the natural state of
+  either case.
+
+| Outcome | When | Held rows | Standing (`standing.kind` and sentence) |
+|---|---|---|---|
+| **E** | non-gap; not released; every required predicate of the confirmation passes (`Established`) | Stage B's certified values, with K-D5's member bound against the **held system** | `established`: "Established within its stated numerical bound for the explicitly held system at this case's loads. The verdict does not establish this case's own support state, an admissible sustained state, a load history or uniqueness." (Agent 0's wording.) The per-support conditions are listed in the evidence (§7.6), not in prose |
+| **N** | non-gap; not released; the confirmation returns `NotEstablished` (weakly active, H-18; Sensitive; k > 1 coupled friction; a load-row finding; …) | binary64 iterate values; member rows are binary64 recoveries | `not_established`: "Not established: <the confirmation's reason>. The held status is kept by this case's classifier; rows are inspection evidence." |
+| **R** | released, as above | binary64; no bound (the confirmation returns "the converged state is not qualified") | `not_established`: "Not established: the held status is not consistent with this case's loads; rows are inspection evidence." Plus a warning `HELD_STATUS_RELEASED` naming each released support: its held state, its classified state, the reason (changed state, or derived-normal branch) and the deciding quantity as its recorded bit token or strict-gap signs (§7.5). It publishes with this standing and is never withheld (R-5) |
+| **G** | any gap support (R1) | binary64; strict-gap evidence as the case path states it | `gap_inspection`: "Gap supports keep their recovery-basis branch (R1); not established." Plus `HELD_STATUS_RELEASED` if released. The source must still be `Qualified` (§7.4), so R1 is not bypassed |
+
+**What E's evidence lists** (§7.6). This replaces revision 0's sentence "each held support's
+condition holds … with a margin larger than its bound", which is false in general. Each support's
+applied condition from kd5 §2.2 is listed by class:
+- **Exact input decision.**
+  - Explicit-normal friction with N ≤ 0 is Inactive (H-16a): no margin, an input decision.
+  - The explicit-normal precondition N > 0 for Sticking and Sliding.
+  - μ = 0 means no force.
+- **Strict ball test.**
+  - A one-way or lift-off contact sign or separation.
+  - Stick capacity (explicit: N > 0 and μN > \|m_t\| + ρ_t; derived: 0 ∉ R_n ball and
+    μ(\|m_n\| − ρ_n) > \|m_t\| + ρ_t).
+  - A slip sign.
+  - A derived normal's 0 ∉ R_n ball with sign β^S.
+- **Precedence.** The zero-normal rule applies first, so μ = 0 sliding requires N > 0 before its slip
+  test. Sticking requires N > 0.
+
+For a strict ball test, the evidence carries the certified slot row's published value and radius
+(`CertifiedRow.published`, `.radius`) where `ConfirmedState` returns one: a constrained support's
+reaction, a sliding friction force, or a derived normal. A free one-way support's displacement ball
+is not returned by the confirmation, so it is listed as "passed" without values. These are limits,
+stated in the record.
+
+**What the confirmation cannot supply.** It cannot supply a bound for a released held state.
+- **Why.** The certificate and the contact predicate are conjoined in `certify_state`
+  (`confirmation.rs:973–1116`), and qualification fails first in any case.
+- **Frictionless supports.** With a stiffness positive definite on the base restraints alone, the
+  static contact problem has one solution, so a held frictionless status that differs from the
+  target's own is always released. This holds up to the classifier's exact decisions at weakly
+  active supports.
+- **What would be needed.** A bound for R needs a new confirmation attempt owned by DEL-04-01/kd5. It
+  is not proposed here, and no second certification path is proposed either.
+
+**Standing without §4.** Every O − S_held row is derived inspection evidence, as every subtraction
+row is today.
+
+**With §4.** The §4 certificate keeps a non-default `subtrahend_support_state` `not_assessed` until
+its bounds bind the **exact held operand**, never the subtrahend case's own bounds by id (Agent 0).
+RT-A3 is adding that exclusion on `claude/rt-a3-cert`, so O-C2 is resolved upstream (§7.11).
+
+**Numerical eligibility.** Policy (b) is unchanged.
+
+### 7.4 (c) The source-binding record and its enforcement
+
+**What the #97 seam carries and lacks.** `NonlinearStateEvidence` (`lib.rs:25486–25493`) has
+`case_id`, `solver_mode`, `converged`, `qualification`, `standing` and `final_states`. A held solve
+also needs four things the seam lacks.
+1. The **orienting iterate**.
+2. **Authenticated** source solution vectors. Matching states does not authenticate the
+   displacement and reaction vectors.
+3. The **model context**. `NonlinearSupport` (`nonlinear_supports lib.rs:39–46`) carries neither the
+   explicit normal nor the derived-normal source, which live in the input's two normal maps
+   (`friction_normal_reactions`, `derived_friction_normal_reactions`; PP `lib.rs:7508–7511`), and no
+   node identity.
+4. An **invocation binding**. Crate privacy alone does not stop a source captured in another
+   invocation, with identical ids and assignments, from being passed in.
+
+**The additive record (PP, crate-private; the #97 lines untouched).**
+
+```rust
+/// RT-A5 minuend_final (operating-case §7.4): what a completed source case lends a held solve.
+/// Formed only by `capture_held_status_source`, in the source case's own solve, from the same
+/// completed construction as `nonlinear_state`. No other constructor, no Clone outside tests,
+/// no deserialization.
+struct HeldStatusSource {
+    invocation: InvocationToken,          // minted once per document solve (or sizing request)
+    evidence: NonlinearStateEvidence,     // the typed #97 record, as captured (immutable copy)
+    input: NonlinearFrameSolveInput,      // the source's actual loop input (both normal maps incl.)
+    springs: Vec<(usize, f64)>,           // the source's ordered springs
+    solve: NonlinearFrameSolveResult,     // the source's actual result, with NI's private receipt
+    node_ids: Vec<String>,                // built-model node index -> node id
+}
+```
+
+- **The token.** `InvocationToken` is a crate-private value minted once per invocation context, from
+  a process-wide counter. It is never published, so it moves no output byte, and repeat calls stay
+  bit-identical. A source from any other invocation fails the comparison.
+- **Where the record lives.** It is a new `LoadCaseSolve` member `held_status_source:
+  Option<Box<HeldStatusSource>>` (8 B in the carrier), formed after the #97 capture
+  (`lib.rs:5978–5985`, unchanged).
+- **When it is formed.** Only when the case is the minuend of some `minuend_final` combination. Every
+  other document, D1 included, carries `None`.
+- **What it retains.** It retains the source's input and result: n-sized vectors and the iteration
+  records, and only for such minuends. §7.10 prices this.
+
+**What the callable enforces at use.** Every check is in `solve_case_at_held_status`, so the hanger
+consumer gets the same guarantees. Each refusal is named and withholds the combination, or refuses
+the sizing request. None blocks the document.
+
+| # | Check | Refusal |
+|---|---|---|
+| 1 | The minuend's `LoadCaseSolve` carries both `nonlinear_state` and `held_status_source`. They are absent in a model without nonlinear supports and in every early-return construction | `HELD_STATUS_SOURCE_UNAVAILABLE` |
+| 2 | `evidence.qualification == Qualified`. An `InspectableUnqualifiedGap` source has nothing to lend (R1). The source's `standing` is carried, not required | `HELD_STATUS_SOURCE_UNQUALIFIED` |
+| 3 | `invocation` equals the calling context's token | `HELD_STATUS_BINDING` ("… source is from another invocation") |
+| 4 | `evidence` equals, by value, the minuend `LoadCaseSolve`'s own `nonlinear_state`; `evidence.case_id` is the minuend id; `evidence.solver_mode` is the context's | `HELD_STATUS_BINDING` ("… source evidence / case <id> / mode <m> …") |
+| 5 | `product_selected_state_is_qualified(&input, &springs, &solve) == Ok(true)`. NI's private receipt then authenticates that `solve`'s final states, displacements, reactions and iterations are the loop's own output for `input` (public edits invalidate it, `lib.rs:1056–1132`), and `solve.final_states == evidence.final_states` | `HELD_STATUS_BINDING` ("… source solution is not receipt-bound to its input") |
+| 6 | **Model context.** `input` equals the target's assembled input in every member except the case's own (`force`, `base_prescribed`, `ground_motion`): `node_count`, `elements`, `connectors`, `curved_bend_elements`, `base_restrained_dofs`, `nonlinear_supports` (id, node, DOF, behaviour, gap, μ), `friction_normal_reactions`, `derived_friction_normal_reactions` and `convergence`. Also `springs` (ordered) and `node_ids` equal the target's. Each mismatch names its member and support | `HELD_STATUS_BINDING` ("… <member> differs …") |
+| 7 | `final_states` has one record per support, each a state of its behaviour (no friction `Active`) | `HELD_STATUS_BINDING` ("… support <id> state <s> …") |
+| 8 | The orienting iterate is `solve.iterations.last()`, taken from the authenticated result and never supplied separately. Each held Sliding support has a nonzero slip sense there | `HELD_STATUS_BINDING` ("… support <id> has no slip sense") |
+| 9 | Each held Sliding support's ground is bit-equal in `input.ground_motion` and the target's | `HELD_STATUS_SLIDING_GROUND_DIFFERS` |
+
+- **NI's own validation** (`normalized_initial_states`, `validate_input`, `active_boundary`) refuses
+  malformed assignments independently. PP maps any NI error to `HELD_STATUS_SOLVE_FAILED` with its
+  text.
+- **The target side.** The held solve uses the target's own lowered loads, resolved `condition_use`,
+  modulus-basis state, base motion, ground motion and spring-base motion. G-1 and G-2 apply
+  unchanged.
+
+### 7.5 (d) Admitted scope and named refusal codes
+
+**Admitted initially.**
+- The pressure-free route (preview-physics-2 and its timoshenko variant).
+- A `result_state_subtraction` with `difference_basis: operating_minus_sustained` and
+  `subtrahend_support_state: minuend_final`.
+- Models with nonlinear supports.
+- Both solver modes.
+- Every behaviour of §7.2, gaps under R1 (outcome G).
+
+**Gate order**, all warnings that withhold the combination:
+1. `LOAD_COMBINATION_OPERAND_WITHHELD` (never met; operands are load cases);
+2. G-1 `EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING`;
+3. G-2 `EXPANSION_BASIS_MODULUS_MIXED`;
+4. then the held gates in this order:
+   - `HELD_STATUS_SOURCE_UNAVAILABLE`;
+   - `HELD_STATUS_SOURCE_UNQUALIFIED`;
+   - `HELD_STATUS_BINDING`;
+   - `HELD_STATUS_SLIDING_GROUND_DIFFERS`;
+   - `HELD_STATUS_SOLVE_FAILED`, which covers an NI refusal, a blocked held result, a singular held
+     system and an inexact held gap position.
+
+The held solve runs only after G-1 and G-2 pass. Dependants are withheld whole by
+`LOAD_COMBINATION_OPERAND_WITHHELD`.
+
+**The code prefix.** `HELD_STATUS_*` is used, so the codes are not combination-specific; the hanger
+consumer reuses them (Agent 0).
+
+**Disclosed, not withheld.**
+- `HELD_STATUS_RELEASED` (warning; outcome R or G).
+  - Its wording (P1, RT-A3, 2026-11-05) uses only the held-status record's recorded fields, so
+    both readers rebuild it whole (Work `combination-certificate.md` §2); no binary64 value is
+    formatted. Per released support: `<support> held <held state>, classified <classified
+    state> (<reason, underscores as spaces>: <quantity>)`, joined by `; ` inside "Combination
+    `<id>` holds the minuend's support status in the subtrahend case, and that case's classifier
+    releases: … . The rows are the held system's, published with this standing; the held status
+    is not an admissible state of the subtrahend case." The quantity is, for a strict-gap
+    decision, `gap_sign <g>, reaction_sign <r> in the contact's own sense, <prior> to <state>`;
+    for an ordinary one, the recorded bit token that decided it: `derived normal
+    normal_signed_bits <token>` for a branch release (β is not stated), `reaction_bits <token>`
+    for a support held active or sticking, else `displacement_bits <token> from its ground`.
+    Example: `support:t held active, classified inactive (changed state: reaction_bits
+    c080000000000000)`; strict gap: `support:t held active, classified inactive (changed state:
+    gap_sign zero, reaction_sign positive in the contact's own sense, active to inactive)`.
+    Presenters quote it whole as supplied text (`HELD_STATUS_QUOTED_CODES`). Quoting is presentation
+    only: it leaves the result's raw diagnostic and evidence bytes untouched. The wording itself is
+    the producer's, changed on purpose for fresh output by P1 and priced in DEL-04-08 Work
+    `retained-pricing-rules.md` §8.54; recorded results keep their recorded bytes, and the recorded
+    table variants are selected as before (§7.6, "History").
+- The standing record (E, N, R, G).
+- The held solver's own diagnostics (policy diagnostics, the active-set diagnostics, the
+  non-converged exit diagnostic) are not republished as case diagnostics.
+
+**Unchanged.**
+- EX blocks first with `LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED`, never lifted silently.
+- `…_MISPLACED` and `…_UNKNOWN` are the validator's.
+- Absence and `own` stay own, and nothing infers `minuend_final` (importer, SI writer, desktop
+  template, defaults). The retained routes keep declining the member, and the SI writer keeps
+  refusing it.
+
+**Removed.** The interim `LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED` withholding is
+removed at the PF solve (`document_members.rs:826–835`) and at the applier (`lib.rs:6288–6289`). The
+constant is kept for its history.
+
+### 7.6 (e) Published evidence and readers
+
+**Rows. `held_status_operand` is a closed typed basis (Agent 0).**
+- **Held-operand rows.** The held solve's combined-kind rows publish **under the combination**:
+  - basis_ref `{ref_type: "combination", ref_id: <combination>}`;
+  - id `<combination-qualified>:held:<base id>`;
+  - `metadata.basis` `held_status_operand`;
+  - `metadata.held_status_ref`: the combination id, the target case id and the source case id, the
+    row's actual identity.
+- **Where the typed basis appears.** `held_status_operand` is a new member of results.v0.3's and
+  stress_neutral_export.v0.3's closed basis enum and of the tables' basis vocabulary. Its own row
+  class has its own required members; the old enum is never widened silently. The readers admit it
+  only on a `minuend_final` combination's own rows.
+- **It never fakes case rows.** No held row has a `load_case` basis_ref or a case-qualified id, and
+  the target case's own rows are byte-identical to the document without the combination.
+- **Difference rows.** The O − S_held rows cite the minuend's case row and the held-operand row, keep
+  `metadata.basis` `explicit_user_result_state_subtraction`, and state §7.8 item 5's sign.
+- **Held states.** Nonlinear state rows are never combined. The held states, decisions and
+  conditions are in the evidence record.
+
+**Contract evidence.** `contract_evidence.held_status_derivation` is optional, sits beside
+`difference_basis_derivation`, and is present only when a `minuend_final` combination reached the
+held gates. There is one record per such combination, in gate order. There are two evidence
+contracts per support, kept apart:
+
+```json
+{"combination_id": "comb:o-s-held", "subtrahend_support_state": "minuend_final",
+ "source": {"load_case_id": "case:O", "solver_mode": "sparse_interactive",
+            "qualification": "qualified", "standing": "confirmed"},
+ "target": {"load_case_id": "case:S", "modulus_basis_key": null},
+ "outcome": "admitted",
+ "held": [
+   {"support_id": "support:PROP", "node": "node:T", "dof": "UZ", "behavior": "one_way",
+    "sense": "positive_reaction", "held_state": "inactive", "classified_state": "active",
+    "decision": "ordinary", "released": "changed_state",
+    "inputs": {"ground_bits": "…", "displacement_bits": "…", "reaction_bits": "…"}},
+   {"support_id": "support:SHOE", "node": "node:C", "dof": "UX", "behavior": "friction",
+    "held_state": "sliding", "classified_state": "sliding", "decision": "ordinary",
+    "released": "branch",
+    "inputs": {"ground_bits": "…", "displacement_bits": "…", "reaction_bits": "…",
+               "coefficient_bits": "…", "normal_source": "derived",
+               "normal_source_ref": {"support": "support:Z", "node": "node:C", "dof": "UZ"},
+               "normal_trial_bits": "…",
+               "normal_signed_bits": "…", "beta": 1, "branch_admissible": false,
+               "slip_sense": 1, "applied_force_bits": "…"}},
+   {"support_id": "support:GAP", "node": "node:T", "dof": "UZ", "behavior": "gap",
+    "closes_when": "negative_displacement", "held_state": "active", "classified_state": "inactive",
+    "decision": "strict_gap", "released": "changed_state",
+    "strict_gap": {"prior": "active", "gap_sign": "negative", "reaction_sign": "positive"}}],
+ "conditions": [],
+ "standing": {"kind": "not_established", "reason": "…"}}
+```
+
+- **`decision: "ordinary"`** applies to every non-gap support, and to gap supports when the strict-gap
+  evidence is `Unsupported` (inspection only). `inputs` carries exactly the binary64 values the
+  classifier read:
+  - the trial δ (u − g where the case moves the ground, otherwise u) and the reported reaction;
+  - for friction: μ, the trial normal (\|R_n\| or the explicit N), the signed normal, β, the branch
+    verdict, the slip sense and the applied force.
+- **`decision: "strict_gap"`** applies to gap supports when the strict-gap evidence is `Qualified`.
+  The decision uses exact-ratio signs from the exact proof, not the published binary64 values
+  (`structural_adapter.rs:3248–3265`). Published u and r are projections (`:3290–3324`), so a
+  reclassification from their bits can disagree. The record carries the `GapDecision`'s prior,
+  `gap_sign`, `reaction_sign` and state, never binary64 inputs as decision inputs.
+- **`released`** is `none`, `changed_state` or `branch`.
+- **`conditions`** is present for outcome E only. It holds one entry per support: the kd5 §2.2
+  condition applied, its class (`input_decision` or `strict_ball`), and for a strict ball test the
+  certified row's published value and radius where `ConfirmedState` returns one (§7.3).
+- **A withheld record** has an empty `held` list and no `conditions`.
+- **Values** are raw SI binary64 bits. Records grow with the nonlinear supports, bounded by the
+  model's limits; no new threshold is added.
+- **A derived normal's source** (`normal_source_ref`, derived entries only): the support, its node
+  and the DOF whose reaction the classifier read, closed and typed.
+- **Provenance.** A record withheld by `HELD_STATUS_SOURCE_UNAVAILABLE` states no qualification and
+  no standing; every other record states both, `inspectable_unqualified_gap` exactly under
+  `HELD_STATUS_SOURCE_UNQUALIFIED` and `qualified` otherwise.
+
+**Readers** (RE `preview_held_status.rs`, called from `preview_combination_gates::check`; Python
+`tests/verifiers/preview_held_status.py`).
+- **Without the model (option A, as §6.5).**
+  - **Shape.** Closed shape, canonical order and finite bits (`…_HELD_STATUS_EVIDENCE`).
+  - **Every record** (`…_HELD_STATUS_BINDING`): the combination is a declared `minuend_final`
+    subtraction; source = minuend and target = subtrahend; the source mode is the document's; the
+    outcome is a held code or `admitted`. The source's qualification follows the outcome as above,
+    and its standing is `confirmed` exactly when the minuend's integrity diagnostic carries kd5
+    §3.3's confirmed evidence line. The target's `modulus_basis_key` is the one the subtrahend's
+    modulus record in this combination states (null: `material_base_values`). Each derived normal's
+    `normal_source_ref` names the support and DOF of the minuend's derived-normal row; an explicit
+    normal has no such row.
+  - **Admitted records only** (coverage, `…_HELD_STATUS_BINDING`): `held` covers exactly the
+    minuend's published `nonlinear_support_active_set_state_code` rows, by support, with each
+    `held_state` equal to its code and its node and DOF equal to the row's location (a missing,
+    extra or forged entry is named). The held-operand rows exist and cite their combination and no
+    case.
+  - **Ordinary decisions** (`…_HELD_STATUS_DERIVATION`): each `classified_state`, `released` and the
+    branch verdict are re-derived from `inputs` by §7.2's rules, in binary64 exactly as the
+    classifier evaluates them, in the classifier's order (`lib.rs:1834–1870`): a normal N^T ≤ 0 is
+    Inactive; then an inadmissible derived branch keeps Sliding and skips the tangential test; then
+    the limit fl(μ·N^T) selects the rule. A zero limit (μ = 0, or a positive μ whose product
+    underflows) keeps Sliding iff no force was applied and δ_t ≠ 0. A nonzero limit requires the
+    strict products φ·δ_t < 0 and r_t·δ_t < 0. A reader that branches on μ > 0 instead of the
+    product rejects truthful evidence (H-15c).
+  - **Strict-gap decisions:** only the decision rule over the published exact signs and prior is
+    checked. The reader never reclassifies a strict-gap decision from binary64 bits, and it does not
+    verify the exact signs, which are the proof's.
+  - **Convergence** (`…_HELD_STATUS_DERIVATION`): `held_solve.converged` holds exactly when no
+    support is released; a non-converged result carries `NONLINEAR_SUPPORT_NONCONVERGENCE` with a
+    non-empty message, and a converged one no exit diagnostic.
+  - **Standing:** `HELD_STATUS_RELEASED` is present exactly when some `released ≠ none`, and names
+    exactly those supports. `standing.kind` is `established` only with no release and no gap, and
+    `gap_inspection` with a gap. `conditions` is present exactly for `established`, and each
+    entry's condition and class match the support's behaviour and state by kd5 §2.2's table. An
+    input decision is re-derived from the published inputs.
+  - **Rows** (`…_HELD_STATUS_ROW`): §7.8 item 5's sign only on the difference rows; the typed basis
+    only on held-operand rows.
+- **With the model.** The model-free checks first. Then:
+  - each support's node, DOF, behaviour, sense or closing direction, gap, μ, explicit normal and
+    derived-normal source (its support, DOF and that support's node) are checked against the model;
+  - the target's modulus key is the subtrahend case's own;
+  - the grounds are re-derived from both cases' authored imposed motion, and with them the
+    sliding-ground rule and the trial δ's ground term;
+  - the gate derivation is re-derived.
+
+  Where either case uses `condition_use`, the reading is refused as
+  `SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_UNVERIFIED`, as 1b does.
+- **What is claimed.** Both readings detect a forgery of what they check: shapes, bindings,
+  decisions against their published inputs and, with the model, the support assignment and inputs.
+  **Solved values are never recomputed** (u, r, φ, R_n, the strict-gap signs and the certified rows),
+  in either reading (PRD §12.8). A forgery that alters solved values coherently with their decisions
+  passes both readings. Revision 0's claim that the model-bound reading refuses every coherent
+  forgery is withdrawn.
+- **Slice 1a operand standing** (`preview_physics.rs:1359`). The subtrahend operand of a
+  `minuend_final` combination states `support_state: "held_at_minuend_final"` and the held standing,
+  and `preview_combination_operands.rs` admits that member. `…_OPERAND_STATES_DIFFER` is not emitted
+  for the held pair; `HELD_STATUS_RELEASED` carries that comparison.
+- **Interim removal and gate lists.** `kept_combinations` stops removing `minuend_final` (RE
+  `preview_difference_basis.rs:360–378`, Python `:287–297`), and the admitted gate-code lists gain
+  the held codes (`preview_physics_evidence.rs:60–70`, `.py:80–86`, `preview_combination_gates.py:269`).
+- **History.** The historic recorded variants are preserved: the §10.4 registry gains the moved
+  tables verbatim, as §6.7 did, with no silent reseal (Agent 0).
+- **Presentation and bytes.** Every presenter quotes a notice whose typed code is a held gate code
+  or `HELD_STATUS_RELEASED` whole as supplied text (Work `combination-certificate.md` §2). That is
+  presentation only and changes no raw diagnostic or evidence byte of the result. What changes a
+  fresh result's bytes is the producer: the held gate notice `Combination withheld: <R>.` and
+  P1's `HELD_STATUS_RELEASED` wording (§7.5), both recorded and priced in §8.54. Recorded bytes and
+  the recorded variant selection are unchanged.
+
+### 7.7 (f) The hanger-facing callable contract
+
+This is for DEL-04-11's O-1. Integration is excluded from this work.
+
+```rust
+/// operating-case §7: `target` solved with every nonlinear support held at `source`'s final status.
+/// One step of the loop's own unit through its shared tail, then one confirmation attempt.
+pub(crate) fn solve_case_at_held_status(
+    context: &CaseSolveContext<'_>,   // the invocation's token, model, basis states, boundary,
+                                      // springs and solver mode, as its case solves used them
+    target: &PreviewLoadCase,         // as authored; the context resolves it
+    source: &HeldStatusSource,        // from a source case's LoadCaseSolve in this invocation
+) -> Result<HeldCaseSolve, HeldStatusRefusal>;
+
+pub(crate) struct HeldCaseSolve {
+    pub results: Vec<ResultItem>,       // the held system's ordinary rows; never a case's rows
+    pub record: serde_json::Value,      // §7.6's held_status_derivation record
+    pub standing: HeldStanding,         // Established | NotEstablished { reason } | GapInspection
+    pub released: Vec<ReleasedSupport>, // id, held and classified state, reason, deciding quantity
+}
+pub(crate) struct HeldStatusRefusal { pub code: &'static str, pub message: String }
+```
+
+**Semantics.**
+- **Held loads.** W is the held system's reactions at the candidates: the weight case's own loads
+  with every nonlinear support held at S_O,design's final status (§7.2).
+- **Same invocation and model.** The source must come from the **same invocation** (token) and the
+  **same model context** (§7.4 checks 3–6).
+  - A sizing request mints its own context.
+  - A derived model that changes the assembled input must solve its own source.
+- **Refusals.** Every refusal is a `HeldStatusRefusal` with a `HELD_STATUS_*` code. Sizing maps it to
+  `HANGER_SIZING_DERIVED_SOLVE_FAILED` carrying the code and the derived solve's name.
+- **No G-1.** G-1 is the subtraction's gate, not the callable's, so a sizing request can hold a
+  source with a moved sticking ground against a target with another (H-17).
+- **Releases.** `released` non-empty is R or G, including a reversed derived normal. Sizing must
+  disclose it (its §5) and never present W as the weight case's admissible state.
+- **Standing.** `HeldStanding::Established` carries E's sentence. It says nothing of the weight
+  case's own state, which sizing publishes separately.
+- **Mode.** The context's.
+
+### 7.8 (g) Old → new texts (final candidate text, for the numerical contract review)
+
+Phase 2 applies the reviewed text with the code. None of it makes a code-compliance claim.
+
+1. **DEL-05-02 ScopeOfWork, DEL-05-02:3.**
+   - **Old:** "*Slice 1b (candidate, branch `claude/rt-a5-slice1b`, not yet integrated; reviewed):*
+     … EX refuses the member by name. The minuend_final slice is open (seam:
+     `Work/operating-case.md` §6.9)."
+   - **New:** "*Slice 1b (#107):* … EX refuses the member by name. *minuend_final (candidate, branch
+     `claude/rt-a5-minuend-final`):* the subtrahend is solved with each nonlinear support held at the
+     minuend's final status by one held-status function (`Work/operating-case.md` §7), published
+     under the combination as typed held-operand rows with their held standing and held-status
+     evidence, read with and without the model; hanger sizing's `design_operating_final` is not
+     integrated."
+2. **DEL-05-02 `deliverable.yaml`.**
+   - **`code_paths`** gains `core/product_physics/src/held_status.rs`,
+     `core/product_physics/tests/op_mf_held_status.rs`,
+     `core/reporting/result_export/src/preview_held_status.rs` and `_tests.rs`,
+     `tests/verifiers/preview_held_status.py`, `tests/test_preview_held_status.py` and
+     `validation/references/op_mf_held_status/**`.
+   - **The `from: DEL-04-07` condition** appends: "It also needs DEL-04-07's held-status step
+     (`nonlinear_integration::solve_held_status_iteration`): one step of the assembled loop's unit at a
+     given support-state assignment, completed by the loop's own shared tail (`complete_iteration`),
+     receipt-bound, and followed by one unchanged confirmation attempt, for `minuend_final`
+     (`Work/operating-case.md` §7)."
+   - **DEL-04-07's K-1 need** gains, after "the slip direction and normal branch taken from the
+     previous iterate": "; these rules sit in the shared tail `complete_iteration` and the step since
+     RT-A5 S2".
+3. **preview-physics-2 `combination_policy`** (retained-1 by hand, timoshenko-1 by `derive`).
+   - **`policy_id`:** "PREVIEW-PHYSICS-1-COMBINATION-v3" → "…-v4".
+   - **`result_state_subtraction`.**
+     - **Old tail:** "; a subtrahend_support_state minuend_final is withheld before the gates
+       (LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED) and own behaves as absence".
+     - **New tail:** "; own behaves as absence; with subtrahend_support_state minuend_final the
+       subtrahend is the subtrahend case's loads solved once with each nonlinear support held at the
+       minuend's final status (a held-constraint comparison, which can need a reaction a unilateral
+       support cannot supply and is not an admissible sustained state), published as rows of basis
+       held_status_operand under the combination, never as the case's rows; its rows' sign
+       convention reads \"<item 5>\" and contract_evidence.held_status_derivation states the held
+       assignment, each support's decision and its inputs, any release, and the held standing".
+   - **`difference_basis_gates`** appends, in order:
+     - HELD_STATUS_SOURCE_UNAVAILABLE: "the minuend case has no converged nonlinear support state
+       to lend";
+     - HELD_STATUS_SOURCE_UNQUALIFIED: "the minuend's converged state is not qualified (an
+       inspectable unqualified gap state)";
+     - HELD_STATUS_BINDING: "the minuend's state does not bind to this invocation, to its own
+       receipt-bound solve, or to the subtrahend's model context and nonlinear supports one for one";
+     - HELD_STATUS_SLIDING_GROUND_DIFFERS: "a support held sliding has a different ground offset in
+       the two cases";
+     - HELD_STATUS_SOLVE_FAILED: "the held solve was refused, blocked or singular".
+   - **`gate_precedence`** appends "; a minuend_final subtraction then takes the held-status gates in
+     list order after G-2".
+   - **Basis vocabulary** gains `held_status_operand`: "a row of the held system that a minuend_final
+     subtraction subtracts, published under the combination; not a load case's result and not an
+     admissible sustained state".
+4. **PF `LIMITATIONS[6]`** is not moved (Agent 0).
+5. **Row sign text (`held_status::SIGN`):** "positive value follows explicit user result-state
+   subtraction (minuend minus subtrahend) of matching source result sign conventions; operating
+   minus sustained difference at the operating support status: the minuend case's own solved state
+   minus the subtrahend case's loads solved with each nonlinear support held at the minuend's final
+   status, a held-constraint comparison that can need a reaction a unilateral support cannot supply
+   and is not an admissible sustained state, under the static, history-free friction model; derived
+   from case results; not an equilibrium state". The held-operand rows' clause: "held-status operand
+   of <combination>: the subtrahend case's loads solved with the minuend's final support status
+   held; not the subtrahend case's result".
+6. **E's standing sentence** (Agent 0's wording): "Established within its stated numerical bound for
+   the explicitly held system at this case's loads. The verdict does not establish this case's own
+   support state, an admissible sustained state, a load history or uniqueness."
+7. **DEL-02-01 `model-document-0.9.0.md`.**
+   - **§2.2.**
+     - **Old:** "Interim until its slice: `own` behaves as absence; the solve withholds a
+       `minuend_final` combination with the warning
+       `LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED`, and the applier refuses authoring it."
+     - **New:** "`own` behaves as absence. On the pressure-free route the solve forms a
+       `minuend_final` combination by DEL-05-02 `operating-case.md` §7 and the applier authors it; EX
+       refuses the declared basis by name first."
+   - **§3.8 row.**
+     - **Old:** "… | solve; applier | RT-A5's `minuend_final` slice (DEL-05-02 `operating-case.md`
+       §5) |"
+     - **New:** "… | solve; applier | RT-A5's `minuend_final` slice (DEL-05-02 `operating-case.md`
+       §7); removed by it on PF |".
+8. **Applier** (`lib.rs:6276–6293`).
+   - The rustdoc's "a `minuend_final` subtrahend support state stays refused until its solve is built
+     (`own` behaves as absence)" becomes "a `minuend_final` subtrahend support state is authored on
+     the pressure-free route (operating-case §7); `own` behaves as absence".
+   - The refusal arm is removed.
+9. **Docs.**
+   - **`docs/theory/load_combinations.md:149–151`.**
+     - **Old:** "and a `minuend_final` subtrahend remains withheld until its own slice."
+     - **New:** "and a `minuend_final` subtrahend is solved with the minuend's final support status
+       held, a held-constraint comparison that can need a reaction a unilateral support cannot supply
+       and is not an admissible sustained state."
+   - **`docs/user_guide/index.md:491–492`.**
+     - **Old:** "a `subtrahend_support_state` of `minuend_final` stay refused at authoring;"
+     - **New:** "stay refused at authoring (a `subtrahend_support_state` of `minuend_final` is
+       authored without a pressure contract);"
+   - **`docs/user_guide/index.md:537`.**
+     - **Old:** "`subtrahend_support_state: minuend_final` is still withheld, and"
+     - **New:** "With `subtrahend_support_state: minuend_final` the subtrahend is solved with the
+       operating case's support status held (a held-constraint comparison, disclosed when a held
+       support would need a reaction it cannot supply), and".
+10. **`docs/RELEASE_TARGET_v1.0.md` RT-A5 status** (Agent 0 applies the reviewed text).
+    - **Old:** "`minuend_final` unbuilt"
+    - **New (Agent 0's wording, 2026-11-04, applied on main through #120):** status "PF operand
+      standing and the declared operating-minus-sustained basis are built (#107); EX refuses the
+      declared basis. Held operating support status (`minuend_final`) is a reviewed candidate
+      (#122), with its own held-system standing; not yet integrated."; open work "`minuend_final`
+      registration/integration after P + §4; EX declared-basis admission and downstream consumer
+      integration". When this PR merges, "a reviewed candidate (#122) … not yet integrated" becomes
+      "built" with the actual merge, and the EX and open-consumer limits stay.
+11. **This document** (applied with phase 2).
+    - **Line 3.**
+      - **Old:** "slice 1b built on branch `claude/rt-a5-slice1b` (§6, candidate, not yet
+        integrated; …); … `minuend_final` unbuilt (§6.9 seam)"
+      - **New:** "slice 1b integrated (#107, §6); … `minuend_final` designed (§7)".
+    - **§6 opening.**
+      - **Old:** "Candidate: not integrated, not independently reviewed."
+      - **New:** "Integrated by #107 (`b32a17761`) after review r1 and its focused confirmation."
+    - **§6.10.**
+      - **Old:** "AC-004 is pending."
+      - **New:** "AC-004 is recorded (six witnesses and the isolated challenge, 7/7 on the
+        registered binary at `d44e5c538`; `61c6214a2`)."
+    - **§0 R-1, the Reason cell.** The old text is kept, and this is appended: "Status (2026-11-04):
+      the owner-accepted release target (2026-10-28) carries frozen operating status as RT-A5
+      Should. It is designed in §7 as the declared held-constraint comparison
+      `subtrahend_support_state: minuend_final`; own status stays the default and is never inferred."
+    - **§0 "§5 B", the Decision cell.**
+      - **Old:** "The held-constraint option (2) remains R-1's remaining item for the owner, and can
+        be added later as a second declared basis without renaming."
+      - **New:** "The held-constraint option (2) is the declared `minuend_final` comparison of §7,
+        added without renaming; the engineering meaning of either difference stays with the user's
+        rule pack."
+    - **§1.4, the member row.**
+      - **Old:** "`combinations[].subtrahend_support_state` (later, only if the owner chooses §5
+        option 2)"
+      - **New:** "`combinations[].subtrahend_support_state` (RT-A5 Should; §7)".
+12. **DEL-04-11 `hanger-sizing.md` O-1** is the hanger owner's. §7.7 is the contract sent, not edited
+    here.
+
+### 7.9 (h) Reference plan
+
+**Where and how.**
+- The references live in `validation/references/op_mf_held_status/`, with the generator at
+  `generators/held_status_reference.py`. It uses the standard library only: exact
+  `fractions.Fraction`, an exact rational 2D Euler–Bernoulli frame in the XZ plane, and enumeration
+  of every candidate state.
+- It reads no product code, uses invented values and has op1b's layout.
+- **Recorded values.** Every value below was computed by an independent scratch generator of that
+  design, run with `python3 -I` from `/tmp/mf1-gen-20261104b/` on 2026-11-04. It enumerates own
+  states and keeps the unique admissible one; held solves apply §7.2's rules once. The generator
+  committed in phase 2 must reproduce these values.
+- **Comparison.** Values are exact rationals; dyadic ones are written exactly, and others are shown
+  with their nearest binary64. The comparison rule is op1b's 1e-9.
+- **Product models.** The product models are 3D, with the generator's plane as XZ and every
+  out-of-plane DOF unloaded.
+
+**Models.**
+- **The bar.** Along X, anchored at x = 0, L = 4 m, EA = 2²², so k = 2²⁰ N/m; α = 2⁻¹⁶ /K, so
+  ε = α·ΔT and δ_T = 4ε.
+- **The tip-UZ bar** adds a UZ base restraint at the tip, the derived-normal source, with R_n = the
+  vertical reaction. A vertical tip load goes straight into it.
+- **The V-2 cantilever.** s\* = 5PL³/(48EI) = 2⁻¹⁰ m.
+- **The L-frame (H-14).**
+  - Nodes A(0,0,0), anchored; B(1,0,0); C(1,0,−1).
+  - Members AB and BC, EA = 2²⁴ N, EI = 2²⁰ N·m².
+  - At C: a UZ base restraint as the normal source, and UX friction with a derived normal,
+    μ = 1/4.
+  - The coupling is g = ∂R_n/∂φ = −24/19, so μg = −6/19: strongly coupled.
+- **Friction.** μ = 1/4 unless stated.
+
+**Case references.** Displacement rows are in m, forces in N; φ is the friction force on the pipe.
+Every O and S combination satisfies G-1 except H-17, which is callable-level.
+
+| Id | Loads (S ⊂ O by content) and held behaviour | O own | S own | S held | O − S_held | Outcome |
+|---|---|---|---|---|---|---|
+| H-1 | V-2, rise s = 2s\*; prop held Inactive | inactive, u_tip = s\*, R = 0, M_A = PL/2 | active, R = 5P/16 | u_tip = −s\*, R = 0, M_A = PL/2 | Δu = 2s\*, ΔR = 0, ΔM_A = 0 | R (changed: penetration) |
+| H-1b | V-2, s = s\*/2; prop held Active | active, R = 5P/32 | active, R = 5P/16 | = S own | = 1b's O − S, bit for bit | E or N |
+| H-2 | bar, one-way +; S: F = 512; O: F, ΔT = −16 K | active, u = 0, N = 1024, R = 512 | inactive, u = 2⁻¹¹, N = 512 | u = 0, N = 0, **R = −512** | Δu = 0, ΔN = 1024, ΔR = 1024 | R (changed: tensile) |
+| H-3 | bar, explicit N = 4096; S: F = 2048; O: F, ΔT = −24 K | sticking, u = 0, N = 1536, R_t = −512 | sliding +, u = 2⁻¹⁰, φ = −1024 | u = 0, N = 0, **R_t = −2048** | Δu = 0, ΔN = 1536, ΔR_t = 1536 | R (changed: capacity) |
+| H-4 | as H-3, O: ΔT = −8 K (V-3) | sliding +, u = 2⁻¹¹, φ = −1024 | sliding +, u = 2⁻¹⁰, φ = −1024 | = S own | Δu = −2⁻¹¹, Δφ = 0 | E (kept) |
+| H-5 | as H-3, O: ΔT = −64 K | sliding −, u = −2⁻¹⁰, N = 3072, φ = +1024 | sliding +, u = 2⁻¹⁰ | φ = +1024, **u = +3·2⁻¹⁰** | Δu = −2⁻⁸, ΔN = 0 | R (changed: slip sense) |
+| H-6 | tip-UZ bar, derived; S: V = 4096 down, F = 2048; O: V, V′ = 4096 down, F, ΔT = −80 K | R_n = 8192, sliding −, u = −2⁻¹⁰, φ = +2048 | sliding +, u = 2⁻¹⁰ | R_n = 4096, φ = +1024, u = 3·2⁻¹⁰ | Δu = −2⁻⁸, Δφ = 1024 | R (changed) |
+| H-6b | as H-6 with F = 3072 in both; O: ΔT = −8 K | R_n = 8192, sliding +, u = 2⁻¹¹, φ = −2048 | sliding +, u = 2⁻⁹, φ = −1024 | = S own (frozen-normal mutant: φ = −2048, u = 2⁻¹⁰) | Δu = −3·2⁻¹¹, Δφ = −1024 | E or N |
+| H-7 | V-1 bar gap closing +, c = 2⁻⁹; S: F = 1536; O: F, ΔT = +16 K | active, u = c, N = 1024, stop −512 | open, u = 3·2⁻¹¹ | u = c, N = 2048, **stop +512** | Δu = 0, ΔN = −1024, Δstop = −1024 | G + R, or `SOURCE_UNQUALIFIED` per the source's qualification |
+| **H-7g** (product witness for G) | PP rendering of NI `p_tests.rs` `gap_chain(1)`: unit cantilever along X, E = 100, A = 1, I = 1 (bending in the gap's plane), tip gap closing in −, c = 2⁻¹²; S: 2⁻⁶ N toward the gap; O: S plus 1 N | active, u = −2⁻¹², R = 965/1024 | open, u = −1/19200 | u = −2⁻¹², **R = −59/1024 (pulled)** | Δu = 0, ΔR = 1 | G + R. Required end to end: the source must reach `Qualified` (NI `p_tests.rs:100–105`; PP `lib.rs:7532–7536` maps it), and phase 2 asserts it |
+| H-13 (normal reversal) | tip-UZ bar, derived; S: U = 4096 up, F = 2048; O: U, V′ = 8192 down, F, ΔT = −8 K | R_n = +4096, sliding +, u = 2⁻¹¹, φ = −1024 | R_n = −4096, sliding + (its own β = −1), u = 2⁻¹⁰, φ = −1024 | β^S = +1, **R_n^T = −4096**, φ = +1024, u = 3·2⁻¹⁰; classified **Sliding**, branch inadmissible | Δu = −5·2⁻¹¹, Δφ = −2048, ΔR_n = 8192 | R (branch) |
+| H-14 (strongly coupled) | L-frame; S: W = 4096 N down at B, P = 2048 N +X at C; O: S, ΔT = +64 K on AB | sliding +, u_C = 617/319488, R_n = 16384/13, φ = −4096/13 | sliding +, u_C = 305/319488 (9.5465244391025638e-4), R_n = 16384/13 (1260.3076923076924), φ = −4096/13 | = S own (uncoupled mutant: φ = −4096/19, u_C = 1.0271715215258541e-3) | Δu_C = 2⁻¹⁰, ΔR_n = 0, Δφ = 0 | E or N (k = 1, Stage A) |
+| H-14r | L-frame; S as H-14; O: S, P′ = −4096 N at C | sliding −, u_C = −593/614400, R_n = 114688/25, φ = +28672/25 | as H-14 | β^S = +1, R_n = 16384/25 (655.36), φ = +4096/25 (163.84), **u_C = 267/204800 (1.3037109375e-3)** (frozen mutant: φ = 1146.88, u_C = 2.0201994243421052e-3; uncoupled mutant: φ = 4096/19, u_C = 1.3414208578601107e-3) | Δu_C = −697/307200, ΔR_n = 98304/25, Δφ = 24576/25 | R (changed: slip sense) |
+| H-15a (μ = 0) | bar, explicit N = 4096, μ = 0; S: F = 512; O: F, ΔT = −16 K | sliding −, u = −2⁻¹¹, φ = 0 | sliding +, u = 2⁻¹¹ | sliding (held −, no force), u = 2⁻¹¹; kept (δ ≠ 0) | Δu = −2⁻¹⁰ | E or N |
+| H-15b (μ = 0, no slip) | as H-15a; S: 512 N at the anchor node only; O: S, ΔT = −16 K | sliding −, u = −2⁻¹⁰ | sticking, u = 0 | u = 0; classified **Sticking** | Δu = −2⁻¹⁰ | R (changed) |
+| H-15c (positive μ, zero limit) | as H-15a, with explicit N = 1/4 and μ = 2⁻¹⁰⁷⁴ (fl(μ·N) = fl(2⁻¹⁰⁷⁶) = 0, so the step forms no force) | sliding −, u = −2⁻¹¹, φ = 0 | sliding +, u = 2⁻¹¹ | sliding (held −, no force), u = 2⁻¹¹; kept (zero limit, δ ≠ 0) | Δu = −2⁻¹⁰ | E or N. Mutant: a μ > 0 rule requiring strict force products classifies Sticking (R) and must be killed. If the document validator refuses a subnormal μ, this witness is callable-level (NI wrapper), and that refusal is recorded |
+| H-16a (inactive, input decision) | bar, explicit N = 0, μ = 1/4; S: F = 512; O: F, ΔT = −16 K | inactive, u = −2⁻¹¹ | inactive, u = 2⁻¹¹ | inactive, u = 2⁻¹¹, kept | Δu = −2⁻¹⁰ | E, with an `input_decision` condition |
+| H-16b (inactive, derived) | tip-UZ bar, derived; S: V = 4096 down, F = 512; O: V, U = 4096 up, F (so R_n^O = 0 exactly) | inactive, u = 2⁻¹¹ | sticking, u = 0, R_t = −512 | inactive, u = 2⁻¹¹; trial normal 4096 > 0, so **Sticking** | Δu = 0 | R (changed) |
+| H-17 (sticking, moved ground; **callable level**, no G-1) | bar, explicit N = 4096; source: F = 2048 (as 768 + 1280), shoe ground g^S = 3·2⁻¹¹; target: F = 768, g^T = 2⁻¹¹ | sticking, u = 3·2⁻¹¹, R_t = −512 | sticking, u = 2⁻¹¹, R_t = −256 | u = 2⁻¹¹, N = 512, R_t = −256, kept (**hold-source-displacement mutant:** u = 3·2⁻¹¹, R_t = +768) | Δu = 2⁻¹⁰, ΔR_t = −256 | E or N |
+| H-17c (the same at combination level) | as H-17, target: F = 768, no ground motion (g^T = 0) | as H-17 | sticking, u = 0, R_t = −768 | u = 0, R_t = −768, kept (mutant: u = 3·2⁻¹¹, R_t = +768) | Δu = 3·2⁻¹¹, ΔR_t = 256 | E or N |
+| H-18 (weak contact) | bar, one-way +; S: 512 N at the anchor node only; O: S, ΔT = +16 K | inactive, u = 2⁻¹⁰ | inactive, u = 0 | u = 0 exactly: kept (no penetration); the separation ball contains 0 | Δu = 2⁻¹⁰ | **N** ("separation not established") |
+
+- **H-3.** H-3 cannot kill the hold-source-displacement mutant, since its source sticks at its ground,
+  0, which is also the target's. H-17 and H-17c kill it. Under G-1 a target ground primitive must
+  equal the source's by content, so a nonzero, differing pair exists only at the callable level.
+- **Linear held twins.** These are the same models with each held support replaced by its held
+  linear boundary, solved on the linear route:
+  - H-1: the prop removed;
+  - H-2 and H-3: a rigid UX restraint at the tip;
+  - H-17: a rigid UX at the tip with prescribed 2⁻¹¹;
+  - H-4: −1024 N at the tip; H-5: +1024 N; H-6: +1024 N; H-13: +1024 N;
+  - H-15 and H-16: no restraint.
+
+  The rows equal S_held's closed forms by the 1e-9 rule. Bit equality between routes is not
+  claimed.
+
+**The remaining references.**
+- **H-8, bindings** (PP tests through `solve_case_at_held_status`, each refused by its name, §7.4):
+  - a missing, extra or repeated support state;
+  - a friction support held `Active`;
+  - another invocation's source, built identically (token);
+  - `evidence` not equal to the minuend's `nonlinear_state`, or its case id or mode differing;
+  - one bit of the source's `solve.displacements` or `reactions` edited (the receipt fails);
+  - each model-context member changed in turn: an element, a base DOF, a support's node, DOF,
+    behaviour, gap bits or μ bits, an explicit-normal value, a derived-normal source node or DOF, a
+    spring and a node id;
+  - a source orienting sense of zero (defensive);
+  - a sliding ground that differs (R-b ground motion on the shoe in O only);
+  - an `InspectableUnqualifiedGap` source;
+  - a linear model (`SOURCE_UNAVAILABLE`);
+  - a held system made singular by a held lift-off (`SOLVE_FAILED`, with the document not blocked).
+- **H-9, repeatability and modes.** Each held document is solved twice in one process and once in a
+  fresh process, with identical bytes. Every closed form is checked in dense and in sparse mode.
+- **H-10, the projection test.** It has two uses: **S2's extraction proof**, which is the loop's
+  output before and after `complete_iteration`, and **the held wrapper against the loop**, which is
+  the wrapper at a case's own final states with its own penultimate iterate, and separately with its
+  own final iterate, against the loop's final iteration. Both run in both modes over every committed
+  nonlinear model's converged cases.
+  - **Compared, bit for bit:**
+    - the boundary (DOFs and prescribed bits);
+    - the applied sliding forces and the final force;
+    - the displacement and reaction bits, and the sparse evidence of the final solve;
+    - the classifier decisions: the active-set states, the changed supports and the residual
+      count, the tangential and derived-branch admissibility, and the strict-gap evidence and
+      decisions, compared as the strict-gap fields enumerated below;
+    - the converged predicate;
+    - `product_selected_state_is_qualified`'s verdict, **as a value**: false verdicts are preserved
+      and compared, never required to be true. A converged but unqualified state (the committed
+      mixed-gap inspection case, NI `lib.rs:5527–5535`, converged with qualification false) must
+      give false on both sides;
+    - the confirmation's outcome: its variant, and its reason or its `ConfirmedState` rows' bits.
+  - **Excluded, named:** the iteration number and history, the residual deltas from a previous
+    iterate, the receipt's `initial_states` and history, the first-iteration deferral and recovery
+    flags, and the order and position of policy and exit diagnostics.
+  - **Strict-gap evidence (`ExactGapReport`), wrapper against loop.** Compared: `free_dofs`,
+    `prescribed`, `decisions`, `projections`, `ordinary_displacements` and
+    `corrected_coordinate_count`. Excluded, named: `source_identity` (it embeds the iteration
+    number, `structural_adapter.rs:3199`), `work` and the private retained proof, limits and work
+    snapshot (budget and proof metadata that depend on the iteration's position, `:2700–2715`). For
+    **S2's extraction proof** (the same loop before and after `complete_iteration`) nothing is
+    excluded: every output, including the full strict-gap report, the iteration records and the
+    receipt, is byte-identical.
+  - **Each receipt against its own inputs: authentication, not qualification.** Receipt validity
+    is `product_completion_matches_source` (`lib.rs:1056`): the held receipt must authenticate
+    against `held_input` and its own one-iteration result, and the loop's against the loop's
+    input and result. Qualification is a separate projected verdict (above), and an authenticated
+    receipt may carry a false one. A
+    one-field mutation of either result's public members invalidates its own receipt (as
+    `successor_completion_receipt_rejects_public_report_and_source_mutations`).
+- **H-11, negatives and order:**
+  - G-1 and G-2 failures withhold before any held gate, and the held solve is not run (an
+    instrumentation count);
+  - the member on `mechanics` or `range_envelope` is `…_MISPLACED`;
+  - `own` is byte-identical to absence;
+  - EX blocks first by name;
+  - a non-converged minuend blocks the document as today;
+  - a `minuend_final` combination named by another combination withholds its dependant whole when
+    it is itself withheld;
+  - the target case's own rows are byte-identical with and without the combination.
+- **H-12, mutants** (each restored after its run):
+  - holding the source displacement (H-17, H-17c);
+  - freezing the source normal (H-6b, H-14r);
+  - an uncoupled normal (H-14, H-14r);
+  - the slip sense taken from the target's motion (H-5);
+  - treating an inadmissible branch as kept (H-13);
+  - skipping the classifier (H-2);
+  - reclassifying a strict-gap decision from bits in the reader (a tamper whose exact signs disagree
+    with the bits is accepted with its signs);
+  - held rows published as case rows, or with the old basis;
+  - "confirmed" wording on a held standing;
+  - coverage checks applied to a withheld record (the withheld corpus member is refused);
+  - each reader binding check disabled in turn (its tamper);
+  - a §4 lookup of own-case bounds for a held combination (refused by RT-A3's exclusion).
+- **Readers.** The shared corpus `fixtures/results/preview_physics_held_status_corpus.json` is the
+  producer's output, and every document reads with and without its model. There are tampers, each
+  refused by name in both languages, for:
+  - each binding field, each `inputs` value and each classified state;
+  - `released` and RELEASED in either direction;
+  - the standing kind, and the `conditions` presence and class;
+  - the sign text and the typed basis;
+  - a held row cited as a case row;
+  - the source mode;
+  - a coverage check on an admitted record;
+  - a strict-gap rule violation over published signs.
+
+  Plus one coherent solved-value forgery, which passes both readings by design (§7.6).
+
+### 7.10 (i) Pricing outlook (no registration in this work)
+
+The change moves the retained route's statics and code, and its registration is DEL-04-08's after
+phase 2. There are two D3 slots: S2's own, then the held slice's.
+- **S2 (NI `lib.rs`).** `complete_iteration`, `IterationContext`, `LoopState` and `IterationExit`.
+  - Its cost is measured and its pins restated. Coefficient identity is to be proven.
+  - Frame, stack and lifetime impact are assessed independently: the borrows in the context, the
+    moved `SlidingIterationSolve` and `LoopState`'s ownership of `iterations`.
+  - The loop is D1-refused, which is shown, not assumed.
+- **The held slice.**
+  - **PP.** `LoadCaseSolve` +8 B (the carrier 1,888 → 1,896 B, and +8 B more if §4's
+    `certificate_operand` lands). The held dispatch in `solve_prepared_load_case`, the capture, the
+    held solves after the case loop, and `held_status.rs`, `preview_physics.rs` and
+    `document_members.rs`. The retained source copy (input, result, iterations) exists only for
+    `minuend_final` minuends, so it is zero on D1.
+  - **NI.** The wrapper, `HeldStatusSolve` and the invocation token's type.
+  - **Tables.** Combination policy v4 in the three preview tables (STATICS, as §8.51's v3), with the
+    recorded-run registry gaining the moved tables.
+  - **Rules** (`o10_rules.py`). The S1 `minuend_final` push entries (`:4113`, `:4226–4228`) drop. The
+    A4 family counts (`:4776–4805`, `:5211`) stay. New rules rest on D1.4's refusal of every
+    difference basis, as §8.51's PF1B rules did.
+- **Not changed.** FK, SD, `structural_adapter.rs` and confirmation code.
+
+### 7.11 Seam map for phase 2
+
+Line numbers are on `b8f3837e8`. The order is the S2 extraction commit first (RT-A3 reviews its
+boundary), then the held slice.
+
+| Area | File and lines | Phase-2 change |
+|---|---|---|
+| NI loop tail (S2, first commit) | `lib.rs:766–1024`, the post-step `:878–1018` | moved into `complete_iteration` (§7.3), with `IterationContext`, `LoopState` and `IterationExit` crate-private beside it. The loop keeps `:766–877` (guard, validation, assembly, gap views, the seed and its recovery, the step and `sliding_force_deferred`) and calls the tail |
+| NI step (read only) | `lib.rs:1559–1780` | unchanged |
+| NI wrapper (new) | `lib.rs`, after `:1780` | `pub fn solve_held_status_iteration`, `pub struct HeldStatusSolve`. It calls `dense_loop_memory_guard`, `validate_input`, `normalized_initial_states`, `LoopSystem::assemble`, `gap_views`, `active_boundary`, the two normal maps, the step once, `complete_iteration(…, Now)` and `confirmation::confirm_converged_state` |
+| NI receipt, qualification, confirmation | `lib.rs:355–381`, `:1029–1283`; `confirmation.rs` | unchanged |
+| NI tests | `lib.rs` test module or a new `held_tests.rs`; `s11k_tests.rs` (S11-K site assertions for the moved sites) | H-10, the wrapper's validation, S2's identity |
+| DEL-04-07 records (S2) | `Work/k1-twin-bound.md` (the re-check paragraph at `:242`), `deliverable.yaml` (the K-1 need, `:298–314`) | the trace re-read, recorded |
+| PP `LoadCaseSolve` | `lib.rs:2650–2673`; literals at `:5310`, `:5347`, `:5455`, `:5496`, `:5763`, `:5796`, `:5894`, `:7381`, `:15728` | + `held_status_source` (the `nonlinear_state` line unchanged) |
+| PP case solve | `lib.rs:5267–5283` (signature), `:5849–5868` (a held dispatch beside the unchanged call), `:5869–5895` (the held path does not require `converged`), `:5972–5976` (a `NonlinearStanding::HeldEstablished` arm), `:6000–6005` (E's held line in place of the confirmed line), after `:5985` (the capture) | the #97 capture `:5978–5985`, the third tuple member and `confirm && passed && !gap` (`:7546`) are unchanged |
+| PP nonlinear append | `lib.rs:7438–7818` | unchanged, except an optional behaviour-preserving extraction of the input construction (`:7488–7513`) shared with the held sibling (a review choice) |
+| PP held module (new) | `held_status.rs` | `InvocationToken`, `HeldStatusSource`, `capture_held_status_source`, `solve_case_at_held_status`, the binding checks, `append_held_status_results`, the evidence record, `SIGN` |
+| PP document solve | `lib.rs:3257–3412`; insert after `:3412` | the context and its token, and the held solves for admitted `minuend_final` combinations |
+| PP combinations | `preview_physics.rs:848–905` (the held gates after G-2), `:973` and `:1036–1046` (the held map, subtrahend lookup and sign), `:1359` (the held subtrahend operand record) | — |
+| PP evidence | `lib.rs:3524`, `:3661` | `held_status_derivation` beside `DERIVATION_MEMBER` |
+| PP interim | `document_members.rs:826–835` | drop the push; the constant `:69–70` stays |
+| Schema | `schemas/results.v0.3.schema.yaml:725`, `:4852` (the typed basis and its row class); `PreviewPhysicsContractEvidence` | stress_neutral_export.v0.3 and analysis_run.v0.3 follow; `schema_manifest.json` regenerated |
+| RE | `preview_difference_basis.rs:360–378`, `preview_combination_gates.rs:465–470`, `preview_physics_evidence.rs:60–70`, `preview_combination_operands.rs`, new `preview_held_status.rs` and `_tests.rs` | — |
+| Python | `tests/verifiers/preview_difference_basis.py:287–297`, `preview_combination_gates.py:269`, `:361`, `preview_physics_evidence.py:80–86`, `preview_combination_operands.py`, new `preview_held_status.py`; `tests/test_preview_held_status.py`, `test_model_document_0_9_0_members.py:68` | — |
+| Applier | `operation_applier/src/lib.rs:6276–6293`, `:15968–15973`; `tests/condition_set_authoring.rs:554–569`, `tests/model_document_0_9_0.rs:43` | — |
+| TS | `apps/desktop/src/features/viewport/resultColourOverlay.ts:145–149`, `derivedRowNote.test.ts` | the held sign note and the typed basis |
+| Tables and registry | the three `semantic_contract_v0_3_preview_physics_*.json` through `semantic_contract_tables.py`; `recorded_tables::VARIANTS`, `compatibility.py`, `recordedPreRtA4.ts` | §7.8 item 3; historic variants preserved verbatim |
+| Pricing | `tools/retained_pricing/rules/o10_rules.py`, `base/s1_owners_model.py:47` | §7.10 |
+
+**Overlaps.**
+- **O-P1, P's D3 comment at PP `lib.rs:3209–3214`.** There is no textual overlap.
+- **O-P2, P's pins in NI `structural_adapter.rs` and FK.** These are untouched. S2 changes NI
+  `lib.rs`, so S2 takes its own D3 slot after P's, and restates any NI pin there.
+- **O-D, dynamics.** It has no hunk in or around `:878–1018`. Its future counters sit in
+  `LoopSystem::solve_iterate` and `ConfirmationContext` (RT-A3).
+- **O-C1, textual (§4, `claude/rt-a3-cert`).** `certificate_operand` and `held_status_source` are
+  added at the same `LoadCaseSolve` literal sites. The conflict is mechanical: the branch that merges
+  second adds its member beside the other's. The certificate's map sits at `lib.rs:~3447–3475` and
+  its `publish` at `:~3693`; the held solves insert at `:3412`.
+- **O-C2, semantic: resolved upstream.** RT-A3 is adding on `claude/rt-a3-cert` the exclusion
+  "not_assessed for any non-default `subtrahend_support_state`". It stays until the certificate's
+  bounds bind the exact held operand, never own-case bounds by id (Agent 0).
+
+### 7.12 Decisions recorded, and what remains open
+
+**Decided (Agent 0 and RT-A3, 2026-11-04).**
+- S2, with RT-A3's boundary (§7.3).
+- E's wording (§7.3).
+- A reversed derived normal is a release.
+- The `HELD_STATUS_*` codes.
+- Combination-owned held rows with the typed basis `held_status_operand`.
+- `LIMITATIONS[6]` unchanged.
+- Hanger integration excluded.
+- Historic recorded variants preserved.
+- O-C2 resolved upstream.
+- Policy (b) unchanged.
+
+**Open for the numerical contract review.**
+- The final candidate texts of §7.8, including §0 R-1, §5 B, §1.4 and RT-A5.
+
+**Decided by the manager (2026-11-04).** Gap-bearing models are admitted with outcome G: the
+source must be `Qualified` (§7.4), no held gap outcome is ever confirmed (R1), and H-7g is the
+product witness. No refusal until R-3 is kept.

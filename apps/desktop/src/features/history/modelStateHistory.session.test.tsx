@@ -264,7 +264,8 @@ describe("model states in the session (W-12 S1)", () => {
     expect(await screen.findByTestId("model-history-empty")).toBeInTheDocument();
     await saveStateNamed("Basis – rev A");
     await waitFor(() => expect(historyMessage()).toHaveTextContent(`Saved model state "Basis – rev A"`));
-    expect(commandOrder().filter((name) => name !== "find_local_project")).toEqual(["save_local_project", "save_model_state"]);
+    // The session retirement's MBF export cancel (DEL-17-04 §3.7) is not a store write.
+    expect(commandOrder().filter((name) => name !== "find_local_project" && name !== "cancel_mbf_export")).toEqual(["save_local_project", "save_model_state"]);
     const [request] = calls("save_model_state").map((args) => args.request as SaveRequest);
     expect(request.expected_base).toBe(BASE);
     expect(request.project_id).toBe(DEMO.project.id);

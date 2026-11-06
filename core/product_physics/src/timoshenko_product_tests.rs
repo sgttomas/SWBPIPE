@@ -448,7 +448,7 @@ fn kd5_straight_frames_are_bound_to_the_formation_source() {
     assert!(force.load_primitives().is_empty(), "precondition: no load primitive on any member");
     let source = certified_publication::source(&built, &force, &[]);
     assert_eq!(source.frame_members.len(), source.frames.len());
-    let bound = MemberBoundInputs { w: vec![0.0; n], w2: vec![0.0; n], exponents: vec![i32::MIN; n], lambda_sigma: 0.0 };
+    let bound = MemberBoundInputs { w: vec![0.0; n], w2: vec![0.0; n], exponents: vec![i32::MIN; n], lambda_sigma: 0.0, lift_radius: Vec::new() };
     let u = vec![0.0; n];
     let section = built.sections[&built.pipes[0].element_id].clone();
     for pipe in &built.pipes {

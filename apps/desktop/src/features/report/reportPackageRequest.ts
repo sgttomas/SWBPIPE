@@ -20,6 +20,7 @@
 // the report name one admission), and `reportPackageExactSubmission` re-checks it
 // immediately before IPC and yields the texts the native save binds.
 // Standard claim fence applies (claims taxonomy per DEC-081).
+import type { SessionAnalysisRun, SessionResult } from "../../services/nativeResult";
 import { refuseSurfaceOutput, surfaceRouteRefusal } from "../results/outputPolicy";
 import { PRESSURE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID } from "../results/numericalResultQuality";
 import { buildCurrentResultExport, type JsonObject as ResultDocument } from "../result-export/resultExportAdapter";
@@ -89,7 +90,7 @@ const PROFESSIONAL_BOUNDARY = {
  * Export Result JSON admission (W-11 §5.1), both retained successors are refused with
  * their routes' reasons, and an unsupported statement falls to the builder's contract
  * check. */
-export function reportPackageUnavailableReason(result: MechanicsResult | null | undefined): string | null {
+export function reportPackageUnavailableReason(result: SessionResult | null | undefined): string | null {
   return surfaceRouteRefusal(result, "report-package");
 }
 

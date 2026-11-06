@@ -179,7 +179,7 @@ describe("budgets above the default", () => {
     expect(describeResourceRefusal({ kind: "capacity_unknown" })).toBe("This Mac's physical memory could not be read, so no new memory reservation is admitted.");
     expect(describeResourceRefusal({ kind: "headroom_unknown" })).toBe("Available memory on this Mac (free plus reclaimable file cache and purgeable memory) could not be read right now, so no new memory reservation is admitted.");
     expect(describeResourceRefusal({ kind: "headroom_stale", age_ms: 2500 })).toBe("The available-memory reading is out of date (2.5 s old), so no new memory reservation is admitted until it refreshes.");
-    expect(describeResourceRefusal({ kind: "ingress_exceeds_budget", required_bytes: 13 * GiB, budget_bytes: 12 * GiB })).toBe("Receiving the request needs 13 GiB, more than the per-invocation budget of 12 GiB.");
+    expect(describeResourceRefusal({ kind: "ingress_exceeds_budget", required_bytes: 13 * GiB, budget_bytes: 12 * GiB })).toBe("This invocation needs 13 GiB in all, more than the per-invocation budget of 12 GiB.");
     expect(describeResourceRefusal({ kind: "ingress_invalid", reason: "the body is not valid JSON" })).toBe("The request could not be received: the body is not valid JSON.");
   });
 });

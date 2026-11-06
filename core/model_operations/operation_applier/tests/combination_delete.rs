@@ -191,12 +191,11 @@ fn every_basis_deletes_top_down_and_each_restore_is_exact() {
     // the document before its delete.
     let without_srss = delete_and_restore(&model, "combination:C-SRSS");
     let without_abs = delete_and_restore(&without_srss, "combination:C-ABS");
-    // C-EXP carries `subtrahend_support_state: minuend_final`, which no create
-    // authors yet: it deletes, and its restore is refused by the same name.
+    // C-EXP carries `subtrahend_support_state: minuend_final`, which the
+    // pressure-free route now authors (RT-A5 minuend_final): it deletes, and its
+    // restore reproduces the document exactly.
     let index = index_of(&without_abs, "combination:C-EXP");
-    let stored = record(&without_abs, "combination:C-EXP");
-    let deleted = applied(&without_abs, &delete(&without_abs, "combination:C-EXP"));
-    refused(&deleted, &restore("combination:C-EXP", index, &stored), "LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED");
+    delete_and_restore(&without_abs, "combination:C-EXP");
 
     // A declared O - S subtraction without the refused member, stored with no
     // `terms` member (a normalizing create would add `"terms": []`).

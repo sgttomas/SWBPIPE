@@ -148,8 +148,9 @@ are commonly formed in practice; they are labelled as not an equilibrium state.
   combination operands by name.
 - A declared operating comparison (`difference_basis`) is gated on the
   pressure-free route only (EX refuses it by name), its G-1 compares primitive
-  loads only, and a `minuend_final` subtrahend remains withheld until its own
-  slice. A reader without the model checks a declared subtraction's verdict
+  loads only, and a `minuend_final` subtrahend is solved with the minuend's final
+  support status held, a held-constraint comparison that can need a reaction a
+  unilateral support cannot supply and is not an admissible sustained state. A reader without the model checks a declared subtraction's verdict
   against the published evidence only, which a coherent forgery can satisfy; with
   the model, G-1 over an operand that uses `condition_use` is refused as
   unverifiable.

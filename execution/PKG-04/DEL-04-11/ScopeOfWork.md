@@ -126,9 +126,37 @@ These deliverables keep their scope.
   Increment 3a adds the desktop's result types and a pure display adapter
   (`apps/desktop/src/features/results/hangerSizingResult.ts`, `hangerSizingView.ts`),
   tested on the committed family fixtures. It gates record details on the bound library
-  hash and reader standings on evidence bound to the document's hash. It is not a usable
-  desktop feature: 3b adds the table component and its CSV (after PR #59), and 3c the
-  native sizing job. The theory note (`docs/theory/hanger_sizing.md`, RT-V4,
+  hash and reader standings on evidence bound to the document's hash. Increment 3b adds
+  the read-only table component (`HangerSizingPanel.tsx`: the basis block, the candidate
+  table, each candidate's details, the solves table, the standing, the disclosures and the
+  reader standings, or a refused document's refusals) and its CSV through DEL-08-04's
+  serializer (`hangerSizingCsv.ts`: kind `hanger-sizing`, the candidates table and the
+  `solves` table), tested on the same fixtures. It shows 3a's published SI values and
+  computes nothing. 3c part 1 is built: the crate's native
+  size-and-read entry (`core/analysis/hanger_sizing/src/desktop.rs`, Design §13). It
+  publishes the headless document for the same input and replies with the document, its
+  checked canonical hash and the reader's verdict, with reproduction `not_checked`.
+  3c part 2 is built, so hanger sizing is usable in the desktop on PF (Design §13):
+  - the request form (`features/hanger-sizing/`), with no pre-set choice in a new
+    project and `weight_support_state` shown as the fixed `own_solve`; it pre-fills
+    nothing, since no value is kept between sessions yet (REQ-001's pre-fill of the
+    last-used values is not built);
+  - the native `size_hangers` command, which runs the entry as the capped worker's task 4
+    in one bounded request (at most 64 MiB of reply), under the command's captured
+    per-invocation budget and with no attestation digest (REQ-011), and its keyed
+    retirement `cancel_hanger_sizing` (`apps/desktop/src-tauri/src/hanger_sizing_job.rs`).
+    Each start first retires the sizing in progress and carries the retirement epoch that
+    retirement acknowledged as its ticket; the host refuses a start whose ticket a later
+    retirement has passed, so a delayed start never replaces or cancels a newer run. The
+    first delivery of another page's retirement still cancels the current run (Design §13,
+    3c, "Residual");
+  - the 3b panel mounted beside the hanger selection, showing the reply's document with
+    its reader standings bound to the document's hash and the library's record details,
+    or a refused document's refusals, or the request's named failure.
+
+  The result is not recorded, saved or held after the reply. Cancellation stops the
+  worker at any point and publishes nothing; per-solve progress (REQ-011) is not built.
+  The theory note (`docs/theory/hanger_sizing.md`, RT-V4,
   owned by DEL-11-03) explains the built method. The user guide's non-UI section for
   the implemented PF sizing and the headless verb exists (`docs/user_guide/index.md`
   §7.1, owned by DEL-11-01); its desktop sections follow increment 3. Before this

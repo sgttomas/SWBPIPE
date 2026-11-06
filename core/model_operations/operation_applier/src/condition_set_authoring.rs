@@ -189,7 +189,13 @@ fn referencing_pipes(model: &Value, set_id: &str) -> Vec<String> {
         .collect()
 }
 
-fn has_pressure_contract(model: &Value) -> bool {
+/// The one predicate for "the document has a pressure contract": present and not
+/// JSON null (any other value, a retired or invalid version included, counts).
+/// Shared by the condition-set admission and `create_support`'s skew admission.
+/// This is routing only: a present null is not absence, and the shared document
+/// validator refuses a candidate that keeps it (`MODEL-SLOT-SHAPE` at
+/// `pressure_contract`, Agent 0 2026-11-05), so no null document is admitted here.
+pub(crate) fn has_pressure_contract(model: &Value) -> bool {
     model.get("pressure_contract").is_some_and(|contract| !contract.is_null())
 }
 

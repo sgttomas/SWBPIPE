@@ -11,6 +11,9 @@
  *   Results and Review stages from the same qualification.
  * The results reach the actual workspace session through the native solve-job transport
  * replay of committed producer bytes, as in `loadReference.resultsSessionState.test.ts`.
+ * C1 (DEL-04-05 `c1-native-custody-plan.md` slice 4): the Current result is held natively; the
+ * comparison (a C2 consumer) is built once its full copy is requested, and the panel reads that
+ * copy, as the app's comparisons gate passes it; the other surfaces read the native result.
  * Unit transport replay; NOT a native UI qualification witness. All inputs are invented. */
 import { act, cleanup, render, renderHook, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -26,6 +29,8 @@ import { createSolveJobTransport, nativeMechanicsReplayPair } from "../../test/n
 import { sourceContract } from "../results/resultReader";
 import { numericalResultStanding } from "../results/resultStanding";
 import { useWorkspaceSession } from "./workspaceSession";
+import { isNativeResult } from "../../services/nativeResult";
+import type { C2FullResult } from "../results/C2ResultGate";
 import { WorkspaceSessionProvider } from "./WorkspaceSessionContext";
 import { ComparisonPanel } from "../comparison/ComparisonPanel";
 import { KnowledgePanel } from "../knowledge/KnowledgePanel";
@@ -125,10 +130,16 @@ const MODES: PreviewSolverMode[] = ["sparse_interactive", "dense_scrutiny"];
 describe.each(CASES)("an eligible pressure-2 %s Current result reaches the Current-receiving surfaces (§4.1)", (_label, make) => {
   it.each(MODES)("%s: each renders, and none carries result values to a file or a handoff", async (mode) => {
     const { hook, shellStates } = await currentSession(make, mode);
+    const { model } = hook.result.current.model;
+    const result = hook.result.current.results.currentSolvedResult!;
+    expect(isNativeResult(result)).toBe(true);
+    // Nothing is compared until the comparison's full copy is requested.
+    expect(hook.result.current.results.comparison).toBeNull();
+    let full: C2FullResult | null = null;
+    await act(async () => { full = await hook.result.current.results.loadC2Full(result); });
+    const copy = full!.result;
     const session = hook.result.current;
-    const { model } = session.model;
-    const { currentSolvedResult, analysisRun, comparison } = session.results;
-    const result = currentSolvedResult as MechanicsResult;
+    const { analysisRun, comparison } = session.results;
     expect(sourceContract(result)).toBe("pressure");
     expect(hasNativeMechanicsInvocation(result, model!, mode)).toBe(true);
     expect(numericalResultStanding(result, model).eligible).toBe(true);
@@ -138,7 +149,7 @@ describe.each(CASES)("an eligible pressure-2 %s Current result reaches the Curre
 
     // ComparisonPanel: the preview comparison built from the Current result; no download.
     expect(comparison).not.toBeNull();
-    const comparisonView = render(<ComparisonPanel comparison={comparison} result={result} onSelectResult={() => {}} />);
+    const comparisonView = render(<ComparisonPanel comparison={comparison} result={copy} onSelectResult={() => {}} />);
     expect(within(comparisonView.container).getByTestId("comparison-panel")).toBeTruthy();
     expect(within(comparisonView.container).getByTestId("comparison-summary")).toBeTruthy();
     expect(comparisonView.container.querySelectorAll("a[download], a[href^='data:']")).toHaveLength(0);
@@ -161,10 +172,11 @@ describe.each(CASES)("an eligible pressure-2 %s Current result reaches the Curre
     if (href.startsWith("data:")) expect(decodeJsonDataHref(href)).toStrictEqual(JSON.parse(JSON.stringify(packet)));
     const text = JSON.stringify(packet);
     expect(packet.result_ref).toStrictEqual(expect.objectContaining({ ref: result.run_id }));
-    for (const row of result.results) expect(text, row.id).not.toContain(row.id);
+    for (const row of copy.results) expect(text, row.id).not.toContain(row.id);
     expect(text).not.toContain("load_reference_states");
-    // Invariant under every result value but run_id, and every record value but its identifiers.
-    const changed = buildReviewGeometryPacket({ model: model!, result: perturbed(result, keepResultIdentifier) as MechanicsResult, analysisRun: perturbed(analysisRun, keepRunIdentifiers) as AnalysisRunEnvelope });
+    // Invariant under every result value but run_id, and every record value but its identifiers:
+    // the full copy and full record, perturbed, give the native handle's packet.
+    const changed = buildReviewGeometryPacket({ model: model!, result: perturbed(copy, keepResultIdentifier) as MechanicsResult, analysisRun: perturbed(full!.analysisRun, keepRunIdentifiers) as AnalysisRunEnvelope });
     expect(JSON.stringify(changed)).toBe(text);
     reviewView.unmount();
 

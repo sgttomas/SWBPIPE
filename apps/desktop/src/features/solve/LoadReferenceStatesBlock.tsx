@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { isNativeResult, nativeCustody, readNativeValidation, type SessionResult } from "../../services/nativeResult";
 import type { LoadStateContractEvidence, LoadReferenceStateRecord, MechanicsResult, PreviewModel } from "../../types";
 import { readerValidate, sourceContract } from "../results/resultReader";
 import { numericalResultStanding } from "../results/resultStanding";
@@ -19,7 +21,7 @@ type Route = "pressure" | "pressure_source";
 type Admission = { state: "admitted" } | { state: "refused"; reason: string };
 
 /** The route of a statement that publishes load/reference states, or null. */
-function routeOf(result: MechanicsResult | null): Route | null {
+function routeOf(result: SessionResult | null): Route | null {
   if (!result || !Array.isArray((result.contract_evidence as { load_reference_states?: unknown } | null | undefined)?.load_reference_states)) return null;
   try {
     const route = sourceContract(result);
@@ -33,11 +35,27 @@ function admission(result: MechanicsResult, route: Route): Admission {
   try { readerValidate(route === "pressure" ? "pressure" : "pressure-source", result); return { state: "admitted" }; }
   catch (error) { return { state: "refused", reason: error instanceof Error ? error.message : "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED" }; }
 }
+/** The same reader on a native result's held bytes (C1), asynchronously; null while it reads. */
+function useNativeAdmission(result: SessionResult | null, route: Route | null): Admission | null {
+  const [read, setRead] = useState<{ of: SessionResult; admission: Admission } | null>(null);
+  useEffect(() => {
+    if (!result || !route || !isNativeResult(result)) return;
+    let live = true;
+    readNativeValidation(nativeCustody(result).jobId, route === "pressure" ? "pressure" : "pressure-source", {}).then(
+      (outcome) => { if (live) setRead({ of: result, admission: outcome.ok ? { state: "admitted" } : { state: "refused", reason: outcome.error.detail ?? outcome.error.code } }); },
+      (error) => { if (live) setRead({ of: result, admission: { state: "refused", reason: error instanceof Error ? error.message : String(error) } }); }
+    );
+    return () => { live = false; };
+  }, [result, route]);
+  return read && read.of === result ? read.admission : null;
+}
 
-export function LoadReferenceStatesBlock({ result, model }: { result: MechanicsResult | null; model: PreviewModel }) {
+export function LoadReferenceStatesBlock({ result, model }: { result: SessionResult | null; model: PreviewModel }) {
   const route = routeOf(result);
+  const nativeAdmission = useNativeAdmission(result, route);
   if (!result || !route) return null;
-  const admitted = admission(result, route);
+  const admitted = isNativeResult(result) ? nativeAdmission : admission(result, route);
+  if (!admitted) return <p role="status" data-testid="load-reference-states-reading">Reading the load/reference-state evidence natively…</p>;
   const joined = route === "pressure_source";
   const routeLabel = joined
     ? `joined pressure-source-1; ${NEEDS_RECOMPUTE_NOT_CURRENT} in T1`
@@ -50,7 +68,7 @@ export function LoadReferenceStatesBlock({ result, model }: { result: MechanicsR
   </section>;
 }
 
-function AdmittedStates({ result, model, joined }: { result: MechanicsResult; model: PreviewModel; joined: boolean }) {
+function AdmittedStates({ result, model, joined }: { result: SessionResult; model: PreviewModel; joined: boolean }) {
   const standing = numericalResultStanding(result, model);
   const evidence = result.contract_evidence as unknown as LoadStateContractEvidence;
   const cases = result.numerical_quality?.cases ?? [];

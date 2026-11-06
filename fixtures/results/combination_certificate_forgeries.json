@@ -2854,26 +2854,34 @@
    "document": "pf_held",
    "edits": [
     {
-     "op": "remove",
-     "pointer": "/diagnostics/0"
+     "op": "add",
+     "pointer": "/diagnostics/-",
+     "value": {
+      "id": "diagnostic:combination:comb-held:load_combination_subtrahend_support_state_unsupported",
+      "code": "LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED",
+      "severity": "warning",
+      "message": "combination `comb:held` solves its subtrahend at the minuend's final support status; that solve is not built yet, so the combination is withheld",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "comb:held"
+      ]
+     }
     }
    ],
-   "code": null,
-   "what": "pf_held: an interim withholding notice dropped",
-   "model_code": "ROSTER_MISSING"
+   "code": "ROSTER_EXTRA",
+   "what": "pf_held: the removed interim withholding notice restated"
   },
   {
    "document": "pf_held",
    "edits": [
     {
      "op": "set",
-     "pointer": "/diagnostics/0/message",
-     "value": "combination `comb:held` is solved and its rows are established"
+     "pointer": "/contract_evidence/combination_certificate/combinations/1/assessment",
+     "value": "assessed"
     }
    ],
-   "code": null,
-   "what": "pf_held: an interim withholding notice reworded",
-   "model_code": "ROSTER_CONTRADICTION"
+   "code": "RECORD",
+   "what": "pf_held: the held record stated assessed"
   },
   {
    "document": "op1a_v1",

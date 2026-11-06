@@ -1,6 +1,9 @@
+import { C2ResultGate } from "./features/results/C2ResultGate";
+import type { SessionAnalysisRun, SessionResult } from "./services/nativeResult";
 import { reportPackageUnavailableReason } from "./features/report/reportPackageRequest";
 import { CompactSelectScope } from "./features/workspace/CompactSelect";
 import { HangerSelectionPanel } from "./features/hanger-selection";
+import { HangerSizingForm } from "./features/hanger-sizing";
 import { SelfWeightPlanPanel } from "./features/self-weight-authoring";
 import { OfflineProposalIntakePanel } from "./features/offline-proposal-intake";
 import operationSchema from "../../../schemas/model_operation.schema.json";
@@ -104,6 +107,7 @@ import { AUTOSAVE_DESKTOP_ONLY, AutosaveRecoveryPrompt } from "./features/autosa
 import { ProjectUnitsDialog } from "./features/project-units/ProjectUnitsDialog";
 import { ModelDocumentSaveDialog } from "./features/model-file/ModelDocumentSaveDialog";
 import { HandoffSaveDialog } from "./features/handoff/HandoffSaveDialog";
+import { MbfExportDialog } from "./features/caepipe-mbf/MbfExportDialog";
 import { ProjectValidationPanel } from "./features/project-validation/ProjectValidationPanel";
 import { ToolkitPalette, type PaletteShellCommand } from "./features/toolkit/ToolkitPalette";
 import { toolkitCapabilities } from "./features/toolkit/capabilityCatalog";
@@ -307,7 +311,9 @@ function AppSession() {
     handleListProjects,
     replaceProjectPrompt,
     modelDocumentSaveRequest,
-    handoffSaveRequest
+    handoffSaveRequest,
+    requestExportMbf,
+    mbfExportRequest
   } = session.project;
   const { unsavedChangesPrompt, quitWhileBusyPrompt, autosave } = session.project;
   const {
@@ -416,7 +422,7 @@ function AppSession() {
       data-theme-preference={uiPreferences.theme}
       data-testid="desktop-preview-shell"
       // The replace prompt, the unsaved-changes prompt, the units dialog and the model-document save dialog are modal: the workspace takes no focus or input meanwhile.
-      inert={replaceProjectPrompt !== null || blankProjectUnitsRequest !== null || unsavedChangesPrompt !== null || quitWhileBusyPrompt !== null || modelDocumentSaveRequest !== null || handoffSaveRequest !== null || autosave.recoveryPrompt !== null}
+      inert={replaceProjectPrompt !== null || blankProjectUnitsRequest !== null || unsavedChangesPrompt !== null || quitWhileBusyPrompt !== null || modelDocumentSaveRequest !== null || handoffSaveRequest !== null || mbfExportRequest !== null || autosave.recoveryPrompt !== null}
       ref={workspaceShellRef}
       onFocusCapture={rememberShellFocus}
       onPointerDownCapture={rememberShellFocus}
@@ -589,6 +595,7 @@ function AppSession() {
                 busy={operationBusy}
                 requestEpoch={requestEpoch}
               />
+              <HangerSizingForm key={`hanger-sizing:${projectSessionGeneration}`} model={model} busy={operationBusy} />
               </div>
               <div className="operation-tool-page" hidden={operationTab !== "weight"}>
               <SelfWeightPlanPanel
@@ -802,6 +809,7 @@ function AppSession() {
                 <StressRatioTablePanel
                   model={model}
                   result={result}
+                  fullResult={session.results.fullResult}
                   analysisRun={currentSolvedResult !== null && result === currentSolvedResult ? analysisRun : null}
                   standing={viewportResultStanding}
                   ruleCheckRun={currentSolvedResult !== null && result === currentSolvedResult ? ruleCheckReportRun : null}
@@ -834,12 +842,16 @@ function AppSession() {
                 // self-weight generator's own weights; model data, so no solve is needed.
                 <WeightSummaryPanel model={model} selectedPipeRefs={selectedPipeRefs} />
               )}
-              <ComparisonPanel
-                comparison={withinRun.status === "ready" ? withinRun.comparison : null}
-                result={currentSolvedResult}
-                onSelectResult={handleSelectResult}
-                withinRun={{ view: withinRun, disabledReason: withinRunDisabledReason, onSelect: handleSelectWithinRunBases, packaged: packagedWithinRun, dropped: droppedWithinRunBases }}
-              />
+              <C2ResultGate result={currentSolvedResult} analysisRun={null} feature="comparisons" explicit>
+                {(full) => (
+                  <ComparisonPanel
+                    comparison={withinRun.status === "ready" ? withinRun.comparison : null}
+                    result={full.result}
+                    onSelectResult={handleSelectResult}
+                    withinRun={{ view: withinRun, disabledReason: withinRunDisabledReason, onSelect: handleSelectWithinRunBases, packaged: packagedWithinRun, dropped: droppedWithinRunBases }}
+                  />
+                )}
+              </C2ResultGate>
               <DesignWorkspacePanel
                 model={model}
                 knowledge={knowledge}
@@ -889,37 +901,45 @@ function AppSession() {
               <DormantSection active={activeSection === "report"} sessionGeneration={projectSessionGeneration}>
               <Fragment key={`report:${dormantOutputBasis}`}>
               <ComparisonPackageNotice packaged={packagedWithinRun} dropped={droppedWithinRunBases} testId="report-comparison-package-notice" />
-              <RenderedReportPanel
-                model={model}
-                result={currentSolvedResult}
-                numericalHealth={currentSolvedResult ? numericalHealth : null}
-                analysisRun={analysisRun}
-                projectSummary={projectSummary}
-                inputManifest={inputManifest}
-                ruleCheckRun={ruleCheckReportRun}
-                packagePrivateIntent={reportPackagePrivateIntent}
-                packageBusy={reportPackageBusy}
-                packageRedaction={reportPackageRedaction}
-                packageRoute={reportPackageRoute}
-                onPackagePrivateIntentChange={setReportPackagePrivateIntent}
-                onSaveReportPackage={reportPackageUnavailable ? undefined : () => void handleSaveReportPackage()}
-              />
+              <C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the rendered report">
+                {(full) => (
+                  <RenderedReportPanel
+                    model={model}
+                    result={full.result}
+                    numericalHealth={currentSolvedResult ? numericalHealth : null}
+                    analysisRun={full.analysisRun}
+                    projectSummary={projectSummary}
+                    inputManifest={inputManifest}
+                    ruleCheckRun={ruleCheckReportRun}
+                    packagePrivateIntent={reportPackagePrivateIntent}
+                    packageBusy={reportPackageBusy}
+                    packageRedaction={reportPackageRedaction}
+                    packageRoute={reportPackageRoute}
+                    onPackagePrivateIntentChange={setReportPackagePrivateIntent}
+                    onSaveReportPackage={reportPackageUnavailable ? undefined : () => void handleSaveReportPackage()}
+                  />
+                )}
+              </C2ResultGate>
               {reportPackageUnavailable ? <p role="status" data-testid="report-package-source-unavailable">{reportPackageUnavailable}</p> : null}
-              <ReportPanel
-                model={model}
-                knowledge={knowledge}
-                result={currentSolvedResult}
-                numericalHealth={currentSolvedResult ? numericalHealth : null}
-                analysisRun={analysisRun}
-                comparison={comparison}
-                comparisonUnavailable={comparisonUnavailable}
-                editorIntents={editorIntents}
-                projectOperation={projectOperation}
-                projectSummary={projectSummary}
-                proposal={proposal}
-                selectedReviewTarget={selectedReviewTarget}
-                storageCapability={storageCapability}
-              />
+              <C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the report">
+                {(full) => (
+                  <ReportPanel
+                    model={model}
+                    knowledge={knowledge}
+                    result={full.result}
+                    numericalHealth={currentSolvedResult ? numericalHealth : null}
+                    analysisRun={full.analysisRun}
+                    comparison={comparison}
+                    comparisonUnavailable={comparisonUnavailable}
+                    editorIntents={editorIntents}
+                    projectOperation={projectOperation}
+                    projectSummary={projectSummary}
+                    proposal={proposal}
+                    selectedReviewTarget={selectedReviewTarget}
+                    storageCapability={storageCapability}
+                  />
+                )}
+              </C2ResultGate>
               <ReportLintPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
               </Fragment>
               </DormantSection>) : null}
@@ -943,6 +963,7 @@ function AppSession() {
           />
           <div className="workspace-pane workspace-pane-viewport">
             <PipeViewport
+              fullResult={session.results.fullResult}
               authoringPanelContainer={routingPanelContainer}
               presentationBottomInsetPx={treeCollapsed && (stageView === "model" || (stageView === "both" && narrowWindow)) ? 28 : 0}
               viewCommandRef={viewportViewCommandRef}
@@ -1145,19 +1166,27 @@ function AppSession() {
               <button type="button" onClick={() => void handleInspectBundledReference()}>
                 Inspect bundled reference
               </button>
-              <RuleCheckPanel model={model} result={currentSolvedResult} />
-              <RuleCheckRunPanel
-                basis={ruleCheckRunBasis}
-                model={model}
-                result={currentSolvedResult}
-                onAggregateChange={(aggregate, run) => void handleRuleCheckAggregate(aggregate, {
-                  projectSessionGeneration,
-                  modelRevision: uiModelRevision,
-                  result: currentSolvedResult,
-                  inputManifest
-                }, run ?? null)}
-                onR3JourneyEvent={recordR3JourneyEvent}
-              />
+              {/* The Solve section is open when a solve lands: its rule checks read full rows (C2), so
+                  they load them only when the person asks, never at a solve's first paint. */}
+              <C2ResultGate result={currentSolvedResult} analysisRun={null} feature="rule checks" explicit>
+                {(full) => (
+                  <>
+                    <RuleCheckPanel model={model} result={full.result} />
+                    <RuleCheckRunPanel
+                      basis={ruleCheckRunBasis}
+                      model={model}
+                      result={full.result}
+                      onAggregateChange={(aggregate, run) => void handleRuleCheckAggregate(aggregate, {
+                        projectSessionGeneration,
+                        modelRevision: uiModelRevision,
+                        result: currentSolvedResult,
+                        inputManifest
+                      }, run ?? null)}
+                      onR3JourneyEvent={recordR3JourneyEvent}
+                    />
+                  </>
+                )}
+              </C2ResultGate>
               <KnowledgePanel knowledge={knowledge} result={currentSolvedResult} />
               </DormantSection>) : null}
             </section>
@@ -1206,40 +1235,64 @@ function AppSession() {
               {activeSection === "exports" || activatedExpensiveSections.has("exports") ? (
               <DormantSection active={activeSection === "exports"} sessionGeneration={projectSessionGeneration}>
               <Fragment key={`exports:${dormantOutputBasis}`}>
-              <ResultExportPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} inputManifest={inputManifest} />
-              <StressNeutralExportPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
+              <C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the result JSON export">
+                {(full) => (
+                  <ResultExportPanel model={model} result={full.result} analysisRun={full.analysisRun} inputManifest={inputManifest} />
+                )}
+              </C2ResultGate>
+              <C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the stress-neutral export">
+                {(full) => (
+                  <StressNeutralExportPanel model={model} result={full.result} analysisRun={full.analysisRun} />
+                )}
+              </C2ResultGate>
               <PcfExportPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
-              <CaepipeMbfExportPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
+              <CaepipeMbfExportPanel model={model} result={currentSolvedResult} onExportMbf={() => { void requestExportMbf(); }} />
               <CaepipeExternalHarnessPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
               <ExportAdapterSdkPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
               <AdapterFrameworkPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
-              <LocalFeaHandoffPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
+              <C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the local FEA handoff">
+                {(full) => (
+                  <LocalFeaHandoffPanel model={model} result={full.result} analysisRun={full.analysisRun} />
+                )}
+              </C2ResultGate>
               <ExternalProverBoundaryPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
               <ReviewGeometryPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
-              <HeadlessRunnerPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} solveJob={solveJob} />
-              <NativePackagePanel
-                model={model}
-                modelHash={modelHash}
-                result={currentSolvedResult}
-                analysisRun={analysisRun}
-                editorIntents={editorIntents}
-                projectSummary={projectSummary}
-                proposal={proposal}
-                selectedReviewTarget={selectedReviewTarget}
-                storageCapability={storageCapability}
-              />
+              <C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the headless runner package">
+                {(full) => (
+                  <HeadlessRunnerPanel model={model} result={full.result} analysisRun={full.analysisRun} solveJob={solveJob} />
+                )}
+              </C2ResultGate>
+              <C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the native package">
+                {(full) => (
+                  <NativePackagePanel
+                    model={model}
+                    modelHash={modelHash}
+                    result={full.result}
+                    analysisRun={full.analysisRun}
+                    editorIntents={editorIntents}
+                    projectSummary={projectSummary}
+                    proposal={proposal}
+                    selectedReviewTarget={selectedReviewTarget}
+                    storageCapability={storageCapability}
+                  />
+                )}
+              </C2ResultGate>
               <ComparisonPackageNotice packaged={packagedWithinRun} dropped={droppedWithinRunBases} testId="handoff-comparison-package-notice" />
-              <HandoffPanel
-                model={model}
-                knowledge={knowledge}
-                result={currentSolvedResult}
-                analysisRun={analysisRun}
-                comparison={comparison}
-                comparisonUnavailable={comparisonUnavailable}
-                editorIntents={editorIntents}
-                proposal={proposal}
-                selectedReviewTarget={selectedReviewTarget}
-              />
+              <C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the handoff package">
+                {(full) => (
+                  <HandoffPanel
+                    model={model}
+                    knowledge={knowledge}
+                    result={full.result}
+                    analysisRun={full.analysisRun}
+                    comparison={comparison}
+                    comparisonUnavailable={comparisonUnavailable}
+                    editorIntents={editorIntents}
+                    proposal={proposal}
+                    selectedReviewTarget={selectedReviewTarget}
+                  />
+                )}
+              </C2ResultGate>
               <ExportReviewPanel
                 model={model}
                 knowledge={knowledge}
@@ -1267,6 +1320,7 @@ function AppSession() {
       <SolveProgressPanel solveJob={solveJob} running={running} onCancel={handleCancelRun} />
       {keyResults.open ? (
         <KeyResultsPanel
+          fullResult={session.results.fullResult}
           model={model}
           result={result}
           standing={viewportResultStanding}
@@ -1314,6 +1368,7 @@ function AppSession() {
       <ProjectUnitsDialog request={blankProjectUnitsRequest} />
       <ModelDocumentSaveDialog request={modelDocumentSaveRequest} />
       <HandoffSaveDialog request={handoffSaveRequest} />
+      <MbfExportDialog request={mbfExportRequest} />
     </main>
     </CompactSelectScope>
     </WorkspaceSessionProvider>
@@ -1429,6 +1484,7 @@ function MenuBar({
         { kind: "command", id: "file.new-local", label: "Save as New Local Project", disabled: projectBusy },
         { kind: "command", id: "file.save-model-document", label: "Save Model Document…", disabled: !modelDocumentSaveReady },
         { kind: "command", id: "file.save-handoff", label: "Save Handoff…", disabled: !modelDocumentSaveReady },
+        { kind: "command", id: "file.export-mbf", label: "Export MBF…", disabled: !modelDocumentSaveReady },
         { kind: "command", id: "file.save-report-package", label: "Save Report Package…", disabled: !reportPackageReady }
       ]
     },
@@ -1690,8 +1746,8 @@ function AuditBoundaryDrawer({
   onClose
 }: {
   model: PreviewModel;
-  result: MechanicsResult | null;
-  analysisRun: AnalysisRunEnvelope | null;
+  result: SessionResult | null;
+  analysisRun: SessionAnalysisRun | null;
   storageCapability: LocalStorageCapability | null;
   onClose: () => void;
 }) {
@@ -1759,7 +1815,7 @@ function IssuesHome({
 }: {
   model: PreviewModel;
   knowledge: DesignKnowledge | null;
-  result: MechanicsResult | null;
+  result: SessionResult | null;
   operationOutcomes: Record<string, OperationOutcome>;
   selectedDiagnosticId: string | null;
   diagnosticFilterRequest?: DiagnosticFilterRequest | null;
@@ -1825,7 +1881,7 @@ function StatusPill({ label, value, testId, summaryText }: {
 function issueCountFor(
   model: PreviewModel,
   knowledge: DesignKnowledge | null,
-  result: MechanicsResult | null,
+  result: SessionResult | null,
   operationOutcomes: Record<string, OperationOutcome>
 ): number {
   const operationDiagnosticCount = Object.values(operationOutcomes).reduce(
@@ -1866,7 +1922,7 @@ function r3ExitJourneyStatus({
   ruleCheckAggregate,
   projectSummary
 }: {
-  result: MechanicsResult | null;
+  result: SessionResult | null;
   ruleCheckAggregate: RuleCheckStatus | null;
   projectSummary: LocalProjectSummary | null;
 }): string {

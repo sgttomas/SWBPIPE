@@ -23,7 +23,7 @@ NEEDLES = {
     "id": "openpipestress.result_semantics/0.3.0/preview-physics-2",
     "table": "semantic_contract_v0_3_preview_physics_2",
     "profile": "product_preview_mechanics_v1",
-    "hash": "f41b9d3ed0c1b7abaee0b98ca1a28aa1a2d109bce443b98d53a2080c1c504ce9",
+    "hash": "16eeb49cb298c6d3634594bbd9ebf6bf86be8f114e2e524dbd624e401e31a729",
     "lim0": "Small-displacement, linear-elastic Euler-Bernoulli frame preview",
 }
 BOTH = "admits both identities"

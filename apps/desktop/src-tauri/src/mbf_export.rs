@@ -24,7 +24,9 @@
 //!    equal the reviewed ones (`MBF-EXPORT-REVIEW-STALE`);
 //! 7. the chooser: the suggested name must be `swbpipe-model[-<slug>].mbf` (DEL-07-01 `export-file-names.md`), the
 //!    path comes only from the chooser and must end `.mbf`; the identity file is `<chosen stem>.swbpipe-ids.json`
-//!    beside it (A-5);
+//!    beside it (A-5). A run retired before the chooser opens none, and after it returns the save commits
+//!    ([`MbfWriterRun::commit`]) before the first write: a cancel that came first refuses `MBF-EXPORT-CANCELLED` with
+//!    nothing written, and one after the commit no longer interrupts the save;
 //! 8. the writes of the envelope's bytes. First, before anything is written: both destinations pass the atomic
 //!    writer's own checks (extension, parent, no symlink or directory, and off macOS no replacement); an identity file
 //!    whose MBF is absent is refused (`MBF-EXPORT-IDENTITY-FILE-EXISTS`); and every file to be replaced is backed up by
@@ -51,37 +53,42 @@
 //! followed by the bodies; `review` mode's status is `reviewed` with no MBF or identity bytes, `save` mode's is
 //! `written` with both, or `writer-refused`, `review-truncated` or `output-too-large` with only the review.
 //!
-//! Not connected (§3.7). The writer's memory is to be governed by running task 3 in the capped worker process (slice
-//! 4b.2, after the desktop performance work integrates). Until that path is verified the production entry points
-//! [`save_mbf_export_admitted`] and [`review_mbf_export_admitted`] refuse every request with [`NOT_CONNECTED`] before
-//! any parse, writer run or file access. The pipelines run only through [`InProcessWriterRun`], which needs the
-//! [`InProcessWriterTestSeam`] that only test code can construct.
+//! Connected (slice 4b.2a, §3.7). The production entry points [`save_mbf_export_admitted`] and
+//! [`review_mbf_export_admitted`] run task 3 in the capped worker process ([`crate::mbf_worker::CappedWorkerRun`], the
+//! only production [`MbfWriterRun`]): worker task 3 (`solve_worker::WorkerTask::MbfRender`), its grant and request copy
+//! and its result lease counted in the command's ledger, the result refused above the 64 MiB output ceiling at
+//! `result_limit` before the parent allocates or reads it, and the result lease held until the response is built. The
+//! in-process run ([`InProcessWriterRun`]) is compiled for tests only.
 //!
-//! Host-side memory (§3.7): each of these is reserved before it is made, within the caller's memory
-//! ([`PoolReadMemory`], seeded with the ingress lease): the settings' parse, the admission's parse and canonical copy,
-//! the worker's result, the reply's copy of the review, the response (bounded for a receipt and for a refusal after a
-//! write, so a rollback's named backups always reach the user) and a 64 KiB read-back block. A reservation the pool
-//! refuses refuses the save (`MBF-EXPORT-MEMORY-UNAVAILABLE`) or the review (`MBF-REVIEW-MEMORY-UNAVAILABLE`), before
-//! any file is chosen. The writer's own run is the worker's, under its grant.
+//! Host-side memory (§3.7): each of these is reserved before it is made, within the command's memory (in production
+//! `stored_read::NativeLeaseMemory`, whose `CommandLedger` is seeded with the argument lease; DEL-14-01 r4): the
+//! settings' parse, the admission's parse and canonical copy, the worker's result (its result lease; in process, a
+//! reservation), the reply's copy of the review, the response (bounded for a receipt and for a refusal after a write,
+//! so a rollback's named backups always reach the user) and a 64 KiB read-back block. A reservation the pool refuses
+//! refuses the save (`MBF-EXPORT-MEMORY-UNAVAILABLE`) or the review (`MBF-REVIEW-MEMORY-UNAVAILABLE`), before any file
+//! is chosen. The writer's own run is the worker's, under its grant.
 //!
-//! The commands' registration, ingress admission and menu are slice 4b.2. Nothing is sent anywhere (F-PIP-1).
+//! The commands are registered in `lib.rs` (`review_mbf_export`, `save_mbf_export` and `cancel_mbf_export`;
+//! `mbf_worker.rs` holds their blocking parts). A save that references a library opens the local store lazily with
+//! the desktop's normal open (`open_project_store`, as Save Model Document does), which may create the store or apply
+//! pending store migrations; the export writes no project, library or run rows, and a store read or open error
+//! refuses. The menu item, the Exports panel action and mounting the dialog are slice 4b.2b. Nothing is sent
+//! anywhere (F-PIP-1).
 //! Standard claim fence applies (claims taxonomy per DEC-081): a written MBF means the listed subset of the model
 //! was written; it is not evidence that another program reads or analyses it alike.
-
-// Slice 4b.2 registers the commands; until then nothing outside this module's tests calls them.
-#![cfg_attr(not(test), allow(dead_code))]
 
 use crate::atomic_report_package_save::{self, AtomicSaveError, AtomicSaveFormat, AtomicSaveOutcome};
 use crate::command_ingress::Args;
 use crate::export_disposition_screen::diagnostic;
-use crate::memory_pool::Lease;
 use crate::model_document_save::{
     admit_model_document_text_screened, validate_local_private_route_evidence, writer_diagnostic,
     ModelDocumentSaveDiagnostic as Diagnostic, ModelDocumentSaveLocalFirst, ModelDocumentSaveScreening,
 };
-use crate::solve_jobs::{SolveJobError, SolveJobRegistry};
+use crate::mbf_worker::{CappedWorkerRun, MbfEntry, MbfRuns, WorkerResultHold};
+use crate::memory_pool::CommandLease;
+use crate::solve_jobs::SolveJobError;
 use crate::stored_model_document_export::{bounded_diagnostics, serialize_outcome, shortened_refusal, SentOutcome, StoreLibraryReads};
-use crate::stored_read::{self, PoolReadMemory, ReadMemory, ReadReservation};
+use crate::stored_read::{self, NativeLeaseMemory, ReadMemory, ReadReservation};
 use open_pipe_stress_caepipe_mbf as mbf;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -120,8 +127,6 @@ pub const DESTINATION_EXTENSION: &str = "MBF-EXPORT-DESTINATION-EXTENSION";
 pub const READBACK_MISMATCH: &str = "MBF-EXPORT-READBACK-MISMATCH";
 pub const READBACK_FAILED: &str = "MBF-EXPORT-READBACK-FAILED";
 pub const MEMORY_UNAVAILABLE: &str = "MBF-EXPORT-MEMORY-UNAVAILABLE";
-/// The production entry point's refusal until slice 4b's capped worker path is verified (§3.7).
-pub const NOT_CONNECTED: &str = "MBF-EXPORT-NOT-CONNECTED";
 /// An identity file of the chosen stem exists while its MBF does not: it may belong to an MBF that was moved, so it
 /// is not replaced.
 pub const IDENTITY_FILE_EXISTS: &str = "MBF-EXPORT-IDENTITY-FILE-EXISTS";
@@ -154,16 +159,16 @@ pub const AFTER_WRITE_REFUSAL_BYTES: u64 = 4 * DIAGNOSTIC_JSON_BYTES + 256;
 /// The most bytes of a suggested name.
 const MAX_SUGGESTED_NAME_BYTES: usize = 200;
 
-/// The test seam of the in-process writer run ([`InProcessWriterRun`]). Its only constructor is compiled for tests, so
-/// no production code can run the writer in process or touch a file through this module: the production entry points
-/// are [`save_mbf_export_admitted`] and [`review_mbf_export_admitted`], which refuse. The writer's memory is not governed
-/// in process (§3.7); slice 4b.2 runs task 3 in the capped worker process.
+/// The test seam of the in-process writer run ([`InProcessWriterRun`]), compiled for tests only, as the run is: no
+/// production code runs the writer in process (§3.7). The production entry points [`save_mbf_export_admitted`] and
+/// [`review_mbf_export_admitted`] run task 3 in the capped worker process.
+#[cfg(test)]
 pub(crate) struct InProcessWriterTestSeam {
     _private: (),
 }
 
+#[cfg(test)]
 impl InProcessWriterTestSeam {
-    #[cfg(test)]
     pub(crate) fn for_tests() -> Self {
         Self { _private: () }
     }
@@ -192,8 +197,7 @@ pub struct MbfExportRequest {
     pub local_first: ModelDocumentSaveLocalFirst,
 }
 
-/// Decodes the command's raw-body arguments (strings and structs of strings and scalars, moved), for the
-/// command slice 4b registers.
+/// Decodes the command's raw-body arguments (strings and structs of strings and scalars, moved).
 pub(crate) fn save_mbf_export_args(args: &mut Args) -> Result<MbfExportRequest, SolveJobError> {
     Ok(MbfExportRequest {
         canonical_text: args.decode("canonicalText")?,
@@ -385,6 +389,17 @@ pub const WORKER_REQUEST_INVALID: &str = "MBF-WORKER-REQUEST-INVALID";
 pub const WORKER_PROTOCOL: &str = "MBF-EXPORT-WORKER-PROTOCOL";
 /// The worker run was cancelled (4b.2: a newer review, the dialog closed, the session changed).
 pub const CANCELLED: &str = "MBF-EXPORT-CANCELLED";
+/// The cancellation's message (a cancelled run, and a request whose dispatch ticket a retirement has passed).
+pub const CANCELLED_MESSAGE: &str = "The export was cancelled. Nothing was written.";
+/// A request whose dispatch ticket (`expectedEpoch`, `mbf_worker::MbfRuns::enter`) is missing, malformed or names a
+/// retirement epoch the host has not reached: a protocol error, refused before the model is decoded.
+pub const EPOCH_INVALID: &str = "MBF-EXPORT-EPOCH-INVALID";
+/// A request refused because the retirement epoch can move on no further (`mbf_worker::MbfRuns::retire_keyed` at
+/// `u64::MAX`, or from a new page token beyond `mbf_worker::RETIREMENT_PAGES_MAX`): the export is closed for good in this process, every run in progress was cancelled, and no new start is admitted.
+pub const EPOCH_EXHAUSTED: &str = "MBF-EXPORT-EPOCH-EXHAUSTED";
+/// A `cancel_mbf_export` request whose `retirementId` (`mbf_worker::RetirementId`) is missing or malformed: a
+/// protocol error; nothing is retired.
+pub const RETIREMENT_ID_INVALID: &str = "MBF-EXPORT-RETIREMENT-ID-INVALID";
 /// The writer refused the model: the reply carries the bounded review, which lists what is not written.
 pub const WRITER_REFUSED: &str = "MBF-EXPORT-WRITER-REFUSED";
 /// Any truncated review blocks the save (§3.3).
@@ -412,7 +427,12 @@ pub struct WorkerRequest<'a> {
 }
 
 impl WorkerRequest<'_> {
-    /// The request's bytes. In 4b.2 the parent writes the same layout to the worker.
+    /// The length of [`Self::encode`]'s bytes, known before they are made.
+    pub fn encoded_len(&self) -> u64 {
+        (WORKER_REQUEST_HEADER_BYTES as u64).saturating_add(self.settings_json.len() as u64).saturating_add(self.model_text.len() as u64)
+    }
+
+    /// The request's bytes, as the parent writes them to the worker.
     pub fn encode(&self) -> Vec<u8> {
         let mut raw = Vec::with_capacity(WORKER_REQUEST_HEADER_BYTES + self.settings_json.len() + self.model_text.len());
         raw.extend_from_slice(&self.mode.code().to_le_bytes());
@@ -754,7 +774,7 @@ pub fn decode_worker_result(mode: MbfMode, result: &str) -> Result<DecodedResult
 }
 
 /// Why a writer run returned no result. In process only [`WriterRunFailure::Failed`] occurs; the others are the
-/// capped worker's (4b.2).
+/// capped worker's ([`CappedWorkerRun`]).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum WriterRunFailure {
     /// The worker's bounded failure message (`worker_render`'s `Err`).
@@ -768,27 +788,58 @@ pub(crate) enum WriterRunFailure {
     Cancelled,
 }
 
-/// How §3.6 step 5 and the review run task 3: the capped worker process (4b.2), or in process through the test seam.
-pub(crate) trait MbfWriterRun {
-    fn run(&mut self, request: &WorkerRequest<'_>) -> Result<String, WriterRunFailure>;
+/// A writer run's result: task 3's envelope text, and what holds its memory until the response is built.
+pub(crate) struct WriterOutput {
+    pub(crate) text: String,
+    /// The capped worker's result lease, with the command's ledger bound for it, held until the response is built
+    /// (result custody). None in process: the pipeline reserves the text itself.
+    pub(crate) custody: Option<WorkerResultHold>,
 }
 
-/// Task 3 in process. Its constructor needs the test seam, which only tests can construct: no production code runs
-/// the writer in process (§3.7).
+impl WriterOutput {
+    /// A result whose memory the pipeline reserves (in process).
+    #[cfg(test)]
+    pub(crate) fn unheld(text: String) -> Self {
+        WriterOutput { text, custody: None }
+    }
+}
+
+/// How §3.6 step 5 and the review run task 3: the capped worker process ([`CappedWorkerRun`], the only production
+/// run), or in process through the test seam.
+pub(crate) trait MbfWriterRun {
+    fn run(&mut self, request: &WorkerRequest<'_>) -> Result<WriterOutput, WriterRunFailure>;
+
+    /// Whether the run's request has been retired since (a newer save, `cancel_mbf_export`, the session's reset): the
+    /// save checks it before it opens the chooser. In process nothing retires a run.
+    fn cancelled(&self) -> bool {
+        false
+    }
+
+    /// The save's cancel/commit boundary, after the chooser and before the first write: `Err(Cancelled)` if a cancel
+    /// came first (nothing is written), else committed, so a later cancel cannot interrupt the transactional write.
+    fn commit(&mut self) -> Result<(), WriterRunFailure> {
+        Ok(())
+    }
+}
+
+/// Task 3 in process, compiled for tests only (with its seam): no production code runs the writer in process (§3.7).
+#[cfg(test)]
 pub(crate) struct InProcessWriterRun<'s> {
     _seam: &'s InProcessWriterTestSeam,
     limits: RenderLimits,
 }
 
+#[cfg(test)]
 impl<'s> InProcessWriterRun<'s> {
     pub(crate) fn new(seam: &'s InProcessWriterTestSeam, limits: RenderLimits) -> Self {
         InProcessWriterRun { _seam: seam, limits }
     }
 }
 
+#[cfg(test)]
 impl MbfWriterRun for InProcessWriterRun<'_> {
-    fn run(&mut self, request: &WorkerRequest<'_>) -> Result<String, WriterRunFailure> {
-        worker_render_limited(&request.encode(), self.limits).map_err(WriterRunFailure::Failed)
+    fn run(&mut self, request: &WorkerRequest<'_>) -> Result<WriterOutput, WriterRunFailure> {
+        worker_render_limited(&request.encode(), self.limits).map(WriterOutput::unheld).map_err(WriterRunFailure::Failed)
     }
 }
 
@@ -809,7 +860,7 @@ fn run_failure(failure: WriterRunFailure, memory_code: &str, too_large_code: &st
             format!("The export result is larger than the {} bytes an export may hold. Nothing was written.", mbf::MBF_EXPORT_OUTPUT_MAX_BYTES),
         ),
         WriterRunFailure::Protocol(detail) => protocol(stored_read::capped(detail)),
-        WriterRunFailure::Cancelled => diagnostic(CANCELLED, "", "The export was cancelled. Nothing was written."),
+        WriterRunFailure::Cancelled => diagnostic(CANCELLED, "", CANCELLED_MESSAGE),
     }
 }
 
@@ -1284,11 +1335,24 @@ fn admission_bytes(text: &str) -> u64 {
     parse.saturating_add(stored_read::text_copy_bytes(length))
 }
 
-/// What the save holds until it returns: every reservation, so the response is built within them.
+/// What the save holds until it returns: every reservation, and the worker's result lease, so the response is built
+/// within them.
 #[derive(Default)]
 struct Held {
     reservations: Vec<ReadReservation>,
     response: Option<(ReadReservation, u64)>,
+    results: Vec<WorkerResultHold>,
+}
+
+/// The memory of a writer run's result, held until the response is built: the worker's result lease (counted in the
+/// command's ledger), or in process a reservation of the text made now. `Err` is a refused reservation.
+fn hold_result(memory: &dyn ReadMemory, what: &str, output: WriterOutput, held: &mut Held) -> Result<String, String> {
+    let WriterOutput { text, custody } = output;
+    match custody {
+        Some(custody) => held.results.push(custody),
+        None => held.reservations.push(memory.reserve(what, stored_read::exact_text_bytes(text.len() as u64))?),
+    }
+    Ok(text)
 }
 
 /// Steps 1 to 10 within `memory`, the library store opened by `open_store` only if the document references a
@@ -1296,7 +1360,7 @@ struct Held {
 fn save_mbf_export_outcome(
     run: &mut impl MbfWriterRun,
     request: MbfExportRequest,
-    memory: &PoolReadMemory<'_>,
+    memory: &dyn ReadMemory,
     libraries: &mut StoreLibraryReads<'_>,
     choose: impl FnOnce(&str) -> Result<Option<PathBuf>, String>,
     io: &mut impl MbfExportIo,
@@ -1339,16 +1403,17 @@ fn save_mbf_export_outcome(
         }
     };
     // 5. Task 3 in `save` mode, over the admitted text and the settings text (the worker reads both itself). Its
-    // result is reserved before the admitted text is released; its MBF and identity-file bytes are views into it.
+    // result is held (the worker's result lease, or in process a reservation) before the admitted text is released;
+    // its MBF and identity-file bytes are views into it.
     let worker = WorkerRequest { mode: MbfMode::Save, settings_json: &settings_json, model_text: &admitted.text };
     let result = match run.run(&worker) {
-        Ok(result) => result,
+        Ok(output) => output,
         Err(failure) => return MbfExportOutcome::refused(vec![run_failure(failure, MEMORY_UNAVAILABLE, OUTPUT_TOO_LARGE)]),
     };
-    match memory.reserve("the MBF worker's save result", stored_read::exact_text_bytes(result.len() as u64)) {
-        Ok(reservation) => held.reservations.push(reservation),
+    let result = match hold_result(memory, "the MBF worker's save result", result, held) {
+        Ok(result) => result,
         Err(error) => return memory_refusal(error),
-    }
+    };
     drop(admitted.text);
     drop(settings_json);
     let decoded = match decode_worker_result(MbfMode::Save, &result) {
@@ -1392,11 +1457,20 @@ fn save_mbf_export_outcome(
             "The suggested name must be swbpipe-model.mbf or swbpipe-model-<label>.mbf in lowercase letters, digits and single hyphens; nothing was written.",
         );
     }
+    // A run retired since its worker ended opens no chooser.
+    if run.cancelled() {
+        return MbfExportOutcome::refused(vec![run_failure(WriterRunFailure::Cancelled, MEMORY_UNAVAILABLE, OUTPUT_TOO_LARGE)]);
+    }
     let chosen = match choose(&suggested_name) {
         Ok(Some(chosen)) => chosen,
         Ok(None) => return MbfExportOutcome::Cancelled,
         Err(message) => return MbfExportOutcome::refused_one(PICKER_PATH_INVALID, message),
     };
+    // The cancel/commit boundary: a run retired while its chooser was open writes nothing; once committed, a cancel
+    // is too late and the write below completes or undoes itself.
+    if let Err(failure) = run.commit() {
+        return MbfExportOutcome::refused(vec![run_failure(failure, MEMORY_UNAVAILABLE, OUTPUT_TOO_LARGE)]);
+    }
     // 8-10.
     let mut block = vec![0_u8; READBACK_BLOCK_BYTES];
     write_pair(io, &chosen, &files, &mut block, admitted.warnings)
@@ -1404,25 +1478,25 @@ fn save_mbf_export_outcome(
 
 /// The settings text read by the engine's one mapping within its reservation: `Err(Ok(refusal))` refuses the settings
 /// by name, `Err(Err(message))` is a refused reservation.
-fn read_settings(memory: &PoolReadMemory<'_>, settings_json: &str) -> Result<(), Result<Diagnostic, String>> {
+fn read_settings(memory: &dyn ReadMemory, settings_json: &str) -> Result<(), Result<Diagnostic, String>> {
     let _parse = memory.reserve("the export settings' parse", SETTINGS_WORKING_BYTES).map_err(Err)?;
     writer_settings(settings_json).map(drop).map_err(Ok)
 }
 
 /// The reply's copy of the bounded review, reserved before it is made and held until the reply is sent.
-fn reply_review(memory: &PoolReadMemory<'_>, review: &str, held: &mut Held) -> Result<MbfReviewText, Result<Diagnostic, String>> {
+fn reply_review(memory: &dyn ReadMemory, review: &str, held: &mut Held) -> Result<MbfReviewText, Result<Diagnostic, String>> {
     let reservation = memory.reserve("the bounded MBF review of the reply", stored_read::exact_text_bytes(review.len() as u64)).map_err(Err)?;
     held.reservations.push(reservation);
     MbfReviewText::new(review).ok_or_else(|| Ok(protocol("the review is not JSON")))
 }
 
 /// The save within `memory` (the caller's: seeded with the command's ingress lease), with task 3 run by `run`, and its
-/// response: `respond` receives the outcome and its text while every reservation is still held. Until 4b.2 only the
-/// test seam's in-process run reaches it.
+/// response: `respond` receives the outcome and its text while every reservation and the worker's result lease are
+/// still held.
 fn save_mbf_export_with<R>(
     run: &mut impl MbfWriterRun,
     request: MbfExportRequest,
-    memory: &PoolReadMemory<'_>,
+    memory: &dyn ReadMemory,
     open_store: impl FnMut() -> Result<rusqlite::Connection, String>,
     choose: impl FnOnce(&str) -> Result<Option<PathBuf>, String>,
     io: &mut impl MbfExportIo,
@@ -1440,34 +1514,38 @@ fn save_mbf_export_with<R>(
     response
 }
 
-/// The production entry point, everything after the arguments are decoded (the command slice 4b registers): within
-/// the pool of `registry`, started from the ingress lease `ingress`. Not connected: it refuses every request with
-/// [`NOT_CONNECTED`] before any parse, writer run, store opening, chooser or file access, because the in-process
-/// writer's memory is not governed (§3.7). Slice 4b connects it to the writer in the capped worker process.
+/// The production entry point, everything after the arguments are decoded (`save_mbf_export`, `mbf_worker.rs`):
+/// within `memory`, the command's ledger seeded with its argument lease and held by the caller (`args`), §3.6 steps 1
+/// to 10 with step 5's task 3 in `save` mode run in the capped worker ([`CappedWorkerRun`]), registered in `runs` for
+/// the command that entered at `entry` (cancelled from the start if a retirement came since). A review is no
+/// authorization: this run re-forms the review and refuses a truncated one itself.
 pub(crate) fn save_mbf_export_admitted<R>(
     request: MbfExportRequest,
-    _open_store: impl FnMut() -> Result<rusqlite::Connection, String>,
-    registry: &SolveJobRegistry,
-    ingress: &Lease,
-    _choose: impl FnOnce(&str) -> Result<Option<PathBuf>, String>,
+    open_store: impl FnMut() -> Result<rusqlite::Connection, String>,
+    memory: &NativeLeaseMemory<'_>,
+    args: &CommandLease,
+    runs: &MbfRuns,
+    entry: MbfEntry,
+    choose: impl FnOnce(&str) -> Result<Option<PathBuf>, String>,
     respond: impl FnOnce(&MbfExportOutcome, String) -> R,
 ) -> R {
-    drop(request);
-    let memory = PoolReadMemory::new(registry, ingress);
-    let outcome = MbfExportOutcome::refused_one(
-        NOT_CONNECTED,
-        "Export MBF is not connected yet: native export memory governance is unfinished. Nothing was read or written.",
-    );
-    let (sent, text, buffer) = serialize_outcome(&memory, "Export MBF", "save", outcome, None);
+    let mut run = CappedWorkerRun::save(memory.registry(), args.ledger(), runs, entry);
+    save_mbf_export_with(&mut run, request, memory, open_store, choose, &mut SystemMbfExportIo, respond)
+}
+
+/// A save refused at its entry by its dispatch ticket (`mbf_worker::save_command`'s check): the refusal's response
+/// within `memory`, before the model is decoded, with no run, worker, chooser or write.
+pub(crate) fn save_mbf_export_refused<R>(memory: &dyn ReadMemory, code: &str, message: &str, respond: impl FnOnce(&MbfExportOutcome, String) -> R) -> R {
+    let (sent, text, buffer) = serialize_outcome(memory, "Export MBF", "save", MbfExportOutcome::refused_one(code, message), None);
     let response = respond(&sent, text);
     drop(sent);
     drop(buffer);
     response
 }
 
-// -- review_mbf_export (§3.9.5; slice 4b.1: built, not registered) -------------------------------------------------
+// -- review_mbf_export (§3.9.5; slice 4b.1 built it, 4b.2a registers it) ------------------------------------------
 
-/// The future native review command's name (slice 4b.2 registers it).
+/// The native review command's name.
 pub const REVIEW_COMMAND: &str = "review_mbf_export";
 
 /// `{canonicalText, claimedModelHash, settingsJson}` (§3.9.5): the same model, settings and binding a save would
@@ -1479,7 +1557,7 @@ pub struct MbfReviewRequest {
     pub settings_json: String,
 }
 
-/// Decodes the review command's raw-body arguments (moved), for the command slice 4b.2 registers.
+/// Decodes the review command's raw-body arguments (moved).
 pub(crate) fn review_mbf_export_args(args: &mut Args) -> Result<MbfReviewRequest, SolveJobError> {
     Ok(MbfReviewRequest {
         canonical_text: args.decode("canonicalText")?,
@@ -1534,7 +1612,7 @@ fn review_memory_refusal(error: String) -> MbfReviewOutcome {
 /// canonical text and its hash against the claim, the open path's checks), then task 3 in `review` mode, and the
 /// bounded review. It opens no store, file, destination or chooser and writes nothing; a review is not an
 /// authorization.
-fn review_mbf_export_outcome(run: &mut impl MbfWriterRun, request: MbfReviewRequest, memory: &PoolReadMemory<'_>, held: &mut Held) -> MbfReviewOutcome {
+fn review_mbf_export_outcome(run: &mut impl MbfWriterRun, request: MbfReviewRequest, memory: &dyn ReadMemory, held: &mut Held) -> MbfReviewOutcome {
     let MbfReviewRequest { canonical_text, claimed_model_hash, settings_json } = request;
     if let Err(refusal) = read_settings(memory, &settings_json) {
         return refusal.map_or_else(review_memory_refusal, |refusal| MbfReviewOutcome::Refused { diagnostics: vec![refusal] });
@@ -1551,15 +1629,15 @@ fn review_mbf_export_outcome(run: &mut impl MbfWriterRun, request: MbfReviewRequ
     };
     let worker = WorkerRequest { mode: MbfMode::Review, settings_json: &settings_json, model_text: &text };
     let result = match run.run(&worker) {
-        Ok(result) => result,
+        Ok(output) => output,
         Err(failure) => {
             return MbfReviewOutcome::Refused { diagnostics: vec![run_failure(failure, REVIEW_MEMORY_UNAVAILABLE, REVIEW_MEMORY_UNAVAILABLE)] }
         }
     };
-    match memory.reserve("the MBF worker's review result", stored_read::exact_text_bytes(result.len() as u64)) {
-        Ok(reservation) => held.reservations.push(reservation),
+    let result = match hold_result(memory, "the MBF worker's review result", result, held) {
+        Ok(result) => result,
         Err(error) => return review_memory_refusal(error),
-    }
+    };
     drop(text);
     let decoded = match decode_worker_result(MbfMode::Review, &result) {
         Ok(decoded) => decoded,
@@ -1571,12 +1649,12 @@ fn review_mbf_export_outcome(run: &mut impl MbfWriterRun, request: MbfReviewRequ
     }
 }
 
-/// The review within `memory`, with task 3 run by `run`, and its response while every reservation is held. Until
-/// 4b.2 only the test seam's in-process run reaches it.
+/// The review within `memory`, with task 3 run by `run`, and its response while every reservation and the worker's
+/// result lease are held.
 fn review_mbf_export_with<R>(
     run: &mut impl MbfWriterRun,
     request: MbfReviewRequest,
-    memory: &PoolReadMemory<'_>,
+    memory: &dyn ReadMemory,
     respond: impl FnOnce(&MbfReviewOutcome, String) -> R,
 ) -> R {
     let mut held = Held::default();
@@ -1589,22 +1667,26 @@ fn review_mbf_export_with<R>(
     response
 }
 
-/// The review's production entry point, everything after the arguments are decoded (the command slice 4b.2
-/// registers). Not connected: it refuses every request with [`NOT_CONNECTED`] before any parse or worker run, and
-/// opens no store, file or chooser.
+/// The review's production entry point, everything after the arguments are decoded (`review_mbf_export`,
+/// `mbf_worker.rs`): within `memory` (the command's ledger, seeded with its argument lease `args`), with task 3 in
+/// `review` mode run in the capped worker ([`CappedWorkerRun`]). It becomes `runs`' review in progress, superseding
+/// (cancelling) older ones, unless a retirement came since `entry` (then it is cancelled from the start). It opens no
+/// store, file or chooser and writes nothing.
 pub(crate) fn review_mbf_export_admitted<R>(
     request: MbfReviewRequest,
-    registry: &SolveJobRegistry,
-    ingress: &Lease,
+    memory: &NativeLeaseMemory<'_>,
+    args: &CommandLease,
+    runs: &MbfRuns,
+    entry: MbfEntry,
     respond: impl FnOnce(&MbfReviewOutcome, String) -> R,
 ) -> R {
-    drop(request);
-    let memory = PoolReadMemory::new(registry, ingress);
-    let outcome = MbfReviewOutcome::refused_one(
-        NOT_CONNECTED,
-        "Review MBF export is not connected yet: native export memory governance is unfinished. Nothing was read or written.",
-    );
-    let (sent, text, buffer) = serialize_outcome(&memory, "Review MBF export", "review", outcome, None);
+    let mut run = CappedWorkerRun::review(memory.registry(), args.ledger(), runs, entry);
+    review_mbf_export_with(&mut run, request, memory, respond)
+}
+
+/// A review refused at its entry by its dispatch ticket, as [`save_mbf_export_refused`].
+pub(crate) fn review_mbf_export_refused<R>(memory: &dyn ReadMemory, code: &str, message: &str, respond: impl FnOnce(&MbfReviewOutcome, String) -> R) -> R {
+    let (sent, text, buffer) = serialize_outcome(memory, "Review MBF export", "review", MbfReviewOutcome::refused_one(code, message), None);
     let response = respond(&sent, text);
     drop(sent);
     drop(buffer);
@@ -1619,6 +1701,8 @@ mod tests {
     use crate::command_ingress::ArgsDecoding;
     use crate::export_disposition_screen::PROTECTED_CONTENT_BLOCKED;
     use crate::memory_pool::test_host::ScriptedHost;
+    use crate::solve_jobs::SolveJobRegistry;
+    use crate::stored_read::PoolReadMemory;
     use open_pipe_stress_operation_applier::canonical_json;
     use serde_json::{json, Value};
     use std::cell::{Cell, RefCell};
@@ -1996,6 +2080,57 @@ mod tests {
         assert_eq!(save(request(&canonical_of(EXPORT_MODEL)), None, &opened), MbfExportOutcome::Cancelled);
         assert!(opened.get());
         assert!(sandbox.entries().is_empty());
+    }
+
+    /// A run retired after its worker ended: by the chooser (`cancelled`), or while the chooser was open (`commit`).
+    struct Retired<'s> {
+        run: InProcessWriterRun<'s>,
+        before_chooser: bool,
+    }
+
+    impl MbfWriterRun for Retired<'_> {
+        fn run(&mut self, request: &WorkerRequest<'_>) -> Result<WriterOutput, WriterRunFailure> {
+            self.run.run(request)
+        }
+
+        fn cancelled(&self) -> bool {
+            self.before_chooser
+        }
+
+        fn commit(&mut self) -> Result<(), WriterRunFailure> {
+            Err(WriterRunFailure::Cancelled)
+        }
+    }
+
+    /// The cancel/commit boundary's two checks (finding P2-1 at 9c5785a6d): a run retired before the chooser opens
+    /// none, and one retired while it was open is refused at the commit; both reply `MBF-EXPORT-CANCELLED` and write
+    /// nothing, with every reservation released.
+    #[test]
+    fn a_run_retired_before_its_commit_writes_nothing() {
+        let sandbox = Sandbox::new("retired");
+        let pool = registry(ScriptedHost::normal());
+        let seam = InProcessWriterTestSeam::for_tests();
+        for before_chooser in [true, false] {
+            let opened = Cell::new(false);
+            let memory = PoolReadMemory::unseeded(&pool);
+            let outcome = save_mbf_export_with(
+                &mut Retired { run: in_process(&seam), before_chooser },
+                request(&canonical_of(EXPORT_MODEL)),
+                &memory,
+                no_store,
+                |_| {
+                    opened.set(true);
+                    Ok(Some(sandbox.0.join("swbpipe-model.mbf")))
+                },
+                &mut SystemMbfExportIo,
+                |outcome, _| outcome.clone(),
+            );
+            drop(memory);
+            assert_eq!(codes(&outcome), vec![CANCELLED.to_string()], "{before_chooser}");
+            assert_eq!(opened.get(), !before_chooser, "the chooser opens only for a run not yet retired");
+            assert!(sandbox.entries().is_empty());
+            assert_eq!(pool.pool_status().reserved_bytes, 0);
+        }
     }
 
     #[test]
@@ -2437,45 +2572,6 @@ mod tests {
         })
     }
 
-    /// The production entry point refuses before anything else (§3.7): with otherwise valid arguments and a chooser
-    /// that would name a folder, it returns `MBF-EXPORT-NOT-CONNECTED`, opens no store and no chooser, writes nothing,
-    /// and releases what it held.
-    #[test]
-    fn the_production_entry_point_refuses_not_connected_and_touches_nothing() {
-        let _lock = atomic_save_test_lock();
-        let sandbox = Sandbox::new("not-connected");
-        let text = canonical_of(EXPORT_MODEL);
-        let request = request(&text);
-        let body = json!({"canonicalText": text});
-        let pool = registry(ScriptedHost::normal());
-        let (_, lease) = admit_json(&pool, COMMAND, ArgsDecoding::Moved, &body).unwrap();
-        let (store_opened, chooser_opened) = (Cell::new(false), Cell::new(false));
-        let chosen = sandbox.0.join("swbpipe-model.mbf");
-        let (outcome, text) = save_mbf_export_admitted(
-            request,
-            || {
-                store_opened.set(true);
-                no_store()
-            },
-            &pool,
-            &lease,
-            |_| {
-                chooser_opened.set(true);
-                Ok(Some(chosen.clone()))
-            },
-            |outcome, text| (outcome.clone(), text),
-        );
-        assert_eq!(codes(&outcome), vec![NOT_CONNECTED.to_string()]);
-        let MbfExportOutcome::Refused { diagnostics, .. } = &outcome else { unreachable!() };
-        assert!(diagnostics[0].message.contains("native export memory governance is unfinished"), "{}", diagnostics[0].message);
-        assert_eq!(serde_json::to_string(&outcome).unwrap(), text);
-        assert!(!store_opened.get() && !chooser_opened.get());
-        assert!(sandbox.entries().is_empty(), "{:?}", sandbox.entries());
-        assert!(!chosen.exists());
-        drop(lease);
-        assert_eq!(pool.pool_status().reserved_bytes, 0);
-    }
-
     /// Through the test seam, the ingress lease of the arguments is counted with every host-side reservation, so a
     /// budget that admits the save without the lease refuses it with the lease, before the chooser.
     #[test]
@@ -2784,7 +2880,7 @@ mod tests {
     }
 
     impl MbfWriterRun for Recording<'_> {
-        fn run(&mut self, request: &WorkerRequest<'_>) -> Result<String, WriterRunFailure> {
+        fn run(&mut self, request: &WorkerRequest<'_>) -> Result<WriterOutput, WriterRunFailure> {
             self.runs.push(request.mode);
             self.inner.run(request)
         }
@@ -2984,7 +3080,7 @@ mod tests {
     fn worker_run_failures_are_named_in_the_save_and_the_review() {
         struct Failing(WriterRunFailure);
         impl MbfWriterRun for Failing {
-            fn run(&mut self, _: &WorkerRequest<'_>) -> Result<String, WriterRunFailure> {
+            fn run(&mut self, _: &WorkerRequest<'_>) -> Result<WriterOutput, WriterRunFailure> {
                 Err(self.0.clone())
             }
         }
@@ -3037,25 +3133,6 @@ mod tests {
         // The short form drops it.
         let MbfExportOutcome::Refused { review, .. } = outcome.shortened("refused".into(), "save", 1) else { unreachable!() };
         assert!(review.is_none());
-    }
-
-    /// The review's production entry point refuses before anything else and releases what it held.
-    #[test]
-    fn the_reviews_production_entry_point_refuses_not_connected() {
-        let text = canonical_of(EXPORT_MODEL);
-        let body = json!({"canonicalText": text, "claimedModelHash": format!("sha256:{}", sha256_hex(text.as_bytes())), "settingsJson": settings()});
-        let pool = registry(ScriptedHost::normal());
-        let (mut args, lease) = admit_json(&pool, REVIEW_COMMAND, ArgsDecoding::Moved, &body).unwrap();
-        let decoded = review_mbf_export_args(&mut args).unwrap();
-        assert_eq!((decoded.canonical_text.as_str(), decoded.settings_json.as_str()), (text.as_str(), settings().as_str()));
-        let (outcome, response) = review_mbf_export_admitted(decoded, &pool, &lease, |outcome, text| (outcome.clone(), text));
-        let MbfReviewOutcome::Refused { diagnostics } = &outcome else { panic!("{outcome:?}") };
-        assert_eq!(diagnostics[0].code, NOT_CONNECTED);
-        assert_eq!(serde_json::to_string(&outcome).unwrap(), response);
-        let raw = serde_json::to_vec(&body).unwrap();
-        let _ = check_decode_bound(&raw, ArgsDecoding::Moved, |args| review_mbf_export_args(args).map(drop));
-        drop(lease);
-        assert_eq!(pool.pool_status().reserved_bytes, 0);
     }
 
     /// A string longer than the per-field bound is carried as its prefix, length and digest, and the review's counted

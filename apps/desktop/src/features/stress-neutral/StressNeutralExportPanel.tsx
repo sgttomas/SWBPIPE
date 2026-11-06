@@ -840,7 +840,7 @@ export function precisionStressRow(item: MechanicsResult["results"][number], sou
   if (location !== undefined && location !== null && (typeof location !== "string" || !location)) throw new Error("SN-PRECISION-ROW-LOCATION-INVALID");
   if (typeof item.entity_ref !== "string" || !item.entity_ref) throw new Error("SN-PRECISION-ROW-ENTITY-MISSING");
   const dimension = semantic?.derivative_target_dimension ?? "TBD";
-  const component = ['support_reaction_component_v2', 'support_reaction_force_magnitude_v2', 'support_reaction_moment_magnitude_v2'].includes(item.kind)
+  const component = ['support_reaction_component_v2', 'support_reaction_force_magnitude_v2', 'support_reaction_moment_magnitude_v2', 'support_reaction_along_direction_v1'].includes(item.kind)
     ? reference('Support', item.entity_ref) : entityReference(item.entity_ref);
   return { result_id: item.id, canonical_ref: reference("Result", item.id), row_kind: "result_value", result_family: semantic?.category === "physical_quantity" ? semantic.family ?? "other" : "other",
     load_case_ref: sourceBasisReference(item.basis_ref) ?? reference("AnalysisRun", source.run_id), station_ref: reference("Station", location ?? "summary"), component_ref: component, value: item.value, unit: item.unit, dimension,

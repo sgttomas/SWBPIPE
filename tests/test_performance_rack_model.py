@@ -23,6 +23,10 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 GENERATOR = ROOT / "core" / "solver" / "performance_harness" / "rack" / "rack_model.py"
 HASHES = ROOT / "core" / "solver" / "performance_harness" / "observations" / "rack" / "models_sha256.txt"
+# The small connected C1 validation's rack (apps/desktop/native-smoke/perf-plan-c1-small.json), outside the scaling
+# series; perf.mjs refuses a C1 plan whose model is in neither list.
+SMALL_HASHES = HASHES.with_name("models_sha256_small.txt")
+SMALL_RACKS = (("linear-ex", 82),)
 MODEL_FORMAT = ROOT / "core" / "product_physics" / "src" / "model_format.rs"
 NONLINEAR_INTEGRATION = ROOT / "core" / "solver" / "nonlinear_integration" / "src" / "lib.rs"
 SIZES = (250, 500, 1000, 1500, 2000)
@@ -328,6 +332,25 @@ def test_the_recorded_hashes_are_the_generators():
     assert {(profile, int(nodes)) for _, profile, nodes in rows} == {(p, n) for p in rm.PROFILES for n in SIZES}
     for digest, profile, nodes in rows:
         assert hashlib.sha256(rm.canonical(rm.build(profile, int(nodes))[0])).hexdigest() == digest
+
+
+def test_the_recorded_small_hashes_are_the_generators():
+    expected = "\n".join([
+        f"# sha256 of the RT-U4 small C1 validation rack's canonical bytes (rack/rack_model.py), model document "
+        f"{rm.MODEL_VERSION}",
+        "# regenerate: python3 core/solver/performance_harness/rack/rack_model.py --profile linear-ex --nodes 82 "
+        "| shasum -a 256",
+        *(f"{hashlib.sha256(rm.canonical(rm.build(profile, nodes)[0])).hexdigest()}  {profile}  {nodes}"
+          for profile, nodes in SMALL_RACKS)]) + "\n"
+    assert SMALL_HASHES.read_text(encoding="utf-8") == expected, (
+        "observations/rack/models_sha256_small.txt differs from the generator: regenerate its rows with "
+        "`python3 core/solver/performance_harness/rack/rack_model.py --profile linear-ex --nodes 82 | shasum -a 256` "
+        "after a deliberate change")
+    # The command the file names is the generator's own output, byte for byte.
+    stdout = subprocess.run([sys.executable, str(GENERATOR), "--profile", "linear-ex", "--nodes", "82"], check=True,
+                            capture_output=True).stdout
+    assert hashlib.sha256(stdout).hexdigest() == expected.splitlines()[2].split()[0]
+    assert not {nodes for _, nodes in SMALL_RACKS} & set(SIZES), "a scaling size belongs in models_sha256.txt"
 
 
 # -- the product solve ----------------------------------------------------------------------------------------------

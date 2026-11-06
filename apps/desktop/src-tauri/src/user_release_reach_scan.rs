@@ -543,13 +543,59 @@ const ENTRY_RULES: [(&str, &str, Entry); 6] = [
 /// module, parameter path or scanned name is added. The
 /// headless runner's two (code review r9 at #1682) each write one `Reader`
 /// literal of its own reader table (reviewed: no `mod`, no `$parameter ::`,
-/// no scanned name). RT-A4 §10.4 (#98) re-pinned both: each `read` closure
+/// no scanned name). `app_invoke_handler` was re-pinned after C1 slice 1
+/// (DEL-04-05 `c1-native-custody-plan.md`) added one ordinary handler entry,
+/// `read_preview_mechanics_job_verdict` (reviewed: no `mod`, no
+/// `$parameter ::`, no scanned name), and again after C1 slice 2 added
+/// `read_preview_mechanics_job_summary` (reviewed likewise), and after C1
+/// slice 3 added four ordinary handler entries,
+/// `query_preview_mechanics_job_rows`, `lookup_preview_mechanics_job_rows`,
+/// `read_preview_mechanics_job_row_semantics` and
+/// `query_preview_mechanics_job_source_recovery` (reviewed likewise), and
+/// after C1 slice 5's builder added
+/// `read_preview_mechanics_job_analysis_run_preview` (reviewed likewise), and
+/// after C1 slice 4 added two ordinary handler entries,
+/// `read_preview_mechanics_job_rows_all` and
+/// `release_preview_mechanics_job_full_copy` (reviewed likewise), and after
+/// C1 slice 4's navigator and streamed CSV added five ordinary handler
+/// entries, `query_preview_mechanics_job_navigator`,
+/// `begin_local_csv_stream`, `append_local_csv_stream`,
+/// `finish_local_csv_stream` and `abort_local_csv_stream` (reviewed
+/// likewise: no `mod`, no `$parameter ::`, no scanned name), and after C1
+/// slice 5's persistence added two ordinary handler entries,
+/// `record_preview_mechanics_job_analysis_run` and
+/// `save_preview_mechanics_job_local_project` (the previous digest
+/// `04cd4d82…aadbeb` reproduced first; the macro's only change is those two
+/// lines; reviewed likewise: no `mod`, no `$parameter ::`, no scanned name),
+/// and after C1 slice 6's native reopen added three ordinary handler entries,
+/// `open_local_project_in_native_custody`, `read_analysis_run_in_native_custody`
+/// and `read_restored_result_record_all` (the previous digest `010b2557…d6d4bf`
+/// reproduced first; the macro's only change is those three lines; reviewed
+/// likewise: no `mod`, no `$parameter ::`, no scanned name), and after C1
+/// slice 6's save continuity added one ordinary handler entry,
+/// `save_restored_result_local_project` (the previous digest `4d4c5707…5c97ca`
+/// reproduced first; the macro's only change is that line; reviewed likewise:
+/// no `mod`, no `$parameter ::`, no scanned name), and after DEL-17-04 slice
+/// 4b.2a (`desktop-mbf-export-import.md` §3.8) added two ordinary handler
+/// entries, `review_mbf_export` and `save_mbf_export` (the previous digest
+/// `2af3c014…807279` reproduced first; the macro's only change is those two
+/// lines; reviewed likewise: no `mod`, no `$parameter ::`, no scanned name),
+/// and after the 4b.2a repair (review at 9c5785a6d) added one ordinary handler
+/// entry, `cancel_mbf_export` (the previous digest `5f61b13b…1671cf6`
+/// reproduced first; the macro's only change is that line; reviewed likewise:
+/// no `mod`, no `$parameter ::`, no scanned name), and after DEL-04-11
+/// increment 3c part 2 (`hanger-sizing.md` §13) added two ordinary handler
+/// entries, `size_hangers` and `cancel_hanger_sizing`, after
+/// `cancel_mbf_export` (the previous digest `99d282f6…6eba6` reproduced
+/// first; the macro's only change is those two lines; reviewed likewise: no
+/// `mod`, no `$parameter ::`, no scanned name).
+/// RT-A4 §10.4 (#98) re-pinned both headless macros: each `read` closure
 /// now chooses between the current reader and its `reader_verdict::*_recorded`
 /// twin by the input's `recorded_binding` member (were e4ca5430…/b000ef8e…;
 /// reviewed: no `mod`, no `$parameter ::`, no scanned name; `rv::` was
 /// already named; still one `Reader` literal each).
 const MACRO_DEFINITIONS: [(&str, &str, &str); 3] = [
-    ("src-tauri/src/lib.rs", "app_invoke_handler", "1260b32b13fb6a12443b27442533556730781b961dd5fc0a2f7443eabb298d79"),
+    ("src-tauri/src/lib.rs", "app_invoke_handler", "3eb2fe1ce93e49e4813e90d06b840645e0e62e23fb228d9aa5bfb30c117ce069"),
     ("headless/src/reader_binding.rs", "base", "d80e766036e0f651522ebfe11ebc6ba1fc32ec2b9c2b3702e0b978eb86558cb2"),
     ("headless/src/reader_binding.rs", "transport", "057aa56311a7531f094632a3fe9f2d781b9364ab4865add6c7d257403732169a"),
 ];
@@ -619,7 +665,7 @@ pub(crate) const BUILD_SCRIPTS: [(&str, usize, &str); 1] =
 /// dependencies they would let a build that sets `cfg(test)` compile the
 /// scan's test modules, so moving one, like any other change here, is a
 /// finding until reviewed.
-pub(crate) const SHELL_DEPENDENCIES: [&str; 38] = [
+pub(crate) const SHELL_DEPENDENCIES: [&str; 39] = [
     "dev proc-macro2",
     "dev syn",
     "normal bytes (cfg(target_os = \"macos\"))",
@@ -634,6 +680,7 @@ pub(crate) const SHELL_DEPENDENCIES: [&str; 38] = [
     "normal open_pipe_stress_audit_manifest",
     "normal open_pipe_stress_caepipe_mbf",
     "normal open_pipe_stress_canonical_json",
+    "normal open_pipe_stress_hanger_sizing",
     "normal open_pipe_stress_library_import_document",
     "normal open_pipe_stress_operation_applier",
     "normal open_pipe_stress_product_physics",
@@ -1528,6 +1575,20 @@ impl FileScan<'_> {
         let path = path_text(&mac.path);
         let line = line_of(mac.bang_token.span);
         self.check_invocation_path(&path, &mac.tokens, line);
+        // C1 P3 uses the standard TLS macro for the existing allocation
+        // counter. Only this path/file is admitted; parse every initializer
+        // as ordinary code instead of leaving its item body opaque.
+        if path == "std::thread_local" && self.file == "src-tauri/src/ingress.rs" {
+            match syn::parse2::<syn::File>(mac.tokens.clone()) {
+                Ok(body) if body.attrs.is_empty() && body.items.iter().all(|item| matches!(item, syn::Item::Static(_))) => {
+                    self.with_owner(Owner::Macro, |scan| {
+                        for item in &body.items { scan.visit_item(item); }
+                    });
+                }
+                _ => self.finding(line, "the ingress std::thread_local! body must contain only parsed statics"),
+            }
+            return;
+        }
         let subtree = in_defining_module(&self.file);
         let listed = SUBTREE_MACROS.contains(&path.as_str());
         if subtree && !listed {
@@ -1581,7 +1642,8 @@ impl FileScan<'_> {
     /// list.
     fn check_invocation_path(&mut self, path: &str, tokens: &TokenStream, line: usize) {
         let runner_listed = self.is_runner() && RUNNER_MACRO_INVOCATIONS.iter().any(|(listed, _)| *listed == path);
-        if !MACRO_INVOCATIONS.contains(&path) && !runner_listed {
+        let ingress_tls = path == "std::thread_local" && self.file == "src-tauri/src/ingress.rs";
+        if !MACRO_INVOCATIONS.contains(&path) && !runner_listed && !ingress_tls {
             self.production_finding(line, format!("the macro {path}! is not on the invocation list"));
         }
         let last = path.rsplit("::").next().unwrap_or(path);

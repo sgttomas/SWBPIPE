@@ -374,6 +374,10 @@ pub enum FrameKernelError {
     NumericalRange {
         name: &'static str,
     },
+    /// An input outside an entry's contract, named (R-7, DEL-04-03 Work
+    /// `skew-restraints.md` §15 step 2: a skew node block at a force scale or
+    /// outside the pattern). Never a formation range.
+    InvalidInput(&'static str),
 }
 
 impl fmt::Display for FrameKernelError {
@@ -418,6 +422,7 @@ impl fmt::Display for FrameKernelError {
                 "prescribed DOF {dof} is outside total DOF count {total_dofs}"
             ),
             Self::SingularSystem { pivot } => write!(f, "singular system at pivot {pivot}"),
+            Self::InvalidInput(detail) => write!(f, "invalid input: {detail}"),
             Self::NumericalRange { name } => write!(
                 f,
                 "range: stiffness formation outside the binary64 normal range at {name} (zero, subnormal or non-finite from nonzero finite operands)"
@@ -2898,3 +2903,4 @@ mod tests {
         );
     }
 }
+pub mod restraint_basis;

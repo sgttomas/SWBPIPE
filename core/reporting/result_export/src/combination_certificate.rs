@@ -82,6 +82,39 @@ fn reserved_notice(d: &Value) -> bool {
         || text("code").starts_with(CODE_PREFIX)
         || (message.contains("stated bound") && (message.contains("within") || message.contains("against")))
 }
+/// A reserved notice other than a withheld held gate's own notice ([`bound_held_gate`]), which
+/// the roster compares whole with the notice it builds from the held-status record.
+fn reserved(source: &Value, d: &Value) -> bool {
+    reserved_notice(d) && !bound_held_gate(source, d)
+}
+/// RT-A5 (Work `combination-certificate.md` §2): whether a diagnostic is a withheld held gate's
+/// own notice, by typed identity and its whole canonical message: its code is one of the five
+/// held gate codes, it names exactly one combination, its id is that combination's gate id, the
+/// document's gate for it is withheld with that code, it has exactly one held-status record of
+/// that outcome, a withheld one, and its message is exactly "Combination withheld: " + R + "."
+/// with R that record's refusal ([`held_gate_message`]'s, compared without allocating). R is
+/// bound to the record, not verified as true; it supplies no row bound, eligibility, certificate
+/// notice or standing. Any other notice keeps the reserved vocabulary's message test.
+fn bound_held_gate(source: &Value, d: &Value) -> bool {
+    let code = d["code"].as_str().unwrap_or_default();
+    let [cid] = items(&d["affected_refs"]) else { return false };
+    let (true, Some(cid)) = (crate::preview_held_status::GATES.contains(&code), cid.as_str()) else { return false };
+    let evidence = &source["contract_evidence"];
+    let gate_id = d["id"].as_str().and_then(|i| i.strip_prefix(PREVIEW_PREFIX)).and_then(|r| r.strip_prefix("gate:")).and_then(|r| r.split_once(':'));
+    gate_id.is_some_and(|(n, c)| c == cid && n.bytes().all(|b| b.is_ascii_digit()) && n.parse::<usize>().ok() == Some(cid.len()))
+        && items(&evidence["combination_gates"]).iter().any(|g| g["combination_id"] == cid && g["withheld"] == true && g["reason"] == code)
+        && {
+            let mut records = items(&evidence[crate::preview_held_status::MEMBER]).iter().filter(|r| r["combination_id"] == cid);
+            match (records.next(), records.next()) {
+                (Some(record), None) if record["outcome"] == code && record["standing"]["kind"] == "withheld" => {
+                    let refusal = record["standing"]["reason"].as_str().filter(|r| !r.is_empty());
+                    let stated = d["message"].as_str().and_then(|m| m.strip_prefix("Combination withheld: ")).and_then(|m| m.strip_suffix('.'));
+                    refusal.is_some() && stated == refusal
+                }
+                _ => false,
+            }
+        }
+}
 fn keys(v: &Value, wanted: &[&str]) -> bool {
     v.as_object().is_some_and(|o| o.len() == wanted.len() && wanted.iter().all(|k| o.contains_key(*k)))
 }
@@ -429,7 +462,7 @@ fn member_check(source: &Value) -> Check {
     // under any id. A stated member is read in full, and only on a solved document with a
     // combination; a partial or malformed one is refused, never read as absence.
     let Some(member) = member else {
-        return require(!items(&source["diagnostics"]).iter().any(reserved_notice), "PRESENCE");
+        return require(!items(&source["diagnostics"]).iter().any(|d| reserved(source, d)), "PRESENCE");
     };
     require(solved && !gate_list.is_empty(), "PRESENCE")?;
     require(keys(member, &MEMBER_KEYS), "SHAPE")?;
@@ -646,7 +679,7 @@ fn member_check(source: &Value) -> Check {
     let wanted: Vec<&str> = case_order.iter().copied().filter(|c| used.contains(*c)).collect();
     require(stated == wanted, "OPERAND_CASES")?;
     // The diagnostics, whole, and none other in the reserved vocabulary (any id spelling).
-    let published: Vec<&Value> = diagnostics.iter().filter(|d| reserved_notice(d)).collect();
+    let published: Vec<&Value> = diagnostics.iter().filter(|d| reserved(source, d)).collect();
     require(published.len() == expected_diagnostics.len(), "DIAGNOSTICS")?;
     for expected in &expected_diagnostics {
         let matching: Vec<&&Value> = published.iter().filter(|d| d["id"] == expected["id"]).collect();
@@ -745,6 +778,59 @@ fn preview_gate_message(code: &str) -> &'static str {
         _ => "Combination withheld: its load cases were solved on different modulus bases.",
     }
 }
+/// A held gate's notice (RT-A5, DEL-05-02 `operating-case.md` §7.5; Work
+/// `combination-certificate.md` §2): exactly "Combination withheld: " + R + ".", where R is the
+/// refusal the document's held-status record for this combination states. R is bound to that
+/// record, never verified as true, and no certificate claim is read from it. The held-status
+/// reader (`preview_held_status::check`), which precedes this one in both readings, has bound
+/// the record to the combination and its refusal code to the gate's; a held code whose record
+/// is absent, repeated, malformed or of another outcome is refused here too.
+fn held_gate_message(evidence: &Value, id: &str, code: &str) -> Result<String, String> {
+    let mut records = items(&evidence[crate::preview_held_status::MEMBER]).iter().filter(|r| r["combination_id"] == id);
+    let refusal = match (records.next(), records.next()) {
+        (Some(record), None) if record["outcome"] == code && record["standing"]["kind"] == "withheld" => record["standing"]["reason"].as_str(),
+        _ => None,
+    };
+    refusal.filter(|r| !r.is_empty()).map(|r| format!("Combination withheld: {r}.")).ok_or_else(|| fail("ROSTER_CONTRADICTION"))
+}
+/// RT-A5 (DEL-05-02 `operating-case.md` §7.5; Work `combination-certificate.md` §2): the
+/// `HELD_STATUS_RELEASED` entry of a held combination whose held-status record releases a support,
+/// none otherwise: id `diagnostic:preview-physics:held-status-released:<identity>`, warning, refs the
+/// combination then the released supports in record order, and the message PP
+/// `held_status::released_message` forms, rebuilt here from the record's recorded fields only (its
+/// support ids, held and classified states, release reasons, and the deciding bit token or
+/// strict-gap signs, `released_item`); no binary64 value is formatted. The held-status reader,
+/// which precedes the roster, has validated the record and re-derived each release.
+fn held_released_entry(record: &Value) -> Option<Value> {
+    let cid = record["combination_id"].as_str()?;
+    let released: Vec<&Value> = items(&record["held"]).iter().filter(|e| e["released"] != "none").collect();
+    if released.is_empty() {
+        return None;
+    }
+    let listed = released.iter().map(|e| released_item(e)).collect::<Vec<_>>().join("; ");
+    let message = format!("Combination {cid} holds the minuend's support status in the subtrahend case, and that case's classifier releases: {listed}. The rows are the held system's, published with this standing; the held status is not an admissible state of the subtrahend case.");
+    let mut refs = vec![cid];
+    refs.extend(released.iter().map(|e| e["support_id"].as_str().unwrap_or_default()));
+    Some(roster_entry(format!("diagnostic:preview-physics:held-status-released:{}", identity(&[cid])), crate::preview_held_status::RELEASED, "warning", message, refs))
+}
+/// One released support's clause (PP `released_message` and `released_quantity`).
+fn released_item(e: &Value) -> String {
+    fn text(v: &Value) -> &str {
+        v.as_str().unwrap_or_default()
+    }
+    let (held, reason) = (text(&e["held_state"]), text(&e["released"]));
+    let quantity = if e["decision"] == "strict_gap" {
+        let s = &e["strict_gap"];
+        format!("gap_sign {}, reaction_sign {} in the contact's own sense, {} to {}", text(&s["gap_sign"]), text(&s["reaction_sign"]), text(&s["prior"]), text(&s["state"]))
+    } else if reason == "branch" {
+        format!("derived normal normal_signed_bits {}", text(&e["inputs"]["normal_signed_bits"]))
+    } else if matches!(held, "active" | "sticking") {
+        format!("reaction_bits {}", text(&e["inputs"]["reaction_bits"]))
+    } else {
+        format!("displacement_bits {} from its ground", text(&e["inputs"]["displacement_bits"]))
+    };
+    format!("{} held {held}, classified {} ({}: {quantity})", text(&e["support_id"]), text(&e["classified_state"]), reason.replace('_', " "))
+}
 /// The producer's `operand_withheld_message` (both routes).
 fn operand_withheld_message(named: &[(&str, &str)]) -> String {
     let named = named.iter().map(|(id, code)| format!("{id} ({code})")).collect::<Vec<_>>().join(", ");
@@ -802,10 +888,17 @@ pub fn document_combination_identities(source: &Value) -> HashSet<String> {
     combination_population(source, None).into_iter().map(str::to_string).collect()
 }
 
+/// One combination's interim withholding codes, in the order they are stated: none since RT-A5
+/// (PP `document_members::interim_reasons`).
+fn interim_reasons(_combination: &Value) -> Vec<(&'static str, String)> {
+    Vec::new()
+}
+
 /// S1's interim withholding (PP `document_members::withhold_interim_combinations`) as the model states
-/// it: the notices, and the model's combinations it leaves, in authored order. As operating-case
-/// slice 1b leaves it, only a `minuend_final` subtrahend is withheld here (a declared difference
-/// basis is gated by G-1 and G-2 at the solve, read as a gate notice).
+/// it: the notices, and the model's combinations it leaves, in authored order. As RT-A5 leaves it
+/// (DEL-05-02 `operating-case.md` §7.5), no combination has an interim reason: a declared difference
+/// basis and a `minuend_final` subtrahend are gated at the solve, read as gate notices, so nothing is
+/// withheld here (PP `interim_reasons`).
 fn interim<'m>(model: &'m Value) -> (Vec<Value>, Vec<&'m Value>) {
     use crate::combination_graph::{model_operands, model_order, Operand, OPERAND_WITHHELD};
     let all = items(&model["combinations"]);
@@ -814,10 +907,7 @@ fn interim<'m>(model: &'m Value) -> (Vec<Value>, Vec<&'m Value>) {
     let mut withheld: HashMap<&str, &str> = HashMap::new();
     for c in all {
         let id = c["id"].as_str().unwrap_or_default();
-        let mut reasons: Vec<(&str, String)> = Vec::new();
-        if c["subtrahend_support_state"] == "minuend_final" {
-            reasons.push((SUBTRAHEND_STATE, format!("combination `{id}` solves its subtrahend at the minuend's final support status; that solve is not built yet, so the combination is withheld")));
-        }
+        let reasons: Vec<(&str, String)> = interim_reasons(c);
         for (code, message) in &reasons {
             notices.push(roster_entry(format!("{INTERIM_PREFIX}{}:{}", stable_suffix(id), code.to_ascii_lowercase()), code, "warning", message.clone(), vec![id]));
         }
@@ -1061,12 +1151,17 @@ fn roster(source: &Value, model: Option<&Value>) -> Check {
                 let mut refs = vec![id];
                 refs.extend(named_ops.iter().map(|(n, _)| *n));
                 (operand_withheld_message(&named_ops), refs)
+            } else if crate::preview_held_status::GATES.contains(&code) {
+                (held_gate_message(evidence, id, code)?, vec![id])
             } else {
                 (preview_gate_message(code).to_string(), vec![id])
             };
             expected.push(roster_entry(gate_id, code, "warning", message, refs));
             withheld.insert(id, code);
         }
+        // RT-A5: each held combination's HELD_STATUS_RELEASED notice, set-bound, rebuilt from its
+        // validated held-status record (`held_released_entry`).
+        expected.extend(items(&evidence[crate::preview_held_status::MEMBER]).iter().filter_map(held_released_entry));
     }
 
     let index = crate::preview_combination_gates::RowIndex::new(results);
@@ -1082,7 +1177,7 @@ fn roster(source: &Value, model: Option<&Value>) -> Check {
     for d in diagnostics.iter().filter(|d| named(d) || listed(d)) {
         let code = d["code"].as_str().unwrap_or_default();
         // Read whole by their own readers, which precede this one.
-        if reserved_notice(d)
+        if reserved(source, d)
             || (preview && matches!(code, OPERAND_STATES | OPERAND_STANDING))
             || (exact && d["id"].as_str().is_some_and(|i| i.starts_with(EXACT_PREFIX)))
         {
@@ -1187,6 +1282,22 @@ mod retained_base_read_tests {
     /// Under the context the roster's text closure is not applied, and only it: prose under a combination ref is
     /// left to the receipt, while a reserved certificate notice without a member is still refused (PRESENCE). The
     /// context is restored after the read, also on an error.
+    /// RT-A5: the rebuilt HELD_STATUS_RELEASED wording is outside the reserved vocabulary, for
+    /// each kind of clause, so no exemption is needed for it (it is not `bound_held_gate`'s).
+    #[test]
+    fn the_held_status_released_wording_is_not_reserved() {
+        let record = json!({"combination_id": "comb:x", "held": [
+            {"support_id": "s:1", "held_state": "active", "classified_state": "inactive", "released": "changed_state", "decision": "ordinary", "inputs": {"reaction_bits": "8000000000000000"}},
+            {"support_id": "s:2", "held_state": "sliding", "classified_state": "sticking", "released": "changed_state", "decision": "ordinary", "inputs": {"displacement_bits": "bf68000000000000"}},
+            {"support_id": "s:3", "held_state": "sliding", "classified_state": "sliding", "released": "branch", "decision": "ordinary", "inputs": {"normal_signed_bits": "c0b0000000000000"}},
+            {"support_id": "s:4", "held_state": "active", "classified_state": "inactive", "released": "changed_state", "decision": "strict_gap", "strict_gap": {"prior": "active", "gap_sign": "zero", "reaction_sign": "positive", "state": "inactive"}},
+            {"support_id": "s:5", "held_state": "active", "classified_state": "active", "released": "none", "decision": "ordinary", "inputs": {}}]});
+        let entry = super::held_released_entry(&record).unwrap();
+        assert_eq!(entry["affected_refs"], json!(["comb:x", "s:1", "s:2", "s:3", "s:4"]));
+        assert!(!reserved_notice(&entry));
+        assert!(super::held_released_entry(&json!({"combination_id": "comb:x", "held": [{"released": "none"}]})).is_none());
+    }
+
     #[test]
     fn under_the_context_only_the_roster_text_closure_is_lifted() {
         let mut noted = base();

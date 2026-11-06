@@ -4,6 +4,7 @@
 // the document is otherwise unchanged), or Cancel, the default.
 import type { StoredProjectEntry } from "../../services/projectService";
 import type { LocalProjectEnvelope, LocalProjectIndexEntry, PreviewModel } from "../../types";
+import type { NativeProjectSave } from "../../services/nativePersistence";
 
 export type ReplaceProjectChoice = "replace" | "save-as-new" | "cancel";
 
@@ -17,8 +18,12 @@ export type ReplaceProjectPromptState = {
   choose: (choice: ReplaceProjectChoice) => void;
 };
 
+/** A write's reply as the session adopts it: today's envelope, or (C1 slice 5) a native save's
+ * small reply with the request's own model and no result or record (`native`). */
+export type WrittenProjectEnvelope = LocalProjectEnvelope & { readonly native?: NativeProjectSave };
+
 export type StoredProjectWrite =
-  | { outcome: "written"; envelope: LocalProjectEnvelope }
+  | { outcome: "written"; envelope: WrittenProjectEnvelope }
   | { outcome: "save-as-new"; model: PreviewModel }
   | { outcome: "kept"; existing: LocalProjectIndexEntry };
 

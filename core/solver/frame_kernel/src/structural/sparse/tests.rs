@@ -1753,3 +1753,114 @@ fn k1_matrix_references_have_the_same_outcome_class_in_both_representations() {
     )
     .is_none());
 }
+
+// ------------------------------------------------------------------ R-7 node blocks (S-K1 F-1)
+
+/// A skewed spring block (DEL-04-03 Work `skew-restraints.md` §6.1): k = 5e5
+/// along d̃ = (0.75, 1, 0), fl(k·fl(fl(d̃_i·d̃_j)/n)).
+fn skew_block() -> [[f64; 3]; 3] {
+    let d = [0.75, 1.0, 0.0];
+    let n = 1.5625;
+    std::array::from_fn(|i| std::array::from_fn(|j| 5e5 * ((d[i] * d[j]) / n)))
+}
+
+fn assemble_with(model: &Model, options: &SparseAssemblyOptions) -> Result<SparseStiffness, FrameKernelError> {
+    assemble_sparse_stiffness(model.node_count, &model.frames, &model.connectors, &model.blocks, &model.springs, options)
+}
+
+#[test]
+fn skew_no_node_blocks_is_today_bit_for_bit() {
+    for (name, model) in models() {
+        let today = model.sparse();
+        let empty = assemble_with(&model, &SparseAssemblyOptions::new().with_node_blocks(Vec::new())).unwrap();
+        assert_eq!(bits(today.values()), bits(empty.values()), "{name}");
+        assert_eq!(today.pattern(), empty.pattern(), "{name}");
+        assert!(SparseAssemblyOptions::new().node_blocks().is_empty());
+    }
+}
+
+#[test]
+fn skew_node_block_is_its_dense_addition_after_the_springs() {
+    for (name, model) in models() {
+        let node = model.node_count - 1;
+        let base = 6 * node;
+        let today = model.sparse();
+        let options = SparseAssemblyOptions::new().with_node_blocks(vec![(node, skew_block()), (node, skew_block())]);
+        let with = assemble_with(&model, &options).unwrap();
+        assert_eq!(today.pattern(), with.pattern(), "{name}: the pattern is unchanged");
+        let mut dense = model.dense();
+        for _ in 0..2 {
+            for (r, row) in skew_block().iter().enumerate() {
+                for (c, &v) in row.iter().enumerate() {
+                    dense[base + r][base + c] += v;
+                }
+            }
+        }
+        for r in 0..dense.len() {
+            for c in 0..dense.len() {
+                assert_eq!(with.get(r, c).to_bits(), dense[r][c].to_bits(), "{name}: ({r}, {c})");
+            }
+        }
+    }
+}
+
+#[test]
+fn skew_node_block_refusals() {
+    let model = chain(3, 2.0e11, 0.0);
+    // A node with no element: its block is not in the pattern (§2.2 item 6).
+    let mut unconnected = chain(3, 2.0e11, 0.0);
+    unconnected.node_count += 1;
+    let options = SparseAssemblyOptions::new().with_node_blocks(vec![(4, skew_block())]);
+    assert_eq!(
+        assemble_with(&unconnected, &options).unwrap_err(),
+        FrameKernelError::InvalidInput("skew node block outside the stiffness pattern")
+    );
+    // A node outside the model.
+    let options = SparseAssemblyOptions::new().with_node_blocks(vec![(9, skew_block())]);
+    assert!(matches!(assemble_with(&model, &options), Err(FrameKernelError::InvalidNodeIndex { node_index: 9, .. })));
+    // Skew at a force scale is S-K2's: refused before any formation.
+    let options = SparseAssemblyOptions::new()
+        .with_force_scale(ForceScale::new(2).unwrap())
+        .with_node_blocks(vec![(3, skew_block())]);
+    assert_eq!(
+        assemble_with(&model, &options).unwrap_err(),
+        FrameKernelError::InvalidInput("skew node block at force scale")
+    );
+}
+
+/// RT-A3's F-1 condition: a factor shared across right-hand sides with node
+/// blocks present completes each as its separate solve does.
+#[test]
+fn p_a_shared_factor_with_skew_node_blocks_completes_other_right_hand_sides() {
+    let model = chain(3, 2.0e11, 0.0);
+    // The model's symmetry evidence covers the node block: it is exactly symmetric.
+    let pair = Pair::new(&model);
+    let k = assemble_with(&model, &SparseAssemblyOptions::new().with_node_blocks(vec![(3, skew_block())])).unwrap();
+    let dense = k.to_dense();
+    let system = SparseStructuralSystem::new(&k, &pair.force, &pair.free, &pair.prescribed, None, Some(pair.sparse_evidence()));
+    let prepared = prepare_sparse_structural_binary64(&system).unwrap();
+    let dense_system = StructuralSystem {
+        stiffness: &dense,
+        force: &pair.force,
+        free_dofs: &pair.free,
+        prescribed: &pair.prescribed,
+        contributions: None,
+        contribution_groups: None,
+        symmetry: Some(pair.dense_evidence()),
+    };
+    let (order, columns) = natural_profile(&prepare_structural_binary64(&dense_system).unwrap());
+    let factor = factor_sparse_structural_profile(&prepared, &order, &columns).unwrap();
+    let separate_first = finish_sparse_structural(&factor).unwrap();
+    let shared = factor.share();
+    assert_eq!(
+        format!("{separate_first:?}"),
+        format!("{:?}", finish_sparse_structural_on(&shared, &prepared).unwrap())
+    );
+    for scale in [1.0, -0.5, 3.0] {
+        let other_force: Vec<f64> = pair.force.iter().enumerate().map(|(i, f)| f * scale + i as f64).collect();
+        let other = SparseStructuralSystem::new(&k, &other_force, &pair.free, &pair.prescribed, None, Some(pair.sparse_evidence()));
+        let prepared = prepare_sparse_structural_binary64(&other).unwrap();
+        let separate = factor_sparse_structural_profile(&prepared, &order, &columns).and_then(|f| finish_sparse_structural(&f));
+        assert_eq!(format!("{separate:?}"), format!("{:?}", finish_sparse_structural_on(&shared, &prepared)), "scale {scale}");
+    }
+}

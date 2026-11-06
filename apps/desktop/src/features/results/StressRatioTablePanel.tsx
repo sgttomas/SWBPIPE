@@ -12,6 +12,9 @@
  * significant digits, half away from zero, Pa shown as MPa) in the stored units. A view only: it
  * changes no model, result, run or export, and it persists and sends nothing. */
 
+import { boundSummary, isNativeResult, nativeIdsOf, nativeOrdinalsIn, nativeRowKey, withPublishedIds, type SessionAnalysisRun, type SessionResult } from "../../services/nativeResult";
+import { stressRatioTableFromSummary } from "../../services/resultSummary";
+import { useNativeRowKey } from "./useNativeRowKey";
 import { useEffect, useMemo, useState } from "react";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
 import { rulePackReference, type SessionRuleCheckRun } from "../report/renderableReportInput";
@@ -88,9 +91,11 @@ export const RATIO_DISABLED_EMITTED = "Emitted stress: no rule outcome";
 
 export type StressRatioTablePanelProps = Readonly<{
   model: PreviewModel;
-  result: MechanicsResult | null;
+  result: SessionResult | null;
+  /** A native result's C2 full copy, held when its rule-check run was run on it (the run's rows are looked up by id). */
+  fullResult?: MechanicsResult | null;
   /** The result's analysis-run record, for the CSV preamble's result hash (RT-R6). */
-  analysisRun?: AnalysisRunEnvelope | null;
+  analysisRun?: SessionAnalysisRun | null;
   /** The reader's numerical standing and the session's numerical health view (the overlays' input). */
   standing: ResultOverlayStanding | null | undefined;
   /** The session's rule-check run, only while it is a run of `result`. */
@@ -123,10 +128,26 @@ function headerWithUnit(label: string, unit: string | null): string {
   return unit ? `${label} (${displayQuantityParts(0, unit).unit})` : label;
 }
 
+/** The group and view a CSV writes: as shown, with a native table's internal row keys replaced by
+ * their published ids (bounded native lookups). */
+async function publishedGroupAndView<G, V>(result: SessionResult | null, group: G, view: V): Promise<{ group: G; view: V }> {
+  if (!result || !isNativeResult(result)) return { group, view };
+  const ids = await nativeIdsOf(result, nativeOrdinalsIn([group, view]));
+  return { group: withPublishedIds(group, ids), view: withPublishedIds(view, ids) };
+}
+
 export function StressRatioTablePanel({
-  model, result, analysisRun = null, standing, ruleCheckRun = null, selectedResultId = null, onSelectLocation, testIdPrefix = "stress-ratio"
+  model, result, fullResult = null, analysisRun = null, standing, ruleCheckRun = null, selectedResultId: selectedId = null, onSelectLocation, testIdPrefix = "stress-ratio"
 }: StressRatioTablePanelProps) {
-  const table = useMemo(() => buildStressRatioTable({ model, result, standing, ruleCheckRun }), [model, result, standing, ruleCheckRun]);
+  // C1: a native result's table is S's (no rule-check run), its rows keyed by internal row keys;
+  // with a rule-check run, the run's rows come from the result's C2 full copy.
+  const summary = boundSummary(result, model);
+  const table = useMemo(() => {
+    if (!result || !isNativeResult(result)) return buildStressRatioTable({ model, result: result as MechanicsResult | null, standing, ruleCheckRun });
+    if (ruleCheckRun) return buildStressRatioTable({ model, result: fullResult, standing, ruleCheckRun });
+    return summary ? stressRatioTableFromSummary(summary, nativeRowKey) : buildStressRatioTable({ model, result: null, standing, ruleCheckRun: null });
+  }, [model, result, fullResult, summary, standing, ruleCheckRun]);
+  const selectedResultId = useNativeRowKey(result, selectedId);
   const [chosenId, setChosenId] = useState<string | null>(null);
   const [chosenMode, setChosenMode] = useState<StressRatioMode>("ratio");
   const [thresholds, setThresholds] = useState<Readonly<Record<StressRatioMode, string>>>({ ratio: "", stress: "" });
@@ -168,8 +189,8 @@ export function StressRatioTablePanel({
             tableLabel={group.label}
             testId={tid("export-csv")}
             build={async () => stressRatioCsv({
-              group,
-              view,
+              // A native table's rows carry internal keys: the CSV writes their published ids.
+              ...(await publishedGroupAndView(result, group, view)),
               provenance: await csvResultProvenance({ model, result, analysisRun }),
               rulePacks: table.run.state === "used" && ruleCheckRun ? [csvRulePackRef(await rulePackReference(ruleCheckRun))] : [],
               softwareVersion: CSV_SOFTWARE_VERSION,

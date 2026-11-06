@@ -1,4 +1,5 @@
 //! Geometric rigid-motion screen, separate from matrix invertibility.
+use crate::restraint_basis::GroundRow as BasisGroundRow;
 use crate::structural::{gamma, Expansion, StructuralError};
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ObjectiveFamily {
@@ -35,9 +36,36 @@ pub fn assess_rigid_body(
     ground_dofs: &[usize],
     family: ObjectiveFamily,
 ) -> Result<RigidBodyAssessment, StructuralError> {
+    assess_rows(coordinates, ground_dofs.iter().map(|&d| BasisGroundRow::Axis(d)), family)
+}
+
+/// DEL-04-03 Work `skew-restraints.md` §9: `assess_rigid_body` over ground
+/// rows. An axis row is today's `motion_rows` line, by the same code; a
+/// direction row (a skewed stop or positive skewed spring, `d` its canonical
+/// d̃ with norm in [1, 2√3)) is Σ_a d_a·motion_rows(node)[a]. Every row is
+/// normalized as today, and the screen's thresholds are unchanged: no new
+/// threshold. Indices are LOCAL to the body, as for `assess_rigid_body`.
+pub fn assess_rigid_body_rows(
+    coordinates: &[[f64; 3]],
+    ground_rows: &[BasisGroundRow],
+    family: ObjectiveFamily,
+) -> Result<RigidBodyAssessment, StructuralError> {
+    assess_rows(coordinates, ground_rows.iter().copied(), family)
+}
+
+/// The one screen over rows, allocation-free in the rows (the identity path
+/// passes its DOFs as axis rows by iterator).
+fn assess_rows<I: Iterator<Item = BasisGroundRow> + Clone>(
+    coordinates: &[[f64; 3]],
+    ground_rows: I,
+    family: ObjectiveFamily,
+) -> Result<RigidBodyAssessment, StructuralError> {
     if coordinates.is_empty()
         || coordinates.iter().flatten().any(|v| !v.is_finite())
-        || ground_dofs.iter().any(|&i| i >= 6 * coordinates.len())
+        || ground_rows.clone().any(|row| match row {
+            BasisGroundRow::Axis(i) => i >= 6 * coordinates.len(),
+            BasisGroundRow::Direction { node, d } => node >= coordinates.len() || d.iter().any(|v| !v.is_finite()),
+        })
     {
         return Err(StructuralError::InvalidInput("rigid geometry"));
     }
@@ -77,8 +105,18 @@ pub fn assess_rigid_body(
     };
     let mut original = Vec::new();
 
-    for &d in ground_dofs {
-        let mut row = motion_rows(d / 6)[d % 6];
+    for ground in ground_rows.clone() {
+        let mut row = match ground {
+            BasisGroundRow::Axis(d) => motion_rows(d / 6)[d % 6],
+            BasisGroundRow::Direction { node, d } => {
+                let rows = motion_rows(node);
+                let mut row = [0.0; 6];
+                for (k, x) in row.iter_mut().enumerate() {
+                    *x = d[0] * rows[0][k] + d[1] * rows[1][k] + d[2] * rows[2][k];
+                }
+                row
+            }
+        };
 
         let norm = row.iter().map(|x| x * x).sum::<f64>().sqrt();
         for x in &mut row {
@@ -132,7 +170,7 @@ pub fn assess_rigid_body(
     }
     let singular = std::array::from_fn(|j| b.iter().map(|r| r[j] * r[j]).sum::<f64>().sqrt());
     let max = singular.iter().copied().fold(0.0, f64::max);
-    let screen = 64.0 * gamma(ground_dofs.len().max(6)) * max;
+    let screen = 64.0 * gamma(ground_rows.clone().count().max(6)) * max;
     let index = (0..6)
         .min_by(|&i, &j| singular[i].total_cmp(&singular[j]))
         .unwrap();
@@ -180,7 +218,7 @@ pub fn assess_rigid_body(
         // Unsupported expansion range or an inexact recovered motion is numerical
         // uncertainty. Neither turns a nonzero original constraint action into zero.
         if let Ok(Some(motions)) =
-            original_rigid_witness(coordinates, ground_dofs, length, &candidate)
+            original_rigid_witness(coordinates, ground_rows.clone(), length, &candidate)
         {
             result.status = RigidBodyStatus::MechanismWitnessed;
             result.rigid_parameters = Some(candidate);
@@ -193,7 +231,7 @@ pub fn assess_rigid_body(
 }
 fn original_rigid_witness(
     coordinates: &[[f64; 3]],
-    ground: &[usize],
+    ground: impl Iterator<Item = BasisGroundRow>,
     length: f64,
     candidate: &[f64; 6],
 ) -> Result<Option<Vec<[f64; 6]>>, StructuralError> {
@@ -226,11 +264,23 @@ fn original_rigid_witness(
         }
         exact_motions.push(motion);
     }
-    if ground
-        .iter()
-        .any(|&d| !exact_motions[d / 6][d % 6].is_zero())
-    {
-        return Ok(None);
+    for row in ground {
+        let held = match row {
+            BasisGroundRow::Axis(d) => exact_motions[d / 6][d % 6].is_zero(),
+            // A direction row holds iff d̃ᵀ(translation) is exactly zero.
+            BasisGroundRow::Direction { node, d } => {
+                let mut along = Expansion::default();
+                for (axis, &component) in d.iter().enumerate() {
+                    for &part in &exact_motions[node][axis].terms {
+                        along.add_product(component, part, 0)?;
+                    }
+                }
+                along.is_zero()
+            }
+        };
+        if !held {
+            return Ok(None);
+        }
     }
     // Publish node_motion only if it exactly represents this common original-coordinate
     // rigid motion. A rounded recovery is not silently presented as an exact witness.
@@ -1344,7 +1394,12 @@ mod tests {
         }
         let coords = [[0.0, 0.0, 0.0], [1e200, 0.0, 0.0], [0.0, 1e-200, 0.0]];
         assert!(
-            original_rigid_witness(&coords, &ground, 1e200, &[0.0, 0.0, 0.0, 1.0, 0.0, 0.0])
+            original_rigid_witness(
+                &coords,
+                ground.iter().map(|&d| BasisGroundRow::Axis(d)),
+                1e200,
+                &[0.0, 0.0, 0.0, 1.0, 0.0, 0.0]
+            )
                 .unwrap()
                 .is_none()
         );
@@ -1370,5 +1425,75 @@ mod tests {
                 }
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod ground_row_tests {
+    //! DEL-04-03 Work `skew-restraints.md` §9 and §15 step 3.
+    use super::*;
+
+    const BODY: [[f64; 3]; 3] = [[0.0, 0.0, 0.0], [4.0, 0.0, 0.0], [4.0, 3.0, 0.0]];
+
+    #[test]
+    fn axis_rows_are_today_bit_for_bit() {
+        for ground in [vec![0, 1, 2, 3, 4, 5], vec![0, 1, 2], vec![2, 7, 13, 14], vec![]] {
+            let rows: Vec<BasisGroundRow> = ground.iter().map(|&d| BasisGroundRow::Axis(d)).collect();
+            let today = assess_rigid_body(&BODY, &ground, ObjectiveFamily::WeldedUnreleasedElasticFrames).unwrap();
+            let by_rows = assess_rigid_body_rows(&BODY, &rows, ObjectiveFamily::WeldedUnreleasedElasticFrames).unwrap();
+            assert_eq!(format!("{today:?}"), format!("{by_rows:?}"));
+        }
+    }
+
+    #[test]
+    fn one_stop_on_a_free_body_leaves_a_witnessed_mechanism() {
+        let rows = [BasisGroundRow::Direction { node: 1, d: [0.75, 1.0, 0.0] }];
+        let a = assess_rigid_body_rows(&BODY, &rows, ObjectiveFamily::WeldedUnreleasedElasticFrames).unwrap();
+        assert_eq!(a.status, RigidBodyStatus::MechanismWitnessed);
+        // Five of six singular values vanish: one row restrains one motion.
+        assert_eq!(a.singular_values.iter().filter(|&&s| s <= a.rank_screen).count(), 5);
+        // The witness keeps the stop's row exactly: d̃ᵀ(translation at node 1) = 0.
+        let motion = a.node_motion.unwrap()[1];
+        assert_eq!(0.75 * motion[0] + motion[1], 0.0);
+    }
+
+    /// RT-A3 F-3 (§11.2): the `64·γ(n)·max` screen's n counts every ground row,
+    /// direction rows included: six axis rows plus one stop give n = 7.
+    #[test]
+    fn screen_n_counts_direction_rows() {
+        let mut rows: Vec<BasisGroundRow> = (0..6).map(BasisGroundRow::Axis).collect();
+        rows.push(BasisGroundRow::Direction { node: 2, d: [0.75, 1.0, 0.0] });
+        let a = assess_rigid_body_rows(&BODY, &rows, ObjectiveFamily::WeldedUnreleasedElasticFrames).unwrap();
+        let max = a.singular_values.iter().copied().fold(0.0, f64::max);
+        assert_eq!(a.rank_screen.to_bits(), (64.0 * gamma(7) * max).to_bits());
+        assert_ne!(a.rank_screen.to_bits(), (64.0 * gamma(6) * max).to_bits());
+    }
+
+    /// RT-U4 (§11.2): the row iterator chain collects nothing on any path.
+    #[test]
+    fn assess_rows_collects_nothing() {
+        let source = include_str!("rigid_body.rs");
+        let start = source.find("fn assess_rows<").unwrap();
+        let end = start + source[start..].find("\nfn original_rigid_witness(").unwrap();
+        assert!(!source[start..end].contains(".collect"));
+        let wrapper = &source[source.find("pub fn assess_rigid_body(").unwrap()..start];
+        assert!(!wrapper.contains(".collect"));
+    }
+
+    #[test]
+    fn six_independent_stops_restrain() {
+        let rows = [
+            BasisGroundRow::Direction { node: 0, d: [1.0, 0.75, 0.0] },
+            BasisGroundRow::Direction { node: 0, d: [0.0, 1.0, 0.75] },
+            BasisGroundRow::Direction { node: 0, d: [0.75, 0.0, 1.0] },
+            BasisGroundRow::Direction { node: 1, d: [0.0, 1.0, 1.0] },
+            BasisGroundRow::Direction { node: 1, d: [0.0, 1.0, -1.0] },
+            BasisGroundRow::Direction { node: 2, d: [1.0, 0.0, 1.0] },
+        ];
+        let a = assess_rigid_body_rows(&BODY, &rows, ObjectiveFamily::WeldedUnreleasedElasticFrames).unwrap();
+        assert_eq!(a.status, RigidBodyStatus::Restrained);
+        // A direction row naming a node outside the body is refused.
+        assert!(assess_rigid_body_rows(&BODY, &[BasisGroundRow::Direction { node: 3, d: [1.0, 1.0, 0.0] }],
+            ObjectiveFamily::WeldedUnreleasedElasticFrames).is_err());
     }
 }

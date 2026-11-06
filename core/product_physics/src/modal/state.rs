@@ -368,6 +368,7 @@ pub(crate) fn solve_modal_state_case(prepared: &Prepared, mode: PreviewSolverMod
         prepared.state_resolution.as_ref(),
         &mut diagnostics,
         None,
+        crate::held_status::CaseRole::Own(None),
     );
     let solve = match solved {
         Ok(solve) => solve,

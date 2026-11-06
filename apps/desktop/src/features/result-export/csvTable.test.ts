@@ -325,16 +325,18 @@ describe("CSV file names (DEL-07-01 export-file-names.md)", () => {
     expect(csvExportFileName("stress-ratio", "SUS Case 1")).toBe("swbpipe-stress-ratio-sus-case-1.csv");
     expect(csvExportFileName("results-displacements", "run 3")).toBe("swbpipe-results-displacements-run-3.csv");
     expect(csvExportFileName("support-loads-all")).toBe("swbpipe-support-loads-all.csv");
+    expect(csvExportFileName("hanger-sizing")).toBe("swbpipe-hanger-sizing.csv");
+    expect(csvExportFileName("hanger-sizing", "solves")).toBe("swbpipe-hanger-sizing-solves.csv");
     expect(() => csvExportFileName("stress-ratio", "☃")).toThrowError(/CSV_QUALIFIER_EMPTY/);
-    for (const kind of ["model", "results", "handoff", "Stress-ratio", "stress--ratio", "report"]) {
+    for (const kind of ["model", "results", "handoff", "Stress-ratio", "stress--ratio", "report", "hanger", "hanger-sizing-solves"]) {
       expect(isCsvKind(kind), kind).toBe(false);
       expect(() => csvExportFileName(kind)).toThrowError(/CSV_KIND_INVALID/);
     }
     expect(slugToken("  Anchor A / Node 10 ")).toBe("anchor-a-node-10");
-    for (const name of ["swbpipe-stress-ratio.csv", "swbpipe-weight-cog.csv", "swbpipe-run-comparison-run-3-run-4.csv", "swbpipe-results-loads-sus.csv"]) {
+    for (const name of ["swbpipe-stress-ratio.csv", "swbpipe-weight-cog.csv", "swbpipe-run-comparison-run-3-run-4.csv", "swbpipe-results-loads-sus.csv", "swbpipe-hanger-sizing.csv", "swbpipe-hanger-sizing-solves.csv"]) {
       expect(isCsvExportFileName(name), name).toBe(true);
     }
-    for (const name of ["swbpipe-results.csv", "swbpipe-stress-ratio.json", "swbpipe-stress-ratio (1).csv", "../swbpipe-stress-ratio.csv", "swbpipe-stress-ratio-.csv", "openpipestress-preview-results-run-1.csv"]) {
+    for (const name of ["swbpipe-results.csv", "swbpipe-stress-ratio.json", "swbpipe-stress-ratio (1).csv", "../swbpipe-stress-ratio.csv", "swbpipe-stress-ratio-.csv", "openpipestress-preview-results-run-1.csv", "swbpipe-hanger.csv", "swbpipe-hanger-sizing-.csv"]) {
       expect(isCsvExportFileName(name), name).toBe(false);
     }
   });

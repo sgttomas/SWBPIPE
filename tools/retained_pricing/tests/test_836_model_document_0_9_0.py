@@ -45,7 +45,8 @@ def test_the_s1_rules_are_present_with_their_bounds(monkeypatch, route):
     push = [r for r in bn if r["name"] == "push"]
     assert len(push) == 1 and push[0]["targets"] == [] and push[0]["caller"].endswith(":push")
     assert sum("S1-ZR" in why or "S1-BN" in why for _, _, why in d["O10_EDGE_ZERO"]) == 17
-    assert sum("S1-ZR" in why for _, why in d["O10_SITE_ZERO"]) >= 30
+    # RT-A5 (§8.54): the interim's minuend_final reason left document_members.rs, and its zero with it.
+    assert sum("S1-ZR" in why for _, why in d["O10_SITE_ZERO"]) >= 29
 
 
 @pytest.mark.parametrize("path, old, new, stop", [

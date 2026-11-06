@@ -210,3 +210,51 @@ fn k2_every_zero_is_positive_zero() {
     assert_eq!(empty.signum(), 0);
     assert_eq!(empty.round_scaled(-40).unwrap().to_bits(), 0);
 }
+
+/// The result-export reader's axial-share fixtures (`connector_evidence.rs`
+/// `u5b_effective_axial_tests::AXIAL_SHARE_FIXTURES`, the same literal bits;
+/// expected values are exact `Fraction` dots rounded once, shown in
+/// `tests/test_pressure_connector_readers.py`), formed here as the producer
+/// forms `axial_share`: `tie_rod.rs` `exact_dot3` is `add_product` over the
+/// three (n_k, Q_x,k) pairs, then `round`, which is `exact_rounded_dot`. The
+/// reader's independent recomputation must give these bits; `None` is
+/// `NonRepresentable`.
+#[test]
+fn re_reader_axial_share_fixtures_are_the_producer_rounding() {
+    const ONE: u64 = 0x3ff0000000000000;
+    const MAX: u64 = 0x7fefffffffffffff;
+    const NEG: u64 = 1 << 63;
+    const P750: u64 = 0x1110000000000000;
+    const P600: u64 = 0x1a70000000000000;
+    const P575: u64 = 0x1c00000000000000;
+    const P500: u64 = 0x20b0000000000000;
+    const FIVE575: u64 = 0x1c24000000000000;
+    #[rustfmt::skip]
+    let fixtures: [([u64; 3], [u64; 3], Option<u64>); 17] = [
+        ([ONE, ONE, P500], [ONE, 0x3ca0000000000000, P600], Some(0x3ff0000000000001)), // W2
+        ([ONE, ONE, P500], [ONE, 0x3ca0000000000000, 0], Some(ONE)),
+        ([ONE, ONE, P500], [ONE, 0x3ca0000000000000, NEG | P600], Some(ONE)),
+        ([ONE, 0, NEG | P500], [0, ONE, P600], Some(0)), // W1: +0.0
+        ([ONE, 0, P500], [0, ONE, P600], Some(0)),
+        ([ONE, 0, P500], [0, ONE, NEG | P575], Some(0)),
+        ([NEG | P750, 0, P500], [P750, ONE, NEG | P575], Some(NEG | 1)),
+        ([ONE, 0, P500], [0, ONE, 0x1c28000000000000], Some(3)),
+        ([P750, 0, P500], [0, ONE, FIVE575], Some(2)),
+        ([P750, 0, P500], [P750, ONE, FIVE575], Some(3)),
+        ([P750, 0, P500], [NEG | P750, ONE, FIVE575], Some(2)),
+        ([P750, 0, P500], [0, ONE, NEG | FIVE575], Some(NEG | 2)),
+        ([MAX, NEG | MAX, 0], [0x3ff0000000000001, 0x3e50000000000000, 0], Some(0x7feffffff8000001)),
+        ([MAX, 0, 0], [0x3ff0000000000001, 0, 0], None),
+        ([0x3febb67ae8584cab, 0x3fe0000000000000, 0], [0x3fe3333333333333, 0x3fe999999999999a, 0], Some(0x3fed6d7cf1ce9467)),
+        ([0x3fe999999999999a, NEG | 0x3fe3333333333333, 0], [0x3fe3333333333333, 0x3fe999999999999a, 0], Some(0)),
+        ([ONE, 0, 0], [0, ONE, 0], Some(0)),
+    ];
+    for (axis, n, expected) in fixtures {
+        let pairs = (0..3).map(|k| (f(n[k]), f(axis[k])));
+        let actual = exact_rounded_dot(pairs);
+        match expected {
+            Some(bits) => assert_eq!(actual.map(f64::to_bits), Ok(bits), "{axis:x?} {n:x?}"),
+            None => assert_eq!(actual, Err(SumError::NonRepresentable), "{axis:x?} {n:x?}"),
+        }
+    }
+}

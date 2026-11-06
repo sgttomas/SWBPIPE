@@ -98,6 +98,43 @@ def reserved_notice(d: Any) -> bool:
             or ("stated bound" in message and ("within" in message or "against" in message)))
 
 
+def _reserved(source: Mapping[str, Any], d: Any) -> bool:
+    """A reserved notice other than a withheld held gate's own notice (Rust `reserved`), which the roster compares
+    whole with the notice it builds from the held-status record."""
+    return reserved_notice(d) and not _bound_held_gate(source, d)
+
+
+def _bound_held_gate(source: Mapping[str, Any], d: Any) -> bool:
+    """RT-A5 (Work combination-certificate.md section 2; Rust `bound_held_gate`): whether a diagnostic is a withheld
+    held gate's own notice, by typed identity and its whole canonical message: one of the five held gate codes, exactly
+    one named combination, that combination's gate id, the document's gate for it withheld with that code, exactly one
+    held-status record, a withheld one of that outcome, and the message exactly "Combination withheld: " + R + "." with
+    R that record's refusal. R is bound to the record, not verified as true; it supplies no row bound, eligibility,
+    certificate notice or standing. Any other notice keeps the reserved vocabulary's message test."""
+    if not isinstance(d, Mapping) or d.get("code") not in HELD_GATES:
+        return False
+    refs = _items(d.get("affected_refs"))
+    if len(refs) != 1 or not isinstance(refs[0], str):
+        return False
+    cid, code = refs[0], d["code"]
+    did = d.get("id") if isinstance(d.get("id"), str) else ""
+    rest = did[len(PREVIEW_PREFIX):] if did.startswith(PREVIEW_PREFIX) else None
+    rest = rest[len("gate:"):] if rest is not None and rest.startswith("gate:") else None
+    n, sep, c = rest.partition(":") if rest is not None else ("", "", "")
+    if not (sep and c == cid and n.isascii() and n.isdigit() and int(n) == len(cid.encode("utf-8"))):
+        return False
+    evidence = _get(source, "contract_evidence")
+    evidence = evidence if isinstance(evidence, Mapping) else {}
+    if not any(isinstance(g, Mapping) and g.get("combination_id") == cid and g.get("withheld") is True and g.get("reason") == code
+               for g in _items(evidence.get("combination_gates"))):
+        return False
+    records = [r for r in _items(evidence.get(HELD_MEMBER)) if isinstance(r, Mapping) and r.get("combination_id") == cid]
+    if len(records) != 1 or records[0].get("outcome") != code or _get(records[0], "standing", "kind") != "withheld":
+        return False
+    refusal = _get(records[0], "standing", "reason")
+    return isinstance(refusal, str) and refusal != "" and d.get("message") == f"Combination withheld: {refusal}."
+
+
 def _keys(value: Any, keys: set[str]) -> bool:
     return isinstance(value, Mapping) and set(value) == keys
 
@@ -413,7 +450,7 @@ def _member_check(source: Mapping[str, Any]) -> None:
     # semantics. No certificate notice may then stand, under any id. A stated member is read in full, and only on a
     # solved document with a combination; a partial or malformed one is refused, never read as absence (Rust alike).
     if MEMBER not in evidence:
-        _require(not any(reserved_notice(d) for d in _items(source.get("diagnostics"))), "PRESENCE")
+        _require(not any(_reserved(source, d) for d in _items(source.get("diagnostics"))), "PRESENCE")
         return
     _require(solved and bool(gate_list), "PRESENCE")
     _require(_keys(member, MEMBER_KEYS), "SHAPE")
@@ -600,7 +637,7 @@ def _member_check(source: Mapping[str, Any]) -> None:
     stated = [c.get("load_case_id") for c in operand_cases if isinstance(c, Mapping)]
     _require(stated == [c for c in case_order if c in used], "OPERAND_CASES")
     # The diagnostics, whole, and none other in the reserved vocabulary (any id spelling).
-    published = [d for d in diagnostics if reserved_notice(d)]
+    published = [d for d in diagnostics if _reserved(source, d)]
     _require(len(published) == len(expected_diagnostics), "DIAGNOSTICS")
     for expected in expected_diagnostics:
         matching = [d for d in published if d.get("id") == expected["id"]]
@@ -730,9 +767,71 @@ def _combination_population(source: Mapping[str, Any], model: Mapping[str, Any] 
     return ids
 
 
+# RT-A5 (DEL-05-02 operating-case.md section 7.5): the held gates (preview_held_status.GATES, Rust
+# `preview_held_status::GATES`) and their record member.
+HELD_GATES = ("HELD_STATUS_SOURCE_UNAVAILABLE", "HELD_STATUS_SOURCE_UNQUALIFIED", "HELD_STATUS_BINDING",
+              "HELD_STATUS_SLIDING_GROUND_DIFFERS", "HELD_STATUS_SOLVE_FAILED")
+HELD_MEMBER = "held_status_derivation"
+
+
+def _held_gate_message(evidence: Mapping[str, Any], cid: str, code: str) -> str:
+    """A held gate's notice (Rust `held_gate_message`; Work combination-certificate.md section 2): exactly
+    "Combination withheld: " + R + ".", R the refusal the document's held-status record for this combination states.
+    R is bound to that record, never verified as true, and no certificate claim is read from it. The held-status reader,
+    which precedes this one in both readings, has bound the record to the combination and its refusal code to the
+    gate's; a held code whose record is absent, repeated, malformed or of another outcome is refused here too."""
+    records = [r for r in _items(evidence.get(HELD_MEMBER)) if isinstance(r, Mapping) and r.get("combination_id") == cid]
+    refusal = None
+    if len(records) == 1 and records[0].get("outcome") == code and _get(records[0], "standing", "kind") == "withheld":
+        refusal = _get(records[0], "standing", "reason")
+    _require(isinstance(refusal, str) and refusal != "", "ROSTER_CONTRADICTION")
+    return f"Combination withheld: {refusal}."
+
+
+HELD_RELEASED = "HELD_STATUS_RELEASED"
+
+
+def _held_released_entry(record: Any) -> dict[str, Any] | None:
+    """RT-A5 (DEL-05-02 operating-case.md section 7.5; Rust `held_released_entry`): the HELD_STATUS_RELEASED entry of a
+    held combination whose held-status record releases a support, None otherwise, rebuilt from the record's recorded
+    fields only (support ids, held and classified states, release reasons, and the deciding bit token or strict-gap
+    signs); no binary64 value is formatted. The held-status reader, which precedes the roster, validated the record."""
+    if not isinstance(record, Mapping) or not isinstance(record.get("combination_id"), str):
+        return None
+    cid = record["combination_id"]
+    released = [e for e in _items(record.get("held")) if isinstance(e, Mapping) and e.get("released") != "none"]
+    if not released:
+        return None
+    listed = "; ".join(_released_item(e) for e in released)
+    message = (f"Combination {cid} holds the minuend's support status in the subtrahend case, and that case's classifier "
+               f"releases: {listed}. The rows are the held system's, published with this standing; the held status is not "
+               f"an admissible state of the subtrahend case.")
+    refs = [cid] + [e.get("support_id") if isinstance(e.get("support_id"), str) else "" for e in released]
+    return _entry(f"diagnostic:preview-physics:held-status-released:{_identity(cid)}", HELD_RELEASED, "warning", message, refs)
+
+
+def _released_item(e: Mapping[str, Any]) -> str:
+    """One released support's clause (Rust `released_item`; PP `released_message` and `released_quantity`)."""
+    def text(*path: str) -> str:
+        value = _get(e, *path)
+        return value if isinstance(value, str) else ""
+    held, reason = text("held_state"), text("released")
+    if e.get("decision") == "strict_gap":
+        quantity = (f"gap_sign {text('strict_gap', 'gap_sign')}, reaction_sign {text('strict_gap', 'reaction_sign')} in the "
+                    f"contact's own sense, {text('strict_gap', 'prior')} to {text('strict_gap', 'state')}")
+    elif reason == "branch":
+        quantity = f"derived normal normal_signed_bits {text('inputs', 'normal_signed_bits')}"
+    elif held in ("active", "sticking"):
+        quantity = f"reaction_bits {text('inputs', 'reaction_bits')}"
+    else:
+        quantity = f"displacement_bits {text('inputs', 'displacement_bits')} from its ground"
+    return f"{text('support_id')} held {held}, classified {text('classified_state')} ({reason.replace('_', ' ')}: {quantity})"
+
+
 def _interim(model: Mapping[str, Any]) -> tuple[list[dict[str, Any]], list[Mapping[str, Any]]]:
-    """S1's interim withholding (PP `withhold_interim_combinations`) as the model states it (Rust `interim`); after
-    operating-case slice 1b only a `minuend_final` subtrahend is withheld here (G-1 and G-2 are gate notices)."""
+    """S1's interim withholding (PP `withhold_interim_combinations`) as the model states it (Rust `interim`); as RT-A5
+    leaves it no combination has an interim reason (G-1, G-2 and the held gates are gate notices), so nothing is
+    withheld here (PP `interim_reasons`)."""
     from .combination_graph import model_operands, model_order
     combinations = [c if isinstance(c, Mapping) else {} for c in _items(model.get("combinations"))]
     cases = {x for x in (_text(_get(c, "id")) for c in _items(model.get("load_cases"))) if x is not None}
@@ -740,10 +839,7 @@ def _interim(model: Mapping[str, Any]) -> tuple[list[dict[str, Any]], list[Mappi
     withheld: dict[str, str] = {}
     for c in combinations:
         cid = _text(c.get("id")) or ""
-        reasons = []
-        if c.get("subtrahend_support_state") == "minuend_final":
-            reasons.append((SUBTRAHEND_STATE, f"combination `{cid}` solves its subtrahend at the minuend's final support status; that solve is "
-                                              f"not built yet, so the combination is withheld"))
+        reasons: list[tuple[str, str]] = []  # RT-A5: no interim reason (PP `interim_reasons`).
         for code, message in reasons:
             notices.append(_entry(f"{INTERIM_PREFIX}{_suffix(cid)}:{code.lower()}", code, "warning", message, [cid]))
         if reasons:
@@ -959,10 +1055,14 @@ def roster(source: Mapping[str, Any], model: Mapping[str, Any] | None = None) ->
                     if o in withheld and all(n != o for n, _ in named):
                         named.append((o, withheld[o]))
                 message, refs = _withheld_message(named), [cid] + [n for n, _ in named]
+            elif code in HELD_GATES:
+                message, refs = _held_gate_message(evidence, cid, code), [cid]
             else:
                 message, refs = _PREVIEW_GATE_TEXT.get(code, _MODULUS_GATE_TEXT), [cid]
             expected.append(_entry(gate_id, code, "warning", message, refs))
             withheld[cid] = code
+        # RT-A5: each held combination's HELD_STATUS_RELEASED notice, set-bound, rebuilt from its validated record.
+        expected.extend(e for e in (_held_released_entry(r) for r in _items(evidence.get(HELD_MEMBER))) if e is not None)
 
     index = _RowIndex([r for r in results if isinstance(r, Mapping)])
     supports = {x for x in (_text(_get(r, "entity_ref")) for r in results
@@ -976,7 +1076,7 @@ def roster(source: Mapping[str, Any], model: Mapping[str, Any] | None = None) ->
         if not any(r in population for r in _refs(d)) and not listed:
             continue
         code = d.get("code") if isinstance(d.get("code"), str) else ""
-        if (reserved_notice(d) or (preview and code in (OPERAND_STATES, OPERAND_STANDING))
+        if (_reserved(source, d) or (preview and code in (OPERAND_STATES, OPERAND_STANDING))
                 or (exact and isinstance(d.get("id"), str) and d["id"].startswith(EXACT_PREFIX))):
             continue
         at = next((i for i, e in enumerate(expected) if isinstance(d.get("id"), str) and e["id"] == d["id"]), None)
