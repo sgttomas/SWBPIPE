@@ -72,7 +72,9 @@ export const INGRESS_COMMANDS: ReadonlySet<string> = new Set([
   "save_restored_result_local_project",
   // DEL-17-04 slice 4b.2a: File > Export MBF…'s review and save (`cancel_mbf_export` is sent as JSON arguments).
   "review_mbf_export",
-  "save_mbf_export"
+  "save_mbf_export",
+  // DEL-04-11 increment 3c part 2: hanger sizing (`cancel_hanger_sizing` is sent as JSON arguments).
+  "size_hangers"
 ]);
 
 type InvokeOptions = { headers?: Record<string, string> } | undefined;

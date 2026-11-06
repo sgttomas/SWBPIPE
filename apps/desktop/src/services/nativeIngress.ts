@@ -81,7 +81,10 @@ export const NATIVE_INGRESS_COMMANDS = [
   // DEL-17-04 slice 4b.2a: File > Export MBF…'s review and save (through `features/caepipe-mbf/mbfExportCancel.ts`,
   // whose keyed retirement `cancel_mbf_export` is sent as JSON arguments instead).
   "review_mbf_export",
-  "save_mbf_export"
+  "save_mbf_export",
+  // DEL-04-11 increment 3c part 2: hanger sizing in the capped worker (through `services/hangerSizingService.ts`,
+  // whose keyed cancel `cancel_hanger_sizing` is sent as JSON arguments instead).
+  "size_hangers"
 ] as const;
 export type NativeIngressCommand = (typeof NATIVE_INGRESS_COMMANDS)[number];
 
