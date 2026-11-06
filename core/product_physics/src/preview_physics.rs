@@ -954,6 +954,23 @@ fn combination_row(
     combined
 }
 
+/// R-6/R-7 (§7.1): a skewed record's along-direction combination row, from its
+/// operand cases' rows, with its group's expression and sign. Reached only for a
+/// skewed record (none on D1, which refuses `direction`; §12).
+fn along_combination_row<'r>(
+    combination: &PreviewCombination,
+    expression: &CombinationExpression<'_>,
+    sign: &str,
+    targets: &[combination_plan::Target<'_>],
+    find: &dyn Fn(combination_plan::Target<'_>, &str) -> Option<&'r ResultItem>,
+    base_id: String,
+) -> Result<ResultItem, &'static str> {
+    let sources: Vec<&ResultItem> = targets.iter().map(|target| find(*target, "along_direction")).collect::<Option<_>>().ok_or("source support row missing in an operand case")?;
+    let values: Vec<f64> = sources.iter().map(|s| s.value).collect();
+    let value = expression.evaluate_values(&values, LoadDimension::Force).ok_or("load-case algebra refused")?;
+    Ok(combination_row(combination, expression, sign, sources[0], qualified_combination_result_id(&combination.id, &base_id), value, sources.iter().map(|s| s.id.clone()).collect()))
+}
+
 /// Kinds a combination combines (as the reference row's kind); every other
 /// kind is never combined and publishes no combination row.
 /// (`displacement_magnitude` combines on both paths: as the norm of combined
@@ -1199,10 +1216,7 @@ pub(crate) fn append_combination_results(
                 if crate::document_members::is_skewed_record(support)
                     && targets.iter().any(|target| find(*target, "along_direction").is_some())
                 {
-                    let sources: Vec<&ResultItem> = targets.iter().map(|target| find(*target, "along_direction")).collect::<Option<_>>().ok_or("source support row missing in an operand case")?;
-                    let values: Vec<f64> = sources.iter().map(|s| s.value).collect();
-                    let value = expression.evaluate_values(&values, LoadDimension::Force).ok_or("load-case algebra refused")?;
-                    rows.push(combination_row(combination, &expression, &sign, sources[0], qualified_combination_result_id(&combination.id, &base("along_direction")), value, sources.iter().map(|s| s.id.clone()).collect()));
+                    rows.push(along_combination_row(combination, &expression, &sign, &targets, &find, base("along_direction"))?);
                 }
                 for (component, value) in [
                     ("force_magnitude", norm3(combined[0], combined[1], combined[2])),
