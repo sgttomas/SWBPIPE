@@ -2146,14 +2146,16 @@ fn cancel_mbf_export(
 }
 
 /// Hanger sizing (DEL-04-11 Design `hanger-sizing.md` §13, increment 3c part
-/// 2): `{runId, inputText}` as an `args-json-v1` raw body, its copy reserved
-/// and its arguments admitted within one command ledger, then worker task 4
-/// (`size_and_read` on the headless input text) in the capped worker process
-/// under the captured invocation budget (`hanger_sizing_job`). The reply is
+/// 2): `{expectedEpoch, inputText}` as an `args-json-v1` raw body, its copy
+/// reserved and its arguments admitted within one command ledger, then worker
+/// task 4 (`size_and_read` on the headless input text) in the capped worker
+/// process under the captured invocation budget (`hanger_sizing_job`). The
+/// ticket `expectedEpoch` is the retirement epoch the start's own
+/// `cancel_hanger_sizing` acknowledged; one a retirement has passed, or a run
+/// has used, is refused before any worker and replaces nothing. The reply is
 /// the entry's JSON text `{document, evidence}`, at most 64 MiB, sent while
 /// its result lease is held; nothing is recorded, persisted or held after it,
-/// and the model is not written. A newer request supersedes the one in
-/// progress; `cancel_hanger_sizing` and the session reset cancel it.
+/// and the model is not written.
 #[tauri::command]
 async fn size_hangers(
     invoke: tauri::ipc::Request<'_>,
@@ -2168,18 +2170,19 @@ async fn size_hangers(
     .unwrap_or_else(|_| Err(hanger_sizing_job::supervisor_failed()))
 }
 
-/// Cancels the hanger sizing of `runId`'s page through its sequence
-/// (`hanger_sizing_job`): the run in progress, if it is that page's and not
-/// newer, stops waiting or has its worker killed and its grant released after
-/// the reap; a start of that page not yet registered is refused when it
-/// arrives. A repeated or older cancel is a no-op whose reply says
-/// `duplicate`. Sent as Tauri's JSON arguments.
+/// Retires the hanger sizing (`hanger_sizing_job`): the retirement epoch moves
+/// on, the run in progress stops waiting or has its worker killed and its
+/// grant released after the reap, and every start not yet registered is
+/// refused when it arrives. `{retirementId: {page, sequence}}` as Tauri's JSON
+/// arguments; each logical retirement is applied once, so a repeated or older
+/// delivery is a no-op whose reply says `duplicate`. The reply
+/// `{cancelled, epoch, retirement_id}` names the epoch the next start carries.
 #[tauri::command]
 fn cancel_hanger_sizing(
     registry: tauri::State<'_, SolveJobRegistry>,
-    run_id: Option<Value>,
-) -> Result<hanger_sizing_job::HangerSizingCancelReceipt, String> {
-    hanger_sizing_job::cancel_command(&registry, run_id)
+    retirement_id: Option<Value>,
+) -> Result<hanger_sizing_job::HangerSizingRetirement, String> {
+    hanger_sizing_job::cancel_command(&registry, retirement_id)
 }
 
 fn choose_mbf_save_path(app: &AppHandle, suggested_file_name: &str, directory: Option<PathBuf>) -> Result<Option<PathBuf>, String> {
