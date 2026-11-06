@@ -9,8 +9,8 @@
 import type { DisplayQuantity, DisplaySourceQuantity, DisplayUnitPreference } from "../display-units";
 import type { DisplayQuantityRequest, DisplayQuantityResult } from "../../services/displayQuantityService";
 import type { CsvExport } from "../result-export/CsvExportControl";
-import { csvExportFileName, csvNumber, csvStatus, csvText, slugToken, type CsvCell, type CsvProvenance } from "../result-export/csvTable";
-import { CSV_DIMENSIONLESS_UNIT, CSV_NOT_FINITE, joinColumnGroups, quantityColumns, storedValueCell, textColumn } from "../result-export/csvValues";
+import { csvExportFileName, csvNumber, csvStatus, csvText, slugToken, type CsvCell, type CsvColumn, type CsvPreamble, type CsvProvenance } from "../result-export/csvTable";
+import { CSV_DIMENSIONLESS_UNIT, CSV_NOT_FINITE, joinColumnGroups, quantityColumnsIn, quantityHeaderUnit, storedValueCell, textColumn } from "../result-export/csvValues";
 
 /** One row as the panel renders it. */
 export type ResultRowsCsvRow = Readonly<{
@@ -40,11 +40,35 @@ function statusText(display: DisplayQuantity): string {
   return display.notice ? `${display.status}: ${display.notice}` : display.status;
 }
 
-function valueColumns(rows: readonly { display: DisplayQuantity; quantity: DisplaySourceQuantity }[]) {
+type ValueRow = Readonly<{ display: DisplayQuantity; quantity: DisplaySourceQuantity }>;
+
+/** What a row table's columns depend on, over every row of the table: each row's shown display
+ * unit, and each entered (numeric) value's shown unit. Bounded by the distinct units. */
+export type ResultRowsCsvUnits = Readonly<{ display: Set<string>; entered: Set<string> }>;
+export function emptyResultRowsCsvUnits(): ResultRowsCsvUnits {
+  return { display: new Set(), entered: new Set() };
+}
+export function addResultRowsCsvUnits(units: ResultRowsCsvUnits, rows: readonly ValueRow[]): void {
+  for (const row of rows) {
+    units.display.add(shownUnit(row.display.unit));
+    if (typeof row.quantity.value === "number") units.entered.add(shownUnit(row.quantity.unit));
+  }
+}
+/** The value and entered-value header units (null: a per-row unit column), from every row's units. */
+export type ResultRowsCsvLayout = Readonly<{ valueUnit: string | null; enteredUnit: string | null }>;
+export function resultRowsCsvLayout(units: ResultRowsCsvUnits): ResultRowsCsvLayout {
+  return { valueUnit: quantityHeaderUnit(units.display), enteredUnit: quantityHeaderUnit(units.entered) };
+}
+function layoutOf(rows: readonly ValueRow[]): ResultRowsCsvLayout {
+  const units = emptyResultRowsCsvUnits();
+  addResultRowsCsvUnits(units, rows);
+  return resultRowsCsvLayout(units);
+}
+
+function valueColumns(rows: readonly ValueRow[], layout: ResultRowsCsvLayout = layoutOf(rows)) {
   const display = rows.map((row) => row.display);
-  const units = new Set(display.map((item) => shownUnit(item.unit)));
-  const value = units.size === 1
-    ? { columns: [{ kind: "number" as const, label: "Value", unit: [...units][0] }], cells: display.map((item) => [displayValueCell(item)]) }
+  const value = layout.valueUnit !== null
+    ? { columns: [{ kind: "number" as const, label: "Value", unit: layout.valueUnit }], cells: display.map((item) => [displayValueCell(item)]) }
     : {
         columns: [{ kind: "number" as const, label: "Value", unitColumn: "Value unit" }, { kind: "unit" as const, label: "Value unit" }],
         cells: display.map((item) => [displayValueCell(item), csvText(shownUnit(item.unit))])
@@ -52,7 +76,7 @@ function valueColumns(rows: readonly { display: DisplayQuantity; quantity: Displ
   return [
     value,
     textColumn("Display", display.map(statusText)),
-    quantityColumns("Entered value", rows.map((row) => (typeof row.quantity.value === "number" ? { value: row.quantity.value, unit: row.quantity.unit } : { absent: CSV_NOT_FINITE })), (stored) => storedValueCell(stored), shownUnit)
+    quantityColumnsIn("Entered value", rows.map((row) => (typeof row.quantity.value === "number" ? { value: row.quantity.value, unit: row.quantity.unit } : { absent: CSV_NOT_FINITE })), layout.enteredUnit, (stored) => storedValueCell(stored), shownUnit)
   ];
 }
 
@@ -65,8 +89,26 @@ export function resultGroupCsvKind(title: string): string {
 
 /** One group's table: every row the filters admit, in the panel's order (all pages). */
 export function resultGroupCsv(input: Context & { title: string; rows: readonly ResultRowsCsvRow[] }): CsvExport {
-  const { rows } = input;
-  const { columns, rows: cells } = joinColumnGroups(rows.length, [
+  const { columns, rows: cells } = resultGroupCsvTable(input.rows, layoutOf(input.rows));
+  return {
+    table: { preamble: resultGroupCsvPreamble(input), columns, rows: cells },
+    fileName: resultGroupCsvFileName(input.title, input.caseQualifier)
+  };
+}
+
+/** A group table's preamble (`resultGroupCsv`'s), for a table written in parts. */
+export function resultGroupCsvPreamble(input: Context & { title: string }): CsvPreamble {
+  return { table: resultGroupCsvKind(input.title), softwareVersion: input.softwareVersion, ...input.provenance, caseOrFilter: input.caseOrFilter, unitBasis: input.unitBasis };
+}
+export function resultGroupCsvFileName(title: string, caseQualifier?: string): string {
+  return csvExportFileName(resultGroupCsvKind(title), caseQualifier);
+}
+
+/** A group table's columns and the cells of `rows` under a layout decided over every row of the
+ * table: `resultGroupCsv` decides it over its rows; a table written in parts decides it once over
+ * all of them, then writes each part's rows under it. The columns depend on the layout alone. */
+export function resultGroupCsvTable(rows: readonly ResultRowsCsvRow[], layout: ResultRowsCsvLayout): { columns: CsvColumn[]; rows: CsvCell[][] } {
+  return joinColumnGroups(rows.length, [
     textColumn("Result id", rows.map((row) => row.id)),
     textColumn("Category", rows.map((row) => row.category)),
     textColumn("Row label", rows.map((row) => row.label)),
@@ -76,16 +118,8 @@ export function resultGroupCsv(input: Context & { title: string; rows: readonly 
     textColumn("Entity", rows.map((row) => row.entity)),
     textColumn("Location", rows.map((row) => row.location)),
     textColumn("Frame", rows.map((row) => row.frame)),
-    ...valueColumns(rows)
+    ...valueColumns(rows, layout)
   ]);
-  const kind = resultGroupCsvKind(input.title);
-  return {
-    table: {
-      preamble: { table: kind, softwareVersion: input.softwareVersion, ...input.provenance, caseOrFilter: input.caseOrFilter, unitBasis: input.unitBasis },
-      columns, rows: cells
-    },
-    fileName: csvExportFileName(kind, input.caseQualifier)
-  };
 }
 
 export const ENDPOINT_PAIR_CSV_KIND = "results-endpoint-pair";
@@ -155,6 +189,16 @@ export async function displayConversionBasis(input: {
   const head = `display units ${input.preference}; converted in binary64 by the session's display converter (core/units: stored unit to its canonical unit, then to the display unit); each formula below is approximate, from the converter's outputs for 0 and 1 stored unit`;
   const tail = entered.size > 0 ? [`as entered: ${[...entered].sort().join(", ")}`] : [];
   return [head, ...parts, ...tail].join("; ");
+}
+
+/** The one fact `displayConversionBasis` reads of a row: a converted row's dimension, stored unit
+ * and display unit, or an unconverted row's dimension and shown unit. Rows with the same key give
+ * the same basis text, so a table written in parts keeps one representative row per key (bounded
+ * by the distinct conversions) and states the same unit basis as over all its rows. */
+export function conversionBasisKey(row: Readonly<{ quantity: DisplaySourceQuantity; display: DisplayQuantity }>): string {
+  return row.display.status === "converted"
+    ? `c\u0000${JSON.stringify([row.quantity.dimension_id, row.quantity.unit, row.display.unit])}`
+    : `e\u0000${row.quantity.dimension_id} ${shownUnit(row.quantity.unit)}`;
 }
 
 /** An approximate formula `v*factor+offset`: the converter's output for 0 is the offset, and

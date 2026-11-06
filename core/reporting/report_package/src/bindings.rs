@@ -236,11 +236,14 @@ const DIAGNOSTIC_FIELDS: [&str; 7] = ["code", "class", "severity", "source", "af
 /// `features/results/suppliedDiagnostics.ts` `SUPPLEMENTAL_DIAGNOSTIC_LABEL`).
 pub const SUPPLEMENTAL_DIAGNOSTIC_LABEL: &str = "Supplied diagnostic text, unverified (not a combination certificate statement): ";
 
-/// A diagnostic's report message: quoted after the supplemental label when the source has
-/// combinations and the diagnostic names none of them, else copied.
+/// A diagnostic's report message: quoted after the supplemental label when its typed code is a
+/// quoted held-status code (RT-A5: the five held gates and `HELD_STATUS_RELEASED`; a held refusal
+/// is bound to its held-status record, not verified as true; desktop `suppliedDiagnosticMessage`
+/// alike), or when the source has combinations and the diagnostic names none of them, else copied.
 fn supplemental_message(diagnostic: &Value, message: &str, combinations: &std::collections::HashSet<String>) -> String {
+    let held = diagnostic["code"].as_str().is_some_and(|code| open_pipe_stress_result_export::HELD_STATUS_QUOTED_CODES.contains(&code));
     let names_one = diagnostic["affected_refs"].as_array().is_some_and(|refs| refs.iter().any(|r| r.as_str().is_some_and(|r| combinations.contains(r))));
-    if combinations.is_empty() || names_one {
+    if !held && (combinations.is_empty() || names_one) {
         message.to_string()
     } else {
         format!("{SUPPLEMENTAL_DIAGNOSTIC_LABEL}\"{message}\"")

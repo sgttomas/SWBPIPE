@@ -1,3 +1,5 @@
+import { C2ResultGate } from "../results/C2ResultGate";
+import type { SessionAnalysisRun, SessionResult } from "../../services/nativeResult";
 import { useEffect, useState } from "react";
 import { FileText, ShieldAlert } from "lucide-react";
 import type { EditorOperationIntent, MechanicsResult, PreviewModel } from "../../types";
@@ -78,7 +80,7 @@ export function RulePackManagerPanel({
 }: {
   model: PreviewModel | null;
   /** The session's current solved result; its rows' selectors are offered to solver inputs. */
-  result?: MechanicsResult | null;
+  result?: SessionResult | null;
   onR3JourneyEvent?: (event: RulePackR3JourneyEvent) => void;
   /** W-13 §3.4: "Use with this model" / "Remove from model" queue structured operations. */
   queuedIntents?: EditorOperationIntent[];
@@ -476,13 +478,19 @@ export function RulePackManagerPanel({
               disabledReason={inFlight ? BUSY_REASON : undefined}
               model={model}
             />
-            <DeclarationsEditor
-              document={parsedDraft.document}
-              onChange={handleDeclarationsChange}
-              disabled={inFlight}
-              disabledReason={inFlight ? BUSY_REASON : undefined}
-              result={result}
-            />
+            {/* The selector offers read every row (a rule-check consumer, C2): a native result's
+                bounded full copy, loaded when the person asks. */}
+            <C2ResultGate result={result ?? null} analysisRun={null} feature="the solved-result selector offers" explicit>
+              {(full) => (
+                <DeclarationsEditor
+                  document={parsedDraft.document}
+                  onChange={handleDeclarationsChange}
+                  disabled={inFlight}
+                  disabledReason={inFlight ? BUSY_REASON : undefined}
+                  result={full.result}
+                />
+              )}
+            </C2ResultGate>
             <ExpressionComposer
               document={parsedDraft.document}
               onChange={handleComposerChange}

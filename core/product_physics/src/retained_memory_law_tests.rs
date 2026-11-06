@@ -896,6 +896,9 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     // Operating-case slice 1b (DEL-05-02 `operating-case.md` §6; retained-pricing-rules.md §8.51) moves #4,
     // #5 and #12 (the three preview tables' combination policy v3: G-1 and G-2, gate precedence and the
     // declared subtraction's sign); its D3 registration records these bytes.
+    // RT-A5 `minuend_final` (DEL-05-02 `operating-case.md` §7.8 item 3) moves #4, #5 and #12 (the three
+    // preview tables' combination policy v4: the held-status gates, gate precedence, the subtraction's
+    // held tail and the held_status_operand basis); its D3 registration records these bytes.
     // RT-A3 §4 (DEL-05-02 Work `combination-certificate.md`, the combination certificate) moves #8
     // (physics-retained-1's inherited pressure-2 digest), #10 (the pressure-2 result schema's
     // combination_certificate member) and #11 (pressure-2's restated combination standing and limitation);
@@ -906,15 +909,15 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "ae45b97742fd463866d8f231004f2053834d5bd413a1430e766f24516d3569ac",
         "73bebc5fb562b7f519c7d59be8e7830f98b21ce29fa0b7c017e43426f50cfcaa",
         "a056c395e27f964c842a1347db689eb24377d0b5a79a3b954435105a2c422d08",
-        "b4377e73e8a83edb57b4f0c41dbaef384385e0f6b4810103a106a334c8edbe14",
-        "f41b9d3ed0c1b7abaee0b98ca1a28aa1a2d109bce443b98d53a2080c1c504ce9",
+        "ef59ef338d4e2cafca7017e13b7a450d1094ede8068c47cf5e44416c1adc177a",
+        "16eeb49cb298c6d3634594bbd9ebf6bf86be8f114e2e524dbd624e401e31a729",
         "fe371e07cd727154235f3725eeeef393ad0a433f0e8c98656f98468940d9aea2",
         "8d48e3d97bc4f69bf9b0da58db7538b0661cf52d05f771dc126be2c3cca8c163",
         "320dc3f1f75944af8b66da1287e6f8ee5e1fcd5fe005752f2c90bf8c89a9c894",
         "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9",
         "612bb8167b89bc582f14dc1c29e56b6fab15197234b55a69d6e5fb416259f341",
         "21b7426ec1c50ba5f74539984261554d06b9b6a26ec26f7d5765b5faa7d6bb90",
-        "6f6494907e3ead979ea27e5ff85f54617589c9195dc84d40a02752a0b006ef44",
+        "8a0abaeac93729b5d6ee6c922f2a60f0caf9332948622bb8b5896747ce41442d",
     ];
     // The same files, read here at compile time (test-only), by the sha2 dependency.
     let files: [&[u8]; build_identity::REVIEWED_INPUT_COUNT] = [
@@ -2225,9 +2228,13 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 // guard text; TAV_X +86 B, P's guard text; and the in-build s(PreparedCaseResult) 1,888 -> 1,912 B,
 // LoadCaseSolve's certificate_operand, two per case at three cases, +144 B): W1-W5 +947 B, X1-X3 +839 B in
 // both modes, from maintained eval at the same 328 in-build atoms, without R.
+// §8.54: RT-A5 minuend_final (STATICS[1] +7,744 B, +28 Node(String,Value) and +144 s(Value): the restated
+// preview-physics-retained-1 table's held-status gates, kind and policy, two static owners; and the in-build
+// s(PreparedCaseResult) 1,912 -> 1,920 B, LoadCaseSolve's held_status_source, two per case at three cases,
+// +48 B): +33,008 B in every phase and mode, from maintained eval at the same 328 in-build atoms, without R.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_450_323_600, 6_792_318_161, 8_744_053_989, 8_537_770_261, 7_611_466_059, 8_526_303_704, 7_258_921_094, 6_932_210_970],
-    [6_509_454_944, 6_851_449_505, 8_803_185_333, 8_596_901_605, 7_670_597_403, 8_585_435_048, 7_318_052_438, 6_991_342_314],
+    [6_450_374_480, 6_792_369_041, 8_744_104_869, 8_537_821_141, 7_611_516_939, 8_526_354_584, 7_258_971_974, 6_932_261_850],
+    [6_509_505_824, 6_851_500_385, 8_803_236_213, 8_596_952_485, 7_670_648_283, 8_585_485_928, 7_318_103_318, 6_991_393_194],
 ];
 
 #[test]

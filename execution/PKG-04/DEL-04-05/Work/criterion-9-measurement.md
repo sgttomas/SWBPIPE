@@ -283,7 +283,18 @@ are in `apps/desktop`:
   - `take_start`, `take_end` (bytes), `decode_end`, `parse_end`;
   - `reader_verdict_start` and `reader_verdict_end` (registered or not, with the reason code);
   - `analysis_run_built`, `result_set`, `result_committed` (the layout effect), and
-    `first_paint` (two animation frames later).
+    `first_paint`, the frame showing the solve's result:
+    - a result read from taken bytes (the whole-value path, unchanged): two animation frames
+      after `result_committed`, since its Results table renders from the value in that commit;
+    - a C1 native handle (applies from the next candidate binding; earlier records keep their
+      reading): `result_committed`, then the Results table's first page committed while the
+      table can be seen, its rows (one bounded native page) and their row semantics read, then
+      two animation frames, across which the page must still be the table's and still visible.
+      A pending or refused page, or one hidden or replaced before the browser paints it, never
+      marks it (`c1-slice7-run-proposal.md`, "Review repair" and "Second review repair").
+
+    The 300,000 ms paint gate is judged on that mark's own time against one deadline from
+    Analyze → Run (`native-smoke/perf-driver.js`, `perf.mjs` `classify`).
 
   Every pass of `checked_json_text`, `native_fingerprint`, `reader_written_text` and each wasm
   reader call is counted and timed per stage. A pass counts as full-envelope when it reads at
@@ -320,7 +331,10 @@ are in `apps/desktop`:
     workers and the WebKit processes started for it every 200 ms (`perf-sampler.py`,
     `proc_pid_rusage`). It then inspects the SQLite store, classifies the run and writes
     `perf-report-<UTC>.json`. The classes are `ok`, `refused_with_message`, `crash` (with the
-    process), `hang`, `misleading_message` and `half_written_save`.
+    process), `hang`, `misleading_message`, `half_written_save` and, for a C1 run,
+    `host_unobservable`: the host condition (display awake, session unlocked, App window uncovered
+    and visible, delivering frames) was not established or was lost, so nothing was observable. It
+    is no hang and no product finding, and the run is not retried.
 - **Racks the desktop opens.** The generator writes the desktop's model-file shape (§2):
   `data_boundary`, `diagnostics`, labels, load-case `kind` and `status`, and subtraction
   `terms`.

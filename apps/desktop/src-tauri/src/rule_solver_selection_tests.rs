@@ -77,7 +77,7 @@ fn every_basis_bearing_committed_row_is_selected_by_exactly_its_own_selector() {
     let corpus = project_root().join("fixtures/results/pressure_v3_connector_reader_corpus.json");
     assert!(files.contains(&corpus));
     let (mut file_count, mut envelope_count, mut row_count, mut rod_rows) = (0, 0, 0, 0);
-    let mut corpus_rows = 0;
+    let (mut corpus_rows, mut held_rows) = (0, 0);
     for path in &files {
         let text = std::fs::read_to_string(path).unwrap();
         let Ok(document) = serde_json::from_str::<Value>(&text) else {
@@ -100,6 +100,12 @@ fn every_basis_bearing_committed_row_is_selected_by_exactly_its_own_selector() {
                     panic!("{}: no selector names {}", path.display(), row["id"])
                 });
                 let selected = index.select(&selector, &basis);
+                if is_held_operand_row(row) {
+                    // Never selected: its selector binds the combination's own row.
+                    assert!(selected.iter().all(|s| !std::ptr::eq(*s, row) && !is_held_operand_row(s)), "{}: {}", path.display(), row["id"]);
+                    held_rows += 1;
+                    continue;
+                }
                 assert_eq!(
                     selected.len(),
                     1,
@@ -131,6 +137,7 @@ fn every_basis_bearing_committed_row_is_selected_by_exactly_its_own_selector() {
     assert!(row_count >= 20_856, "{row_count} rows");
     assert!(rod_rows >= 6, "{rod_rows} tie-rod rows");
     assert!(corpus_rows > 0);
+    assert!(held_rows > 0, "the held-status corpus's operand rows");
     eprintln!("selector uniqueness: {file_count} files, {envelope_count} envelopes, {row_count} rows, {rod_rows} tie-rod rows");
 }
 

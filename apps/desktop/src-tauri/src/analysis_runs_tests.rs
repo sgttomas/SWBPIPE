@@ -245,16 +245,17 @@ fn v13_migrates_a_v12_store_with_states_and_is_safe_to_run_twice() {
         .unwrap();
     let (connection, evidence) = crate::open_project_store(&path).unwrap();
     assert_eq!(evidence.store_schema_version_before_open, 12);
-    assert_eq!(evidence.store_schema_version, 13);
-    assert_eq!(evidence.migrations_applied_on_open, vec!["store-v13-analysis-runs-tables"]);
+    assert_eq!(evidence.store_schema_version, crate::STORE_SCHEMA_TARGET_VERSION);
+    assert_eq!(evidence.migrations_applied_on_open, vec!["store-v13-analysis-runs-tables", "store-v14-retire-project-fts-sidecar"]);
     let listed = model_states::list_states(&connection, PROJECT).unwrap();
     assert_eq!(listed, vec![ModelStateSummary { recorded_run_count: 0, ..state.clone() }]);
     drop(connection);
     let outcome = record(&path, request(&model("Invented project"), "Run 1"), T0).unwrap();
-    // A re-run (as an interrupted, non-transactional migration would) changes nothing.
+    // A re-run of applied steps (as before steps were transactional, an
+    // interrupted migration could leave) changes nothing.
     Connection::open(&path).unwrap().execute_batch("PRAGMA user_version = 12;").unwrap();
     let (connection, evidence) = crate::open_project_store(&path).unwrap();
-    assert_eq!(evidence.migrations_applied_on_open, vec!["store-v13-analysis-runs-tables"]);
+    assert_eq!(evidence.migrations_applied_on_open, vec!["store-v13-analysis-runs-tables", "store-v14-retire-project-fts-sidecar"]);
     migrate_v13_analysis_runs(&connection).unwrap();
     assert_eq!(list_runs(&connection, PROJECT).unwrap(), vec![outcome.run.clone()]);
     assert_eq!(model_states::list_states(&connection, PROJECT).unwrap()[0].recorded_run_count, 1);
@@ -262,9 +263,150 @@ fn v13_migrates_a_v12_store_with_states_and_is_safe_to_run_twice() {
     assert!(error.contains("ANALYSIS-RUN-IMMUTABLE"), "the trigger survives the re-run: {error}");
     drop(connection);
     // A store from a newer build is refused by name.
-    Connection::open(&path).unwrap().execute_batch("PRAGMA user_version = 14;").unwrap();
+    let newer = crate::STORE_SCHEMA_TARGET_VERSION + 1;
+    Connection::open(&path).unwrap().execute_batch(&format!("PRAGMA user_version = {newer};")).unwrap();
     let error = crate::open_project_store(&path).map(|_| ()).unwrap_err();
-    assert!(error.starts_with("STORE-SCHEMA-NEWER: the local project store is at store schema v14, newer than this build's v13"), "{error}");
+    let expected = format!("STORE-SCHEMA-NEWER: the local project store is at store schema v{newer}, newer than this build's v{}", crate::STORE_SCHEMA_TARGET_VERSION);
+    assert!(error.starts_with(&expected), "{error}");
+}
+
+/// A store this build wrote (two projects, a model state, a recorded run),
+/// with what a later read returns of it: the envelope reopened, the state
+/// read and the run read.
+fn store_with_history(label: &str) -> (PathBuf, ModelStateSummary, RecordRunOutcome, Value) {
+    let path = store_with_project(label);
+    let state = save_state(&path, &model("Invented project"), "Basis", "000000000000000000000000000000c1", 1_000);
+    let outcome = record(&path, request(&model("Invented project"), "Run 1"), T0).unwrap();
+    let (mut connection, _) = crate::open_project_store(&path).unwrap();
+    write_project(&mut connection, "project:w12-invented-other", &model("Other project"), BASE);
+    drop(connection);
+    let reads = history_reads(&path, &state, &outcome);
+    (path, state, outcome, reads)
+}
+
+fn history_reads(path: &Path, state: &ModelStateSummary, outcome: &RecordRunOutcome) -> Value {
+    let reopened = crate::open_project_in_store(path.to_path_buf(), Some(PROJECT)).unwrap().expect("the project");
+    let state_read = model_states::read_state_in_store(path, PROJECT, &state.state_id).unwrap();
+    let run_read = read_run_in_store(path, PROJECT, &outcome.run.recording_id).unwrap();
+    let (connection, _) = crate::open_project_store(path).unwrap();
+    json!({
+        "reopened": serde_json::to_value(&reopened).unwrap(),
+        "states": serde_json::to_value(model_states::list_states(&connection, PROJECT).unwrap()).unwrap(),
+        "state": serde_json::to_value(&state_read).unwrap(),
+        "runs": serde_json::to_value(list_runs(&connection, PROJECT).unwrap()).unwrap(),
+        "run": serde_json::to_value(&run_read).unwrap(),
+    })
+}
+
+fn sidecar_rows(path: &Path) -> Vec<(String, String, String)> {
+    let connection = Connection::open(path).unwrap();
+    let mut statement = connection.prepare("SELECT project_id, project_name, model_text FROM local_project_fts ORDER BY project_id").unwrap();
+    let rows = statement.query_map([], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?))).unwrap().collect::<Result<Vec<_>, _>>().unwrap();
+    rows
+}
+
+fn sidecar_objects(path: &Path) -> Vec<String> {
+    crate::tests::fts_sidecar_objects(&Connection::open(path).unwrap())
+}
+
+/// Store schema v14 (RT-U4): a v13 store with saved projects, a state, a
+/// recorded run and FTS rows loses the FTS sidecar and nothing else. Every
+/// canonical table's schema and every column's bytes are unchanged, and the
+/// reopen, the state's and the run's reads are as before.
+#[test]
+fn v14_retires_the_fts_sidecar_of_a_v13_store_and_keeps_every_canonical_byte() {
+    let (path, state, outcome, reads) = store_with_history("v14");
+    crate::tests::as_v13_store_with_fts_rows(&path);
+    assert_eq!(sidecar_objects(&path), crate::tests::FTS_SIDECAR_OBJECTS);
+    assert_eq!(sidecar_rows(&path).len(), 2, "one search row per saved project");
+    let canonical = crate::tests::canonical_store_dump(&path);
+    assert!(canonical.iter().any(|(name, _, rows)| name == "analysis_runs" && rows.len() == 1));
+    let (connection, evidence) = crate::open_project_store(&path).unwrap();
+    assert_eq!(
+        (evidence.store_schema_version_before_open, evidence.store_schema_version, evidence.pending_migration_count),
+        (13, 14, 0)
+    );
+    assert_eq!(evidence.migrations_applied_on_open, vec!["store-v14-retire-project-fts-sidecar"]);
+    assert_eq!(evidence.migration_status, "migrated_on_open_store_schema_v13_to_v14");
+    drop(connection);
+    assert!(sidecar_objects(&path).is_empty(), "the table and its shadow tables are gone");
+    assert_eq!(crate::tests::canonical_store_dump(&path), canonical, "every canonical byte is unchanged");
+    let (_, evidence) = crate::open_project_store(&path).unwrap();
+    assert_eq!(evidence.migration_status, "current_store_schema_v14_no_pending_migrations");
+    assert_eq!(history_reads(&path, &state, &outcome), reads, "reopen, state and run reads are unchanged");
+    // A save after v14 writes no search row and creates no table.
+    let (mut connection, _) = crate::open_project_store(&path).unwrap();
+    write_project(&mut connection, PROJECT, &model("Invented project, re-saved"), BASE);
+    drop(connection);
+    assert!(sidecar_objects(&path).is_empty(), "the save created no table");
+}
+
+/// A failure inside the v14 step (after its DROP, in the same transaction)
+/// rolls back the DROP and the version together: the store stays at v13
+/// with the sidecar and its rows intact, the open goes on with the step
+/// reported pending, and the next open retries it and succeeds.
+#[test]
+fn a_failed_v14_step_rolls_back_whole_is_reported_pending_and_retried_on_the_next_open() {
+    fn failing_v14(connection: &Connection) -> Result<(), String> {
+        crate::migrate_v14_retire_project_fts(connection)?;
+        assert!(crate::tests::fts_sidecar_objects(connection).is_empty(), "the DROP ran inside the transaction");
+        connection.execute_batch("INSERT INTO invented_missing_table VALUES (1);").map_err(|error| error.to_string())
+    }
+    let (path, state, outcome, reads) = store_with_history("v14-fail");
+    crate::tests::as_v13_store_with_fts_rows(&path);
+    let (rows, canonical) = (sidecar_rows(&path), crate::tests::canonical_store_dump(&path));
+    let migrations: Vec<crate::StoreMigration> = crate::store_migrations()
+        .into_iter()
+        .map(|migration| if migration.version == 14 { crate::StoreMigration { apply: failing_v14, ..migration } } else { migration })
+        .collect();
+    let mut connection = Connection::open(&path).unwrap();
+    let evidence = crate::apply_store_migrations_to(&connection, crate::STORE_SCHEMA_TARGET_VERSION, &migrations).unwrap();
+    assert!(connection.is_autocommit(), "no transaction is left open");
+    assert_eq!((evidence.store_schema_version_before_open, evidence.store_schema_version, evidence.store_schema_target_version), (13, 13, 14));
+    assert_eq!(evidence.pending_migration_count, 1);
+    assert!(evidence.migrations_applied_on_open.is_empty());
+    assert_eq!(
+        evidence.migration_status,
+        "migration_pending_store_schema_v13_of_v14: store-v14-retire-project-fts-sidecar failed and was rolled back (no such table: invented_missing_table); the store stays at v13 and the next open retries it"
+    );
+    assert_eq!(crate::store_user_version(&connection).unwrap(), 13);
+    // A save meanwhile writes the project row only: the sidecar's rows are untouched.
+    write_project(&mut connection, "project:w12-invented-third", &model("Third project"), BASE);
+    drop(connection);
+    assert_eq!(sidecar_objects(&path), crate::tests::FTS_SIDECAR_OBJECTS, "the table and its shadow tables are intact");
+    assert_eq!(sidecar_rows(&path), rows, "its rows are intact");
+    let after_save = crate::tests::canonical_store_dump(&path);
+    assert_ne!(after_save, canonical, "the save wrote its project row");
+    // The next open retries the real step and succeeds.
+    let (connection, evidence) = crate::open_project_store(&path).unwrap();
+    assert_eq!((evidence.store_schema_version_before_open, evidence.store_schema_version, evidence.pending_migration_count), (13, 14, 0));
+    assert_eq!(evidence.migrations_applied_on_open, vec!["store-v14-retire-project-fts-sidecar"]);
+    drop(connection);
+    assert!(sidecar_objects(&path).is_empty());
+    assert_eq!(crate::tests::canonical_store_dump(&path), after_save, "every canonical byte is unchanged by the retry");
+    assert_eq!(history_reads(&path, &state, &outcome), reads, "reopen, state and run reads are unchanged");
+}
+
+/// A v13 build (its target 13 and its steps) opening a store this build
+/// migrated to v14 refuses it by name before writing anything: not a byte
+/// of the store file changes and its version and schema stay v14's.
+#[test]
+fn a_v13_build_refuses_a_v14_store_by_name_and_writes_nothing() {
+    let (path, ..) = store_with_history("v13-build");
+    let before = std::fs::read(&path).unwrap();
+    let canonical = crate::tests::canonical_store_dump(&path);
+    let v13: Vec<crate::StoreMigration> = crate::store_migrations().into_iter().filter(|migration| migration.version <= 13).collect();
+    let connection = Connection::open(&path).unwrap();
+    let error = crate::apply_store_migrations_to(&connection, 13, &v13).map(|_| ()).unwrap_err();
+    assert!(
+        error.starts_with("STORE-SCHEMA-NEWER: the local project store is at store schema v14, newer than this build's v13; it was written by a newer SWBPIPE build. Nothing was read or written"),
+        "{error}"
+    );
+    assert_eq!(crate::store_user_version(&connection).unwrap(), 14);
+    drop(connection);
+    assert_eq!(std::fs::read(&path).unwrap(), before, "not a byte written");
+    assert_eq!(crate::tests::canonical_store_dump(&path), canonical);
+    assert!(sidecar_objects(&path).is_empty(), "no sidecar is recreated");
 }
 
 #[test]
@@ -4267,4 +4409,215 @@ fn a_recorded_run_is_refused_by_whichever_stored_column_exceeds_the_limit() {
     // Both are far below the product limit and read in full there.
     assert!(longer_record < crate::solve_jobs::MAX_DISPLAYABLE_RESULT_BYTES);
     assert!(read_run_in_store(&longer_path, PROJECT, &longer_id).is_ok());
+}
+
+/// How many record hashes took the checked path (`run_record_hash_within`'s
+/// fallback), in this thread.
+pub(crate) mod projection_probe {
+    use std::cell::Cell;
+    thread_local! {
+        static CHECKED: Cell<u64> = const { Cell::new(0) };
+    }
+    pub(crate) fn checked_path() {
+        CHECKED.with(|count| count.set(count.get() + 1));
+    }
+    pub(crate) fn take() -> u64 {
+        CHECKED.with(|count| count.replace(0))
+    }
+}
+
+/// RT-U4 (P1): the record hash streamed from the borrowed record is the
+/// checked path's (`run_record_hash_checked_path`, the implementation before
+/// it: the projection's clone, its serde_json text, the checked parse and the
+/// checked canonical text) for every persistence case's transient record, the
+/// witnesses' records and invented edge records: the same digest or the same
+/// refusal, text for text. The corpus never takes the checked path; the
+/// records the checked path refuses or could read differently always do.
+#[test]
+fn p1_streamed_record_hash_is_the_checked_paths_hash_or_refusal() {
+    let memory = stored_read::UnmeteredReadMemory;
+    let same = |record: &Value, what: &str| -> Result<String, String> {
+        let streamed = run_record_hash_within(record, &memory, "a record");
+        let checked = run_record_hash_checked_path(record, &memory, "a record");
+        assert_eq!(streamed, checked, "{what}");
+        streamed
+    };
+    let mut records: Vec<(String, Value)> = crate::native_persistence::tests::cases().into_iter().map(|case| (case.id.clone(), case.record)).collect();
+    for (name, text) in [("witness", WITNESS), ("witness rule packs", WITNESS_RULE_PACKS), ("s2 unresolved", S2_UNRESOLVED_RUN)] {
+        let value: Value = serde_json::from_str(text).unwrap();
+        let mut found = Vec::new();
+        collect_records(&value, &mut found);
+        assert!(!found.is_empty(), "{name} holds a record");
+        records.extend(found.into_iter().map(|record| (name.to_string(), record)));
+    }
+    projection_probe::take();
+    for (what, record) in &records {
+        let hash = same(record, what).unwrap_or_else(|error| panic!("{what}: {error}"));
+        // A record's own claimed checksum is its projection's hash.
+        if let Some(claimed) = record.pointer("/analysis_run/hashes").and_then(Value::as_array).and_then(|hashes| hashes.iter().find(|hash| is_own_checksum(hash))) {
+            assert_eq!(claimed["value"], json!(hash), "{what}");
+        }
+    }
+    assert_eq!(projection_probe::take(), 0, "the corpus records are hashed streamed");
+
+    let base = records[0].1.clone();
+    let edit = |change: &dyn Fn(&mut Value)| {
+        let mut record = base.clone();
+        change(&mut record);
+        record
+    };
+    let unsafe_integer = json!(9_007_199_254_740_993u64);
+    let mut nested = json!(1);
+    for _ in 0..140 {
+        nested = json!([nested]);
+    }
+    let mut shallow = json!(1);
+    for _ in 0..120 {
+        shallow = json!({ "n": shallow });
+    }
+    let refused_or_checked: Vec<(&str, Value, bool)> = vec![
+        ("no hashes", edit(&|record| { record["analysis_run"].as_object_mut().unwrap().remove("hashes"); }), false),
+        ("hashes not an array", edit(&|record| record["analysis_run"]["hashes"] = json!({})), false),
+        ("analysis_run an array", edit(&|record| record["analysis_run"] = json!([])), false),
+        ("the record an array", json!([base.clone()]), false),
+        ("a repeated own checksum", edit(&|record| {
+            let own = record["analysis_run"]["hashes"].as_array().unwrap().iter().find(|hash| is_own_checksum(hash)).unwrap().clone();
+            record["analysis_run"]["hashes"].as_array_mut().unwrap().push(own);
+        }), false),
+        ("an unsafe integer", edit(&|record| record["analysis_run"]["invented"] = unsafe_integer.clone()), true),
+        ("an unsafe negative integer", edit(&|record| record["invented"] = json!(-9_007_199_254_740_993i64)), true),
+        ("an unsafe integral float", edit(&|record| record["invented"] = json!(1e300)), true),
+        ("a container 141 deep", edit(&|record| record["invented"] = nested.clone()), true),
+        ("the RawValue token as a key", edit(&|record| record["invented"] = json!({ RAW_VALUE_TOKEN: "1" })), true),
+    ];
+    for (what, record, checked) in &refused_or_checked {
+        let outcome = same(record, what);
+        assert_eq!(projection_probe::take() > 0, *checked, "{what}: the checked path");
+        assert!(outcome.is_err(), "{what}: refused: {outcome:?}");
+    }
+    // Streamed, and the checked path's digest: the omitted checksum is never
+    // read (an unsafe integer there is not refused), numbers in every form the
+    // canonical writer renders, keys whose UTF-16 order is not their UTF-8
+    // order, escapes, and nesting just inside the limit.
+    let streamed: Vec<(&str, Value)> = vec![
+        ("an unsafe integer in the omitted checksum", edit(&|record| {
+            let hashes = record["analysis_run"]["hashes"].as_array_mut().unwrap();
+            hashes.iter_mut().find(|hash| is_own_checksum(hash)).unwrap()["invented"] = unsafe_integer.clone();
+        })),
+        ("numbers", edit(&|record| record["invented"] = json!([-0.0, 0.0, 1.0, 200.0, 1.5e-21, 1e-7, 0.1, 9_007_199_254_740_991u64, -9_007_199_254_740_991i64, 9_007_199_254_740_990.0, 4503599627370495.5, 123.456e10, 5e-324, -2.2250738585072014e-308, 1e-20]))),
+        ("keys by UTF-16 units", edit(&|record| record["analysis_run"]["invented"] = json!({ "\u{ff5a}": 1, "\u{1f600}": 2, "b": 3, "a": { "\u{e000}": 1, "\u{10000}": 2 } }))),
+        ("escapes and non-ASCII", edit(&|record| record["invented"] = json!("\u{8}\t\n\u{c}\r\"\\\u{1f}\u{7f}\u{80}é€ – \u{2028}"))),
+        ("nesting 121 deep", edit(&|record| record["invented"] = shallow.clone())),
+        ("no own checksum", edit(&|record| record["analysis_run"]["hashes"].as_array_mut().unwrap().retain(|hash| !is_own_checksum(hash)))),
+    ];
+    for (what, record) in &streamed {
+        same(record, what).unwrap_or_else(|error| panic!("{what}: {error}"));
+        assert_eq!(projection_probe::take(), 0, "{what}: streamed");
+    }
+}
+
+/// Every `analysis_run.v0.3` record (an object with `analysis_run.hashes`) in `value`.
+fn collect_records(value: &Value, into: &mut Vec<Value>) {
+    match value {
+        Value::Object(map) => {
+            if value.pointer("/analysis_run/hashes").is_some_and(Value::is_array) {
+                into.push(value.clone());
+            }
+            map.values().for_each(|item| collect_records(item, into));
+        }
+        Value::Array(items) => items.iter().for_each(|item| collect_records(item, into)),
+        _ => {}
+    }
+}
+
+/// RT-U4 P2: the staged record's streamed pass gives exactly what the
+/// readback gets from its parse: the projection hash
+/// (`run_record_hash_within` of `serde_json::from_str` of the text) and, at
+/// every pointer the readback's checks and summary read, the same member; a
+/// text the pass cannot stream as the parse reads it is left to the full
+/// readback (`None`).
+#[test]
+fn p2_the_staged_records_streamed_pass_is_the_readbacks_parse() {
+    let memory = stored_read::UnmeteredReadMemory;
+    const READ: [&str; 11] = [
+        "/schema_version",
+        "/analysis_run/run_id",
+        "/analysis_run/created_at",
+        "/analysis_run/model_state_ref",
+        "/analysis_run/unit_system_ref",
+        "/analysis_run/settings_ref",
+        "/analysis_run/hashes",
+        "/analysis_run/analysis_status",
+        "/analysis_run/reproducibility/input_manifest_refs",
+        "/analysis_run/reproducibility/input_manifest_hashes",
+        "/analysis_run/unit_system_ref/ref",
+    ];
+    let mut records: Vec<(String, Value)> = crate::native_persistence::tests::cases().into_iter().map(|case| (case.id.clone(), case.record)).collect();
+    for (name, text) in [("witness", WITNESS), ("witness rule packs", WITNESS_RULE_PACKS), ("s2 unresolved", S2_UNRESOLVED_RUN)] {
+        let mut found = Vec::new();
+        collect_records(&serde_json::from_str(text).unwrap(), &mut found);
+        records.extend(found.into_iter().map(|record| (name.to_string(), record)));
+    }
+    let streamed = |what: &str, text: &str| -> Option<(Value, String)> {
+        let outcome = stream_staged_record(text);
+        if let Some((skeleton, recomputed)) = &outcome {
+            let parsed: Value = serde_json::from_str(text).unwrap();
+            assert_eq!(recomputed, &run_record_hash_within(&parsed, &memory, "a record").unwrap(), "{what}: the projection hash");
+            for pointer in READ {
+                assert_eq!(skeleton.pointer(pointer), parsed.pointer(pointer), "{what}: {pointer}");
+            }
+            assert_eq!(skeleton.get("analysis_run").map(Value::is_object), parsed.get("analysis_run").map(Value::is_object), "{what}");
+        }
+        outcome
+    };
+    for (what, record) in &records {
+        // The store's text of the record (serde_json's), as Record Run and the
+        // submitted path write it.
+        let text = serde_json::to_string(record).unwrap();
+        assert!(streamed(what, &text).is_some(), "{what}: streamed");
+        // Insignificant whitespace is read as the parse reads it.
+        let spaced = text.replacen("{", "{ \n", 1).replace("\":", "\" :");
+        assert!(streamed(what, &spaced).is_some(), "{what}: spaced");
+        // Escapes the store does not write decode to the same members.
+        let escaped = text.replacen("\"analysis_run\"", "\"analysis\\u005frun\"", 1);
+        assert!(streamed(what, &escaped).is_some(), "{what}: escaped");
+    }
+    let base = serde_json::to_string(&records[0].1).unwrap();
+    let base_value: Value = serde_json::from_str(&base).unwrap();
+    let swapped = {
+        // The record's members in reverse order (not UTF-16 order).
+        let map = base_value.as_object().unwrap();
+        let members: Vec<String> = map.iter().rev().map(|(key, value)| format!("{}:{}", serde_json::to_string(key).unwrap(), serde_json::to_string(value).unwrap())).collect();
+        format!("{{{}}}", members.join(","))
+    };
+    let own = base_value["analysis_run"]["hashes"].as_array().unwrap().iter().find(|hash| is_own_checksum(hash)).unwrap().clone();
+    let with = |change: &dyn Fn(&mut Value)| {
+        let mut value = base_value.clone();
+        change(&mut value);
+        serde_json::to_string(&value).unwrap()
+    };
+    let mut deep = String::from("1");
+    for _ in 0..130 {
+        deep = format!("[{deep}]");
+    }
+    let left: Vec<(&str, String)> = vec![
+        ("members out of order", swapped),
+        ("a repeated key", base.replacen("{", "{\"schema_version\":\"0.3.0\",", 1)),
+        ("a supplementary key before a U+E000 key", with(&|record| record["invented"] = json!({ "\u{e000}": 1, "\u{10000}": 2 }))),
+        ("an unsafe integer", with(&|record| record["invented"] = json!(9_007_199_254_740_993u64))),
+        ("an unsafe integer in a kept member", with(&|record| record["analysis_run"]["settings_ref"]["invented"] = json!(9_007_199_254_740_993u64))),
+        ("nesting 131 deep", base.replacen("{", &format!("{{\"a\":{deep},"), 1)),
+        ("the RawValue token as a key", with(&|record| record["invented"] = json!({ RAW_VALUE_TOKEN: "1" }))),
+        ("analysis_run an array", with(&|record| record["analysis_run"] = json!([]))),
+        ("reproducibility a string", with(&|record| record["analysis_run"]["reproducibility"] = json!("x"))),
+        ("no hashes", with(&|record| { record["analysis_run"].as_object_mut().unwrap().remove("hashes"); })),
+        ("hashes an object", with(&|record| record["analysis_run"]["hashes"] = json!({}))),
+        ("a repeated own checksum", with(&|record| record["analysis_run"]["hashes"].as_array_mut().unwrap().push(own.clone()))),
+        ("the record an array", format!("[{base}]")),
+        ("trailing characters", format!("{base}x")),
+        ("not JSON", base[..base.len() - 1].to_string()),
+    ];
+    for (what, text) in &left {
+        assert!(streamed(what, text).is_none(), "{what}: left to the full readback");
+    }
 }

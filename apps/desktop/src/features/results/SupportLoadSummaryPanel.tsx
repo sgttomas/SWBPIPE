@@ -10,6 +10,7 @@
  * result-row ids, follow the report's display rule (`reportQuantityDisplay.ts`: six significant
  * digits, half away from zero, Pa shown as MPa) in the stored units. A view only: it changes no model, result or export. */
 
+import { boundSummary, isNativeResult, type SessionAnalysisRun, type SessionResult } from "../../services/nativeResult";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
@@ -27,8 +28,10 @@ import {
 } from "./supportLoadSummaryCsv";
 import type { ResultOverlayStanding } from "./numericalHealth";
 import {
+  SUPPORT_ALONG_DIRECTION_KIND,
   SUPPORT_LOAD_COLUMNS,
   buildSupportLoadSummaries,
+  type SupportDirection,
   type SupportLoadColumn,
   type SupportLoadRow,
   type SupportLoadSummary,
@@ -45,12 +48,26 @@ export const SUPPORT_LOAD_ENVELOPE_TEXT =
 export const SUPPORT_LOAD_DERIVED_TEXT =
   "Absolute sum or SRSS: each value is unsigned, a bound formed from its terms, so a row is not one solved state and stays out of the maximum and minimum.";
 export const SUPPORT_LOAD_ALLOWABLES_TEXT = "No allowable loads are shown: the support record carries none.";
+/** S-K1: the along-direction reaction's statement (its kind's exact string is named). Each
+ * listed value states its own row's derivation and sign convention. */
+export function supportAlongDirectionText(direction: SupportDirection | null): string {
+  const d = direction ? `d = (${direction.x}, ${direction.y}, ${direction.z}), as stored` : "no stored direction on the record";
+  return `Reaction along the support direction (${SUPPORT_ALONG_DIRECTION_KIND}; ${d}): the emitted value per case, each with its own row's derivation and sign convention. `
+    + "It is not a global component, so it is not a column, not in the maximum and minimum, and not included in this global-component CSV.";
+}
+/** One listed along value: the case (with the table's envelope or derivation note), the value, and
+ * the row's own derivation and sign convention. */
+function alongLabel(row: SupportLoadRow): string | null {
+  const note = row.along?.derivation ?? (row.case.envelope ? row.case.note ?? "range envelope" : null);
+  return note;
+}
+export const SUPPORT_ALONG_NONE_TEXT = "No along-direction value is listed: none was emitted for an admitted case.";
 
 export type SupportLoadSummaryPanelProps = Readonly<{
   model: PreviewModel;
-  result: MechanicsResult | null;
+  result: SessionResult | null;
   /** The result's analysis-run record, for the CSV preamble's result hash (RT-R6). */
-  analysisRun?: AnalysisRunEnvelope | null;
+  analysisRun?: SessionAnalysisRun | null;
   /** The reader's numerical standing and the session's numerical health view (the overlays' input). */
   standing: ResultOverlayStanding | null | undefined;
   /** When this names a support of the model (for example the session's selection), the panel shows it. */
@@ -101,7 +118,11 @@ function exclusionText(summary: SupportLoadSummary): string {
 }
 
 export function SupportLoadSummaryPanel({ model, result, analysisRun = null, standing, focusSupportId = null, focusRequest = 0, testIdPrefix = "support-load" }: SupportLoadSummaryPanelProps) {
-  const summaries = useMemo(() => buildSupportLoadSummaries({ model, result, standing }), [model, result, standing]);
+  // C1: a native result's summaries are S's table (the builder's output over the full rows).
+  const nativeSummary = boundSummary(result, model);
+  const summaries = useMemo(() => (result && isNativeResult(result)
+    ? (nativeSummary ? nativeSummary.header.tables.support_load_summaries as ReturnType<typeof buildSupportLoadSummaries> : buildSupportLoadSummaries({ model, result: null, standing }))
+    : buildSupportLoadSummaries({ model, result: result as MechanicsResult | null, standing })), [model, result, nativeSummary, standing]);
   const supports = summaries.supports;
   const [chosenId, setChosenId] = useState<string | null>(null);
   // A focused support (the session's selection) moves the panel to it once each time the focus
@@ -172,6 +193,7 @@ export function SupportLoadSummaryPanel({ model, result, analysisRun = null, sta
             />
           </div>
           <SupportLoadTable summary={summary} tid={tid} />
+          <SupportAlongDirection summary={summary} tid={tid} />
           <p data-testid={tid("extremes-note")}>{exclusionText(summary)}</p>
           {summary.rows.some((row) => row.case.envelope && row.case.note === undefined && row.standing === "admitted") ? <small data-testid={tid("envelope-note")}>{SUPPORT_LOAD_ENVELOPE_TEXT}</small> : null}
           {summary.rows.some((row) => row.case.note !== undefined && row.standing === "admitted") ? <small data-testid={tid("derived-note")}>{SUPPORT_LOAD_DERIVED_TEXT}</small> : null}
@@ -238,6 +260,29 @@ function SupportLoadTable({ summary, tid }: { summary: SupportLoadSummary; tid: 
           ))}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+/** S-K1: a skewed support's emitted reaction along its stored direction, listed per case outside
+ * the table (it is not a global component, so it is no column, extreme or CSV value). */
+function SupportAlongDirection({ summary, tid }: { summary: SupportLoadSummary; tid: (suffix: string) => string }) {
+  const listed = summary.rows.filter((row) => row.along !== null || row.alongDetail !== null);
+  if (summary.direction === null && listed.length === 0) return null;
+  return (
+    <div data-testid={tid("along")}>
+      <p data-testid={tid("along-note")}>{supportAlongDirectionText(summary.direction)}</p>
+      {listed.length > 0 ? (
+        <ul>
+          {listed.map((row) => (
+            <li key={row.case.key} data-testid={tid(`along-${row.case.key}`)}>
+              {row.case.label}{alongLabel(row) ? <small> {alongLabel(row)}</small> : null}: {row.along
+                ? <><ValueText value={row.along} shareUnit={false} /> <small data-testid={tid(`along-sign-${row.case.key}`)}>(sign convention: {row.along.signConvention ?? "none stated"})</small></>
+                : row.alongDetail}
+            </li>
+          ))}
+        </ul>
+      ) : <small data-testid={tid("along-none")}>{SUPPORT_ALONG_NONE_TEXT}</small>}
     </div>
   );
 }

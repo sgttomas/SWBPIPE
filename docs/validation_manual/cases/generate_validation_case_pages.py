@@ -527,7 +527,9 @@ MECHANICS_CASES = [
         evidence_detail=(
             "Implementation commit `c394365ca72b8383c7d7203ce5be2cb9ea67d508`; "
             "passing commit-bound sweep "
-            "`validation/evidence/sweeps/SWEEP_20260803T194132Z_c394365ca72b.json`; "
+            "`SWEEP_20260803T194132Z_c394365ca72b.json` "
+            "(committed sweep artifacts were retired on 2026-11-05; "
+            "recoverable from Git history at `24ac867e0d`); "
             "mechanics fixture/oracle and named test in "
             "`validation/benchmarks/mechanics/src/lib.rs`; product behavior "
             "and the seven named tests in `core/product_physics/src/lib.rs`. "

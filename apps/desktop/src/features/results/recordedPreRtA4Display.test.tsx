@@ -18,7 +18,7 @@ import type { ModelStateSummary } from "../../services/modelStateService";
 import { computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
 import { DisplayUnitsProvider } from "../display-units";
 import type { DisplayQuantityRequest, DisplayQuantityResult } from "../../services/displayQuantityService";
-import { buildHistoricalRunContext, buildRecordedRunContext, HistoricalRunPanel, type HistoricalRunContext } from "./HistoricalRunContext";
+import { buildHistoricalRunContext, buildRecordedRunContext, HistoricalRunPanel, type WholeHistoricalRunContext } from "./HistoricalRunContext";
 import { displayRoute, readerDispatch, recordedReaderDispatch } from "./resultReader";
 import { numericalResultStanding, recordedResultStanding } from "./resultStanding";
 import { ResultsPanel } from "./ResultsPanel";
@@ -102,7 +102,7 @@ const VARIANTS: Variant[] = [
     open: retained("physics_retained_1/main_252bef969", "retained_precision_exact_successor_sparse_interactive"), twin: null },
 ];
 
-async function reopened(variant: Variant): Promise<HistoricalRunContext> {
+async function reopened(variant: Variant): Promise<WholeHistoricalRunContext> {
   const { source, record, model } = variant.open();
   const payload = { model, mechanics_result: source, analysis_run: record, model_hash: await computeModelHash(model), editor_intents: [], proposal: null, selected_review_target: null };
   return (await buildHistoricalRunContext({ ...payload, project_envelope_hash: await computeProjectEnvelopeHash(payload as never) } as unknown as LocalProjectEnvelope))!;

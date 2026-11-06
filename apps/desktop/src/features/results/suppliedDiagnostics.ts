@@ -6,11 +6,33 @@
  * verdict only (for a retained successor, the registered retained reader's acceptance of its exact
  * bytes; DEL-04-08 §8.53), never a message's wording, and derives no standing or certificate fact. */
 import type { Diagnostic, MechanicsResult } from "../../types";
+import { isNativeResult, nativeDiagnosticsPresentation, type NativeResult, type SessionResult } from "../../services/nativeResult";
 import { readerDispatch, readerValidate, type ReaderName } from "./resultReader";
 import { retainedPrecisionRegistration } from "./retainedPrecisionStanding";
 
 /** The label before a diagnostic message passed through as supplied text. */
 export const SUPPLEMENTAL_DIAGNOSTIC_LABEL = "Supplied diagnostic text, unverified (not a combination certificate statement): ";
+
+/** RT-A5 (DEL-05-02 `operating-case.md` §7.5; Work `combination-certificate.md` §2): the five typed held
+ * gate codes (Rust `result_export::HELD_STATUS_GATE_CODES`). Such a notice's refusal text is bound to its
+ * held-status record by the reader, not verified as true, and supplies no row bound, eligibility,
+ * certificate notice or standing, so it is always quoted whole as supplied text, whatever the roster or
+ * a certificate attests. Keyed on the typed code only, never on a message's wording. */
+export const HELD_STATUS_GATE_CODES: ReadonlySet<string> = new Set([
+  "HELD_STATUS_SOURCE_UNAVAILABLE",
+  "HELD_STATUS_SOURCE_UNQUALIFIED",
+  "HELD_STATUS_BINDING",
+  "HELD_STATUS_SLIDING_GROUND_DIFFERS",
+  "HELD_STATUS_SOLVE_FAILED"
+]);
+/** The held-status codes every presenting path quotes whole as supplied text (Rust
+ * `result_export::HELD_STATUS_QUOTED_CODES`): the five held gates and `HELD_STATUS_RELEASED`. A distinct
+ * set from `HELD_STATUS_GATE_CODES`: quoting is presentation, the gates are the reader's roster. */
+export const HELD_STATUS_QUOTED_CODES: ReadonlySet<string> = new Set([...HELD_STATUS_GATE_CODES, "HELD_STATUS_RELEASED"]);
+/** Whether a diagnostic's typed code is one of the quoted held-status codes. */
+export function heldStatusQuotedNotice(diagnostic: { code?: unknown }): boolean {
+  return typeof diagnostic.code === "string" && HELD_STATUS_QUOTED_CODES.has(diagnostic.code);
+}
 
 function recordObject(value: unknown): Record<string, unknown> | null {
   return typeof value === "object" && value !== null && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
@@ -48,16 +70,18 @@ export function documentCombinationIdentities(
   return new Set([...ids].filter((id) => id !== "" && !other.has(id)));
 }
 
-/** A diagnostic's presented message. On a result with combinations, a diagnostic is copied only
+/** A diagnostic's presented message. A held-status notice (`heldStatusQuotedNotice`) is always quoted
+ * after the supplemental label. Otherwise, on a result with combinations, a diagnostic is copied only
  * when it names one of them and `rosterChecked` holds (the closed roster's reader admitted it in
  * its canonical form); every other message is quoted after the supplemental label, as text
  * supplied with the result and verified by nothing, its source text kept whole. A result without
- * combinations is unchanged. */
+ * combinations is otherwise unchanged. */
 export function suppliedDiagnosticMessage(
-  diagnostic: { message: string; affected_refs?: string[] | null },
+  diagnostic: { code?: unknown; message: string; affected_refs?: string[] | null },
   combinations: ReadonlySet<string>,
   rosterChecked: boolean
 ): string {
+  if (heldStatusQuotedNotice(diagnostic)) return `${SUPPLEMENTAL_DIAGNOSTIC_LABEL}"${diagnostic.message}"`;
   if (combinations.size === 0) return diagnostic.message;
   const refs = Array.isArray(diagnostic.affected_refs) ? diagnostic.affected_refs : [];
   if (rosterChecked && refs.some((ref) => typeof ref === "string" && combinations.has(ref))) return diagnostic.message;
@@ -73,7 +97,7 @@ const ROUTE_READERS: Readonly<Record<string, ReaderName>> = { preview_physics: "
  * read applies no roster text closure; its receipt binds notice codes, cardinalities and refs, not
  * prose) are not. A retained successor's certificate notices are attested separately
  * (`certificateAttestedByRetainedReader`). */
-function rosterCheckedByReader(result: MechanicsResult): boolean {
+export function rosterCheckedByReader(result: MechanicsResult): boolean {
   if (result.retained_precision !== undefined) return false;
   const reader = ROUTE_READERS[readerDispatch(result).route];
   if (reader === undefined) return false;
@@ -97,27 +121,60 @@ function certificateNotice(diagnostic: { id?: unknown; code?: unknown }): boolea
  * (`retainedPrecisionRegistration`) and the member is present, a notice with the certificate's typed
  * id and code is the canonical one. Nothing else on a retained successor is attested: its other
  * messages stay supplied text. */
-function certificateAttestedByRetainedReader(result: MechanicsResult): boolean {
+export function certificateAttestedByRetainedReader(result: MechanicsResult): boolean {
   if (result.retained_precision === undefined) return false;
   if (recordObject(result.contract_evidence)?.["combination_certificate"] === undefined) return false;
   return Boolean(retainedPrecisionRegistration(result)?.validation);
+}
+
+/** The three facts the classification reads, each read only when it is needed (in this order). */
+type PresentationFacts = Readonly<{ combinations: () => ReadonlySet<string>; rosterChecked: () => boolean; certificateChecked: () => boolean }>;
+
+/** A whole result's facts: the helpers above, on the value itself. */
+function wholeValueFacts(result: MechanicsResult): PresentationFacts {
+  return {
+    combinations: () => documentCombinationIdentities(result),
+    rosterChecked: () => rosterCheckedByReader(result),
+    certificateChecked: () => certificateAttestedByRetainedReader(result)
+  };
+}
+
+/** A population no diagnostic names (ids are never empty): with nothing attested, every message is
+ * quoted as supplied. A native handle whose facts are unavailable reads it (fail closed). */
+const UNVERIFIED_POPULATION: ReadonlySet<string> = new Set([""]);
+
+/** C1 (DEL-04-05 `c1-native-custody-plan.md`, "Native diagnostics presentation"): a native handle's
+ * facts, Rust's on its held bytes and delivered in S (`nativeDiagnosticsPresentation`), each the
+ * whole-value helper's on the same bytes. Read from the handle's custody only: never its guarded
+ * members (`results`, `retained_precision`) and never a reader on the webview handle. Unavailable
+ * facts (missing, malformed, another binding, ended custody) attest nothing. */
+function nativeFacts(result: NativeResult): PresentationFacts {
+  const facts = nativeDiagnosticsPresentation(result);
+  return {
+    combinations: () => facts?.combinations ?? UNVERIFIED_POPULATION,
+    rosterChecked: () => facts?.rosterChecked === true,
+    certificateChecked: () => facts?.certificateAttested === true
+  };
 }
 
 /** The result's diagnostics as the Diagnostics panel lists and explains them, each message
  * classified by `suppliedDiagnosticMessage`, with the roster checked only where
  * `rosterCheckedByReader` holds: on any other result with combinations every message is quoted as
  * supplied, except a retained successor's certificate notices where the retained reader attested
- * the member (`certificateAttestedByRetainedReader`). A result without combinations is not read and
- * is returned unchanged. */
-export function presentedResultDiagnostics(result: MechanicsResult | null): Diagnostic[] {
+ * the member (`certificateAttestedByRetainedReader`); a held-status notice is quoted always. A result
+ * without combinations and without a held-status notice is not read and is returned unchanged. A
+ * native handle is classified the same way by the same code, with the facts Rust read of its held
+ * bytes (`nativeFacts`); its held-status notices are quoted exactly as the whole value's. */
+export function presentedResultDiagnostics(result: SessionResult | null): Diagnostic[] {
   const diagnostics = result?.diagnostics ?? [];
   if (!result) return diagnostics;
-  const combinations = documentCombinationIdentities(result);
-  if (combinations.size === 0) return diagnostics;
-  const rosterChecked = rosterCheckedByReader(result);
-  const certificateChecked = certificateAttestedByRetainedReader(result);
+  const facts = isNativeResult(result) ? nativeFacts(result) : wholeValueFacts(result);
+  const combinations = facts.combinations();
+  if (combinations.size === 0 && !diagnostics.some(heldStatusQuotedNotice)) return diagnostics;
+  const rosterChecked = facts.rosterChecked();
+  const certificateChecked = facts.certificateChecked();
   return diagnostics.map((diagnostic) => {
-    if (certificateChecked && certificateNotice(diagnostic)) return diagnostic;
+    if (certificateChecked && certificateNotice(diagnostic) && !heldStatusQuotedNotice(diagnostic)) return diagnostic;
     const message = suppliedDiagnosticMessage(diagnostic, combinations, rosterChecked);
     return message === diagnostic.message ? diagnostic : { ...diagnostic, message };
   });

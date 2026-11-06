@@ -459,6 +459,19 @@ pub(crate) fn modal_result_document(request: &Value, params: &ModalIntegrityPara
         Ok(outcome) => {
             let state = outcome.state_case.as_ref().map(|case| (case.case_index, case.case_id.as_str()));
             let binding = modal_doc_binding(request, params, state);
+            // R-6/R-7 S-K1 (§11.3 C8): a model with a restraint basis has a reduced pencil;
+            // modal-1 0.1.0 cannot state it, so it is refused by name before the solved
+            // projection (whose text is unchanged).
+            if parsed.model.supports.iter().any(crate::document_members::is_skewed_record) {
+                let diagnostic = crate::diag(
+                    "diagnostic:modal:document:skew-restraint",
+                    super::integrity::MODAL_DOCUMENT_SKEW_RESTRAINT_UNSUPPORTED,
+                    "blocking",
+                    "the model has a skewed restraint, so its modal pencil is on reduced coordinates; the modal-1 0.1.0 document states a global M_ff and global shapes only, so no document is published for it".to_string(),
+                    vec!["supports".into()],
+                );
+                return modal_doc_refused(&binding, label, &[diagnostic]);
+            }
             modal_doc_solved(&outcome, &binding, label)
         }
     }

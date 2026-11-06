@@ -135,6 +135,10 @@ Also unchanged:
 - The CAEPIPE SI writer and MBF importer refuse non-axis directions. That mapping is
   DEL-17-04's, and none is scheduled here.
 
+**The coordinate transform's range** is not a §2.2 code. A product of the coordinate transform
+below the exact-split range, or a non-finite rounding, refuses the case on the ordinary
+`NumericallyUnresolved` path, named in §6.2. It is not a K-D5 demotion (§10.7).
+
 **Order within a stage.** Skew admission runs in `judge` and gives one code per record, in
 document order, the first that applies of 2, 3, 4. Boundary preparation is per node, in
 ascending node order, the first that applies of 6, 7, 8, and reports every node. Case-level
@@ -488,6 +492,39 @@ rows, as in §5.1.
 - **Range.** A product below the split range, or a non-finite rounding, is
   `BasisError::SplitRange` or `NonFinite`. The case is then refused by the existing ordinary
   failure path with the error named (S-K1 never rounds such a product).
+  - **As built (RT-A3 condition 1).** NI's linear skew entry maps the two errors to
+    `StructuralError::NumericallyUnresolved` with the reasons
+    `restraint_basis: split range in the coordinate transform` and
+    `restraint_basis: non-finite rounding in the coordinate transform`, and `global_dof:
+    None`, because a coordinate is not a physical DOF.
+  - PP publishes it on its existing `NumericallyUnresolved` arm, as a blocking
+    `NUMERICAL_INTEGRITY_UNRESOLVED` for the case. It never takes the pivot-screen special
+    case (`PIVOT_SCREEN_REASON`) or the `InvalidInput` backstop.
+  - It is a refusal of the case. It is not K-D5's §10.7 demotion to Sensitive, which applies
+    to a case that solved.
+  - **As built (Astra B4, RT-A3's re-check criteria).** The transformed load's and the
+    reduced coordinate load's range or non-finite failures map the same way, split on the
+    typed variant: `BasisError::Ledger(LedgerError::Sum { error: NonRepresentable |
+    NonFinite })` gives `restraint_basis: the transformed load is outside binary64`, and
+    `BasisError::Reduction(FrameKernelError::NonFiniteInput)` (in the skew reduction, only
+    the adjusted force's rounding) gives `restraint_basis: the reduced coordinate load is
+    outside binary64`.
+  - A shape or sum error stays the backstop, because it is outside the entry's contract:
+    the ledger's `EmptySource`, `DofOutOfRange` and `Sum { AccumulatorOverflow }`, and the
+    reduction's length and DOF errors.
+  - Regressions: a UZ guide and a stop (1, 2⁻⁶⁰⁰, 0), whose k·q·q falls below 2⁻⁹⁶⁹; and a stop
+    (1.5, 1, 0) under the finite force (−1e308, 1e308, 0), whose free-coordinate force is
+    2.5e308. Each is tested in both modes, at NI and through PP's arm, with no rows for the
+    case. The reduction's arm is tested at NI in both modes: the same stop with an ordinary
+    load and A:UY (at the anchor, not a stop's node) prescribed at f64::MAX, so B's adjusted
+    free row f′_r − Σ K′_rc·g_c rounds outside binary64 (RT-A3's note on B4).
+  - The ledger's `Sum { NonFinite }` arm is kept for the typed split but is unreachable from
+    validated input. `transform_force` pushes only exact products (`push`, `push_product`)
+    of finite factors: the input force's terms (finite, since its own `finish` admitted
+    them), Q's finite weights q_ir, and the error-free split p = q_ir·x, which is checked
+    finite before use, with its residual e = fma(q_ir, x, −p), finite because p is. No
+    operand is ever non-finite, so the transformed load can fail only in the final rounding
+    (`NonRepresentable`).
 - **When.** Formed per case in the skew branch, from the basis's formed K. This is O(entries in
   constrained rows) work plus one copy of the values. Caching per modulus basis is an
   optimization left to the implementation.
@@ -542,6 +579,30 @@ under `has_constraint_transform()`. With `None`, PP, FK, NI and modal execute to
   `preview_physics.rs`'s row kinds and in PF combinations (`mechanics`, `absolute_sum`, `srss`,
   subtraction), so a combination's along-direction value is the combination of the case
   values.
+  *As implemented (R-1 desktop review, Agent 0's correction 2):* the agreed row id
+  `result:support-along-direction-v1:` + the exact source identity of (case, record) names the
+  case, as the `_v2` kinds' ids do, although the kind ends in `_v1`. The producer, RE and the
+  Python verifier therefore treat it as those kinds (`skew::case_named_id`): every case's row
+  keeps the agreed id unqualified, and a combination forms it in its support's group, beside
+  Fx–Mz, as `result:combination:<id>:support-action:<n>:<record>:along_direction`, with the
+  group's derivation and sign convention. Before this, a second case's row was qualified
+  (`result:loadcase:…`, refused by the reader as `ALONG_DIRECTION_ROW_ID`) and no combination
+  over two or more cases published one; the single-case fixture hid it. Pinned by
+  `fixtures/results/skew_along_direction_combinations_preview.json` (two cases; signed,
+  absolute-sum, SRSS, envelope and subtraction combinations).
+- **Readers' guard.** Given the model, both readers (RE `along_direction_evidence`, the Python
+  verifier's `_along_direction`) check |s·|d̃| − d̃ᵀR| ≤ 64ε·max(|d̃|·Σ|R_i|, floor) on the
+  canonical d̃ and on R, s and the floor 2^−1022 scaled jointly by one power of two. This is a
+  consistency check within a finite allowance, not an exact-integrity check: an alteration of s
+  inside the allowance reads. That includes a subnormal alteration inside the absolute floor
+  64·2^−1074 (unscaled); for example, with m = 2^−1074, d = (1, 1, 0) and R = (−m, −m, 0), s
+  changed from −m to 0 reads.
+  *As implemented (re-check 2, verdict parity):* the two readers perform the same operations in
+  the same order: the same power-of-two steps, then left-to-right sums with no compensation (never
+  Python's built-in `sum`, compensated from 3.12, nor `math.fsum`) and no fused multiply-add. So
+  they give one verdict on every input, at the allowance boundary too. Pinned by
+  `fixtures/results/skew_along_direction_guard_parity.json` (385 boundary cases, both readers;
+  the first is the counterexample d = R = (1.0, 0.1, 0.6), s = 0x1.2ba3ebdc9a779p+0, refused).
 
 ### 7.2 Attribution (binary64 path; K-D5's certified twin in §10.5)
 
@@ -827,7 +888,9 @@ entries, used by the M03 gate and the dense-scrutiny contribution audit: Σ|q_ir
     - Each published value is the ball's midpoint, rounded once.
     - `SUPPORT_SKEW_REACTION_RANGE_UNSUPPORTED` fires only when that published rounding is
       outside binary64 (revision 3).
-  - Consistency: each |r_i − μ w_i| for i ∈ F must be within the balls' radii. Otherwise
+  - Consistency: each |r_i − μ w_i| for i ∈ F must be within their enclosures (radii and
+    remainders). This is a necessary consistency check, not a proof of validity: validity rests
+    on the §10 derivation and the references. Otherwise
     `RecoveryFailure` "restraint_basis: reaction not along the constraint", which leaves the
     record unavailable, as any recovery failure does.
   - Stop rows: μ·w_i. Axis rows: r_a − μ·w_a. The along-direction row is μ·2^ŝ·|d̃|, with a
@@ -906,6 +969,289 @@ contain their exact values (§13).
   `set_field`) remains an unsupported field path until the authoring lane designs it. Desktop
   entry is the authoring lane's.
 
+### 11.1 Seam agreements for S-K1 (2026-11-04)
+
+Agent 0 released S-K1, stacked on #122's exact reviewed source. Agent 0 authorizes S-K1's
+boundaries; the owners coordinate integration. Each owner below agreed its seam with these
+conditions, and they bind the §15 implementation. Exact hunks go to each owner before the
+write. Nothing in a shared file is written before agreement.
+
+- **RT-A3 (P-1, A-1, and P's part of F-1).**
+  - `pub mod restraint_basis;` in FK `lib.rs` is agreed; a full-file pin restates at D3.
+  - **F-1.** With `node_blocks` empty, every P path stays byte-identical: K6 FK/SD binary64
+    parity, P's `p_*` tests, and the shared-factor bit-identity refusal. Add one test in which
+    a factor is shared across right-hand sides with node blocks present. S-K1 stacks on P's
+    final `sparse.rs`; RT-A3 sends the SHA.
+  - **F-2, technical agreement.**
+    - `FormationSource.restraint` is carried on **both** the dense `ConfirmationAttempt` and
+      P's sparse `SparseConfirmationAttempt` / formation-checked path, with a dense = sparse
+      test on a skewed case.
+    - `MemberBoundInputs.lift_radius` is empty when it means zero. Every existing
+      construction stays bit-identical.
+    - P2's justification: the smallest product of two binary64 values is 2⁻²¹⁴⁸, so the
+      accumulator quantum holds every two-factor product exactly. Triples and quadruples are
+      split by P1 first.
+    - P3: |e_v,j| ≤ 2^exp_j·λ_σ holds for every free j at once, as the componentwise
+      remainder. By the triangle inequality, |Q e_v|_i ≤ Σ_j|q_ij|2^exp_j λ_σ ≤ 2^E_i λ_σ.
+      `i32::MIN` requires exactly-zero lift values.
+    - §10.4 D5C-1 uses the published u_p = fl(Qv), compared upward.
+    - **F-2's decider is SWBPIPE Agent 0, as DEL-04-01's decision holder** (2026-11-04; an Agent
+      0 development decision, not the owner's personal acceptance).
+      - **Authorized boundary:** `formation_check.rs`, `certified_recovery.rs`, `rigid_body.rs`
+        and the new pinned `MemberBoundInputs.lift_radius`, as this reviewed design states.
+      - **Before merge:**
+        - RT-A3's technical review of the hunks;
+        - an independent Astra MEDIUM numerical proof;
+        - the actual D3 premises for frame, heap and source.
+      - **Not assumed valid:** no field value. The radius's units, provenance, range and
+        outward bound, and the old axis identity, are reviewed and tested.
+      - **Preserved:** the FK, K-D5 and mathematical claims, with no hidden new normalization or
+        parameter.
+  - **F-3.** No new threshold.
+  - **A-1.** The linear entry only.
+    - `with_restraint_basis` is structurally unreachable from the loop: the nonlinear + skew
+      refusal is structural, with a test that the loop path never carries a basis.
+    - The loop, `complete_iteration` and `confirmation.rs` are never touched.
+    - Add S11-K and R2 site-table rows for new adapter functions. R2's confirmation-entry
+      rule is not widened.
+- **RT-U4 (DEL-04-08 pricing; R-1 C1 mirror).**
+  - **D1 memory.** `lift_radius` stays **empty on D1**: an empty `Vec` of capacity 0 when the
+    model holds no skewed record, with a source check or capacity row (the D1.3 empty-owner
+    pattern). KD5O4 then stays B(20N) and KD5O5 is unchanged. A dense field would price as
+    B(28N) everywhere, which is not chosen.
+  - **The struct grows.** `s(MemberBoundInputs)` goes from 80 B to 104 B with a fourth Vec.
+    The pricing switch on `pub struct MemberBoundInputs` (`g3lib.py:245` fallback 80,
+    `ordinary_caps.py:29`, `text_lexicon.py:174`) needs a new-revision switch keyed on the
+    field's presence, so that older registered revisions keep their formula. That is D3 work.
+  - **Debug text.** `MemberBoundInputs` reaches no Debug or format site; the S-K1 pricing
+    notes state this, or the unified text model gains the field.
+  - **Transform workspace.** Every rotation or transform allocation in
+    `solve_prepared_load_case`, K-D5 `evaluate`/`evaluate_row_inner` and the NI adapter sits
+    **inside** the direction branch. Anything that must be allocated up front gets a
+    capacity-0 guard on D1. New owned layouts beyond the four are listed for the layout pins.
+  - **C1 mirror.** C1's frozen candidate dd458d1d3 is not changed before its run.
+    `support_reaction_along_direction_v1`'s exact strings and digests go to RT-U4 once
+    implemented, and RT-U4 adds the mirror after the run. `recorded_tables.rs` re-pins to the
+    merged bytes by whoever merges second.
+- **Dynamics (D-1).** Agreed in principle. The eigenvalues of the restricted pencil do not
+  depend on the basis, so a non-orthonormal division-free Q is sound. Conditions:
+  - **(a) Re-formation.** `reform_modal_pencil` (`modal/outcome.rs`) and `modal_eigen`'s
+    `ReformedPencil::new` / `formation_difference` apply the same `congruence_terms`, as exact
+    three-factor products q_ir·k·q_jc into `ExactSum`, so that K̂′ = QᵀK̂Q and M̂′ = QᵀM̂Q.
+    - Check 1 compares formed and re-formed reduced pencils. Checks 2 and 3 (residuals and
+      orthogonality on M̂′) run on the reduced re-formed pencil. Sturm stays on formed K′, M′.
+    - This touches `modal_eigen/src/reformation/*`, `modal/outcome.rs` and `integrity.rs`,
+      and keeps #110's reset and capacity discipline.
+    - *As implemented (the modal review of `ae1e47b60`):* a skewed spring's re-formed
+      rank-one block k·d̃d̃ᵀ/(d̃ᵀd̃) is formed from the canonical d̃ = 2^s·d (`SkewDirection::scaled`,
+      §5), the vector the formed K uses, never from the authored d, whose squares leave the
+      double-double range at 2^±600. The block is the same exactly, and §4.3 I1 holds on the
+      modal result: d·2^±600, d·2^−1020 and the subnormal pair give their twin's result bit for
+      bit (`modal/tests_skew.rs`). The static product path, whose intended blocks use the wide
+      exponent, is pinned the same way (`tests/skew_restraints_references.rs`).
+  - **(b)** The weight-basis identity check (`modal/weight_basis.rs`) stays on the global M.
+    The excitation uses the global M and R_k before Qᵀ.
+  - **(c)** The census and structural masslessness are judged on the reduced M′, and the text
+    says so.
+  - **(d)** `modal_result_document` (modal-1 0.1.0) refuses skew models by name, in its
+    caller and before `modal_doc_solved`, whose text §8.52 pins. Publishing the global M_ff
+    with lifted shapes would be a modal-1 revision.
+  - **(e)** One `build` per model, shared by static and modal.
+  - **(f)** The congruence and re-formation terms stay countable for the later O-4 guard
+    (≤ 9 terms per entry for a 3×3 node block).
+  - The TASK writes the modal hunks; dynamics reviews them. One independent dynamics review
+    of the modal hunks happens before merge.
+  - #113 is open, with no dynamics hunks planned in `modal/stiffness.rs`, `prepare.rs` or
+    `judge`.
+- **Authoring lane (AP-1).** The `create_support` contract of §9 is agreed. Conditions:
+  - **(a) Update paths.** `update_support configuration` replaces only its CONFIG members, so
+    a kept `direction` survives an unrelated edit. A configuration change that makes a kept
+    `direction` inadmissible is **refused by name** by the document rule, never written and
+    never dropped, with a regression for each case:
+    - family → `guide` or another non-`line_stop`/`spring` family;
+    - multi-DOF restraints;
+    - adding `nonlinear`.
+  - **(b) Changing the single translational DOF token** (UX → UY) on a skewed record is
+    well-defined. By §6.4 the token states only that the record is translational, and d̃ alone
+    governs, so the solve is unchanged. A change to a rotational token makes `direction`
+    inadmissible and is refused as in (a).
+  - **(c) Agent authorship: Agent 0 decided (a), 2026-11-04.**
+    - A restraint direction is geometry, taken from the person's explicit input or authorized
+      geometric intent. The agent's catalog does not make it user-only.
+    - The applier is authoritative for S-K1's admission scope and refusals. Authored non-zero
+      vectors are preserved as given, with no silently inferred restraints, no normalization
+      and no default orientation.
+    - LIM-001 / O5 is unchanged: k, SIFs, stiffness, stiffness scaling and their source remain
+      the person's to enter.
+    - Catalog v4's free-JSON `after` does not admit every model member; the applier's checks
+      remain the authority.
+    - The next catalog revision Agent 0 assigns may add S-K1's implemented admission scope and
+      its named refusals to `create_support`'s guidance. That is a catalog-byte change, re-pinned
+      with Agent 0 and App v4. Until then the catalog is unchanged, and the admission above takes
+      effect only when S-K1 is implemented.
+  - Editing or removing `direction` stays unsupported until the authoring lane designs it.
+    The desktop Direction field is the authoring lane's, after S-K1.
+
+### 11.2 Phase-A hunk review: conditions for phase B (2026-11-04)
+
+Phase A (head `83c154ae6`) wrote only FK `restraint_basis.rs`, its tests and the one agreed
+`pub mod` line. The owners reviewed the hunk batch (`/tmp/sk1a-hunks-202611042132/`) and set
+these conditions on phase B.
+
+- **RT-A3, owner review (not an independent review).**
+  - **Hunks 01–05 OK.** These cover F-1 node blocks, F-2 plumbing, the A-1/P-2 literal sites
+    and F-3 rows.
+  - **`FrameKernelError::InvalidInput(&'static str)` OK.**
+    - The DEL-04-06 diagnostics mapping classifies it as a **named input refusal**: never
+      numerical range, never range-deferred, never a solver failure that demotes a case.
+    - It is a guard in depth: §2.2's earlier gates (item 6, item 10) refuse first in PP. A PP
+      regression proves the named §2.2 code wins.
+  - **F-3.** The `64·γ(n)·max` screen's n counts **ground rows, direction rows included**. A
+    one-stop test pins n.
+  - **P's `sparse.rs`** is final at `78580da7e`, which is already in this base.
+  - **Spec 06** (the F-2 numerical bodies, A-1, P-2) is accepted as phase B's basis. The actual
+    code hunks go to RT-A3 before merge, and F-2's to the Astra numerical proof. RT-A3's cert
+    lines (−3466, −3684, −7229/+7252) are untouched.
+  - **DEL-04-06 and DEL-03-06 are not RT-A3's.** Their signer is asked of Agent 0. Any shared
+    `SPLIT_EXACT_MIN` is bit-identical to today's, leaves existing connector uses unchanged,
+    and has a test pinning 2⁻⁹⁶⁹.
+- **Authoring lane: AP-1 approved, with one should-fix.**
+  - The `create_support` admission check must use the document validator's own item-1
+    predicate, through one shared function, or run the skew gates only after item 1 passes.
+    It must not re-implement that predicate. Today the re-implementation upper-cases and trims
+    the DOF token, and treats `nonlinear: null` as absent.
+  - Regressions, on an exact document: a skewed `line_stop` with `restraints: ["uy"]`, and one
+    with `nonlinear: null`, each get the validator's item-1 code, not the skew code.
+  - Optionally add `anchor` and `vertical_support` to (a)'s family regression.
+  - One source for the code strings (M-1: PP `document_members` constants) replaces FK's
+    `SkewCode` strings.
+- **RT-U4, pricing at S-K1's D3.**
+  - **B(20N) stands only with a registered premise.**
+    - An `O10_EDGE_ZERO` or `O10_SITE_SIZE` 0 row for `RestraintBasis` methods, with its
+      source check (D1 declines `direction`, `retained_memory.rs:1040`).
+    - The D1 capacity-0 fact for `lift_radius`: `Vec::new()` at the one product
+      construction.
+  - **The 80 → 104 B switch** is keyed on `pub lift_radius: Vec<f64>` in `g3lib.py:244-245`,
+    `ordinary_caps.py:29` and `text_lexicon.py:174`. Older revisions keep 80.
+  - **Debug** is settled by the pricing's own format-site and call-graph inventory, not by
+    grep. If `StructuralSolution`'s Debug is reached only from `#[cfg(test)]` sites, that is a
+    stated premise.
+  - **`assess_rows`' iterator chain collects nothing.**
+  - **Layouts.** `SparseAssemblyOptions` (32 → 56 B) and `FormationSource` (+8 B) on a priced
+    stack frame mean the AC-004 stack witnesses re-run at S-K1's D3, in an Agent-0-cleared
+    exclusive window. That window is planned into the D3 order. New owned types are listed as
+    zero on D1.
+  - **B7a.** The PP `lib.rs` B7a restatement is #122's (minuend_final) D3 debt, not S-K1's.
+    S-K1's D3 starts from the frozen predecessor after #122's re-pin. If the two are ever
+    combined, both basis changes are named.
+  - **C1 mirror.** It follows once phase B implements the row and its digests exist.
+
+### 11.3 Agent 0's phase-B scope decision and dynamics' modal corrections (2026-11-04)
+
+**Agent 0** decided the following. These are development decisions, not personal owner
+acceptance. Agent 0 signs for this bounded cross-deliverable change, and the load-cases manager
+owns implementation and integration in the S-K1 PR. General ownership of DEL-03-06 and DEL-04-06
+does not transfer, and no S6 work is assigned.
+- **DEL-04-06 diagnostics.**
+  - `SkewDirectionRange`, `SkewStopsPerNode` and `ConstraintRedundant` join the existing
+    `InvalidRestraint` mapping.
+  - `FrameKernelError::InvalidInput(&'static str)` maps to a blocking ModelValidation input
+    diagnostic. It is a backstop only, never NumericalRange, deferred-range, or a
+    factorization or convergence failure.
+  - The earlier named PP and applier refusals stay authoritative. Regressions show that the
+    unconnected-node and force-scale refusals occur before the backstop on product paths.
+  - Code, severity, source and detail are tested for the new mappings, and existing mappings
+    are preserved.
+- **DEL-03-06 split constant.** `connector.rs` owns the crate-visible `SPLIT_EXACT_MIN`;
+  `tie_rod.rs` and `restraint_basis.rs` import it.
+  - Every local duplicate of this threshold is removed.
+  - The value stays `f64::from_bits(54 << 52)` = 2⁻⁹⁶⁹, with its bits pinned.
+  - No change to the numerical predicates, existing connector and tie-rod uses, the public
+    API, or the boundary and range reference behaviour.
+- **F-2.** The 02 plumbing and the phase-B numerical scope remain authorized under this
+  reviewed design, §11.1 and RT-A3's seam review.
+  - The actual F-2, A-1 and P-2 code goes to RT-A3 and to the independent Astra MEDIUM
+    numerical and persistence review. Compiled plumbing does not establish the numerical
+    bodies.
+  - The rigid-body screen's n counts all ground rows, with the single-stop test, and no new
+    threshold is added.
+- **Desktop routing correction.** `reactionOverlay.ts:15` (`REACTION_COMPONENT_KIND` =
+  `support_reaction_component_v2`) is an arrow renderer's kind constant. Its loop at :123 consumes
+  global Fx/Fy/Fz, Mx/My/Mz and magnitude rows. It is not a reader registry.
+  - It is not replaced, and `along_direction` is not admitted as a component.
+  - The new scalar (`coordinate_system: support_direction`) must not double-count a reaction,
+    invent a global direction, or alter the standing or frame gates. The existing arrows go on
+    consuming the emitted global component rows.
+  - The actual reader, table and kind dispatch sites are updated through the maintained
+    generators. A real-result consumer regression shows that adding the scalar leaves the
+    component arrow unchanged.
+- **Authoring's should-fix** is part of phase B (§11.2).
+- **Debug and pricing.**
+  - `MemberBoundInputs` reaches `StructuralSolution`'s derived Debug. At S-K1's D3 the
+    actual-source text model, layout atoms, frame, call and heap owners and pinned strings are
+    updated, including `FormationSource`'s added field.
+  - An empty Vec is not assumed free of layout or text cost. Layout statements stay candidates
+    until native layout and registration evidence exists, and historical revisions' pricing
+    identities stay intact.
+- **Reconciliation.** DEL-04-03, DEL-04-01, DEL-04-06 and DEL-03-06, and any changed consumer
+  or dependency meaning, are reconciled in the same PR. Unchanged declarations are left alone.
+- **Out of scope.** No native app run, no exclusive measurement, no public admission outside
+  S-K1, and no release authority. Retained pricing and witness order stay P+cert → #122 → S-K1.
+
+**Dynamics (D-1): the spec is OK, with these corrections.** Dynamics reviews the actual code before
+merge, followed by one independent dynamics review.
+- **C1. Structural singularity evidence.** `form_modal_pencil`'s zero-force structural solve
+  (about :176–188) and its partition (`reduce_assembled_sparse_system`) use the same
+  skew-reduced K′ on `restrained_coordinates` that the static path solves; otherwise the model
+  is refused. The hunk names the static-path routine that supplies the evidence.
+- **C2. Formed K′ and M′.**
+  - Each entry is at most 9 three-factor terms over the **full symmetric** global blocks, using
+    both M_ij and M_jiᵀ, since ModalMass stores only i ≤ j.
+  - Entries are accumulated exactly and rounded once. The lower triangle is formed and
+    mirrored, so the result is exactly symmetric.
+  - `stiffness_asymmetric_entries` stays measured on the global K, before the transform.
+- **C3. Check 1.** Its criterion covers formed K′ and M′ against the re-formed exact Q̃ᵀK̂Q̃ and
+  Q̃ᵀM̂Q̃: at most one extra rounding per entry, plus |Q̃|ᵀ|E||Q̃|.
+  - The difference measured on the AC-006 oblique case is reported.
+  - Q̃ is the same rounded basis on both sides and in the lift. No orthogonality of Q̃ is
+    assumed.
+- **C4. `free_dof_mass`.** With a basis it is aₖᵀM′aₖ, where aₖ = Q̃_fᵀrₖ, accumulated in Dd and
+  rounded once. For skew models it is labelled "kept-subspace mass". Unchanged nodes keep
+  today's value bit for bit.
+- **C5. Labels.** Rotated coordinates get their own labels (node plus skew coordinate index or
+  basis id), and non-skew coordinates keep today's. No diagnostic prints a global DOF name for
+  a mixed coordinate.
+- **C6. Reduced versus lifted.**
+  - On the reduced system: checks 1–3, Sturm, the τ_m census and structural masslessness on
+    M′. A massless coordinate means an exactly zero row and column of M′.
+  - On the lifted φ = Q̃φ′: τ_t (M1b), participation L = φ′ᵀQ̃ᵀ(M rₖ) with Q̃ᵀ(M rₖ) rounded
+    once from Dd, member and node reporting, and the dᵀφ = 0 test.
+  - Published shapes are lifted in binary64. Check 3's M̂′-orthogonality is the governing
+    measure and is not re-measured on global M.
+  - **As implemented, with dynamics' review B1.** The normalization case, τ_t and the pivot
+    are chosen on the raw lifted vector φ = Q̃φ′. The published shape is
+    fl(φ_d / pivot) over the global DOFs. Today's below-normal rule applies per global DOF:
+    |φ_d| < |pivot|·2⁻¹⁰²², compared in WideDd, publishes 0 and flags d. So the reference
+    entry is exactly 1, and every entry of the normalizing class (translations under
+    UnitMaxTranslation, rotations under UnitMaxRotation) has magnitude ≤ 1; an entry of the
+    other class can exceed 1, as on the axis path. The generalized
+    mass, participation and effective masses are the reduced-coordinate quantities, on
+    φ′/pivot with M′ and Q̃ᵀ(M r_k). They are consistent with the published lifted shape to
+    rounding. Checks 2 and 3 read the reduced φ′/pivot. The coordinate re-formation has a
+    limb-allotment variant (`new_with_coordinates_within_limb_allotment`, review N1) for
+    O-4's staged guard.
+- **C7. Resources.** `dense_scrutiny_guard` stays on the global 6N, before any allocation.
+  - The kernel and its allotments see the reduced n′.
+  - Congruence formation and re-formation are countable as terms per entry (≤ 9, ≤ 4 in S-K1)
+    × entries.
+  - Per-node scratch goes through #110's reserve and limb accounting.
+- **C8.** `MODAL_DOCUMENT_SKEW_RESTRAINT_UNSUPPORTED` is raised in `modal_result_document`'s
+  caller, before `modal_doc_solved`, so §8.52's pin is untouched.
+  - It is registered wherever MODAL refusal codes are catalogued and tested.
+  - A refused model produces no document.
+- **C9.** Skew modal tests run under `test_local_parameters()` only. The production parameter
+  instance on `claude/rt-dynamics-instance` is not involved.
+
 ---
 
 ## 12. Pricing outlook (no tool run, no profile)
@@ -935,6 +1281,8 @@ contain their exact values (§13).
   `retained-pricing-rules.md`, AC-004's rules) before S-K1 merges. Expected movement: struct-size
   deltas and the one predicate loop; the registration decides. AC-004 stack witnesses run with no
   concurrent builds.
+- **D3 (actual source, 2026-11-05).** Priced and registered at DEL-04-08 `retained-pricing-rules.md` §8.55 (12
+  coefficients higher, none lower; +17,872 B in every phase and mode); AC-004 passed 7/7 at `98fda31a9`.
 - **Minimizing rule for the implementation.**
   - New work lives in new functions called only under `Some(basis)` or
     `has_constraint_transform()`.
@@ -969,6 +1317,10 @@ two independent routes (KKT and RREF nullspace). Contents:
 - **`product`:** the guided cantilever (anchor, rotations held at B); exact u_B and every
   record's reaction for the S-K1 springs and stops (scaled, ×3, negated, plane (1,3,0), joint
   with UZ, full fix, redundant, stop + spring), the axis twins, S-K2 and S-K3.
+  - The ±2⁶⁰⁰-scaled directions (`P_R1_stop_scaled_2p600`) are reachable only through the
+    typed entry. The value entry's checked JSON refuses an integral float above 2⁵³
+    (`CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT`), as for the CE2 factor. The product test solves
+    that case through the typed entry and asserts the value entry's refusal.
 - **`modal_kernel`:** a point mass with a stop or a spring, exact ω².
 - **`regressions`:** the review's findings on revision 1, each asserted exactly by the generator:
   - `spring_along_direction`: −k t d̃_i/n and −k t/|d̃|, against the rejected chain (2/5 against
@@ -1272,4 +1624,60 @@ Output: a note in the PR description of who agreed what.
 
 ## 16. As built
 
-Not built. This section is filled by the S-K1 implementation.
+S-K1, on `claude/rt-skew-sk1` (with `claude/rt-skew-sk1-r1`). This records what was built and
+where. It claims no integration, acceptance, release or D3 registration, which stay with their
+owners.
+
+**Built (§11.1 seams, §15 steps 1-10):**
+- **Basis (FK, RV-1):** `restraint_basis.rs` (`SkewDirection`, `RestraintBasis`,
+  `congruence_terms`, transform, reduce, lift, attribution) on `connector.rs`'s shared
+  `SPLIT_EXACT_MIN`; tested in `restraint_basis_tests.rs` against `direction_policy`,
+  `invariance`, `kernel` and `mutant`.
+- **Assembly and screens (FK):** `SparseAssemblyOptions.node_blocks`; `rigid_body` ground rows
+  (F-3, n counts every ground row); the formation check's restraint source on the dense and
+  sparse attempts (F-2); K-D5 on the transformed system with `lift_radius` and the certified
+  reaction at skewed nodes (§10.5).
+- **NI and LSUP:** NI's linear skew entry (A-1; the loop never carries a basis). LSUP
+  `prepare_skew_boundary`, with the three codes in DEL-04-06's `InvalidRestraint` mapping and
+  the `InvalidInput` backstop.
+- **Product (PP):** `skew.rs` and `document_members` (§2.2 gates in order, one source of the
+  code strings, M-1); `support_reaction_along_direction_v1`, one row per skewed record and case
+  under the agreed id. A combination forms it in its support's group (§7.1 note, R-1).
+- **Readers (R-1):** RE `along_direction_evidence` and the Python verifier re-check it, with
+  the RE and Python combination mirrors. The tables went through the generator (`apply-sk1`),
+  with the S-K1 base's tables kept as the `recorded_pre_sk1` variants in the Rust, Python and
+  webview registries. Re-derived at the merge of main `9e5c69797` (#122's final composition):
+  main's preview-physics-2, timoshenko-1 and retained-1 tables there are byte-identical to the
+  earlier base's (`563db3c7…`, `f64473f5…`, `d0bab350…`), so the variants keep those bytes and
+  follow main's thirteenth (RT-A3 §4's `85c2678a…`) as the registry's last three. Both readers rescale the direction by a power of two to max|d̃_i| ∈ [1, 2)
+  without forming the scale. The rescaling is exact on the admitted domain only (every nonzero
+  d̃_i normal, §4.2). Outside it, for example d = (8, 5·2^−1074, 0), the stepping may round a
+  component that becomes subnormal; the product refuses such a direction and publishes no row.
+  The along guard scales R, s and its quantization floor jointly by the same exact power of two
+  (Astra B2, B2′). The Python verifier repeats the RE reader's steps and sums one for one
+  (re-check 2, §7.1 readers' guard) on the binary64 values both readers decode: Python
+  converts every guard input with `float()` first, as the RE reader's serde_json decode makes
+  each JSON number an f64 (re-check 3; a JSON integer such as 2^512 − 1 would otherwise steer
+  the scaling differently). On those values the two readers form the same bits and verdict.
+- **Modal (D-1):** the reduced pencil (C1-C9); shapes published on the lifted vector (B1).
+  Spring re-formation is on the canonical d̃ (§11.3 note). The modal result document and the
+  test-only phase replay refuse a skew model by name (C8 (a), (b)).
+- **Applier (AP-1):** `create_support` authors `direction` under the one item-1 predicate and
+  the skew gates. A present `pressure_contract: null` is refused by the shared validator
+  (Agent 0, 2026-11-05).
+- **Desktop:** the webview's handling of the kind: the support summary's per-case list with
+  each row's own derivation and sign convention, the known kind, notices, CSV, and the
+  `recorded_pre_sk1` registry. The reaction overlay is unchanged.
+
+**Tests:** the product cases in both static modes, the ±axis byte-identity twins, the
+power-of-two twins (static and modal, bit for bit), the refusals by name, the reader tamper
+cases and the two-case combinations fixture.
+
+**Open:**
+- S-K2 to S-K5 (§2.3, in the order C-2 sets), with C-1 = meaning B and C-3 = keep the range
+  refusal.
+- The D3 actual-source turn (§12; RV-4) is registered as DEL-04-08 `retained-pricing-rules.md`
+  §8.55: the retained profile is re-registered on the tables that carry R-1's row (it no
+  longer reports Stale), and the MODAL pins (C8 (c)) verify, `modal_doc_solved` included.
+  Its independent integration and registration review found no numerical, persistence or
+  pricing defect. Its AC-004 window passed 7/7 at `98fda31a9` (§8.55).

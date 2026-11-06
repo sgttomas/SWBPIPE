@@ -79,6 +79,8 @@ it("names a dropped choice beside the package actions in Report and Exports", as
 
   await solve();
   const results = openSection("results");
+  // C1: comparisons read the native result's full copy (C2) on request.
+  fireEvent.click(await within(results).findByTestId("c2-result-load"));
   const left = await within(results).findByTestId("comparison-left-select") as HTMLSelectElement;
   fireEvent.change(left, { target: { value: "load:L-200" } });
   await waitFor(() => expect(within(results).getByTestId("comparison-package-basis-text")).toHaveTextContent(`load:L-200 vs ${RANGE}`));

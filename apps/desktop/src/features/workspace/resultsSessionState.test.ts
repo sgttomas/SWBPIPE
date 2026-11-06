@@ -32,6 +32,21 @@ it("keeps solved historical and unassessed carriers out of Current without chang
  expect(result.current.currentSolvedResult).toBeNull();
 });
 
+it("drops the retained C2 copy itself when its source is replaced or cleared", () => {
+ const {result} = renderHook(() => useResultsSessionState());
+ const source = JSON.parse(readFileSync(resolve(__dirname, '../../../../../fixtures/results/preview_physics_connected_sparse.json'), 'utf8')) as MechanicsResult;
+ const copy = structuredClone(source);
+ act(() => { result.current.setResult(source); result.current.setFullResultCopy({of:source,copy}); });
+ expect(result.current.fullResultCopy?.copy).toBe(copy);
+ const replacement = structuredClone(source);
+ act(() => result.current.setResult(replacement));
+ expect(result.current.fullResultCopy).toBeNull();
+ act(() => result.current.setFullResultCopy({of:replacement,copy}));
+ expect(result.current.fullResultCopy?.copy).toBe(copy);
+ act(() => result.current.setResult(null));
+ expect(result.current.fullResultCopy).toBeNull();
+});
+
 it("requires actual native invocation plus joined preview-physics analysis and manifest identities before Current", async () => {
  // Explicit unit transport simulation over the unchanged, genuinely emitted
  // current ordinary pair (preview-physics-2 since T0R; a stored precision-1

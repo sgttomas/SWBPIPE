@@ -49,7 +49,7 @@ SOURCE_FILES = {
     # DEL-04-09 dynamics D3 (read 393a11ee7..0468d2ca2): structural.rs only declares `pub mod element_reformation;`
     # (+2 lines after line 4; every later line moves with unchanged text). The module's reform_* entries and wide
     # leaves are reached only from modal_eigen, outside crate_dirs. No formed-load traversal or finding owner changes.
-    "core/solver/frame_kernel/src/structural.rs": "740cceff60dc483e94d7fe03f5cec1504d8f01bccf307ea945b348f90f87d0ef",
+    "core/solver/frame_kernel/src/structural.rs": "aa0080f73bd4b2e7b5e47a330afaab8a808e10ad55aa040ab61d52dc039755b7",
     # T4-U6/U8 (O4): prepare_sources declines Timoshenko, nonzero mill tolerance and nonzero allowance with static
     # `unsupported(..)` messages after the existing declines; close_load_state names the nominal section's area.
     # No formed-load or finding owner changes.
@@ -61,7 +61,7 @@ SOURCE_FILES = {
     # Model document 0.8.0 (§8.26): source_recovery.rs changes two comments (the current version); no owner changes.
     # Model document 0.9.0 (§8.36): source_recovery.rs changes two comments (the current version); no owner changes.
     "core/product_physics/src/source_recovery.rs": "49aa5d3e4343a0d0b13ae4e8e0d5e1e5bf25dca592ab43a34cbec3f3eee1f5ef",
-    "core/solver/frame_kernel/src/structural/sparse.rs": "d3600fbac2693dff340c0b2b1a225193c33f442b2d54416e890eed72c870dada",
+    "core/solver/frame_kernel/src/structural/sparse.rs": "446e2e67b2edd27d43cea086c2ca079af3f77f6bc67ae47156f1f4418b933683",
 }
 RANGE_CONTENT = 59
 REASON = 165057
@@ -229,17 +229,19 @@ def decisions(snapshot, resolved):
     fc = "core/solver/frame_kernel/src/structural/formation_check.rs:"
     # ForceTerm.source is the bare admitted load_id, not the separately
     # owned member_source identity in LoadPrimitive/manifest entries.
-    for line in (530, 536, 546, 622, 635, 642):
+    # R-6/R-7 S-K1 D3 (§8.55): formation_check.rs's load_closure format sites carry +22 (the skew module line, its
+    # re-export, MemberBoundInputs.lift_radius, FormationSource.restraint and check_at's dispatch above them), same text.
+    for line in (552, 558, 568, 644, 657, 664):
         audit.append((resolved(fc + str(line)), {
             "terms[p.term_index].source": {"bytes": 128, "source": "IN128"},
         }))
     # U5B-TR (T4-U5b): the TieRodReference binding refusal formats the formed term's source,
     # "tie_rod_reference:{len}:{component}:{len}:{rod}" (18 + 4 + 128 + 1 + 4 + 128 = 283 B); tie rods exist only on
     # connectors, so it is unreached on D1 (P3), and it is still charged at its full class.
-    audit.append((resolved(fc + "582"), {
+    audit.append((resolved(fc + "604"), {
         "terms[p.term_index].source": {"bytes": 283, "source": "U5B-TR: formed tie-rod reference source"},
     }))
-    for line in (674, 684, 690, 696, FIRST_RETURN_LINE):
+    for line in (696, 706, 712, 718, FIRST_RETURN_LINE):
         audit.append((resolved(fc + str(line)), {
             "term.source": {"bytes": 128, "source": "IN128"},
         }))
@@ -386,18 +388,21 @@ def site_totals(snapshot, resolved):
 
 
 FIRST_RETURN_FILE = "core/solver/frame_kernel/src/structural/formation_check.rs"
-FIRST_RETURN_ROOT = FIRST_RETURN_FILE + ":916:evaluate"
-FIRST_RETURN_PARENT = FIRST_RETURN_FILE + ":476:check_at"
+FIRST_RETURN_ROOT = FIRST_RETURN_FILE + ":938:evaluate"
+FIRST_RETURN_PARENT = FIRST_RETURN_FILE + ":489:check_at"
 # T4-U8: evaluate's added `straight_frames_bound(source)?;` (the line after load_closure) moves the reformation
 # map_err site from 895 (B7b) to 896 with unchanged text; PP's member-identity binding moves evaluate (850),
 # check_at (441) and the site by 13 more (909), text unchanged.
 # T4-S5 (epoch): the TieRodReference variant and binding arm move check_at (+19), evaluate and the site (+50), and the
 # load_closure sites (+19/+45), text unchanged.
 # W-16 stage 2 D3 (§8.29): formation_check.rs's NodalProduct doc comment adds two lines; these keys move +2, text unchanged.
-FIRST_RETURN_LINE = 962
+# R-6/R-7 S-K1 D3 (§8.55): formation_check.rs adds `mod skew;` and its re-export, MemberBoundInputs.lift_radius and
+# FormationSource.restraint (with docs) above check_at (+13), and check_at's restraint dispatch (`match source.restraint`,
+# None on D1: today's `evaluate` call) above evaluate and the site (+22); text unchanged.
+FIRST_RETURN_LINE = 984
 FIRST_RETURN_SITE = "structural/formation_check.rs:%d" % FIRST_RETURN_LINE
 FIRST_RETURN_WHY = "B7aFK895: map_err formats only on Err and immediate? returns evaluate; preserve full evaluate calls/content/capacity and every helper/loop/copy cost"
-FIRST_RETURN_RULE = {"from": ["structural/formation_check.rs:916:evaluate"],
+FIRST_RETURN_RULE = {"from": ["structural/formation_check.rs:938:evaluate"],
                      "per": "1", "why": FIRST_RETURN_WHY}
 
 

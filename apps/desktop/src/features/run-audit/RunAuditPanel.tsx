@@ -1,3 +1,4 @@
+import { resultRowCount, resultUnits, runResultHashCount, type SessionAnalysisRun, type SessionResult } from "../../services/nativeResult";
 import { Fingerprint } from "lucide-react";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
 
@@ -9,11 +10,11 @@ export function RunAuditPanel({
   analysisRun
 }: {
   model: PreviewModel;
-  result: MechanicsResult | null;
-  analysisRun: AnalysisRunEnvelope | null;
+  result: SessionResult | null;
+  analysisRun: SessionAnalysisRun | null;
 }) {
   const run = analysisRun?.analysis_run;
-  const resultHashCount = run?.result_refs.reduce((count, item) => count + item.hash_refs.length, 0) ?? 0;
+  const resultHashCount = runResultHashCount(analysisRun);
   const hashScopes = run?.hashes.map((item) => item.payload_scope).join(", ") ?? "not generated";
   return (
     <section className="panel run-audit-panel" aria-label="Run audit" data-testid="run-audit-panel">
@@ -40,7 +41,7 @@ export function RunAuditPanel({
           />
           <AuditLine
             label="Hash evidence"
-            value={`${result.results.length} result rows; ${resultHashCount} result value hashes; scopes: ${hashScopes}`}
+            value={`${resultRowCount(result)} result rows; ${resultHashCount} result value hashes; scopes: ${hashScopes}`}
             testId="run-audit-hashes"
           />
           <AuditLine
@@ -113,18 +114,18 @@ function boundarySummary(boundary: Record<string, boolean>): string {
   return "professional boundary requires attention";
 }
 
-function unitAuditSummary(model: PreviewModel, result: MechanicsResult): string {
+function unitAuditSummary(model: PreviewModel, result: SessionResult): string {
   return [
     `model=${formatUnitRecord(model.project.units)}`,
     `results=${uniqueResultUnits(result).join(",") || "none"}`,
-    `rows=${result.results.length}`,
+    `rows=${resultRowCount(result)}`,
     "source=result_envelope",
     "conversion=false"
   ].join("; ");
 }
 
-function uniqueResultUnits(result: MechanicsResult): string[] {
-  return Array.from(new Set(result.results.map((item) => item.unit).filter(Boolean))).sort(compareUnitSymbols);
+function uniqueResultUnits(result: SessionResult): string[] {
+  return Array.from(new Set(resultUnits(result).filter(Boolean))).sort(compareUnitSymbols);
 }
 
 function formatUnitRecord(units: Record<string, string>): string {

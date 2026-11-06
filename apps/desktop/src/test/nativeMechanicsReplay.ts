@@ -11,6 +11,8 @@ import previewDenseFixture from "../../../../fixtures/results/preview_physics_co
 import { jsonTextKeepingNegativeZero } from "../services/jsonText";
 import type { MechanicsResult, PreviewModel } from "../types";
 import type { PreviewSolverMode } from "../services/previewService";
+import { nativeReplayReply } from "./nativeReplayStore";
+import { decodeIngressBody } from "./nativeIngress";
 
 /** The bytes a mocked native solve hands over for a result value (b7-plan R1: the solve commands
  * and jobs hand over serialized bytes): its JSON text, negative zeros kept, unchecked. The reader
@@ -83,13 +85,30 @@ export function resultArrayBuffer(text: string): ArrayBuffer {
   const bytes = new TextEncoder().encode(text);
   return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
 }
+/** C1: the native result commands (raw-body ingress), answered with the actual Rust commands'
+ * recorded replies (`nativeReplayStore.ts`). */
+export const NATIVE_RESULT_COMMANDS = Object.freeze([
+  "read_preview_mechanics_job_verdict",
+  "read_preview_mechanics_job_summary",
+  "query_preview_mechanics_job_rows",
+  "lookup_preview_mechanics_job_rows",
+  "read_preview_mechanics_job_row_semantics",
+  "query_preview_mechanics_job_source_recovery",
+  "query_preview_mechanics_job_navigator",
+  "read_preview_mechanics_job_analysis_run_preview",
+]);
 export const SOLVE_JOB_COMMANDS = Object.freeze([
   "start_preview_mechanics_job",
   "poll_preview_mechanics_job",
   "take_preview_mechanics_job_result",
   "dispose_preview_mechanics_result",
   "cancel_preview_mechanics_job",
+  "read_preview_mechanics_job_rows_all",
+  "release_preview_mechanics_job_full_copy",
+  ...NATIVE_RESULT_COMMANDS,
 ]);
+/** The native host's limit on a C2 full copy (PR #51's 64 MiB). */
+export const FULL_COPY_LIMIT_BYTES = 64 * 1024 * 1024;
 
 /** The session-start release of every retained or delivered result. */
 export const DISPOSE_ALL_COMMAND = "dispose_all_preview_mechanics_results";
@@ -100,11 +119,13 @@ export const DISPOSE_ALL_COMMAND = "dispose_all_preview_mechanics_results";
  * start; a thrown answer rejects the start. Unit simulation only. */
 export function createSolveJobTransport(
   answer: (request: { model: unknown; mode: unknown; text: string }) => string | Promise<string>,
-  options: { jobIdPrefix?: string; cancellationScope?: string } = {},
+  options: { jobIdPrefix?: string; cancellationScope?: string; fullCopyLimitBytes?: number } = {},
 ) {
+  const fullCopyLimit = options.fullCopyLimitBytes ?? FULL_COPY_LIMIT_BYTES;
   const prefix = options.jobIdPrefix ?? `unit-solve-job:${++instanceSequence}`;
   const scope = options.cancellationScope ?? "unit_transport_replay_not_native_ui_qualification";
-  const jobs = new Map<string, { bytes: string; ingress: number; cancelled: boolean; taken: boolean; disposed: boolean }>();
+  const jobs = new Map<string, { bytes: string; intake: string; ingress: number; cancelled: boolean; taken: boolean; disposed: boolean; native: boolean; fullCopy: boolean }>();
+  const calls: string[] = [];
   let sequence = 0, disposeAllCalls = 0;
   // A queued job's worker holds no grant yet; a finished job's worker has exited, leaving its peak.
   const grant = (ingress: number, finished: boolean) => ({
@@ -115,11 +136,13 @@ export function createSolveJobTransport(
   });
   const handles = (command: string) => SOLVE_JOB_COMMANDS.includes(command);
   const invoke = async (command: string, args?: unknown, invokeOptions?: unknown): Promise<any> => {
+    calls.push(command);
     if (command === "start_preview_mechanics_job") {
       const request = startRequestModel(args, invokeOptions);
       const bytes = await answer(request);
       const ingress = new TextEncoder().encode(request.text).byteLength, job_id = `${prefix}:${++sequence}`;
-      jobs.set(job_id, { bytes, ingress, cancelled: false, taken: false, disposed: false });
+      const native = (invokeOptions as { headers?: Record<string, string> } | undefined)?.headers?.["x-swbpipe-result-custody"] === "native";
+      jobs.set(job_id, { bytes, intake: request.text, ingress, cancelled: false, taken: false, disposed: false, native, fullCopy: false });
       return { job_id, backend_cancellation_token: `${job_id}:token`, state: "queued", cancellation_scope: scope, resource: grant(ingress, false) };
     }
     if (command === DISPOSE_ALL_COMMAND) {
@@ -135,6 +158,18 @@ export function createSolveJobTransport(
       return { released_results, released_bytes, abandoned_jobs: 0 };
     }
     if (!handles(command)) throw new Error(`NATIVE_REPLAY_COMMAND_UNSUPPORTED: ${command}`);
+    if (NATIVE_RESULT_COMMANDS.includes(command)) {
+      // As the native host: a raw-body request on a held native-custody result, answered by the
+      // actual command's recorded reply for these exact arguments and bytes.
+      // A raw body is decoded here; `ingressDecodingInvoke` hands over the arguments it decoded
+      // (after asserting the raw body and header).
+      const decoded = ArrayBuffer.isView(args) ? decodeIngressBody(command, args, invokeOptions as never) : args as Record<string, unknown>;
+      const jobId = decoded.jobId as string;
+      const held = jobs.get(jobId);
+      if (!held) throw { code: "INVALID_REQUEST", message: `unknown solve job: ${jobId}` };
+      if (held.cancelled || held.disposed || held.taken) throw { code: "INVALID_REQUEST", message: `PREVIEW-SOLVE-RESULT-UNAVAILABLE: ${jobId} is ${held.taken ? "delivered" : "released"}` };
+      return nativeReplayReply(command, decoded, jobId, held.bytes);
+    }
     const request = args as { jobId?: unknown; cancellationToken?: unknown } | undefined;
     const job = typeof request?.jobId === "string" ? jobs.get(request.jobId) : undefined;
     if (!job) throw new Error("NATIVE_REPLAY_JOB_UNKNOWN");
@@ -144,7 +179,24 @@ export function createSolveJobTransport(
       job.cancelled = true;
       return { job_id: jobId, accepted: true, cancellation_status: "cancelled", job_state: "cancelled", cancellation_scope: scope, cancellation_success_claimed: false };
     }
+    if (command === "read_preview_mechanics_job_rows_all") {
+      // As `SolveJobRegistry::copy_result_within`: a native-custody result's exact bytes, at or
+      // under the limit, one copy at a time; above it refused by name before anything is copied.
+      if (!job.native) throw { code: "INVALID_REQUEST", message: `PREVIEW-SOLVE-RESULT-NOT-NATIVE: ${jobId} is a webview-custody result; take it` };
+      if (job.cancelled || job.disposed) throw { code: "INVALID_REQUEST", message: `PREVIEW-SOLVE-RESULT-UNAVAILABLE: ${jobId} is released` };
+      const length = new TextEncoder().encode(job.bytes).byteLength;
+      if (length > fullCopyLimit) throw { code: "INVALID_REQUEST", message: `RESULT-DETAIL-WEBVIEW-LIMIT (result_bytes=${length}, limit_bytes=${fullCopyLimit}): ${jobId}'s result is ${length} bytes, above the ${fullCopyLimit} bytes the webview can hold whole; nothing was copied, and the result stays held natively.` };
+      if (job.fullCopy) throw { code: "INVALID_REQUEST", message: `RESULT-DETAIL-FULL-COPY-HELD: ${jobId}'s full copy is already held; release it first.` };
+      job.fullCopy = true;
+      return resultArrayBuffer(job.bytes);
+    }
+    if (command === "release_preview_mechanics_job_full_copy") {
+      const released = job.fullCopy;
+      job.fullCopy = false;
+      return released;
+    }
     if (command === "take_preview_mechanics_job_result") {
+      if (job.native) throw { code: "INVALID_REQUEST", message: `PREVIEW-SOLVE-RESULT-NATIVE-CUSTODY: ${jobId} is held natively; read it through the native result commands.` };
       if (job.cancelled || job.taken || job.disposed) throw { code: "INVALID_REQUEST", message: `NATIVE_REPLAY_RESULT_UNAVAILABLE: ${jobId}` };
       job.taken = true;
       return resultArrayBuffer(job.bytes);
@@ -167,7 +219,21 @@ export function createSolveJobTransport(
   const disposed = () => [...jobs].filter(([, job]) => job.disposed).map(([id]) => id);
   /** How many times the session-start release of every result was requested. */
   const disposeAllCount = () => disposeAllCalls;
-  return { invoke, handles: (command: string) => handles(command) || command === DISPOSE_ALL_COMMAND, custody, disposed, disposeAllCount };
+  /** Jobs held in native custody (not disposed). */
+  const nativeHeld = () => [...jobs].filter(([, job]) => job.native && !job.disposed && !job.cancelled).map(([id]) => id);
+  /** Every command the transport answered, in order. */
+  const commands = () => [...calls];
+  /** A native-custody job's held bytes while it is held (the native persistence fake reads them). */
+  const heldBytes = (jobId: string) => {
+    const job = jobs.get(jobId);
+    return job && job.native && !job.disposed && !job.cancelled ? job.bytes : null;
+  };
+  /** The model text a native-custody job's start sent (its admitted body), while the job is held. */
+  const heldIntake = (jobId: string) => {
+    const job = jobs.get(jobId);
+    return job && job.native && !job.disposed && !job.cancelled ? job.intake : null;
+  };
+  return { invoke, handles: (command: string) => handles(command) || command === DISPOSE_ALL_COMMAND, custody, disposed, disposeAllCount, nativeHeld, commands, heldBytes, heldIntake };
 }
 
 /** A bounded invokeMock implementation for the captured model and two modes,
@@ -190,5 +256,9 @@ export function createNativeMechanicsReplay(options: { jobIdPrefix?: string; pro
     }
     return transport.invoke(command, args, invokeOptions);
   };
-  return { invoke, notice: NATIVE_MECHANICS_REPLAY_NOTICE, custody: transport.custody, disposed: transport.disposed, disposeAllCount: transport.disposeAllCount };
+  return { invoke, notice: NATIVE_MECHANICS_REPLAY_NOTICE, custody: transport.custody, disposed: transport.disposed, disposeAllCount: transport.disposeAllCount, nativeHeld: transport.nativeHeld, commands: transport.commands, heldBytes: transport.heldBytes, heldIntake: transport.heldIntake };
 }
+
+/** Every command a native mechanics replay answers (the job contract, the C1 native result
+ * commands and the bundled model), for tests that route commands to it. */
+export const REPLAY_COMMANDS: readonly string[] = Object.freeze(["load_preview_model", ...SOLVE_JOB_COMMANDS]);

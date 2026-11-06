@@ -350,7 +350,12 @@ pub fn validate(reader: &str, source: &Value, model: Option<&Value>, invocation:
         // pf-timoshenko.md §4: with the model, a crossed identity is refused first.
         // RT-A4 (review r1 P2): with the model, the combination gates and unsigned rows
         // are re-derived from it; without, refused where the document cannot verify them.
-        "preview-physics" => checked(crate::preview_physics_evidence::validate_preview_physics_evidence_with_model(source, model).and_then(|()| {
+        // The route/profile boundary: a source stating an identity outside the preview-physics
+        // route's (`sc::PREVIEW_PHYSICS_IDENTITIES`) is never read under preview-physics-2's table
+        // (the inner readers' default for a source stating none): the header's own verdict refuses
+        // it by name (the retired preview-physics-1 is SOURCE_PREVIEW_PHYSICS_1_RETIRED), and
+        // another route's identity is not this reader's (SOURCE_PRODUCER_CONTRACT_UNSUPPORTED).
+        "preview-physics" => checked(preview_route_identity(source).and_then(|()| crate::preview_physics_evidence::validate_preview_physics_evidence_with_model(source, model)).and_then(|()| {
             // Operating-case slice 1a (DEL-05-02 `pf-nonlinear-operand-standing.md` §3):
             // the operand records bound to the model's combinations.
             model.map_or(Ok(()), |m| {
@@ -383,6 +388,19 @@ pub fn validate(reader: &str, source: &Value, model: Option<&Value>, invocation:
             }
         }
         other => verdict_refusal(&format!("READER_UNKNOWN: {other}")),
+    }
+}
+/// The preview-physics reader's route boundary on the stated identity: none (the readers'
+/// default) or one of `sc::PREVIEW_PHYSICS_IDENTITIES`; any other is refused by the header
+/// dispatch's own verdict (`sc::for_source_metadata`), or, where that admits another route's
+/// identity, as unsupported here.
+fn preview_route_identity(source: &Value) -> Result<(), String> {
+    match source["producer"]["semantic_contract_id"].as_str() {
+        Some(id) if !sc::is_preview_physics_id(id) => {
+            sc::for_source_metadata(source)?;
+            Err("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into())
+        }
+        _ => Ok(()),
     }
 }
 /// The pressure reader's outcome from pressure-2's evidence verdict

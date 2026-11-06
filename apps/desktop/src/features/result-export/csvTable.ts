@@ -129,12 +129,12 @@ const TOKEN = "[a-z0-9]+";
 /** The CSV kinds of DEL-07-01 `export-file-names.md`. `results-<group>` takes one or more
  * group tokens. */
 const CSV_KIND_SOURCE =
-  `results(?:-${TOKEN})+|displacement-extremes|stress-ratio|support-loads-all|support-loads|weight-cog|weight|run-comparison|state-comparison`;
+  `results(?:-${TOKEN})+|displacement-extremes|stress-ratio|support-loads-all|support-loads|weight-cog|weight|run-comparison|state-comparison|hanger-sizing`;
 const CSV_KIND = new RegExp(`^(?:${CSV_KIND_SOURCE})$`);
 /** `swbpipe-<csv kind>[-<qualifier>].csv` under the token rule. Kinds whose longer form adds
  * tokens (`support-loads-all`, `weight-cog`) are matched by the shorter kind plus tokens. */
 export const CSV_EXPORT_FILE_NAME =
-  /^swbpipe-(?:results(?:-[a-z0-9]+)+|displacement-extremes|stress-ratio|support-loads|weight|run-comparison|state-comparison)(?:-[a-z0-9]+)*\.csv$/;
+  /^swbpipe-(?:results(?:-[a-z0-9]+)+|displacement-extremes|stress-ratio|support-loads|weight|run-comparison|state-comparison|hanger-sizing)(?:-[a-z0-9]+)*\.csv$/;
 
 export function isCsvKind(kind: string): boolean {
   return CSV_KIND.test(kind);
@@ -313,19 +313,30 @@ function cellField(cell: CsvCell, column: CsvColumn, where: string): string {
 /** Serialize one table: BOM, preamble rows, one empty row, the header row, then the rows in
  * the given order. Deterministic: the same input gives the same text, with no timestamp and
  * no locale-dependent formatting. Throws `CsvSerializationError` rather than writing an
- * empty number, a non-finite number or a malformed preamble. */
+ * empty number, a non-finite number or a malformed preamble. It is exactly
+ * `serializeCsvHead` followed by `serializeCsvRows` from row 0, so a table streamed in parts
+ * (head, then its rows in chunks) is the same text. */
 export function serializeCsvTable(table: CsvTable): string {
-  const columns = table.columns;
-  if (!Array.isArray(columns) || columns.length === 0) throw new CsvSerializationError("CSV_COLUMNS_MISSING", "a table has columns");
-  const labels = new Map<string, CsvColumn>();
-  for (const column of columns) {
-    if (labels.has(column.label)) throw new CsvSerializationError("CSV_COLUMN_DUPLICATE", "column labels are unique");
-    labels.set(column.label, column);
-  }
-  const lines: string[] = preambleRows(table.preamble).map(([key, value]) => `${key},${textField(value, key)}`);
+  return serializeCsvHead(table.preamble, table.columns) + serializeCsvRows(table.columns, table.rows, 0);
+}
+
+/** The text before the first row: BOM, preamble rows, the empty row and the header row, each
+ * ending CRLF. Checks the columns (present, unique labels, units) and the preamble. */
+export function serializeCsvHead(preamble: CsvPreamble, columns: readonly CsvColumn[]): string {
+  const labels = columnLabels(columns);
+  const lines: string[] = preambleRows(preamble).map(([key, value]) => `${key},${textField(value, key)}`);
   lines.push("");
   lines.push(columns.map((column) => textField(headerLabel(column, labels), "header")).join(","));
-  table.rows.forEach((row, rowIndex) => {
+  return CSV_BOM + lines.map((line) => line + CSV_ROW_END).join("");
+}
+
+/** Rows `firstRowIndex`, `firstRowIndex + 1`, ... of a table with these columns, each ending
+ * CRLF (no BOM, preamble or header); a refusal names the row by its index in the whole table. */
+export function serializeCsvRows(columns: readonly CsvColumn[], rows: readonly (readonly CsvCell[])[], firstRowIndex: number): string {
+  columnLabels(columns);
+  let text = "";
+  rows.forEach((row, at) => {
+    const rowIndex = firstRowIndex + at;
     if (!Array.isArray(row) || row.length !== columns.length) {
       throw new CsvSerializationError("CSV_ROW_WIDTH", `row ${rowIndex} has ${columns.length} cells`);
     }
@@ -334,7 +345,17 @@ export function serializeCsvTable(table: CsvTable): string {
     for (let index = 0; index < columns.length; index += 1) {
       fields.push(cellField(row[index], columns[index], `row ${rowIndex} column ${index}`));
     }
-    lines.push(fields.join(","));
+    text += fields.join(",") + CSV_ROW_END;
   });
-  return CSV_BOM + lines.map((line) => line + CSV_ROW_END).join("");
+  return text;
+}
+
+function columnLabels(columns: readonly CsvColumn[]): Map<string, CsvColumn> {
+  if (!Array.isArray(columns) || columns.length === 0) throw new CsvSerializationError("CSV_COLUMNS_MISSING", "a table has columns");
+  const labels = new Map<string, CsvColumn>();
+  for (const column of columns) {
+    if (labels.has(column.label)) throw new CsvSerializationError("CSV_COLUMN_DUPLICATE", "column labels are unique");
+    labels.set(column.label, column);
+  }
+  return labels;
 }

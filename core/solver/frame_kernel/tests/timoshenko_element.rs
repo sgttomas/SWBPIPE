@@ -380,6 +380,7 @@ fn timoshenko_recovered_end_actions_use_the_timoshenko_matrix() {
         w2: vec![0.0; 18],
         exponents: vec![i32::MIN; 18],
         lambda_sigma: 0.0,
+        lift_radius: Vec::new(),
     };
     let root_actions = |e: &FrameElement, u: &[f64]| {
         // Along x with y reference y: local = global.

@@ -53,7 +53,8 @@ pub const TRIAD_GUARD: f64 = 16.0 * UNIT_ROUNDOFF;
 /// max_k(|x_i| + |x_j| + |a_i| + |a_j|)_k: 2^-48.
 pub const ALIGNMENT_GUARD: f64 = 32.0 * UNIT_ROUNDOFF;
 /// Smallest |a·b| whose error-free split `a·b − fl(a·b)` is exact (DN-2).
-const SPLIT_EXACT_MIN: f64 = f64::from_bits(54 << 52); // 2^-969
+/// The one definition: `tie_rod.rs` and `restraint_basis.rs` use it.
+pub(crate) const SPLIT_EXACT_MIN: f64 = f64::from_bits(54 << 52); // 2^-969
 
 /// One end's authored attachment: the initial node triad (columns are axes,
 /// global) and the offset in that triad. a = fl(node_axes · offset_local).
@@ -1150,6 +1151,21 @@ pub fn exact_definiteness(matrix: &Matrix6) -> ConnectorDefiniteness {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// DEL-03-06 split constant (DEL-04-03 Work `skew-restraints.md` §11.3): one
+    /// crate-visible definition, 2^-969, bit for bit; `tie_rod.rs` and
+    /// `restraint_basis.rs` import it.
+    #[test]
+    fn split_exact_min_is_two_to_the_minus_969() {
+        assert_eq!(SPLIT_EXACT_MIN.to_bits(), 54u64 << 52);
+        assert_eq!(SPLIT_EXACT_MIN, 2.0_f64.powi(-969));
+        let tie_rod = include_str!("tie_rod.rs");
+        let basis = include_str!("restraint_basis.rs");
+        for source in [tie_rod, basis] {
+            assert!(source.contains("use crate::connector::SPLIT_EXACT_MIN;"));
+            assert!(!source.contains("const SPLIT_EXACT_MIN"), "no local duplicate");
+        }
+    }
 
     fn integer(value: i64) -> Integer {
         Integer::shifted(value < 0, value.unsigned_abs(), 0)

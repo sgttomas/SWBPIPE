@@ -183,6 +183,21 @@ pub(crate) fn admit_body(
     decoding: ArgsDecoding,
 ) -> Result<(Args, Lease), SolveJobError> {
     let raw = raw_args_body(body, headers, command)?;
+    admit_raw(registry, raw, command, decoding, |bytes| registry.acquire_interactive_ingress(bytes))
+}
+
+/// [`admit_body`] on a raw args body already taken from its request: the
+/// prescan, then the lease of [`lease_bytes`] from `reserve`, before any
+/// deserialization, then the parse. A caller that holds the body's own
+/// reservation grows it here (`native_verdict`); a C1 command grows its
+/// ledger-counted lease (`memory_pool::CommandLease`).
+pub(crate) fn admit_raw<L>(
+    registry: &SolveJobRegistry,
+    raw: &[u8],
+    command: &'static str,
+    decoding: ArgsDecoding,
+    reserve: impl FnOnce(u64) -> Result<L, SolveJobError>,
+) -> Result<(Args, L), SolveJobError> {
     let bound = ingress::prescan(raw).map_err(|invalid| {
         registry.refuse(ResourceRefusal::IngressInvalid { reason: format!("{} at byte {}", invalid.reason, invalid.offset) })
     })?;
@@ -190,7 +205,7 @@ pub(crate) fn admit_body(
         return Err(invalid_request(format!("INGRESS-ARGS-NOT-OBJECT: `{command}`'s arguments must be one JSON object.")));
     }
     // The reservation precedes any deserialization.
-    let lease = registry.acquire_interactive_ingress(lease_bytes(bound, decoding).unwrap_or(u64::MAX))?;
+    let lease = reserve(lease_bytes(bound, decoding).unwrap_or(u64::MAX))?;
     match serde_json::from_slice::<Value>(raw) {
         Ok(Value::Object(map)) => Ok((Args { map, command }, lease)),
         Ok(_) => {
@@ -281,6 +296,12 @@ pub(crate) struct Args {
 impl Args {
     fn refused(&self, key: &str, error: ArgsError) -> SolveJobError {
         invalid_request(format!("INGRESS-ARGS-INVALID: invalid args `{key}` for command `{}`: {error}", self.command))
+    }
+
+    /// Names still present, without allocating or exposing their values. Used
+    /// by distinct command operations that must reject mixed/unknown fields.
+    pub(crate) fn keys(&self) -> impl Iterator<Item = &str> {
+        self.map.keys().map(String::as_str)
     }
 
     /// A required `Value` argument (`null` included), moved.

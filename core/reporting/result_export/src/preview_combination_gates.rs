@@ -290,6 +290,8 @@ pub(crate) fn check(source: &Value, model: Option<&Value>) -> Check {
     let by_id: HashMap<&str, &Value> = rows.iter().filter_map(|r| r["id"].as_str().map(|id| (id, r))).collect();
     // Operating-case slice 1b: a declared subtraction's G-1, G-2, evidence and sign.
     crate::preview_difference_basis::check(source, model)?;
+    // RT-A5 (operating-case §7.6): a `minuend_final` subtraction's held gates, rows and evidence.
+    crate::preview_held_status::check(source, model)?;
     match model {
         Some(model) => model_check(source, model, gates, rows, &by_id),
         None => free_check(source, gates, rows, &by_id),
@@ -338,7 +340,8 @@ fn free_check(source: &Value, gates: &[Value], rows: &[Value], by_id: &HashMap<&
                     // A declared subtraction's G-1 or G-2 (`preview_difference_basis`).
                     None => stated.is_none() || stated == Some(MODULUS_MIXED)
                         || (record.basis == "result_state_subtraction"
-                            && matches!(stated, Some(crate::preview_difference_basis::SUSTAINED_NOT_IN_OPERATING | crate::preview_difference_basis::MODULUS_MIXED))),
+                            && (matches!(stated, Some(crate::preview_difference_basis::SUSTAINED_NOT_IN_OPERATING | crate::preview_difference_basis::MODULUS_MIXED))
+                                || stated.is_some_and(|s| crate::preview_held_status::GATES.contains(&s)))),
                 },
                 "GATE_DERIVATION",
             )?;
@@ -463,8 +466,7 @@ fn model_check(source: &Value, model: &Value, gates: &[Value], rows: &[Value], b
     }
     let load_cases = items(&model["load_cases"]);
     let cases: HashSet<&str> = load_cases.iter().filter_map(|c| c["id"].as_str()).collect();
-    // S1's interim withholding (as operating-case slice 1b leaves it) removes a
-    // `minuend_final` combination, and every combination naming one, before the gates.
+    // S1's interim withholding, which RT-A5 left empty: every combination is gated.
     let (kept, order) = crate::preview_difference_basis::kept_combinations(model);
     require(gates.len() == order.len(), "GATE_DERIVATION")?;
 
@@ -506,6 +508,10 @@ fn model_check(source: &Value, model: &Value, gates: &[Value], rows: &[Value], b
         let operand_withheld = operands.iter().any(|o| matches!(o, Operand::Combination(c) if withheld.contains(*c)));
         let declared = crate::preview_difference_basis::declared(combination);
         let declared_gate = if declared { crate::preview_difference_basis::model_gate(model, combination)?.0 } else { None };
+        // RT-A5 (§7.5): past G-1 and G-2, a `minuend_final` subtraction's held gate is the one
+        // its record states; the reader cannot solve the held system, and
+        // `preview_held_status` binds the record to the document and the model.
+        let declared_gate = declared_gate.or_else(|| crate::preview_held_status::minuend_final(combination).then(|| crate::preview_held_status::stated_gate(source, id)).flatten());
         let derived: Option<&str> = declared_gate.or_else(|| gate_before_modulus(basis, operand_withheld, nonlinear, oq1, consuming, &own, &operand_kappa)).or_else(|| {
             if operand_withheld || !graph::term_basis(basis) {
                 return None;
@@ -552,7 +558,7 @@ const SUPPORT_COMPONENTS: [&str; 6] = ["Fx", "Fy", "Fz", "Mx", "My", "Mz"];
 const DISPLACEMENT_AXES: [(&str, &str); 3] = [("ux", "global_nodal_displacement_x"), ("uy", "global_nodal_displacement_y"), ("uz", "global_nodal_displacement_z")];
 /// The producer's `LINEAR_STATE_KINDS` (`preview_physics.rs`): with
 /// `displacement_magnitude`, the kinds a combination combines, except `_v2` kinds.
-const LINEAR_STATE_KINDS: [&str; 22] = [
+const LINEAR_STATE_KINDS: [&str; 23] = [
     "global_nodal_displacement_x",
     "global_nodal_displacement_y",
     "global_nodal_displacement_z",
@@ -575,6 +581,7 @@ const LINEAR_STATE_KINDS: [&str; 22] = [
     "constant_effort_support_applied_load",
     "element_global_end_force_v1",
     "element_global_end_moment_v1",
+    "support_reaction_along_direction_v1",
 ];
 
 fn stable_suffix(id: &str) -> String {
@@ -589,8 +596,14 @@ fn identity(parts: &[&str]) -> String {
 fn kind(row: &Value) -> &str {
     row["kind"].as_str().unwrap_or_default()
 }
+/// The producer's `skew::case_named_id`: the `_v2` kinds and §7.1's along-direction kind
+/// name their case in their id, so they are combined in their support's group, never by
+/// base id.
+fn case_named_id(kind: &str) -> bool {
+    kind.ends_with("_v2") || kind == "support_reaction_along_direction_v1"
+}
 fn combined_kind(kind: &str) -> bool {
-    !kind.ends_with("_v2") && (LINEAR_STATE_KINDS.contains(&kind) || kind == "displacement_magnitude")
+    !case_named_id(kind) && (LINEAR_STATE_KINDS.contains(&kind) || kind == "displacement_magnitude")
 }
 /// The producer's `algebra_dimension`.
 fn dimension(row: &Value) -> Option<LoadDimension> {
@@ -748,6 +761,16 @@ fn combination_row(reference: &Value, id: &str, row_id: String, value: f64, refs
 /// `append_combination_results`): rows pair by the nested rules with a combination
 /// operand and by the flat rules otherwise; a magnitude states its derivation (the
 /// producer's `derived`, true for every combination read here).
+/// R-6/R-7 (§7.1): a support's along-direction combination row (producer), formed
+/// only when an operand has the row (none on D1; §12).
+fn along_combination_row(index: &RowIndex<'_>, id: &str, expression: &Expression<'_>, targets: &[Operand<'_>], support: &str, row_id: String, basis: &str, sign: &str) -> Option<Value> {
+    let sources: Vec<&Value> = targets.iter().map(|t| index.support_row(*t, support, "along_direction")).collect::<Option<_>>()?;
+    let values: Vec<f64> = sources.iter().map(|s| s["value"].as_f64()).collect::<Option<_>>()?;
+    let value = expression.value(&values, LoadDimension::Force)?;
+    let refs = sources.iter().map(|s| s["id"].as_str().unwrap_or_default().to_string()).collect();
+    Some(combination_row(sources[0], id, row_id, value, refs, basis, sign))
+}
+
 fn form(index: &RowIndex<'_>, id: &str, expression: &Expression<'_>, targets: &[Operand<'_>], sign: &str) -> Formed {
     let nested = targets.iter().any(|t| matches!(t, Operand::Combination(_)));
     let pairs = |reference: &Value, source: &Value| if nested { nested_identity(reference, source) } else { flat_identity(reference, source) };
@@ -864,6 +887,11 @@ fn form(index: &RowIndex<'_>, id: &str, expression: &Expression<'_>, targets: &[
                 combined[slot] = value;
                 let refs = sources.iter().map(|s| s["id"].as_str().unwrap_or_default().to_string()).collect();
                 rows.push(combination_row(sources[0], id, row_id(&base(component)), value, refs, basis, sign));
+            }
+            // R-6/R-7 (§7.1): the along-direction value in its support's group (producer).
+            // Nothing is formed unless an operand has the row (§12: none on D1).
+            if targets.iter().any(|t| index.support_row(*t, support, "along_direction").is_some()) {
+                rows.push(along_combination_row(index, id, expression, targets, support, row_id(&base("along_direction")), basis, sign)?);
             }
             for (component, norm, dimension) in [
                 ("force_magnitude", norm3(combined[0], combined[1], combined[2]), LoadDimension::Force),

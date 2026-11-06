@@ -144,6 +144,17 @@ pub(super) fn replay_modal_phases(req: &ModalPreviewRequest, params: &ModalInteg
         return Err(refusals);
     }
     let prepared = prepare_modal(req)?;
+    // R-6/R-7 S-K1 (§11.3 C8, B2 (b)): the replay mirrors the axis path only; a model with a
+    // restraint basis is refused by name, never replayed through it.
+    if prepared.built.skew.is_some() {
+        return Err(vec![crate::diag(
+            "diagnostic:modal:replay:skew-restraint",
+            super::integrity::MODAL_PHASE_REPLAY_SKEW_RESTRAINT_UNSUPPORTED,
+            "blocking",
+            "the phase replay mirrors the axis-coordinate modal path only; a model with a skewed restraint is not replayed".to_string(),
+            vec!["supports".into()],
+        )]);
+    }
     let nonlinear_state = solve_modal_state_case(&prepared, MODAL_DENSE_PATH_MODE)?;
     clock.lap("prepare");
     let mass = assemble_mass(&prepared, prepared.inputs.weight_to_mass_acceleration)?;
@@ -175,6 +186,7 @@ pub(super) fn replay_modal_phases(req: &ModalPreviewRequest, params: &ModalInteg
         prepared.exact,
         pencil.free_dofs.len(),
         &pencil.dof_map,
+        None,
         &pencil.stiffness_entries,
         &pencil.mass_entries,
     )?;

@@ -85,7 +85,7 @@ This Scope of Work defines `DEL-04-01` in service of project scope [SOW-005, SOW
 > | Model topology input | Node and element connectivity for a 3D frame/centerline model, details TBD |
 > | Degree-of-freedom mapping | Stable six-DOF-per-node indexing contract; current `NODE_DOF_ORDER` is `[ux, uy, uz, rx, ry, rz]` |
 > | Coordinate transform handling | Validated local-axis direction-cosine transform contract; current 12-by-12 element transform is in the frame kernel |
-> | Boundary-condition handling | Interface for applying restraints/imposed conditions supplied by other deliverables, details TBD |
+> | Boundary-condition handling | Interface for applying restraints/imposed conditions supplied by other deliverables, details TBD. R-6/R-7 S-K1 (DEL-04-03 Work `skew-restraints.md`; the support policy is DEL-04-03's): the kernel carries `restraint_basis` (an authored direction's exact power-of-two canonical form, the node-local division-free basis Q, K′ = QᵀKQ, the lift and the attribution), skewed spring blocks in sparse assembly (`SparseAssemblyOptions.node_blocks`), row-based ground screening in `rigid_body` (no new threshold), and the restraint source of the formation check (dense and sparse attempts) |
 > | Sparse assembly | K1's one sparse representation of the global stiffness and its M03 gate (`structural/sparse.rs`); DEC-023 profile/skyline storage and LDLᵀ are implemented by `sparse_direct` |
 > | Sparse solve interface | Solver boundary under DEC-023; DEC-050/053 governs live-path/default use |
 > | Result envelope | Must fit architecture-basis command/query/job result and diagnostic envelope constraints |

@@ -128,6 +128,7 @@ fn static_state_solve(prepared: &Prepared, mode: PreviewSolverMode) -> (LoadCase
         prepared.state_resolution.as_ref(),
         &mut diagnostics,
         None,
+        crate::held_status::CaseRole::Own(None),
     )
     .unwrap();
     (solve, diagnostics)

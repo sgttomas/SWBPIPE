@@ -4,6 +4,8 @@
 // or a number in text tokens; the scale bar and the no-value swatch are the only coloured marks.
 // The numerical standing lines are the results surface's own texts.
 
+import { useEffect, useState } from "react";
+import { nativeRowOrdinal, resolveNativeRowKey, type SessionResult } from "../../services/nativeResult";
 import { useDisplayQuantity } from "../display-units";
 import type { ResultOverlayStanding } from "../results/numericalHealth";
 import type { EntityRef } from "../../types";
@@ -180,6 +182,22 @@ function ReactionReadout({ force, moment, supportId }: { force?: ReactionVector;
   );
 }
 
+/** A row's published result id: a native row's internal key is resolved by bounded lookup
+ * (shown as resolving until the reply; a reply for another result is discarded). */
+export function ResultRowId({ rowKey, result }: { rowKey: string; result: SessionResult | null }) {
+  const internal = nativeRowOrdinal(rowKey) !== null;
+  const [resolved, setResolved] = useState<{ key: string; id: string | null } | null>(null);
+  useEffect(() => {
+    if (!internal) return;
+    let live = true;
+    resolveNativeRowKey(result, rowKey).then((id) => { if (live) setResolved({ key: rowKey, id }); }, () => { if (live) setResolved({ key: rowKey, id: null }); });
+    return () => { live = false; };
+  }, [internal, result, rowKey]);
+  if (!internal) return <>{rowKey}</>;
+  if (resolved?.key !== rowKey) return <span data-testid="result-row-id-resolving">resolving the result id…</span>;
+  return <>{resolved.id ?? "result id unavailable"}</>;
+}
+
 export function ResultOverlayLegend({
   cases,
   overlayCase,
@@ -191,8 +209,11 @@ export function ResultOverlayLegend({
   reactions,
   standing,
   focus,
-  contour = null
+  contour = null,
+  result = null
 }: {
+  /** The session's result, to name a native row by its published id (C1: the overlay's rows carry internal keys). */
+  result?: SessionResult | null;
   cases: readonly ResultOverlayCase[];
   overlayCase: ResultOverlayCase | null;
   onCaseChange: (key: string) => void;
@@ -295,7 +316,7 @@ export function ResultOverlayLegend({
               ) : null}
               {focusMember && focus ? (
                 <p className="viewport-legend-focus" data-testid="viewport-result-colour-focus">
-                  <strong>{focus.ref.id}</strong> <LegendQuantity value={focusMember.value} unit={colour.unit} dimension={colour.quantity.dimension} /> <small>({focusMember.rowId})</small>
+                  <strong>{focus.ref.id}</strong> <LegendQuantity value={focusMember.value} unit={colour.unit} dimension={colour.quantity.dimension} /> <small>(<ResultRowId rowKey={focusMember.rowId} result={result} />)</small>
                 </p>
               ) : null}
             </>

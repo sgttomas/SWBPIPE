@@ -180,9 +180,16 @@ def inspect(snapshot):
                    "            result.groups.push(result.contributions.len());\n"]
     counts = [ni.count(line) if ni is not None else 0 for line in group_lines]
     moves = ni.count("            contribution_groups: parts.groups,\n") if ni is not None else 0
+    # SKW-CG (§8.55, R-6/R-7 S-K1): EvidenceParts::build pushes one more group per skew spring node block, after the
+    # springs (`for &(node, block) in node_blocks`, nine contributions each). node_blocks is empty on D1 (SKW-D1: the
+    # product passes skew::node_blocks(None), Vec::new(), and every other evidence constructor `&[]`), so the owner's
+    # D1 count, one usize per frame/curved element and per ground spring, is unchanged.
+    skw = ni is not None and ni.count("        for &(node, block) in node_blocks {\n") == 1 \
+        and ni.count("                    result.contributions.push(StiffnessContribution { row: dof_i, col: dof_j, value });\n") == 1
+    want = [1, 1, 1, 2 if skw else 1]
     if all(c == 0 for c in counts) and moves == 0:
         out["contribution_groups"] = False
-    elif all(c == 1 for c in counts) and moves == 2 and ni.count("groups.push(") == 2:
+    elif counts == want and moves == 2 and ni.count("groups.push(") == (3 if skw else 2):
         out["contribution_groups"] = True
     else:
         raise SystemExit("U5B-CG: structural_adapter.rs's contribution groups changed; re-review the owner it prices")

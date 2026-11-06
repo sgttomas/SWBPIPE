@@ -57,7 +57,7 @@ export function describeResourceRefusal(refusal: ResourceRefusal): string {
     case "pool_above_recommended_unacknowledged":
       return `A pool of ${formatBytes(refusal.pool_bytes)} is above the recommended ${formatBytes(refusal.recommended_bytes)} for this Mac; the request needs an explicit acknowledgement.`;
     case "ingress_exceeds_budget":
-      return `Receiving the request needs ${formatBytes(refusal.required_bytes)}, more than the per-invocation budget of ${formatBytes(refusal.budget_bytes)}.`;
+      return `This invocation needs ${formatBytes(refusal.required_bytes)} in all, more than the per-invocation budget of ${formatBytes(refusal.budget_bytes)}.`;
     case "ingress_invalid":
       return `The request could not be received: ${refusal.reason}.`;
     case "queue_full":

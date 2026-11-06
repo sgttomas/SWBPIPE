@@ -180,6 +180,7 @@ fn an_unformable_component_falls_back_for_the_whole_case() {
         w2: vec![0.0, 0.0],
         exponents: vec![0, 0],
         lambda_sigma: 0.0,
+        lift_radius: Vec::new(),
     };
     let u = [1.0, f64::MAX];
     let formed = published_nodal_displacements(&u, Some(&bound(0.0)));
@@ -187,7 +188,7 @@ fn an_unformable_component_falls_back_for_the_whole_case() {
     let unformable = published_nodal_displacements(&u, Some(&bound(f64::MAX)));
     assert_eq!(unformable.iter().map(|v| v.to_bits()).collect::<Vec<_>>(), u.map(f64::to_bits), "the whole case keeps u");
     // A bound shorter than u (a component outside it) is unformable too.
-    let short = MemberBoundInputs { w: vec![2.0_f64.powi(-40)], w2: vec![0.0], exponents: vec![0], lambda_sigma: 0.0 };
+    let short = MemberBoundInputs { w: vec![2.0_f64.powi(-40)], w2: vec![0.0], exponents: vec![0], lambda_sigma: 0.0, lift_radius: Vec::new() };
     assert_eq!(published_nodal_displacements(&[1.0, 2.0], Some(&short)), [1.0, 2.0]);
     assert_eq!(published_nodal_displacements(&u, None), u);
 }
@@ -203,7 +204,7 @@ fn an_unformable_component_falls_back_for_the_whole_case() {
 fn published_mm_rows_convert_the_si_corrected_displacement() {
     let mut u = vec![0.0; DOF_PER_NODE];
     u[UX] = 1.0;
-    let mut bound = MemberBoundInputs { w: vec![0.0; DOF_PER_NODE], w2: vec![0.0; DOF_PER_NODE], exponents: vec![0; DOF_PER_NODE], lambda_sigma: 0.0 };
+    let mut bound = MemberBoundInputs { w: vec![0.0; DOF_PER_NODE], w2: vec![0.0; DOF_PER_NODE], exponents: vec![0; DOF_PER_NODE], lambda_sigma: 0.0, lift_radius: Vec::new() };
     bound.w[UX] = 2.0_f64.powi(-53);
     bound.w2[UX] = 2.0_f64.powi(-130);
     let published = published_nodal_displacements(&u, Some(&bound));

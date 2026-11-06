@@ -132,5 +132,7 @@ fn u6_rb_rows_by_base_id_is_built_and_read_only_with_the_preview() {
     let read = &lib[call_guard..uses[2]];
     assert!(read.contains("preview_physics::append_combination_results("), "{read}");
     assert!(!read.contains('}'), "the call is inside the combination guard");
-    assert!(lib[uses[2]..].starts_with("rows_by_base_id, &mut results, &mut diagnostics)\n    } else {\n        Vec::new()"));
+    // RT-A5 (operating-case §7.6): the reader also takes the held operands, built only for a
+    // `minuend_final` combination on the preview route.
+    assert!(lib[uses[2]..].starts_with("rows_by_base_id, &held_operands, &mut results, &mut diagnostics)\n    } else {\n        Vec::new()"));
 }

@@ -28,11 +28,24 @@ import { deliveredMechanicsResultJob, hasNativeMechanicsInvocation, loadDesignKn
 import { verifyAnalysisRunRecord } from "../../services/analysisRunCompatibility";
 import { SolvePanel } from "../solve/SolvePanel";
 import { useWorkspaceSession, type WorkspaceSession } from "./workspaceSession";
+import type { AnalysisRunEnvelope } from "../../types";
+
+/** The first native read of a completed result (the verdict), where a take was refused before C1. */
+const FIRST_NATIVE_READ = "read_preview_mechanics_job_verdict";
+/** The C2 full record of the session's current record, built on the result's full copy. */
+async function c2Record(state: WorkspaceSession): Promise<AnalysisRunEnvelope> {
+  let record: AnalysisRunEnvelope | null = null;
+  await act(async () => { record = (await state.results.loadC2Full(state.results.result!)).analysisRun; });
+  expect(record).not.toBeNull();
+  return record!;
+}
 
 // The session's solve through the native job contract (DEL-04-07): queue
-// reasons, typed refusals and delivered-result custody. Unit transport replay
-// of recorded producer bytes through mocked IPC; NOT a native UI witness and
-// no reading of any machine's memory.
+// reasons, typed refusals and result custody. C1 (DEL-04-05 `c1-native-custody-plan.md`
+// slice 4): a completed result is never taken; it stays held natively, read through the native
+// commands (the actual Rust commands' recorded replies), and the refusals and failures a take met
+// now meet the first native read (the verdict). Unit transport replay of recorded producer bytes
+// through mocked IPC; NOT a native UI witness and no reading of any machine's memory.
 const GiB = 1024 ** 3;
 type Hook = (command: string, args: unknown, options: unknown, forward: () => Promise<unknown>) => Promise<unknown> | undefined;
 
@@ -115,9 +128,10 @@ it("shows the native queue reason while the job waits, then records the grant in
   expect(done.resource).toMatchObject({ invocation_budget_bytes: 12 * GiB, pool_bytes: 12 * GiB, route_pricing: "ordinary_worker_capped",
     worker_grant_bytes: null, worker_peak_grant_bytes: REPLAY_WORKER_PEAK_GRANT_BYTES, worker_peak_footprint_bytes: REPLAY_WORKER_PEAK_FOOTPRINT_BYTES, queue_reason: null, refusal: null });
   expect(done.events.map((event) => event.event_id)).toEqual(["solve-preview-queued", "solve-preview-queued-waiting", "solve-preview-completed"]);
-  // The poll never carries the result: it is taken once, and is still held by the session.
-  expect(commands().filter((command) => command === "take_preview_mechanics_job_result")).toHaveLength(1);
-  expect(transport.custody()).toHaveLength(1);
+  // The poll never carries the result, and it is never taken: it stays held natively for the session.
+  expect(commands().filter((command) => command === "take_preview_mechanics_job_result")).toHaveLength(0);
+  expect(transport.custody()).toHaveLength(0);
+  expect(transport.nativeHeld()).toHaveLength(1);
   // The solve-job JSON (the run's provenance export) carries the grant, outside the
   // model document; it is read through the browser download route here.
   delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
@@ -137,10 +151,12 @@ it("shows the native queue reason while the job waits, then records the grant in
   const record = result.current.results.analysisRun!;
   expect(packet.analysis_run_ref).toEqual({ object_type: "AnalysisRun", ref: record.analysis_run.run_id });
   expect(JSON.stringify(result.current.model.model)).not.toMatch(/budget|pool_bytes|ordinary_worker_capped|worker_grant/);
-  // The persisted, checksummed analysis record carries no host-dependent member:
-  // the budget, pool and pricing stay in the solve-job record only.
-  expect(JSON.stringify(record)).not.toMatch(/invocation_budget_bytes|pool_bytes|ordinary_worker_capped|worker_grant|worker_peak|execution_resources/);
-  expect(await verifyAnalysisRunRecord(record)).toBe("match");
+  // The persisted, checksummed analysis record (its full record, as the store path writes it)
+  // carries no host-dependent member: the budget, pool and pricing stay in the solve-job record only.
+  const full = await c2Record(result.current);
+  expect(full.analysis_run.run_id).toBe(record.analysis_run.run_id);
+  expect(JSON.stringify(full)).not.toMatch(/invocation_budget_bytes|pool_bytes|ordinary_worker_capped|worker_grant|worker_peak|execution_resources/);
+  expect(await verifyAnalysisRunRecord(full)).toBe("match");
 });
 
 it("records a refused terminal job as a typed refusal with its budget, takes nothing and publishes no result", async () => {
@@ -291,17 +307,18 @@ it("records a refused start with the pool status the native side reported", asyn
   expect(commands()).not.toContain("poll_preview_mechanics_job");
 });
 
-it("records a refused take (custody_full) as a typed refusal and releases the result the session will not take", async () => {
-  const { result, transport } = await session((command) => command === "take_preview_mechanics_job_result"
+it("records a refused native read (custody_full) as a typed refusal and releases the held result", async () => {
+  const { result, transport } = await session((command) => command === FIRST_NATIVE_READ
     ? Promise.reject({ code: "RESOURCE_UNAVAILABLE", refusal: { kind: "custody_full", delivered: 4, limit: 4 }, pool: null })
     : undefined);
   await act(async () => { await result.current.results.handleRun(); });
   expect(result.current.results.solveJob.state).toBe("refused");
   expect(result.current.results.solveJob.resource.refusal).toEqual({ kind: "custody_full", delivered: 4, limit: 4 });
   expect(result.current.results.result).toBeNull();
-  expect(transport.custody()).toEqual([]);
   await waitFor(() => expect(commands().filter((command) => command === "dispose_preview_mechanics_result")).toHaveLength(1));
   expect(transport.disposed()).toHaveLength(1);
+  expect(transport.nativeHeld()).toEqual([]);
+  expect(commands()).not.toContain("take_preview_mechanics_job_result");
 });
 
 const MiB = 1024 ** 2;
@@ -310,8 +327,8 @@ const SMOKE_HEADROOM = { kind: "headroom_insufficient", required_bytes: 68165632
 const SMOKE_HEADROOM_CODE = "headroom_insufficient (required_bytes=68165632, available_bytes=52641792)";
 const SMOKE_HEADROOM_SENTENCE = "Not enough available memory on this Mac right now (free plus reclaimable file cache and purgeable memory, less the kernel's reserve): needs 65.01 MiB, 50.2 MiB available.";
 
-it("records a take refused for headroom as refused at the take, with its code and exact bytes, no rows and no run record, and releases the retained result", async () => {
-  const { result, transport } = await session((command) => command === "take_preview_mechanics_job_result"
+it("records a native read refused for headroom as a session-step refusal, with its code and exact bytes, no rows and no run record, and releases the retained result", async () => {
+  const { result, transport } = await session((command) => command === FIRST_NATIVE_READ
     ? Promise.reject({ code: "RESOURCE_UNAVAILABLE", refusal: SMOKE_HEADROOM, pool: null })
     : undefined);
   await act(async () => { await result.current.results.handleRun(); });
@@ -319,20 +336,23 @@ it("records a take refused for headroom as refused at the take, with its code an
   expect(job.state).toBe("refused");
   expect(job.error_message).toBeNull();
   expect(job.resource.refusal).toEqual(SMOKE_HEADROOM);
-  expect(job.events.map((event) => event.event_id)).toEqual(["solve-preview-queued", "solve-preview-resource-refused-at-take"]);
+  expect(job.events.map((event) => event.event_id)).toEqual(["solve-preview-queued", "solve-preview-resource-refused-at-session-step"]);
   expect(job.events.some((event) => event.state === "completed" || event.result_row_count > 0)).toBe(false);
   expect(result.current.results.result).toBeNull();
   expect(result.current.results.analysisRun).toBeNull();
   expect(result.current.results.currentSolvedResult).toBeNull();
-  // The session does not retry a refused take: it was asked once, and the retained result is released unread.
-  expect(commands().filter((command) => command === "take_preview_mechanics_job_result")).toHaveLength(1);
+  // The session does not retry a refused read once the ingress's re-sampling window ends, takes
+  // nothing, and releases the held result unread.
+  expect(commands().filter((command) => command === FIRST_NATIVE_READ).length).toBeGreaterThanOrEqual(1);
+  expect(commands()).not.toContain("take_preview_mechanics_job_result");
+  expect(commands()).not.toContain("read_preview_mechanics_job_summary");
   await waitFor(() => expect(transport.disposed()).toHaveLength(1));
-  expect(transport.custody()).toEqual([]);
+  expect(transport.nativeHeld()).toEqual([]);
   const view = renderSolvePanel(result.current);
   expect(within(view.container).getByTestId("solve-job-summary")).toHaveTextContent("state=refused; events=2; result_rows=0");
   expect(within(view.container).getByTestId("solve-job-resource-refusal")).toHaveTextContent(`Refused by the native memory pool: ${SMOKE_HEADROOM_SENTENCE} No result was published.`);
   expect(within(view.container).getByTestId("solve-job-refusal-retry")).toHaveTextContent(
-    `Refused when the finished result was handed to the app; the session does not retry a refused take, so it released the result. Available memory was re-sampled for up to 2 s before this refusal stood. You can run the solve again when more memory is available. Refusal code: ${SMOKE_HEADROOM_CODE}`);
+    `Refused at a native read or other native command of this solve's session steps; the session does not retry it and releases any held result. Available memory was re-sampled for up to 2 s before this refusal stood. You can run the solve again when more memory is available. Refusal code: ${SMOKE_HEADROOM_CODE}`);
   expect(within(view.container).getByTestId("solve-job-resource").querySelector("strong")).toHaveTextContent("refusal=headroom_insufficient");
   expect(within(view.container).getByTestId("readiness-mechanics")).toHaveTextContent("refused by the native memory pool");
   expect(within(view.container).getByTestId("solve-job-binding")).toHaveTextContent("not generated; result rows=0; hashes=0");
@@ -378,34 +398,67 @@ it("shows a worker growth refusal as before, now with its exact code and retry p
     "Refused while the solve ran: its worker process was stopped, with no fallback to another solver mode or route. Available memory was re-sampled for up to 2 s before this refusal stood. You can run the solve again when more memory is available. Refusal code: worker_growth_refused (granted_bytes=68157440, requested_bytes=72598008); cause headroom_insufficient (required_bytes=67108864, available_bytes=0)");
 });
 
+it("does not let an old reference-inspection copy cancel or clear a newer solve", async () => {
+  let unblock!: () => void;
+  let entered=false;
+  const held=new Promise<void>((resolve) => {unblock=resolve;});
+  const {result,transport,unmount}=await session((command,_args,_options,forward) => {
+    if (command!=="read_preview_mechanics_job_rows_all") return undefined;
+    return (async () => {
+      const copied=await forward();
+      entered=true;
+      await held;
+      return copied;
+    })();
+  });
+  await act(async () => {await result.current.results.handleRun();});
+  const first=result.current.results.result;
+  let inspection!: Promise<void>;
+  act(() => {inspection=result.current.results.handleInspectBundledReference();});
+  await waitFor(() => expect(entered).toBe(true));
+  await act(async () => {await result.current.results.handleRun();});
+  const current=result.current.results.result;
+  expect(current===first).toBe(false);
+  expect(current).not.toBeNull();
+  await act(async () => {unblock(); await inspection;});
+  expect(result.current.results.result===current).toBe(true);
+  expect(result.current.results.historicalRun).toBeNull();
+  expect(transport.nativeHeld()).toHaveLength(1);
+  unmount();
+  await waitFor(() => expect(transport.nativeHeld()).toEqual([]));
+});
+
 it("releases a delivered result when a new solve replaces it, when reference inspection clears it, and when the session ends", async () => {
   const { result, transport, unmount } = await session();
   await act(async () => { await result.current.results.handleRun(); });
   await waitFor(() => expect(result.current.results.currentSolvedResult).not.toBeNull());
   const first = result.current.results.result!;
   const firstJob = deliveredMechanicsResultJob(first)!;
-  expect(transport.custody()).toEqual([firstJob]);
+  // Held natively (C1), never taken.
+  expect(transport.nativeHeld()).toEqual([firstJob]);
+  expect(transport.custody()).toEqual([]);
   expect(hasNativeMechanicsInvocation(first, result.current.model.model, "sparse_interactive")).toBe(true);
 
   await act(async () => { await result.current.results.handleRun(); });
   await waitFor(() => expect(result.current.results.currentSolvedResult).not.toBeNull());
   const second = result.current.results.result!;
-  expect(second).not.toBe(first);
+  // Identity only: a deep comparison would read the native handles' guarded members.
+  expect(second !== first).toBe(true);
   const secondJob = deliveredMechanicsResultJob(second)!;
   await waitFor(() => expect(transport.disposed()).toEqual([firstJob]));
-  expect(transport.custody()).toEqual([secondJob]);
+  expect(transport.nativeHeld()).toEqual([secondJob]);
 
   await act(async () => { await result.current.results.handleInspectBundledReference(); });
   expect(result.current.results.result).toBeNull();
-  await waitFor(() => expect(transport.custody()).toEqual([]));
+  await waitFor(() => expect(transport.nativeHeld()).toEqual([]));
   expect(transport.disposed()).toEqual([firstJob, secondJob]);
 
   await act(async () => { await result.current.results.handleRun(); });
   await waitFor(() => expect(result.current.results.result).not.toBeNull());
   const thirdJob = deliveredMechanicsResultJob(result.current.results.result)!;
-  expect(transport.custody()).toEqual([thirdJob]);
+  expect(transport.nativeHeld()).toEqual([thirdJob]);
   unmount();
-  await waitFor(() => expect(transport.custody()).toEqual([]));
+  await waitFor(() => expect(transport.nativeHeld()).toEqual([]));
   expect(commands().filter((command) => command === "dispose_preview_mechanics_result")).toHaveLength(3);
 });
 
@@ -449,14 +502,14 @@ it("abandons a started job whose poll fails: requests its cancellation, then rel
 });
 
 it("releases a completed job's result when the take fails for a reason other than a typed refusal", async () => {
-  const { result, transport } = await session((command) => command === "take_preview_mechanics_job_result"
+  const { result, transport } = await session((command) => command === FIRST_NATIVE_READ
     ? Promise.reject(new Error("invented take IPC failure"))
     : undefined);
   await act(async () => { await result.current.results.handleRun(); });
   expect(result.current.results.solveJob.state).toBe("failed");
   await waitFor(() => expect(transport.disposed()).toHaveLength(1));
   expect(commands()).not.toContain("cancel_preview_mechanics_job");
-  expect(transport.custody()).toEqual([]);
+  expect(transport.nativeHeld()).toEqual([]);
 });
 
 it("keeps the run's solve-job grant, and adds none to the record, when a rule-check aggregate revises its analysis record", async () => {
@@ -473,8 +526,10 @@ it("keeps the run's solve-job grant, and adds none to the record, when a rule-ch
       result: result.current.results.currentSolvedResult, inputManifest: result.current.results.inputManifest
     });
   });
-  await waitFor(() => expect(result.current.results.analysisRun).not.toBe(first));
-  const revised = result.current.results.analysisRun!;
+  // Identity only: a deep comparison would read the native record header's guarded members.
+  await waitFor(() => expect(result.current.results.analysisRun !== first).toBe(true));
+  expect(result.current.results.analysisRun!.analysis_run.analysis_status).toContain("USER_RULE_CHECKED");
+  const revised = await c2Record(result.current);
   expect(revised.analysis_run.analysis_status).toContain("USER_RULE_CHECKED");
   expect(result.current.results.solveJob.resource).toEqual(grant);
   expect(JSON.stringify(revised)).not.toMatch(/invocation_budget_bytes|pool_bytes|ordinary_worker_capped|worker_grant|worker_peak|execution_resources/);

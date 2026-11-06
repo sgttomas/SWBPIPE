@@ -103,6 +103,13 @@ const PRODUCT: &[Source] = &[
         name: "PP/bend_pressure.rs",
         text: include_str!("../src/bend_pressure.rs"),
     },
+    // S-K1 P-2 (DEL-04-03 skew-restraints.md §15 step 7): the skew solve and
+    // the node attribution read the case force; appended so the indices
+    // above are unchanged.
+    Source {
+        name: "PP/skew.rs",
+        text: include_str!("../src/skew.rs"),
+    },
 ];
 
 const KERNEL: &[Source] = &[
@@ -162,6 +169,18 @@ const KERNEL: &[Source] = &[
         name: "nonlinear_integration/confirmation.rs",
         text: include_str!("../../solver/nonlinear_integration/src/confirmation.rs"),
     },
+    // S-K1 F-2 (DEL-04-03 skew-restraints.md §6, §15 step 6): K-D5 on the
+    // transformed system reads the physical ledger and force through
+    // SkewFormation, and the basis forms f' = Q^T f; appended so the indices
+    // above are unchanged.
+    Source {
+        name: "FK/structural/formation_check/skew.rs",
+        text: include_str!("../../solver/frame_kernel/src/structural/formation_check/skew.rs"),
+    },
+    Source {
+        name: "FK/restraint_basis.rs",
+        text: include_str!("../../solver/frame_kernel/src/restraint_basis.rs"),
+    },
 ];
 
 const RECOVERY: &[Source] = &[
@@ -191,7 +210,8 @@ const RECOVERY: &[Source] = &[
 /// `.iter().copied()` / `.iter().cloned()` with a `.collect` in the same
 /// statement. (file, function, disposition).
 const ALLOW_VALUES_COPY: &[(&str, &str, &str)] = &[
-    ("PP/lib.rs", "append_nonlinear_support_loop_results", "the loop's `input.force` copy; the typed entry `solve_active_set_frame_with_mode_and_springs_assembled` refuses it unless it equals the ledger's values bit for bit"),
+    ("PP/lib.rs", "nonlinear_frame_input", "the loop's `input.force` copy (RT-A5: extracted from `append_nonlinear_support_loop_results`, shared with the held-status solve); the typed entry `solve_active_set_frame_with_mode_and_springs_assembled` refuses it unless it equals the ledger's values bit for bit"),
+    ("FK/restraint_basis.rs", "transform_stiffness", "S-K1 (DEL-04-03 skew-restraints.md §6.1): copies the stiffness values K (not a force) to form K' = Q^T K Q in place; the case force is never copied here"),
 ];
 
 /// Rule 3: a compound assignment or `.iter_mut()` on a binding whose name
@@ -258,6 +278,7 @@ const PRODUCERS: &[(&str, &str, &str)] = &[
     ("PP/lib.rs", "add_constant_effort_support_loads", "constant effort: one term per application"),
     ("PP/lib.rs", "add_connector_reference_loads", "T4-U3 (S13): each connector's +B^T K q_ref, one formed term per nonzero DOF"),
     ("PP/lib.rs", "add_tie_rod_reference_loads", "T4-U5b (DEL-04-07 u4b-u5b-implementation.md §3.2): each tie rod's +C^T k e_ref, one formed term per DOF (none when e_ref = 0)"),
+    ("FK/restraint_basis.rs", "transform_force", "S-K1 (DEL-04-03 skew-restraints.md §6.1): f' = Q^T f into a fresh ledger, each physical term moved by sign (unit weight) or as an exact product q*a (q*a*b split error-free, P1 at SPLIT_EXACT_MIN); the solve's coordinate force only, never the case force K-D5 reads (SkewFormation::physical_force)"),
     ("PP/source_recovery.rs", "prepare_sources", "T1 site (section 4.5): the retained nodal terms, in a ledger compared with the actual force"),
     ("PP/source_recovery.rs", "close_load_state", "T1 site (section 4.5): the retained eigen terms, the same terms the product pushes"),
     // K-D5 (DEL-04-01 kd5-member-relative-bound.md §1): the live nodal
@@ -426,8 +447,8 @@ const FORCE_FUNCTIONS: &[(&str, &str, &str)] = &[
     ),
     (
         "nonlinear_integration/lib.rs",
-        "solve_active_set_loop",
-        "the loop (option (c), T5's; RT-A3 P: the entry's body)",
+        "complete_iteration",
+        "the loop (option (c), T5's; RT-A3 P: the entry's body; RT-A5 S2: its tail, moved verbatim from solve_active_set_loop, where the input force is read for the receipt)",
     ),
     (
         "nonlinear_integration/lib.rs",
@@ -645,8 +666,8 @@ const FORCE_FUNCTIONS: &[(&str, &str, &str)] = &[
     ),
     (
         "FK/structural/certified_recovery.rs",
-        "certify_support_reaction",
-        "K-D5 §3.2: restrained reaction K_int,r (u + w + w2) - f_int,r; a formed term enters as its re-formed primitives, an input term as its exact binary64 value (term.accumulate), each its own exact addend",
+        "certify_support_reaction_with_basis",
+        "K-D5 §3.2: restrained reaction K_int,r (u + w + w2) - f_int,r; a formed term enters as its re-formed primitives, an input term as its exact binary64 value (term.accumulate), each its own exact addend (S-K1 §10.5: the body of `certify_support_reaction`, which delegates with source.restraint's basis; a basis adds its skewed spring blocks, no force term)",
     ),
     (
         "SA/structural_adapter.rs",
@@ -657,6 +678,21 @@ const FORCE_FUNCTIONS: &[(&str, &str, &str)] = &[
         "SA/structural_adapter.rs",
         "solve_force_scaled_with_formation_check",
         "K-D5 §2.2: the W2 entry; attaches the primitives (rescaled with their terms by force_scaled) to FormationSource::loads; read-only",
+    ),
+    (
+        "FK/restraint_basis.rs",
+        "transform_force",
+        "S-K1 §6.1: reads the physical force's terms to form f' = Q^T f in a fresh ledger; read-only on the input",
+    ),
+    (
+        "FK/structural/formation_check/skew.rs",
+        "evaluate",
+        "S-K1 F-2 (§6, K-D5 on the transformed system): loads the physical ledger by q-weights and checks D5C-1 at the lifted u; read-only",
+    ),
+    (
+        "SA/structural_adapter.rs",
+        "solve_skew_with_formation_check",
+        "S-K1 A-1 (DEL-04-03 skew-restraints.md §6, §15 step 6): the linear skew entry; forms f' = Q^T f and attaches the physical primitives and force to FormationSource::restraint (SkewFormation); read-only",
     ),
     // Nonlinear K-D5 (DEL-04-01 kd5-nonlinear-active-set.md §1.5, §1.6).
     (

@@ -177,6 +177,7 @@ impl Model {
             coordinates: &e.coordinates,
             edges: &e.edges,
             spring_ground: &e.spring_ground,
+            direction_rows: &[],
             w4: None,
         };
         let context = W4Context {
