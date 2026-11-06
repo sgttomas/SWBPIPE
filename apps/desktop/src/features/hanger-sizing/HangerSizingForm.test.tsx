@@ -104,7 +104,8 @@ describe("the request form", () => {
     const missing = within(screen.getByTestId("hanger-sizing-missing")).getAllByRole("listitem").map((item) => item.textContent?.split(":")[0]);
     expect(missing).toEqual(["library", "candidates", "weight case", "design operating case", "check operating cases", "load design",
       "variation reference", "variation limit", "travel allowance", "selection rule", "solver mode"]);
-    expect(invokeMock).not.toHaveBeenCalled();
+    // Only the mount's keyed retirement was sent; the incomplete request sent nothing.
+    expect(invokeMock.mock.calls.map(([command]) => command)).toEqual(["cancel_hanger_sizing"]);
   });
 
   it("assembles nothing for an invalid number or a candidate without its policy", () => {
@@ -296,8 +297,8 @@ describe("the request form", () => {
     fireEvent.click(screen.getByTestId("hanger-sizing-run"));
     await screen.findByTestId("hanger-sizing-running");
     fireEvent.click(screen.getByTestId("hanger-sizing-cancel"));
-    // The start's own retirement, then the person's cancel.
-    await waitFor(() => expect(invokeMock.mock.calls.filter(([command]) => command === "cancel_hanger_sizing")).toHaveLength(2));
+    // The mount's retirement, the start's own retirement, then the person's cancel.
+    await waitFor(() => expect(invokeMock.mock.calls.filter(([command]) => command === "cancel_hanger_sizing")).toHaveLength(3));
     pending.resolve(structuredClone(twoSpanReply));
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(screen.queryByTestId("hanger-sizing-panel")).toBeNull();
