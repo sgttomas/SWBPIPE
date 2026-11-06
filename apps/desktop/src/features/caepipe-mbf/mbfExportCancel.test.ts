@@ -350,10 +350,9 @@ describe("the MBF export's keyed retirement (repair 5)", () => {
     expect(host.cancels[2].sequence).toBe(1);
   });
 
-  // An injected-fault schedule at the helper level, not a demonstrated same-page product path: after a failed fetch,
-  // Tauri 2.11.1's transport sends through `postMessage` with `JSON.stringify`, which the raw-body ingress refuses
-  // (`INGRESS-RAW-BODY-REQUIRED`), so on the same page neither this fallback nor a fresh start would be admitted. The
-  // test hands the host the same id twice, as such a resend would, to pin the native rule's effect on the barrier.
+  // An injected-fault schedule at the helper level: after a failed fetch, Tauri 2.11.1's transport resends the cancel
+  // through `postMessage` (its JSON arguments survive that), without cancelling the original delivery. The test hands
+  // the host the same id twice, as such a resend would, to pin the native rule's effect on the barrier.
   it("injected fault: a delayed duplicate of an acknowledged retirement does not cancel a fresh start", async () => {
     for (const ignoreSequence of [false, true]) {
       vi.resetModules();
@@ -412,21 +411,6 @@ describe("the MBF export's keyed retirement (repair 5)", () => {
     expect((await started).outcome).toEqual({ outcome: "reviewed", review: {} });
   });
 
-  it("re-sends a headroom-refused retirement with the same body", async () => {
-    const sent: unknown[] = [];
-    let refusals = 2;
-    invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
-      sent.push(args?.[barrier.RETIREMENT_ID]);
-      if (refusals-- > 0) {
-        return Promise.reject({ code: "RESOURCE_UNAVAILABLE", refusal: { kind: "headroom_insufficient", required_bytes: 2, available_bytes: 1 }, pool: null });
-      }
-      return Promise.resolve({ cancelled: 0, too_late: 0, epoch: 1, retirement_id: args?.[barrier.RETIREMENT_ID] });
-    });
-    await expect(barrier.retireMbfExportSession()).resolves.toMatchObject({ epoch: 1 });
-    expect(sent).toHaveLength(3);
-    expect(new Set(sent.map((id) => JSON.stringify(id))).size).toBe(1);
-  });
-
   it("is no acknowledgement when the receipt answers another id, or the page cannot make one", async () => {
     invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
       const id = args?.[barrier.RETIREMENT_ID] as Id;
@@ -447,4 +431,138 @@ describe("the MBF export's keyed retirement (repair 5)", () => {
     }
   });
 
+});
+
+// Finding P2 (re-check at d4517a4e5): once Tauri's transport has fallen back to `postMessage`, a retirement must still
+// reach the native host in a form it admits. `tauriTransport` reproduces what Tauri 2.11.1 hands the host for one
+// invoke (`scripts/ipc-protocol.js` with `scripts/process-ipc-message-fn.js`, decoded by `src/ipc/protocol.rs`), and
+// `nativeCancelId` the forms `cancel_mbf_export` admits (`mbf_worker.rs` `cancel_command`).
+const INGRESS = { header: "x-swbpipe-ingress", format: "args-json-v1" };
+type Received = { kind: "raw"; bytes: Uint8Array; headers: Record<string, string> } | { kind: "json"; value: unknown; headers: Record<string, string> };
+
+/** Tauri's IPC payload replacer (`process-ipc-message-fn.js`): a `Uint8Array` or `ArrayBuffer` becomes an array of
+ * numbers. */
+function ipcReplacer(_key: string, value: unknown) {
+  if (value instanceof Uint8Array) return Array.from(value);
+  if (value instanceof ArrayBuffer) return Array.from(new Uint8Array(value));
+  return value;
+}
+
+/** What the host receives for `invoke(command, payload, options)`: on the custom protocol a byte payload is posted as
+ * bytes and anything else as JSON text, with `options.headers` as request headers; after the fallback the whole
+ * message, payload included, goes through `JSON.stringify` with the replacer, and the host parses it. */
+function tauriTransport(command: string, payload: unknown, options: { headers?: Record<string, string> } | undefined, fellBack: boolean): Received {
+  const headers = options?.headers ?? {};
+  if (!fellBack) {
+    if (ArrayBuffer.isView(payload) || payload instanceof ArrayBuffer || Array.isArray(payload)) {
+      const view = payload as ArrayBufferView;
+      return { kind: "raw", bytes: new Uint8Array(view.buffer, view.byteOffset, view.byteLength), headers };
+    }
+    return { kind: "json", value: JSON.parse(JSON.stringify(payload, ipcReplacer)), headers };
+  }
+  const message = JSON.stringify(
+    { cmd: command, callback: 1, error: 2, payload, options: { ...options, customProtocolIpcBlocked: true }, __TAURI_INVOKE_KEY__: "key" },
+    ipcReplacer
+  );
+  const parsed = JSON.parse(message) as { payload: unknown; options?: { headers?: Record<string, string> } };
+  return { kind: "json", value: parsed.payload, headers: parsed.options?.headers ?? {} };
+}
+
+/** The id `cancel_mbf_export` reads from what it received, or the refusal it replies (the native rules: a raw body
+ * needs the ingress header; a JSON body is the JSON form only without it, one object of at most 4 KiB). */
+function nativeCancelId(received: Received): Id {
+  let args: unknown;
+  if (received.kind === "raw") {
+    if (received.headers[INGRESS.header] !== INGRESS.format) throw new Error("INGRESS-HEADER-REQUIRED");
+    args = JSON.parse(new TextDecoder().decode(received.bytes));
+  } else {
+    if (received.headers[INGRESS.header] !== undefined) throw new Error("INGRESS-RAW-BODY-REQUIRED");
+    if (JSON.stringify(received.value).length > 4096) throw new Error("INGRESS-ARGS-TOO-LARGE");
+    args = received.value;
+  }
+  if (!args || typeof args !== "object" || Array.isArray(args)) throw new Error("INGRESS-ARGS-NOT-OBJECT");
+  const id = (args as Record<string, unknown>)[barrier.RETIREMENT_ID] as Partial<Id> | undefined;
+  if (!id || typeof id.page !== "string" || !/^[0-9a-f]{32}$/.test(id.page) || !Number.isSafeInteger(id.sequence) || (id.sequence as number) < 1) {
+    throw new Error("MBF-EXPORT-RETIREMENT-ID-INVALID");
+  }
+  return { page: id.page, sequence: id.sequence as number };
+}
+
+describe("the MBF export's keyed retirement after the transport falls back (finding P2)", () => {
+  it("still reaches the native host in the JSON form, stops an admitted save, and re-delivers with the same id", async () => {
+    let fellBack = false;
+    let fetchFails = false;
+    let lostReplies = 0;
+    const deliveries: Array<{ form: Received["kind"]; fellBack: boolean; id: Id; duplicate: boolean }> = [];
+    const refusals: string[] = [];
+    const host = idempotentHost();
+    const answer = invokeMock.getMockImplementation()!;
+    invokeMock.mockImplementation((command: string, payload?: unknown, options?: { headers?: Record<string, string> }) => {
+      // A start is a raw body: after the fallback it arrives as an array of numbers, which the host refuses.
+      if (command !== "cancel_mbf_export") {
+        return fellBack ? Promise.reject({ code: "INVALID_REQUEST", message: "INGRESS-RAW-BODY-REQUIRED" }) : answer(command, payload);
+      }
+      // The custom protocol's `fetch` fails once: Tauri marks the page fallen back and resends this same invoke
+      // through `postMessage`, which the page does not see.
+      if (fetchFails && !fellBack) fellBack = true;
+      const received = tauriTransport(command, payload, options, fellBack);
+      let id: Id;
+      try {
+        id = nativeCancelId(received);
+      } catch (error) {
+        refusals.push((error as Error).message);
+        return Promise.reject(error);
+      }
+      host.cancels.push(id);
+      const receipt = host.apply(id);
+      deliveries.push({ form: received.kind, fellBack, id, duplicate: receipt.duplicate === true });
+      if (lostReplies > 0) {
+        lostReplies -= 1;
+        return Promise.reject(new Error("the reply was lost"));
+      }
+      return Promise.resolve(receipt);
+    });
+    // A save is admitted (its handshake retirement acknowledged, the save sent with its ticket) and waits for its
+    // chooser natively.
+    const saving = barrier.saveMbfExport(SAVE_ARGS);
+    await vi.waitFor(() => expect(host.runs).toHaveLength(1));
+    expect(host.runs[0].ticket).toBe(1);
+    // The transport falls back; the session is then retired, and the reply to that delivery is lost.
+    fetchFails = true;
+    lostReplies = 1;
+    await expect(barrier.retireMbfExportSession()).resolves.toBeNull();
+    expect(refusals).toEqual([]);
+    expect(host.runs[0].cancelled).toBe(true);
+    expect(codes((await saving).outcome as never)).toEqual([barrier.MBF_EXPORT_CANCELLED]);
+    // The next start re-delivers the unacknowledged retirement with the same id; the host finds it applied (a no-op),
+    // which acknowledges it. The start itself is then sent raw and refused natively (starts stay raw-body only): it
+    // fails closed, and nothing runs.
+    await expect(barrier.reviewMbfExport(REVIEW_ARGS)).rejects.toThrow("INGRESS-RAW-BODY-REQUIRED");
+    expect(deliveries.map(({ form, fellBack, duplicate }) => ({ form, fellBack, duplicate }))).toEqual([
+      { form: "json", fellBack: false, duplicate: false },
+      { form: "json", fellBack: true, duplicate: false },
+      { form: "json", fellBack: true, duplicate: true }
+    ]);
+    expect(deliveries[2].id).toEqual(deliveries[1].id);
+    expect(deliveries[1].id).toEqual({ page: deliveries[0].id.page, sequence: 2 });
+    expect(host.epoch).toBe(2);
+    expect(host.runs).toHaveLength(1);
+  });
+
+  it("is sent as Tauri's JSON arguments with no ingress header, never as a raw body", async () => {
+    const id: Id = { page: "0123456789abcdef0123456789abcdef", sequence: 1 };
+    invokeMock.mockResolvedValueOnce({ cancelled: 0, too_late: 0, epoch: 1, retirement_id: id });
+    await barrier.cancelMbfExport(id);
+    const [command, payload, options] = invokeMock.mock.calls[0] as [string, unknown, { headers?: Record<string, string> } | undefined];
+    expect(command).toBe("cancel_mbf_export");
+    expect(payload).toEqual({ [barrier.RETIREMENT_ID]: id });
+    expect(options?.headers?.[INGRESS.header]).toBeUndefined();
+    // The same id reaches the host on both transports.
+    for (const fellBack of [false, true]) expect(nativeCancelId(tauriTransport(command, payload, options, fellBack))).toEqual(id);
+    // Control: the raw body the starts use would not survive the fallback.
+    const raw = new TextEncoder().encode(JSON.stringify({ [barrier.RETIREMENT_ID]: id }));
+    const headers = { headers: { [INGRESS.header]: INGRESS.format } };
+    expect(nativeCancelId(tauriTransport(command, raw, headers, false))).toEqual(id);
+    expect(() => nativeCancelId(tauriTransport(command, raw, headers, true))).toThrow("INGRESS-RAW-BODY-REQUIRED");
+  });
 });

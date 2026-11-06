@@ -565,7 +565,8 @@ only the staleness check of step 6.
   carries, not to when its task happens to run. Tauri 2 extracts an async command's arguments
   inside the task it spawns, so a request sent before a retirement may begin after it.
   - **The reply.** `cancel_mbf_export` takes `{retirementId}` (below, "Idempotent retirement")
-    as an `args-json-v1` raw body, through the normal ingress and argument-lease route. It replies
+    as Tauri's JSON arguments, the form the frontend sends, or as an `args-json-v1` raw body
+    (below, "Wire form and bounds"). It replies
     `{cancelled, too_late, epoch, retirement_id}`, where `epoch` is the retirement epoch after its
     bump (`MbfRuns::retire_keyed`) and `retirement_id` echoes the id it answers.
   - **The request.** Every `review_mbf_export` and `save_mbf_export` request carries the
@@ -591,18 +592,28 @@ only the staleness check of step 6.
   - **Authority.** The ticket only binds a request to a retirement. It authorizes nothing: the
     route evidence, the reviewed digests, the review's truncation and the commit are checked
     as before.
-  - **Exhaustion.** A retirement that finds the epoch at `u64::MAX` cannot move it on (nor can one
-    from a new page token once the host keeps `RETIREMENT_PAGES_MAX` = 64 tokens, below), and the
-    export enters a terminal, fail-closed *exhausted* state rather than wrapping or saturating
-    (saturating would leave the tickets at `u64::MAX` current). That retirement cancels every
-    run in progress as any other does, and its reply adds `exhausted: true` with the epoch left
-    at `u64::MAX` (the member is absent otherwise). From then on every request is refused
-    `MBF-EXPORT-EPOCH-EXHAUSTED` at its entry, whatever its ticket, a command that entered
-    before is cancelled when it registers, and later retirements stay exhausted. The frontend
-    treats an exhausted reply as unacknowledged, so its starts refuse
-    `MBF-EXPORT-RETIREMENT-UNCONFIRMED`. Reaching it takes 2^64 retirements in one process; it
-    exists so the epoch's meaning cannot fail silently. Once exhausted the epoch moves no more,
-    by any retirement.
+  - **Exhaustion.** The export enters a terminal, fail-closed *exhausted* state in either of
+    two cases. Only a restart of the app's process leaves it.
+    - *Epoch overflow.* A retirement finds the epoch at `u64::MAX` and cannot move it on. The
+      export becomes exhausted rather than wrapping or saturating (saturating would leave the
+      tickets at `u64::MAX` current), and the epoch stays at `u64::MAX`. Each applied
+      retirement moves the epoch by one, so this takes 2^64 of them in one process; it exists
+      so the epoch's meaning cannot fail silently.
+    - *Token capacity.* A retirement comes from a new page token once the host keeps
+      `RETIREMENT_PAGES_MAX` = 64 tokens (below, "No applied token is forgotten"). The token is
+      not recorded and the epoch is not moved on: it stays at its current value, far below
+      `u64::MAX`. Each page load makes one token, so in practice **the 65th distinct page load
+      in one process** (a webview reload counts) exhausts the MBF export until the app
+      restarts. This is an availability limit, chosen over evicting a token whose delayed
+      duplicate would then be applied again.
+    - In both, the retirement that exhausts the export cancels every run in progress as any
+      other does, and its reply adds `exhausted: true` with the epoch as it is (the member is
+      absent otherwise). From then on every request is refused `MBF-EXPORT-EPOCH-EXHAUSTED` at
+      its entry, whatever its ticket, a command that entered before is cancelled when it
+      registers, and later retirements stay exhausted; the epoch moves no more. The frontend
+      treats an exhausted reply as unacknowledged, so its starts refuse
+      `MBF-EXPORT-RETIREMENT-UNCONFIRMED`. The product text for this state (that a restart
+      recovers it) comes with 4b.2b's dialog; today's messages are developer wording.
 - **Idempotent retirement** (`retirementId`, `mbf_worker::RetirementId`). Each logical
   retirement carries `{page, sequence}`: a random token of 32 lowercase hex digits made once per
   page load (`crypto.getRandomValues`), and a sequence from 1 that rises by one per logical
@@ -618,7 +629,39 @@ only the staleness check of step 6.
   - **No applied token is forgotten.** The host keeps at most 64 page tokens (one per page load
     in the process) and never evicts one, since a forgotten token's delayed retry would be
     applied again. A retirement from a new token beyond them is not recorded: it makes the
-    export exhausted (fail closed), cancelling every run in progress, with the epoch unmoved.
+    export exhausted (fail closed), cancelling every run in progress, with the epoch unmoved
+    (above, "Exhaustion": token capacity, recovered by a restart).
+  - **Ids are not authenticated.** A page token is random but not a secret, and the host does
+    not check who sends a retirement. Code running in the webview can send `cancel_mbf_export`
+    with any id: it could cancel MBF runs, or use up the 64 tokens and exhaust the export until
+    restart (a denial of service). It gains no save authority: a retirement only cancels and
+    refuses, and neither a token nor a ticket authorizes anything. This is not a security
+    boundary; the webview's code is trusted as for every other command.
+  - **Wire form and bounds** (`mbf_worker::cancel_command`; repair 6). The frontend sends the
+    retirement as Tauri's JSON arguments, `{"retirementId": {page, sequence}}` with no ingress
+    header, always, not only after a detected fallback: the page cannot see the fallback (the
+    flag is private to Tauri's transport script, and the invoke whose `fetch` failed is itself
+    resent through `postMessage`), and the JSON arguments arrive unchanged on both transports
+    (the custom protocol posts them as `application/json`; the fallback `JSON.stringify`s them
+    inside its message). The host admits this form for `cancel_mbf_export` only, beside the raw
+    form (an `args-json-v1` raw body with the ingress header, admitted as before); a JSON body
+    under the ingress header is still refused `INGRESS-RAW-BODY-REQUIRED`. Both forms read the
+    id from the same member by the same rule and retire by the one keyed path, so validation,
+    once-only application (a delivery in one form and a re-delivery in the other are one
+    logical retirement), receipts and exhaustion are identical. The starts
+    (`review_mbf_export`, `save_mbf_export`) stay raw-body only.
+    - *What the 4 KiB bound limits.* For the raw form, the raw bytes before the prescan and
+      before any lease (`INGRESS-ARGS-TOO-LARGE`), as for every bounded C1 command. For the JSON
+      form, Tauri parses the body into a `serde_json::Value` before the command runs, unpriced,
+      and neither transport limits a request's size first: the custom protocol reads the whole
+      body and parses it as JSON, and the fallback parses the whole message string. No check
+      of ours bounds Tauri's parse or its allocations, exactly as for every JSON-argument
+      command (`cancel_preview_mechanics_job`). The command's check bounds what follows: the
+      decoded arguments' canonical serialization is measured, allocating nothing, and refused
+      `INGRESS-ARGS-TOO-LARGE` above 4 KiB before anything is read from them; anything but an
+      object is refused `INGRESS-ARGS-NOT-OBJECT`; the id is then copied out of at most that
+      many bytes. Like the JSON-argument commands, the form takes no ingress lease: the value a
+      lease would price already exists.
   - **Frontend.** A receipt acknowledges a delivery only when it echoes that delivery's id; a
     `duplicate` receipt for its own id acknowledges the current epoch. A page that cannot make
     an id sends nothing, and the delivery is unacknowledged.
@@ -627,18 +670,19 @@ only the staleness check of step 6.
     through `postMessage` without cancelling or deduplicating the original delivery, which may
     still reach the host. A settled invoke is therefore not every delivery of it. The same
     failure also sets the page's `customProtocolIpcFailed` for good, and the fallback sends
-    through `JSON.stringify`, which turns the raw `Uint8Array` body into a JSON number array:
-    the raw-body ingress then refuses `review_mbf_export`, `save_mbf_export` and the keyed
-    `cancel_mbf_export` alike (`INGRESS-RAW-BODY-REQUIRED`). So on one page a fallback
-    retirement is not acknowledged and no fresh start is admitted after it: the schedule
-    "fallback acknowledged, fresh run admitted, delayed original cancels it" is not a
-    demonstrated same-page product path, and the tests that pin it are injected-fault tests of
-    the rule. Duplicate deliveries of an id the host has applied remain no-ops whatever their
-    route. After the flip, that page can neither start nor retire the export: its starts refuse
-    `MBF-EXPORT-RETIREMENT-UNCONFIRMED` (or are refused at ingress), and a run admitted before
-    the flip runs on until it ends, a newer run of its kind supersedes it, or the next page's
-    mount retirement cancels it. Its frontend result is discarded by its generation, and the
-    save's pre-commit checks are unchanged. *Across a navigation* the order is not established:
+    through `JSON.stringify`, which turns a raw `Uint8Array` body into a JSON number array: the
+    raw-body ingress then refuses `review_mbf_export` and `save_mbf_export`
+    (`INGRESS-RAW-BODY-REQUIRED`). The keyed `cancel_mbf_export` is sent as JSON arguments
+    (above, "Wire form and bounds"), so after the flip the page's retirements are still
+    admitted and applied: a run admitted before the flip, a save waiting at its chooser
+    included, is stopped by the page's next retirement (a session retirement, or 4b.2b's dialog
+    close) before its commit, and writes nothing. The page can no longer start a run: each
+    start, sent raw, is refused at ingress and fails closed. So the schedule "fallback
+    acknowledged, fresh run admitted, delayed original cancels it" is not a demonstrated
+    same-page product path, and the tests that pin it are injected-fault tests of the rule.
+    Duplicate deliveries of an id the host has applied remain no-ops whatever their route or
+    form. Its frontend result is discarded by its generation, and the save's pre-commit checks
+    are unchanged. *Across a navigation* the order is not established:
     a delayed first delivery from an old page (an id the host never applied) that arrives after
     the new page's start is applied as a new retirement and cancels that start. Distinct page
     tokens with their sequences do not order such a delivery in time, so this design does not
@@ -1554,6 +1598,31 @@ the frontend. The production entry points run task 3 in the capped worker; `MBF-
     body; a receipt for another id is no acknowledgement; the workspace mount sends a keyed retirement with no
     model check or export open, and the first start waits for it; the barrier neither waits for nor sends the
     reset.
+- **Repair 6: retirement after the transport's fallback** (2026-11-05, the independent re-check at
+  d4517a4e5; Agent 0's option (ii)).
+  - *P2.* After Tauri's `postMessage` fallback a raw-body cancel arrived as a JSON number array and was refused,
+    so an admitted save could pass its pre-chooser check and its commit and write despite the retirement. The
+    frontend now always sends `cancel_mbf_export` as Tauri's JSON arguments, and the host admits that one form
+    for this command beside the raw form, through the one keyed path (§3.7, "Wire form and bounds", with what
+    the 4 KiB bound does and does not limit). The starts stay raw-body only; no other command changes, and the
+    handler list is unchanged. `cancel_mbf_export` leaves the frontend's ingress command lists.
+  - *P3.* The code and this Design no longer say the page-load reset bumps the epoch (the keyed mount retirement
+    does), and distinguish the two exhaustion states, their recovery by restart, the 65th-page-load limit and
+    the ids' lack of authentication (§3.7).
+  - *Tests added:* Rust, with the bodies Tauri 2.11.1's transports deliver (the custom protocol's JSON body; the
+    fallback's message parsed as Tauri does, its `payload` the body and its `options.headers` the headers): an
+    admitted save waiting at its chooser, then the raw form after the fallback refused `INGRESS-RAW-BODY-REQUIRED`
+    with nothing stopped, then the JSON form applied, the save replying `MBF-EXPORT-CANCELLED` with nothing
+    written and its ledger and grant released; one id delivered raw and as JSON (each order) applied once, the
+    second a `duplicate` no-op; every malformed id refused `MBF-EXPORT-RETIREMENT-ID-INVALID` in the JSON form
+    too, a JSON body that is not an object or is over 4 KiB refused at ingress. Vitest: an emulation of the
+    transport (the IPC replacer, the fallback's message) and of the host's accepted forms; an admitted save,
+    then the fallback, then a retirement whose reply is lost: the save is cancelled, and the next start
+    re-delivers the same id in the JSON form (a duplicate, acknowledged) and is itself refused raw; the cancel
+    is sent as JSON with no ingress header, and the raw body does not survive the fallback. The headroom re-send
+    test of the cancel is removed: the JSON form takes no lease. Mutations checked: a host that refuses the JSON
+    form fails the regression, the duplicate test and the malformed test; a frontend that sends the cancel raw
+    fails both fallback tests.
 - **4b.2b** (next, not here): the menu item, the Exports panel action, and mounting the dialog on the barrier's
   `reviewMbfExport` and `saveMbfExport` (already ingress commands, slice 4b.2a's repair), the dialog's close
   calling `retireMbfExportSession`, discarding a result whose `current()` is false, retiring the TypeScript

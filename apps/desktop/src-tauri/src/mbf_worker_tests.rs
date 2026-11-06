@@ -203,6 +203,68 @@ fn cancel_body(id: &RetirementId) -> Value {
     json!({ RETIREMENT_ID: { "page": id.page, "sequence": id.sequence } })
 }
 
+/// How Tauri 2.11.1 hands `cancel_mbf_export` an invoke (`scripts/ipc-protocol.js`,
+/// `scripts/process-ipc-message-fn.js`, `src/ipc/protocol.rs`).
+#[derive(Clone, Copy, Debug)]
+enum Wire {
+    /// The frontend's JSON form (`invoke(cmd, {retirementId})`) on the custom protocol: the payload posted as
+    /// `application/json` text, parsed by Tauri into a JSON body; no ingress header.
+    JsonCustomProtocol,
+    /// The JSON form after the transport fell back to `postMessage`: the message (payload included) through
+    /// `JSON.stringify`, parsed by Tauri, its `payload` the JSON body and its `options.headers` the headers.
+    JsonFallback,
+    /// The raw form (`invoke(cmd, Uint8Array, {headers})`) after the fallback: `JSON.stringify` turns the bytes into an
+    /// array of numbers (the replacer's `Array.from(val)`), and the ingress header travels in `options.headers`.
+    RawFallback,
+}
+
+/// The body and headers `cancel_mbf_export` receives for the arguments `args` sent over `wire`, decoded as Tauri does.
+fn tauri_wire(wire: Wire, args: &Value) -> (InvokeBody, tauri::http::HeaderMap) {
+    if let Wire::JsonCustomProtocol = wire {
+        let posted = serde_json::to_vec(args).unwrap();
+        return (InvokeBody::from(serde_json::from_slice::<Value>(&posted).unwrap()), headers(None));
+    }
+    let (payload, sent_headers) = match wire {
+        Wire::RawFallback => (json!(serde_json::to_vec(args).unwrap()), json!({ crate::command_ingress::INGRESS_HEADER: INGRESS_ARGS_JSON_V1 })),
+        _ => (args.clone(), json!({})),
+    };
+    let message = json!({
+        "cmd": CANCEL_COMMAND, "callback": 1, "error": 2, "payload": payload,
+        "options": { "headers": sent_headers, "customProtocolIpcBlocked": true }, "__TAURI_INVOKE_KEY__": "key",
+    })
+    .to_string();
+    #[derive(serde::Deserialize)]
+    struct Options {
+        #[serde(default)]
+        headers: std::collections::HashMap<String, String>,
+    }
+    #[derive(serde::Deserialize)]
+    struct Message {
+        payload: Value,
+        options: Option<Options>,
+    }
+    let message: Message = serde_json::from_str(&message).unwrap();
+    let mut received = tauri::http::HeaderMap::new();
+    for (name, value) in message.options.map(|options| options.headers).unwrap_or_default() {
+        received.insert(tauri::http::HeaderName::from_bytes(name.as_bytes()).unwrap(), tauri::http::HeaderValue::from_str(&value).unwrap());
+    }
+    (InvokeBody::from(message.payload), received)
+}
+
+/// `cancel_mbf_export` for `args` sent over `wire`.
+fn cancel_over(wire: Wire, registry: &SolveJobRegistry, runs: &MbfRuns, args: &Value) -> Result<MbfRetirement, CommandError<String>> {
+    let (body, received) = tauri_wire(wire, args);
+    cancel_command(registry, runs, &body, &received)
+}
+
+/// An ingress refusal's message.
+fn ingress_message(result: Result<MbfRetirement, CommandError<String>>) -> String {
+    match result {
+        Err(CommandError::Ingress(SolveJobError::InvalidRequest { message })) => message,
+        other => panic!("{other:?}"),
+    }
+}
+
 /// Whether any tracked run has been cancelled.
 fn any_tracked_cancelled(runs: &MbfRuns) -> bool {
     runs.lock().runs.iter().any(|(_, run)| run.cancelled())
@@ -1495,10 +1557,10 @@ fn running_review<'s, 'e: 's>(
     (reviewing, gate.pids()[started - 1])
 }
 
-/// An injected-fault test of the native rule (the reviewer's schedule at 8cecfc1ce), not a demonstrated same-page
-/// product path: Tauri 2.11.1's `postMessage` fallback sends a raw body through `JSON.stringify`, which this ingress
-/// refuses (`INGRESS-RAW-BODY-REQUIRED`), so on one page neither the fallback nor a fresh start after it is admitted.
-/// The test hands the host one id twice, as a duplicated delivery would. `r1` is applied (epoch 2) and acknowledged; a
+/// An injected-fault test of the native rule (the reviewer's schedule at 8cecfc1ce): the test hands the host one id
+/// twice, as a duplicated delivery would (the JSON-form cancel survives Tauri 2.11.1's `postMessage` fallback, so a
+/// cancel's resend is admitted; a raw-body start is not, so a fresh start after the fallback is refused
+/// `INGRESS-RAW-BODY-REQUIRED`). `r1` is applied (epoch 2) and acknowledged; a
 /// fresh review enters at epoch 2 and runs; then `r1` arrives again, and so does an older id of the same page: each
 /// is a no-op whose reply says `duplicate` with the current epoch, cancels nothing and moves nothing on, and the fresh
 /// review's worker keeps running. A different page's token advances the epoch and stops the review. A host that
@@ -1622,7 +1684,28 @@ fn a_missing_or_malformed_retirement_id_is_refused_by_name_and_retires_nothing()
                 Err(CommandError::Command(message)) => assert!(message.starts_with(&format!("{RETIREMENT_ID_INVALID}: ")), "{request}: {message}"),
                 other => panic!("{request}: {other:?}"),
             }
+            // The JSON form's id is read by the same rule.
+            for wire in [Wire::JsonCustomProtocol, Wire::JsonFallback] {
+                match cancel_over(wire, &registry, &runs, request) {
+                    Err(CommandError::Command(message)) => assert!(message.starts_with(&format!("{RETIREMENT_ID_INVALID}: ")), "{wire:?} {request}: {message}"),
+                    other => panic!("{wire:?} {request}: {other:?}"),
+                }
+            }
         }
+        // The JSON form's arguments are one object of at most 4 KiB, as the raw form's are.
+        for args in [json!([good, 1]), json!("retirementId"), json!(null), json!(serde_json::to_vec(&cancel_body(&retirement(1, 1))).unwrap())] {
+            let message = ingress_message(cancel_over(Wire::JsonFallback, &registry, &runs, &args));
+            assert!(message.starts_with("INGRESS-ARGS-NOT-OBJECT: "), "{args}: {message}");
+        }
+        let oversized_json = json!({ RETIREMENT_ID: { "page": good, "sequence": 1 }, "pad": "x".repeat(4 << 10) });
+        for wire in [Wire::JsonCustomProtocol, Wire::JsonFallback] {
+            let message = ingress_message(cancel_over(wire, &registry, &runs, &oversized_json));
+            assert!(message.starts_with("INGRESS-ARGS-TOO-LARGE: "), "{wire:?}: {message}");
+        }
+        // The raw form after the fallback (its bytes as a JSON array of numbers, under the ingress header) is a JSON
+        // body under the raw form's header: still refused, as before.
+        let message = ingress_message(cancel_over(Wire::RawFallback, &registry, &runs, &cancel_body(&retirement(1, 1))));
+        assert!(message.starts_with("INGRESS-RAW-BODY-REQUIRED: "), "{message}");
         let unheaded = cancel_command(&registry, &runs, &raw_body(&cancel_body(&retirement(1, 1))), &headers(None));
         assert!(matches!(unheaded, Err(CommandError::Ingress(_))), "{unheaded:?}");
         let oversized = json!({ RETIREMENT_ID: { "page": good, "sequence": 1 }, "pad": "x".repeat(8 << 10) });
@@ -1636,5 +1719,83 @@ fn a_missing_or_malformed_retirement_id_is_refused_by_name_and_retires_nothing()
     // The largest sequence is accepted.
     let largest = cancel_via_command(&registry, &runs, &json!({ RETIREMENT_ID: { "page": good, "sequence": (1u64 << 53) - 1 } })).unwrap();
     assert!(!largest.duplicate);
+    assert_released(&registry);
+}
+
+/// Finding P2 (re-check at d4517a4e5): once Tauri 2.11.1's transport has fallen back to `postMessage` for the page,
+/// a retirement must still stop a save that was already admitted. Save A has entered, its worker has ended and its
+/// chooser is held open (before its commit) when the transport falls back. The raw form's cancel then arrives as an
+/// array of numbers and is refused `INGRESS-RAW-BODY-REQUIRED`, stopping nothing; the JSON form, with the bytes
+/// Tauri's fallback actually delivers, is applied: it stops the save, which replies `MBF-EXPORT-CANCELLED` when its
+/// chooser returns, writes nothing, and releases its ledger and grant. A host that refused the JSON form would let the
+/// save write.
+#[test]
+fn after_the_transport_falls_back_a_json_retirement_stops_an_admitted_save_before_its_commit() {
+    let _lock = atomic_save_test_lock();
+    let gate = Gate::new("mbf-fallback");
+    let registry = registry_with(gate.launcher());
+    let runs = MbfRuns::default();
+    let sandbox = Sandbox::new("fallback");
+    let body = save_body(&canonical_model(), recorded_default());
+    let reply = envelope(MbfMode::Save);
+    let (outcome, receipt) = std::thread::scope(|scope| {
+        let _guard = CancelOnUnwind(&runs, &registry);
+        let (opened_tx, opened_rx) = std::sync::mpsc::channel::<()>();
+        let (accept_tx, accept_rx) = std::sync::mpsc::channel::<()>();
+        let chosen = sandbox.0.join("swbpipe-model.mbf");
+        let saving = scope.spawn(|| {
+            save_choosing(&registry, &runs, &body, move |_| {
+                opened_tx.send(()).unwrap();
+                let _ = accept_rx.recv_timeout(Duration::from_secs(60));
+                Ok(Some(chosen))
+            })
+        });
+        gate.wait_started(1);
+        gate.release(&reply);
+        opened_rx.recv_timeout(Duration::from_secs(60)).expect("the save's chooser opened");
+        let epoch = runs.epoch();
+        let request = cancel_body(&retirement(1, 1));
+        let raw = ingress_message(cancel_over(Wire::RawFallback, &registry, &runs, &request));
+        assert!(raw.starts_with("INGRESS-RAW-BODY-REQUIRED: "), "{raw}");
+        assert!(!any_tracked_cancelled(&runs) && runs.epoch() == epoch, "the raw form's fallback stopped nothing");
+        let receipt = cancel_over(Wire::JsonFallback, &registry, &runs, &request).expect("the JSON form is admitted after the fallback");
+        accept_tx.send(()).unwrap();
+        (join_within(&registry, &runs, saving, "the save"), receipt)
+    });
+    assert_eq!((receipt.receipt, receipt.duplicate, receipt.retirement_id), (STOPPED_ONE, false, Some(retirement(1, 1))));
+    assert_eq!(save_codes(&outcome), vec![CANCELLED.to_string()], "{outcome:?}");
+    assert!(sandbox.is_empty(), "the retired save wrote nothing");
+    assert_eq!(runs.cancel_all(registry.pool()), MbfCancelReceipt::default(), "nothing is tracked");
+    assert_released(&registry);
+}
+
+/// One logical retirement delivered in both forms (the raw form, then the JSON form after the fallback, or the other
+/// way round) is applied once: the second delivery's reply says `duplicate` with the current epoch, cancels nothing and
+/// moves nothing on, and a fresh review that entered after the first delivery keeps running. The page's next id, in
+/// either form, retires it.
+#[test]
+fn a_retirement_delivered_raw_and_as_json_is_applied_once() {
+    let gate = Gate::new("mbf-keyed-forms");
+    let registry = registry_with(gate.launcher());
+    let runs = MbfRuns::default();
+    let body = review_body(&canonical_model(), &settings());
+    let first = cancel_via_command(&registry, &runs, &cancel_body(&retirement(1, 1))).unwrap();
+    assert_eq!((first.epoch, first.duplicate), (1, false));
+    std::thread::scope(|scope| {
+        let _guard = CancelOnUnwind(&runs, &registry);
+        let (reviewing, pid) = running_review(scope, &gate, 1, &registry, &runs, &body);
+        for wire in [Wire::JsonCustomProtocol, Wire::JsonFallback] {
+            let again = cancel_over(wire, &registry, &runs, &cancel_body(&retirement(1, 1))).unwrap();
+            assert_eq!((again.receipt, again.epoch, again.duplicate), (MbfCancelReceipt::default(), 1, true), "{wire:?}");
+        }
+        assert!(!any_tracked_cancelled(&runs) && worker_alive(pid), "the duplicate cancelled nothing");
+        let next = cancel_over(Wire::JsonFallback, &registry, &runs, &cancel_body(&retirement(1, 2))).unwrap();
+        assert_eq!((next.receipt, next.epoch, next.duplicate), (STOPPED_ONE, 2, false));
+        let raw_again = cancel_via_command(&registry, &runs, &cancel_body(&retirement(1, 2))).unwrap();
+        assert_eq!((raw_again.receipt, raw_again.epoch, raw_again.duplicate), (MbfCancelReceipt::default(), 2, true), "raw after JSON");
+        let (reviewed, _) = join_within(&registry, &runs, reviewing, "the review");
+        assert_eq!(review_codes(&reviewed), vec![CANCELLED.to_string()]);
+    });
+    assert_eq!(runs.lock().applied, vec![(page(1), 2)], "one token, its last sequence");
     assert_released(&registry);
 }

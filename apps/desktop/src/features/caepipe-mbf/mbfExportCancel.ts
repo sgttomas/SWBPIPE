@@ -45,6 +45,15 @@
 // that page; a duplicate or older delivery cancels nothing, moves nothing on, and replies `duplicate: true` with the
 // current epoch. A receipt is an acknowledgement only when it echoes the id of the delivery it answers.
 //
+// The wire form. `cancel_mbf_export` is sent as Tauri's own JSON arguments, `{retirementId: {page, sequence}}`, not
+// through the raw-body ingress the starts use. Tauri 2.11.1's transport may switch to `postMessage` for the rest of the
+// page (from the very invoke whose `fetch` failed), and the page cannot see that it has: the flag is private to Tauri's
+// transport script. Its fallback `JSON.stringify`s the payload, so a raw body arrives as an array of numbers, which the
+// host refuses; a cancel sent raw could then not stop a save already admitted. The JSON arguments arrive unchanged on
+// both transports, and the host admits that form for this command only (`mbf_worker.rs` `cancel_command`: at most
+// 4 KiB once decoded, the same id rules and the same once-only application as a raw delivery). Sending it always,
+// rather than after a detected fallback, keeps one wire form whatever the transport does. The starts stay raw-body.
+//
 // Fail-safe rule for an unacknowledged retirement: a start never treats a retirement whose `cancel_mbf_export` was
 // not acknowledged (the invoke rejected or threw) as done. When the latest delivery is unacknowledged it re-delivers
 // it first (one re-delivery, shared by the starts waiting on it); if that is not acknowledged either, the start is not
@@ -53,6 +62,7 @@
 // failure never holds a start: the chain moves on once a delivery settles. Re-delivering is safe: no start has been
 // sent since the retirement was requested, so only runs of retired sessions are cancelled; and as it reuses the
 // retirement's id, a re-delivery of a retirement the host did apply (only its reply was lost) is a no-op there.
+import { invoke } from "@tauri-apps/api/core";
 import { IngressRequestRetiredError, invokeWithIngress } from "../../services/nativeIngress";
 import type { MbfExportArgs, MbfExportSaveOutcome, MbfReviewArgs, MbfReviewOutcome } from "./mbfExport";
 
@@ -88,14 +98,14 @@ const CANCELLED_MESSAGE = "The export was cancelled. Nothing was written.";
 const UNCONFIRMED_MESSAGE =
   "The export did not start: the previous project session's export could not be confirmed stopped. Nothing was written.";
 
-/** Cancels the MBF export's runs in progress (one delivery of `cancel_mbf_export` for the retirement `id`, through
- * the raw-body ingress). Never throws: `null` when there is no id (this page could not make one), or the native host
+/** Cancels the MBF export's runs in progress (one delivery of `cancel_mbf_export` for the retirement `id`, as Tauri's
+ * JSON arguments: see "The wire form" above). Never throws: `null` when there is no id (this page could not make one), or the native host
  * did not acknowledge `id` with a retirement epoch (the browser preview has none), or replied for another id, or
  * replied that the epoch is exhausted. A `duplicate` receipt for `id` acknowledges the current epoch. */
 export async function cancelMbfExport(id: MbfRetirementId | null): Promise<MbfCancelReceipt | null> {
   if (id === null) return null;
   try {
-    const answer = await invokeWithIngress<MbfCancelReceipt>("cancel_mbf_export", { [RETIREMENT_ID]: id });
+    const answer = await invoke<MbfCancelReceipt>("cancel_mbf_export", { [RETIREMENT_ID]: id });
     const answers = answer?.retirement_id;
     return answer !== null && typeof answer === "object" && Number.isSafeInteger(answer.epoch) && answer.epoch >= 0 && answer.exhausted !== true
       && answers?.page === id.page && answers?.sequence === id.sequence

@@ -145,7 +145,7 @@ describe("MBF export session retirement", () => {
     const receipt = { cancelled: 1, too_late: 0, epoch: 7, retirement_id: id };
     invokeMock.mockResolvedValueOnce(receipt);
     await expect(cancelMbfExport(id)).resolves.toEqual(receipt);
-    // Sent through the raw-body ingress with its id.
+    // Sent as Tauri's JSON arguments (no raw body, no ingress header) with its id.
     expect(invokeMock).toHaveBeenLastCalledWith("cancel_mbf_export", { [RETIREMENT_ID]: id });
     // The host's duplicate receipt for this id acknowledges the current epoch.
     invokeMock.mockResolvedValueOnce({ cancelled: 0, too_late: 0, epoch: 9, retirement_id: id, duplicate: true });

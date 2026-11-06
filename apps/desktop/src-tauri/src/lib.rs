@@ -2126,7 +2126,10 @@ async fn save_mbf_export(
 /// before this retirement, whenever its task runs) is cancelled. With nothing
 /// in progress it cancels nothing but still moves the epoch on (the frontend's
 /// workspace mount and first start use it as their handshake).
-/// `{retirementId: {page, sequence}}` as an `args-json-v1` raw body: each
+/// `{retirementId: {page, sequence}}` as Tauri's JSON arguments (what the
+/// frontend sends: the one form that survives Tauri's `postMessage`
+/// fallback) or as an `args-json-v1` raw body, decoded by
+/// `mbf_worker::cancel_command` into one keyed path: each
 /// logical retirement is applied once (`mbf_worker::MbfRuns::retire_keyed`),
 /// so a duplicate delivery of the same invoke (Tauri's IPC may resend one
 /// through `postMessage` without cancelling the first) or an older one is a

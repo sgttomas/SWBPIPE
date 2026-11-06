@@ -50,7 +50,9 @@
 //! on, and its reply says so (`duplicate: true`, with the current epoch). An applied token is never forgotten: the
 //! host keeps at most [`RETIREMENT_PAGES_MAX`] of them, and a new token beyond them makes the export exhausted
 //! (below) instead of evicting one, whose delayed delivery would otherwise be applied again. A missing or malformed id
-//! is refused `MBF-EXPORT-RETIREMENT-ID-INVALID` and applies nothing.
+//! is refused `MBF-EXPORT-RETIREMENT-ID-INVALID` and applies nothing. The frontend sends the id as Tauri's own JSON
+//! arguments, the one form that survives the transport's `postMessage` fallback; the host also admits it as a raw
+//! body, and the two forms share this one keyed path ([`cancel_command`]).
 //!
 //! **The dispatch ticket.** A run belongs to the retirement epoch its request carries, not to the moment its task
 //! happens to run (Tauri 2 extracts an async command's arguments inside the task it spawns, so a request sent before
@@ -62,15 +64,32 @@
 //! `MBF-EXPORT-CANCELLED`; a missing, malformed or future ticket refuses `MBF-EXPORT-EPOCH-INVALID`. The ticket is
 //! compared again when the run registers (a retirement in between cancels it from the start), and every registered
 //! run stays tracked until its command ends, so a later retirement reaches it wherever it is. A refused ticket starts
-//! no worker, opens no chooser and writes nothing. The page-load reset bumps the epoch too, so a page that has not
-//! acknowledged a retirement since cannot start anything. The ticket only binds a request to a retirement: it
-//! authorizes nothing, and every other check of the review and the save applies unchanged.
+//! no worker, opens no chooser and writes nothing. A new page's keyed mount retirement (its workspace's first
+//! `cancel_mbf_export`, under its own page token) moves the epoch on as any applied retirement does, so an older page,
+//! which has not acknowledged that retirement, cannot start anything. The ticket only binds a request to a retirement:
+//! it authorizes nothing, and every other check of the review and the save applies unchanged.
 //!
-//! **Exhaustion.** The epoch never wraps. A retirement at `u64::MAX` cannot move it on (nor can a retirement from a
-//! new page token once [`RETIREMENT_PAGES_MAX`] are kept), so it enters a terminal, fail-closed state instead: it cancels every run in progress as any retirement does, its reply says so
-//! (`exhausted: true`, the epoch left at `u64::MAX`), and from then on every request is refused
+//! **Exhaustion.** The export enters a terminal, fail-closed state in either of two cases, and only a restart of the
+//! process leaves it:
+//!
+//! - *Epoch overflow*: a retirement finds the epoch at `u64::MAX`, which it cannot move on without wrapping (each
+//!   applied retirement moves it by one, so this takes 2^64 of them; saturating alone would leave the tickets at
+//!   `u64::MAX` current). The epoch stays at `u64::MAX`.
+//! - *Token capacity*: a retirement comes from a new page token once [`RETIREMENT_PAGES_MAX`] (64) are kept. The
+//!   epoch stays where it was (it is not moved on, and is far below `u64::MAX`). Each page load makes one token, so in
+//!   practice the 65th distinct page load in one process (a webview reload counts) exhausts the MBF export until the
+//!   app restarts: an availability limit, chosen over forgetting a token, whose delayed duplicate would otherwise be
+//!   applied again.
+//!
+//! In both, the retirement that exhausts it cancels every run in progress as any retirement does, its reply says so
+//! (`exhausted: true`, with the epoch as it is), and from then on every request is refused
 //! `MBF-EXPORT-EPOCH-EXHAUSTED` at its entry and a command that had already entered is cancelled when it registers.
-//! Saturating alone would leave the tickets at `u64::MAX` current.
+//!
+//! **Ids are not authenticated.** A page token is random but not a secret, and the host does not check who sends it:
+//! any code running in the webview can send `cancel_mbf_export` with any id. Such code could cancel MBF runs, or use
+//! up the 64 tokens and exhaust the export until restart (a denial of service), but it gains no save authority: a
+//! retirement only cancels and refuses, and a token or ticket authorizes nothing. This is not a security boundary;
+//! the webview's code is trusted as for every other command.
 //!
 //! **The cancel/commit boundary** (a save only). The save checks its cancellation again before it opens the chooser,
 //! and once the chooser returns a path it commits ([`MbfWriterRun::commit`]) under the run's lock before the first
@@ -760,17 +779,74 @@ pub(crate) fn save_command<R>(
     Ok(response)
 }
 
-/// `cancel_mbf_export` (`lib.rs` registers it): `{retirementId}` as an `args-json-v1` raw body, admitted under an
-/// interactive ingress lease (at most [`CANCEL_ARGS_MAX_BYTES`]), then the keyed retirement
+/// `cancel_mbf_export` (`lib.rs` registers it): `{retirementId}` in either of two forms, then the keyed retirement
 /// ([`MbfRuns::retire_keyed`]). A missing or malformed id is the command's error, `MBF-EXPORT-RETIREMENT-ID-INVALID:
 /// …`, and retires nothing.
+///
+/// - **The raw form**: an `args-json-v1` raw body with the ingress header, admitted as every C1 command's arguments
+///   (`command_ingress::admit_body_within`): at most [`CANCEL_ARGS_MAX_BYTES`] raw bytes, refused
+///   `INGRESS-ARGS-TOO-LARGE` before the prescan and before any lease, then the prescan, an interactive ingress lease
+///   and the parse.
+/// - **The JSON form** ([`cancel_json_args`]): Tauri's own JSON arguments, `{"retirementId": {page, sequence}}`, with
+///   no ingress header. This is what the frontend sends (`mbfExportCancel.ts`), because it is the one form that reaches
+///   the host unchanged on both of Tauri 2.11.1's transports: the custom protocol posts it as `application/json`, and
+///   its `postMessage` fallback (taken for the rest of the page once one `fetch` fails, and for the failed invoke
+///   itself) `JSON.stringify`s it inside its message. A raw body does not survive the fallback: its `Uint8Array` is
+///   stringified into a JSON array of numbers, which arrives as a JSON body and is refused
+///   `INGRESS-RAW-BODY-REQUIRED`, so a raw cancel could not stop a save after the transport fell back.
+///
+/// What bounds the JSON form: Tauri parses it into a `serde_json::Value` before the command runs, unpriced, and
+/// neither of its transports limits a request's size first (the custom protocol reads the whole body and parses it as
+/// JSON; the fallback parses the whole message string), so no check here bounds Tauri's parse or its allocations,
+/// exactly as for every JSON-argument command (`cancel_preview_mechanics_job`). The command's own check bounds what
+/// follows the parse: the arguments' canonical serialization is measured, with no allocation, and refused
+/// `INGRESS-ARGS-TOO-LARGE` above [`CANCEL_ARGS_MAX_BYTES`] before anything is read from them; the id is then copied
+/// out of at most that many bytes. Like the JSON-argument commands, the form takes no ingress lease: the `Value` it
+/// would price already exists. Starts (`review_mbf_export`, `save_mbf_export`) stay raw-body only.
+///
+/// Both forms then read the id from the same member by [`RetirementId::read`] and retire by the one keyed path, so the
+/// id's validation, its once-only application (a delivery in one form and a re-delivery in the other are one logical
+/// retirement), the reply and exhaustion are the same.
 pub(crate) fn cancel_command(registry: &SolveJobRegistry, runs: &MbfRuns, body: &InvokeBody, headers: &HeaderMap) -> Result<MbfRetirement, CommandError<String>> {
-    let (mut args, lease) = command_ingress::admit_body_within(registry, body, headers, CANCEL_COMMAND, ArgsDecoding::Moved, CANCEL_ARGS_MAX_BYTES)?;
-    let id = RetirementId::read(args.opt_value(RETIREMENT_ID));
-    drop(args);
+    let (id, lease) = match body {
+        InvokeBody::Json(args) if headers.get(command_ingress::INGRESS_HEADER).is_none() => (RetirementId::read(cancel_json_args(args)?), None),
+        _ => {
+            let (mut args, lease) = command_ingress::admit_body_within(registry, body, headers, CANCEL_COMMAND, ArgsDecoding::Moved, CANCEL_ARGS_MAX_BYTES)?;
+            (RetirementId::read(args.opt_value(RETIREMENT_ID)), Some(lease))
+        }
+    };
     let reply = id.map(|id| runs.retire_keyed(id, registry.pool())).map_err(|refusal| CommandError::Command(format!("{}: {}", refusal.code, refusal.message)));
     drop(lease);
     reply
+}
+
+/// The JSON form's arguments ([`cancel_command`]): one object whose canonical serialization is at most
+/// [`CANCEL_ARGS_MAX_BYTES`] (measured by a counting writer that stops at the bound and allocates nothing), and its
+/// [`RETIREMENT_ID`] member, copied out of it. A larger body is refused `INGRESS-ARGS-TOO-LARGE` and anything but an
+/// object `INGRESS-ARGS-NOT-OBJECT`, as the raw form's are; other members are ignored, as the raw form's are.
+fn cancel_json_args(args: &serde_json::Value) -> Result<Option<serde_json::Value>, SolveJobError> {
+    struct Bounded(usize);
+    impl std::io::Write for Bounded {
+        fn write(&mut self, bytes: &[u8]) -> std::io::Result<usize> {
+            self.0 = self.0.saturating_add(bytes.len());
+            if self.0 > CANCEL_ARGS_MAX_BYTES {
+                return Err(std::io::ErrorKind::FileTooLarge.into());
+            }
+            Ok(bytes.len())
+        }
+        fn flush(&mut self) -> std::io::Result<()> {
+            Ok(())
+        }
+    }
+    if serde_json::to_writer(&mut Bounded(0), args).is_err() {
+        return Err(SolveJobError::InvalidRequest {
+            message: format!("INGRESS-ARGS-TOO-LARGE: `{CANCEL_COMMAND}` takes at most {CANCEL_ARGS_MAX_BYTES} bytes of arguments."),
+        });
+    }
+    let serde_json::Value::Object(map) = args else {
+        return Err(SolveJobError::InvalidRequest { message: format!("INGRESS-ARGS-NOT-OBJECT: `{CANCEL_COMMAND}`'s arguments must be one JSON object.") });
+    };
+    Ok(map.get(RETIREMENT_ID).cloned())
 }
 
 /// A command whose blocking part did not complete: a fixed refusal of the given code, within the argument lease's
