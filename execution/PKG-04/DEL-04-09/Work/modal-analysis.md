@@ -1510,7 +1510,7 @@ This proposal comes from source plus the existing cantilever calibration (stage 
   - S_T1 and d from the state case's supports, with A_conf.
 
   **A missing finite census never removes work.** The rejected pairs are in p and the computed pairs in n_c, whatever the census verdict. τ_μ is not tightened, and no high-mode check is skipped, to reach admission.
-- **S1, inside the kernel** (**built: #109, merged `23f68bd7d`**, 2026-11-04). `modal_eigen` is outside the priced crates (`tools/retained_pricing/base/crate_dirs.txt`), and `price.py` at base and head compared equal on all 1,602 coefficients, so S1 needed no D3. The budget input is an additive `DenseAllotments` passed to `solve_dense_pencil_with_allotments`, not a field of `DenseOptions`, and it defaults to no allotment. Refusals are typed and map to the approved `MODAL_RESOURCE_*` names, and the exact rotation and band-pair counts are exposed. No allotment value is adopted. The design as specified:
+- **S1, inside the kernel** (**built: #109, merged `23f68bd7d`**, 2026-11-04). `modal_eigen` is outside the priced crates (`tools/retained_pricing/base/crate_dirs.txt`), and `price.py` at base and head compared equal on all 1,602 coefficients, so S1 needed no D3. The budget input is an additive `DenseAllotments` passed to `solve_dense_pencil_with_allotments`, not a field of `DenseOptions`, and it defaults to no allotment. Refusals are typed and map to the approved `MODAL_RESOURCE_*` names, and the exact rotation and band-pair counts are exposed. No allotment value is adopted. **Wired into the product path** with P0 (2026-11-06, below: "P0 and S1 in the product, as built"). The design as specified:
   - *S1-QL:* a cumulative rotation counter in `implicit_ql` against A_QL;
   - *S1-band:* p counted exactly from the classification thresholds, before `formed_scaling` and any insertion, against A_band.
 - **S2, after `complete_reported_set` and before normalization.** Exact here: n_c, n_r, n_cl, the computed vectors and the symbolic Sturm profile (P, w_i). It checks T6, T7 (still at L_A), T9 and the early B_doc, and reserves T8 and T10 at L_A.
@@ -1648,7 +1648,7 @@ The weights rise with n (w_b64 from 0.0925 to 0.1579 over 240–960), so **no we
 | τ_r (residual threshold, A2) | **adopted, 2⁻³⁰**, as an engineering measured-residual demotion criterion (Agent 0, 2026-11-04) | §5.3.7's targeted A2 evidence | focused text, source and regression confirmation | the production instance (with A3) |
 | A3: τ_μ, c_μ, κ_μ, c_f | **decided (Agent 0, 2026-11-05): τ_μ = 2⁻⁵³, c_μ = 1, κ_μ = 10, c_f = 64**, as explicit retention and screening criteria; K2 approved (test-only counters) | §5.3.7's μ/μ_max table, its A3 proposal and "A3, as decided". At 1,920, 640 genuine top modes were not retained (hard cut κ_μ·δ_q = 2.13·10⁻¹²·μ_max, or failed band recovery; the record does not split them), so the census is unresolved, a recorded experimental capability limit (D5) | none for the values; the production instance's source, regression and D3 | K2's implementation; no parameter recaptures the 1,920 top modes (K3, K4 not adopted) |
 | A1 (τ_t, the identity tolerance, g_max, τ_e, τ_m, s_max, gap positions, offsets, the QL limit) and A2's κ_c, κ_s, τ_o, δ_c | approved or adopted as criteria (Agent 0, 2026-11-04) | §5.3.7 | none, beyond the joint production instance | nothing among the pins (A3 decided 2026-11-05); τ_r (2⁻³⁰) and the A3 criteria take their focused source and regression confirmation with the instance |
-| O-4 work budget: W_budget, the allotments, the user-facing cap | proposed form above; no coefficient | the stage-1 and 1,920 weights (table above) | the reviewed resource budget and the cap across adopted families; Agent 0 | the undetermined weights above (w_band, w_scale, w_limb, kernel above 1,920, T1/K-D5, dense Sturm, arcs), the S1 kernel hook and the S2/S2b reordering, priced changes with D3 |
+| O-4 work budget: W_budget, the allotments, the user-facing cap | proposed form above; no coefficient | the stage-1 and 1,920 weights (table above) | the reviewed resource budget and the cap across adopted families; Agent 0 | the undetermined weights above (w_band, w_scale, w_limb, kernel above 1,920, T1/K-D5, dense Sturm, arcs), the S2/S2b reordering (S1 is built and wired into the product with P0, 2026-11-06), T1's confirmation counter (a held NI seam), priced changes with D3 |
 | O-4 memory budget: ρ, B₀ and the ceiling | proposed form above | the ledger; the observed brackets at 480 / 960 / 1,920 | ρ (1 proposed), the allowance for allocator rounding and library layout, and the ceiling beyond the provisional 6 GiB; Agent 0 | the stated allowance (outside repository source); A_conf and the K-D5 buffers for state cases |
 | Projection limits: R_max, B_max, any in-memory multiple | structure approved; no limits | #59's custody limit (64 MiB displayable); the projection estimates | the limits; Agent 0 with I3b | #59 merging; I3b |
 | B_doc | proposed | 1,691 fixture rows and 10 headers within the bound | an independent check of its four items; then Agent 0's adoption | that check |
@@ -1695,6 +1695,45 @@ The weights rise with n (w_b64 from 0.0925 to 0.1579 over 240–960), so **no we
   - The general nullspace is not truncated.
   - No resolved finite count is claimed.
   - Any eigen-kernel change it needs stays clearly separate from adopting parameters.
+
+##### P0 and S1 in the product, as built (2026-11-06; no value adopted)
+
+Built on `claude/rt-dynamics-p0` from main `17aa9a1f9`, under Agent 0's approval of the guard form and placement (above). **No weight, allotment, R_max, L_A or ceiling is adopted;** L_A = 202 and the illustration's values stay proposals.
+- **Entry.** `run_modal_dense(req, params)` is unchanged and delegates to the new internal `run_modal_dense_with_budget(req, params, None)`. The budget is a separate, borrowed `Option<&ModalResourceBudget>`, not a field of `ModalIntegrityParameters` and never defaulted. With `None` no P0 runs and the kernel takes `DenseAllotments::default()`, which is `solve_dense_pencil` by construction.
+- **P0** (`modal/resource.rs`). It runs after `prepare_modal` and before `solve_modal_state_case`.
+  - *Premise checked:* `prepare_modal` forms no stiffness and no mass, and allocates only the model, the build and O(N + E) boundary and topology records (`prepare.rs:138`–`:388`). The first n²-scale work is the state solve's `form_basis_stiffness` (`state.rs:348`, after its two guards), or, with no state case, `form_modal_pencil`'s guard and formation (`stiffness.rs:142`). So P0's placement needed no adjustment.
+  - *Arithmetic:* checked u128 counts c̄_t for 24 terms (T1 to T10, split where the cost table separates parts); W = Σ w_t·c̄_t with `checked_mul`/`checked_add`; the stage allotments A_s for P0, S1, the confirmation counter, S2 and S2b; and Σ_s A_s ≤ W_budget, inclusive. A count, charge or sum that overflows refuses as `MODAL_RESOURCE_ARITHMETIC_OVERFLOW`.
+  - *Weight-or-refuse:* each weight is `Option<u64>` ps per counted unit. A term with a nonzero count and a `None` weight refuses as `MODAL_RESOURCE_PREFLIGHT_EXCEEDED`, naming the term, and so does a term with no bound. An exceeded W_budget names the dominant term, the largest w_t·c̄_t.
+- **The bounds, derived from source for the input domain** (no population fit; the module docs of `resource.rs` carry each derivation):
+  - **n̄_f** = n_g − |distinct linear restrained DOFs|. `reduce_assembled_sparse_system` (frame_kernel `structural/sparse.rs:851`) takes the free set as exactly the complement of the restrained set, and the state case only adds rigid states. With a restraint basis, n̄_f = n_g.
+  - **n̄_c** = n̄_f.
+  - **n̄_r** = min(n̄_f, ⌊R_max/6N⌋) with R_max from the budget, otherwise n̄_f. It is never assumed that n_r ≤ `mode_count`.
+  - **p̄** = min(n̄_f, A_band), and **R̄** = A_QL.
+  - **s** = s_max: `run_candidates` takes at most `max_candidates` shifts in either placement.
+  - **L** = L_A.
+  - **D_K, D_M and E** come from the re-formation's element sizes (`reform_element_stiffness`/`_mass`): 12 × 12 for straights, arcs, connectors and tie rods; two 6 × 6 lumps for an arc's mass; 6 × 6 for a body; 1 × 1 for an axis spring and 3 × 3 for a skewed spring. They are taken over every built pipe, arc, connector, tie rod and spring, and one body per mass-bearing pipe segment.
+  - **μ** = 36 with a restraint basis: up to 3 × 3 coordinate pairs × 2 dd words × 2 for a factor per element entry.
+  - **nnz(K_ff), nnz(M_ff)** in T4 ≤ n̄_f². The element bound is not used there, because the formed pattern is not proved to lie in the re-formed one.
+  - **T1:** S̄ = (I_as + 1)(2 + d̄) + 1 solves, with I_as = `DEC_046_PRODUCT_PREVIEW_ACTIVE_SET_MAX_ITERATIONS` (4) and d̄ the friction supports. Each solve is priced as T2, plus (I_as + 1)(⌈2d̄³/3⌉ + 2d̄² + d̄·n_g) for the coupling.
+- **Unbounded at P0, so refused:** `T1.confirmation`. E_conf has no source bound, and its A_conf counter is a held NI seam (`confirmation.rs`), so **P0 refuses every request that runs a state solve** until that counter exists. This is a capability boundary, not a permanent narrowing.
+- **S1 in the product** (`eigen::solve_modal_pencil_within`). With a budget, the kernel runs under `DenseAllotments { ql_rotations: Some(A_QL), band_pairs: Some(A_band) }`. Its typed resource errors map to `MODAL_RESOURCE_QL_ALLOTMENT_EXCEEDED`, `MODAL_RESOURCE_BAND_ALLOTMENT_EXCEEDED` and `MODAL_RESOURCE_ARITHMETIC_OVERFLOW` (`diagnostic:modal:resource:kernel`); the numerical refusals are unchanged.
+- **Catalogue.** `MODAL_RESOURCE_PREFLIGHT_EXCEEDED` is defined in `integrity.rs`, and the three kernel names are re-exported there. No generated document or table carries MODAL refusal codes, so nothing is regenerated. `document.rs` is untouched, so `modal_doc_solved`'s §8.52 pin `f4907717…` stands.
+- **Evidence** (`modal/tests_resource.rs`; test-local budgets only):
+  - every count equals the formula evaluated independently on SEC-A N = 1 (also by hand), the arc and the U-1 state case;
+  - every actual count (n_f, n_c, n_r, p, R, s, D_K, D_M and E) is within its bound on all 35 population models;
+  - weight-or-refuse, including a zero count needing no weight;
+  - the inclusive W_budget boundary, and A_QL and A_band equal to the actual R and p, which pass bit for bit, with one less refusing by the exact code;
+  - overflow of a charge, a count and a sum;
+  - placement: a gap model's state solve runs and carries its static diagnostics without a budget, and with one P0 refuses first; on a linear model, P0 refuses ahead of the dense guard;
+  - no budget, and an admitting budget, change no outcome on the 35 models plus a cut-off case;
+  - the fixtures' bytes, the replay equality and the producer edges are unchanged (`tests_document`, `the_phase_replay_is_the_product_path`).
+- **Open items:**
+  1. T11 (the projection) is not charged: it runs after `run_modal_dense`, in the document path, and its count needs B_doc, which stays proposed.
+  2. The memory ledger is not checked. The option-(c) ledger's rows still carry O(·) terms and approximate constants (T7's ~4.8 KB per element, the O(nnz) records, the K-D5 buffers), so a check would have to choose values. Option (c)'s workspace reuse (#110, `modal_eigen::workspace`) retains each stage's capacity from its first use until its owner (`ReformedPencil`, `ModalBasis`) drops, so a ledger must count that capacity as live over that span; this slice does not change it.
+  3. S2, S2b and the confirmation counter are not built, so A_s for those stages, R_max and L_A are recorded but not yet enforced.
+  4. R̄ = A_QL. The QL iteration limit implies a source bound of about limit·n(n − 1)/2, which is not used.
+  5. The weights stay undetermined: every budget here is test-local, and no weight, allotment or ceiling is adopted.
+- **Pricing.** `resource.rs` is a new priced source in product_physics. Its D3 and AC-004 are the manager's next turn, so this slice registers nothing.
 
 #### 5.3.9 Admission: what stays disabled, and why
 

@@ -49,9 +49,9 @@ const TRIPWIRE_EXACT_PAIR_SPLIT_OVER_ESTIMATE: f64 = 10.0;
 
 /// One model of the population: its name, request and, for a class (a)
 /// case, its reference.
-struct Model {
-    name: String,
-    request: Value,
+pub(super) struct Model {
+    pub(super) name: String,
+    pub(super) request: Value,
     reference: Option<Value>,
 }
 
@@ -75,7 +75,7 @@ fn eigen_request(case: &Value, mode_count: usize) -> Value {
 /// spectrum), EX n05, the arc, the component body and the two I2b-2 state
 /// cases. The dense path computes every finite mode whatever the bound, so
 /// the computed population is the same either way.
-fn population() -> Vec<Model> {
+pub(super) fn population() -> Vec<Model> {
     let references: Value = serde_json::from_str(EIGEN_REFERENCES).unwrap();
     let mut models = Vec::new();
     for case in references["cases"].as_array().unwrap() {
@@ -578,7 +578,7 @@ fn the_selected_instance_carries_the_decided_values_and_passes_validation() {
 #[test]
 fn no_non_test_modal_source_calls_the_selected_instance() {
     const NAME: &str = "selected_a1_a2_a3_criteria";
-    let sources: [(&str, &str); 13] = [
+    let sources: [(&str, &str); 14] = [
         ("modal.rs", include_str!("../modal.rs")),
         ("context.rs", include_str!("context.rs")),
         ("document.rs", include_str!("document.rs")),
@@ -588,6 +588,7 @@ fn no_non_test_modal_source_calls_the_selected_instance() {
         ("outcome.rs", include_str!("outcome.rs")),
         ("prepare.rs", include_str!("prepare.rs")),
         ("request.rs", include_str!("request.rs")),
+        ("resource.rs", include_str!("resource.rs")),
         ("state.rs", include_str!("state.rs")),
         ("stiffness.rs", include_str!("stiffness.rs")),
         ("skew_pencil.rs", include_str!("skew_pencil.rs")),

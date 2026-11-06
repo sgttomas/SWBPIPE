@@ -108,8 +108,11 @@ needs:
     static envelopes hashed before and after in a one-off test were byte-identical (an observation, not a
     committed regression). `LoadCaseSolve` grows from 1,880 to 1,888 B (aarch64 debug), and ordinary
     nonlinear static solves gain a small heap capture. The carrier atom, the helper's and callers' frames and
-    the stack chains are priced under the DEL-04-08 need below, not assumed unchanged. No public entry
-    exists yet.
+    the stack chains are priced under the DEL-04-08 need below, not assumed unchanged. As built (P0,
+    Design §5.3.8): the modal resource preflight bounds the state solve's structural solves from DEL-04-07's
+    active-set iteration cap (`DEC_046_PRODUCT_PREVIEW_ACTIVE_SET_MAX_ITERATIONS`, read and not changed) and
+    the dense loop's solves per iteration (one, or 2 + d with derived friction), so a change to either moves
+    that bound. No public entry exists yet.
   gating: true
   evidence: core/product_physics/src/lib.rs
 - from: DEL-05-01

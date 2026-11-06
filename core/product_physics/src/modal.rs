@@ -28,7 +28,7 @@ mod integrity;
 mod mass;
 mod outcome;
 mod prepare;
-mod request;
+mod request; mod resource; // design §5.3.8 P0, on this line so that no line moves.
 mod state;
 mod stiffness; mod skew_pencil;
 mod weight_basis;
@@ -39,7 +39,7 @@ mod tests_document;
 #[cfg(test)]
 mod tests_eigen;
 #[cfg(test)]
-mod tests_state; #[cfg(test)] mod tests_skew;
+mod tests_state; #[cfg(test)] mod tests_skew; #[cfg(test)] mod tests_resource;
 #[cfg(test)]
 mod observation_tests;
 #[cfg(test)]

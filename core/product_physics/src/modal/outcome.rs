@@ -32,9 +32,11 @@
 //! is made.
 use super::context::BoundCase;
 use super::eigen::{
-    complete_reported_set, modal_basis, modal_extraction_bound, modal_sturm_count, normalize_modal_shape, solve_modal_pencil,
+    complete_reported_set, modal_basis, modal_extraction_bound, modal_sturm_count, normalize_modal_shape, solve_modal_pencil_within,
     CompletedSet, FiniteCensus, SturmRecord,
 };
+use super::resource::{modal_resource_preflight, ModalResourceBudget};
+use open_pipe_stress_modal_eigen::dense::DenseAllotments;
 use super::integrity::{
     modal_orthogonality, modal_reformation_operands, modal_residual, reform_modal_pencil, ModalIntegrityParameters,
 };
@@ -252,11 +254,26 @@ fn bounding_box_diagonal(positions: &[[f64; 3]]) -> f64 {
 /// The dense modal entry (module docs). Returns the outcome or every
 /// blocking diagnostic of the step that refused.
 pub(crate) fn run_modal_dense(req: &ModalPreviewRequest, params: &ModalIntegrityParameters) -> Result<ModalOutcome, Vec<Diagnostic>> {
+    run_modal_dense_with_budget(req, params, None)
+}
+
+/// [`run_modal_dense`] under an explicit resource budget (design §5.3.8),
+/// a separate internal argument with no default: P0 (`resource`) after the
+/// preparation and before the state solve and any n² allocation, and S1's
+/// allotments in the kernel. With `None` it is `run_modal_dense`.
+pub(crate) fn run_modal_dense_with_budget(
+    req: &ModalPreviewRequest,
+    params: &ModalIntegrityParameters,
+    budget: Option<&ModalResourceBudget>,
+) -> Result<ModalOutcome, Vec<Diagnostic>> {
     let refusals = params.modal_parameter_refusals();
     if !refusals.is_empty() {
         return Err(refusals);
     }
     let prepared = prepare_modal(req)?;
+    if let Some(budget) = budget {
+        modal_resource_preflight(&prepared, params, budget)?;
+    }
     let nonlinear_state = solve_modal_state_case(&prepared, MODAL_DENSE_PATH_MODE)?;
     let mass = assemble_mass(&prepared, prepared.inputs.weight_to_mass_acceleration)?;
     let identity = check_weight_basis(&prepared, &mass, params.identity_tolerance)?;
@@ -264,7 +281,8 @@ pub(crate) fn run_modal_dense(req: &ModalPreviewRequest, params: &ModalIntegrity
         .as_ref()
         .map_or(&prepared.boundary.restrained_dofs[..], |state| &state.restrained_dofs[..]);
     let pencil = form_modal_pencil(&prepared, &mass, restrained, params.sturm_max_candidates)?;
-    let solution = solve_modal_pencil(&pencil, params)?;
+    let allotments = budget.map_or_else(DenseAllotments::default, ModalResourceBudget::modal_dense_allotments);
+    let solution = solve_modal_pencil_within(&pencil, params, &allotments)?;
     let census = FiniteCensus::of_solution(&solution);
     let eigenvalues = solution.eigenvalues.clone();
     let total = eigenvalues.len();
