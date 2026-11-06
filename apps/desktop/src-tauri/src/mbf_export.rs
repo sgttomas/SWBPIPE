@@ -24,7 +24,9 @@
 //!    equal the reviewed ones (`MBF-EXPORT-REVIEW-STALE`);
 //! 7. the chooser: the suggested name must be `swbpipe-model[-<slug>].mbf` (DEL-07-01 `export-file-names.md`), the
 //!    path comes only from the chooser and must end `.mbf`; the identity file is `<chosen stem>.swbpipe-ids.json`
-//!    beside it (A-5);
+//!    beside it (A-5). A run retired before the chooser opens none, and after it returns the save commits
+//!    ([`MbfWriterRun::commit`]) before the first write: a cancel that came first refuses `MBF-EXPORT-CANCELLED` with
+//!    nothing written, and one after the commit no longer interrupts the save;
 //! 8. the writes of the envelope's bytes. First, before anything is written: both destinations pass the atomic
 //!    writer's own checks (extension, parent, no symlink or directory, and off macOS no replacement); an identity file
 //!    whose MBF is absent is refused (`MBF-EXPORT-IDENTITY-FILE-EXISTS`); and every file to be replaced is backed up by
@@ -66,8 +68,11 @@
 //! refuses the save (`MBF-EXPORT-MEMORY-UNAVAILABLE`) or the review (`MBF-REVIEW-MEMORY-UNAVAILABLE`), before any file
 //! is chosen. The writer's own run is the worker's, under its grant.
 //!
-//! The commands are registered in `lib.rs` (`review_mbf_export`, `save_mbf_export`; `mbf_worker.rs` holds their
-//! blocking parts). The menu item, the Exports panel action and mounting the dialog are slice 4b.2b. Nothing is sent
+//! The commands are registered in `lib.rs` (`review_mbf_export`, `save_mbf_export` and `cancel_mbf_export`;
+//! `mbf_worker.rs` holds their blocking parts). A save that references a library opens the local store lazily with
+//! the desktop's normal open (`open_project_store`, as Save Model Document does), which may create the store or apply
+//! pending store migrations; the export writes no project, library or run rows, and a store read or open error
+//! refuses. The menu item, the Exports panel action and mounting the dialog are slice 4b.2b. Nothing is sent
 //! anywhere (F-PIP-1).
 //! Standard claim fence applies (claims taxonomy per DEC-081): a written MBF means the listed subset of the model
 //! was written; it is not evidence that another program reads or analyses it alike.
@@ -792,6 +797,18 @@ impl WriterOutput {
 /// run), or in process through the test seam.
 pub(crate) trait MbfWriterRun {
     fn run(&mut self, request: &WorkerRequest<'_>) -> Result<WriterOutput, WriterRunFailure>;
+
+    /// Whether the run's request has been retired since (a newer save, `cancel_mbf_export`, the session's reset): the
+    /// save checks it before it opens the chooser. In process nothing retires a run.
+    fn cancelled(&self) -> bool {
+        false
+    }
+
+    /// The save's cancel/commit boundary, after the chooser and before the first write: `Err(Cancelled)` if a cancel
+    /// came first (nothing is written), else committed, so a later cancel cannot interrupt the transactional write.
+    fn commit(&mut self) -> Result<(), WriterRunFailure> {
+        Ok(())
+    }
 }
 
 /// Task 3 in process, compiled for tests only (with its seam): no production code runs the writer in process (§3.7).
@@ -1429,11 +1446,20 @@ fn save_mbf_export_outcome(
             "The suggested name must be swbpipe-model.mbf or swbpipe-model-<label>.mbf in lowercase letters, digits and single hyphens; nothing was written.",
         );
     }
+    // A run retired since its worker ended opens no chooser.
+    if run.cancelled() {
+        return MbfExportOutcome::refused(vec![run_failure(WriterRunFailure::Cancelled, MEMORY_UNAVAILABLE, OUTPUT_TOO_LARGE)]);
+    }
     let chosen = match choose(&suggested_name) {
         Ok(Some(chosen)) => chosen,
         Ok(None) => return MbfExportOutcome::Cancelled,
         Err(message) => return MbfExportOutcome::refused_one(PICKER_PATH_INVALID, message),
     };
+    // The cancel/commit boundary: a run retired while its chooser was open writes nothing; once committed, a cancel
+    // is too late and the write below completes or undoes itself.
+    if let Err(failure) = run.commit() {
+        return MbfExportOutcome::refused(vec![run_failure(failure, MEMORY_UNAVAILABLE, OUTPUT_TOO_LARGE)]);
+    }
     // 8-10.
     let mut block = vec![0_u8; READBACK_BLOCK_BYTES];
     write_pair(io, &chosen, &files, &mut block, admitted.warnings)
@@ -2020,6 +2046,57 @@ mod tests {
         assert_eq!(save(request(&canonical_of(EXPORT_MODEL)), None, &opened), MbfExportOutcome::Cancelled);
         assert!(opened.get());
         assert!(sandbox.entries().is_empty());
+    }
+
+    /// A run retired after its worker ended: by the chooser (`cancelled`), or while the chooser was open (`commit`).
+    struct Retired<'s> {
+        run: InProcessWriterRun<'s>,
+        before_chooser: bool,
+    }
+
+    impl MbfWriterRun for Retired<'_> {
+        fn run(&mut self, request: &WorkerRequest<'_>) -> Result<WriterOutput, WriterRunFailure> {
+            self.run.run(request)
+        }
+
+        fn cancelled(&self) -> bool {
+            self.before_chooser
+        }
+
+        fn commit(&mut self) -> Result<(), WriterRunFailure> {
+            Err(WriterRunFailure::Cancelled)
+        }
+    }
+
+    /// The cancel/commit boundary's two checks (finding P2-1 at 9c5785a6d): a run retired before the chooser opens
+    /// none, and one retired while it was open is refused at the commit; both reply `MBF-EXPORT-CANCELLED` and write
+    /// nothing, with every reservation released.
+    #[test]
+    fn a_run_retired_before_its_commit_writes_nothing() {
+        let sandbox = Sandbox::new("retired");
+        let pool = registry(ScriptedHost::normal());
+        let seam = InProcessWriterTestSeam::for_tests();
+        for before_chooser in [true, false] {
+            let opened = Cell::new(false);
+            let memory = PoolReadMemory::unseeded(&pool);
+            let outcome = save_mbf_export_with(
+                &mut Retired { run: in_process(&seam), before_chooser },
+                request(&canonical_of(EXPORT_MODEL)),
+                &memory,
+                no_store,
+                |_| {
+                    opened.set(true);
+                    Ok(Some(sandbox.0.join("swbpipe-model.mbf")))
+                },
+                &mut SystemMbfExportIo,
+                |outcome, _| outcome.clone(),
+            );
+            drop(memory);
+            assert_eq!(codes(&outcome), vec![CANCELLED.to_string()], "{before_chooser}");
+            assert_eq!(opened.get(), !before_chooser, "the chooser opens only for a run not yet retired");
+            assert!(sandbox.entries().is_empty());
+            assert_eq!(pool.pool_status().reserved_bytes, 0);
+        }
     }
 
     #[test]

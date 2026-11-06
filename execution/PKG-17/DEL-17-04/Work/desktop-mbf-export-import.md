@@ -392,9 +392,20 @@ criterion-6 test (§5), not in the dialog.
 
 ### 3.6 Native command, atomic write and read-back
 
-Native writer memory governance and the live export are unfinished until slice 4b's worker
-path is verified (§3.7). Until then the production entry point refuses every request with
-`MBF-EXPORT-NOT-CONNECTED` before step 1, and the steps below run only through a test seam.
+The native command is connected (slice 4b.2a, §3.7, §6): `save_mbf_export` runs the steps below
+in production, with step 5's writer in the capped worker process. `MBF-EXPORT-NOT-CONNECTED`,
+which slices 4a and 4b.1 returned, is retired. The frontend (the menu item, the Exports panel
+action and the mounted dialog) is slice 4b.2b's, so no product control calls the command yet.
+
+**The library store.** Steps 2 to 4 read the libraries a document references from the local
+store, which is opened lazily, only if the document references one, with the desktop's normal
+open (`open_project_store`, as Save Model Document and the report package save open it). That
+open may create the store or apply pending store migrations (for example v14's retirement of
+the unused FTS sidecar, once it lands); the export writes no project, library or run rows, and
+a read or open error refuses. The read-only open (`open_store_read_only`) is not used: it
+refuses a store below the target version, including one whose deferred migration step is
+pending, which the normal open keeps openable, so the export would refuse where Save Model
+Document succeeds (RT-U4, 2026-11-05).
 
 `save_mbf_export` takes these arguments: `{canonicalText, claimedModelHash, settingsJson,
 suggestedName, reviewed: {mbfSha256, sidecarSha256}, screening, localFirstEvidence}`.
@@ -427,6 +438,12 @@ maxLayoutRows: null}`: the text the review ran with. In order:
    `reviewed`, refuse with `MBF-EXPORT-REVIEW-STALE`.
 7. **Chooser.** Open the native save chooser (`.mbf`, the documents folder). The suggested
    name is checked against `swbpipe-model[-…].mbf`. The path comes only from the chooser.
+   - **Cancel and commit.** A save retired after its worker ended (a newer save,
+     `cancel_mbf_export`, the session's reset) opens no chooser. Once the chooser returns a
+     path, the save commits under its run's lock before the first write. A cancel that takes
+     the lock first refuses the save `MBF-EXPORT-CANCELLED`, with nothing written. A cancel
+     after the commit is too late: its receipt says so (`too_late`), and steps 8 to 10 complete,
+     or undo themselves, and report their own outcome. A save is never half-aborted.
 8. **Writes.** No failure loses a file the user already had. The output ceiling is decided at
    step 5, before any write, so it never truncates valid file bytes and never leaves a partial
    pair.
@@ -515,7 +532,24 @@ only the staleness check of step 6.
   (`wait_acquire`, at most 2 s; cancellation or a newer review ends it), grows on demand up to it,
   and is released only after the worker is reaped. The request copy is a capped interactive
   lease. Once the worker is reaped the bound shrinks to the result lease, which is held until the
-  response is built.
+  response is built. A result lease larger than the bound's share for it (the resident envelope
+  of the 64 MiB ceiling, which bounds every admitted length's) is refused
+  `MBF-EXPORT-WORKER-PROTOCOL` in every build, so the ledger never under-counts it.
+- **The bound takes the command's whole remaining budget.** While the worker runs, the bound
+  holds everything the captured budget leaves after the command's other live leases. A later
+  stage inside the same command (a reservation after the run) gets those bytes back only after
+  the bound shrinks to the result lease (`LedgerBound::shrink_to`) or drops. Dropping it,
+  including when the run fails, is cancelled or unwinds, returns the ledger exactly to its total
+  before the bound; a bound above the budget is refused with the ledger and the pool's
+  reservations unchanged.
+- **Cancellation** (`mbf_worker::MbfRuns`). At most one review and one save are in progress; a
+  newer one of either kind cancels the older. `cancel_mbf_export` and the native session reset
+  (`dispose_all_preview_mechanics_results`, on page load) cancel both: a waiting run stops
+  waiting, a running worker is killed and reaped before its grant is released, and a save
+  before its commit writes nothing (§3.6 step 7). The frontend calls `cancel_mbf_export`
+  whenever it retires a project session (each new session generation, a project replaced by
+  one with the same id included) and when the workspace unmounts, independently of any model
+  check; slice 4b.2b's dialog calls it when it closes.
 - **Host-side reservations.** The command's ledger (`NativeLeaseMemory`) is seeded with the
   lease. Each of these is reserved before it is made:
   - the settings' parse (1 MiB, for a settings text of at most 25 KiB);
@@ -547,16 +581,16 @@ only the staleness check of step 6.
 - **Refusal.** A reservation the pool refuses refuses the save with
   `MBF-EXPORT-MEMORY-UNAVAILABLE`, including a refusal raised inside the admission's screen.
 - **Webview preview.** As built in 4a, the dialog's review runs the wasm writer in webview
-  memory, ungoverned; the dialog is not mounted. §3.9 (adopted design, Agent 0, 2026-11-02, not
-  implemented) finds five super-linear terms, none bounded by an existing limit. The shipped
+  memory, ungoverned; the dialog is not mounted. §3.9 (adopted design, Agent 0, 2026-11-02; its
+  native part implemented in 4b.1 and 4b.2a, the dialog's mounting 4b.2b's) finds five super-linear terms, none bounded by an existing limit. The shipped
   dialog therefore never runs the wasm writer: `review_mbf_export` runs the 4b worker in
   `review` mode and returns at most 1 MiB of review. The wasm writer remains only as an
   unconnected or test resource, never a fallback.
 
 ### 3.8 Reach-scan re-pin
 
-- **The pin.** Adding `save_mbf_export` and `review_mbf_export` (and `open_mbf_file`, §4.7)
-  changes the text of `app_invoke_handler`.
+- **The pin.** Adding `save_mbf_export`, `review_mbf_export` and `cancel_mbf_export` (and
+  `open_mbf_file`, §4.7) changes the text of `app_invoke_handler`.
   - The PR that adds each command re-pins its SHA-256 in `user_release_reach_scan.rs`
     `MACRO_DEFINITIONS`.
   - It extends the doc comment with the entries, each reviewed: no `mod`, no
@@ -1241,8 +1275,7 @@ the frontend. The production entry points run task 3 in the capped worker; `MBF-
   code, any other failure, an attested result or a stopped worker (`MBF-EXPORT-WORKER-PROTOCOL`), and
   cancellation (`MBF-EXPORT-CANCELLED`). `MbfRuns` (managed app state) holds at most one review and one save in
   progress: a newer review cancels the older (its wait ends, or its worker is killed and reaped before its grant is
-  released). `MbfRuns::cancel` cancels both; 4b.2b connects it to the dialog's close and the project session's
-  change.
+  released). `MbfRuns::cancel_all` cancels both (as repaired below).
 - **Commands** (`lib.rs`): `review_mbf_export` and `save_mbf_export` are registered in `app_invoke_handler!` and
   take C1's form (§3.7, "Admission"); the save's chooser offers `.mbf` and its library store opens only when the
   document references a library. The save keeps §3.6's order: the `DOTH-MBF-012` route evidence, the settings,
@@ -1269,10 +1302,37 @@ the frontend. The production entry points run task 3 in the capped worker; `MBF-
   production references to `worker_render`, task 3 and the run seam, with negative controls; `solve_worker.rs` adds
   the task-code round trip. Mutations checked: no `result_limit`, no ledger bound and the result lease released
   before the response each fail a test.
+- **Repair after the review at 9c5785a6d** (2026-11-05):
+  - *A superseded save could still write* (P2). The save checks its cancellation before the chooser and commits
+    under its run's lock after it (§3.6 step 7): a save superseded while its chooser was open refuses
+    `MBF-EXPORT-CANCELLED` and writes nothing, and a cancel after the commit is reported too late while the save
+    completes. 4a's transactional save, backups and refusal order are unchanged.
+  - *No production cancellation route* (P2). `cancel_mbf_export` (`lib.rs`, a no-argument command like
+    `cancel_model_checks`; reply `{cancelled, too_late}`) is registered in `app_invoke_handler!` and re-pinned
+    (§3.8). The native session reset (`dispose_all_preview_mechanics_results`, through `reset_native_session`)
+    cancels every MBF run before `dispose_all_results`. The frontend's project-session retirement calls it on its
+    own (`features/caepipe-mbf/mbfExportCancel.ts`, from `workspaceSession.ts`): the model-check effect cancels
+    natively only while a check is in flight, so it would not reach an MBF-only session. `solve_jobs.rs` keeps
+    its three getters only. Four Vitest files that list the exact native commands of another flow
+    (`App.test.tsx`, `modelStateHistory.session.test.tsx`, `modelDocumentSave.test.tsx`,
+    `storedDocumentExport.test.tsx`) now leave `cancel_mbf_export` out of those lists: it writes nothing.
+  - *Source scan* (P3). A file declared both as a test-only module and by a production `mod` is scanned:
+    production reachability is resolved over every declaration first, with dual-declaration negative controls.
+  - *Result lease* (RT-U4). The lease-size check is a hard refusal in every build (§3.7), and a test pins
+    `resident_envelope(length) <= RESULT_LEASE_BYTES` for every admissible length, with the envelope's monotonicity
+    checked piece by piece.
+  - *Tests added:* a save superseded while its chooser is held open writes nothing, and the later save completes;
+    a cancel after the commit is too late and the files are written; the session reset cancels a running review and
+    a queued save with no model check and releases everything; `cancel_mbf_export` stops the current run and is a
+    no-op with nothing running; the pipeline's two boundary checks with an in-process run; `LedgerBound`'s exact
+    shrink, drop and unwind and its over-budget refusal; and a Vitest of the session retirement (same-id replacement,
+    unmount, no model check). Mutations checked: no commit check, no pre-chooser check, no reset cancel, a cancel
+    that ignores the commit, a commit that ignores a cancel, the scan's old exclusion and no frontend retirement each
+    fail a test, none by hanging.
 - **4b.2b** (next, not here): the menu item, the Exports panel action, mounting the dialog on `review_mbf_export`
   and `save_mbf_export` (sent as `args-json-v1` raw bodies: both join `NATIVE_INGRESS_COMMANDS` in
-  `services/nativeIngress.ts` and its test twin), the dialog's cancel route on close and on a project session's
-  change (`MbfRuns::cancel`), and retiring the TypeScript builder (A-6).
+  `services/nativeIngress.ts` and its test twin), the dialog's close calling `cancel_mbf_export`, and retiring the
+  TypeScript builder (A-6).
 
 ## 7. Boundaries
 

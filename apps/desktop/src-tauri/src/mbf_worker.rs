@@ -33,10 +33,17 @@
 //! keeps its code; any other worker failure (an exit, a panic, a protocol violation, an attested result) is
 //! `MBF-EXPORT-WORKER-PROTOCOL`; cancellation is `MBF-EXPORT-CANCELLED`.
 //!
-//! **Cancellation** ([`MbfRuns`]). At most one review is in progress: a newer review cancels the older one, whose
-//! wait ends or whose worker is killed and reaped before its grant is released. [`MbfRuns::cancel`] does the same for
-//! the review and the save in progress; slice 4b.2b connects it to the dialog's close and the project session's
-//! change.
+//! **Cancellation** ([`MbfRuns`]). At most one review and one save are in progress: a newer one of either kind cancels
+//! the older, whose wait ends or whose worker is killed and reaped before its grant is released.
+//! [`MbfRuns::cancel_all`] does the same for both; production calls it from `cancel_mbf_export` (the frontend calls it
+//! when the project session is retired, and 4b.2b's dialog when it closes) and from the session reset
+//! (`dispose_all_preview_mechanics_results`, on page load).
+//!
+//! **The cancel/commit boundary** (a save only). The save checks its cancellation again before it opens the chooser,
+//! and once the chooser returns a path it commits ([`MbfWriterRun::commit`]) under the run's lock before the first
+//! write. A cancel that wins the lock first refuses the save `MBF-EXPORT-CANCELLED` with nothing written; a cancel
+//! after the commit is too late (its receipt says so), and the save's transactional write (4a: every destination
+//! checked and backed up first, undone on failure) completes or undoes itself and reports its own outcome.
 
 use crate::command_ingress::{self, Args, ArgsDecoding, CommandError, NoCommandError};
 use crate::ingress::allocation_envelope;
@@ -44,6 +51,7 @@ use crate::mbf_export::{
     self, MbfExportOutcome, MbfReviewOutcome, MbfWriterRun, WorkerRequest, WriterOutput, WriterRunFailure, ENGINE_FAILED, MODEL_JSON_INVALID,
     OUTPUT_TOO_LARGE, SETTINGS_INVALID, WORKER_PROTOCOL, WORKER_REQUEST_INVALID,
 };
+use serde::Serialize;
 use crate::memory_pool::{CommandLease, CommandLedger, Lease, LeasePurpose, LedgerBound, MemoryPool, ResourceRefusal, WaitOutcome};
 use crate::solve_jobs::{SolveJobError, SolveJobRegistry};
 use crate::solve_worker::{initial_grant, panic_message, supervise, SupervisorHooks, WorkerControl, WorkerOutcome, WorkerTask, WorkerTerms};
@@ -70,7 +78,8 @@ const TASK_FAILURE_CODES: [&str; 6] = [WORKER_REQUEST_INVALID, SETTINGS_INVALID,
 
 // -- Cancellation ---------------------------------------------------------------------------------------------------
 
-/// One run's cancellation: a flag the wait and the supervisor read, and kill access to its worker while unreaped.
+/// One run's cancellation: a flag the wait, the supervisor and the save read, kill access to its worker while unreaped,
+/// and the save's commit, after which a cancel no longer applies.
 #[derive(Debug, Default)]
 struct RunControl {
     state: Mutex<RunState>,
@@ -79,6 +88,7 @@ struct RunControl {
 #[derive(Debug, Default)]
 struct RunState {
     cancelled: bool,
+    committed: bool,
     worker: Option<Arc<WorkerControl>>,
 }
 
@@ -92,14 +102,38 @@ impl RunControl {
     }
 
     /// Requests cancellation and kills the worker if one is attached; its supervisor reaps it, then the run releases
-    /// the grant.
-    fn cancel(&self) {
+    /// the grant. Returns false, changing nothing, if the save has already committed its write (too late).
+    fn cancel(&self) -> bool {
         let mut state = self.lock();
+        if state.committed {
+            return false;
+        }
         state.cancelled = true;
         if let Some(worker) = &state.worker {
             worker.kill();
         }
+        true
     }
+
+    /// The cancel/commit boundary: commits unless a cancel came first (under the same lock as [`Self::cancel`]).
+    fn commit(&self) -> bool {
+        let mut state = self.lock();
+        if !state.cancelled {
+            state.committed = true;
+        }
+        state.committed
+    }
+}
+
+/// What `cancel_mbf_export` (and the session's retirement) did: the runs it stopped before they wrote anything, and
+/// the saves it reached after they had committed their write, which complete (or undo themselves) and report their
+/// own outcome. Both zero: nothing was in progress.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize)]
+pub(crate) struct MbfCancelReceipt {
+    /// Stopped: each replies `MBF-EXPORT-CANCELLED`, and nothing was written.
+    pub(crate) cancelled: u32,
+    /// Too late: a save past its commit, whose write was not interrupted.
+    pub(crate) too_late: u32,
 }
 
 type Slot = Arc<Mutex<Option<Arc<RunControl>>>>;
@@ -130,18 +164,22 @@ impl MbfRuns {
     }
 
     /// Cancels the review and the save in progress, if any: a waiting run stops waiting, a running worker is killed
-    /// and its grant released after the reap. Returns whether one was in progress. Slice 4b.2b calls it when the
-    /// dialog closes and when the project session changes.
-    #[cfg_attr(not(test), allow(dead_code))]
-    pub(crate) fn cancel(&self, pool: &MemoryPool) -> bool {
+    /// and its grant released after the reap, a save before its commit refuses with nothing written. A save past its
+    /// commit is counted too late and completes. `cancel_mbf_export` and the session reset call it.
+    pub(crate) fn cancel_all(&self, pool: &MemoryPool) -> MbfCancelReceipt {
         let current: Vec<_> = [&self.review, &self.save].into_iter().filter_map(|slot| lock_slot(slot).take()).collect();
+        let mut receipt = MbfCancelReceipt::default();
         for control in &current {
-            control.cancel();
+            if control.cancel() {
+                receipt.cancelled += 1;
+            } else {
+                receipt.too_late += 1;
+            }
         }
         if !current.is_empty() {
             pool.wake_waiters();
         }
-        !current.is_empty()
+        receipt
     }
 }
 
@@ -258,7 +296,28 @@ fn worker_failure(text: String) -> WriterRunFailure {
     }
 }
 
+// A test's hook, run on the saving thread just after a save commits (the cancel-after-commit test).
+#[cfg(test)]
+thread_local! {
+    pub(crate) static AFTER_COMMIT: std::cell::RefCell<Option<Box<dyn FnOnce()>>> = std::cell::RefCell::new(None);
+}
+
 impl MbfWriterRun for CappedWorkerRun<'_> {
+    fn cancelled(&self) -> bool {
+        self.registration.control.cancelled()
+    }
+
+    fn commit(&mut self) -> Result<(), WriterRunFailure> {
+        if !self.registration.control.commit() {
+            return Err(WriterRunFailure::Cancelled);
+        }
+        #[cfg(test)]
+        if let Some(hook) = AFTER_COMMIT.with(|hook| hook.borrow_mut().take()) {
+            hook();
+        }
+        Ok(())
+    }
+
     fn run(&mut self, request: &WorkerRequest<'_>) -> Result<WriterOutput, WriterRunFailure> {
         let registry = self.registry;
         let control = Arc::clone(&self.registration.control);
@@ -320,7 +379,13 @@ impl MbfWriterRun for CappedWorkerRun<'_> {
             Ok(WorkerOutcome::Completed { attestation: Some(_), .. }) => Err(WriterRunFailure::Protocol("task 3 attests nothing, but its result was attested".to_string())),
             Ok(WorkerOutcome::Completed { result, lease, attestation: None }) => {
                 // 5. Result custody: the grant and the request copy have ended; the bound now covers the result lease.
-                debug_assert!(lease.bytes() <= RESULT_LEASE_BYTES);
+                // A lease above the bound's share would leave the ledger under-counting it: refused, in every build.
+                if lease.bytes() > RESULT_LEASE_BYTES {
+                    return Err(WriterRunFailure::Protocol(format!(
+                        "the result lease of {} bytes exceeds the {RESULT_LEASE_BYTES} bytes its bound holds",
+                        lease.bytes()
+                    )));
+                }
                 bound.shrink_to(lease.bytes());
                 let text = String::from_utf8(result).map_err(|_| WriterRunFailure::Protocol("the result is not UTF-8".to_string()))?;
                 Ok(WriterOutput { text, custody: Some(WorkerResultHold { _lease: lease, _bound: bound }) })

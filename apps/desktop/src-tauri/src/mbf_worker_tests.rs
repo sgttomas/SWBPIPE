@@ -157,6 +157,17 @@ fn save_via_command(registry: &SolveJobRegistry, runs: &MbfRuns, body: &Value, c
     outcome
 }
 
+/// `save_via_command` with the chooser `choose` (a test that holds the chooser open).
+fn save_choosing(registry: &SolveJobRegistry, runs: &MbfRuns, body: &Value, choose: impl FnOnce(&str) -> Result<Option<PathBuf>, String>) -> MbfExportOutcome {
+    let (raw, copy) = reserve(registry, &raw_body(body), &headers(Some(INGRESS_ARGS_JSON_V1)), COMMAND).unwrap();
+    let (outcome, text) = save_command(registry, runs, raw, copy, || Err("the test has no library store".to_string()), choose, |outcome, text| (outcome.clone(), text)).unwrap();
+    assert_eq!(serde_json::to_string(&outcome).unwrap(), text);
+    outcome
+}
+
+/// A cancel that stopped one run before it wrote anything.
+const STOPPED_ONE: MbfCancelReceipt = MbfCancelReceipt { cancelled: 1, too_late: 0 };
+
 fn review_codes(outcome: &MbfReviewOutcome) -> Vec<String> {
     match outcome {
         MbfReviewOutcome::Refused { diagnostics } => diagnostics.iter().map(|item| item.code.clone()).collect(),
@@ -226,7 +237,7 @@ struct CancelOnUnwind<'a>(&'a MbfRuns, &'a SolveJobRegistry);
 impl Drop for CancelOnUnwind<'_> {
     fn drop(&mut self) {
         if std::thread::panicking() {
-            self.0.cancel(self.1.pool());
+            self.0.cancel_all(self.1.pool());
         }
     }
 }
@@ -239,7 +250,7 @@ fn ends_by_itself<T: Send>(registry: &SolveJobRegistry, runs: &MbfRuns, run: imp
         let deadline = Instant::now() + Duration::from_secs(60);
         while !running.is_finished() {
             if Instant::now() >= deadline {
-                runs.cancel(registry.pool());
+                runs.cancel_all(registry.pool());
                 let _ = running.join();
                 panic!("the run did not end by itself");
             }
@@ -247,6 +258,21 @@ fn ends_by_itself<T: Send>(registry: &SolveJobRegistry, runs: &MbfRuns, run: imp
         }
         running.join().unwrap()
     })
+}
+
+/// Joins `running`, failing the test (after cancelling `runs`, so its worker ends and the join returns) if it has not
+/// ended within 30 s: a run nothing cancels fails its test instead of hanging it.
+fn join_within<T>(registry: &SolveJobRegistry, runs: &MbfRuns, running: std::thread::ScopedJoinHandle<'_, T>, what: &str) -> T {
+    let deadline = Instant::now() + Duration::from_secs(30);
+    while !running.is_finished() {
+        if Instant::now() >= deadline {
+            runs.cancel_all(registry.pool());
+            let _ = running.join();
+            panic!("{what} was not cancelled");
+        }
+        std::thread::sleep(Duration::from_millis(5));
+    }
+    running.join().unwrap()
 }
 
 fn worker_alive(pid: i32) -> bool {
@@ -431,7 +457,7 @@ fn a_run_one_byte_above_the_budget_is_refused_before_any_worker_and_one_at_it_st
             if admitted {
                 gate.wait_started(started + 1);
                 assert_eq!(ledger.total_bytes(), budget);
-                assert!(runs.cancel(registry.pool()));
+                assert_eq!(runs.cancel_all(registry.pool()), STOPPED_ONE);
                 assert!(matches!(running.join().unwrap(), Err(WriterRunFailure::Cancelled)));
             } else {
                 let Err(WriterRunFailure::Memory(message)) = running.join().unwrap() else { panic!("not refused") };
@@ -464,7 +490,7 @@ fn a_budget_raised_while_a_review_waits_does_not_extend_it() {
         let running = scope.spawn(|| CappedWorkerRun::review(&registry, &ledger, &runs).run(&request));
         await_queued(&registry, |refusal| matches!(refusal, ResourceRefusal::WorkerLimitReached { .. }));
         assert_eq!((ledger.budget_bytes(), ledger.total_bytes()), (GIB, GIB), "the bound is the captured budget's rest");
-        assert!(runs.cancel(registry.pool()));
+        assert_eq!(runs.cancel_all(registry.pool()), STOPPED_ONE);
         assert!(matches!(running.join().unwrap(), Err(WriterRunFailure::Cancelled)));
     });
     assert_eq!(ledger.total_bytes(), args.bytes());
@@ -489,12 +515,12 @@ fn a_review_waiting_for_its_grant_is_cancelled_or_refused_at_its_deadline() {
         let began = Instant::now();
         let waiting = scope.spawn(|| review_via_command(&registry, &runs, &body));
         await_queued(&registry, |refusal| matches!(refusal, ResourceRefusal::WorkerLimitReached { .. }));
-        assert!(runs.cancel(registry.pool()));
+        assert_eq!(runs.cancel_all(registry.pool()), STOPPED_ONE);
         let (outcome, _) = waiting.join().unwrap();
         assert_eq!(review_codes(&outcome), vec![CANCELLED.to_string()]);
         assert!(began.elapsed() < MBF_START_WAIT, "the wait ended at the cancellation");
     });
-    assert!(!runs.cancel(registry.pool()), "the slot is clear once the review has ended");
+    assert_eq!(runs.cancel_all(registry.pool()), MbfCancelReceipt::default(), "the slot is clear once the review has ended");
     assert_released(&registry);
     // The deadline: the queue reason stands as the review's memory refusal.
     let (_memory, args) = seeded(&registry, 3 * MIB);
@@ -543,11 +569,174 @@ fn a_newer_review_kills_the_running_worker_and_completes() {
         let _guard = CancelOnUnwind(&runs, &registry);
         let saving = scope.spawn(|| save_via_command(&registry, &runs, &save, Some(sandbox.0.join("swbpipe-model.mbf")), &opened));
         gate.wait_started(3);
-        assert!(runs.cancel(registry.pool()));
+        assert_eq!(runs.cancel_all(registry.pool()), STOPPED_ONE);
         assert_eq!(save_codes(&saving.join().unwrap()), vec![CANCELLED.to_string()]);
     });
     assert!(!opened.load(Ordering::SeqCst) && sandbox.is_empty());
     assert_released(&registry);
+}
+
+/// Finding P2-1 (review at 9c5785a6d): a save superseded while its chooser is open writes nothing. Save A's worker has
+/// ended and its chooser is held open when save B registers (B's worker has started); accepting A's chooser then
+/// refuses `MBF-EXPORT-CANCELLED` at the commit boundary, with no file written. B completes later and writes the
+/// recorded files; every lease, grant and ledger charge is released.
+#[test]
+fn a_save_superseded_while_its_chooser_is_open_writes_nothing() {
+    let _lock = atomic_save_test_lock();
+    let gate = Gate::new("mbf-chooser");
+    let registry = registry_with(gate.launcher());
+    let runs = MbfRuns::default();
+    let (older_dir, newer_dir) = (Sandbox::new("superseded"), Sandbox::new("superseding"));
+    let body = save_body(&canonical_model(), recorded_default());
+    let reply = envelope(MbfMode::Save);
+    let newer = std::thread::scope(|scope| {
+        let _guard = CancelOnUnwind(&runs, &registry);
+        let (opened_tx, opened_rx) = std::sync::mpsc::channel::<()>();
+        let (accept_tx, accept_rx) = std::sync::mpsc::channel::<()>();
+        let older_path = older_dir.0.join("swbpipe-model.mbf");
+        let older = scope.spawn(|| {
+            save_choosing(&registry, &runs, &body, move |_| {
+                opened_tx.send(()).unwrap();
+                let _ = accept_rx.recv_timeout(Duration::from_secs(60));
+                Ok(Some(older_path))
+            })
+        });
+        gate.wait_started(1);
+        gate.release(&reply);
+        opened_rx.recv_timeout(Duration::from_secs(60)).expect("save A's chooser opened");
+        let newer_path = newer_dir.0.join("swbpipe-model.mbf");
+        let newer = scope.spawn(|| save_choosing(&registry, &runs, &body, move |_| Ok(Some(newer_path))));
+        // B registers before its worker starts, so A is superseded by now.
+        gate.wait_started(2);
+        accept_tx.send(()).unwrap();
+        let outcome = older.join().unwrap();
+        assert_eq!(save_codes(&outcome), vec![CANCELLED.to_string()], "{outcome:?}");
+        assert!(older_dir.is_empty(), "the superseded save wrote nothing");
+        gate.release(&reply);
+        join_within(&registry, &runs, newer, "save B")
+    });
+    let MbfExportOutcome::Saved { mbf, identity_file, .. } = &newer else { panic!("{newer:?}") };
+    assert_eq!((mbf.sha256.clone(), identity_file.sha256.clone()), recorded_default(), "the late save completes");
+    assert!(older_dir.is_empty());
+    assert_eq!(runs.cancel_all(registry.pool()), MbfCancelReceipt::default());
+    assert_released(&registry);
+}
+
+/// Finding P2-1's other side: a cancel after the save's commit is too late. It reaches the save on its own thread
+/// just after the commit (the test's `AFTER_COMMIT` hook), is reported `too_late`, and does not interrupt the write:
+/// both files are written with the recorded digests, and everything is released after.
+#[test]
+fn a_cancel_after_the_commit_is_too_late_and_the_save_completes() {
+    let _lock = atomic_save_test_lock();
+    let sandbox = Sandbox::new("after-commit");
+    let registry = real_worker();
+    let runs = MbfRuns::default();
+    let receipt = Arc::new(Mutex::new(None));
+    let (hook_runs, hook_pool, hook_receipt) = (runs.clone(), Arc::clone(registry.pool()), Arc::clone(&receipt));
+    AFTER_COMMIT.with(|hook| *hook.borrow_mut() = Some(Box::new(move || *hook_receipt.lock().unwrap() = Some(hook_runs.cancel_all(&hook_pool)))));
+    let opened = Opened::new(false);
+    let chosen = sandbox.0.join("swbpipe-model.mbf");
+    let outcome = save_via_command(&registry, &runs, &save_body(&canonical_model(), recorded_default()), Some(chosen.clone()), &opened);
+    AFTER_COMMIT.with(|hook| hook.borrow_mut().take());
+    assert_eq!(*receipt.lock().unwrap(), Some(MbfCancelReceipt { cancelled: 0, too_late: 1 }), "the cancel came after the commit");
+    let MbfExportOutcome::Saved { mbf, identity_file, .. } = &outcome else { panic!("{outcome:?}") };
+    assert_eq!((mbf.sha256.clone(), identity_file.sha256.clone()), recorded_default());
+    let ids_path = sandbox.0.join(format!("swbpipe-model{IDS_SUFFIX}"));
+    assert_eq!((sha256_hex(&std::fs::read(&chosen).unwrap()), sha256_hex(&std::fs::read(&ids_path).unwrap())), recorded_default());
+    assert_eq!(runs.cancel_all(registry.pool()), MbfCancelReceipt::default());
+    assert_released(&registry);
+}
+
+/// Finding P2-2 (a): the native session reset (`lib.rs` `reset_native_session`, behind
+/// `dispose_all_preview_mechanics_results`) cancels a running MBF review and a queued MBF save, with no model check
+/// in progress: the review's worker is killed and reaped, the save never starts a worker or opens a chooser, both
+/// reply `MBF-EXPORT-CANCELLED`, nothing is written, and the whole ledger bound, every grant and every lease is
+/// released. Without the reset's cancel the running review would never end: the test then fails at its deadline.
+#[test]
+fn the_session_reset_cancels_a_running_and_a_queued_mbf_run_and_releases_everything() {
+    let gate = Gate::new("mbf-reset");
+    let registry = registry_with(gate.launcher());
+    registry.pool().set_max_running_workers(1);
+    let runs = MbfRuns::default();
+    let sandbox = Sandbox::new("reset");
+    let opened = Opened::new(false);
+    let review = review_body(&canonical_model(), &settings());
+    let save = save_body(&canonical_model(), recorded_default());
+    std::thread::scope(|scope| {
+        let _guard = CancelOnUnwind(&runs, &registry);
+        let reviewing = scope.spawn(|| review_via_command(&registry, &runs, &review));
+        gate.wait_started(1);
+        let pid = gate.pids()[0];
+        let saving = scope.spawn(|| save_via_command(&registry, &runs, &save, Some(sandbox.0.join("swbpipe-model.mbf")), &opened));
+        await_queued(&registry, |refusal| matches!(refusal, ResourceRefusal::WorkerLimitReached { .. }));
+        let disposal = crate::reset_native_session(&registry, &runs);
+        assert_eq!(disposal.abandoned_jobs, 0, "no solve job was in progress");
+        let (reviewed, _) = join_within(&registry, &runs, reviewing, "the running review");
+        let saved = join_within(&registry, &runs, saving, "the queued save");
+        assert_eq!(review_codes(&reviewed), vec![CANCELLED.to_string()]);
+        assert_eq!(save_codes(&saved), vec![CANCELLED.to_string()]);
+        assert!(!worker_alive(pid), "the review's worker was killed and reaped");
+    });
+    assert_eq!(gate.started_count(), 1, "the queued save started no worker");
+    assert!(!opened.load(Ordering::SeqCst) && sandbox.is_empty(), "nothing was chosen or written");
+    assert_eq!(runs.cancel_all(registry.pool()), MbfCancelReceipt::default(), "the reset cleared both slots");
+    assert_released(&registry);
+}
+
+/// Finding P2-2 (b): `cancel_mbf_export`'s body (`MbfRuns::cancel_all`) with nothing in progress does nothing; with a
+/// running review it stops it (`{cancelled: 1, too_late: 0}`), the worker is killed and reaped, nothing is written and
+/// everything is released; a second cancel finds nothing.
+#[test]
+fn cancel_mbf_export_stops_the_current_run_and_is_a_no_op_with_nothing_running() {
+    let gate = Gate::new("mbf-cancel-command");
+    let registry = registry_with(gate.launcher());
+    let runs = MbfRuns::default();
+    assert_eq!(runs.cancel_all(registry.pool()), MbfCancelReceipt::default(), "nothing in progress");
+    assert_released(&registry);
+    let body = review_body(&canonical_model(), &settings());
+    std::thread::scope(|scope| {
+        let _guard = CancelOnUnwind(&runs, &registry);
+        let reviewing = scope.spawn(|| review_via_command(&registry, &runs, &body));
+        gate.wait_started(1);
+        let pid = gate.pids()[0];
+        assert_eq!(runs.cancel_all(registry.pool()), STOPPED_ONE);
+        let (outcome, _) = join_within(&registry, &runs, reviewing, "the review");
+        assert_eq!(review_codes(&outcome), vec![CANCELLED.to_string()]);
+        assert!(!worker_alive(pid));
+    });
+    assert_eq!(runs.cancel_all(registry.pool()), MbfCancelReceipt::default());
+    assert_eq!(serde_json::to_value(STOPPED_ONE).unwrap(), json!({"cancelled": 1, "too_late": 0}), "the command's reply");
+    assert_released(&registry);
+}
+
+/// RT-U4's should-fix: the result lease is checked against [`RESULT_LEASE_BYTES`] in every build, which holds only if
+/// `resident_envelope(length) <= RESULT_LEASE_BYTES` for every length the supervisor admits (at most the 64 MiB output
+/// ceiling). `resident_envelope` is monotone: it is checked at every length up to the size-class limit and one page
+/// beyond, and above that it is constant on each page `(kP, (k+1)P]` and steps up by one page, checked at both ends of
+/// every page up to the ceiling. So the ceiling's envelope bounds every admissible length's.
+#[test]
+fn every_admissible_result_length_fits_the_result_lease() {
+    use crate::worker_alloc::{LARGE_PAGE, SIZE_CLASS_LIMIT};
+    let ceiling = mbf::MBF_EXPORT_OUTPUT_MAX_BYTES;
+    assert_eq!(RESULT_LEASE_BYTES, ceiling, "the ceiling is page-aligned, so its envelope is itself");
+    let mut previous = 0;
+    for length in 0..=SIZE_CLASS_LIMIT + LARGE_PAGE {
+        let envelope = resident_envelope(length);
+        assert!(envelope >= previous && envelope >= length, "{length}");
+        previous = envelope;
+    }
+    let mut page = SIZE_CLASS_LIMIT / LARGE_PAGE + 1;
+    while page * LARGE_PAGE < ceiling {
+        let (low, high) = (page * LARGE_PAGE + 1, (page + 1) * LARGE_PAGE);
+        assert_eq!(resident_envelope(low), high, "{low}");
+        assert_eq!(resident_envelope(high), high, "{high}");
+        assert_eq!(resident_envelope(low - 1), high - LARGE_PAGE, "one page lower just below");
+        page += 1;
+    }
+    for length in [0, 1, SIZE_CLASS_LIMIT, SIZE_CLASS_LIMIT + 1, ceiling - LARGE_PAGE, ceiling - 1, ceiling] {
+        assert!(resident_envelope(length) <= RESULT_LEASE_BYTES, "{length}");
+    }
+    assert!(resident_envelope(ceiling + 1) > RESULT_LEASE_BYTES, "a longer result is refused at result_limit first");
 }
 
 // -- Memory, the output ceiling and the protocol ---------------------------------------------------------------------
@@ -790,15 +979,15 @@ impl<'ast> syn::visit::Visit<'ast> for References {
     }
 }
 
-/// The files `file` declares as test-only modules (`#[cfg(test)] mod name;`, with or without `#[path]`), by their
-/// paths under `src/`.
-fn test_module_files(file: &str, parsed: &syn::File) -> Vec<String> {
+/// The files `file` declares as modules (`mod name;`, with or without `#[path]`), by their paths under `src/`, each
+/// with whether that declaration is test-only (`#[cfg(test)]` or `#[test]`).
+fn module_files(file: &str, parsed: &syn::File) -> Vec<(String, bool)> {
     let dir = Path::new(file).parent().unwrap_or(Path::new(""));
     let owns_dir = matches!(Path::new(file).file_name().and_then(|name| name.to_str()), Some("lib.rs" | "main.rs" | "mod.rs"));
     let mut files = Vec::new();
     for item in &parsed.items {
         let syn::Item::Mod(module) = item else { continue };
-        if module.content.is_some() || !test_only(&module.attrs) {
+        if module.content.is_some() {
             continue;
         }
         let path = module.attrs.iter().find(|attr| attr.path().is_ident("path")).and_then(|attr| match &attr.meta {
@@ -813,16 +1002,21 @@ fn test_module_files(file: &str, parsed: &syn::File) -> Vec<String> {
                 dir.join(Path::new(file).file_stem().unwrap()).join(name)
             }
         });
-        files.push(path.to_string_lossy().replace('\\', "/"));
+        files.push((path.to_string_lossy().replace('\\', "/"), test_only(&module.attrs)));
     }
     files
 }
 
-/// The non-test references in `files` ((name, text) pairs); a file another declares as a test-only module is skipped.
+/// The non-test references in `files` ((name, text) pairs). A file is skipped only when every declaration of it is a
+/// test-only module: production reachability is resolved over all declarations first, so a file also declared by a
+/// production `mod` (with or without `#[path]`) is scanned.
 fn references(files: &[(String, String)]) -> std::collections::BTreeMap<String, usize> {
     let parsed: Vec<(&String, syn::File)> =
         files.iter().map(|(file, text)| (file, syn::parse_file(text).unwrap_or_else(|error| panic!("{file} does not parse: {error}")))).collect();
-    let test_files: std::collections::BTreeSet<String> = parsed.iter().flat_map(|(file, parsed)| test_module_files(file, parsed)).collect();
+    let declared: Vec<(String, bool)> = parsed.iter().flat_map(|(file, parsed)| module_files(file, parsed)).collect();
+    let production: std::collections::BTreeSet<&str> = declared.iter().filter(|(_, test)| !test).map(|(path, _)| path.as_str()).collect();
+    let test_files: std::collections::BTreeSet<&str> =
+        declared.iter().filter(|(path, test)| *test && !production.contains(path.as_str())).map(|(path, _)| path.as_str()).collect();
     let mut found = std::collections::BTreeMap::new();
     for (file, parsed) in &parsed {
         if test_files.contains(file.as_str()) {
@@ -921,7 +1115,15 @@ fn the_writer_route_scan_finds_each_other_route() {
     assert_eq!(twice.get("invented.rs: workload: worker_render"), Some(&2));
     // A file declared as a test-only module is skipped; the same file declared for production is not.
     let call = "fn other(raw: &[u8]) { worker_render(raw); }".to_string();
-    for (declaration, skipped) in [("#[cfg(test)]\n#[path = \"helper.rs\"]\nmod helper;", true), ("#[path = \"helper.rs\"]\nmod helper;", false), ("#[cfg(test)]\nmod helper;", true)] {
+    for (declaration, skipped) in [
+        ("#[cfg(test)]\n#[path = \"helper.rs\"]\nmod helper;", true),
+        ("#[path = \"helper.rs\"]\nmod helper;", false),
+        ("#[cfg(test)]\nmod helper;", true),
+        // Finding P3 at 9c5785a6d: declared both test-only and for production, in either order, the file is reachable
+        // from production and is scanned.
+        ("#[cfg(test)]\n#[path = \"helper.rs\"]\nmod for_tests;\n#[path = \"helper.rs\"]\nmod shipped;", false),
+        ("#[path = \"helper.rs\"]\nmod shipped;\n#[cfg(test)]\nmod helper;", false),
+    ] {
         let files = [("lib.rs".to_string(), declaration.to_string()), ("helper.rs".to_string(), call.clone())];
         assert_eq!(references(&files).is_empty(), skipped, "{declaration}");
     }

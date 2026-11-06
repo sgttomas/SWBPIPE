@@ -3025,4 +3025,64 @@ mod ledger_tests {
         let seed = command(&pool, MIB);
         seed.ledger().remove(MIB + 1);
     }
+
+    /// A [`LedgerBound`] (MBF export task 3; RT-U4's notes on #147): while held it takes its bytes of the command's
+    /// budget, so a later admission in the same command gets them back only after `shrink_to` or the drop. Shrinking
+    /// releases exactly the difference (never grows: a larger target changes nothing), and the drop, also while
+    /// unwinding, returns the ledger exactly to its total before the bound. The pool is never asked: its reservations
+    /// are unchanged throughout.
+    #[test]
+    fn a_ledger_bound_shrinks_and_drops_back_to_the_total_before_it() {
+        let host = ScriptedHost::normal();
+        let pool = pool(&host);
+        pool.configure(12 * GIB, 64 * MIB, false).unwrap();
+        let seed = command(&pool, 3 * MIB);
+        let ledger = Arc::clone(seed.ledger());
+        let before = (ledger.total_bytes(), pool.reserved_total());
+        let mut bound = ledger.bound(64 * MIB - 3 * MIB).unwrap();
+        assert_eq!((ledger.total_bytes(), pool.reserved_total()), (64 * MIB, before.1), "the ledger counts it; the pool is not asked");
+        assert_eq!(
+            ledger.acquire(MIB, AdmissionClass::Adaptive).unwrap_err(),
+            CommandRefusal::OverBudget(OverBudget { required_bytes: 65 * MIB, budget_bytes: 64 * MIB }),
+            "a later stage in the same command waits for the bound's bytes"
+        );
+        bound.shrink_to(64 * MIB);
+        assert_eq!(ledger.total_bytes(), 64 * MIB, "shrink_to never grows");
+        bound.shrink_to(5 * MIB);
+        assert_eq!(ledger.total_bytes(), 8 * MIB, "shrink_to releases exactly the difference");
+        let later = ledger.acquire(MIB, AdmissionClass::Adaptive).expect("the released bytes are the command's again");
+        drop(later);
+        bound.shrink_to(0);
+        assert_eq!(ledger.total_bytes(), before.0);
+        drop(bound);
+        assert_eq!((ledger.total_bytes(), pool.reserved_total()), before, "the drop returns the ledger exactly");
+        // Dropped while unwinding (a failed or cancelled run's bound).
+        let unwound = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            let _bound = ledger.bound(20 * MIB).unwrap();
+            panic!("the run failed while its bound was held");
+        }));
+        assert!(unwound.is_err());
+        assert_eq!((ledger.total_bytes(), pool.reserved_total()), before);
+        drop(seed);
+        assert_eq!((ledger.total_bytes(), pool.reserved_total()), (0, 0));
+    }
+
+    /// A bound above the command's budget is refused by the total it would make, with the ledger and the pool's
+    /// reservations as they were; the boundary itself is admitted.
+    #[test]
+    fn an_over_budget_ledger_bound_is_refused_with_nothing_changed() {
+        let host = ScriptedHost::normal();
+        let pool = pool(&host);
+        pool.configure(12 * GIB, 10 * MIB, false).unwrap();
+        let seed = command(&pool, 2 * MIB);
+        let ledger = Arc::clone(seed.ledger());
+        let before = (ledger.total_bytes(), pool.reserved_total(), pool.reserved(LeasePurpose::Worker));
+        assert_eq!(ledger.bound(8 * MIB + 1).unwrap_err(), OverBudget { required_bytes: 10 * MIB + 1, budget_bytes: 10 * MIB });
+        assert_eq!(ledger.bound(u64::MAX).unwrap_err(), OverBudget { required_bytes: u64::MAX, budget_bytes: 10 * MIB });
+        assert_eq!((ledger.total_bytes(), pool.reserved_total(), pool.reserved(LeasePurpose::Worker)), before);
+        let at = ledger.bound(8 * MIB).expect("the boundary is admitted");
+        assert_eq!(ledger.total_bytes(), 10 * MIB);
+        drop(at);
+        assert_eq!((ledger.total_bytes(), pool.reserved_total(), pool.reserved(LeasePurpose::Worker)), before);
+    }
 }

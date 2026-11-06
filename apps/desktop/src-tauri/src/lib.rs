@@ -2087,7 +2087,10 @@ async fn save_mbf_export(
     tauri::async_runtime::spawn_blocking(move || {
         let directory = model_document_save::default_save_directory(app.path().document_dir().ok(), app.path().home_dir().ok());
         // The local library store, opened only if the document references a
-        // library. A read error refuses.
+        // library, with the desktop's normal open (as Save Model Document's):
+        // it may create the store or apply pending store migrations; the
+        // export writes no project, library or run rows; a read or open error
+        // refuses.
         let open_store = || open_project_store(&app_store_path(&app)?).map(|(connection, _)| connection);
         mbf_worker::save_command(
             &registry,
@@ -2102,6 +2105,18 @@ async fn save_mbf_export(
     })
     .await
     .unwrap_or_else(|_| Ok(mbf_worker::worker_failed(true)))
+}
+
+/// Cancels File > Export MBF…'s review and save in progress (DEL-17-04
+/// Design `desktop-mbf-export-import.md` §3.9.5): the frontend calls it when
+/// the project session is retired, and slice 4b.2b's dialog when it closes. A
+/// waiting run stops waiting, a running worker is killed and its grant
+/// released after the reap, and a save before its commit writes nothing; a
+/// save past its commit completes and is reported too late. No arguments;
+/// with nothing in progress it does nothing.
+#[tauri::command]
+fn cancel_mbf_export(registry: tauri::State<'_, SolveJobRegistry>, runs: tauri::State<'_, mbf_worker::MbfRuns>) -> mbf_worker::MbfCancelReceipt {
+    runs.cancel_all(registry.pool())
 }
 
 fn choose_mbf_save_path(app: &AppHandle, suggested_file_name: &str, directory: Option<PathBuf>) -> Result<Option<PathBuf>, String> {
@@ -2661,9 +2676,18 @@ fn dispose_preview_mechanics_result(
 fn dispose_all_preview_mechanics_results(
     state: tauri::State<'_, SolveJobRegistry>,
     streams: tauri::State<'_, Arc<native_csv_stream::CsvStreams>>,
+    runs: tauri::State<'_, mbf_worker::MbfRuns>,
 ) -> SolveResultsDisposal {
     // The session reset ends every CSV stream (a fresh webview holds none).
     streams.abort_job(None);
+    reset_native_session(&state, &runs)
+}
+
+/// The session reset's registry part: the page that is gone owned every MBF
+/// export run in progress, which is cancelled first, then every job, result
+/// and model check is retired (`dispose_all_results`).
+fn reset_native_session(state: &SolveJobRegistry, runs: &mbf_worker::MbfRuns) -> SolveResultsDisposal {
+    runs.cancel_all(state.pool());
     state.dispose_all_results()
 }
 
@@ -6028,6 +6052,7 @@ macro_rules! app_invoke_handler {
             save_handoff_package,
             review_mbf_export,
             save_mbf_export,
+            cancel_mbf_export,
             start_preview_mechanics_job,
             poll_preview_mechanics_job,
             take_preview_mechanics_job_result,
