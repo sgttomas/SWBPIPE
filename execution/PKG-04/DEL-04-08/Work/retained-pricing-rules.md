@@ -6097,8 +6097,13 @@ not admitted for public or native use, and its values and semantics are #131's, 
   `04ec22be2`, with merges of main (`7def30caa`, `5d69c4586`, and `2cd1d24ac` for main `b65bc0867`). `f87c14cef`
   reconciles the instance tests with S-K1: the direct test pencil sets `skew: None`, and the containment scan reads
   `skew_pencil.rs` and parses declarations between semicolons; the product_physics tree digest is re-derived.
-- *Priced source.* `f87c14cef` (core tree `4dcc0795f6556fd1c58b1d429f54258d8e8f69a2`; main's is
-  `d3731435b0e712b544152ded41e1cf4af6c585e7`). The commits after it change only this record and DEL-04-09's documents.
+  `11e9a1429` repairs the containment scan after review (below, "Review"): a keyword-based `module_items` parser, an
+  exact assertion of the non-test module set and whole-source regressions. It changes only test code and the
+  product_physics tree digest.
+- *Priced source.* `11e9a1429` (core tree `a50472d043eb9e8392380cb7ec5151e28a3d037c`; main's is
+  `d3731435b0e712b544152ded41e1cf4af6c585e7`). The commits after it change only this record. The first preparation
+  priced `f87c14cef` (core tree `4dcc0795…`) with the same result, and every per-point artifact of the two runs is
+  byte-identical.
 
 **What reaches the priced directories**, against main: PP `modal/integrity.rs` only, its module doc and one
 `pub(crate) fn selected_a1_a2_a3_criteria() -> Self` in the existing `impl ModalIntegrityParameters`. The rest is test
@@ -6123,7 +6128,7 @@ routing digest.
   +60 after the constructor. With those keys normalized, the edges, site loops, audit and text rows equal main's at
   every point.
 
-**Pricing.** `price.py run f87c14cef`: exit 0, O-10 0/0, all four points complete with no unmapped header and no
+**Pricing.** `price.py run 11e9a1429`: exit 0, O-10 0/0, all four points complete with no unmapped header and no
 unclassified argument. The line map equals the basis's (888 remapped, none unmapped, 36 prunes, eight resolutions),
 and the premise pins are equal. D is L(3,0) 43,783, L(2,1) 39,373, L(1,2) 35,239 and E 76,356, and TAV is
 4,714,366,116, 4,103,398,826, 3,578,737,078 and 7,229,420,978, each equal to the basis's. Against main's tree:
@@ -6142,7 +6147,7 @@ Frame sizes were not measured, and no static comparison of the witness paths (§
 7/7 at `09c2e9489` does not transfer, and AC-004 is required. DEL-04-09's ScopeOfWork also requires the witnesses on
 the head of each change that touches priced sources.
 
-**Tests** (on `f87c14cef`; Cargo under the slot wrapper with the four flag variables unset, pytest with
+**Tests** (on `11e9a1429`; Cargo under the slot wrapper with the four flag variables unset, pytest with
 `OPENPIPESTRESS_NO_CARGO_BUILD=1`):
 - *Lib.* PP `modal::` 88 passed (3 ignored); PP `retained_memory` 85 passed (71 ignored: the exclusive witnesses among
   them, not run).
@@ -6152,19 +6157,25 @@ the head of each change that touches priced sources.
   all 45 recorded tree digests match `rust_tree_digest`.
 - *Deliverables.* `python3 -m tools.deliverables --project . check` exits 0.
 
-**Review.** #131's source and tests were reviewed before this turn. The merge onto §8.56 and this registration need
-their own targeted independent scrutiny, which has not yet been done.
+**Review.** #131's source and tests were reviewed before this turn. One focused independent review of the merge onto
+§8.56 and this registration, at `0061fa8d6`, found one should-fix: the containment scan could miss a module declared
+after a braced item, and skipped `mod context;` after `#![allow]`. `11e9a1429` fixes it (above, "Branch"). The review
+verified the rest clean: the coefficients and artifacts, the 45 digests, MODAL-ID, the `modal_doc_solved` pin, the
+pure insertion, the AC-004 reasoning and the runner.
 
 **AC-004 (prepared; not run).**
 - **Binaries** (built under the slot wrapper, `cargo test --offline --locked --no-run --lib --test
   retained_memory_challenge` in `core/product_physics`, test profile, `RUSTFLAGS`, `CARGO_ENCODED_RUSTFLAGS`,
-  `CARGO_BUILD_RUSTFLAGS` and `RUSTDOCFLAGS` unset, rustc 1.97.1 `8bab26f4f`, at `f87c14cef`, core tree `4dcc0795…`):
+  `CARGO_BUILD_RUSTFLAGS` and `RUSTDOCFLAGS` unset, rustc 1.97.1 `8bab26f4f`, at `11e9a1429`, core tree `a50472d0…`):
   `open_pipe_stress_product_physics-748489604f52aaea`, SHA-256
-  `df30c3bd424d619ccf53726c0cc08fd9beebe3daf01845a0e3ada41b540e0090`, and
+  `a368ec152f9b7d7b4205d0e2be42f45972d9fdc89db2733a2d367eb251858273`, and
   `retained_memory_challenge-91c7b348014f1fb7`, SHA-256
-  `92cf8e5f07f06b34e6fae63a8263cbdfa536d8671b179e66010618878385e72b`. A second `--no-run` compiled nothing, and both
-  hashes were unchanged after it and after the lib tests above. Profile `c4df869d…996c`, `Cargo.lock` `b7ebb02a…5653`.
-  Read-only copies with the same hashes are in the scratch directory below.
+  `92cf8e5f07f06b34e6fae63a8263cbdfa536d8671b179e66010618878385e72b`. Cargo found both fresh at this head: the
+  lib-test binary had been linked after the fix's source, under the same profile and unset flags, and it carries the
+  fix's assertion texts. The challenge binary is the `f87c14cef` build's, since it links the non-test library and the
+  fix is test-only. A second `--no-run` compiled nothing, and both hashes were unchanged after it and after the lib
+  tests above. Profile `c4df869d…996c`, `Cargo.lock` `b7ebb02a…5653`. Read-only copies with the same hashes are in
+  the scratch directory below; the superseded lib-test copy (`df30c3bd…`, at `f87c14cef`) was removed.
 - **To run.** §8.56's seven processes, each one test with `--exact --test-threads=1` (`--ignored` for the six
   witnesses), in one Agent-0-cleared `t3_exclusive.sh` window with memguard, each reporting exactly one executed test;
   identities verified at admission and the hashes again afterwards. A later build-input change requires rebuilding and
