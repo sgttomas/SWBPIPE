@@ -5962,9 +5962,9 @@ explicit owner approval for coefficient movement; source-derived pricing, indepe
 the registered state remain required. This records no acceptance.
 - **Coefficients.** None move: against main's tree, 1,602 equal, none higher or lower. The threshold, M, the
   generated block, `REGISTERED_PROFILES` and the profile (`c4df869d…996c`) are unchanged.
-- **AC-004 pending.** The witnessed binaries change (RE's new exact dot is linked into both), and stack neutrality is
-  not established from source (below), so §8.55's 7/7 does not transfer. The binaries are built and identified below;
-  the window waits for Agent 0's clearance with App's resource concurrence.
+- **AC-004: 7/7 at `09c2e9489`.** The witnessed binaries change (RE's new exact dot is linked into both), and stack
+  neutrality is not established from source (below), so §8.55's 7/7 does not transfer; this registration's own window
+  ran once and passed (below, "AC-004").
 
 **The defect and the repair.** RE `connector_evidence.rs` `exact_dot3` formed p = fl(a·b), refused a non-finite p or a
 nonzero |p| < 2^-969, and summed p and fma(a, b, −p). With both operands nonzero and p rounding to ±0, the fma residual
@@ -6030,7 +6030,7 @@ comparison agreed with `Fraction` and frame_kernel throughout); its comment note
 §8.55 changes none of R1's files, so that review carries to the unchanged arithmetic; the merge and this
 registration have their own targeted scrutiny.
 
-**AC-004 (pending).**
+**AC-004.**
 - **Binaries** (built under the slot wrapper, `cargo test --offline --locked --no-run --lib --test
   retained_memory_challenge`, test profile, `RUSTFLAGS`, `CARGO_ENCODED_RUSTFLAGS`, `CARGO_BUILD_RUSTFLAGS` and
   `RUSTDOCFLAGS` unset, rustc 1.97.1 `8bab26f4f`, at `af80c8b33`, core tree `d3731435…`):
@@ -6042,13 +6042,37 @@ registration have their own targeted scrutiny.
 - **To run.** §8.55's seven processes, each one test with `--exact --test-threads=1`, in one Agent-0-cleared
   `t3_exclusive.sh` window with memguard, each reporting exactly one executed test; identities verified at admission
   and the hashes again afterwards. A later build input change requires rebuilding and re-identifying first.
+- **Runner.** `harness.py` (read-only, SHA-256 `7bc0c9d4518336e400ab121097e9417fe6c8c687c59bbfe179ec43d78dbf5400`, after
+  Agent 0's two admission corrections: flags refused when present even if empty, and failed git or rustc queries
+  refuse admission): one 55 s internal deadline on the monotonic clock from runner entry, covering admission, the seven
+  processes and the post-run hashes; fail-fast at the first non-passing, missing, multiple or timed-out outcome.
+  Admission asserts the exact HEAD, a whole-worktree clean state, the four hashes, rustc, the four flags absent,
+  memguard live and the copies read-only; `W1_MEMBER_CAP_OUT` is removed from the tests' environment and `CHECK_ONLY`
+  is unset. The tests ran from Agent 0's verified read-only private copies of the two binaries (same hashes).
+- **Result: 7/7 at `09c2e9489`** (commit `09c2e94893a8da83a30cc6df8282825064022e10`, core tree
+  `d3731435b0e712b544152ded41e1cf4af6c585e7`, clean; the commit recording it changes no file under `core/`).
+- **Window.** One Agent-0-cleared attempt with App's fresh resource concurrence (2026-11-06). An earlier queued
+  attempt (WAIT 09:40:18Z) was withdrawn before acquisition while an ordinary job held a slot; it started no test and
+  is not this result. Acquired 09:54:25Z (runner entry 09:54:25.430Z; admission verified 09:54:25.761Z); END rc 0 at
+  09:54:41Z, 15.896 s internal from entry and 16 s from acquisition including teardown. Each of the seven processes
+  executed exactly one test with rc 0 (1,222 filtered out of the lib binary, 43 of the challenge): sparse and dense
+  `witness_headroom_w1_at_one_mebibyte` 2.39 s and 0.64 s, `witness_w2_deep_milestone_publishes` 1.30 s and 1.35 s,
+  `witness_w_c2_publishes` 2.52 s and 2.47 s; `retained_direct_peak_is_within_the_profiles_bounds` 4.80 s.
+- **Checks.** No build ran for the window; freshness is the build's own second `--no-run`. Both hashes were unchanged
+  afterwards. Closure verified at 09:54:52Z: no runner or test process, every slot and the pending marker released,
+  memguard live with no event.
 
-**Open.**
-- AC-004 (above).
-- Targeted scrutiny of the merge and this registration.
+This is test evidence, not an acceptance. Frame sizes were not measured.
 
-Run evidence (the two runs, compares, builds and logs) is in `/Users/ryan/dev/chirality-t3/scratch/rt-a3/r1-d3/`; it
-is review input, not a permanent dependency.
+**Review.** The targeted scrutiny of the merge and this registration was clear (no blocking finding): R1's diff is
+unchanged by the merge apart from the routing digests, S-K1 keeps `tie_rods`, its callers and the |n|² check, and the
+pricing claims, identities and record re-check independently.
+
+**Open.** None for this registration.
+
+Run evidence (the two runs, compares, builds and logs) is in `/Users/ryan/dev/chirality-t3/scratch/rt-a3/r1-d3/`, and
+the AC-004 harness, its admission-only checks, `window.json` and the withdrawn attempt's empty outputs are in
+`/Users/ryan/dev/chirality-t3/scratch/rt-a3/r1-ac004/`; they are review input, not a permanent dependency.
 
 ## 9. Memory-profile gates and registration
 
