@@ -1073,9 +1073,10 @@ outcome.
          reader standings bound to the document. Hanger sizing is then usable in the
          desktop, on PF, and is not recorded (Agent 0's rulings for 3c part 2):
          - **The path** (`apps/desktop/src-tauri/src/hanger_sizing_job.rs`): the model
-           checks' capped-worker form. `size_hangers` takes `{runId, inputText}` as a raw
-           body, where `inputText` is the headless input's JSON text, and replies the
-           entry's reply text. There is no job record, held-result registry, custody,
+           checks' capped-worker form. `size_hangers` takes `{expectedEpoch, inputText}`
+           as a raw body, where `expectedEpoch` is the request's dispatch ticket (below) and
+           `inputText` is the headless input's JSON text, and replies the entry's reply
+           text. There is no job record, held-result registry, custody,
            persistence or analysis-run record.
          - **Task 4** (`solve_worker.rs`): appended after the MBF render's 3; codes 0 to 3
            are unchanged and unknown codes are refused. It attests nothing (`ATST` status
@@ -1090,14 +1091,72 @@ outcome.
            copy, the grant's maximum and the largest result lease, a start wait of the
            model checks' 2 s, the grant held until the worker is reaped, and the result
            lease held while the response is built.
-         - **Cancellation:** one current sizing, in a slot of its own. A newer request
-           supersedes the one in progress, queued or running. `cancel_hanger_sizing`
-           cancels a page's requests through a sequence; it is keyed by `{page, sequence}`,
-           so a repeated or late delivery of a cancel or a request cannot reach a newer
-           request. The session reset cancels the sizing beside the model check, and the
-           webview cancels it when the project session changes. The webview's generation
-           guard (`services/hangerSizingService.ts`) never shows a reply that a newer
-           request or a retirement has passed. Per-solve progress (§10) is not built.
+         - **Retirement and the dispatch ticket** (MBF's reviewed design, applied to the
+           sizing's own slot; repair of the 3c part 2 review). The host keeps a retirement
+           epoch. A retirement moves it on by one (checked arithmetic) and retires the
+           current run, queued or running (its worker is killed and reaped, and it replies
+           `HANGER-SIZING-CANCELLED`), and every start not yet registered. The retirements
+           are `cancel_hanger_sizing {retirementId}`, which replies the epoch after its
+           bump, and the session reset (`dispose_all_results`), which also cancels the model
+           check. The webview sends a retirement before every start (so a newer request
+           retires the one in progress), when the person cancels, and when the form's
+           project session ends (its unmount or a project change). It does not send one
+           when the form mounts: the first start's own retirement comes first.
+           - *The ticket.* Every start carries `expectedEpoch`: the epoch its own
+             retirement's reply acknowledged, taken before the start is sent, never an
+             epoch read when the command's task happens to run. The webview awaits that
+             reply, then re-checks its request generation and the form's session after the
+             await and immediately before every send; a start that is no longer current
+             sends nothing. A retirement that is not acknowledged (the invoke failed, or the
+             reply names another id or carries no usable epoch) authorizes nothing: the
+             start is not sent and the form shows `HANGER-SIZING-RETIREMENT-UNCONFIRMED`
+             (or `HANGER-SIZING-EXHAUSTED`).
+           - *Two checks.* The host checks the ticket on the admitted arguments before the
+             input is read or any worker starts, and again when the run registers, under the
+             lock every retirement takes. A missing, malformed or future ticket is refused
+             `HANGER-SIZING-TICKET-INVALID`. A ticket a retirement has passed is refused
+             `HANGER-SIZING-REQUEST-STALE`, as is a second delivery under the ticket of the
+             run in progress; a registration never replaces the current run. A refused
+             start starts no worker, replaces and cancels nothing, and writes nothing. So a
+             start delayed anywhere between its send and its registration cannot become
+             current after a later retirement, nor replace or cancel the run that the later
+             retirement made room for. Once the run under a ticket has ended, a later
+             delivery under it registers: the webview re-sends the same start after a
+             `headroom_insufficient` refusal.
+           - *Idempotent retirement.* Each logical retirement carries `{page, sequence}`,
+             a random token per page load and a sequence that rises in that page. The host
+             applies an id once; a repeated or older delivery is a no-op that replies
+             `duplicate` with the current epoch. Applied page tokens are never evicted: at
+             most 64 are kept, and a retirement from a 65th token cancels the current run
+             and makes the sizing exhausted instead of evicting one, whose late replay
+             would otherwise be applied again.
+           - *Exhaustion* (until the application restarts): a retirement at the epoch
+             2^53 - 1 (every ticket stays a safe JavaScript integer) or from a 65th page
+             token. The epoch moves on no more, and every start is refused
+             `HANGER-SIZING-EXHAUSTED`.
+           - *The transports.* `size_hangers` takes only a raw body. Tauri 2.11.1's IPC
+             script resends an invoke through `postMessage` when its custom-protocol
+             `fetch` fails, without cancelling the first delivery, and that fallback
+             serializes a raw `Uint8Array` as a JSON array of numbers, which `size_hangers`
+             refuses (`INGRESS-RAW-BODY-REQUIRED`). So a custom-protocol failure after the
+             host received the start shows the page the fallback's ingress refusal while the
+             first delivery's worker keeps running, until the next retirement (the next
+             start's, the person's cancel, the form's unmount or the session reset) stops
+             it. `cancel_hanger_sizing` is sent as Tauri's JSON arguments, which reach the
+             host on both transports, so the keyed retirement still stops that worker. No
+             fallback safety is claimed beyond this: a start sent through the fallback is
+             refused, never run.
+           - *Residual.* Page tokens are not ordered against each other. The first delivery
+             of another page's retirement (an old page's cancel or start retirement
+             delivered late, after a reload), or a late session reset, still applies, and so
+             cancels the current page's run, which replies `HANGER-SIZING-CANCELLED`; the
+             person sizes again. It cannot start anything, since the epoch it makes is
+             acknowledged only to the page that sent it. General cross-page ordering is not
+             solved. Ids and tickets are not authenticated and authorize nothing.
+
+           The webview's generation guard (`services/hangerSizingService.ts`) never shows a
+           reply that a newer request or a retirement has passed. Per-solve progress (§10)
+           is not built.
          - **The form** (`features/hanger-sizing/`) has no pre-set choice in a new project
            and pre-fills nothing (no value is kept between sessions yet). It sends the
            session model with `materials: []`, as the desktop solve does, and the stored
@@ -1105,9 +1164,24 @@ outcome.
          - **Tests:** Rust (`hanger_sizing_job_tests.rs`): the committed two-span input
            through the command and a real worker, whose reply is pinned as
            `fixtures/results/hanger_sizing_reply_two_span.json`; the reply limit's
-           boundary; admission and ledger refusals; supersession, the keyed cancel and the
-           reset. Vitest: the service, the form and the App mount, with that reply shown
-           by the panel with its standings bound.
+           boundary; admission and ledger refusals, a JSON body included (what the
+           fallback makes of a raw one); a newer request's retirement of a queued or
+           running run, which then replies `HANGER-SIZING-CANCELLED` while the newer one
+           completes with its own reply (the tests do not show that two deliveries of one
+           start reply the same bytes); the delayed-registration race (a start paused
+           after its entry, then the reset and another page's retirement, then that page's
+           start running: the paused start is refused stale, starts no worker, and the
+           other run completes); missing, malformed, future and stale tickets and a second
+           delivery under a running ticket, each refused before any worker; duplicate and
+           older retirements; exhaustion by the epoch and by page tokens, with no token
+           evicted or re-admitted; and the reset. Vitest (`invoke` mocked, so they show what
+           the page sends and when, not what Tauri's transport delivers): each start awaits
+           its retirement and carries the acknowledged epoch; a session end, a newer
+           request or a retirement during that await sends nothing; an unconfirmed
+           retirement sends nothing and the form shows its refusal; the form, the library
+           race (a late open of an earlier selection, success or failure, before or after
+           the selected one completes, never replaces it) and the App mount, with that
+           reply shown by the panel with its standings bound.
   4. EX derived solves (the ledger entry of §4.1) and the reference system, R-7. This
      needs RT-A3 increments 3 and 4 for the reference system's non-candidate families.
   5. The user guide and theory notes (RT-V4), and any standing refusal entered in

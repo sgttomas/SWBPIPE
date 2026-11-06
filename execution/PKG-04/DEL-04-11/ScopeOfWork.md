@@ -143,8 +143,13 @@ These deliverables keep their scope.
     last-used values is not built);
   - the native `size_hangers` command, which runs the entry as the capped worker's task 4
     in one bounded request (at most 64 MiB of reply), under the command's captured
-    per-invocation budget and with no attestation digest (REQ-011), and its keyed cancel
-    `cancel_hanger_sizing` (`apps/desktop/src-tauri/src/hanger_sizing_job.rs`);
+    per-invocation budget and with no attestation digest (REQ-011), and its keyed
+    retirement `cancel_hanger_sizing` (`apps/desktop/src-tauri/src/hanger_sizing_job.rs`).
+    Each start first retires the sizing in progress and carries the retirement epoch that
+    retirement acknowledged as its ticket; the host refuses a start whose ticket a later
+    retirement has passed, so a delayed start never replaces or cancels a newer run. The
+    first delivery of another page's retirement still cancels the current run (Design §13,
+    3c, "Residual");
   - the 3b panel mounted beside the hanger selection, showing the reply's document with
     its reader standings bound to the document's hash and the library's record details,
     or a refused document's refusals, or the request's named failure.
