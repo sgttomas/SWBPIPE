@@ -58,8 +58,9 @@ const moved = (model: PreviewModel) => { const copy = structuredClone(model) as 
 
 /** Every SourceContract value, tied to the type in both directions by `tsc`. */
 const ROUTES: Record<SourceContract, true> = { pressure_source: true, preview_physics: true, pressure: true, retained_preview_physics: true, retained_physics: true, unsupported: true };
-/** T1's group a, by test-id prefix (the eighteen surfaces of the refusal tests). */
-const GATED_PREFIXES = ["pcf-export", "caepipe-mbf", "caepipe-external", "export-adapter-sdk", "adapter-framework", "external-prover", "missing-data", "design-workspace", "rule-check", "report-lint", "solve-job", "headless-runner", "local-fea", "native-package", "handoff", "export-review", "report", "rendered-report"];
+/** T1's group a, by test-id prefix (the seventeen surfaces of the refusal tests). DEL-17-04's model batch file
+ * export (`caepipe-mbf`) left the list in 4b.2b's follow-up: it carries no result data. */
+const GATED_PREFIXES = ["pcf-export", "caepipe-external", "export-adapter-sdk", "adapter-framework", "external-prover", "missing-data", "design-workspace", "rule-check", "report-lint", "solve-job", "headless-runner", "local-fea", "native-package", "handoff", "export-review", "report", "rendered-report"];
 const PANELS = ["result-export", "stress-neutral"];
 /** Epoch 8 (ruling 10A; design §5.1) and W-11's opening (DEL-08-01 Design
  * `exact-route-report-sections.md` §5.1; owner, 2026-10-26): the surfaces opened to the
@@ -71,16 +72,16 @@ const EXACT_ROUTES = ["pressure", "pressure_source"] as const;
 /** The exact entries, cell by cell (design §5.1): admitted on the five opened surfaces,
  * refused on every other, the report JSON packet included. */
 const EXACT_SURFACES = {
-  "pcf-export": "refused", "caepipe-mbf": "refused", "caepipe-external": "refused", "export-adapter-sdk": "refused",
+  "pcf-export": "refused", "caepipe-external": "refused", "export-adapter-sdk": "refused",
   "adapter-framework": "refused", "external-prover": "refused", "missing-data": "refused", "design-workspace": "refused",
   "rule-check": "admitted", "report-lint": "refused", "solve-job": "refused", "headless-runner": "refused",
   "local-fea": "refused", "native-package": "refused", "handoff": "refused", "export-review": "refused",
   "report": "refused", "rendered-report": "admitted", "report-package": "admitted",
   "result-export": "admitted", "stress-neutral": "admitted",
 } as const;
-/** §5.2: the gate's refuse/admit decision before epoch 8, per route, on the eighteen gated
+/** §5.2: the gate's refuse/admit decision before epoch 8, per route, on the seventeen gated
  * surfaces. pressure-2 and pressure-source-1 refused everywhere (B7b); the retained
- * successors refuse on all eighteen (their two admitted panels are not gated surfaces);
+ * successors refuse on all seventeen (their two admitted panels are not gated surfaces);
  * the ungated routes add no refusal. */
 const PRE_EPOCH_8_GATED_REFUSES: Record<SourceContract, boolean> = {
   pressure: true, pressure_source: true, retained_preview_physics: true, retained_physics: true, preview_physics: false, unsupported: false,
@@ -110,6 +111,9 @@ describe("the output policy (T6S-3)", () => {
   it("has one deliberate entry per route and names every surface", () => {
     expect(Object.keys(OUTPUT_POLICY).sort()).toStrictEqual(Object.keys(ROUTES).sort());
     expect([...OUTPUT_SURFACES]).toStrictEqual([...GATED_PREFIXES, "report-package", ...PANELS]);
+    // DEL-17-04 (4b.2b's follow-up): the model batch file export is no output surface, and no route's entry names it.
+    expect(OUTPUT_SURFACES as readonly string[]).not.toContain("caepipe-mbf");
+    for (const policy of Object.values(OUTPUT_POLICY)) if (policy.gate === "per_surface") expect(Object.hasOwn(policy.surfaces, "caepipe-mbf")).toBe(false);
     for (const route of ["preview_physics", "unsupported"] as const) expect(OUTPUT_POLICY[route]).toStrictEqual({ gate: "none" });
     // Epoch 8 (design §5.1) and W-11: pressure-2 and pressure-source-1 (with or without
     // load/reference states) are admitted on the five opened surfaces and refused, by
@@ -181,7 +185,7 @@ describe("the output policy (T6S-3)", () => {
       expect(reason).not.toMatch(/\bT[0-9]/);
     }
   });
-  it("§5.2: on the eighteen gated surfaces every route decides as before epoch 8, except the exact routes on rule-check and (W-11) rendered-report", () => {
+  it("§5.2: on the seventeen gated surfaces every route decides as before epoch 8, except the exact routes on rule-check and (W-11) rendered-report", () => {
     for (const route of Object.keys(ROUTES) as SourceContract[]) {
       for (const surface of GATED_PREFIXES) {
         const before = PRE_EPOCH_8_GATED_REFUSES[route];
@@ -230,7 +234,7 @@ describe("the output policy (T6S-3)", () => {
       expect(surfaceOutputRefusal(received, model, surface)).toBe(admitted ? null : RETAINED_PRECISION_OUTPUT_REFUSAL);
       expect(surfaceRouteRefusal(received, surface)).toBe(admitted ? null : RETAINED_PRECISION_OUTPUT_REFUSAL);
     }
-    // The shared function's meaning is unchanged: the eighteen surfaces still read it.
+    // The shared function's meaning is unchanged: the seventeen surfaces still read it.
     expect(loadReferenceOutputRefusal(received)).toBe(RETAINED_PRECISION_OUTPUT_REFUSAL);
     const refusal = (code: string) => `${code}: ${N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE}`;
     for (const surface of PANELS as typeof OUTPUT_SURFACES[number][]) {

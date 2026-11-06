@@ -12,7 +12,7 @@
  *
  * Only the Result Export and Stress-Neutral Export panels admit the F2a preview
  * successor (`retained_preview_physics`), and, likewise, B3b's exact successor
- * (`retained_physics`; B3-D §7, decision B3D-14), each with its own reason text. The other eighteen surfaces (T1's group
+ * (`retained_physics`; B3-D §7, decision B3D-14), each with its own reason text. The other seventeen surfaces (T1's group
  * a, through `LoadReferenceOutputGate`) and the report package keep refusing it.
  * The report package reads its own `report-package` cell (`reportPackageUnavailableReason`,
  * W-18; DEL-08-01 Design `report-package-current-results.md` §2.1): the pressure-free
@@ -69,9 +69,17 @@ export const OUTPUT_ROUTE_NOT_REGISTERED = "OUTPUT-ROUTE-NOT-REGISTERED";
 export const OUTPUT_ROUTE_NOT_REGISTERED_REFUSAL = `${OUTPUT_ROUTE_NOT_REGISTERED}: This result's route has no desktop output policy entry, so no output is offered. The result remains readable here.`;
 
 /** Every desktop surface whose download, package or handoff can carry result data.
- * The first eighteen are T1's group a (named by their test-id prefixes). */
+ * The first seventeen are T1's group a (named by their test-id prefixes).
+ *
+ * DEL-17-04's model batch file export (`caepipe-mbf`) is not one of them since its
+ * follow-up to slice 4b.2b (Design `desktop-mbf-export-import.md` §3.1): its native
+ * writer takes only the session's canonical model text, its hash, the settings and the
+ * route evidence (`review_mbf_export`, `save_mbf_export`), and its files hold no result
+ * data, so no route's result refuses it. Its own admission, the local-private route
+ * `DOTH-MBF-012`, the reviewed digests and its loss, completeness, size and budget
+ * checks apply instead. */
 export const OUTPUT_SURFACES = [
-  "pcf-export", "caepipe-mbf", "caepipe-external", "export-adapter-sdk", "adapter-framework", "external-prover",
+  "pcf-export", "caepipe-external", "export-adapter-sdk", "adapter-framework", "external-prover",
   "missing-data", "design-workspace", "rule-check", "report-lint", "solve-job", "headless-runner",
   "local-fea", "native-package", "handoff", "export-review", "report", "rendered-report",
   "report-package", "result-export", "stress-neutral",
@@ -111,7 +119,7 @@ export const OUTPUT_POLICY: Readonly<Record<SourceContract, RouteOutputPolicy>> 
     gate: "per_surface",
     reason: RETAINED_PRECISION_OUTPUT_REFUSAL,
     surfaces: Object.freeze({
-      "pcf-export": "refused", "caepipe-mbf": "refused", "caepipe-external": "refused", "export-adapter-sdk": "refused",
+      "pcf-export": "refused", "caepipe-external": "refused", "export-adapter-sdk": "refused",
       "adapter-framework": "refused", "external-prover": "refused", "missing-data": "refused", "design-workspace": "refused",
       "rule-check": "refused", "report-lint": "refused", "solve-job": "refused", "headless-runner": "refused",
       "local-fea": "refused", "native-package": "refused", "handoff": "refused", "export-review": "refused",
@@ -124,7 +132,7 @@ export const OUTPUT_POLICY: Readonly<Record<SourceContract, RouteOutputPolicy>> 
     gate: "per_surface",
     reason: RETAINED_PHYSICS_OUTPUT_REFUSAL,
     surfaces: Object.freeze({
-      "pcf-export": "refused", "caepipe-mbf": "refused", "caepipe-external": "refused", "export-adapter-sdk": "refused",
+      "pcf-export": "refused", "caepipe-external": "refused", "export-adapter-sdk": "refused",
       "adapter-framework": "refused", "external-prover": "refused", "missing-data": "refused", "design-workspace": "refused",
       "rule-check": "refused", "report-lint": "refused", "solve-job": "refused", "headless-runner": "refused",
       "local-fea": "refused", "native-package": "refused", "handoff": "refused", "export-review": "refused",

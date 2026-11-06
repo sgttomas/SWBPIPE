@@ -95,7 +95,6 @@ import { retireMbfExportSession, reviewMbfExport, saveMbfExport } from "../caepi
 import type { MbfExportDialogRequest } from "../caepipe-mbf/MbfExportDialog";
 import { closedSaveStatusLine } from "../caepipe-mbf/mbfExport";
 import { mbfExportRetirementOwner } from "../caepipe-mbf/mbfExportSession";
-import { outputGateRefusal } from "../results/LoadReferenceOutputGate";
 import { modelDocumentSlotValidation } from "../model-file/modelDocumentShape";
 import {
   keptStoredProjectMessage,
@@ -3103,8 +3102,9 @@ export function useWorkspaceSession() {
   /** File > Export MBF… and the Exports section's Model batch file panel (DEL-17-04 Design
    * `desktop-mbf-export-import.md` §3.1, slice 4b.2b): opens the export dialog on the session's model and its hash,
    * with the barrier's native review and save (`mbfExportCancel.ts`), or, in the browser-only route, no review (the
-   * dialog declines it with `MBF-REVIEW-NATIVE-ONLY` before anything reaches the barrier). It needs no solve. The
-   * panel's output gate (`caepipe-mbf`) applies to the menu item too. Nothing happens while another project
+   * dialog declines it with `MBF-REVIEW-NATIVE-ONLY` before anything reaches the barrier). It needs no solve, and it
+   * reads no result: the export carries none, so no result the session holds (or its route, standing or hold) gates
+   * it (4b.2b's follow-up; `caepipe-mbf` is not in `OUTPUT_SURFACES`). Nothing happens while another project
    * operation or modal is open. */
   async function requestExportMbf() {
     const { model: exportModel, modelHash: exportHash } = modelDocumentSaveBasisRef.current;
@@ -3114,8 +3114,6 @@ export function useWorkspaceSession() {
       setProjectMessage(message);
       setProjectOperation(operation);
     };
-    const gated = outputGateRefusal(currentSolvedResultRef.current, "caepipe-mbf");
-    if (gated) return report(`Export MBF… is not available: ${gated}`, "export_mbf_refused");
     if (!exportHash) return report(`${MODEL_DOC_SAVE_HASH_PENDING}: The session's model hash is not computed yet; try Export MBF… again once it is shown.`, "export_mbf_refused");
     // Captured before the workspace turns inert, which drops its focus.
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;

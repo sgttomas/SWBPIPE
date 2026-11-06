@@ -106,13 +106,12 @@ const SOURCE_RAWS = ["n05", "n06", "fields", "mixed", "eigen_motion"].flatMap(na
  * and the report package at W-11 (DEL-08-01 Design `exact-route-report-sections.md` §5.1;
  * owner, 2026-10-26). */
 const OPENED = ["result-export", "stress-neutral", "rule-check", "rendered-report", "report-package"] as const;
-/** The opened surfaces among the eighteen gated prefixes. */
+/** The opened surfaces among the seventeen gated prefixes. */
 const OPENED_GATED: readonly string[] = ["rule-check", "rendered-report"];
 
 /** Surfaces whose downloads or handoffs carry result data (group a). */
 const GATED: [string, ComponentType<Json>, string][] = [
   ["PCF export", PcfExportPanel, "pcf-export"],
-  ["CAEPIPE .mbf export", CaepipeMbfExportPanel, "caepipe-mbf"],
   ["CAEPIPE external harness", CaepipeExternalHarnessPanel, "caepipe-external"],
   ["Export adapter SDK", ExportAdapterSdkPanel, "export-adapter-sdk"],
   ["Adapter framework", AdapterFrameworkPanel, "adapter-framework"],
@@ -151,7 +150,7 @@ describe("the shared refusal", () => {
 
 /** Epoch 8 (§5.2): the gate reads its surface's own decision. The rule-check
  * completeness panel admits the exact routes, and since W-11 the rendered report does too;
- * the other sixteen gated surfaces (the fifteen interop and handoff surfaces and the
+ * the other fifteen gated surfaces (the fourteen interop and handoff surfaces and the
  * report JSON packet) still refuse (§5.4). */
 describe.each(GATED.filter(([, , prefix]) => !OPENED_GATED.includes(prefix)))("%s", (_label, Panel, prefix) => {
   it.each(STATES)("refuses %s output with the reworded reason and keeps its display", async (_id, make, reason) => {
@@ -167,6 +166,30 @@ describe.each(GATED.filter(([, , prefix]) => !OPENED_GATED.includes(prefix)))("%
     const { props } = await preview();
     render(<Panel {...props} />);
     expect(screen.queryByTestId(`${prefix}-load-reference-output-unavailable`)).toBeNull();
+  });
+});
+
+/** DEL-17-04 (4b.2b's follow-up): the model batch file export carries no result data, so it has no result-output
+ * gate. Its one action is offered for each load/reference-state identity, for a preview-physics-2 result and for no
+ * result alike; the panel takes no result. */
+describe("CAEPIPE .mbf export (no result-output gate)", () => {
+  const offered = () => {
+    expect(screen.queryByTestId("caepipe-mbf-load-reference-output-unavailable")).toBeNull();
+    expect(screen.getByTestId("caepipe-mbf-export")).toHaveTextContent("Export MBF…");
+    for (const reason of [PRESSURE_2_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL]) expect(screen.queryByText(reason)).toBeNull();
+  };
+  it.each(STATES)("offers Export MBF… beside a %s result", async (_id, make) => {
+    const { props } = await make();
+    render(<CaepipeMbfExportPanel {...props} onExportMbf={() => {}} />);
+    offered();
+  });
+  it("offers Export MBF… beside a preview-physics-2 result and with no result", async () => {
+    const { props, model } = await preview();
+    render(<CaepipeMbfExportPanel {...props} onExportMbf={() => {}} />);
+    offered();
+    cleanup();
+    render(<CaepipeMbfExportPanel model={model} onExportMbf={() => {}} />);
+    offered();
   });
 });
 
@@ -223,7 +246,7 @@ describe("LoadReferenceOutputGate", () => {
     expect(gate(successor, "stress-neutral")).toStrictEqual({ refusal: reason, open: false });
     for (const [, , prefix] of GATED) expect(gate(successor, prefix), prefix).toStrictEqual({ refusal: reason, open: false });
   });
-  it.each(STATES)("opens for %s on rule-check and rendered-report only among the eighteen gated prefixes, and refuses the other sixteen", async (_id, make, reason) => {
+  it.each(STATES)("opens for %s on rule-check and rendered-report only among the seventeen gated prefixes, and refuses the other fifteen", async (_id, make, reason) => {
     const { result } = await make();
     for (const [, , prefix] of GATED) {
       expect(gate(result, prefix), prefix).toStrictEqual(OPENED_GATED.includes(prefix) ? { refusal: null, open: true } : { refusal: reason, open: false });

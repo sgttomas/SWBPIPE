@@ -243,9 +243,11 @@ writer and importer. These are the CAEPIPE lane's work, not desktop work (Q-3):
 
 1. **Entry points.** File > Export MBF… (`file.export-mbf`), placed after Save Handoff…. The
    Model batch file panel in the Exports section opens the same dialog. Both are reachable by
-   keyboard. Both apply the panel's output gate (`caepipe-mbf` in `OUTPUT_SURFACES`, unchanged),
-   and an Export MBF… chosen before the session's model hash is shown is refused by name
-   (`MODEL_DOC_SAVE_HASH_PENDING`) and can be chosen again (slice 4b.2b).
+   keyboard. Neither has a result-output gate: the export carries no result data, so whatever
+   result the session holds (none, a PF, exact or retained one, or a held one), its route,
+   standing or hold neither disables nor refuses it (§6, "Output gate removed"). The export's own
+   checks apply (§3.3 to §3.9). An Export MBF… chosen before the session's model hash is shown is
+   refused by name (`MODEL_DOC_SAVE_HASH_PENDING`) and can be chosen again (slice 4b.2b).
 2. **The dialog.** It captures the session's canonical model text and hash. It never runs the
    wasm writer: it asks the native `review_mbf_export` (§3.9.5) for a review with these
    settings:
@@ -1750,8 +1752,8 @@ identity file changes; `app_invoke_handler` is unchanged, so the reach-scan pin 
   it is open), so its count is held at the owner.
 - **Open.** Criterion 6 is not claimed: the reference system still needs the coverage tranches and the round-trip
   check (slices 5 and 6). The panel and menu keep the `caepipe-mbf` output gate although the export now carries no
-  result data; its removal is a separate follow-up. No App launch, Playwright, native smoke or
-  model run was made.
+  result data; its removal is a separate follow-up (done: "Output gate removed" below). No App launch, Playwright,
+  native smoke or model run was made.
 - **DEL-17-05's external-run panel** (repair round 2, by Agent 0's ruling that no misleading live consumer is left for a
   later owner). DEL-17-05-REQ-016 requires external-run evidence to bind to *a* DEL-17-04 MBF export package
   reference, and its schema requires only a non-empty `mbf_package_ref` and `input_mbf_path`; neither requires the
@@ -1764,6 +1766,48 @@ identity file changes; `app_invoke_handler` is unchanged, so the reach-scan pin 
   diagnostic (`CAEPIPE-EXTERNAL-MBF-INPUT-NOT-AVAILABLE`) names it. The panel's state-binding line marks the reference
   "(historical; not available)". The Python run package (`core/handoff/caepipe_external/run.py`), its fixtures and the
   schema are unchanged.
+
+**Output gate removed (follow-up to 4b.2b, 2026-11-06).** Agent 0's ruling: the same canonical model and settings must
+not become unexportable because an unrelated result is held; the gate protected no result data in these files. Only
+the result-output gate changes; criterion 6 is not claimed.
+
+- **Old policy.** `caepipe-mbf` was one of `OUTPUT_SURFACES`' 21 entries, refused by every gated route's table
+  (`pressure`, `pressure_source`, `retained_preview_physics`, `retained_physics`). The panel wrapped its Export MBF…
+  action in `LoadReferenceOutputGate` on the Current result (a refusal in place of the action), and `requestExportMbf`
+  refused the File menu's item with `Export MBF… is not available: <reason>` (`export_mbf_refused`) through
+  `outputGateRefusal(currentSolvedResultRef.current, "caepipe-mbf")`. The ungated routes (`preview_physics`,
+  `unsupported`) and no result added no refusal.
+- **New policy.** `caepipe-mbf` is not an output surface: `OUTPUT_SURFACES` has 20 entries (seventeen in T1's group
+  a), and no route's table names it. The panel takes no result and renders its action whenever the session can open
+  the export; `requestExportMbf` reads no result. Both entry points stay as enabled as before for the model: the
+  native item while no project operation is busy (`lib.rs`, unchanged), the in-window item while the model and its
+  hash are ready (`modelDocumentSaveReady`, unchanged), and the request still refuses by name while the hash is
+  pending. Every other surface's decision, for every route, is unchanged; nothing else is admitted.
+- **Kept.** The model's admission and screening, the local-private explicit-intent route `DOTH-MBF-012`, the reviewed
+  digests, the loss, completeness, size and budget checks, cancellation (the barrier, its ticket and its retirements)
+  and the file-transaction guards. No native command, worker, format, identity file or reach-scan pin changes: the
+  native commands take only `{canonicalText, claimedModelHash, settingsJson}` (review) and those plus `suggestedName`,
+  `reviewed`, `screening` and `localFirstEvidence` (save) (`mbf_export.rs` `review_mbf_export_args`,
+  `save_mbf_export_args`); `mbf_worker::reserve` uses the registry only for the memory lease, so no result can reach
+  them.
+- **Tests.** `App.mbfExportUngated.test.tsx` runs the real App against a mocked native host whose solves replay
+  committed producer bytes. For each context it exports from the File menu and from the panel with no result, then
+  again beside the result, and asserts the four `review_mbf_export` and `save_mbf_export` requests are equal (canonical
+  text, hash, settings, suggested name, reviewed digests, route evidence, the ticket's type), and that the export sent
+  only its own commands, with zero of every result read (the take, the full copy and its release, dispose, the native
+  result pages, verdict, summary and record preview, and the restored and custody full reads). Contexts: a PF
+  (preview-physics-2) result; an exact (pressure-2) result; a retained route (the exact result read as
+  `retained_physics` through a `sourceContract` double: no product caller delivers a successor and the native replay
+  records no reply for its bytes); and a held result (the exact result held natively with its full copy also held in
+  the webview, C2). Against the old gate the exact, retained and held cases fail with the refusal by name; the PF case
+  passes there too (its route was ungated). The panel tests (`loadReferenceOutputRefusal.test.tsx`,
+  `retainedPrecisionOutputRefusal.test.tsx`) move the panel out of the gated lists and assert the action is offered
+  beside each load/reference-state identity, a retained successor, a PF result and no result; `outputPolicy.test.ts`
+  drops the cell and asserts no route names it. The native smoke's exact-route check now expects no refusal, the
+  action and no download link (`driver.js`, `run.mjs`; not run); `expected.json` does not pin MBF and is unchanged.
+  The Playwright smoke had no gate assertion. A result held back by its numerical verdict or by an RT-A5 held-status
+  gate could not be delivered into an App session here (the replay records no reply for the session's delivery of
+  those bytes); the export reads no result at all, so its route, standing or hold cannot reach the request.
 
 ## 7. Boundaries
 
