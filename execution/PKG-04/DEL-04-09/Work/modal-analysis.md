@@ -1481,6 +1481,7 @@ This proposal comes from source plus the existing cantilever calibration (stage 
     - the generalized-mass and orthogonality terms multiply accumulated sums, and a factor count alone does not bound carry growth.
 
     No underlying monomial was found with more than three binary64 factors, so some bound near 202 may hold under explicit count bounds, but none is proved.
+  - *(2026-11-06: a data-independent span L̄ = 492 limbs is now derived from source, pending independent scrutiny; see "P0 and S1 in the product, as built" below.)*
   - **So L is held by an enforced allotment, not a bound.** P0 charges every L-dependent term at a proposed allotment L_A; 202 is the working proposal, and the value is not adopted. S2b's exact scan, after re-formation and before any residual or orthogonality array is built, refuses (`MODAL_RESOURCE_CHECKS_EXCEEDED`) if the exact L exceeds L_A. The formation maps (T7) are built before S2b, so their per-entry limb growth is checked against L_A as the sums grow, before the next allocation.
 
 **Counts are upper bounds** wherever data can only lower them: zero factors skip insertions, and an early failure skips the rest of a pair's work.
@@ -1698,42 +1699,75 @@ The weights rise with n (w_b64 from 0.0925 to 0.1579 over 240–960), so **no we
 
 ##### P0 and S1 in the product, as built (2026-11-06; no value adopted)
 
-Built on `claude/rt-dynamics-p0` from main `17aa9a1f9`, under Agent 0's approval of the guard form and placement (above). **No weight, allotment, R_max, L_A or ceiling is adopted;** L_A = 202 and the illustration's values stay proposals.
-- **Entry.** `run_modal_dense(req, params)` is unchanged and delegates to the new internal `run_modal_dense_with_budget(req, params, None)`. The budget is a separate, borrowed `Option<&ModalResourceBudget>`, not a field of `ModalIntegrityParameters` and never defaulted. With `None` no P0 runs and the kernel takes `DenseAllotments::default()`, which is `solve_dense_pencil` by construction.
-- **P0** (`modal/resource.rs`). It runs after `prepare_modal` and before `solve_modal_state_case`.
-  - *Premise checked:* `prepare_modal` forms no stiffness and no mass, and allocates only the model, the build and O(N + E) boundary and topology records (`prepare.rs:138`–`:388`). The first n²-scale work is the state solve's `form_basis_stiffness` (`state.rs:348`, after its two guards), or, with no state case, `form_modal_pencil`'s guard and formation (`stiffness.rs:142`). So P0's placement needed no adjustment.
-  - *Arithmetic:* checked u128 counts c̄_t for 24 terms (T1 to T10, split where the cost table separates parts); W = Σ w_t·c̄_t with `checked_mul`/`checked_add`; the stage allotments A_s for P0, S1, the confirmation counter, S2 and S2b; and Σ_s A_s ≤ W_budget, inclusive. A count, charge or sum that overflows refuses as `MODAL_RESOURCE_ARITHMETIC_OVERFLOW`.
-  - *Weight-or-refuse:* each weight is `Option<u64>` ps per counted unit. A term with a nonzero count and a `None` weight refuses as `MODAL_RESOURCE_PREFLIGHT_EXCEEDED`, naming the term, and so does a term with no bound. An exceeded W_budget names the dominant term, the largest w_t·c̄_t.
-- **The bounds, derived from source for the input domain** (no population fit; the module docs of `resource.rs` carry each derivation):
-  - **n̄_f** = n_g − |distinct linear restrained DOFs|. `reduce_assembled_sparse_system` (frame_kernel `structural/sparse.rs:851`) takes the free set as exactly the complement of the restrained set, and the state case only adds rigid states. With a restraint basis, n̄_f = n_g.
-  - **n̄_c** = n̄_f.
-  - **n̄_r** = min(n̄_f, ⌊R_max/6N⌋) with R_max from the budget, otherwise n̄_f. It is never assumed that n_r ≤ `mode_count`.
-  - **p̄** = min(n̄_f, A_band), and **R̄** = A_QL.
-  - **s** = s_max: `run_candidates` takes at most `max_candidates` shifts in either placement.
-  - **L** = L_A.
-  - **D_K, D_M and E** come from the re-formation's element sizes (`reform_element_stiffness`/`_mass`): 12 × 12 for straights, arcs, connectors and tie rods; two 6 × 6 lumps for an arc's mass; 6 × 6 for a body; 1 × 1 for an axis spring and 3 × 3 for a skewed spring. They are taken over every built pipe, arc, connector, tie rod and spring, and one body per mass-bearing pipe segment.
-  - **μ** = 36 with a restraint basis: up to 3 × 3 coordinate pairs × 2 dd words × 2 for a factor per element entry.
-  - **nnz(K_ff), nnz(M_ff)** in T4 ≤ n̄_f². The element bound is not used there, because the formed pattern is not proved to lie in the re-formed one.
-  - **T1:** S̄ = (I_as + 1)(2 + d̄) + 1 solves, with I_as = `DEC_046_PRODUCT_PREVIEW_ACTIVE_SET_MAX_ITERATIONS` (4) and d̄ the friction supports. Each solve is priced as T2, plus (I_as + 1)(⌈2d̄³/3⌉ + 2d̄² + d̄·n_g) for the coupling.
-- **Unbounded at P0, so refused:** `T1.confirmation`. E_conf has no source bound, and its A_conf counter is a held NI seam (`confirmation.rs`), so **P0 refuses every request that runs a state solve** until that counter exists. This is a capability boundary, not a permanent narrowing.
-- **S1 in the product** (`eigen::solve_modal_pencil_within`). With a budget, the kernel runs under `DenseAllotments { ql_rotations: Some(A_QL), band_pairs: Some(A_band) }`. Its typed resource errors map to `MODAL_RESOURCE_QL_ALLOTMENT_EXCEEDED`, `MODAL_RESOURCE_BAND_ALLOTMENT_EXCEEDED` and `MODAL_RESOURCE_ARITHMETIC_OVERFLOW` (`diagnostic:modal:resource:kernel`); the numerical refusals are unchanged.
-- **Catalogue.** `MODAL_RESOURCE_PREFLIGHT_EXCEEDED` is defined in `integrity.rs`, and the three kernel names are re-exported there. No generated document or table carries MODAL refusal codes, so nothing is regenerated. `document.rs` is untouched, so `modal_doc_solved`'s §8.52 pin `f4907717…` stands.
+Built on `claude/rt-dynamics-p0` from main `17aa9a1f9`, under Agent 0's approval of the guard form and placement (above), and revised after the independent review of `4952e5c61` (three blocking findings, two should-fixes). **No weight, allotment, R_max, L_A or ceiling is adopted;** L_A = 202 and the illustration's values stay proposals.
+
+**The rule P0 follows.** Every count c̄_t that P0 charges is an upper bound on the work it charges, in a stated unit, derived from source for every admitted input. A term with no such bound is *unbounded*, and P0 refuses any request in which it occurs. An allotment that only a later, unbuilt stage would enforce is never charged as a bound. The module docs of `modal/resource.rs` carry each derivation.
+
+**The capability boundary today: P0 refuses every budgeted request.** T2's integrity work is unbounded and occurs in every request. This is the approved weight-or-refuse boundary, not a permanent narrowing: P0 admits nothing until the unbounded terms are bounded. A request without a budget is unaffected.
+
+- **Entry.** `run_modal_dense(req, params)` delegates to the internal `run_modal_dense_with_budget(req, params, None)`. The budget is a separate, borrowed `Option<&ModalResourceBudget>`. It is not a field of `ModalIntegrityParameters` and is never defaulted. With `None`, no P0 runs and the kernel takes `DenseAllotments::default()`.
+- **Placement** (premise checked). `prepare_modal` forms no stiffness and no mass, and allocates only the model, the build and O(N + E) records (`prepare.rs:138`–`:388`). The first n²-scale work is the state solve's `form_basis_stiffness` (`state.rs:348`), or with no state case `form_modal_pencil`'s guard (`stiffness.rs:142`). P0 runs before both.
+- **Arithmetic.** Checked u128 counts for 33 terms. W = Σ w_t·c̄_t, with `checked_mul`/`checked_add`. The stage allotments A_s are formed for P0, S1, the confirmation counter, S2 and S2b, and Σ_s A_s ≤ W_budget is inclusive. An overflow refuses as `MODAL_RESOURCE_ARITHMETIC_OVERFLOW`. Each weight is an `Option<u64>` in picoseconds per counted unit. An unbounded term, or a nonzero count with a `None` weight, refuses as `MODAL_RESOURCE_PREFLIGHT_EXCEEDED`, naming every such term with its reason. An exceeded W_budget names the dominant term.
+- **Dimensions** (each an upper bound from source):
+  - **n̄_f** = n_g − |distinct linear restrained DOFs|; with a restraint basis, n_g.
+  - **n̄_c** = n̄_f, and **n̄_r** = n̄_f. R_max is recorded and not used, because S2, which would enforce it, is not built.
+  - **p̄** = min(n̄_f, A_band) and **R̄** = A_QL; S1 enforces both.
+  - **s** = s_max.
+  - **D_K, D_M, E** are taken from the re-formation's element sizes. **μ** (exact-product calls per element entry) is 1, or 36 with a restraint basis, and **Q** = 8μ is the parts per entry.
+  - **L̄ = 492 limbs** for every `ExactSum`, derived as follows; L_A is recorded and not used:
+    - An accumulator whose parts have representation bits in [B_lo, B_hi] and fewer than 2^c adds holds at most ⌊(B_hi + c)/32⌋ + 4 − ⌊B_lo/32⌋ + 1 limbs. Its low limb only moves down, its length never shrinks, and a carry pushes a limb only while the top limb is at least 2³¹.
+    - A TwoProduct part of a product of binary64 factors (e ∈ [−1074, 1023]) lies within the exact product: bits at or above Σ(e − 52), a representation lsb at most 52 below that, and a top bit at most Σe + k.
+    - **Level-1 sums** take at most five factors per product (`product_into` on a mixed element with a factor), so B ∈ [−5682, 5120] and L̄₁ = 347.
+    - **Level-2 sums** (`add_terms_product`, and the formation difference's terms) multiply a level-1 sum's terms by at most two factors, so B ∈ [−8000, 7456] and L̄ = 492. No level-2 sum's terms are multiplied again (`reformation/mod.rs:1233`, `orthogonality.rs:176`).
+    - **Adds:** fewer than 2¹³¹ per accumulator, since every add is a part of a counted call and P0 refuses a count ≥ 2¹²⁸; so c = 132.
+    - **Limb work:** one part's add costs at most 5L̄ + 16 limb operations, and one read at most 12L̄ + 32.
+    - This withdraws §5.3.8's earlier "no data-independent bound on L". The three reasons given there are each covered: the subnormal representation lsb (the −52), limb growth by `normalize()` (the carry allowance), and sums of accumulated terms (level 2).
+    - This bound is a numerical-meaning claim and needs independent scrutiny.
+- **Bounded terms** (unit; derivation; stage):
+  - **T1** (with nonlinear supports; P0). S̄ = (I_as + 1)(2 + d̄) + 1 solves, each through frame_kernel's `cholesky`. `T1.factor` = S̄ × T2.factor, `T1.entries` = S̄ × T2.entries, and `T1.coupling` = (I_as + 1)(⌈2d̄³/3⌉ + 2d̄² + d̄·n_g).
+  - **T2** (P0). `T2.factor` = (n − 1)n(n + 1)/6 Cholesky inner iterations, exactly the k-loop of `structural.rs:2089`–`:2095`. Each iteration is one checked product, one checked subtraction and one checked absolute addition; at n_f = 6 that is 35 iterations, as the review counted. `T2.entries` = 3n² entry steps: the n(n + 1)/2 factor entries (each a division, or a square root with its pivot screen), the finiteness scan, the symmetry scan and the factor allocation.
+  - **T3** (S1). `T3.kernel` counts kernel steps of `solve_dense_pencil_with_allotments`, loop by loop. A step is one innermost body, or one element of a fill, copy, swap or scan, of at most 24 operations. The loops are:
+    - the admission scans, the massless scans and the filters;
+    - the ordered Cholesky, the mass reduction, Householder and its accumulation;
+    - QL, charged as 2R̄(n + 1): one iteration per rotation at most, with the scalar body and the row update;
+    - the sort and ≤ 11 Hager solves;
+    - the reordering, the back-transform, the screen and the census Cholesky.
+
+    §5.3.8's 19n³/3 + 6n·R and n³/3 are leading-order calibration units (w_b64, w_screen), not upper bounds. They are not used as counts.
+  - **T4** (S1). `T4.scaling` = 2n² + n; `T4.visits` = `T4.insertions` = 4p̄n²; `T4.rows` = p̄(n + 2); and `T4.limbs` for the limb work.
+  - **T5** (S2). `T5.census` = 16n̄_c linear-pass steps, and `T5.outcome` = n̄_c·p̄ + 2n̄_c² + n̄_c for the outcome's band flags and cluster ranges.
+  - **T6** (S2). `T6.visits` = n̄_r(n² + 3n), plus `T6.limbs`.
+  - **T7** (S2). `T7.elements` = E, plus `T7.limbs`.
+  - **T8** (S2b). `T8.insertions` = n̄_c·μ(D_K + 2D_M); `T8.generalized_mass` = n̄_c·n·L̄; `T8.rows` = n̄_c(2n + 1); plus `T8.limbs`.
+  - **T9** (S2). `T9.factorization` = s(n(n − 1)(n − 2)/6 + n²) LDLᵀ steps; `T9.passes` = s(29P + 98n + 70), covering the formed list, the profile, the observations and ≤ 11 ordered solves; `T9.neighbours` = 2(P + 3n); plus `T9.limbs`.
+  - **T10** (S2b). `T10.products` = n̄_r·μ·D_M; `T10.bilinear` = n̄_r(n̄_r + 1)/2·n·L̄; plus `T10.limbs`.
+- **Unbounded terms (refuse):**
+  - `T2.integrity`, and per state solve `T1.integrity`. This is the M03-INTEGRITY work around the static factor: the `SparseAssemblyEvidence` construction, the dense view, `prepare_bound` (radix scaling, `ExactAccumulator` right-hand sides, the skew audit), `audit_contributions`, the triangular solves, the residual records, the condition estimate and the finish. Its `Expansion` lengths are bounded (≤ 2,099 nonoverlapping binary64 components), but its pass counts are not derived in this slice.
+  - `T1.confirmation`. E_conf has no source bound, and its A_conf counter is a held NI seam.
+  - `T7.assembly`. The formation maps are std `BTreeMap`s and the formation difference binary-searches; their step constants are not repository source.
+  - `T9.construction`. The pencil's merged records (up to 2P) and both RCM adjacency sorts are std sorts, documented only as O(m log m). The pseudo-peripheral search alone is bounded: it repeats BFS only while the eccentricity strictly grows, so at most n + 1 traversals.
+- **S1 in the product** (`eigen::solve_modal_pencil_within`). With a budget, the kernel runs under A_QL and A_band. Its typed resource errors map to `MODAL_RESOURCE_QL_ALLOTMENT_EXCEEDED`, `MODAL_RESOURCE_BAND_ALLOTMENT_EXCEEDED` and `MODAL_RESOURCE_ARITHMETIC_OVERFLOW` (`diagnostic:modal:resource:kernel`). While P0 refuses every budgeted request, `run_modal_dense_with_budget` cannot reach S1, so S1 is exercised through the product's own solve on the product's own pencil.
+- **Catalogue.** `MODAL_RESOURCE_PREFLIGHT_EXCEEDED` is defined in `integrity.rs`, and the three kernel names are re-exported there. No generated document or table carries them. `document.rs` is untouched, so `modal_doc_solved`'s §8.52 pin `f4907717…` stands.
 - **Evidence** (`modal/tests_resource.rs`; test-local budgets only):
-  - every count equals the formula evaluated independently on SEC-A N = 1 (also by hand), the arc and the U-1 state case;
-  - every actual count (n_f, n_c, n_r, p, R, s, D_K, D_M and E) is within its bound on all 35 population models;
-  - weight-or-refuse, including a zero count needing no weight;
-  - the inclusive W_budget boundary, and A_QL and A_band equal to the actual R and p, which pass bit for bit, with one less refusing by the exact code;
-  - overflow of a charge, a count and a sum;
-  - placement: a gap model's state solve runs and carries its static diagnostics without a budget, and with one P0 refuses first; on a linear model, P0 refuses ahead of the dense guard;
-  - no budget, and an admitting budget, change no outcome on the 35 models plus a cut-off case;
-  - the fixtures' bytes, the replay equality and the producer edges are unchanged (`tests_document`, `the_phase_replay_is_the_product_path`).
+  - every count equals its formula, evaluated independently, on SEC-A N = 1 (T2 by hand: 35 and 108), the arc and the U-1 state case, and T3 at small n;
+  - every actual count (n_f, n_c, n_r, p, R, s, D_K, D_M and E, and with them every bounded c̄_t) is within its bound on all 35 population models;
+  - R_max = 0 and L_A = 0 leave the bounds unchanged, and T6, T7, T8 and T10 are charged;
+  - L̄ matches its derivation and holds on adversarial level-1 and level-2 sums (a witness, not the proof);
+  - every population model refuses under a budget, naming exactly its unbounded terms;
+  - weight-or-refuse, the inclusive boundary with the dominant term, and overflow (each on the judgment);
+  - placement before the state solve (a gap model's solve runs without a budget, and P0 refuses first with one) and before the pencil guard;
+  - S1's codes, with the actual R and p passing bit for bit.
+- **Old against new.** The one changed numerical call, `solve_dense_pencil` before against `solve_modal_pencil` now, is compared float bit by float bit on all 35 models' own pencils. The committed fixtures' bytes and the producer edges (`tests_document`), which main's code generated, are unchanged. `run_modal_dense` against `run_modal_dense_with_budget(.., None)` checks only the wrapper's delegation, by `Debug` text, and is described as such.
+- **Not charged:**
+  - T11, the projection. It runs after `run_modal_dense`, and its count needs B_doc.
+  - Work outside the cost table: K's formation, the mass assembly, the pencil's n² fill, and the per-mode O(n_g) publication.
 - **Open items:**
-  1. T11 (the projection) is not charged: it runs after `run_modal_dense`, in the document path, and its count needs B_doc, which stays proposed.
-  2. The memory ledger is not checked. The option-(c) ledger's rows still carry O(·) terms and approximate constants (T7's ~4.8 KB per element, the O(nnz) records, the K-D5 buffers), so a check would have to choose values. Option (c)'s workspace reuse (#110, `modal_eigen::workspace`) retains each stage's capacity from its first use until its owner (`ReformedPencil`, `ModalBasis`) drops, so a ledger must count that capacity as live over that span; this slice does not change it.
-  3. S2, S2b and the confirmation counter are not built, so A_s for those stages, R_max and L_A are recorded but not yet enforced.
-  4. R̄ = A_QL. The QL iteration limit implies a source bound of about limit·n(n − 1)/2, which is not used.
-  5. The weights stay undetermined: every budget here is test-local, and no weight, allotment or ceiling is adopted.
-- **Pricing.** `resource.rs` is a new priced source in product_physics. Its D3 and AC-004 are the manager's next turn, so this slice registers nothing.
+  1. Bound the unbounded terms: T2's and T1's integrity passes, T1's confirmation counter (held NI seam), and the std containers in T7 and T9 (for example, a repository-source sort and map, or reviewed constants).
+  2. The memory ledger is not checked. The option-(c) ledger's rows still carry O(·) terms and approximate constants. #110's reuse (`modal_eigen::workspace`) retains each stage's capacity until its owner (`ReformedPencil`, `ModalBasis`) drops, so a ledger must count it as live over that span.
+  3. S2, S2b and the confirmation counter are not built.
+  4. L̄ = 492 needs independent numerical scrutiny.
+  5. The weights stay undetermined.
+- **Pricing.** `resource.rs` is a new priced source in product_physics. Its D3 and AC-004 are the manager's.
 
 #### 5.3.9 Admission: what stays disabled, and why
 

@@ -5,141 +5,204 @@
 //! with values; only tests build one, and it is labelled test-local.
 //!
 //! **What P0 is.** In `run_modal_dense`, after `prepare_modal` and before
-//! the state case's solve and any n²-sized allocation, P0 bounds the count
-//! c̄_t of every cost term T1 to T10 of §5.3.8's table from request, model
-//! and parameter inputs only. Each unknown enters at a bound derived below
-//! from source, or at an allotment the budget states and a later stage
-//! enforces. Then, in checked u128 arithmetic:
+//! the state case's solve and any n²-sized allocation, P0 forms a count c̄_t
+//! for every cost term of §5.3.8's table from request, model and parameter
+//! inputs only. **Every bounded c̄_t is an upper bound on the work it
+//! charges, in its stated unit, derived from source for every admitted
+//! input** (the derivations follow). A term for which no such bound is
+//! derived is *unbounded*, and P0 refuses any request in which it occurs.
+//! An allotment that a later stage would enforce (R_max at S2, L_A at S2b)
+//! is never charged as if it were a bound: those stages are not built.
+//! Then, in checked u128 arithmetic:
 //! - W = Σ_t w_t·c̄_t, with w_t integer picoseconds per counted unit;
 //! - the stage allotments A_s = Σ_{t∈s} w_t·c̄_t, for the stage s at which
-//!   t's count becomes exact (S1 in the kernel; S2, S2b and the
-//!   confirmation counter are not built, so their allotments are recorded
-//!   and enforced by nothing yet);
+//!   t's count becomes exact (S1 in the kernel; S2, S2b and the confirmation
+//!   counter are not built, so their allotments are recorded and enforced by
+//!   nothing yet);
 //! - Σ_s A_s ≤ W_budget, inclusive.
 //!
 //! W is a calibrated weighted-work budget in nominal time units, not a
-//! runtime guarantee.
+//! runtime guarantee. A count is in its own unit, never a calibrated flop
+//! proxy; §5.3.8's w_b64 and w_screen units (19n³/3 + 6n·R, n³/3) are
+//! leading-order calibration units, not upper bounds, and are not used.
 //!
 //! **Refusals**, each blocking and in the approved MODAL namespace:
-//! - `MODAL_RESOURCE_PREFLIGHT_EXCEEDED`: W exceeds W_budget (the dominant
-//!   term, the largest w_t·c̄_t, is named); or a term is inadmissible by
-//!   arithmetic, under the approved weight-or-refuse rule: its count is
-//!   nonzero and its weight is undetermined (`None`), or its count has no
-//!   bound at P0 at all;
+//! - `MODAL_RESOURCE_PREFLIGHT_EXCEEDED`: a term is inadmissible by
+//!   arithmetic (unbounded, or a nonzero count with an undetermined weight:
+//!   the approved weight-or-refuse rule), naming every such term; or W
+//!   exceeds W_budget, naming the dominant term, the largest w_t·c̄_t;
 //! - `MODAL_RESOURCE_ARITHMETIC_OVERFLOW`: a count, a product or a sum
 //!   overflows u128. Nothing wraps or saturates.
 //!
-//! **The count domain.** Every count below is an upper bound over the
-//! inputs P0 sees, never a fit to a population; a population run can
-//! support a bound (`tests_resource`) but does not establish it. The
-//! symbols are §5.3.8's:
-//! - N, the model's nodes, and n_g = 6N its global DOFs.
-//! - n̄_f, the pencil order. `reduce_assembled_sparse_system`
-//!   (frame_kernel `structural/sparse.rs:851`) takes the free DOFs as
-//!   exactly the complement, in 0..n_g, of the restrained set it is given,
-//!   and refuses an out-of-range or repeated DOF. That set is the prepared
-//!   linear one, or with nonlinear supports a superset of it
-//!   (`state::linearize_modal_supports` only adds rigid states). So
-//!   n_f ≤ n_g − |distinct linear restrained DOFs in 0..n_g|. With a
-//!   restraint basis the partition is on coordinates, so n̄_f = n_g, the
-//!   coordinate count.
-//! - n̄_c = n̄_f: the computed pairs are at most the condensed order n_m ≤ n_f.
-//! - n̄_r = min(n̄_f, ⌊R_max/6N⌋) when the budget states R_max (each reported
-//!   mode publishes 6N shape rows), and n̄_f otherwise. n_r ≤ n_c ≤ n_f
-//!   by source; **R_max is an allotment that S2 enforces, and S2 is not
-//!   built**, so a budget whose R_max binds is not enforced yet. It is never
-//!   assumed that n_r ≤ `mode_count`: cluster completion can exceed it.
+//! **The capability boundary today.** T2's integrity work is unbounded and
+//! occurs in every request, so **P0 refuses every budgeted request**, naming
+//! the unbounded terms. That is the approved weight-or-refuse boundary,
+//! stated plainly: P0 admits nothing until those terms are bounded. A
+//! request without a budget is unaffected.
+//!
+//! **Dimensions** (§5.3.8's symbols; each an upper bound from source):
+//! - N, the nodes, and n_g = 6N.
+//! - n̄_f, the pencil order. `reduce_assembled_sparse_system` (frame_kernel
+//!   `structural/sparse.rs:851`) takes the free DOFs as exactly the
+//!   complement in 0..n_g of the restrained set it is given, and refuses an
+//!   out-of-range or repeated DOF. That set is the prepared linear one, or
+//!   with nonlinear supports a superset of it (`state::linearize_modal_
+//!   supports` only adds rigid states). So n_f ≤ n_g − |distinct linear
+//!   restrained DOFs in 0..n_g|. With a restraint basis, n̄_f = n_g.
+//! - n̄_c = n̄_f: the computed pairs are at most the condensed order.
+//! - n̄_r = n̄_f: n_r ≤ n_c ≤ n_f. R_max (⌊R_max/6N⌋) is enforced only at S2,
+//!   which is not built, so it is recorded and not used. n_r is never
+//!   assumed ≤ `mode_count`: cluster completion can exceed it.
 //! - p̄ = min(n̄_f, A_band): the attempted band pairs are among the condensed
-//!   μ (p ≤ n_m ≤ n_f), and S1-band refuses more than A_band before any
-//!   band work.
+//!   μ, and S1-band refuses more than A_band before any band work.
 //! - R̄ = A_QL: S1-QL refuses before a sweep that would pass it.
-//! - s = s_max (`sturm_max_candidates`): `sturm::run_candidates` takes at
-//!   most `max_candidates` shifts in either placement, and one placement
-//!   runs per request.
-//! - L = L_A, the budget's limb allotment. No data-independent bound on an
-//!   `ExactSum`'s limb span is established (§5.3.8), so L is held by an
-//!   allotment that S2b enforces; S2b is not built.
-//! - The re-formation's element sizes, from `reform_element_stiffness` and
-//!   `reform_element_mass` (modal_eigen `reformation/mod.rs:263`, `:357`):
-//!   straight, arc, connector and tie-rod stiffness 12 × 12; axis spring
-//!   1 × 1; rank-one (skewed) spring 3 × 3; straight mass 12 × 12; an arc's
-//!   mass two 6 × 6 lumps; a component body 6 × 6. The operands
-//!   (`integrity::modal_reformation_operands`) are at most: every built
-//!   pipe as a straight (bend pipes and replaced spans are skipped there,
-//!   so this over-counts), every realized arc, one body per mass-bearing
-//!   pipe segment (`mass::assemble_mass` keys bodies by pipe), every
-//!   connector and its tie rods, every linear spring and every skewed
-//!   spring. Hence, with d_e the element's DOF count (an upper bound on its
-//!   free DOF count):
-//!   - D_K = Σ_K d_e² ≤ 144·(pipes + arcs + connectors + tie rods)
-//!     + springs + 9·skewed springs;
-//!   - D_M = Σ_M d_e² ≤ 144·pipes + 72·arcs + 36·pipe segments;
-//!   - E ≤ pipes + arcs + pipe segments + connectors + tie rods + springs
-//!     + skewed springs.
-//! - μ, the coordinate multiplier: 1 without a restraint basis. With one,
-//!   `ReformedPencil::product_into` enters each element entry (a, b) of a
-//!   mixed element as up to 3 × 3 coordinate pairs, two dd words each, and
-//!   with a factor two exact products each: at most 36 exact products per
-//!   entry, so μ = 36.
+//! - s = s_max: `sturm::run_candidates` takes at most `max_candidates`
+//!   shifts in either placement, and one placement runs per request.
+//! - L̄ = [`MODAL_RESOURCE_LIMB_BOUND`] limbs, derived below. L_A is enforced
+//!   only at S2b, which is not built, so it is recorded and not used.
+//! - D_K = Σ_K d_e², D_M = Σ_M d_e², E: from the re-formation's element
+//!   sizes (`reform_element_stiffness`/`_mass`, modal_eigen
+//!   `reformation/mod.rs:263`, `:357`): 12 × 12 for straights, arcs,
+//!   connectors and tie rods; an arc's mass two 6 × 6 lumps; a body 6 × 6;
+//!   an axis spring 1 × 1; a skewed spring 3 × 3. Over every built pipe,
+//!   arc, connector, tie rod and spring, and one body per mass-bearing pipe
+//!   segment (`mass::assemble_mass` keys bodies by pipe):
+//!   D_K ≤ 144·(pipes + arcs + connectors + tie rods) + springs + 9·skewed;
+//!   D_M ≤ 144·pipes + 72·arcs + 36·segments; E ≤ pipes + arcs + segments +
+//!   connectors + tie rods + springs + skewed.
+//! - μ, the exact-product calls per element entry: 1 without a restraint
+//!   basis (one `add_dd_product`), 36 with one (`product_into` on a mixed
+//!   element: ≤ 3 × 3 coordinate pairs × 2 dd words × 2 calls for a factor).
+//!   A call is at most 8 parts (`add_product4_within`, four factors), so
+//!   Q = 8μ parts per element entry; a re-formed position per element entry
+//!   is at most μ.
 //!
-//! **The terms** (counted unit; the weight is per that unit; stage):
-//! - T1, only with nonlinear supports (the state case's same-run solve,
-//!   `state::solve_modal_state_case`):
-//!   - S̄ = (I_as + 1)·(2 + d̄) + 1 structural solves. I_as is the product's
-//!     active-set iteration cap (`DEC_046_PRODUCT_PREVIEW_ACTIVE_SET_MAX_
-//!     ITERATIONS`, lib.rs:197). Per iteration, dense mode solves once
-//!     without derived friction and 2 + d with it (one base, d unit, one
-//!     final; nonlinear_integration `lib.rs:1639`–`:1795`), and the
-//!     single all-active recovery trial of iteration 1 (`:833`) adds at
-//!     most one more such step; the final +1 is the confirmation's gate
-//!     factorization. d̄ is the friction supports (the sliding candidates
-//!     are friction supports only, `:2131`).
-//!   - `T1.solve_factor` = S̄·⌈n̄_f³/3⌉ and `T1.solve_passes` = S̄·n_g²: each
-//!     solve priced as T2 on its free set (P0).
-//!   - `T1.coupling` = (I_as + 1)·(⌈2d̄³/3⌉ + 2d̄² + d̄·n_g): the d × d
-//!     elimination `solve_dense`, the influence and coupling matrices and
-//!     the unit-force vectors, per iteration with friction (P0).
-//!   - `T1.confirmation`: the static confirmation's formation evaluations
-//!     E_conf. **Not bounded from source**; §5.3.8 holds it by the
-//!     allotment A_conf and a counter in NI `confirmation.rs`, a held seam.
-//!     Until that counter exists its count has no bound, so P0 refuses
-//!     every request that runs a state solve.
-//! - T2, the static screen of the modal pencil: `T2.factor` = ⌈n̄_f³/3⌉
-//!   dense Cholesky flops, `T2.passes` = n_g² entry passes (P0).
-//! - T3, the binary64 kernel: `T3.kernel` = ⌈19·n̄_f³/3⌉ + 6·n̄_f·R̄ flops,
-//!   w_b64's unit (S1).
-//! - T4, band recovery: `T4.scaling` = 2·n̄_f² `formed_scaling` entries when
-//!   p̄ > 0; `T4.visits` = 4·p̄·n̄_f² (≤ 2n² in `recover_band_mode` and
-//!   ≤ 2n² in `formed_pair_errors` per pair); `T4.insertions` =
-//!   2·p̄·(nnz(K_ff) + nnz(M_ff)) at nnz ≤ n̄_f² each (S1). The element bound
-//!   D is not used for nnz: the formed pattern is not proved to lie in the
-//!   re-formed one (the formation difference keeps an off-pattern map).
-//! - `T5.census`: n̄_c computed pairs (census, clusters, reported set; S2).
-//! - `T6.visits`: n̄_r·(n̄_f² + 3·n̄_f): `mass_bilinear` on dense M_ff plus
-//!   three exact dots per mode (S2).
-//! - T7, re-formation and formation difference: `T7.elements` = E operands
-//!   (w_reform's unit); `T7.limbs` = μ·(D_K + D_M)·L, one `terms()` read of
-//!   ≤ L limbs per re-formed position (S2).
-//! - T8, residuals of every computed pair: `T8.insertions` =
-//!   n̄_c·μ·(D_K + 2·D_M) (K̂x, λM̂x and the exact M̂x; for straight elements
-//!   D_K = D_M and this is §5.3.8's 3·n_c·Σ_e d_e²); `T8.generalized_mass` =
-//!   n̄_c·n̄_f·L; `T8.reads` = n̄_c·n̄_f·L (`to_wide` of ≤ L limbs per row);
-//!   `T8.limbs` = n̄_c·L·(μ·(D_K + 2·D_M) + 3·n̄_f) limb moves (S2b).
-//! - T9, Sturm evidence at the dense profile: with P̄ = P̄_u = n̄_f(n̄_f + 1)/2
-//!   (lower-triangle positions) and row widths w_i ≤ i:
-//!   `T9.construction` = P̄_u·⌈log₂ P̄_u⌉ + n̄_f + P̄_u; `T9.factorization` =
-//!   s·(⌈n̄_f(n̄_f + 1)(2n̄_f + 1)/12⌉ + n̄_f(n̄_f + 1)/2) multiply-adds
-//!   (½Σw_i² + Σw_i); `T9.passes` = s·(P̄_u + 24·P̄ + n̄_f) (formed list,
-//!   profile, observations, ≤ 11 inverse-norm solves of 2P each, vectors);
-//!   `T9.neighbours` = 2·P̄_u (S2).
-//! - T10, orthogonality of the published set: `T10.products` = n̄_r·μ·D_M;
-//!   `T10.bilinear` = n̄_r(n̄_r + 1)/2·n̄_f·L (S2b).
+//! **L̄, the limb span of every `ExactSum`** (modal_eigen `exact.rs`). An
+//! add of a part p at scale σ touches the three limbs from ⌊(e(p) + σ −
+//! 52)/32⌋ up (reserving a fourth), and `low` only decreases; the length never shrinks; a carry pass
+//! pushes a limb only while the top limb is ≥ 2³¹ in magnitude. So for an
+//! accumulator whose parts have representation bits in [B_lo, B_hi] and
+//! fewer than 2^c adds, the length is at most
+//! ⌊(B_hi + c)/32⌋ + 4 − ⌊B_lo/32⌋ + 1.
+//! - *Parts.* A product of binary64 factors x_i (e_i ∈ [−1074, 1023]) is
+//!   split into exact TwoProduct parts. Each part is a nonzero piece of the
+//!   exact product, so its bits lie at or above the product's lowest bit,
+//!   ≥ Σ(e_i − 52), and its representation lsb is at most 52 below that;
+//!   the product is below 2^(Σe_i + k), so a part's top bit is ≤ Σe_i + k.
+//! - *Level 1* (sums of products of binary64 values and dd words): at most
+//!   five binary64 factors per product (`product_into` on a mixed element
+//!   with a factor: q_a, q_b, the word, λ, x). B_lo = 5·(−1126) − 52 =
+//!   −5682; B_hi = 5·1024 = 5120.
+//! - *Level 2* (`add_terms_product`: the terms of a level-1 sum times at
+//!   most two binary64 factors; `reformation/mod.rs:1233`,
+//!   `orthogonality.rs:176`; the formation difference adds level-1 terms
+//!   directly, `reformation/mod.rs:1018`): a term is an integer limb below
+//!   2³² at 2^(32(low₁ + k)), so B_lo = 32·low₁ − 2·1126 − 52 and B_hi =
+//!   32·(top₁ + 1) + 2·1024. No level-2 sum's terms are multiplied again.
+//! - *Adds:* every add is a part of a call counted in a term here (≤ 8 parts
+//!   a call), and P0 refuses a count ≥ 2¹²⁸, so fewer than 2¹³¹ < 2^c adds,
+//!   c = 132.
+//! - Hence L̄₁ = 168 + 178 + 1 = 347 and L̄ = L̄₂ = 241 + 250 + 1 = 492 limbs,
+//!   for every accumulator; terms() of a sum is at most its length.
+//! - *Limb operations:* one part's add moves at most 5L̄ + 16 limbs (a
+//!   downward growth: reallocation, resize, shift and fill; or an upward
+//!   resize; three chunk updates; the carry pass every 2²⁸ adds, amortized),
+//!   and one read (`to_wide_with`, `terms_into`) at most 12L̄ + 32 (copy,
+//!   two carry passes, negation, trim, scan and the term list).
 //!
-//! **Not in P0 here:** T11, the projection. It runs in the document path
-//! after `run_modal_dense`, and its count needs B_doc, which stays
-//! proposed; it is an open item. **Memory** is an open item too: the
-//! option-(c) ledger's rows still carry unpriced O(·) and approximate
-//! constants and the K-D5 buffers, so no memory check is made here.
+//! **The terms** (counted unit; derivation; stage). n = n̄_f throughout.
+//! - T1, only with nonlinear supports (the state case's solve):
+//!   S̄ = (I_as + 1)·(2 + d̄) + 1 solves. I_as is the product's active-set
+//!   cap (`DEC_046_PRODUCT_PREVIEW_ACTIVE_SET_MAX_ITERATIONS`, lib.rs:197);
+//!   dense mode solves once per iteration without derived friction and
+//!   2 + d with it (nonlinear_integration `lib.rs:1639`–`:1795`); the
+//!   all-active recovery trial of iteration 1 adds one more step; the +1 is
+//!   the gate factorization. d̄ is the friction supports (`:2131`). Each
+//!   solve factors through frame_kernel's `cholesky` (`structural.rs:2063`,
+//!   via `solve_structural_dense_binary64`/`factor_structural_cholesky`).
+//!   - `T1.factor` = S̄ × T2.factor's count; `T1.entries` = S̄ × T2.entries'
+//!     (P0);
+//!   - `T1.coupling` = (I_as + 1)·(⌈2d̄³/3⌉ + 2d̄² + d̄·n_g) flops and entry
+//!     steps: `solve_dense`, the influence and coupling matrices and the
+//!     unit-force vectors (P0);
+//!   - `T1.integrity`: **unbounded**, each solve's M03 integrity work, as
+//!     T2.integrity;
+//!   - `T1.confirmation`: **unbounded**, the static confirmation's
+//!     evaluations E_conf, whose A_conf counter is a held NI seam.
+//! - T2, the static screen (`stiffness.rs`, the dense structural solve):
+//!   - `T2.factor` = (n − 1)n(n + 1)/6 Cholesky inner iterations, exactly
+//!     the k-loop of `cholesky` (`structural.rs:2089`–`:2095`), each one
+//!     checked product, one checked subtraction and one checked absolute
+//!     addition (P0);
+//!   - `T2.entries` = 3n² entry steps: n(n + 1)/2 factor entries (each one
+//!     read and a checked division, or a square root with its pivot
+//!     screen), the n² finiteness scan, the n(n − 1)/2 symmetry scan and the
+//!     n² factor allocation (P0);
+//!   - `T2.integrity`: **unbounded.** The M03-INTEGRITY work around the
+//!     factor: the `SparseAssemblyEvidence` construction, the dense copy and
+//!     symmetry view, `prepare_bound`'s radix scaling, exact right-hand
+//!     sides (`ExactAccumulator`) and skew audit, `audit_contributions`
+//!     (`Expansion` sums and differences, each ≤ 2,099 components since its
+//!     parts are nonoverlapping, zero-free binary64), the triangular solves,
+//!     residual records, condition estimate and finish. Its pass counts are
+//!     not derived in this slice.
+//! - `T3.kernel`: kernel steps of `solve_dense_pencil_with_allotments`,
+//!   counted loop by loop (see [`modal_resource_kernel_steps`]). A step is
+//!   one execution of an innermost loop body or one element of a fill,
+//!   copy, swap or scan, at most 24 floating-point operations, comparisons
+//!   or moves. R enters as 2R̄(n + 1): each QL iteration has at least one
+//!   rotation, and each rotation is a scalar body plus a row update of n.
+//!   Band recovery is T4 (S1).
+//! - T4, band recovery (`dense.rs:759`–`:880`; S1): `T4.scaling` = 2n² + n
+//!   WideDd entry steps when p̄ > 0; `T4.visits` = 4p̄n² exact-product calls
+//!   (2n² in `recover_band_mode`, 2n² in `formed_pair_errors`);
+//!   `T4.insertions` = 4p̄n² (each call may insert); `T4.rows` = p̄(n + 2)
+//!   WideDd row steps; `T4.limbs` = p̄·(16n²·(5L̄+16) + (n + 2)·(12L̄+32))
+//!   limb operations.
+//! - T5 (S2): `T5.census` = 16·n̄_c steps of linear passes over the computed
+//!   pairs (the eigenvalue copy, `cluster_ids`, frequencies,
+//!   `reported_set`, estimates, the evidence rows, the cut-off
+//!   disclosures); `T5.outcome` = n̄_c·p̄ + 2n̄_c² + n̄_c steps of the
+//!   outcome's band flags and cluster ranges (`outcome.rs`).
+//! - T6 (S2): `T6.visits` = n̄_r(n² + 3n) exact-product calls (one
+//!   `mass_bilinear` and three `wide_dot`s per mode,
+//!   `modal_quantities.rs:591`, `:625`); `T6.limbs` =
+//!   n̄_r·(4(n² + 3n)·(5L̄+16) + 4·(12L̄+32)).
+//! - T7 (S2): `T7.elements` = E element re-formations (fixed-size p128 work
+//!   each); `T7.assembly`: **unbounded** (the formation maps are
+//!   `BTreeMap`s and the formation difference binary-searches the formed
+//!   list: std containers whose step constants are not repository source);
+//!   `T7.limbs` = (5L̄+16)·(Q(D_K + D_M) + n(n + 1) + L̄·μ(D_K + D_M)) plus
+//!   (12L̄+32)·(2μ(D_K + D_M) + n(n + 1)).
+//! - T8, residuals of every computed pair (S2b): `T8.insertions` =
+//!   n̄_c·μ(D_K + 2D_M) calls (K̂x, λM̂x, exact M̂x); `T8.generalized_mass` =
+//!   n̄_c·n·L̄ calls; `T8.rows` = n̄_c(2n + 1) WideDd row steps; `T8.limbs` =
+//!   n̄_c·((5L̄+16)·(Q(D_K + 2D_M) + 4nL̄) + (12L̄+32)·(2n + 1)).
+//! - T9, Sturm evidence at the dense profile, P = n(n + 1)/2 (S2):
+//!   `T9.construction`: **unbounded** (`ShiftPencil::from_entries` sorts up
+//!   to 2P merged records, `sturm.rs:571`, and `reverse_cuthill_mckee` sorts
+//!   every adjacency list twice, `sparse_direct/src/lib.rs:549`, `:555`: std
+//!   sorts, documented only as O(m log m). The pseudo-peripheral search
+//!   alone is bounded: it repeats BFS only while the eccentricity strictly
+//!   grows, so at most n + 1 traversals); `T9.factorization` =
+//!   s·(n(n − 1)(n − 2)/6 + n²) LDLᵀ steps (`factorize_ldlt`,
+//!   `sparse_direct/src/lib.rs:408`: per row of width w ≤ i,
+//!   w(w − 1)/2 + 2w + 1); `T9.passes` = s·(29P + 98n + 70) steps (the
+//!   formed list, profile build, factor clone and observations, ≤ 11
+//!   ordered solves of 2P + 8n, separations, gap positions);
+//!   `T9.neighbours` = 2(P + 3n) calls and checks; `T9.limbs` =
+//!   2·((5L̄+16)·8P + 2(12L̄+32)).
+//! - T10, orthogonality of the published set (S2b): `T10.products` =
+//!   n̄_r·μ·D_M calls; `T10.bilinear` = n̄_r(n̄_r + 1)/2·n·L̄ calls;
+//!   `T10.limbs` = n̄_r((5L̄+16)·Q·D_M + (12L̄+32)·n) + n̄_r(n̄_r + 1)/2·
+//!   ((5L̄+16)·4nL̄ + 12L̄+32).
+//!
+//! **Not charged here:** T11, the projection (it runs in the document path
+//! after `run_modal_dense`, and its count needs B_doc, still proposed), and
+//! work outside §5.3.8's table (K's formation, the mass assembly, the
+//! pencil's n² fill, the outcome's per-mode O(n_g) publication). **Memory**
+//! is an open item: the option-(c) ledger's rows still carry O(·) terms and
+//! approximate constants, so no memory check is made.
 use super::integrity::{ModalIntegrityParameters, MODAL_RESOURCE_ARITHMETIC_OVERFLOW, MODAL_RESOURCE_PREFLIGHT_EXCEEDED};
 use super::prepare::Prepared;
 use crate::{diag, Diagnostic, DOF_PER_NODE};
@@ -175,113 +238,189 @@ pub(crate) const MODAL_RESOURCE_STAGES: [ModalResourceStage; 5] = [
 /// [`ModalResourceBudget::weights`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ModalResourceTerm {
-    T1SolveFactor,
-    T1SolvePasses,
+    T1Factor,
+    T1Entries,
     T1Coupling,
+    T1Integrity,
     T1Confirmation,
     T2Factor,
-    T2Passes,
+    T2Entries,
+    T2Integrity,
     T3Kernel,
     T4Scaling,
     T4Visits,
     T4Insertions,
+    T4Rows,
+    T4Limbs,
     T5Census,
+    T5Outcome,
     T6Visits,
+    T6Limbs,
     T7Elements,
+    T7Assembly,
     T7Limbs,
     T8Insertions,
     T8GeneralizedMass,
-    T8Reads,
+    T8Rows,
     T8Limbs,
     T9Construction,
     T9Factorization,
     T9Passes,
     T9Neighbours,
+    T9Limbs,
     T10Products,
     T10Bilinear,
+    T10Limbs,
 }
 
 /// The number of P0 terms.
-pub(crate) const MODAL_RESOURCE_TERM_COUNT: usize = 24;
+pub(crate) const MODAL_RESOURCE_TERM_COUNT: usize = 33;
 
 /// Every term, in index order.
-pub(crate) const MODAL_RESOURCE_TERMS: [ModalResourceTerm; MODAL_RESOURCE_TERM_COUNT] = [
-    ModalResourceTerm::T1SolveFactor,
-    ModalResourceTerm::T1SolvePasses,
-    ModalResourceTerm::T1Coupling,
-    ModalResourceTerm::T1Confirmation,
-    ModalResourceTerm::T2Factor,
-    ModalResourceTerm::T2Passes,
-    ModalResourceTerm::T3Kernel,
-    ModalResourceTerm::T4Scaling,
-    ModalResourceTerm::T4Visits,
-    ModalResourceTerm::T4Insertions,
-    ModalResourceTerm::T5Census,
-    ModalResourceTerm::T6Visits,
-    ModalResourceTerm::T7Elements,
-    ModalResourceTerm::T7Limbs,
-    ModalResourceTerm::T8Insertions,
-    ModalResourceTerm::T8GeneralizedMass,
-    ModalResourceTerm::T8Reads,
-    ModalResourceTerm::T8Limbs,
-    ModalResourceTerm::T9Construction,
-    ModalResourceTerm::T9Factorization,
-    ModalResourceTerm::T9Passes,
-    ModalResourceTerm::T9Neighbours,
-    ModalResourceTerm::T10Products,
-    ModalResourceTerm::T10Bilinear,
-];
+pub(crate) const MODAL_RESOURCE_TERMS: [ModalResourceTerm; MODAL_RESOURCE_TERM_COUNT] = {
+    use ModalResourceTerm as T;
+    [
+        T::T1Factor,
+        T::T1Entries,
+        T::T1Coupling,
+        T::T1Integrity,
+        T::T1Confirmation,
+        T::T2Factor,
+        T::T2Entries,
+        T::T2Integrity,
+        T::T3Kernel,
+        T::T4Scaling,
+        T::T4Visits,
+        T::T4Insertions,
+        T::T4Rows,
+        T::T4Limbs,
+        T::T5Census,
+        T::T5Outcome,
+        T::T6Visits,
+        T::T6Limbs,
+        T::T7Elements,
+        T::T7Assembly,
+        T::T7Limbs,
+        T::T8Insertions,
+        T::T8GeneralizedMass,
+        T::T8Rows,
+        T::T8Limbs,
+        T::T9Construction,
+        T::T9Factorization,
+        T::T9Passes,
+        T::T9Neighbours,
+        T::T9Limbs,
+        T::T10Products,
+        T::T10Bilinear,
+        T::T10Limbs,
+    ]
+};
 
 impl ModalResourceTerm {
     /// The term's name in refusals and records (module docs).
     pub(crate) fn modal_resource_id(self) -> &'static str {
+        use ModalResourceTerm as T;
         match self {
-            Self::T1SolveFactor => "T1.solve_factor",
-            Self::T1SolvePasses => "T1.solve_passes",
-            Self::T1Coupling => "T1.coupling",
-            Self::T1Confirmation => "T1.confirmation",
-            Self::T2Factor => "T2.factor",
-            Self::T2Passes => "T2.passes",
-            Self::T3Kernel => "T3.kernel",
-            Self::T4Scaling => "T4.scaling",
-            Self::T4Visits => "T4.visits",
-            Self::T4Insertions => "T4.insertions",
-            Self::T5Census => "T5.census",
-            Self::T6Visits => "T6.visits",
-            Self::T7Elements => "T7.elements",
-            Self::T7Limbs => "T7.limbs",
-            Self::T8Insertions => "T8.insertions",
-            Self::T8GeneralizedMass => "T8.generalized_mass",
-            Self::T8Reads => "T8.reads",
-            Self::T8Limbs => "T8.limbs",
-            Self::T9Construction => "T9.construction",
-            Self::T9Factorization => "T9.factorization",
-            Self::T9Passes => "T9.passes",
-            Self::T9Neighbours => "T9.neighbours",
-            Self::T10Products => "T10.products",
-            Self::T10Bilinear => "T10.bilinear",
+            T::T1Factor => "T1.factor",
+            T::T1Entries => "T1.entries",
+            T::T1Coupling => "T1.coupling",
+            T::T1Integrity => "T1.integrity",
+            T::T1Confirmation => "T1.confirmation",
+            T::T2Factor => "T2.factor",
+            T::T2Entries => "T2.entries",
+            T::T2Integrity => "T2.integrity",
+            T::T3Kernel => "T3.kernel",
+            T::T4Scaling => "T4.scaling",
+            T::T4Visits => "T4.visits",
+            T::T4Insertions => "T4.insertions",
+            T::T4Rows => "T4.rows",
+            T::T4Limbs => "T4.limbs",
+            T::T5Census => "T5.census",
+            T::T5Outcome => "T5.outcome",
+            T::T6Visits => "T6.visits",
+            T::T6Limbs => "T6.limbs",
+            T::T7Elements => "T7.elements",
+            T::T7Assembly => "T7.assembly",
+            T::T7Limbs => "T7.limbs",
+            T::T8Insertions => "T8.insertions",
+            T::T8GeneralizedMass => "T8.generalized_mass",
+            T::T8Rows => "T8.rows",
+            T::T8Limbs => "T8.limbs",
+            T::T9Construction => "T9.construction",
+            T::T9Factorization => "T9.factorization",
+            T::T9Passes => "T9.passes",
+            T::T9Neighbours => "T9.neighbours",
+            T::T9Limbs => "T9.limbs",
+            T::T10Products => "T10.products",
+            T::T10Bilinear => "T10.bilinear",
+            T::T10Limbs => "T10.limbs",
+        }
+    }
+
+    /// Why the term has no bound at P0 (module docs); `None` for a bounded
+    /// term.
+    pub(crate) fn modal_resource_unbounded_reason(self) -> Option<&'static str> {
+        use ModalResourceTerm as T;
+        match self {
+            T::T1Integrity | T::T2Integrity => {
+                Some("the static dense path's M03 integrity work (preparation, audits, residual records, condition estimate) is not bounded from source in this slice")
+            }
+            T::T1Confirmation => Some("the confirmation evaluations have no source bound, and their A_conf counter is a held NI seam"),
+            T::T7Assembly => Some("the formation maps are std BTreeMaps and the formation difference binary-searches; their step constants are not repository source"),
+            T::T9Construction => Some("the Sturm pencil and the RCM order use std sorts, documented only as O(m log m), with no constant from repository source"),
+            _ => None,
         }
     }
 
     /// The stage at which the term's count becomes exact (module docs).
     pub(crate) fn modal_resource_stage(self) -> ModalResourceStage {
+        use ModalResourceTerm as T;
         match self {
-            Self::T1SolveFactor | Self::T1SolvePasses | Self::T1Coupling | Self::T2Factor | Self::T2Passes => ModalResourceStage::Preflight,
-            Self::T1Confirmation => ModalResourceStage::Confirmation,
-            Self::T3Kernel | Self::T4Scaling | Self::T4Visits | Self::T4Insertions => ModalResourceStage::Kernel,
-            Self::T5Census
-            | Self::T6Visits
-            | Self::T7Elements
-            | Self::T7Limbs
-            | Self::T9Construction
-            | Self::T9Factorization
-            | Self::T9Passes
-            | Self::T9Neighbours => ModalResourceStage::ReportedSet,
-            Self::T8Insertions | Self::T8GeneralizedMass | Self::T8Reads | Self::T8Limbs | Self::T10Products | Self::T10Bilinear => {
+            T::T1Factor | T::T1Entries | T::T1Coupling | T::T1Integrity | T::T2Factor | T::T2Entries | T::T2Integrity => {
+                ModalResourceStage::Preflight
+            }
+            T::T1Confirmation => ModalResourceStage::Confirmation,
+            T::T3Kernel | T::T4Scaling | T::T4Visits | T::T4Insertions | T::T4Rows | T::T4Limbs => ModalResourceStage::Kernel,
+            T::T5Census
+            | T::T5Outcome
+            | T::T6Visits
+            | T::T6Limbs
+            | T::T7Elements
+            | T::T7Assembly
+            | T::T7Limbs
+            | T::T9Construction
+            | T::T9Factorization
+            | T::T9Passes
+            | T::T9Neighbours
+            | T::T9Limbs => ModalResourceStage::ReportedSet,
+            T::T8Insertions | T::T8GeneralizedMass | T::T8Rows | T::T8Limbs | T::T10Products | T::T10Bilinear | T::T10Limbs => {
                 ModalResourceStage::Reformed
             }
         }
     }
+}
+
+/// The level-1 limb span bound L̄₁ (module docs): ⌊(5120 + 132)/32⌋ + 4
+/// − ⌊−5682/32⌋ + 1.
+pub(crate) const MODAL_RESOURCE_LEVEL1_LIMBS: u128 = 347;
+/// L̄, every `ExactSum`'s limb span bound (module docs): the level-2 span,
+/// ⌊(B_hi + 132)/32⌋ + 4 − ⌊B_lo/32⌋ + 1 with B_lo = 32·(−178) − 2304 and
+/// B_hi = 32·169 + 2048.
+pub(crate) const MODAL_RESOURCE_LIMB_BOUND: u128 = 492;
+
+/// The derivation of [`MODAL_RESOURCE_LEVEL1_LIMBS`] and
+/// [`MODAL_RESOURCE_LIMB_BOUND`] (module docs), as arithmetic.
+pub(crate) fn modal_resource_limb_spans() -> (i64, i64) {
+    const BITS: i64 = 32;
+    const CARRY: i64 = 132;
+    let factor_low = -1074 - 52;
+    let factor_high = 1024;
+    let span = |low: i64, high: i64| (high + CARRY).div_euclid(BITS) + 4 - low.div_euclid(BITS) + 1;
+    let (low1, high1) = (5 * factor_low - 52, 5 * factor_high);
+    let level1 = span(low1, high1);
+    let (low_limb1, top_limb1) = (low1.div_euclid(BITS), (high1 + CARRY).div_euclid(BITS) + 4);
+    let (low2, high2) = (BITS * low_limb1 + 2 * factor_low - 52, BITS * (top_limb1 + 1) + 2 * factor_high);
+    (level1, span(low2, high2))
 }
 
 /// The resource budget P0 and S1 are judged against (module docs). It has
@@ -296,15 +435,15 @@ pub(crate) struct ModalResourceBudget {
     pub(crate) weights: [Option<u64>; MODAL_RESOURCE_TERM_COUNT],
     /// W_budget, picoseconds: Σ_s A_s must not exceed it.
     pub(crate) work_budget: u128,
-    /// A_QL: the most implicit QL rotations (S1-QL).
+    /// A_QL: the most implicit QL rotations (S1-QL, enforced).
     pub(crate) ql_rotation_allotment: u64,
-    /// A_band: the most attempted band-recovery pairs (S1-band).
+    /// A_band: the most attempted band-recovery pairs (S1-band, enforced).
     pub(crate) band_pair_allotment: u64,
-    /// L_A: the limb allotment every L-dependent term is charged at (S2b
-    /// enforces it; not built).
+    /// L_A: a recorded allotment for S2b. **Not used by P0**: S2b is not
+    /// built, so L is charged at the derived L̄.
     pub(crate) limb_allotment: u64,
-    /// R_max: the projection's row allotment, bounding n_r by ⌊R_max/6N⌋
-    /// (S2 enforces it; not built). `None`: n_r at its source bound n_f.
+    /// R_max: a recorded row allotment for S2. **Not used by P0**: S2 is not
+    /// built, so n_r is charged at n̄_f.
     pub(crate) reported_row_allotment: Option<u64>,
 }
 
@@ -353,8 +492,8 @@ pub(crate) struct ModalResourceDimensions {
     pub(crate) mass_squares: u128,
     /// E, re-formation operands.
     pub(crate) element_operands: u128,
-    /// μ, the exact products per element entry (1, or 36 with a restraint
-    /// basis).
+    /// μ, exact-product calls per element entry (1, or 36 with a
+    /// restraint basis).
     pub(crate) coordinate_multiplier: u128,
     /// T1's dimensions; `None` without nonlinear supports (no state solve).
     pub(crate) state: Option<ModalStateDimensions>,
@@ -375,9 +514,14 @@ fn modal_resource_add(a: u128, b: u128, quantity: &'static str) -> Result<u128, 
     a.checked_add(b).ok_or(ModalResourceOverflow(quantity))
 }
 
-/// ⌈a/b⌉ for b > 0.
-fn modal_resource_ceil_div(a: u128, b: u128) -> u128 {
-    a.div_ceil(b)
+/// The checked product of `factors`.
+fn modal_resource_product(factors: &[u128], quantity: &'static str) -> Result<u128, ModalResourceOverflow> {
+    factors.iter().try_fold(1u128, |p, &f| modal_resource_mul(p, f, quantity))
+}
+
+/// The checked sum of `parts`.
+fn modal_resource_total(parts: &[u128], quantity: &'static str) -> Result<u128, ModalResourceOverflow> {
+    parts.iter().try_fold(0u128, |s, &p| modal_resource_add(s, p, quantity))
 }
 
 /// ⌈log₂ x⌉, 0 for x ≤ 1.
@@ -389,85 +533,175 @@ fn modal_resource_ceil_log2(x: u128) -> u128 {
     }
 }
 
-/// n³ and n², checked.
-fn modal_resource_cube(n: u128, quantity: &'static str) -> Result<u128, ModalResourceOverflow> {
-    modal_resource_mul(modal_resource_mul(n, n, quantity)?, n, quantity)
+/// T3's kernel steps at order n with R rotations (module docs): every loop
+/// of `solve_dense_pencil_with_allotments` (modal_eigen `dense.rs:358`),
+/// with n_m ≤ n and n_0 ≤ n, each part monotone in n.
+pub(crate) fn modal_resource_kernel_steps(n: u128, rotations: u128) -> Result<u128, ModalResourceOverflow> {
+    if n == 0 {
+        return Ok(0);
+    }
+    let q = "T3.kernel";
+    let p = |f: &[u128]| modal_resource_product(f, q);
+    let n2 = p(&[n, n])?;
+    let tri = p(&[n, n - 1])? / 2; // n(n − 1)/2
+    let pairs = p(&[n, n + 1])? / 2; // n(n + 1)/2
+    let cube6 = p(&[n - 1, n, n + 1])? / 6; // Σ_i Σ_{j≤i} j
+    let squares = p(&[n - 1, n, 2 * n - 1])? / 6; // Σ_{t<n} t²
+    let search = modal_resource_ceil_log2(n + 1) + 1; // a binary search's comparisons
+    modal_resource_total(
+        &[
+            // check_dense on K and M (admission.rs:84).
+            p(&[2, pairs])?,
+            // structurally_massless_dofs, in the kernel and the census.
+            p(&[2, n2])?,
+            // the massive filters (binary searches) and the order.
+            p(&[2, n, search])?,
+            n,
+            // cholesky_ordered: inner p-loop, entry bodies, allocation, finite check.
+            cube6,
+            pairs,
+            p(&[2, n2])?,
+            // reduce_mass: fill, two forward-solve passes over n rows, transpose, symmetrize, finite check.
+            n2,
+            p(&[2, n, tri + n])?,
+            p(&[2, tri])?,
+            n2,
+            // householder_tridiagonalize: Σ_{i<n} (i² + 7i + 1) reduction plus
+            // Σ_{t<n} (2t² + 3t + 1) accumulation, the two n-loops; transpose; d, e.
+            p(&[3, squares])?,
+            p(&[10, tri])?,
+            p(&[2, n])?,
+            p(&[2, n])?,
+            tri,
+            p(&[2, n])?,
+            // implicit_ql: the e shift, the block scans, the per-l bodies, and
+            // per iteration (≤ R) its body and shift loop, per rotation its
+            // scalar body and row update.
+            n,
+            pairs,
+            n,
+            p(&[2, rotations, n + 1])?,
+            // sort_ascending: comparisons, bodies, row swaps.
+            tri,
+            n,
+            n2,
+            // the resolution floor: roots, ≤ 11 Hager solves of n(n − 1) + 10n
+            // steps (norm_estimate.rs), the mass norm.
+            n,
+            p(&[11, p(&[n, n - 1])? + 10 * n])?,
+            n2,
+            // reordering: counts, reverse, row swaps, truncation, row moves.
+            p(&[3, n2])?,
+            p(&[4, n])?,
+            8,
+            // back-transform of every row and the finite check.
+            p(&[n, tri + 3 * n])?,
+            n2,
+            // classification, screen bodies, retained rows, the descending sort.
+            p(&[2, n])?,
+            n2,
+            tri,
+            n2,
+            // established_finite_mode_count: roots, Cholesky, entry bodies, allocation.
+            n,
+            cube6,
+            pairs,
+            n2,
+            // outputs and their validation, and counts.
+            p(&[7, n])?,
+            n2,
+        ],
+        q,
+    )
 }
 
 /// The count c_t of every term (module docs) from `dims`; `None` for a term
-/// with no bound (T1's confirmation evaluations, whenever a state solve
-/// runs).
+/// with no bound.
 pub(crate) fn modal_resource_term_counts(
     dims: &ModalResourceDimensions,
 ) -> Result<[Option<u128>; MODAL_RESOURCE_TERM_COUNT], ModalResourceOverflow> {
-    let mul = modal_resource_mul;
-    let add = modal_resource_add;
-    let n = dims.free;
-    let n2 = mul(n, n, "n_f²")?;
-    let n3 = modal_resource_cube(n, "n_f³")?;
-    let g2 = mul(dims.global, dims.global, "n_g²")?;
-    let screen = modal_resource_ceil_div(n3, 3);
-    let mu = dims.coordinate_multiplier;
-    let (dk, dm) = (dims.stiffness_squares, dims.mass_squares);
-    // K̂x, λM̂x and the exact M̂x, per pair.
-    let pair_products = mul(mu, add(dk, mul(2, dm, "D_M")?, "D_K + 2·D_M")?, "μ·(D_K + 2·D_M)")?;
-    // Lower-triangle positions of the dense profile.
-    let positions = n.checked_add(1).ok_or(ModalResourceOverflow("n_f + 1"))?;
-    let positions = mul(n, positions, "n_f(n_f + 1)")? / 2;
-    let mut counts = [Some(0u128); MODAL_RESOURCE_TERM_COUNT];
-    let mut set = |term: ModalResourceTerm, value: Option<u128>| counts[term as usize] = value;
     use ModalResourceTerm as T;
+    let p = modal_resource_product;
+    let t = modal_resource_total;
+    let n = dims.free;
+    let n2 = p(&[n, n], "n_f²")?;
+    let positions = p(&[n, n + 1], "n_f(n_f + 1)")? / 2;
+    let screen = p(&[n.saturating_sub(1), n, n + 1], "T2.factor")? / 6;
+    let entries = p(&[3, n2], "T2.entries")?;
+    let (l, mu) = (dims.limbs, dims.coordinate_multiplier);
+    let part = t(&[p(&[5, l], "5L")?, 16], "limbs per part")?;
+    let read = t(&[p(&[12, l], "12L")?, 32], "limbs per read")?;
+    let q8 = p(&[8, mu], "Q")?;
+    let (dk, dm) = (dims.stiffness_squares, dims.mass_squares);
+    let pair_entries = t(&[dk, p(&[2, dm], "2·D_M")?], "D_K + 2·D_M")?;
+    let element_entries = t(&[dk, dm], "D_K + D_M")?;
+    let (c, r, s, b) = (dims.computed, dims.reported, dims.sturm_candidates, dims.band_pairs);
+    let forms = p(&[r, r + 1], "n_r(n_r + 1)")? / 2;
+    let mut counts = [Some(0u128); MODAL_RESOURCE_TERM_COUNT];
+    let mut set = |term: T, value: u128| counts[term as usize] = Some(value);
 
     if let Some(state) = dims.state {
-        set(T::T1SolveFactor, Some(mul(state.solves, screen, "T1.solve_factor")?));
-        set(T::T1SolvePasses, Some(mul(state.solves, g2, "T1.solve_passes")?));
+        set(T::T1Factor, p(&[state.solves, screen], "T1.factor")?);
+        set(T::T1Entries, p(&[state.solves, entries], "T1.entries")?);
         let d = state.friction;
-        let coupling = add(
-            add(modal_resource_ceil_div(mul(2, modal_resource_cube(d, "d³")?, "2d³")?, 3), mul(2, mul(d, d, "d²")?, "2d²")?, "T1.coupling")?,
-            mul(d, dims.global, "d·n_g")?,
-            "T1.coupling",
-        )?;
-        set(T::T1Coupling, Some(mul(state.iterations, coupling, "T1.coupling")?));
-        set(T::T1Confirmation, None);
+        let coupling = t(&[p(&[2, d, d, d], "2d³")?.div_ceil(3), p(&[2, d, d], "2d²")?, p(&[d, dims.global], "d·n_g")?], "T1.coupling")?;
+        set(T::T1Coupling, p(&[state.iterations, coupling], "T1.coupling")?);
     }
-    set(T::T2Factor, Some(screen));
-    set(T::T2Passes, Some(g2));
-    set(
-        T::T3Kernel,
-        Some(add(modal_resource_ceil_div(mul(19, n3, "19·n_f³")?, 3), mul(mul(6, n, "6·n_f")?, dims.ql_rotations, "6·n_f·R")?, "T3.kernel")?),
-    );
-    let p = dims.band_pairs;
-    set(T::T4Scaling, Some(if p > 0 { mul(2, n2, "T4.scaling")? } else { 0 }));
-    set(T::T4Visits, Some(mul(mul(4, p, "4p")?, n2, "T4.visits")?));
-    set(T::T4Insertions, Some(mul(mul(2, p, "2p")?, mul(2, n2, "2·n_f²")?, "T4.insertions")?));
-    set(T::T5Census, Some(dims.computed));
-    set(T::T6Visits, Some(mul(dims.reported, add(n2, mul(3, n, "3·n_f")?, "n_f² + 3·n_f")?, "T6.visits")?));
-    set(T::T7Elements, Some(dims.element_operands));
-    set(T::T7Limbs, Some(mul(mul(mu, add(dk, dm, "D_K + D_M")?, "μ·(D_K + D_M)")?, dims.limbs, "T7.limbs")?));
-    let row_limbs = mul(mul(dims.computed, n, "n_c·n_f")?, dims.limbs, "n_c·n_f·L")?;
-    set(T::T8Insertions, Some(mul(dims.computed, pair_products, "T8.insertions")?));
-    set(T::T8GeneralizedMass, Some(row_limbs));
-    set(T::T8Reads, Some(row_limbs));
-    let moves = add(pair_products, mul(3, n, "3·n_f")?, "μ·(D_K + 2·D_M) + 3·n_f")?;
-    set(T::T8Limbs, Some(mul(mul(dims.computed, dims.limbs, "n_c·L")?, moves, "T8.limbs")?));
-    let construction = add(add(mul(positions, modal_resource_ceil_log2(positions), "P_u·log P_u")?, n, "T9.construction")?, positions, "T9.construction")?;
-    set(T::T9Construction, Some(construction));
-    let twice = mul(2, n, "2·n_f")?.checked_add(1).ok_or(ModalResourceOverflow("2·n_f + 1"))?;
-    // n_f(n_f + 1) = 2·positions exactly.
-    let squares = modal_resource_ceil_div(mul(mul(2, positions, "n_f(n_f + 1)")?, twice, "n_f(n_f + 1)(2n_f + 1)")?, 12);
-    let s = dims.sturm_candidates;
-    set(T::T9Factorization, Some(mul(s, add(squares, positions, "½Σw² + Σw")?, "T9.factorization")?));
-    set(T::T9Passes, Some(mul(s, add(add(positions, mul(24, positions, "24·P")?, "P_u + 24·P")?, n, "T9.passes")?, "T9.passes")?));
-    set(T::T9Neighbours, Some(mul(2, positions, "T9.neighbours")?));
-    set(T::T10Products, Some(mul(mul(dims.reported, mu, "n_r·μ")?, dm, "T10.products")?));
-    let r = dims.reported;
-    let pairs = mul(r, r.checked_add(1).ok_or(ModalResourceOverflow("n_r + 1"))?, "n_r(n_r + 1)")? / 2;
-    set(T::T10Bilinear, Some(mul(mul(pairs, n, "n_r(n_r + 1)/2·n_f")?, dims.limbs, "T10.bilinear")?));
+    set(T::T2Factor, screen);
+    set(T::T2Entries, entries);
+    set(T::T3Kernel, modal_resource_kernel_steps(n, dims.ql_rotations)?);
+    set(T::T4Scaling, if b > 0 { t(&[p(&[2, n2], "T4.scaling")?, n], "T4.scaling")? } else { 0 });
+    set(T::T4Visits, p(&[4, b, n2], "T4.visits")?);
+    set(T::T4Insertions, p(&[4, b, n2], "T4.insertions")?);
+    set(T::T4Rows, p(&[b, n + 2], "T4.rows")?);
+    let band_limbs = t(&[p(&[16, n2, part], "T4.limbs")?, p(&[n + 2, read], "T4.limbs")?], "T4.limbs")?;
+    set(T::T4Limbs, p(&[b, band_limbs], "T4.limbs")?);
+    set(T::T5Census, p(&[16, c], "T5.census")?);
+    set(T::T5Outcome, t(&[p(&[c, b], "n_c·p")?, p(&[2, c, c], "2n_c²")?, c], "T5.outcome")?);
+    let mode_calls = t(&[n2, p(&[3, n], "3n")?], "n² + 3n")?;
+    set(T::T6Visits, p(&[r, mode_calls], "T6.visits")?);
+    let mode_limbs = t(&[p(&[4, mode_calls, part], "T6.limbs")?, p(&[4, read], "T6.limbs")?], "T6.limbs")?;
+    set(T::T6Limbs, p(&[r, mode_limbs], "T6.limbs")?);
+    set(T::T7Elements, dims.element_operands);
+    let formed = p(&[n, n + 1], "n(n + 1)")?;
+    let reformed_positions = p(&[mu, element_entries], "μ(D_K + D_M)")?;
+    let assembly_parts = t(
+        &[p(&[q8, element_entries], "Q(D_K + D_M)")?, formed, p(&[l, reformed_positions], "L·μ(D_K + D_M)")?],
+        "T7.limbs",
+    )?;
+    let assembly_reads = t(&[p(&[2, reformed_positions], "2μ(D_K + D_M)")?, formed], "T7.limbs")?;
+    set(T::T7Limbs, t(&[p(&[part, assembly_parts], "T7.limbs")?, p(&[read, assembly_reads], "T7.limbs")?], "T7.limbs")?);
+    set(T::T8Insertions, p(&[c, mu, pair_entries], "T8.insertions")?);
+    set(T::T8GeneralizedMass, p(&[c, n, l], "T8.generalized_mass")?);
+    let pair_rows = t(&[p(&[2, n], "2n")?, 1], "2n + 1")?;
+    set(T::T8Rows, p(&[c, pair_rows], "T8.rows")?);
+    let pair_parts = t(&[p(&[q8, pair_entries], "Q(D_K + 2D_M)")?, p(&[4, n, l], "4nL")?], "T8.limbs")?;
+    let pair_limbs = t(&[p(&[part, pair_parts], "T8.limbs")?, p(&[read, pair_rows], "T8.limbs")?], "T8.limbs")?;
+    set(T::T8Limbs, p(&[c, pair_limbs], "T8.limbs")?);
+    set(T::T9Factorization, p(&[s, t(&[p(&[n, n.saturating_sub(1), n.saturating_sub(2)], "T9.factorization")? / 6, n2], "T9.factorization")?], "T9.factorization")?);
+    set(T::T9Passes, p(&[s, t(&[p(&[29, positions], "29P")?, p(&[98, n], "98n")?, 70], "T9.passes")?], "T9.passes")?);
+    set(T::T9Neighbours, p(&[2, t(&[positions, p(&[3, n], "3n")?], "T9.neighbours")?], "T9.neighbours")?);
+    set(T::T9Limbs, p(&[2, t(&[p(&[part, 8, positions], "T9.limbs")?, p(&[2, read], "T9.limbs")?], "T9.limbs")?], "T9.limbs")?);
+    set(T::T10Products, p(&[r, mu, dm], "T10.products")?);
+    set(T::T10Bilinear, p(&[forms, n, l], "T10.bilinear")?);
+    let shape_limbs = t(&[p(&[part, q8, dm], "T10.limbs")?, p(&[read, n], "T10.limbs")?], "T10.limbs")?;
+    let form_limbs = t(&[p(&[part, 4, n, l], "T10.limbs")?, read], "T10.limbs")?;
+    set(T::T10Limbs, t(&[p(&[r, shape_limbs], "T10.limbs")?, p(&[forms, form_limbs], "T10.limbs")?], "T10.limbs")?);
+
+    for term in MODAL_RESOURCE_TERMS {
+        let occurs = match term {
+            T::T1Integrity | T::T1Confirmation => dims.state.is_some(),
+            _ => true,
+        };
+        if occurs && term.modal_resource_unbounded_reason().is_some() {
+            counts[term as usize] = None;
+        }
+    }
     Ok(counts)
 }
 
 /// The bounds P0 uses (module docs), from the prepared request, the
-/// parameters and the budget only.
+/// parameters and the budget's enforced allotments only (A_QL, A_band).
 pub(crate) fn modal_resource_bound_dimensions(
     prepared: &Prepared,
     params: &ModalIntegrityParameters,
@@ -483,29 +717,20 @@ pub(crate) fn modal_resource_bound_dimensions(
         let restrained: BTreeSet<usize> = prepared.boundary.restrained_dofs.iter().copied().filter(|&dof| wide(dof) < global).collect();
         global - wide(restrained.len())
     };
-    let reported = match budget.reported_row_allotment {
-        Some(rows) if global > 0 => free.min(u128::from(rows) / global),
-        _ => free,
-    };
     let pipes = wide(built.pipes.len());
     let arcs = wide(built.curved_bend_elements.len());
     let connectors = wide(built.connectors.len());
-    let tie_rods = wide(built.connectors.iter().map(|c| c.tie_rods().len()).sum::<usize>());
+    let tie_rods = built.connectors.iter().try_fold(0u128, |sum, c| modal_resource_add(sum, wide(c.tie_rods().len()), "tie_rods"))?;
     let springs = wide(prepared.boundary.springs.len());
     let skewed = wide(built.skew.as_ref().map_or(0, |basis| basis.springs().len()));
     let segments = wide(prepared.model.pipe_segments.len());
-    let twelve = modal_resource_add(modal_resource_add(pipes, arcs, "elements")?, modal_resource_add(connectors, tie_rods, "elements")?, "elements")?;
-    let stiffness_squares = modal_resource_add(
-        modal_resource_add(modal_resource_mul(144, twelve, "D_K")?, springs, "D_K")?,
-        modal_resource_mul(9, skewed, "D_K")?,
-        "D_K",
-    )?;
-    let mass_squares = modal_resource_add(
-        modal_resource_add(modal_resource_mul(144, pipes, "D_M")?, modal_resource_mul(72, arcs, "D_M")?, "D_M")?,
-        modal_resource_mul(36, segments, "D_M")?,
+    let twelve = modal_resource_total(&[pipes, arcs, connectors, tie_rods], "elements")?;
+    let stiffness_squares = modal_resource_total(&[modal_resource_mul(144, twelve, "D_K")?, springs, modal_resource_mul(9, skewed, "D_K")?], "D_K")?;
+    let mass_squares = modal_resource_total(
+        &[modal_resource_mul(144, pipes, "D_M")?, modal_resource_mul(72, arcs, "D_M")?, modal_resource_mul(36, segments, "D_M")?],
         "D_M",
     )?;
-    let element_operands = [segments, springs, skewed].into_iter().try_fold(twelve, |sum, n| modal_resource_add(sum, n, "E"))?;
+    let element_operands = modal_resource_total(&[twelve, segments, springs, skewed], "E")?;
     let state = if built.nonlinear_supports.is_empty() {
         None
     } else {
@@ -519,11 +744,11 @@ pub(crate) fn modal_resource_bound_dimensions(
         global,
         free,
         computed: free,
-        reported,
+        reported: free,
         band_pairs: free.min(u128::from(budget.band_pair_allotment)),
         ql_rotations: u128::from(budget.ql_rotation_allotment),
         sturm_candidates: wide(params.sturm_max_candidates),
-        limbs: u128::from(budget.limb_allotment),
+        limbs: MODAL_RESOURCE_LIMB_BOUND,
         stiffness_squares,
         mass_squares,
         element_operands,
@@ -588,7 +813,7 @@ pub(crate) fn modal_resource_judge(
     for term in MODAL_RESOURCE_TERMS {
         let id = term.modal_resource_id();
         match (bounded[term as usize], budget.weights[term as usize]) {
-            (None, _) => inadmissible.push((id, "no bound at P0: its counter is not built".to_string())),
+            (None, _) => inadmissible.push((id, format!("unbounded: {}", term.modal_resource_unbounded_reason().unwrap_or("no bound at P0")))),
             (Some(count), None) if count > 0 => inadmissible.push((id, format!("count {count}, weight undetermined"))),
             _ => {}
         }
@@ -618,7 +843,7 @@ pub(crate) fn modal_resource_judge(
         counts[index] = count;
         charges[index] = charge;
     }
-    let total = stage_allotments.iter().try_fold(0u128, |sum, &a| modal_resource_add(sum, a, "W")).map_err(modal_resource_overflow_refusal)?;
+    let total = modal_resource_total(&stage_allotments, "W").map_err(modal_resource_overflow_refusal)?;
     if total > budget.work_budget {
         // The dominant term: the largest charge, the first on a tie.
         let dominant = MODAL_RESOURCE_TERMS.iter().copied().fold(MODAL_RESOURCE_TERMS[0], |best, t| if charges[t as usize] > charges[best as usize] { t } else { best });
