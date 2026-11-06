@@ -2577,8 +2577,11 @@ fn dispose_preview_mechanics_result(
 /// Session reset: releases every retained-but-untaken result and every webview
 /// custody lease, and abandons every queued or running job (a running job's
 /// worker process is killed; it never publishes a result, and its supervisor
-/// releases its owners after reaping the worker). The frontend calls it on page load, when a fresh webview provably
-/// holds no result copy and no handle on the previous page's jobs. Returns
+/// releases its owners after reaping the worker). The frontend calls it once on page load
+/// (`beginSessionResultCustodyReset`), when the calling page holds no result copy and no handle
+/// on an earlier page's jobs. The command carries no page identity, so it disposes whatever the
+/// registry holds when it executes: a reset delivered late, after a later page has loaded,
+/// would also retire that page's work (DEL-04-05 plan §7 item 7). Returns
 /// `{released_results, released_bytes, abandoned_jobs}`.
 #[tauri::command]
 fn dispose_all_preview_mechanics_results(
