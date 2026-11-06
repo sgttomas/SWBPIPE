@@ -657,7 +657,8 @@ only the staleness check of step 6.
       body and parses it as JSON, and the fallback parses the whole message string. No check
       of ours bounds Tauri's parse or its allocations, exactly as for every JSON-argument
       command (`cancel_preview_mechanics_job`). The command's check bounds what follows: the
-      decoded arguments' canonical serialization is measured, allocating nothing, and refused
+      decoded arguments' canonical serialization is measured without allocating a serialized buffer (a
+      rejection allocates only serde_json's small boxed I/O error), and refused
       `INGRESS-ARGS-TOO-LARGE` above 4 KiB before anything is read from them; anything but an
       object is refused `INGRESS-ARGS-NOT-OBJECT`; the id is then copied out of at most that
       many bytes. Like the JSON-argument commands, the form takes no ingress lease: the value a

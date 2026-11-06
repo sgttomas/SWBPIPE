@@ -799,7 +799,8 @@ pub(crate) fn save_command<R>(
 /// neither of its transports limits a request's size first (the custom protocol reads the whole body and parses it as
 /// JSON; the fallback parses the whole message string), so no check here bounds Tauri's parse or its allocations,
 /// exactly as for every JSON-argument command (`cancel_preview_mechanics_job`). The command's own check bounds what
-/// follows the parse: the arguments' canonical serialization is measured, with no allocation, and refused
+/// follows the parse: the arguments' canonical serialization is measured without allocating a serialized buffer
+/// (a rejection allocates only serde_json's small boxed I/O error), and refused
 /// `INGRESS-ARGS-TOO-LARGE` above [`CANCEL_ARGS_MAX_BYTES`] before anything is read from them; the id is then copied
 /// out of at most that many bytes. Like the JSON-argument commands, the form takes no ingress lease: the `Value` it
 /// would price already exists. Starts (`review_mbf_export`, `save_mbf_export`) stay raw-body only.
@@ -821,7 +822,8 @@ pub(crate) fn cancel_command(registry: &SolveJobRegistry, runs: &MbfRuns, body: 
 }
 
 /// The JSON form's arguments ([`cancel_command`]): one object whose canonical serialization is at most
-/// [`CANCEL_ARGS_MAX_BYTES`] (measured by a counting writer that stops at the bound and allocates nothing), and its
+/// [`CANCEL_ARGS_MAX_BYTES`] (measured by a counting writer that stops at the bound without allocating a serialized
+/// buffer; a rejection allocates only serde_json's small boxed I/O error), and its
 /// [`RETIREMENT_ID`] member, copied out of it. A larger body is refused `INGRESS-ARGS-TOO-LARGE` and anything but an
 /// object `INGRESS-ARGS-NOT-OBJECT`, as the raw form's are; other members are ignored, as the raw form's are.
 fn cancel_json_args(args: &serde_json::Value) -> Result<Option<serde_json::Value>, SolveJobError> {
