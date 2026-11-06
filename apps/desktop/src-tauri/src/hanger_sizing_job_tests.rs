@@ -552,28 +552,37 @@ fn a_retirement_at_the_largest_epoch_exhausts_the_sizing() {
 }
 
 /// Exhaustion by the page tokens, and no re-admission: the host keeps every applied token, at most
-/// [`RETIREMENT_PAGES_MAX`]. A retirement from a new token beyond them is applied once (it cancels and moves the epoch
-/// on) and exhausts the sizing instead of evicting a token, so a late replay of the oldest token's retirement is still
-/// a duplicate that moves nothing, and every start is refused.
+/// [`RETIREMENT_PAGES_MAX`]. A retirement from a new token beyond them cancels the run in progress and exhausts the
+/// sizing (the epoch stays) instead of evicting a token, so a late replay of the oldest token's retirement is still a
+/// duplicate that moves nothing, and every start is refused.
 #[test]
 fn page_tokens_are_never_evicted_and_saturation_fails_closed() {
-    let registry = registry_with(TestLauncher::solve());
+    let gate = Gate::new("sizing-saturation");
+    let registry = registry_with(gate.launcher());
     let runs = registry.hanger_sizing_runs();
     for n in 0..RETIREMENT_PAGES_MAX {
         retire(&registry, n, 1);
     }
     assert_eq!(runs.applied_pages(), RETIREMENT_PAGES_MAX);
     let epoch = runs.epoch();
-    let saturating = runs.retire_keyed(id(RETIREMENT_PAGES_MAX, 1), registry.pool());
-    assert!(saturating.exhausted && !saturating.duplicate, "{saturating:?}");
-    assert_eq!(saturating.epoch, epoch + 1, "the saturating retirement is applied once");
+    let request = body(epoch, "{}");
+    std::thread::scope(|scope| {
+        let _guard = CancelOnUnwind(&registry);
+        let running = scope.spawn(|| size_via_command(&registry, &request));
+        gate.wait_started(1);
+        let saturating = runs.retire_keyed(id(RETIREMENT_PAGES_MAX, 1), registry.pool());
+        assert!(saturating.exhausted && saturating.cancelled && !saturating.duplicate, "{saturating:?}");
+        assert_eq!(code_of(&running.join().unwrap().unwrap_err()), CANCELLED);
+    });
+    assert_eq!(runs.epoch(), epoch, "exhaustion does not move the epoch on");
     assert_eq!(runs.applied_pages(), RETIREMENT_PAGES_MAX, "no token was evicted to make room");
     // The oldest token's replay is still known: a duplicate, which moves nothing.
     let replay = runs.retire_keyed(id(0, 1), registry.pool());
     assert!(replay.duplicate && replay.exhausted && !replay.cancelled, "{replay:?}");
-    // The saturating token was not recorded: its replay is applied as exhaustion is, and moves nothing either.
+    // The saturating token was not recorded: its replay finds the sizing exhausted, and moves nothing either.
     assert!(runs.retire_keyed(id(RETIREMENT_PAGES_MAX, 1), registry.pool()).exhausted);
-    assert_eq!(runs.epoch(), epoch + 1);
-    assert_eq!(code_of(&size_via_command(&registry, &body(epoch + 1, "{}")).unwrap_err()), EXHAUSTED);
+    assert_eq!(runs.epoch(), epoch);
+    assert_eq!(code_of(&size_via_command(&registry, &request).unwrap_err()), EXHAUSTED);
+    assert_eq!(gate.started_count(), 1);
     assert_released(&registry);
 }

@@ -71,13 +71,14 @@
 //! for every page token it has applied, the last sequence it applied, and applies a retirement only when its sequence
 //! is above that one. A repeated or older delivery is a no-op: it cancels nothing, moves nothing on, and replies
 //! `duplicate: true` with the current epoch. An applied token is never forgotten: the host keeps at most
-//! [`RETIREMENT_PAGES_MAX`] of them, and a retirement from a new token beyond them is applied once and makes the
+//! [`RETIREMENT_PAGES_MAX`] of them, and a retirement from a new token beyond them is not recorded: it makes the
 //! sizing exhausted instead of evicting a token, whose delayed duplicate would otherwise be applied again.
 //!
 //! **Exhaustion** (terminal until the process restarts): a retirement finds the epoch at [`EPOCH_MAX`] (2^53 - 1, so
 //! every ticket stays a safe JavaScript integer; it moves on by checked addition and never wraps), or comes from a new
 //! page token with [`RETIREMENT_PAGES_MAX`] kept (in practice the 65th page load in one process that sizes or
-//! cancels). That retirement still cancels the current run; from then on every start is refused
+//! cancels). That retirement still cancels the current run, and the epoch moves on no more; from then on every start
+//! is refused
 //! `HANGER-SIZING-EXHAUSTED`, at its entry or when it registers, and the retirement replies say `exhausted`.
 //!
 //! **The wire forms.** `size_hangers` takes only a raw body (`INGRESS-RAW-BODY-REQUIRED` otherwise).

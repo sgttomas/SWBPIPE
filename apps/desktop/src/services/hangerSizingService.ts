@@ -1,21 +1,34 @@
 // Hanger sizing in the desktop (DEL-04-11 Design `hanger-sizing.md` §13, increment 3c part 2): the native
-// `size_hangers` command (worker task 4 in the capped worker, `hanger_sizing_job.rs`) and its keyed cancel
-// `cancel_hanger_sizing`, with the generation guard that keeps a stale completion off the page.
+// `size_hangers` command (worker task 4 in the capped worker, `hanger_sizing_job.rs`), its keyed retirement
+// `cancel_hanger_sizing`, and the generation guard that keeps an obsolete start from being sent and a stale completion
+// off the page.
 //
 // One request, one bounded reply: `{document, evidence}`, the hanger-sizing result document and the Rust reader's
 // verdict bound to its checked hash (reproduction `not_checked`). Nothing is recorded, persisted or held natively after
 // the reply, and the model is not written.
 //
-// Run ids. Every request carries `{page, sequence}`: a random token made once per page load and a sequence that rises
-// by one per request in this page. Natively one sizing is current: a newer request supersedes the one in progress, an
-// older delivery is refused stale, and `cancel_hanger_sizing` cancels a page through a sequence (a repeated or older
-// cancel is a no-op). The cancel is sent as Tauri's JSON arguments, the form that survives its `postMessage`
-// fallback; the request is a raw body (`invokeWithIngress`).
+// Retirement and the ticket (MBF's design, `features/caepipe-mbf/mbfExportCancel.ts`, for the sizing's own native
+// slot). A *retirement* (`cancel_hanger_sizing`) moves the native retirement epoch on, stops the sizing in progress and
+// refuses every start that has not yet registered natively; it replies the epoch after its bump. Each logical
+// retirement carries an id, `retirementId` = {page, sequence}: a random token made once per page load and a sequence
+// that rises by one per logical retirement in this page; the host applies an id once, and a repeated or older delivery
+// replies `duplicate` with the current epoch. It is sent as Tauri's JSON arguments, the form that survives Tauri's
+// `postMessage` fallback; the start is a raw body (`invokeWithIngress`), which that fallback cannot carry (the host
+// refuses it, `INGRESS-RAW-BODY-REQUIRED`).
 //
-// The generation guard. A completion is current only while its sequence is this page's latest request and no
-// retirement has passed it (`isCurrentHangerSizing`). `retireHangerSizing` (a project-session change, an unmount, the
-// person's cancel) moves the retirement past the latest request synchronously, so a reply that arrives later is never
-// shown, and cancels natively only when a request was started since the last retirement.
+// A *start* (`sizeHangers`) moves this page's request generation on, retires natively (so a newer request retires the
+// one in progress), awaits that retirement's acknowledgement, and only then sends `size_hangers` with the acknowledged
+// epoch as its ticket (`expectedEpoch`), the same in every re-send. After the await and immediately before every send
+// it re-checks that its generation is still the latest and that the caller's session is still current; if not, it
+// sends nothing and resolves as cancelled. A retirement that was not acknowledged (the invoke failed, or replied for
+// another id or without a usable epoch) authorizes nothing: the start is not sent and resolves refused
+// (`HANGER-SIZING-RETIREMENT-UNCONFIRMED`, or `HANGER-SIZING-EXHAUSTED` when the host replies so). Natively a start
+// whose ticket a later retirement has passed is refused (`HANGER-SIZING-REQUEST-STALE`) whenever its task runs, and
+// never replaces or cancels the run in progress.
+//
+// `retireHangerSizing` (the person's cancel, the form's project session ending) moves the generation on
+// synchronously, so no start of the retired session is sent after it and no reply that arrives later is current, and
+// retires natively when a start has been made since the last such retirement. The ticket authorizes nothing.
 import { invoke } from "@tauri-apps/api/core";
 import type { HangerSizingDocument, HangerSizingRequest } from "../features/results/hangerSizingResult";
 import type { HangerSizingReaderEvidence } from "../features/results/hangerSizingView";
@@ -25,16 +38,21 @@ import { ResourceUnavailableError } from "./memoryPool";
 export const SIZE_HANGERS_COMMAND = "size_hangers";
 export const CANCEL_HANGER_SIZING_COMMAND = "cancel_hanger_sizing";
 
+/** The request member that carries a start's ticket, and the cancel's member that carries a retirement's id. */
+export const EXPECTED_EPOCH = "expectedEpoch";
+export const RETIREMENT_ID = "retirementId";
+
 /** The native codes a refusal can carry (`hanger_sizing_job.rs`), and the page's own. */
 export const HANGER_SIZING_CANCELLED = "HANGER-SIZING-CANCELLED";
-export const HANGER_SIZING_SUPERSEDED = "HANGER-SIZING-SUPERSEDED";
 export const HANGER_SIZING_REQUEST_STALE = "HANGER-SIZING-REQUEST-STALE";
+export const HANGER_SIZING_TICKET_INVALID = "HANGER-SIZING-TICKET-INVALID";
+export const HANGER_SIZING_EXHAUSTED = "HANGER-SIZING-EXHAUSTED";
 export const HANGER_SIZING_REPLY_TOO_LARGE = "HANGER-SIZING-REPLY-TOO-LARGE";
 export const HANGER_SIZING_WORKER_FAILED = "HANGER-SIZING-WORKER-FAILED";
 export const HANGER_SIZING_MEMORY_UNAVAILABLE = "HANGER-SIZING-MEMORY-UNAVAILABLE";
 export const HANGER_SIZING_REPLY_UNREADABLE = "HANGER-SIZING-REPLY-UNREADABLE";
 export const HANGER_SIZING_NATIVE_ONLY = "HANGER-SIZING-NATIVE-ONLY";
-export const HANGER_SIZING_RUN_ID_UNAVAILABLE = "HANGER-SIZING-RUN-ID-UNAVAILABLE";
+export const HANGER_SIZING_RETIREMENT_UNCONFIRMED = "HANGER-SIZING-RETIREMENT-UNCONFIRMED";
 
 /** The headless input (§8.3.2), exactly what the native entry admits: the desktop solve's request, the sizing request
  * and the full hanger library document. */
@@ -44,17 +62,34 @@ export type HangerSizingInput = {
   library: Record<string, unknown>;
 };
 
-export type HangerSizingRunId = { page: string; sequence: number };
+/** One logical retirement's id: this page's token and the retirement's sequence in this page. */
+export type HangerSizingRetirementId = { page: string; sequence: number };
+
+/** `cancel_hanger_sizing`'s reply: whether it stopped the sizing in progress, the native retirement epoch after it (the
+ * next start's ticket) and the id it answers. `duplicate` (only when true): that id had been applied already, and
+ * `epoch` is the current one. `exhausted` (only when true): the sizing can be retired no further; it is no
+ * acknowledgement. */
+export type HangerSizingRetirementReceipt = {
+  cancelled: boolean;
+  epoch: number;
+  retirement_id: HangerSizingRetirementId;
+  duplicate?: true;
+  exhausted?: true;
+};
 
 /** How one request ended. `replied` carries the document (sized or refused) and its evidence; `failed` carries the
  * native or page code and its message, as stated (task 4's own refusal, the reply limit, a worker failure, a
- * cancellation or supersession, a memory refusal). */
+ * retirement, an unconfirmed retirement, a memory refusal). */
 export type HangerSizingOutcome =
-  | Readonly<{ kind: "replied"; runId: HangerSizingRunId; document: HangerSizingDocument; evidence: HangerSizingReaderEvidence }>
-  | Readonly<{ kind: "failed"; runId: HangerSizingRunId | null; code: string; message: string }>;
+  | Readonly<{ kind: "replied"; document: HangerSizingDocument; evidence: HangerSizingReaderEvidence }>
+  | Readonly<{ kind: "failed"; code: string; message: string }>;
 
-/** An outcome with its guard: `current()` is false once a newer request or a retirement has passed it. */
+/** An outcome with its guard: `current()` is false once a newer request or a retirement has passed it, or the
+ * caller's session is no longer current. */
 export type HangerSizingCompletion = HangerSizingOutcome & Readonly<{ current: () => boolean }>;
+
+/** Whether the caller's own session is still the one that started (the form's mount and project). */
+export type HangerSizingStillCurrent = () => boolean;
 
 /** A typed refusal of the page or the native host. */
 export class HangerSizingError extends Error {
@@ -64,29 +99,57 @@ export class HangerSizingError extends Error {
   }
 }
 
-// This page's run ids, the latest request and the latest retirement.
+// This page's retirement ids (the token is made once, at the first retirement), the request generation (moved on by
+// every start and every retirement), and whether a start has been made since the last `retireHangerSizing`.
 let pageToken: string | null = null;
-let latestSequence = 0;
-let retiredThrough = 0;
+let retirementSequence = 0;
+let generation = 0;
+let startedSinceRetirement = false;
 
 function isTauri(): boolean {
   return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
 }
 
-function nextRunId(): HangerSizingRunId | null {
+/** The next logical retirement's id, or `null` when the page cannot make one (no random source, or the sequence is
+ * exhausted): its retirement is then unconfirmed, which fails closed. */
+function nextRetirementId(): HangerSizingRetirementId | null {
   try {
     pageToken ??= Array.from(globalThis.crypto.getRandomValues(new Uint8Array(16)), (byte) => byte.toString(16).padStart(2, "0")).join("");
   } catch {
     return null;
   }
-  if (!Number.isSafeInteger(latestSequence + 1)) return null;
-  latestSequence += 1;
-  return { page: pageToken, sequence: latestSequence };
+  if (!Number.isSafeInteger(retirementSequence + 1)) return null;
+  retirementSequence += 1;
+  return { page: pageToken, sequence: retirementSequence };
 }
 
-/** Whether a request's completion may still be shown: it is this page's latest request and no retirement has passed it. */
-export function isCurrentHangerSizing(runId: HangerSizingRunId | null): boolean {
-  return runId !== null && runId.page === pageToken && runId.sequence === latestSequence && runId.sequence > retiredThrough;
+type Retired = Readonly<{ ok: true; epoch: number }> | Readonly<{ ok: false; code: string; message: string }>;
+
+const UNCONFIRMED_MESSAGE = "the native host did not confirm that the previous sizing was retired, so this request was not sent.";
+
+/** One logical retirement: `cancel_hanger_sizing` for a new id. Never throws. Acknowledged only by a reply that
+ * echoes the id with a safe, non-negative integer epoch and is not exhausted. */
+async function deliverRetirement(): Promise<Retired> {
+  const id = nextRetirementId();
+  if (id === null) return { ok: false, code: HANGER_SIZING_RETIREMENT_UNCONFIRMED, message: UNCONFIRMED_MESSAGE };
+  let answer: unknown;
+  try {
+    answer = await invoke<HangerSizingRetirementReceipt>(CANCEL_HANGER_SIZING_COMMAND, { [RETIREMENT_ID]: id });
+  } catch {
+    return { ok: false, code: HANGER_SIZING_RETIREMENT_UNCONFIRMED, message: UNCONFIRMED_MESSAGE };
+  }
+  const answers = isRecord(answer) && isRecord(answer.retirement_id) ? answer.retirement_id : null;
+  if (!isRecord(answer) || answers?.page !== id.page || answers?.sequence !== id.sequence) {
+    return { ok: false, code: HANGER_SIZING_RETIREMENT_UNCONFIRMED, message: UNCONFIRMED_MESSAGE };
+  }
+  if (answer.exhausted === true) {
+    return { ok: false, code: HANGER_SIZING_EXHAUSTED, message: "hanger sizing cannot be retired any further in this session; restart the application to size again. Nothing was sent." };
+  }
+  const epoch = answer.epoch;
+  if (typeof epoch !== "number" || !Number.isSafeInteger(epoch) || epoch < 0) {
+    return { ok: false, code: HANGER_SIZING_RETIREMENT_UNCONFIRMED, message: UNCONFIRMED_MESSAGE };
+  }
+  return { ok: true, epoch };
 }
 
 /** Reads a native rejection as `{code, message}`: a memory refusal, an invalid request, or `<code>: <message>`. */
@@ -113,52 +176,51 @@ function readReply(reply: unknown): { document: HangerSizingDocument; evidence: 
   return { document: reply.document as unknown as HangerSizingDocument, evidence: reply.evidence as unknown as HangerSizingReaderEvidence };
 }
 
-/** Sizes the hangers of `input` natively. Resolves, never rejects. A newer request supersedes this one; a
- * retirement makes its completion not current. */
-export async function sizeHangers(input: HangerSizingInput): Promise<HangerSizingCompletion> {
+/** Sizes the hangers of `input` natively. Resolves, never rejects. Retires the sizing in progress first and sends
+ * only once that retirement is acknowledged, with its epoch as the ticket; a newer request, a retirement or the
+ * caller's session ending makes it not current, before or after it is sent. */
+export async function sizeHangers(input: HangerSizingInput, stillCurrent?: HangerSizingStillCurrent): Promise<HangerSizingCompletion> {
   if (!isTauri()) {
     return {
       kind: "failed",
-      runId: null,
       code: HANGER_SIZING_NATIVE_ONLY,
       message: "hanger sizing runs in the native desktop application; the browser preview has no sizing worker.",
       current: () => false
     };
   }
-  const runId = nextRunId();
-  if (runId === null) {
-    return { kind: "failed", runId: null, code: HANGER_SIZING_RUN_ID_UNAVAILABLE, message: "this page cannot form a run id; nothing was sent.", current: () => false };
-  }
-  const current = () => isCurrentHangerSizing(runId);
+  generation += 1;
+  const started = generation;
+  startedSinceRetirement = true;
+  const current = () => started === generation && (stillCurrent?.() ?? true);
+  const notSent = (): HangerSizingCompletion => ({ kind: "failed", code: HANGER_SIZING_CANCELLED, message: "the request was retired before it was sent; nothing was sent.", current });
+  const retired = await deliverRetirement();
+  if (!current()) return notSent();
+  if (!retired.ok) return { kind: "failed", code: retired.code, message: retired.message, current };
+  // The ticket is taken once, here, and every send of this start (a headroom re-send included) carries it.
+  const request = { [EXPECTED_EPOCH]: retired.epoch, inputText: JSON.stringify(input) };
   try {
-    const reply = await invokeWithIngress<unknown>(SIZE_HANGERS_COMMAND, { runId, inputText: JSON.stringify(input) }, { stillCurrent: current });
-    return { kind: "replied", runId, ...readReply(reply), current };
+    const reply = await invokeWithIngress<unknown>(SIZE_HANGERS_COMMAND, request, { stillCurrent: current });
+    return { kind: "replied", ...readReply(reply), current };
   } catch (error) {
-    if (error instanceof IngressRequestRetiredError) {
-      return { kind: "failed", runId, code: HANGER_SIZING_CANCELLED, message: "the request was retired before it was sent.", current };
-    }
-    return { kind: "failed", runId, ...hangerSizingFailure(error), current };
+    if (error instanceof IngressRequestRetiredError) return notSent();
+    return { kind: "failed", ...hangerSizingFailure(error), current };
   }
 }
 
-/** Retires every request of this page made so far: their completions are no longer current, and when one was started
- * since the last retirement the native host cancels this page through it (`cancel_hanger_sizing`). Best effort;
- * never throws. */
+/** Retires every request of this page made so far: none not yet sent is sent, their completions are no longer
+ * current, and when a start has been made since the last retirement the native host retires the sizing
+ * (`cancel_hanger_sizing`). Best effort; never throws. */
 export async function retireHangerSizing(): Promise<void> {
-  if (latestSequence <= retiredThrough || pageToken === null) return;
-  retiredThrough = latestSequence;
-  const runId: HangerSizingRunId = { page: pageToken, sequence: latestSequence };
-  if (!isTauri()) return;
-  try {
-    await invoke(CANCEL_HANGER_SIZING_COMMAND, { runId });
-  } catch {
-    // Best effort: a newer request or the session reset also stops it, and its completion is no longer current.
-  }
+  generation += 1;
+  if (!startedSinceRetirement || !isTauri()) return;
+  startedSinceRetirement = false;
+  await deliverRetirement();
 }
 
 /** Test support: a fresh page. */
 export function resetHangerSizingPageForTests(): void {
   pageToken = null;
-  latestSequence = 0;
-  retiredThrough = 0;
+  retirementSequence = 0;
+  generation = 0;
+  startedSinceRetirement = false;
 }
