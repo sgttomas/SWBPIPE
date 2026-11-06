@@ -641,7 +641,8 @@ describe("SWBPIPE desktop preview", () => {
     const packet = JSON.parse(decodeURIComponent(href.split(",", 2)[1]));
     expect(packet.summary.persisted_mechanics_result_count).toBe(0);
     expect(packet.summary.persisted_analysis_run_count).toBe(0);
-    expect(invokeMock).not.toHaveBeenCalled();
+    // Nothing reached the native host but the session retirement's MBF export cancel (DEL-17-04 §3.7).
+    expect(invokeMock.mock.calls.filter(([command]) => command !== "cancel_mbf_export")).toEqual([]);
   });
 
   it("rejects overlap and invalidates an active generation before model commit", () => {
@@ -14799,7 +14800,9 @@ describe("workflow current and historical result boundaries", () => {
       selectedDiagnosticId={null} onSelectDiagnostic={vi.fn()} />);
     expect(screen.getByTestId("diagnostic-RECORDED_DISPLAY_DIAGNOSTIC")).toHaveTextContent("Recorded display-only outcome retained");
     expect(recorded.status.mechanics).toBe(mechanics);
-    expect(invokeMock).not.toHaveBeenCalled();
+    // An earlier test's workspace mount or unmount may still be delivering its keyed MBF export retirement
+    // (DEL-17-04 §3.7); nothing else reaches the native host.
+    expect(invokeMock.mock.calls.filter(([command]) => command !== "cancel_mbf_export")).toEqual([]);
   });
 
   it("keeps registered MODEL_INCOMPLETE diagnostics while barring fresh solved-only consumers", async () => {

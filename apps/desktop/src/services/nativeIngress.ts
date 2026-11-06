@@ -77,7 +77,11 @@ export const NATIVE_INGRESS_COMMANDS = [
   "read_analysis_run_in_native_custody",
   // C1 slice 6's save continuity: Save/Create Project of a reopened saved run from its handle.
   "save_restored_result_local_project",
-  "save_preview_mechanics_job_local_project"
+  "save_preview_mechanics_job_local_project",
+  // DEL-17-04 slice 4b.2a: File > Export MBF…'s review and save (through `features/caepipe-mbf/mbfExportCancel.ts`,
+  // whose keyed retirement `cancel_mbf_export` is sent as JSON arguments instead).
+  "review_mbf_export",
+  "save_mbf_export"
 ] as const;
 export type NativeIngressCommand = (typeof NATIVE_INGRESS_COMMANDS)[number];
 
