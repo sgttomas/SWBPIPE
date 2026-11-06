@@ -288,7 +288,11 @@ jobs:
     needs: selection
     if: needs.selection.outputs.desktop_rust_mode == 'full'
     runs-on: macos-26
-    timeout-minutes: 30
+    # 45 min (was 30; SWBPIPE Agent 0, 2026-11-05): with C1 native custody the full lib suite
+    # measured 2m11s build + 1597.57 s tests (job 29m46s, run 42084700335 attempt 2) and was
+    # cancelled at 30 min (runs 42084700335 attempt 1, 42115502756, 42124260600) after
+    # coverage-preserving test-cost cuts. A CI execution allowance only, not a performance bound.
+    timeout-minutes: 45
     env:
       CARGO_INCREMENTAL: '0'
     steps:
