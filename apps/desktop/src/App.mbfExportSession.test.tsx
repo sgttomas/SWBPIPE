@@ -9,10 +9,12 @@ import { App } from "./App";
 import {
   cancelMbfExport,
   MBF_EXPORT_CANCELLED,
+  RETIREMENT_ID,
   retireMbfExportSession,
   reviewMbfExport,
   saveMbfExport,
-  type MbfCancelReceipt
+  type MbfCancelReceipt,
+  type MbfRetirementId
 } from "./features/caepipe-mbf/mbfExportCancel";
 import type { MbfExportArgs, MbfReviewArgs } from "./features/caepipe-mbf/mbfExport";
 
@@ -24,7 +26,8 @@ import type { MbfExportArgs, MbfReviewArgs } from "./features/caepipe-mbf/mbfExp
 // that retirement's epoch as its dispatch ticket (`expectedEpoch`).
 afterEach(async () => {
   // Leave the barrier settled and acknowledged for the next test.
-  invokeMock.mockImplementation((command: string) => (command === "cancel_mbf_export" ? Promise.resolve(nothing()) : Promise.reject(new Error(command))));
+  invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) =>
+    command === "cancel_mbf_export" ? Promise.resolve(nothing(args)) : Promise.reject(new Error(command)));
   await retireMbfExportSession();
   cleanup();
   vi.restoreAllMocks();
@@ -35,7 +38,12 @@ afterEach(async () => {
 // The mocked native retirement epoch: each acknowledged cancel moves it on (the barrier's module, and so its last
 // acknowledged epoch, lasts across this file's tests).
 let nativeEpoch = 0;
-const nothing = (): MbfCancelReceipt => ({ cancelled: 0, too_late: 0, epoch: ++nativeEpoch });
+const nothing = (args?: Record<string, unknown>): MbfCancelReceipt => ({
+  cancelled: 0,
+  too_late: 0,
+  epoch: ++nativeEpoch,
+  retirement_id: args?.[RETIREMENT_ID] as MbfRetirementId
+});
 const REVIEW_ARGS: MbfReviewArgs = { canonicalText: "{}", claimedModelHash: "sha256:0", settingsJson: "{}" };
 const SAVE_ARGS = { ...REVIEW_ARGS, suggestedName: "swbpipe-model.mbf", reviewed: { mbfSha256: "0", sidecarSha256: "0" } } as unknown as MbfExportArgs;
 const REVIEWED = { outcome: "reviewed", review: {} };
@@ -57,12 +65,12 @@ function deferred<T>() {
  * next one out. */
 function nativeHost() {
   const commands: string[] = [];
-  const cancels: Array<ReturnType<typeof deferred<MbfCancelReceipt>>> = [];
+  const cancels: Array<ReturnType<typeof deferred<MbfCancelReceipt>> & { args?: Record<string, unknown> }> = [];
   const starts: Array<{ command: string; ticket: unknown; reply: ReturnType<typeof deferred<unknown>> }> = [];
   invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
     commands.push(command);
     if (command === "cancel_mbf_export") {
-      const answer = deferred<MbfCancelReceipt>();
+      const answer = Object.assign(deferred<MbfCancelReceipt>(), { args });
       cancels.push(answer);
       return answer.promise;
     }
@@ -76,7 +84,7 @@ function nativeHost() {
   const sent = () => commands.filter((command) => command === "review_mbf_export" || command === "save_mbf_export");
   const answerCancels = async () => {
     do {
-      for (const answer of cancels.splice(0)) answer.resolve(nothing());
+      for (const answer of cancels.splice(0)) answer.resolve(nothing(answer.args));
       await act(async () => { await new Promise((resolve) => setTimeout(resolve, 0)); });
     } while (cancels.length > 0);
   };
@@ -107,9 +115,9 @@ function cancelledCode(outcome: { outcome: string; diagnostics?: Array<{ code: s
 describe("MBF export session retirement", () => {
   it("retires the MBF export natively at each project session change and at unmount, with no model check in progress", async () => {
     const commands: string[] = [];
-    invokeMock.mockImplementation((command: string) => {
+    invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
       commands.push(command);
-      if (command === "cancel_mbf_export") return Promise.resolve(nothing());
+      if (command === "cancel_mbf_export") return Promise.resolve(nothing(args));
       return Promise.reject(new Error(`Unexpected command ${command}`));
     });
     const { unmount } = render(<App />);
@@ -132,20 +140,68 @@ describe("MBF export session retirement", () => {
     await waitFor(() => expect(cancels()).toBe(before + 3));
   });
 
-  it("returns the native receipt, and never throws when the host does not answer", async () => {
-    invokeMock.mockResolvedValueOnce({ cancelled: 1, too_late: 0, epoch: 7 });
-    await expect(cancelMbfExport()).resolves.toEqual({ cancelled: 1, too_late: 0, epoch: 7 });
-    expect(invokeMock).toHaveBeenLastCalledWith("cancel_mbf_export");
-    // A reply without a retirement epoch is not an acknowledgement.
-    invokeMock.mockResolvedValueOnce({ cancelled: 1, too_late: 0 });
-    await expect(cancelMbfExport()).resolves.toBeNull();
+  it("returns the native receipt for its own id, and never throws when the host does not answer", async () => {
+    const id: MbfRetirementId = { page: "0123456789abcdef0123456789abcdef", sequence: 4 };
+    const receipt = { cancelled: 1, too_late: 0, epoch: 7, retirement_id: id };
+    invokeMock.mockResolvedValueOnce(receipt);
+    await expect(cancelMbfExport(id)).resolves.toEqual(receipt);
+    // Sent through the raw-body ingress with its id.
+    expect(invokeMock).toHaveBeenLastCalledWith("cancel_mbf_export", { [RETIREMENT_ID]: id });
+    // The host's duplicate receipt for this id acknowledges the current epoch.
+    invokeMock.mockResolvedValueOnce({ cancelled: 0, too_late: 0, epoch: 9, retirement_id: id, duplicate: true });
+    await expect(cancelMbfExport(id)).resolves.toMatchObject({ epoch: 9, duplicate: true });
+    // A reply without a retirement epoch, for another id, or without one, is not an acknowledgement.
+    for (const reply of [
+      { cancelled: 1, too_late: 0, retirement_id: id },
+      { cancelled: 1, too_late: 0, epoch: 7, retirement_id: { ...id, sequence: 3 } },
+      { cancelled: 1, too_late: 0, epoch: 7, retirement_id: { ...id, page: "f".repeat(32) } },
+      { cancelled: 1, too_late: 0, epoch: 7 }
+    ]) {
+      invokeMock.mockResolvedValueOnce(reply);
+      await expect(cancelMbfExport(id)).resolves.toBeNull();
+    }
     // Nor is one that says the native epoch is exhausted.
-    invokeMock.mockResolvedValueOnce({ cancelled: 1, too_late: 0, epoch: 7, exhausted: true });
-    await expect(cancelMbfExport()).resolves.toBeNull();
+    invokeMock.mockResolvedValueOnce({ ...receipt, exhausted: true });
+    await expect(cancelMbfExport(id)).resolves.toBeNull();
     invokeMock.mockRejectedValueOnce(new Error("no native host"));
-    await expect(cancelMbfExport()).resolves.toBeNull();
+    await expect(cancelMbfExport(id)).resolves.toBeNull();
     invokeMock.mockImplementationOnce(() => { throw new Error("no native host"); });
-    await expect(cancelMbfExport()).resolves.toBeNull();
+    await expect(cancelMbfExport(id)).resolves.toBeNull();
+    // No id (the page could not make one): nothing is sent.
+    const calls = invokeMock.mock.calls.length;
+    await expect(cancelMbfExport(null)).resolves.toBeNull();
+    expect(invokeMock.mock.calls.length).toBe(calls);
+  });
+
+  it("sends a keyed retirement when the workspace mounts (page load), with no model check or export open, and a start waits for its acknowledgement", async () => {
+    const host = nativeHost();
+    // Settle whatever the previous test's unmount left on its way.
+    await host.answerCancels();
+    const settled = host.commands.length;
+    render(<App />);
+    // The mount's own effect: a keyed retirement on its way within microtasks of the first commit, before any
+    // asynchronous load (whose first session generation adds a retirement of its own later) could have run.
+    for (let turn = 0; turn < 5; turn += 1) await Promise.resolve();
+    expect(host.commands.slice(settled)).toEqual(["cancel_mbf_export"]);
+    await screen.findByTestId("desktop-preview-shell");
+    const mount = host.cancels[0].args?.[RETIREMENT_ID] as MbfRetirementId;
+    expect(mount.page).toMatch(/^[0-9a-f]{32}$/);
+    expect(Number.isSafeInteger(mount.sequence) && mount.sequence >= 1).toBe(true);
+    expect(host.commands).not.toContain("check_preview_model");
+    expect(host.commands).not.toContain("review_mbf_export");
+    const review = reviewMbfExport(REVIEW_ARGS);
+    await act(async () => {});
+    expect(host.sent()).toEqual([]);
+    await host.answerCancels();
+    await waitFor(() => expect(host.sent()).toEqual(["review_mbf_export"]));
+    // The start was sent after every retirement since the mount (the mount's, and any the first session generation's
+    // cleanup added), with no handshake of its own, and carries the latest epoch.
+    const since = host.commands.slice(settled);
+    expect(since.lastIndexOf("cancel_mbf_export")).toBeLessThan(since.indexOf("review_mbf_export"));
+    expect(since.filter((command) => command === "review_mbf_export")).toHaveLength(1);
+    expect(host.starts[0].ticket).toBe(nativeEpoch);
+    host.starts[0].reply.resolve(REVIEWED);
+    expect((await review).outcome).toEqual(REVIEWED);
   });
 
   it("sends a start issued during a delayed retirement only after it is acknowledged, and the retirement does not cancel it", async () => {

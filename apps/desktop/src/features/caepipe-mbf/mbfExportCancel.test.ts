@@ -36,7 +36,7 @@ function epochHost(reply: (command: string) => Promise<unknown> = () => Promise.
     host.calls.push({ command, args });
     if (command === "cancel_mbf_export") {
       host.epoch += 1;
-      return Promise.resolve({ cancelled: 0, too_late: 0, epoch: host.epoch });
+      return Promise.resolve({ cancelled: 0, too_late: 0, epoch: host.epoch, retirement_id: args?.retirementId });
     }
     return reply(command);
   });
@@ -92,7 +92,7 @@ describe("the MBF export's session barrier", () => {
     const started = barrier.reviewMbfExport(REVIEW_ARGS);
     await vi.waitFor(() => expect(sends).toBeGreaterThanOrEqual(2));
     const retired = await barrier.retireMbfExportSession();
-    expect(retired).toEqual({ cancelled: 0, too_late: 0, epoch: 2 });
+    expect(retired).toEqual({ cancelled: 0, too_late: 0, epoch: 2, retirement_id: expect.objectContaining({ sequence: 2 }) });
     const fresh = await barrier.saveMbfExport(SAVE_ARGS);
     expect(fresh.outcome).toEqual({ outcome: "saved" });
     const outcome = await started;
@@ -107,13 +107,13 @@ describe("the MBF export's session barrier", () => {
   });
 
   it("an old start waiting on a retirement is never sent once a newer retirement is requested, and the newer start carries its epoch", async () => {
-    const answers: Array<ReturnType<typeof deferred<unknown>>> = [];
+    const answers: Array<ReturnType<typeof deferred<unknown>> & { id: unknown }> = [];
     const calls: Array<{ command: string; args?: Record<string, unknown> }> = [];
     let epoch = 0;
     invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
       calls.push({ command, args });
       if (command === "cancel_mbf_export") {
-        const answer = deferred<unknown>();
+        const answer = Object.assign(deferred<unknown>(), { id: args?.[barrier.RETIREMENT_ID] });
         answers.push(answer);
         return answer.promise;
       }
@@ -122,7 +122,7 @@ describe("the MBF export's session barrier", () => {
     // Deliveries are serialized: each is sent once the one before it is answered, so answer in rounds.
     const answerAll = async () => {
       for (await flush(); answers.length > 0; await flush()) {
-        for (const answer of answers.splice(0)) answer.resolve({ cancelled: 0, too_late: 0, epoch: ++epoch });
+        for (const answer of answers.splice(0)) answer.resolve({ cancelled: 0, too_late: 0, epoch: ++epoch, retirement_id: answer.id });
       }
     };
     void barrier.retireMbfExportSession();
@@ -139,9 +139,11 @@ describe("the MBF export's session barrier", () => {
     const commands: string[] = [];
     let cancelFails = true;
     let epoch = 0;
-    invokeMock.mockImplementation((command: string) => {
+    invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
       commands.push(command);
-      if (command === "cancel_mbf_export") return cancelFails ? Promise.reject(new Error("no answer")) : Promise.resolve({ cancelled: 0, too_late: 0, epoch: ++epoch });
+      if (command === "cancel_mbf_export") {
+        return cancelFails ? Promise.reject(new Error("no answer")) : Promise.resolve({ cancelled: 0, too_late: 0, epoch: ++epoch, retirement_id: args?.retirementId });
+      }
       return Promise.resolve({ outcome: "saved" });
     });
     await expect(barrier.retireMbfExportSession()).resolves.toBeNull();
@@ -193,13 +195,13 @@ describe("the MBF export's session barrier", () => {
     // A native host that applies each cancel when it is answered: the epoch moves on and every run in progress whose
     // ticket is below it is cancelled. The test answers the newest pending cancel first (Tauri's requests are
     // independent, so a later cancel may be applied before an earlier one).
-    const pending: Array<ReturnType<typeof deferred<unknown>>> = [];
+    const pending: Array<ReturnType<typeof deferred<unknown>> & { id: unknown }> = [];
     const runs: Array<{ ticket: unknown; reply: ReturnType<typeof deferred<unknown>> }> = [];
     const commands: string[] = [];
     let epoch = 0;
     invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
       commands.push(command);
-      const answer = deferred<unknown>();
+      const answer = Object.assign(deferred<unknown>(), { id: args?.[barrier.RETIREMENT_ID] });
       if (command === "cancel_mbf_export") pending.push(answer);
       else runs.push({ ticket: args?.[barrier.EXPECTED_EPOCH], reply: answer });
       return answer.promise;
@@ -212,7 +214,7 @@ describe("the MBF export's session barrier", () => {
         if ((run.ticket as number) < epoch) run.reply.resolve({ outcome: "refused", diagnostics: [{ code: barrier.MBF_EXPORT_CANCELLED, path: "", message: "" }] });
         else runs.push(run);
       }
-      answer.resolve({ cancelled: 0, too_late: 0, epoch });
+      answer.resolve({ cancelled: 0, too_late: 0, epoch, retirement_id: answer.id });
       await flush();
       return true;
     };
@@ -240,12 +242,12 @@ describe("the MBF export's session barrier", () => {
   });
 
   it("a failed earlier retirement neither holds a start nor counts as acknowledged: the later acknowledged one's epoch is the ticket", async () => {
-    const answers: Array<ReturnType<typeof deferred<unknown>>> = [];
+    const answers: Array<ReturnType<typeof deferred<unknown>> & { id: unknown }> = [];
     const calls: Array<{ command: string; args?: Record<string, unknown> }> = [];
     invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
       calls.push({ command, args });
       if (command !== "cancel_mbf_export") return Promise.resolve({ outcome: "reviewed", review: {} });
-      const answer = deferred<unknown>();
+      const answer = Object.assign(deferred<unknown>(), { id: args?.[barrier.RETIREMENT_ID] });
       answers.push(answer);
       return answer.promise;
     });
@@ -258,8 +260,9 @@ describe("the MBF export's session barrier", () => {
     await expect(a).resolves.toBeNull();
     await flush();
     expect(answers).toHaveLength(1);
-    answers.shift()!.resolve({ cancelled: 0, too_late: 0, epoch: 5 });
-    await expect(b).resolves.toEqual({ cancelled: 0, too_late: 0, epoch: 5 });
+    const second = answers.shift()!;
+    second.resolve({ cancelled: 0, too_late: 0, epoch: 5, retirement_id: second.id });
+    await expect(b).resolves.toEqual({ cancelled: 0, too_late: 0, epoch: 5, retirement_id: second.id });
     const started = await barrier.reviewMbfExport(REVIEW_ARGS);
     expect(started.outcome).toEqual({ outcome: "reviewed", review: {} });
     // No re-delivery (B covers A), and the start carries B's epoch.
@@ -267,32 +270,181 @@ describe("the MBF export's session barrier", () => {
     expect(calls[2].args?.[barrier.EXPECTED_EPOCH]).toBe(5);
   });
 
-  it("sends no retirement, and so no start, before the page-load reset has settled", async () => {
-    // The page-load reset (`dispose_all_preview_mechanics_results`) moves the native epoch on too.
+  it("neither waits for nor sends the performance session reset: native MBF retirement is only the keyed cancel", async () => {
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     try {
       vi.resetModules();
       barrier = await import("./mbfExportCancel");
-      const reset = deferred<unknown>();
       const host = epochHost();
       const answer = invokeMock.getMockImplementation()!;
-      invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
-        if (command !== "dispose_all_preview_mechanics_results") return answer(command, args);
-        host.calls.push({ command });
-        return reset.promise.then(() => { host.epoch += 1; return { released_results: 0, released_bytes: 0, abandoned_jobs: 0 }; });
-      });
-      void barrier.retireMbfExportSession();
-      const first = barrier.reviewMbfExport(REVIEW_ARGS);
-      await flush();
-      expect(host.commands()).toEqual(["dispose_all_preview_mechanics_results"]);
-      reset.resolve(undefined);
-      const started = await first;
+      // A reset that never settles holds nothing of the export's.
+      invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) =>
+        command === "dispose_all_preview_mechanics_results" ? new Promise(() => {}) : answer(command, args));
+      await barrier.retireMbfExportSession();
+      const started = await barrier.reviewMbfExport(REVIEW_ARGS);
       expect(started.outcome).toEqual({ outcome: "reviewed", review: {} });
-      // The reset (epoch 1), then the retirement (epoch 2), then the start with its epoch: no reset after a start.
-      expect(host.commands()).toEqual(["dispose_all_preview_mechanics_results", "cancel_mbf_export", "review_mbf_export"]);
-      expect(host.calls.filter(({ command }) => command === "review_mbf_export").map(({ args }) => args?.[barrier.EXPECTED_EPOCH])).toEqual([2]);
+      expect(host.commands()).toEqual(["cancel_mbf_export", "review_mbf_export"]);
     } finally {
       delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
     }
   });
+});
+
+// Repair 5: idempotent keyed retirement. Each logical retirement carries `retirementId` = {page, sequence}; the
+// native host applies an id only when its sequence is above the last applied from its page (`mbf_worker.rs`
+// `MbfRuns::retire_keyed`). `idempotentHost` is a mock of that rule.
+type Id = { page: string; sequence: number };
+
+/** A native host that applies `cancel_mbf_export` by the keyed rule (or, with `ignoreSequence`, applies every
+ * delivery: the mutation control). Each applied retirement moves the epoch on and cancels every run in progress; runs
+ * are answered by the test. `deliver` lets a test hand the host a delivery the transport delayed. */
+function idempotentHost(options: { ignoreSequence?: boolean } = {}) {
+  const host = {
+    epoch: 0,
+    last: new Map<string, number>(),
+    cancels: [] as Id[],
+    runs: [] as Array<{ ticket: unknown; cancelled: boolean; reply: ReturnType<typeof deferred<unknown>> }>,
+    apply(id: Id) {
+      const last = host.last.get(id.page);
+      if (!options.ignoreSequence && last !== undefined && id.sequence <= last) {
+        return { cancelled: 0, too_late: 0, epoch: host.epoch, retirement_id: id, duplicate: true };
+      }
+      host.last.set(id.page, Math.max(last ?? 0, id.sequence));
+      host.epoch += 1;
+      let cancelled = 0;
+      for (const run of host.runs.filter((run) => !run.cancelled)) {
+        run.cancelled = true;
+        cancelled += 1;
+        run.reply.resolve({ outcome: "refused", diagnostics: [{ code: barrier.MBF_EXPORT_CANCELLED, path: "", message: "" }] });
+      }
+      return { cancelled, too_late: 0, epoch: host.epoch, retirement_id: id };
+    }
+  };
+  invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
+    if (command === "cancel_mbf_export") {
+      const id = args?.[barrier.RETIREMENT_ID] as Id;
+      host.cancels.push(id);
+      return Promise.resolve(host.apply(id));
+    }
+    const reply = deferred<unknown>();
+    host.runs.push({ ticket: args?.[barrier.EXPECTED_EPOCH], cancelled: false, reply });
+    return reply.promise;
+  });
+  return host;
+}
+
+describe("the MBF export's keyed retirement (repair 5)", () => {
+  it("gives each logical retirement its own id: one page token of 32 hex digits, the sequence rising by one", async () => {
+    const host = idempotentHost();
+    await barrier.retireMbfExportSession();
+    await barrier.retireMbfExportSession();
+    expect(host.cancels).toHaveLength(2);
+    expect(host.cancels[0].page).toMatch(/^[0-9a-f]{32}$/);
+    expect(host.cancels[1].page).toBe(host.cancels[0].page);
+    expect(host.cancels.map(({ sequence }) => sequence)).toEqual([1, 2]);
+    // A new page (a fresh module) makes a new token.
+    vi.resetModules();
+    const next = await import("./mbfExportCancel");
+    await next.retireMbfExportSession();
+    expect(host.cancels[2].page).not.toBe(host.cancels[0].page);
+    expect(host.cancels[2].sequence).toBe(1);
+  });
+
+  // An injected-fault schedule at the helper level, not a demonstrated same-page product path: after a failed fetch,
+  // Tauri 2.11.1's transport sends through `postMessage` with `JSON.stringify`, which the raw-body ingress refuses
+  // (`INGRESS-RAW-BODY-REQUIRED`), so on the same page neither this fallback nor a fresh start would be admitted. The
+  // test hands the host the same id twice, as such a resend would, to pin the native rule's effect on the barrier.
+  it("injected fault: a delayed duplicate of an acknowledged retirement does not cancel a fresh start", async () => {
+    for (const ignoreSequence of [false, true]) {
+      vi.resetModules();
+      barrier = await import("./mbfExportCancel");
+      invokeMock.mockReset();
+      const host = idempotentHost({ ignoreSequence });
+      // The resend (the transport's fallback) of r1 is applied and acknowledged.
+      const acknowledged = await barrier.retireMbfExportSession();
+      expect(acknowledged).toMatchObject({ epoch: 1 });
+      const r1 = host.cancels[0];
+      // A fresh start enters at epoch 1.
+      const fresh = barrier.reviewMbfExport(REVIEW_ARGS);
+      await vi.waitFor(() => expect(host.runs).toHaveLength(1));
+      expect(host.runs[0].ticket).toBe(1);
+      // The delayed original r1 arrives.
+      const delayed = host.apply({ ...r1 });
+      if (ignoreSequence) {
+        // Mutation control: a host that ignores the sequence cancels the fresh start.
+        expect(host.runs[0].cancelled).toBe(true);
+        expect(codes((await fresh).outcome)).toEqual([barrier.MBF_EXPORT_CANCELLED]);
+        continue;
+      }
+      expect(delayed).toEqual({ cancelled: 0, too_late: 0, epoch: 1, retirement_id: r1, duplicate: true });
+      expect(host.epoch).toBe(1);
+      expect(host.runs[0].cancelled).toBe(false);
+      host.runs[0].reply.resolve({ outcome: "reviewed", review: {} });
+      const started = await fresh;
+      expect(started.outcome).toEqual({ outcome: "reviewed", review: {} });
+      expect(started.current()).toBe(true);
+    }
+  });
+
+  it("re-delivers an unacknowledged retirement with the same id, and takes the host's duplicate receipt for it as acknowledgement", async () => {
+    const host = idempotentHost();
+    const answer = invokeMock.getMockImplementation()!;
+    let lost = 1;
+    invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
+      if (command === "cancel_mbf_export" && lost > 0) {
+        // Applied natively, but the reply is lost.
+        lost -= 1;
+        host.cancels.push(args?.[barrier.RETIREMENT_ID] as Id);
+        host.apply(args?.[barrier.RETIREMENT_ID] as Id);
+        return Promise.reject(new Error("the reply was lost"));
+      }
+      return answer(command, args);
+    });
+    await expect(barrier.retireMbfExportSession()).resolves.toBeNull();
+    const started = barrier.reviewMbfExport(REVIEW_ARGS);
+    await vi.waitFor(() => expect(host.runs).toHaveLength(1));
+    // The re-delivery reused the id; the host found it applied (a no-op), and its receipt acknowledged the epoch.
+    expect(host.cancels).toHaveLength(2);
+    expect(host.cancels[1]).toEqual(host.cancels[0]);
+    expect(host.epoch).toBe(1);
+    expect(host.runs[0]).toMatchObject({ ticket: 1, cancelled: false });
+    host.runs[0].reply.resolve({ outcome: "reviewed", review: {} });
+    expect((await started).outcome).toEqual({ outcome: "reviewed", review: {} });
+  });
+
+  it("re-sends a headroom-refused retirement with the same body", async () => {
+    const sent: unknown[] = [];
+    let refusals = 2;
+    invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
+      sent.push(args?.[barrier.RETIREMENT_ID]);
+      if (refusals-- > 0) {
+        return Promise.reject({ code: "RESOURCE_UNAVAILABLE", refusal: { kind: "headroom_insufficient", required_bytes: 2, available_bytes: 1 }, pool: null });
+      }
+      return Promise.resolve({ cancelled: 0, too_late: 0, epoch: 1, retirement_id: args?.[barrier.RETIREMENT_ID] });
+    });
+    await expect(barrier.retireMbfExportSession()).resolves.toMatchObject({ epoch: 1 });
+    expect(sent).toHaveLength(3);
+    expect(new Set(sent.map((id) => JSON.stringify(id))).size).toBe(1);
+  });
+
+  it("is no acknowledgement when the receipt answers another id, or the page cannot make one", async () => {
+    invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
+      const id = args?.[barrier.RETIREMENT_ID] as Id;
+      return Promise.resolve({ cancelled: 0, too_late: 0, epoch: 3, retirement_id: { ...id, sequence: id.sequence + 1 }, duplicate: true });
+    });
+    await expect(barrier.retireMbfExportSession()).resolves.toBeNull();
+    const refused = await barrier.reviewMbfExport(REVIEW_ARGS);
+    expect(codes(refused.outcome as never)).toEqual([barrier.MBF_EXPORT_RETIREMENT_UNCONFIRMED]);
+    vi.resetModules();
+    barrier = await import("./mbfExportCancel");
+    invokeMock.mockReset();
+    const random = vi.spyOn(globalThis.crypto, "getRandomValues").mockImplementation(() => { throw new Error("no random source"); });
+    try {
+      await expect(barrier.retireMbfExportSession()).resolves.toBeNull();
+      expect(invokeMock).not.toHaveBeenCalled();
+    } finally {
+      random.mockRestore();
+    }
+  });
+
 });

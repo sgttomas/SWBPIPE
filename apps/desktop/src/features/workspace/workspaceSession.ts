@@ -842,6 +842,10 @@ export function useWorkspaceSession() {
   // before any solve can start (a start waits for it). Tauri runtime only; a
   // failure never blocks the session.
   useEffect(() => { void beginSessionResultCustodyReset(); }, []);
+  // File > Export MBF… (DEL-17-04 §3.9.5): the page's (and each workspace's) first MBF interaction is a keyed
+  // retirement, sent at mount whether or not the export is ever opened: it retires natively whatever an old page left
+  // queued or running (the reset above does not touch the MBF export), and the starts wait for its acknowledgement.
+  useEffect(() => { void retireMbfExportSession(); }, []);
   useEffect(() => {
     const previous = heldResultRef.current;
     heldResultRef.current = result;
@@ -3753,7 +3757,7 @@ export function useWorkspaceSession() {
   // it. Retiring that session (each new generation, a project replaced by one with the same id included) or
   // unmounting the workspace retires the export (`retireMbfExportSession`): a start not yet sent is never sent, every
   // run started so far is cancelled natively, and the next start waits for that cancel to be acknowledged. It does not
-  // depend on any model check; the page-load reset cancels natively too.
+  // depend on any model check; the mount's retirement (above) covers a page load.
   useEffect(() => () => { void retireMbfExportSession(); }, [projectSessionGeneration]);
   async function handleRunModelChecks() {
     if (!model) return;

@@ -184,6 +184,30 @@ fn save_choosing(registry: &SolveJobRegistry, runs: &MbfRuns, body: &Value, choo
 /// A cancel that stopped one run before it wrote anything.
 const STOPPED_ONE: MbfCancelReceipt = MbfCancelReceipt { cancelled: 1, too_late: 0 };
 
+/// Page `n`'s token: 32 lowercase hex digits, as the frontend makes one per page load.
+fn page(n: usize) -> String {
+    format!("{:032x}", 0xab00_0000_0000_0000_0000_0000_0000_0000u128 + n as u128)
+}
+
+fn retirement(page_n: usize, sequence: u64) -> RetirementId {
+    RetirementId { page: page(page_n), sequence }
+}
+
+/// `cancel_mbf_export` as `lib.rs` runs it: `body` as an `args-json-v1` raw body through the command's ingress.
+fn cancel_via_command(registry: &SolveJobRegistry, runs: &MbfRuns, body: &Value) -> Result<MbfRetirement, CommandError<String>> {
+    cancel_command(registry, runs, &raw_body(body), &headers(Some(INGRESS_ARGS_JSON_V1)))
+}
+
+/// `cancel_mbf_export`'s request for `id`.
+fn cancel_body(id: &RetirementId) -> Value {
+    json!({ RETIREMENT_ID: { "page": id.page, "sequence": id.sequence } })
+}
+
+/// Whether any tracked run has been cancelled.
+fn any_tracked_cancelled(runs: &MbfRuns) -> bool {
+    runs.lock().runs.iter().any(|(_, run)| run.cancelled())
+}
+
 fn review_codes(outcome: &MbfReviewOutcome) -> Vec<String> {
     match outcome {
         MbfReviewOutcome::Refused { diagnostics } => diagnostics.iter().map(|item| item.code.clone()).collect(),
@@ -664,39 +688,36 @@ fn a_cancel_after_the_commit_is_too_late_and_the_save_completes() {
     assert_released(&registry);
 }
 
-/// Finding P2-2 (a): the native session reset (`lib.rs` `reset_native_session`, behind
-/// `dispose_all_preview_mechanics_results`) cancels a running MBF review and a queued MBF save, with no model check
-/// in progress: the review's worker is killed and reaped, the save never starts a worker or opens a chooser, both
-/// reply `MBF-EXPORT-CANCELLED`, nothing is written, and the whole ledger bound, every grant and every lease is
-/// released. Without the reset's cancel the running review would never end: the test then fails at its deadline.
+/// Repair 5 (option a): the performance session reset (`dispose_all_preview_mechanics_results`, whose registry part is
+/// `SolveJobRegistry::dispose_all_results`) does not touch the MBF export: a running review is not cancelled, its
+/// worker stays alive, and the retirement epoch does not move, so a delayed duplicate of the reset cannot cancel a fresh
+/// MBF run. The page's keyed retirement (`cancel_mbf_export`, sent when the new page's workspace mounts) is what
+/// retires the old page's runs: it stops the review, its worker is killed and reaped, and everything is released.
 #[test]
-fn the_session_reset_cancels_a_running_and_a_queued_mbf_run_and_releases_everything() {
+fn the_session_reset_leaves_the_mbf_export_alone_and_the_keyed_mount_retirement_stops_it() {
     let gate = Gate::new("mbf-reset");
     let registry = registry_with(gate.launcher());
-    registry.pool().set_max_running_workers(1);
     let runs = MbfRuns::default();
-    let sandbox = Sandbox::new("reset");
-    let opened = Opened::new(false);
     let review = review_body(&canonical_model(), &settings());
-    let save = save_body(&canonical_model(), recorded_default());
     std::thread::scope(|scope| {
         let _guard = CancelOnUnwind(&runs, &registry);
         let reviewing = scope.spawn(|| review_via_command(&registry, &runs, &review));
         gate.wait_started(1);
         let pid = gate.pids()[0];
-        let saving = scope.spawn(|| save_via_command(&registry, &runs, &save, Some(sandbox.0.join("swbpipe-model.mbf")), &opened));
-        await_queued(&registry, |refusal| matches!(refusal, ResourceRefusal::WorkerLimitReached { .. }));
-        let disposal = crate::reset_native_session(&registry, &runs);
-        assert_eq!(disposal.abandoned_jobs, 0, "no solve job was in progress");
+        let epoch = runs.epoch();
+        for _ in 0..2 {
+            let disposal = registry.dispose_all_results();
+            assert_eq!(disposal.abandoned_jobs, 0, "no solve job was in progress");
+        }
+        assert_eq!(runs.epoch(), epoch, "the reset moved no MBF epoch");
+        assert!(!any_tracked_cancelled(&runs) && worker_alive(pid), "the reset cancelled no MBF run");
+        let mount = cancel_via_command(&registry, &runs, &cancel_body(&retirement(1, 1))).unwrap();
+        assert_eq!((mount.receipt, mount.epoch, mount.duplicate), (STOPPED_ONE, epoch + 1, false), "the new page's mount retirement");
         let (reviewed, _) = join_within(&registry, &runs, reviewing, "the running review");
-        let saved = join_within(&registry, &runs, saving, "the queued save");
         assert_eq!(review_codes(&reviewed), vec![CANCELLED.to_string()]);
-        assert_eq!(save_codes(&saved), vec![CANCELLED.to_string()]);
         assert!(!worker_alive(pid), "the review's worker was killed and reaped");
     });
-    assert_eq!(gate.started_count(), 1, "the queued save started no worker");
-    assert!(!opened.load(Ordering::SeqCst) && sandbox.is_empty(), "nothing was chosen or written");
-    assert_eq!(runs.cancel_all(registry.pool()), MbfCancelReceipt::default(), "the reset cleared both slots");
+    assert_eq!(runs.cancel_all(registry.pool()), MbfCancelReceipt::default(), "nothing is tracked");
     assert_released(&registry);
 }
 
@@ -726,26 +747,32 @@ fn cancel_mbf_export_stops_the_current_run_and_is_a_no_op_with_nothing_running()
     assert_released(&registry);
 }
 
-/// How a test retires the session from inside a command (on its own thread, at a hook): `cancel_mbf_export`'s body,
-/// or the page-load reset (`lib.rs` `reset_native_session`).
+/// How a test retires the session from inside a command (on its own thread, at a hook): the retirement itself
+/// (`MbfRuns::cancel_all`), or `cancel_mbf_export` as `lib.rs` runs it, keyed with a new page's first id (the
+/// page-load mount retirement).
 #[derive(Clone, Copy, Debug)]
 enum Retire {
     Cancel,
-    PageLoadReset,
+    PageMount,
 }
 
 fn retire_from_hook(how: Retire, registry: &SolveJobRegistry, runs: &MbfRuns) -> Box<dyn FnOnce()> {
     let (registry, runs) = (registry.clone(), runs.clone());
     Box::new(move || match how {
         Retire::Cancel => drop(runs.cancel_all(registry.pool())),
-        Retire::PageLoadReset => drop(crate::reset_native_session(&registry, &runs)),
+        Retire::PageMount => {
+            // A fresh page token each time: a new page load.
+            let next = runs.lock().applied.len() + 1;
+            let reply = cancel_via_command(&registry, &runs, &cancel_body(&retirement(next, 1))).unwrap();
+            assert!(!reply.duplicate && !reply.exhausted);
+        }
     })
 }
 
 /// Finding P2 at 6ccc68aff (1), the later checkpoints: the review and the save carry the ticket current when their
 /// request was built, and the session is retired while each is paused before its admission (so its ticket is stale
 /// when it is read), or after the ticket was accepted and before its run registers (the tests' hooks), by
-/// `cancel_mbf_export` or by the page-load reset. Resumed, each replies `MBF-EXPORT-CANCELLED`: the review's run is not registered, the save
+/// the retirement or by `cancel_mbf_export`'s keyed page-mount retirement. Resumed, each replies `MBF-EXPORT-CANCELLED`: the review's run is not registered, the save
 /// opens no chooser and writes nothing, and everything is released. With the real worker, a command that ignored
 /// its entry would complete (and the save open its chooser): the test fails instead of waiting.
 #[test]
@@ -754,7 +781,7 @@ fn a_command_retired_before_its_admission_or_registration_is_cancelled_and_write
     let registry = real_worker();
     type Hook = &'static std::thread::LocalKey<std::cell::RefCell<Option<Box<dyn FnOnce()>>>>;
     let points: [(&str, Hook); 2] = [("before admission", &BEFORE_ADMISSION), ("before registration", &BEFORE_REGISTRATION)];
-    for how in [Retire::Cancel, Retire::PageLoadReset] {
+    for how in [Retire::Cancel, Retire::PageMount] {
         for (point, hook) in points {
             let runs = MbfRuns::default();
             hook.with(|slot| *slot.borrow_mut() = Some(retire_from_hook(how, &registry, &runs)));
@@ -777,7 +804,7 @@ fn a_command_retired_before_its_admission_or_registration_is_cancelled_and_write
 }
 
 /// Finding P2 at 6ccc68aff (2), native side; the ticket's fresh start: a retirement does not reach a request whose
-/// ticket is the epoch after it. After `cancel_mbf_export` (and after the page-load reset) a review carrying the
+/// ticket is the epoch after it. After a retirement (and after `cancel_mbf_export`'s keyed page-mount retirement) a review carrying the
 /// current epoch completes and a save writes the recorded files; an entry from before the retirement is still refused
 /// when it registers.
 #[test]
@@ -786,7 +813,7 @@ fn a_command_that_enters_after_a_retirement_is_not_affected_by_it() {
     let registry = real_worker();
     let runs = MbfRuns::default();
     let before = runs.entry_now();
-    for how in [Retire::Cancel, Retire::PageLoadReset] {
+    for how in [Retire::Cancel, Retire::PageMount] {
         retire_from_hook(how, &registry, &runs)();
         assert_ne!(runs.entry_now(), before, "{how:?}: the epoch moved on");
         let (reviewed, _) = review_via_command(&registry, &runs, &review_body(&canonical_model(), &settings()));
@@ -821,8 +848,8 @@ fn counted_real_worker() -> (SolveJobRegistry, Arc<CountingLauncher>) {
 }
 
 /// The escaped start (4b.2a repair, the last repair's open matter 1). A request is built with the ticket a start
-/// would have sent then; the session is retired, by `cancel_mbf_export` (whose reply names the new epoch) or by the
-/// page-load reset; only then does the command's task start. Both the review and the save reply
+/// would have sent then; the session is retired, by the retirement (whose reply names the new epoch) or by
+/// `cancel_mbf_export`'s keyed page-mount retirement; only then does the command's task start. Both the review and the save reply
 /// `MBF-EXPORT-CANCELLED`: no worker starts, no chooser opens, nothing is written or tracked, and everything is
 /// released. A command that took the epoch as its task began (the previous design) would complete instead: with the
 /// real worker the review would reply its review and the save open its chooser.
@@ -831,7 +858,7 @@ fn a_request_sent_before_a_retirement_is_cancelled_whenever_its_task_starts() {
     let _lock = atomic_save_test_lock();
     let (registry, launcher) = counted_real_worker();
     let runs = MbfRuns::default();
-    for how in [Retire::Cancel, Retire::PageLoadReset] {
+    for how in [Retire::Cancel, Retire::PageMount] {
         let sent = runs.epoch();
         let review = ticketed(&runs, &review_body(&canonical_model(), &settings()));
         let save = ticketed(&runs, &save_body(&canonical_model(), recorded_default()));
@@ -846,7 +873,7 @@ fn a_request_sent_before_a_retirement_is_cancelled_whenever_its_task_starts() {
                     "cancel_mbf_export's reply"
                 );
             }
-            Retire::PageLoadReset => retire_from_hook(how, &registry, &runs)(),
+            Retire::PageMount => retire_from_hook(how, &registry, &runs)(),
         }
         assert_eq!(runs.epoch(), sent + 1, "{how:?}: the epoch moved on");
         let (reviewed, _) = review_via_command(&registry, &runs, &review);
@@ -929,7 +956,11 @@ fn an_exhausted_retirement_epoch_does_not_wrap_and_refuses_every_start() {
         gate.wait_started(1);
         let pid = gate.pids()[0];
         let second = runs.retire(registry.pool());
-        assert_eq!(second, MbfRetirement { receipt: STOPPED_ONE, epoch: u64::MAX, exhausted: true }, "no wrap; the running review is cancelled");
+        assert_eq!(
+            second,
+            MbfRetirement { receipt: STOPPED_ONE, epoch: u64::MAX, exhausted: true, retirement_id: None, duplicate: false },
+            "no wrap; the running review is cancelled"
+        );
         assert_eq!(serde_json::to_value(second).unwrap(), json!({"cancelled": 1, "too_late": 0, "epoch": u64::MAX, "exhausted": true}), "the reply");
         let (outcome, _) = join_within(&registry, &runs, reviewing, "the review");
         assert_eq!(review_codes(&outcome), vec![CANCELLED.to_string()]);
@@ -956,7 +987,13 @@ fn an_exhausted_retirement_epoch_does_not_wrap_and_refuses_every_start() {
     assert!(late.control.cancelled());
     drop(late);
     // Terminal: a later retirement stays exhausted at u64::MAX and finds nothing tracked.
-    assert_eq!(runs.retire(registry.pool()), MbfRetirement { receipt: MbfCancelReceipt::default(), epoch: u64::MAX, exhausted: true });
+    assert_eq!(
+        runs.retire(registry.pool()),
+        MbfRetirement { receipt: MbfCancelReceipt::default(), epoch: u64::MAX, exhausted: true, retirement_id: None, duplicate: false }
+    );
+    // A keyed retirement once exhausted: terminal still, the epoch unmoved.
+    let keyed = runs.retire_keyed(retirement(1, 1), registry.pool());
+    assert_eq!((keyed.epoch, keyed.exhausted, keyed.duplicate), (u64::MAX, true, false));
     assert_eq!(runs.enter(Some(json!(u64::MAX))).unwrap_err().code, EPOCH_EXHAUSTED);
     assert_released(&registry);
 }
@@ -1440,4 +1477,164 @@ fn the_writer_route_scan_finds_each_other_route() {
         let files = [("lib.rs".to_string(), declaration.to_string()), ("helper.rs".to_string(), call.clone())];
         assert_eq!(references(&files).is_empty(), skipped, "{declaration}");
     }
+}
+
+// -- Repair 5: idempotent keyed retirement ------------------------------------------------------------------------
+
+/// Starts a review on another thread in `scope`, waits for its worker, and returns the worker's pid.
+fn running_review<'s, 'e: 's>(
+    scope: &'s std::thread::Scope<'s, 'e>,
+    gate: &Gate,
+    started: usize,
+    registry: &'e SolveJobRegistry,
+    runs: &'e MbfRuns,
+    body: &'e Value,
+) -> (std::thread::ScopedJoinHandle<'s, (MbfReviewOutcome, String)>, i32) {
+    let reviewing = scope.spawn(move || review_via_command(registry, runs, body));
+    gate.wait_started(started);
+    (reviewing, gate.pids()[started - 1])
+}
+
+/// An injected-fault test of the native rule (the reviewer's schedule at 8cecfc1ce), not a demonstrated same-page
+/// product path: Tauri 2.11.1's `postMessage` fallback sends a raw body through `JSON.stringify`, which this ingress
+/// refuses (`INGRESS-RAW-BODY-REQUIRED`), so on one page neither the fallback nor a fresh start after it is admitted.
+/// The test hands the host one id twice, as a duplicated delivery would. `r1` is applied (epoch 2) and acknowledged; a
+/// fresh review enters at epoch 2 and runs; then `r1` arrives again, and so does an older id of the same page: each
+/// is a no-op whose reply says `duplicate` with the current epoch, cancels nothing and moves nothing on, and the fresh
+/// review's worker keeps running. A different page's token advances the epoch and stops the review. A host that
+/// ignored the sequence would cancel the fresh review at the second delivery.
+#[test]
+fn a_duplicate_or_older_retirement_id_is_a_truthful_no_op_and_a_new_page_token_advances() {
+    let gate = Gate::new("mbf-keyed-duplicate");
+    let registry = registry_with(gate.launcher());
+    let runs = MbfRuns::default();
+    let (r0, r1) = (retirement(1, 1), retirement(1, 2));
+    let first = cancel_via_command(&registry, &runs, &cancel_body(&r0)).unwrap();
+    assert_eq!((first.epoch, first.duplicate), (1, false));
+    let applied = cancel_via_command(&registry, &runs, &cancel_body(&r1)).unwrap();
+    assert_eq!(
+        serde_json::to_value(&applied).unwrap(),
+        json!({"cancelled": 0, "too_late": 0, "epoch": 2, "retirement_id": {"page": page(1), "sequence": 2}}),
+        "the first delivery's reply: applied, the id echoed, no duplicate member"
+    );
+    let body = review_body(&canonical_model(), &settings());
+    std::thread::scope(|scope| {
+        let _guard = CancelOnUnwind(&runs, &registry);
+        let (reviewing, pid) = running_review(scope, &gate, 1, &registry, &runs, &body);
+        for (delayed, what) in [(&r1, "a second delivery of r1"), (&r0, "an older id of the same page")] {
+            let reply = cancel_via_command(&registry, &runs, &cancel_body(delayed)).unwrap();
+            assert_eq!(
+                serde_json::to_value(&reply).unwrap(),
+                json!({"cancelled": 0, "too_late": 0, "epoch": 2, "retirement_id": {"page": page(1), "sequence": delayed.sequence}, "duplicate": true}),
+                "{what}: a truthful no-op"
+            );
+            assert_eq!(runs.epoch(), 2, "{what}: the epoch did not move");
+            assert!(!any_tracked_cancelled(&runs) && worker_alive(pid), "{what}: the fresh review was not cancelled");
+        }
+        let other = cancel_via_command(&registry, &runs, &cancel_body(&retirement(2, 1))).unwrap();
+        assert_eq!((other.receipt, other.epoch, other.duplicate), (STOPPED_ONE, 3, false), "a different page token advances");
+        let (reviewed, _) = join_within(&registry, &runs, reviewing, "the review");
+        assert_eq!(review_codes(&reviewed), vec![CANCELLED.to_string()]);
+        assert!(!worker_alive(pid));
+    });
+    // The next sequence of page 1 is applied as usual.
+    assert_eq!(runs.retire_keyed(retirement(1, 3), registry.pool()).epoch, 4);
+    assert_released(&registry);
+}
+
+/// No applied token is forgotten. With [`RETIREMENT_PAGES_MAX`] page tokens applied, a fresh review is acknowledged
+/// and runs at the current epoch; a delayed duplicate of the oldest token's id is still a no-op (no advance, no cancel,
+/// `duplicate`). A retirement from one more, new token is not recorded and makes the export exhausted (fail closed): it
+/// stops the review, the epoch does not move, and every start is refused `MBF-EXPORT-EPOCH-EXHAUSTED`. The delayed
+/// duplicate of the oldest token stays a truthful no-op after it.
+#[test]
+fn the_page_token_map_never_evicts_and_a_new_token_beyond_it_exhausts_the_export() {
+    use crate::mbf_export::EPOCH_EXHAUSTED;
+    let gate = Gate::new("mbf-keyed-capacity");
+    let registry = registry_with(gate.launcher());
+    let runs = MbfRuns::default();
+    for n in 0..RETIREMENT_PAGES_MAX {
+        let reply = runs.retire_keyed(retirement(n, 1), registry.pool());
+        assert_eq!((reply.duplicate, reply.exhausted), (false, false), "page {n}");
+    }
+    let full = RETIREMENT_PAGES_MAX as u64;
+    assert_eq!((runs.epoch(), runs.lock().applied.len()), (full, RETIREMENT_PAGES_MAX));
+    let body = review_body(&canonical_model(), &settings());
+    std::thread::scope(|scope| {
+        let _guard = CancelOnUnwind(&runs, &registry);
+        let (reviewing, pid) = running_review(scope, &gate, 1, &registry, &runs, &body);
+        let delayed = cancel_via_command(&registry, &runs, &cancel_body(&retirement(0, 1))).unwrap();
+        assert_eq!((delayed.receipt, delayed.epoch, delayed.duplicate, delayed.exhausted), (MbfCancelReceipt::default(), full, true, false));
+        assert!(!any_tracked_cancelled(&runs) && worker_alive(pid), "the delayed duplicate of the oldest token cancelled nothing");
+        let beyond = cancel_via_command(&registry, &runs, &cancel_body(&retirement(RETIREMENT_PAGES_MAX, 1))).unwrap();
+        assert_eq!((beyond.receipt, beyond.epoch, beyond.duplicate, beyond.exhausted), (STOPPED_ONE, full, false, true), "fail closed");
+        let (reviewed, _) = join_within(&registry, &runs, reviewing, "the review");
+        assert_eq!(review_codes(&reviewed), vec![CANCELLED.to_string()]);
+    });
+    assert_eq!(runs.lock().applied.len(), RETIREMENT_PAGES_MAX, "the new token was not recorded, and none was evicted");
+    let after = cancel_via_command(&registry, &runs, &cancel_body(&retirement(0, 1))).unwrap();
+    assert_eq!((after.receipt, after.epoch, after.duplicate, after.exhausted), (MbfCancelReceipt::default(), full, true, true), "still a no-op");
+    assert_eq!(runs.enter(Some(json!(full))).unwrap_err().code, EPOCH_EXHAUSTED, "terminal");
+    let (reviewed, _) = review_via_command(&registry, &runs, &body);
+    assert_eq!(review_codes(&reviewed), vec![EPOCH_EXHAUSTED.to_string()]);
+    assert_eq!(gate.pids().len(), 1, "no worker started after the exhaustion");
+    assert_released(&registry);
+}
+
+/// `cancel_mbf_export`'s protocol: a missing, `null` or malformed `retirementId` is refused
+/// `MBF-EXPORT-RETIREMENT-ID-INVALID` (the command's error) and retires nothing: no run is cancelled, the epoch does
+/// not move and no token is recorded. The request goes through the normal raw-body ingress: one without the ingress
+/// header, or above the command's argument bound, is an ingress refusal.
+#[test]
+fn a_missing_or_malformed_retirement_id_is_refused_by_name_and_retires_nothing() {
+    use crate::mbf_export::RETIREMENT_ID_INVALID;
+    let gate = Gate::new("mbf-keyed-malformed");
+    let registry = registry_with(gate.launcher());
+    let runs = MbfRuns::default();
+    runs.retire_keyed(retirement(0, 1), registry.pool());
+    let good = page(1);
+    let refused = [
+        json!({}),
+        json!({ RETIREMENT_ID: null }),
+        json!({ RETIREMENT_ID: "abc" }),
+        json!({ RETIREMENT_ID: [good, 1] }),
+        json!({ RETIREMENT_ID: { "sequence": 1 } }),
+        json!({ RETIREMENT_ID: { "page": good } }),
+        json!({ RETIREMENT_ID: { "page": good.to_uppercase(), "sequence": 1 } }),
+        json!({ RETIREMENT_ID: { "page": &good[1..], "sequence": 1 } }),
+        json!({ RETIREMENT_ID: { "page": format!("{good}0"), "sequence": 1 } }),
+        json!({ RETIREMENT_ID: { "page": format!("g{}", &good[1..]), "sequence": 1 } }),
+        json!({ RETIREMENT_ID: { "page": 17, "sequence": 1 } }),
+        json!({ RETIREMENT_ID: { "page": good, "sequence": 0 } }),
+        json!({ RETIREMENT_ID: { "page": good, "sequence": -1 } }),
+        json!({ RETIREMENT_ID: { "page": good, "sequence": 1.5 } }),
+        json!({ RETIREMENT_ID: { "page": good, "sequence": 1.0 } }),
+        json!({ RETIREMENT_ID: { "page": good, "sequence": "1" } }),
+        json!({ RETIREMENT_ID: { "page": good, "sequence": 1u64 << 53 } }),
+        json!({ RETIREMENT_ID: { "page": good, "sequence": 1, "epoch": 3 } }),
+    ];
+    let body = review_body(&canonical_model(), &settings());
+    std::thread::scope(|scope| {
+        let _guard = CancelOnUnwind(&runs, &registry);
+        let (reviewing, pid) = running_review(scope, &gate, 1, &registry, &runs, &body);
+        for request in &refused {
+            match cancel_via_command(&registry, &runs, request) {
+                Err(CommandError::Command(message)) => assert!(message.starts_with(&format!("{RETIREMENT_ID_INVALID}: ")), "{request}: {message}"),
+                other => panic!("{request}: {other:?}"),
+            }
+        }
+        let unheaded = cancel_command(&registry, &runs, &raw_body(&cancel_body(&retirement(1, 1))), &headers(None));
+        assert!(matches!(unheaded, Err(CommandError::Ingress(_))), "{unheaded:?}");
+        let oversized = json!({ RETIREMENT_ID: { "page": good, "sequence": 1 }, "pad": "x".repeat(8 << 10) });
+        assert!(matches!(cancel_via_command(&registry, &runs, &oversized), Err(CommandError::Ingress(_))));
+        assert_eq!(runs.epoch(), 1, "nothing moved on");
+        assert_eq!(runs.lock().applied.len(), 1, "no token was recorded");
+        assert!(!any_tracked_cancelled(&runs) && worker_alive(pid), "nothing was cancelled");
+        assert_eq!(runs.cancel_all(registry.pool()), STOPPED_ONE);
+        let _ = join_within(&registry, &runs, reviewing, "the review");
+    });
+    // The largest sequence is accepted.
+    let largest = cancel_via_command(&registry, &runs, &json!({ RETIREMENT_ID: { "page": good, "sequence": (1u64 << 53) - 1 } })).unwrap();
+    assert!(!largest.duplicate);
+    assert_released(&registry);
 }

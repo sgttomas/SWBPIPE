@@ -34,10 +34,23 @@
 //! `MBF-EXPORT-WORKER-PROTOCOL`; cancellation is `MBF-EXPORT-CANCELLED`.
 //!
 //! **Cancellation** ([`MbfRuns`]). A newer review or save cancels the older ones of its kind, whose wait ends or whose
-//! worker is killed and reaped before its grant is released. [`MbfRuns::cancel_all`] is a *retirement*: it cancels
-//! every run in progress and moves the retirement epoch on. Production calls it from `cancel_mbf_export` (the
-//! frontend calls it when the project session is retired, and 4b.2b's dialog when it closes) and from the session
-//! reset (`dispose_all_preview_mechanics_results`, on page load).
+//! worker is killed and reaped before its grant is released. A *retirement* cancels every run in progress and moves
+//! the retirement epoch on. Production retires only through `cancel_mbf_export` ([`cancel_command`], a keyed
+//! retirement, [`MbfRuns::retire_keyed`]): the frontend sends one when its page's workspace mounts (page load
+//! included, so an old page's queued or running run is retired then), when the project session is retired, and
+//! (4b.2b) when the dialog closes. The performance session reset (`dispose_all_preview_mechanics_results`) does not
+//! touch the MBF export.
+//!
+//! **Idempotent retirement.** Tauri's IPC may deliver one invoke twice: its transport script resends a command
+//! through `postMessage` when its `fetch` fails, and does not cancel or deduplicate the original delivery. So every
+//! logical retirement carries its own id ([`RetirementId`], `{page, sequence}`: a random token made once per page
+//! load and a counter that only rises in that page; a re-delivery of the same logical retirement reuses its id).
+//! The host keeps, for every page token it has applied, the last sequence it applied, and applies a retirement only
+//! when its sequence is above that one. A duplicate or older delivery is a no-op: it cancels nothing, moves nothing
+//! on, and its reply says so (`duplicate: true`, with the current epoch). An applied token is never forgotten: the
+//! host keeps at most [`RETIREMENT_PAGES_MAX`] of them, and a new token beyond them makes the export exhausted
+//! (below) instead of evicting one, whose delayed delivery would otherwise be applied again. A missing or malformed id
+//! is refused `MBF-EXPORT-RETIREMENT-ID-INVALID` and applies nothing.
 //!
 //! **The dispatch ticket.** A run belongs to the retirement epoch its request carries, not to the moment its task
 //! happens to run (Tauri 2 extracts an async command's arguments inside the task it spawns, so a request sent before
@@ -53,8 +66,8 @@
 //! acknowledged a retirement since cannot start anything. The ticket only binds a request to a retirement: it
 //! authorizes nothing, and every other check of the review and the save applies unchanged.
 //!
-//! **Exhaustion.** The epoch never wraps. A retirement at `u64::MAX` cannot move it on, so it enters a terminal,
-//! fail-closed state instead: it cancels every run in progress as any retirement does, its reply says so
+//! **Exhaustion.** The epoch never wraps. A retirement at `u64::MAX` cannot move it on (nor can a retirement from a
+//! new page token once [`RETIREMENT_PAGES_MAX`] are kept), so it enters a terminal, fail-closed state instead: it cancels every run in progress as any retirement does, its reply says so
 //! (`exhausted: true`, the epoch left at `u64::MAX`), and from then on every request is refused
 //! `MBF-EXPORT-EPOCH-EXHAUSTED` at its entry and a command that had already entered is cancelled when it registers.
 //! Saturating alone would leave the tickets at `u64::MAX` current.
@@ -179,7 +192,7 @@ pub(crate) struct MbfCancelReceipt {
 
 /// `cancel_mbf_export`'s reply: what the retirement did, and the retirement epoch after it, which every later start's
 /// request carries as its ticket ([`EXPECTED_EPOCH`]).
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize)]
 pub(crate) struct MbfRetirement {
     #[serde(flatten)]
     pub(crate) receipt: MbfCancelReceipt,
@@ -188,6 +201,69 @@ pub(crate) struct MbfRetirement {
     /// present in the reply when true.
     #[serde(skip_serializing_if = "std::ops::Not::not")]
     pub(crate) exhausted: bool,
+    /// The keyed retirement this replies to, echoed (`cancel_mbf_export`'s reply always has it).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(crate) retirement_id: Option<RetirementId>,
+    /// This id, or a later one of its page, had been applied already: nothing was cancelled or moved on, and `epoch`
+    /// is the current one. Only present in the reply when true.
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
+    pub(crate) duplicate: bool,
+}
+
+/// `cancel_mbf_export`'s command name.
+pub(crate) const CANCEL_COMMAND: &str = "cancel_mbf_export";
+
+/// The request member that carries a retirement's id.
+pub(crate) const RETIREMENT_ID: &str = "retirementId";
+
+/// The most page tokens the host keeps (one per page load in this process): a retirement from a new token beyond them
+/// makes the export exhausted, since no applied token may be forgotten.
+pub(crate) const RETIREMENT_PAGES_MAX: usize = 64;
+
+/// A page token's length: 16 random bytes as lowercase hex.
+const PAGE_TOKEN_HEX_LEN: usize = 32;
+
+/// The largest sequence a page sends (JavaScript's largest safe integer).
+const RETIREMENT_SEQUENCE_MAX: u64 = (1 << 53) - 1;
+
+/// The largest `cancel_mbf_export` arguments the host admits.
+const CANCEL_ARGS_MAX_BYTES: usize = 4 << 10;
+
+/// One logical retirement's id: its page's token (made once per page load) and its sequence in that page (from 1,
+/// rising by one per logical retirement; a re-delivery reuses it).
+#[derive(Clone, Debug, PartialEq, Eq, Serialize)]
+pub(crate) struct RetirementId {
+    pub(crate) page: String,
+    pub(crate) sequence: u64,
+}
+
+impl RetirementId {
+    /// Reads the id from the [`RETIREMENT_ID`] member: an object of exactly `page` (32 lowercase hex digits) and
+    /// `sequence` (an integer from 1 to 2^53 - 1). Anything else, or none, refuses `MBF-EXPORT-RETIREMENT-ID-INVALID`.
+    pub(crate) fn read(value: Option<serde_json::Value>) -> Result<Self, EntryRefusal> {
+        let refused = |what: &str| EntryRefusal {
+            code: mbf_export::RETIREMENT_ID_INVALID,
+            message: format!("The export was not retired: its request {what}. Nothing was cancelled."),
+        };
+        let mut map = match value {
+            None => return Err(refused("carries no retirement id")),
+            Some(serde_json::Value::Object(map)) => map,
+            Some(_) => return Err(refused("carries a malformed retirement id")),
+        };
+        let page = match map.remove("page") {
+            Some(serde_json::Value::String(page))
+                if page.len() == PAGE_TOKEN_HEX_LEN && page.bytes().all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte)) =>
+            {
+                page
+            }
+            _ => return Err(refused("carries a malformed retirement id")),
+        };
+        let sequence = map.remove("sequence").and_then(|value| value.as_u64()).filter(|sequence| (1..=RETIREMENT_SEQUENCE_MAX).contains(sequence));
+        match sequence {
+            Some(sequence) if map.is_empty() => Ok(RetirementId { page, sequence }),
+            _ => Err(refused("carries a malformed retirement id")),
+        }
+    }
 }
 
 /// The request member that carries the dispatch ticket: the retirement epoch the frontend last saw acknowledged.
@@ -219,8 +295,11 @@ pub(crate) struct MbfEntry {
 struct Tracked {
     /// Bumped by every retirement ([`MbfRuns::cancel_all`]), never past `u64::MAX`.
     epoch: u64,
-    /// A retirement found the epoch at `u64::MAX`: terminal, every start is refused (`MBF-EXPORT-EPOCH-EXHAUSTED`).
+    /// A retirement found the epoch at `u64::MAX`, or came from a new page token with [`RETIREMENT_PAGES_MAX`] kept:
+    /// terminal, every start is refused (`MBF-EXPORT-EPOCH-EXHAUSTED`).
     exhausted: bool,
+    /// Every page token a keyed retirement was applied from, with the last sequence applied from it. Never shortened.
+    applied: Vec<(String, u64)>,
     /// Every registered run until it ends (its [`Registration`] drops): cancelled and committed ones included, so a
     /// committed save stays tracked, and is reported too late, until its write completes.
     runs: Vec<(RunKind, Arc<RunControl>)>,
@@ -318,21 +397,49 @@ impl MbfRuns {
         Registration { runs: self.clone(), control }
     }
 
-    /// Retires every run in progress and every command that has entered but not yet registered (the epoch moves on):
-    /// a waiting run stops waiting, a running worker is killed and its grant released after the reap, a save before
-    /// its commit refuses with nothing written. A save past its commit is counted too late, stays tracked and
-    /// completes. A request whose ticket is the epoch after it is not affected. The session reset calls it.
+    /// An unkeyed retirement's receipt (tests: production retires only by [`Self::retire_keyed`]).
+    #[cfg(test)]
     pub(crate) fn cancel_all(&self, pool: &MemoryPool) -> MbfCancelReceipt {
         self.retire(pool).receipt
     }
 
-    /// [`Self::cancel_all`], with the epoch it moved on to (`cancel_mbf_export`'s reply), read under the same lock.
-    /// At `u64::MAX` the epoch does not wrap: the export becomes exhausted (terminal), and the reply says so.
+    /// An unkeyed retirement ([`Self::retire_locked`]; tests).
+    #[cfg(test)]
     pub(crate) fn retire(&self, pool: &MemoryPool) -> MbfRetirement {
+        Self::retire_locked(self.lock(), pool)
+    }
+
+    /// `cancel_mbf_export`'s retirement, applied once per id (module docs, "Idempotent retirement"). A sequence no
+    /// greater than the last applied from its page is a duplicate: no run is cancelled, the epoch does not move, and the
+    /// reply says `duplicate` with the current epoch (and `exhausted` when so). Otherwise the sequence is recorded and
+    /// the retirement applied ([`Self::retire_locked`]); a new page token with [`RETIREMENT_PAGES_MAX`] kept is not
+    /// recorded, and makes the export exhausted (terminal) as it is applied. The id is echoed in the reply.
+    pub(crate) fn retire_keyed(&self, id: RetirementId, pool: &MemoryPool) -> MbfRetirement {
         let mut tracked = self.lock();
-        match tracked.epoch.checked_add(1) {
-            Some(next) => tracked.epoch = next,
+        match tracked.applied.iter().position(|(page, _)| *page == id.page) {
+            Some(known) if id.sequence <= tracked.applied[known].1 => {
+                let (epoch, exhausted) = (tracked.epoch, tracked.exhausted);
+                return MbfRetirement { receipt: MbfCancelReceipt::default(), epoch, exhausted, retirement_id: Some(id), duplicate: true };
+            }
+            Some(known) => tracked.applied[known].1 = id.sequence,
+            None if tracked.applied.len() < RETIREMENT_PAGES_MAX => tracked.applied.push((id.page.clone(), id.sequence)),
             None => tracked.exhausted = true,
+        }
+        MbfRetirement { retirement_id: Some(id), ..Self::retire_locked(tracked, pool) }
+    }
+
+    /// Retires every run in progress and every command that has entered but not yet registered (the epoch moves on):
+    /// a waiting run stops waiting, a running worker is killed and its grant released after the reap, a save before
+    /// its commit refuses with nothing written. A save past its commit is counted too late, stays tracked and
+    /// completes. A request whose ticket is the epoch after it is not affected. The reply names the epoch after it,
+    /// read under the same lock. At `u64::MAX` the epoch does not wrap: the export becomes exhausted (terminal), and
+    /// once exhausted the epoch moves no more; the reply says so.
+    fn retire_locked(mut tracked: MutexGuard<'_, Tracked>, pool: &MemoryPool) -> MbfRetirement {
+        if !tracked.exhausted {
+            match tracked.epoch.checked_add(1) {
+                Some(next) => tracked.epoch = next,
+                None => tracked.exhausted = true,
+            }
         }
         let (epoch, exhausted) = (tracked.epoch, tracked.exhausted);
         let mut receipt = MbfCancelReceipt::default();
@@ -347,7 +454,7 @@ impl MbfRuns {
         if receipt.cancelled > 0 {
             pool.wake_waiters();
         }
-        MbfRetirement { receipt, epoch, exhausted }
+        MbfRetirement { receipt, epoch, exhausted, retirement_id: None, duplicate: false }
     }
 }
 
@@ -651,6 +758,19 @@ pub(crate) fn save_command<R>(
     let response = mbf_export::save_mbf_export_admitted(request, open_store, &memory, &lease, runs, entry, choose, respond);
     drop(lease);
     Ok(response)
+}
+
+/// `cancel_mbf_export` (`lib.rs` registers it): `{retirementId}` as an `args-json-v1` raw body, admitted under an
+/// interactive ingress lease (at most [`CANCEL_ARGS_MAX_BYTES`]), then the keyed retirement
+/// ([`MbfRuns::retire_keyed`]). A missing or malformed id is the command's error, `MBF-EXPORT-RETIREMENT-ID-INVALID:
+/// …`, and retires nothing.
+pub(crate) fn cancel_command(registry: &SolveJobRegistry, runs: &MbfRuns, body: &InvokeBody, headers: &HeaderMap) -> Result<MbfRetirement, CommandError<String>> {
+    let (mut args, lease) = command_ingress::admit_body_within(registry, body, headers, CANCEL_COMMAND, ArgsDecoding::Moved, CANCEL_ARGS_MAX_BYTES)?;
+    let id = RetirementId::read(args.opt_value(RETIREMENT_ID));
+    drop(args);
+    let reply = id.map(|id| runs.retire_keyed(id, registry.pool())).map_err(|refusal| CommandError::Command(format!("{}: {}", refusal.code, refusal.message)));
+    drop(lease);
+    reply
 }
 
 /// A command whose blocking part did not complete: a fixed refusal of the given code, within the argument lease's

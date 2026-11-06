@@ -439,8 +439,8 @@ maxLayoutRows: null}`: the text the review ran with. In order:
    `reviewed`, refuse with `MBF-EXPORT-REVIEW-STALE`.
 7. **Chooser.** Open the native save chooser (`.mbf`, the documents folder). The suggested
    name is checked against `swbpipe-model[-…].mbf`. The path comes only from the chooser.
-   - **Cancel and commit.** A save retired after its worker ended (a newer save,
-     `cancel_mbf_export`, the session's reset) opens no chooser. Once the chooser returns a
+   - **Cancel and commit.** A save retired after its worker ended (a newer save, or
+     `cancel_mbf_export`) opens no chooser. Once the chooser returns a
      path, the save commits under its run's lock before the first write. A cancel that takes
      the lock first refuses the save `MBF-EXPORT-CANCELLED`, with nothing written. A cancel
      after the commit is too late: its receipt says so (`too_late`), and steps 8 to 10 complete,
@@ -448,7 +448,7 @@ maxLayoutRows: null}`: the text the review ran with. In order:
      committed save stays tracked until it completes, superseded or not, so every cancel
      during its write reports it too late.
    - **Retirement by the dispatch ticket.** A save whose request carries a retirement epoch
-     (`expectedEpoch`) that a retirement (`cancel_mbf_export`, the session's reset) has since
+     (`expectedEpoch`) that a retirement (`cancel_mbf_export`) has since
      passed is cancelled, whenever its task runs: at its entry, before the model is decoded, or
      when it registers its run. It replies `MBF-EXPORT-CANCELLED`, with no worker, no chooser
      and no write (§3.7, "Dispatch ticket"). Once the epoch is exhausted (§3.7) every save is
@@ -553,8 +553,9 @@ only the staleness check of step 6.
   before the bound; a bound above the budget is refused with the ledger and the pool's
   reservations unchanged.
 - **Cancellation** (`mbf_worker::MbfRuns`). A newer review or save cancels the older ones of
-  its kind. `cancel_mbf_export` and the native session reset
-  (`dispose_all_preview_mechanics_results`, on page load) are *retirements*: each cancels every
+  its kind. `cancel_mbf_export` is the only *retirement* (the performance session reset,
+  `dispose_all_preview_mechanics_results`, does not touch the MBF export; its contract is
+  performance's, unchanged by this slice). A retirement cancels every
   run in progress (a waiting run stops waiting, a running worker is killed and reaped before its
   grant is released, and a save before its commit writes nothing, §3.6 step 7) and moves a
   monotone retirement epoch on, by a checked advance that never wraps. Every registered run stays tracked until its command ends,
@@ -563,9 +564,10 @@ only the staleness check of step 6.
 - **Dispatch ticket** (`expectedEpoch`). A run belongs to the retirement epoch its request
   carries, not to when its task happens to run. Tauri 2 extracts an async command's arguments
   inside the task it spawns, so a request sent before a retirement may begin after it.
-  - **The reply.** `cancel_mbf_export` takes no arguments. It replies
-    `{cancelled, too_late, epoch}`, where `epoch` is the retirement epoch after its bump
-    (`MbfRuns::retire`).
+  - **The reply.** `cancel_mbf_export` takes `{retirementId}` (below, "Idempotent retirement")
+    as an `args-json-v1` raw body, through the normal ingress and argument-lease route. It replies
+    `{cancelled, too_late, epoch, retirement_id}`, where `epoch` is the retirement epoch after its
+    bump (`MbfRuns::retire_keyed`) and `retirement_id` echoes the id it answers.
   - **The request.** Every `review_mbf_export` and `save_mbf_export` request carries the
     frontend barrier's latest acknowledged epoch as `expectedEpoch`, a member of its admitted
     `args-json-v1` arguments.
@@ -582,12 +584,15 @@ only the staleness check of step 6.
     retirement in between cancels the run from the start. After that, the registered run's own
     cancellation applies: the wait, the worker, the pre-chooser check and the commit, §3.6
     step 7.
-  - **Page-load reset.** The reset moves the epoch on too. A page that has not acknowledged a
-    retirement since cannot start anything.
+  - **Page mount.** The workspace sends a keyed retirement when it mounts (page load included),
+    whether or not a model check is running or the export was ever opened, so whatever an old
+    page left queued or running is retired then, not at a later first use. Every start waits for
+    an acknowledged retirement of its own page (the mount's, or else its own handshake).
   - **Authority.** The ticket only binds a request to a retirement. It authorizes nothing: the
     route evidence, the reviewed digests, the review's truncation and the commit are checked
     as before.
-  - **Exhaustion.** A retirement that finds the epoch at `u64::MAX` cannot move it on, and the
+  - **Exhaustion.** A retirement that finds the epoch at `u64::MAX` cannot move it on (nor can one
+    from a new page token once the host keeps `RETIREMENT_PAGES_MAX` = 64 tokens, below), and the
     export enters a terminal, fail-closed *exhausted* state rather than wrapping or saturating
     (saturating would leave the tickets at `u64::MAX` current). That retirement cancels every
     run in progress as any other does, and its reply adds `exhausted: true` with the epoch left
@@ -596,21 +601,66 @@ only the staleness check of step 6.
     before is cancelled when it registers, and later retirements stay exhausted. The frontend
     treats an exhausted reply as unacknowledged, so its starts refuse
     `MBF-EXPORT-RETIREMENT-UNCONFIRMED`. Reaching it takes 2^64 retirements in one process; it
-    exists so the epoch's meaning cannot fail silently.
+    exists so the epoch's meaning cannot fail silently. Once exhausted the epoch moves no more,
+    by any retirement.
+- **Idempotent retirement** (`retirementId`, `mbf_worker::RetirementId`). Each logical
+  retirement carries `{page, sequence}`: a random token of 32 lowercase hex digits made once per
+  page load (`crypto.getRandomValues`), and a sequence from 1 that rises by one per logical
+  retirement in that page. A re-delivery of the same logical retirement (the barrier's, or the
+  transport's) reuses it.
+  - **Native rule** (`MbfRuns::retire_keyed`). For every page token it has applied, the host
+    keeps the last sequence applied, and applies a retirement only when its sequence is above
+    it. A duplicate or older delivery is a no-op: it cancels nothing and moves nothing on, and
+    its reply says so truthfully (`duplicate: true`, `cancelled: 0`, `too_late: 0`, the
+    current epoch, the id echoed). A missing, `null` or malformed id (not an object of exactly
+    `page` and an integer `sequence` from 1 to 2^53 - 1) is refused
+    `MBF-EXPORT-RETIREMENT-ID-INVALID` and retires nothing.
+  - **No applied token is forgotten.** The host keeps at most 64 page tokens (one per page load
+    in the process) and never evicts one, since a forgotten token's delayed retry would be
+    applied again. A retirement from a new token beyond them is not recorded: it makes the
+    export exhausted (fail closed), cancelling every run in progress, with the epoch unmoved.
+  - **Frontend.** A receipt acknowledges a delivery only when it echoes that delivery's id; a
+    `duplicate` receipt for its own id acknowledges the current epoch. A page that cannot make
+    an id sends nothing, and the delivery is unacknowledged.
+  - **Source basis and limits** (Tauri 2.11.1 `scripts/ipc-protocol.js`; RT-U4's assessment).
+    A rejected `fetch`, or a failed read of its reply, makes the transport resend the command
+    through `postMessage` without cancelling or deduplicating the original delivery, which may
+    still reach the host. A settled invoke is therefore not every delivery of it. The same
+    failure also sets the page's `customProtocolIpcFailed` for good, and the fallback sends
+    through `JSON.stringify`, which turns the raw `Uint8Array` body into a JSON number array:
+    the raw-body ingress then refuses `review_mbf_export`, `save_mbf_export` and the keyed
+    `cancel_mbf_export` alike (`INGRESS-RAW-BODY-REQUIRED`). So on one page a fallback
+    retirement is not acknowledged and no fresh start is admitted after it: the schedule
+    "fallback acknowledged, fresh run admitted, delayed original cancels it" is not a
+    demonstrated same-page product path, and the tests that pin it are injected-fault tests of
+    the rule. Duplicate deliveries of an id the host has applied remain no-ops whatever their
+    route. After the flip, that page can neither start nor retire the export: its starts refuse
+    `MBF-EXPORT-RETIREMENT-UNCONFIRMED` (or are refused at ingress), and a run admitted before
+    the flip runs on until it ends, a newer run of its kind supersedes it, or the next page's
+    mount retirement cancels it. Its frontend result is discarded by its generation, and the
+    save's pre-commit checks are unchanged. *Across a navigation* the order is not established:
+    a delayed first delivery from an old page (an id the host never applied) that arrives after
+    the new page's start is applied as a new retirement and cancels that start. Distinct page
+    tokens with their sequences do not order such a delivery in time, so this design does not
+    claim to prevent it. It is conditional, not established on WKWebView. Its effect is
+    fail-safe (the new start is cancelled, nothing is written, a committed save completes), and
+    RT-U4 documents C1's conditional accounting for it separately.
 - **The frontend barrier** (`features/caepipe-mbf/mbfExportCancel.ts`). Every MBF start
   (`reviewMbfExport`, `saveMbfExport`, raw-body ingress commands) and every retirement
   (`retireMbfExportSession`) goes through it. The workspace retires the export whenever it
   retires a project session (each new session generation, a project replaced by one with the
   same id included, React Strict Mode's re-run) and when it unmounts, independently of any
-  model check; slice 4b.2b's dialog retires it when it closes. **Serialized retirements:**
+  model check, and sends a keyed retirement when it mounts (§3.7, "Page mount"); slice 4b.2b's
+  dialog retires it when it closes. **Serialized retirements:**
   each `cancel_mbf_export` delivery is sent only after the one before it has settled
-  (acknowledged or not), and the page's first delivery only after the page-load reset
-  (`beginSessionResultCustodyReset`, which moves the native epoch on too) has settled. Tauri
+  (acknowledged or not); the barrier neither waits for nor sends the performance reset. Tauri
   sends each invoke as an independent request, so send order is no barrier: without the chain,
   an earlier retirement could be applied natively after a later one was acknowledged and a
-  fresh start sent, and cancel that start. A start captures the
+  fresh start sent, and cancel that start. The chain orders deliveries as the barrier sends
+  them; it cannot order a second delivery the transport makes of the same invoke, which the
+  native rule ("Idempotent retirement") makes a no-op. A start captures the
   retirement generation as it is called, waits for the latest delivery (by the chain, every
-  delivery sent before it, the reset included, has then settled), and checks
+  delivery the barrier sent before it has then settled), and checks
   immediately before every send (a headroom re-send included) that no retirement has been
   requested since and that the caller's own session check (`stillCurrent`) holds; a stale
   start is never sent and resolves `MBF-EXPORT-CANCELLED`. **Ticket:** the barrier records the
@@ -625,7 +675,8 @@ only the staleness check of step 6.
   a start issued during a retirement reaches native only after it is acknowledged and is not
   cancelled by it. **Fail-safe rule:** a start never treats an unacknowledged retirement (the
   `cancel_mbf_export` invoke rejected or threw) as done. When the latest delivery is
-  unacknowledged it re-delivers it once (shared by the starts waiting on it); if that is
+  unacknowledged it re-delivers it once, with the same id (shared by the starts waiting on it),
+  so a retirement the host applied whose reply was lost is a no-op there; if that is
   unacknowledged too, the start is not sent and refuses `MBF-EXPORT-RETIREMENT-UNCONFIRMED`,
   and the next start tries again. An earlier unacknowledged delivery followed by an
   acknowledged one needs no re-delivery: the later one cancels every run started before it,
@@ -1478,6 +1529,31 @@ the frontend. The production entry points run task 3 in the capped worker; `MBF-
     a re-delivery or a hang; no retirement, and so no start, is sent before the page-load reset settles; an
     exhausted reply is unacknowledged. Mutations checked: no chain (the newest-first test fails), and an
     unchecked advance (the boundary test fails).
+- **Repair 5: idempotent retirement** (2026-11-05, the independent re-check at 8cecfc1ce; Agent 0's
+  disposition).
+  - *A settled invoke is not every delivery* (P2). Tauri's transport may deliver one invoke twice (§3.7,
+    "Idempotent retirement", with its source basis and limits). `cancel_mbf_export` now takes `{retirementId}`
+    through the raw-body ingress and applies each id once; a duplicate or older id is a truthful no-op; applied
+    page tokens are never forgotten, and a new token beyond 64 exhausts the export. The barrier gives each
+    logical retirement its id, reuses it on re-delivery, and accepts a receipt only for its own id.
+  - *The reset* (option (a)). The performance reset's unkeyed MBF retirement is removed:
+    `dispose_all_preview_mechanics_results` is again exactly its pre-4b.2a body, and `reset_native_session` is
+    gone. The workspace sends a keyed retirement at mount (page load included), and the barrier no longer waits
+    for the reset. The ticket, the generation guards and the pre-commit rules are unchanged.
+  - *Tests added:* Rust: the reset leaves a running review and the epoch alone, and the new page's keyed mount
+    retirement stops it; an injected-fault schedule (the resend applied, a fresh review running, the delayed
+    original and an older id of the same page each a no-op with a truthful receipt, a new page token stopping
+    the review); 64 tokens applied, a fresh review running, a delayed duplicate of the oldest a no-op, then a new
+    token exhausting the export (the review stopped, the epoch unmoved, no token evicted, starts refused); a
+    missing, `null` or malformed id refused `MBF-EXPORT-RETIREMENT-ID-INVALID` with nothing cancelled or
+    recorded, and a request without the ingress header or above the argument bound refused at ingress; the
+    earlier retirement tests run with the keyed page-mount retirement in place of the reset. Vitest: ids (one
+    page token, rising sequences, a new token per page); the injected-fault schedule against a host mock that
+    applies the keyed rule, with an in-test control showing a host that ignores the sequence cancels the fresh
+    start; a re-delivery reuses the id and the duplicate receipt acknowledges; a headroom re-send reuses the
+    body; a receipt for another id is no acknowledgement; the workspace mount sends a keyed retirement with no
+    model check or export open, and the first start waits for it; the barrier neither waits for nor sends the
+    reset.
 - **4b.2b** (next, not here): the menu item, the Exports panel action, and mounting the dialog on the barrier's
   `reviewMbfExport` and `saveMbfExport` (already ingress commands, slice 4b.2a's repair), the dialog's close
   calling `retireMbfExportSession`, discarding a result whose `current()` is false, retiring the TypeScript

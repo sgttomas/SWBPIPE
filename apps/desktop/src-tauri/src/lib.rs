@@ -2120,15 +2120,25 @@ async fn save_mbf_export(
 /// waiting run stops waiting, a running worker is killed and its grant
 /// released after the reap, and a save before its commit writes nothing; a
 /// save past its commit completes and is reported too late. The reply
-/// `{cancelled, too_late, epoch}` names the retirement epoch after it: every
-/// later review or save request carries it as its dispatch ticket
-/// (`expectedEpoch`), and a request carrying an earlier one (sent before
-/// this retirement, whenever its task runs) is cancelled. No arguments; with
-/// nothing in progress it cancels nothing but still moves the epoch on (the
-/// frontend's first start in a page uses it as its handshake).
+/// `{cancelled, too_late, epoch, retirement_id}` names the retirement epoch
+/// after it: every later review or save request carries it as its dispatch
+/// ticket (`expectedEpoch`), and a request carrying an earlier one (sent
+/// before this retirement, whenever its task runs) is cancelled. With nothing
+/// in progress it cancels nothing but still moves the epoch on (the frontend's
+/// workspace mount and first start use it as their handshake).
+/// `{retirementId: {page, sequence}}` as an `args-json-v1` raw body: each
+/// logical retirement is applied once (`mbf_worker::MbfRuns::retire_keyed`),
+/// so a duplicate delivery of the same invoke (Tauri's IPC may resend one
+/// through `postMessage` without cancelling the first) or an older one is a
+/// no-op whose reply says `duplicate`; a missing or malformed id is refused
+/// `MBF-EXPORT-RETIREMENT-ID-INVALID`.
 #[tauri::command]
-fn cancel_mbf_export(registry: tauri::State<'_, SolveJobRegistry>, runs: tauri::State<'_, mbf_worker::MbfRuns>) -> mbf_worker::MbfRetirement {
-    runs.retire(registry.pool())
+fn cancel_mbf_export(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+    runs: tauri::State<'_, mbf_worker::MbfRuns>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    respond(mbf_worker::cancel_command(&registry, &runs, invoke.body(), invoke.headers()))
 }
 
 fn choose_mbf_save_path(app: &AppHandle, suggested_file_name: &str, directory: Option<PathBuf>) -> Result<Option<PathBuf>, String> {
@@ -2688,20 +2698,9 @@ fn dispose_preview_mechanics_result(
 fn dispose_all_preview_mechanics_results(
     state: tauri::State<'_, SolveJobRegistry>,
     streams: tauri::State<'_, Arc<native_csv_stream::CsvStreams>>,
-    runs: tauri::State<'_, mbf_worker::MbfRuns>,
 ) -> SolveResultsDisposal {
     // The session reset ends every CSV stream (a fresh webview holds none).
     streams.abort_job(None);
-    reset_native_session(&state, &runs)
-}
-
-/// The session reset's registry part: the page that is gone owned every MBF
-/// export run in progress and every MBF request it sent, which are retired
-/// first (`MbfRuns::cancel_all`; the retirement epoch moves on, so the new
-/// page starts nothing until it has acknowledged a retirement of its own),
-/// then every job, result and model check is retired (`dispose_all_results`).
-fn reset_native_session(state: &SolveJobRegistry, runs: &mbf_worker::MbfRuns) -> SolveResultsDisposal {
-    runs.cancel_all(state.pool());
     state.dispose_all_results()
 }
 
