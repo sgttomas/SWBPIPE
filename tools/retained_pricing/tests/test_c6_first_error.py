@@ -43,17 +43,18 @@ for caller, target in PAIRS:
 # 519, 530, 543, 546, 549, 647, 651, 653, 656, 658, 661, 726, 775, 988, 1002, 1119, 1139).
 # W-16 stage 2 R-c (§8.29): support/support_record's spring-ground parameter moves every site by 4, unchanged text
 # (524, 535, 548, 551, 554, 652, 656, 658, 661, 663, 666, 731, 780, 993, 1007, 1124, 1144).
-CHECKED = 735
-SITE_INVENTORY = ((528,"format","maximum_cover"), (539,"format","maximum_cover"),
-    (552,"to_string","public_mpa_magnitude_in_pa_upper"),
-    (555,"to_string","public_mpa_magnitude_in_pa_upper"),
-    (558,"to_string","public_mpa_magnitude_in_pa_upper"),
-    (656,"into_text","directed_transport_sum"), (660,"to_string","directed_transport_sum"),
-    (662,"to_string","directed_transport_sum"), (665,"to_string","directed_transport_sum"),
-    (667,"into_text","directed_transport_sum"), (670,"to_string","directed_transport_sum"),
-    (CHECKED,"into_text","checked"), (784,"into_text","divided"),
-    (997,"into_text","fallback_circular_maximum"), (1011,"into_text","fallback_circular_maximum"),
-    (1128,"into_text","fallback_circular_maximum"), (1148,"format","fallback_circular_maximum"))
+# S-K1 (§8.55): the skew support and along-group code above them moves every site by 35, unchanged text.
+CHECKED = 770
+SITE_INVENTORY = ((563,"format","maximum_cover"), (574,"format","maximum_cover"),
+    (587,"to_string","public_mpa_magnitude_in_pa_upper"),
+    (590,"to_string","public_mpa_magnitude_in_pa_upper"),
+    (593,"to_string","public_mpa_magnitude_in_pa_upper"),
+    (691,"into_text","directed_transport_sum"), (695,"to_string","directed_transport_sum"),
+    (697,"to_string","directed_transport_sum"), (700,"to_string","directed_transport_sum"),
+    (702,"into_text","directed_transport_sum"), (705,"to_string","directed_transport_sum"),
+    (CHECKED,"into_text","checked"), (819,"into_text","divided"),
+    (1032,"into_text","fallback_circular_maximum"), (1046,"into_text","fallback_circular_maximum"),
+    (1163,"into_text","fallback_circular_maximum"), (1183,"format","fallback_circular_maximum"))
 FORMATS, LEX = [], []
 for line, kind, owner in SITE_INVENTORY:
     row = {"file": CPP, "line": line, "kind": kind, "fn": STATE["keys"][owner]}

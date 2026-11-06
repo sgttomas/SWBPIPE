@@ -51,7 +51,7 @@ RE = "core/reporting/result_export/src/"
 # pub(crate); model_check (model-bound: RT-A4-RM) reads the kept combinations and a declared gate from the new module.
 # No RT-A4-RD owner changes.
 PINS = {PP + "combination_plan.rs": "86e8d1c0686b92579aeee96087e0b6e390ee6729d10a56568228f099e64b6cbb",
-        RE + "preview_combination_gates.rs": "c6bcf2272793cf59df89c4d4c2e0f062939933ccf4d0cbec25f7bc1552d01225",
+        RE + "preview_combination_gates.rs": "f532727d5549a4649d383ed07a0b2c607954c6ca069ea51d26113e1c0bae2f00",
         RE + "combination_graph.rs": "f3a3ca6b332896afd19412ee96e18750c271ae323ca34c46876e382c710eaef8",
         "core/loads/load_case_algebra/src/fixed_load_count.rs": "c234ca4cb3fb6a1360edd8d3f55bd9d6e9d9ecf6a8310d68379096167abb38bf"}
 # (file, statement): each exactly once in its file (the plan's owners, the callee's buffers, the readers' sets).

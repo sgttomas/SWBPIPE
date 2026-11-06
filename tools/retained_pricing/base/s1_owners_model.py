@@ -46,7 +46,7 @@ PP = "core/product_physics/src/"
 # Operating-case slice 1b D3 (§8.51): interim_reasons drops its difference-basis push (D1.4 refused every difference
 # basis, so on D1 it never ran; one push remains, the minuend_final subtrahend's) and the module's comments restate the
 # withholding. withholding() and its owners are unchanged.
-PINS = {PP + "document_members.rs": "6fb0a8769657353a00bfc1e3c0d244e493334994951743a04ae363d180aabeab",
+PINS = {PP + "document_members.rs": "b5f77f9fc24d7d09a7fd3699e6b95d61581d94a7987db09f4fe43334999a7acc",
         PP + "operating_conditions.rs": "e3ddf5bdf79698f3cbd555c9bd3ed125227030e60737760479c6c9fd7cadfa38",
         PP + "spectra.rs": "b1ed575817c3d9ffd4edd16fcfefc1f8e9029c13c2985c9219e868d3e3f69060"}
 # Model document 0.9.0 S2 (§8.40): operating_conditions.rs above is S2's judge/lower split (e3ddf5bd…; S1's was 81460837…)

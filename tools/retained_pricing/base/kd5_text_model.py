@@ -27,7 +27,7 @@ import hashlib, os, re
 # DEL-04-09 I2b-2 layout (§8.43, cc160d28d; Agent 0): the seam's hunks in ordinary layout (one field or statement
 # per line, the qualification let broken after `=`), token-equal but for block-wrapped arms and trailing commas;
 # no literal, label, record constructor or route string changes.
-PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8e95c345590bf4472a4310f155259cb9ced56b58da3c0316b62b0f394', 'magnitude_group': '600d0d42c5dbb53c489b4bf86a1fba82fdcc8d00440e4f86a2cfb6e6d7bfd953', 'member_record': '201b9a9c9390794c15207731efe9f524d1c14f0c80a15afa02b1e3b601580547', 'support_record': '1b5b46b845578a05a14879b1bae657f832f48a5b2122b404350588490571fd44', 'unavailable_record': '79931f5662ae9277f7ddbc008799340757f0e581e29a053cbdd90ff7a0eaf1a6', 'connector_record': '42cbb33f9c55a26951f72198fdbdc017670a472ce85fb80caf83acd5b09e477a', 'straight_stress_spans': '8fa6015c0c0b6ae5c87f241c29b1187f6e3e4a3bc3e624969d37aff1c3164efe', 'fallback_circular_maximum': 'bf5ab4f4c3577ffb0b068e1a9b918793e22b04a8c68764610cec3fe6e648210c', 'fallback_product_up': '5476bd4c93f66d5aee68c465b7da0ee39ab1d123dc75825931f2502cf0b607bb'}, 'core/product_physics/src/formation_guard.rs': {'recovery_finding': 'c499ed59986310186a5825c2043363ca131a5b44d41755a7700e1f7d6c1f5f9b', 'member_group_decision': '76a37c824097b528c638214d913166d24ffa81698222ad9199a511f32f0d5e59'}, 'core/product_physics/src/preview_physics.rs': {'extrema_evidence': 'a79bfa6c33095f97bc672ea78e27a3b768d901399978fac58d5ed9d804f3aac3'}, 'core/product_physics/src/lib.rs': {'solve_load_case_observed': 'cb2a9686a9e5a42373c5c0f10b545cabfcc60ffe4d6a1515bdb19790ffd98b2a', 'solve_prepared_load_case': 'f5aaf1082b7a61da9fccb07a2bb39f9d3196aa4ae0db2ea8485d4ee9241a1c2c'}}
+PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8e95c345590bf4472a4310f155259cb9ced56b58da3c0316b62b0f394', 'magnitude_group': '600d0d42c5dbb53c489b4bf86a1fba82fdcc8d00440e4f86a2cfb6e6d7bfd953', 'member_record': '201b9a9c9390794c15207731efe9f524d1c14f0c80a15afa02b1e3b601580547', 'support_record': '8175571355e36d701e08c6fb2e86981082d8184cfb72d390562fb32b2925e92f', 'unavailable_record': '79931f5662ae9277f7ddbc008799340757f0e581e29a053cbdd90ff7a0eaf1a6', 'connector_record': '42cbb33f9c55a26951f72198fdbdc017670a472ce85fb80caf83acd5b09e477a', 'straight_stress_spans': '8fa6015c0c0b6ae5c87f241c29b1187f6e3e4a3bc3e624969d37aff1c3164efe', 'fallback_circular_maximum': 'bf5ab4f4c3577ffb0b068e1a9b918793e22b04a8c68764610cec3fe6e648210c', 'fallback_product_up': '5476bd4c93f66d5aee68c465b7da0ee39ab1d123dc75825931f2502cf0b607bb'}, 'core/product_physics/src/formation_guard.rs': {'recovery_finding': 'c499ed59986310186a5825c2043363ca131a5b44d41755a7700e1f7d6c1f5f9b', 'member_group_decision': '76a37c824097b528c638214d913166d24ffa81698222ad9199a511f32f0d5e59'}, 'core/product_physics/src/preview_physics.rs': {'extrema_evidence': 'a79bfa6c33095f97bc672ea78e27a3b768d901399978fac58d5ed9d804f3aac3'}, 'core/product_physics/src/lib.rs': {'solve_load_case_observed': 'cb2a9686a9e5a42373c5c0f10b545cabfcc60ffe4d6a1515bdb19790ffd98b2a', 'solve_prepared_load_case': 'b71598a00a79be55cdd5f2b4751e53bb3b69daa73d15d74353e1ba5fe431d095'}}
 # Epoch addbdc030e: solve_prepared_load_case's `pipe_sections` is `exact_pipe_sections(built)`, the same entries plus
 # the realized-arc marker on a realized arc (none on D1); no record constructor or label changes.
 # T4-U6/U8 D3 (retained-pricing-rules.md, "T4-U6/U8: actual-source D3"): straight_stress_spans,
@@ -72,7 +72,7 @@ PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8
 # RT-A3 §4 D3 (§8.53): solve_prepared_load_case sets LoadCaseSolve.certificate_operand (None at every early return;
 # combination_certificate::operand's value with a combination and a formed member bound). No literal, label, record
 # constructor, route string, carrier, staging, fallback attempt or first-return alternative changes.
-PRODUCTION_PINS = {'core/product_physics/src/certified_publication.rs': 'b2876daebb052a9981eb4e9249dba5d390e7f0bee82e24fb6ca6b14e0dfe194c', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': 'a1701363ac1dc5b08d457abbad7ba0d435852c01cd3258eb9403e1c681f94cdc', 'core/solver/frame_kernel/src/exact_sum.rs': '35ae1c71195a95d88669c658965198e7dc2476cf32d948e4bfc62ef184e1051c'}
+PRODUCTION_PINS = {'core/product_physics/src/certified_publication.rs': '7f616539d121dd08b3dda69747f86b9fdce6808da3f2317aec0f2f127796de88', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': '8e505d4ca5f254a33a52502acb14245587f0378cac880087592315addd669064', 'core/solver/frame_kernel/src/exact_sum.rs': '35ae1c71195a95d88669c658965198e7dc2476cf32d948e4bfc62ef184e1051c'}
 
 def function_body(text, name):
     hits = list(re.finditer(r"^(?:pub(?:\([a-z]+\))?\s+)?fn\s+" + re.escape(name) + r"\b", text, re.M))
@@ -245,7 +245,7 @@ def inspect_directed_helpers(snapshot):
 # Operating-case slice 1b D3 (§8.51, merge of 41142f4a3): lib.rs's three 1b items are folded onto existing lines;
 # they add or remove no `.min(`/`.max(` call (2 and 11 on the basis and the head), and the observation lane stays
 # deleted.
-B7A_PRIMITIVE_LIB_SOURCE_PIN = '072b3b8c10c700b29cbcdb2b726fe9a24be726251a90681a9fbe7c1c6d1ae4d2'
+B7A_PRIMITIVE_LIB_SOURCE_PIN = 'fc58bd265cf557a333d37e89a27e6e196ffdfdd2883446c92830be00b0a5586b'
 
 
 def primitive_lib_minmax_callers(snapshot):
@@ -296,7 +296,7 @@ FALLBACK_OUTSIDE_CALLERS = (
     # B7a E14/C5: row slots and arc metadata changed; the sole divided
     # receiver remains frame_kernel::CertifiedRow, not FallbackError.
     # T4-S5 (U4b): render appends the case's directional records (`extend(take(..))`); still one divided call.
-    ("preview_physics.rs", "render", ("divided",), "b73446574f9ccb4d27044af6212a9c82a5764e55d2fcf7b37d3a7b30c2928cc4"),
+    ("preview_physics.rs", "render", ("divided",), "d2d07ff83274767c91b3e1c8618f0b74b211fc5754439db0dad84826e88a609e"),
     ("retained_memory.rs", "strings", ("add",), "b34bc5c8a6f6863d21fd93b87baae4f33e47467d1f639086650fe6a22bd1a585"),
     # The N06 capture adds pending error capacity positively. Every add
     # receiver remains this module's Bytes accumulator, not FallbackError.

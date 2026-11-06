@@ -27,6 +27,9 @@ FK = "core/solver/frame_kernel/src/"
 # carry +3, and sparse.rs's load_fidelity +100 and audit_sparse_load_fidelity +291 (P's binary64 preparation and
 # pattern siblings precede them), unchanged text and callers. lib.rs's helpers carry +27 (RT-A3 §4's LoadCaseSolve
 # field, operand map and publish lines precede them), unchanged text.
+# R-6/R-7 S-K1 D3 (§8.55): sparse.rs gains SparseStiffness::from_pattern_values and SparseAssemblyOptions' node_blocks
+# member, constructor and accessors above both keys, so load_fidelity and audit_sparse_load_fidelity carry +53
+# (1318 -> 1371, 2182 -> 2235), unchanged text and callers; structural.rs's export list changes in place (no line moves).
 SOURCE_LINE = 1305
 SOURCE_SITE = FK + "structural.rs:%d" % SOURCE_LINE
 SOURCE_OWNER = FK + 'structural.rs:1304:row_sources'
@@ -78,7 +81,7 @@ SOURCE_WHY = ("B7a row-source ownership: audited success or terminal Range fallb
               "are exclusive per DOF; partitioned force terms are cloned at most q "
               "per full audit; both caller counts/String128/capacity2 remain")
 PREIMAGES = {'source_from': {'from': ['structural.rs:1243:audit_load_fidelity',
-                          'structural/sparse.rs:2182:audit_sparse_load_fidelity'],
+                          'structural/sparse.rs:2235:audit_sparse_load_fidelity'],
                  'per': '24*l',
                  'why': 'B7a: both audited callers retain their complete2*q source-copy upper before '
                         'row-local dedup; String128/capacity2 remain. Was: G4 (R-1, newly reached): '
@@ -280,12 +283,12 @@ PREIMAGES = {'source_from': {'from': ['structural.rs:1243:audit_load_fidelity',
  'parents': {'core/solver/frame_kernel/src/structural.rs:1304:row_sources': ['core/solver/frame_kernel/src/structural.rs:1312:unaudited_row',
                                                                              'core/solver/frame_kernel/src/structural.rs:1341:audit_load_row'],
              'core/solver/frame_kernel/src/structural.rs:1312:unaudited_row': ['core/solver/frame_kernel/src/structural.rs:1243:audit_load_fidelity',
-                                                                               'core/solver/frame_kernel/src/structural/sparse.rs:2182:audit_sparse_load_fidelity'],
+                                                                               'core/solver/frame_kernel/src/structural/sparse.rs:2235:audit_sparse_load_fidelity'],
              'core/solver/frame_kernel/src/structural.rs:1341:audit_load_row': ['core/solver/frame_kernel/src/structural.rs:1243:audit_load_fidelity',
-                                                                                'core/solver/frame_kernel/src/structural/sparse.rs:2182:audit_sparse_load_fidelity'],
+                                                                                'core/solver/frame_kernel/src/structural/sparse.rs:2235:audit_sparse_load_fidelity'],
              'core/product_physics/src/retained_product.rs:3319:validate_final_metadata': ['core/product_physics/src/retained_product.rs:2553:bind_rows_subject'],
              'core/solver/frame_kernel/src/structural.rs:1243:audit_load_fidelity': ['core/solver/frame_kernel/src/structural.rs:565:load_fidelity'],
-             'core/solver/frame_kernel/src/structural/sparse.rs:2182:audit_sparse_load_fidelity': ['core/solver/frame_kernel/src/structural/sparse.rs:1318:load_fidelity'],
+             'core/solver/frame_kernel/src/structural/sparse.rs:2235:audit_sparse_load_fidelity': ['core/solver/frame_kernel/src/structural/sparse.rs:1371:load_fidelity'],
              'core/product_physics/src/retained_product.rs:2553:bind_rows_subject': ['core/product_physics/src/retained_product.rs:2537:bind_combination_rows_scoped',
                                                                                      'core/product_physics/src/retained_product.rs:2546:bind_rows_view',
                                                                                      'core/product_physics/src/retained_product.rs:7394:freeze_combination']},
@@ -304,17 +307,17 @@ PREIMAGES = {'source_from': {'from': ['structural.rs:1243:audit_load_fidelity',
                  ['core/solver/frame_kernel/src/structural.rs:1341:audit_load_row',
                   'core/solver/frame_kernel/src/structural.rs:1304:row_sources',
                   [[]]],
-                 ['core/solver/frame_kernel/src/structural/sparse.rs:2182:audit_sparse_load_fidelity',
+                 ['core/solver/frame_kernel/src/structural/sparse.rs:2235:audit_sparse_load_fidelity',
                   'core/solver/frame_kernel/src/structural.rs:1341:audit_load_row',
                   [['for i in 0..n']]],
-                 ['core/solver/frame_kernel/src/structural/sparse.rs:2182:audit_sparse_load_fidelity',
+                 ['core/solver/frame_kernel/src/structural/sparse.rs:2235:audit_sparse_load_fidelity',
                   'core/solver/frame_kernel/src/structural.rs:1312:unaudited_row',
                   [['for i in 0..n']]],
                  ['core/solver/frame_kernel/src/structural.rs:565:load_fidelity',
                   'core/solver/frame_kernel/src/structural.rs:1243:audit_load_fidelity',
                   [[]]],
-                 ['core/solver/frame_kernel/src/structural/sparse.rs:1318:load_fidelity',
-                  'core/solver/frame_kernel/src/structural/sparse.rs:2182:audit_sparse_load_fidelity',
+                 ['core/solver/frame_kernel/src/structural/sparse.rs:1371:load_fidelity',
+                  'core/solver/frame_kernel/src/structural/sparse.rs:2235:audit_sparse_load_fidelity',
                   [[]]],
                  ['core/product_physics/src/retained_product.rs:2537:bind_combination_rows_scoped',
                   'core/product_physics/src/retained_product.rs:2553:bind_rows_subject',

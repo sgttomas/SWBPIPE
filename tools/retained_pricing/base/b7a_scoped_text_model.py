@@ -126,7 +126,9 @@ LEX_CURRENT = {
     # body set), unchanged text.
     # RT-A3 increment 1 D3 (§8.33): 635 -> 636 (Association's doc line), unchanged text.
     # RT-A4 D3 (§8.46): 636 -> 642 (Rendered::evidence's derivation parameter and doc lines), unchanged text.
-    'preview_physics.rs:642': {'class': 47, 'why': WHY + '; arc basis literal'},
+    # R-6/R-7 S-K1 D3 (§8.55): 642 -> 651 (LINEAR_STATE_KINDS' along-direction entry and its comment, CaseRecord's
+    # along_directions member and doc, final_id's case_named_id line), unchanged text.
+    'preview_physics.rs:651': {'class': 47, 'why': WHY + '; arc basis literal'},
     'lib.rs:%d' % LN['unit_message']: {'class': 600, 'why': WHY + '; unit-conversion owned message'},
     'pressure_runtime.rs:%d' % LN['join']: {'class': 644, 'why': WHY + '; complete five-ref joined spelling'},
 }
