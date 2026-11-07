@@ -357,7 +357,9 @@ for explicitly authored test pressure plus the narrow contents consumer.
 DEL-05-01 owns the single lowerer/contents resolver, provenance/staleness,
 authoring and user/result/report workflow. RT-A3 owns the complete device plan,
 EX assembly/recovery/source ledger, H-a and the HYDROTEST mechanical prerequisite
-references. It reconciles R-4 in its own change. Necessary guide/theory prose
+references. RT-A3's delivered docs-only R-4 reconciliation (`4ad92c2ab`) is
+integrated here with its authorship preserved, so the two governing contracts
+are reviewed together; no S6 production ancestor is included. Necessary guide/theory prose
 must distinguish the current refusals from this planned behavior. Step 0
 provides no production hook, schema change, native entry or modal edit, and
 changes no release-target criterion or accepted limitation.
