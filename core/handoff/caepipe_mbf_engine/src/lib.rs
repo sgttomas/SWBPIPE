@@ -31,6 +31,7 @@ mod correctly_rounded;
 mod decimal90;
 mod export_review;
 mod export_settings;
+mod import_review;
 mod importer;
 mod pyfmt;
 mod pyjson;
@@ -50,6 +51,10 @@ pub use export_review::{
 };
 pub use export_settings::{
     export_settings_from_json, ExportSettingsError, EXPORT_SETTINGS_INVALID, MAX_EXPORT_SETTINGS_JSON_BYTES, MAX_EXPORT_TITLE_BYTES,
+};
+pub use import_review::{
+    import_review, ImportReview, ImportReviewSource, ImportReviewSummary, ReviewDocumentCheck, ReviewModel, ReviewedIdentityFile, ASSUMPTION_UNAVAILABLE,
+    IDENTITY_MAPS, IMPORT_REVIEW_DOCUMENT_KIND, IMPORT_REVIEW_FORMAT, IMPORT_REVIEW_TRUNCATED, MODEL_TOO_LARGE, NOT_ADOPTABLE,
 };
 pub use pyjson::{SidecarJsonError, MAX_NESTING as MAX_SIDECAR_NESTING};
 pub use pystr::PyError;
@@ -152,6 +157,25 @@ impl std::fmt::Display for ImportError {
 
 impl std::error::Error for ImportError {}
 
+/// One applied mapping assumption as a stable identifier and structured parameters (DEL-17-04 Design
+/// `desktop-mbf-export-import.md` §4.3, REQ-015): the desktop review's source-safe counterpart of one entry of
+/// [`ImportResult::assumptions`], recorded by the importer at the same emission and under the same condition, in the
+/// same order. It is review support only: the assumption strings, the report, the model and the id map are unchanged.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AssumptionFact {
+    /// One of [`ASSUMPTION_IDS`], or [`ASSUMPTION_ID_UNAVAILABLE`] for an emission the importer has no structured
+    /// form of (the review then blocks adoption, `MBF-IMPORT-ASSUMPTION-UNAVAILABLE`).
+    pub id: &'static str,
+    /// `(name, value)` in a fixed order per identifier; every value is engine data, never a sentence.
+    pub parameters: Vec<(&'static str, String)>,
+}
+
+/// The identifier of an assumption the importer emitted without a structured form: it blocks adoption.
+pub const ASSUMPTION_ID_UNAVAILABLE: &str = "unavailable";
+
+/// Every structured assumption identifier the importer records ([`AssumptionFact::id`]).
+pub const ASSUMPTION_IDS: [&str; 16] = importer::ASSUMPTION_IDS;
+
 /// `MbfImportResult`.
 #[derive(Clone, Debug)]
 pub struct ImportResult {
@@ -160,6 +184,8 @@ pub struct ImportResult {
     pub diagnostics: Vec<Value>,
     pub loss_report: Vec<Value>,
     pub assumptions: Vec<String>,
+    /// The structured counterpart of each entry of `assumptions`, in the same order (not part of `to_dict()`).
+    pub assumption_facts: Vec<AssumptionFact>,
     pub target_options: Dict,
     pub id_map: Value,
     pub source: Value,

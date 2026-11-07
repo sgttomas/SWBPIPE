@@ -1,7 +1,7 @@
 //! importer.py: legacy sidecar agreement checks, restored directions and the assumptions list.
 
 use super::assemble::{LABEL_SUSTAINED, STANDARD_GRAVITY};
-use super::{tenth_digit, Element, Importer, Num, IMPORT_PROFILE_ID, R};
+use super::{convention_key, fact, tenth_digit, Element, Importer, Num, IMPORT_PROFILE_ID, R};
 use crate::pyfmt::{py_float_repr, py_repr};
 use crate::pymath::{asin, degrees, hypot, py_max, py_min, radians, sin, sum};
 use crate::pystr::{py_repr_str, PyError};
@@ -9,6 +9,7 @@ use crate::rational::Q;
 use crate::runtime::{norm, sub};
 use crate::sidecar::direction_axis;
 use crate::value::{py_eq, Value};
+use crate::ASSUMPTION_ID_UNAVAILABLE;
 use std::collections::{BTreeSet, HashMap};
 
 impl<'a> Importer<'a> {
@@ -275,11 +276,24 @@ impl<'a> Importer<'a> {
              keep their MBF unit.",
             if self.rad { "rad" } else { "deg" }
         ));
+        self.assumption_facts.push(fact(
+            "units_and_axes",
+            vec![
+                ("profile_id", IMPORT_PROFILE_ID.to_string()),
+                ("mbf_version", version.clone()),
+                ("unit_mode", if self.si { "SI" } else { "English" }.to_string()),
+                ("angles", if self.rad { "rad" } else { "deg" }.to_string()),
+                ("vertical_axis", if self.z_vertical { "Z" } else { "Y" }.to_string()),
+                ("rotation", if self.z_vertical { "z_to_y_exact" } else { "none" }.to_string()),
+            ],
+        ));
         self.assumptions.push(
             "Node positions are summed from the printed offsets as exact rationals and rounded to binary64 once per node."
                 .into(),
         );
+        self.assumption_facts.push(fact("offset_summation_exact", vec![("rounding", "binary64_once_per_node".to_string())]));
         if !self.si {
+            self.assumption_facts.push(fact("english_units_reexport_normalized", vec![("reference_temperature_unit", "degF".to_string())]));
             self.assumptions.push(
                 "English imports keep their US-customary units; the SI writer re-exports them by its exact \
                  normalization to the SI profile (O-2, MBF-SI-UNITS-NORMALIZED), with the reference temperature passed \
@@ -294,7 +308,15 @@ impl<'a> Importer<'a> {
                 "Weight density in kgf/m3 becomes weight per length w = -rho * {gravity} * A in N/m along global -Y (1 \
                  kgf = {gravity} N), A the bare-metal area pi/4 (OD^2 - ID^2); weight acts on bare metal only."
             ));
+            self.assumption_facts.push(fact(
+                "bare_metal_weight",
+                vec![("density_unit", "kgf/m3".to_string()), ("weight_unit", "N/m".to_string()), ("standard_gravity", gravity.clone())],
+            ));
         } else if !self.si {
+            self.assumption_facts.push(fact(
+                "bare_metal_weight",
+                vec![("density_unit", "lbf/in3".to_string()), ("weight_unit", "lbf/in".to_string()), ("standard_gravity", "none".to_string())],
+            ));
             self.assumptions.push(
                 "Weight density in lbf/in3 becomes weight per length w = -rho * A in lbf/in along global -Y, A the \
                  bare-metal area; weight acts on bare metal only."
@@ -306,13 +328,23 @@ impl<'a> Importer<'a> {
              coefficient on every temperature line)."
                 .into(),
         );
+        self.assumption_facts.push(fact("shear_modulus_derived_temperature_independent", vec![("relation", "G=E/(2(1+nu))".to_string())]));
         self.assumptions.push(format!(
             "Thermal change per element is T1 - T_ref (OPTEMP); zero changes give no primitive. Section corrosion, mill \
              tolerance, insulation and lining fields given as zero are written as absent{}",
             if self.pressure_notes.is_empty() { "." } else { ", except the corrosion allowance under pressure." }
         ));
+        self.assumption_facts.push(fact(
+            "thermal_difference_zero_fields",
+            vec![
+                ("thermal_change", "T1-T_ref".to_string()),
+                ("corrosion_allowance_under_pressure", if self.pressure_notes.is_empty() { "false" } else { "true" }.to_string()),
+            ],
+        ));
         let notes = self.pressure_notes.clone();
         self.assumptions.extend(notes);
+        let facts = self.pressure_facts.clone();
+        self.assumption_facts.extend(facts);
         let kinds: BTreeSet<&str> = self.build.node_data.values().flat_map(|record| record.supports.iter().map(|item| item.kind)).collect();
         let flexible = self.build.node_data.values().any(|record| !record.anchor.is_empty() && !record.trak.is_empty());
         let unit = if self.si { "N/mm" } else { "lbf/in" };
@@ -337,9 +369,16 @@ impl<'a> Importer<'a> {
         for (kind, note) in notes {
             if kinds.contains(kind) {
                 self.assumptions.push(note.into());
+                let id = match kind {
+                    "guide" => "support_guide",
+                    "stop" => "support_limit_stop",
+                    _ => "support_skewed",
+                };
+                self.assumption_facts.push(fact(id, vec![("stiffness_unit", unit.to_string())]));
             }
         }
         if flexible {
+            self.assumption_facts.push(fact("support_flexible_anchor", vec![("zero_stiffness", "dof_free".to_string())]));
             self.assumptions.push(
                 "A flexible anchor (KA with TRAK and ROTK(0,0,0)) is a spring on each translation with a non-zero \
                  stiffness; a zero stiffness leaves its DOF free (technical reference, Anchor)."
@@ -349,6 +388,7 @@ impl<'a> Importer<'a> {
         let stiff = self.build.node_data.values().any(|record| record.supports.iter().any(|item| item.stiffness.is_some()));
         if kinds.iter().any(|kind| *kind != "guide") || flexible || stiff {
             self.assumptions.push(format!("Spring stiffnesses keep their MBF unit, {unit}."));
+            self.assumption_facts.push(fact("spring_stiffness_unit", vec![("unit", unit.to_string())]));
         }
         let gravity_key = ("gravity".to_string(), "the earth gravity setting".to_string());
         if self.used_conventions.contains(&gravity_key) {
@@ -358,6 +398,7 @@ impl<'a> Importer<'a> {
                  gravity in the documented layout's unit); weights are imported as earth weights along -Y."
                     .into(),
             );
+            self.assumption_facts.push(fact("earth_gravity_weight", vec![("direction", "-Y".to_string())]));
         }
         let mut conventions = self.used_conventions.clone();
         conventions.sort();
@@ -375,8 +416,22 @@ impl<'a> Importer<'a> {
             let mut chars = what.chars();
             let first = chars.next().map(|c| c.to_uppercase().collect::<String>()).unwrap_or_default();
             self.assumptions.push(format!("{first}{} {meaning}; basis: {source}.", chars.as_str()));
+            self.assumption_facts.push(match convention_key(&what) {
+                Some((convention, effect)) => fact(
+                    "binding_convention",
+                    vec![
+                        ("basis", if basis == "bound" { "bound" } else { "profile_decision_pd1" }.to_string()),
+                        ("convention", convention.to_string()),
+                        ("effect", effect.to_string()),
+                        ("mbf_version", version.clone()),
+                    ],
+                ),
+                None => fact(ASSUMPTION_ID_UNAVAILABLE, vec![("emission", "binding_convention".to_string())]),
+            });
         }
         self.assumptions.push("No combinations are created; CAEPIPE forms its own load combinations.".into());
+        self.assumption_facts.push(fact("no_combinations_created", Vec::new()));
+        debug_assert_eq!(self.assumptions.len(), self.assumption_facts.len());
         Ok(())
     }
 }

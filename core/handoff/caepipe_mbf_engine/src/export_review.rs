@@ -144,11 +144,11 @@ pub struct ReviewAllowanceTooSmall {
 // -- serialization ---------------------------------------------------------------------------------------------------
 
 /// Where the serializer writes: a counter (to size a part before writing it) or the text.
-trait Sink {
+pub(crate) trait Sink {
     fn push(&mut self, text: &str);
 }
 
-struct Count(usize);
+pub(crate) struct Count(pub(crate) usize);
 
 impl Sink for Count {
     fn push(&mut self, text: &str) {
@@ -162,7 +162,7 @@ impl Sink for String {
     }
 }
 
-fn push_u64<S: Sink>(out: &mut S, mut value: u64) {
+pub(crate) fn push_u64<S: Sink>(out: &mut S, mut value: u64) {
     let mut digits = [0_u8; 20];
     let mut at = digits.len();
     loop {
@@ -183,7 +183,7 @@ fn push_i64<S: Sink>(out: &mut S, value: i64) {
     push_u64(out, value.unsigned_abs());
 }
 
-fn push_bool<S: Sink>(out: &mut S, value: bool) {
+pub(crate) fn push_bool<S: Sink>(out: &mut S, value: bool) {
     out.push(if value { "true" } else { "false" });
 }
 
@@ -195,7 +195,7 @@ fn push_hex4<S: Sink>(out: &mut S, unit: u32) {
 
 /// `text` as a JSON string of printable ASCII: `"` and `\` escaped, the usual short escapes, and every other control,
 /// DEL or non-ASCII character as `\u` (a surrogate pair beyond the BMP). Written in runs, with no copy of `text`.
-fn push_json_str<S: Sink>(out: &mut S, text: &str) {
+pub(crate) fn push_json_str<S: Sink>(out: &mut S, text: &str) {
     out.push("\"");
     let mut start = 0;
     for (at, ch) in text.char_indices() {
@@ -230,7 +230,7 @@ fn push_json_str<S: Sink>(out: &mut S, text: &str) {
 }
 
 /// Lowercase hex SHA-256 of `bytes`, on the stack.
-fn sha256_hex(bytes: &[u8]) -> [u8; 64] {
+pub(crate) fn sha256_hex(bytes: &[u8]) -> [u8; 64] {
     const HEX: &[u8; 16] = b"0123456789abcdef";
     let digest = Sha256::digest(bytes);
     let mut out = [0_u8; 64];
@@ -252,7 +252,7 @@ fn char_floor(text: &str, bound: usize) -> usize {
 
 /// A string field: as a JSON string when it is at most [`REVIEW_FIELD_MAX_BYTES`], else as
 /// `{"prefix":…,"bytes":…,"sha256":…}`, formed from `text` in place.
-fn push_field<S: Sink>(out: &mut S, text: &str) {
+pub(crate) fn push_field<S: Sink>(out: &mut S, text: &str) {
     if text.len() <= REVIEW_FIELD_MAX_BYTES {
         push_json_str(out, text);
         return;
@@ -266,7 +266,7 @@ fn push_field<S: Sink>(out: &mut S, text: &str) {
     out.push("\"}");
 }
 
-fn push_optional_field<S: Sink>(out: &mut S, text: Option<&str>) {
+pub(crate) fn push_optional_field<S: Sink>(out: &mut S, text: Option<&str>) {
     match text {
         Some(text) => push_field(out, text),
         None => out.push("null"),
