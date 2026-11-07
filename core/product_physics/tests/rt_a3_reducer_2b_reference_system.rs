@@ -1110,3 +1110,81 @@ fn a_rigid_surrogate_of_rs_r1_publishes_bit_identical_rows() {
         assert_eq!(values(&a), values(&b), "{shear}");
     }
 }
+
+
+/// RT-S3 F-CE: ordinary/no-NL reproduction on main 00832d746. The former
+/// fallback published CE Fz=0 although the ledger and applied row consumed 9000 N.
+/// Keep the actual reference topology/materials/cases, overlay only the already
+/// specified R1 and CE1, and regenerate W on the complete overlaid source.
+#[test]
+fn rt_s3_consumed_constant_effort_is_published_on_sensitive_no_nonlinear_reference_system() {
+    const CE: &str = "support:RS-CE1";
+    let mut model = overlay(EB, Some(r1(false)), true).model;
+    assert!(model["supports"].as_array().unwrap().iter().all(|s| s.get("nonlinear").is_none()));
+    assert!(model["supports"].as_array().unwrap().iter().all(|s| s["id"] != CE));
+    let p = model["supports"][0]["provenance"].clone();
+    model["supports"].as_array_mut().unwrap().push(json!({"id": CE, "node": "node:RS-100", "family": "constant_effort_support",
+        "restraints": ["UZ"], "hanger": {"hanger_type": "constant_effort_support", "constant_load": q(9000.0, "N"),
+            "travel_range": q(50.0, "mm"), "source_reference": SOURCE}, "provenance": p}));
+    for c in model["load_cases"].as_array_mut().unwrap() {
+        c["analysis_state"]["support_states"].as_array_mut().unwrap()
+            .push(json!({"support_ref": CE, "participation": {"kind": "active_model_device"}}));
+    }
+    let mut base = model.clone();
+    base["load_cases"] = json!([]);
+    base["combinations"] = json!([]);
+    let source_hash = format!("sha256:{:x}", Sha256::digest(canonical_json(&base).as_bytes()));
+    let typed: PreviewModel = serde_json::from_value(base).unwrap();
+    let pipes = weighted_pipes(&model);
+    for c in model["load_cases"].as_array_mut().unwrap() {
+        let request = SelfWeightRequest {
+            case_id: c["id"].as_str().unwrap().into(), label: c["label"].as_str().unwrap().into(), pipe_refs: pipes.clone(),
+            gravity: SelfWeightGravity { value: -9.80665, unit: "m/s^2".into(), axis: "global_z".into() },
+            provenance: c["provenance"].as_str().unwrap().into(), source_model_hash: source_hash.clone(),
+        };
+        let plan = generate_self_weight_operations(&typed, &request).unwrap();
+        assert!(plan.warnings.is_empty(), "{:?}", plan.warnings);
+        let loads: Vec<Value> = plan.changes[1..].iter().map(|change| serde_json::from_str(&change.after).unwrap()).collect();
+        for load in &loads {
+            let evidence: Value = serde_json::from_str(load["provenance"].as_str().unwrap()).unwrap();
+            assert_eq!(evidence["source_model_hash"], source_hash);
+        }
+        c["analysis_state"]["load_sources"] = json!(loads.iter().map(|l| json!({"source_ref": l["id"], "factor": 1.0})).collect::<Vec<_>>());
+        c["primitive_loads"] = json!(loads);
+    }
+    let original = fixture();
+    for key in ["nodes", "pipe_segments", "sections", "materials", "reference_configurations", "combinations", "pressure_contract"] {
+        assert_eq!(model[key], original[key], "the CE publication test preserves {key}");
+    }
+    let mut checked = Vec::new();
+    for mode in MODES {
+        let label = format!("RT-S3 no-NL {mode:?}");
+        let envelope = solve(&model, mode);
+        assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{label}: {:?}", blocking(&envelope));
+        assert_eq!(envelope["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/pressure-2");
+        assert!(with_code(&envelope, "SOURCE_BLOCK_RECOVERY_SELECTED").is_empty(), "{label}: ordinary publication");
+        for case in CASES {
+            let id = format!("diagnostic:numerical-integrity:{case}");
+            let integrity: Vec<_> = diagnostics(&envelope).iter().filter(|d| d["id"] == id).collect();
+            assert_eq!(integrity.len(), 1);
+            assert_eq!(integrity[0]["code"], "NUMERICAL_INTEGRITY_SENSITIVE", "{label} {case}: no standing promotion");
+        }
+        assert_eq!(reader_verdict::validate("pressure", &envelope, Some(&model), None)["ok"], true, "{label}: model-bound reader");
+        assert_eq!(reader_verdict::validate("pressure", &envelope, None, None)["ok"], true, "{label}: standalone reader");
+        let rows = Rows::new(&envelope);
+        for case in CASES {
+            assert_eq!(rows.get("constant_effort_support_applied_load", CE, case, None, None, ""), 9000.0);
+            for (k, component) in ["Fx", "Fy", "Fz", "Mx", "My", "Mz"].iter().enumerate() {
+                let got = rows.get("support_reaction_component_v2", CE, case, None, Some(component), "");
+                checked.push((label.clone(), case, *component, got, if k == 2 { 9000.0_f64 } else { 0.0 }));
+            }
+        }
+        // Uses the frozen independent weight/first-moment record, with R1's
+        // specified replacement weight. Every support action, including CE,
+        // enters once; no applied-row substitution can hide a bad publication.
+        check_eq(&model, &rows, &label);
+    }
+    for (label, case, component, got, expected) in checked {
+        assert_eq!(got.to_bits(), expected.to_bits(), "{label} {case} {component}");
+    }
+}

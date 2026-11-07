@@ -40,6 +40,11 @@ Own the product adapter implementation of section/mass conversion against DEL-03
 
 Preserve typed diagnostic, unit and provenance information across product composition and result handoff.
 
+For a consumed DEC-049 constant-effort device, both fallback and certified support-action publication restate
+the normalized force actually consumed on its declared positive global DOF, with zero other components. This
+uses the existing consumption law and adds no solve restraint or inferred value. The pre-existing RT-S3
+fallback-publication defect and source-repair qualification limits are explicit in [Work/pressure-contract.md](Work/pressure-contract.md).
+
 ## Completion and Reliance Basis — Epistemology
 
 Each requirement needs named candidate-bound evidence. Existing code, route visibility or historical tests alone do not establish current conformance.

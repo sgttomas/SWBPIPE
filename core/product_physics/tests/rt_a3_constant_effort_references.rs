@@ -1143,3 +1143,44 @@ fn ce3_load_state_documents_bind_and_the_force_cancels_in_o_minus_s() {
         }
     }
 }
+
+
+/// RT-S3: the qualified publication keeps the normalized DEC-049 force and
+/// global sign/frame on all three translational axes. Independent root balance
+/// checks the consumed force once; the existing frozen CE references are unchanged.
+#[test]
+fn rt_s3_certified_constant_effort_uses_normalized_positive_global_axes() {
+    let refs = references();
+    let ce = case(&refs, "CE1-EB");
+    for mode in MODES {
+        for (axis, dof) in ["UX", "UY", "UZ"].iter().enumerate() {
+            let mut document = plain_document(&refs, ce, true);
+            let record = constant_effort_record(&mut document);
+            record["restraints"] = json!([dof, "RY"]); // Rotation is not a second acting translation.
+            record["hanger"]["constant_load"] = quantity(7.25, "kN");
+            let label = format!("RT-S3 certified {mode:?} {dof}");
+            let envelope = solved(&document, mode, &label);
+            assert_eq!(with_code(&envelope, "NUMERICAL_INTEGRITY_CHECKS_PASSED").len(), 1, "{label}: certified route");
+            assert!(with_code(&envelope, "SOURCE_BLOCK_RECOVERY_SELECTED").is_empty());
+            let at = case_at("case:main");
+            assert_eq!(row(&envelope, at, APPLIED, "support:CE1", None, None, ""), 7250.0);
+            let mut net = [0.0, 0.0, -3000.0]; // Authored tip load, independently of output.
+            net[axis] += 7250.0;
+            let root = [-net[0], -net[1], -net[2], 0.0, 5.0 * net[2], -5.0 * net[1]]; // -r x F, r=(5,0,0).
+            for (k, component) in ["Fx", "Fy", "Fz", "Mx", "My", "Mz"].iter().enumerate() {
+                let got = row(&envelope, at, "support_reaction_component_v2", "support:CE1", None, Some(component), "");
+                let expected: f64 = if k == axis { 7250.0 } else { 0.0 };
+                assert_eq!(got.to_bits(), expected.to_bits(), "{label} {component}");
+                close(row(&envelope, at, "support_reaction_component_v2", "support:A", None, Some(component), ""), root[k], 7250.0, &format!("{label} root {component}"));
+            }
+            let actions: Vec<_> = envelope["results"].as_array().unwrap().iter()
+                .filter(|r| r["kind"] == "support_reaction_component_v2" && r["entity_ref"] == "support:CE1" && r["basis_ref"]["ref_id"] == "case:main").collect();
+            assert_eq!(actions.len(), 6);
+            for r in actions {
+                assert_eq!(r["metadata"]["coordinate_system"], "global");
+                assert_eq!(r["metadata"]["location"], "node");
+                assert_eq!(r["unit"], if r["metadata"]["component"].as_str().unwrap().starts_with('F') { "N" } else { "N*m" });
+            }
+        }
+    }
+}

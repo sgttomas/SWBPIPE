@@ -55,7 +55,9 @@ needs:
 - from: DEL-04-03
   condition: >-
     DEL-04-07 maps authored restraints and springs to DEL-04-03's linear support models (`linear_supports`)
-    and publishes their reactions. The support laws remain DEL-04-03's.
+    and publishes their reactions. Consumed DEC-049 constant-effort device actions are restated from the
+    normalized consumption source on the declared positive global DOF in fallback and certified publication;
+    unconsumed records supply no default force. The support laws remain DEL-04-03's.
   gating: true
   evidence: core/product_physics/Cargo.toml
 - from: DEL-04-04

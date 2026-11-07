@@ -6256,6 +6256,12 @@ fn solve_prepared_load_case(
             let source_action = selected_source.as_ref().and_then(|recovery| recovery.support_actions().iter().find(|action| action.support_id == support.id));
             if let Some(action) = source_action {
                 vector = action.values;
+            } else if support.nonlinear.is_none() && is_constant_effort_support(support) {
+                // DEC-049: use the same normalized consumption as the case's load ledger.
+                // The ideal device has no restraint, spring or nonlinear reaction entry.
+                if let Ok(application) = classify_constant_effort_consumption(model, support) {
+                    vector[dof_index(application.dof)] = application.force_newtons;
+                }
             } else {
             if let Some(linear) = built
                 .supports
@@ -20754,6 +20760,37 @@ mod tests {
             (uz_with - expected_mm).abs() <= 1.0e-4,
             "direction convention failed: {uz_with} != {expected_mm}"
         );
+    }
+
+    // RT-S3: exercise the fallback on every axis as well as the certified
+    // control. U4a's existing test-only hook removes the bound, not the load.
+    #[test]
+    fn constant_effort_support_actions_restate_consumption_with_and_without_certification() {
+        for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+            for fallback in [false, true] {
+                for (axis, dof) in ["UX", "UY", "UZ"].iter().enumerate() {
+                    let mut request = cantilever_constant_effort_request(&[dof, "RY"], true, Some(-350.0));
+                    request.model.supports[1].hanger.as_mut().unwrap().constant_load = Some(Quantity { value: 7.25, unit: "kN".into() });
+                    U4A_FORCE_BINARY64.with(|flag| flag.set(fallback));
+                    let result = run_linear_static_preview_with_mode(request, mode);
+                    U4A_FORCE_BINARY64.with(|flag| flag.set(false));
+                    let label = format!("{mode:?} {dof} fallback={fallback}");
+                    assert_eq!(result.status.mechanics, "MECHANICS_SOLVED", "{label}");
+                    let code = if fallback { "NUMERICAL_INTEGRITY_SENSITIVE" } else { "NUMERICAL_INTEGRITY_CHECKS_PASSED" };
+                    assert!(result.diagnostics.iter().any(|d| d.code == code), "{label}: {:?}", result.diagnostics);
+                    let rows: Vec<_> = result.results.iter().filter(|r| r.entity_ref == "support:CE-110" && r.kind == "support_reaction_component_v2").collect();
+                    assert_eq!(rows.len(), 6, "{label}");
+                    for (k, component) in ["Fx", "Fy", "Fz", "Mx", "My", "Mz"].iter().enumerate() {
+                        let found: Vec<_> = rows.iter().filter(|r| r.metadata.as_ref().is_some_and(|m| m.component == *component)).collect();
+                        assert_eq!(found.len(), 1, "{label} {component}");
+                        let expected: f64 = if k == axis { 7250.0 } else { 0.0 };
+                        assert_eq!(found[0].value.to_bits(), expected.to_bits(), "{label} {component}");
+                        assert_eq!(found[0].metadata.as_ref().unwrap().coordinate_system, "global");
+                        assert_eq!(found[0].unit, if k < 3 { "N" } else { "N*m" });
+                    }
+                }
+            }
+        }
     }
 
     #[test]
