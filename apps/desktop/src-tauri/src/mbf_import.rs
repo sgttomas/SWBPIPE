@@ -1719,8 +1719,17 @@ fn respond_with<R>(memory: &NativeLeaseMemory<'_>, reply: Reply<'_>, held: &mut 
         Ok(lease) => held.reply = Some(lease),
         Err(message) => {
             let adopt = matches!(reply, Reply::Opened { .. }) || matches!(reply, Reply::Refused { adopt: true, .. });
+            let mut handoff = control.map(RunControl::lock);
+            let diagnostic = if handoff.as_ref().is_some_and(|state| state.cancelled) {
+                cancelled
+            } else {
+                diag(MEMORY_UNAVAILABLE, "", message)
+            };
             let mut text = Vec::new();
-            put_refused_reply(&mut text, adopt, "", &[diag(MEMORY_UNAVAILABLE, "", message)]);
+            put_refused_reply(&mut text, adopt, "", &[diagnostic]);
+            if let Some(state) = &mut handoff { state.handed_off = true; }
+            drop(handoff);
+            drop(reply);
             return respond(String::from_utf8(text).unwrap_or_default());
         }
     }

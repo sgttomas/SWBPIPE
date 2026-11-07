@@ -648,6 +648,42 @@ fn retirement_during_h7_admission_returns_no_model() {
 }
 
 #[test]
+fn a_refused_h7_admission_hands_off_before_the_response_callback() {
+    for already_cancelled in [false, true] {
+        let registry = real_worker();
+        registry.configure_pool(12 << 30, 1, false).unwrap();
+        let memory = NativeLeaseMemory::unseeded(&registry);
+        let imports = MbfImports::default();
+        let entry = imports.enter(Some(json!(imports.epoch())), Some(json!(1))).unwrap();
+        let registration = imports.register(entry, &registry);
+        if already_cancelled {
+            assert_eq!(retire(&registry, &imports, 15, 1).cancelled, 1);
+        }
+        let mut held = Held::default();
+        crate::stored_read::native_lease_log::take();
+        let reply = Reply::Refused {
+            adopt: true,
+            file_name: "invented.mbf".to_string(),
+            diagnostics: vec![diag(REVIEW_STALE, "", "The review changed.")],
+        };
+        let reply: Value = respond_with(&memory, reply, &mut held, Some(&registration.control), |text| {
+            let (_, attempted) = crate::stored_read::native_lease_log::last();
+            let (what, bytes) = attempted.expect("H7 admission attempted");
+            assert_eq!(what, "the import's reply");
+            assert!(bytes > 1, "the captured one-byte budget forces H7 refusal");
+            assert_eq!(retire(&registry, &imports, 15, 2).cancelled, 0, "the terminal refusal was already handed off");
+            serde_json::from_str(&text).unwrap()
+        });
+        assert!(held.reply.is_none(), "H7 was not admitted");
+        assert_eq!(codes(&reply), vec![if already_cancelled { CANCELLED } else { MEMORY_UNAVAILABLE }]);
+        assert!(reply.get("document").is_none());
+        drop(held);
+        drop(registration);
+        assert_released(&registry);
+    }
+}
+
+#[test]
 fn the_response_holds_h6_and_h7_separately_through_handoff() {
     let registry = real_worker();
     let imports = MbfImports::default();

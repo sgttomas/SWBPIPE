@@ -1983,8 +1983,8 @@ declarations. Nothing here records acceptance or shows criterion 6.
   space; a duplicate retirement does not. This prevents an older queued command from superseding a newer one even
   when executor/admission timing reorders them. The frontend also checks the latest start and the dialog's current
   declaration before replies or retries; reverting to the displayed declaration invalidates pending work too.
-- **Response handoff.** H7 admission can wait. Once admitted, cancellation and final response preparation are
-  ordered under the run control's lock; a cancellation that won during admission returns no model. A prepared
+- **Response handoff.** H7 admission can wait. Whether admitted or refused, cancellation and final response
+  preparation are ordered under the run control's lock; a cancellation that won during admission returns no model. A prepared
   response is marked handed off before invoking the response callback, so a later retirement does not falsely
   count that command as stopped. This is not a filesystem commit or session adoption; frontend currency and the
   maintained Open transaction still decide whether a received model enters the session.
@@ -2053,7 +2053,8 @@ the actual native replies; the native test keeps it equal to them, and it is reg
   `worker_import`. `lib.rs` covers the menu item.
   Additional regressions stop an already-cancelled registration before its chooser, reject a late older dispatch,
   cancel specifically while H7 admission is held, and prove H6 and H7 separately remain held through response
-  construction (H1 alone cannot satisfy those assertions).
+  construction (H1 alone cannot satisfy those assertions). Forced H7 refusal also hands off before the response
+  callback: retirement there counts zero stopped commands; cancellation before preparation retains its cancelled outcome.
 - **Vitest.** `mbfImport.test.ts`: every engine and native code and every structured identifier has its product
   description; the conditional parameters; Adopt blocked by an unknown or cut assumption, truncation or the
   transfer limit; no wildcard; and no product source uses the wasm importer, with negative controls.
