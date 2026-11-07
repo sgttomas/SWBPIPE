@@ -110,7 +110,9 @@ needs:
   evidence: execution/PKG-07/DEL-07-12/ScopeOfWork.md
 - from: DEL-17-04
   condition: 'DEL-07-12 consumes CAEPIPE MBF export profile and deterministic writer from DEL-17-04: caepipe-mbf
-    panel: deterministic MBF writer records; a prerequisite for this family only, not every panel.
+    panel: deterministic MBF writer records; a prerequisite for this family only, not every panel. The File
+    > Import MBF… dialog consumes DEL-17-04''s importer, bounded import review and native import commands
+    (Design desktop-mbf-export-import.md §4, slice 5).
 
 
     Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
@@ -349,4 +351,7 @@ checks:
 - apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.test.tsx
 - apps/desktop/src/features/caepipe-mbf/MbfExportDialog.test.tsx
 - apps/desktop/src/App.mbfExportDialog.test.tsx
+- apps/desktop/src/features/caepipe-mbf/mbfImport.test.ts
+- apps/desktop/src/features/caepipe-mbf/mbfImportSession.test.ts
+- apps/desktop/src/App.mbfImportDialog.test.tsx
 - apps/desktop/e2e/result-compatibility.spec.ts
