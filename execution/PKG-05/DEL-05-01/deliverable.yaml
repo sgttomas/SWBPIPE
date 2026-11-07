@@ -66,6 +66,17 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
+- from: DEL-04-07
+  condition: >-
+    For RT-A6 held-device and shared-document integration, DEL-04-07 supplies the
+    complete per-case device replacement/reaction plan and H-a generated-source
+    ledger admission specified with Work/hydrostatic-test.md and R-4 section 4.9.
+    Hydrotest and static seismic must coexist in one saved load-state EX document;
+    a plain-EX-only or no-hold stage does not satisfy that integration condition.
+    This stage-specific need does not gate Step 0 design or declare implementation,
+    dependency fulfilment, acceptance or release. Existing primitive-load inputs
+    consumed by DEL-04-07 remain governed by its own staged dependency.
+  gating: true
 code_paths:
 - core/loads/primitive_loads/**
 - core/loads/self_weight_wasm/**

@@ -502,6 +502,29 @@ drag, snap, view primitives, diagnostics, and command intents. Durable edits
 should pass through application-service command boundaries rather than bypass
 schema, unit, provenance, privacy, diagnostic, report, or human-review controls.
 
+#### Hydrostatic test workflow: designed, not yet runnable
+
+A stored `test_condition` still refuses at solve and authoring; this design is
+not a new desktop command. The planned EX workflow is to enter test pressure in
+pressure regions, assign explicit test contents, choose the held-support
+behavior, generate/review weight with entered gravity, save and reopen, solve,
+and inspect a test-marked case and report. Pressure is the user's value; no test
+factor or fluid density is supplied. Ordinary and test contents will share one
+resolver, and generated weight must preserve its selected source when a new
+case is created or inspection uses a scratch case.
+
+A held spring or constant-effort device is replaced at zero displacement from
+the authored installed geometry; both its stiffness and force/preload law are
+suppressed, and its reaction keeps the original support identity. Plant
+coordinates and a preceding operating displacement do not define that zero.
+PF test cases remain refused, test cases in combinations remain withheld by a
+named rule until their meaning is defined, and the legacy hydrotest pressure
+primitive remains refused with pressure regions as the authored alternative.
+The complete workflow includes real held devices and hydrotest/static seismic
+in one saved document, not just an interim no-hold case. The mechanics,
+source-context and future connected verification contract is
+[DEL-05-01 hydrostatic-test design](../../execution/PKG-05/DEL-05-01/Work/hydrostatic-test.md).
+
 ### 6.2 Load combinations: absolute sums, SRSS and combinations of combinations
 
 A combination is a row operation over solved results; it never adds a solve. Model
