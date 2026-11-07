@@ -1802,6 +1802,9 @@ for the invented corpus and `fixtures/caepipe_mbf/invented/desktop_export/` case
     lists.
 
   It is then merged, and Agent 0 confirms it.
+- **Unresolved connection condition.** The webview/adoption account in §4.8.5 is incomplete. Listing its copies or
+  reusing the ordinary Open consumer does not establish a bound. This candidate must not authorize production
+  connection while that obstacle remains; independent review must assess the account and any proposed resolution.
 - **The implementation PR** carries the review records above and the generated reach and routing artifacts from
   their writers (§4.8.8).
 - **The implementation's intended touch set,** which the manager confirms in the draft PR before editing:
@@ -2438,7 +2441,7 @@ command, IPC form, protocol or backend changes.
   declining with no review sent. With `markMbfExportUnavailable` made a no-op, twelve of the new tests fail. The
   retry, text and fresh-page tests pass, as they should.
 
-**Slice 5 design (2026-11-07; for independent review, nothing connected).** §4.8 completes the source,
+**Slice 5 design candidate (2026-11-07; for independent review, nothing connected).** §4.8 records the source,
 memory and transaction design that slice 5's row requires before connection. In summary:
 
 - **Engine route.** The import runs in a new worker task 5 (`WorkerTask::MbfImport`; tasks 0 to 4 are
