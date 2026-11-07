@@ -786,6 +786,38 @@ code before P.
 
 **Interactions:** after stage 2 (S2 #1654, #1671) merges.
 
+**Resumed implementation boundary (source `b06e1da32`, 2026-11-07).** The
+current PP context gate (`exact_admission::nonlinear_support_admission`) and
+NI's `validate_input` both refuse this unit. Lifting them is insufficient:
+`solve_prepared_load_case` passes no prescribed motion and no nonlinear-ground
+offsets to the loop on a resolved load-state case. S6 must feed the resolved
+rigid prescribed values, nonlinear own-DOF ground motions and active spring
+base motions into their existing W-16 stage-2 laws. C-1/LS-1 must discriminate
+each nonzero motion from a dropped-motion mutant. Free or unrelated DOFs,
+unsupported device references and held/locked participation retain their
+refusals. No new numerical parameter is selected by this connection.
+
+The completed case remains the single state source through
+`solve_load_case_observed` → `LoadCaseSolve` → `NonlinearStateEvidence`.
+Static publication and modal consumption bind that case's selected state and
+motion evidence; modal does not run a parallel active-set solve. Connector and
+tie-rod actions stay in the source ledger exactly once. OQ-1, the
+constant-effort factor gates and the existing gap/nonlinear-normal limits
+remain in force; R-3 qualification and S7/S8 are separate, unreleased units.
+
+**Future held-device seam, coordinated with the hydrotest design lane.** S6
+does not implement `case_devices`, condition/contents lowering or a new wire
+format. The proposed shared `resolve_case_devices(model, case, normalized
+participation requests, diagnostics)` returns one all-or-none plan bound to
+the original case, reference geometry and support identities. That future plan
+owns active spring and force/preload actions, replacement rigid/prescribed
+constraints and original support/node/DOF attribution with suppressed-law
+evidence. Assembly/cache, ledger, recovery and publication must consume the
+same plan: held devices contribute neither active stiffness nor active
+force/preload. The hydrotest design owns exact-zero held positions and
+coalescence/refusal rules; S6's admitted nonzero motions apply to active
+supports only and grant no held, lock, preload or device-reference behavior.
+
 ### 3.8 S7: friction with a one-way normal source, and k > 1 (M–L, both routes)
 
 **Basis.**
