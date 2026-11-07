@@ -139,7 +139,7 @@ workflow (`repository-checks-run: true`), the Python product job leaves that rou
 out to avoid running it twice; a direct dispatch keeps it. This closes the former
 monorepo's routing-self-test selection
 gap. The local `tools/tools-test-routing.json` records this bounded estate; it
-does not import unrelated Root tool suites. Numerical inventory/source-digest
+does not import the former combined repository's unrelated tool suites. Numerical inventory/source-digest
 refresh and product-selection failure propagation remain required.
 
 Python-test-only edits retain their Python checks with zero Cargo crates. Python PR coverage keeps security and constraint/source-block validation, then

@@ -404,7 +404,7 @@ Release labels describe software maturity and validation evidence.
 
 ## 9. Open Decisions
 
-- Development assurance uses selected hosted checks under Root `AGENTS.md`;
+- Development assurance uses selected hosted checks under the repository's `AGENTS.md`;
   the old DEC-025 blanket merge sweep is superseded.
 - Decided 2026-07-04 (`DEC-057`, D-06 Option O-A): v0.1 release matrix is
   macOS Apple Silicon (`aarch64-apple-darwin`) only; installer format is the

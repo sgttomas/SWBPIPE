@@ -7,7 +7,7 @@ references, source meaning and unrelated work; initialization alone starts none.
 
 ## Shared roles and methods
 
-Use the selected Chirality library, `/Users/ryan/dev/chirality-library` on this workspace
+Use the selected Chirality Library (the Library), `/Users/ryan/dev/chirality-library` on this workspace
 or an owner-selected checkout of `https://github.com/sgttomas/chirality-library` elsewhere.
 Resolve shared `agents/` and `workflows/` paths against that library. Tool-use
 instructions are repository content kept beside the tool they instruct, not
@@ -24,21 +24,22 @@ silently switching sources. Roles grant no host permissions; model/effort
 choices come from session steering. Give delegated work an input basis, scope,
 read/write boundaries, integration/review route and reserved decisions.
 
-Root-specific work locations, duties and Git grants do not transfer to SWBPIPE.
-Shared-method consultation does not authorize changes to another repository.
-Ordinary product build/test/CI uses this repository's maintained tools and
-fixtures and must not require the Chirality checkout. Product-side agent inputs
+The Library's own work locations, duties and Git grants do not transfer to
+SWBPIPE. Shared-method consultation does not authorize changes to another
+repository. Ordinary product build/test/CI uses this repository's maintained
+tools and fixtures and must not require the Library checkout. Product-side agent inputs
 remain source-bound local resources; consulting newer development methods does
 not update those inputs or establish product adoption.
 
 ## Coordination between projects
 
-Chirality Root (`sgttomas/chirality-library`), App v4 (`sgttomas/chirality-app`) and
-SWBPIPE (`sgttomas/SWBPIPE`) each have one top-level Agent 0, working in its own
-T3 Code session. When work here needs Root or App v4, such as a shared interface, a
-library change a consumer will adopt, a defect found in the other project, or a
-shared release gate, this project's Agent 0 messages that project's Agent 0
-directly in T3 Code. Read the recipient's session first to confirm that it is
+The Chirality Library (`sgttomas/chirality-library`), Chirality Root
+(`sgttomas/chirality`), App v4 (`sgttomas/chirality-app`) and SWBPIPE
+(`sgttomas/SWBPIPE`) each have one top-level Agent 0, working in its own T3 Code
+session. When work here needs another of these projects, such as a shared
+interface, a Library change a consumer will adopt, a defect found in the other
+project, or a shared release gate, this project's Agent 0 messages that
+project's Agent 0 directly in T3 Code. Read the recipient's session first to confirm that it is
 that project's current Agent 0; a retired session is not a route.
 
 A message states what is needed, the revision and files it concerns, and
@@ -47,6 +48,15 @@ repository and authority. A message carries no owner authority and changes
 nothing in another repository. Record an agreed decision by editing the
 governing text in the repository that owns it, and take reserved choices to the
 owner. Do not message a project the work does not affect.
+
+Root measures how agents deliver work across the Chirality projects, improves
+it, and hosts what is best delivered as a shared service. Its agents evaluate
+SWBPIPE from session telemetry, read-only, and the owner reviews every finding.
+Root changes no SWBPIPE files, branches or PRs; its only action here is a GitHub
+issue for an owner-approved finding. Routine adherence checks of SWBPIPE's
+deliverables stay with this project's Agent 0, through a Library workflow.
+Records written before 2026-11-05 use "Root" for the former combined repository
+that held the Library.
 
 ## Work and verification
 

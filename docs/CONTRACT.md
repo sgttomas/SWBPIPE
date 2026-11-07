@@ -12,7 +12,7 @@ refs:
 
 # CONTRACT — OpenPipeStress Invariant Catalog
 
-This document defines SWBPIPE product invariants. Root `AGENTS.md` and the project
+This document defines SWBPIPE product invariants. The repository's `AGENTS.md` and
 `LOOP_INIT.md` govern development; product safety, data and professional boundaries
 below remain effective.
 
