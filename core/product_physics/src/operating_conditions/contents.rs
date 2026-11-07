@@ -17,9 +17,9 @@
 //!
 //! Contents density is mass input, not an action. The solve consumes a case's
 //! selection only through self-weight generated from it ([`crate::self_weight`]),
-//! one mass computation per pipe. A case whose use no such generated load
-//! consumes is refused by name ([`unconsumed_refusal`]), never reported as
-//! applied. [`RetainedContents`] is the lowering's contents-specific retention:
+//! one mass computation per pipe. A valid selection without generated contents
+//! weight gives a nonblocking notice: no force or gravity is inferred. Invalid
+//! selections and unconnected seismic mass remain blocking ([`contents_use_findings`]). [`RetainedContents`] is the lowering's contents-specific retention:
 //! after `lower` clears the operating-condition members, it restores only the
 //! contents selection (each using case's key, the sets' contents values and the
 //! pipes' set references) so the post-lowering self-weight validation resolves
@@ -43,6 +43,8 @@ pub const CASE_CONTENTS_CONTEXT_MISSING: &str = "CASE_CONTENTS_CONTEXT_MISSING";
 pub const CASE_CONTENTS_CONTEXT_CONFLICT: &str = "CASE_CONTENTS_CONTEXT_CONFLICT";
 /// The provenance `method` of a resolved contents selection.
 pub const CONTENTS_SOURCE_METHOD: &str = "case_condition_contents_density/v1";
+/// Valid selected contents have not been applied as weight in this case.
+pub const CASE_CONTENTS_WEIGHT_NOT_APPLIED: &str = "CASE_CONTENTS_WEIGHT_NOT_APPLIED";
 
 fn contents_diag(case: &str, suffix: &str, code: &str, message: String, refs: Vec<String>) -> Diagnostic {
     crate::diag(
@@ -92,7 +94,15 @@ impl CaseContentsContext {
             (Some(_), Some(_)) => Err(vec![contents_diag(case_id, "source-conflict", CASE_CONTENTS_CONTEXT_CONFLICT,
                 format!("the contents source case `{case_id}` names more than one load case; the selection is not taken from either"),
                 vec![case_id.to_string()])]),
-            (Some((index, _)), None) => Ok(Self::of_case(model, index)),
+            (Some((index, _)), None) => {
+                let context = Self::of_case(model, index);
+                if context.as_ref().is_some_and(|context| context.key.trim().is_empty()) {
+                    return Err(vec![contents_diag(case_id, "key-invalid", CASE_CONTENTS_CONTEXT_CONFLICT,
+                        "the source case's contents key must be nonblank and is never trimmed into another key".into(),
+                        vec![case_id.to_string()])]);
+                }
+                Ok(context)
+            },
         }
     }
 
@@ -226,34 +236,47 @@ pub(crate) fn binds_contents(provenance: Option<&str>) -> bool {
         || (record["method"] == crate::self_weight::MANUAL_OVERRIDE_METHOD && generated(&record["original_generation_provenance"]))
 }
 
-/// A case's contents use that no generated self-weight of the case consumes
-/// (§4.2 "Explicitly selected but unconsumed contents must have a named
-/// diagnostic"): refused by name, never reported as applied. Whether a
-/// consuming record is current is the self-weight validation's judgement.
-pub(crate) fn unconsumed_refusal(case: &PreviewLoadCase) -> Option<Diagnostic> {
-    let key = case.condition_use.as_ref()?.contents_density.as_ref()?;
+/// Judge the authored contents selection before reporting a nonblocking
+/// absence of weight. A notice must never hide an unresolved set/key/value,
+/// and seismic mass still has no connected contents consumer in H1.
+pub(crate) fn contents_use_findings(model: &PreviewModel, case: &PreviewLoadCase) -> Vec<Diagnostic> {
+    let Some(key) = case.condition_use.as_ref().and_then(|using| using.contents_density.as_ref()) else {
+        return Vec::new();
+    };
+    let context = match CaseContentsContext::capture(model, &case.id) {
+        Ok(Some(context)) => context,
+        Ok(None) => return vec![contents_diag(&case.id, "selection-missing", CASE_CONTENTS_CONTEXT_MISSING,
+            "the explicit contents selection has no authoritative context".into(), vec![case.id.clone()])],
+        Err(found) => return found,
+    };
+    let mut found = Vec::new();
+    for pipe in &model.pipe_segments {
+        if let Err(refusals) = case_contents_density(&context, &pipe.id) {
+            found.extend(refusals);
+        }
+    }
+    if crate::has_blocking(&found) {
+        return found;
+    }
     let id = case.id.as_str();
-    // The case's own seismic generation takes its mass from the sections, not
-    // from the selection; it would leave the selected contents out silently.
     if case.equivalent_static.as_ref().is_some_and(|generation| generation.seismic.is_some()) {
-        return Some(crate::diag(
+        found.push(crate::diag(
             &format!("diagnostic:load-case:{}:condition:contents-density-seismic", crate::stable_suffix(id)),
             LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED,
             "blocking",
             format!("load case `{id}` uses condition `{key}` for contents density and also generates equivalent-static seismic loads, whose mass is the sections' own and does not consume the selection; nothing is solved"),
             vec![id.to_string(), key.clone()],
         ));
+    } else if !case.primitive_loads.iter().any(|load| binds_contents(load.provenance.as_deref())) {
+        found.push(crate::diag(
+            &format!("diagnostic:load-case:{}:condition:contents-density", crate::stable_suffix(id)),
+            CASE_CONTENTS_WEIGHT_NOT_APPLIED,
+            "warning",
+            format!("load case `{id}` selects condition `{key}` for contents density, but that density has NOT been applied as weight in this case. No force is generated and no gravity is assumed; generate self-weight with explicit gravity when weight is wanted. The source selection can remain authored."),
+            vec![id.to_string(), key.clone()],
+        ));
     }
-    if case.primitive_loads.iter().any(|load| binds_contents(load.provenance.as_deref())) {
-        return None;
-    }
-    Some(crate::diag(
-        &format!("diagnostic:load-case:{}:condition:contents-density", crate::stable_suffix(id)),
-        LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED,
-        "blocking",
-        format!("load case `{id}` uses condition `{key}` for contents density, and no self-weight generated from this case's selection consumes it; contents density enters the solve only as the mass of self-weight generated from the selection, so nothing is solved"),
-        vec![id.to_string(), key.clone()],
-    ))
+    found
 }
 
 /// The contents selection the lowering keeps (module docs): taken before it

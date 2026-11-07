@@ -433,11 +433,13 @@ condition key; it is mass, not a load. Choose that case under "Contents density
 from case" when you plan self-weight: the generator resolves each selected
 pipe's density from its set and key (nothing falls back to the section's own
 contents density), and the new case records the same key as its own use, so a
-later change to that key, set or value makes its weight stale. A use that no
-self-weight generated from it consumes is refused at solve
-(`LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED`; a warning while you author), so
-clear the source case's use, or generate its weight, before you solve. This is
-not the hydrostatic test workflow below.
+later change to that key, set or value makes its weight stale. A valid source
+selection without generated contents weight shows the nonblocking warning
+`CASE_CONTENTS_WEIGHT_NOT_APPLIED`: no weight has been applied in that case and
+no gravity is inferred. Keep the source case and its selection; the target owns
+its generated weight. Invalid/stale sources and unconnected seismic mass still
+block. A contents-aware new EX target explicitly carries an empty pressure-region
+list without copying pressure. This is not the hydrostatic test workflow below.
 
 **Not yet available.** A `pressure` use on a pressure-free document is refused
 (`LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT`); every use on a

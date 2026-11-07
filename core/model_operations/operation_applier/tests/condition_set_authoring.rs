@@ -465,10 +465,12 @@ fn create_load_case_admits_a_use_under_the_same_judgement() {
     let staged = warnings(&outcome);
     assert_eq!(staged.iter().filter(|(code, _)| code == "OPERATING_CONDITION_SET_MISSING").count(), 2, "{staged:?}");
     assert!(staged.iter().any(|(_, message)| message.contains("`P2`")) && staged.iter().any(|(_, message)| message.contains("`P3`")));
-    // RT-A6 H1: a contents use is carried; unconsumed, it is a staged warning.
-    let (created, outcome) = applied(&model, &create_case("OPE", json!({"condition_use": {"contents_density": "OPE1"}})));
+    // RT-A6 H1: a valid contents use is carried with its nonblocking notice.
+    let mut contents_model = model.clone();
+    contents_model["condition_sets"][0]["conditions"][0]["contents_density"] = q(1000.0, "kg/m^3");
+    let (created, outcome) = applied(&contents_model, &create_case("OPE", json!({"condition_use": {"contents_density": "OPE1"}})));
     assert_eq!(find(&created, "load_cases", "OPE").unwrap()["condition_use"], json!({"contents_density": "OPE1"}));
-    assert!(warnings(&outcome).iter().any(|(code, _)| code == "LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED"), "{:?}", warnings(&outcome));
+    assert!(warnings(&outcome).iter().any(|(code, _)| code == "CASE_CONTENTS_WEIGHT_NOT_APPLIED"), "{:?}", warnings(&outcome));
     // Refusals: route and validator.
     refused(&model, &create_case("OPE", json!({"condition_use": {"pressure": "OPE1"}})), "LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT");
     refused(&model, &create_case("OPE", json!({"condition_use": {}})), "LOAD_CASE_CONDITION_USE_EMPTY");
@@ -481,9 +483,10 @@ fn create_load_case_admits_a_use_under_the_same_judgement() {
 /// unconsumed state a staged warning.
 #[test]
 fn the_exact_route_and_contents_refusals() {
-    let model = with_refs(with_sets(&[set_a()]), &[("P1", "cs:a"), ("P2", "cs:a"), ("P3", "cs:a")]);
+    let mut model = with_refs(with_sets(&[set_a()]), &[("P1", "cs:a"), ("P2", "cs:a"), ("P3", "cs:a")]);
+    model["condition_sets"][0]["conditions"][0]["contents_density"] = q(1000.0, "kg/m^3");
     let (_, outcome) = applied(&model, &set_use(&model, "SUS", &json!({"contents_density": "OPE1"})));
-    assert!(warnings(&outcome).iter().any(|(code, _)| code == "LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED"), "{:?}", warnings(&outcome));
+    assert!(warnings(&outcome).iter().any(|(code, _)| code == "CASE_CONTENTS_WEIGHT_NOT_APPLIED"), "{:?}", warnings(&outcome));
     refused(&model, &set_use(&model, "SUS", &json!({"pressure": "OPE1"})), "LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT");
     let both = refused(&model, &set_use(&model, "SUS", &json!({"temperature": "OPE1", "pressure": "OPE1", "contents_density": "OPE1"})), "LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT");
     assert_eq!(blocking(&both), ["LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT"], "{:?}", records(&both));
@@ -500,7 +503,7 @@ fn the_exact_route_and_contents_refusals() {
     }
     let (next, outcome) = applied(&complete, &set_use(&complete, "SUS", &json!({"contents_density": "OPE1"})));
     assert_eq!(find(&next, "load_cases", "SUS").unwrap()["condition_use"], json!({"contents_density": "OPE1"}));
-    assert!(warnings(&outcome).iter().any(|(code, _)| code == "LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED"), "{:?}", warnings(&outcome));
+    assert!(warnings(&outcome).iter().any(|(code, _)| code == "CASE_CONTENTS_WEIGHT_NOT_APPLIED"), "{:?}", warnings(&outcome));
     let mixed = refused(&exact, &set_use(&exact, "SUS", &json!({"temperature": "OPE1", "contents_density": "OPE1"})), "LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED");
     assert_eq!(blocking(&mixed), ["LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED"]);
     for using in [json!({"temperature": "OPE1"}), json!({"added_weight": true}), json!({"wind_exposure": true}), json!({"pressure": "OPE1"})] {

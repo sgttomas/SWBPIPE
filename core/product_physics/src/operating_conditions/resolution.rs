@@ -15,8 +15,9 @@
 //! (no carrier) and, on the exact route, any use other than contents density
 //! (S4; `super::lower` refuses those before planning). A `contents_density` use
 //! (RT-A6 H1) appends nothing here: it is mass input consumed by generated
-//! self-weight, and a use no such record consumes is refused by name
-//! (`super::contents::unconsumed_refusal`).
+//! self-weight. The shared judge reports a nonblocking notice for a valid
+//! unconsumed selection and blocks invalid/unconnected consumers
+//! (`super::contents::contents_use_findings`).
 use super::{ConditionSetInput, GlobalAxis};
 use crate::case_state::temperature::canonical_decimal::{
     canonical_decimal, kelvin_numerator, round_kelvin_ratio,
@@ -43,9 +44,9 @@ pub const LOAD_CASE_CONDITION_WIND_INPUT_MISSING: &str = "LOAD_CASE_CONDITION_WI
 /// A `pressure` use on a pressure-free document, which has no pressure carrier.
 pub const LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT: &str =
     "LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT";
-/// A `contents_density` use that no self-weight generated from the case's own
-/// selection consumes (RT-A6 H1, `super::contents`); originally the interim
-/// refusal of every contents use (§1.6, OC-7).
+/// A contents use with an unsupported mass consumer (seismic in H1);
+/// originally the interim refusal of every contents use (§1.6, OC-7). A valid
+/// unconsumed selection instead gives CASE_CONTENTS_WEIGHT_NOT_APPLIED.
 pub const LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED: &str = "LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED";
 
 /// The `method` of every generated record's provenance.
@@ -198,12 +199,8 @@ fn resolve_case(
             format!("load case `{id}` uses condition `{key}` for pressure on a pressure-free document, which has no pressure carrier; pressure from conditions needs a pressure contract, so nothing is solved"),
             vec![id.to_string(), key.clone()]));
     }
-    // RT-A6 H1: contents density is mass input, consumed only by self-weight
-    // generated from this case's selection (`super::contents`); a use no such
-    // record consumes is refused by name.
-    if let Some(refusal) = super::contents::unconsumed_refusal(case) {
-        refusals.push(refusal);
-    }
+    // Contents validation and nonblocking not-applied notices are judged by
+    // the shared caller. They must not turn this Result into Err/no-plan.
     if using.temperature.is_some() {
         for load in case.primitive_loads.iter().filter(|load| load.category == "thermal") {
             refusals.push(case_diag(id, &format!("temperature-conflict:{}", crate::stable_suffix(&load.id)),

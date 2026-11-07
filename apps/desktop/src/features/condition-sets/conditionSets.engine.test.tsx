@@ -89,7 +89,7 @@ describe("the connecting path: set, pipe assignment and case use through the eng
     render(<ConditionUseControl {...props()} loadCase={model.load_cases.find((item) => item.id === "SUS")!} />);
     expect(screen.getByTestId("load-condition-use-refused-pressure")).toHaveTextContent("LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT");
     // RT-A6 H1: contents density is offered, staged by name until generated self-weight consumes it.
-    expect(screen.getByTestId("load-condition-use-contents-note")).toHaveTextContent("LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED");
+    expect(screen.getByTestId("load-condition-use-contents-note")).toHaveTextContent("CASE_CONTENTS_WEIGHT_NOT_APPLIED");
     expect(within(screen.getByTestId("load-condition-use-temperature")).getAllByRole("option").map((option) => option.textContent)).toEqual(["not used", "OPE1"]);
     fireEvent.change(screen.getByTestId("load-condition-use-temperature"), { target: { value: "OPE1" } });
     fireEvent.click(screen.getByTestId("load-condition-use-added-weight"));
@@ -343,7 +343,8 @@ describe("the set form: labels, pressure, retained members", () => {
     render(<ConditionSetsSection model={model} onQueueIntent={(intent) => list.push(intent)} />);
     fireEvent.click(screen.getByTestId("condition-set-new-add-condition"));
     const form = screen.getByTestId("condition-set-create-form");
-    expect(within(form).getAllByText(`(${NOT_USED_BY_SOLVE})`).length).toBe(5); // contents density, design, peak, snow/ice, wave
+    expect(within(form).getAllByText(`(${NOT_USED_BY_SOLVE})`).length).toBe(4); // design, peak, snow/ice, wave
+    expect(within(form).getByRole("columnheader", { name: /Contents density/ })).toHaveTextContent("used only by explicitly selected contents self-weight");
     expect(screen.getByTestId("condition-set-new-design-not-used")).toBeInTheDocument();
     expect(screen.getByTestId("condition-set-new-peak-not-used")).toBeInTheDocument();
     expect(screen.getByTestId("condition-set-new-exposure-snow-ice-not-used")).toBeInTheDocument();

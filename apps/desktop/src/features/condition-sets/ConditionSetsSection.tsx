@@ -177,7 +177,7 @@ export function ConditionSetFields({ draft, onChange, model, route, idEditable, 
             <th scope="col">Label</th>
             <th scope="col">Temperature</th>
             <th scope="col">Pressure{pressureFree ? " (not usable on this pressure-free document)" : ""}</th>
-            <th scope="col">Contents density <NotUsed /></th>
+            <th scope="col">Contents density <small className="muted">(used only by explicitly selected contents self-weight)</small></th>
             <th scope="col"><span className="visually-hidden">Actions</span></th>
           </tr>
         </thead>

@@ -10,8 +10,9 @@
 //! use other than contents density is refused
 //! (`LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED`, until S4). A contents-density
 //! use (RT-A6 H1, [`contents`]) is mass input on either route: it is admitted
-//! when generated self-weight of the same case consumes it, and refused by name
-//! (`LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED`) when none does. Every set and
+//! through generated self-weight of the same case. A valid selection without
+//! such weight gives nonblocking `CASE_CONTENTS_WEIGHT_NOT_APPLIED`; invalid
+//! selections and unconnected seismic mass still block. Every set and
 //! reference is judged whether or not a case uses it, so a document's
 //! admissibility does not depend on which cases use what.
 //!
@@ -407,10 +408,11 @@ pub(crate) fn judge(model: &PreviewModel) -> Judgement {
                     LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED, "blocking",
                     format!("load case `{}` uses operating conditions on a document with a pressure contract; the exact route's condition resolution is not built yet, so nothing is solved", case.id),
                     vec![case.id.clone()]));
-            } else if let Some(refusal) = contents::unconsumed_refusal(case) {
-                diagnostics.push(refusal);
             }
         }
+        // A valid unused selection is a warning, not a failed PF plan or an
+        // EX refusal. Actual source and unsupported-consumer errors block.
+        diagnostics.extend(contents::contents_use_findings(model, case));
         if case.test_condition.is_some() {
             diagnostics.push(crate::diag(
                 &format!("diagnostic:load-case:{}:test-condition", crate::stable_suffix(&case.id)),

@@ -1544,7 +1544,9 @@ authoring is the document's route:
 - **Pressure-free documents:** `temperature`, `added_weight: true` and
   `wind_exposure: true` are admitted. `contents_density` was refused,
   `LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED` (RT-A6), until RT-A6 H1 admitted it
-  with that finding staged until consumed; `pressure` is refused,
+  with `CASE_CONTENTS_WEIGHT_NOT_APPLIED` as a nonblocking notice when valid
+  selected contents have not been applied as weight; invalid/stale inputs and
+  unconnected seismic mass remain blocking. `pressure` is refused,
   `LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT`.
 - **Documents with `pressure_contract`:** every use is refused,
   `LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED` (S4), except (RT-A6 H1) a use
@@ -1618,7 +1620,8 @@ finding it gives deliberately, never by blanket downgrade:
   condition sets, while an edit of a hydrostatic test case, or of any set
   feeding a case that uses conditions, blocks with the case's refusal.
 
-The solve still refuses a case with a staged finding, and every carried
+Except for H1's nonblocking `CASE_CONTENTS_WEIGHT_NOT_APPLIED` notice, the
+solve still refuses a case with a staged blocking-input finding, and every carried
 refusal, by name until it is resolved; authoring never implies the document
 solves, and nothing in the outcome or the applied document claims or records
 solvability. The applier computes no ΔT of its own.

@@ -465,7 +465,7 @@ fn a_static_refusal_of_the_state_case_refuses_it_by_name() {
 }
 
 #[test]
-fn a_contents_density_state_case_is_refused_upstream() {
+fn a_contents_density_state_case_remains_refused_by_its_explicit_binding_gate() {
     // A condition-contents use on the state case: refused by the resolution's
     // interim refusal (no modal bypass), and carried by name.
     let mut document = twin::document(crate::MODEL_SCHEMA_VERSION);
@@ -473,7 +473,10 @@ fn a_contents_density_state_case_is_refused_upstream() {
     document["load_cases"][1]["condition_use"] = json!({"contents_density": "OPE1"});
     let request = json!({"model": document, "materials": [], "mode_count": 1, "state_case": "SUS"});
     let found = prepare_modal(&modal(request)).err().unwrap();
-    assert!(codes(&found).contains(&"LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED"), "{found:#?}");
+    // H1's valid unconsumed selection is now a static warning. Modal's own
+    // unchanged binder still refuses contents-selected state cases; no mass
+    // or publication consumer is admitted by that warning policy.
+    assert!(codes(&found).contains(&"MODAL_STATE_CASE_UNAVAILABLE"), "{found:#?}");
     assert_eq!(found.last().unwrap().code, MODAL_STATE_CASE_UNAVAILABLE);
     assert!(found.last().unwrap().message.contains("blocking diagnostic(s), returned with this one"));
 }

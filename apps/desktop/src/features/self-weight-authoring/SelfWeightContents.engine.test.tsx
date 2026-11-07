@@ -17,6 +17,7 @@ import { canonicalJsonString, computeModelHash } from "../../services/hashServic
 import { findLocalProject, openLocalProject, saveLocalProject } from "../../services/projectService";
 import { loadWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
 import { generateSelfWeightPlan } from "../../services/selfWeightPlanService";
+import { previewOperatingConditions } from "../../services/operatingConditionPreviewService";
 import { chooseVirtualMultiTarget } from "../../test-support/workspaceTestControls";
 import { corpusBase } from "../../test-support/conditionSetCorpus";
 import { ConditionUseControl } from "../condition-sets/ConditionUseControl";
@@ -34,13 +35,27 @@ const REFERENCE = (902800199 / 4000000) * Math.PI;
 const enter = (label: string, value: string) => fireEvent.change(screen.getByLabelText(label), { target: { value } });
 const caseOf = (model: PreviewModel, id: string) => model.load_cases.find((item) => item.id === id)!;
 
-function base(): PreviewModel {
+function base(exact = false): PreviewModel {
   const model = corpusBase("s3a_09");
   model.project.id = PROJECT;
   model.components ??= [];
   model.diagnostics ??= [];
   for (const pipe of model.pipe_segments) pipe.section = { ...pipe.section, outside_diameter: { value: 0.2, unit: "m" }, wall_thickness: { value: 0.01, unit: "m" }, material_density: { value: 7850, unit: "kg/m^3" } };
+  if (exact) {
+    model.pressure_contract = { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "euler_bernoulli" };
+    for (const pipe of model.pipe_segments) pipe.section.corrosion_allowance = { value: 0.001, unit: "m" };
+    for (const material of model.materials ?? []) {
+      material.constitutive_basis = "homogeneous_isotropic_E_nu_v1";
+      material.elastic_modulus = { value: 2e11, unit: "Pa" };
+      material.shear_modulus = { value: 8e10, unit: "Pa" };
+      material.poisson_ratio = { value: 0.25, unit: "1" };
+    }
+    for (const loadCase of model.load_cases) loadCase.pressure_regions = [];
+  }
   const set = model.condition_sets![0];
+  // The positive whole-case selection is explicitly complete; other tests
+  // exercise missing assignments as named invalid-input cases.
+  for (const pipe of model.pipe_segments) pipe.condition_set_ref = set.id;
   set.conditions = [...(set.conditions ?? []),
     { key: "HYDRO", contents_density: { value: 1000, unit: "kg/m^3" } },
     { key: "ALT", contents_density: { value: 1000, unit: "kg/m^3" } }];
@@ -66,8 +81,9 @@ async function chooseContents(model: PreviewModel, caseId: string, key: string):
   fireEvent.change(screen.getByTestId("load-condition-use-contents"), { target: { value: key } });
   fireEvent.click(screen.getByTestId("load-condition-use-queue"));
   await waitFor(() => expect(list).toHaveLength(1));
-  // The engine stages the unconsumed use by name, as a warning.
-  const staged = await screen.findAllByTestId("load-condition-use-diagnostic-LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED");
+  // The source's valid selection remains authored; the engine names the
+  // absence of contents weight without blocking it or inventing a force.
+  const staged = await screen.findAllByTestId("load-condition-use-diagnostic-CASE_CONTENTS_WEIGHT_NOT_APPLIED");
   for (const item of staged) expect(item).toHaveAttribute("data-severity", "warning");
   cleanup();
   return list[0];
@@ -89,9 +105,11 @@ async function refreshOutcome(model: PreviewModel) {
 }
 
 describe("explicit contents from a source case, through the actual engines (RT-A6 H1)", () => {
-  it("generates into a new case, applies, saves, reopens and stays fresh; a source edit stales and refreshes", async () => {
+  it.each([false, true])("generates/applies/reopens the complete model without removing its source (EX=%s)", async (exact) => {
+    const reference = exact ? (5686876335 / 25000000) * Math.PI : REFERENCE;
     // 1. The source case's selection, authored in the Conditions control and applied by the engine.
-    let model = await applyIntent(base(), await chooseContents(base(), SOURCE, "HYDRO"));
+    const original = base(exact);
+    let model = await applyIntent(original, await chooseContents(original, SOURCE, "HYDRO"));
     expect(caseOf(model, SOURCE).condition_use).toEqual({ contents_density: "HYDRO" });
 
     // 2. The self-weight panel: the source picker lists the case, and the plan names it.
@@ -114,15 +132,22 @@ describe("explicit contents from a source case, through the actual engines (RT-A
     model = await applyBatch(model, batch);
     const target = caseOf(model, TARGET);
     expect(target.condition_use).toEqual({ contents_density: "HYDRO" });
+    if (exact) expect(target.pressure_regions).toEqual([]);
+    else expect(target.pressure_regions).toBeUndefined();
     const load = target.primitive_loads![0];
     const intensity = (load.magnitude as { value: number }).value;
-    expect(Math.abs(intensity + REFERENCE)).toBeLessThanOrEqual(1e-14 * REFERENCE);
+    expect(Math.abs(intensity + reference)).toBeLessThanOrEqual(1e-14 * reference);
     const evidence = JSON.parse(load.provenance as string);
     expect(evidence.contents_source).toMatchObject({ origin_case: SOURCE, condition_set: "cs:a", condition_key: "HYDRO" });
     expect(caseOf(model, SOURCE).primitive_loads).toEqual([]);
 
     // 4. Save and reopen through the project service; the refresh inspection finds it fresh.
     model = await saveAndReopen(model);
+    expect(caseOf(model, SOURCE).condition_use).toEqual({ contents_density: "HYDRO" });
+    const preview = await previewOperatingConditions(model);
+    expect(preview.resolved).toBe(true);
+    expect(preview.diagnostics.some((d) => d.code === "CASE_CONTENTS_WEIGHT_NOT_APPLIED" && d.severity === "warning")).toBe(true);
+    expect(preview.diagnostics.some((d) => d.severity === "blocking")).toBe(false);
     let refresh = await refreshOutcome(model);
     expect(await screen.findByRole("alert")).toHaveTextContent("SELF-WEIGHT-REFRESH-NOT-NEEDED");
     expect(refresh).not.toHaveBeenCalled();

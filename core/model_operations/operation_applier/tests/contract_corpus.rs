@@ -497,8 +497,11 @@ fn condition_set_corpus_cases_match_the_rust_contract_reference() {
     for code in CONDITION_SET_BLOCK_CODES {
         assert!(blocked.contains(code), "no condition-set corpus case blocks with `{code}`");
     }
-    // RT-A6 H1: an unconsumed contents-density use is staged, not refused.
-    for code in ["OPERATING_CONDITION_SET_MISSING", "EQUIVALENT_STATIC_INPUT_MISSING", "LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED"] {
+    // This corpus's contents control is intentionally incomplete (no density
+    // value), so authoring stages its ordinary missing-value diagnostic.
+    // Valid unconsumed contents use the distinct nonblocking notice exercised
+    // through the H1 transport/engine tests.
+    for code in ["OPERATING_CONDITION_SET_MISSING", "EQUIVALENT_STATIC_INPUT_MISSING", "OPERATING_CONDITION_VALUE_MISSING"] {
         assert!(warned.contains(code) && !blocked.contains(code), "`{code}` is a staged warning in the corpus");
     }
     for code in ["LOAD_CASE_TEST_CONDITION_UNSUPPORTED", "SNUBBER_DYNAMIC_ONLY_UNSUPPORTED"] {

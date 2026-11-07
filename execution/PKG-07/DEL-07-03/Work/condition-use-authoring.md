@@ -21,8 +21,10 @@ the load/reference-state inputs, for the selected case.
   code, and offers no input: `LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT`.
 - **Contents density (RT-A6 H1, DEL-05-01 Work `hydrostatic-test.md` §8).** A key chosen
   from the keys whose condition states a contents density, on both routes. The control
-  states that the use is mass input, staged as `LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED`
-  until self-weight generated from the case's selection consumes it. The self-weight
+  states that this is mass input. A valid source selection without generated
+  contents weight gives nonblocking `CASE_CONTENTS_WEIGHT_NOT_APPLIED`, with no
+  implicit force or gravity; the source selection need not be cleared. Invalid
+  inputs and unconnected seismic mass stay blocking. The self-weight
   panel's "Contents density from case" lists the cases with such a use, sends
   `contents_source_case_ref`, and checks that the plan's new case records the same key.
 - **Members the control does not edit.** A use edit starts from the stored use and

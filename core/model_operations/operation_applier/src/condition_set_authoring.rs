@@ -48,10 +48,10 @@
 //! a `pressure_contract` a use stating only `contents_density` is admitted
 //! (RT-A6 H1) and every other use is refused
 //! (`LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED`, until S4). A contents use is
-//! mass input: until self-weight generated from the case's own selection
-//! consumes it, the solve refuses it by name
-//! (`LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED`), which authoring reports as a
-//! staged warning, so a source case's selection can be stated first.
+//! mass input: a valid selection without generated contents weight carries
+//! `CASE_CONTENTS_WEIGHT_NOT_APPLIED` as a nonblocking warning. Invalid inputs
+//! and unconnected seismic consumers remain blocking; authoring does not
+//! downgrade `LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED`.
 //!
 //! **The solve's judgement, classified (SWBPIPE Agent 0, 2026-11-02;
 //! [`report_judgement`]).** After an admitted operation, and once the document
@@ -68,8 +68,9 @@
 //! naming only entities of the document before the edit, outside the edit's
 //! dependency scope ([`edit_scope`]) and not a route or admission code, is
 //! reported as `info` with the solve's code and message, and the edit applies.
-//! The solve still refuses it, and every case with a staged finding, by name;
-//! nothing records that the document solves. The applier computes no
+//! Staged blocking-input findings still refuse at solve. H1's explicit
+//! CASE_CONTENTS_WEIGHT_NOT_APPLIED notice is nonblocking there as well; no
+//! authoring outcome certifies that the whole document solves. The applier computes no
 //! temperature difference of its own.
 //!
 //! Inverses: create and delete (at the deleted index), update and update with
@@ -124,8 +125,8 @@ pub(crate) enum Staged {
 
 /// The staged-state findings (§11, SWBPIPE Agent 0, 2026-11-02): exactly these
 /// are warnings. Every other finding blocks. RT-A6 H1 adds the unconsumed
-/// contents use: a case may state its contents selection before the
-/// self-weight generated from it exists (the solve still refuses it by name).
+/// contents notice: a valid source selection may remain without generated
+/// weight. Unsupported seismic consumers and invalid inputs still block.
 pub(crate) const STAGED_FINDINGS: [Staged; 9] = [
     Staged::Code(pp_resolution::OPERATING_CONDITION_SET_MISSING),
     Staged::Code(pp_resolution::OPERATING_CONDITION_KEY_MISSING),
@@ -134,7 +135,7 @@ pub(crate) const STAGED_FINDINGS: [Staged; 9] = [
     Staged::Code(pp_resolution::LOAD_CASE_CONDITION_TEMPERATURE_CONFLICT),
     Staged::Code(pp_resolution::LOAD_CASE_CONDITION_WIND_EXPOSURE_CONFLICT),
     Staged::Code(pp_resolution::LOAD_CASE_CONDITION_WIND_INPUT_MISSING),
-    Staged::Code(pp_resolution::LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED),
+    Staged::Code(pp_conditions::contents::CASE_CONTENTS_WEIGHT_NOT_APPLIED),
     Staged::EmptyGeneratedWindExposure,
 ];
 
@@ -545,6 +546,8 @@ pub(crate) fn report_judgement(checker: &mut crate::Checker, before: &Value, cha
     };
     for finding in found {
         let remediation = match finding.severity {
+            "warning" if finding.code == pp_conditions::contents::CASE_CONTENTS_WEIGHT_NOT_APPLIED =>
+                "Contents density has not been applied as weight in this case. No force or gravity is assumed; the valid source selection can remain authored.",
             "warning" => "Authoring is not blocked; the solve refuses the named case until the named input is stated.",
             "info" => "Authoring is not blocked by a refusal the document already carried outside this edit's scope; the solve refuses the document until the named member is resolved.",
             _ => "The solve refuses the candidate document for this finding; correct it or the operation and retry.",
@@ -965,7 +968,7 @@ mod tests {
                 "LOAD_CASE_CONDITION_TEMPERATURE_CONFLICT",
                 "LOAD_CASE_CONDITION_WIND_EXPOSURE_CONFLICT",
                 "LOAD_CASE_CONDITION_WIND_INPUT_MISSING",
-                "LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED",
+                "CASE_CONTENTS_WEIGHT_NOT_APPLIED",
             ]
         );
         assert!(STAGED_FINDINGS.contains(&Staged::EmptyGeneratedWindExposure));
@@ -987,6 +990,7 @@ mod tests {
         for code in [
             "LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT",
             "LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED",
+            "LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED",
             "LOAD_CASE_CONDITION_USE_EMPTY",
             "OPERATING_CONDITION_SET_UNRESOLVED",
             "OPERATING_CONDITION_QUANTITY_INVALID",

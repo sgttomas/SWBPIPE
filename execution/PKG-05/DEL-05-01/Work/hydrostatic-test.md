@@ -410,27 +410,41 @@ weight/wind use, schema version or model member; hydrotest is not complete.
   unrelated set or key, or the superseded section density is not a dependency.
   A refresh keeps identity and origin. A missing selected value is invalid by
   name, never a section-density fallback.
-- **Solve admission.** A contents use is admitted on PF and EX (EX: contents
-  alone; any other EX use stays `LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED`) when
-  generated self-weight of the same case binds it. A use no such record binds,
-  or one in a case that also generates equivalent-static seismic, is refused by
-  name (`LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED`); the applier stages that
-  finding as a warning so a source case's selection can be authored first. The
-  source case therefore solves only after its use is cleared or consumed.
+- **Solve admission.** Contents alone is admitted on PF and EX; other EX uses
+  stay `LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED`. A valid selected source with
+  no generated contents weight gives `CASE_CONTENTS_WEIGHT_NOT_APPLIED`, a
+  nonblocking warning explicitly saying no contents weight or gravity has been
+  applied. It creates no force, and the source case remains in the solved model.
+  Invalid sets/keys/quantities/context and stale generated inputs remain blocking.
+  Contents plus unconnected seismic mass stays blocking as
+  `LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED`; authoring does not downgrade it.
+  A nonempty warning vector never changes the PF plan into Err/no-plan.
   `lower` keeps only the contents selection (the case key, the sets' contents
   values and the pipes' references) when a case uses contents, so the
   post-lowering self-weight validation resolves the same selection; no solve
   body changed.
 - **Unchanged and declined.** With no source the request, plan, evidence and
   create-case bytes are unchanged (pinned against the DEL-09-01 reference-system
-  capture). The modal entry is unchanged: an unconsumed state-case use is still
-  refused upstream, and a consumed one leaves the selection on the lowered model,
-  so the binder refuses the state case (`MODAL_STATE_CASE_UNAVAILABLE`); a modal
+  capture). The modal production entry is unchanged: selected contents leave
+  context on the lowered model, so its existing explicit binder refuses the
+  state case (`MODAL_STATE_CASE_UNAVAILABLE`); a modal
   without a state case keeps the section mass. The retained Direct/headless
   routes and their D1 admission still decline condition sets by name. The weight
-  summary keeps the section-density plan. `create_load_case` writes no
-  `pressure_regions`, so an EX target needs that member authored before it
-  solves (unchanged).
+  summary keeps the section-density plan. A contents-aware new EX target
+  explicitly plans `pressure_regions: []`, which the real create operation
+  preserves; it copies no source pressure or test flag. Legacy no-use case
+  payloads remain unchanged. The positive static and transport proofs solve the
+  complete applied/reopened source-plus-target document without deletion or a
+  test-only pressure-field patch.
+- **Repaired connecting proof (pre-review).** The complete source-plus-target
+  model, unchanged after real batch apply and reopen, solves on PF and plain EX
+  in both solver modes. Valid unused source selections remain authored with a
+  warning and no inferred force. The positive proofs contain no origin deletion
+  or post-generation target patch; intentional origin-removal independence is
+  tested separately. The real panel/service/Wasm path covers PF and EX and
+  retains the target's explicit empty regions. The modal production binder is
+  unchanged; its deferral regression now asserts the existing
+  `MODAL_STATE_CASE_UNAVAILABLE` gate exposed by the nonblocking static policy.
 - **Evidence.** `core/product_physics/tests/h1_contents_self_weight.rs`
   (independent PF/EX closed forms `(902800199/4000000)π` and
   `(5686876335/25000000)π` N/m, a 6 m cantilever reaction, section-density twins,

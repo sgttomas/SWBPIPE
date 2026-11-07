@@ -10,7 +10,7 @@
 //   chosen from the keys whose condition states a contents density. It is mass input: the
 //   solve consumes it only through self-weight generated from this case's selection (the
 //   self-weight panel's "Contents density from case"), and until then the engine stages
-//   `LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED`, which the solve refuses by name.
+//   `CASE_CONTENTS_WEIGHT_NOT_APPLIED`, a nonblocking notice with no implied force.
 // The whole ConditionUse object is written with `set_load_case_condition_use`, or removed
 // with `clear_load_case_condition_use`, after the operation engine has checked it. The
 // per-pipe resolution shown is the engine's own (`previewOperatingConditions`); the desktop
@@ -32,10 +32,10 @@ export const REFUSED_PRESSURE = {
   code: "LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT",
   text: "Pressure from conditions is refused: a pressure-free document has no pressure carrier."
 } as const;
-/** RT-A6 H1: a contents-density use is mass input, staged until consumed. */
+/** RT-A6 H1: a valid unconsumed contents selection is a nonblocking notice. */
 export const CONTENTS_STAGED = {
-  code: "LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED",
-  text: "Contents density from conditions is mass input. It enters the solve only through self-weight generated from this case's selection (Plan self-weight, \"Contents density from case\"), recorded on the new case as its own selection. Until such self-weight exists the engine stages this finding and the solve refuses the case by name."
+  code: "CASE_CONTENTS_WEIGHT_NOT_APPLIED",
+  text: "Contents density is mass input, not an automatic force. A valid selection without generated contents weight gives a warning: that density has NOT been applied as weight in this case. No gravity is assumed. Keep the source selection, then choose it in Plan self-weight to generate a different target case."
 } as const;
 
 const EDITED = new Set(["temperature", "added_weight", "wind_exposure", "contents_density"]);

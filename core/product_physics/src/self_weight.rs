@@ -599,6 +599,12 @@ fn generate_operations(
     // the origin case is provenance, not a live dependency.
     if let Some(selection) = contents {
         case["condition_use"] = json!({"contents_density":selection.context.key()});
+        // An EX self-weight target explicitly carries no pressure regions.
+        // This belongs to the reviewed contents-aware case draft; the legacy
+        // no-use case/evidence bytes are unchanged.
+        if exact {
+            case["pressure_regions"] = json!([]);
+        }
     }
     let mut changes = vec![draft(
         request,

@@ -137,14 +137,11 @@ fn plan(model: &Value, source: Option<&str>) -> Result<SelfWeightOperationPlan, 
         .map_err(|found| found.into_iter().map(|d| d.code).collect())
 }
 
-/// The plan applied as the operation route applies it: the case shell (with
-/// the exact route's explicit `pressure_regions: []`), then its primitives.
+/// Adopt only the emitted case shell and primitives, without test-only repairs.
+/// Legacy EX shells deliberately keep their pre-H1 shape.
 fn adopt(mut model: Value, plan: &SelfWeightOperationPlan) -> Value {
     let mut case: Value = serde_json::from_str(&plan.changes[0].after).unwrap();
     case["primitive_loads"] = Value::Array(plan.changes[1..].iter().map(|c| serde_json::from_str(&c.after).unwrap()).collect());
-    if model.get("pressure_contract").is_some() {
-        case["pressure_regions"] = json!([]);
-    }
     model["load_cases"].as_array_mut().unwrap().push(case);
     model
 }
@@ -194,17 +191,11 @@ fn root_reaction_fy(envelope: &MechanicsEnvelope, case: &str) -> f64 {
         .value
 }
 
-/// The contents document after generation, with the target adopted and the
-/// unconsumed origin removed (the origin is provenance, not a dependency).
+/// The complete authored document after generation and target adoption.
 fn adopted(exact: bool) -> Value {
     let model = document(exact, None, true);
     let plan = plan(&model, Some(SOURCE)).unwrap();
     adopt(model, &plan)
-}
-
-fn without_origin(mut model: Value) -> Value {
-    model["load_cases"].as_array_mut().unwrap().retain(|c| c["id"] != SOURCE);
-    model
 }
 
 #[test]
@@ -229,10 +220,15 @@ fn contents_selected_weight_matches_the_independent_closed_form() {
         // the source case is copied.
         let target = model["load_cases"].as_array().unwrap().iter().find(|c| c["id"] == TARGET).unwrap();
         assert_eq!(target["condition_use"], json!({"contents_density": "HYDRO"}));
-        assert!(target.get("test_condition").is_none() && target.get("pressure_regions").map_or(true, |r| r == &json!([])));
+        assert!(target.get("test_condition").is_none());
+        if exact {
+            assert_eq!(target["pressure_regions"], json!([]), "the actual EX plan authors its complete case shell");
+        } else {
+            assert!(target.get("pressure_regions").is_none());
+        }
         assert_eq!(target_state(&model), AppliedSelfWeightState::Fresh, "exact {exact}");
         // The mechanics: one physical mass, the root reaction w L, in both solver modes.
-        let solved = without_origin(model);
+        let solved: Value = serde_json::from_slice(&serde_json::to_vec(&model).unwrap()).unwrap();
         for mode in MODES {
             let envelope = solve(&solved, mode);
             assert_eq!(envelope.status.mechanics, "MECHANICS_SOLVED", "exact {exact} {mode:?}: {:?}", envelope.diagnostics);
@@ -250,9 +246,18 @@ fn contents_twins_equal_section_density_twins_with_distinct_provenance() {
     for exact in [false, true] {
         // The section-density twin: no condition use, the section states 1,000 kg/m^3.
         let section_twin = {
-            let model = document(exact, Some(1000.0), false);
+            let mut model = document(exact, Some(1000.0), false);
+            model["load_cases"].as_array_mut().unwrap().push(case_shell(exact, SOURCE, None));
             let plan = plan(&model, None).unwrap();
-            adopt(model, &plan)
+            // The independent section-density twin authors its complete
+            // target shell explicitly (including EX's empty region list),
+            // then uses only the legacy plan's load records. H1 adoption is
+            // never repaired by this reference fixture.
+            let mut legacy = model;
+            let mut target = case_shell(exact, TARGET, None);
+            target["primitive_loads"] = Value::Array(plan.changes[1..].iter().map(|c| serde_json::from_str(&c.after).unwrap()).collect());
+            legacy["load_cases"].as_array_mut().unwrap().push(target);
+            legacy
         };
         // The contents twin, also with a different section density, which the
         // explicit selection supersedes (recorded, never consumed).
@@ -260,7 +265,7 @@ fn contents_twins_equal_section_density_twins_with_distinct_provenance() {
             let mut model = document(exact, Some(400.0), true);
             let plan = plan(&model, Some(SOURCE)).unwrap();
             model = adopt(model, &plan);
-            without_origin(model)
+            model
         };
         assert_eq!(intensity(&section_twin, TARGET).to_bits(), intensity(&contents_twin, TARGET).to_bits(), "exact {exact}");
         let (a, b) = (record(&section_twin, TARGET), record(&contents_twin, TARGET));
@@ -455,39 +460,79 @@ fn a_component_weight_member_cannot_consume_selected_contents() {
 }
 
 #[test]
-fn the_solve_admits_consumed_contents_only_and_refuses_the_rest_by_name() {
-    // An unconsumed use (the origin, before the target exists) refuses by name on both routes.
+fn valid_unconsumed_contents_warns_without_force_and_other_refusals_stay_blocking() {
+    use open_pipe_stress_product_physics::operating_conditions::contents::CASE_CONTENTS_WEIGHT_NOT_APPLIED;
     for exact in [false, true] {
-        let envelope = solve(&document(exact, None, true), PreviewSolverMode::SparseInteractive);
-        assert!(codes(&envelope).contains(&"LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED".to_string()), "exact {exact}: {:?}", envelope.diagnostics);
-        // After generation the origin is still unconsumed: refused until its use is cleared or it is removed.
-        let envelope = solve(&adopted(exact), PreviewSolverMode::SparseInteractive);
-        let found = codes(&envelope);
-        assert_eq!(found, ["LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED"], "exact {exact}");
-        assert!(envelope.diagnostics.iter().any(|d| d.affected_refs.contains(&SOURCE.to_string())));
+        for mode in MODES {
+            let mut source_model = document(exact, None, true);
+            // The ordinary explicit-load requirement is unchanged. An authored
+            // nodal force lets us compare this source case with a no-selection
+            // twin and prove that the contents notice adds no force.
+            source_model["load_cases"][0]["primitive_loads"] = json!([{
+                "id":"load:source-force", "category":"concentrated_force",
+                "target":{"type":"node","node":"tip"}, "direction":"global_y",
+                "magnitude":q(-1.0,"N"), "dimension":"force", "provenance":PROV
+            }]);
+            let source_only = solve(&source_model, mode);
+            assert_eq!(source_only.status.mechanics, "MECHANICS_SOLVED", "{:?}", source_only.diagnostics);
+            source_model["load_cases"][0].as_object_mut().unwrap().remove("condition_use");
+            let source_twin = solve(&source_model, mode);
+            assert_eq!(serde_json::to_value(&source_only.results).unwrap(), serde_json::to_value(&source_twin.results).unwrap(), "contents selection alone changes no force");
+            let notice = source_only.diagnostics.iter().find(|d| d.code == CASE_CONTENTS_WEIGHT_NOT_APPLIED).unwrap();
+            assert_eq!(notice.severity, "warning");
+            assert!(notice.message.contains("NOT been applied as weight"));
+            let complete = adopted(exact);
+            let envelope = solve(&complete, mode);
+            assert_eq!(envelope.status.mechanics, "MECHANICS_SOLVED", "{:?}", envelope.diagnostics);
+            assert_eq!(root_reaction_fy(&envelope, SOURCE), 0.0);
+            assert!(envelope.diagnostics.iter().any(|d| d.code == CASE_CONTENTS_WEIGHT_NOT_APPLIED && d.affected_refs.contains(&SOURCE.to_string())));
+            assert!(!envelope.diagnostics.iter().any(|d| d.code == CASE_CONTENTS_WEIGHT_NOT_APPLIED && d.affected_refs.contains(&TARGET.to_string())));
+        }
     }
-    // A stale target blocks the solve after the lowering (the retained selection is validated).
-    let mut stale = without_origin(adopted(true));
+    // Stale generated inputs remain blocking on the complete document.
+    let mut stale = adopted(true);
     stale["condition_sets"][0]["conditions"][0]["contents_density"] = q(1100.0, "kg/m^3");
     assert!(codes(&solve(&stale, PreviewSolverMode::SparseInteractive)).contains(&"SELF_WEIGHT_INPUTS_STALE".to_string()));
-    let mut keyed = without_origin(adopted(false));
-    keyed["load_cases"][0]["condition_use"]["contents_density"] = json!("ALT");
+    let mut keyed = adopted(false);
+    let index = keyed["load_cases"].as_array().unwrap().iter().position(|case| case["id"] == TARGET).unwrap();
+    keyed["load_cases"][index]["condition_use"]["contents_density"] = json!("ALT");
     assert!(codes(&solve(&keyed, PreviewSolverMode::SparseInteractive)).contains(&"SELF_WEIGHT_INPUTS_STALE".to_string()));
-    // On the exact route every other use stays refused, with or without contents.
-    let mut mixed = without_origin(adopted(true));
+    // A warning cannot hide a missing source set/key or invalid authored density.
+    for exact in [false, true] {
+        let mut missing = document(exact, None, true);
+        missing["pipe_segments"][0].as_object_mut().unwrap().remove("condition_set_ref");
+        assert!(codes(&solve(&missing, PreviewSolverMode::SparseInteractive)).contains(&"OPERATING_CONDITION_SET_MISSING".to_string()));
+        let mut bad_key = document(exact, None, true);
+        bad_key["load_cases"][0]["condition_use"]["contents_density"] = json!("absent");
+        assert!(codes(&solve(&bad_key, PreviewSolverMode::SparseInteractive)).contains(&"OPERATING_CONDITION_KEY_MISSING".to_string()));
+        let mut invalid = document(exact, None, true);
+        invalid["condition_sets"][0]["conditions"][0]["contents_density"] = q(-1.0, "kg/m^3");
+        assert!(codes(&solve(&invalid, PreviewSolverMode::SparseInteractive)).contains(&"OPERATING_CONDITION_QUANTITY_INVALID".to_string()));
+    }
+    let mut mixed = adopted(true);
     mixed["load_cases"][0]["condition_use"]["added_weight"] = json!(true);
     assert!(codes(&solve(&mixed, PreviewSolverMode::SparseInteractive)).contains(&"LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED".to_string()));
-    // A case whose seismic generation would not consume the selection is refused.
-    let mut seismic = without_origin(adopted(false));
+    let mut seismic = adopted(false);
     seismic["load_cases"][0]["equivalent_static"] = json!({"seismic": {"g_factor_y": q(0.1, "1"), "gravity_acceleration": q(9.80665, "m/s^2")}});
-    let found = codes(&solve(&seismic, PreviewSolverMode::SparseInteractive));
-    assert!(found.contains(&"LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED".to_string()), "{found:?}");
-    // The hydrostatic test case stays refused.
-    let mut test = without_origin(adopted(true));
+    assert!(codes(&solve(&seismic, PreviewSolverMode::SparseInteractive)).contains(&"LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED".to_string()));
+    let mut test = adopted(true);
     test["load_cases"][0]["test_condition"] = json!({"kind": "hydrostatic", "held_supports": "none"});
     assert!(codes(&solve(&test, PreviewSolverMode::SparseInteractive)).contains(&"LOAD_CASE_TEST_CONDITION_UNSUPPORTED".to_string()));
-    // The read-only preview resolves a consumed document and lists no generated record for contents.
-    let preview = preview_operating_conditions(&without_origin(adopted(false)));
+    let preview = preview_operating_conditions(&adopted(false));
     assert_eq!(preview["resolved"], true, "{preview}");
-    assert_eq!(preview["cases"][0]["generated_primitive_loads"], json!([]));
+    assert_eq!(preview["cases"].as_array().unwrap().len(), 2);
+}
+
+#[test]
+fn a_contents_notice_does_not_discard_the_pf_temperature_plan() {
+    let mut model = document(false, None, true);
+    model["condition_sets"][0]["installation_temperature"] = q(20.0, "degC");
+    model["condition_sets"][0]["conditions"][0]["temperature"] = q(40.0, "degC");
+    model["load_cases"][0]["condition_use"]["temperature"] = json!("HYDRO");
+    let preview = preview_operating_conditions(&model);
+    assert_eq!(preview["resolved"], true, "{preview}");
+    let records = preview["cases"][0]["generated_primitive_loads"].as_array().unwrap();
+    assert_eq!(records.len(), 1, "warning must not turn the PF plan into Err/None");
+    assert_eq!(records[0]["category"], "thermal");
+    assert_eq!(records[0]["magnitude"], q(20.0, "K"));
 }

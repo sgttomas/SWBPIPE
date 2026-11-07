@@ -5749,6 +5749,23 @@ fn resolve_create_load_case(
     });
     if let Some(using) = record.get("condition_use") {
         created["condition_use"] = using.clone();
+        // H1's contents-aware EX target explicitly authors an empty region
+        // list. Preserve that planned field before judging the case; no
+        // pressure is inferred or copied from the origin case.
+        if using.get("contents_density").is_some() && model.get("pressure_contract").is_some() {
+            if let Some(regions) = record.get("pressure_regions") {
+                if !regions.as_array().is_some_and(Vec::is_empty) {
+                    checker.push(
+                        "OP-CREATE-LOAD-CASE-PAYLOAD-INVALID", "blocking",
+                        "A contents self-weight case must author an empty pressure_regions array.".into(),
+                        "Create the weight-only case with pressure_regions: []; author any pressure separately through its existing operation route.",
+                        vec![target_ref.to_string()],
+                    );
+                    return None;
+                }
+                created["pressure_regions"] = regions.clone();
+            }
+        }
         let mut candidate = model.clone();
         if apply_created_load_case(&mut candidate, &created) {
             condition_set_authoring::report_judgement(checker, model, condition_set_authoring::CREATE_LOAD_CASE, target_ref, &candidate);

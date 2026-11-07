@@ -137,14 +137,11 @@ fn explicit_contents_generate_apply_reopen_inspect_and_solve() {
     assert_eq!(record["generated_payload"]["magnitude"]["value"].as_f64().unwrap().to_bits(), intensity.to_bits());
     assert_eq!(refresh(&refreshed)["diagnostics"][0]["code"], "SELF-WEIGHT-REFRESH-NOT-NEEDED");
 
-    // The solve: the unconsumed origin is refused by name; cleared, one mass is solved.
-    let refused = solve(&adopted);
-    assert_ne!(refused.status.mechanics, "MECHANICS_SOLVED");
-    assert!(refused.diagnostics.iter().any(|d| d.code == "LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED" && d.affected_refs.contains(&"case:hydro".to_string())));
-    let cleared = step(&adopted, "modify", "clear_load_case_condition_use", "Load", "case:hydro", "condition_use",
-        &canonical_json(&json!({"contents_density":"HYDRO"})), "not_present");
-    let solved = solve(&reopen(&cleared));
+    // Solve the complete applied/reopened model: keep the source selection,
+    // apply exactly one target weight, and report a nonblocking source notice.
+    let solved = solve(&reopen(&adopted));
     assert_eq!(solved.status.mechanics, "MECHANICS_SOLVED", "{:?}", solved.diagnostics);
+    assert!(solved.diagnostics.iter().any(|d| d.code == "CASE_CONTENTS_WEIGHT_NOT_APPLIED" && d.severity == "warning" && d.affected_refs.contains(&"case:hydro".to_string())));
     let fy = solved.results.iter().find(|r| r.kind == "support_reaction_component_v2" && r.entity_ref == "support:root"
         && r.basis_ref.as_ref().is_some_and(|b| b.ref_id == "case:weight") && r.metadata.as_ref().is_some_and(|m| m.component == "Fy")).unwrap().value;
     assert!((fy - reference * LENGTH).abs() <= 1e-9 * reference * LENGTH, "{fy} vs {}", reference * LENGTH);
@@ -218,4 +215,37 @@ fn no_use_generation_regenerates_the_reference_system_capture_byte_for_byte() {
             assert!(!change["after"].as_str().unwrap().contains("contents_source"));
         }
     }
+}
+
+#[test]
+fn contents_aware_ex_target_is_complete_through_the_existing_operation_route() {
+    let mut original = model();
+    original["pressure_contract"] = json!({"version":"3.0.0","mode":"exact_pressure_v3","shear_model":"euler_bernoulli"});
+    original["materials"][0]["constitutive_basis"] = json!("homogeneous_isotropic_E_nu_v1");
+    original["materials"][0]["poisson_ratio"] = q(0.25, "1");
+    original["load_cases"][0]["pressure_regions"] = json!([]);
+    original["pipe_segments"][0]["section"]["corrosion_allowance"] = q(0.001, "m");
+    let outcome = transport(&original, &request(&original, json!("case:hydro")));
+    assert_eq!(outcome["status"], "ready", "{outcome}");
+    let created: Value = serde_json::from_str(outcome["plan"]["changes"][0]["after"].as_str().unwrap()).unwrap();
+    assert_eq!(created["pressure_regions"], json!([]));
+    assert!(created.get("test_condition").is_none());
+    let adopted = reopen(&apply_batch(&original, &batch(&outcome, "ex-weight")));
+    assert_eq!(case(&adopted, "case:weight")["pressure_regions"], json!([]));
+    assert_eq!(refresh(&adopted)["diagnostics"][0]["code"], "SELF-WEIGHT-REFRESH-NOT-NEEDED");
+    let solved = solve(&adopted);
+    assert_eq!(solved.status.mechanics, "MECHANICS_SOLVED", "{:?}", solved.diagnostics);
+    assert!(solved.diagnostics.iter().any(|d| d.code == "CASE_CONTENTS_WEIGHT_NOT_APPLIED" && d.severity == "warning"));
+    let reference = (5686876335.0 / 25000000.0) * PI;
+    let fy = solved.results.iter().find(|r| r.kind == "support_reaction_component_v2" && r.entity_ref == "support:root"
+        && r.basis_ref.as_ref().is_some_and(|b| b.ref_id == "case:weight") && r.metadata.as_ref().is_some_and(|m| m.component == "Fy")).unwrap().value;
+    assert!((fy - reference * LENGTH).abs() <= 1e-9 * reference * LENGTH);
+    // A nonempty pressure payload is not copied through this weight-only path.
+    let mut invalid = batch(&outcome, "ex-invalid-pressure");
+    let mut payload: Value = serde_json::from_str(invalid["operations"][0]["change"]["after"].as_str().unwrap()).unwrap();
+    payload["pressure_regions"] = json!([{"id":"not-a-weight-region"}]);
+    invalid["operations"][0]["change"]["after"] = json!(canonical_json(&payload));
+    let refused = apply_operation_batch(&original, &invalid, Some(&claim(&original)));
+    assert_ne!(refused["validation"]["application_status"], "applied_to_session_model");
+    assert!(refused["diagnostics"].as_array().unwrap().iter().any(|d| d["code"] == "OP-CREATE-LOAD-CASE-PAYLOAD-INVALID"));
 }

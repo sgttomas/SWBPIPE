@@ -5768,10 +5768,37 @@
             {
               "affected_refs": [
                 "SUS",
-                "OPE1"
+                "P1",
+                "cs:a",
+                "OPE1",
+                "contents_density"
               ],
               "blocking": false,
-              "code": "LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED",
+              "code": "OPERATING_CONDITION_VALUE_MISSING",
+              "severity": "warning"
+            },
+            {
+              "affected_refs": [
+                "SUS",
+                "P2",
+                "cs:a",
+                "OPE1",
+                "contents_density"
+              ],
+              "blocking": false,
+              "code": "OPERATING_CONDITION_VALUE_MISSING",
+              "severity": "warning"
+            },
+            {
+              "affected_refs": [
+                "SUS",
+                "P3",
+                "cs:a",
+                "OPE1",
+                "contents_density"
+              ],
+              "blocking": false,
+              "code": "OPERATING_CONDITION_VALUE_MISSING",
               "severity": "warning"
             }
           ],
