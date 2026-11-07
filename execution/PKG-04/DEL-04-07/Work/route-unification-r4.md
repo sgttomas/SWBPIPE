@@ -921,6 +921,12 @@ descriptive. Rule packs map it through their load-case mappings (W-17 rule-pack 
 
 ### 4.4 How "springs held" is modelled
 
+**Historical outline; §4.9 governs the implementation.** In particular, the
+retained-spring-diagonal paragraph below is not a future implementation
+warrant: the agreed held plan suppresses both the original stiffness and its
+force/preload actions. S6 enables active motion semantics only and implements
+none of these held laws.
+
 **Rule.** A locked spring's DOF becomes a prescribed DOF at the entered absolute position
 (relative to the reference configuration). It goes through the same partitioned reduction as
 `boundary_motion` (`resolve.rs:1040-1085`; `imposed_motion.rs:7-11`), and its reaction comes
@@ -1024,7 +1030,7 @@ use guidance must explain the active/held distinction and reaction meaning;
 the user-facing test workflow stays with DEL-05-01.
 
 **Callable mechanics seam to implement.** A product-internal
-`case_devices::resolve_case_devices(model, case, diagnostics)` will return a
+`case_devices::resolve_case_devices(model, case, normalized_participation_requests, diagnostics)` will return a
 complete `ResolvedCaseDevices` or a named blocking diagnostic. The names here
 are planned Rust seams, not an existing API or a new serialized format. Its
 input is the per-case device participation and entered prescribed positions
@@ -1066,15 +1072,24 @@ no 0.10 format and does not duplicate the load-case generator. Generated-source
 identity, factors, collisions and inclusion evidence remain part of H-a's
 integration design, not an assumption that every stored primitive is applied.
 
-**Unresolved semantics for the mechanics design.** The lowerer's mapping from
-`held_supports` to entered absolute positions must be explicit; neither a
-predecessor position nor an implicit device datum is invented here. Skewed
-held-device directions need their admitted constraint/reaction representation;
-S1's exact-axis lowering does not establish a general skew constraint. The
-interaction of an explicit locked participation record with test-condition
-lowering needs one consistency/refusal rule, never array-order precedence.
-These points require resolution with the owning load-case design before the
-corresponding admission lifts. PF test-condition admission, test-case
+**Hydrotest design reconciliation (2026-11-07; design review pending).** The
+load-case owner and RT-A3 agree that `springs_and_constant_effort` maps every
+eligible device's complete acted-DOF set to entered, finite normalized zero
+global reference displacements (m/rad), preserving original support, node,
+direction and reference-geometry identities and EX skew refusals. The same
+internal lowering and plan serve plain EX and load-state EX. Replacement
+reactions are `K_replacement*u - f_active` at constrained DOFs, attributed to
+the original support; held constant effort publishes no active applied-load
+row. A test-held request and an explicit locked record may coalesce only for
+that same support/node, exactly the same complete DOF set and those zero
+positions. Duplicate records, wrong DOFs/positions, predecessor sources,
+active/held contradictions and extra unsupported base/reference/motion data
+refuse; there is no array-order priority. Test `held_supports: none` preserves
+active devices and conflicts with explicit locks. These are premises for the
+future held-device unit, not admission in S6: valid active rigid/nonlinear
+motions, nonlinear grounds and active-spring bases retain §3.7's semantics.
+Neither a predecessor position nor an implicit device datum is inferred.
+PF test-condition admission, test-case
 combinations, contents resolution and hydrotest pressure-primitive policy stay
 with the load-case owner. H-1/H-1b/H-2/H-3 are small-case prerequisites; scaling
 or sparse P does not substitute for them.
