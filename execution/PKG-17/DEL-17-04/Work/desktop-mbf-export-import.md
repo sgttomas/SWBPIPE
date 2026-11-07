@@ -1272,10 +1272,29 @@ uses the same mechanics as the export review (§3.9.5).
   its codes), the transfer limit (`within` or `beyond`) and `schema_status`.
 - **Completeness.** `complete` or `truncated`, with the counts not shown, how many of them block, and the same counts
   per list.
-- **Not carried.** Engine message texts and assumption sentences. Several state facts about the target program, so
-  the dialog shows each code with a product description from `MBF_IMPORT_DESCRIPTIONS` in `mbfImport.ts`. A test
-  derives every `MBF-IMPORT-*` code the engine importer emits from its source and holds that each has a description.
-  The dialog states "The importer's assumptions are not displayed here."
+- **Mapping assumptions (REQ-015).** An `assumptions` list carries every applied mapping assumption as a stable
+  identifier and structured parameters, rendered with source-safe product descriptions. These facts are recorded
+  alongside the existing assumption emissions, under the same conditions in `importer/finish.rs` and
+  `importer/pressure.rs`; they are not guessed from diagnostic codes or parsed back from English sentences.
+  The existing full-report assumption strings and serialized Python/Rust parity outputs are unchanged.
+  - Coverage includes the input units and angle mode; Y axes or the exact Z-to-Y rotation; exact offset summation
+    and one binary64 rounding per node; English-to-SI re-export normalization; bare-metal-only weight and its unit
+    conversion; G derivation and temperature-independent material handling; thermal differences and zero-field
+    handling; applied pressure-region, closure and shear choices; support/spring mappings; earth-weight direction;
+    binding/profile conventions actually applied; and the absence of created combinations. Conditional parameters
+    preserve the source meaning rather than replace it with a generic success statement.
+  - The worker bounds these entries, parameters and descriptions within R, using the same per-field and aggregate
+    completeness accounting as the other lists. An assumption counted but not fully represented makes the review
+    truncated and blocks Adopt. A new or unmapped assumption identifier refuses adoption with
+    `MBF-IMPORT-ASSUMPTION-UNAVAILABLE`; it cannot silently disappear from a complete review.
+  - Maintained tests exercise each emission branch, require every emitted full-report assumption to have its
+    structured counterpart, compare the represented choices with expected mappings, and hold the existing parity
+    bytes unchanged. This metadata is desktop-review support, not another numerical interpretation or importer.
+- **Not carried.** Raw engine message texts and raw assumption sentences. Several state facts about the target
+  program. The dialog instead shows the codes and structured assumption identifiers with product descriptions from
+  `MBF_IMPORT_DESCRIPTIONS` and `MBF_IMPORT_ASSUMPTIONS` in `mbfImport.ts`. Their tests cover every emitted diagnostic
+  code and assumption identifier, including the meaningful conditional parameters above. Product descriptions state
+  SWBPIPE's mapping behavior and preserve the applied assumptions without introducing new target-program claims.
 - **Deterministic.** The review contains no token, epoch, time or path. The same bytes, file name and declaration
   give byte-identical reviews (REQ-017), so `review_sha256` binds the source digests, the declaration, the model
   digest and everything the user saw.
@@ -1337,7 +1356,7 @@ Every refusal leaves the session unchanged. The dialog shows each code with a pr
 | Declaration | `MBF-IMPORT-DECLARATION-INVALID` (not an object of MBF material names to `{origin, source_name}` with `origin` `project_invented` or `user_supplied` and a non-empty `source_name` of at most 512 bytes; or above the argument bound) |
 | Worker and memory | `MBF-IMPORT-MEMORY-UNAVAILABLE` (a refused bound, grant, growth, footprint, request copy, wait or reservation); `MBF-IMPORT-WORKER-PROTOCOL`; `MBF-IMPORT-WORKER-REQUEST-INVALID`; `MBF-IMPORT-ENGINE-FAILED` (the engine returned no result) |
 | Importer | Every importer refusal by its own code (import Design §4 to §15), carried in the review |
-| Adopt | `MBF-IMPORT-REVIEW-STALE` (the reviewed digest differs); `MBF-IMPORT-REVIEW-TRUNCATED`; `MBF-IMPORT-MODEL-TOO-LARGE` (the transfer limit); `MBF-IMPORT-NOT-ADOPTABLE` (the review's blocking codes, listed); then `checkNativeOutcome`'s and `buildModelIndex`'s refusals, as Open shows them |
+| Adopt | `MBF-IMPORT-REVIEW-STALE` (the reviewed digest differs); `MBF-IMPORT-REVIEW-TRUNCATED`; `MBF-IMPORT-ASSUMPTION-UNAVAILABLE` (an applied assumption lacks its bounded source-safe representation); `MBF-IMPORT-MODEL-TOO-LARGE` (the transfer limit); `MBF-IMPORT-NOT-ADOPTABLE` (the review's blocking codes, listed); then `checkNativeOutcome`'s and `buildModelIndex`'s refusals, as Open shows them |
 | Transport | `INGRESS-RAW-BODY-REQUIRED`: "Import isn't available in this window. Nothing was imported and your model is unchanged. Reload the window or restart SWBPIPE to import again." Import writes nothing, and the session changes only on a reply the page received, so this outcome is known (§4.8.6) |
 
 ### 4.7 Native commands
@@ -1399,8 +1418,13 @@ has run.
   authenticated").
 - **Selection** (`open_mbf_import`, after the chooser).
   - `lstat` the chosen path. It must be a regular file and not a symlink. It is then opened read-only with no
-    following of a final symlink (`O_NOFOLLOW` on Unix). Its `fstat` identity must equal the `lstat` identity, and
-    its size must be at most 16 MiB.
+    following of a final symlink and with nonblocking acquisition (`O_RDONLY | O_NOFOLLOW | O_NONBLOCK` on Unix,
+    through safe `OpenOptions` flags). The acquired handle's `fstat` must itself report a regular file, with
+    identity equal to the `lstat` identity and size at most 16 MiB, before any read is attempted. Replacing the
+    checked regular file with a FIFO cannot make the open wait for a writer: the acquired non-regular handle is
+    refused and dropped. Cancellation is checked before acquisition and immediately after it, before the handle
+    can be installed or read. This removes that FIFO wait; it is not a wall-clock guarantee for arbitrary
+    filesystem/kernel latency.
   - `lstat` the derived identity-file path. If it is not found, the identity file is `Absent`. If it exists, it is
     checked and opened the same way with a 64 MiB cap (`MAX_MODEL_DOCUMENT_BYTES`). A failure refuses the import by
     name (§4.5, "Refused, not set aside").
@@ -1466,14 +1490,25 @@ has run.
   - The worker decides the transfer limit from the computed lengths before it builds the result (§4.8.4).
   - A failure is `<code>: <message>` of at most 64 KiB, with no engine text.
 - **Decode** (`decode_import_result(mode, text)`, host). It reads the envelope as views and checks:
-  - the header, and canonical decimal lengths that exactly cover the bodies;
+  - the header as borrowed slices, bounded before any derived storage: fixed magic, one-byte mode/flag,
+    at most eight bytes for import status, at most 20 digits per canonical decimal length (checked `u64` parse),
+    and exactly 64 lowercase hexadecimal bytes for each SHA-256. Only the model-digest field permits the single
+    `-` sentinel, and only when there is no candidate (`model_bytes == 0`). The review digest never permits it.
+    An overlong or malformed field is a protocol refusal before any field is copied;
+  - canonical decimal lengths that exactly cover the bodies;
   - the mode, the import status and adoptable flag, and the mode's fixed payload shape;
   - a review of at most R;
-  - the review's fixed leading members, byte for byte, against the expected prefix built from the header (`status`
-    from `import_status`, the adoptable flag mapped to JSON `false` or `true`, `model_sha256`, `model_bytes`);
+  - the review's fixed leading members, byte for byte, by streamed comparison or a fixed 1 KiB stack buffer using
+    only the validated fields (`status` from `import_status`, the adoptable flag mapped to JSON `false` or `true`,
+    `model_sha256`, `model_bytes`). No model/header-sized `String`, `Vec` or formatted prefix is allocated outside
+    H6/H7. The fixed prefix and numeric/hash scratch are covered by the separately admitted H8 control term;
   - the SHA-256 of the review view against `review_sha256`;
-  - for `adoptable`, a model view that is all ASCII (the canonical bytes are `ensure_ascii`) and whose SHA-256
-    equals `model_sha256`.
+  - only in `adopt` mode with `adoptable == 1`, a carried model view that is all ASCII (the canonical bytes are
+    `ensure_ascii`) and whose SHA-256 equals `model_sha256`;
+  - in `review` mode, an empty model payload and valid candidate metadata. A positive `model_bytes` and its
+    digest describe the candidate computed inside the worker; they are not a claim that the model is carried.
+    The empty payload is never hashed as though it were that candidate. Non-adoptable `adopt` results likewise
+    carry no model, as specified above.
 
   Anything else is `MBF-IMPORT-WORKER-PROTOCOL`. The host never parses the model or the review.
 
@@ -1498,6 +1533,7 @@ The model-sized copies, all within that one ledger:
 | H5 | The worker's grant | Up to the maximum grant: the captured budget less the ledger's other live leases, H4's share and the result share | The bound's grant share; released only after the reap |
 | H6 | The worker's result | `review`: R + 4 KiB (`result_limit`). `adopt`: 64 MiB (`result_limit`, `MBF_IMPORT_RESULT_MAX_BYTES`, the same number as the export's output ceiling, not raised) | The bound's result share, `resident_envelope(limit)`; after the reap the bound shrinks to the result lease |
 | H7 | The reply text | Its exact serialized length J, counted before allocation, including JSON escaping of the file name and all wrapper members: the review reply at most R + 8 KiB; a refusal at most 32 KiB; the adopt reply at most 64 MiB | A named lease of `envelope(J)`, reserved before the buffer is allocated (`serialize_metered`'s rule) |
+| H8 | Decoder control scratch | Fixed 4 KiB, including the at-most-1-KiB prefix buffer, decimal formatting and hash state; no header-sized dynamic storage | A named lease before decode, held through response construction; a size/layout check holds the fixed scratch within it |
 
 - **The bound.** One `LedgerBound` reserves H4, H5's maximum and H6's share before any of them is admitted. Above
   the budget it is refused `MBF-IMPORT-MEMORY-UNAVAILABLE` with the ledger unchanged. A starting grant
@@ -1512,7 +1548,7 @@ The model-sized copies, all within that one ledger:
      released.
   6. Result custody: the bound shrinks to the result lease. A result lease larger than the bound's share is refused
      `MBF-IMPORT-WORKER-PROTOCOL` in every build.
-  7. Decode.
+  7. Admit H8, then decode. A refused H8 admission returns a memory refusal with no derived header allocation.
   8. The exact H7 length is counted over borrowed views, including the file name's escapes; an adopt reply above
      64 MiB is refused before any response buffer allocation. H7 is then reserved and written: the reply's fixed
      members, with the review or model view copied in once.
@@ -1741,11 +1777,18 @@ for the invented corpus and `fixtures/caepipe_mbf/invented/desktop_export/` case
     `review_sha256`.
   - A bound fixture and an unbound fixture each pin the per-class identity counts.
   - The writer and import parity vectors are unchanged.
+  - Every applied assumption emission has its structured source-safe counterpart, including conditional Z-axis
+    rotation, offset rounding, G derivation, bare-metal weight, pressure and support mappings. Unknown identifiers
+    and a missing counterpart block Adopt; overflow counts assumptions exactly and makes the review truncated.
 - **Native (`mbf_import_tests.rs`, with the real worker; `solve_worker.rs`'s task-code round trip).**
   - Codes 0 to 5 round-trip, and 6 is refused.
   - Selection: a symlinked MBF; a directory; a FIFO; a file of 16 MiB + 1; an identity file that is a symlink, a
     directory, above 64 MiB or unreadable (each refused, never set aside); absent (unbound review); present (bound
     review).
+  - Acquisition races for both MBF and identity file: the seam replaces a checked regular file with a FIFO before
+    `open`. Nonblocking acquisition promptly refuses the non-regular handle without waiting for a writer. A
+    cancellation at the same seam installs no source, drops every acquired descriptor and returns every lease.
+    Removing `O_NONBLOCK` must fail the bounded-deadline race test; the test owns and cleans up its FIFO.
   - Re-read, after each of these, gives `MBF-IMPORT-SOURCE-CHANGED`: an in-place edit with the same inode; a replace
     or rename at the name; removal; growth during the read (the EOF check); an identity file appearing beside an
     originally absent one; an identity file removed or edited. An unchanged re-read gives a review byte-identical to
@@ -1783,12 +1826,21 @@ for the invented corpus and `fixtures/caepipe_mbf/invented/desktop_export/` case
       import parity vectors' `model.json` (parity).
   - Tampered results give `MBF-IMPORT-WORKER-PROTOCOL`: a model in review mode, the other mode's envelope, a review
     prefix mismatch, a review or model digest mismatch, a non-ASCII model, an attested result, an exit or a panic.
+  - Successful `review` mode has an adoptable candidate digest/length and zero model payload; successful `adopt`
+    mode carries and verifies that same candidate. Applying body hashing to review mode must fail its positive
+    test; omitting body verification in adopt mode must fail a tampered-model test.
+  - Oversized digest/status/decimal header tokens, uppercase or nonhex digests, a review-digest sentinel and an
+    inconsistent model sentinel all refuse before prefix construction. The bounded-prefix/streamed comparison
+    uses no token-sized allocation; a counting-allocator negative control that formats an unchecked token must
+    fail its scratch account. H8 is admitted before this stage and its fixed scratch stays within 4 KiB.
   - A `syn` source scan holds that in production code task 5's arm is the only caller of `worker_import`, and that no
     product source references `import_mbf_json`, with negative controls.
 - **Vitest.**
   - The import never imports the wasm MBF engine, and no invoke's arguments or reply carries MBF or identity-file
     bytes or base64 (spies on `invoke`).
   - The review is shown with its completeness and counts.
+  - Applied mapping assumptions are displayed with their source-safe descriptions and parameters. An unavailable
+    assumption and a truncated assumptions list each disable Adopt; raw assumption sentences are never displayed.
   - A refusal, a truncated review, a stale review and `MBF-IMPORT-MODEL-TOO-LARGE` each disable Adopt.
   - Declarations:
     - each declaration change sends a new review and disables Adopt until it returns;
@@ -1819,6 +1871,10 @@ for the invented corpus and `fixtures/caepipe_mbf/invented/desktop_export/` case
   - the commit before `stillCurrent`;
   - a declaration change that does not invalidate Adopt;
   - `*` sent for "all listed".
+  - model-body hashing applied to a successful review-mode reply;
+  - blocking file acquisition after the path check;
+  - an applied mapping assumption dropped from the review;
+  - an unchecked header token copied into a dynamic prefix.
 - **Open-consumer comparison.** Feed the same maintained native-produced document through ordinary Open and the
   import source. Assert one call to the shared webview validator in each flow, the same document reference at its
   entry and at adoption, the same index/refusal and unsaved-adoption behavior, and no import-only model/report/file
@@ -1849,6 +1905,9 @@ for the invented corpus and `fixtures/caepipe_mbf/invented/desktop_export/` case
 - **The implementation's intended touch set,** which the manager confirms in the draft PR before editing:
   - DEL-17-04: `core/handoff/caepipe_mbf_engine/src/import_review.rs` and its test; `apps/desktop/src-tauri/src/
     mbf_import.rs` and `mbf_import_tests.rs`.
+  - Strictly necessary importer support in `core/handoff/caepipe_mbf_engine/src/lib.rs` and
+    `src/importer/{mod,finish,pressure}.rs`: structured assumption facts paired with existing emissions. The
+    report/model/id-map bytes and numerical branches stay unchanged and are held by parity and mapping tests.
   - Slice 5's shared hunks, by the owner's assignment: `lib.rs` (the module, the four commands, the managed state,
     the menu item and its tests); `solve_worker.rs` (task 5's code, decode and arm only); `user_release_reach_scan.rs`
     (the pin); `tools/hosted-ci-routing.json` (by its writer).
