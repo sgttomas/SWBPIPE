@@ -295,6 +295,19 @@ needs:
   gating: true
   when: Running the RT-A3 reducer 2b full-reference-system connecting-path check.
   evidence: core/product_physics/tests/rt_a3_reducer_2b_reference_system.rs
+- from: DEL-09-01
+  condition: >-
+    The RT-A3 S6 full-system connecting-path check (Work/route-unification-r4.md §3.7) needs
+    DEL-09-01's maintained fixtures/reference_system/reference_system.json and independent weight
+    record validation/references/reference_system/references.json. It overlays only in its test
+    input the released RS-R1, RS-CE1, RS-LO1, RS-FR1 (normal from the interim linear RS-FR1V) and
+    RS-G1 of Work/reference-system.md §5-§6, regenerates the weight with the public producer, and
+    shows the intended RS-FR1V one_way normal source refused until S7. Consuming these inputs adopts
+    no overlay, pending flag or weight record and establishes no global displacement/reaction
+    reference, nonlinear-state (KR-04) verification or acceptance.
+  gating: true
+  when: Running the RT-A3 S6 full-reference-system connecting-path check.
+  evidence: core/product_physics/tests/rt_a3_s6_reference_system.rs
 - from: DEL-04-01
   condition: >-
     The RT-A3 increment 4 K-1 bound (Work/k1-twin-bound.md, option (a)) rests on two DEL-04-01
@@ -392,6 +405,7 @@ checks:
 - core/product_physics/tests/rt_a3_reducer_2b_references.rs
 - core/product_physics/tests/rt_a3_reducer_2b_pf_controls.rs
 - core/product_physics/tests/rt_a3_reducer_2b_reference_system.rs
+- core/product_physics/tests/rt_a3_s6_reference_system.rs
 - tests/test_rt_a3_reducer_text_only_envelope_diff.py
 - tests/test_rt_a3_reducer_2b_text_only_envelope_diff.py
 - tests/test_rt_a3_constant_effort_text_only_envelope_diff.py
