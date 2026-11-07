@@ -42,16 +42,19 @@ and `09a2ba88…`, read for protocol only) and interoperates with them and with 
 2. Take `cargo_job.lock` and wait for it without a time limit.
 3. While holding slot 1, create `exclusive.pending` with `O_EXCL`. It contains the
    supervisor's own live PID. If a marker already exists, refuse; a foreign marker is never
-   overwritten or removed.
+   opened, overwritten or removed. A short PID write fails the run. Cleanup identifies the
+   created inode, so it also removes an owned partial write without reading marker contents.
 4. Take `cargo_job.slot2.lock` and `cargo_job.slot3.lock`, waiting without a time limit.
 5. Poll `cargo_job.slot4.lock` without blocking. The time of the attempt that succeeds is
    taken before that attempt, so the deadline is **armed no later than the final lock's
    acquisition**. The wait for existing slot holders to drain is not timed.
 6. Check that each held descriptor is still the inode at its path; a replaced lock file is
-   refused. Remove our own pending marker. Fork the sentry and start the payload.
+   refused. Remove our own pending marker. Fork the sentry and start the payload only if
+   the payload deadline has not passed; both controller and sentry check before launch.
 7. Stop the payload at `armed + budget - reserve` if it has not ended. Send SIGTERM and
-   SIGCONT to the owned group, wait out the grace, then send SIGKILL repeatedly until the
-   kernel reports no live member of the group. Reap the sentry.
+   SIGCONT to the owned group, then send SIGKILL repeatedly until the kernel reports no
+   live member of the group. TERM grace is capped or skipped on a delayed wake-up to leave
+   `reserve - term-grace` seconds for KILL, verification, reap and release. Reap the sentry.
 8. Remove our own pending marker if it is still there, close every lock descriptor and
    record the release time. Lock files are never unlinked; this matches `lockf -k`.
 
@@ -77,7 +80,9 @@ Linux the tests use `flock(1)` or a Python `flock` holder. The supervisor does n
   no group-reuse race arises.
 - **Membership** comes from the kernel: `sysctl kern.proc.pgrp` on macOS, `/proc/*/stat` on
   Linux. The supervisor does no `ps` or `pgrep` name matching. It signals only its own
-  group and never signals any other process.
+  group and never signals any other process. Linux ignores only a process that disappears
+  during inspection (`ENOENT`/`ESRCH`); other read errors and malformed records fail
+  inspection and prevent verified containment or success.
 - **Lock descriptors** are opened `O_CLOEXEC`. The payload is started with `close_fds`, so
   neither the payload nor its descendants inherit a lock descriptor. The tests check this
   in a child and in a grandchild. The sentry holds copies through `fork`, which is
@@ -100,7 +105,7 @@ Linux the tests use `flock(1)` or a Python `flock` holder. The supervisor does n
 | payload's | `payload_failed` | Payload exited nonzero, or `128 + n` if signal `n` killed it. |
 | 123 | `strays_contained` | Payload exited 0 but left live descendants. They were killed, and the run is not a success. |
 | 124 | `timeout` / `deadline_exceeded` | Payload stopped at the deadline, or release came after the budget. |
-| 125 | `containment_unverified`, `internal_error`, `payload_status_unknown` | No success can be claimed. |
+| 125 | `containment_unverified`, `internal_error`, `payload_status_unknown`, `cleanup_failed` | No success can be claimed. |
 | 126 | `spawn_failed` | The payload could not be executed. |
 | 128+n | `cancelled` | Signal `n` received. |
 | 64 / 75 / 78 / 97 | `refused` | Bad usage or input / existing pending marker / bad guard configuration or replaced lock / memory guard absent. |
@@ -122,7 +127,7 @@ supervisor's own trace, not a lock log. The supervisor writes nothing to
 ## What is bounded, and the limits
 
 The bounded region runs from `armed` to the close of the last lock descriptor. It contains
-only bounded local operations: `fstat`/`stat`, a small pending-file read and unlink,
+only local operations: `fstat`/`stat`/`lstat`, an owned pending-file unlink,
 `fork`, pipe reads with timeouts, `kill(2)`, kernel membership queries, `waitpid` of a
 SIGKILLed child, and `close`. It does no blocking log or receipt write. The payload's
 stdout and stderr are inherited, so a blocked output pipe stalls only the payload, and the
@@ -163,4 +168,9 @@ python3 tools/ac004_supervisor_test.py
 The tests use standard-library `unittest`, with no pytest and no Cargo. Each test makes a
 private temporary guard directory, lock files and fake memory guard, and uses only
 self-limiting fake payloads. Each test also has its own bounded cleanup, which kills only
-processes the test started. No test reads or touches the host's real guard.
+processes the test started. It registers sentry/payload kernel birth, session and group
+identities independently of the supervisor's completion trace, and verifies those identities
+before cleaning a private payload group. The disabled controller-death kill regression
+exercises that fallback, including inherited output pipes. Delayed-controller, short-write,
+foreign-FIFO and process-inspection-error controls cover the review repairs. No test reads
+or touches the host's real guard.

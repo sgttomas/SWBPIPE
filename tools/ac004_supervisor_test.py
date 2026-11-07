@@ -6,6 +6,8 @@ guard, and uses only lightweight fake payloads that limit their own lifetime.  N
 reads or touches the host's real guard directory, locks or pending marker.
 """
 import json
+import errno
+import io
 import os
 import shutil
 import signal
@@ -15,6 +17,7 @@ import tempfile
 import textwrap
 import time
 import unittest
+from unittest import mock
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -62,6 +65,23 @@ def wait_for(pred, limit=10.0):
     return False
 
 
+def process_identity(pid):
+    """Kernel birth identity, session and group for an exact private fixture PID."""
+    try:
+        if sys.platform == "darwin":
+            # proc_bsdinfo, PROC_PIDTBSDINFO: the final two uint64s are start timeval.
+            buf = ac.ctypes.create_string_buffer(136)
+            if ac.ctypes.CDLL(None).proc_pidinfo(pid, 3, 0, buf, 136) != 136:
+                return None
+            birth = buf.raw[120:136].hex()
+        else:
+            data = Path(f"/proc/{pid}/stat").read_bytes()
+            birth = data[data.rindex(b")") + 2:].split()[19].decode()
+        return [pid, os.getsid(pid), os.getpgid(pid), birth]
+    except (OSError, ValueError, IndexError):
+        return None
+
+
 class Fixture(unittest.TestCase):
     def setUp(self):
         self.tmp = Path(tempfile.mkdtemp(prefix="ac004-test-"))
@@ -73,6 +93,7 @@ class Fixture(unittest.TestCase):
         self.out = self.tmp / "out"
         self.out.mkdir()
         self.procs = []
+        self.payload_records = []
         self.memguard = self.spawn([PY, "-c", "import time; time.sleep(120)", str(self.guard / ac.MEMGUARD_NAME)])
         # an unrelated same-user process and a foreign file that must survive every run
         self.sentinel = self.spawn(["sleep", "120"])
@@ -86,6 +107,7 @@ class Fixture(unittest.TestCase):
 
     def cleanup(self):
         # independent, bounded cleanup of everything this test started (own private sessions only)
+        self.cleanup_payloads()
         for p in reversed(self.procs):
             if p.poll() is None:
                 try:
@@ -98,13 +120,58 @@ class Fixture(unittest.TestCase):
                 pass
         shutil.rmtree(self.tmp, ignore_errors=True)
 
+    def cleanup_payloads(self):
+        # Registration comes from the private sentry/payload launch, not a success trace.
+        # Check kernel birth/session/group identities before signalling, never a name match.
+        for record in self.payload_records:
+            if not record.exists():
+                continue
+            identities = [json.loads(line) for line in record.read_text().splitlines()]
+            owned = next((i for i in identities if i and process_identity(i[0]) == i), None)
+            if owned is None:
+                continue
+            pgid = owned[2]
+            try:
+                os.killpg(pgid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            if not wait_for(lambda: not [m for m in ac.members(pgid) if not m[1]], 5):
+                raise AssertionError("private fixture group survived independent cleanup")
+
     def script(self, name, body):
         path = self.tmp / name
         path.write_text("import os, sys, time, signal, fcntl\nOUT = %r\n" % str(self.out) + textwrap.dedent(body))
         return [PY, str(path)]
 
-    def start(self, payload, budget="2", reserve="0.6", grace="0.2", extra=()):
-        argv = [PY, TOOL, "--guard-dir", str(self.guard), "--budget", budget, "--reserve", reserve,
+    def start(self, payload, budget="2", reserve="0.6", grace="0.2", extra=(), patch=""):
+        record = self.tmp / f"payload-group-{len(self.payload_records)}"
+        self.payload_records.append(record)
+        # Test-only instrumentation records exact owned identities before running payloads.
+        # The production tool and its payload descriptor policy are unchanged.
+        runner = f"""
+import sys, os, json
+sys.path.insert(0, {str(HERE)!r})
+import ac004_supervisor as ac
+from ac004_supervisor_test import process_identity
+original_sentry = ac._sentry_main
+def tracked_sentry(*args):
+    os.setpgid(0, 0)
+    def record(pid):
+        with open({str(record)!r}, 'a') as f:
+            f.write(json.dumps(process_identity(pid)) + '\\n')
+    record(os.getpid())
+    original_popen = ac.subprocess.Popen
+    def tracked_popen(*args, **kwargs):
+        child = original_popen(*args, **kwargs)
+        record(child.pid)
+        return child
+    ac.subprocess.Popen = tracked_popen
+    original_sentry(*args)
+ac._sentry_main = tracked_sentry
+{patch}
+sys.exit(ac.main(sys.argv[1:]))
+"""
+        argv = [PY, "-c", runner, "--guard-dir", str(self.guard), "--budget", budget, "--reserve", reserve,
                 "--term-grace", grace, *extra, "--", *payload]
         return self.spawn(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
@@ -112,6 +179,7 @@ class Fixture(unittest.TestCase):
         try:
             out, err = proc.communicate(timeout=RUN_LIMIT)
         except subprocess.TimeoutExpired:
+            self.cleanup_payloads()
             os.killpg(proc.pid, signal.SIGKILL)
             proc.communicate(timeout=5)
             self.fail("supervisor run did not end within the suite limit")
@@ -192,6 +260,40 @@ open(os.path.join(OUT, "payload"), "w").write(repr((held_lock_fds(), busy)))
 
 
 class QueueAndDeadline(Fixture):
+    def test_delayed_controller_skips_grace_to_preserve_teardown(self):
+        payload = self.script("delayed.py", "signal.signal(signal.SIGTERM, signal.SIG_IGN)\ntime.sleep(30)\n")
+        patch = """
+original_read = ac.Supervisor.read_status
+def delayed_read(self, timeout):
+    if not hasattr(self, '_delayed'):
+        self._delayed = True
+        ac.time.sleep(max(0, self.armed + 2.15 - ac.time.monotonic()))
+    return original_read(self, timeout)
+ac.Supervisor.read_status = delayed_read
+"""
+        rc, t, _ = self.run_sup(payload, budget="2.5", reserve="1", grace="0.7", patch=patch)
+        self.assertEqual((rc, t["outcome"]), (ac.EX_TIMEOUT, "timeout"))
+        marks = t["marks_from_armed_s"]
+        self.assertGreater(marks["term_sent"], 2.1)
+        self.assertLess(marks["kill_sent"] - marks["term_sent"], 0.3)
+        self.assertLessEqual(t["armed_to_release_s"], 2.5)
+        self.assert_released_and_intact(t)
+
+    def test_delayed_setup_does_not_launch_payload(self):
+        marker = self.out / "ran"
+        patch = """
+original_verify = ac.Supervisor.verify_inodes
+def delayed_verify(self):
+    original_verify(self)
+    ac.time.sleep(max(0, self.armed + 1.1 - ac.time.monotonic()))
+ac.Supervisor.verify_inodes = delayed_verify
+"""
+        rc, t, _ = self.run_sup(["sh", "-c", f": > {marker}"], budget="1.5", reserve="0.6", patch=patch)
+        self.assertEqual((rc, t["outcome"], t["payload"]["status"]), (ac.EX_TIMEOUT, "timeout", "not_started"))
+        self.assertFalse(marker.exists())
+        self.assertLessEqual(t["armed_to_release_s"], 1.5)
+        self.assert_released_and_intact(t)
+
     def test_queue_is_untimed_and_budget_starts_at_final_lock(self):
         # slot 4 is held longer than the whole budget; the run still succeeds
         hold = self.spawn(holder_cmd(str(self.guard / ac.LOCK_NAMES[3]), 3.0))
@@ -287,6 +389,75 @@ class LockfInterop(Fixture):
 
 
 class FailuresAndCancellation(Fixture):
+    def test_membership_inspection_failure_cannot_pass(self):
+        patch = """
+def unavailable(*args, **kwargs):
+    raise OSError(5, 'injected process inspection error')
+ac._live = unavailable
+"""
+        rc, t, _ = self.run_sup(["true"], patch=patch)
+        self.assertEqual(rc, ac.EX_SUPERVISOR)
+        self.assertFalse(t["containment"]["verified"])
+        self.assertIn("injected process inspection error", t["containment"]["error"])
+        self.assert_released_and_intact(t)
+
+    def test_short_pending_write_fails_and_removes_owned_partial_marker(self):
+        patch = """
+import resource
+resource.setrlimit(resource.RLIMIT_FSIZE, (1, 1))
+"""
+        rc, t, _ = self.run_sup(["true"], patch=patch)
+        self.assertEqual((rc, t["outcome"]), (ac.EX_SUPERVISOR, "internal_error"))
+        self.assertIn("incomplete pending-marker", t["error"])
+        self.assertIn("pending_removed", t["marks_from_queue_start_s"])
+        self.assert_released_and_intact(t)
+
+    def test_foreign_fifo_during_queue_is_never_opened(self):
+        marker = self.out / "ran"
+        patch = """
+original_acquire = ac.Supervisor.acquire
+def changed_acquire(self):
+    os.mkfifo(self.pending)
+    return original_acquire(self)
+ac.Supervisor.acquire = changed_acquire
+"""
+        rc, t, _ = self.run_sup(["sh", "-c", f": > {marker}"], patch=patch)
+        self.assertEqual((rc, t["outcome"]), (ac.EX_PENDING, "refused"))
+        self.assertFalse(marker.exists())
+        self.assertTrue(ac.stat.S_ISFIFO((self.guard / ac.PENDING_NAME).lstat().st_mode))
+        (self.guard / ac.PENDING_NAME).unlink()  # this test created the foreign fixture
+        self.assert_released_and_intact(t)
+
+    def test_independent_cleanup_survives_disabled_sentry_death_kill(self):
+        marker = self.out / "started"
+        payload = self.script("death-fault.py", f"""
+signal.signal(signal.SIGTERM, signal.SIG_IGN)
+if os.fork() == 0:
+    time.sleep(30); os._exit(0)
+open({str(marker)!r}, 'w').write(str(os.getpgrp()))
+time.sleep(30)
+""")
+        # Disable only the sentry's kill when its controller dies, not fixture cleanup.
+        patch = """
+recorded_sentry = ac._sentry_main
+def broken_sentry(*args):
+    ac.os.killpg = lambda *args: None
+    return recorded_sentry(*args)
+ac._sentry_main = broken_sentry
+"""
+        sup = self.start(payload, budget="10", reserve="1", patch=patch)
+        self.assertTrue(wait_for(lambda: marker.exists() and marker.read_text()))
+        pgid = int(marker.read_text())
+        try:
+            sup.kill()
+            sup.wait(timeout=5)
+            self.assertTrue(wait_for(lambda: len([m for m in ac.members(pgid) if not m[1]]) == 2, 3))
+        finally:
+            self.cleanup_payloads()
+        sup.communicate(timeout=5)  # inherited pipes no longer keep this blocked
+        self.assertEqual([m for m in ac.members(pgid) if not m[1]], [])
+        self.assert_released_and_intact()
+
     def test_spawn_failure_cleans_up(self):
         bad = self.tmp / "bad-interp"
         bad.write_text("#!/nonexistent/interpreter\n")
@@ -424,6 +595,20 @@ class Refusals(Fixture):
 
 
 class Units(unittest.TestCase):
+    def test_linux_reader_ignores_only_process_disappearance(self):
+        for number in (errno.ENOENT, errno.ESRCH, errno.EIO, errno.EACCES):
+            with self.subTest(errno=number), mock.patch.object(ac.os, "listdir", return_value=["123"]), \
+                    mock.patch("builtins.open", side_effect=OSError(number, "injected")):
+                if number in (errno.ENOENT, errno.ESRCH):
+                    self.assertEqual(ac._members_linux(123), [])
+                else:
+                    with self.assertRaises(OSError):
+                        ac._members_linux(123)
+        with mock.patch.object(ac.os, "listdir", return_value=["123"]), \
+                mock.patch("builtins.open", return_value=io.BytesIO(b"123 (fake) malformed")):
+            with self.assertRaises(OSError):
+                ac._members_linux(123)
+
     def test_members_sees_own_group(self):
         self.assertIn((os.getpid(), False), ac.members(os.getpgrp()))
 

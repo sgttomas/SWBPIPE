@@ -116,11 +116,16 @@ def _members_linux(pgid):
         try:
             with open(f"/proc/{name}/stat", "rb") as f:
                 data = f.read()
-        except OSError:
-            continue
-        rest = data[data.rindex(b")") + 2:].split()
-        if int(rest[2]) == pgid:
-            out.append((int(name), rest[0] in (b"Z", b"X")))
+        except OSError as e:
+            if e.errno in (errno.ENOENT, errno.ESRCH):
+                continue  # this process disappeared during the snapshot
+            raise  # unreadable is not absent
+        try:
+            rest = data[data.rindex(b")") + 2:].split()
+            if int(rest[2]) == pgid:
+                out.append((int(name), rest[0] in (b"Z", b"X")))
+        except (ValueError, IndexError) as e:
+            raise OSError(errno.EPROTO, "malformed process stat") from e
     return out
 
 
@@ -212,7 +217,7 @@ def preflight(opts):
 
 
 # --- the sentry: group leader that reports the payload and guards controller death ---
-def _sentry_main(payload, life_r, status_w):
+def _sentry_main(payload, life_r, status_w, launch_before):
     os.setpgid(0, 0)  # the parent also does this; whichever runs first creates the group
 
     def say(text):
@@ -223,6 +228,9 @@ def _sentry_main(payload, life_r, status_w):
 
     for s in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):
         signal.signal(s, lambda *_: None)  # caught (not ignored), so exec restores the default
+    if time.monotonic() >= launch_before:
+        say("T\n")
+        os._exit(0)
     try:
         child = subprocess.Popen(payload, stdin=subprocess.DEVNULL, close_fds=True)
     except OSError as e:
@@ -249,6 +257,7 @@ class Supervisor:
         self.o = opts
         self.guard = opts["guard"]
         self.pending = os.path.join(self.guard, PENDING_NAME) if self.guard else None
+        self.pending_identity = None
         self.fds = []
         self.marks = {}
         self.armed = None
@@ -270,20 +279,28 @@ class Supervisor:
             raise Refusal(EX_PENDING, "an exclusive.pending marker already exists; not touching it")
         fd = os.open(self.pending, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o644)
         try:
-            os.write(fd, f"{os.getpid()}\n".encode())
+            st = os.fstat(fd)
+            self.pending_identity = (st.st_dev, st.st_ino)
+            content = f"{os.getpid()}\n".encode()
+            if os.write(fd, content) != len(content):
+                raise OSError(errno.EIO, "incomplete pending-marker publication")
         finally:
             os.close(fd)
         self.mark("pending_published")
 
     def remove_own_pending(self):
+        if self.pending_identity is None:
+            return  # do not even open a marker this invocation never created
         try:
-            with open(self.pending, "rb") as f:
-                ours = f.read() == f"{os.getpid()}\n".encode()
+            st = os.lstat(self.pending)
         except FileNotFoundError:
+            self.pending_identity = None
             return
-        if ours:
-            os.unlink(self.pending)
-            self.mark("pending_removed")
+        if not stat.S_ISREG(st.st_mode) or (st.st_dev, st.st_ino) != self.pending_identity:
+            raise Refusal(EX_CONFIG, "owned pending marker was replaced; not touching it")
+        os.unlink(self.pending)
+        self.pending_identity = None
+        self.mark("pending_removed")
 
     def open_lock(self, name):
         fd = os.open(os.path.join(self.guard, name), os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC)
@@ -314,6 +331,13 @@ class Supervisor:
                 raise Refusal(EX_CONFIG, f"lock file {name} was replaced while queued")
 
     def spawn(self):
+        if _Sig.signum:
+            self.reason = "cancelled"
+            return False
+        launch_before = self.armed + self.o["budget"] - self.o["reserve"]
+        if time.monotonic() >= launch_before:
+            self.reason = "timeout"
+            return False
         life_r, self.life_w = os.pipe()
         self.status_r, status_w = os.pipe()
         pid = os.fork()
@@ -321,7 +345,7 @@ class Supervisor:
             try:
                 os.close(self.life_w)
                 os.close(self.status_r)
-                _sentry_main(self.o["payload"], life_r, status_w)
+                _sentry_main(self.o["payload"], life_r, status_w, launch_before)
             finally:
                 os._exit(70)
         self.sentry = pid
@@ -334,6 +358,7 @@ class Supervisor:
         os.close(status_w)
         os.set_blocking(self.status_r, False)
         self.mark("sentry_forked")
+        return True
 
     def read_status(self, timeout):
         if "eof" in self.status:
@@ -358,6 +383,9 @@ class Supervisor:
                     self.mark("payload_ended")
                 elif kind == "E":
                     self.status["spawn_errno"] = int(value)
+                elif kind == "T":
+                    self.status["launch_expired"] = True
+                    self.reason = "timeout"
 
     def killpg(self, sig):
         try:
@@ -369,7 +397,7 @@ class Supervisor:
         deadline = self.armed + self.o["budget"] - self.o["reserve"]
         while True:
             self.read_status(TICK_S)
-            done = "wait" in self.status or "spawn_errno" in self.status or "eof" in self.status
+            done = any(key in self.status for key in ("wait", "spawn_errno", "eof", "launch_expired"))
             if done:
                 self.strays = len(_live(self.sentry, exclude=(self.sentry,)))
                 return
@@ -379,9 +407,12 @@ class Supervisor:
         self.killpg(signal.SIGTERM)
         self.killpg(signal.SIGCONT)  # a stopped member must see its TERM
         self.mark("term_sent")
-        grace_end = time.monotonic() + self.o["grace"]
+        # A late wake-up must not spend the remaining teardown allowance on TERM grace.
+        cleanup_reserve = self.o["reserve"] - self.o["grace"]
+        grace_end = min(time.monotonic() + self.o["grace"],
+                        self.armed + self.o["budget"] - cleanup_reserve)
         while time.monotonic() < grace_end:
-            self.read_status(TICK_S)
+            self.read_status(min(TICK_S, max(0, grace_end - time.monotonic())))
             if ("wait" in self.status or "eof" in self.status) and not _live(self.sentry, exclude=(self.sentry,)):
                 break
 
@@ -476,8 +507,8 @@ def main(argv):
         if not _Sig.signum:
             sup.verify_inodes()
             sup.remove_own_pending()
-            sup.spawn()
-            sup.supervise()
+            if sup.spawn():
+                sup.supervise()
         sup.contain_group()
     except Refusal as r:
         code, outcome, extra["refusal"] = r.code, "refused", r.reason
@@ -493,6 +524,9 @@ def main(argv):
             sup.contain["error"] = sup.contain["error"] or f"{type(e).__name__}: {e}"
         try:
             sup.remove_own_pending()
+        except (OSError, Refusal) as e:
+            code, outcome = EX_SUPERVISOR, "cleanup_failed"
+            extra["cleanup_error"] = f"{type(e).__name__}: {e}"
         finally:
             sup.release()
     # ---- after release: classification and reporting are outside the bound ----
