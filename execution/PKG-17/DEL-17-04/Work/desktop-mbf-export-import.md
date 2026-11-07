@@ -1455,18 +1455,22 @@ has run.
      the review not adoptable, with its codes.
   4. It forms `import_review` and disposes of the `ImportResult` without recursion (`value::dispose`).
   5. It forms the envelope.
-- **Envelope** (ASCII): `MBFI1\n<mode>\n<status>\n<model_sha256 or ->\n<review_sha256>\n<model_len>\n<review_len>\n`,
+- **Envelope** (ASCII): `MBFI1\n<mode>\n<import_status>\n<adoptable>\n<model_sha256 or ->\n<review_sha256>\n<model_bytes>\n<model_len>\n<review_len>\n`,
   then the model bytes, then the review bytes.
-  - `review` mode always has status `reviewed` and `model_len` 0.
-  - `adopt` mode has status `adoptable`, with the model and the review, or `not-adoptable`, with the review only.
+  - `import_status` is `imported` or `refused`; `adoptable` is `0` or `1`, and can be `1` only for `imported`.
+  - `model_bytes` is the candidate canonical model length, distinct from the carried `model_len`. With no
+    candidate it is 0 and the model digest is `-`.
+  - `review` mode always has `model_len` 0, even when a candidate model has been digested in the worker.
+  - `adopt` mode carries the model only when `adoptable` is `1`, with `model_len == model_bytes`; otherwise it
+    carries the review only and `model_len` is 0.
   - The worker decides the transfer limit from the computed lengths before it builds the result (§4.8.4).
   - A failure is `<code>: <message>` of at most 64 KiB, with no engine text.
 - **Decode** (`decode_import_result(mode, text)`, host). It reads the envelope as views and checks:
   - the header, and canonical decimal lengths that exactly cover the bodies;
-  - the mode, and a status of that mode with its fixed shape;
+  - the mode, the import status and adoptable flag, and the mode's fixed payload shape;
   - a review of at most R;
-  - the review's fixed leading members, byte for byte, against the expected prefix built from the header (status
-    implied, `adoptable`, `model_sha256`, `model_bytes`);
+  - the review's fixed leading members, byte for byte, against the expected prefix built from the header (`status`
+    from `import_status`, the adoptable flag mapped to JSON `false` or `true`, `model_sha256`, `model_bytes`);
   - the SHA-256 of the review view against `review_sha256`;
   - for `adoptable`, a model view that is all ASCII (the canonical bytes are `ensure_ascii`) and whose SHA-256
     equals `model_sha256`.
@@ -1493,7 +1497,7 @@ The model-sized copies, all within that one ledger:
 | H4 | The request buffer. The files are read straight into it, with no other read buffer and constant hashing state | `allocation_envelope(raw_len)`, where `raw_len` is the request's exact length from the recorded sizes, at most 16 MiB + 64 MiB + 1 MiB + 1 KiB + 20 | The bound's request share |
 | H5 | The worker's grant | Up to the maximum grant: the captured budget less the ledger's other live leases, H4's share and the result share | The bound's grant share; released only after the reap |
 | H6 | The worker's result | `review`: R + 4 KiB (`result_limit`). `adopt`: 64 MiB (`result_limit`, `MBF_IMPORT_RESULT_MAX_BYTES`, the same number as the export's output ceiling, not raised) | The bound's result share, `resident_envelope(limit)`; after the reap the bound shrinks to the result lease |
-| H7 | The reply text | Its exact serialized length: the review reply at most R + 4 KiB; a refusal at most 32 KiB; the adopt reply at most H6 + 4 KiB (fixed members, the escaped file name and the digests) | A named lease of `envelope(length)`, reserved before the buffer is allocated (`serialize_metered`'s rule) |
+| H7 | The reply text | Its exact serialized length J, counted before allocation, including JSON escaping of the file name and all wrapper members: the review reply at most R + 8 KiB; a refusal at most 32 KiB; the adopt reply at most 64 MiB | A named lease of `envelope(J)`, reserved before the buffer is allocated (`serialize_metered`'s rule) |
 
 - **The bound.** One `LedgerBound` reserves H4, H5's maximum and H6's share before any of them is admitted. Above
   the budget it is refused `MBF-IMPORT-MEMORY-UNAVAILABLE` with the ledger unchanged. A starting grant
@@ -1509,18 +1513,27 @@ The model-sized copies, all within that one ledger:
   6. Result custody: the bound shrinks to the result lease. A result lease larger than the bound's share is refused
      `MBF-IMPORT-WORKER-PROTOCOL` in every build.
   7. Decode.
-  8. H7 is reserved and written: the reply's fixed members, with the review or model view copied in once.
-  9. The response is built. The result lease and the bound are released, then H7's lease, then the command's other
-     leases.
+  8. The exact H7 length is counted over borrowed views, including the file name's escapes; an adopt reply above
+     64 MiB is refused before any response buffer allocation. H7 is then reserved and written: the reply's fixed
+     members, with the review or model view copied in once.
+  9. The response takes ownership of H7's buffer; no application-side handoff clone is made. The result lease and
+     the bound are held through response construction, then released, then H7's lease, then the command's other
+     leases. An implementation that copies at handoff must admit that additional copy before making it.
 - **Lifetimes.** H4 is handed to the supervisor, which drops it once it is sent. H5 ends at the reap. H6 and H7 are
   held together only from the reply's construction until the response exists. Between commands the import holds no
   pool or ledger charge, only the fixed source record (§4.8.2).
-- **Residual.** As for every command (`respond_metered`), the `Response` handed to Tauri, and any copy the IPC layer
-  makes of it, outlive the command and are not ours to price.
-- **Transfer limit.** An adopt result (envelope + model + review) above 64 MiB is not adoptable
-  (`MBF-IMPORT-MODEL-TOO-LARGE`). The review reports `beyond`, so Adopt is disabled before any adopt is sent.
-  `result_limit` enforces the limit again before any result lease. An adoptable model is therefore below 64 MiB − R,
-  within Open's and Save's 64 MiB document cap. A model whose import exceeds it cannot be imported from the desktop.
+- **Policy boundary.** H7 and every application-owned handoff copy are admitted above. Once the response is handed
+  to Tauri, its transport lifetime and internal IPC copies are the existing `respond_metered` residual in
+  DEL-04-07 `memory-budget-decision.md`; this is not a bound on their heap. No import-only application buffer may
+  be hidden in that residual. §4.8.5 compares the receiving consumer with Open.
+- **Transfer limit.** Both the worker's adopt envelope (header + model + review) and the actual serialized native
+  adopt reply (wrapper + model, with no review body) must fit 64 MiB. The worker computes both lengths, with checked
+  arithmetic and actual JSON escaping, before forming its result. If either exceeds the limit the review reports
+  `beyond`, so Adopt is disabled (`MBF-IMPORT-MODEL-TOO-LARGE`). `result_limit` enforces the worker-envelope limit
+  again before any result lease, and step 8 enforces the final reply limit before allocation or delivery. The
+  model's own exact L-byte canonical text must also fit `MAX_MODEL_DOCUMENT_BYTES` (64 MiB); no subtraction of the
+  maximum R is substituted for these actual lengths. A model whose import exceeds a limit cannot be imported from
+  the desktop.
   This is a stated route limitation; the owner has not accepted it as a release limitation.
 - **What the worker's cap does and does not bound.** The cap enforces the admitted per-invocation budget on the
   importer, the regeneration's writer, the canonical model, the document check and the review. Nothing predicts
@@ -1532,37 +1545,55 @@ The model-sized copies, all within that one ledger:
   moves, and no re-pricing registration is needed: the import touches no retained route (RT-A3 alone owns released
   Rust pricing).
 
-#### 4.8.5 Webview copies (accounting and the obstacle)
+#### 4.8.5 Webview copies and the existing Open-consumer boundary
 
-- **During review.** The webview holds only the review replies, each at most R + 4 KiB: the reply bytes, their
-  string, and one parse of a value of at most R. No model-sized work or copy is in the webview during choose, review
-  or declaration re-runs.
-- **At Adopt**, for a model text of exactly L bytes, where L is below 64 MiB − R and is known from the review before
-  Adopt is enabled, the webview makes these copies once:
+**Policy application (Agent 0, 2026-11-07).** DEL-04-07 `memory-budget-decision.md` states that custody counts
+delivered bytes, not webview heap, and records the common command-response and webview-heap residuals. Existing
+Open is not a heap proof. The lack of such a proof is equally not a new slice-5-only gate. The new native reading,
+importer, writer-backed regeneration, review, reply and application-owned handoff copies need their own admission
+(§4.8.4). The delivered document must fit the existing Open domain and use exactly its maintained consumer, with
+no additional unmetered import stage. This applies existing policy; it grants no allowance, multiplier, budget
+change or risk acceptance. Whole-App/model-state heap qualification remains unresolved under RT-U4, and historical
+v0.1 residuals do not establish owner acceptance for v1.0.
 
-| # | Copy | Size |
+**During review.** Each serialized review reply is at most R + 8 KiB. The page keeps the current bounded review
+and declaration form, and replaces rather than accumulates previous reviews. A superseded reply is discarded by
+generation. This is additional bounded import-control data, not an inherited model consumer: its wire bytes are
+admitted as H7, while its decoded graph is not represented as a proven JavaScript heap bound. No MBF bytes,
+identity-file bytes, full import report, id map or candidate model reaches the webview. At Adopt the flow captures
+only the source id, declaration, review/model digests, file name and bounded status summary; it releases the review
+body and dialog's references before the model reply is requested. The flow does not close over the review object.
+
+**At Adopt.** L is the exact canonical model byte count and J the exact serialized native reply byte count, both
+checked natively against their limits before delivery (§4.8.4). These byte counts do not price WebKit objects. The
+following inventory describes overlaps and ownership, not a measured or proven heap multiplier:
+
+| # | Copy or work | Byte account, overlap and lifetime |
 |---|---|---|
-| W1 | Tauri's reply body and its decoded string | About L, and 2L as UTF-16 |
-| W2 | The reply's parse, which builds the document object graph | Linear in L |
-| W3 | `modelDocumentShapeDiagnostics`, a walk | Bounded by the graph |
-| W4 | `modelDocumentSlotValidation`: `JSON.stringify(document)`, its copy into wasm memory (which only grows and is kept), the validator's parse, and its report string and parse | Linear in L plus the findings. Not at most L: JavaScript prints some numbers longer than their canonical text, for example `1e+20` as 21 digits |
-| W5 | `buildModelIndex` | Its maps |
-| W6 | The commit (React state; the reply is released when it is) | The model |
-| W7 | `computeModelHash`'s canonicalization, after the commit | About L |
+| W1 | Tauri's reply body and decoded reply string | J ≤ 64 MiB, admitted as H7 through native response construction. Transport-internal copies and the decoded string can overlap parsing. JavaScript code-unit lengths and UTF-8 byte counts differ; no claim of a J-byte heap follows. The import adapter retains no raw reply text after Tauri decodes it. |
+| W2 | Tauri's one reply parse, including its document object | One candidate document graph, the same graph passed by reference through the source, validator and session. There is no import-side `JSON.parse(model_json)`, `structuredClone`, retained candidate cache or second full-model object. The old session model/history remain live until adoption, as for Open. |
+| W3 | `checkNativeOutcome`'s `modelDocumentShapeDiagnostics` | The maintained shape walk over W2, with its diagnostics; no additional import shape walk. A refusal ends the candidate flow without session replacement. On success the returned envelope is shallow: its document is still W2. |
+| W4 | `checkNativeOutcome`'s `modelDocumentSlotValidation` | Exactly the existing one wasm-validator call (`modelDocumentShape.ts`): `JSON.stringify(document)`, wasm input/parse, validator report string/parse and findings. These temporaries overlap W2; wasm linear-memory high-water capacity can remain afterwards. Stringified numbers/escapes can differ in length from L. No import validator call is added before or after it in the webview. |
+| W5 | The maintained model-index work | `handleOpenModelDocument`'s uncached `buildModelIndex(document, 0, 0)` guard precedes session mutation; publication/rendering later use `modelIndexFor` and its existing cache. Their records refer to W2. The guard's temporary index is not retained by the import flow. Existing indexes/history can overlap the new graph until the shared consumer releases its references. |
+| W6 | `commitModel` and ordinary model publication | `prepareModelPublication` calls `uiModelIdentityHash`, which stringifies the document synchronously before publication; that text is temporary. The model assigned to current-model refs and React state is W2, not a clone. Original session/history/result references are cleared by the existing open reset, and garbage collection timing remains the common residual. |
+| W7 | The existing post-adoption consumer | `handleOpenModelDocument` runs `libraryReferenceWarnings` and its saved-basis `computeModelHash`; the existing `[model]` layout effect also calls `computeModelHash`. Hash calls can overlap while loading the wasm engine. `hashService.ts` stringifies and invokes the existing wasm canonical hash, with its input/parse/hash temporaries. The imported source adds no hash or library pass, and keeps no candidate text for them. |
 
-- **What this does not prove.** By construction each of W1 to W7 is one pass or one copy per value. No walk
-  multiplies a collection by an id, as §3.9.2's writer terms do. But their constants depend on the webview's engine
-  and are not measured, and the webview has no stated memory ceiling to admit them against (§3.9.4).
-- **The obstacle.** A governed bound for W1 to W7 needs a webview memory allowance, which is not authorized here (it
-  would be a new allowance). This design therefore does not claim one. It claims that the import adds no
-  importer, regeneration, report or file-byte work to the webview; that the model reaches the webview exactly once,
-  with its size known and capped before Adopt; and that its webview path is the existing open consumer
-  (`checkNativeOutcome`, `buildModelIndex`, the commit) over a document the worker has already checked with the same
-  native checks Open applies.
-- **Not borrowed.** It does not borrow `open_model_document_file`'s existence as proof. That command is itself
-  unmetered on the host, while the import's host side is metered (§4.8.4).
-- **Planned measurement.** §4.8.9 plans one measurement: the dimension method of §3.9.6, doubling one factor at a
-  time on W2 to W5. It sets no limit.
+**Source/call-path comparison.** Ordinary Open's `modelDocumentFile.ts::openModelDocumentFile` invokes the native
+reader and calls `checkNativeOutcome`. The import's `mbfImportSource.read` invokes native Adopt, checks only its
+bounded captured identity fields, then calls that same `checkNativeOutcome` once. Both return into the unchanged
+`handleOpenModelDocument` transaction: currentness, index guard, publication and reset, then the existing library
+warnings/hash work. The worker applies `check_model_document` before delivery, the same native kind/version/slot
+checks Open applies, and the source preserves the engine model bytes and semantics. A model refused by the common
+consumer is refused by import; the adapter does not default, normalize or bypass it.
+
+**Remaining condition.** Independent review must establish this comparison against committed source, and the
+implementation must hold it with connected tests (§4.8.9): the same document object enters the common consumer,
+the same validation/index/adoption and failure behavior occurs, and no importer, report, file-byte work, additional
+validator pass or retained extra model is introduced in the webview. Every genuinely additional import-only
+allocation/lifetime needs an explicit account; it is not inherited merely because Open also handles documents.
+An unaccounted additional stage is repaired within current policy or returned with the exact required policy
+change. No measurement campaign or new webview allowance is selected, and this comparison makes no claim about a
+whole-WebKit or whole-App heap ceiling.
 
 #### 4.8.6 Cancellation, retirement and duplicate deliveries
 
@@ -1640,7 +1671,7 @@ The model-sized copies, all within that one ledger:
    runs task 5 in `adopt` mode and decodes the result (§4.8.3).
    - It requires the recomputed `review_sha256` to equal the request's `reviewSha256`. Otherwise it refuses
      `MBF-IMPORT-REVIEW-STALE`, and no model is returned.
-   - It requires the status `adoptable`. Otherwise it refuses with the review's blocking codes:
+   - It requires the adoptable flag to be `1`. Otherwise it refuses with the review's blocking codes:
      `MBF-IMPORT-NOT-ADOPTABLE`, `MBF-IMPORT-REVIEW-TRUNCATED` or `MBF-IMPORT-MODEL-TOO-LARGE`.
 
    Equal review digests bind the source digests, the declaration digest and the model digest the user saw, because
@@ -1788,7 +1819,14 @@ for the invented corpus and `fixtures/caepipe_mbf/invented/desktop_export/` case
   - the commit before `stillCurrent`;
   - a declaration change that does not invalidate Adopt;
   - `*` sent for "all listed".
-- **Planned measurement, not a gate.** W2 to W5 on generated documents, doubling one factor at a time (§4.8.5).
+- **Open-consumer comparison.** Feed the same maintained native-produced document through ordinary Open and the
+  import source. Assert one call to the shared webview validator in each flow, the same document reference at its
+  entry and at adoption, the same index/refusal and unsaved-adoption behavior, and no import-only model/report/file
+  bytes or raw model text retained by the dialog or source. Keep the existing publication/hash/library call path;
+  do not add import-specific calls to make the comparison pass. Negative controls add a second validator call or
+  retain a second model and must fail the corresponding maintained check. Native tests cover the actual escaped
+  final reply lengths and H6/H7 overlap through response construction, including an application-side handoff copy
+  if the implementation makes one. This is a source/connected-behavior comparison, not a heap-ceiling measurement.
 - **Not claimed.** These tests do not show criterion 6. Slice 6's connected supported-subset round trip
   (`save_mbf_export` → `open_mbf_import` → `adopt_mbf_import`, bound and unbound, in the desktop) is the next finish
   dependency (§5, §6). Criterion 6 stays open for the reference system's families (§1.4).
@@ -1802,9 +1840,10 @@ for the invented corpus and `fixtures/caepipe_mbf/invented/desktop_export/` case
     lists.
 
   It is then merged, and Agent 0 confirms it.
-- **Unresolved connection condition.** The webview/adoption account in §4.8.5 is incomplete. Listing its copies or
-  reusing the ordinary Open consumer does not establish a bound. This candidate must not authorize production
-  connection while that obstacle remains; independent review must assess the account and any proposed resolution.
+- **Policy/application condition.** Review must establish §4.8.5's existing-consumer comparison and the independent
+  admission of every new import stage; implementation must preserve both with the specified connected checks.
+  A genuine additional unaccounted import allocation blocks connection. The unresolved common-consumer heap
+  qualification is tracked under RT-U4, not converted to a new slice-5-only proof gate or risk acceptance.
 - **The implementation PR** carries the review records above and the generated reach and routing artifacts from
   their writers (§4.8.8).
 - **The implementation's intended touch set,** which the manager confirms in the draft PR before editing:
@@ -1830,9 +1869,9 @@ for the invented corpus and `fixtures/caepipe_mbf/invented/desktop_export/` case
 
 #### 4.8.11 Open matters
 
-- **The webview's adopt copies** (§4.8.5) have no governed bound. Closing that would need a webview memory allowance
-  (Agent 0, or the owner if it touches the adopted memory policy). Until then, the claim is limited to what §4.8.5
-  states.
+- **Existing consumer and additional work** (§4.8.5). Review and connected implementation checks must distinguish
+  the admitted new native import/handoff stages from the unchanged Open-consumer heap residual. No common heap
+  bound or v1.0 risk acceptance is inferred; whole-App qualification remains under RT-U4.
 - **Usability limits, not accepted as release limitations:** a truncated review blocks Adopt; an import result above
   64 MiB cannot be adopted; a material whose name the review cannot carry in full (more than 512 bytes) cannot be
   declared, and keeps the import refused.
@@ -2456,8 +2495,10 @@ memory and transaction design that slice 5's row requires before connection. In 
   unsaved-changes guard, with the reviewed digest checked natively and in the webview.
 - **What it replaces.** §4's earlier wasm route and its "files are not read again" rule (§4.1, "What
   changed from the earlier text, and why").
-- **Open matters** (§4.8.11). The webview's adopt copies have no governed bound, because the webview has
-  no memory allowance. That obstacle is exposed, not resolved.
+- **Policy application and open matters** (§4.8.5, §4.8.11). New import stages and handoff bytes are independently
+  admitted; the final document uses the existing Open consumer. Exact independent review and connected comparison
+  checks must establish that boundary. Common-consumer heap qualification remains under RT-U4; no new allowance or
+  risk acceptance is inferred.
 
 Criterion 6 is not claimed.
 
