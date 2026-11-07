@@ -410,6 +410,17 @@ weight/wind use, schema version or model member; hydrotest is not complete.
   unrelated set or key, or the superseded section density is not a dependency.
   A refresh keeps identity and origin. A missing selected value is invalid by
   name, never a section-density fallback.
+- **Managed source history.** Retained contents evidence is closed, including
+  its density quantities. Its selecting identity is the recorded origin or the
+  adopted target. A managed refresh selects from that target, preserves an
+  existing origin exactly and validates the superseded section quantity against
+  the current input. Origin removal remains independent: no live origin lookup
+  authenticates or supplies density. Clearing the target's selected context
+  leaves the generated weight stale with `CASE_CONTENTS_CONTEXT_MISSING` and no
+  replacement; refresh cannot drop source history or fall back to section mass.
+  A legacy target that explicitly adopts contents records itself as its first
+  selector/origin. Unsupported contents/seismic is never downgraded to carried
+  information, including when a condition key collides with an entity id.
 - **Solve admission.** Contents alone is admitted on PF and EX; other EX uses
   stay `LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED`. A valid selected source with
   no generated contents weight gives `CASE_CONTENTS_WEIGHT_NOT_APPLIED`, a

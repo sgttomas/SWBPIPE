@@ -1168,6 +1168,29 @@ fn generated_self_weight(model: &Value, target: &str, before: &str, after: &str,
                 if record.get("request_provenance") != prior.get("request_provenance") {
                     return Err(err("Managed refresh must preserve original user generation provenance"));
                 }
+                // H1 source history is not free-form replacement metadata.
+                // A refresh selects from the adopted target, retains an
+                // existing origin, and describes the current superseded value.
+                let previous_contents = prior.get("contents_source");
+                let next_contents = record.get("contents_source");
+                if previous_contents.is_some() && next_contents.is_none() {
+                    return Err(err("Managed refresh must preserve the recorded contents origin"));
+                }
+                if let Some(source) = next_contents {
+                    let expected_origin = previous_contents.map(|source| &source["origin_case"])
+                        .cloned().unwrap_or_else(|| json!(target));
+                    if source["origin_case"] != expected_origin {
+                        return Err(err("Managed refresh must preserve the recorded contents origin"));
+                    }
+                    if source["selected_by_case"].as_str() != Some(target) {
+                        return Err(err("Managed refresh must select contents from the adopted target case"));
+                    }
+                    let pipe = entity(model, "pipe_segments", text(record.get("pipe_id"), "pipe_id")?)?;
+                    if crate::canonical_json(&source["section_contents_density_superseded"])
+                        != crate::canonical_json(&pipe["section"]["contents_density"]) {
+                        return Err(err("Refreshed contents evidence must record the current superseded section density"));
+                    }
+                }
                 let expected_legacy = if prior["method"] == GENERATED_V1 {
                     old.get("provenance")
                 } else {

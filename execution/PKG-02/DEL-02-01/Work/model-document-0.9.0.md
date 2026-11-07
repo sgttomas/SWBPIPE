@@ -139,7 +139,7 @@ least one member:
 |---|---|---|
 | `temperature` | `Id` (a condition key) | Each pipe's temperature comes from condition `key` of its set |
 | `pressure` | `Id` (a condition key) | Each region's pressure comes from condition `key` of its member pipes' sets (EX only) |
-| `contents_density` | `Id` (a condition key) | Consumed by self-weight generated from the case's selection (RT-A6 H1, §1.6); otherwise refused at solve |
+| `contents_density` | `Id` (a condition key) | Mass input for explicitly generated contents self-weight (RT-A6 H1, §1.6); a valid unconsumed selection gives nonblocking `CASE_CONTENTS_WEIGHT_NOT_APPLIED`, with no force/gravity inferred. Invalid inputs, stale weight and unconnected seismic consumers remain blocking |
 | `added_weight` | `true` only | Each pipe's set's `added_weight` joins the case |
 | `wind_exposure` | `true` only | The case's wind marks come from the sets' `exposure.wind` |
 
@@ -404,15 +404,19 @@ decode rather than by a §1.3 name. S4 makes the wire admit it and resolves or
 refuses it by name.
 
 **Contents density.** It differs by mode (operating contents, hydrotest water,
-empty), so it is per condition. Its consumers (self-weight generation from
-condition `key`, seismic and modal mass) and their relation to
-`section.contents_density` and to self-weight's staleness check are not designed
-here. 0.9.0 carries the member and the case key so that no later version step is
-needed, and the solve refuses the key by name (OC-7). **RT-A6 H1 (DEL-05-01 Work
-`hydrostatic-test.md` §8)** designs and builds the self-weight consumer: the
-selected case's key resolves per pipe, generated self-weight records the source,
-and a use no such record consumes stays refused by that name (staged at
-authoring). Seismic and modal consumers remain undesigned and refused.
+empty), so it is per condition. The original 0.9.0 step carried the member and
+case key while its consumers were unimplemented and refused by name (OC-7),
+avoiding a later model-version step. **RT-A6 H1 (DEL-05-01 Work
+`hydrostatic-test.md` §8)** defines and builds the self-weight consumer and its
+section-density/provenance/staleness relation: the selected case's key resolves
+per pipe, generated self-weight records the source,
+and a valid selection with no such weight gives the nonblocking
+`CASE_CONTENTS_WEIGHT_NOT_APPLIED` warning: its density has not been applied as
+weight, no force/gravity is inferred, and the source case stays authored. Invalid
+set/key/quantity/context, stale generated inputs and unconnected seismic mass
+remain blocking; unsupported contents/seismic is never carried as information.
+Selected-contents modal integration remains deferred and refused by its existing
+state-case binder.
 
 ### 1.7 Coexistence with per-case values: exclusive, except added weight
 

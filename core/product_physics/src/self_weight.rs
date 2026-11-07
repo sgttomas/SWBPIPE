@@ -163,6 +163,20 @@ pub struct ContentsAwareSelfWeightRequest {
     pub contents_source_case_ref: Option<String>,
 }
 
+// Contents-source evidence is a closed record, including audit quantities.
+// Historical origins need not remain in the model; selector identity must be
+// the recorded origin or this adopted case, never an arbitrary third case.
+fn contents_evidence_quantity(value: &Value, nullable: bool) -> bool {
+    if value.is_null() {
+        return nullable;
+    }
+    let Some(object) = value.as_object() else { return false; };
+    object.len() == 2
+        && object.get("value").and_then(Value::as_f64).is_some_and(|value| value.is_finite() && value >= 0.0)
+        && object.get("unit").and_then(Value::as_str)
+            .is_some_and(|unit| open_pipe_stress_units::unit_by_symbol(unit, Dimension::Density).is_ok())
+}
+
 /// Why a JSON self-weight request was not read.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SelfWeightRequestRefusal {
@@ -1248,17 +1262,24 @@ fn retained_basis(
     if let Some(source) = evidence.get("contents_source") {
         let text = |key: &str| source[key].as_str().filter(|text| !text.trim().is_empty());
         let consumed = section.contents_density.as_ref().map(|q| q.value);
-        if method != GENERATED_METHOD
+        let fields = ["method", "use", "selected_by_case", "origin_case", "condition_set", "condition_key",
+            "contents_density", "normalized_contents_density_kg_per_m3", "section_contents_density_superseded"];
+        let closed = source.as_object().is_some_and(|object| object.len() == fields.len()
+            && object.keys().all(|key| fields.contains(&key.as_str())));
+        let selector = text("selected_by_case");
+        let origin = text("origin_case");
+        if !closed || method != GENERATED_METHOD
             || source["method"] != CONTENTS_SOURCE_METHOD
             || source["use"] != "contents_density"
-            || text("selected_by_case").is_none()
-            || text("origin_case").is_none()
-            || !source["condition_set"].is_string()
-            || !source["condition_key"].is_string()
+            || selector.is_none() || origin.is_none()
+            || (selector != origin && selector != Some(case_id))
+            || text("condition_set").is_none()
+            || text("condition_key").is_none()
+            || !contents_evidence_quantity(&source["contents_density"], false)
             || source["contents_density"] != inputs["contents_density"]
             || consumed.is_none()
             || source["normalized_contents_density_kg_per_m3"].as_f64().map(f64::to_bits) != consumed.map(f64::to_bits)
-            || !source.get("section_contents_density_superseded").is_some_and(|q| q.is_null() || q.is_object())
+            || !contents_evidence_quantity(&source["section_contents_density_superseded"], true)
         {
             return Err(fail());
         }
@@ -1520,6 +1541,7 @@ pub fn inspect_applied_self_weight(
                 replacement: None,
             };
             let mut scope_changed = false;
+            let mut contents_context_removed = false;
             let result = (|| -> Result<(), Vec<Diagnostic>> {
                 let fail = || {
                     let mut d = Vec::new();
@@ -1565,6 +1587,14 @@ pub fn inspect_applied_self_weight(
                 // selection, captured from the authored model before the clone
                 // clears its cases; the origin stays the record's own.
                 let context = CaseContentsContext::of_case_in_place(model, case)?;
+                if evidence.get("contents_source").is_some() && context.is_none() {
+                    // The old generated record still claims selected contents.
+                    // Clearing its use is stale, not permission to erase the
+                    // recorded origin or silently refresh from section density.
+                    status.state = AppliedSelfWeightState::Stale;
+                    contents_context_removed = true;
+                    return Ok(());
+                }
                 let origin = evidence["contents_source"]["origin_case"]
                     .as_str()
                     .map(str::to_string)
@@ -1663,6 +1693,7 @@ pub fn inspect_applied_self_weight(
                 status.diagnostics = diagnostics;
             } else if status.state != AppliedSelfWeightState::Fresh {
                 let (code, severity, message) = match status.state {
+                    AppliedSelfWeightState::Stale if contents_context_removed => (CASE_CONTENTS_CONTEXT_MISSING, "blocking", "Generated contents weight lost its target's explicit contents selection; restore that authored context or replace the load explicitly. Managed refresh cannot erase its origin or fall back to section density."),
                     AppliedSelfWeightState::Stale if method == Some(LEGACY_METHOD) => ("SELF_WEIGHT_METHOD_REFRESH_REQUIRED", "blocking", "Legacy self-weight requires explicit refresh to the source-area mass method before solving."),
                     AppliedSelfWeightState::Stale if scope_changed => ("SELF_WEIGHT_INPUTS_STALE", "blocking", "Consumed self-weight inputs changed which loads the selection generates (a component weight now replaces, or no longer replaces, a member's distributed self-weight, or a component moment appears or vanishes); generate this self-weight case again before solving."),
                     AppliedSelfWeightState::Stale => ("SELF_WEIGHT_INPUTS_STALE", "blocking", "Consumed self-weight inputs changed; explicitly refresh this generated load before solving."),

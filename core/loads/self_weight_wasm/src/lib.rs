@@ -137,6 +137,10 @@ fn refresh_plan(model: &Value, typed: &PreviewModel, request: &Value, hash: &str
             AppliedSelfWeightState::Fresh | AppliedSelfWeightState::ManualOverride => {},
             AppliedSelfWeightState::Stale => {
                 let Some(replacement) = check.replacement else {
+                    if let Some(refusal) = check.diagnostics.iter().find(|d| d.code == "CASE_CONTENTS_CONTEXT_MISSING") {
+                        return blocked(Some(hash), &refusal.code, &refusal.message,
+                            "Restore the target's explicit contents selection; no section-density fallback or origin erasure is permitted.");
+                    }
                     return blocked(Some(hash), "SELF-WEIGHT-REFRESH-UNAVAILABLE", "Current source inputs cannot produce a complete replacement.", "Resolve the source diagnostics before refreshing.");
                 };
                 if replacement["id"] != original["id"] || replacement["category"] != original["category"]
