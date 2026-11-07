@@ -55,7 +55,7 @@ use open_pipe_stress_sparse_direct::SymmetricMatrixEntry;
 use crate::admission::{check_entry, PencilMatrix, PencilRangeUnsupported};
 use crate::dd::{max_propagating_nan, Dd, WideDd};
 use crate::exact::{ExactSum, LimbAllotmentExceeded, Term};
-use crate::support::stable_counting_order;
+use crate::support::{filled, reserve, stable_counting_order, SupportResourceError};
 use crate::workspace::{reset_rows, ProductWorkspace, Retained};
 
 // Optional test-only observation of the actual T7 call/read multiplicities:
@@ -181,6 +181,12 @@ pub enum ReformationFailure {
     /// allotment ([`ReformedPencil::new_within_limb_allotment`]); refused
     /// before that growth. `element` is the contributing element.
     LimbAllotmentExceeded(LimbAllotmentExceeded),
+    /// A reservation of the assembly (`T7.assembly`: its visit count, keys,
+    /// counting orders, slots or entries) overflowed or was refused by the
+    /// allocator (`MODAL_RESOURCE_*`, design §5.3.8); refused before that
+    /// structure exists, with no pencil. It is the assembly's refusal, not
+    /// an element's: `element` is the operand count, naming none.
+    SupportResource(SupportResourceError),
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -478,6 +484,32 @@ enum Contribution {
     Mixed { qa: f64, entry: Dd, qb: f64 },
 }
 
+/// Why an assembly refused: an add past the limb allotment (naming the
+/// contributing element), or a reservation (`support`).
+#[derive(Debug, Clone, PartialEq)]
+enum AssemblyRefusal {
+    Limbs(usize, LimbAllotmentExceeded),
+    Support(SupportResourceError),
+}
+
+impl From<SupportResourceError> for AssemblyRefusal {
+    fn from(support: SupportResourceError) -> Self {
+        Self::Support(support)
+    }
+}
+
+/// The position visits of `list` ([`for_each_position`]), counted with
+/// checked arithmetic: t traversal steps (each visit body at most 12
+/// operations).
+fn assembly_visit_count(list: &[Mapped]) -> Result<usize, SupportResourceError> {
+    let mut visits = 0usize;
+    for_each_position(list, |_, _, _| {
+        visits = visits.checked_add(1).ok_or(SupportResourceError::CapacityOverflow { structure: "assembly visits" })?;
+        Ok(())
+    })?;
+    Ok(visits)
+}
+
 /// Visits every assembly position of `list` (lower triangle, r ≥ c), in
 /// the fixed order of the former map's insertions: element by element; for
 /// a mixed element every ordered element pair (a, b) and every coordinate
@@ -708,12 +740,16 @@ impl ReformedPencil {
             (PencilMatrix::Stiffness, &pencil.stiffness),
             (PencilMatrix::Mass, &pencil.mass),
         ] {
-            let assembled = Self::assembled_exact(list, dimension, limb_allotment).map_err(
-                |(element, exceeded)| ReformationError {
+            let assembled = Self::assembled_exact(list, dimension, limb_allotment).map_err(|refusal| match refusal {
+                AssemblyRefusal::Limbs(element, exceeded) => ReformationError {
                     element,
                     failure: ReformationFailure::LimbAllotmentExceeded(exceeded),
                 },
-            )?;
+                AssemblyRefusal::Support(support) => ReformationError {
+                    element: elements.len(),
+                    failure: ReformationFailure::SupportResource(support),
+                },
+            })?;
             // 5 support steps a position: `to_dd` (at most five scaling
             // iterations each way at the level-1 span) and `check_entry`.
             for &((row, col), ref sum) in &assembled {
@@ -869,45 +905,46 @@ impl ReformedPencil {
     /// **Count** with v position visits and t traversal steps
     /// ([`for_each_position`]: t ≤ θ·D_list, θ = 3 plain or 15 mixed), in
     /// support steps (`support`'s unit; an `ExactSum` call is one
-    /// operation, its limb work `T7.limbs`): three traversals 3t and their
-    /// visit bodies 3v (each at most 30 operations); two counting sorts
-    /// 2(3v + 2n + 1); `slot_of`'s fill, the slots and the output's pushes
-    /// 3v; and 1 for the call. So at most `3t + 12v + 4n + 3` with n =
-    /// `dimension`.
+    /// operation, its limb work `T7.limbs`; a reservation one step): three
+    /// traversals 3t and their visit bodies 3v (each at most 30 operations;
+    /// the first, `assembly_visit_count`, one call step more, counts v with
+    /// checked arithmetic); the keys' reservation 1; two counting sorts
+    /// 2(3v + 2n + 3); `slot_of`'s reservation and fill 1 + v, the slots v,
+    /// the output's reservation and pushes 1 + v; and 1 for the call. So at
+    /// most `3t + 12v + 4n + 11` with n = `dimension`. A refusal (a
+    /// reservation's or an add's) ends the call there.
     ///
-    /// **Capacity.** The keys (16v B), the two orders (8v B each), the
-    /// counting starts (8n B, one per sort), `slot_of` (8v B) and the
-    /// result, exactly u ≤ v entries of a key and an `ExactSum` (each
-    /// allocated at its exact length; the keys and orders are freed before
-    /// the adds, `slot_of` on return, also on a refusal). Peak 40v + 8n B
-    /// plus the result and its sums' limbs, where the map held u entries
-    /// in its nodes. Nothing grows: every push is within a capacity counted
-    /// before it, and allocation is std's infallible kind, as before.
+    /// **Capacity** (requested once each, `support`'s module docs;
+    /// requested sizes, not allocator rounding or resident memory). The
+    /// keys (16v B), the two orders (8v B each) and their starts (8n B per
+    /// sort, none when v = 0), `slot_of` (8v B) and the result, exactly
+    /// u ≤ v entries of a key and an `ExactSum` (each requested at its exact
+    /// length; the keys and orders are freed before the adds, `slot_of` on
+    /// return, also on a refusal). Peak 40v + 8n B plus the result, where
+    /// the map held u entries in its nodes. The result's sums' limbs grow
+    /// by std's infallible allocation, as before, within the limb allotment
+    /// when one is given (`T7.limbs`); that growth is not a structural
+    /// vector's.
     fn assembled_exact(
         list: &[Mapped],
         dimension: usize,
         limb_allotment: Option<usize>,
-    ) -> Result<Vec<((usize, usize), ExactSum)>, (usize, LimbAllotmentExceeded)> {
+    ) -> Result<Vec<((usize, usize), ExactSum)>, AssemblyRefusal> {
         #[cfg(test)]
         t7_pass(0);
         let unreachable = |never: std::convert::Infallible| match never {};
-        let mut visits = 0usize;
-        for_each_position(list, |_, _, _| {
-            visits += 1;
-            Ok(())
-        })
-        .unwrap_or_else(unreachable);
-        let mut keys: Vec<(usize, usize)> = Vec::with_capacity(visits);
+        let visits = assembly_visit_count(list)?;
+        let mut keys: Vec<(usize, usize)> = reserve(visits, "assembly keys")?;
         for_each_position(list, |_, key, _| {
             keys.push(key);
             Ok(())
         })
         .unwrap_or_else(unreachable);
-        let by_col = stable_counting_order(0..visits, visits, dimension, |i| keys[i].1);
-        let by_key = stable_counting_order(by_col.iter().copied(), visits, dimension, |i| keys[i].0);
+        let by_col = stable_counting_order(0..visits, visits, dimension, |i| keys[i].1)?;
+        let by_key = stable_counting_order(by_col.iter().copied(), visits, dimension, |i| keys[i].0)?;
         drop(by_col);
         // Slots in key order: a new slot at each change of key.
-        let mut slot_of = vec![0usize; visits];
+        let mut slot_of = filled(visits, 0usize, "assembly slots")?;
         let mut distinct = 0usize;
         let mut previous: Option<(usize, usize)> = None;
         for &visit in &by_key {
@@ -917,7 +954,7 @@ impl ReformedPencil {
             }
             slot_of[visit] = distinct - 1;
         }
-        let mut out: Vec<((usize, usize), ExactSum)> = Vec::with_capacity(distinct);
+        let mut out: Vec<((usize, usize), ExactSum)> = reserve(distinct, "assembly entries")?;
         previous = None;
         for &visit in &by_key {
             if previous != Some(keys[visit]) {
@@ -928,10 +965,10 @@ impl ReformedPencil {
         drop(by_key);
         drop(keys);
         let mut visit = 0usize;
-        for_each_position(list, |element, _, contribution| -> Result<(), (usize, LimbAllotmentExceeded)> {
+        for_each_position(list, |element, _, contribution| -> Result<(), AssemblyRefusal> {
             let slot = &mut out[slot_of[visit]].1;
             visit += 1;
-            let refused = |exceeded| (element, exceeded);
+            let refused = |exceeded| AssemblyRefusal::Limbs(element, exceeded);
             match contribution {
                 Contribution::Plain(entry) => {
                     slot.add_scaled_within(entry.hi, 0, limb_allotment)
@@ -952,13 +989,25 @@ impl ReformedPencil {
     }
 
     /// The assembled entries rounded once to double-double, ascending.
+    ///
+    /// These evidence accessors (`assembled_stiffness`, `assembled_mass`,
+    /// `assembly_visits`) are not on the product's modal path, which takes
+    /// the assembly's refusals typed (`new_*`, [`formation_difference`]).
+    /// They keep their former signatures: a reservation's refusal panics
+    /// with its message, as the former infallible allocation panicked on a
+    /// capacity overflow (and aborted on an allocator refusal).
     fn assembled(&self, list: &[Mapped]) -> Vec<((usize, usize), Dd)> {
+        let refused = |support: SupportResourceError| -> ! { panic!("{support}") };
         let mut scratch = Vec::new();
-        Self::assembled_exact(list, self.dimension, None)
-            .expect("no allotment")
-            .into_iter()
-            .map(|(key, sum)| (key, sum.to_wide_with(&mut scratch).to_dd()))
-            .collect()
+        let exact = Self::assembled_exact(list, self.dimension, None).unwrap_or_else(|refusal| match refusal {
+            AssemblyRefusal::Support(support) => refused(support),
+            AssemblyRefusal::Limbs(..) => unreachable!("no limb allotment, so no limb refusal"),
+        });
+        let mut out = reserve(exact.len(), "assembled entries").unwrap_or_else(|support| refused(support));
+        for (key, sum) in exact {
+            out.push((key, sum.to_wide_with(&mut scratch).to_dd()));
+        }
+        out
     }
 
     /// The assembled K̂ on the free DOFs, lower triangle, ascending.
@@ -972,17 +1021,11 @@ impl ReformedPencil {
     }
 
     /// The position visits of the assembly of K̂ and of M̂ (v in
-    /// [`ReformedPencil::assembled_exact`]'s count), for resource evidence.
+    /// [`ReformedPencil::assembled_exact`]'s count), for resource evidence,
+    /// counted with checked arithmetic (an overflow panics, see
+    /// `assembled`).
     pub fn assembly_visits(&self) -> [usize; 2] {
-        [&self.stiffness, &self.mass].map(|list| {
-            let mut visits = 0usize;
-            for_each_position(list, |_, _, _| {
-                visits += 1;
-                Ok::<(), std::convert::Infallible>(())
-            })
-            .unwrap_or_else(|never| match never {});
-            visits
-        })
+        [&self.stiffness, &self.mass].map(|list| assembly_visit_count(list).unwrap_or_else(|support| panic!("{support}")))
     }
 }
 
@@ -1017,6 +1060,12 @@ pub enum FormationError {
     /// limb allotment ([`formation_difference_within_limb_allotment`]);
     /// refused before that growth.
     LimbAllotmentExceeded(LimbAllotmentExceeded),
+    /// A reservation of the formation difference (`T7.assembly`: the
+    /// assembly's, the formed order's, the accumulators, the off-pattern
+    /// list, the scaling or a norm's rows) overflowed or was refused by the
+    /// allocator (`MODAL_RESOURCE_*`, design §5.3.8); refused before that
+    /// structure exists, with no result.
+    SupportResource(SupportResourceError),
 }
 
 impl fmt::Display for FormationError {
@@ -1065,16 +1114,20 @@ pub struct FormationDifference {
 /// duplicated key, so the order among equal keys is never observed.
 ///
 /// Count with F entries, in support steps (each body at most 40
-/// operations): the checks F, two counting sorts 2(3F + 2n + 1), the
-/// gather F, the duplicate scan F and 1, so `9F + 4n + 3`. Capacity: the
-/// checked list and the sorted list, F entries (24 B) each, and the two
-/// orders and the starts (8F, 8F and 8n B, freed on return).
+/// operations; a reservation one step, `support`'s module docs): the
+/// checked list's reservation and the checks 1 + F, two counting sorts
+/// 2(3F + 2n + 3), the sorted list's reservation and gather 1 + F, the
+/// duplicate scan F and 1, so `9F + 4n + 9`. Capacity (requested once
+/// each): the checked list and the sorted list, F entries (24 B) each, and
+/// the two orders and their starts (8F, 8F and 8n B each, none when F = 0;
+/// freed on return).
 fn formed_lower(
     n: usize,
     matrix: PencilMatrix,
     entries: &[SymmetricMatrixEntry],
 ) -> Result<Vec<((usize, usize), f64)>, FormationError> {
-    let mut out = Vec::with_capacity(entries.len());
+    let support = FormationError::SupportResource;
+    let mut out = reserve(entries.len(), "formed entries").map_err(support)?;
     for e in entries {
         if e.row >= n || e.col >= n {
             return Err(FormationError::EntryOutOfBounds {
@@ -1096,10 +1149,10 @@ fn formed_lower(
         check_entry(matrix, key.0, key.1, e.value).map_err(FormationError::PencilRangeUnsupported)?;
         out.push((key, e.value));
     }
-    let by_col = stable_counting_order(0..out.len(), out.len(), n, |i| out[i].0 .1);
-    let by_key = stable_counting_order(by_col.iter().copied(), out.len(), n, |i| out[i].0 .0);
+    let by_col = stable_counting_order(0..out.len(), out.len(), n, |i| out[i].0 .1).map_err(support)?;
+    let by_key = stable_counting_order(by_col.iter().copied(), out.len(), n, |i| out[i].0 .0).map_err(support)?;
     drop(by_col);
-    let mut sorted = Vec::with_capacity(out.len());
+    let mut sorted = reserve(out.len(), "formed order").map_err(support)?;
     for &i in &by_key {
         sorted.push(out[i]);
     }
@@ -1127,7 +1180,7 @@ fn scaled_norm(
     entries: impl Iterator<Item = ((usize, usize), WideDd)>,
     quantity: &'static str,
 ) -> Result<(f64, usize), FormationError> {
-    let mut rows = vec![WideDd::ZERO; n];
+    let mut rows = filled(n, WideDd::ZERO, "norm rows").map_err(FormationError::SupportResource)?;
     for ((r, c), v) in entries {
         let s = WideDd::from_dd(d[r])
             .mul(v)
@@ -1168,11 +1221,16 @@ fn scaled_norm(
 /// two `mul`, `abs` and two `add`) over the F + (≤ u) deltas and the u
 /// re-formed entries, and per row its fill and 6 steps
 /// (`to_normal_or_zero`, at most six scaling iterations: about 265
-/// operations), twice; and 3. So at most `27F + 50u + u·L̄ + 14n + 3`.
-/// Capacity: F accumulators, the off-pattern list at exactly the number of
-/// re-formed positions absent from `formed` (≤ u; a key and a `WideDd`
-/// each), the reads' scratch and term list, and two `scaled_norm` row
-/// vectors of n.
+/// operations), twice, each with its rows' reservation; the accumulators'
+/// and the off-pattern list's reservations; and 3. So at most
+/// `27F + 50u + u·L̄ + 14n + 7`. Capacity (requested once each,
+/// `support`'s module docs): F accumulators, the off-pattern list at
+/// exactly the number of re-formed positions absent from `formed` (≤ u; a
+/// key and a `WideDd` each), and two `scaled_norm` row vectors of n
+/// `WideDd`s, the second requested after the first is freed. The reads'
+/// scratch and term list, and the accumulators' limbs, grow as before
+/// (std's infallible allocation; the limbs within the allotment when one
+/// is given).
 fn difference(
     n: usize,
     d: &[Dd],
@@ -1184,7 +1242,8 @@ fn difference(
     let exceeded = FormationError::LimbAllotmentExceeded;
     // One exact accumulator per stored formed entry, in the formed order:
     // the formed value minus every element contribution, rounded once.
-    let mut accumulators: Vec<ExactSum> = Vec::with_capacity(formed.len());
+    let support = FormationError::SupportResource;
+    let mut accumulators: Vec<ExactSum> = reserve(formed.len(), "difference accumulators").map_err(support)?;
     for &(_, f) in formed {
         let mut sum = ExactSum::new();
         sum.add_scaled_within(f, 0, limb_allotment)
@@ -1206,7 +1265,7 @@ fn difference(
             absent += 1;
         }
     }
-    let mut off_pattern: Vec<((usize, usize), WideDd)> = Vec::with_capacity(absent);
+    let mut off_pattern: Vec<((usize, usize), WideDd)> = reserve(absent, "off-pattern entries").map_err(support)?;
     cursor = 0;
     for (key, sum) in reformed {
         #[cfg(test)]
@@ -1288,15 +1347,18 @@ pub fn formation_difference_within_limb_allotment(
 ) -> Result<FormationDifference, FormationError> {
     let n = pencil.dimension;
     let assembled = |list: &[Mapped]| {
-        ReformedPencil::assembled_exact(list, n, limb_allotment)
-            .map_err(|(_, exceeded)| FormationError::LimbAllotmentExceeded(exceeded))
+        ReformedPencil::assembled_exact(list, n, limb_allotment).map_err(|refusal| match refusal {
+            AssemblyRefusal::Limbs(_, exceeded) => FormationError::LimbAllotmentExceeded(exceeded),
+            AssemblyRefusal::Support(support) => FormationError::SupportResource(support),
+        })
     };
     let k = formed_lower(n, PencilMatrix::Stiffness, formed_stiffness)?;
     let m = formed_lower(n, PencilMatrix::Mass, formed_mass)?;
     // Each diagonal by a merge walk over the ascending K list (n + F steps),
     // where this binary-searched it: the one entry keyed (i, i), or none.
-    // Its scaling is 16 support steps an index (`Dd::div`, `Dd::sqrt`).
-    let mut scaling = vec![Dd::ZERO; n];
+    // Its scaling is 16 support steps an index (`Dd::div`, `Dd::sqrt`), in
+    // a vector requested once (one step, `support`).
+    let mut scaling = filled(n, Dd::ZERO, "formation scaling").map_err(FormationError::SupportResource)?;
     let mut cursor = 0usize;
     for (index, d) in scaling.iter_mut().enumerate() {
         while cursor < k.len() && k[cursor].0 < (index, index) {
@@ -1540,7 +1602,7 @@ mod tests {
     /// One node, six free DOFs: axis springs and a rank-one spring for K, a
     /// component body with an offset centre of gravity for M (entries with
     /// nonzero low words, so the exact sums grow below).
-    fn small_pencil(limb_allotment: Option<usize>) -> Result<ReformedPencil, ReformationError> {
+    pub(super) fn small_pencil(limb_allotment: Option<usize>) -> Result<ReformedPencil, ReformationError> {
         let mut elements: Vec<ElementOperand> = (0..6)
             .map(|dof| {
                 ElementOperand::Spring(SpringOperand::Axis {
@@ -1975,8 +2037,12 @@ mod former_oracle_tests {
             .collect()
     }
 
+    /// The new assembly's refusal is typed (`AssemblyRefusal`, which adds
+    /// the reservation refusal the former map's infallible allocation did
+    /// not have); a limb refusal is compared with the former one field by
+    /// field, and a reservation refusal, never expected here, fails.
     fn same_assembly(
-        new: &Result<Vec<((usize, usize), ExactSum)>, (usize, LimbAllotmentExceeded)>,
+        new: &Result<Vec<((usize, usize), ExactSum)>, AssemblyRefusal>,
         old: &Result<BTreeMap<(usize, usize), ExactSum>, (usize, LimbAllotmentExceeded)>,
         what: &str,
     ) {
@@ -1993,7 +2059,9 @@ mod former_oracle_tests {
                     assert_eq!(sum.to_wide().exponent, old_sum.to_wide().exponent, "{what}");
                 }
             }
-            (Err(new), Err(old)) => assert_eq!(new, old, "{what}: the same element and the same refusal"),
+            (Err(AssemblyRefusal::Limbs(element, exceeded)), Err(old)) => {
+                assert_eq!(&(*element, exceeded.clone()), old, "{what}: the same element and the same refusal")
+            }
             (new, old) => panic!("{what}: new {:?} against old {:?}", new.as_ref().map(Vec::len), old.as_ref().map(BTreeMap::len)),
         }
     }
@@ -2129,5 +2197,79 @@ mod former_oracle_tests {
         let full = [entry(1, 1, 4.0), entry(0, 0, 16.0)];
         let found = formation_difference(&pencil, &full, &[]).unwrap();
         assert_eq!(found.scaling.scaling, vec![Dd::from_f64(0.25), Dd::from_f64(0.5)]);
+    }
+
+    /// Review witness (1091d885): an empty pencil of a dimension whose
+    /// counting starts would overflow panicked; the former map returned
+    /// `Ok`. With nothing to assemble nothing is requested, so it is `Ok`
+    /// again and equals the former construction's pencil.
+    #[test]
+    fn an_empty_pencil_of_any_dimension_requests_nothing() {
+        use crate::support::failpoint;
+        failpoint::arm(Some(0));
+        let empty = ReformedPencil::new(1_152_921_504_606_846_976, &[], MassBasis::EffectiveWall, &[]).unwrap();
+        assert_eq!(failpoint::disarm(), 0, "nothing was requested");
+        assert_eq!((empty.dimension(), empty.stiffness.len(), empty.mass.len()), (1_152_921_504_606_846_976, 0, 0));
+        assert_eq!(former_assembled_exact(&[], None).map(|map| map.len()), Ok(0));
+    }
+
+    /// A count that does not fit refuses by name, typed, before its own
+    /// request: the counting starts of a huge dimension in the assembly
+    /// (after the one visit's key, the only request; naming no element:
+    /// `element` is the operand count), and the scaling of the formation
+    /// difference (no request).
+    #[test]
+    fn an_overflowing_assembly_or_difference_refuses_before_any_request() {
+        use crate::support::failpoint;
+        let spring = [ElementOperand::Spring(SpringOperand::Axis { dof: 0, stiffness: 2.0 })];
+        failpoint::arm(None);
+        let found = ReformedPencil::new(1 << 60, &[Some(0)], MassBasis::EffectiveWall, &spring);
+        let overflow = SupportResourceError::CapacityOverflow { structure: "counting starts" };
+        assert_eq!(found, Err(ReformationError { element: 1, failure: ReformationFailure::SupportResource(overflow) }));
+        assert_eq!(failpoint::disarm(), 1, "only the key was requested");
+        failpoint::arm(None);
+        let empty = ReformedPencil::new(1 << 60, &[], MassBasis::EffectiveWall, &[]).unwrap();
+        let found = formation_difference(&empty, &[], &[]);
+        let overflow = SupportResourceError::CapacityOverflow { structure: "formation scaling" };
+        assert_eq!(found, Err(FormationError::SupportResource(overflow)));
+        assert_eq!(failpoint::disarm(), 0, "the overflow refuses before any request");
+    }
+
+    /// Every reservation of the constructor's assemblies and of the
+    /// formation difference refuses cleanly and typed, and stops the call;
+    /// past the last, the result is the unarmed one (the reused workspace
+    /// and the sums are fresh each run). The constructor: per matrix the
+    /// keys, two counting sorts of two, the slots and the entries (7), so
+    /// 14. The difference: per formed list its entries, two sorts and the
+    /// sorted list (6), the scaling, and per matrix the assembly (7), the
+    /// accumulators and the two norms' rows (3), with no off-pattern list
+    /// (every re-formed position is formed): 12 + 1 + 20 = 33.
+    #[test]
+    fn every_assembly_and_difference_reservation_refuses_cleanly() {
+        use crate::support::failpoint;
+        let constructor = |e: &ReformationError| match &e.failure {
+            ReformationFailure::SupportResource(support) => {
+                assert_eq!(e.element, 8, "the operand count: no element is named");
+                Some(*support)
+            }
+            _ => None,
+        };
+        assert_eq!(failpoint::each_reservation_refuses(|| super::tests::small_pencil(None), constructor), 14);
+        let pencil = super::tests::small_pencil(None).unwrap();
+        let formed = |entries: Vec<((usize, usize), Dd)>| {
+            entries.into_iter().map(|((row, col), value)| SymmetricMatrixEntry { row, col, value: value.to_f64() }).collect::<Vec<_>>()
+        };
+        let (k, m) = (formed(pencil.assembled_stiffness()), formed(pencil.assembled_mass()));
+        let difference = |e: &FormationError| match e {
+            FormationError::SupportResource(support) => Some(*support),
+            _ => None,
+        };
+        assert_eq!(failpoint::each_reservation_refuses(|| formation_difference(&pencil, &k, &m), difference), 33);
+        // With a limb allotment the same reservations come first; a limb
+        // refusal keeps its former element and requirement.
+        failpoint::arm(None);
+        let refused = super::tests::small_pencil(Some(0)).unwrap_err();
+        assert!(matches!(refused.failure, ReformationFailure::LimbAllotmentExceeded(_)));
+        assert!(failpoint::disarm() > 0);
     }
 }

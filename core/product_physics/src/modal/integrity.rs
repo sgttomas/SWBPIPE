@@ -36,6 +36,7 @@
 //! as 0 with its flag, never discarded.
 use super::mass::{MemberKind, ModalMass};
 use super::prepare::Prepared;
+use super::resource::modal_support_resource_refusal;
 use super::weight_basis::IdentityTolerance;
 use crate::{diag, stable_suffix, Diagnostic, PreviewPipe};
 use open_pipe_stress_modal_eigen::admission::PencilRangeUnsupported;
@@ -94,6 +95,10 @@ pub(crate) const MODAL_PHASE_REPLAY_SKEW_RESTRAINT_UNSUPPORTED: &str = "MODAL_PH
 pub(crate) const MODAL_RESOURCE_PREFLIGHT_EXCEEDED: &str = "MODAL_RESOURCE_PREFLIGHT_EXCEEDED";
 /// Design §5.3.8: the kernel's S1 refusals (QL rotations, band pairs) and a
 /// resource count's overflow, in P0 or the kernel; the kernel's own names.
+/// A support reservation's refusal carries its own name
+/// (`SupportResourceError::code`: this overflow name, or the kernel's
+/// `MODAL_RESOURCE_ALLOCATION_REFUSED`), mapped by
+/// `resource::modal_support_resource_refusal`.
 pub(crate) use open_pipe_stress_modal_eigen::dense::{
     RESOURCE_ARITHMETIC_OVERFLOW as MODAL_RESOURCE_ARITHMETIC_OVERFLOW, RESOURCE_BAND_ALLOTMENT_EXCEEDED as MODAL_RESOURCE_BAND_ALLOTMENT_EXCEEDED,
     RESOURCE_QL_ALLOTMENT_EXCEEDED as MODAL_RESOURCE_QL_ALLOTMENT_EXCEEDED,
@@ -302,6 +307,7 @@ pub(crate) fn modal_range_refusal(id: &str, what: String, refs: Vec<String>) -> 
 pub(crate) fn modal_refusal_code(failure: &ReformationFailure) -> &'static str {
     match failure {
         ReformationFailure::PencilRangeUnsupported(_) => MODAL_PENCIL_RANGE_UNSUPPORTED,
+        ReformationFailure::SupportResource(support) => support.code(),
         _ => MODAL_REFORMATION_UNAVAILABLE,
     }
 }
@@ -512,6 +518,9 @@ pub(crate) fn reform_modal_pencil(
         None => ReformedPencil::new(dimension, dof_map, basis, &elements),
     };
     let pencil = reformed.map_err(|ReformationError { element, failure }| {
+        if let ReformationFailure::SupportResource(support) = failure {
+            return modal_support_resource_refusal("the re-formed pencil's assembly", &support);
+        }
         let subject = operands.get(element).map_or("model", |o| o.subject.as_str());
         let code = modal_refusal_code(&failure);
         vec![diag(
@@ -523,6 +532,9 @@ pub(crate) fn reform_modal_pencil(
         )]
     })?;
     let difference = formation_difference(&pencil, stiffness_entries, mass_entries).map_err(|error| {
+        if let FormationError::SupportResource(support) = error {
+            return modal_support_resource_refusal("the formation difference", &support);
+        }
         let code = match error {
             FormationError::PencilRangeUnsupported(_) | FormationError::ResultOutOfRange { .. } => MODAL_PENCIL_RANGE_UNSUPPORTED,
             _ => MODAL_REFORMATION_UNAVAILABLE,

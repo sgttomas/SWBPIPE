@@ -112,18 +112,19 @@ fn kernel_steps(n: u128, r: u128) -> u128 {
 
 /// `T7.assembly` collected (module docs of `resource`), written out again:
 /// (6θ + 24ν + 7)(D_K + D_M) + (55 + L̄)(min(νD_K, P) + min(νD_M, P)) +
-/// 73P + 70n + 28.
+/// 73P + 70n + 81 (2·38 + 5: per matrix two assemblies' 2·11, the formed
+/// order's 9 and the difference's 7; once the scaling's 5).
 fn assembly_steps(n: u128, dk: u128, dm: u128, nu: u128, theta: u128, l: u128) -> u128 {
     let p = n * (n + 1) / 2;
-    (6 * theta + 24 * nu + 7) * (dk + dm) + (55 + l) * ((nu * dk).min(p) + (nu * dm).min(p)) + 73 * p + 70 * n + 28
+    (6 * theta + 24 * nu + 7) * (dk + dm) + (55 + l) * ((nu * dk).min(p) + (nu * dm).min(p)) + 73 * p + 70 * n + 81
 }
 
 /// `T9.construction` collected, written out again: with P = n(n + 1)/2,
-/// L = 2P and q = P − n, 13L + 9n + 5P + 12 + 15n + 8q + 3 + (n + 3)(5n +
-/// 2q) + 3n(n + 1) = 39P + 16n + 15 + (n + 3)(3n + 2P) + 3n(n + 1).
+/// L = 2P and q = P − n, 13L + 9n + 5P + 24 + 15n + 8q + 14 + (n + 3)(5n +
+/// 2q) + 3n(n + 1) = 39P + 16n + 38 + (n + 3)(3n + 2P) + 3n(n + 1).
 fn construction_steps(n: u128) -> u128 {
     let p = n * (n + 1) / 2;
-    39 * p + 16 * n + 15 + (n + 3) * (3 * n + 2 * p) + 3 * n * (n + 1)
+    39 * p + 16 * n + 38 + (n + 3) * (3 * n + 2 * p) + 3 * n * (n + 1)
 }
 
 /// §5.3.8's terms as `resource` derives them, written out again in plain
@@ -150,7 +151,7 @@ fn formulas(d: &ModalResourceDimensions) -> [Option<u128>; MODAL_RESOURCE_TERM_C
     x[T::T2Entries as usize] = Some(3 * n * n);
     x[T::T2Integrity as usize] = None;
     x[T::T3Kernel as usize] = Some(kernel_steps(n, d.ql_rotations));
-    x[T::T3Filters as usize] = Some(if n == 0 { 0 } else { 2 * n + 2 });
+    x[T::T3Filters as usize] = Some(if n == 0 { 0 } else { 2 * n + 4 });
     x[T::T4Scaling as usize] = Some(if b > 0 { 2 * n * n + n } else { 0 });
     x[T::T4Visits as usize] = Some(4 * b * n * n);
     x[T::T4Insertions as usize] = Some(4 * b * n * n);
@@ -214,11 +215,13 @@ fn the_counts_are_the_formulas_on_small_models() {
     assert_eq!(at(T::T9Factorization), s_max * (20 + 36));
     assert_eq!(at(T::T6Visits), 6 * 54);
     // The support terms by hand at n_f = 6 (P = 21), D_K = 144, D_M = 180,
-    // ν = 1, θ = 3, L̄ = 492: T3.filters 2·7 = 14; T7.assembly 49·324 +
-    // 547·(21 + 21) + 73·21 + 70·6 + 28 = 15,876 + 22,974 + 1,533 + 420 + 28
-    // = 40,831; T9.construction 39·21 + 16·6 + 15 + 9·(18 + 42) + 3·6·7 =
-    // 819 + 96 + 15 + 540 + 126 = 1,596.
-    assert_eq!((at(T::T3Filters), at(T::T7Assembly), at(T::T9Construction)), (14, 40_831, 1_596));
+    // ν = 1, θ = 3, L̄ = 492: T3.filters 2·8 = 16; T7.assembly 49·324 +
+    // 547·(21 + 21) + 73·21 + 70·6 + 81 = 15,876 + 22,974 + 1,533 + 420 + 81
+    // = 40,884; T9.construction 39·21 + 16·6 + 38 + 9·(18 + 42) + 3·6·7 =
+    // 819 + 96 + 38 + 540 + 126 = 1,619. (Before the checked reservations:
+    // 14, 40,831 and 1,596; the differences are the reservations' and the
+    // visit count's steps, 2, 53 and 23.)
+    assert_eq!((at(T::T3Filters), at(T::T7Assembly), at(T::T9Construction)), (16, 40_884, 1_619));
     for term in UNBOUNDED {
         let t = MODAL_RESOURCE_TERMS.into_iter().find(|t| t.modal_resource_id() == term).unwrap();
         assert_eq!(counts[t as usize], None, "{term} is unbounded");
@@ -490,15 +493,15 @@ fn every_overflow_refuses_by_name() {
     // The support counts: each overflow names its term; the last values
     // that fit do not overflow.
     assert_eq!(modal_resource_filter_steps(u128::MAX), Err(ModalResourceOverflow("T3.filters")));
-    assert_eq!(modal_resource_filter_steps(u128::MAX / 2 - 1), Ok(u128::MAX - 1));
-    assert_eq!(modal_resource_filter_steps(u128::MAX / 2), Err(ModalResourceOverflow("T3.filters")));
+    assert_eq!(modal_resource_filter_steps(u128::MAX / 2 - 2), Ok(u128::MAX - 1));
+    assert_eq!(modal_resource_filter_steps(u128::MAX / 2 - 1), Err(ModalResourceOverflow("T3.filters")));
     assert_eq!(modal_resource_rcm_steps(1 << 64, 0), Err(ModalResourceOverflow("T9.construction")));
     assert_eq!(modal_resource_construction_steps(1 << 64, 0, 1 << 64), Err(ModalResourceOverflow("T9.construction")));
     let mut wide = bounds(sec_a(1), &admitting_budget());
     wide.stiffness_squares = u128::MAX / 3;
     assert_eq!(modal_resource_assembly_bounds(&wide).and_then(|s| modal_resource_assembly_steps(&s)), Err(ModalResourceOverflow("T7.assembly")));
     let sizes = ModalAssemblySizes { order: 0, squares: [0; 2], traversal: [0; 2], visits: [0; 2], positions: [0; 2], formed: [0; 2], limbs: 0 };
-    assert_eq!(modal_resource_assembly_steps(&sizes), Ok(2 * 12 + 4));
+    assert_eq!(modal_resource_assembly_steps(&sizes), Ok(2 * 38 + 5));
     assert_eq!(modal_resource_assembly_steps(&ModalAssemblySizes { traversal: [u128::MAX / 6 + 1, 0], ..sizes }), Err(ModalResourceOverflow("T7.assembly")));
 }
 
@@ -674,6 +677,7 @@ fn the_codes_are_the_approved_names_and_the_budget_has_no_default() {
     assert_eq!(MODAL_RESOURCE_ARITHMETIC_OVERFLOW, "MODAL_RESOURCE_ARITHMETIC_OVERFLOW");
     assert_eq!(MODAL_RESOURCE_QL_ALLOTMENT_EXCEEDED, "MODAL_RESOURCE_QL_ALLOTMENT_EXCEEDED");
     assert_eq!(MODAL_RESOURCE_BAND_ALLOTMENT_EXCEEDED, "MODAL_RESOURCE_BAND_ALLOTMENT_EXCEEDED");
+    assert_eq!(open_pipe_stress_modal_eigen::dense::RESOURCE_ALLOCATION_REFUSED, "MODAL_RESOURCE_ALLOCATION_REFUSED");
     let source = include_str!("resource.rs");
     let definition = &source[..source.find("pub(crate) struct ModalResourceBudget").unwrap()];
     let derive = definition.lines().rev().find(|l| l.starts_with("#[derive")).unwrap();
@@ -801,4 +805,61 @@ fn t7_limb_charge_includes_both_assembly_passes_and_all_three_reads() {
     assert_eq!(count, 2_568_056);
     let old_single_assembly_charge = 2_516_568u128;
     assert_eq!(count - old_single_assembly_charge, 51_488);
+}
+
+// ---------------------------------------------------------------------------
+// The support reservations' typed refusals through the product's routes
+// ---------------------------------------------------------------------------
+
+/// The support refusals reach the product typed and are named by the
+/// kernel's `MODAL_RESOURCE_*` names through `modal_support_resource_refusal`
+/// (`diagnostic:modal:resource:support`), never as a numerical, re-formation
+/// or eigensolve refusal: on the actual re-formation and formation-difference
+/// route (`reform_modal_pencil`) with a dimension whose structures overflow
+/// (no oversized request is made), on the Sturm construction's actual error,
+/// and for an allocator refusal (the kernel's own failpoint tests inject it
+/// through the same public errors; a product build has no failpoint).
+#[test]
+fn the_support_refusals_are_named_resource_refusals_on_each_route() {
+    use super::eigen::modal_sturm_pencil_refusal;
+    use super::integrity::{modal_refusal_code, reform_modal_pencil, NamedOperand};
+    use super::resource::modal_support_resource_refusal;
+    use open_pipe_stress_modal_eigen::dense::{DenseError, RESOURCE_ALLOCATION_REFUSED};
+    use open_pipe_stress_modal_eigen::reformation::{ElementOperand, ReformationFailure, SpringOperand};
+    use open_pipe_stress_modal_eigen::sturm::{ShiftPencil, SturmError};
+    use open_pipe_stress_modal_eigen::SupportResourceError;
+    let huge = 1usize << 60;
+    let is_support = |found: &[Diagnostic], code: &str, stage: &str| {
+        assert_eq!(codes(found), [code]);
+        assert_eq!(found[0].id, "diagnostic:modal:resource:support");
+        assert!(found[0].message.contains(stage) && found[0].message.contains("a resource refusal, not a numerical one"), "{}", found[0].message);
+    };
+
+    // The re-formed pencil's assembly: the counting starts overflow.
+    let spring = NamedOperand { subject: "spring:a".into(), operand: ElementOperand::Spring(SpringOperand::Axis { dof: 0, stiffness: 2.0 }) };
+    let found = reform_modal_pencil(&[spring], false, huge, &[Some(0)], None, &[], &[]).unwrap_err();
+    is_support(&found, MODAL_RESOURCE_ARITHMETIC_OVERFLOW, "the re-formed pencil's assembly");
+    // The formation difference: an empty pencil is formed (nothing to
+    // request), and the difference's scaling overflows.
+    let found = reform_modal_pencil(&[], false, huge, &[], None, &[], &[]).unwrap_err();
+    is_support(&found, MODAL_RESOURCE_ARITHMETIC_OVERFLOW, "the formation difference");
+
+    // The Sturm construction: its actual overflow, an allocator refusal,
+    // and a numerical input refusal kept as before.
+    let overflow = ShiftPencil::from_entries(huge, &[], &[]).unwrap_err();
+    assert!(matches!(overflow, SturmError::SupportResource(SupportResourceError::CapacityOverflow { .. })));
+    is_support(&modal_sturm_pencil_refusal(overflow), MODAL_RESOURCE_ARITHMETIC_OVERFLOW, "the Sturm pencil's construction");
+    let refused = SupportResourceError::AllocationFailed { structure: "Sturm scaling", bytes: 48 };
+    is_support(&modal_sturm_pencil_refusal(SturmError::SupportResource(refused)), RESOURCE_ALLOCATION_REFUSED, "the Sturm pencil's construction");
+    let numerical = modal_sturm_pencil_refusal(SturmError::DuplicateEntry { row: 1, col: 0 });
+    assert_eq!(codes(&numerical), ["MODAL_EIGENSOLVE_UNAVAILABLE"]);
+    assert!(numerical[0].message.contains("the Sturm pencil cannot be formed"));
+
+    // The dense solve's typed error and the re-formation's code map.
+    let dense = DenseError::SupportResource(refused);
+    assert_eq!(dense.resource_code(), Some(RESOURCE_ALLOCATION_REFUSED));
+    is_support(&modal_support_resource_refusal("the dense eigensolve", &refused), RESOURCE_ALLOCATION_REFUSED, "the dense eigensolve");
+    assert_eq!(modal_refusal_code(&ReformationFailure::SupportResource(refused)), RESOURCE_ALLOCATION_REFUSED);
+    let overflowed = SupportResourceError::CapacityOverflow { structure: "assembly keys" };
+    assert_eq!(modal_refusal_code(&ReformationFailure::SupportResource(overflowed)), MODAL_RESOURCE_ARITHMETIC_OVERFLOW);
 }

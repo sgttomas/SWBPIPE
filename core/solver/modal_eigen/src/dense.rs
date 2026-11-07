@@ -181,9 +181,9 @@ pub enum DenseError {
     },
     /// Resource refusal (`MODAL_RESOURCE_ARITHMETIC_OVERFLOW`): a resource
     /// count or comparison (`quantity`) overflowed u64. Never wrapped.
-    ResourceArithmeticOverflow {
-        quantity: &'static str,
-    },
+    ResourceArithmeticOverflow { quantity: &'static str },
+    /// A massive-DOF complement's reservation refused (`T3.filters`, `support`).
+    SupportResource(crate::SupportResourceError),
 }
 
 impl DenseError {
@@ -194,6 +194,7 @@ impl DenseError {
             Self::QlRotationAllotmentExceeded { .. } => Some(RESOURCE_QL_ALLOTMENT_EXCEEDED),
             Self::BandPairAllotmentExceeded { .. } => Some(RESOURCE_BAND_ALLOTMENT_EXCEEDED),
             Self::ResourceArithmeticOverflow { .. } => Some(RESOURCE_ARITHMETIC_OVERFLOW),
+            Self::SupportResource(support) => Some(support.code()),
             _ => None,
         }
     }
@@ -242,10 +243,9 @@ impl fmt::Display for DenseError {
                 "{RESOURCE_BAND_ALLOTMENT_EXCEEDED}: {attempted} band-recovery pairs exceed the \
                  allotment of {allotment}"
             ),
-            Self::ResourceArithmeticOverflow { quantity } => write!(
-                f,
-                "{RESOURCE_ARITHMETIC_OVERFLOW}: the resource count `{quantity}` overflowed"
-            ),
+            Self::ResourceArithmeticOverflow { quantity } => write!(f, "{RESOURCE_ARITHMETIC_OVERFLOW}: the resource count `{quantity}` overflowed"),
+            // A support reservation's refusal names itself (`support`).
+            Self::SupportResource(support) => write!(f, "{support}"),
         }
     }
 }
@@ -421,7 +421,7 @@ pub fn solve_dense_pencil_with_allotments(
     let nm = n - n0;
     // The complement by one cursor walk (`T3.filters`; it was a
     // `binary_search` filter): the same members, ascending.
-    let massive = crate::support::ascending_complement(&massless, n);
+    let massive = crate::support::ascending_complement(&massless, n).map_err(DenseError::SupportResource)?;
     let order: Vec<usize> = massless.iter().chain(&massive).copied().collect();
     let (r, min_cholesky_pivot_ratio) = cholesky_ordered(stiffness, &order)?;
     check_finite("stiffness factor", &r)?;
@@ -612,7 +612,7 @@ pub fn solve_dense_pencil_with_allotments(
     }
     // After R is released, so the mass block's factor does not add to the
     // peak n² buffers.
-    let established = established_finite_mode_count(mass, pivot_threshold);
+    let established = established_finite_mode_count_checked(mass, pivot_threshold).map_err(DenseError::SupportResource)?;
     let finite_count_unresolved =
         nonpositive_mu_count + below_threshold_mu_count > 0 || established.is_none();
     let eigenvalues: Vec<f64> = d.iter().map(|&mu| 1.0 / mu).collect();
@@ -949,30 +949,30 @@ pub fn structurally_massless_dofs(mass: &SymmetricMatrix) -> Vec<usize> {
 /// remaining block of M, equilibrated by the congruence D_M·M·D_M with
 /// D_M = diag(m_jj)^−½, factors by Cholesky with every pivot (before its
 /// square root) at least `relative_pivot_threshold` τ_m, inclusive, and
-/// positive. `None` when the count is not established: a pivot below τ_m,
-/// a remaining diagonal that is not positive, or a threshold that is not
-/// finite in [0, 1).
-///
-/// The equilibrated block has unit diagonal exactly, so it is formed with
-/// 1 there and m_ij/√m_ii/√m_jj off it. Its pivots are dimensionless and do
-/// not depend on units or on the mix of translational and rotational DOFs.
-pub fn established_finite_mode_count(
+/// positive. `Ok(None)` when the count is not established: a pivot below
+/// τ_m, a remaining diagonal that is not positive, or a threshold that is
+/// not finite in [0, 1). `Err` only for the kept list's reservation refusal
+/// (`T3.filters`), never a count; [`established_finite_mode_count`] is the
+/// former `Option` form. The equilibrated block has unit diagonal exactly,
+/// so it is formed with 1 there and m_ij/√m_ii/√m_jj off it. Its pivots are
+/// dimensionless and do not depend on units or on the mix of DOFs.
+pub fn established_finite_mode_count_checked(
     mass: &SymmetricMatrix,
     relative_pivot_threshold: f64,
-) -> Option<usize> {
+) -> Result<Option<usize>, crate::SupportResourceError> {
     if !(relative_pivot_threshold.is_finite() && (0.0..1.0).contains(&relative_pivot_threshold)) {
-        return None;
+        return Ok(None);
     }
     let massless = structurally_massless_dofs(mass);
     // The complement by one cursor walk (`T3.filters`; it was a
     // `binary_search` filter): the same members, ascending.
-    let kept = crate::support::ascending_complement(&massless, mass.dimension());
+    let kept = crate::support::ascending_complement(&massless, mass.dimension())?;
     let m = kept.len();
     let mut root = Vec::with_capacity(m);
     for &i in &kept {
         let diagonal = mass.get(i, i);
         if !(diagonal > 0.0) {
-            return None;
+            return Ok(None);
         }
         root.push(diagonal.sqrt());
     }
@@ -992,7 +992,7 @@ pub fn established_finite_mode_count(
             }
             if a == b {
                 if !(s >= relative_pivot_threshold && s > 0.0) {
-                    return None;
+                    return Ok(None);
                 }
                 r[a * m + a] = s.sqrt();
             } else {
@@ -1000,7 +1000,7 @@ pub fn established_finite_mode_count(
             }
         }
     }
-    Some(m)
+    Ok(Some(m))
 }
 
 /// P K Pᵀ = R Rᵀ with R lower triangular, row by row
@@ -1387,6 +1387,24 @@ fn sort_ascending(d: &mut [f64], z: &mut [f64], n: usize) {
             swap_rows(z, n, i, k);
         }
     }
+}
+
+/// Refusal name of an allocator's refusal of a support structure's
+/// requested capacity (`SupportResourceError::AllocationFailed`, design
+/// §5.3.8): a resource refusal, neither numerical nor a budget comparison.
+/// A support capacity that overflows the addressable size refuses
+/// [`RESOURCE_ARITHMETIC_OVERFLOW`]. (Placed here so the T3.kernel
+/// ledger's line references above stand.)
+pub const RESOURCE_ALLOCATION_REFUSED: &str = "MODAL_RESOURCE_ALLOCATION_REFUSED";
+
+/// The finite-mode count of [`established_finite_mode_count_checked`] in
+/// its former `Option` form, for callers outside the solve. A refusal of
+/// the kept list's reservation panics here with its message, as the former
+/// infallible allocation panicked on a capacity overflow (and aborted on an
+/// allocator refusal); [`solve_dense_pencil_with_allotments`] takes the
+/// checked form and refuses by name (`DenseError::SupportResource`).
+pub fn established_finite_mode_count(mass: &SymmetricMatrix, relative_pivot_threshold: f64) -> Option<usize> {
+    established_finite_mode_count_checked(mass, relative_pivot_threshold).unwrap_or_else(|support| panic!("{support}"))
 }
 
 #[cfg(test)]
@@ -2100,5 +2118,43 @@ mod tests {
                 assert_eq!(r.error_estimate, 0.0);
             }
         }
+    }
+
+    /// `T3.filters`' two reservations (the kernel's massive list and the
+    /// census's kept list) each refuse cleanly through the solve, typed as
+    /// `DenseError::SupportResource` with its `MODAL_RESOURCE_*` name, never
+    /// a count, `None` or a numerical refusal; past them the solution is
+    /// the unarmed one. With one massless DOF both lists are nonempty.
+    #[test]
+    fn the_filter_reservations_refuse_by_name_through_the_solve() {
+        use crate::support::failpoint;
+        let k = second_difference(3);
+        let m = SymmetricMatrix::from_rows(&[vec![1.0, 0.0, 0.0], vec![0.0, 0.0, 0.0], vec![0.0, 0.0, 2.0]]).unwrap();
+        let typed = |e: &DenseError| match e {
+            DenseError::SupportResource(support) => {
+                assert_eq!(e.resource_code(), Some(RESOURCE_ALLOCATION_REFUSED));
+                Some(*support)
+            }
+            _ => None,
+        };
+        let solve = || solve_dense_pencil_with_allotments(&k, &m, &options(), &DenseAllotments::default());
+        assert_eq!(failpoint::each_reservation_refuses(solve, typed), 2);
+        failpoint::arm(Some(1));
+        assert!(matches!(
+            established_finite_mode_count_checked(&m, 1e-12),
+            Ok(Some(2))
+        ), "only the first reservation is armed past");
+        failpoint::arm(Some(0));
+        let refused = established_finite_mode_count_checked(&m, 1e-12);
+        assert_eq!(refused, Err(crate::SupportResourceError::AllocationFailed { structure: "massive-DOF complement", bytes: 16 }));
+        failpoint::disarm();
+        assert_eq!(established_finite_mode_count(&m, 1e-12), Some(2));
+        // An invalid threshold is `Ok(None)` with no request.
+        failpoint::arm(Some(0));
+        assert_eq!(established_finite_mode_count_checked(&m, 1.0), Ok(None));
+        assert_eq!(failpoint::disarm(), 0);
+        let overflow = DenseError::SupportResource(crate::SupportResourceError::CapacityOverflow { structure: "massive-DOF complement" });
+        assert_eq!(overflow.resource_code(), Some(RESOURCE_ARITHMETIC_OVERFLOW));
+        assert!(overflow.to_string().starts_with("MODAL_RESOURCE_ARITHMETIC_OVERFLOW: "));
     }
 }

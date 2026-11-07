@@ -71,7 +71,7 @@ use crate::dd::max_propagating_nan;
 use crate::exact::ExactSum;
 use crate::norm_estimate::inverse_one_norm_estimate;
 use crate::matrix::SymmetricMatrix;
-use crate::support::{reverse_cuthill_mckee_lower, stable_counting_order};
+use crate::support::{filled, reserve, reverse_cuthill_mckee_lower, stable_counting_order, SupportResourceError};
 
 /// c_f of the formation term: one rounding each for σ·m_ij, the
 /// subtraction and the two scalings, with one to spare for the second-order
@@ -139,6 +139,12 @@ pub enum SturmError {
     /// The gap's ends are not positive, finite and strictly ascending.
     InvalidGap,
     InvalidShift,
+    /// A reservation of the pencil's construction (`T9.construction`:
+    /// the merged records, the counting orders, the union pattern, the
+    /// scaling, the row sums or the reverse Cuthill–McKee order) overflowed
+    /// or was refused by the allocator (`MODAL_RESOURCE_*`, design
+    /// §5.3.8). Refused before that structure exists, with no pencil.
+    SupportResource(SupportResourceError),
 }
 
 impl fmt::Display for SturmError {
@@ -170,6 +176,7 @@ impl fmt::Display for SturmError {
             ),
             Self::InvalidGap => write!(f, "the gap's ends are not positive and ascending"),
             Self::InvalidShift => write!(f, "the shift is not a positive finite number"),
+            Self::SupportResource(support) => write!(f, "{support}"),
         }
     }
 }
@@ -545,29 +552,39 @@ impl ShiftPencil {
     ///
     /// **Count** with L = |K| + |M| entries and at most P union positions
     /// before and after the retain (distinct lower positions, so P ≤
-    /// n(n + 1)/2), in support steps (each body at most 60 operations): the
-    /// two lists and their checks 2 + L, the three counting sorts
-    /// (3L + 5) + 2(3L + 2n + 1), the gather L, the duplicate scan L, the
-    /// union build L + n (the diagonals pushed at most n times over both
-    /// loops), the retain P, the scaling's fill and pass n + P, the row
-    /// sums' fills, pass and check 3n + P, the order's two passes over the
-    /// union 2P, and 3: so `13L + 9n + 5P + 12`, plus the order's count
+    /// n(n + 1)/2), in support steps (each body at most 60 operations; a
+    /// reservation one step, `support`'s module docs): the merged list's
+    /// checked capacity and reservation, the two lists and their checks
+    /// 3 + L; the three counting sorts (3L + 7) + 2(3L + 2n + 3); the
+    /// sorted list's reservation and gather 1 + L; the duplicate scan L;
+    /// the union's reservation and build 1 + L + n (the diagonals pushed at
+    /// most n times over both loops); the retain P; the scaling's
+    /// reservation, fill and pass 1 + n + P; the row sums' reservations,
+    /// fills, pass and check 2 + 3n + P; the order's two passes over the
+    /// union 2P; and 3: so `13L + 9n + 5P + 24`, plus the order's count
     /// (`reverse_cuthill_mckee_lower`) on q = P_u − n off-diagonal
-    /// positions.
+    /// positions. A refusal at a reservation ends the call there.
     ///
-    /// **Capacity.** The merged list L + n records (32 B; as before), the
-    /// sorted list L records, the three orders (8L B each) and the starts
-    /// (8n B), freed on return; the union list L + n `PencilEntry`s (as
-    /// before); the scaling and the two row sums, n each; and the order's.
-    /// The adjacency lists formerly built here (one `Vec` per node, grown by
-    /// pushes) are gone.
+    /// **Capacity** (requested once each, `support`'s module docs; requested
+    /// sizes, not allocator rounding or resident memory). The merged list
+    /// L + n records (32 B; L + n as before, now checked), the sorted list
+    /// L records (32 B), the three orders (8L B each) and their starts (16 B
+    /// for the matrix pass's two buckets, then 8n B for each of the column
+    /// and row passes; none when L = 0), freed on return; the union list
+    /// L + n `PencilEntry`s (32 B; as before), retained; the scaling and the
+    /// two row sums, n each (8 B); and the order's
+    /// (`reverse_cuthill_mckee_lower`). The adjacency lists formerly built
+    /// here (one `Vec` per node, grown by pushes) are gone.
     pub fn from_entries(
         dimension: usize,
         stiffness: &[SymmetricMatrixEntry],
         mass: &[SymmetricMatrixEntry],
     ) -> Result<Self, SturmError> {
-        let mut merged: Vec<(usize, usize, bool, f64)> =
-            Vec::with_capacity(stiffness.len() + mass.len() + dimension);
+        let support = SturmError::SupportResource;
+        let structure = "Sturm merged records";
+        let merged_records = stiffness.len().checked_add(mass.len()).and_then(|len| len.checked_add(dimension));
+        let merged_records = merged_records.ok_or(support(SupportResourceError::CapacityOverflow { structure }))?;
+        let mut merged: Vec<(usize, usize, bool, f64)> = reserve(merged_records, structure).map_err(support)?;
         for (is_mass, list) in [(false, stiffness), (true, mass)] {
             for entry in list {
                 if entry.row >= dimension || entry.col >= dimension {
@@ -598,12 +615,12 @@ impl ShiftPencil {
             }
         }
         let len = merged.len();
-        let by_matrix = stable_counting_order(0..len, len, 2, |i| usize::from(merged[i].2));
-        let by_col = stable_counting_order(by_matrix.iter().copied(), len, dimension, |i| merged[i].1);
+        let by_matrix = stable_counting_order(0..len, len, 2, |i| usize::from(merged[i].2)).map_err(support)?;
+        let by_col = stable_counting_order(by_matrix.iter().copied(), len, dimension, |i| merged[i].1).map_err(support)?;
         drop(by_matrix);
-        let by_key = stable_counting_order(by_col.iter().copied(), len, dimension, |i| merged[i].0);
+        let by_key = stable_counting_order(by_col.iter().copied(), len, dimension, |i| merged[i].0).map_err(support)?;
         drop(by_col);
-        let mut sorted = Vec::with_capacity(len);
+        let mut sorted = reserve(len, "Sturm sorted records").map_err(support)?;
         for &i in &by_key {
             sorted.push(merged[i]);
         }
@@ -619,7 +636,8 @@ impl ShiftPencil {
             }
         }
 
-        let mut entries: Vec<PencilEntry> = Vec::with_capacity(merged.len() + dimension);
+        // L + n, at most the merged list's checked capacity.
+        let mut entries: Vec<PencilEntry> = reserve(merged.len() + dimension, "Sturm union pattern").map_err(support)?;
         let mut next_diagonal = 0;
         let push = |entries: &mut Vec<PencilEntry>, row: usize, col: usize| {
             if entries
@@ -660,7 +678,7 @@ impl ShiftPencil {
         // both are zero (the diagonal is always kept).
         entries.retain(|e| e.row == e.col || e.stiffness != 0.0 || e.mass != 0.0);
 
-        let mut scaling = vec![0.0; dimension];
+        let mut scaling = filled(dimension, 0.0, "Sturm scaling").map_err(support)?;
         for e in entries.iter().filter(|e| e.row == e.col) {
             if e.stiffness <= 0.0 {
                 return Err(SturmError::NonPositiveStiffnessDiagonal { index: e.row });
@@ -672,8 +690,8 @@ impl ShiftPencil {
             scaling[e.row] = d;
         }
 
-        let mut stiffness_row_sums = vec![0.0; dimension];
-        let mut mass_row_sums = vec![0.0; dimension];
+        let mut stiffness_row_sums = filled(dimension, 0.0, "Sturm stiffness row sums").map_err(support)?;
+        let mut mass_row_sums = filled(dimension, 0.0, "Sturm mass row sums").map_err(support)?;
         for e in &entries {
             let k = scale(e.stiffness.abs(), scaling[e.row], scaling[e.col]);
             let m = scale(e.mass.abs(), scaling[e.row], scaling[e.col]);
@@ -698,7 +716,8 @@ impl ShiftPencil {
                 .iter()
                 .filter(|e| e.row != e.col)
                 .map(|e| (e.row, e.col)),
-        );
+        )
+        .map_err(support)?;
 
         Ok(Self {
             dimension,
@@ -1508,5 +1527,44 @@ mod former_oracle_tests {
         assert!(same(1, &[d(0)], &[entry(0, 0, 1.0)], "singleton"));
         let dense: Vec<_> = (0..8).rev().flat_map(|r| (0..=r).rev().map(move |c| entry(c, r, if r == c { 10.0 } else { 0.1 }))).collect();
         assert!(same(8, &dense, &dense, "dense, reversed, upper orientation"));
+    }
+
+    /// Every reservation of the construction refuses cleanly, typed, and
+    /// stops it; past the last the pencil is the unarmed one. 23
+    /// reservations here: the merged records, three counting sorts of two,
+    /// the sorted records, the union, the scaling, two row sums and the
+    /// order's eleven.
+    #[test]
+    fn every_construction_reservation_refuses_cleanly() {
+        use crate::support::failpoint;
+        let d = |i: usize| entry(i, i, 4.0);
+        let k = [d(0), d(1), d(2), entry(2, 0, 1.0), entry(1, 0, -0.5)];
+        let m = [entry(0, 0, 1.0), entry(2, 1, 0.25), entry(2, 2, 1.0)];
+        let typed = |e: &SturmError| match e {
+            SturmError::SupportResource(support) => Some(*support),
+            _ => None,
+        };
+        assert_eq!(failpoint::each_reservation_refuses(|| ShiftPencil::from_entries(3, &k, &m), typed), 23);
+        assert!(same(3, &k, &m, "after the refusals"));
+        // Input refusals keep their former order: an entry refusal comes
+        // before any counting order is formed.
+        failpoint::arm(Some(1));
+        assert_eq!(ShiftPencil::from_entries(3, &[d(0), entry(3, 0, 1.0)], &[]), Err(SturmError::EntryOutOfBounds { row: 3, col: 0 }));
+        assert_eq!(failpoint::disarm(), 1, "only the merged records were requested");
+    }
+
+    /// Capacities that overflow the addressable size refuse by name before
+    /// any request (the former construction's `with_capacity` panicked on
+    /// both, so there is no former result to compare).
+    #[test]
+    fn an_overflowing_construction_refuses_before_any_request() {
+        use crate::support::failpoint;
+        let overflow = |structure| Err(SturmError::SupportResource(SupportResourceError::CapacityOverflow { structure }));
+        failpoint::arm(None);
+        assert_eq!(ShiftPencil::from_entries(1 << 60, &[], &[]), overflow("Sturm merged records"));
+        assert_eq!(ShiftPencil::from_entries(usize::MAX, &[entry(0, 0, 1.0)], &[]), overflow("Sturm merged records"));
+        assert_eq!(failpoint::disarm(), 0);
+        let refusal = SturmError::SupportResource(SupportResourceError::AllocationFailed { structure: "Sturm scaling", bytes: 24 });
+        assert_eq!(refusal.to_string(), "MODAL_RESOURCE_ALLOCATION_REFUSED: the allocator refused 24 B for `Sturm scaling`");
     }
 }
