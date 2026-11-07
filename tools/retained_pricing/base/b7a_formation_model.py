@@ -35,7 +35,8 @@ SOURCE_FILES = {
     # crate::modal, which no retained root reaches (no modal node is reachable on the run's graph; §8.43). No formed-load or
     # finding owner changes.
     # RT-A6 H1 (PROVISIONAL proposal, read e8cfa72d5..925fcf122; no governed section yet): generate_operations gains an
-    # Option<ContentsSelection> argument (every existing caller passes None) and its contents branch; the new request
+    # Option<ContentsSelection> argument and its contents branch: legacy generation and modal scratch callers pass None,
+    # the contents-aware generator passes Some, and the inspector passes its captured selection. The new request
     # reader ContentsAwareSelfWeightRequest::from_value, generate_contents_aware_self_weight_operations,
     # contents_evidence_quantity and contents_dependency are reached from no retained root (from_value and the generator
     # only from self_weight_wasm and integration tests, outside the priced crates; H1-FV); retained_basis's contents_source

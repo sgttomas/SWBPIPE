@@ -6337,8 +6337,9 @@ if _os.path.exists(_os.path.join(_SNAP, _SKW_PP)):
 # the clear, restore under Some) and self_weight::inspect_applied_self_weight (of_case_in_place inside the lineage
 # closure). D1.5 (retained_memory.rs family_clauses: `if case.condition_use.is_some() { return refuse(C::Case,
 # F::ConditionUse) }`) refuses every case's condition_use and D1.3 every non-empty condition_sets and every pipe's
-# condition_set_ref, so on D1 no case names a contents use. Each wired call is entered (its call and frame stay live:
-# heap zero is not frame absence; AC-004 owns stack) and returns before its first allocation.
+# condition_set_ref, so on D1 no case names a contents use. judge's contents_use_findings and lower's take are entered
+# and return before their first allocation; their calls and frames stay live (heap zero is not frame absence; AC-004
+# owns stack). restore is not entered because take returns None; the inspector calls remain behind the D1 continue.
 _H1_CT = PP_ + "operating_conditions/contents.rs"
 if fnkey("contents_use_findings", _H1_CT):
     import hashlib as _h1_hashlib
