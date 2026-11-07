@@ -19,9 +19,16 @@
 //!   final reaction row, each on the state row's DOF, in that DOF's units,
 //!   stating the same `final_state`; and its `NONLINEAR_SUPPORT_STATE_REVIEW`
 //!   diagnostic naming that state;
-//! - no relative-displacement row: S5 admits nonlinear supports on plain v3
-//!   documents only, and EX refuses a support-targeted primitive by name, so
-//!   no case moves a nonlinear support's ground (W-16 R-b's row is PF's);
+//! - a relative-displacement row exactly for each support whose ground the
+//!   same case's load/reference-state record moves (R-4 §3.7 S6: a
+//!   `support_components` entry of law `nonlinear_ground` naming the support
+//!   and its state row's DOF), once, in that DOF's unit, stating the same
+//!   `final_state`, and equal to the published displacement less that ground:
+//!   bit for bit fl(D − g) for a rotation (rad rows are unscaled), and within
+//!   1e-9 of max(the case's motion scale, |1000·g|) for a translation, whose
+//!   mm row the reader cannot re-form from the published mm value bit for bit.
+//!   A case without such a record publishes none, and every such record names
+//!   a published nonlinear support;
 //! - the final displacement equals, bit for bit, some node's published
 //!   displacement or rotation row at the support DOF in the row's unit, mm or
 //!   rad (the producer's `restate_nonlinear_support_displacements` restates
@@ -71,6 +78,8 @@
 //! DEC-067 laws that need their inputs (μ, the clearance and the sense), with a
 //! separation s and a contact c formed from that displacement δ and the
 //! reaction R:
+//! - δ is measured from the support's moved ground when the case moves it
+//!   (the bound relative-displacement row), else it is the displacement;
 //! - gap closing in σ with clearance g: s = g − σδ, c = −σR;
 //! - one-way or lift-off with sense σ: s = σδ, c = σR;
 //! - s ≥ 0; active ⇒ s = 0 and c ≥ 0. An inactive support's force is the
@@ -189,8 +198,10 @@ struct Support<'a> {
     id: &'a str,
     dof: usize,
     state: &'static str,
-    /// The deciding displacement δ in the row's unit (mm or rad).
+    /// The published final displacement in the row's unit (mm or rad).
     displacement: f64,
+    /// R-4 §3.7 S6: the bound relative displacement from a moved ground.
+    relative: Option<f64>,
     reaction: f64,
     /// `(derived, value)` for a friction support.
     normal: Option<(bool, f64)>,
@@ -239,12 +250,21 @@ fn read_case<'a>(source: &'a Value, case: &'a str) -> Result<Case<'a>, String> {
     )?;
     let mode = basis(iterations).split_once("_active_set_loop").map(|(m, _)| m).filter(|m| !m.is_empty() && !m.contains(' '));
     let mode = mode.ok_or_else(|| "SOURCE_PHYSICS_NONLINEAR_LOOP".to_string())?;
-    // Every other nonlinear row is per support or the loop's own; no case
-    // moves a nonlinear support's ground on S5 (module docs).
+    // Every other nonlinear row is per support or the loop's own.
     for row in &nonlinear {
         let k = kind(row);
-        require(k != RELATIVE, "RELATIVE_DISPLACEMENT")?;
         require(PER_SUPPORT.contains(&k) || row["entity_ref"] == LOOP_ENTITY, "ROWS")?;
+    }
+    // R-4 §3.7 S6: the moved grounds the case's load/reference-state record
+    // states (module docs), by support id: (DOF token, value in m or rad).
+    let mut grounds: Vec<(&str, &str, f64)> = Vec::new();
+    for record in items(&source["contract_evidence"]["load_reference_states"]).iter().filter(|r| r["load_case_id"] == case) {
+        for component in items(&record["support_components"]).iter().filter(|c| c["law_kind"] == "nonlinear_ground") {
+            let (Some(id), Some(dof), Some(g)) = (text(&component["support_id"]), text(&component["dof"]), component["prescribed_value"].as_f64()) else {
+                return Err("SOURCE_PHYSICS_NONLINEAR_RELATIVE_DISPLACEMENT".into());
+            };
+            grounds.push((id, dof, g));
+        }
     }
     // Per support, in state-row order.
     let mut supports: Vec<Support> = Vec::new();
@@ -267,6 +287,32 @@ fn read_case<'a>(source: &'a Value, case: &'a str) -> Result<Case<'a>, String> {
         // Some node's published row (association, not ownership; module docs).
         let restated = in_case.iter().any(|r| kind(r) == NODAL[dof] && r["unit"] == length && same_bits(value(r), value(displacement[0])));
         require(restated, "DISPLACEMENT")?;
+        // R-4 §3.7 S6: the relative row exists exactly for a moved ground.
+        let relatives = mine(RELATIVE);
+        let relative = match grounds.iter().find(|(gid, _, _)| *gid == id) {
+            None => {
+                require(relatives.is_empty(), "RELATIVE_DISPLACEMENT")?;
+                None
+            }
+            Some(&(_, ground_dof, g)) => {
+                require(relatives.len() == 1 && ground_dof.eq_ignore_ascii_case(DOFS[dof]), "RELATIVE_DISPLACEMENT")?;
+                let r = relatives[0];
+                require(stated(r) && r["unit"] == length, "RELATIVE_DISPLACEMENT")?;
+                let (d, v) = (value(displacement[0]), value(r));
+                let bound = if translational {
+                    let scale = in_case
+                        .iter()
+                        .filter(|row| NODAL[..3].contains(&kind(row)))
+                        .map(|row| value(row).abs())
+                        .fold((1000.0 * g).abs(), f64::max);
+                    (v - (d - 1000.0 * g)).abs() <= RELATIVE_TOLERANCE * scale
+                } else {
+                    same_bits(v, d - g)
+                };
+                require(bound, "RELATIVE_DISPLACEMENT")?;
+                Some(v)
+            }
+        };
         let (mut normal, mut source) = (None, None);
         if let Some(n) = normals.first() {
             let derived = kind(n) == NORMAL_DERIVED;
@@ -286,15 +332,18 @@ fn read_case<'a>(source: &'a Value, case: &'a str) -> Result<Case<'a>, String> {
             dof,
             state,
             displacement: value(displacement[0]),
+            relative,
             reaction: value(reaction[0]),
             normal,
             source,
         });
     }
-    // No per-support row names a support without a state row.
+    // No per-support row names a support without a state row, and every
+    // moved ground names a published nonlinear support.
     for row in nonlinear.iter().filter(|r| PER_SUPPORT.contains(&kind(r))) {
         require(supports.iter().any(|s| row["entity_ref"] == s.id), "ROWS")?;
     }
+    require(grounds.iter().all(|(gid, _, _)| supports.iter().any(|s| s.id == *gid)), "RELATIVE_DISPLACEMENT")?;
     require(!supports.is_empty(), "ROWS")?;
     // The published support actions.
     let action = |entity: &str, kind_name: &str, component: &str| {
@@ -583,7 +632,7 @@ pub(crate) fn model_checks(source: &Value, model: &Value) -> Check {
             };
             require(normal_bound, "MODEL_NORMAL")?;
             let (force_scale, motion_scale) = scales(source, case.id, s.dof < 3);
-            let (r, delta) = (s.reaction, s.displacement);
+            let (r, delta) = (s.reaction, s.relative.unwrap_or(s.displacement));
             if input.behavior == "friction" {
                 let n = s.normal.map(|(_, n)| n).unwrap_or(0.0);
                 let mu_n = input.mu * n;

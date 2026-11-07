@@ -1203,10 +1203,12 @@ fn reader_binds_inactive_residuals_support_nodes_and_standings() {
     assert_eq!(reader_codes(&forged, &document_p0), (None, None), "F1-P0 consistently relabelled unresolved: the reader's limit");
 }
 
-/// The admission seam: a nonlinear support on a load/reference-state document
-/// or beside an objective connector (S6) keeps the family's named refusal.
+/// The admission seam after S6 (R-4 §3.7): a nonlinear support beside an
+/// objective connector is admitted, so the family refusal no longer names it,
+/// while a malformed connector law is still refused by the connector's own
+/// validation; nothing is solved.
 #[test]
-fn s6_contexts_keep_the_named_family_refusal() {
+fn s6_admits_the_support_and_still_refuses_a_malformed_connector() {
     let references = references();
     let g1 = case(&references, "G1");
     let mut connector = document(&references, g1);
@@ -1215,9 +1217,12 @@ fn s6_contexts_keep_the_named_family_refusal() {
     for mode in MODES {
         let envelope = solve(&connector, mode);
         assert_eq!(envelope["status"]["mechanics"], "MODEL_INCOMPLETE", "{mode:?}");
-        let refusal = with_code(&envelope, FAMILY).into_iter().filter(|d| d["affected_refs"] == json!(["support:GAP"])).collect::<Vec<_>>();
-        assert_eq!(refusal.len(), 1, "{mode:?}: {:#?}", envelope["diagnostics"]);
-        assert_eq!(refusal[0]["message"], "nonlinear support is not yet admitted under 3.0.0/exact_pressure_v3; the exact route refuses it rather than analyse it as straight pipe");
+        assert!(envelope["results"].as_array().unwrap().is_empty(), "{mode:?}");
+        assert!(with_code(&envelope, FAMILY).into_iter().all(|d| d["affected_refs"] != json!(["support:GAP"])), "{mode:?}: {:#?}", envelope["diagnostics"]);
+        let connector_refusals = envelope["diagnostics"].as_array().unwrap().iter()
+            .filter(|d| d["severity"] == "blocking" && d["affected_refs"].as_array().unwrap().iter().any(|r| r == "component:connector"))
+            .count();
+        assert!(connector_refusals > 0, "{mode:?}: {:#?}", envelope["diagnostics"]);
     }
 }
 

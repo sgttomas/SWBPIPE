@@ -818,6 +818,87 @@ force/preload. The hydrotest design owns exact-zero held positions and
 coalescence/refusal rules; S6's admitted nonzero motions apply to active
 supports only and grant no held, lock, preload or device-reference behavior.
 
+**S6 candidate as implemented (RT-A3, 2026-11-07; pending independent review).**
+- **Admission.** PP's S6 context gate (`nonlinear_support_admission`) is
+  removed: the admission table admits the nonlinear support on plain and
+  load/reference-state documents and beside objective connectors. NI's
+  blanket connector refusal is replaced by a named node-range check; each
+  connector remains a construction-validated kernel object, so a malformed
+  connector law is still refused before any solve.
+- **Load/reference-state motion.** `case_state::resolve` routes each motion
+  by W-16 stage 2's per-DOF classifier (`imposed_motion::acting`):
+  `boundary_motion` on a rigid restraint (a mixed nonlinear record's
+  included, R-d) is a prescribed value; on an active nonlinear support's own
+  DOF it is that support's ground g_s (R-b, with the exact gap closing
+  position and the one-support-per-node-DOF checks); `base_motion` on an
+  active spring or variable spring hanger's stiffness axis is its base g_k
+  (R-c). Every other DOF, a constant-effort device, a skewed record, a device
+  reference and held/locked/inactive participation keep their refusals
+  (`LOAD_STATE_BOUNDARY_MOTION_UNRESTRAINED`,
+  `LOAD_STATE_BASE_MOTION_UNSUPPORTED`,
+  `LOAD_STATE_SUPPORT_REFERENCE_UNSUPPORTED`,
+  `LOAD_STATE_SUPPORT_PARTICIPATION_UNSUPPORTED`). `solve_prepared_load_case`
+  feeds the resolved prescribed map, grounds and spring bases to the loop,
+  the ledger (k·g) and publication; nothing else changes on the PF route.
+  A moved spring base declines retained-source recovery (its k·g has no
+  retained source owner).
+- **State binding.** `NonlinearStateEvidence` carries the consumed motion
+  (`CaseMotionEvidence`: base values, grounds and spring bases as binary64
+  bits). Modal admission re-resolves the bound state case's motion through
+  the same resolvers and refuses evidence whose motion differs
+  (`MotionMismatch`); it runs no second active-set solve.
+- **Readers.** A load/reference-state support component may be
+  `rigid_prescribed` or `nonlinear_ground` (`support_state.boundary_motion`)
+  or `spring_base` (`support_state.base_motion`), each bound to its
+  contribution classification (`prescribed_boundary`,
+  `nonlinear_ground_motion`, `spring_base_motion`). The pressure reader admits
+  a `nonlinear_support_final_relative_displacement` row exactly for a ground
+  that case's record moves, bound to the published displacement less that
+  ground, and judges complementarity on the relative displacement (Rust and
+  Python mirrors).
+- **Text.** The S6 wording of the v3 nonlinear-support clause and of the
+  load/reference-state motion and history sentences is emitted only in an S6
+  context (`exact_admission::s6_context`); every other envelope keeps its
+  bytes. Exact old/new sentences:
+  - old: "on a document without the load/reference-state group and without
+    an objective connector, gap, one-way, lift-off and friction supports
+    (friction with an explicit normal or a normal derived from a linear
+    restraint) are solved in each case by the active-set loop"; new (S6
+    context): "gap, one-way, lift-off and friction supports (friction with an
+    explicit normal or a normal derived from a linear restraint), beside
+    objective connectors and on load/reference-state documents included, are
+    solved in each case by the active-set loop".
+  - old: "… A consumed constant-effort support's constant force is a device
+    action of the active support in every state. Spring base motion, device
+    preload/reference, inactive or locked supports are not provided."; new
+    (S6 context): "… Boundary motion on an active nonlinear support's own DOF
+    moves its ground: its state is measured on u - g_s and an active or
+    sticking state prescribes the moved ground (plus or minus the clearance
+    for a gap). Base motion on an active spring's stiffness axis adds the
+    formed load k*g and the spring publishes -k*(u - g). Each motion is an
+    absolute reference displacement. A consumed constant-effort support's
+    constant force is a device action of the active support in every state.
+    Device preload/reference, inactive or locked supports are not provided."
+  - old: "History is independent equilibrium only; no installation, contact,
+    friction or predecessor history is represented."; new (S6 context):
+    "History is independent equilibrium only: contact and friction are static
+    and history-free (DEC-067), each case's active-set loop starts from the
+    authored initial states, and no installation or predecessor history is
+    represented."
+  Making the wording universal changes pinned text in desktop, report and
+  recorded fixtures outside this unit; it is a separate registration.
+- **References.** `validation/references/rt_a3_s6/` (C-1 with no-nonlinear,
+  tie-rod, gap, Timoshenko and load/reference-state controls; LS-1 as twins
+  of W-16's A-1, D-3 and C-5 with Timoshenko twins and dropped-motion
+  mutants); consumer `core/product_physics/src/rt_a3_s6_tests.rs`.
+- **Unchanged.** OQ-1's solved-state-plus-derived-increments semantics, the
+  unit factor-sum combination gates, R1's gap standing (a gap beside a
+  connector stays `NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED`), the
+  nonlinear friction-normal refusal (S7), rotational gap/friction and S8,
+  DEC-046 controls, per-case seeds, and §4.4/§4.9's held-device boundary.
+- **Open.** D3 re-pricing and text registration; the full reference
+  system's RS-FR1V (S7) and RS-G1 (R-3) obstacles.
+
 ### 3.8 S7: friction with a one-way normal source, and k > 1 (M–L, both routes)
 
 **Basis.**
