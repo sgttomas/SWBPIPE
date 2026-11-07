@@ -1,7 +1,7 @@
 //! importer.py §9.4: exact pressure regions from LOADS Pressure 1.
 
 use super::assemble::Claims;
-use super::{Element, Importer, Num, Stop, R};
+use super::{fact, Element, Importer, Num, Stop, R};
 use crate::dict;
 use crate::pyfmt::{py_float_repr, py_format_g};
 use crate::pymath::{atan2, correct_norm3};
@@ -223,7 +223,7 @@ impl<'a> Importer<'a> {
             .collect();
         let unit_name = if self.si { "bar" } else { "psi" };
         let route = Route { ends: &ends, arcs, point_of, name_of: &name_of, pressures, factor: if self.si { 0.001 } else { 0.0254 } };
-        let (members, how) = if let Some(stored) = &stored {
+        let (members, how, formed) = if let Some(stored) = &stored {
             let regions = stored.get_or_null("regions").as_list().cloned().unwrap_or_default();
             let mut members = self.restore_regions(&regions, &active, &route);
             if let Some(found) = members {
@@ -233,6 +233,7 @@ impl<'a> Importer<'a> {
                 members,
                 "restored from the sidecar's pressure_map (bound import), each checked whole as the exact route checks \
                  it in its declared order",
+                "restored",
             )
         } else {
             let members = self.form_regions(&active, &route, &labels)?;
@@ -247,6 +248,14 @@ impl<'a> Importer<'a> {
                 "Shear model: {shear_note}; realized curved bends stay Euler-Bernoulli under either model, as the route \
                  discloses (Agent 0's decision under the owner's delegation, 2026-10-27)."
             ));
+            self.pressure_facts.push(fact(
+                "pressure_shear_model",
+                vec![
+                    ("source", if caller_shear.is_some() { "caller" } else { "default" }.to_string()),
+                    ("shear_model", shear_model.clone()),
+                    ("curved_bends", "euler_bernoulli".to_string()),
+                ],
+            ));
             (
                 members,
                 "formed as maximal chains of elements with equal Pressure 1 and bore, ended at tees, where pressure or \
@@ -256,6 +265,7 @@ impl<'a> Importer<'a> {
                  transfers_to_wall, deduced from geometry: the pipe wall is continuous there, so it carries the \
                  corner's pressure force pA(t_in - t_out), unless pressure_closure.nodes names the corner (Agent 0's \
                  decision under the owner's delegation, 2026-10-27)",
+                "formed",
             )
         };
         let Some(members) = members else { return Err(Stop::Refused) };
@@ -293,6 +303,19 @@ impl<'a> Importer<'a> {
              states an empty region list. Each section's corrosion allowance is the 0 its PIPE record states in field \
              4; a section that omits it is refused.",
             regions.len()
+        ));
+        self.pressure_facts.push(fact(
+            "pressure_regions",
+            vec![
+                ("unit", unit_name.to_string()),
+                ("region_count", regions.len().to_string()),
+                ("contract", "3.0.0/exact_pressure_v3".to_string()),
+                ("shear_model", shear_model.clone()),
+                ("regions", formed.to_string()),
+                ("closure", if formed == "formed" { "caller_declared_corner_wall" } else { "sidecar_restored" }.to_string()),
+                ("pressure_case", "sustained".to_string()),
+                ("corrosion_allowance", "zero_stated".to_string()),
+            ],
         ));
         Ok(Some((contract, regions)))
     }

@@ -15,7 +15,7 @@ use crate::pystr::{
 use crate::rational::{fraction_is_zero, parse_fraction, Parsed, Q};
 use crate::sidecar::{sidecar_self_digest, SidecarParser, DIGESTED_FORMATS, SHEAR_MODELS, SIDECAR_DIGEST_KEY};
 use crate::value::{Dict, OMap, Value};
-use crate::{ImportError, ImportOptions, ImportResult, SidecarInput};
+use crate::{AssumptionFact, ImportError, ImportOptions, ImportResult, SidecarInput, ASSUMPTION_ID_UNAVAILABLE};
 use sha2::{Digest, Sha256};
 
 pub(crate) const IMPORT_PROFILE_ID: &str = "caepipe-mbf-import-1";
@@ -24,6 +24,44 @@ pub(crate) const MODEL_KIND: &str = "openpipestress.product_preview.model";
 pub(crate) const MBF_VERSION: &str = "15.10";
 pub(crate) const ACCEPTED_VERSIONS: [&str; 1] = [MBF_VERSION];
 pub(crate) const PD1_VERSIONS: [&str; 1] = [MBF_VERSION];
+
+/// Every structured assumption identifier (`AssumptionFact::id`), each recorded beside its assumption string in
+/// `add_assumptions` (finish.rs) or `pressure_regions` (pressure.rs), under the string's own condition.
+pub(crate) const ASSUMPTION_IDS: [&str; 16] = [
+    "units_and_axes",
+    "offset_summation_exact",
+    "english_units_reexport_normalized",
+    "bare_metal_weight",
+    "shear_modulus_derived_temperature_independent",
+    "thermal_difference_zero_fields",
+    "pressure_shear_model",
+    "pressure_regions",
+    "support_guide",
+    "support_limit_stop",
+    "support_skewed",
+    "support_flexible_anchor",
+    "spring_stiffness_unit",
+    "earth_gravity_weight",
+    "binding_convention",
+    "no_combinations_created",
+];
+
+/// The structured form of a convention the importer applied (`convention`): the engine's own `what` texts, written by
+/// `build.rs` at its two call sites, mapped exactly; any other text has no structured form, and its fact is
+/// [`ASSUMPTION_ID_UNAVAILABLE`] (the review blocks adoption rather than drop or guess it).
+pub(crate) fn convention_key(what: &str) -> Option<(&'static str, &'static str)> {
+    match what {
+        "the load reference L=" => Some(("load_reference", "carried_until_changed")),
+        "a force without FLC" => Some(("force_without_flc", "sustained_case")),
+        "a moment without FLC" => Some(("moment_without_flc", "sustained_case")),
+        _ => None,
+    }
+}
+
+pub(crate) fn fact(id: &'static str, parameters: Vec<(&'static str, String)>) -> AssumptionFact {
+    debug_assert!(ASSUMPTION_IDS.contains(&id) || id == ASSUMPTION_ID_UNAVAILABLE, "{id}");
+    AssumptionFact { id, parameters }
+}
 
 const SECTION_KEYWORDS: [(&str, &str); 37] = [
     ("VERSION", "version"), ("OPTIONS", "options"), ("OPCODE", "opcode"), ("OPTEMP", "optemp"),
@@ -212,9 +250,13 @@ pub(crate) struct Importer<'a> {
     pub self_digest_state: Option<&'static str>,
     pub oppres: Option<(usize, Vec<String>, bool)>,
     pub pressure_notes: Vec<String>,
+    /// The structured counterpart of each entry of `pressure_notes`, in the same order.
+    pub pressure_facts: Vec<AssumptionFact>,
     pub diagnostics: Vec<Value>,
     pub loss: Vec<Value>,
     pub assumptions: Vec<String>,
+    /// The structured counterpart of each entry of `assumptions`, in the same order.
+    pub assumption_facts: Vec<AssumptionFact>,
     pub target_options: Dict,
     pub empty_comments: i64,
     pub delegated_sections: Dict,
@@ -255,9 +297,11 @@ impl<'a> Importer<'a> {
             self_digest_state: None,
             oppres: None,
             pressure_notes: Vec::new(),
+            pressure_facts: Vec::new(),
             diagnostics: Vec::new(),
             loss: Vec::new(),
             assumptions: Vec::new(),
+            assumption_facts: Vec::new(),
             target_options: Dict::new(),
             empty_comments: 0,
             delegated_sections: Dict::new(),
@@ -388,6 +432,7 @@ impl<'a> Importer<'a> {
             diagnostics: self.diagnostics.clone(),
             loss_report: self.loss.clone(),
             assumptions: self.assumptions.clone(),
+            assumption_facts: self.assumption_facts.clone(),
             target_options: self.target_options.clone(),
             id_map: if refused { Value::Dict(Dict::new()) } else { id_map },
             source,
