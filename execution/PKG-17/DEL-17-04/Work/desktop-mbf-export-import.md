@@ -1991,6 +1991,18 @@ declarations. Nothing here records acceptance or shows criterion 6.
 - **Generation-owned retirement.** `mbfImportSession.ts` keeps bounded ownership metadata and a retired-generation
   watermark. Completion and passive cleanup call the same idempotent retirement, in either order; an older
   generation cannot retire or close a newer dialog. No review, model or DOM node is retained by this owner.
+- **Raw protocol fixture and public provenance** (Agent 0 ruling, 2026-11-07). `desktop_import/import_replies.json`
+  is a raw native transport capture: its five reply strings retain the response callbacks' exact bytes. It is test
+  evidence of transport behavior, not a public engineering-model dataset. Its companion supplies all seven public
+  provenance fields and explicitly covers the entire invented transcript, the identified source model, exact export
+  settings, actual saved MBF/identity pair and material declaration, including every nested model and record. The
+  native producer uses actual export review/save task 3 and its file transaction before task-5 import; it binds
+  the source and pair bytes, review/declaration/model digests and every captured model to those invented inputs.
+  The App test setup only JSON-parses the strings unchanged. Inner runtime provenance stays exactly as the importer
+  emits it and can be partial; string encoding alone supplies no provenance disposition. The generic public-model
+  scan is unchanged, and other committed engineering-model datasets still need seven fields per provenance record.
+  An unidentified captured byte stops the artifact. Focused independent scrutiny checks this data-boundary
+  application; this distinction grants no runtime behavior, acceptance or release authority.
 - **Retirements in the browser-only route.** The import's mount and session-end retirements are sent only in the
   Tauri runtime. The browser route has no native import: File > Import MBF… is refused `MBF-IMPORT-NATIVE-ONLY` before
   anything is sent, so no source can exist to drop. The export's browser-route behaviour is unchanged.
@@ -2022,7 +2034,10 @@ pipeline (task 3 and its file transaction), then open and adopt those actual sav
 the identity file and after deliberately removing it. Other file/refusal cases use engine-written bytes. Inputs also
 include `units_si.mbf` and
 `units_english.mbf`; and `fixtures/caepipe_mbf/invented/desktop_import/import_replies.json`. That last fixture holds
-the actual native replies; the native test keeps it equal to them, and it is regenerated only on request.
+verbatim native reply strings; the native test compares its complete bytes to the actual callback strings and
+records the source-file, saved-pair and exact declaration bindings. The seven-field companion explicitly covers
+every input and reply; the producer checks complete coverage and public disposition. It is regenerated only on
+request. No imported model or parity value is edited to make it public fixture data.
 
 - **Engine** (`tests/import_review.rs`; `tests/parity.rs`): the fixed leading members byte for byte; status, totals and
   blocking before truncation, at the smallest allowance and one byte below the full review; determinism and what

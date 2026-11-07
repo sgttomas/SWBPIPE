@@ -18,6 +18,7 @@ use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 
 const EXPORT_MODEL: &str = include_str!("../../../../fixtures/caepipe_mbf/invented/desktop_export/export_model.json");
 const EXPORT_DIGESTS: &str = include_str!("../../../../fixtures/caepipe_mbf/invented/desktop_export/export_digests.json");
+const EXPORT_SETTINGS: &str = r#"{"title":"Invented MBF export","referenceTemperature":{"value":20,"unit":"degC"},"maxLayoutRows":null}"#;
 
 // -- Fixtures and helpers -------------------------------------------------------------------------------------------
 
@@ -28,7 +29,7 @@ fn hex(bytes: &[u8]) -> String {
 /// The writer's MBF and identity file for the invented export model under the desktop's default settings: the bytes
 /// `save_mbf_export` writes (their digests are the recorded `degc-default` case's).
 fn written_pair() -> (Vec<u8>, Vec<u8>) {
-    let settings = mbf::export_settings_from_json(br#"{"title":"Invented MBF export","referenceTemperature":{"value":20,"unit":"degC"},"maxLayoutRows":null}"#).unwrap();
+    let settings = mbf::export_settings_from_json(EXPORT_SETTINGS.as_bytes()).unwrap();
     let model = mbf::parse_sidecar_json(EXPORT_MODEL.as_bytes()).unwrap();
     let result = mbf::render_si(&model, &settings).unwrap();
     let text = result.text.clone().unwrap().into_bytes();
@@ -76,7 +77,7 @@ impl Sandbox {
         let runs = mbf_worker::MbfRuns::default();
         let text = open_pipe_stress_operation_applier::canonical_json(&serde_json::from_str::<Value>(EXPORT_MODEL).unwrap());
         let model_hash = format!("sha256:{}", hex(text.as_bytes()));
-        let settings = r#"{"title":"Invented MBF export","referenceTemperature":{"value":20,"unit":"degC"},"maxLayoutRows":null}"#;
+        let settings = EXPORT_SETTINGS;
         let mut args = json!({"expectedEpoch": runs.epoch(), "canonicalText": text, "claimedModelHash": model_hash, "settingsJson": settings});
         let (bytes, copy) = mbf_worker::reserve(registry, &raw(&args), &headers(Some(INGRESS_ARGS_JSON_V1)), mbf_export::REVIEW_COMMAND).unwrap();
         let reviewed: Value = mbf_worker::review_command(registry, &runs, bytes, copy, |_, text| serde_json::from_str(&text).unwrap()).unwrap();
@@ -163,19 +164,22 @@ fn raw(body: &Value) -> InvokeBody {
 /// A reply and whether the pool still held the result lease and the reply's lease while the response was built.
 struct Replied {
     value: Value,
+    text: String,
     held_during_response: u64,
 }
 
-fn parse_reply(text: String, registry: &SolveJobRegistry) -> (Value, u64) {
-    let held = registry.pool_status().reserved_bytes;
-    (serde_json::from_str(&text).unwrap_or_else(|error| panic!("the reply is JSON ({error}): {text}")), held)
+fn parse_reply(text: String, registry: &SolveJobRegistry) -> Replied {
+    Replied {
+        value: serde_json::from_str(&text).unwrap_or_else(|error| panic!("the reply is JSON ({error}): {text}")),
+        text,
+        held_during_response: registry.pool_status().reserved_bytes,
+    }
 }
 
 fn open_with(registry: &SolveJobRegistry, imports: &MbfImports, body: &Value, choose: impl FnOnce() -> Result<Option<PathBuf>, String>) -> Replied {
     let body = ticketed(imports, body);
     let (raw_args, copy) = reserve(registry, &raw(&body), &headers(Some(INGRESS_ARGS_JSON_V1)), OPEN_COMMAND).unwrap();
-    let (value, held_during_response) = open_command(registry, imports, raw_args, copy, START_WAIT, choose, |text| parse_reply(text, registry)).unwrap();
-    Replied { value, held_during_response }
+    open_command(registry, imports, raw_args, copy, START_WAIT, choose, |text| parse_reply(text, registry)).unwrap()
 }
 
 fn open(registry: &SolveJobRegistry, imports: &MbfImports, path: &Path) -> Replied {
@@ -186,15 +190,13 @@ fn open(registry: &SolveJobRegistry, imports: &MbfImports, path: &Path) -> Repli
 fn review(registry: &SolveJobRegistry, imports: &MbfImports, body: &Value) -> Replied {
     let body = ticketed(imports, body);
     let (raw_args, copy) = reserve(registry, &raw(&body), &headers(Some(INGRESS_ARGS_JSON_V1)), REVIEW_COMMAND).unwrap();
-    let (value, held_during_response) = review_command(registry, imports, raw_args, copy, START_WAIT, |text| parse_reply(text, registry)).unwrap();
-    Replied { value, held_during_response }
+    review_command(registry, imports, raw_args, copy, START_WAIT, |text| parse_reply(text, registry)).unwrap()
 }
 
 fn adopt(registry: &SolveJobRegistry, imports: &MbfImports, body: &Value) -> Replied {
     let body = ticketed(imports, body);
     let (raw_args, copy) = reserve(registry, &raw(&body), &headers(Some(INGRESS_ARGS_JSON_V1)), ADOPT_COMMAND).unwrap();
-    let (value, held_during_response) = adopt_command(registry, imports, raw_args, copy, START_WAIT, |text| parse_reply(text, registry)).unwrap();
-    Replied { value, held_during_response }
+    adopt_command(registry, imports, raw_args, copy, START_WAIT, |text| parse_reply(text, registry)).unwrap()
 }
 
 fn codes(reply: &Value) -> Vec<String> {
@@ -1176,32 +1178,65 @@ const IMPORT_REPLIES: &str = "../../../fixtures/caepipe_mbf/invented/desktop_imp
 
 /// The replies the webview's tests read (`fixtures/caepipe_mbf/invented/desktop_import/import_replies.json`) are the
 /// native commands' own replies, through task 5 in a real worker, for the export's saved pair: bound (open, adopt) and
-/// unbound (open, declared review, adopt). Regenerate with `MBF_IMPORT_REPLIES_REGENERATE=1`.
+/// unbound (open, declared review, adopt). Capture the response callback's string verbatim, never a re-serialization
+/// of its parsed model. The companion covers the entire invented transcript and every input. Runtime provenance
+/// inside a captured reply is not a public engineering-data disposition. Regenerate with `MBF_IMPORT_REPLIES_REGENERATE=1`.
 #[test]
 fn the_dialogs_import_replies_are_the_native_replies() {
     let registry = real_worker();
     let sandbox = Sandbox::new("replies");
     let mbf_path = sandbox.native_pair(&registry);
+    let (mbf_bytes, identity_bytes) = written_pair();
+    assert_eq!(fs::read(&mbf_path).unwrap(), mbf_bytes, "the actual saved MBF is the identified invented export");
+    assert_eq!(fs::read(sandbox.ids()).unwrap(), identity_bytes, "the actual saved identity file is its companion");
     let imports = MbfImports::default();
-    let bound_open = open(&registry, &imports, &mbf_path).value;
-    let bound_adopt = adopt(&registry, &imports, &json!({"sourceId": bound_open["sourceId"], "declaration": null, "reviewSha256": bound_open["reviewSha256"]})).value;
+    let bound_open = open(&registry, &imports, &mbf_path);
+    let bound_adopt = adopt(&registry, &imports, &json!({"sourceId": bound_open.value["sourceId"], "declaration": null, "reviewSha256": bound_open.value["reviewSha256"]}));
     fs::remove_file(sandbox.ids()).unwrap();
     let imports = MbfImports::default();
-    let unbound_open = open(&registry, &imports, &mbf_path).value;
-    let declaration = declaration_for(unbound_open["review"]["declaration_needed"].as_array().unwrap());
-    let unbound_declared = review(&registry, &imports, &json!({"sourceId": unbound_open["sourceId"], "declaration": declaration})).value;
-    let unbound_adopt = adopt(&registry, &imports, &json!({"sourceId": unbound_open["sourceId"], "declaration": declaration, "reviewSha256": unbound_declared["reviewSha256"]})).value;
-    assert_eq!(bound_adopt["outcome"], "opened");
-    assert_eq!(unbound_adopt["outcome"], "opened");
+    let unbound_open = open(&registry, &imports, &mbf_path);
+    let declaration = declaration_for(unbound_open.value["review"]["declaration_needed"].as_array().unwrap());
+    let declaration_json = serde_json::to_string(&declaration).unwrap();
+    let unbound_declared = review(&registry, &imports, &json!({"sourceId": unbound_open.value["sourceId"], "declaration": declaration}));
+    let unbound_adopt = adopt(&registry, &imports, &json!({"sourceId": unbound_open.value["sourceId"], "declaration": declaration, "reviewSha256": unbound_declared.value["reviewSha256"]}));
+    assert_eq!(bound_adopt.value["outcome"], "opened");
+    assert_eq!(unbound_adopt.value["outcome"], "opened");
+    for review in [&bound_open.value, &unbound_open.value, &unbound_declared.value] {
+        assert_eq!(review["review"]["source"]["mbf_sha256"], hex(&mbf_bytes));
+    }
+    assert_eq!(bound_open.value["review"]["source"]["identity_file"]["sha256"], hex(&identity_bytes));
+    assert_eq!(bound_adopt.value["reviewSha256"], bound_open.value["reviewSha256"]);
+    assert_eq!(unbound_adopt.value["reviewSha256"], unbound_declared.value["reviewSha256"]);
+    assert_eq!(unbound_declared.value["review"]["declaration"]["sha256"], hex(declaration_json.as_bytes()));
+    for (adopted, expected) in [
+        (&bound_adopt.value, engine_model(&mbf_bytes, Some(&identity_bytes), None)),
+        (&unbound_adopt.value, engine_model(&mbf_bytes, None, Some(declaration_json.as_bytes()))),
+    ] {
+        assert_eq!(adopted["modelSha256"], hex(&expected));
+        assert_eq!(adopted["byte_count"], expected.len());
+        assert_eq!(adopted["document"], serde_json::from_slice::<Value>(&expected).unwrap(), "every captured record comes from only the identified invented inputs");
+    }
+    for captured in [&bound_open, &bound_adopt, &unbound_open, &unbound_declared, &unbound_adopt] {
+        assert!(!captured.text.contains(sandbox.0.to_str().unwrap()), "no temporary host path is captured");
+    }
     let document = json!({
-        "description": "Native export review/save (task 3) writes the invented pair, then native File > Import MBF… (task 5) reviews and adopts it, bound and unbound; generated by mbf_import_tests.rs the_dialogs_import_replies_are_the_native_replies",
-        "declaration": declaration,
+        "artifact_kind": "swbpipe.mbf_import_protocol_capture",
+        "format": 1,
+        "description": "Verbatim native response strings for transport tests, not a public engineering-model dataset; generated by mbf_import_tests.rs the_dialogs_import_replies_are_the_native_replies; public provenance and coverage are in import_replies.provenance.json",
+        "inputs": {
+            "source_model": "fixtures/caepipe_mbf/invented/desktop_export/export_model.json",
+            "source_model_file_sha256": hex(EXPORT_MODEL.as_bytes()),
+            "export_settings_json": EXPORT_SETTINGS,
+            "saved_mbf_sha256": hex(&mbf_bytes),
+            "saved_identity_file_sha256": hex(&identity_bytes),
+            "declaration_json": declaration_json,
+        },
         "replies": {
-            "bound-open": bound_open,
-            "bound-adopt": bound_adopt,
-            "unbound-open": unbound_open,
-            "unbound-declared": unbound_declared,
-            "unbound-adopt": unbound_adopt,
+            "bound-open": bound_open.text,
+            "bound-adopt": bound_adopt.text,
+            "unbound-open": unbound_open.text,
+            "unbound-declared": unbound_declared.text,
+            "unbound-adopt": unbound_adopt.text,
         },
     });
     let text = format!("{}\n", serde_json::to_string_pretty(&document).unwrap());
@@ -1211,5 +1246,16 @@ fn the_dialogs_import_replies_are_the_native_replies() {
         fs::write(&path, &text).unwrap();
     }
     assert_eq!(fs::read_to_string(&path).unwrap_or_default(), text, "regenerate with MBF_IMPORT_REPLIES_REGENERATE=1");
+    let provenance: Value = serde_json::from_slice(&fs::read(path.with_file_name("import_replies.provenance.json")).unwrap()).unwrap();
+    for field in ["source_name", "source_location", "source_license", "contributor", "contributor_certification", "redistribution_status", "review_status"] {
+        assert!(provenance[field].as_str().is_some_and(|value| !value.trim().is_empty()), "the public transcript needs {field}");
+    }
+    assert_eq!(provenance["redistribution_status"], "public_permissive");
+    assert!(!matches!(provenance["review_status"].as_str(), Some("rejected" | "quarantined")));
+    for group in ["inputs", "replies"] {
+        let covered: std::collections::BTreeSet<_> = provenance["coverage"][group].as_array().unwrap().iter().map(|value| value.as_str().unwrap()).collect();
+        let actual: std::collections::BTreeSet<_> = document[group].as_object().unwrap().keys().map(String::as_str).collect();
+        assert_eq!(covered, actual, "all captured {group} share the explicit public provenance");
+    }
     assert_released(&registry);
 }

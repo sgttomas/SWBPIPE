@@ -24,7 +24,7 @@ import {
 const ROOT = join(__dirname, "../../../../..");
 const ENGINE = join(ROOT, "core/handoff/caepipe_mbf_engine/src");
 const read = (path: string) => readFileSync(path, "utf8");
-const reviewed = (name: string) => structuredClone((importReplies.replies as Record<string, unknown>)[name]) as Extract<MbfImportReviewOutcome, { outcome: "reviewed" }>;
+const reviewed = (name: keyof typeof importReplies.replies) => JSON.parse(importReplies.replies[name]) as Extract<MbfImportReviewOutcome, { outcome: "reviewed" }>;
 
 describe("the import review's product presentation", () => {
   it("describes every code the importer and the native commands emit", () => {

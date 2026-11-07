@@ -24,13 +24,16 @@ import { MBF_IMPORT_DESCRIPTIONS } from "./features/caepipe-mbf/mbfImport";
 
 // DEL-17-04 Design `desktop-mbf-export-import.md` §4.1, §4.8.5–§4.8.7 and §4.8.9 (slice 5): File > Import MBF… in the
 // real App, against a native host whose replies are the actual native replies for the export's saved pair
-// (`import_replies.json`, held to task 5's output by `mbf_import_tests.rs`). Adopt goes through the maintained Open
+// (`import_replies.json` captures verbatim response strings, held to task 5's bytes by `mbf_import_tests.rs`;
+// its companion explicitly covers the invented transcript and inputs, not the inner runtime provenance).
+// Parse those strings unchanged, with no reconstructed/enriched model. Adopt goes through the maintained Open
 // transaction: one `checkNativeOutcome` (one webview validator call, given the reply's own document object), the
 // unsaved-changes guard, the index guard and the commit; refusals leave the session as it was.
 
 type Args = Record<string, unknown>;
 type Reply = Record<string, unknown>;
-const REPLIES = importReplies.replies as unknown as Record<string, Reply>;
+const REPLIES = Object.fromEntries(Object.entries(importReplies.replies).map(([name, text]) => [name, JSON.parse(text)])) as Record<string, Reply>;
+const DECLARATION = JSON.parse(importReplies.inputs.declaration_json) as Record<string, unknown>;
 const reply = (name: string): Reply => structuredClone(REPLIES[name]);
 const DEMO_ROW = `tree-row-project-${encodeURIComponent(demoModel.project.id)}`;
 const importedDocument = (REPLIES["bound-adopt"].document as { project: { id: string } });
@@ -118,6 +121,18 @@ function expectNoFileContent(host: ReturnType<typeof nativeHost>) {
 }
 
 describe("File > Import MBF… in the App", () => {
+  it("keeps the raw capture's saved-source and review bindings when parsed for the host", () => {
+    const bound = REPLIES["bound-open"];
+    const declared = REPLIES["unbound-declared"];
+    for (const name of ["bound-open", "unbound-open", "unbound-declared"]) {
+      const review = REPLIES[name].review as { source: { mbf_sha256: string } };
+      expect(review.source.mbf_sha256).toBe(importReplies.inputs.saved_mbf_sha256);
+    }
+    expect((bound.review as { source: { identity_file: { sha256: string } } }).source.identity_file.sha256).toBe(importReplies.inputs.saved_identity_file_sha256);
+    expect(REPLIES["bound-adopt"].reviewSha256).toBe(bound.reviewSha256);
+    expect(REPLIES["unbound-adopt"].reviewSha256).toBe(declared.reviewSha256);
+  });
+
   it("opens from the native menu and the in-window File menu, shows the native review and adopts the bound import through the Open transaction", async () => {
     await renderApp();
     setTauriRuntime();
@@ -192,8 +207,8 @@ describe("File > Import MBF… in the App", () => {
     fireEvent.change(select, { target: { value: "invented" } });
     await waitFor(() => expect(host.held).toHaveLength(1));
     const sent = host.held[0].args.declaration as Record<string, unknown>;
-    expect(sent).toEqual(importReplies.declaration);
-    expect(Object.keys(sent)).toEqual(Object.keys(importReplies.declaration));
+    expect(sent).toEqual(DECLARATION);
+    expect(Object.keys(sent)).toEqual(Object.keys(DECLARATION));
     expect(Object.keys(sent)).not.toContain("*");
     expect(within(dialog).getByTestId("mbf-import-adopt")).toBeDisabled();
     await act(async () => { host.held[0].resolve(reply("unbound-declared")); });

@@ -130,6 +130,8 @@ checks:
 - tests/test_caepipe_private_mbf_import.py
 - tests/test_caepipe_mbf_import_parity.py
 - tests/test_caepipe_mbf_writer_parity.py
+- tests/test_model_document_schema.py
+- tests/test_caepipe_data_boundary.py
 - core/handoff/caepipe_mbf_engine/tests/parity.rs
 - core/handoff/caepipe_mbf_engine/tests/writer_parity.rs
 - core/handoff/caepipe_mbf_engine/tests/fail_closed.rs
@@ -152,6 +154,7 @@ checks:
 - apps/desktop/src-tauri/src/mbf_import_tests.rs
 - apps/desktop/src/features/caepipe-mbf/mbfImportCancel.test.ts
 - apps/desktop/src/features/caepipe-mbf/mbfImportSession.test.ts
+- apps/desktop/src/features/caepipe-mbf/mbfImport.test.ts
 - apps/desktop/src/App.mbfImportDialog.test.tsx
 - tests/security/test_local_first_storage_policy.py
 - tests/security/test_redaction_export_controls.py
