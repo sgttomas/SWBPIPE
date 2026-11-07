@@ -46,12 +46,18 @@ PP = "core/product_physics/src/"
 # Operating-case slice 1b D3 (§8.51): interim_reasons drops its difference-basis push (D1.4 refused every difference
 # basis, so on D1 it never ran; one push remains, the minuend_final subtrahend's) and the module's comments restate the
 # withholding. withholding() and its owners are unchanged.
+# RT-A6 H1 (PROVISIONAL proposal, read e8cfa72d5..925fcf122): operating_conditions.rs declares `pub mod contents;`,
+# judge's exact-route condition-use refusal now spares a contents-only use (still behind condition_use, D1.5), judge
+# extends its vector with contents::contents_use_findings per case, and lower takes RetainedContents before the clear
+# and restores it only under Some; resolution.rs deletes resolve_case's contents-density refusal push (behind S2-ZR's
+# zero) and restates docs. S1-VW, S1-WH and S2-JD (S2_JUDGE_COLLECT and the four calls, re-read) are unchanged; H1's
+# own work is zero on D1 by rules/o10_rules.py's H1-ZR (no condition_use, D1.5), its call frames staying live.
 PINS = {PP + "document_members.rs": "b5f77f9fc24d7d09a7fd3699e6b95d61581d94a7987db09f4fe43334999a7acc",
-        PP + "operating_conditions.rs": "e3ddf5bdf79698f3cbd555c9bd3ed125227030e60737760479c6c9fd7cadfa38",
+        PP + "operating_conditions.rs": "69041ab70cd2976646d53bc6a95f0ecf40010feaa89abb39f7c1d0bf2479c8de",
         PP + "spectra.rs": "b1ed575817c3d9ffd4edd16fcfefc1f8e9029c13c2985c9219e868d3e3f69060"}
 # Model document 0.9.0 S2 (§8.40): operating_conditions.rs above is S2's judge/lower split (e3ddf5bd…; S1's was 81460837…)
 # and the PF resolution module below is read with it; like every pin here, the committed model binds one source cohort.
-S2_PINS = {PP + "operating_conditions/resolution.rs": "74e08befaae18384974661c80d611445613dc6f4eab18d1e1e457f5cf06084a2"}
+S2_PINS = {PP + "operating_conditions/resolution.rs": "97fac9e81db9c98065839314fa9378650090fc62035020d38590a6c3f36398a9"}
 # S2-JD: judge's refused-document conversion, exactly once in operating_conditions.rs.
 S2_JUDGE_COLLECT = "diagnostics: found.into_vec().into_iter().map(|finding| finding.into_diagnostic(\"blocking\")).collect(),"
 # The solve's two calls, each once in run_linear_static_preview_observed_inner, and their twins in pre_formation_checks.

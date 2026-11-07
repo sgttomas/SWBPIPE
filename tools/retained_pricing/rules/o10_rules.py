@@ -4166,8 +4166,12 @@ if fnkey("withhold_interim_combinations", _S1_DM):
     # deleted (the solve forms the held comparison and gates it at G-1, G-2 and the held-status gates); interim_reasons
     # returns `Vec::new()`, and its S1-ZS and S1-ID entries are dropped below (§8.46's and §8.51's precedent). The
     # withholding's body is unchanged; only its doc comment and interim_reasons' are restated.
+    # RT-A6 H1 (PROVISIONAL, read e8cfa72d5..925fcf122): operating_conditions.rs re-read: `pub mod contents;`, judge's
+    # exact-route refusal spares a contents-only use (its S1-ZS texts unchanged, still behind condition_use, D1.5), judge's
+    # contents_use_findings call and lower's RetainedContents take/restore; the H1 block at the end of this file prices
+    # them (H1-ZR) and re-checks every premise it reads here. No S1 rule's site, loop or bound moves.
     _S1_PINS = {_S1_DM: "b5f77f9fc24d7d09a7fd3699e6b95d61581d94a7987db09f4fe43334999a7acc",
-                _S1_OC: "e3ddf5bdf79698f3cbd555c9bd3ed125227030e60737760479c6c9fd7cadfa38",
+                _S1_OC: "69041ab70cd2976646d53bc6a95f0ecf40010feaa89abb39f7c1d0bf2479c8de",
                 _S1_SP: "b1ed575817c3d9ffd4edd16fcfefc1f8e9029c13c2985c9219e868d3e3f69060"}
     for _f, _h in _S1_PINS.items():
         if _hashlib.sha256(open(_os.path.join(_SNAP, _f), "rb").read()).hexdigest() != _h:
@@ -4442,9 +4446,12 @@ _S2_RES = PP_ + "operating_conditions/resolution.rs"
 if fnkey("plan", _S2_RES):
     import hashlib as _hashlib
     # S2-PIN: resolution.rs's complete bytes (operating_conditions.rs is bound by S1-PIN, canonical_decimal.rs by TIM's
-    # pins), read before these rules were written; a change stops the run.
+    # pins), read before these rules were written; a change stops the run. RT-A6 H1 (PROVISIONAL, read
+    # e8cfa72d5..925fcf122): resolve_case's contents-density refusal push is deleted (it was behind S2-ZR's zero; a
+    # contents use is judged by contents::contents_use_findings, H1-ZR) and the module and constant docs are restated.
+    # The premises below, S2-BN and S2-ID's four temperature suffixes are unchanged.
     if _hashlib.sha256(open(_os.path.join(_SNAP, _S2_RES), "rb").read()).hexdigest() != \
-            "74e08befaae18384974661c80d611445613dc6f4eab18d1e1e457f5cf06084a2":
+            "97fac9e81db9c98065839314fa9378650090fc62035020d38590a6c3f36398a9":
         raise SystemExit(f"S2-PIN: {_S2_RES} changed; re-review §8.40's rules")
     # S2-PIN (premises, supplementary to the pins): resolve_case's first statement returns Ok(None) without a
     # condition_use; plan is its only caller, over model.load_cases, with the set map collected from
@@ -6322,3 +6329,257 @@ if _os.path.exists(_os.path.join(_SNAP, _SKW_PP)):
         raise SystemExit("SKW-PC: support_record's groups or support's along rows changed; re-review §8.55")
     EDGE_PER_CALL = list(EDGE_PER_CALL) + [(fnkey("support_record", _SKW_CP), fnkey("group", _SKW_CP), "2",
         O10 + "SKW-PC: the support force and moment groups; the along-direction group only with an along row (SKW-D1)")]
+
+# ---- RT-A6 H1: an explicit contents selection consumed by generated self-weight (DEL-05-01 Work `hydrostatic-test.md`
+# §4, §4.1). PROVISIONAL proposal (read e8cfa72d5..925fcf122, on integrated Step0 e8cfa72d5); no governed section or
+# registration exists yet, and nothing here is adopted. H1 adds PP operating_conditions/contents.rs and wires it into
+# operating_conditions::judge (contents_use_findings per case), operating_conditions::lower (RetainedContents take before
+# the clear, restore under Some) and self_weight::inspect_applied_self_weight (of_case_in_place inside the lineage
+# closure). D1.5 (retained_memory.rs family_clauses: `if case.condition_use.is_some() { return refuse(C::Case,
+# F::ConditionUse) }`) refuses every case's condition_use and D1.3 every non-empty condition_sets and every pipe's
+# condition_set_ref, so on D1 no case names a contents use. Each wired call is entered (its call and frame stay live:
+# heap zero is not frame absence; AC-004 owns stack) and returns before its first allocation.
+_H1_CT = PP_ + "operating_conditions/contents.rs"
+if fnkey("contents_use_findings", _H1_CT):
+    import hashlib as _h1_hashlib
+    # H1-PIN: contents.rs's complete bytes, read before these rules were written; a change stops the run.
+    if _h1_hashlib.sha256(open(_os.path.join(_SNAP, _H1_CT), "rb").read()).hexdigest() != \
+            "8fbf2cc6450577089461d8d25218c0467a35fe53bc259c153f9b8f7b4db71c03":
+        raise SystemExit(f"H1-PIN: {_H1_CT} changed; re-review the H1 rules")
+    _H1_SW, _H1_RM = PP_ + "self_weight.rs", PP_ + "retained_memory.rs"
+    _h1_cuf, _h1_take = _fn_text("contents_use_findings", _H1_CT), _fn_text("take", _H1_CT)
+    _h1_judge, _h1_lower = _fn_text("judge", _S1_OC), _fn_text("lower", _S1_OC)
+    _h1_inspect, _h1_family = _fn_text("inspect_applied_self_weight", _H1_SW), _fn_text("family_clauses", _H1_RM)
+    _h1_rm = _text_of(_H1_RM)
+    # Every priced crate's production text (crate_dirs.txt): H1-TK's and H1-FV's name inventories.
+    _h1_priced = {}
+    for _d in _sll_dirs:
+        for _r, _, _ns in _os.walk(_os.path.join(_SNAP, _d)):
+            for _n in _ns:
+                if _n.endswith(".rs"):
+                    _p = _os.path.relpath(_os.path.join(_r, _n), _SNAP)
+                    _h1_priced[_p] = _text_of(_p)
+    # The files whose code (base/rust_literals.py's lexer: not comments or literals) names `token`.
+    _h1_names = lambda token: sorted(_p for _p, _t in _h1_priced.items()
+                                     if _re.search(r"\b" + token + r"\b", _t) and _sll_code_hits(_p, token)[0])
+    _h1_ct_lines = _h1_take.split("\n")
+    _h1_ok = {
+        # D1.5 and D1.3, the domain facts every H1 zero rests on (retained_memory.rs is pinned elsewhere; re-read here).
+        "D1.5": _h1_family.count("if case.condition_use.is_some() {\n            return refuse(C::Case, F::ConditionUse);") == 1,
+        "D1.3": _h1_rm.count("if !m.condition_sets.is_empty() {") == 1
+                and _h1_rm.count("if m.pipe_segments.iter().any(|pipe| pipe.condition_set_ref.is_some()) {") == 1,
+        # H1-ZR (judge): contents_use_findings' first statement returns an unallocated Vec::new() without a contents
+        # use; judge is its only caller, once per case, extending its own vector with the result.
+        "cuf-first": _h1_cuf.startswith("pub(crate) fn contents_use_findings(model: &PreviewModel, case: &PreviewLoadCase) -> Vec<Diagnostic> {\n"
+                                        "    let Some(key) = case.condition_use.as_ref().and_then(|using| using.contents_density.as_ref()) else {\n"
+                                        "        return Vec::new();\n    };\n"),
+        "cuf-caller": _h1_names("contents_use_findings") == [_S1_OC, _H1_CT]
+                      and _text_of(_S1_OC).count("contents_use_findings(") == 1
+                      and _h1_judge.count("for case in &model.load_cases {") == 1
+                      and _h1_judge.count("        diagnostics.extend(contents::contents_use_findings(model, case));\n") == 1,
+        # H1-ZR (lower): take's first statement collects each case's contents use by filter_map (zero items: std's
+        # SpecFromIterNested returns Vec::new() at the first None, unallocated) and returns None while it is empty, before
+        # the sets and pipes collections; restore runs only under `Some(retained)`.
+        "take-sig": _h1_ct_lines[0] == "    pub(crate) fn take(model: &PreviewModel) -> Option<Self> {"
+                    and _text_of(_H1_CT).count("pub(crate) struct RetainedContents {") == 1
+                    and _text_of(_H1_CT).count("impl RetainedContents {") == 1,
+        "take-first": "\n".join(_h1_ct_lines[1:11]) == (
+            "        let uses: Vec<(usize, String)> = model\n            .load_cases\n            .iter()\n            .enumerate()\n"
+            "            .filter_map(|(index, case)| Some((index, case.condition_use.as_ref()?.contents_density.clone()?)))\n"
+            "            .collect();\n        if uses.is_empty() {\n            return None;\n        }\n        let sets = model"),
+        "lower": _h1_lower.count("    let retained = contents::RetainedContents::take(model);\n") == 1
+                 and _h1_lower.count("    if let Some(retained) = retained {\n        retained.restore(model);\n    }\n") == 1
+                 and _h1_lower.index("contents::RetainedContents::take(model)") < _h1_lower.index("model.condition_sets.clear();"),
+        # H1-TK: RetainedContents::take has no receiver, so only a path naming RetainedContents (or `Self` inside its
+        # impl) can call it; in the priced crates only contents.rs and lower name it, and contents.rs never calls it.
+        "tk-names": _h1_names("RetainedContents") == [_S1_OC, _H1_CT]
+                    and _re.sub(r"//[^\n]*", "", _text_of(_S1_OC)).count("RetainedContents") == 1
+                    and "Self::take(" not in _text_of(_H1_CT) and "RetainedContents::take(" not in _text_of(_H1_CT)
+                    and _text_of(_H1_CT).count(".restore(") == 0 and _text_of(_S1_OC).count(".restore(") == 1,
+        # H1-NS: of_case_in_place and the contents origin are read only inside the lineage closure, after W15B-NS's
+        # `continue` (every D1 load continues: D1.10, D1.7; W15B-NS's own guards above are unchanged).
+        # Exactly one of_case_in_place call and one case_id read in inspect (any spelling), and no other priced caller.
+        "ns": _h1_inspect.count("of_case_in_place(") == 1 and _h1_inspect.count("case_id()") == 1
+              and _h1_names("of_case_in_place") == [_H1_CT, _H1_SW] and _text_of(_H1_SW).count("of_case_in_place(") == 1
+              and _h1_inspect.count("CaseContentsContext::of_case_in_place(model, case)?") == 1
+              and _h1_inspect.count(".or_else(|| context.as_ref().map(|c| c.case_id().to_string()))") == 1
+              and _h1_inspect.index("if !recognized && !looks_generated {\n                continue;\n            }")
+                  < _h1_inspect.index("let result = (|| -> Result<(), Vec<Diagnostic>> {")
+                  < _h1_inspect.index("CaseContentsContext::of_case_in_place(model, case)?")
+                  < _h1_inspect.index(".or_else(|| context.as_ref().map(|c| c.case_id().to_string()))")
+                  < _h1_inspect.index("})();"),
+        # H1-FV: the associated request reader and the contents-aware generator have no caller in the priced crates
+        # (self_weight_wasm and PP's integration tests are outside them), and from_value takes no receiver, so neither
+        # `serde_json::from_value(` (a lowercase module path: free fns only) nor a method call can reach it.
+        "fv": _h1_names("ContentsAwareSelfWeightRequest") == [_H1_SW]
+              and _text_of(_H1_SW).count("ContentsAwareSelfWeightRequest::from_value(") == 0
+              and _text_of(_H1_SW).count("Self::from_value(") == 0
+              and _text_of(_H1_SW).count("    pub fn from_value(value: &Value) -> Result<Self, SelfWeightRequestRefusal> {") == 1
+              and _h1_names("generate_contents_aware_self_weight_operations") == [_H1_SW]
+              and _text_of(_H1_SW).count("generate_contents_aware_self_weight_operations(") == 1,
+    }
+    if not all(_h1_ok.values()):
+        raise SystemExit(f"H1: a premise changed; re-review the H1 rules: {[_k for _k, _v in _h1_ok.items() if not _v]}")
+    _h1_short = lambda key: Resolved(str(key).split("/src/")[-1])
+    _H1_CUF, _H1_TAKE = fnkey("contents_use_findings", _H1_CT), fnkey("take", _H1_CT)
+    _H1_D15 = "no case names a contents use on D1 (D1.5 refuses every condition_use)"
+    # H1-ZR (EDGE_ZERO): heap work zero on D1; each call and its frame remain live.
+    O10_EDGE_ZERO += [
+        (fnkey("judge", _S1_OC), _H1_CUF, O10 + "H1-ZR: " + _H1_D15 + ", so contents_use_findings returns Vec::new() "
+         "(unallocated) at its first statement and judge's extend by an empty Vec reserves nothing; the call and frame stay live"),
+        (fnkey("lower", _S1_OC), _H1_TAKE, O10 + "H1-ZR: " + _H1_D15 + ", so take's filter_map collect yields Vec::new() "
+         "(unallocated) and `uses.is_empty()` returns None before the sets and pipes collections; the call and frame stay live"),
+        (fnkey("lower", _S1_OC), fnkey("restore", _H1_CT), O10 + "H1-ZR: restore runs only under Some(retained); take "
+         "returns None on D1"),
+    ]
+    # H1-NS (EDGE_ZERO, SITE_ZERO): inside the lineage closure that every admitted load skips (W15B-NS).
+    _H1_NS = (O10 + "H1-NS: inside inspect_applied_self_weight's lineage closure, after the `continue` every admitted load "
+              "takes (W15B-NS: D1.10 no object provenance, D1.7 no deterministic element form or generated-namespace node load)")
+    O10_EDGE_ZERO += [(fnkey("inspect_applied_self_weight", _H1_SW), fnkey("of_case_in_place", _H1_CT), _H1_NS),
+                      (fnkey("inspect_applied_self_weight", _H1_SW), fnkey("case_id", _H1_CT), _H1_NS)]
+    O10_SITE_ZERO += [(site("inspect_applied_self_weight", _H1_SW, ".or_else(|| context.as_ref().map(|c| c.case_id().to_string()))"), _H1_NS)]
+    # H1-L1 (loops, each only in take): the condition sets are empty on D1 (D1.3), and both loops follow the
+    # `uses.is_empty()` return.
+    O10_LOOPS_LAST += [
+        ("iter:model .condition_sets .iter().map", "0", O10 + "H1-L1: the condition sets (empty on D1, D1.3; after take's "
+         "`uses.is_empty()` return)", ["operating_conditions/contents.rs:take"]),
+        ("iter:conditions .iter().map", "0", O10 + "H1-L1: one set's conditions (no set on D1, D1.3)",
+         ["operating_conditions/contents.rs:take"]),
+    ]
+    # H1-BN (CG_RULES): by-name false edges. In the pinned contents.rs: capture's `matching.next()` is Iterator::next,
+    # its `context.key.trim().is_empty()` str::is_empty and its `index` a usize binding passed to of_case;
+    # case_contents_density's three `.next()` are Iterator::next. lower's `RetainedContents::take(` is that associated
+    # fn, not retained_memory.rs's free `take` helper (H1-TK). Every other by-name `take` candidate of
+    # contents::RetainedContents::take is a `.take(` (Option/Iterator) or `mem::take(` in a body that never names
+    # RetainedContents (re-checked per caller), so it cannot call the receiverless fn (H1-TK's premises above).
+    _h1_cap, _h1_ccd = _fn_n("capture", _H1_CT, 1, 1), _fn_n("case_contents_density", _H1_CT, 1, 1)
+    for _caller, _name in ((_h1_cap, "next"), (_h1_cap, "is_empty"), (_h1_cap, "index"), (_h1_ccd, "next")):
+        CG_RULES += [{"caller": _caller, "name": _name, "targets": [], "added": "H1-BN",
+                      "evidence": "RT-A6 H1: a std method or a binding in the pinned body, no crate target (PROVISIONAL)"}]
+    # In the B7a-pinned self_weight.rs (both callers are inside the guarded self-weight fn_zero set, so multiplicity 0;
+    # the subtraction keeps the graph true): contents_evidence_quantity's `value.is_null()`, `object.len()` and
+    # `object.get(` are serde_json Value/Map methods; every `.key()` of generate_operations is `selection.context.key()`,
+    # CaseContentsContext::key (a ContentsSelection's `context`), never frame_kernel's functionals `key`.
+    _h1_ceq = _fn_n("contents_evidence_quantity", _H1_SW, 1, 1)
+    for _name in ("is_null", "get", "len"):
+        CG_RULES += [{"caller": _h1_ceq, "name": _name, "targets": [], "added": "H1-BN",
+                      "evidence": "RT-A6 H1: a serde_json Value/Map method in the pinned body, no crate target (PROVISIONAL)"}]
+    _h1_go = _fn_text("generate_operations", _H1_SW)
+    if _h1_go.count(".key()") != _h1_go.count("selection.context.key()") or _h1_go.count(".key()") != 2:
+        raise SystemExit("H1-BN: generate_operations' `.key()` receivers changed; re-review")
+    CG_RULES += [{"caller": _fn_n("generate_operations", _H1_SW, 1, 1), "name": "key",
+                  "exclude_targets": [_fn_n("key", FK_ + "structural/exact_boundary/functionals.rs", 1, 1)], "added": "H1-BN",
+                  "evidence": "RT-A6 H1: `selection.context.key()` is CaseContentsContext::key (PROVISIONAL)"}]
+    _h1_take_full = _fn_n("take", _H1_CT, 1, 1)
+    CG_RULES += [{"caller": _fn_n("lower", _S1_OC, 1, 1), "name": "take", "exclude_targets": [_fn_n("take", _H1_RM, 1, 1)],
+                  "added": "H1-BN", "evidence": "lower's one take call is contents::RetainedContents::take (H1-TK), not "
+                  "retained_memory.rs's free helper (PROVISIONAL)"}]
+    _H1_TK_CALLERS = (
+        ("case_state/resolve.rs", "resolve_case"), ("exact_combinations.rs", "append"), ("exact_combinations.rs", "build"),
+        ("formation_guard.rs", "load_row_finding"), ("formation_guard.rs", "recovery_finding"),
+        ("lib.rs", "permitted_dispatch"), ("lib.rs", "range_scaling_evidence_line"),
+        ("lib.rs", "run_linear_static_preview_observed_inner"), ("lib.rs", "solve_prepared_load_case"),
+        ("preview_physics.rs", "append_combination_results"), ("preview_physics.rs", "operand_states_diagnostic"),
+        ("preview_physics.rs", "render"), ("retained_memory.rs", "borrowed_value_census"), ("retained_memory.rs", "raw_text_census"),
+        ("retained_product.rs", "combination_call"), ("retained_product.rs", "combine"), ("retained_product.rs", "early_case_snapshot"),
+        ("retained_product.rs", "freeze"), ("retained_product.rs", "install_early_source"), ("retained_product.rs", "native_call"),
+        ("retained_product.rs", "prepared_custody"), ("retained_tests_hooks/grant2.rs", "after_batch_run"),
+        ("retained_tests_hooks/grant2.rs", "at_complete_gate"), ("retained_tests_hooks/grant2.rs", "before_case_preparation"),
+        ("retained_tests_hooks/grant2.rs", "before_operand_preparation"), ("retained_tests_hooks/grant2.rs", "combination_call_fault"),
+        ("retained_tests_hooks/grant2.rs", "counted_with_successor"), ("retained_tests_hooks/grant2.rs", "freeze_fault_of_case"),
+        ("retained_tests_hooks/grant2.rs", "hand_back"), ("retained_tests_hooks/grant2.rs", "install"),
+        ("retained_wire.rs", "serialize_cases"), ("s11g_tests/arc_recovery.rs", "probed"),
+        ("source_receipt/rows.rs", "expected_primary_for"), ("topology.rs", "disconnected_parts"),
+        ("topology.rs", "near_duplicate_nodes"),
+    )
+    for _f, _fn in _H1_TK_CALLERS:
+        _body = _fn_text(_fn, PP_ + _f)
+        if "RetainedContents" in _body or "take(" not in _body:
+            raise SystemExit(f"H1-TK: {_f}:{_fn} names RetainedContents or no longer calls a `take`; re-review")
+        CG_RULES += [{"caller": _fn_n(_fn, PP_ + _f, 1, 1), "name": "take", "exclude_targets": [_h1_take_full], "added": "H1-BN",
+                      "evidence": "RT-A6 H1: a `.take(`/`mem::take(` in a body that never names RetainedContents cannot call "
+                      "the receiverless RetainedContents::take (H1-TK; PROVISIONAL)"}]
+    # H1-ID (ID_AUDIT, site-specific): every placeholder of contents.rs's format and copy sites, and the new
+    # self_weight.rs placeholders, that no existing class covered. All are at multiplicity 0 on D1 (H1-ZR, H1-NS,
+    # fn_zero); the chain classifies every row before its multiplicity applies. An id, a key, a set reference or a unit
+    # is raw authored text (IN128, as S1-ID); stable_suffix keeps the byte length. A `suffix` is one of the static
+    # literal suffixes passed to contents_diag, or `at(what)`: a stable_suffix'd pipe id, ':' and one of
+    # case_contents_density's static `at("...")` suffixes; `at("normalize")` is the same with "normalize".
+    _h1c = lambda b, why: {"bytes": b, "source": O10 + "H1-ID: " + why}
+    _h1_ccd_text = _fn_text("case_contents_density", _H1_CT)
+    _h1_whats = _re.findall(r'at\("([a-z-]+)"\)', _h1_ccd_text)
+    _h1_lits = _re.findall(r'contents_diag\(&?[a-z_.]+, "([a-z-]+)", ', _text_of(_H1_CT))
+    if (sorted(set(_h1_whats)) != ["key-conflict", "key-missing", "normalize", "pipe-conflict", "pipe-missing", "set-conflict",
+                                   "set-missing", "set-unresolved", "value-invalid", "value-missing"]
+            or sorted(set(_h1_lits)) != ["key-invalid", "selection-missing", "source-conflict", "source-missing"]
+            or _text_of(_H1_CT).count("contents_diag(") != 14):     # the definition and its 13 calls
+        raise SystemExit(f"H1-ID: contents_diag's suffixes changed; re-review: {_h1_whats} {_h1_lits}")
+    _h1_what = max(len(_w) for _w in _h1_whats if _w != "normalize")
+    _H1A = {"suffix": _h1c(max(128 + 1 + _h1_what, max(len(_x) for _x in _h1_lits)),
+                           "a static contents_diag suffix, or at(what): a stable_suffix'd IN128 pipe id, ':' and the longest static suffix"),
+            "what": _h1c(_h1_what, "the longest of case_contents_density's static at() suffixes"),
+            'at("normalize")': _h1c(128 + 1 + len("normalize"), "a stable_suffix'd IN128 pipe id, ':' and \"normalize\""),
+            **{_a: IN for _a in ("case_id", "case.id", "pipe", "pipe.id", "pipe.condition_set_ref", "key", "set", "set_id", "id",
+                                 "authored.unit", "crate::stable_suffix(case)", "crate::stable_suffix(pipe)",
+                                 "crate::stable_suffix(id)", "selection.context.key()", "c.case_id()")}}
+    def _h1_at(fn, f, text, nth=1, row=None):
+        lines = _text_of(f).split("\n")
+        start = int(str(fnkey(fn, f)).split(":")[1]); end = start + _fn_text(fn, f).count("\n")
+        hits = [i + 1 for i in range(start - 1, end) if text in lines[i]]
+        if len(hits) < nth:
+            raise SystemExit(f"H1-ID: {text!r} #{nth} in {f}:{fn}: {hits}")
+        line = hits[nth - 1]
+        if row:
+            line = next(i for i in range(line, start - 1, -1) if row in lines[i - 1])
+        return Resolved(f"{f}:{line}")
+    for _entry in [
+        ("contents_diag", _H1_CT, '&format!("diagnostic:load-case:{}:contents:{suffix}", crate::stable_suffix(case)),', 1, ("crate::stable_suffix(case)", "suffix")),
+        ("capture", _H1_CT, "names no load case of the model;", 1, ("case_id",)),
+        ("capture", _H1_CT, "vec![case_id.to_string()]", 1, ("case_id",)),
+        ("capture", _H1_CT, "names more than one load case;", 1, ("case_id",)),
+        ("capture", _H1_CT, "vec![case_id.to_string()]", 2, ("case_id",)),
+        ("capture", _H1_CT, "vec![case_id.to_string()]", 3, ("case_id",)),
+        ("of_case", _H1_CT, "case_id: case.id.clone(),", 1, ("case.id",)),
+        ("of_case", _H1_CT, "(pipe.id.clone(), pipe.condition_set_ref.clone())", 1, ("pipe.id", "pipe.condition_set_ref")),
+        ("case_contents_density", _H1_CT, 'let at = |what: &str| format!("{}:{what}", crate::stable_suffix(pipe));', 1, ("crate::stable_suffix(pipe)", "what")),
+        ("case_contents_density", _H1_CT, "let refs = |set: &str| vec![", 1, ("pipe", "key", "set")),
+        ("case_contents_density", _H1_CT, "is not a pipe of the captured model;", 1, ("pipe", "key")),
+        ("case_contents_density", _H1_CT, "vec![case.to_string(), pipe.to_string()])]),", 1, ("pipe",)),
+        ("case_contents_density", _H1_CT, "names more than one pipe;", 1, ("pipe", "key")),
+        ("case_contents_density", _H1_CT, "vec![case.to_string(), pipe.to_string()])]),", 2, ("pipe",)),
+        ("case_contents_density", _H1_CT, "carries no condition set;", 1, ("pipe", "key")),
+        ("case_contents_density", _H1_CT, 'vec![case.to_string(), pipe.to_string(), "contents_density".to_string()])]);', 1, ("pipe",)),
+        ("case_contents_density", _H1_CT, "names no condition set; nothing is generated", 1, ("set_id", "pipe", "key")),
+        ("case_contents_density", _H1_CT, "names more than one condition set;", 1, ("set_id", "pipe", "key")),
+        ("case_contents_density", _H1_CT, "has no condition `{key}`;", 1, ("key", "set_id", "pipe")),
+        ("case_contents_density", _H1_CT, "more than once; nothing is generated", 1, ("key", "set_id", "pipe")),
+        ("case_contents_density", _H1_CT, "states no contents_density;", 1, ("key", "set_id", "pipe")),
+        ("case_contents_density", _H1_CT, "is not a contents density: {reason}", 1, ("key", "set_id", "pipe")),
+        ("case_contents_density", _H1_CT, "is not a density unit of the units catalog", 1, ("authored.unit",)),
+        ("case_contents_density", _H1_CT, "is negative", 1, ("authored.unit",)),
+        ("case_contents_density", _H1_CT, 'crate::stable_suffix(case), at("normalize"))', 1, ("crate::stable_suffix(case)", 'at("normalize")')),
+        ("case_contents_density", _H1_CT, "does not normalize to a finite nonnegative density", 1, ("authored.unit",)),
+        ("case_contents_density", _H1_CT, "key: key.to_string(),", 1, ("key",)),
+        ("case_contents_density", _H1_CT, "condition_set: set_id.to_string(),", 1, ("set_id",)),
+        ("contents_use_findings", _H1_CT, "vec![case.id.clone()])],", 1, ("case.id",)),
+        ("contents_use_findings", _H1_CT, ':condition:contents-density-seismic", crate::stable_suffix(id)', 1, ("crate::stable_suffix(id)",)),
+        ("contents_use_findings", _H1_CT, "and also generates equivalent-static seismic loads", 1, ("id", "key")),
+        ("contents_use_findings", _H1_CT, "vec![id.to_string(), key.clone()],", 1, ("id", "key")),
+        ("contents_use_findings", _H1_CT, ':condition:contents-density", crate::stable_suffix(id)', 1, ("crate::stable_suffix(id)",)),
+        ("contents_use_findings", _H1_CT, "that density has NOT been applied as weight", 1, ("id", "key")),
+        ("contents_use_findings", _H1_CT, "vec![id.to_string(), key.clone()],", 2, ("id", "key")),
+        ("take", _H1_CT, "pipes: model.pipe_segments.iter().map(|pipe| pipe.condition_set_ref.clone()).collect()", 1, ("pipe.condition_set_ref",)),
+        # A multi-line format!'s TEXT row is its `format!(` line (row=, below).
+        ("generate_operations", _H1_SW, "selection.context.case_id(), selection.context.key(), body.pipe, body.component.id),", 1, ("selection.context.key()",), "format!("),
+        ("inspect_applied_self_weight", _H1_SW, ".or_else(|| context.as_ref().map(|c| c.case_id().to_string()))", 1, ("c.case_id()",)),
+    ]:
+        _fn, _f, _t, _nth, _args, _row = (_entry + (None,))[:6]
+        O10_ID_AUDIT += [(_h1_at(_fn, _f, _t, _nth, row=_row), {_a: _H1A[_a] for _a in _args})]
+    # H1-FV (O10_SITE_SIZE 0, guarded): from_value's two message sites embed the Display of an arbitrary request JSON
+    # value (`not a string ({other})`, then `{what}`), which has no source bound; from_value has no caller in the priced
+    # crates (H1-FV's premises), so o10_check fails the run if either site's multiplicity is ever positive.
+    _H1_FVW = O10 + "H1-FV: from_value's request-member Display has no source bound; multiplicity 0 (no priced caller)"
+    O10_SITE_SIZE = list(globals().get("O10_SITE_SIZE", [])) + [
+        (site("from_value", _H1_SW, '_ => format!("not a string ({other})"),'), 0, _H1_FVW),
+        (site("from_value", _H1_SW, "is {what}; name the authored load case", row="format!("), 0, _H1_FVW),
+    ]

@@ -34,7 +34,15 @@ SOURCE_FILES = {
     # 1510 (after every snapshot key) and calls generate_operations(…, true) unchanged. Their only new callers are in
     # crate::modal, which no retained root reaches (no modal node is reachable on the run's graph; §8.43). No formed-load or
     # finding owner changes.
-    "core/product_physics/src/self_weight.rs": "5b097d7dcb32ed5d176cfd1a407ff93620c0795a0db7926775f763cd9f9e609c",
+    # RT-A6 H1 (PROVISIONAL proposal, read e8cfa72d5..925fcf122; no governed section yet): generate_operations gains an
+    # Option<ContentsSelection> argument (every existing caller passes None) and its contents branch; the new request
+    # reader ContentsAwareSelfWeightRequest::from_value, generate_contents_aware_self_weight_operations,
+    # contents_evidence_quantity and contents_dependency are reached from no retained root (from_value and the generator
+    # only from self_weight_wasm and integration tests, outside the priced crates; H1-FV); retained_basis's contents_source
+    # check is inside the 17 guarded self-weight zeros; inspect_applied_self_weight's of_case_in_place call and the
+    # contents-stale branch sit inside the lineage closure after W15B-NS's `continue` (H1-NS). No formed-load or finding
+    # owner changes; the deterministic-identity format moves +216 lines with unchanged text (decisions below).
+    "core/product_physics/src/self_weight.rs": "9e7bf2e067dcd164877d343a0a1c4c896185f748ef8bab7204718bf5c8248a44",
     "core/product_physics/src/source_receipt/source.rs": "384140db918da65d5e76dd601cd0a2068ae2a098379b41c6907069cf99ced419",
     # T4-U8: retained::assemble's Timoshenko refusal; W1 adds one retained_api
     # export line for member-source types. Existing formation owners stay.
@@ -219,8 +227,10 @@ def decisions(snapshot, resolved):
     # Nested-record closure (§8.25): 1284 -> 1292 (DEPENDENCY_SECTION_REF's two lines, the first evidence-reader
     # literal's three members and component_basis's three closed reads above it), same text. W-16 slice c (§8.27):
     # 1292 -> 1302 (exact_generation_mass_per_length above it), same text. Model document 0.9.0 (§8.36): 1302 -> 1303
-    # (retained_basis's `condition_set_ref: None` above it), same text.
-    audit.append((resolved("core/product_physics/src/self_weight.rs:1303"), {
+    # (retained_basis's `condition_set_ref: None` above it), same text. RT-A6 H1 (PROVISIONAL, 925fcf122): 1303 -> 1519
+    # (the contents imports, request reader, contents-aware generator and retained_basis's contents_source check above
+    # it), same text; read: e8cfa72d5's lines 1298-1308 equal 925fcf122's 1514-1524 byte for byte.
+    audit.append((resolved("core/product_physics/src/self_weight.rs:1519"), {
         "case.id": {"bytes": 128, "source": "IN128"},
         "pipe": {"bytes": 128, "source": "IN128"},
         "case.id.len()": {"bytes": 20, "source": "NUM"},
