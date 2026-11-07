@@ -1722,7 +1722,7 @@ Built on `claude/rt-dynamics-p0` from main `17aa9a1f9`, under Agent 0's approval
     - An accumulator whose parts have representation bits in [B_lo, B_hi] and fewer than 2^c adds holds at most ⌊(B_hi + c)/32⌋ + 4 − ⌊B_lo/32⌋ + 1 limbs. Its low limb only moves down, its length never shrinks, and a carry pushes a limb only while the top limb is at least 2³¹.
     - A TwoProduct part of a product of binary64 factors (e ∈ [−1074, 1023]) lies within the exact product: bits at or above Σ(e − 52), a representation lsb at most 52 below that, and a top bit at most Σe + k.
     - **Level-1 sums** take at most five factors per product (`product_into` on a mixed element with a factor), so B ∈ [−5682, 5120] and L̄₁ = 347.
-    - **Level-2 sums** (`add_terms_product`, and the formation difference's terms) multiply a level-1 sum's terms by at most two factors, so B ∈ [−8000, 7456] and L̄ = 492. No level-2 sum's terms are multiplied again (`reformation/mod.rs:1233`, `orthogonality.rs:176`).
+    - **Level-2 sums** (`add_terms_product`, and the formation difference's terms) multiply a level-1 sum's terms by at most two factors, so B ∈ [−8000, 7456] and L̄ = 492. No level-2 sum's terms are multiplied again (`reformation/mod.rs:1417`, `orthogonality.rs:176`).
     - **Adds:** fewer than 2¹³¹ per accumulator, since every add is a part of a counted call and P0 refuses a count ≥ 2¹²⁸; so c = 132.
     - **Limb work:** one part's add costs at most 5L̄ + 16 limb operations, and one read at most 12L̄ + 32.
     - This withdraws §5.3.8's earlier "no data-independent bound on L". The three reasons given there are each covered: the subnormal representation lsb (the −52), limb growth by `normalize()` (the carry allowance), and sums of accumulated terms (level 2).

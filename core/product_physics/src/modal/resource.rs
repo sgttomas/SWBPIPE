@@ -114,9 +114,9 @@
 //!   with a factor: q_a, q_b, the word, λ, x). B_lo = 5·(−1126) − 52 =
 //!   −5682; B_hi = 5·1024 = 5120.
 //! - *Level 2* (`add_terms_product`: the terms of a level-1 sum times at
-//!   most two binary64 factors; `reformation/mod.rs:1415`,
+//!   most two binary64 factors; `reformation/mod.rs:1417`,
 //!   `orthogonality.rs:176`; the formation difference adds level-1 terms
-//!   directly, `reformation/mod.rs:1195`): a term is an integer limb below
+//!   directly, `reformation/mod.rs:1197`): a term is an integer limb below
 //!   2³² at 2^(32(low₁ + k)), so B_lo = 32·low₁ − 2·1126 − 52 and B_hi =
 //!   32·(top₁ + 1) + 2·1024. No level-2 sum's terms are multiplied again.
 //! - *Adds:* every add is a part of a call counted in a term here (≤ 8 parts
