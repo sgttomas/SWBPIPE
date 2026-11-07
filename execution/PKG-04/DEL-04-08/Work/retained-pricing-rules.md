@@ -6404,8 +6404,8 @@ named basis stable. The Library adoption #161 changes no product/core/pricing in
 `modal/resource.rs`; `modal/tests_resource.rs` is test-only. `modal_eigen` is outside the priced crates. The graph
 gains seven functions (six resource helpers and `modal_sturm_pencil_refusal`) and loses none: 5,864 to 5,871 nodes,
 28,052 to 28,077 edges. Every added edge leaves a modal node; none enters a retained root. At every point,
-`reachable_fns` stays 4,779, every function multiplicity is equal, and all 1,912 positive text rows are byte-for-byte
-equal. The text inventory gains the support diagnostic's format and diagnostic rows, both at multiplicity zero; the
+`reachable_fns` stays 4,779 and every function multiplicity is equal. Positive text rows match each predecessor
+byte-for-byte: 1,912 at L(3,0), 2,165 at L(2,1), 2,199 at L(1,2), and 2,117 at E(3,0). The text inventory gains the support diagnostic's format and diagnostic rows, both at multiplicity zero; the
 Sturm construction-error format moves unchanged to its new helper (8,228 B, also zero). No retained heap owner,
 capacity, carrier or owner lifetime changes. The modal-only `ModalResourceDimensions` gains two u128 fields,
 `ModalAssemblySizes` is new, and kernel error enums gain the support-refusal variant; these are not retained owners.
@@ -6448,7 +6448,7 @@ the product sources; `REGISTERED_PROFILES`, `PINNED_RECORD`, all thirteen review
 The ordinary retained-law build ran with the maintained Cargo slot wrapper, jobs 2, its owned PP target, offline and
 locked, the four Rust flag variables unset: 85 tests passed, 71 ignored (including the witnesses). It prints the
 registered rustc 1.97.1 `8bab26f4f` / aarch64-apple-darwin / debug / opt-level 0 / unwind / empty-flags identity.
-`PINNED_RECORD` was checked, not skipped. It collects 359 unique profile/point atoms and 18 reader layouts. Native
+`PINNED_RECORD` was checked, not skipped. It collects 359 unique profile/point atoms and 18 layout observations covering nine distinct reader types. Native
 evaluation of the merged tree and four points covers 80 phase/mode identities under the existing 12 GiB threshold,
 floor(0.9 M) margin and upward-rounded 5% TEXT reserve; minimum remaining headroom is 2,478,298,797 B. No historical
 atom listing is claimed: §8.58's retained-suite log captured no atom output; the current pinned record and actual
