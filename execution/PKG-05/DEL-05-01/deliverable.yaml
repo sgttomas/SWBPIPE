@@ -102,6 +102,7 @@ code_paths:
 - core/reporting/result_export/src/physics_source.rs
 - schemas/results_pressure_2.v0.3.schema.json
 - schemas/physics_source_recovery.schema.json
+- core/model_operations/operation_applier/src/rich_authoring.rs
 - core/model_operations/operation_applier/tests/generated_self_weight.rs
 - schemas/model.schema.yaml
 - validation/hand_calcs/mechanics/tp_pmm_p3_subspan_wind_exposure.md

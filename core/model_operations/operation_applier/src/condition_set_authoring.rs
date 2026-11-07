@@ -332,9 +332,10 @@ pub(crate) const CREATE_LOAD_CASE: &str = "create_load_case";
 
 /// The route and admission refusals of a case's use (§11): never a permitted
 /// carried refusal, wherever they appear.
-const ROUTE_ADMISSION_CODES: [&str; 3] = [
+const ROUTE_ADMISSION_CODES: [&str; 4] = [
     pp_conditions::LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED,
     pp_resolution::LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT,
+    pp_resolution::LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED,
     // The exact route's refusal of a declared operating comparison (review r1).
     "LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED",
 ];

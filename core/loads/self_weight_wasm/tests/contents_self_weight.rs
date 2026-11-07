@@ -249,3 +249,120 @@ fn contents_aware_ex_target_is_complete_through_the_existing_operation_route() {
     assert_ne!(refused["validation"]["application_status"], "applied_to_session_model");
     assert!(refused["diagnostics"].as_array().unwrap().iter().any(|d| d["code"] == "OP-CREATE-LOAD-CASE-PAYLOAD-INVALID"));
 }
+
+fn managed_replacement(model: &Value, loads: &Value, id: &str) -> Value {
+    let draft = json!({"object_type":"Load","target_ref":"case:weight","operation_kind":"modify",
+        "change_kind":"update_load","field_label":"Refresh generated self-weight","field_path":"generated_self_weight",
+        "before":canonical_json(&case(model,"case:weight")["primitive_loads"]),"after":canonical_json(loads),
+        "unit":"none","dimension":"dimensionless","source_note":PROV});
+    serde_json::to_value(apply_operation(model, &operation(&draft,id), Some(&claim(model)))).unwrap()
+}
+
+#[test]
+fn managed_refresh_preserves_contents_history_and_validates_current_source_evidence() {
+    let original = model();
+    let generation = transport(&original, &request(&original,json!("case:hydro")));
+    let fresh = apply_batch(&original,&batch(&generation,"history-base"));
+    for stale in [false,true] {
+        let mut before = fresh.clone();
+        if stale {
+            before = step(&before,"modify","set_load_case_condition_use","Load","case:weight","condition_use",
+                &canonical_json(&json!({"contents_density":"HYDRO"})),&canonical_json(&json!({"contents_density":"ALT"})));
+        }
+        let mut valid = if stale {
+            let plan = refresh(&before);
+            assert_eq!(plan["status"],"ready","{plan}");
+            serde_json::from_str::<Value>(plan["plan"]["changes"][0]["after"].as_str().unwrap()).unwrap()
+        } else {
+            let mut values = case(&before,"case:weight")["primitive_loads"].clone();
+            let mut record: Value = serde_json::from_str(values[0]["provenance"].as_str().unwrap()).unwrap();
+            record["source_model_hash"] = json!(hash(&before));
+            record["contents_source"]["selected_by_case"] = json!("case:weight");
+            values[0]["provenance"] = json!(canonical_json(&record));
+            values
+        };
+        for attack in ["origin","selector","both","superseded-shape","superseded-value","superseded-extra","drop"] {
+            let mut proposed = valid.clone();
+            let mut record: Value = serde_json::from_str(proposed[0]["provenance"].as_str().unwrap()).unwrap();
+            match attack {
+                "origin" => record["contents_source"]["origin_case"] = json!("fabricated:origin"),
+                "selector" => record["contents_source"]["selected_by_case"] = json!("fabricated:selector"),
+                "both" => {
+                    record["contents_source"]["origin_case"] = json!("fabricated:origin");
+                    record["contents_source"]["selected_by_case"] = json!("fabricated:origin");
+                },
+                "superseded-shape" => record["contents_source"]["section_contents_density_superseded"] = json!({"garbage":true}),
+                "superseded-value" => record["contents_source"]["section_contents_density_superseded"] = q(99.0,"kg/m^3"),
+                "superseded-extra" => record["contents_source"]["section_contents_density_superseded"] = json!({"value":0,"unit":"kg/m^3","extra":true}),
+                "drop" => { record.as_object_mut().unwrap().remove("contents_source"); },
+                _ => unreachable!(),
+            }
+            proposed[0]["provenance"] = json!(canonical_json(&record));
+            let outcome = managed_replacement(&before,&proposed,attack);
+            assert!(outcome["applied_model"].is_null(),"stale={stale} attack={attack}: {outcome}");
+            assert!(outcome["diagnostics"].as_array().unwrap().iter().any(|d| d["code"] == "OP-RICH-PAYLOAD-INVALID"),"{outcome}");
+        }
+        // The actual current-source refresh remains valid after the origin is
+        // removed: its recorded identity is history, not a live lookup.
+        if stale {
+            before["load_cases"].as_array_mut().unwrap().retain(|case| case["id"] != "case:hydro");
+            let plan = refresh(&before);
+            assert_eq!(plan["status"],"ready","{plan}");
+            valid = serde_json::from_str(plan["plan"]["changes"][0]["after"].as_str().unwrap()).unwrap();
+            let accepted = managed_replacement(&before,&valid,"valid-orphan-origin");
+            assert_eq!(accepted["validation"]["application_status"],"applied_to_session_model","{accepted}");
+            assert_eq!(refresh(&accepted["applied_model"])["diagnostics"][0]["code"],"SELF-WEIGHT-REFRESH-NOT-NEEDED");
+        }
+    }
+}
+
+#[test]
+fn removed_contents_context_refuses_refresh_without_erasing_origin_or_using_sections() {
+    let original = model();
+    let generated = transport(&original,&request(&original,json!("case:hydro")));
+    let adopted = apply_batch(&original,&batch(&generated,"removed-context"));
+    let cleared = step(&adopted,"modify","clear_load_case_condition_use","Load","case:weight","condition_use",
+        &canonical_json(&json!({"contents_density":"HYDRO"})),"not_present");
+    let refused = refresh(&cleared);
+    assert_eq!(refused["status"],"blocked","{refused}");
+    assert!(refused["plan"].is_null());
+    assert_eq!(refused["diagnostics"][0]["code"],"CASE_CONTENTS_CONTEXT_MISSING");
+}
+
+#[test]
+fn unsupported_contents_seismic_never_carries_as_info_under_entity_key_collision() {
+    let mut original = model();
+    original["load_cases"][0]["id"] = json!("SUS");
+    original["load_cases"][0]["condition_use"]["contents_density"] = json!("SUS");
+    original["condition_sets"][0]["conditions"][0]["key"] = json!("SUS");
+    original["load_cases"][0]["equivalent_static"] = json!({"seismic":{
+        "gravity_acceleration":q(9.80665,"m/s^2"),"g_factor_y":q(0.1,"1")}});
+    let draft = json!({"object_type":"Load","target_ref":"case:other","operation_kind":"create","change_kind":"create_load_case",
+        "field_label":"Create another contents case","field_path":"load_cases","before":"not_present",
+        "after":canonical_json(&json!({"id":"case:other","label":"Other","kind":"primitive_user_load","status":"draft",
+            "provenance":PROV,"primitive_loads":[],"condition_use":{"contents_density":"SUS"}})),
+        "unit":"none","dimension":"dimensionless","source_note":PROV});
+    let outcome = apply_operation(&original,&operation(&draft,"never-carried"),Some(&claim(&original)));
+    assert!(outcome.applied_model.is_none(),"{:?}",outcome.diagnostics);
+    assert!(outcome.diagnostics.iter().any(|d| d.code == "LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED" && d.severity == "blocking"));
+    assert!(!outcome.diagnostics.iter().any(|d| d.code == "LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED" && d.severity == "info"));
+}
+
+#[test]
+fn a_legacy_target_can_adopt_its_own_contents_selection_without_fabricating_an_origin() {
+    let mut original = model();
+    original["load_cases"] = json!([]);
+    let mut wire = request(&original,Value::Null);
+    wire.as_object_mut().unwrap().remove("contents_source_case_ref");
+    let generated = transport(&original,&wire);
+    let legacy = apply_batch(&original,&batch(&generated,"legacy-before-contents"));
+    let selected = step(&legacy,"modify","set_load_case_condition_use","Load","case:weight","condition_use",
+        "not_present",&canonical_json(&json!({"contents_density":"HYDRO"})));
+    let plan = refresh(&selected);
+    assert_eq!(plan["status"],"ready","{plan}");
+    let adopted = reopen(&apply_batch(&selected,&batch(&plan,"legacy-adopts-contents")));
+    let record: Value = serde_json::from_str(case(&adopted,"case:weight")["primitive_loads"][0]["provenance"].as_str().unwrap()).unwrap();
+    assert_eq!(record["contents_source"]["origin_case"],"case:weight");
+    assert_eq!(record["contents_source"]["selected_by_case"],"case:weight");
+    assert_eq!(refresh(&adopted)["diagnostics"][0]["code"],"SELF-WEIGHT-REFRESH-NOT-NEEDED");
+}

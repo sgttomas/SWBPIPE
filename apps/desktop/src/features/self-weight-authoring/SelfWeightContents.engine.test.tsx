@@ -21,7 +21,7 @@ import { previewOperatingConditions } from "../../services/operatingConditionPre
 import { chooseVirtualMultiTarget } from "../../test-support/workspaceTestControls";
 import { corpusBase } from "../../test-support/conditionSetCorpus";
 import { ConditionUseControl } from "../condition-sets/ConditionUseControl";
-import { SelfWeightPlanPanel } from "./SelfWeightPlanPanel";
+import { SelfWeightPlanPanel, selfWeightPlanBatch } from "./SelfWeightPlanPanel";
 
 beforeAll(async () => { await loadWasmEngine(); });
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
@@ -174,6 +174,64 @@ describe("explicit contents from a source case, through the actual engines (RT-A
     expect(JSON.parse(refreshed.provenance as string).contents_source).toMatchObject({ origin_case: SOURCE, condition_key: "ALT", selected_by_case: TARGET });
     await refreshOutcome(model);
     expect(await screen.findByRole("alert")).toHaveTextContent("SELF-WEIGHT-REFRESH-NOT-NEEDED");
+  });
+
+  it("rejects managed contents-history forgery through the actual Wasm applier", async () => {
+    const original = base();
+    const source = await applyIntent(original, await chooseContents(original, SOURCE, "HYDRO"));
+    const sourceHash = (await computeModelHash(source))!;
+    const generated = await generateSelfWeightPlan(source, {
+      case_id: TARGET, label: "History boundary", pipe_refs: ["P1"],
+      gravity: { value: -9.80665, unit: "m/s^2", axis: "global_y" },
+      provenance: "Invented history regression", source_model_hash: sourceHash.value, contents_source_case_ref: SOURCE
+    });
+    expect(generated.status).toBe("ready");
+    const model = await applyBatch(source, selfWeightPlanBatch(generated.plan!, sourceHash.value));
+    const hash = (await computeModelHash(model))!;
+    const before = await canonicalJsonString(caseOf(model, TARGET).primitive_loads!);
+    for (const attack of ["origin", "selector", "both", "superseded-shape", "superseded-value", "superseded-extra"]) {
+      const values = JSON.parse(before);
+      const record = JSON.parse(values[0].provenance);
+      record.source_model_hash = hash.value;
+      record.contents_source.selected_by_case = TARGET;
+      if (attack === "origin") record.contents_source.origin_case = "fabricated:origin";
+      if (attack === "selector") record.contents_source.selected_by_case = "fabricated:selector";
+      if (attack === "both") {
+        record.contents_source.origin_case = "fabricated:origin";
+        record.contents_source.selected_by_case = "fabricated:origin";
+      }
+      if (attack === "superseded-shape") record.contents_source.section_contents_density_superseded = { garbage: true };
+      if (attack === "superseded-value") record.contents_source.section_contents_density_superseded = { value: 99, unit: "kg/m^3" };
+      if (attack === "superseded-extra") record.contents_source.section_contents_density_superseded = { value: 0, unit: "kg/m^3", extra: true };
+      values[0].provenance = JSON.stringify(record);
+      const malicious = selfWeightPlanBatch({ source_model_hash: hash.value, scope_label: "selected_pipe_mass_only", source_evidence: [], changes: [{
+        object_type: "Load", target_ref: TARGET, operation_kind: "modify", change_kind: "update_load", field_label: "Managed history probe",
+        field_path: "generated_self_weight", before, after: await canonicalJsonString(values), unit: "none", dimension: "dimensionless", source_note: "Invented adversarial probe"
+      }] }, hash.value);
+      const outcome = await applyOperationBatch(model, malicious, hash);
+      expect(outcome.validation.application_status, attack).not.toBe("applied_to_session_model");
+      expect(outcome.applied_model, attack).toBeNull();
+      expect(outcome.diagnostics.some((d) => d.code === "OP-RICH-PAYLOAD-INVALID"), attack).toBe(true);
+      expect(await canonicalJsonString(caseOf(model, TARGET).primitive_loads!), attack).toBe(before);
+    }
+  });
+
+  it("keeps contents/seismic blocking even when its condition key is an existing entity id", async () => {
+    const model = base();
+    model.condition_sets![0].conditions!.push({ key: SOURCE, contents_density: { value: 1000, unit: "kg/m^3" } });
+    const source = caseOf(model, SOURCE);
+    source.condition_use = { contents_density: SOURCE };
+    source.equivalent_static = { seismic: { g_factor_y: { value: 0.1, unit: "1" }, gravity_acceleration: { value: 9.80665, unit: "m/s^2" } } };
+    const hash = (await computeModelHash(model))!;
+    const generated = await generateSelfWeightPlan(model, { case_id: TARGET, label: "Blocked seismic source", pipe_refs: ["P1"],
+      gravity: { value: -9.80665, unit: "m/s^2", axis: "global_y" }, provenance: "Invented identity-collision regression",
+      source_model_hash: hash.value, contents_source_case_ref: SOURCE });
+    expect(generated.status).toBe("ready");
+    const outcome = await applyOperationBatch(model, selfWeightPlanBatch(generated.plan!, hash.value), hash);
+    expect(outcome.validation.application_status).not.toBe("applied_to_session_model");
+    expect(outcome.applied_model).toBeNull();
+    expect(outcome.diagnostics.some((d) => d.code === "LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED" && d.severity === "blocking")).toBe(true);
+    expect(outcome.diagnostics.some((d) => d.code === "LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED" && d.severity === "info")).toBe(false);
   });
 
   it("refuses an unresolvable or malformed source by name and never falls back to section density", async () => {

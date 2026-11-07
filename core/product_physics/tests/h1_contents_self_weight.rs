@@ -536,3 +536,23 @@ fn a_contents_notice_does_not_discard_the_pf_temperature_plan() {
     assert_eq!(records[0]["category"], "thermal");
     assert_eq!(records[0]["magnitude"], q(20.0, "K"));
 }
+
+#[test]
+fn malformed_or_inconsistent_retained_contents_evidence_is_invalid() {
+    let original = adopted(false);
+    for attack in ["selector","superseded-shape","superseded-extra","superseded-unit","unknown-source-field"] {
+        let mut model = original.clone();
+        let index = model["load_cases"].as_array().unwrap().iter().position(|case| case["id"] == TARGET).unwrap();
+        let mut evidence = record(&model,TARGET);
+        match attack {
+            "selector" => evidence["contents_source"]["selected_by_case"] = json!("fabricated:selector"),
+            "superseded-shape" => evidence["contents_source"]["section_contents_density_superseded"] = json!({"garbage":true}),
+            "superseded-extra" => evidence["contents_source"]["section_contents_density_superseded"] = json!({"value":0,"unit":"kg/m^3","extra":true}),
+            "superseded-unit" => evidence["contents_source"]["section_contents_density_superseded"] = q(1.0,"m"),
+            "unknown-source-field" => evidence["contents_source"]["extra"] = json!(true),
+            _ => unreachable!(),
+        }
+        model["load_cases"][index]["primitive_loads"][0]["provenance"] = json!(evidence.to_string());
+        assert_eq!(target_state(&model),AppliedSelfWeightState::Invalid,"{attack}");
+    }
+}
