@@ -617,6 +617,8 @@ if _snapshot and _w16_model.inspect(_snapshot):
     add("Imposed-motion validation findings backing (W16-VF)", "BuildScratch", _w16_model.validation_findings(LL))
     # W-16 stage 2 D3 (§8.29): case_spring_ground's base vectors over the case's s springs (W16S-SG).
     add("Imposed-motion spring base vectors (W16S-SG)", "CasePrefix", _w16_model.spring_ground(sp))
+    # RT-A3 S6 D3 (§8.59): the loop's consumed motion, built per case as the capture's argument (S6-ME).
+    add("Case motion evidence spring bases (S6-ME)", "CasePrefix", _w16_model.case_motion(sp))
 # Closed formed guard construction pays the native row headers, both source
 # lists, maps, fired backing/moving storage and six independently cloned items.
 if _wide:

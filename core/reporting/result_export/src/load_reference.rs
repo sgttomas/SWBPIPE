@@ -49,7 +49,7 @@ pub const EIGENLOAD: &str =
     "axial E_member*A_s*total_eigenstrain assembled once and removed once in recovery";
 /// Frozen `schemas/load_reference_state.schema.json` (relayed by the manager).
 pub const TRANSPORT_SCHEMA_SHA256: &str =
-    "5415d8f6d8856dba3470ab46423ba54d253e14a49680031d877a333b6d5d00a0";
+    "b95947ea4b62406ea050ba46e8b7d32d3fe8cc9d4f4892f53ab0c9f6df1189b9";
 const TRANSPORT_SCHEMA_BYTES: &str =
     include_str!("../../../../schemas/load_reference_state.schema.json");
 

@@ -22,7 +22,7 @@ from pathlib import Path
 from collections.abc import Mapping
 from typing import Any
 
-TRANSPORT_SCHEMA_SHA256 = "5415d8f6d8856dba3470ab46423ba54d253e14a49680031d877a333b6d5d00a0"
+TRANSPORT_SCHEMA_SHA256 = "b95947ea4b62406ea050ba46e8b7d32d3fe8cc9d4f4892f53ab0c9f6df1189b9"
 TRANSPORT_SCHEMA_PATH = Path(__file__).resolve().parents[2] / "schemas" / "load_reference_state.schema.json"
 
 RECORD_CONTRACT = "openpipestress.load_reference_state/1.0.0"

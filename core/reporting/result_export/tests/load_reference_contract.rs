@@ -290,22 +290,24 @@ fn current_inputs_table_and_schema_are_pinned() {
     // RT-A3 increment 3: limitation[0] and the D-2 load/reference-state support sentence only (the constant-effort preservation test).
     // RT-A3 increment 3 review repair: again for the support-attribution limitation (S7) only (the same test).
     // RT-A3 increment 4: limitation[0] and S7 (nonlinear supports) only (test_rt_a3_nonlinear_text_only_envelope_diff).
+    // RT-A3 S6: limitation[0] (S1), the load-state motion limitation (S13) and the history limitation (S15) only
+    // (each raw equals main's bytes with those texts substituted; the S6 text-only guard).
     for (name, digest) in [
         (
             "connected-sparse",
-            "c5ed19df5d6c4154fc35af3ec8a0239b0ccc19ce532bcfc011aea8e41a24b190",
+            "1014ba184a4824d619a82188b63f17746aa0e007b12cb3b2f9f0b4d209d313a3",
         ),
         (
             "connected-dense",
-            "f1a6739866277d3d4e351fea296a704a43e230ae442a33729b2c1b98f637a922",
+            "ebf85793e4ccd51753ae3c65e4c4c34c854fca18e50bf52f3ac82dffb68852f5",
         ),
         (
             "pressure-sparse",
-            "272c54648fb2822b739631b123cc89c95546acd65e1946c9a8a53e6956ebb3ce",
+            "643e1d24013996e1a8b7e8a59a360803c20636cea5e1e2311c95c9b902f5c829",
         ),
         (
             "pressure-dense",
-            "982340d24f92ca8c87de68de6894c8c5215af312a5863e4c07df13f741db0a33",
+            "4beff985b4a7121586c69b0f826af516f0cbd0fc139c36137bdb848ee3116213",
         ),
     ] {
         assert_eq!(sha(source_text(name).as_bytes()), digest, "{name}");
@@ -324,7 +326,7 @@ fn current_inputs_table_and_schema_are_pinned() {
     // B7b A5: load_reference_state.schema.json lost its v2 definitions.
     assert_eq!(
         lr::TRANSPORT_SCHEMA_SHA256,
-        "5415d8f6d8856dba3470ab46423ba54d253e14a49680031d877a333b6d5d00a0"
+        "b95947ea4b62406ea050ba46e8b7d32d3fe8cc9d4f4892f53ab0c9f6df1189b9"
     );
     assert_eq!(
         sha(include_bytes!("../../../../schemas/load_reference_state.schema.json")),
