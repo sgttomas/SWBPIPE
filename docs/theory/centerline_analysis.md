@@ -189,6 +189,27 @@ checks of `validation/references/rt_g5_s2_conditions/` (restrained and free
 thermal expansion, cantilevers under added weight and wind from conditions)
 verify the connected resolution against hand formulas.
 
+## Hydrostatic Test Reference And Device Replacement (Design)
+
+The hydrotest contract in DEL-05-01 Work `hydrostatic-test.md` is a design, not
+current solver admission. Its reference is the authored model geometry: a held
+device has zero global displacement or rotation from that geometry, even when
+the node's plant coordinates are nonzero. No preceding solved state or spring
+load metadata supplies another datum. Holding replaces the device, suppressing
+both spring stiffness and force/preload action, and recovers the replacement
+reaction under the original support identity. At a prescribed zero a lingering
+spring term may be numerically invisible, so source/plan and ledger checks are
+needed alongside independent active/held numerical comparisons.
+
+Contents are one per-case mass source shared with self-weight and eventual
+modal mass. The authoritative authored case/condition context must survive
+creation of another target case and inspection under a scratch case name; the
+name of that temporary target does not choose a fluid density. No-use inputs
+retain their section-density mechanics and dependency bytes. Test pressure is
+explicit user input. No code-derived test factor, acceptance tolerance or code
+compliance follows from a marked test result. The full saved/reopened workflow
+and shared hydrotest/static-seismic ledger remain implementation prerequisites.
+
 ## What The Global Model Does Not Decide
 
 The global model is not a private rule library, a standards database, a
