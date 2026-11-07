@@ -1765,6 +1765,21 @@ Built on `claude/rt-dynamics-p0` from main `17aa9a1f9`, under Agent 0's approval
   - **T5** (S2). `T5.census` = 16n̄_c linear-pass steps, and `T5.outcome` = n̄_c·p̄ + 2n̄_c² + n̄_c for the outcome's band flags and cluster ranges.
   - **T6** (S2). `T6.visits` = n̄_r(n² + 3n), plus `T6.limbs`.
   - **T7** (S2). `T7.elements` = E, plus `T7.limbs`.
+    The support-operation repair makes the complete limb multiplicity explicit:
+    `ReformedPencil::new_on_coordinates` assembles each matrix for its range check,
+    and `formation_difference` assembles it again. The first reads each assembled
+    sum once; the second reads it for matching/off-pattern data and for the
+    re-formed norm. Thus the insertion bound is
+    2Q(D_K + D_M) + n(n + 1) + L̄·μ(D_K + D_M), and the read bound is
+    3μ(D_K + D_M) + n(n + 1). The weights per insertion/read remain
+    5L̄ + 16 and 12L̄ + 32 limb operations. These are upper counts, not runtime
+    measurements or adopted resource weights. The three assembly traversals
+    replay already re-formed entries; they do not repeat element re-formation,
+    so `T7.elements` remains E. Test-only observations of the actual constructor
+    and difference path verify the two assemblies per matrix, the range/matching/
+    norm reads, and an early limb refusal; a separate hand count checks the
+    connected P0 charge. Capacity lifetimes remain stated in each support helper;
+    the whole-invocation memory ledger is still open.
   - **T8** (S2b). `T8.insertions` = n̄_c·μ(D_K + 2D_M); `T8.generalized_mass` = n̄_c·n·L̄; `T8.rows` = n̄_c(2n + 1); plus `T8.limbs`.
   - **T9** (S2). `T9.factorization` = s(n(n − 1)(n − 2)/6 + n²) LDLᵀ steps; `T9.passes` = s(29P + 98n + 70), covering the formed list, the profile, the observations and ≤ 11 ordered solves; `T9.neighbours` = 2(P + 3n); plus `T9.limbs`.
   - **T10** (S2b). `T10.products` = n̄_r·μ·D_M; `T10.bilinear` = n̄_r(n̄_r + 1)/2·n·L̄; plus `T10.limbs`.
@@ -1788,6 +1803,18 @@ Built on `claude/rt-dynamics-p0` from main `17aa9a1f9`, under Agent 0's approval
 - **Not charged:**
   - T11, the projection. It runs after `run_modal_dense`, and its count needs B_doc.
   - Work outside the cost table: K's formation, the mass assembly, the pencil's n² fill, and the per-mode O(n_g) publication.
+  - Two specifically identified pre-existing std-set operations also remain
+    outside the table: `ModalBasis::new` inserts each free DOF into a `BTreeSet`
+    to reject duplicates (at most n_f insert attempts and n_f retained keys);
+    P0's dimension calculation collects valid restrained DOFs into a `BTreeSet`
+    (r insert attempts and at most r keys, r the supplied restrained-list length,
+    on the non-skew path; none on the skew path). For prepared product boundaries,
+    `add_restrained_dof` rejects repeats and only valid global DOFs reach P0,
+    so r ≤ n_g. Their comparison/node/capacity constants are not charged by
+    `T6.visits` (which charges per reported mode's mass/dot products), nor by
+    `T5.census` or any self-charge for P0. This is a source classification of
+    existing whole-invocation gaps, not an additional admitted cap, release
+    limitation or implemented T6/P0 extension. The algorithms remain unchanged.
 - **Open items:**
   1. Bound the unbounded terms: T2's and T1's integrity passes and T1's confirmation counter (held NI seam). The support terms of T3, T7 and T9 are bounded (2026-11-07) and await independent numerical and resource review. `ModalBasis::new`'s duplicate-DOF check is a std `BTreeSet`, work outside the cost table and uncharged.
   2. The memory ledger is not checked. The option-(c) ledger's rows still carry O(·) terms and approximate constants. #110's reuse (`modal_eigen::workspace`) retains each stage's capacity until its owner (`ReformedPencil`, `ModalBasis`) drops, so a ledger must count it as live over that span.

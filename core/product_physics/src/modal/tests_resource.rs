@@ -163,7 +163,7 @@ fn formulas(d: &ModalResourceDimensions) -> [Option<u128>; MODAL_RESOURCE_TERM_C
     x[T::T7Elements as usize] = Some(d.element_operands);
     x[T::T7Assembly as usize] = Some(assembly_steps(n, dk, dm, d.assembly_visits_per_square, d.assembly_steps_per_square, l));
     let entries = dk + dm;
-    x[T::T7Limbs as usize] = Some(part * (8 * mu * entries + n * (n + 1) + l * mu * entries) + read * (2 * mu * entries + n * (n + 1)));
+    x[T::T7Limbs as usize] = Some(part * (16 * mu * entries + n * (n + 1) + l * mu * entries) + read * (3 * mu * entries + n * (n + 1)));
     x[T::T8Insertions as usize] = Some(c * mu * (dk + 2 * dm));
     x[T::T8GeneralizedMass as usize] = Some(c * n * l);
     x[T::T8Rows as usize] = Some(c * (2 * n + 1));
@@ -781,4 +781,24 @@ fn the_support_terms_cover_the_actual_sizes_and_keep_the_order_on_every_populati
         let construction = modal_resource_construction_steps(wide(n), wide(k.len() + m.len()), wide(before)).unwrap();
         assert!(construction <= charged[ModalResourceTerm::T9Construction as usize].unwrap(), "{name}");
     }
+}
+
+/// Hand count of the complete T7 consumers at n=1 with D_K=D_M=1,
+/// no mixed coordinates and Lbar=492. Each matrix is assembled for its
+/// constructor range check AND its formation difference. The two phases
+/// together read each re-formed sum three times, then each formed sum once.
+#[test]
+fn t7_limb_charge_includes_both_assembly_passes_and_all_three_reads() {
+    let mut dims = bounds(sec_a(1), &unit_budget(0, 0));
+    dims.free = 1;
+    dims.stiffness_squares = 1;
+    dims.mass_squares = 1;
+    dims.coordinate_multiplier = 1;
+    // Add: 2 assemblies * 8 parts * 2 element squares + 2 formed values
+    // + 492 difference terms * 2 positions = 1018 parts at 2476 moves.
+    // Read: 3 * 2 re-formed positions + 2 formed positions = 8 at 5936.
+    let count = modal_resource_term_counts(&dims).unwrap()[ModalResourceTerm::T7Limbs as usize].unwrap();
+    assert_eq!(count, 2_568_056);
+    let old_single_assembly_charge = 2_516_568u128;
+    assert_eq!(count - old_single_assembly_charge, 51_488);
 }

@@ -300,8 +300,19 @@
 //!   73P + 70n + 28. The operation figures above are literal counts under
 //!   the step convention, rounded up to whole steps with a margin; they
 //!   are a numerical-resource claim for independent review.
-//!   `T7.limbs` = (5L̄+16)·(Q(D_K + D_M) + n(n + 1) + L̄·μ(D_K + D_M)) plus
-//!   (12L̄+32)·(2μ(D_K + D_M) + n(n + 1)).
+//!   `T7.limbs` follows those same consumers, not a single assembly:
+//!   - `new_on_coordinates` assembles each matrix and reads each sum once
+//!     for its range check;
+//!   - `formation_difference` assembles each matrix again, reads each sum
+//!     once for matching/absent entries and once for its re-formed norm;
+//!   - every formed entry receives its value and is read for the difference
+//!     norm; matching sums contribute at most L̄ parts each.
+//!   Thus the insertions are bounded by 2Q(D_K + D_M) + n(n + 1) +
+//!   L̄·μ(D_K + D_M), and reads by 3μ(D_K + D_M) + n(n + 1).
+//!   Each insertion costs at most 5L̄+16 limb operations and each read
+//!   12L̄+32. Element re-formation itself is still once per operand:
+//!   the assembly traversals reuse already formed entries, so `T7.elements`
+//!   does not acquire a second element-reformation charge.
 //! - T8, residuals of every computed pair (S2b): `T8.insertions` =
 //!   n̄_c·μ(D_K + 2D_M) calls (K̂x, λM̂x, exact M̂x); `T8.generalized_mass` =
 //!   n̄_c·n·L̄ calls; `T8.rows` = n̄_c(2n + 1) WideDd row steps; `T8.limbs` =
@@ -940,10 +951,10 @@ pub(crate) fn modal_resource_term_counts(
     let formed = p(&[n, n + 1], "n(n + 1)")?;
     let reformed_positions = p(&[mu, element_entries], "μ(D_K + D_M)")?;
     let assembly_parts = t(
-        &[p(&[q8, element_entries], "Q(D_K + D_M)")?, formed, p(&[l, reformed_positions], "L·μ(D_K + D_M)")?],
+        &[p(&[2, q8, element_entries], "2Q(D_K + D_M)")?, formed, p(&[l, reformed_positions], "L·μ(D_K + D_M)")?],
         "T7.limbs",
     )?;
-    let assembly_reads = t(&[p(&[2, reformed_positions], "2μ(D_K + D_M)")?, formed], "T7.limbs")?;
+    let assembly_reads = t(&[p(&[3, reformed_positions], "3μ(D_K + D_M)")?, formed], "T7.limbs")?;
     set(T::T7Limbs, t(&[p(&[part, assembly_parts], "T7.limbs")?, p(&[read, assembly_reads], "T7.limbs")?], "T7.limbs")?);
     set(T::T8Insertions, p(&[c, mu, pair_entries], "T8.insertions")?);
     set(T::T8GeneralizedMass, p(&[c, n, l], "T8.generalized_mass")?);

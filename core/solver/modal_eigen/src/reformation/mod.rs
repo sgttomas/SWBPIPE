@@ -57,6 +57,23 @@ use crate::dd::{max_propagating_nan, Dd, WideDd};
 use crate::exact::{ExactSum, LimbAllotmentExceeded, Term};
 use crate::support::stable_counting_order;
 use crate::workspace::{reset_rows, ProductWorkspace, Retained};
+
+// Optional test-only observation of the actual T7 call/read multiplicities:
+// assemblies, constructor range reads, matching reads, re-formed norm reads,
+// and formed-difference reads. No instrumentation enters a product build.
+#[cfg(test)]
+std::thread_local! {
+    static T7_PASSES: std::cell::Cell<Option<[usize; 5]>> = const { std::cell::Cell::new(None) };
+}
+#[cfg(test)]
+fn t7_pass(kind: usize) {
+    T7_PASSES.with(|cell| {
+        if let Some(mut counts) = cell.get() {
+            counts[kind] += 1;
+            cell.set(Some(counts));
+        }
+    });
+}
 use mass::{
     arc_lumps, component_mass, straight_mass, ComponentBody, ComponentRangeOperand, GeometryError,
 };
@@ -700,6 +717,8 @@ impl ReformedPencil {
             // 5 support steps a position: `to_dd` (at most five scaling
             // iterations each way at the level-1 span) and `check_entry`.
             for &((row, col), ref sum) in &assembled {
+                #[cfg(test)]
+                t7_pass(1);
                 let value = sum.to_wide_with(&mut scratch).to_dd();
                 if let Err(range) = check_entry(matrix, row, col, value.to_f64()) {
                     let element = list
@@ -869,6 +888,8 @@ impl ReformedPencil {
         dimension: usize,
         limb_allotment: Option<usize>,
     ) -> Result<Vec<((usize, usize), ExactSum)>, (usize, LimbAllotmentExceeded)> {
+        #[cfg(test)]
+        t7_pass(0);
         let unreachable = |never: std::convert::Infallible| match never {};
         let mut visits = 0usize;
         for_each_position(list, |_, _, _| {
@@ -1188,6 +1209,8 @@ fn difference(
     let mut off_pattern: Vec<((usize, usize), WideDd)> = Vec::with_capacity(absent);
     cursor = 0;
     for (key, sum) in reformed {
+        #[cfg(test)]
+        t7_pass(2);
         while cursor < formed.len() && formed[cursor].0 < *key {
             cursor += 1;
         }
@@ -1212,7 +1235,11 @@ fn difference(
     let deltas = formed
         .iter()
         .zip(&accumulators)
-        .map(|(&(key, _), sum)| (key, sum.to_wide_with(&mut scratch)))
+        .map(|(&(key, _), sum)| {
+            #[cfg(test)]
+            t7_pass(4);
+            (key, sum.to_wide_with(&mut scratch))
+        })
         .chain(off_pattern.iter().copied());
     let (norm, row) = scaled_norm(n, d, deltas, names[0])?;
     let (reformed_norm, _) = scaled_norm(
@@ -1220,7 +1247,11 @@ fn difference(
         d,
         reformed
             .iter()
-            .map(|(k, sum)| (*k, sum.to_wide_with(&mut scratch))),
+            .map(|(k, sum)| {
+                #[cfg(test)]
+                t7_pass(3);
+                (*k, sum.to_wide_with(&mut scratch))
+            }),
         names[1],
     )?;
     Ok((
@@ -1538,6 +1569,33 @@ mod tests {
             &elements,
             limb_allotment,
         )
+    }
+
+    #[test]
+    fn t7_complete_path_replays_both_matrices_twice_and_keeps_every_read() {
+        T7_PASSES.with(|cell| assert_eq!(cell.replace(Some([0; 5])), None));
+        let pencil = small_pencil(None).unwrap();
+        let first = T7_PASSES.with(|cell| cell.replace(None).unwrap());
+        // Obtain the independent input lists outside the observed pipeline;
+        // doing this is additional work, not hidden in the T7 observations.
+        let k = pencil.assembled_stiffness();
+        let m = pencil.assembled_mass();
+        let positions = k.len() + m.len();
+        assert_eq!(first, [2, positions, 0, 0, 0]);
+        let formed = |entries: Vec<((usize, usize), Dd)>| entries.into_iter()
+            .map(|((row, col), value)| SymmetricMatrixEntry { row, col, value: value.to_f64() })
+            .collect::<Vec<_>>();
+        let (k, m) = (formed(k), formed(m));
+        T7_PASSES.with(|cell| cell.set(Some([0; 5])));
+        formation_difference(&pencil, &k, &m).unwrap();
+        let second = T7_PASSES.with(|cell| cell.replace(None).unwrap());
+        assert_eq!(second, [2, 0, positions, positions, k.len() + m.len()]);
+        // A first failed insertion skips the rest. The same full-path bounds
+        // cover this refusal; no success-only multiplicity is assumed.
+        T7_PASSES.with(|cell| cell.set(Some([0; 5])));
+        assert!(small_pencil(Some(0)).is_err());
+        let refused = T7_PASSES.with(|cell| cell.replace(None).unwrap());
+        assert_eq!(refused, [1, 0, 0, 0, 0]);
     }
 
     /// R-6/R-7 D-1 (a): the coordinate re-formation. No mixed DOF is today's pencil
