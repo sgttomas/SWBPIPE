@@ -4,10 +4,10 @@ External contribution intake remains closed until the owner activates it with
 the required contributor/legal arrangements. The project license is MIT;
 maintainer acceptance is not professional engineering approval.
 
-For authorized development, start with Root `AGENTS.md` and
-[LOOP_INIT](../../loop/LOOP_INIT.md). Read the relevant deliverable’s
-ScopeOfWork, Design and dependency conditions; use the Root deliverable CLI
-to find connected work. No sealed brief, lifecycle transition or handoff packet
+For authorized development, start with the repository's
+[`AGENTS.md`](../../AGENTS.md) and [LOOP_INIT](../../loop/LOOP_INIT.md). Read
+the relevant deliverable’s ScopeOfWork, Design and dependency conditions; use
+the deliverable CLI (`python3 -m tools.deliverables`) to find connected work. No sealed brief, lifecycle transition or handoff packet
 is required. The PR states what changed, why, checks and open decisions.
 
 ## Data And Provenance Boundary
@@ -47,7 +47,7 @@ authority records it.
 ## Verification and decisions
 
 Run focused checks for the consequential behaviour being changed. The required
-Root `harness` result aggregates selected hosted checks; do not repeat full
+hosted `harness` result aggregates selected hosted checks; do not repeat full
 local suites just to produce another record. Release candidates receive their
 actual product checks and separate owner acceptance.
 

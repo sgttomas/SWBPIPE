@@ -177,8 +177,8 @@ certification, code-compliance, or professional-reliance claims (PRD §21.2).
   nonexistent (not `TBD`-numbered) until a later human ruling promotes
   observed baselines — at least five clean-head telemetry artifacts spanning
   at least two distinct commits per lane — tighten-only thereafter.
-- Development changes use the selected hosted checks aggregated by Root
-  `harness`; the DEC-025 blanket merge sweep is superseded. The local sweep
+- Development changes use the selected hosted checks aggregated by the hosted
+  `harness` result; the DEC-025 blanket merge sweep is superseded. The local sweep
   remains available for macOS release candidates whose authenticity record
   consumes it. DEC-027 retains the sole maintainer and release authority.
 - Ruled 2026-07-04: release matrix, installer format, signing, and
