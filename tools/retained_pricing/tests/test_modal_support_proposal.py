@@ -82,6 +82,26 @@ const NOTE: &str = "modal_support_resource_refusal";
     decisions(monkeypatch, snap)
 
 
+def test_a_glob_import_cannot_compensate_a_new_call_in_the_same_file(tmp_path, monkeypatch):
+    snap = snapshot(tmp_path)
+    file = snap / MODAL / "eigen.rs"
+    text = file.read_text()
+    old = "use super::resource::modal_support_resource_refusal;"
+    assert text.count(old) == 1
+    text = text.replace(old, "use super::resource::*;")
+    declaration = "pub(crate) fn modal_dense_options("
+    assert text.count(declaration) == 1
+    extra = '''fn extra(error: &open_pipe_stress_modal_eigen::SupportResourceError) {
+    let _ = super::resource::modal_support_resource_refusal(&"x".repeat(100), error);
+}
+
+'''
+    # One import identifier removed and one qualified call added; each pinned caller body is untouched.
+    file.write_text(text.replace(declaration, extra + declaration))
+    with pytest.raises(SystemExit, match="support refusal direct imports changed"):
+        decisions(monkeypatch, snap)
+
+
 @pytest.mark.parametrize("change", ["zero", "positive", "missing"])
 @pytest.mark.parametrize("index", [0, 1])
 def test_o10_rejects_a_positive_or_missing_production_site(tmp_path, monkeypatch, change, index):

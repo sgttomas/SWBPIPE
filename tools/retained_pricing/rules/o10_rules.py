@@ -4963,6 +4963,7 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
             if _modal_hashlib.sha256(_fn_text(_fn, _MODAL + _f).encode()).hexdigest() != _sha:
                 raise SystemExit(f"MODAL-ID: support refusal caller {_f}:{_fn} changed; re-review its stage binding")
         _support_mentions = {}
+        _support_imports = {}
         _rl = _production_lexer()
         for _d, _, _ns in _os.walk(_os.path.join(_SNAP, PP_)):
             for _n in _ns:
@@ -4976,8 +4977,15 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
                 _mentions = len(_re.findall(r"\bmodal_support_resource_refusal\b", _code))
                 if _mentions:
                     _support_mentions[_f] = _mentions
+                _imports = len(_re.findall(r"\buse\s+super\s*::\s*resource\s*::\s*modal_support_resource_refusal\s*;", _code))
+                if _imports:
+                    _support_imports[_f] = _imports
         if _support_mentions != {_MODAL + "eigen.rs": 3, _MODAL + "integrity.rs": 3, _RS: 1}:
             raise SystemExit("MODAL-ID: support refusal helper callers or imports changed; re-review its stage binding")
+        # Preserve the direct imports as well: replacing one by a glob could otherwise compensate a new call
+        # in that same file while leaving its identifier count unchanged.
+        if _support_imports != {_MODAL + "eigen.rs": 1, _MODAL + "integrity.rs": 1}:
+            raise SystemExit("MODAL-ID: support refusal direct imports changed; re-review its stage binding")
         _support_site = site("modal_support_resource_refusal", _RS, 'format!("{error}; {stage} is refused', full=True)
         O10_ID_AUDIT += [(_support_site, {
             "error": _md(8192, "the existing error_display bound (TEXT.md section 3); SupportResourceError's literal structure names and usize decimal fit it"),

@@ -6429,8 +6429,10 @@ This reach argument does not assert stack neutrality or allocator/RSS bounds for
   bound, for a total format bound of 8,331 B. The current support Displays are at most 110 B for allocation refusal
   and 109 B for capacity overflow (a structure name of at most 24 B and a usize decimal of at most 20 B). Its four
   stages are literal arguments: dense solve, Sturm construction, re-formed assembly and formation difference. Exact
-  body pins cover their three caller functions, and a lexer-based PP name-use inventory rejects additional callers,
-  imports or aliases before the bound applies; comments, literals and test items do not invent callers. The new
+  body pins cover their three caller functions, and a lexer-based PP name-use inventory, with their two direct
+  imports fixed, rejects additional callers, imports or aliases before the bound applies. Fixing the imports also
+  rejects a glob substitution compensating a new call in the same file while keeping its identifier count unchanged.
+  Comments, literals and test items do not invent callers. The new
   diagnostic row's existing 2,048 B class covers the actual message (at most 249 B). No new byte class is invented.
   The support format and moved Sturm format stay fully classed; separate `O10_MULT0_SITES` guards reject a positive
   multiplicity or missing row. They are not sized zero. The two older test Debug sites keep their J3 zero-size guards.
