@@ -6380,6 +6380,97 @@ DEL-04-09's ScopeOfWork also requires the witnesses on the head of each change t
 Run evidence (the runs, compares, block checks, builds, test logs), the AC-004 copies and runner, and the window record are in
 `/Users/ryan/dev/chirality-t3/scratch/rt-dynamics-p0-d3/`; they are review input, not a permanent dependency.
 
+### 8.59 DEL-04-09: bounded modal support operations (isolated registration proposal)
+
+**Status: private, unadopted proposal on main `394f4c623`.** This records the source-bound preparation for the
+repository-owned operations closing `T3.filters`, `T7.assembly` and `T9.construction`. It is not an accepted D3
+registration, a qualification-turn selection, a witness binding, or permission to merge. The accepted registration
+remains §8.58 until the selected candidate completes the remaining gates. No coefficient, threshold, resource value,
+numerical domain, public/native entry or admission criterion changes. The proposal preserves the across-family,
+approximately 3,000-DOF objective; the three other initial unbounded terms and the whole-invocation obligations stay
+open (DEL-04-09 §5.3.8). P0 continues to refuse every budgeted request.
+
+**Exact basis and reviewed source.** Main `394f4c62313679ccf24e67236d80371a0bf62af3` is included in the branch; a
+normal merge reports it already up to date. No unmerged S6/H1 source is assumed or imported. The implementation and
+capacity repair are `b1e2d1f97d9264ea80ac92cdae822aeeb73e3404`, core tree
+`d336acbf73a7ced993ded52c68c0f5ba85b232b3`. Independent numerical/resource scrutiny cleared the three support
+identities on that exact source, including the coupled T7 limb multiplicities and typed structural refusals. The
+pricing proposal and ordinary law build below are at `6e68d5868de039283c6dfda8ed5e701b742000d0`, with the same
+core tree. Later proposal documentation and CI metadata do not alter it. A different selected predecessor requires
+assessing the actual composition before these results can qualify the combined source; unselected lanes keep their
+named basis stable. The Library adoption #161 changes no product/core/pricing input on this basis.
+
+**Priced reach and ownership.** The changed production PP files are `modal/eigen.rs`, `modal/integrity.rs` and
+`modal/resource.rs`; `modal/tests_resource.rs` is test-only. `modal_eigen` is outside the priced crates. The graph
+gains seven functions (six resource helpers and `modal_sturm_pencil_refusal`) and loses none: 5,864 to 5,871 nodes,
+28,052 to 28,077 edges. Every added edge leaves a modal node; none enters a retained root. At every point,
+`reachable_fns` stays 4,779, every function multiplicity is equal, and all 1,912 positive text rows are byte-for-byte
+equal. The text inventory gains the support diagnostic's format and diagnostic rows, both at multiplicity zero; the
+Sturm construction-error format moves unchanged to its new helper (8,228 B, also zero). No retained heap owner,
+capacity, carrier or owner lifetime changes. The modal-only `ModalResourceDimensions` gains two u128 fields,
+`ModalAssemblySizes` is new, and kernel error enums gain the support-refusal variant; these are not retained owners.
+This reach argument does not assert stack neutrality or allocator/RSS bounds for modal admission.
+
+**Changed source warrants** (`rules/o10_rules.py`; proposed, not blind re-pins):
+
+- **MODAL-FB, `modal_sturm_count`.** Body SHA-256 `cbb35dc0…5233` becomes `330fda90…8f1a`. The changed call is
+  only the construction-error mapping to `modal_sturm_pencil_refusal`. The remaining `reported.max(1)` receiver is
+  still a usize from `completed.set.count`. Only certified_publication's private `FallbackError::max` candidate is
+  subtracted, exactly as before.
+- **MODAL-FB, `modal_resource_bound_dimensions`.** Body `d7e20683…d845` becomes `b05d4e74…f057`. The added
+  binding and fields select the assembly visit/traversal constants from `built.skew.is_some()`. The single `.min(`
+  remains `free.min(u128::from(budget.band_pair_allotment))`, on the same u128 `free`. The one private
+  `FallbackError::min` candidate, and no other target, remains subtracted. New support formulas add no `.min(` call.
+- **MODAL-ID, resource source.** Whole-file `9c5edf40…0fee` becomes `f85562f6…2c5c`. The 34 literal term ids
+  are unchanged. Five literal unbounded reasons become two, for the three still-unbounded identities; their maximum
+  remains 143 UTF-8 bytes. The overflow quantity bound remains 19 B, and all six existing resource argument audits
+  retain their byte bounds. This source pin still stops any edit for review.
+- **MODAL-ID, support refusal.** The new format uses the existing error-display bound (8,192 B) and a 31 B stage
+  bound, for a total format bound of 8,331 B. The current support Displays are at most 110 B for allocation refusal
+  and 109 B for capacity overflow (a structure name of at most 24 B and a usize decimal of at most 20 B). Its four
+  stages are literal arguments: dense solve, Sturm construction, re-formed assembly and formation difference. Exact
+  body pins cover their three caller functions, and a lexer-based PP name-use inventory rejects additional callers,
+  imports or aliases before the bound applies; comments, literals and test items do not invent callers. The new
+  diagnostic row's existing 2,048 B class covers the actual message (at most 249 B). No new byte class is invented.
+  The support format and moved Sturm format stay fully classed; separate `O10_MULT0_SITES` guards reject a positive
+  multiplicity or missing row. They are not sized zero. The two older test Debug sites keep their J3 zero-size guards.
+
+**Recalculation and native laws.** The committed predecessor tool's four-point run of `394f4c623` exits 0. The
+complete run of `6e68d5868` with its committed proposal tool also exits 0, O-10 0/0, all four points complete, zero
+unmapped headers and unclassified arguments. Every point tree is byte-identical to the predecessor's. The line map
+and premise pins match: 888 remaps, no unmapped key, 36 prunes and eight resolutions; no bound is silently dropped.
+The merged structure is equal, with 1,602 coefficients equal and none higher or lower. `generate --check` with
+§8.55's preserved basis matches 1,713 lines, and `point-atoms --check` matches 154 lines. Nothing is regenerated in
+the product sources; `REGISTERED_PROFILES`, `PINNED_RECORD`, all thirteen reviewed inputs, layouts and limits remain.
+
+The ordinary retained-law build ran with the maintained Cargo slot wrapper, jobs 2, its owned PP target, offline and
+locked, the four Rust flag variables unset: 85 tests passed, 71 ignored (including the witnesses). It prints the
+registered rustc 1.97.1 `8bab26f4f` / aarch64-apple-darwin / debug / opt-level 0 / unwind / empty-flags identity.
+`PINNED_RECORD` was checked, not skipped. It collects 359 unique profile/point atoms and 18 reader layouts. Native
+evaluation of the merged tree and four points covers 80 phase/mode identities under the existing 12 GiB threshold,
+floor(0.9 M) margin and upward-rounded 5% TEXT reserve; minimum remaining headroom is 2,478,298,797 B. No historical
+atom listing is claimed: §8.58's retained-suite log captured no atom output; the current pinned record and actual
+layout/carrier assertions supply this build's evidence.
+
+**Cohort and source checks.** The PP Rust-tree digest changes `ec163599…7c2c6b4c7da` to
+`db9ec337…f3908168ca5cc8`. The existing complete Rust scan in `retained_precision_carriers.rs` now also reads
+`modal_eigen/src/support.rs` (562 to 563 files). Only those two derived metadata hunks are proposed in
+`tools/hosted-ci-routing.json`; the scanner source, criteria and exclusions are unchanged. The full runtime-read
+graph revalidates with 1,787 resources. DEL-04-09 Work and Scope reconcile the independent support verdict;
+§5.3.9 and the H1 contents-state refusal/legacy inspection basis remain unchanged. The 25 focused pricing checks
+cover changed receiver/source pins, literal-stage binding, new callers/aliases and zero/positive/missing-site controls.
+Eight affected guard checks were rerun after correcting basename-relative O-10 guard keys; the earlier failure and
+its targeted repair evidence are retained. The complete committed-tool run above supersedes that initial failed run.
+Exact-head full-suite, cohort/CI and fresh changed-proof review results belong to the candidate's review/PR return.
+
+**Still required.** Fresh independent pricing/carrier and changed-governing-text scrutiny; Agent 0's selection and
+technical/resource relay; AC-004 on the selected actual predecessor, exact-head CI, and the mandatory publication
+interlocutor consultation before merge. No witness binary has been frozen, queued or invoked for this proposal.
+Coefficient identity does not transfer §8.58's 7/7: stack neutrality is not established, and the changed kernel and
+PP sources compile into the witnessed binaries. No old-predecessor evidence is represented as combined-source
+qualification. Review input is the source, committed tests, and the single named packet
+`/Users/ryan/dev/chirality-t3/scratch/rt-dynamics-support-ops/provisional-d3/`; scratch is not a permanent dependency.
+
 ## 9. Memory-profile gates and registration
 
 ### Gate bounds (registration)
@@ -6503,3 +6594,4 @@ Code, tools and other designs cite this text by these earlier section names and 
 | "RT-A5 minuend_final: the held-status solve", "§8.54" (RTA5-PIN, RTA5-DZ, RTA5-FZ, RTA5-BN, RTA5-PC, RTA5-SZ, RTA5-L, RTA5-ID) | §8.54 |
 | "DEL-04-09: the selected A1, A2 and A3 modal parameter instance", "§8.57" | §8.57 |
 | "DEL-04-09 O-4: the modal resource preflight P0 and the S1 wiring", "§8.58" (MODAL-FB and MODAL-ID's P0 rules) | §8.58 |
+| "DEL-04-09: bounded modal support operations" (isolated registration proposal) | §8.59 |
