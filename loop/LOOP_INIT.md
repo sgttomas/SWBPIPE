@@ -111,6 +111,10 @@ python3 tools/software_workflow/select_affected_checks.py software-workflow.json
 selection. The hosted `harness` result on the exact PR head is the merge check.
 Broad suites run for an identified need or release preparation.
 
+On the shared T3 development host, start local pytest inside the maintained
+`t3_slot.sh` wrapper: session setup can build Cargo CLIs even for Python-only
+test selections.
+
 Pytest builds the Cargo binaries it needs unless `OPENPIPESTRESS_NO_CARGO_BUILD=1`
 is set together with `OPENPIPESTRESS_RUNNER_BIN`, `OPENPIPESTRESS_UNITS_BIN`,
 `OPENPIPESTRESS_CHECKED_JSON_BIN`, `OPENPIPESTRESS_PREVIEW_RUNNER_BIN` and
