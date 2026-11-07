@@ -6434,7 +6434,7 @@ if fnkey("contents_use_findings", _H1_CT):
     ]
     # H1-NS (EDGE_ZERO, SITE_ZERO): inside the lineage closure that every admitted load skips (W15B-NS).
     _H1_NS = (O10 + "H1-NS: inside inspect_applied_self_weight's lineage closure, after the `continue` every admitted load "
-              "takes (W15B-NS: D1.10 no object provenance, D1.7 no deterministic element form or generated-namespace node load)")
+              "takes (the W-15 slice b lineage guard: D1.10 no object provenance, D1.7 no deterministic element form or generated-namespace node load)")
     O10_EDGE_ZERO += [(fnkey("inspect_applied_self_weight", _H1_SW), fnkey("of_case_in_place", _H1_CT), _H1_NS),
                       (fnkey("inspect_applied_self_weight", _H1_SW), fnkey("case_id", _H1_CT), _H1_NS)]
     O10_SITE_ZERO += [(site("inspect_applied_self_weight", _H1_SW, ".or_else(|| context.as_ref().map(|c| c.case_id().to_string()))"), _H1_NS)]
