@@ -75,7 +75,12 @@ def f64(x: float) -> Fr:
 # ---------------------------------------------------------------------------
 # Shared inputs: W-16's material and section leaves (declared, binary64)
 
-W16_REF = json.loads((W16 / "references.json").read_text())
+W16_ORACLE_BYTES = (W16 / "references.json").read_bytes()
+W16_HASHES = {name: digest for digest, name in
+              (line.split("  ", 1) for line in (W16 / "SHA256SUMS").read_text().splitlines())}
+if hashlib.sha256(W16_ORACLE_BYTES).hexdigest() != W16_HASHES.get("references.json"):
+    raise Fail("W16 references.json does not match its SHA256SUMS binding")
+W16_REF = json.loads(W16_ORACLE_BYTES)
 LEAF = W16_REF["normalized_section"]
 E = f64(W16_REF["elastic_modulus_pa"])            # 5*2^35 Pa
 G = f64(W16_REF["shear_modulus_pa"])              # 2^36 Pa
@@ -298,12 +303,12 @@ def ls_states(case):
 # W-16 request -> LS-1 load/reference-state twin
 
 def w16_request(name: str) -> tuple[dict, str]:
-    text = (W16 / "requests" / f"{name}.json").read_text()
-    digest = hashlib.sha256(text.encode()).hexdigest()
+    data = (W16 / "requests" / f"{name}.json").read_bytes()
+    digest = hashlib.sha256(data).hexdigest()
     sums = (W16 / "SHA256SUMS").read_text()
     check(f"W16 {name}: request bound by its SHA256SUMS", f"{digest}  requests/{name}.json" in sums)
     check(f"W16 {name}: request bound by its oracle", W16_REF["requests"][name]["request_sha256"] == digest)
-    return json.loads(text), digest
+    return json.loads(data), digest
 
 
 def acting(support: dict, dof: str) -> str:

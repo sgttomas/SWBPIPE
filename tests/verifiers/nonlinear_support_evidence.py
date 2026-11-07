@@ -308,7 +308,8 @@ def _read_case(source: Mapping, case: str) -> _Case:
         else:
             derived, n = s.normal
             if s.state == "sliding":
-                _require(s.displacement != 0.0 and s.reaction * s.displacement <= 0.0, "SLIP")
+                slip = s.relative if s.relative is not None else s.displacement
+                _require(slip != 0.0 and s.reaction * slip <= 0.0, "SLIP")
             if s.state == "inactive":
                 _require(n == 0.0 if derived else n <= 0.0, "FRICTION_NORMAL")
     integrity = [d for d in diagnostics if isinstance(_get(d, "code"), str) and _get(d, "code").startswith(INTEGRITY)

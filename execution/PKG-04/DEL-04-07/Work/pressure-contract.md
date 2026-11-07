@@ -1477,6 +1477,12 @@ Timoshenko twins. Executed strict dropped-motion controls distinguish each
 motion law; the three exact weak-boundary controls are recorded separately.
 All pre-existing reference responses and request bytes are preserved by the
 manager's generator cleanup; only an effective-area-drop check is appended.
+The W-16 oracle and request inputs are checked by their actual bytes against
+their frozen manifest before use. Moving-friction reader checks use bound
+relative slip, including when its sign differs from absolute displacement;
+producer and independent reader controls reject a force aligned with that
+relative slip. The consumer retains its stricter nonzero-relative/zero-family
+criterion; the packet wording does not relax it.
 
 Ordinary EX disclosure now states S6 uniformly, while selected retained-source
 scope remains separate. Mechanical no-nonlinear behavior is preserved;

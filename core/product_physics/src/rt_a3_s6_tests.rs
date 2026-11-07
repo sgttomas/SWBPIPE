@@ -350,6 +350,72 @@ fn the_reader_refuses_forged_or_missing_motion_evidence() {
     assert!(found.contains("NONLINEAR_RELATIVE_DISPLACEMENT"), "{found}");
 }
 
+/// A moving friction ground can make absolute displacement and relative slip
+/// have opposite signs. For this axial bar, k*u = 64 + 16, R = mu*N = 16 N,
+/// and u-g < 0 < u. The reader must judge the friction direction on u-g.
+#[test]
+fn moved_friction_reader_uses_relative_slip_in_both_modes() {
+    let (request, _) = bound("ls1_a1");
+    let mut wire = single_case(&request, "load:ACTIVE");
+    wire["model"]["supports"][1]["restraints"] = json!(["UY", "UZ"]);
+    wire["model"]["supports"][1]["nonlinear"] = json!({
+        "behavior": "friction", "dof": "UX", "initial_state": "sticking",
+        "friction_coefficient": {"value": 0.5, "unit": "1"},
+        "normal_reaction": {"value": 32.0, "unit": "N"}
+    });
+    let ground = 2.0_f64.powi(-10);
+    let case = &mut wire["model"]["load_cases"][0];
+    case["primitive_loads"] = json!([{
+        "id": "load:SLIP-F", "category": "concentrated_force", "dimension": "force",
+        "direction": "global_x", "target": {"type": "node", "node": "node:T"},
+        "magnitude": {"value": 64.0, "unit": "N"}, "provenance": "invented S6 moving-ground control"
+    }]);
+    case["analysis_state"]["load_sources"] = json!([{"source_ref": "load:SLIP-F", "factor": 1.0}]);
+    case["analysis_state"]["support_states"] = json!([
+        {"support_ref": "support:ANCHOR", "participation": {"kind": "active_model_device"}},
+        {"support_ref": "support:PROP", "participation": {"kind": "active_model_device"},
+         "boundary_motion": [{"dof": "UX", "value": {"value": ground, "unit": "m"},
+                              "meaning": "absolute_reference_displacement"}]}
+    ]);
+    let refs = references();
+    let stiffness = exact(&refs["inputs"]["elastic_modulus_pa"])
+        * exact(&refs["inputs"]["section_leaves"]["As_m2"]) / 4.0;
+    for mode in MODES {
+        let output = solve(&wire, mode);
+        assert_eq!(output.status.mechanics, "MECHANICS_SOLVED", "{mode:?}: {:?}", output.diagnostics);
+        assert_eq!(state_code(&output, "support:PROP"), 3.0);
+        let scalar = |kind: &str| output.results.iter().find(|r| r.kind == kind && r.entity_ref == "support:PROP").unwrap().value;
+        let u = scalar("nonlinear_support_final_displacement") / 1000.0;
+        let slip = scalar("nonlinear_support_final_relative_displacement") / 1000.0;
+        let reaction = scalar("nonlinear_support_final_reaction");
+        assert!(within(u, 80.0 / stiffness, 80.0 / stiffness));
+        assert!(within(slip, 80.0 / stiffness - ground, ground));
+        assert!(within(reaction, 16.0, 16.0));
+        assert!(u > 0.0 && slip < 0.0 && reaction * slip < 0.0 && reaction * u > 0.0);
+        let envelope = serde_json::to_value(&output).unwrap();
+        assert_eq!(reader(&envelope, &wire), None, "{mode:?}");
+        let mut forged = envelope.clone();
+        for row in forged["results"].as_array_mut().unwrap() {
+            if row["entity_ref"] == "support:PROP"
+                && (row["kind"] == "nonlinear_support_final_reaction"
+                    || (row["kind"] == "support_reaction_component_v2" && row["metadata"]["component"] == "Fx"))
+            {
+                row["value"] = json!(-16.0);
+            }
+        }
+        let refusal = reader(&forged, &wire).expect("force aligned with relative slip is refused");
+        assert!(refusal.contains("SOURCE_PHYSICS_NONLINEAR_SLIP"), "{refusal}");
+        let mut fixed_ground = wire.clone();
+        fixed_ground["model"]["load_cases"][0]["analysis_state"]["support_states"][1]
+            .as_object_mut().unwrap().remove("boundary_motion");
+        let fixed = solve(&fixed_ground, mode);
+        assert_eq!(fixed.status.mechanics, "MECHANICS_SOLVED");
+        let u0 = fixed.results.iter().find(|r| r.kind == "global_nodal_displacement_x" && r.entity_ref == "node:T").unwrap().value / 1000.0;
+        assert!(within(u0, 48.0 / stiffness, 48.0 / stiffness));
+        assert_eq!(reader(&serde_json::to_value(fixed).unwrap(), &fixed_ground), None);
+    }
+}
+
 /// One C-1 case in one mode.
 fn run_c1(name: &str, request: &Value, record: &Value, case: &str, mode: PreviewSolverMode) -> MechanicsEnvelope {
     let at = format!("{name} {case} {mode:?}");

@@ -392,7 +392,8 @@ fn read_case<'a>(source: &'a Value, case: &'a str) -> Result<Case<'a>, String> {
             Some((derived, n)) => {
                 // DEC-067 without inputs.
                 if s.state == "sliding" {
-                    require(s.displacement != 0.0 && s.reaction * s.displacement <= 0.0, "SLIP")?;
+                    let slip = s.relative.unwrap_or(s.displacement);
+                    require(slip != 0.0 && s.reaction * slip <= 0.0, "SLIP")?;
                 }
                 if s.state == "inactive" {
                     require(if derived { n == 0.0 } else { n <= 0.0 }, "FRICTION_NORMAL")?;

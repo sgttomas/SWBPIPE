@@ -79,10 +79,11 @@ D-5's sequence, which can differ from these leaves in the last place
 more than about 10⁻¹⁵ relative, far inside the criterion. Values are emitted as
 exact fractions with their correctly rounded binary64.
 
-**Criterion.** The adopted 1e-9·max(|expected|, family zero scale), where a
-case's family zero scale is the largest expected magnitude in its family
-(translations m, rotations rad, forces N, moments N·m). No tolerance was
-derived from an observed error.
+**Criterion.** The consumer requires 1e-9·|expected| for a nonzero value and
+1e-9 times the case's family zero scale for an exact zero. This is no looser
+than 1e-9·max(|expected|, family zero scale). The family scale is the largest
+expected magnitude in that family (translations m, rotations rad, forces N,
+moments N·m); no tolerance was derived from an observed error.
 
 ## Cases
 
