@@ -834,7 +834,7 @@
       ]
     },
     "SupportState": {
-      "description": "`analysis_state.support_states[]` item. boundary_motion, base_motion and device_reference are optional (JSON null is accepted as absence). base_motion and device_reference parse and then block. Coverage is a producer diagnostic.",
+      "description": "`analysis_state.support_states[]` item. boundary_motion, base_motion and device_reference are optional (JSON null is accepted as absence). base_motion is consumed on an active spring's stiffness axis (R-4 §3.7 S6) and blocks elsewhere; device_reference parses and then blocks. Coverage is a producer diagnostic.",
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -1415,7 +1415,7 @@
       }
     },
     "SupportComponent": {
-      "description": "One entered boundary_motion DOF; every other restrained DOF is an explicit zero boundary value. Translations publish m and rotations rad.",
+      "description": "One resolved motion DOF (R-4 §3.7 S6): boundary_motion on a DOF the support restrains rigidly (rigid_prescribed) or on an active nonlinear support's own DOF (nonlinear_ground), or base_motion on an active spring's stiffness axis (spring_base); every other restrained DOF is an explicit zero boundary value. Translations publish m and rotations rad.",
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -1453,7 +1453,11 @@
           "minimum": 0
         },
         "law_kind": {
-          "const": "rigid_prescribed"
+          "enum": [
+            "rigid_prescribed",
+            "nonlinear_ground",
+            "spring_base"
+          ]
         },
         "prescribed_value": {
           "type": "number"
@@ -1468,42 +1472,83 @@
           "const": "absolute_reference_displacement"
         },
         "physical_state_source": {
-          "const": "support_state.boundary_motion"
+          "enum": [
+            "support_state.boundary_motion",
+            "support_state.base_motion"
+          ]
         }
       },
-      "oneOf": [
+      "allOf": [
         {
-          "properties": {
-            "dof": {
-              "enum": [
-                "UX",
-                "UY",
-                "UZ"
-              ]
+          "oneOf": [
+            {
+              "properties": {
+                "dof": {
+                  "enum": [
+                    "UX",
+                    "UY",
+                    "UZ"
+                  ]
+                },
+                "unit": {
+                  "const": "m"
+                }
+              }
             },
-            "unit": {
-              "const": "m"
+            {
+              "properties": {
+                "dof": {
+                  "enum": [
+                    "RX",
+                    "RY",
+                    "RZ"
+                  ]
+                },
+                "unit": {
+                  "const": "rad"
+                }
+              }
             }
-          }
+          ]
         },
         {
-          "properties": {
-            "dof": {
-              "enum": [
-                "RX",
-                "RY",
-                "RZ"
-              ]
+          "oneOf": [
+            {
+              "properties": {
+                "law_kind": {
+                  "const": "rigid_prescribed"
+                },
+                "physical_state_source": {
+                  "const": "support_state.boundary_motion"
+                }
+              }
             },
-            "unit": {
-              "const": "rad"
+            {
+              "properties": {
+                "law_kind": {
+                  "const": "nonlinear_ground"
+                },
+                "physical_state_source": {
+                  "const": "support_state.boundary_motion"
+                }
+              }
+            },
+            {
+              "properties": {
+                "law_kind": {
+                  "const": "spring_base"
+                },
+                "physical_state_source": {
+                  "const": "support_state.base_motion"
+                }
+              }
             }
-          }
+          ]
         }
       ]
     },
     "Contribution": {
-      "description": "Complete physical-source ledger entry (tag `owner_kind`, fixed classification per owner). The support_state `value` and the pressure_region null `factor` are published by the producer but not listed in CP2_WIRE_ADDENDUM_1 section 3 (see RETURN.md).",
+      "description": "Complete physical-source ledger entry (tag `owner_kind`, fixed classification per owner; a support_state entry's classification follows its support component's law). The support_state `value` and the pressure_region null `factor` are published by the producer but not listed in CP2_WIRE_ADDENDUM_1 section 3 (see RETURN.md).",
       "oneOf": [
         {
           "type": "object",
@@ -1599,7 +1644,11 @@
               "minLength": 1
             },
             "classification": {
-              "const": "prescribed_boundary"
+              "enum": [
+                "prescribed_boundary",
+                "nonlinear_ground_motion",
+                "spring_base_motion"
+              ]
             },
             "value": {
               "type": "number"
