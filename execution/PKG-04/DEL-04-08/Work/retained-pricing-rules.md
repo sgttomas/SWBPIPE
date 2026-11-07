@@ -6382,16 +6382,16 @@ Run evidence (the runs, compares, block checks, builds, test logs), the AC-004 c
 
 ### 8.59 DEL-04-09: bounded modal support operations (isolated registration proposal)
 
-**Status: private, unadopted proposal on main `394f4c623`.** This records the source-bound preparation for the
+**Status: selected technical preparation, unadopted proposal on actual main `00832d746`.** This records the source-bound preparation for the
 repository-owned operations closing `T3.filters`, `T7.assembly` and `T9.construction`. It is not an accepted D3
-registration, a qualification-turn selection, a witness binding, or permission to merge. The accepted registration
+registration, a resource-window authorization, or permission to merge. The accepted registration
 remains §8.58 until the selected candidate completes the remaining gates. No coefficient, threshold, resource value,
 numerical domain, public/native entry or admission criterion changes. The proposal preserves the across-family,
 approximately 3,000-DOF objective; the three other initial unbounded terms and the whole-invocation obligations stay
 open (DEL-04-09 §5.3.8). P0 continues to refuse every budgeted request.
 
-**Exact basis and reviewed source.** Main `394f4c62313679ccf24e67236d80371a0bf62af3` is included in the branch; a
-normal merge reports it already up to date. No unmerged S6/H1 source is assumed or imported. The implementation and
+**Initial basis and reviewed source.** Main `394f4c62313679ccf24e67236d80371a0bf62af3` is the isolated proposal's
+basis. No unmerged S6/H1 source is assumed or imported. The implementation and
 capacity repair are `b1e2d1f97d9264ea80ac92cdae822aeeb73e3404`, core tree
 `d336acbf73a7ced993ded52c68c0f5ba85b232b3`. Independent numerical/resource scrutiny cleared the three support
 identities on that exact source, including the coupled T7 limb multiplicities and typed structural refusals. The
@@ -6399,6 +6399,41 @@ pricing proposal and ordinary law build below are at `6e68d5868de039283c6dfda8ed
 core tree. Later proposal documentation and CI metadata do not alter it. A different selected predecessor requires
 assessing the actual composition before these results can qualify the combined source; unselected lanes keep their
 named basis stable. The Library adoption #161 changes no product/core/pricing input on this basis.
+
+**Selected actual-predecessor composition.** After the real MBF production landing, main
+`00832d746912c26234325e85d0dd28f1914a2eea` was merged normally into the clean `04859e301` candidate as
+`f4e23a3cea9471b0a691cb601af16d0378e8cf98`. Main's core is `461de5a273cffb9a04da0fb2dd1ab2e4a51a7fcc`;
+the composed core is `a3633b180427fb672fdf8de79de07035e14e7c0e`. The modal/solver/pricing source is unchanged.
+All 35 adopted MBF PR files remain exact except the cohort JSON, which retains every adopted row and differs from
+actual main only in the modal PP digest and support-file inventory entry. No hand-merged derived value or new
+classification is used. The maintained full read graph validates 47 manifests, all 45 bound Rust-tree digests, and
+1,793 resources. The actual-main complete Rust scan has 565 files; the composed scan has 566, adding only support.rs.
+
+The selected PP test binaries' forward Cargo closure has 17 local crates, all unchanged in source and manifests.
+The new MBF/desktop-import resources belong to existing runtime source/corpus scans; none appears in the selected
+targets' compiler dep-info. A guarded current-head `--no-run` freshness check finds both artifacts fresh and their
+hashes identical to the old freeze. Thus no recompilation is needed from this landing; the whole-core change does
+require new external harness HEAD/CORE bindings. The registered compiler/profile/flags, thirteen inputs, profile and
+lock hashes, layouts and native atom values are unchanged. This is a checked build-input assessment, not transfer
+from the old whole-core hash alone.
+
+The full committed-tool pricing run at `f4e23a3ce` exits 0, O-10 0/0. Each point tree, call graph, text row and function
+multiplicity is byte-identical to the reviewed isolated proposal. Its structure and all 1,602 coefficients equal the
+registered tree, with no increase or decrease; `generate --check` and `point-atoms --check` still match 1,713 and
+154 lines. Actual main's priced dependency sources and pricing tool are identical to the original comparison basis,
+so that baseline evidence is reused with this explicit actual-source warrant. The unchanged numerical and pricing/
+carrier reviews and native law evidence carry across these preserved source relationships. Unchanged broad suites
+are not rerun merely because main moved.
+
+The outer prerequisite is the independently reviewed and integrated `tools/ac004_supervisor.py` from #163,
+merge `dc4e1aa9e`, SHA-256 `78fcdd6e19250e9e234caaabeb1376f4f3bf60c1e0ef2b8d3297794ca5355f87`.
+The literal inspected route invokes that tool directly, with no slot/exclusive nesting or queue timeout. It owns the
+four locks and owned pending marker; acquisition/drain waits are untimed, arming is no later than the successful last
+lock acquisition, and the 60 s outer budget includes containment and release. The 3 s teardown reserve stops a late
+payload at 57 s, with 1 s TERM grace inside that reserve. The frozen inner harness retains its separate 55 s checked
+target and seven exact processes, with all subprocesses in the inherited owned group. Supervisor receipt JSON is
+emitted after release to a separate trace file and combined stderr; inner stdout is separate. Empty-stderr claims
+from the legacy wrapper do not transfer. This tool binding grants no actual use, App concurrence or resource hold.
 
 **Priced reach and ownership.** The changed production PP files are `modal/eigen.rs`, `modal/integrity.rs` and
 `modal/resource.rs`; `modal/tests_resource.rs` is test-only. `modal_eigen` is outside the priced crates. The graph
@@ -6454,7 +6489,7 @@ floor(0.9 M) margin and upward-rounded 5% TEXT reserve; minimum remaining headro
 atom listing is claimed: §8.58's retained-suite log captured no atom output; the current pinned record and actual
 layout/carrier assertions supply this build's evidence.
 
-**Cohort and source checks.** The PP Rust-tree digest changes `ec163599…7c2c6b4c7da` to
+**Initial cohort and source checks.** The PP Rust-tree digest changes `ec163599…7c2c6b4c7da` to
 `db9ec337…f3908168ca5cc8`. The existing complete Rust scan in `retained_precision_carriers.rs` now also reads
 `modal_eigen/src/support.rs` (562 to 563 files). Only those two derived metadata hunks are proposed in
 `tools/hosted-ci-routing.json`; the scanner source, criteria and exclusions are unchanged. The full runtime-read
@@ -6465,13 +6500,19 @@ Eight affected guard checks were rerun after correcting basename-relative O-10 g
 its targeted repair evidence are retained. The complete committed-tool run above supersedes that initial failed run.
 Exact-head full-suite, cohort/CI and fresh changed-proof review results belong to the candidate's review/PR return.
 
-**Still required.** Fresh independent pricing/carrier and changed-governing-text scrutiny; Agent 0's selection and
-technical/resource relay; AC-004 on the selected actual predecessor, exact-head CI, and the mandatory publication
-interlocutor consultation before merge. No witness binary has been frozen, queued or invoked for this proposal.
+**Review and remaining gates.** Independent review of `505a6cee5` cleared the source/pricing/carrier warrants and
+requested two governing-text corrections, applied at `04859e301`: distinct entry/limb symbols and exact per-point
+positive-row/layout-observation counts. The B7b regression's unrelated global guard-inventory assertion was scoped
+to its own guard/no-size/no-zero contract, and its targeted recheck passes. The actual composition above changes no
+modal algorithm, pricing rule or reviewed carrier relationship. Still required are fresh technical inspection of the
+composed binding, App/resource/READY/brief-deferral/GO relay, AC-004, exact-head CI, and the mandatory publication
+interlocutor consultation before merge. The old `04859` freeze is preserved but superseded for real use by the
+actual-predecessor binding. No actual seven-process attempt has been queued or invoked.
 Coefficient identity does not transfer §8.58's 7/7: stack neutrality is not established, and the changed kernel and
 PP sources compile into the witnessed binaries. No old-predecessor evidence is represented as combined-source
 qualification. Review input is the source, committed tests, and the single named packet
-`/Users/ryan/dev/chirality-t3/scratch/rt-dynamics-support-ops/provisional-d3/`; scratch is not a permanent dependency.
+`/Users/ryan/dev/chirality-t3/scratch/rt-dynamics-support-ops/provisional-d3/` and the selected composition packet
+`/Users/ryan/dev/chirality-t3/scratch/rt-dynamics-support-ops/composition-00832/`; scratch is not a permanent dependency.
 
 ## 9. Memory-profile gates and registration
 
