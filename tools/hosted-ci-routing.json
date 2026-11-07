@@ -202,7 +202,7 @@
     "source_trees": {
       "core/analysis/hanger_sizing/Cargo.toml": "cc233e138b7f2b92e3cfc7ab05430e2416a5feb6f0c9fc44e3b6e343940293fb",
       "core/gui/viewport_editor/Cargo.toml": "32de48e1e1afd2bc77f84655a69561bdc96074a31fe17f705e7b3a0d8aa6eddf",
-      "core/handoff/caepipe_mbf_engine/Cargo.toml": "e6eabce9c82e4987e065b41f62ab110b0f54a1fd6d2044ed374511d08bda6e01",
+      "core/handoff/caepipe_mbf_engine/Cargo.toml": "7edf61fae7f670e2cdc089195b24647a68f94ccc32697aa6add457efe00c7915",
       "core/handoff/caepipe_mbf_wasm/Cargo.toml": "0a7ff532a9caff6ec74bf06d79fd022e03416f544bb040dfca10aa32345cf427",
       "core/library_import/library_import_document/Cargo.toml": "1266b55acbe148e4c9a3f65581ad68b32b2da3f3e7af39291e5a73ec8e528ae8",
       "core/loads/load_case_algebra/Cargo.toml": "85867a6b0fb4b5f12db5cb7ee7499c80ecbb601182b7bbd0899352dc0d6df42b",
@@ -2479,6 +2479,8 @@
               "apps/desktop/src-tauri/src/lib.rs",
               "apps/desktop/src-tauri/src/main.rs",
               "apps/desktop/src-tauri/src/mbf_export.rs",
+              "apps/desktop/src-tauri/src/mbf_import.rs",
+              "apps/desktop/src-tauri/src/mbf_import_tests.rs",
               "apps/desktop/src-tauri/src/mbf_worker.rs",
               "apps/desktop/src-tauri/src/mbf_worker_tests.rs",
               "apps/desktop/src-tauri/src/memory_pool.rs",
@@ -2546,6 +2548,7 @@
               "core/handoff/caepipe_mbf_engine/src/decimal90.rs",
               "core/handoff/caepipe_mbf_engine/src/export_review.rs",
               "core/handoff/caepipe_mbf_engine/src/export_settings.rs",
+              "core/handoff/caepipe_mbf_engine/src/import_review.rs",
               "core/handoff/caepipe_mbf_engine/src/importer/assemble.rs",
               "core/handoff/caepipe_mbf_engine/src/importer/build.rs",
               "core/handoff/caepipe_mbf_engine/src/importer/finish.rs",
@@ -4942,6 +4945,8 @@
               "fixtures/caepipe_mbf/invented/desktop_export/export_model.provenance.json",
               "fixtures/caepipe_mbf/invented/desktop_export/review_cases.json",
               "fixtures/caepipe_mbf/invented/desktop_export/review_cases.provenance.json",
+              "fixtures/caepipe_mbf/invented/desktop_import/import_replies.json",
+              "fixtures/caepipe_mbf/invented/desktop_import/import_replies.provenance.json",
               "fixtures/caepipe_mbf/invented/import/units_english.provenance.json",
               "fixtures/caepipe_mbf/invented/import/units_si.provenance.json",
               "fixtures/caepipe_mbf/invented/parity/import_vectors.json",
@@ -5961,7 +5966,7 @@
         ]
       },
       "core/handoff/caepipe_mbf_engine/tests/parity.rs": {
-        "sha256": "39f36ca917acfb4e2bb7ab35b2f5c65f3426293a99f4e1336d7149b9665ad075",
+        "sha256": "ceda74cddf2a603599007c6f9550edaec07b412b690cc4748a051c9a9756a254",
         "source_trees": [
           "core/handoff/caepipe_mbf_engine/Cargo.toml"
         ],

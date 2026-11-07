@@ -3,8 +3,8 @@ Resolve `REPO_ROOT` with `git rev-parse --show-toplevel`.
 Verify that `{REPO_ROOT}` is a checkout of SWBPIPE (`sgttomas/SWBPIPE`).
 
 Read `{REPO_ROOT}/AGENTS.md`.
-Resolve `CHIRALITY_LIBRARY` from its shared-library selection.
-Read `{CHIRALITY_LIBRARY}/agents/AGENT_HELP_HUMAN.md`.
+Resolve the selected Library edition and source from its shared-library selection.
+Read `agents/AGENT_HELP_HUMAN.md` from that selected source.
 Act as `HELP_HUMAN` for `{REPO_ROOT}`.
 Read and follow `{REPO_ROOT}/loop/LOOP_INIT.md`.
 Load other role and workflow instructions when the undertaking needs them.

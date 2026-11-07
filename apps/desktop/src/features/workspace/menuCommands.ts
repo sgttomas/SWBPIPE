@@ -11,6 +11,7 @@ export type MenuCommandId =
   | "file.new-local"
   | "file.new-blank"
   | "file.open-model"
+  | "file.import-mbf"
   | "file.open-local"
   | "file.list-local"
   | "file.save-local"
@@ -57,6 +58,7 @@ const NATIVE_MENU_COMMAND_IDS: ReadonlySet<string> = new Set([
   "file.new-local",
   "file.new-blank",
   "file.open-model",
+  "file.import-mbf",
   "file.open-local",
   "file.list-local",
   "file.save-local",

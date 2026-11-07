@@ -6,7 +6,8 @@
 (cited here as "the import Design"). Release target `docs/RELEASE_TARGET_v1.0.md`: rows RT-R7
 and RT-R8 (Must) and exit criterion 6. File names follow DEL-07-01 `Work/export-file-names.md`
 (#1711).
-Slice 5's design (§4, §4.8, 2026-11-07) reads source on `main` at `b06e1da32`.
+Slice 5's design (§4, §4.8, 2026-11-07) reads source on `main` at `b06e1da32`. Its implementation (§4.9) is on the
+slice-5 PR, from `main` at `394f4c623`.
 
 This is a design before implementation, drafted for Agent 0 and independent review. Risk class:
 persistence, file writes and numerical meaning. Standard claim fence applies (claims taxonomy
@@ -1152,7 +1153,8 @@ save of a 64 MiB result remain planned.
 **Status of this section.** §4.1, §4.3 and §4.5 to §4.8 are slice 5's source, memory and transaction design
 (2026-11-07, drafted on `main` at `b06e1da32`). They replace the earlier wasm-route text of §4.1 and §4.7, which is
 not adopted (§4.8.1). The design takes independent review (§4.8.10) and is merged before any production connection.
-Nothing here is implemented or connected. §4.2 and §4.4 are unchanged.
+§4.9 records the implementation (slice 5's PR): what was built, the refinements made within this design, and which
+§4.8.9 checks were implemented, how, and which were not. §4.2 and §4.4 are unchanged.
 
 ### 4.1 Flow
 
@@ -1365,14 +1367,16 @@ Four commands are registered in `app_invoke_handler!`. None takes a path or file
 
 | Command | Arguments | Reply |
 |---|---|---|
-| `open_mbf_import` | `{expectedEpoch}`, an `args-json-v1` raw body of at most 4 KiB | `{outcome: "cancelled"}`; `{outcome: "reviewed", sourceId, fileName, reviewSha256, review}`; or `{outcome: "refused", fileName, diagnostics}` |
-| `review_mbf_import` | `{expectedEpoch, sourceId, declaration}`, raw body of at most 1 MiB | `reviewed` or `refused`, as above |
-| `adopt_mbf_import` | `{expectedEpoch, sourceId, declaration, reviewSha256}`, raw body of at most 1 MiB | `{outcome: "opened", file_name, byte_count, schema_status, document, warnings: [], reviewSha256, modelSha256}`, the `NativeModelDocumentOutcome` shape `checkNativeOutcome` takes; or `{outcome: "refused", file_name, diagnostics}` |
+| `open_mbf_import` | `{expectedEpoch, requestSequence}`, an `args-json-v1` raw body of at most 4 KiB | `{outcome: "cancelled"}`; `{outcome: "reviewed", sourceId, fileName, reviewSha256, review}`; or `{outcome: "refused", fileName, diagnostics}` |
+| `review_mbf_import` | `{expectedEpoch, requestSequence, sourceId, declaration}`, raw body of at most 1 MiB | `reviewed` or `refused`, as above |
+| `adopt_mbf_import` | `{expectedEpoch, requestSequence, sourceId, declaration, reviewSha256}`, raw body of at most 1 MiB | `{outcome: "opened", file_name, byte_count, schema_status, document, warnings: [], reviewSha256, modelSha256}`, the `NativeModelDocumentOutcome` shape `checkNativeOutcome` takes; or `{outcome: "refused", file_name, diagnostics}` |
 | `cancel_mbf_import` | `{retirementId: {page, sequence}}`, as Tauri's JSON arguments or as a raw body (§4.8.6) | `{cancelled, epoch, retirement_id}`, with `duplicate` or `exhausted` only when true |
 
 - **Arguments.** The starts (`open`, `review`, `adopt`) are raw-body only, admitted in C1's form as the export's are
   (§3.7, "Admission"). An unknown member is refused `MBF-IMPORT-ARGS-INVALID` before anything else is read from the
   arguments. `declaration` is `null` or the object of §4.6. `sourceId` is a positive integer.
+  `requestSequence` is a positive safe integer: the host rejects duplicates/older dispatches within the current
+  retirement epoch and rechecks the accepted sequence at registration (§4.9.2).
 - **Replies.** The `review` member is the worker's review bytes, embedded verbatim (at most R). A refusal carries at
   most 8 diagnostics, each `{code, path, message}` with a message of at most 2 KiB (at most 32 KiB in all). Native
   message texts are not shown: the dialog maps each code to its product text.
@@ -1381,8 +1385,8 @@ Four commands are registered in `app_invoke_handler!`. None takes a path or file
 ### 4.8 Source, memory and transaction design (slice 5)
 
 Paths are relative to `apps/desktop/src-tauri/src/` unless named otherwise. The source reading behind this section is
-on `main` at `b06e1da32`. Counts and bounds are from reading source. §4.8.9 plans the tests that confirm them. None
-has run.
+on `main` at `b06e1da32`. Counts and bounds are from reading source. §4.8.9 plans the tests that confirm them;
+§4.9.3 records which were implemented.
 
 #### 4.8.1 Alternatives assessed
 
@@ -1396,7 +1400,7 @@ has run.
 
 #### 4.8.2 Source state
 
-- **Managed state** (`mbf_import.rs`, the new MBF import module): `MbfImportState { epoch, exhausted, applied, run,
+- **Managed state** (`mbf_import.rs`, the new MBF import module): `MbfImportState { epoch, latest_sequence, exhausted, applied, run,
   source, next_source_id }`.
   - `applied` holds the retirement page tokens, at most `RETIREMENT_PAGES_MAX` = 64, as for the export.
   - `run` holds at most one import run in progress.
@@ -1764,7 +1768,7 @@ whole-WebKit or whole-App heap ceiling.
 - **Data.** Imported content is private, like an opened document. Material provenance is affirmative (REQ-019). An
   imported document carries the MBF hash in its provenance (import Design §7.4).
 
-#### 4.8.9 Planned tests (none run)
+#### 4.8.9 Planned tests (as planned; §4.9.3 records the implemented checks)
 
 Every test must fail without its wiring. Only invented, project-written inputs are used: the engine writer's output
 for the invented corpus and `fixtures/caepipe_mbf/invented/desktop_export/` cases.
@@ -1937,6 +1941,175 @@ for the invented corpus and `fixtures/caepipe_mbf/invented/desktop_export/` case
 - **Exhaustion.** The 65th distinct page load in one process exhausts the import until restart, as for the export
   (§3.7).
 
+### 4.9 Implementation (slice 5)
+
+The slice-5 PR implements §4.1, §4.3 and §4.5 to §4.8 on `main` at `394f4c623`. Independent reviews requested repairs;
+their checked revisions, dispositions and integration conditions are recorded in the PR. The reviews cover
+numerical meaning and parity, persistence and session replacement, permissions and the reach re-pin, and provenance
+declarations. Nothing here records acceptance or shows criterion 6.
+
+#### 4.9.1 What was built
+
+- **Engine.** `import_review.rs` forms the review of §4.3 (`swbpipe.mbf_import_review`, format 1). After the fixed leading
+  members come `completeness`, `transfer_limit` and a `blocks` object (`import_refused`, `document_check`,
+  `truncated`, `model_too_large`, `assumption_unavailable`), then `source`, `binding` (`state`, `reason`),
+  `declaration` (`sha256`, `recorded_origins`), `units`, `model` (`document_check`, `schema_status`), `identity`
+  (per class of `IDENTITY_MAPS`: `count`, `restored`, `formed_from_mbf_names`; and `unrecoverable`) and `counts`. The
+  lists follow, in this order: `refusals`, `document_check`, `assumptions`, `declaration_needed`, `loss_entries`,
+  `target_options`. The serializer helpers are the export review's, shared by visibility only. `ImportResult` gains
+  `assumption_facts` and `recorded_material_origins`, neither part of `to_dict()`. The origin count is recorded
+  when `assemble_materials` actually selects a bound-sidecar origin for an emitted material; caller provenance
+  wording cannot supply that decision. `importer/finish.rs` and `importer/pressure.rs` record one
+  `AssumptionFact` beside each existing assumption emission, under the same condition and in the same order, with
+  16 identifiers (`ASSUMPTION_IDS`). The report, model and id-map bytes are unchanged; the parity replay holds them.
+- **Native.** `mbf_import.rs` holds the source record, the selection and re-read, task 5 (`worker_import`), its
+  envelope and decode (`decode_import_result`), the ledger-bounded run (`Command::run_worker`), the four commands'
+  flows and the keyed retirement on its own `MbfImports` state. `solve_worker.rs` gains task code 5 and its workload
+  arm only. `lib.rs` registers the module, the four commands, the managed state and File > Import MBF…
+  (`file.import-mbf`, after Open Model Document…, disabled while busy).
+- **Frontend.** `mbfImport.ts` holds the types and product descriptions: `MBF_IMPORT_DESCRIPTIONS` for every importer and
+  native code, and `MBF_IMPORT_ASSUMPTIONS` for every structured identifier, formed from its parameters.
+  `mbfImportCancel.ts` is the barrier, and `MbfImportDialog.tsx` the dialog. `workspaceSession.ts` gains
+  `requestImportMbf`, `mbfImportSource`, the modal hold in every list that holds project commands, and the
+  retirements. `App.tsx` gains the mount and the in-window item. `menuCommands.ts` gains the id, and `nativeIngress.ts`
+  and its test twin gain the three starts.
+  `mbfImportSession.ts` owns generation-specific retirement without retaining model/review/DOM data.
+
+#### 4.9.2 Refinements within this design
+
+- **Dispatch and declaration currency.** Each start carries a positive safe-integer `requestSequence`, retained on
+  every resend. Native entry keeps only the highest sequence in the current retirement epoch, rejects duplicates
+  and older starts, and checks the sequence again at registration. An applied retirement resets that sequence
+  space; a duplicate retirement does not. This prevents an older queued command from superseding a newer one even
+  when executor/admission timing reorders them. The frontend also checks the latest start and the dialog's current
+  declaration before replies or retries; reverting to the displayed declaration invalidates pending work too.
+- **Response handoff.** H7 admission can wait. Whether admitted or refused, cancellation and final response
+  preparation are ordered under the run control's lock; a cancellation that won during admission returns no model. A prepared
+  response is marked handed off before invoking the response callback, so a later retirement does not falsely
+  count that command as stopped. This is not a filesystem commit or session adoption; frontend currency and the
+  maintained Open transaction still decide whether a received model enters the session.
+- **Generation-owned retirement.** `mbfImportSession.ts` keeps bounded ownership metadata and a retired-generation
+  watermark. Completion and passive cleanup call the same idempotent retirement, in either order; an older
+  generation cannot retire or close a newer dialog. No review, model or DOM node is retained by this owner.
+- **Raw protocol fixture and public provenance** (Agent 0 ruling, 2026-11-07). `desktop_import/import_replies.json`
+  is a raw native transport capture: its five reply strings retain the response callbacks' exact bytes. It is test
+  evidence of transport behavior, not a public engineering-model dataset. Its companion supplies all seven public
+  provenance fields and explicitly covers the entire invented transcript, the identified source model, exact export
+  settings, actual saved MBF/identity pair and material declaration, including every nested model and record. The
+  native producer uses actual export review/save task 3 and its file transaction before task-5 import; it binds
+  the source and pair bytes, review/declaration/model digests and every captured model to those invented inputs.
+  The App test setup only JSON-parses the strings unchanged. Inner runtime provenance stays exactly as the importer
+  emits it and can be partial; string encoding alone supplies no provenance disposition. The generic public-model
+  scan is unchanged, and other committed engineering-model datasets still need seven fields per provenance record.
+  An unidentified captured byte stops the artifact. Focused independent scrutiny checks this data-boundary
+  application; this distinction grants no runtime behavior, acceptance or release authority.
+- **Retirements in the browser-only route.** The import's mount and session-end retirements are sent only in the
+  Tauri runtime. The browser route has no native import: File > Import MBF… is refused `MBF-IMPORT-NATIVE-ONLY` before
+  anything is sent, so no source can exist to drop. The export's browser-route behaviour is unchanged.
+- **Schema status.** Task 5 makes a candidate whose native document check opens with a schema status other than
+  `current` not adoptable (`MBF-IMPORT-SCHEMA-NOT-CURRENT` at `schema_version`). The adopt reply's `schema_status` is
+  therefore `current`, and its `byte_count` is the canonical model's length L.
+- **Conventions.** A binding convention's structured form maps the importer's own three `what` texts exactly
+  (`importer/mod.rs` `convention_key`). Any other text records the `unavailable` marker, which blocks adoption
+  (`MBF-IMPORT-ASSUMPTION-UNAVAILABLE`). Nothing is guessed from diagnostic codes or sentences.
+- **Recorded origins.** The count follows the importer's actual bound-sidecar origin-selection decision for emitted
+  materials, not caller-controlled source wording. It is informational and is not used for adoption.
+- **Declaration shape (host).** Besides §4.6, the host refuses the `*` key, a material name above 512 bytes and an
+  entry with any member other than `origin` and `source_name`. The worker receives the declaration re-serialized
+  canonically, so equal declarations give equal `declaration_sha256`.
+- **Adopt's blocking codes.** The host reads them from the review's fixed members after the leading ones
+  (`completeness`, `transfer_limit`, `blocks`), within a 1 KiB window. It never parses the review.
+- **Selection race.** A regular file replaced by another regular file between the `lstat` and the open (a changed
+  identity) refuses `MBF-OPEN-UNREADABLE`. A non-regular one refuses `MBF-OPEN-NOT-A-FILE`.
+- **Reach-scan rules.** `mbf_import.rs` uses no `debug_assert_eq!`, which is not on the scan's invocation list. The
+  envelope's counted length is checked as a named `MBF-IMPORT-ENGINE-FAILED`.
+- **Windows.** The open uses `FILE_FLAG_OPEN_REPARSE_POINT` and `seek_read`. The import's native tests are Unix-only,
+  as the worker harness is.
+
+#### 4.9.3 The checks implemented
+
+Every check below uses maintained invented inputs: the desktop export fixture and its recorded `degc-default`
+digests; the native connecting tests and App reply producer call `review_mbf_export` and `save_mbf_export`'s command
+pipeline (task 3 and its file transaction), then open and adopt those actual saved files through task 5, both with
+the identity file and after deliberately removing it. Other file/refusal cases use engine-written bytes. Inputs also
+include `units_si.mbf` and
+`units_english.mbf`; and `fixtures/caepipe_mbf/invented/desktop_import/import_replies.json`. That last fixture holds
+verbatim native reply strings; the native test compares its complete bytes to the actual callback strings and
+records the source-file, saved-pair and exact declaration bindings. The seven-field companion explicitly covers
+every input and reply; the producer checks complete coverage and public disposition. It is regenerated only on
+request. No imported model or parity value is edited to make it public fixture data.
+
+- **Engine** (`tests/import_review.rs`; `tests/parity.rs`): the fixed leading members byte for byte; status, totals and
+  blocking before truncation, at the smallest allowance and one byte below the full review; determinism and what
+  changes `review_sha256`; per-class identity counts for one bound and one unbound import; the declaration-needed
+  list; a missing, unknown or `unavailable` assumption blocks; the English branch's facts paired with its strings;
+  the transfer decision sees the adoptable review's exact length; the per-field bound. Over every parity vector,
+  each result's facts pair with its assumption strings, and every identifier is recorded at least once. The parity
+  bytes are unchanged.
+- **Identity/source review repairs.** Identity expectations use an independent fixture inventory. A bound summed
+  primitive has a generated id, not either original id; only support lists expand their entries, while each
+  pressure-region map key counts one region regardless of its member count. Named maintained parity inputs cover
+  the summed load and two-/three-member regions. An unbound caller supplying the recorded-origin marker as a source
+  name still has zero recorded-sidecar origins. Guide facts preserve preceding-element selection with a following
+  fallback, and formed pressure-region facts preserve explicit node closure overrides. Material declarations use
+  own dictionary entries for names such as `__proto__`; transport tests retain those entries through JSON.
+- **Native** (`mbf_import_tests.rs`, task 5 in a real worker): bound and unbound connected imports of the saved pair,
+  with ids restored or formed and the adopted document equal to the engine's import; each change after selection
+  (in-place edit, replacement, removal, symlink, identity file removed, edited or appeared, growth during the read)
+  is refused, and an unchanged re-read is byte-identical; selection refusals; the FIFO acquisition race for both
+  files, and a cancel at that seam; a retirement while the chooser is open and between read blocks; unknown members,
+  every ticket form and every declaration shape; keyed retirement in both forms, duplicates, 64 tokens, epoch and
+  source-id exhaustion, and the import and export retirements apart; the performance reset does not name the
+  import; Adopt's staleness and retired source; review mode with no model and adopt mode with the verified
+  candidate; every tampered or malformed envelope; the escaped adopt-reply length; queue-wait and supersession
+  cancellation, with workers reaped and leases released; the review `result_limit`; the budget boundary one byte
+  below and at it; the source scan that task 5 is the only production caller of `worker_import`.
+  `solve_worker.rs`'s round trip covers codes 0 to 5, refuses 6, and checks that task 5's workload is
+  `worker_import`. `lib.rs` covers the menu item.
+  Additional regressions stop an already-cancelled registration before its chooser, reject a late older dispatch,
+  cancel specifically while H7 admission is held, and prove H6 and H7 separately remain held through response
+  construction (H1 alone cannot satisfy those assertions). Forced H7 refusal also hands off before the response
+  callback: retirement there counts zero stopped commands; cancellation before preparation retains its cancelled outcome.
+- **Vitest.** `mbfImport.test.ts`: every engine and native code and every structured identifier has its product
+  description; the conditional parameters; Adopt blocked by an unknown or cut assumption, truncation or the
+  transfer limit; no wildcard; and no product source uses the wasm importer, with negative controls.
+  `mbfImportCancel.test.ts`: the handshake, tickets, the JSON-form cancel, re-delivery with the same id, then
+  unconfirmed; a retired or superseded start is never re-sent. `mbfImportSession.test.ts` covers completion before
+  cleanup, cleanup before completion, reopening in one generation and older cleanup preserving a newer request.
+  `App.mbfImportDialog.test.tsx`, against replies produced using the UI's actual invented-provenance declaration:
+  - the native menu and the in-window item open the dialog, and a busy session starts nothing;
+  - a bound Adopt goes through the Open transaction, with one validator call given the reply's own document object,
+    and the import is the same as ordinary Open for the same document;
+  - unbound per-name declarations, with Adopt held until the declared review returns;
+  - declaration reversion invalidates a pending reply and a later declaration can review/adopt again; prototype-like
+    material names remain own declaration entries through the dialog/transport;
+  - Close, Escape and unmount each send one retirement, and a reply after close is discarded;
+  - a native refusal, a stale digest, `INGRESS-RAW-BODY-REQUIRED` and a shape refusal each leave the session as it
+    was;
+  - with unsaved edits, the guard's Cancel keeps them, sends no adopt and retires once;
+  - the browser route refuses by name before any send.
+- **Generated artifacts.** `app_invoke_handler` is re-pinned from the scan's span rule; the previous digest is
+  reproduced first, and the reach scan passes. `tools/hosted-ci-routing.json` is refreshed with `numerical_ci`'s own
+  values, and `tests/test_ci_numerical.py` and `tools/software_workflow/test_hosted_ci.py` pass.
+
+**Not implemented or not run** (recorded, not claimed):
+
+- the counting-allocator checks of the in-place per-field bound and of H8's scratch;
+- the mutation list, as a mutation run (its main controls are the behavioural negative controls above);
+- an attested, exiting or panicking task 5;
+- a budget raised during the wait;
+- session preservation as a deep comparison of internal state (the App tests compare what the session shows: the
+  project, its edited state and the tree).
+
+The FIFO acquisition race runs in a bounded test subprocess for each file. The parent owns the sandbox, kills and
+reaps a blocked probe at its deadline, and fails the regression, so removing nonblocking acquisition cannot hang
+the suite. The probe is an ignored helper invoked explicitly by that parent, not an unexecuted regression.
+Initial local Vitest used the main checkout's installed packages and wasm build of 2026-11-05. Seven
+`App.shell` tests fail locally in the wasm result reader (`SOURCE_PREVIEW_PHYSICS_EVIDENCE_SHAPE`), unrelated to the
+import; hosted CI rebuilds the wasm.
+
+Criterion 6 is not claimed: reference-family coverage, C6-2 and Route 1 stay open and held (§1.4, §5).
+
 ## 5. The round-trip check
 
 **In CI, with invented data only.**
@@ -1989,7 +2162,7 @@ Each slice is one PR. Every test must fail without its wiring.
 | 2 | Engine crate: the writer port and `sidecar`, the wasm build, parity vectors. It starts from the CAEPIPE lane's SIF fix and Q-6 omitted-entries sweep (its named head), so the port does not copy the drop | Byte parity with Python over the whole committed MBF corpus and the authored cases, both ways, plus every writer test model and pilot case (text, sidecar, `to_dict()`); every `MBF-SI-*` code; normalization factors exact; float formatting at rounding boundaries; `forbid(unsafe_code)` | Independent numerical review (numerical meaning, file bytes) and targeted regressions |
 | 3 | Engine crate: the importer port | Byte parity over the whole committed MBF corpus and the authored cases, both ways, plus every import fixture and the outputs of `test_caepipe_mbf_round_trip.py`; every named refusal; bound and unbound imports; self-digest; the reversible and byte-reproducible sets in Rust | Independent numerical review |
 | 4 | Export: `DOTH-MBF-012` (local_private, explicit intent, lossless) in the three catalogues, with parity tests in all three; `save_mbf_export` and `review_mbf_export` (worker task 3 in `save` and `review` modes, §3.9.5); the atomic formats; reach-scan re-pin; menu item and dialog; retire the TypeScript builder (A-6); the #1711 row | Rust: admitted under its lease, with the counting-allocator peak within it; named arguments; hash mismatch; stale review; writer refusal opens no chooser; protected disposition refused; Cancel writes nothing; identity file before MBF; an injected failure of the second write removes the first; a read-back mismatch removes both; bytes equal the engine's; review mode touches no file or chooser; unknown modes refused; the review is at most 1 MiB in total, with its status and blocking counts computed before truncation; a save result over 64 MiB refused with `MBF-EXPORT-OUTPUT-TOO-LARGE` before allocation, writing nothing. Route-catalogue parity; reach-scan pin. Vitest: the dialog never runs the wasm writer; `MBF-REVIEW-NATIVE-ONLY` in the browser-only route; refusals block Save, omissions warn, degF reference temperature, stale review runs again, suggested names, keyboard reach | Independent review (persistence, file writes) and an independent permissions review of the new governed route |
-| 5 | Import: the four commands of §4.7 and worker task 5 (§4.8.3); the bounded import review (§4.3); the low-custody source (§4.8.2); material declaration; the dialog, the menu item and the import barrier; reach-scan re-pin and routing refresh by their writers. Its source, memory and transaction design is §4.8 (2026-11-07). That design is independently reviewed and merged before any production connection: the export's proof does not cover the import, whose regeneration runs the writer again | §4.8.9 (planned). It includes the earlier list: Rust caps, symlink and non-regular-file refusals, identity file absent, present and unreadable, the leases; Vitest: the guard's Cancel keeps edits; refusals block Adopt; a bound import restores ids; an unbound import states its consequence; the declaration re-run; the adopted document passes `checkNativeOutcome`; unsaved with no stored base | First, independent review of the §4.8 design: numerical meaning and parity, persistence (session replacement, source custody), permissions (chooser-owned read-only inputs, the commands, the reach re-pin). Then independent review of the implementation (session replacement; provenance declarations) |
+| 5 | Import: the four commands of §4.7 and worker task 5 (§4.8.3); the bounded import review (§4.3); the low-custody source (§4.8.2); material declaration; the dialog, the menu item and the import barrier; reach-scan re-pin and routing refresh by their writers. Its source, memory and transaction design is §4.8 (2026-11-07). That design is independently reviewed and merged before any production connection: the export's proof does not cover the import, whose regeneration runs the writer again | §4.8.9; implemented as §4.9.3 records, on the slice-5 PR. It includes the earlier list: Rust caps, symlink and non-regular-file refusals, identity file absent, present and unreadable, the leases; Vitest: the guard's Cancel keeps edits; refusals block Adopt; a bound import restores ids; an unbound import states its consequence; the declaration re-run; the adopted document passes `checkNativeOutcome`; unsaved with no stored base | First, independent review of the §4.8 design: numerical meaning and parity, persistence (session replacement, source custody), permissions (chooser-owned read-only inputs, the commands, the reach re-pin). Then independent review of the implementation (session replacement; provenance declarations) |
 | 6 | The connected supported-subset round trip in the desktop, bound and unbound (save, then import and adopt), which is the next finish dependency after slice 5; the criterion-6 check of §5 and its CI routing | As in §5, and for the reference system: its review is complete and its export result is below the 64 MiB output ceiling | Focused review |
 | 7 | Unbound pressure closure declaration; rebinding by node name | Vitest and engine tests for both | Independent review |
 | 8+ | Coverage tranches (CAEPIPE lane, each designed in the import Design §20.3), in Python and Rust together | Parity; each new family moves from `refused` to `covered` in §5's table | That Design's gates |

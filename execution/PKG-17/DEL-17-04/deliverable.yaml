@@ -118,6 +118,10 @@ code_paths:
 - apps/desktop/src-tauri/src/mbf_worker.rs
 - apps/desktop/src/features/caepipe-mbf/mbfExportCancel.ts
 - fixtures/caepipe_mbf/invented/desktop_export/
+- apps/desktop/src-tauri/src/mbf_import.rs
+- apps/desktop/src/features/caepipe-mbf/mbfImportCancel.ts
+- apps/desktop/src/features/caepipe-mbf/mbfImportSession.ts
+- fixtures/caepipe_mbf/invented/desktop_import/
 checks:
 - tests/test_caepipe_mbf_export_package.py
 - tests/test_caepipe_mbf_si_writer.py
@@ -126,11 +130,14 @@ checks:
 - tests/test_caepipe_private_mbf_import.py
 - tests/test_caepipe_mbf_import_parity.py
 - tests/test_caepipe_mbf_writer_parity.py
+- tests/test_model_document_schema.py
+- tests/test_caepipe_data_boundary.py
 - core/handoff/caepipe_mbf_engine/tests/parity.rs
 - core/handoff/caepipe_mbf_engine/tests/writer_parity.rs
 - core/handoff/caepipe_mbf_engine/tests/fail_closed.rs
 - core/handoff/caepipe_mbf_engine/tests/correctly_rounded.rs
 - core/handoff/caepipe_mbf_engine/tests/export_review.rs
+- core/handoff/caepipe_mbf_engine/tests/import_review.rs
 - tests/test_caepipe_mbf_correctly_rounded.py
 - apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx
 - apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx
@@ -144,6 +151,11 @@ checks:
 - apps/desktop/src/App.mbfExportDialog.test.tsx
 - apps/desktop/src/App.mbfExportUngated.test.tsx
 - apps/desktop/src/features/caepipe-mbf/mbfExportCancel.test.ts
+- apps/desktop/src-tauri/src/mbf_import_tests.rs
+- apps/desktop/src/features/caepipe-mbf/mbfImportCancel.test.ts
+- apps/desktop/src/features/caepipe-mbf/mbfImportSession.test.ts
+- apps/desktop/src/features/caepipe-mbf/mbfImport.test.ts
+- apps/desktop/src/App.mbfImportDialog.test.tsx
 - tests/security/test_local_first_storage_policy.py
 - tests/security/test_redaction_export_controls.py
 - apps/desktop/src/features/redaction-controls/redactionExportControls.test.ts

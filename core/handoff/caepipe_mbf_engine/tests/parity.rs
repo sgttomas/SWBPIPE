@@ -107,6 +107,10 @@ struct Replay {
     labels: BTreeSet<String>,
     bound_labels: BTreeSet<String>,
     count: usize,
+    /// Results whose structured assumptions do not pair with their assumption strings (§4.3, REQ-015).
+    assumption_problems: Vec<String>,
+    /// Every structured assumption identifier the replay's results recorded.
+    assumption_ids: BTreeSet<&'static str>,
 }
 
 fn replay_all() -> &'static Replay {
@@ -128,6 +132,8 @@ fn replay_all() -> &'static Replay {
             labels: BTreeSet::new(),
             bound_labels: BTreeSet::new(),
             count: 0,
+            assumption_problems: Vec::new(),
+            assumption_ids: BTreeSet::new(),
         };
         let out_dir = Path::new(env!("CARGO_TARGET_TMPDIR")).join("caepipe_mbf_parity");
         for (index, row) in doc.get_or_null("imports").as_list().expect("imports").iter().enumerate() {
@@ -177,6 +183,12 @@ fn replay_all() -> &'static Replay {
                         }
                     }
                     replay.labels.insert(options.source_label.clone());
+                    if result.assumption_facts.len() != result.assumptions.len()
+                        || result.assumption_facts.iter().any(|fact| !mbf::ASSUMPTION_IDS.contains(&fact.id))
+                    {
+                        replay.assumption_problems.push(format!("vector {index} ({source})"));
+                    }
+                    replay.assumption_ids.extend(result.assumption_facts.iter().map(|fact| fact.id));
                     if bound_candidate && result.source.get("binding").and_then(Value::as_str) == Some("bound") {
                         replay.bound_labels.insert(options.source_label.clone());
                     }
@@ -236,6 +248,17 @@ fn every_recorded_import_gives_the_pythons_bytes() {
         replay.count,
         shown.iter().map(|item| item.as_str()).collect::<Vec<_>>().join("\n")
     );
+}
+
+/// Every applied assumption the importer emits over the whole parity corpus has its structured counterpart, in the
+/// same position, and every structured identifier is recorded by some result (each emission branch is exercised).
+#[test]
+fn every_applied_assumption_has_its_structured_counterpart() {
+    let replay = replay_all();
+    let shown: Vec<&String> = replay.assumption_problems.iter().take(25).collect();
+    assert!(replay.assumption_problems.is_empty(), "{} results lack structured assumptions:\n{shown:#?}", replay.assumption_problems.len());
+    let unexercised: Vec<&&str> = mbf::ASSUMPTION_IDS.iter().filter(|id| !replay.assumption_ids.contains(**id)).collect();
+    assert!(unexercised.is_empty(), "structured assumptions no vector records: {unexercised:?}");
 }
 
 #[test]

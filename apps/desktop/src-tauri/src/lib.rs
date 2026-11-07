@@ -22,6 +22,7 @@ mod host_memory;
 #[allow(unsafe_code)]
 mod ingress;
 mod mbf_export;
+mod mbf_import;
 mod mbf_worker;
 mod hanger_sizing_job;
 mod memory_pool;
@@ -2185,6 +2186,95 @@ fn cancel_hanger_sizing(
     retirement_id: Option<Value>,
 ) -> Result<hanger_sizing_job::HangerSizingRetirement, String> {
     hanger_sizing_job::cancel_command(&registry, retirement_id)
+}
+
+/// File > Import MBF…'s first step (DEL-17-04 Design
+/// `desktop-mbf-export-import.md` §4.1 step 2, §4.7, slice 5):
+/// `{expectedEpoch}` as an `args-json-v1` raw body of at most 4 KiB, admitted
+/// within one command ledger (`mbf_import`, C1's form). It opens the native
+/// read-only chooser (`.mbf`), checks and pins the chosen MBF and its identity
+/// file `<stem>.swbpipe-ids.json` when present, and runs the first review in
+/// worker task 5. The reply is `cancelled`, `reviewed` (source id, file name,
+/// review digest and the bounded review) or `refused`. It takes no path and
+/// writes nothing.
+#[tauri::command]
+async fn open_mbf_import(
+    app: AppHandle,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+    imports: tauri::State<'_, mbf_import::MbfImports>,
+) -> Result<tauri::ipc::Response, mbf_worker::MbfCommandError> {
+    let (raw, copy) = mbf_import::reserve(&registry, invoke.body(), invoke.headers(), mbf_import::OPEN_COMMAND)?;
+    let (registry, imports) = (registry.inner().clone(), imports.inner().clone());
+    tauri::async_runtime::spawn_blocking(move || {
+        mbf_import::open_command(&registry, &imports, raw, copy, mbf_import::START_WAIT, || choose_mbf_import_path(&app), |text| tauri::ipc::Response::new(text))
+            .map_err(CommandError::Ingress)
+    })
+    .await
+    .unwrap_or_else(|_| Ok(mbf_import::worker_failed(false)))
+}
+
+/// File > Import MBF…'s declaration re-run (§4.1 step 4):
+/// `{expectedEpoch, sourceId, declaration}` as a raw body of at most 1 MiB.
+/// The chosen files are re-read through their pinned handles, any change is
+/// refused, and task 5 runs again. Writes nothing.
+#[tauri::command]
+async fn review_mbf_import(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+    imports: tauri::State<'_, mbf_import::MbfImports>,
+) -> Result<tauri::ipc::Response, mbf_worker::MbfCommandError> {
+    let (raw, copy) = mbf_import::reserve(&registry, invoke.body(), invoke.headers(), mbf_import::REVIEW_COMMAND)?;
+    let (registry, imports) = (registry.inner().clone(), imports.inner().clone());
+    tauri::async_runtime::spawn_blocking(move || {
+        mbf_import::review_command(&registry, &imports, raw, copy, mbf_import::START_WAIT, |text| tauri::ipc::Response::new(text)).map_err(CommandError::Ingress)
+    })
+    .await
+    .unwrap_or_else(|_| Ok(mbf_import::worker_failed(false)))
+}
+
+/// File > Import MBF…'s Adopt (§4.8.7): `{expectedEpoch, sourceId,
+/// declaration, reviewSha256}` as a raw body of at most 1 MiB. The files are
+/// re-read and task 5 runs in `adopt` mode; a recomputed review digest that
+/// differs refuses `MBF-IMPORT-REVIEW-STALE` with no model. The reply is the
+/// `NativeModelDocumentOutcome` the webview's `checkNativeOutcome` takes. No
+/// disk commit: the session adopts it only through `handleOpenModelDocument`.
+#[tauri::command]
+async fn adopt_mbf_import(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+    imports: tauri::State<'_, mbf_import::MbfImports>,
+) -> Result<tauri::ipc::Response, mbf_worker::MbfCommandError> {
+    let (raw, copy) = mbf_import::reserve(&registry, invoke.body(), invoke.headers(), mbf_import::ADOPT_COMMAND)?;
+    let (registry, imports) = (registry.inner().clone(), imports.inner().clone());
+    tauri::async_runtime::spawn_blocking(move || {
+        mbf_import::adopt_command(&registry, &imports, raw, copy, mbf_import::START_WAIT, |text| tauri::ipc::Response::new(text)).map_err(CommandError::Ingress)
+    })
+    .await
+    .unwrap_or_else(|_| Ok(mbf_import::worker_failed(true)))
+}
+
+/// Retires File > Import MBF… (§4.8.6): `{retirementId: {page, sequence}}` as
+/// Tauri's JSON arguments or a raw body, applied once per id; it cancels the
+/// import run in progress and drops the chosen source. The reply is
+/// `{cancelled, epoch, retirement_id}`, with `duplicate` or `exhausted` only
+/// when true. It never touches the MBF export or the performance reset.
+#[tauri::command]
+fn cancel_mbf_import(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+    imports: tauri::State<'_, mbf_import::MbfImports>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    respond(mbf_import::cancel_command(&registry, &imports, invoke.body(), invoke.headers()))
+}
+
+/// The native read-only open chooser for an `.mbf` (§4.8.8: the only source of
+/// the import's paths).
+fn choose_mbf_import_path(app: &AppHandle) -> Result<Option<PathBuf>, String> {
+    let Some(selected) = app.dialog().file().add_filter("Model batch file", &["mbf"]).blocking_pick_file() else {
+        return Ok(None);
+    };
+    selected.into_path().map(Some).map_err(|error| error.to_string())
 }
 
 fn choose_mbf_save_path(app: &AppHandle, suggested_file_name: &str, directory: Option<PathBuf>) -> Result<Option<PathBuf>, String> {
@@ -5132,6 +5222,7 @@ fn native_menu_mutations(state: &NativeShellState) -> Vec<NativeMenuMutation> {
         ("file.new-local", !state.project_busy),
         ("file.new-blank", !state.project_busy),
         ("file.open-model", !state.project_busy),
+        ("file.import-mbf", !state.project_busy),
         ("file.open-local", !state.project_busy),
         ("file.save-local", !state.project_busy),
         ("file.save-model-document", !state.project_busy),
@@ -5344,6 +5435,7 @@ const NATIVE_FILE_MENU: &[Option<(&str, &str, Option<&str>)>] = &[
     Some(("file.new-blank", "New Blank Project", None)),
     None,
     Some(("file.open-model", "Open Model Document…", None)),
+    Some(("file.import-mbf", "Import MBF…", None)),
     Some(("file.open-local", "Open Local Project…", None)),
     Some(("file.list-local", "List Local Projects", None)),
     None,
@@ -6117,6 +6209,10 @@ macro_rules! app_invoke_handler {
             review_mbf_export,
             save_mbf_export,
             cancel_mbf_export,
+            open_mbf_import,
+            review_mbf_import,
+            adopt_mbf_import,
+            cancel_mbf_import,
             size_hangers,
             cancel_hanger_sizing,
             start_preview_mechanics_job,
@@ -6214,6 +6310,7 @@ pub fn run() {
         .manage(Arc::new(native_csv_stream::CsvStreams::default()))
         .manage(close_guard::CloseGuard::default())
         .manage(mbf_worker::MbfRuns::default())
+        .manage(mbf_import::MbfImports::default())
         .menu(|handle| build_app_menu(handle))
         .on_menu_event(|app, event| {
             if event.id().0 == QUIT_MENU_ID {
@@ -6836,6 +6933,21 @@ mod tests {
         assert!(native_menu_dispatch_script("file.export-mbf").contains("detail: \"file.export-mbf\""));
     }
 
+    /// DEL-17-04 slice 5 (Design `desktop-mbf-export-import.md` §4.1): File > Import MBF… follows Open Model
+    /// Document…, is disabled while a project operation is busy, and dispatches its id to the webview.
+    #[test]
+    fn native_file_menu_offers_import_mbf_after_open_model_document() {
+        let items: Vec<(&str, &str)> = NATIVE_FILE_MENU
+            .iter()
+            .flatten()
+            .map(|(id, label, _)| (*id, *label))
+            .collect();
+        let open = items.iter().position(|(id, _)| *id == "file.open-model").unwrap();
+        assert_eq!(items[open + 1], ("file.import-mbf", "Import MBF…"));
+        assert_eq!(items.iter().filter(|(id, _)| *id == "file.import-mbf").count(), 1);
+        assert!(native_menu_dispatch_script("file.import-mbf").contains("detail: \"file.import-mbf\""));
+    }
+
     #[test]
     fn native_menu_dispatch_script_targets_the_main_dom_command_event() {
         assert_eq!(
@@ -6925,7 +7037,7 @@ mod tests {
             let mut state = sample_native_shell_state();
             state.project_busy = busy;
             let mutations = native_menu_mutations(&state);
-            for id in ["file.new-local", "file.new-blank", "file.open-model", "file.open-local", "file.save-local", "file.save-model-document", "file.save-handoff", "file.export-mbf", "file.list-local"] {
+            for id in ["file.new-local", "file.new-blank", "file.open-model", "file.import-mbf", "file.open-local", "file.save-local", "file.save-model-document", "file.save-handoff", "file.export-mbf", "file.list-local"] {
                 assert!(mutations.contains(&NativeMenuMutation::Enabled(id, !busy)));
             }
             assert!(mutations.contains(&NativeMenuMutation::Enabled("analyze.run", true)));
